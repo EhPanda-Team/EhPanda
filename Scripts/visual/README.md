@@ -102,3 +102,120 @@ These are measurements, not library presets or new window-size axes. The pin has
 host-specific UDIDs or paths. Plan 17-02 owns regression-runner integration; 17-05 and
 17-07 consume the same unchanged `--environment` input for marketing. This directory's
 measurement tooling does not yet implement those runners or approve screenshot baselines.
+
+# Real marketing fixtures
+
+Marketing captures show real galleries. `acquire-fixtures.py` saves a declared selection's pages
+and images once, with provenance and checksums, so capture runs replay them offline without an
+account or a personal library. Synthetic public fixtures for snapshot tests are separate; real
+assets stay in the git-ignored `.capture/marketing/` and never become public baselines.
+
+The owner supplies every gallery identifier for both content sets (decision of 2026-10-07,
+recorded in `17-03-PLAN.md`). The agent selects no real gallery.
+
+## Selection
+
+The input is a JSON file with exactly these keys:
+
+```json
+{
+  "schemaVersion": 1,
+  "selectionID": "marketing-final",
+  "selectionStatus": "provisional",
+  "selectionAuthority": "owner",
+  "galleries": [{"url": "https://e-hentai.org/g/<gid>/<token>/", "set": "nonexplicit"}],
+  "scenes": {
+    "nonexplicit": {
+      "home": {
+        "hero": {"galleries": ["<gid>", "<gid>", "<gid>"], "selectedIndex": 1},
+        "frontpage": ["<gid>", "<gid>"],
+        "toplists": {"yesterday": ["<gid>"], "pastMonth": ["<gid>"], "pastYear": ["<gid>"], "allTime": ["<gid>"]}
+      },
+      "flow": {"gallery": "<gid>", "readerPage": 4, "liveTextPage": 4, "pages": [3, 4, 5]},
+      "downloads": [{"gallery": "<gid>", "status": "completed"},
+                    {"gallery": "<gid>", "status": "active", "completedPages": 12}]
+    }
+  }
+}
+```
+
+- `selectionStatus` is `provisional` or `final`; a final selection requires `selectionAuthority: owner`.
+- Each gallery URL has the canonical form `https://e-hentai.org/g/<gid>/<token>/` and an explicit
+  `set`, `nonexplicit` or `explicit`. Set labels are never derived from gallery categories.
+- `scenes` holds one scene per declared content set. Every slot names a gallery of that set, and
+  every declared gallery appears in at least one slot.
+- The flow gallery is the Detail, Comments, Reading and Live Text gallery. `pages` lists every
+  reader page to save, in ascending order, and includes `readerPage` and `liveTextPage`.
+- Download `status` is a `DownloadDisplayStatus` case. `completed` and `updateAvailable` carry no
+  `completedPages`; the other statuses require it.
+- A screen never repeats a gallery, including across Home's hero, frontpage and Toplists sections.
+  The same gallery may appear on different screens.
+
+Validation here covers the schema, references and repetition. The marketing composition (slot
+counts per section) is checked by `selection-review.py`.
+
+## Acquire
+
+```sh
+python3 -B Scripts/visual/acquire-fixtures.py --selection PATH --output .capture/marketing
+```
+
+For every gallery, in declaration order, acquisition saves the detail page the app requests
+(`<gallery URL>?hc=1`) and its cover. For each flow gallery it also saves the detail page's
+preview images, the preview page `?p=<n>` that holds each declared reader page (the app's
+`PreviewConfig` page number), each reader page and its image. Pages come only from
+`e-hentai.org`; images only from `ehgt.org` hosts or `*.hath.network`, over HTTPS, without
+redirects. Requests are at least one second apart.
+
+Acquisition is anonymous. It reads no credentials and sends only the app's `nw=1` content
+preference cookie, and only to `e-hentai.org`. A response that shows an account session fails
+acquisition. Galleries that need an account, and the multi-page viewer, are rejected
+explicitly. Before a page is stored, the values that grant access are zeroed in place: the API
+key, the reader's show key, the image server's `keystamp`, preview path keys, original-image keys
+and static-link tokens. The manifest records the same scrubbed URLs, so replay still matches.
+
+## Output and versions
+
+```text
+.capture/marketing/
+  current -> versions/marketing-<16 hex>
+  versions/marketing-<16 hex>/
+    selection.json  manifest.json
+    responses/<gid>/detail.html  thumbnails-<n>.html  pages/<page>.html
+    assets/<gid>/cover.<ext>  previews/<i>.<ext>  pages/<page>.<ext>
+```
+
+`manifest.json` has `purpose: marketingReal`, the selection identity and digest, generator
+source digests and an `assets` list in path order. Each entry records `kind`, `gid`, `index` (the
+preview page number, preview ordinal or reader page, otherwise null), the scrubbed source `url`,
+relative `path`, `mime`, `bytes`, `sha256` and `retrievedAt`. The version is content-addressed:
+the aggregate digest covers the selection bytes and every entry except its timestamp. Acquiring
+unchanged content again therefore keeps the same version, while any change to content or
+configured order produces a new one. Earlier versions are kept.
+
+An output that already has `current` is not acquired again unless `--refresh` is given.
+
+## Integrity
+
+`fixtures.validate_fixtures(PATH)` accepts a version directory or the `current` link. It repeats
+the resource derivation over the stored files and rejects:
+
+- missing, extra or relocated files, and checksum or length mismatches;
+- symbolic links, links that leave `versions/`, and path traversal;
+- disallowed hosts and replay URLs that differ from the stored pages;
+- unscrubbed values and account sessions;
+- a selection that changed after acquisition;
+- an aggregate digest or directory name that does not match the version.
+
+Acquisition writes into a fresh `.staging-*` directory and holds an exclusive lock on the output,
+so a second writer fails at once. It verifies the staged files completely, then renames them
+into `versions/` and replaces `current` atomically. An interrupted or failed run publishes
+nothing, and a staging directory left by a killed run is removed by the next writer. Inside the
+repository, the output must be git-ignored.
+
+Tests use synthetic responses and the repository's saved parser responses, and never touch the
+network:
+
+```sh
+python3 -B -m unittest discover -s Scripts/visual -p test_fixtures.py
+```
