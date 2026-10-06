@@ -67,7 +67,8 @@ def validate_pin(pin):
             context = family + '.' + orientation
             keys(geometry, ['points', 'pixels', 'safeAreaInsets', 'scale', 'horizontalSizeClass',
                             'verticalSizeClass', 'contentSizeCategory', 'appearance', 'boldTextEnabled',
-                            'legibilityWeight', 'displayGamut', 'nativeScale', 'fonts'], context)
+                            'reduceMotionEnabled', 'legibilityWeight', 'displayGamut', 'nativeScale',
+                            'fonts'], context)
             for key, length in [('points', 2), ('pixels', 2), ('safeAreaInsets', 4)]:
                 values = geometry[key]
                 if not isinstance(values, list) or len(values) != length:
@@ -84,6 +85,10 @@ def validate_pin(pin):
                     raise EnvironmentMismatch(f'{context}.{key}: integer trait required')
             if type(geometry['boldTextEnabled']) is not bool or not isinstance(geometry['contentSizeCategory'], str):
                 raise EnvironmentMismatch(f'{context}: malformed font settings')
+            # Reduce Motion freezes time-driven animation that disabling UIView animations does not reach,
+            # such as the dark Home card's Metal gradient, so the pin records the system setting.
+            if type(geometry['reduceMotionEnabled']) is not bool:
+                raise EnvironmentMismatch(f'{context}.reduceMotionEnabled must be Boolean')
             expected = PORTRAIT_PIXELS[family]
             if orientation == 'landscape':
                 expected = list(reversed(expected))
