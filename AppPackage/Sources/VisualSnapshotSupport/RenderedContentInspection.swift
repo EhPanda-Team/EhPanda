@@ -48,7 +48,8 @@ enum RenderedContentInspection {
         let scale: WindowScale
     }
 
-    /// A raw top candidate in full-image point coordinates, before the pass's acceptance rule is applied.
+    /// A raw top candidate in full-image point coordinates, before the pass's acceptance rule is applied. Its frame is
+    /// the Vision box kept to the window pixels the request analyzed (``frame(of:within:)``).
     struct Read: Equatable, Sendable {
         let label: String
         let confidence: Float
@@ -118,6 +119,22 @@ enum RenderedContentInspection {
             && (window.maxX >= imageSize.width - boundaryTolerance || frame.maxX <= window.maxX - edgeMargin)
             && (window.minY <= 0 || frame.minY >= window.minY + edgeMargin)
             && (window.maxY >= imageSize.height - boundaryTolerance || frame.maxY <= window.maxY - edgeMargin)
+    }
+
+    /// A Vision box in full-image points, kept to `analyzed`, the window pixels its request read, or nil when no
+    /// part of it lies there.
+    ///
+    /// Vision boxes are estimates that can reach past the pixels a request analyzed: 5,357 of 109,846 raw reads in a
+    /// complete tracer did (2026-10-06). For the iPad AX5 landscape "Other" heading, which starts 16 pt from the
+    /// image's left edge, the fine window on that edge returned a box 16 pt too wide, starting at x = -0.59 pt, so the
+    /// heading failed its bounds check although nothing was clipped. Nothing outside the window is evidence, so the
+    /// frame keeps only the analyzed part, which lies within the image. A box kept at an inner window edge still lies
+    /// within ``edgeMargin`` of it, so interior acceptance rejects it there exactly as before.
+    static func frame(of box: NormalizedRect, within analyzed: CGRect) -> CGRect? {
+        let frame = box.toImageCoordinates(analyzed.size, origin: .upperLeft)
+            .offsetBy(dx: analyzed.minX, dy: analyzed.minY)
+            .intersection(analyzed)
+        return frame.isEmpty ? nil : frame
     }
 
     /// Whether two frames mark one location: either contains the other's center.
@@ -269,12 +286,12 @@ enum RenderedContentInspection {
             throw FullContentHostError.renderedTextInspectionFailed(String(describing: error))
         }
         try Task.checkCancellation()
-        let cropSize = CGSize(width: pixels.width / scale, height: pixels.height / scale)
+        let analyzed = CGRect(
+            x: left / scale, y: top / scale, width: pixels.width / scale, height: pixels.height / scale
+        )
         return observations.compactMap { observation in
-            guard let candidate = observation.topCandidates(1).first else { return nil }
-            let frame = observation.boundingBox
-                .toImageCoordinates(cropSize, origin: .upperLeft)
-                .offsetBy(dx: left / scale, dy: top / scale)
+            guard let candidate = observation.topCandidates(1).first,
+                  let frame = frame(of: observation.boundingBox, within: analyzed) else { return nil }
             return Read(label: candidate.string, confidence: candidate.confidence, frame: frame,
                         window: window, pass: pass)
         }
