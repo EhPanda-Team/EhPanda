@@ -201,6 +201,7 @@ An output that already has `current` is not acquired again unless `--refresh` is
 the resource derivation over the stored files and rejects:
 
 - missing, extra or relocated files, and checksum or length mismatches;
+- malformed manifest entries, such as an unsupported media type;
 - symbolic links, links that leave `versions/`, and path traversal;
 - disallowed hosts and replay URLs that differ from the stored pages;
 - unscrubbed values and account sessions;

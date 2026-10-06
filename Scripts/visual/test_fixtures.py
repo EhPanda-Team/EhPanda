@@ -453,6 +453,7 @@ class SelectionTests(FixtureTestCase):
             ((), dict(selectionStatus='final', selectionAuthority='agent-delegated'), 'owner authority'),
             ((), dict(selectionAuthority='anyone'), 'selectionAuthority'),
             ((), dict(schemaVersion=2), 'schemaVersion'),
+            ((), dict(schemaVersion=True), 'schemaVersion'),
             ((), dict(selectionID='Has Spaces'), 'selectionID'),
             (('galleries', 0), dict(url='https://exhentai.org/g/101/abcdef0123/'), 'Gallery URL'),
             (('galleries', 0), dict(url=gallery_url('101').rstrip('/')), 'Gallery URL'),
@@ -463,6 +464,7 @@ class SelectionTests(FixtureTestCase):
             ((*scene, 'flow'), dict(pages=[0, 4]), 'ascending'),
             ((*scene, 'flow'), dict(liveTextPage=9), 'liveTextPage'),
             ((*scene, 'downloads', 0), dict(status='paused'), 'status'),
+            ((*scene, 'downloads', 0), dict(status=['completed']), 'status'),
             ((*scene, 'downloads', 0), dict(completedPages=3), 'completedPages'),
             ((*scene, 'downloads', 1), dict(completedPages=-1), 'completedPages'),
             ((*scene, 'downloads', 1), dict(completedPages='12'), 'completedPages'),
@@ -667,6 +669,10 @@ class TamperingTests(FixtureTestCase):
                 version, lambda manifest: first_page(manifest).update(url='https://abcde.hath.network:1443/h/x/1.jpg')),
             'malformed entry': lambda version, root: self.edit_manifest(
                 version, lambda manifest: first_page(manifest).update(index=[4])),
+            'unsupported media type': lambda version, root: self.edit_manifest(
+                version, lambda manifest: first_page(manifest).update(mime='image/bmp')),
+            'boolean schema version': lambda version, root: self.edit_manifest(
+                version, lambda manifest: manifest.update(schemaVersion=True)),
             'traversal': lambda version, root: self.edit_manifest(
                 version, lambda manifest: manifest['assets'][0].update(path='../../outside.html')),
             'escaping current link': lambda version, root: self.relink(root, str(version)),
