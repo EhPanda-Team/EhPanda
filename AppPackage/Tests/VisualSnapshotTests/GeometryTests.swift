@@ -136,6 +136,7 @@ final class GeometryTests: XCTestCase {
             "appearance": traits.userInterfaceStyle.rawValue,
             "displayGamut": traits.displayGamut.rawValue,
             "boldTextEnabled": UIAccessibility.isBoldTextEnabled,
+            "reduceMotionEnabled": UIAccessibility.isReduceMotionEnabled,
             "legibilityWeight": traits.legibilityWeight.rawValue, "fonts": fonts
         ]
     }

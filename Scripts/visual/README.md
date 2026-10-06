@@ -73,6 +73,22 @@ legibility weight and display gamut are observed and pinned. The locale, appeara
 Dynamic Type matrix axes are later capture inputs; validating this reference environment
 does not reduce their approved coverage.
 
+Reduce Motion is pinned on (owner approval, 2026-10-06). Disabling UIView animations does
+not reach time-driven Metal animation such as the dark Home card's gradient, which the app
+freezes only under Reduce Motion; without it a capture can race the gradient's bloom.
+
+The pin also depends on device settings that a new or erased simulator does not have.
+Validation detects each one; restore them on the pinned simulators instead of editing the pin:
+
+| Setting | Pinned value | Restore on a booted simulator |
+|---|---|---|
+| Reduce Motion (both) | on | `xcrun simctl spawn <udid> defaults write com.apple.Accessibility ReduceMotionEnabled -bool true` |
+| iPhone system appearance | dark | `xcrun simctl ui <udid> appearance dark` |
+| iPad multitasking (bottom safe area 25 pt) | Full Screen Apps | `xcrun simctl spawn <udid> defaults write com.apple.springboard SBMedusaMultitaskingEnabled -bool NO`, then reboot |
+
+Return each simulator to its original power state afterwards; the runner and gate restore
+only the state they found.
+
 Measured native geometry at the initial pin:
 
 | Family | Orientation | Points | Pixels | Insets top/left/bottom/right | H/V size class |
