@@ -587,3 +587,33 @@ credited if Reduce Motion changed after preflight. No production code changes; t
 own Reduce Motion path freezes the gradient. The README records the device settings the
 pin depends on, so an erased simulator is restored rather than the pin edited. No open
 finding remains in this scope.
+
+### Vision box clipping review, 2026-10-06
+
+Scope: RenderedContentInspection.swift, RenderedContentInspectionTests.swift and the native
+gate's expected counts, per the owner approval in 17-02-PLAN.md.
+
+The conversion lives in one tested function, `frame(of:within:)`, used by the only Vision
+call site. The rectangle it keeps is the exact crop in points (the pixel-rounded window),
+so a frame holds exactly what Vision analyzed. A read with no part in its window would be
+dropped; none of the 136,592 recorded reads of `tracer-matrix-09` and `owned-row-gate-03`
+is such a case. Interior acceptance is unchanged at inner edges: a box kept at an inner
+edge touches it and stays rejected there, which a test pins. Merge order, the first-read
+occurrence frame, confidence rules, the census and the trailing heading's geometric and
+required-height checks are unchanged. The measured failing heading replays end to end:
+its four reads merge into one occurrence that passes the bounds check.
+
+CoreGraphics `contains` compares edges rather than testing intersection equality, while
+intersection is exactly idempotent. A probe of 7.9 million clipped frames, at both pinned
+scales and fractional output heights, found every one accepted
+(`.capture/research/cg-clip-probe/`). A rounding tie at a far edge, never observed, would
+fail closed. One wording nitpick in the new doc comment was
+fixed before the gate.
+
+Process finding: the RED build named the pinned iPhone as its destination, which booted
+it, so the focused run that followed recorded and restored Booted. The iPhone was shut
+down again to its owner state; later build-only steps use a generic destination in a
+separate DerivedData. Evidence: RED `.capture/vision-clip-red-01/` (only the missing API),
+GREEN `.capture/vision-clip-green-01/` (18/18 per family, no diagnostics), strict SwiftLint
+over all source trees `.capture/vision-clip-final-checks/`, 73 Python tests. No open
+finding remains in this scope.
