@@ -1,6 +1,6 @@
 # 17-02 integration findings
 
-Status: Task 1 complete in 624fddfed6; Task 2 with owned-row verification, settle, the scroll-host fix, the owner-approved Reduce Motion pin and Vision box clipping passes the final-source gate, and the complete tracer is running (latest checkpoint at the end). No complete matrix or baseline approval claimed.
+Status: complete. Task 1 in 624fddfed6; Task 2 in 6c588338c3, 13a3645646, 2cee63a9b8, 990024a798, bee89ee82e and 8eaea1f8ad. The complete tracer `.capture/tracer-matrix-10/` passes all 576 coordinates (latest checkpoint at the end; 17-02-SUMMARY.md). No baseline approval claimed.
 
 ## Orchestrator disposition: coordinate-specific OCR language
 
@@ -1078,3 +1078,27 @@ untracked-source guard; the Reduce Motion pin; Vision box clipping. The Python s
 every tree, the final tree equals the working tree, and the Reduce Motion tree equals the
 sources of `.capture/tracer-matrix-09/` and `.capture/owned-row-gate-03/`. Clean builds of the
 four trees whose Swift differs follow the tracer, one xcodebuild at a time.
+
+## Complete tracer passes; Task 2 committed, 2026-10-06
+
+`.capture/tracer-matrix-10/` (final source) captures all 576 coordinates in 3 h 49 min: 592
+native invocations pass with one test each (10 environment, 6 rotation and restore, 576
+captures), with no failure, skip, expected failure, Repetition node, runtime warning or
+diagnostic. The independent audit (`independent-audit.json`, copied `independent-audit.py`)
+finds no problem: canonical coordinates and order; the pinned geometry including Reduce Motion
+in every coordinate; 2,088 reads with every owned-row digest matched and no whole-read
+difference; no settle pass changing a read (2 passes: 34, 3: 298, 4: 244; at most 1,031 ms);
+3,456 artwork images exact over 265,172,088 pixels; 576 distinct full-content images; unchanged
+sources, references and reserved entries; restored devices.
+
+The Task 2 source landed as five commits after the tracer, each first verified in a temporary
+tree holding exactly its contents (`.capture/commit-trees-03/`): clean builds with zero
+diagnostics and strict SwiftLint for the four trees whose Swift differs, the Python suites in
+every tree with Python changes (71, 72, 73 and 73 tests), and after each commit a byte
+comparison of the committed tree with its verified tree. 13a3645646 sizes gallery covers in
+device pixels; 2cee63a9b8 proves complete hosted tracer capture (owned-row verification,
+full-content settle, artwork export, scroll host); 990024a798 hashes untracked native capture
+sources; bee89ee82e pins Reduce Motion; 8eaea1f8ad keeps Vision boxes to their analyzed windows.
+The final tree equals the tracer's sources; the Reduce Motion tree equals the sources of
+`.capture/tracer-matrix-09/` and `.capture/owned-row-gate-03/`. The four reserved entries kept
+their blob IDs throughout. No reference was promoted.

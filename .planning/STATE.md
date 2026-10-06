@@ -5,18 +5,18 @@ milestone_name: )
 current_phase: 17
 current_phase_name: Screenshot Automation, Visual Regression & OS 27 Modernization
 status: executing
-stopped_at: 17-02 Task 2 Vision box clipping passes the gate; final complete tracer running
-last_updated: "2026-10-06T03:59:19.629922+00:00"
+stopped_at: 17-02 complete; next 17-03
+last_updated: "2026-10-06T08:02:33.133405+00:00"
 last_activity: 2026-10-06
 state_head: fb83037387c93b67dc0f17742187e6c452ca3545
 progress:
   total_phases: 17
   completed_phases: 10
   total_plans: 298
-  completed_plans: 276
+  completed_plans: 277
   percent: 59
-source_head: 6c588338c3
-last_activity_desc: "Owner approved clipping Vision boxes to their analyzed windows; gate passes 32/32 and 63/60; complete tracer running"
+source_head: 8eaea1f8ad
+last_activity_desc: "17-02 complete: all 576 tracer coordinates pass with independent audit; Task 2 source in five verified commits"
 ---
 
 # Project State
@@ -31,13 +31,13 @@ See: .planning/PROJECT.md (updated 2026-09-23)
 ## Current Position
 
 Phase: 17 of 17 (Screenshot Automation, Visual Regression & OS 27 Modernization)
-Plan: 3 of 24 (17-02, wave 3; dependency order, not numeric ID order)
-Status: executing — 17-01/17-24 complete; 17-02 Task 1 committed; Task 2 Vision box clipping passes compatibility, complete tracer running
+Plan: 4 of 24 (17-03, wave 4; dependency order, not numeric ID order)
+Status: executing — 17-01/17-24/17-02 complete; 17-03 next
 Last activity: 2026-10-06
 
-**Phase 17 current gate:** 2/24 plans complete. 17-01 passed 32/32 capture coordinates and 66/66 tests; verified public v2 fixtures are in `.capture/regression`. 17-24 measures all four real device/orientation combinations and validates the immutable tracked rendering pin. Both final measure and validate commands pass four geometry tests plus six rotation/restore tests, with 28 Python contract tests and zero compiler/lint diagnostics or runtime warnings. Pin SHA-256: `ffd7689fcaf9a312202fdfbf9787f0198711fd477d1e72a2a013851df85a394a`; evidence is `.capture/environment-measurement/` and `.capture/environment-pin-check/`. Implementation ends at 3e69dc69d3; summary/review committed in fb83037387. Four reserved staged entries remain unchanged. Devices restore portrait/original Large and their original boot states. Continue inline with 17-02; shared CAP-17-02/03/06 remain incomplete until all declaring plans finish. No baseline promotion.
+**Phase 17 current gate:** 3/24 plans complete. 17-01 passed 32/32 capture coordinates and 66/66 tests; verified public v2 fixtures are in `.capture/regression`. 17-24 measures all four real device/orientation combinations and validates the immutable tracked rendering pin. Both final measure and validate commands pass four geometry tests plus six rotation/restore tests, with 28 Python contract tests and zero compiler/lint diagnostics or runtime warnings. Pin SHA-256: `ffd7689fcaf9a312202fdfbf9787f0198711fd477d1e72a2a013851df85a394a`; evidence is `.capture/environment-measurement/` and `.capture/environment-pin-check/`. Implementation ends at 3e69dc69d3; summary/review committed in fb83037387. Four reserved staged entries remain unchanged. Devices restore portrait/original Large and their original boot states. Continue inline with 17-02; shared CAP-17-02/03/06 remain incomplete until all declaring plans finish. No baseline promotion.
 
-**17-02 active verification:** The owner approved owned-row verification, a full-content settle and a strictly gated read 0, and declined a runner quiet period (17-02-PLAN.md). Both passes now gate each read's composed rows; whole-read digests are evidence; the grown window settles under the shared 500 ms rule before capture. Probe basis: `.capture/research/glass-reread/`. RED/GREEN: `.capture/owned-row-red-01/`, `.capture/owned-row-green-01/`; native gate 57/54. Focused native verification passes 25/25 per family (`.capture/owned-row-focused-04/`), and both original English AX2 iPhone landscape coordinates pass through the runner (`.capture/tracer-ax2-landscape-owned-02/`, reduced 2/576). A cleanup deleted the simulator device data; with owner approval both pinned simulators were erased in place (same UDIDs) and restored to the pin (iPad Full Screen Apps, iPhone dark; `.capture/research/ipad-safe-area-probe/`). The 32-coordinate compatibility gate passes (`.capture/owned-row-gate-01/`, 412 reads all matched, independent audit). Its source guard now also hashes untracked, non-ignored files (72 Python tests, `.capture/source-hash-green-01/`). The complete tracer `.capture/tracer-matrix-07/` (`tracer-matrix-06` is an intentional, restored interrupt) captured all 288 iPhone coordinates and stopped at the first iPad one: the vertical scroll host ignored adjusted insets, so iPad portrait Home at xSmall to medium had no host. `HostedHierarchy.verticalScrollHost` now counts them (RED/GREEN `.capture/scroll-host-red-01/`, `-green-01/`; 24 iPad coordinates `.capture/tracer-ipad-en-light-01/`; gate 32/32 and 60/57 `.capture/owned-row-gate-02/`). The final complete tracer `.capture/tracer-matrix-08/` captured 411 coordinates, then stopped at iPad zh-Hant small portrait dark: the dark-mode focused card's ColorfulX gradient blooms for 20 to 22 settle samples in every dark capture, and this run accepted a mid-bloom plateau (`failure-analysis/`). The owner pinned Reduce Motion on (probe `.capture/research/reduce-motion-probe/`; pin SHA-256 now `5c507a4c…725c`, validated `.capture/environment-pin-check-02/`); dark captures settle in 5 to 6 samples and the final-source gate passes (`.capture/owned-row-gate-03/`). The complete tracer `.capture/tracer-matrix-09/` captured 455 coordinates (partial audit clean), then stopped at iPad en AX5 landscape dark with `clippedItem("Other")`: one Vision read of the trailing heading, from the window on the image edge, returned a box 16 pt too wide, past the image edge, and occurrences take the first read's frame. 4.9% of raw reads extend beyond their analyzed window (`failure-analysis/`). The owner approved keeping each Vision box to the window it analyzed (`RenderedContentInspection.frame(of:within:)`; RED/GREEN `.capture/vision-clip-red-01/`, `-green-01/`; 12 iPad landscape AX5 coordinates `.capture/tracer-ipad-ax5-landscape-clip-01/`; gate 32/32 and 63/60 `.capture/owned-row-gate-04/`). The complete tracer runs detached at `.capture/tracer-matrix-10/`; its 576-coordinate audit, the five verified Task 2 source commits (trees `.capture/commit-trees-03/`), SUMMARY and baseline approval remain. Prior evidence and four reserved staged entries are preserved.
+**17-02 complete:** The final complete tracer `.capture/tracer-matrix-10/` captures all 576 coordinates on pin `5c507a4c…725c` (592 native invocations, all passing); its independent audit finds no problem: 2,088 reads with every owned-row digest matched, no settle pass changing a read, 3,456 artwork images exact, 576 distinct images, unchanged references and reserved entries, restored devices. The final-source gate `.capture/owned-row-gate-04/` passes 32/32 with 63/60 native tests. Owner approvals during Task 2: owned-row verification and full-content settle, Reduce Motion in the pin, Vision boxes kept to their analyzed windows (17-02-PLAN.md). Task 2 source: `6c588338c3`, `13a3645646`, `2cee63a9b8`, `990024a798`, `bee89ee82e`, `8eaea1f8ad`, each verified in a temporary tree of exactly its contents (`.capture/commit-trees-03/`). Summary: 17-02-SUMMARY.md; review: 17-02-REVIEW.md, no open finding. No baseline promoted; candidate output stays under `.capture/`. Four reserved staged entries are preserved. Next: 17-03.
 
 ## Historical round-2 status snapshots
 
