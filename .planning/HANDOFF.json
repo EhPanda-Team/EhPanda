@@ -1,13 +1,13 @@
 {
   "version": "1.0",
-  "timestamp": "2026-10-06T03:13:32.236010+00:00",
+  "timestamp": "2026-10-06T03:59:19.629922+00:00",
   "phase": "17",
   "phase_name": "Screenshot Automation, Visual Regression & OS 27 Modernization",
   "phase_dir": ".planning/phases/17-localized-screenshot-capture-harness",
   "plan": 2,
   "task": 2,
   "total_tasks": 2,
-  "status": "checkpoint-17-02-vision-box-clip",
+  "status": "checkpoint-17-02-vision-clip-tracer",
   "completed_tasks": [
     {
       "id": 1,
@@ -23,18 +23,17 @@
       "status": "in_progress"
     }
   ],
-  "blockers": [
+  "blockers": [],
+  "async_jobs": [
     {
-      "blocker": "tracer-matrix-09 stopped at coordinate 456 (iPad en AX5 landscape dark): clippedItem(\"Other\") from an over-wide Vision box past the image edge",
-      "evidence": ".capture/tracer-matrix-09/failure-analysis/RESULTS.md",
-      "recommended": "Clip each Vision box to the window it analyzed; changes three accepted frames in 456 coordinates, no acceptance flips, nothing in owned-row-gate-03",
-      "needs": "owner approval (acceptance change)"
+      "job": "complete candidate tracer (576 coordinates) with Vision box clipping, detached with nohup",
+      "command": "python3 -B Scripts/visual/run-regression.py --all --mode candidate --fixtures .capture/regression-v3 --environment Scripts/visual/regression-environment.json --output .capture/tracer-matrix-10",
+      "output": ".capture/tracer-matrix-10",
+      "log": ".capture/tracer-matrix-10.log",
+      "completion_marker": "final log line exit=<code>"
     }
   ],
-  "async_jobs": [],
-  "human_actions_pending": [
-    "Owner decision on the Vision box clipping remedy"
-  ],
+  "human_actions_pending": [],
   "decisions": [
     {
       "decision": "Honor the active-window feasibility stop before expansion.",
@@ -204,6 +203,11 @@
     {
       "decision": "Pin Reduce Motion on (owner selected the recommended option).",
       "rationale": "The dark Home card ColorfulX gradient blooms for 20 to 22 settle samples and raced the settle rule in .capture/tracer-matrix-08; UIView animation disabling does not reach it; Reduce Motion is the app-supported freeze. No production change.",
+      "phase": "17"
+    },
+    {
+      "decision": "Owner selected clipping each Vision box to the window it analyzed.",
+      "rationale": "tracer-matrix-09 failed on a Vision box 16 pt too wide past the image edge; clipping changes three accepted frames in 456 coordinates, flips no acceptance and changes nothing in owned-row-gate-03.",
       "phase": "17"
     }
   ],
@@ -1685,21 +1689,21 @@
       "glass_reread_research": ".capture/research/glass-reread",
       "python_contracts": 73,
       "native_gate_tests": {
-        "iphone": 60,
-        "ipad": 57
+        "iphone": 63,
+        "ipad": 60
       },
-      "status": "final-source gate passed; complete tracer captured 455 of 576, stopped on a Vision box overshoot",
+      "status": "Vision box clipping passes the final-source gate; complete tracer running",
       "compatibility_gate": ".capture/owned-row-gate-01/independent-audit.json",
       "source_guard_red": ".capture/source-hash-red-01",
       "source_guard_green": ".capture/source-hash-green-01",
       "interrupted_tracer": ".capture/tracer-matrix-06",
-      "complete_tracer": ".capture/tracer-matrix-09",
+      "complete_tracer": ".capture/tracer-matrix-10",
       "tracer_iphone_half_then_ipad_failure": ".capture/tracer-matrix-07",
       "scroll_host_red": ".capture/scroll-host-red-01",
       "scroll_host_green": ".capture/scroll-host-green-01",
       "scroll_host_focused": ".capture/scroll-host-focused-01",
       "ipad_reduced_tracer": ".capture/tracer-ipad-en-light-01",
-      "final_compatibility_gate": ".capture/owned-row-gate-03/independent-audit.json",
+      "final_compatibility_gate": ".capture/owned-row-gate-04/independent-audit.json",
       "complete_tracer_blocked": ".capture/tracer-matrix-08",
       "gradient_failure_analysis": ".capture/tracer-matrix-08/failure-analysis",
       "reduce_motion_probe": ".capture/research/reduce-motion-probe",
@@ -1713,8 +1717,13 @@
       "reduce_motion_focused": ".capture/reduce-motion-focused-01",
       "complete_tracer_partial_audit": ".capture/tracer-matrix-09/partial-audit.json",
       "vision_box_failure_analysis": ".capture/tracer-matrix-09/failure-analysis",
-      "commit_tree_verification": ".capture/commit-trees-02"
+      "commit_tree_verification": ".capture/commit-trees-03",
+      "vision_clip_red": ".capture/vision-clip-red-01",
+      "vision_clip_green": ".capture/vision-clip-green-01",
+      "vision_clip_lint": ".capture/vision-clip-final-checks",
+      "vision_clip_probe": ".capture/research/cg-clip-probe",
+      "vision_clip_reduced_tracer": ".capture/tracer-ipad-ax5-landscape-clip-01"
     }
   },
-  "updated_at": "2026-10-06T03:13:32.236010+00:00"
+  "updated_at": "2026-10-06T03:59:19.629922+00:00"
 }
