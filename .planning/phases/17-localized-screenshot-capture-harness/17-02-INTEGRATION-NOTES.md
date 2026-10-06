@@ -1,6 +1,6 @@
 # 17-02 integration findings
 
-Status: Task 1 complete in 7de15e6a; Task 2 with owned-row verification, settle, the scroll-host fix and the owner-approved Reduce Motion pin passes the final-source gate, and the complete tracer is running (latest checkpoint at the end). No complete matrix or baseline approval claimed.
+Status: Task 1 complete in 7de15e6a; Task 2 with owned-row verification, settle, the scroll-host fix and the owner-approved Reduce Motion pin passes the final-source gate; the complete tracer captured 455 coordinates and stopped on an over-wide Vision box (latest checkpoint at the end, owner decision pending). No complete matrix or baseline approval claimed.
 
 ## Orchestrator disposition: coordinate-specific OCR language
 
@@ -1016,3 +1016,31 @@ build: 32/32, 60 iPhone and 57 iPad native tests, 40 captures with 412 reads all
 no whole-read difference or changed settle pass (2 passes: 18, 3: 17, 4: 5; at most
 1,871 ms), sources unchanged, devices restored (`independent-audit.json`). The complete
 tracer runs detached at `.capture/tracer-matrix-09/`.
+
+## Over-wide Vision box clips the trailing heading, 2026-10-06 (owner decision pending)
+
+`.capture/tracer-matrix-09/` (final source, Reduce Motion pin) captured 455 coordinates: all
+288 iPhone ones and 167 iPad ones. The partial audit (`partial-audit.json`, produced by the
+copied `independent-audit.py`) finds 1,754 reads with every owned digest matched, no
+whole-read difference, no settle pass changing a read (2 passes: 37, 3: 265, 4: 153; at most
+976 ms), 2,730 artwork images exact over 231,730,737 pixels, the pinned geometry including
+Reduce Motion in every coordinate, unchanged references and reserved entries, and restored
+devices. It stopped at coordinate 456, `home-populated__en__accessibility5__landscape__ipad__dark`:
+`capture-error.json` records `clippedItem("Other")` from the trailing heading's bounds check.
+
+Cause, measured (`failure-analysis/RESULTS.md`, `analysis.json`): the rendering is correct,
+with the heading 16 pt from the left edge exactly as in the passing light sibling. One of its
+four reads, from the fine window whose left edge is the image edge, returned a box 16 pt
+wider than the others, starting at x = -0.59 pt; occurrences take the first supporting read's
+frame, and fine windows merge first. Vision boxes are estimates that regularly extend past
+the pixels Vision analyzed: 5,357 of 109,846 raw reads (4.9%) extend beyond their window and
+140 beyond the image. Of the 22,758 accepted reads, three do: both passes' reads of this
+heading and one read of the Korean heading in ko AX3 iPhone portrait dark, which starts at the
+image edge in the same way and passed only because another read merged first. So every
+heading near an image edge carries this risk; the failing coordinate is not special.
+
+Clipping each read to the window it analyzed would change exactly those three frames, flip no
+acceptance decision and change nothing in the 40 captures of `.capture/owned-row-gate-03/`.
+The text-frame bounds checks would then hold by construction, leaving clipping to the
+pixel-measured artwork bounds and the layout height check. This changes acceptance, so it
+awaits the owner. No source was changed; the run's evidence is retained as it is.
