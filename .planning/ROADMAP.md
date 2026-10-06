@@ -1259,7 +1259,7 @@ Plans:
 - Accepted designer-created promotional assets resolve through a validated local AltStore handoff.
 - Full-content, clean integration, chrome and repeatability gates halt execution when unproven; no silent substitutions or scope reductions.
 
-**Plans**: 3/24 plans executed and53 tasks in24 sequential waves. Execute17-01,17-24 (wave2, measured environment then tracked pin),17-02–17-07,17-11 (wave9),17-08 (wave10),17-09 (wave11),17-10 (wave12), then17-12–17-23. Native dispatch precedes expansion.17-14-T3 runs complete clean-checkout/Release acceptance only after17-14-T1 andT2 verify and commit their producers.
+**Plans**: 4/24 plans executed and53 tasks in24 sequential waves. Execute17-01,17-24 (wave2, measured environment then tracked pin),17-02–17-07,17-11 (wave9),17-08 (wave10),17-09 (wave11),17-10 (wave12), then17-12–17-23. Native dispatch precedes expansion.17-14-T3 runs complete clean-checkout/Release acceptance only after17-14-T1 andT2 verify and commit their producers.
 
 Plans:
 **Wave 1**
@@ -1274,11 +1274,11 @@ Plans:
 
 - [x] 17-02-PLAN.md — Run explicit complete regression coordinates using the verified environment pin
 
-**Wave 4** *(ready; 17-02 complete)*
+**Wave 4** *(complete)*
 
-- [ ] 17-03-PLAN.md — Acquire versioned provisional real marketing fixtures safely
+- [x] 17-03-PLAN.md — Acquire versioned provisional real marketing fixtures safely
 
-**Wave 5** *(blocked on Wave 4 completion)*
+**Wave 5** *(ready; 17-03 complete; real-content steps wait for owner gallery IDs)*
 
 - [ ] 17-04-PLAN.md — Activate isolated offline capture scenes through existing app launch
 
