@@ -1,6 +1,7 @@
 import AppFeature
 import CustomDump
 import UIKit
+import Vision
 @testable import VisualSnapshotSupport
 import XCTest
 
@@ -292,6 +293,85 @@ final class RenderedContentInspectionTests: XCTestCase {
         XCTAssertThrowsError(try Inspection.trailingMarkerFrame(
             "其他", occurrences: [occurrence], imageSize: size, requiredHeight: 421, scale: 3
         ))
+    }
+
+    func testVisionBoxKeepsOnlyTheAnalyzedWindow() throws {
+        let window = CGRect(x: 210, y: 420, width: 420, height: 420)
+        let inside = CGRect(x: 300, y: 500, width: 80, height: 20)
+        try Self.assertFrame(
+            Inspection.frame(of: Self.visionBox(inside, in: window), within: window), equals: inside
+        )
+        let overshooting = CGRect(x: 600, y: 830, width: 60, height: 20)
+        try Self.assertFrame(
+            Inspection.frame(of: Self.visionBox(overshooting, in: window), within: window),
+            equals: CGRect(x: 600, y: 830, width: 30, height: 10)
+        )
+        let outside = CGRect(x: 640, y: 500, width: 40, height: 20)
+        XCTAssertNil(Inspection.frame(of: Self.visionBox(outside, in: window), within: window))
+    }
+
+    /// A box clipped at an inner window edge lies within the margin of that edge, so it stays rejected there and the
+    /// neighboring window, which holds the line whole, still provides the read.
+    func testClippedBoxAtAnInnerEdgeStaysRejected() throws {
+        let window = CGRect(x: 210, y: 420, width: 420, height: 420)
+        let frame = try XCTUnwrap(Inspection.frame(
+            of: Self.visionBox(CGRect(x: 190, y: 500, width: 80, height: 20), in: window), within: window
+        ))
+        XCTAssertFalse(Inspection.isInterior(frame, in: window, imageSize: CGSize(width: 1210, height: 2000)))
+    }
+
+    /// The four reads of the "Other" heading in the iPad AX5 landscape dark Home capture. The heading starts 16 pt from
+    /// the left edge, but the fine window on that edge, read first, returned a box 16 pt wider from x = -0.59 pt, which
+    /// failed the heading's bounds check although nothing was clipped. Kept to its window, the box stays in bounds.
+    func testOverWideHeadingBoxOnTheImageEdgeStaysWithinTheImage() throws {
+        let imageSize = CGSize(width: 1210, height: 2267)
+        let fine = { (originY: CGFloat) in
+            Inspection.Window(rect: CGRect(x: 0, y: originY, width: 420, height: 420), scale: .fine)
+        }
+        let coarse = { (originY: CGFloat) in
+            Inspection.Window(rect: CGRect(x: 0, y: originY, width: 1210, height: 834), scale: .coarse)
+        }
+        let measured: [(frame: CGRect, window: Inspection.Window)] = [
+            (CGRect(x: -0.5919, y: 1943.1212, width: 162.2474, height: 49.1560), fine(1680)),
+            (CGRect(x: 15.3503, y: 1943.1221, width: 145.3837, height: 49.3363), fine(1847)),
+            (CGRect(x: 15.2954, y: 1945.5384, width: 146.7942, height: 44.9581), coarse(1251)),
+            (CGRect(x: 14.9366, y: 1941.5144, width: 147.4543, height: 51.5337), coarse(1433))
+        ]
+        let reads = try measured.map { read in
+            let box = Self.visionBox(read.frame, in: read.window.rect)
+            return try Self.read(
+                "Other", XCTUnwrap(Inspection.frame(of: box, within: read.window.rect)), in: read.window,
+                pass: .trailingMarker
+            )
+        }
+        let headings = try Inspection.occurrences(
+            of: reads, imageSize: imageSize, words: ["Other"], pass: .trailingMarker
+        )
+        expectNoDifference(headings.map(\.readIndices), [[0, 1, 2, 3]])
+        let frame = try Inspection.trailingMarkerFrame(
+            "Other", occurrences: headings, imageSize: imageSize, requiredHeight: 2267, scale: 2
+        )
+        XCTAssertEqual(frame.minX, 0)
+        XCTAssertEqual(frame.maxX, -0.5919 + 162.2474, accuracy: 1e-9)
+    }
+
+    /// The box a Vision request over `window` reports for `frame`: normalized to the window, with a lower-left origin.
+    private static func visionBox(_ frame: CGRect, in window: CGRect) -> NormalizedRect {
+        NormalizedRect(
+            x: (frame.minX - window.minX) / window.width, y: (window.maxY - frame.maxY) / window.height,
+            width: frame.width / window.width, height: frame.height / window.height
+        )
+    }
+
+    /// Normalizing and converting back rounds in the last bits, far below a device pixel.
+    private static func assertFrame(
+        _ frame: CGRect?, equals expected: CGRect, file: StaticString = #filePath, line: UInt = #line
+    ) throws {
+        let frame = try XCTUnwrap(frame, file: file, line: line)
+        for (actual, wanted) in zip([frame.minX, frame.minY, frame.maxX, frame.maxY],
+                                    [expected.minX, expected.minY, expected.maxX, expected.maxY]) {
+            XCTAssertEqual(actual, wanted, accuracy: 1e-9, file: file, line: line)
+        }
     }
 
     private static func read(

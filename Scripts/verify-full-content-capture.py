@@ -427,7 +427,7 @@ class Gate:
                              [ROTATION + "testRotateToPortrait"], 1)
                     tests = NATIVE_TESTS + (["VisualSnapshotTests/VisualTracerTests"] if family == "iphone" else [])
                     self.run(f"{family}-native", ["test-without-building"], "FeatureTests", device,
-                             tests, 60 if family == "iphone" else 57, content_size=CONTENT_SIZES["large"])
+                             tests, 63 if family == "iphone" else 60, content_size=CONTENT_SIZES["large"])
                     for orientation in ("portrait", "landscape"):
                         if orientation == "landscape":
                             self.run(f"{family}-rotate-landscape", ["test-without-building"], "UITests", device,
