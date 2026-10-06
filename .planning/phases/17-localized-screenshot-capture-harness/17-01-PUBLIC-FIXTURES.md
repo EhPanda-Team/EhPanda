@@ -8,7 +8,7 @@ recorded: 2026-10-05
 
 # Deterministic public fixture export
 
-## Current v3 coordinate artwork revision (verification in progress)
+## Current v3 coordinate artwork revision (accepted by the complete tracer)
 
 Phase 17-02 extends the reader sizing contract to all displayed cover roles. The
 exporter accepts `artworkPixelSizes`, keyed by existing image asset path. Sizes must
@@ -32,7 +32,8 @@ validates the supplied canonical manifest and reads its metadata before deriving
 coordinate artwork; the sizing record links that input aggregate to the derived
 aggregate. Historical `.capture/regression` v2 output is preserved; the verified canonical v3
 export is materialized in `.capture/regression-v3`. All 32 compatibility coordinates
-now pass; complete 576-coordinate tracer acceptance remains pending. No result is
+pass, and the complete 576-coordinate tracer `.capture/tracer-matrix-10/` verifies every
+coordinate's exported artwork (3,456 images, all exact; 17-02-SUMMARY.md). No result is
 an approved baseline.
 
 Research: `/tmp/ehpanda-phase17-size-probe-evidence/seam-artwork/RESULTS.md`.
@@ -51,7 +52,7 @@ covers export at 245 x 338 px but display at 245 x 337, while the third displays
 245 x 338. Its native parity, seams and census pass, but the new size assertion fails.
 The subsequent production-sizing correction resolves these dimensions; see the
 current content-verification checkpoint below and `17-02-INTEGRATION-NOTES.md`.
-This v3 revision is not fully accepted. The successful
+The complete tracer later accepted this v3 revision (see above). The successful
 native canonical export was materialized in `.capture/regression-v3`; the old v2
 output is preserved.
 
