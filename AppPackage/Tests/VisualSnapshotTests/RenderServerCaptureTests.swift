@@ -11,6 +11,390 @@ final class RenderServerCaptureTests: XCTestCase {
         UITestAutomation.prepareIfNeeded()
     }
 
+    @MainActor
+    func testTwoCompletePassesPreserveEveryPixelRowAndFinalCrop() throws {
+        for scale: CGFloat in [2, 3] {
+            let bounds = CGRect(x: 7, y: 11, width: 8, height: 1337 + 1 / scale)
+            let viewport = CGSize(width: 8, height: 420)
+            let plan = try RenderServerCapture.slicePlan(bounds: bounds, viewportSize: viewport, screenScale: scale)
+            var reads: [CGRect] = []
+            let result = try RenderServerCapture.capture(
+                bounds: bounds, viewportSize: viewport, screenScale: scale, outputScale: scale
+            ) { slice in
+                reads.append(slice.readFrame)
+                return Self.rowRaster(frame: slice.readFrame, bounds: bounds, scale: scale)
+            }
+            expectNoDifference(reads, plan.map(\.readFrame) + plan.map(\.readFrame))
+            expectNoDifference(result.raster.pixels, Self.rowRaster(frame: bounds, bounds: bounds, scale: scale).pixels)
+            expectNoDifference(
+                result.readVerifications.map(\.ownedRows), plan.map({ Self.ownedRows($0, scale: scale) })
+            )
+            XCTAssertTrue(result.readVerifications.allSatisfy({ $0.secondPass == $0.firstPass }))
+            // Read 0 is the native rect: it owns every row, so its gated digest is the whole read's.
+            let first = try XCTUnwrap(result.readVerifications.first)
+            expectNoDifference(first.ownedRows, 0..<first.pixelHeight)
+            expectNoDifference(first.firstPass.owned, first.firstPass.read)
+        }
+    }
+
+    @MainActor
+    func testOriginDependentPixelsAreAcceptedWhenEachRectRepeatsExactly() throws {
+        let bounds = CGRect(x: 0, y: 0, width: 8, height: 1337)
+        let result = try RenderServerCapture.capture(
+            bounds: bounds, viewportSize: CGSize(width: 8, height: 420), screenScale: 3, outputScale: 3
+        ) { slice in
+            let raster = Self.rowRaster(frame: slice.readFrame, bounds: bounds, scale: 3)
+            var pixels = raster.pixels
+            // Every read has a different blue channel, including the shared regions. Same-rect reads stay exact.
+            let blue = UInt8(Int(slice.readFrame.minY * 3) % 251)
+            for byte in stride(from: 2, to: pixels.count, by: 4) { pixels[byte] = blue }
+            return CapturedRaster(width: raster.width, height: raster.height, pixels: pixels)
+        }
+        XCTAssertGreaterThan(Set(result.readVerifications.map(\.firstPass.owned)).count, 1)
+        XCTAssertTrue(result.readVerifications.allSatisfy({ $0.secondPass == $0.firstPass }))
+    }
+
+    /// Context rows keep read edges away from composed output; final-read overflow is never composed. A change in
+    /// either is recorded as whole-read evidence and does not fail the owned-row verification.
+    @MainActor
+    func testContextAndOverflowChangesAreEvidenceOnly() throws {
+        let bounds = CGRect(x: 0, y: 0, width: 8, height: 1337)
+        let viewport = CGSize(width: 8, height: 420)
+        let plan = try RenderServerCapture.slicePlan(bounds: bounds, viewportSize: viewport, screenScale: 3)
+        let last = try XCTUnwrap(plan.last)
+        let owned = Self.ownedRows(last, scale: 3)
+        let readRows = Int(viewport.height * 3)
+        XCTAssertGreaterThan(owned.lowerBound, 0)
+        XCTAssertLessThan(owned.upperBound, readRows)
+        let rowBytes = Int(viewport.width * 3) * 4
+        // The first context row, the context row just above the owned rows, the first overflow row and the last.
+        let changedBytes = [0, owned.lowerBound * rowBytes - 4, owned.upperBound * rowBytes, readRows * rowBytes - 4]
+        for changedByte in changedBytes {
+            var count = 0
+            let result = try RenderServerCapture.capture(
+                bounds: bounds, viewportSize: viewport, screenScale: 3, outputScale: 3
+            ) { slice in
+                defer { count += 1 }
+                let raster = Self.rowRaster(frame: slice.readFrame, bounds: bounds, scale: 3)
+                var pixels = raster.pixels
+                if count == plan.count * 2 - 1 { pixels[changedByte] ^= 1 }
+                return CapturedRaster(width: raster.width, height: raster.height, pixels: pixels)
+            }
+            expectNoDifference(count, plan.count * 2)
+            expectNoDifference(result.raster.pixels, Self.rowRaster(frame: bounds, bounds: bounds, scale: 3).pixels)
+            let record = try XCTUnwrap(result.readVerifications.last)
+            expectNoDifference(record.secondPass?.owned, record.firstPass.owned)
+            XCTAssertNotEqual(record.secondPass?.read, record.firstPass.read)
+            expectNoDifference(record.diagnostics["matched"] as? Bool, true)
+            expectNoDifference(record.diagnostics["readMatched"] as? Bool, false)
+        }
+    }
+
+    /// The first and last composed rows of every read are gated, including read 0's native viewport edge.
+    @MainActor
+    func testOwnedRowChangesFailInEveryRead() throws {
+        let bounds = CGRect(x: 0, y: 0, width: 8, height: 1337)
+        let viewport = CGSize(width: 8, height: 420)
+        let plan = try RenderServerCapture.slicePlan(bounds: bounds, viewportSize: viewport, screenScale: 3)
+        let rowBytes = Int(viewport.width * 3) * 4
+        for (sliceIndex, slice) in plan.enumerated() {
+            let owned = Self.ownedRows(slice, scale: 3)
+            for row in [owned.lowerBound, owned.upperBound - 1] {
+                var count = 0
+                XCTAssertThrowsError(try RenderServerCapture.capture(
+                    bounds: bounds, viewportSize: viewport, screenScale: 3, outputScale: 3
+                ) { geometry in
+                    defer { count += 1 }
+                    let raster = Self.rowRaster(frame: geometry.readFrame, bounds: bounds, scale: 3)
+                    var pixels = raster.pixels
+                    if count == plan.count + sliceIndex { pixels[row * rowBytes + 2] ^= 1 }
+                    return CapturedRaster(width: raster.width, height: raster.height, pixels: pixels)
+                }) { error in
+                    guard case .readChanged(let failedIndex) = error as? RenderServerCaptureError else {
+                        return XCTFail("Unexpected error: \(error)")
+                    }
+                    expectNoDifference(failedIndex, sliceIndex)
+                }
+                expectNoDifference(count, plan.count + sliceIndex + 1)
+            }
+        }
+    }
+
+    /// One settle pass reads each planned rect once, in order, and digests exactly the rows verification gates.
+    @MainActor
+    func testSinglePassDigestsCoverExactlyTheVerifiedOwnedRows() throws {
+        let bounds = CGRect(x: 0, y: 0, width: 8, height: 1337)
+        let viewport = CGSize(width: 8, height: 420)
+        let plan = try RenderServerCapture.slicePlan(bounds: bounds, viewportSize: viewport, screenScale: 3)
+        let verified = try RenderServerCapture.capture(
+            bounds: bounds, viewportSize: viewport, screenScale: 3, outputScale: 3
+        ) { slice in
+            Self.rowRaster(frame: slice.readFrame, bounds: bounds, scale: 3)
+        }
+        var reads: [CGRect] = []
+        let digests = try RenderServerCapture.ownedRowDigests(
+            bounds: bounds, viewportSize: viewport, screenScale: 3, outputScale: 3
+        ) { slice in
+            reads.append(slice.readFrame)
+            return Self.rowRaster(frame: slice.readFrame, bounds: bounds, scale: 3)
+        }
+        expectNoDifference(reads, plan.map(\.readFrame))
+        expectNoDifference(digests, verified.readVerifications.map(\.firstPass.owned))
+        let last = try XCTUnwrap(plan.last)
+        let rowBytes = Int(viewport.width * 3) * 4
+        for (changedByte, changesDigest) in [(0, false), (Self.ownedRows(last, scale: 3).lowerBound * rowBytes, true)] {
+            let changed = try RenderServerCapture.ownedRowDigests(
+                bounds: bounds, viewportSize: viewport, screenScale: 3, outputScale: 3
+            ) { slice in
+                let raster = Self.rowRaster(frame: slice.readFrame, bounds: bounds, scale: 3)
+                var pixels = raster.pixels
+                if slice.readFrame == last.readFrame { pixels[changedByte] ^= 1 }
+                return CapturedRaster(width: raster.width, height: raster.height, pixels: pixels)
+            }
+            expectNoDifference(Array(changed.dropLast()), Array(digests.dropLast()))
+            expectNoDifference(changed.last != digests.last, changesDigest)
+        }
+    }
+
+    @MainActor
+    func testSecondPassDetectsAChangeDuringTheFirstPass() throws {
+        let bounds = CGRect(x: 0, y: 0, width: 8, height: 1337)
+        let viewport = CGSize(width: 8, height: 420)
+        let plan = try RenderServerCapture.slicePlan(bounds: bounds, viewportSize: viewport, screenScale: 3)
+        var count = 0
+        XCTAssertThrowsError(try RenderServerCapture.capture(
+            bounds: bounds, viewportSize: viewport, screenScale: 3, outputScale: 3
+        ) { slice in
+            defer { count += 1 }
+            let raster = Self.rowRaster(frame: slice.readFrame, bounds: bounds, scale: 3)
+            var pixels = raster.pixels
+            if count > 0 { pixels[0] ^= 1 }
+            return CapturedRaster(width: raster.width, height: raster.height, pixels: pixels)
+        }) { error in
+            guard case .readChanged(let sliceIndex) = error as? RenderServerCaptureError else {
+                return XCTFail("Unexpected error: \(error)")
+            }
+            expectNoDifference(sliceIndex, 0)
+        }
+        expectNoDifference(count, plan.count + 1)
+    }
+
+    @MainActor
+    func testUnexpectedReadDimensionsFailBeforeComposition() {
+        let bounds = CGRect(x: 0, y: 0, width: 8, height: 1337)
+        let viewport = CGSize(width: 8, height: 420)
+        let wrongSize = { (_: RenderServerCapture.Slice) in
+            CapturedRaster(width: 1, height: 1, pixels: Data([0, 0, 0, 255]))
+        }
+        XCTAssertThrowsError(try RenderServerCapture.capture(
+            bounds: bounds, viewportSize: viewport, screenScale: 3, outputScale: 3, read: wrongSize
+        )) { error in
+            guard case .unexpectedReadSize = error as? RenderServerCaptureError else {
+                return XCTFail("Unexpected error: \(error)")
+            }
+        }
+        XCTAssertThrowsError(try RenderServerCapture.ownedRowDigests(
+            bounds: bounds, viewportSize: viewport, screenScale: 3, outputScale: 3, read: wrongSize
+        )) { error in
+            guard case .unexpectedReadSize = error as? RenderServerCaptureError else {
+                return XCTFail("Unexpected error: \(error)")
+            }
+        }
+    }
+
+    /// An owned-row change keeps both whole reads, context included, and records every read's evidence so far.
+    @MainActor
+    func testReadFailureDiagnosticsKeepBothWholeReads() throws {
+        let directory = FileManager.default.temporaryDirectory.appending(path: "read-verification-\(UUID())")
+        try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+        defer {
+            do {
+                try FileManager.default.removeItem(at: directory)
+            } catch {
+                XCTFail("Diagnostic cleanup failed: \(error)")
+            }
+        }
+        let bounds = CGRect(x: 0, y: 0, width: 8, height: 1337)
+        let viewport = CGSize(width: 8, height: 420)
+        let plan = try RenderServerCapture.slicePlan(bounds: bounds, viewportSize: viewport, screenScale: 3)
+        let second = try XCTUnwrap(plan.dropFirst().first)
+        let ownedByte = Self.ownedRows(second, scale: 3).lowerBound * Int(viewport.width * 3) * 4
+        let original = Self.rowRaster(frame: second.readFrame, bounds: bounds, scale: 3)
+        var changedPixels = original.pixels
+        changedPixels[ownedByte] ^= 1
+        let changed = CapturedRaster(width: original.width, height: original.height, pixels: changedPixels)
+        var count = 0
+        XCTAssertThrowsError(try RenderServerCapture.capture(
+            bounds: bounds, viewportSize: viewport, screenScale: 3, outputScale: 3,
+            diagnosticsDirectory: directory
+        ) { slice in
+            defer { count += 1 }
+            return count == plan.count + 1 ? changed : Self.rowRaster(frame: slice.readFrame, bounds: bounds, scale: 3)
+        })
+        for (pass, expected) in [(1, original), (2, changed)] {
+            let image = try XCTUnwrap(UIImage(contentsOfFile: directory.appending(
+                path: "capture.read-1.pass-\(pass).png"
+            ).path)?.cgImage)
+            expectNoDifference(try CapturedRaster(image: image).pixels, expected.pixels)
+        }
+        let data = try Data(contentsOf: directory.appending(path: "render-read-verification.json"))
+        let report = try XCTUnwrap(JSONSerialization.jsonObject(with: data) as? [String: Any])
+        expectNoDifference(report["status"] as? String, "failed")
+        expectNoDifference(report["failedSliceIndex"] as? Int, 1)
+        let reads = try XCTUnwrap(report["reads"] as? [[String: Any]])
+        let unreached: [Bool?] = Array(repeating: nil, count: plan.count - 2)
+        expectNoDifference(reads.map({ $0["matched"] as? Bool }), [true, false] + unreached)
+        let failed = try XCTUnwrap(reads.dropFirst().first)
+        let ownedRows = Self.ownedRows(second, scale: 3)
+        expectNoDifference(failed["ownedRows"] as? [Int], [ownedRows.lowerBound, ownedRows.upperBound])
+        XCTAssertNotEqual(failed["firstPassOwnedSHA256"] as? String, failed["secondPassOwnedSHA256"] as? String)
+        expectNoDifference(failed["readMatched"] as? Bool, false)
+    }
+
+    @MainActor
+    func testNativeCompositionPreservesEveryEncodedPixelRow() async throws {
+        let scene = try BandedWindow.activeScene()
+        let scale = scene.screen.scale
+        let fixture = try await BandedWindow.make(in: scene, height: scene.screen.bounds.height * 2 + 17 / scale)
+        defer { fixture.tearDown() }
+        let expected = Self.rowRaster(frame: fixture.root.view.bounds, bounds: fixture.root.view.bounds, scale: scale)
+        let artwork = UIImageView(image: try expected.comparisonImage(scale: scale))
+        artwork.frame = fixture.root.view.bounds
+        fixture.root.view.addSubview(artwork)
+        await DisplayFrame.wait()
+        await DisplayFrame.wait()
+        let result = try RenderServerCapture.image(
+            of: fixture.root.view, viewportSize: scene.screen.bounds.size, format: fixture.format
+        )
+        expectNoDifference(result.raster.pixels, expected.pixels)
+        XCTAssertTrue(result.readVerifications.allSatisfy({ $0.secondPass == $0.firstPass }))
+    }
+
+    /// Read-local pixel rows a slice contributes to the composite.
+    private static func ownedRows(_ slice: RenderServerCapture.Slice, scale: CGFloat) -> Range<Int> {
+        let start = Int(((slice.frame.minY - slice.readFrame.minY) * scale).rounded())
+        return start..<start + Int((slice.frame.height * scale).rounded())
+    }
+
+    /// Each row carries its absolute row number in RG and each column carries its index in B.
+    private static func rowRaster(frame: CGRect, bounds: CGRect, scale: CGFloat) -> CapturedRaster {
+        let width = Int((frame.width * scale).rounded())
+        let height = Int((frame.height * scale).rounded())
+        let firstRow = Int(((frame.minY - bounds.minY) * scale).rounded())
+        var pixels = Data(count: width * height * 4)
+        pixels.withUnsafeMutableBytes { (buffer: UnsafeMutableRawBufferPointer) in
+            for row in 0..<height {
+                for column in 0..<width {
+                    let byte = (row * width + column) * 4
+                    buffer[byte] = UInt8((firstRow + row) & 255)
+                    buffer[byte + 1] = UInt8(((firstRow + row) >> 8) & 255)
+                    buffer[byte + 2] = UInt8(column & 255)
+                    buffer[byte + 3] = 255
+                }
+            }
+        }
+        return CapturedRaster(width: width, height: height, pixels: pixels)
+    }
+
+    func testFirstReadOwnsNativeEdgeRowsAndPreservesInteriorContext() throws {
+        let plan = try RenderServerCapture.slicePlan(
+            bounds: CGRect(x: 0, y: 0, width: 420, height: 4039.0 / 3),
+            viewportSize: CGSize(width: 420, height: 912), screenScale: 3
+        )
+        expectNoDifference(plan.count, 2)
+        let first = try XCTUnwrap(plan.first)
+        let second = try XCTUnwrap(plan.last)
+        expectNoDifference(first.frame, CGRect(x: 0, y: 0, width: 420, height: 912))
+        expectNoDifference(first.readFrame, first.frame)
+        XCTAssertNil(first.contextFrame)
+        expectNoDifference(second.frame.minY, 912)
+        expectNoDifference(second.contextFrame, CGRect(x: 0, y: 784, width: 420, height: 64))
+        expectNoDifference(second.readFrame.minY, 720)
+        expectNoDifference(second.readFrame.size, first.readFrame.size)
+    }
+
+    func testFinalViewportReadExtendsPastContentWithoutOwningExcessRows() throws {
+        for origin in [CGPoint.zero, CGPoint(x: 7, y: 11)] {
+            let bounds = CGRect(origin: origin, size: CGSize(width: 1210, height: 5196))
+            let plan = try RenderServerCapture.slicePlan(
+                bounds: bounds, viewportSize: CGSize(width: 1210, height: 834), screenScale: 2
+            )
+            expectNoDifference(plan.count, 8)
+            let last = try XCTUnwrap(plan.last)
+            expectNoDifference(last.readFrame,
+                               CGRect(x: 0, y: 4480, width: 1210, height: 834).offsetBy(dx: origin.x, dy: origin.y))
+            expectNoDifference(last.frame,
+                               CGRect(x: 0, y: 4610, width: 1210, height: 586).offsetBy(dx: origin.x, dy: origin.y))
+            expectNoDifference(last.contextFrame,
+                               CGRect(x: 0, y: 4546, width: 1210, height: 64).offsetBy(dx: origin.x, dy: origin.y))
+            expectNoDifference(last.frame.maxY, bounds.maxY)
+        }
+    }
+
+    func testSlicePlanPartitionsPixelsAcrossNativeDeviceGeometries() throws {
+        let viewports: [(size: CGSize, scale: CGFloat)] = [
+            (CGSize(width: 420, height: 912), 3), (CGSize(width: 912, height: 420), 3),
+            (CGSize(width: 834, height: 1210), 2), (CGSize(width: 1210, height: 834), 2)
+        ]
+        for viewport in viewports {
+            let scale = viewport.scale
+            let viewportRows = Int((viewport.size.height * scale).rounded())
+            let maximumRows = Int(RenderServerCapture.maximumSliceHeight(forScreenScale: scale) * scale)
+            let width = Int(viewport.size.width * scale)
+            let heights = [viewportRows, viewportRows + 1, maximumRows - 1, maximumRows, maximumRows + 1,
+                           maximumRows * 3 + 17, RenderServerCapture.maximumCompositePixelCount / width]
+            for height in heights {
+                let bounds = CGRect(x: 0, y: 0, width: viewport.size.width, height: CGFloat(height) / scale)
+                let plan = try RenderServerCapture.slicePlan(
+                    bounds: bounds, viewportSize: viewport.size, screenScale: scale
+                )
+                let first = try XCTUnwrap(plan.first)
+                expectNoDifference(first.readFrame, CGRect(origin: .zero, size: viewport.size))
+                expectNoDifference(first.frame, first.readFrame)
+                var ownedEnd = 0
+                var previousRead: CGRect?
+                for slice in plan {
+                    let read = slice.readFrame.applying(CGAffineTransform(scaleX: scale, y: scale))
+                    let frame = slice.frame.applying(CGAffineTransform(scaleX: scale, y: scale))
+                    expectNoDifference(Int(frame.minY.rounded()), ownedEnd)
+                    XCTAssertGreaterThan(frame.height, 0)
+                    XCTAssertGreaterThanOrEqual(frame.minY, read.minY - 0.0001)
+                    XCTAssertLessThanOrEqual(frame.maxY, read.maxY + 0.0001)
+                    expectNoDifference(slice.readFrame.size, viewport.size)
+                    XCTAssertLessThanOrEqual(frame.maxY, CGFloat(height) + 0.0001)
+                    let origin = Int(read.minY.rounded())
+                    expectNoDifference(origin % 16, 0)
+                    expectNoDifference(origin % 2, 0)
+                    if let previousRead {
+                        let seam = try XCTUnwrap(slice.contextFrame)
+                            .applying(CGAffineTransform(scaleX: scale, y: scale))
+                        expectNoDifference(Int(seam.height.rounded()), Int(64 * scale))
+                        XCTAssertLessThanOrEqual(seam.maxY, CGFloat(height) + 0.0001)
+                        for enclosing in [previousRead, read] {
+                            XCTAssertGreaterThanOrEqual(seam.minY - enclosing.minY, 64 * scale - 0.0001)
+                            XCTAssertGreaterThanOrEqual(enclosing.maxY - seam.maxY, 64 * scale - 0.0001)
+                        }
+                    } else {
+                        XCTAssertNil(slice.contextFrame)
+                    }
+                    ownedEnd = Int(frame.maxY.rounded())
+                    previousRead = read
+                }
+                expectNoDifference(ownedEnd, height)
+            }
+        }
+    }
+
+    func testSlicePlanRejectsIncompatibleNativeViewport() {
+        for viewport in [CGSize(width: 419, height: 912), CGSize(width: 420, height: 2000),
+                         CGSize(width: 420, height: 100), CGSize(width: 420, height: 256)] {
+            XCTAssertThrowsError(try RenderServerCapture.slicePlan(
+                bounds: CGRect(x: 0, y: 0, width: 420, height: 1400),
+                viewportSize: viewport, screenScale: 3
+            ))
+        }
+    }
+
     /// The window is the smallest point height past the direct-draw ceiling on the running device (2731 pt at 3x
     /// is 8193 px, 4097 pt at 2x is 8194 px; 8192 px is the last height the direct path accepts, measured), so the
     /// direct draw must fail and the slicer must reproduce three solid bands across its seam.
@@ -32,8 +416,15 @@ final class RenderServerCaptureTests: XCTestCase {
         }
         XCTAssertFalse(drewDirectly)
 
-        let result = try RenderServerCapture.image(of: root.view, format: format)
-        XCTAssertEqual(result.slices.count, 2)
+        let result = try RenderServerCapture.image(
+            of: root.view, viewportSize: scene.screen.bounds.size, format: format
+        )
+        XCTAssertGreaterThan(result.slices.count, 2)
+        for slice in result.slices {
+            expectNoDifference(slice.readFrame.size, scene.screen.bounds.size)
+            XCTAssertLessThanOrEqual(slice.frame.maxY, height)
+        }
+        XCTAssertGreaterThan(try XCTUnwrap(result.slices.last).readFrame.maxY, height)
         XCTAssertEqual(result.image.size, CGSize(width: width, height: height))
         XCTAssertEqual(result.image.scale, scale)
         let pixels = try SRGBPixels(image: XCTUnwrap(result.image.cgImage))
@@ -56,6 +447,9 @@ final class RenderServerCaptureTests: XCTestCase {
         let column = Int(width / 2 * result.image.scale)
         XCTAssertEqual(try pixels.color(column: column, row: pixelSeam - 1),
                        try pixels.color(column: column, row: pixelSeam))
+        // The final full-height replicant extends beyond the window. Only its in-bounds blue tail is composed.
+        expectNoDifference(try pixels.color(column: column, row: pixels.height - 1),
+                           try pixels.color(column: column, row: pixels.height * 5 / 6))
     }
 
     /// The largest whole row count within the area policy, plus the first row the policy rejects.
@@ -71,7 +465,9 @@ final class RenderServerCaptureTests: XCTestCase {
         defer { fixture.tearDown() }
         measurements.append(try ProcessFootprint.sample(stage: "before-composite"))
         let start = ContinuousClock.now
-        let result = try RenderServerCapture.image(of: fixture.root.view, format: fixture.format)
+        let result = try RenderServerCapture.image(
+            of: fixture.root.view, viewportSize: scene.screen.bounds.size, format: fixture.format
+        )
         let elapsed = start.duration(to: .now) / .milliseconds(1)
         measurements.append(try ProcessFootprint.sample(stage: "after-composite"))
         let image = try XCTUnwrap(result.image.cgImage)
@@ -112,7 +508,9 @@ final class RenderServerCaptureTests: XCTestCase {
         ))
         fixture.root.view.addSubview(refused)
         defer { refused.removeFromSuperview() }
-        XCTAssertThrowsError(try RenderServerCapture.image(of: refused, format: fixture.format)) { error in
+        XCTAssertThrowsError(try RenderServerCapture.image(
+            of: refused, viewportSize: scene.screen.bounds.size, format: fixture.format
+        )) { error in
             guard case .compositeExceedsBudget(let width, let height) = error as? RenderServerCaptureError else {
                 return XCTFail("Unexpected error: \(error)")
             }
@@ -157,7 +555,9 @@ final class RenderServerCaptureTests: XCTestCase {
         let wide = UIView(frame: CGRect(x: 0, y: 0, width: wideWidth, height: 100))
         fixture.root.view.addSubview(wide)
         defer { wide.removeFromSuperview() }
-        XCTAssertThrowsError(try RenderServerCapture.image(of: wide, format: fixture.format)) { error in
+        XCTAssertThrowsError(try RenderServerCapture.image(
+            of: wide, viewportSize: scene.screen.bounds.size, format: fixture.format
+        )) { error in
             guard case .widthExceedsSnapshotDimension(let width) = error as? RenderServerCaptureError else {
                 return XCTFail("Unexpected error: \(error)")
             }
@@ -227,7 +627,7 @@ private struct BandedWindow {
     }
 }
 
-/// 8-bit sRGB premultiplied RGBA bytes, the same pixel convention the capture's seam check compares.
+/// 8-bit sRGB premultiplied RGBA bytes, the same pixel convention the capture's same-rect verification compares.
 private struct SRGBPixels {
     let width: Int
     let height: Int

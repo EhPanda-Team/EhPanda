@@ -99,6 +99,15 @@ final class VisualMatrixTests: XCTestCase {
             XCTAssertEqual(SHA256.hash(data: bytes).map({ String(format: "%02x", $0) }).joined(),
                            asset["sha256"] as? String)
         }
+        let artwork = FixtureArtwork(
+            traits: scene.traitCollection, displayScale: scene.screen.scale,
+            readerPagePixelWidth: Int(bounds.width * scene.screen.scale)
+        )
+        let coordinateFixtures = directory.appending(path: "fixtures", directoryHint: .isDirectory)
+        try artwork.export(
+            to: coordinateFixtures, sourceDigest: configuration.fixtureDigest,
+            scenarios: Data(contentsOf: fixtures.appending(path: "scenarios.json"))
+        )
         try await withDependencies {
             $0.continuousClock = TestClock()
             $0.date.now = PublicVisualFixtures.fixedDate
@@ -110,13 +119,13 @@ final class VisualMatrixTests: XCTestCase {
             let metadata = try JSONDecoder().decode(
                 [PublicGalleryFixture].self, from: Data(contentsOf: fixtures.appending(path: "metadata/home.json"))
             )
-            let galleries = try await Self.galleries(metadata, directory: fixtures)
+            let galleries = try await Self.galleries(metadata, directory: coordinateFixtures)
             let expected = Array(galleries.prefix(6))
             let neighbors = Array(galleries.dropFirst(6))
             XCTAssertEqual(expected.map(\.gid), PublicVisualFixtures.homeGalleries.map(\.gid))
             XCTAssertEqual(neighbors.map(\.gid), PublicVisualFixtures.homeCarouselNeighbors.map(\.gid))
             var state = HomeReducer.State()
-            // Distinct native carousel peeks remain outside the exact-once census, as in the proven v2 fixture.
+            // Distinct native carousel peeks remain outside the exact-once census, as in the carousel fixture contract.
             state.popularGalleries = [try XCTUnwrap(expected.first)] + neighbors
             state.cardPageIndex = 0
             state.currentCardID = try XCTUnwrap(expected.first).gid
@@ -158,6 +167,7 @@ final class VisualMatrixTests: XCTestCase {
                 trailingMarker: String(localized: trailingResource), outputDirectory: directory, record: .all,
                 trailingMarkerLanguage: Locale.Language(identifier: coordinate.locale)
             )
+            try artwork.assertNotResampled(evidence, fixtures: coordinateFixtures, output: directory)
             // Actuals always live in the run directory. Compare reads the separately approved references only.
             if configuration.mode == "compare" {
                 for name in ["viewport", "frozen-viewport", "full-content"] {

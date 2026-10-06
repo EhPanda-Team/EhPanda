@@ -1,3 +1,4 @@
+import CryptoKit
 import Foundation
 import UIKit
 
@@ -8,7 +9,7 @@ import UIKit
 /// view") whenever the drawn view is larger than 8192 screen pixels in either dimension, regardless of its
 /// content. A long screen therefore cannot be drawn in one call. Shrinking the window and
 /// scrolling would move the hierarchy (safe area, toolbar glass, scroll position), so instead the window keeps
-/// its full content height, the hierarchy is laid out exactly once, and each slice is a
+/// its full content height, its layout stays fixed during capture, and each slice is a
 /// `resizableSnapshotView(from:afterScreenUpdates:withCapInsets:)` replicant of one rect of that same committed
 /// frame. Only the replicant, which is at most ``maximumSnapshotDimension`` pixels tall, is ever drawn.
 ///
@@ -27,19 +28,50 @@ public enum RenderServerCapture {
     /// Restating that existing allowance as an area admits no larger RGBA buffer, while allowing narrower,
     /// taller captures. This is a tested allocation policy, not a CoreGraphics dimension limit.
     public static let maximumCompositePixelCount = 2736 * 32_768
+    /// Retained 16-pixel planning grid. Alignment does not guarantee equality across different read origins.
+    public static let readOriginGridPixels = 16
     private static let sliceEdgePadding: CGFloat = 64
 
     /// One render-server read of a rect of the captured view.
     public struct Slice: Sendable {
-        /// The slice rect in the captured view's bounds coordinates, in points. Always full width.
+        /// Output rows owned by this read, in the view's bounds coordinates. Frames partition the full image.
         public let frame: CGRect
-        /// The render-server read includes context outside ``frame`` to keep rasterization away from crop edges.
+        /// Every read has the native viewport size, including a final read that may extend past the content.
+        /// Context outside ``frame`` keeps read-edge rasterization out of composed rows and is not gated; excess
+        /// bottom rows are discarded.
         public let readFrame: CGRect
+        /// Interior context shared with the previous read; geometric evidence only, not a pixel-equality gate.
+        public let contextFrame: CGRect?
     }
 
-    private struct SliceRead {
-        let geometry: Slice
-        let image: UIImage
+    /// The two digests of one read at one sample time.
+    public struct ReadDigests: Sendable, Equatable {
+        /// SHA-256 of the rows this read contributes to the composite: the bytes both passes must agree on.
+        public let owned: String
+        /// SHA-256 of the whole read, including context and overflow rows. Recorded as evidence, never gated.
+        public let read: String
+    }
+
+    /// One planned rect's digests at the two sample times, associated with its exact geometry.
+    public struct ReadVerification: Sendable {
+        public let sliceIndex: Int
+        public let slice: Slice
+        public let pixelWidth: Int
+        public let pixelHeight: Int
+        /// Read-local pixel rows composed into the output. Read 0, the native rect, owns all of them.
+        public let ownedRows: Range<Int>
+        public let firstPass: ReadDigests
+        public fileprivate(set) var secondPass: ReadDigests?
+
+        var diagnostics: [String: Any] {
+            ["sliceIndex": sliceIndex, "frame": NSCoder.string(for: slice.frame),
+             "readFrame": NSCoder.string(for: slice.readFrame), "pixels": [pixelWidth, pixelHeight],
+             "ownedRows": [ownedRows.lowerBound, ownedRows.upperBound],
+             "firstPassOwnedSHA256": firstPass.owned, "secondPassOwnedSHA256": secondPass?.owned as Any? ?? NSNull(),
+             "matched": secondPass.map({ $0.owned == firstPass.owned }) as Any? ?? NSNull(),
+             "firstPassReadSHA256": firstPass.read, "secondPassReadSHA256": secondPass?.read as Any? ?? NSNull(),
+             "readMatched": secondPass.map({ $0.read == firstPass.read }) as Any? ?? NSNull()]
+        }
     }
 
     /// The composed capture and slice geometry. Canonical pixels are shared with inspection; reads are released.
@@ -48,11 +80,13 @@ public enum RenderServerCapture {
         public let image: UIImage
         /// The slices in top-to-bottom order.
         public let slices: [Slice]
+        /// Per-read digests; every second-pass owned-row digest matches before this result can be returned.
+        public let readVerifications: [ReadVerification]
         /// The tallest slice the render server accepts at the window's screen scale, in points.
         public let maximumSliceHeight: CGFloat
-        /// The height, in points, that consecutive slices share and that the seam self-check compares.
-        public let overlap: CGFloat
-        /// Context read outside each slice, then cropped away without redrawing the captured pixels.
+        /// Height of the retained interior context band; no cross-origin equality is asserted.
+        public let contextBandHeight: CGFloat
+        /// Minimum context above and below the interior band in both raw reads.
         public let edgePadding: CGFloat
         let raster: CapturedRaster
     }
@@ -62,122 +96,264 @@ public enum RenderServerCapture {
         floor(maximumSnapshotDimension / scale)
     }
 
-    /// Captures `view` as one image of its whole bounds.
+    /// Captures and verifies two complete passes over the same planned rects.
     ///
-    /// The view must be attached to a window, which supplies the screen scale that the render-server ceiling is
-    /// measured in. Slices cover `view.bounds` top to bottom. Multi-slice reads reserve context above and below
-    /// each slice within the dimension ceiling, then crop away that context without redrawing. A view that fits
-    /// in one read is captured as exactly one slice with no seam check.
+    /// SF Symbols and Liquid Glass can differ across read origins, even with equal read sizes. Each rect is
+    /// instead read twice through the same path, and the rows it contributes to the composite must have the same
+    /// canonical RGBA digest in both passes. Context and overflow rows are not gated: under simulator load, glass
+    /// cut by a read's bottom edge flips one rim pixel by one level within 9 pt of the cut, and the context rows
+    /// exist to keep such read-edge artifacts out of composed output. Read 0 is the native rect and owns all its
+    /// rows, so its native viewport edge stays gated. Whole-read digests are still recorded as evidence. This
+    /// establishes agreement at the two sample times, not uninterrupted stability or cross-origin seam equality;
+    /// callers settle the hierarchy first with ``ownedRowDigests(of:viewportSize:format:contextBandHeight:)``.
+    /// Native viewport parity, artwork verification, census and reference comparison remain separate checks.
+    /// Basis: 17-02-PLAN.md, the owner approvals of same-rect and owned-row verification (2026-10-05), with the
+    /// measurements in 17-02-INTEGRATION-NOTES.md.
     ///
-    /// Each slice is drawn through a replicant temporarily added to the window. The Boolean returned by
-    /// `drawHierarchy(in:afterScreenUpdates:)` is the only proof of a successful draw: a refused draw still yields
-    /// an image (fully transparent, or opaque fill), so a produced image is never treated as success.
-    ///
-    /// Consecutive slices overlap by `overlap` points. That band depicts the same region of the same committed
-    /// frame in both slices, so its 8-bit sRGB RGBA bytes must be identical; any difference means the reads cannot
-    /// be combined faithfully, so the capture fails instead.
-    ///
-    /// - Parameters:
-    ///   - view: The laid-out view to capture, attached to a window.
-    ///   - format: The renderer format used for every slice and for the composite.
-    ///   - overlap: Points shared by consecutive slices for the seam self-check. Must be non-negative and smaller
-    ///     than the maximum slice height.
-    ///   - diagnosticsDirectory: Optional destination for the original slices and their rects when a seam fails.
+    /// First-pass raw bytes are staged on disk when diagnostics are requested, so failure can preserve both whole
+    /// reads without retaining all read images in memory. Successful verification removes that staging.
     @MainActor
     public static func image(
-        of view: UIView, format: UIGraphicsImageRendererFormat, overlap: CGFloat = 64,
+        of view: UIView, viewportSize: CGSize, format: UIGraphicsImageRendererFormat, contextBandHeight: CGFloat = 64,
         diagnosticsDirectory: URL? = nil
     ) throws -> Result {
         guard let window = view.window else { throw RenderServerCaptureError.detachedView }
-        let scale = window.screen.scale
-        let maximumSliceHeight = maximumSliceHeight(forScreenScale: scale)
-        guard view.bounds.width * scale <= maximumSnapshotDimension else {
-            throw RenderServerCaptureError.widthExceedsSnapshotDimension(view.bounds.width)
+        return try capture(
+            bounds: view.bounds, viewportSize: viewportSize, screenScale: window.screen.scale,
+            outputScale: format.scale, contextBandHeight: contextBandHeight, diagnosticsDirectory: diagnosticsDirectory
+        ) { geometry in
+            try canonicalRead(of: view, in: window, geometry: geometry, format: format)
         }
-        let fitsSingleRead = view.bounds.height <= maximumSliceHeight
-        let edgePadding = fitsSingleRead ? 0 : sliceEdgePadding
-        precondition(
-            overlap >= 0 && overlap < maximumSliceHeight - 2 * edgePadding,
-            "Slice overlap must leave a positive stride after reserving edge context"
-        )
-        let pixelWidth = Int((view.bounds.width * format.scale).rounded())
-        let pixelHeight = Int((view.bounds.height * format.scale).rounded())
-        guard pixelWidth > 0, pixelHeight > 0 else { throw RenderServerCaptureError.emptyImage }
-        guard pixelHeight <= maximumCompositePixelCount / pixelWidth else {
-            throw RenderServerCaptureError.compositeExceedsBudget(pixelWidth: pixelWidth, pixelHeight: pixelHeight)
+    }
+
+    /// Reads every planned rect once and returns each read's owned-row digest, in plan order. Consecutive passes
+    /// compare these to settle the hierarchy before
+    /// ``image(of:viewportSize:format:contextBandHeight:diagnosticsDirectory:)`` verifies it; nothing is composed.
+    @MainActor
+    static func ownedRowDigests(
+        of view: UIView, viewportSize: CGSize, format: UIGraphicsImageRendererFormat, contextBandHeight: CGFloat = 64
+    ) throws -> [String] {
+        guard let window = view.window else { throw RenderServerCaptureError.detachedView }
+        return try ownedRowDigests(
+            bounds: view.bounds, viewportSize: viewportSize, screenScale: window.screen.scale,
+            outputScale: format.scale, contextBandHeight: contextBandHeight
+        ) { geometry in
+            try canonicalRead(of: view, in: window, geometry: geometry, format: format)
         }
-        let frames = sliceFrames(
-            of: view.bounds, maximumSliceHeight: maximumSliceHeight - 2 * edgePadding, overlap: overlap
+    }
+
+    /// The shared composition/verification engine. UIKit supplies canonical reads; tests supply row-coded reads
+    /// and controlled frame changes to exercise the same ownership, ordering and owned-row digest checks.
+    @MainActor
+    static func capture(
+        bounds: CGRect, viewportSize: CGSize, screenScale: CGFloat, outputScale: CGFloat,
+        contextBandHeight: CGFloat = 64, diagnosticsDirectory: URL? = nil,
+        read: (Slice) throws -> CapturedRaster
+    ) throws -> Result {
+        let layout = try ReadLayout(
+            bounds: bounds, viewportSize: viewportSize, screenScale: screenScale, outputScale: outputScale,
+            contextBandHeight: contextBandHeight
         )
-        var bytes = Data(count: pixelWidth * pixelHeight * 4)
-        var slices: [Slice] = []
-        var previous: SliceRead?
-        for (sliceIndex, frame) in frames.enumerated() {
-            // Only adjacent original reads survive together, to preserve exact seam-failure diagnostics.
-            // The pool drains UIKit's temporary render objects before the next read.
+        let archive = diagnosticsDirectory?.appending(path: "render-first-pass", directoryHint: .isDirectory)
+        if let archive { try FileManager.default.createDirectory(at: archive, withIntermediateDirectories: true) }
+        let rowBytes = layout.pixelWidth * 4
+        var bytes = Data(count: layout.pixelHeight * rowBytes)
+        var records: [ReadVerification] = []
+        for (sliceIndex, planned) in layout.reads.enumerated() {
             try autoreleasepool {
-                let top = max(view.bounds.minY, frame.minY - edgePadding)
-                let bottom = min(view.bounds.maxY, frame.maxY + edgePadding)
-                let readFrame = CGRect(x: frame.minX, y: top, width: frame.width, height: bottom - top)
-                let current = try slice(of: view, in: window, frame: frame, readFrame: readFrame, format: format)
-                if let previous, overlap > 0 {
-                    do {
-                        try verifySeam(
-                            upper: previous, lower: current, index: sliceIndex - 1,
-                            bandPixelHeight: Int((overlap * format.scale).rounded())
+                let current = try digestedRead(planned, sliceIndex: sliceIndex, pass: 1, scale: outputScale, read: read)
+                if let archive {
+                    try current.raster.pixels.write(to: archive.appending(path: "\(sliceIndex).rgba"), options: .atomic)
+                }
+                let count = planned.outputRows.count * rowBytes
+                let sourceStart = planned.readRows.lowerBound * rowBytes
+                let destinationStart = planned.outputRows.lowerBound * rowBytes
+                bytes.withUnsafeMutableBytes { destination in
+                    current.raster.pixels.withUnsafeBytes { source in
+                        let rows = UnsafeRawBufferPointer(rebasing: source[sourceStart..<sourceStart + count])
+                        let outputRows = UnsafeMutableRawBufferPointer(
+                            rebasing: destination[destinationStart..<destinationStart + count]
                         )
-                    } catch {
-                        if let diagnosticsDirectory {
-                            try writeDiagnostics(
-                                reads: [previous, current], firstIndex: sliceIndex - 1,
-                                scale: format.scale, overlap: overlap, to: diagnosticsDirectory
-                            )
-                        }
-                        throw error
+                        outputRows.copyMemory(from: rows)
                     }
                 }
-                guard let image = current.image.cgImage else { throw RenderServerCaptureError.emptyImage }
-                let firstRow = Int(((frame.minY - view.bounds.minY) * format.scale).rounded())
-                guard image.width == pixelWidth, firstRow >= 0, firstRow + image.height <= pixelHeight else {
-                    throw RenderServerCaptureError.emptyImage
-                }
-                // Normalize directly into the final row range. No second full bitmap or slice raster is retained.
-                try bytes.withUnsafeMutableBytes { buffer in
-                    let start = firstRow * pixelWidth * 4
-                    let end = start + image.height * pixelWidth * 4
-                    let rows = UnsafeMutableRawBufferPointer(rebasing: buffer[start..<end])
-                    try CapturedRaster.draw(image, into: rows)
-                }
-                slices.append(current.geometry)
-                previous = current
+                records.append(ReadVerification(
+                    sliceIndex: sliceIndex, slice: planned.slice, pixelWidth: current.raster.width,
+                    pixelHeight: current.raster.height, ownedRows: planned.readRows, firstPass: current.digests,
+                    secondPass: nil
+                ))
             }
         }
-        previous = nil
-        let raster = CapturedRaster(width: pixelWidth, height: pixelHeight, pixels: bytes)
+        try writeVerification(records, status: "verifying", scale: outputScale, directory: diagnosticsDirectory)
+        // Complete pass 1 before starting pass 2: adjacent A/A, B/B sampling would miss a later change to A.
+        for (sliceIndex, planned) in layout.reads.enumerated() {
+            try autoreleasepool {
+                let first = records[sliceIndex]
+                let current = try digestedRead(planned, sliceIndex: sliceIndex, pass: 2, scale: outputScale, read: read)
+                records[sliceIndex].secondPass = current.digests
+                guard current.digests.owned == first.firstPass.owned else {
+                    try writeVerification(
+                        records, status: "failed", scale: outputScale, directory: diagnosticsDirectory,
+                        failedSliceIndex: sliceIndex
+                    )
+                    if let archive, let diagnosticsDirectory {
+                        let original = CapturedRaster(
+                            width: first.pixelWidth, height: first.pixelHeight,
+                            pixels: try Data(contentsOf: archive.appending(path: "\(sliceIndex).rgba"))
+                        )
+                        for (pass, sample) in [(1, original), (2, current.raster)] {
+                            guard let png = try sample.comparisonImage(scale: outputScale).pngData() else {
+                                throw RenderServerCaptureError.emptyImage
+                            }
+                            try png.write(to: diagnosticsDirectory.appending(
+                                path: "capture.read-\(sliceIndex).pass-\(pass).png"
+                            ), options: .atomic)
+                        }
+                    }
+                    throw RenderServerCaptureError.readChanged(sliceIndex: sliceIndex)
+                }
+            }
+        }
+        try writeVerification(records, status: "passed", scale: outputScale, directory: diagnosticsDirectory)
+        if let archive { try FileManager.default.removeItem(at: archive) }
+        let raster = CapturedRaster(width: layout.pixelWidth, height: layout.pixelHeight, pixels: bytes)
         return Result(
-            image: try raster.comparisonImage(scale: format.scale), slices: slices,
-            maximumSliceHeight: maximumSliceHeight, overlap: overlap, edgePadding: edgePadding, raster: raster
+            image: try raster.comparisonImage(scale: outputScale), slices: layout.reads.map(\.slice),
+            readVerifications: records, maximumSliceHeight: maximumSliceHeight(forScreenScale: screenScale),
+            contextBandHeight: contextBandHeight, edgePadding: layout.reads.count == 1 ? 0 : sliceEdgePadding,
+            raster: raster
         )
     }
 
-    private static func sliceFrames(
-        of bounds: CGRect, maximumSliceHeight: CGFloat, overlap: CGFloat
-    ) -> [CGRect] {
-        let sliceStride = maximumSliceHeight - overlap
-        var frames: [CGRect] = []
-        var minY = bounds.minY
-        while true {
-            let height = min(maximumSliceHeight, bounds.maxY - minY)
-            frames.append(CGRect(x: bounds.minX, y: minY, width: bounds.width, height: height))
-            guard minY + height < bounds.maxY else { return frames }
-            minY += sliceStride
+    /// The single-pass engine behind ``ownedRowDigests(of:viewportSize:format:contextBandHeight:)``: the same plan,
+    /// read validation and owned rows as
+    /// ``capture(bounds:viewportSize:screenScale:outputScale:contextBandHeight:diagnosticsDirectory:read:)``.
+    @MainActor
+    static func ownedRowDigests(
+        bounds: CGRect, viewportSize: CGSize, screenScale: CGFloat, outputScale: CGFloat,
+        contextBandHeight: CGFloat = 64, read: (Slice) throws -> CapturedRaster
+    ) throws -> [String] {
+        let layout = try ReadLayout(
+            bounds: bounds, viewportSize: viewportSize, screenScale: screenScale, outputScale: outputScale,
+            contextBandHeight: contextBandHeight
+        )
+        return try layout.reads.enumerated().map { sliceIndex, planned in
+            try autoreleasepool {
+                try digestedRead(planned, sliceIndex: sliceIndex, pass: 1, scale: outputScale, read: read).digests.owned
+            }
         }
     }
 
+    /// Reads one planned rect, requires its exact pixel size and digests its owned rows and the whole read.
+    private static func digestedRead(
+        _ planned: PlannedRead, sliceIndex: Int, pass: Int, scale: CGFloat, read: (Slice) throws -> CapturedRaster
+    ) throws -> DigestedRead {
+        let raster = try read(planned.slice)
+        let width = Int((planned.slice.readFrame.width * scale).rounded())
+        let height = Int((planned.slice.readFrame.height * scale).rounded())
+        guard raster.width == width, raster.height == height else {
+            throw RenderServerCaptureError.unexpectedReadSize(
+                sliceIndex: sliceIndex, pass: pass, expected: CGSize(width: width, height: height),
+                actual: CGSize(width: raster.width, height: raster.height)
+            )
+        }
+        let rowBytes = raster.width * 4
+        let digests = raster.pixels.withUnsafeBytes { bytes in
+            ReadDigests(
+                owned: sha256(UnsafeRawBufferPointer(rebasing: bytes[
+                    planned.readRows.lowerBound * rowBytes..<planned.readRows.upperBound * rowBytes
+                ])),
+                read: sha256(bytes)
+            )
+        }
+        return DigestedRead(raster: raster, digests: digests)
+    }
+
+    private static func sha256(_ bytes: UnsafeRawBufferPointer) -> String {
+        SHA256.hash(data: bytes).map({ String(format: "%02x", $0) }).joined()
+    }
+
+    private static func writeVerification(
+        _ records: [ReadVerification], status: String, scale: CGFloat, directory: URL?, failedSliceIndex: Int? = nil
+    ) throws {
+        guard let directory else { return }
+        try JSONSerialization.data(withJSONObject: [
+            "status": status,
+            "comparison": "SHA-256 of each read's owned output rows in canonical 8-bit sRGB RGBA; "
+                + "whole-read digests are evidence only",
+            "passOrder": "all rects in pass 1, then all identical rects in pass 2", "requestedPasses": 2,
+            "displayScale": scale, "readOriginGridPixels": readOriginGridPixels,
+            "failedSliceIndex": failedSliceIndex as Any? ?? NSNull(), "reads": records.map(\.diagnostics)
+        ], options: [.prettyPrinted, .sortedKeys])
+            .write(to: directory.appending(path: "render-read-verification.json"), options: .atomic)
+    }
+
+    /// Preserve the native read rectangle and its complete output rows. Later ownership partitions only the
+    /// remaining rows. Equal native sizes, a 16-pixel origin grid and interior context retain the established
+    /// read plan; they do not make different origins byte-identical for symbols or glass. The final read may
+    /// extend beyond content, but owns only in-bounds rows. Full same-rect rereads verify sample repeatability.
+    /// All planning arithmetic uses device-pixel rows to avoid accumulated fractional point rounding.
+    static func slicePlan(
+        bounds: CGRect, viewportSize: CGSize, screenScale: CGFloat, contextBandHeight: CGFloat = 64
+    ) throws -> [Slice] {
+        guard screenScale.isFinite, screenScale > 0,
+              bounds.width.isFinite, bounds.height.isFinite, bounds.width > 0, bounds.height > 0,
+              viewportSize.width == bounds.width, viewportSize.height.isFinite, viewportSize.height > 0,
+              viewportSize.height <= bounds.height, contextBandHeight.isFinite, contextBandHeight > 0,
+              bounds.height * screenScale < CGFloat(Int.max) else {
+            throw RenderServerCaptureError.invalidSliceGeometry(bounds: bounds, viewportSize: viewportSize)
+        }
+        let maximumRows = Int(maximumSliceHeight(forScreenScale: screenScale) * screenScale)
+        guard viewportSize.height * screenScale <= CGFloat(maximumRows),
+              contextBandHeight * screenScale < CGFloat(maximumRows) else {
+            throw RenderServerCaptureError.invalidSliceGeometry(bounds: bounds, viewportSize: viewportSize)
+        }
+        let height = Int((bounds.height * screenScale).rounded())
+        let viewportRows = Int((viewportSize.height * screenScale).rounded())
+        let padding = Int((sliceEdgePadding * screenScale).rounded())
+        let bandRows = Int((contextBandHeight * screenScale).rounded())
+        let nativeFrame = CGRect(origin: bounds.origin, size: viewportSize)
+        var slices = [Slice(frame: nativeFrame, readFrame: nativeFrame, contextFrame: nil)]
+        guard height > viewportRows else { return slices }
+        // The second read must advance past all native-owned rows while reserving its bottom context.
+        guard bandRows > 0, viewportRows > 3 * padding + bandRows + readOriginGridPixels else {
+            throw RenderServerCaptureError.invalidSliceGeometry(bounds: bounds, viewportSize: viewportSize)
+        }
+        func frame(_ start: Int, _ end: Int) -> CGRect {
+            CGRect(x: bounds.minX, y: bounds.minY + CGFloat(start) / screenScale,
+                   width: bounds.width, height: CGFloat(end - start) / screenScale)
+        }
+        var ownedEnd = viewportRows
+        var previousReadStart = 0
+        var previousReadEnd = viewportRows
+        while ownedEnd < height {
+            let bandEnd = min(ownedEnd, previousReadEnd - padding)
+            let bandStart = bandEnd - bandRows
+            let readStart = (bandStart - padding) / readOriginGridPixels * readOriginGridPixels
+            let readEnd = readStart + viewportRows
+            let outputEnd = readEnd >= height ? height : readEnd - padding
+            guard readStart >= 0, readStart <= ownedEnd, outputEnd > ownedEnd,
+                  bandStart - previousReadStart >= padding, bandStart - readStart >= padding,
+                  previousReadEnd - bandEnd >= padding, readEnd - bandEnd >= padding else {
+                throw RenderServerCaptureError.invalidSliceGeometry(bounds: bounds, viewportSize: viewportSize)
+            }
+            slices.append(Slice(
+                frame: frame(ownedEnd, outputEnd), readFrame: frame(readStart, readEnd),
+                contextFrame: frame(bandStart, bandEnd)
+            ))
+            ownedEnd = outputEnd
+            previousReadStart = readStart
+            previousReadEnd = readEnd
+        }
+        return slices
+    }
+
+    /// One drawable replicant read of `geometry.readFrame`, converted to canonical bytes.
     @MainActor
-    private static func slice(
-        of view: UIView, in window: UIWindow, frame: CGRect, readFrame: CGRect, format: UIGraphicsImageRendererFormat
-    ) throws -> SliceRead {
+    private static func canonicalRead(
+        of view: UIView, in window: UIWindow, geometry: Slice, format: UIGraphicsImageRendererFormat
+    ) throws -> CapturedRaster {
+        let readFrame = geometry.readFrame
         guard let replicant = view.resizableSnapshotView(
             from: readFrame, afterScreenUpdates: true, withCapInsets: .zero
         ) else { throw RenderServerCaptureError.snapshotRefused(readFrame) }
@@ -190,52 +366,74 @@ public enum RenderServerCapture {
             drew = replicant.drawHierarchy(in: replicant.bounds, afterScreenUpdates: true)
         }
         guard drew else { throw RenderServerCaptureError.renderServerRefused(readFrame) }
-        // Snapshot rect edges can rerasterize a clipped glyph by one byte. Read context on both sides, then crop
-        // immutable CGImage pixels so the entire strict overlap band comes from the interior of both reads.
-        guard let pixels = image.cgImage?.cropping(to: CGRect(
-            x: 0, y: ((frame.minY - readFrame.minY) * image.scale).rounded(),
-            width: (frame.width * image.scale).rounded(), height: (frame.height * image.scale).rounded()
-        )) else { throw RenderServerCaptureError.emptyImage }
-        return SliceRead(
-            geometry: Slice(frame: frame, readFrame: readFrame),
-            image: UIImage(cgImage: pixels, scale: image.scale, orientation: .up)
-        )
-    }
-
-    private static func verifySeam(upper: SliceRead, lower: SliceRead, index: Int, bandPixelHeight: Int) throws {
-        guard let upperImage = upper.image.cgImage, let lowerImage = lower.image.cgImage,
-              let upperBand = upperImage.cropping(to: CGRect(
-                x: 0, y: upperImage.height - bandPixelHeight, width: upperImage.width, height: bandPixelHeight
-              )),
-              let lowerBand = lowerImage.cropping(to: CGRect(
-                x: 0, y: 0, width: lowerImage.width, height: bandPixelHeight
-              )) else { throw RenderServerCaptureError.emptyImage }
-        let upperPixels = try CapturedRaster(image: upperBand).pixels
-        let lowerPixels = try CapturedRaster(image: lowerBand).pixels
-        guard upperPixels == lowerPixels else { throw RenderServerCaptureError.seamMismatch(sliceIndex: index) }
-    }
-
-    private static func writeDiagnostics(
-        reads: [SliceRead], firstIndex: Int, scale: CGFloat, overlap: CGFloat, to directory: URL
-    ) throws {
-        for (offset, read) in reads.enumerated() {
-            guard let data = read.image.pngData() else { throw RenderServerCaptureError.emptyImage }
-            try data.write(
-                to: directory.appending(path: "capture.render-slice-\(firstIndex + offset).png"), options: .atomic
-            )
-        }
-        try JSONSerialization.data(withJSONObject: [
-            "displayScale": scale, "overlap": overlap, "firstSliceIndex": firstIndex,
-            "slices": reads.map({
-                ["frame": NSCoder.string(for: $0.geometry.frame),
-                 "readFrame": NSCoder.string(for: $0.geometry.readFrame)]
-            })
-        ], options: [.prettyPrinted, .sortedKeys])
-            .write(to: directory.appending(path: "render-slices.json"), options: .atomic)
+        guard let cgImage = image.cgImage else { throw RenderServerCaptureError.emptyImage }
+        return try CapturedRaster(image: cgImage)
     }
 }
 
-/// Why ``RenderServerCapture/image(of:format:overlap:)`` could not produce a trustworthy image.
+/// A read's place in the composite: its slice plus the rows it owns, in output and in read-local pixels.
+private struct PlannedRead {
+    let slice: RenderServerCapture.Slice
+    let outputRows: Range<Int>
+    let readRows: Range<Int>
+}
+
+/// The validated output size and read plan shared by verification passes and settle passes.
+private struct ReadLayout {
+    let pixelWidth: Int
+    let pixelHeight: Int
+    let reads: [PlannedRead]
+
+    init(
+        bounds: CGRect, viewportSize: CGSize, screenScale: CGFloat, outputScale: CGFloat, contextBandHeight: CGFloat
+    ) throws {
+        guard screenScale.isFinite, screenScale > 0, outputScale.isFinite, outputScale > 0,
+              bounds.width.isFinite, bounds.height.isFinite, bounds.width > 0, bounds.height > 0,
+              bounds.width * outputScale < CGFloat(Int.max), bounds.height * outputScale < CGFloat(Int.max) else {
+            throw RenderServerCaptureError.invalidSliceGeometry(bounds: bounds, viewportSize: viewportSize)
+        }
+        guard bounds.width * screenScale <= RenderServerCapture.maximumSnapshotDimension else {
+            throw RenderServerCaptureError.widthExceedsSnapshotDimension(bounds.width)
+        }
+        pixelWidth = Int((bounds.width * outputScale).rounded())
+        pixelHeight = Int((bounds.height * outputScale).rounded())
+        guard pixelWidth > 0, pixelHeight > 0 else { throw RenderServerCaptureError.emptyImage }
+        guard pixelHeight <= RenderServerCapture.maximumCompositePixelCount / pixelWidth else {
+            throw RenderServerCaptureError.compositeExceedsBudget(pixelWidth: pixelWidth, pixelHeight: pixelHeight)
+        }
+        let plan = try RenderServerCapture.slicePlan(
+            bounds: bounds, viewportSize: viewportSize, screenScale: screenScale, contextBandHeight: contextBandHeight
+        )
+        var reads: [PlannedRead] = []
+        var ownedEnd = 0
+        for slice in plan {
+            let firstRow = Int(((slice.frame.minY - bounds.minY) * outputScale).rounded())
+            let endRow = Int(((slice.frame.maxY - bounds.minY) * outputScale).rounded())
+            let readRow = Int(((slice.frame.minY - slice.readFrame.minY) * outputScale).rounded())
+            let readHeight = Int((slice.readFrame.height * outputScale).rounded())
+            guard firstRow == ownedEnd, endRow > firstRow, endRow <= pixelHeight,
+                  readRow >= 0, readRow + endRow - firstRow <= readHeight else {
+                throw RenderServerCaptureError.invalidSliceGeometry(bounds: bounds, viewportSize: viewportSize)
+            }
+            reads.append(PlannedRead(
+                slice: slice, outputRows: firstRow..<endRow, readRows: readRow..<readRow + endRow - firstRow
+            ))
+            ownedEnd = endRow
+        }
+        guard ownedEnd == pixelHeight else {
+            throw RenderServerCaptureError.invalidSliceGeometry(bounds: bounds, viewportSize: viewportSize)
+        }
+        self.reads = reads
+    }
+}
+
+/// One validated read with the digests of its owned rows and of the whole read.
+private struct DigestedRead {
+    let raster: CapturedRaster
+    let digests: RenderServerCapture.ReadDigests
+}
+
+/// Why ``RenderServerCapture/image(of:viewportSize:format:contextBandHeight:diagnosticsDirectory:)`` failed.
 public enum RenderServerCaptureError: Error {
     /// The view is not in a window, so there is no screen scale and nowhere to host a replicant.
     case detachedView
@@ -243,12 +441,16 @@ public enum RenderServerCaptureError: Error {
     case widthExceedsSnapshotDimension(CGFloat)
     /// The converged output would allocate more canonical RGBA pixels than the tested composite budget.
     case compositeExceedsBudget(pixelWidth: Int, pixelHeight: Int)
+    /// The native viewport or slice dimensions cannot provide complete output and interior context.
+    case invalidSliceGeometry(bounds: CGRect, viewportSize: CGSize)
     /// UIKit returned no replicant for the slice rect.
     case snapshotRefused(CGRect)
     /// `drawHierarchy(in:afterScreenUpdates:)` returned `false` for the slice rect.
     case renderServerRefused(CGRect)
-    /// The overlap band between slice `sliceIndex` and the next one differs, so the composite would hold a seam.
-    case seamMismatch(sliceIndex: Int)
+    /// Two reads of the same rect disagree at their sample times; no composite is accepted.
+    case readChanged(sliceIndex: Int)
+    /// A reader returned a bitmap that does not cover the exact requested rect at the output scale.
+    case unexpectedReadSize(sliceIndex: Int, pass: Int, expected: CGSize, actual: CGSize)
     /// A slice or the composite has no pixel data.
     case emptyImage
 }
@@ -277,7 +479,7 @@ struct CapturedRaster {
         self.init(width: image.width, height: image.height, pixels: bytes)
     }
 
-    /// Writes canonical bytes into caller-owned storage; a slice writes directly into the composite's row range.
+    /// Converts a native bitmap into canonical bytes. Composition copies owned rows from that same storage.
     static func draw(_ image: CGImage, into buffer: UnsafeMutableRawBufferPointer) throws {
         guard let colorSpace = CGColorSpace(name: CGColorSpace.sRGB),
               let context = CGContext(
@@ -285,7 +487,7 @@ struct CapturedRaster {
                 bitsPerComponent: 8, bytesPerRow: image.width * 4, space: colorSpace,
                 bitmapInfo: CGBitmapInfo.byteOrder32Big.rawValue | CGImageAlphaInfo.premultipliedLast.rawValue
               ) else { throw FullContentHostError.emptyImage }
-        // Shared overlap rows replace earlier bytes, including alpha; they must never blend over earlier reads.
+        // Copy canonical RGBA bytes, including alpha, without blending with the destination buffer.
         context.setBlendMode(.copy)
         context.draw(image, in: CGRect(x: 0, y: 0, width: image.width, height: image.height))
     }

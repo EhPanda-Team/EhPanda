@@ -104,8 +104,8 @@ def contained(root, relative):
 def validate_fixtures(directory, scenarios):
     directory = Path(directory).resolve()
     manifest = json.loads((directory / 'manifest.json').read_text())
-    if manifest.get('schemaVersion') != 1 or manifest.get('fixtureVersion') != 'phase17-finite-v2':
-        raise ValueError('Expected the verified phase17-finite-v2 public fixture export')
+    if manifest.get('schemaVersion') != 1 or manifest.get('fixtureVersion') != 'phase17-finite-v3':
+        raise ValueError('Expected the verified phase17-finite-v3 public fixture export')
     assets = manifest['assets']
     if not assets or len({entry['path'] for entry in assets}) != len(assets):
         raise ValueError('Fixture assets must be nonempty and uniquely named')

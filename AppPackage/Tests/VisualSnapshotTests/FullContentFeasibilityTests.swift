@@ -115,7 +115,7 @@ final class FullContentFeasibilityTests: XCTestCase {
             .comments, directoryPrefix: "phase17-comments-native", attachmentName: "phase17-comments-native",
             expectedItemCount: 12
         )
-        try assertDeviceSliceCount(evidence)
+        assertViewportSliceCount(evidence)
     }
 
     @MainActor
@@ -136,7 +136,26 @@ final class FullContentFeasibilityTests: XCTestCase {
             .downloads, directoryPrefix: "phase17-downloads-native", attachmentName: "phase17-downloads-native",
             expectedItemCount: 16
         )
-        try assertDeviceSliceCount(evidence)
+        assertViewportSliceCount(evidence)
+        XCTAssertFalse(evidence.statusBarHidden)
+    }
+
+    @MainActor
+    func testAX5HomeFullContentCapture() async throws {
+        let evidence = try await captureSingle(
+            .home, directoryPrefix: "phase17-home-AX5", attachmentName: "phase17-home-AX5",
+            expectedItemCount: 6, accessibility: true
+        )
+        assertViewportSliceCount(evidence)
+    }
+
+    @MainActor
+    func testAX5DownloadsFullContentCapture() async throws {
+        let evidence = try await captureSingle(
+            .downloads, directoryPrefix: "phase17-downloads-AX5", attachmentName: "phase17-downloads-AX5",
+            expectedItemCount: 16, accessibility: true
+        )
+        assertViewportSliceCount(evidence)
         XCTAssertFalse(evidence.statusBarHidden)
     }
 
@@ -147,7 +166,7 @@ final class FullContentFeasibilityTests: XCTestCase {
             .reader, directoryPrefix: "phase17-reader-native", attachmentName: "phase17-reader-native",
             expectedItemCount: PublicVisualFixtures.readerPageMarkers.count
         )
-        try assertDeviceSliceCount(evidence)
+        assertViewportSliceCount(evidence)
         XCTAssertTrue(evidence.statusBarHidden)
     }
 
@@ -210,7 +229,11 @@ final class FullContentFeasibilityTests: XCTestCase {
                 let sceneWidth = scene.effectiveGeometry.coordinateSpace.bounds.width
                 let readerPagePixelWidth = Int(sceneWidth * scene.screen.scale)
                 let fixtureDirectory = output.appending(path: "fixtures", directoryHint: .isDirectory)
-                _ = try PublicVisualFixtures.export(to: fixtureDirectory, readerPagePixelWidth: readerPagePixelWidth)
+                let artwork = FixtureArtwork(
+                    traits: scene.traitCollection, displayScale: scene.screen.scale,
+                    readerPagePixelWidth: readerPagePixelWidth
+                )
+                try artwork.export(to: fixtureDirectory)
                 let appStorage = UserDefaults.inMemory
                 let inMemoryStorage = InMemoryStorage()
                 try await withDependencies {
@@ -254,8 +277,8 @@ final class FullContentFeasibilityTests: XCTestCase {
                     XCTAssertGreaterThanOrEqual(evidence.stableIterations, 2)
                     XCTAssertTrue(evidence.windowIsAttached)
                     XCTAssertEqual(evidence.viewport.size, scene.effectiveGeometry.coordinateSpace.bounds.size)
-                    if coordinate.shape == .reader {
-                        assertReaderPagesNotResampled(evidence, pagePixelWidth: readerPagePixelWidth)
+                    if coordinate.shape != .comments {
+                        try artwork.assertNotResampled(evidence, fixtures: fixtureDirectory, output: output)
                     }
                     if let readerStore = input.readerStore {
                         XCTAssertEqual(readerStore.setting.readingDirection, .vertical)
@@ -314,54 +337,25 @@ private struct FeasibilityScreen {
 }
 
 private extension FullContentFeasibilityTests {
-    /// Asserts every reader page rendered at exactly the exported pixel width, so the reader drew it 1:1.
-    ///
-    /// `itemFrames` holds the artwork bounds measured from captured pixels, in points (pixel extent / scale), so
-    /// width x scale is the rendered page's pixel width.
-    @MainActor
-    func assertReaderPagesNotResampled(
-        _ evidence: FullContentCaptureEvidence, pagePixelWidth: Int,
-        file: StaticString = #filePath, line: UInt = #line
-    ) {
-        for marker in PublicVisualFixtures.readerPageMarkers {
-            guard let frame = evidence.itemFrames[marker] else {
-                XCTFail("Missing artwork frame for \(marker)", file: file, line: line)
-                continue
-            }
-            XCTAssertEqual(
-                Int((frame.width * evidence.viewport.scale).rounded()), pagePixelWidth, marker, file: file, line: line
-            )
-        }
-    }
-
     static func pixelSize(_ url: URL) throws -> CGSize {
         let image = try XCTUnwrap(UIImage(contentsOfFile: url.path)?.cgImage)
         return CGSize(width: image.width, height: image.height)
     }
 
-    /// Asserts the read count the running device's screen scale implies for the output height.
-    ///
-    /// The phone and the tablet differ: Comments is 2798 pt at 3x on the phone, past one read and so two slices,
-    /// but 1963 pt at 2x on the iPad, which fits one read.
+    /// The native viewport is always read separately, even when the whole output fits below the server ceiling.
+    /// Any content beyond it needs another read; the viewport's edge rows must not be replaced by a taller read.
     @MainActor
-    func assertDeviceSliceCount(
+    func assertViewportSliceCount(
         _ evidence: FullContentCaptureEvidence, file: StaticString = #filePath, line: UInt = #line
-    ) throws {
-        let scene = try XCTUnwrap(
-            UIApplication.shared.connectedScenes
-                .compactMap({ $0 as? UIWindowScene })
-                .first(where: { $0.activationState == .foregroundActive }),
-            file: file, line: line
-        )
-        let maximumSliceHeight = RenderServerCapture.maximumSliceHeight(forScreenScale: scene.screen.scale)
-        if evidence.outputSize.height > maximumSliceHeight {
+    ) {
+        if evidence.outputSize.height > evidence.viewport.size.height {
             XCTAssertGreaterThanOrEqual(evidence.renderSliceCount, 2, file: file, line: line)
         } else {
             XCTAssertEqual(evidence.renderSliceCount, 1, file: file, line: line)
         }
     }
 
-    /// Captures one shape at the native portrait viewport and selected text size, attaching its directory and
+    /// Captures one shape at the native viewport and selected text size, attaching its directory and
     /// writing `capture-error.json` beside it when the capture throws.
     @MainActor
     func captureSingle(
@@ -386,17 +380,19 @@ private extension FullContentFeasibilityTests {
         )
         // The vertical reader lays a page out at the scene width; exporting at that pixel width keeps it 1:1.
         let readerPagePixelWidth = Int(scene.effectiveGeometry.coordinateSpace.bounds.width * scene.screen.scale)
-        _ = try PublicVisualFixtures.export(
-            to: fixtures, readerPagePixelWidth: shape == .reader ? readerPagePixelWidth : nil
+        let category: UIContentSizeCategory = accessibility ? .accessibilityExtraExtraExtraLarge : .large
+        try Self.requireContentSize(category, scene: scene, directory: directory)
+        let artwork = FixtureArtwork(
+            traits: scene.traitCollection, displayScale: scene.screen.scale,
+            readerPagePixelWidth: readerPagePixelWidth
         )
+        try artwork.export(to: fixtures)
         defer {
             let attachment = XCTAttachment(compressedContentsOfDirectory: directory)
             attachment.name = attachmentName
             attachment.lifetime = .keepAlways
             add(attachment)
         }
-        let category: UIContentSizeCategory = accessibility ? .accessibilityExtraExtraExtraLarge : .large
-        try Self.requireContentSize(category, scene: scene, directory: directory)
         // Downloads and Reader load page and cover images; they take the same image client and reading setting
         // as the full-content matrix.
         let usesMatrixImageSetup = shape == .downloads || shape == .reader
@@ -443,9 +439,9 @@ private extension FullContentFeasibilityTests {
                 )
                 XCTAssertEqual(evidence.itemCensus.count, expectedItemCount, file: file, line: line)
                 XCTAssertFalse(evidence.finalItemClipped, file: file, line: line)
-                if shape == .reader {
-                    assertReaderPagesNotResampled(
-                        evidence, pagePixelWidth: readerPagePixelWidth, file: file, line: line
+                if shape != .comments {
+                    try artwork.assertNotResampled(
+                        evidence, fixtures: fixtures, output: directory, file: file, line: line
                     )
                 }
                 return evidence
