@@ -1,38 +1,48 @@
 {
   "version": "1.0",
-  "timestamp": "2026-10-06T03:59:19.629922+00:00",
+  "timestamp": "2026-10-06T08:03:04.893195+00:00",
   "phase": "17",
   "phase_name": "Screenshot Automation, Visual Regression & OS 27 Modernization",
   "phase_dir": ".planning/phases/17-localized-screenshot-capture-harness",
-  "plan": 2,
-  "task": 2,
+  "plan": 3,
+  "task": 1,
   "total_tasks": 2,
-  "status": "checkpoint-17-02-vision-clip-tracer",
+  "status": "ready-17-03",
   "completed_tasks": [
     {
       "id": 1,
-      "name": "Explicit pinned hosted matrix producer",
+      "name": "17-02 explicit pinned hosted matrix producer",
       "commit": "7de15e6a",
+      "status": "complete"
+    },
+    {
+      "id": 2,
+      "name": "17-02 complete tracer execution and coordinate accounting",
+      "commits": [
+        "d88629d0",
+        "03c7cc76",
+        "0909a1b4",
+        "a62dcdf0",
+        "271365da",
+        "f55de085"
+      ],
       "status": "complete"
     }
   ],
   "remaining_tasks": [
     {
+      "id": 1,
+      "name": "17-03-T1: Acquire a declared real-gallery selection with reproducible provenance",
+      "status": "pending"
+    },
+    {
       "id": 2,
-      "name": "Prove actual complete tracer execution and coordinate accounting",
-      "status": "in_progress"
+      "name": "17-03-T2: Validate offline scene composition and provisional content",
+      "status": "pending"
     }
   ],
   "blockers": [],
-  "async_jobs": [
-    {
-      "job": "complete candidate tracer (576 coordinates) with Vision box clipping, detached with nohup",
-      "command": "python3 -B Scripts/visual/run-regression.py --all --mode candidate --fixtures .capture/regression-v3 --environment Scripts/visual/regression-environment.json --output .capture/tracer-matrix-10",
-      "output": ".capture/tracer-matrix-10",
-      "log": ".capture/tracer-matrix-10.log",
-      "completion_marker": "final log line exit=<code>"
-    }
-  ],
+  "async_jobs": [],
   "human_actions_pending": [],
   "decisions": [
     {
@@ -1692,12 +1702,12 @@
         "iphone": 63,
         "ipad": 60
       },
-      "status": "Vision box clipping passes the final-source gate; complete tracer running",
+      "status": "complete; all 576 tracer coordinates pass with independent audit",
       "compatibility_gate": ".capture/owned-row-gate-01/independent-audit.json",
       "source_guard_red": ".capture/source-hash-red-01",
       "source_guard_green": ".capture/source-hash-green-01",
       "interrupted_tracer": ".capture/tracer-matrix-06",
-      "complete_tracer": ".capture/tracer-matrix-10",
+      "complete_tracer": ".capture/tracer-matrix-10/independent-audit.json",
       "tracer_iphone_half_then_ipad_failure": ".capture/tracer-matrix-07",
       "scroll_host_red": ".capture/scroll-host-red-01",
       "scroll_host_green": ".capture/scroll-host-green-01",
@@ -1722,8 +1732,9 @@
       "vision_clip_green": ".capture/vision-clip-green-01",
       "vision_clip_lint": ".capture/vision-clip-final-checks",
       "vision_clip_probe": ".capture/research/cg-clip-probe",
-      "vision_clip_reduced_tracer": ".capture/tracer-ipad-ax5-landscape-clip-01"
+      "vision_clip_reduced_tracer": ".capture/tracer-ipad-ax5-landscape-clip-01",
+      "summary": ".planning/phases/17-localized-screenshot-capture-harness/17-02-SUMMARY.md"
     }
   },
-  "updated_at": "2026-10-06T03:59:19.629922+00:00"
+  "updated_at": "2026-10-06T08:03:04.893195+00:00"
 }
