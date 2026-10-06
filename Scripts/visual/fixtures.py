@@ -79,6 +79,11 @@ def counting(value):
     return type(value) is int and value >= 0
 
 
+def current_schema(value):
+    # JSON true equals 1 in Python, so the type is checked as well as the value.
+    return type(value) is int and value == SCHEMA_VERSION
+
+
 def screen_occurrences(scene, context='Scene'):
     """Every gallery occurrence of one content set's scene, by screen, as (section, slot, gid) in configured order."""
     keys(scene, ('home', 'flow', 'downloads'), context)
@@ -102,7 +107,8 @@ def screen_occurrences(scene, context='Scene'):
         raise ValueError(f'{context} downloads must be a list')
     for slot, entry in enumerate(downloads):
         where = f'{context} downloads[{slot}]'
-        if not isinstance(entry, dict) or entry.get('status') not in DOWNLOAD_STATUSES:
+        if (not isinstance(entry, dict) or not isinstance(entry.get('status'), str)
+                or entry['status'] not in DOWNLOAD_STATUSES):
             raise ValueError(f'{where} status must be one of {", ".join(DOWNLOAD_STATUSES)}')
         complete = entry['status'] in COMPLETE_DOWNLOADS
         if complete and 'completedPages' in entry:
@@ -126,7 +132,7 @@ def screen_occurrences(scene, context='Scene'):
 def validate_selection(selection):
     keys(selection, ('schemaVersion', 'selectionID', 'selectionStatus', 'selectionAuthority', 'galleries', 'scenes'),
          'Selection')
-    if selection['schemaVersion'] != SCHEMA_VERSION:
+    if not current_schema(selection['schemaVersion']):
         raise ValueError(f'Selection schemaVersion must be {SCHEMA_VERSION}')
     if not isinstance(selection['selectionID'], str) or not re.fullmatch(r'[a-z0-9][a-z0-9-]{0,63}',
                                                                          selection['selectionID']):
@@ -441,7 +447,7 @@ def verify_contents(directory):
                 raise ValueError(f'Fixture contains a symbolic link: {(Path(parent) / name).relative_to(directory)}')
     manifest = json.loads((directory / 'manifest.json').read_text())
     keys(manifest, MANIFEST_KEYS, 'Manifest')
-    if manifest['schemaVersion'] != SCHEMA_VERSION or manifest['purpose'] != 'marketingReal':
+    if not current_schema(manifest['schemaVersion']) or manifest['purpose'] != 'marketingReal':
         raise ValueError('Expected a schema 1 marketingReal fixture manifest')
     selection_bytes = (directory / 'selection.json').read_bytes()
     if sha256(selection_bytes) != manifest['selectionSHA256']:
@@ -458,7 +464,8 @@ def verify_contents(directory):
         keys(entry, ENTRY_KEYS, 'Asset entry')
         if (entry['kind'] not in PAGE_KINDS + IMAGE_KINDS or not isinstance(entry['gid'], str)
                 or not (entry['index'] is None or counting(entry['index'])) or not counting(entry['bytes'])
-                or not all(isinstance(entry[key], str) for key in ('url', 'path', 'mime', 'sha256', 'retrievedAt'))):
+                or not all(isinstance(entry[key], str) for key in ('url', 'path', 'mime', 'sha256', 'retrievedAt'))
+                or entry['mime'] not in (('text/html',) if entry['kind'] in PAGE_KINDS else MEDIA)):
             raise ValueError(f'Malformed asset entry: {entry["path"]!r}')
         resource = (entry['kind'], entry['gid'], entry['index'])
         if resource in by_resource or entry['url'] in urls:
