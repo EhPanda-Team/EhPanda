@@ -1,49 +1,53 @@
 {
   "version": "1.0",
-  "timestamp": "2026-10-06T08:03:04.893195+00:00",
+  "timestamp": "2026-10-06T17:40:00+00:00",
   "phase": "17",
   "phase_name": "Screenshot Automation, Visual Regression & OS 27 Modernization",
   "phase_dir": ".planning/phases/17-localized-screenshot-capture-harness",
-  "plan": 3,
+  "plan": 4,
   "task": 1,
   "total_tasks": 2,
-  "status": "ready-17-03",
+  "status": "ready-17-04",
   "completed_tasks": [
     {
       "id": 1,
-      "name": "17-02 explicit pinned hosted matrix producer",
-      "commit": "7de15e6a",
-      "status": "complete"
+      "name": "17-03-T1: Acquire a declared real-gallery selection with reproducible provenance",
+      "commits": [
+        "60e49ea30",
+        "6b8261409",
+        "bdc0f1f11"
+      ],
+      "status": "complete-owner-input-pending"
     },
     {
       "id": 2,
-      "name": "17-02 complete tracer execution and coordinate accounting",
+      "name": "17-03-T2: Validate offline scene composition and provisional content",
       "commits": [
-        "d88629d0",
-        "03c7cc76",
-        "0909a1b4",
-        "a62dcdf0",
-        "271365da",
-        "f55de085"
+        "b9c2e2aa6",
+        "404ead2c7"
       ],
-      "status": "complete"
+      "status": "complete-owner-input-pending"
     }
   ],
   "remaining_tasks": [
     {
       "id": 1,
-      "name": "17-03-T1: Acquire a declared real-gallery selection with reproducible provenance",
+      "name": "17-04-T1: Replay one selected Home scene through actual app dependencies",
       "status": "pending"
     },
     {
       "id": 2,
-      "name": "17-03-T2: Validate offline scene composition and provisional content",
+      "name": "17-04-T2: Prove isolation, selected content and offline request failures",
       "status": "pending"
     }
   ],
   "blockers": [],
   "async_jobs": [],
-  "human_actions_pending": [],
+  "human_actions_pending": [
+    "Owner: supply gallery URLs, set assignments, Home slots, flow gallery and pages, and downloads for both content sets (Scripts/visual/README.md, Selection); then the agent acquires with selectionAuthority owner and runs selection-review.py.",
+    "Owner: decide who visually reviews real content; the agent cannot verify that the explicit set is free of prohibited material, so that review needs the owner.",
+    "Owner: the pinned iPhone Air was found Booted by another process (a sim-use daemon started 2026-10-06T17:25:17Z); confirm before it is returned to Shutdown for the next simulator gate."
+  ],
   "decisions": [
     {
       "decision": "Honor the active-window feasibility stop before expansion.",
@@ -219,39 +223,22 @@
       "decision": "Owner selected clipping each Vision box to the window it analyzed.",
       "rationale": "tracer-matrix-09 failed on a Vision box 16 pt too wide past the image edge; clipping changes three accepted frames in 456 coordinates, flips no acceptance and changes nothing in owned-row-gate-03.",
       "phase": "17"
+    },
+    {
+      "decision": "The owner supplies every marketing gallery ID for both content sets; the agent selects and browses no real gallery (owner chose \"both sets: owner supplies the IDs\", 2026-10-07).",
+      "rationale": "The agent cannot rule out sexualized depictions of minors on the source site without viewing explicit images, so it declined to choose explicit-set galleries. Recorded in 17-03-PLAN.md; tooling and tests use synthetic data only.",
+      "phase": "17"
     }
   ],
   "uncommitted_files": [
     "A  .gsd/dispatch-isolation-sentinel.json",
     "A  .planning/milestone.lock",
     "A  .planning/phases/17-localized-screenshot-capture-harness/17-WINDOW-SNAPSHOT-PROBE.md",
-    " M AppPackage/Sources/AppComponents/GalleryCover.swift",
-    " M AppPackage/Sources/AppComponents/GalleryCoverMetrics.swift",
-    " M AppPackage/Sources/AppComponents/GalleryCoverStyle.swift",
-    " M AppPackage/Sources/VisualSnapshotSupport/FullContentHost.swift",
-    " M AppPackage/Sources/VisualSnapshotSupport/PublicVisualFixtures.swift",
-    " M AppPackage/Sources/VisualSnapshotSupport/RenderServerCapture.swift",
-    "AM AppPackage/Tests/VisualSnapshotTests/FixtureArtwork.swift",
-    "AM AppPackage/Tests/VisualSnapshotTests/FixtureArtworkTests.swift",
-    " M AppPackage/Tests/VisualSnapshotTests/FullContentFeasibilityTests.swift",
-    " M AppPackage/Tests/VisualSnapshotTests/GeometryTests.swift",
-    " M AppPackage/Tests/VisualSnapshotTests/RenderServerCaptureTests.swift",
-    " M AppPackage/Tests/VisualSnapshotTests/VisualMatrixTests.swift",
     "M  EhPanda.xcodeproj/project.pbxproj",
-    " M Scripts/verify-full-content-capture.py",
-    " M Scripts/visual/README.md",
-    " M Scripts/visual/contracts.py",
-    " M Scripts/visual/environment.py",
-    " M Scripts/visual/regression-environment.json",
-    " M Scripts/visual/run-regression.py",
-    " M Scripts/visual/test_contracts.py",
-    " M Scripts/visual/test_environment.py",
-    "?? AppPackage/Sources/VisualSnapshotSupport/RenderSettlement.swift",
-    "?? AppPackage/Tests/VisualSnapshotTests/HostedHierarchyTests.swift",
-    "?? AppPackage/Tests/VisualSnapshotTests/RenderSettlementTests.swift"
+    "?? .capture/"
   ],
-  "next_action": "Wait for .capture/tracer-matrix-09 (exit= line), audit all 576 coordinates, commit the Task 2 source as four verified commits (cover sizing; harness; untracked-source guard; Reduce Motion pin) excluding the reserved entries, then write the 17-02 SUMMARY. Do not edit or stage sources while the tracer runs. No baseline promotion.",
-  "context_notes": "Task 2 WIP (uncommitted): owned-row verification, settle, untracked-source guard, scroll-host inset fix and the owner-approved Reduce Motion pin (pin SHA-256 5c507a4c0c5013fad010a19222ef7b8b1eec86d354b89fc1b7c07610567c725c, validated). Pinned simulators: iPad Full Screen Apps, iPhone dark, Reduce Motion on for both. Final-source gate .capture/owned-row-gate-03 passes (32/32, 60/57).",
+  "next_action": "Start 17-04 (read 17-04-PLAN.md and 17-03-SUMMARY.md). Ask the owner for the gallery input before any step that needs real marketing content, including the actual Home launch on plan 03 assets. Before any simulator gate, confirm the iPhone state with the owner and restore iPhone Shutdown, iPad Booted, both portrait and Large.",
+  "context_notes": "17-03 complete with owner-input gates: tooling acquires owner-declared galleries anonymously into .capture/marketing (content-addressed versions, atomic single-writer publication, scrubbed access values); readers resolve current once with fixtures.resolve_fixtures. No real gallery was selected, browsed or acquired. Pin SHA-256 5c507a4c0c5013fad010a19222ef7b8b1eec86d354b89fc1b7c07610567c725c is unchanged. Pinned simulators need iPad Full Screen Apps, iPhone dark and Reduce Motion on for both.",
   "evidence": {
     "proposal": ".planning/phases/17-localized-screenshot-capture-harness/17-01-CAPTURE-GATE.md",
     "bootstrap": {
@@ -1375,6 +1362,24 @@
         "diagnostics": 0,
         "simulator_restored": true
       }
+    },
+    "marketing_fixtures": {
+      "summary": ".planning/phases/17-localized-screenshot-capture-harness/17-03-SUMMARY.md",
+      "review": ".planning/phases/17-localized-screenshot-capture-harness/17-03-REVIEW.md",
+      "task1_red": ".capture/marketing-fixtures-red-01/",
+      "task1_green": ".capture/marketing-fixtures-green-01/",
+      "task1_mutations": ".capture/marketing-fixtures-mutations-02/ (22 of 22 killed)",
+      "host_probe": ".capture/marketing-fixtures-host-probe-01/probe.json",
+      "task2_red": ".capture/selection-review-red-01/",
+      "task2_green": ".capture/selection-review-green-01/",
+      "task2_mutations": ".capture/selection-review-mutations-02/ (18 of 18 killed)",
+      "review_fix_red": [
+        ".capture/17-03-input-red-01/",
+        ".capture/17-03-resolve-red-01/"
+      ],
+      "review_fix_mutations": ".capture/17-03-fix-mutations-02/ (5 of 5 killed)",
+      "final_suite": ".capture/17-03-isolation-green-01/ (126 tests)",
+      "plan_verify": ".capture/17-03-verify-02/ (37 and 16 tests)"
     }
   },
   "recovery_logs": [
@@ -1383,23 +1388,34 @@
     "/tmp/ehpanda-phase17-t1-host-build-3.log",
     "/tmp/ehpanda-phase17-symbol-build.log"
   ],
-  "uncommitted_files_note": "Task 2 producer, read correction, v3 fixtures, production pixel sizing, shared clip/source verification, owned-row verification, settle and the source-guard fix remain WIP. The two artwork files were staged so the earlier tracked-only guard hashed them; the guard now also hashes untracked files. Four reserved owner entries and all .capture evidence are preserved.",
-  "source_checkpoint": "d88629d03",
+  "uncommitted_files_note": "Only the four reserved staged entries and the untracked .capture/ evidence remain; all 17-03 source and documentation is committed.",
+  "source_checkpoint": "bdc0f1f11",
   "previous_plan_tasks": [
     {
       "id": 1,
-      "name": "17-24-T1: Measure actual native geometry",
+      "name": "17-02 explicit pinned hosted matrix producer",
+      "commit": "7de15e6a",
       "status": "complete"
     },
     {
       "id": 2,
-      "name": "17-24-T2: Author and validate immutable rendering pin",
+      "name": "17-02 complete tracer execution and coordinate accounting",
+      "commits": [
+        "d88629d0",
+        "03c7cc76",
+        "0909a1b4",
+        "a62dcdf0",
+        "271365da",
+        "f55de085"
+      ],
       "status": "complete"
     }
   ],
   "completed_plans": [
     "17-01",
-    "17-24"
+    "17-24",
+    "17-02",
+    "17-03"
   ],
   "reserved_staged_blobs": {
     ".gsd/dispatch-isolation-sentinel.json": "f23c98b270324284fe9af8fad70335ea69d412a4",
@@ -1736,5 +1752,5 @@
       "summary": ".planning/phases/17-localized-screenshot-capture-harness/17-02-SUMMARY.md"
     }
   },
-  "updated_at": "2026-10-06T08:03:04.893195+00:00"
+  "updated_at": "2026-10-06T17:40:00+00:00"
 }
