@@ -509,8 +509,12 @@ def verify_contents(directory):
     return manifest
 
 
-def validate_fixtures(path):
-    """Validate a published version directory, directly or through the output's `current` link."""
+def resolve_fixtures(path):
+    """The version directory a path names, directly or through the output's `current` link, resolved once.
+
+    Readers keep reading the returned directory: a later publication can repoint `current` at any moment,
+    while a published version directory never changes.
+    """
     path = Path(path)
     if path.is_symlink():
         target = Path(os.readlink(path))
@@ -519,7 +523,12 @@ def validate_fixtures(path):
                 or version.parent.is_symlink() or version.is_symlink()):
             raise ValueError(f'{path} must link to a versions/<fixtureVersion> directory beside it')
         path = version
-    directory = path.resolve(strict=True)
+    return path.resolve(strict=True)
+
+
+def validate_fixtures(path):
+    """Validate a published version directory, directly or through the output's `current` link."""
+    directory = resolve_fixtures(path)
     manifest = verify_contents(directory)
     if directory.name != manifest['fixtureVersion']:
         raise ValueError(f'Fixture directory {directory.name} is not named for version {manifest["fixtureVersion"]}')
