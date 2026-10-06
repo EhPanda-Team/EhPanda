@@ -389,11 +389,12 @@ class ScrubbingTests(FixtureTestCase):
 
 class SelectionTests(FixtureTestCase):
     def assert_rejected(self, value, message):
-        site = Site(selection())
+        # Each check gets its own output, so a wrongly accepted case cannot fail the checks after it.
+        site, output = Site(selection()), Path(tempfile.mkdtemp(dir=self.directory)) / 'marketing'
         with self.assertRaisesRegex(ValueError, message):
-            self.acquire(site, value)
+            self.acquirer.acquire(self.write_selection(value), output, fetch=site, clock=Clock())
         self.assertEqual(site.calls, [])
-        self.assertFalse(self.output.exists())
+        self.assertFalse(output.exists())
 
     def test_empty_selection_is_rejected_before_any_request(self):
         value = selection()
