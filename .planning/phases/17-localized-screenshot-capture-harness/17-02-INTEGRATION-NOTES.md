@@ -1,6 +1,6 @@
 # 17-02 integration findings
 
-Status: Task 1 complete in 624fddfed6; Task 2 with owned-row verification, settle, the scroll-host fix and the owner-approved Reduce Motion pin passes the final-source gate; the complete tracer captured 455 coordinates and stopped on an over-wide Vision box (latest checkpoint at the end, owner decision pending). No complete matrix or baseline approval claimed.
+Status: Task 1 complete in 624fddfed6; Task 2 with owned-row verification, settle, the scroll-host fix, the owner-approved Reduce Motion pin and Vision box clipping passes the final-source gate, and the complete tracer is running (latest checkpoint at the end). No complete matrix or baseline approval claimed.
 
 ## Orchestrator disposition: coordinate-specific OCR language
 
@@ -1017,7 +1017,7 @@ no whole-read difference or changed settle pass (2 passes: 18, 3: 17, 4: 5; at m
 1,871 ms), sources unchanged, devices restored (`independent-audit.json`). The complete
 tracer runs detached at `.capture/tracer-matrix-09/`.
 
-## Over-wide Vision box clips the trailing heading, 2026-10-06 (owner decision pending)
+## Over-wide Vision box clips the trailing heading, 2026-10-06
 
 `.capture/tracer-matrix-09/` (final source, Reduce Motion pin) captured 455 coordinates: all
 288 iPhone ones and 167 iPad ones. The partial audit (`partial-audit.json`, produced by the
@@ -1044,3 +1044,37 @@ acceptance decision and change nothing in the 40 captures of `.capture/owned-row
 The text-frame bounds checks would then hold by construction, leaving clipping to the
 pixel-measured artwork bounds and the layout height check. This changes acceptance, so it
 awaits the owner. No source was changed; the run's evidence is retained as it is.
+
+### Owner approval: Vision boxes kept to their analyzed windows
+
+The owner selected "clip to the analyzed window"; 17-02-PLAN.md records it.
+`RenderedContentInspection.frame(of:within:)` converts each Vision box to image points and
+keeps only the part inside the crop the request analyzed; the read is dropped when nothing
+remains (no recorded read is such a case). RED `.capture/vision-clip-red-01/` (the test build
+fails only on the missing API); GREEN `.capture/vision-clip-green-01/`, 18/18
+RenderedContentInspectionTests per family, including the measured four-read heading replayed
+end to end; strict SwiftLint over all source trees `.capture/vision-clip-final-checks/`; 73
+Python tests. The native gate now expects 63 iPhone and 60 iPad tests. A host probe of 7.9
+million clipped frames found CoreGraphics `contains` accepting every one
+(`.capture/research/cg-clip-probe/`).
+
+The RED build named the pinned iPhone as its destination, which booted it; the focused run
+then recorded Booted as the original state and restored it. The iPhone was shut down to its
+owner state afterwards, and build-only steps now use a generic destination in a separate
+DerivedData.
+
+The twelve iPad landscape AX5 coordinates, all locales and themes including the original
+failure, capture through the runner (`.capture/tracer-ipad-ax5-landscape-clip-01/`, reduced
+12/576, `independent-audit-reduced.json`). Vision returned the identical over-wide box for the
+original heading, now kept at x = 0. The final-source gate `.capture/owned-row-gate-04/` passes
+with a clean build: 32/32, 63 iPhone and 60 iPad native tests, 40 captures with 412 reads all
+matched, no whole-read difference or changed settle pass (2 passes: 17, 3: 18, 4: 5; at most
+1,890 ms), sources unchanged, devices restored (`independent-audit.json`). The complete tracer
+runs detached at `.capture/tracer-matrix-10/`.
+
+The Task 2 source will land as five commits, each verified in a temporary tree holding
+exactly its contents (`.capture/commit-trees-03/`): production cover sizing; the harness; the
+untracked-source guard; the Reduce Motion pin; Vision box clipping. The Python suites pass in
+every tree, the final tree equals the working tree, and the Reduce Motion tree equals the
+sources of `.capture/tracer-matrix-09/` and `.capture/owned-row-gate-03/`. Clean builds of the
+four trees whose Swift differs follow the tracer, one xcodebuild at a time.
