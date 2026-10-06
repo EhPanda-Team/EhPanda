@@ -152,7 +152,7 @@ The input is a JSON file with exactly these keys:
   The same gallery may appear on different screens.
 
 Validation here covers the schema, references and repetition. The marketing composition (slot
-counts per section) is checked by `selection-review.py`.
+counts per section and display order) is checked by `selection-review.py`.
 
 ## Acquire
 
@@ -218,4 +218,48 @@ network:
 
 ```sh
 python3 -B -m unittest discover -s Scripts/visual -p test_fixtures.py
+```
+
+## Review a selection
+
+```sh
+python3 -B Scripts/visual/selection-review.py --fixtures .capture/marketing/current --output DIR
+```
+
+The review validates the fixture's integrity first, then writes `review.json`, `review.html` and a
+`.gitignore` that ignores the directory itself, because the ledger quotes real titles and
+comments. `DIR` must not exist yet. Images are referenced in place, never copied. The same
+fixture always produces byte-identical output.
+
+`review.json` records:
+
+- the fixture version and the selection's identity, status and authority;
+- every gallery occurrence by content set and screen, each with its source URL, title and cover;
+- Home's hero, frontpage pairs and Toplists rankings in configured order;
+- the flow gallery's reader and Live Text pages and its saved comments;
+- downloads with status, progress, page count and display priority;
+- the unresolved final inputs and the Phase 17 closure checkpoint.
+
+`review.html` lays out the same content as a contact sheet for visual review.
+
+Composition checks apply to the proposed populated marketing scenes, not to the app in general.
+Each content set needs:
+
+- at least three hero galleries, with a neighbor on each side of `selectedIndex`;
+- an even frontpage count of at least two;
+- at least three galleries in each Toplists period;
+- a readable saved comment on the flow gallery;
+- at least two downloads, in an order the app would display unchanged.
+
+The app lists downloads by status priority (active, queued, update available, error, inactive,
+completed), so equal statuses keep their configured order and capture must give them descending
+download dates in that order. An incomplete download needs fewer completed pages than the
+gallery has. Any problem is listed in the ledger and on standard error, and the command then
+exits with status 1. Integrity failures write nothing.
+
+The review approves nothing. A provisional selection, or a content set without a scene, stays
+listed as unresolved until the owner supplies the final selection before Phase 17 closes.
+
+```sh
+python3 -B -m unittest discover -s Scripts/visual -p test_selection_review.py
 ```
