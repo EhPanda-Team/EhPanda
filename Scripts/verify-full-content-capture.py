@@ -24,8 +24,9 @@ NATIVE_TESTS = [
         "testDownloadsNativeCapture", "testReaderNativeCapture",
     )
 ] + [
-    "VisualSnapshotTests/RenderServerCaptureTests", "VisualSnapshotTests/VisibleViewportTests",
-    "VisualSnapshotTests/RenderedContentInspectionTests",
+    "VisualSnapshotTests/RenderServerCaptureTests", "VisualSnapshotTests/RenderSettlementTests",
+    "VisualSnapshotTests/VisibleViewportTests", "VisualSnapshotTests/RenderedContentInspectionTests",
+    "VisualSnapshotTests/FixtureArtworkTests", "VisualSnapshotTests/HostedHierarchyTests",
 ]
 
 
@@ -150,15 +151,18 @@ class Gate:
         result = subprocess.run(command, capture_output=True, text=True)
         readback = subprocess.run(command[:-1], capture_output=True, text=True)
         observed = readback.stdout.strip()
+        # iOS 27 simctl returns "extra-Small" / "Small" for its documented lowercase category names.
+        # Preserve both raw spellings in evidence, but compare the same category without case sensitivity.
+        matched = result.returncode == 0 and readback.returncode == 0 and observed.lower() == requested.lower()
         save_json(self.output / f"{name}.content-size.json", {
             "device": device, "command": command, "requested": requested, "observed": observed,
             "exitCode": result.returncode, "stdout": result.stdout, "stderr": result.stderr,
             "readbackExitCode": readback.returncode, "readbackStderr": readback.stderr,
-            "matched": result.returncode == 0 and readback.returncode == 0 and observed == requested,
+            "matched": matched,
         })
         result.check_returncode()
         readback.check_returncode()
-        if observed != requested:
+        if not matched:
             raise RuntimeError(f"{name}: content size {observed!r} does not match {requested!r}")
 
     def run(self, name, actions, plan, device, tests=(), expected_count=None, cleanup=False, content_size=None):
@@ -268,7 +272,10 @@ class Gate:
             for filename in ("native-viewport-parity.json", "visible-viewport-freeze-parity.json"):
                 if json.loads((directory / filename).read_text())["matched"] is not True:
                     raise RuntimeError(f"{coordinate}: {filename} failed")
-            self.verify_size_classes(json.loads((directory / "geometry.json").read_text()), coordinate)
+            geometry = json.loads((directory / "geometry.json").read_text())
+            self.verify_size_classes(geometry, coordinate)
+            self.verify_full_content_settle(geometry, directory, coordinate)
+            self.verify_read_verification(geometry, directory, coordinate)
             self.verify_content_size(directory)
             acceptance = json.loads((directory / "acceptance.json").read_text())
             if acceptance["coordinate"] != coordinate or acceptance["status"] != "captured":
@@ -291,6 +298,91 @@ class Gate:
         if any(classes[key] != expected for key in keys):
             raise RuntimeError(f"{coordinate}: capture changed native size classes: {classes}")
 
+    @staticmethod
+    def verify_read_verification(geometry, directory, coordinate):
+        """Owned-row digests gate both passes; whole-read digests are evidence that must describe themselves."""
+        evidence = json.loads((directory / "render-read-verification.json").read_text())
+        reads = evidence.get("reads")
+        slices = geometry.get("renderSlices")
+        if (evidence.get("status") != "passed" or evidence.get("requestedPasses") != 2
+                or evidence.get("failedSliceIndex") is not None
+                or evidence.get("displayScale") != geometry.get("displayScale")
+                or geometry.get("renderReadVerificationPasses") != 2
+                or not isinstance(reads, list) or not reads or not isinstance(slices, list)
+                or len(reads) != len(slices) or reads != geometry.get("renderReadVerifications")):
+            raise RuntimeError(f"{coordinate}: incomplete same-rect read verification")
+        scale = geometry["displayScale"]
+
+        def rect(value):
+            numbers = re.findall(r"-?\d+(?:\.\d+)?", value or "")
+            return [float(number) for number in numbers] if len(numbers) == 4 else None
+
+        def digest(value):
+            return isinstance(value, str) and re.fullmatch(r"[0-9a-f]{64}", value) is not None
+
+        output_end = 0
+        for index, (read, planned) in enumerate(zip(reads, slices)):
+            frame, read_frame = rect(planned.get("frame")), rect(planned.get("readFrame"))
+            pixels, owned = read.get("pixels"), read.get("ownedRows")
+            owned_first, owned_second = read.get("firstPassOwnedSHA256"), read.get("secondPassOwnedSHA256")
+            whole_first, whole_second = read.get("firstPassReadSHA256"), read.get("secondPassReadSHA256")
+            if (frame is None or read_frame is None or read.get("sliceIndex") != index
+                    or read.get("frame") != planned.get("frame") or read.get("readFrame") != planned.get("readFrame")
+                    or not isinstance(pixels, list) or len(pixels) != 2
+                    or any(type(value) is not int or value <= 0 for value in pixels)
+                    or pixels != [round(value * scale) for value in read_frame[2:]]
+                    or read.get("matched") is not True or not digest(owned_first) or owned_second != owned_first
+                    or not digest(whole_first) or not digest(whole_second)
+                    or not isinstance(read.get("readMatched"), bool)
+                    or read["readMatched"] != (whole_first == whole_second)):
+                raise RuntimeError(f"{coordinate}: invalid same-rect verification for read {index}")
+            owned_start = round((frame[1] - read_frame[1]) * scale)
+            expected_owned = [owned_start, owned_start + round(frame[3] * scale)]
+            if (owned != expected_owned or not 0 <= owned_start < expected_owned[1] <= pixels[1]
+                    or round(frame[1] * scale) != output_end):
+                raise RuntimeError(f"{coordinate}: read {index} does not own exactly its composed rows")
+            # Read 0 is the native rect: it owns, and therefore gates, every row it reads.
+            if index == 0 and (frame != read_frame or owned != [0, pixels[1]]
+                               or whole_first != owned_first or whole_second != owned_second):
+                raise RuntimeError(f"{coordinate}: native read 0 must gate its whole read")
+            output_end += expected_owned[1] - owned_start
+        output_size = geometry.get("outputSize")
+        if not isinstance(output_size, list) or len(output_size) != 2 or round(output_size[1] * scale) != output_end:
+            raise RuntimeError(f"{coordinate}: owned rows do not partition the output")
+
+    @staticmethod
+    def verify_full_content_settle(geometry, directory, coordinate):
+        """The grown window settled: consecutive identical owned-row passes over at least the stable span."""
+        ledger = json.loads((directory / "full-content-settle.json").read_text())
+        passes = ledger.get("passes")
+        accepted = ledger.get("acceptedPass")
+        maximum = ledger.get("maximumPasses")
+        settled = ledger.get("settledMilliseconds")
+        if (ledger.get("status") != "settled" or ledger.get("stableSpanMilliseconds") != 500 or maximum != 40
+                or not isinstance(passes, list) or type(accepted) is not int or not 2 <= accepted <= maximum
+                or len(passes) != accepted or type(settled) is not int or settled < 500):
+            raise RuntimeError(f"{coordinate}: full-content rendering did not settle")
+        reads = len(geometry.get("renderSlices") or [])
+        previous = None
+        elapsed = 0
+        for number, record in enumerate(passes, start=1):
+            digests = record.get("ownedSHA256")
+            if (record.get("pass") != number or type(record.get("elapsedMilliseconds")) is not int
+                    or record["elapsedMilliseconds"] < elapsed or not isinstance(digests, list)
+                    or len(digests) != reads or not reads
+                    or any(not isinstance(value, str) or re.fullmatch(r"[0-9a-f]{64}", value) is None
+                           for value in digests)):
+                raise RuntimeError(f"{coordinate}: invalid full-content settle pass {number}")
+            changed = None if previous is None else [
+                index for index, value in enumerate(digests) if value != previous[index]
+            ]
+            if record.get("changedSliceIndices") != changed:
+                raise RuntimeError(f"{coordinate}: settle pass {number} misreports its changed reads")
+            previous = digests
+            elapsed = record["elapsedMilliseconds"]
+        if passes[-1]["ownedSHA256"] != passes[-2]["ownedSHA256"]:
+            raise RuntimeError(f"{coordinate}: the accepted settle pass differs from the one before it")
+
     def report_comments(self):
         directory = self.output / "iphone-AX5-comments-attachments"
         geometries = list(directory.rglob("geometry.json"))
@@ -298,6 +390,8 @@ class Gate:
             raise RuntimeError("Expected one AX5 Comments geometry result")
         geometry = json.loads(geometries[0].read_text())
         self.verify_size_classes(geometry, "iphone-portrait-AX5-comments")
+        self.verify_full_content_settle(geometry, geometries[0].parent, "iphone-portrait-AX5-comments")
+        self.verify_read_verification(geometry, geometries[0].parent, "iphone-portrait-AX5-comments")
         self.verify_content_size(geometries[0].parent.parent)
         parity = json.loads((geometries[0].parent / "native-viewport-parity.json").read_text())
         evidence = {
@@ -332,7 +426,7 @@ class Gate:
                              [ROTATION + "testRotateToPortrait"], 1)
                     tests = NATIVE_TESTS + (["VisualSnapshotTests/VisualTracerTests"] if family == "iphone" else [])
                     self.run(f"{family}-native", ["test-without-building"], "FeatureTests", device,
-                             tests, 31 if family == "iphone" else 28, content_size=CONTENT_SIZES["large"])
+                             tests, 60 if family == "iphone" else 57, content_size=CONTENT_SIZES["large"])
                     for orientation in ("portrait", "landscape"):
                         if orientation == "landscape":
                             self.run(f"{family}-rotate-landscape", ["test-without-building"], "UITests", device,
