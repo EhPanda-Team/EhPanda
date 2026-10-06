@@ -38,6 +38,7 @@
             1210,
             834
           ],
+          "reduceMotionEnabled": true,
           "safeAreaInsets": [
             32,
             0,
@@ -80,6 +81,7 @@
             834,
             1210
           ],
+          "reduceMotionEnabled": true,
           "safeAreaInsets": [
             32,
             0,
@@ -129,6 +131,7 @@
             912,
             420
           ],
+          "reduceMotionEnabled": true,
           "safeAreaInsets": [
             0,
             68,
@@ -171,6 +174,7 @@
             420,
             912
           ],
+          "reduceMotionEnabled": true,
           "safeAreaInsets": [
             68,
             0,

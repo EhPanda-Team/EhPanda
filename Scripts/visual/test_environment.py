@@ -26,7 +26,7 @@ def rendering_pin():
                 'safeAreaInsets': [24, 0, 20, 0], 'scale': scale,
                 'horizontalSizeClass': 2, 'verticalSizeClass': 2,
                 'contentSizeCategory': 'UICTContentSizeCategoryL', 'appearance': 1,
-                'boldTextEnabled': False, 'legibilityWeight': 0,
+                'boldTextEnabled': False, 'reduceMotionEnabled': True, 'legibilityWeight': 0,
                 'displayGamut': 1, 'nativeScale': scale,
                 'fonts': {'body': {'name': '.SFUI-Regular', 'pointSize': 17, 'lineHeight': 20.3}},
             }
@@ -114,10 +114,20 @@ class PinContractTests(unittest.TestCase):
     def test_malformed_geometry_is_rejected(self):
         for key, value in [('scale', 0), ('scale', True), ('pixels', [1260]),
                            ('points', [-420, 912]), ('safeAreaInsets', [0, 0, 0]),
-                           ('horizontalSizeClass', 0), ('fonts', {})]:
+                           ('horizontalSizeClass', 0), ('fonts', {}),
+                           ('reduceMotionEnabled', 1), ('reduceMotionEnabled', 'true')]:
             with self.subTest(key=key, value=value):
                 pin = rendering_pin()
                 pin['devices']['iphone']['orientations']['portrait'][key] = value
+                with self.assertRaises(environment.EnvironmentMismatch):
+                    environment.validate_pin(pin)
+
+    def test_missing_motion_observation_is_rejected(self):
+        # Reduce Motion freezes time-driven Metal animation the UIView switch cannot reach, so it is pinned.
+        for family in ['iphone', 'ipad']:
+            with self.subTest(family=family):
+                pin = rendering_pin()
+                del pin['devices'][family]['orientations']['landscape']['reduceMotionEnabled']
                 with self.assertRaises(environment.EnvironmentMismatch):
                     environment.validate_pin(pin)
 

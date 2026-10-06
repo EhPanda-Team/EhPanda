@@ -73,6 +73,7 @@ final class VisualMatrixTests: XCTestCase {
         XCTAssertEqual(Locale.preferredLanguages.first, coordinate.locale)
         let style: UIUserInterfaceStyle = coordinate.theme == "dark" ? .dark : .light
         XCTAssertEqual(scene.traitCollection.userInterfaceStyle, style)
+        XCTAssertEqual(UIAccessibility.isReduceMotionEnabled, configuration.geometry.reduceMotionEnabled)
         let timeZone = try XCTUnwrap(TimeZone(secondsFromGMT: 0))
         let originalTimeZone = NSTimeZone.default
         let animations = UIView.areAnimationsEnabled
@@ -249,6 +250,8 @@ private struct MatrixGeometry: Decodable {
     let scale: CGFloat
     let horizontalSizeClass: Int
     let verticalSizeClass: Int
+    /// Pinned on: Reduce Motion is the only switch that freezes the dark Home card's Metal gradient.
+    let reduceMotionEnabled: Bool
 }
 
 private enum MatrixError: Error {
