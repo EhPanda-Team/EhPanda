@@ -14,6 +14,7 @@ import subprocess
 import zipfile
 
 ROOT = Path(__file__).resolve().parents[1]
+GATE_SCRIPT = Path(__file__).resolve().relative_to(ROOT).as_posix()
 FEASIBILITY = "VisualSnapshotTests/FullContentFeasibilityTests/"
 ROTATION = "EhPandaUITests/VisualCaptureOrientationUITests/"
 CONTENT_SIZES = {"large": "large", "AX5": "accessibility-extra-extra-extra-large"}
@@ -35,15 +36,15 @@ def save_json(path, value):
 
 
 def source_hashes():
-    paths = subprocess.check_output(["git", "ls-files", "-z"], cwd=ROOT).decode().split("\0")
-    paths += ["AppPackage/Tests/VisualSnapshotTests/VisibleViewportTests.swift"]
-    paths += ["EhPandaUITests/VisualCaptureOrientationUITests.swift", str(Path(__file__).relative_to(ROOT))]
+    # Untracked, non-ignored files are listed too: uncommitted sources compile into every capture build.
+    listed = subprocess.check_output(
+        ["git", "ls-files", "-z", "--cached", "--others", "--exclude-standard"], cwd=ROOT)
     return {
         path: hashlib.sha256((ROOT / path).read_bytes()).hexdigest()
-        for path in sorted(set(paths))
+        for path in sorted(listed.decode().split("\0"))
         if path and (ROOT / path).is_file()
         and (path.startswith(("App/", "AppPackage/", "EhPandaUITests/", "EhPanda.xcodeproj/"))
-             or path == str(Path(__file__).relative_to(ROOT)) or Path(path).name == ".swiftlint.yml")
+             or path == GATE_SCRIPT or Path(path).name == ".swiftlint.yml")
     }
 
 
