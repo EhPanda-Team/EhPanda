@@ -1,13 +1,13 @@
 {
   "version": "1.0",
-  "timestamp": "2026-10-05T23:59:46.740930+00:00",
+  "timestamp": "2026-10-06T03:13:32.236010+00:00",
   "phase": "17",
   "phase_name": "Screenshot Automation, Visual Regression & OS 27 Modernization",
   "phase_dir": ".planning/phases/17-localized-screenshot-capture-harness",
   "plan": 2,
   "task": 2,
   "total_tasks": 2,
-  "status": "checkpoint-17-02-reduce-motion-tracer",
+  "status": "checkpoint-17-02-vision-box-clip",
   "completed_tasks": [
     {
       "id": 1,
@@ -23,17 +23,18 @@
       "status": "in_progress"
     }
   ],
-  "blockers": [],
-  "async_jobs": [
+  "blockers": [
     {
-      "job": "complete candidate tracer (576 coordinates) on the Reduce Motion pin, detached with nohup",
-      "command": "python3 -B Scripts/visual/run-regression.py --all --mode candidate --fixtures .capture/regression-v3 --environment Scripts/visual/regression-environment.json --output .capture/tracer-matrix-09",
-      "output": ".capture/tracer-matrix-09",
-      "log": ".capture/tracer-matrix-09.log",
-      "completion_marker": "final log line exit=<code>"
+      "blocker": "tracer-matrix-09 stopped at coordinate 456 (iPad en AX5 landscape dark): clippedItem(\"Other\") from an over-wide Vision box past the image edge",
+      "evidence": ".capture/tracer-matrix-09/failure-analysis/RESULTS.md",
+      "recommended": "Clip each Vision box to the window it analyzed; changes three accepted frames in 456 coordinates, no acceptance flips, nothing in owned-row-gate-03",
+      "needs": "owner approval (acceptance change)"
     }
   ],
-  "human_actions_pending": [],
+  "async_jobs": [],
+  "human_actions_pending": [
+    "Owner decision on the Vision box clipping remedy"
+  ],
   "decisions": [
     {
       "decision": "Honor the active-window feasibility stop before expansion.",
@@ -1687,7 +1688,7 @@
         "iphone": 60,
         "ipad": 57
       },
-      "status": "final-source gate passed; complete tracer running",
+      "status": "final-source gate passed; complete tracer captured 455 of 576, stopped on a Vision box overshoot",
       "compatibility_gate": ".capture/owned-row-gate-01/independent-audit.json",
       "source_guard_red": ".capture/source-hash-red-01",
       "source_guard_green": ".capture/source-hash-green-01",
@@ -1709,8 +1710,11 @@
       "pin_validation": ".capture/environment-pin-check-02",
       "pin_sha256": "5c507a4c0c5013fad010a19222ef7b8b1eec86d354b89fc1b7c07610567c725c",
       "dark_reduced_tracer": ".capture/tracer-dark-reduce-motion-01",
-      "reduce_motion_focused": ".capture/reduce-motion-focused-01"
+      "reduce_motion_focused": ".capture/reduce-motion-focused-01",
+      "complete_tracer_partial_audit": ".capture/tracer-matrix-09/partial-audit.json",
+      "vision_box_failure_analysis": ".capture/tracer-matrix-09/failure-analysis",
+      "commit_tree_verification": ".capture/commit-trees-02"
     }
   },
-  "updated_at": "2026-10-05T23:59:46.740930+00:00"
+  "updated_at": "2026-10-06T03:13:32.236010+00:00"
 }
