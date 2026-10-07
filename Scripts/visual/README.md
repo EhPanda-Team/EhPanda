@@ -268,3 +268,93 @@ listed as unresolved until the owner supplies the final selection before Phase 1
 ```sh
 python3 -B -m unittest discover -s Scripts/visual -p test_selection_review.py
 ```
+
+# Capture launches
+
+A capture launch runs the actual app on one validated fixture version, offline and isolated from
+the device's own account, settings, caches and downloads. Only Debug builds have it; Release
+builds cannot start one.
+
+## Launch keys
+
+The app reads exactly two environment keys:
+
+- `EHPANDA_CAPTURE_CONFIGURATION`: one JSON object with exactly the keys `purpose`
+  (`marketingReal` or `regressionPublic`), `scenarioID` and `fixtureID`. Both identifiers match
+  `[a-z][a-z0-9-]*`, for example
+  `{"purpose":"marketingReal","scenarioID":"home","fixtureID":"nonexplicit"}`.
+- `EHPANDA_CAPTURE_FIXTURES`: the absolute path of one fixture version directory, never a link to
+  one. Resolve `current` once and pass the version it names.
+
+A capture takes no other `EHPANDA_` key: setting one beside these two, or setting only one of
+them, refuses the launch. `purpose` decides which fixture schema is accepted, so a marketing
+configuration cannot read a public fixture or the reverse. For marketing, `fixtureID` names a
+selection set and `scenarioID` names the screen; `home` is the only marketing scene so far. A
+public configuration validates its fixture and is then refused until 17-11 adds public scenes.
+
+Before the app builds any state, the launch verifies the whole fixture as
+`fixtures.validate_fixtures` does: exact file set, lengths, SHA-256 digests, canonical paths, no
+links, media types, the selection digest and identity, and the aggregate digest and version.
+It also checks that Home can show the selection as configured, for example that the hero's
+`selectedIndex` is Home's starting card, 1. Any failure ends the launch with a message that names
+the check and the fixture-relative path or identifier involved, never file contents.
+
+## Isolation
+
+A capture launch replaces, before the first store exists:
+
+- settings and other app storage with fresh in-memory stores, so nothing reads or writes the
+  device's own values;
+- cookies, analytics, clipboard, logs and downloads with inert clients;
+- the clock with 2025-01-01T00:00:00Z and identifiers with an incrementing sequence;
+- Home's gallery client with the selection's galleries in configured order, parsed by the app's
+  own parser from the saved detail pages;
+- every HTTP(S) request with an exact replay of the fixture: a `GET` of a listed URL gets that
+  file's verified bytes and recorded media type, and anything else fails and is recorded.
+
+Image caches live in `EhPandaCapture` under the app's temporary directory. Every capture launch
+empties that directory first and touches nothing else, so each launch starts cold and a capture
+never removes a user's files.
+
+## Diagnostics
+
+UI tests read the capture's state from one invisible accessibility element, identified
+`capture_diagnostics`, present only in capture launches. Its value is JSON, computed when read:
+
+| Field | Meaning |
+|---|---|
+| `screenID` | The screen shown, `home`, or absent for a screen no capture identifies yet |
+| `selectionID` | The selection the fixture was acquired from |
+| `fixtureVersion` | The fixture version directory name |
+| `galleryIDs` | The galleries the screen shows, in display order |
+| `page` | The reader page shown; absent until reader scenes exist |
+| `readiness` | `loading`, `ready` or `failed` |
+| `pendingImages` | Images the replay delivered that the image cache does not hold yet |
+| `unknownRequests` | Requests the replay refused, as `METHOD URL` |
+
+Home is `ready` once all of its lists hold galleries, nothing is loading, the current card's cover
+is cached and no delivered image waits for the cache. It is `failed` as soon as a list fails to
+load or the replay refuses a request, because the screen can then never be complete.
+
+## Isolation test
+
+`CaptureIsolationUITests` launches the app on a real fixture, waits for Home, compares the
+diagnostics with the selection (screen, selection, version, gallery order, no pending image, no
+refused request), and repeats this after a relaunch, which resets the capture's storage. Each
+launch attaches its diagnostics and a screenshot to the result bundle. The test copies the fixture
+into its own temporary directory and removes the copy when it ends.
+
+The fixture holds real content, so the runner names it through an environment variable instead of
+the repository. Without it the test fails rather than skip. Resolve the simulator from its model
+and runtime, run one destination at a time, and return each simulator to the power state you
+found:
+
+```sh
+TEST_RUNNER_EHPANDA_CAPTURE_SOURCE="$PWD/.capture/marketing/current" \
+  xcodebuild test -project EhPanda.xcodeproj -scheme EhPanda -testPlan UITests \
+  -destination "platform=iOS Simulator,id=$UDID" \
+  -only-testing:EhPandaUITests/CaptureIsolationUITests \
+  -resultBundlePath .capture/<new run directory>/result.xcresult
+```
+
+The result bundle quotes real content and belongs under the git-ignored `.capture/`.

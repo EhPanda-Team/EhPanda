@@ -13,10 +13,16 @@ final class CaptureReplay: Sendable {
     }
 
     private let responses: [String: Response]
+    private let answeredRequests = Mutex(Set<String>())
     private let unknownRequests = Mutex([String]())
 
     init(responses: [String: Response]) {
         self.responses = responses
+    }
+
+    /// The listed URLs this replay has answered.
+    var answeredURLs: Set<String> {
+        answeredRequests.withLock({ $0 })
     }
 
     /// Requests this replay could not answer, as `METHOD URL` in arrival order.
@@ -32,6 +38,7 @@ final class CaptureReplay: Sendable {
             unknownRequests.withLock({ $0.append("\(method) \(url)") })
             return nil
         }
+        answeredRequests.withLock({ _ = $0.insert(url) })
         return response
     }
 }
@@ -47,14 +54,6 @@ final class UITestStubURLProtocol: URLProtocol {
     }
 
     private static let mode = Mutex(Mode.fixtureDirectory(nil))
-
-    /// The replay a capture launch installed, if any.
-    static var installedReplay: CaptureReplay? {
-        guard case .replay(let replay) = mode.withLock({ $0 }) else {
-            return nil
-        }
-        return replay
-    }
 
     override static func canInit(with request: URLRequest) -> Bool {
         guard let scheme = request.url?.scheme?.lowercased() else {
