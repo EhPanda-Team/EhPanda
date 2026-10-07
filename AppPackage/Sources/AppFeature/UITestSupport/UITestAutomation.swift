@@ -66,15 +66,32 @@ public enum UITestAutomation {
         let shouldStubNetwork: Bool
         let shouldUseVisualTestHost: Bool
         let pauseRefusal: PauseRefusal?
+        /// A capture launch's validated scene. A capture takes no other UI-test key, so every
+        /// other field is inert when this is set.
+        let captureScene: CaptureScene?
     }
+
+    /// The one clock reading of every hosted visual test and capture launch.
+    static let fixedDate = Date(timeIntervalSince1970: 1_735_689_600)
 
     @discardableResult
     static func prepare(
         environment: [String: String],
         now: Date = .now
     ) -> Configuration? {
-        guard let configuration = resolve(environment: environment, now: now) else {
-            return nil
+        let resolved: Configuration?
+        do {
+            resolved = try resolve(environment: environment, now: now)
+            if let captureScene = resolved?.captureScene {
+                try CaptureScenePreparation.install(captureScene)
+            }
+        } catch {
+            // A capture launch never degrades to live data or a partial scene: it ends here, before
+            // the app builds any state, with the check that failed.
+            fatalError("EhPanda refused the capture launch: \(error)")
+        }
+        guard let configuration = resolved, configuration.captureScene == nil else {
+            return resolved
         }
 
         if configuration.shouldStubNetwork {
@@ -105,7 +122,7 @@ public enum UITestAutomation {
                     $0.userDefaultsClient = .noop
                     $0.defaultAppStorage = UserDefaults.inMemory
                     $0.defaultInMemoryStorage = InMemoryStorage()
-                    $0.date.now = Date(timeIntervalSince1970: 1_735_689_600)
+                    $0.date.now = fixedDate
                     $0.uuid = .incrementing
                 }
                 if let clipboardClient = configuration.clipboardClient {
@@ -119,11 +136,24 @@ public enum UITestAutomation {
         return configuration
     }
 
+    /// The configuration `environment` requests, or `nil` when it requests none.
+    ///
+    /// Only a capture request can fail: its configuration and fixture are validated here in full.
     static func resolve(
         environment: [String: String],
         now: Date,
         isTesting: Bool = AppInfo.isTesting
-    ) -> Configuration? {
+    ) throws(CaptureFailure) -> Configuration? {
+        if let captureScene = try CaptureScenePreparation.scene(environment: environment) {
+            return Configuration(
+                fixtureDirectory: nil,
+                clipboardClient: nil,
+                shouldStubNetwork: false,
+                shouldUseVisualTestHost: false,
+                pauseRefusal: nil,
+                captureScene: captureScene
+            )
+        }
         let shouldUseVisualTestHost = isTesting && trimmedValue(
             environment: environment,
             key: "EHPANDA_VISUAL_TEST_HOST"
@@ -165,7 +195,8 @@ public enum UITestAutomation {
             clipboardClient: clipboardClient,
             shouldStubNetwork: shouldStubNetwork,
             shouldUseVisualTestHost: shouldUseVisualTestHost,
-            pauseRefusal: pauseRefusal
+            pauseRefusal: pauseRefusal,
+            captureScene: nil
         )
     }
 

@@ -8,7 +8,7 @@ struct UITestStubTests {
     @Test
     func visualHostOptInForcesOfflineBootstrap() throws {
         let configuration = try #require(
-            UITestAutomation.resolve(
+            try UITestAutomation.resolve(
                 environment: ["EHPANDA_VISUAL_TEST_HOST": "1"],
                 now: Date(timeIntervalSinceReferenceDate: 123)
             )
@@ -18,17 +18,17 @@ struct UITestStubTests {
     }
 
     @Test
-    func visualHostFlagRequiresAnActualTestProcess() {
+    func visualHostFlagRequiresAnActualTestProcess() throws {
         let now = Date(timeIntervalSinceReferenceDate: 123)
         #expect(
-            UITestAutomation.resolve(
+            try UITestAutomation.resolve(
                 environment: ["EHPANDA_VISUAL_TEST_HOST": "1"],
                 now: now,
                 isTesting: false
             ) == nil
         )
         #expect(
-            UITestAutomation.resolve(
+            try UITestAutomation.resolve(
                 environment: ["EHPANDA_VISUAL_TEST_HOST": "0"],
                 now: now,
                 isTesting: true
@@ -102,7 +102,7 @@ struct UITestStubTests {
             "EHPANDA_UITEST_CLIPBOARD_URL": " \(clipboardURL.absoluteString) "
         ]
         let configuration = try #require(
-            UITestAutomation.resolve(environment: environment, now: now)
+            try UITestAutomation.resolve(environment: environment, now: now)
         )
         let clipboardClient = try #require(configuration.clipboardClient)
 
@@ -128,7 +128,7 @@ struct UITestStubTests {
     @Test
     func pauseRefusalUnknownArmOptsInAlone() throws {
         let configuration = try #require(
-            UITestAutomation.resolve(
+            try UITestAutomation.resolve(
                 environment: ["EHPANDA_UITEST_FORCE_PAUSE_REFUSAL": " unknown "],
                 now: Date(timeIntervalSinceReferenceDate: 123)
             )
@@ -143,7 +143,7 @@ struct UITestStubTests {
     @Test
     func pauseRefusalNotFoundArmResolves() throws {
         let configuration = try #require(
-            UITestAutomation.resolve(
+            try UITestAutomation.resolve(
                 environment: ["EHPANDA_UITEST_FORCE_PAUSE_REFUSAL": "notFound"],
                 now: Date(timeIntervalSinceReferenceDate: 123)
             )
@@ -157,9 +157,9 @@ struct UITestStubTests {
     /// The same disposition an unknown `EHPANDA_AUTOMATION_TAB` gets. Guessing an arm from a typo
     /// would make a device observation report a refusal nobody asked for.
     @Test
-    func pauseRefusalRejectsAnUnrecognizedValue() {
+    func pauseRefusalRejectsAnUnrecognizedValue() throws {
         #expect(
-            UITestAutomation.resolve(
+            try UITestAutomation.resolve(
                 environment: ["EHPANDA_UITEST_FORCE_PAUSE_REFUSAL": "nope"],
                 now: Date(timeIntervalSinceReferenceDate: 123)
             ) == nil
@@ -171,7 +171,7 @@ struct UITestStubTests {
     @Test
     func pauseRefusalStaysNilBesideAnotherOptIn() throws {
         let configuration = try #require(
-            UITestAutomation.resolve(
+            try UITestAutomation.resolve(
                 environment: [
                     "EHPANDA_UITEST_FORCE_PAUSE_REFUSAL": "nope",
                     "EHPANDA_UITEST_STUB_NETWORK": "1"
