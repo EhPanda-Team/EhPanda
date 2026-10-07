@@ -1,43 +1,23 @@
 {
   "version": "1.0",
-  "timestamp": "2026-10-07T01:40:00+00:00",
+  "timestamp": "2026-10-07T04:48:54Z",
   "phase": "17",
   "phase_name": "Screenshot Automation, Visual Regression & OS 27 Modernization",
   "phase_dir": ".planning/phases/17-localized-screenshot-capture-harness",
-  "plan": 4,
+  "plan": 5,
   "task": 1,
   "total_tasks": 2,
-  "status": "ready-17-04",
-  "completed_tasks": [
-    {
-      "id": 1,
-      "name": "17-03-T1: Acquire a declared real-gallery selection with reproducible provenance",
-      "commits": [
-        "60e49ea30",
-        "6b8261409",
-        "bdc0f1f11"
-      ],
-      "status": "complete-owner-input-pending"
-    },
-    {
-      "id": 2,
-      "name": "17-03-T2: Validate offline scene composition and provisional content",
-      "commits": [
-        "b9c2e2aa6",
-        "404ead2c7"
-      ],
-      "status": "complete-owner-input-pending"
-    }
-  ],
+  "status": "ready-17-05",
+  "completed_tasks": [],
   "remaining_tasks": [
     {
       "id": 1,
-      "name": "17-04-T1: Replay one selected Home scene through actual app dependencies",
+      "name": "17-05-T1: Launch real app routes and verify selected screen readiness",
       "status": "pending"
     },
     {
       "id": 2,
-      "name": "17-04-T2: Prove isolation, selected content and offline request failures",
+      "name": "17-05-T2: Gate native chrome and cold-rerun determinism on real destinations",
       "status": "pending"
     }
   ],
@@ -46,7 +26,7 @@
   "human_actions_pending": [
     "Owner: supply the explicit set (gallery URLs, Home slots, flow gallery and pages, downloads; Scripts/visual/README.md, Selection). The agent does not select explicit galleries; the nonexplicit set is acquired as marketing-fdcb0fc6d3c54a29.",
     "Owner: visually review the explicit set when supplied, and weigh the real site usernames in the nonexplicit flow gallery comments for the final selection.",
-    "Owner: the pinned iPhone Air was found Booted by another process (a sim-use daemon started 2026-10-06T17:25:17Z); confirm before it is returned to Shutdown for the next simulator gate."
+    "Owner: decide whether ImageColors may order equally counted colors deterministically (a production output change). The dark Home card gradient differs between two launches of the same capture on the iPhone, which 17-05's byte-identical cold-rerun gate depends on (17-04-REVIEW.md, Carried to 17-05)."
   ],
   "decisions": [
     {
@@ -238,6 +218,21 @@
       "decision": "No placeholder for the explicit set; development continues with the nonexplicit set only.",
       "rationale": "Owner: the nonexplicit set is technically sufficient for development. Explicit-set coordinates stay pending owner gallery input. Recorded in 17-04-PLAN.md.",
       "phase": "17"
+    },
+    {
+      "decision": "Home gets an injected HomeClient for its popular, frontpage and Toplists fetches; capture overrides it with the selection parsed from the saved detail pages.",
+      "rationale": "Owner, 2026-10-07: the plan routes Home data through injected request clients, but Home called its requests directly. Recorded in 17-04-PLAN.md.",
+      "phase": "17"
+    },
+    {
+      "decision": "The live HomeClient arranges the carousel, so capture returns the configured order unchanged.",
+      "rationale": "Owner, 2026-10-07 (recommended option). Recorded in 17-04-PLAN.md.",
+      "phase": "17"
+    },
+    {
+      "decision": "The Toplists loading skeleton uses blank galleries without a cover, so Home makes no third-party request.",
+      "rationale": "Owner, 2026-10-07: the first actual-app capture failed closed on the skeleton's GitHub image. Recorded in 17-04-PLAN.md.",
+      "phase": "17"
     }
   ],
   "uncommitted_files": [
@@ -247,8 +242,8 @@
     "M  EhPanda.xcodeproj/project.pbxproj",
     "?? .capture/"
   ],
-  "next_action": "Start 17-04 (read 17-04-PLAN.md and 17-03-SUMMARY.md) using the provisional nonexplicit fixture .capture/marketing/current (marketing-fdcb0fc6d3c54a29). Explicit-set steps wait for owner IDs. Before any simulator gate, confirm the iPhone state with the owner and restore iPhone Shutdown, iPad Booted, both portrait and Large.",
-  "context_notes": "17-03 complete with owner-input gates: tooling acquires owner-declared galleries anonymously into .capture/marketing (content-addressed versions, atomic single-writer publication, scrubbed access values); readers resolve current once with fixtures.resolve_fixtures. The provisional nonexplicit set is acquired; the explicit set is not. Pin SHA-256 5c507a4c0c5013fad010a19222ef7b8b1eec86d354b89fc1b7c07610567c725c is unchanged. Pinned simulators need iPad Full Screen Apps, iPhone dark and Reduce Motion on for both.",
+  "next_action": "Start 17-05 (read 17-05-PLAN.md and 17-04-SUMMARY.md) on the provisional nonexplicit fixture .capture/marketing/current (marketing-fdcb0fc6d3c54a29). Raise the ImageColors determinism decision with the owner before 17-05-T2's cold-rerun gate. Explicit-set coordinates wait for owner IDs. Keep iPhone Shutdown, iPad Booted, both portrait and Large.",
+  "context_notes": "17-04 complete: a Debug-only capture launch (EHPANDA_CAPTURE_CONFIGURATION, EHPANDA_CAPTURE_FIXTURES) validates one fixture version completely, installs an isolated offline scene before the first store (capture-owned reader, Kingfisher and SDWebImage caches reset per launch; exact-URL GET replay refusing everything else) and shows the selected Home scene through the injected HomeClient. UI tests read CaptureDiagnostics from the invisible capture_diagnostics accessibility element; CaptureIsolationUITests passes on both pinned devices with TEST_RUNNER_EHPANDA_CAPTURE_SOURCE. Release builds contain no capture code. Pinned simulators need iPad Full Screen Apps, iPhone dark and Reduce Motion on for both; the iPhone was found at AX5 during 17-04 and restored to Large.",
   "evidence": {
     "proposal": ".planning/phases/17-localized-screenshot-capture-harness/17-01-CAPTURE-GATE.md",
     "bootstrap": {
@@ -1393,6 +1388,18 @@
       "selection": ".capture/marketing-selection-01/ (seed 4767476936933364992, 60 sampled, 1 tag-excluded, 13 rejected)",
       "acquisition": ".capture/marketing/versions/marketing-fdcb0fc6d3c54a29 (42 assets)",
       "selection_review": ".capture/marketing-review-01/ (valid composition, visual-review.md)"
+    },
+    "capture_scenes": {
+      "summary": ".planning/phases/17-localized-screenshot-capture-harness/17-04-SUMMARY.md",
+      "review": ".planning/phases/17-localized-screenshot-capture-harness/17-04-REVIEW.md",
+      "t1_build": ".capture/17-04-t1-verify-02/ (generic Debug build, capture-strings.txt)",
+      "release_check": ".capture/17-04-release-check-01/ (Release build, capture-strings.txt: none)",
+      "t2_contracts": ".capture/17-04-t2-verify-02/ (CaptureSceneTests and CaptureFixtureTests, phone and tablet)",
+      "actual_app": ".capture/17-04-final-ui-01/ (CaptureIsolationUITests, both devices, -test-iterations 1)",
+      "actual_app_fail_closed": ".capture/17-04-isolation-ui-02/ (refused GitHub request reported as failed)",
+      "missing_source": ".capture/17-04-isolation-ui-01-missing-source/",
+      "full_plan": ".capture/17-04-cache-isolation-gate-01/ (22 of 22 Swift Testing runs; same 10 VisualSnapshotTests environment failures)",
+      "lint": ".capture/17-04-final-lint-01/ (21 Swift files, strict)"
     }
   },
   "recovery_logs": [
@@ -1401,25 +1408,25 @@
     "/tmp/ehpanda-phase17-t1-host-build-3.log",
     "/tmp/ehpanda-phase17-symbol-build.log"
   ],
-  "uncommitted_files_note": "Only the four reserved staged entries and the untracked .capture/ evidence remain; all 17-03 source and documentation is committed.",
-  "source_checkpoint": "bdc0f1f11",
+  "uncommitted_files_note": "Only the four reserved staged entries and the untracked .capture/ evidence remain; all 17-04 source and documentation is committed.",
+  "source_checkpoint": "42962bb1d",
   "previous_plan_tasks": [
     {
       "id": 1,
-      "name": "17-02 explicit pinned hosted matrix producer",
-      "commit": "7de15e6a",
+      "name": "17-04-T1: Replay one selected Home scene through actual app dependencies",
+      "commits": [
+        "3430e6fb0",
+        "dc4d200b8",
+        "c2282e7da"
+      ],
       "status": "complete"
     },
     {
       "id": 2,
-      "name": "17-02 complete tracer execution and coordinate accounting",
+      "name": "17-04-T2: Prove isolation, selected content and offline request failures",
       "commits": [
-        "d88629d0",
-        "03c7cc76",
-        "0909a1b4",
-        "a62dcdf0",
-        "271365da",
-        "f55de085"
+        "7a23e6233",
+        "42962bb1d"
       ],
       "status": "complete"
     }
@@ -1428,7 +1435,8 @@
     "17-01",
     "17-24",
     "17-02",
-    "17-03"
+    "17-03",
+    "17-04"
   ],
   "reserved_staged_blobs": {
     ".gsd/dispatch-isolation-sentinel.json": "f23c98b270324284fe9af8fad70335ea69d412a4",
@@ -1765,5 +1773,5 @@
       "summary": ".planning/phases/17-localized-screenshot-capture-harness/17-02-SUMMARY.md"
     }
   },
-  "updated_at": "2026-10-07T01:40:00+00:00"
+  "updated_at": "2026-10-07T04:48:54Z"
 }
