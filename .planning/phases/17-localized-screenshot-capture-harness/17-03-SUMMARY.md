@@ -64,11 +64,19 @@ coverage:
         status: pass
     human_judgment: false
   - id: D4
-    description: A real selection and its assets exist locally, and their content is reviewed visually.
+    description: A real provisional nonexplicit selection and its assets exist locally, sampled at random from Non-H and reviewed visually.
     requirement: CAP-17-01
     verification:
       - kind: manual_procedural
-        ref: Owner-input checkpoint; waits for owner gallery IDs for both sets (17-03-PLAN.md, owner decision of 2026-10-07)
+        ref: .capture/marketing-selection-01/ (seed, candidates, rejections); .capture/marketing/versions/marketing-fdcb0fc6d3c54a29; .capture/marketing-review-01/ (valid composition, visual-review.md)
+        status: pass
+    human_judgment: true
+  - id: D5
+    description: The explicit set's selection and assets.
+    requirement: CAP-17-01
+    verification:
+      - kind: manual_procedural
+        ref: Agent-assisted selection and acquisition for both sets (17-03-PLAN.md)
         status: unknown
     human_judgment: true
 duration: about 1 hour after the owner decision (2026-10-06, 16:32 to 17:36 UTC)
@@ -79,15 +87,16 @@ source_head: fa524f0a28
 
 # Phase 17 Plan 03: Real marketing fixture tooling Summary
 
-**Owner-declared real galleries can be acquired once, anonymously, into a scrubbed, checksummed and
-versioned local fixture, and reviewed offline. No real gallery has been acquired yet: the owner
-supplies every gallery ID.**
+**Real galleries can be acquired once, anonymously, into a scrubbed, checksummed and versioned
+local fixture, and reviewed offline. A random, visually reviewed Non-H selection is acquired as the
+provisional nonexplicit set; the agent continues preparing the explicit set.**
 
 ## Performance
 
 - The owner decision was recorded at 2026-10-06T16:32:53Z; the last source commit landed at
   2026-10-06T17:35:51Z.
-- Tasks: 2/2. Source commits: 5. Documentation commits: 2 (the owner decision and this record).
+- Tasks: 2/2. Source commits: 5. Documentation commits: 4 (two owner instructions and two
+  completion records).
 - Realized diff: about 29,500 tokens (chars/4), against an estimate of 48,000.
 
 ## Accomplishments
@@ -117,6 +126,36 @@ supplies every gallery ID.**
   rankings, the flow pages with their reader and Live Text roles, saved comments and downloads
   with display priority. It reports composition problems and the unresolved final inputs, and it
   approves nothing.
+
+## Provisional nonexplicit selection
+
+Following the owner's later instruction (17-03-PLAN.md), `.capture/marketing-selection-01/sample.py`
+drew one gallery at random from each of 60 Non-H listing pages at random cursors (seed
+4767476936933364992), read their metadata from the gallery API without recording archiver keys, and
+excluded one gallery by tag (ryona). Of the 59 candidate covers (`contact-0.png`, `contact-1.png`),
+13 were rejected in visual review, each with its reason in `rejections.json`: two whose title or
+circle signals lolicon, and covers or tags showing lingerie, underwear, swimsuit pin-ups, fanservice
+or fetish themes. The selection takes the accepted candidates in their random order. The flow
+gallery must name a text language for Live Text and have a readable comment: 1979820, a 31-page
+English comic with 3 comments, reading and Live Text on page 4.
+
+```sh
+PYTHONPATH=Scripts/visual python3 -B .capture/marketing-selection-01/sample.py sample
+PYTHONPATH=Scripts/visual python3 -B .capture/marketing-selection-01/sample.py select \
+  --rejections .capture/marketing-selection-01/rejections.json
+python3 -B Scripts/visual/acquire-fixtures.py \
+  --selection .capture/marketing-selection-01/selection.json --output .capture/marketing
+python3 -B Scripts/visual/selection-review.py --fixtures .capture/marketing/current \
+  --output .capture/marketing-review-01
+```
+
+The first real acquisition published `marketing-fdcb0fc6d3c54a29` (2026-10-07T01:19:35Z to
+01:20:44Z): 42 assets, 1.7 MB, 17 details and covers, one preview sprite, one preview page and three
+reader pages with images, from `e-hentai.org`, `ehgt.org` and H@H hosts, with every keystamp zeroed.
+The review reports a valid composition; its only unresolved inputs are the explicit set and the final
+owner selection. In `visual-review.md`, all stored covers, the preview sprite and pages 3 to 5 show
+no nudity, sexual suggestion, gore or real-person photographs. The three saved comments are benign
+but name real site usernames, which the owner should weigh in the final selection.
 
 ## Task Commits
 
@@ -153,7 +192,7 @@ Every mutation run used a git-initialized copy holding exactly the scripts and t
 responses, with an unmutated baseline. The tests use synthetic responses and the repository's saved
 parser responses only. One HEAD request to the `e-hentai.org` root confirmed that the site accepts
 the tool's User-Agent and cookie (`.capture/marketing-fixtures-host-probe-01/probe.json`, status
-200); no gallery was requested.
+200); that probe requested no gallery.
 
 ## Review
 
@@ -174,17 +213,11 @@ defects and one test-isolation weakness. Each is fixed with a test that fails on
 ## Decisions and Deviations
 
 - **Owner delegation, 2026-10-07.** The agent assists with provisional gallery selection, review and fixture acquisition for both nonexplicit and explicit content sets; the owner confirms the final selection at Phase 17 closure.
+- **Owner instruction, later on 2026-10-07.** The nonexplicit sample uses Non-H; the agent also prepares the explicit selection through the same acquisition and review tooling.
 ## Unresolved Gates
 
-1. **Owner gallery input for both sets.** For each content set: gallery URLs in the form
-   `https://e-hentai.org/g/<gid>/<token>/` with explicit set assignment, Home slots (at least
-   three hero galleries with a neighbor on each side of `selectedIndex`, an even frontpage count of
-   at least two, at least three per Toplists period), the flow gallery with its reader pages,
-   `readerPage` and `liveTextPage`, and at least two downloads in display order. Then acquire into
-   `.capture/marketing` with `selectionAuthority: owner` and run `selection-review.py`.
-2. **Visual review of real content.** To be raised with the owner when the IDs arrive: the agent
-   cannot verify that explicit-set content is free of prohibited material, so the visual review of
-   that set needs the owner.
+1. **Agent-assisted explicit fixture preparation.** The agent prepares provisional gallery URLs, declared set assignments, Home composition, flow/Live Text pages and download states, then validates and acquires the selection with `acquire-fixtures.py` and `selection-review.py`.
+2. **Visual review of both content sets.** The agent reviews the provisional selections against the screenshot criteria; final owner approval remains the Phase 17 closure checkpoint.
 3. **Final selection.** `selectionStatus: final` with owner authority remains the Phase 17 closure
    checkpoint in 17-21.
 
@@ -202,7 +235,7 @@ defects and one test-isolation weakness. Each is fixed with a test that fails on
 
 ## User Setup Required
 
-None for the tooling. Real acquisition needs the owner input above.
+None for the tooling. The agent prepares both content sets; final owner confirmation remains a closure checkpoint.
 
 ## Next Plan Readiness
 
@@ -210,7 +243,6 @@ None for the tooling. Real acquisition needs the owner input above.
 `purpose: marketingReal`, `fixtureVersion`, `aggregateDigest`, the selection identity and digest,
 and `assets` entries of `kind`, `gid`, `index`, `url`, `path`, `mime`, `bytes`, `sha256` and
 `retrievedAt`, beside `selection.json` (Scripts/visual/README.md). Replay matches the stored
-scrubbed URLs exactly. A reader resolves `current` once and stays on that version directory. Every
-17-04 step that launches the app on real marketing content, including the Home launch on plan 03
-assets, waits for the owner input. Phase progress is 4/24 plans; CAP-17-01 and CAP-17-04 stay open
-until real content is acquired and every declaring plan finishes.
+scrubbed URLs exactly. A reader resolves `current` once and stays on that version directory. 17-04 can
+launch the actual Home scene on the provisional nonexplicit fixture now; The agent prepares explicit-set galleries and fixtures. Phase progress is 4/24 plans; CAP-17-01 and CAP-17-04 stay open until both
+sets are acquired and every declaring plan finishes.

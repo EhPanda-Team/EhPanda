@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "timestamp": "2026-10-06T17:40:00+00:00",
+  "timestamp": "2026-10-07T01:30:00+00:00",
   "phase": "17",
   "phase_name": "Screenshot Automation, Visual Regression & OS 27 Modernization",
   "phase_dir": ".planning/phases/17-localized-screenshot-capture-harness",
@@ -44,7 +44,6 @@
   "blockers": [],
   "async_jobs": [],
   "human_actions_pending": [
-    "Owner: supply gallery URLs, set assignments, Home slots, flow gallery and pages, and downloads for both content sets (Scripts/visual/README.md, Selection); then the agent acquires with selectionAuthority owner and runs selection-review.py.",
     "Owner: the pinned iPhone Air was found Booted by another process (a sim-use daemon started 2026-10-06T17:25:17Z); confirm before it is returned to Shutdown for the next simulator gate.",
     "Owner: confirm final selections and visually approve final captures for both nonexplicit and explicit sets at Phase 17 closure; the agent prepares provisional galleries and fixtures for both sets."
   ],
@@ -228,6 +227,11 @@
       "decision": "The agent assists with provisional gallery selection, review and fixture acquisition for both nonexplicit and explicit content sets; the owner confirms the final selection at Phase 17 closure.",
       "rationale": "Owner delegation covers provisional gallery URLs, set assignments, composition, page choices, review and acquisition for both sets. Final owner confirmation remains the closure checkpoint.",
       "phase": "17"
+    },
+    {
+      "decision": "The agent prepares provisional galleries for both content sets. The requested nonexplicit sample uses Non-H and records its sampling and review evidence.",
+      "rationale": "Both nonexplicit and explicit selections use the same declared-selection, acquisition, review and capture pipeline under owner delegation.",
+      "phase": "17"
     }
   ],
   "uncommitted_files": [
@@ -237,8 +241,8 @@
     "M  EhPanda.xcodeproj/project.pbxproj",
     "?? .capture/"
   ],
-  "next_action": "Start 17-04 (read 17-04-PLAN.md and 17-03-SUMMARY.md). Ask the owner for the gallery input before any step that needs real marketing content, including the actual Home launch on plan 03 assets. Before any simulator gate, confirm the iPhone state with the owner and restore iPhone Shutdown, iPad Booted, both portrait and Large.",
-  "context_notes": "17-03 complete with owner-input gates: tooling acquires owner-declared galleries anonymously into .capture/marketing (content-addressed versions, atomic single-writer publication, scrubbed access values); readers resolve current once with fixtures.resolve_fixtures. No real gallery was selected, browsed or acquired. Pin SHA-256 5c507a4c0c5013fad010a19222ef7b8b1eec86d354b89fc1b7c07610567c725c is unchanged. Pinned simulators need iPad Full Screen Apps, iPhone dark and Reduce Motion on for both.",
+  "next_action": "Start 17-04 (read 17-04-PLAN.md and 17-03-SUMMARY.md) using the provisional nonexplicit fixture .capture/marketing/current (marketing-fdcb0fc6d3c54a29). The agent prepares galleries and fixtures for both content sets. Before any simulator gate, confirm the iPhone state with the owner and restore iPhone Shutdown, iPad Booted, both portrait and Large.",
+  "context_notes": "17-03 complete with owner-input gates: tooling acquires owner-declared galleries anonymously into .capture/marketing (content-addressed versions, atomic single-writer publication, scrubbed access values); readers resolve current once with fixtures.resolve_fixtures. The provisional nonexplicit set is acquired; the explicit set is not. Pin SHA-256 5c507a4c0c5013fad010a19222ef7b8b1eec86d354b89fc1b7c07610567c725c is unchanged. Pinned simulators need iPad Full Screen Apps, iPhone dark and Reduce Motion on for both.",
   "evidence": {
     "proposal": ".planning/phases/17-localized-screenshot-capture-harness/17-01-CAPTURE-GATE.md",
     "bootstrap": {
@@ -1379,7 +1383,10 @@
       ],
       "review_fix_mutations": ".capture/17-03-fix-mutations-02/ (5 of 5 killed)",
       "final_suite": ".capture/17-03-isolation-green-01/ (126 tests)",
-      "plan_verify": ".capture/17-03-verify-02/ (37 and 16 tests)"
+      "plan_verify": ".capture/17-03-verify-02/ (37 and 16 tests)",
+      "selection": ".capture/marketing-selection-01/ (seed 4767476936933364992, 60 sampled, 1 tag-excluded, 13 rejected)",
+      "acquisition": ".capture/marketing/versions/marketing-fdcb0fc6d3c54a29 (42 assets)",
+      "selection_review": ".capture/marketing-review-01/ (valid composition, visual-review.md)"
     }
   },
   "recovery_logs": [
@@ -1752,5 +1759,5 @@
       "summary": ".planning/phases/17-localized-screenshot-capture-harness/17-02-SUMMARY.md"
     }
   },
-  "updated_at": "2026-10-06T17:40:00+00:00"
+  "updated_at": "2026-10-07T01:30:00+00:00"
 }
