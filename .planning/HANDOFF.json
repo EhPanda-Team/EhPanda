@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "timestamp": "2026-10-07T01:30:00+00:00",
+  "timestamp": "2026-10-07T01:40:00+00:00",
   "phase": "17",
   "phase_name": "Screenshot Automation, Visual Regression & OS 27 Modernization",
   "phase_dir": ".planning/phases/17-localized-screenshot-capture-harness",
@@ -231,6 +231,11 @@
     {
       "decision": "The agent prepares provisional galleries for both content sets. The requested nonexplicit sample uses Non-H and records its sampling and review evidence.",
       "rationale": "Both nonexplicit and explicit selections use the same declared-selection, acquisition, review and capture pipeline under owner delegation.",
+      "phase": "17"
+    },
+    {
+      "decision": "Use the available nonexplicit fixture for initial development while the agent prepares the explicit fixture alongside it.",
+      "rationale": "The initial fixture is technically sufficient for independent tooling work; the agent continues gallery preparation for both sets.",
       "phase": "17"
     }
   ],
@@ -1759,5 +1764,5 @@
       "summary": ".planning/phases/17-localized-screenshot-capture-harness/17-02-SUMMARY.md"
     }
   },
-  "updated_at": "2026-10-07T01:30:00+00:00"
+  "updated_at": "2026-10-07T01:40:00+00:00"
 }
