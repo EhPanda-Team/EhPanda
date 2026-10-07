@@ -21,11 +21,18 @@ import UIKit
 //   * the light-vs-dark background fallback branch (light → black text, dark → white text).
 @Suite
 struct ImageColorsParityTests {
-    private struct RGBA: Equatable {
+    fileprivate struct RGBA: Equatable {
         let red: Int
         let green: Int
         let blue: Int
         let alpha: Int
+
+        var uiColor: UIColor {
+            UIColor(
+                red: CGFloat(red) / 255, green: CGFloat(green) / 255,
+                blue: CGFloat(blue) / 255, alpha: CGFloat(alpha) / 255
+            )
+        }
     }
 
     private func solidImage(_ color: UIColor, size: CGSize = .init(width: 60, height: 60)) -> UIImage {
@@ -160,5 +167,60 @@ struct ImageColorsParityTests {
             #expect(accent != black)
             #expect(accent != white)
         }
+    }
+
+    /// Equally common colors rank by their packed value, lowest first. Ranked by count alone, a
+    /// tie followed the counting dictionary's order, which changes with every process, so the same
+    /// cover gave Home's card different colors from one launch to the next. Each pair is a fresh
+    /// chance for that order to put the higher color first, so the old ranking passes all eight
+    /// only by luck.
+    @Test(arguments: TiedColors.all)
+    fileprivate func equallyCommonColorsRankByColorValue(_ tied: TiedColors) throws {
+        let halves = try extractedColors(
+            of: stripedImage(background: tied.higher.uiColor, stripes: [(tied.lower.uiColor, 30)]),
+            quality: .highest
+        )
+        #expect(components(halves.background) == tied.lower)
+        #expect(components(halves.primary) == RGBA(red: 255, green: 255, blue: 255, alpha: 255))
+
+        let accents = try extractedColors(
+            of: stripedImage(
+                background: gray(220),
+                stripes: [(tied.higher.uiColor, 10), (tied.lower.uiColor, 10)]
+            ),
+            quality: .highest
+        )
+        #expect(components(accents.background) == RGBA(red: 220, green: 220, blue: 220, alpha: 255))
+        #expect(components(accents.primary) == tied.lower)
+        #expect(components(accents.secondary) == tied.higher)
+        #expect(components(accents.detail) == RGBA(red: 0, green: 0, blue: 0, alpha: 255))
+    }
+}
+
+/// Two dark, saturated, mutually distinct colors that both contrast with a light gray, in the
+/// order their packed `r * 1_000_000 + g * 1_000 + b` values rank them.
+private struct TiedColors: CustomTestStringConvertible {
+    typealias RGBA = ImageColorsParityTests.RGBA
+
+    static let all = [
+        TiedColors(lower: opaque(60, 60, 200), higher: opaque(200, 60, 60)),
+        TiedColors(lower: opaque(20, 120, 40), higher: opaque(150, 20, 20)),
+        TiedColors(lower: opaque(30, 40, 150), higher: opaque(120, 30, 120)),
+        TiedColors(lower: opaque(10, 100, 100), higher: opaque(100, 20, 140)),
+        TiedColors(lower: opaque(0, 80, 160), higher: opaque(160, 40, 0)),
+        TiedColors(lower: opaque(0, 0, 140), higher: opaque(90, 0, 0)),
+        TiedColors(lower: opaque(10, 60, 130), higher: opaque(130, 60, 10)),
+        TiedColors(lower: opaque(0, 110, 40), higher: opaque(60, 10, 90))
+    ]
+
+    let lower: RGBA
+    let higher: RGBA
+
+    var testDescription: String {
+        "(\(lower.red), \(lower.green), \(lower.blue)) before (\(higher.red), \(higher.green), \(higher.blue))"
+    }
+
+    private static func opaque(_ red: Int, _ green: Int, _ blue: Int) -> RGBA {
+        RGBA(red: red, green: green, blue: blue, alpha: 255)
     }
 }
