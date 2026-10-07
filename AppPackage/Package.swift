@@ -805,7 +805,9 @@ let targets: [PackageDescription.Target] = [
         dependencies: [
             .module(.analyticsClient),
             .module(.appFeature),
-            .module(.homeFeature)
+            .module(.homeFeature),
+            .module(.parserFeature),
+            .module(.testingSupport)
         ]
     ),
     .testTarget(

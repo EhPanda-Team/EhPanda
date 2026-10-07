@@ -16,10 +16,13 @@ public struct HomeReducer: Sendable {
 
     @ObservableState
     public struct State: Equatable {
+        /// The carousel card Home first shows: the second, so a neighbor shows on each side.
+        public static let initialCardPageIndex = 1
+
         @SharedReader(.globalFilter) public var globalFilter: AppModels.Filter
         @SharedReader(.setting) public var setting: Setting
         public var path = StackState<HomePath.State>()
-        public var cardPageIndex = 1
+        public var cardPageIndex = Self.initialCardPageIndex
         public var currentCardID = ""
         public var allowsCardHitTesting = true
         public var rawCardColors = [String: [Color]]()
