@@ -356,10 +356,14 @@ struct ToplistsSection: View {
     private var dataSource: [Int: [Gallery]] {
         guard !galleries.isEmpty else {
             var dictionary = [Int: [Gallery]]()
-            var gallery: Gallery = .preview
-            gallery.title = "......"
-            gallery.uploader = "......"
-            let galleries = Array(repeating: gallery, count: 6)
+            // Blank skeleton galleries have no cover, so the loading rows show the cover's own
+            // placeholder and request nothing, like the Frontpage skeleton.
+            let galleries = Gallery.mockGalleries(count: 6, randomID: false).map { blank in
+                var gallery = blank
+                gallery.title = "......"
+                gallery.uploader = "......"
+                return gallery
+            }
 
             ToplistsType.allCases.forEach { type in
                 dictionary[type.categoryIndex] = galleries
