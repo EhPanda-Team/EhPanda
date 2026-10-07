@@ -7,9 +7,12 @@ import SwiftUI
 /// App-owned, clean-room reimplementation of the narrow surface of the former
 /// `jathu/UIImageColors` package that EhPanda consumes (DEP-02, D-01/D-04/D-16).
 /// The color-selection algorithm is preserved verbatim so the returned components
-/// stay identical; only the I/O is modernized: a `CGImage` goes in and non-optional
-/// SwiftUI `Color`s come out, with no `UIKit` dependency and no force unwraps. Final
-/// subjective judgment stays with user verification (D-19).
+/// stay identical, with one exception: equally common colors rank by their packed
+/// value, where the original left them in hash order, so the same image always yields
+/// the same colors (see `ColorCounter.ranksBefore`). Only the I/O is modernized: a
+/// `CGImage` goes in and non-optional SwiftUI `Color`s come out, with no `UIKit`
+/// dependency and no force unwraps. Final subjective judgment stays with user
+/// verification (D-19).
 public struct Colors: Sendable {
     public let background: Color
     public let primary: Color
@@ -85,7 +88,7 @@ public enum ImageColors {
         let sortedColors = colorCounts
             .filter({ $0.value > threshold })
             .map({ ColorCounter(color: $0.key, count: $0.value) })
-            .sorted(by: { $0.count > $1.count })
+            .sorted(by: ColorCounter.ranksBefore)
 
         var proposedEdgeColor = sortedColors.first ?? ColorCounter(color: 0, count: 1)
         if proposedEdgeColor.color.isBlackOrWhite {
@@ -113,7 +116,7 @@ public enum ImageColors {
             .map({ $0.with(minSaturation: 0.15) })
             .filter({ $0.isDarkColor == findDarkTextColor })
             .map({ ColorCounter(color: $0, count: colorCounts[$0] ?? 0) })
-            .sorted(by: { $0.count > $1.count })
+            .sorted(by: ColorCounter.ranksBefore)
 
         for candidate in candidates {
             let color = candidate.color
@@ -201,6 +204,17 @@ private struct ProposedColors {
 private struct ColorCounter {
     let color: Double
     let count: Int
+
+    /// Ranks more common colors first, and equally common colors by their packed value, lowest
+    /// first. The counts come from a dictionary, whose order changes with every process; ranking
+    /// by count alone left ties in that order, so the same image yielded different colors from one
+    /// launch to the next.
+    static func ranksBefore(_ lhs: Self, _ rhs: Self) -> Bool {
+        guard lhs.count == rhs.count else {
+            return lhs.count > rhs.count
+        }
+        return lhs.color < rhs.color
+    }
 }
 
 /// Colors are packed into a single `Double` as `r * 1_000_000 + g * 1_000 + b`,
