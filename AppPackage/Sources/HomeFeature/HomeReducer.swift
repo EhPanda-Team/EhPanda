@@ -36,19 +36,12 @@ public struct HomeReducer: Sendable {
 
         public init() {}
 
+        /// Shows `galleries` in the order received: ``HomeClient`` arranges the carousel, so the
+        /// order is the client's to decide.
         mutating func setPopularGalleries(_ galleries: [Gallery]) {
-            let sortedGalleries = galleries.sorted { lhs, rhs in
-                lhs.title.count > rhs.title.count
-            }
-            var trimmedGalleries = Array(sortedGalleries.prefix(min(sortedGalleries.count, 10)))
-                .removeDuplicates(by: \.trimmedTitle)
-            if trimmedGalleries.count >= 6 {
-                trimmedGalleries = Array(trimmedGalleries.prefix(6))
-            }
-            trimmedGalleries.shuffle()
-            popularGalleries = trimmedGalleries
-            cardPageIndex = min(cardPageIndex, trimmedGalleries.count - 1)
-            currentCardID = trimmedGalleries[cardPageIndex].gid
+            popularGalleries = galleries
+            cardPageIndex = min(cardPageIndex, galleries.count - 1)
+            currentCardID = galleries[cardPageIndex].gid
         }
 
         mutating func setFrontpageGalleries(_ galleries: [Gallery]) {
@@ -84,9 +77,10 @@ public struct HomeReducer: Sendable {
     }
 
     // Not `private`: this reducer's body lives in `HomeReducer+Body.swift`, so its dependencies
-    // must be file-crossing `internal` like `deviceClient` and `libraryClient` below.
+    // are file-crossing `internal`.
     @Dependency(\.analyticsClient) var analyticsClient
     @Dependency(\.deviceClient) var deviceClient
+    @Dependency(\.homeClient) var homeClient
     @Dependency(\.libraryClient) var libraryClient
 
     public init() {}

@@ -804,7 +804,8 @@ let targets: [PackageDescription.Target] = [
         module: .appFeatureTests,
         dependencies: [
             .module(.analyticsClient),
-            .module(.appFeature)
+            .module(.appFeature),
+            .module(.homeFeature)
         ]
     ),
     .testTarget(
@@ -853,6 +854,7 @@ let targets: [PackageDescription.Target] = [
             .module(.downloadsFeature),
             .module(.fileClient),
             .module(.hapticsClient),
+            .module(.homeFeature),
             .module(.imageClient),
             .module(.libraryClient),
             .module(.networkingFeature),
