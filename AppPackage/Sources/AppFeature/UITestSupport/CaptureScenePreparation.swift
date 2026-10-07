@@ -16,16 +16,24 @@ import LibraryClient
 import LogsClient
 import ParserFeature
 import Sharing
+import Synchronization
 import UserDefaultsClient
 
 /// A validated capture scene, ready to install before the app builds its store.
 struct CaptureScene: Sendable {
     let configuration: CaptureSceneConfiguration
+    let selectionID: String
     let fixtureVersion: String
     /// Responses by exact request URL, one for every asset the fixture holds.
     let replay: [String: CaptureReplay.Response]
     /// Home's selected galleries, in configured order.
     let homeClient: HomeClient
+}
+
+/// The capture installed into this process: its scene and the replay answering its requests.
+struct InstalledCapture: Sendable {
+    let scene: CaptureScene
+    let replay: CaptureReplay
 }
 
 /// The capture-owned directory one capture launch keeps its caches in.
@@ -69,6 +77,13 @@ enum CaptureScenePreparation {
     static let fixturesKey = "EHPANDA_CAPTURE_FIXTURES"
     static let defaultStorageRoot = URL.temporaryDirectory
         .appending(path: "EhPandaCapture", directoryHint: .isDirectory)
+
+    private static let installation = Mutex<InstalledCapture?>(nil)
+
+    /// The capture ``install(_:storageRoot:)`` installed, or `nil` outside a capture launch.
+    static var installed: InstalledCapture? {
+        installation.withLock({ $0 })
+    }
 
     /// The scene `environment` requests, or `nil` when it requests none.
     ///
@@ -128,6 +143,7 @@ enum CaptureScenePreparation {
             )
             return CaptureScene(
                 configuration: configuration,
+                selectionID: selection.selectionID,
                 fixtureVersion: manifest.fixtureVersion,
                 replay: replay,
                 homeClient: try galleries.homeClient(scene.home)
@@ -147,8 +163,10 @@ enum CaptureScenePreparation {
         } catch {
             throw .storageUnavailable
         }
-        UITestStubURLProtocol.configure(replay: CaptureReplay(responses: scene.replay))
+        let replay = CaptureReplay(responses: scene.replay)
+        UITestStubURLProtocol.configure(replay: replay)
         URLProtocol.registerClass(UITestStubURLProtocol.self)
+        installation.withLock({ $0 = InstalledCapture(scene: scene, replay: replay) })
         let live = LibraryClient.live(configuringImageSessions: { configuration in
             configuration.protocolClasses = [UITestStubURLProtocol.self] + (configuration.protocolClasses ?? [])
         })
