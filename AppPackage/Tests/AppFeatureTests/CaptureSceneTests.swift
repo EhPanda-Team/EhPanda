@@ -286,12 +286,133 @@ struct CaptureSceneTests {
         post.httpMethod = "POST"
 
         expectNoDifference(replay.response(for: URLRequest(url: listed)), response)
+        expectNoDifference(replay.response(for: URLRequest(url: listed)), response)
         #expect(replay.response(for: URLRequest(url: try #require(URL(string: "\(listed)?x=1")))) == nil)
         #expect(replay.response(for: URLRequest(url: try #require(URL(string: "https://e-hentai.org/api.php")))) == nil)
         #expect(replay.response(for: post) == nil)
+        expectNoDifference(replay.answeredURLs, [listed.absoluteString])
         expectNoDifference(
             replay.unknownRequestDescriptions,
             ["GET \(listed)?x=1", "GET https://e-hentai.org/api.php", "POST \(listed)"]
+        )
+    }
+
+    // MARK: Diagnostics
+
+    @Test
+    func homeIsReadyOnlyOnceItsListsAndEveryDeliveredImageAreIn() async throws {
+        let fixture = try MarketingFixtureBuilder.standard().addingPreview()
+        let scene = try makeScene(fixture)
+        let cover = try #require(fixture.files.first(where: { $0.kind == .cover })).url
+        let preview = try #require(fixture.files.first(where: { $0.kind == .preview })).url
+        let detailPage = try #require(fixture.files.first(where: { $0.kind == .detail })).url
+        let loaded = try await loadedState(scene)
+
+        func diagnostics(
+            _ state: AppReducer.State,
+            answered: Set<String> = [],
+            cached: Set<String> = []
+        ) -> CaptureDiagnostics {
+            CaptureDiagnostics(
+                scene: scene,
+                state: state,
+                answeredURLs: answered,
+                unknownRequests: [],
+                isCached: cached.contains
+            )
+        }
+
+        let empty = diagnostics(AppReducer.State(), cached: [cover])
+        let coverMissing = diagnostics(loaded, answered: [cover, detailPage])
+        let previewMissing = diagnostics(loaded, answered: [cover, preview, detailPage], cached: [cover])
+        let ready = diagnostics(loaded, answered: [cover, preview, detailPage], cached: [cover, preview])
+
+        expectNoDifference(empty.screenID, "home")
+        expectNoDifference(empty.galleryIDs, [])
+        expectNoDifference(empty.readiness, .loading)
+        expectNoDifference(coverMissing.readiness, .loading)
+        expectNoDifference(coverMissing.pendingImages, 1)
+        expectNoDifference(previewMissing.readiness, .loading)
+        expectNoDifference(previewMissing.pendingImages, 1)
+        expectNoDifference(
+            ready,
+            CaptureDiagnostics(
+                screenID: "home",
+                selectionID: "test-selection",
+                fixtureVersion: try fixture.fixtureVersion(),
+                galleryIDs: MarketingFixtureBuilder.allGIDs,
+                page: nil,
+                readiness: .ready,
+                pendingImages: 0,
+                unknownRequests: []
+            )
+        )
+    }
+
+    @Test
+    func aRefusedRequestOrAFailedLoadFailsTheScreen() async throws {
+        let scene = try makeScene(try MarketingFixtureBuilder.standard())
+        let cover = try #require(scene.replay.first(where: { $0.value.mimeType.hasPrefix("image/") })).key
+        var failedToplists = try await loadedState(scene)
+        failedToplists.homeState.toplistsLoadingState[ToplistsType.allTime.categoryIndex] = .failed(.notFound)
+
+        let refused = CaptureDiagnostics(
+            scene: scene,
+            state: try await loadedState(scene),
+            answeredURLs: [cover],
+            unknownRequests: ["GET https://e-hentai.org/api.php"],
+            isCached: { _ in true }
+        )
+        let failed = CaptureDiagnostics(
+            scene: scene,
+            state: failedToplists,
+            answeredURLs: [cover],
+            unknownRequests: [],
+            isCached: { _ in true }
+        )
+
+        expectNoDifference(refused.readiness, .failed)
+        expectNoDifference(refused.unknownRequests, ["GET https://e-hentai.org/api.php"])
+        expectNoDifference(failed.readiness, .failed)
+    }
+
+    @Test
+    func noScreenIsIdentifiedAwayFromHome() async throws {
+        let scene = try makeScene(try MarketingFixtureBuilder.standard())
+        var state = try await loadedState(scene)
+        state.tabBarState.tabBarItemType = .favorites
+
+        let diagnostics = CaptureDiagnostics(
+            scene: scene,
+            state: state,
+            answeredURLs: [],
+            unknownRequests: [],
+            isCached: { _ in true }
+        )
+
+        #expect(diagnostics.screenID == nil)
+        expectNoDifference(diagnostics.galleryIDs, [])
+        expectNoDifference(diagnostics.readiness, .loading)
+    }
+
+    @Test
+    func diagnosticsEncodeAsTheJSONUITestsRead() throws {
+        let diagnostics = CaptureDiagnostics(
+            screenID: "home",
+            selectionID: "test-selection",
+            fixtureVersion: "marketing-0123456789abcdef",
+            galleryIDs: ["101", "104"],
+            page: nil,
+            readiness: .ready,
+            pendingImages: 0,
+            unknownRequests: ["GET https://e-hentai.org/api.php"]
+        )
+
+        expectNoDifference(
+            try diagnostics.encodedJSON(),
+            #"{"fixtureVersion":"marketing-0123456789abcdef","galleryIDs":["101","104"],"pendingImages":0,"#
+                + #""readiness":"ready","screenID":"home","selectionID":"test-selection","#
+                + #""unknownRequests":["GET https://e-hentai.org/api.php"]}"#
         )
     }
 
@@ -354,6 +475,43 @@ struct CaptureSceneTests {
         let defaultRoot = CaptureScenePreparation.defaultStorageRoot.standardizedFileURL.path(percentEncoded: false)
         #expect(defaultRoot.hasPrefix(URL.temporaryDirectory.standardizedFileURL.path(percentEncoded: false)))
         #expect(!defaultRoot.hasPrefix(FileUtil.downloadsDirectoryURL.standardizedFileURL.path(percentEncoded: false)))
+    }
+}
+
+/// The app state once Home has shown every list of `scene`, as its fetches leave it.
+private func loadedState(_ scene: CaptureScene) async throws -> AppReducer.State {
+    var state = AppReducer.State()
+    let popular = try await scene.homeClient.fetchPopularGalleries(.ehentai, Filter())
+    state.homeState.popularGalleries = popular
+    state.homeState.currentCardID = popular[HomeReducer.State.initialCardPageIndex].gid
+    state.homeState.frontpageGalleries = try await scene.homeClient
+        .fetchFrontpageGalleries(.ehentai, Filter())
+        .galleries
+    for type in ToplistsType.allCases {
+        state.homeState.toplistsGalleries[type.categoryIndex] = try await scene.homeClient
+            .fetchToplistsGalleries(.ehentai, type.categoryIndex, nil)
+            .galleries
+        state.homeState.toplistsLoadingState[type.categoryIndex] = .idle
+    }
+    return state
+}
+
+private extension MarketingFixtureBuilder {
+    /// The standard fixture plus one preview image, a second image beside the shared cover.
+    func addingPreview() -> Self {
+        var fixture = self
+        fixture.files.append(
+            FixtureFile(
+                kind: .preview,
+                gid: "101",
+                index: 1,
+                url: "https://ehgt.org/m/000101/preview-1.webp",
+                path: "assets/101/previews/1.webp",
+                mime: "image/webp",
+                data: Data("preview".utf8)
+            )
+        )
+        return fixture
     }
 }
 
