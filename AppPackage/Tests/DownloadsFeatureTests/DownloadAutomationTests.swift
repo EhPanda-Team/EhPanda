@@ -12,6 +12,7 @@ import DownloadClient
 import FileClient
 import Foundation
 import HapticsClient
+import HomeFeature
 import LibraryClient
 import SwiftUI
 import Testing
@@ -225,6 +226,7 @@ struct DownloadAutomationTests: DownloadFeatureTestCase {
                 $0.cookieClient = cookieClient
                 $0.deviceClient = .noop
                 $0.hapticsClient = .noop
+                $0.homeClient = .noop
                 $0.applicationClient = .noop
                 $0.userDefaultsClient = .noop
                 $0.libraryClient = .noop
@@ -276,6 +278,7 @@ struct DownloadAutomationTests: DownloadFeatureTestCase {
                 $0.cookieClient = cookieClient
                 $0.deviceClient = .noop
                 $0.hapticsClient = .noop
+                $0.homeClient = .noop
                 $0.applicationClient = .noop
                 $0.userDefaultsClient = .noop
                 $0.libraryClient = .noop
@@ -329,6 +332,7 @@ struct DownloadAutomationTests: DownloadFeatureTestCase {
                 $0.cookieClient = cookieClient
                 $0.deviceClient = .noop
                 $0.hapticsClient = .noop
+                $0.homeClient = .noop
                 $0.applicationClient = .noop
                 $0.userDefaultsClient = .noop
                 $0.libraryClient = .noop
