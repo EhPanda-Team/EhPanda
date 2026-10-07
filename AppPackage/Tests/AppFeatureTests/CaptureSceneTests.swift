@@ -462,7 +462,7 @@ struct CaptureSceneTests {
         try FileManager.default.createDirectory(at: gallery, withIntermediateDirectories: true)
         try Data("page".utf8).write(to: gallery.appending(path: "1.webp"))
         let root = parent.appending(path: "EhPandaCapture", directoryHint: .isDirectory)
-        let staleCache = root.appending(path: "ImageCache", directoryHint: .isDirectory)
+        let staleCache = root.appending(path: "KingfisherCache", directoryHint: .isDirectory)
         try FileManager.default.createDirectory(at: staleCache, withIntermediateDirectories: true)
         try Data("stale".utf8).write(to: staleCache.appending(path: "stale"))
 
@@ -471,7 +471,8 @@ struct CaptureSceneTests {
         expectNoDifference(try FileManager.default.contentsOfDirectory(atPath: root.path(percentEncoded: false)), [])
         expectNoDifference(try Data(contentsOf: gallery.appending(path: "1.webp")), Data("page".utf8))
         #expect(storage.dataCache.path(percentEncoded: false).hasPrefix(root.path(percentEncoded: false)))
-        #expect(storage.imageCache.path(percentEncoded: false).hasPrefix(root.path(percentEncoded: false)))
+        #expect(storage.kingfisherCache.path(percentEncoded: false).hasPrefix(root.path(percentEncoded: false)))
+        #expect(storage.sdWebImageCache.path(percentEncoded: false).hasPrefix(root.path(percentEncoded: false)))
         let defaultRoot = CaptureScenePreparation.defaultStorageRoot.standardizedFileURL.path(percentEncoded: false)
         #expect(defaultRoot.hasPrefix(URL.temporaryDirectory.standardizedFileURL.path(percentEncoded: false)))
         #expect(!defaultRoot.hasPrefix(FileUtil.downloadsDirectoryURL.standardizedFileURL.path(percentEncoded: false)))
