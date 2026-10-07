@@ -10,6 +10,7 @@ import DeviceClient
 import DownloadClient
 import Foundation
 import HapticsClient
+import HomeFeature
 import LogsClient
 import Sharing
 import Testing
@@ -148,6 +149,7 @@ private extension TabBarSettingPresentationTests {
                     )
                     $0.downloadClient = .noop
                     $0.hapticsClient = .noop
+                    $0.homeClient = .noop
                     $0.logsClient = .noop
                     $0.userDefaultsClient = .noop
                 }

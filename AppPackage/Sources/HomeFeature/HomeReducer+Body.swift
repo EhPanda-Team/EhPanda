@@ -3,7 +3,6 @@ import AppModels
 import ComposableArchitecture
 import DetailFeature
 import Kingfisher
-import NetworkingFeature
 import Sharing
 import SwiftUI
 
@@ -165,7 +164,7 @@ extension HomeReducer {
                 let host = state.setting.galleryHost
                 return .run { send in
                     do throws(AppError) {
-                        let galleries = try await PopularGalleriesRequest(host: host, filter: filter).response()
+                        let galleries = try await homeClient.fetchPopularGalleries(host, filter)
                         await send(.fetchPopularGalleriesDone(.success(galleries)))
                     } catch {
                         await send(.fetchPopularGalleriesDone(.failure(error)))
@@ -194,12 +193,8 @@ extension HomeReducer {
                 let host = state.setting.galleryHost
                 return .run { send in
                     do throws(AppError) {
-                        let response = try await FrontpageGalleriesRequest(host: host, filter: filter).response()
-                        await send(
-                            .fetchFrontpageGalleriesDone(
-                                .success((pageNumber: response.pageNumber, galleries: response.galleries))
-                            )
-                        )
+                        let response = try await homeClient.fetchFrontpageGalleries(host, filter)
+                        await send(.fetchFrontpageGalleriesDone(.success(response)))
                     } catch {
                         await send(.fetchFrontpageGalleriesDone(.failure(error)))
                     }
@@ -226,13 +221,8 @@ extension HomeReducer {
                 let host = state.setting.galleryHost
                 return .run { send in
                     do throws(AppError) {
-                        let galleries = try await ToplistsGalleriesRequest(
-                            host: host,
-                            catIndex: catIndex,
-                            pageNum: pageNum
-                        )
-                        .response()
-                        await send(.fetchToplistsGalleriesDone(index: catIndex, result: .success(galleries)))
+                        let response = try await homeClient.fetchToplistsGalleries(host, catIndex, pageNum)
+                        await send(.fetchToplistsGalleriesDone(index: catIndex, result: .success(response)))
                     } catch {
                         await send(.fetchToplistsGalleriesDone(index: catIndex, result: .failure(error)))
                     }
