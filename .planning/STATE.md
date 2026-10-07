@@ -5,18 +5,18 @@ milestone_name: )
 current_phase: 17
 current_phase_name: Screenshot Automation, Visual Regression & OS 27 Modernization
 status: executing
-stopped_at: 17-03 complete with provisional nonexplicit fixture; next 17-04 (explicit set waits for owner IDs)
-last_updated: "2026-10-06T17:39:02+00:00"
+stopped_at: 17-04 complete; next 17-05 (explicit set waits for owner IDs; ImageColors determinism needs an owner decision)
+last_updated: "2026-10-07T04:48:54Z"
 last_activity: 2026-10-07
 state_head: fb83037387c93b67dc0f17742187e6c452ca3545
 progress:
   total_phases: 17
   completed_phases: 10
   total_plans: 298
-  completed_plans: 278
+  completed_plans: 279
   percent: 59
-source_head: fa524f0a28
-last_activity_desc: "17-03 complete: tooling plus a random, reviewed Non-H nonexplicit fixture marketing-fdcb0fc6d3c54a29; explicit set waits for owner IDs"
+source_head: 2ea65ac65f
+last_activity_desc: "17-04 complete: isolated offline capture launch shows the selected Home scene on both devices; Release has no capture code"
 ---
 
 # Project State
@@ -31,15 +31,17 @@ See: .planning/PROJECT.md (updated 2026-09-23)
 ## Current Position
 
 Phase: 17 of 17 (Screenshot Automation, Visual Regression & OS 27 Modernization)
-Plan: 5 of 24 (17-04, wave 5; dependency order, not numeric ID order)
-Status: executing — 17-01/17-24/17-02/17-03 complete; 17-04 next (the agent prepares galleries and fixtures for both content sets)
+Plan: 6 of 24 (17-05, wave 6; dependency order, not numeric ID order)
+Status: executing — 17-01/17-24/17-02/17-03/17-04 complete; 17-05 next (the agent prepares galleries and fixtures for both content sets)
 Last activity: 2026-10-07
 
-**Phase 17 current gate:** 4/24 plans complete. 17-01 passed 32/32 capture coordinates and 66/66 tests; verified public v2 fixtures are in `.capture/regression`. 17-24 measures all four real device/orientation combinations and validates the immutable tracked rendering pin. Both final measure and validate commands pass four geometry tests plus six rotation/restore tests, with 28 Python contract tests and zero compiler/lint diagnostics or runtime warnings. Pin SHA-256: `ffd7689fcaf9a312202fdfbf9787f0198711fd477d1e72a2a013851df85a394a`; evidence is `.capture/environment-measurement/` and `.capture/environment-pin-check/`. Implementation ends at 3e69dc69d3; summary/review committed in fb83037387. Four reserved staged entries remain unchanged. Devices restore portrait/original Large and their original boot states. Continue inline with 17-04; shared CAP-17-01/02/03/04/06 remain incomplete until all declaring plans finish. No baseline promotion.
+**Phase 17 current gate:** 5/24 plans complete. 17-01 passed 32/32 capture coordinates and 66/66 tests; verified public v2 fixtures are in `.capture/regression`. 17-24 measures all four real device/orientation combinations and validates the immutable tracked rendering pin. Both final measure and validate commands pass four geometry tests plus six rotation/restore tests, with 28 Python contract tests and zero compiler/lint diagnostics or runtime warnings. Pin SHA-256: `ffd7689fcaf9a312202fdfbf9787f0198711fd477d1e72a2a013851df85a394a`; evidence is `.capture/environment-measurement/` and `.capture/environment-pin-check/`. Implementation ends at 3e69dc69d3; summary/review committed in fb83037387. Four reserved staged entries remain unchanged. Devices restore portrait/original Large and their original boot states. Continue inline with 17-04; shared CAP-17-01/02/03/04/06 remain incomplete until all declaring plans finish. No baseline promotion.
 
 **17-02 complete:** The final complete tracer `.capture/tracer-matrix-10/` captures all 576 coordinates on pin `5c507a4c…725c` (592 native invocations, all passing); its independent audit finds no problem: 2,088 reads with every owned-row digest matched, no settle pass changing a read, 3,456 artwork images exact, 576 distinct images, unchanged references and reserved entries, restored devices. The final-source gate `.capture/owned-row-gate-04/` passes 32/32 with 63/60 native tests. Owner approvals during Task 2: owned-row verification and full-content settle, Reduce Motion in the pin, Vision boxes kept to their analyzed windows (17-02-PLAN.md). Task 2 source: `6c588338c3`, `13a3645646`, `2cee63a9b8`, `990024a798`, `bee89ee82e`, `8eaea1f8ad`, each verified in a temporary tree of exactly its contents (`.capture/commit-trees-03/`). Summary: 17-02-SUMMARY.md; review: 17-02-REVIEW.md, no open finding. No baseline promoted; candidate output stays under `.capture/`. Four reserved staged entries are preserved. Next: 17-03.
 
 **17-03 complete:** The agent assists with provisional gallery selection, review and fixture acquisition for both nonexplicit and explicit content sets; the owner confirms the final selection at Phase 17 closure. `acquire-fixtures.py` acquires an owner-declared selection anonymously into a scrubbed, checksummed, content-addressed version under the ignored `.capture/marketing/`, publishing atomically through one locked writer; `fixtures.validate_fixtures` repeats the derivation over stored files and `fixtures.resolve_fixtures` gives readers one version; `selection-review.py` writes a self-ignoring ledger and contact sheet and approves nothing. Source: `508ded6f33`, `f8114d4db8` and review fixes `d0db858a78`, `3c68e49c65`, `fa524f0a28`; 126 Python tests pass (`.capture/17-03-isolation-green-01/`), mutants killed 22/22, 18/18 and 5/5. Summary: 17-03-SUMMARY.md; review: 17-03-REVIEW.md, no open finding. Later the owner asked for random IDs (nonexplicit limited to Non-H): the agent sampled 60 Non-H galleries (seed 4767476936933364992), excluded 1 by tag and rejected 13 in visual review, and acquired the provisional nonexplicit set as `marketing-fdcb0fc6d3c54a29` (42 assets, valid review, `.capture/marketing-selection-01/`, `.capture/marketing-review-01/`). The agent assists with provisional gallery selection, review and fixture acquisition for both nonexplicit and explicit content sets; the owner confirms the final selection at Phase 17 closure. The pinned iPhone was found Booted by another process (a `sim-use` daemon, 2026-10-06T17:25Z); it was left as found and must return to Shutdown before the next simulator gate. Four reserved staged entries are preserved. Next: 17-04, which can use the nonexplicit fixture now; the agent prepares the remaining explicit fixture.
+
+**17-04 complete:** A Debug-only capture launch takes exactly `EHPANDA_CAPTURE_CONFIGURATION` and `EHPANDA_CAPTURE_FIXTURES`, validates one fixture version completely (exact file set, lengths, SHA-256, canonical paths, links, media types, selection identity, aggregate digest) and installs an isolated offline scene before the first store: in-memory settings, inert cookie, download, analytics and logging clients, fixed clock and IDs, capture-owned reader, Kingfisher and SDWebImage caches emptied at every launch, and an exact-URL `GET` replay that refuses and records every other request. The `home` scene shows the selection through the owner-approved injected `HomeClient`; UI tests read `CaptureDiagnostics` from the invisible `capture_diagnostics` element. `CaptureIsolationUITests` shows exactly the 17 selected galleries offline, ready with no pending image or refused request, across a reset relaunch on both pinned devices; Release builds contain no capture code. Owner decisions (17-04-PLAN.md): initial nonexplicit fixture, agent-assisted selection for both sets, injected Home client, carousel arrangement in the live client, no cover on the Toplists skeleton. Source: `72f29f5f88`, `2c63c45c27`, `fbd71f24bc`, `74159f1861`, review fix `2ea65ac65f`. Summary: 17-04-SUMMARY.md; review: 17-04-REVIEW.md, no open finding. Carried to 17-05: the dark Home card gradient differs between launches (likely `ImageColors` tie order; a fix needs an owner decision before 17-05's cold-rerun gate) and readiness must cover the dark card's color analysis. The iPhone was found at AX5 and restored to Large; owner states hold. Four reserved staged entries are preserved. Next: 17-05.
 
 ## Historical round-2 status snapshots
 
@@ -1012,8 +1014,8 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-10-04T23:43:55.659573+00:00
-Stopped at: 17-02 Task 2 iPad landscape corner-seam checkpoint; no native jobs
+Last session: 2026-10-07T04:48:54Z
+Stopped at: 17-04 complete; next 17-05; no native jobs
 Resume file: .planning/phases/17-localized-screenshot-capture-harness/.continue-here.md
 
 The dated feedback below is historical and superseded by the Phase 16 verification and final owner sign-off.
