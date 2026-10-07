@@ -5,7 +5,7 @@ milestone_name: )
 current_phase: 17
 current_phase_name: Screenshot Automation, Visual Regression & OS 27 Modernization
 status: executing
-stopped_at: 17-03 complete; next 17-04 (real content waits for owner gallery IDs)
+stopped_at: 17-03 complete with provisional nonexplicit fixture; next 17-04 (explicit set waits for owner IDs)
 last_updated: "2026-10-06T17:39:02+00:00"
 last_activity: 2026-10-07
 state_head: 3ed57d4f1898854e8622bd2ab9ba6cc398abd2ec
@@ -16,7 +16,7 @@ progress:
   completed_plans: 278
   percent: 59
 source_head: bdc0f1f11
-last_activity_desc: "17-03 complete: fixture acquisition and selection review tooling, three review fixes; real galleries wait for owner IDs"
+last_activity_desc: "17-03 complete: tooling plus a random, reviewed Non-H nonexplicit fixture marketing-fdcb0fc6d3c54a29; explicit set waits for owner IDs"
 ---
 
 # Project State
@@ -32,14 +32,14 @@ See: .planning/PROJECT.md (updated 2026-09-23)
 
 Phase: 17 of 17 (Screenshot Automation, Visual Regression & OS 27 Modernization)
 Plan: 5 of 24 (17-04, wave 5; dependency order, not numeric ID order)
-Status: executing — 17-01/17-24/17-02/17-03 complete; 17-04 next (real-content steps wait for owner gallery IDs)
+Status: executing — 17-01/17-24/17-02/17-03 complete; 17-04 next (explicit-set steps wait for owner gallery IDs)
 Last activity: 2026-10-07
 
 **Phase 17 current gate:** 4/24 plans complete. 17-01 passed 32/32 capture coordinates and 66/66 tests; verified public v2 fixtures are in `.capture/regression`. 17-24 measures all four real device/orientation combinations and validates the immutable tracked rendering pin. Both final measure and validate commands pass four geometry tests plus six rotation/restore tests, with 28 Python contract tests and zero compiler/lint diagnostics or runtime warnings. Pin SHA-256: `ffd7689fcaf9a312202fdfbf9787f0198711fd477d1e72a2a013851df85a394a`; evidence is `.capture/environment-measurement/` and `.capture/environment-pin-check/`. Implementation ends at af5db7dd; summary/review committed in 3ed57d4f. Four reserved staged entries remain unchanged. Devices restore portrait/original Large and their original boot states. Continue inline with 17-04; shared CAP-17-01/02/03/04/06 remain incomplete until all declaring plans finish. No baseline promotion.
 
 **17-02 complete:** The final complete tracer `.capture/tracer-matrix-10/` captures all 576 coordinates on pin `5c507a4c…725c` (592 native invocations, all passing); its independent audit finds no problem: 2,088 reads with every owned-row digest matched, no settle pass changing a read, 3,456 artwork images exact, 576 distinct images, unchanged references and reserved entries, restored devices. The final-source gate `.capture/owned-row-gate-04/` passes 32/32 with 63/60 native tests. Owner approvals during Task 2: owned-row verification and full-content settle, Reduce Motion in the pin, Vision boxes kept to their analyzed windows (17-02-PLAN.md). Task 2 source: `d88629d03`, `03c7cc76a`, `0909a1b48`, `a62dcdf0b`, `271365da6`, `f55de085b`, each verified in a temporary tree of exactly its contents (`.capture/commit-trees-03/`). Summary: 17-02-SUMMARY.md; review: 17-02-REVIEW.md, no open finding. No baseline promoted; candidate output stays under `.capture/`. Four reserved staged entries are preserved. Next: 17-03.
 
-**17-03 complete:** The owner supplies every marketing gallery ID for both content sets; the agent selected and browsed no real gallery (owner, 2026-10-07; 17-03-PLAN.md). `acquire-fixtures.py` acquires an owner-declared selection anonymously into a scrubbed, checksummed, content-addressed version under the ignored `.capture/marketing/`, publishing atomically through one locked writer; `fixtures.validate_fixtures` repeats the derivation over stored files and `fixtures.resolve_fixtures` gives readers one version; `selection-review.py` writes a self-ignoring ledger and contact sheet and approves nothing. Source: `60e49ea30`, `b9c2e2aa6` and review fixes `6b8261409`, `404ead2c7`, `bdc0f1f11`; 126 Python tests pass (`.capture/17-03-isolation-green-01/`), mutants killed 22/22, 18/18 and 5/5. Summary: 17-03-SUMMARY.md; review: 17-03-REVIEW.md, no open finding. Open owner-input gates: gallery IDs, set assignments, Home slots, flow pages and downloads for both sets, then acquisition and visual review (the explicit set needs the owner); the final selection stays a 17-21 closure checkpoint. The pinned iPhone was found Booted by another process (a `sim-use` daemon, 2026-10-06T17:25Z); it was left as found and must return to Shutdown before the next simulator gate. Four reserved staged entries are preserved. Next: 17-04; its real-content steps wait for the owner input.
+**17-03 complete:** The owner supplies every marketing gallery ID for both content sets; the agent selected and browsed no real gallery (owner, 2026-10-07; 17-03-PLAN.md). `acquire-fixtures.py` acquires an owner-declared selection anonymously into a scrubbed, checksummed, content-addressed version under the ignored `.capture/marketing/`, publishing atomically through one locked writer; `fixtures.validate_fixtures` repeats the derivation over stored files and `fixtures.resolve_fixtures` gives readers one version; `selection-review.py` writes a self-ignoring ledger and contact sheet and approves nothing. Source: `60e49ea30`, `b9c2e2aa6` and review fixes `6b8261409`, `404ead2c7`, `bdc0f1f11`; 126 Python tests pass (`.capture/17-03-isolation-green-01/`), mutants killed 22/22, 18/18 and 5/5. Summary: 17-03-SUMMARY.md; review: 17-03-REVIEW.md, no open finding. Later the owner asked for random IDs (nonexplicit limited to Non-H): the agent sampled 60 Non-H galleries (seed 4767476936933364992), excluded 1 by tag and rejected 13 in visual review, and acquired the provisional nonexplicit set as `marketing-fdcb0fc6d3c54a29` (42 assets, valid review, `.capture/marketing-selection-01/`, `.capture/marketing-review-01/`). The agent does not select the explicit set (reasons in 17-03-PLAN.md); its gallery input and visual review stay with the owner, and the final selection stays a 17-21 closure checkpoint. The pinned iPhone was found Booted by another process (a `sim-use` daemon, 2026-10-06T17:25Z); it was left as found and must return to Shutdown before the next simulator gate. Four reserved staged entries are preserved. Next: 17-04, which can use the nonexplicit fixture now; explicit-set steps wait for the owner input.
 
 ## Historical round-2 status snapshots
 

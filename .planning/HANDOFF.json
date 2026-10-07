@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "timestamp": "2026-10-06T17:40:00+00:00",
+  "timestamp": "2026-10-07T01:30:00+00:00",
   "phase": "17",
   "phase_name": "Screenshot Automation, Visual Regression & OS 27 Modernization",
   "phase_dir": ".planning/phases/17-localized-screenshot-capture-harness",
@@ -44,8 +44,8 @@
   "blockers": [],
   "async_jobs": [],
   "human_actions_pending": [
-    "Owner: supply gallery URLs, set assignments, Home slots, flow gallery and pages, and downloads for both content sets (Scripts/visual/README.md, Selection); then the agent acquires with selectionAuthority owner and runs selection-review.py.",
-    "Owner: decide who visually reviews real content; the agent cannot verify that the explicit set is free of prohibited material, so that review needs the owner.",
+    "Owner: supply the explicit set (gallery URLs, Home slots, flow gallery and pages, downloads; Scripts/visual/README.md, Selection). The agent does not select explicit galleries; the nonexplicit set is acquired as marketing-fdcb0fc6d3c54a29.",
+    "Owner: visually review the explicit set when supplied, and weigh the real site usernames in the nonexplicit flow gallery comments for the final selection.",
     "Owner: the pinned iPhone Air was found Booted by another process (a sim-use daemon started 2026-10-06T17:25:17Z); confirm before it is returned to Shutdown for the next simulator gate."
   ],
   "decisions": [
@@ -228,6 +228,11 @@
       "decision": "The owner supplies every marketing gallery ID for both content sets; the agent selects and browses no real gallery (owner chose \"both sets: owner supplies the IDs\", 2026-10-07).",
       "rationale": "The agent cannot rule out sexualized depictions of minors on the source site without viewing explicit images, so it declined to choose explicit-set galleries. Recorded in 17-03-PLAN.md; tooling and tests use synthetic data only.",
       "phase": "17"
+    },
+    {
+      "decision": "Owner asked for random gallery IDs (nonexplicit limited to Non-H); the agent sampled, reviewed and acquired the nonexplicit set and does not select the explicit set.",
+      "rationale": "Non-H images can be inspected directly and a violation is visible in non-sexual content; explicit categories have a high base rate of untagged childlike sexual content and the remaining check would be inspecting sexual images for apparent age. Category limits and lolicon-tag filtering proposed by the owner do not change this. Recorded in 17-03-PLAN.md.",
+      "phase": "17"
     }
   ],
   "uncommitted_files": [
@@ -237,8 +242,8 @@
     "M  EhPanda.xcodeproj/project.pbxproj",
     "?? .capture/"
   ],
-  "next_action": "Start 17-04 (read 17-04-PLAN.md and 17-03-SUMMARY.md). Ask the owner for the gallery input before any step that needs real marketing content, including the actual Home launch on plan 03 assets. Before any simulator gate, confirm the iPhone state with the owner and restore iPhone Shutdown, iPad Booted, both portrait and Large.",
-  "context_notes": "17-03 complete with owner-input gates: tooling acquires owner-declared galleries anonymously into .capture/marketing (content-addressed versions, atomic single-writer publication, scrubbed access values); readers resolve current once with fixtures.resolve_fixtures. No real gallery was selected, browsed or acquired. Pin SHA-256 5c507a4c0c5013fad010a19222ef7b8b1eec86d354b89fc1b7c07610567c725c is unchanged. Pinned simulators need iPad Full Screen Apps, iPhone dark and Reduce Motion on for both.",
+  "next_action": "Start 17-04 (read 17-04-PLAN.md and 17-03-SUMMARY.md) using the provisional nonexplicit fixture .capture/marketing/current (marketing-fdcb0fc6d3c54a29). Explicit-set steps wait for owner IDs. Before any simulator gate, confirm the iPhone state with the owner and restore iPhone Shutdown, iPad Booted, both portrait and Large.",
+  "context_notes": "17-03 complete with owner-input gates: tooling acquires owner-declared galleries anonymously into .capture/marketing (content-addressed versions, atomic single-writer publication, scrubbed access values); readers resolve current once with fixtures.resolve_fixtures. The provisional nonexplicit set is acquired; the explicit set is not. Pin SHA-256 5c507a4c0c5013fad010a19222ef7b8b1eec86d354b89fc1b7c07610567c725c is unchanged. Pinned simulators need iPad Full Screen Apps, iPhone dark and Reduce Motion on for both.",
   "evidence": {
     "proposal": ".planning/phases/17-localized-screenshot-capture-harness/17-01-CAPTURE-GATE.md",
     "bootstrap": {
@@ -1379,7 +1384,10 @@
       ],
       "review_fix_mutations": ".capture/17-03-fix-mutations-02/ (5 of 5 killed)",
       "final_suite": ".capture/17-03-isolation-green-01/ (126 tests)",
-      "plan_verify": ".capture/17-03-verify-02/ (37 and 16 tests)"
+      "plan_verify": ".capture/17-03-verify-02/ (37 and 16 tests)",
+      "selection": ".capture/marketing-selection-01/ (seed 4767476936933364992, 60 sampled, 1 tag-excluded, 13 rejected)",
+      "acquisition": ".capture/marketing/versions/marketing-fdcb0fc6d3c54a29 (42 assets)",
+      "selection_review": ".capture/marketing-review-01/ (valid composition, visual-review.md)"
     }
   },
   "recovery_logs": [
@@ -1752,5 +1760,5 @@
       "summary": ".planning/phases/17-localized-screenshot-capture-harness/17-02-SUMMARY.md"
     }
   },
-  "updated_at": "2026-10-06T17:40:00+00:00"
+  "updated_at": "2026-10-07T01:30:00+00:00"
 }
