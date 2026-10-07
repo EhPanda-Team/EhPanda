@@ -57,9 +57,11 @@ public actor DataCache {
         memoryCache.totalCostLimit = configuration.memoryCostLimit
     }
 
-    public nonisolated static func installSystemPurgeObservers() {
+    /// Purges this cache's memory on a memory warning, and its memory and stale disk entries when
+    /// the app enters the background. Installing again for the same cache has no further effect.
+    public nonisolated func installSystemPurgeObservers() {
         Task { @MainActor in
-            _ = dataCacheSystemPurgeObserver
+            DataCacheSystemPurgeObserver.install(for: self)
         }
     }
 
@@ -377,35 +379,42 @@ extension DependencyValues {
 }
 
 @MainActor
-private let dataCacheSystemPurgeObserver = DataCacheSystemPurgeObserver(cache: canonicalDataCache)
-
-@MainActor
 private final class DataCacheSystemPurgeObserver {
+    /// One observer per cache. Each holds its cache for the rest of the process, as the app keeps
+    /// every cache it observes, so an identifier here can never be reused by another cache.
+    private static var observers = [ObjectIdentifier: DataCacheSystemPurgeObserver]()
+
     private let tokens: [NSObjectProtocol]
 
-    public init(cache: DataCache) {
+    static func install(for cache: DataCache) {
+        let id = ObjectIdentifier(cache)
+        guard observers[id] == nil else { return }
+        observers[id] = DataCacheSystemPurgeObserver(cache: cache)
+    }
+
+    private init(cache: DataCache) {
         let center = NotificationCenter.default
         tokens = [
             center.addObserver(
                 forName: UIApplication.didReceiveMemoryWarningNotification,
                 object: nil,
                 queue: .main
-            ) { [weak cache] _ in
+            ) { _ in
                 Task {
-                    await cache?.removeAllMemory()
+                    await cache.removeAllMemory()
                 }
             },
             center.addObserver(
                 forName: UIApplication.didEnterBackgroundNotification,
                 object: nil,
                 queue: .main
-            ) { [weak cache] _ in
+            ) { _ in
                 Task {
-                    await cache?.removeAllMemory()
+                    await cache.removeAllMemory()
                     // Background disk sweeping is fire-and-forget housekeeping with no user-facing
                     // result, but a failing sweep lets the cache grow unbounded — worth a line.
                     do {
-                        try await cache?.sweepDisk()
+                        try await cache.sweepDisk()
                     } catch {
                         logger.error("Failed to sweep cache on background: \(error)")
                     }

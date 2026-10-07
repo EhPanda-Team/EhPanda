@@ -68,7 +68,8 @@ extension LibraryClient {
                     forHTTPHeaderField: "Accept"
                 )
                 SDImageCodersManager.shared.addCoder(SDImageWebPCoder.shared)
-                DataCache.installSystemPurgeObservers()
+                @Dependency(\.dataCache) var dataCache
+                dataCache.installSystemPurgeObservers()
             },
             removeAllCachedImages: {
                 @Dependency(\.dataCache) var dataCache

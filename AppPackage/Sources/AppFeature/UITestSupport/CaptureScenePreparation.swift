@@ -15,6 +15,7 @@ import Kingfisher
 import LibraryClient
 import LogsClient
 import ParserFeature
+import SDWebImage
 import Sharing
 import Synchronization
 import UserDefaultsClient
@@ -44,8 +45,12 @@ struct CaptureStorage: Equatable, Sendable {
         root.appending(path: "DataCache", directoryHint: .isDirectory)
     }
 
-    var imageCache: URL {
-        root.appending(path: "ImageCache", directoryHint: .isDirectory)
+    var kingfisherCache: URL {
+        root.appending(path: "KingfisherCache", directoryHint: .isDirectory)
+    }
+
+    var sdWebImageCache: URL {
+        root.appending(path: "SDWebImageCache", directoryHint: .isDirectory)
     }
 
     /// Empties and recreates `root`, so every capture launch starts from the same cold caches.
@@ -151,18 +156,24 @@ enum CaptureScenePreparation {
         }
     }
 
-    /// Installs `scene` into this process: fresh capture-owned storage, Kingfisher's cache and
-    /// session pointed at it and at the replay, the replay itself, and the isolated dependencies.
+    /// Installs `scene` into this process: fresh capture-owned storage for the reader cache and
+    /// both image libraries' caches, the replay with Kingfisher's session pointed at it, and the
+    /// isolated dependencies.
     ///
     /// Web images are initialized here, synchronously, instead of at launch finish, so no image
     /// request can start before its session answers from the replay.
     static func install(_ scene: CaptureScene, storageRoot: URL = defaultStorageRoot) throws(CaptureFailure) {
         let storage = try CaptureStorage.reset(at: storageRoot)
         do {
-            KingfisherManager.shared.cache = try ImageCache(name: "capture", cacheDirectoryURL: storage.imageCache)
+            KingfisherManager.shared.cache = try ImageCache(name: "capture", cacheDirectoryURL: storage.kingfisherCache)
         } catch {
             throw .storageUnavailable
         }
+        // Kingfisher keeps its default cache, the user's, alive for the process; this ends its
+        // memory and background housekeeping as its deinit would, so a capture never prunes it.
+        NotificationCenter.default.removeObserver(ImageCache.default)
+        // Before anything creates SDWebImage's shared cache, so it never opens the user's.
+        SDImageCache.defaultDiskCacheDirectory = storage.sdWebImageCache.path(percentEncoded: false)
         let replay = CaptureReplay(responses: scene.replay)
         UITestStubURLProtocol.configure(replay: replay)
         URLProtocol.registerClass(UITestStubURLProtocol.self)
@@ -170,7 +181,6 @@ enum CaptureScenePreparation {
         let live = LibraryClient.live(configuringImageSessions: { configuration in
             configuration.protocolClasses = [UITestStubURLProtocol.self] + (configuration.protocolClasses ?? [])
         })
-        live.initializeWebImage()
         let libraryClient = LibraryClient(
             initializeWebImage: {},
             removeAllCachedImages: live.removeAllCachedImages,
@@ -184,6 +194,8 @@ enum CaptureScenePreparation {
         prepareDependencies {
             isolate(&$0, scene: scene, storage: storage, libraryClient: libraryClient)
         }
+        // After isolation, so the reader cache its purge observers guard is the capture's.
+        live.initializeWebImage()
     }
 
     /// Replaces every dependency that reads or writes user data, reaches the network, or varies

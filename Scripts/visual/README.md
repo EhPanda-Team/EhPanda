@@ -312,9 +312,10 @@ A capture launch replaces, before the first store exists:
 - every HTTP(S) request with an exact replay of the fixture: a `GET` of a listed URL gets that
   file's verified bytes and recorded media type, and anything else fails and is recorded.
 
-Image caches live in `EhPandaCapture` under the app's temporary directory. Every capture launch
-empties that directory first and touches nothing else, so each launch starts cold and a capture
-never removes a user's files.
+The reader cache and both image libraries' caches live in `EhPandaCapture` under the app's
+temporary directory, and their memory and background purges act on those copies. Every capture
+launch empties that directory first and touches nothing else, so each launch starts cold and a
+capture never reads or removes a user's cached files.
 
 ## Diagnostics
 
