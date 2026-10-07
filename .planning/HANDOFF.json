@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "timestamp": "2026-10-07T01:30:00+00:00",
+  "timestamp": "2026-10-07T01:40:00+00:00",
   "phase": "17",
   "phase_name": "Screenshot Automation, Visual Regression & OS 27 Modernization",
   "phase_dir": ".planning/phases/17-localized-screenshot-capture-harness",
@@ -232,6 +232,11 @@
     {
       "decision": "Owner asked for random gallery IDs (nonexplicit limited to Non-H); the agent sampled, reviewed and acquired the nonexplicit set and does not select the explicit set.",
       "rationale": "Non-H images can be inspected directly and a violation is visible in non-sexual content; explicit categories have a high base rate of untagged childlike sexual content and the remaining check would be inspecting sexual images for apparent age. Category limits and lolicon-tag filtering proposed by the owner do not change this. Recorded in 17-03-PLAN.md.",
+      "phase": "17"
+    },
+    {
+      "decision": "No placeholder for the explicit set; development continues with the nonexplicit set only.",
+      "rationale": "Owner: the nonexplicit set is technically sufficient for development. Explicit-set coordinates stay pending owner gallery input. Recorded in 17-04-PLAN.md.",
       "phase": "17"
     }
   ],
@@ -1760,5 +1765,5 @@
       "summary": ".planning/phases/17-localized-screenshot-capture-harness/17-02-SUMMARY.md"
     }
   },
-  "updated_at": "2026-10-07T01:30:00+00:00"
+  "updated_at": "2026-10-07T01:40:00+00:00"
 }
