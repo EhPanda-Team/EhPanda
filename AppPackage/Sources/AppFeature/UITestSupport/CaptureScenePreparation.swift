@@ -29,6 +29,8 @@ struct CaptureScene: Sendable {
     let replay: [String: CaptureReplay.Response]
     /// Home's selected galleries, in configured order.
     let homeClient: HomeClient
+    /// How the launch reaches the configured screen.
+    let route: AppLaunchAutomation.CaptureRoute
 }
 
 /// The capture installed into this process: its scene and the replay answering its requests.
@@ -136,7 +138,7 @@ enum CaptureScenePreparation {
             guard let scene = selection.scenes[configuration.fixtureID] else {
                 throw .unknownFixtureID(configuration.fixtureID)
             }
-            guard configuration.scenarioID == "home" else {
+            guard let screen = CaptureScreen(rawValue: configuration.scenarioID) else {
                 throw .unsupportedScenario(configuration.scenarioID)
             }
             let replay = try replayResponses(manifest: manifest, files: fixture.files)
@@ -151,7 +153,8 @@ enum CaptureScenePreparation {
                 selectionID: selection.selectionID,
                 fixtureVersion: manifest.fixtureVersion,
                 replay: replay,
-                homeClient: try galleries.homeClient(scene.home)
+                homeClient: try galleries.homeClient(scene.home),
+                route: try galleries.route(to: screen, flow: scene.flow)
             )
         }
     }
@@ -208,12 +211,22 @@ enum CaptureScenePreparation {
         libraryClient: LibraryClient
     ) {
         dependencies.analyticsClient = .noop
-        dependencies.appLaunchAutomationClient = .none
+        // The capture's route is the launch's only automation.
+        dependencies.appLaunchAutomationClient = AppLaunchAutomationClient(
+            current: { [route = scene.route] in AppLaunchAutomation(captureRoute: route) }
+        )
         dependencies.clipboardClient = .noop
         dependencies.cookieClient = .noop
         dependencies.dataCache = DataCache(configuration: .init(rootURL: storage.dataCache))
         dependencies.date.now = UITestAutomation.fixedDate
-        dependencies.defaultAppStorage = UserDefaults.inMemory
+        let appStorage = UserDefaults.inMemory
+        withDependencies {
+            $0.defaultAppStorage = appStorage
+        } operation: {
+            @Shared(.setting) var setting
+            $setting.withLock({ $0 = sceneSetting })
+        }
+        dependencies.defaultAppStorage = appStorage
         dependencies.defaultInMemoryStorage = InMemoryStorage()
         dependencies.dfClient = .noop
         // Inert until a downloads scene seeds capture-owned folders: a live client would adopt the
@@ -224,6 +237,18 @@ enum CaptureScenePreparation {
         dependencies.logsClient = .noop
         dependencies.userDefaultsClient = .noop
         dependencies.uuid = .incrementing
+    }
+
+    /// The settings every capture scene runs with: the app's defaults, with the network bypass
+    /// on, so the Laboratory shows it enabled (D-15), and the paging reader, which frames the
+    /// reader page the same way on every run (the vertical reader settles at an offset that depends
+    /// on when the pages above load). They live only in the capture's in-memory storage, so no
+    /// person's settings change.
+    static var sceneSetting: Setting {
+        var setting = Setting()
+        setting.bypassSNIFiltering = true
+        setting.readingDirection = .leftToRight
+        return setting
     }
 
     private static func replayResponses(
@@ -282,6 +307,43 @@ private struct MarketingGalleries {
                 return (pageNumber: PageNumber(), galleries: galleries)
             }
         )
+    }
+
+    /// The route to `screen`. The gallery screens show `flow`'s gallery, built exactly as Home
+    /// builds it, so the gallery a capture opens is the one its card shows; the reader opens on a
+    /// page whose image the fixture holds.
+    func route(
+        to screen: CaptureScreen,
+        flow: CaptureSelection.Flow
+    ) throws(CaptureFailure) -> AppLaunchAutomation.CaptureRoute {
+        switch screen {
+        case .home:
+            .home
+        case .detail:
+            .detail(try gallery(flow.gallery))
+        case .comments:
+            .comments(try gallery(flow.gallery))
+        case .filters:
+            .filters
+        case .reading:
+            .reading(try gallery(flow.gallery), page: try readerPage(flow.readerPage, of: flow))
+        case .readingLiveText:
+            .readingLiveText(try gallery(flow.gallery), page: try readerPage(flow.liveTextPage, of: flow))
+        case .downloads:
+            .downloads
+        case .laboratory:
+            .laboratory
+        }
+    }
+
+    private func readerPage(_ page: Int, of flow: CaptureSelection.Flow) throws(CaptureFailure) -> Int {
+        let holdsImage = manifest.assets.contains(where: { asset in
+            asset.kind == .page && asset.gid == flow.gallery && asset.index == page
+        })
+        guard flow.pages.contains(page), holdsImage else {
+            throw .malformedScene("the fixture holds no image of page \(page) of gallery \(flow.gallery)")
+        }
+        return page
     }
 
     private func gallery(_ gid: String) throws(CaptureFailure) -> Gallery {

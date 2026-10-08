@@ -8,14 +8,29 @@ public struct AppLaunchAutomation: Sendable {
         autoDownloadGID: String? = nil,
         downloadFolderName: String? = nil,
         loginCookies: LoginCookies? = nil,
-        galleryURL: URL? = nil
+        galleryURL: URL? = nil,
+        captureRoute: CaptureRoute? = nil
     ) {
         self.initialTab = initialTab
         self.autoDownloadGID = autoDownloadGID
         self.downloadFolderName = downloadFolderName
         self.loginCookies = loginCookies
         self.galleryURL = galleryURL
+        self.captureRoute = captureRoute
     }
+    /// A screen a capture launch opens through the app's own navigation, with the gallery and page
+    /// the capture's selection shows on it.
+    public enum CaptureRoute: Equatable, Sendable {
+        case home
+        case detail(Gallery)
+        case comments(Gallery)
+        case filters
+        case reading(Gallery, page: Int)
+        case readingLiveText(Gallery, page: Int)
+        case downloads
+        case laboratory
+    }
+
     public struct LoginCookies: Sendable {
         public let memberID: String
         public let passHash: String
@@ -36,6 +51,9 @@ public struct AppLaunchAutomation: Sendable {
     public let downloadFolderName: String?
     public let loginCookies: LoginCookies?
     public let galleryURL: URL?
+    /// The screen a capture launch opens. Only a capture launch sets it, from its own
+    /// configuration: no environment key names it, so it never combines with the routes above.
+    public let captureRoute: CaptureRoute?
 
     public static var current: Self? {
         #if DEBUG

@@ -1,5 +1,6 @@
 import AnalyticsClient
 import AppComponents
+import AppLaunchAutomationClient
 import AppModels
 import AppTools
 import ComposableArchitecture
@@ -170,8 +171,12 @@ extension DetailReducer {
             case .runLaunchAutomationIfNeeded:
                 guard !state.didRunLaunchAutomation,
                       let automation = appLaunchAutomationClient.current(),
-                      automation.autoDownloadGID == state.gallery.id,
-                      state.galleryDetail != nil,
+                      state.galleryDetail != nil
+                else { return .none }
+                if let captureRoute = automation.captureRoute {
+                    return captureRouteEffect(captureRoute, state: &state)
+                }
+                guard automation.autoDownloadGID == state.gallery.id,
                       state.hasLoadedDownloadBadge
                 else { return .none }
                 state.didRunLaunchAutomation = true
@@ -370,6 +375,34 @@ extension DetailReducer {
             return .RLocalizable.update
         case .initial, .redownload:
             return .redownload
+        }
+    }
+
+    /// Continues a capture route to a screen inside this gallery once the detail has loaded, with
+    /// the action that screen's control sends: the comments section's Show All, which opens the
+    /// comments with none highlighted, or a preview tap, which opens the reader on its page. Only a
+    /// capture launch has a route, and only in DEBUG builds.
+    private func captureRouteEffect(
+        _ route: AppLaunchAutomation.CaptureRoute,
+        state: inout State
+    ) -> Effect<Action> {
+        switch route {
+        case .comments(let gallery) where gallery.id == state.gallery.id:
+            state.didRunLaunchAutomation = true
+            guard let galleryURL = state.gallery.galleryURL else { return .none }
+            return .send(.delegate(.pushComments(
+                gid: state.gallery.id, token: state.gallery.token, apiKey: state.apiKey,
+                galleryURL: galleryURL, comments: state.galleryComments, scrollCommentID: nil
+            )))
+        case .reading(let gallery, let page) where gallery.id == state.gallery.id,
+             .readingLiveText(let gallery, let page) where gallery.id == state.gallery.id:
+            state.didRunLaunchAutomation = true
+            return .run { send in
+                await send(.updateReadingProgress(page))
+                await send(.openReading)
+            }
+        case .home, .detail, .comments, .filters, .reading, .readingLiveText, .downloads, .laboratory:
+            return .none
         }
     }
 }
