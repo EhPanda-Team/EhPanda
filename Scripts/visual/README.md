@@ -294,9 +294,22 @@ The app reads exactly two environment keys:
 
 A capture takes no other `EHPANDA_` key: setting one beside these two, or setting only one of
 them, refuses the launch. `purpose` decides which fixture schema is accepted, so a marketing
-configuration cannot read a public fixture or the reverse. For marketing, `fixtureID` names a
-selection set and `scenarioID` names the screen; `home` is the only marketing scene so far. A
-public configuration validates its fixture and is then refused until 17-11 adds public scenes.
+configuration cannot read a public fixture or the reverse. A public configuration validates its
+fixture and is then refused until 17-11 adds public scenes.
+
+For marketing, `fixtureID` names a selection set and `scenarioID` names one of eight screens,
+which the launch opens through the app's own navigation:
+
+| `scenarioID` | Route |
+|---|---|
+| `home` | Home, the first tab |
+| `detail` | The selection's flow gallery, opened from Home |
+| `comments` | The flow gallery's comments, from its detail once it loads, as Show All opens them |
+| `filters` | Filters, from the Search tab, at the app's defaults |
+| `reading` | The reader on the flow's `readerPage`, from the detail, as a preview tap opens it |
+| `reading-live-text` | The reader on the flow's `liveTextPage`; fails on its identity until 17-06 |
+| `downloads` | The Downloads tab; fails until 17-06 seeds downloads |
+| `laboratory` | Laboratory, from the Setting tab |
 
 Before the app builds any state, the launch verifies the whole fixture as
 `fixtures.validate_fixtures` does: exact file set, lengths, SHA-256 digests, canonical paths, no
@@ -313,6 +326,10 @@ A capture launch replaces, before the first store exists:
   device's own values;
 - cookies, analytics, clipboard, logs and downloads with inert clients;
 - the clock with 2025-01-01T00:00:00Z and identifiers with an incrementing sequence;
+- the settings with the app's defaults, except that the network bypass is on and the reader pages
+  horizontally (`readingDirection = .leftToRight`): the vertical reader settles at an offset that
+  depends on when the pages above its current page load, while the paging reader frames the page
+  the same way on every run;
 - Home's gallery client with the selection's galleries in configured order, parsed by the app's
   own parser from the saved detail pages;
 - every HTTP(S) request with an exact replay of the fixture: a `GET` of a listed URL gets that
@@ -330,18 +347,33 @@ UI tests read the capture's state from one invisible accessibility element, iden
 
 | Field | Meaning |
 |---|---|
-| `screenID` | The screen shown, `home`, or absent for a screen no capture identifies yet |
+| `screenID` | The screen shown, one of the eight `scenarioID` values, or absent for any other screen |
 | `selectionID` | The selection the fixture was acquired from |
+| `setID` | The selection set the scene shows |
 | `fixtureVersion` | The fixture version directory name |
 | `galleryIDs` | The galleries the screen shows, in display order |
-| `page` | The reader page shown; absent until reader scenes exist |
+| `page` | The reader page shown; absent outside the reader |
 | `readiness` | `loading`, `ready` or `failed` |
-| `pendingImages` | Images the replay delivered that the image cache does not hold yet |
+| `pendingImages` | Images the replay delivered that no image cache holds yet |
 | `unknownRequests` | Requests the replay refused, as `METHOD URL` |
+| `blockers` | What the screen still waits for, and what makes it fail; empty once it is ready |
+| `rendering` | The app's own `language`, `locale`, `appearance`, `textSize` and device `family` |
 
-Home is `ready` once all of its lists hold galleries, nothing is loading, the current card's cover
-is cached and no delivered image waits for the cache. It is `failed` as soon as a list fails to
-load or the replay refuses a request, because the screen can then never be complete.
+The screen comes from the app's navigation state, never from the configuration, so a route that
+lands elsewhere reads as that other screen. A screen is `ready` once its content has arrived,
+every image it must show is in an image cache (the reader's own cache included), no delivered
+image waits for a cache and nothing failed:
+
+- Home waits for all of its lists and the current card's cover, and in dark appearance for that
+  cover's color analysis, which the card's gradient shows.
+- Detail waits for its detail, its cover and every preview the fixture holds.
+- Comments are readable at once, from the top, with no comment highlighted.
+- The reader waits until it shows its current page's image.
+- Filters must show the app's defaults, and Laboratory the network bypass on.
+- A sheet that leaves its tab visible around it also waits for that tab.
+
+A screen is `failed` as soon as a load fails, the replay refuses a request or the screen shows
+something other than its configured state, because it can then never be complete.
 
 ## Isolation test
 
@@ -364,4 +396,100 @@ TEST_RUNNER_EHPANDA_CAPTURE_SOURCE="$PWD/.capture/marketing/current" \
   -resultBundlePath .capture/<new run directory>/result.xcresult
 ```
 
-The result bundle quotes real content and belongs under the git-ignored `.capture/`.
+The result bundle quotes real content: keep it under `.capture/` and never commit it.
+
+# Marketing captures
+
+## Capture one coordinate in a UI test
+
+`MarketingCaptureUITests/testCaptureCoordinate` captures one coordinate on the actual app. A
+coordinate is one JSON object with exactly five keys:
+
+```json
+{"screen":"home","set":"nonexplicit","locale":"en","theme":"dark","family":"iphone"}
+```
+
+`screen` is a marketing `scenarioID`, `set` a selection set, `locale` one of `en`, `de`, `ja`,
+`ko`, `zh-Hans` and `zh-Hant`, `theme` `light` or `dark`, and `family` `iphone` or `ipad`, which
+must match the destination. Every marketing capture is portrait at the Large text size. The
+launcher sets the coordinate's appearance and portrait orientation on the simulator, launches the
+app in the coordinate's language and formatting locale with dates in UTC, and verifies the text
+size instead of setting it: a text size the app overrides for its window, while the system setting
+differs, renders some toolbar glyphs at the system's size. Set the simulator to Large first with
+`xcrun simctl ui "$UDID" content_size large`.
+
+The test passes only when the diagnostics are exactly what the selection expects for the
+coordinate: its screen, selection, set, fixture version, galleries and page, ready with no pending
+image, refused request or blocker, in the coordinate's rendering. Either way it attaches the
+diagnostics and the device framebuffer. The runner names the coordinate and the fixture version
+through environment variables:
+
+```sh
+TEST_RUNNER_EHPANDA_CAPTURE_SOURCE="$PWD/.capture/marketing/current" \
+TEST_RUNNER_EHPANDA_CAPTURE_COORDINATE='{"screen":"home","set":"nonexplicit","locale":"en","theme":"dark","family":"iphone"}' \
+  xcodebuild test -project EhPanda.xcodeproj -scheme EhPanda -testPlan UITests \
+  -destination "platform=iOS Simulator,id=$UDID" \
+  -only-testing:EhPandaUITests/MarketingCaptureUITests/testCaptureCoordinate \
+  -resultBundlePath .capture/<new run directory>/result.xcresult
+```
+
+The UITests plan retries a failed test, so a result with repetitions counts as failed. The native
+runner below runs each launch once.
+
+## Capture natively
+
+`capture-native.py` records the frame a marketing image is made from: the actual app's screen with
+the system's own status bar, at the device's native size, identical across independent cold
+launches. It takes the tracked rendering pin, the same file the regression runner takes:
+
+```sh
+python3 Scripts/visual/capture-native.py \
+  --coordinate .capture/<run inputs>/coordinate.json \
+  --fixtures .capture/marketing/current \
+  --environment Scripts/visual/regression-environment.json \
+  --output .capture/<new run directory>
+```
+
+The output must be a new directory, separate from the coordinate, the pin and the fixture
+version. The runner then:
+
+1. reads the coordinate, which has exactly its five keys with known values, and validates the
+   fixture version, whose selection must hold the coordinate's set;
+2. validates the pin against fresh measurements on both pinned devices, as
+   `environment.py validate` does, into `environment-check/`, whose `environment.json` records
+   the pin's SHA-256. A measurement report is not a pin and is refused, and any difference in
+   toolchain, runtime, model, geometry or scale stops the run before the app launches. The pin is
+   only read;
+3. on the coordinate's device, as that validation resolved it, overrides the status bar: 9:41,
+   Wi-Fi with 3 bars, cellular with 4 bars, and the battery charged at 100%;
+4. launches the test cold twice, each launch once without retries. The test verifies its screen
+   as above and then holds it, writing its diagnostics to `ready.json`. The runner checks that
+   they name the coordinate, takes screenshots a second apart with
+   `xcrun simctl io "$UDID" screenshot --type=png --mask=ignored` until two consecutive frames are
+   byte-identical, checks that each is a complete 8-bit RGBA PNG at the pin's portrait pixel size,
+   and answers in `answer.json`. The test passes only once its frame is recorded, and the launch
+   must pass exactly one test, with no repetition, skip, warning or diagnostic, on the pinned
+   model and runtime;
+5. clears the status bar, puts back the appearance, portrait orientation, text size and power
+   state it found, and checks that the sources, the pin and the fixture version did not change.
+
+The coordinate is captured only when both launches recorded the same bytes, and `outcomes.json`
+then names that frame as `capture`. A failed run still writes `outcomes.json`, with each launch's
+frames, diagnostics and reason.
+
+simctl freezes the status bar's date only for a full ISO time, `2026-01-01T09:41:00.000` with the
+host's offset, which it reads in the host's time zone like the bar itself, so the bar shows 9:41
+on any host. It derives the weekday as if the year were 2000, so iPad's bar reads "9:41 Sat Jan 1"
+(the owner's choice of date). The marketing chrome stays in this runner and its outcomes, outside
+the shared pin. A simulator whose status bar already carries overrides is refused, since clearing
+the runner's own would remove them.
+
+| Output | Contents |
+|---|---|
+| `outcomes.json` | Status, coordinate, pin SHA-256, fixture version, device, chrome, launches and `capture` |
+| `environment-check/` | The pin validation's measurements and attachments |
+| `native/` | Each invocation's command, log, result bundle, attachments and the simulator's lifecycle |
+| `launches/<n>/` | Launch n's `ready.json`, `answer.json` and screenshots |
+
+Every frame and result bundle shows real content: keep the output under `.capture/` and never
+commit it.
