@@ -174,9 +174,11 @@ public struct GalleryCardCell: View {
 // the former Colorful view's gradual appearance. Fresh `@State` (the parent re-inserts this view
 // per focus via `if animated`) guarantees the bloom each time a card becomes current.
 // Under Reduce Motion the same first-set snap is used the other way around: init seeds the real
-// palette directly (no bloom — the first paint is already final), `speed` 0 freezes the Metal
-// field and `FixedSpeckleDirector` gives its points one arrangement, leaving a static gradient that
-// looks the same every time and whose focus handoff remains the parent's opacity cross-fade.
+// palette directly (no bloom — the first paint is already final), a `transitionSpeed` of 0 makes
+// ColorfulX apply a palette that arrives later at once as well, `speed` 0 freezes the Metal field
+// and `FixedSpeckleDirector` gives its points one arrangement, leaving a static gradient that looks
+// the same every time and whose focus handoff remains the parent's opacity cross-fade. Skipping the
+// late palette's fade is an owner-approved exception to Phase 16 D-29 (17-05-PLAN.md).
 private struct CardGradientView: View {
     let colors: [Color]
     let reduceMotion: Bool
@@ -195,7 +197,7 @@ private struct CardGradientView: View {
         ColorfulView(
             color: displayedColors,
             speed: .constant(reduceMotion ? 0 : speed),
-            transitionSpeed: .constant(6),
+            transitionSpeed: .constant(reduceMotion ? 0 : 6),
             animationDirector: reduceMotion ? FixedSpeckleDirector() : SpeckleAnimationRandomDirector()
         )
         // ColorfulX keeps the director its view was made with, so a Reduce Motion change rebuilds
