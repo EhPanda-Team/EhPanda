@@ -13,6 +13,9 @@ import subprocess
 
 ROOT = Path(__file__).resolve().parents[2]
 MODELS = {'iphone': 'iPhone Air', 'ipad': 'iPad Pro 11-inch (M5)'}
+# The simulators visual runs use, under names no other work on this host takes, so nothing else shares their
+# settings or shadows them: a simulator of the same model and runtime under any other name is ignored.
+SIMULATOR_NAMES = {family: 'EhPanda Visual ' + model for family, model in MODELS.items()}
 PORTRAIT_PIXELS = {'iphone': [1260, 2736], 'ipad': [1668, 2420]}
 PRODUCERS = [Path(__file__).relative_to(ROOT).as_posix(),
              'AppPackage/Tests/VisualSnapshotTests/GeometryTests.swift',
@@ -136,9 +139,11 @@ def resolve_destinations(inventory, runtime, models):
                 or types[0]['name'] != model['model']):
             raise EnvironmentMismatch(f'{family}: device model metadata differs from pin')
         devices = [item for item in inventory['devices'].get(runtime['identifier'], [])
-                   if item.get('isAvailable') and item['deviceTypeIdentifier'] == model['deviceTypeIdentifier']]
+                   if item.get('isAvailable') and item['deviceTypeIdentifier'] == model['deviceTypeIdentifier']
+                   and item['name'] == SIMULATOR_NAMES[family]]
         if len(devices) != 1:
-            raise EnvironmentMismatch(f'{family}: expected one available simulator, found {len(devices)}')
+            raise EnvironmentMismatch(
+                f'{family}: expected one available simulator named {SIMULATOR_NAMES[family]!r}, found {len(devices)}')
         resolved[family] = devices[0]
     return resolved
 
