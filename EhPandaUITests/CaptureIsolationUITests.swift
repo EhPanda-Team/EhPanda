@@ -17,10 +17,11 @@ final class CaptureIsolationUITests: XCTestCase {
     }
 
     func testHomeCaptureShowsTheSelectionOfflineAcrossAResetRelaunch() throws {
-        let fixture = try CapturedFixture.copy()
-        addTeardownBlock { [root = fixture.root] in
-            try FileManager.default.removeItem(at: root)
+        let fixture = try CaptureFixtureCopy.make()
+        addTeardownBlock {
+            try fixture.remove()
         }
+        let expectedHome = try CaptureDiagnostics(home: fixture)
         let configuration = #"{"purpose":"marketingReal","scenarioID":"home","fixtureID":"nonexplicit"}"#
         let app = XCUIApplication()
         app.launchEnvironment = [
@@ -30,10 +31,10 @@ final class CaptureIsolationUITests: XCTestCase {
 
         for launch in ["first launch", "relaunch"] {
             app.launch()
-            let settled = try settledDiagnostics(of: app, during: launch)
+            let settled = try app.settledCaptureDiagnostics(as: CaptureDiagnostics.self, during: launch)
             XCTAssertEqual(
                 settled.diagnostics,
-                fixture.expectedHome,
+                expectedHome,
                 "Home differs from the selection on the \(launch)."
             )
             let attachments = [
@@ -46,33 +47,6 @@ final class CaptureIsolationUITests: XCTestCase {
                 add(attachment)
             }
             app.terminate()
-        }
-    }
-
-    /// Waits until the capture reports Home finished or failed, then reads its diagnostics, both as
-    /// the app wrote them and decoded.
-    private func settledDiagnostics(
-        of app: XCUIApplication,
-        during launch: String
-    ) throws -> (json: String, diagnostics: CaptureDiagnostics) {
-        let element = app.descendants(matching: .any).matching(identifier: "capture_diagnostics").firstMatch
-        XCTAssertTrue(element.waitForExistence(timeout: 30), "The \(launch) did not start a capture.")
-        let settles = XCTNSPredicateExpectation(
-            predicate: NSPredicate(
-                format: "value CONTAINS %@ OR value CONTAINS %@",
-                #""readiness":"ready""#,
-                #""readiness":"failed""#
-            ),
-            object: element
-        )
-        let outcome = XCTWaiter.wait(for: [settles], timeout: 60)
-        let value = try XCTUnwrap(element.value as? String, "The capture diagnostics have no value.")
-        XCTAssertEqual(outcome, .completed, "Home never finished loading on the \(launch): \(value)")
-        do {
-            return (value, try JSONDecoder().decode(CaptureDiagnostics.self, from: Data(value.utf8)))
-        } catch {
-            XCTFail("The capture diagnostics are not readable on the \(launch): \(value)")
-            throw error
         }
     }
 }
@@ -89,75 +63,18 @@ private struct CaptureDiagnostics: Decodable, Equatable {
     let unknownRequests: [String]
 }
 
-/// A copy of the runner-named fixture version in the test's own temporary directory, and the Home
-/// diagnostics its selection calls for.
-private struct CapturedFixture {
-    /// The temporary directory this test created; removed when the test ends.
-    let root: URL
-    let version: URL
-    let expectedHome: CaptureDiagnostics
-
-    static func copy() throws -> Self {
-        let sourcePath = try XCTUnwrap(
-            ProcessInfo.processInfo.environment["EHPANDA_CAPTURE_SOURCE"],
-            "Run with TEST_RUNNER_EHPANDA_CAPTURE_SOURCE naming a marketing fixture version directory."
-        )
-        // A `current` link is resolved once, so the copy is one fixed version.
-        let source = URL(filePath: sourcePath, directoryHint: .isDirectory).resolvingSymlinksInPath()
-        let root = FileManager.default.temporaryDirectory
-            .appending(path: "CaptureIsolation-\(UUID().uuidString)", directoryHint: .isDirectory)
-        let version = root.appending(path: source.lastPathComponent, directoryHint: .isDirectory)
-        try FileManager.default.createDirectory(at: root, withIntermediateDirectories: true)
-        try FileManager.default.copyItem(at: source, to: version)
-
-        let manifest = try JSONDecoder().decode(
-            FixtureManifest.self,
-            from: Data(contentsOf: version.appending(path: "manifest.json"))
-        )
-        let selection = try JSONDecoder().decode(
-            FixtureSelection.self,
-            from: Data(contentsOf: version.appending(path: "selection.json"))
-        )
-        let home = try XCTUnwrap(selection.scenes["nonexplicit"], "The selection has no nonexplicit scene.").home
-        let toplists = try ["yesterday", "pastMonth", "pastYear", "allTime"].flatMap { period in
-            try XCTUnwrap(home.toplists[period], "The selection has no \(period) Toplists.")
-        }
-        return Self(
-            root: root,
-            version: version,
-            expectedHome: CaptureDiagnostics(
-                screenID: "home",
-                selectionID: selection.selectionID,
-                fixtureVersion: manifest.fixtureVersion,
-                galleryIDs: home.hero.galleries + home.frontpage + toplists,
-                page: nil,
-                readiness: "ready",
-                pendingImages: 0,
-                unknownRequests: []
-            )
+extension CaptureDiagnostics {
+    /// The diagnostics of Home showing `fixture`'s nonexplicit selection, fully loaded.
+    init(home fixture: CaptureFixtureCopy) throws {
+        self.init(
+            screenID: "home",
+            selectionID: fixture.selection.selectionID,
+            fixtureVersion: fixture.fixtureVersion,
+            galleryIDs: try fixture.selection.scene("nonexplicit").home.galleryIDs(),
+            page: nil,
+            readiness: "ready",
+            pendingImages: 0,
+            unknownRequests: []
         )
     }
-}
-
-private struct FixtureManifest: Decodable {
-    let fixtureVersion: String
-}
-
-private struct FixtureSelection: Decodable {
-    struct Scene: Decodable {
-        let home: Home
-    }
-
-    struct Home: Decodable {
-        let hero: Hero
-        let frontpage: [String]
-        let toplists: [String: [String]]
-    }
-
-    struct Hero: Decodable {
-        let galleries: [String]
-    }
-
-    let selectionID: String
-    let scenes: [String: Scene]
 }
