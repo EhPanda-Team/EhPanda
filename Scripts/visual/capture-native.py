@@ -2,6 +2,7 @@
 """Capture one marketing coordinate on the actual app, with native chrome, over independent cold launches."""
 import argparse
 from concurrent.futures import ThreadPoolExecutor
+from contextlib import ExitStack
 from datetime import datetime, timezone
 import hashlib
 import json
@@ -233,6 +234,25 @@ def capture_launch(gate, number, context, record):
     record['status'] = 'captured'
 
 
+def clear_status_bar(device, report):
+    subprocess.run(['xcrun', 'simctl', 'status_bar', device, 'clear'], check=True)
+    if status_bar_overrides(device):
+        raise CaptureFailure('The status bar overrides survived clearing')
+    report['chrome']['statusBarRestored'] = True
+
+
+def restore_appearance(device, appearance, report):
+    subprocess.run(['xcrun', 'simctl', 'ui', device, 'appearance', appearance], check=True)
+    report['chrome']['appearanceRestored'] = appearance
+
+
+def restore_portrait(gate, family, device, rotation):
+    # The launches named their capture in the UI test run; the orientation test gets a plain one again.
+    gate.single_pass_run('UITests')
+    gate.run(f'{family}-restore-portrait', ['test-without-building'], 'UITests', device,
+             [rotation + 'testRotateToPortrait'], 1, cleanup=True)
+
+
 def dispatch(args, coordinate, observed, source, manifest, report, publish):
     native = environment.load_native_gate()
     family = coordinate['family']
@@ -249,7 +269,7 @@ def dispatch(args, coordinate, observed, source, manifest, report, publish):
     gate = native.Gate(argparse.Namespace(output=args.output / 'native', derived_data=environment.default_derived_data()))
     # Environment validation built the final tree; reuse its products with explicit per-launch parameters.
     gate.single_pass_run('UITests')
-    with gate.simulator_session(family, device):
+    with gate.simulator_session(family, device), ExitStack() as restore:
         appearance = subprocess.check_output(['xcrun', 'simctl', 'ui', device, 'appearance'], text=True).strip()
         if appearance not in contracts.AXES['theme']:
             raise CaptureFailure(f'Cannot preserve appearance: {appearance}')
@@ -257,40 +277,33 @@ def dispatch(args, coordinate, observed, source, manifest, report, publish):
         existing = status_bar_overrides(device)
         if existing:
             raise CaptureFailure(f'The status bar already carries overrides: {existing}')
+        # The stack runs these last to first, each even when one before it fails: the status bar, the
+        # appearance, the outcomes, then portrait.
+        restore.callback(restore_portrait, gate, family, device, native.ROTATION)
+        restore.callback(publish)
+        restore.callback(restore_appearance, device, appearance, report)
+        restore.callback(clear_status_bar, device, report)
+        time_value = status_bar_time()
+        subprocess.run(['xcrun', 'simctl', 'status_bar', device, 'override', '--time', time_value, *STATUS_BAR],
+                       check=True)
+        report['chrome']['statusBar'] = {'time': time_value, 'arguments': list(STATUS_BAR),
+                                         'applied': status_bar_overrides(device)}
+        settle = args.output / 'settle'
+        settle.mkdir()
+        subprocess.run(['xcrun', 'simctl', 'launch', device, SETTLE_APP], check=True, capture_output=True)
         try:
-            time_value = status_bar_time()
-            subprocess.run(['xcrun', 'simctl', 'status_bar', device, 'override', '--time', time_value, *STATUS_BAR],
-                           check=True)
-            report['chrome']['statusBar'] = {'time': time_value, 'arguments': list(STATUS_BAR),
-                                             'applied': status_bar_overrides(device)}
-            settle = args.output / 'settle'
-            settle.mkdir()
-            subprocess.run(['xcrun', 'simctl', 'launch', device, SETTLE_APP], check=True, capture_output=True)
-            try:
-                report['chrome']['settleLaunch'] = {'app': SETTLE_APP,
-                                                    **settle_frame(device, settle, context['pixels'], args.output)}
-            finally:
-                subprocess.run(['xcrun', 'simctl', 'terminate', device, SETTLE_APP], check=True)
-            publish()
-            for number in range(1, COLD_LAUNCHES + 1):
-                record = {'launch': number, 'status': 'failed'}
-                report['launches'].append(record)
-                try:
-                    capture_launch(gate, number, context, record)
-                finally:
-                    publish()
+            report['chrome']['settleLaunch'] = {'app': SETTLE_APP,
+                                                **settle_frame(device, settle, context['pixels'], args.output)}
         finally:
+            subprocess.run(['xcrun', 'simctl', 'terminate', device, SETTLE_APP], check=True)
+        publish()
+        for number in range(1, COLD_LAUNCHES + 1):
+            record = {'launch': number, 'status': 'failed'}
+            report['launches'].append(record)
             try:
-                subprocess.run(['xcrun', 'simctl', 'status_bar', device, 'clear'], check=True)
-                if status_bar_overrides(device):
-                    raise CaptureFailure('The status bar overrides survived clearing')
-                report['chrome']['statusBarRestored'] = True
-                subprocess.run(['xcrun', 'simctl', 'ui', device, 'appearance', appearance], check=True)
-                report['chrome']['appearanceRestored'] = appearance
+                capture_launch(gate, number, context, record)
             finally:
                 publish()
-                gate.run(f'{family}-restore-portrait', ['test-without-building'], 'UITests', device,
-                         [native.ROTATION + 'testRotateToPortrait'], 1, cleanup=True)
 
 
 def execute(args):
