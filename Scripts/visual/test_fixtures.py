@@ -98,6 +98,10 @@ def image_page_html(gid, page, image=None):
         '</div></body></html>'])
 
 
+def reader_indices(manifest, kind):
+    return sorted(entry['index'] for entry in manifest['assets'] if entry['kind'] == kind and entry['gid'] == '101')
+
+
 def selection(prefix='1', scene_set='nonexplicit'):
     gids = [f'{prefix}{index:02d}' for index in range(1, 18)]
     return {
@@ -121,18 +125,19 @@ class Site:
     def __init__(self, value, pages=60, shown=40):
         self.calls = []
         self.responses = {}
-        flows = {scene['flow']['gallery']: scene['flow']['pages'] for scene in value['scenes'].values()}
+        flows = {scene['flow']['gallery'] for scene in value['scenes'].values()}
         for gallery in value['galleries']:
             gid = gallery['url'].split('/')[4]
             self.html(gallery['url'] + '?hc=1', detail_html(gid, pages, shown))
             self.image(f'https://ehgt.org/w/{gid}/cover.jpg')
             if gid not in flows:
                 continue
+            # A flow gallery serves every preview page, reader page and image, so a test sees what acquisition picks.
             for page in range(1, min(shown, pages) + 1, 20):
                 self.image(sprite_url(gid, page), PNG)
-            for number in {fixtures.page_number(page, BATCH) for page in flows[gid]}:
+            for number in range(fixtures.page_number(pages, BATCH) + 1):
                 self.html(f'{gallery["url"]}?p={number}', thumbnails_html(gid, number, pages))
-            for page in flows[gid]:
+            for page in range(1, pages + 1):
                 self.html(reader_url(gid, page), image_page_html(gid, page))
                 self.image(image_url(gid, page))
 
@@ -208,20 +213,54 @@ class AcquisitionTests(FixtureTestCase):
         self.assertEqual(sorted(manifest['generatorSources']), sorted(fixtures.GENERATORS))
         kinds = [entry['kind'] for entry in manifest['assets']]
         self.assertEqual({kind: kinds.count(kind) for kind in set(kinds)},
-                         {'detail': 17, 'cover': 17, 'preview': 2, 'thumbnails': 1, 'imagePage': 3, 'page': 3})
+                         {'detail': 17, 'cover': 17, 'preview': 2, 'thumbnails': 1, 'imagePage': 40, 'page': 12})
+        # Pages 3 to 5 sit in the first 40-page batch, and the reader resolves all 40 of its pages. It loads the
+        # images of pages 3 to 5 and of their prefetch windows, which together cover pages 1 to 12.
+        self.assertEqual(reader_indices(manifest, 'imagePage'), list(range(1, 41)))
+        self.assertEqual(reader_indices(manifest, 'page'), list(range(1, 13)))
         # Fetches follow declaration order and request exactly the derived resources, each once.
-        self.assertEqual(len(site.calls), 43)
-        self.assertEqual(len(set(site.calls)), 43)
+        self.assertEqual(len(site.calls), 89)
+        self.assertEqual(len(set(site.calls)), 89)
         details = [url for url in site.calls if url.endswith('?hc=1')]
         self.assertEqual(details, [gallery['url'] + '?hc=1' for gallery in self.selection['galleries']])
         self.assertIn(gallery_url('101') + '?p=0', site.calls)
 
     def test_reader_page_beyond_the_first_batch_uses_the_app_page_number(self):
-        self.selection['scenes']['nonexplicit']['flow'].update(pages=[45], readerPage=45, liveTextPage=45)
+        self.selection['scenes']['nonexplicit']['flow'].update(pages=[55], readerPage=55, liveTextPage=55)
         site = Site(self.selection)
-        self.acquire(site)
+        target, _ = self.acquire(site)
         self.assertIn(gallery_url('101') + '?p=1', site.calls)
         self.assertNotIn(gallery_url('101') + '?p=0', site.calls)
+        manifest = fixtures.validate_fixtures(target)
+        self.assertEqual(reader_indices(manifest, 'imagePage'), list(range(41, 61)))
+        self.assertEqual(reader_indices(manifest, 'page'), [*range(48, 54), 55, *range(57, 61)])
+
+    def test_prefetch_window_crossing_a_batch_resolves_both_batches(self):
+        self.selection['scenes']['nonexplicit']['flow'].update(pages=[40], readerPage=40, liveTextPage=40)
+        site = Site(self.selection)
+        target, _ = self.acquire(site)
+        self.assertIn(gallery_url('101') + '?p=0', site.calls)
+        self.assertIn(gallery_url('101') + '?p=1', site.calls)
+        manifest = fixtures.validate_fixtures(target)
+        self.assertEqual(reader_indices(manifest, 'imagePage'), list(range(1, 61)))
+        self.assertEqual(reader_indices(manifest, 'page'), [*range(33, 39), 40, *range(42, 48)])
+
+    def test_prefetch_window_mirrors_the_reader(self):
+        # ReadingReducer.prefetchImages skips the direct neighbours and any one-page range, and stops at the ends.
+        for page, expected in [(1, range(3, 9)), (2, range(4, 10)), (3, range(5, 11)), (4, [1, 2, *range(6, 12)]),
+                               (57, [*range(50, 56), 59, 60]), (58, range(51, 57)), (60, range(53, 59))]:
+            with self.subTest(page=page):
+                self.assertEqual(sorted(fixtures.prefetch_window(page, 60)), list(expected))
+        self.assertEqual(fixtures.prefetch_window(1, 2), set())
+        self.assertEqual(fixtures.reader_images([3, 4, 5], 60), list(range(1, 13)))
+
+    def test_every_reader_page_of_a_batch_is_required(self):
+        # The reader resolves page 20 with the batch holding page 4, although it never loads page 20's image.
+        site = Site(self.selection)
+        del site.responses[reader_url('101', 20)]
+        with self.assertRaisesRegex(ValueError, f'imagePage 101: {reader_url("101", 20)}: OSError'):
+            self.acquire(site)
+        self.assert_unpublished()
 
     def test_batch_size_mirrors_the_app_preview_configuration(self):
         for mode, count, expected in [('gt100', 20, 40), ('gt100', 40, 40), ('gt100', 41, 80), ('gt100', 200, 200),
