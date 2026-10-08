@@ -68,7 +68,7 @@ struct CaptureDiagnostics: Equatable, Encodable {
     /// The reader page the screen shows; `nil` outside the reader.
     let page: Int?
     let readiness: Readiness
-    /// Images the replay delivered that the image cache does not hold yet.
+    /// Images the replay delivered that no image cache holds yet.
     let pendingImages: Int
     /// Requests the replay refused, as `METHOD URL` in arrival order.
     let unknownRequests: [String]
@@ -514,7 +514,7 @@ struct CaptureDiagnosticsAnchor: UIViewRepresentable {
 }
 
 /// Computes its accessibility value each time a test reads it, from the store, the replay, the
-/// image cache and its own traits, so the value is never stale and the app needs no observation or
+/// image caches and its own traits, so the value is never stale and the app needs no observation or
 /// timer for it.
 final class CaptureDiagnosticsElement: UIView {
     private let store: StoreOf<AppReducer>
