@@ -1,34 +1,15 @@
 {
   "version": "1.0",
-  "timestamp": "2026-10-08T02:56:12Z",
+  "timestamp": "2026-10-08T16:12:38Z",
   "phase": "17",
   "phase_name": "Screenshot Automation, Visual Regression & OS 27 Modernization",
   "phase_dir": ".planning/phases/17-localized-screenshot-capture-harness",
-  "plan": 5,
-  "task": 2,
-  "total_tasks": 2,
-  "status": "executing-17-05",
-  "completed_tasks": [
-    {
-      "id": 1,
-      "name": "17-05-T1: Launch real app routes and verify selected screen readiness",
-      "commits": [
-        "d94629c7a",
-        "3ddc480ab",
-        "15fb93e4e",
-        "d2f3e4b6d",
-        "2da4a2b86"
-      ],
-      "status": "complete"
-    }
-  ],
-  "remaining_tasks": [
-    {
-      "id": 2,
-      "name": "17-05-T2: Gate native chrome and cold-rerun determinism on real destinations",
-      "status": "pending"
-    }
-  ],
+  "plan": 6,
+  "task": 1,
+  "total_tasks": null,
+  "status": "ready-17-06",
+  "completed_tasks": [],
+  "remaining_tasks": [],
   "blockers": [],
   "async_jobs": [],
   "human_actions_pending": [
@@ -280,6 +261,26 @@
       "decision": "DataCache gains a nonisolated containsData(forKey:) and LibraryClient.live.isCached consults the reader cache (15fb93e4e).",
       "rationale": "Owner, 2026-10-08: the synchronous diagnostics could not see reader pages, so the reader never read as ready. Recorded in 17-05-PLAN.md.",
       "phase": "17"
+    },
+    {
+      "decision": "iPad status bar shows 2026-01-01 9:41 via the full ISO --time; simctl renders it \"Sat Jan 1\".",
+      "rationale": "Owner answer 2026-10-08; --time 9:41 keeps the real date, and simctl derives the weekday as if the year were 2000.",
+      "phase": "17"
+    },
+    {
+      "decision": "Visual runs use dedicated \"EhPanda Visual iPhone Air\" and \"EhPanda Visual iPad Pro 11-inch (M5)\" simulators, resolved by name, model and runtime.",
+      "rationale": "Owner choice 2026-10-08 (recommended) after another session created same-model iOS 27 simulators; names live in environment.py, the pin is unchanged.",
+      "phase": "17"
+    },
+    {
+      "decision": "capture-native.py opens and quits Settings once after setting the status bar, before any capture launch.",
+      "rationale": "Owner choice 2026-10-08 (recommended, tested first): the first app after a boot draws iPad's Wi-Fi glyph half a point left of every later app.",
+      "phase": "17"
+    },
+    {
+      "decision": "Marketing frames are the system screenshot (XCUIScreen) the test settles and attaches; capture-native.py reads it from the launch's result bundle, and the handshake is removed (d4ba3e666).",
+      "rationale": "Owner choice 2026-10-09 (recommended, tested first): simctl's framebuffer keeps Liquid Glass as last composed, so 1 of 17 iPad cold launches recorded a glass rim one level off; all 17 system screenshots matched.",
+      "phase": "17"
     }
   ],
   "uncommitted_files": [
@@ -289,8 +290,8 @@
     "M  EhPanda.xcodeproj/project.pbxproj",
     "?? .capture/"
   ],
-  "next_action": "Continue 17-05-T2: Scripts/visual/capture-native.py with test_capture_native.py and README; validate the tracked regression-environment.json pin via environment.py before dispatch; simctl status_bar 9:41 and io screenshot --mask=ignored; capsule absence; two cold launches per device with byte-identical SHA-256, redoing the card-color check at Large. Explicit-set coordinates wait for owner IDs. Keep iPhone Shutdown, iPad Booted, both portrait and Large.",
-  "context_notes": "17-05 T1 complete: the Debug launch route opens all eight capture screens through actual actions; CaptureDiagnostics reports per-screen identity, galleries, page, readiness, blockers and rendering. MarketingCaptureUITests.testCaptureCoordinate takes one JSON coordinate (TEST_RUNNER_EHPANDA_CAPTURE_COORDINATE, TEST_RUNNER_EHPANDA_CAPTURE_SOURCE) and records state plus an XCUIScreen framebuffer. Fixture marketing-2b4d03cd822461e2: 12 coordinates ready on both devices, zh-Hant and German variants pass; Live Text and Downloads wait for 17-06. Capture scenes use the paging reader. Another local session briefly used the pinned iPhone Air on 2026-10-08 and left it Booted; it was restored to Shutdown.",
+  "next_action": "Start 17-06 (Live Text and Downloads states). Native captures: one coordinate per run with Scripts/visual/capture-native.py on the EhPanda Visual simulators (both Shutdown when idle). Explicit-set coordinates wait for owner IDs; ask the owner in 17-07 whether the status bar should follow each locale.",
+  "context_notes": "17-05 complete. T1: eight capture routes through actual navigation, per-screen diagnostics, MarketingCaptureUITests.testCaptureCoordinate (12 coordinates on both devices; Live Text and Downloads wait for 17-06). T2: capture-native.py validates the tracked pin, sets the 9:41 status bar, settles it with a Settings launch, and proves byte-identical cold reruns on system screenshots (XCUIScreen) that the test settles and attaches; no capsule. The gate on 68842e6e0 failed on an iPad glass rim in simctl's framebuffer (.capture/17-05-t2-native-05, 17-05-t2-glass-probe-01). Final gate on 64fb7279f: .capture/17-05-t2-native-09 (iPad light) and -10 (iPhone dark). Review 17-05-REVIEW.md: R-1 to R-8 fixed. The status bar follows the simulator region (en_JP), not the coordinate locale: an owner question for 17-07.",
   "evidence": {
     "proposal": ".planning/phases/17-localized-screenshot-capture-harness/17-01-CAPTURE-GATE.md",
     "bootstrap": {
@@ -1451,6 +1452,37 @@
     "card_color_determinism": {
       "probe": ".capture/17-05-imagecolors-ties-01/ (README.md, fixture-images.tsv, red/green logs, ui-phone, exp-fixed-phone, fixed-settled-phone)",
       "gate": ".capture/17-05-fixed-gradient-gate-01/ (full FeatureTests: 21 of 22 Swift Testing runs, the inventory test then updated and AppToolsTests 13 of 13; same 10 VisualSnapshotTests environment failures; capture UI test passes on both devices)"
+    },
+    "17-05-t2": {
+      "final_gate": [
+        ".capture/17-05-t2-native-09",
+        ".capture/17-05-t2-native-10"
+      ],
+      "earlier_gates": [
+        ".capture/17-05-t2-native-01",
+        ".capture/17-05-t2-native-02",
+        ".capture/17-05-t2-native-03",
+        ".capture/17-05-t2-native-04",
+        ".capture/17-05-t2-native-05",
+        ".capture/17-05-t2-native-06",
+        ".capture/17-05-t2-native-07",
+        ".capture/17-05-t2-native-08"
+      ],
+      "probes": [
+        ".capture/17-05-t2-capsule-probe-01",
+        ".capture/17-05-t2-wifi-probe-01",
+        ".capture/17-05-t2-experiment-01",
+        ".capture/17-05-t2-glass-probe-01",
+        ".capture/17-05-t2-xcuiscreen-01",
+        ".capture/17-05-t2-xcuiscreen-02",
+        ".capture/17-05-t2-mutations-01"
+      ],
+      "commit_trees": [
+        ".capture/commit-trees-05",
+        ".capture/commit-trees-06",
+        ".capture/commit-trees-07",
+        ".capture/commit-trees-08"
+      ]
     }
   },
   "recovery_logs": [
@@ -1459,25 +1491,32 @@
     "/tmp/ehpanda-phase17-t1-host-build-3.log",
     "/tmp/ehpanda-phase17-symbol-build.log"
   ],
-  "uncommitted_files_note": "Only the four reserved staged entries and the untracked .capture/ evidence remain; all 17-05 T1 source and documentation is committed.",
-  "source_checkpoint": "2da4a2b86",
+  "uncommitted_files_note": "Only the four reserved staged entries and the untracked .capture/ evidence remain; all 17-05 source and documentation is committed.",
+  "source_checkpoint": "64fb7279f",
   "previous_plan_tasks": [
     {
       "id": 1,
-      "name": "17-04-T1: Replay one selected Home scene through actual app dependencies",
+      "name": "17-05-T1: Launch real app routes and verify selected screen readiness",
       "commits": [
-        "3430e6fb0",
-        "dc4d200b8",
-        "c2282e7da"
+        "d94629c7a",
+        "3ddc480ab",
+        "15fb93e4e",
+        "d2f3e4b6d",
+        "2da4a2b86"
       ],
       "status": "complete"
     },
     {
       "id": 2,
-      "name": "17-04-T2: Prove isolation, selected content and offline request failures",
+      "name": "17-05-T2: Gate native chrome and cold-rerun determinism on real destinations",
       "commits": [
-        "7a23e6233",
-        "42962bb1d"
+        "e64fcf9e6",
+        "8df30b54e",
+        "f6ccffe56",
+        "3d7755665",
+        "68842e6e0",
+        "d4ba3e666",
+        "64fb7279f"
       ],
       "status": "complete"
     }
@@ -1487,7 +1526,8 @@
     "17-24",
     "17-02",
     "17-03",
-    "17-04"
+    "17-04",
+    "17-05"
   ],
   "reserved_staged_blobs": {
     ".gsd/dispatch-isolation-sentinel.json": "f23c98b270324284fe9af8fad70335ea69d412a4",
@@ -1824,5 +1864,5 @@
       "summary": ".planning/phases/17-localized-screenshot-capture-harness/17-02-SUMMARY.md"
     }
   },
-  "updated_at": "2026-10-08T02:56:12Z"
+  "updated_at": "2026-10-08T13:50:00Z"
 }
