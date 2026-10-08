@@ -351,6 +351,7 @@ class FakeSimulator:
         self.frames = list(frames)
         self.appearance = appearance
         self.overrides = list(overrides)
+        self.foreground = None
         self.commands = []
 
     def check_output(self, command, text=True):
@@ -371,6 +372,8 @@ class FakeSimulator:
             self.overrides = []
         elif command[2:5] == ['ui', 'fresh-phone', 'appearance']:
             self.appearance = command[5]
+        elif command[2:4] in (['launch', 'fresh-phone'], ['terminate', 'fresh-phone']):
+            self.foreground = command[4] if command[2] == 'launch' else None
         else:
             raise AssertionError(f'Unexpected command {command}')
         return SimpleNamespace(returncode=0, stderr='')
@@ -379,7 +382,8 @@ class FakeSimulator:
 class FakeGate:
     """Runs each launch as the UI test would: writes ready.json, then passes only on a captured answer."""
 
-    def __init__(self, arguments, test):
+    def __init__(self, arguments, test, simulator):
+        self.simulator = simulator
         self.output = arguments.output
         self.output.mkdir(parents=True)
         self.test_runs = {}
@@ -401,6 +405,8 @@ class FakeGate:
         self.runs.append((name, tuple(tests), cleanup))
         if not name.startswith('launch-'):
             return
+        if self.simulator.foreground is not None:
+            raise RuntimeError(f'{name} started with {self.simulator.foreground} in front')
         variables = plistlib.loads(self.test_runs[plan].read_bytes())['TestConfigurations'][0]['TestTargets'][0][
             'EnvironmentVariables']
         self.test(name, json.loads(variables['EHPANDA_CAPTURE_COORDINATE']), Path(variables['EHPANDA_CAPTURE_HANDSHAKE']))
@@ -445,7 +451,7 @@ class DispatchTests(unittest.TestCase):
     def dispatch(self, simulator, test):
         gates = []
         def gate(arguments):
-            gates.append(FakeGate(arguments, test))
+            gates.append(FakeGate(arguments, test, simulator))
             return gates[-1]
         real = environment.load_native_gate()
         native = SimpleNamespace(Gate=gate, nodes=real.nodes, ROTATION='Rotation/')
@@ -478,6 +484,14 @@ class DispatchTests(unittest.TestCase):
         self.assertTrue(self.report['chrome']['statusBarRestored'])
         override = next(command for command in simulator.commands if command[3:5] == ['fresh-phone', 'override'])
         self.assertEqual(override[7:], list(self.runner.STATUS_BAR))
+        # Settings is the first app after the override and is quit before the first capture launch.
+        actions = [command[2] for command in simulator.commands if command[2] in ('launch', 'terminate', 'io')]
+        self.assertEqual(actions[:5], ['launch', 'io', 'io', 'io', 'terminate'])
+        self.assertEqual([command[4] for command in simulator.commands if command[2] in ('launch', 'terminate')],
+                         [self.runner.SETTLE_APP] * 2)
+        settle = self.report['chrome']['settleLaunch']
+        self.assertEqual(settle['app'], self.runner.SETTLE_APP)
+        self.assertEqual(settle['capture']['path'], 'settle/frame-3.png')
         for number in (1, 2):
             answer = self.workspace.output / f'launches/{number}/answer.json'
             self.assertEqual(json.loads(answer.read_text()), {'status': 'captured'})
@@ -511,6 +525,16 @@ class DispatchTests(unittest.TestCase):
         simulator = FakeSimulator([png(4, 3)])
         with self.assertRaisesRegex(self.runner.CaptureFailure, 'ran on iPhone Air 24A434'):
             self.dispatch(simulator, handshake_test())
+        self.assert_restored(simulator)
+
+    def test_a_settle_app_that_never_holds_still_fails_before_any_capture_and_restores(self):
+        frames = [png(4, 3, fill) for fill in range(self.runner.FRAME_ATTEMPTS + 1)]
+        simulator = FakeSimulator(frames)
+        with self.assertRaisesRegex(self.runner.CaptureFailure, 'never held still'):
+            self.dispatch(simulator, handshake_test())
+        self.assertEqual(self.report['launches'], [])
+        self.assertEqual([run[0] for run in self.gate.runs], ['iphone-restore-portrait'])
+        self.assertIsNone(simulator.foreground)
         self.assert_restored(simulator)
 
     def test_existing_overrides_are_never_replaced(self):
