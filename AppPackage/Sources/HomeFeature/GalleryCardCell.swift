@@ -31,8 +31,8 @@ public struct GalleryCardCell: View {
     // only for the focused card in dark mode. Unselected cards and light mode show just the gray
     // fallback, and the cover-color analysis is skipped until dark (see `handleCoverSuccess`).
     // With Reduce Motion enabled, the gradient is seeded directly from the palette and its Metal
-    // field is frozen; the focus handoff remains an opacity cross-fade. `animationSpeed` is the
-    // subjective, user-tunable motion knob (01-COLORFUL-UAT.md, D-19).
+    // field is frozen in one fixed arrangement; the focus handoff remains an opacity cross-fade.
+    // `animationSpeed` is the subjective, user-tunable motion knob (01-COLORFUL-UAT.md, D-19).
     private let animationSpeed: Double = 0.5
 
     // Retains the last cover-image result so color analysis can be deferred: light mode never
@@ -174,8 +174,9 @@ public struct GalleryCardCell: View {
 // the former Colorful view's gradual appearance. Fresh `@State` (the parent re-inserts this view
 // per focus via `if animated`) guarantees the bloom each time a card becomes current.
 // Under Reduce Motion the same first-set snap is used the other way around: init seeds the real
-// palette directly (no bloom — the first paint is already final) and `speed` 0 freezes the Metal
-// field, leaving a static gradient whose focus handoff remains the parent's opacity cross-fade.
+// palette directly (no bloom — the first paint is already final), `speed` 0 freezes the Metal
+// field and `FixedSpeckleDirector` gives its points one arrangement, leaving a static gradient that
+// looks the same every time and whose focus handoff remains the parent's opacity cross-fade.
 private struct CardGradientView: View {
     let colors: [Color]
     let reduceMotion: Bool
@@ -194,14 +195,37 @@ private struct CardGradientView: View {
         ColorfulView(
             color: displayedColors,
             speed: .constant(reduceMotion ? 0 : speed),
-            transitionSpeed: .constant(6)
+            transitionSpeed: .constant(6),
+            animationDirector: reduceMotion ? FixedSpeckleDirector() : SpeckleAnimationRandomDirector()
         )
+        // ColorfulX keeps the director its view was made with, so a Reduce Motion change rebuilds
+        // the view to switch between the fixed arrangement and random movement.
+        .id(reduceMotion)
         // `initial: true` fires this at appearance time with the unchanged palette, which is what
         // turns ColorfulX's first paint into an animated transition (see the type comment). It
         // replaces a former `onAppear` doing the same assignment, folding both into one modifier.
         .onChange(of: colors, initial: true) { _, newColors in
             displayedColors = newColors
         }
+    }
+}
+
+/// Places the gradient's points in one fixed arrangement and never moves them, for Reduce Motion.
+///
+/// ColorfulX's default director scatters the points at random each time a gradient appears, so a
+/// frozen gradient still arranged the same palette differently on every launch. The points follow
+/// the R2 low-discrepancy sequence instead, which spreads any number of them evenly across the card,
+/// as random placement does on average.
+private final class FixedSpeckleDirector: SpeckleAnimationDirector {
+    /// 1 / g and 1 / g², where g is the plastic number, the R2 sequence's generator.
+    private static let step = (horizontal: 0.754_877_666_246_692_7, vertical: 0.569_840_290_998_053_2)
+
+    override func initializeSpeckle(_ speckle: inout AnimatedMulticolorGradientView.Speckle, index: Int) {
+        let horizontal = (0.5 + Double(index) * Self.step.horizontal).truncatingRemainder(dividingBy: 1)
+        let vertical = (0.5 + Double(index) * Self.step.vertical).truncatingRemainder(dividingBy: 1)
+        speckle.position.setCurrent(.init(x: horizontal, y: vertical))
+        speckle.position.setTarget(.init(x: horizontal, y: vertical))
+        view?.renderInputWasModified = true
     }
 }
 
