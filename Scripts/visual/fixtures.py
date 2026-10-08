@@ -26,6 +26,8 @@ TOPLISTS = ('yesterday', 'pastMonth', 'pastYear', 'allTime')
 # DownloadDisplayStatus cases with their sortPriority. The two complete statuses carry no page progress.
 DOWNLOAD_STATUSES = {'active': 0, 'queued': 1, 'updateAvailable': 2, 'error': 3, 'inactive': 4, 'completed': 5}
 COMPLETE_DOWNLOADS = ('updateAvailable', 'completed')
+# Setting.prefetchLimit's default: how many pages around a built page the reader resolves ahead of time.
+PREFETCH_LIMIT = 10
 SCREENS = ('home', 'detail', 'comments', 'filters', 'reading', 'reading-live-text', 'downloads', 'laboratory')
 GALLERY_HOST = 'e-hentai.org'
 IMAGE_HOSTS = frozenset({'ehgt.org', 'gt0.ehgt.org', 'gt1.ehgt.org', 'gt2.ehgt.org', 'gt3.ehgt.org', 'ul.ehgt.org'})
@@ -337,6 +339,29 @@ def page_number(page, batch):
     return max(page - 1, 0) // batch
 
 
+def prefetch_window(page, page_count):
+    """The pages ReadingReducer.prefetchImages resolves and loads around a page the reader builds.
+
+    The window skips the page's direct neighbours, which the reader builds itself, and uses the default
+    Setting.prefetchLimit, which a capture launch keeps.
+    """
+    previous_upper = max(page - 2, 1)
+    previous_lower = max(previous_upper - PREFETCH_LIMIT // 2, 1)
+    next_lower = min(page + 2, page_count)
+    next_upper = min(next_lower + PREFETCH_LIMIT // 2, page_count)
+    window = set()
+    if previous_upper - previous_lower > 0:
+        window.update(range(previous_lower, previous_upper + 1))
+    if next_upper - next_lower > 0:
+        window.update(range(next_lower, next_upper + 1))
+    return window
+
+
+def reader_images(pages, page_count):
+    """Every page whose image the reader loads: each declared page it builds, and that page's prefetch window."""
+    return sorted(set(pages).union(*(prefetch_window(page, page_count) for page in pages)))
+
+
 def reader_link(thumbnails, page):
     link = thumbnails.get(page)
     if link is None:
@@ -354,7 +379,11 @@ def identity(text, gid, token):
 
 
 def collect(selection, retrieve):
-    """Derive every required resource in declaration order; retrieve(kind, gid, index, url) returns its bytes."""
+    """Derive every required resource in declaration order; retrieve(kind, gid, index, url) returns its bytes.
+
+    A flow gallery's reader resources follow the app's reader: the preview page of every batch holding a loaded
+    page, every reader page those preview pages list, and the image of each declared page and its prefetch window.
+    """
     flows = {scene['flow']['gallery']: scene['flow']['pages'] for scene in selection['scenes'].values()}
     for gallery in selection['galleries']:
         gid, token = GALLERY_URL.fullmatch(gallery['url']).groups()
@@ -373,14 +402,19 @@ def collect(selection, retrieve):
         if pages[-1] > detail['pageCount']:
             raise ValueError(f'{gid}: reader page {pages[-1]} exceeds the {detail["pageCount"]} pages')
         batch = batch_size(detail['previewMode'], detail['previewCount'])
+        loaded = reader_images(pages, detail['pageCount'])
         links = {}
-        for number in sorted({page_number(page, batch) for page in pages}):
+        for number in sorted({page_number(page, batch) for page in loaded}):
             links.update(parse_thumbnails(retrieve('thumbnails', gid, number, f'{gallery["url"]}?p={number}').decode()))
-        for page in pages:
-            image = parse_image_page(retrieve('imagePage', gid, page, reader_link(links, page)).decode())
-            if urlsplit(image).path.endswith('/509.gif'):
+        # The reader resolves a batch's image URLs together, from every reader page its preview page lists, and
+        # fails them all when one fails: each listed page is required, though only the loaded ones need an image.
+        images = {}
+        for page in sorted(links.keys() | set(loaded)):
+            images[page] = parse_image_page(retrieve('imagePage', gid, page, reader_link(links, page)).decode())
+            if urlsplit(images[page]).path.endswith('/509.gif'):
                 raise ValueError(f'{gid}: reader page {page} returned the bandwidth-limit image')
-            retrieve('page', gid, page, image)
+        for page in loaded:
+            retrieve('page', gid, page, images[page])
 
 
 def media_type(kind, data, declared):

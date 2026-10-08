@@ -145,7 +145,8 @@ The input is a JSON file with exactly these keys:
 - `scenes` holds one scene per declared content set. Every slot names a gallery of that set, and
   every declared gallery appears in at least one slot.
 - The flow gallery is the Detail, Comments, Reading and Live Text gallery. `pages` lists every
-  reader page to save, in ascending order, and includes `readerPage` and `liveTextPage`.
+  reader page the reader builds in a scene (the page it shows and the pages it lays out beside
+  it), in ascending order, and includes `readerPage` and `liveTextPage`.
 - Download `status` is a `DownloadDisplayStatus` case. `completed` and `updateAvailable` carry no
   `completedPages`; the other statuses require it.
 - A screen never repeats a gallery, including across Home's hero, frontpage and Toplists sections.
@@ -162,10 +163,15 @@ python3 -B Scripts/visual/acquire-fixtures.py --selection PATH --output .capture
 
 For every gallery, in declaration order, acquisition saves the detail page the app requests
 (`<gallery URL>?hc=1`) and its cover. For each flow gallery it also saves the detail page's
-preview images, the preview page `?p=<n>` that holds each declared reader page (the app's
-`PreviewConfig` page number), each reader page and its image. Pages come only from
-`e-hentai.org`; images only from `ehgt.org` hosts or `*.hath.network`, over HTTPS, without
-redirects. Requests are at least one second apart.
+preview images and what the app's reader requests for the declared pages. Each page the reader
+builds loads its image and prefetches a window around it: with the default preload limit of 10,
+pages `p-7` to `p-2` and `p+2` to `p+7`, clipped to the gallery, with a side that clips to a
+single page skipped, the way `ReadingReducer` computes it. The reader resolves image URLs a
+batch at a time, so acquisition saves the preview page `?p=<n>` of every batch that holds a
+loaded page (the app's `PreviewConfig` page number), every reader page that preview page lists,
+and the image of each loaded page. Pages come only from `e-hentai.org`; images only from
+`ehgt.org` hosts or `*.hath.network`, over HTTPS, without redirects. Requests are at least one
+second apart.
 
 Acquisition is anonymous. It reads no credentials and sends only the app's `nw=1` content
 preference cookie, and only to `e-hentai.org`. A response that shows an account session fails
