@@ -52,7 +52,7 @@ def inventory(pin):
     models = [{'name': value['model'], 'identifier': value['deviceTypeIdentifier'],
                'modelIdentifier': value['modelIdentifier']} for value in pin['devices'].values()]
     devices = [{
-        'udid': f'fresh-{family}', 'name': value['model'], 'isAvailable': True,
+        'udid': f'fresh-{family}', 'name': environment.SIMULATOR_NAMES[family], 'isAvailable': True,
         'deviceTypeIdentifier': value['deviceTypeIdentifier'], 'state': 'Shutdown',
     } for family, value in pin['devices'].items()]
     return {'runtimes': [runtime], 'devicetypes': models, 'devices': {runtime['identifier']: devices}}
@@ -195,6 +195,18 @@ class DestinationTests(unittest.TestCase):
     def test_unavailable_device_is_rejected(self):
         self.inventory['devices'][self.pin['runtime']['identifier']][0]['isAvailable'] = False
         with self.assertRaises(environment.EnvironmentMismatch):
+            self.resolve()
+
+    def test_same_model_under_another_name_is_ignored(self):
+        devices = self.inventory['devices'][self.pin['runtime']['identifier']]
+        devices += [{**device, 'udid': 'other-' + device['udid'], 'name': name}
+                    for device, name in zip(list(devices), ['iPhone Air (snapshots)', 'iPad Pro 11-inch (M5)'])]
+        self.assertEqual({item['udid'] for item in self.resolve().values()}, {'fresh-iphone', 'fresh-ipad'})
+
+    def test_unnamed_model_is_not_used(self):
+        for device in self.inventory['devices'][self.pin['runtime']['identifier']]:
+            device['name'] = self.pin['devices'][device['udid'].removeprefix('fresh-')]['model']
+        with self.assertRaisesRegex(environment.EnvironmentMismatch, 'EhPanda Visual'):
             self.resolve()
 
     def test_duplicate_matching_devices_are_ambiguous(self):
