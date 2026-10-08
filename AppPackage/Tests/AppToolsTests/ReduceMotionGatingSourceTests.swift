@@ -92,7 +92,7 @@ struct ReduceMotionGatingSourceTests {
         "DetailFeature/Torrents/TorrentsView.swift": 1,
         "DownloadsFeature/DownloadsView+Subviews.swift": 3,
         "DownloadsFeature/DownloadsView.swift": 1,
-        "HomeFeature/GalleryCardCell.swift": 2,
+        "HomeFeature/GalleryCardCell.swift": 3,
         "HomeFeature/HomeView.swift": 1,
         "QuickSearchFeature/QuickSearchView.swift": 1,
         "ReadingFeature/ReadingView.swift": 3,
@@ -101,7 +101,7 @@ struct ReduceMotionGatingSourceTests {
         "SettingFeature/GeneralSetting/GeneralSettingView.swift": 1,
         "SystemNotification/View+Toast.swift": 1
     ]
-    private static let expectedTernaryPredicateTotal = 22
+    private static let expectedTernaryPredicateTotal = 23
 
     /// The deep-linked comment scroll and the reader's page jump.
     private static let expectedWithAnimationGateTotal = 2
@@ -117,7 +117,7 @@ struct ReduceMotionGatingSourceTests {
         "DetailFeature/Torrents/TorrentsView.swift": 2,
         "DownloadsFeature/DownloadsView+Subviews.swift": 8,
         "DownloadsFeature/DownloadsView.swift": 2,
-        "HomeFeature/GalleryCardCell.swift": 9,
+        "HomeFeature/GalleryCardCell.swift": 11,
         "HomeFeature/HomeView.swift": 2,
         "QuickSearchFeature/QuickSearchView.swift": 2,
         "ReadingFeature/ReadingView.swift": 4,
@@ -126,7 +126,7 @@ struct ReduceMotionGatingSourceTests {
         "SettingFeature/GeneralSetting/GeneralSettingView.swift": 2,
         "SystemNotification/View+Toast.swift": 3
     ]
-    private static let expectedGateMentionTotal = 52
+    private static let expectedGateMentionTotal = 54
 
     /// `.contentTransition(.numericText…)` sites across the tree; every one stays ungated (D-29).
     private static let expectedNumericTextTotal = 11
