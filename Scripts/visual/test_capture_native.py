@@ -7,6 +7,7 @@ import json
 from pathlib import Path
 import plistlib
 import struct
+import subprocess
 import tempfile
 import time
 from types import SimpleNamespace
@@ -347,8 +348,9 @@ SUMMARY = {'totalTestCount': 1, 'passedTests': 1, 'failedTests': 0, 'skippedTest
 class FakeSimulator:
     """The simctl state a run touches: appearance, status bar overrides and the displayed frame."""
 
-    def __init__(self, frames, appearance='light', overrides=()):
+    def __init__(self, frames, appearance='light', overrides=(), clear_fails=False):
         self.frames = list(frames)
+        self.clear_fails = clear_fails
         self.appearance = appearance
         self.overrides = list(overrides)
         self.foreground = None
@@ -369,6 +371,8 @@ class FakeSimulator:
         elif command[2:5] == ['status_bar', 'fresh-phone', 'override']:
             self.overrides = ['Time: ' + command[command.index('--time') + 1]]
         elif command[2:5] == ['status_bar', 'fresh-phone', 'clear']:
+            if self.clear_fails:
+                raise subprocess.CalledProcessError(1, command)
             self.overrides = []
         elif command[2:5] == ['ui', 'fresh-phone', 'appearance']:
             self.appearance = command[5]
@@ -403,12 +407,13 @@ class FakeGate:
 
     def run(self, name, actions, plan, device, tests=(), expected_count=None, cleanup=False, content_size=None):
         self.runs.append((name, tuple(tests), cleanup))
+        variables = plistlib.loads(self.test_runs[plan].read_bytes())['TestConfigurations'][0]['TestTargets'][0][
+            'EnvironmentVariables']
         if not name.startswith('launch-'):
+            self.restore_variables = variables
             return
         if self.simulator.foreground is not None:
             raise RuntimeError(f'{name} started with {self.simulator.foreground} in front')
-        variables = plistlib.loads(self.test_runs[plan].read_bytes())['TestConfigurations'][0]['TestTargets'][0][
-            'EnvironmentVariables']
         self.test(name, json.loads(variables['EHPANDA_CAPTURE_COORDINATE']), Path(variables['EHPANDA_CAPTURE_HANDSHAKE']))
         (self.output / f'{name}.summary.json').write_text(json.dumps(SUMMARY))
         (self.output / f'{name}.tests.json').write_text('{"testNodes": []}')
@@ -465,10 +470,13 @@ class DispatchTests(unittest.TestCase):
             finally:
                 self.gate = gates[0] if gates else None
 
-    def assert_restored(self, simulator, appearance='light'):
-        self.assertEqual(simulator.overrides, [])
+    def assert_restored(self, simulator, appearance='light', overrides=()):
+        self.assertEqual(simulator.overrides, list(overrides))
         self.assertEqual(simulator.appearance, appearance)
         self.assertEqual(self.gate.runs[-1], ('iphone-restore-portrait', ('Rotation/testRotateToPortrait',), True))
+        # The orientation restore runs without any launch's capture parameters.
+        self.assertEqual(self.gate.restore_variables, XCTESTRUN['TestConfigurations'][0]['TestTargets'][0][
+            'EnvironmentVariables'])
 
     def test_two_cold_launches_record_identical_frames_and_restore_the_simulator(self):
         simulator = FakeSimulator([png(4, 3, 1), png(4, 3, 2)])
@@ -536,6 +544,18 @@ class DispatchTests(unittest.TestCase):
         self.assertEqual([run[0] for run in self.gate.runs], ['iphone-restore-portrait'])
         self.assertIsNone(simulator.foreground)
         self.assert_restored(simulator)
+
+    def test_a_failed_status_bar_clear_still_restores_the_appearance_and_portrait(self):
+        simulator = FakeSimulator([png(4, 3)], appearance='dark', clear_fails=True)
+        def test(name, coordinate, handshake):
+            simulator.appearance = 'light'
+            handshake_test()(name, coordinate, handshake)
+        with self.assertRaises(subprocess.CalledProcessError):
+            self.dispatch(simulator, test)
+        self.assertNotIn('statusBarRestored', self.report['chrome'])
+        self.assertEqual(self.report['chrome']['appearanceRestored'], 'dark')
+        self.assert_restored(simulator, appearance='dark', overrides=simulator.overrides)
+        self.assertTrue(simulator.overrides[0].startswith('Time: 2026-01-01T09:41'))
 
     def test_existing_overrides_are_never_replaced(self):
         simulator = FakeSimulator([png(4, 3)], overrides=['Battery State: 2, Battery Level: 100'])
