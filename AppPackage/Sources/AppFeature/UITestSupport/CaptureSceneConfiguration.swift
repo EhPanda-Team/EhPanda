@@ -20,6 +20,18 @@ struct CaptureSceneConfiguration: Equatable, Sendable {
     let fixtureID: String
 }
 
+/// The screens a marketing capture exports (D-15), by the IDs the export names them with.
+enum CaptureScreen: String, CaseIterable, Encodable, Sendable {
+    case home
+    case detail
+    case comments
+    case filters
+    case reading
+    case readingLiveText = "reading-live-text"
+    case downloads
+    case laboratory
+}
+
 extension CaptureSceneConfiguration: Decodable {
     private enum CodingKeys: String, CodingKey, CaseIterable {
         case purpose

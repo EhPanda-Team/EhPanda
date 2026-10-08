@@ -1,10 +1,42 @@
 #if DEBUG
 import AppModels
+import AppTools
 import ComposableArchitecture
+import DetailFeature
+import DownloadsFeature
+import FiltersFeature
 import Foundation
+import HomeFeature
 import LibraryClient
+import ParserFeature
+import ReadingFeature
 import SwiftUI
 import UIKit
+
+/// How the app renders, as its own traits report it, with each axis named as capture
+/// coordinates name it.
+struct CaptureRendering: Equatable, Encodable {
+    enum Appearance: String, Encodable {
+        case light
+        case dark
+        case unspecified
+    }
+
+    enum Family: String, Encodable {
+        case iphone
+        case ipad
+        case other
+    }
+
+    /// The localization the app resolved, such as `zh-Hant`.
+    let language: String
+    /// The formatting locale, such as `zh_TW`.
+    let locale: String
+    let appearance: Appearance
+    /// The text size, such as `large`.
+    let textSize: String
+    let family: Family
+}
 
 /// What a capture launch shows and whether it has finished showing it, as UI tests read it.
 ///
@@ -18,25 +50,31 @@ struct CaptureDiagnostics: Equatable, Encodable {
         case loading
         /// The screen shows all of its content and every image it requested.
         case ready
-        /// The screen can never finish: a load failed or the replay refused a request.
+        /// The screen can never finish: a load failed, the replay refused a request or the screen
+        /// shows something other than its configured state.
         case failed
     }
 
     static let accessibilityIdentifier = "capture_diagnostics"
 
-    /// The screen the app shows, such as `home`, or `nil` for a screen no capture identifies yet.
-    let screenID: String?
+    /// The screen a person sees, or `nil` when it is no capture screen.
+    let screenID: CaptureScreen?
     let selectionID: String
+    /// The selection set the scene shows, such as `nonexplicit`.
+    let setID: String
     let fixtureVersion: String
     /// The galleries the screen shows, in display order.
     let galleryIDs: [String]
-    /// The reader page the screen shows; `nil` outside the reader, which no capture shows yet.
+    /// The reader page the screen shows; `nil` outside the reader.
     let page: Int?
     let readiness: Readiness
     /// Images the replay delivered that the image cache does not hold yet.
     let pendingImages: Int
     /// Requests the replay refused, as `METHOD URL` in arrival order.
     let unknownRequests: [String]
+    /// What the screen still waits for, and what makes it fail; empty once it is ready.
+    let blockers: [String]
+    let rendering: CaptureRendering
 
     func encodedJSON() throws -> String {
         let encoder = JSONEncoder()
@@ -49,55 +87,408 @@ struct CaptureDiagnostics: Equatable, Encodable {
 }
 
 extension CaptureDiagnostics {
-    /// The diagnostics of `state` in a launch of `scene`.
+    /// The diagnostics of `state` in a launch of `scene`, rendered as `rendering` describes.
     ///
-    /// Home is ready once all of its lists hold galleries, nothing is loading, the current card's
-    /// cover is cached and no delivered image waits for the cache. The current card is always on
-    /// screen, so its cover proves the first render requested every visible image; without it, the
-    /// moment between the lists arriving and their covers being requested would read as ready.
+    /// The screen comes from the app's navigation state, never from the configuration, so a
+    /// route that lands elsewhere reads as that other screen. It is ready once its content has
+    /// arrived, every image it must show is cached, no delivered image waits for the cache and
+    /// nothing failed. A sheet that leaves its tab visible around it also waits for that tab.
     init(
         scene: CaptureScene,
         state: AppReducer.State,
+        rendering: CaptureRendering,
         answeredURLs: Set<String>,
         unknownRequests: [String],
-        isCached: (String) -> Bool
+        isCached: @escaping (String) -> Bool
     ) {
-        let home = state.homeState
-        let showsHome = state.tabBarState.tabBarItemType == .home
-            && home.path.isEmpty
-            && state.presentationState.detail == nil
-            && state.presentationState.destination == nil
-        let toplists = ToplistsType.allCases.map({ home.toplistsGalleries[$0.categoryIndex] ?? [] })
-        let lists = [home.popularGalleries, home.frontpageGalleries] + toplists
-        let loadingStates = [home.popularLoadingState, home.frontpageLoadingState]
-            + ToplistsType.allCases.compactMap({ home.toplistsLoadingState[$0.categoryIndex] })
+        // The image views cache an image under the app's stable key for its URL, such as a
+        // preview's, or under the URL itself; either one holds it.
+        let holdsImage: (String) -> Bool = { url in
+            (URL(string: url)?.imageCacheKeys ?? [url]).contains(where: isCached)
+        }
         let pendingImages = answeredURLs.count(where: { url in
-            scene.replay[url]?.mimeType.hasPrefix("image/") == true && !isCached(url)
+            scene.replay[url]?.mimeType.hasPrefix("image/") == true && !holdsImage(url)
         })
-        let currentCover = home.popularGalleries.first(where: { $0.gid == home.currentCardID })?.coverURL
+        let shown = ShownScreens(state: state)
+        let inspector = ScreenInspector(replay: scene.replay, rendering: rendering, holdsImage: holdsImage)
+        var report = shown.top.map(inspector.report) ?? ScreenReport(blockers: ["No capture screen is shown"])
+        if let backdrop = shown.backdrop {
+            let around = inspector.report(backdrop)
+            report.blockers += around.blockers.map({ "Around the sheet: \($0)" })
+            report.failures += around.failures.map({ "Around the sheet: \($0)" })
+        }
+        if state.presentationState.toast != nil {
+            report.blockers.append("A toast shows")
+        }
+        if pendingImages > 0 {
+            report.blockers.append("\(pendingImages) delivered images are not cached yet")
+        }
 
         let readiness: Readiness
-        if !unknownRequests.isEmpty || loadingStates.contains(where: Self.isFailure) {
+        if !unknownRequests.isEmpty || !report.failures.isEmpty {
             readiness = .failed
-        } else if showsHome,
-                  lists.allSatisfy({ !$0.isEmpty }),
-                  !loadingStates.contains(.loading),
-                  let currentCover, isCached(currentCover.absoluteString),
-                  pendingImages == 0 {
+        } else if report.blockers.isEmpty {
             readiness = .ready
         } else {
             readiness = .loading
         }
         self.init(
-            screenID: showsHome ? "home" : nil,
+            screenID: shown.top?.id,
             selectionID: scene.selectionID,
+            setID: scene.configuration.fixtureID,
             fixtureVersion: scene.fixtureVersion,
-            galleryIDs: showsHome ? lists.flatMap({ $0.map(\.gid) }) : [],
-            page: nil,
+            galleryIDs: report.galleryIDs,
+            page: report.page,
             readiness: readiness,
             pendingImages: pendingImages,
-            unknownRequests: unknownRequests
+            unknownRequests: unknownRequests,
+            blockers: report.failures + report.blockers,
+            rendering: rendering
         )
+    }
+}
+
+extension CaptureRendering {
+    /// The rendering `traits` describe, in the app's resolved localization and current locale.
+    init(traits: UITraitCollection) {
+        self.init(
+            language: Bundle.main.preferredLocalizations.first ?? "none",
+            locale: Locale.current.identifier,
+            appearance: Appearance(traits.userInterfaceStyle),
+            textSize: Self.textSize(traits.preferredContentSizeCategory),
+            family: Family(traits.userInterfaceIdiom)
+        )
+    }
+
+    private static func textSize(_ category: UIContentSizeCategory) -> String {
+        switch category {
+        case .extraSmall:
+            "xSmall"
+        case .small:
+            "small"
+        case .medium:
+            "medium"
+        case .large:
+            "large"
+        case .extraLarge:
+            "xLarge"
+        case .extraExtraLarge:
+            "xxLarge"
+        case .extraExtraExtraLarge:
+            "xxxLarge"
+        case .accessibilityMedium:
+            "accessibility1"
+        case .accessibilityLarge:
+            "accessibility2"
+        case .accessibilityExtraLarge:
+            "accessibility3"
+        case .accessibilityExtraExtraLarge:
+            "accessibility4"
+        case .accessibilityExtraExtraExtraLarge:
+            "accessibility5"
+        default:
+            category.rawValue
+        }
+    }
+}
+
+extension CaptureRendering.Appearance {
+    init(_ style: UIUserInterfaceStyle) {
+        switch style {
+        case .light:
+            self = .light
+        case .dark:
+            self = .dark
+        case .unspecified:
+            self = .unspecified
+        @unknown default:
+            self = .unspecified
+        }
+    }
+}
+
+extension CaptureRendering.Family {
+    init(_ idiom: UIUserInterfaceIdiom) {
+        switch idiom {
+        case .phone:
+            self = .iphone
+        case .pad:
+            self = .ipad
+        default:
+            self = .other
+        }
+    }
+}
+
+// MARK: Screens
+
+/// A capture screen, as the app state holds it.
+private enum ShownScreen {
+    case home(HomeReducer.State)
+    case detail(DetailReducer.State)
+    case comments(CommentsReducer.State)
+    case reading(ReadingReducer.State)
+    case filters(FiltersReducer.State)
+    case downloads(DownloadsReducer.State)
+    case laboratory(Setting)
+
+    /// Live Text has no state the app can read yet (17-06), so a reader always reads as
+    /// `reading`, and a `reading-live-text` capture fails on its identity rather than pass as one.
+    var id: CaptureScreen {
+        switch self {
+        case .home:
+            .home
+        case .detail:
+            .detail
+        case .comments:
+            .comments
+        case .reading:
+            .reading
+        case .filters:
+            .filters
+        case .downloads:
+            .downloads
+        case .laboratory:
+            .laboratory
+        }
+    }
+
+    /// Whether the screen covers everything beneath it, as the reader's full-screen cover does.
+    var coversEverything: Bool {
+        switch self {
+        case .reading:
+            true
+        case .home, .detail, .comments, .filters, .downloads, .laboratory:
+            false
+        }
+    }
+}
+
+/// The capture screen on top of the navigation, and the tab root a sheet leaves visible around it.
+private struct ShownScreens {
+    let top: ShownScreen?
+    let backdrop: ShownScreen?
+
+    init(state: AppReducer.State) {
+        let presentation = state.presentationState
+        if let detail = presentation.detail {
+            // The modal detail roots its own gallery stack.
+            let top = Self.screen(for: presentation.path.last ?? .detail(detail))
+            self.init(top: top, backdrop: top?.coversEverything == true ? nil : Self.tabRoot(of: state))
+        } else if let destination = presentation.destination {
+            // Of the app's sheets, only Setting hosts a capture screen.
+            let top = destination.is(\.setting) ? Self.settingScreen(of: state) : nil
+            self.init(top: top, backdrop: Self.tabRoot(of: state))
+        } else {
+            self.init(top: Self.tabScreen(of: state), backdrop: nil)
+        }
+    }
+
+    private init(top: ShownScreen?, backdrop: ShownScreen?) {
+        self.top = top
+        self.backdrop = backdrop
+    }
+
+    private static func tabScreen(of state: AppReducer.State) -> ShownScreen? {
+        switch state.tabBarState.tabBarItemType {
+        case .home:
+            guard let element = state.homeState.path.last else {
+                return .home(state.homeState)
+            }
+            return element.gallery.flatMap(screen(for:))
+        case .search:
+            guard state.searchRootState.path.isEmpty, let filters = state.searchRootState.destination?.filters
+            else {
+                return nil
+            }
+            return .filters(filters)
+        case .downloads:
+            guard state.downloadsState.path.isEmpty, state.downloadsState.destination == nil else {
+                return nil
+            }
+            return .downloads(state.downloadsState)
+        case .setting:
+            return settingScreen(of: state)
+        case .favorites:
+            return nil
+        }
+    }
+
+    /// The selected tab's root, when it is a capture screen with nothing pushed over it.
+    private static func tabRoot(of state: AppReducer.State) -> ShownScreen? {
+        switch state.tabBarState.tabBarItemType {
+        case .home:
+            state.homeState.path.isEmpty ? .home(state.homeState) : nil
+        case .downloads:
+            state.downloadsState.path.isEmpty ? .downloads(state.downloadsState) : nil
+        case .favorites, .search, .setting:
+            nil
+        }
+    }
+
+    private static func settingScreen(of state: AppReducer.State) -> ShownScreen? {
+        state.settingState.path.last?.is(\.laboratory) == true ? .laboratory(state.settingState.setting) : nil
+    }
+
+    private static func screen(for element: GalleryPath.State) -> ShownScreen? {
+        switch element {
+        case .detail(let detail):
+            // The reader covers the detail that presents it.
+            detail.destination?.reading.map(ShownScreen.reading) ?? .detail(detail)
+        case .comments(let comments):
+            .comments(comments)
+        case .previews, .detailSearch, .galleryInfos:
+            nil
+        }
+    }
+}
+
+// MARK: Readiness
+
+/// What one screen shows, what it still waits for and what makes it fail.
+private struct ScreenReport {
+    var galleryIDs = [String]()
+    var page: Int?
+    var blockers = [String]()
+    var failures = [String]()
+}
+
+private struct ScreenInspector {
+    let replay: [String: CaptureReplay.Response]
+    let rendering: CaptureRendering
+    let holdsImage: (String) -> Bool
+
+    func report(_ screen: ShownScreen) -> ScreenReport {
+        switch screen {
+        case .home(let home):
+            homeReport(home)
+        case .detail(let detail):
+            detailReport(detail)
+        case .comments(let comments):
+            commentsReport(comments)
+        case .reading(let reading):
+            readingReport(reading)
+        case .filters(let filters):
+            filtersReport(filters)
+        case .downloads(let downloads):
+            downloadsReport(downloads)
+        case .laboratory(let setting):
+            laboratoryReport(setting)
+        }
+    }
+
+    /// Home waits for all of its lists and for the current card's cover: the current card is
+    /// always on screen, so its cover proves the first render requested every visible image;
+    /// without it, the moment between the lists arriving and their covers being requested would
+    /// read as ready. In dark appearance the card's gradient shows its cover's colors, so the card
+    /// also waits for their analysis.
+    private func homeReport(_ home: HomeReducer.State) -> ScreenReport {
+        let toplists = ToplistsType.allCases.map({ home.toplistsGalleries[$0.categoryIndex] ?? [] })
+        let lists = [home.popularGalleries, home.frontpageGalleries] + toplists
+        let loadingStates = [home.popularLoadingState, home.frontpageLoadingState]
+            + ToplistsType.allCases.compactMap({ home.toplistsLoadingState[$0.categoryIndex] })
+        var report = ScreenReport(galleryIDs: lists.flatMap({ $0.map(\.gid) }))
+        if loadingStates.contains(where: Self.isFailure) {
+            report.failures.append("A Home list failed to load")
+        }
+        if lists.contains(where: \.isEmpty) || loadingStates.contains(.loading) {
+            report.blockers.append("Home lists are loading")
+        }
+        let currentCard = home.popularGalleries.first(where: { $0.gid == home.currentCardID })
+        if !shows(currentCard?.coverURL) {
+            report.blockers.append("The current card's cover is not shown")
+        }
+        if rendering.appearance == .dark, !home.rawCardColors.keys.contains(home.currentCardID) {
+            report.blockers.append("The current card's colors are not analyzed")
+        }
+        return report
+    }
+
+    /// Detail waits for its detail, its cover and every preview the fixture holds: the previews
+    /// render once the detail arrives, after the cover was already requested.
+    private func detailReport(_ detail: DetailReducer.State) -> ScreenReport {
+        var report = ScreenReport(galleryIDs: [detail.gallery.gid])
+        if Self.isFailure(detail.loadingState) {
+            report.failures.append("The detail failed to load")
+        }
+        if detail.galleryDetail == nil {
+            report.blockers.append("The detail is loading")
+        }
+        if !shows(detail.gallery.coverURL) {
+            report.blockers.append("The cover is not shown")
+        }
+        // A combined preview names its image and the region it shows of it.
+        let previewImages = Set(detail.galleryPreviewURLs.values.map({ url in
+            Parser.parsePreviewConfigs(url: url)?.plainURL ?? url
+        }))
+        let pendingPreviews = previewImages.filter({ replay[$0.absoluteString] != nil && !shows($0) })
+        if !pendingPreviews.isEmpty {
+            report.blockers.append("\(pendingPreviews.count) preview images are not shown")
+        }
+        return report
+    }
+
+    /// Comments are readable at once: the detail hands them over loaded. They show from the top,
+    /// with no comment highlighted.
+    private func commentsReport(_ comments: CommentsReducer.State) -> ScreenReport {
+        var report = ScreenReport(galleryIDs: [comments.gid])
+        if comments.comments.isEmpty {
+            report.failures.append("The gallery shows no comments")
+        }
+        if comments.scrollCommentID != nil {
+            report.failures.append("A comment is highlighted")
+        }
+        return report
+    }
+
+    /// The reader waits until it shows its current page's image.
+    private func readingReport(_ reading: ReadingReducer.State) -> ScreenReport {
+        let page = reading.pendingReadingProgress
+        var report = ScreenReport(galleryIDs: [reading.gallery.gid], page: page)
+        if let loadingState = reading.imageURLLoadingStates[page], Self.isFailure(loadingState) {
+            report.failures.append("The image of page \(page) failed to load")
+        }
+        if !reading.webImageLoadSuccessIndices.contains(page) {
+            report.blockers.append("The image of page \(page) is not shown")
+        }
+        return report
+    }
+
+    /// Filters show the app's defaults, from the first filter range.
+    private func filtersReport(_ filters: FiltersReducer.State) -> ScreenReport {
+        var report = ScreenReport()
+        let shown = [filters.searchFilter, filters.globalFilter, filters.watchedFilter]
+        if filters.filterRange != FiltersReducer.State().filterRange || shown.contains(where: { $0 != Filter() }) {
+            report.failures.append("Filters differ from the app defaults")
+        }
+        return report
+    }
+
+    private func downloadsReport(_ downloads: DownloadsReducer.State) -> ScreenReport {
+        var report = ScreenReport(galleryIDs: downloads.downloads.map(\.gid))
+        switch downloads.loadingState {
+        case .loading:
+            report.blockers.append("Downloads are loading")
+        case .failed:
+            report.failures.append("Downloads failed to load")
+        case .idle:
+            if downloads.downloads.isEmpty {
+                report.failures.append("Downloads shows no galleries")
+            }
+        }
+        return report
+    }
+
+    private func laboratoryReport(_ setting: Setting) -> ScreenReport {
+        var report = ScreenReport()
+        if !setting.bypassSNIFiltering {
+            report.failures.append("The network bypass is off")
+        }
+        return report
+    }
+
+    private func shows(_ url: URL?) -> Bool {
+        url.map({ holdsImage($0.absoluteString) }) ?? false
     }
 
     private static func isFailure(_ state: LoadingState) -> Bool {
@@ -107,6 +498,8 @@ extension CaptureDiagnostics {
         return true
     }
 }
+
+// MARK: Anchor
 
 /// The invisible element that carries ``CaptureDiagnostics`` to UI tests.
 struct CaptureDiagnosticsAnchor: UIViewRepresentable {
@@ -120,8 +513,9 @@ struct CaptureDiagnosticsAnchor: UIViewRepresentable {
     func updateUIView(_ uiView: CaptureDiagnosticsElement, context: Self.Context) {}
 }
 
-/// Computes its accessibility value each time a test reads it, from the store, the replay and
-/// the image cache, so the value is never stale and the app needs no observation or timer for it.
+/// Computes its accessibility value each time a test reads it, from the store, the replay, the
+/// image cache and its own traits, so the value is never stale and the app needs no observation or
+/// timer for it.
 final class CaptureDiagnosticsElement: UIView {
     private let store: StoreOf<AppReducer>
     private let capture: InstalledCapture
@@ -145,6 +539,7 @@ final class CaptureDiagnosticsElement: UIView {
             let diagnostics = CaptureDiagnostics(
                 scene: capture.scene,
                 state: store.state,
+                rendering: .init(traits: traitCollection),
                 answeredURLs: capture.replay.answeredURLs,
                 unknownRequests: capture.replay.unknownRequestDescriptions,
                 isCached: libraryClient.isCached
