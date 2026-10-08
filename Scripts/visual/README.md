@@ -17,9 +17,11 @@ python3 -B Scripts/visual/environment.py measure --output .capture/environment-m
 
 Use a new output directory for each run. `--derived-data PATH` is optional; by default the
 command queries the project's simulator build settings for its normal DerivedData directory.
-The command resolves currently available simulator IDs from the model and runtime metadata.
-It requires exactly one available simulator per selected model on that runtime; it never
-uses a historical UDID or a previous `.capture/` directory to select a destination.
+The command resolves current simulator IDs from the model and runtime metadata and the
+visual simulators' names: exactly one available simulator named `EhPanda Visual iPhone Air`
+and one named `EhPanda Visual iPad Pro 11-inch (M5)`, each of its model on that runtime.
+Simulators of the same model under other names are ignored. It never uses a historical UDID
+or a previous `.capture/` directory to select a destination.
 
 `GeometryTests.swift` belongs to the existing app-hosted **VisualSnapshotTests** target in
 **FeatureTests.xctestplan**. The probe creates a full-size real window through FullContentHost,
@@ -52,16 +54,17 @@ python3 -B Scripts/visual/environment.py validate \
   --output .capture/environment-pin-check
 ```
 
-Validation reads the explicitly supplied pin, resolves fresh IDs by its model/runtime,
-measures both families and orientations again, and compares every pinned characteristic.
+Validation reads the explicitly supplied pin, resolves fresh IDs by its model and runtime and
+the visual simulators' names, measures both families and orientations again, and compares
+every pinned characteristic.
 The output records the original pin bytes' SHA-256 as `pinSHA256`. Success requires the
 input bytes to remain unchanged. A mismatch produces a separate failed observation with
 an actionable field path; it never repairs or updates the pin. A run-local observations
 file is rejected when supplied as `--environment`.
 
 If validation fails, inspect its error and retained results. Select the pinned Xcode,
-install the matching runtime, and ensure each named model has exactly one available
-simulator. Correct configuration drift before retrying into a new output directory.
+install the matching runtime, and ensure each visual simulator exists exactly once (see
+below). Correct configuration drift before retrying into a new output directory.
 A deliberate rendering-contract change requires explicit new measurement, review and a
 separate tracked pin edit; ordinary validation and CI do not perform that edit.
 
@@ -77,17 +80,30 @@ Reduce Motion is pinned on (owner approval, 2026-10-06). Disabling UIView animat
 not reach time-driven Metal animation such as the dark Home card's gradient, which the app
 freezes only under Reduce Motion; without it a capture can race the gradient's bloom.
 
-The pin also depends on device settings that a new or erased simulator does not have.
-Validation detects each one; restore them on the pinned simulators instead of editing the pin:
+Visual runs use two simulators of their own on the pinned runtime, named so that no other work
+on this host shares their settings or adds an ambiguous match (owner decision, 2026-10-08).
+Create them once:
 
-| Setting | Pinned value | Restore on a booted simulator |
+```sh
+xcrun simctl create "EhPanda Visual iPhone Air" \
+  com.apple.CoreSimulator.SimDeviceType.iPhone-Air com.apple.CoreSimulator.SimRuntime.iOS-27-0
+xcrun simctl create "EhPanda Visual iPad Pro 11-inch (M5)" \
+  com.apple.CoreSimulator.SimDeviceType.iPad-Pro-11-inch-M5-12GB com.apple.CoreSimulator.SimRuntime.iOS-27-0
+```
+
+The pin also depends on device settings that a new or erased simulator does not have.
+Validation detects each one; set them on the visual simulators instead of editing the pin:
+
+| Setting | Pinned value | Set on a booted simulator |
 |---|---|---|
 | Reduce Motion (both) | on | `xcrun simctl spawn <udid> defaults write com.apple.Accessibility ReduceMotionEnabled -bool true` |
 | iPhone system appearance | dark | `xcrun simctl ui <udid> appearance dark` |
 | iPad multitasking (bottom safe area 25 pt) | Full Screen Apps | `xcrun simctl spawn <udid> defaults write com.apple.springboard SBMedusaMultitaskingEnabled -bool NO`, then reboot |
+| Text size of marketing captures (both) | Large | `xcrun simctl ui <udid> content_size large` |
 
-Return each simulator to its original power state afterwards; the runner and gate restore
-only the state they found.
+Read each setting back after a reboot: a simulator's first boot can reset Reduce Motion, so set
+it again if it reads 0. Return each simulator to its original power state afterwards; the
+runner and gate restore only the state they found.
 
 Measured native geometry at the initial pin:
 
@@ -384,9 +400,8 @@ launch attaches its diagnostics and a screenshot to the result bundle. The test 
 into its own temporary directory and removes the copy when it ends.
 
 The fixture holds real content, so the runner names it through an environment variable instead of
-the repository. Without it the test fails rather than skip. Resolve the simulator from its model
-and runtime, run one destination at a time, and return each simulator to the power state you
-found:
+the repository. Without it the test fails rather than skip. Run on a visual simulator, one
+destination at a time, and return each simulator to the power state you found:
 
 ```sh
 TEST_RUNNER_EHPANDA_CAPTURE_SOURCE="$PWD/.capture/marketing/current" \
@@ -455,7 +470,7 @@ version. The runner then:
 
 1. reads the coordinate, which has exactly its five keys with known values, and validates the
    fixture version, whose selection must hold the coordinate's set;
-2. validates the pin against fresh measurements on both pinned devices, as
+2. validates the pin against fresh measurements on both visual simulators, as
    `environment.py validate` does, into `environment-check/`, whose `environment.json` records
    the pin's SHA-256. A measurement report is not a pin and is refused, and any difference in
    toolchain, runtime, model, geometry or scale stops the run before the app launches. The pin is
