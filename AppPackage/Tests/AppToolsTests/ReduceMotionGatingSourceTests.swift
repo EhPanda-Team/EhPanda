@@ -30,6 +30,11 @@ import Testing
 /// `? .opacity`), the privacy mask composes the value with `||` before its `?`, and the Detail
 /// header composes it with `&&` into `spinsDownloadIcon` and the pulse's `isActive:`. A new gate of
 /// any shape still moves its file's mention count, which is the equality that catches it.
+///
+/// One gate is a deliberate exception to D-29: the Home card gradient applies a palette that arrives
+/// after the card appears at once under Reduce Motion, a colour change D-29 would leave ungated. The
+/// card already skipped its first fade under Reduce Motion, and the owner approved extending that to
+/// a late palette (17-05-PLAN.md, 2026-10-08).
 @Suite
 struct ReduceMotionGatingSourceTests {
     private struct ScannedFile {
@@ -92,7 +97,7 @@ struct ReduceMotionGatingSourceTests {
         "DetailFeature/Torrents/TorrentsView.swift": 1,
         "DownloadsFeature/DownloadsView+Subviews.swift": 3,
         "DownloadsFeature/DownloadsView.swift": 1,
-        "HomeFeature/GalleryCardCell.swift": 3,
+        "HomeFeature/GalleryCardCell.swift": 4,
         "HomeFeature/HomeView.swift": 1,
         "QuickSearchFeature/QuickSearchView.swift": 1,
         "ReadingFeature/ReadingView.swift": 3,
@@ -101,7 +106,7 @@ struct ReduceMotionGatingSourceTests {
         "SettingFeature/GeneralSetting/GeneralSettingView.swift": 1,
         "SystemNotification/View+Toast.swift": 1
     ]
-    private static let expectedTernaryPredicateTotal = 23
+    private static let expectedTernaryPredicateTotal = 24
 
     /// The deep-linked comment scroll and the reader's page jump.
     private static let expectedWithAnimationGateTotal = 2
@@ -117,7 +122,7 @@ struct ReduceMotionGatingSourceTests {
         "DetailFeature/Torrents/TorrentsView.swift": 2,
         "DownloadsFeature/DownloadsView+Subviews.swift": 8,
         "DownloadsFeature/DownloadsView.swift": 2,
-        "HomeFeature/GalleryCardCell.swift": 11,
+        "HomeFeature/GalleryCardCell.swift": 12,
         "HomeFeature/HomeView.swift": 2,
         "QuickSearchFeature/QuickSearchView.swift": 2,
         "ReadingFeature/ReadingView.swift": 4,
@@ -126,7 +131,7 @@ struct ReduceMotionGatingSourceTests {
         "SettingFeature/GeneralSetting/GeneralSettingView.swift": 2,
         "SystemNotification/View+Toast.swift": 3
     ]
-    private static let expectedGateMentionTotal = 54
+    private static let expectedGateMentionTotal = 55
 
     /// `.contentTransition(.numericText…)` sites across the tree; every one stays ungated (D-29).
     private static let expectedNumericTextTotal = 11
