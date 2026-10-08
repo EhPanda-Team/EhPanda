@@ -1,13 +1,13 @@
 {
   "version": "1.0",
-  "timestamp": "2026-10-07T04:48:54Z",
+  "timestamp": "2026-10-08T00:12:42Z",
   "phase": "17",
   "phase_name": "Screenshot Automation, Visual Regression & OS 27 Modernization",
   "phase_dir": ".planning/phases/17-localized-screenshot-capture-harness",
   "plan": 5,
   "task": 1,
   "total_tasks": 2,
-  "status": "ready-17-05",
+  "status": "executing-17-05",
   "completed_tasks": [],
   "remaining_tasks": [
     {
@@ -24,7 +24,6 @@
   "blockers": [],
   "async_jobs": [],
   "human_actions_pending": [
-    "Owner: decide whether ImageColors may order equally counted colors deterministically (a production output change). The dark Home card gradient differs between two launches of the same capture on the iPhone, which 17-05's byte-identical cold-rerun gate depends on (17-04-REVIEW.md, Carried to 17-05).",
     "Owner: confirm final selections and visually approve final captures for both nonexplicit and explicit sets at Phase 17 closure; the agent prepares provisional galleries and fixtures for both sets."
   ],
   "decisions": [
@@ -232,6 +231,16 @@
       "decision": "The Toplists loading skeleton uses blank galleries without a cover, so Home makes no third-party request.",
       "rationale": "Owner, 2026-10-07: the first actual-app capture failed closed on the skeleton's GitHub image. Recorded in 17-04-PLAN.md.",
       "phase": "17"
+    },
+    {
+      "decision": "ImageColors ranks equally common colors by packed value, lowest first (fae3b53761).",
+      "rationale": "Owner, 2026-10-08, after a test the owner requested: ties followed per-process dictionary order, so every fixture image gave 5 to 10 different palettes in 10 processes. Recorded in 17-05-PLAN.md.",
+      "phase": "17"
+    },
+    {
+      "decision": "Under Reduce Motion the Home card gradient's points take one fixed R2 arrangement; without it they keep random placement and movement (e7789e746b).",
+      "rationale": "Owner, 2026-10-08: ColorfulX's default director placed the points at random each appearance, so frozen gradients still differed per launch. With both fixes, settled iPhone captures are byte-identical below the status bar. Recorded in 17-05-PLAN.md.",
+      "phase": "17"
     }
   ],
   "uncommitted_files": [
@@ -241,7 +250,7 @@
     "M  EhPanda.xcodeproj/project.pbxproj",
     "?? .capture/"
   ],
-  "next_action": "Start 17-05 (read 17-05-PLAN.md and 17-04-SUMMARY.md) on the provisional nonexplicit fixture .capture/marketing/current (marketing-fdcb0fc6d3c54a29). Raise the ImageColors determinism decision with the owner before 17-05-T2's cold-rerun gate. The agent prepares explicit-set galleries and fixtures. Keep iPhone Shutdown, iPad Booted, both portrait and Large.",
+  "next_action": "Continue 17-05-T1 (eight capture routes, CaptureLauncher, MarketingCaptureUITests.testCaptureCoordinate). Home readiness must also cover the card's color analysis and its ~4 s ColorfulX color transition before a frame is taken. The agent prepares explicit-set galleries and fixtures. Keep iPhone Shutdown, iPad Booted, both portrait and Large.",
   "context_notes": "17-04 complete: a Debug-only capture launch (EHPANDA_CAPTURE_CONFIGURATION, EHPANDA_CAPTURE_FIXTURES) validates one fixture version completely, installs an isolated offline scene before the first store (capture-owned reader, Kingfisher and SDWebImage caches reset per launch; exact-URL GET replay refusing everything else) and shows the selected Home scene through the injected HomeClient. UI tests read CaptureDiagnostics from the invisible capture_diagnostics accessibility element; CaptureIsolationUITests passes on both pinned devices with TEST_RUNNER_EHPANDA_CAPTURE_SOURCE. Release builds contain no capture code. Pinned simulators need iPad Full Screen Apps, iPhone dark and Reduce Motion on for both; the iPhone was found at AX5 during 17-04 and restored to Large.",
   "evidence": {
     "proposal": ".planning/phases/17-localized-screenshot-capture-harness/17-01-CAPTURE-GATE.md",
@@ -1399,6 +1408,10 @@
       "missing_source": ".capture/17-04-isolation-ui-01-missing-source/",
       "full_plan": ".capture/17-04-cache-isolation-gate-01/ (22 of 22 Swift Testing runs; same 10 VisualSnapshotTests environment failures)",
       "lint": ".capture/17-04-final-lint-01/ (21 Swift files, strict)"
+    },
+    "card_color_determinism": {
+      "probe": ".capture/17-05-imagecolors-ties-01/ (README.md, fixture-images.tsv, red/green logs, ui-phone, exp-fixed-phone, fixed-settled-phone)",
+      "gate": ".capture/17-05-fixed-gradient-gate-01/ (full FeatureTests: 21 of 22 Swift Testing runs, the inventory test then updated and AppToolsTests 13 of 13; same 10 VisualSnapshotTests environment failures; capture UI test passes on both devices)"
     }
   },
   "recovery_logs": [
@@ -1408,7 +1421,7 @@
     "/tmp/ehpanda-phase17-symbol-build.log"
   ],
   "uncommitted_files_note": "Only the four reserved staged entries and the untracked .capture/ evidence remain; all 17-04 source and documentation is committed.",
-  "source_checkpoint": "2ea65ac65f",
+  "source_checkpoint": "e7789e746b",
   "previous_plan_tasks": [
     {
       "id": 1,
@@ -1772,5 +1785,5 @@
       "summary": ".planning/phases/17-localized-screenshot-capture-harness/17-02-SUMMARY.md"
     }
   },
-  "updated_at": "2026-10-07T04:48:54Z"
+  "updated_at": "2026-10-08T00:12:42Z"
 }
