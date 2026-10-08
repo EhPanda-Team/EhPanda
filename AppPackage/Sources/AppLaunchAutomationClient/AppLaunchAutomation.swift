@@ -18,6 +18,7 @@ public struct AppLaunchAutomation: Sendable {
         self.galleryURL = galleryURL
         self.captureRoute = captureRoute
     }
+
     /// A screen a capture launch opens through the app's own navigation, with the gallery and page
     /// the capture's selection shows on it.
     public enum CaptureRoute: Equatable, Sendable {
