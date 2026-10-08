@@ -273,8 +273,7 @@ struct CaptureLauncher: Sendable {
     }
 
     /// Launches `app` on the coordinate and returns its diagnostics once the screen is ready,
-    /// failing unless they show exactly the coordinate's screen, selection and rendering. Under the
-    /// native runner, a verified screen first waits for the runner's screenshot (``CaptureHandshake``).
+    /// failing unless they show exactly the coordinate's screen, selection and rendering.
     @MainActor
     func launch(_ app: XCUIApplication) throws -> (json: String, diagnostics: CaptureLaunchDiagnostics) {
         XCUIDevice.shared.orientation = .portrait
@@ -306,11 +305,6 @@ struct CaptureLauncher: Sendable {
         let expected = try expectedDiagnostics()
         XCTAssertEqual(orientation, .portrait, "The \(coordinate.key) capture left portrait.")
         XCTAssertEqual(settled.diagnostics, expected, "The \(coordinate.key) capture differs.")
-        // Only a verified screen reaches the native runner, so it never records a frame of anything else.
-        if orientation == .portrait, settled.diagnostics == expected,
-           let handshake = CaptureHandshake.fromEnvironment() {
-            try handshake.holdForScreenshot(of: settled.json, during: coordinate.key)
-        }
         return settled
     }
 
@@ -360,65 +354,6 @@ enum CaptureLaunchError: Error {
     case wrongFamily
 }
 
-/// The exchange through which the native capture runner records a verified screen.
-///
-/// Only the host can record the display as the system composes it, status bar included, and only
-/// the test knows when the screen is verified. When the runner's environment names a directory in
-/// `EHPANDA_CAPTURE_HANDSHAKE`, as `Scripts/visual/capture-native.py` does, a verified capture
-/// writes its diagnostics to `ready.json` there and keeps the screen untouched until the runner
-/// writes `answer.json`; the launcher restores the appearance and orientation only afterwards, at
-/// teardown. Without that input the test's own framebuffer attachment is the capture's only image.
-struct CaptureHandshake: Sendable {
-    static let environmentKey = "EHPANDA_CAPTURE_HANDSHAKE"
-    /// How long a verified screen waits for the runner, which takes a few screenshots a second apart.
-    static let answerTimeout: TimeInterval = 120
-
-    let directory: URL
-
-    /// The handshake the runner names, or `nil` for a run without the native runner.
-    static func fromEnvironment() -> Self? {
-        ProcessInfo.processInfo.environment[environmentKey].map({ path in
-            Self(directory: URL(filePath: path, directoryHint: .isDirectory))
-        })
-    }
-
-    /// Hands the verified `diagnostics` to the runner and holds the screen until it answers, failing
-    /// unless the runner reports the screen captured.
-    @MainActor
-    func holdForScreenshot(of diagnostics: String, during launch: String) throws {
-        try Data(diagnostics.utf8).write(to: directory.appending(path: "ready.json"), options: .atomic)
-        // The runner writes its answer atomically, so an answer that exists is complete.
-        let answerURL = directory.appending(path: "answer.json")
-        let answered = XCTNSPredicateExpectation(
-            predicate: NSPredicate { _, _ in
-                FileManager.default.fileExists(atPath: answerURL.path(percentEncoded: false))
-            },
-            object: nil
-        )
-        guard XCTWaiter.wait(for: [answered], timeout: Self.answerTimeout) == .completed else {
-            XCTFail("The runner never answered the \(launch) capture.")
-            return
-        }
-        let answer = try JSONDecoder().decode(CaptureHandshakeAnswer.self, from: Data(contentsOf: answerURL))
-        XCTAssertEqual(
-            answer.status,
-            .captured,
-            "The runner could not record the \(launch) capture: \(answer.reason ?? "no reason given")"
-        )
-    }
-}
-
-/// The runner's `answer.json`: whether it recorded the screen, and why not when it did not.
-private struct CaptureHandshakeAnswer: Decodable {
-    enum Status: String, Decodable {
-        case captured
-        case failed
-    }
-
-    let status: Status
-    let reason: String?
-}
-
 /// The capture configuration a launch passes in `EHPANDA_CAPTURE_CONFIGURATION`.
 private struct CaptureConfiguration: Encodable {
     let purpose: String
@@ -462,5 +397,30 @@ extension XCUIApplication {
             XCTFail("The capture diagnostics are not readable on the \(launch): \(value)")
             throw error
         }
+    }
+}
+
+extension XCUIScreen {
+    /// How many screenshots a capture takes, a second apart, waiting for two in a row to agree.
+    private static let settleAttempts = 10
+
+    /// The screen as the system renders a screenshot, once two renders a second apart are
+    /// byte-identical; when they never agree, the last render with `isSettled` false.
+    ///
+    /// The system renders a screenshot whole, so one screen gives the same bytes on every launch.
+    /// The display's framebuffer, which `simctl io screenshot` reads, keeps Liquid Glass as it last
+    /// composed it, so one screen's glass can differ by a level between cold launches.
+    @MainActor
+    func settledScreenshot() -> (png: Data, isSettled: Bool) {
+        var previous = screenshot().pngRepresentation
+        for _ in 1..<Self.settleAttempts {
+            Thread.sleep(forTimeInterval: 1)
+            let current = screenshot().pngRepresentation
+            if current == previous {
+                return (current, true)
+            }
+            previous = current
+        }
+        return (previous, false)
     }
 }

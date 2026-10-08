@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 """Capture one marketing coordinate on the actual app, with native chrome, over independent cold launches."""
 import argparse
-from concurrent.futures import ThreadPoolExecutor
 from contextlib import ExitStack
 from datetime import datetime, timezone
 import hashlib
@@ -32,16 +31,22 @@ STATUS_BAR_TIME = datetime(2026, 1, 1, 9, 41)
 STATUS_BAR = ('--wifiMode', 'active', '--wifiBars', '3', '--cellularMode', 'active', '--cellularBars', '4',
               '--batteryState', 'charged', '--batteryLevel', '100')
 STATUS_BAR_HEADER = ['Current Status Bar Overrides:', '=============================']
-SCREENSHOT = ('--type=png', '--mask=ignored')
+SETTLE_SCREENSHOT = ('--type=png', '--mask=ignored')
 # The first app the system shows after a boot lays out iPad's status bar Wi-Fi glyph half a point left of where every
 # later app does, so this app is shown and quit once before any capture launch (owner decision, 2026-10-08).
 SETTLE_APP = 'com.apple.Preferences'
-# A frame is recorded once two screenshots this far apart are byte-identical.
-FRAME_INTERVAL = 1.0
-FRAME_ATTEMPTS = 10
+# Settings counts as shown once two screenshots this far apart are byte-identical.
+SETTLE_INTERVAL = 1.0
+SETTLE_ATTEMPTS = 10
 PNG_SIGNATURE = b'\x89PNG\r\n\x1a\n'
-# simctl records 8-bit RGBA without interlacing.
-PNG_HEADER = {'bitDepth': 8, 'colorType': 6, 'compression': 0, 'filter': 0, 'interlace': 0}
+# simctl records the settle launch's screenshots as 8-bit RGBA without interlacing.
+SETTLE_PNG = {'bitDepth': 8, 'colorType': 6, 'compression': 0, 'filter': 0, 'interlace': 0}
+# A marketing frame is the system screenshot the test attaches, 8-bit RGB. The system renders a screenshot whole, while
+# the display framebuffer simctl reads keeps Liquid Glass as it last composed it, which differed between cold launches of
+# one screen (owner decision, 2026-10-09).
+FRAME_PNG = {**SETTLE_PNG, 'colorType': 2}
+# Bytes per pixel of each color type a frame may have.
+CHANNELS = {2: 3, 6: 4}
 PRODUCERS = [Path(__file__), Path(environment.__file__), Path(fixtures.__file__), Path(contracts.__file__)]
 
 
@@ -83,8 +88,8 @@ def coordinate_key(coordinate):
     return '__'.join(coordinate[key] for key in ('set', 'screen', 'family', 'locale', 'theme'))
 
 
-def png_size(data):
-    """The dimensions of a complete simctl PNG: every chunk intact and every scanline present."""
+def png_size(data, header):
+    """The dimensions of a complete PNG with this header: every chunk intact and every scanline present."""
     if data[:8] != PNG_SIGNATURE:
         raise CaptureFailure('The frame is not a PNG')
     offset, chunks, compressed = 8, [], bytearray()
@@ -108,23 +113,31 @@ def png_size(data):
     data_chunks = [index for index, kind in enumerate(kinds) if kind == b'IDAT']
     if not data_chunks or data_chunks != list(range(data_chunks[0], data_chunks[-1] + 1)):
         raise CaptureFailure('The frame\'s image data is missing or split')
-    header = chunks[0][1]
-    if len(header) != 13:
+    ihdr = chunks[0][1]
+    if len(ihdr) != 13:
         raise CaptureFailure('The frame header is malformed')
-    width, height, *fields = struct.unpack('>IIBBBBB', header)
-    if dict(zip(PNG_HEADER, fields)) != PNG_HEADER or not width or not height:
-        raise CaptureFailure(f'The frame is not a {width}x{height} 8-bit RGBA PNG')
+    width, height, *fields = struct.unpack('>IIBBBBB', ihdr)
+    observed = dict(zip(header, fields))
+    if observed != header or not width or not height:
+        raise CaptureFailure(f'The frame is {width}x{height} with {observed}; expected {header}')
     decompressor = zlib.decompressobj()
     try:
         pixels = decompressor.decompress(bytes(compressed)) + decompressor.flush()
     except zlib.error as error:
         raise CaptureFailure(f'The frame\'s image data is corrupt: {error}') from error
-    stride = 1 + width * 4
+    stride = 1 + width * CHANNELS[header['colorType']]
     if not decompressor.eof or decompressor.unused_data or len(pixels) != height * stride:
         raise CaptureFailure('The frame\'s image data is incomplete')
     if any(filter_type > 4 for filter_type in pixels[::stride]):
         raise CaptureFailure('The frame has an unknown scanline filter')
     return width, height
+
+
+def verify_frame(data, header, pixels):
+    """Fails unless the frame is a complete PNG with this header at the pin's portrait pixels."""
+    size = png_size(data, header)
+    if list(size) != pixels:
+        raise CaptureFailure(f'The frame is {size[0]}x{size[1]} pixels; the pin expects {pixels[0]}x{pixels[1]}')
 
 
 def status_bar_time():
@@ -138,8 +151,8 @@ def status_bar_overrides(device):
     return [line for line in lines[2:] if line.strip()]
 
 
-def configure_run(path, coordinate, source, handshake):
-    """Names the coordinate, fixture version and handshake in the UI test runner's environment."""
+def configure_run(path, coordinate, source):
+    """Names the coordinate and fixture version in the UI test runner's environment."""
     native = environment.load_native_gate()
     data = plistlib.loads(path.read_bytes())
     targets = [item for item in native.nodes(data) if item.get('BlueprintName') == 'EhPandaUITests']
@@ -147,12 +160,12 @@ def configure_run(path, coordinate, source, handshake):
         raise CaptureFailure('Expected exactly one EhPandaUITests UI test target')
     targets[0].setdefault('EnvironmentVariables', {}).update(
         EHPANDA_CAPTURE_COORDINATE=json.dumps(coordinate, separators=(',', ':')),
-        EHPANDA_CAPTURE_SOURCE=str(source), EHPANDA_CAPTURE_HANDSHAKE=str(handshake))
+        EHPANDA_CAPTURE_SOURCE=str(source))
     path.write_bytes(plistlib.dumps(data))
 
 
-def verify_ready(path, coordinate, manifest):
-    """The test's verified diagnostics, which must name this coordinate's screen, content and rendering."""
+def verify_diagnostics(path, coordinate, manifest):
+    """The diagnostics the test attached, which must name this coordinate's screen, content and rendering."""
     diagnostics = json.loads(path.read_text())
     expected = {'screenID': coordinate['screen'], 'setID': coordinate['set'],
                 'selectionID': manifest['selectionID'], 'fixtureVersion': manifest['fixtureVersion'],
@@ -169,68 +182,58 @@ def verify_ready(path, coordinate, manifest):
 def settle_frame(device, directory, pixels, output):
     """Screenshots until two consecutive frames are byte-identical, each a complete frame at native size."""
     frames, previous = [], None
-    for attempt in range(1, FRAME_ATTEMPTS + 1):
+    for attempt in range(1, SETTLE_ATTEMPTS + 1):
         path = directory / f'frame-{attempt}.png'
-        command = ['xcrun', 'simctl', 'io', device, 'screenshot', *SCREENSHOT, str(path)]
+        command = ['xcrun', 'simctl', 'io', device, 'screenshot', *SETTLE_SCREENSHOT, str(path)]
         result = subprocess.run(command, capture_output=True, text=True)
         if result.returncode:
             raise CaptureFailure(f'simctl screenshot exited {result.returncode}: {result.stderr.strip()}')
         data = path.read_bytes()
-        size = png_size(data)
-        if list(size) != pixels:
-            raise CaptureFailure(f'The frame is {size[0]}x{size[1]} pixels; the pin expects {pixels[0]}x{pixels[1]}')
+        verify_frame(data, SETTLE_PNG, pixels)
         digest = hashlib.sha256(data).hexdigest()
         frames.append({'path': str(path.relative_to(output)), 'sha256': digest})
         if digest == previous:
             return {'frames': frames, 'capture': {'path': str(path.relative_to(output)), 'sha256': digest,
                                                   'pixels': pixels, 'bytes': len(data)}}
         previous = digest
-        time.sleep(FRAME_INTERVAL)
-    raise CaptureFailure(f'The screen never held still across two screenshots in {FRAME_ATTEMPTS} attempts')
+        time.sleep(SETTLE_INTERVAL)
+    raise CaptureFailure(f'The screen never held still across two screenshots in {SETTLE_ATTEMPTS} attempts')
+
+
+def launch_attachment(directory, name):
+    """The one file the test attached as `name`, which xcresulttool exports as `<name>_<index>_<UUID>.<extension>`."""
+    manifest = json.loads((directory / 'manifest.json').read_text())
+    matches = [item for test in manifest for item in test['attachments']
+               if item['suggestedHumanReadableName'].startswith(name + '_')]
+    if len(matches) != 1:
+        raise CaptureFailure(f'Expected one {name} attachment, found {len(matches)}')
+    return directory / matches[0]['exportedFileName']
 
 
 def capture_launch(gate, number, context, record):
-    """One cold launch: the test verifies the screen and holds it while the runner records its frame."""
-    output, device = context['output'], context['device']
-    directory = output / 'launches' / str(number)
-    directory.mkdir(parents=True)
-    record['handshake'] = str(directory.relative_to(output))
-    configure_run(gate.test_runs['UITests'], context['coordinate'], context['source'], directory)
+    """One cold launch: the test verifies the screen and attaches the system's settled screenshot."""
+    output = context['output']
+    configure_run(gate.test_runs['UITests'], context['coordinate'], context['source'])
     name = f'launch-{number}'
     record['xcresult'] = str((gate.output / f'{name}.xcresult').relative_to(output))
-    ready = directory / 'ready.json'
-    with ThreadPoolExecutor(max_workers=1) as pool:
-        test = pool.submit(gate.run, name, ['test-without-building'], 'UITests', device, [TEST], 1)
-        while not ready.exists() and not test.done():
-            time.sleep(0.25)
-        if ready.exists():
-            answer = {'status': 'failed', 'reason': 'The runner stopped before recording the screen'}
-            try:
-                record['diagnostics'] = verify_ready(ready, context['coordinate'], context['manifest'])
-                record.update(settle_frame(device, directory, context['pixels'], output))
-                answer = {'status': 'captured'}
-            except CaptureFailure as error:
-                answer = {'status': 'failed', 'reason': str(error)}
-            finally:
-                save(directory / 'answer.json', answer)
-            if answer['status'] != 'captured':
-                record['reason'] = answer['reason']
-        try:
-            test.result()
-        except RuntimeError as error:
-            # The test fails because the runner refused the frame; the runner's reason is the cause.
-            if 'reason' in record:
-                raise CaptureFailure(f'{name}: {record["reason"]}') from error
-            raise
-    if not ready.exists():
-        raise CaptureFailure(f'{name} passed without reporting a verified screen')
-    if 'capture' not in record:
-        raise CaptureFailure(f'{name}: {record.get("reason", "no frame was recorded")}')
+    attachments = gate.output / f'{name}-attachments'
+    record['attachments'] = str(attachments.relative_to(output))
+    gate.run(name, ['test-without-building'], 'UITests', context['device'], [TEST], 1)
     summary = json.loads((gate.output / f'{name}.summary.json').read_text())
     contracts.validate_test_result(summary, json.loads((gate.output / f'{name}.tests.json').read_text()))
     rendered = summary['devicesAndConfigurations'][0]['device']
     if (rendered['modelName'], rendered['osBuildNumber']) != (context['model'], context['runtimeBuild']):
         raise CaptureFailure(f'{name} ran on {rendered["modelName"]} {rendered["osBuildNumber"]}')
+    key = coordinate_key(context['coordinate'])
+    record['diagnostics'] = verify_diagnostics(launch_attachment(attachments, f'capture-{key}-state'),
+                                               context['coordinate'], context['manifest'])
+    data = launch_attachment(attachments, f'capture-{key}-screen').read_bytes()
+    verify_frame(data, FRAME_PNG, context['pixels'])
+    frame = output / 'launches' / str(number) / 'frame.png'
+    frame.parent.mkdir(parents=True)
+    frame.write_bytes(data)
+    record['capture'] = {'path': str(frame.relative_to(output)), 'sha256': hashlib.sha256(data).hexdigest(),
+                         'pixels': context['pixels'], 'bytes': len(data)}
     record['status'] = 'captured'
 
 
@@ -320,7 +323,8 @@ def execute(args):
     report = {'schemaVersion': 1, 'kind': 'marketing-native-capture', 'status': 'running',
               'started': datetime.now(timezone.utc).isoformat(), 'coordinate': coordinate,
               'key': coordinate_key(coordinate), 'coldLaunches': COLD_LAUNCHES, 'launches': [],
-              'chrome': {'orientation': 'portrait', 'textSize': TEXT_SIZE, 'screenshot': list(SCREENSHOT)},
+              'chrome': {'orientation': 'portrait', 'textSize': TEXT_SIZE, 'frame': 'XCUIScreen.main.screenshot',
+                         'settleScreenshot': list(SETTLE_SCREENSHOT)},
               'sources': sources, 'nativeSources': native_sources}
     def publish():
         save(args.output / 'outcomes.json', report)
