@@ -251,8 +251,8 @@ struct CaptureSceneTests {
         #expect(throws: CaptureFailure.unknownFixtureID("explicit")) {
             try makeScene(standard, fixtureID: "explicit")
         }
-        #expect(throws: CaptureFailure.unsupportedScenario("detail")) {
-            try makeScene(standard, scenarioID: "detail")
+        #expect(throws: CaptureFailure.unsupportedScenario("slide-menu")) {
+            try makeScene(standard, scenarioID: "slide-menu")
         }
         #expect(throws: CaptureFailure.malformedScene("hero selectedIndex must be Home's starting card, 1")) {
             try makeScene(startsElsewhere)
@@ -316,6 +316,7 @@ struct CaptureSceneTests {
             CaptureDiagnostics(
                 scene: scene,
                 state: state,
+                rendering: .lightPhone,
                 answeredURLs: answered,
                 unknownRequests: [],
                 isCached: cached.contains
@@ -327,7 +328,7 @@ struct CaptureSceneTests {
         let previewMissing = diagnostics(loaded, answered: [cover, preview, detailPage], cached: [cover])
         let ready = diagnostics(loaded, answered: [cover, preview, detailPage], cached: [cover, preview])
 
-        expectNoDifference(empty.screenID, "home")
+        expectNoDifference(empty.screenID, .home)
         expectNoDifference(empty.galleryIDs, [])
         expectNoDifference(empty.readiness, .loading)
         expectNoDifference(coverMissing.readiness, .loading)
@@ -337,14 +338,17 @@ struct CaptureSceneTests {
         expectNoDifference(
             ready,
             CaptureDiagnostics(
-                screenID: "home",
+                screenID: .home,
                 selectionID: "test-selection",
+                setID: "nonexplicit",
                 fixtureVersion: try fixture.fixtureVersion(),
                 galleryIDs: MarketingFixtureBuilder.allGIDs,
                 page: nil,
                 readiness: .ready,
                 pendingImages: 0,
-                unknownRequests: []
+                unknownRequests: [],
+                blockers: [],
+                rendering: .lightPhone
             )
         )
     }
@@ -359,6 +363,7 @@ struct CaptureSceneTests {
         let refused = CaptureDiagnostics(
             scene: scene,
             state: try await loadedState(scene),
+            rendering: .lightPhone,
             answeredURLs: [cover],
             unknownRequests: ["GET https://e-hentai.org/api.php"],
             isCached: { _ in true }
@@ -366,6 +371,7 @@ struct CaptureSceneTests {
         let failed = CaptureDiagnostics(
             scene: scene,
             state: failedToplists,
+            rendering: .lightPhone,
             answeredURLs: [cover],
             unknownRequests: [],
             isCached: { _ in true }
@@ -374,6 +380,7 @@ struct CaptureSceneTests {
         expectNoDifference(refused.readiness, .failed)
         expectNoDifference(refused.unknownRequests, ["GET https://e-hentai.org/api.php"])
         expectNoDifference(failed.readiness, .failed)
+        expectNoDifference(failed.blockers, ["A Home list failed to load"])
     }
 
     @Test
@@ -385,6 +392,7 @@ struct CaptureSceneTests {
         let diagnostics = CaptureDiagnostics(
             scene: scene,
             state: state,
+            rendering: .lightPhone,
             answeredURLs: [],
             unknownRequests: [],
             isCached: { _ in true }
@@ -398,21 +406,26 @@ struct CaptureSceneTests {
     @Test
     func diagnosticsEncodeAsTheJSONUITestsRead() throws {
         let diagnostics = CaptureDiagnostics(
-            screenID: "home",
+            screenID: .readingLiveText,
             selectionID: "test-selection",
+            setID: "nonexplicit",
             fixtureVersion: "marketing-0123456789abcdef",
-            galleryIDs: ["101", "104"],
-            page: nil,
-            readiness: .ready,
+            galleryIDs: ["101"],
+            page: 4,
+            readiness: .failed,
             pendingImages: 0,
-            unknownRequests: ["GET https://e-hentai.org/api.php"]
+            unknownRequests: ["GET https://e-hentai.org/api.php"],
+            blockers: ["The image of page 4 is not shown"],
+            rendering: .darkPhone
         )
 
         expectNoDifference(
             try diagnostics.encodedJSON(),
-            #"{"fixtureVersion":"marketing-0123456789abcdef","galleryIDs":["101","104"],"pendingImages":0,"#
-                + #""readiness":"ready","screenID":"home","selectionID":"test-selection","#
-                + #""unknownRequests":["GET https://e-hentai.org/api.php"]}"#
+            #"{"blockers":["The image of page 4 is not shown"],"fixtureVersion":"marketing-0123456789abcdef","#
+                + #""galleryIDs":["101"],"page":4,"pendingImages":0,"readiness":"failed","#
+                + #""rendering":{"appearance":"dark","family":"iphone","language":"en","locale":"en_US","#
+                + #""textSize":"large"},"screenID":"reading-live-text","selectionID":"test-selection","#
+                + #""setID":"nonexplicit","unknownRequests":["GET https://e-hentai.org/api.php"]}"#
         )
     }
 
@@ -443,8 +456,8 @@ struct CaptureSceneTests {
             expectNoDifference(popular.map(\.gid), MarketingFixtureBuilder.heroGIDs)
 
             let state = AppReducer.State()
-            #expect(state.settingState.setting == Setting())
-            state.settingState.$setting.withLock({ $0.bypassSNIFiltering = true })
+            expectNoDifference(state.settingState.setting, CaptureScenePreparation.sceneSetting)
+            state.settingState.$setting.withLock({ $0.showNewDawnGreeting.toggle() })
         }
         withDependencies {
             $0.defaultAppStorage = personal
@@ -452,7 +465,17 @@ struct CaptureSceneTests {
             @SharedReader(.setting) var setting
             #expect(setting.detectLinksFromClipboard)
             #expect(setting.bypassSNIFiltering == false)
+            #expect(setting.readingDirection == Setting().readingDirection)
+            expectNoDifference(setting.showNewDawnGreeting, Setting().showNewDawnGreeting)
         }
+    }
+
+    @Test
+    func sceneSettingsAreTheDefaultsWithTheBypassOnAndThePagingReader() {
+        var expected = Setting()
+        expected.bypassSNIFiltering = true
+        expected.readingDirection = .leftToRight
+        expectNoDifference(CaptureScenePreparation.sceneSetting, expected)
     }
 
     @Test
@@ -480,7 +503,7 @@ struct CaptureSceneTests {
 }
 
 /// The app state once Home has shown every list of `scene`, as its fetches leave it.
-private func loadedState(_ scene: CaptureScene) async throws -> AppReducer.State {
+func loadedState(_ scene: CaptureScene) async throws -> AppReducer.State {
     var state = AppReducer.State()
     let popular = try await scene.homeClient.fetchPopularGalleries(.ehentai, Filter())
     state.homeState.popularGalleries = popular
@@ -497,7 +520,7 @@ private func loadedState(_ scene: CaptureScene) async throws -> AppReducer.State
     return state
 }
 
-private extension MarketingFixtureBuilder {
+extension MarketingFixtureBuilder {
     /// The standard fixture plus one preview image, a second image beside the shared cover.
     func addingPreview() -> Self {
         var fixture = self
@@ -516,7 +539,7 @@ private extension MarketingFixtureBuilder {
     }
 }
 
-private func makeScene(
+func makeScene(
     _ fixture: MarketingFixtureBuilder,
     scenarioID: String = "home",
     fixtureID: String = "nonexplicit"

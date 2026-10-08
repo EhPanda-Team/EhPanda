@@ -182,6 +182,9 @@ struct AppReducer {
                 else { return .none }
 
                 state.didRunLaunchAutomation = true
+                if let captureRoute = automation.captureRoute {
+                    return captureRouteEffect(captureRoute)
+                }
                 return .run { send in
                     if let galleryURL = automation.galleryURL,
                        GalleryURLParser.parse(galleryURL) != nil {
@@ -446,6 +449,31 @@ private extension AppReducer {
         }
 
         return effects
+    }
+
+    /// Opens a capture route's screen the way a person does: the tab first, then the control that
+    /// presents the screen, through the same actions those taps send, so each device presents it
+    /// as it presents a tap. A screen inside a gallery starts with a tap on that gallery's card.
+    func captureRouteEffect(_ route: AppLaunchAutomation.CaptureRoute) -> Effect<Action> {
+        switch route {
+        case .home:
+            return .none
+        case .detail(let gallery), .comments(let gallery),
+             .reading(let gallery, _), .readingLiveText(let gallery, _):
+            return .send(.home(.galleryTapped(gallery)))
+        case .filters:
+            return .run { send in
+                await send(.tabBar(.setTabBarItemType(.search)))
+                await send(.searchRoot(.filtersButtonTapped))
+            }
+        case .downloads:
+            return .send(.tabBar(.setTabBarItemType(.downloads)))
+        case .laboratory:
+            return .run { send in
+                await send(.tabBar(.setTabBarItemType(.setting)))
+                await send(.setting(.settingRowTapped(.laboratory)))
+            }
+        }
     }
 
     func shouldDelayLaunchAutomationUntilIgneous(state: State) -> Bool {
