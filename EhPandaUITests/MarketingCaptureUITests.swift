@@ -25,7 +25,7 @@ final class MarketingCaptureUITests: XCTestCase {
 
         let state = XCTAttachment(string: settled.json)
         state.name = "capture-\(launcher.coordinate.key)-state"
-        // The rendered PNG bytes unchanged, which the native runner compares across cold launches.
+        // The PNG exactly as the system rendered it: the native runner compares these bytes across cold launches.
         let frame = XCTAttachment(data: screen.png, uniformTypeIdentifier: UTType.png.identifier)
         frame.name = "capture-\(launcher.coordinate.key)-screen"
         for attachment in [state, frame] {

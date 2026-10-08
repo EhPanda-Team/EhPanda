@@ -207,7 +207,8 @@ class PreflightTests(unittest.TestCase):
         self.assertEqual(self.outcomes()['status'], 'failed')
 
     def test_different_cold_frames_fail(self):
-        with patch.object(environment, 'measure_environment', side_effect=lambda output, pin, derived_data: observation(pin)), \
+        with patch.object(environment, 'measure_environment',
+                          side_effect=lambda output, pin, derived_data: observation(pin)), \
                 patch.object(self.runner, 'dispatch', side_effect=self.identical_dispatch(('e' * 64, 'f' * 64))):
             with self.assertRaisesRegex(self.runner.CaptureFailure, '2 different frames'):
                 self.runner.execute(self.args)
@@ -399,8 +400,9 @@ class FakeSimulator:
 class FakeGate:
     """Runs each launch as the gate does: exports the test's attachments, then fails if the test failed."""
 
-    def __init__(self, arguments, test, simulator):
+    def __init__(self, arguments, test, simulator, summary=SUMMARY):
         self.simulator = simulator
+        self.summary = summary
         self.output = arguments.output
         self.output.mkdir(parents=True)
         self.test_runs = {}
@@ -431,7 +433,7 @@ class FakeGate:
         directory = self.output / f'{name}-attachments'
         directory.mkdir()
         exported = []
-        for index, (attachment, data) in enumerate(attachments.items()):
+        for index, (attachment, data) in enumerate(attachments):
             extension = 'png' if attachment.endswith('-screen') else 'txt'
             (directory / f'{index}.{extension}').write_bytes(data)
             exported.append({'exportedFileName': f'{index}.{extension}',
@@ -439,18 +441,17 @@ class FakeGate:
         (directory / 'manifest.json').write_text(json.dumps([{'attachments': exported}]))
         if not passed:
             raise RuntimeError(f'{name} exited 65')
-        (self.output / f'{name}.summary.json').write_text(json.dumps(SUMMARY))
+        (self.output / f'{name}.summary.json').write_text(json.dumps(self.summary))
         (self.output / f'{name}.tests.json').write_text('{"testNodes": []}')
 
 
-def capture_test(state=diagnostics(), frame=png(4, 3, 7, color_type=2), passed=True):
-    """The marketing UI test: it attaches its diagnostics and settled screenshot and passes or fails."""
+def capture_test(state=diagnostics(), frames=(png(4, 3, 7, color_type=2),), passed=True):
+    """The marketing UI test: it attaches its diagnostics and settled screenshots and passes or fails."""
     def test(name, coordinate):
         if coordinate != COORDINATE:
             raise RuntimeError(f'{name} got {coordinate}')
-        attachments = {f'capture-{KEY}-state': json.dumps(state).encode()}
-        if frame is not None:
-            attachments[f'capture-{KEY}-screen'] = frame
+        attachments = [(f'capture-{KEY}-state', json.dumps(state).encode())]
+        attachments += [(f'capture-{KEY}-screen', frame) for frame in frames]
         return attachments, passed
     return test
 
@@ -472,10 +473,10 @@ class DispatchTests(unittest.TestCase):
         interval.start()
         self.addCleanup(interval.stop)
 
-    def dispatch(self, simulator, test):
+    def dispatch(self, simulator, test, summary=SUMMARY):
         gates = []
         def gate(arguments):
-            gates.append(FakeGate(arguments, test, simulator))
+            gates.append(FakeGate(arguments, test, simulator, summary))
             return gates[-1]
         real = environment.load_native_gate()
         native = SimpleNamespace(Gate=gate, nodes=real.nodes, ROTATION='Rotation/')
@@ -544,14 +545,28 @@ class DispatchTests(unittest.TestCase):
         self.assertFalse((self.workspace.output / 'launches/1/frame.png').exists())
         self.assert_restored(simulator)
 
-    def test_a_launch_without_its_screenshot_fails(self):
+    def test_a_launch_needs_exactly_one_screenshot(self):
+        frame = png(4, 3, 7, color_type=2)
+        for count, frames in [(0, ()), (2, (frame, frame))]:
+            with self.subTest(screenshots=count):
+                self.args.output = self.workspace.root / f'screenshots-{count}'
+                self.args.output.mkdir()
+                self.report = {'launches': [], 'chrome': {}}
+                simulator = FakeSimulator([png(4, 3)])
+                with self.assertRaisesRegex(self.runner.CaptureFailure,
+                                            f'one capture-{KEY}-screen attachment, found {count}'):
+                    self.dispatch(simulator, capture_test(frames=frames))
+                self.assert_restored(simulator)
+
+    def test_a_launch_whose_result_has_a_warning_fails(self):
         simulator = FakeSimulator([png(4, 3)])
-        with self.assertRaisesRegex(self.runner.CaptureFailure, f'one capture-{KEY}-screen attachment, found 0'):
-            self.dispatch(simulator, capture_test(frame=None))
+        with self.assertRaisesRegex(ValueError, 'without warnings'):
+            self.dispatch(simulator, capture_test(), {**SUMMARY, 'runtimeWarnings': ['A main-thread hang']})
+        self.assertNotIn('capture', self.report['launches'][0])
         self.assert_restored(simulator)
 
     def test_a_framebuffer_or_wrong_size_screenshot_fails_the_launch(self):
-        for name, frame, message in [('rgba', png(4, 3), 'expected'),
+        for name, frame, message in [('rgba', png(4, 3), r"'colorType': 6.*expected .*'colorType': 2"),
                                      ('size', png(3, 4, color_type=2), 'pin expects 4x3')]:
             with self.subTest(frame=name):
                 self.args.output = self.workspace.root / f'frame-{name}'
@@ -559,7 +574,7 @@ class DispatchTests(unittest.TestCase):
                 self.report = {'launches': [], 'chrome': {}}
                 simulator = FakeSimulator([png(4, 3)])
                 with self.assertRaisesRegex(self.runner.CaptureFailure, message):
-                    self.dispatch(simulator, capture_test(frame=frame))
+                    self.dispatch(simulator, capture_test(frames=(frame,)))
                 self.assert_restored(simulator)
 
     def test_a_launch_on_another_runtime_fails(self):

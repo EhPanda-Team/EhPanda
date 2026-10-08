@@ -42,8 +42,8 @@ PNG_SIGNATURE = b'\x89PNG\r\n\x1a\n'
 # simctl records the settle launch's screenshots as 8-bit RGBA without interlacing.
 SETTLE_PNG = {'bitDepth': 8, 'colorType': 6, 'compression': 0, 'filter': 0, 'interlace': 0}
 # A marketing frame is the system screenshot the test attaches, 8-bit RGB. The system renders a screenshot whole, while
-# the display framebuffer simctl reads keeps Liquid Glass as it last composed it, which differed between cold launches of
-# one screen (owner decision, 2026-10-09).
+# the display framebuffer simctl reads keeps Liquid Glass as it last composed it, which differed between cold launches
+# of one screen (owner decision, 2026-10-09).
 FRAME_PNG = {**SETTLE_PNG, 'colorType': 2}
 # Bytes per pixel of each color type a frame may have.
 CHANNELS = {2: 3, 6: 4}
@@ -269,7 +269,8 @@ def dispatch(args, coordinate, observed, source, manifest, report, publish):
     device = context['device']
     report['device'] = {'udid': device, 'model': context['model'], 'runtimeBuild': context['runtimeBuild'],
                         'pixels': context['pixels']}
-    gate = native.Gate(argparse.Namespace(output=args.output / 'native', derived_data=environment.default_derived_data()))
+    gate = native.Gate(argparse.Namespace(output=args.output / 'native',
+                                          derived_data=environment.default_derived_data()))
     # Environment validation built the final tree; reuse its products with explicit per-launch parameters.
     gate.single_pass_run('UITests')
     with gate.simulator_session(family, device), ExitStack() as restore:
