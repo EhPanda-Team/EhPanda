@@ -9,7 +9,6 @@ import plistlib
 import struct
 import subprocess
 import tempfile
-import time
 from types import SimpleNamespace
 import unittest
 from unittest.mock import patch
@@ -102,7 +101,7 @@ class PreflightTests(unittest.TestCase):
         def dispatch(args, coordinate, observed, source, manifest, report, publish):
             for number, digest in enumerate(digests, 1):
                 report['launches'].append({'launch': number, 'status': 'captured',
-                                           'capture': {'path': f'launches/{number}/frame-2.png', 'sha256': digest}})
+                                           'capture': {'path': f'launches/{number}/frame.png', 'sha256': digest}})
         return dispatch
 
     def test_tracked_pin_is_a_valid_pin(self):
@@ -241,8 +240,9 @@ class FrameTests(unittest.TestCase):
     def setUp(self):
         self.runner = load_runner()
 
-    def test_complete_rgba_frame_reports_its_size(self):
-        self.assertEqual(self.runner.png_size(png(4, 3)), (4, 3))
+    def test_complete_frames_report_their_size(self):
+        self.assertEqual(self.runner.png_size(png(4, 3), self.runner.SETTLE_PNG), (4, 3))
+        self.assertEqual(self.runner.png_size(png(4, 3, color_type=2), self.runner.FRAME_PNG), (4, 3))
 
     def test_partial_or_altered_frames_are_rejected(self):
         frame = png(4, 3)
@@ -257,7 +257,19 @@ class FrameTests(unittest.TestCase):
                            ('jpeg', b'\xff\xd8\xff' + frame[3:])]:
             with self.subTest(frame=name):
                 with self.assertRaises(self.runner.CaptureFailure):
-                    self.runner.png_size(data)
+                    self.runner.png_size(data, self.runner.SETTLE_PNG)
+
+    def test_a_marketing_frame_must_be_the_rgb_system_screenshot(self):
+        short = b''.join(b'\x00' + bytes(12) for _ in range(2))
+        for name, data in [('rgba', png(4, 3)), ('missing rows', png(4, 3, color_type=2, rows=short))]:
+            with self.subTest(frame=name):
+                with self.assertRaises(self.runner.CaptureFailure):
+                    self.runner.png_size(data, self.runner.FRAME_PNG)
+
+    def test_a_frame_of_another_size_is_rejected(self):
+        self.runner.verify_frame(png(4, 3, color_type=2), self.runner.FRAME_PNG, [4, 3])
+        with self.assertRaisesRegex(self.runner.CaptureFailure, 'pin expects 4x3'):
+            self.runner.verify_frame(png(3, 4, color_type=2), self.runner.FRAME_PNG, [4, 3])
 
 
 class SettleTests(unittest.TestCase):
@@ -266,9 +278,9 @@ class SettleTests(unittest.TestCase):
         temporary = tempfile.TemporaryDirectory()
         self.addCleanup(temporary.cleanup)
         self.output = Path(temporary.name)
-        self.directory = self.output / 'launches/1'
-        self.directory.mkdir(parents=True)
-        interval = patch.object(self.runner, 'FRAME_INTERVAL', 0)
+        self.directory = self.output / 'settle'
+        self.directory.mkdir()
+        interval = patch.object(self.runner, 'SETTLE_INTERVAL', 0)
         interval.start()
         self.addCleanup(interval.stop)
 
@@ -288,7 +300,7 @@ class SettleTests(unittest.TestCase):
         with self.screenshots([png(4, 3, 1), png(4, 3, 2), png(4, 3, 2)]):
             result = self.settle()
         self.assertEqual(len(result['frames']), 3)
-        self.assertEqual(result['capture']['path'], 'launches/1/frame-3.png')
+        self.assertEqual(result['capture']['path'], 'settle/frame-3.png')
         self.assertEqual(result['capture']['sha256'], hashlib.sha256(png(4, 3, 2)).hexdigest())
         self.assertEqual(result['capture']['pixels'], [4, 3])
 
@@ -298,7 +310,7 @@ class SettleTests(unittest.TestCase):
                 self.settle()
 
     def test_a_screen_that_never_holds_still_fails(self):
-        frames = [png(4, 3, fill) for fill in range(self.runner.FRAME_ATTEMPTS)]
+        frames = [png(4, 3, fill) for fill in range(self.runner.SETTLE_ATTEMPTS)]
         with self.screenshots(frames):
             with self.assertRaisesRegex(self.runner.CaptureFailure, 'never held still'):
                 self.settle()
@@ -310,16 +322,16 @@ class SettleTests(unittest.TestCase):
                 self.settle()
 
 
-class ReadyTests(unittest.TestCase):
+class DiagnosticsTests(unittest.TestCase):
     def setUp(self):
         self.runner = load_runner()
         temporary = tempfile.TemporaryDirectory()
         self.addCleanup(temporary.cleanup)
-        self.path = Path(temporary.name) / 'ready.json'
+        self.path = Path(temporary.name) / 'state.txt'
 
     def verify(self, value):
         self.path.write_text(json.dumps(value))
-        return self.runner.verify_ready(self.path, COORDINATE, MANIFEST)
+        return self.runner.verify_diagnostics(self.path, COORDINATE, MANIFEST)
 
     def test_the_coordinate_screen_is_accepted(self):
         self.assertEqual(self.verify(diagnostics()), diagnostics())
@@ -343,6 +355,7 @@ XCTESTRUN = {'TestConfigurations': [{'TestTargets': [
 SUMMARY = {'totalTestCount': 1, 'passedTests': 1, 'failedTests': 0, 'skippedTests': 0, 'expectedFailures': 0,
            'runtimeWarnings': [], 'devicesAndConfigurations': [
                {'device': {'deviceId': 'fresh-phone', 'modelName': 'iPhone Air', 'osBuildNumber': '24A434'}}]}
+KEY = 'nonexplicit__home__iphone__en__dark'
 
 
 class FakeSimulator:
@@ -384,7 +397,7 @@ class FakeSimulator:
 
 
 class FakeGate:
-    """Runs each launch as the UI test would: writes ready.json, then passes only on a captured answer."""
+    """Runs each launch as the gate does: exports the test's attachments, then fails if the test failed."""
 
     def __init__(self, arguments, test, simulator):
         self.simulator = simulator
@@ -414,25 +427,31 @@ class FakeGate:
             return
         if self.simulator.foreground is not None:
             raise RuntimeError(f'{name} started with {self.simulator.foreground} in front')
-        self.test(name, json.loads(variables['EHPANDA_CAPTURE_COORDINATE']), Path(variables['EHPANDA_CAPTURE_HANDSHAKE']))
+        attachments, passed = self.test(name, json.loads(variables['EHPANDA_CAPTURE_COORDINATE']))
+        directory = self.output / f'{name}-attachments'
+        directory.mkdir()
+        exported = []
+        for index, (attachment, data) in enumerate(attachments.items()):
+            extension = 'png' if attachment.endswith('-screen') else 'txt'
+            (directory / f'{index}.{extension}').write_bytes(data)
+            exported.append({'exportedFileName': f'{index}.{extension}',
+                             'suggestedHumanReadableName': f'{attachment}_0_{index:08X}.{extension}'})
+        (directory / 'manifest.json').write_text(json.dumps([{'attachments': exported}]))
+        if not passed:
+            raise RuntimeError(f'{name} exited 65')
         (self.output / f'{name}.summary.json').write_text(json.dumps(SUMMARY))
         (self.output / f'{name}.tests.json').write_text('{"testNodes": []}')
 
 
-def handshake_test(ready=diagnostics()):
-    def test(name, coordinate, handshake):
+def capture_test(state=diagnostics(), frame=png(4, 3, 7, color_type=2), passed=True):
+    """The marketing UI test: it attaches its diagnostics and settled screenshot and passes or fails."""
+    def test(name, coordinate):
         if coordinate != COORDINATE:
             raise RuntimeError(f'{name} got {coordinate}')
-        if ready is None:
-            return
-        (handshake / 'ready.json').write_text(json.dumps(ready))
-        deadline = time.monotonic() + 10
-        while not (handshake / 'answer.json').exists():
-            if time.monotonic() > deadline:
-                raise RuntimeError(f'{name} never got an answer')
-            time.sleep(0.01)
-        if json.loads((handshake / 'answer.json').read_text())['status'] != 'captured':
-            raise RuntimeError(f'{name} exited 65')
+        attachments = {f'capture-{KEY}-state': json.dumps(state).encode()}
+        if frame is not None:
+            attachments[f'capture-{KEY}-screen'] = frame
+        return attachments, passed
     return test
 
 
@@ -449,7 +468,7 @@ class DispatchTests(unittest.TestCase):
         self.pin = json.loads(self.workspace.original)
         self.pin['devices']['iphone']['orientations']['portrait']['pixels'] = [4, 3]
         self.report = {'launches': [], 'chrome': {}}
-        interval = patch.object(self.runner, 'FRAME_INTERVAL', 0)
+        interval = patch.object(self.runner, 'SETTLE_INTERVAL', 0)
         interval.start()
         self.addCleanup(interval.stop)
 
@@ -480,66 +499,81 @@ class DispatchTests(unittest.TestCase):
 
     def test_two_cold_launches_record_identical_frames_and_restore_the_simulator(self):
         simulator = FakeSimulator([png(4, 3, 1), png(4, 3, 2)])
-        self.dispatch(simulator, handshake_test())
+        self.dispatch(simulator, capture_test())
         self.assertEqual(self.gate.sessions, [('iphone', 'fresh-phone')])
         self.assertEqual([run[0] for run in self.gate.runs], ['launch-1', 'launch-2', 'iphone-restore-portrait'])
         self.assertEqual([launch['status'] for launch in self.report['launches']], ['captured', 'captured'])
-        self.assertEqual(self.report['launches'][0]['capture']['sha256'], self.report['launches'][1]['capture']['sha256'])
-        self.assertEqual(self.report['launches'][0]['diagnostics'], diagnostics())
+        frame = png(4, 3, 7, color_type=2)
+        for number, launch in enumerate(self.report['launches'], 1):
+            self.assertEqual(launch['diagnostics'], diagnostics())
+            self.assertEqual(launch['attachments'], f'native/launch-{number}-attachments')
+            self.assertEqual(launch['capture'], {'path': f'launches/{number}/frame.png', 'pixels': [4, 3],
+                                                 'sha256': hashlib.sha256(frame).hexdigest(), 'bytes': len(frame)})
+            self.assertEqual((self.workspace.output / launch['capture']['path']).read_bytes(), frame)
         self.assertRegex(self.report['chrome']['statusBar']['time'], r'^2026-01-01T09:41:00\.000[+-][0-9]{2}:[0-9]{2}$')
         self.assertEqual(self.report['chrome']['statusBar']['applied'],
                          ['Time: ' + self.report['chrome']['statusBar']['time']])
         self.assertTrue(self.report['chrome']['statusBarRestored'])
         override = next(command for command in simulator.commands if command[3:5] == ['fresh-phone', 'override'])
         self.assertEqual(override[7:], list(self.runner.STATUS_BAR))
-        # Settings is the first app after the override and is quit before the first capture launch.
+        # Settings is the first app after the override and is quit before the first capture launch, and simctl
+        # screenshots only Settings: every marketing frame is the system screenshot the test attached.
         actions = [command[2] for command in simulator.commands if command[2] in ('launch', 'terminate', 'io')]
-        self.assertEqual(actions[:5], ['launch', 'io', 'io', 'io', 'terminate'])
+        self.assertEqual(actions, ['launch', 'io', 'io', 'io', 'terminate'])
         self.assertEqual([command[4] for command in simulator.commands if command[2] in ('launch', 'terminate')],
                          [self.runner.SETTLE_APP] * 2)
         settle = self.report['chrome']['settleLaunch']
         self.assertEqual(settle['app'], self.runner.SETTLE_APP)
         self.assertEqual(settle['capture']['path'], 'settle/frame-3.png')
-        for number in (1, 2):
-            answer = self.workspace.output / f'launches/{number}/answer.json'
-            self.assertEqual(json.loads(answer.read_text()), {'status': 'captured'})
         self.assert_restored(simulator)
 
-    def test_a_refused_frame_fails_with_the_runner_reason_and_still_restores(self):
+    def test_a_launch_showing_another_screen_fails_and_still_restores(self):
         simulator = FakeSimulator([png(4, 3)])
         with self.assertRaisesRegex(self.runner.CaptureFailure, 'another screen'):
-            self.dispatch(simulator, handshake_test(diagnostics(screenID='detail')))
+            self.dispatch(simulator, capture_test(diagnostics(screenID='detail')))
         self.assertEqual(len(self.report['launches']), 1)
         self.assertEqual(self.report['launches'][0]['status'], 'failed')
-        answer = json.loads((self.workspace.output / 'launches/1/answer.json').read_text())
-        self.assertEqual(answer['status'], 'failed')
+        self.assertNotIn('capture', self.report['launches'][0])
         self.assert_restored(simulator)
 
-    def test_a_test_that_never_verifies_its_screen_fails_and_still_restores(self):
+    def test_a_failing_test_fails_its_launch_and_still_restores(self):
         simulator = FakeSimulator([png(4, 3)])
-        with self.assertRaisesRegex(self.runner.CaptureFailure, 'without reporting a verified screen'):
-            self.dispatch(simulator, handshake_test(ready=None))
-        self.assertFalse((self.workspace.output / 'launches/1/answer.json').exists())
+        with self.assertRaisesRegex(RuntimeError, 'launch-1 exited 65'):
+            self.dispatch(simulator, capture_test(passed=False))
+        self.assertEqual([launch['status'] for launch in self.report['launches']], ['failed'])
+        self.assertFalse((self.workspace.output / 'launches/1/frame.png').exists())
         self.assert_restored(simulator)
 
-    def test_a_frame_of_the_wrong_size_fails_the_launch(self):
-        simulator = FakeSimulator([png(3, 4)])
-        with self.assertRaisesRegex(self.runner.CaptureFailure, 'pin expects 4x3'):
-            self.dispatch(simulator, handshake_test())
+    def test_a_launch_without_its_screenshot_fails(self):
+        simulator = FakeSimulator([png(4, 3)])
+        with self.assertRaisesRegex(self.runner.CaptureFailure, f'one capture-{KEY}-screen attachment, found 0'):
+            self.dispatch(simulator, capture_test(frame=None))
         self.assert_restored(simulator)
+
+    def test_a_framebuffer_or_wrong_size_screenshot_fails_the_launch(self):
+        for name, frame, message in [('rgba', png(4, 3), 'expected'),
+                                     ('size', png(3, 4, color_type=2), 'pin expects 4x3')]:
+            with self.subTest(frame=name):
+                self.args.output = self.workspace.root / f'frame-{name}'
+                self.args.output.mkdir()
+                self.report = {'launches': [], 'chrome': {}}
+                simulator = FakeSimulator([png(4, 3)])
+                with self.assertRaisesRegex(self.runner.CaptureFailure, message):
+                    self.dispatch(simulator, capture_test(frame=frame))
+                self.assert_restored(simulator)
 
     def test_a_launch_on_another_runtime_fails(self):
         self.pin['runtime']['buildVersion'] = '24A999'
         simulator = FakeSimulator([png(4, 3)])
         with self.assertRaisesRegex(self.runner.CaptureFailure, 'ran on iPhone Air 24A434'):
-            self.dispatch(simulator, handshake_test())
+            self.dispatch(simulator, capture_test())
         self.assert_restored(simulator)
 
     def test_a_settle_app_that_never_holds_still_fails_before_any_capture_and_restores(self):
-        frames = [png(4, 3, fill) for fill in range(self.runner.FRAME_ATTEMPTS + 1)]
+        frames = [png(4, 3, fill) for fill in range(self.runner.SETTLE_ATTEMPTS + 1)]
         simulator = FakeSimulator(frames)
         with self.assertRaisesRegex(self.runner.CaptureFailure, 'never held still'):
-            self.dispatch(simulator, handshake_test())
+            self.dispatch(simulator, capture_test())
         self.assertEqual(self.report['launches'], [])
         self.assertEqual([run[0] for run in self.gate.runs], ['iphone-restore-portrait'])
         self.assertIsNone(simulator.foreground)
@@ -547,9 +581,9 @@ class DispatchTests(unittest.TestCase):
 
     def test_a_failed_status_bar_clear_still_restores_the_appearance_and_portrait(self):
         simulator = FakeSimulator([png(4, 3)], appearance='dark', clear_fails=True)
-        def test(name, coordinate, handshake):
+        def test(name, coordinate):
             simulator.appearance = 'light'
-            handshake_test()(name, coordinate, handshake)
+            return capture_test()(name, coordinate)
         with self.assertRaises(subprocess.CalledProcessError):
             self.dispatch(simulator, test)
         self.assertNotIn('statusBarRestored', self.report['chrome'])
@@ -560,36 +594,35 @@ class DispatchTests(unittest.TestCase):
     def test_existing_overrides_are_never_replaced(self):
         simulator = FakeSimulator([png(4, 3)], overrides=['Battery State: 2, Battery Level: 100'])
         with self.assertRaisesRegex(self.runner.CaptureFailure, 'already carries overrides'):
-            self.dispatch(simulator, handshake_test())
+            self.dispatch(simulator, capture_test())
         self.assertEqual(simulator.overrides, ['Battery State: 2, Battery Level: 100'])
         self.assertEqual(self.gate.runs, [])
 
     def test_a_dark_simulator_gets_its_appearance_back(self):
         simulator = FakeSimulator([png(4, 3)], appearance='dark')
-        def test(name, coordinate, handshake):
+        def test(name, coordinate):
             simulator.appearance = 'light'
-            handshake_test()(name, coordinate, handshake)
+            return capture_test()(name, coordinate)
         self.dispatch(simulator, test)
         self.assert_restored(simulator, appearance='dark')
 
 
 class ConfigureRunTests(unittest.TestCase):
-    def test_the_ui_test_runner_receives_the_coordinate_fixture_and_handshake(self):
+    def test_the_ui_test_runner_receives_the_coordinate_and_fixture(self):
         runner = load_runner()
         with tempfile.TemporaryDirectory() as temporary:
             path = Path(temporary) / 'UITests.xctestrun'
             path.write_bytes(plistlib.dumps(XCTESTRUN))
-            runner.configure_run(path, COORDINATE, Path('/fixtures/version'), Path('/handshake/1'))
+            runner.configure_run(path, COORDINATE, Path('/fixtures/version'))
             target = plistlib.loads(path.read_bytes())['TestConfigurations'][0]['TestTargets'][0]
             self.assertEqual(target['EnvironmentVariables'], {
                 'TERM': 'dumb', 'EHPANDA_CAPTURE_SOURCE': '/fixtures/version',
-                'EHPANDA_CAPTURE_HANDSHAKE': '/handshake/1',
                 'EHPANDA_CAPTURE_COORDINATE': json.dumps(COORDINATE, separators=(',', ':'))})
             hosted = copy.deepcopy(XCTESTRUN)
             hosted['TestConfigurations'][0]['TestTargets'][0]['IsUITestBundle'] = False
             path.write_bytes(plistlib.dumps(hosted))
             with self.assertRaises(runner.CaptureFailure):
-                runner.configure_run(path, COORDINATE, Path('/fixtures/version'), Path('/handshake/1'))
+                runner.configure_run(path, COORDINATE, Path('/fixtures/version'))
 
 
 if __name__ == '__main__':

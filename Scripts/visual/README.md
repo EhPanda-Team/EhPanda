@@ -435,9 +435,11 @@ differs, renders some toolbar glyphs at the system's size. Set the simulator to 
 
 The test passes only when the diagnostics are exactly what the selection expects for the
 coordinate: its screen, selection, set, fixture version, galleries and page, ready with no pending
-image, refused request or blocker, in the coordinate's rendering. Either way it attaches the
-diagnostics and the device framebuffer. The runner names the coordinate and the fixture version
-through environment variables:
+image, refused request or blocker, in the coordinate's rendering. It then takes the system's
+screenshot of the screen, `XCUIScreen.main.screenshot()`, a second apart until two in a row are
+byte-identical, and fails if they never are. Either way it attaches the diagnostics and that
+screenshot's PNG. The runner names the coordinate and the fixture version through environment
+variables:
 
 ```sh
 TEST_RUNNER_EHPANDA_CAPTURE_SOURCE="$PWD/.capture/marketing/current" \
@@ -480,20 +482,25 @@ version. The runner then:
    Settings, waits until two screenshots a second apart are identical and quits it: the first app
    the system shows after a boot draws iPad's Wi-Fi glyph half a point left of where every later
    app draws it, so no capture launch may be that first app;
-4. launches the test cold twice, each launch once without retries. The test verifies its screen
-   as above and then holds it, writing its diagnostics to `ready.json`. The runner checks that
-   they name the coordinate, takes screenshots a second apart with
-   `xcrun simctl io "$UDID" screenshot --type=png --mask=ignored` until two consecutive frames are
-   byte-identical, checks that each is a complete 8-bit RGBA PNG at the pin's portrait pixel size,
-   and answers in `answer.json`. The test passes only once its frame is recorded, and the launch
-   must pass exactly one test, with no repetition, skip, warning or diagnostic, on the pinned
-   model and runtime;
+4. launches the test cold twice, each launch once without retries. Each launch must pass exactly
+   one test, with no repetition, skip, warning or diagnostic, on the pinned model and runtime. The
+   runner then takes the test's two attachments from the result bundle: the diagnostics must name
+   the coordinate, and the screenshot, the launch's frame, must be a complete 8-bit RGB PNG at the
+   pin's portrait pixel size;
 5. clears the status bar, puts back the appearance, portrait orientation, text size and power
    state it found, and checks that the sources, the pin and the fixture version did not change.
 
 The coordinate is captured only when both launches recorded the same bytes, and `outcomes.json`
-then names that frame as `capture`. A failed run still writes `outcomes.json`, with each launch's
-frames, diagnostics and reason.
+then names that frame as `capture`. A failed run still writes `outcomes.json`, with its error and
+each launch's result bundle, attachments and, once checked, diagnostics and frame.
+
+A frame is the screenshot the system renders, not the display's framebuffer that
+`simctl io screenshot` reads. The framebuffer keeps Liquid Glass as the display last composed it,
+so one screen's glass could differ by a level between cold launches; the system renders a
+screenshot whole, so one screen gives the same bytes every time. The screenshot carries the
+overridden status bar and no Dynamic Island capsule, and differs from the framebuffer only by a
+level on some glass pixels (owner decision, 2026-10-09). The runner still uses simctl for the
+Settings launch, which only has to be shown.
 
 simctl freezes the status bar's date only for a full ISO time, `2026-01-01T09:41:00.000` with the
 host's offset, which it reads in the host's time zone like the bar itself, so the bar shows 9:41
@@ -508,7 +515,7 @@ the runner's own would remove them.
 | `environment-check/` | The pin validation's measurements and attachments |
 | `settle/` | The screenshots of the Settings launch before the captures |
 | `native/` | Each invocation's command, log, result bundle, attachments and the simulator's lifecycle |
-| `launches/<n>/` | Launch n's `ready.json`, `answer.json` and screenshots |
+| `launches/<n>/` | Launch n's frame, `frame.png`, the screenshot the test attached |
 
 Every frame and result bundle shows real content: keep the output under `.capture/` and never
 commit it.
