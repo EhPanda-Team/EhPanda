@@ -1,20 +1,28 @@
 {
   "version": "1.0",
-  "timestamp": "2026-10-08T00:12:42Z",
+  "timestamp": "2026-10-08T02:56:12Z",
   "phase": "17",
   "phase_name": "Screenshot Automation, Visual Regression & OS 27 Modernization",
   "phase_dir": ".planning/phases/17-localized-screenshot-capture-harness",
   "plan": 5,
-  "task": 1,
+  "task": 2,
   "total_tasks": 2,
   "status": "executing-17-05",
-  "completed_tasks": [],
-  "remaining_tasks": [
+  "completed_tasks": [
     {
       "id": 1,
       "name": "17-05-T1: Launch real app routes and verify selected screen readiness",
-      "status": "pending"
-    },
+      "commits": [
+        "0c787f4f77",
+        "5f4a61091f",
+        "6266f85587",
+        "eaec12c76b",
+        "25652e646f"
+      ],
+      "status": "complete"
+    }
+  ],
+  "remaining_tasks": [
     {
       "id": 2,
       "name": "17-05-T2: Gate native chrome and cold-rerun determinism on real destinations",
@@ -241,6 +249,36 @@
       "decision": "Under Reduce Motion the Home card gradient's points take one fixed R2 arrangement; without it they keep random placement and movement (e7789e746b).",
       "rationale": "Owner, 2026-10-08: ColorfulX's default director placed the points at random each appearance, so frozen gradients still differed per launch. With both fixes, settled iPhone captures are byte-identical below the status bar. Recorded in 17-05-PLAN.md.",
       "phase": "17"
+    },
+    {
+      "decision": "Under Reduce Motion a late palette applies at once, with no fade (0c787f4f77).",
+      "rationale": "Owner, 2026-10-08: a D-29 exception, so a settled capture never catches the card mid-fade. Recorded in 17-05-PLAN.md.",
+      "phase": "17"
+    },
+    {
+      "decision": "The iPhone Air text size is restored to Large and kept as the pinned state.",
+      "rationale": "Owner, 2026-10-08: it had been at Accessibility XXXL since 2026-10-07 05:24Z, set by no recorded run. Recorded in 17-05-PLAN.md.",
+      "phase": "17"
+    },
+    {
+      "decision": "Comments and both reader routes continue from the routed gallery's detail through DetailReducer's launch automation.",
+      "rationale": "Owner, 2026-10-08: the routes send what Show All and a preview tap send, only in capture launches. Recorded in 17-05-PLAN.md.",
+      "phase": "17"
+    },
+    {
+      "decision": "Fixture acquisition derives the reader's full request set and the selection is re-acquired as marketing-2b4d03cd822461e2 (5f4a61091f).",
+      "rationale": "Owner, 2026-10-08: the reader resolves a whole batch of image URLs and prefetches a window around each built page, which the 17-03 derivation missed. Recorded in 17-05-PLAN.md.",
+      "phase": "17"
+    },
+    {
+      "decision": "Capture scenes run the paging reader (left to right) in their in-memory settings.",
+      "rationale": "Owner, 2026-10-08: the vertical reader settles at a timing-dependent offset (4 of 6 attempts low); the paging reader gave byte-identical, framed runs. The vertical offset is a separate production task. Recorded in 17-05-PLAN.md.",
+      "phase": "17"
+    },
+    {
+      "decision": "DataCache gains a nonisolated containsData(forKey:) and LibraryClient.live.isCached consults the reader cache (6266f85587).",
+      "rationale": "Owner, 2026-10-08: the synchronous diagnostics could not see reader pages, so the reader never read as ready. Recorded in 17-05-PLAN.md.",
+      "phase": "17"
     }
   ],
   "uncommitted_files": [
@@ -250,8 +288,8 @@
     "M  EhPanda.xcodeproj/project.pbxproj",
     "?? .capture/"
   ],
-  "next_action": "Continue 17-05-T1 (eight capture routes, CaptureLauncher, MarketingCaptureUITests.testCaptureCoordinate). Home readiness must also cover the card's color analysis and its ~4 s ColorfulX color transition before a frame is taken. The agent prepares explicit-set galleries and fixtures. Keep iPhone Shutdown, iPad Booted, both portrait and Large.",
-  "context_notes": "17-04 complete: a Debug-only capture launch (EHPANDA_CAPTURE_CONFIGURATION, EHPANDA_CAPTURE_FIXTURES) validates one fixture version completely, installs an isolated offline scene before the first store (capture-owned reader, Kingfisher and SDWebImage caches reset per launch; exact-URL GET replay refusing everything else) and shows the selected Home scene through the injected HomeClient. UI tests read CaptureDiagnostics from the invisible capture_diagnostics accessibility element; CaptureIsolationUITests passes on both pinned devices with TEST_RUNNER_EHPANDA_CAPTURE_SOURCE. Release builds contain no capture code. Pinned simulators need iPad Full Screen Apps, iPhone dark and Reduce Motion on for both; the iPhone was found at AX5 during 17-04 and restored to Large.",
+  "next_action": "Continue 17-05-T2: Scripts/visual/capture-native.py with test_capture_native.py and README; validate the tracked regression-environment.json pin via environment.py before dispatch; simctl status_bar 9:41 and io screenshot --mask=ignored; capsule absence; two cold launches per device with byte-identical SHA-256, redoing the card-color check at Large. The agent prepares explicit-set galleries and fixtures. Keep iPhone Shutdown, iPad Booted, both portrait and Large.",
+  "context_notes": "17-05 T1 complete: the Debug launch route opens all eight capture screens through actual actions; CaptureDiagnostics reports per-screen identity, galleries, page, readiness, blockers and rendering. MarketingCaptureUITests.testCaptureCoordinate takes one JSON coordinate (TEST_RUNNER_EHPANDA_CAPTURE_COORDINATE, TEST_RUNNER_EHPANDA_CAPTURE_SOURCE) and records state plus an XCUIScreen framebuffer. Fixture marketing-2b4d03cd822461e2: 12 coordinates ready on both devices, zh-Hant and German variants pass; Live Text and Downloads wait for 17-06. Capture scenes use the paging reader. Another local session briefly used the pinned iPhone Air on 2026-10-08 and left it Booted; it was restored to Shutdown.",
   "evidence": {
     "proposal": ".planning/phases/17-localized-screenshot-capture-harness/17-01-CAPTURE-GATE.md",
     "bootstrap": {
@@ -1420,8 +1458,8 @@
     "/tmp/ehpanda-phase17-t1-host-build-3.log",
     "/tmp/ehpanda-phase17-symbol-build.log"
   ],
-  "uncommitted_files_note": "Only the four reserved staged entries and the untracked .capture/ evidence remain; all 17-04 source and documentation is committed.",
-  "source_checkpoint": "e7789e746b",
+  "uncommitted_files_note": "Only the four reserved staged entries and the untracked .capture/ evidence remain; all 17-05 T1 source and documentation is committed.",
+  "source_checkpoint": "25652e646f",
   "previous_plan_tasks": [
     {
       "id": 1,
@@ -1785,5 +1823,5 @@
       "summary": ".planning/phases/17-localized-screenshot-capture-harness/17-02-SUMMARY.md"
     }
   },
-  "updated_at": "2026-10-08T00:12:42Z"
+  "updated_at": "2026-10-08T02:56:12Z"
 }
