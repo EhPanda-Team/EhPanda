@@ -85,6 +85,21 @@ struct DataCacheTests {
     }
 
     @Test
+    func testContainsDataAnswersFromDiskWithoutAwaitingTheCache() async throws {
+        let rootURL = makeRootURL()
+        defer { removeTemporaryItem(at: rootURL) }
+        let cache = DataCache(configuration: .init(rootURL: rootURL))
+        let key = "https://example.com/reader/2.webp"
+
+        #expect(cache.containsData(forKey: key) == false)
+        try await cache.store(Data([0x01]), forKey: key)
+        await cache.removeAllMemory()
+        #expect(cache.containsData(forKey: key))
+        try await cache.removeData(forKey: key)
+        #expect(cache.containsData(forKey: key) == false)
+    }
+
+    @Test
     func testRemoveAllClearsMemoryAndDisk() async throws {
         let rootURL = makeRootURL()
         defer { removeTemporaryItem(at: rootURL) }

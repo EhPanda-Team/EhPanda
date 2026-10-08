@@ -122,6 +122,16 @@ public actor DataCache {
         }
     }
 
+    /// Whether the cache holds bytes for `key`, answered at once for a caller that cannot await the
+    /// actor. Every store writes the key's file before it returns, so the file's presence is the
+    /// answer; an expired entry still counts until a read or a sweep removes it. It asks
+    /// `FileManager.default`, which is safe on any thread, because the injected file manager
+    /// belongs to the actor.
+    public nonisolated func containsData(forKey key: String) -> Bool {
+        let fileURL = configuration.rootURL.appendingPathComponent(Self.filename(forKey: key))
+        return FileManager.default.fileExists(atPath: fileURL.path(percentEncoded: false))
+    }
+
     public func data(forKeys keys: [String]) -> Data? {
         for key in Self.uniqued(keys) {
             if let data = data(forKey: key) {

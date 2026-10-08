@@ -16,6 +16,8 @@ public struct LibraryClient: Sendable {
     public let cachedImage: @Sendable (String) async -> UIImage?
     public let cachedImageData: @Sendable (String) async -> Data?
     public let removeCachedImage: @Sendable (String) async -> Void
+    /// Whether any of the app's image caches holds `key`: Kingfisher's, SDWebImage's or the
+    /// reader's own byte cache.
     public let isCached: @Sendable (String) -> Bool
     public let analyzeImageColors: @Sendable (UIImage) async -> [Color]?
     public let calculateWebImageDiskCacheSize: @Sendable () async -> UInt?
@@ -118,9 +120,11 @@ extension LibraryClient {
                 _ = await (kingfisherRemove, sdWebImageRemove)
             },
             isCached: { key in
-                KingfisherManager.shared.cache.isCached(forKey: key)
+                @Dependency(\.dataCache) var dataCache
+                return KingfisherManager.shared.cache.isCached(forKey: key)
                     || SDImageCache.shared.imageFromMemoryCache(forKey: key) != nil
                     || SDImageCache.shared.diskImageDataExists(withKey: key)
+                    || dataCache.containsData(forKey: key)
             },
             analyzeImageColors: { image in
                 image.cgImage.flatMap { cgImage in
