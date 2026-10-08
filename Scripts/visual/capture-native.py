@@ -32,6 +32,9 @@ STATUS_BAR = ('--wifiMode', 'active', '--wifiBars', '3', '--cellularMode', 'acti
               '--batteryState', 'charged', '--batteryLevel', '100')
 STATUS_BAR_HEADER = ['Current Status Bar Overrides:', '=============================']
 SCREENSHOT = ('--type=png', '--mask=ignored')
+# The first app the system shows after a boot lays out iPad's status bar Wi-Fi glyph half a point left of where every
+# later app does, so this app is shown and quit once before any capture launch (owner decision, 2026-10-08).
+SETTLE_APP = 'com.apple.Preferences'
 # A frame is recorded once two screenshots this far apart are byte-identical.
 FRAME_INTERVAL = 1.0
 FRAME_ATTEMPTS = 10
@@ -260,6 +263,14 @@ def dispatch(args, coordinate, observed, source, manifest, report, publish):
                            check=True)
             report['chrome']['statusBar'] = {'time': time_value, 'arguments': list(STATUS_BAR),
                                              'applied': status_bar_overrides(device)}
+            settle = args.output / 'settle'
+            settle.mkdir()
+            subprocess.run(['xcrun', 'simctl', 'launch', device, SETTLE_APP], check=True, capture_output=True)
+            try:
+                report['chrome']['settleLaunch'] = {'app': SETTLE_APP,
+                                                    **settle_frame(device, settle, context['pixels'], args.output)}
+            finally:
+                subprocess.run(['xcrun', 'simctl', 'terminate', device, SETTLE_APP], check=True)
             publish()
             for number in range(1, COLD_LAUNCHES + 1):
                 record = {'launch': number, 'status': 'failed'}

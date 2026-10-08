@@ -476,7 +476,10 @@ version. The runner then:
    toolchain, runtime, model, geometry or scale stops the run before the app launches. The pin is
    only read;
 3. on the coordinate's device, as that validation resolved it, overrides the status bar: 9:41,
-   Wi-Fi with 3 bars, cellular with 4 bars, and the battery charged at 100%;
+   Wi-Fi with 3 bars, cellular with 4 bars, and the battery charged at 100%. It then opens
+   Settings, waits until two screenshots a second apart are identical and quits it: the first app
+   the system shows after a boot draws iPad's Wi-Fi glyph half a point left of where every later
+   app draws it, so no capture launch may be that first app;
 4. launches the test cold twice, each launch once without retries. The test verifies its screen
    as above and then holds it, writing its diagnostics to `ready.json`. The runner checks that
    they name the coordinate, takes screenshots a second apart with
@@ -503,6 +506,7 @@ the runner's own would remove them.
 |---|---|
 | `outcomes.json` | Status, coordinate, pin SHA-256, fixture version, device, chrome, launches and `capture` |
 | `environment-check/` | The pin validation's measurements and attachments |
+| `settle/` | The screenshots of the Settings launch before the captures |
 | `native/` | Each invocation's command, log, result bundle, attachments and the simulator's lifecycle |
 | `launches/<n>/` | Launch n's `ready.json`, `answer.json` and screenshots |
 
