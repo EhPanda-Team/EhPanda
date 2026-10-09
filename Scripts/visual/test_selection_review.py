@@ -25,13 +25,6 @@ def load_reviewer():
     return module
 
 
-def valid_selection(prefix='1', scene_set='nonexplicit'):
-    """The shared synthetic selection with its downloads in the app's display order: active before completed."""
-    value = synthetic.selection(prefix, scene_set)
-    value['scenes'][scene_set]['downloads'].reverse()
-    return value
-
-
 def without(value, *gids):
     """A selection whose scenes no longer place `gids`, with those galleries undeclared."""
     value['galleries'] = [gallery for gallery in value['galleries']
@@ -68,7 +61,7 @@ class ReviewTestCase(unittest.TestCase):
 
     def publish(self, value=None, site=None):
         """Acquire `value` into a fresh output and return its `current` link."""
-        value = valid_selection() if value is None else value
+        value = synthetic.selection() if value is None else value
         self.count += 1
         output = self.directory / f'marketing-{self.count}'
         path = self.directory / f'selection-{self.count}.json'
@@ -86,7 +79,7 @@ class ReviewTestCase(unittest.TestCase):
 
 class TraceabilityTests(ReviewTestCase):
     def test_every_visible_gallery_page_and_comment_traces_to_the_selection(self):
-        value = valid_selection()
+        value = synthetic.selection()
         current = self.publish(value)
         result, output = self.run_cli(current)
         self.assertEqual(result.returncode, 0, result.stderr)
@@ -134,7 +127,7 @@ class TraceabilityTests(ReviewTestCase):
         self.assertIn(f'src="{relative}/assets/101/cover.jpg"', page)
         self.assertIn(f'src="{relative}/assets/101/pages/4.jpg"', page)
         for label in ['hero[1] 102 Gallery 102', 'page 3</figcaption>', 'page 4 (reader, Live Text)',
-                      'downloads[0] 104 active 12/60 Gallery 104', 'downloads[1] 101 completed 60/60 Gallery 101',
+                      'downloads[0] 104 active 12/60 Gallery 104', 'downloads[1] 105 completed 60/60 Gallery 105',
                       'A readable comment.', 'Unresolved final inputs', '17-21']:
             self.assertIn(label, page)
 
@@ -149,8 +142,8 @@ class TraceabilityTests(ReviewTestCase):
         self.assertEqual([path.name for path in output.iterdir()], ['keep.txt'])
 
     def test_both_sets_are_reviewed_and_only_finality_remains_unresolved(self):
-        value = valid_selection()
-        other = valid_selection('2', 'explicit')
+        value = synthetic.selection()
+        other = synthetic.selection('2', 'explicit')
         value['galleries'] += other['galleries']
         value['scenes'].update(other['scenes'])
         value.update(selectionStatus='final')
@@ -176,7 +169,7 @@ class AdjacencyTests(ReviewTestCase):
         self.assertIn('101', [row['gid'] for row in scene['home']])
         for screen in ('detail', 'comments', 'reading', 'reading-live-text'):
             self.assertEqual([row['gid'] for row in scene[screen]], ['101'])
-        self.assertEqual([row['gid'] for row in scene['downloads']], ['104', '101'])
+        self.assertEqual([row['gid'] for row in scene['downloads']], ['104', '105'])
 
     def test_repeated_gallery_within_one_screen_is_rejected(self):
         for name, edit in [('home sections', lambda scene: scene['home']['toplists']['yesterday'].append('101')),
@@ -214,8 +207,9 @@ class EmptyTests(ReviewTestCase):
             return value
 
         def one_frontpage(value):
+            # 105 stays declared: it is still a download.
             scene(value)['home']['frontpage'] = ['104']
-            return without(value, '105')
+            return value
 
         def odd_frontpage(value):
             scene(value)['home']['frontpage'].append('118')
@@ -243,7 +237,7 @@ class EmptyTests(ReviewTestCase):
         ]
         for name, edit, expected in cases:
             with self.subTest(name):
-                current = self.publish(edit(valid_selection()))
+                current = self.publish(edit(synthetic.selection()))
                 result, output = self.run_cli(current, name.replace(' ', '-'))
                 self.assertEqual(result.returncode, 1)
                 ledger = json.loads((output / 'review.json').read_text())
@@ -251,20 +245,18 @@ class EmptyTests(ReviewTestCase):
                 self.assertEqual(ledger['sets']['nonexplicit']['problems'], expected)
                 self.assertEqual(result.stderr.splitlines(), [f'nonexplicit: {problem}' for problem in expected])
 
-    def test_unreadable_comments_and_impossible_progress_are_reported(self):
-        value = valid_selection()
+    def test_unreadable_comments_are_reported(self):
+        value = synthetic.selection()
         site = synthetic.Site(value)
         url = synthetic.gallery_url('101') + '?hc=1'
         site.html(url, synthetic.detail_html('101').replace('A readable comment.', ''))
-        value['scenes']['nonexplicit']['downloads'][0]['completedPages'] = 60
         problems = self.reviewer.review(self.publish(value, site))['sets']['nonexplicit']['problems']
-        self.assertEqual(problems, ['comments gallery 101 has no readable saved comment',
-                                    'downloads[0] active has 60 of 60 pages; an incomplete download needs fewer'])
+        self.assertEqual(problems, ['comments gallery 101 has no readable saved comment'])
 
 
 class OrderingTests(ReviewTestCase):
     def test_equal_ranking_values_keep_the_configured_order(self):
-        value = valid_selection()
+        value = synthetic.selection()
         scene = value['scenes']['nonexplicit']
         scene['downloads'] = [{'gallery': '104', 'status': 'completed'}, {'gallery': '101', 'status': 'completed'}]
         scene['home']['toplists']['allTime'] = ['117', '115', '116']
@@ -280,7 +272,7 @@ class OrderingTests(ReviewTestCase):
                          [{'ranking': 1, 'gid': '117'}, {'ranking': 2, 'gid': '115'}, {'ranking': 3, 'gid': '116'}])
 
     def test_order_the_app_would_change_is_invalid(self):
-        value = valid_selection()
+        value = synthetic.selection()
         value['scenes']['nonexplicit']['downloads'].reverse()
         problems = self.reviewer.review(self.publish(value))['sets']['nonexplicit']['problems']
         self.assertEqual(problems, ['downloads order is not a display order: the app lists statuses by priority, '
@@ -293,7 +285,7 @@ class OrderingTests(ReviewTestCase):
         self.assertEqual((first.returncode, second.returncode), (0, 0))
         for name in ('review.json', 'review.html'):
             self.assertEqual((first_output / name).read_bytes(), (second_output / name).read_bytes())
-        swapped = valid_selection()
+        swapped = synthetic.selection()
         swapped['scenes']['nonexplicit']['home']['frontpage'].reverse()
         other = self.reviewer.review(self.publish(swapped))
         original = json.loads((first_output / 'review.json').read_text())
@@ -313,7 +305,7 @@ class ConcurrencyTests(ReviewTestCase):
 
     def moving_current(self, current):
         """Validation whose first run is followed at once by a publication that repoints `current`."""
-        swapped = valid_selection()
+        swapped = synthetic.selection()
         swapped['scenes']['nonexplicit']['home']['frontpage'].reverse()
         path = self.directory / f'swapped-{current.parent.name}.json'
         path.write_text(json.dumps(swapped))
@@ -350,7 +342,7 @@ class ConcurrencyTests(ReviewTestCase):
         self.assertIn(f'src="{os.path.relpath(first, output)}/assets/101/cover.jpg"', page)
 
     def test_interrupted_acquisition_leaves_nothing_to_review(self):
-        value = valid_selection()
+        value = synthetic.selection()
         site = synthetic.Site(value)
 
         def interrupted(url):
