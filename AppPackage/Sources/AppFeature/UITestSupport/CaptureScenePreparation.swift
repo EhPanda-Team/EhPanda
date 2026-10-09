@@ -15,6 +15,7 @@ import Kingfisher
 import LibraryClient
 import LogsClient
 import ParserFeature
+import ReadingFeature
 import SDWebImage
 import Sharing
 import Synchronization
@@ -31,6 +32,9 @@ struct CaptureScene: Sendable {
     let homeClient: HomeClient
     /// How the launch reaches the configured screen.
     let route: AppLaunchAutomation.CaptureRoute
+    /// The Live Text the reader shows on the flow's Live Text page: the fixture's record for the
+    /// reading-live-text screen, the reader's own recognition for a recording, `nil` otherwise.
+    let liveText: LiveTextCapture?
 }
 
 /// The capture installed into this process: its scene and the replay answering its requests.
@@ -138,7 +142,7 @@ enum CaptureScenePreparation {
             guard let scene = selection.scenes[configuration.fixtureID] else {
                 throw .unknownFixtureID(configuration.fixtureID)
             }
-            guard let screen = CaptureScreen(rawValue: configuration.scenarioID) else {
+            guard let scenario = CaptureScenario(id: configuration.scenarioID) else {
                 throw .unsupportedScenario(configuration.scenarioID)
             }
             let replay = try replayResponses(manifest: manifest, files: fixture.files)
@@ -154,7 +158,8 @@ enum CaptureScenePreparation {
                 fixtureVersion: manifest.fixtureVersion,
                 replay: replay,
                 homeClient: try galleries.homeClient(scene.home),
-                route: try galleries.route(to: screen, flow: scene.flow)
+                route: try galleries.route(to: scenario, flow: scene.flow),
+                liveText: try galleries.liveText(for: scenario, flow: scene.flow)
             )
         }
     }
@@ -234,6 +239,7 @@ enum CaptureScenePreparation {
         dependencies.downloadClient = .noop
         dependencies.homeClient = scene.homeClient
         dependencies.libraryClient = libraryClient
+        dependencies.liveTextCapture = scene.liveText
         dependencies.logsClient = .noop
         dependencies.userDefaultsClient = .noop
         dependencies.uuid = .incrementing
@@ -311,38 +317,80 @@ private struct MarketingGalleries {
         )
     }
 
-    /// The route to `screen`. The gallery screens show `flow`'s gallery, built exactly as Home
+    /// The route `scenario` takes. The gallery screens show `flow`'s gallery, built exactly as Home
     /// builds it, so the gallery a capture opens is the one its card shows; the reader opens on a
-    /// page whose image the fixture holds.
+    /// page whose image the fixture holds, and a Live Text recording opens it as the
+    /// reading-live-text screen does.
     func route(
-        to screen: CaptureScreen,
+        to scenario: CaptureScenario,
         flow: CaptureSelection.Flow
     ) throws(CaptureFailure) -> AppLaunchAutomation.CaptureRoute {
-        switch screen {
-        case .home:
+        switch scenario {
+        case .screen(.home):
             .home
-        case .detail:
+        case .screen(.detail):
             .detail(try gallery(flow.gallery))
-        case .comments:
+        case .screen(.comments):
             .comments(try gallery(flow.gallery))
-        case .filters:
+        case .screen(.filters):
             .filters
-        case .reading:
+        case .screen(.reading):
             .reading(try gallery(flow.gallery), page: try readerPage(flow.readerPage, of: flow))
-        case .readingLiveText:
+        case .screen(.readingLiveText), .liveTextRecording:
             .readingLiveText(try gallery(flow.gallery), page: try readerPage(flow.liveTextPage, of: flow))
-        case .downloads:
+        case .screen(.downloads):
             .downloads
-        case .laboratory:
+        case .screen(.laboratory):
             .laboratory
         }
     }
 
+    /// The Live Text a launch of `scenario` shows on `flow`'s Live Text page.
+    ///
+    /// The reading-live-text screen replays the fixture's record of that page once it proves it was
+    /// recognized on the page image the fixture holds, in the languages the reader asks for, which
+    /// it derives from the gallery's language; a recording lets the reader recognize the page; no
+    /// other screen has Live Text.
+    func liveText(
+        for scenario: CaptureScenario,
+        flow: CaptureSelection.Flow
+    ) throws(CaptureFailure) -> LiveTextCapture? {
+        let page = flow.liveTextPage
+        switch scenario {
+        case .screen(.readingLiveText):
+            let name = "page \(page) of gallery \(flow.gallery)"
+            guard let image = asset(.page, of: flow.gallery, index: page) else {
+                throw .malformedScene("the fixture holds no image of \(name)")
+            }
+            guard let recordAsset = asset(.liveText, of: flow.gallery, index: page),
+                  let data = files[recordAsset.path]
+            else {
+                throw .malformedScene("the fixture holds no Live Text record of \(name)")
+            }
+            let record: CaptureLiveTextRecord
+            do {
+                record = try JSONDecoder().decode(CaptureLiveTextRecord.self, from: data)
+            } catch {
+                let reason = CaptureFailure.describe(error)
+                throw .malformedScene("the Live Text record of \(name) does not decode: \(reason)")
+            }
+            let groups = try record.replayGroups(
+                gid: flow.gallery,
+                page: page,
+                pageSHA256: image.sha256,
+                recognitionLanguages: try parsedDetail(flow.gallery).detail.language.codes
+            )
+            return LiveTextCapture(gid: flow.gallery, page: page, source: .replay(groups))
+        case .liveTextRecording:
+            return LiveTextCapture(gid: flow.gallery, page: page, source: .record)
+        case .screen(.home), .screen(.detail), .screen(.comments), .screen(.filters), .screen(.reading),
+             .screen(.downloads), .screen(.laboratory):
+            return nil
+        }
+    }
+
     private func readerPage(_ page: Int, of flow: CaptureSelection.Flow) throws(CaptureFailure) -> Int {
-        let holdsImage = manifest.assets.contains(where: { asset in
-            asset.kind == .page && asset.gid == flow.gallery && asset.index == page
-        })
-        guard flow.pages.contains(page), holdsImage else {
+        guard flow.pages.contains(page), asset(.page, of: flow.gallery, index: page) != nil else {
             throw .malformedScene("the fixture holds no image of page \(page) of gallery \(flow.gallery)")
         }
         return page
@@ -355,18 +403,7 @@ private struct MarketingGalleries {
         else {
             throw .malformedScene("gallery \(gid) is not declared by the selection")
         }
-        guard
-            let page = manifest.assets.first(where: { $0.kind == .detail && $0.gid == gid }),
-            let data = files[page.path]
-        else {
-            throw .malformedScene("no saved detail page for gallery \(gid)")
-        }
-        let parsed: (detail: GalleryDetail, state: GalleryState)
-        do {
-            parsed = try Parser.parseGalleryDetail(doc: try Kanna.HTML(html: data, encoding: .utf8), gid: gid)
-        } catch {
-            throw .malformedScene("the saved detail page of gallery \(gid) does not parse")
-        }
+        let parsed = try parsedDetail(gid)
         guard let coverURL = parsed.detail.coverURL, replay[coverURL.absoluteString] != nil else {
             throw .malformedScene("the cover of gallery \(gid) is not in the fixture")
         }
@@ -383,6 +420,27 @@ private struct MarketingGalleries {
             coverURL: coverURL,
             galleryURL: galleryURL
         )
+    }
+
+    /// The detail and state the app's parser reads from gallery `gid`'s saved detail page.
+    private func parsedDetail(_ gid: String) throws(CaptureFailure) -> (detail: GalleryDetail, state: GalleryState) {
+        guard let page = asset(.detail, of: gid, index: nil), let data = files[page.path] else {
+            throw .malformedScene("no saved detail page for gallery \(gid)")
+        }
+        do {
+            return try Parser.parseGalleryDetail(doc: try Kanna.HTML(html: data, encoding: .utf8), gid: gid)
+        } catch {
+            throw .malformedScene("the saved detail page of gallery \(gid) does not parse")
+        }
+    }
+
+    /// The fixture's `kind` asset of gallery `gid` at `index`.
+    private func asset(
+        _ kind: MarketingCaptureManifest.Kind,
+        of gid: String,
+        index: Int?
+    ) -> MarketingCaptureManifest.Asset? {
+        manifest.assets.first(where: { $0.kind == kind && $0.gid == gid && $0.index == index })
     }
 
     /// The gid of a canonical gallery URL, `https://e-hentai.org/g/<gid>/<token>/`.

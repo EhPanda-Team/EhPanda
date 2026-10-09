@@ -13,7 +13,7 @@ struct CaptureSceneConfiguration: Equatable, Sendable {
     }
 
     let purpose: Purpose
-    /// The screen the launch shows, such as `home`.
+    /// The screen the launch shows, such as `home`, or `live-text-recording`.
     let scenarioID: String
     /// The fixture the scene reads: a public fixture ID such as `home-finite`, or a marketing
     /// selection set such as `nonexplicit`.
@@ -30,6 +30,27 @@ enum CaptureScreen: String, CaseIterable, Encodable, Sendable {
     case readingLiveText = "reading-live-text"
     case downloads
     case laboratory
+}
+
+/// What a marketing launch does, by its configured `scenarioID`.
+enum CaptureScenario: Equatable, Sendable {
+    /// Shows one screen the export names.
+    case screen(CaptureScreen)
+    /// Opens the reader on the flow's Live Text page and lets the reader's own recognizer read it,
+    /// so `record-live-text.py` can save what it found for the reading-live-text screen (17-06).
+    case liveTextRecording
+
+    static let liveTextRecordingID = "live-text-recording"
+
+    init?(id: String) {
+        if id == Self.liveTextRecordingID {
+            self = .liveTextRecording
+        } else if let screen = CaptureScreen(rawValue: id) {
+            self = .screen(screen)
+        } else {
+            return nil
+        }
+    }
 }
 
 extension CaptureSceneConfiguration: Decodable {

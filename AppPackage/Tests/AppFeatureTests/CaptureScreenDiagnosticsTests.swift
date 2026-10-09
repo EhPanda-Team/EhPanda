@@ -9,7 +9,7 @@ import FiltersFeature
 import Foundation
 import HomeFeature
 import ParserFeature
-import ReadingFeature
+@testable import ReadingFeature
 import SettingFeature
 import Sharing
 import SwiftUI
@@ -159,6 +159,94 @@ struct CaptureScreenDiagnosticsTests {
     }
 
     @Test
+    func aLiveTextReaderReadsAsItsScreenOnceItShowsTheRecordedGroups() async throws {
+        let record = LiveTextRecordFile()
+        let scene = try makeScene(
+            try MarketingFixtureBuilder.standard().addingFlowPage().addingLiveTextRecord(record),
+            scenarioID: CaptureScreen.readingLiveText.rawValue
+        )
+        let capture = try #require(scene.liveText)
+        let state = try await shownReader(scene, page: MarketingFixtureBuilder.flowPage)
+
+        let waiting = diagnostics(scene, state)
+        _ = capture.decision(gid: MarketingFixtureBuilder.flowGID, page: MarketingFixtureBuilder.flowPage)
+        let shown = diagnostics(scene, state)
+
+        expectNoDifference(waiting.screenID, .reading)
+        expectNoDifference(waiting.readiness, .loading)
+        expectNoDifference(waiting.blockers, ["Live Text of page 1 is not shown"])
+        #expect(waiting.liveText == nil)
+        expectNoDifference(shown.screenID, .readingLiveText)
+        expectNoDifference(shown.readiness, .ready)
+        expectNoDifference(
+            shown.liveText,
+            CaptureLiveTextDiagnostics(
+                gid: MarketingFixtureBuilder.flowGID,
+                page: MarketingFixtureBuilder.flowPage,
+                source: .fixture,
+                recognitionLanguages: nil,
+                groups: record.groups
+            )
+        )
+    }
+
+    @Test
+    func aRecordingReportsWhatTheReadersRecognizerFound() async throws {
+        let recorded = try LiveTextRecordFile().liveTextGroups()
+        let found = try makeScene(
+            try MarketingFixtureBuilder.standard().addingFlowPage(),
+            scenarioID: CaptureScenario.liveTextRecordingID
+        )
+        let nothingFound = try makeScene(
+            try MarketingFixtureBuilder.standard().addingFlowPage(),
+            scenarioID: CaptureScenario.liveTextRecordingID
+        )
+        let state = try await shownReader(found, page: MarketingFixtureBuilder.flowPage)
+
+        try #require(found.liveText).recognized(recorded, page: 1, recognitionLanguages: ["en-US"])
+        try #require(nothingFound.liveText).recognized([], page: 1, recognitionLanguages: ["en-US"])
+        let recognized = diagnostics(found, state)
+        let empty = diagnostics(nothingFound, state)
+
+        expectNoDifference(recognized.screenID, .readingLiveText)
+        expectNoDifference(recognized.readiness, .ready)
+        expectNoDifference(
+            recognized.liveText,
+            CaptureLiveTextDiagnostics(
+                gid: MarketingFixtureBuilder.flowGID,
+                page: MarketingFixtureBuilder.flowPage,
+                source: .recognition,
+                recognitionLanguages: ["en-US"],
+                groups: recorded.map(CaptureLiveTextGroup.init)
+            )
+        )
+        expectNoDifference(empty.readiness, .failed)
+        expectNoDifference(empty.blockers, ["The reader recognized no text on page 1"])
+    }
+
+    @Test
+    func liveTextOfAnotherGalleryOrPageFailsTheReader() async throws {
+        let fixture = try MarketingFixtureBuilder.standard().addingFlowPage().addingLiveTextRecord(LiveTextRecordFile())
+        let otherGallery = try makeScene(fixture, scenarioID: CaptureScreen.readingLiveText.rawValue)
+        let otherPage = try makeScene(fixture, scenarioID: CaptureScreen.readingLiveText.rawValue)
+
+        _ = try #require(otherGallery.liveText).decision(gid: "999", page: MarketingFixtureBuilder.flowPage)
+        _ = try #require(otherPage.liveText).decision(gid: MarketingFixtureBuilder.flowGID, page: 1)
+        let askedElsewhere = diagnostics(
+            otherGallery,
+            try await shownReader(otherGallery, page: MarketingFixtureBuilder.flowPage)
+        )
+        let showsAnotherPage = diagnostics(otherPage, try await shownReader(otherPage, page: 2))
+
+        expectNoDifference(askedElsewhere.screenID, .reading)
+        expectNoDifference(askedElsewhere.readiness, .failed)
+        expectNoDifference(askedElsewhere.blockers, ["The reader asked for Live Text of gallery 999"])
+        #expect(askedElsewhere.liveText == nil)
+        expectNoDifference(showsAnotherPage.readiness, .failed)
+        expectNoDifference(showsAnotherPage.blockers, ["Live Text belongs to page 1, the reader shows page 2"])
+    }
+
+    @Test
     func filtersShowTheAppDefaults() throws {
         let scene = try makeScene(try MarketingFixtureBuilder.standard())
         var state = AppReducer.State()
@@ -286,6 +374,19 @@ private func diagnostics(
         unknownRequests: [],
         isCached: cached.contains
     )
+}
+
+/// The app state once the reader shows the image of `page` of `scene`'s flow gallery.
+private func shownReader(_ scene: CaptureScene, page: Int) async throws -> AppReducer.State {
+    let gallery = try await flowGallery(scene)
+    var reading = ReadingReducer.State(gallery: gallery)
+    reading.pendingReadingProgress = page
+    reading.webImageLoadSuccessIndices = [page]
+    var detail = try loadedDetail(gallery)
+    detail.destination = .reading(reading)
+    var state = AppReducer.State()
+    state.homeState.path = StackState([.gallery(.detail(detail))])
+    return state
 }
 
 /// The selection's flow gallery, as Home's card shows it.

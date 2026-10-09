@@ -75,6 +75,9 @@ struct CaptureDiagnostics: Equatable, Encodable {
     /// What the screen still waits for, and what makes it fail; empty once it is ready.
     let blockers: [String]
     let rendering: CaptureRendering
+    /// The Live Text the reader shows on the capture's Live Text page; `nil` until it shows any,
+    /// and in launches without Live Text.
+    let liveText: CaptureLiveTextDiagnostics?
 
     func encodedJSON() throws -> String {
         let encoder = JSONEncoder()
@@ -110,7 +113,14 @@ extension CaptureDiagnostics {
             scene.replay[url]?.mimeType.hasPrefix("image/") == true && !holdsImage(url)
         })
         let shown = ShownScreens(state: state)
-        let inspector = ScreenInspector(replay: scene.replay, rendering: rendering, holdsImage: holdsImage)
+        // Read once, so the screen, its readiness and the reported groups agree.
+        let liveText = scene.liveText.map({ ReaderLiveText(capture: $0, outcome: $0.outcome) })
+        let inspector = ScreenInspector(
+            replay: scene.replay,
+            rendering: rendering,
+            liveText: liveText,
+            holdsImage: holdsImage
+        )
         var report = shown.top.map(inspector.report) ?? ScreenReport(blockers: ["No capture screen is shown"])
         if let backdrop = shown.backdrop {
             let around = inspector.report(backdrop)
@@ -133,7 +143,7 @@ extension CaptureDiagnostics {
             readiness = .loading
         }
         self.init(
-            screenID: shown.top?.id,
+            screenID: shown.top?.id(liveText: liveText),
             selectionID: scene.selectionID,
             setID: scene.configuration.fixtureID,
             fixtureVersion: scene.fixtureVersion,
@@ -143,7 +153,8 @@ extension CaptureDiagnostics {
             pendingImages: pendingImages,
             unknownRequests: unknownRequests,
             blockers: report.failures + report.blockers,
-            rendering: rendering
+            rendering: rendering,
+            liveText: liveText.flatMap({ CaptureLiveTextDiagnostics(capture: $0.capture, outcome: $0.outcome) })
         )
     }
 }
@@ -232,9 +243,12 @@ private enum ShownScreen {
     case downloads(DownloadsReducer.State)
     case laboratory(Setting)
 
-    /// Live Text has no state the app can read yet (17-06), so a reader always reads as
-    /// `reading`, and a `reading-live-text` capture fails on its identity rather than pass as one.
-    var id: CaptureScreen {
+    /// The screen's ID, given the Live Text the capture's reader page shows.
+    ///
+    /// A reader reads as `reading-live-text` once it shows the capture's Live Text, the fixture's
+    /// groups or its own recognition's; until then, and in launches without Live Text, it reads as
+    /// `reading`.
+    func id(liveText: ReaderLiveText?) -> CaptureScreen {
         switch self {
         case .home:
             .home
@@ -243,7 +257,7 @@ private enum ShownScreen {
         case .comments:
             .comments
         case .reading:
-            .reading
+            liveText?.isShown == true ? .readingLiveText : .reading
         case .filters:
             .filters
         case .downloads:
@@ -345,6 +359,22 @@ private struct ShownScreens {
 
 // MARK: Readiness
 
+/// What the reader did with the capture's Live Text page, as one diagnostics read sees it.
+private struct ReaderLiveText {
+    let capture: LiveTextCapture
+    let outcome: LiveTextCapture.Outcome?
+
+    /// Whether the page shows the capture's groups or the reader's recognition of it.
+    var isShown: Bool {
+        switch outcome {
+        case .replayed, .recognized:
+            true
+        case .otherGallery, nil:
+            false
+        }
+    }
+}
+
 /// What one screen shows, what it still waits for and what makes it fail.
 private struct ScreenReport {
     var galleryIDs = [String]()
@@ -356,6 +386,7 @@ private struct ScreenReport {
 private struct ScreenInspector {
     let replay: [String: CaptureReplay.Response]
     let rendering: CaptureRendering
+    let liveText: ReaderLiveText?
     let holdsImage: (String) -> Bool
 
     func report(_ screen: ShownScreen) -> ScreenReport {
@@ -441,7 +472,9 @@ private struct ScreenInspector {
         return report
     }
 
-    /// The reader waits until it shows its current page's image.
+    /// The reader waits until it shows its current page's image and, in a launch with Live Text,
+    /// that page's Live Text. Live Text the reader asked for on another gallery, on a page other
+    /// than the one it shows, or a recognition that found no text fails.
     private func readingReport(_ reading: ReadingReducer.State) -> ScreenReport {
         let page = reading.pendingReadingProgress
         var report = ScreenReport(galleryIDs: [reading.gallery.gid], page: page)
@@ -450,6 +483,23 @@ private struct ScreenInspector {
         }
         if !reading.webImageLoadSuccessIndices.contains(page) {
             report.blockers.append("The image of page \(page) is not shown")
+        }
+        guard let liveText else {
+            return report
+        }
+        let liveTextPage = liveText.capture.page
+        switch liveText.outcome {
+        case nil:
+            report.blockers.append("Live Text of page \(liveTextPage) is not shown")
+        case .otherGallery(let gid):
+            report.failures.append("The reader asked for Live Text of gallery \(gid)")
+        case .replayed, .recognized:
+            if liveTextPage != page {
+                report.failures.append("Live Text belongs to page \(liveTextPage), the reader shows page \(page)")
+            }
+        }
+        if case .recognized(let groups, _) = liveText.outcome, groups.isEmpty {
+            report.failures.append("The reader recognized no text on page \(liveTextPage)")
         }
         return report
     }
