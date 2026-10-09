@@ -5,8 +5,8 @@ milestone_name: )
 current_phase: 17
 current_phase_name: Screenshot Automation, Visual Regression & OS 27 Modernization
 status: executing
-stopped_at: 17-05 complete; next 17-06 (explicit set waits for owner IDs)
-last_updated: "2026-10-08T16:12:38Z"
+stopped_at: 17-06 implemented and verified; owner visual review of its 16 frames pending (explicit set waits for owner IDs)
+last_updated: "2026-10-09T03:59:35Z"
 last_activity: 2026-10-09
 state_head: 3ed57d4f1898854e8622bd2ab9ba6cc398abd2ec
 progress:
@@ -15,8 +15,8 @@ progress:
   total_plans: 298
   completed_plans: 280
   percent: 59
-source_head: 64fb7279f
-last_activity_desc: "17-05 complete: native captures with 9:41, no capsule and byte-identical cold reruns on both visual simulators, recorded as system screenshots; dedicated EhPanda Visual simulators"
+source_head: 2d1828cf8
+last_activity_desc: "17-06 implemented: Live Text recorded from the app and replayed through the real overlay, Downloads seeded with real page files and manifests; all eight screens captured on both visual simulators; owner visual review pending"
 ---
 
 # Project State
@@ -31,8 +31,8 @@ See: .planning/PROJECT.md (updated 2026-09-23)
 ## Current Position
 
 Phase: 17 of 17 (Screenshot Automation, Visual Regression & OS 27 Modernization)
-Plan: 6 of 24 complete (17-05, wave 6; dependency order, not numeric ID order); next 17-06
-Status: executing (17-01/17-24/17-02/17-03/17-04/17-05 complete; 17-06 next; explicit-set steps wait for owner gallery IDs)
+Plan: 6 of 24 complete (17-05, wave 6; dependency order, not numeric ID order); 17-06 implemented, awaiting the owner's visual review
+Status: executing (17-01/17-24/17-02/17-03/17-04/17-05 complete; 17-06 implemented and verified, owner visual review pending; explicit-set steps wait for owner gallery IDs)
 Last activity: 2026-10-09
 
 **Phase 17 current gate:** 6/24 plans complete. 17-01 passed 32/32 capture coordinates and 66/66 tests; verified public v2 fixtures are in `.capture/regression`. 17-24 measures all four real device/orientation combinations and validates the immutable tracked rendering pin. Both final measure and validate commands pass four geometry tests plus six rotation/restore tests, with 28 Python contract tests and zero compiler/lint diagnostics or runtime warnings. Pin SHA-256: `ffd7689fcaf9a312202fdfbf9787f0198711fd477d1e72a2a013851df85a394a`; evidence is `.capture/environment-measurement/` and `.capture/environment-pin-check/`. Implementation ends at af5db7dd; summary/review committed in 3ed57d4f. Four reserved staged entries remain unchanged. Devices restore portrait/original Large and their original boot states. Continue inline with 17-06; shared CAP-17-01/02/03/04/06 remain incomplete until all declaring plans finish. No baseline promotion.
@@ -44,6 +44,8 @@ Last activity: 2026-10-09
 **17-04 complete:** A Debug-only capture launch takes exactly `EHPANDA_CAPTURE_CONFIGURATION` and `EHPANDA_CAPTURE_FIXTURES`, validates one fixture version completely (exact file set, lengths, SHA-256, canonical paths, links, media types, selection identity, aggregate digest) and installs an isolated offline scene before the first store: in-memory settings, inert cookie, download, analytics and logging clients, fixed clock and IDs, capture-owned reader, Kingfisher and SDWebImage caches emptied at every launch, and an exact-URL `GET` replay that refuses and records every other request. The `home` scene shows the selection through the owner-approved injected `HomeClient`; UI tests read `CaptureDiagnostics` from the invisible `capture_diagnostics` element. `CaptureIsolationUITests` shows exactly the 17 selected galleries offline, ready with no pending image or refused request, across a reset relaunch on both pinned devices; Release builds contain no capture code. Owner decisions (17-04-PLAN.md): nonexplicit set only, injected Home client, carousel arrangement in the live client, no cover on the Toplists skeleton. Source: `3430e6fb0`, `dc4d200b8`, `c2282e7da`, `7a23e6233`, review fix `42962bb1d`. Summary: 17-04-SUMMARY.md; review: 17-04-REVIEW.md, no open finding. Carried to 17-05: the dark Home card gradient differs between launches (likely `ImageColors` tie order; a fix needs an owner decision before 17-05's cold-rerun gate) and readiness must cover the dark card's color analysis. The iPhone was found at AX5 and restored to Large; owner states hold. Four reserved staged entries are preserved. Next: 17-05.
 
 **17-05 complete:** Marketing drives the actual app to all eight capture screens through its own navigation (`AppLaunchAutomation.CaptureRoute`), verifies each screen and every image through per-screen `CaptureDiagnostics`, and `MarketingCaptureUITests/testCaptureCoordinate` checks one JSON coordinate (T1: 12 coordinates on both devices, `.capture/17-05-t1-ui-04/`; Live Text and Downloads wait for 17-06). T2's `Scripts/visual/capture-native.py` validates the tracked pin before any launch, sets the status bar (9:41, Wi-Fi 3, cellular 4, charged 100), opens and quits Settings once, and runs two single-pass cold launches; each test settles the system screenshot (`XCUIScreen`, two identical renders a second apart) and attaches it, and the runner takes it from the launch's result bundle as the frame. Final gate on `64fb7279f`: Home iPad light and iPhone dark each record byte-identical frames (`.capture/17-05-t2-native-09/`, `-10/`), 9:41, no capsule. The gate on `68842e6e0` had failed on iPad: simctl's framebuffer keeps Liquid Glass as last composed, and one of 17 cold launches recorded a glass rim one level off while every system screenshot matched (`.capture/17-05-t2-glass-probe-01/`). Owner decisions (17-05-PLAN.md): card color determinism, Large iPhone, detail-continued routes, the reader's full request set, the paging reader, the reader cache in `isCached`, the iPad date 2026-01-01 9:41 ("Sat Jan 1"), dedicated "EhPanda Visual" simulators resolved by name (the former pinned pair is unused), a Settings launch before captures (the first app after a boot shifts iPad's Wi-Fi glyph half a point), and system screenshots as frames (2026-10-09). Source through `64fb7279f`, each commit verified in a temporary tree (`.capture/commit-trees-05/` to `-08/`); summary 17-05-SUMMARY.md; review 17-05-REVIEW.md (R-1 to R-8 fixed), no open finding. Open: explicit-set IDs (owner), whether the status bar should follow each coordinate's locale (17-07, owner). Four reserved staged entries are preserved; both visual simulators are Shutdown. Next: 17-06.
+
+**17-06 implemented, owner review pending:** The reading-live-text and downloads screens show real state. Live Text is recognized once by the app's own recognizer on the pinned iPhone (`Scripts/visual/record-live-text.py`, `MarketingCaptureUITests/testRecordLiveText`, out through the diagnostics), saved as a fixture record (groups, lines, corners, IDs, page SHA-256, recognition languages, recording simulator) and replayed in every capture through the Debug-only `LiveTextCapture` seam and the reader's real overlay with Vision off. Acquisition saves the download galleries' page files; a downloads scene seeds capture-owned folders through the app's `DownloadStore` with those files and their SHA-256 manifests, and the app's own scan reads them back, completeness from the manifest alone. Owner decisions (17-06-PLAN.md, 2026-10-09): Live Text from a recording saved in the fixture, download page files, files beyond the plan's list. Fixture `marketing-4f2a1ba8efe6f7cb` (8 groups, 35 lines, `en-US`). All 16 coordinates (eight screens, English light, both visual simulators) captured with byte-identical cold reruns (`.capture/17-06-g-native-*/`); plan commands pass on both devices, every FeatureTests target except the bare VisualSnapshotTests passes, the isolation UI test passes on both visual simulators, and Release holds no capture string. Source `169180e8f` to `2d1828cf8`, each commit verified in a temporary tree (`.capture/commit-trees-09/` to `-14/`); summary 17-06-SUMMARY.md, review with no finding. Open: the owner's visual review of the 16 frames (sent 2026-10-09), explicit-set IDs (owner), the status bar locale question (17-07). Four reserved staged entries are preserved; both visual simulators are Shutdown.
 
 ## Historical round-2 status snapshots
 
