@@ -76,11 +76,6 @@ def composition_problems(scene, records):
     if priorities != sorted(priorities):
         problems.append('downloads order is not a display order: the app lists statuses by priority, so it would '
                         'reorder ' + ', '.join(entry['status'] for entry in downloads))
-    for slot, entry in enumerate(downloads):
-        pages = records[entry['gallery']]['pageCount']
-        if 'completedPages' in entry and entry['completedPages'] >= pages:
-            problems.append(f'downloads[{slot}] {entry["status"]} has {entry["completedPages"]} of {pages} pages; '
-                            'an incomplete download needs fewer')
     return problems
 
 

@@ -98,8 +98,8 @@ def image_page_html(gid, page, image=None):
         '</div></body></html>'])
 
 
-def reader_indices(manifest, kind):
-    return sorted(entry['index'] for entry in manifest['assets'] if entry['kind'] == kind and entry['gid'] == '101')
+def reader_indices(manifest, kind, gid='101'):
+    return sorted(entry['index'] for entry in manifest['assets'] if entry['kind'] == kind and entry['gid'] == gid)
 
 
 def selection(prefix='1', scene_set='nonexplicit'):
@@ -113,8 +113,8 @@ def selection(prefix='1', scene_set='nonexplicit'):
                      'toplists': {'yesterday': gids[5:8], 'pastMonth': gids[8:11], 'pastYear': gids[11:14],
                                   'allTime': gids[14:17]}},
             'flow': {'gallery': gids[0], 'readerPage': 4, 'liveTextPage': 4, 'pages': [3, 4, 5]},
-            'downloads': [{'gallery': gids[0], 'status': 'completed'},
-                          {'gallery': gids[3], 'status': 'active', 'completedPages': 12}],
+            'downloads': [{'gallery': gids[3], 'status': 'active', 'completedPages': 12},
+                          {'gallery': gids[4], 'status': 'completed'}],
         }},
     }
 
@@ -126,15 +126,18 @@ class Site:
         self.calls = []
         self.responses = {}
         flows = {scene['flow']['gallery'] for scene in value['scenes'].values()}
+        downloads = {entry['gallery'] for scene in value['scenes'].values() for entry in scene['downloads']}
         for gallery in value['galleries']:
             gid = gallery['url'].split('/')[4]
             self.html(gallery['url'] + '?hc=1', detail_html(gid, pages, shown))
             self.image(f'https://ehgt.org/w/{gid}/cover.jpg')
-            if gid not in flows:
+            if gid in flows:
+                for page in range(1, min(shown, pages) + 1, 20):
+                    self.image(sprite_url(gid, page), PNG)
+            if gid not in flows | downloads:
                 continue
-            # A flow gallery serves every preview page, reader page and image, so a test sees what acquisition picks.
-            for page in range(1, min(shown, pages) + 1, 20):
-                self.image(sprite_url(gid, page), PNG)
+            # A flow or download gallery serves every preview page, reader page and image, so a test sees what
+            # acquisition picks.
             for number in range(fixtures.page_number(pages, BATCH) + 1):
                 self.html(f'{gallery["url"]}?p={number}', thumbnails_html(gid, number, pages))
             for page in range(1, pages + 1):
@@ -213,14 +216,14 @@ class AcquisitionTests(FixtureTestCase):
         self.assertEqual(sorted(manifest['generatorSources']), sorted(fixtures.GENERATORS))
         kinds = [entry['kind'] for entry in manifest['assets']]
         self.assertEqual({kind: kinds.count(kind) for kind in set(kinds)},
-                         {'detail': 17, 'cover': 17, 'preview': 2, 'thumbnails': 1, 'imagePage': 40, 'page': 12})
+                         {'detail': 17, 'cover': 17, 'preview': 2, 'thumbnails': 4, 'imagePage': 112, 'page': 84})
         # Pages 3 to 5 sit in the first 40-page batch, and the reader resolves all 40 of its pages. It loads the
         # images of pages 3 to 5 and of their prefetch windows, which together cover pages 1 to 12.
         self.assertEqual(reader_indices(manifest, 'imagePage'), list(range(1, 41)))
         self.assertEqual(reader_indices(manifest, 'page'), list(range(1, 13)))
         # Fetches follow declaration order and request exactly the derived resources, each once.
-        self.assertEqual(len(site.calls), 89)
-        self.assertEqual(len(set(site.calls)), 89)
+        self.assertEqual(len(site.calls), 236)
+        self.assertEqual(len(set(site.calls)), 236)
         details = [url for url in site.calls if url.endswith('?hc=1')]
         self.assertEqual(details, [gallery['url'] + '?hc=1' for gallery in self.selection['galleries']])
         self.assertIn(gallery_url('101') + '?p=0', site.calls)
@@ -244,6 +247,38 @@ class AcquisitionTests(FixtureTestCase):
         manifest = fixtures.validate_fixtures(target)
         self.assertEqual(reader_indices(manifest, 'imagePage'), list(range(1, 61)))
         self.assertEqual(reader_indices(manifest, 'page'), [*range(33, 39), 40, *range(42, 48)])
+
+    def test_download_folders_hold_their_pages(self):
+        # 104 is an active download with 12 of its 60 pages and 105 a completed one. A download resolves each page it
+        # saves through its batch's preview page and its own reader page, and nothing else.
+        target, _ = self.acquire()
+        manifest = fixtures.validate_fixtures(target)
+        for gid, pages, batches in [('104', range(1, 13), [0]), ('105', range(1, 61), [0, 1])]:
+            with self.subTest(gid):
+                self.assertEqual(reader_indices(manifest, 'thumbnails', gid), batches)
+                self.assertEqual(reader_indices(manifest, 'imagePage', gid), list(pages))
+                self.assertEqual(reader_indices(manifest, 'page', gid), list(pages))
+                self.assertEqual(reader_indices(manifest, 'preview', gid), [])
+
+    def test_a_download_of_the_flow_gallery_adds_its_pages_to_the_reader_resources(self):
+        for status, progress, pages, listed, batches in [
+                ('active', {'completedPages': 30}, range(1, 31), range(1, 41), [0]),
+                ('completed', {}, range(1, 61), range(1, 61), [0, 1]),
+                ('queued', {'completedPages': 0}, range(1, 13), range(1, 41), [0])]:
+            with self.subTest(status):
+                value = copy.deepcopy(self.selection)
+                value['scenes']['nonexplicit']['downloads'][1] = {'gallery': '101', 'status': status, **progress}
+                target, _ = self.acquire(value=value, refresh=True)
+                manifest = fixtures.validate_fixtures(target)
+                self.assertEqual(reader_indices(manifest, 'thumbnails'), batches)
+                self.assertEqual(reader_indices(manifest, 'imagePage'), list(listed))
+                self.assertEqual(reader_indices(manifest, 'page'), list(pages))
+
+    def test_an_incomplete_download_holds_fewer_pages_than_its_gallery(self):
+        self.selection['scenes']['nonexplicit']['downloads'][0]['completedPages'] = 60
+        with self.assertRaisesRegex(ValueError, '104: the active download holds 60 of 60 pages'):
+            self.acquire()
+        self.assert_unpublished()
 
     def test_prefetch_window_mirrors_the_reader(self):
         # ReadingReducer.prefetchImages skips the direct neighbours and any one-page range, and stops at the ends.
@@ -444,7 +479,7 @@ class SelectionTests(FixtureTestCase):
         self.assert_rejected(value, 'Empty selection')
 
     def test_repeated_gallery_within_one_screen_is_rejected(self):
-        queued = {'gallery': '101', 'status': 'queued', 'completedPages': 0}
+        queued = {'gallery': '104', 'status': 'queued', 'completedPages': 0}
         cases = [('hero and toplists', lambda scene: scene['home']['toplists']['allTime'].__setitem__(2, '101'), '117'),
                  ('frontpage pair', lambda scene: scene['home']['frontpage'].__setitem__(1, '104'), '105'),
                  ('downloads', lambda scene: scene['downloads'].append(queued), None)]
@@ -458,11 +493,11 @@ class SelectionTests(FixtureTestCase):
                 self.assert_rejected(value, 'repeats gallery')
 
     def test_reuse_across_screens_is_valid(self):
-        # 101 is a hero card, the reading flow and a download; 104 is on the frontpage and in downloads.
+        # 101 is a hero card and the reading flow; 104 and 105 are on the frontpage and in downloads.
         occurrences = fixtures.screen_occurrences(self.selection['scenes']['nonexplicit'])
         self.assertIn('101', [gid for _, _, gid in occurrences['home']])
         self.assertEqual([gid for _, _, gid in occurrences['reading']], ['101'])
-        self.assertEqual([gid for _, _, gid in occurrences['downloads']], ['101', '104'])
+        self.assertEqual([gid for _, _, gid in occurrences['downloads']], ['104', '105'])
         self.assertEqual(fixtures.validate_selection(self.selection), self.selection)
 
     def test_set_assignment_is_explicit_and_scoped(self):
@@ -503,11 +538,11 @@ class SelectionTests(FixtureTestCase):
             ((*scene, 'flow'), dict(pages=[5, 3, 4]), 'ascending'),
             ((*scene, 'flow'), dict(pages=[0, 4]), 'ascending'),
             ((*scene, 'flow'), dict(liveTextPage=9), 'liveTextPage'),
-            ((*scene, 'downloads', 0), dict(status='paused'), 'status'),
-            ((*scene, 'downloads', 0), dict(status=['completed']), 'status'),
-            ((*scene, 'downloads', 0), dict(completedPages=3), 'completedPages'),
-            ((*scene, 'downloads', 1), dict(completedPages=-1), 'completedPages'),
-            ((*scene, 'downloads', 1), dict(completedPages='12'), 'completedPages'),
+            ((*scene, 'downloads', 1), dict(status='paused'), 'status'),
+            ((*scene, 'downloads', 1), dict(status=['completed']), 'status'),
+            ((*scene, 'downloads', 1), dict(completedPages=3), 'completedPages'),
+            ((*scene, 'downloads', 0), dict(completedPages=-1), 'completedPages'),
+            ((*scene, 'downloads', 0), dict(completedPages='12'), 'completedPages'),
         ]
         for path, change, message in cases:
             with self.subTest(message=message, change=change):
@@ -517,7 +552,7 @@ class SelectionTests(FixtureTestCase):
                     target = target[key]
                 target.update(change)
                 self.assert_rejected(value, message)
-        for path, key in [((*scene, 'downloads', 1), 'completedPages'), ((*scene, 'home', 'toplists'), 'allTime')]:
+        for path, key in [((*scene, 'downloads', 0), 'completedPages'), ((*scene, 'home', 'toplists'), 'allTime')]:
             with self.subTest(removed=key):
                 value = selection()
                 target = value
@@ -662,6 +697,15 @@ class TamperingTests(FixtureTestCase):
             with self.subTest(name):
                 with self.assertRaisesRegex(ValueError, message):
                     fixtures.validate_fixtures(self.resealed(name, edit))
+
+    def test_a_download_page_is_required(self):
+        def drop(version, root):
+            path = 'assets/105/pages/60.jpg'
+            (version / path).unlink()
+            self.edit_manifest(version, lambda manifest: manifest.update(
+                assets=[entry for entry in manifest['assets'] if entry['path'] != path]))
+        with self.assertRaisesRegex(ValueError, 'missing the required page for gallery 105'):
+            fixtures.validate_fixtures(self.tampered('download page', drop))
 
     def test_untampered_fixture_validates(self):
         self.assertEqual(fixtures.validate_fixtures(self.tampered('none', lambda version, root: None)), self.manifest)
