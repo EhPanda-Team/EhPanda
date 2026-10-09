@@ -360,7 +360,8 @@ struct CaptureSceneTests {
                 pendingImages: 0,
                 unknownRequests: [],
                 blockers: [],
-                rendering: .lightPhone
+                rendering: .lightPhone,
+                liveText: nil
             )
         )
     }
@@ -428,13 +429,25 @@ struct CaptureSceneTests {
             pendingImages: 0,
             unknownRequests: ["GET https://e-hentai.org/api.php"],
             blockers: ["The image of page 4 is not shown"],
-            rendering: .darkPhone
+            rendering: .darkPhone,
+            liveText: CaptureLiveTextDiagnostics(
+                gid: "101",
+                page: 4,
+                source: .fixture,
+                recognitionLanguages: nil,
+                groups: LiveTextRecordFile().groups
+            )
         )
 
         expectNoDifference(
             try diagnostics.encodedJSON(),
             #"{"blockers":["The image of page 4 is not shown"],"fixtureVersion":"marketing-0123456789abcdef","#
-                + #""galleryIDs":["101"],"page":4,"pendingImages":0,"readiness":"failed","#
+                + #""galleryIDs":["101"],"liveText":{"gid":"101","groups":[{"blocks":[{"#
+                + #""bottomLeft":{"x":0.1,"y":0.25},"bottomRight":{"x":0.4,"y":0.25},"#
+                + #""id":"00000000-0000-0000-0000-000000000001","text":"You sent me away,","#
+                + #""topLeft":{"x":0.1,"y":0.2},"topRight":{"x":0.4,"y":0.2}}],"#
+                + #""id":"00000000-0000-0000-0000-000000000000"}],"page":4,"recognitionLanguages":null,"#
+                + #""source":"fixture"},"page":4,"pendingImages":0,"readiness":"failed","#
                 + #""rendering":{"appearance":"dark","family":"iphone","language":"en","locale":"en_US","#
                 + #""textSize":"large"},"screenID":"reading-live-text","selectionID":"test-selection","#
                 + #""setID":"nonexplicit","unknownRequests":["GET https://e-hentai.org/api.php"]}"#
