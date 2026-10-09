@@ -2,12 +2,14 @@
 
 A selection declares real galleries, their explicit content set and every scene slot. Acquisition
 derives the required responses and images from the galleries' own pages, mirroring the app's request
-builders and parsers, and validation repeats that derivation over the stored files.
+builders and parsers, and validation repeats that derivation over the stored files. A later recording
+adds what the app's own Live Text found on each flow's Live Text page.
 """
 import fcntl
 import hashlib
 from html.parser import HTMLParser
 import json
+import math
 import os
 from pathlib import Path
 import re
@@ -35,6 +37,10 @@ HATH_HOST = re.compile(r'(?:[a-z0-9]+\.)+hath\.network')
 GALLERY_URL = re.compile(r'https://e-hentai\.org/g/([1-9][0-9]*)/([0-9a-f]{10})/')
 PAGE_KINDS = ('detail', 'thumbnails', 'imagePage')
 IMAGE_KINDS = ('cover', 'preview', 'page')
+# Records are made rather than fetched, so they answer no replay URL: a Live Text record is what the app's own
+# recognizer found on a flow's Live Text page, saved by record-live-text.py after acquisition.
+RECORD_KINDS = ('liveText',)
+RECORD_MEDIA = 'application/json'
 MEDIA = {'image/jpeg': 'jpg', 'image/png': 'png', 'image/gif': 'gif', 'image/webp': 'webp'}
 SIGNATURES = ((b'\xff\xd8\xff', 'image/jpeg'), (b'\x89PNG\r\n\x1a\n', 'image/png'), (b'GIF87a', 'image/gif'),
               (b'GIF89a', 'image/gif'))
@@ -42,6 +48,10 @@ GENERATORS = ('Scripts/visual/acquire-fixtures.py', 'Scripts/visual/fixtures.py'
 MANIFEST_KEYS = ('schemaVersion', 'purpose', 'fixtureVersion', 'aggregateDigest', 'selectionID', 'selectionStatus',
                  'selectionAuthority', 'selectionSHA256', 'generatorSources', 'acquiredAt', 'assets')
 ENTRY_KEYS = ('kind', 'gid', 'index', 'url', 'path', 'mime', 'bytes', 'sha256', 'retrievedAt')
+LIVE_TEXT_KEYS = ('schemaVersion', 'gid', 'page', 'pageSHA256', 'recognitionLanguages', 'recordedOn', 'groups')
+CORNERS = ('topLeft', 'topRight', 'bottomLeft', 'bottomRight')
+# Foundation's UUID encoding: uppercase hexadecimal in 8-4-4-4-12 groups.
+UUID = re.compile(r'[0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{12}')
 # Values that grant access rather than identify content: the anonymous API key, the reader's show key, the
 # signed image-server stamp and preview path key, the original-image key and the static-link token. Each is
 # zeroed in place, keeping the response's shape, so a parsed URL and its stored response still agree.
@@ -472,6 +482,8 @@ def asset_path(kind, gid, index, mime):
     if kind in PAGE_KINDS:
         return f'responses/{gid}/' + {'detail': 'detail', 'thumbnails': f'thumbnails-{index}',
                                       'imagePage': f'pages/{index}'}[kind] + '.html'
+    if kind in RECORD_KINDS:
+        return f'records/{gid}/{kind}/{index}.json'
     return f'assets/{gid}/' + {'cover': 'cover', 'preview': f'previews/{index}', 'page': f'pages/{index}'}[kind] \
         + f'.{MEDIA[mime]}'
 
@@ -498,6 +510,64 @@ def write_manifest(directory, selection, assets, acquired_at):
     return manifest
 
 
+def media_types(kind):
+    if kind in PAGE_KINDS:
+        return ('text/html',)
+    return (RECORD_MEDIA,) if kind in RECORD_KINDS else tuple(MEDIA)
+
+
+def live_text_point(value, context):
+    keys(value, ('x', 'y'), context)
+    # JSON true is an int in Python, so the type is checked exactly.
+    if not all(type(value[axis]) in (int, float) and math.isfinite(value[axis]) for axis in ('x', 'y')):
+        raise ValueError(f'{context} must have finite x and y')
+    return value['x'], value['y']
+
+
+def validate_live_text(record, gid, page, page_sha):
+    """A Live Text record of page `page` of gallery `gid`, recognized on the page image with digest `page_sha`.
+
+    Every group and line must have an ID, every line text and a quadrilateral that has an extent and overlaps its
+    page. Vision may place a corner slightly outside the image, so corners are not clamped to the page.
+    """
+    keys(record, LIVE_TEXT_KEYS, 'Live Text record')
+    if not current_schema(record['schemaVersion']):
+        raise ValueError(f'Live Text record schemaVersion must be {SCHEMA_VERSION}')
+    if (record['gid'], record['page']) != (gid, page):
+        raise ValueError(f'Live Text record names page {record["page"]!r} of gallery {record["gid"]!r}, '
+                         f'not page {page} of gallery {gid}')
+    if record['pageSHA256'] != page_sha:
+        raise ValueError(f'Live Text record of page {page} of gallery {gid} was recognized on other bytes')
+    languages = record['recognitionLanguages']
+    if languages is not None and (not isinstance(languages, list) or not languages
+                                  or not all(isinstance(language, str) and language for language in languages)):
+        raise ValueError('Live Text recognitionLanguages must be null or a list of language identifiers')
+    keys(record['recordedOn'], ('model', 'runtimeBuild'), 'Live Text recordedOn')
+    if not all(isinstance(value, str) and value for value in record['recordedOn'].values()):
+        raise ValueError('Live Text recordedOn must name the model and runtime build')
+    groups, ids = record['groups'], set()
+    if not isinstance(groups, list) or not groups:
+        raise ValueError('Live Text record holds no groups')
+    for number, group in enumerate(groups):
+        keys(group, ('id', 'blocks'), f'Live Text group {number}')
+        if not isinstance(group['blocks'], list) or not group['blocks']:
+            raise ValueError(f'Live Text group {number} holds no lines')
+        for line, block in enumerate(group['blocks']):
+            where = f'Live Text group {number} line {line}'
+            keys(block, ('id', 'text', *CORNERS), where)
+            if not isinstance(block['text'], str) or not block['text']:
+                raise ValueError(f'{where} has no text')
+            xs, ys = zip(*(live_text_point(block[corner], f'{where} {corner}') for corner in CORNERS))
+            if max(xs) <= min(xs) or max(ys) <= min(ys):
+                raise ValueError(f'{where} has no extent')
+            if max(xs) <= 0 or min(xs) >= 1 or max(ys) <= 0 or min(ys) >= 1:
+                raise ValueError(f'{where} lies outside its page')
+        for identifier in [group['id'], *(block['id'] for block in group['blocks'])]:
+            if not isinstance(identifier, str) or not UUID.fullmatch(identifier) or identifier in ids:
+                raise ValueError(f'Live Text group {number} has a missing, malformed or repeated ID')
+            ids.add(identifier)
+
+
 def verify_contents(directory):
     """Validate a fixture directory's files against its manifest by repeating the resource derivation."""
     directory = Path(directory)
@@ -522,19 +592,33 @@ def verify_contents(directory):
     by_resource, urls = {}, set()
     for entry in assets:
         keys(entry, ENTRY_KEYS, 'Asset entry')
-        if (entry['kind'] not in PAGE_KINDS + IMAGE_KINDS or not isinstance(entry['gid'], str)
+        kind = entry['kind']
+        if (kind not in PAGE_KINDS + IMAGE_KINDS + RECORD_KINDS or not isinstance(entry['gid'], str)
                 or not (entry['index'] is None or counting(entry['index'])) or not counting(entry['bytes'])
-                or not all(isinstance(entry[key], str) for key in ('url', 'path', 'mime', 'sha256', 'retrievedAt'))
-                or entry['mime'] not in (('text/html',) if entry['kind'] in PAGE_KINDS else MEDIA)):
+                or not all(isinstance(entry[key], str) for key in ('path', 'mime', 'sha256', 'retrievedAt'))
+                or not (entry['url'] is None if kind in RECORD_KINDS else isinstance(entry['url'], str))
+                or entry['mime'] not in media_types(kind)):
             raise ValueError(f'Malformed asset entry: {entry["path"]!r}')
-        resource = (entry['kind'], entry['gid'], entry['index'])
+        resource = (kind, entry['gid'], entry['index'])
         if resource in by_resource or entry['url'] in urls:
             raise ValueError(f'Duplicate fixture resource or replay URL: {entry["path"]}')
         by_resource[resource] = entry
-        urls.add(entry['url'])
+        if entry['url'] is not None:
+            urls.add(entry['url'])
     if [entry['path'] for entry in assets] != sorted(entry['path'] for entry in assets):
         raise ValueError('Fixture assets must be listed in path order')
     visited = []
+
+    def stored(entry):
+        if entry['path'] != asset_path(entry['kind'], entry['gid'], entry['index'], entry['mime']):
+            raise ValueError(f'{entry["path"]}: unexpected location for {entry["kind"]} {entry["gid"]}')
+        path = contained(directory, entry['path'])
+        if not path.is_file():
+            raise ValueError(f'Fixture is missing the file {entry["path"]}')
+        data = path.read_bytes()
+        if len(data) != entry['bytes'] or sha256(data) != entry['sha256']:
+            raise ValueError(f'Fixture checksum/length mismatch: {entry["path"]}')
+        return data
 
     def retrieve(kind, gid, index, url):
         entry = by_resource.get((kind, gid, index))
@@ -543,22 +627,24 @@ def verify_contents(directory):
         if entry['url'] != url or scrub(url) != url:
             raise ValueError(f'{entry["path"]}: replay URL differs from the URL its gallery names')
         check_url(url, kind)
-        if entry['path'] != asset_path(kind, gid, index, entry['mime']):
-            raise ValueError(f'{entry["path"]}: unexpected location for {kind} {gid}')
-        path = contained(directory, entry['path'])
-        if not path.is_file():
-            raise ValueError(f'Fixture is missing the file {entry["path"]}')
-        data = path.read_bytes()
-        if len(data) != entry['bytes'] or sha256(data) != entry['sha256']:
-            raise ValueError(f'Fixture checksum/length mismatch: {entry["path"]}')
+        data = stored(entry)
         if sanitize(kind, data, entry['mime']) != (data, entry['mime']):
             raise ValueError(f'{entry["path"]}: stored response is not in its scrubbed form')
         visited.append(entry)
         return data
 
     collect(selection, retrieve)
-    if len(visited) != len(assets):
+    records = [entry for entry in assets if entry['kind'] in RECORD_KINDS]
+    if len(visited) + len(records) != len(assets):
         raise ValueError('Fixture manifest lists resources the selection does not require')
+    # Recording adds a Live Text record after acquisition, so a fixture holds each flow's record or none of them,
+    # and only for the page a flow shows Live Text on.
+    recordable = {(scene['flow']['gallery'], scene['flow']['liveTextPage']) for scene in selection['scenes'].values()}
+    for entry in records:
+        gid, page = entry['gid'], entry['index']
+        if (gid, page) not in recordable:
+            raise ValueError(f'{entry["path"]}: no flow shows Live Text on page {page} of gallery {gid}')
+        validate_live_text(json.loads(stored(entry)), gid, page, by_resource['page', gid, page]['sha256'])
     listed = {entry['path'] for entry in assets} | {'manifest.json', 'selection.json'}
     present = {str(path.relative_to(directory)) for path in directory.rglob('*') if path.is_file()}
     if present != listed:
@@ -664,3 +750,36 @@ class Writer:
                 shutil.rmtree(self.staging)
         finally:
             os.close(self.lock)
+
+
+def publish_records(output, records, recorded_at):
+    """Publish the current version again with these Live Text records, each replacing any earlier record of its page.
+
+    The new version keeps every other file and the acquisition time; a record's retrieval time is when it was
+    recorded. Returns the published directory and whether `current` changed.
+    """
+    output = Path(output)
+    with Writer(output) as writer:
+        if not writer.published():
+            raise ValueError(f'{output / "current"} is not published; acquire the fixture before recording')
+        source = resolve_fixtures(output / 'current')
+        manifest = validate_fixtures(source)
+        selection = validate_selection(json.loads((source / 'selection.json').read_text()))
+        # Publication validates each record completely; its keys are needed first to place it.
+        for record in records:
+            keys(record, LIVE_TEXT_KEYS, 'Live Text record')
+        replaced = {(record['gid'], record['page']) for record in records}
+        assets = [entry for entry in manifest['assets']
+                  if entry['kind'] not in RECORD_KINDS or (entry['gid'], entry['index']) not in replaced]
+        for entry in assets:
+            (writer.staging / entry['path']).parent.mkdir(parents=True, exist_ok=True)
+            shutil.copyfile(source / entry['path'], writer.staging / entry['path'])
+        for record in records:
+            data = json.dumps(record, indent=2, sort_keys=True, ensure_ascii=False).encode() + b'\n'
+            relative = asset_path('liveText', record['gid'], record['page'], RECORD_MEDIA)
+            (writer.staging / relative).parent.mkdir(parents=True, exist_ok=True)
+            (writer.staging / relative).write_bytes(data)
+            assets.append({'kind': 'liveText', 'gid': record['gid'], 'index': record['page'], 'url': None,
+                           'path': relative, 'mime': RECORD_MEDIA, 'bytes': len(data), 'sha256': sha256(data),
+                           'retrievedAt': recorded_at})
+        return writer.publish(write_manifest(writer.staging, selection, assets, manifest['acquiredAt']))

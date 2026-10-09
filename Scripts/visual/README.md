@@ -209,6 +209,7 @@ and static-link tokens. The manifest records the same scrubbed URLs, so replay s
     selection.json  manifest.json
     responses/<gid>/detail.html  thumbnails-<n>.html  pages/<page>.html
     assets/<gid>/cover.<ext>  previews/<i>.<ext>  pages/<page>.<ext>
+    records/<gid>/liveText/<page>.json
 ```
 
 `manifest.json` has `purpose: marketingReal`, the selection identity and digest, generator
@@ -218,6 +219,14 @@ relative `path`, `mime`, `bytes`, `sha256` and `retrievedAt`. The version is con
 the aggregate digest covers the selection bytes and every entry except its timestamp. Acquiring
 unchanged content again therefore keeps the same version, while any change to content or
 configured order produces a new one. Earlier versions are kept.
+
+A record is made rather than fetched, so its entry has a null `url`. A Live Text record holds what
+the app's own Live Text found on a flow's Live Text page: every group and line with its ID, text
+and four normalized corners, the page image's SHA-256, the recognition languages and the
+recording simulator's model and runtime build. `fixtures.publish_records` publishes a new version
+with the record added, keeping every other file and the acquisition time; its entry's
+`retrievedAt` is when it was recorded. A fixture holds each flow's record or
+none, so a version acquired again holds no record until the page is recorded again.
 
 An output that already has `current` is not acquired again unless `--refresh` is given.
 
@@ -232,7 +241,11 @@ the resource derivation over the stored files and rejects:
 - disallowed hosts and replay URLs that differ from the stored pages;
 - unscrubbed values and account sessions;
 - a selection that changed after acquisition;
-- an aggregate digest or directory name that does not match the version.
+- an aggregate digest or directory name that does not match the version;
+- a record of a page that no flow shows Live Text on, recognized on other bytes than that page's
+  image, or holding no groups, a line without text, a missing, malformed or repeated ID, or a
+  line whose corners have no extent or lie outside the page (a corner slightly past the edge,
+  as Vision can place one, is kept).
 
 Acquisition writes into a fresh `.staging-*` directory and holds an exclusive lock on the output,
 so a second writer fails at once. It verifies the staged files completely, then renames them

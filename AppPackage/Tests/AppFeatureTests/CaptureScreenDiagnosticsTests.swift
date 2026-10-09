@@ -43,8 +43,8 @@ struct CaptureScreenDiagnosticsTests {
     func aPushedDetailWaitsForItsDetailCoverAndPreviews() async throws {
         let fixture = try MarketingFixtureBuilder.standard().addingPreview()
         let scene = try makeScene(fixture)
-        let cover = try #require(fixture.files.first(where: { $0.kind == .cover })).url
-        let preview = try #require(fixture.files.first(where: { $0.kind == .preview })).url
+        let cover = try #require(fixture.files.first(where: { $0.kind == .cover })?.url)
+        let preview = try #require(fixture.files.first(where: { $0.kind == .preview })?.url)
         let gallery = try await flowGallery(scene)
         var detail = DetailReducer.State(gallery: gallery)
         var state = AppReducer.State()
