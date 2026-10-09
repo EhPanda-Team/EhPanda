@@ -14,6 +14,9 @@ import Observation
 import OSLogExt
 import SwiftUI
 import Vision
+#if DEBUG
+import Dependencies
+#endif
 
 private let logger = Logger(category: .init(describing: LiveTextHandler.self))
 
@@ -26,6 +29,20 @@ final class LiveTextHandler {
 
     @ObservationIgnored
     private var analysisTasks = [Int: Task<Void, Never>]()
+
+    #if DEBUG
+    /// The capture launch's Live Text, which decides what the reader recognizes (17-06).
+    @ObservationIgnored
+    @Dependency(\.liveTextCapture) private var capture
+    #endif
+
+    init() {
+        #if DEBUG
+        // A capture of the reading-live-text screen opens the reader with Live Text on, as a
+        // person's tap on the toolbar's Live Text button leaves it.
+        enablesLiveText = capture != nil
+        #endif
+    }
 
     isolated deinit {
         cancelRequests()
@@ -42,6 +59,29 @@ final class LiveTextHandler {
         focusedLiveTextGroup = group
     }
 
+    #if DEBUG
+    /// Whether a capture launch answers Live Text for `page` of gallery `gid` itself, so the reader
+    /// must not recognize the page.
+    ///
+    /// A capture shows its saved groups on its own page and leaves every other page without Live
+    /// Text; only a recording lets the reader recognize the capture's page as usual. Outside a
+    /// capture the reader always recognizes.
+    func capturesLiveText(gid: String, page: Int) -> Bool {
+        guard let capture else {
+            return false
+        }
+        switch capture.decision(gid: gid, page: page) {
+        case .show(let groups):
+            liveTextGroups[page] = groups
+            return true
+        case .skip:
+            return true
+        case .recognize:
+            return false
+        }
+    }
+    #endif
+
     func analyzeImage(_ cgImage: CGImage, size: CGSize, page: Int, recognitionLanguages: [String]?) {
         analysisTasks[page]?.cancel()
         analysisTasks[page] = Task { [weak self] in
@@ -53,6 +93,9 @@ final class LiveTextHandler {
                 )
                 guard !Task.isCancelled else { return }
                 self?.liveTextGroups[page] = groups
+                #if DEBUG
+                self?.capture?.recognized(groups, page: page, recognitionLanguages: recognitionLanguages)
+                #endif
             } catch is CancellationError {
             } catch {
                 logger.error("Live Text failed, page \(page, privacy: .public): \(error, privacy: .public)")
