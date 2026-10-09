@@ -361,7 +361,8 @@ struct CaptureSceneTests {
                 unknownRequests: [],
                 blockers: [],
                 rendering: .lightPhone,
-                liveText: nil
+                liveText: nil,
+                downloads: nil
             )
         )
     }
@@ -436,7 +437,8 @@ struct CaptureSceneTests {
                 source: .fixture,
                 recognitionLanguages: nil,
                 groups: LiveTextRecordFile().groups
-            )
+            ),
+            downloads: nil
         )
 
         expectNoDifference(
@@ -470,7 +472,13 @@ struct CaptureSceneTests {
 
         try await withDependencies {
             $0.defaultAppStorage = personal
-            CaptureScenePreparation.isolate(&$0, scene: scene, storage: storage, libraryClient: .noop)
+            CaptureScenePreparation.isolate(
+                &$0,
+                scene: scene,
+                storage: storage,
+                libraryClient: .noop,
+                downloads: .empty
+            )
         } operation: {
             @Dependency(\.date.now) var now
             @Dependency(\.homeClient) var homeClient

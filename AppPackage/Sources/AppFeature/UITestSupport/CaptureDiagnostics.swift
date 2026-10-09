@@ -7,6 +7,7 @@ import DownloadsFeature
 import FiltersFeature
 import Foundation
 import HomeFeature
+import Kingfisher
 import LibraryClient
 import ParserFeature
 import ReadingFeature
@@ -78,6 +79,8 @@ struct CaptureDiagnostics: Equatable, Encodable {
     /// The Live Text the reader shows on the capture's Live Text page; `nil` until it shows any,
     /// and in launches without Live Text.
     let liveText: CaptureLiveTextDiagnostics?
+    /// The rows the Downloads screen lists, in order; `nil` on every other screen.
+    let downloads: [CaptureDownloadDiagnostics]?
 
     func encodedJSON() throws -> String {
         let encoder = JSONEncoder()
@@ -105,9 +108,13 @@ extension CaptureDiagnostics {
         isCached: @escaping (String) -> Bool
     ) {
         // The image views cache an image under the app's stable key for its URL, such as a
-        // preview's, or under the URL itself; either one holds it.
+        // preview's, or under the URL itself; either one holds it. A local file, such as a
+        // downloaded cover, is cached under Kingfisher's key for its path.
         let holdsImage: (String) -> Bool = { url in
-            (URL(string: url)?.imageCacheKeys ?? [url]).contains(where: isCached)
+            guard let imageURL = URL(string: url) else {
+                return isCached(url)
+            }
+            return (imageURL.imageCacheKeys + [imageURL.cacheKey]).contains(where: isCached)
         }
         let pendingImages = answeredURLs.count(where: { url in
             scene.replay[url]?.mimeType.hasPrefix("image/") == true && !holdsImage(url)
@@ -154,7 +161,8 @@ extension CaptureDiagnostics {
             unknownRequests: unknownRequests,
             blockers: report.failures + report.blockers,
             rendering: rendering,
-            liveText: liveText.flatMap({ CaptureLiveTextDiagnostics(capture: $0.capture, outcome: $0.outcome) })
+            liveText: liveText.flatMap({ CaptureLiveTextDiagnostics(capture: $0.capture, outcome: $0.outcome) }),
+            downloads: report.downloads
         )
     }
 }
@@ -227,6 +235,49 @@ extension CaptureRendering.Family {
             self = .ipad
         default:
             self = .other
+        }
+    }
+}
+
+/// A row the Downloads screen lists, as the diagnostics report it.
+struct CaptureDownloadDiagnostics: Equatable, Encodable {
+    let gid: String
+    let status: CaptureSelection.DownloadStatus
+    /// The pages the row's badge counts as downloaded.
+    let completedPages: Int
+    let pageCount: Int
+    /// The page files the gallery's folder holds.
+    let pageFiles: Int
+}
+
+extension CaptureDownloadDiagnostics {
+    init(_ download: DownloadedGallery) {
+        self.init(
+            gid: download.gid,
+            status: .init(download.displayStatus),
+            completedPages: download.badge.progress.completedPageCount,
+            pageCount: download.badge.progress.pageCount,
+            pageFiles: download.localPageURLs.count
+        )
+    }
+}
+
+extension CaptureSelection.DownloadStatus {
+    /// The selection's name for `status`.
+    init(_ status: DownloadDisplayStatus) {
+        self = switch status {
+        case .active:
+            .active
+        case .queued:
+            .queued
+        case .updateAvailable:
+            .updateAvailable
+        case .error:
+            .error
+        case .inactive:
+            .inactive
+        case .completed:
+            .completed
         }
     }
 }
@@ -379,6 +430,7 @@ private struct ReaderLiveText {
 private struct ScreenReport {
     var galleryIDs = [String]()
     var page: Int?
+    var downloads: [CaptureDownloadDiagnostics]?
     var blockers = [String]()
     var failures = [String]()
 }
@@ -514,8 +566,12 @@ private struct ScreenInspector {
         return report
     }
 
+    /// Downloads waits for its rows and every row's cover, which a seeded folder holds.
     private func downloadsReport(_ downloads: DownloadsReducer.State) -> ScreenReport {
-        var report = ScreenReport(galleryIDs: downloads.downloads.map(\.gid))
+        var report = ScreenReport(
+            galleryIDs: downloads.downloads.map(\.gid),
+            downloads: downloads.downloads.map(CaptureDownloadDiagnostics.init)
+        )
         switch downloads.loadingState {
         case .loading:
             report.blockers.append("Downloads are loading")
@@ -525,6 +581,10 @@ private struct ScreenInspector {
             if downloads.downloads.isEmpty {
                 report.failures.append("Downloads shows no galleries")
             }
+        }
+        let pendingCovers = downloads.downloads.count(where: { !shows($0.coverURL) })
+        if pendingCovers > 0 {
+            report.blockers.append("\(pendingCovers) download covers are not shown")
         }
         return report
     }

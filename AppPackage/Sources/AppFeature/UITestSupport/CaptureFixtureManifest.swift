@@ -93,7 +93,7 @@ struct MarketingCaptureManifest: Equatable, Sendable {
 ///
 /// Decoding is deliberately partial: the manifest binds this file by SHA-256, and acquisition
 /// validated its complete schema before publishing it, so a scene only needs typed access to
-/// the sections it shows. Sections no scene reads yet, such as the reader flow, are not decoded.
+/// the sections it shows.
 struct CaptureSelection: Equatable, Sendable, Decodable {
     struct Gallery: Equatable, Sendable, Decodable {
         let url: URL
@@ -103,6 +103,8 @@ struct CaptureSelection: Equatable, Sendable, Decodable {
     struct Scene: Equatable, Sendable, Decodable {
         let home: Home
         let flow: Flow
+        /// The galleries the Downloads screen lists, in display order.
+        let downloads: [Download]
     }
 
     /// The gallery the gallery screens show, and the pages of it the fixture holds.
@@ -126,6 +128,25 @@ struct CaptureSelection: Equatable, Sendable, Decodable {
     struct Hero: Equatable, Sendable, Decodable {
         let galleries: [String]
         let selectedIndex: Int
+    }
+
+    /// A downloaded gallery and the state its row shows.
+    struct Download: Equatable, Sendable, Decodable {
+        let gallery: String
+        let status: DownloadStatus
+        /// How many pages, from the first, an incomplete download's folder holds; `nil` for a
+        /// complete one, whose folder holds every page.
+        let completedPages: Int?
+    }
+
+    /// A download row's status, by the name the selection gives it.
+    enum DownloadStatus: String, Equatable, Sendable, Codable {
+        case active
+        case queued
+        case updateAvailable
+        case error
+        case inactive
+        case completed
     }
 
     let schemaVersion: Int

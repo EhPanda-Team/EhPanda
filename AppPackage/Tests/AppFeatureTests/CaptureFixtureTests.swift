@@ -416,6 +416,7 @@ struct MarketingFixtureBuilder: Sendable {
     var selectedIndex = 1
     var toplistsPeriods = ["yesterday", "pastMonth", "pastYear", "allTime"]
     var manifestSelectionID = "test-selection"
+    var downloads = [CaptureSelection.Download]()
     var reversesAssets = false
     /// Edits the first cover's manifest entry.
     var editAsset: @Sendable (inout [String: Any]) -> Void = { _ in }
@@ -468,7 +469,11 @@ struct MarketingFixtureBuilder: Sendable {
                         "toplists": toplists
                     ],
                     "flow": ["gallery": "101", "readerPage": 1, "liveTextPage": 1, "pages": [1]],
-                    "downloads": [[String: Any]]()
+                    "downloads": downloads.map { download -> [String: Any] in
+                        var entry: [String: Any] = ["gallery": download.gallery, "status": download.status.rawValue]
+                        entry["completedPages"] = download.completedPages
+                        return entry
+                    }
                 ]
             ]
         ]
