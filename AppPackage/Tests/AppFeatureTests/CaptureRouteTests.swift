@@ -74,7 +74,13 @@ struct CaptureRouteTests {
         let storage = try CaptureStorage.reset(at: makeTemporaryDirectory().appending(path: "EhPandaCapture"))
 
         try withDependencies {
-            CaptureScenePreparation.isolate(&$0, scene: scene, storage: storage, libraryClient: .noop)
+            CaptureScenePreparation.isolate(
+                &$0,
+                scene: scene,
+                storage: storage,
+                libraryClient: .noop,
+                downloads: .empty
+            )
         } operation: {
             @Dependency(\.appLaunchAutomationClient) var appLaunchAutomationClient
             let automation = try #require(appLaunchAutomationClient.current())

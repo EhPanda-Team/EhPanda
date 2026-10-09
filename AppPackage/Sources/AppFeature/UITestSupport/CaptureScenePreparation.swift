@@ -35,6 +35,8 @@ struct CaptureScene: Sendable {
     /// The Live Text the reader shows on the flow's Live Text page: the fixture's record for the
     /// reading-live-text screen, the reader's own recognition for a recording, `nil` otherwise.
     let liveText: LiveTextCapture?
+    /// The download folders the Downloads screen lists; `nil` for every other screen.
+    let downloads: CaptureDownloads?
 }
 
 /// The capture installed into this process: its scene and the replay answering its requests.
@@ -57,6 +59,11 @@ struct CaptureStorage: Equatable, Sendable {
 
     var sdWebImageCache: URL {
         root.appending(path: "SDWebImageCache", directoryHint: .isDirectory)
+    }
+
+    /// The download root a downloads scene seeds and the capture's download client reads.
+    var downloads: URL {
+        root.appending(path: "Downloads", directoryHint: .isDirectory)
     }
 
     /// Empties and recreates `root`, so every capture launch starts from the same cold caches.
@@ -159,19 +166,21 @@ enum CaptureScenePreparation {
                 replay: replay,
                 homeClient: try galleries.homeClient(scene.home),
                 route: try galleries.route(to: scenario, flow: scene.flow),
-                liveText: try galleries.liveText(for: scenario, flow: scene.flow)
+                liveText: try galleries.liveText(for: scenario, flow: scene.flow),
+                downloads: try galleries.downloads(for: scenario, entries: scene.downloads)
             )
         }
     }
 
-    /// Installs `scene` into this process: fresh capture-owned storage for the reader cache and
-    /// both image libraries' caches, the replay with Kingfisher's session pointed at it, and the
-    /// isolated dependencies.
+    /// Installs `scene` into this process: fresh capture-owned storage for the reader cache, both
+    /// image libraries' caches and the scene's download folders, the replay with Kingfisher's
+    /// session pointed at it, and the isolated dependencies.
     ///
     /// Web images are initialized here, synchronously, instead of at launch finish, so no image
     /// request can start before its session answers from the replay.
     static func install(_ scene: CaptureScene, storageRoot: URL = defaultStorageRoot) throws(CaptureFailure) {
         let storage = try CaptureStorage.reset(at: storageRoot)
+        let downloads = try scene.downloads?.seed(into: storage.downloads) ?? .empty
         do {
             KingfisherManager.shared.cache = try ImageCache(name: "capture", cacheDirectoryURL: storage.kingfisherCache)
         } catch {
@@ -200,7 +209,7 @@ enum CaptureScenePreparation {
             calculateWebImageDiskCacheSize: live.calculateWebImageDiskCacheSize
         )
         prepareDependencies {
-            isolate(&$0, scene: scene, storage: storage, libraryClient: libraryClient)
+            isolate(&$0, scene: scene, storage: storage, libraryClient: libraryClient, downloads: downloads)
         }
         // After isolation, so the reader cache its purge observers guard is the capture's.
         live.initializeWebImage()
@@ -208,12 +217,14 @@ enum CaptureScenePreparation {
 
     /// Replaces every dependency that reads or writes user data, reaches the network, or varies
     /// between runs. Clients that only present the app, such as the device and haptics clients,
-    /// stay live so the scene is the actual app.
+    /// stay live so the scene is the actual app. `downloads` is what the scene's seeded download
+    /// folders read back as.
     static func isolate(
         _ dependencies: inout DependencyValues,
         scene: CaptureScene,
         storage: CaptureStorage,
-        libraryClient: LibraryClient
+        libraryClient: LibraryClient,
+        downloads: CaptureDownloadIndex
     ) {
         dependencies.analyticsClient = .noop
         // The capture's route is the launch's only automation.
@@ -234,9 +245,9 @@ enum CaptureScenePreparation {
         dependencies.defaultAppStorage = appStorage
         dependencies.defaultInMemoryStorage = InMemoryStorage()
         dependencies.dfClient = .noop
-        // Inert until a downloads scene seeds capture-owned folders: a live client would adopt the
-        // app's background download session and could fetch outside the replay.
-        dependencies.downloadClient = .noop
+        // Never the live client, which would adopt the app's background download session and could
+        // fetch outside the replay.
+        dependencies.downloadClient = .capture(downloads)
         dependencies.homeClient = scene.homeClient
         dependencies.libraryClient = libraryClient
         dependencies.liveTextCapture = scene.liveText
@@ -389,6 +400,107 @@ private struct MarketingGalleries {
         }
     }
 
+    /// The download folders `scenario` shows: the Downloads screen's galleries in the order it lists
+    /// them; no other screen has downloads.
+    ///
+    /// The screen lists rows by status, then by when their folder last changed, so the entries must
+    /// come in status order, and each folder is dated an hour before the one above it.
+    func downloads(
+        for scenario: CaptureScenario,
+        entries: [CaptureSelection.Download]
+    ) throws(CaptureFailure) -> CaptureDownloads? {
+        guard scenario == .screen(.downloads) else {
+            return nil
+        }
+        let priorities = entries.map(\.status.displayStatus.sortPriority)
+        guard priorities == priorities.sorted() else {
+            throw .malformedScene("downloads are not listed in the status order the screen shows them in")
+        }
+        var galleries = [CaptureDownloads.Gallery]()
+        for (slot, entry) in entries.enumerated() {
+            let modificationDate = UITestAutomation.fixedDate.addingTimeInterval(-3600 * Double(slot))
+            galleries.append(try download(entry, modificationDate: modificationDate))
+        }
+        return CaptureDownloads(galleries: galleries)
+    }
+
+    /// The folder `entry`'s download leaves, built as a download builds it from the gallery's detail:
+    /// the manifest the download starts with, the cover its URL answers, and the image of every page
+    /// the folder holds, all of a complete download and the first `completedPages` of another.
+    ///
+    /// No capture has a failure to show, so an `error` row cannot be captured.
+    private func download(
+        _ entry: CaptureSelection.Download,
+        modificationDate: Date
+    ) throws(CaptureFailure) -> CaptureDownloads.Gallery {
+        let gid = entry.gallery
+        let gallery = try gallery(gid)
+        let detail = try parsedDetail(gid).detail
+        let pageCount = detail.pageCount
+        guard pageCount > 0 else {
+            throw .malformedScene("download \(gid) has no pages")
+        }
+        let heldPageCount: Int
+        switch entry.status {
+        case .updateAvailable, .completed:
+            guard entry.completedPages == nil else {
+                throw .malformedScene("the \(entry.status.rawValue) download \(gid) holds every page, not a count")
+            }
+            heldPageCount = pageCount
+        case .active, .queued, .inactive:
+            guard let completedPages = entry.completedPages, (0..<pageCount).contains(completedPages) else {
+                let status = entry.status.rawValue
+                throw .malformedScene("the \(status) download \(gid) must hold fewer than its \(pageCount) pages")
+            }
+            heldPageCount = completedPages
+        case .error:
+            throw .malformedScene("download \(gid) cannot show an error: a capture has no failure to show")
+        }
+        var pages = [Int: CaptureDownloads.File]()
+        for page in 1..<(heldPageCount + 1) {
+            guard let image = asset(.page, of: gid, index: page) else {
+                throw .malformedScene("the fixture holds no image of page \(page) of download \(gid)")
+            }
+            pages[page] = try file(image)
+        }
+        guard
+            let coverURL = gallery.coverURL,
+            let cover = manifest.assets.first(where: { $0.kind == .cover && $0.url == coverURL.absoluteString })
+        else {
+            throw .malformedScene("the cover of download \(gid) is not in the fixture")
+        }
+        return CaptureDownloads.Gallery(
+            manifest: DownloadManifest(
+                gid: gid,
+                host: CaptureScenePreparation.sceneSetting.galleryHost,
+                token: gallery.token,
+                title: gallery.title,
+                jpnTitle: detail.jpnTitle,
+                category: gallery.category,
+                language: detail.language,
+                remoteCoverURL: detail.coverURL ?? gallery.coverURL,
+                uploader: detail.uploader,
+                tags: gallery.tags,
+                postedDate: detail.postedDate,
+                rating: detail.rating,
+                pages: Dictionary(uniqueKeysWithValues: (1..<(pageCount + 1)).map({ ($0, "") }))
+            ),
+            folderTitle: detail.trimmedTitle.isEmpty ? gallery.title : detail.trimmedTitle,
+            status: entry.status.displayStatus,
+            modificationDate: modificationDate,
+            cover: try file(cover),
+            pages: pages
+        )
+    }
+
+    /// An asset's bytes, named with the extension the fixture stored them under for their type.
+    private func file(_ asset: MarketingCaptureManifest.Asset) throws(CaptureFailure) -> CaptureDownloads.File {
+        guard let data = files[asset.path] else {
+            throw .missingFile(asset.path)
+        }
+        return CaptureDownloads.File(data: data, fileExtension: URL(filePath: asset.path).pathExtension)
+    }
+
     private func readerPage(_ page: Int, of flow: CaptureSelection.Flow) throws(CaptureFailure) -> Int {
         guard flow.pages.contains(page), asset(.page, of: flow.gallery, index: page) != nil else {
             throw .malformedScene("the fixture holds no image of page \(page) of gallery \(flow.gallery)")
@@ -465,6 +577,184 @@ private struct MarketingGalleries {
         case .allTime:
             "allTime"
         }
+    }
+}
+
+// MARK: Downloads
+
+/// The download folders a downloads scene shows (17-06), validated from the fixture and ready to
+/// seed into capture-owned storage.
+struct CaptureDownloads: Sendable {
+    /// One gallery's folder, as its download leaves it.
+    struct Gallery: Sendable {
+        /// The manifest the download starts with, every page's hash still blank.
+        let manifest: DownloadManifest
+        /// The title the folder's name is made from, as a download makes it.
+        let folderTitle: String
+        /// The status the selection gives the row.
+        let status: DownloadDisplayStatus
+        let modificationDate: Date
+        let cover: File
+        /// The image of every page the folder holds, by page number.
+        let pages: [Int: File]
+    }
+
+    struct File: Sendable {
+        let data: Data
+        let fileExtension: String
+    }
+
+    /// The galleries in the order the Downloads screen lists them.
+    let galleries: [Gallery]
+}
+
+/// What a capture's download client lists: the seeded folders as the app's own scan reads them.
+struct CaptureDownloadIndex: Equatable, Sendable {
+    static let empty = Self(downloads: [], folders: [])
+
+    /// The rows the Downloads screen lists, in order.
+    let downloads: [DownloadedGallery]
+    let folders: [String]
+}
+
+extension CaptureDownloads {
+    /// Writes each gallery's folder into the default user folder under `root`, a capture-owned
+    /// directory, as a download leaves it: the cover, the page files it holds and a manifest that
+    /// records each held page's hash as the app computes it from the written file, with every other
+    /// page blank. Then reads them back with the app's own scan.
+    ///
+    /// The manifest is the only record of completeness, as in the app: a row is complete because its
+    /// manifest holds every page's hash, and only being downloaded or waiting comes from the
+    /// simulated queue, so each row must read back as the status the selection gives it.
+    func seed(into root: URL) throws(CaptureFailure) -> CaptureDownloadIndex {
+        let store = DownloadStore(rootURL: root)
+        let scan: DownloadScanResult
+        do {
+            for gallery in galleries {
+                try write(gallery, store: store)
+            }
+            scan = try store.scanDownloads()
+        } catch {
+            throw .storageUnavailable
+        }
+        let records = Dictionary(grouping: scan.records, by: \.manifest.gid)
+        var downloads = [DownloadedGallery]()
+        for gallery in galleries {
+            downloads.append(try gallery.download(from: records[gallery.manifest.gid] ?? []))
+        }
+        return CaptureDownloadIndex(downloads: downloads, folders: scan.userFolders)
+    }
+
+    private func write(_ gallery: Gallery, store: DownloadStore) throws {
+        let manifest = gallery.manifest
+        let folderURL = store.folderURL(
+            relativePath: Defaults.FilePath.defaultDownloadFolder + "/"
+                + store.makeFolderRelativePath(gid: manifest.gid, token: manifest.token, title: gallery.folderTitle)
+        )
+        try FileManager.default.createDirectory(at: folderURL, withIntermediateDirectories: true)
+        let coverPath = store.makeCoverRelativePath(
+            gid: manifest.gid,
+            token: manifest.token,
+            fileExtension: gallery.cover.fileExtension
+        )
+        try gallery.cover.data.write(to: folderURL.appending(path: coverPath))
+        var written = manifest
+        for (pageNumber, page) in gallery.pages {
+            let pageURL = folderURL.appending(
+                path: store.makePageRelativePath(
+                    gid: manifest.gid,
+                    token: manifest.token,
+                    index: pageNumber,
+                    fileExtension: page.fileExtension
+                )
+            )
+            try page.data.write(to: pageURL)
+            written.pages[pageNumber] = try store.fileHash(at: pageURL)
+        }
+        try store.writeManifest(written, folderURL: folderURL)
+        // Last, as every write above changes it.
+        try FileManager.default.setAttributes(
+            [.modificationDate: gallery.modificationDate],
+            ofItemAtPath: folderURL.path(percentEncoded: false)
+        )
+    }
+}
+
+extension CaptureDownloads.Gallery {
+    /// The row the app lists for this gallery's folder, found once among `records`, once it reads back
+    /// with every page it holds hashed, a file for each of those pages and nothing more, and its cover.
+    func download(from records: [DownloadFolderRecord]) throws(CaptureFailure) -> DownloadedGallery {
+        let gid = manifest.gid
+        let heldPages = Set(pages.keys)
+        guard
+            records.count == 1,
+            let record = records.first,
+            Set(record.manifest.pages.filter({ !$0.value.isEmpty }).keys) == heldPages,
+            Set(record.localPageURLs.keys) == heldPages,
+            record.localCoverURL != nil
+        else {
+            throw .malformedScene("the seeded folder of download \(gid) does not read back as written")
+        }
+        let displayStatus = displayStatus(of: record.manifest)
+        guard displayStatus == status else {
+            throw .malformedScene("the seeded folder of download \(gid) reads as \(displayStatus), not \(status)")
+        }
+        return DownloadedGallery(
+            manifest: record.manifest,
+            folderURL: record.folderURL,
+            folderName: record.parentFolderName,
+            localCoverURL: record.localCoverURL,
+            localPageURLs: record.localPageURLs,
+            modificationDate: record.modificationDate,
+            displayStatus: displayStatus,
+            runProgress: displayStatus == .active ? DownloadRunProgress(creditedPageIndices: heldPages) : nil
+        )
+    }
+
+    /// The status the app derives for `manifest` while the simulated queue runs or holds this
+    /// gallery as its row's status says: completeness comes from the manifest alone.
+    private func displayStatus(of manifest: DownloadManifest) -> DownloadDisplayStatus {
+        switch status {
+        case .active, .queued:
+            status
+        case .updateAvailable, .error, .inactive, .completed:
+            if manifest.isComplete {
+                status == .updateAvailable ? .updateAvailable : .completed
+            } else {
+                .inactive
+            }
+        }
+    }
+}
+
+extension CaptureSelection.DownloadStatus {
+    var displayStatus: DownloadDisplayStatus {
+        switch self {
+        case .active:
+            .active
+        case .queued:
+            .queued
+        case .updateAvailable:
+            .updateAvailable
+        case .error:
+            .error
+        case .inactive:
+            .inactive
+        case .completed:
+            .completed
+        }
+    }
+}
+
+extension DownloadClient {
+    /// A capture launch's download client: it lists `index` as the app's index lists scanned folders,
+    /// and changes nothing, so a capture never starts, resumes or deletes a download.
+    static func capture(_ index: CaptureDownloadIndex) -> Self {
+        var client = Self.noop
+        client.fetchDownloads = { index.downloads }
+        client.fetchDownload = { gid in index.downloads.first(where: { $0.gid == gid }) }
+        client.fetchFolders = { index.folders }
+        return client
     }
 }
 #endif

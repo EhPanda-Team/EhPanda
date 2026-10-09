@@ -58,7 +58,13 @@ struct CaptureLiveTextRecordTests {
         let storage = try CaptureStorage.reset(at: makeTemporaryDirectory().appending(path: "EhPandaCapture"))
 
         try withDependencies {
-            CaptureScenePreparation.isolate(&$0, scene: scene, storage: storage, libraryClient: .noop)
+            CaptureScenePreparation.isolate(
+                &$0,
+                scene: scene,
+                storage: storage,
+                libraryClient: .noop,
+                downloads: .empty
+            )
         } operation: {
             @Dependency(\.liveTextCapture) var liveTextCapture
             let installed = try #require(liveTextCapture)
