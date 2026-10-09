@@ -37,8 +37,9 @@ struct MarketingCaptureManifest: Equatable, Sendable {
         let kind: Kind
         let gid: String
         let index: Int?
-        /// The exact request URL this asset answers during replay.
-        let url: String
+        /// The exact request URL this asset answers during replay; `nil` for a record, which
+        /// answers no request.
+        let url: String?
         let path: String
         let mime: String
         let bytes: Int
@@ -52,12 +53,25 @@ struct MarketingCaptureManifest: Equatable, Sendable {
         case cover
         case preview
         case page
+        /// What the app's own Live Text found on a flow page, saved by `record-live-text.py`.
+        case liveText
 
         var isPage: Bool {
             switch self {
             case .detail, .thumbnails, .imagePage:
                 true
-            case .cover, .preview, .page:
+            case .cover, .preview, .page, .liveText:
+                false
+            }
+        }
+
+        /// Whether the fixture tooling made this asset rather than fetched it, so it answers no
+        /// request.
+        var isRecord: Bool {
+            switch self {
+            case .liveText:
+                true
+            case .detail, .thumbnails, .imagePage, .cover, .preview, .page:
                 false
             }
         }
@@ -166,7 +180,11 @@ struct CaptureFixture: Sendable {
             for asset in manifest.assets where !isSupportedMIMEType(of: asset) {
                 throw .malformedManifest("unsupported media type for \(asset.path)")
             }
-            guard Set(manifest.assets.map(\.url)).count == manifest.assets.count else {
+            for asset in manifest.assets where (asset.url == nil) != asset.kind.isRecord {
+                throw .malformedManifest("\(asset.path) must answer \(asset.kind.isRecord ? "no" : "one") replay URL")
+            }
+            let urls = manifest.assets.compactMap(\.url)
+            guard Set(urls).count == urls.count else {
                 throw .malformedManifest("two assets answer one replay URL")
             }
             var files = try verifiedFiles(assets, controlPaths: [manifestPath, selectionPath], in: directory)
@@ -234,9 +252,16 @@ private extension CaptureFixture {
     /// Media an image request may answer with, matching the acquisition tool's set.
     static let mediaMIMETypes: Set = ["image/gif", "image/jpeg", "image/png", "image/webp"]
 
-    /// Pages are saved HTML; every other kind is an image the acquisition tool accepted.
+    /// Pages are saved HTML, records are JSON, and every other kind is an image the acquisition
+    /// tool accepted.
     static func isSupportedMIMEType(of asset: MarketingCaptureManifest.Asset) -> Bool {
-        asset.kind.isPage ? asset.mime == "text/html" : mediaMIMETypes.contains(asset.mime)
+        if asset.kind.isPage {
+            asset.mime == "text/html"
+        } else if asset.kind.isRecord {
+            asset.mime == "application/json"
+        } else {
+            mediaMIMETypes.contains(asset.mime)
+        }
     }
 
     static func decode<Payload: Decodable>(
@@ -515,7 +540,7 @@ extension MarketingCaptureManifest.Asset: Decodable {
         kind = try container.decode(MarketingCaptureManifest.Kind.self, forKey: .kind)
         gid = try container.decode(String.self, forKey: .gid)
         index = try container.decode(Int?.self, forKey: .index)
-        url = try container.decode(String.self, forKey: .url)
+        url = try container.decode(String?.self, forKey: .url)
         path = try container.decode(String.self, forKey: .path)
         mime = try container.decode(String.self, forKey: .mime)
         bytes = try container.decode(Int.self, forKey: .bytes)
@@ -558,6 +583,7 @@ extension MarketingIdentity.Entry: Encodable {
         try container.encode(asset.gid, forKey: .gid)
         // `encode`, not `encodeIfPresent`: the canonical form writes a missing index as null.
         try container.encode(asset.index, forKey: .index)
+        // Likewise for a record's missing replay URL.
         try container.encode(asset.url, forKey: .url)
         try container.encode(asset.path, forKey: .path)
         try container.encode(asset.mime, forKey: .mime)

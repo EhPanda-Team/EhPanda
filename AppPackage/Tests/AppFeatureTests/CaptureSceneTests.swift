@@ -163,13 +163,25 @@ struct CaptureSceneTests {
         await #expect(throws: AppError.notFound) {
             try await scene.homeClient.fetchToplistsGalleries(.ehentai, ToplistsType.yesterday.categoryIndex, 1)
         }
-        expectNoDifference(
-            scene.replay,
-            Dictionary(
-                uniqueKeysWithValues: fixture.files.map({ file in
-                    (file.url, CaptureReplay.Response(data: file.data, mimeType: file.mime))
-                })
-            )
+        expectNoDifference(scene.replay, Self.replay(of: fixture))
+    }
+
+    @Test
+    func aRecordIsNeverReplayed() throws {
+        var fixture = try MarketingFixtureBuilder.standard()
+        fixture.files.append(.liveTextRecord(Data("{}".utf8)))
+
+        let scene = try makeScene(fixture)
+
+        expectNoDifference(scene.replay, Self.replay(of: try MarketingFixtureBuilder.standard()))
+    }
+
+    /// The responses a scene of `fixture` answers: every fetched file at its replay URL.
+    private static func replay(of fixture: MarketingFixtureBuilder) -> [String: CaptureReplay.Response] {
+        Dictionary(
+            uniqueKeysWithValues: fixture.files.compactMap({ file in
+                file.url.map({ ($0, CaptureReplay.Response(data: file.data, mimeType: file.mime)) })
+            })
         )
     }
 
@@ -303,9 +315,9 @@ struct CaptureSceneTests {
     func homeIsReadyOnlyOnceItsListsAndEveryDeliveredImageAreIn() async throws {
         let fixture = try MarketingFixtureBuilder.standard().addingPreview()
         let scene = try makeScene(fixture)
-        let cover = try #require(fixture.files.first(where: { $0.kind == .cover })).url
-        let preview = try #require(fixture.files.first(where: { $0.kind == .preview })).url
-        let detailPage = try #require(fixture.files.first(where: { $0.kind == .detail })).url
+        let cover = try #require(fixture.files.first(where: { $0.kind == .cover })?.url)
+        let preview = try #require(fixture.files.first(where: { $0.kind == .preview })?.url)
+        let detailPage = try #require(fixture.files.first(where: { $0.kind == .detail })?.url)
         let loaded = try await loadedState(scene)
 
         func diagnostics(
