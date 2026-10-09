@@ -426,6 +426,11 @@ extension ReadingView {
         guard liveTextHandler.liveTextGroups[page] == nil else {
             return
         }
+        #if DEBUG
+        guard !liveTextHandler.capturesLiveText(gid: store.gallery.gid, page: page) else {
+            return
+        }
+        #endif
         guard let imageURL = displayImageURLs[page] else {
             logger.debug("analyzeImageForLiveText URL not found, page: \(page, privacy: .public)")
             return
