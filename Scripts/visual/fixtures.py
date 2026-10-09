@@ -44,7 +44,8 @@ RECORD_MEDIA = 'application/json'
 MEDIA = {'image/jpeg': 'jpg', 'image/png': 'png', 'image/gif': 'gif', 'image/webp': 'webp'}
 SIGNATURES = ((b'\xff\xd8\xff', 'image/jpeg'), (b'\x89PNG\r\n\x1a\n', 'image/png'), (b'GIF87a', 'image/gif'),
               (b'GIF89a', 'image/gif'))
-GENERATORS = ('Scripts/visual/acquire-fixtures.py', 'Scripts/visual/fixtures.py', 'Scripts/visual/contracts.py')
+GENERATORS = ('Scripts/visual/acquire-fixtures.py', 'Scripts/visual/fixtures.py', 'Scripts/visual/contracts.py',
+              'Scripts/visual/record-live-text.py')
 MANIFEST_KEYS = ('schemaVersion', 'purpose', 'fixtureVersion', 'aggregateDigest', 'selectionID', 'selectionStatus',
                  'selectionAuthority', 'selectionSHA256', 'generatorSources', 'acquiredAt', 'assets')
 ENTRY_KEYS = ('kind', 'gid', 'index', 'url', 'path', 'mime', 'bytes', 'sha256', 'retrievedAt')

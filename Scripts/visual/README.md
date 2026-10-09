@@ -223,10 +223,11 @@ configured order produces a new one. Earlier versions are kept.
 A record is made rather than fetched, so its entry has a null `url`. A Live Text record holds what
 the app's own Live Text found on a flow's Live Text page: every group and line with its ID, text
 and four normalized corners, the page image's SHA-256, the recognition languages and the
-recording simulator's model and runtime build. `fixtures.publish_records` publishes a new version
-with the record added, keeping every other file and the acquisition time; its entry's
-`retrievedAt` is when it was recorded. A fixture holds each flow's record or
-none, so a version acquired again holds no record until the page is recorded again.
+recording simulator's model and runtime build. `record-live-text.py` makes it (see Record Live Text)
+and `fixtures.publish_records` publishes a new version with the record added, keeping every other
+file and the acquisition time; its entry's `retrievedAt` is when it was recorded. A fixture holds
+each flow's record or none, so a version acquired again holds no record until the page is recorded
+again.
 
 An output that already has `current` is not acquired again unless `--refresh` is given.
 
@@ -339,16 +340,22 @@ which the launch opens through the app's own navigation:
 | `comments` | The flow gallery's comments, from its detail once it loads, as Show All opens them |
 | `filters` | Filters, from the Search tab, at the app's defaults |
 | `reading` | The reader on the flow's `readerPage`, from the detail, as a preview tap opens it |
-| `reading-live-text` | The reader on the flow's `liveTextPage`; fails on its identity until 17-06 |
-| `downloads` | The Downloads tab; fails until 17-06 seeds downloads |
+| `reading-live-text` | The reader on the flow's `liveTextPage` with Live Text on, as the reader's Live Text button leaves it, showing the fixture's Live Text record of that page |
+| `downloads` | The Downloads tab, listing the selection's downloads from capture-owned folders |
 | `laboratory` | Laboratory, from the Setting tab |
+
+One more `scenarioID`, `live-text-recording`, exports no screen: it opens the reader as
+`reading-live-text` does but lets the reader's own Live Text recognize the page, so
+`record-live-text.py` can save what it found (see Record Live Text below).
 
 Before the app builds any state, the launch verifies the whole fixture as
 `fixtures.validate_fixtures` does: exact file set, lengths, SHA-256 digests, canonical paths, no
 links, media types, the selection digest and identity, and the aggregate digest and version.
-It also checks that Home can show the selection as configured, for example that the hero's
-`selectedIndex` is Home's starting card, 1. Any failure ends the launch with a message that names
-the check and the fixture-relative path or identifier involved, never file contents.
+It also checks that the scene can be shown as configured, for example that the hero's
+`selectedIndex` is Home's starting card, 1, that the Live Text record belongs to the flow's Live
+Text page, its image and the languages the reader asks for, and that every download can be shown as
+its entry says. Any failure ends the launch with a message that names the check and the
+fixture-relative path or identifier involved, never file contents.
 
 ## Isolation
 
@@ -356,7 +363,8 @@ A capture launch replaces, before the first store exists:
 
 - settings and other app storage with fresh in-memory stores, so nothing reads or writes the
   device's own values;
-- cookies, analytics, clipboard, logs and downloads with inert clients;
+- cookies, analytics, clipboard and logs with inert clients, and downloads with a client that only
+  lists the scene's seeded download folders and changes nothing;
 - the clock with 2025-01-01T00:00:00Z and identifiers with an incrementing sequence;
 - the settings with the app's defaults, except that the network bypass is on and the reader pages
   horizontally (`readingDirection = .leftToRight`): the vertical reader settles at an offset that
@@ -365,12 +373,25 @@ A capture launch replaces, before the first store exists:
 - Home's gallery client with the selection's galleries in configured order, parsed by the app's
   own parser from the saved detail pages;
 - every HTTP(S) request with an exact replay of the fixture: a `GET` of a listed URL gets that
-  file's verified bytes and recorded media type, and anything else fails and is recorded.
+  file's verified bytes and recorded media type, and anything else fails and is recorded;
+- on `reading-live-text`, the reader's Live Text with the fixture's record of the page: the reader
+  starts with Live Text on, shows the record's groups on that page through its own overlay, and
+  runs no recognition, so Vision never replaces or competes with what the capture shows.
 
-The reader cache and both image libraries' caches live in `EhPandaCapture` under the app's
-temporary directory, and their memory and background purges act on those copies. Every capture
-launch empties that directory first and touches nothing else, so each launch starts cold and a
-capture never reads or removes a user's cached files.
+The reader cache, both image libraries' caches and the scene's download folders live in
+`EhPandaCapture` under the app's temporary directory, and the caches' memory and background purges
+act on those copies. Every capture launch empties that directory first and touches nothing else, so
+each launch starts cold and a capture never reads or removes a user's cached files.
+
+A `downloads` scene seeds `EhPandaCapture/Downloads/Default/` with one folder per download entry,
+as a download leaves it: the cover, the page files the entry holds (every page of a complete
+entry, the first `completedPages` of another) and a manifest that records each held page's
+SHA-256 as the app computes it from the written file, with every other page blank. The app's own
+scan then reads the folders back. Completeness comes from the manifest alone, as in the app; only
+being downloaded (`active`) or waiting (`queued`) comes from the simulated queue, and the active
+row shows its run's progress. Entries must come in the order the screen lists them, by status,
+and each folder is dated an hour before the one above it, so the app's newest-first order keeps
+theirs. An `error` entry cannot be captured, because a capture has no failure to show.
 
 ## Diagnostics
 
@@ -390,6 +411,8 @@ UI tests read the capture's state from one invisible accessibility element, iden
 | `unknownRequests` | Requests the replay refused, as `METHOD URL` |
 | `blockers` | What the screen still waits for, and what makes it fail; empty once it is ready |
 | `rendering` | The app's own `language`, `locale`, `appearance`, `textSize` and device `family` |
+| `liveText` | The Live Text the reader shows on the Live Text page: `gid`, `page`, `source` (`fixture` or `recognition`), `recognitionLanguages` and every group and line; absent until it shows any |
+| `downloads` | Each Downloads row: `gid`, `status`, the `completedPages` its badge counts, `pageCount` and the `pageFiles` its folder holds; absent on other screens |
 
 The screen comes from the app's navigation state, never from the configuration, so a route that
 lands elsewhere reads as that other screen. A screen is `ready` once its content has arrived,
@@ -400,7 +423,10 @@ image waits for a cache and nothing failed:
   cover's color analysis, which the card's gradient shows.
 - Detail waits for its detail, its cover and every preview the fixture holds.
 - Comments are readable at once, from the top, with no comment highlighted.
-- The reader waits until it shows its current page's image.
+- The reader waits until it shows its current page's image. In a launch with Live Text it reads
+  as `reading-live-text` once it shows the page's Live Text, and fails on Live Text of another
+  gallery or page, or a recognition that found no text.
+- Downloads waits for its rows and every row's cover.
 - Filters must show the app's defaults, and Laboratory the network bypass on.
 - A sheet that leaves its tab visible around it also waits for that tab.
 
@@ -449,13 +475,15 @@ size instead of setting it: a text size the app overrides for its window, while 
 differs, renders some toolbar glyphs at the system's size. Set the simulator to Large first with
 `xcrun simctl ui "$UDID" content_size large`.
 
-The test passes only when the diagnostics are exactly what the selection expects for the
-coordinate: its screen, selection, set, fixture version, galleries and page, ready with no pending
-image, refused request or blocker, in the coordinate's rendering. It then takes the system's
-screenshot of the screen, `XCUIScreen.main.screenshot()`, a second apart until two in a row are
-byte-identical, and fails if they never are. Either way it attaches the diagnostics and that
-screenshot's PNG. The runner names the coordinate and the fixture version through environment
-variables:
+The test passes only when the diagnostics are exactly what the selection expects for the coordinate:
+its screen, selection, set, fixture version, galleries and page, ready with no pending image,
+refused request or blocker, in the coordinate's rendering, with each gallery shown once. On
+`reading-live-text` the Live Text must be exactly the fixture's record, each ID once. On `downloads`
+each row must have its entry's status, count its entry's pages as downloaded (every page for a
+complete entry) and hold that many page files. It then takes the system's screenshot of the screen,
+`XCUIScreen.main.screenshot()`, a second apart until two in a row are byte-identical, and fails if
+they never are. Either way it attaches the diagnostics and that screenshot's PNG. The runner names
+the coordinate and the fixture version through environment variables:
 
 ```sh
 TEST_RUNNER_EHPANDA_CAPTURE_SOURCE="$PWD/.capture/marketing/current" \
@@ -535,3 +563,30 @@ the runner's own would remove them.
 
 Every frame and result bundle shows real content: keep the output under `.capture/` and never
 commit it.
+
+## Record Live Text
+
+`record-live-text.py` saves the Live Text the `reading-live-text` screen shows. It runs
+`MarketingCaptureUITests/testRecordLiveText` once on the pinned iPhone, in English and light
+appearance, with the `live-text-recording` scenario: the app opens the fixture's saved page in the
+reader and runs Live Text through its own recognizer, request settings and grouping. The test
+passes once the reader shows its recognition of the flow's Live Text page, with text, and attaches
+the diagnostics, whose `liveText` carries every group and line:
+
+```sh
+python3 Scripts/visual/record-live-text.py \
+  --fixtures .capture/marketing \
+  --set nonexplicit \
+  --environment Scripts/visual/regression-environment.json \
+  --output .capture/<new run directory>
+```
+
+`--fixtures` is the fixture output, not a version: the runner records the version `current` names
+and publishes the record into the same output. As `capture-native.py` does, it validates the pin
+against fresh measurements first, runs the test once without retries on the pinned model and
+runtime, checks the attached diagnostics name the coordinate, and puts back the appearance and
+portrait orientation it found. It then builds the record with the page image's SHA-256 and the
+pinned model and runtime build, validates it as the fixture tools do, and publishes it with
+`fixtures.publish_records`, unless the sources, the pin or the current version changed meanwhile.
+`outcomes.json` names the published version. Record again after every acquisition, which starts a
+version without a record.

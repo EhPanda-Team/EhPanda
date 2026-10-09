@@ -33,4 +33,20 @@ final class MarketingCaptureUITests: XCTestCase {
             add(attachment)
         }
     }
+
+    /// Records the Live Text the app's own recognizer finds on the coordinate's reading-live-text page,
+    /// which `record-live-text.py` saves into the fixture for every capture of that screen to replay.
+    func testRecordLiveText() throws {
+        let launcher = try CaptureLauncher(coordinate: try CaptureCoordinate.fromEnvironment())
+        addTeardownBlock {
+            try await launcher.tearDown()
+        }
+
+        let settled = try launcher.recordLiveText(XCUIApplication())
+
+        let state = XCTAttachment(string: settled.json)
+        state.name = "live-text-recording-\(launcher.coordinate.key)-state"
+        state.lifetime = .keepAlways
+        add(state)
+    }
 }
