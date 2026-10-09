@@ -71,6 +71,82 @@ struct CaptureFixtureTests {
     }
 
     @Test
+    func aRecordDigestMatchesTheFixtureTools() throws {
+        let assets = [
+            MarketingCaptureManifest.Asset(
+                kind: .page,
+                gid: "1",
+                index: 3,
+                url: "https://abc.hath.network/h/x",
+                path: "assets/1/pages/3.webp",
+                mime: "image/webp",
+                bytes: 4,
+                sha256: "3660315a9af3df255d8f19ab077e4797822b41488a0e2a04bc6af71213c23274"
+            ),
+            MarketingCaptureManifest.Asset(
+                kind: .liveText,
+                gid: "1",
+                index: 3,
+                url: nil,
+                path: "records/1/liveText/3.json",
+                mime: "application/json",
+                bytes: 2,
+                sha256: "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+            )
+        ]
+
+        expectNoDifference(
+            try CaptureFixture.aggregateDigest(of: assets, selectionSHA256: String(repeating: "ab", count: 32)),
+            "433d52fd46c097d38556f13c2b2e8f70c0dad9f1e6201e612c7be0dd26e52692"
+        )
+    }
+
+    @Test
+    func aRecordLoadsAndAnswersNoRequest() throws {
+        var fixture = try MarketingFixtureBuilder.standard()
+        fixture.files.append(.liveTextRecord(Data("{}".utf8)))
+
+        let loaded = try CaptureFixture.load(directory: try fixture.write(), purpose: .marketingReal)
+
+        expectNoDifference(loaded.files[FixtureFile.liveTextRecordPath], Data("{}".utf8))
+        guard case .marketingReal(let manifest, _) = loaded.manifest else {
+            Issue.record("Expected a marketing manifest")
+            return
+        }
+        expectNoDifference(manifest.assets.filter({ $0.url == nil }).map(\.kind), [.liveText])
+    }
+
+    @Test(arguments: [
+        (FixtureFile.liveTextRecord(Data("{}".utf8), url: "https://e-hentai.org/records/101/1"), "answer no"),
+        (FixtureFile.liveTextRecord(Data("{}".utf8), mime: "image/webp"), "unsupported media type"),
+        (
+            FixtureFile(
+                kind: .page,
+                gid: "101",
+                index: 1,
+                url: nil,
+                path: "assets/101/pages/1.webp",
+                mime: "image/webp",
+                data: Data("page".utf8)
+            ),
+            "answer one"
+        )
+    ])
+    func aRecordAnswersNoReplayURLAndAFetchedAssetAnswersOne(file: FixtureFile, reason: String) throws {
+        var fixture = try MarketingFixtureBuilder.standard()
+        fixture.files.append(file)
+        let directory = try fixture.write()
+
+        let error = #expect(throws: CaptureFailure.self) {
+            try CaptureFixture.load(directory: directory, purpose: .marketingReal)
+        }
+        guard case .malformedManifest(let message) = error, message.contains(reason) else {
+            Issue.record("Expected a malformed manifest naming \(reason), got \(String(describing: error))")
+            return
+        }
+    }
+
+    @Test
     func marketingFixtureLoadsEveryVerifiedFile() throws {
         let fixture = try MarketingFixtureBuilder.standard()
         let directory = try fixture.write()
@@ -311,10 +387,19 @@ struct FixtureFile: Sendable {
     let kind: MarketingCaptureManifest.Kind
     let gid: String
     let index: Int?
-    let url: String
+    let url: String?
     let path: String
     let mime: String
     let data: Data
+}
+
+extension FixtureFile {
+    static let liveTextRecordPath = "records/101/liveText/1.json"
+
+    /// A Live Text record of the standard flow's page, with `data` as its contents.
+    static func liveTextRecord(_ data: Data, url: String? = nil, mime: String = "application/json") -> Self {
+        Self(kind: .liveText, gid: "101", index: 1, url: url, path: liveTextRecordPath, mime: mime, data: data)
+    }
 }
 
 /// Writes a marketing fixture version (17-03 schema) into a fresh temporary directory, with
@@ -405,7 +490,7 @@ struct MarketingFixtureBuilder: Sendable {
                 "kind": file.kind.rawValue,
                 "gid": file.gid,
                 "index": file.index.map({ $0 as Any }) ?? NSNull(),
-                "url": file.url,
+                "url": file.url.map({ $0 as Any }) ?? NSNull(),
                 "path": file.path,
                 "mime": file.mime,
                 "bytes": file.data.count,

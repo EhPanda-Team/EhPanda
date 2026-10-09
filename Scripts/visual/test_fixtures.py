@@ -770,6 +770,144 @@ class TamperingTests(FixtureTestCase):
                     fixtures.validate_fixtures(self.tampered(name, mutate))
 
 
+def live_text_record(manifest, gid='101', page=4, **changes):
+    """A valid record of one Live Text page: two groups, one with two lines."""
+    page_sha = next(entry['sha256'] for entry in manifest['assets']
+                    if entry['kind'] == 'page' and entry['gid'] == gid and entry['index'] == page)
+
+    def block(number, text, left, top):
+        corners = {'topLeft': (left, top), 'topRight': (left + 0.3, top), 'bottomLeft': (left, top + 0.05),
+                   'bottomRight': (left + 0.3, top + 0.05)}
+        return {'id': f'00000000-0000-0000-0000-{number:012X}', 'text': text,
+                **{name: {'x': x, 'y': y} for name, (x, y) in corners.items()}}
+    record = {
+        'schemaVersion': 1, 'gid': gid, 'page': page, 'pageSHA256': page_sha, 'recognitionLanguages': ['en-US'],
+        'recordedOn': {'model': 'iPhone Air', 'runtimeBuild': '24A5260a'},
+        'groups': [{'id': '00000000-0000-0000-0000-00000000000A',
+                    'blocks': [block(1, 'You sent me away,', 0.1, 0.2), block(2, 'and I will run.', 0.1, 0.26)]},
+                   {'id': '00000000-0000-0000-0000-00000000000B', 'blocks': [block(3, 'Again,', 0.5, 0.6)]}],
+    }
+    record.update(changes)
+    return record
+
+
+class RecordTests(FixtureTestCase):
+    def setUp(self):
+        super().setUp()
+        self.target, _ = self.acquire()
+        self.manifest = fixtures.validate_fixtures(self.target)
+
+    def records(self, manifest):
+        return [entry for entry in manifest['assets'] if entry['kind'] == 'liveText']
+
+    def test_a_record_publishes_a_version_that_keeps_every_other_file(self):
+        record = live_text_record(self.manifest)
+        target, changed = fixtures.publish_records(self.output, [record], '2026-10-09T01:00:00+00:00')
+        self.assertTrue(changed)
+        self.assertNotEqual(target, self.target)
+        self.assertEqual(os.readlink(self.output / 'current'), f'versions/{target.name}')
+        manifest = fixtures.validate_fixtures(target)
+        self.assertEqual(manifest['acquiredAt'], self.manifest['acquiredAt'])
+        self.assertEqual([entry for entry in manifest['assets'] if entry['kind'] != 'liveText'],
+                         self.manifest['assets'])
+        entry, = self.records(manifest)
+        self.assertEqual((entry['gid'], entry['index'], entry['url'], entry['path'], entry['mime'],
+                          entry['retrievedAt']),
+                         ('101', 4, None, 'records/101/liveText/4.json', 'application/json',
+                          '2026-10-09T01:00:00+00:00'))
+        self.assertEqual(json.loads((target / entry['path']).read_text()), record)
+        for other in self.manifest['assets']:
+            self.assertEqual((target / other['path']).read_bytes(), (self.target / other['path']).read_bytes())
+        fixtures.validate_fixtures(self.target)
+
+    def test_recording_again_replaces_the_record_of_its_page(self):
+        fixtures.publish_records(self.output, [live_text_record(self.manifest)], '2026-10-09T01:00:00+00:00')
+        again = live_text_record(self.manifest, recognitionLanguages=None)
+        target, _ = fixtures.publish_records(self.output, [again], '2026-10-09T02:00:00+00:00')
+        manifest = fixtures.validate_fixtures(target)
+        entry, = self.records(manifest)
+        self.assertEqual(json.loads((target / entry['path']).read_text()), again)
+
+    def test_recording_needs_a_published_fixture(self):
+        with self.assertRaisesRegex(ValueError, 'not published'):
+            fixtures.publish_records(self.directory / 'empty', [live_text_record(self.manifest)], 'now')
+
+    def test_an_invalid_record_is_never_published(self):
+        def edit_block(**changes):
+            record = live_text_record(self.manifest)
+            record['groups'][0]['blocks'][0].update(changes)
+            return record
+
+        def corner(x, y):
+            return {'x': x, 'y': y}
+        flat = edit_block(bottomLeft=corner(0.1, 0.2), bottomRight=corner(0.4, 0.2))
+        repeated = live_text_record(self.manifest)
+        repeated['groups'][1]['id'] = repeated['groups'][0]['id']
+        cases = {
+            'other bytes': (live_text_record(self.manifest, pageSHA256='0' * 64), 'other bytes'),
+            'not the Live Text page': (live_text_record(self.manifest, page=3), 'no flow shows Live Text on page 3'),
+            'not the flow gallery': (live_text_record(self.manifest, gid='104', page=4), 'gallery 104'),
+            'no groups': (live_text_record(self.manifest, groups=[]), 'no groups'),
+            'a group without lines': (live_text_record(self.manifest, groups=[{'id': repeated['groups'][1]['id'],
+                                                                               'blocks': []}]), 'no lines'),
+            'empty text': (edit_block(text=''), 'no text'),
+            'lowercase ID': (edit_block(id='00000000-0000-0000-0000-00000000000a'), 'malformed or repeated ID'),
+            'repeated ID': (repeated, 'malformed or repeated ID'),
+            'missing corner': (edit_block(topLeft=None), 'topLeft must have exactly the keys'),
+            'boolean coordinate': (edit_block(topLeft={'x': True, 'y': 0.2}), 'finite'),
+            'infinite coordinate': (edit_block(topLeft=corner(float('inf'), 0.2)), 'finite'),
+            'no extent': (flat, 'no extent'),
+            'outside the page': (edit_block(**{name: corner(x + 1.2, y) for name, (x, y) in [
+                ('topLeft', (0.1, 0.2)), ('topRight', (0.4, 0.2)), ('bottomLeft', (0.1, 0.25)),
+                ('bottomRight', (0.4, 0.25))]}), 'outside its page'),
+            'empty languages': (live_text_record(self.manifest, recognitionLanguages=[]), 'recognitionLanguages'),
+            'unnamed device': (live_text_record(self.manifest, recordedOn={'model': '', 'runtimeBuild': 'x'}),
+                               'recordedOn'),
+            'boolean schema version': (live_text_record(self.manifest, schemaVersion=True), 'schemaVersion'),
+            'extra key': (live_text_record(self.manifest, extra=1), 'exactly the keys'),
+        }
+        for name, (record, message) in cases.items():
+            with self.subTest(name):
+                with self.assertRaisesRegex(ValueError, message):
+                    fixtures.publish_records(self.output, [record], '2026-10-09T01:00:00+00:00')
+                self.assertEqual(os.readlink(self.output / 'current'), f'versions/{self.target.name}')
+                self.assertEqual(list(self.output.glob('.staging-*')), [])
+
+    def test_a_corner_just_outside_the_page_is_kept(self):
+        # Vision can place a corner slightly past the image's edge; the app draws it as recognized.
+        record = live_text_record(self.manifest)
+        record['groups'][1]['blocks'][0]['topLeft'] = {'x': -0.004, 'y': 0.6}
+        target, _ = fixtures.publish_records(self.output, [record], '2026-10-09T01:00:00+00:00')
+        fixtures.validate_fixtures(target)
+
+    def test_record_entries_answer_no_replay_url(self):
+        target, _ = fixtures.publish_records(self.output, [live_text_record(self.manifest)], 'now')
+
+        def edited(name, change):
+            root = self.directory / 'edited' / name
+            version = root / 'versions' / target.name
+            shutil.copytree(target, version)
+            os.symlink(f'versions/{target.name}', root / 'current')
+            manifest = json.loads((version / 'manifest.json').read_text())
+            change(manifest)
+            (version / 'manifest.json').write_text(json.dumps(manifest))
+            return root / 'current'
+
+        def record_url(manifest):
+            self.records(manifest)[0].update(url='https://e-hentai.org/records/101/4')
+
+        def page_without_url(manifest):
+            next(entry for entry in manifest['assets'] if entry['kind'] == 'page').update(url=None)
+
+        def record_media(manifest):
+            self.records(manifest)[0].update(mime='image/jpeg')
+        for name, change in [('record URL', record_url), ('page without URL', page_without_url),
+                             ('record media type', record_media)]:
+            with self.subTest(name):
+                with self.assertRaisesRegex(ValueError, 'Malformed asset entry'):
+                    fixtures.validate_fixtures(edited(name, change))
+
+
 class PublicationTests(FixtureTestCase):
     def test_second_writer_is_rejected_while_the_first_holds_the_output(self):
         site = Site(self.selection)

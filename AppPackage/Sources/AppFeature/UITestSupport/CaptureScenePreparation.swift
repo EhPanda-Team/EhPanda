@@ -25,7 +25,7 @@ struct CaptureScene: Sendable {
     let configuration: CaptureSceneConfiguration
     let selectionID: String
     let fixtureVersion: String
-    /// Responses by exact request URL, one for every asset the fixture holds.
+    /// Responses by exact request URL, one for every asset the fixture fetched.
     let replay: [String: CaptureReplay.Response]
     /// Home's selected galleries, in configured order.
     let homeClient: HomeClient
@@ -260,7 +260,9 @@ enum CaptureScenePreparation {
             guard let data = files[asset.path] else {
                 throw .missingFile(asset.path)
             }
-            responses[asset.url] = .init(data: data, mimeType: asset.mime)
+            if let url = asset.url {
+                responses[url] = .init(data: data, mimeType: asset.mime)
+            }
         }
         return responses
     }
