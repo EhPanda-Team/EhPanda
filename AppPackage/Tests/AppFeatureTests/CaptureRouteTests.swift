@@ -24,7 +24,8 @@ struct CaptureRouteTests {
 
     @Test(arguments: CaptureScreen.allCases)
     func everyScreenHasARouteShowingTheSelectedGallery(_ screen: CaptureScreen) async throws {
-        let scene = try makeScene(try MarketingFixtureBuilder.standard().addingFlowPage(), scenarioID: screen.rawValue)
+        let fixture = try MarketingFixtureBuilder.standard().addingFlowPage().addingLiveTextRecord(LiveTextRecordFile())
+        let scene = try makeScene(fixture, scenarioID: screen.rawValue)
         let popular = try await scene.homeClient.fetchPopularGalleries(.ehentai, Filter())
         // The flow gallery is built exactly as Home's card shows it.
         let gallery = try #require(popular.first(where: { $0.gid == MarketingFixtureBuilder.flowGID }))
@@ -265,6 +266,7 @@ extension MarketingFixtureBuilder {
     /// The selection's flow gallery and the one page of it the standard fixture names.
     static let flowGID = "101"
     static let flowPage = 1
+    static let flowPageData = Data("page".utf8)
 
     /// The standard fixture plus the image of the flow gallery's page, which the reader shows.
     func addingFlowPage() -> Self {
@@ -277,7 +279,7 @@ extension MarketingFixtureBuilder {
                 url: "https://abc.hath.network/h/0000/keystamp=0;fileindex=1;xres=1280/1.webp",
                 path: "assets/\(Self.flowGID)/pages/\(Self.flowPage).webp",
                 mime: "image/webp",
-                data: Data("page".utf8)
+                data: Self.flowPageData
             )
         )
         return fixture
