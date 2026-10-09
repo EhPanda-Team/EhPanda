@@ -378,13 +378,26 @@ def identity(text, gid, token):
         raise ValueError(f'detail page identifies gallery {found}, not the selected {gid}/{token}')
 
 
+def download_pages(entry, page_count):
+    """The pages a download entry's folder holds: every page of a complete one, the first completedPages of another."""
+    if entry['status'] in COMPLETE_DOWNLOADS:
+        return set(range(1, page_count + 1))
+    if entry['completedPages'] >= page_count:
+        raise ValueError(f'the {entry["status"]} download holds {entry["completedPages"]} of {page_count} pages; '
+                         'an incomplete download holds fewer')
+    return set(range(1, entry['completedPages'] + 1))
+
+
 def collect(selection, retrieve):
     """Derive every required resource in declaration order; retrieve(kind, gid, index, url) returns its bytes.
 
     A flow gallery's reader resources follow the app's reader: the preview page of every batch holding a loaded
     page, every reader page those preview pages list, and the image of each declared page and its prefetch window.
+    A download entry's gallery needs the image of every page its folder holds, resolved as a download resolves it:
+    the preview page of each batch holding one of those pages, and each of those pages' reader page.
     """
     flows = {scene['flow']['gallery']: scene['flow']['pages'] for scene in selection['scenes'].values()}
+    downloads = {entry['gallery']: entry for scene in selection['scenes'].values() for entry in scene['downloads']}
     for gallery in selection['galleries']:
         gid, token = GALLERY_URL.fullmatch(gallery['url']).groups()
         text = retrieve('detail', gid, None, gallery['url'] + '?hc=1').decode()
@@ -394,26 +407,39 @@ def collect(selection, retrieve):
             raise ValueError(f'{gid}: {error}') from None
         identity(text, gid, token)
         retrieve('cover', gid, None, detail['cover'])
-        if gid not in flows:
+        loaded = set()
+        if gid in flows:
+            previews = dict.fromkeys(detail['previews'][page] for page in sorted(detail['previews']))
+            for index, url in enumerate(previews):
+                retrieve('preview', gid, index, url)
+            pages = flows[gid]
+            if pages[-1] > detail['pageCount']:
+                raise ValueError(f'{gid}: reader page {pages[-1]} exceeds the {detail["pageCount"]} pages')
+            loaded = set(reader_images(pages, detail['pageCount']))
+        held = set()
+        if gid in downloads:
+            try:
+                held = download_pages(downloads[gid], detail['pageCount'])
+            except ValueError as error:
+                raise ValueError(f'{gid}: {error}') from None
+        if not loaded | held:
             continue
-        for index, url in enumerate(dict.fromkeys(detail['previews'][page] for page in sorted(detail['previews']))):
-            retrieve('preview', gid, index, url)
-        pages = flows[gid]
-        if pages[-1] > detail['pageCount']:
-            raise ValueError(f'{gid}: reader page {pages[-1]} exceeds the {detail["pageCount"]} pages')
         batch = batch_size(detail['previewMode'], detail['previewCount'])
-        loaded = reader_images(pages, detail['pageCount'])
-        links = {}
-        for number in sorted({page_number(page, batch) for page in loaded}):
-            links.update(parse_thumbnails(retrieve('thumbnails', gid, number, f'{gallery["url"]}?p={number}').decode()))
+        listings = {}
+        for number in sorted({page_number(page, batch) for page in loaded | held}):
+            url = f'{gallery["url"]}?p={number}'
+            listings[number] = parse_thumbnails(retrieve('thumbnails', gid, number, url).decode())
+        links = {page: link for listing in listings.values() for page, link in listing.items()}
         # The reader resolves a batch's image URLs together, from every reader page its preview page lists, and
         # fails them all when one fails: each listed page is required, though only the loaded ones need an image.
+        # A download resolves only the pages it saves.
+        listed = {page for number in {page_number(page, batch) for page in loaded} for page in listings[number]}
         images = {}
-        for page in sorted(links.keys() | set(loaded)):
+        for page in sorted(listed | loaded | held):
             images[page] = parse_image_page(retrieve('imagePage', gid, page, reader_link(links, page)).decode())
             if urlsplit(images[page]).path.endswith('/509.gif'):
                 raise ValueError(f'{gid}: reader page {page} returned the bandwidth-limit image')
-        for page in loaded:
+        for page in sorted(loaded | held):
             retrieve('page', gid, page, images[page])
 
 

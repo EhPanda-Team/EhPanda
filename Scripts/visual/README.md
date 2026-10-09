@@ -148,8 +148,8 @@ The input is a JSON file with exactly these keys:
         "toplists": {"yesterday": ["<gid>"], "pastMonth": ["<gid>"], "pastYear": ["<gid>"], "allTime": ["<gid>"]}
       },
       "flow": {"gallery": "<gid>", "readerPage": 4, "liveTextPage": 4, "pages": [3, 4, 5]},
-      "downloads": [{"gallery": "<gid>", "status": "completed"},
-                    {"gallery": "<gid>", "status": "active", "completedPages": 12}]
+      "downloads": [{"gallery": "<gid>", "status": "active", "completedPages": 12},
+                    {"gallery": "<gid>", "status": "completed"}]
     }
   }
 }
@@ -185,9 +185,13 @@ pages `p-7` to `p-2` and `p+2` to `p+7`, clipped to the gallery, with a side tha
 single page skipped, the way `ReadingReducer` computes it. The reader resolves image URLs a
 batch at a time, so acquisition saves the preview page `?p=<n>` of every batch that holds a
 loaded page (the app's `PreviewConfig` page number), every reader page that preview page lists,
-and the image of each loaded page. Pages come only from `e-hentai.org`; images only from
-`ehgt.org` hosts or `*.hath.network`, over HTTPS, without redirects. Requests are at least one
-second apart.
+and the image of each loaded page. For each download entry it saves the image of every page the
+entry's folder holds: all pages of a `completed` or `updateAvailable` entry, and the first
+`completedPages` pages of any other. A download resolves each page on its own, so acquisition
+saves the preview page of every batch that holds one of those pages and those pages' reader
+pages. An incomplete entry must hold fewer pages than its gallery has, or acquisition fails.
+Pages come only from `e-hentai.org`; images only from `ehgt.org` hosts or `*.hath.network`, over
+HTTPS, without redirects. Requests are at least one second apart.
 
 Acquisition is anonymous. It reads no credentials and sends only the app's `nw=1` content
 preference cookie, and only to `e-hentai.org`. A response that shows an account session fails
@@ -280,9 +284,8 @@ Each content set needs:
 
 The app lists downloads by status priority (active, queued, update available, error, inactive,
 completed), so equal statuses keep their configured order and capture must give them descending
-download dates in that order. An incomplete download needs fewer completed pages than the
-gallery has. Any problem is listed in the ledger and on standard error, and the command then
-exits with status 1. Integrity failures write nothing.
+download dates in that order. Any problem is listed in the ledger and on standard error, and the
+command then exits with status 1. Integrity failures write nothing.
 
 The review approves nothing. A provisional selection, or a content set without a scene, stays
 listed as unresolved until the owner supplies the final selection before Phase 17 closes.
