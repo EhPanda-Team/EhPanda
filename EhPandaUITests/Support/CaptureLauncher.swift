@@ -125,6 +125,7 @@ struct CaptureFixtureCopy: Sendable {
     let root: URL
     let version: URL
     let fixtureVersion: String
+    let assets: [CaptureFixtureAsset]
     let selection: CaptureFixtureSelection
 
     static func make() throws -> Self {
@@ -148,16 +149,57 @@ struct CaptureFixtureCopy: Sendable {
             CaptureFixtureSelection.self,
             from: Data(contentsOf: version.appending(path: "selection.json"))
         )
-        return Self(root: root, version: version, fixtureVersion: manifest.fixtureVersion, selection: selection)
+        return Self(
+            root: root,
+            version: version,
+            fixtureVersion: manifest.fixtureVersion,
+            assets: manifest.assets,
+            selection: selection
+        )
     }
 
     func remove() throws {
         try FileManager.default.removeItem(at: root)
     }
+
+    /// The Live Text the fixture's record of `page` of gallery `gid` holds, as the reader replays it.
+    func recordedLiveText(gid: String, page: Int) throws -> CaptureLaunchLiveText {
+        let asset = try XCTUnwrap(
+            assets.first(where: { $0.kind == "liveText" && $0.gid == gid && $0.index == page }),
+            "The fixture holds no Live Text record of page \(page) of gallery \(gid)."
+        )
+        let record = try JSONDecoder().decode(
+            CaptureLiveTextRecordFile.self,
+            from: Data(contentsOf: version.appending(path: asset.path))
+        )
+        return CaptureLaunchLiveText(
+            gid: record.gid,
+            page: record.page,
+            source: "fixture",
+            recognitionLanguages: nil,
+            groups: record.groups
+        )
+    }
 }
 
 private struct CaptureFixtureManifest: Decodable {
     let fixtureVersion: String
+    let assets: [CaptureFixtureAsset]
+}
+
+/// A file a fixture version lists.
+struct CaptureFixtureAsset: Decodable, Sendable {
+    let kind: String
+    let gid: String
+    let index: Int?
+    let path: String
+}
+
+/// The parts of a fixture's Live Text record the reader's Live Text must match.
+private struct CaptureLiveTextRecordFile: Decodable {
+    let gid: String
+    let page: Int
+    let groups: [CaptureLiveTextGroup]
 }
 
 /// The parts of `selection.json` a capture verifies its screens against.
@@ -186,6 +228,9 @@ struct CaptureFixtureSelection: Decodable, Sendable {
 
     struct Download: Decodable, Sendable {
         let gallery: String
+        let status: String
+        /// How many pages an incomplete download holds; `nil` for a complete one.
+        let completedPages: Int?
     }
 
     let selectionID: String
@@ -227,6 +272,54 @@ struct CaptureLaunchDiagnostics: Decodable, Equatable {
     let unknownRequests: [String]
     let blockers: [String]
     let rendering: Rendering
+    let liveText: CaptureLaunchLiveText?
+    let downloads: [CaptureLaunchDownload]?
+}
+
+/// The Live Text a reader shows, as the diagnostics report it and a fixture's record holds it.
+struct CaptureLaunchLiveText: Decodable, Equatable {
+    let gid: String
+    let page: Int
+    /// `fixture` for a replayed record, `recognition` for what the reader's recognizer found.
+    let source: String
+    let recognitionLanguages: [String]?
+    let groups: [CaptureLiveTextGroup]
+}
+
+struct CaptureLiveTextGroup: Decodable, Equatable {
+    let id: UUID
+    let blocks: [CaptureLiveTextBlock]
+}
+
+struct CaptureLiveTextBlock: Decodable, Equatable {
+    let id: UUID
+    let text: String
+    let topLeft: CaptureLiveTextPoint
+    let topRight: CaptureLiveTextPoint
+    let bottomLeft: CaptureLiveTextPoint
+    let bottomRight: CaptureLiveTextPoint
+}
+
+/// A corner in the page image's normalized coordinates, kept as JSON `x` and `y`.
+struct CaptureLiveTextPoint: Decodable, Equatable {
+    private enum CodingKeys: String, CodingKey {
+        case horizontal = "x"
+        case vertical = "y"
+    }
+
+    let horizontal: Double
+    let vertical: Double
+}
+
+/// A row the Downloads screen lists, as the diagnostics report it.
+struct CaptureLaunchDownload: Decodable, Equatable {
+    let gid: String
+    let status: String
+    /// The pages the row's badge counts as downloaded.
+    let completedPages: Int
+    let pageCount: Int
+    /// The page files the gallery's folder holds.
+    let pageFiles: Int
 }
 
 /// Launches the actual app on one marketing coordinate and verifies the screen it settles on.
@@ -273,9 +366,49 @@ struct CaptureLauncher: Sendable {
     }
 
     /// Launches `app` on the coordinate and returns its diagnostics once the screen is ready,
-    /// failing unless they show exactly the coordinate's screen, selection and rendering.
+    /// failing unless they show exactly the coordinate's screen, selection and rendering, and on the
+    /// reading-live-text screen exactly the Live Text the fixture recorded.
     @MainActor
     func launch(_ app: XCUIApplication) throws -> (json: String, diagnostics: CaptureLaunchDiagnostics) {
+        let settled = try start(app, scenarioID: coordinate.screen.rawValue)
+        let liveText: CaptureLaunchLiveText? = switch coordinate.screen {
+        case .readingLiveText:
+            try recordedLiveText()
+        case .home, .detail, .comments, .filters, .reading, .downloads, .laboratory:
+            nil
+        }
+        try verify(settled.diagnostics, liveText: liveText)
+        return settled
+    }
+
+    /// Launches `app` to record the reader's own Live Text on the coordinate's reading-live-text
+    /// screen, and returns its diagnostics once the reader shows what its recognizer found, failing
+    /// unless everything else is exactly the coordinate's screen, selection and rendering.
+    @MainActor
+    func recordLiveText(_ app: XCUIApplication) throws -> (json: String, diagnostics: CaptureLaunchDiagnostics) {
+        guard coordinate.screen == .readingLiveText else {
+            XCTFail("A Live Text recording runs on a reading-live-text coordinate, not \(coordinate.key).")
+            throw CaptureLaunchError.notALiveTextCoordinate
+        }
+        let settled = try start(app, scenarioID: Self.liveTextRecordingID)
+        let flow = try fixture.selection.scene(coordinate.set).flow
+        let liveText = settled.diagnostics.liveText
+        XCTAssertEqual(liveText?.gid, flow.gallery, "The recording read another gallery.")
+        XCTAssertEqual(liveText?.page, flow.liveTextPage, "The recording read another page.")
+        XCTAssertEqual(liveText?.source, "recognition", "The recording did not come from the reader's recognizer.")
+        XCTAssertFalse(liveText?.groups.isEmpty ?? true, "The reader recognized no text to record.")
+        try verify(settled.diagnostics, liveText: liveText)
+        return settled
+    }
+
+    /// The scenario that opens the reading-live-text screen for a recording.
+    private static let liveTextRecordingID = "live-text-recording"
+
+    @MainActor
+    private func start(
+        _ app: XCUIApplication,
+        scenarioID: String
+    ) throws -> (json: String, diagnostics: CaptureLaunchDiagnostics) {
         XCUIDevice.shared.orientation = .portrait
         XCUIDevice.shared.appearance = switch coordinate.theme {
         case .light:
@@ -285,7 +418,7 @@ struct CaptureLauncher: Sendable {
         }
         let configuration = CaptureConfiguration(
             purpose: "marketingReal",
-            scenarioID: coordinate.screen.rawValue,
+            scenarioID: scenarioID,
             fixtureID: coordinate.set
         )
         app.launchArguments = [
@@ -301,14 +434,41 @@ struct CaptureLauncher: Sendable {
         app.launch()
 
         let settled = try app.settledCaptureDiagnostics(as: CaptureLaunchDiagnostics.self, during: coordinate.key)
-        let orientation = XCUIDevice.shared.orientation
-        let expected = try expectedDiagnostics()
-        XCTAssertEqual(orientation, .portrait, "The \(coordinate.key) capture left portrait.")
-        XCTAssertEqual(settled.diagnostics, expected, "The \(coordinate.key) capture differs.")
+        XCTAssertEqual(XCUIDevice.shared.orientation, .portrait, "The \(coordinate.key) capture left portrait.")
         return settled
     }
 
-    private func expectedDiagnostics() throws -> CaptureLaunchDiagnostics {
+    /// The Live Text the fixture recorded on the flow's Live Text page.
+    private func recordedLiveText() throws -> CaptureLaunchLiveText {
+        let flow = try fixture.selection.scene(coordinate.set).flow
+        return try fixture.recordedLiveText(gid: flow.gallery, page: flow.liveTextPage)
+    }
+
+    /// Fails unless `diagnostics` show exactly the coordinate's screen with `liveText`, each gallery
+    /// once and each Live Text ID once.
+    private func verify(_ diagnostics: CaptureLaunchDiagnostics, liveText: CaptureLaunchLiveText?) throws {
+        let expected = try expectedDiagnostics(liveText: liveText, reportedDownloads: diagnostics.downloads ?? [])
+        XCTAssertEqual(diagnostics, expected, "The \(coordinate.key) capture differs.")
+        XCTAssertEqual(
+            Set(diagnostics.galleryIDs).count,
+            diagnostics.galleryIDs.count,
+            "The \(coordinate.key) capture shows a gallery twice."
+        )
+        let liveTextIDs = (diagnostics.liveText?.groups ?? []).flatMap({ [$0.id] + $0.blocks.map(\.id) })
+        XCTAssertEqual(
+            Set(liveTextIDs).count,
+            liveTextIDs.count,
+            "The \(coordinate.key) capture repeats a Live Text ID."
+        )
+    }
+
+    /// The selection's diagnostics for the coordinate. A complete download's page count is only in the
+    /// gallery's detail, so each expected row takes it from the row `reportedDownloads` holds for its
+    /// gallery, and then counts every page as downloaded and held.
+    private func expectedDiagnostics(
+        liveText: CaptureLaunchLiveText?,
+        reportedDownloads: [CaptureLaunchDownload]
+    ) throws -> CaptureLaunchDiagnostics {
         let scene = try fixture.selection.scene(coordinate.set)
         let galleryIDs: [String] = switch coordinate.screen {
         case .home:
@@ -345,13 +505,26 @@ struct CaptureLauncher: Sendable {
                 appearance: coordinate.theme.rawValue,
                 textSize: Self.textSize,
                 family: coordinate.family.rawValue
-            )
+            ),
+            liveText: liveText,
+            downloads: coordinate.screen == .downloads ? scene.downloads.map { download in
+                let pageCount = reportedDownloads.first(where: { $0.gid == download.gallery })?.pageCount ?? 0
+                let completedPages = download.completedPages ?? pageCount
+                return CaptureLaunchDownload(
+                    gid: download.gallery,
+                    status: download.status,
+                    completedPages: completedPages,
+                    pageCount: pageCount,
+                    pageFiles: completedPages
+                )
+            } : nil
         )
     }
 }
 
 enum CaptureLaunchError: Error {
     case wrongFamily
+    case notALiveTextCoordinate
 }
 
 /// The capture configuration a launch passes in `EHPANDA_CAPTURE_CONFIGURATION`.
