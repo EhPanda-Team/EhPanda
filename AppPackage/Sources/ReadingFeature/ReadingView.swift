@@ -330,13 +330,14 @@ public struct ReadingView: View {
             setting: setting,
             isLandscape: isLandscape
         )
-        let isDualPage = setting.enableDualPageMode
-            && setting.readingDirection != .vertical && isLandscape
+        let slot: PageSlot = setting.readingDirection == .vertical
+            ? .strip
+            : .pager(isDualPage: setting.enableDualPageMode && isLandscape)
         let dataSource = store.state.containerDataSource(setting: setting, isLandscape: isLandscape)
         let activeStackIndex = dataSource.indices.contains(pageModel.index) ? dataSource[pageModel.index] : nil
         HorizontalImageStack(
             index: index,
-            isDualPage: isDualPage,
+            slot: slot,
             isActive: index == activeStackIndex,
             backgroundColor: backgroundColor,
             config: imageStackConfig,
