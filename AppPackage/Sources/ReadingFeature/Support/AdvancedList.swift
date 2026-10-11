@@ -10,9 +10,10 @@ where PageView: View, ID: Hashable & Sendable, G: Gesture {
     ///
     /// Centering a page the lazy stack has not built yet lands on its estimated height, so the landing exposes
     /// and builds the page above it; when that page's image loads, its height changes, the scroll view keeps its
-    /// offset and the target page moves (measured 2026-10-09 with the reader's row sizes: 324 pt on the iPhone,
-    /// 43 pt on the iPad), so where a resume settles depends on the order the images load. Aligned to the top, no
-    /// page above the target is on screen, and `AboveScreenHeightLock` covers the pages built above it off screen.
+    /// offset and the target page moves (measured 2026-10-09 with placeholders that filled the screen: 324 pt on
+    /// the iPhone, 43 pt on the iPad), so where a resume settles depends on the order the images load. Aligned to the
+    /// top, no page above the target is on screen, and `AboveScreenHeightLock` covers the pages built above it off
+    /// screen.
     ///
     /// The page model follows the page the position names whenever no scroll is under way: when a scroll comes to
     /// rest, and when the position changes outside a scroll. The status bar's scroll to the top is such a change: the
@@ -196,9 +197,8 @@ private struct AboveScreenHeightLock: ViewModifier {
 /// points while the scroll view moves on the pixel grid, so the page above a positioned page can reach a fraction of
 /// a pixel into the screen without drawing anything there (0.071 pt after a jump across pages the stack only
 /// estimated, measured 2026-10-10); compared in points, that page would count as on screen and never lock. An edge
-/// exactly half a pixel between two rows goes to the row below it, as the scroll view rounds its offset and the
-/// renderer rounds a page's position (measured 2026-10-10), so a page the scroll view leaves half a pixel above the
-/// top of the screen is drawn from its first row and counts as on screen.
+/// exactly half a pixel between two rows goes to the row below it (`PixelGrid.row(of:displayScale:)`), so a page the
+/// scroll view leaves half a pixel above the top of the screen is drawn from its first row and counts as on screen.
 private enum ScreenZone: Equatable {
     /// Entirely above the screen, with the page's height.
     case above(height: CGFloat)
@@ -209,17 +209,12 @@ private enum ScreenZone: Equatable {
 
     init(of proxy: GeometryProxy, displayScale: CGFloat) {
         let frame = proxy.frame(in: .scrollView(axis: .vertical))
-        self = if Self.row(of: frame.maxY, displayScale: displayScale) <= 0 {
+        self = if PixelGrid.row(of: frame.maxY, displayScale: displayScale) <= 0 {
             .above(height: frame.height)
-        } else if Self.row(of: frame.minY, displayScale: displayScale) < 0 {
+        } else if PixelGrid.row(of: frame.minY, displayScale: displayScale) < 0 {
             .acrossTop
         } else {
             .topOnOrBelow
         }
-    }
-
-    /// The pixel row an edge at `points` is drawn on.
-    private static func row(of points: CGFloat, displayScale: CGFloat) -> CGFloat {
-        (points * displayScale + 0.5).rounded(.down)
     }
 }

@@ -1,6 +1,5 @@
 import AppComponents
 import AppModels
-import AppTools
 import ComposableArchitecture
 import ImageClient
 import Kingfisher
@@ -45,7 +44,7 @@ extension AutoPlayPolicy {
 // MARK: HorizontalImageStack
 struct HorizontalImageStack: View {
     private let index: Int
-    private let isDualPage: Bool
+    private let slot: PageSlot
     private let isActive: Bool
     private let backgroundColor: Color
     private let config: ImageStackConfig
@@ -67,7 +66,7 @@ struct HorizontalImageStack: View {
     private let shareImageAction: (URL) -> Void
 
     init(
-        index: Int, isDualPage: Bool, isActive: Bool, backgroundColor: Color,
+        index: Int, slot: PageSlot, isActive: Bool, backgroundColor: Color,
         config: ImageStackConfig, imageURLs: [Int: URL], originalImageURLs: [Int: URL],
         loadingStates: [Int: LoadingState], enablesLiveText: Bool,
         liveTextGroups: [Int: [LiveTextGroup]], focusedLiveTextGroup: LiveTextGroup?,
@@ -79,7 +78,7 @@ struct HorizontalImageStack: View {
         saveImageAction: @escaping (URL) -> Void, shareImageAction: @escaping (URL) -> Void
     ) {
         self.index = index
-        self.isDualPage = isDualPage
+        self.slot = slot
         self.isActive = isActive
         self.backgroundColor = backgroundColor
         self.config = config
@@ -117,7 +116,7 @@ struct HorizontalImageStack: View {
             index: page,
             imageURL: imageURLs[page],
             loadingState: loadingStates[page] ?? .idle,
-            isDualPage: isDualPage,
+            slot: slot,
             isActive: isActive,
             backgroundColor: backgroundColor,
             enablesLiveText: enablesLiveText,
@@ -236,7 +235,7 @@ struct ImageContainer: View {
     private let index: Int
     private let imageURL: URL?
     private let loadingState: LoadingState
-    private let isDualPage: Bool
+    private let slot: PageSlot
     private let isActive: Bool
     private let backgroundColor: Color
     private let enablesLiveText: Bool
@@ -251,7 +250,7 @@ struct ImageContainer: View {
     init(
         index: Int, imageURL: URL?,
         loadingState: LoadingState,
-        isDualPage: Bool,
+        slot: PageSlot,
         isActive: Bool,
         backgroundColor: Color,
         enablesLiveText: Bool,
@@ -266,7 +265,7 @@ struct ImageContainer: View {
         self.index = index
         self.imageURL = imageURL
         self.loadingState = loadingState
-        self.isDualPage = isDualPage
+        self.slot = slot
         self.isActive = isActive
         self.backgroundColor = backgroundColor
         self.enablesLiveText = enablesLiveText
@@ -280,18 +279,28 @@ struct ImageContainer: View {
     }
 
     private func placeholder(_ progress: Progress?) -> some View {
-        Placeholder(
-            style: .progress(
-                pageNumber: index,
-                progress: progress,
-                isDualPage: isDualPage,
-                backgroundColor: backgroundColor
-            )
-        )
-        .containerRelativeFrame([.horizontal, .vertical]) { length, axis in
-            axis == .horizontal ? length / (isDualPage ? 2 : 1) : length
+        UnloadedPage(slot: slot, backgroundColor: backgroundColor) {
+            VStack {
+                pageNumber
+
+                if let progress {
+                    ProgressView(progress)
+                        .progressViewStyle(.plainLinear)
+                        .containerRelativeFrame(.horizontal) { width, _ in
+                            width * (slot == .pager(isDualPage: true) ? 0.25 : 0.5)
+                        }
+                } else {
+                    ProgressView()
+                }
+            }
         }
-        .aspectRatio(Defaults.ImageSize.contentAspect, contentMode: .fit)
+    }
+    /// The number an unloaded page shows above its load's progress or its reload button.
+    private var pageNumber: some View {
+        Text(index.description)
+            .font(.largeTitle.bold())
+            .foregroundStyle(.gray)
+            .padding(.bottom, 30)
     }
     @ContentBuilder private func image(url: URL?) -> some View {
         ByteRoutedReaderImage(
@@ -308,7 +317,7 @@ struct ImageContainer: View {
 
     var body: some View {
         if loadingState == .idle {
-            image(url: imageURL).scaledToFit().overlay(
+            image(url: imageURL).overlay(
                 LiveTextView(
                     liveTextGroups: liveTextGroups,
                     focusedLiveTextGroup: focusedLiveTextGroup,
@@ -317,35 +326,27 @@ struct ImageContainer: View {
                 .visible(enablesLiveText)
             )
         } else {
-            backgroundColor
-                .overlay {
-                    VStack {
-                        Text(index.description)
-                            .font(.largeTitle.bold())
-                            .foregroundStyle(.gray)
-                            .padding(.bottom, 30)
+            UnloadedPage(slot: slot, backgroundColor: backgroundColor) {
+                VStack {
+                    pageNumber
 
-                        Button(action: reloadImage) {
-                            Label(.reload, systemSymbol: .exclamationmarkArrowTrianglehead2ClockwiseRotate90)
-                                .labelStyle(.iconOnly)
-                        }
-                        .font(.system(size: reloadSymbolSize, weight: .medium))
-                        .foregroundStyle(.gray)
-                        .animation(.default) {
-                            $0.visible(loadingState != .loading)
-                        }
-                        .overlay {
-                            ProgressView()
-                                .animation(.default) {
-                                    $0.visible(loadingState == .loading)
-                                }
-                        }
+                    Button(action: reloadImage) {
+                        Label(.reload, systemSymbol: .exclamationmarkArrowTrianglehead2ClockwiseRotate90)
+                            .labelStyle(.iconOnly)
+                    }
+                    .font(.system(size: reloadSymbolSize, weight: .medium))
+                    .foregroundStyle(.gray)
+                    .animation(.default) {
+                        $0.visible(loadingState != .loading)
+                    }
+                    .overlay {
+                        ProgressView()
+                            .animation(.default) {
+                                $0.visible(loadingState == .loading)
+                            }
                     }
                 }
-                .containerRelativeFrame([.horizontal, .vertical]) { length, axis in
-                    axis == .horizontal ? length / (isDualPage ? 2 : 1) : length
-                }
-                .aspectRatio(Defaults.ImageSize.contentAspect, contentMode: .fit)
+            }
         }
     }
     private func reloadImage() {
@@ -390,14 +391,23 @@ private struct ByteRoutedReaderImage<Placeholder: View>: View {
         }
     }
 
+    // The loaded image fits itself rather than this view fitting its content: an aspect-fitting modifier around the
+    // placeholder would size it from its ideal size, while `UnloadedPage` gives it the page's frame.
     @ContentBuilder private var content: some View {
-        if let animatedData {
-            AnimatedImage(data: animatedData, isAnimating: .constant(isActive))
-                .resizable()
-        } else if let stillImage {
-            Image(uiImage: stillImage).resizable()
+        if animatedData != nil || stillImage != nil {
+            loadedImage.scaledToFit()
         } else {
             placeholder(progress)
+        }
+    }
+
+    /// The loaded image, animated or still, which SwiftUI's `scaledToFit()` fits as one view, so that no modifier an
+    /// image view declares under that name takes the call.
+    @ContentBuilder private var loadedImage: some View {
+        if let animatedData {
+            AnimatedImage(data: animatedData, isAnimating: .constant(isActive)).resizable()
+        } else if let stillImage {
+            Image(uiImage: stillImage).resizable()
         }
     }
 

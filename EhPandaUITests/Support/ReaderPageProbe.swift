@@ -10,11 +10,17 @@ import XCTest
 /// indicator names, and the page that is actually under the center of the reader.
 ///
 /// The second reading leans on the hermetic fixture. Its images never load, so every page is the
-/// reader's failure placeholder: a page number followed by a Reload button in a centered stack.
+/// reader's failure placeholder: a page number followed by a Reload button in a stack centered in
+/// the page's first screen (`UnloadedPage`), the whole page when the page is shorter than the screen.
 /// The pages are one accessibility element, so VoiceOver has no page to scroll to as the reader
 /// opens, and the stack is read from a screenshot instead (`ScreenPixels`). The number alone sits
-/// above the page center. Measuring the whole stack keeps the page reading accurate near the
+/// above the stack's center. Measuring the whole stack keeps the page reading accurate near the
 /// boundary between two placeholders. This does not hold for loaded images, which carry no number.
+///
+/// The stack nearest the center belongs to the page under the center while that page is shorter
+/// than the screen, as in portrait, or positioned at the top of the screen. A landscape strip page
+/// is taller than the screen, and once it is scrolled past its first screen the nearest stack can be
+/// the next page's; no test reads the screen there.
 @MainActor
 struct ReaderPageProbe {
     /// The reading directions the tests run under, named as the Reading Setting picker names them.
