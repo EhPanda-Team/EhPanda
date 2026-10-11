@@ -1,5 +1,4 @@
 import AppFeature
-import AppTools
 import CustomDump
 import Observation
 @testable import ReadingFeature
@@ -11,8 +10,8 @@ import XCTest
 /// Where the vertical reader's list puts the page it positions. Resuming, the slider, tap-to-turn, autoplay and
 /// the accessibility page actions all reach `AdvancedList` as a page-model write, so the tests drive that write.
 ///
-/// The rows size as the reader's image containers do once their image URLs are known: an unloaded page fills the
-/// viewport, a loaded one takes its image's aspect ratio at the full width. The test loads pages in orders it
+/// The rows size as the reader's image containers do: an unloaded page is the reader's own `UnloadedPage` in the
+/// strip, a loaded one takes its image's aspect ratio at the full width. The test loads pages in orders it
 /// chooses instead of whichever order a network happens to deliver. In the root and presented hosts the stack
 /// builds no page above the positioned one, so there the orders vary when that page and the pages below it load;
 /// the hosts that build a screen above, as an accessibility client makes the stack build it, also vary the order of
@@ -47,8 +46,7 @@ final class ReaderListPositionTests: XCTestCase {
     }
 
     /// The reader is presented at less than its final height (1047 of 1210 pt on the iPad, measured 2026-10-09 in
-    /// a capture of the real reader) and grows to it. Unloaded pages fill the viewport, so the growth changes the
-    /// height of every page built on screen.
+    /// a capture of the real reader) and grows to it.
     @MainActor
     func testResumeKeepsItsPageAtTheTopWhenTheReaderGrows() async throws {
         let host = try ReaderListHost(resumePage: 4, heightScale: 1047 / 1210)
@@ -60,6 +58,37 @@ final class ReaderListPositionTests: XCTestCase {
             host.loads.loaded.insert(page)
             try await expectAtTop(page: 4, in: host, "\(page) loaded")
         }
+    }
+
+    /// The reader grows while an accessibility client builds the pages above the resume page, so it builds them before
+    /// and after the growth. Unloaded pages that followed the screen's height took one height each, and building the
+    /// second moved the resume page off the top of the screen (measured 2026-10-11 under VoiceOver: pages built at
+    /// 1210 and 1052 pt, then the resume page 189.5 pt down). An unloaded page takes its height from its width, on
+    /// the pixel grid, so the pages take one height whenever they are built.
+    @MainActor
+    func testPagesBuiltAboveAsTheReaderGrowsTakeOneHeight() async throws {
+        let host = try ReaderListHost(
+            resumePage: 4, heightScale: 1047 / 1210, presentation: .buildingScreenAboveLater
+        )
+        defer { host.dismiss() }
+        try await expectAtTop(page: 4, in: host, "resumed")
+        try await expectAtTopInEveryFrame(page: 4, in: host, "page 3 built above") {
+            host.buildScreenAbove(height: 1)
+        }
+        let beforeGrowth = try await host.settle()
+        try await expectAtTopInEveryFrame(page: 4, in: host, "grown") {
+            host.growToFullHeight()
+        }
+        try await expectAtTopInEveryFrame(page: 4, in: host, "page 2 built above") {
+            host.buildScreenAbove()
+        }
+        let afterGrowth = try await host.settle()
+        let heights = Set(
+            [3, 4].map({ beforeGrowth.frames[$0]?.height }) + [2, 3, 4].map({ afterGrowth.frames[$0]?.height })
+        )
+        expectNoDifference(heights.count, 1, "unloaded pages take one height before and after the growth: \(heights)")
+        let height = try XCTUnwrap(heights.first.flatMap(\.self))
+        XCTAssertTrue(host.isOnPixelGrid(height), "the unloaded pages' height, \(height) pt, on the pixel grid")
     }
 
     /// An accessibility client, such as VoiceOver or a UI test reading the screen, makes the stack build pages
@@ -490,8 +519,9 @@ private final class PageLoads {
     }
 }
 
-/// Sizes as the reader's image container does in the vertical reader once the page's image URL is known: the
-/// placeholder fitted the way the image view fits it, or the image at its aspect ratio across the full width.
+/// Sizes as the reader's image container does in the vertical reader: an unloaded page as the reader's own
+/// `UnloadedPage` in the strip, a loaded one at its image's aspect ratio across the full width, as the image view fits
+/// its image.
 ///
 /// The frame it reports is its content's, inside the list's row: a page the list keeps at an older height reports
 /// its top, which the row aligns its content to, and its content's own height.
@@ -509,10 +539,9 @@ private struct PageRow: View {
             Color.gray
                 .aspectRatio(loads.imageAspectRatio, contentMode: .fit)
         } else {
-            Color.gray
-                .containerRelativeFrame([.horizontal, .vertical])
-                .aspectRatio(Defaults.ImageSize.contentAspect, contentMode: .fit)
-                .scaledToFit()
+            UnloadedPage(slot: .strip, backgroundColor: .gray) {
+                EmptyView()
+            }
         }
     }
 }
@@ -643,8 +672,16 @@ private final class ReaderListHost {
         (points * window.traitCollection.displayScale + 0.5).rounded(.down)
     }
 
-    func buildScreenAbove() {
-        screenAbove.height = window.windowScene?.screen.bounds.height ?? 0
+    /// Whether `points` is a whole number of pixels at the window's display scale. A thousandth of a pixel covers the
+    /// binary representation of a third of a point.
+    func isOnPixelGrid(_ points: CGFloat) -> Bool {
+        let pixels = points * window.traitCollection.displayScale
+        return abs(pixels - pixels.rounded()) < 0.001
+    }
+
+    /// Extends the list `height` above the window, a screen's height by default, so the stack builds the pages there.
+    func buildScreenAbove(height: CGFloat? = nil) {
+        screenAbove.height = height ?? window.windowScene?.screen.bounds.height ?? 0
     }
 
     func growToFullHeight() {
