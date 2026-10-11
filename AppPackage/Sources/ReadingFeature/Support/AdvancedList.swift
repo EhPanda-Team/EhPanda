@@ -1,7 +1,7 @@
 import SwiftUI
 
-struct AdvancedList<Element, ID, PageView, G>: View
-where PageView: View, ID: Hashable & Sendable, G: Gesture {
+struct AdvancedList<Element, PageView, G>: View
+where PageView: View, G: Gesture {
     /// The list's position, identified by page number.
     ///
     /// Every programmatic positioning (resume, the slider, tap-to-turn, autoplay and the accessibility page
@@ -25,17 +25,28 @@ where PageView: View, ID: Hashable & Sendable, G: Gesture {
     @State private var position: ScrollPosition
     /// The phase of the scroll under way, `.idle` when none is.
     @State private var scrollPhase = ScrollPhase.idle
+    /// The page the list itself put at the top of the screen, while the position still names it: the resume page, then
+    /// the page of each `scrollTo`. Any other page the position names comes from a scroll the list did not request, a
+    /// finger scroll or the status bar's scroll to the top, and clears it. `ScrollPosition.isPositionedByUser` would
+    /// tell such a position apart, but it stayed false through both (measured 2026-10-11 on the iOS 27.0 simulator).
+    ///
+    /// No test pins the clearing. An app-hosted test cannot drive a scroll the position follows (see
+    /// `tryScrollTo(id:)`), and the UI tests' pages never load, so a page locked above the screen already has the
+    /// height it would release to. A change here needs a check on a device: a page an accessibility client built
+    /// above the screen, whose image loaded while it was locked, brought back by a finger scroll until it passes under
+    /// the center with its top still above the screen, keeps its height until its top shows.
+    @State private var positionedID: Int?
 
     private let pagerModel: PageModel
     private let data: [Element]
-    private let id: KeyPath<Element, ID>
+    private let id: KeyPath<Element, Int>
     private let spacing: CGFloat
     private let gesture: G
     private let content: (Element) -> PageView
 
     init<Data: RandomAccessCollection>(
         page: PageModel, data: Data,
-        id: KeyPath<Element, ID>, spacing: CGFloat, gesture: G,
+        id: KeyPath<Element, Int>, spacing: CGFloat, gesture: G,
         @ContentBuilder content: @escaping (Element) -> PageView
     ) where Data.Index == Int, Data.Element == Element {
         self.pagerModel = page
@@ -45,14 +56,10 @@ where PageView: View, ID: Hashable & Sendable, G: Gesture {
         self.gesture = gesture
         self.content = content
         _position = State(initialValue: ScrollPosition(id: page.index + 1, anchor: .top))
+        _positionedID = State(initialValue: page.index + 1)
     }
 
     var body: some View {
-        // The page the position names: the page a programmatic position put at the top of the screen, or the page under
-        // the center after a scroll. `isPositionedByUser`, which would leave a scrolled list without a positioned page,
-        // stayed false through finger scrolls and the status bar's scroll to the top (measured 2026-10-11 on the
-        // iOS 27.0 simulator).
-        let positionedID = position.isPositionedByUser ? nil : position.viewID(type: ID.self)
         ScrollView(showsIndicators: false) {
             LazyVStack(spacing: spacing) {
                 ForEach(data, id: id) { index in
@@ -72,6 +79,9 @@ where PageView: View, ID: Hashable & Sendable, G: Gesture {
             }
         }
         .onChange(of: position.viewID(type: Int.self)) { _, newValue in
+            if newValue != positionedID {
+                positionedID = nil
+            }
             if scrollPhase == .idle {
                 followPosition(to: newValue)
             }
@@ -91,7 +101,8 @@ where PageView: View, ID: Hashable & Sendable, G: Gesture {
         pagerModel.update(.new(index: id - 1))
     }
 
-    /// Positions the page the model names at the top of the screen, unless the position already names it.
+    /// Positions the page the model names at the top of the screen, and records it as the page the list positioned,
+    /// unless the position already names it.
     ///
     /// After a write that followed the position, the position names the page already, and positioning it again would
     /// align the page under the center to the top of the screen, moving the screen the user left. The check compares
@@ -105,12 +116,13 @@ where PageView: View, ID: Hashable & Sendable, G: Gesture {
     /// `scrollTo` after the write.
     private func tryScrollTo(id: Int) {
         guard position.viewID(type: Int.self) != id else { return }
+        positionedID = id
         position.scrollTo(id: id, anchor: .top)
     }
 }
 
 /// Keeps a page that lies entirely above the screen at the height it had when it got there, until its top is back
-/// on screen or the list's position names it.
+/// on screen or the list positions it.
 ///
 /// An accessibility client, such as VoiceOver or a UI test reading the screen, makes the lazy stack build the pages
 /// around the visible ones, pages entirely above the screen among them (measured 2026-10-09: a capture's first
@@ -156,9 +168,10 @@ where PageView: View, ID: Hashable & Sendable, G: Gesture {
 /// the passes of one resize alternate its value, even when the lock changes no height (measured 2026-10-10). The lock
 /// relies on `onGeometryChange` reporting a page's first geometry, which the reader list tests cover.
 private struct AboveScreenHeightLock: ViewModifier {
-    /// Whether the list's position names this page: the page a programmatic position put at the top of the screen, or
-    /// the page under the center after a scroll (see `AdvancedList.body`). A locked page that becomes the page under
-    /// the center therefore releases there, even while its top is still above the screen.
+    /// Whether the list put this page at the top of the screen and its position still names it
+    /// (`AdvancedList.positionedID`). A page that comes under the center in a scroll the list did not request is not
+    /// positioned, so a locked page keeps its height while it passes there with its top above the screen, where its
+    /// release would move the pages on screen.
     let isPositioned: Bool
     @Environment(\.displayScale) private var displayScale
     @State private var lockedHeight: CGFloat?
