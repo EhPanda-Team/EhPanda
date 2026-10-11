@@ -19,6 +19,12 @@ final class ReaderPageSyncUITests: XCTestCase {
         continueAfterFailure = false
     }
 
+    func testThePagesAreOneElementReadingTheirPage() throws {
+        try underEachDirection { reader, _, start in
+            reader.requireOnePagesElement(reading: start)
+        }
+    }
+
     func testScrollingKeepsTheIndicatorOnThePageShown() throws {
         try underEachDirection { reader, direction, start in
             reader.scrollForward(under: direction)

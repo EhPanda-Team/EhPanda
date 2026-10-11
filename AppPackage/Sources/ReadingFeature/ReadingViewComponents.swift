@@ -146,32 +146,66 @@ struct HorizontalImageStack: View {
             }
             prefetchAction(page)
         }
-        .contextMenu { contextMenuItems(page: page) }
-        .accessibilityActions { contextMenuItems(page: page) }
+        // VoiceOver reaches these actions on the reader's pages element (`ReaderPagesAccessibility`), named with their
+        // page: a page has no element of its own.
+        .contextMenu {
+            PageActions(
+                page: page,
+                naming: .plain,
+                imageURL: imageURLs[page],
+                originalImageURL: originalImageURLs[page],
+                refetchAction: refetchAction,
+                copyImageAction: copyImageAction,
+                saveImageAction: saveImageAction,
+                shareImageAction: shareImageAction
+            )
+        }
     }
-    @ContentBuilder private func contextMenuItems(page: Int) -> some View {
+}
+
+// MARK: PageActions
+/// What can be done to one page: its context menu, and the actions the reader's page element offers VoiceOver for
+/// each page it shows.
+struct PageActions: View {
+    enum Naming {
+        /// The context menu's names, which need no page: the menu opens on the page it acts on.
+        case plain
+        /// Names that say which page they act on, as one element offers them for both pages of a spread.
+        case numbered
+    }
+
+    let page: Int
+    let naming: Naming
+    let imageURL: URL?
+    let originalImageURL: URL?
+    let refetchAction: (Int) -> Void
+    let copyImageAction: (URL) -> Void
+    let saveImageAction: (URL) -> Void
+    let shareImageAction: (URL) -> Void
+
+    var body: some View {
         Button {
             refetchAction(page)
         } label: {
-            Label(.reload, systemSymbol: .arrowCounterclockwise)
+            Label(name(.reload, numbered: .accessibilityReloadPage(page: page)), systemSymbol: .arrowCounterclockwise)
         }
-        if let imageURL = imageURLs[page] {
+        if let imageURL {
             Button {
                 copyImageAction(imageURL)
             } label: {
-                Label(.copy, systemSymbol: .plusSquareOnSquare)
+                Label(name(.copy, numbered: .accessibilityCopyPage(page: page)), systemSymbol: .plusSquareOnSquare)
             }
             Button {
                 saveImageAction(imageURL)
             } label: {
-                Label(.save, systemSymbol: .squareAndArrowDown)
+                Label(name(.save, numbered: .accessibilitySavePage(page: page)), systemSymbol: .squareAndArrowDown)
             }
-            if let originalImageURL = originalImageURLs[page] {
+            if let originalImageURL {
                 Button {
                     saveImageAction(originalImageURL)
                 } label: {
                     Label(
-                        .saveOriginal,
+                        name(.saveOriginal, numbered: .accessibilitySaveOriginalPage(page: page)),
                         systemSymbol: .squareAndArrowDownOnSquare
                     )
                 }
@@ -179,8 +213,20 @@ struct HorizontalImageStack: View {
             Button {
                 shareImageAction(imageURL)
             } label: {
-                Label(.RLocalizable.share, systemSymbol: .squareAndArrowUp)
+                Label(
+                    name(.RLocalizable.share, numbered: .accessibilitySharePage(page: page)),
+                    systemSymbol: .squareAndArrowUp
+                )
             }
+        }
+    }
+
+    private func name(
+        _ plain: LocalizedStringResource, numbered: LocalizedStringResource
+    ) -> LocalizedStringResource {
+        switch naming {
+        case .plain: plain
+        case .numbered: numbered
         }
     }
 }
