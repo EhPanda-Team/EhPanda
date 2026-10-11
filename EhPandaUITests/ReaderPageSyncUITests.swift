@@ -2,8 +2,9 @@ import XCTest
 
 /// Changes the reader's page by every route a UI test can drive and requires, after each, that the
 /// panel's indicator and the page on screen name the same page (see `ReaderPageProbe` for why both
-/// sides are read). The routes are scrolling, the slider, the pager's tap zones, auto-play, and
-/// entering the reader, which seeds the page from a link or from the progress saved on leaving.
+/// sides are read). The routes are scrolling, the slider, the pager's tap zones, auto-play, the
+/// status bar's scroll to the top, and entering the reader, which seeds the page from a link or
+/// from the progress saved on leaving.
 ///
 /// One route is not here because XCTest cannot drive it: an assistive technology's own scrolling,
 /// which is what Phase 16 W-38 was found with. XCTest neither turns VoiceOver on nor issues its
@@ -54,6 +55,20 @@ final class ReaderPageSyncUITests: XCTestCase {
         try reader.requirePage("After tapping the pager's next-page zone", where: { $0 == start + 1 })
 
         reader.setDirection(.vertical)
+    }
+
+    /// The status bar shows while the panel does, and tapping it scrolls the strip to its first
+    /// page. SwiftUI reports no scroll phase for that scroll, so the indicator has to follow the
+    /// strip's position rather than wait for a scroll to come to rest. The scroll is vertical
+    /// only, so the pager has no such route.
+    func testTheStatusBarScrollsTheStripToItsFirstPageAndTheIndicatorFollows() throws {
+        let reader = try openReader()
+        reader.setDirection(.vertical)
+        reader.dragSlider(toNormalizedPosition: 0.5)
+        try reader.requirePage("After dragging the slider", where: { $0 > 10 })
+
+        reader.tapStatusBar()
+        try reader.requirePage("After tapping the status bar", where: { $0 == 1 })
     }
 
     /// Auto-play at its shortest interval, on the real clock: a page turn has an animation to

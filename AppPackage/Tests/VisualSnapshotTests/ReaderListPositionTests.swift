@@ -168,6 +168,9 @@ final class ReaderListPositionTests: XCTestCase {
     /// A page kept at its height above the screen keeps it while only its bottom shows, as the screen scrolls up
     /// onto it: releasing it there could shrink it back above the screen. Once its top is on screen, it takes its
     /// own height and the pages below follow it.
+    ///
+    /// The scrolls are `setContentOffset` calls, which the list's position does not follow (measured 2026-10-11), so
+    /// the position keeps naming page 4 and page 3 releases through its zone, never by the position naming it.
     @MainActor
     func testAPageAcrossTheTopKeepsItsHeightUntilItsTopIsOnScreen() async throws {
         let host = try ReaderListHost(resumePage: 4, presentation: .buildingScreenAbove)
@@ -290,6 +293,9 @@ final class ReaderListPositionTests: XCTestCase {
 
     /// A page kept at its height through a window resize takes its new size once its top is on screen, and the pages
     /// below follow it.
+    ///
+    /// The scrolls are `setContentOffset` calls, which the list's position does not follow (measured 2026-10-11), so
+    /// the position keeps naming page 7 and page 6 releases through its zone, never by the position naming it.
     @MainActor
     func testAPageKeptThroughAResizeTakesItsNewSizeOnceItsTopIsOnScreen() async throws {
         for widens in [true, false] {
