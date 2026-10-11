@@ -60,21 +60,6 @@ public struct ReadingView: View {
         colorScheme == .light ? Color(.systemGray4) : Color(.systemGray6)
     }
 
-    private var displayPreviewURLs: [Int: URL] {
-        store.localPageURLs.merging(store.previewURLs, uniquingKeysWith: { local, _ in local })
-    }
-
-    private var displayImageURLs: [Int: URL] {
-        store.localPageURLs.merging(store.imageURLs, uniquingKeysWith: { local, _ in local })
-    }
-
-    private var displayOriginalImageURLs: [Int: URL] {
-        if store.contentSource == .remote {
-            return store.originalImageURLs
-        }
-        return store.localPageURLs.merging(store.originalImageURLs, uniquingKeysWith: { local, _ in local })
-    }
-
     private var isLandscape: Bool {
         gestureHandler.containerSize.width > gestureHandler.containerSize.height
     }
@@ -188,6 +173,14 @@ public struct ReadingView: View {
         )
         .gesture(tapGesture, isEnabled: gestureHandler.scale == 1)
         .gesture(magnificationGesture)
+        .modifier(
+            ReaderPagesAccessibility(
+                store: store,
+                pageModel: pageModel,
+                isLandscape: isLandscape,
+                turnPage: { jump(toPagerIndex: pageModel.index + $0) }
+            )
+        )
         // Assistive alternatives to the edge taps and the pinch (VoiceOver criterion 5, Voice
         // Control criterion 2). Both page actions reach `jump(toPagerIndex:)`, the one write path
         // the tap zones' offset closure already lands on. "Next" is +1 in the data source, which
@@ -214,7 +207,7 @@ public struct ReadingView: View {
                 isReversed: setting.readingDirection == .rightToLeft,
                 containerSize: gestureHandler.containerSize,
                 range: 1...Float(store.gallery.pageCount),
-                previewURLs: displayPreviewURLs,
+                previewURLs: store.displayPreviewURLs,
                 dismissGesture: controlPanelDismissGesture,
                 dismissAction: { store.send(.onPerformDismiss) },
                 fetchPreviewURLsAction: { store.send(.fetchPreviewURLs($0)) }
@@ -347,8 +340,8 @@ public struct ReadingView: View {
             isActive: index == activeStackIndex,
             backgroundColor: backgroundColor,
             config: imageStackConfig,
-            imageURLs: displayImageURLs,
-            originalImageURLs: displayOriginalImageURLs,
+            imageURLs: store.displayImageURLs,
+            originalImageURLs: store.displayOriginalImageURLs,
             loadingStates: store.imageURLLoadingStates,
             enablesLiveText: liveTextHandler.enablesLiveText,
             liveTextGroups: liveTextHandler.liveTextGroups,
@@ -431,7 +424,7 @@ extension ReadingView {
             return
         }
         #endif
-        guard let imageURL = displayImageURLs[page] else {
+        guard let imageURL = store.displayImageURLs[page] else {
             logger.debug("analyzeImageForLiveText URL not found, page: \(page, privacy: .public)")
             return
         }

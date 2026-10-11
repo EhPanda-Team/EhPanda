@@ -121,6 +121,20 @@ public struct ReadingReducer: Sendable {
 
         var isOffline: Bool { contentSource != .remote }
 
+        // Display: a downloaded page's file stands in for its remote previews and images.
+        var displayPreviewURLs: [Int: URL] {
+            localPageURLs.merging(previewURLs, uniquingKeysWith: { local, _ in local })
+        }
+        var displayImageURLs: [Int: URL] {
+            localPageURLs.merging(imageURLs, uniquingKeysWith: { local, _ in local })
+        }
+        var displayOriginalImageURLs: [Int: URL] {
+            if contentSource == .remote {
+                return originalImageURLs
+            }
+            return localPageURLs.merging(originalImageURLs, uniquingKeysWith: { local, _ in local })
+        }
+
         // Update
         func update<T>(stored: inout [Int: T], new: [Int: T], replaceExisting: Bool = true) {
             guard !new.isEmpty else { return }
