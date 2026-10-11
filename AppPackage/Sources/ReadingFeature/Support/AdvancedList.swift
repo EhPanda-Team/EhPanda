@@ -2,7 +2,6 @@ import SwiftUI
 
 struct AdvancedList<Element, ID, PageView, G>: View
 where PageView: View, ID: Hashable & Sendable, G: Gesture {
-    @State var performingChanges = false
     /// The list's position, identified by page number.
     ///
     /// Every programmatic positioning (resume, the slider, tap-to-turn, autoplay and the accessibility page
@@ -15,10 +14,16 @@ where PageView: View, ID: Hashable & Sendable, G: Gesture {
     /// 43 pt on the iPad), so where a resume settles depends on the order the images load. Aligned to the top, no
     /// page above the target is on screen, and `AboveScreenHeightLock` covers the pages built above it off screen.
     ///
-    /// The idle write-back below never renames a programmatically positioned page after the page under the
-    /// center: `scrollTo` raises no scroll phase, and the position keeps the requested page until the user
-    /// scrolls (measured 2026-10-09 on iOS 27), so any idle after a jump writes back the jump's own page.
+    /// The page model follows the page the position names whenever no scroll is under way: when a scroll comes to
+    /// rest, and when the position changes outside a scroll. The status bar's scroll to the top is such a change: the
+    /// position follows the page under the center, while SwiftUI reports no scroll phase for that scroll (measured
+    /// 2026-10-11 on iOS 27), so the indicator and the slider follow it page by page. A programmatic position names its
+    /// own page from the moment it is set: `scrollTo` raises no scroll phase, and the position keeps the requested page
+    /// until the user scrolls (measured 2026-10-09 on iOS 27), so following the position after a jump names the jump's
+    /// own page.
     @State private var position: ScrollPosition
+    /// The phase of the scroll under way, `.idle` when none is.
+    @State private var scrollPhase = ScrollPhase.idle
 
     private let pagerModel: PageModel
     private let data: [Element]
@@ -42,7 +47,10 @@ where PageView: View, ID: Hashable & Sendable, G: Gesture {
     }
 
     var body: some View {
-        // The page a programmatic position put at the top of the screen, until the user scrolls.
+        // The page the position names: the page a programmatic position put at the top of the screen, or the page under
+        // the center after a scroll. `isPositionedByUser`, which would leave a scrolled list without a positioned page,
+        // stayed false through finger scrolls and the status bar's scroll to the top (measured 2026-10-11 on the
+        // iOS 27.0 simulator).
         let positionedID = position.isPositionedByUser ? nil : position.viewID(type: ID.self)
         ScrollView(showsIndicators: false) {
             LazyVStack(spacing: spacing) {
@@ -57,12 +65,14 @@ where PageView: View, ID: Hashable & Sendable, G: Gesture {
         .scrollEdgeEffectStyle(.soft, for: .top)
         .scrollPosition($position, anchor: .center)
         .onScrollPhaseChange { _, newValue in
-            if newValue == .idle, let index = position.viewID(type: Int.self) {
-                performingChanges = true
-                pagerModel.update(.new(index: index - 1))
-                DispatchQueue.main.asyncAfter(deadline: .now() + PageModel.echoGuardDuration) {
-                    performingChanges = false
-                }
+            scrollPhase = newValue
+            if newValue == .idle {
+                followPosition(to: position.viewID(type: Int.self))
+            }
+        }
+        .onChange(of: position.viewID(type: Int.self)) { _, newValue in
+            if scrollPhase == .idle {
+                followPosition(to: newValue)
             }
         }
         .onChange(of: pagerModel.index) { _, newValue in
@@ -70,15 +80,36 @@ where PageView: View, ID: Hashable & Sendable, G: Gesture {
         }
     }
 
+    /// Writes the page the position names to the page model, unless the model already names it.
+    ///
+    /// A scroll coming to rest and a position change outside a scroll both call this, in either order within one
+    /// update, and so does the position change that the list's own `scrollTo` makes. The check leaves every call but
+    /// the first without a write, as `ReadingView.jump(toPagerIndex:)` drops a jump to the page the model names.
+    private func followPosition(to id: Int?) {
+        guard let id, pagerModel.index != id - 1 else { return }
+        pagerModel.update(.new(index: id - 1))
+    }
+
+    /// Positions the page the model names at the top of the screen, unless the position already names it.
+    ///
+    /// After a write that followed the position, the position names the page already, and positioning it again would
+    /// align the page under the center to the top of the screen, moving the screen the user left. The check compares
+    /// the page alone, so the list never re-aligns a page its position names. No writer asks it to:
+    /// `ReadingView.jump(toPagerIndex:)` drops a jump to the page the model names, and `followPosition(to:)` a write
+    /// of it.
+    ///
+    /// No test pins the skip. An app-hosted test cannot drive a scroll the position follows, and a UI test cannot
+    /// tell a page re-aligned to the top from one left where the finger stopped on both the iPhone and the iPad
+    /// (measured 2026-10-11), so a change here needs a real drag that comes to rest on a new page, checked for a
+    /// `scrollTo` after the write.
     private func tryScrollTo(id: Int) {
-        if !performingChanges {
-            position.scrollTo(id: id, anchor: .top)
-        }
+        guard position.viewID(type: Int.self) != id else { return }
+        position.scrollTo(id: id, anchor: .top)
     }
 }
 
 /// Keeps a page that lies entirely above the screen at the height it had when it got there, until its top is back
-/// on screen or the list positions it there.
+/// on screen or the list's position names it.
 ///
 /// An accessibility client, such as VoiceOver or a UI test reading the screen, makes the lazy stack build the pages
 /// around the visible ones, pages entirely above the screen among them (measured 2026-10-09: a capture's first
@@ -124,8 +155,9 @@ where PageView: View, ID: Hashable & Sendable, G: Gesture {
 /// the passes of one resize alternate its value, even when the lock changes no height (measured 2026-10-10). The lock
 /// relies on `onGeometryChange` reporting a page's first geometry, which the reader list tests cover.
 private struct AboveScreenHeightLock: ViewModifier {
-    /// Whether the list's programmatic position puts this page at the top of the screen; once the user scrolls, no page
-    /// is positioned.
+    /// Whether the list's position names this page: the page a programmatic position put at the top of the screen, or
+    /// the page under the center after a scroll (see `AdvancedList.body`). A locked page that becomes the page under
+    /// the center therefore releases there, even while its top is still above the screen.
     let isPositioned: Bool
     @Environment(\.displayScale) private var displayScale
     @State private var lockedHeight: CGFloat?

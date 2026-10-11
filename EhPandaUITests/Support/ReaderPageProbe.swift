@@ -229,6 +229,14 @@ struct ReaderPageProbe {
         pages.coordinate(withNormalizedOffset: CGVector(dx: 0.9, dy: 0.5)).tap()
     }
 
+    /// Taps the status bar, which shows while the panel does and scrolls the strip to its first page. The status bar
+    /// is SpringBoard's, not the app's. The tap lands on its leading part, clear of the iPhone's Dynamic Island.
+    func tapStatusBar() {
+        let statusBar = XCUIApplication(bundleIdentifier: "com.apple.springboard").statusBars.firstMatch
+        XCTAssertTrue(statusBar.waitForExistence(timeout: 5), "SpringBoard did not expose the status bar.")
+        statusBar.coordinate(withNormalizedOffset: CGVector(dx: 0.15, dy: 0.5)).tap()
+    }
+
     func dragSlider(toNormalizedPosition position: CGFloat) {
         XCTAssertTrue(slider.waitForExistence(timeout: 5), "The panel did not expose its page slider.")
         slider.adjust(toNormalizedSliderPosition: position)
