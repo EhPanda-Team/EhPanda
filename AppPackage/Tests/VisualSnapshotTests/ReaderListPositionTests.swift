@@ -1,5 +1,5 @@
 import AppFeature
-import AppTools
+import AppModels
 import CustomDump
 import Observation
 @testable import ReadingFeature
@@ -11,9 +11,9 @@ import XCTest
 /// Where the vertical reader's list puts the page it positions. Resuming, the slider, tap-to-turn, autoplay and
 /// the accessibility page actions all reach `AdvancedList` as a page-model write, so the tests drive that write.
 ///
-/// The rows size as the reader's image containers do: an unloaded page is the reader's own `UnloadedPage` in the
-/// strip, a loaded one takes its image's aspect ratio at the full width. The test loads pages in orders it
-/// chooses instead of whichever order a network happens to deliver. In the root and presented hosts the stack
+/// The rows size as the reader's image containers do: an unloaded page of no known size is the reader's own
+/// `UnloadedPage` in the strip, a loaded one takes the strip frame of its image's size. The test loads pages in orders
+/// it chooses instead of whichever order a network happens to deliver. In the root and presented hosts the stack
 /// builds no page above the positioned one, so there the orders vary when that page and the pages below it load;
 /// the hosts that build a screen above, as an accessibility client makes the stack build it, also vary the order of
 /// loads above it.
@@ -249,7 +249,7 @@ final class ReaderListPositionTests: XCTestCase {
             [500.25, 500.5, 500.75].first(where: { ($0 * screen.scale).truncatingRemainder(dividingBy: 1) == 0.5 })
         )
         let host = try ReaderListHost(
-            resumePage: 1, imageAspectRatio: screen.bounds.width / pageHeight, presentation: .buildingScreenAbove
+            resumePage: 1, loadedFrame: .height(pageHeight), presentation: .buildingScreenAbove
         )
         defer { host.dismiss() }
         host.loads.loaded = Set(1...host.pageCount).subtracting([2])
@@ -342,8 +342,7 @@ final class ReaderListPositionTests: XCTestCase {
                     }
                     let width = host.window.bounds.width
                     let height = StripPageLayout.height(
-                        width: width, aspectRatio: Defaults.ImageSize.contentAspect,
-                        displayScale: host.window.traitCollection.displayScale
+                        width: width, pageSize: nil, displayScale: host.window.traitCollection.displayScale
                     )
                     let pageFour = try await host.settle().frames[4]
                     expectNoDifference(
@@ -388,11 +387,14 @@ final class ReaderListPositionTests: XCTestCase {
     /// below follow it.
     ///
     /// The scrolls are `setContentOffset` calls, which the list's position does not follow (measured 2026-10-11), so
-    /// the position keeps naming page 7 and page 6 releases through its zone, never by the position naming it.
+    /// the position keeps naming page 7 and page 6 releases through its zone, never by the position naming it. The
+    /// host builds the screen above the window, as an accessibility client makes the stack build it, so page 6 is built
+    /// above page 7: with pages ending on pixel rows, as strip frames end, a root host builds no page above the page it
+    /// positions.
     @MainActor
     func testAPageKeptThroughAResizeTakesItsNewSizeOnceItsTopIsOnScreen() async throws {
         for widens in [true, false] {
-            let host = try ReaderListHost(resumePage: 4)
+            let host = try ReaderListHost(resumePage: 4, presentation: .buildingScreenAbove)
             defer { host.dismiss() }
             host.loads.loaded = Set(1...host.pageCount)
             let step = widens ? "widened" : "narrowed"
@@ -419,7 +421,8 @@ final class ReaderListPositionTests: XCTestCase {
     /// jump must still name its own page.
     @MainActor
     func testJumpPutsItsPageAtTheTopAndKeepsItsPageNumber() async throws {
-        let host = try ReaderListHost(resumePage: 4, imageAspectRatio: 2)
+        let spread = try XCTUnwrap(PagePixelSize(width: 2560, height: 1280))
+        let host = try ReaderListHost(resumePage: 4, loadedFrame: .image(spread))
         defer { host.dismiss() }
         host.loads.loaded = Set(1...host.pageCount)
         try await expectAtTop(page: 4, in: host, "resumed")
@@ -512,8 +515,8 @@ final class ReaderListPositionTests: XCTestCase {
         return top
     }
 
-    /// Expects loaded `page` at its own size, across the full width rather than fitted into a height the list kept,
-    /// with the next page right below it. The divider is expected to be zero.
+    /// Expects `page` at its own size across the full width, with the next page right below it rather than below a
+    /// height the list kept for it. The divider is expected to be zero.
     @MainActor
     private func expectOwnSize(
         page: Int, in layout: ListLayout, of host: ReaderListHost, _ step: String,
@@ -580,20 +583,29 @@ private struct ListLayout: Equatable {
 @Observable
 private final class PageLoads {
     var loaded = Set<Int>()
-    /// Width over height of every loaded page's image.
-    let imageAspectRatio: CGFloat
+    /// The frame every loaded page takes.
+    let loadedFrame: LoadedPageFrame
     /// The last frame each page's content reported in the list's content (`advancedListContent`); a page the lazy
     /// stack removed keeps its last frame.
     @ObservationIgnored var frames = [Int: CGRect]()
 
-    init(imageAspectRatio: CGFloat) {
-        self.imageAspectRatio = imageAspectRatio
+    init(loadedFrame: LoadedPageFrame) {
+        self.loadedFrame = loadedFrame
     }
 }
 
-/// Sizes as the reader's image container does in the vertical reader: an unloaded page as the reader's own
-/// `UnloadedPage` in the strip, a loaded one at its image's aspect ratio across the full width, as the image view fits
-/// its image.
+/// The frame a loaded page takes.
+private enum LoadedPageFrame {
+    /// The reader's strip frame for an image of this size (`StripPageFrame`).
+    case image(PagePixelSize)
+    /// This height across the full width, which can end between two pixel rows, where the reader's strip frames
+    /// always end on one: the list's own rounding meets such edges where the lazy stack estimates where pages lie.
+    case height(CGFloat)
+}
+
+/// Sizes as the reader's image container does in the vertical reader: an unloaded page of no known size as the
+/// reader's own `UnloadedPage` in the strip, a loaded one in its frame (`LoadedPageFrame`), which, as the reader's
+/// image does, keeps its own size under a height the list keeps.
 ///
 /// The frame it reports is its content's, inside the list's row: a page the list keeps at an older height reports
 /// its top, which the row aligns its content to, and its content's own height.
@@ -610,10 +622,14 @@ private struct PageRow: View {
 
     @ViewBuilder private var content: some View {
         if loads.loaded.contains(page) {
-            Color.gray
-                .aspectRatio(loads.imageAspectRatio, contentMode: .fit)
+            switch loads.loadedFrame {
+            case .image(let pixelSize):
+                Color.gray.modifier(StripPageFrame(pageSize: pixelSize))
+            case .height(let height):
+                Color.gray.frame(height: height)
+            }
         } else {
-            UnloadedPage(slot: .strip, backgroundColor: .gray) {
+            UnloadedPage(slot: .strip, pageSize: nil, backgroundColor: .gray) {
                 EmptyView()
             }
         }
@@ -686,9 +702,6 @@ private final class ReaderListHost {
         case buildingScreenAboveLater
     }
 
-    /// A portrait page, 1280 by 1791 pixels.
-    static let portraitAspectRatio: CGFloat = 1280 / 1791
-
     let pageCount: Int
     let loads: PageLoads
     let model: PageModel
@@ -696,13 +709,15 @@ private final class ReaderListHost {
     private let screenAbove: ScreenAbove
     private let previousKeyWindow: UIWindow?
 
+    /// `loadedFrame` is the frame of every loaded page, a portrait page of 1280 by 1791 pixels by default.
     /// `heightScale` presents the window at that share of the screen's height; `growToFullHeight()` grows it.
     init(
-        resumePage: Int, pageCount: Int = 20, spacing: CGFloat = 0, imageAspectRatio: CGFloat = portraitAspectRatio,
+        resumePage: Int, pageCount: Int = 20, spacing: CGFloat = 0, loadedFrame: LoadedPageFrame? = nil,
         heightScale: CGFloat = 1, presentation: Presentation = .root
     ) throws {
         let scene = try Self.activeScene()
-        let loads = PageLoads(imageAspectRatio: imageAspectRatio)
+        let portraitPage = try XCTUnwrap(PagePixelSize(width: 1280, height: 1791))
+        let loads = PageLoads(loadedFrame: loadedFrame ?? .image(portraitPage))
         let model = PageModel(index: resumePage - 1)
         let screen = scene.screen.bounds
         let screenAbove = ScreenAbove(height: presentation == .buildingScreenAbove ? screen.height : 0)

@@ -83,6 +83,9 @@ public struct ReadingReducer: Sendable {
         public var thumbnailURLs = [Int: URL]()
         public var imageURLs = [Int: URL]()
         public var originalImageURLs = [Int: URL]()
+        /// Every page's size the reader has learned this session. Nothing clears it: reloading a page loads the same
+        /// image, so the size the page had still sizes it while it reloads.
+        var pageSizes = [Int: KnownPageSize]()
 
         public var mpvKey: String?
         public var mpvImageKeys = [Int: String]()
@@ -149,6 +152,11 @@ public struct ReadingReducer: Sendable {
         mutating func updateImageURLs(_ imageURLs: [Int: URL], originalImageURLs: [Int: URL]) {
             update(stored: &self.imageURLs, new: imageURLs)
             update(stored: &self.originalImageURLs, new: originalImageURLs)
+            for (page, url) in imageURLs {
+                if let pixelSize = PagePixelSize(fileIdentifierIn: url) {
+                    recordSize(pixelSize, ofPage: page, from: .servedURL)
+                }
+            }
         }
 
         // Image
@@ -199,7 +207,7 @@ public struct ReadingReducer: Sendable {
         case onPresented
 
         case onWebImageRetry(Int)
-        case onWebImageSucceeded(Int)
+        case onWebImageSucceeded(Int, pixelSize: PagePixelSize)
         case onWebImageFailed(Int)
         case reloadAllWebImages
         case retryAllFailedWebImages

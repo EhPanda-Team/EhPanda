@@ -101,9 +101,11 @@ struct ReadingReducerDownloadTests: DownloadFeatureTestCase {
             initialState: initialState, capturedCalls: capturedCalls
         )
 
-        await store.send(.onWebImageSucceeded(1)) {
+        let pixelSize = try #require(PagePixelSize(width: 1280, height: 1791))
+        await store.send(.onWebImageSucceeded(1, pixelSize: pixelSize)) {
             $0.imageURLLoadingStates[1] = .idle
             $0.webImageLoadSuccessIndices.insert(1)
+            $0.pageSizes[1] = KnownPageSize(pixelSize: pixelSize, source: .decodedImage)
         }
         await store.receive(\.captureCachedPage)
 
