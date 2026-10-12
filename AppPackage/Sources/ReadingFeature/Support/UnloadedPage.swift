@@ -56,6 +56,13 @@ struct UnloadedPage<Content: View>: View {
 /// on it moved the resume page in 15 of 15. Off the pixel grid, the pages built above left the resume page's top a
 /// pixel below the top of the screen in 12 of 13 such resumes, and on the grid in none of 15.
 ///
+/// The width is the one the strip offers, which a loaded image takes as well (`scaledToFit()`), so a page keeps its
+/// width when its image replaces it. The strip offered its own width in every pass, through two rotations as well
+/// (measured 2026-10-12 on the iPad simulator: 111 offers, none of them zero, infinite or unspecified). Through
+/// `containerRelativeFrame`, pages kept the old width when the window changed size in one step and the list positioned
+/// its page again from the change (measured 2026-10-12 in the unit host: pages 834 pt wide in a window widened to
+/// 1210 pt or narrowed to 575 pt).
+///
 /// In the pager a page takes its whole cell, half of it in a dual-page spread: the pager's offsets depend on its pages'
 /// widths alone, so a height that follows the screen's moves nothing.
 private struct UnloadedPageFrame: ViewModifier {
@@ -68,8 +75,6 @@ private struct UnloadedPageFrame: ViewModifier {
             StripPageLayout(aspectRatio: Defaults.ImageSize.contentAspect, displayScale: displayScale) {
                 content
             }
-            // Offers the layout the strip's width in every pass, a probe of the page's ideal size among them.
-            .containerRelativeFrame(.horizontal)
         case .pager(let isDualPage):
             content
                 .containerRelativeFrame([.horizontal, .vertical]) { length, axis in
@@ -92,7 +97,9 @@ struct StripPageLayout: Layout {
     }
 
     func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) -> CGSize {
-        // `UnloadedPageFrame` always offers a finite width; any other offer has no page size to answer with.
+        // The strip offers a finite width in every pass: the list's stack offers its width, and the image stack, which
+        // holds one page in the strip, passes it on (see `UnloadedPageFrame`). Any other offer has no page size to
+        // answer with.
         guard let width = proposal.width, width.isFinite else { return .zero }
         return CGSize(
             width: width, height: Self.height(width: width, aspectRatio: aspectRatio, displayScale: displayScale)
