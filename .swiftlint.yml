@@ -83,8 +83,10 @@ custom_rules:
 
   binding_initializer:
     name: "Binding Initializer"
-    regex: '\bBinding\s*(?:<[^>]*>)?\s*\(\s*get\s*:'
-    message: "Closure-based Binding(get:set:) should be avoided. Prefer a projected Binding, e.g. Binding($optional) or $store.value."
+    # Also matches `Binding.init(get:` and the inferred `.init(get:`, which let a closure binding
+    # through to the reader's auto-play menu, where it replaced the open menu on every page turn.
+    regex: '(?:\bBinding\s*(?:<[^>]*>)?\s*(?:\.init)?|\.init)\s*\(\s*get\s*:'
+    message: "Closure-based Binding(get:set:), in any spelling including .init(get:set:), should be avoided. Prefer a projected Binding, e.g. Binding($optional), $store.value or $bindable.value."
     excluded_match_kinds:
       - comment
       - string
