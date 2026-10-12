@@ -48,9 +48,10 @@ extension Parser {
         )
     }
 
-    public static func parseMPVKeys(doc: HTMLDocument) throws -> (key: String, imageKeys: [Int: String]) {
+    public static func parseMPVKeys(doc: HTMLDocument) throws -> MPVImageList {
         var tmpMPVKey: String?
         var imgKeys = [Int: String]()
+        var originalSizes = [Int: PagePixelSize]()
 
         for link in doc.xpath("//script [@type='text/javascript']") {
             guard let text = link.text,
@@ -83,10 +84,16 @@ extension Parser {
                 throw AppError.parseFailed
             }
 
-            // The image list is ordered, and its keys are addressed by 1-based page number.
+            // The image list is ordered, and its keys are addressed by 1-based page number. A page's thumbnail URL
+            // names the page's original file; a page whose thumbnail names none still has its key.
             for (page, dict) in zip(1..., array) {
                 if let imgKey = dict["k"] {
                     imgKeys[page] = imgKey
+                }
+                if let originalSize = dict["t"]
+                    .flatMap({ URL(string: $0) })
+                    .flatMap(PagePixelSize.init(fileIdentifierIn:)) {
+                    originalSizes[page] = originalSize
                 }
             }
         }
@@ -94,6 +101,6 @@ extension Parser {
         guard let mpvKey = tmpMPVKey, !imgKeys.isEmpty
         else { throw AppError.parseFailed }
 
-        return (mpvKey, imgKeys)
+        return MPVImageList(key: mpvKey, imageKeys: imgKeys, originalSizes: originalSizes)
     }
 }

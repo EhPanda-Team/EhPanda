@@ -35,7 +35,7 @@ public struct MPVKeysRequest: Request {
     public var urlSession: URLSession = .shared
     public var allowsCellular = true
 
-    public func response() async throws(AppError) -> (key: String, imageKeys: [Int: String]) {
+    public func response() async throws(AppError) -> MPVImageList {
         let request = urlRequest(url: mpvURL, allowsCellular: allowsCellular)
         let (data, _) = try await fetch(request, in: urlSession)
         do {

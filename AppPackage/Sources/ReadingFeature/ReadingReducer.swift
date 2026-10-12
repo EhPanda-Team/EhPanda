@@ -158,6 +158,13 @@ public struct ReadingReducer: Sendable {
                 }
             }
         }
+        mutating func updateMPVImageList(_ imageList: MPVImageList) {
+            mpvKey = imageList.key
+            mpvImageKeys = imageList.imageKeys
+            for (page, pixelSize) in imageList.originalSizes {
+                recordSize(pixelSize, ofPage: page, from: .originalFile)
+            }
+        }
 
         // Image
         func containerDataSource(setting: Setting, isLandscape: Bool) -> [Int] {
@@ -246,7 +253,7 @@ public struct ReadingReducer: Sendable {
         )
 
         case fetchMPVKeys(index: Int, url: URL)
-        case fetchMPVKeysDone(index: Int, result: Result<(key: String, imageKeys: [Int: String]), AppError>)
+        case fetchMPVKeysDone(index: Int, result: Result<MPVImageList, AppError>)
         case fetchMPVImageURL(index: Int, isRefresh: Bool)
         case fetchMPVImageURLDone(index: Int, result: Result<GalleryMPVImageURLResponse, AppError>)
         case captureCachedPage(Int)

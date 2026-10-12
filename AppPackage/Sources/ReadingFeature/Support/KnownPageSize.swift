@@ -7,6 +7,9 @@ import AppModels
 /// known when the strip builds it takes the frame its image takes.
 struct KnownPageSize: Equatable, Sendable {
     enum Source: Int, Comparable, Sendable {
+        /// The file identifier in the page's thumbnail URL, which names the page's original file: the page's image is
+        /// that file or a copy resampled from it.
+        case originalFile
         /// The file identifier in the URL the page's image is served from.
         case servedURL
         /// The page's image, decoded.

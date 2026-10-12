@@ -17,7 +17,7 @@ struct ImageRequestBaselineTests {
         defer { cleanUp(session: session, handle: handle) }
 
         let result = try await capture {
-            () async throws(AppError) -> (key: String, imageKeys: [Int: String]) in
+            () async throws(AppError) -> MPVImageList in
             try await MPVKeysRequest(
                 mpvURL: url,
                 urlSession: session,
@@ -27,12 +27,14 @@ struct ImageRequestBaselineTests {
         }
         .get()
         let request = try #require(handle.receivedRequests.first)
+        let original = try #require(PagePixelSize(width: 2048, height: 3072))
 
         expectEquivalentURL(request.url, url)
         #expect(request.httpMethod == "GET")
         #expect(request.allowsCellularAccess == false)
-        #expect(result.0 == "baseline-mpv-key")
-        #expect(result.1 == [1: "first-image-key", 2: "second-image-key"])
+        #expect(result.key == "baseline-mpv-key")
+        #expect(result.imageKeys == [1: "first-image-key", 2: "second-image-key"])
+        #expect(result.originalSizes == [1: original])
     }
 
     @Test
@@ -331,7 +333,10 @@ private extension Data {
         """
         <html><body><script type='text/javascript'>
         var mpvkey = "baseline-mpv-key";
-        var imagelist = [{"k":"first-image-key"},{"k":"second-image-key"}]
+        var imagelist = [
+        {"k":"first-image-key",
+        "t":"https://ehgt.org/9d/71/9d71dd93bbf5cae13e9b5f9a1086b41600c9ce7e-6430614-2048-3072-png_l.jpg"},
+        {"k":"second-image-key"}]
         </script></body></html>
         """.utf8
     )
