@@ -17,7 +17,7 @@ struct DownloadSettingView: View {
                             .contentTransition(.numericText(value: Double(setting.downloadThreadLimit)))
                             .animation(.default, value: setting.downloadThreadLimit)
                     }
-                    Slider(value: downloadThreadLimitValue, in: 1...5, step: 1)
+                    Slider(value: Binding($setting.downloadThreadLimitSliderValue), in: 1...5, step: 1)
                 }
                 AppToggle(
                     .retryFailedPagesAutomatically,
@@ -39,14 +39,13 @@ struct DownloadSettingView: View {
         .scrollEdgeEffectStyle(.soft, for: .top)
         .navigationTitle(.title)
     }
+}
 
-    private var downloadThreadLimitValue: Binding<Double> {
-        .init(
-            get: { Double(setting.downloadThreadLimit) },
-            set: { newValue in
-                $setting.withLock({ $0.downloadThreadLimit = Int(newValue.rounded()) })
-            }
-        )
+extension Setting {
+    /// The concurrent download limit as the slider's value, which steps through whole numbers.
+    var downloadThreadLimitSliderValue: Double {
+        get { Double(downloadThreadLimit) }
+        set { downloadThreadLimit = Int(newValue.rounded()) }
     }
 }
 
