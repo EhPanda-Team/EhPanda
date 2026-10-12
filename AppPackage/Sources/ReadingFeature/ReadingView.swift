@@ -114,24 +114,25 @@ public struct ReadingView: View {
         // D-02 exception candidate: teardown of two view-owned `@State` handlers that hold live
         // work of their own — `liveTextHandler`'s in-flight Vision requests and `autoPlayHandler`'s
         // ticking task. Neither is reducer state, so no reducer action can stand in for this,
-        // and no value change marks the view's removal. Dropping it would leak an autoplay task
-        // that keeps turning pages of a reader nobody is looking at.
+        // and no value change marks the view's removal. Dropping it would leave the autoplay task
+        // ticking until SwiftUI releases the view's state, which the removal does not pin down.
         // Progress is NOT flushed here: the reducer flushes on `.onPerformDismiss`, before the
         // presentation is torn down; a send from here would arrive after the destination is
         // nil'd and be dropped. So only non-persistence teardown happens here.
         // swiftlint:disable:next lifecycle_modifiers
         .onDisappear {
             liveTextHandler.cancelRequests()
-            setAutoPlayPolocy(.off)
+            autoPlayHandler.policy = .off
         }
     }
 
     private func readingToolbar() -> some ToolbarContent {
         @Bindable var bindableLiveTextHandler = liveTextHandler
+        @Bindable var bindableAutoPlayHandler = autoPlayHandler
         return ReadingToolbar(
             setting: Binding($setting),
             enablesLiveText: $bindableLiveTextHandler.enablesLiveText,
-            autoPlayPolicy: .init(get: { autoPlayHandler.policy }, set: { setAutoPlayPolocy($0) }),
+            autoPlayPolicy: $bindableAutoPlayHandler.policy,
             title: "\(max(Int(pageHandler.sliderValue), 1)) / \(store.gallery.pageCount)",
             isLandscape: isLandscape,
             dismissAction: { store.send(.onPerformDismiss) },
@@ -313,12 +314,24 @@ public struct ReadingView: View {
             }
             .onChange(of: store.showsSliderPreview) { _, newValue in
                 if !newValue { setPageIndex(sliderValue: pageHandler.sliderValue) }
-                setAutoPlayPolocy(.off)
-        }
+                autoPlayHandler.policy = .off
+            }
             // AutoPlay
             .onChange(of: store.destination != nil) { _, isPresented in
                 if isPresented {
-                    setAutoPlayPolocy(.off)
+                    autoPlayHandler.policy = .off
+                }
+            }
+            .onChange(of: autoPlayHandler.tickCount) {
+                let dataSource = store.state.containerDataSource(
+                    setting: store.setting, isLandscape: isLandscape
+                )
+                let target = pageModel.index + 1
+                jump(toPagerIndex: target)
+                // The tick that reaches the final page stops autoplay, rather than ticking uselessly
+                // against the clamp for the rest of the interval.
+                if target >= dataSource.count - 1 {
+                    autoPlayHandler.policy = .off
                 }
             }
     }
@@ -396,20 +409,6 @@ extension ReadingView {
             isLandscape: isLandscape
         )
         jump(toPagerIndex: newValue)
-    }
-    func setAutoPlayPolocy(_ policy: AutoPlayPolicy) {
-        autoPlayHandler.setPolicy(policy, updatePageAction: {
-            let dataSource = store.state.containerDataSource(
-                setting: store.setting, isLandscape: isLandscape
-            )
-            let target = pageModel.index + 1
-            jump(toPagerIndex: target)
-            // The tick that reaches the final page stops autoplay, rather than ticking uselessly
-            // against the clamp for the rest of the interval.
-            if target >= dataSource.count - 1 {
-                setAutoPlayPolocy(.off)
-        }
-        })
     }
     private func tryScrollTo(id: Int) {
         if !performingChanges {
