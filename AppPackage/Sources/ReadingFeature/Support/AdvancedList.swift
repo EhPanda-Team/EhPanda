@@ -24,9 +24,9 @@ where PageView: View, G: Gesture {
     /// own page.
     ///
     /// A change of the list's width lays every page out at new heights. SwiftUI keeps the page on screen where it was
-    /// by its own resolution, which left the positioned page's top 464 pt above the screen after the iPad unit host's
-    /// window narrowed and widened again (measured 2026-10-10 and 2026-10-12), so while the position still names the
-    /// page the list put at the top (`positionedID`), the list positions it again after each width change, with
+    /// by its own resolution, which left the scroll view's offset 464 pt past the positioned page's top after the iPad
+    /// unit host's window narrowed and widened again (measured 2026-10-10), so while the position still names the page
+    /// the list put at the top (`positionedID`), the list positions it again after each width change, with
     /// `scrollTo` directly, as `tryScrollTo(id:)` skips the page the position names. Only the width counts: the pages'
     /// heights follow it, and a change of the height alone, such as the reader's growth while it is presented, moves
     /// no page. The width does not depend on the offset the positioning changes, so unlike a re-alignment from a
@@ -79,6 +79,7 @@ where PageView: View, G: Gesture {
                 }
             }
             .scrollTargetLayout()
+            .coordinateSpace(.advancedListContent)
         }
         .scrollEdgeEffectStyle(.soft, for: .top)
         .scrollPosition($position, anchor: .center)
@@ -135,6 +136,16 @@ where PageView: View, G: Gesture {
     }
 }
 
+extension CoordinateSpaceProtocol where Self == NamedCoordinateSpace {
+    /// The coordinate space of `AdvancedList`'s content: where each page lies in the stack, whatever the scroll offset.
+    ///
+    /// The reader list tests read every page's frame here and convert it through the scroll view's current offset, as
+    /// the screen draws it. A page's frame in the window or in the scroll view follows the offset as well, and after a
+    /// resize SwiftUI can move the offset without reporting such frames again (see `AboveScreenHeightLock`), while a
+    /// frame here changes only with the stack's layout, which reports it.
+    static var advancedListContent: NamedCoordinateSpace { .named("AdvancedList.content") }
+}
+
 /// Keeps a page that lies entirely above the screen at the height it had when it got there, until its top is back
 /// on screen or the list positions it.
 ///
@@ -176,12 +187,16 @@ where PageView: View, G: Gesture {
 /// resize by positioning it again (see `AdvancedList.position`); the lock keeps the pages above it from moving it
 /// afterwards. SwiftUI lays the pages out at the new size against the old offset for one or more passes before it
 /// corrects the offset, and the lock cannot tell those passes from a settled layout: a locked page whose stale frame
-/// puts its top on screen releases there (measured 2026-10-10). The page right above the positioned one still kept its
-/// height through four resizes in the reader list tests, where without the lock its reload moved the positioned page
-/// (measured 2026-10-12). Every per-page observation of where a page lies against the offset alternates on those
-/// passes, so SwiftUI flags the zone observation as cycling between duplicate values during a resize, even with an
-/// action that writes nothing (measured 2026-10-10 on the iPhone). The lock relies on `onGeometryChange` reporting a
-/// page's first geometry, which the reader list tests cover.
+/// puts its top on screen releases there (measured 2026-10-10). Where the size changes in one step with no layout pass
+/// after it, as the iPad unit host's window resize does, SwiftUI corrects the offset within the same update and reports
+/// no page's geometry against the corrected offset until the next layout pass, so the zones stay those of the
+/// uncorrected offset until then (measured 2026-10-12; a rotation lays the pages out again and reports them, and Split
+/// View and Stage Manager resizes are not measured). The page right above the positioned one still kept its height
+/// through four resizes in the reader list tests, where without the lock its reload moved the positioned page (measured
+/// 2026-10-12). Every per-page observation of where a page lies against the offset alternates on those passes, so
+/// SwiftUI flags the zone observation as cycling between duplicate values during a resize, even with an action that
+/// writes nothing (measured 2026-10-10 on the iPhone). The lock relies on `onGeometryChange` reporting a page's first
+/// geometry, which the reader list tests cover.
 private struct AboveScreenHeightLock: ViewModifier {
     /// Whether the list put this page at the top of the screen and its position still names it
     /// (`AdvancedList.positionedID`). A page that comes under the center in a scroll the list did not request is not
