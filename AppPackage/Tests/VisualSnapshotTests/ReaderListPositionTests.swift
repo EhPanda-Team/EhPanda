@@ -296,8 +296,8 @@ final class ReaderListPositionTests: XCTestCase {
     /// screen among them, and with it the height of every loaded page. Pages above the screen that took their new
     /// heights moved the positioned page by once or twice the change (measured 2026-10-10), so the lock keeps the
     /// pages above it at their heights, and the list positions its page again after every width change: SwiftUI's own
-    /// correction alone left the positioned page's top 464 pt above the screen once the root host started narrowed was
-    /// widened again (measured 2026-10-10 and 2026-10-12).
+    /// correction alone left the scroll view's offset 464 pt past the positioned page's top once the root host started
+    /// narrowed was widened again (measured 2026-10-10).
     @MainActor
     func testRepeatedWindowResizesKeepThePositionedPageAtTheTop() async throws {
         for presentation in [ReaderListHost.Presentation.root, .buildingScreenAbove] {
@@ -464,7 +464,7 @@ final class ReaderListPositionTests: XCTestCase {
         fileID: StaticString = #fileID, filePath: StaticString = #filePath, line: UInt = #line, column: UInt = #column,
         while change: () -> Void
     ) async throws -> CGFloat? {
-        let frames = FrameSampler(sample: { host.loads.frames[page].map({ host.pixel(of: $0.minY) }) })
+        let frames = FrameSampler(sample: { host.windowFrame(of: page).map({ host.pixel(of: $0.minY) }) })
         frames.start()
         change()
         let top = try await expectAtTop(
@@ -519,6 +519,13 @@ private struct Placement: Equatable {
 }
 
 /// Each page's last reported frame in the window, the scroll offsets and the model's page index, sampled together.
+///
+/// A page reports where it lies in the list's content (`advancedListContent`), and the layout places that frame in the
+/// window through the scroll view's offset at the time of the sample, as the screen draws it. Read in the window, a
+/// page's frame kept the offset from before SwiftUI corrected it after a window resize, until the next layout pass
+/// (measured 2026-10-12: a resumed page's top read 1611 pt down the window while the screen showed the page from its
+/// top row); it read right only where the corrected offset fell between pixels and the scroll view's rounding of it
+/// laid the stack out again.
 private struct ListLayout: Equatable {
     let frames: [Int: CGRect]
     let contentOffset: CGFloat?
@@ -527,8 +534,8 @@ private struct ListLayout: Equatable {
     let pageIndex: Int
 
     @MainActor
-    init(frames: [Int: CGRect], scrollView: UIScrollView?, pageIndex: Int) {
-        self.frames = frames
+    init(contentFrames: [Int: CGRect], scrollView: UIScrollView?, pageIndex: Int) {
+        frames = contentFrames.compactMapValues({ scrollView?.convert($0, to: nil) })
         contentOffset = scrollView?.contentOffset.y
         endOffset = scrollView.map({ $0.contentSize.height + $0.adjustedContentInset.bottom - $0.bounds.height })
         self.pageIndex = pageIndex
@@ -541,7 +548,8 @@ private final class PageLoads {
     var loaded = Set<Int>()
     /// Width over height of every loaded page's image.
     let imageAspectRatio: CGFloat
-    /// The last frame each page's content reported; a page the lazy stack removed keeps its last frame.
+    /// The last frame each page's content reported in the list's content (`advancedListContent`); a page the lazy
+    /// stack removed keeps its last frame.
     @ObservationIgnored var frames = [Int: CGRect]()
 
     init(imageAspectRatio: CGFloat) {
@@ -561,7 +569,9 @@ private struct PageRow: View {
 
     var body: some View {
         content
-            .onGeometryChange(for: CGRect.self, of: { $0.frame(in: .global) }, action: { loads.frames[page] = $0 })
+            .onGeometryChange(
+                for: CGRect.self, of: { $0.frame(in: .advancedListContent) }, action: { loads.frames[page] = $0 }
+            )
     }
 
     @ViewBuilder private var content: some View {
@@ -726,6 +736,11 @@ private final class ReaderListHost {
         window.frame.size.width = (window.frame.width * ratio).rounded()
     }
 
+    /// The frame `page` last reported, in the window at the scroll view's current offset (see `ListLayout`).
+    func windowFrame(of page: Int) -> CGRect? {
+        loads.frames[page].flatMap({ HostedHierarchy.verticalScrollHost(in: window)?.convert($0, to: nil) })
+    }
+
     /// Samples the layout until it holds still for the settlement's stable span, so a page that moves only once
     /// a load lays out is caught rather than read before it moves.
     func settle() async throws -> ListLayout {
@@ -733,7 +748,7 @@ private final class ReaderListHost {
             clock: ContinuousClock(), failure: .renderDidNotSettle, key: { $0 }, nextFrame: {}
         ) { _ in
             ListLayout(
-                frames: loads.frames,
+                contentFrames: loads.frames,
                 scrollView: HostedHierarchy.verticalScrollHost(in: window),
                 pageIndex: model.index
             )
