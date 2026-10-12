@@ -92,7 +92,11 @@ final class ReaderPageSyncUITests: XCTestCase {
     func testReadingAgainResumesOnThePageLeft() throws {
         let device = XCUIDevice.shared
         device.orientation = .landscapeLeft
-        defer { device.orientation = .portrait }
+        // A failed check stops the test without running a `defer`; the teardown block still restores portrait for
+        // the tests that follow.
+        addTeardownBlock {
+            device.orientation = .portrait
+        }
 
         let reader = try openReader()
         reader.setDirection(.vertical)
