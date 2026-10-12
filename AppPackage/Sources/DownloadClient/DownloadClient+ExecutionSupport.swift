@@ -239,13 +239,13 @@ extension DownloadCoordinator {
             throw AppError.notFound
         }
         if GalleryURLParser.isMPVURL(firstURL) {
-            let (mpvKey, imageKeys) = try await MPVKeysRequest(
+            let imageList = try await MPVKeysRequest(
                 mpvURL: firstURL,
                 urlSession: urlSession,
                 allowsCellular: options.allowCellular
             )
             .response()
-            return .mpv(key: mpvKey, imageKeys: imageKeys)
+            return .mpv(key: imageList.key, imageKeys: imageList.imageKeys)
         } else {
             return .normal(thumbnailURLs)
         }
