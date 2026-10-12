@@ -126,6 +126,40 @@ final class ReaderPageSyncUITests: XCTestCase {
         try reader.requirePage("On reading again", where: { $0 == left })
     }
 
+    /// Turning the device after a resume, with no jump since, keeps the page named and at the top of the screen. After
+    /// each turn the number of the page's placeholder lies exactly where a resume in that orientation puts it, and a
+    /// resume puts the page's top on the screen's top row. `AdvancedList` positions its page again after each change of
+    /// its width.
+    func testTurningTheDeviceKeepsTheResumedPageAtTheTop() throws {
+        let device = XCUIDevice.shared
+        device.orientation = .portrait
+        // A failed check stops the test without running a `defer`; the teardown block still restores portrait for
+        // the tests that follow.
+        addTeardownBlock {
+            device.orientation = .portrait
+        }
+
+        let reader = try openReader()
+        reader.setDirection(.vertical)
+        reader.dragSlider(toNormalizedPosition: 0.3)
+        let page = try reader.requirePage("After dragging the slider", where: { $0 > 5 })
+        readAgain(reader)
+        let portrait = try reader.requirePlaceholderNumber(of: page, "On resuming in portrait")
+
+        device.orientation = .landscapeLeft
+        let firstLandscape = try reader.requirePlaceholderNumber(of: page, "Turned to landscape")
+        device.orientation = .portrait
+        let portraitAgain = try reader.requirePlaceholderNumber(of: page, "Turned back to portrait")
+        device.orientation = .landscapeLeft
+        let secondLandscape = try reader.requirePlaceholderNumber(of: page, "Turned to landscape again")
+        readAgain(reader)
+        let landscape = try reader.requirePlaceholderNumber(of: page, "On resuming in landscape")
+
+        XCTAssertEqual(firstLandscape, landscape, "Turned to landscape")
+        XCTAssertEqual(portraitAgain, portrait, "Turned back to portrait")
+        XCTAssertEqual(secondLandscape, landscape, "Turned to landscape again")
+    }
+
     // MARK: Helpers
 
     /// Opens the fixture gallery's reader through its page link and shows its panel. The reader
@@ -139,6 +173,17 @@ final class ReaderPageSyncUITests: XCTestCase {
         let reader = ReaderPageProbe(app: app)
         reader.showPanel()
         return reader
+    }
+
+    /// Closes the reader and reads the gallery again, which resumes on the page left, and shows the panel.
+    private func readAgain(_ reader: ReaderPageProbe) {
+        let app = reader.app
+        app.buttons["Close"].firstMatch.tapWhenHittable("Reader Close")
+        let readButton = app.buttons["Read"].firstMatch
+        XCTAssertTrue(readButton.waitForExistence(timeout: 10), "Gallery Detail did not expose Read.")
+        readButton.tapWhenHittable("Gallery Detail Read")
+        app.requireElement("reading_view")
+        reader.showPanel()
     }
 
     /// Runs `route` under every direction in one launch. Switching direction is itself an entry
