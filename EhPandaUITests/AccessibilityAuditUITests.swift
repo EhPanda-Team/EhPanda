@@ -94,7 +94,11 @@ final class AccessibilityAuditUITests: XCTestCase {
 
     func testHomeRootAudit() throws {
         XCUIDevice.shared.orientation = .portrait
-        defer { XCUIDevice.shared.orientation = .portrait }
+        // The carousel check rotates the device. A failed check stops the test without running a `defer`; the
+        // teardown block still restores portrait for the tests that follow.
+        addTeardownBlock {
+            XCUIDevice.shared.orientation = .portrait
+        }
         let app = try launch(tab: "home")
         requireHomeRoot(in: app)
         try audit(app, surface: "Home root")
