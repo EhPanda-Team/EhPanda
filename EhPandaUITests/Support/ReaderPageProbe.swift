@@ -167,15 +167,57 @@ struct ReaderPageProbe {
         throw ProbeFailure()
     }
 
+    /// Waits for the indicator and the screen to agree on `page`, for the page's load to fail, and for the number of
+    /// its failure placeholder to hold still between two screenshots, and returns the number's frame in points on the
+    /// screen. The number lies in a fixed place on the page, so two placements of the page that put the number in one
+    /// place put the page in one place.
+    ///
+    /// The Reload glyph below the number is left out, as the screen can draw it a pixel apart where SwiftUI lays it
+    /// out in one place: turned to landscape and resumed in landscape on the iPhone, the page and its first screen had
+    /// identical frames, at scroll offsets of 32580 and 70362 pt, and the screenshots showed the number in one place
+    /// and the glyph a pixel apart in 7 of 7 runs (measured 2026-10-12 on the iOS 27 simulator).
+    func requirePlaceholderNumber(
+        of page: Int,
+        _ expectation: String,
+        timeout: TimeInterval = 10,
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) throws -> CGRect {
+        try requirePage(expectation, timeout: timeout, where: { $0 == page }, file: file, line: line)
+        let deadline = Date.now.addingTimeInterval(timeout)
+        let failed = failedValue(of: page)
+        while pages.value as? String != failed, Date.now < deadline {
+            RunLoop.current.run(until: .now + 0.25)
+        }
+        XCTAssertEqual(pages.value as? String, failed, "\(expectation): the page's load", file: file, line: line)
+        var last = try placeholderNumberFrame(of: page)
+        while Date.now < deadline {
+            RunLoop.current.run(until: .now + 0.25)
+            let next = try placeholderNumberFrame(of: page)
+            if let next, next == last { return next }
+            last = next
+        }
+        XCTFail(
+            "\(expectation): page \(page)'s number did not hold still; it last lay at "
+                + "\(String(describing: last)).",
+            file: file,
+            line: line
+        )
+        throw ProbeFailure()
+    }
+
+    /// The frame of the number of `page`'s placeholder in points on the screen, `nil` when the screen shows none.
+    private func placeholderNumberFrame(of page: Int) throws -> CGRect? {
+        try screenReading().stacks.first(where: { $0.page == page }).map(\.number)
+    }
+
     /// Requires the pages to be one accessibility element that reads `page`, with no element of a
     /// page's own beneath it: a page element draws VoiceOver's first focus to a page the lazy
     /// stack built above the resume page. The fixture's pages never load, so the element also
     /// reads that the page failed.
     func requireOnePagesElement(reading page: Int, file: StaticString = #filePath, line: UInt = #line) {
         XCTAssertEqual(pages.label, "Page", file: file, line: line)
-        let pageCount = indicatorText().split(separator: "/").last
-            .map({ $0.trimmingCharacters(in: .whitespaces) }) ?? "?"
-        let expected = "\(page) of \(pageCount), failed to load"
+        let expected = failedValue(of: page)
         let deadline = Date.now.addingTimeInterval(5)
         while pages.value as? String != expected, Date.now < deadline {
             RunLoop.current.run(until: .now + 0.25)
@@ -192,6 +234,13 @@ struct ReaderPageProbe {
                 line: line
             )
         }
+    }
+
+    /// What the pages element reads while it shows `page` alone and the page's load failed.
+    private func failedValue(of page: Int) -> String {
+        let pageCount = indicatorText().split(separator: "/").last
+            .map({ $0.trimmingCharacters(in: .whitespaces) }) ?? "?"
+        return "\(page) of \(pageCount), failed to load"
     }
 
     private struct ProbeFailure: Error {}
