@@ -10,12 +10,6 @@ import Testing
 @MainActor
 @Suite
 struct AutoPlayHandlerTests {
-    /// What the tick closure counts into. A reference, so the closure the handler keeps and the
-    /// case that reads the count share one value.
-    private final class Ticks {
-        var count = 0
-    }
-
     private let clock = TestClock()
 
     private func makeHandler() -> AutoPlayHandler {
@@ -29,15 +23,14 @@ struct AutoPlayHandlerTests {
     @Test
     func aPolicyTicksOncePerInterval() async {
         let handler = makeHandler()
-        let ticks = Ticks()
-        handler.setPolicy(.sec2, updatePageAction: { ticks.count += 1 })
+        handler.policy = .sec2
 
         await clock.advance(by: .seconds(1))
-        let beforeTheInterval = ticks.count
+        let beforeTheInterval = handler.tickCount
         await clock.advance(by: .seconds(1))
-        let afterOneInterval = ticks.count
+        let afterOneInterval = handler.tickCount
         await clock.advance(by: .seconds(6))
-        let afterFourIntervals = ticks.count
+        let afterFourIntervals = handler.tickCount
 
         #expect(beforeTheInterval == 0)
         #expect(afterOneInterval == 1)
@@ -47,70 +40,50 @@ struct AutoPlayHandlerTests {
     @Test
     func changingThePolicyStartsItsIntervalOver() async {
         let handler = makeHandler()
-        let ticks = Ticks()
-        handler.setPolicy(.sec1, updatePageAction: { ticks.count += 1 })
+        handler.policy = .sec1
         await clock.advance(by: .seconds(1))
-        let underTheFirstPolicy = ticks.count
+        let underTheFirstPolicy = handler.tickCount
 
-        handler.setPolicy(.sec5, updatePageAction: { ticks.count += 1 })
+        handler.policy = .sec5
         await clock.advance(by: .seconds(4))
-        let beforeTheNewInterval = ticks.count
+        let beforeTheNewInterval = handler.tickCount
         await clock.advance(by: .seconds(1))
-        let afterTheNewInterval = ticks.count
+        let afterTheNewInterval = handler.tickCount
 
         #expect(underTheFirstPolicy == 1)
         #expect(beforeTheNewInterval == 1)
         #expect(afterTheNewInterval == 2)
-        #expect(handler.policy == .sec5)
     }
 
+    // The reader turns auto-play off this way from the tick that reaches the last page, when it
+    // disappears, and when it opens a sheet or the slider's preview.
     @Test
     func turningAutoPlayOffStopsTheTicks() async {
         let handler = makeHandler()
-        let ticks = Ticks()
-        handler.setPolicy(.sec1, updatePageAction: { ticks.count += 1 })
+        handler.policy = .sec1
         await clock.advance(by: .seconds(1))
-        let whileOn = ticks.count
+        let whileOn = handler.tickCount
 
-        handler.setPolicy(.off, updatePageAction: { ticks.count += 1 })
+        handler.policy = .off
         await clock.advance(by: .seconds(10))
 
         #expect(whileOn == 1)
-        #expect(ticks.count == 1)
-        #expect(handler.policy == .off)
+        #expect(handler.tickCount == 1)
     }
 
-    // The reader turns auto-play off from inside the tick that reaches the last page.
+    // The ticking holds the handler only while a tick counts, so releasing the reader's state
+    // releases the handler while auto-play runs, and the handler's deinit stops the ticking.
     @Test
-    func aTickMayTurnAutoPlayOff() async {
-        let handler = makeHandler()
-        let ticks = Ticks()
-        handler.setPolicy(.sec1) {
-            ticks.count += 1
-            if ticks.count == 2 {
-                handler.setPolicy(.off, updatePageAction: {})
-            }
-        }
-
-        await clock.advance(by: .seconds(10))
-
-        #expect(ticks.count == 2)
-    }
-
-    // The reader invalidates the handler when it disappears, so no page of a reader nobody is
-    // looking at gets turned.
-    @Test
-    func invalidatingStopsTheTicks() async {
-        let handler = makeHandler()
-        let ticks = Ticks()
-        handler.setPolicy(.sec1, updatePageAction: { ticks.count += 1 })
+    func aRunningPolicyLetsTheHandlerGo() async {
+        var handler: AutoPlayHandler? = makeHandler()
+        weak let released = handler
+        handler?.policy = .sec1
         await clock.advance(by: .seconds(1))
-        let whileValid = ticks.count
+        let whileHeld = released?.tickCount
 
-        handler.invalidate()
-        await clock.advance(by: .seconds(10))
+        handler = nil
 
-        #expect(whileValid == 1)
-        #expect(ticks.count == 1)
+        #expect(whileHeld == 1)
+        #expect(released == nil)
     }
 }
