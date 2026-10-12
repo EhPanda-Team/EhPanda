@@ -295,15 +295,11 @@ final class ReaderListPositionTests: XCTestCase {
     /// A window resize, as Split View and Stage Manager make, changes the width of every page, the pages above the
     /// screen among them, and with it the height of every loaded page. Pages above the screen that took their new
     /// heights moved the positioned page by once or twice the change (measured 2026-10-10), so the lock keeps the
-    /// pages above it at their heights, and a single resize from rest keeps the positioned page at the top.
-    ///
-    /// Beyond that a resize is outside what the list keeps: SwiftUI lays the pages out against the old offset first,
-    /// which released the page kept right above the positioned one until it locked again, a second resize back to the
-    /// first width left the positioned page's top 464 pt above the screen in the root host started narrowed, and
-    /// SwiftUI flagged geometry actions as cycling, on the iPad with the lock and without it, and on the iPhone the
-    /// lock's zone observation even when it changed no height (measured 2026-10-10).
+    /// pages above it at their heights, and the list positions its page again after every width change: SwiftUI's own
+    /// correction alone left the positioned page's top 464 pt above the screen once the root host started narrowed was
+    /// widened again (measured 2026-10-10 and 2026-10-12).
     @MainActor
-    func testASingleWindowResizeKeepsThePositionedPageAtTheTop() async throws {
+    func testRepeatedWindowResizesKeepThePositionedPageAtTheTop() async throws {
         for presentation in [ReaderListHost.Presentation.root, .buildingScreenAbove] {
             for widens in [true, false] {
                 let host = try ReaderListHost(resumePage: 4, presentation: presentation)
@@ -313,8 +309,42 @@ final class ReaderListPositionTests: XCTestCase {
                 try await expectAtTop(page: 4, in: host, "\(step), resumed")
                 host.model.update(.new(index: 6))
                 try await expectAtTop(page: 7, in: host, "\(step), jumped")
-                try await expectAtTopInEveryFrame(page: 7, in: host, step) {
-                    host.resizeWidth(widens: widens)
+                for turn in 1...2 {
+                    for change in [widens, !widens] {
+                        try await expectAtTopInEveryFrame(
+                            page: 7, in: host, "\(step), turn \(turn), \(change ? "wider" : "narrower")"
+                        ) {
+                            host.resizeWidth(widens: change)
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    /// The page right above the positioned one keeps its height through resizes: when its image loads again, the
+    /// positioned page stays at the top. A stale pass of a resize can put its top on screen and release it. Without
+    /// the lock the reload moved the positioned page where the list builds the screen above (measured 2026-10-12).
+    @MainActor
+    func testAPageKeptAboveThroughResizesKeepsItsHeightWhenItsImageReloads() async throws {
+        for presentation in [ReaderListHost.Presentation.root, .buildingScreenAbove] {
+            for widens in [true, false] {
+                let host = try ReaderListHost(resumePage: 4, presentation: presentation)
+                defer { host.dismiss() }
+                host.loads.loaded = Set(1...host.pageCount)
+                let step = "\(presentation), \(widens ? "widened" : "narrowed")"
+                try await expectAtTop(page: 4, in: host, "\(step), resumed")
+                host.model.update(.new(index: 6))
+                try await expectAtTop(page: 7, in: host, "\(step), jumped")
+                for change in [widens, !widens, widens, !widens] {
+                    host.resizeWidth(widens: change)
+                    try await expectAtTop(page: 7, in: host, "\(step), resized")
+                }
+                try await expectAtTopInEveryFrame(page: 7, in: host, "\(step), 6 reloading") {
+                    host.loads.loaded.remove(6)
+                }
+                try await expectAtTopInEveryFrame(page: 7, in: host, "\(step), 6 reloaded") {
+                    host.loads.loaded.insert(6)
                 }
             }
         }
