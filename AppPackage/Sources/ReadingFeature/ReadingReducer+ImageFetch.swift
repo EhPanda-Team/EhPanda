@@ -278,8 +278,8 @@ extension ReadingReducer {
                 }
                 return .run { send in
                     do throws(AppError) {
-                        let keys = try await MPVKeysRequest(mpvURL: mpvURL).response()
-                        await send(.fetchMPVKeysDone(index: page, result: .success(keys)))
+                        let imageList = try await MPVKeysRequest(mpvURL: mpvURL).response()
+                        await send(.fetchMPVKeysDone(index: page, result: .success(imageList)))
                     } catch {
                         await send(.fetchMPVKeysDone(index: page, result: .failure(error)))
                     }
@@ -289,9 +289,9 @@ extension ReadingReducer {
             case .fetchMPVKeysDone(let page, let result):
                 let batchRange = state.previewConfig.batchRange(index: page)
                 switch result {
-                case .success(let (mpvKey, mpvImageKeys)):
+                case .success(let imageList):
                     let pageCount = state.gallery.pageCount
-                    guard mpvImageKeys.count == pageCount else {
+                    guard imageList.imageKeys.count == pageCount else {
                         batchRange.forEach {
                             state.imageURLLoadingStates[$0] = .failed(.notFound)
                         }
@@ -300,8 +300,7 @@ extension ReadingReducer {
                     batchRange.forEach {
                         state.imageURLLoadingStates[$0] = .idle
                     }
-                    state.mpvKey = mpvKey
-                    state.mpvImageKeys = mpvImageKeys
+                    state.updateMPVImageList(imageList)
                     return .merge(
                         Array(1...min(3, max(1, pageCount))).map {
                             .send(.fetchMPVImageURL(index: $0, isRefresh: false))

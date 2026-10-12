@@ -4,8 +4,9 @@ import Foundation
 @testable import ReadingFeature
 import Testing
 
-// What the reader records of each page's size: the size the served URL names, replaced by the size of the image
-// the page decodes, which no later URL replaces.
+// What the reader records of each page's size: the size of the page's original file that a multi-page viewer's image
+// list names, replaced by the size the served URL names, replaced in turn by the size of the image the page decodes,
+// which no later URL replaces.
 struct ReadingReducerPageSizeTests {
     private static func servedURL(width: Int, height: Int) throws -> URL {
         try #require(URL(string: """
@@ -71,5 +72,72 @@ struct ReadingReducerPageSizeTests {
 
         #expect(store.state.imageURLs.isEmpty)
         #expect(store.state.pageSizes == pageSizes)
+    }
+
+    @Test
+    func anMPVListGivesEachPageTheSizeOfItsOriginalFile() throws {
+        var state = ReadingReducer.State(gallery: .preview)
+        let original = try #require(PagePixelSize(width: 2048, height: 3072))
+        let imageList = MPVImageList(
+            key: "mpv-key", imageKeys: [1: "first-image-key", 2: "second-image-key"], originalSizes: [1: original]
+        )
+
+        state.updateMPVImageList(imageList)
+
+        #expect(state.mpvKey == "mpv-key")
+        #expect(state.mpvImageKeys == [1: "first-image-key", 2: "second-image-key"])
+        #expect(state.pageSizes == [1: KnownPageSize(pixelSize: original, source: .originalFile)])
+    }
+
+    @Test
+    func aServedURLReplacesTheSizeOfTheOriginalFile() throws {
+        var state = ReadingReducer.State(gallery: .preview)
+        let original = try #require(PagePixelSize(width: 2048, height: 3072))
+        let servedURL = try Self.servedURL(width: 1280, height: 1920)
+        let imageList = MPVImageList(key: "mpv-key", imageKeys: [1: "image-key"], originalSizes: [1: original])
+
+        state.updateMPVImageList(imageList)
+        state.updateImageURLs([1: servedURL], originalImageURLs: [:])
+
+        let served = try #require(PagePixelSize(width: 1280, height: 1920))
+        #expect(state.pageSizes[1] == KnownPageSize(pixelSize: served, source: .servedURL))
+    }
+
+    @Test
+    func theSizeOfTheOriginalFileReplacesNoServedOrDecodedSize() throws {
+        var state = ReadingReducer.State(gallery: .preview)
+        let original = try #require(PagePixelSize(width: 2048, height: 3072))
+        let servedURL = try Self.servedURL(width: 1280, height: 1920)
+        let decoded = try #require(PagePixelSize(width: 1280, height: 1919))
+        let imageList = MPVImageList(
+            key: "mpv-key", imageKeys: [1: "first-image-key", 2: "second-image-key"],
+            originalSizes: [1: original, 2: original]
+        )
+
+        state.updateImageURLs([1: servedURL], originalImageURLs: [:])
+        state.recordSize(decoded, ofPage: 2, from: .decodedImage)
+        let pageSizes = state.pageSizes
+        state.updateMPVImageList(imageList)
+
+        #expect(state.pageSizes == pageSizes)
+    }
+
+    @MainActor
+    @Test
+    func anMPVListForAnotherPageCountRecordsNoSize() async throws {
+        let state = ReadingReducer.State(gallery: .preview)
+        let original = try #require(PagePixelSize(width: 2048, height: 3072))
+        let imageList = MPVImageList(
+            key: "mpv-key", imageKeys: [1: "first-image-key", 2: "second-image-key"],
+            originalSizes: [1: original, 2: original]
+        )
+        let batchRange = state.previewConfig.batchRange(index: 1)
+        let store = TestStore(initialState: state, reducer: ReadingReducer.init)
+
+        await store.send(.fetchMPVKeysDone(index: 1, result: .success(imageList))) {
+            for page in batchRange {
+                $0.imageURLLoadingStates[page] = .failed(.notFound)
+            }
+        }
     }
 }
