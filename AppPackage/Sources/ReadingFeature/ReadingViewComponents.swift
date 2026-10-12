@@ -50,6 +50,7 @@ struct HorizontalImageStack: View {
     private let config: ImageStackConfig
     private let imageURLs: [Int: URL]
     private let originalImageURLs: [Int: URL]
+    private let pageSizes: [Int: KnownPageSize]
     private let loadingStates: [Int: LoadingState]
     private let enablesLiveText: Bool
     private let liveTextGroups: [Int: [LiveTextGroup]]
@@ -59,7 +60,7 @@ struct HorizontalImageStack: View {
     private let refetchAction: (Int) -> Void
     private let prefetchAction: (Int) -> Void
     private let loadRetryAction: (Int) -> Void
-    private let loadSucceededAction: (Int) -> Void
+    private let loadSucceededAction: (Int, PagePixelSize) -> Void
     private let loadFailedAction: (Int) -> Void
     private let copyImageAction: (URL) -> Void
     private let saveImageAction: (URL) -> Void
@@ -68,12 +69,12 @@ struct HorizontalImageStack: View {
     init(
         index: Int, slot: PageSlot, isActive: Bool, backgroundColor: Color,
         config: ImageStackConfig, imageURLs: [Int: URL], originalImageURLs: [Int: URL],
-        loadingStates: [Int: LoadingState], enablesLiveText: Bool,
+        pageSizes: [Int: KnownPageSize], loadingStates: [Int: LoadingState], enablesLiveText: Bool,
         liveTextGroups: [Int: [LiveTextGroup]], focusedLiveTextGroup: LiveTextGroup?,
         liveTextTapAction: @escaping (LiveTextGroup) -> Void,
         fetchAction: @escaping (Int) -> Void,
         refetchAction: @escaping (Int) -> Void, prefetchAction: @escaping (Int) -> Void,
-        loadRetryAction: @escaping (Int) -> Void, loadSucceededAction: @escaping (Int) -> Void,
+        loadRetryAction: @escaping (Int) -> Void, loadSucceededAction: @escaping (Int, PagePixelSize) -> Void,
         loadFailedAction: @escaping (Int) -> Void, copyImageAction: @escaping (URL) -> Void,
         saveImageAction: @escaping (URL) -> Void, shareImageAction: @escaping (URL) -> Void
     ) {
@@ -84,6 +85,7 @@ struct HorizontalImageStack: View {
         self.config = config
         self.imageURLs = imageURLs
         self.originalImageURLs = originalImageURLs
+        self.pageSizes = pageSizes
         self.loadingStates = loadingStates
         self.enablesLiveText = enablesLiveText
         self.liveTextGroups = liveTextGroups
@@ -115,6 +117,7 @@ struct HorizontalImageStack: View {
         ImageContainer(
             index: page,
             imageURL: imageURLs[page],
+            pageSize: pageSizes[page]?.pixelSize,
             loadingState: loadingStates[page] ?? .idle,
             slot: slot,
             isActive: isActive,
@@ -234,6 +237,7 @@ struct PageActions: View {
 struct ImageContainer: View {
     private let index: Int
     private let imageURL: URL?
+    private let pageSize: PagePixelSize?
     private let loadingState: LoadingState
     private let slot: PageSlot
     private let isActive: Bool
@@ -244,11 +248,13 @@ struct ImageContainer: View {
     private let liveTextTapAction: (LiveTextGroup) -> Void
     private let refetchAction: (Int) -> Void
     private let loadRetryAction: (Int) -> Void
-    private let loadSucceededAction: (Int) -> Void
+    private let loadSucceededAction: (Int, PagePixelSize) -> Void
     private let loadFailedAction: (Int) -> Void
 
+    /// - Parameter pageSize: The page's size in pixels as far as the reader knows it, `nil` when it knows none.
     init(
         index: Int, imageURL: URL?,
+        pageSize: PagePixelSize?,
         loadingState: LoadingState,
         slot: PageSlot,
         isActive: Bool,
@@ -259,11 +265,12 @@ struct ImageContainer: View {
         liveTextTapAction: @escaping (LiveTextGroup) -> Void,
         refetchAction: @escaping (Int) -> Void,
         loadRetryAction: @escaping (Int) -> Void,
-        loadSucceededAction: @escaping (Int) -> Void,
+        loadSucceededAction: @escaping (Int, PagePixelSize) -> Void,
         loadFailedAction: @escaping (Int) -> Void
     ) {
         self.index = index
         self.imageURL = imageURL
+        self.pageSize = pageSize
         self.loadingState = loadingState
         self.slot = slot
         self.isActive = isActive
@@ -279,7 +286,7 @@ struct ImageContainer: View {
     }
 
     private func placeholder(_ progress: Progress?) -> some View {
-        UnloadedPage(slot: slot, backgroundColor: backgroundColor) {
+        UnloadedPage(slot: slot, pageSize: pageSize, backgroundColor: backgroundColor) {
             VStack {
                 pageNumber
 
@@ -305,9 +312,10 @@ struct ImageContainer: View {
     @ContentBuilder private func image(url: URL?) -> some View {
         ByteRoutedReaderImage(
             url: url,
+            slot: slot,
             isActive: isActive,
             placeholder: { progress in placeholder(progress) },
-            onSucceeded: { loadSucceededAction(index) },
+            onSucceeded: { loadSucceededAction(index, $0) },
             onFailed: { loadFailedAction(index) }
         )
     }
@@ -326,7 +334,7 @@ struct ImageContainer: View {
                 .visible(enablesLiveText)
             )
         } else {
-            UnloadedPage(slot: slot, backgroundColor: backgroundColor) {
+            UnloadedPage(slot: slot, pageSize: pageSize, backgroundColor: backgroundColor) {
                 VStack {
                     pageNumber
 
@@ -367,14 +375,15 @@ private struct ByteRoutedReaderImage<Placeholder: View>: View {
     private static var progressUnitCount: Int64 { 10_000 }
 
     let url: URL?
+    let slot: PageSlot
     let isActive: Bool
     @ContentBuilder let placeholder: (Progress?) -> Placeholder
-    let onSucceeded: () -> Void
+    /// Called with the loaded image's size in pixels.
+    let onSucceeded: (PagePixelSize) -> Void
     let onFailed: () -> Void
 
     @Dependency(\.imageClient) private var imageClient
-    @State private var stillImage: UIImage?
-    @State private var animatedData: Data?
+    @State private var loaded: LoadedReaderImage?
     @State private var progress: Progress?
 
     var body: some View {
@@ -391,29 +400,35 @@ private struct ByteRoutedReaderImage<Placeholder: View>: View {
         }
     }
 
-    // The loaded image fits itself rather than this view fitting its content: an aspect-fitting modifier around the
-    // placeholder would size it from its ideal size, while `UnloadedPage` gives it the page's frame.
+    // The loaded image takes its frame rather than this view framing its content: the placeholder takes the page's
+    // frame from `UnloadedPage`, and an aspect-fitting modifier around it would size it from its ideal size instead.
     @ContentBuilder private var content: some View {
-        if animatedData != nil || stillImage != nil {
-            loadedImage.scaledToFit()
+        if let loaded {
+            switch slot {
+            case .strip:
+                // The frame the page took before its image loaded when the reader knew the image's size then.
+                loadedImage(loaded.representation).modifier(StripPageFrame(pageSize: loaded.pixelSize))
+            case .pager:
+                loadedImage(loaded.representation).scaledToFit()
+            }
         } else {
             placeholder(progress)
         }
     }
 
-    /// The loaded image, animated or still, which SwiftUI's `scaledToFit()` fits as one view, so that no modifier an
-    /// image view declares under that name takes the call.
-    @ContentBuilder private var loadedImage: some View {
-        if let animatedData {
-            AnimatedImage(data: animatedData, isAnimating: .constant(isActive)).resizable()
-        } else if let stillImage {
-            Image(uiImage: stillImage).resizable()
+    /// The loaded image, animated or still, which SwiftUI's `scaledToFit()` and `StripPageFrame` frame as one view, so
+    /// that no modifier an image view declares under the same name takes the call.
+    @ContentBuilder private func loadedImage(_ representation: LoadedReaderImage.Representation) -> some View {
+        switch representation {
+        case .animated(let data):
+            AnimatedImage(data: data, isAnimating: .constant(isActive)).resizable()
+        case .still(let image):
+            Image(uiImage: image).resizable()
         }
     }
 
     @MainActor private func load() async {
-        stillImage = nil
-        animatedData = nil
+        loaded = nil
         progress = nil
         guard let url else { return }
         let downloadProgress = Progress(totalUnitCount: Self.progressUnitCount)
@@ -425,15 +440,32 @@ private struct ByteRoutedReaderImage<Placeholder: View>: View {
         // A cancelled `.task(id:)` (scrolled off screen, URL changed) surfaces as a
         // nil asset; it is not a load failure, so report neither success nor failure.
         guard !Task.isCancelled else { return }
-        guard let asset else {
+        // An image without a pixel to draw is no page either.
+        guard let asset, let pixelSize = asset.image.pixelSize else {
             onFailed()
             return
         }
-        if asset.isAnimated {
-            animatedData = asset.data
-        } else {
-            stillImage = asset.image
-        }
-        onSucceeded()
+        loaded = LoadedReaderImage(
+            representation: asset.isAnimated ? .animated(asset.data) : .still(asset.image), pixelSize: pixelSize
+        )
+        onSucceeded(pixelSize)
+    }
+}
+
+/// A reader page's loaded image: its bytes, routed to the view that draws them, and its size in pixels.
+private struct LoadedReaderImage {
+    enum Representation {
+        case animated(Data)
+        case still(UIImage)
+    }
+
+    let representation: Representation
+    let pixelSize: PagePixelSize
+}
+
+private extension UIImage {
+    /// The image's size in pixels as it is drawn, its orientation applied, or `nil` when it has no pixel.
+    var pixelSize: PagePixelSize? {
+        PagePixelSize(width: Int((size.width * scale).rounded()), height: Int((size.height * scale).rounded()))
     }
 }

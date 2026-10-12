@@ -8,8 +8,8 @@ import UIKit
 @testable import VisualSnapshotSupport
 import XCTest
 
-/// A reader page until its image loads (`UnloadedPage`): the frame it takes, as the image container shows it, and
-/// where it shows its number and progress.
+/// A reader page until its image loads (`UnloadedPage`): the frame it takes, as the image container shows it, where it
+/// shows its number and progress, and the frame its image takes once it loads.
 final class UnloadedPageTests: XCTestCase {
     /// The tests need no app state, but they run inside the host app, whose scene phase changes reach its download
     /// client at any time; re-preparing the inert host clients keeps such a change from failing a test.
@@ -19,26 +19,68 @@ final class UnloadedPageTests: XCTestCase {
     }
 
     /// The placeholder, the box shown while the page's image URL loads and the box shown after a load failed take one
-    /// frame in the strip: its width by the pixel-aligned height of a 7:10 page. The placeholder alone off the
-    /// screen's height, with the box still on it, moved the resume page under VoiceOver in 15 of 15 resumes (measured
-    /// 2026-10-11).
+    /// frame in the strip: its width by the pixel-aligned height the page's size gives, or a 7:10 page's when its
+    /// size is unknown. The placeholder alone off the screen's height, with the box still on it, moved the resume page
+    /// under VoiceOver in 15 of 15 resumes (measured 2026-10-11).
     @MainActor
     func testEveryUnloadedStateTakesOneFrameInTheStrip() async throws {
-        var sizes = [LoadingState: CGSize]()
-        for state in [LoadingState.idle, .loading, .failed(.webImageFailed)] {
-            let host = try PageFrameHost { recorder in
+        let knownSize = try XCTUnwrap(PagePixelSize(width: 1280, height: 1791))
+        for pageSize in [nil, knownSize] {
+            var sizes = [LoadingState: CGSize]()
+            for state in [LoadingState.idle, .loading, .failed(.webImageFailed)] {
+                let host = try PageFrameHost { recorder in
+                    ScrollView {
+                        LazyVStack(spacing: 0) {
+                            page(state, slot: .strip, pageSize: pageSize)
+                                .onGeometryChange(for: CGSize.self, of: \.size, action: { recorder.size = $0 })
+                        }
+                    }
+                }
+                defer { host.dismiss() }
+                sizes[state] = try await host.settled(\.size)
+                expectStripFrame(sizes[state], of: pageSize, in: host, "\(state), \(String(describing: pageSize))")
+            }
+            XCTAssertEqual(Set(sizes.values).count, 1, "\(sizes)")
+        }
+    }
+
+    /// A strip page's image takes the strip frame of the size it decodes to, so a page whose size the reader knew when
+    /// it built the page keeps its frame when its image replaces its placeholder, and a page the reader knew another
+    /// size of takes its image's.
+    @MainActor
+    func testALoadedImageTakesTheStripFrameOfItsDecodedSize() async throws {
+        let decoded = try XCTUnwrap(PagePixelSize(width: 1280, height: 1791))
+        let otherSize = try XCTUnwrap(PagePixelSize(width: 1280, height: 1920))
+        let imageURL = try writePNG(of: decoded)
+        defer { removeFile(at: imageURL) }
+        for known in [decoded, otherSize] {
+            let unloaded = try PageFrameHost { recorder in
                 ScrollView {
                     LazyVStack(spacing: 0) {
-                        page(state, slot: .strip)
+                        page(.idle, slot: .strip, pageSize: known)
                             .onGeometryChange(for: CGSize.self, of: \.size, action: { recorder.size = $0 })
                     }
                 }
             }
-            defer { host.dismiss() }
-            sizes[state] = try await host.settled(\.size)
-            expectStripFrame(sizes[state], in: host, "\(state)")
+            defer { unloaded.dismiss() }
+            let unloadedSize = try await unloaded.settled(\.size)
+            let loaded = try PageFrameHost { recorder in
+                ScrollView {
+                    LazyVStack(spacing: 0) {
+                        page(.idle, slot: .strip, imageURL: imageURL, pageSize: known) { recorder.decodedSize = $0 }
+                            .onGeometryChange(for: CGSize.self, of: \.size, action: { recorder.size = $0 })
+                    }
+                }
+            }
+            defer { loaded.dismiss() }
+            let loadedFrame = try await loaded.settled(\.loadedFrame)
+            let step = "known \(known.width) x \(known.height)"
+            XCTAssertEqual(loadedFrame.decodedSize, decoded, "\(step), decoded size")
+            expectStripFrame(loadedFrame.size, of: decoded, in: loaded, "\(step), loaded")
+            if known == decoded {
+                XCTAssertEqual(loadedFrame.size, unloadedSize, "\(step), the frame before and after the load")
+            }
         }
-        XCTAssertEqual(Set(sizes.values).count, 1, "\(sizes)")
     }
 
     /// A page the list keeps at an older height (`AboveScreenHeightLock`) offers the page that height, and a probe of
@@ -107,7 +149,7 @@ final class UnloadedPageTests: XCTestCase {
         let host = try PageFrameHost(height: scene.screen.bounds.width) { recorder in
             ScrollView {
                 LazyVStack(spacing: 0) {
-                    UnloadedPage(slot: .strip, backgroundColor: .gray) {
+                    UnloadedPage(slot: .strip, pageSize: nil, backgroundColor: .gray) {
                         contentMarker(recorder)
                     }
                     .onGeometryChange(for: CGRect.self, of: { $0.frame(in: .global) }, action: { recorder.page = $0 })
@@ -132,7 +174,7 @@ final class UnloadedPageTests: XCTestCase {
     func testAPagerPageCentersItsContent() async throws {
         for isDualPage in [false, true] {
             let host = try PageFrameHost { recorder in
-                UnloadedPage(slot: .pager(isDualPage: isDualPage), backgroundColor: .gray) {
+                UnloadedPage(slot: .pager(isDualPage: isDualPage), pageSize: nil, backgroundColor: .gray) {
                     contentMarker(recorder)
                 }
                 .onGeometryChange(for: CGRect.self, of: { $0.frame(in: .global) }, action: { recorder.page = $0 })
@@ -151,13 +193,38 @@ final class UnloadedPageTests: XCTestCase {
     }
 
     @MainActor
-    private func page(_ loadingState: LoadingState, slot: PageSlot) -> ImageContainer {
+    private func page(
+        _ loadingState: LoadingState, slot: PageSlot, imageURL: URL? = nil, pageSize: PagePixelSize? = nil,
+        loadSucceededAction: @escaping (PagePixelSize) -> Void = { _ in }
+    ) -> ImageContainer {
         ImageContainer(
-            index: 1, imageURL: nil, loadingState: loadingState, slot: slot, isActive: true, backgroundColor: .gray,
-            enablesLiveText: false, liveTextGroups: [], focusedLiveTextGroup: nil, liveTextTapAction: { _ in },
-            refetchAction: { _ in }, loadRetryAction: { _ in }, loadSucceededAction: { _ in },
-            loadFailedAction: { _ in }
+            index: 1, imageURL: imageURL, pageSize: pageSize, loadingState: loadingState, slot: slot, isActive: true,
+            backgroundColor: .gray, enablesLiveText: false, liveTextGroups: [], focusedLiveTextGroup: nil,
+            liveTextTapAction: { _ in }, refetchAction: { _ in }, loadRetryAction: { _ in },
+            loadSucceededAction: { _, pixelSize in loadSucceededAction(pixelSize) }, loadFailedAction: { _ in }
         )
+    }
+
+    /// Writes a PNG image of `size` to a new file, which the image container loads as it loads a downloaded page.
+    private func writePNG(of size: PagePixelSize) throws -> URL {
+        let format = UIGraphicsImageRendererFormat()
+        format.scale = 1
+        let renderer = UIGraphicsImageRenderer(size: CGSize(width: size.width, height: size.height), format: format)
+        let data = renderer.pngData { context in
+            UIColor.darkGray.setFill()
+            context.fill(renderer.format.bounds)
+        }
+        let url = FileManager.default.temporaryDirectory.appendingPathComponent("\(UUID().uuidString).png")
+        try data.write(to: url)
+        return url
+    }
+
+    private func removeFile(at url: URL) {
+        do {
+            try FileManager.default.removeItem(at: url)
+        } catch {
+            XCTFail("Could not remove \(url.lastPathComponent): \(error)")
+        }
     }
 
     /// Content of a fixed size that reports where the page draws it.
@@ -168,23 +235,26 @@ final class UnloadedPageTests: XCTestCase {
             .onGeometryChange(for: CGRect.self, of: { $0.frame(in: .global) }, action: { recorder.content = $0 })
     }
 
-    /// Expects `size` to be the strip's width by the height of a 7:10 page at that width, on the pixel grid: a whole
-    /// number of pixels within half a pixel of the exact height. A thousandth of a pixel covers the binary
-    /// representation of a third of a point.
+    /// Expects `size` to be the strip's width by the height of a page of `pageSize`, or of a 7:10 page when it is
+    /// `nil`, at that width, on the pixel grid: a whole number of pixels within half a pixel of the exact height. A
+    /// thousandth of a pixel covers the binary representation of a third of a point.
     @MainActor
     private func expectStripFrame(
-        _ size: CGSize?, in host: PageFrameHost, _ step: String, file: StaticString = #filePath, line: UInt = #line
+        _ size: CGSize?, of pageSize: PagePixelSize? = nil, in host: PageFrameHost, _ step: String,
+        file: StaticString = #filePath, line: UInt = #line
     ) {
         let width = host.window.bounds.width
         let scale = host.window.traitCollection.displayScale
         XCTAssertEqual(size?.width, width, "\(step), width", file: file, line: line)
         let pixels = (size?.height ?? 0) * scale
-        let exactPixels = width / Defaults.ImageSize.contentAspect * scale
+        let heightOverWidth = pageSize.map({ CGFloat($0.height) / CGFloat($0.width) })
+            ?? 1 / Defaults.ImageSize.contentAspect
+        let exactPixels = width * heightOverWidth * scale
         XCTAssertLessThan(
             abs(pixels - pixels.rounded()), 0.001, "\(step), height on the pixel grid", file: file, line: line
         )
         XCTAssertLessThanOrEqual(
-            abs(pixels - exactPixels), 0.5, "\(step), height of a 7:10 page", file: file, line: line
+            abs(pixels - exactPixels), 0.5, "\(step), height of the page at the strip's width", file: file, line: line
         )
     }
 
@@ -213,6 +283,12 @@ private struct Placement: Equatable {
     let content: CGRect
 }
 
+/// A loaded page's frame, with the size its image decoded to.
+private struct LoadedFrame: Equatable {
+    let decodedSize: PagePixelSize
+    let size: CGSize
+}
+
 @MainActor
 @Observable
 private final class FrameRecorder {
@@ -221,10 +297,17 @@ private final class FrameRecorder {
     var cell: CGSize?
     var page: CGRect?
     var content: CGRect?
+    /// The size the page's image decoded to, once it loads.
+    var decodedSize: PagePixelSize?
 
     var placement: Placement? {
         guard let page, let content else { return nil }
         return Placement(page: page, content: content)
+    }
+
+    var loadedFrame: LoadedFrame? {
+        guard let decodedSize, let size else { return nil }
+        return LoadedFrame(decodedSize: decodedSize, size: size)
     }
 }
 
