@@ -42,7 +42,9 @@ final class UnloadedPageTests: XCTestCase {
     }
 
     /// A page the list keeps at an older height (`AboveScreenHeightLock`) offers the page that height, and a probe of
-    /// its ideal size offers none; the page keeps its frame under both, and the kept height clips it.
+    /// its ideal height offers the strip's width alone; the page keeps its frame under both, and the kept height clips
+    /// it. A probe that offers no width, which the strip never makes (see `StripPageLayout`), has no page size to
+    /// answer with.
     @MainActor
     func testAnUnloadedPageKeepsItsFrameUnderAKeptHeightAndAProbe() async throws {
         let kept = try PageFrameHost { recorder in
@@ -61,13 +63,13 @@ final class UnloadedPageTests: XCTestCase {
             ScrollView {
                 LazyVStack(spacing: 0) {
                     page(.idle, slot: .strip)
-                        .fixedSize()
+                        .fixedSize(horizontal: false, vertical: true)
                         .onGeometryChange(for: CGSize.self, of: \.size, action: { recorder.size = $0 })
                 }
             }
         }
         defer { probed.dismiss() }
-        expectStripFrame(try await probed.settled(\.size), in: probed, "probed for its ideal size")
+        expectStripFrame(try await probed.settled(\.size), in: probed, "probed for its ideal height")
     }
 
     /// In the pager an unloaded page takes its whole cell, the frame its container gives, half of it in a dual-page
