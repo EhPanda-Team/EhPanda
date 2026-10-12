@@ -157,9 +157,8 @@ extension CoordinateSpaceProtocol where Self == NamedCoordinateSpace {
 /// none, twice or four times the change in the measured cases (2026-10-09 on iOS 27;
 /// `defaultScrollAnchor(.top, for: .sizeChanges)` changes nothing). A page that keeps its height while it lies
 /// above the screen gives that adjustment nothing to act on. Its content still changes inside the kept height,
-/// aligned to its top: a shorter image leaves a gap at the page's bottom, a taller image is fitted into the kept
-/// height, narrower than the screen and centered, and content that keeps its own size, such as the placeholder shown
-/// again while an image reloads, is clipped to it. The release then moves the pages below by the difference once.
+/// aligned to its top and at its own size (`StripPageFrame`): a shorter page leaves a gap at the bottom of the kept
+/// height, and a taller one is clipped to it. The release then moves the pages below by the difference once.
 ///
 /// The lock prevents the height change instead of correcting what it moves: aligning the positioned page again
 /// from a geometry action after the adjustment re-places the built pages within the same update, and SwiftUI then
@@ -182,7 +181,7 @@ extension CoordinateSpaceProtocol where Self == NamedCoordinateSpace {
 ///
 /// Pages above the screen that take new heights in the same layout pass as a container size change, such as a rotation
 /// or a Split View resize, move the pages on screen by once or twice the change (measured 2026-10-10), so the lock
-/// keeps a page's old height through a resize rather than following the container's width, and the page shows narrower
+/// keeps a page's old height through a resize rather than following the container's width, and the page shows clipped
 /// or with a gap below it while only part of it is on screen. The list keeps the positioned page at the top through a
 /// resize by positioning it again (see `AdvancedList.position`); the lock keeps the pages above it from moving it
 /// afterwards. SwiftUI lays the pages out at the new size against the old offset for one or more passes before it

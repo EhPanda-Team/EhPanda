@@ -115,9 +115,10 @@ extension ReadingReducer {
                 state.imageURLLoadingStates[page] = .idle
                 return .none
 
-            case .onWebImageSucceeded(let page):
+            case .onWebImageSucceeded(let page, let pixelSize):
                 state.imageURLLoadingStates[page] = .idle
                 state.webImageLoadSuccessIndices.insert(page)
+                state.recordSize(pixelSize, ofPage: page, from: .decodedImage)
                 guard !state.isOffline,
                       state.gallery.id.isValidGID,
                       state.localPageURLs[page] == nil
