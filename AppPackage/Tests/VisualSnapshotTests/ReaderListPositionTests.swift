@@ -1,4 +1,5 @@
 import AppFeature
+import AppTools
 import CustomDump
 import Observation
 @testable import ReadingFeature
@@ -317,6 +318,39 @@ final class ReaderListPositionTests: XCTestCase {
                             host.resizeWidth(widens: change)
                         }
                     }
+                }
+            }
+        }
+    }
+
+    /// A page takes the width the strip offers it, so the positioned unloaded page takes the new width through resizes.
+    /// Sized by `containerRelativeFrame`, pages kept the old width in this host's resize, where the list positions its
+    /// page again from the change (measured 2026-10-12: pages 834 pt wide in a window widened to 1210 pt or narrowed to
+    /// 575 pt).
+    @MainActor
+    func testUnloadedPagesTakeTheNewWidthThroughResizes() async throws {
+        for presentation in [ReaderListHost.Presentation.root, .buildingScreenAbove] {
+            for widens in [true, false] {
+                let host = try ReaderListHost(resumePage: 4, presentation: presentation)
+                defer { host.dismiss() }
+                let step = "\(presentation), \(widens ? "widened" : "narrowed")"
+                try await expectAtTop(page: 4, in: host, "\(step), resumed")
+                for change in [widens, !widens] {
+                    let resize = "\(step), \(change ? "wider" : "narrower")"
+                    try await expectAtTopInEveryFrame(page: 4, in: host, resize) {
+                        host.resizeWidth(widens: change)
+                    }
+                    let width = host.window.bounds.width
+                    let height = StripPageLayout.height(
+                        width: width, aspectRatio: Defaults.ImageSize.contentAspect,
+                        displayScale: host.window.traitCollection.displayScale
+                    )
+                    let pageFour = try await host.settle().frames[4]
+                    expectNoDifference(
+                        pageFour.map({ CGSize(width: host.pixel(of: $0.width), height: host.pixel(of: $0.height)) }),
+                        CGSize(width: host.pixel(of: width), height: host.pixel(of: height)),
+                        "\(resize), page 4's size in pixels"
+                    )
                 }
             }
         }
