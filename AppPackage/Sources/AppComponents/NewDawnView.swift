@@ -72,13 +72,14 @@ public struct NewDawnView: View {
                 }
             }
         }
+        // The backdrop is decoration, so it bleeds to every edge of the sheet.
+        .ignoresSafeArea()
         .overlay {
             // The greeting is a fixed slab of prose with no way to shorten it, and in a large window
             // it is presented in a form sheet, so at accessibility sizes it outgrows whatever it is
-            // given.
-            // A scroll container is the remedy: the text keeps its natural height and the reader
-            // reaches the rest, rather than the first and last lines being sliced by the container's
-            // edges with nowhere to scroll to.
+            // given. A scroll container is the remedy: the text keeps its natural height and the
+            // reader reaches the rest, rather than the first and last lines being sliced by the
+            // container's edges with nowhere to scroll to.
             //
             // `minHeight` is what preserves the designed appearance. The greeting is centred in its
             // container, and a bare `ScrollView` would pin it to the top at every size; giving the
@@ -89,6 +90,10 @@ public struct NewDawnView: View {
             // The floor is that height *less* the top content margin, so the two together still come
             // to exactly the container's height. Were the floor left whole, the margin would push the
             // content past the container at every size and the greeting would always scroll.
+            //
+            // The container is the sheet's full height, so the greeting ignores the safe area top to
+            // bottom, but it is prose, so sideways it stays inside the safe area and no line runs
+            // beneath a sensor housing or a vertical bar.
             ScrollView {
                 VStack(spacing: 50) {
                     VStack(spacing: 10) {
@@ -105,8 +110,8 @@ public struct NewDawnView: View {
             .scrollIndicators(.hidden)
             .scrollBounceBehavior(.basedOnSize)
             .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { containerHeight = $0 }
+            .ignoresSafeArea(edges: .vertical)
         }
-        .ignoresSafeArea()
     }
 }
 
