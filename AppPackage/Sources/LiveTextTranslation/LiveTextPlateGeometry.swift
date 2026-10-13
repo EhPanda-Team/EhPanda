@@ -60,6 +60,15 @@ public struct LiveTextOrientedRect: Equatable, Sendable {
     func contains(_ point: CGPoint) -> Bool {
         localBounds.contains(point.applying(transform.inverted()))
     }
+
+    /// How far `point`, on the page, lies from the rectangle; 0 inside it.
+    func distance(to point: CGPoint) -> Double {
+        let local = point.applying(transform.inverted())
+        let bounds = localBounds
+        let across = Swift.max(bounds.minX - local.x, 0, local.x - bounds.maxX)
+        let down = Swift.max(bounds.minY - local.y, 0, local.y - bounds.maxY)
+        return hypot(across, down)
+    }
 }
 
 /// Where a recognized group sits on its page: the rectangle its lines fill, turned with them.
