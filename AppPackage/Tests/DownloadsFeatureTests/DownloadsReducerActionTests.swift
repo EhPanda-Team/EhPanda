@@ -129,7 +129,6 @@ struct DownloadsReducerActionTests: DownloadFeatureTestCase {
                 $0.analyticsClient = .noop
                 $0.deviceClient = DeviceClient(
                     deviceType: { .pad },
-                    isLandscape: { false },
                     interfaceOrientation: { .portrait }
                 )
             }

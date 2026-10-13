@@ -33,28 +33,20 @@ public struct ReadingView: View {
     @State private var autoPlayHandler = AutoPlayHandler()
     @State var gestureHandler = GestureHandler()
     @State private var pageHandler: PageHandler
-    @State var pageModel: PageModel
+    @State var pageModel = PageModel()
     @State private var scrollPositionID: Int?
     @State private var performingChanges = false
 
     public init(store: StoreOf<ReadingReducer>) {
-        @Dependency(\.deviceClient) var deviceClient
         self.store = store
-        // Seed the pager and slider from the resume page the reducer computed in `State.init`, so the
-        // reader opens on the saved page. Seeding replaced a `.restoreSession` action that mutated
+        // Seed the slider from the resume page the reducer computed in `State.init`, so the reader
+        // opens on the saved page. Seeding replaced a `.restoreSession` action that mutated
         // `readingProgress` after the view had subscribed; with no post-subscribe change event, the
-        // pager must be positioned at construction or every session would open at page 1.
-        let resumePage = max(store.state.readingProgress, 1)
+        // resume page must be in place at construction or every session would open at page 1. The
+        // pager's own position is derived from it later, in `seedPager()`.
         let handler = PageHandler()
-        handler.sliderValue = Float(resumePage)
-        let pagerIndex = handler.mapToPager(
-            index: resumePage,
-            setting: store.state.setting,
-            isLandscape: deviceClient.isLandscape()
-        )
+        handler.sliderValue = Float(max(store.state.readingProgress, 1))
         _pageHandler = State(wrappedValue: handler)
-        _pageModel = State(wrappedValue: .withIndex(pagerIndex))
-        _scrollPositionID = State(initialValue: pagerIndex)
     }
 
     private var backgroundColor: Color {
@@ -67,7 +59,7 @@ public struct ReadingView: View {
 
     public var body: some View {
         NavigationStack {
-            changeTriggers(content: { content })
+            content
                 .scrollEdgeEffectStyle(.soft, for: .top)
                 .toolbar(content: readingToolbar)
                 .toolbarTitleDisplayMode(.inline)
@@ -151,23 +143,14 @@ public struct ReadingView: View {
         @Bindable var bindablePageHandler = pageHandler
 
         VStack {
-            switch store.setting.readingDirection {
-            case .vertical:
-                AdvancedList(
-                    page: pageModel,
-                    data: store.state.containerDataSource(
-                        setting: store.setting,
-                        isLandscape: isLandscape
-                    ),
-                    id: \.self,
-                    spacing: store.setting.contentDividerHeight,
-                    gesture: SimultaneousGesture(magnificationGesture, tapGesture),
-                    content: imageStack
-                )
-                .scrollDisabled(gestureHandler.scale != 1)
-
-            case .leftToRight, .rightToLeft:
-                horizontalPagingList
+            // The pager is built only once the container has been measured, so its first layout
+            // already sits on the slot `seedPager()` picked for the measured aspect ratio. Its page
+            // observers come with it: created after the seed, they start from the seeded index
+            // instead of reporting the seed as a page turn.
+            if gestureHandler.containerSize == .zero {
+                Color.clear
+            } else {
+                changeTriggers(content: { pages })
             }
         }
         .scaleEffect(gestureHandler.scale, anchor: gestureHandler.scaleAnchor)
@@ -218,8 +201,34 @@ public struct ReadingView: View {
                 fetchPreviewURLsAction: { store.send(.fetchPreviewURLs($0)) }
             )
         }
-        .onGeometryChange(for: CGSize.self, of: \.size) {
-            gestureHandler.containerSize = $0
+        .onGeometryChange(for: CGSize.self, of: \.size) { size in
+            let isFirstMeasurement = gestureHandler.containerSize == .zero
+            gestureHandler.containerSize = size
+            if isFirstMeasurement {
+                seedPager()
+            }
+        }
+    }
+
+    @ContentBuilder
+    private var pages: some View {
+        switch store.setting.readingDirection {
+        case .vertical:
+            AdvancedList(
+                page: pageModel,
+                data: store.state.containerDataSource(
+                    setting: store.setting,
+                    isLandscape: isLandscape
+                ),
+                id: \.self,
+                spacing: store.setting.contentDividerHeight,
+                gesture: SimultaneousGesture(magnificationGesture, tapGesture),
+                content: imageStack
+            )
+            .scrollDisabled(gestureHandler.scale != 1)
+
+        case .leftToRight, .rightToLeft:
+            horizontalPagingList
         }
     }
 
@@ -415,6 +424,21 @@ extension ReadingView {
         DispatchQueue.main.asyncAfter(deadline: .now() + PageModel.echoGuardDuration) {
             performingChanges = false
         }
+    }
+    /// Positions the pager on the slider's page for the reading area it is about to lay out in.
+    ///
+    /// Runs before the pager exists, because the slot depends on that area: a landscape container
+    /// holds two pages per slot in dual-page mode. Neither the interface orientation nor the device
+    /// can stand in for the measurement, since a landscape interface can still be taller than wide,
+    /// as in a narrow Split View column or on a foldable's inner display.
+    private func seedPager() {
+        let pagerIndex = pageHandler.mapToPager(
+            index: .init(pageHandler.sliderValue),
+            setting: store.setting,
+            isLandscape: isLandscape
+        )
+        pageModel.update(.new(index: pagerIndex))
+        scrollPositionID = pagerIndex
     }
     func setPageIndex(sliderValue: Float) {
         let newValue = pageHandler.mapToPager(

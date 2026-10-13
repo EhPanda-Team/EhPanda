@@ -145,7 +145,6 @@ private extension TabBarSettingPresentationTests {
                     $0.defaultInMemoryStorage = inMemoryStorage
                     $0.deviceClient = DeviceClient(
                         deviceType: { deviceType },
-                        isLandscape: { false },
                         interfaceOrientation: { .portrait }
                     )
                     $0.downloadClient = .noop
