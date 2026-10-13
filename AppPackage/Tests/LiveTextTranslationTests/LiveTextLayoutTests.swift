@@ -557,17 +557,13 @@ struct LiveTextLayoutTests {
         #expect(layout.breaksWord)
     }
 
-    @Test
-    func unspacedTextBreaksBetweenCharacters() {
-        let layout = LiveTextTextLayout(
-            text: "どこに行くと思うの？ここにいてって言ったでしょ！",
-            style: Self.japanese,
-            fontSize: 20,
-            widths: [100]
-        )
-
-        #expect(layout.lines.count > 1)
-        #expect(!layout.breaksWord)
+    /// The lines `layout` sets `text` in.
+    private static func lines(of layout: LiveTextTextLayout, in text: String) -> [String] {
+        let characters = text as NSString
+        return layout.lines.map { line in
+            let range = CTLineGetStringRange(line.line)
+            return characters.substring(with: NSRange(location: range.location, length: range.length))
+        }
     }
 
     @Test
@@ -580,16 +576,32 @@ struct LiveTextLayoutTests {
             fontSize: 20,
             widths: [120]
         )
-        let characters = text as NSString
-        let lineWords = layout.lines.flatMap { line in
-            let range = CTLineGetStringRange(line.line)
-            return characters.substring(with: NSRange(location: range.location, length: range.length))
-                .split(whereSeparator: \.isWhitespace)
-        }
+        let lineWords = Self.lines(of: layout, in: text).flatMap({ $0.split(whereSeparator: \.isWhitespace) })
 
         #expect(layout.lines.count > 1)
         #expect(!layout.breaksWord)
         #expect(lineWords == text.split(whereSeparator: \.isWhitespace))
+    }
+
+    @Test(arguments: [
+        ("zh-Hant", "我真的這樣做。我喜歡和你玩捉迷藏。", ["這樣", "捉迷藏"]),
+        ("zh-Hant", "如果什麼都不變的話，那就是…", ["的話"]),
+        ("ja", "いいです。", ["です"]),
+        ("ja", "どこに行くと思うの？ここにいてって言ったでしょ！", ["行く", "って"])
+    ])
+    func chineseAndJapaneseKeepTheirWordsWhole(language: String, text: String, words: [String]) {
+        let style = LiveTextTextStyle(language: .init(identifier: language))
+        // Four characters wide, where CoreText alone breaks inside each of `words`.
+        let layout = LiveTextTextLayout(text: text, style: style, fontSize: 20, widths: [80])
+
+        let lines = Self.lines(of: layout, in: text)
+
+        #expect(lines.count > 1)
+        #expect(lines.joined() == text)
+        #expect(!layout.breaksWord)
+        for word in words {
+            #expect(lines.contains(where: { $0.contains(word) }), "\(word) breaks across \(lines)")
+        }
     }
 
     @Test

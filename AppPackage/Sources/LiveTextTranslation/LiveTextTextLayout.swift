@@ -1,5 +1,6 @@
 import CoreText
 import Foundation
+import NaturalLanguage
 import UIKit
 
 /// How a page's translations are set: the system font, semibold, tagged with the translation's
@@ -9,20 +10,66 @@ import UIKit
 /// The text is page content, scaled with the page image, so Dynamic Type does not apply to it, as it
 /// does not apply to the image.
 struct LiveTextTextStyle: Sendable {
-    /// Languages written without spaces between words, where a line may break between any two
-    /// characters.
+    /// Languages written without spaces between words.
     private static let unspacedLanguageCodes: Set<Locale.LanguageCode> = [
         .chinese, .japanese, .thai, .lao, .khmer, .burmese, .cantonese
     ]
 
     let language: Locale.Language
 
-    /// Whether the language puts spaces between words, so a word must not be broken across lines.
-    var separatesWords: Bool {
+    /// Where a line of `text` must not end, as UTF-16 offsets inside its words.
+    ///
+    /// In a language that puts spaces between words, a word runs from space to space. Chinese and
+    /// Japanese have no spaces, and CoreText breaks them between any two characters, so a tokenizer
+    /// finds their words. The other languages written without spaces have none here, as CoreText
+    /// finds their words itself.
+    func wordInteriors(of text: String) -> IndexSet {
+        var interiors = IndexSet()
+        if let tokenizingLanguage {
+            let tokenizer = NLTokenizer(unit: .word)
+            tokenizer.string = text
+            tokenizer.setLanguage(tokenizingLanguage)
+            tokenizer.enumerateTokens(in: text.startIndex..<text.endIndex) { range, _ in
+                let word = NSRange(range, in: text)
+                if word.length > 1 {
+                    interiors.insert(integersIn: word.location + 1..<word.location + word.length)
+                }
+                return true
+            }
+        } else if separatesWords {
+            let units = Array(text.utf16)
+            for (offset, (before, after)) in zip(units, units.dropFirst()).enumerated()
+            where !Self.isWhitespace(before) && !Self.isWhitespace(after) {
+                interiors.insert(offset + 1)
+            }
+        }
+        return interiors
+    }
+
+    /// Whether the language puts spaces between words.
+    private var separatesWords: Bool {
         guard let languageCode = language.languageCode else {
             return true
         }
         return !Self.unspacedLanguageCodes.contains(languageCode)
+    }
+
+    /// The language a tokenizer finds the translation's words in, for Chinese and Japanese.
+    private var tokenizingLanguage: NLLanguage? {
+        switch language.languageCode {
+        case .japanese:
+            .japanese
+        case .chinese, .cantonese:
+            Locale.Language(identifier: language.maximalIdentifier).script == .hanTraditional
+                ? .traditionalChinese
+                : .simplifiedChinese
+        default:
+            nil
+        }
+    }
+
+    private static func isWhitespace(_ unit: unichar) -> Bool {
+        Unicode.Scalar(unit).map(CharacterSet.whitespacesAndNewlines.contains) ?? false
     }
 
     /// The height of a line, as a multiple of the font size.
@@ -60,10 +107,9 @@ struct LiveTextTextStyle: Sendable {
 struct LiveTextTextLayout {
     /// Halvings of the search for balanced widths: under a 1/1000 of a line's width.
     private static let balanceSteps = 10
-    /// The Unicode blocks of Hangul syllables and jamo.
-    private static let hangulBlocks: [ClosedRange<unichar>] = [
-        0x1100...0x11FF, 0x3130...0x318F, 0xA960...0xA97F, 0xAC00...0xD7FF
-    ]
+    /// How much narrower than a line, in points, CoreText is asked to break it, to find the break
+    /// before its last: less than any glyph is wide.
+    private static let narrowing = 0.01
 
     struct Line {
         let line: CTLine
@@ -98,7 +144,7 @@ struct LiveTextTextLayout {
     let lineHeight: Double
     /// Whether the text did not fit `maximumHeight` and its last line ends in an ellipsis.
     let isTruncated: Bool
-    /// Whether some line ends inside a word, in a language whose words must not break.
+    /// Whether some line ends inside a word, as only a word wider than its line makes one.
     let breaksWord: Bool
     /// The distance from a line's top down to its baseline.
     private let ascent: Double
@@ -121,7 +167,8 @@ struct LiveTextTextLayout {
         let attributed = style.attributedString(text, fontSize: fontSize, color: color)
         let typesetter = CTTypesetterCreateWithAttributedString(attributed)
         let metrics = LineMetrics(attributed)
-        let ranges = Self.lineRanges(in: typesetter, of: attributed, widths: widths)
+        let interiors = style.wordInteriors(of: text)
+        let ranges = Self.lineRanges(in: typesetter, of: attributed, widths: widths, keeping: interiors)
         var lines = ranges.map({ Line(CTTypesetterCreateLine(typesetter, $0)) })
 
         var isTruncated = false
@@ -149,7 +196,7 @@ struct LiveTextTextLayout {
         lineHeight = metrics.height
         ascent = metrics.ascent
         self.isTruncated = isTruncated
-        breaksWord = Self.breaksWord(ranges, of: attributed.string as NSString, style: style)
+        breaksWord = Self.breaksWord(ranges, at: interiors)
     }
 
     /// The height every line of `text` is set in at `fontSize`.
@@ -166,15 +213,16 @@ struct LiveTextTextLayout {
         widths: [Double]
     ) -> [Double] {
         let attributed = style.attributedString(text, fontSize: fontSize)
-        let characters = attributed.string as NSString
+        let interiors = style.wordInteriors(of: text)
         let typesetter = CTTypesetterCreateWithAttributedString(attributed)
-        let count = lineRanges(in: typesetter, of: attributed, widths: widths).count
+        let count = lineRanges(in: typesetter, of: attributed, widths: widths, keeping: interiors).count
         guard count > 1 else {
             return widths
         }
         func keepsItsLines(at scale: Double) -> Bool {
-            let ranges = lineRanges(in: typesetter, of: attributed, widths: widths.map({ $0 * scale }))
-            return ranges.count <= count && !breaksWord(ranges, of: characters, style: style)
+            let scaled = widths.map({ $0 * scale })
+            let ranges = lineRanges(in: typesetter, of: attributed, widths: scaled, keeping: interiors)
+            return ranges.count <= count && !breaksWord(ranges, at: interiors)
         }
         var failing = 0.0
         var fitting = 1.0
@@ -194,54 +242,48 @@ struct LiveTextTextLayout {
         widths.dropFirst(number).first ?? widths.last ?? 0
     }
 
-    /// Where each line of `text`, which `typesetter` holds, begins and ends when set `widths` wide.
+    /// Where each line of `text`, which `typesetter` holds, begins and ends when set `widths` wide,
+    /// none ending at one of `interiors`, inside a word.
     ///
-    /// Korean keeps its words whole, as Korean is set: CoreText, following Unicode, breaks between any
-    /// two Hangul syllables, and `NSParagraphStyle`'s `hangulWordPriority` does not reach a typesetter.
-    /// A break between two syllables moves back to the line's last space; a line without one keeps it,
-    /// as a word wider than a line has to break.
+    /// Words stay whole as each script is set: CoreText, following Unicode, breaks Chinese and Japanese
+    /// between any two characters, and Korean between any two Hangul syllables, as
+    /// `NSParagraphStyle`'s `hangulWordPriority` does not reach a typesetter. A break inside a word
+    /// moves back to the latest break CoreText allows before it that is not inside one, so CoreText's
+    /// own rules, such as never ending a line on an opening bracket, still hold; a line without one
+    /// keeps its break, as a word wider than a line has to break.
     private static func lineRanges(
         in typesetter: CTTypesetter,
         of text: NSAttributedString,
-        widths: [Double]
+        widths: [Double],
+        keeping interiors: IndexSet
     ) -> [CFRange] {
-        let characters = text.string as NSString
+        let length = text.length
         var ranges = [CFRange]()
         var start = 0
-        while start < characters.length {
-            var count = CTTypesetterSuggestLineBreak(typesetter, start, width(ofLine: ranges.count, in: widths))
+        while start < length {
+            let count = CTTypesetterSuggestLineBreak(typesetter, start, width(ofLine: ranges.count, in: widths))
             guard count > 0 else {
                 break
             }
-            let end = start + count
-            if end < characters.length,
-               isHangul(characters.character(at: end - 1)),
-               isHangul(characters.character(at: end)),
-               let space = (start + 1..<end).last(where: { isWhitespace(characters.character(at: $0)) }) {
-                count = space + 1 - start
+            var kept = count
+            while start + kept < length, interiors.contains(start + kept) {
+                let line = Line(CTTypesetterCreateLine(typesetter, CFRange(location: start, length: kept)))
+                let earlier = CTTypesetterSuggestLineBreak(typesetter, start, line.width - narrowing)
+                guard earlier > 0, earlier < kept else {
+                    kept = count
+                    break
+                }
+                kept = earlier
             }
-            ranges.append(CFRange(location: start, length: count))
-            start += count
+            ranges.append(CFRange(location: start, length: kept))
+            start += kept
         }
         return ranges
     }
 
-    /// Whether a line of `ranges` ends inside a word of `characters`, between two characters that are
-    /// not spaces, in a language whose words must not break.
-    private static func breaksWord(_ ranges: [CFRange], of characters: NSString, style: LiveTextTextStyle) -> Bool {
-        style.separatesWords && ranges.dropLast().contains { range in
-            let end = range.location + range.length
-            return !isWhitespace(characters.character(at: end - 1)) && !isWhitespace(characters.character(at: end))
-        }
-    }
-
-    /// Whether `character` is a Hangul syllable or jamo.
-    private static func isHangul(_ character: unichar) -> Bool {
-        hangulBlocks.contains(where: { $0.contains(character) })
-    }
-
-    private static func isWhitespace(_ character: unichar) -> Bool {
-        Unicode.Scalar(character).map(CharacterSet.whitespacesAndNewlines.contains) ?? false
+    /// Whether a line of `ranges` ends at one of `interiors`, inside a word.
+    private static func breaksWord(_ ranges: [CFRange], at interiors: IndexSet) -> Bool {
+        ranges.dropLast().contains(where: { interiors.contains($0.location + $0.length) })
     }
 
     /// Draws the lines centered in `area`, in a context whose y axis points down.
