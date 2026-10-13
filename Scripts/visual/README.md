@@ -522,10 +522,11 @@ version. The runner then:
    toolchain, runtime, model, geometry or scale stops the run before the app launches. The pin is
    only read;
 3. on the coordinate's device, as that validation resolved it, overrides the status bar: 9:41,
-   Wi-Fi with 3 bars, cellular with 4 bars, and the battery charged at 100%. It then opens
-   Settings, waits until two screenshots a second apart are identical and quits it: the first app
-   the system shows after a boot draws iPad's Wi-Fi glyph half a point left of where every later
-   app draws it, so no capture launch may be that first app;
+   Wi-Fi with 3 bars, cellular with 4 bars, and the battery at 100% and not charging (simctl's
+   `discharging`; its `charged` draws the charging bolt). It then opens Settings, waits until
+   two screenshots a second apart are identical and quits it: the first app the system shows
+   after a boot draws iPad's Wi-Fi glyph half a point left of where every later app draws it, so
+   no capture launch may be that first app;
 4. launches the test cold twice, each launch once without retries. Each launch must pass exactly
    one test, with no repetition, skip, warning or diagnostic, on the pinned model and runtime. The
    runner then takes the test's two attachments from the result bundle: the diagnostics must name

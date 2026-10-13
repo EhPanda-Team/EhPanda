@@ -27,9 +27,10 @@ TEXT_SIZE = 'large'
 # The status bar every marketing frame shows (D-10). simctl freezes the date only for a full ISO time,
 # which it reads in the host's time zone like the status bar itself, so the bar reads 9:41 everywhere.
 # simctl derives the weekday as if the year were 2000, so iPad's date reads "Sat Jan 1" (owner decision).
+# The battery is full and not charging: simctl's `charged` state draws the charging bolt (owner decision, 2026-10-13).
 STATUS_BAR_TIME = datetime(2026, 1, 1, 9, 41)
 STATUS_BAR = ('--wifiMode', 'active', '--wifiBars', '3', '--cellularMode', 'active', '--cellularBars', '4',
-              '--batteryState', 'charged', '--batteryLevel', '100')
+              '--batteryState', 'discharging', '--batteryLevel', '100')
 STATUS_BAR_HEADER = ['Current Status Bar Overrides:', '=============================']
 SETTLE_SCREENSHOT = ('--type=png', '--mask=ignored')
 # The first app the system shows after a boot lays out iPad's status bar Wi-Fi glyph half a point left of where every
