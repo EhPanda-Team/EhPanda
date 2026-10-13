@@ -1,4 +1,5 @@
 import AppModels
+import LiveTextTranslation
 import SwiftUI
 
 struct LiveTextView: View {
@@ -6,6 +7,7 @@ struct LiveTextView: View {
     private let focusedLiveTextGroup: LiveTextGroup?
     private let tapAction: (LiveTextGroup) -> Void
     @State private var size: CGSize = .zero
+    @Environment(LiveTextTranslator.self) private var translator: LiveTextTranslator?
 
     init(
         liveTextGroups: [LiveTextGroup],
@@ -18,6 +20,7 @@ struct LiveTextView: View {
     }
 
     var body: some View {
+        let translatedPage = translator?.translatedPage(of: liveTextGroups)
         Canvas { context, canvasSize in
             context.fill(
                 Path(CGRect(origin: .zero, size: canvasSize)),
@@ -78,6 +81,23 @@ struct LiveTextView: View {
                         context.fill(path, with: .color(.accentColor))
                     }
                 }
+            }
+        }
+        // A translated page covers its lettering with the translations instead of highlighting it;
+        // the tap targets stay, so a tap still opens the system's translation of the whole group.
+        .opacity(translatedPage == nil ? 1 : 0)
+        .overlay {
+            if let translatedPage {
+                Canvas { context, canvasSize in
+                    LiveTextTranslationRenderer.draw(
+                        translatedPage,
+                        focusedGroupID: focusedLiveTextGroup?.id,
+                        focusColor: .accentColor,
+                        in: context,
+                        size: canvasSize
+                    )
+                }
+                .transition(.opacity)
             }
         }
         .overlay {

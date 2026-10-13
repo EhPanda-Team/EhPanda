@@ -10,6 +10,7 @@
 
 import AppModels
 import Foundation
+import LiveTextTranslation
 import Observation
 import OSLogExt
 import SwiftUI
@@ -23,9 +24,16 @@ private let logger = Logger(category: .init(describing: LiveTextHandler.self))
 @Observable
 @MainActor
 final class LiveTextHandler {
-    var enablesLiveText = false
+    var enablesLiveText = false {
+        didSet {
+            if !enablesLiveText {
+                translator.endActivation()
+            }
+        }
+    }
     var liveTextGroups = [Int: [LiveTextGroup]]()
     private(set) var focusedLiveTextGroup: LiveTextGroup?
+    let translator = LiveTextTranslator()
 
     @ObservationIgnored
     private var analysisTasks = [Int: Task<Void, Never>]()
@@ -53,6 +61,22 @@ final class LiveTextHandler {
             task.cancel()
         }
         analysisTasks.removeAll()
+        translator.cancel()
+    }
+
+    /// Whether `page` is still to be recognized, or translated.
+    func needsAnalysis(page: Int) -> Bool {
+        liveTextGroups[page] == nil || (translatesPages && translator.needsTranslation(page: page))
+    }
+
+    /// Whether recognized pages are translated. A capture launch never translates, so what it shows
+    /// does not depend on the system's translation models (261013-ja0, Q3).
+    private var translatesPages: Bool {
+        #if DEBUG
+        capture == nil
+        #else
+        true
+        #endif
     }
 
     func setFocusedLiveTextGroup(_ group: LiveTextGroup) {
@@ -83,6 +107,10 @@ final class LiveTextHandler {
     #endif
 
     func analyzeImage(_ cgImage: CGImage, size: CGSize, page: Int, recognitionLanguages: [String]?) {
+        if let groups = liveTextGroups[page] {
+            translate(groups, on: cgImage, page: page, recognitionLanguages: recognitionLanguages)
+            return
+        }
         analysisTasks[page]?.cancel()
         analysisTasks[page] = Task { [weak self] in
             do {
@@ -93,6 +121,7 @@ final class LiveTextHandler {
                 )
                 guard !Task.isCancelled else { return }
                 self?.liveTextGroups[page] = groups
+                self?.translate(groups, on: cgImage, page: page, recognitionLanguages: recognitionLanguages)
                 #if DEBUG
                 self?.capture?.recognized(groups, page: page, recognitionLanguages: recognitionLanguages)
                 #endif
@@ -101,6 +130,13 @@ final class LiveTextHandler {
                 logger.error("Live Text failed, page \(page, privacy: .public): \(error, privacy: .public)")
             }
         }
+    }
+
+    private func translate(_ groups: [LiveTextGroup], on cgImage: CGImage, page: Int, recognitionLanguages: [String]?) {
+        guard translatesPages else {
+            return
+        }
+        translator.translate(groups, on: cgImage, page: page, recognitionLanguages: recognitionLanguages)
     }
 
     @concurrent
