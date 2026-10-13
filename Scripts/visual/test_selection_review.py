@@ -25,10 +25,19 @@ def load_reviewer():
     return module
 
 
+# The nonexplicit Frontpage of `selection()`, in pairs.
+FRONTPAGE_PAIRS = [['104', '105'], ['118', '119'], ['120', '121'], ['122', '123'], ['124', '125']]
+
+
 def selection(prefix='1', scene_set='nonexplicit'):
-    """The synthetic selection in a composition the review accepts: Live Text on the second hero gallery."""
+    """The synthetic selection in a composition the review accepts: Live Text on the second hero gallery, and
+    eight more galleries completing Frontpage's five pairs."""
     value = synthetic.selection(prefix, scene_set)
-    value['scenes'][scene_set]['liveText']['gallery'] = f'{prefix}02'
+    scene = value['scenes'][scene_set]
+    scene['liveText']['gallery'] = f'{prefix}02'
+    more = [f'{prefix}{index:02d}' for index in range(18, 26)]
+    value['galleries'] += [{'url': synthetic.gallery_url(gid), 'set': scene_set} for gid in more]
+    scene['home']['frontpage'] += more
     return value
 
 
@@ -120,7 +129,7 @@ class TraceabilityTests(ReviewTestCase):
             self.assertTrue((version / page['image']).is_file())
         self.assertEqual(scene['comments'], [{'commentID': '1', 'author': 'Reader', 'posted': '01 January 2024, 00:00',
                                               'text': 'A readable comment.'}])
-        self.assertEqual(scene['home']['frontpagePairs'], [['104', '105']])
+        self.assertEqual(scene['home']['frontpagePairs'], FRONTPAGE_PAIRS)
         self.assertEqual(ledger['unresolvedInputs'], [
             'explicit: no scene declared (galleries, Home slots, flow and Live Text galleries and pages, downloads)',
             'final selection: the active selection is provisional with owner authority; '
@@ -222,14 +231,13 @@ class EmptyTests(ReviewTestCase):
             scene(value)['home']['hero']['selectedIndex'] = 0
             return value
 
-        def one_frontpage(value):
-            # 105 stays declared: it is still a download.
-            scene(value)['home']['frontpage'] = ['104']
-            return value
+        def nine_frontpage(value):
+            del scene(value)['home']['frontpage'][-1]
+            return without(value, '125')
 
-        def odd_frontpage(value):
-            scene(value)['home']['frontpage'].append('118')
-            value['galleries'].append({'url': synthetic.gallery_url('118'), 'set': 'nonexplicit'})
+        def eleven_frontpage(value):
+            scene(value)['home']['frontpage'].append('126')
+            value['galleries'].append({'url': synthetic.gallery_url('126'), 'set': 'nonexplicit'})
             return value
 
         def toplists(value):
@@ -249,8 +257,8 @@ class EmptyTests(ReviewTestCase):
         cases = [
             ('one hero gallery', hero, [hero_problem]),
             ('hero edge selection', edge_hero, [hero_problem]),
-            ('one frontpage gallery', one_frontpage, ['home frontpage needs an even count of at least two; it has 1']),
-            ('odd frontpage', odd_frontpage, ['home frontpage needs an even count of at least two; it has 3']),
+            ('nine frontpage galleries', nine_frontpage, ['home frontpage needs exactly 10 galleries; it has 9']),
+            ('eleven frontpage galleries', eleven_frontpage, ['home frontpage needs exactly 10 galleries; it has 11']),
             ('one toplists gallery', toplists, [f'home toplists {period} needs at least three galleries; it has 1'
                                                 for period in fixtures.TOPLISTS]),
             ('one download', downloads, ['downloads needs at least two items; it has 1']),
@@ -323,7 +331,8 @@ class OrderingTests(ReviewTestCase):
         other = self.reviewer.review(self.publish(swapped))
         original = json.loads((first_output / 'review.json').read_text())
         self.assertNotEqual(other['fixture']['fixtureVersion'], original['fixture']['fixtureVersion'])
-        self.assertEqual(other['sets']['nonexplicit']['home']['frontpagePairs'], [['105', '104']])
+        self.assertEqual(other['sets']['nonexplicit']['home']['frontpagePairs'],
+                         [pair[::-1] for pair in reversed(FRONTPAGE_PAIRS)])
 
 
 class ConcurrencyTests(ReviewTestCase):
@@ -360,7 +369,7 @@ class ConcurrencyTests(ReviewTestCase):
             ledger = self.reviewer.review(current)
         self.assertNotEqual(current.resolve(), first)
         self.assertEqual(ledger['fixture']['fixtureVersion'], first.name)
-        self.assertEqual(ledger['sets']['nonexplicit']['home']['frontpagePairs'], [['104', '105']])
+        self.assertEqual(ledger['sets']['nonexplicit']['home']['frontpagePairs'], FRONTPAGE_PAIRS)
         # The command line review also keeps the contact sheet on the version its ledger describes.
         current = self.publish()
         first = current.resolve()
