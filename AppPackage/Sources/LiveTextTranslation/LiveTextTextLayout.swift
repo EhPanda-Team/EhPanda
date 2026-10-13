@@ -17,7 +17,7 @@ struct LiveTextTextStyle: Sendable {
 
     let language: Locale.Language
 
-    /// Where a line of `text` must not end, as UTF-16 offsets inside its words.
+    /// Where a line of `text` should not end, as UTF-16 offsets inside its words.
     ///
     /// In a language that puts spaces between words, a word runs from space to space. Chinese and
     /// Japanese have no spaces, and CoreText breaks them between any two characters, so a tokenizer
@@ -44,6 +44,13 @@ struct LiveTextTextStyle: Sendable {
             }
         }
         return interiors
+    }
+
+    /// Whether a line may end inside a word where the words do not fit whole, as Chinese and Japanese
+    /// are set, between any two characters, rather than the text leave its shape; in a language that
+    /// puts spaces between words, a word broken without a hyphen reads as two.
+    var breaksWordsToFit: Bool {
+        tokenizingLanguage != nil
     }
 
     /// Whether the language puts spaces between words.
@@ -196,7 +203,7 @@ struct LiveTextTextLayout {
         lineHeight = metrics.height
         ascent = metrics.ascent
         self.isTruncated = isTruncated
-        breaksWord = Self.breaksWord(ranges, at: interiors)
+        breaksWord = Self.brokenWordCount(ranges, at: interiors) > 0
     }
 
     /// The height every line of `text` is set in at `fontSize`.
@@ -204,7 +211,7 @@ struct LiveTextTextLayout {
         LineMetrics(style.attributedString(text, fontSize: fontSize)).height
     }
 
-    /// `widths` narrowed alike as far as they set `text` in as many lines without breaking a word, so
+    /// `widths` narrowed alike as far as they set `text` in as many lines, breaking no more words, so
     /// its lines come out even, as lettering's do, rather than leaving a word or two on the last line.
     static func balancedWidths(
         of text: String,
@@ -215,14 +222,15 @@ struct LiveTextTextLayout {
         let attributed = style.attributedString(text, fontSize: fontSize)
         let interiors = style.wordInteriors(of: text)
         let typesetter = CTTypesetterCreateWithAttributedString(attributed)
-        let count = lineRanges(in: typesetter, of: attributed, widths: widths, keeping: interiors).count
-        guard count > 1 else {
+        let ranges = lineRanges(in: typesetter, of: attributed, widths: widths, keeping: interiors)
+        let brokenWords = brokenWordCount(ranges, at: interiors)
+        guard ranges.count > 1 else {
             return widths
         }
         func keepsItsLines(at scale: Double) -> Bool {
             let scaled = widths.map({ $0 * scale })
-            let ranges = lineRanges(in: typesetter, of: attributed, widths: scaled, keeping: interiors)
-            return ranges.count <= count && !breaksWord(ranges, at: interiors)
+            let narrowed = lineRanges(in: typesetter, of: attributed, widths: scaled, keeping: interiors)
+            return narrowed.count <= ranges.count && brokenWordCount(narrowed, at: interiors) <= brokenWords
         }
         var failing = 0.0
         var fitting = 1.0
@@ -281,9 +289,9 @@ struct LiveTextTextLayout {
         return ranges
     }
 
-    /// Whether a line of `ranges` ends at one of `interiors`, inside a word.
-    private static func breaksWord(_ ranges: [CFRange], at interiors: IndexSet) -> Bool {
-        ranges.dropLast().contains(where: { interiors.contains($0.location + $0.length) })
+    /// How many lines of `ranges` end at one of `interiors`, inside a word.
+    private static func brokenWordCount(_ ranges: [CFRange], at interiors: IndexSet) -> Int {
+        ranges.dropLast().count(where: { interiors.contains($0.location + $0.length) })
     }
 
     /// Draws the lines centered in `area`, in a context whose y axis points down.

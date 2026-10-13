@@ -7,10 +7,12 @@ import Foundation
 /// The size is the largest at which every translation fits its region, never larger than the page's
 /// own lettering and never smaller than a floor that stays legible once the reader scales the page.
 /// A region's shape is where its lettering was, or the room its balloon has, where its lines follow
-/// the balloon's shape. A translation that does not fit its shape at that size takes the next step
-/// that fits: 85% of it in the same shape, then 85% of it on a plate grown past it. One that fits
-/// none of them is set on that plate and ends in an ellipsis, and it does not hold the page's size
-/// down. Every translation on a page is therefore set at the page's size or 85% of it.
+/// the balloon's shape. A translation keeps its words whole, and one that does not fit its shape at
+/// that size takes the next step that fits: 85% of it in the same shape; then, in Chinese or
+/// Japanese, which break between any two characters, 85% of it in the same shape with a word broken
+/// where none fits whole; then 85% of it on a plate grown past it. One that fits none of them is set
+/// on that plate and ends in an ellipsis, and it does not hold the page's size down. Every
+/// translation on a page is therefore set at the page's size or 85% of it.
 enum LiveTextTextFitter {
     static let reducedScale = 0.85
     /// How much a plate grows at most past its lettering.
@@ -45,10 +47,11 @@ enum LiveTextTextFitter {
         let placements: [Placement]
     }
 
-    /// A size and a shape a translation is tried at.
+    /// A size and a shape a translation is tried at, and whether a word may break there.
     private struct Step {
         let fontSize: Double
         let shape: LiveTextTextShape
+        let breaksWords: Bool
         let isGrown: Bool
     }
 
@@ -93,24 +96,28 @@ enum LiveTextTextFitter {
     }
 
     /// The steps `region` is tried at in turn when the page's size is `fontSize`.
-    private static func steps(for region: Region, at fontSize: Double) -> [Step] {
+    private static func steps(for region: Region, at fontSize: Double, style: LiveTextTextStyle) -> [Step] {
         let reduced = fontSize * reducedScale
+        let broken = style.breaksWordsToFit
+            ? [Step(fontSize: reduced, shape: region.shape, breaksWords: true, isGrown: false)]
+            : []
         return [
-            Step(fontSize: fontSize, shape: region.shape, isGrown: false),
-            Step(fontSize: reduced, shape: region.shape, isGrown: false),
-            Step(fontSize: reduced, shape: .rectangle(region.grownArea), isGrown: true)
+            Step(fontSize: fontSize, shape: region.shape, breaksWords: false, isGrown: false),
+            Step(fontSize: reduced, shape: region.shape, breaksWords: false, isGrown: false)
+        ] + broken + [
+            Step(fontSize: reduced, shape: .rectangle(region.grownArea), breaksWords: false, isGrown: true)
         ]
     }
 
     /// `region` set at the first step that holds it when the page's size is `fontSize`, or `nil` when
     /// none does.
     private static func placement(for region: Region, at fontSize: Double, style: LiveTextTextStyle) -> Placement? {
-        steps(for: region, at: fontSize)
+        steps(for: region, at: fontSize, style: style)
             .lazy
             .compactMap { step in
-                step.shape.setting(of: region.text, style: style, fontSize: step.fontSize).map { setting in
-                    Placement(id: region.id, fontSize: step.fontSize, setting: setting, isGrown: step.isGrown)
-                }
+                step.shape
+                    .setting(of: region.text, style: style, fontSize: step.fontSize, breaksWords: step.breaksWords)
+                    .map({ Placement(id: region.id, fontSize: step.fontSize, setting: $0, isGrown: step.isGrown) })
             }
             .first
     }

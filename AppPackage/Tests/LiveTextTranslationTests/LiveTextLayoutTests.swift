@@ -668,6 +668,29 @@ struct LiveTextLayoutTests {
     }
 
     @Test
+    func aBalancedWidthBreaksNoMoreWords() throws {
+        // A word wider than the line, which breaks four characters in.
+        let text = "ジョーカー。"
+        let greedy = LiveTextTextLayout(text: text, style: Self.japanese, fontSize: 20, widths: [90])
+        let balancedWidths = LiveTextTextLayout.balancedWidths(
+            of: text,
+            style: Self.japanese,
+            fontSize: 20,
+            widths: [90]
+        )
+        let balanced = LiveTextTextLayout(text: text, style: Self.japanese, fontSize: 20, widths: balancedWidths)
+        func spread(_ layout: LiveTextTextLayout) -> Double {
+            let widths = layout.lines.map(\.width)
+            return (widths.max() ?? 0) - (widths.min() ?? 0)
+        }
+
+        #expect(greedy.lines.count == 2)
+        #expect(greedy.breaksWord)
+        #expect(balanced.lines.count == 2)
+        #expect(spread(balanced) < spread(greedy) / 2)
+    }
+
+    @Test
     func aSingleLineKeepsItsWidth() {
         #expect(LiveTextTextLayout.balancedWidths(of: "Hi!", style: Self.english, fontSize: 20, widths: [400]) == [400])
     }
@@ -710,7 +733,8 @@ struct LiveTextLayoutTests {
         let setting = try #require(LiveTextTextShape.balloon(Self.diamond).setting(
             of: text,
             style: Self.english,
-            fontSize: 20
+            fontSize: 20,
+            breaksWords: false
         ))
         let layout = LiveTextTextLayout(text: text, style: Self.english, fontSize: 20, widths: setting.lineWidths)
 
@@ -733,7 +757,8 @@ struct LiveTextLayoutTests {
         let setting = try #require(LiveTextTextShape.rectangle(size).setting(
             of: "Where do you think you are going?",
             style: Self.english,
-            fontSize: 20
+            fontSize: 20,
+            breaksWords: false
         ))
 
         #expect(setting == LiveTextTextSetting(lineWidths: [300], area: size, center: .zero))
@@ -744,7 +769,8 @@ struct LiveTextLayoutTests {
         let setting = LiveTextTextShape.balloon(Self.diamond).setting(
             of: String(repeating: "Far too much text for this tiny balloon. ", count: 20),
             style: Self.english,
-            fontSize: 20
+            fontSize: 20,
+            breaksWords: true
         )
 
         #expect(setting == nil)
@@ -830,6 +856,31 @@ struct LiveTextLayoutTests {
 
         #expect(layout.height <= placement.setting.area.height)
         #expect(!layout.breaksWord)
+    }
+
+    @Test
+    func onlyChineseAndJapaneseBreakAWordToStayInTheirShape() throws {
+        // Four and a bit characters wide at 85% of the lettering's size, and two lines tall: the
+        // translation's one word fits neither it nor its plate whole.
+        let width = Self.letteringSize * LiveTextTextFitter.reducedScale * 4.2
+        let japanese = Self.region("ジョーカー。", width: width, height: 80)
+        let english = Self.region("Unbelievable!", width: width, height: 80)
+
+        let japaneseResult = LiveTextTextFitter.fit([japanese], style: Self.japanese, pageWidth: 1000)
+        let englishResult = LiveTextTextFitter.fit([english], style: Self.english, pageWidth: 1000)
+        let japanesePlacement = try #require(japaneseResult.placements.first)
+        let layout = LiveTextTextLayout(
+            text: japanese.text,
+            style: Self.japanese,
+            fontSize: japanesePlacement.fontSize,
+            widths: japanesePlacement.setting.lineWidths
+        )
+
+        #expect(!japanesePlacement.isGrown)
+        #expect(abs(japanesePlacement.fontSize - japaneseResult.fontSize * LiveTextTextFitter.reducedScale) < 1e-9)
+        #expect(layout.breaksWord)
+        #expect(layout.height <= japanesePlacement.setting.area.height)
+        #expect(try #require(englishResult.placements.first).isGrown)
     }
 
     // MARK: Page
