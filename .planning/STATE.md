@@ -5,9 +5,9 @@ milestone_name: )
 current_phase: 17
 current_phase_name: Screenshot Automation, Visual Regression & OS 27 Modernization
 status: executing
-stopped_at: 17-06 implemented and verified; owner visual review of its 16 frames pending (explicit set waits for owner IDs)
-last_updated: "2026-10-09T03:59:35Z"
-last_activity: 2026-10-09
+stopped_at: 17-06 owner review returned changes (2026-10-13); 17-06 revision in progress (explicit set waits for owner IDs)
+last_updated: "2026-10-13T03:30:00Z"
+last_activity: 2026-10-13
 state_head: fb83037387c93b67dc0f17742187e6c452ca3545
 progress:
   total_phases: 17
@@ -16,7 +16,7 @@ progress:
   completed_plans: 280
   percent: 59
 source_head: 4aa3300991
-last_activity_desc: "17-06 implemented: Live Text recorded from the app and replayed through the real overlay, Downloads seeded with real page files and manifests; all eight screens captured on both visual simulators; owner visual review pending"
+last_activity_desc: "17-06 owner review (2026-10-13): vertical reader with its panel, Live Text without it on its own English-original gallery, Frontpage 10 and Downloads 6, iPad kept, status bar not charging; reader fixes 975ff2040f..a45bee6085 landed 2026-10-10 to 10-12; .capture pruned"
 ---
 
 # Project State
@@ -31,9 +31,9 @@ See: .planning/PROJECT.md (updated 2026-09-23)
 ## Current Position
 
 Phase: 17 of 17 (Screenshot Automation, Visual Regression & OS 27 Modernization)
-Plan: 6 of 24 complete (17-05, wave 6; dependency order, not numeric ID order); 17-06 implemented, awaiting the owner's visual review
-Status: executing (17-01/17-24/17-02/17-03/17-04/17-05 complete; 17-06 implemented and verified, owner visual review pending; the agent prepares galleries and fixtures for both content sets)
-Last activity: 2026-10-09
+Plan: 6 of 24 complete (17-05, wave 6; dependency order, not numeric ID order); 17-06 implemented; the owner's 2026-10-13 review returned changes, revision in progress
+Status: executing (17-01/17-24/17-02/17-03/17-04/17-05 complete; 17-06 implemented and verified, owner review returned changes on 2026-10-13, revision in progress; the agent prepares galleries and fixtures for both content sets)
+Last activity: 2026-10-13
 
 **Phase 17 current gate:** 6/24 plans complete. 17-01 passed 32/32 capture coordinates and 66/66 tests; verified public v2 fixtures are in `.capture/regression`. 17-24 measures all four real device/orientation combinations and validates the immutable tracked rendering pin. Both final measure and validate commands pass four geometry tests plus six rotation/restore tests, with 28 Python contract tests and zero compiler/lint diagnostics or runtime warnings. Pin SHA-256: `ffd7689fcaf9a312202fdfbf9787f0198711fd477d1e72a2a013851df85a394a`; evidence is `.capture/environment-measurement/` and `.capture/environment-pin-check/`. Implementation ends at 3e69dc69d3; summary/review committed in fb83037387. Four reserved staged entries remain unchanged. Devices restore portrait/original Large and their original boot states. Continue inline with 17-06; shared CAP-17-01/02/03/04/06 remain incomplete until all declaring plans finish. No baseline promotion.
 
@@ -46,6 +46,12 @@ Last activity: 2026-10-09
 **17-05 complete:** Marketing drives the actual app to all eight capture screens through its own navigation (`AppLaunchAutomation.CaptureRoute`), verifies each screen and every image through per-screen `CaptureDiagnostics`, and `MarketingCaptureUITests/testCaptureCoordinate` checks one JSON coordinate (T1: 12 coordinates on both devices, `.capture/17-05-t1-ui-04/`; Live Text and Downloads wait for 17-06). T2's `Scripts/visual/capture-native.py` validates the tracked pin before any launch, sets the status bar (9:41, Wi-Fi 3, cellular 4, charged 100), opens and quits Settings once, and runs two single-pass cold launches; each test settles the system screenshot (`XCUIScreen`, two identical renders a second apart) and attaches it, and the runner takes it from the launch's result bundle as the frame. Final gate on `051cc01132`: Home iPad light and iPhone dark each record byte-identical frames (`.capture/17-05-t2-native-09/`, `-10/`), 9:41, no capsule. The gate on `1fc626c2f5` had failed on iPad: simctl's framebuffer keeps Liquid Glass as last composed, and one of 17 cold launches recorded a glass rim one level off while every system screenshot matched (`.capture/17-05-t2-glass-probe-01/`). Owner decisions (17-05-PLAN.md): card color determinism, Large iPhone, detail-continued routes, the reader's full request set, the paging reader, the reader cache in `isCached`, the iPad date 2026-01-01 9:41 ("Sat Jan 1"), dedicated "EhPanda Visual" simulators resolved by name (the former pinned pair is unused), a Settings launch before captures (the first app after a boot shifts iPad's Wi-Fi glyph half a point), and system screenshots as frames (2026-10-09). Source through `051cc01132`, each commit verified in a temporary tree (`.capture/commit-trees-05/` to `-08/`); summary 17-05-SUMMARY.md; review 17-05-REVIEW.md (R-1 to R-8 fixed), no open finding. Open: explicit-set preparation (agent-assisted), whether the status bar should follow each coordinate's locale (17-07, owner). Four reserved staged entries are preserved; both visual simulators are Shutdown. Next: 17-06.
 
 **17-06 implemented, owner review pending:** The reading-live-text and downloads screens show real state. Live Text is recognized once by the app's own recognizer on the pinned iPhone (`Scripts/visual/record-live-text.py`, `MarketingCaptureUITests/testRecordLiveText`, out through the diagnostics), saved as a fixture record (groups, lines, corners, IDs, page SHA-256, recognition languages, recording simulator) and replayed in every capture through the Debug-only `LiveTextCapture` seam and the reader's real overlay with Vision off. Acquisition saves the download galleries' page files; a downloads scene seeds capture-owned folders through the app's `DownloadStore` with those files and their SHA-256 manifests, and the app's own scan reads them back, completeness from the manifest alone. Owner decisions (17-06-PLAN.md, 2026-10-09): Live Text from a recording saved in the fixture, download page files, files beyond the plan's list. Fixture `marketing-4f2a1ba8efe6f7cb` (8 groups, 35 lines, `en-US`). All 16 coordinates (eight screens, English light, both visual simulators) captured with byte-identical cold reruns (`.capture/17-06-g-native-*/`); plan commands pass on both devices, every FeatureTests target except the bare VisualSnapshotTests passes, the isolation UI test passes on both visual simulators, and Release holds no capture string. Source `cf7f783e2d` to `4aa3300991`, each commit verified in a temporary tree (`.capture/commit-trees-09/` to `-14/`); summary 17-06-SUMMARY.md, review with no finding. Open: the owner's visual review of the 16 frames (sent 2026-10-09), explicit-set preparation (agent-assisted), the status bar locale question (17-07). Four reserved staged entries are preserved; both visual simulators are Shutdown.
+
+**Reader fixes between 17-06 and its review (2026-10-10 to 10-12):** owner-requested work on the vertical reader, outside the 24 plans: `975ff2040f` (vertical resume at the top), `54773df8f3` (pages as one VoiceOver element), `3f46dd7b90` (status bar scroll to top), `f60234f0f9` (unloaded strip pages sized by width), `b67a01b712` (the list's own positioned page), `aa50f7ac3a` (UI tests restore orientation in teardown blocks), `a9730dbe08` (Auto-Play menu bound to its state), `c8b1786f74` (lint catches `.init(get:)` closure bindings), `4f6e3a0d1d` (positioned page kept on resize), `c519161f7e` (list frames read in content space), `c07920b5aa` (strip width from the offer), `eb257647a3` (pages sized from known sizes), `0e1934c988` (resumed page kept through turns), `68acf229f9` (MPV original sizes), `a45bee6085` (live-resize drift recorded as a known limitation). Owner decisions: no persistence of seen sizes; MPV sizes adopted; SwiftUI cycling diagnostics during resizes accepted; a slow Stage Manager drag through several widths can leave the positioned page one or two pages off (pre-existing, also before the realign), recorded as a known limitation. Of the owner's budget of ten self-chosen reader changes, five are used (six if the owner-adopted MPV change counts). Evidence: `.capture/known-sizes/`, `.capture/reader-size-change/`, `.capture/strip-width-source/`, `.capture/stage-manager-probe/`, `.capture/autoplay-menu/`.
+
+**17-06 owner review (2026-10-13), changes requested:** the owner reviewed the 16 English light frames and decided: iPad stays in the matrix; the reading screen uses the vertical reader with its control panel shown (replacing the 17-05 paging-reader decision); the Live Text screen hides the panel and uses its own gallery, an English-original Non-H gallery that also exists in other languages (non-English locales translate the English page; the English locale uses another language version translated into English); Home Frontpage holds 10 galleries and Downloads 6, so Home needs 25 distinct galleries (Downloads may reuse them); the status bar shows 9:41, full signal and battery 100% not charging. The 17-06 frames show English light only; locales and dark mode are 17-07's 384 outputs. Revision order (owner go-ahead 2026-10-13): this record, the visual simulators' health, the capture changes as separate commits, the nonexplicit reselection, then a re-capture of the 16 coordinates for review; the Live Text frame keeps today's highlight until the translation overlay exists. Split off as separate owner-run sessions: a Live Text translation overlay (independent feature outside the reader budget; private APIs allowed) and a reusable screenshot CLI for other apps. The agent prepares the explicit set at the new counts alongside the nonexplicit set.
+
+**`.capture` pruned (2026-10-13, owner-approved):** 31 GB to 4.1 GB. Removed: DerivedData build products inside run folders; `tracer-matrix-02` to `-09` (superseded; `tracer-matrix-10` kept); every `.xcresult` bundle dated before 2026-10-13 outside the fixture and environment folders (extracted frames, JSON and logs kept); `reader-drift-*` experiments; superseded unreferenced attempts (`17-05-t1-ui-01` to `-03`, `17-04-t2-gate-01`, `17-04-capture-tests-02`, `17-05-t1-unit-01`, `17-04-home-client-01`, `17-05-t1-experiment-01`). References to those paths in historical sections and phase documents now point at removed evidence.
 
 ## Historical round-2 status snapshots
 
@@ -1018,8 +1024,8 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-10-08T16:12:38Z
-Stopped at: 17-05 complete; next 17-06; no native jobs
+Last session: 2026-10-13T03:30:00Z
+Stopped at: 17-06 owner review returned changes; revision in progress (simulator health, capture changes, nonexplicit reselection, re-capture)
 Resume file: .planning/phases/17-localized-screenshot-capture-harness/.continue-here.md
 
 The dated feedback below is historical and superseded by the Phase 16 verification and final owner sign-off.
