@@ -83,6 +83,10 @@ struct CaptureDiagnostics: Equatable, Encodable {
     let liveText: CaptureLiveTextDiagnostics?
     /// The rows the Downloads screen lists, in order; `nil` on every other screen.
     let downloads: [CaptureDownloadDiagnostics]?
+    /// The screenshot pixels of the sheet the screen shows in; `nil` unless a sheet is on top. A
+    /// native capture compares the cold launches of a sheet only within it, as the dimmed screen
+    /// around it is not what the capture shows (owner decision, 2026-10-13).
+    let sheetPixels: CapturePixelRect?
 
     func encodedJSON() throws -> String {
         let encoder = JSONEncoder()
@@ -95,7 +99,8 @@ struct CaptureDiagnostics: Equatable, Encodable {
 }
 
 extension CaptureDiagnostics {
-    /// The diagnostics of `state` in a launch of `scene`, rendered as `rendering` describes.
+    /// The diagnostics of `state` in a launch of `scene`, rendered as `rendering` describes, with
+    /// the top sheet where UIKit shows it, as `sheetPixels`.
     ///
     /// The screen comes from the app's navigation state, never from the configuration, so a
     /// route that lands elsewhere reads as that other screen. It is ready once its content has
@@ -105,6 +110,7 @@ extension CaptureDiagnostics {
         scene: CaptureScene,
         state: AppReducer.State,
         rendering: CaptureRendering,
+        sheetPixels: CapturePixelRect?,
         answeredURLs: Set<String>,
         unknownRequests: [String],
         isCached: @escaping (String) -> Bool
@@ -165,8 +171,25 @@ extension CaptureDiagnostics {
             blockers: report.failures + report.blockers,
             rendering: rendering,
             liveText: liveText.flatMap({ CaptureLiveTextDiagnostics(capture: $0.capture, outcome: $0.outcome) }),
-            downloads: report.downloads
+            downloads: report.downloads,
+            sheetPixels: sheetPixels
         )
+    }
+}
+
+/// A rectangle of a screenshot, in whole pixels from its top-left corner.
+struct CapturePixelRect: Equatable, Encodable {
+    let left: Int
+    let top: Int
+    let width: Int
+    let height: Int
+}
+
+extension CapturePixelRect {
+    /// Every pixel `rect` covers, even in part, on a screen with `scale` pixels to the point.
+    init(points rect: CGRect, scale: CGFloat) {
+        let pixels = rect.applying(CGAffineTransform(scaleX: scale, y: scale)).integral
+        self.init(left: Int(pixels.minX), top: Int(pixels.minY), width: Int(pixels.width), height: Int(pixels.height))
     }
 }
 
@@ -656,6 +679,7 @@ final class CaptureDiagnosticsElement: UIView {
                 scene: capture.scene,
                 state: store.state,
                 rendering: .init(traits: traitCollection),
+                sheetPixels: topSheetPixels,
                 answeredURLs: capture.replay.answeredURLs,
                 unknownRequests: capture.replay.unknownRequestDescriptions,
                 isCached: libraryClient.isCached
@@ -669,6 +693,27 @@ final class CaptureDiagnosticsElement: UIView {
         }
         // The value is derived on every read; there is nothing to store.
         set {}
+    }
+
+    /// Where the screen shows the top of the window's presentations, when that is a sheet. A cover
+    /// over a sheet, such as the reader's over the detail, is no sheet, and hides the one beneath.
+    private var topSheetPixels: CapturePixelRect? {
+        guard var top = window?.rootViewController?.presentedViewController else {
+            return nil
+        }
+        while let presented = top.presentedViewController {
+            top = presented
+        }
+        guard top.presentationController is UISheetPresentationController,
+              let sheet = top.viewIfLoaded,
+              let screen = window?.windowScene?.screen
+        else {
+            return nil
+        }
+        return CapturePixelRect(
+            points: sheet.convert(sheet.bounds, to: screen.coordinateSpace),
+            scale: traitCollection.displayScale
+        )
     }
 }
 #endif

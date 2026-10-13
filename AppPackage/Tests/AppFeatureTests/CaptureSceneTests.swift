@@ -329,6 +329,7 @@ struct CaptureSceneTests {
                 scene: scene,
                 state: state,
                 rendering: .lightPhone,
+                sheetPixels: nil,
                 answeredURLs: answered,
                 unknownRequests: [],
                 isCached: cached.contains
@@ -363,7 +364,8 @@ struct CaptureSceneTests {
                 blockers: [],
                 rendering: .lightPhone,
                 liveText: nil,
-                downloads: nil
+                downloads: nil,
+                sheetPixels: nil
             )
         )
     }
@@ -379,6 +381,7 @@ struct CaptureSceneTests {
             scene: scene,
             state: try await loadedState(scene),
             rendering: .lightPhone,
+            sheetPixels: nil,
             answeredURLs: [cover],
             unknownRequests: ["GET https://e-hentai.org/api.php"],
             isCached: { _ in true }
@@ -387,6 +390,7 @@ struct CaptureSceneTests {
             scene: scene,
             state: failedToplists,
             rendering: .lightPhone,
+            sheetPixels: nil,
             answeredURLs: [cover],
             unknownRequests: [],
             isCached: { _ in true }
@@ -408,6 +412,7 @@ struct CaptureSceneTests {
             scene: scene,
             state: state,
             rendering: .lightPhone,
+            sheetPixels: nil,
             answeredURLs: [],
             unknownRequests: [],
             isCached: { _ in true }
@@ -440,7 +445,8 @@ struct CaptureSceneTests {
                 recognitionLanguages: nil,
                 groups: LiveTextRecordFile().groups
             ),
-            downloads: nil
+            downloads: nil,
+            sheetPixels: nil
         )
 
         expectNoDifference(
@@ -455,6 +461,48 @@ struct CaptureSceneTests {
                 + #""rendering":{"appearance":"dark","family":"iphone","language":"en","locale":"en_US","#
                 + #""textSize":"large"},"screenID":"reading-live-text","selectionID":"test-selection","#
                 + #""setID":"nonexplicit","showsPanel":false,"unknownRequests":["GET https://e-hentai.org/api.php"]}"#
+        )
+    }
+
+    @Test
+    func aSheetCoversEveryPixelItTouches() {
+        expectNoDifference(
+            CapturePixelRect(points: CGRect(x: 80.25, y: 275, width: 674, height: 660.5), scale: 2),
+            CapturePixelRect(left: 160, top: 550, width: 1349, height: 1321)
+        )
+        expectNoDifference(
+            CapturePixelRect(points: CGRect(x: 0, y: 62, width: 420, height: 850), scale: 3),
+            CapturePixelRect(left: 0, top: 186, width: 1260, height: 2550)
+        )
+    }
+
+    @Test
+    func aSheetEncodesAsTheJSONUITestsRead() throws {
+        let diagnostics = CaptureDiagnostics(
+            screenID: .filters,
+            selectionID: "test-selection",
+            setID: "nonexplicit",
+            fixtureVersion: "marketing-0123456789abcdef",
+            galleryIDs: [],
+            page: nil,
+            showsPanel: nil,
+            readiness: .ready,
+            pendingImages: 0,
+            unknownRequests: [],
+            blockers: [],
+            rendering: .lightPhone,
+            liveText: nil,
+            downloads: nil,
+            sheetPixels: CapturePixelRect(left: 0, top: 186, width: 1260, height: 2550)
+        )
+
+        expectNoDifference(
+            try diagnostics.encodedJSON(),
+            #"{"blockers":[],"fixtureVersion":"marketing-0123456789abcdef","galleryIDs":[],"pendingImages":0,"#
+                + #""readiness":"ready","rendering":{"appearance":"light","family":"iphone","language":"en","#
+                + #""locale":"en_US","textSize":"large"},"screenID":"filters","selectionID":"test-selection","#
+                + #""setID":"nonexplicit","sheetPixels":{"height":2550,"left":0,"top":186,"width":1260},"#
+                + #""unknownRequests":[]}"#
         )
     }
 

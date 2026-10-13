@@ -89,8 +89,9 @@ def coordinate_key(coordinate):
     return '__'.join(coordinate[key] for key in ('set', 'screen', 'family', 'locale', 'theme'))
 
 
-def png_size(data, header):
-    """The dimensions of a complete PNG with this header: every chunk intact and every scanline present."""
+def png_scanlines(data, header):
+    """The width, height and filtered scanlines of a complete PNG with this header: every chunk intact and every
+    scanline present, each behind a filter type the PNG standard defines."""
     if data[:8] != PNG_SIGNATURE:
         raise CaptureFailure('The frame is not a PNG')
     offset, chunks, compressed = 8, [], bytearray()
@@ -131,14 +132,81 @@ def png_size(data, header):
         raise CaptureFailure('The frame\'s image data is incomplete')
     if any(filter_type > 4 for filter_type in pixels[::stride]):
         raise CaptureFailure('The frame has an unknown scanline filter')
-    return width, height
+    return width, height, pixels
+
+
+def paeth(left, above, upper_left):
+    """The PNG Paeth predictor: the neighbour nearest left + above - upper left, preferring them in that order."""
+    estimate = left + above - upper_left
+    to_left, to_above, to_upper_left = abs(estimate - left), abs(estimate - above), abs(estimate - upper_left)
+    if to_left <= to_above and to_left <= to_upper_left:
+        return left
+    return above if to_above <= to_upper_left else upper_left
+
+
+def png_rows(data, header, count):
+    """The first `count` rows of pixel bytes of a complete PNG with this header, with each scanline's filter undone."""
+    width, _, scanlines = png_scanlines(data, header)
+    channels = CHANNELS[header['colorType']]
+    stride = 1 + width * channels
+    rows, above = [], bytes(stride - 1)
+    for start in range(0, count * stride, stride):
+        kind, row = scanlines[start], bytearray(scanlines[start + 1:start + stride])
+        if kind == 1:
+            for index in range(channels, len(row)):
+                row[index] = (row[index] + row[index - channels]) & 0xFF
+        elif kind == 2:
+            row = bytearray((value + up) & 0xFF for value, up in zip(row, above))
+        elif kind == 3:
+            for index in range(len(row)):
+                left = row[index - channels] if index >= channels else 0
+                row[index] = (row[index] + (left + above[index]) // 2) & 0xFF
+        elif kind == 4:
+            for index in range(len(row)):
+                left, upper_left = (row[index - channels], above[index - channels]) if index >= channels else (0, 0)
+                row[index] = (row[index] + paeth(left, above[index], upper_left)) & 0xFF
+        above = bytes(row)
+        rows.append(above)
+    return rows
 
 
 def verify_frame(data, header, pixels):
     """Fails unless the frame is a complete PNG with this header at the pin's portrait pixels."""
-    size = png_size(data, header)
-    if list(size) != pixels:
-        raise CaptureFailure(f'The frame is {size[0]}x{size[1]} pixels; the pin expects {pixels[0]}x{pixels[1]}')
+    width, height, _ = png_scanlines(data, header)
+    if [width, height] != pixels:
+        raise CaptureFailure(f'The frame is {width}x{height} pixels; the pin expects {pixels[0]}x{pixels[1]}')
+
+
+def sheet_digest(data, sheet):
+    """The digest of a frame's pixels within the sheet, row by row."""
+    left, top, width, height = (sheet[key] for key in ('left', 'top', 'width', 'height'))
+    channels = CHANNELS[FRAME_PNG['colorType']]
+    digest = hashlib.sha256()
+    for row in png_rows(data, FRAME_PNG, top + height)[top:]:
+        digest.update(row[left * channels:(left + width) * channels])
+    return digest.hexdigest()
+
+
+def compare_launches(output, launches):
+    """The sheet the cold launches show their screen in, if any, and how many different frames they recorded.
+
+    Frames differ when their bytes do; a screen in a sheet is compared only within the sheet, which every launch must
+    show in the same place within the frame, as the dimmed screen around it is not what the capture shows (owner
+    decision, 2026-10-13). Its Liquid Glass rims can differ by one between cold launches."""
+    sheets = [launch['diagnostics'].get('sheetPixels') for launch in launches]
+    sheet = sheets[0]
+    if any(other != sheet for other in sheets):
+        raise CaptureFailure(f'The cold launches showed their sheets at {sheets!r}')
+    digests = {launch['capture']['sha256'] for launch in launches}
+    if sheet is None:
+        return sheet, len(digests)
+    pixels = launches[0]['capture']['pixels']
+    left, top, width, height = (sheet[key] for key in ('left', 'top', 'width', 'height'))
+    if min(width, height) < 1 or min(left, top) < 0 or left + width > pixels[0] or top + height > pixels[1]:
+        raise CaptureFailure(f'The sheet {sheet!r} does not lie within the {pixels[0]}x{pixels[1]} frame')
+    if len(digests) > 1:
+        digests = {sheet_digest((output / launch['capture']['path']).read_bytes(), sheet) for launch in launches}
+    return sheet, len(digests)
 
 
 def status_bar_time():
@@ -343,10 +411,13 @@ def execute(args):
         if native.source_hashes() != native_sources or producer_hashes() != sources:
             raise ValueError('Capture sources changed during preflight')
         dispatch(args, coordinate, observed, source, manifest, report, publish)
-        digests = {launch['capture']['sha256'] for launch in report['launches']}
-        report['identical'] = len(digests) == 1
-        if len(report['launches']) != COLD_LAUNCHES or not report['identical']:
-            raise CaptureFailure(f'{COLD_LAUNCHES} cold launches recorded {len(digests)} different frames')
+        if len(report['launches']) != COLD_LAUNCHES:
+            raise CaptureFailure(f'{len(report["launches"])} cold launches recorded; expected {COLD_LAUNCHES}')
+        report['sheet'], frames = compare_launches(args.output, report['launches'])
+        report['identical'] = frames == 1
+        if not report['identical']:
+            within = '' if report['sheet'] is None else ' within the sheet'
+            raise CaptureFailure(f'{COLD_LAUNCHES} cold launches recorded {frames} different frames{within}')
         if native.source_hashes() != native_sources or producer_hashes() != sources:
             raise ValueError('Capture sources changed during capture')
         if hashlib.sha256(args.environment.read_bytes()).hexdigest() != report['pinSHA256']:

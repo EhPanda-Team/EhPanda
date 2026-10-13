@@ -374,6 +374,7 @@ private func diagnostics(
         scene: scene,
         state: state,
         rendering: rendering,
+        sheetPixels: nil,
         answeredURLs: answered,
         unknownRequests: [],
         isCached: cached.contains

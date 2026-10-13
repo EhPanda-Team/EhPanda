@@ -177,6 +177,7 @@ struct CaptureDownloadTests {
             scene: scene,
             state: state,
             rendering: .lightPhone,
+            sheetPixels: nil,
             answeredURLs: [],
             unknownRequests: [],
             isCached: { _ in false }
@@ -185,6 +186,7 @@ struct CaptureDownloadTests {
             scene: scene,
             state: state,
             rendering: .lightPhone,
+            sheetPixels: nil,
             answeredURLs: [],
             unknownRequests: [],
             isCached: covers.contains
