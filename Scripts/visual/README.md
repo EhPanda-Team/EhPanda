@@ -493,10 +493,13 @@ its screen, selection, set, fixture version, galleries and page, ready with no p
 refused request or blocker, in the coordinate's rendering, with each gallery shown once. On
 `reading-live-text` the Live Text must be exactly the fixture's record, each ID once. On `downloads`
 each row must have its entry's status, count its entry's pages as downloaded (every page for a
-complete entry) and hold that many page files. It then takes the system's screenshot of the screen,
-`XCUIScreen.main.screenshot()`, a second apart until two in a row are byte-identical, and fails if
-they never are. Either way it attaches the diagnostics and that screenshot's PNG. The runner names
-the coordinate and the fixture version through environment variables:
+complete entry) and hold that many page files. The diagnostics report the screenshot pixels of the
+sheet the screen shows in, and there must be one exactly when the coordinate's screen is a sheet:
+Filters always, and on iPad Detail, Comments and Laboratory. It then takes the system's screenshot
+of the screen, `XCUIScreen.main.screenshot()`, a second apart until two in a row are
+byte-identical, and fails if they never are. Either way it attaches the diagnostics and that
+screenshot's PNG. The runner names the coordinate and the fixture version through environment
+variables:
 
 ```sh
 TEST_RUNNER_EHPANDA_CAPTURE_SOURCE="$PWD/.capture/marketing/current" \
@@ -548,9 +551,13 @@ version. The runner then:
 5. clears the status bar, puts back the appearance, portrait orientation, text size and power
    state it found, and checks that the sources, the pin and the fixture version did not change.
 
-The coordinate is captured only when both launches recorded the same bytes, and `outcomes.json`
-then names that frame as `capture`. A failed run still writes `outcomes.json`, with its error and
-each launch's result bundle, attachments and, once checked, diagnostics and frame.
+The coordinate is captured only when both launches recorded the same bytes, or, for a screen in a
+sheet, the same pixels within the sheet, which both launches must show in the same place within the
+frame. The dimmed screen around a sheet is not what the capture shows and is not compared: its
+Liquid Glass rims can differ by one level between cold launches (owner decision, 2026-10-13).
+`outcomes.json` then names the first launch's whole frame as `capture`, and the sheet, if any, as
+`sheet`. A failed run still writes `outcomes.json`, with its error and each launch's result bundle,
+attachments and, once checked, diagnostics and frame.
 
 A frame is the screenshot the system renders, not the display's framebuffer that
 `simctl io screenshot` reads. The framebuffer keeps Liquid Glass as the display last composed it,
@@ -569,7 +576,7 @@ the runner's own would remove them.
 
 | Output | Contents |
 |---|---|
-| `outcomes.json` | Status, coordinate, pin SHA-256, fixture version, device, chrome, launches and `capture` |
+| `outcomes.json` | Status, coordinate, pin SHA-256, fixture version, device, chrome, launches, `sheet` and `capture` |
 | `environment-check/` | The pin validation's measurements and attachments |
 | `settle/` | The screenshots of the Settings launch before the captures |
 | `native/` | Each invocation's command, log, result bundle, attachments and the simulator's lifecycle |

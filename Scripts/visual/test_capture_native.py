@@ -1,4 +1,5 @@
-"""The native marketing runner validates its pin before dispatch and accepts only identical, complete cold frames."""
+"""The native marketing runner validates its pin before dispatch and accepts only complete cold frames that are
+identical, within the sheet for a screen shown in one."""
 from contextlib import contextmanager
 import copy
 import hashlib
@@ -41,6 +42,36 @@ def png(width, height, fill=0, color_type=6, rows=None, trailing=b''):
     header = struct.pack('>IIBBBBB', width, height, 8, color_type, 0, 0, 0)
     return (b'\x89PNG\r\n\x1a\n' + chunk(b'IHDR', header) + chunk(b'IDAT', zlib.compress(raw))
             + chunk(b'IEND', b'') + trailing)
+
+
+def predictor(kind, left, above, upper_left):
+    """What a PNG filter of this type predicts a byte from: nothing, its left, above or both, or Paeth's nearest."""
+    estimate = left + above - upper_left
+    nearest = min((abs(estimate - left), 0, left), (abs(estimate - above), 1, above),
+                  (abs(estimate - upper_left), 2, upper_left))
+    return [0, left, above, (left + above) // 2, nearest[2]][kind]
+
+
+def filtered(rows, kinds, channels):
+    """Rows of pixel bytes as a PNG's image data holds them, each behind the filter type `kinds` names for it."""
+    data, above = bytearray(), bytes(len(rows[0]))
+    for row, kind in zip(rows, kinds):
+        data.append(kind)
+        for index, value in enumerate(row):
+            left, upper_left = (row[index - channels], above[index - channels]) if index >= channels else (0, 0)
+            data.append((value - predictor(kind, left, above[index], upper_left)) & 0xFF)
+        above = row
+    return bytes(data)
+
+
+def pixel_rows(width, height, seed=0, changes=()):
+    """Varied RGB rows, with each `(x, y)` in `changes` one brighter in every channel."""
+    rows = [bytearray((x * 37 + y * 101 + channel * 59 + seed) % 256 for x in range(width) for channel in range(3))
+            for y in range(height)]
+    for x, y in changes:
+        for channel in range(3):
+            rows[y][x * 3 + channel] = (rows[y][x * 3 + channel] + 1) % 256
+    return [bytes(row) for row in rows]
 
 
 def diagnostics(**changes):
@@ -100,9 +131,28 @@ class PreflightTests(unittest.TestCase):
     def identical_dispatch(self, digests=('f' * 64, 'f' * 64)):
         def dispatch(args, coordinate, observed, source, manifest, report, publish):
             for number, digest in enumerate(digests, 1):
-                report['launches'].append({'launch': number, 'status': 'captured',
+                report['launches'].append({'launch': number, 'status': 'captured', 'diagnostics': diagnostics(),
                                            'capture': {'path': f'launches/{number}/frame.png', 'sha256': digest}})
         return dispatch
+
+    def sheet_dispatch(self, frames, sheets):
+        """Launches that recorded these 4x3 frames and reported their screens in these sheets."""
+        def dispatch(args, coordinate, observed, source, manifest, report, publish):
+            for number, (frame, sheet) in enumerate(zip(frames, sheets), 1):
+                path = args.output / 'launches' / str(number) / 'frame.png'
+                path.parent.mkdir(parents=True)
+                path.write_bytes(frame)
+                report['launches'].append({
+                    'launch': number, 'status': 'captured', 'diagnostics': diagnostics(sheetPixels=sheet),
+                    'capture': {'path': str(path.relative_to(args.output)), 'pixels': [4, 3],
+                                'sha256': hashlib.sha256(frame).hexdigest()}})
+        return dispatch
+
+    def capture_sheet(self, frames, sheets):
+        with patch.object(environment, 'measure_environment',
+                          side_effect=lambda output, pin, derived_data: observation(pin)), \
+                patch.object(self.runner, 'dispatch', side_effect=self.sheet_dispatch(frames, sheets)):
+            return self.runner.execute(self.args)
 
     def test_tracked_pin_is_a_valid_pin(self):
         environment.validate_pin(json.loads(PIN.read_text()))
@@ -215,7 +265,42 @@ class PreflightTests(unittest.TestCase):
         report = self.outcomes()
         self.assertEqual(report['status'], 'failed')
         self.assertFalse(report['identical'])
+        self.assertIsNone(report['sheet'])
         self.assertNotIn('capture', report)
+
+    def test_a_sheet_is_compared_only_within_it(self):
+        sheet = {'left': 1, 'top': 1, 'width': 2, 'height': 2}
+        # Paeth and Up carry the changed corner into the filtered bytes of the sheet's rows, so only decoded pixels
+        # can tell that the sheet itself is the same.
+        frames = [png(4, 3, color_type=2, rows=filtered(pixel_rows(4, 3, changes=changes), [4, 2, 4], 3))
+                  for changes in [(), [(0, 0), (3, 2)]]]
+        report = self.capture_sheet(frames, [sheet, sheet])
+        self.assertEqual(report['status'], 'captured')
+        self.assertTrue(report['identical'])
+        self.assertEqual(report['sheet'], sheet)
+        self.assertEqual(report['capture']['sha256'], hashlib.sha256(frames[0]).hexdigest())
+
+    def test_a_sheet_that_differs_within_it_fails(self):
+        sheet = {'left': 1, 'top': 1, 'width': 2, 'height': 2}
+        frames = [png(4, 3, color_type=2, rows=filtered(pixel_rows(4, 3, changes=changes), [1, 3, 4], 3))
+                  for changes in [(), [(2, 2)]]]
+        with self.assertRaisesRegex(self.runner.CaptureFailure, '2 different frames within the sheet'):
+            self.capture_sheet(frames, [sheet, sheet])
+        self.assertFalse(self.outcomes()['identical'])
+
+    def test_sheets_in_different_places_or_outside_the_frame_fail_even_on_identical_frames(self):
+        frame = png(4, 3, color_type=2, rows=filtered(pixel_rows(4, 3), [0, 0, 0], 3))
+        sheet = {'left': 1, 'top': 1, 'width': 2, 'height': 2}
+        for name, sheets, message in [
+                ('moved', [sheet, dict(sheet, top=0)], 'showed their sheets at'),
+                ('only one', [sheet, None], 'showed their sheets at'),
+                ('too wide', [dict(sheet, width=4)] * 2, 'does not lie within the 4x3 frame'),
+                ('empty', [dict(sheet, height=0)] * 2, 'does not lie within the 4x3 frame')]:
+            with self.subTest(sheets=name):
+                self.args.output = self.workspace.output = self.workspace.root / f'sheet-{name}'
+                with self.assertRaisesRegex(self.runner.CaptureFailure, message):
+                    self.capture_sheet([frame, frame], sheets)
+                self.assertEqual(self.outcomes()['status'], 'failed')
 
     def test_pin_or_fixture_change_during_capture_fails(self):
         dispatch = self.identical_dispatch()
@@ -242,8 +327,8 @@ class FrameTests(unittest.TestCase):
         self.runner = load_runner()
 
     def test_complete_frames_report_their_size(self):
-        self.assertEqual(self.runner.png_size(png(4, 3), self.runner.SETTLE_PNG), (4, 3))
-        self.assertEqual(self.runner.png_size(png(4, 3, color_type=2), self.runner.FRAME_PNG), (4, 3))
+        self.assertEqual(self.runner.png_scanlines(png(4, 3), self.runner.SETTLE_PNG)[:2], (4, 3))
+        self.assertEqual(self.runner.png_scanlines(png(4, 3, color_type=2), self.runner.FRAME_PNG)[:2], (4, 3))
 
     def test_partial_or_altered_frames_are_rejected(self):
         frame = png(4, 3)
@@ -258,14 +343,22 @@ class FrameTests(unittest.TestCase):
                            ('jpeg', b'\xff\xd8\xff' + frame[3:])]:
             with self.subTest(frame=name):
                 with self.assertRaises(self.runner.CaptureFailure):
-                    self.runner.png_size(data, self.runner.SETTLE_PNG)
+                    self.runner.png_scanlines(data, self.runner.SETTLE_PNG)
 
     def test_a_marketing_frame_must_be_the_rgb_system_screenshot(self):
         short = b''.join(b'\x00' + bytes(12) for _ in range(2))
         for name, data in [('rgba', png(4, 3)), ('missing rows', png(4, 3, color_type=2, rows=short))]:
             with self.subTest(frame=name):
                 with self.assertRaises(self.runner.CaptureFailure):
-                    self.runner.png_size(data, self.runner.FRAME_PNG)
+                    self.runner.png_scanlines(data, self.runner.FRAME_PNG)
+
+    def test_rows_decode_through_every_filter(self):
+        rows = pixel_rows(5, 6, seed=200)
+        for kinds in [[0, 1, 2, 3, 4, 4], [4, 3, 2, 1, 0, 3], [2, 2, 4, 1, 3, 4]]:
+            with self.subTest(filters=kinds):
+                frame = png(5, 6, color_type=2, rows=filtered(rows, kinds, 3))
+                self.assertEqual(self.runner.png_rows(frame, self.runner.FRAME_PNG, 6), rows)
+                self.assertEqual(self.runner.png_rows(frame, self.runner.FRAME_PNG, 2), rows[:2])
 
     def test_a_frame_of_another_size_is_rejected(self):
         self.runner.verify_frame(png(4, 3, color_type=2), self.runner.FRAME_PNG, [4, 3])
