@@ -3,6 +3,7 @@ import CoreGraphics
 import Dependencies
 import Foundation
 @testable import LiveTextTranslation
+import Observation
 import Testing
 import Translation
 
@@ -109,6 +110,24 @@ struct LiveTextTranslatorTests {
         #expect(requests.pairs.value == [.init(source: .init(identifier: "en-US"), target: Self.japanese)])
         #expect(!translator.needsTranslation(page: 3))
         #expect(translator.failure == nil)
+    }
+
+    @Test
+    func aPageLookedUpBeforeItIsTranslatedIsToldOfItsTranslation() async throws {
+        let translator = Self.translator()
+        let groups = try Self.groups("Where are you going?")
+        let changed = LockIsolated(false)
+        // As a page's view looks it up, while it still shows the highlight.
+        withObservationTracking {
+            _ = translator.translatedPage(of: groups)
+        } onChange: {
+            changed.setValue(true)
+        }
+
+        try await Self.translate(groups, page: 3, with: translator)
+
+        #expect(changed.value)
+        #expect(translator.translatedPage(of: groups) != nil)
     }
 
     @Test

@@ -34,9 +34,13 @@ public final class LiveTextTranslator {
         case deferred
     }
 
+    /// The page each translated group is on, which ``translatedPage(of:)`` looks a page up by.
+    /// Observed, as the translations are: a page's view looks its page up while the page is not yet
+    /// translated, when the lookup reads nothing else, so it is only told of the translation through
+    /// this.
+    private var pageByGroupID = [UUID: Int]()
     @ObservationIgnored private var states = [Int: PageState]()
     @ObservationIgnored private var tasks = [Int: Task<Void, Never>]()
-    @ObservationIgnored private var pageByGroupID = [UUID: Int]()
     @ObservationIgnored private var awaitingDownload = [LiveTextLanguagePair: [PageRequest]]()
     @ObservationIgnored private var declinedPairs = Set<LiveTextLanguagePair>()
     @ObservationIgnored private var reportedFailures = Set<LiveTextTranslationFailure.Kind>()
