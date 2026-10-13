@@ -214,8 +214,8 @@ struct CaptureLiveTextRecordTests {
 }
 
 /// A Live Text record file of the standard fixture's flow page as `record-live-text.py` writes it:
-/// one group of one line, recognized on the flow page's image in the saved detail page's language
-/// (Japanese, for which the reader names no recognition languages).
+/// one group of one line, recognized on the flow page's image in the languages the reader requests for
+/// the saved detail page's language, Japanese.
 struct LiveTextRecordFile: Encodable {
     private enum CodingKeys: String, CodingKey {
         case schemaVersion
@@ -231,7 +231,7 @@ struct LiveTextRecordFile: Encodable {
     var gid = MarketingFixtureBuilder.flowGID
     var page = MarketingFixtureBuilder.flowPage
     var pageSHA256 = CaptureFixture.sha256(MarketingFixtureBuilder.flowPageData)
-    var recognitionLanguages: [String]?
+    var recognitionLanguages = Language.japanese.codes
     var model = "iPhone Air"
     var runtimeBuild = "24A5000"
     var groups = [CaptureLiveTextGroup(id: UUID(0), blocks: [Self.line()])]

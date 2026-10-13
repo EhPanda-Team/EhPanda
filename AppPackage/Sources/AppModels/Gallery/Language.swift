@@ -1,7 +1,7 @@
 import Foundation
 import Resources
 
-public enum Language: String, Codable, Sendable {
+public enum Language: String, CaseIterable, Codable, Sendable {
     public static let allExcludedCases: [Self] = [
         .japanese, .english, .chinese, .dutch, .french, .german, .hungarian, .italian,
         .korean, .polish, .portuguese, .russian, .spanish, .thai, .vietnamese, .invalid, .other
@@ -12,6 +12,11 @@ public enum Language: String, Codable, Sendable {
 }
 
 extension Language {
+    /// The languages Live Text asks Vision to read a page of this language in, or `nil` when Vision
+    /// cannot read it and must detect the language itself.
+    ///
+    /// Each code is one of Vision's own recognition languages, so a page is read in its language
+    /// rather than as English, Vision's default.
     public var codes: [String]? {
         switch self {
         case .english: return ["en-US"]
@@ -21,6 +26,24 @@ extension Language {
         case .spanish: return ["es-ES"]
         case .portuguese: return ["pt-BR"]
         case .chinese: return ["zh-Hans", "zh-Hant"]
+        case .japanese: return ["ja-JP"]
+        case .korean: return ["ko-KR"]
+        case .russian: return ["ru-RU"]
+        case .ukrainian: return ["uk-UA"]
+        case .thai: return ["th-TH"]
+        case .vietnamese: return ["vi-VT"]
+        case .arabic: return ["ar-SA"]
+        case .turkish: return ["tr-TR"]
+        case .indonesian: return ["id-ID"]
+        case .czech: return ["cs-CZ"]
+        case .danish: return ["da-DK"]
+        case .dutch: return ["nl-NL"]
+        case .norwegian: return ["no-NO"]
+        case .polish: return ["pl-PL"]
+        case .romanian: return ["ro-RO"]
+        case .swedish: return ["sv-SE"]
+        case .finnish: return ["fi-FI"]
+        case .hindi: return ["hi-IN"]
         default: return nil
         }
     }
