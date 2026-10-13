@@ -5,8 +5,8 @@ milestone_name: )
 current_phase: 17
 current_phase_name: Screenshot Automation, Visual Regression & OS 27 Modernization
 status: executing
-stopped_at: 17-06 owner review returned changes (2026-10-13); 17-06 revision in progress (explicit set waits for owner IDs)
-last_updated: "2026-10-13T03:30:00Z"
+stopped_at: 17-06 revision re-shot (2026-10-13), 16/16 captured; waiting for the owner's visual review; agent prepares both gallery sets
+last_updated: "2026-10-13T10:50:00Z"
 last_activity: 2026-10-13
 state_head: fb83037387c93b67dc0f17742187e6c452ca3545
 progress:
@@ -15,8 +15,8 @@ progress:
   total_plans: 298
   completed_plans: 280
   percent: 59
-source_head: 4aa3300991
-last_activity_desc: "17-06 owner review (2026-10-13): vertical reader with its panel, Live Text without it on its own English-original gallery, Frontpage 10 and Downloads 6, iPad kept, status bar not charging; reader fixes 975ff2040f..a45bee6085 landed 2026-10-10 to 10-12; .capture pruned"
+source_head: af00e0da93
+last_activity_desc: "17-06 revision (2026-10-13): capture changes d688e8fe4b..9456b3a32d, Detail strip drawingGroup removed (099222846e), sheet screens compared within the sheet (af00e0da93); third re-shoot 16/16 captured"
 ---
 
 # Project State
@@ -52,6 +52,8 @@ Last activity: 2026-10-13
 **17-06 owner review (2026-10-13), changes requested:** the owner reviewed the 16 English light frames and decided: iPad stays in the matrix; the reading screen uses the vertical reader with its control panel shown (replacing the 17-05 paging-reader decision); the Live Text screen hides the panel and uses its own gallery, an English-original Non-H gallery that also exists in other languages (non-English locales translate the English page; the English locale uses another language version translated into English); Home Frontpage holds 10 galleries and Downloads 6, so Home needs 25 distinct galleries (Downloads may reuse them); the status bar shows 9:41, full signal and battery 100% not charging. The 17-06 frames show English light only; locales and dark mode are 17-07's 384 outputs. Revision order (owner go-ahead 2026-10-13): this record, the visual simulators' health, the capture changes as separate commits, the nonexplicit reselection, then a re-capture of the 16 coordinates for review; the Live Text frame keeps today's highlight until the translation overlay exists. Split off as separate owner-run sessions: a Live Text translation overlay (independent feature outside the reader budget; private APIs allowed) and a reusable screenshot CLI for other apps. The agent prepares the explicit set at the new counts alongside the nonexplicit set.
 
 **`.capture` pruned (2026-10-13, owner-approved):** 31 GB to 4.1 GB. Removed: DerivedData build products inside run folders; `tracer-matrix-02` to `-09` (superseded; `tracer-matrix-10` kept); every `.xcresult` bundle dated before 2026-10-13 outside the fixture and environment folders (extracted frames, JSON and logs kept); `reader-drift-*` experiments; superseded unreferenced attempts (`17-05-t1-ui-01` to `-03`, `17-04-t2-gate-01`, `17-04-capture-tests-02`, `17-05-t1-unit-01`, `17-04-home-client-01`, `17-05-t1-experiment-01`). References to those paths in historical sections and phase documents now point at removed evidence.
+
+**17-06 revision progress (2026-10-13):** capture changes, each verified in a temporary tree of exactly its files (`.capture/commit-trees-50/` onward): `d688e8fe4b` (battery not charging), `7335da9352` (the reader's page indicator stays in narrow windows: iOS 27 drops a `.title` toolbar item that does not fit), `45df76a6fb` (vertical reader with its panel), `ba699e50f3` (Live Text on its own gallery, without the panel), `d0f4048ea8` and `ea8544391d` (Frontpage 10, Downloads 6). After the first re-shoot the owner asked that the iPad lists fill too: `9456b3a32d` (Frontpage 16 in eight pairs, Downloads 7; Home shows 31 distinct galleries) and `46b7eb82d1` (download covers preloaded into the capture's Kingfisher cache at install, so a row below the screen no longer blocks readiness; the owner chose this over a recording cache subclass). Both visual simulators were erased in place with the owner's go-ahead and set up again. Nonexplicit selection `provisional-random-nonh-3` (`.capture/marketing-selection-03/`) keeps the hero, Toplists, the flow on `1979820` and Live Text on page 10 of `3615767` (the owner kept the page), and adds six Frontpage galleries and one download from the same seeded Non-H sample; fixture `marketing-ecd98e7a1571af1f`. Cold-launch flips: the Detail rating's empty star differed by one level between some cold launches on both devices. The cause is the stats strip's per-item `.drawingGroup()`, an iOS 15-era addition: 2 of 12 baseline launches differed, while 24 of 24 without it were byte-identical, and the visible change is sub-pixel antialiasing only (`.capture/agent-work/star-probe/`). It was removed in `099222846e` (owner decision, replacing the earlier "known phenomenon" choice, which rested on a hypothesis the evidence refuted). Laboratory on iPad once differed on nine Liquid Glass rim pixels of Home's "Other" cards behind the sheet. The owner decided that every sheet screen (Filters, and Detail, Comments and Laboratory on iPad) is compared across cold launches only within the sheet, while the published frame stays whole: `af00e0da93`. The app reports the top sheet's screenshot pixels from UIKit, the UI test requires a sheet exactly on sheet coordinates, and `capture-native.py` decodes the PNG to compare the sheet's pixels (AppFeatureTests 111/111, Python 185). Third re-shoot `.capture/17-06-t-native-*`: 16/16 captured, every pair of cold launches byte-identical, and sheets reported exactly on the five sheet coordinates. Review sheets: `.capture/17-06-t-review-sheets/`. Open: the owner's visual review of these frames; the explicit set (the agent prepares provisional IDs for both content sets; validate them with `acquire-fixtures.py` and `selection-review.py`); the iPad Toplists gap between Yesterday and Past Month (pre-existing layout); the status bar locale question (17-07). Four reserved staged entries are preserved; both visual simulators are Shutdown.
 
 ## Historical round-2 status snapshots
 
@@ -1024,8 +1026,8 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-10-13T03:30:00Z
-Stopped at: 17-06 owner review returned changes; revision in progress (simulator health, capture changes, nonexplicit reselection, re-capture)
+Last session: 2026-10-13T10:50:00Z
+Stopped at: 17-06 revision re-shot, 16/16 captured (`.capture/17-06-t-native-*`); waiting for the owner's review of the frames and the explicit-set IDs
 Resume file: .planning/phases/17-localized-screenshot-capture-harness/.continue-here.md
 
 The dated feedback below is historical and superseded by the Phase 16 verification and final owner sign-off.
