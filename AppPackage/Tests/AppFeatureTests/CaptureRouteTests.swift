@@ -2,12 +2,10 @@ import AnalyticsClient
 @testable import AppFeature
 import AppLaunchAutomationClient
 import AppModels
-import AppTools
 import ComposableArchitecture
 import CookieClient
 import CustomDump
 import DetailFeature
-import DeviceClient
 import DownloadClient
 import Foundation
 import HapticsClient
@@ -23,7 +21,7 @@ import UserDefaultsClient
 
 // A marketing capture opens each of its eight screens through the app's own navigation. These
 // cases build each screen's route from the selection and drive the launch automation that follows
-// it, through the actions a person's taps send, on both device families.
+// it, through the actions a person's taps send, in a compact window and in a regular one.
 struct CaptureRouteTests {
     // MARK: Routes
 
@@ -112,9 +110,9 @@ struct CaptureRouteTests {
     // MARK: Launch
 
     @MainActor
-    @Test(arguments: [DeviceType.phone, .pad])
-    func homeOpensWithoutNavigating(_ deviceType: DeviceType) async {
-        let store = makeStore(route: .home, deviceType: deviceType)
+    @Test(arguments: [WindowSizeClasses.compactWidth, .regular])
+    func homeOpensWithoutNavigating(_ window: WindowSizeClasses) async {
+        let store = makeStore(route: .home, window: window)
 
         await store.send(.runLaunchAutomation) {
             $0.didRunLaunchAutomation = true
@@ -124,14 +122,15 @@ struct CaptureRouteTests {
 
     @MainActor
     @Test
-    func aGalleryScreenStartsWithATapOnItsCardThatAPhonePushes() async {
+    func aGalleryScreenStartsWithATapOnItsCardThatACompactWindowPushes() async {
         let gallery = Self.gallery
-        let store = makeStore(route: .comments(gallery), deviceType: .phone)
+        let store = makeStore(route: .comments(gallery), window: .compactWidth)
 
         await store.send(.runLaunchAutomation) {
             $0.didRunLaunchAutomation = true
         }
         await store.receive(\.home.galleryTapped, gallery)
+        await store.receive(\.home.delegate.openGalleryDetail, gallery)
         await store.receive(\.home.pushGalleryDetail, gallery)
         await store.skipReceivedActions(strict: false)
         await store.skipInFlightEffects(strict: false)
@@ -142,14 +141,15 @@ struct CaptureRouteTests {
 
     @MainActor
     @Test
-    func aGalleryScreenStartsWithATapOnItsCardThatAPadPresents() async {
+    func aGalleryScreenStartsWithATapOnItsCardThatARegularWindowPresents() async {
         let gallery = Self.gallery
-        let store = makeStore(route: .reading(gallery, page: 4), deviceType: .pad)
+        let store = makeStore(route: .reading(gallery, page: 4), window: .regular)
 
         await store.send(.runLaunchAutomation) {
             $0.didRunLaunchAutomation = true
         }
         await store.receive(\.home.galleryTapped, gallery)
+        await store.receive(\.home.delegate.openGalleryDetail, gallery)
         await store.receive(\.presentation.presentGalleryDetail)
         await store.skipReceivedActions(strict: false)
         await store.skipInFlightEffects(strict: false)
@@ -159,9 +159,9 @@ struct CaptureRouteTests {
     }
 
     @MainActor
-    @Test(arguments: [DeviceType.phone, .pad])
-    func filtersOpenFromTheSearchTab(_ deviceType: DeviceType) async {
-        let store = makeStore(route: .filters, deviceType: deviceType)
+    @Test(arguments: [WindowSizeClasses.compactWidth, .regular])
+    func filtersOpenFromTheSearchTab(_ window: WindowSizeClasses) async {
+        let store = makeStore(route: .filters, window: window)
 
         await store.send(.runLaunchAutomation) {
             $0.didRunLaunchAutomation = true
@@ -176,9 +176,9 @@ struct CaptureRouteTests {
     }
 
     @MainActor
-    @Test(arguments: [DeviceType.phone, .pad])
-    func downloadsOpenAsTheirTab(_ deviceType: DeviceType) async {
-        let store = makeStore(route: .downloads, deviceType: deviceType)
+    @Test(arguments: [WindowSizeClasses.compactWidth, .regular])
+    func downloadsOpenAsTheirTab(_ window: WindowSizeClasses) async {
+        let store = makeStore(route: .downloads, window: window)
 
         await store.send(.runLaunchAutomation) {
             $0.didRunLaunchAutomation = true
@@ -192,8 +192,8 @@ struct CaptureRouteTests {
 
     @MainActor
     @Test
-    func theLaboratoryOpensInTheSettingTabOnAPhone() async {
-        let store = makeStore(route: .laboratory, deviceType: .phone)
+    func theLaboratoryOpensInTheSettingTabInACompactWindow() async {
+        let store = makeStore(route: .laboratory, window: .compactWidth)
 
         await store.send(.runLaunchAutomation) {
             $0.didRunLaunchAutomation = true
@@ -210,8 +210,8 @@ struct CaptureRouteTests {
 
     @MainActor
     @Test
-    func theLaboratoryOpensInTheSettingSheetOnAPad() async {
-        let store = makeStore(route: .laboratory, deviceType: .pad)
+    func theLaboratoryOpensInTheSettingSheetInARegularWindow() async {
+        let store = makeStore(route: .laboratory, window: .regular)
 
         await store.send(.runLaunchAutomation) {
             $0.didRunLaunchAutomation = true
@@ -246,7 +246,7 @@ private extension CaptureRouteTests {
     @MainActor
     func makeStore(
         route: AppLaunchAutomation.CaptureRoute,
-        deviceType: DeviceType
+        window: WindowSizeClasses
     ) -> TestStoreOf<AppReducer> {
         let appStorage = UserDefaults.inMemory
         let inMemoryStorage = InMemoryStorage()
@@ -255,8 +255,11 @@ private extension CaptureRouteTests {
             $0.defaultAppStorage = appStorage
             $0.defaultInMemoryStorage = inMemoryStorage
         } operation: {
-            TestStore(
-                initialState: AppReducer.State(),
+            var initialState = AppReducer.State()
+            initialState.windowSizeClasses = window
+            initialState.settingState.hasLoadedInitialSetting = true
+            return TestStore(
+                initialState: initialState,
                 reducer: AppReducer.init,
                 withDependencies: {
                     $0.analyticsClient = .noop
@@ -267,10 +270,6 @@ private extension CaptureRouteTests {
                     $0.date = .constant(UITestAutomation.fixedDate)
                     $0.defaultAppStorage = appStorage
                     $0.defaultInMemoryStorage = inMemoryStorage
-                    $0.deviceClient = DeviceClient(
-                        deviceType: { deviceType },
-                        interfaceOrientation: { .portrait }
-                    )
                     $0.downloadClient = .noop
                     $0.hapticsClient = .noop
                     $0.homeClient = .noop

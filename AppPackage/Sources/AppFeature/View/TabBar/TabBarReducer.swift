@@ -1,7 +1,6 @@
 import AppModels
 import AppTools
 import ComposableArchitecture
-import DeviceClient
 
 @Reducer
 struct TabBarReducer {
@@ -18,13 +17,9 @@ struct TabBarReducer {
 
     @CasePathable
     enum Delegate: Equatable {
-        case presentSetting
-    }
-
-    @Dependency(\.deviceClient) private var deviceClient
-
-    private enum CancelID {
-        case settingDeviceResolution
+        /// The Setting tab was chosen. The app root, which knows the window's size classes, either
+        /// presents Setting as a sheet over the current tab or answers with `selectSettingInline`.
+        case openSetting
     }
 
     var body: some Reducer<State, Action> {
@@ -38,20 +33,11 @@ struct TabBarReducer {
                 return .none
 
             case .setTabBarItemType(.setting):
-                return .run { send in
-                    let deviceType = await deviceClient.deviceType()
-                    guard !Task.isCancelled else { return }
-                    await send(
-                        deviceType == .pad
-                            ? .delegate(.presentSetting)
-                            : .selectSettingInline
-                    )
-                }
-                .cancellable(id: CancelID.settingDeviceResolution, cancelInFlight: true)
+                return .send(.delegate(.openSetting))
 
             case .setTabBarItemType(let type):
                 state.tabBarItemType = type
-                return .cancel(id: CancelID.settingDeviceResolution)
+                return .none
             }
         }
     }

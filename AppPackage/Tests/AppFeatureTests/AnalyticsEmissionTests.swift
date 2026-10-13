@@ -7,7 +7,6 @@ import ClipboardClient
 import ComposableArchitecture
 import CookieClient
 import CustomDump
-import DeviceClient
 import DownloadClient
 import Foundation
 import HapticsClient
@@ -225,6 +224,8 @@ private extension AnalyticsEmissionTests {
         } operation: {
             var initialState = AppReducer.State()
             initialState.tabBarState.tabBarItemType = initialTab
+            // Setting opens as a tab here, which is what counts as a tab open.
+            initialState.windowSizeClasses = .compactWidth
             initialState.$privacyMaskBlur.withLock({ $0 = 0 })
 
             return TestStore(
@@ -238,7 +239,6 @@ private extension AnalyticsEmissionTests {
                     $0.cookieClient = .noop
                     $0.defaultAppStorage = appStorage
                     $0.defaultInMemoryStorage = inMemoryStorage
-                    $0.deviceClient = .noop
                     $0.downloadClient = .noop
                     $0.hapticsClient = .noop
                     $0.logsClient = .noop

@@ -3,7 +3,6 @@ public import AppModels
 import AppTools
 public import ComposableArchitecture
 import DetailFeature
-import DeviceClient
 public import FiltersFeature
 import HapticsClient
 import NetworkingFeature
@@ -16,8 +15,11 @@ public struct SearchRootReducer: Sendable {
         case fetchHistoryGalleries
     }
 
+    @CasePathable
     public enum Delegate: Equatable, Sendable {
-        case presentGalleryDetail(Gallery)
+        /// Asks the app root to open a gallery's detail. The root knows the window's size classes,
+        /// so it decides between a modal and `pushGalleryDetail` back to this host.
+        case openGalleryDetail(Gallery)
     }
 
     @Reducer
@@ -93,7 +95,6 @@ public struct SearchRootReducer: Sendable {
     }
 
     @Dependency(\.analyticsClient) private var analyticsClient
-    @Dependency(\.deviceClient) private var deviceClient
     @Dependency(\.hapticsClient) private var hapticsClient
 
     public init() {}
@@ -123,14 +124,10 @@ public struct SearchRootReducer: Sendable {
 
             case .galleryTapped(let gallery),
                  let .path(.element(id: _, action: .search(.delegate(.pushDetail(gallery))))):
-                // No analytics here: this tap routes to a phone push (`.pushGalleryDetail`, counted
-                // there) or an iPad modal (counted by the app-root `presentGalleryDetail`); emitting
-                // at the tap would double-count one open across the two device paths (T-14-13).
-                return GalleryNavigation.routeGalleryDetail(
-                    deviceType: deviceClient.deviceType,
-                    present: { .delegate(.presentGalleryDetail(gallery)) },
-                    push: { .pushGalleryDetail(gallery) }
-                )
+                // No analytics here: the app root answers with a push (`.pushGalleryDetail`, counted
+                // there) or a modal (counted by the app-root `presentGalleryDetail`); emitting at the
+                // tap would double-count one open across the two routes (T-14-13).
+                return .send(.delegate(.openGalleryDetail(gallery)))
 
             case .pushGalleryDetail(let gallery):
                 let screen = GalleryPath.State.detail(.init(gallery: gallery))
@@ -144,9 +141,10 @@ public struct SearchRootReducer: Sendable {
                     // closed `Category` plus exact per-namespace tag counts — no gid, token, title,
                     // URL or tag text (D-06, D-09).
                     //
-                    // Load-bearing because of the device split above: without it a search-originated
-                    // open is recorded from iPads only, so the metric is not merely short but skewed
-                    // by device idiom — worse than an absent one, since it still looks complete.
+                    // Load-bearing because of the route split above: without it a search-originated
+                    // open is recorded from modal-sized windows only, so the metric is not merely
+                    // short but skewed by window size — worse than an absent one, since it still
+                    // looks complete.
                     .run(operation: { _ in
                         analyticsClient.send(.galleryDetailOpened(
                             category: gallery.category,
