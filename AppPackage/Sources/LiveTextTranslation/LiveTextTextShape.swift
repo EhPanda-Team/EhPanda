@@ -9,18 +9,23 @@ enum LiveTextTextShape: Equatable {
     /// follow the balloon's shape, as a letterer sets them.
     case balloon(LiveTextBalloonRoom)
 
-    /// `text` set at `fontSize` in the shape without breaking a word; `nil` when the shape does not
-    /// hold it.
-    func setting(of text: String, style: LiveTextTextStyle, fontSize: Double) -> LiveTextTextSetting? {
+    /// `text` set at `fontSize` in the shape, breaking a word only when `breaksWords`; `nil` when the
+    /// shape does not hold it.
+    func setting(
+        of text: String,
+        style: LiveTextTextStyle,
+        fontSize: Double,
+        breaksWords: Bool
+    ) -> LiveTextTextSetting? {
         switch self {
         case .rectangle(let size):
             let layout = LiveTextTextLayout(text: text, style: style, fontSize: fontSize, widths: [size.width])
-            guard layout.height <= size.height, !layout.breaksWord else {
+            guard layout.height <= size.height, breaksWords || !layout.breaksWord else {
                 return nil
             }
             return LiveTextTextSetting(lineWidths: [size.width], area: size, center: .zero)
         case .balloon(let room):
-            return room.setting(of: text, style: style, fontSize: fontSize)
+            return room.setting(of: text, style: style, fontSize: fontSize, breaksWords: breaksWords)
         }
     }
 }

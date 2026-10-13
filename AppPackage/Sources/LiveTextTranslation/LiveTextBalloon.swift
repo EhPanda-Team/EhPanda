@@ -273,7 +273,12 @@ struct LiveTextBalloonRoom: Equatable {
     /// `text` set at `fontSize` in as few lines as the room holds it in, without breaking a word: each
     /// line as wide as the room is where it lies, and the lines centered on the room's center; `nil`
     /// when the room holds it in none. Measurements down are from the room's center.
-    func setting(of text: String, style: LiveTextTextStyle, fontSize: Double) -> LiveTextTextSetting? {
+    func setting(
+        of text: String,
+        style: LiveTextTextStyle,
+        fontSize: Double,
+        breaksWords: Bool
+    ) -> LiveTextTextSetting? {
         let lineHeight = LiveTextTextLayout.lineHeight(of: text, style: style, fontSize: fontSize)
         guard lineHeight > 0, height >= lineHeight else {
             return nil
@@ -288,7 +293,7 @@ struct LiveTextBalloonRoom: Equatable {
                 continue
             }
             let layout = LiveTextTextLayout(text: text, style: style, fontSize: fontSize, widths: widths)
-            guard layout.lines.count <= count, !layout.breaksWord else {
+            guard layout.lines.count <= count, breaksWords || !layout.breaksWord else {
                 continue
             }
             // Fewer lines than there are bands take the top ones, whose widths they were set in.
