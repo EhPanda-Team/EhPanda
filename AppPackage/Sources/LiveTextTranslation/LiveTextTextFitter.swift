@@ -6,13 +6,15 @@ import Foundation
 ///
 /// The size is the largest at which every translation fits its region, never larger than the page's
 /// own lettering and never smaller than a floor that stays legible once the reader scales the page.
-/// A translation that does not fit at that size takes the next step that fits: 85% of it, then 85%
-/// of it in the room it grows into, and for one in a balloon, past the balloon onto a plate. One that
-/// fits none of them is set at the last step and ends in an ellipsis, and it does not hold the page's
-/// size down. Every translation on a page is therefore set at the page's size or 85% of it.
+/// A region tries its spaces in turn: where its lettering was, or the rooms its balloon has, widest
+/// first, so a translation takes as few lines as its balloon allows. A translation that fits none of
+/// them at that size takes the next step that fits: 85% of it in the same spaces, then 85% of it on a
+/// plate grown past them. One that fits none of them is set at the last step and ends in an ellipsis,
+/// and it does not hold the page's size down. Every translation on a page is therefore set at the
+/// page's size or 85% of it.
 enum LiveTextTextFitter {
     static let reducedScale = 0.85
-    /// How much a region off a balloon, or one spilling past its balloon, grows at most.
+    /// How much a plate grows at most past its lettering.
     static let grownScale = 1.25
     /// The floor, as a share of the page's width.
     static let floorShare = 0.02
@@ -22,43 +24,22 @@ enum LiveTextTextFitter {
     struct Region: Equatable {
         let id: UUID
         let text: String
-        /// The space the text is set in, where its lettering was.
-        let area: CGSize
-        /// The space the text grows into when `area` is not enough: its balloon's room, or off a balloon,
-        /// `area` grown by up to a quarter.
+        /// The spaces the text is set in, in the order they are tried: where its lettering was, or the
+        /// rooms its balloon has.
+        let areas: [CGSize]
+        /// The space of a plate grown past `areas`, where the text goes when none of them holds it.
         let grownArea: CGSize
-        /// The space past its balloon, on a plate, the text spills into when the balloon's room is not
-        /// enough either; `nil` off a balloon.
-        let spilledArea: CGSize?
         /// The height of the lettering the translation replaces.
         let lineHeight: Double
-
-        func area(for room: Room) -> CGSize {
-            switch room {
-            case .lettering:
-                area
-            case .grown:
-                grownArea
-            case .spilled:
-                spilledArea ?? grownArea
-            }
-        }
-    }
-
-    /// Where a translation is set.
-    enum Room: Equatable {
-        /// Where its lettering was.
-        case lettering
-        /// In the room it grows into.
-        case grown
-        /// Past its balloon, on a plate.
-        case spilled
     }
 
     struct Placement: Equatable {
         let id: UUID
         let fontSize: Double
-        let room: Room
+        /// The space the text is set in.
+        let area: CGSize
+        /// Whether that is the grown plate's.
+        let isGrown: Bool
     }
 
     struct Result: Equatable {
@@ -100,26 +81,25 @@ enum LiveTextTextFitter {
     }
 
     /// The steps `region` is tried at in turn when the page's size is `fontSize`; it takes the last of
-    /// them when it fits none.
+    /// them, the grown plate, when it fits none.
     private static func steps(for region: Region, at fontSize: Double) -> [Placement] {
         let reduced = fontSize * reducedScale
-        let steps = [
-            Placement(id: region.id, fontSize: fontSize, room: .lettering),
-            Placement(id: region.id, fontSize: reduced, room: .lettering),
-            Placement(id: region.id, fontSize: reduced, room: .grown)
-        ]
-        guard region.spilledArea != nil else {
-            return steps
+        let steps = [fontSize, reduced].flatMap { size in
+            region.areas.map({ Placement(id: region.id, fontSize: size, area: $0, isGrown: false) })
         }
-        return steps + [Placement(id: region.id, fontSize: reduced, room: .spilled)]
+        return steps + [Placement(id: region.id, fontSize: reduced, area: region.grownArea, isGrown: true)]
     }
 
     /// The first step that fits `region` when the page's size is `fontSize`, or `nil` when none does.
     private static func placement(for region: Region, at fontSize: Double, style: LiveTextTextStyle) -> Placement? {
         steps(for: region, at: fontSize).first { step in
-            let area = region.area(for: step.room)
-            let layout = LiveTextTextLayout(text: region.text, style: style, fontSize: step.fontSize, width: area.width)
-            return layout.height <= area.height && !layout.breaksWord
+            let layout = LiveTextTextLayout(
+                text: region.text,
+                style: style,
+                fontSize: step.fontSize,
+                width: step.area.width
+            )
+            return layout.height <= step.area.height && !layout.breaksWord
         }
     }
 }
