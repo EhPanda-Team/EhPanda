@@ -246,19 +246,20 @@ struct LiveTextLayoutTests {
         )
     }
 
-    /// The room the balloon has for the group at ``balloonOrigin``, centered on its lettering.
-    private static func room(in balloon: LiveTextBalloon) throws -> LiveTextOrientedRect {
+    /// The rooms the balloon has for the group at ``balloonOrigin``, centered on its lettering.
+    private static func rooms(in balloon: LiveTextBalloon) throws -> [LiveTextOrientedRect] {
         let geometry = try #require(LiveTextGroupGeometry(
             group: try group(origin: balloonOrigin, lines: 2),
             pageSize: pageSize
         ))
         let lettering = geometry.letteringArea
-        let size = balloon.room(
+        return balloon.rooms(
             around: lettering,
+            lineHeight: geometry.lineHeight,
             padding: LiveTextBalloon.padding * geometry.lineHeight,
             avoiding: []
         )
-        return LiveTextOrientedRect(center: lettering.center, size: size, angle: lettering.angle)
+        .map({ LiveTextOrientedRect(center: lettering.center, size: $0, angle: lettering.angle) })
     }
 
     /// The pixel of `paint` at `point` in page pixels, or `nil` outside it.
@@ -324,20 +325,24 @@ struct LiveTextLayoutTests {
     }
 
     @Test
-    func theRoomStaysInsideTheBalloon() throws {
+    func roomsStayInsideTheBalloonWidestFirst() throws {
         let balloon = try #require(try Self.balloon(on: Self.balloonPage()))
         let geometry = try #require(LiveTextGroupGeometry(
             group: try Self.group(origin: Self.balloonOrigin, lines: 2),
             pageSize: Self.pageSize
         ))
 
-        let room = try Self.room(in: balloon)
+        let rooms = try Self.rooms(in: balloon)
 
         let lettering = geometry.letteringArea.size
-        #expect(room.size.width * room.size.height > lettering.width * lettering.height)
+        #expect(rooms.count > 1)
+        #expect(rooms.contains(where: { $0.size.width * $0.size.height > lettering.width * lettering.height }))
+        for (wider, narrower) in zip(rooms, rooms.dropFirst()) {
+            #expect(wider.size.width > narrower.size.width && wider.size.height < narrower.size.height)
+        }
         // The balloon's paper, inside its outline's inner edge.
         let radii = CGSize(width: Self.balloonBounds.width / 2 - 3, height: Self.balloonBounds.height / 2 - 3)
-        for corner in room.corners {
+        for corner in rooms.flatMap(\.corners) {
             let across = (corner.x - Self.balloonBounds.midX) / radii.width
             let down = (corner.y - Self.balloonBounds.midY) / radii.height
             #expect(across * across + down * down <= 1)
@@ -354,11 +359,12 @@ struct LiveTextLayoutTests {
         }))
 
         let paint = try #require(balloon.paint())
-        let room = try Self.room(in: balloon)
+        let rooms = try Self.rooms(in: balloon)
 
         let artPixel = try Self.pixel(of: paint, at: CGPoint(x: art.midX, y: art.midY))
         #expect(artPixel == nil || artPixel?.w == 0)
-        #expect(!room.expanded(by: LiveTextBalloon.padding * 50).boundingBox.intersects(art))
+        #expect(!rooms.isEmpty)
+        #expect(!rooms.contains(where: { $0.expanded(by: LiveTextBalloon.padding * 50).boundingBox.intersects(art) }))
     }
 
     @Test
@@ -530,15 +536,14 @@ struct LiveTextLayoutTests {
 
     // MARK: Fitting
 
-    /// A region off a balloon, growing by a quarter.
+    /// A region off a balloon, its plate growing by a quarter.
     private static func region(_ text: String, width: Double, height: Double) -> LiveTextTextFitter.Region {
         let scale = LiveTextTextFitter.grownScale
         return LiveTextTextFitter.Region(
             id: UUID(),
             text: text,
-            area: CGSize(width: width, height: height),
+            areas: [CGSize(width: width, height: height)],
             grownArea: CGSize(width: width * scale, height: height * scale),
-            spilledArea: nil,
             lineHeight: 40
         )
     }
@@ -588,8 +593,35 @@ struct LiveTextLayoutTests {
 
         #expect(abs(result.fontSize - Self.letteringSize) < 1e-9)
         let placement = try #require(result.placements.first(where: { $0.id == hopeless.id }))
-        #expect(placement.room == .grown)
+        #expect(placement.isGrown)
+        #expect(placement.area == hopeless.grownArea)
         #expect(abs(placement.fontSize - result.fontSize * LiveTextTextFitter.reducedScale) < 1e-9)
+    }
+
+    @Test
+    func aTranslationTakesTheFirstOfItsSpacesItFits() throws {
+        let wide = CGSize(width: 400, height: 60)
+        let tall = CGSize(width: 200, height: 160)
+        let short = LiveTextTextFitter.Region(
+            id: UUID(),
+            text: "Hi!",
+            areas: [wide, tall],
+            grownArea: tall,
+            lineHeight: 40
+        )
+        let long = LiveTextTextFitter.Region(
+            id: UUID(),
+            text: "Where do you think you are going?",
+            areas: [wide, tall],
+            grownArea: tall,
+            lineHeight: 40
+        )
+
+        let result = LiveTextTextFitter.fit([short, long], style: Self.english, pageWidth: 1000)
+
+        let placements = Dictionary(uniqueKeysWithValues: result.placements.map({ ($0.id, $0) }))
+        #expect(placements[short.id]?.area == wide)
+        #expect(placements[long.id]?.area == tall)
     }
 
     @Test
@@ -599,7 +631,7 @@ struct LiveTextLayoutTests {
 
         let result = LiveTextTextFitter.fit([roomy, tight], style: Self.english, pageWidth: 1000)
         let placement = try #require(result.placements.first(where: { $0.id == tight.id }))
-        let area = tight.area(for: placement.room)
+        let area = placement.area
         let layout = LiveTextTextLayout(
             text: tight.text,
             style: Self.english,
