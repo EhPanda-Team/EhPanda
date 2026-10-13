@@ -147,7 +147,8 @@ The input is a JSON file with exactly these keys:
         "frontpage": ["<gid>", "<gid>"],
         "toplists": {"yesterday": ["<gid>"], "pastMonth": ["<gid>"], "pastYear": ["<gid>"], "allTime": ["<gid>"]}
       },
-      "flow": {"gallery": "<gid>", "readerPage": 4, "liveTextPage": 4, "pages": [3, 4, 5]},
+      "flow": {"gallery": "<gid>", "readerPage": 4, "pages": [3, 4, 5]},
+      "liveText": {"gallery": "<gid>", "page": 10, "pages": [9, 10, 11]},
       "downloads": [{"gallery": "<gid>", "status": "active", "completedPages": 12},
                     {"gallery": "<gid>", "status": "completed"}]
     }
@@ -160,9 +161,12 @@ The input is a JSON file with exactly these keys:
   `set`, `nonexplicit` or `explicit`. Set labels are never derived from gallery categories.
 - `scenes` holds one scene per declared content set. Every slot names a gallery of that set, and
   every declared gallery appears in at least one slot.
-- The flow gallery is the Detail, Comments, Reading and Live Text gallery. `pages` lists every
-  reader page the reader builds in a scene (the page it shows and the pages it lays out beside
-  it), in ascending order, and includes `readerPage` and `liveTextPage`.
+- The flow gallery is the Detail, Comments and Reading gallery, and the `liveText` gallery the
+  Live Text one. Each `pages` lists every reader page the reader builds on its screen (the page it
+  shows and the pages it lays out beside it), in ascending order, and includes the flow's
+  `readerPage` or the Live Text `page`. The vertical reader lays out pages well past the screen
+  before it knows their sizes (on the iPhone, the three pages below the shown one in the
+  2026-10-13 runs), and every page it builds prefetches its own window.
 - Download `status` is a `DownloadDisplayStatus` case. `completed` and `updateAvailable` carry no
   `completedPages`; the other statuses require it.
 - A screen never repeats a gallery, including across Home's hero, frontpage and Toplists sections.
@@ -178,8 +182,9 @@ python3 -B Scripts/visual/acquire-fixtures.py --selection PATH --output .capture
 ```
 
 For every gallery, in declaration order, acquisition saves the detail page the app requests
-(`<gallery URL>?hc=1`) and its cover. For each flow gallery it also saves the detail page's
-preview images and what the app's reader requests for the declared pages. Each page the reader
+(`<gallery URL>?hc=1`) and its cover. For each gallery a reader opens, the flow's and the Live
+Text one, it also saves the detail page's preview images and what the app's reader requests for
+the declared pages. Each page the reader
 builds loads its image and prefetches a window around it: with the default preload limit of 10,
 pages `p-7` to `p-2` and `p+2` to `p+7`, clipped to the gallery, with a side that clips to a
 single page skipped, the way `ReadingReducer` computes it. The reader resolves image URLs a
@@ -221,12 +226,12 @@ unchanged content again therefore keeps the same version, while any change to co
 configured order produces a new one. Earlier versions are kept.
 
 A record is made rather than fetched, so its entry has a null `url`. A Live Text record holds what
-the app's own Live Text found on a flow's Live Text page: every group and line with its ID, text
+the app's own Live Text found on a scene's Live Text page: every group and line with its ID, text
 and four normalized corners, the page image's SHA-256, the recognition languages and the
 recording simulator's model and runtime build. `record-live-text.py` makes it (see Record Live Text)
 and `fixtures.publish_records` publishes a new version with the record added, keeping every other
 file and the acquisition time; its entry's `retrievedAt` is when it was recorded. A fixture holds
-each flow's record or none, so a version acquired again holds no record until the page is recorded
+each scene's record or none, so a version acquired again holds no record until the page is recorded
 again.
 
 An output that already has `current` is not acquired again unless `--refresh` is given.
@@ -243,7 +248,7 @@ the resource derivation over the stored files and rejects:
 - unscrubbed values and account sessions;
 - a selection that changed after acquisition;
 - an aggregate digest or directory name that does not match the version;
-- a record of a page that no flow shows Live Text on, recognized on other bytes than that page's
+- a record of a page that no scene shows Live Text on, recognized on other bytes than that page's
   image, or holding no groups, a line without text, a missing, malformed or repeated ID, or a
   line whose corners have no extent or lie outside the page (a corner slightly past the edge,
   as Vision can place one, is kept).
@@ -281,7 +286,8 @@ fixture always produces byte-identical output.
 - the fixture version and the selection's identity, status and authority;
 - every gallery occurrence by content set and screen, each with its source URL, title and cover;
 - Home's hero, frontpage pairs and Toplists rankings in configured order;
-- the flow gallery's reader and Live Text pages and its saved comments;
+- the flow gallery's reader pages and its saved comments;
+- the Live Text gallery's pages and its language;
 - downloads with status, progress, page count and display priority;
 - the unresolved final inputs and the Phase 17 closure checkpoint.
 
@@ -294,6 +300,8 @@ Each content set needs:
 - an even frontpage count of at least two;
 - at least three galleries in each Toplists period;
 - a readable saved comment on the flow gallery;
+- a Live Text gallery other than the flow gallery, whose language is English and not a
+  translation (owner decision, 2026-10-13);
 - at least two downloads, in an order the app would display unchanged.
 
 The app lists downloads by status priority (active, queued, update available, error, inactive,
@@ -340,7 +348,7 @@ which the launch opens through the app's own navigation:
 | `comments` | The flow gallery's comments, from its detail once it loads, as Show All opens them |
 | `filters` | Filters, from the Search tab, at the app's defaults |
 | `reading` | The reader on the flow's `readerPage`, from the detail, as a preview tap opens it, with its control panel shown, as a tap on the page shows it |
-| `reading-live-text` | The reader on the flow's `liveTextPage` with Live Text on, as the reader's Live Text button leaves it, showing the fixture's Live Text record of that page with the control panel hidden |
+| `reading-live-text` | The reader on the Live Text gallery's `page` with Live Text on, as the reader's Live Text button leaves it, showing the fixture's Live Text record of that page with the control panel hidden |
 | `downloads` | The Downloads tab, listing the selection's downloads from capture-owned folders |
 | `laboratory` | Laboratory, from the Setting tab |
 
@@ -352,9 +360,9 @@ Before the app builds any state, the launch verifies the whole fixture as
 `fixtures.validate_fixtures` does: exact file set, lengths, SHA-256 digests, canonical paths, no
 links, media types, the selection digest and identity, and the aggregate digest and version.
 It also checks that the scene can be shown as configured, for example that the hero's
-`selectedIndex` is Home's starting card, 1, that the Live Text record belongs to the flow's Live
-Text page, its image and the languages the reader asks for, and that every download can be shown as
-its entry says. Any failure ends the launch with a message that names the check and the
+`selectedIndex` is Home's starting card, 1, that the Live Text record belongs to the Live Text
+gallery's page, its image and the languages the reader asks for, and that every download can be
+shown as its entry says. Any failure ends the launch with a message that names the check and the
 fixture-relative path or identifier involved, never file contents.
 
 ## Isolation
@@ -570,7 +578,7 @@ commit it.
 `MarketingCaptureUITests/testRecordLiveText` once on the pinned iPhone, in English and light
 appearance, with the `live-text-recording` scenario: the app opens the fixture's saved page in the
 reader and runs Live Text through its own recognizer, request settings and grouping. The test
-passes once the reader shows its recognition of the flow's Live Text page, with text, and attaches
+passes once the reader shows its recognition of the scene's Live Text page, with text, and attaches
 the diagnostics, whose `liveText` carries every group and line:
 
 ```sh

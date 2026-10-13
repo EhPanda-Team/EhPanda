@@ -417,6 +417,8 @@ struct MarketingFixtureBuilder: Sendable {
     var toplistsPeriods = ["yesterday", "pastMonth", "pastYear", "allTime"]
     var manifestSelectionID = "test-selection"
     var downloads = [CaptureSelection.Download]()
+    /// The gallery the reading-live-text screen shows: the flow gallery unless a test names another.
+    var liveTextGallery = "101"
     var reversesAssets = false
     /// Edits the first cover's manifest entry.
     var editAsset: @Sendable (inout [String: Any]) -> Void = { _ in }
@@ -468,7 +470,8 @@ struct MarketingFixtureBuilder: Sendable {
                         "frontpage": Self.frontpageGIDs,
                         "toplists": toplists
                     ],
-                    "flow": ["gallery": "101", "readerPage": 1, "liveTextPage": 1, "pages": [1]],
+                    "flow": ["gallery": "101", "readerPage": 1, "pages": [1]],
+                    "liveText": ["gallery": liveTextGallery, "page": 1, "pages": [1]],
                     "downloads": downloads.map { download -> [String: Any] in
                         var entry: [String: Any] = ["gallery": download.gallery, "status": download.status.rawValue]
                         entry["completedPages"] = download.completedPages

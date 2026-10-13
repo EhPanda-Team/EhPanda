@@ -63,7 +63,8 @@ def thumbnails(gid, first, last):
         f'-{(page - 1) % 20 * 100}px 0 no-repeat"></div></a>' for page in range(first, last + 1))
 
 
-def detail_html(gid, pages=60, shown=40, apiuid='-1', cover=None, title=None, body='', named=None):
+def detail_html(gid, pages=60, shown=40, apiuid='-1', cover=None, title=None, body='', named=None,
+                language='English &nbsp;'):
     named = named or (gid, token(gid))
     cover = cover or f'https://ehgt.org/w/{gid}/cover.jpg'
     return '\n'.join([
@@ -75,6 +76,7 @@ def detail_html(gid, pages=60, shown=40, apiuid='-1', cover=None, title=None, bo
         f'<div id="gd2"><h1 id="gn">{title or "Gallery " + gid}</h1><h1 id="gj"></h1></div>',
         '<div id="gmid"><div id="gdd"><table>',
         '<tr><td class="gdt1">Posted:</td><td class="gdt2">2024-01-01 00:00</td></tr>',
+        f'<tr><td class="gdt1">Language:</td><td class="gdt2">{language}</td></tr>',
         f'<tr><td class="gdt1">Length:</td><td class="gdt2">{pages} pages</td></tr></table></div></div></div>',
         f'<div class="gtb"><p class="gpc">Showing 1 - {min(shown, pages)} of {pages} images</p></div>',
         f'<div id="gdt" class="gt100">{thumbnails(gid, 1, min(shown, pages))}</div>{body}',
@@ -112,11 +114,19 @@ def selection(prefix='1', scene_set='nonexplicit'):
             'home': {'hero': {'galleries': gids[0:3], 'selectedIndex': 1}, 'frontpage': gids[3:5],
                      'toplists': {'yesterday': gids[5:8], 'pastMonth': gids[8:11], 'pastYear': gids[11:14],
                                   'allTime': gids[14:17]}},
-            'flow': {'gallery': gids[0], 'readerPage': 4, 'liveTextPage': 4, 'pages': [3, 4, 5]},
+            'flow': {'gallery': gids[0], 'readerPage': 4, 'pages': [3, 4, 5]},
+            'liveText': {'gallery': gids[0], 'page': 4, 'pages': [3, 4, 5]},
             'downloads': [{'gallery': gids[3], 'status': 'active', 'completedPages': 12},
                           {'gallery': gids[4], 'status': 'completed'}],
         }},
     }
+
+
+def read(value, pages, page):
+    """Point both readers of the nonexplicit scene, the flow's and the Live Text one's, at `page` among `pages`."""
+    scene = value['scenes']['nonexplicit']
+    scene['flow'].update(pages=pages, readerPage=page)
+    scene['liveText'].update(pages=pages, page=page)
 
 
 class Site:
@@ -125,7 +135,7 @@ class Site:
     def __init__(self, value, pages=60, shown=40):
         self.calls = []
         self.responses = {}
-        flows = {scene['flow']['gallery'] for scene in value['scenes'].values()}
+        flows = set(fixtures.reader_galleries(value))
         downloads = {entry['gallery'] for scene in value['scenes'].values() for entry in scene['downloads']}
         for gallery in value['galleries']:
             gid = gallery['url'].split('/')[4]
@@ -229,7 +239,7 @@ class AcquisitionTests(FixtureTestCase):
         self.assertIn(gallery_url('101') + '?p=0', site.calls)
 
     def test_reader_page_beyond_the_first_batch_uses_the_app_page_number(self):
-        self.selection['scenes']['nonexplicit']['flow'].update(pages=[55], readerPage=55, liveTextPage=55)
+        read(self.selection, pages=[55], page=55)
         site = Site(self.selection)
         target, _ = self.acquire(site)
         self.assertIn(gallery_url('101') + '?p=1', site.calls)
@@ -239,7 +249,7 @@ class AcquisitionTests(FixtureTestCase):
         self.assertEqual(reader_indices(manifest, 'page'), [*range(48, 54), 55, *range(57, 61)])
 
     def test_prefetch_window_crossing_a_batch_resolves_both_batches(self):
-        self.selection['scenes']['nonexplicit']['flow'].update(pages=[40], readerPage=40, liveTextPage=40)
+        read(self.selection, pages=[40], page=40)
         site = Site(self.selection)
         target, _ = self.acquire(site)
         self.assertIn(gallery_url('101') + '?p=0', site.calls)
@@ -297,6 +307,15 @@ class AcquisitionTests(FixtureTestCase):
             self.acquire(site)
         self.assert_unpublished()
 
+    def test_a_live_text_gallery_of_its_own_gets_its_own_reader_resources(self):
+        self.selection['scenes']['nonexplicit']['liveText'] = {'gallery': '102', 'page': 10, 'pages': [10]}
+        site = Site(self.selection)
+        target, _ = self.acquire(site)
+        manifest = fixtures.validate_fixtures(target)
+        self.assertEqual(reader_indices(manifest, 'page', '101'), [*range(1, 13)])
+        self.assertEqual(reader_indices(manifest, 'page', '102'), [*range(3, 9), 10, *range(12, 18)])
+        self.assertEqual(reader_indices(manifest, 'preview', '102'), [0, 1])
+
     def test_batch_size_mirrors_the_app_preview_configuration(self):
         for mode, count, expected in [('gt100', 20, 40), ('gt100', 40, 40), ('gt100', 41, 80), ('gt100', 200, 200),
                                       ('gt100', 400, 400), ('gt100', 401, 40), ('gt200', 20, 20), ('gt200', 21, 40),
@@ -306,7 +325,7 @@ class AcquisitionTests(FixtureTestCase):
         self.assertEqual([fixtures.page_number(page, 40) for page in (1, 40, 41, 80, 81)], [0, 0, 1, 1, 2])
 
     def test_reader_page_beyond_the_gallery_fails_before_publication(self):
-        self.selection['scenes']['nonexplicit']['flow'].update(pages=[4, 61], readerPage=4, liveTextPage=4)
+        read(self.selection, pages=[4, 61], page=4)
         with self.assertRaisesRegex(ValueError, 'page 61 exceeds the 60 pages'):
             self.acquire()
         self.assert_unpublished()
@@ -537,7 +556,9 @@ class SelectionTests(FixtureTestCase):
             ((*scene, 'home', 'hero'), dict(selectedIndex=True), 'selectedIndex'),
             ((*scene, 'flow'), dict(pages=[5, 3, 4]), 'ascending'),
             ((*scene, 'flow'), dict(pages=[0, 4]), 'ascending'),
-            ((*scene, 'flow'), dict(liveTextPage=9), 'liveTextPage'),
+            ((*scene, 'flow'), dict(readerPage=9), 'readerPage'),
+            ((*scene, 'liveText'), dict(pages=[4, 4]), 'ascending'),
+            ((*scene, 'liveText'), dict(page=9), 'liveText page'),
             ((*scene, 'downloads', 1), dict(status='paused'), 'status'),
             ((*scene, 'downloads', 1), dict(status=['completed']), 'status'),
             ((*scene, 'downloads', 1), dict(completedPages=3), 'completedPages'),
@@ -552,7 +573,8 @@ class SelectionTests(FixtureTestCase):
                     target = target[key]
                 target.update(change)
                 self.assert_rejected(value, message)
-        for path, key in [((*scene, 'downloads', 0), 'completedPages'), ((*scene, 'home', 'toplists'), 'allTime')]:
+        for path, key in [((*scene, 'downloads', 0), 'completedPages'), ((*scene, 'home', 'toplists'), 'allTime'),
+                          (scene, 'liveText'), ((*scene, 'liveText'), 'gallery')]:
             with self.subTest(removed=key):
                 value = selection()
                 target = value
@@ -845,7 +867,7 @@ class RecordTests(FixtureTestCase):
         repeated['groups'][1]['id'] = repeated['groups'][0]['id']
         cases = {
             'other bytes': (live_text_record(self.manifest, pageSHA256='0' * 64), 'other bytes'),
-            'not the Live Text page': (live_text_record(self.manifest, page=3), 'no flow shows Live Text on page 3'),
+            'not the Live Text page': (live_text_record(self.manifest, page=3), 'no scene shows Live Text on page 3'),
             'not the flow gallery': (live_text_record(self.manifest, gid='104', page=4), 'gallery 104'),
             'no groups': (live_text_record(self.manifest, groups=[]), 'no groups'),
             'a group without lines': (live_text_record(self.manifest, groups=[{'id': repeated['groups'][1]['id'],
