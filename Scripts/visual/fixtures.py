@@ -3,7 +3,7 @@
 A selection declares real galleries, their explicit content set and every scene slot. Acquisition
 derives the required responses and images from the galleries' own pages, mirroring the app's request
 builders and parsers, and validation repeats that derivation over the stored files. A later recording
-adds what the app's own Live Text found on each flow's Live Text page.
+adds what the app's own Live Text found on each scene's Live Text page.
 """
 import fcntl
 import hashlib
@@ -38,7 +38,7 @@ GALLERY_URL = re.compile(r'https://e-hentai\.org/g/([1-9][0-9]*)/([0-9a-f]{10})/
 PAGE_KINDS = ('detail', 'thumbnails', 'imagePage')
 IMAGE_KINDS = ('cover', 'preview', 'page')
 # Records are made rather than fetched, so they answer no replay URL: a Live Text record is what the app's own
-# recognizer found on a flow's Live Text page, saved by record-live-text.py after acquisition.
+# recognizer found on a scene's Live Text page, saved by record-live-text.py after acquisition.
 RECORD_KINDS = ('liveText',)
 RECORD_MEDIA = 'application/json'
 MEDIA = {'image/jpeg': 'jpg', 'image/png': 'png', 'image/gif': 'gif', 'image/webp': 'webp'}
@@ -97,25 +97,39 @@ def current_schema(value):
     return type(value) is int and value == SCHEMA_VERSION
 
 
+def reader_scene(value, page_key, context):
+    """A gallery a reader opens: its ID, the pages whose image the fixture holds and the page the reader shows."""
+    keys(value, ('gallery', page_key, 'pages'), context)
+    gallery_ids([value['gallery']], f'{context} gallery')
+    pages = value['pages']
+    if (not isinstance(pages, list) or not pages or not all(counting(page) and page > 0 for page in pages)
+            or pages != sorted(set(pages))):
+        raise ValueError(f'{context} pages must be ascending, unique page numbers from 1')
+    if not counting(value[page_key]) or value[page_key] not in pages:
+        raise ValueError(f'{context} {page_key} must be one of its pages')
+
+
+def reader_galleries(selection):
+    """The pages of each gallery a reader opens in any scene, the flow's and the Live Text one's together."""
+    readers = {}
+    for scene in selection['scenes'].values():
+        for value in (scene['flow'], scene['liveText']):
+            readers.setdefault(value['gallery'], set()).update(value['pages'])
+    return {gid: sorted(pages) for gid, pages in readers.items()}
+
+
 def screen_occurrences(scene, context='Scene'):
     """Every gallery occurrence of one content set's scene, by screen, as (section, slot, gid) in configured order."""
-    keys(scene, ('home', 'flow', 'downloads'), context)
-    home, flow, downloads = scene['home'], scene['flow'], scene['downloads']
+    keys(scene, ('home', 'flow', 'liveText', 'downloads'), context)
+    home, flow, live_text, downloads = scene['home'], scene['flow'], scene['liveText'], scene['downloads']
     keys(home, ('hero', 'frontpage', 'toplists'), f'{context} home')
     keys(home['hero'], ('galleries', 'selectedIndex'), f'{context} home hero')
     keys(home['toplists'], TOPLISTS, f'{context} home toplists')
     hero = gallery_ids(home['hero']['galleries'], f'{context} home hero')
     if not counting(home['hero']['selectedIndex']) or home['hero']['selectedIndex'] >= len(hero):
         raise ValueError(f'{context} home hero selectedIndex must address one of its galleries')
-    keys(flow, ('gallery', 'readerPage', 'liveTextPage', 'pages'), f'{context} flow')
-    gallery_ids([flow['gallery']], f'{context} flow gallery')
-    pages = flow['pages']
-    if (not isinstance(pages, list) or not pages or not all(counting(page) and page > 0 for page in pages)
-            or pages != sorted(set(pages))):
-        raise ValueError(f'{context} flow pages must be ascending, unique page numbers from 1')
-    for key in ('readerPage', 'liveTextPage'):
-        if not counting(flow[key]) or flow[key] not in pages:
-            raise ValueError(f'{context} flow {key} must be one of its pages')
+    reader_scene(flow, 'readerPage', f'{context} flow')
+    reader_scene(live_text, 'page', f'{context} liveText')
     if not isinstance(downloads, list):
         raise ValueError(f'{context} downloads must be a list')
     for slot, entry in enumerate(downloads):
@@ -136,8 +150,9 @@ def screen_occurrences(scene, context='Scene'):
                        for slot, gid in enumerate(gallery_ids(home['frontpage'], f'{context} home frontpage'))]
                     + [(f'toplists.{period}', slot, gid) for period in TOPLISTS
                        for slot, gid in enumerate(gallery_ids(home['toplists'][period], f'{context} toplists'))])
-    for screen in ('detail', 'comments', 'reading', 'reading-live-text'):
+    for screen in ('detail', 'comments', 'reading'):
         rows[screen] = [('flow', 0, flow['gallery'])]
+    rows['reading-live-text'] = [('liveText', 0, live_text['gallery'])]
     rows['downloads'] = [('downloads', slot, entry['gallery']) for slot, entry in enumerate(downloads)]
     return rows
 
@@ -402,12 +417,13 @@ def download_pages(entry, page_count):
 def collect(selection, retrieve):
     """Derive every required resource in declaration order; retrieve(kind, gid, index, url) returns its bytes.
 
-    A flow gallery's reader resources follow the app's reader: the preview page of every batch holding a loaded
-    page, every reader page those preview pages list, and the image of each declared page and its prefetch window.
+    A reader gallery's resources, the flow's or the Live Text one's, follow the app's reader: the preview page of
+    every batch holding a loaded page, every reader page those preview pages list, and the image of each declared
+    page and its prefetch window.
     A download entry's gallery needs the image of every page its folder holds, resolved as a download resolves it:
     the preview page of each batch holding one of those pages, and each of those pages' reader page.
     """
-    flows = {scene['flow']['gallery']: scene['flow']['pages'] for scene in selection['scenes'].values()}
+    readers = reader_galleries(selection)
     downloads = {entry['gallery']: entry for scene in selection['scenes'].values() for entry in scene['downloads']}
     for gallery in selection['galleries']:
         gid, token = GALLERY_URL.fullmatch(gallery['url']).groups()
@@ -419,11 +435,11 @@ def collect(selection, retrieve):
         identity(text, gid, token)
         retrieve('cover', gid, None, detail['cover'])
         loaded = set()
-        if gid in flows:
+        if gid in readers:
             previews = dict.fromkeys(detail['previews'][page] for page in sorted(detail['previews']))
             for index, url in enumerate(previews):
                 retrieve('preview', gid, index, url)
-            pages = flows[gid]
+            pages = readers[gid]
             if pages[-1] > detail['pageCount']:
                 raise ValueError(f'{gid}: reader page {pages[-1]} exceeds the {detail["pageCount"]} pages')
             loaded = set(reader_images(pages, detail['pageCount']))
@@ -638,13 +654,13 @@ def verify_contents(directory):
     records = [entry for entry in assets if entry['kind'] in RECORD_KINDS]
     if len(visited) + len(records) != len(assets):
         raise ValueError('Fixture manifest lists resources the selection does not require')
-    # Recording adds a Live Text record after acquisition, so a fixture holds each flow's record or none of them,
-    # and only for the page a flow shows Live Text on.
-    recordable = {(scene['flow']['gallery'], scene['flow']['liveTextPage']) for scene in selection['scenes'].values()}
+    # Recording adds a Live Text record after acquisition, so a fixture holds each scene's record or none of them,
+    # and only for the page a scene shows Live Text on.
+    recordable = {(scene['liveText']['gallery'], scene['liveText']['page']) for scene in selection['scenes'].values()}
     for entry in records:
         gid, page = entry['gid'], entry['index']
         if (gid, page) not in recordable:
-            raise ValueError(f'{entry["path"]}: no flow shows Live Text on page {page} of gallery {gid}')
+            raise ValueError(f'{entry["path"]}: no scene shows Live Text on page {page} of gallery {gid}')
         validate_live_text(json.loads(stored(entry)), gid, page, by_resource['page', gid, page]['sha256'])
     listed = {entry['path'] for entry in assets} | {'manifest.json', 'selection.json'}
     present = {str(path.relative_to(directory)) for path in directory.rglob('*') if path.is_file()}

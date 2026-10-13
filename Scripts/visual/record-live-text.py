@@ -57,12 +57,12 @@ def recording_coordinate(set_id):
     return {'screen': 'reading-live-text', 'set': set_id, 'locale': LOCALE, 'theme': THEME, 'family': FAMILY}
 
 
-def live_text_record(diagnostics, flow, manifest, device):
-    """The record of the reader's recognition of the flow's Live Text page, as the recording launch reported it."""
+def live_text_record(diagnostics, scene, manifest, device):
+    """The record of the reader's recognition of the scene's Live Text page, as the recording launch reported it."""
     live_text = diagnostics.get('liveText')
     if not isinstance(live_text, dict) or live_text.get('source') != 'recognition':
         raise ValueError("The recording reported no recognition by the reader's own Live Text")
-    gid, page = flow['gallery'], flow['liveTextPage']
+    gid, page = scene['gallery'], scene['page']
     if (live_text.get('gid'), live_text.get('page')) != (gid, page):
         raise ValueError(f'The recording read page {live_text.get("page")!r} of gallery {live_text.get("gid")!r}, '
                          f'not page {page} of gallery {gid}')
@@ -137,15 +137,15 @@ def execute(args, clock=now):
         selection = json.loads((source / 'selection.json').read_text())
         if args.set not in selection['scenes']:
             raise ValueError(f'The selection has no {args.set} scene')
-        flow = selection['scenes'][args.set]['flow']
+        scene = selection['scenes'][args.set]['liveText']
         report.update(fixtureVersion=manifest['fixtureVersion'], selectionID=manifest['selectionID'],
-                      page={'gid': flow['gallery'], 'page': flow['liveTextPage']})
+                      page={'gid': scene['gallery'], 'page': scene['page']})
         observed = environment.validate_environment(args.environment, args.output / 'environment-check')
         report['pinSHA256'] = observed['pinSHA256']
         if native.source_hashes() != native_sources or producer_hashes() != sources:
             raise ValueError('Recording sources changed during preflight')
         diagnostics, device = dispatch(args, capture, coordinate, observed, source, manifest, report)
-        record = live_text_record(diagnostics, flow, manifest, device)
+        record = live_text_record(diagnostics, scene, manifest, device)
         if native.source_hashes() != native_sources or producer_hashes() != sources:
             raise ValueError('Recording sources changed during the recording')
         if hashlib.sha256(args.environment.read_bytes()).hexdigest() != report['pinSHA256']:

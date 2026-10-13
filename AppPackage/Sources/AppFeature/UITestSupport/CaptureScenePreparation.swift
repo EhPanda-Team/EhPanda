@@ -165,8 +165,8 @@ enum CaptureScenePreparation {
                 fixtureVersion: manifest.fixtureVersion,
                 replay: replay,
                 homeClient: try galleries.homeClient(scene.home),
-                route: try galleries.route(to: scenario, flow: scene.flow),
-                liveText: try galleries.liveText(for: scenario, flow: scene.flow),
+                route: try galleries.route(to: scenario, scene: scene),
+                liveText: try galleries.liveText(for: scenario, scene: scene.liveText),
                 downloads: try galleries.downloads(for: scenario, entries: scene.downloads)
             )
         }
@@ -326,15 +326,17 @@ private struct MarketingGalleries {
         )
     }
 
-    /// The route `scenario` takes. The gallery screens show `flow`'s gallery, built exactly as Home
-    /// builds it, so the gallery a capture opens is the one its card shows; the reader opens on a
-    /// page whose image the fixture holds, and a Live Text recording opens it as the
-    /// reading-live-text screen does.
+    /// The route `scenario` takes. The gallery screens show the flow's gallery and the
+    /// reading-live-text screen the Live Text one's, each built exactly as Home builds it, so the
+    /// gallery a capture opens is the one its card shows; the reader opens on a page whose image the
+    /// fixture holds, and a Live Text recording opens it as the reading-live-text screen does.
     func route(
         to scenario: CaptureScenario,
-        flow: CaptureSelection.Flow
+        scene: CaptureSelection.Scene
     ) throws(CaptureFailure) -> AppLaunchAutomation.CaptureRoute {
-        switch scenario {
+        let flow = scene.flow
+        let liveText = scene.liveText
+        return switch scenario {
         case .screen(.home):
             .home
         case .screen(.detail):
@@ -344,9 +346,12 @@ private struct MarketingGalleries {
         case .screen(.filters):
             .filters
         case .screen(.reading):
-            .reading(try gallery(flow.gallery), page: try readerPage(flow.readerPage, of: flow))
+            .reading(try gallery(flow.gallery), page: try readerPage(flow.readerPage, of: flow.gallery, in: flow.pages))
         case .screen(.readingLiveText), .liveTextRecording:
-            .readingLiveText(try gallery(flow.gallery), page: try readerPage(flow.liveTextPage, of: flow))
+            .readingLiveText(
+                try gallery(liveText.gallery),
+                page: try readerPage(liveText.page, of: liveText.gallery, in: liveText.pages)
+            )
         case .screen(.downloads):
             .downloads
         case .screen(.laboratory):
@@ -354,7 +359,7 @@ private struct MarketingGalleries {
         }
     }
 
-    /// The Live Text a launch of `scenario` shows on `flow`'s Live Text page.
+    /// The Live Text a launch of `scenario` shows on `scene`'s page.
     ///
     /// The reading-live-text screen replays the fixture's record of that page once it proves it was
     /// recognized on the page image the fixture holds, in the languages the reader asks for, which
@@ -362,16 +367,17 @@ private struct MarketingGalleries {
     /// other screen has Live Text.
     func liveText(
         for scenario: CaptureScenario,
-        flow: CaptureSelection.Flow
+        scene: CaptureSelection.LiveText
     ) throws(CaptureFailure) -> LiveTextCapture? {
-        let page = flow.liveTextPage
+        let gid = scene.gallery
+        let page = scene.page
         switch scenario {
         case .screen(.readingLiveText):
-            let name = "page \(page) of gallery \(flow.gallery)"
-            guard let image = asset(.page, of: flow.gallery, index: page) else {
+            let name = "page \(page) of gallery \(gid)"
+            guard let image = asset(.page, of: gid, index: page) else {
                 throw .malformedScene("the fixture holds no image of \(name)")
             }
-            guard let recordAsset = asset(.liveText, of: flow.gallery, index: page),
+            guard let recordAsset = asset(.liveText, of: gid, index: page),
                   let data = files[recordAsset.path]
             else {
                 throw .malformedScene("the fixture holds no Live Text record of \(name)")
@@ -384,14 +390,14 @@ private struct MarketingGalleries {
                 throw .malformedScene("the Live Text record of \(name) does not decode: \(reason)")
             }
             let groups = try record.replayGroups(
-                gid: flow.gallery,
+                gid: gid,
                 page: page,
                 pageSHA256: image.sha256,
-                recognitionLanguages: try parsedDetail(flow.gallery).detail.language.codes
+                recognitionLanguages: try parsedDetail(gid).detail.language.codes
             )
-            return LiveTextCapture(gid: flow.gallery, page: page, source: .replay(groups))
+            return LiveTextCapture(gid: gid, page: page, source: .replay(groups))
         case .liveTextRecording:
-            return LiveTextCapture(gid: flow.gallery, page: page, source: .record)
+            return LiveTextCapture(gid: gid, page: page, source: .record)
         case .screen(.home), .screen(.detail), .screen(.comments), .screen(.filters), .screen(.reading),
              .screen(.downloads), .screen(.laboratory):
             return nil
@@ -499,9 +505,9 @@ private struct MarketingGalleries {
         return CaptureDownloads.File(data: data, fileExtension: URL(filePath: asset.path).pathExtension)
     }
 
-    private func readerPage(_ page: Int, of flow: CaptureSelection.Flow) throws(CaptureFailure) -> Int {
-        guard flow.pages.contains(page), asset(.page, of: flow.gallery, index: page) != nil else {
-            throw .malformedScene("the fixture holds no image of page \(page) of gallery \(flow.gallery)")
+    private func readerPage(_ page: Int, of gid: String, in pages: [Int]) throws(CaptureFailure) -> Int {
+        guard pages.contains(page), asset(.page, of: gid, index: page) != nil else {
+            throw .malformedScene("the fixture holds no image of page \(page) of gallery \(gid)")
         }
         return page
     }
