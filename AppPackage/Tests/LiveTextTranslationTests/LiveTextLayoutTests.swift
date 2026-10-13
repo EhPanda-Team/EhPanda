@@ -193,6 +193,213 @@ struct LiveTextLayoutTests {
         #expect(LiveTextPlateSampler.fill(around: plate, lineHeight: 10, on: bitmap) == .plate)
     }
 
+    // MARK: Balloons
+
+    /// The white balloon of ``balloonPage(art:)``, outlined 6 pixels wide.
+    private static let balloonBounds = CGRect(x: 50, y: 305, width: 600, height: 300)
+    /// The two-line group in it, its lettering black bars.
+    private static let balloonOrigin = CGPoint(x: 150, y: 400)
+
+    /// Busy art with a white, outlined balloon around the lettering of the group at ``balloonOrigin``,
+    /// and whatever else `art` draws over it, in page pixels, y down.
+    private static func balloonPage(
+        balloon: Bool = true,
+        lettering: Bool = true,
+        _ art: (CGContext) -> Void = { _ in }
+    ) throws -> CGImage {
+        try page { context in
+            for stripe in 0..<100 {
+                let shade = stripe.isMultiple(of: 2) ? 0.2 : 0.8
+                context.setFillColor(CGColor(srgbRed: shade, green: 0.5, blue: 1 - shade, alpha: 1))
+                context.fill(CGRect(x: Double(stripe) * 10, y: 0, width: 10, height: 2000))
+            }
+            if balloon {
+                context.setFillColor(CGColor(srgbRed: 1, green: 1, blue: 1, alpha: 1))
+                context.fillEllipse(in: balloonBounds)
+                context.setStrokeColor(CGColor(srgbRed: 0, green: 0, blue: 0, alpha: 1))
+                context.setLineWidth(6)
+                context.strokeEllipse(in: balloonBounds)
+            }
+            if lettering {
+                context.setFillColor(CGColor(srgbRed: 0, green: 0, blue: 0, alpha: 1))
+                for line in 0..<2 {
+                    let top = balloonOrigin.y + Double(line) * 60
+                    for left in stride(from: balloonOrigin.x + 10, to: balloonOrigin.x + 390, by: 30) {
+                        context.fill(CGRect(x: left, y: top + 8, width: 12, height: 34))
+                    }
+                }
+            }
+            art(context)
+        }
+    }
+
+    private static func balloon(on image: CGImage) throws -> LiveTextBalloon? {
+        let bitmap = try #require(LiveTextPageBitmap(image: image))
+        var finder = LiveTextBalloonFinder(bitmap: bitmap)
+        let geometry = try #require(LiveTextGroupGeometry(
+            group: try group(origin: balloonOrigin, lines: 2),
+            pageSize: pageSize
+        ))
+        return finder.balloon(
+            around: geometry.textRect,
+            margin: LiveTextTranslatedPage.plateMargin * geometry.lineHeight
+        )
+    }
+
+    /// The room the balloon has for the group at ``balloonOrigin``, centered on its lettering.
+    private static func room(in balloon: LiveTextBalloon) throws -> LiveTextOrientedRect {
+        let geometry = try #require(LiveTextGroupGeometry(
+            group: try group(origin: balloonOrigin, lines: 2),
+            pageSize: pageSize
+        ))
+        let lettering = geometry.letteringArea
+        let size = balloon.room(
+            around: lettering,
+            padding: LiveTextBalloon.padding * geometry.lineHeight,
+            avoiding: []
+        )
+        return LiveTextOrientedRect(center: lettering.center, size: size, angle: lettering.angle)
+    }
+
+    /// The pixel of `paint` at `point` in page pixels, or `nil` outside it.
+    private static func pixel(of paint: LiveTextPaint, at point: CGPoint) throws -> SIMD4<UInt8>? {
+        guard paint.rect.contains(point) else {
+            return nil
+        }
+        let space = try #require(CGColorSpace(name: CGColorSpace.sRGB))
+        var pixels = [SIMD4<UInt8>](repeating: .zero, count: paint.image.width * paint.image.height)
+        pixels.withUnsafeMutableBytes { buffer in
+            let context = CGContext(
+                data: buffer.baseAddress,
+                width: paint.image.width,
+                height: paint.image.height,
+                bitsPerComponent: 8,
+                bytesPerRow: paint.image.width * 4,
+                space: space,
+                bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue
+            )
+            context?.draw(paint.image, in: CGRect(x: 0, y: 0, width: paint.image.width, height: paint.image.height))
+        }
+        let column = Int(point.x - paint.rect.minX)
+        let row = Int(point.y - paint.rect.minY)
+        return pixels.dropFirst(row * paint.image.width + column).first
+    }
+
+    @Test
+    func letteringInABalloonFindsIt() throws {
+        let balloon = try #require(try Self.balloon(on: Self.balloonPage()))
+
+        #expect(balloon.color == .white)
+        #expect(balloon.textColor == .black)
+    }
+
+    @Test
+    func letteringOnBusyArtHasNoBalloon() throws {
+        #expect(try Self.balloon(on: Self.balloonPage(balloon: false)) == nil)
+    }
+
+    @Test
+    func letteringOnOpenPaperHasNoBalloon() throws {
+        // The page's margin reaches its edge.
+        let image = try Self.page { context in
+            context.setFillColor(CGColor(srgbRed: 0, green: 0, blue: 0, alpha: 1))
+            for left in stride(from: Self.balloonOrigin.x + 10, to: Self.balloonOrigin.x + 390, by: 30) {
+                context.fill(CGRect(x: left, y: Self.balloonOrigin.y + 8, width: 12, height: 34))
+            }
+        }
+
+        #expect(try Self.balloon(on: image) == nil)
+    }
+
+    @Test
+    func thePaintCoversOnlyTheLettering() throws {
+        let balloon = try #require(try Self.balloon(on: Self.balloonPage()))
+        let paint = try #require(balloon.paint())
+
+        // A bar, and the paper midway between it and the next, beyond the paint's fringe.
+        let glyph = try Self.pixel(of: paint, at: CGPoint(x: 166, y: 425))
+        let paper = try Self.pixel(of: paint, at: CGPoint(x: 181, y: 425))
+        #expect(glyph == SIMD4(255, 255, 255, 255))
+        #expect(paper?.w == 0)
+    }
+
+    @Test
+    func theRoomStaysInsideTheBalloon() throws {
+        let balloon = try #require(try Self.balloon(on: Self.balloonPage()))
+        let geometry = try #require(LiveTextGroupGeometry(
+            group: try Self.group(origin: Self.balloonOrigin, lines: 2),
+            pageSize: Self.pageSize
+        ))
+
+        let room = try Self.room(in: balloon)
+
+        let lettering = geometry.letteringArea.size
+        #expect(room.size.width * room.size.height > lettering.width * lettering.height)
+        // The balloon's paper, inside its outline's inner edge.
+        let radii = CGSize(width: Self.balloonBounds.width / 2 - 3, height: Self.balloonBounds.height / 2 - 3)
+        for corner in room.corners {
+            let across = (corner.x - Self.balloonBounds.midX) / radii.width
+            let down = (corner.y - Self.balloonBounds.midY) / radii.height
+            #expect(across * across + down * down <= 1)
+        }
+    }
+
+    @Test
+    func artInTheBalloonIsNeitherPaintedNorCrowded() throws {
+        // Just beyond the lettering, inside the margin a room keeps.
+        let art = CGRect(x: 560, y: 430, width: 40, height: 50)
+        let balloon = try #require(try Self.balloon(on: Self.balloonPage { context in
+            context.setFillColor(CGColor(srgbRed: 0.8, green: 0.1, blue: 0.1, alpha: 1))
+            context.fillEllipse(in: art)
+        }))
+
+        let paint = try #require(balloon.paint())
+        let room = try Self.room(in: balloon)
+
+        let artPixel = try Self.pixel(of: paint, at: CGPoint(x: art.midX, y: art.midY))
+        #expect(artPixel == nil || artPixel?.w == 0)
+        #expect(!room.expanded(by: LiveTextBalloon.padding * 50).boundingBox.intersects(art))
+    }
+
+    @Test
+    func aTranslationInItsBalloonPaintsOutItsLettering() throws {
+        let group = try Self.group(origin: Self.balloonOrigin, lines: 2)
+
+        let page = LiveTextTranslatedPage.layOut(
+            groups: [group],
+            sources: [group.id: "Where are you going?"],
+            translations: [group.id: "Wohin?"],
+            language: .init(identifier: "de"),
+            image: try Self.balloonPage()
+        )
+
+        let laidOut = try #require(page.groups.first)
+        guard case .balloon(_, let text) = laidOut.fill else {
+            Issue.record("A translation that fits its balloon paints out its lettering.")
+            return
+        }
+        #expect(text == .black)
+    }
+
+    @Test
+    func aTranslationTooLongForItsBalloonSpillsOntoAPlate() throws {
+        let group = try Self.group(origin: Self.balloonOrigin, lines: 2)
+        let text = String(repeating: "Viel zu viel Text für diese Sprechblase. ", count: 12)
+
+        let page = LiveTextTranslatedPage.layOut(
+            groups: [group],
+            sources: [group.id: "Where are you going?"],
+            translations: [group.id: text],
+            language: .init(identifier: "de"),
+            image: try Self.balloonPage()
+        )
+
+        let laidOut = try #require(page.groups.first)
+        if case .balloon = laidOut.fill {
+            Issue.record("A translation its balloon cannot hold spills past it onto a plate.")
+        }
+    }
+
     // MARK: Text
 
     private static let english = LiveTextTextStyle(language: .init(identifier: "en"))
@@ -323,8 +530,17 @@ struct LiveTextLayoutTests {
 
     // MARK: Fitting
 
+    /// A region off a balloon, growing by a quarter.
     private static func region(_ text: String, width: Double, height: Double) -> LiveTextTextFitter.Region {
-        LiveTextTextFitter.Region(id: UUID(), text: text, area: CGSize(width: width, height: height), lineHeight: 40)
+        let scale = LiveTextTextFitter.grownScale
+        return LiveTextTextFitter.Region(
+            id: UUID(),
+            text: text,
+            area: CGSize(width: width, height: height),
+            grownArea: CGSize(width: width * scale, height: height * scale),
+            spilledArea: nil,
+            lineHeight: 40
+        )
     }
 
     /// The size of the lettering the fitting regions replace, 40 pixels tall.
@@ -372,7 +588,7 @@ struct LiveTextLayoutTests {
 
         #expect(abs(result.fontSize - Self.letteringSize) < 1e-9)
         let placement = try #require(result.placements.first(where: { $0.id == hopeless.id }))
-        #expect(placement.isGrown)
+        #expect(placement.room == .grown)
         #expect(abs(placement.fontSize - result.fontSize * LiveTextTextFitter.reducedScale) < 1e-9)
     }
 
@@ -383,7 +599,7 @@ struct LiveTextLayoutTests {
 
         let result = LiveTextTextFitter.fit([roomy, tight], style: Self.english, pageWidth: 1000)
         let placement = try #require(result.placements.first(where: { $0.id == tight.id }))
-        let area = placement.isGrown ? CGSize(width: 375, height: 50) : tight.area
+        let area = tight.area(for: placement.room)
         let layout = LiveTextTextLayout(
             text: tight.text,
             style: Self.english,

@@ -50,6 +50,16 @@ public struct LiveTextOrientedRect: Equatable, Sendable {
         ]
         .map({ $0.applying(transform) })
     }
+
+    /// The upright rectangle around the corners.
+    var boundingBox: CGRect {
+        corners.reduce(CGRect.null, { $0.union(CGRect(origin: $1, size: .zero)) })
+    }
+
+    /// Whether `point`, on the page, lies in the rectangle.
+    func contains(_ point: CGPoint) -> Bool {
+        localBounds.contains(point.applying(transform.inverted()))
+    }
 }
 
 /// Where a recognized group sits on its page: the rectangle its lines fill, turned with them.

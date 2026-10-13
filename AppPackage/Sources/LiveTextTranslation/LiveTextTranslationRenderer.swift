@@ -1,8 +1,8 @@
 import CoreGraphics
 import SwiftUI
 
-/// Draws a translated page over its image: every plate first, so no plate covers a neighbor's text,
-/// then every translation.
+/// Draws a translated page over its image: every plate and every painted-out lettering first, so no
+/// paint covers a neighbor's text, then every translation.
 public enum LiveTextTranslationRenderer {
     /// The focus ring's width in view points, half of it outside the plate.
     static let focusLineWidth = 8.0
@@ -29,6 +29,8 @@ public enum LiveTextTranslationRenderer {
                 context.stroke(plate, with: .color(focusColor.opacity(0.6)), lineWidth: focusLineWidth)
             }
             switch group.fill {
+            case .balloon(let paint, _):
+                context.draw(Image(decorative: paint.image, scale: 1), in: paint.rect.applying(pageToView))
             case .background(let color, _):
                 context.fill(plate, with: .color(color.color))
             case .plate:
