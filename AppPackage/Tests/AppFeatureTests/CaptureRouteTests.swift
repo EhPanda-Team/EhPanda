@@ -60,6 +60,18 @@ struct CaptureRouteTests {
         }
     }
 
+    @Test
+    func theLiveTextScreenOpensTheLiveTextGallery() async throws {
+        let fixture = try MarketingFixtureBuilder.standard().addingFlowPage().showingLiveText(of: "102")
+        let scene = try makeScene(fixture, scenarioID: CaptureScreen.readingLiveText.rawValue)
+        let popular = try await scene.homeClient.fetchPopularGalleries(.ehentai, Filter())
+        let gallery = try #require(popular.first(where: { $0.gid == "102" }))
+
+        expectNoDifference(scene.route, .readingLiveText(gallery, page: MarketingFixtureBuilder.flowPage))
+        expectNoDifference(scene.liveText?.gid, "102")
+        expectNoDifference(scene.liveText?.page, MarketingFixtureBuilder.flowPage)
+    }
+
     @Test(arguments: [CaptureScreen.reading, .readingLiveText])
     func aReaderPageWhoseImageTheFixtureLacksIsRefused(_ screen: CaptureScreen) throws {
         let missingPage = "the fixture holds no image of page 1 of gallery \(MarketingFixtureBuilder.flowGID)"
@@ -273,6 +285,34 @@ extension MarketingFixtureBuilder {
     static let flowGID = "101"
     static let flowPage = 1
     static let flowPageData = Data("page".utf8)
+
+    /// The fixture with the reading-live-text screen on `gid` instead of the flow gallery: the image
+    /// of its page and a Live Text record of that page.
+    func showingLiveText(of gid: String) throws -> Self {
+        var fixture = self
+        fixture.liveTextGallery = gid
+        fixture.files += [
+            FixtureFile(
+                kind: .page,
+                gid: gid,
+                index: Self.flowPage,
+                url: "https://abc.hath.network/h/0001/keystamp=0;fileindex=2;xres=1280/1.webp",
+                path: "assets/\(gid)/pages/\(Self.flowPage).webp",
+                mime: "image/webp",
+                data: Self.flowPageData
+            ),
+            FixtureFile(
+                kind: .liveText,
+                gid: gid,
+                index: Self.flowPage,
+                url: nil,
+                path: "records/\(gid)/liveText/\(Self.flowPage).json",
+                mime: "application/json",
+                data: try LiveTextRecordFile(gid: gid).data()
+            )
+        ]
+        return fixture
+    }
 
     /// The standard fixture plus the image of the flow gallery's page, which the reader shows.
     func addingFlowPage() -> Self {

@@ -1,4 +1,4 @@
-"""The Live Text recorder saves only the reader's own recognition of the flow page, recorded on the pinned iPhone."""
+"""The Live Text recorder saves only the reader's own recognition of the Live Text page, on the pinned iPhone."""
 from contextlib import contextmanager
 import copy
 import hashlib
@@ -47,7 +47,7 @@ def diagnostics(manifest, live_text, **changes):
 
 
 class RecordingTestCase(FixtureTestCase):
-    """An acquired fixture output and a valid record of its flow's Live Text page."""
+    """An acquired fixture output and a valid record of its Live Text page."""
 
     def setUp(self):
         super().setUp()
@@ -55,16 +55,16 @@ class RecordingTestCase(FixtureTestCase):
         self.target, _ = self.acquire()
         self.manifest = fixtures.validate_fixtures(self.target)
         self.record = live_text_record(self.manifest, recordedOn={'model': 'iPhone Air', 'runtimeBuild': '24A434'})
-        self.flow = self.selection['scenes']['nonexplicit']['flow']
+        self.scene = self.selection['scenes']['nonexplicit']['liveText']
 
 
 class RecordTests(RecordingTestCase):
     def test_the_reader_recognition_becomes_a_record_of_its_page_image(self):
-        record = self.recorder.live_text_record(diagnostics(self.manifest, recognition(self.record)), self.flow,
+        record = self.recorder.live_text_record(diagnostics(self.manifest, recognition(self.record)), self.scene,
                                                 self.manifest, self.record['recordedOn'])
         self.assertEqual(record, self.record)
 
-    def test_anything_but_the_reader_recognition_of_the_flow_page_is_refused(self):
+    def test_anything_but_the_reader_recognition_of_the_live_text_page_is_refused(self):
         live_text = recognition(self.record)
         for name, value in [('none', None), ('replayed', {**live_text, 'source': 'fixture'}),
                             ('other page', {**live_text, 'page': 5}), ('other gallery', {**live_text, 'gid': '102'}),
@@ -73,14 +73,14 @@ class RecordTests(RecordingTestCase):
                                 {**live_text['groups'][0]['blocks'][0], 'text': ''}]}]})]:
             with self.subTest(live_text=name):
                 with self.assertRaises(ValueError):
-                    self.recorder.live_text_record(diagnostics(self.manifest, value), self.flow, self.manifest,
+                    self.recorder.live_text_record(diagnostics(self.manifest, value), self.scene, self.manifest,
                                                    self.record['recordedOn'])
 
     def test_a_page_without_its_image_cannot_be_recorded(self):
-        flow = {**self.flow, 'liveTextPage': 40, 'gallery': '101'}
+        scene = {**self.scene, 'page': 40, 'gallery': '101'}
         live_text = {**recognition(self.record), 'page': 40}
         with self.assertRaisesRegex(ValueError, 'no image of page 40'):
-            self.recorder.live_text_record(diagnostics(self.manifest, live_text), flow, self.manifest,
+            self.recorder.live_text_record(diagnostics(self.manifest, live_text), scene, self.manifest,
                                            self.record['recordedOn'])
 
 

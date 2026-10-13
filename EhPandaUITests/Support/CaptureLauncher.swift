@@ -207,6 +207,7 @@ struct CaptureFixtureSelection: Decodable, Sendable {
     struct Scene: Decodable, Sendable {
         let home: Home
         let flow: Flow
+        let liveText: LiveText
         let downloads: [Download]
     }
 
@@ -223,7 +224,11 @@ struct CaptureFixtureSelection: Decodable, Sendable {
     struct Flow: Decodable, Sendable {
         let gallery: String
         let readerPage: Int
-        let liveTextPage: Int
+    }
+
+    struct LiveText: Decodable, Sendable {
+        let gallery: String
+        let page: Int
     }
 
     struct Download: Decodable, Sendable {
@@ -392,10 +397,10 @@ struct CaptureLauncher: Sendable {
             throw CaptureLaunchError.notALiveTextCoordinate
         }
         let settled = try start(app, scenarioID: Self.liveTextRecordingID)
-        let flow = try fixture.selection.scene(coordinate.set).flow
+        let scene = try fixture.selection.scene(coordinate.set).liveText
         let liveText = settled.diagnostics.liveText
-        XCTAssertEqual(liveText?.gid, flow.gallery, "The recording read another gallery.")
-        XCTAssertEqual(liveText?.page, flow.liveTextPage, "The recording read another page.")
+        XCTAssertEqual(liveText?.gid, scene.gallery, "The recording read another gallery.")
+        XCTAssertEqual(liveText?.page, scene.page, "The recording read another page.")
         XCTAssertEqual(liveText?.source, "recognition", "The recording did not come from the reader's recognizer.")
         XCTAssertFalse(liveText?.groups.isEmpty ?? true, "The reader recognized no text to record.")
         try verify(settled.diagnostics, liveText: liveText)
@@ -439,10 +444,10 @@ struct CaptureLauncher: Sendable {
         return settled
     }
 
-    /// The Live Text the fixture recorded on the flow's Live Text page.
+    /// The Live Text the fixture recorded on the scene's Live Text page.
     private func recordedLiveText() throws -> CaptureLaunchLiveText {
-        let flow = try fixture.selection.scene(coordinate.set).flow
-        return try fixture.recordedLiveText(gid: flow.gallery, page: flow.liveTextPage)
+        let scene = try fixture.selection.scene(coordinate.set).liveText
+        return try fixture.recordedLiveText(gid: scene.gallery, page: scene.page)
     }
 
     /// Fails unless `diagnostics` show exactly the coordinate's screen with `liveText`, each gallery
@@ -474,8 +479,10 @@ struct CaptureLauncher: Sendable {
         let galleryIDs: [String] = switch coordinate.screen {
         case .home:
             try scene.home.galleryIDs()
-        case .detail, .comments, .reading, .readingLiveText:
+        case .detail, .comments, .reading:
             [scene.flow.gallery]
+        case .readingLiveText:
+            [scene.liveText.gallery]
         case .downloads:
             scene.downloads.map(\.gallery)
         case .filters, .laboratory:
@@ -485,7 +492,7 @@ struct CaptureLauncher: Sendable {
         case .reading:
             scene.flow.readerPage
         case .readingLiveText:
-            scene.flow.liveTextPage
+            scene.liveText.page
         case .home, .detail, .comments, .filters, .downloads, .laboratory:
             nil
         }

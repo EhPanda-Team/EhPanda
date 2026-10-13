@@ -38,8 +38,21 @@ def comments(document):
     return rows
 
 
+def language(document):
+    """The language the detail page's Language row names, and whether the row marks the gallery as a translation."""
+    gdd = document.first('div', id='gdd') or fixtures.Node('div', {})
+    row = next((row for row in gdd.walk() if row.tag == 'tr'
+                and fixtures.text_of(row.first('td', **{'class': 'gdt1'})).strip() == 'Language:'), None)
+    cell = row.first('td', **{'class': 'gdt2'}) if row else None
+    if cell is None:
+        return {'name': None, 'translated': False}
+    marker = cell.first('span', **{'class': 'halp'})
+    return {'name': next(iter(fixtures.text_of(cell).split()), None),
+            'translated': fixtures.text_of(marker).strip() == 'TR'}
+
+
 def gallery_records(directory, manifest, selection):
-    """Title, page count, cover and comments of every declared gallery, read from its saved detail page."""
+    """Title, language, page count, cover and comments of every declared gallery, read from its saved detail page."""
     entries = {(entry['kind'], entry['gid'], entry['index']): entry for entry in manifest['assets']}
     records = {}
     for gallery in selection['galleries']:
@@ -48,6 +61,7 @@ def gallery_records(directory, manifest, selection):
         document = fixtures.parse_html(text)
         records[gid] = {'gid': gid, 'url': gallery['url'], 'set': gallery['set'],
                         'title': fixtures.text_of(document.first('h1', id='gn')).strip(),
+                        'language': language(document),
                         'pageCount': fixtures.parse_detail(text)['pageCount'],
                         'cover': entries['cover', gid, None]['path'], 'comments': comments(document)}
     return records, entries
@@ -69,6 +83,12 @@ def composition_problems(scene, records):
     flow = scene['flow']
     if not any(comment['text'] for comment in records[flow['gallery']]['comments']):
         problems.append(f'comments gallery {flow["gallery"]} has no readable saved comment')
+    live_text = scene['liveText']['gallery']
+    if live_text == flow['gallery']:
+        problems.append(f'Live Text gallery {live_text} must be another gallery than the flow gallery')
+    if records[live_text]['language'] != {'name': 'English', 'translated': False}:
+        problems.append(f'Live Text gallery {live_text} must be an English original, not '
+                        + describe_language(records[live_text]['language']))
     downloads = scene['downloads']
     if len(downloads) < 2:
         problems.append(f'downloads needs at least two items; it has {len(downloads)}')
@@ -79,8 +99,18 @@ def composition_problems(scene, records):
     return problems
 
 
+def describe_language(value):
+    name = value['name'] or 'an unnamed language'
+    return f'a translation into {name}' if value['translated'] else name
+
+
+def reader_pages(reader, entries):
+    return [{'page': page, 'image': entries['page', reader['gallery'], page]['path'],
+             'url': entries['page', reader['gallery'], page]['url']} for page in reader['pages']]
+
+
 def scene_ledger(name, scene, records, entries):
-    flow = scene['flow']
+    flow, live_text = scene['flow'], scene['liveText']
     occurrences = {screen: [{'section': section, 'slot': slot, 'gid': gid, 'title': records[gid]['title'],
                              'url': records[gid]['url'], 'cover': records[gid]['cover']}
                             for section, slot, gid in rows]
@@ -94,9 +124,10 @@ def scene_ledger(name, scene, records, entries):
                  'toplists': {period: [{'ranking': ranking, 'gid': gid}
                                        for ranking, gid in enumerate(home['toplists'][period], 1)]
                               for period in fixtures.TOPLISTS}},
-        'flow': {'gallery': flow['gallery'], 'readerPage': flow['readerPage'], 'liveTextPage': flow['liveTextPage'],
-                 'pages': [{'page': page, 'image': entries['page', flow['gallery'], page]['path'],
-                            'url': entries['page', flow['gallery'], page]['url']} for page in flow['pages']]},
+        'flow': {'gallery': flow['gallery'], 'readerPage': flow['readerPage'], 'pages': reader_pages(flow, entries)},
+        'liveText': {'gallery': live_text['gallery'], 'page': live_text['page'],
+                     'language': records[live_text['gallery']]['language'],
+                     'pages': reader_pages(live_text, entries)},
         'comments': records[flow['gallery']]['comments'],
         'downloads': [dict(entry, slot=slot, pageCount=records[entry['gallery']]['pageCount'],
                            displayPriority=fixtures.DOWNLOAD_STATUSES[entry['status']])
@@ -106,7 +137,7 @@ def scene_ledger(name, scene, records, entries):
 
 
 def unresolved(selection):
-    inputs = [f'{name}: no scene declared (galleries, Home slots, flow gallery and pages, downloads)'
+    inputs = [f'{name}: no scene declared (galleries, Home slots, flow and Live Text galleries and pages, downloads)'
               for name in fixtures.SETS if name not in selection['scenes']]
     if (selection['selectionStatus'], selection['selectionAuthority']) != ('final', 'owner'):
         inputs.append(f'final selection: the active selection is {selection["selectionStatus"]} with '
@@ -126,7 +157,8 @@ def review(path):
         'schemaVersion': 1,
         'fixture': {key: manifest[key] for key in ('fixtureVersion', 'aggregateDigest', 'acquiredAt')},
         'selection': {key: selection[key] for key in ('selectionID', 'selectionStatus', 'selectionAuthority')},
-        'galleries': [{key: records[gid][key] for key in ('gid', 'url', 'set', 'title', 'pageCount', 'cover')}
+        'galleries': [{key: records[gid][key] for key in ('gid', 'url', 'set', 'title', 'language', 'pageCount',
+                                                          'cover')}
                       for gid in records],
         'sets': scenes,
         'valid': not any(scene['problems'] for scene in scenes.values()),
@@ -136,7 +168,7 @@ def review(path):
     }
 
 
-FLOW_SCREENS = ('detail', 'comments', 'reading', 'reading-live-text')
+FLOW_SCREENS = ('detail', 'comments', 'reading')
 
 
 def contact_sheet(ledger, fixture_root):
@@ -146,6 +178,9 @@ def contact_sheet(ledger, fixture_root):
     def image(path, label):
         return (f'<figure><img src="{escape(f"{fixture_root}/{path}")}" alt="{escape(label)}" loading="lazy">'
                 f'<figcaption>{escape(label)}</figcaption></figure>')
+
+    def page_label(page, shown, role):
+        return f'page {page["page"]}' + (f' ({role})' if page['page'] == shown else '')
     selection = ledger['selection']
     parts = ['<!doctype html><meta charset="utf-8"><title>Marketing selection review</title>',
              '<style>:root{color-scheme:light dark}body{font:14px system-ui;margin:16px}'
@@ -163,12 +198,16 @@ def contact_sheet(ledger, fixture_root):
         flow = scene['screens']['detail'][0]
         parts.append(f'<h3>{escape(", ".join(FLOW_SCREENS))}</h3>')
         parts.append(image(flow['cover'], f'{flow["gid"]} {flow["title"]}'))
-        for page in scene['flow']['pages']:
-            roles = [role for role, key in (('reader', 'readerPage'), ('Live Text', 'liveTextPage'))
-                     if scene['flow'][key] == page['page']]
-            parts.append(image(page['image'], f'page {page["page"]}' + (f' ({", ".join(roles)})' if roles else '')))
+        parts += [image(page['image'], page_label(page, scene['flow']['readerPage'], 'reader'))
+                  for page in scene['flow']['pages']]
         parts += [f'<p><b>{escape(comment["author"])}</b> {escape(comment["posted"])}<br>{escape(comment["text"])}</p>'
                   for comment in scene['comments']]
+        live_text = scene['screens']['reading-live-text'][0]
+        parts.append('<h3>reading-live-text</h3>')
+        parts.append(image(live_text['cover'], f'{live_text["gid"]} {live_text["title"]} '
+                                               f'({describe_language(scene["liveText"]["language"])})'))
+        parts += [image(page['image'], page_label(page, scene['liveText']['page'], 'Live Text'))
+                  for page in scene['liveText']['pages']]
         parts.append('<h3>downloads</h3>')
         for row, entry in zip(scene['screens']['downloads'], scene['downloads']):
             progress = entry.get('completedPages', entry['pageCount'])

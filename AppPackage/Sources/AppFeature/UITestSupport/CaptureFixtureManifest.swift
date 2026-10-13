@@ -103,6 +103,7 @@ struct CaptureSelection: Equatable, Sendable, Decodable {
     struct Scene: Equatable, Sendable, Decodable {
         let home: Home
         let flow: Flow
+        let liveText: LiveText
         /// The galleries the Downloads screen lists, in display order.
         let downloads: [Download]
     }
@@ -114,8 +115,15 @@ struct CaptureSelection: Equatable, Sendable, Decodable {
         let pages: [Int]
         /// The page the normal reader shows.
         let readerPage: Int
+    }
+
+    /// The gallery the reading-live-text screen shows, and the pages of it the fixture holds.
+    struct LiveText: Equatable, Sendable, Decodable {
+        let gallery: String
+        /// The pages whose image the fixture holds, in reading order.
+        let pages: [Int]
         /// The page the reader shows with Live Text active.
-        let liveTextPage: Int
+        let page: Int
     }
 
     struct Home: Equatable, Sendable, Decodable {
