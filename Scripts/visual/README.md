@@ -339,8 +339,8 @@ which the launch opens through the app's own navigation:
 | `detail` | The selection's flow gallery, opened from Home |
 | `comments` | The flow gallery's comments, from its detail once it loads, as Show All opens them |
 | `filters` | Filters, from the Search tab, at the app's defaults |
-| `reading` | The reader on the flow's `readerPage`, from the detail, as a preview tap opens it |
-| `reading-live-text` | The reader on the flow's `liveTextPage` with Live Text on, as the reader's Live Text button leaves it, showing the fixture's Live Text record of that page |
+| `reading` | The reader on the flow's `readerPage`, from the detail, as a preview tap opens it, with its control panel shown, as a tap on the page shows it |
+| `reading-live-text` | The reader on the flow's `liveTextPage` with Live Text on, as the reader's Live Text button leaves it, showing the fixture's Live Text record of that page with the control panel hidden |
 | `downloads` | The Downloads tab, listing the selection's downloads from capture-owned folders |
 | `laboratory` | Laboratory, from the Setting tab |
 
@@ -366,10 +366,8 @@ A capture launch replaces, before the first store exists:
 - cookies, analytics, clipboard and logs with inert clients, and downloads with a client that only
   lists the scene's seeded download folders and changes nothing;
 - the clock with 2025-01-01T00:00:00Z and identifiers with an incrementing sequence;
-- the settings with the app's defaults, except that the network bypass is on and the reader pages
-  horizontally (`readingDirection = .leftToRight`): the vertical reader settles at an offset that
-  depends on when the pages above its current page load, while the paging reader frames the page
-  the same way on every run;
+- the settings with the app's defaults, except that the network bypass is on; the reader is the
+  default vertical one (owner decision, 2026-10-13);
 - Home's gallery client with the selection's galleries in configured order, parsed by the app's
   own parser from the saved detail pages;
 - every HTTP(S) request with an exact replay of the fixture: a `GET` of a listed URL gets that
@@ -406,6 +404,7 @@ UI tests read the capture's state from one invisible accessibility element, iden
 | `fixtureVersion` | The fixture version directory name |
 | `galleryIDs` | The galleries the screen shows, in display order |
 | `page` | The reader page shown; absent outside the reader |
+| `showsPanel` | Whether the reader shows its control panel; absent outside the reader |
 | `readiness` | `loading`, `ready` or `failed` |
 | `pendingImages` | Images the replay delivered that no image cache holds yet |
 | `unknownRequests` | Requests the replay refused, as `METHOD URL` |
