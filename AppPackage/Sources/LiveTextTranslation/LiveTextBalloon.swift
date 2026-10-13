@@ -3,107 +3,186 @@ import Foundation
 
 /// The closed region of one color a group's lettering sits in: a speech balloon, a caption box, a
 /// panel's plain background. Its lettering is painted out with the colors around it, which leaves the
-/// balloon whole, outline and all, and the translation is set in the room the balloon has.
+/// balloon whole, outline and all, and the translation is set in the room the balloon has, its lines
+/// following the balloon's shape.
+///
+/// Groups lettered in one balloon share it: each has the part nearer its own lettering than any
+/// other's.
 struct LiveTextBalloon {
-    /// How far a translation stays from anything in its balloon that is not paper, such as the outline
-    /// or other lettering, in line heights: about the room a letterer leaves.
-    static let padding = 0.3
-    /// The largest speck, such as dust or noise in the paper, which a room may cover: a hole in the
-    /// paper no larger than a square this share of a line height on a side.
+    /// How far a translation stays from anything in its balloon it may not cover, such as the outline,
+    /// art, or other lettering, in line heights: about as close as a letterer sets lettering.
+    static let padding = 0.15
+    /// How far past its lettering's bounds a hole in the paper may reach and still be one of its
+    /// glyphs, in line heights: the bounds Vision finds hug the lettering.
+    static let glyphReach = 0.3
+    /// The largest speck, such as dust or noise in the paper, which a translation may cover: a hole in
+    /// the paper no larger than a square this share of a line height on a side.
     static let speckSize = 0.1
-    /// How far beyond the lettering's glyphs their paint reaches, in bitmap pixels, so it covers their
+    /// How far, in line heights, a speck lies from any other hole in the paper but the group's glyphs:
+    /// dust lies alone, where a dot of punctuation Vision did not read, which a translation must leave
+    /// be, comes in a row or beside a glyph.
+    static let speckSpacing = 0.5
+    /// How far beyond the glyphs their paint reaches, in bitmap pixels, so it covers their
     /// anti-aliased edges, which pass for paper.
     static let fringe = 2
-    /// Halvings of the search for a room's width or height: under a 1/4000 of the balloon's.
-    private static let searchSteps = 12
-    /// The widths rooms are found at, evenly up to the widest.
-    private static let roomWidths = 8
 
     /// The balloon's paper color.
     let color: LiveTextColor
-    fileprivate let region: LiveTextBalloonRegion
-    /// The numbers of the holes in the paper that are this group's lettering.
-    fileprivate let glyphs: Set<Int32>
-    fileprivate let bitmap: LiveTextPageBitmap
+    /// The bounds of the group's lettering, in page pixels.
+    private let lettering: LiveTextOrientedRect
+    /// The bounds of the lettering of the other groups in the balloon.
+    private let rivals: [LiveTextOrientedRect]
+    /// The height of the group's lines, in page pixels.
+    private let lineHeight: Double
+    private let region: LiveTextBalloonRegion
+    private let bitmap: LiveTextPageBitmap
+    /// The numbers of the holes in the paper that are the group's glyphs.
+    private let glyphs: Set<Int32>
+    /// The numbers of the holes in the paper that are specks.
+    private let specks: Set<Int32>
+
+    fileprivate init(
+        color: LiveTextColor,
+        lettering: LiveTextOrientedRect,
+        rivals: [LiveTextOrientedRect],
+        lineHeight: Double,
+        region: LiveTextBalloonRegion,
+        bitmap: LiveTextPageBitmap
+    ) {
+        self.color = color
+        self.lettering = lettering
+        self.rivals = rivals
+        self.lineHeight = lineHeight
+        self.region = region
+        self.bitmap = bitmap
+        let grown = lettering.expanded(by: Self.glyphReach * lineHeight)
+        let glyphs = Set(region.holeBoxes.filter { _, box in
+            box.corners(in: bitmap).allSatisfy(grown.contains)
+                && Self.isNearer(box.center(in: bitmap), to: lettering, than: rivals)
+        }.keys)
+        let side = Self.speckSize * lineHeight * bitmap.horizontalScale
+        let spacing = Int((Self.speckSpacing * lineHeight * bitmap.horizontalScale).rounded(.up))
+        let others = region.holeBoxes.filter({ !glyphs.contains($0.key) })
+        specks = Set(others.filter { hole, box in
+            let isSmall = region.holeSizes[hole].map({ Double($0) <= side * side }) ?? false
+            let surroundings = box.expanded(by: spacing)
+            return isSmall && !others.contains(where: { $0.key != hole && $0.value.intersection(surroundings) != nil })
+        }.keys)
+        self.glyphs = glyphs
+    }
 
     /// The color a translation is set in: black or white, whichever stands out more.
     var textColor: LiveTextColor {
         color.contrast(with: .white) > color.contrast(with: .black) ? .white : .black
     }
 
-    /// The spaces, centered where `area` is and turned with it, that the balloon has free of everything
-    /// but paper and this group's lettering, `padding` page pixels clear of the rest and of `others`:
-    /// the tallest at each of several widths, widest first, each taller than the ones before it.
+    /// The room the balloon has for the group's translation: at each height, how far the paper, which
+    /// the group's glyphs and specks count as, reaches either way from the room's axis.
     ///
-    /// The widest is found a `lineHeight` tall. A turned room is measured by its upright bounds, which
-    /// only ever underestimates it.
-    func rooms(
-        around area: LiveTextOrientedRect,
-        lineHeight: Double,
-        padding: Double,
-        avoiding others: [LiveTextOrientedRect]
-    ) -> [CGSize] {
-        let speckSide = Self.speckSize * lineHeight * bitmap.horizontalScale
-        let table = LiveTextFreeTable(
-            balloon: self,
-            largestSpeck: Int(speckSide * speckSide),
-            blocking: others.map(bitmapBox(of:))
-        )
-        func fits(width: Double, height: Double) -> Bool {
-            let room = LiveTextOrientedRect(
-                center: area.center,
-                size: CGSize(width: width, height: height),
-                angle: area.angle
-            )
-            let box = bitmapBox(of: room.expanded(by: padding))
-            return table.freeCount(in: box) == box.count
+    /// The axis runs down the middle of the paper beside the lettering, so a translation sits in the
+    /// middle of its share of the balloon, as lettering is set, even where the letterer crowded one
+    /// side. It stays within the lettering's bounds, so in a balloon as large as a panel's plain
+    /// background a translation keeps to where its lettering was. The room centers at the lettering's
+    /// own height, where its letterer centered it in the balloon.
+    func room() -> LiveTextBalloonRoom {
+        let padding = Self.padding * lineHeight
+        // Rows, and the points along them, a bitmap pixel apart at most.
+        let step = 1 / Swift.max(bitmap.horizontalScale, bitmap.verticalScale)
+        // Points measured across and down from the lettering's center, turned with it.
+        let toPage = lettering.transform
+        func isFree(across distance: Double, down depth: Double) -> Bool {
+            isRoom(at: CGPoint(x: distance, y: depth).applying(toPage))
         }
-        func largest(upTo limit: Double, where isFitting: (Double) -> Bool) -> Double {
-            var fitting = 0.0
-            var failing = limit
-            for _ in 0..<Self.searchSteps {
-                let middle = (fitting + failing) / 2
-                if isFitting(middle) {
-                    fitting = middle
-                } else {
-                    failing = middle
-                }
+        let corners = region.box.corners(in: bitmap).map({ $0.applying(toPage.inverted()) })
+        guard let top = corners.map(\.y).min(),
+              let bottom = corners.map(\.y).max(),
+              let farthest = corners.map({ abs($0.x) }).max()
+        else {
+            return LiveTextBalloonRoom(axis: 0, reaches: [], top: 0, rowStep: step, padding: padding)
+        }
+        // How many points in a row, `step` apart from `start` one way, are free.
+        func run(down depth: Double, from start: Double, by stride: Double) -> Int {
+            var count = 0
+            while abs(start + Double(count) * stride) <= farthest,
+                  isFree(across: start + Double(count) * stride, down: depth) {
+                count += 1
             }
-            return fitting
+            return count
         }
 
-        let widthLimit = Double(region.box.width) / bitmap.horizontalScale
-        let heightLimit = Double(region.box.height) / bitmap.verticalScale
-        let widest = largest(upTo: widthLimit) { fits(width: $0, height: lineHeight) }
-        guard widest > 0 else {
-            return []
+        // The paper in a row either way from the lettering's center, when a line through it fits there.
+        func span(atRow rowNumber: Int) -> ClosedRange<Double>? {
+            let depth = Double(rowNumber) * step
+            let right = Double(run(down: depth, from: 0, by: step) - 1) * step
+            let left = Double(run(down: depth, from: -step, by: -step)) * step
+            return Swift.min(left, right) > padding ? -left...right : nil
         }
-        var rooms = [CGSize]()
-        for step in (1...Self.roomWidths).reversed() {
-            let width = widest * Double(step) / Double(Self.roomWidths)
-            let height = largest(upTo: heightLimit) { fits(width: width, height: $0) }
-            if height > rooms.last?.height ?? 0 {
-                rooms.append(CGSize(width: width, height: height))
+        // The rows a line through the lettering's center could take, as far up and down as one could.
+        var rowsAbove = [(depth: Double, span: ClosedRange<Double>)]()
+        for rowNumber in stride(from: 0, through: Int((top / step).rounded(.down)), by: -1) {
+            guard let span = span(atRow: rowNumber) else {
+                break
             }
+            rowsAbove.append((depth: Double(rowNumber) * step, span: span))
         }
-        return rooms
+        var rowsBelow = [(depth: Double, span: ClosedRange<Double>)]()
+        for rowNumber in stride(from: 1, through: Int((bottom / step).rounded(.up)), by: 1) {
+            guard let span = span(atRow: rowNumber) else {
+                break
+            }
+            rowsBelow.append((depth: Double(rowNumber) * step, span: span))
+        }
+        let rows = rowsAbove.reversed() + rowsBelow
+
+        // The axis most of them center on: a median, so neither a tail nor a neck into a balloon joined
+        // to this one draws the room off its own.
+        let midpoint = rows.map({ ($0.span.lowerBound + $0.span.upperBound) / 2 }).median ?? 0
+        let axis = Swift.min(Swift.max(midpoint, -lettering.size.width / 2), lettering.size.width / 2)
+
+        let firstRow = Int((top / step).rounded(.down))
+        let lastRow = Int((bottom / step).rounded(.up))
+        let reaches = (firstRow...lastRow).map { rowNumber in
+            let depth = Double(rowNumber) * step
+            var reached = 0
+            while Double(reached) * step <= 2 * farthest,
+                  isFree(across: axis + Double(reached) * step, down: depth),
+                  isFree(across: axis - Double(reached) * step, down: depth) {
+                reached += 1
+            }
+            return Double(reached - 1) * step
+        }
+        return LiveTextBalloonRoom(
+            axis: axis,
+            reaches: reaches,
+            top: Double(firstRow) * step,
+            rowStep: step,
+            padding: padding
+        )
     }
 
-    /// The group's lettering painted out: its glyphs and their fringe, in the colors of the paper
-    /// around them, filled in from the outside, so a gradient or a texture in the paper carries on.
-    func paint() -> LiveTextPaint? {
-        let glyphBoxes = glyphs.compactMap({ region.holeBoxes[$0]?.expanded(by: Self.fringe) })
-        guard let firstBox = glyphBoxes.first,
-              let paintBox = glyphBoxes.dropFirst().reduce(firstBox, { $0.union($1) }).intersection(region.box)
+    /// The group's lettering painted out, and the specks its translation covers, which sits in `area`:
+    /// their pixels and their fringe, in the colors of the paper around them, filled in from the
+    /// outside, so a gradient or a texture in the paper carries on.
+    func paint(clearing area: LiveTextOrientedRect) -> LiveTextPaint? {
+        let areaBox = LiveTextPixelBox(covering: area, in: bitmap)
+        let coveredSpecks = specks.filter { speck in
+            region.holeBoxes[speck].map { box in
+                box.intersection(areaBox) != nil && isOwn(box.center(in: bitmap))
+            } ?? false
+        }
+        let holes = glyphs.union(coveredSpecks)
+        let holeBoxes = holes.compactMap({ region.holeBoxes[$0]?.expanded(by: Self.fringe) })
+        guard let firstBox = holeBoxes.first,
+              let paintBox = holeBoxes.dropFirst().reduce(firstBox, { $0.union($1) }).intersection(region.box)
         else {
             return nil
         }
 
-        // Every pixel to paint: a glyph's, or one of paper within the fringe of one.
+        // Every pixel to paint: a hole's, or one of paper within the fringe of one.
         var isPainted = [Bool](repeating: false, count: paintBox.count)
         for row in paintBox.minRow...paintBox.maxRow {
             for column in paintBox.minColumn...paintBox.maxColumn
-            where glyphs.contains(region.hole(column: column, row: row)) {
+            where holes.contains(region.hole(column: column, row: row)) {
                 guard let near = LiveTextPixelBox(column: column, row: row)
                     .expanded(by: Self.fringe)
                     .intersection(paintBox)
@@ -111,7 +190,9 @@ struct LiveTextBalloon {
                     continue
                 }
                 for nearRow in near.minRow...near.maxRow {
-                    for nearColumn in near.minColumn...near.maxColumn where isFree(column: nearColumn, row: nearRow) {
+                    for nearColumn in near.minColumn...near.maxColumn
+                    where region.isPaper(column: nearColumn, row: nearRow)
+                        || holes.contains(region.hole(column: nearColumn, row: nearRow)) {
                         isPainted[paintBox.index(column: nearColumn, row: nearRow)] = true
                     }
                 }
@@ -126,14 +207,99 @@ struct LiveTextBalloon {
         )
     }
 
-    /// Whether the pixel is the balloon's paper or this group's lettering, which its paint may cover.
-    fileprivate func isFree(column: Int, row: Int) -> Bool {
-        region.isPaper(column: column, row: row) || glyphs.contains(region.hole(column: column, row: row))
+    /// Whether a translation may cover `point`, in page pixels: the balloon's paper, the group's
+    /// glyphs, or a speck, nearer the group's lettering than any other's.
+    private func isRoom(at point: CGPoint) -> Bool {
+        let pixel = point.applying(bitmap.pageToBitmap)
+        let column = Int(pixel.x.rounded(.down))
+        let row = Int(pixel.y.rounded(.down))
+        let hole = region.hole(column: column, row: row)
+        guard region.isPaper(column: column, row: row) || glyphs.contains(hole) || specks.contains(hole) else {
+            return false
+        }
+        return isOwn(point)
     }
 
-    /// The bitmap pixels covering `rect`'s upright bounds, which may reach beyond the bitmap.
-    private func bitmapBox(of rect: LiveTextOrientedRect) -> LiveTextPixelBox {
-        LiveTextPixelBox(covering: rect, in: bitmap)
+    /// Whether `point`, in page pixels, lies in the group's share of the balloon.
+    private func isOwn(_ point: CGPoint) -> Bool {
+        Self.isNearer(point, to: lettering, than: rivals)
+    }
+
+    /// Whether `point` lies no farther from `lettering` than from any of `rivals`.
+    private static func isNearer(
+        _ point: CGPoint,
+        to lettering: LiveTextOrientedRect,
+        than rivals: [LiveTextOrientedRect]
+    ) -> Bool {
+        let distance = lettering.distance(to: point)
+        return !rivals.contains(where: { $0.distance(to: point) < distance })
+    }
+}
+
+/// The room a balloon has for a translation, turned with the lettering it replaces: at each height,
+/// how far the balloon's paper reaches either way from the room's axis before something the
+/// translation may not cover. Its center lies on the axis, at the lettering's center's height.
+struct LiveTextBalloonRoom: Equatable {
+    /// How far across from the lettering's center the axis runs, which the lines center on.
+    let axis: Double
+    /// How far the room reaches either way from its axis, row by row down from `top`; negative where
+    /// it does not hold the axis.
+    let reaches: [Double]
+    /// How far below the center the first row lies; negative above it.
+    let top: Double
+    /// The distance from one row to the next.
+    let rowStep: Double
+    /// How far a line stays from what bounds the room.
+    let padding: Double
+
+    /// The height of the tallest block of lines centered on the center that fits between the first
+    /// row and the last, `padding` clear of both.
+    var height: Double {
+        let bottom = top + Double(reaches.count - 1) * rowStep
+        return Swift.max(0, 2 * (Swift.min(-top, bottom) - padding))
+    }
+
+    /// How wide a line between `lineTop` and `lineBottom`, measured down from the center, may be,
+    /// `padding` clear of what bounds the room on every side; 0 where none fits.
+    func width(from lineTop: Double, to lineBottom: Double) -> Double {
+        let first = Int(((lineTop - padding - top) / rowStep).rounded(.down))
+        let last = Int(((lineBottom + padding - top) / rowStep).rounded(.up))
+        guard first >= 0, first <= last, last < reaches.count, let reach = reaches[first...last].min() else {
+            return 0
+        }
+        return Swift.max(0, 2 * (reach - padding))
+    }
+
+    /// `text` set at `fontSize` in as few lines as the room holds it in, without breaking a word: each
+    /// line as wide as the room is where it lies, and the lines centered on the room's center; `nil`
+    /// when the room holds it in none. Measurements down are from the room's center.
+    func setting(of text: String, style: LiveTextTextStyle, fontSize: Double) -> LiveTextTextSetting? {
+        let lineHeight = LiveTextTextLayout.lineHeight(of: text, style: style, fontSize: fontSize)
+        guard lineHeight > 0, height >= lineHeight else {
+            return nil
+        }
+        let mostLines = Int((height / lineHeight).rounded(.up))
+        for count in 1...mostLines where Double(count) * lineHeight <= height {
+            let blockTop = -Double(count) * lineHeight / 2
+            let widths = (0..<count).map { line in
+                width(from: blockTop + Double(line) * lineHeight, to: blockTop + Double(line + 1) * lineHeight)
+            }
+            guard widths.allSatisfy({ $0 > 0 }) else {
+                continue
+            }
+            let layout = LiveTextTextLayout(text: text, style: style, fontSize: fontSize, widths: widths)
+            guard layout.lines.count <= count, !layout.breaksWord else {
+                continue
+            }
+            // Fewer lines than there are bands take the top ones, whose widths they were set in.
+            let lineWidths = Array(widths.prefix(layout.lines.count))
+            return LiveTextTextSetting(
+                lineWidths: lineWidths,
+                area: CGSize(width: lineWidths.max() ?? 0, height: layout.height),
+                center: CGPoint(x: axis, y: blockTop + layout.height / 2)
+            )
+        }
+        return nil
     }
 }
 
@@ -261,13 +427,18 @@ struct LiveTextBalloonFinder {
         reached = [Int32](repeating: 0, count: bitmap.width * bitmap.height)
     }
 
-    /// The balloon the lettering in `area` sits in, or `nil` when it sits on open paper or busy art.
+    /// The balloon the group whose lines `lettering` bounds sits in, or `nil` when it sits on open
+    /// paper or busy art. `others` bound the page's other groups, those lettered in the balloon too
+    /// among them.
     ///
-    /// Its paper is the color most of `area` is; the balloon is where that paper, flooded from `area`,
-    /// spreads. A hole the paper closes around is the group's lettering when it lies within `area`
-    /// grown by `margin` page pixels.
-    mutating func balloon(around area: LiveTextOrientedRect, margin: Double) -> LiveTextBalloon? {
-        let pixels = LiveTextPixelBox(covering: area, in: bitmap).pixels(in: area, of: bitmap)
+    /// Its paper is the color most of `lettering` is; the balloon is where that paper, flooded from
+    /// `lettering`, spreads.
+    mutating func balloon(
+        around lettering: LiveTextOrientedRect,
+        lineHeight: Double,
+        among others: [LiveTextOrientedRect]
+    ) -> LiveTextBalloon? {
+        let pixels = LiveTextPixelBox(covering: lettering, in: bitmap).pixels(in: lettering, of: bitmap)
         guard let paper = Self.median(of: pixels.map({ bitmap[pixel: $0] })) else {
             return nil
         }
@@ -289,9 +460,21 @@ struct LiveTextBalloonFinder {
         else {
             return nil
         }
-        let grown = area.expanded(by: margin)
-        let glyphs = region.holeBoxes.filter({ $0.value.corners(in: bitmap).allSatisfy(grown.contains) }).keys
-        return LiveTextBalloon(color: LiveTextColor(paper), region: region, glyphs: Set(glyphs), bitmap: bitmap)
+        let bitmap = bitmap
+        let rivals = others.filter { other in
+            let center = other.center.applying(bitmap.pageToBitmap)
+            let column = Int(center.x.rounded(.down))
+            let row = Int(center.y.rounded(.down))
+            return region.isPaper(column: column, row: row) || region.hole(column: column, row: row) > 0
+        }
+        return LiveTextBalloon(
+            color: LiveTextColor(paper),
+            lettering: lettering,
+            rivals: rivals,
+            lineHeight: lineHeight,
+            region: region,
+            bitmap: bitmap
+        )
     }
 
     /// Floods the pixels of `color` connected to `seed`, and returns the flood's number.
@@ -445,60 +628,6 @@ private struct LiveTextBalloonRegion {
     }
 }
 
-/// How many of a balloon's pixels are free for a translation within any box, read in constant time
-/// from running sums: its paper, the group's lettering, and specks no larger than `largestSpeck` pixels,
-/// outside the `blocked` boxes.
-private struct LiveTextFreeTable {
-    private let box: LiveTextPixelBox
-    /// The free pixels above and to the left of each corner of `box`'s pixels, row by row.
-    private let sums: [Int]
-
-    init(balloon: LiveTextBalloon, largestSpeck: Int, blocking blocked: [LiveTextPixelBox]) {
-        let region = balloon.region
-        let box = region.box
-        var isFree = [Bool](repeating: false, count: box.count)
-        for row in box.minRow...box.maxRow {
-            for column in box.minColumn...box.maxColumn {
-                let holeSize = region.holeSizes[region.hole(column: column, row: row)]
-                let isSpeck = holeSize.map({ $0 <= largestSpeck }) ?? false
-                isFree[box.index(column: column, row: row)] = isSpeck || balloon.isFree(column: column, row: row)
-            }
-        }
-        for blockedBox in blocked.compactMap({ $0.intersection(box) }) {
-            for row in blockedBox.minRow...blockedBox.maxRow {
-                for column in blockedBox.minColumn...blockedBox.maxColumn {
-                    isFree[box.index(column: column, row: row)] = false
-                }
-            }
-        }
-        let stride = box.width + 1
-        var sums = [Int](repeating: 0, count: stride * (box.height + 1))
-        for row in 0..<box.height {
-            var rowSum = 0
-            for column in 0..<box.width {
-                rowSum += isFree[row * box.width + column] ? 1 : 0
-                sums[(row + 1) * stride + column + 1] = sums[row * stride + column + 1] + rowSum
-            }
-        }
-        self.box = box
-        self.sums = sums
-    }
-
-    /// The free pixels in `query`; none of its pixels beyond the balloon's box are.
-    func freeCount(in query: LiveTextPixelBox) -> Int {
-        guard let overlap = query.intersection(box) else {
-            return 0
-        }
-        let stride = box.width + 1
-        let left = overlap.minColumn - box.minColumn
-        let right = overlap.maxColumn - box.minColumn + 1
-        let top = overlap.minRow - box.minRow
-        let bottom = overlap.maxRow - box.minRow + 1
-        return sums[bottom * stride + right] - sums[top * stride + right]
-            - sums[bottom * stride + left] + sums[top * stride + left]
-    }
-}
-
 /// A rectangle of bitmap pixels, its bounds included.
 struct LiveTextPixelBox: Equatable {
     var minColumn: Int
@@ -568,6 +697,14 @@ struct LiveTextPixelBox: Equatable {
         box.maxColumn = Swift.min(maxColumn, other.maxColumn)
         box.maxRow = Swift.min(maxRow, other.maxRow)
         return box.minColumn <= box.maxColumn && box.minRow <= box.maxRow ? box : nil
+    }
+
+    /// The box's center in page pixels.
+    func center(in bitmap: LiveTextPageBitmap) -> CGPoint {
+        CGPoint(
+            x: Double(minColumn + maxColumn + 1) / 2 / bitmap.horizontalScale,
+            y: Double(minRow + maxRow + 1) / 2 / bitmap.verticalScale
+        )
     }
 
     /// The box's corners in page pixels.
