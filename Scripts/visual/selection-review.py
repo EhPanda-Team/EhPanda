@@ -15,9 +15,10 @@ import sys
 
 import fixtures
 
-# Owner decisions, 2026-10-13: Home's Frontpage shows five pairs, and Downloads lists six galleries.
-FRONTPAGE_COUNT = 10
-DOWNLOAD_COUNT = 6
+# Owner decisions, 2026-10-13: Home's Frontpage shows eight pairs and Downloads lists seven galleries, so both
+# lists run past the iPad's screen as well as the iPhone's.
+FRONTPAGE_COUNT = 16
+DOWNLOAD_COUNT = 7
 CLOSURE = ('Phase 17 closure (17-21): the owner confirms final gallery identifiers, set assignments, Home slots, '
            'flow pages and downloads for both sets (selectionStatus final, selectionAuthority owner); affected '
            'captures are then regenerated and revalidated.')

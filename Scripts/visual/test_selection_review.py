@@ -26,23 +26,25 @@ def load_reviewer():
 
 
 # The nonexplicit Frontpage of `selection()`, in pairs.
-FRONTPAGE_PAIRS = [['104', '105'], ['118', '119'], ['120', '121'], ['122', '123'], ['124', '125']]
+FRONTPAGE_PAIRS = [['104', '105'], ['118', '119'], ['120', '121'], ['122', '123'], ['124', '125'], ['126', '127'],
+                   ['128', '129'], ['130', '131']]
 
 
 def selection(prefix='1', scene_set='nonexplicit'):
-    """The synthetic selection in a composition the review accepts: Live Text on the second hero gallery, eight
-    more galleries completing Frontpage's five pairs, and six downloads in display order."""
+    """The synthetic selection in a composition the review accepts: Live Text on the second hero gallery, fourteen
+    more galleries completing Frontpage's eight pairs, and seven downloads in display order."""
     value = synthetic.selection(prefix, scene_set)
     scene = value['scenes'][scene_set]
     scene['liveText']['gallery'] = f'{prefix}02'
-    more = [f'{prefix}{index:02d}' for index in range(18, 26)]
+    more = [f'{prefix}{index:02d}' for index in range(18, 32)]
     value['galleries'] += [{'url': synthetic.gallery_url(gid), 'set': scene_set} for gid in more]
     scene['home']['frontpage'] += more
     active, completed = scene['downloads']
     scene['downloads'] = [active, {'gallery': f'{prefix}06', 'status': 'queued', 'completedPages': 0},
                           {'gallery': f'{prefix}08', 'status': 'queued', 'completedPages': 0},
                           {'gallery': f'{prefix}07', 'status': 'inactive', 'completedPages': 3},
-                          {'gallery': f'{prefix}09', 'status': 'inactive', 'completedPages': 2}, completed]
+                          {'gallery': f'{prefix}09', 'status': 'inactive', 'completedPages': 2}, completed,
+                          {'gallery': f'{prefix}12', 'status': 'completed'}]
     return value
 
 
@@ -199,7 +201,8 @@ class AdjacencyTests(ReviewTestCase):
         for screen in ('detail', 'comments', 'reading'):
             self.assertEqual([row['gid'] for row in scene[screen]], ['101'])
         self.assertEqual([row['gid'] for row in scene['reading-live-text']], ['102'])
-        self.assertEqual([row['gid'] for row in scene['downloads']], ['104', '106', '108', '107', '109', '105'])
+        self.assertEqual([row['gid'] for row in scene['downloads']],
+                         ['104', '106', '108', '107', '109', '105', '112'])
 
     def test_repeated_gallery_within_one_screen_is_rejected(self):
         for name, edit in [('home sections', lambda scene: scene['home']['toplists']['yesterday'].append('101')),
@@ -237,13 +240,13 @@ class EmptyTests(ReviewTestCase):
             scene(value)['home']['hero']['selectedIndex'] = 0
             return value
 
-        def nine_frontpage(value):
+        def fifteen_frontpage(value):
             del scene(value)['home']['frontpage'][-1]
-            return without(value, '125')
+            return without(value, '131')
 
-        def eleven_frontpage(value):
-            scene(value)['home']['frontpage'].append('126')
-            value['galleries'].append({'url': synthetic.gallery_url('126'), 'set': 'nonexplicit'})
+        def seventeen_frontpage(value):
+            scene(value)['home']['frontpage'].append('132')
+            value['galleries'].append({'url': synthetic.gallery_url('132'), 'set': 'nonexplicit'})
             return value
 
         def toplists(value):
@@ -252,7 +255,7 @@ class EmptyTests(ReviewTestCase):
             # 107 and 108 stay declared: they are still downloads.
             return without(value, '110', '111', '113', '114', '116', '117')
 
-        def five_downloads(value):
+        def six_downloads(value):
             del scene(value)['downloads'][-1]
             return value
 
@@ -264,11 +267,13 @@ class EmptyTests(ReviewTestCase):
         cases = [
             ('one hero gallery', hero, [hero_problem]),
             ('hero edge selection', edge_hero, [hero_problem]),
-            ('nine frontpage galleries', nine_frontpage, ['home frontpage needs exactly 10 galleries; it has 9']),
-            ('eleven frontpage galleries', eleven_frontpage, ['home frontpage needs exactly 10 galleries; it has 11']),
+            ('fifteen frontpage galleries', fifteen_frontpage,
+             ['home frontpage needs exactly 16 galleries; it has 15']),
+            ('seventeen frontpage galleries', seventeen_frontpage,
+             ['home frontpage needs exactly 16 galleries; it has 17']),
             ('one toplists gallery', toplists, [f'home toplists {period} needs at least three galleries; it has 1'
                                                 for period in fixtures.TOPLISTS]),
-            ('five downloads', five_downloads, ['downloads needs exactly 6 items; it has 5']),
+            ('six downloads', six_downloads, ['downloads needs exactly 7 items; it has 6']),
             ('Live Text on the flow gallery', flow_live_text,
              ['Live Text gallery 101 must be another gallery than the flow gallery']),
         ]
@@ -307,7 +312,7 @@ class OrderingTests(ReviewTestCase):
         value = selection()
         scene = value['scenes']['nonexplicit']
         scene['downloads'] = [{'gallery': gid, 'status': 'queued', 'completedPages': 0}
-                              for gid in ('104', '101', '106', '107', '108', '109')]
+                              for gid in ('104', '101', '106', '107', '108', '109', '110')]
         scene['home']['toplists']['allTime'] = ['117', '115', '116']
         site = synthetic.Site(value)
         for gid in ('115', '116', '117'):
@@ -316,8 +321,8 @@ class OrderingTests(ReviewTestCase):
         reviewed = ledger['sets']['nonexplicit']
         self.assertTrue(ledger['valid'])
         self.assertEqual([entry['gallery'] for entry in reviewed['downloads']], ['104', '101', '106', '107', '108',
-                                                                                 '109'])
-        self.assertEqual([entry['displayPriority'] for entry in reviewed['downloads']], [1] * 6)
+                                                                                 '109', '110'])
+        self.assertEqual([entry['displayPriority'] for entry in reviewed['downloads']], [1] * 7)
         self.assertEqual(reviewed['home']['toplists']['allTime'],
                          [{'ranking': 1, 'gid': '117'}, {'ranking': 2, 'gid': '115'}, {'ranking': 3, 'gid': '116'}])
 
@@ -326,7 +331,8 @@ class OrderingTests(ReviewTestCase):
         value['scenes']['nonexplicit']['downloads'].reverse()
         problems = self.reviewer.review(self.publish(value))['sets']['nonexplicit']['problems']
         self.assertEqual(problems, ['downloads order is not a display order: the app lists statuses by priority, '
-                                    'so it would reorder completed, inactive, inactive, queued, queued, active'])
+                                    'so it would reorder completed, completed, inactive, inactive, queued, queued, '
+                                    'active'])
 
     def test_review_is_deterministic_and_tracks_the_fixture_version(self):
         current = self.publish()
