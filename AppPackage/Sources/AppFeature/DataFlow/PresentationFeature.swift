@@ -140,9 +140,9 @@ struct PresentationFeature {
                 return .none
 
             case .presentGalleryDetail(let gallery, let download):
-                // A gallery opened from a tab on iPad: modal detail rooting its own gallery stack,
-                // seeded from the local download when one exists so it renders offline, otherwise
-                // from the tapped gallery.
+                // A gallery opened from a tab in a window regular in both dimensions: modal detail
+                // rooting its own gallery stack, seeded from the local download when one exists so
+                // it renders offline, otherwise from the tapped gallery.
                 state.path.removeAll()
                 // Derive the analytics payload from the same source the detail is seeded from — the
                 // download's gallery projection or the tapped gallery — so this fifth (modal) entry

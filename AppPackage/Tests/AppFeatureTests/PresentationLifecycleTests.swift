@@ -9,9 +9,10 @@ import HapticsClient
 import Testing
 
 // Presentation-driven lifecycle for the two routes that install a gallery detail *modally* rather
-// than by pushing it: the iPad tap route (`presentGalleryDetail`) and the deep-link / clipboard /
-// URL route (`handleGalleryLink`). Both used to rely on the detail view's `onAppear`, so both must
-// now carry the load send themselves — a miss here is a permanently blank detail screen (T-11-10).
+// than by pushing it: the tap route of a window regular in both dimensions (`presentGalleryDetail`)
+// and the deep-link / clipboard / URL route (`handleGalleryLink`). Both used to rely on the detail
+// view's `onAppear`, so both must now carry the load send themselves — a miss here is a
+// permanently blank detail screen (T-11-10).
 //
 // `Gallery.preview` has no `galleryURL`, so the detail fetch short-circuits and these tests make no
 // network request. The remaining presentation effects are non-exhaustively skipped: the request

@@ -5,7 +5,6 @@ public import ComposableArchitecture
 import CookieClient
 public import DateSeekFeature
 public import DetailFeature
-import DeviceClient
 import DownloadClient
 import HapticsClient
 import IdentifiedCollections
@@ -15,8 +14,11 @@ import SwiftUI
 
 @Reducer
 public struct FavoritesReducer: Sendable {
+    @CasePathable
     public enum Delegate: Equatable, Sendable {
-        case presentGalleryDetail(Gallery)
+        /// Asks the app root to open a gallery's detail. The root knows the window's size classes,
+        /// so it decides between a modal and `pushGalleryDetail` back to this host.
+        case openGalleryDetail(Gallery)
     }
 
     private enum CancelID {
@@ -102,7 +104,6 @@ public struct FavoritesReducer: Sendable {
 
     @Dependency(\.analyticsClient) private var analyticsClient
     @Dependency(\.cookieClient) private var cookieClient
-    @Dependency(\.deviceClient) private var deviceClient
     @Dependency(\.downloadClient) private var downloadClient
     @Dependency(\.hapticsClient) private var hapticsClient
 
@@ -146,11 +147,7 @@ public struct FavoritesReducer: Sendable {
                 return .send(.fetchGalleries())
 
             case .galleryTapped(let gallery):
-                return GalleryNavigation.routeGalleryDetail(
-                    deviceType: deviceClient.deviceType,
-                    present: { .delegate(.presentGalleryDetail(gallery)) },
-                    push: { .pushGalleryDetail(gallery) }
-                )
+                return .send(.delegate(.openGalleryDetail(gallery)))
 
             case .pushGalleryDetail(let gallery):
                 let screen = GalleryPath.State.detail(.init(gallery: gallery))

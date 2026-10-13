@@ -2,7 +2,6 @@ import AnalyticsClient
 public import AppModels
 import AppTools
 public import ComposableArchitecture
-import DeviceClient
 public import Kingfisher
 import LibraryClient
 public import Sharing
@@ -10,8 +9,11 @@ public import SwiftUI
 
 @Reducer
 public struct HomeReducer: Sendable {
+    @CasePathable
     public enum Delegate: Equatable, Sendable {
-        case presentGalleryDetail(Gallery)
+        /// Asks the app root to open a gallery's detail. The root knows the window's size classes,
+        /// so it decides between a modal and `pushGalleryDetail` back to this host.
+        case openGalleryDetail(Gallery)
     }
 
     @ObservableState
@@ -82,7 +84,6 @@ public struct HomeReducer: Sendable {
     // Not `private`: this reducer's body lives in `HomeReducer+Body.swift`, so its dependencies
     // are file-crossing `internal`.
     @Dependency(\.analyticsClient) var analyticsClient
-    @Dependency(\.deviceClient) var deviceClient
     @Dependency(\.homeClient) var homeClient
     @Dependency(\.libraryClient) var libraryClient
 

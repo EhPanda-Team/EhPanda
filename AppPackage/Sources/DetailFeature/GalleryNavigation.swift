@@ -1,5 +1,4 @@
 import AppModels
-public import AppTools
 public import ComposableArchitecture
 import ReadingFeature
 
@@ -7,19 +6,6 @@ import ReadingFeature
 // screen that should be pushed next, so every host appends new elements the same way regardless of
 // whether it stacks `GalleryPath` directly or nested under a `.gallery` case.
 public enum GalleryNavigation {
-    // Centralizes the device branch every gallery host shares: iPad presents the detail as a modal
-    // sheet via the host's `present` delegate; iPhone pushes it inline via the host's `push` action.
-    // Actions are supplied as closures because host `Action` types are not `Sendable`.
-    public static func routeGalleryDetail<Action>(
-        deviceType: @escaping @MainActor @Sendable () -> DeviceType,
-        present: @escaping @Sendable () -> Action,
-        push: @escaping @Sendable () -> Action
-    ) -> Effect<Action> {
-        .run { send in
-            await send(await deviceType() == .pad ? present() : push())
-        }
-    }
-
     // Kicks off a freshly presented gallery screen: the reducer-side replacement for the screens'
     // former view `onAppear`. A `nil` `id` means `appendGuardingDuplicate` deduped the push, so no
     // new screen was presented and nothing should start. `embed` lifts the scoped action into the

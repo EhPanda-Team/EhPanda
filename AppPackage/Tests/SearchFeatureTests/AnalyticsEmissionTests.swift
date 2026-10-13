@@ -134,10 +134,11 @@ struct AnalyticsEmissionTests {
 
     // MARK: Gallery detail push (SearchRootReducer)
 
-    // The Search tab's phone-side push. `.galleryTapped` routes by device idiom — iPad to the
-    // app-root modal, iPhone to this push — so an unwired push does not merely undercount: it makes
-    // search-originated opens appear to come from iPads only, which reads as a real behavioural
-    // finding rather than as missing instrumentation.
+    // The Search tab's push. The app root routes `.galleryTapped` by the window's size classes — a
+    // window regular in both dimensions to the app-root modal, any other to this push — so an
+    // unwired push does not merely undercount: it makes search-originated opens appear to come from
+    // large windows only, which reads as a real behavioural finding rather than as missing
+    // instrumentation.
     @MainActor
     @Test
     func pushingAGalleryDetailRecordsOneSignalMatchingTheFixture() async {

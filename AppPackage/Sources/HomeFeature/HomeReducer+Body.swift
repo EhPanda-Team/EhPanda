@@ -40,14 +40,10 @@ extension HomeReducer {
                  let .path(.element(id: _, action: .toplists(.delegate(.pushDetail(gallery))))),
                  let .path(.element(id: _, action: .watched(.delegate(.pushDetail(gallery))))),
                  let .path(.element(id: _, action: .history(.delegate(.pushDetail(gallery))))):
-                // No analytics here: this tap routes to a phone push (`.pushGalleryDetail`, counted
-                // there) or an iPad modal (counted by the app-root `presentGalleryDetail`); emitting
-                // at the tap would double-count one open across the two device paths (T-14-13).
-                return GalleryNavigation.routeGalleryDetail(
-                    deviceType: deviceClient.deviceType,
-                    present: { .delegate(.presentGalleryDetail(gallery)) },
-                    push: { .pushGalleryDetail(gallery) }
-                )
+                // No analytics here: the app root answers with a push (`.pushGalleryDetail`, counted
+                // there) or a modal (counted by the app-root `presentGalleryDetail`); emitting at the
+                // tap would double-count one open across the two routes (T-14-13).
+                return .send(.delegate(.openGalleryDetail(gallery)))
 
             case .pushGalleryDetail(let gallery):
                 let screen = GalleryPath.State.detail(.init(gallery: gallery))

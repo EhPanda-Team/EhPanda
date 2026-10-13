@@ -8,12 +8,14 @@ final class DeepLinkPadUITests: XCTestCase {
     }
 
     func testPadTabModalReplacedByDeepLink() throws {
-        // The idiom read is main-actor-isolated, so it lives here rather than in `setUpWithError`:
+        // The tab-modal route needs a window regular in both dimensions. This suite runs iPads in
+        // full screen, whose window is, so the idiom stands in for that window here. The idiom
+        // read is main-actor-isolated, so it lives here rather than in `setUpWithError`:
         // that override matches XCTest's nonisolated declaration, so this class's `@MainActor` does
         // not reach it and annotating the override is an error. `XCTSkipUnless` is unusable for the
         // same reason (its condition is a nonisolated autoclosure), so only the skip goes to XCTest.
         guard UIDevice.current.userInterfaceIdiom == .pad else {
-            throw XCTSkip("The tab-modal gallery detail is an iPad-exclusive entry.")
+            throw XCTSkip("The tab-modal gallery detail needs an iPad's full-screen window.")
         }
 
         let app = XCUIApplication()
@@ -21,7 +23,7 @@ final class DeepLinkPadUITests: XCTestCase {
         app.requireForeground()
 
         // Home's Frontpage section, then its first gallery row: the tab-rooted tap
-        // that routes through `presentGalleryDetail` on the pad idiom instead of
+        // that routes through `presentGalleryDetail` in this window instead of
         // pushing onto the tab's own stack.
         let showAllButton = app.buttons["Show All"].firstMatch
         XCTAssertTrue(
