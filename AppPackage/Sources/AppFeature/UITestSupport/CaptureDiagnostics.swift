@@ -570,7 +570,9 @@ private struct ScreenInspector {
         return report
     }
 
-    /// Downloads waits for its rows and every row's cover, which a seeded folder holds.
+    /// Downloads waits for its rows and every row's cover, which a seeded folder holds. The install
+    /// preloads each cover into the image cache, so a row shows it on its first render, even a row
+    /// the list renders only once scrolled to; the check proves the preload.
     private func downloadsReport(_ downloads: DownloadsReducer.State) -> ScreenReport {
         var report = ScreenReport(
             galleryIDs: downloads.downloads.map(\.gid),

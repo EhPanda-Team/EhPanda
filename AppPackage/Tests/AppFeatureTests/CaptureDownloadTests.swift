@@ -215,6 +215,25 @@ struct CaptureDownloadTests {
         )
     }
 
+    @Test
+    func eachRowsCoverIsPreloadedUnderTheKeyItsImageAsksFor() throws {
+        let scene = try makeScene(try Self.fixture(), scenarioID: "downloads")
+        let index = try #require(scene.downloads).seed(
+            into: try makeTemporaryDirectory().appending(path: "Downloads", directoryHint: .isDirectory)
+        )
+        let cache = try ImageCache(name: "preload", cacheDirectoryURL: try makeTemporaryDirectory())
+
+        try index.preloadCovers(into: cache)
+
+        for download in index.downloads {
+            // The row's image asks for the cover the row shows: its local file.
+            let coverURL = try #require(download.coverURL)
+            #expect(coverURL == download.localCoverURL)
+            #expect(cache.isCached(forKey: coverURL.cacheKey))
+            expectNoDifference(try cache.diskStorage.value(forKey: coverURL.cacheKey), Data("cover".utf8))
+        }
+    }
+
     /// The standard fixture with `downloads` selected and the image of every page each of them
     /// could hold.
     private static func fixture(

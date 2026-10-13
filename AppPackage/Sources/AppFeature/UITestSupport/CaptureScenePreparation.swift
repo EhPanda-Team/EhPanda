@@ -178,11 +178,20 @@ enum CaptureScenePreparation {
     ///
     /// Web images are initialized here, synchronously, instead of at launch finish, so no image
     /// request can start before its session answers from the replay.
+    ///
+    /// The one image the caches start with is each download's cover. A downloaded cover is a file
+    /// the app reads, not a request the replay answers, so nothing records whether a row asked
+    /// for it, and the list renders only the rows on screen. Preloaded, a row decodes its cover on
+    /// its first render, as `KFImage` loads a disk-cached image synchronously, so Downloads is
+    /// ready on its state alone, however many rows fit. The frame is the one a first load
+    /// settles on, without its fade (owner decision, 2026-10-13).
     static func install(_ scene: CaptureScene, storageRoot: URL = defaultStorageRoot) throws(CaptureFailure) {
         let storage = try CaptureStorage.reset(at: storageRoot)
         let downloads = try scene.downloads?.seed(into: storage.downloads) ?? .empty
         do {
-            KingfisherManager.shared.cache = try ImageCache(name: "capture", cacheDirectoryURL: storage.kingfisherCache)
+            let imageCache = try ImageCache(name: "capture", cacheDirectoryURL: storage.kingfisherCache)
+            try downloads.preloadCovers(into: imageCache)
+            KingfisherManager.shared.cache = imageCache
         } catch {
             throw .storageUnavailable
         }
@@ -619,6 +628,16 @@ struct CaptureDownloadIndex: Equatable, Sendable {
     /// The rows the Downloads screen lists, in order.
     let downloads: [DownloadedGallery]
     let folders: [String]
+}
+
+extension CaptureDownloadIndex {
+    /// Stores each row's cover file in `cache`, byte for byte, under the key the row's image asks
+    /// the cache for.
+    func preloadCovers(into cache: ImageCache) throws {
+        for coverURL in downloads.compactMap(\.localCoverURL) {
+            try cache.diskStorage.store(value: Data(contentsOf: coverURL), forKey: coverURL.cacheKey)
+        }
+    }
 }
 
 extension CaptureDownloads {

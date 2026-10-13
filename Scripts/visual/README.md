@@ -387,7 +387,8 @@ A capture launch replaces, before the first store exists:
 The reader cache, both image libraries' caches and the scene's download folders live in
 `EhPandaCapture` under the app's temporary directory, and the caches' memory and background purges
 act on those copies. Every capture launch empties that directory first and touches nothing else, so
-each launch starts cold and a capture never reads or removes a user's cached files.
+each launch starts cold, apart from the download covers below, and a capture never reads or
+removes a user's cached files.
 
 A `downloads` scene seeds `EhPandaCapture/Downloads/Default/` with one folder per download entry,
 as a download leaves it: the cover, the page files the entry holds (every page of a complete
@@ -397,7 +398,8 @@ scan then reads the folders back. Completeness comes from the manifest alone, as
 being downloaded (`active`) or waiting (`queued`) comes from the simulated queue, and the active
 row shows its run's progress. Entries must come in the order the screen lists them, by status,
 and each folder is dated an hour before the one above it, so the app's newest-first order keeps
-theirs. An `error` entry cannot be captured, because a capture has no failure to show.
+theirs. An `error` entry cannot be captured, because a capture has no failure to show. Each
+folder's cover is also stored in Kingfisher's capture cache under the key its row asks for.
 
 ## Diagnostics
 
@@ -433,7 +435,9 @@ image waits for a cache and nothing failed:
 - The reader waits until it shows its current page's image. In a launch with Live Text it reads
   as `reading-live-text` once it shows the page's Live Text, and fails on Live Text of another
   gallery or page, or a recognition that found no text.
-- Downloads waits for its rows and every row's cover.
+- Downloads waits for its rows and every row's cover. Each launch preloads the covers into the
+  image cache, so a row shows its cover on its first render, even a row below the screen
+  (owner decision, 2026-10-13).
 - Filters must show the app's defaults, and Laboratory the network bypass on.
 - A sheet that leaves its tab visible around it also waits for that tab.
 
