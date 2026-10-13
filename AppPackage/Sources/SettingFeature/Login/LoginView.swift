@@ -74,11 +74,13 @@ struct LoginView: View {
                         store.send(.challengeClearanceCaptured(clearance))
                     }
                     .scrollEdgeEffectStyle(.soft, for: .top)
-                    // The page runs edge to edge under a background-less bar, so the cancel control
+                    // The page runs top to bottom under a background-less bar, so the cancel control
                     // floats on its own glass over the challenge instead of sitting on an opaque strip.
                     // Cloudflare's interstitial is vertically centred with generous padding, so nothing
-                    // it renders ends up beneath the control.
-                    .ignoresSafeArea()
+                    // it renders ends up beneath the control. Sideways the page stays inside the safe
+                    // area: an inset there (a sensor housing, a vertical bar) is no landscape-only
+                    // edge case, and the challenge's checkbox must stay reachable beside it.
+                    .ignoresSafeArea(edges: .vertical)
                     .toolbarBackgroundVisibility(.hidden, for: .navigationBar)
                     .toolbar {
                         ToolbarItem(placement: .cancellationAction) {
