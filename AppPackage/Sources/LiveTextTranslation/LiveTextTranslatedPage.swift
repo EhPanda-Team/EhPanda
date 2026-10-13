@@ -12,6 +12,9 @@ public struct LiveTextTranslatedPage: Equatable, Sendable {
         public let cornerRadius: Double
         /// Where the translation is set, inside the plate.
         public let textArea: LiveTextOrientedRect
+        /// The width the translation's lines are set at, centered in ``textArea``: the narrowest that
+        /// keeps their number, so they come out even.
+        public let lineWidth: Double
         public let fill: LiveTextFill
         /// The blur of a plate's shadow, in page pixels.
         public let shadowRadius: Double
@@ -114,6 +117,15 @@ private struct TranslatedGroup {
             width: textArea.size.width,
             maximumHeight: textArea.size.height
         )
+        // A truncated translation needs every bit of its width.
+        let lineWidth = layout.isTruncated
+            ? textArea.size.width
+            : LiveTextTextLayout.balancedWidth(
+                of: text,
+                style: style,
+                fontSize: placement.fontSize,
+                width: textArea.size.width
+            )
         return LiveTextTranslatedPage.Group(
             id: id,
             plate: plate,
@@ -122,6 +134,7 @@ private struct TranslatedGroup {
                 Swift.min(plate.size.width, plate.size.height) / 2
             ),
             textArea: textArea,
+            lineWidth: lineWidth,
             fill: bitmap.map({ LiveTextPlateSampler.fill(around: plate, lineHeight: lineHeight, on: $0) }) ?? .plate,
             shadowRadius: LiveTextTranslatedPage.shadowRadius * lineHeight,
             text: text,
