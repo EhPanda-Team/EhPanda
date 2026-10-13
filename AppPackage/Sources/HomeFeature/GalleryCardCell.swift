@@ -2,8 +2,6 @@ import AppComponents
 public import AppModels
 import AppTools
 import ColorfulX
-import Dependencies
-import DeviceClient
 public import Kingfisher
 import PreviewSupport
 import SFSafeSymbols
@@ -11,10 +9,10 @@ import SpringInterpolation
 public import SwiftUI
 
 public struct GalleryCardCell: View {
-    @Dependency(\.deviceClient) private var deviceClient
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.colorScheme) private var colorScheme
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
 
     @ScaledMetric(relativeTo: .title3) private var titleLineHeight: CGFloat = 24
     @ScaledMetric(relativeTo: .caption2) private var ratingLineHeight: CGFloat = 18
@@ -58,11 +56,12 @@ public struct GalleryCardCell: View {
         return gallery.gid == currentID
     }
     private var title: String {
-        let trimmedTitle = gallery.trimmedTitle
-        guard deviceClient.deviceType() != .pad, trimmedTitle.count > 20 else {
+        // A regular-width card has room for the full title; a narrower one trims a long title.
+        if horizontalSizeClass == .regular {
             return gallery.title
         }
-        return trimmedTitle
+        let trimmedTitle = gallery.trimmedTitle
+        return trimmedTitle.count > 20 ? trimmedTitle : gallery.title
     }
 
     public var body: some View {

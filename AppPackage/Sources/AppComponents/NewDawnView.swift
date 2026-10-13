@@ -1,13 +1,11 @@
 public import AppModels
 import AppTools
-import Dependencies
-import DeviceClient
 import Resources
 public import SwiftUI
 
 public struct NewDawnView: View {
-    @Dependency(\.deviceClient) private var deviceClient
     @Environment(\.colorScheme) private var colorScheme
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     private let greeting: Greeting
 
     /// The height the greeting is centred in, and the point past which it starts to scroll.
@@ -41,7 +39,8 @@ public struct NewDawnView: View {
         .overlay {
             Canvas { context, size in
                 let offset = size.width * 0.2
-                let sunWidth = size.width * (deviceClient.deviceType() == .pad ? 0.5 : 0.6)
+                // A regular-width container is wide enough that the sun takes a smaller share of it.
+                let sunWidth = size.width * (horizontalSizeClass == .regular ? 0.5 : 0.6)
                 let sunCenter = CGPoint(x: size.width - sunWidth / 2 + offset, y: sunWidth / 2 - offset)
 
                 context.fill(
@@ -74,8 +73,9 @@ public struct NewDawnView: View {
             }
         }
         .overlay {
-            // The greeting is a fixed slab of prose with no way to shorten it, and on the iPad it is
-            // presented in a form-sheet, so at accessibility sizes it outgrows whatever it is given.
+            // The greeting is a fixed slab of prose with no way to shorten it, and in a large window
+            // it is presented in a form sheet, so at accessibility sizes it outgrows whatever it is
+            // given.
             // A scroll container is the remedy: the text keeps its natural height and the reader
             // reaches the rest, rather than the first and last lines being sliced by the container's
             // edges with nowhere to scroll to.

@@ -5,7 +5,6 @@ import ClipboardClient
 import ComposableArchitecture
 import CookieClient
 @testable import DetailFeature
-import DeviceClient
 import DownloadClient
 import Foundation
 import HapticsClient
@@ -114,7 +113,6 @@ private extension DownloadObserverRefreshTests {
                 $0.analyticsClient = .noop
                 $0.clipboardClient = .noop
                 $0.cookieClient = .noop
-                $0.deviceClient = .noop
                 $0.downloadClient = makeObserveDownloadClient(
                     stream: stream, loadLocalPageURLs: loadLocalPageURLs
                 )

@@ -1,8 +1,6 @@
 import AppComponents
 import AppModels
 import AppTools
-import Dependencies
-import DeviceClient
 import Kingfisher
 import Resources
 import SFSafeSymbols
@@ -334,7 +332,6 @@ struct VerticalCoverStack: View {
 // MARK: ToplistsSection
 struct ToplistsSection: View {
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
-    @Dependency(\.deviceClient) private var deviceClient
 
     private let galleries: [Int: [Gallery]]
     private let isLoading: Bool
@@ -398,7 +395,7 @@ struct ToplistsSection: View {
     private func verticalStacks(type: ToplistsType) -> some View {
         VStack(alignment: .leading) {
             Text(type.value).font(.subheadline.bold())
-            if deviceClient.deviceType() == .pad, horizontalSizeClass == .regular {
+            if horizontalSizeClass == .regular {
                 regularWidthGrid(type: type)
             } else {
                 VerticalToplistsStack(
