@@ -45,7 +45,7 @@ public enum LiveTextTranslationRenderer {
                     text: group.text,
                     style: LiveTextTextStyle(language: page.language),
                     fontSize: group.fontSize,
-                    width: group.textArea.size.width,
+                    width: group.lineWidth,
                     color: group.fill.textColor,
                     maximumHeight: group.textArea.size.height
                 )

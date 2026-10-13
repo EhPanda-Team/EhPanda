@@ -125,12 +125,13 @@ struct LiveTextPageBitmap: Sendable {
 }
 
 enum LiveTextPlateSampler {
-    /// How far outside a plate its surroundings are read, in line heights: just beyond the plate and a
-    /// little further out, so lettering the plate covers is not read and nearby art is.
+    /// How far outside a plate its surroundings are read, in line heights, nearest first: just beyond
+    /// the plate, which a plate must match to blend in, and a little further out, past lettering
+    /// strokes that spill beyond the recognized lines.
     static let ringMargins = [0.15, 0.4]
-    /// The share of the surroundings that must match their median for the region to count as one color.
-    /// A share rather than a variance, so a balloon's outline crossing the ring does not turn a white
-    /// balloon into a plate.
+    /// The share of a ring that must match its median for the ring to count as one color. A share
+    /// rather than a variance, so a balloon's outline crossing the ring does not turn a white balloon
+    /// into a plate.
     static let uniformShare = 0.85
     /// How far, in any one component, a sample may stray from the median and still match it, enough
     /// for JPEG noise and paper texture.
@@ -138,29 +139,36 @@ enum LiveTextPlateSampler {
     /// Fewer samples than this, as on a region at the page's edge, do not tell its surroundings.
     static let minimumSampleCount = 16
 
+    /// The color of the nearest ring around `plate` that is one color, or a plate when none is. Each
+    /// ring is judged alone, so a caption box only a little larger than its lettering keeps its color.
     static func fill(
         around plate: LiveTextOrientedRect,
         lineHeight: Double,
         on bitmap: LiveTextPageBitmap
     ) -> LiveTextFill {
         let step = 2 / Swift.max(bitmap.horizontalScale, bitmap.verticalScale)
-        let samples = ringMargins
-            .flatMap({ perimeter(of: plate.expanded(by: $0 * lineHeight), step: step) })
-            .compactMap(bitmap.color(at:))
+        for margin in ringMargins {
+            let ring = perimeter(of: plate.expanded(by: margin * lineHeight), step: step)
+            if let background = uniformColor(of: ring.compactMap(bitmap.color(at:))) {
+                let isDark = background.contrast(with: .white) > background.contrast(with: .black)
+                return .background(background, text: isDark ? .white : .black)
+            }
+        }
+        return .plate
+    }
+
+    /// The median of `samples` when enough of them match it.
+    private static func uniformColor(of samples: [LiveTextColor]) -> LiveTextColor? {
         guard samples.count >= minimumSampleCount,
               let red = samples.map(\.red).median,
               let green = samples.map(\.green).median,
               let blue = samples.map(\.blue).median
         else {
-            return .plate
+            return nil
         }
-        let background = LiveTextColor(red: red, green: green, blue: blue)
-        let matching = samples.filter({ $0.distance(to: background) <= tolerance }).count
-        guard Double(matching) >= Double(samples.count) * uniformShare else {
-            return .plate
-        }
-        let isDark = background.contrast(with: .white) > background.contrast(with: .black)
-        return .background(background, text: isDark ? .white : .black)
+        let median = LiveTextColor(red: red, green: green, blue: blue)
+        let matching = samples.filter({ $0.distance(to: median) <= tolerance }).count
+        return Double(matching) >= Double(samples.count) * uniformShare ? median : nil
     }
 
     /// Points `step` apart along the outline of `rect`.

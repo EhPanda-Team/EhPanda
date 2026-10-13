@@ -55,6 +55,9 @@ struct LiveTextTextStyle: Sendable {
 /// One translation set in lines, the same way for measuring and for drawing, so what fits when
 /// measured is exactly what is drawn.
 struct LiveTextTextLayout {
+    /// Halvings of the search for a balanced width: under a 1/1000 of the line's width.
+    private static let balanceSteps = 10
+
     struct Line {
         let line: CTLine
         /// The line's width without its trailing spaces, which centering ignores.
@@ -99,18 +102,9 @@ struct LiveTextTextLayout {
     ) {
         let attributed = style.attributedString(text, fontSize: fontSize, color: color)
         let typesetter = CTTypesetterCreateWithAttributedString(attributed)
-        var lines = [Line]()
-        var lineStarts = [Int]()
-        var start = 0
-        while start < attributed.length {
-            let count = CTTypesetterSuggestLineBreak(typesetter, start, width)
-            guard count > 0 else {
-                break
-            }
-            lines.append(Line(CTTypesetterCreateLine(typesetter, CFRange(location: start, length: count))))
-            lineStarts.append(start)
-            start += count
-        }
+        let ranges = Self.lineRanges(in: typesetter, length: attributed.length, width: width)
+        var lines = ranges.map({ Line(CTTypesetterCreateLine(typesetter, $0)) })
+        let lineStarts = ranges.map(\.location)
 
         var isTruncated = false
         if let maximumHeight, lines.map(\.height).reduce(0, +) > maximumHeight {
@@ -142,12 +136,62 @@ struct LiveTextTextLayout {
         self.lines = lines
         height = lines.map(\.height).reduce(0, +)
         self.isTruncated = isTruncated
-        breaksWord = style.separatesWords && text
+        breaksWord = Self.longestWordWidth(of: text, style: style, fontSize: fontSize) > width
+    }
+
+    /// The narrowest width that sets `text` in as many lines as `width` does, so its lines come out
+    /// even, as lettering's do, rather than leaving a word or two on the last line. It is always wider
+    /// than the text's longest word, which must not break, even where that word alone would leave the
+    /// number of lines unchanged.
+    static func balancedWidth(of text: String, style: LiveTextTextStyle, fontSize: Double, width: Double) -> Double {
+        let attributed = style.attributedString(text, fontSize: fontSize)
+        let typesetter = CTTypesetterCreateWithAttributedString(attributed)
+        func lineCount(at width: Double) -> Int {
+            lineRanges(in: typesetter, length: attributed.length, width: width).count
+        }
+        let count = lineCount(at: width)
+        guard count > 1 else {
+            return width
+        }
+        var failing = Swift.min(longestWordWidth(of: text, style: style, fontSize: fontSize), width)
+        var fitting = width
+        for _ in 0..<balanceSteps {
+            let middle = (failing + fitting) / 2
+            if lineCount(at: middle) > count {
+                failing = middle
+            } else {
+                fitting = middle
+            }
+        }
+        return fitting
+    }
+
+    /// Where each line of the text `typesetter` holds begins and ends when set `width` wide.
+    private static func lineRanges(in typesetter: CTTypesetter, length: Int, width: Double) -> [CFRange] {
+        var ranges = [CFRange]()
+        var start = 0
+        while start < length {
+            let count = CTTypesetterSuggestLineBreak(typesetter, start, width)
+            guard count > 0 else {
+                break
+            }
+            ranges.append(CFRange(location: start, length: count))
+            start += count
+        }
+        return ranges
+    }
+
+    /// The width of the text's widest word, in a language whose words must not break; zero otherwise.
+    private static func longestWordWidth(of text: String, style: LiveTextTextStyle, fontSize: Double) -> Double {
+        guard style.separatesWords else {
+            return 0
+        }
+        return text
             .split(whereSeparator: \.isWhitespace)
-            .contains(where: { word in
-                let line = CTLineCreateWithAttributedString(style.attributedString(String(word), fontSize: fontSize))
-                return Line(line).width > width
-            })
+            .map { word in
+                Line(CTLineCreateWithAttributedString(style.attributedString(String(word), fontSize: fontSize))).width
+            }
+            .max() ?? 0
     }
 
     /// Draws the lines centered in `area`, in a context whose y axis points down.

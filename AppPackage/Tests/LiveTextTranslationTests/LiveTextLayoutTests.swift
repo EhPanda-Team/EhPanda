@@ -151,6 +151,22 @@ struct LiveTextLayoutTests {
     }
 
     @Test
+    func aCaptionBoxJustLargerThanItsLetteringKeepsItsColor() throws {
+        // The ring just beyond the plate lies inside the box; the one further out does not.
+        let image = try Self.page { context in
+            context.setFillColor(CGColor(srgbRed: 1, green: 0.93, blue: 0.6, alpha: 1))
+            context.fill(CGRect(x: 336, y: 926, width: 328, height: 148))
+        }
+
+        guard case .background(let color, let text) = try Self.fill(on: image) else {
+            Issue.record("A box one color just beyond the plate is painted in its color.")
+            return
+        }
+        #expect(color.distance(to: LiveTextColor(red: 1, green: 0.93, blue: 0.6)) < 0.01)
+        #expect(text == .black)
+    }
+
+    @Test
     func busyArtGetsAPlate() throws {
         let image = try Self.page { context in
             for stripe in 0..<100 {
@@ -234,6 +250,52 @@ struct LiveTextLayoutTests {
         #expect(layout.isTruncated)
         #expect(layout.lines.count == 1)
         #expect(layout.height <= 30)
+    }
+
+    @Test
+    func aBalancedWidthKeepsTheLinesAndEvensThem() throws {
+        let text = "Where do you think you are going?"
+        let oneLine = LiveTextTextLayout(text: text, style: Self.english, fontSize: 30, width: 10_000)
+        let width = try #require(oneLine.lines.first).width * 0.85
+        let greedy = LiveTextTextLayout(text: text, style: Self.english, fontSize: 30, width: width)
+        let balancedWidth = LiveTextTextLayout.balancedWidth(of: text, style: Self.english, fontSize: 30, width: width)
+        let balanced = LiveTextTextLayout(text: text, style: Self.english, fontSize: 30, width: balancedWidth)
+        func spread(_ layout: LiveTextTextLayout) -> Double {
+            let widths = layout.lines.map(\.width)
+            return (widths.max() ?? 0) - (widths.min() ?? 0)
+        }
+
+        #expect(greedy.lines.count == 2)
+        #expect(balanced.lines.count == 2)
+        #expect(balancedWidth < width * 0.7)
+        #expect(spread(balanced) < spread(greedy) / 2)
+    }
+
+    @Test
+    func aBalancedWidthNeverBreaksAWord() throws {
+        let style = LiveTextTextStyle(language: .init(identifier: "de"))
+        let word = "Donaudampfschifffahrtsgesellschaft"
+        let oneLine = LiveTextTextLayout(text: word, style: style, fontSize: 20, width: 10_000)
+        let wordWidth = try #require(oneLine.lines.first).width
+        let text = word + " ahoi"
+
+        let balancedWidth = LiveTextTextLayout.balancedWidth(
+            of: text,
+            style: style,
+            fontSize: 20,
+            width: wordWidth * 1.05
+        )
+        let balanced = LiveTextTextLayout(text: text, style: style, fontSize: 20, width: balancedWidth)
+
+        #expect(balancedWidth > wordWidth)
+        #expect(balanced.lines.count == 2)
+        #expect(abs(try #require(balanced.lines.first).width - wordWidth) < 0.01)
+        #expect(!balanced.breaksWord)
+    }
+
+    @Test
+    func aSingleLineKeepsItsWidth() {
+        #expect(LiveTextTextLayout.balancedWidth(of: "Hi!", style: Self.english, fontSize: 20, width: 400) == 400)
     }
 
     // MARK: Fitting
@@ -346,6 +408,7 @@ struct LiveTextLayoutTests {
         #expect(laidOut.plate.center == laidOut.textArea.center)
         #expect(laidOut.plate.size.width > laidOut.textArea.size.width)
         #expect(laidOut.plate.size.height > laidOut.textArea.size.height)
+        #expect(laidOut.lineWidth <= laidOut.textArea.size.width)
         #expect(laidOut.fill == .background(.white, text: .black))
         #expect(!laidOut.isTruncated)
         #expect(laidOut.fontSize == page.fontSize)
