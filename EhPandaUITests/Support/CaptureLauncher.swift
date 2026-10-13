@@ -267,6 +267,7 @@ struct CaptureLaunchDiagnostics: Decodable, Equatable {
     let fixtureVersion: String
     let galleryIDs: [String]
     let page: Int?
+    let showsPanel: Bool?
     let readiness: String
     let pendingImages: Int
     let unknownRequests: [String]
@@ -488,6 +489,15 @@ struct CaptureLauncher: Sendable {
         case .home, .detail, .comments, .filters, .downloads, .laboratory:
             nil
         }
+        // The reading screen shows the reader's control panel; the Live Text screen keeps it hidden.
+        let showsPanel: Bool? = switch coordinate.screen {
+        case .reading:
+            true
+        case .readingLiveText:
+            false
+        case .home, .detail, .comments, .filters, .downloads, .laboratory:
+            nil
+        }
         return CaptureLaunchDiagnostics(
             screenID: coordinate.screen.rawValue,
             selectionID: fixture.selection.selectionID,
@@ -495,6 +505,7 @@ struct CaptureLauncher: Sendable {
             fixtureVersion: fixture.fixtureVersion,
             galleryIDs: galleryIDs,
             page: page,
+            showsPanel: showsPanel,
             readiness: "ready",
             pendingImages: 0,
             unknownRequests: [],

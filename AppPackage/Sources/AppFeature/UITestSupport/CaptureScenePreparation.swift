@@ -257,14 +257,12 @@ enum CaptureScenePreparation {
     }
 
     /// The settings every capture scene runs with: the app's defaults, with the network bypass
-    /// on, so the Laboratory shows it enabled (D-15), and the paging reader, which frames the
-    /// reader page the same way on every run (the vertical reader settles at an offset that depends
-    /// on when the pages above load). They live only in the capture's in-memory storage, so no
-    /// person's settings change.
+    /// on, so the Laboratory shows it enabled (D-15), and the default vertical reader (owner
+    /// decision, 2026-10-13). They live only in the capture's in-memory storage, so no person's
+    /// settings change.
     static var sceneSetting: Setting {
         var setting = Setting()
         setting.bypassSNIFiltering = true
-        setting.readingDirection = .leftToRight
         return setting
     }
 

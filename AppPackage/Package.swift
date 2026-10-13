@@ -720,6 +720,7 @@ let targets: [PackageDescription.Target] = [
         module: .readingFeature,
         dependencies: [
             .module(.analyticsClient),
+            .module(.appLaunchAutomationClient),
             .module(.sfSafeSymbolsExt),
             .module(.appComponents),
             .module(.appModels),
@@ -966,6 +967,7 @@ let targets: [PackageDescription.Target] = [
         module: .readingFeatureTests,
         dependencies: [
             .module(.analyticsClient),
+            .module(.appLaunchAutomationClient),
             .targetDependency(.composableArchitecture),
             .module(.testingSupport),
             .module(.appModels),

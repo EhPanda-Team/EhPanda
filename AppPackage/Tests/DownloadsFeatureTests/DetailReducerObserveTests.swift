@@ -1,5 +1,6 @@
 import AnalyticsClient
 @testable import AppFeature
+import AppLaunchAutomationClient
 import AppModels
 import ComposableArchitecture
 import CookieClient
@@ -88,6 +89,8 @@ struct DetailReducerObserveTests: DownloadFeatureTestCase {
             reducer: DetailReducer.init,
             withDependencies: {
                 $0.analyticsClient = .noop
+                // The reader reads the launch's capture route on presentation.
+                $0.appLaunchAutomationClient = .none
                 // The reader's session tracking reads the date dependency on presentation (14-14).
                 $0.date = .constant(Date(timeIntervalSince1970: 0))
                 $0.downloadClient = makeLocalManifestClient(download: download, manifest: manifest)
@@ -116,6 +119,8 @@ struct DetailReducerObserveTests: DownloadFeatureTestCase {
             reducer: DetailReducer.init,
             withDependencies: {
                 $0.analyticsClient = .noop
+                // The reader reads the launch's capture route on presentation.
+                $0.appLaunchAutomationClient = .none
                 // The reader's session tracking reads the date dependency on presentation (14-14).
                 $0.date = .constant(Date(timeIntervalSince1970: 0))
                 $0.downloadClient = makeNoManifestClient()

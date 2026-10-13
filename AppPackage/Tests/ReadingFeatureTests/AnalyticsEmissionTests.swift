@@ -1,4 +1,5 @@
 import AnalyticsClient
+import AppLaunchAutomationClient
 import AppModels
 import ComposableArchitecture
 import Foundation
@@ -168,6 +169,7 @@ private extension AnalyticsEmissionTests {
                 reducer: ReadingReducer.init,
                 withDependencies: {
                     $0.analyticsClient = .recording(into: recorded)
+                    $0.appLaunchAutomationClient = .none
                     $0.continuousClock = TestClock()
                     $0.cookieClient = .noop
                     $0.date = DateGenerator({ now.value })

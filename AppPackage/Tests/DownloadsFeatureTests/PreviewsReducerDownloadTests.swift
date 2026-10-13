@@ -1,5 +1,6 @@
 import AnalyticsClient
 @testable import AppFeature
+import AppLaunchAutomationClient
 import AppModels
 import ComposableArchitecture
 @testable import DetailFeature
@@ -94,6 +95,8 @@ private extension PreviewsReducerDownloadTests {
             reducer: PreviewsReducer.init,
             withDependencies: {
                 $0.analyticsClient = .noop
+                // The reader reads the launch's capture route on presentation.
+                $0.appLaunchAutomationClient = .none
                 // The reader's session tracking reads the date dependency on presentation (14-14).
                 $0.date = .constant(Date(timeIntervalSince1970: 0))
                 $0.downloadClient = DownloadClient()
@@ -156,6 +159,8 @@ private extension PreviewsReducerDownloadTests {
             reducer: PreviewsReducer.init,
             withDependencies: {
                 $0.analyticsClient = .noop
+                // The reader reads the launch's capture route on presentation.
+                $0.appLaunchAutomationClient = .none
                 // The reader's session tracking reads the date dependency on presentation (14-14).
                 $0.date = .constant(Date(timeIntervalSince1970: 0))
                 $0.downloadClient = downloadClient

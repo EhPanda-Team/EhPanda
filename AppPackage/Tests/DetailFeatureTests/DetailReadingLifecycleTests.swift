@@ -1,4 +1,5 @@
 import AnalyticsClient
+import AppLaunchAutomationClient
 import AppModels
 import ComposableArchitecture
 @testable import DetailFeature
@@ -33,6 +34,8 @@ struct DetailReadingLifecycleTests {
     private func makeStore() -> TestStore<DetailReducer.State, DetailReducer.Action> {
         let store = TestStore(initialState: makeState(), reducer: DetailReducer.init) {
             $0.analyticsClient = .noop
+            // The reader reads the launch's capture route on presentation.
+            $0.appLaunchAutomationClient = .none
             // The reader's session tracking reads the date dependency on presentation (14-14).
             $0.date = .constant(Date(timeIntervalSince1970: 0))
             $0.downloadClient = .noop

@@ -32,12 +32,16 @@ struct DetailCaptureRouteTests {
         await store.finish()
     }
 
+    // Only the reading screen shows the reader's control panel; reading-live-text keeps it hidden.
     @MainActor
     @Test(arguments: [
-        AppLaunchAutomation.CaptureRoute.reading(gallery, page: 4),
-        .readingLiveText(gallery, page: 4)
+        (AppLaunchAutomation.CaptureRoute.reading(gallery, page: 4), true),
+        (.readingLiveText(gallery, page: 4), false)
     ])
-    func theReaderOpensOnTheRoutedPageOnceTheDetailLoads(_ route: AppLaunchAutomation.CaptureRoute) async {
+    func theReaderOpensOnTheRoutedPageOnceTheDetailLoads(
+        _ route: AppLaunchAutomation.CaptureRoute,
+        showsPanel: Bool
+    ) async {
         let store = makeStore(route: route)
 
         await store.send(.runLaunchAutomationIfNeeded) {
@@ -50,6 +54,7 @@ struct DetailCaptureRouteTests {
         await store.skipInFlightEffects(strict: false)
 
         #expect(store.state.destination?.reading?.readingProgress == 4)
+        #expect(store.state.destination?.reading?.showsPanel == showsPanel)
     }
 
     @MainActor

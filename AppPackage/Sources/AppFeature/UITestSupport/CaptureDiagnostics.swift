@@ -68,6 +68,8 @@ struct CaptureDiagnostics: Equatable, Encodable {
     let galleryIDs: [String]
     /// The reader page the screen shows; `nil` outside the reader.
     let page: Int?
+    /// Whether the reader shows its control panel; `nil` outside the reader.
+    let showsPanel: Bool?
     let readiness: Readiness
     /// Images the replay delivered that no image cache holds yet.
     let pendingImages: Int
@@ -156,6 +158,7 @@ extension CaptureDiagnostics {
             fixtureVersion: scene.fixtureVersion,
             galleryIDs: report.galleryIDs,
             page: report.page,
+            showsPanel: report.showsPanel,
             readiness: readiness,
             pendingImages: pendingImages,
             unknownRequests: unknownRequests,
@@ -430,6 +433,7 @@ private struct ReaderLiveText {
 private struct ScreenReport {
     var galleryIDs = [String]()
     var page: Int?
+    var showsPanel: Bool?
     var downloads: [CaptureDownloadDiagnostics]?
     var blockers = [String]()
     var failures = [String]()
@@ -529,7 +533,7 @@ private struct ScreenInspector {
     /// than the one it shows, or a recognition that found no text fails.
     private func readingReport(_ reading: ReadingReducer.State) -> ScreenReport {
         let page = reading.pendingReadingProgress
-        var report = ScreenReport(galleryIDs: [reading.gallery.gid], page: page)
+        var report = ScreenReport(galleryIDs: [reading.gallery.gid], page: page, showsPanel: reading.showsPanel)
         if let loadingState = reading.imageURLLoadingStates[page], Self.isFailure(loadingState) {
             report.failures.append("The image of page \(page) failed to load")
         }
