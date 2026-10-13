@@ -302,7 +302,7 @@ Each content set needs:
 - a readable saved comment on the flow gallery;
 - a Live Text gallery other than the flow gallery, whose language is English and not a
   translation (owner decision, 2026-10-13);
-- at least two downloads, in an order the app would display unchanged.
+- exactly six downloads (owner decision, 2026-10-13), in an order the app would display unchanged.
 
 The app lists downloads by status priority (active, queued, update available, error, inactive,
 completed), so equal statuses keep their configured order and capture must give them descending
