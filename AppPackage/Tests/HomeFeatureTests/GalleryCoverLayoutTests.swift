@@ -1,7 +1,5 @@
 import AppComponents
 import AppModels
-import Dependencies
-import DeviceClient
 import Foundation
 @testable import HomeFeature
 import SwiftUI
@@ -92,14 +90,10 @@ struct GalleryCoverLayoutTests {
             category: .doujinshi, uploader: "Sample", pageCount: 24,
             postedDate: .now, coverURL: nil, galleryURL: nil
         )
-        return withDependencies {
-            $0.deviceClient = .noop
-        } operation: {
-            GalleryCardCell(
-                gallery: gallery, currentID: gallery.gid, colors: [],
-                maximumHeight: maximumHeight, webImageSuccessAction: { _ in }
-            )
-        }
+        return GalleryCardCell(
+            gallery: gallery, currentID: gallery.gid, colors: [],
+            maximumHeight: maximumHeight, webImageSuccessAction: { _ in }
+        )
     }
 
     @MainActor

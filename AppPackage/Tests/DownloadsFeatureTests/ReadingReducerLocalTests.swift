@@ -5,7 +5,6 @@ import AppTools
 import ClipboardClient
 import ComposableArchitecture
 import CookieClient
-import DeviceClient
 import DownloadClient
 import Foundation
 import HapticsClient
@@ -65,7 +64,6 @@ struct ReadingReducerLocalTests: DownloadFeatureTestCase {
                 $0.analyticsClient = .noop
                 $0.clipboardClient = .noop
                 $0.cookieClient = .noop
-                $0.deviceClient = .noop
                 $0.downloadClient = DownloadClient()
                 $0.downloadClient.observeDownloads = {
                     AsyncStream { continuation in
@@ -133,7 +131,6 @@ struct ReadingReducerLocalTests: DownloadFeatureTestCase {
             $0.analyticsClient = .noop
             $0.clipboardClient = .noop
             $0.cookieClient = .noop
-            $0.deviceClient = .noop
             $0.hapticsClient = .noop
             $0.imageClient = .noop
         }

@@ -6,7 +6,6 @@ public import AppTools
 import ClipboardClient
 public import ComposableArchitecture
 import CookieClient
-import DeviceClient
 import DownloadClient
 import HapticsClient
 public import ImageClient
@@ -269,7 +268,6 @@ public struct ReadingReducer: Sendable {
     @Dependency(\.downloadClient) var downloadClient
     @Dependency(\.hapticsClient) var hapticsClient
     @Dependency(\.cookieClient) var cookieClient
-    @Dependency(\.deviceClient) var deviceClient
     @Dependency(\.imageClient) var imageClient
     @Dependency(\.date) var date
     @Dependency(\.continuousClock) var clock

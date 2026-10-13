@@ -4,7 +4,6 @@ import AppModels
 import AppTools
 public import ComposableArchitecture
 import Dependencies
-import DeviceClient
 import LiveTextTranslation
 import Observation
 import OSLogExt
@@ -19,9 +18,9 @@ private let logger = Logger(category: .init(describing: ReadingView.self))
 
 public struct ReadingView: View {
     @Dependency(\.dataCache) private var dataCache
-    @Dependency(\.deviceClient) private var deviceClient
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.colorScheme) private var colorScheme
+    @Environment(\.verticalSizeClass) private var verticalSizeClass
 
     @Bindable var store: StoreOf<ReadingReducer>
     // Write handle backing the reader's own controls (e.g. the ControlPanel slider). The reading-setting
@@ -75,7 +74,9 @@ public struct ReadingView: View {
             NavigationStack {
                 ReadingSettingView(store: readingSettingStore)
                 .toolbar {
-                    if deviceClient.deviceType() != .pad && isLandscape {
+                    // In a window compact in height the sheet covers the whole screen, so it carries
+                    // its own close button.
+                    if verticalSizeClass == .compact {
                         ToolbarItem(placement: .cancellationAction) {
                             Button {
                                 store.send(.destination(.dismiss))
