@@ -15,6 +15,8 @@ import sys
 
 import fixtures
 
+# Owner decision, 2026-10-13: Home's Frontpage shows five pairs.
+FRONTPAGE_COUNT = 10
 CLOSURE = ('Phase 17 closure (17-21): the owner confirms final gallery identifiers, set assignments, Home slots, '
            'flow pages and downloads for both sets (selectionStatus final, selectionAuthority owner); affected '
            'captures are then regenerated and revalidated.')
@@ -74,8 +76,8 @@ def composition_problems(scene, records):
     if len(hero['galleries']) < 3 or not 0 < hero['selectedIndex'] < len(hero['galleries']) - 1:
         problems.append('home hero needs at least three galleries with a neighbor on each side of selectedIndex')
     frontpage = scene['home']['frontpage']
-    if len(frontpage) < 2 or len(frontpage) % 2:
-        problems.append(f'home frontpage needs an even count of at least two; it has {len(frontpage)}')
+    if len(frontpage) != FRONTPAGE_COUNT:
+        problems.append(f'home frontpage needs exactly {FRONTPAGE_COUNT} galleries; it has {len(frontpage)}')
     for period in fixtures.TOPLISTS:
         if len(scene['home']['toplists'][period]) < 3:
             problems.append(f'home toplists {period} needs at least three galleries; it has '

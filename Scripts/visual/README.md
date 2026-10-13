@@ -297,7 +297,7 @@ Composition checks apply to the proposed populated marketing scenes, not to the 
 Each content set needs:
 
 - at least three hero galleries, with a neighbor on each side of `selectedIndex`;
-- an even frontpage count of at least two;
+- exactly ten frontpage galleries, five pairs (owner decision, 2026-10-13);
 - at least three galleries in each Toplists period;
 - a readable saved comment on the flow gallery;
 - a Live Text gallery other than the flow gallery, whose language is English and not a
