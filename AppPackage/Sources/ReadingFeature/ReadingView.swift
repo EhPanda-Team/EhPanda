@@ -5,6 +5,7 @@ import AppTools
 import ComposableArchitecture
 import Dependencies
 import DeviceClient
+import LiveTextTranslation
 import Observation
 import OSLogExt
 import ReadingSettingFeature
@@ -101,6 +102,8 @@ public struct ReadingView: View {
                 .privacyMask()
         }
         .toast($store.scope(\.$toast, action: \.toast))
+        .environment(liveTextHandler.translator)
+        .liveTextTranslationDownloads(for: liveTextHandler.translator)
 
         // Pan and zoom: the page still follows the finger — these animate only the eased settle
         // after each gesture step, which is position / size motion, so Reduce Motion drops it. The
@@ -109,6 +112,7 @@ public struct ReadingView: View {
         .animation(reduceMotion ? nil : .linear(duration: 0.1), value: gestureHandler.offset)
         .animation(.default, value: liveTextHandler.enablesLiveText)
         .animation(.default, value: liveTextHandler.liveTextGroups)
+        .animation(.default, value: liveTextHandler.translator.translatedPages)
         .animation(reduceMotion ? nil : .default, value: gestureHandler.scale)
         .animation(.default, value: store.showsPanel)
         // D-02 exception candidate: teardown of two view-owned `@State` handlers that hold live
@@ -283,6 +287,11 @@ public struct ReadingView: View {
                     newValue.forEach(analyzeImageForLiveText)
                 }
             }
+            .onChange(of: liveTextHandler.translator.failure) {
+                if let failure = liveTextHandler.translator.takeFailure() {
+                    store.send(.liveTextTranslationFailed(failure))
+                }
+            }
     }
 
     @ContentBuilder
@@ -417,7 +426,7 @@ extension ReadingView {
         }
     }
     func analyzeImageForLiveText(page: Int) {
-        guard liveTextHandler.liveTextGroups[page] == nil else {
+        guard liveTextHandler.needsAnalysis(page: page) else {
             return
         }
         #if DEBUG

@@ -4,6 +4,7 @@ import AppLaunchAutomationClient
 import AppTools
 import ComposableArchitecture
 import Kingfisher
+import LiveTextTranslation
 import SwiftUI
 
 // MARK: - CancelID
@@ -185,6 +186,10 @@ extension ReadingReducer {
 
             case .saveImageDone(let isSucceeded):
                 state.toast = isSucceeded ? .savedToPhotoLibrary : .error()
+                return .none
+
+            case .liveTextTranslationFailed(let failure):
+                state.toast = .error(caption: failure.caption)
                 return .none
 
             case .shareImage(let imageURL):
