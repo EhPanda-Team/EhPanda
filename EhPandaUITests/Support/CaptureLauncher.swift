@@ -66,6 +66,19 @@ struct CaptureCoordinate: Equatable, Sendable {
         [set, screen.rawValue, family.rawValue, locale.rawValue, theme.rawValue].joined(separator: "__")
     }
 
+    /// Whether the app shows the coordinate's screen in a sheet: Filters always, and on iPad a
+    /// gallery's detail, its comments and Setting's Laboratory.
+    var presentsSheet: Bool {
+        switch screen {
+        case .filters:
+            true
+        case .detail, .comments, .laboratory:
+            family == .ipad
+        case .home, .reading, .readingLiveText, .downloads:
+            false
+        }
+    }
+
     /// The coordinate the runner names through `TEST_RUNNER_EHPANDA_CAPTURE_COORDINATE`. Without one
     /// the capture fails rather than pick a default, so no run can stand in for a coordinate it was
     /// not given.
@@ -280,6 +293,15 @@ struct CaptureLaunchDiagnostics: Decodable, Equatable {
     let rendering: Rendering
     let liveText: CaptureLaunchLiveText?
     let downloads: [CaptureLaunchDownload]?
+    let sheetPixels: CaptureLaunchPixels?
+}
+
+/// A rectangle of a screenshot, in whole pixels from its top-left corner.
+struct CaptureLaunchPixels: Decodable, Equatable {
+    let left: Int
+    let top: Int
+    let width: Int
+    let height: Int
 }
 
 /// The Live Text a reader shows, as the diagnostics report it and a fixture's record holds it.
@@ -450,11 +472,20 @@ struct CaptureLauncher: Sendable {
         return try fixture.recordedLiveText(gid: scene.gallery, page: scene.page)
     }
 
-    /// Fails unless `diagnostics` show exactly the coordinate's screen with `liveText`, each gallery
-    /// once and each Live Text ID once.
+    /// Fails unless `diagnostics` show exactly the coordinate's screen with `liveText`, in a sheet
+    /// exactly when the coordinate's screen is one, each gallery once and each Live Text ID once.
     private func verify(_ diagnostics: CaptureLaunchDiagnostics, liveText: CaptureLaunchLiveText?) throws {
-        let expected = try expectedDiagnostics(liveText: liveText, reportedDownloads: diagnostics.downloads ?? [])
+        let expected = try expectedDiagnostics(
+            liveText: liveText,
+            reportedDownloads: diagnostics.downloads ?? [],
+            reportedSheet: diagnostics.sheetPixels
+        )
         XCTAssertEqual(diagnostics, expected, "The \(coordinate.key) capture differs.")
+        XCTAssertEqual(
+            diagnostics.sheetPixels != nil,
+            coordinate.presentsSheet,
+            "The \(coordinate.key) capture shows its screen in a sheet only when the coordinate's screen is one."
+        )
         XCTAssertEqual(
             Set(diagnostics.galleryIDs).count,
             diagnostics.galleryIDs.count,
@@ -470,10 +501,12 @@ struct CaptureLauncher: Sendable {
 
     /// The selection's diagnostics for the coordinate. A complete download's page count is only in the
     /// gallery's detail, so each expected row takes it from the row `reportedDownloads` holds for its
-    /// gallery, and then counts every page as downloaded and held.
+    /// gallery, and then counts every page as downloaded and held. Where a sheet sits is the system's
+    /// to lay out, so a sheet coordinate expects the `reportedSheet` and any other expects none.
     private func expectedDiagnostics(
         liveText: CaptureLaunchLiveText?,
-        reportedDownloads: [CaptureLaunchDownload]
+        reportedDownloads: [CaptureLaunchDownload],
+        reportedSheet: CaptureLaunchPixels?
     ) throws -> CaptureLaunchDiagnostics {
         let scene = try fixture.selection.scene(coordinate.set)
         let galleryIDs: [String] = switch coordinate.screen {
@@ -535,7 +568,8 @@ struct CaptureLauncher: Sendable {
                     pageCount: pageCount,
                     pageFiles: completedPages
                 )
-            } : nil
+            } : nil,
+            sheetPixels: coordinate.presentsSheet ? reportedSheet : nil
         )
     }
 }
