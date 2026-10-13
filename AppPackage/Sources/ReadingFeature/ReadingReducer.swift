@@ -10,6 +10,7 @@ import DeviceClient
 import DownloadClient
 import HapticsClient
 import ImageClient
+import LiveTextTranslation
 import NetworkingFeature
 import ReadingSettingFeature
 import Sharing
@@ -258,6 +259,8 @@ public struct ReadingReducer: Sendable {
         case fetchMPVImageURL(index: Int, isRefresh: Bool)
         case fetchMPVImageURLDone(index: Int, result: Result<GalleryMPVImageURLResponse, AppError>)
         case captureCachedPage(Int)
+
+        case liveTextTranslationFailed(LiveTextTranslationFailure)
     }
 
     @Dependency(\.analyticsClient) var analyticsClient
