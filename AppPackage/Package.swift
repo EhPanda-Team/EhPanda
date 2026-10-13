@@ -100,6 +100,7 @@ enum Module: String {
     case imageColors = "ImageColors"
     case legacyCFReadStream = "LegacyCFReadStream"
     case libraryClient = "LibraryClient"
+    case liveTextTranslation = "LiveTextTranslation"
     case logsClient = "LogsClient"
     case markdownExt = "MarkdownExt"
     case networkingFeature = "NetworkingFeature"
@@ -136,6 +137,7 @@ enum Module: String {
     case swiftyOpenCCTests = "SwiftyOpenCCTests"
     case imageClientTests = "ImageClientTests"
     case imageColorsTests = "ImageColorsTests"
+    case liveTextTranslationTests = "LiveTextTranslationTests"
     case markdownExtTests = "MarkdownExtTests"
     case tagTranslationFeatureTests = "TagTranslationFeatureTests"
     case galleryListComponentsTests = "GalleryListComponentsTests"
@@ -489,6 +491,16 @@ let targets: [PackageDescription.Target] = [
     .target(
         module: .legacyCFReadStream,
         swiftSettings: sharedSwiftSettings + [.unsafeFlags(["-suppress-warnings"])]
+    ),
+    // Live Text's translations: what a recognized page's text is translated from and into, through
+    // Apple's on-device Translation, and how each translation is laid out and drawn over its region.
+    .target(
+        module: .liveTextTranslation,
+        dependencies: [
+            .module(.appModels),
+            .targetDependency(.composableArchitecture)
+        ],
+        resources: [.process(.resources)]
     ),
     .target(
         module: .osLogExt,
@@ -940,6 +952,14 @@ let targets: [PackageDescription.Target] = [
         module: .imageColorsTests,
         dependencies: [
             .module(.imageColors)
+        ]
+    ),
+    .testTarget(
+        module: .liveTextTranslationTests,
+        dependencies: [
+            .module(.appModels),
+            .module(.liveTextTranslation),
+            .targetDependency(.composableArchitecture)
         ]
     ),
     // DEP-03 parity: exercises MarkdownExt.MarkdownUtil (swift-markdown-backed) against the
