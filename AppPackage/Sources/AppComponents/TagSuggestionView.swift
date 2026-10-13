@@ -1,7 +1,5 @@
 public import AppModels
 import AppTools
-import Dependencies
-import DeviceClient
 import Kingfisher
 import Observation
 import Resources
@@ -9,8 +7,14 @@ import SFSafeSymbols
 public import SwiftUI
 import TagTranslationFeature
 
+/// Tag suggestions for a `searchSuggestions` closure.
+///
+/// The system shows suggestions either in a menu attached to the search field or inline with the
+/// content, choosing by the room around the field, so each view reads that placement rather than
+/// the device. A menu row is a plain completion the system applies; inline, a count heads the rows
+/// and each row completes the keyword itself.
 public struct TagSuggestionView: View {
-    @Dependency(\.deviceClient) private var deviceClient
+    @Environment(\.searchSuggestionsPlacement) private var searchSuggestionsPlacement
     @Binding private var keyword: String
     private let translations: [String: TagTranslation]
     private let showsImages: Bool
@@ -27,7 +31,7 @@ public struct TagSuggestionView: View {
 
     public var body: some View {
         if isEnabled {
-            if deviceClient.deviceType() == .phone {
+            if searchSuggestionsPlacement != .menu {
                 Text(.matchesCount(count: translationHandler.suggestions.count))
                     .foregroundStyle(.secondary)
                     .font(.subheadline)
@@ -50,7 +54,7 @@ public struct TagSuggestionView: View {
 
 // MARK: SuggestionCell
 private struct SuggestionCell: View {
-    @Dependency(\.deviceClient) private var deviceClient
+    @Environment(\.searchSuggestionsPlacement) private var searchSuggestionsPlacement
     private let suggestion: TagSuggestion
     private let showsImages: Bool
     private let action: () -> Void
@@ -89,7 +93,7 @@ private struct SuggestionCell: View {
     }
 
     var body: some View {
-        if deviceClient.deviceType() == .phone {
+        if searchSuggestionsPlacement != .menu {
             // A real `Button`, so the row is a named, activatable control for VoiceOver and Voice
             // Control; `.unhighlighted` keeps the designed row look. Its two texts name it, so the glyphs are
             // decoration: the search symbol restates the row's purpose and the photo symbol only

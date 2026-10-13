@@ -5,7 +5,6 @@ import ClipboardClient
 import ComposableArchitecture
 import CookieClient
 @testable import DetailFeature
-import DeviceClient
 import DownloadClient
 import Foundation
 import HapticsClient
@@ -141,7 +140,6 @@ private extension ReadingReducerDownloadTests {
                 $0.analyticsClient = .noop
                 $0.clipboardClient = .noop
                 $0.cookieClient = .noop
-                $0.deviceClient = .noop
                 $0.downloadClient = DownloadClient()
                 $0.downloadClient.observeDownloads = { AsyncStream { $0.yield([]); $0.finish() } }
                 $0.downloadClient.fetchDownloads = { [] }
@@ -176,7 +174,6 @@ private extension ReadingReducerDownloadTests {
                 $0.analyticsClient = .noop
                 $0.clipboardClient = .noop
                 $0.cookieClient = .noop
-                $0.deviceClient = .noop
                 $0.downloadClient = DownloadClient()
                 $0.downloadClient.observeDownloads = { AsyncStream { $0.finish() } }
                 $0.downloadClient.fetchDownloads = { [] }

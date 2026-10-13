@@ -6,7 +6,6 @@ import ClipboardClient
 import ComposableArchitecture
 import CookieClient
 @testable import DetailFeature
-import DeviceClient
 import DownloadClient
 import Foundation
 import HapticsClient
@@ -46,7 +45,6 @@ struct DownloadObserverReadingTests: DownloadFeatureTestCase {
             $0.analyticsClient = .noop
             $0.clipboardClient = .noop
             $0.cookieClient = .noop
-            $0.deviceClient = .noop
             $0.downloadClient = .noop
             $0.hapticsClient = .noop
             $0.imageClient = .noop
@@ -174,7 +172,6 @@ private extension DownloadObserverReadingTests {
                 $0.analyticsClient = .noop
                 $0.clipboardClient = .noop
                 $0.cookieClient = .noop
-                $0.deviceClient = .noop
                 $0.downloadClient = DownloadClient()
                 $0.downloadClient.observeDownloads = { stream }
                 $0.downloadClient.fetchDownloads = { [] }

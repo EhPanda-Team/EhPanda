@@ -1,6 +1,4 @@
 import AppTools
-import Dependencies
-import DeviceClient
 import Resources
 import SFSafeSymbols
 import SFSafeSymbolsExt
@@ -8,7 +6,7 @@ import SwiftUI
 
 // MARK: DoubleVerticalKeywordsStack
 struct DoubleVerticalKeywordsStack: View {
-    @Dependency(\.deviceClient) private var deviceClient
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     private let keywords: [WrappedKeyword]
     private let searchAction: (String) -> Void
     private let removeAction: ((String) -> Void)?
@@ -42,13 +40,7 @@ struct DoubleVerticalKeywordsStack: View {
 
     var body: some View {
         HStack(alignment: .top, spacing: 30) {
-            if deviceClient.deviceType() != .pad {
-                VerticalKeywordsStack(
-                    keywords: singleKeywords,
-                    searchAction: searchAction,
-                    removeAction: removeAction
-                )
-            } else {
+            if horizontalSizeClass == .regular {
                 let (leadingKeywords, trailingKeywords) = doubleKeywords
                 VerticalKeywordsStack(
                     keywords: leadingKeywords,
@@ -57,6 +49,12 @@ struct DoubleVerticalKeywordsStack: View {
                 )
                 VerticalKeywordsStack(
                     keywords: trailingKeywords,
+                    searchAction: searchAction,
+                    removeAction: removeAction
+                )
+            } else {
+                VerticalKeywordsStack(
+                    keywords: singleKeywords,
                     searchAction: searchAction,
                     removeAction: removeAction
                 )
