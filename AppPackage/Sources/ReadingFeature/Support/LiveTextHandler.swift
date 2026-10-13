@@ -115,6 +115,10 @@ final class LiveTextHandler {
             request.recognitionLanguages = recognitionLanguages.map {
                 Locale.Language(identifier: $0)
             }
+        } else {
+            // Without a language Vision reads every page as English; detecting it reads the page in
+            // its own language, which translation needs.
+            request.automaticallyDetectsLanguage = true
         }
 
         let observations = try await request.perform(on: cgImage)
