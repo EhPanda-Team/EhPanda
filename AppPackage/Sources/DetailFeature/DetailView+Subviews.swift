@@ -101,7 +101,6 @@ struct DescriptionSection: View {
                 ForEach(infos) { info in
                     item(for: info)
                         .containerRelativeFrame(.horizontal, itemWidth)
-                        .drawingGroup()
                     Divider()
                     if info == infos.last {
                         galleryInfosButton
