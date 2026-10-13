@@ -15,8 +15,9 @@ import sys
 
 import fixtures
 
-# Owner decision, 2026-10-13: Home's Frontpage shows five pairs.
+# Owner decisions, 2026-10-13: Home's Frontpage shows five pairs, and Downloads lists six galleries.
 FRONTPAGE_COUNT = 10
+DOWNLOAD_COUNT = 6
 CLOSURE = ('Phase 17 closure (17-21): the owner confirms final gallery identifiers, set assignments, Home slots, '
            'flow pages and downloads for both sets (selectionStatus final, selectionAuthority owner); affected '
            'captures are then regenerated and revalidated.')
@@ -92,8 +93,8 @@ def composition_problems(scene, records):
         problems.append(f'Live Text gallery {live_text} must be an English original, not '
                         + describe_language(records[live_text]['language']))
     downloads = scene['downloads']
-    if len(downloads) < 2:
-        problems.append(f'downloads needs at least two items; it has {len(downloads)}')
+    if len(downloads) != DOWNLOAD_COUNT:
+        problems.append(f'downloads needs exactly {DOWNLOAD_COUNT} items; it has {len(downloads)}')
     priorities = [fixtures.DOWNLOAD_STATUSES[entry['status']] for entry in downloads]
     if priorities != sorted(priorities):
         problems.append('downloads order is not a display order: the app lists statuses by priority, so it would '
