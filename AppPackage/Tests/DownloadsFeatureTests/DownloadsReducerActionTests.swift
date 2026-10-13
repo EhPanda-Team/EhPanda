@@ -6,7 +6,6 @@ import AppTools
 import ComposableArchitecture
 import CookieClient
 import DetailFeature
-import DeviceClient
 import DownloadClient
 @testable import DownloadsFeature
 import Foundation
@@ -49,7 +48,6 @@ struct DownloadsReducerActionTests: DownloadFeatureTestCase {
             reducer: DownloadsReducer.init,
             withDependencies: {
                 $0.analyticsClient = .noop
-                $0.deviceClient = .noop
                 // The pushed detail now starts its own load on presentation, so its dependencies
                 // have to be stubbed even though this test only asserts the push itself.
                 $0.downloadClient = .noop
@@ -60,8 +58,7 @@ struct DownloadsReducerActionTests: DownloadFeatureTestCase {
         )
         store.exhaustivity = .off
 
-        await store.send(.galleryTapped(download.gid))
-        await store.receive(\.pushGalleryDetail)
+        await store.send(.pushGalleryDetail(download))
 
         #expect(store.state.path.count == 1)
         guard let element = store.state.path.first, case .detail(let detailState) = element else {
@@ -76,7 +73,7 @@ struct DownloadsReducerActionTests: DownloadFeatureTestCase {
 
     @MainActor
     @Test
-    func testDownloadsReducerDoubleTapPushesDetailOnce() async {
+    func testDownloadsReducerRepeatedPushAddsDetailOnce() async {
         let download = sampleDownload(
             gid: "123456",
             title: "Completed Gallery",
@@ -90,7 +87,6 @@ struct DownloadsReducerActionTests: DownloadFeatureTestCase {
             reducer: DownloadsReducer.init,
             withDependencies: {
                 $0.analyticsClient = .noop
-                $0.deviceClient = .noop
                 // The pushed detail now starts its own load on presentation, so its dependencies
                 // have to be stubbed even though this test only asserts the push itself.
                 $0.downloadClient = .noop
@@ -101,19 +97,17 @@ struct DownloadsReducerActionTests: DownloadFeatureTestCase {
         )
         store.exhaustivity = .off
 
-        await store.send(.galleryTapped(download.gid))
-        await store.receive(\.pushGalleryDetail)
+        await store.send(.pushGalleryDetail(download))
         #expect(store.state.path.count == 1)
 
         // A rapid second activation must not push a duplicate adjacent detail.
-        await store.send(.galleryTapped(download.gid))
-        await store.receive(\.pushGalleryDetail)
+        await store.send(.pushGalleryDetail(download))
         #expect(store.state.path.count == 1)
     }
 
     @MainActor
     @Test
-    func testDownloadsReducerDelegatesModalDetailOnPad() async {
+    func testDownloadsReducerAsksTheAppRootToOpenATappedDownload() async {
         let download = sampleDownload(
             gid: "123456",
             title: "Completed Gallery",
@@ -127,19 +121,23 @@ struct DownloadsReducerActionTests: DownloadFeatureTestCase {
             reducer: DownloadsReducer.init,
             withDependencies: {
                 $0.analyticsClient = .noop
-                $0.deviceClient = DeviceClient(
-                    deviceType: { .pad },
-                    interfaceOrientation: { .portrait }
-                )
             }
         )
-        store.exhaustivity = .off
 
         await store.send(.galleryTapped(download.gid))
-        await store.receive(\.delegate)
+        // The host does not push on its own: the app root, which knows the window's size classes,
+        // presents a modal or answers with `pushGalleryDetail`.
+        await store.receive(\.delegate.openGalleryDetail, download)
+    }
 
-        // The host must not push inline on iPad; AppReducer presents the modal instead.
-        #expect(store.state.path.isEmpty)
+    @MainActor
+    @Test
+    func testDownloadsReducerIgnoresATapOnAVanishedDownload() async {
+        let store = TestStore(initialState: DownloadsReducer.State(), reducer: DownloadsReducer.init) {
+            $0.analyticsClient = .noop
+        }
+
+        await store.send(.galleryTapped("123456"))
     }
 
     @Test

@@ -6,7 +6,6 @@ import AppModels
 import AppTools
 import ComposableArchitecture
 import CookieClient
-import DeviceClient
 import DFClient
 import DownloadClient
 import DownloadsFeature
@@ -175,15 +174,17 @@ struct DownloadAutomationTests: DownloadFeatureTestCase {
             loginCookies: nil,
             galleryURL: URL(string: "https://example.com/not-a-gallery")
         )
+        var initialState = AppReducer.State()
+        initialState.settingState.hasLoadedInitialSetting = true
+        initialState.windowSizeClasses = .init(horizontal: .compact, vertical: .regular)
 
         let store = TestStore(
-            initialState: AppReducer.State(),
+            initialState: initialState,
             reducer: AppReducer.init,
             withDependencies: {
                 $0.analyticsClient = .noop
                 $0.appLaunchAutomationClient = appLaunchAutomationClient(automation)
                 $0.cookieClient = .noop
-                $0.deviceClient = .noop
                 $0.hapticsClient = .noop
                 $0.downloadClient = .noop
             }
@@ -227,7 +228,6 @@ struct DownloadAutomationTests: DownloadFeatureTestCase {
                 $0.analyticsClient = .noop
                 $0.appLaunchAutomationClient = appLaunchAutomationClient(automation)
                 $0.cookieClient = cookieClient
-                $0.deviceClient = .noop
                 $0.hapticsClient = .noop
                 $0.homeClient = .noop
                 $0.applicationClient = .noop
@@ -271,15 +271,16 @@ struct DownloadAutomationTests: DownloadFeatureTestCase {
             loginCookies: nil,
             galleryURL: URL(string: "https://exhentai.org/g/1394965/56c35114b6/")
         )
+        var initialState = AppReducer.State()
+        initialState.windowSizeClasses = .init(horizontal: .compact, vertical: .regular)
 
         let store = TestStore(
-            initialState: AppReducer.State(),
+            initialState: initialState,
             reducer: AppReducer.init,
             withDependencies: {
                 $0.analyticsClient = .noop
                 $0.appLaunchAutomationClient = appLaunchAutomationClient(automation)
                 $0.cookieClient = cookieClient
-                $0.deviceClient = .noop
                 $0.hapticsClient = .noop
                 $0.homeClient = .noop
                 $0.applicationClient = .noop
@@ -325,15 +326,16 @@ struct DownloadAutomationTests: DownloadFeatureTestCase {
             loginCookies: nil,
             galleryURL: URL(string: "https://exhentai.org/g/1394965/56c35114b6/")
         )
+        var initialState = AppReducer.State()
+        initialState.windowSizeClasses = .init(horizontal: .compact, vertical: .regular)
 
         let store = TestStore(
-            initialState: AppReducer.State(),
+            initialState: initialState,
             reducer: AppReducer.init,
             withDependencies: {
                 $0.analyticsClient = .noop
                 $0.appLaunchAutomationClient = appLaunchAutomationClient(automation)
                 $0.cookieClient = cookieClient
-                $0.deviceClient = .noop
                 $0.hapticsClient = .noop
                 $0.homeClient = .noop
                 $0.applicationClient = .noop

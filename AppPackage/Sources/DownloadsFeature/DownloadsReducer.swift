@@ -4,7 +4,6 @@ public import AppModels
 import AppTools
 public import ComposableArchitecture
 public import DetailFeature
-import DeviceClient
 import DownloadClient
 public import Foundation
 public import IdentifiedCollections
@@ -42,8 +41,11 @@ import Resources
 ///   arm stays silent: `observeDownloads` re-renders the row with its new status.
 @Reducer
 public struct DownloadsReducer: Sendable {
+    @CasePathable
     public enum Delegate: Equatable, Sendable {
-        case presentGalleryDetail(gallery: Gallery, downloaded: DownloadedGallery?)
+        /// Asks the app root to open a download's detail. The root knows the window's size classes,
+        /// so it decides between a modal and `pushGalleryDetail` back to this host.
+        case openGalleryDetail(DownloadedGallery)
     }
 
     @Reducer
@@ -161,7 +163,6 @@ public struct DownloadsReducer: Sendable {
 
     @Dependency(\.analyticsClient) private var analyticsClient
     @Dependency(\.downloadClient) private var downloadClient
-    @Dependency(\.deviceClient) private var deviceClient
 
     public init() {}
 
@@ -177,11 +178,7 @@ public struct DownloadsReducer: Sendable {
                 // Bail if the download vanished between the observation update and this tap; routing to
                 // detail with `.empty` would write an unresolvable (random-gid) history entry.
                 guard let download = state.downloads.first(where: { $0.gid == gid }) else { return .none }
-                return GalleryNavigation.routeGalleryDetail(
-                    deviceType: deviceClient.deviceType,
-                    present: { .delegate(.presentGalleryDetail(gallery: download.gallery, downloaded: download)) },
-                    push: { .pushGalleryDetail(download) }
-                )
+                return .send(.delegate(.openGalleryDetail(download)))
 
             case .pushGalleryDetail(let download):
                 // Seed the detail with the locally downloaded gallery/badge so it renders offline.

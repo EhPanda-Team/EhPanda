@@ -5,7 +5,6 @@ import AppTools
 import ComposableArchitecture
 import CookieClient
 import DetailFeature
-import DeviceClient
 import DownloadClient
 import DownloadsFeature
 import FavoritesFeature
@@ -34,6 +33,8 @@ struct AppReducer {
         @Shared(.privacyMaskBlur) var privacyMaskBlur: Double
         var appLogsPumpState = AppActivityLogsPumpReducer.State()
         var scenePhase = ScenePhase.active
+        /// `nil` until the root view first reports the window, which happens on its first render.
+        var windowSizeClasses: WindowSizeClasses?
         /// Whether the download client currently holds a continued-processing session — the fact
         /// that decides whether backgrounding may pause the activity-log pump.
         var isContinuedSessionLive = false
@@ -45,6 +46,7 @@ struct AppReducer {
     enum Action: BindableAction {
         case binding(BindingAction<State>)
         case onScenePhaseChange(ScenePhase)
+        case windowSizeClassesChanged(WindowSizeClasses)
         case continuedSessionLivenessChanged(Bool)
         case runLaunchAutomation
 
@@ -64,15 +66,14 @@ struct AppReducer {
     @Dependency(\.hapticsClient) private var hapticsClient
     @Dependency(\.analyticsClient) private var analyticsClient
     @Dependency(\.cookieClient) private var cookieClient
-    @Dependency(\.deviceClient) private var deviceClient
     @Dependency(\.downloadClient) private var downloadClient
     @Dependency(\.appLaunchAutomationClient) private var appLaunchAutomationClient
 
     var body: some Reducer<State, Action> {
         BindingReducer()
             .onChange(of: \.presentationState.destination) { oldValue, state in
-                // iPad presents Setting as a modal sheet; when it's dismissed, reset its navigation
-                // stack so reopening starts at the root.
+                // A window regular in both dimensions presents Setting as a sheet; when it's
+                // dismissed, reset its navigation stack so reopening starts at the root.
                 if oldValue?.setting != nil, state.presentationState.destination == nil {
                     state.settingState.path.removeAll()
                 }
@@ -169,6 +170,11 @@ struct AppReducer {
                     return effects.isEmpty ? .none : .merge(effects)
                 }
 
+            case .windowSizeClassesChanged(let sizeClasses):
+                let isFirstReport = state.windowSizeClasses == nil
+                state.windowSizeClasses = sizeClasses
+                return isFirstReport ? .send(.runLaunchAutomation) : .none
+
             case .continuedSessionLivenessChanged(let isLive):
                 guard state.isContinuedSessionLive != isLive else { return .none }
                 state.isContinuedSessionLive = isLive
@@ -179,7 +185,14 @@ struct AppReducer {
                 return .send(.appLogsPump(.pausePump))
 
             case .runLaunchAutomation:
+                // Sent by each event a launch automation waits on: the settings loading, the
+                // igneous cookie an ExHentai route needs, and the root view's first report of the
+                // window, whose size classes route the screens the automation opens. It runs once,
+                // on whichever of them completes the set.
                 guard !state.didRunLaunchAutomation,
+                      state.settingState.hasLoadedInitialSetting,
+                      !state.isAwaitingIgneousForLaunchAutomation,
+                      state.windowSizeClasses != nil,
                       let automation = appLaunchAutomationClient.current()
                 else { return .none }
 
@@ -227,8 +240,10 @@ struct AppReducer {
             case .presentation:
                 return .none
 
-            case .tabBar(.delegate(.presentSetting)):
-                return .send(.presentation(.presentSetting))
+            case .tabBar(.delegate(.openSetting)):
+                return .send(
+                    opensSettingAsSheet(state) ? .presentation(.presentSetting) : .tabBar(.selectSettingInline)
+                )
 
             case .tabBar(.setTabBarItemType(let type)):
                 guard type != .setting else { return .none }
@@ -248,10 +263,10 @@ struct AppReducer {
                 ]
                 effects.append(.send(.setting(.settingRowTapped(.account))))
                 if !cookieClient.didLogin {
+                    // A Setting sheet has to finish presenting before it can push Login.
+                    let delay = opensSettingAsSheet(state) ? 1200 : 200
                     effects.append(
                         .run { send in
-                            let isPad = await deviceClient.deviceType() == .pad
-                            let delay = UInt64(isPad ? 1200 : 200)
                             try await Task.sleep(for: .milliseconds(delay))
                             await send(.setting(.pushLogin))
                         }
@@ -259,15 +274,22 @@ struct AppReducer {
                 }
                 return .merge(effects)
 
-            // A gallery tapped on iPad presents modally (hosted by AppRoute) instead of pushing
-            // inline; the tab hosts delegate that presentation up here.
-            case let .home(.delegate(.presentGalleryDetail(gallery))),
-                 let .searchRoot(.delegate(.presentGalleryDetail(gallery))),
-                 let .favorites(.delegate(.presentGalleryDetail(gallery))):
-                return .send(.presentation(.presentGalleryDetail(gallery: gallery, downloaded: nil)))
+            case let .home(.delegate(.openGalleryDetail(gallery))):
+                return openGalleryDetail(gallery, push: .home(.pushGalleryDetail(gallery)), state: state)
 
-            case let .downloads(.delegate(.presentGalleryDetail(gallery, download))):
-                return .send(.presentation(.presentGalleryDetail(gallery: gallery, downloaded: download)))
+            case let .searchRoot(.delegate(.openGalleryDetail(gallery))):
+                return openGalleryDetail(gallery, push: .searchRoot(.pushGalleryDetail(gallery)), state: state)
+
+            case let .favorites(.delegate(.openGalleryDetail(gallery))):
+                return openGalleryDetail(gallery, push: .favorites(.pushGalleryDetail(gallery)), state: state)
+
+            case let .downloads(.delegate(.openGalleryDetail(download))):
+                return openGalleryDetail(
+                    download.gallery,
+                    downloaded: download,
+                    push: .downloads(.pushGalleryDetail(download)),
+                    state: state
+                )
 
             case .home:
                 return .none
@@ -292,9 +314,7 @@ struct AppReducer {
                 state.isAwaitingIgneousForLaunchAutomation = shouldDelayLaunchAutomationUntilIgneous(
                     state: state
                 )
-                if !state.isAwaitingIgneousForLaunchAutomation {
-                    effects.append(.send(.runLaunchAutomation))
-                }
+                effects.append(.send(.runLaunchAutomation))
                 // Cold-launch counterpart of the tab-activation hook below: the tab shown at launch
                 // never gets a "became active" transition, so its presentation action fires here.
                 // Settings are loaded by now, which is what the fetches need to pick a gallery host.
@@ -409,10 +429,31 @@ private extension AppReducer {
         }
     }
 
+    /// Whether choosing the Setting tab presents Setting as a sheet over the current tab instead of
+    /// selecting it. Only a window regular in both dimensions presents it, and never over the
+    /// Setting tab itself: a narrower window may have left that tab selected, where a second
+    /// choice pops it to its root rather than showing the same screens twice.
+    func opensSettingAsSheet(_ state: State) -> Bool {
+        state.windowSizeClasses?.presentsModally == true && state.tabBarState.tabBarItemType != .setting
+    }
+
+    /// Opens the gallery detail a tab host asked for: in a window regular in both dimensions as a
+    /// sheet rooting its own gallery stack, seeded from the download when there is one, otherwise
+    /// with the host's own `push`.
+    func openGalleryDetail(
+        _ gallery: Gallery,
+        downloaded: DownloadedGallery? = nil,
+        push: Action,
+        state: State
+    ) -> Effect<Action> {
+        guard state.windowSizeClasses?.presentsModally == true else { return .send(push) }
+        return .send(.presentation(.presentGalleryDetail(gallery: gallery, downloaded: downloaded)))
+    }
+
     /// Flush actions for every reading session currently on top of a navigation host, so a background
     /// force-quit persists each reader's last debounced page. A reader is presented as a `.reading`
     /// destination of `.detail`/`.previews` (elements of the gallery stacks) or, for the Downloads tab
-    /// and the iPad/deep-link modal, directly as a host destination. Any new host that can present a
+    /// and the modal detail, directly as a host destination. Any new host that can present a
     /// `.reading` destination must be registered here.
     func readingFlushEffects(_ state: State) -> [Effect<Action>] {
         var effects: [Effect<Action>] = []
@@ -440,7 +481,8 @@ private extension AppReducer {
             effects.append(.send(.searchRoot(.path(.element(id: id, action: .gallery(action))))))
         }
 
-        // The iPad/deep-link modal detail and the Downloads tab present a reader directly.
+        // The modal detail (a deep link, or a tab's gallery in a window regular in both
+        // dimensions) and the Downloads tab present a reader directly.
         if state.presentationState.detail?.destination?.reading != nil {
             effects.append(.send(.presentation(.detail(.presented(
                 .destination(.presented(.reading(.flushReadingProgress)))

@@ -2,11 +2,9 @@ import AnalyticsClient
 @testable import AppFeature
 import AppLaunchAutomationClient
 import AppModels
-import AppTools
 import ClipboardClient
 import ComposableArchitecture
 import CookieClient
-import DeviceClient
 import DownloadClient
 import FavoritesFeature
 import Foundation
@@ -14,18 +12,19 @@ import HapticsClient
 import HomeFeature
 import LogsClient
 import Sharing
+import SwiftUI
 import Testing
 import UserDefaultsClient
 
 struct TabBarSettingPresentationTests {
     @MainActor
     @Test
-    func padSettingSelectionKeepsTheCurrentTabAndPresentsSetting() async {
-        let store = makeStore(initialTab: .favorites, deviceType: .pad)
+    func aRegularWindowKeepsTheCurrentTabAndPresentsSetting() async {
+        let store = makeStore(initialTab: .favorites, window: .regular)
         store.exhaustivity = .off(showSkippedAssertions: false)
 
         await store.send(.tabBar(.setTabBarItemType(.setting)))
-        await store.receive(\.tabBar.delegate.presentSetting)
+        await store.receive(\.tabBar.delegate.openSetting)
         await store.receive(\.presentation.presentSetting)
         #expect(store.state.tabBarState.tabBarItemType == .favorites)
         #expect(store.state.presentationState.destination?.is(\.setting) == true)
@@ -33,12 +32,13 @@ struct TabBarSettingPresentationTests {
     }
 
     @MainActor
-    @Test
-    func phoneSettingSelectionSelectsTheTabWithoutPresentingSetting() async {
-        let store = makeStore(initialTab: .favorites, deviceType: .phone)
+    @Test(arguments: [WindowSizeClasses.compactWidth, .compactHeight])
+    func aWindowCompactInEitherDimensionSelectsTheTab(_ window: WindowSizeClasses) async {
+        let store = makeStore(initialTab: .favorites, window: window)
         store.exhaustivity = .off(showSkippedAssertions: false)
 
         await store.send(.tabBar(.setTabBarItemType(.setting)))
+        await store.receive(\.tabBar.delegate.openSetting)
         await store.receive(\.tabBar.selectSettingInline) {
             $0.tabBarState.tabBarItemType = .setting
         }
@@ -48,9 +48,26 @@ struct TabBarSettingPresentationTests {
 
     @MainActor
     @Test
-    func loggedOutSettingRouteOnPadPresentsWithoutSelectingTheTab() async {
+    func aSettingTabLeftSelectedByANarrowerWindowStaysInline() async {
+        let store = makeStore(initialTab: .setting, window: .compactWidth)
+        store.exhaustivity = .off(showSkippedAssertions: false)
+
+        await store.send(.windowSizeClassesChanged(.regular)) {
+            $0.windowSizeClasses = .regular
+        }
+        await store.send(.tabBar(.setTabBarItemType(.setting)))
+        await store.receive(\.tabBar.delegate.openSetting)
+        await store.receive(\.tabBar.selectSettingInline)
+        #expect(store.state.tabBarState.tabBarItemType == .setting)
+        #expect(store.state.presentationState.destination == nil)
+        await store.finish()
+    }
+
+    @MainActor
+    @Test
+    func loggedOutSettingRouteInARegularWindowPresentsWithoutSelectingTheTab() async {
         let clock = TestClock()
-        let store = makeStore(initialTab: .favorites, deviceType: .pad, clock: clock)
+        let store = makeStore(initialTab: .favorites, window: .regular, clock: clock)
         store.exhaustivity = .off(showSkippedAssertions: false)
 
         await store.send(.favorites(.onNotLoginViewButtonTapped))
@@ -63,7 +80,7 @@ struct TabBarSettingPresentationTests {
     @MainActor
     @Test
     func ordinaryTabSelectionStillSelectsTheRequestedTab() async {
-        let store = makeStore(initialTab: .favorites, deviceType: .pad)
+        let store = makeStore(initialTab: .favorites, window: .regular)
         store.exhaustivity = .off(showSkippedAssertions: false)
 
         await store.send(.tabBar(.setTabBarItemType(.home))) {
@@ -75,13 +92,13 @@ struct TabBarSettingPresentationTests {
 
     @MainActor
     @Test
-    func repeatedPadSettingSelectionNeverSelectsTheTab() async {
-        let store = makeStore(initialTab: .downloads, deviceType: .pad)
+    func repeatedSettingSelectionInARegularWindowNeverSelectsTheTab() async {
+        let store = makeStore(initialTab: .downloads, window: .regular)
         store.exhaustivity = .off(showSkippedAssertions: false)
 
         for _ in 0..<2 {
             await store.send(.tabBar(.setTabBarItemType(.setting)))
-            await store.receive(\.tabBar.delegate.presentSetting)
+            await store.receive(\.tabBar.delegate.openSetting)
             await store.receive(\.presentation.presentSetting)
             #expect(store.state.tabBarState.tabBarItemType == .downloads)
         }
@@ -91,10 +108,10 @@ struct TabBarSettingPresentationTests {
 
     @MainActor
     @Test
-    func launchAutomationSettingRouteOnPadPresentsWithoutSelectingTheTab() async {
+    func launchAutomationSettingRouteInARegularWindowPresentsWithoutSelectingTheTab() async {
         let store = makeStore(
             initialTab: .home,
-            deviceType: .pad,
+            window: .regular,
             launchAutomation: AppLaunchAutomation(initialTab: .setting)
         )
         store.exhaustivity = .off(showSkippedAssertions: false)
@@ -103,9 +120,35 @@ struct TabBarSettingPresentationTests {
             $0.didRunLaunchAutomation = true
         }
         await store.receive(\.tabBar.setTabBarItemType)
-        await store.receive(\.tabBar.delegate.presentSetting)
+        await store.receive(\.tabBar.delegate.openSetting)
         await store.receive(\.presentation.presentSetting)
         #expect(store.state.tabBarState.tabBarItemType == .home)
+        #expect(store.state.presentationState.destination?.is(\.setting) == true)
+        await store.finish()
+    }
+
+    /// A launch automation opens screens the way taps do, and the root routes those by the window, so
+    /// a launch whose settings load before the root view first reports the window waits for it.
+    @MainActor
+    @Test
+    func launchAutomationWaitsForTheWindowsFirstReport() async {
+        let store = makeStore(
+            initialTab: .home,
+            window: nil,
+            launchAutomation: AppLaunchAutomation(initialTab: .setting)
+        )
+        store.exhaustivity = .off(showSkippedAssertions: false)
+
+        await store.send(.runLaunchAutomation)
+        #expect(store.state.didRunLaunchAutomation == false)
+
+        await store.send(.windowSizeClassesChanged(.regular)) {
+            $0.windowSizeClasses = .regular
+        }
+        await store.receive(\.runLaunchAutomation) {
+            $0.didRunLaunchAutomation = true
+        }
+        await store.receive(\.presentation.presentSetting)
         #expect(store.state.presentationState.destination?.is(\.setting) == true)
         await store.finish()
     }
@@ -115,7 +158,7 @@ private extension TabBarSettingPresentationTests {
     @MainActor
     func makeStore(
         initialTab: TabBarItemType,
-        deviceType: DeviceType,
+        window: WindowSizeClasses?,
         clock: TestClock<Duration> = TestClock(),
         launchAutomation: AppLaunchAutomation? = nil
     ) -> TestStoreOf<AppReducer> {
@@ -128,6 +171,8 @@ private extension TabBarSettingPresentationTests {
         } operation: {
             var initialState = AppReducer.State()
             initialState.tabBarState.tabBarItemType = initialTab
+            initialState.windowSizeClasses = window
+            initialState.settingState.hasLoadedInitialSetting = true
             initialState.$privacyMaskBlur.withLock({ $0 = 0 })
 
             return TestStore(
@@ -143,10 +188,6 @@ private extension TabBarSettingPresentationTests {
                     $0.cookieClient = .noop
                     $0.defaultAppStorage = appStorage
                     $0.defaultInMemoryStorage = inMemoryStorage
-                    $0.deviceClient = DeviceClient(
-                        deviceType: { deviceType },
-                        interfaceOrientation: { .portrait }
-                    )
                     $0.downloadClient = .noop
                     $0.hapticsClient = .noop
                     $0.homeClient = .noop

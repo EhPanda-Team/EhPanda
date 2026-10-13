@@ -15,7 +15,9 @@ import SwiftUI
 import SystemNotification
 
 struct TabBarView: View {
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @Environment(\.scenePhase) private var scenePhase
+    @Environment(\.verticalSizeClass) private var verticalSizeClass
     @Bindable private var store: StoreOf<AppReducer>
 
     init(store: StoreOf<AppReducer>) {
@@ -94,6 +96,12 @@ struct TabBarView: View {
         )
         .onChange(of: scenePhase) { _, newValue in
             store.send(.onScenePhaseChange(newValue))
+        }
+        .onChange(
+            of: WindowSizeClasses(horizontal: horizontalSizeClass, vertical: verticalSizeClass),
+            initial: true
+        ) { _, newValue in
+            store.send(.windowSizeClassesChanged(newValue))
         }
         .onOpenURL { store.send(.presentation(.handleDeepLink($0))) }
     }
