@@ -47,9 +47,10 @@ public struct LiveTextTranslatedPage: Equatable, Sendable {
     /// A group without a translation, or whose translation reads as its source (`sources`), as a name
     /// or a sound effect often does, keeps its lettering and is left out.
     ///
-    /// A translation grows, when it must, into the room its balloon has, clear of other lettering and
-    /// of the rooms given before it; off a balloon, or spilling past one, its plate grows only as far
-    /// as it stays off lettering it was not already over.
+    /// A translation in a balloon is set in the rooms its balloon has, clear of other lettering and of
+    /// the rooms given before it, so it never reaches the outline; one off a balloon is set where its
+    /// lettering was. A plate grown past either grows only as far as it stays off lettering it was not
+    /// already over.
     public static func layOut(
         groups: [LiveTextGroup],
         sources: [UUID: String],
@@ -65,7 +66,7 @@ public struct LiveTextTranslatedPage: Equatable, Sendable {
             LiveTextGroupGeometry(group: group, pageSize: pageSize).map({ (id: group.id, geometry: $0) })
         }
         var translated = [TranslatedGroup]()
-        var rooms = [LiveTextOrientedRect]()
+        var claimedRooms = [LiveTextOrientedRect]()
         for (id, geometry) in geometries {
             guard let text = translations[id]?.trimmingCharacters(in: .whitespacesAndNewlines),
                   !text.isEmpty,
@@ -76,20 +77,21 @@ public struct LiveTextTranslatedPage: Equatable, Sendable {
             let lettering = geometry.letteringArea
             let otherLettering = geometries.filter({ $0.id != id }).map({ $0.geometry.letteringArea })
             let balloon = finder?.balloon(around: geometry.textRect, margin: plateMargin * geometry.lineHeight)
-            let room = balloon?.room(
+            let rooms = balloon?.rooms(
                 around: lettering,
+                lineHeight: geometry.lineHeight,
                 padding: LiveTextBalloon.padding * geometry.lineHeight,
-                avoiding: otherLettering + rooms
-            )
-            if let room {
-                rooms.append(LiveTextOrientedRect(center: lettering.center, size: room, angle: lettering.angle))
+                avoiding: otherLettering + claimedRooms
+            ) ?? []
+            claimedRooms += rooms.map { room in
+                LiveTextOrientedRect(center: lettering.center, size: room, angle: lettering.angle)
             }
             translated.append(TranslatedGroup(
                 id: id,
                 text: text,
                 geometry: geometry,
-                balloon: balloon,
-                room: room,
+                balloon: rooms.isEmpty ? nil : balloon,
+                rooms: rooms,
                 plateGrowth: Self.plateGrowth(of: geometry, avoiding: otherLettering)
             ))
         }
@@ -152,24 +154,26 @@ private struct TranslatedGroup {
     let id: UUID
     let text: String
     let geometry: LiveTextGroupGeometry
-    /// The balloon the group's lettering sits in, if any.
+    /// The balloon the group's lettering sits in, when it has room for a translation.
     let balloon: LiveTextBalloon?
-    /// The room the balloon has for the translation.
-    let room: CGSize?
+    /// The rooms the balloon has for the translation, widest first.
+    let rooms: [CGSize]
     /// How much the text area grows on a plate.
     let plateGrowth: Double
 
     var region: LiveTextTextFitter.Region {
         let area = geometry.letteringArea.size
-        let plateArea = CGSize(width: area.width * plateGrowth, height: area.height * plateGrowth)
+        var grownArea = CGSize(width: area.width * plateGrowth, height: area.height * plateGrowth)
+        // A plate past a balloon is no smaller than the balloon's largest room.
+        if let largestRoom = rooms.max(by: { $0.width * $0.height < $1.width * $1.height }) {
+            grownArea.width = Swift.max(grownArea.width, largestRoom.width)
+            grownArea.height = Swift.max(grownArea.height, largestRoom.height)
+        }
         return LiveTextTextFitter.Region(
             id: id,
             text: text,
-            area: area,
-            grownArea: room ?? plateArea,
-            spilledArea: room.map { room in
-                CGSize(width: Swift.max(room.width, plateArea.width), height: Swift.max(room.height, plateArea.height))
-            },
+            areas: rooms.isEmpty ? [area] : rooms,
+            grownArea: grownArea,
             lineHeight: geometry.lineHeight
         )
     }
@@ -185,7 +189,7 @@ private struct TranslatedGroup {
         let lettering = geometry.letteringArea
         let textArea = LiveTextOrientedRect(
             center: lettering.center,
-            size: region.area(for: placement.room),
+            size: placement.area,
             angle: lettering.angle
         )
         let plate = textArea.expanded(by: plateMargin - textMargin)
@@ -229,7 +233,7 @@ private struct TranslatedGroup {
         at placement: LiveTextTextFitter.Placement,
         bitmap: LiveTextPageBitmap?
     ) -> LiveTextFill {
-        if let balloon, placement.room != .spilled, let paint = balloon.paint() {
+        if let balloon, !placement.isGrown, let paint = balloon.paint() {
             return .balloon(paint, text: balloon.textColor)
         }
         guard let bitmap else {
