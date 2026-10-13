@@ -1,5 +1,6 @@
 import AnalyticsClient
 import AppComponents
+import AppLaunchAutomationClient
 import AppModels
 import AppTools
 import ClipboardClient
@@ -260,6 +261,7 @@ public struct ReadingReducer: Sendable {
     }
 
     @Dependency(\.analyticsClient) var analyticsClient
+    @Dependency(\.appLaunchAutomationClient) var appLaunchAutomationClient
     @Dependency(\.clipboardClient) var clipboardClient
     @Dependency(\.downloadClient) var downloadClient
     @Dependency(\.hapticsClient) var hapticsClient

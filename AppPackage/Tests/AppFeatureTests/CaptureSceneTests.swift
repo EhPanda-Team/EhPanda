@@ -356,6 +356,7 @@ struct CaptureSceneTests {
                 fixtureVersion: try fixture.fixtureVersion(),
                 galleryIDs: MarketingFixtureBuilder.allGIDs,
                 page: nil,
+                showsPanel: nil,
                 readiness: .ready,
                 pendingImages: 0,
                 unknownRequests: [],
@@ -426,6 +427,7 @@ struct CaptureSceneTests {
             fixtureVersion: "marketing-0123456789abcdef",
             galleryIDs: ["101"],
             page: 4,
+            showsPanel: false,
             readiness: .failed,
             pendingImages: 0,
             unknownRequests: ["GET https://e-hentai.org/api.php"],
@@ -452,7 +454,7 @@ struct CaptureSceneTests {
                 + #""source":"fixture"},"page":4,"pendingImages":0,"readiness":"failed","#
                 + #""rendering":{"appearance":"dark","family":"iphone","language":"en","locale":"en_US","#
                 + #""textSize":"large"},"screenID":"reading-live-text","selectionID":"test-selection","#
-                + #""setID":"nonexplicit","unknownRequests":["GET https://e-hentai.org/api.php"]}"#
+                + #""setID":"nonexplicit","showsPanel":false,"unknownRequests":["GET https://e-hentai.org/api.php"]}"#
         )
     }
 
@@ -504,10 +506,9 @@ struct CaptureSceneTests {
     }
 
     @Test
-    func sceneSettingsAreTheDefaultsWithTheBypassOnAndThePagingReader() {
+    func sceneSettingsAreTheDefaultsWithTheBypassOn() {
         var expected = Setting()
         expected.bypassSNIFiltering = true
-        expected.readingDirection = .leftToRight
         expectNoDifference(CaptureScenePreparation.sceneSetting, expected)
     }
 

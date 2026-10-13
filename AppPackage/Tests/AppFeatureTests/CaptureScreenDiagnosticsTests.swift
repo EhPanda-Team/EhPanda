@@ -118,6 +118,7 @@ struct CaptureScreenDiagnosticsTests {
 
         #expect(!comments.isEmpty)
         expectNoDifference(readable.screenID, .comments)
+        #expect(readable.showsPanel == nil)
         expectNoDifference(readable.galleryIDs, [MarketingFixtureBuilder.flowGID])
         expectNoDifference(readable.readiness, .ready)
         expectNoDifference(highlighted.readiness, .failed)
@@ -127,7 +128,7 @@ struct CaptureScreenDiagnosticsTests {
     }
 
     @Test
-    func theReaderWaitsUntilItShowsItsPage() async throws {
+    func theReaderWaitsUntilItShowsItsPageAndReportsItsPanel() async throws {
         let scene = try makeScene(try MarketingFixtureBuilder.standard())
         let gallery = try await flowGallery(scene)
         var reading = ReadingReducer.State(gallery: gallery)
@@ -139,6 +140,7 @@ struct CaptureScreenDiagnosticsTests {
         state.homeState.path = StackState([.gallery(.detail(detail))])
         let loading = diagnostics(scene, state)
         reading.webImageLoadSuccessIndices = [4]
+        reading.showsPanel = true
         detail.destination = .reading(reading)
         state.homeState.path = StackState([.gallery(.detail(detail))])
         let shown = diagnostics(scene, state)
@@ -149,8 +151,10 @@ struct CaptureScreenDiagnosticsTests {
 
         expectNoDifference(loading.screenID, .reading)
         expectNoDifference(loading.page, 4)
+        expectNoDifference(loading.showsPanel, false)
         expectNoDifference(loading.blockers, ["The image of page 4 is not shown"])
         expectNoDifference(shown.readiness, .ready)
+        expectNoDifference(shown.showsPanel, true)
         expectNoDifference(shown.galleryIDs, [MarketingFixtureBuilder.flowGID])
         // The reader covers everything, so the Home behind its sheet is not waited for.
         expectNoDifference(failedInASheet.screenID, .reading)

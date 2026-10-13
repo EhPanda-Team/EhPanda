@@ -1,5 +1,6 @@
 import AnalyticsClient
 import AppComponents
+import AppLaunchAutomationClient
 import AppTools
 import ComposableArchitecture
 import Kingfisher
@@ -108,7 +109,8 @@ extension ReadingReducer {
                 state.visitedPages = [state.readingProgress]
                 return .merge(
                     .send(.observeDownloads(gid)),
-                    .send(.loadLocalPageURLs(gid))
+                    .send(.loadLocalPageURLs(gid)),
+                    captureRouteEffect(gid: gid)
                 )
 
             case .onWebImageRetry(let page):
@@ -221,5 +223,17 @@ extension ReadingReducer {
                 return .none
             }
         }
+    }
+
+    /// Ends a capture route on the reading screen, which shows the reader with its control panel,
+    /// with the action a tap on the page sends. The reading-live-text screen keeps the panel hidden
+    /// over its Live Text. Only a capture launch has a route, and only in DEBUG builds.
+    private func captureRouteEffect(gid: String) -> Effect<Action> {
+        guard case .reading(let gallery, _) = appLaunchAutomationClient.current()?.captureRoute,
+              gallery.id == gid
+        else {
+            return .none
+        }
+        return .send(.toggleShowsPanel)
     }
 }

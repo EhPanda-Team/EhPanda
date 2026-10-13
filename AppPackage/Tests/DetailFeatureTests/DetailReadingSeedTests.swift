@@ -1,4 +1,5 @@
 import AnalyticsClient
+import AppLaunchAutomationClient
 import AppModels
 import ComposableArchitecture
 @testable import DetailFeature
@@ -38,6 +39,8 @@ struct DetailReadingSeedTests {
         // download observation runs inside this store.
         let store = TestStore(initialState: makeSeededState(), reducer: DetailReducer.init) {
             $0.analyticsClient = .noop
+            // The reader reads the launch's capture route on presentation.
+            $0.appLaunchAutomationClient = .none
             // The reader's session tracking reads the date dependency on presentation (14-14).
             $0.date = .constant(Date(timeIntervalSince1970: 0))
             $0.downloadClient = .noop
@@ -64,6 +67,8 @@ struct DetailReadingSeedTests {
         // download observation runs inside this store.
         let store = TestStore(initialState: makeSeededState(), reducer: DetailReducer.init) {
             $0.analyticsClient = .noop
+            // The reader reads the launch's capture route on presentation.
+            $0.appLaunchAutomationClient = .none
             // The reader's session tracking reads the date dependency on presentation (14-14).
             $0.date = .constant(Date(timeIntervalSince1970: 0))
             $0.downloadClient = .noop
