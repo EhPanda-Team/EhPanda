@@ -6,7 +6,6 @@ import SFSafeSymbolsExt
 import SwiftUI
 
 struct ReadingToolbar: ToolbarContent {
-    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @Binding var setting: Setting
     @Binding var enablesLiveText: Bool
     @Binding var autoPlayPolicy: AutoPlayPolicy
@@ -24,9 +23,13 @@ struct ReadingToolbar: ToolbarContent {
             }
         }
         .visibilityPriority(.high)
-        ToolbarItem(placement: horizontalSizeClass == .regular ? .topBarLeading : .title) {
+        // Leading in every size class, never `.title`: the bar leaves a `.title` item out of its visibility-priority
+        // overflow and drops it outright when it does not fit, as in a narrow iPad window whose window controls take
+        // the leading edge. Here, at high priority, it stays and the automatic-priority actions overflow instead.
+        ToolbarItem(placement: .topBarLeading) {
             Text(title)
                 .font(.headline)
+                // The leading slot proposes less width than the text needs, which would wrap the digits.
                 .fixedSize(horizontal: true, vertical: false)
                 .monospacedDigit()
                 .contentTransition(.numericText())
