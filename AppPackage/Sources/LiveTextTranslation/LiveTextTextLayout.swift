@@ -57,6 +57,10 @@ struct LiveTextTextStyle: Sendable {
 struct LiveTextTextLayout {
     /// Halvings of the search for a balanced width: under a 1/1000 of the line's width.
     private static let balanceSteps = 10
+    /// The Unicode blocks of Hangul syllables and jamo.
+    private static let hangulBlocks: [ClosedRange<unichar>] = [
+        0x1100...0x11FF, 0x3130...0x318F, 0xA960...0xA97F, 0xAC00...0xD7FF
+    ]
 
     struct Line {
         let line: CTLine
@@ -102,7 +106,7 @@ struct LiveTextTextLayout {
     ) {
         let attributed = style.attributedString(text, fontSize: fontSize, color: color)
         let typesetter = CTTypesetterCreateWithAttributedString(attributed)
-        let ranges = Self.lineRanges(in: typesetter, length: attributed.length, width: width)
+        let ranges = Self.lineRanges(in: typesetter, of: attributed, width: width)
         var lines = ranges.map({ Line(CTTypesetterCreateLine(typesetter, $0)) })
         let lineStarts = ranges.map(\.location)
 
@@ -147,7 +151,7 @@ struct LiveTextTextLayout {
         let attributed = style.attributedString(text, fontSize: fontSize)
         let typesetter = CTTypesetterCreateWithAttributedString(attributed)
         func lineCount(at width: Double) -> Int {
-            lineRanges(in: typesetter, length: attributed.length, width: width).count
+            lineRanges(in: typesetter, of: attributed, width: width).count
         }
         let count = lineCount(at: width)
         guard count > 1 else {
@@ -166,19 +170,45 @@ struct LiveTextTextLayout {
         return fitting
     }
 
-    /// Where each line of the text `typesetter` holds begins and ends when set `width` wide.
-    private static func lineRanges(in typesetter: CTTypesetter, length: Int, width: Double) -> [CFRange] {
+    /// Where each line of `text`, which `typesetter` holds, begins and ends when set `width` wide.
+    ///
+    /// Korean keeps its words whole, as Korean is set: CoreText, following Unicode, breaks between any
+    /// two Hangul syllables, and `NSParagraphStyle`'s `hangulWordPriority` does not reach a typesetter.
+    /// A break between two syllables moves back to the line's last space; a line without one keeps it,
+    /// as a word wider than a line has to break.
+    private static func lineRanges(
+        in typesetter: CTTypesetter,
+        of text: NSAttributedString,
+        width: Double
+    ) -> [CFRange] {
+        let characters = text.string as NSString
         var ranges = [CFRange]()
         var start = 0
-        while start < length {
-            let count = CTTypesetterSuggestLineBreak(typesetter, start, width)
+        while start < characters.length {
+            var count = CTTypesetterSuggestLineBreak(typesetter, start, width)
             guard count > 0 else {
                 break
+            }
+            let end = start + count
+            if end < characters.length,
+               isHangul(characters.character(at: end - 1)),
+               isHangul(characters.character(at: end)),
+               let space = (start + 1..<end).last(where: { isWhitespace(characters.character(at: $0)) }) {
+                count = space + 1 - start
             }
             ranges.append(CFRange(location: start, length: count))
             start += count
         }
         return ranges
+    }
+
+    /// Whether `character` is a Hangul syllable or jamo.
+    private static func isHangul(_ character: unichar) -> Bool {
+        hangulBlocks.contains(where: { $0.contains(character) })
+    }
+
+    private static func isWhitespace(_ character: unichar) -> Bool {
+        Unicode.Scalar(character).map(CharacterSet.whitespaces.contains) ?? false
     }
 
     /// The width of the text's widest word, in a language whose words must not break; zero otherwise.

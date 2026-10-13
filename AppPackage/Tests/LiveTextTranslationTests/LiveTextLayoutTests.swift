@@ -1,5 +1,6 @@
 import AppModels
 import CoreGraphics
+import CoreText
 import Foundation
 @testable import LiveTextTranslation
 import Testing
@@ -235,6 +236,28 @@ struct LiveTextLayoutTests {
 
         #expect(layout.lines.count > 1)
         #expect(!layout.breaksWord)
+    }
+
+    @Test
+    func koreanKeepsItsWordsWhole() {
+        // CoreText alone breaks this inside 알아줬으면 좋겠어 at this width.
+        let text = "괜찮아. 알겠어. 그럼 모르겠어. 네 유머 감각을 증오한다는 걸 알아줬으면 좋겠어,"
+        let layout = LiveTextTextLayout(
+            text: text,
+            style: LiveTextTextStyle(language: .init(identifier: "ko")),
+            fontSize: 20,
+            width: 120
+        )
+        let characters = text as NSString
+        let lineWords = layout.lines.flatMap { line in
+            let range = CTLineGetStringRange(line.line)
+            return characters.substring(with: NSRange(location: range.location, length: range.length))
+                .split(whereSeparator: \.isWhitespace)
+        }
+
+        #expect(layout.lines.count > 1)
+        #expect(!layout.breaksWord)
+        #expect(lineWords == text.split(whereSeparator: \.isWhitespace))
     }
 
     @Test
