@@ -498,6 +498,7 @@ let targets: [PackageDescription.Target] = [
         module: .liveTextTranslation,
         dependencies: [
             .module(.appModels),
+            .module(.osLogExt),
             .targetDependency(.composableArchitecture)
         ],
         resources: [.process(.resources)]
@@ -743,6 +744,7 @@ let targets: [PackageDescription.Target] = [
             .module(.downloadClient),
             .module(.hapticsClient),
             .module(.imageClient),
+            .module(.liveTextTranslation),
             .module(.networkingFeature),
             .module(.osLogExt),
             .module(.readingSettingFeature),
@@ -993,6 +995,7 @@ let targets: [PackageDescription.Target] = [
             .module(.appModels),
             .module(.appTools),
             .module(.cookieClient),
+            .module(.liveTextTranslation),
             .module(.readingFeature)
         ]
     ),
