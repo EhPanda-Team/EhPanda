@@ -60,7 +60,7 @@ struct ReaderPageProbe {
     }
 
     private var moreMenuButton: XCUIElement {
-        let navigationBars = app.navigationBars.containing(
+        let navigationBars = readingView.navigationBars.containing(
             .staticText,
             identifier: "reading_page_indicator"
         )
@@ -69,14 +69,15 @@ struct ReaderPageProbe {
             1,
             "The reader page indicator did not identify exactly one navigation bar."
         )
-        let navigationBar = navigationBars.element(boundBy: 0)
-        let buttons = navigationBar.buttons.matching(
-            NSPredicate(format: "identifier == %@", "OverflowBarButtonItem")
+        // The Duo puts More in a vertical toolbar beside the navigation bar. Both bars belong to
+        // reading_view, which excludes the More buttons of screens behind the reader.
+        let buttons = readingView.buttons.matching(
+            NSPredicate(format: "identifier IN %@", ["OverflowBarButtonItem", "BottomOverflowBarButtonItem"])
         )
         XCTAssertEqual(
             buttons.count,
             1,
-            "The reader navigation bar did not expose exactly one More button."
+            "The reader did not expose exactly one More button."
         )
         return buttons.element(boundBy: 0)
     }
@@ -281,15 +282,35 @@ struct ReaderPageProbe {
 
     /// Taps the trailing fifth of a left-to-right pager, its "next page" zone.
     func tapNextPageZone() {
-        pages.coordinate(withNormalizedOffset: CGVector(dx: 0.9, dy: 0.5)).tap()
+        let viewport = pages.frame
+        let controls = readingView.buttons.allElementsBoundByIndex.filter(\.isHittable)
+            .map({ $0.frame.insetBy(dx: -8, dy: -8) })
+        let locations = [0.5, 0.25, 0.75].map {
+            CGPoint(x: viewport.minX + viewport.width * 0.9, y: viewport.minY + viewport.height * $0)
+        }
+        guard let location = locations.first(where: { point in
+            !controls.contains(where: { $0.contains(point) })
+        }) else {
+            XCTFail("The pager's next-page tap zone is covered by controls.")
+            return
+        }
+        pages.coordinate(withNormalizedOffset: .zero)
+            .withOffset(CGVector(dx: location.x - viewport.minX, dy: location.y - viewport.minY))
+            .tap()
     }
 
-    /// Taps the status bar, which shows while the panel does and scrolls the strip to its first page. The status bar
-    /// is SpringBoard's, not the app's. The tap lands on its leading part, clear of the iPhone's Dynamic Island.
+    /// Uses SpringBoard's explicit scroll-to-top region when available: the Duo's status-bar frame
+    /// covers its whole display. Classic bars expose a narrow frame; its leading part avoids the Dynamic Island.
     func tapStatusBar() {
-        let statusBar = XCUIApplication(bundleIdentifier: "com.apple.springboard").statusBars.firstMatch
-        XCTAssertTrue(statusBar.waitForExistence(timeout: 5), "SpringBoard did not expose the status bar.")
-        statusBar.coordinate(withNormalizedOffset: CGVector(dx: 0.15, dy: 0.5)).tap()
+        let springboard = XCUIApplication(bundleIdentifier: "com.apple.springboard")
+        let region = springboard.otherElements["Scroll To Top Region"].firstMatch
+        if region.exists {
+            region.tapWhenHittable("SpringBoard's scroll-to-top region")
+        } else {
+            let statusBar = springboard.statusBars.firstMatch
+            XCTAssertTrue(statusBar.waitForExistence(timeout: 5), "SpringBoard did not expose the status bar.")
+            statusBar.coordinate(withNormalizedOffset: CGVector(dx: 0.15, dy: 0.5)).tap()
+        }
     }
 
     func dragSlider(toNormalizedPosition position: CGFloat) {
@@ -321,9 +342,10 @@ struct ReaderPageProbe {
             .firstMatch.tapWhenHittable("The sheet's Direction picker")
         app.buttons[direction.rawValue].firstMatch.tapWhenHittable("Direction's \(direction.rawValue)")
 
-        // ReadingView adds Close only for the phone's landscape presentation.
-        if UIDevice.current.userInterfaceIdiom != .pad && XCUIDevice.shared.orientation.isLandscape {
-            sheetTitle.buttons["Close"].firstMatch.tapWhenHittable("Reading Setting Close")
+        // Compact-height presentations provide Close; other sheets dismiss by dragging their title.
+        let closeButton = sheetTitle.buttons["Close"].firstMatch
+        if closeButton.exists {
+            closeButton.tapWhenHittable("Reading Setting Close")
         } else {
             sheetTitle.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5))
                 .press(forDuration: 0.05, thenDragTo: app.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.95)))
