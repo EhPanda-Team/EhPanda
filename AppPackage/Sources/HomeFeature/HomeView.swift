@@ -32,7 +32,10 @@ public struct HomeView: View {
                 .environment(\.layoutDirection, layoutDirection)
             if showsSplitHome {
                 if store.device == .pad {
-                    Divider()
+                    Rectangle()
+                        .fill(Color(.opaqueSeparator))
+                        .frame(width: 1)
+                        .ignoresSafeArea(.container, edges: .bottom)
                         .allowsHitTesting(false)
                         .accessibilityHidden(true)
                 }
