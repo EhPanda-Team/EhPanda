@@ -19,8 +19,9 @@ final class DuoHomeUITests: XCTestCase {
         XCTAssertEqual(left.frame.maxX, app.windows.firstMatch.frame.midX, accuracy: 1)
         XCTAssertEqual(right.frame.minX, app.windows.firstMatch.frame.midX, accuracy: 1)
         XCTAssertTrue(left.buttons["Frontpage"].exists)
-        XCTAssertTrue(right.buttons["Toplists"].exists)
+        XCTAssertTrue(app.navigationBars["Toplists"].exists)
         XCTAssertTrue(app.navigationBars["Home"].exists)
+        XCTAssertTrue(app.navigationBars["Home"].buttons["Reload"].isHittable)
 
         var previousFrame: CGRect?
         for rank in 1...6 {
@@ -53,9 +54,9 @@ final class DuoHomeUITests: XCTestCase {
         try closeSheet(in: app, onLeft: false)
         XCTAssertTrue(frontpage.waitForNonExistence(timeout: 5))
 
-        let right = app.requireElement("home_right_pane", matching: .scrollView)
-        right.buttons["Show All"].firstMatch.tapWhenHittable("Toplists Show All")
-        let toplists = app.navigationBars.matching(NSPredicate(format: "identifier BEGINSWITH 'Toplists'"))
+        app.requireElement("home_right_pane", matching: .scrollView)
+        app.navigationBars["Toplists"].buttons["Show All"].tapWhenHittable("Toplists Show All")
+        let toplists = app.navigationBars.matching(NSPredicate(format: "identifier BEGINSWITH 'Toplists - '"))
             .firstMatch
         XCTAssertTrue(toplists.waitForExistence(timeout: 15))
         XCTAssertLessThanOrEqual(toplists.frame.maxX, app.windows.firstMatch.frame.midX)
@@ -68,6 +69,40 @@ final class DuoHomeUITests: XCTestCase {
         try closeSheet(in: app, onLeft: false)
         XCTAssertTrue(toplists.exists)
         try closeSheet(in: app, onLeft: true)
+    }
+
+    func testRightPaneScrollKeepsHomeTitleAndLeftPaneStill() throws {
+        let categories: [UIContentSizeCategory] = [
+            .large, .accessibilityMedium, .accessibilityExtraLarge, .accessibilityExtraExtraExtraLarge
+        ]
+        for category in categories {
+            let app = XCUIApplication()
+            app.launchArguments += ["-UIPreferredContentSizeCategoryName", category.rawValue]
+            try app.launchStubbed()
+            let left = app.requireElement("home_left_pane", matching: .scrollView)
+            let right = app.requireElement("home_right_pane", matching: .scrollView)
+            let title = app.navigationBars["Home"].staticTexts["Home"]
+            let frontpage = left.buttons["Frontpage"]
+            let ranking = right.buttons.matching(NSPredicate(
+                format: "label BEGINSWITH '1, ' AND NOT label CONTAINS '......'"
+            )).firstMatch
+            XCTAssertTrue(title.isHittable)
+            let titleFrame = title.frame
+            let frontpageFrame = frontpage.frame
+            let rankingFrame = ranking.frame
+
+            right.swipeUp()
+
+            XCTAssertLessThan(ranking.frame.minY, rankingFrame.minY - 40)
+            XCTAssertTrue(title.isHittable, "Scrolling the other pane must keep the Home title visible")
+            XCTAssertEqual(title.frame.minX, titleFrame.minX, accuracy: 1)
+            XCTAssertEqual(title.frame.minY, titleFrame.minY, accuracy: 1)
+            XCTAssertEqual(title.frame.width, titleFrame.width, accuracy: 1)
+            XCTAssertEqual(title.frame.height, titleFrame.height, accuracy: 1)
+            XCTAssertEqual(frontpage.frame.minY, frontpageFrame.minY, accuracy: 1)
+            XCTAssertEqual(left.frame.maxX, app.windows.firstMatch.frame.midX, accuracy: 1)
+            XCTAssertEqual(right.frame.minX, app.windows.firstMatch.frame.midX, accuracy: 1)
+        }
     }
 
     func testOtherListsPresentOnTheRight() throws {
@@ -135,7 +170,7 @@ final class DuoHomeUITests: XCTestCase {
             XCTAssertTrue(title.isHittable, "Home title is inaccessible at \(category.rawValue)")
             XCTAssertEqual(left.frame.maxX, app.windows.firstMatch.frame.midX, accuracy: 1)
             XCTAssertEqual(right.frame.minX, app.windows.firstMatch.frame.midX, accuracy: 1)
-            XCTAssertTrue(right.buttons["Toplists"].isHittable)
+            XCTAssertTrue(app.navigationBars["Toplists"].staticTexts["Toplists"].isHittable)
         }
     }
 
