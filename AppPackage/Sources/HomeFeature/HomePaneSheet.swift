@@ -7,7 +7,7 @@ import UIKit
 struct HomePaneSheet<Item: Identifiable, Sheet: View>: UIViewControllerRepresentable {
     let item: UIBinding<Item?>
     let viewport: CGSize
-    let isPartiallyOpen: Bool
+    let usesDuoSplitLayout: Bool
     let side: (Item) -> HomePane
     var onDismiss: (() -> Void)?
     @ViewBuilder let content: (Item) -> Sheet
@@ -73,7 +73,7 @@ struct HomePaneSheet<Item: Identifiable, Sheet: View>: UIViewControllerRepresent
 
         private func configure(_ controller: UIHostingController<HostedSheet>, for item: Item) {
             guard let sheet = controller.sheetPresentationController else { return }
-            if presentation.isPartiallyOpen {
+            if presentation.usesDuoSplitLayout {
                 sheet.preferredPlacement = presentation.side(item).placement(layoutDirection: layoutDirection)
                 controller.preferredContentSize = CGSize(
                     width: presentation.viewport.width / 2, height: presentation.viewport.height
