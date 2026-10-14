@@ -101,4 +101,53 @@ struct LiveTextGroupingTests {
 
         #expect(groups.count == 2)
     }
+
+    @Test
+    func aLineReadAcrossTwoOfAPassagesRowsJoinsIt() {
+        // As Vision read a column of small print: the right of two of its rows as one line twice as tall,
+        // inside the passage its other lines make.
+        let blocks = [
+            Self.line("cracking were attacked by", origin: CGPoint(x: 100, y: 400), width: 240, height: 17),
+            Self.line("and data rather than", origin: CGPoint(x: 100, y: 422), width: 240, height: 17),
+            Self.line("in jail.", origin: CGPoint(x: 100, y: 444), width: 60, height: 17),
+            Self.line("Agreement", origin: CGPoint(x: 100, y: 466), width: 60, height: 17),
+            Self.line("Internal Agreement 404", origin: CGPoint(x: 168, y: 444), width: 172, height: 33),
+            Self.line("informed about that to my", origin: CGPoint(x: 100, y: 488), width: 240, height: 17)
+        ]
+
+        let groups = LiveTextHandler.groups(of: blocks, size: Self.pageSize)
+
+        #expect(groups.map(\.blocks.count) == [6])
+    }
+
+    @Test
+    func aLineReadOverAnotherJoinsIt() {
+        // As Vision read the end of a column twice: once as its rows, once as one taller line over both.
+        let blocks = [
+            Self.line("truth, as any sort of news related to", origin: CGPoint(x: 100, y: 400), width: 240, height: 18),
+            Self.line("the Grail is suppressed, but", origin: CGPoint(x: 100, y: 421), width: 175, height: 18),
+            Self.line("un, as any sort of news", origin: CGPoint(x: 120, y: 402), width: 228, height: 34)
+        ]
+
+        let groups = LiveTextHandler.groups(of: blocks, size: Self.pageSize)
+
+        #expect(groups.count == 1)
+    }
+
+    @Test
+    func aHeadingOverAPassageStaysApart() {
+        // A heading set just above its passage, touching its first line, is not part of it.
+        let blocks = [
+            Self.line("Education is Censored", origin: CGPoint(x: 100, y: 360), width: 240, height: 42),
+            Self.line("The Second University of Tokyo", origin: CGPoint(x: 100, y: 401), width: 240, height: 17),
+            Self.line("is famous for its research.", origin: CGPoint(x: 100, y: 423), width: 236, height: 17)
+        ]
+
+        let groups = LiveTextHandler.groups(of: blocks, size: Self.pageSize)
+
+        #expect(groups.map(\.text) == [
+            "Education is Censored",
+            "The Second University of Tokyo is famous for its research."
+        ])
+    }
 }

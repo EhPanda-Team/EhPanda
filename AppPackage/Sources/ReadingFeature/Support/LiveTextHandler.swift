@@ -190,6 +190,8 @@ final class LiveTextHandler {
     /// Lines stack when they overlap along their direction by ``minimumOverlapShare`` of the shorter
     /// one, as a passage's lines do however they are aligned; lines that only touch at a corner, as in
     /// two balloons joined side by side, belong to different passages.
+    ///
+    /// Passages that then lie over one another are one passage, as ``areOnePassage(_:_:size:)`` tells.
     nonisolated static func groups(of blocks: [LiveTextBlock], size: CGSize) -> [LiveTextGroup] {
         var parents = Array(blocks.indices)
         func passage(of index: Int) -> Int {
@@ -205,24 +207,74 @@ final class LiveTextHandler {
                 parents[passage(of: second)] = passage(of: first)
             }
         }
-        var passages = [Int: [LiveTextBlock]]()
+        var linesByPassage = [Int: [LiveTextBlock]]()
         var order = [Int]()
         for (number, block) in blocks.enumerated() {
             let root = passage(of: number)
-            if passages[root] == nil {
+            if linesByPassage[root] == nil {
                 order.append(root)
             }
-            passages[root, default: []].append(block)
+            linesByPassage[root, default: []].append(block)
         }
-        return order.compactMap { root in
-            passages[root].flatMap({ LiveTextGroup(blocks: fromTheTopDown($0, size: size)) })
+        var passages = order.compactMap({ linesByPassage[$0] })
+        while let pair = overlappingPassages(in: passages, size: size) {
+            passages[pair.first] += passages[pair.second]
+            passages.remove(at: pair.second)
         }
+        return passages.compactMap({ LiveTextGroup(blocks: fromTheTopDown($0, size: size)) })
     }
 
     /// The least difference in degrees two lines' angles are allowed, however sure both are.
     nonisolated static let minimumAngleTolerance = 5.0
     /// The least share of the shorter of two lines they overlap along their direction to stack.
     nonisolated static let minimumOverlapShare = 0.5
+    /// The least share of the smaller of two passages' areas they overlap by to be one passage.
+    nonisolated static let minimumAreaOverlapShare = 0.5
+
+    /// The first two of `passages` that are one, the first before the second.
+    nonisolated private static func overlappingPassages(
+        in passages: [[LiveTextBlock]],
+        size: CGSize
+    ) -> (first: Int, second: Int)? {
+        for first in passages.indices {
+            for second in passages.indices.dropFirst(first + 1)
+            where areOnePassage(passages[first], passages[second], size: size) {
+                return (first, second)
+            }
+        }
+        return nil
+    }
+
+    /// Whether two passages are one: they run the same way, and their areas overlap by
+    /// ``minimumAreaOverlapShare`` of the smaller.
+    ///
+    /// Vision reads small print unevenly: it can read two of a passage's rows as one line twice as tall,
+    /// or read a row twice, once more as a taller line over it and its neighbor. Such a line is not
+    /// about as tall as the passage's lines, so it does not join them, yet it lies within their
+    /// passage; kept apart, the two would have their translations set over each other. A passage runs
+    /// the way its longest line does, the surest of its angles.
+    nonisolated private static func areOnePassage(
+        _ first: [LiveTextBlock],
+        _ second: [LiveTextBlock],
+        size: CGSize
+    ) -> Bool {
+        func longestLine(of lines: [LiveTextBlock]) -> LiveTextBlock? {
+            lines.max(by: { $0.bounds.getWidth(size) < $1.bounds.getWidth(size) })
+        }
+        guard let firstLine = longestLine(of: first), let secondLine = longestLine(of: second) else {
+            return false
+        }
+        let difference = abs(firstLine.bounds.getAngle(size) - secondLine.bounds.getAngle(size))
+            .truncatingRemainder(dividingBy: 360)
+        guard difference < minimumAngleTolerance || difference > 360 - minimumAngleTolerance else {
+            return false
+        }
+        let radian = firstLine.bounds.getRadian(size)
+        let firstArea = PassageArea(of: first, radian: radian, size: size)
+        let secondArea = PassageArea(of: second, radian: radian, size: size)
+        let smaller = min(firstArea.size, secondArea.size)
+        return smaller > 0 && firstArea.overlap(with: secondArea) >= minimumAreaOverlapShare * smaller
+    }
 
     nonisolated private static func belongTogether(
         _ first: LiveTextBlock,
@@ -349,6 +401,33 @@ final class LiveTextHandler {
             }
         }
         return true
+    }
+}
+
+/// The extents of a passage's lines in page pixels, along a direction and across it.
+private struct PassageArea {
+    let along: ClosedRange<Double>
+    let across: ClosedRange<Double>
+
+    init(of lines: [LiveTextBlock], radian: Double, size: CGSize) {
+        let points = lines
+            .flatMap(\.bounds.edges)
+            .map({ CGPoint(x: $0.x * size.width, y: $0.y * size.height) })
+        let along = points.map({ $0.x * cos(radian) + $0.y * sin(radian) })
+        let across = points.map({ -$0.x * sin(radian) + $0.y * cos(radian) })
+        self.along = (along.min() ?? 0)...(along.max() ?? 0)
+        self.across = (across.min() ?? 0)...(across.max() ?? 0)
+    }
+
+    var size: Double {
+        (along.upperBound - along.lowerBound) * (across.upperBound - across.lowerBound)
+    }
+
+    func overlap(with other: Self) -> Double {
+        func shared(_ lhs: ClosedRange<Double>, _ rhs: ClosedRange<Double>) -> Double {
+            max(0, min(lhs.upperBound, rhs.upperBound) - max(lhs.lowerBound, rhs.lowerBound))
+        }
+        return shared(along, other.along) * shared(across, other.across)
     }
 }
 
