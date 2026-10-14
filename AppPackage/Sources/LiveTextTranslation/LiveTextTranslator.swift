@@ -14,6 +14,14 @@ private let logger = Logger(category: .init(describing: LiveTextTranslator.self)
 /// reader is open. A page whose translation failed, or whose language pair's models were not
 /// downloaded, is tried again the next time Live Text is turned on, which also lets each kind of
 /// failure be told once more.
+///
+/// Pages go to the system's translation one at a time, the one nearest ``readingPage`` first, as
+/// they wait in a queue. The system translates one request at a time however many it is given, so
+/// giving it every recognized page at once only made the page being read wait behind the others;
+/// and asking it about many pages at once, as the first use of translation in a launch, had it report
+/// installed models as missing. A page's turn covers finding its language pair and translating it;
+/// laying the translations out uses only this device's processors, so it runs beside the next
+/// page's turn.
 @Observable
 @MainActor
 public final class LiveTextTranslator {
@@ -24,9 +32,12 @@ public final class LiveTextTranslator {
     public private(set) var download: LiveTextLanguagePair?
     /// A failure the reader has not been told about yet; ``takeFailure()`` takes it.
     public private(set) var failure: LiveTextTranslationFailure?
+    /// The page the reader shows; the queued page nearest it is translated next, the one after it
+    /// before the one before it.
+    @ObservationIgnored public var readingPage = 1
 
     private enum PageState: Equatable {
-        /// Being translated, or waiting for its language pair's models.
+        /// Waiting for its turn, being translated, or waiting for its language pair's models.
         case inProgress
         /// Translated, or kept as it is however often it is tried.
         case settled
@@ -40,7 +51,12 @@ public final class LiveTextTranslator {
     /// this.
     private var pageByGroupID = [UUID: Int]()
     @ObservationIgnored private var states = [Int: PageState]()
-    @ObservationIgnored private var tasks = [Int: Task<Void, Never>]()
+    /// The pages waiting for their turn, by page number.
+    @ObservationIgnored private var queue = [Int: QueuedPage]()
+    /// The turn of the page with the system now.
+    @ObservationIgnored private var turn: Task<Void, Never>?
+    /// The translated pages being laid out, by page number.
+    @ObservationIgnored private var layouts = [Int: Task<Void, Never>]()
     @ObservationIgnored private var awaitingDownload = [LiveTextLanguagePair: [PageRequest]]()
     @ObservationIgnored private var declinedPairs = Set<LiveTextLanguagePair>()
     @ObservationIgnored private var reportedFailures = Set<LiveTextTranslationFailure.Kind>()
@@ -49,7 +65,8 @@ public final class LiveTextTranslator {
     public init() {}
 
     isolated deinit {
-        for task in tasks.values {
+        turn?.cancel()
+        for task in layouts.values {
             task.cancel()
         }
     }
@@ -66,7 +83,7 @@ public final class LiveTextTranslator {
             .flatMap({ translatedPages[$0] })
     }
 
-    /// Starts translating `groups`, recognized on `image` as `page` in `recognitionLanguages`.
+    /// Queues `groups`, recognized on `image` as `page` in `recognitionLanguages`, to be translated.
     public func translate(_ groups: [LiveTextGroup], on image: CGImage, page: Int, recognitionLanguages: [String]?) {
         guard needsTranslation(page: page) else {
             return
@@ -77,16 +94,15 @@ public final class LiveTextTranslator {
             return
         }
         states[page] = .inProgress
-        let request = PageRequest(page: page, groups: groups, texts: texts, image: image)
-        let candidates = (recognitionLanguages ?? []).map(Locale.Language.init(identifier:))
-        let client = client
-        tasks[page] = Task { [weak self] in
-            let route = await LiveTextLanguageResolver.route(for: texts, candidates: candidates, client: client)
-            guard !Task.isCancelled else {
-                return
-            }
-            self?.follow(route, for: request)
-        }
+        let request = PageRequest(
+            page: page,
+            groups: groups,
+            texts: texts,
+            image: image,
+            candidates: (recognitionLanguages ?? []).map(Locale.Language.init(identifier:))
+        )
+        queue[page] = QueuedPage(request: request, pair: nil)
+        translateNext()
     }
 
     /// Takes the failure the reader is to be told about, so it is told once.
@@ -98,7 +114,7 @@ public final class LiveTextTranslator {
     }
 
     /// Carries on once the system's download of `pair`'s models is done: the pages waiting for them
-    /// are translated when they were downloaded, and deferred when they were not.
+    /// queue to be translated when they were downloaded, and are deferred when they were not.
     public func finishDownload(of pair: LiveTextLanguagePair, succeeded: Bool) {
         guard download == pair else {
             return
@@ -106,8 +122,9 @@ public final class LiveTextTranslator {
         let requests = awaitingDownload.removeValue(forKey: pair) ?? []
         if succeeded {
             for request in requests {
-                startTranslating(request, as: pair)
+                queue[request.page] = QueuedPage(request: request, pair: pair)
             }
+            translateNext()
         } else {
             declinedPairs.insert(pair)
             for request in requests {
@@ -118,11 +135,14 @@ public final class LiveTextTranslator {
     }
 
     /// Ends a period of Live Text being on: the pages not translated this time, including those
-    /// waiting for a download, are tried again next time, and each kind of failure may be told again.
+    /// still queued and those waiting for a download, are tried again next time, and each kind of
+    /// failure may be told again. Queued pages are dropped rather than left to find their language
+    /// pairs, which could have the system offer a download after Live Text is off.
     public func endActivation() {
-        for request in awaitingDownload.values.joined() {
+        for request in queue.values.map(\.request) + awaitingDownload.values.joined() {
             states[request.page] = nil
         }
+        queue.removeAll()
         awaitingDownload.removeAll()
         download = nil
         failure = nil
@@ -133,25 +153,62 @@ public final class LiveTextTranslator {
 
     /// Stops every translation; a page it stopped is translated when it is next asked for.
     public func cancel() {
-        for task in tasks.values {
+        turn?.cancel()
+        turn = nil
+        for task in layouts.values {
             task.cancel()
         }
-        tasks.removeAll()
+        layouts.removeAll()
+        queue.removeAll()
         awaitingDownload.removeAll()
         download = nil
         states = states.filter({ $0.value != .inProgress })
     }
 
-    /// Waits until no page is being translated, apart from those waiting for a download, so tests can
-    /// read a page's outcome.
+    /// Waits until no page is queued, translated or laid out, apart from those waiting for a
+    /// download, so tests can read a page's outcome.
     func waitForTranslations() async {
-        while let task = tasks.values.first {
+        while let task = turn ?? layouts.values.first {
             await task.value
         }
     }
 
+    /// Gives the queued page nearest ``readingPage`` its turn, once the page before it has had its.
+    private func translateNext() {
+        guard turn == nil, let page = nearestQueuedPage(), let queued = queue.removeValue(forKey: page) else {
+            return
+        }
+        if let pair = queued.pair {
+            startTranslating(queued.request, as: pair)
+            return
+        }
+        let request = queued.request
+        let client = client
+        turn = Task { [weak self] in
+            let route = await LiveTextLanguageResolver.route(
+                for: request.texts,
+                candidates: request.candidates,
+                client: client
+            )
+            guard !Task.isCancelled else {
+                return
+            }
+            self?.follow(route, for: request)
+        }
+    }
+
+    /// The queued page nearest ``readingPage``, the one after it before the one before it.
+    private func nearestQueuedPage() -> Int? {
+        // Twice the distance, one more for the page before the reading page than for the one as far
+        // after it.
+        func rank(_ page: Int) -> Int {
+            abs(page - readingPage) * 2 + (page < readingPage ? 1 : 0)
+        }
+        return queue.keys.min(by: { rank($0) < rank($1) })
+    }
+
     private func follow(_ route: LiveTextTranslationRoute, for request: PageRequest) {
-        tasks[request.page] = nil
+        turn = nil
         switch route {
         case .translate(let pair):
             startTranslating(request, as: pair)
@@ -163,44 +220,63 @@ public final class LiveTextTranslator {
             states[request.page] = .settled
             report(failure)
         }
+        translateNext()
     }
 
     private func startTranslating(_ request: PageRequest, as pair: LiveTextLanguagePair) {
         let client = client
-        tasks[request.page] = Task { [weak self] in
-            let result: Result<LiveTextTranslatedPage, any Error>
+        turn = Task { [weak self] in
+            let sources = request.texts.map({ $0.prepared(for: pair) })
+            let result: Result<[UUID: String], any Error>
             do {
-                let texts = request.texts.map({ $0.prepared(for: pair) })
-                let translations = try await client.translate(texts, pair)
-                result = .success(await Self.layOut(request, sources: texts, translations: translations, as: pair))
+                result = .success(try await client.translate(sources, pair))
             } catch {
                 result = .failure(error)
             }
             guard !Task.isCancelled else {
                 return
             }
-            self?.finishTranslating(request, with: result)
+            self?.finishTurn(of: request, sources: sources, as: pair, with: result)
         }
     }
 
-    private func finishTranslating(_ request: PageRequest, with result: Result<LiveTextTranslatedPage, any Error>) {
-        tasks[request.page] = nil
+    /// Ends `request`'s turn with its translations, which are laid out beside the next page's turn,
+    /// or with the error that kept it from them.
+    private func finishTurn(
+        of request: PageRequest,
+        sources: [LiveTextSourceText],
+        as pair: LiveTextLanguagePair,
+        with result: Result<[UUID: String], any Error>
+    ) {
+        turn = nil
         switch result {
-        case .success(let translatedPage):
-            states[request.page] = .settled
-            // A page whose every translation reads as its lettering keeps the highlight.
-            guard !translatedPage.groups.isEmpty else {
-                return
+        case .success(let translations):
+            layouts[request.page] = Task { [weak self] in
+                let page = await Self.layOut(request, sources: sources, translations: translations, as: pair)
+                guard !Task.isCancelled else {
+                    return
+                }
+                self?.finishLayingOut(request, as: page)
             }
-            for group in request.groups {
-                pageByGroupID[group.id] = request.page
-            }
-            translatedPages[request.page] = translatedPage
         case .failure(let error):
             logger.error("Translating page \(request.page, privacy: .public) failed: \(error, privacy: .public)")
             states[request.page] = .deferred
             report(.translationFailed)
         }
+        translateNext()
+    }
+
+    private func finishLayingOut(_ request: PageRequest, as translatedPage: LiveTextTranslatedPage) {
+        layouts[request.page] = nil
+        states[request.page] = .settled
+        // A page whose every translation reads as its lettering keeps the highlight.
+        guard !translatedPage.groups.isEmpty else {
+            return
+        }
+        for group in request.groups {
+            pageByGroupID[group.id] = request.page
+        }
+        translatedPages[request.page] = translatedPage
     }
 
     private func awaitDownload(of pair: LiveTextLanguagePair, for request: PageRequest) {
@@ -254,6 +330,14 @@ private struct PageRequest: Sendable {
     let groups: [LiveTextGroup]
     let texts: [LiveTextSourceText]
     let image: CGImage
+    /// The languages the page was recognized in, which its language is found among first.
+    let candidates: [Locale.Language]
+}
+
+/// A page waiting for its turn, with its language pair once a finished download has decided it.
+private struct QueuedPage {
+    let request: PageRequest
+    let pair: LiveTextLanguagePair?
 }
 
 private struct PendingDownload {
