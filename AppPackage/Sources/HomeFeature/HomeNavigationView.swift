@@ -9,10 +9,11 @@ import SwiftUI
 struct HomePrimaryNavigationView: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Bindable var store: StoreOf<HomeReducer>
+    let showsSplitHome: Bool
 
     var body: some View {
         NavigationStack(path: $store.scope(\.path, action: \.path)) {
-            HomeSectionsView(store: store, pane: store.usesDuoSplitLayout ? .left : nil)
+            HomeSectionsView(store: store, pane: showsSplitHome ? .left : nil)
             .animation(.default) {
                 $0.visible(!store.popularGalleries.isEmpty)
             }
@@ -42,7 +43,13 @@ struct HomePrimaryNavigationView: View {
             }
             .toolbarTitleDisplayMode(.inlineLarge)
             .navigationTitle(.RLocalizable.home)
-            .toolbar { reloadItem }
+            .toolbar {
+                if #available(iOS 27.1, *), showsSplitHome {
+                    reloadItem.axisBehavior(.horizontalOnly)
+                } else {
+                    reloadItem
+                }
+            }
         } destination: { store in
             switch store.case {
             case .frontpage(let store):
@@ -59,7 +66,6 @@ struct HomePrimaryNavigationView: View {
                 galleryDestination(store)
             }
         }
-        .modifier(HomePaneToolbarLayout())
     }
 
     private var reloadItem: some ToolbarContent {
@@ -89,18 +95,6 @@ struct HomeToplistsNavigationView: View {
                     }
                 }
                 .refreshable { await store.send(.fetchAllToplistsGalleries).finish() }
-        }
-        .modifier(HomePaneToolbarLayout())
-    }
-}
-
-/// Each pane keeps its own navigation controls, including the native Back button, above its content.
-private struct HomePaneToolbarLayout: ViewModifier {
-    func body(content: Content) -> some View {
-        if #available(iOS 27.1, *) {
-            content.toolbarVerticalBehavior(.disabled)
-        } else {
-            content
         }
     }
 }
