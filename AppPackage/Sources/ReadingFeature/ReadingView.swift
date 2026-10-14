@@ -201,13 +201,15 @@ public struct ReadingView: View {
                 .ignoresSafeArea()
         }
         .overlay {
+            let usesHalfWidth = deviceState?.supportsLandscapePanes(in: gestureHandler.containerSize) == true
             ControlPanel(
                 showsPanel: $store.showsPanel,
                 showsSliderPreview: $store.showsSliderPreview,
                 sliderValue: $bindablePageHandler.sliderValue,
                 isReversed: setting.readingDirection == .rightToLeft,
                 containerSize: gestureHandler.containerSize,
-                usesHalfWidth: deviceState?.supportsLandscapePanes(in: gestureHandler.containerSize) == true,
+                usesHalfWidth: usesHalfWidth,
+                showsCloseButton: !usesHalfWidth || deviceState == .pad,
                 range: 1...Float(store.gallery.pageCount),
                 previewURLs: store.displayPreviewURLs,
                 dismissGesture: controlPanelDismissGesture,

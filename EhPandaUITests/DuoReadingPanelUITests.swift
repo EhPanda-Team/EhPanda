@@ -45,6 +45,7 @@ final class DuoReadingPanelUITests: XCTestCase {
         let panel = app.requireElement("reading_lower_panel")
         XCTAssertLessThanOrEqual(panel.frame.maxX, app.windows.firstMatch.frame.midX + 1)
         XCTAssertEqual(app.buttons["reading_move_controls"].label, "Move controls right")
+        XCTAssertGreaterThanOrEqual(app.buttons["reading_move_controls"].frame.minX, app.windows.firstMatch.frame.midX)
     }
 
     private func requirePanel(in app: XCUIApplication, landscape: Bool, onRight: Bool) {
@@ -63,6 +64,9 @@ final class DuoReadingPanelUITests: XCTestCase {
         XCTAssertLessThanOrEqual(panel.frame.maxX, app.windows.firstMatch.frame.maxX)
         XCTAssertTrue(panel.sliders.firstMatch.isHittable)
         if onRight {
+            let move = app.buttons["reading_move_controls"]
+            XCTAssertTrue(move.isHittable)
+            XCTAssertLessThanOrEqual(move.frame.maxX, app.windows.firstMatch.frame.midX)
             XCTAssertGreaterThanOrEqual(panel.sliders.firstMatch.frame.minX, app.windows.firstMatch.frame.midX)
             XCTAssertEqual(panel.buttons.matching(identifier: "Close").count, 0)
         }
