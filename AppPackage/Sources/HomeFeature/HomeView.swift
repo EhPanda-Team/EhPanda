@@ -31,6 +31,11 @@ public struct HomeView: View {
                 .frame(width: showsSplitHome ? paneWidths?.left : nil)
                 .environment(\.layoutDirection, layoutDirection)
             if showsSplitHome {
+                if store.device == .pad {
+                    Divider()
+                        .allowsHitTesting(false)
+                        .accessibilityHidden(true)
+                }
                 HomeToplistsNavigationView(store: store)
                     .frame(maxWidth: .infinity)
                     .environment(\.layoutDirection, layoutDirection)
@@ -44,7 +49,7 @@ public struct HomeView: View {
             )
         } action: { paneWidths = $0 }
         .overlay(alignment: .leading) {
-            if showsSplitHome, let widths = paneWidths {
+            if showsSplitHome, case .duo = store.device, let widths = paneWidths {
                 HomeHingeCrease()
                     .offset(x: widths.left - HomeHingeCrease.width / 2)
                     .ignoresSafeArea(.container, edges: .vertical)
