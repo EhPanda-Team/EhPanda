@@ -103,7 +103,7 @@ public struct ReadingView: View {
         }
         .toast($store.scope(\.$toast, action: \.toast))
         .environment(liveTextHandler.translator)
-        .liveTextTranslationDownloads(for: liveTextHandler.translator)
+        .liveTextTranslations(for: liveTextHandler.translator)
 
         // Pan and zoom: the page still follows the finger — these animate only the eased settle
         // after each gesture step, which is position / size motion, so Reduce Motion drops it. The

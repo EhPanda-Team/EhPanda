@@ -44,8 +44,7 @@ struct LiveTextHandlerTranslationTests {
     /// A handler for a Japanese reader, counting the translation client's calls in `calls`.
     private static func handler(
         capture: LiveTextCapture? = nil,
-        calls: LockIsolated<Int>,
-        translate: @escaping @Sendable (String) throws -> String = { "訳: \($0)" }
+        calls: LockIsolated<Int>
     ) -> LiveTextHandler {
         withDependencies {
             $0.liveTextCapture = capture
@@ -57,17 +56,12 @@ struct LiveTextHandlerTranslationTests {
                 availability: { _, _ in
                     calls.withValue({ $0 += 1 })
                     return .installed
-                },
-                translate: { texts, _ in
-                    calls.withValue({ $0 += 1 })
-                    return try Dictionary(
-                        texts.map({ ($0.groupID, try translate($0.text)) }),
-                        uniquingKeysWith: { first, _ in first }
-                    )
                 }
             )
         } operation: {
-            LiveTextHandler()
+            let handler = LiveTextHandler()
+            handler.enablesLiveText = true
+            return handler
         }
     }
 
@@ -82,8 +76,15 @@ struct LiveTextHandlerTranslationTests {
         handler.analyzeImage(try Self.image(), size: .zero, page: 4, recognitionLanguages: ["en-US"])
         await handler.translator.waitForTranslations()
 
+        let work = try #require(handler.translator.session)
+        var iterator = work.requests.makeAsyncIterator()
+        let batch = try #require(await iterator.next())
+        let translations = Dictionary(uniqueKeysWithValues: batch.sources.map({ ($0.groupID, "訳: \($0.text)") }))
+        handler.translator.finish(batch, in: work.id, with: .success(translations))
+        await handler.translator.waitForTranslations()
+
         #expect(handler.translator.translatedPage(of: groups)?.groups.map(\.text) == ["訳: You sent me away,"])
-        #expect(!handler.needsAnalysis(page: 4))
+        #expect(handler.needsAnalysis(page: 4) == false)
     }
 
     @Test
@@ -94,7 +95,7 @@ struct LiveTextHandlerTranslationTests {
         let groups = try Self.groups()
         handler.liveTextGroups[4] = groups
 
-        #expect(!handler.needsAnalysis(page: 4))
+        #expect(handler.needsAnalysis(page: 4) == false)
         handler.analyzeImage(try Self.image(), size: .zero, page: 4, recognitionLanguages: ["en-US"])
         await handler.translator.waitForTranslations()
 
@@ -113,25 +114,42 @@ struct LiveTextHandlerTranslationTests {
         #expect(handler.capturesLiveText(gid: Self.gid, page: 4))
 
         #expect(handler.liveTextGroups == [4: groups])
-        #expect(!handler.needsAnalysis(page: 4))
+        #expect(handler.needsAnalysis(page: 4) == false)
         #expect(calls.value == 0)
     }
 
     @Test
     func turningLiveTextOffLetsAFailedPageBeTriedAgain() async throws {
         let calls = LockIsolated(0)
-        let handler = Self.handler(calls: calls, translate: { _ in throw TranslationFailed() })
+        let handler = Self.handler(calls: calls)
         handler.enablesLiveText = true
         handler.liveTextGroups[4] = try Self.groups()
 
         handler.analyzeImage(try Self.image(), size: .zero, page: 4, recognitionLanguages: ["en-US"])
         await handler.translator.waitForTranslations()
 
+        let work = try #require(handler.translator.session)
+        var iterator = work.requests.makeAsyncIterator()
+        let batch = try #require(await iterator.next())
+        handler.translator.finish(batch, in: work.id, with: .failure(TranslationFailed()))
         #expect(handler.translator.takeFailure() == .translationFailed)
-        #expect(!handler.needsAnalysis(page: 4))
+        #expect(handler.needsAnalysis(page: 4) == false)
 
         handler.enablesLiveText = false
 
+        #expect(handler.needsAnalysis(page: 4))
+    }
+
+    @Test
+    func recognizedGroupsAreNotTranslatedWhileLiveTextIsOff() async throws {
+        let calls = LockIsolated(0)
+        let handler = Self.handler(calls: calls)
+        handler.enablesLiveText = false
+        handler.liveTextGroups[4] = try Self.groups()
+        handler.analyzeImage(try Self.image(), size: .zero, page: 4, recognitionLanguages: ["en-US"])
+        await handler.translator.waitForTranslations()
+        #expect(calls.value == 0)
+        #expect(handler.translator.session == nil)
         #expect(handler.needsAnalysis(page: 4))
     }
 }

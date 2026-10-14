@@ -15,10 +15,8 @@ public struct LiveTextLanguagePair: Hashable, Sendable {
 
 /// What translating a page takes, decided from its text and the reader's languages.
 public enum LiveTextTranslationRoute: Equatable, Sendable {
-    /// Translate with the models already on the device.
+    /// Translate using the view-owned session, downloading models there if needed.
     case translate(LiveTextLanguagePair)
-    /// Translate once the system has downloaded the pair's models, which it asks the reader about.
-    case download(LiveTextLanguagePair)
     /// Leave the page as it is: it is already in the reader's language.
     case untranslated
     case failed(LiveTextTranslationFailure)
@@ -48,10 +46,8 @@ public enum LiveTextLanguageResolver {
         for target in preferred where !source.reads(as: target) {
             let pair = LiveTextLanguagePair(source: source, target: target)
             switch await client.availability(source, target) {
-            case .installed:
+            case .installed, .supported:
                 return .translate(pair)
-            case .supported:
-                return .download(pair)
             case .unsupported:
                 continue
             @unknown default:
