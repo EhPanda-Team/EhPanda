@@ -12,66 +12,16 @@ public import SwiftUI
 public struct HomeView: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Bindable private var store: StoreOf<HomeReducer>
-    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @State private var viewportSize: CGSize = .zero
 
     public init(store: StoreOf<HomeReducer>) {
         self.store = store
     }
 
-    private var maximumCardHeight: CGFloat {
-        GalleryViewport(size: viewportSize, isRegularWidth: horizontalSizeClass == .regular)
-            .maximumSlideshowHeight
-    }
-
     // MARK: HomeView
     public var body: some View {
         NavigationStack(path: $store.scope(\.path, action: \.path)) {
-            ScrollView {
-                VStack {
-                    Group {
-                        if !store.popularGalleries.isEmpty {
-                            CardSlideSection(
-                                galleries: store.popularGalleries,
-                                pageIndex: $store.cardPageIndex,
-                                currentID: store.currentCardID,
-                                colors: store.cardColors,
-                                carouselWidth: viewportSize.width,
-                                maximumCardHeight: maximumCardHeight,
-                                navigateAction: navigateTo(gallery:),
-                                webImageSuccessAction: { gid, result in
-                                    store.send(.analyzeImageColors(gid: gid, result: result))
-                                }
-                            )
-                            .equatable().allowsHitTesting(store.allowsCardHitTesting)
-                        }
-                        if store.frontpageGalleries.count > 1 {
-                            CoverWallSection(
-                                galleries: store.frontpageGalleries,
-                                isLoading: store.frontpageLoadingState == .loading,
-                                navigateAction: navigateTo(gallery:),
-                                showAllAction: { store.send(.sectionTapped(.frontpage)) },
-                                reloadAction: { store.send(.fetchFrontpageGalleries) }
-                            )
-                        }
-                        ToplistsSection(
-                            galleries: store.toplistsGalleries,
-                            isLoading: !store.toplistsLoadingState
-                                .values.allSatisfy({ $0 != .loading }),
-                            navigateAction: navigateTo(gallery:),
-                            showAllAction: { store.send(.sectionTapped(.toplists)) },
-                            reloadAction: { store.send(.fetchAllToplistsGalleries) }
-                        )
-                        MiscGridSection(navigateAction: navigateTo(type:))
-                    }
-                    .padding(.vertical)
-                }
-            }
-            .scrollIndicators(.hidden)
-            .scrollEdgeEffectStyle(.soft, for: .top)
-            .onVisibleViewportChange {
-                viewportSize = $0
-            }
+            HomeSectionsView(store: store)
             .animation(.default) {
                 $0.visible(!store.popularGalleries.isEmpty)
             }
@@ -118,6 +68,20 @@ public struct HomeView: View {
                 galleryDestination(store)
             }
         }
+        .onVisibleViewportChange { viewportSize = $0 }
+        .modifier(HomeHingeObservation { store.send(.hingeChanged(isPartiallyOpen: $0)) })
+        .background {
+            @UIBindable var presentationStore = store
+            HomePaneSheet(
+                item: $presentationStore.scope(\.$sheet, action: \.sheet),
+                viewport: viewportSize,
+                isPartiallyOpen: store.isPartiallyOpen,
+                side: { $0.side },
+                onDismiss: { store.send(.sheetDismissed) }
+            ) { sheetStore in
+                HomeSheetView(store: sheetStore, viewport: viewportSize, isPartiallyOpen: store.isPartiallyOpen)
+            }
+        }
     }
 
     private func toolbar() -> some ToolbarContent {
@@ -132,16 +96,6 @@ public struct HomeView: View {
                 ProgressView().visible(store.popularLoadingState == .loading)
             }
         }
-    }
-}
-
-// MARK: Navigation
-private extension HomeView {
-    func navigateTo(gallery: Gallery) {
-        store.send(.galleryTapped(gallery))
-    }
-    func navigateTo(type: HomeMiscGridType) {
-        store.send(.miscTapped(type))
     }
 }
 

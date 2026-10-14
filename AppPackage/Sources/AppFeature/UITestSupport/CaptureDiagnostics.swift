@@ -366,9 +366,13 @@ private struct ShownScreens {
 
     init(state: AppReducer.State) {
         let presentation = state.presentationState
-        if let detail = presentation.detail {
+        if let gallery = presentation.gallery {
             // The modal detail roots its own gallery stack.
-            let top = Self.screen(for: presentation.path.last ?? .detail(detail))
+            let top = Self.screen(for: gallery.path.last ?? .detail(gallery.detail))
+            self.init(top: top, backdrop: top?.coversEverything == true ? nil : Self.tabRoot(of: state))
+        } else if state.tabBarState.tabBarItemType == .home, let sheet = state.homeState.sheet {
+            let gallery = sheet.gallery ?? sheet.root.gallery
+            let top = gallery.flatMap({ Self.screen(for: $0.path.last ?? .detail($0.detail)) })
             self.init(top: top, backdrop: top?.coversEverything == true ? nil : Self.tabRoot(of: state))
         } else if let destination = presentation.destination {
             // Of the app's sheets, only Setting hosts a capture screen.

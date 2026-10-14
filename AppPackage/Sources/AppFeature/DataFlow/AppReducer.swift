@@ -256,6 +256,7 @@ struct AppReducer {
                 return .none
 
             case .home(.path(.element(id: _, action: .watched(.onNotLoginViewButtonTapped)))),
+                 .home(.delegate(.openAccount)),
                  .favorites(.onNotLoginViewButtonTapped):
                 var effects: [Effect<Action>] = [
                     .run(operation: { _ in await hapticsClient.generateFeedback(.soft) }),
@@ -459,8 +460,11 @@ private extension AppReducer {
         var effects: [Effect<Action>] = []
 
         // GalleryPath stacks whose top element presents a reader.
-        if let (id, action) = state.presentationState.path.topReadingFlush {
-            effects.append(.send(.presentation(.path(.element(id: id, action: action)))))
+        if let action = state.presentationState.gallery?.readingFlushAction {
+            effects.append(.send(.presentation(.gallery(.presented(action)))))
+        }
+        if let action = state.homeState.sheet?.readingFlushAction {
+            effects.append(.send(.home(.sheet(.presented(action)))))
         }
         if let (id, action) = state.favoritesState.path.topReadingFlush {
             effects.append(.send(.favorites(.path(.element(id: id, action: action)))))
@@ -483,11 +487,6 @@ private extension AppReducer {
 
         // The modal detail (a deep link, or a tab's gallery in a window regular in both
         // dimensions) and the Downloads tab present a reader directly.
-        if state.presentationState.detail?.destination?.reading != nil {
-            effects.append(.send(.presentation(.detail(.presented(
-                .destination(.presented(.reading(.flushReadingProgress)))
-            )))))
-        }
         if state.downloadsState.destination?.reading != nil {
             effects.append(.send(.downloads(.destination(.presented(.reading(.flushReadingProgress))))))
         }

@@ -104,7 +104,7 @@ final class ReaderPageSyncUITests: XCTestCase {
         let left = try reader.requirePage("After dragging the slider", where: { $0 > 10 })
 
         let app = reader.app
-        app.buttons["Close"].firstMatch.tapWhenHittable("Reader Close")
+        app.requireElement("reading_view").buttons["Close"].firstMatch.tapWhenHittable("Reader Close")
         let readButton = app.buttons["Read"].firstMatch
         XCTAssertTrue(readButton.waitForExistence(timeout: 10), "Gallery Detail did not expose Read.")
         XCTAssertTrue(
@@ -178,7 +178,7 @@ final class ReaderPageSyncUITests: XCTestCase {
     /// Closes the reader and reads the gallery again, which resumes on the page left, and shows the panel.
     private func readAgain(_ reader: ReaderPageProbe) {
         let app = reader.app
-        app.buttons["Close"].firstMatch.tapWhenHittable("Reader Close")
+        app.requireElement("reading_view").buttons["Close"].firstMatch.tapWhenHittable("Reader Close")
         let readButton = app.buttons["Read"].firstMatch
         XCTAssertTrue(readButton.waitForExistence(timeout: 10), "Gallery Detail did not expose Read.")
         readButton.tapWhenHittable("Gallery Detail Read")

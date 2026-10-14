@@ -4,6 +4,7 @@ import AppLaunchAutomationClient
 import AppModels
 import ComposableArchitecture
 import CookieClient
+import DetailFeature
 import DownloadClient
 import DownloadsFeature
 import Foundation
@@ -23,6 +24,11 @@ import Testing
 // stays nonisolated — a main-actor conformance cannot be used from the `@Sendable`
 // dependency closures these stores install.
 struct AppReadingFlushTests: DownloadFeatureTestCase {
+    enum ModalHost: CaseIterable {
+        case app
+        case home
+        case homeList
+    }
     private let now = Date(timeIntervalSince1970: 1_000)
 
     private func persistedProgress(_ defaults: UserDefaults, gid: String) -> Int {
@@ -67,6 +73,44 @@ struct AppReadingFlushTests: DownloadFeatureTestCase {
         await store.finish()
 
         #expect(persistedProgress(defaults, gid: gallery.id) == 7)
+    }
+
+    @MainActor
+    @Test(arguments: ModalHost.allCases)
+    func backgroundFlushesGallerySheets(_ host: ModalHost) async throws {
+        let defaults = UserDefaults.inMemory
+        let gallery = sampleGallery()
+        var reader = ReadingReducer.State(gallery: gallery, contentSource: .remote)
+        reader.pendingReadingProgress = 9
+        var detail = DetailReducer.State(gallery: gallery)
+        detail.destination = .reading(reader)
+        let gallerySheet = GallerySheetFeature.State(detail: detail)
+
+        var initialState = AppReducer.State()
+        initialState.settingState.hasLoadedInitialSetting = true
+        switch host {
+        case .app:
+            initialState.presentationState.gallery = gallerySheet
+        case .home:
+            initialState.homeState.sheet = .init(root: .gallery(gallerySheet), side: .right)
+        case .homeList:
+            initialState.homeState.sheet = .init(root: .history(.init()), side: .right)
+            initialState.homeState.sheet?.gallery = gallerySheet
+        }
+        let store = TestStore(initialState: initialState, reducer: AppReducer.init) {
+            $0.analyticsClient = .noop
+            $0.defaultAppStorage = defaults
+            $0.date = .constant(now)
+            $0.appLaunchAutomationClient = .none
+            $0.cookieClient = .noop
+            $0.downloadClient = .noop
+        }
+        store.exhaustivity = .off
+
+        await store.send(.onScenePhaseChange(.background))
+        await store.finish()
+
+        #expect(persistedProgress(defaults, gid: gallery.id) == 9)
     }
 
     @MainActor

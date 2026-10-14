@@ -31,7 +31,7 @@ struct GalleryDetailRoutingTests {
         await store.skipInFlightEffects(strict: false)
 
         #expect(store.state.favoritesState.path.count == 1)
-        #expect(store.state.presentationState.detail == nil)
+        #expect(store.state.presentationState.gallery == nil)
     }
 
     @MainActor
@@ -45,7 +45,7 @@ struct GalleryDetailRoutingTests {
         await store.skipReceivedActions(strict: false)
         await store.skipInFlightEffects(strict: false)
 
-        #expect(store.state.presentationState.detail?.gallery == .preview)
+        #expect(store.state.presentationState.gallery?.detail.gallery == .preview)
         #expect(store.state.favoritesState.path.isEmpty)
     }
 
@@ -61,7 +61,7 @@ struct GalleryDetailRoutingTests {
         await store.skipInFlightEffects(strict: false)
 
         #expect(store.state.searchRootState.path.count == 1)
-        #expect(store.state.presentationState.detail == nil)
+        #expect(store.state.presentationState.gallery == nil)
     }
 
     @MainActor
@@ -75,7 +75,7 @@ struct GalleryDetailRoutingTests {
         await store.skipReceivedActions(strict: false)
         await store.skipInFlightEffects(strict: false)
 
-        #expect(store.state.presentationState.detail?.gallery == .preview)
+        #expect(store.state.presentationState.gallery?.detail.gallery == .preview)
         #expect(store.state.searchRootState.path.isEmpty)
     }
 }
