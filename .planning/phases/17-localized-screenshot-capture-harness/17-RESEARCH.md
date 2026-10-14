@@ -338,10 +338,9 @@ Existing commands, one invocation at a time:
 ```sh
 xcodebuild test -project EhPanda.xcodeproj -scheme EhPanda -testPlan FeatureTests \
   -destination "platform=iOS Simulator,id=$PHONE_UDID"
-xcodebuild test -project EhPanda.xcodeproj -scheme EhPanda -testPlan UITests \
-  -destination "platform=iOS Simulator,id=$PHONE_UDID"
+python3 Scripts/visual/run-single-pass.py --device "$PHONE_UDID"
 ```
-Repeat sequentially for tablet. Resolve current UDIDs rather than using stale config identifiers. The direct UITests command still inherits the test plan's retry policy; use the native runners' single-pass xctestrun copies for no-retry visual evidence. See `17-VALIDATION.md`, "Retry policy for direct test commands".
+Repeat sequentially for tablet. Resolve current UDIDs rather than using stale config identifiers. The UITests entry point uses the existing native Gate to prepare a single-pass xctestrun copy, enumerate the compiled selection and verify exact test identities/counts without skips or repetitions. Required fixture and capture context still comes from each producer task. See `17-VALIDATION.md`, "Single-pass UITests validation".
 
 **Wave 0:** create a dedicated visual test plan/hosted target and public fixtures; its exact target/filter/command must be recorded after registration. Proposed suite name VisualPipelineContractTests; not currently runnable. Existing FeatureTests/UI plans remain regression gates. A small filtered contract suite should run within30seconds; measured feasibility/full matrix is intentionally longer. [CITED: existing infrastructure; proposed tests]
 

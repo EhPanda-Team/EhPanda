@@ -22,33 +22,50 @@ Exact producer/task map below is planned, not executed. Set implementation compl
 - Candidate generation: same command with `--mode candidate` and a separate output directory; no reference writes. Initial17-13 and post-layout17-20 require complete review/owner approval.
 - Website full export: `python3 scripts/visual/export-marketing.py --all --fixtures .capture/marketing/current --environment scripts/visual/regression-environment.json --output .capture/export-final`; expected384 rows with all outcome/metadata fields; final requires all passed and independent cold-rerun equality.
 - Existing behavior: `xcodebuild test -project EhPanda.xcodeproj -scheme EhPanda -testPlan FeatureTests -destination "platform=iOS Simulator,id=$PHONE_UDID"`.
-- Existing native: `xcodebuild test -project EhPanda.xcodeproj -scheme EhPanda -testPlan UITests -destination "platform=iOS Simulator,id=$PHONE_UDID"`.
+- Existing native: `python3 Scripts/visual/run-single-pass.py --device "$PHONE_UDID"`.
 - Existing build: `xcodebuild build -project EhPanda.xcodeproj -scheme EhPanda -destination 'generic/platform=iOS Simulator'`.
 - Resolve current UDIDs; run phone then tablet sequentially. No concurrent xcodebuild tests, automatic retries, zero-test successes or Repetition nodes. Keep full logs/result bundles and actual exit status.
 - Strict lint: resolve exactly one current installed binary under `$HOME/Library/Developer/Xcode/DerivedData/EhPanda-*/SourcePackages/artifacts/swiftlintplugins/*/macos/swiftlint`, then run `lint --strict --no-cache --config .swiftlint.yml AppPackage/Sources App ShareExtension EhPandaUITests AppPackage/Tests`. Ambiguous/missing binary or nonzero exit fails; never pipe away failure.
 - Release gate17-14-T2/T3/17-23: build Release and validate actual app/link map/build graph using verify-release.py; launch Release with capture flags and prove inactivity.
 
-### Retry policy for direct test commands
+### Single-pass UITests validation
 
-Xcode 27.1 RC `xcodebuild -help` confirms that `-retry-tests-on-failure` is a flag with
-no value. Omit it to avoid requesting retries on the command line. `FeatureTests` has no
-retry policy, but `UITests.xctestplan` still sets `testRepetitionMode: retryOnFailure`
-and `maximumTestRepetitions: 3`; omitting the flag does not clear that policy.
+`Scripts/visual/run-single-pass.py` builds `UITests` for a generic simulator, then uses
+`Gate.single_pass_run` to remove every `TestRepetitionPolicy` from a run-local xctestrun copy.
+The source test plan retains its general regression retry policy. Xcode 27.1 RC documents
+`-retry-tests-on-failure` as a flag with no value; none of these validation commands uses it.
 
-The direct `xcodebuild test -testPlan UITests` commands remain subject to that policy in:
+The entry point enumerates the compiled selection with Xcode before execution. It requires a
+nonempty, unique selection from one configuration, rejects disabled requested tests and selectors with no
+matches, and records the actual expected test identities and count. `Gate.run` then requires that
+count to pass without failures, skips or Repetition nodes; the entry point also checks that each
+result is exactly one of the enumerated methods. A suite that has not been implemented fails
+instead of passing with zero tests. Required fixture and capture-context setup still belongs to
+each producer task; this entry point does not replace the native capture runner's scene setup.
 
-- this document's Existing native command and tasks 17-05-T1, 17-11-T1/T2,
-  17-08-T1/T2, 17-09-T1/T2 and 17-10-T1/T2;
-- `17-05-PLAN.md` task T1;
-- `17-08-PLAN.md`, `17-09-PLAN.md`, `17-10-PLAN.md` and `17-11-PLAN.md` tasks T1/T2,
-  including their phone/tablet repetitions;
-- the existing native command in `17-RESEARCH.md`.
+Commands below use this entry point for Existing native, 17-05-T1, 17-11-T1/T2 and
+17-08/17-09/17-10-T1/T2. Their selectors and phone/tablet sequence are unchanged. Test discovery
+and execution wait for other exact `xcodebuild`/`xctest` processes to finish and never signal them.
+The generic build does not need that test window.
 
-For single-pass visual evidence, use the native runners' run-local xctestrun copies,
-which remove `TestRepetitionPolicy`, and reject result-tree Repetition nodes. The direct
-UITests commands above need the same single-pass preparation before they can satisfy
-this document's no-retry requirement. This documentation correction leaves executable
-scripts and test plans unchanged; changing their execution path requires owner approval.
+`--output` must name a new evidence directory; omission creates one under
+`.capture/single-pass/<timestamp>`. `--derived-data` defaults inside that directory and can name a
+dedicated reusable build directory when invocations are serial. Build, enumeration and execution
+retain their commands, logs, exit codes and result bundles. Run-local copies leave the original
+xctestrun and `UITests.xctestplan` unchanged. Original content size and boot ownership are restored.
+
+Run `python3 -B -m unittest discover -s Scripts/visual -p test_single_pass.py` for the entry-point
+contracts, including zero/missing/duplicate/unrequested tests and native repetition rejection.
+
+Entry-point verification on 2026-10-15 passed 196 Python tests and one selected
+`VisualCaptureOrientationUITests/testRotateToPortrait` on each dedicated iPhone/iPad, serially.
+Both compiled selections and result trees contain exactly that one passing method, with no skips
+or Repetition nodes. Generic builds reported zero warnings/errors; original content size and
+Shutdown ownership were restored. Evidence is under
+`$HOME/Library/Caches/Appshot/handoff/phase17-single-pass-phone-3` and
+`$HOME/Library/Caches/Appshot/handoff/phase17-single-pass-tablet`; the earlier interrupted run and
+the enumeration-parser failure are retained. This validates the entry point; the producer/task
+map below still requires its own complete scene, fixture and artifact evidence.
 
 ## Per-task verification map
 
@@ -66,20 +83,20 @@ Every command below is runnable only after its own producer task creates the sui
 | 17-03-T2 | 4 | CAP-17-01, CAP-17-04 | `python3 -m unittest discover -s scripts/visual -p test_selection_review.py` | 17-02; all task acceptance and artifact evidence required |
 | 17-04-T1 | 5 | CAP-17-01, CAP-17-04, CAP-17-07 | `xcodebuild build -project EhPanda.xcodeproj -scheme EhPanda -destination 'generic/platform=iOS Simulator'` | 17-03; all task acceptance and artifact evidence required |
 | 17-04-T2 | 5 | CAP-17-01, CAP-17-04, CAP-17-07 | `xcodebuild test -project EhPanda.xcodeproj -scheme EhPanda -testPlan FeatureTests -destination "platform=iOS Simulator,id=$PHONE_UDID" -only-testing:AppFeatureTests/CaptureSceneTests -only-testing:AppFeatureTests/CaptureFixtureTests` | 17-03; all task acceptance and artifact evidence required |
-| 17-05-T1 | 6 | CAP-17-02, CAP-17-04, CAP-17-06 | `xcodebuild test -project EhPanda.xcodeproj -scheme EhPanda -testPlan UITests -destination "platform=iOS Simulator,id=$PHONE_UDID" -only-testing:EhPandaUITests/MarketingCaptureUITests/testCaptureCoordinate` | 17-04; all task acceptance and artifact evidence required |
+| 17-05-T1 | 6 | CAP-17-02, CAP-17-04, CAP-17-06 | `python3 Scripts/visual/run-single-pass.py --device "$PHONE_UDID" --only-testing EhPandaUITests/MarketingCaptureUITests/testCaptureCoordinate` | 17-04; all task acceptance and artifact evidence required |
 | 17-05-T2 | 6 | CAP-17-02, CAP-17-04, CAP-17-06 | `python3 -m unittest discover -s scripts/visual -p test_capture_native.py` | 17-04; all task acceptance and artifact evidence required |
 | 17-06-T1 | 7 | CAP-17-01, CAP-17-04, CAP-17-07 | `xcodebuild test -project EhPanda.xcodeproj -scheme EhPanda -testPlan FeatureTests -destination "platform=iOS Simulator,id=$PHONE_UDID" -only-testing:ReadingFeatureTests/CaptureLiveTextTests` | 17-05; all task acceptance and artifact evidence required |
 | 17-06-T2 | 7 | CAP-17-01, CAP-17-04, CAP-17-07 | `xcodebuild test -project EhPanda.xcodeproj -scheme EhPanda -testPlan FeatureTests -destination "platform=iOS Simulator,id=$PHONE_UDID" -only-testing:AppFeatureTests/CaptureDownloadTests` | 17-05; all task acceptance and artifact evidence required |
 | 17-07-T1 | 8 | CAP-17-04 | `python3 -m unittest discover -s scripts/visual -p test_marketing.py` | 17-06; all task acceptance and artifact evidence required |
 | 17-07-T2 | 8 | CAP-17-04 | `python3 -m unittest discover -s scripts/visual -p test_handoff.py` | 17-06; all task acceptance and artifact evidence required |
-| 17-11-T1 | 9 | CAP-17-01, CAP-17-02, CAP-17-06 | `xcodebuild test -project EhPanda.xcodeproj -scheme EhPanda -testPlan UITests -destination "platform=iOS Simulator,id=$PHONE_UDID" -only-testing:EhPandaUITests/NativeVisualMatrixUITests/testCaptureScenario` | 17-02, 17-06, 17-07; all task acceptance and artifact evidence required |
-| 17-11-T2 | 9 | CAP-17-01, CAP-17-02, CAP-17-06 | `xcodebuild test -project EhPanda.xcodeproj -scheme EhPanda -testPlan FeatureTests -destination "platform=iOS Simulator,id=$PHONE_UDID" -only-testing:AppFeatureTests/VisualScenarioCoverageTests`; then `xcodebuild test -project EhPanda.xcodeproj -scheme EhPanda -testPlan UITests -destination "platform=iOS Simulator,id=$PHONE_UDID" -only-testing:EhPandaUITests/NativeVisualMatrixUITests/testCaptureScenario` | 17-02, 17-06, 17-07; all task acceptance and artifact evidence required |
-| 17-08-T1 | 10 | CAP-17-02, CAP-17-06 | `xcodebuild test -project EhPanda.xcodeproj -scheme EhPanda -testPlan FeatureTests -destination "platform=iOS Simulator,id=$PHONE_UDID" -only-testing:VisualSnapshotTests/BrowseScenarioTests`; then `xcodebuild test -project EhPanda.xcodeproj -scheme EhPanda -testPlan UITests -destination "platform=iOS Simulator,id=$PHONE_UDID" -only-testing:EhPandaUITests/BrowseVisualUITests` | 17-11; all task acceptance and artifact evidence required |
-| 17-08-T2 | 10 | CAP-17-02, CAP-17-06 | `xcodebuild test -project EhPanda.xcodeproj -scheme EhPanda -testPlan FeatureTests -destination "platform=iOS Simulator,id=$PHONE_UDID" -only-testing:VisualSnapshotTests/DetailScenarioTests`; then `xcodebuild test -project EhPanda.xcodeproj -scheme EhPanda -testPlan UITests -destination "platform=iOS Simulator,id=$PHONE_UDID" -only-testing:EhPandaUITests/DetailVisualUITests` | 17-11; all task acceptance and artifact evidence required |
-| 17-09-T1 | 11 | CAP-17-02, CAP-17-06 | `xcodebuild test -project EhPanda.xcodeproj -scheme EhPanda -testPlan FeatureTests -destination "platform=iOS Simulator,id=$PHONE_UDID" -only-testing:VisualSnapshotTests/ReaderScenarioTests`; then `xcodebuild test -project EhPanda.xcodeproj -scheme EhPanda -testPlan UITests -destination "platform=iOS Simulator,id=$PHONE_UDID" -only-testing:EhPandaUITests/ReaderVisualUITests` | 17-08; all task acceptance and artifact evidence required |
-| 17-09-T2 | 11 | CAP-17-02, CAP-17-06 | `xcodebuild test -project EhPanda.xcodeproj -scheme EhPanda -testPlan UITests -destination "platform=iOS Simulator,id=$PHONE_UDID" -only-testing:EhPandaUITests/NativeVisualPolicyUITests` | 17-08; all task acceptance and artifact evidence required |
-| 17-10-T1 | 12 | CAP-17-02, CAP-17-06 | `xcodebuild test -project EhPanda.xcodeproj -scheme EhPanda -testPlan FeatureTests -destination "platform=iOS Simulator,id=$PHONE_UDID" -only-testing:VisualSnapshotTests/SettingsScenarioTests`; then `xcodebuild test -project EhPanda.xcodeproj -scheme EhPanda -testPlan UITests -destination "platform=iOS Simulator,id=$PHONE_UDID" -only-testing:EhPandaUITests/SettingsVisualUITests` | 17-09; all task acceptance and artifact evidence required |
-| 17-10-T2 | 12 | CAP-17-02, CAP-17-06 | `python3 -m unittest discover -s scripts/visual -p test_contracts.py`; then `xcodebuild test -project EhPanda.xcodeproj -scheme EhPanda -testPlan UITests -destination "platform=iOS Simulator,id=$PHONE_UDID" -only-testing:EhPandaUITests/UtilityVisualUITests` | 17-09; all task acceptance and artifact evidence required |
+| 17-11-T1 | 9 | CAP-17-01, CAP-17-02, CAP-17-06 | `python3 Scripts/visual/run-single-pass.py --device "$PHONE_UDID" --only-testing EhPandaUITests/NativeVisualMatrixUITests/testCaptureScenario` | 17-02, 17-06, 17-07; all task acceptance and artifact evidence required |
+| 17-11-T2 | 9 | CAP-17-01, CAP-17-02, CAP-17-06 | `xcodebuild test -project EhPanda.xcodeproj -scheme EhPanda -testPlan FeatureTests -destination "platform=iOS Simulator,id=$PHONE_UDID" -only-testing:AppFeatureTests/VisualScenarioCoverageTests`; then `python3 Scripts/visual/run-single-pass.py --device "$PHONE_UDID" --only-testing EhPandaUITests/NativeVisualMatrixUITests/testCaptureScenario` | 17-02, 17-06, 17-07; all task acceptance and artifact evidence required |
+| 17-08-T1 | 10 | CAP-17-02, CAP-17-06 | `xcodebuild test -project EhPanda.xcodeproj -scheme EhPanda -testPlan FeatureTests -destination "platform=iOS Simulator,id=$PHONE_UDID" -only-testing:VisualSnapshotTests/BrowseScenarioTests`; then `python3 Scripts/visual/run-single-pass.py --device "$PHONE_UDID" --only-testing EhPandaUITests/BrowseVisualUITests` | 17-11; all task acceptance and artifact evidence required |
+| 17-08-T2 | 10 | CAP-17-02, CAP-17-06 | `xcodebuild test -project EhPanda.xcodeproj -scheme EhPanda -testPlan FeatureTests -destination "platform=iOS Simulator,id=$PHONE_UDID" -only-testing:VisualSnapshotTests/DetailScenarioTests`; then `python3 Scripts/visual/run-single-pass.py --device "$PHONE_UDID" --only-testing EhPandaUITests/DetailVisualUITests` | 17-11; all task acceptance and artifact evidence required |
+| 17-09-T1 | 11 | CAP-17-02, CAP-17-06 | `xcodebuild test -project EhPanda.xcodeproj -scheme EhPanda -testPlan FeatureTests -destination "platform=iOS Simulator,id=$PHONE_UDID" -only-testing:VisualSnapshotTests/ReaderScenarioTests`; then `python3 Scripts/visual/run-single-pass.py --device "$PHONE_UDID" --only-testing EhPandaUITests/ReaderVisualUITests` | 17-08; all task acceptance and artifact evidence required |
+| 17-09-T2 | 11 | CAP-17-02, CAP-17-06 | `python3 Scripts/visual/run-single-pass.py --device "$PHONE_UDID" --only-testing EhPandaUITests/NativeVisualPolicyUITests` | 17-08; all task acceptance and artifact evidence required |
+| 17-10-T1 | 12 | CAP-17-02, CAP-17-06 | `xcodebuild test -project EhPanda.xcodeproj -scheme EhPanda -testPlan FeatureTests -destination "platform=iOS Simulator,id=$PHONE_UDID" -only-testing:VisualSnapshotTests/SettingsScenarioTests`; then `python3 Scripts/visual/run-single-pass.py --device "$PHONE_UDID" --only-testing EhPandaUITests/SettingsVisualUITests` | 17-09; all task acceptance and artifact evidence required |
+| 17-10-T2 | 12 | CAP-17-02, CAP-17-06 | `python3 -m unittest discover -s scripts/visual -p test_contracts.py`; then `python3 Scripts/visual/run-single-pass.py --device "$PHONE_UDID" --only-testing EhPandaUITests/UtilityVisualUITests` | 17-09; all task acceptance and artifact evidence required |
 | 17-12-T1 | 13 | CAP-17-02, CAP-17-03 | `python3 -m unittest discover -s scripts/visual -p test_baselines.py` | 17-10; all task acceptance and artifact evidence required |
 | 17-12-T2 | 13 | CAP-17-02, CAP-17-03 | `xcodebuild test -project EhPanda.xcodeproj -scheme EhPanda -testPlan FeatureTests -destination "platform=iOS Simulator,id=$PHONE_UDID" -only-testing:VisualSnapshotTests/RegressionDetectionTests` | 17-10; all task acceptance and artifact evidence required |
 | 17-13-T1 | 14 | CAP-17-02, CAP-17-03, CAP-17-06 | `python3 scripts/visual/run-regression.py --all --mode candidate --fixtures .capture/regression --environment scripts/visual/regression-environment.json --output .capture/baseline-initial` | 17-12; all task acceptance and artifact evidence required |
