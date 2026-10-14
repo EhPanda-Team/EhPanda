@@ -57,8 +57,9 @@ xcodebuild test -project EhPanda.xcodeproj -scheme EhPanda -testPlan FeatureTest
 
 Commands used sandbox escalation for the normal Xcode caches and CoreSimulator services.
 No automatic failure retry was enabled. The installed Xcode help defines
-`-retry-tests-on-failure` as a switch, not a boolean-valued argument: omitting it disables
-retry. The approved plans' `-retry-tests-on-failure NO` spelling needs correction.
+`-retry-tests-on-failure` as a switch with no value. Omitting it avoids requesting retries
+on the command line; this FeatureTests plan has no retry policy of its own. Direct UITests
+commands still inherit their plan's retry policy, as recorded in `17-VALIDATION.md`.
 The Swift Testing method selector also needs the discovered `()` suffix. The first
 zero-test run was not accepted as a pass and no failed actual tracer was rerun.
 
