@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Run built Duo UI tests with a host driver for real simulator orientation changes.
+"""Run built Duo UI tests with a host driver for real simulator hinge and orientation changes.
 
 Prepare the hinge pose with your simulator pose driver first, then run:
   python3 Scripts/run-duo-ui-tests.py --device UDID --xctestrun PATH --pose-driver /path/to/pose-driver -- \
@@ -58,13 +58,14 @@ def main():
                     request_file = directory / 'request'
                     if request_file.exists():
                         request = request_file.read_text().splitlines()
-                        if len(request) != 2 or request[1] not in {'portrait', 'landscape-left'}:
+                        if len(request) != 2 or request[1] not in {
+                            'portrait', 'landscape-left', 'closed', 'half', 'open'
+                        }:
                             raise ValueError(f'Invalid Duo pose request: {request!r}')
-                        identifier, orientation = request
+                        identifier, pose = request
                         if identifier != last_request:
-                            subprocess.run([
-                                args.pose_driver, args.device, '--orientation', orientation
-                            ], check=True)
+                            option = '--orientation' if pose in {'portrait', 'landscape-left'} else '--hinge'
+                            subprocess.run([args.pose_driver, args.device, option, pose], check=True)
                             (directory / 'acknowledgement').write_text(identifier)
                             last_request = identifier
                     time.sleep(0.1)
