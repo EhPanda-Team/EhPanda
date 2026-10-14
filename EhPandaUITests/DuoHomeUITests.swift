@@ -203,12 +203,32 @@ final class DuoHomeUITests: XCTestCase {
         XCTAssertTrue(frontpage.buttons["Home"].exists, "Portrait should push onto the Home navigation stack")
         XCTAssertEqual(frontpage.frame.width, app.windows.firstMatch.frame.width, accuracy: 1)
         try DuoPose.set(.portrait)
-        XCTAssertTrue(frontpage.buttons["Home"].waitForExistence(timeout: 5))
+        let back = app.buttons["BackButton"]
+        XCTAssertTrue(back.waitForExistence(timeout: 5))
+        XCTAssertTrue(back.isHittable)
+        XCTAssertFalse(app.scrollViews["home_right_pane"].exists)
+        XCTAssertTrue(app.buttons["Date Seek"].isHittable)
+        XCTAssertTrue(app.buttons["Filters"].isHittable)
+        assertVerticalTabs(in: app)
+        back.tapWhenHittable("Return to split Home")
         XCTAssertTrue(app.scrollViews["home_right_pane"].waitForExistence(timeout: 5))
+        assertVerticalTabs(in: app)
         try DuoPose.set(.landscape)
+        XCTAssertFalse(app.scrollViews["home_right_pane"].exists)
+        app.buttons["Show All"].firstMatch.tapWhenHittable("Portrait Frontpage Show All")
         XCTAssertTrue(frontpage.buttons["Home"].waitForExistence(timeout: 5))
         frontpage.buttons["Home"].tapWhenHittable("Return to Home")
         XCTAssertTrue(app.navigationBars["Home"].exists)
+    }
+
+    private func assertVerticalTabs(in app: XCUIApplication) {
+        let home = app.buttons["house.circle"]
+        let favorites = app.buttons["heart.circle"]
+        XCTAssertTrue(home.isHittable)
+        XCTAssertTrue(favorites.isHittable)
+        XCTAssertEqual(home.frame.midX, favorites.frame.midX, accuracy: 1)
+        XCTAssertGreaterThan(favorites.frame.midY, home.frame.midY)
+        XCTAssertGreaterThan(home.frame.midX, app.windows.firstMatch.frame.midX)
     }
 
     private func closeSheet(in app: XCUIApplication, onLeft: Bool) throws {
