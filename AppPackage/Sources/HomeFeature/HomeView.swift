@@ -36,6 +36,13 @@ public struct HomeView: View {
                 rightInset: geometry.safeAreaInsets.trailing
             )
         } action: { paneWidths = $0 }
+        .overlay(alignment: .leading) {
+            if store.isPartiallyOpen, let widths = paneWidths {
+                HomeHingeCrease()
+                    .offset(x: widths.left - HomeHingeCrease.width / 2)
+                    .ignoresSafeArea(.container, edges: .vertical)
+            }
+        }
         // Navigation ownership follows the physical fold, independently of text direction.
         .environment(\.layoutDirection, .leftToRight)
         .onVisibleViewportChange { viewportSize = $0 }
