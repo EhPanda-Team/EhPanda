@@ -189,6 +189,28 @@ final class DuoHomeUITests: XCTestCase {
         XCTAssertTrue(marker.isHittable)
     }
 
+    func testPortraitUsesOnePaneAndPushesLists() throws {
+        try DuoPose.set(.landscape)
+        addTeardownBlock { try DuoPose.set(.portrait) }
+        let app = XCUIApplication()
+        try app.launchStubbed()
+        XCTAssertLessThan(app.windows.firstMatch.frame.width, app.windows.firstMatch.frame.height)
+        XCTAssertFalse(app.scrollViews["home_left_pane"].exists)
+        XCTAssertFalse(app.scrollViews["home_right_pane"].exists)
+        app.buttons["Show All"].firstMatch.tapWhenHittable("Portrait Frontpage Show All")
+        let frontpage = app.navigationBars["Frontpage"]
+        XCTAssertTrue(frontpage.waitForExistence(timeout: 10))
+        XCTAssertTrue(frontpage.buttons["Home"].exists, "Portrait should push onto the Home navigation stack")
+        XCTAssertEqual(frontpage.frame.width, app.windows.firstMatch.frame.width, accuracy: 1)
+        try DuoPose.set(.portrait)
+        XCTAssertTrue(frontpage.buttons["Home"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.scrollViews["home_right_pane"].waitForExistence(timeout: 5))
+        try DuoPose.set(.landscape)
+        XCTAssertTrue(frontpage.buttons["Home"].waitForExistence(timeout: 5))
+        frontpage.buttons["Home"].tapWhenHittable("Return to Home")
+        XCTAssertTrue(app.navigationBars["Home"].exists)
+    }
+
     private func closeSheet(in app: XCUIApplication, onLeft: Bool) throws {
         let buttons = app.buttons.matching(NSPredicate(format: "label == 'Close'")).allElementsBoundByIndex
         let button = try XCTUnwrap(buttons.first {

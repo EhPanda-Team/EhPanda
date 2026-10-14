@@ -21,6 +21,8 @@ last_activity_desc: "17-06 revision (2026-10-13): capture changes d688e8fe4b..94
 
 # Project State
 
+> **Image evidence availability:** Image files were removed from this repository history at the owner's request. Screenshot descriptions, filenames and earlier visual checks below are historical records, not currently available image evidence. Written findings, measurements and source artifacts remain; visual review requires fresh captures.
+
 ## Project Reference
 
 See: .planning/PROJECT.md (updated 2026-09-23)

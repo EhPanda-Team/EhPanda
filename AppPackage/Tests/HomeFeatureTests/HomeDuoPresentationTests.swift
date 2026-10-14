@@ -16,6 +16,86 @@ struct HomeDuoPresentationTests {
         #expect(HomePaneWidths(contentWidth: 952, leftInset: 0, rightInset: 0).left == 476)
     }
 
+    @Test(arguments: [
+        CGSize.zero,
+        CGSize(width: 669, height: 951),
+        CGSize(width: 669, height: 669),
+        CGSize(width: 951, height: 0),
+        CGSize(width: CGFloat.infinity, height: 669)
+    ])
+    func partialHingeDoesNotSplitWithoutAValidLandscapeViewport(_ viewport: CGSize) {
+        var state = HomeReducer.State()
+        state.isPartiallyOpen = true
+        state.viewportSize = viewport
+        #expect(!state.usesDuoSplitLayout)
+    }
+
+    @MainActor
+    @Test
+    func portraitPartialGalleryKeepsAppOwnedRouting() async {
+        let store = homeStore(isPartiallyOpen: true) {
+            $0.viewportSize = CGSize(width: 669, height: 951)
+        }
+        await store.send(.galleryTapped(.preview, from: .right))
+        await store.receive(\.delegate.openGalleryDetail)
+        await store.finish()
+        #expect(store.state.sheet == nil)
+        #expect(store.state.isPartiallyOpen)
+    }
+
+    @MainActor
+    @Test(arguments: HomeSectionType.allCases)
+    func portraitPartialSectionKeepsStackRouting(_ section: HomeSectionType) async {
+        let store = homeStore(isPartiallyOpen: true) {
+            $0.viewportSize = CGSize(width: 669, height: 951)
+        }
+        store.exhaustivity = .off
+        await store.send(.sectionTapped(section))
+        #expect(store.state.sheet == nil)
+        switch section {
+        case .frontpage: #expect(store.state.path.last?.frontpage != nil)
+        case .toplists: #expect(store.state.path.last?.toplists != nil)
+        }
+        await store.skipInFlightEffects(strict: false)
+    }
+
+    @MainActor
+    @Test(arguments: HomeMiscGridType.allCases)
+    func portraitPartialOtherListsKeepStackRouting(_ section: HomeMiscGridType) async {
+        let store = homeStore(isPartiallyOpen: true) {
+            $0.viewportSize = CGSize(width: 669, height: 951)
+        }
+        store.exhaustivity = .off
+        await store.send(.miscTapped(section))
+        #expect(store.state.sheet == nil)
+        switch section {
+        case .popular: #expect(store.state.path.last?.popular != nil)
+        case .watched: #expect(store.state.path.last?.watched != nil)
+        case .history: #expect(store.state.path.last?.history != nil)
+        }
+        await store.skipInFlightEffects(strict: false)
+    }
+
+    @MainActor
+    @Test
+    func rotationChangesSplitPolicyWithoutReplacingNavigation() async {
+        let store = homeStore(isPartiallyOpen: true) {
+            $0.sheet = .init(root: .history(.init()), side: .right)
+            $0.path.append(.popular(.init()))
+        }
+        #expect(store.state.usesDuoSplitLayout)
+        await store.send(.viewportChanged(CGSize(width: 669, height: 951))) {
+            $0.viewportSize = CGSize(width: 669, height: 951)
+        }
+        #expect(!store.state.usesDuoSplitLayout)
+        #expect(store.state.isPartiallyOpen)
+        await store.send(.viewportChanged(CGSize(width: 951, height: 669))) {
+            $0.viewportSize = CGSize(width: 951, height: 669)
+        }
+        #expect(store.state.usesDuoSplitLayout)
+        await store.finish()
+    }
+
     @MainActor
     @Test(arguments: [HomePane.left, .right])
     func partiallyOpenGalleryUsesTheOppositeSide(_ source: HomePane) async throws {
@@ -179,6 +259,7 @@ struct HomeDuoPresentationTests {
             var state = HomeReducer.State()
             state.popularGalleries = [.preview]
             state.isPartiallyOpen = isPartiallyOpen
+            state.viewportSize = CGSize(width: 951, height: 669)
             configure(&state)
             return TestStore(initialState: state, reducer: HomeReducer.init) {
                 $0.analyticsClient = .noop

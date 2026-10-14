@@ -10,7 +10,6 @@ public import SwiftUI
 public struct HomeView: View {
     @Environment(\.layoutDirection) private var layoutDirection
     @Bindable private var store: StoreOf<HomeReducer>
-    @State private var viewportSize: CGSize = .zero
     @State private var paneWidths: HomePaneWidths?
 
     public init(store: StoreOf<HomeReducer>) {
@@ -21,9 +20,9 @@ public struct HomeView: View {
     public var body: some View {
         HStack(alignment: .top, spacing: 0) {
             HomePrimaryNavigationView(store: store)
-                .frame(width: store.isPartiallyOpen ? paneWidths?.left : nil)
+                .frame(width: store.usesDuoSplitLayout ? paneWidths?.left : nil)
                 .environment(\.layoutDirection, layoutDirection)
-            if store.isPartiallyOpen {
+            if store.usesDuoSplitLayout {
                 HomeToplistsNavigationView(store: store)
                     .frame(maxWidth: .infinity)
                     .environment(\.layoutDirection, layoutDirection)
@@ -37,7 +36,7 @@ public struct HomeView: View {
             )
         } action: { paneWidths = $0 }
         .overlay(alignment: .leading) {
-            if store.isPartiallyOpen, let widths = paneWidths {
+            if store.usesDuoSplitLayout, let widths = paneWidths {
                 HomeHingeCrease()
                     .offset(x: widths.left - HomeHingeCrease.width / 2)
                     .ignoresSafeArea(.container, edges: .vertical)
@@ -45,18 +44,20 @@ public struct HomeView: View {
         }
         // Navigation ownership follows the physical fold, independently of text direction.
         .environment(\.layoutDirection, .leftToRight)
-        .onVisibleViewportChange { viewportSize = $0 }
+        .onVisibleViewportChange { store.send(.viewportChanged($0)) }
         .modifier(HomeHingeObservation { store.send(.hingeChanged(isPartiallyOpen: $0)) })
         .background {
             @UIBindable var presentationStore = store
             HomePaneSheet(
                 item: $presentationStore.scope(\.$sheet, action: \.sheet),
-                viewport: viewportSize,
-                isPartiallyOpen: store.isPartiallyOpen,
+                viewport: store.viewportSize,
+                usesDuoSplitLayout: store.usesDuoSplitLayout,
                 side: { $0.side },
                 onDismiss: { store.send(.sheetDismissed) }
             ) { sheetStore in
-                HomeSheetView(store: sheetStore, viewport: viewportSize, isPartiallyOpen: store.isPartiallyOpen)
+                HomeSheetView(
+                    store: sheetStore, viewport: store.viewportSize, usesDuoSplitLayout: store.usesDuoSplitLayout
+                )
             }
         }
     }
