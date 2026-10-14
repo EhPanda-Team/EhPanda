@@ -7,6 +7,10 @@ final class ReadingOrientationUITests: XCTestCase {
         ProcessInfo.processInfo.environment["EHPANDA_DUO_UI_TESTS"] == "1"
     }
 
+    private var usesDuoCoverDisplay: Bool {
+        ProcessInfo.processInfo.environment["EHPANDA_DUO_COVER_DISPLAY"] == "1"
+    }
+
     override func setUpWithError() throws {
         continueAfterFailure = false
         let isDuo = isDuo
@@ -23,6 +27,7 @@ final class ReadingOrientationUITests: XCTestCase {
         try XCTSkipUnless(UIDevice.current.userInterfaceIdiom == .pad || isDuo)
         try setOrientation(landscape: false)
         let app = try openReader()
+        requireViewport(in: app, landscape: false)
         configureAutomation(in: app, enabled: true)
         try requirePages(in: app, dual: false)
         ReaderPageProbe(app: app).dragSlider(toNormalizedPosition: 0.4)
@@ -56,6 +61,7 @@ final class ReadingOrientationUITests: XCTestCase {
         try XCTSkipUnless(UIDevice.current.userInterfaceIdiom == .pad || isDuo)
         try setOrientation(landscape: false)
         let app = try openReader()
+        requireViewport(in: app, landscape: false)
         configureAutomation(in: app, enabled: false)
         ReaderPageProbe(app: app).setDirection(.vertical)
         try setOrientation(landscape: true)
@@ -72,6 +78,7 @@ final class ReadingOrientationUITests: XCTestCase {
         try XCTSkipUnless(UIDevice.current.userInterfaceIdiom == .phone && !isDuo)
         try setOrientation(landscape: false)
         let app = try openReader()
+        requireViewport(in: app, landscape: false)
         configureAutomation(in: app, enabled: true)
         ReaderPageProbe(app: app).setDirection(.vertical)
         try setOrientation(landscape: true)
@@ -91,8 +98,9 @@ final class ReadingOrientationUITests: XCTestCase {
 
     private func setOrientation(landscape: Bool) throws {
         if isDuo {
-            // The simulator's inner display is wider in the hardware portrait pose.
-            try DuoPose.set(landscape ? .portrait : .landscape)
+            // Inner and cover displays have opposite aspect ratios in the same hardware pose.
+            let hardwareLandscape = usesDuoCoverDisplay ? landscape : !landscape
+            try DuoPose.set(hardwareLandscape ? .landscape : .portrait)
         } else {
             XCUIDevice.shared.orientation = landscape ? .landscapeLeft : .portrait
         }
@@ -126,7 +134,7 @@ final class ReadingOrientationUITests: XCTestCase {
         }
         let result = XCTWaiter.wait(for: [XCTNSPredicateExpectation(predicate: predicate, object: nil)], timeout: 10)
         XCTAssertEqual(result, .completed, "Unexpected reader position: \(element.value ?? "missing")")
-        if !isDuo {
+        if !isDuo || usesDuoCoverDisplay {
             let position = (element.value as? String ?? "").components(separatedBy: " of ")[0]
             let expected = position.split(whereSeparator: { !$0.isNumber }).compactMap({ Int($0) })
             try ReaderPageProbe(app: app).requireRenderedPages(expected)
@@ -176,7 +184,8 @@ final class ReadingOrientationUITests: XCTestCase {
         let toggle = app.switches["Match Screen Orientation"].firstMatch
         XCTAssertTrue(toggle.waitForExistence(timeout: 5))
         if (toggle.value as? String == "1") != enabled {
-            toggle.coordinate(withNormalizedOffset: CGVector(dx: 0.95, dy: 0.5)).press(forDuration: 0.05)
+            // SwiftUI exposes the whole row; stay inside the switch, away from its trailing margin.
+            toggle.coordinate(withNormalizedOffset: CGVector(dx: 0.9, dy: 0.5)).press(forDuration: 0.05)
         }
         let changed = XCTNSPredicateExpectation(
             predicate: NSPredicate(format: "value == %@", enabled ? "1" : "0"), object: toggle

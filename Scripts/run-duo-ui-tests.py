@@ -5,6 +5,8 @@ Prepare the hinge pose with foldctl first, then run:
   python3 Scripts/run-duo-ui-tests.py --device UDID --xctestrun PATH -- \
     -only-testing:EhPandaUITests/DuoHomeUITests
 
+For ReadingOrientationUITests on the closed display, add --cover-display before --.
+
 DuoPose sends requests through a temporary directory. Each request is acknowledged only
 once foldctl succeeds. The source test manifest is preserved. Requires foldctl on PATH
 (or --foldctl PATH), Xcode and an already booted Duo simulator.
@@ -24,6 +26,7 @@ def main():
     parser.add_argument('--device', required=True)
     parser.add_argument('--xctestrun', required=True, type=Path)
     parser.add_argument('--foldctl', default='foldctl')
+    parser.add_argument('--cover-display', action='store_true', help='Test the closed Duo cover display')
     parser.add_argument('test_arguments', nargs=argparse.REMAINDER)
     args = parser.parse_args()
     source = args.xctestrun.resolve()
@@ -38,6 +41,7 @@ def main():
             for target in run['TestTargets']:
                 environment = target.setdefault('EnvironmentVariables', {})
                 environment['EHPANDA_DUO_UI_TESTS'] = '1'
+                environment['EHPANDA_DUO_COVER_DISPLAY'] = '1' if args.cover_display else '0'
                 environment['EHPANDA_DUO_POSE_DIRECTORY'] = str(directory)
         # __TESTROOT__ paths remain relative to Products, including the application under test.
         with tempfile.NamedTemporaryFile(dir=source.parent, suffix='.xctestrun') as manifest:
