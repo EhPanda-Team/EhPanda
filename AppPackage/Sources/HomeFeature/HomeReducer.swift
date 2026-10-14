@@ -1,4 +1,5 @@
 import AnalyticsClient
+public import AppComponents
 public import AppModels
 import AppTools
 public import ComposableArchitecture
@@ -25,13 +26,12 @@ public struct HomeReducer: Sendable {
         @SharedReader(.globalFilter) public var globalFilter: AppModels.Filter
         @SharedReader(.setting) public var setting: Setting
         public var path = StackState<HomePath.State>()
-        public var isPartiallyOpen = false
+        public var device: WindowDevice = .other
+        public var allowsPadSplitLayout = false
         public var viewportSize: CGSize = .zero
 
-        public var usesDuoSplitLayout: Bool {
-            isPartiallyOpen && viewportSize.width.isFinite && viewportSize.height.isFinite
-                && viewportSize.width > 0 && viewportSize.height > 0
-                && viewportSize.width > viewportSize.height
+        public var usesSplitLayout: Bool {
+            device.supportsLandscapePanes(in: viewportSize) && (device != .pad || allowsPadSplitLayout)
         }
         @Presents public var sheet: HomeSheetFeature.State?
         var opensAccountAfterSheetDismissal = false
@@ -70,7 +70,8 @@ public struct HomeReducer: Sendable {
     public enum Action: BindableAction {
         case binding(BindingAction<State>)
         case onPresented
-        case hingeChanged(isPartiallyOpen: Bool)
+        case deviceChanged(WindowDevice)
+        case padLayoutChanged(allowsSplit: Bool)
         case viewportChanged(CGSize)
         case delegate(Delegate)
         case galleryTapped(Gallery, from: HomePane = .left)

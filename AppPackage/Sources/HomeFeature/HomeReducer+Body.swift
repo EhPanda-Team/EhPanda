@@ -27,8 +27,12 @@ extension HomeReducer {
             case .binding:
                 return .none
 
-            case .hingeChanged(let isPartiallyOpen):
-                state.isPartiallyOpen = isPartiallyOpen
+            case .deviceChanged(let device):
+                state.device = device
+                return .none
+
+            case .padLayoutChanged(let allowsSplit):
+                state.allowsPadSplitLayout = allowsSplit
                 return .none
 
             case .viewportChanged(let size):
@@ -43,7 +47,7 @@ extension HomeReducer {
                 return .send(.fetchAllGalleries)
 
             case .galleryTapped(let gallery, let side):
-                guard state.usesDuoSplitLayout else { return .send(.delegate(.openGalleryDetail(gallery))) }
+                guard state.usesSplitLayout else { return .send(.delegate(.openGalleryDetail(gallery))) }
                 return presentSheet(
                     root: .gallery(.init(detail: .init(gallery: gallery))),
                     on: side.opposite,
@@ -99,7 +103,7 @@ extension HomeReducer {
                 let sectionViewed = Effect<Action>.run(operation: { _ in
                     analyticsClient.send(.homeSectionViewed(homeSection(for: type)))
                 })
-                if state.usesDuoSplitLayout {
+                if state.usesSplitLayout {
                     let root: HomeSheetFeature.RootFeature.State = switch type {
                     case .frontpage: .frontpage(.init())
                     case .toplists: .toplists(.init())
@@ -132,7 +136,7 @@ extension HomeReducer {
                 let sectionViewed = Effect<Action>.run(operation: { _ in
                     analyticsClient.send(.homeSectionViewed(homeSection(for: type)))
                 })
-                if state.usesDuoSplitLayout {
+                if state.usesSplitLayout {
                     let root: HomeSheetFeature.RootFeature.State = switch type {
                     case .popular: .popular(.init())
                     case .watched: .watched(.init())

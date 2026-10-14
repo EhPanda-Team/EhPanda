@@ -10,13 +10,14 @@ struct ControlPanel<G: Gesture>: View {
     @AccessibilityFocusState private var focusedControl: ControlPanelFocus?
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.layoutDirection) private var layoutDirection
-    @State private var rightPaneWidth: CGFloat = 0
+    @State private var paneWidths = HorizontalPaneWidths(contentWidth: 0, leftInset: 0, rightInset: 0)
+    @State private var controlsOnLeft = false
     @Binding var showsPanel: Bool
     @Binding var showsSliderPreview: Bool
     @Binding var sliderValue: Float
     let isReversed: Bool
     let containerSize: CGSize
-    let usesRightPane: Bool
+    let usesHalfWidth: Bool
     let range: ClosedRange<Float>
     let previewURLs: [Int: URL]
     let dismissGesture: G
@@ -29,13 +30,20 @@ struct ControlPanel<G: Gesture>: View {
     /// `.animation(.default, value: store.showsPanel)` drives that half unchanged (D-29).
     private var hiddenPanelOffset: CGFloat { reduceMotion ? 0 : 50 }
 
+    private var paneWidth: CGFloat { controlsOnLeft ? paneWidths.left : paneWidths.right }
+
+    private var panelAlignment: Alignment {
+        guard usesHalfWidth else { return .center }
+        return controlsOnLeft == (layoutDirection == .leftToRight) ? .leading : .trailing
+    }
+
     private var panelSize: CGSize {
-        CGSize(width: usesRightPane ? rightPaneWidth : containerSize.width, height: containerSize.height)
+        CGSize(width: usesHalfWidth ? paneWidth : containerSize.width, height: containerSize.height)
     }
 
     private var preferredFocus: ControlPanelFocus? {
         guard showsPanel, range.upperBound > range.lowerBound else { return nil }
-        return usesRightPane ? .slider : .close
+        return usesHalfWidth ? .slider : .close
     }
 
     var body: some View {
@@ -44,7 +52,8 @@ struct ControlPanel<G: Gesture>: View {
             if range.upperBound > range.lowerBound {
                 LowerPanel(
                     controlFocus: $focusedControl,
-                    showsCloseButton: !usesRightPane,
+                    showsCloseButton: !usesHalfWidth,
+                    showsMoveButton: usesHalfWidth, controlsOnLeft: $controlsOnLeft,
                     showsSliderPreview: $showsSliderPreview,
                     sliderValue: $sliderValue, previewURLs: previewURLs, range: range,
                     isReversed: isReversed,
@@ -52,31 +61,32 @@ struct ControlPanel<G: Gesture>: View {
                     dismissGesture: dismissGesture, dismissAction: dismissAction,
                     fetchPreviewURLsAction: fetchPreviewURLsAction
                 )
-                .frame(width: usesRightPane ? rightPaneWidth : nil)
+                .frame(width: usesHalfWidth ? paneWidth : nil)
                 .frame(
                     maxWidth: .infinity,
-                    alignment: usesRightPane ? (layoutDirection == .leftToRight ? .trailing : .leading) : .center
+                    alignment: panelAlignment
                 )
                 // The preview tray grows from zero height while the Close button fades out — size
                 // motion, so under Reduce Motion the tray appears in place (D-29).
                 .animation(reduceMotion ? nil : .default, value: showsSliderPreview)
+                .animation(reduceMotion ? nil : .default, value: controlsOnLeft)
                 .offset(y: showsPanel ? 0 : hiddenPanelOffset)
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .onGeometryChange(for: CGFloat.self) { [layoutDirection] proxy in
+        .onGeometryChange(for: HorizontalPaneWidths.self) { [layoutDirection] proxy in
             let insets = proxy.safeAreaInsets
             let leftInset = layoutDirection == .leftToRight ? insets.leading : insets.trailing
             let rightInset = layoutDirection == .leftToRight ? insets.trailing : insets.leading
             // The toolbar can make the safe area asymmetric; keep the split at the physical hinge.
-            return min(proxy.size.width, max(0, (proxy.size.width + leftInset - rightInset) / 2))
-        } action: { rightPaneWidth = $0 }
+            return HorizontalPaneWidths(contentWidth: proxy.size.width, leftInset: leftInset, rightInset: rightInset)
+        } action: { paneWidths = $0 }
         // Match the native reading toolbar: measured on iOS 26.5 from XS through AX5.
         // This owner-approved range also covers the preview and the lower Close button.
         .dynamicTypeSize(DynamicTypeSize.large...DynamicTypeSize.xxLarge)
         .visible(showsPanel)
         .disabled(!showsPanel)
-        // The lower Close disappears in the folded layout; focus the first remaining control.
+        // The lower Close disappears in the two-pane layout; focus the first remaining control.
         .onChange(of: preferredFocus) { _, focus in
             focusedControl = focus
         }
@@ -92,6 +102,9 @@ private enum ControlPanelFocus: Hashable {
 private struct LowerPanel<G: Gesture>: View {
     @ScaledMetric(relativeTo: .title2) private var closeButtonSize: CGFloat = 44
     @GestureState private var isScrubbing = false
+    @State private var sliderRowHeight: CGFloat = 44
+    @Binding private var controlsOnLeft: Bool
+    private let showsMoveButton: Bool
     private let controlFocus: AccessibilityFocusState<ControlPanelFocus?>.Binding
     private let showsCloseButton: Bool
     @Binding private var showsSliderPreview: Bool
@@ -106,6 +119,7 @@ private struct LowerPanel<G: Gesture>: View {
 
     init(
         controlFocus: AccessibilityFocusState<ControlPanelFocus?>.Binding, showsCloseButton: Bool,
+        showsMoveButton: Bool, controlsOnLeft: Binding<Bool>,
         showsSliderPreview: Binding<Bool>, sliderValue: Binding<Float>,
         previewURLs: [Int: URL], range: ClosedRange<Float>, isReversed: Bool,
         containerSize: CGSize, dismissGesture: G, dismissAction: @escaping () -> Void,
@@ -113,6 +127,8 @@ private struct LowerPanel<G: Gesture>: View {
     ) {
         self.controlFocus = controlFocus
         self.showsCloseButton = showsCloseButton
+        self.showsMoveButton = showsMoveButton
+        _controlsOnLeft = controlsOnLeft
         _showsSliderPreview = showsSliderPreview
         _sliderValue = sliderValue
         self.previewURLs = previewURLs
@@ -122,6 +138,13 @@ private struct LowerPanel<G: Gesture>: View {
         self.dismissGesture = dismissGesture
         self.dismissAction = dismissAction
         self.fetchPreviewURLsAction = fetchPreviewURLsAction
+    }
+
+    private var sliderContainerSize: CGSize {
+        CGSize(
+            width: max(0, containerSize.width - (showsMoveButton ? sliderRowHeight + 8 : 0)),
+            height: containerSize.height
+        )
     }
 
     var body: some View {
@@ -140,62 +163,85 @@ private struct LowerPanel<G: Gesture>: View {
                 .visible(!showsSliderPreview)
             }
 
-            VStack(spacing: 0) {
-                SliderPreivew(
-                    showsSliderPreview: $showsSliderPreview,
-                    sliderValue: $sliderValue,
-                    previewURLs: previewURLs,
-                    range: range,
-                    isReversed: isReversed,
-                    containerSize: containerSize,
-                    fetchPreviewURLsAction: fetchPreviewURLsAction
-                )
-
-                // A page number is a value, not a label: its digits carry no break opportunity, so
-                // it either reads in full or not at all, and the single line says so explicitly.
-                // The slider is the flexible member of the row — it takes whatever the two numbers
-                // leave, up to its designed 60 % of the container, so a number that grew with the
-                // reader's type size widens its end of the bar instead of losing digits to it. At
-                // and below the default size the row has slack to spare, the slider still takes
-                // the full 60 %, and the bar renders exactly as designed.
-                HStack {
-                    Text(isReversed ? Int(range.upperBound) : Int(range.lowerBound), format: .number)
-                        .fontWeight(.medium)
-                        .font(.caption)
-                        .lineLimit(1)
-                        .padding()
-
-                    Slider(value: $sliderValue, in: range)
-                    .frame(maxWidth: containerSize.width * 0.6)
-                    .rotationEffect(.init(degrees: isReversed ? 180 : 0))
-                    // The slider's own value would be a percentage; the page it stands for is the
-                    // value that means something ("Page, 12 of 112"). `range.upperBound` is the
-                    // gallery's page count — the reader passes `1...pageCount`.
-                    .accessibilityFocused(controlFocus, equals: .slider)
-                    .accessibilityLabel(.accessibilityPageSlider)
-                    .accessibilityValue(
-                        .accessibilityPageOf(current: Int(sliderValue), total: Int(range.upperBound))
+            HStack(alignment: .bottom, spacing: 8) {
+                VStack(spacing: 0) {
+                    SliderPreivew(
+                        showsSliderPreview: $showsSliderPreview,
+                        sliderValue: $sliderValue,
+                        previewURLs: previewURLs,
+                        range: range,
+                        isReversed: isReversed,
+                        containerSize: sliderContainerSize,
+                        fetchPreviewURLsAction: fetchPreviewURLsAction
                     )
-                    // A held track drag can emit multiple editing sessions before the finger lifts.
-                    // The preview follows the whole touch, including its stationary hold and cancellation.
-                    .simultaneousGesture(
-                        DragGesture(minimumDistance: 0)
-                            .updating($isScrubbing) { _, isScrubbing, _ in
-                                isScrubbing = true
-                            }
-                    )
-                    .onChange(of: isScrubbing) { _, isScrubbing in
-                        showsSliderPreview = isScrubbing
+
+                    // A page number is a value, not a label: its digits carry no break opportunity, so
+                    // it either reads in full or not at all, and the single line says so explicitly.
+                    // The slider is the flexible member of the row — it takes whatever the two numbers
+                    // leave, up to its designed 60 % of the container, so a number that grew with the
+                    // reader's type size widens its end of the bar instead of losing digits to it. At
+                    // and below the default size the row has slack to spare, the slider still takes
+                    // the full 60 %, and the bar renders exactly as designed.
+                    HStack {
+                        Text(isReversed ? Int(range.upperBound) : Int(range.lowerBound), format: .number)
+                            .fontWeight(.medium)
+                            .font(.caption)
+                            .lineLimit(1)
+                            .padding()
+
+                        Slider(value: $sliderValue, in: range)
+                        .frame(maxWidth: sliderContainerSize.width * 0.6)
+                        .rotationEffect(.init(degrees: isReversed ? 180 : 0))
+                        // The slider's own value would be a percentage; the page it stands for is the
+                        // value that means something ("Page, 12 of 112"). `range.upperBound` is the
+                        // gallery's page count — the reader passes `1...pageCount`.
+                        .accessibilityFocused(controlFocus, equals: .slider)
+                        .accessibilityLabel(.accessibilityPageSlider)
+                        .accessibilityValue(
+                            .accessibilityPageOf(current: Int(sliderValue), total: Int(range.upperBound))
+                        )
+                        // A held track drag can emit multiple editing sessions before the finger lifts.
+                        // The preview follows the whole touch, including its stationary hold and cancellation.
+                        .simultaneousGesture(
+                            DragGesture(minimumDistance: 0)
+                                .updating($isScrubbing) { _, isScrubbing, _ in
+                                    isScrubbing = true
+                                }
+                        )
+                        .onChange(of: isScrubbing) { _, isScrubbing in
+                            showsSliderPreview = isScrubbing
+                        }
+
+                        Text(isReversed ? Int(range.lowerBound) : Int(range.upperBound), format: .number)
+                            .fontWeight(.medium)
+                            .font(.caption)
+                            .lineLimit(1)
+                            .padding()
                     }
-
-                    Text(isReversed ? Int(range.lowerBound) : Int(range.upperBound), format: .number)
-                        .fontWeight(.medium)
-                        .font(.caption)
-                        .lineLimit(1)
-                        .padding()
+                    .frame(minHeight: 44)
+                    .onGeometryChange(for: CGFloat.self, of: { $0.size.height }) { sliderRowHeight = $0 }
+                    .accessibilityElement(children: .contain)
+                    .accessibilityIdentifier("reading_slider_row")
+                }
+                .frame(maxWidth: showsMoveButton ? .infinity : nil)
+                .glassEffect(in: .rect(cornerRadius: 16))
+                if showsMoveButton {
+                    Button { controlsOnLeft.toggle() } label: {
+                        Label(
+                            controlsOnLeft ? .moveControlsRight : .moveControlsLeft,
+                            systemSymbol: controlsOnLeft
+                                ? .movePaneRight
+                                : .movePaneLeft
+                        )
+                        .labelStyle(.iconOnly)
+                        .font(.title2)
+                        .frame(width: sliderRowHeight, height: sliderRowHeight)
+                    }
+                    .buttonStyle(.plain)
+                    .glassEffect(.regular.interactive(), in: .rect(cornerRadius: 16))
+                    .accessibilityIdentifier("reading_move_controls")
                 }
             }
-            .glassEffect(in: .rect(cornerRadius: 16))
             .padding(.horizontal, SliderPreivew.outerPadding)
         }
         .accessibilityElement(children: .contain)
@@ -321,7 +367,7 @@ private let previewContainerSize = CGSize(width: 375, height: 667)
         sliderValue: .constant(1),
         isReversed: false,
         containerSize: previewContainerSize,
-        usesRightPane: false,
+        usesHalfWidth: false,
         range: 1...14,
         previewURLs: [:],
         dismissGesture: TapGesture(),
