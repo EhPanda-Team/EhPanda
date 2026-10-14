@@ -12,6 +12,33 @@ on failure. Its runner needs the pinned Xcode installation and dedicated simulat
 below; it fails on drift instead of replacing the pin. This gate is distinct from the full
 locale/theme/Dynamic Type regression matrix driven by `run-regression.py`.
 
+# Selected UITests without retries
+
+Use the same native Gate for individual Phase 17 validation selections:
+
+```sh
+python3 -B Scripts/visual/run-single-pass.py --device "$PHONE_UDID" \
+  --only-testing EhPandaUITests/VisualCaptureOrientationUITests/testRotateToPortrait \
+  --output .capture/single-pass-phone
+```
+
+Run the tablet command afterward with its current UDID and a new output directory. Repeat
+`--only-testing` to combine selectors. Each invocation builds for a generic simulator, copies the
+built xctestrun through `Gate.single_pass_run`, enumerates the actual compiled selection, and
+executes those methods once through `Gate.run`. No source test plan is changed. Enumeration errors,
+zero or duplicate tests, a disabled requested method, an unmatched selector, failures, skips,
+repetitions, unexpected test
+identities or a different count fail the run. Required capture fixtures and scene context still
+belong to the producer task; use the native capture runners for their scene preparation.
+
+Test discovery and execution wait for other `xcodebuild`/`xctest` processes, without signaling them;
+the generic build can proceed independently. The command restores the
+original content size and Booted/Shutdown ownership. Commands, logs, exit codes, build/test result
+bundles, enumeration and expected identities remain in the new output directory. The build must
+have zero warnings/errors. `--output` defaults to `.capture/single-pass/<timestamp>`;
+`--derived-data` defaults to `<output>/DerivedData`, or can name a dedicated directory reused by
+serial invocations. Build and test logs stay in the specified directories.
+
 # Rendering environment
 
 `regression-environment.json` is the tracked, immutable rendering contract shared by
@@ -474,10 +501,9 @@ destination at a time, and return each simulator to the power state you found:
 
 ```sh
 TEST_RUNNER_EHPANDA_CAPTURE_SOURCE="$PWD/.capture/marketing/current" \
-  xcodebuild test -project EhPanda.xcodeproj -scheme EhPanda -testPlan UITests \
-  -destination "platform=iOS Simulator,id=$UDID" \
-  -only-testing:EhPandaUITests/CaptureIsolationUITests \
-  -resultBundlePath .capture/<new run directory>/result.xcresult
+  python3 -B Scripts/visual/run-single-pass.py --device "$UDID" \
+  --only-testing EhPandaUITests/CaptureIsolationUITests \
+  --output .capture/capture-isolation-once
 ```
 
 The result bundle quotes real content: keep it under `.capture/` and never commit it.
@@ -518,10 +544,9 @@ variables:
 ```sh
 TEST_RUNNER_EHPANDA_CAPTURE_SOURCE="$PWD/.capture/marketing/current" \
 TEST_RUNNER_EHPANDA_CAPTURE_COORDINATE='{"screen":"home","set":"nonexplicit","locale":"en","theme":"dark","family":"iphone"}' \
-  xcodebuild test -project EhPanda.xcodeproj -scheme EhPanda -testPlan UITests \
-  -destination "platform=iOS Simulator,id=$UDID" \
-  -only-testing:EhPandaUITests/MarketingCaptureUITests/testCaptureCoordinate \
-  -resultBundlePath .capture/<new run directory>/result.xcresult
+  python3 -B Scripts/visual/run-single-pass.py --device "$UDID" \
+  --only-testing EhPandaUITests/MarketingCaptureUITests/testCaptureCoordinate \
+  --output .capture/marketing-once
 ```
 
 The UITests plan retries a failed test, so a result with repetitions counts as failed. The native
