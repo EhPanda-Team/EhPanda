@@ -35,7 +35,7 @@ public struct ReadingView: View {
     @State var pageModel = PageModel()
     @State private var scrollPositionID: Int?
     @State private var performingChanges = false
-    @State private var supportsAutomaticLayout: Bool?
+    @State private var deviceState: ReadingDeviceState?
 
     public init(store: StoreOf<ReadingReducer>) {
         self.store = store
@@ -71,9 +71,9 @@ public struct ReadingView: View {
         .accessibilityElement(children: .contain)
         .accessibilityIdentifier("reading_view")
         .background {
-            ReadingDeviceObservation { supports in
-                let isFirstMeasurement = supportsAutomaticLayout == nil
-                supportsAutomaticLayout = supports
+            ReadingDeviceObservation { state in
+                let isFirstMeasurement = deviceState == nil
+                deviceState = state
                 updateReadingLayout(seed: isFirstMeasurement)
             }
         }
@@ -160,7 +160,7 @@ public struct ReadingView: View {
             // already sits on the slot `seedPager()` picked for the measured aspect ratio. Its page
             // observers come with it: created after the seed, they start from the seeded index
             // instead of reporting the seed as a page turn.
-            if gestureHandler.containerSize == .zero || supportsAutomaticLayout == nil {
+            if gestureHandler.containerSize == .zero || deviceState == nil {
                 Color.clear
             } else {
                 changeTriggers(content: { pages })
@@ -207,6 +207,7 @@ public struct ReadingView: View {
                 sliderValue: $bindablePageHandler.sliderValue,
                 isReversed: setting.readingDirection == .rightToLeft,
                 containerSize: gestureHandler.containerSize,
+                usesRightPane: deviceState?.isPartiallyOpen == true && isLandscape,
                 range: 1...Float(store.gallery.pageCount),
                 previewURLs: store.displayPreviewURLs,
                 dismissGesture: controlPanelDismissGesture,
@@ -223,9 +224,11 @@ public struct ReadingView: View {
 
     private func updateReadingLayout(seed: Bool) {
         let size = gestureHandler.containerSize
-        guard let supportsAutomaticLayout,
+        guard let deviceState,
               size.width.isFinite, size.height.isFinite, size.width > 0, size.height > 0 else { return }
-        store.send(.layoutChanged(isLandscape: isLandscape, supportsAutomaticLayout: supportsAutomaticLayout))
+        store.send(.layoutChanged(
+            isLandscape: isLandscape, supportsAutomaticLayout: deviceState.supportsAutomaticLayout
+        ))
         if seed { seedPager() }
     }
 
