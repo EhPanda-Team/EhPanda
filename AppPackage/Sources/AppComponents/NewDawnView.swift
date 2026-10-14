@@ -5,7 +5,6 @@ public import SwiftUI
 
 public struct NewDawnView: View {
     @Environment(\.colorScheme) private var colorScheme
-    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     private let greeting: Greeting
 
     /// The height the greeting is centred in, and the point past which it starts to scroll.
@@ -39,8 +38,8 @@ public struct NewDawnView: View {
         .overlay {
             Canvas { context, size in
                 let offset = size.width * 0.2
-                // A regular-width container is wide enough that the sun takes a smaller share of it.
-                let sunWidth = size.width * (horizontalSizeClass == .regular ? 0.5 : 0.6)
+                // Form sheets can report compact width even when there is room for a smaller sun.
+                let sunWidth = size.width * (size.width >= 500 ? 0.5 : 0.6)
                 let sunCenter = CGPoint(x: size.width - sunWidth / 2 + offset, y: sunWidth / 2 - offset)
 
                 context.fill(
