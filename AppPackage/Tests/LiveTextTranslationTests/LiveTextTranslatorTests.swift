@@ -7,44 +7,20 @@ import Observation
 import Testing
 import Translation
 
-// Live Text translates each recognized page once into the reader's language, one page at a time and the
-// page nearest the one being read first, waits for the system's download when the models are missing,
-// keeps the highlight on pages it cannot or need not translate, and tells each kind of failure once
-// while Live Text stays on.
 @MainActor
+@Suite(.timeLimit(.minutes(1)))
 struct LiveTextTranslatorTests {
-    private nonisolated static let english = Locale.Language(identifier: "en")
-    private nonisolated static let japanese = Locale.Language(identifier: "ja")
-    private nonisolated static let englishToJapanese = LiveTextLanguagePair(source: english, target: japanese)
-
+    private static let japanese = Locale.Language(identifier: "ja")
     private struct TranslationFailed: Error {}
 
-    /// What the translator asked the client to translate, in order.
-    private final class Requests: Sendable {
-        let pairs = LockIsolated([LiveTextLanguagePair]())
-        let texts = LockIsolated([[String]]())
-    }
-
-    /// A translator for a Japanese reader whose device answers `status` for every pair and whose
-    /// translations are `translate`'s, recording each request in `requests`.
     private static func translator(
         preferred: [Locale.Language] = [japanese],
-        status: LanguageAvailability.Status = .installed,
-        requests: Requests = Requests(),
-        translate: @escaping @Sendable (String) throws -> String = { "訳: \($0)" }
+        status: LanguageAvailability.Status = .installed
     ) -> LiveTextTranslator {
         withDependencies {
             $0.liveTextTranslationClient = LiveTextTranslationClient(
                 preferredLanguages: { preferred },
-                availability: { _, _ in status },
-                translate: { texts, pair in
-                    requests.pairs.withValue({ $0.append(pair) })
-                    requests.texts.withValue({ $0.append(texts.map(\.text)) })
-                    return try Dictionary(
-                        texts.map({ ($0.groupID, try translate($0.text)) }),
-                        uniquingKeysWith: { first, _ in first }
-                    )
-                }
+                availability: { _, _ in status }
             )
         } operation: {
             LiveTextTranslator()
@@ -91,337 +67,345 @@ struct LiveTextTranslatorTests {
         translator.translate(try groups(line), on: try image(), page: page, recognitionLanguages: ["en-US"])
     }
 
-    private static func translate(
-        _ groups: [LiveTextGroup],
-        page: Int,
-        with translator: LiveTextTranslator,
-        in recognitionLanguages: [String]? = ["en-US"]
-    ) async throws {
-        translator.translate(groups, on: try image(), page: page, recognitionLanguages: recognitionLanguages)
+    /// Consumes exactly the page the view's worker would receive, after language resolution.
+    private static func next(
+        _ translator: LiveTextTranslator
+    ) async throws -> (work: LiveTextTranslationWork, batch: LiveTextTranslationBatch) {
         await translator.waitForTranslations()
+        let work = try #require(translator.session)
+        var iterator = work.requests.makeAsyncIterator()
+        return (work, try #require(await iterator.next()))
     }
 
-    @Test
-    func anInstalledPairTranslatesThePage() async throws {
-        let requests = Requests()
-        let translator = Self.translator(requests: requests)
-        let groups = try Self.groups("Where are you going?", "I told you to stay here!")
+    private static func complete(
+        _ translator: LiveTextTranslator,
+        with translation: (String) -> String = { "訳: \($0)" }
+    ) async throws -> [String] {
+        let (work, batch) = try await next(translator)
+        let translations = Dictionary(
+            batch.sources.map({ ($0.groupID, translation($0.text)) }),
+            uniquingKeysWith: { first, _ in first }
+        )
+        translator.finish(batch, in: work.id, with: .success(translations))
+        await translator.waitForTranslations()
+        return batch.sources.map(\.text)
+    }
 
-        try await Self.translate(groups, page: 3, with: translator)
+    @Test(arguments: [LanguageAvailability.Status.installed, .supported])
+    func aSupportedPairUsesTheViewSession(status: LanguageAvailability.Status) async throws {
+        let translator = Self.translator(status: status)
+        let groups = try Self.groups("Where are you going?", "I told you to stay here!")
+        translator.translate(groups, on: try Self.image(), page: 3, recognitionLanguages: ["en-US"])
+        _ = try await Self.complete(translator)
 
         let page = try #require(translator.translatedPage(of: groups))
-        #expect(translator.translatedPages == [3: page])
         #expect(page.groups.map(\.text) == ["訳: Where are you going?", "訳: I told you to stay here!"])
         #expect(page.language == Self.japanese)
-        #expect(requests.pairs.value == [.init(source: .init(identifier: "en-US"), target: Self.japanese)])
-        #expect(!translator.needsTranslation(page: 3))
+        #expect(translator.session?.pair.source == Locale.Language(identifier: "en-US"))
+        #expect(translator.needsTranslation(page: 3) == false)
         #expect(translator.failure == nil)
     }
 
     @Test
-    func aPageLookedUpBeforeItIsTranslatedIsToldOfItsTranslation() async throws {
+    func aPageLookedUpBeforeTranslationIsToldOfItsTranslation() async throws {
         let translator = Self.translator()
         let groups = try Self.groups("Where are you going?")
         let changed = LockIsolated(false)
-        // As a page's view looks it up, while it still shows the highlight.
         withObservationTracking {
             _ = translator.translatedPage(of: groups)
         } onChange: {
             changed.setValue(true)
         }
-
-        try await Self.translate(groups, page: 3, with: translator)
-
+        translator.translate(groups, on: try Self.image(), page: 3, recognitionLanguages: ["en-US"])
+        _ = try await Self.complete(translator)
         #expect(changed.value)
         #expect(translator.translatedPage(of: groups) != nil)
     }
 
     @Test
-    func eachPageIsTranslatedOnce() async throws {
-        let requests = Requests()
-        let translator = Self.translator(requests: requests)
-        let groups = try Self.groups("Where are you going?")
-
-        try await Self.translate(groups, page: 3, with: translator)
-        try await Self.translate(groups, page: 3, with: translator)
-
-        #expect(requests.texts.value == [["Where are you going?"]])
+    func eachPageIsTranslatedOnceAndCompletedPagesSurviveReactivation() async throws {
+        let translator = Self.translator()
+        try Self.queue("Where are you going?", page: 3, with: translator)
+        _ = try await Self.complete(translator)
+        translator.endActivation()
+        try Self.queue("Where are you going?", page: 3, with: translator)
+        await translator.waitForTranslations()
+        #expect(translator.session == nil)
+        #expect(translator.translatedPages.keys.sorted() == [3])
     }
 
     @Test
-    func pagesAreTranslatedOneAtATimeTheNearestTheReadingPageFirst() async throws {
-        let requests = Requests()
-        let inFlight = LockIsolated(0)
-        let mostInFlight = LockIsolated(0)
-        let translator = withDependencies {
-            $0.liveTextTranslationClient = LiveTextTranslationClient(
-                preferredLanguages: { [Self.japanese] },
-                availability: { _, _ in .installed },
-                translate: { texts, _ in
-                    requests.texts.withValue({ $0.append(texts.map(\.text)) })
-                    let count = inFlight.withValue { count in
-                        count += 1
-                        return count
-                    }
-                    mostInFlight.withValue({ $0 = max($0, count) })
-                    try await Task.sleep(for: .milliseconds(10))
-                    inFlight.withValue({ $0 -= 1 })
-                    return Dictionary(
-                        texts.map({ ($0.groupID, "訳: \($0.text)") }),
-                        uniquingKeysWith: { first, _ in first }
-                    )
-                }
-            )
-        } operation: {
-            LiveTextTranslator()
-        }
+    func pagesAreTranslatedOneAtATimeNearestTheReadingPageFirst() async throws {
+        let translator = Self.translator()
         translator.readingPage = 8
-        let lines = [
-            (page: 1, line: "Where are you going?"),
-            (page: 5, line: "I told you to stay here!"),
-            (page: 9, line: "Nobody saw it coming."),
-            (page: 12, line: "Let us go home now."),
-            (page: 7, line: "Wait for me at the station.")
-        ]
-
-        for (page, line) in lines {
-            try Self.queue(line, page: page, with: translator)
+        for page in [1, 5, 9, 12, 7] {
+            try Self.queue("Page \(page)", page: page, with: translator)
         }
-        await translator.waitForTranslations()
-
-        // The first page recognized has its turn at once; the others wait, the nearest page 8 first.
-        #expect(requests.texts.value == [
-            ["Where are you going?"],
-            ["Nobody saw it coming."],
-            ["Wait for me at the station."],
-            ["I told you to stay here!"],
-            ["Let us go home now."]
-        ])
-        #expect(mostInFlight.value == 1)
+        var texts = [String]()
+        for _ in 0..<5 {
+            texts += try await Self.complete(translator)
+        }
+        #expect(texts == ["Page 1", "Page 9", "Page 7", "Page 5", "Page 12"])
         #expect(translator.translatedPages.keys.sorted() == [1, 5, 7, 9, 12])
     }
 
     @Test
-    func theQueueFollowsTheReaderToItsNewPage() async throws {
-        let requests = Requests()
-        let translator = Self.translator(requests: requests)
-        translator.readingPage = 2
-        let lines = [
-            (page: 1, line: "Where are you going?"),
-            (page: 3, line: "I told you to stay here!"),
-            (page: 10, line: "Nobody saw it coming."),
-            (page: 11, line: "Let us go home now.")
-        ]
-
-        for (page, line) in lines {
-            try Self.queue(line, page: page, with: translator)
+    func theNextPageIsNotDispatchedUntilTheCurrentPageFinishes() async throws {
+        let translator = Self.translator()
+        try Self.queue("First page", page: 1, with: translator)
+        try Self.queue("Second page", page: 2, with: translator)
+        let (work, first) = try await Self.next(translator)
+        let next = Task {
+            var iterator = work.requests.makeAsyncIterator()
+            return await iterator.next()
         }
-        // The reader moves on while the first page has its turn.
+        await translator.waitForTranslations()
+        // Ending the session without completing the first request must leave no second request.
+        translator.endActivation()
+        #expect(await next.value == nil)
+        translator.finish(first, in: work.id, with: .success([:]))
+        #expect(translator.translatedPages.isEmpty)
+        #expect(translator.needsTranslation(page: 1))
+        #expect(translator.needsTranslation(page: 2))
+    }
+
+    @Test
+    func theQueueFollowsTheReaderToItsNewPage() async throws {
+        let translator = Self.translator()
+        translator.readingPage = 2
+        for page in [1, 3, 10, 11] {
+            try Self.queue("Page \(page)", page: page, with: translator)
+        }
         translator.readingPage = 12
-        await translator.waitForTranslations()
-
-        #expect(requests.texts.value == [
-            ["Where are you going?"],
-            ["Let us go home now."],
-            ["Nobody saw it coming."],
-            ["I told you to stay here!"]
-        ])
+        var texts = [String]()
+        for _ in 0..<4 {
+            texts += try await Self.complete(translator)
+        }
+        #expect(texts == ["Page 1", "Page 11", "Page 10", "Page 3"])
     }
 
     @Test
-    func turningLiveTextOffDropsTheQueuedPages() async throws {
-        let requests = Requests()
-        let translator = Self.translator(requests: requests)
-
-        try Self.queue("Where are you going?", page: 3, with: translator)
-        try Self.queue("I told you to stay here!", page: 4, with: translator)
-        translator.endActivation()
-        await translator.waitForTranslations()
-
-        // The page having its turn goes on; the queued one waits for Live Text to be turned on again.
-        #expect(requests.texts.value == [["Where are you going?"]])
-        #expect(translator.translatedPages.keys.sorted() == [3])
-        #expect(translator.needsTranslation(page: 4))
-    }
-
-    @Test
-    func aMissingModelWaitsForTheDownloadThenTranslates() async throws {
-        let requests = Requests()
-        let translator = Self.translator(status: .supported, requests: requests)
-        let groups = try Self.groups("Where are you going?")
-
-        try await Self.translate(groups, page: 3, with: translator, in: nil)
-
-        #expect(translator.download == Self.englishToJapanese)
-        #expect(translator.translatedPages.isEmpty)
-        #expect(!translator.needsTranslation(page: 3))
-        #expect(requests.pairs.value.isEmpty)
-
-        translator.finishDownload(of: Self.englishToJapanese, succeeded: true)
-        await translator.waitForTranslations()
-
-        #expect(translator.download == nil)
-        #expect(translator.translatedPage(of: groups)?.groups.map(\.text) == ["訳: Where are you going?"])
-        #expect(requests.pairs.value == [Self.englishToJapanese])
-    }
-
-    @Test
-    func aPageFoundToNeedAPairJustDownloadedIsTranslatedWithIt() async throws {
-        let requests = Requests()
-        // The system still answers that the models are missing once they are downloaded.
-        let translator = Self.translator(status: .supported, requests: requests)
-        let groups = try Self.groups("Stay here!")
-
-        try await Self.translate(try Self.groups("Where are you going?"), page: 3, with: translator, in: nil)
-        translator.finishDownload(of: Self.englishToJapanese, succeeded: true)
-        try await Self.translate(groups, page: 4, with: translator, in: nil)
-
-        #expect(translator.download == nil)
-        #expect(translator.translatedPage(of: groups)?.groups.map(\.text) == ["訳: Stay here!"])
-        #expect(requests.pairs.value == [Self.englishToJapanese, Self.englishToJapanese])
-
-        // The next time Live Text is turned on, the system's answer is taken again.
-        translator.endActivation()
-        try await Self.translate(try Self.groups("Let us go home now."), page: 5, with: translator, in: nil)
-
-        #expect(translator.download == Self.englishToJapanese)
-    }
-
-    @Test
-    func aDeclinedDownloadKeepsItsPagesUntilLiveTextIsTurnedOnAgain() async throws {
+    func aLatePageReusesTheIdleSessionEvenWhenAvailabilityStillSaysSupported() async throws {
         let translator = Self.translator(status: .supported)
-
-        try await Self.translate(try Self.groups("Where are you going?"), page: 3, with: translator, in: nil)
-        translator.finishDownload(of: Self.englishToJapanese, succeeded: false)
-        try await Self.translate(try Self.groups("Stay here!"), page: 4, with: translator, in: nil)
-
-        // The declined pair is not offered again while Live Text stays on.
-        #expect(translator.download == nil)
-        #expect(!translator.needsTranslation(page: 3))
-        #expect(!translator.needsTranslation(page: 4))
-        #expect(translator.failure == nil)
-
+        try Self.queue("First page", page: 1, with: translator)
+        _ = try await Self.complete(translator)
+        let work = try #require(translator.session)
+        let configuration = translator.configuration
+        let waiting = Task {
+            var iterator = work.requests.makeAsyncIterator()
+            return await iterator.next()
+        }
+        try Self.queue("Later page", page: 2, with: translator)
+        let batch = try #require(await waiting.value)
+        #expect(batch.sources.map(\.text) == ["Later page"])
+        #expect(translator.session?.id == work.id)
+        #expect(translator.configuration == configuration)
+        translator.finish(batch, in: work.id, with: .success([:]))
         translator.endActivation()
-
-        #expect(translator.needsTranslation(page: 3))
-        #expect(translator.needsTranslation(page: 4))
     }
 
     @Test
-    func aDownloadThatFinishesForAnotherPairChangesNothing() async throws {
-        let translator = Self.translator(status: .supported)
-
-        try await Self.translate(try Self.groups("Where are you going?"), page: 3, with: translator, in: nil)
-        translator.finishDownload(of: .init(source: .init(identifier: "fr"), target: Self.japanese), succeeded: false)
-
-        #expect(translator.download == Self.englishToJapanese)
-    }
-
-    @Test
-    func turningLiveTextOffDropsAWaitingDownload() async throws {
-        let translator = Self.translator(status: .supported)
-
-        try await Self.translate(try Self.groups("Where are you going?"), page: 3, with: translator, in: nil)
+    func rapidReactivationRejectsOldResultsAndChangesTheConfiguration() async throws {
+        let translator = Self.translator()
+        try Self.queue("First page", page: 1, with: translator)
+        let (oldWork, oldBatch) = try await Self.next(translator)
+        let oldConfiguration = translator.configuration
         translator.endActivation()
+        try Self.queue("First page", page: 1, with: translator)
+        let (newWork, newBatch) = try await Self.next(translator)
+        #expect(newWork.id != oldWork.id)
+        #expect(translator.configuration != oldConfiguration)
 
-        #expect(translator.download == nil)
-        #expect(translator.needsTranslation(page: 3))
-    }
-
-    @Test
-    func aPageInTheReadersLanguageKeepsTheHighlight() async throws {
-        let requests = Requests()
-        let translator = Self.translator(preferred: [.init(identifier: "en-GB")], requests: requests)
-
-        try await Self.translate(try Self.groups("Where are you going?"), page: 3, with: translator)
-        translator.endActivation()
-
+        let oldTranslations = Dictionary(uniqueKeysWithValues: oldBatch.sources.map({ ($0.groupID, "Old result") }))
+        translator.finish(oldBatch, in: oldWork.id, with: .success(oldTranslations))
+        translator.sessionEnded(oldWork.id)
+        #expect(translator.session?.id == newWork.id)
         #expect(translator.translatedPages.isEmpty)
-        #expect(!translator.needsTranslation(page: 3))
-        #expect(requests.pairs.value.isEmpty)
         #expect(translator.failure == nil)
+        translator.finish(newBatch, in: newWork.id, with: .success([:]))
+        await translator.waitForTranslations()
+        #expect(translator.needsTranslation(page: 1) == false)
     }
 
     @Test
-    func aPageWithoutLettersKeepsTheHighlight() async throws {
-        let requests = Requests()
-        let translator = Self.translator(requests: requests)
-
-        try await Self.translate(try Self.groups("!?", "123"), page: 3, with: translator)
-
-        #expect(translator.translatedPages.isEmpty)
-        #expect(!translator.needsTranslation(page: 3))
-        #expect(requests.pairs.value.isEmpty)
+    func switchingLanguagePairsEndsTheOldStreamWithoutCancellingTheNewOne() async throws {
+        let translator = Self.translator()
+        try Self.queue("First page", page: 1, with: translator)
+        _ = try await Self.complete(translator)
+        let oldWork = try #require(translator.session)
+        translator.translate(
+            try Self.groups("Bonjour le monde"), on: try Self.image(), page: 2, recognitionLanguages: ["fr"]
+        )
+        let (newWork, batch) = try await Self.next(translator)
+        var oldIterator = oldWork.requests.makeAsyncIterator()
+        #expect(await oldIterator.next() == nil)
+        #expect(newWork.pair.source == Locale.Language(identifier: "fr"))
+        translator.sessionEnded(oldWork.id)
+        #expect(translator.session?.id == newWork.id)
+        translator.finish(batch, in: newWork.id, with: .success([:]))
+        await translator.waitForTranslations()
+        #expect(translator.needsTranslation(page: 2) == false)
     }
 
     @Test
-    func aPageWhoseTranslationsReadAsItsLetteringKeepsTheHighlight() async throws {
-        let translator = Self.translator(translate: { $0 })
-
-        try await Self.translate(try Self.groups("NASA", "OK"), page: 3, with: translator)
-
-        #expect(translator.translatedPages.isEmpty)
-        #expect(!translator.needsTranslation(page: 3))
+    func anUnexpectedWorkerExitMakesItsUnfinishedPagesRetryable() async throws {
+        let translator = Self.translator()
+        try Self.queue("First page", page: 1, with: translator)
+        try Self.queue("Second page", page: 2, with: translator)
+        let (work, _) = try await Self.next(translator)
+        translator.sessionEnded(work.id)
+        #expect(translator.session == nil)
+        #expect(translator.needsTranslation(page: 1))
+        #expect(translator.needsTranslation(page: 2))
+        try Self.queue("First page", page: 1, with: translator)
+        _ = try await Self.complete(translator)
+        #expect(translator.translatedPages.keys.sorted() == [1])
     }
 
     @Test
-    func anUntranslatablePairIsToldOncePerActivation() async throws {
-        let translator = Self.translator(status: .unsupported)
-
-        try await Self.translate(try Self.groups("Where are you going?"), page: 3, with: translator)
-        let english = Locale.Language(identifier: "en-US")
-        #expect(translator.takeFailure() == .unsupportedLanguages(source: english, target: Self.japanese))
-        #expect(translator.takeFailure() == nil)
-
-        try await Self.translate(try Self.groups("Stay here!"), page: 4, with: translator)
-        #expect(translator.failure == nil)
-
-        translator.endActivation()
-        // The pair stays untranslatable, so its pages are not tried again; a new page tells it again.
-        #expect(!translator.needsTranslation(page: 3))
-        try await Self.translate(try Self.groups("Wait!"), page: 5, with: translator)
-        #expect(translator.failure?.kind == .unsupportedLanguages)
-    }
-
-    @Test
-    func aFailedTranslationIsToldAndTriedAgainNextTime() async throws {
-        let translator = Self.translator(translate: { _ in throw TranslationFailed() })
-
-        try await Self.translate(try Self.groups("Where are you going?"), page: 3, with: translator)
-
-        #expect(translator.failure == .translationFailed)
-        #expect(translator.translatedPages.isEmpty)
-        #expect(!translator.needsTranslation(page: 3))
-
-        translator.endActivation()
-
-        #expect(translator.failure == nil)
-        #expect(translator.needsTranslation(page: 3))
-    }
-
-    @Test
-    func cancellingStopsTranslationsSoTheyStartAgainLater() async throws {
+    func turningOffDuringLanguageResolutionCannotStartASessionLater() async throws {
+        let started = AsyncStream<Void>.makeStream()
+        let release = AsyncStream<LanguageAvailability.Status>.makeStream()
         let translator = withDependencies {
             $0.liveTextTranslationClient = LiveTextTranslationClient(
-                preferredLanguages: { [Self.japanese] },
-                availability: { _, _ in .installed },
-                translate: { _, _ in
-                    try await Task.sleep(for: .seconds(3600))
-                    return [:]
+                preferredLanguages: { [Locale.Language(identifier: "ja")] },
+                availability: { _, _ in
+                    started.continuation.yield(())
+                    var iterator = release.stream.makeAsyncIterator()
+                    return await iterator.next() ?? .supported
                 }
             )
         } operation: {
             LiveTextTranslator()
         }
+        try Self.queue("First page", page: 1, with: translator)
+        var iterator = started.stream.makeAsyncIterator()
+        _ = await iterator.next()
+        // Attach a waiter before cancellation clears the coordinator's task handle, so the
+        // assertion observes the cancelled resolution's completion, not just its cancellation.
+        let waiting = AsyncStream<Void>.makeStream()
+        let resolution = Task {
+            waiting.continuation.yield(())
+            await translator.waitForTranslations()
+        }
+        var waitIterator = waiting.stream.makeAsyncIterator()
+        _ = await waitIterator.next()
+        translator.endActivation()
+        release.continuation.yield(.supported)
+        release.continuation.finish()
+        started.continuation.finish()
+        waiting.continuation.finish()
+        await resolution.value
+        #expect(translator.session == nil)
+        #expect(translator.needsTranslation(page: 1))
+    }
 
-        let groups = try Self.groups("Where are you going?")
-        translator.translate(groups, on: try Self.image(), page: 3, recognitionLanguages: nil)
-        #expect(!translator.needsTranslation(page: 3))
-        translator.cancel()
+    @Test
+    func aDeclinedPairIsDeferredUntilReactivationWithoutBlockingOtherLanguages() async throws {
+        let translator = Self.translator(status: .supported)
+        try Self.queue("First page", page: 1, with: translator)
+        try Self.queue("Second page", page: 2, with: translator)
+        let (work, batch) = try await Self.next(translator)
+        translator.finish(batch, in: work.id, with: .failure(CocoaError(.userCancelled)))
         await translator.waitForTranslations()
-
-        #expect(translator.needsTranslation(page: 3))
-        #expect(translator.translatedPages.isEmpty)
+        #expect(translator.takeFailure() == nil)
+        #expect(translator.session == nil)
+        #expect(translator.needsTranslation(page: 2) == false)
+        try Self.queue("Later page", page: 3, with: translator)
+        await translator.waitForTranslations()
+        #expect(translator.session == nil)
         #expect(translator.failure == nil)
+
+        translator.translate(
+            try Self.groups("Bonjour le monde"), on: try Self.image(), page: 4, recognitionLanguages: ["fr"]
+        )
+        _ = try await Self.complete(translator)
+        translator.endActivation()
+        #expect(translator.needsTranslation(page: 1))
+        #expect(translator.needsTranslation(page: 2))
+        #expect(translator.needsTranslation(page: 3))
+        #expect(translator.needsTranslation(page: 4) == false)
+        try Self.queue("First page", page: 1, with: translator)
+        _ = try await Self.complete(translator)
+        #expect(translator.translatedPages.keys.sorted() == [1, 4])
+    }
+
+    @Test
+    func unavailableModelsDeferThePairAndRejectItsLateCompletion() async throws {
+        let translator = Self.translator(status: .supported)
+        try Self.queue("First page", page: 1, with: translator)
+        try Self.queue("Second page", page: 2, with: translator)
+        let (work, batch) = try await Self.next(translator)
+        translator.modelsUnavailable(in: work.id, with: TranslationFailed())
+        await translator.waitForTranslations()
+        #expect(translator.session == nil)
+        #expect(translator.failure == nil)
+        #expect(translator.needsTranslation(page: 1) == false)
+        #expect(translator.needsTranslation(page: 2) == false)
+        translator.endActivation()
+        try Self.queue("First page", page: 1, with: translator)
+        let (nextWork, nextBatch) = try await Self.next(translator)
+        translator.modelsUnavailable(in: work.id, with: TranslationFailed())
+        translator.finish(batch, in: work.id, with: .success([:]))
+        #expect(translator.session?.id == nextWork.id)
+        translator.finish(nextBatch, in: nextWork.id, with: .success([:]))
+        await translator.waitForTranslations()
+        #expect(translator.needsTranslation(page: 1) == false)
+    }
+
+    @Test
+    func aFailedPageDoesNotBlockTheNextPageAndIsRetriedAfterReactivation() async throws {
+        let translator = Self.translator()
+        try Self.queue("First page", page: 1, with: translator)
+        try Self.queue("Second page", page: 2, with: translator)
+        let (work, batch) = try await Self.next(translator)
+        translator.finish(batch, in: work.id, with: .failure(TranslationFailed()))
+        #expect(translator.takeFailure() == .translationFailed)
+        #expect(try await Self.complete(translator) == ["Second page"])
+        #expect(translator.session?.id == work.id)
+        #expect(translator.needsTranslation(page: 1) == false)
+        translator.endActivation()
+        #expect(translator.needsTranslation(page: 1))
+        try Self.queue("First page", page: 1, with: translator)
+        _ = try await Self.complete(translator)
+        #expect(translator.translatedPages.keys.sorted() == [1, 2])
+    }
+
+    @Test
+    func theReadersLanguageAndPagesWithoutLettersKeepTheirHighlights() async throws {
+        let translator = Self.translator(preferred: [.init(identifier: "en-GB")])
+        try Self.queue("Where are you going?", page: 1, with: translator)
+        try Self.queue("!? 123", page: 2, with: translator)
+        await translator.waitForTranslations()
+        translator.endActivation()
+        #expect(translator.session == nil)
+        #expect(translator.translatedPages.isEmpty)
+        #expect(translator.needsTranslation(page: 1) == false)
+        #expect(translator.needsTranslation(page: 2) == false)
+    }
+
+    @Test
+    func identityTranslationsKeepTheHighlight() async throws {
+        let translator = Self.translator()
+        try Self.queue("NASA", page: 1, with: translator)
+        _ = try await Self.complete(translator, with: { $0 })
+        #expect(translator.translatedPages.isEmpty)
+        #expect(translator.needsTranslation(page: 1) == false)
+    }
+
+    @Test
+    func unsupportedLanguagesAreReportedOncePerActivation() async throws {
+        let translator = Self.translator(status: .unsupported)
+        try Self.queue("First page", page: 1, with: translator)
+        await translator.waitForTranslations()
+        #expect(translator.takeFailure()?.kind == .unsupportedLanguages)
+        try Self.queue("Second page", page: 2, with: translator)
+        await translator.waitForTranslations()
+        #expect(translator.failure == nil)
+        translator.endActivation()
+        #expect(translator.needsTranslation(page: 1) == false)
+        try Self.queue("Third page", page: 3, with: translator)
+        await translator.waitForTranslations()
+        #expect(translator.takeFailure()?.kind == .unsupportedLanguages)
     }
 }

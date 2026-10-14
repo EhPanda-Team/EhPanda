@@ -25,10 +25,6 @@ struct LiveTextLanguageResolverTests {
             },
             availability: { _, target in
                 statuses[target.languageCode?.identifier ?? ""] ?? status
-            },
-            translate: { _, _ in
-                Issue.record("Resolving a route translates nothing.")
-                return [:]
             }
         )
     }
@@ -96,14 +92,14 @@ struct LiveTextLanguageResolverTests {
     }
 
     @Test
-    func aPairWithoutModelsIsDownloadedFirst() async {
+    func aPairWithoutModelsIsRoutedToTheViewSession() async {
         let route = await LiveTextLanguageResolver.route(
             for: Self.texts("Where are you going?"),
             candidates: [.init(identifier: "en-US")],
             client: Self.client(preferred: ["ja-JP"], status: .supported)
         )
 
-        #expect(route == .download(.init(source: .init(identifier: "en-US"), target: .init(identifier: "ja-JP"))))
+        #expect(route == .translate(.init(source: .init(identifier: "en-US"), target: .init(identifier: "ja-JP"))))
     }
 
     @Test

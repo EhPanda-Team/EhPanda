@@ -133,7 +133,7 @@ final class LiveTextHandler {
     }
 
     private func translate(_ groups: [LiveTextGroup], on cgImage: CGImage, page: Int, recognitionLanguages: [String]?) {
-        guard translatesPages else {
+        guard enablesLiveText, translatesPages else {
             return
         }
         translator.translate(groups, on: cgImage, page: page, recognitionLanguages: recognitionLanguages)
