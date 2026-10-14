@@ -25,7 +25,7 @@ final class DuoReadingPanelUITests: XCTestCase {
         try DuoPose.set(.portrait)
         requirePanel(in: app, landscape: true, onRight: true)
         try DuoPose.set(.open)
-        requirePanel(in: app, landscape: true, onRight: false)
+        requirePanel(in: app, landscape: true, onRight: true)
         try DuoPose.set(.half)
         requirePanel(in: app, landscape: true, onRight: true)
 
@@ -41,6 +41,10 @@ final class DuoReadingPanelUITests: XCTestCase {
         try app.openCold(XCTUnwrap(UITestConstants.singlePageURL(scheme: "ehpanda")))
         app.requireElement("reading_view")
         requirePanel(in: app, landscape: true, onRight: true)
+        app.buttons["reading_move_controls"].tapWhenHittable("Move controls left in RTL")
+        let panel = app.requireElement("reading_lower_panel")
+        XCTAssertLessThanOrEqual(panel.frame.maxX, app.windows.firstMatch.frame.midX + 1)
+        XCTAssertEqual(app.buttons["reading_move_controls"].label, "Move controls right")
     }
 
     private func requirePanel(in app: XCUIApplication, landscape: Bool, onRight: Bool) {

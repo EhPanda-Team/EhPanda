@@ -1,4 +1,5 @@
 import AnalyticsClient
+import AppComponents
 import AppModels
 import ComposableArchitecture
 import DetailFeature
@@ -11,9 +12,9 @@ import Testing
 struct HomeDuoPresentationTests {
     @Test
     func paneDividerAccountsForEachSidesOwnSafeArea() {
-        #expect(HomePaneWidths(contentWidth: 868, leftInset: 0, rightInset: 84).left == 476)
-        #expect(HomePaneWidths(contentWidth: 868, leftInset: 84, rightInset: 0).left == 392)
-        #expect(HomePaneWidths(contentWidth: 952, leftInset: 0, rightInset: 0).left == 476)
+        #expect(HorizontalPaneWidths(contentWidth: 868, leftInset: 0, rightInset: 84).left == 476)
+        #expect(HorizontalPaneWidths(contentWidth: 868, leftInset: 84, rightInset: 0).left == 392)
+        #expect(HorizontalPaneWidths(contentWidth: 952, leftInset: 0, rightInset: 0).left == 476)
     }
 
     @Test(arguments: [
@@ -25,28 +26,28 @@ struct HomeDuoPresentationTests {
     ])
     func partialHingeDoesNotSplitWithoutAValidLandscapeViewport(_ viewport: CGSize) {
         var state = HomeReducer.State()
-        state.isPartiallyOpen = true
+        state.device = .duo(.partiallyOpen)
         state.viewportSize = viewport
-        #expect(!state.usesDuoSplitLayout)
+        #expect(!state.usesSplitLayout)
     }
 
     @MainActor
     @Test
     func portraitPartialGalleryKeepsAppOwnedRouting() async {
-        let store = homeStore(isPartiallyOpen: true) {
+        let store = homeStore(device: .duo(.partiallyOpen)) {
             $0.viewportSize = CGSize(width: 669, height: 951)
         }
         await store.send(.galleryTapped(.preview, from: .right))
         await store.receive(\.delegate.openGalleryDetail)
         await store.finish()
         #expect(store.state.sheet == nil)
-        #expect(store.state.isPartiallyOpen)
+        #expect(store.state.device == .duo(.partiallyOpen))
     }
 
     @MainActor
     @Test(arguments: HomeSectionType.allCases)
     func portraitPartialSectionKeepsStackRouting(_ section: HomeSectionType) async {
-        let store = homeStore(isPartiallyOpen: true) {
+        let store = homeStore(device: .duo(.partiallyOpen)) {
             $0.viewportSize = CGSize(width: 669, height: 951)
         }
         store.exhaustivity = .off
@@ -62,7 +63,7 @@ struct HomeDuoPresentationTests {
     @MainActor
     @Test(arguments: HomeMiscGridType.allCases)
     func portraitPartialOtherListsKeepStackRouting(_ section: HomeMiscGridType) async {
-        let store = homeStore(isPartiallyOpen: true) {
+        let store = homeStore(device: .duo(.partiallyOpen)) {
             $0.viewportSize = CGSize(width: 669, height: 951)
         }
         store.exhaustivity = .off
@@ -79,27 +80,27 @@ struct HomeDuoPresentationTests {
     @MainActor
     @Test
     func rotationChangesSplitPolicyWithoutReplacingNavigation() async {
-        let store = homeStore(isPartiallyOpen: true) {
+        let store = homeStore(device: .duo(.partiallyOpen)) {
             $0.sheet = .init(root: .history(.init()), side: .right)
             $0.path.append(.popular(.init()))
         }
-        #expect(store.state.usesDuoSplitLayout)
+        #expect(store.state.usesSplitLayout)
         await store.send(.viewportChanged(CGSize(width: 669, height: 951))) {
             $0.viewportSize = CGSize(width: 669, height: 951)
         }
-        #expect(!store.state.usesDuoSplitLayout)
-        #expect(store.state.isPartiallyOpen)
+        #expect(!store.state.usesSplitLayout)
+        #expect(store.state.device == .duo(.partiallyOpen))
         await store.send(.viewportChanged(CGSize(width: 951, height: 669))) {
             $0.viewportSize = CGSize(width: 951, height: 669)
         }
-        #expect(store.state.usesDuoSplitLayout)
+        #expect(store.state.usesSplitLayout)
         await store.finish()
     }
 
     @MainActor
-    @Test(arguments: [HomePane.left, .right])
-    func partiallyOpenGalleryUsesTheOppositeSide(_ source: HomePane) async throws {
-        let store = homeStore(isPartiallyOpen: true)
+    @Test(arguments: [WindowDevice.duo(.partiallyOpen), .duo(.fullyOpen), .pad], [HomePane.left, .right])
+    func landscapeGalleryUsesTheOppositeSide(_ device: WindowDevice, _ source: HomePane) async throws {
+        let store = homeStore(device: device)
         store.exhaustivity = .off
 
         await store.send(.galleryTapped(.preview, from: source))
@@ -111,9 +112,9 @@ struct HomeDuoPresentationTests {
     }
 
     @MainActor
-    @Test(arguments: [HomePane.left, .right])
-    func otherPosturesKeepAppOwnedGalleryRouting(_ source: HomePane) async {
-        let store = homeStore(isPartiallyOpen: false)
+    @Test(arguments: [WindowDevice.other, .duo(.closed)], [HomePane.left, .right])
+    func otherPosturesKeepAppOwnedGalleryRouting(_ device: WindowDevice, _ source: HomePane) async {
+        let store = homeStore(device: device)
 
         await store.send(.galleryTapped(.preview, from: source))
         await store.receive(\.delegate.openGalleryDetail)
@@ -124,7 +125,7 @@ struct HomeDuoPresentationTests {
     @MainActor
     @Test(arguments: HomeSectionType.allCases)
     func sectionListsPresentOnTheOppositeSide(_ section: HomeSectionType) async throws {
-        let store = homeStore(isPartiallyOpen: true)
+        let store = homeStore(device: .duo(.partiallyOpen))
         store.exhaustivity = .off
 
         await store.send(.sectionTapped(section))
@@ -144,7 +145,7 @@ struct HomeDuoPresentationTests {
     @MainActor
     @Test(arguments: HomeMiscGridType.allCases)
     func otherListsPresentOnTheRight(_ section: HomeMiscGridType) async throws {
-        let store = homeStore(isPartiallyOpen: true)
+        let store = homeStore(device: .duo(.partiallyOpen))
         store.exhaustivity = .off
 
         await store.send(.miscTapped(section))
@@ -162,27 +163,27 @@ struct HomeDuoPresentationTests {
     @MainActor
     @Test
     func foldingKeepsThePresentedListAndExistingStack() async {
-        let store = homeStore(isPartiallyOpen: true) {
+        let store = homeStore(device: .duo(.partiallyOpen)) {
             var history = HistoryReducer.State()
             history.galleries = [.preview]
             $0.sheet = .init(root: .history(history), side: .right)
             $0.path.append(.popular(.init()))
         }
 
-        await store.send(.hingeChanged(isPartiallyOpen: false)) {
-            $0.isPartiallyOpen = false
+        await store.send(.deviceChanged(.duo(.closed))) {
+            $0.device = .duo(.closed)
         }
-        await store.send(.hingeChanged(isPartiallyOpen: true)) {
-            $0.isPartiallyOpen = true
+        await store.send(.deviceChanged(.duo(.partiallyOpen))) {
+            $0.device = .duo(.partiallyOpen)
         }
-        await store.send(.hingeChanged(isPartiallyOpen: true))
+        await store.send(.deviceChanged(.duo(.partiallyOpen)))
         await store.finish()
     }
 
     @MainActor
     @Test
     func anotherTapCannotReplaceThePresentedList() async {
-        let store = homeStore(isPartiallyOpen: true) {
+        let store = homeStore(device: .duo(.partiallyOpen)) {
             $0.sheet = .init(root: .history(.init()), side: .right)
         }
 
@@ -193,7 +194,7 @@ struct HomeDuoPresentationTests {
     @MainActor
     @Test
     func accountNavigationWaitsForTheListToFinishDismissing() async {
-        let store = homeStore(isPartiallyOpen: true) {
+        let store = homeStore(device: .duo(.partiallyOpen)) {
             $0.sheet = .init(root: .watched(.init()), side: .right)
         }
 
@@ -248,8 +249,27 @@ struct HomeDuoPresentationTests {
     }
 
     @MainActor
+    @Test
+    func padLayoutAdaptsWithoutDiscardingAnOpenSheet() async {
+        let store = homeStore(device: .pad) {
+            $0.sheet = .init(root: .history(.init()), side: .right)
+        }
+        #expect(store.state.usesSplitLayout)
+        await store.send(.padLayoutChanged(allowsSplit: false)) {
+            $0.allowsPadSplitLayout = false
+        }
+        #expect(!store.state.usesSplitLayout)
+        #expect(store.state.sheet?.side == .right)
+        await store.send(.padLayoutChanged(allowsSplit: true)) {
+            $0.allowsPadSplitLayout = true
+        }
+        #expect(store.state.usesSplitLayout)
+        await store.finish()
+    }
+
+    @MainActor
     private func homeStore(
-        isPartiallyOpen: Bool,
+        device: WindowDevice,
         configure: (inout HomeReducer.State) -> Void = { _ in }
     ) -> TestStoreOf<HomeReducer> {
         let defaults = UserDefaults.inMemory
@@ -258,7 +278,8 @@ struct HomeDuoPresentationTests {
         } operation: {
             var state = HomeReducer.State()
             state.popularGalleries = [.preview]
-            state.isPartiallyOpen = isPartiallyOpen
+            state.device = device
+            state.allowsPadSplitLayout = true
             state.viewportSize = CGSize(width: 951, height: 669)
             configure(&state)
             return TestStore(initialState: state, reducer: HomeReducer.init) {

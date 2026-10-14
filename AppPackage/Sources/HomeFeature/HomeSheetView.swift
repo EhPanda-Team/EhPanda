@@ -6,7 +6,7 @@ import SwiftUI
 struct HomeSheetView: View {
     @Bindable var store: StoreOf<HomeSheetFeature>
     let viewport: CGSize
-    let usesDuoSplitLayout: Bool
+    let usesSplitLayout: Bool
 
     var body: some View {
         Group {
@@ -32,7 +32,7 @@ struct HomeSheetView: View {
             HomePaneSheet(
                 item: $presentationStore.scope(\.$gallery, action: \.gallery),
                 viewport: viewport,
-                usesDuoSplitLayout: usesDuoSplitLayout,
+                usesSplitLayout: usesSplitLayout,
                 side: { _ in store.side.opposite }
             ) { galleryStore in
                 GallerySheetView(store: galleryStore, showsCloseButton: true).privacyMask()

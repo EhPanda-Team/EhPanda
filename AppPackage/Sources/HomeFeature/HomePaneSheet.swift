@@ -7,7 +7,7 @@ import UIKit
 struct HomePaneSheet<Item: Identifiable, Sheet: View>: UIViewControllerRepresentable {
     let item: UIBinding<Item?>
     let viewport: CGSize
-    let usesDuoSplitLayout: Bool
+    let usesSplitLayout: Bool
     let side: (Item) -> HomePane
     var onDismiss: (() -> Void)?
     @ViewBuilder let content: (Item) -> Sheet
@@ -27,7 +27,7 @@ struct HomePaneSheet<Item: Identifiable, Sheet: View>: UIViewControllerRepresent
         var presentation: HomePaneSheet
         var layoutDirection: LayoutDirection
         var viewportSampling: VisibleViewportSampling?
-        private weak var hostingController: UIHostingController<HostedSheet>?
+        private weak var hostingController: HostingController?
         private var presentedItem: Item?
 
         init(presentation: HomePaneSheet, environment: EnvironmentValues) {
@@ -49,7 +49,7 @@ struct HomePaneSheet<Item: Identifiable, Sheet: View>: UIViewControllerRepresent
                 self?.presentation.onDismiss?()
             }) { [weak self] item in
                 guard let self else { return UIViewController() }
-                let controller = UIHostingController(rootView: hostedContent(for: item))
+                let controller = HostingController(rootView: hostedContent(for: item))
                 controller.modalPresentationStyle = .formSheet
                 hostingController = controller
                 presentedItem = item
@@ -71,17 +71,44 @@ struct HomePaneSheet<Item: Identifiable, Sheet: View>: UIViewControllerRepresent
             )
         }
 
-        private func configure(_ controller: UIHostingController<HostedSheet>, for item: Item) {
+        private func configure(_ controller: HostingController, for item: Item) {
             guard let sheet = controller.sheetPresentationController else { return }
-            if presentation.usesDuoSplitLayout {
-                sheet.preferredPlacement = presentation.side(item).placement(layoutDirection: layoutDirection)
-                controller.preferredContentSize = CGSize(
-                    width: presentation.viewport.width / 2, height: presentation.viewport.height
-                )
+            if presentation.usesSplitLayout {
+                let side = presentation.side(item)
+                sheet.preferredPlacement = side.placement(layoutDirection: layoutDirection)
+                controller.configure(side: side, viewport: presentation.viewport)
             } else {
                 sheet.preferredPlacement = .automatic
-                controller.preferredContentSize = .zero
+                controller.configure(side: nil, viewport: presentation.viewport)
             }
+        }
+    }
+
+    private final class HostingController: UIHostingController<HostedSheet> {
+        private var side: HomePane?
+        private var viewport: CGSize = .zero
+
+        func configure(side: HomePane?, viewport: CGSize) {
+            guard self.side != side || self.viewport != viewport else { return }
+            self.side = side
+            self.viewport = viewport
+            preferredContentSize = side == nil ? .zero : CGSize(width: viewport.width / 2, height: viewport.height)
+        }
+
+        override func viewWillLayoutSubviews() {
+            super.viewWillLayoutSubviews()
+            guard let side, let sheet = sheetPresentationController,
+                  let container = sheet.containerView, container.bounds.width > 0 else { return }
+            let frame = sheet.frameOfPresentedViewInContainerView
+            guard frame.width > 0 else { return }
+            // Native sheets inset their outer edge even on a flat display. Reserve that actual
+            // margin within the target half instead of letting a half-width sheet cross the divider.
+            let outerInset = side == .left
+                ? frame.minX - container.bounds.minX
+                : container.bounds.maxX - frame.maxX
+            let width = max(0, container.bounds.width / 2 - max(0, outerInset))
+            guard abs(preferredContentSize.width - width) > 1 / traitCollection.displayScale else { return }
+            preferredContentSize.width = width
         }
     }
 

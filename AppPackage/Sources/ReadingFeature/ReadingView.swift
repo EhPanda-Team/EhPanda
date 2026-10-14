@@ -35,7 +35,7 @@ public struct ReadingView: View {
     @State var pageModel = PageModel()
     @State private var scrollPositionID: Int?
     @State private var performingChanges = false
-    @State private var deviceState: ReadingDeviceState?
+    @State private var deviceState: WindowDevice?
 
     public init(store: StoreOf<ReadingReducer>) {
         self.store = store
@@ -71,7 +71,7 @@ public struct ReadingView: View {
         .accessibilityElement(children: .contain)
         .accessibilityIdentifier("reading_view")
         .background {
-            ReadingDeviceObservation { state in
+            WindowDeviceObservation { state in
                 let isFirstMeasurement = deviceState == nil
                 deviceState = state
                 updateReadingLayout(seed: isFirstMeasurement)
@@ -207,7 +207,7 @@ public struct ReadingView: View {
                 sliderValue: $bindablePageHandler.sliderValue,
                 isReversed: setting.readingDirection == .rightToLeft,
                 containerSize: gestureHandler.containerSize,
-                usesRightPane: deviceState?.isPartiallyOpen == true && isLandscape,
+                usesHalfWidth: deviceState?.supportsLandscapePanes(in: gestureHandler.containerSize) == true,
                 range: 1...Float(store.gallery.pageCount),
                 previewURLs: store.displayPreviewURLs,
                 dismissGesture: controlPanelDismissGesture,

@@ -69,7 +69,7 @@ struct HomeSectionsView: View {
         ToplistsSection(
             galleries: store.toplistsGalleries,
             isLoading: !store.toplistsLoadingState.values.allSatisfy({ $0 != .loading }),
-            stacksSixGalleries: store.usesDuoSplitLayout,
+            stacksSixGalleries: store.usesSplitLayout,
             showsHeading: pane != .right,
             navigateAction: { store.send(.galleryTapped($0, from: .right)) },
             showAllAction: { store.send(.sectionTapped(.toplists)) },
