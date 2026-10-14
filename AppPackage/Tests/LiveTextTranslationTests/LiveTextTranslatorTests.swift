@@ -7,9 +7,10 @@ import Observation
 import Testing
 import Translation
 
-// Live Text translates each recognized page once into the reader's language, waits for the system's
-// download when the models are missing, keeps the highlight on pages it cannot or need not translate,
-// and tells each kind of failure once while Live Text stays on.
+// Live Text translates each recognized page once into the reader's language, one page at a time and the
+// page nearest the one being read first, waits for the system's download when the models are missing,
+// keeps the highlight on pages it cannot or need not translate, and tells each kind of failure once
+// while Live Text stays on.
 @MainActor
 struct LiveTextTranslatorTests {
     private nonisolated static let english = Locale.Language(identifier: "en")
@@ -85,6 +86,11 @@ struct LiveTextTranslatorTests {
         }
     }
 
+    /// Hands `line`, recognized in English as `page`, to `translator` without waiting for its translation.
+    private static func queue(_ line: String, page: Int, with translator: LiveTextTranslator) throws {
+        translator.translate(try groups(line), on: try image(), page: page, recognitionLanguages: ["en-US"])
+    }
+
     private static func translate(
         _ groups: [LiveTextGroup],
         page: Int,
@@ -140,6 +146,102 @@ struct LiveTextTranslatorTests {
         try await Self.translate(groups, page: 3, with: translator)
 
         #expect(requests.texts.value == [["Where are you going?"]])
+    }
+
+    @Test
+    func pagesAreTranslatedOneAtATimeTheNearestTheReadingPageFirst() async throws {
+        let requests = Requests()
+        let inFlight = LockIsolated(0)
+        let mostInFlight = LockIsolated(0)
+        let translator = withDependencies {
+            $0.liveTextTranslationClient = LiveTextTranslationClient(
+                preferredLanguages: { [Self.japanese] },
+                availability: { _, _ in .installed },
+                translate: { texts, _ in
+                    requests.texts.withValue({ $0.append(texts.map(\.text)) })
+                    let count = inFlight.withValue { count in
+                        count += 1
+                        return count
+                    }
+                    mostInFlight.withValue({ $0 = max($0, count) })
+                    try await Task.sleep(for: .milliseconds(10))
+                    inFlight.withValue({ $0 -= 1 })
+                    return Dictionary(
+                        texts.map({ ($0.groupID, "訳: \($0.text)") }),
+                        uniquingKeysWith: { first, _ in first }
+                    )
+                }
+            )
+        } operation: {
+            LiveTextTranslator()
+        }
+        translator.readingPage = 8
+        let lines = [
+            (page: 1, line: "Where are you going?"),
+            (page: 5, line: "I told you to stay here!"),
+            (page: 9, line: "Nobody saw it coming."),
+            (page: 12, line: "Let us go home now."),
+            (page: 7, line: "Wait for me at the station.")
+        ]
+
+        for (page, line) in lines {
+            try Self.queue(line, page: page, with: translator)
+        }
+        await translator.waitForTranslations()
+
+        // The first page recognized has its turn at once; the others wait, the nearest page 8 first.
+        #expect(requests.texts.value == [
+            ["Where are you going?"],
+            ["Nobody saw it coming."],
+            ["Wait for me at the station."],
+            ["I told you to stay here!"],
+            ["Let us go home now."]
+        ])
+        #expect(mostInFlight.value == 1)
+        #expect(translator.translatedPages.keys.sorted() == [1, 5, 7, 9, 12])
+    }
+
+    @Test
+    func theQueueFollowsTheReaderToItsNewPage() async throws {
+        let requests = Requests()
+        let translator = Self.translator(requests: requests)
+        translator.readingPage = 2
+        let lines = [
+            (page: 1, line: "Where are you going?"),
+            (page: 3, line: "I told you to stay here!"),
+            (page: 10, line: "Nobody saw it coming."),
+            (page: 11, line: "Let us go home now.")
+        ]
+
+        for (page, line) in lines {
+            try Self.queue(line, page: page, with: translator)
+        }
+        // The reader moves on while the first page has its turn.
+        translator.readingPage = 12
+        await translator.waitForTranslations()
+
+        #expect(requests.texts.value == [
+            ["Where are you going?"],
+            ["Let us go home now."],
+            ["Nobody saw it coming."],
+            ["I told you to stay here!"]
+        ])
+    }
+
+    @Test
+    func turningLiveTextOffDropsTheQueuedPages() async throws {
+        let requests = Requests()
+        let translator = Self.translator(requests: requests)
+
+        try Self.queue("Where are you going?", page: 3, with: translator)
+        try Self.queue("I told you to stay here!", page: 4, with: translator)
+        translator.endActivation()
+        await translator.waitForTranslations()
+
+        // The page having its turn goes on; the queued one waits for Live Text to be turned on again.
+        #expect(requests.texts.value == [["Where are you going?"]])
+        #expect(translator.translatedPages.keys.sorted() == [3])
+        #expect(translator.needsTranslation(page: 4))
     }
 
     @Test
