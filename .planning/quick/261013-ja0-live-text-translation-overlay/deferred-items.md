@@ -3,6 +3,7 @@
 ## JA0-D1: Intermittent first translation request stalls
 
 - **Status:** Deferred, unresolved. Owner approved deferral on 2026-10-14; this item does not block visual acceptance or Task 9 cleanup.
+- **Task closure:** The owner accepted the feature and closed the current task on 2026-10-14, explicitly reserving deferred items for a later visit. Task 9 completion is recorded in [261013-ja0-SUMMARY.md](261013-ja0-SUMMARY.md); JA0-D1 remains open.
 - **Area:** Live Text translation session lifecycle.
 - **Affected code:** `AppPackage/Sources/LiveTextTranslation/LiveTextTranslations.swift` and `LiveTextTranslator.swift` in the same module.
 
@@ -37,4 +38,4 @@ The following files are ignored scratch artifacts, not portable repository depen
 
 Reopen if a first-request stall recurs during ordinary use or when validating a relevant OS/SDK update. Preserve the initial failed activation before attempting recovery. Record the OS/SDK version, language pair, availability result, session/batch identities, request duration, prompt visibility and cancellation state. Compare a minimal public-API sample with the reader before changing session ownership or UI lifetime.
 
-No speculative timeout, automatic retry, fixed delay, private error-code matching or concurrency suppression is approved by this deferral. A proposed mitigation requires evidence and the owner's design decision. Visual acceptance and Task 9 cleanup remain separate from this deferred investigation.
+No speculative timeout, automatic retry, fixed delay, private error-code matching or concurrency suppression is approved by this deferral. A proposed mitigation requires evidence and the owner's design decision. Completed visual acceptance and Task 9 cleanup do not resolve this deferred investigation.
