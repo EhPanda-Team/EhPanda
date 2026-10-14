@@ -44,7 +44,8 @@ def source_hashes():
         for path in sorted(listed.decode().split("\0"))
         if path and (ROOT / path).is_file()
         and (path.startswith(("App/", "AppPackage/", "EhPandaUITests/", "EhPanda.xcodeproj/"))
-             or path == GATE_SCRIPT or Path(path).name == ".swiftlint.yml")
+             or path in (GATE_SCRIPT, "Scripts/visual/run-single-pass.py", "UITests.xctestplan")
+             or Path(path).name == ".swiftlint.yml")
     }
 
 
@@ -183,6 +184,7 @@ class Gate:
             command = ["xcodebuild", *actions, *self.common, "-testPlan", plan]
         else:
             command = ["xcodebuild", *actions, "-xctestrun", str(self.test_runs[plan]),
+                       "-derivedDataPath", str(self.args.derived_data.resolve()),
                        "-parallel-testing-enabled", "NO"]
         command += ["-destination", f"platform=iOS Simulator,id={device}"]
         command += [f"-only-testing:{test}" for test in tests]
