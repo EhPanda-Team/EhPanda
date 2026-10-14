@@ -287,6 +287,9 @@ public struct ReadingView: View {
                     newValue.forEach(analyzeImageForLiveText)
                 }
             }
+            .onChange(of: pageHandler.sliderValue, initial: true) { _, newValue in
+                liveTextHandler.translator.readingPage = Int(newValue)
+            }
             .onChange(of: liveTextHandler.translator.failure) {
                 if let failure = liveTextHandler.translator.takeFailure() {
                     store.send(.liveTextTranslationFailed(failure))
