@@ -2,17 +2,16 @@ import AppComponents
 import AppModels
 import AppTools
 public import ComposableArchitecture
-import DetailFeature
-import Kingfisher
 import Resources
 import SFSafeSymbols
 import SFSafeSymbolsExt
 public import SwiftUI
 
 public struct HomeView: View {
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.layoutDirection) private var layoutDirection
     @Bindable private var store: StoreOf<HomeReducer>
     @State private var viewportSize: CGSize = .zero
+    @State private var paneWidths: HomePaneWidths?
 
     public init(store: StoreOf<HomeReducer>) {
         self.store = store
@@ -20,54 +19,25 @@ public struct HomeView: View {
 
     // MARK: HomeView
     public var body: some View {
-        NavigationStack(path: $store.scope(\.path, action: \.path)) {
-            HomeSectionsView(store: store)
-            .animation(.default) {
-                $0.visible(!store.popularGalleries.isEmpty)
-            }
-            // Keyed on the loading state, this animates the scroll content only (the overlays are
-            // attached after it): `fetchPopularGalleriesDone` settles the state and lands the
-            // galleries in one action, so what it drives is the card section's insertion, which
-            // pushes the sections below it down — position motion, instant under Reduce Motion
-            // (D-29). The whole-content fade above and the overlays' fades are crossfades and stay.
-            .animation(reduceMotion ? nil : .default, value: store.popularLoadingState)
-            .overlay {
-                LoadingView()
-                    .animation(.default) {
-                        $0.visible(
-                            store.popularLoadingState == .loading
-                                && store.popularGalleries.isEmpty
-                        )
-                    }
-            }
-            .overlay {
-                let error = store.popularLoadingState.failed
-                ErrorView(error: error ?? .unknown) {
-                    store.send(.fetchAllGalleries)
-                }
-                .animation(.default) {
-                    $0.visible(store.popularGalleries.isEmpty && error != nil)
-                }
-            }
-            .toolbarTitleDisplayMode(.inlineLarge)
-            .navigationTitle(.RLocalizable.home)
-            .toolbar(content: toolbar)
-        } destination: { store in
-            switch store.case {
-            case .frontpage(let store):
-                FrontpageView(store: store)
-            case .popular(let store):
-                PopularView(store: store)
-            case .toplists(let store):
-                ToplistsView(store: store)
-            case .watched(let store):
-                WatchedView(store: store)
-            case .history(let store):
-                HistoryView(store: store)
-            case .gallery(let store):
-                galleryDestination(store)
+        HStack(alignment: .top, spacing: 0) {
+            HomePrimaryNavigationView(store: store)
+                .frame(width: store.isPartiallyOpen ? paneWidths?.left : nil)
+                .environment(\.layoutDirection, layoutDirection)
+            if store.isPartiallyOpen {
+                HomeToplistsNavigationView(store: store)
+                    .frame(maxWidth: .infinity)
+                    .environment(\.layoutDirection, layoutDirection)
             }
         }
+        .onGeometryChange(for: HomePaneWidths.self) { geometry in
+            HomePaneWidths(
+                contentWidth: geometry.size.width,
+                leftInset: geometry.safeAreaInsets.leading,
+                rightInset: geometry.safeAreaInsets.trailing
+            )
+        } action: { paneWidths = $0 }
+        // Navigation ownership follows the physical fold, independently of text direction.
+        .environment(\.layoutDirection, .leftToRight)
         .onVisibleViewportChange { viewportSize = $0 }
         .modifier(HomeHingeObservation { store.send(.hingeChanged(isPartiallyOpen: $0)) })
         .background {
@@ -80,20 +50,6 @@ public struct HomeView: View {
                 onDismiss: { store.send(.sheetDismissed) }
             ) { sheetStore in
                 HomeSheetView(store: sheetStore, viewport: viewportSize, isPartiallyOpen: store.isPartiallyOpen)
-            }
-        }
-    }
-
-    private func toolbar() -> some ToolbarContent {
-        ToolbarItemGroup(placement: .topBarTrailing) {
-            Button {
-                store.send(.fetchAllGalleries)
-            } label: {
-                Label(.reload, systemSymbol: .arrowCounterclockwise)
-            }
-            .visible(store.popularLoadingState != .loading)
-            .overlay {
-                ProgressView().visible(store.popularLoadingState == .loading)
             }
         }
     }

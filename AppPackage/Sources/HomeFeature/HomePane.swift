@@ -31,3 +31,15 @@ struct HomeHingeObservation: ViewModifier {
         }
     }
 }
+
+/// The system can reserve an entire side for vertical bars. Split the enclosing width before
+/// removing each side's own inset so that the divider stays on the fold as the bars minimize.
+struct HomePaneWidths: Equatable {
+    let contentWidth: CGFloat
+    let leftInset: CGFloat
+    let rightInset: CGFloat
+
+    var left: CGFloat {
+        min(contentWidth, max(0, (contentWidth + leftInset + rightInset) / 2 - leftInset))
+    }
+}
