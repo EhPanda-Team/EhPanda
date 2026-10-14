@@ -1,10 +1,11 @@
 import AppModels
 import AppTools
-import Kingfisher
+public import Kingfisher
 import ParserFeature
 import SFSafeSymbols
 import Sharing
-import SwiftUI
+public import SwiftUI
+public import UIKit
 
 public struct PrivacyMaskModifier: ViewModifier {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
@@ -202,7 +203,7 @@ extension KFImage {
 }
 
 public struct PreviewResolver {
-    public static func getPreviewConfigs(originalURL: URL?) -> (url: URL?, modifier: ImageModifier) {
+    public static func getPreviewConfigs(originalURL: URL?) -> (url: URL?, modifier: any ImageModifier) {
         guard let url = originalURL,
               let info = Parser.parsePreviewConfigs(url: url)
         else {

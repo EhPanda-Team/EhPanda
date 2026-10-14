@@ -1,6 +1,6 @@
 import AnimatedImageFeature
-import ComposableArchitecture
-import SwiftUI
+public import ComposableArchitecture
+public import SwiftUI
 
 public struct ClipboardClient: Sendable {
     public init(

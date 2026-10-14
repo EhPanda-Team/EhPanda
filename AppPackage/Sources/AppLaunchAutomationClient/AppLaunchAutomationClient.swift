@@ -1,4 +1,4 @@
-import ComposableArchitecture
+public import ComposableArchitecture
 
 @DependencyClient
 public struct AppLaunchAutomationClient: Sendable {

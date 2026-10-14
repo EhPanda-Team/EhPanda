@@ -1,4 +1,4 @@
-import Foundation
+public import Foundation
 
 public struct TagDetail: Equatable, Sendable {
     public init(

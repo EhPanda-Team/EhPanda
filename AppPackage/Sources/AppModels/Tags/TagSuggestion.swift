@@ -1,4 +1,4 @@
-import Foundation
+public import Foundation
 
 public struct TagSuggestion: Equatable, Hashable, Identifiable, Sendable {
     public init(

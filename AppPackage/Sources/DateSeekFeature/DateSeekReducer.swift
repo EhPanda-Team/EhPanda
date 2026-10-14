@@ -1,7 +1,8 @@
-import AppModels
-import ComposableArchitecture
-import Foundation
+public import AppModels
+public import ComposableArchitecture
+public import Foundation
 import HapticsClient
+import UIKit
 
 /// A headless, reusable feature for the "Date seek" control.
 ///

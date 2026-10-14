@@ -1,4 +1,4 @@
-import Foundation
+public import Foundation
 
 extension URL {
     private static let ignoredStableCacheQueryNames: Set<String> = [

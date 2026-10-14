@@ -2,11 +2,16 @@ import AnalyticsClient
 @testable import AppFeature
 import AppLaunchAutomationClient
 import AppModels
+import AppTools
 import ComposableArchitecture
+import CookieClient
+import DetailFeature
 import DeviceClient
 import DownloadClient
 @testable import DownloadsFeature
 import Foundation
+import HapticsClient
+import ReadingFeature
 import Testing
 
 // `@MainActor` here is compiler-required, not stylistic: the annotated cases build a TCA

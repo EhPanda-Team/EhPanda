@@ -1,7 +1,7 @@
-import AppModels
-import Foundation
-
 #if DEBUG
+public import AppModels
+public import Foundation
+
 /// The module's one test seam, compiled out of release builds.
 ///
 /// It carries only members a suite actually consumes: an unconsumed forwarder is attack surface

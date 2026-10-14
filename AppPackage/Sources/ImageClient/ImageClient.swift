@@ -1,10 +1,10 @@
 import AnimatedImageFeature
 import AppModels
-import AppTools
+public import AppTools
 import ComposableArchitecture
-import Dependencies
-import Photos
-import SwiftUI
+public import Dependencies
+public import Photos
+public import SwiftUI
 
 public struct ImageClient: Sendable {
     public struct ImageAsset: Sendable {
@@ -55,29 +55,29 @@ extension ImageClient {
     }
 
     public static func saveImageDataToPhotoLibrary(_ data: Data) async -> Bool {
-        await withCheckedContinuation { continuation in
-            PHPhotoLibrary.shared().performChanges {
+        do {
+            try await PHPhotoLibrary.shared().performChanges {
                 let request = PHAssetCreationRequest.forAsset()
                 request.addResource(with: .photo, data: data, options: nil)
-            } completionHandler: { isSuccess, _ in
-                continuation.resume(returning: isSuccess)
             }
+            return true
+        } catch {
+            // The caller presents the existing save-failed notification.
+            return false
         }
     }
 
     // Exports read the same owned bytes the reader display caches, so save/share/copy
     // route by image content (DES-1) instead of the request URL's extension.
-    public func fetchImageAsset(url: URL) async -> Result<ImageAsset, Error> {
-        do {
+    public func fetchImageAsset(url: URL) async -> Result<ImageAsset, any Error> {
+        await Result.Swift::init {
             let data = try await Self.readerImageData(
                 url: url, dataCache: dataCache, urlSession: urlSession
             )
             guard let image = data.decodedImage else {
-                return .failure(AppError.parseFailed)
+                throw AppError.parseFailed
             }
-            return .success(.init(image: image, data: data))
-        } catch {
-            return .failure(error)
+            return ImageAsset(image: image, data: data)
         }
     }
 

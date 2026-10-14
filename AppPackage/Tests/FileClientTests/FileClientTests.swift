@@ -93,7 +93,7 @@ final class FileClientTests {
         )
         #expect(built.language == language)
         #expect(built.translations.count == 1)
-        #expect(FileManager.default.fileExists(atPath: cacheURL(language).path))
+        #expect(FileManager.default.fileExists(atPath: cacheURL(language).path(percentEncoded: false)))
 
         // A launch-time rebuild restores the same table from the cached file the metadata points at.
         let rebuilt = try client.loadCachedTagTranslator(TagTranslatorInfo(language: language))
@@ -151,11 +151,11 @@ final class FileClientTests {
         let url = try writeTemporaryFile(try sampleResponseData())
 
         _ = try await client.importTagTranslator(url).get()
-        #expect(FileManager.default.fileExists(atPath: customTranslationsURL.path))
+        #expect(FileManager.default.fileExists(atPath: customTranslationsURL.path(percentEncoded: false)))
 
         try client.removeCustomTranslations()
 
-        #expect(!FileManager.default.fileExists(atPath: customTranslationsURL.path))
+        #expect(!FileManager.default.fileExists(atPath: customTranslationsURL.path(percentEncoded: false)))
         #expect(throws: AppError.fileOperationFailed("Read imported tag translations")) {
             try client.loadCachedTagTranslator(TagTranslatorInfo(hasCustomTranslations: true))
         }

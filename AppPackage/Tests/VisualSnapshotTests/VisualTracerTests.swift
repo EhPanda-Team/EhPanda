@@ -3,6 +3,7 @@ import AppFeature
 import AppModels
 import AppTools
 import ComposableArchitecture
+import DeviceClient
 import Foundation
 import HomeFeature
 import Kingfisher
@@ -48,7 +49,7 @@ final class VisualTracerTests: XCTestCase {
         defer { UIView.setAnimationsEnabled(animationsEnabled) }
         let galleries = try Self.homeGalleries()
         try await Self.cacheCoverImages(galleries)
-        let outputDirectory = URL(fileURLWithPath: NSTemporaryDirectory(), isDirectory: true)
+        let outputDirectory = URL(filePath: NSTemporaryDirectory(), directoryHint: .isDirectory)
             .appending(component: "ehpanda-phase17-library-\(UUID().uuidString)", directoryHint: .isDirectory)
         try FileManager.default.createDirectory(at: outputDirectory, withIntermediateDirectories: true)
         defer {
@@ -172,10 +173,10 @@ final class VisualTracerTests: XCTestCase {
         try await Self.cacheCoverImages(galleries)
         let appStorage = UserDefaults.inMemory
         let inMemoryStorage = InMemoryStorage()
-        let outputDirectory = URL(fileURLWithPath: NSTemporaryDirectory(), isDirectory: true)
+        let outputDirectory = URL(filePath: NSTemporaryDirectory(), directoryHint: .isDirectory)
             .appending(component: "ehpanda-phase17-tracer-\(UUID().uuidString)", directoryHint: .isDirectory)
         defer {
-            if FileManager.default.fileExists(atPath: outputDirectory.path) {
+            if FileManager.default.fileExists(atPath: outputDirectory.path(percentEncoded: false)) {
                 let attachment = XCTAttachment(compressedContentsOfDirectory: outputDirectory)
                 attachment.name = "phase17-home-tracer"
                 attachment.lifetime = .keepAlways
@@ -232,8 +233,8 @@ final class VisualTracerTests: XCTestCase {
         XCTAssertEqual(evidence.windowBounds.size, evidence.viewport.size)
         XCTAssertEqual(evidence.sceneBounds.size, evidence.viewport.size)
         XCTAssertTrue(evidence.testHostPath.contains("EhPanda.app"))
-        XCTAssertTrue(FileManager.default.fileExists(atPath: evidence.normalImageURL.path))
-        XCTAssertTrue(FileManager.default.fileExists(atPath: evidence.fullImageURL.path))
+        XCTAssertTrue(FileManager.default.fileExists(atPath: evidence.normalImageURL.path(percentEncoded: false)))
+        XCTAssertTrue(FileManager.default.fileExists(atPath: evidence.fullImageURL.path(percentEncoded: false)))
     }
 }
 

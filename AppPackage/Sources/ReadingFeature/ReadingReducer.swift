@@ -1,20 +1,20 @@
 import AnalyticsClient
-import AppComponents
+public import AppComponents
 import AppLaunchAutomationClient
-import AppModels
-import AppTools
+public import AppModels
+public import AppTools
 import ClipboardClient
-import ComposableArchitecture
+public import ComposableArchitecture
 import CookieClient
 import DeviceClient
 import DownloadClient
 import HapticsClient
-import ImageClient
-import LiveTextTranslation
-import NetworkingFeature
-import ReadingSettingFeature
-import Sharing
-import SwiftUI
+public import ImageClient
+public import LiveTextTranslation
+public import NetworkingFeature
+public import ReadingSettingFeature
+public import Sharing
+public import SwiftUI
 
 @Reducer
 public struct ReadingReducer: Sendable {
@@ -226,7 +226,7 @@ public struct ReadingReducer: Sendable {
         case saveImageDone(Bool)
         case shareImage(URL)
         case fetchImage(action: ImageAction, url: URL)
-        case fetchImageDone(action: ImageAction, result: Result<ImageClient.ImageAsset, Error>)
+        case fetchImageDone(action: ImageAction, result: Result<ImageClient.ImageAsset, any Error>)
 
         case syncReadingProgress(Int)
         case flushReadingProgress

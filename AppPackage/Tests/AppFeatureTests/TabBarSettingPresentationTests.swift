@@ -8,6 +8,7 @@ import ComposableArchitecture
 import CookieClient
 import DeviceClient
 import DownloadClient
+import FavoritesFeature
 import Foundation
 import HapticsClient
 import HomeFeature

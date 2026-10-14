@@ -1,6 +1,6 @@
 import AppTools
-import ComposableArchitecture
-import SwiftUI
+public import ComposableArchitecture
+public import SwiftUI
 
 public struct ApplicationClient: Sendable {
     public let openURL: @MainActor @Sendable (URL) -> Void
@@ -24,14 +24,12 @@ extension ApplicationClient {
             UIApplication.shared.alternateIconName
         },
         setAlternateIconName: { iconName in
-            await withCheckedContinuation { continuation in
-                UIApplication.shared.setAlternateIconName(iconName) { error in
-                    if let error = error {
-                        continuation.resume(returning: false)
-                    } else {
-                        continuation.resume(returning: true)
-                    }
-                }
+            do {
+                try await UIApplication.shared.setAlternateIconName(iconName)
+                return true
+            } catch {
+                // The caller presents the existing icon-change failure state.
+                return false
             }
         },
         setUserInterfaceStyle: { userInterfaceStyle in
@@ -46,7 +44,7 @@ extension ApplicationClient {
     }
     @MainActor
     public func openFileApp() {
-        let dirPath = FileUtil.logsDirectoryURL.path
+        let dirPath = FileUtil.logsDirectoryURL.path(percentEncoded: false)
         if let dirURL = URL(string: "shareddocuments://" + dirPath) {
             return openURL(dirURL)
         }

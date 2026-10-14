@@ -284,7 +284,7 @@ private struct AppActivityLogRow: View {
                     .foregroundStyle(.primary)
                     .padding(.vertical, 2)
                     .padding(.horizontal, 4)
-                    .background(Color(.systemGray5))
+                    .background(Color(uiColor: .systemGray5))
                     .clipShape(.rect(cornerRadius: 4))
                     .bold()
                     .lineLimit(categoryLineLimit)

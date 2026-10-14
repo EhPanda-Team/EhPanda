@@ -14,7 +14,7 @@ struct DownloadProcessCacheTests: DownloadFeatureTestCase {
         let gid = String(Int(Date().timeIntervalSince1970 * 1000) + 402)
         let pageIndex = 42
         let rootURL = FileManager.default.temporaryDirectory
-            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+            .appending(path: UUID().uuidString, directoryHint: .isDirectory)
         defer { removeTemporaryItem(at: rootURL) }
         let cachedKeysBox = LockedBox(Set<String>())
         let libraryClient = try makeCacheLibraryClient(
@@ -129,20 +129,20 @@ private extension DownloadProcessCacheTests {
         let currentPageImageURL = Self.currentPageImageURL(gid: gid, pageIndex: pageIndex)
         SharedSessionStubURLProtocol.setHandler(for: sessionID) { request in
             guard let url = request.url else { throw URLError(.badURL) }
-            if url.path.contains("/g/\(gid)/token") {
+            if url.path(percentEncoded: false).contains("/g/\(gid)/token") {
                 return (try Self.makeCacheHTMLResponse(url: url), detailHTML)
             }
-            if url.path.contains("/mpv/") {
+            if url.path(percentEncoded: false).contains("/mpv/") {
                 return (try Self.makeCacheHTMLResponse(url: url), mpvHTML)
             }
-            if url.path == "/api.php" {
+            if url.path(percentEncoded: false) == "/api.php" {
                 return try Self.makeCacheAPIResponse(
                     url: url, request: request,
                     metadataResponse: metadataResponse,
                     imageURLString: currentPageImageURL?.absoluteString ?? ""
                 )
             }
-            if url.host == "example.com" || allowedImageURLs.contains(url.absoluteString) {
+            if url.host(percentEncoded: false) == "example.com" || allowedImageURLs.contains(url.absoluteString) {
                 return (try Self.makeCacheImageResponse(url: url), Data([0xFF, 0xD8, 0xFF, 0xD9]))
             }
             throw URLError(.unsupportedURL)
@@ -255,12 +255,12 @@ private extension DownloadProcessCacheTests {
             pageCount: pageCount
         )
         try Data([0x00]).write(
-            to: completedFolderURL.appendingPathComponent("\(gid)_token_cover.jpg"),
+            to: completedFolderURL.appending(path: "\(gid)_token_cover.jpg"),
             options: .atomic
         )
         for index in staleManifest.pages.keys where index != missingPageIndex {
             try Data([UInt8(index % 255)]).write(
-                to: completedFolderURL.appendingPathComponent("\(gid)_token_\(index).jpg"),
+                to: completedFolderURL.appending(path: "\(gid)_token_\(index).jpg"),
                 options: .atomic
             )
         }

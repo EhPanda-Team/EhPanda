@@ -1,12 +1,13 @@
 import AnalyticsClient
 import AppModels
 import AppTools
-import ComposableArchitecture
+public import ComposableArchitecture
 import DownloadClient
 import LibraryClient
 import OSLogExt
 import Sharing
 import SwiftUI
+public import UIKit
 
 private let logger = Logger(category: .init(describing: AppDelegateReducer.self))
 

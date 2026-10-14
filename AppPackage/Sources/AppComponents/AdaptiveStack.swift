@@ -1,4 +1,4 @@
-import SwiftUI
+public import SwiftUI
 
 /// A horizontal stack that falls back to a vertical one as soon as its content stops fitting the
 /// width it is offered.
@@ -69,7 +69,7 @@ public struct AdaptiveStack<Content: View>: View {
 
     private var spacedContent: some View {
         Group(subviews: content) { subviews in
-            ForEach(Array(subviews.enumerated()), id: \.element.id) { offset, subview in
+            ForEach(subviews.enumerated(), id: \.element.id) { offset, subview in
                 subview
                 if offset < subviews.count - 1 || subviews.count <= 1 {
                     Spacer()

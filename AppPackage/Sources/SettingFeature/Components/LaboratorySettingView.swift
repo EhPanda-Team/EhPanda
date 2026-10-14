@@ -50,7 +50,7 @@ struct LaboratoryCell: View {
     }
 
     private var bgColor: Color {
-        isOn ? tintColor.opacity(0.2) : Color(.systemGray5)
+        isOn ? tintColor.opacity(0.2) : Color(uiColor: .systemGray5)
     }
     private var contentColor: Color {
         isOn ? tintColor : .secondary

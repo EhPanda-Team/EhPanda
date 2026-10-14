@@ -1,5 +1,5 @@
 import AppTools
-import SwiftUI
+public import SwiftUI
 
 public struct Gallery: Identifiable, Codable, Equatable, Hashable, Sendable {
     public static func == (lhs: Gallery, rhs: Gallery) -> Bool {

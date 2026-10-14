@@ -1,6 +1,7 @@
-import AppModels
+import AppComponents
+public import AppModels
 import SFSafeSymbols
-import SwiftUI
+public import SwiftUI
 
 public struct DownloadBadgeLabel: View {
     private let badge: DownloadBadge

@@ -1,8 +1,11 @@
 import AnalyticsClient
 import AppModels
 import ComposableArchitecture
+import CookieClient
+import DownloadClient
 @testable import FavoritesFeature
 import Foundation
+import HapticsClient
 import Testing
 
 // Exact-sequence proof for FavoritesFeature's two emission sites: the gallery-detail push and the

@@ -10,7 +10,7 @@ struct DownloadProcessTests: DownloadFeatureTestCase {
         let sessionID = UUID().uuidString
         let gid = "100010"
         let rootURL = FileManager.default.temporaryDirectory
-            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+            .appending(path: UUID().uuidString, directoryHint: .isDirectory)
         defer { removeTemporaryItem(at: rootURL) }
 
         let persistenceGate = FailurePersistenceGate()
@@ -72,7 +72,7 @@ struct DownloadProcessTests: DownloadFeatureTestCase {
         let sessionID = UUID().uuidString
         let gid = "100011"
         let rootURL = FileManager.default.temporaryDirectory
-            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+            .appending(path: UUID().uuidString, directoryHint: .isDirectory)
         defer { removeTemporaryItem(at: rootURL) }
 
         let (storage, manager) = makeStubbedDownloadCoordinator(
@@ -126,7 +126,7 @@ struct DownloadProcessTests: DownloadFeatureTestCase {
         let gid = String(Int(Date().timeIntervalSince1970 * 1000) + 401)
         let pageIndex = 42
         let rootURL = FileManager.default.temporaryDirectory
-            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+            .appending(path: UUID().uuidString, directoryHint: .isDirectory)
         defer { removeTemporaryItem(at: rootURL) }
 
         let (storage, manager) = makeStubbedDownloadCoordinator(
@@ -185,7 +185,7 @@ struct DownloadProcessTests: DownloadFeatureTestCase {
         let gid = String(Int(Date().timeIntervalSince1970 * 1000) + 405)
         let pageIndex = 42
         let rootURL = FileManager.default.temporaryDirectory
-            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+            .appending(path: UUID().uuidString, directoryHint: .isDirectory)
         defer { removeTemporaryItem(at: rootURL) }
 
         let (storage, manager) = makeStubbedDownloadCoordinator(
@@ -216,7 +216,7 @@ struct DownloadProcessTests: DownloadFeatureTestCase {
         #expect(stagedFolders.contains(recordFolder))
         let otherFolder = try #require(stagedFolders.subtracting([recordFolder]).first)
         let otherContents = try FileManager.default
-            .contentsOfDirectory(atPath: otherFolder.path)
+            .contentsOfDirectory(atPath: otherFolder.path(percentEncoded: false))
             .sorted()
         let otherManifest = try storage.readManifest(folderURL: otherFolder)
 
@@ -229,10 +229,10 @@ struct DownloadProcessTests: DownloadFeatureTestCase {
 
         // The folder the run never addressed is still there, with the same entries and the same
         // record it was staged with.
-        #expect(FileManager.default.fileExists(atPath: otherFolder.path))
+        #expect(FileManager.default.fileExists(atPath: otherFolder.path(percentEncoded: false)))
         #expect(
             try FileManager.default
-                .contentsOfDirectory(atPath: otherFolder.path)
+                .contentsOfDirectory(atPath: otherFolder.path(percentEncoded: false))
                 .sorted() == otherContents
         )
         #expect(try storage.readManifest(folderURL: otherFolder) == otherManifest)
@@ -255,7 +255,7 @@ struct DownloadProcessTests: DownloadFeatureTestCase {
         let optionsBox = LockedBox(DownloadRequestOptions(allowCellular: true))
         let detailAllowsCellular = LockedBox<Bool?>(nil)
         let rootURL = FileManager.default.temporaryDirectory
-            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+            .appending(path: UUID().uuidString, directoryHint: .isDirectory)
         defer { removeTemporaryItem(at: rootURL) }
 
         let (storage, manager) = makeStubbedDownloadCoordinator(
@@ -268,7 +268,7 @@ struct DownloadProcessTests: DownloadFeatureTestCase {
         let detailHTML = try fixtureData(resource: "GalleryDetail", pathExtension: "html")
         SharedSessionStubURLProtocol.setHandler(for: sessionID) { request in
             guard let url = request.url else { throw URLError(.badURL) }
-            if url.path.contains("/g/\(gid)/token") {
+            if url.path(percentEncoded: false).contains("/g/\(gid)/token") {
                 detailAllowsCellular.value = request.allowsCellularAccess
                 return (
                     try #require(HTTPURLResponse(
@@ -413,11 +413,11 @@ private extension DownloadProcessTests {
         )
         try storage.writeManifest(staleManifest, folderURL: folderURL)
         try Data([0x00]).write(
-            to: folderURL.appendingPathComponent("123_token_cover.jpg"),
+            to: folderURL.appending(path: "123_token_cover.jpg"),
             options: .atomic
         )
         try Data([UInt8(pageIndex % 255)]).write(
-            to: folderURL.appendingPathComponent("\(gid)_token_\(pageIndex).jpg"),
+            to: folderURL.appending(path: "\(gid)_token_\(pageIndex).jpg"),
             options: .atomic
         )
         return folderURL
@@ -454,12 +454,12 @@ private extension DownloadProcessTests {
         #expect(manifest.pages.count == context.updatedPageCount)
         #expect(
             FileManager.default.fileExists(
-                atPath: completedFolderURL.appendingPathComponent("\(context.gid)_token_1.jpg").path
+                atPath: completedFolderURL.appending(path: "\(context.gid)_token_1.jpg").path(percentEncoded: false)
             )
         )
         #expect(
             FileManager.default.fileExists(
-                atPath: completedFolderURL.appendingPathComponent("123_token_1.jpg").path
+                atPath: completedFolderURL.appending(path: "123_token_1.jpg").path(percentEncoded: false)
             ) == false
         )
 
@@ -480,7 +480,7 @@ private extension DownloadProcessTests {
         #expect(
             completedFolderURL.standardizedFileURL == context.staleFolderURL.standardizedFileURL
         )
-        #expect(FileManager.default.fileExists(atPath: completedFolderURL.path))
+        #expect(FileManager.default.fileExists(atPath: completedFolderURL.path(percentEncoded: false)))
         #expect(
             storage.galleryFolderURLs(gid: context.gid, token: "token")
                 .map(\.standardizedFileURL) == [completedFolderURL.standardizedFileURL]

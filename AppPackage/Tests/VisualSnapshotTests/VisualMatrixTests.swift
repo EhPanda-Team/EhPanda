@@ -4,6 +4,7 @@ import AppModels
 import AppTools
 import ComposableArchitecture
 import CryptoKit
+import DeviceClient
 import Foundation
 @testable import HomeFeature
 import Kingfisher
@@ -83,7 +84,7 @@ final class VisualMatrixTests: XCTestCase {
             NSTimeZone.default = originalTimeZone
             UIView.setAnimationsEnabled(animations)
         }
-        let fixtures = URL(fileURLWithPath: configuration.fixtures, isDirectory: true)
+        let fixtures = URL(filePath: configuration.fixtures, directoryHint: .isDirectory)
         let manifest = try XCTUnwrap(JSONSerialization.jsonObject(
             with: Data(contentsOf: fixtures.appending(path: "manifest.json"))
         ) as? [String: Any])

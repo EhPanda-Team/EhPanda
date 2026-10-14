@@ -20,7 +20,7 @@ enum RepositoryWalk {
         var directory = URL(filePath: filePath).deletingLastPathComponent()
         var located: URL?
 
-        while located == nil, directory.path != "/" {
+        while located == nil, directory.path(percentEncoded: false) != "/" {
             if isRepositoryRoot(directory) {
                 located = directory
             } else {
@@ -39,7 +39,7 @@ enum RepositoryWalk {
         return repositoryRootMarkers.allSatisfy({ marker in
             var isDirectory: ObjCBool = false
             let exists = fileManager.fileExists(
-                atPath: directory.appending(path: marker).path,
+                atPath: directory.appending(path: marker).path(percentEncoded: false),
                 isDirectory: &isDirectory
             )
             return exists && isDirectory.boolValue
@@ -48,9 +48,11 @@ enum RepositoryWalk {
 
     /// `url` relative to `root`, or the absolute path when `url` lies outside it.
     static func relativePath(of url: URL, under root: URL) -> String {
-        let path = url.standardizedFileURL.path
-        let rootPath = root.standardizedFileURL.path + "/"
-        guard path.hasPrefix(rootPath) else { return path }
-        return String(path.dropFirst(rootPath.count))
+        let components = url.standardizedFileURL.pathComponents
+        let rootComponents = root.standardizedFileURL.pathComponents
+        guard components.count > rootComponents.count, components.starts(with: rootComponents) else {
+            return url.standardizedFileURL.path(percentEncoded: false)
+        }
+        return components.dropFirst(rootComponents.count).joined(separator: "/")
     }
 }

@@ -81,14 +81,15 @@ struct FixtureArtwork {
         for (index, marker) in PublicVisualFixtures.readerPageMarkers.enumerated() {
             paths[marker] = "assets/reader/\(index + 1).png"
         }
-        let capture = try XCTUnwrap(UIImage(contentsOfFile: evidence.fullImageURL.path)?.cgImage)
+        let capture = try XCTUnwrap(UIImage(contentsOfFile: evidence.fullImageURL.path(percentEncoded: false))?.cgImage)
         var records: [[String: Any]] = []
         var failedAssets: [String] = []
         for (title, frame) in evidence.itemFrames.sorted(by: { $0.key < $1.key }) {
             try autoreleasepool {
                 let path = try XCTUnwrap(paths[title], "Unregistered artwork: \(title)", file: file, line: line)
                 let expected = try XCTUnwrap(pixelSizes[path], file: file, line: line)
-                let image = try XCTUnwrap(UIImage(contentsOfFile: fixtures.appending(path: path).path)?.cgImage)
+                let imageURLPath = fixtures.appending(path: path).path(percentEncoded: false)
+                let image = try XCTUnwrap(UIImage(contentsOfFile: imageURLPath)?.cgImage)
                 let exported = CGSize(width: image.width, height: image.height)
                 let measured = CGSize(
                     width: (frame.width * evidence.viewport.scale).rounded(),

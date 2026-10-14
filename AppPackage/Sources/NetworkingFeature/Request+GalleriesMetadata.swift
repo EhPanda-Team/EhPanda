@@ -1,6 +1,6 @@
-import AppModels
+public import AppModels
 import AppTools
-import Foundation
+public import Foundation
 
 // MARK: Response types
 private struct GalleriesMetadataAPIResponse: Decodable {
@@ -50,9 +50,9 @@ private struct GalleryMetadata: Decodable {
             postedDate: Date(timeIntervalSince1970: postedInterval),
             coverURL: coverURL,
             galleryURL: host.url
-                .appendingPathComponent("g")
-                .appendingPathComponent(String(gid))
-                .appendingPathComponent(token)
+                .appending(path: "g")
+                .appending(path: String(gid))
+                .appending(path: token)
         )
     }
 

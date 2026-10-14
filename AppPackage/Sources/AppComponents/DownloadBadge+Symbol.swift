@@ -1,5 +1,5 @@
-import AppModels
-import SFSafeSymbols
+public import AppModels
+public import SFSafeSymbols
 
 extension DownloadBadge {
     public var symbol: SFSymbol {

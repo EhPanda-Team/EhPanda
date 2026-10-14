@@ -1,4 +1,4 @@
-import Foundation
+public import Foundation
 
 /// The size in pixels of a gallery page's image.
 public struct PagePixelSize: Hashable, Sendable {

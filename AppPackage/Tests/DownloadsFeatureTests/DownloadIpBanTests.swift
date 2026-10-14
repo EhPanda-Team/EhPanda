@@ -15,7 +15,7 @@ struct DownloadIpBanTests: DownloadFeatureTestCase {
         let manager = DownloadCoordinator(
             storage: DownloadStore(
                 rootURL: FileManager.default.temporaryDirectory
-                    .appendingPathComponent(UUID().uuidString, isDirectory: true),
+                    .appending(path: UUID().uuidString, directoryHint: .isDirectory),
                 fileManager: .default
             ),
             urlSession: URLSession(configuration: configuration)

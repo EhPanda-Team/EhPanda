@@ -3,6 +3,7 @@ import AppModels
 import AppTools
 import ComposableArchitecture
 import Resources
+import SFSafeSymbols
 import SFSafeSymbolsExt
 import Sharing
 import SwiftUI
@@ -43,8 +44,8 @@ struct LoginView: View {
             .scrollEdgeEffectStyle(.soft, for: .top)
             .background {
                 Group {
-                    WaveForm(color: Color(.systemGray2).opacity(0.2), amplify: 100, isReversed: true)
-                    WaveForm(color: Color(.systemGray).opacity(0.2), amplify: 120, isReversed: false)
+                    WaveForm(color: Color(uiColor: .systemGray2).opacity(0.2), amplify: 100, isReversed: true)
+                    WaveForm(color: Color(uiColor: .systemGray).opacity(0.2), amplify: 120, isReversed: false)
                 }
                 .visualEffect { content, proxy in
                     content.offset(y: proxy.size.height * 0.3)
@@ -225,7 +226,7 @@ private struct LoginTextField: View {
             .autocorrectionDisabled(true)
             .keyboardType(isPassword ? .asciiCapable : .default)
             .padding(10)
-            .glassEffect(.regular.tint(Color(.systemGray6)), in: .rect(cornerRadius: 8))
+            .glassEffect(.regular.tint(Color(uiColor: .systemGray6)), in: .rect(cornerRadius: 8))
         }
     }
 }

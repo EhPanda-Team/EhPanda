@@ -42,7 +42,7 @@ struct DownloadCoordinatorRepairSeedTests: DownloadFeatureTestCase {
     func testARepairWithAllFilesPresentRewritesNothing() async throws {
         let gid = "reconcile-intact-\(UUID().uuidString)"
         let rootURL = FileManager.default.temporaryDirectory
-            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+            .appending(path: UUID().uuidString, directoryHint: .isDirectory)
         defer { removeTemporaryItem(at: rootURL) }
 
         let storage = DownloadStore(rootURL: rootURL, fileManager: .default)
@@ -93,7 +93,7 @@ struct DownloadCoordinatorRepairSeedTests: DownloadFeatureTestCase {
     func testDownloadCoordinatorLoadLocalPageURLsExcludesAZeroBytePageWithoutDeletingIt() async throws {
         let gid = String(Int(Date().timeIntervalSince1970 * 1000) + 13)
         let rootURL = FileManager.default.temporaryDirectory
-            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+            .appending(path: UUID().uuidString, directoryHint: .isDirectory)
         defer { removeTemporaryItem(at: rootURL) }
 
         let storage = DownloadStore(rootURL: rootURL, fileManager: .default)
@@ -108,7 +108,7 @@ struct DownloadCoordinatorRepairSeedTests: DownloadFeatureTestCase {
 
         #expect(pageURLs[1] == nil)
         #expect(pageURLs[2] == goodPageURL)
-        #expect(FileManager.default.fileExists(atPath: emptyPageURL.path))
+        #expect(FileManager.default.fileExists(atPath: emptyPageURL.path(percentEncoded: false)))
     }
 
     /// The other side of the same boundary: the one path that IS entitled to act still discards.
@@ -126,7 +126,7 @@ struct DownloadCoordinatorRepairSeedTests: DownloadFeatureTestCase {
     func testTheRepairSeedStillDiscardsAZeroBytePageAndBlanksIt() async throws {
         let gid = String(Int(Date().timeIntervalSince1970 * 1000) + 17)
         let rootURL = FileManager.default.temporaryDirectory
-            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+            .appending(path: UUID().uuidString, directoryHint: .isDirectory)
         defer { removeTemporaryItem(at: rootURL) }
 
         let storage = DownloadStore(rootURL: rootURL, fileManager: .default)
@@ -150,8 +150,8 @@ struct DownloadCoordinatorRepairSeedTests: DownloadFeatureTestCase {
             folderURL: folderURL
         ).workingSeed
 
-        #expect(FileManager.default.fileExists(atPath: emptyPageURL.path) == false)
-        #expect(FileManager.default.fileExists(atPath: goodPageURL.path))
+        #expect(FileManager.default.fileExists(atPath: emptyPageURL.path(percentEncoded: false)) == false)
+        #expect(FileManager.default.fileExists(atPath: goodPageURL.path(percentEncoded: false)))
         // The pairing, not just the deletion: the removed page's recorded hash went with it, and it
         // went DURABLY — the record on disk is what a relaunch would read.
         #expect(workingSeed.manifest.pages[1] == "")
@@ -165,26 +165,26 @@ struct DownloadCoordinatorRepairSeedTests: DownloadFeatureTestCase {
     func testRescanLocalPageURLsDropsExternallyDeletedPage() async throws {
         let gid = String(Int(Date().timeIntervalSince1970 * 1000) + 71)
         let rootURL = FileManager.default.temporaryDirectory
-            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+            .appending(path: UUID().uuidString, directoryHint: .isDirectory)
         defer { removeTemporaryItem(at: rootURL) }
 
         let storage = DownloadStore(rootURL: rootURL, fileManager: .default)
         let manager = DownloadCoordinator(storage: storage, urlSession: .shared)
 
-        let folderURL = rootURL.appendingPathComponent(
-            "Folder/\(gid) - Rescan", isDirectory: true
+        let folderURL = rootURL.appending(path:
+            "Folder/\(gid) - Rescan", directoryHint: .isDirectory
         )
         try FileManager.default.createDirectory(
             at: folderURL, withIntermediateDirectories: true
         )
         try JSONEncoder().encode(sampleManifest(gid: gid, title: "Rescan")).write(
-            to: folderURL.appendingPathComponent(Defaults.FilePath.downloadManifest),
+            to: folderURL.appending(path: Defaults.FilePath.downloadManifest),
             options: .atomic
         )
-        let pageOneURL = folderURL.appendingPathComponent(
+        let pageOneURL = folderURL.appending(path:
             storage.makePageRelativePath(gid: gid, token: "token", index: 1, fileExtension: "jpg")
         )
-        let pageTwoURL = folderURL.appendingPathComponent(
+        let pageTwoURL = folderURL.appending(path:
             storage.makePageRelativePath(gid: gid, token: "token", index: 2, fileExtension: "jpg")
         )
         try Data([0x01]).write(to: pageOneURL, options: .atomic)
@@ -212,7 +212,7 @@ private extension DownloadCoordinatorRepairSeedTests {
     func expectVanishedPageIsReconciled(mode: DownloadStartMode) async throws {
         let gid = "reconcile-\(UUID().uuidString)"
         let rootURL = FileManager.default.temporaryDirectory
-            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+            .appending(path: UUID().uuidString, directoryHint: .isDirectory)
         defer { removeTemporaryItem(at: rootURL) }
 
         let storage = DownloadStore(rootURL: rootURL, fileManager: .default)
@@ -248,10 +248,10 @@ private extension DownloadCoordinatorRepairSeedTests {
         // The `.repair` folder-reuse contract still holds: reconciling the record must never take a
         // surviving page file with it.
         for index in [1, 2] {
-            let pageURL = folderURL.appendingPathComponent(
+            let pageURL = folderURL.appending(path:
                 storage.makePageRelativePath(gid: gid, token: "token", index: index, fileExtension: "jpg")
             )
-            #expect(FileManager.default.fileExists(atPath: pageURL.path))
+            #expect(FileManager.default.fileExists(atPath: pageURL.path(percentEncoded: false)))
         }
         #expect(await manager.fetchDownload(gid: gid)?.completedPageCount == 2)
     }
@@ -277,14 +277,14 @@ private extension DownloadCoordinatorRepairSeedTests {
         )
         try storage.writeManifest(manifest, folderURL: folderURL)
         try Data([0x00]).write(
-            to: folderURL.appendingPathComponent(
+            to: folderURL.appending(path:
                 storage.makeCoverRelativePath(gid: gid, token: "token", fileExtension: "jpg")
             ),
             options: .atomic
         )
         for index in presentPageIndices {
             try Data([UInt8(index)]).write(
-                to: folderURL.appendingPathComponent(
+                to: folderURL.appending(path:
                     storage.makePageRelativePath(gid: gid, token: "token", index: index, fileExtension: "jpg")
                 ),
                 options: .atomic
@@ -347,8 +347,8 @@ private extension DownloadCoordinatorRepairSeedTests {
     func setupZeroBytePageFiles(
         rootURL: URL, gid: String, storage: DownloadStore
     ) throws -> (emptyPageURL: URL, goodPageURL: URL) {
-        let completedFolderURL = rootURL.appendingPathComponent(
-            "Folder/\(gid) - Pause Race", isDirectory: true
+        let completedFolderURL = rootURL.appending(path:
+            "Folder/\(gid) - Pause Race", directoryHint: .isDirectory
         )
         try FileManager.default.createDirectory(
             at: completedFolderURL,
@@ -356,20 +356,20 @@ private extension DownloadCoordinatorRepairSeedTests {
         )
         let manifest = try sampleManifest(gid: gid, title: "Pause Race")
         try JSONEncoder().encode(manifest).write(
-            to: completedFolderURL.appendingPathComponent(Defaults.FilePath.downloadManifest),
+            to: completedFolderURL.appending(path: Defaults.FilePath.downloadManifest),
             options: .atomic
         )
         try Data([0x00]).write(
-            to: completedFolderURL.appendingPathComponent(
+            to: completedFolderURL.appending(path:
                 storage.makeCoverRelativePath(gid: gid, token: "token", fileExtension: "jpg")
             ),
             options: .atomic
         )
-        let emptyPageURL = completedFolderURL.appendingPathComponent(
+        let emptyPageURL = completedFolderURL.appending(path:
             storage.makePageRelativePath(gid: gid, token: "token", index: 1, fileExtension: "jpg")
         )
         try Data().write(to: emptyPageURL, options: .atomic)
-        let goodPageURL = completedFolderURL.appendingPathComponent(
+        let goodPageURL = completedFolderURL.appending(path:
             storage.makePageRelativePath(gid: gid, token: "token", index: 2, fileExtension: "jpg")
         )
         try Data([0x02]).write(to: goodPageURL, options: .atomic)

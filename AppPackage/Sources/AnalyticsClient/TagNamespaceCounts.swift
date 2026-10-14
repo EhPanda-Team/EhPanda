@@ -1,4 +1,4 @@
-import AppModels
+public import AppModels
 
 // An audited reduction boundary (D-19).
 //

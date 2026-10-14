@@ -1,4 +1,4 @@
-import Foundation
+public import Foundation
 
 public extension URL {
     func modifyComponent(for url: URL, commitChanges: (inout URLComponents) -> Void) -> URL? {

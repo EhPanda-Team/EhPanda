@@ -1,4 +1,4 @@
-import AppModels
+public import AppModels
 
 // The complete analytics vocabulary. A reducer can emit nothing that is not spelled below, because
 // `AnalyticsClient.send` accepts this type and nothing else — so "what may this app transmit?" is

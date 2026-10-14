@@ -26,10 +26,10 @@ struct DownloadObserverReadingTests: DownloadFeatureTestCase {
         let gid = "700001"
         let title = "Offline Gallery"
         let folderURL = FileUtil.downloadsDirectoryURL
-            .appendingPathComponent("[\(gid)_token] \(title)", isDirectory: true)
+            .appending(path: "[\(gid)_token] \(title)", directoryHint: .isDirectory)
         let localPageURLs = [
-            1: folderURL.appendingPathComponent("123_token_1.jpg"),
-            2: folderURL.appendingPathComponent("123_token_2.jpg")
+            1: folderURL.appending(path: "123_token_1.jpg"),
+            2: folderURL.appending(path: "123_token_2.jpg")
         ]
         let download = sampleDownload(
             gid: gid, title: title, status: .completed, pageCount: 2, completedPageCount: 2,
@@ -58,11 +58,11 @@ struct DownloadObserverReadingTests: DownloadFeatureTestCase {
             withIntermediateDirectories: true
         )
         try Data([0x01]).write(
-            to: folderURL.appendingPathComponent("123_token_1.jpg"),
+            to: folderURL.appending(path: "123_token_1.jpg"),
             options: .atomic
         )
         try Data([0x02]).write(
-            to: folderURL.appendingPathComponent("123_token_2.jpg"),
+            to: folderURL.appending(path: "123_token_2.jpg"),
             options: .atomic
         )
 
@@ -71,8 +71,8 @@ struct DownloadObserverReadingTests: DownloadFeatureTestCase {
         #expect(store.state.gallery == download.gallery)
         #expect(store.state.language == manifest.language)
         #expect(store.state.localPageURLs == [
-            1: folderURL.appendingPathComponent("123_token_1.jpg"),
-            2: folderURL.appendingPathComponent("123_token_2.jpg")
+            1: folderURL.appending(path: "123_token_1.jpg"),
+            2: folderURL.appending(path: "123_token_2.jpg")
         ])
         #expect(store.state.readingProgress == 0)
         await store.finish()

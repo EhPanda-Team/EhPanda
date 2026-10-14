@@ -1,7 +1,7 @@
-import AppModels
-import AppTools
+public import AppModels
+public import AppTools
 import CryptoKit
-import Foundation
+public import Foundation
 import OSLogExt
 import Resources
 
@@ -86,7 +86,7 @@ public struct DownloadStore: Sendable {
     }
 
     public func folderURL(relativePath: String) -> URL {
-        rootURL.appendingPathComponent(relativePath, isDirectory: true)
+        rootURL.appending(path: relativePath, directoryHint: .isDirectory)
     }
 
     // `userFolderURL(name:)` used to live here, appending a caller-supplied user-folder NAME to
@@ -106,10 +106,16 @@ public struct DownloadStore: Sendable {
     // not a property the type system does.
 
     public func rootRelativePath(forFolderURL url: URL) -> String? {
-        let rootPath = rootURL.standardizedFileURL.path + "/"
-        let path = url.standardizedFileURL.path
-        guard path.hasPrefix(rootPath) else { return nil }
-        return String(path.dropFirst(rootPath.count))
+        Self.relativePath(of: url, within: rootURL)
+    }
+
+    /// Compares whole path components, independent of URL directory hints and trailing slashes.
+    /// Callers that require physical containment also check their symlink-resolved URLs.
+    static func relativePath(of url: URL, within root: URL) -> String? {
+        let rootComponents = root.standardizedFileURL.pathComponents
+        let components = url.standardizedFileURL.pathComponents
+        guard components.count > rootComponents.count, components.starts(with: rootComponents) else { return nil }
+        return components.dropFirst(rootComponents.count).joined(separator: "/")
     }
 
     public func parentFolderName(forFolderURL url: URL) -> String? {
@@ -123,9 +129,9 @@ public struct DownloadStore: Sendable {
         root: URL, relativePath: String
     ) -> URL? {
         let resolved = root
-            .appendingPathComponent(relativePath)
+            .appending(path: relativePath)
             .standardizedFileURL
-        guard resolved.path.hasPrefix(root.standardizedFileURL.path + "/") else {
+        guard Self.relativePath(of: resolved, within: root) != nil else {
             return nil
         }
         return resolved
@@ -133,19 +139,19 @@ public struct DownloadStore: Sendable {
 
     public func manifestURL(relativePath: String) -> URL {
         folderURL(relativePath: relativePath)
-            .appendingPathComponent(Defaults.FilePath.downloadManifest)
+            .appending(path: Defaults.FilePath.downloadManifest)
     }
 
     public func queueURL() -> URL {
-        rootURL.appendingPathComponent(".queue.json")
+        rootURL.appending(path: ".queue.json")
     }
 
     public func backgroundTaskRegistryURL() -> URL {
-        rootURL.appendingPathComponent(".background-tasks.json")
+        rootURL.appending(path: ".background-tasks.json")
     }
 
     public func backgroundTransferHoldingDirectoryURL() -> URL {
-        rootURL.appendingPathComponent(".background-downloads", isDirectory: true)
+        rootURL.appending(path: ".background-downloads", directoryHint: .isDirectory)
     }
 
     /// Removes the background-transfer holding directory and everything in it.
@@ -159,7 +165,7 @@ public struct DownloadStore: Sendable {
         let holdingDirectory = backgroundTransferHoldingDirectoryURL()
         do {
             try fileManager.operate {
-                guard $0.fileExists(atPath: holdingDirectory.path) else { return }
+                guard $0.fileExists(atPath: holdingDirectory.path(percentEncoded: false)) else { return }
                 try $0.removeItem(at: holdingDirectory)
             }
         } catch {
@@ -274,7 +280,7 @@ public struct DownloadStore: Sendable {
             discardingRejected: discardingRejected
         )
         .reduce(into: [Int: URL]()) { result, entry in
-            result[entry.key] = folderURL.appendingPathComponent(entry.value)
+            result[entry.key] = folderURL.appending(path: entry.value)
         }
     }
 
@@ -329,7 +335,7 @@ public struct DownloadStore: Sendable {
     /// still found. The `[gid_token]` name prefix is the fast path; any folder without it is
     /// confirmed by reading its manifest's `gid` / `token`, so a renamed folder still matches.
     public func galleryFolderURLs(gid: String, token: String) -> [URL] {
-        guard fileManager.operate({ $0.fileExists(atPath: rootURL.path) }) else {
+        guard fileManager.operate({ $0.fileExists(atPath: rootURL.path(percentEncoded: false)) }) else {
             return []
         }
         let prefix = galleryFolderNamePrefix(gid: gid, token: token)
@@ -560,13 +566,13 @@ public struct DownloadStore: Sendable {
     }
 
     public func writeManifest(_ manifest: DownloadManifest, folderURL: URL) throws {
-        try writeJSON(manifest, to: folderURL.appendingPathComponent(Defaults.FilePath.downloadManifest))
+        try writeJSON(manifest, to: folderURL.appending(path: Defaults.FilePath.downloadManifest))
     }
 
     public func readManifest(folderURL: URL) throws -> DownloadManifest {
         let manifest = try readJSON(
             DownloadManifest.self,
-            from: folderURL.appendingPathComponent(Defaults.FilePath.downloadManifest)
+            from: folderURL.appending(path: Defaults.FilePath.downloadManifest)
         )
         try validateDecodedManifest(manifest)
         return manifest
@@ -607,7 +613,7 @@ public struct DownloadStore: Sendable {
     }
 
     public func scanDownloads() throws -> DownloadScanResult {
-        guard fileManager.operate({ $0.fileExists(atPath: rootURL.path) }) else {
+        guard fileManager.operate({ $0.fileExists(atPath: rootURL.path(percentEncoded: false)) }) else {
             return .init(records: [], userFolders: [])
         }
 
@@ -831,11 +837,13 @@ public struct DownloadStore: Sendable {
         // an absence into a destructive decision at all. One that needed to would have to take a
         // classification of its own, through `pageFileScan(folderURL:manifest:)`, rather than read a
         // non-answer this comment has licensed for someone else's callers.
-        guard fileManager.operate({ $0.fileExists(atPath: url.path) }) else { return .unprobeable }
+        guard fileManager.operate({ $0.fileExists(atPath: url.path(percentEncoded: false)) }) else {
+            return .unprobeable
+        }
 
         let attributes: [FileAttributeKey: Any]
         do {
-            attributes = try fileManager.operate { try $0.attributesOfItem(atPath: url.path) }
+            attributes = try fileManager.operate { try $0.attributesOfItem(atPath: url.path(percentEncoded: false)) }
         } catch {
             // The narrowed G-15-13 trigger: the metadata read itself is unavailable — an I/O error,
             // a permission change, a volume going away mid-scan. Content is the only question left

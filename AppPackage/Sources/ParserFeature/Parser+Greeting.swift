@@ -1,10 +1,10 @@
-import AppModels
+public import AppModels
 import Foundation
-import Kanna
+public import Kanna
 
 extension Parser {
     // swiftlint:disable:next cyclomatic_complexity
-    public static func parseGreeting(doc: HTMLDocument) throws -> Greeting {
+    public static func parseGreeting(doc: any HTMLDocument) throws -> Greeting {
         guard let node = doc.at_xpath("//div [@id='eventpane']")
         else { throw AppError.parseFailed }
 
@@ -30,7 +30,7 @@ extension Parser {
                     }
                 }
 
-                text = text.replacingOccurrences(of: removeText, with: "")
+                text = text.replacing(removeText, with: "")
 
                 if value == gainedValues.last {
                     if let text = trim(string: text) {
@@ -75,7 +75,7 @@ private extension Parser {
     }
 
     static func trim(int: String) -> Int? {
-        Int(int.replacingOccurrences(of: ",", with: "")
-            .replacingOccurrences(of: " ", with: ""))
+        Int(int.replacing(",", with: "")
+            .replacing(" ", with: ""))
     }
 }

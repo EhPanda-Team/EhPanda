@@ -1,6 +1,6 @@
 import AnimatedImageFeature
 import AppModels
-import Foundation
+public import Foundation
 import OSLogExt
 import UniformTypeIdentifiers
 
@@ -320,7 +320,7 @@ extension DownloadCoordinator {
         try createDirectory(
             at: destinationURL.deletingLastPathComponent()
         )
-        if fileManager.operate({ $0.fileExists(atPath: destinationURL.path) }) {
+        if fileManager.operate({ $0.fileExists(atPath: destinationURL.path(percentEncoded: false)) }) {
             try fileManager.operate {
                 try $0.removeItem(at: destinationURL)
             }

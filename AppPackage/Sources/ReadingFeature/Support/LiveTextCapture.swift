@@ -1,6 +1,6 @@
 #if DEBUG
-import AppModels
-import Dependencies
+public import AppModels
+public import Dependencies
 import Synchronization
 
 /// The Live Text a capture launch shows on one reader page (17-06, D-06).

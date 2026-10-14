@@ -1,9 +1,11 @@
 import AnalyticsClient
 @testable import AppFeature
+import AppModels
 import ComposableArchitecture
 import DeviceClient
 @testable import DownloadsFeature
 import HapticsClient
+import ReadingFeature
 import Testing
 
 // `@MainActor` here is compiler-required, not stylistic: every case below builds a TCA

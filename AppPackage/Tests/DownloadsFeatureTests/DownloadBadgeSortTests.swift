@@ -1,8 +1,10 @@
+import AppComponents
 @testable import AppFeature
 import AppModels
 import AppTools
 import ComposableArchitecture
 import Foundation
+import ReadingFeature
 import SFSafeSymbols
 import SwiftUI
 import Testing
@@ -107,8 +109,8 @@ struct DownloadBadgeSortTests: DownloadFeatureTestCase {
     func testInProgressDownloadUsesFinalCoverURL() throws {
         let gid = "811"
         let folderURL = FileUtil.downloadsDirectoryURL
-            .appendingPathComponent("[\(gid)_token] Local Cover Archive", isDirectory: true)
-        let coverURL = folderURL.appendingPathComponent("\(gid)_token_cover.jpg")
+            .appending(path: "[\(gid)_token] Local Cover Archive", directoryHint: .isDirectory)
+        let coverURL = folderURL.appending(path: "\(gid)_token_cover.jpg")
         let download = sampleDownload(
             gid: gid,
             title: "Local Cover Archive",

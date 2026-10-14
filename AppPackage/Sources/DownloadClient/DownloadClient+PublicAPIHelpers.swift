@@ -1,5 +1,5 @@
-import AppModels
-import Foundation
+public import AppModels
+public import Foundation
 
 // MARK: - Private helpers for public API
 extension DownloadCoordinator {
@@ -64,7 +64,7 @@ extension DownloadCoordinator {
             let listedRelativePath = existingRelativePaths[page]
             let fileURL: URL? =
                 if let listedRelativePath, let activeFolderURL {
-                    activeFolderURL.appendingPathComponent(listedRelativePath)
+                    activeFolderURL.appending(path: listedRelativePath)
                 } else {
                     nil
                 }

@@ -1,4 +1,4 @@
-import Foundation
+public import Foundation
 import Resources
 
 public struct Greeting: Codable, Equatable, Hashable, Identifiable, Sendable {

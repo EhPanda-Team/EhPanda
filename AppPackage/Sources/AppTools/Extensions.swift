@@ -1,6 +1,6 @@
-import Foundation
-import SwiftUI
-import UIKit
+public import Foundation
+public import SwiftUI
+public import UIKit
 
 // MARK: Encodable
 extension Encodable {
@@ -35,16 +35,11 @@ extension Data {
         }
     }
     public var utf8InvalidCharactersRipped: Data {
-        var data = self
-        data.append(0)
-
-        let str = Array(data).withUnsafeBufferPointer { ptr -> String? in
-            guard let address = ptr.baseAddress else { return nil }
-            return String(cString: address)
-        }
-        guard let string = str else { return data }
-        data = string.data(using: .utf8) ?? self
-        return data
+        // Repair bytes directly, retaining content after any embedded NUL in the response.
+        var repaired = Data()
+        repaired.reserveCapacity(count)
+        _ = transcode(makeIterator(), from: UTF8.self, to: UTF8.self, stoppingOnError: false) { repaired.append($0) }
+        return repaired
     }
 }
 

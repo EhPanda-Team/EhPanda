@@ -8,6 +8,7 @@ import CookieClient
 import DownloadClient
 import Foundation
 import HapticsClient
+import ReadingFeature
 import Testing
 
 // `@MainActor` here is compiler-required, not stylistic: every case below builds a TCA

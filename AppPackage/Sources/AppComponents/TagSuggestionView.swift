@@ -1,4 +1,4 @@
-import AppModels
+public import AppModels
 import AppTools
 import Dependencies
 import DeviceClient
@@ -6,7 +6,7 @@ import Kingfisher
 import Observation
 import Resources
 import SFSafeSymbols
-import SwiftUI
+public import SwiftUI
 import TagTranslationFeature
 
 public struct TagSuggestionView: View {
@@ -106,11 +106,11 @@ private struct SuggestionCell: View {
                             if let imageURL = suggestion.tag.valueImageURL, showsImages {
                                 Image(systemSymbol: .photo)
                                     .opacity(0)
-                                    .overlay(
+                                    .overlay {
                                         KFImage(imageURL)
                                             .resizable()
                                             .scaledToFit()
-                                    )
+                                    }
                                     .accessibilityHidden(true)
                             }
                         }
@@ -142,18 +142,11 @@ final class TagTranslationHandler {
     var suggestions = [TagSuggestion]()
 
     func analyze(text: inout String, translations: [String: TagTranslation]) {
-        let keyword = text.replacingOccurrences(of: "  +", with: " ", options: .regularExpression)
-            .replacingOccurrences(of: "：", with: ":")
+        let keyword = text.replacing(/[ ]{2,}/, with: " ")
+            .replacing("：", with: ":")
         text = keyword
-        guard let regex = Defaults.Regex.tagSuggestion else { return }
-        let keywords: [String] = regex.matches(in: keyword, range: .init(location: 0, length: keyword.count))
-            .compactMap {
-                if let range = Range($0.range, in: keyword) {
-                    return .init(keyword[range])
-                } else {
-                    return nil
-                }
-            }
+        let keywords = keyword.matches(of: /\S+:".+?"|".+?"|\S+:\S+|\S+/)
+            .map({ String($0.output) })
         var result = [TagSuggestion]()
         var existingWords = Set<String>()
         let lastCompletedTagIndex = keywords.lastIndex(where: { ["\"", "$"].contains($0.last) })

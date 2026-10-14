@@ -1,4 +1,5 @@
 @testable import AppFeature
+import Foundation
 import Kanna
 import ParserFeature
 import Testing
@@ -12,7 +13,7 @@ struct GalleryImageURLParserTests: TestHelper {
         try testSkipServerIdentifierParser(doc: document)
     }
 
-    func testGalleryNormalImageURLParser(doc: HTMLDocument) throws {
+    func testGalleryNormalImageURLParser(doc: any HTMLDocument) throws {
         let inputIndex = 1
         let result = try Parser.parseGalleryNormalImageURL(doc: doc, index: inputIndex)
         let index = result.index
@@ -27,7 +28,7 @@ struct GalleryImageURLParserTests: TestHelper {
         #expect(imageURL.absoluteString == expectedImageURL)
         #expect(originalImageURL?.absoluteString == "https://e-hentai.org/fullimg.php?gid=0000000&page=1&key=000000000")
     }
-    func testSkipServerIdentifierParser(doc: HTMLDocument) throws {
+    func testSkipServerIdentifierParser(doc: any HTMLDocument) throws {
         let identifier = try Parser.parseSkipServerIdentifier(doc: doc)
         #expect(identifier == "00000-000000")
     }

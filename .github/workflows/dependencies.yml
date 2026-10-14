@@ -8,18 +8,31 @@ permissions:
   pull-requests: write
 jobs:
   dependencies:
-    runs-on: macos-26
+    runs-on: xcode-27
     steps:
       - uses: actions/checkout@v7
         with:
           ref: develop
-      - name: Resolve Dependencies
+      - name: Verify Swift 6.4 toolchain
+        run: |
+          set -euo pipefail
+          xcodebuild -version | grep -q '^Xcode 27\.'
+          xcrun swift --version | grep -q 'Apple Swift version 6\.4'
+          [[ "$(xcrun --sdk iphonesimulator --show-sdk-version)" == 27.* ]]
+      - name: Update package dependencies and both lockfiles
         id: resolution
-        uses: GetSidetrack/action-xcodeproj-spm-update@0.3.0
-        with:
-          forceResolution: true
-          failWhenOutdated: false
-          xcodePath: '/Applications/Xcode_26.5.app'
+        run: |
+          set -euo pipefail
+          xcrun swift package --package-path AppPackage update
+          cp AppPackage/Package.resolved EhPanda.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved
+          xcodebuild -resolvePackageDependencies -project EhPanda.xcodeproj -scheme EhPanda \
+            -onlyUsePackageVersionsFromResolvedFile
+          if git diff --quiet -- AppPackage/Package.resolved \
+            EhPanda.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved; then
+            echo 'dependenciesChanged=false' >> "$GITHUB_OUTPUT"
+          else
+            echo 'dependenciesChanged=true' >> "$GITHUB_OUTPUT"
+          fi
       - name: Create Pull Request
         if: steps.resolution.outputs.dependenciesChanged == 'true'
         uses: peter-evans/create-pull-request@v8

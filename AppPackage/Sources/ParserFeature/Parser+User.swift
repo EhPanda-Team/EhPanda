@@ -1,9 +1,9 @@
-import AppModels
+public import AppModels
 import Foundation
-import Kanna
+public import Kanna
 
 extension Parser {
-    public static func parseUserInfo(doc: HTMLDocument) throws -> User {
+    public static func parseUserInfo(doc: any HTMLDocument) throws -> User {
         var displayName: String?
         var avatarURL: URL?
 
@@ -29,7 +29,7 @@ extension Parser {
         }
     }
 
-    public static func parseCurrentFunds(doc: HTMLDocument) throws -> (galleryPoints: String, credits: String) {
+    public static func parseCurrentFunds(doc: any HTMLDocument) throws -> (galleryPoints: String, credits: String) {
         var tmpGP: String?
         var tmpCredits: String?
 
@@ -40,10 +40,10 @@ extension Parser {
                let rangeC = text.range(of: "Credits") {
                 tmpGP = String(text[..<rangeA.lowerBound])
                     .trimmingCharacters(in: .whitespaces)
-                    .replacingOccurrences(of: ",", with: "")
+                    .replacing(",", with: "")
                 tmpCredits = String(text[rangeB.upperBound..<rangeC.lowerBound])
                     .trimmingCharacters(in: .whitespaces)
-                    .replacingOccurrences(of: ",", with: "")
+                    .replacing(",", with: "")
             }
         }
 

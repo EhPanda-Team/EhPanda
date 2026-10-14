@@ -120,13 +120,13 @@ struct CookieClientTests {
 
         client.setSkipServer(response: response, host: .exhentai)
 
-        let skipServerURL = GalleryHost.exhentai.url.appendingPathComponent("s/")
+        let skipServerURL = GalleryHost.exhentai.url.appending(path: "s/")
         let cookie = try #require(
             client.cookies(for: skipServerURL).first(where: { $0.name == CookieName.skipServer })
         )
         #expect(cookie.value == "server-fixture")
         #expect(cookie.path == "/s/")
-        let ehentaiSkipServerURL = GalleryHost.ehentai.url.appendingPathComponent("s/")
+        let ehentaiSkipServerURL = GalleryHost.ehentai.url.appending(path: "s/")
         let ehentaiCookies = client.cookies(for: ehentaiSkipServerURL)
         #expect(ehentaiCookies.contains(where: { $0.name == CookieName.skipServer }) == false)
     }
@@ -136,8 +136,8 @@ struct CookieClientTests {
         let storage = makeCookieStorage()
         let client = CookieClient.live(cookieStorage: storage)
         defer { client.clearAll() }
-        let url = GalleryHost.ehentai.url.appendingPathComponent("s/page")
-        let domain = try #require(url.host)
+        let url = GalleryHost.ehentai.url.appending(path: "s/page")
+        let domain = try #require(url.host(percentEncoded: false))
         let expiry = Date(timeIntervalSinceNow: 86_400)
         for path in ["/", "/s/"] {
             storage.setCookie(try #require(HTTPCookie(properties: [
@@ -328,7 +328,7 @@ private func makeCookie(
     value: String,
     expiresDate: Date
 ) throws -> HTTPCookie {
-    let domain = try #require(url.host)
+    let domain = try #require(url.host(percentEncoded: false))
     return try #require(HTTPCookie(properties: [
         .domain: domain,
         .path: "/",

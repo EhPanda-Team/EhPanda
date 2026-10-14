@@ -1,4 +1,4 @@
-import Foundation
+public import Foundation
 import Resources
 
 // MARK: EhSetting
@@ -99,7 +99,7 @@ public struct EhSetting: Equatable, Sendable {
     // swiftlint:enable line_length
 
     public static let categoryNames = Category.allFiltersCases.map(\.rawValue).map { value in
-        value.lowercased().replacingOccurrences(of: " ", with: "")
+        value.lowercased().replacing(" ", with: "")
     }
     public static let languageValues = [
         1024, 2048, 1, 1025, 2049, 10, 1034, 2058,

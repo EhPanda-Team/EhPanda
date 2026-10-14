@@ -54,8 +54,8 @@ struct DownloadBackgroundTaskStoreTests {
 
     private func makeStore() -> StoreFixture {
         let rootURL = FileManager.default.temporaryDirectory
-            .appendingPathComponent(UUID().uuidString, isDirectory: true)
-        let fileURL = rootURL.appendingPathComponent(".background-tasks.json")
+            .appending(path: UUID().uuidString, directoryHint: .isDirectory)
+        let fileURL = rootURL.appending(path: ".background-tasks.json")
         return .init(
             store: DownloadBackgroundTaskStore(fileURL: fileURL),
             rootURL: rootURL,

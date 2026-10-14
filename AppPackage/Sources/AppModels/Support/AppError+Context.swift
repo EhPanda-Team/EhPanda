@@ -1,4 +1,4 @@
-import Foundation
+public import Foundation
 
 /// A type-erased value that preserves both `Hashable` and `Sendable` semantics.
 public struct AnyHashableBox: Hashable, Sendable {

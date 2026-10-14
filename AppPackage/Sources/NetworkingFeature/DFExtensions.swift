@@ -1,6 +1,7 @@
 import AppModels
 import AppTools
-import Foundation
+public import CFNetwork
+public import Foundation
 import LegacyCFReadStream
 import OSLogExt
 
@@ -73,7 +74,7 @@ extension URLRequest {
         allHTTPHeaderFields?.keys.first(where: { $0.lowercased() == "host" })
     }
     public var domain: String? {
-        var domain: String? = url?.host
+        var domain: String? = url?.host(percentEncoded: false)
 
         if let allFields = allHTTPHeaderFields, let hostKey = hostKey {
             domain = allFields[hostKey]
@@ -133,7 +134,7 @@ extension URLRequest {
             } else if readSize == 0 {
                 logger.debug("HTTPBodyStream read EOF.")
             } else {
-                if let error = stream.streamError as Error? {
+                if let error = stream.streamError as any Error? {
                     logger.error("HTTPBodyStream read Error: \(error, privacy: .public)")
                 }
             }

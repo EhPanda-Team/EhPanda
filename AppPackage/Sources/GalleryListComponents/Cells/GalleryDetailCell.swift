@@ -1,10 +1,10 @@
 import AppComponents
-import AppModels
+public import AppModels
 import AppTools
 import PreviewSupport
 import SFSafeSymbols
 import Sharing
-import SwiftUI
+public import SwiftUI
 import TagTranslationFeature
 
 public struct GalleryDetailCell: View {
@@ -77,7 +77,7 @@ private struct GalleryDetailCellContent: View {
     }
 
     private var tagColor: Color {
-        colorScheme == .light ? Color(.systemGray5) : Color(.systemGray4)
+        colorScheme == .light ? Color(uiColor: .systemGray5) : Color(uiColor: .systemGray4)
     }
 
     var body: some View {

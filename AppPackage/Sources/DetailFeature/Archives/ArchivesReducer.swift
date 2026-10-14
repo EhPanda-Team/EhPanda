@@ -1,13 +1,14 @@
-import AppComponents
-import AppModels
+public import AppComponents
+public import AppModels
 import AppTools
-import ComposableArchitecture
+public import ComposableArchitecture
 import CookieClient
-import Foundation
+public import Foundation
 import HapticsClient
-import NetworkingFeature
+public import NetworkingFeature
 import Resources
-import Sharing
+public import Sharing
+import UIKit
 
 @Reducer
 public struct ArchivesReducer: Sendable {
@@ -66,13 +67,11 @@ public struct ArchivesReducer: Sendable {
                 guard state.loadingState != .loading else { return .none }
                 state.loadingState = .loading
                 return .run { send in
-                    do throws(AppError) {
-                        let response = try await GalleryArchiveRequest(archiveURL: archiveURL)
+                    let result = await Result.Swift::init { () async throws(AppError) in
+                        try await GalleryArchiveRequest(archiveURL: archiveURL)
                             .response()
-                        await send(.fetchArchiveDone(gid: gid, galleryURL: galleryURL, result: .success(response)))
-                    } catch {
-                        await send(.fetchArchiveDone(gid: gid, galleryURL: galleryURL, result: .failure(error)))
                     }
+                    await send(.fetchArchiveDone(gid: gid, galleryURL: galleryURL, result: result))
                 }
                 .cancellable(id: CancelID.fetchArchive)
 
@@ -98,18 +97,20 @@ public struct ArchivesReducer: Sendable {
                 return .none
 
             case .fetchArchiveFunds(let gid, let galleryURL):
-                guard let galleryURL = galleryURL.replaceHost(to: Defaults.URL.ehentai.host) else { return .none }
+                guard let galleryURL = galleryURL.replaceHost(
+                    to: Defaults.URL.ehentai.host(percentEncoded: false)
+                ) else {
+                    return .none
+                }
                 return .run { send in
-                    do throws(AppError) {
-                        let funds = try await GalleryArchiveFundsRequest(
+                    let result = await Result.Swift::init { () async throws(AppError) in
+                        try await GalleryArchiveFundsRequest(
                             gid: gid,
                             galleryURL: galleryURL
                         )
                         .response()
-                        await send(.fetchArchiveFundsDone(.success(funds)))
-                    } catch {
-                        await send(.fetchArchiveFundsDone(.failure(error)))
                     }
+                    await send(.fetchArchiveFundsDone(result))
                 }
                 .cancellable(id: CancelID.fetchArchiveFunds)
 
@@ -125,16 +126,14 @@ public struct ArchivesReducer: Sendable {
                 else { return .none }
                 state.toast = .communicating
                 return .run {send in
-                    do throws(AppError) {
-                        let response = try await SendDownloadCommandRequest(
+                    let result = await Result.Swift::init { () async throws(AppError) in
+                        try await SendDownloadCommandRequest(
                             archiveURL: archiveURL,
                             resolution: selectedArchive.resolution.parameter
                         )
                         .response()
-                        await send(.fetchDownloadResponseDone(.success(response)))
-                    } catch {
-                        await send(.fetchDownloadResponseDone(.failure(error)))
                     }
+                    await send(.fetchDownloadResponseDone(result))
                 }
                 .cancellable(id: CancelID.fetchDownloadResponse)
 

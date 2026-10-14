@@ -1,8 +1,8 @@
 import AppComponents
 import AppModels
-import ComposableArchitecture
+public import ComposableArchitecture
 import Resources
-import SwiftUI
+public import SwiftUI
 
 public struct FiltersView: View {
     @Environment(\.dismiss) private var dismiss

@@ -36,8 +36,8 @@ struct DownloadQueueStoreTests {
 private extension DownloadQueueStoreTests {
     func makeStore() -> (store: DownloadQueueStore, rootURL: URL) {
         let rootURL = FileManager.default.temporaryDirectory
-            .appendingPathComponent(UUID().uuidString, isDirectory: true)
-        let fileURL = rootURL.appendingPathComponent(".queue.json")
+            .appending(path: UUID().uuidString, directoryHint: .isDirectory)
+        let fileURL = rootURL.appending(path: ".queue.json")
         return (DownloadQueueStore(fileURL: fileURL), rootURL)
     }
 }

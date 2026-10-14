@@ -1,5 +1,5 @@
 import AppTools
-import Foundation
+public import Foundation
 
 /// A persisted per-run activity-log file, named `ehpanda-<yyyyMMdd>-<HHmmss>-<runCount>.jsonl`.
 public struct RunLogFile: Identifiable, Equatable, Sendable {

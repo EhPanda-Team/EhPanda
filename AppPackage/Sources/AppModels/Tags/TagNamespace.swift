@@ -1,4 +1,4 @@
-import Foundation
+public import Foundation
 import Resources
 
 public enum TagNamespace: String, Codable, CaseIterable, Sendable {

@@ -1,6 +1,6 @@
-import AppModels
-import CoreGraphics
-import Foundation
+public import AppModels
+public import CoreGraphics
+public import Foundation
 
 /// A page's translations, laid out over the regions they replace.
 public struct LiveTextTranslatedPage: Equatable, Sendable {

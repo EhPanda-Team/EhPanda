@@ -1,3 +1,4 @@
+import AppComponents
 @testable import AppFeature
 import AppModels
 import AppTools
@@ -10,6 +11,7 @@ import Foundation
 import HomeFeature
 import ParserFeature
 @testable import ReadingFeature
+import SearchFeature
 import SettingFeature
 import Sharing
 import SwiftUI

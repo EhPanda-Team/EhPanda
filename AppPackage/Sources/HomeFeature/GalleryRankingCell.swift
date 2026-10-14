@@ -1,8 +1,8 @@
 import AppComponents
-import AppModels
+public import AppModels
 import AppTools
 import PreviewSupport
-import SwiftUI
+public import SwiftUI
 
 public struct GalleryRankingCell: View {
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize

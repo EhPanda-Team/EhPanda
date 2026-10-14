@@ -1,7 +1,7 @@
 import AnimatedImageFeature
 import AppModels
 import AppTools
-import Foundation
+public import Foundation
 import ImageIO
 import Kanna
 import ParserFeature
@@ -258,7 +258,7 @@ extension DownloadCoordinator {
     }
 
     func isExHentaiURL(_ url: URL?) -> Bool {
-        guard let host = url?.host?.lowercased() else {
+        guard let host = url?.host(percentEncoded: false)?.lowercased() else {
             return false
         }
         return host == "exhentai.org"
@@ -303,7 +303,7 @@ extension DownloadCoordinator {
     /// through to the raw-content or status-code classifiers, so malformed markup — which is the
     /// ordinary shape of the truncated or non-HTML payloads this probe is pointed at — is the
     /// expected negative answer rather than a failure worth logging.
-    func probeHTMLDocument(_ data: Data) -> HTMLDocument? {
+    func probeHTMLDocument(_ data: Data) -> any HTMLDocument? {
         do {
             return try Kanna.HTML(html: data, encoding: .utf8)
         } catch {
@@ -352,7 +352,7 @@ extension DownloadCoordinator {
     }
 
     nonisolated static func isCancellationLikeError(
-        _ error: Error
+        _ error: any Error
     ) -> Bool {
         if error is CancellationError {
             return true

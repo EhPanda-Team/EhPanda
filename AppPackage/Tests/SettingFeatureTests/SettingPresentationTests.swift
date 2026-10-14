@@ -6,6 +6,7 @@ import CookieClient
 import Foundation
 import LibraryClient
 import LogsClient
+import ReadingSettingFeature
 @testable import SettingFeature
 import Testing
 
@@ -106,7 +107,7 @@ struct SettingPresentationTests {
     @Test
     func pushingAppActivityLogsListsPreviousRuns() async throws {
         let run = RunLogFile(
-            url: URL(fileURLWithPath: "/tmp/ehpanda-20200101-090000-3.jsonl"),
+            url: URL(filePath: "/tmp/ehpanda-20200101-090000-3.jsonl"),
             date: Date(timeIntervalSince1970: 0),
             runCount: 3
         )

@@ -2,7 +2,7 @@ import AppTools
 import Dependencies
 import HapticsClient
 import Resources
-import SwiftUI
+public import SwiftUI
 
 public struct SubSection<Content: View>: View {
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize

@@ -1,5 +1,5 @@
-import AppModels
-import Foundation
+public import AppModels
+public import Foundation
 import MarkdownExt
 
 extension TagTranslation {
@@ -15,7 +15,7 @@ extension TagTranslation {
     }
     public var descriptionPlainText: String? {
         if let description = description {
-            return MarkdownUtil.parseTexts(markdown: description.replacingOccurrences(of: "`", with: " ")).joined()
+            return MarkdownUtil.parseTexts(markdown: description.replacing("`", with: " ")).joined()
         }
         return nil
     }

@@ -10,7 +10,7 @@ struct DownloadSchedulingTests: DownloadFeatureTestCase {
     func testConcurrentSchedulingCreatesOnlyOneActiveTask() async throws {
         let gid = "100001"
         let rootURL = FileManager.default.temporaryDirectory
-            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+            .appending(path: UUID().uuidString, directoryHint: .isDirectory)
         defer { removeTemporaryItem(at: rootURL) }
 
         let storage = DownloadStore(
@@ -93,7 +93,7 @@ struct DownloadSchedulingTests: DownloadFeatureTestCase {
         let firstGID = "100011"
         let secondGID = "100012"
         let rootURL = FileManager.default.temporaryDirectory
-            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+            .appending(path: UUID().uuidString, directoryHint: .isDirectory)
         defer { removeTemporaryItem(at: rootURL) }
 
         let storage = DownloadStore(

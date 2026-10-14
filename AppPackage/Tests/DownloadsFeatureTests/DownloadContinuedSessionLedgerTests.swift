@@ -702,7 +702,7 @@ struct DownloadContinuedSessionLedgerTests: DownloadFeatureTestCase {
             fileExtension: "jpg"
         )
         try Data("page-3".utf8).write(
-            to: folderURL.appendingPathComponent(pageThreeRelativePath),
+            to: folderURL.appending(path: pageThreeRelativePath),
             options: .atomic
         )
         try await manager.flushManifestPageProgress(
@@ -795,7 +795,7 @@ struct DownloadContinuedSessionLedgerTests: DownloadFeatureTestCase {
             fileExtension: "jpg"
         )
         try Data("page-3".utf8).write(
-            to: folderURL.appendingPathComponent(pageThreeRelativePath),
+            to: folderURL.appending(path: pageThreeRelativePath),
             options: .atomic
         )
         try await manager.flushManifestPageProgress(

@@ -1,7 +1,7 @@
-import AppModels
+public import AppModels
 import AppTools
-import ComposableArchitecture
-import Foundation
+public import ComposableArchitecture
+public import Foundation
 import OSLogExt
 
 private let logger = Logger(category: .init(describing: LogsClient.self))
@@ -73,7 +73,7 @@ extension LogsClient {
             payload.append(0x0A)
         }
 
-        if FileManager.default.fileExists(atPath: url.path) {
+        if FileManager.default.fileExists(atPath: url.path(percentEncoded: false)) {
             let handle = try FileHandle(forWritingTo: url)
             // Closing is best-effort after the authoritative append operations finish,
             // so a failure is logged rather than replacing the append's own outcome.
@@ -108,7 +108,7 @@ extension LogsClient {
         listRunFiles: {
             let directory = FileUtil.logsDirectoryURL
             return runLogFileNames(in: directory)
-                .compactMap({ RunLogFile(fileURL: directory.appendingPathComponent($0)) })
+                .compactMap({ RunLogFile(fileURL: directory.appending(path: $0)) })
                 // Newest first across days: counts reset daily, so order by day then count.
                 .sorted(by: { $0.date != $1.date ? $0.date > $1.date : $0.runCount > $1.runCount })
         },
@@ -116,14 +116,14 @@ extension LogsClient {
             let directory = FileUtil.logsDirectoryURL
             let today = RunLogFile.dayString(for: date)
             let todayCounts = runLogFileNames(in: directory)
-                .compactMap({ RunLogFile(fileURL: directory.appendingPathComponent($0)) })
+                .compactMap({ RunLogFile(fileURL: directory.appending(path: $0)) })
                 .filter({ RunLogFile.dayString(for: $0.date) == today })
                 .map(\.runCount)
             return (todayCounts.max() ?? 0) + 1
         },
         currentRunFileURL: { runCount, date in
-            FileUtil.logsDirectoryURL.appendingPathComponent(
-                RunLogFile.fileName(date: date, runCount: runCount)
+            FileUtil.logsDirectoryURL.appending(
+                path: RunLogFile.fileName(date: date, runCount: runCount)
             )
         }
     )
@@ -136,7 +136,7 @@ extension LogsClient {
 /// `nextRunCount` finds no counts for the day and so falls back to the day's first run.
 private func runLogFileNames(in directory: URL) -> [String] {
     do {
-        return try FileManager.default.contentsOfDirectory(atPath: directory.path)
+        return try FileManager.default.contentsOfDirectory(atPath: directory.path(percentEncoded: false))
     } catch {
         return []
     }

@@ -1,16 +1,16 @@
 import AnalyticsClient
-import AppComponents
+public import AppComponents
 import AppLaunchAutomationClient
-import AppModels
-import AppTools
-import ComposableArchitecture
+public import AppModels
+public import AppTools
+public import ComposableArchitecture
 import CookieClient
 import DownloadClient
-import Foundation
+public import Foundation
 import HapticsClient
-import NetworkingFeature
-import ReadingFeature
-import SwiftUI
+public import NetworkingFeature
+public import ReadingFeature
+public import SwiftUI
 
 @Reducer
 public struct DetailReducer: Sendable {

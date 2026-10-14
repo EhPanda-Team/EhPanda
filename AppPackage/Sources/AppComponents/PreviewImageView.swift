@@ -1,8 +1,8 @@
 import AppModels
 import AppTools
-import ImageIO
+public import ImageIO
 import Kingfisher
-import SwiftUI
+public import SwiftUI
 
 public struct PreviewImageView: View {
     private let originalURL: URL?
@@ -74,7 +74,7 @@ private struct LocalPreviewImageView<Placeholder: View>: View {
         let modificationStamp = resourceValues?.contentModificationDate?
             .timeIntervalSinceReferenceDate ?? .zero
         let fileSize = resourceValues?.fileSize ?? 0
-        return "\(fileURL.path)#\(Int(maxPixelSize))#\(fileSize)#\(modificationStamp)"
+        return "\(fileURL.path(percentEncoded: false))#\(Int(maxPixelSize))#\(fileSize)#\(modificationStamp)"
     }
 
     var body: some View {

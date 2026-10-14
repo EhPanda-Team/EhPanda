@@ -1,4 +1,5 @@
 @testable import AppFeature
+import AppModels
 import Kanna
 import ParserFeature
 import Testing

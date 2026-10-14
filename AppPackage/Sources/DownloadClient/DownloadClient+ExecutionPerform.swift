@@ -1,4 +1,4 @@
-import AppModels
+public import AppModels
 import Foundation
 
 // MARK: - Perform Download
@@ -147,9 +147,9 @@ extension DownloadCoordinator {
             guard let relativePath = existingPages[page] else {
                 return true
             }
-            let fileURL = folderURL.appendingPathComponent(relativePath)
+            let fileURL = folderURL.appending(path: relativePath)
             return !fileManager.operate {
-                $0.fileExists(atPath: fileURL.path)
+                $0.fileExists(atPath: fileURL.path(percentEncoded: false))
             }
         }
         if missingIndices.isEmpty {

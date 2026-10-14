@@ -10,6 +10,7 @@ import CustomDump
 import DeviceClient
 import DownloadClient
 import Foundation
+import HapticsClient
 import LogsClient
 import Sharing
 import Testing

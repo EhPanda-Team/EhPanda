@@ -1,12 +1,12 @@
 import AnalyticsClient
-import AppModels
+public import AppModels
 import AppTools
-import ComposableArchitecture
+public import ComposableArchitecture
 import DeviceClient
-import Kingfisher
+public import Kingfisher
 import LibraryClient
-import Sharing
-import SwiftUI
+public import Sharing
+public import SwiftUI
 
 @Reducer
 public struct HomeReducer: Sendable {

@@ -1,5 +1,5 @@
-import AppModels
-import Foundation
+public import AppModels
+public import Foundation
 
 /// A recognized group's text as Live Text sends it to translation.
 ///

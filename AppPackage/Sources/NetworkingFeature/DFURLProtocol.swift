@@ -1,6 +1,6 @@
 import AppModels
 import AppTools
-import Foundation
+public import Foundation
 import OSLogExt
 
 private let logger = Logger(category: .init(describing: DFURLProtocol.self))
@@ -49,7 +49,7 @@ extension DFURLProtocol: DFRequestDelegate {
     public func dfRequest(_ request: DFRequest, didLoad data: Data) {
         client?.urlProtocol(self, didLoad: data)
     }
-    public func dfRequest(_ request: URLRequest, didFailWithError error: Error) {
+    public func dfRequest(_ request: URLRequest, didFailWithError error: any Error) {
         client?.urlProtocol(self, didFailWithError: error)
     }
     public func dfRequest(

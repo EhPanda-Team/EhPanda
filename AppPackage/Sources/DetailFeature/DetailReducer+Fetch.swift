@@ -1,7 +1,11 @@
 import AppModels
 import ComposableArchitecture
+import CookieClient
+import DownloadClient
 import Foundation
+import HapticsClient
 import NetworkingFeature
+import UIKit
 
 // MARK: - Fetch & Gallery Ops Action Handlers
 extension DetailReducer {
@@ -17,16 +21,14 @@ extension DetailReducer {
                 state.didRequestVersionMetadata = false
                 state.galleryVersionMetadata = nil
                 return .run { send in
-                    do throws(AppError) {
-                        let response = try await GalleryDetailRequest(
+                    let result = await Result.Swift::init { () async throws(AppError) in
+                        try await GalleryDetailRequest(
                             gid: galleryID,
                             galleryURL: galleryURL
                         )
                         .response()
-                        await send(.fetchGalleryDetailDone(.success(response)))
-                    } catch {
-                        await send(.fetchGalleryDetailDone(.failure(error)))
                     }
+                    await send(.fetchGalleryDetailDone(result))
                 }
                 .cancellable(id: CancelID.fetchGalleryDetail(state.cancellationGalleryID))
 
@@ -120,7 +122,7 @@ extension DetailReducer {
                 let token = state.gallery.token
                 let rating = state.userRating
                 return .run { [host, apiKey, token, rating] send in
-                    do throws(AppError) {
+                    let result = await Result.Swift::init { () async throws(AppError) in
                         try await RateGalleryRequest(
                             host: host,
                             apiuid: apiuid,
@@ -130,10 +132,8 @@ extension DetailReducer {
                             rating: rating
                         )
                         .response()
-                        await send(.anyGalleryOpsDone(.success(())))
-                    } catch {
-                        await send(.anyGalleryOpsDone(.failure(error)))
                     }
+                    await send(.anyGalleryOpsDone(result))
                 }
                 .cancellable(id: CancelID.rateGallery(state.cancellationGalleryID))
 
@@ -142,7 +142,7 @@ extension DetailReducer {
                 let gid = state.gallery.id
                 let token = state.gallery.token
                 return .run { [host, gid, token] send in
-                    do throws(AppError) {
+                    let result = await Result.Swift::init { () async throws(AppError) in
                         try await FavorGalleryRequest(
                             host: host,
                             gid: gid,
@@ -150,37 +150,31 @@ extension DetailReducer {
                             favIndex: favIndex
                         )
                         .response()
-                        await send(.anyGalleryOpsDone(.success(())))
-                    } catch {
-                        await send(.anyGalleryOpsDone(.failure(error)))
                     }
+                    await send(.anyGalleryOpsDone(result))
                 }
                 .cancellable(id: CancelID.favorGallery(state.cancellationGalleryID))
 
             case .unfavorGallery:
                 return .run { [host = state.setting.galleryHost, galleryID = state.gallery.id] send in
-                    do throws(AppError) {
+                    let result = await Result.Swift::init { () async throws(AppError) in
                         try await UnfavorGalleryRequest(host: host, gid: galleryID).response()
-                        await send(.anyGalleryOpsDone(.success(())))
-                    } catch {
-                        await send(.anyGalleryOpsDone(.failure(error)))
                     }
+                    await send(.anyGalleryOpsDone(result))
                 }
                 .cancellable(id: CancelID.unfavorGallery(state.cancellationGalleryID))
 
             case .postComment(let galleryURL):
                 guard !state.commentContent.isEmpty else { return .none }
                 return .run { [commentContent = state.commentContent] send in
-                    do throws(AppError) {
+                    let result = await Result.Swift::init { () async throws(AppError) in
                         try await CommentGalleryRequest(
                             content: commentContent,
                             galleryURL: galleryURL
                         )
                         .response()
-                        await send(.anyGalleryOpsDone(.success(())))
-                    } catch {
-                        await send(.anyGalleryOpsDone(.failure(error)))
                     }
+                    await send(.anyGalleryOpsDone(result))
                 }
                 .cancellable(id: CancelID.postComment(state.cancellationGalleryID))
 
@@ -192,7 +186,7 @@ extension DetailReducer {
                 let apiKey = state.apiKey
                 let token = state.gallery.token
                 return .run { [host, apiKey, token] send in
-                    do throws(AppError) {
+                    let result = await Result.Swift::init { () async throws(AppError) in
                         try await VoteGalleryTagRequest(
                             host: host,
                             apiuid: apiuid,
@@ -203,10 +197,8 @@ extension DetailReducer {
                             vote: vote
                         )
                         .response()
-                        await send(.anyGalleryOpsDone(.success(())))
-                    } catch {
-                        await send(.anyGalleryOpsDone(.failure(error)))
                     }
+                    await send(.anyGalleryOpsDone(result))
                 }
                 .cancellable(id: CancelID.voteTag(state.cancellationGalleryID))
 

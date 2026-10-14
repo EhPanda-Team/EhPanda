@@ -1,4 +1,4 @@
-import SwiftUI
+public import SwiftUI
 import Translation
 
 public extension View {

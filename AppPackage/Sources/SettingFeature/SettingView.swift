@@ -1,9 +1,9 @@
 import AppComponents
-import ComposableArchitecture
+public import ComposableArchitecture
 import ReadingSettingFeature
 import Resources
 import SFSafeSymbols
-import SwiftUI
+public import SwiftUI
 
 public struct SettingView: View {
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
@@ -102,7 +102,7 @@ private struct SettingRow: View {
     private let tapAction: (SettingReducer.RootScreen) -> Void
 
     private var color: Color {
-        colorScheme == .light ? Color(.darkGray) : Color(.lightGray)
+        colorScheme == .light ? Color(uiColor: .darkGray) : Color(uiColor: .lightGray)
     }
 
     init(rowType: SettingReducer.RootScreen, tapAction: @escaping (SettingReducer.RootScreen) -> Void) {

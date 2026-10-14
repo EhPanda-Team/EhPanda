@@ -1,4 +1,4 @@
-import SwiftUI
+public import SwiftUI
 
 public struct WaveForm: View {
     private let color: Color

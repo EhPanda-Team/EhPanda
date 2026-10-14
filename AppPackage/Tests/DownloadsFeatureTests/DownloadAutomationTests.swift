@@ -9,11 +9,14 @@ import CookieClient
 import DeviceClient
 import DFClient
 import DownloadClient
+import DownloadsFeature
 import FileClient
 import Foundation
 import HapticsClient
 import HomeFeature
 import LibraryClient
+import LogsClient
+import SettingFeature
 import SwiftUI
 import Testing
 import UserDefaultsClient

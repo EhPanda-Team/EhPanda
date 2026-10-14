@@ -3,6 +3,7 @@ import AppModels
 import AppTools
 import Resources
 import SFSafeSymbols
+import SFSafeSymbolsExt
 import SwiftUI
 
 struct ControlPanel<G: Gesture>: View {

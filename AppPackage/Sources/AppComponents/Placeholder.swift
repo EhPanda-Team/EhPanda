@@ -1,5 +1,5 @@
 import AppModels
-import SwiftUI
+public import SwiftUI
 
 public struct Placeholder: View {
     private let style: PlaceholderStyle
@@ -11,7 +11,7 @@ public struct Placeholder: View {
     public var body: some View {
         switch style {
         case .activity(let ratio, let cornerRadius):
-            Color(.systemGray5)
+            Color(uiColor: .systemGray5)
                 .overlay {
                     ProgressView()
                 }

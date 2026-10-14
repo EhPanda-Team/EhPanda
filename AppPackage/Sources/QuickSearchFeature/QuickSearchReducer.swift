@@ -1,10 +1,10 @@
 import AnalyticsClient
 import AppComponents
-import AppModels
-import ComposableArchitecture
+public import AppModels
+public import ComposableArchitecture
 import Resources
-import Sharing
-import SwiftUI
+public import Sharing
+public import SwiftUI
 
 @Reducer
 public struct QuickSearchReducer: Sendable {

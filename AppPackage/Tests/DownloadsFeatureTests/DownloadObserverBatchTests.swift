@@ -68,7 +68,7 @@ struct DownloadObserverBatchTests: DownloadFeatureTestCase {
         let pageCount = 20
         let gid = String(Int(Date().timeIntervalSince1970 * 1000) + 104)
         let rootURL = FileManager.default.temporaryDirectory
-            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+            .appending(path: UUID().uuidString, directoryHint: .isDirectory)
         defer { removeTemporaryItem(at: rootURL) }
 
         let storage = DownloadStore(rootURL: rootURL, fileManager: .default)
@@ -117,7 +117,7 @@ struct DownloadObserverBatchTests: DownloadFeatureTestCase {
                 fileExtension: "jpg"
             )
             try Data([UInt8(index)]).write(
-                to: folderURL.appendingPathComponent(relativePath),
+                to: folderURL.appending(path: relativePath),
                 options: .atomic
             )
             pendingResolvedPages.append(

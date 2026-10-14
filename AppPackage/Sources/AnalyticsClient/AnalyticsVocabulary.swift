@@ -1,4 +1,4 @@
-import AppModels
+public import AppModels
 
 // The closed vocabulary every analytics payload value is drawn from. Nothing declared here is
 // derived from app content: each type is a fixed case set decided at compile time, so a payload

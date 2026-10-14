@@ -1,5 +1,5 @@
 import ComposableArchitecture
-import Sharing
+public import Sharing
 
 /// Read-only projection of `CookieClient.didLogin` into SwiftUI observation.
 ///

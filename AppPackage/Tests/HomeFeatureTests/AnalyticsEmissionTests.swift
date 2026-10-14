@@ -1,8 +1,11 @@
 import AnalyticsClient
 import AppModels
 import ComposableArchitecture
+import CookieClient
 import CustomDump
+import DownloadClient
 import Foundation
+import HapticsClient
 @testable import HomeFeature
 import Sharing
 import Testing

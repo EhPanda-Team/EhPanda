@@ -77,6 +77,7 @@ class Gate:
             "-project", "EhPanda.xcodeproj", "-scheme", "EhPanda",
             "-derivedDataPath", str(arguments.derived_data.resolve()),
             "-parallel-testing-enabled", "NO",
+            "-onlyUsePackageVersionsFromResolvedFile",
         ]
         self.test_runs = {}
         self.lifecycle = None
@@ -173,9 +174,9 @@ class Gate:
             raise RuntimeError(f"{name} has no simulator session for {device}")
         if self.record_simulator_state(f"before-{name}") != "Booted":
             raise RuntimeError(f"{name}: simulator stopped between invocations; rotation is no longer trustworthy")
-        if plan == "FeatureTests":
+        if plan == "VisualTests":
             if content_size is None:
-                raise RuntimeError(f"{name}: FeatureTests requires an explicit device content size")
+                raise RuntimeError(f"{name}: VisualTests requires an explicit device content size")
             self.set_content_size(name, device, content_size)
         bundle = self.output / f"{name}.xcresult"
         if expected_count is None:
@@ -417,16 +418,16 @@ class Gate:
         for family, device in (("iphone", self.args.phone), ("ipad", self.args.tablet)):
             with self.simulator_session(family, device):
                 if family == "iphone":
-                    self.run("clean-feature-build", ["clean", "build-for-testing"], "FeatureTests", device,
+                    self.run("clean-visual-build", ["clean", "build-for-testing"], "VisualTests", device,
                              content_size=CONTENT_SIZES["large"])
                     self.run("orientation-build", ["build-for-testing"], "UITests", device)
-                    self.single_pass_run("FeatureTests")
+                    self.single_pass_run("VisualTests")
                     self.single_pass_run("UITests")
                 try:
                     self.run(f"{family}-rotate-portrait", ["test-without-building"], "UITests", device,
                              [ROTATION + "testRotateToPortrait"], 1)
                     tests = NATIVE_TESTS + (["VisualSnapshotTests/VisualTracerTests"] if family == "iphone" else [])
-                    self.run(f"{family}-native", ["test-without-building"], "FeatureTests", device,
+                    self.run(f"{family}-native", ["test-without-building"], "VisualTests", device,
                              tests, 63 if family == "iphone" else 60, content_size=CONTENT_SIZES["large"])
                     for orientation in ("portrait", "landscape"):
                         if orientation == "landscape":
@@ -435,13 +436,13 @@ class Gate:
                         sizes = ("large", "AX5") if orientation == "portrait" else ("AX5", "large")
                         for size in sizes:
                             if family == "iphone" and orientation == "portrait" and size == "AX5":
-                                self.run("iphone-AX5-comments", ["test-without-building"], "FeatureTests", device,
+                                self.run("iphone-AX5-comments", ["test-without-building"], "VisualTests", device,
                                          [FEASIBILITY + "testAX5CommentsFullContentCapture"], 1,
                                          content_size=CONTENT_SIZES[size])
                                 self.report_comments()
                             name = f"{family}-{orientation}-{size}"
                             test_size = "Large" if size == "large" else "AX5"
-                            self.run(name, ["test-without-building"], "FeatureTests", device,
+                            self.run(name, ["test-without-building"], "VisualTests", device,
                                      [FEASIBILITY + f"test{orientation.title()}{test_size}FullContentMatrix"], 1,
                                      content_size=CONTENT_SIZES[size])
                             outcomes += self.verify_matrix(name, family, orientation, size)

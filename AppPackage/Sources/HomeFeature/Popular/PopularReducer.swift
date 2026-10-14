@@ -1,11 +1,11 @@
 import AnalyticsClient
-import AppModels
+public import AppModels
 import AppTools
-import ComposableArchitecture
-import FiltersFeature
+public import ComposableArchitecture
+public import FiltersFeature
 import HapticsClient
 import NetworkingFeature
-import Sharing
+public import Sharing
 
 @Reducer
 public struct PopularReducer: Sendable {
@@ -94,12 +94,10 @@ public struct PopularReducer: Sendable {
                 let filter = state.globalFilter
                 let host = state.setting.galleryHost
                 return .run { send in
-                    do throws(AppError) {
-                        let galleries = try await PopularGalleriesRequest(host: host, filter: filter).response()
-                        await send(.fetchGalleriesDone(.success(galleries)))
-                    } catch {
-                        await send(.fetchGalleriesDone(.failure(error)))
+                    let result = await Result.Swift::init { () async throws(AppError) in
+                        try await PopularGalleriesRequest(host: host, filter: filter).response()
                     }
+                    await send(.fetchGalleriesDone(result))
                 }
                 .cancellable(id: CancelID.fetchGalleries)
 

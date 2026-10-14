@@ -1,7 +1,10 @@
 import AnalyticsClient
 import AppModels
 import ComposableArchitecture
+import CookieClient
+import DownloadClient
 import Foundation
+import HapticsClient
 import NetworkingFeature
 import QuickSearchFeature
 @testable import SearchFeature

@@ -1,6 +1,6 @@
 import AppTools
 import SFSafeSymbols
-import SwiftUI
+public import SwiftUI
 
 public struct RatingView: View {
     private let rawRating: Float

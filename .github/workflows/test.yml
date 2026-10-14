@@ -61,13 +61,25 @@ jobs:
           echo "D-03 holds: analytics disclosure present in all six READMEs."
       - name: Show Xcode version
         run: xcodebuild -version
-      - name: Verify Xcode 27 and iOS 27 SDK
+      - name: Verify Swift 6.4 and iOS 27 SDK
         run: |
           set -euo pipefail
           xcodebuild -version | grep -q '^Xcode 27\.'
+          xcrun swift --version | grep -q 'Apple Swift version 6\.4'
           [[ "$(xcrun --sdk iphonesimulator --show-sdk-version)" == 27.* ]]
+      - name: Check visual runner contracts
+        run: python3 -B -m unittest discover -s Scripts/visual -p 'test_*.py'
       - name: Run tests
         run: xcodebuild clean test
           -scheme ${{ env.SCHEME_NAME }}
           -testPlan FeatureTests
           -destination 'platform=iOS Simulator,name=iPhone Air,OS=27.0'
+          -onlyUsePackageVersionsFromResolvedFile
+          -resultBundlePath '${{ runner.temp }}/FeatureTests.xcresult'
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: feature-test-results
+          path: ${{ runner.temp }}/FeatureTests.xcresult
+          if-no-files-found: ignore

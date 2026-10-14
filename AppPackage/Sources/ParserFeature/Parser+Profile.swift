@@ -1,8 +1,8 @@
-import AppModels
-import Kanna
+public import AppModels
+public import Kanna
 
 extension Parser {
-    public static func parseProfileIndex(doc: HTMLDocument) throws -> VerifyEhProfileResponse {
+    public static func parseProfileIndex(doc: any HTMLDocument) throws -> VerifyEhProfileResponse {
         var profileNotFound = true
         var profileValue: Int?
 
@@ -21,8 +21,8 @@ extension Parser {
     }
 
     // swiftlint:disable:next cyclomatic_complexity function_body_length
-    public static func parseEhSetting(doc: HTMLDocument) throws -> EhSetting {
-        var tmpForm: XMLElement?
+    public static func parseEhSetting(doc: any HTMLDocument) throws -> EhSetting {
+        var tmpForm: any XMLElement?
         for link in doc.xpath("//form [@method='post']")
         where link["id"] == nil {
             tmpForm = link
@@ -215,7 +215,7 @@ extension Parser {
 // MARK: Helpers
 private extension Parser {
 
-    static func parseInt(node: XMLElement, name: String) -> Int? {
+    static func parseInt(node: any XMLElement, name: String) -> Int? {
         var value: Int?
         for link in node.xpath("//input [@name='\(name)']")
         where link["checked"] == "checked" {
@@ -224,22 +224,22 @@ private extension Parser {
         return value
     }
 
-    static func parseEnum<T: RawRepresentable>(node: XMLElement, name: String) -> T? where T.RawValue == Int {
+    static func parseEnum<T: RawRepresentable>(node: any XMLElement, name: String) -> T? where T.RawValue == Int {
         guard let rawValue = parseInt(
             node: node, name: name
         ) else { return nil }
         return T(rawValue: rawValue)
     }
 
-    static func parseString(node: XMLElement, name: String) -> String? {
+    static func parseString(node: any XMLElement, name: String) -> String? {
         node.at_xpath("//input [@name='\(name)']")?["value"]
     }
 
-    static func parseTextEditorString(node: XMLElement, name: String) -> String? {
+    static func parseTextEditorString(node: any XMLElement, name: String) -> String? {
         node.at_xpath("//textarea [@name='\(name)']")?.text
     }
 
-    static func parseBool(node: XMLElement, name: String) -> Bool? {
+    static func parseBool(node: any XMLElement, name: String) -> Bool? {
         switch parseString(node: node, name: name) {
         case "0": return false
         case "1": return true
@@ -247,11 +247,11 @@ private extension Parser {
         }
     }
 
-    static func parseCheckBoxBool(node: XMLElement, name: String) -> Bool? {
+    static func parseCheckBoxBool(node: any XMLElement, name: String) -> Bool? {
         node.at_xpath("//input [@name='\(name)']")?["checked"] == "checked"
     }
 
-    static func parseCapability<T: RawRepresentable>(node: XMLElement, name: String) -> T? where T.RawValue == Int {
+    static func parseCapability<T: RawRepresentable>(node: any XMLElement, name: String) -> T? where T.RawValue == Int {
         var maxValue: Int?
         for link in node.xpath("//input [@name='\(name)']") where link["disabled"] != "disabled" {
             let value = Int(link["value"] ?? "") ?? 0
@@ -264,7 +264,7 @@ private extension Parser {
         return T(rawValue: maxValue ?? 0)
     }
 
-    static func parseSelections(node: XMLElement, name: String) -> [SelectionOption] {
+    static func parseSelections(node: any XMLElement, name: String) -> [SelectionOption] {
         guard let select = node.at_xpath("//select [@name='\(name)']")
         else { return [] }
 

@@ -200,7 +200,7 @@ private extension DownloadReadPathNonMutationTests {
         in fixture: SessionFixture
     ) throws -> URL {
         let coverURL = galleryFolderURL(for: gallery, in: fixture)
-            .appendingPathComponent(
+            .appending(path:
                 fixture.storage.makeCoverRelativePath(
                     gid: gallery.gid,
                     token: "token",
@@ -218,7 +218,7 @@ private extension DownloadReadPathNonMutationTests {
     func manifestBytes(for gallery: SessionGallery, in fixture: SessionFixture) throws -> Data {
         try Data(
             contentsOf: galleryFolderURL(for: gallery, in: fixture)
-                .appendingPathComponent(Defaults.FilePath.downloadManifest)
+                .appending(path: Defaults.FilePath.downloadManifest)
         )
     }
 
@@ -255,10 +255,10 @@ private extension DownloadReadPathNonMutationTests {
         survivingURL: URL
     ) async throws {
         #expect(
-            FileManager.default.fileExists(atPath: survivingURL.path),
+            FileManager.default.fileExists(atPath: survivingURL.path(percentEncoded: false)),
             "an ordinary read must leave the file it refused on disk"
         )
-        let attributes = try FileManager.default.attributesOfItem(atPath: survivingURL.path)
+        let attributes = try FileManager.default.attributesOfItem(atPath: survivingURL.path(percentEncoded: false))
         #expect((attributes[.type] as? FileAttributeType) == .typeRegular)
         #expect((attributes[.size] as? NSNumber)?.intValue == 0)
 

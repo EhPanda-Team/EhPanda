@@ -1,4 +1,4 @@
-import SwiftUI
+public import SwiftUI
 
 /// A common text ramp prevents different title styles from giving the same cover role different sizes.
 /// Only artwork growth is bounded; surrounding text keeps the full Dynamic Type range.

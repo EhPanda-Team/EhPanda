@@ -1,5 +1,5 @@
-import CoreGraphics
-import Foundation
+public import CoreGraphics
+public import Foundation
 
 public struct Defaults: Sendable {
     public struct App: Sendable {
@@ -56,18 +56,6 @@ public struct Defaults: Sendable {
         public static let automationDownloadFolder = "Automation"
         public static let defaultDownloadFolder = "Default"
     }
-    public struct Regex: Sendable {
-        // Compiled in a closure rather than propagated: this is a static stored property, so a
-        // throwing initializer would have to become a force-try. nil disables suggestions
-        // without failing app launch.
-        public static let tagSuggestion: NSRegularExpression? = {
-            do {
-                return try NSRegularExpression(pattern: "(\\S+:\".+?\"|\".+?\"|\\S+:\\S+|\\S+)")
-            } catch {
-                return nil
-            }
-        }()
-    }
     public struct URL: Sendable {
         public static let ehentai: Foundation.URL = .init(string: "https://e-hentai.org/").forceUnwrapped
         public static let exhentai: Foundation.URL = .init(string: "https://exhentai.org/").forceUnwrapped
@@ -82,9 +70,9 @@ public struct Defaults: Sendable {
         public static let login = forum.appending(queryItems: [.act: .loginAct, .code: .zeroOne])
         public static let webLogin = forum.appending(queryItems: [.act: .loginAct])
 
-        public static let news = ehentai.appendingPathComponent("news.php")
+        public static let news = ehentai.appending(path: "news.php")
 
-        public static let toplist = ehentai.appendingPathComponent("toplist.php")
+        public static let toplist = ehentai.appending(path: "toplist.php")
 
         // GitHub
         public static let github: Foundation.URL = .init(string: "https://github.com/").forceUnwrapped

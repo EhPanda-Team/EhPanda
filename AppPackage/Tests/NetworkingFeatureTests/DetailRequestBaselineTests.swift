@@ -299,17 +299,17 @@ private func expectFailure<T>(
 }
 
 private func galleryDetailFixture() throws -> Data {
-    let appPackageURL = URL(fileURLWithPath: #filePath)
+    let appPackageURL = URL(filePath: #filePath)
         .deletingLastPathComponent()
         .deletingLastPathComponent()
         .deletingLastPathComponent()
     let fixtureURL = appPackageURL
-        .appendingPathComponent("Sources")
-        .appendingPathComponent("TestingSupport")
-        .appendingPathComponent("Resources")
-        .appendingPathComponent("Parser")
-        .appendingPathComponent("Gallery")
-        .appendingPathComponent("GalleryDetail.html")
+        .appending(path: "Sources")
+        .appending(path: "TestingSupport")
+        .appending(path: "Resources")
+        .appending(path: "Parser")
+        .appending(path: "Gallery")
+        .appending(path: "GalleryDetail.html")
     return try Data(contentsOf: fixtureURL)
 }
 

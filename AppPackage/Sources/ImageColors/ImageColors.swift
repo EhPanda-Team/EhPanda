@@ -1,5 +1,5 @@
-import CoreGraphics
-import SwiftUI
+public import CoreGraphics
+public import SwiftUI
 
 /// The dominant colors extracted from an image: a `background` plus three accent
 /// slots (`primary`, `secondary`, `detail`) chosen for contrast and distinctness.
@@ -162,21 +162,23 @@ public enum ImageColors {
     private static func sampledPixels(from cgImage: CGImage, width: Int, height: Int) -> [UInt8]? {
         let bytesPerPixel = 4
         guard let colorSpace = CGColorSpace(name: CGColorSpace.sRGB) else { return nil }
-        let bitmapInfo = CGImageAlphaInfo.premultipliedFirst.rawValue
-            | CGBitmapInfo.byteOrder32Little.rawValue
+        let bitmapInfo = CGBitmapInfo(alpha: .premultipliedFirst, byteOrder: .order32Little)
         var pixels = [UInt8](repeating: 0, count: width * height * bytesPerPixel)
-        guard let context = CGContext(
-            data: &pixels,
-            width: width,
-            height: height,
-            bitsPerComponent: 8,
-            bytesPerRow: width * bytesPerPixel,
-            space: colorSpace,
-            bitmapInfo: bitmapInfo
-        ) else { return nil }
-        context.interpolationQuality = .high
-        context.draw(cgImage, in: CGRect(x: 0, y: 0, width: width, height: height))
-        return pixels
+        let didDraw = pixels.withUnsafeMutableBytes { buffer in
+            guard let context = CGContext(
+                data: buffer.baseAddress,
+                width: width,
+                height: height,
+                bitsPerComponent: 8,
+                bytesPerRow: width * bytesPerPixel,
+                space: colorSpace,
+                bitmapInfo: bitmapInfo
+            ) else { return false }
+            context.interpolationQuality = .high
+            context.draw(cgImage, in: CGRect(x: 0, y: 0, width: width, height: height))
+            return true
+        }
+        return didDraw ? pixels : nil
     }
 }
 

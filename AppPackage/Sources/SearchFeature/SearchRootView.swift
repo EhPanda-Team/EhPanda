@@ -1,12 +1,12 @@
 import AppComponents
 import AppModels
 import AppTools
-import ComposableArchitecture
+public import ComposableArchitecture
 import DetailFeature
 import FiltersFeature
 import QuickSearchFeature
 import Resources
-import SwiftUI
+public import SwiftUI
 
 public struct SearchRootView: View {
     @Bindable private var store: StoreOf<SearchRootReducer>
@@ -18,7 +18,7 @@ public struct SearchRootView: View {
 
     public var body: some View {
         NavigationStack(path: $store.scope(\.path, action: \.path)) {
-            ScrollView(showsIndicators: false) {
+            ScrollView {
                 SuggestionsPanel(
                     historyKeywords: store.historyKeywords.reversed(),
                     historyGalleries: store.historyGalleries,
@@ -33,6 +33,7 @@ public struct SearchRootView: View {
                     removeKeywordAction: { store.send(.removeHistoryKeyword($0)) }
                 )
             }
+            .scrollIndicators(.hidden)
             .scrollEdgeEffectStyle(.soft, for: .top)
             .onGeometryChange(for: CGFloat.self, of: \.size.height) {
                 containerHeight = $0
@@ -235,7 +236,7 @@ private struct HistoryGalleriesSection: View {
 
     var body: some View {
         SubSection(title: .recentlySeen, showAll: false) {
-            ScrollView(.horizontal, showsIndicators: false) {
+            ScrollView(.horizontal) {
                 HStack {
                     ForEach(galleries) { gallery in
                         Button {
@@ -250,6 +251,7 @@ private struct HistoryGalleriesSection: View {
                 }
                 .fixedSize(horizontal: false, vertical: true)
             }
+            .scrollIndicators(.hidden)
         }
     }
 }

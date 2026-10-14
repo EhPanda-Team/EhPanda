@@ -1,5 +1,5 @@
 import AppModels
-import Foundation
+public import Foundation
 import OSLogExt
 
 private let logger = Logger(category: .init(describing: DFRequest.self))
@@ -7,13 +7,13 @@ private let logger = Logger(category: .init(describing: DFRequest.self))
 public struct DFRequest {
     public var request: URLRequest
     private let stream: InputStream
-    private(set) weak var delegate: DFRequestDelegate?
+    private(set) weak var delegate: any DFRequestDelegate?
     private lazy var streamHandler: DFStreamEventHandler?
         = DFStreamEventHandler(request: self)
 
     public init?(
         _ req: URLRequest,
-        delegate: DFRequestDelegate? = nil
+        delegate: any DFRequestDelegate? = nil
     ) {
         self.delegate = delegate
         request = req.domainIPReplaced()
@@ -63,7 +63,7 @@ public struct DFRequest {
 public protocol DFRequestDelegate: AnyObject {
     func dfRequestDidFinishLoading(_ request: DFRequest)
     func dfRequest(_ request: DFRequest, didLoad data: Data)
-    func dfRequest(_ request: URLRequest, didFailWithError error: Error)
+    func dfRequest(_ request: URLRequest, didFailWithError error: any Error)
     func dfRequest(
         _ request: DFRequest, wasRedirectedTo urlRequest: URLRequest,
         redirectResponse: URLResponse

@@ -1,5 +1,5 @@
-import AppModels
-import Foundation
+public import AppModels
+public import Foundation
 import OSLogExt
 
 private let logger = Logger(category: .init(describing: DownloadCoordinator.self))
@@ -184,8 +184,8 @@ extension DownloadCoordinator {
             folderRecord: folderRecord
         )
         let destinationURL = folderRecord.folderURL
-            .appendingPathComponent(relativePath)
-        if fileManager.operate({ $0.fileExists(atPath: destinationURL.path) }) {
+            .appending(path: relativePath)
+        if fileManager.operate({ $0.fileExists(atPath: destinationURL.path(percentEncoded: false)) }) {
             removeStagedBackgroundFile(fileURL)
         } else {
             try moveDownloadedFile(from: fileURL, to: destinationURL)
@@ -221,7 +221,7 @@ extension DownloadCoordinator {
 
         let prefixData = try readResponsePrefixData(at: fileURL)
         let ext = fileExtension(
-            for: response.url ?? URL(fileURLWithPath: "download"),
+            for: response.url ?? URL(filePath: "download"),
             response: response,
             prefixData: prefixData
         )
@@ -238,7 +238,7 @@ extension DownloadCoordinator {
         // already been recorded and must not be replaced by a cleanup error.
         do {
             try fileManager.operate {
-                guard $0.fileExists(atPath: fileURL.path) else { return }
+                guard $0.fileExists(atPath: fileURL.path(percentEncoded: false)) else { return }
                 try $0.removeItem(at: fileURL)
             }
         } catch {

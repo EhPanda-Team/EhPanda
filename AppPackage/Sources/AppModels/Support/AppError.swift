@@ -1,4 +1,4 @@
-import Foundation
+public import Foundation
 import Resources
 
 public enum AppError: Error, Identifiable, Equatable, Hashable, Sendable {

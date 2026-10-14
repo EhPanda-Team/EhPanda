@@ -12,7 +12,7 @@ struct DownloadRetryUpdateFallbackTests: DownloadFeatureTestCase {
         let gid = String(Int(Date().timeIntervalSince1970 * 1000) + 400)
         let pageIndex = 42
         let rootURL = FileManager.default.temporaryDirectory
-            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+            .appending(path: UUID().uuidString, directoryHint: .isDirectory)
         defer { removeTemporaryItem(at: rootURL) }
 
         let (storage, queueingManager) = makeStubbedDownloadCoordinator(
@@ -59,7 +59,7 @@ struct DownloadRetryUpdateFallbackTests: DownloadFeatureTestCase {
         let gid = String(Int(Date().timeIntervalSince1970 * 1000) + 400)
         let pageIndex = 42
         let rootURL = FileManager.default.temporaryDirectory
-            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+            .appending(path: UUID().uuidString, directoryHint: .isDirectory)
         defer { removeTemporaryItem(at: rootURL) }
 
         let (storage, immediateManager) = makeStubbedDownloadCoordinator(

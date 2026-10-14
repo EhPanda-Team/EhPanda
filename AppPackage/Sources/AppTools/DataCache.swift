@@ -1,6 +1,6 @@
 import CryptoKit
-import Dependencies
-import Foundation
+public import Dependencies
+public import Foundation
 import OSLog
 import UIKit
 
@@ -30,7 +30,7 @@ public actor DataCache {
 
         public init(
             rootURL: URL = URL.cachesDirectory
-                .appendingPathComponent("DataCache.reading", isDirectory: true),
+                .appending(path: "DataCache.reading", directoryHint: .isDirectory),
             memoryCostLimit: Int = Int(ProcessInfo.processInfo.physicalMemory / 4),
             maxDiskAge: TimeInterval = 7 * 24 * 60 * 60,
             diskSizeLimit: UInt64 = 0
@@ -71,8 +71,8 @@ public actor DataCache {
             return Data(referencing: data)
         }
 
-        let fileURL = configuration.rootURL.appendingPathComponent(filename)
-        guard fileManager.fileExists(atPath: fileURL.path) else { return nil }
+        let fileURL = configuration.rootURL.appending(path: filename)
+        guard fileManager.fileExists(atPath: fileURL.path(percentEncoded: false)) else { return nil }
         if isExpired(fileURL) {
             // Expired-entry removal is cache housekeeping; a miss remains correct if cleanup fails.
             evictFile(at: fileURL)
@@ -128,7 +128,7 @@ public actor DataCache {
     /// `FileManager.default`, which is safe on any thread, because the injected file manager
     /// belongs to the actor.
     public nonisolated func containsData(forKey key: String) -> Bool {
-        let fileURL = configuration.rootURL.appendingPathComponent(Self.filename(forKey: key))
+        let fileURL = configuration.rootURL.appending(path: Self.filename(forKey: key))
         return FileManager.default.fileExists(atPath: fileURL.path(percentEncoded: false))
     }
 
@@ -144,7 +144,7 @@ public actor DataCache {
     public func store(_ data: Data, forKey key: String) throws {
         let filename = Self.filename(forKey: key)
         memoryCache.setObject(data as NSData, forKey: filename as NSString, cost: data.count)
-        let fileURL = configuration.rootURL.appendingPathComponent(filename)
+        let fileURL = configuration.rootURL.appending(path: filename)
         try write(data, to: fileURL, canRetryDirectoryCreation: true)
         bytesWrittenSinceSweep += UInt64(data.count)
         if configuration.sweepByteInterval > 0,
@@ -163,8 +163,8 @@ public actor DataCache {
     public func removeData(forKey key: String) throws {
         let filename = Self.filename(forKey: key)
         memoryCache.removeObject(forKey: filename as NSString)
-        let fileURL = configuration.rootURL.appendingPathComponent(filename)
-        guard fileManager.fileExists(atPath: fileURL.path) else { return }
+        let fileURL = configuration.rootURL.appending(path: filename)
+        guard fileManager.fileExists(atPath: fileURL.path(percentEncoded: false)) else { return }
         try fileManager.removeItem(at: fileURL)
     }
 
@@ -176,7 +176,7 @@ public actor DataCache {
 
     public func removeAll() throws {
         memoryCache.removeAllObjects()
-        if fileManager.fileExists(atPath: configuration.rootURL.path) {
+        if fileManager.fileExists(atPath: configuration.rootURL.path(percentEncoded: false)) {
             try fileManager.removeItem(at: configuration.rootURL)
         }
         try ensureDirectory()
@@ -188,7 +188,7 @@ public actor DataCache {
     }
 
     public func totalSize() throws -> UInt64 {
-        guard fileManager.fileExists(atPath: configuration.rootURL.path) else { return 0 }
+        guard fileManager.fileExists(atPath: configuration.rootURL.path(percentEncoded: false)) else { return 0 }
         guard let enumerator = fileManager.enumerator(
             at: configuration.rootURL,
             includingPropertiesForKeys: [.isRegularFileKey, .fileSizeKey],
@@ -216,7 +216,7 @@ public actor DataCache {
     }
 
     public func sweepDisk() throws {
-        guard fileManager.fileExists(atPath: configuration.rootURL.path) else { return }
+        guard fileManager.fileExists(atPath: configuration.rootURL.path(percentEncoded: false)) else { return }
         var entries = try diskEntries()
         let now = Date()
         if configuration.maxDiskAge > 0 {
@@ -304,7 +304,7 @@ public actor DataCache {
     private func touchAccessDate(for fileURL: URL) throws {
         try fileManager.setAttributes(
             [.creationDate: Date(), .modificationDate: Date()],
-            ofItemAtPath: fileURL.path
+            ofItemAtPath: fileURL.path(percentEncoded: false)
         )
         var resourceValues = URLResourceValues()
         resourceValues.contentAccessDate = Date()
@@ -327,7 +327,7 @@ public actor DataCache {
             // the file's modification date below is the documented fallback.
         }
         do {
-            let attributes = try fileManager.attributesOfItem(atPath: fileURL.path)
+            let attributes = try fileManager.attributesOfItem(atPath: fileURL.path(percentEncoded: false))
             return attributes[.modificationDate] as? Date ?? .distantPast
         } catch {
             // Not logged: an entry whose attributes cannot be read deliberately dates to
@@ -375,7 +375,7 @@ public enum DataCacheKey: DependencyKey {
         DataCache(
             configuration: .init(
                 rootURL: URL.temporaryDirectory
-                    .appendingPathComponent(UUID().uuidString, isDirectory: true)
+                    .appending(path: UUID().uuidString, directoryHint: .isDirectory)
             )
         )
     }
@@ -394,7 +394,7 @@ private final class DataCacheSystemPurgeObserver {
     /// every cache it observes, so an identifier here can never be reused by another cache.
     private static var observers = [ObjectIdentifier: DataCacheSystemPurgeObserver]()
 
-    private let tokens: [NSObjectProtocol]
+    private let tokens: [any NSObjectProtocol]
 
     static func install(for cache: DataCache) {
         let id = ObjectIdentifier(cache)

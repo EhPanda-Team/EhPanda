@@ -1,6 +1,9 @@
 import AppModels
 import AppTools
 import ComposableArchitecture
+import CookieClient
+import DFClient
+import FileClient
 import Foundation
 import NetworkingFeature
 import OSLogExt
@@ -62,12 +65,10 @@ extension SettingReducer {
               state.setting.showNewDawnGreeting
         else { return .none }
         let requestEffect = Effect.run { send in
-            do throws(AppError) {
-                let greeting = try await GreetingRequest().response()
-                await send(Action.fetchGreetingDone(.success(greeting)))
-            } catch {
-                await send(Action.fetchGreetingDone(.failure(error)))
+            let result = await Result.Swift::init { () async throws(AppError) in
+                try await GreetingRequest().response()
             }
+            await send(Action.fetchGreetingDone(result))
         }
         if let greeting = state.greeting {
             if verifyDate(with: greeting.updateTime) {

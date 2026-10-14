@@ -7,6 +7,7 @@ import ComposableArchitecture
 import DownloadClient
 import Foundation
 import HapticsClient
+import ReadingFeature
 import Testing
 
 // `@MainActor` here is compiler-required, not stylistic: every case below builds a TCA
@@ -44,7 +45,7 @@ struct PreviewsReducerDownloadTests: DownloadFeatureTestCase {
     @Test
     func testPreviewsReducerClearsLocalPreviewURLsWhenObservedDownloadDisappears() async {
         let gallery = sampleGallery()
-        let localURL = URL(fileURLWithPath: "/tmp/\(UUID().uuidString).jpg")
+        let localURL = URL(filePath: "/tmp/\(UUID().uuidString).jpg")
         var initialState = PreviewsReducer.State(gallery: gallery)
         initialState.localPreviewURLs = [1: localURL]
 
@@ -63,7 +64,7 @@ struct PreviewsReducerDownloadTests: DownloadFeatureTestCase {
     @Test
     func testPreviewsReducerRemoteFallbackKeepsExistingLocalPreviewPages() async {
         let gallery = sampleGallery()
-        let localURL = URL(fileURLWithPath: "/tmp/\(UUID().uuidString).jpg")
+        let localURL = URL(filePath: "/tmp/\(UUID().uuidString).jpg")
         var initialState = PreviewsReducer.State(gallery: gallery)
         initialState.localPreviewURLs = [1: localURL]
 

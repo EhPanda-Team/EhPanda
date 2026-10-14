@@ -384,7 +384,7 @@ private func expectGET(
     )
 
     #expect(components?.scheme == galleryHost.url.scheme, sourceLocation: sourceLocation)
-    #expect(components?.host == galleryHost.url.host, sourceLocation: sourceLocation)
+    #expect(components?.host == galleryHost.url.host(percentEncoded: false), sourceLocation: sourceLocation)
     #expect(components?.path == path, sourceLocation: sourceLocation)
     #expect(receivedQuery == query, sourceLocation: sourceLocation)
     #expect(request.httpMethod == "GET", sourceLocation: sourceLocation)

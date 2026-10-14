@@ -1,5 +1,5 @@
 import ComposableArchitecture
-import Foundation
+public import Foundation
 
 /// An identified continued-processing session and the events it reports.
 ///

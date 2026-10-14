@@ -5,6 +5,7 @@ import ComposableArchitecture
 import CookieClient
 import Kingfisher
 import Resources
+import SFSafeSymbols
 import SFSafeSymbolsExt
 import SwiftUI
 import SystemNotification

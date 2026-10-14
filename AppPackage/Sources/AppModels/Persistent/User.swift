@@ -1,4 +1,4 @@
-import Foundation
+public import Foundation
 import Resources
 
 public struct User: Codable, Equatable, Sendable, SchemaVersioned {
@@ -55,7 +55,7 @@ public enum FavoritesType: String, Codable, CaseIterable, Sendable {
     }
 
     public var index: Int {
-        Int(rawValue.replacingOccurrences(of: "favorite_", with: "")) ?? -1
+        Int(rawValue.replacing("favorite_", with: "")) ?? -1
     }
 
     case all = "all"

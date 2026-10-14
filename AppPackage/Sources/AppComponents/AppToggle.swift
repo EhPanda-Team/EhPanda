@@ -1,4 +1,4 @@
-import SwiftUI
+public import SwiftUI
 
 /// A `Toggle` pinned to the app's accent color.
 ///

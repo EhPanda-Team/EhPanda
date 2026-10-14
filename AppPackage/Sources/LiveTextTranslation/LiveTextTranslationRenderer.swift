@@ -1,5 +1,5 @@
-import CoreGraphics
-import SwiftUI
+public import CoreGraphics
+public import SwiftUI
 
 /// Draws a translated page over its image: every plate and every painted-out lettering first, so no
 /// paint covers a neighbor's text, then every translation.

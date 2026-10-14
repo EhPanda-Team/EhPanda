@@ -1,4 +1,4 @@
-import AppModels
+public import AppModels
 import BackgroundProcessingClient
 import Foundation
 import OSLogExt

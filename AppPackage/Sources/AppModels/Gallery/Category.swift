@@ -1,6 +1,6 @@
 import IssueReporting
 import Resources
-import SwiftUI
+public import SwiftUI
 
 public enum Category: String, Codable, CaseIterable, Identifiable, Sendable {
     public var id: String { rawValue }

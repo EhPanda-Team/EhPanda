@@ -1,7 +1,7 @@
 import AppTools
 import Kingfisher
 import SFSafeSymbols
-import SwiftUI
+public import SwiftUI
 
 public struct TagCloudView<Element, ID, TagCell>: View
 where TagCell: View, Element: Equatable & Identifiable, ID == Element.ID {
@@ -70,7 +70,9 @@ public struct TagCloudCell: View {
                 // The chip's text is what names it; the tag image is decoration, and the spacer
                 // that reserves its space would otherwise be announced by its symbol name.
                 Image(systemSymbol: .photo).opacity(0)
-                    .overlay(KFImage(imageURL).resizable().scaledToFit())
+                    .overlay {
+                        KFImage(imageURL).resizable().scaledToFit()
+                    }
                     .accessibilityHidden(true)
             }
         }

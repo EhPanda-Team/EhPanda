@@ -1,5 +1,5 @@
-import ComposableArchitecture
-import SwiftUI
+public import ComposableArchitecture
+public import SwiftUI
 
 public struct HapticsClient: Sendable {
     public let generateFeedback: @MainActor @Sendable (UIImpactFeedbackGenerator.FeedbackStyle) -> Void

@@ -1,5 +1,5 @@
 import Foundation
-import Sharing
+public import Sharing
 
 // MARK: - Persisted app data (@Shared)
 //

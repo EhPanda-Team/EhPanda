@@ -10,7 +10,7 @@ import TestingSupport
 struct ListParserTests: TestHelper {
     @Test
     func testExample() throws {
-        let tuples: [(ListParserTestType, HTMLDocument)] = try ListParserTestType.allCases.compactMap { type in
+        let tuples: [(ListParserTestType, any HTMLDocument)] = try ListParserTestType.allCases.compactMap { type in
             (type, try htmlDocument(filename: type.filename))
         }
         #expect(tuples.count == ListParserTestType.allCases.count)

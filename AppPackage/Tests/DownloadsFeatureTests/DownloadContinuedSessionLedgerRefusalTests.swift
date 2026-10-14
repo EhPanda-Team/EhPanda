@@ -241,7 +241,7 @@ extension DownloadContinuedSessionLedgerTests {
             relativePath: "Folder/[\(unlisted.gid)_token] \(unlisted.title)"
         )
         let originalPermissions = try #require(
-            FileManager.default.attributesOfItem(atPath: folderURL.path)[.posixPermissions]
+            FileManager.default.attributesOfItem(atPath: folderURL.path(percentEncoded: false))[.posixPermissions]
                 as? NSNumber
         )
         defer {
@@ -268,7 +268,7 @@ extension DownloadContinuedSessionLedgerTests {
         // Owner write + execute, no read anywhere: listing is denied, path-addressed opens are not.
         try FileManager.default.setAttributes(
             [.posixPermissions: NSNumber(value: 0o311)],
-            ofItemAtPath: folderURL.path
+            ofItemAtPath: folderURL.path(percentEncoded: false)
         )
 
         // The index is this case's own `retryPages` set, so the payload carries what the route

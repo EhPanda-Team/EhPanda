@@ -53,7 +53,7 @@ struct LiveTextLayoutTests {
             bitsPerComponent: 8,
             bytesPerRow: 0,
             space: space,
-            bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue
+            bitmapInfo: CGBitmapInfo(alpha: .premultipliedLast).rawValue
         ))
         context.translateBy(x: 0, y: size.height)
         context.scaleBy(x: 1, y: -1)
@@ -284,7 +284,7 @@ struct LiveTextLayoutTests {
                 bitsPerComponent: 8,
                 bytesPerRow: paint.image.width * 4,
                 space: space,
-                bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue
+                bitmapInfo: CGBitmapInfo(alpha: .premultipliedLast).rawValue
             )
             context?.draw(paint.image, in: CGRect(x: 0, y: 0, width: paint.image.width, height: paint.image.height))
         }

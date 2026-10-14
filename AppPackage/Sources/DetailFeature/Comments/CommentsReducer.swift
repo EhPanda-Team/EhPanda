@@ -1,13 +1,14 @@
-import AppComponents
+public import AppComponents
 import ApplicationClient
-import AppModels
+public import AppModels
 import AppTools
-import ComposableArchitecture
+public import ComposableArchitecture
 import CookieClient
-import Foundation
+public import Foundation
 import HapticsClient
 import NetworkingFeature
-import Sharing
+public import Sharing
+import UIKit
 
 @Reducer
 public struct CommentsReducer: Sendable {
@@ -192,31 +193,27 @@ public struct CommentsReducer: Sendable {
                 guard !state.commentContent.isEmpty else { return .none }
                 if let commentID = commentID {
                     return .run { [commentContent = state.commentContent] send in
-                        do throws(AppError) {
+                        let result = await Result.Swift::init { () async throws(AppError) in
                             try await EditGalleryCommentRequest(
                                 commentID: commentID,
                                 content: commentContent,
                                 galleryURL: galleryURL
                             )
                             .response()
-                            await send(.performCommentActionDone(.success(())))
-                        } catch {
-                            await send(.performCommentActionDone(.failure(error)))
                         }
+                        await send(.performCommentActionDone(result))
                     }
                     .cancellable(id: CancelID.postComment)
                 } else {
                     return .run { [commentContent = state.commentContent] send in
-                        do throws(AppError) {
+                        let result = await Result.Swift::init { () async throws(AppError) in
                             try await CommentGalleryRequest(
                                 content: commentContent,
                                 galleryURL: galleryURL
                             )
                             .response()
-                            await send(.performCommentActionDone(.success(())))
-                        } catch {
-                            await send(.performCommentActionDone(.failure(error)))
                         }
+                        await send(.performCommentActionDone(result))
                     }
                     .cancellable(id: CancelID.postComment)
                 }
@@ -226,7 +223,7 @@ public struct CommentsReducer: Sendable {
                       let apiuid = Int(cookieClient.apiuid(host: state.setting.galleryHost))
                 else { return .none }
                 return .run { [host = state.setting.galleryHost] send in
-                    do throws(AppError) {
+                    let result = await Result.Swift::init { () async throws(AppError) in
                         try await VoteGalleryCommentRequest(
                             host: host,
                             apiuid: apiuid,
@@ -237,10 +234,8 @@ public struct CommentsReducer: Sendable {
                             commentVote: vote
                         )
                         .response()
-                        await send(.performCommentActionDone(.success(())))
-                    } catch {
-                        await send(.performCommentActionDone(.failure(error)))
                     }
+                    await send(.performCommentActionDone(result))
                 }
                 .cancellable(id: CancelID.voteComment)
 
@@ -258,16 +253,14 @@ public struct CommentsReducer: Sendable {
             case .fetchGallery(let url, let isGalleryImageURL):
                 state.toast = .loading()
                 return .run {  send in
-                    do throws(AppError) {
-                        let gallery = try await GalleryReverseRequest(
+                    let result = await Result.Swift::init { () async throws(AppError) in
+                        try await GalleryReverseRequest(
                             url: url,
                             isGalleryImageURL: isGalleryImageURL
                         )
                         .response()
-                        await send(.fetchGalleryDone(url: url, result: .success(gallery)))
-                    } catch {
-                        await send(.fetchGalleryDone(url: url, result: .failure(error)))
                     }
+                    await send(.fetchGalleryDone(url: url, result: result))
                 }
                 .cancellable(id: CancelID.fetchGallery)
 

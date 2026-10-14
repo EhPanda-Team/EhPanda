@@ -325,14 +325,14 @@ struct ImageContainer: View {
 
     var body: some View {
         if loadingState == .idle {
-            image(url: imageURL).overlay(
+            image(url: imageURL).overlay {
                 LiveTextView(
                     liveTextGroups: liveTextGroups,
                     focusedLiveTextGroup: focusedLiveTextGroup,
                     tapAction: liveTextTapAction
                 )
                 .visible(enablesLiveText)
-            )
+            }
         } else {
             UnloadedPage(slot: slot, pageSize: pageSize, backgroundColor: backgroundColor) {
                 VStack {

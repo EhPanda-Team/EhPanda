@@ -16,15 +16,15 @@ struct DownloadStoreTests {
         let download = sampleDownload(folderURL: folderURL)
         try FileManager.default.createDirectory(at: folderURL, withIntermediateDirectories: true)
         try Data([0xFF, 0xD8, 0xFF]).write(
-            to: folderURL.appendingPathComponent("123_token_cover.jpg"),
+            to: folderURL.appending(path: "123_token_cover.jpg"),
             options: .atomic
         )
         try Data([0x01]).write(
-            to: folderURL.appendingPathComponent("123_token_1.jpg"),
+            to: folderURL.appending(path: "123_token_1.jpg"),
             options: .atomic
         )
         try Data([0x02]).write(
-            to: folderURL.appendingPathComponent("123_token_2.jpg"),
+            to: folderURL.appending(path: "123_token_2.jpg"),
             options: .atomic
         )
         let manifest = try storage.addingCurrentFileHashes(
@@ -48,14 +48,14 @@ struct DownloadStoreTests {
         try FileManager.default.createDirectory(
             at: holdingDirectory, withIntermediateDirectories: true
         )
-        let orphan = holdingDirectory.appendingPathComponent("orphan.tmp")
+        let orphan = holdingDirectory.appending(path: "orphan.tmp")
         try Data([0x01]).write(to: orphan, options: .atomic)
-        #expect(FileManager.default.fileExists(atPath: orphan.path))
+        #expect(FileManager.default.fileExists(atPath: orphan.path(percentEncoded: false)))
 
         storage.purgeBackgroundTransferHoldingDirectory()
 
-        #expect(FileManager.default.fileExists(atPath: orphan.path) == false)
-        #expect(FileManager.default.fileExists(atPath: holdingDirectory.path) == false)
+        #expect(FileManager.default.fileExists(atPath: orphan.path(percentEncoded: false)) == false)
+        #expect(FileManager.default.fileExists(atPath: holdingDirectory.path(percentEncoded: false)) == false)
     }
 
     @Test
@@ -117,10 +117,10 @@ struct DownloadStoreTests {
         let download = sampleDownload(folderURL: folderURL)
         try FileManager.default.createDirectory(at: folderURL, withIntermediateDirectories: true)
         try Data([0xFF, 0xD8, 0xFF]).write(
-            to: folderURL.appendingPathComponent("123_token_cover.jpg"),
+            to: folderURL.appending(path: "123_token_cover.jpg"),
             options: .atomic
         )
-        let page1URL = folderURL.appendingPathComponent("123_token_1.jpg")
+        let page1URL = folderURL.appending(path: "123_token_1.jpg")
         try Data([0x01]).write(to: page1URL, options: .atomic)
         try storage.writeManifest(
             sampleManifest(pageHashes: [
@@ -154,18 +154,18 @@ struct DownloadStoreTests {
         let download = sampleDownload(folderURL: folderURL)
         try FileManager.default.createDirectory(at: folderURL, withIntermediateDirectories: true)
         try Data([0xFF, 0xD8, 0xFF]).write(
-            to: folderURL.appendingPathComponent("123_token_cover.jpg"),
+            to: folderURL.appending(path: "123_token_cover.jpg"),
             options: .atomic
         )
         try Data().write(
-            to: folderURL.appendingPathComponent("123_token_1.jpg"),
+            to: folderURL.appending(path: "123_token_1.jpg"),
             options: .atomic
         )
         try Data([0x02]).write(
-            to: folderURL.appendingPathComponent("123_token_2.jpg"),
+            to: folderURL.appending(path: "123_token_2.jpg"),
             options: .atomic
         )
-        let page2URL = folderURL.appendingPathComponent("123_token_2.jpg")
+        let page2URL = folderURL.appending(path: "123_token_2.jpg")
         try storage.writeManifest(
             sampleManifest(pageHashes: [
                 1: "sha256:missing",
@@ -180,7 +180,7 @@ struct DownloadStoreTests {
         )
         #expect(
             FileManager.default.fileExists(
-                atPath: folderURL.appendingPathComponent("123_token_1.jpg").path
+                atPath: folderURL.appending(path: "123_token_1.jpg").path(percentEncoded: false)
             )
         )
         // The record side of the same claim: nothing was written, so a relaunch reads what it read
@@ -196,10 +196,10 @@ struct DownloadStoreTests {
         try storage.ensureRootDirectory()
         let folderURL = storage.folderURL(relativePath: "Folder/[123_token] Sample")
         try FileManager.default.createDirectory(at: folderURL, withIntermediateDirectories: true)
-        try Data([0x01]).write(to: folderURL.appendingPathComponent("123_token_1.webp"), options: .atomic)
-        try Data([0x02]).write(to: folderURL.appendingPathComponent("123_token_2.jpg"), options: .atomic)
-        try Data([0x03]).write(to: folderURL.appendingPathComponent("123_token_27.jpg"), options: .atomic)
-        try Data([0x04]).write(to: folderURL.appendingPathComponent("123_token_cover.jpg"), options: .atomic)
+        try Data([0x01]).write(to: folderURL.appending(path: "123_token_1.webp"), options: .atomic)
+        try Data([0x02]).write(to: folderURL.appending(path: "123_token_2.jpg"), options: .atomic)
+        try Data([0x03]).write(to: folderURL.appending(path: "123_token_27.jpg"), options: .atomic)
+        try Data([0x04]).write(to: folderURL.appending(path: "123_token_cover.jpg"), options: .atomic)
         let manifest = sampleManifest(pageCount: 2)
 
         #expect(
@@ -218,10 +218,10 @@ struct DownloadStoreTests {
         try storage.ensureRootDirectory()
         let folderURL = storage.folderURL(relativePath: "Folder/[123_token] Sample")
         try FileManager.default.createDirectory(at: folderURL, withIntermediateDirectories: true)
-        try Data([0x01]).write(to: folderURL.appendingPathComponent("123_token_1.webp"), options: .atomic)
-        try Data([0x02]).write(to: folderURL.appendingPathComponent("123_token_10.jpg"), options: .atomic)
-        try Data([0x03]).write(to: folderURL.appendingPathComponent("123_token_01.jpg"), options: .atomic)
-        try Data([0x04]).write(to: folderURL.appendingPathComponent("123_token_11.jpg"), options: .atomic)
+        try Data([0x01]).write(to: folderURL.appending(path: "123_token_1.webp"), options: .atomic)
+        try Data([0x02]).write(to: folderURL.appending(path: "123_token_10.jpg"), options: .atomic)
+        try Data([0x03]).write(to: folderURL.appending(path: "123_token_01.jpg"), options: .atomic)
+        try Data([0x04]).write(to: folderURL.appending(path: "123_token_11.jpg"), options: .atomic)
         let manifest = sampleManifest(pageCount: 10)
 
         #expect(
@@ -239,13 +239,13 @@ struct DownloadStoreTests {
 
         try storage.ensureRootDirectory()
         let folderURL = storage.folderURL(relativePath: "Folder/[123_token] Sample")
-        let pagesFolderURL = folderURL.appendingPathComponent("pages", isDirectory: true)
+        let pagesFolderURL = folderURL.appending(path: "pages", directoryHint: .isDirectory)
         try FileManager.default.createDirectory(at: pagesFolderURL, withIntermediateDirectories: true)
-        try Data([0x01]).write(to: pagesFolderURL.appendingPathComponent("0001.jpg"), options: .atomic)
+        try Data([0x01]).write(to: pagesFolderURL.appending(path: "0001.jpg"), options: .atomic)
         let manifest = sampleManifest(pageCount: 1)
 
         #expect(storage.existingPageRelativePaths(folderURL: folderURL, manifest: manifest) == [:])
-        #expect(FileManager.default.fileExists(atPath: pagesFolderURL.path))
+        #expect(FileManager.default.fileExists(atPath: pagesFolderURL.path(percentEncoded: false)))
     }
 
     /// The probe's housekeeping deletion, under the flag a caller now has to write (CR-03).
@@ -262,9 +262,9 @@ struct DownloadStoreTests {
         try storage.ensureRootDirectory()
         let folderURL = storage.folderURL(relativePath: "Folder/[123_token] Sample")
         try FileManager.default.createDirectory(at: folderURL, withIntermediateDirectories: true)
-        let emptyPageURL = folderURL.appendingPathComponent("123_token_1.jpg")
+        let emptyPageURL = folderURL.appending(path: "123_token_1.jpg")
         try Data().write(to: emptyPageURL, options: .atomic)
-        try Data([0x02]).write(to: folderURL.appendingPathComponent("123_token_2.png"), options: .atomic)
+        try Data([0x02]).write(to: folderURL.appending(path: "123_token_2.png"), options: .atomic)
         let manifest = sampleManifest(pageCount: 2)
 
         #expect(
@@ -274,7 +274,7 @@ struct DownloadStoreTests {
                 discardingRejected: true
             ) == [2: "123_token_2.png"]
         )
-        #expect(FileManager.default.fileExists(atPath: emptyPageURL.path) == false)
+        #expect(FileManager.default.fileExists(atPath: emptyPageURL.path(percentEncoded: false)) == false)
     }
 
     /// The same probe on the DEFAULT: the CLASSIFICATION is identical and only the deletion is
@@ -293,9 +293,9 @@ struct DownloadStoreTests {
         try storage.ensureRootDirectory()
         let folderURL = storage.folderURL(relativePath: "Folder/[123_token] Sample")
         try FileManager.default.createDirectory(at: folderURL, withIntermediateDirectories: true)
-        let emptyPageURL = folderURL.appendingPathComponent("123_token_1.jpg")
+        let emptyPageURL = folderURL.appending(path: "123_token_1.jpg")
         try Data().write(to: emptyPageURL, options: .atomic)
-        try Data([0x02]).write(to: folderURL.appendingPathComponent("123_token_2.png"), options: .atomic)
+        try Data([0x02]).write(to: folderURL.appending(path: "123_token_2.png"), options: .atomic)
         let manifest = sampleManifest(pageCount: 2)
 
         #expect(
@@ -304,7 +304,7 @@ struct DownloadStoreTests {
                 manifest: manifest
             ) == [2: "123_token_2.png"]
         )
-        #expect(FileManager.default.fileExists(atPath: emptyPageURL.path))
+        #expect(FileManager.default.fileExists(atPath: emptyPageURL.path(percentEncoded: false)))
     }
 
     @Test
@@ -314,15 +314,15 @@ struct DownloadStoreTests {
 
         try storage.ensureRootDirectory()
         let folderURL = storage.folderURL(relativePath: "Folder/[123_token] Sample")
-        let pagesURL = folderURL.appendingPathComponent("pages", isDirectory: true)
+        let pagesURL = folderURL.appending(path: "pages", directoryHint: .isDirectory)
         try FileManager.default.createDirectory(at: pagesURL, withIntermediateDirectories: true)
-        let emptyPageURL = pagesURL.appendingPathComponent("0001.jpg")
+        let emptyPageURL = pagesURL.appending(path: "0001.jpg")
         try Data().write(to: emptyPageURL, options: .atomic)
-        try Data([0x02]).write(to: pagesURL.appendingPathComponent("0002.png"), options: .atomic)
+        try Data([0x02]).write(to: pagesURL.appending(path: "0002.png"), options: .atomic)
         let manifest = sampleManifest(pageCount: 2)
 
         #expect(storage.existingPageRelativePaths(folderURL: folderURL, manifest: manifest) == [:])
-        #expect(FileManager.default.fileExists(atPath: emptyPageURL.path))
+        #expect(FileManager.default.fileExists(atPath: emptyPageURL.path(percentEncoded: false)))
     }
 
     @Test
@@ -333,8 +333,8 @@ struct DownloadStoreTests {
         try storage.ensureRootDirectory()
         let folderURL = storage.folderURL(relativePath: "Folder/[123_token] Sample")
         try FileManager.default.createDirectory(at: folderURL, withIntermediateDirectories: true)
-        try Data([0x01]).write(to: folderURL.appendingPathComponent("other_token_cover.jpg"), options: .atomic)
-        try Data([0x02]).write(to: folderURL.appendingPathComponent("123_token_cover.jpg"), options: .atomic)
+        try Data([0x01]).write(to: folderURL.appending(path: "other_token_cover.jpg"), options: .atomic)
+        try Data([0x02]).write(to: folderURL.appending(path: "123_token_cover.jpg"), options: .atomic)
         let manifest = sampleManifest(pageCount: 1)
 
         #expect(
@@ -346,19 +346,19 @@ struct DownloadStoreTests {
     @Test
     func testSanitizeAssetFileIfNeededDoesNotDeleteFileWhenAttributesLookupFails() throws {
         let rootURL = FileManager.default.temporaryDirectory
-            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+            .appending(path: UUID().uuidString, directoryHint: .isDirectory)
         defer { removeTemporaryItem(at: rootURL) }
 
         try FileManager.default.createDirectory(at: rootURL, withIntermediateDirectories: true)
-        let fileURL = rootURL.appendingPathComponent("123_token_cover.jpg")
+        let fileURL = rootURL.appending(path: "123_token_cover.jpg")
         try Data([0xFF, 0xD8, 0xFF]).write(to: fileURL, options: .atomic)
         let storage = DownloadStore(
             rootURL: rootURL,
-            fileManager: ThrowingAttributesFileManager(failingPath: fileURL.path)
+            fileManager: ThrowingAttributesFileManager(failingPath: fileURL.path(percentEncoded: false))
         )
 
         #expect(storage.sanitizeAssetFileIfNeeded(at: fileURL))
-        #expect(FileManager.default.fileExists(atPath: fileURL.path))
+        #expect(FileManager.default.fileExists(atPath: fileURL.path(percentEncoded: false)))
     }
 
     @Test
@@ -514,8 +514,8 @@ struct DownloadStoreTests {
         try storage.ensureRootDirectory()
         let folderURL = storage.folderURL(relativePath: "Folder/[123_token] Sample")
         try FileManager.default.createDirectory(at: folderURL, withIntermediateDirectories: true)
-        let pageURL = folderURL.appendingPathComponent("123_token_2.webp")
-        let coverURL = folderURL.appendingPathComponent("123_token_cover.jpg")
+        let pageURL = folderURL.appending(path: "123_token_2.webp")
+        let coverURL = folderURL.appending(path: "123_token_cover.jpg")
         try Data([0x01]).write(to: pageURL, options: .atomic)
         try Data([0x02]).write(to: coverURL, options: .atomic)
 
@@ -543,7 +543,7 @@ private final class ThrowingAttributesFileManager: FileManager {
 private extension DownloadStoreTests {
     func makeStorage() -> (store: DownloadStore, rootURL: URL) {
         let rootURL = FileManager.default.temporaryDirectory
-            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+            .appending(path: UUID().uuidString, directoryHint: .isDirectory)
         return (
             DownloadStore(rootURL: rootURL, fileManager: .default),
             rootURL

@@ -1,4 +1,4 @@
-import Foundation
+public import Foundation
 
 // The browsing-history list persisted behind `@Shared(.galleryHistory)`. Kept most-recent-first;
 // these are the only mutators, so the invariants live here rather than being re-derived at each call

@@ -2,7 +2,10 @@ import AnalyticsClient
 import AppLaunchAutomationClient
 import AppModels
 import ComposableArchitecture
+import CookieClient
+import DownloadClient
 import Foundation
+import HapticsClient
 @testable import ReadingFeature
 import Sharing
 import Testing

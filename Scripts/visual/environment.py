@@ -249,11 +249,11 @@ def measure_environment(output, pin=None, derived_data=None):
             device = destinations[family]
             with gate.simulator_session(family, device['udid']):
                 if family == 'iphone':
-                    gate.run('geometry-build', ['build-for-testing'], 'FeatureTests', device['udid'], content_size='large')
+                    gate.run('geometry-build', ['build-for-testing'], 'VisualTests', device['udid'], content_size='large')
                     gate.run('orientation-build', ['build-for-testing'], 'UITests', device['udid'])
-                    gate.single_pass_run('FeatureTests')
+                    gate.single_pass_run('VisualTests')
                     gate.single_pass_run('UITests')
-                    configure_geometry_run(gate.test_runs['FeatureTests'])
+                    configure_geometry_run(gate.test_runs['VisualTests'])
                 measured = {key: models[family][key] for key in ['model', 'deviceTypeIdentifier', 'modelIdentifier']}
                 measured['orientations'] = {}
                 report['rendering']['devices'][family] = measured
@@ -263,7 +263,7 @@ def measure_environment(output, pin=None, derived_data=None):
                         gate.run(f'{family}-rotate-{orientation}', ['test-without-building'], 'UITests', device['udid'],
                                  [native.ROTATION + f'testRotateTo{orientation.title()}'], 1)
                         name = f'{family}-{orientation}-geometry'
-                        gate.run(name, ['test-without-building'], 'FeatureTests', device['udid'],
+                        gate.run(name, ['test-without-building'], 'VisualTests', device['udid'],
                                  [f'VisualSnapshotTests/GeometryTests/test{orientation.title()}Geometry'], 1,
                                  content_size='large')
                         summary = json.loads((output / f'{name}.summary.json').read_text())

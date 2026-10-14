@@ -1,6 +1,6 @@
-import ComposableArchitecture
-import Foundation
-import Translation
+public import ComposableArchitecture
+public import Foundation
+public import Translation
 
 /// Language preferences and system support used to select each page's translation pair.
 /// Translation itself runs in the reader's SwiftUI-owned session, which can request model downloads.

@@ -4,6 +4,7 @@ import ComposableArchitecture
 @testable import DetailFeature
 import DownloadClient
 import Foundation
+import HapticsClient
 import Testing
 
 // Exact-sequence proof for DetailFeature's six emission sites: the tag tap, the three download

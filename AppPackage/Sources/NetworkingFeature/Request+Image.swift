@@ -1,6 +1,6 @@
-import AppModels
+public import AppModels
 import AppTools
-import Foundation
+public import Foundation
 import Kanna
 import ParserFeature
 
@@ -339,7 +339,7 @@ public struct GalleryMPVImageURLRequest: Request {
                 }
 
                 let originalImageURL = (dictionary["lf"] as? String).map {
-                    host.url.appendingPathComponent($0)
+                    host.url.appending(path: $0)
                 }
                 return GalleryMPVImageURLResponse(
                     imageURL: imageURL,

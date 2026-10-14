@@ -66,12 +66,12 @@ extension DownloadFeatureTestCase {
     /// process-shared Kingfisher cache, so callers need no serialization.
     func expectCachedPlaceholderRejected(url: URL, placeholderData: Data) async throws {
         let rootURL = FileManager.default.temporaryDirectory
-            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+            .appending(path: UUID().uuidString, directoryHint: .isDirectory)
         defer { removeTemporaryItem(at: rootURL) }
 
         let dataCache = DataCache(
             configuration: .init(
-                rootURL: rootURL.appendingPathComponent("DataCache", isDirectory: true)
+                rootURL: rootURL.appending(path: "DataCache", directoryHint: .isDirectory)
             )
         )
         let manager = DownloadCoordinator(
@@ -172,7 +172,7 @@ extension DownloadFeatureTestCase {
         storedCookiesProvider: @escaping @Sendable (URL) -> [HTTPCookie]
     ) -> DownloadCoordinator {
         let rootURL = FileManager.default.temporaryDirectory
-            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+            .appending(path: UUID().uuidString, directoryHint: .isDirectory)
         return DownloadCoordinator(
             storage: DownloadStore(rootURL: rootURL, fileManager: .default),
             urlSession: .shared,
@@ -211,7 +211,7 @@ extension DownloadFeatureTestCase {
         pathExtension: String
     ) throws -> URL {
         let temporaryURL = FileManager.default.temporaryDirectory
-            .appendingPathComponent(UUID().uuidString)
+            .appending(path: UUID().uuidString)
             .appendingPathExtension(pathExtension)
         try fixtureData(resource: resource, pathExtension: pathExtension)
             .write(to: temporaryURL, options: .atomic)
@@ -380,7 +380,7 @@ extension DownloadFeatureTestCase {
         urlSession: URLSession = .shared
     ) async throws -> SessionFixture {
         let rootURL = FileManager.default.temporaryDirectory
-            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+            .appending(path: UUID().uuidString, directoryHint: .isDirectory)
         let storage = DownloadStore(rootURL: rootURL, fileManager: fileManager)
         let manager = DownloadCoordinator(
             storage: storage,
@@ -438,7 +438,7 @@ extension DownloadFeatureTestCase {
                 fileExtension: "jpg"
             )
             try Data("page-\(index)".utf8).write(
-                to: folderURL.appendingPathComponent(relativePath),
+                to: folderURL.appending(path: relativePath),
                 options: .atomic
             )
         }
@@ -476,7 +476,7 @@ extension DownloadFeatureTestCase {
         index: Int
     ) -> URL {
         galleryFolderURL(for: gallery, in: fixture)
-            .appendingPathComponent(
+            .appending(path:
                 fixture.storage.makePageRelativePath(
                     gid: gallery.gid,
                     token: "token",
@@ -573,7 +573,7 @@ extension DownloadFeatureTestCase {
         do {
             try FileManager.default.setAttributes(
                 [.posixPermissions: permissions],
-                ofItemAtPath: url.path
+                ofItemAtPath: url.path(percentEncoded: false)
             )
         } catch {
             Issue.record("Restoring the fixture folder's permissions failed: \(error)")
@@ -933,7 +933,7 @@ func makeBlockingCoordinator(
     releasesOnCancellation: Bool = true
 ) async throws -> BlockingCoordinatorContext {
     let rootURL = FileManager.default.temporaryDirectory
-        .appendingPathComponent(UUID().uuidString, isDirectory: true)
+        .appending(path: UUID().uuidString, directoryHint: .isDirectory)
     let storage = DownloadStore(rootURL: rootURL, fileManager: .default)
     let control = BlockingRunnerControl()
     let taskRunner = DownloadTaskRunner(

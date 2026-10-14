@@ -1,4 +1,4 @@
-import Foundation
+public import Foundation
 import OSLogExt
 
 private let logger = Logger(category: .init(describing: ContinuedProcessingSession.self))

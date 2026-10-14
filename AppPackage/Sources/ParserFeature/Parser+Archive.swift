@@ -1,10 +1,10 @@
-import AppModels
+public import AppModels
 import AppTools
 import Foundation
-import Kanna
+public import Kanna
 
 extension Parser {
-    public static func parseGalleryArchive(doc: HTMLDocument) throws -> GalleryArchive {
+    public static func parseGalleryArchive(doc: any HTMLDocument) throws -> GalleryArchive {
         guard let node = doc.at_xpath("//table")
         else { throw AppError.parseFailed }
 
@@ -55,7 +55,7 @@ extension Parser {
         return GalleryArchive(hathArchives: hathArchives)
     }
 
-    public static func parseDownloadCommandResponse(doc: HTMLDocument) throws -> String {
+    public static func parseDownloadCommandResponse(doc: any HTMLDocument) throws -> String {
         guard let dbNode = doc.at_xpath("//div [@id='db']")
         else { throw AppError.parseFailed }
 
@@ -91,7 +91,7 @@ extension Parser {
         return respString
     }
 
-    static func parseArchiveURL(node: XMLElement) throws -> URL {
+    static func parseArchiveURL(node: any XMLElement) throws -> URL {
         var archiveURL: URL?
         if let aLink = node.at_xpath("//a"),
             aLink.text?.contains("Archive Download") == true, let onClick = aLink["onclick"],

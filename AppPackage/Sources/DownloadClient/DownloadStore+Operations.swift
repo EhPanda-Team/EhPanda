@@ -1,5 +1,5 @@
-import AppModels
-import Foundation
+public import AppModels
+public import Foundation
 import OSLogExt
 import Resources
 
@@ -260,7 +260,7 @@ extension DownloadStore {
             }
             do {
                 try fileManager.operate {
-                    guard $0.fileExists(atPath: pageURL.path) else { return }
+                    guard $0.fileExists(atPath: pageURL.path(percentEncoded: false)) else { return }
                     try $0.removeItem(at: pageURL)
                 }
             } catch {
@@ -296,14 +296,15 @@ extension DownloadStore {
     /// the second, a symbolic link staged inside the root is a removal of whatever it points at.
     public func removeFolder(at folderURL: URL) throws {
         let targetURL = folderURL.standardizedFileURL
-        guard targetURL.path.hasPrefix(rootURL.standardizedFileURL.path + "/"),
-              targetURL.resolvingSymlinksInPath().path
-                .hasPrefix(rootURL.resolvingSymlinksInPath().path + "/")
+        guard Self.relativePath(of: targetURL, within: rootURL) != nil,
+              Self.relativePath(
+                of: targetURL.resolvingSymlinksInPath(), within: rootURL.resolvingSymlinksInPath()
+              ) != nil
         else {
-            throw AppError.fileOperationFailed(targetURL.path)
+            throw AppError.fileOperationFailed(targetURL.path(percentEncoded: false))
         }
         try fileManager.operate {
-            guard $0.fileExists(atPath: targetURL.path) else { return }
+            guard $0.fileExists(atPath: targetURL.path(percentEncoded: false)) else { return }
             try $0.removeItem(at: targetURL)
         }
     }
@@ -514,11 +515,11 @@ extension DownloadStore {
         else {
             return nil
         }
-        let candidateURL = rootURL.appendingPathComponent(rawName, isDirectory: true)
-        guard candidateURL.standardizedFileURL.deletingLastPathComponent().path
-                == rootURL.standardizedFileURL.path,
-              candidateURL.resolvingSymlinksInPath().deletingLastPathComponent().path
-                == rootURL.resolvingSymlinksInPath().path
+        let candidateURL = rootURL.appending(path: rawName, directoryHint: .isDirectory)
+        guard candidateURL.standardizedFileURL.deletingLastPathComponent().pathComponents
+                == rootURL.standardizedFileURL.pathComponents,
+              candidateURL.resolvingSymlinksInPath().deletingLastPathComponent().pathComponents
+                == rootURL.resolvingSymlinksInPath().pathComponents
         else {
             return nil
         }
@@ -531,8 +532,13 @@ extension DownloadStore {
     /// both call sites need; there is no second outcome for a caller to distinguish.
     private func itemType(at url: URL, using manager: FileManager) -> FileAttributeType? {
         do {
-            let attributes = try manager.attributesOfItem(atPath: url.path)
-            return attributes[.type] as? FileAttributeType
+            // A directory URL's string path can end in `/`, which makes lstat follow a link.
+            // The filesystem representation preserves inspection of the item itself.
+            return try url.withUnsafeFileSystemRepresentation { path in
+                guard let path else { return nil }
+                let attributes = try manager.attributesOfItem(atPath: String(cString: path))
+                return attributes[.type] as? FileAttributeType
+            }
         } catch {
             return nil
         }
@@ -566,11 +572,11 @@ extension DownloadStore {
         discardingRejected: Bool = false
     ) -> DownloadValidationState {
         let folderURL = download.folderURL
-        guard fileManager.operate({ $0.fileExists(atPath: folderURL.path) }) else {
+        guard fileManager.operate({ $0.fileExists(atPath: folderURL.path(percentEncoded: false)) }) else {
             return .missingFiles(.RLocalizable.downloadStoreDownloadFolderMissing)
         }
         let manifestURL = download.manifestURL
-        guard fileManager.operate({ $0.fileExists(atPath: manifestURL.path) }) else {
+        guard fileManager.operate({ $0.fileExists(atPath: manifestURL.path(percentEncoded: false)) }) else {
             return .missingFiles(.RLocalizable.downloadStoreManifestMissing)
         }
         // Validation converts any manifest read or decode failure into the existing corrupted-files state.

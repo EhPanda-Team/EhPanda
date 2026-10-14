@@ -1,14 +1,14 @@
 import AppComponents
 import ApplicationClient
-import AppModels
+public import AppModels
 import AppTools
-import ComposableArchitecture
+public import ComposableArchitecture
 import CookieClient
-import Foundation
+public import Foundation
 import HapticsClient
 import NetworkingFeature
 import Resources
-import Sharing
+public import Sharing
 
 @Reducer
 public struct EhSettingReducer: Sendable {
@@ -113,12 +113,10 @@ public struct EhSettingReducer: Sendable {
                 state.loadingState = .loading
                 let host = state.setting.galleryHost
                 return .run { send in
-                    do throws(AppError) {
-                        let setting = try await EhSettingRequest(host: host).response()
-                        await send(.fetchEhSettingDone(.success(setting)))
-                    } catch {
-                        await send(.fetchEhSettingDone(.failure(error)))
+                    let result = await Result.Swift::init { () async throws(AppError) in
+                        try await EhSettingRequest(host: host).response()
                     }
+                    await send(.fetchEhSettingDone(result))
                 }
                 .cancellable(id: CancelID.fetchEhSetting)
 
@@ -141,16 +139,14 @@ public struct EhSettingReducer: Sendable {
                 state.submittingState = .loading
                 let host = state.setting.galleryHost
                 return .run { send in
-                    do throws(AppError) {
-                        let setting = try await SubmitEhSettingChangesRequest(
+                    let result = await Result.Swift::init { () async throws(AppError) in
+                        try await SubmitEhSettingChangesRequest(
                             host: host,
                             ehSetting: ehSetting
                         )
                         .response()
-                        await send(.submitChangesDone(.success(setting)))
-                    } catch {
-                        await send(.submitChangesDone(.failure(error)))
                     }
+                    await send(.submitChangesDone(result))
                 }
                 .cancellable(id: CancelID.submitChanges)
 
@@ -170,18 +166,16 @@ public struct EhSettingReducer: Sendable {
                 state.submittingState = .loading
                 let host = state.setting.galleryHost
                 return .run { send in
-                    do throws(AppError) {
-                        let setting = try await EhProfileRequest(
+                    let result = await Result.Swift::init { () async throws(AppError) in
+                        try await EhProfileRequest(
                             host: host,
                             action: action,
                             name: name,
                             set: set
                         )
                         .response()
-                        await send(.performActionDone(.success(setting)))
-                    } catch {
-                        await send(.performActionDone(.failure(error)))
                     }
+                    await send(.performActionDone(result))
                 }
                 .cancellable(id: CancelID.performAction)
 

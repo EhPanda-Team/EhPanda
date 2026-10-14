@@ -1,16 +1,16 @@
 import AnalyticsClient
-import AppModels
+public import AppModels
 import AppTools
-import ComposableArchitecture
+public import ComposableArchitecture
 import CookieClient
-import DateSeekFeature
-import DetailFeature
+public import DateSeekFeature
+public import DetailFeature
 import DeviceClient
 import DownloadClient
 import HapticsClient
 import IdentifiedCollections
-import NetworkingFeature
-import QuickSearchFeature
+public import NetworkingFeature
+public import QuickSearchFeature
 import SwiftUI
 
 @Reducer
@@ -225,18 +225,16 @@ public struct FavoritesReducer: Sendable {
                 }
                 let host = state.setting.galleryHost
                 return .run { [index = state.favoritesIndex, keyword = state.keyword] send in
-                    do throws(AppError) {
-                        let response = try await FavoritesGalleriesRequest(
+                    let result = await Result.Swift::init { () async throws(AppError) in
+                        try await FavoritesGalleriesRequest(
                             host: host,
                             favIndex: index,
                             keyword: keyword,
                             sortOrder: sortOrder
                         )
                         .response()
-                        await send(.fetchGalleriesDone(index: index, result: .success(response)))
-                    } catch {
-                        await send(.fetchGalleriesDone(index: index, result: .failure(error)))
                     }
+                    await send(.fetchGalleriesDone(index: index, result: result))
                 }
 
             case .fetchGalleriesDone(let targetFavIndex, let result):
@@ -270,8 +268,8 @@ public struct FavoritesReducer: Sendable {
                 state.rawFooterLoadingState[state.favoritesIndex] = .loading
                 let host = state.setting.galleryHost
                 return .run { [index = state.favoritesIndex, keyword = state.keyword] send in
-                    do throws(AppError) {
-                        let response = try await MoreFavoritesGalleriesRequest(
+                    let result = await Result.Swift::init { () async throws(AppError) in
+                        try await MoreFavoritesGalleriesRequest(
                             host: host,
                             favIndex: index,
                             lastID: lastID,
@@ -279,10 +277,8 @@ public struct FavoritesReducer: Sendable {
                             keyword: keyword
                         )
                         .response()
-                        await send(.fetchMoreGalleriesDone(index: index, result: .success(response)))
-                    } catch {
-                        await send(.fetchMoreGalleriesDone(index: index, result: .failure(error)))
                     }
+                    await send(.fetchMoreGalleriesDone(index: index, result: result))
                 }
 
             case .fetchMoreGalleriesDone(let targetFavIndex, let result):
@@ -330,12 +326,10 @@ public struct FavoritesReducer: Sendable {
                 state.rawPageNumber[state.favoritesIndex]?.resetPages()
                 let host = state.setting.galleryHost
                 return .run { [index = state.favoritesIndex] send in
-                    do throws(AppError) {
-                        let response = try await DateSeekGalleriesRequest(host: host, url: url).response()
-                        await send(.performDateSeekDone(index: index, result: .success(response)))
-                    } catch {
-                        await send(.performDateSeekDone(index: index, result: .failure(error)))
+                    let result = await Result.Swift::init { () async throws(AppError) in
+                        try await DateSeekGalleriesRequest(host: host, url: url).response()
                     }
+                    await send(.performDateSeekDone(index: index, result: result))
                 }
 
             case .performDateSeekDone(let targetFavIndex, let result):

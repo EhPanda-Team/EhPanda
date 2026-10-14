@@ -1,5 +1,5 @@
 import AppModels
-import Foundation
+public import Foundation
 import OSLogExt
 
 private let logger = Logger(category: .init(describing: DFStreamEventHandler.self))
@@ -160,7 +160,7 @@ private extension DFStreamEventHandler {
                 || ["/?f_search"].contains(where: url.absoluteString.contains),
                let domain = request.request.domainWithScheme,
                let originalURL = URL(string: domain) {
-                url = originalURL.appendingPathComponent(url.absoluteString)
+                url = originalURL.appending(path: url.absoluteString)
             }
 
             logger.warning("Request redirected to: \(url.absoluteString).")

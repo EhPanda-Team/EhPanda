@@ -1,4 +1,4 @@
-import Foundation
+public import Foundation
 
 /// Isolates the single deprecated CFNetwork call the app deliberately depends on:
 /// `CFReadStreamCreateForHTTPRequest`. It is the only proven way to preserve domain fronting —

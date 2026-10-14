@@ -1,14 +1,16 @@
 import AppComponents
 import AppModels
 import AppTools
-import ComposableArchitecture
+public import ComposableArchitecture
 import CookieClient
 import DateSeekFeature
 import DetailFeature
 import GalleryListComponents
 import QuickSearchFeature
 import Resources
-import SwiftUI
+import SFSafeSymbols
+import SFSafeSymbolsExt
+public import SwiftUI
 import TagTranslationFeature
 
 public struct FavoritesView: View {

@@ -1,9 +1,9 @@
 import AnalyticsClient
-import AppComponents
-import AppModels
-import ComposableArchitecture
-import DownloadClient
-import Foundation
+public import AppComponents
+public import AppModels
+public import ComposableArchitecture
+public import DownloadClient
+public import Foundation
 import Resources
 
 /// The per-gallery page inspector.

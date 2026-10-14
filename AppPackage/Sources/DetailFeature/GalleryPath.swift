@@ -1,4 +1,4 @@
-import ComposableArchitecture
+public import ComposableArchitecture
 
 // The shared set of gallery drill-down screens. Every gallery host drives a flat `StackState` of these
 // elements: tapping a gallery pushes `.detail`, which in turn asks the host (via its `Delegate` actions)

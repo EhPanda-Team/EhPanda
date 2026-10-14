@@ -478,7 +478,7 @@ private extension DownloadPageTransferProgressTests {
     ) async throws -> FrozenFixture {
         let currentDate = FrozenDate(Date(timeIntervalSince1970: 1_700_000_000))
         let rootURL = FileManager.default.temporaryDirectory
-            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+            .appending(path: UUID().uuidString, directoryHint: .isDirectory)
         let storage = DownloadStore(rootURL: rootURL, fileManager: .default)
         let manager = DownloadCoordinator(
             storage: storage,
@@ -523,7 +523,7 @@ private extension DownloadPageTransferProgressTests {
             fileExtension: "jpg"
         )
         try Data("page-\(index)".utf8).write(
-            to: galleryFolderURL(for: gallery, in: fixture).appendingPathComponent(relativePath),
+            to: galleryFolderURL(for: gallery, in: fixture).appending(path: relativePath),
             options: .atomic
         )
         return relativePath

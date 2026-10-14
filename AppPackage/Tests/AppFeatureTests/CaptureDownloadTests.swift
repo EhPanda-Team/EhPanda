@@ -4,8 +4,10 @@ import AppTools
 import ComposableArchitecture
 import CustomDump
 import DownloadClient
+import DownloadsFeature
 import Foundation
 import Kingfisher
+import LibraryClient
 import Testing
 
 // A capture of the Downloads screen lists real download folders: the selection's galleries, each

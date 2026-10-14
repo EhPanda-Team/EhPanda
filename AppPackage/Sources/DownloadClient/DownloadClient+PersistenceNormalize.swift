@@ -1,5 +1,5 @@
-import AppModels
-import Foundation
+public import AppModels
+public import Foundation
 import OSLogExt
 
 private let logger = Logger(category: .init(describing: DownloadCoordinator.self))
@@ -27,7 +27,7 @@ extension DownloadCoordinator {
     ) -> URL? {
         let completedFolderURL = download.folderURL
         let completedFolderExists = fileManager.operate {
-            $0.fileExists(atPath: completedFolderURL.path)
+            $0.fileExists(atPath: completedFolderURL.path(percentEncoded: false))
         }
         return completedFolderExists ? completedFolderURL : nil
     }

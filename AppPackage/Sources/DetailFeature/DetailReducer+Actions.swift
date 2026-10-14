@@ -1,9 +1,12 @@
 import AnalyticsClient
 import AppModels
+import AppTools
 import ComposableArchitecture
 import Foundation
+import HapticsClient
 import ReadingFeature
 import Sharing
+import UIKit
 
 // MARK: - Navigation & UI Action Handlers
 extension DetailReducer {

@@ -1,13 +1,14 @@
 import AppComponents
-import AppModels
+public import AppModels
 import AppTools
 import ColorfulX
 import Dependencies
 import DeviceClient
-import Kingfisher
+public import Kingfisher
 import PreviewSupport
 import SFSafeSymbols
-import SwiftUI
+import SpringInterpolation
+public import SwiftUI
 
 public struct GalleryCardCell: View {
     @Dependency(\.deviceClient) private var deviceClient
@@ -234,7 +235,7 @@ private final class FixedSpeckleDirector: SpeckleAnimationDirector {
 private let previewLongTitle =
     "(C99) [Sample Circle (Sample Artist)] An Exceptionally Long Doujinshi "
     + "Title That Wraps Across Several Lines To Exercise Truncation [English]"
-private let previewCardColors: [Color] = ColorfulPreset.aurora.colors.map({ Color($0) })
+private let previewCardColors: [Color] = ColorfulPreset.aurora.colors.map({ Color(uiColor: $0) })
 
 private extension Gallery {
     static func previewFixture(identity: Int, title: String, rating: Float) -> Gallery {

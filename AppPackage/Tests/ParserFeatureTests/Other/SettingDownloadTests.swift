@@ -1,6 +1,7 @@
 @testable import AppFeature
 import AppModels
 import AppTools
+import DownloadClient
 import SwiftUI
 import Testing
 

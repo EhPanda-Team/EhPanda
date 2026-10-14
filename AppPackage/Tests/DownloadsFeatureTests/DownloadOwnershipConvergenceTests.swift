@@ -281,9 +281,9 @@ private enum MoveConvergenceGallery {
     ) -> URL {
         fixture.storage
             .folderURL(relativePath: destinationFolderName)
-            .appendingPathComponent(
+            .appending(path:
                 "[\(gallery.gid)_token] \(gallery.title)",
-                isDirectory: true
+                directoryHint: .isDirectory
             )
     }
 }

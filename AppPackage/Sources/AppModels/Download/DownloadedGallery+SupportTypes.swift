@@ -1,5 +1,5 @@
 import AppTools
-import SwiftUI
+public import SwiftUI
 
 // MARK: DownloadedGallery Computed Properties
 extension DownloadedGallery {
@@ -21,7 +21,7 @@ extension DownloadedGallery {
     }
 
     public var manifestURL: URL {
-        folderURL.appendingPathComponent(Defaults.FilePath.downloadManifest)
+        folderURL.appending(path: Defaults.FilePath.downloadManifest)
     }
 
     public var coverURL: URL? {

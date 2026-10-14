@@ -1,5 +1,5 @@
 import AppModels
-import ComposableArchitecture
+public import ComposableArchitecture
 import DeviceClient
 import Sharing
 import Synchronization

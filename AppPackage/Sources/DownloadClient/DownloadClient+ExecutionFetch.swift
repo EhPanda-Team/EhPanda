@@ -1,4 +1,4 @@
-import AppModels
+public import AppModels
 import Foundation
 import NetworkingFeature
 import Resources
@@ -121,18 +121,14 @@ extension DownloadCoordinator {
         gid: String,
         token: String
     ) async -> Result<DownloadVersionMetadata, AppError> {
-        do throws(AppError) {
-            return .success(
-                try await GalleryVersionMetadataRequest(
-                    host: host,
-                    gid: gid,
-                    token: token,
-                    urlSession: urlSession
-                )
-                .response()
+        await Result.Swift::init { () async throws(AppError) in
+            try await GalleryVersionMetadataRequest(
+                host: host,
+                gid: gid,
+                token: token,
+                urlSession: urlSession
             )
-        } catch {
-            return .failure(error)
+            .response()
         }
     }
 

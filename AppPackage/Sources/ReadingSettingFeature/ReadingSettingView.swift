@@ -1,8 +1,8 @@
 import AppModels
-import ComposableArchitecture
+public import ComposableArchitecture
 import Resources
 import Sharing
-import SwiftUI
+public import SwiftUI
 
 public struct ReadingSettingView: View {
     // The reading-setting editor is shared by the Setting tab and the reader sheet. Rather than hold
@@ -123,15 +123,19 @@ private struct ScaleFactorRow: View {
             } else {
                 Slider(
                     value: $scaleFactor, in: minFactor...maxFactor, step: 0.5,
-                    minimumValueLabel: Text(.Constant.scaleFactor(minFactor.roundedString()))
-                        .fontWeight(.medium)
-                        .font(.callout)
-                        .accessibilityHidden(true),
-                    maximumValueLabel: Text(.Constant.scaleFactor(maxFactor.roundedString()))
-                        .fontWeight(.medium)
-                        .font(.callout)
-                        .accessibilityHidden(true),
-                    label: EmptyView.init
+                    label: EmptyView.init,
+                    minimumValueLabel: {
+                        Text(.Constant.scaleFactor(minFactor.roundedString()))
+                            .fontWeight(.medium)
+                            .font(.callout)
+                            .accessibilityHidden(true)
+                    },
+                    maximumValueLabel: {
+                        Text(.Constant.scaleFactor(maxFactor.roundedString()))
+                            .fontWeight(.medium)
+                            .font(.callout)
+                            .accessibilityHidden(true)
+                    }
                 )
                 .accessibilityLabel(labelContent)
                 .accessibilityValue(.accessibilityScaleFactor(scaleFactor.roundedString()))
@@ -143,11 +147,7 @@ private struct ScaleFactorRow: View {
 
 private extension Double {
     func roundedString() -> String {
-        roundedString(with: 1)
-    }
-
-    func roundedString(with places: Int) -> String {
-        String(format: "%.\(places)f", self)
+        formatted(.number.precision(.fractionLength(1)).grouping(.never))
     }
 }
 

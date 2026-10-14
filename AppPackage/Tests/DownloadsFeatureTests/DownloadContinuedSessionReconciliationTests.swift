@@ -66,7 +66,7 @@ extension DownloadContinuedSessionBasisTests {
             relativePath: "Folder/[\(unlisted.gid)_token] \(unlisted.title)"
         )
         let originalPermissions = try #require(
-            FileManager.default.attributesOfItem(atPath: folderURL.path)[.posixPermissions]
+            FileManager.default.attributesOfItem(atPath: folderURL.path(percentEncoded: false))[.posixPermissions]
                 as? NSNumber
         )
         defer {
@@ -87,7 +87,7 @@ extension DownloadContinuedSessionBasisTests {
         // Owner write + execute, no read anywhere: listing is denied, path-addressed opens are not.
         try FileManager.default.setAttributes(
             [.posixPermissions: NSNumber(value: 0o311)],
-            ofItemAtPath: folderURL.path
+            ofItemAtPath: folderURL.path(percentEncoded: false)
         )
 
         let seed = try await manager.testingPrepareWorkingSeedAnnouncingProgress(
@@ -169,7 +169,7 @@ extension DownloadContinuedSessionBasisTests {
 
         try writePageFiles(for: partial, in: fixture, indices: [1, 2, 3, 4])
         let unprobedFileURLs = unprobedPages.map { page in
-            folderURL.appendingPathComponent(
+            folderURL.appending(path:
                 fixture.storage.makePageRelativePath(
                     gid: partial.gid,
                     token: "token",
@@ -186,7 +186,7 @@ extension DownloadContinuedSessionBasisTests {
         }
         let originalPermissions = try unprobedFileURLs.map { fileURL in
             try #require(
-                FileManager.default.attributesOfItem(atPath: fileURL.path)[.posixPermissions]
+                FileManager.default.attributesOfItem(atPath: fileURL.path(percentEncoded: false))[.posixPermissions]
                     as? NSNumber
             )
         }
@@ -213,7 +213,7 @@ extension DownloadContinuedSessionBasisTests {
         for fileURL in unprobedFileURLs {
             try FileManager.default.setAttributes(
                 [.posixPermissions: NSNumber(value: 0o000)],
-                ofItemAtPath: fileURL.path
+                ofItemAtPath: fileURL.path(percentEncoded: false)
             )
         }
 
@@ -290,7 +290,7 @@ extension DownloadContinuedSessionBasisTests {
                 index: page,
                 fileExtension: "jpg"
             )
-            try FileManager.default.removeItem(at: folderURL.appendingPathComponent(relativePath))
+            try FileManager.default.removeItem(at: folderURL.appending(path: relativePath))
         }
 
         let seed = try await manager.testingPrepareWorkingSeedAnnouncingProgress(

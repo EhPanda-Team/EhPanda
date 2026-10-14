@@ -15,7 +15,7 @@ private let logger = Logger(category: .init(describing: SchemaMigrator.self))
 public protocol MigratableModel: Codable, SchemaVersioned {
     /// Decode the *current* schema shape. Called by the engine after the blob has been migrated forward;
     /// it must not re-enter migration (do not call `SchemaMigrator.migrate` here).
-    init(currentFrom decoder: Decoder) throws
+    init(currentFrom decoder: any Decoder) throws
 }
 
 /// Walks a model's ordered schema history over a raw blob, then decodes the migrated result.
@@ -24,7 +24,7 @@ public enum SchemaMigrator {
     /// `Model.init(from:)` (which would recurse back into migration).
     private struct CurrentShape<Model: MigratableModel>: Decodable {
         let value: Model
-        init(from decoder: Decoder) throws {
+        init(from decoder: any Decoder) throws {
             value = try Model(currentFrom: decoder)
         }
     }
@@ -32,7 +32,7 @@ public enum SchemaMigrator {
     /// Decode `Model` from a possibly-older blob: read its `schemaVersion`, ask every schema newer than
     /// it to migrate the object forward in order, then decode the current shape.
     public static func migrate<Model: MigratableModel>(
-        _ type: Model.Type, from decoder: Decoder
+        _ type: Model.Type, from decoder: any Decoder
     ) throws -> Model {
         var object = try [String: JSONValue](from: decoder)
         let stored = object["schemaVersion"]?.intValue ?? 1

@@ -1,8 +1,10 @@
 @testable import AppFeature
 import AppModels
 import AppTools
+import DownloadClient
 import Foundation
 import Testing
+import TestingSupport
 
 struct DownloadImageParsingCacheTests: DownloadFeatureTestCase {
     @Test
@@ -41,7 +43,7 @@ struct DownloadImageParsingCacheTests: DownloadFeatureTestCase {
     @Test
     func testFileBasedAuthHTMLMarkersMapToAuthenticationRequired() async throws {
         let fileURL = FileManager.default.temporaryDirectory
-            .appendingPathComponent(UUID().uuidString)
+            .appending(path: UUID().uuidString)
             .appendingPathExtension("html")
         defer { removeTemporaryItem(at: fileURL) }
 

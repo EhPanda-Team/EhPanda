@@ -1,5 +1,5 @@
-import AppModels
-import Foundation
+public import AppModels
+public import Foundation
 import OSLogExt
 import Resources
 
@@ -418,7 +418,7 @@ extension DownloadCoordinator {
                 folderURL: folderURL,
                 manifest: download.manifest
             )
-            .map({ folderURL.appendingPathComponent($0) })
+            .map({ folderURL.appending(path: $0) })
         } ?? download.coverURL
 
         return .success(

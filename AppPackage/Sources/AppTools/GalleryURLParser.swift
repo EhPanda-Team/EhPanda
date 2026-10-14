@@ -1,4 +1,4 @@
-import Foundation
+public import Foundation
 
 public enum GalleryURLParser {
     public struct Route: Equatable, Sendable {
@@ -65,7 +65,7 @@ public enum GalleryURLParser {
         else { return nil }
 
         let commentID: String?
-        if let fragment = url.fragment, fragment.first == "c", fragment.count > 1 {
+        if let fragment = url.fragment(), fragment.first == "c", fragment.count > 1 {
             commentID = String(fragment.dropFirst())
         } else {
             commentID = nil

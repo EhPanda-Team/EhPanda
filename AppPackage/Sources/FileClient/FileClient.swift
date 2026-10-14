@@ -1,9 +1,9 @@
-import AppModels
-import ComposableArchitecture
-import Foundation
+public import AppModels
+public import ComposableArchitecture
+public import Foundation
 
 public struct FileClient: Sendable {
-    public var createFile: @Sendable (String, Data?) -> Bool
+    public var createFile: @concurrent @Sendable (String, Data?) async -> Bool
     public var importTagTranslator: @Sendable (URL) async -> Result<TagTranslator, AppError>
     /// Decodes the raw downloaded DB JSON, applies OpenCC conversion for Traditional Chinese, caches
     /// the raw bytes for a launch-time rebuild, and returns the built translator (`nil` on decode
@@ -177,9 +177,9 @@ extension FileClient {
         )
     }
 
-    public func saveTorrent(hash: String, data: Data) -> URL? {
-        let torrentDirectory = URL.cachesDirectory.appendingPathComponent("\(hash).torrent")
-        return createFile(torrentDirectory.path, data) ? torrentDirectory : nil
+    public func saveTorrent(hash: String, data: Data) async -> URL? {
+        let torrentDirectory = URL.cachesDirectory.appending(path: "\(hash).torrent")
+        return await createFile(torrentDirectory.path(percentEncoded: false), data) ? torrentDirectory : nil
     }
 }
 

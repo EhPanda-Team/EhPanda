@@ -232,9 +232,8 @@ final class RenderServerCaptureTests: XCTestCase {
             return count == plan.count + 1 ? changed : Self.rowRaster(frame: slice.readFrame, bounds: bounds, scale: 3)
         })
         for (pass, expected) in [(1, original), (2, changed)] {
-            let image = try XCTUnwrap(UIImage(contentsOfFile: directory.appending(
-                path: "capture.read-1.pass-\(pass).png"
-            ).path)?.cgImage)
+            let imagePath = directory.appending(path: "capture.read-1.pass-\(pass).png").path(percentEncoded: false)
+            let image = try XCTUnwrap(UIImage(contentsOfFile: imagePath)?.cgImage)
             expectNoDifference(try CapturedRaster(image: image).pixels, expected.pixels)
         }
         let data = try Data(contentsOf: directory.appending(path: "render-read-verification.json"))
@@ -667,7 +666,7 @@ private struct SRGBPixels {
             guard let context = CGContext(
                 data: buffer.baseAddress, width: width, height: height,
                 bitsPerComponent: 8, bytesPerRow: width * 4, space: colorSpace,
-                bitmapInfo: CGBitmapInfo.byteOrder32Big.rawValue | CGImageAlphaInfo.premultipliedLast.rawValue
+                bitmapInfo: .init(alpha: .premultipliedLast, byteOrder: .order32Big)
             ) else { return false }
             drawing(context)
             return true

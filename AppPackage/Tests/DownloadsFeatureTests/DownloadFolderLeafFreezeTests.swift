@@ -34,7 +34,7 @@ struct DownloadFolderLeafFreezeTests: DownloadFeatureTestCase {
     @Test
     func testTwoRunsWithDifferingTitlesKeepOneFolderUnderTheFirstLeaf() async throws {
         let rootURL = FileManager.default.temporaryDirectory
-            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+            .appending(path: UUID().uuidString, directoryHint: .isDirectory)
         defer { removeTemporaryItem(at: rootURL) }
 
         let storage = DownloadStore(rootURL: rootURL, fileManager: .default)
@@ -63,7 +63,7 @@ struct DownloadFolderLeafFreezeTests: DownloadFeatureTestCase {
             title: detailA.trimmedTitle
         )
         let folderURLA = storage.folderURL(relativePath: "Folder/\(leafA)")
-        #expect(FileManager.default.fileExists(atPath: folderURLA.path))
+        #expect(FileManager.default.fileExists(atPath: folderURLA.path(percentEncoded: false)))
         // Non-vacuity: the second payload really would derive a DIFFERENT leaf, so the reuse below
         // is the freeze rather than two titles that happen to normalize alike.
         let leafB = storage.makeFolderRelativePath(
@@ -162,7 +162,7 @@ struct DownloadFolderLeafFreezeTests: DownloadFeatureTestCase {
     @Test
     func testAGalleryWithNoRecordStillDerivesAFreshLeaf() async throws {
         let rootURL = FileManager.default.temporaryDirectory
-            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+            .appending(path: UUID().uuidString, directoryHint: .isDirectory)
         defer { removeTemporaryItem(at: rootURL) }
 
         let storage = DownloadStore(rootURL: rootURL, fileManager: .default)

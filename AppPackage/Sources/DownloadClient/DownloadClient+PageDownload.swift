@@ -1,4 +1,4 @@
-import AppModels
+public import AppModels
 import Foundation
 import OSLogExt
 
@@ -141,8 +141,8 @@ extension DownloadCoordinator {
                 continue
             }
             let fileURL = context.folderURL
-                .appendingPathComponent(relativePath)
-            guard fileManager.operate({ $0.fileExists(atPath: fileURL.path) }) else {
+                .appending(path: relativePath)
+            guard fileManager.operate({ $0.fileExists(atPath: fileURL.path(percentEncoded: false)) }) else {
                 continue
             }
             failedPages[page] = nil

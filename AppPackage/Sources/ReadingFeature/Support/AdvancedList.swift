@@ -78,7 +78,7 @@ where PageView: View, G: Gesture {
     }
 
     var body: some View {
-        ScrollView(showsIndicators: false) {
+        ScrollView {
             LazyVStack(spacing: spacing) {
                 ForEach(data, id: id) { index in
                     content(index)
@@ -89,6 +89,7 @@ where PageView: View, G: Gesture {
             .scrollTargetLayout()
             .coordinateSpace(.advancedListContent)
         }
+        .scrollIndicators(.hidden)
         .scrollEdgeEffectStyle(.soft, for: .top)
         .scrollPosition($position, anchor: .center)
         .onScrollPhaseChange { _, newValue in

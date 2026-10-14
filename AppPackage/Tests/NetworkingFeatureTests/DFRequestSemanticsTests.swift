@@ -34,7 +34,7 @@ struct DFRequestSemanticsTests {
 
         let replaced = request.domainIPReplaced()
 
-        let host = try #require(replaced.url?.host)
+        let host = try #require(replaced.url?.host(percentEncoded: false))
         #expect(isIPv4(host))
         #expect(host != "e-hentai.org")
         #expect(replaced.value(forHTTPHeaderField: "Host") == "e-hentai.org")
@@ -63,7 +63,7 @@ struct DFRequestSemanticsTests {
 
         let replaced = request.domainIPReplaced()
 
-        let host = try #require(replaced.url?.host)
+        let host = try #require(replaced.url?.host(percentEncoded: false))
         #expect(isIPv4(host))
         #expect(replaced.value(forHTTPHeaderField: "Host") == "e-hentai.org")
     }
@@ -177,7 +177,7 @@ struct DFRequestSemanticsTests {
 
         let replaced = request.domainIPReplaced()
 
-        let urlHost = try #require(replaced.url?.host)
+        let urlHost = try #require(replaced.url?.host(percentEncoded: false))
         #expect(isIPv4(urlHost))
         // `.domain` is exactly what DFStreamEventHandler.evaluate passes to SecPolicyCreateSSL.
         #expect(replaced.domain == "e-hentai.org")
@@ -198,9 +198,9 @@ struct DFRequestSemanticsTests {
 
         // Reproduce the handler's reconstruction for a site-root redirect (e.g. Location: /popular).
         let originalURL = try #require(URL(string: scheme))
-        let rebuilt = originalURL.appendingPathComponent("/popular")
+        let rebuilt = originalURL.appending(path: "/popular")
         #expect(rebuilt.host == "e-hentai.org")
         #expect(rebuilt.scheme == "https")
-        #expect(rebuilt.path == "/popular")
+        #expect(rebuilt.path(percentEncoded: false) == "/popular")
     }
 }

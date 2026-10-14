@@ -1,10 +1,10 @@
-import AppModels
+public import AppModels
 import Foundation
-import Kanna
+public import Kanna
 import Resources
 
 extension Parser {
-    public static func parseResponseError(doc: HTMLDocument) -> AppError? {
+    public static func parseResponseError(doc: any HTMLDocument) -> AppError? {
         if let banInterval = parseBanInterval(doc: doc) {
             return .ipBanned(banInterval)
         }
@@ -40,7 +40,7 @@ extension Parser {
         guard let labelEnd = loginErrorLabelEnd(content: content) else { return nil }
         let stripped = content[labelEnd...]
             .replacingOccurrences(of: "<[^>]+>", with: "\n", options: .regularExpression)
-            .replacingOccurrences(of: "&nbsp;", with: " ")
+            .replacing("&nbsp;", with: " ")
         let message = stripped
             .split(separator: "\n")
             .lazy
@@ -152,7 +152,7 @@ private extension Parser {
         return nil
     }
 
-    static func responseErrorCandidates(doc: HTMLDocument) -> [String] {
+    static func responseErrorCandidates(doc: any HTMLDocument) -> [String] {
         var candidates = [String]()
 
         let directCandidates = [

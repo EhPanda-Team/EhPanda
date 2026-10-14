@@ -1,5 +1,5 @@
 import AppModels
-import Foundation
+public import Foundation
 import ParserFeature
 
 extension URL {

@@ -1,13 +1,13 @@
 import AppComponents
 import AppModels
 import AppTools
-import ComposableArchitecture
+public import ComposableArchitecture
 import DetailFeature
 import ReadingFeature
 import Resources
 import SFSafeSymbols
 import SFSafeSymbolsExt
-import SwiftUI
+public import SwiftUI
 import SystemNotification
 
 public struct DownloadsView: View {

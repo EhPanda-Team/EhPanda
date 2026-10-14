@@ -18,7 +18,7 @@ struct DataCacheTests {
         await cache.removeAllMemory()
 
         #expect(await cache.data(forKey: key) == data)
-        let files = try FileManager.default.contentsOfDirectory(atPath: rootURL.path)
+        let files = try FileManager.default.contentsOfDirectory(atPath: rootURL.path(percentEncoded: false))
         #expect(files.count == 1)
         #expect(files.first != key)
         let resourceValues = try rootURL.resourceValues(forKeys: [.isExcludedFromBackupKey])
@@ -35,7 +35,7 @@ struct DataCacheTests {
         try await cache.store(data, forKeys: ["stable", "absolute", "stable"])
 
         #expect(await cache.data(forKeys: ["missing", "absolute"]) == data)
-        let files = try FileManager.default.contentsOfDirectory(atPath: rootURL.path)
+        let files = try FileManager.default.contentsOfDirectory(atPath: rootURL.path(percentEncoded: false))
         #expect(files.count == 2)
 
         try await cache.removeData(forKeys: ["stable", "absolute", "stable"])
@@ -126,8 +126,8 @@ struct DataCacheTests {
         // Make the on-disk entry unreadable by replacing the cached file with a
         // directory, which `Data(contentsOf:)` cannot read — the same failure mode
         // as a corrupt or mid-read-purged file.
-        let files = try FileManager.default.contentsOfDirectory(atPath: rootURL.path)
-        let entryURL = rootURL.appendingPathComponent(try #require(files.first))
+        let files = try FileManager.default.contentsOfDirectory(atPath: rootURL.path(percentEncoded: false))
+        let entryURL = rootURL.appending(path: try #require(files.first))
         try FileManager.default.removeItem(at: entryURL)
         try FileManager.default.createDirectory(at: entryURL, withIntermediateDirectories: false)
 
@@ -137,6 +137,6 @@ struct DataCacheTests {
 
     private func makeRootURL() -> URL {
         FileManager.default.temporaryDirectory
-            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+            .appending(path: UUID().uuidString, directoryHint: .isDirectory)
     }
 }

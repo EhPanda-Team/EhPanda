@@ -1,5 +1,5 @@
-import ComposableArchitecture
-import DetailFeature
+public import ComposableArchitecture
+public import DetailFeature
 
 // The Search tab's navigation stack: the search-results screen plus the shared gallery drill-down,
 // nested as a `.gallery` case so the gallery routing stays defined once in `GalleryPath`.

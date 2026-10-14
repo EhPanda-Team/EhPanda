@@ -1,8 +1,8 @@
-import AppModels
+public import AppModels
 import AppTools
 import Resources
 import SFSafeSymbols
-import SwiftUI
+public import SwiftUI
 
 /// The "Date seek" sheet content: a graphical date picker plus newer/older direction buttons.
 ///

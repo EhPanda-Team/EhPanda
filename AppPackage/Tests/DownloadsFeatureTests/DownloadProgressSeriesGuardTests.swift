@@ -1,3 +1,4 @@
+import BackgroundProcessingClient
 import Foundation
 import Testing
 

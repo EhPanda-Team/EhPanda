@@ -9,7 +9,7 @@ struct DownloadPendingWorkTests: DownloadFeatureTestCase {
     func testHasPendingWorkReflectsQueueState() async throws {
         let gid = "210001"
         let rootURL = FileManager.default.temporaryDirectory
-            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+            .appending(path: UUID().uuidString, directoryHint: .isDirectory)
         defer { removeTemporaryItem(at: rootURL) }
         let storage = DownloadStore(rootURL: rootURL, fileManager: .default)
         let manager = DownloadCoordinator(storage: storage, urlSession: .shared)
@@ -54,7 +54,7 @@ struct DownloadPendingWorkTests: DownloadFeatureTestCase {
         let activeGID = "210401"
         let queuedGID = "210402"
         let rootURL = FileManager.default.temporaryDirectory
-            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+            .appending(path: UUID().uuidString, directoryHint: .isDirectory)
         defer { removeTemporaryItem(at: rootURL) }
         let storage = DownloadStore(rootURL: rootURL, fileManager: .default)
         let manager = DownloadCoordinator(storage: storage, urlSession: .shared)

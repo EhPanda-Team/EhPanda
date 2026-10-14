@@ -4,9 +4,12 @@ import AppLaunchAutomationClient
 import AppModels
 import AppTools
 import ComposableArchitecture
+import DownloadClient
 import Foundation
+import HapticsClient
 import ReadingFeature
 import Resources
+import UIKit
 
 // MARK: - Download Action Handlers
 extension DetailReducer {

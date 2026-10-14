@@ -4,6 +4,7 @@ import AppModels
 import AppTools
 import ComposableArchitecture
 import CookieClient
+import DetailFeature
 import DeviceClient
 import DownloadClient
 import DownloadsFeature
@@ -11,6 +12,7 @@ import FavoritesFeature
 import HapticsClient
 import HomeFeature
 import OSLogExt
+import ReadingFeature
 import SearchFeature
 import SettingFeature
 import SwiftUI
@@ -483,7 +485,7 @@ private extension AppReducer {
         else { return false }
 
         if let galleryURL = automation.galleryURL,
-           galleryURL.host?.contains("exhentai.org") == true {
+           galleryURL.host(percentEncoded: false)?.contains("exhentai.org") == true {
             return true
         }
 

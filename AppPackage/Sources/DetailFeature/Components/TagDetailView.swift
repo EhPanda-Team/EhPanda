@@ -14,13 +14,14 @@ struct TagDetailView: View {
 
     var body: some View {
         NavigationStack {
-            ScrollView(showsIndicators: false) {
+            ScrollView {
                 VStack {
                     TagDescriptionSection(description: detail.description)
                     ImagesSection(imageURLs: detail.imageURLs).padding(.vertical)
                     LinksSection(links: detail.links).padding(.vertical)
                 }
             }
+            .scrollIndicators(.hidden)
             .scrollEdgeEffectStyle(.soft, for: .top)
             .navigationTitle(detail.title.emojisRipped)
         }
@@ -65,7 +66,7 @@ private struct ImagesSection: View {
                 ErrorView(error: .notFound)
                     .padding()
             } else {
-                ScrollView(.horizontal, showsIndicators: false) {
+                ScrollView(.horizontal) {
                     LazyHStack {
                         ForEach(imageURLs, id: \.self) { imageURL in
                             KFImage(imageURL)
@@ -81,6 +82,7 @@ private struct ImagesSection: View {
                         .withHorizontalSpacing(height: height)
                     }
                 }
+                .scrollIndicators(.hidden)
             }
         }
         .animation(.default, value: imageURLs)

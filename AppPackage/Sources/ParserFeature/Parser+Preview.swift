@@ -1,10 +1,11 @@
 import AppModels
 import AppTools
-import Foundation
-import Kanna
+import CoreGraphics
+public import Foundation
+public import Kanna
 
 extension Parser {
-    public static func parsePreviewURLs(doc: HTMLDocument) throws -> [Int: URL] {
+    public static func parsePreviewURLs(doc: any HTMLDocument) throws -> [Int: URL] {
         guard let gdtNode = doc.at_xpath("//div [@id='gdt']")
         else { throw AppError.parseFailed }
 
@@ -40,7 +41,7 @@ extension Parser {
 }
 
 private extension Parser {
-    static func parseCombinedPreviewURLs(node: XMLElement) -> [Int: URL] {
+    static func parseCombinedPreviewURLs(node: any XMLElement) -> [Int: URL] {
         var previewURLs = [Int: URL]()
 
         for link in node.xpath("//a") {
@@ -53,7 +54,7 @@ private extension Parser {
                let rangeE = style.range(of: ") -"),
                let rangeF = style[rangeE.upperBound...].range(of: "px "),
                let urlString = style[rangeD.upperBound..<rangeE.lowerBound]
-                .replacingOccurrences(of: "'", with: "")
+                .replacing("'", with: "")
                 .addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed),
                let url = URL(string: urlString),
                let title = divNode["title"],
@@ -73,7 +74,7 @@ private extension Parser {
         return previewURLs
     }
 
-    static func parseStandalonePreviewURLs(node: XMLElement) -> [Int: URL] {
+    static func parseStandalonePreviewURLs(node: any XMLElement) -> [Int: URL] {
         var previewURLs = [Int: URL]()
 
         for link in node.xpath("//a") {
@@ -82,7 +83,7 @@ private extension Parser {
                let rangeA = style.range(of: "url("),
                let rangeB = style.range(of: ")"),
                let urlString = style[rangeA.upperBound..<rangeB.lowerBound]
-                .replacingOccurrences(of: "'", with: "")
+                .replacing("'", with: "")
                 .addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed),
                let url = URL(string: urlString),
                let title = divNode["title"],

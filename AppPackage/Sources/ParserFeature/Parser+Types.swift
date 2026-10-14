@@ -1,5 +1,5 @@
-import AppModels
-import Foundation
+public import AppModels
+public import Foundation
 
 extension Parser {
     public struct ThumbnailPanelInfo {

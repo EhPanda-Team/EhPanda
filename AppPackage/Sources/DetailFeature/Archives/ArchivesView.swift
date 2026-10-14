@@ -5,6 +5,7 @@ import ComposableArchitecture
 import Dependencies
 import HapticsClient
 import Resources
+import SFSafeSymbols
 import SwiftUI
 import SystemNotification
 
@@ -84,9 +85,10 @@ struct ArchivesView: View {
     /// below the accessibility threshold.
     private var pinnedColumn: some View {
         VStack {
-            ScrollView(showsIndicators: false) {
+            ScrollView {
                 archiveGrid
             }
+            .scrollIndicators(.hidden)
             .frame(maxHeight: .infinity, alignment: .top)
             .scrollEdgeEffectStyle(.soft, for: .top)
 
@@ -112,13 +114,14 @@ struct ArchivesView: View {
     /// horizontal padding stays outside both arrangements, so nothing hugs the sheet's edge here
     /// either.
     private var scrollingColumn: some View {
-        ScrollView(showsIndicators: false) {
+        ScrollView {
             VStack(spacing: 20) {
                 archiveGrid
                 funds
                 downloadButton
             }
         }
+        .scrollIndicators(.hidden)
     }
 
     /// The grid of archive cards, without a scroll container of its own: the two arrangements
@@ -286,10 +289,10 @@ private struct HathArchiveGrid: View {
     var body: some View {
         sizedCard
             .contentShape(.rect)
-            .overlay(
+            .overlay {
                 RoundedRectangle(cornerRadius: 10)
                     .stroke(borderColor, lineWidth: 1)
-            )
+            }
             .glassEffect(.clear, in: .rect(cornerRadius: 10))
     }
 

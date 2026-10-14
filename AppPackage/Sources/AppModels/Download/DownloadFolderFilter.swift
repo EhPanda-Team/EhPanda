@@ -1,3 +1,4 @@
+import Foundation
 import Resources
 
 public enum DownloadFolderFilter: Hashable, Sendable {

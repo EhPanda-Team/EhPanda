@@ -1,6 +1,6 @@
-import AppModels
+public import AppModels
 import AppTools
-import Foundation
+public import Foundation
 import Kanna
 import OSLogExt
 import ParserFeature
@@ -191,7 +191,7 @@ public struct LoginRequest: Request {
             --- body (\(body.count) bytes) ---
             \(body)
             """
-        let destination = directory.appendingPathComponent("login-response-dump.txt")
+        let destination = directory.appending(path: "login-response-dump.txt")
         do {
             try dump.write(to: destination, atomically: true, encoding: .utf8)
             logger.notice("Wrote login response dump to \(destination.lastPathComponent, privacy: .public)")

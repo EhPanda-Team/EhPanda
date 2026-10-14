@@ -3,6 +3,7 @@ import AppModels
 import ComposableArchitecture
 import FiltersFeature
 import Foundation
+import HapticsClient
 @testable import HomeFeature
 import Sharing
 import Testing

@@ -28,7 +28,8 @@ final class FixtureArtworkTests: XCTestCase {
         }
         let result = try PublicVisualFixtures.export(to: directory, artworkPixelSizes: sizes)
         for (path, size) in sizes {
-            let image = try XCTUnwrap(UIImage(contentsOfFile: directory.appending(path: path).path)?.cgImage)
+            let imageURLPath = directory.appending(path: path).path(percentEncoded: false)
+            let image = try XCTUnwrap(UIImage(contentsOfFile: imageURLPath)?.cgImage)
             XCTAssertEqual(CGSize(width: image.width, height: image.height), size, path)
         }
         let repeated = directory.appending(path: "repeat", directoryHint: .isDirectory)
@@ -45,14 +46,14 @@ final class FixtureArtworkTests: XCTestCase {
             XCTAssertThrowsError(try PublicVisualFixtures.export(to: directory, artworkPixelSizes: [path: size])) {
                 XCTAssertEqual($0 as? PublicFixtureError, .invalidArtworkPixelSize(path))
             }
-            XCTAssertFalse(FileManager.default.fileExists(atPath: directory.path))
+            XCTAssertFalse(FileManager.default.fileExists(atPath: directory.path(percentEncoded: false)))
         }
         XCTAssertThrowsError(try PublicVisualFixtures.export(
             to: directory, artworkPixelSizes: ["metadata/home.json": CGSize(width: 218, height: 300)]
         )) {
             XCTAssertEqual($0 as? PublicFixtureError, .missingAsset("metadata/home.json"))
         }
-        XCTAssertFalse(FileManager.default.fileExists(atPath: directory.path))
+        XCTAssertFalse(FileManager.default.fileExists(atPath: directory.path(percentEncoded: false)))
     }
 
     @MainActor

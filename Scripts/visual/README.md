@@ -1,3 +1,17 @@
+# Test plans and CI
+
+`FeatureTests` runs package tests and app-hosted tests that need no capture coordinate. The
+`FullContentFeasibilityTests`, `GeometryTests`, and `VisualMatrixTests` classes run through
+`VisualTests` and the native scripts below, which supply their required text size, orientation,
+fixtures and coordinate. No assertions or capture cases are disabled in the visual plan.
+
+The push workflow runs `FeatureTests` without command-line exclusions. The manually dispatched
+`Visual capture` workflow validates the existing rendering pin, then runs the native full-content
+gate (iPhone/iPad, portrait/landscape, Large/AX5). It uploads observations and result bundles even
+on failure. Its runner needs the pinned Xcode installation and dedicated simulators configured
+below; it fails on drift instead of replacing the pin. This gate is distinct from the full
+locale/theme/Dynamic Type regression matrix driven by `run-regression.py`.
+
 # Rendering environment
 
 `regression-environment.json` is the tracked, immutable rendering contract shared by
@@ -24,14 +38,14 @@ Simulators of the same model under other names are ignored. It never uses a hist
 or a previous `.capture/` directory to select a destination.
 
 `GeometryTests.swift` belongs to the existing app-hosted **VisualSnapshotTests** target in
-**FeatureTests.xctestplan**. The probe creates a full-size real window through FullContentHost,
+**VisualTests.xctestplan**. The probe creates a full-size real window through FullContentHost,
 waits for stable native geometry and records actual points, pixels, safe areas, scale,
 size classes, appearance and system font metrics. It rejects a hardware rectangle mismatch
 rather than resizing the window to an expected value. The rectangles are 1260×2736 pixels
 for iPhone Air and 1668×2420 for iPad Pro 11-inch (M5), with axes exchanged in landscape.
 
 The command reuses the verified native invocation and simulator lifecycle code in
-`Scripts/verify-full-content-capture.py`. It builds FeatureTests and UITests, then runs
+`Scripts/verify-full-content-capture.py`. It builds VisualTests and UITests, then runs
 phone followed by tablet, one xcodebuild at a time. A native UI test rotates the device
 before each hosted geometry invocation; another restores portrait afterward. Test repetition
 policies are removed from run-local xctestrun copies. Missing, failed, skipped, repeated or

@@ -1,8 +1,9 @@
-import AppComponents
-import AppModels
+public import AppComponents
+public import AppModels
 import ClipboardClient
-import ComposableArchitecture
+public import ComposableArchitecture
 import HapticsClient
+import UIKit
 
 @Reducer
 public struct GalleryInfosReducer: Sendable {

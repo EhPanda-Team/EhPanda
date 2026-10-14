@@ -32,8 +32,8 @@ private struct SettingMock: MigratableModel {
             object["galleryHost"] = nil
         }
     }
-    init(from decoder: Decoder) throws { self = try SchemaMigrator.migrate(Self.self, from: decoder) }
-    init(currentFrom decoder: Decoder) throws {
+    init(from decoder: any Decoder) throws { self = try SchemaMigrator.migrate(Self.self, from: decoder) }
+    init(currentFrom decoder: any Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         host = try container.decode(GalleryHost.self, forKey: .host)
     }
@@ -54,8 +54,8 @@ private struct UserMock: MigratableModel {
             object["region"] = .string("")
         }
     }
-    init(from decoder: Decoder) throws { self = try SchemaMigrator.migrate(Self.self, from: decoder) }
-    init(currentFrom decoder: Decoder) throws {
+    init(from decoder: any Decoder) throws { self = try SchemaMigrator.migrate(Self.self, from: decoder) }
+    init(currentFrom decoder: any Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         displayName = try container.decodeIfPresent(String.self, forKey: .displayName)
         region = try container.decode(String.self, forKey: .region)
@@ -76,8 +76,8 @@ private struct FilterMock: MigratableModel {
             object["minRating"] = nil
         }
     }
-    init(from decoder: Decoder) throws { self = try SchemaMigrator.migrate(Self.self, from: decoder) }
-    init(currentFrom decoder: Decoder) throws {
+    init(from decoder: any Decoder) throws { self = try SchemaMigrator.migrate(Self.self, from: decoder) }
+    init(currentFrom decoder: any Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         doujinshi = try container.decode(Bool.self, forKey: .doujinshi)
     }
@@ -99,8 +99,8 @@ private struct TagTranslatorInfoMock: MigratableModel {
             object["hasCustomTranslations"] = nil
         }
     }
-    init(from decoder: Decoder) throws { self = try SchemaMigrator.migrate(Self.self, from: decoder) }
-    init(currentFrom decoder: Decoder) throws {
+    init(from decoder: any Decoder) throws { self = try SchemaMigrator.migrate(Self.self, from: decoder) }
+    init(currentFrom decoder: any Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         customTranslations = try container.decode(Int.self, forKey: .customTranslations)
     }
@@ -121,8 +121,8 @@ private struct GalleryHistoryEntryMock: MigratableModel {
             object["started"] = .bool(progress > 0)
         }
     }
-    init(from decoder: Decoder) throws { self = try SchemaMigrator.migrate(Self.self, from: decoder) }
-    init(currentFrom decoder: Decoder) throws {
+    init(from decoder: any Decoder) throws { self = try SchemaMigrator.migrate(Self.self, from: decoder) }
+    init(currentFrom decoder: any Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         started = try container.decode(Bool.self, forKey: .started)
     }
@@ -144,8 +144,8 @@ private struct QuickSearchWordMock: MigratableModel {
             object["combined"] = .string("\(name): \(content)")
         }
     }
-    init(from decoder: Decoder) throws { self = try SchemaMigrator.migrate(Self.self, from: decoder) }
-    init(currentFrom decoder: Decoder) throws {
+    init(from decoder: any Decoder) throws { self = try SchemaMigrator.migrate(Self.self, from: decoder) }
+    init(currentFrom decoder: any Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         combined = try container.decode(String.self, forKey: .combined)
     }
@@ -175,8 +175,8 @@ private struct ProgressiveMock: MigratableModel {
             object["b"] = nil
         }
     }
-    init(from decoder: Decoder) throws { self = try SchemaMigrator.migrate(Self.self, from: decoder) }
-    init(currentFrom decoder: Decoder) throws {
+    init(from decoder: any Decoder) throws { self = try SchemaMigrator.migrate(Self.self, from: decoder) }
+    init(currentFrom decoder: any Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         value = try container.decode(Int.self, forKey: .value)
     }

@@ -1,4 +1,4 @@
-import Foundation
+public import Foundation
 
 // reason: the 1,000 frozen literals below ARE this file; splitting them hides the count it asserts.
 // swiftlint:disable file_length

@@ -1,4 +1,4 @@
-import CoreGraphics
+public import CoreGraphics
 
 /// Fixed-cover roles share one proportion and retain their hierarchy at every text size.
 /// Masonry artwork deliberately uses its own image-driven aspect ratio.

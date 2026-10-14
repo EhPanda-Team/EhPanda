@@ -1,6 +1,7 @@
 import AppModels
 import ComposableArchitecture
 import CookieClient
+import DownloadClient
 import Foundation
 @testable import HomeFeature
 import Testing

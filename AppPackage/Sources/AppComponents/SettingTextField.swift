@@ -1,4 +1,4 @@
-import SwiftUI
+public import SwiftUI
 
 public struct SettingTextField: View {
     @Environment(\.colorScheme) private var colorScheme
@@ -12,7 +12,7 @@ public struct SettingTextField: View {
 
     private var color: Color {
         if let background = background { return background }
-        return colorScheme == .light ? Color(.systemGray6) : Color(.systemGray3)
+        return colorScheme == .light ? Color(uiColor: .systemGray6) : Color(uiColor: .systemGray3)
     }
     private var prompt: Text? {
         guard let text = promptText else { return nil }

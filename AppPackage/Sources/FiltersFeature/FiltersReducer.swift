@@ -1,6 +1,6 @@
 import AppComponents
-import AppModels
-import ComposableArchitecture
+public import AppModels
+public import ComposableArchitecture
 import Resources
 import Sharing
 
