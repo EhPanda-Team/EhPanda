@@ -87,11 +87,11 @@ struct PresentationFeatureTests {
         let fetchedGallery = gallery(id: "222")
         let url = try #require(URL(string: "https://e-hentai.org/g/222/abcdef0123/"))
         var initialState = PresentationFeature.State()
-        initialState.detail = .init(gallery: currentGallery)
+        initialState.gallery = .init(detail: .init(gallery: currentGallery))
         let fetchStore = presentationStore(initialState: initialState)
 
         await fetchStore.send(.handleDeepLink(url)) {
-            $0.detail = nil
+            $0.gallery = nil
             $0.isAwaitingDetailDismissal = true
         }
         await fetchStore.receive(\.fetchGallery) {
@@ -117,7 +117,7 @@ struct PresentationFeatureTests {
         await store.skipReceivedActions(strict: false)
         await store.skipInFlightEffects(strict: false)
 
-        #expect(store.state.detail?.gallery == fetchedGallery)
+        #expect(store.state.gallery?.detail.gallery == fetchedGallery)
     }
 
     @MainActor
@@ -139,7 +139,7 @@ struct PresentationFeatureTests {
         await store.skipReceivedActions(strict: false)
         await store.skipInFlightEffects(strict: false)
 
-        #expect(store.state.detail?.gallery == fetchedGallery)
+        #expect(store.state.gallery?.detail.gallery == fetchedGallery)
         #expect(store.state.pendingGalleryLink == nil)
     }
 
@@ -178,7 +178,7 @@ struct PresentationFeatureTests {
         await store.skipReceivedActions(strict: false)
         await store.skipInFlightEffects(strict: false)
 
-        #expect(store.state.detail?.gallery == fetchedGallery)
+        #expect(store.state.gallery?.detail.gallery == fetchedGallery)
         #expect(store.state.isAwaitingDetailDismissal == false)
         #expect(store.state.pendingGalleryLink == nil)
     }
@@ -210,7 +210,7 @@ struct PresentationFeatureTests {
         await store.skipReceivedActions(strict: false)
         await store.skipInFlightEffects(strict: false)
 
-        #expect(store.state.detail?.gallery == latestGallery)
+        #expect(store.state.gallery?.detail.gallery == latestGallery)
     }
 
     @Test(arguments: [

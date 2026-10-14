@@ -76,6 +76,7 @@ struct UITestStubTests {
             Route(url: "https://e-hentai.org/g/2930572/token/", body: "alternate", statusCode: 200),
             Route(url: "https://e-hentai.org/s/page-token/2725078-4", body: "single-page", statusCode: 200),
             Route(url: "https://e-hentai.org/?f_search=test", body: "front-page", statusCode: 200),
+            Route(url: "https://e-hentai.org/toplist.php?tl=15", body: "front-page", statusCode: 200),
             Route(url: "https://e-hentai.org/api.php", body: "", statusCode: 404)
         ]
         for route in routes {
