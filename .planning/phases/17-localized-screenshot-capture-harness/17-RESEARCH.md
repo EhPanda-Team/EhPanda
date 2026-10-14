@@ -339,9 +339,9 @@ Existing commands, one invocation at a time:
 xcodebuild test -project EhPanda.xcodeproj -scheme EhPanda -testPlan FeatureTests \
   -destination "platform=iOS Simulator,id=$PHONE_UDID"
 xcodebuild test -project EhPanda.xcodeproj -scheme EhPanda -testPlan UITests \
-  -destination "platform=iOS Simulator,id=$PHONE_UDID" -retry-tests-on-failure NO
+  -destination "platform=iOS Simulator,id=$PHONE_UDID"
 ```
-Repeat sequentially for tablet. Resolve current UDIDs rather than using stale config identifiers.
+Repeat sequentially for tablet. Resolve current UDIDs rather than using stale config identifiers. The direct UITests command still inherits the test plan's retry policy; use the native runners' single-pass xctestrun copies for no-retry visual evidence. See `17-VALIDATION.md`, "Retry policy for direct test commands".
 
 **Wave 0:** create a dedicated visual test plan/hosted target and public fixtures; its exact target/filter/command must be recorded after registration. Proposed suite name VisualPipelineContractTests; not currently runnable. Existing FeatureTests/UI plans remain regression gates. A small filtered contract suite should run within30seconds; measured feasibility/full matrix is intentionally longer. [CITED: existing infrastructure; proposed tests]
 
