@@ -1,5 +1,5 @@
-import Kingfisher
-import SwiftUI
+public import Kingfisher
+public import SwiftUI
 
 /// Stable artwork geometry for fixed-cover surfaces, including loading and local download covers.
 public struct GalleryCover: View {
@@ -28,7 +28,7 @@ public struct GalleryCover: View {
     public var body: some View {
         KFImage(url)
             .placeholder {
-                Color(.systemGray5)
+                Color(uiColor: .systemGray5)
                     .overlay { ProgressView() }
                     .aspectRatio(size.height > 0 ? size.width / size.height : GalleryCoverStyle.aspectRatio,
                                  contentMode: .fill)
@@ -39,7 +39,7 @@ public struct GalleryCover: View {
             .aspectRatio(contentMode: contentMode)
             .frame(width: size.width, height: size.height)
             // In dark grouped lists, secondarySystemBackground matches the cell itself.
-            .background(Color(colorScheme == .dark ? .systemGray5 : .secondarySystemBackground))
+            .background(Color(uiColor: colorScheme == .dark ? .systemGray5 : .secondarySystemBackground))
             .clipShape(Self.clipShape)
     }
 }

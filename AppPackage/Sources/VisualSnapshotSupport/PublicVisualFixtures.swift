@@ -1,6 +1,6 @@
 import CryptoKit
-import Foundation
-import UIKit
+public import Foundation
+public import UIKit
 
 public struct PublicFixtureExport: Sendable {
     public let aggregateDigest: String
@@ -178,7 +178,7 @@ public enum PublicVisualFixtures {
         try validateScenarios(scenarioBytes, assets: Set(files.map(\.path)), routes: Set(routes.map(\.id)))
         files.append(FixtureFile(path: "scenarios.json", mime: "application/json", bytes: scenarioBytes))
         let sourcePath = "AppPackage/Sources/VisualSnapshotSupport/PublicVisualFixtures.swift"
-        let sourceBytes = try Data(contentsOf: URL(fileURLWithPath: #filePath))
+        let sourceBytes = try Data(contentsOf: URL(filePath: #filePath))
         guard !sourceBytes.isEmpty else { throw PublicFixtureError.invalidSourceProvenance }
         let entries = files.sorted(by: { $0.path < $1.path }).map { file in
             FixtureEntry(path: file.path, mime: file.mime, bytes: file.bytes.count, sha256: digest(file.bytes))
@@ -189,8 +189,9 @@ public enum PublicVisualFixtures {
             generatorSources: [sourcePath: digest(sourceBytes)],
             fixtureIDs: fixtureIDs, assets: entries, aggregateDigest: aggregateDigest
         )
-        if FileManager.default.fileExists(atPath: directory.path) {
-            guard try FileManager.default.contentsOfDirectory(atPath: directory.path).isEmpty else {
+        if FileManager.default.fileExists(atPath: directory.path(percentEncoded: false)) {
+            let contents = try FileManager.default.contentsOfDirectory(atPath: directory.path(percentEncoded: false))
+            guard contents.isEmpty else {
                 throw PublicFixtureError.destinationNotEmpty
             }
         }

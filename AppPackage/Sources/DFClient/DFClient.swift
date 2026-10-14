@@ -1,4 +1,4 @@
-import ComposableArchitecture
+public import ComposableArchitecture
 import Foundation
 import Kingfisher
 import NetworkingFeature

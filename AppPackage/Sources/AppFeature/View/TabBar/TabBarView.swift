@@ -10,6 +10,7 @@ import Resources
 import SearchFeature
 import SettingFeature
 import SFSafeSymbols
+import SFSafeSymbolsExt
 import SwiftUI
 import SystemNotification
 

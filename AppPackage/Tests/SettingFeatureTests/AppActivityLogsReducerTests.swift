@@ -20,7 +20,7 @@ struct AppActivityLogsReducerTests {
         let entryA = makeLog("first", secondsSince1970: 10)
         let entryB = makeLog("second", secondsSince1970: 20)
         let appended = LockIsolated([[AppActivityLog]]())
-        let fileURL = URL(fileURLWithPath: "/tmp/ehpanda-20200101-090000-3.jsonl")
+        let fileURL = URL(filePath: "/tmp/ehpanda-20200101-090000-3.jsonl")
 
         let client = Self.pumpClient(
             entries: [entryA, entryB],
@@ -72,7 +72,7 @@ struct AppActivityLogsReducerTests {
     @Test
     func startPumpTwiceDerivesTheRunOnce() async {
         let runCountCalls = LockIsolated(0)
-        let fileURL = URL(fileURLWithPath: "/tmp/ehpanda-20200101-090000-3.jsonl")
+        let fileURL = URL(filePath: "/tmp/ehpanda-20200101-090000-3.jsonl")
 
         var client = LogsClient.noop
         client.currentRunFileURL = { _, _ in fileURL }
@@ -127,7 +127,7 @@ struct AppActivityLogsReducerTests {
         let entryA = makeLog("first", secondsSince1970: 10)
         let entryB = makeLog("second", secondsSince1970: 20)
         let appended = LockIsolated([[AppActivityLog]]())
-        let fileURL = URL(fileURLWithPath: "/tmp/ehpanda-20200101-090000-4.jsonl")
+        let fileURL = URL(filePath: "/tmp/ehpanda-20200101-090000-4.jsonl")
 
         let client = Self.pumpClient(
             entries: [entryA, entryB],
@@ -188,7 +188,7 @@ struct AppActivityLogsReducerTests {
     func testSelectingPreviousRunLoadsFileBackedLogs() async {
         let fileLog = makeLog("archived", secondsSince1970: 5)
         let run = RunLogFile(
-            url: URL(fileURLWithPath: "/tmp/ehpanda-20200101-090000-2.jsonl"),
+            url: URL(filePath: "/tmp/ehpanda-20200101-090000-2.jsonl"),
             date: .init(timeIntervalSince1970: 0),
             runCount: 2
         )
@@ -203,7 +203,7 @@ struct AppActivityLogsReducerTests {
             @Shared(.appActivityLogsCurrentRunLogs) var currentRunLogs: [AppActivityLog]
             $currentRun.withLock {
                 $0 = RunLogFile(
-                    url: URL(fileURLWithPath: "/tmp/ehpanda-20200101-100000-3.jsonl"),
+                    url: URL(filePath: "/tmp/ehpanda-20200101-100000-3.jsonl"),
                     date: .init(timeIntervalSince1970: 3600),
                     runCount: 3
                 )
@@ -244,7 +244,7 @@ struct AppActivityLogsReducerTests {
             @Shared(.appActivityLogsCurrentRunLogs) var currentRunLogs: [AppActivityLog]
             $currentRun.withLock {
                 $0 = RunLogFile(
-                    url: URL(fileURLWithPath: "/tmp/ehpanda-20200101-100000-3.jsonl"),
+                    url: URL(filePath: "/tmp/ehpanda-20200101-100000-3.jsonl"),
                     date: .init(timeIntervalSince1970: 3600),
                     runCount: 3
                 )
@@ -252,7 +252,7 @@ struct AppActivityLogsReducerTests {
             $currentRunLogs.withLock({ $0 = [live] })
 
             var initialState = AppActivityLogsReducer.State()
-            initialState.selectedRun = URL(fileURLWithPath: "/tmp/ehpanda-20200101-090000-2.jsonl")
+            initialState.selectedRun = URL(filePath: "/tmp/ehpanda-20200101-090000-2.jsonl")
             initialState.selectedRunLogs = [makeLog("archived", secondsSince1970: 5)]
 
             let store = TestStore(initialState: initialState, reducer: AppActivityLogsReducer.init) {

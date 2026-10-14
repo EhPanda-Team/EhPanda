@@ -18,7 +18,7 @@ struct DownloadPauseAndReconcileTests: DownloadFeatureTestCase {
     func testPauseKeepsActiveDownloadPausedWhenDeferredSchedulingRuns() async throws {
         let gid = String(Int(Date().timeIntervalSince1970 * 1000))
         let rootURL = FileManager.default.temporaryDirectory
-            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+            .appending(path: UUID().uuidString, directoryHint: .isDirectory)
         defer { removeTemporaryItem(at: rootURL) }
 
         let configuration = URLSessionConfiguration.ephemeral
@@ -72,7 +72,7 @@ struct DownloadPauseAndReconcileTests: DownloadFeatureTestCase {
     func testTogglePausePausesActiveRetryBeforeClearingQueuedIntent() async throws {
         let gid = String(Int(Date().timeIntervalSince1970 * 1000) + 10)
         let rootURL = FileManager.default.temporaryDirectory
-            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+            .appending(path: UUID().uuidString, directoryHint: .isDirectory)
         defer { removeTemporaryItem(at: rootURL) }
 
         let storage = DownloadStore(rootURL: rootURL, fileManager: .default)
@@ -114,7 +114,7 @@ struct DownloadPauseAndReconcileTests: DownloadFeatureTestCase {
     func testPauseKeepsIndexedManifestProgressWhenCancelling() async throws {
         let gid = String(Int(Date().timeIntervalSince1970 * 1000) + 1)
         let rootURL = FileManager.default.temporaryDirectory
-            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+            .appending(path: UUID().uuidString, directoryHint: .isDirectory)
         defer { removeTemporaryItem(at: rootURL) }
 
         let configuration = URLSessionConfiguration.ephemeral
@@ -138,11 +138,11 @@ struct DownloadPauseAndReconcileTests: DownloadFeatureTestCase {
             withIntermediateDirectories: true
         )
         try Data([0x01]).write(
-            to: folderURL.appendingPathComponent("\(gid)_token_1.jpg"),
+            to: folderURL.appending(path: "\(gid)_token_1.jpg"),
             options: .atomic
         )
         try Data([0x02]).write(
-            to: folderURL.appendingPathComponent("\(gid)_token_2.jpg"),
+            to: folderURL.appending(path: "\(gid)_token_2.jpg"),
             options: .atomic
         )
         await manager.reloadDownloadIndex()
@@ -172,14 +172,14 @@ struct DownloadPauseAndReconcileTests: DownloadFeatureTestCase {
                 progress: .init(completedPageCount: 1, pageCount: 2)
             )
         )
-        #expect(FileManager.default.fileExists(atPath: folderURL.path))
+        #expect(FileManager.default.fileExists(atPath: folderURL.path(percentEncoded: false)))
     }
 
     @Test
     func testReconcileDownloadsKeepsIndexedSessionFailure() async throws {
         let gid = String(Int(Date().timeIntervalSince1970 * 1000) + 2)
         let rootURL = FileManager.default.temporaryDirectory
-            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+            .appending(path: UUID().uuidString, directoryHint: .isDirectory)
         defer { removeTemporaryItem(at: rootURL) }
 
         let configuration = URLSessionConfiguration.ephemeral
@@ -212,7 +212,7 @@ struct DownloadPauseAndReconcileTests: DownloadFeatureTestCase {
     func testReconcileDownloadsClearsCancellationLikeGalleryError() async throws {
         let gid = String(Int(Date().timeIntervalSince1970 * 1000) + 3)
         let rootURL = FileManager.default.temporaryDirectory
-            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+            .appending(path: UUID().uuidString, directoryHint: .isDirectory)
         defer { removeTemporaryItem(at: rootURL) }
 
         let configuration = URLSessionConfiguration.ephemeral
@@ -249,7 +249,7 @@ struct DownloadPauseAndReconcileTests: DownloadFeatureTestCase {
     func testLoadInspectionFiltersCancellationFailuresIntoPendingPages() async throws {
         let gid = String(Int(Date().timeIntervalSince1970 * 1000) + 4)
         let rootURL = FileManager.default.temporaryDirectory
-            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+            .appending(path: UUID().uuidString, directoryHint: .isDirectory)
         defer { removeTemporaryItem(at: rootURL) }
 
         let configuration = URLSessionConfiguration.ephemeral
@@ -338,7 +338,7 @@ private extension DownloadPauseAndReconcileTests {
             withIntermediateDirectories: true
         )
         try Data([0x01]).write(
-            to: folderURL.appendingPathComponent("\(gid)_token_1.jpg"),
+            to: folderURL.appending(path: "\(gid)_token_1.jpg"),
             options: .atomic
         )
     }

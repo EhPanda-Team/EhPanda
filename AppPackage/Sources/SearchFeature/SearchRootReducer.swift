@@ -1,14 +1,14 @@
 import AnalyticsClient
-import AppModels
+public import AppModels
 import AppTools
-import ComposableArchitecture
+public import ComposableArchitecture
 import DetailFeature
 import DeviceClient
-import FiltersFeature
+public import FiltersFeature
 import HapticsClient
 import NetworkingFeature
-import QuickSearchFeature
-import Sharing
+public import QuickSearchFeature
+public import Sharing
 
 @Reducer
 public struct SearchRootReducer: Sendable {
@@ -229,16 +229,14 @@ public struct SearchRootReducer: Sendable {
                 guard pairs.map(\.gid) != state.historyGalleries.map(\.gid) else { return .none }
                 let host = state.setting.galleryHost
                 return .run { send in
-                    do throws(AppError) {
-                        let galleries = try await GalleriesMetadataRequest(
+                    let result = await Result.Swift::init { () async throws(AppError) in
+                        try await GalleriesMetadataRequest(
                             host: host,
                             gidList: pairs
                         )
                         .response()
-                        await send(.fetchHistoryGalleriesDone(.success(galleries)))
-                    } catch {
-                        await send(.fetchHistoryGalleriesDone(.failure(error)))
                     }
+                    await send(.fetchHistoryGalleriesDone(result))
                 }
                 .cancellable(id: CancelID.fetchHistoryGalleries, cancelInFlight: true)
 

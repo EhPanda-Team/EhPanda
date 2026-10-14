@@ -382,7 +382,7 @@ private extension DownloadContinuedSessionExpirationTests {
                 fileExtension: "jpg"
             )
             try Data([UInt8(index)]).write(
-                to: folderURL.appendingPathComponent(relativePath),
+                to: folderURL.appending(path: relativePath),
                 options: .atomic
             )
             pendingResolvedPages.append(

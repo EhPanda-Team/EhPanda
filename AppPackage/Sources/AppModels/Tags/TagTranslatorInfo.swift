@@ -1,4 +1,4 @@
-import Foundation
+public import Foundation
 
 /// Thin, `appStorage`-persisted metadata for the tag-translation table.
 ///

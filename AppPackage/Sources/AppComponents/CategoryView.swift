@@ -3,7 +3,7 @@ import AppTools
 import Dependencies
 import HapticsClient
 import Sharing
-import SwiftUI
+public import SwiftUI
 
 // MARK: CategoryLabel
 /// A category name drawn white-on-colour inside a small rounded badge.
@@ -72,9 +72,7 @@ public struct CategoryLabel: View {
             .lineLimit(lineLimit)
             .foregroundStyle(.white)
             .padding(scaledInsets)
-            .background(
-                Rectangle().foregroundStyle(color).clipShape(.rect(cornerRadius: cornerRadius))
-            )
+            .background(color, in: .rect(cornerRadius: cornerRadius))
     }
 }
 

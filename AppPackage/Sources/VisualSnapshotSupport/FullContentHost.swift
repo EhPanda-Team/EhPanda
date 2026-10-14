@@ -1,6 +1,6 @@
-import Foundation
-import SnapshotTesting
-import SwiftUI
+public import Foundation
+public import SnapshotTesting
+public import SwiftUI
 import UIKit
 
 public struct FullContentCaptureEvidence {
@@ -373,7 +373,7 @@ public final class FullContentHost<Content: View> {
             of: reads, imageSize: outputSize, words: [trailingMarker], pass: .trailingMarker
         )
         let census = Dictionary(uniqueKeysWithValues: expectedItems.map { item in
-            (item.title, occurrences.filter({ $0.label == item.marker }).count)
+            (item.title, occurrences.count(where: { $0.label == item.marker }))
         })
         try writeDiagnostics(
             occurrences: occurrences + trailingOccurrences, census: census,
@@ -450,7 +450,7 @@ public final class FullContentHost<Content: View> {
             sceneBounds: scene.effectiveGeometry.coordinateSpace.bounds,
             stableIterations: stableIterations,
             statusBarHidden: measurement.statusBarHidden,
-            testHostPath: executable.path,
+            testHostPath: executable.path(percentEncoded: false),
             trailingMarkerFrame: trailingMarkerFrame,
             viewport: viewport,
             windowBounds: window.bounds,
@@ -601,7 +601,7 @@ public final class FullContentHost<Content: View> {
             try strategy.diffing.toData(image).write(to: url, options: .atomic)
         } else if let failure = verifySnapshot(
             of: image, as: strategy, named: name, record: .never,
-            snapshotDirectory: directory.path, testName: "capture"
+            snapshotDirectory: directory.path(percentEncoded: false), testName: "capture"
         ) {
             throw FullContentHostError.snapshotFailed(failure)
         }

@@ -1,12 +1,13 @@
-import AppComponents
-import AppModels
+public import AppComponents
+public import AppModels
 import ClipboardClient
-import ComposableArchitecture
+public import ComposableArchitecture
 import FileClient
-import Foundation
+public import Foundation
 import HapticsClient
 import NetworkingFeature
 import Sharing
+import UIKit
 
 @Reducer
 public struct TorrentsReducer: Sendable {
@@ -76,19 +77,18 @@ public struct TorrentsReducer: Sendable {
                 )
 
             case .presentTorrentActivity(let hash, let data):
-                if let url = fileClient.saveTorrent(hash: hash, data: data) {
-                    return .send(.presentShare(url))
+                return .run { send in
+                    if let url = await fileClient.saveTorrent(hash: hash, data: data) {
+                        await send(.presentShare(url))
+                    }
                 }
-                return .none
 
             case .fetchTorrent(let hash, let torrentURL):
                 return .run { send in
-                    do throws(AppError) {
-                        let data = try await DataRequest(url: torrentURL).response()
-                        await send(.fetchTorrentDone(hash: hash, result: .success(data)))
-                    } catch {
-                        await send(.fetchTorrentDone(hash: hash, result: .failure(error)))
+                    let result = await Result.Swift::init { () async throws(AppError) in
+                        try await DataRequest(url: torrentURL).response()
                     }
+                    await send(.fetchTorrentDone(hash: hash, result: result))
                 }
                 .cancellable(id: CancelID.fetchTorrent)
 
@@ -103,17 +103,15 @@ public struct TorrentsReducer: Sendable {
                 state.loadingState = .loading
                 let host = state.setting.galleryHost
                 return .run { send in
-                    do throws(AppError) {
-                        let torrents = try await GalleryTorrentsRequest(
+                    let result = await Result.Swift::init { () async throws(AppError) in
+                        try await GalleryTorrentsRequest(
                             host: host,
                             gid: gid,
                             token: token
                         )
                         .response()
-                        await send(.fetchGalleryTorrentsDone(.success(torrents)))
-                    } catch {
-                        await send(.fetchGalleryTorrentsDone(.failure(error)))
                     }
+                    await send(.fetchGalleryTorrentsDone(result))
                 }
                 .cancellable(id: CancelID.fetchGalleryTorrents)
 

@@ -1,5 +1,5 @@
-import AppModels
-import Foundation
+public import AppModels
+public import Foundation
 
 /// The single owner of one run's log cursor AND of the run file the cursor names — fetch, append
 /// and cursor-advance are one serialized step, performed by whoever holds this actor.

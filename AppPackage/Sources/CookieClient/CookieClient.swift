@@ -1,8 +1,8 @@
-import AppModels
+public import AppModels
 import AppTools
-import ComposableArchitecture
+public import ComposableArchitecture
 import Dispatch
-import Foundation
+public import Foundation
 #if DEBUG
 import Synchronization
 #endif
@@ -113,7 +113,7 @@ extension CookieClient {
                     .originURL: url
                 ]
                 var mutableProperties = properties
-                if let host = url.host {
+                if let host = url.host(percentEncoded: false) {
                     mutableProperties[.domain] = host
                 }
                 if sessionOnly {
@@ -425,7 +425,7 @@ private struct CookieClientTestingCookie: Sendable {
     public var isSessionOnly: Bool
 
     public func matches(url: URL, key: String? = nil) -> Bool {
-        guard let host = url.host?.lowercased() else { return false }
+        guard let host = url.host(percentEncoded: false)?.lowercased() else { return false }
         // Host-exact: the store only ever holds concrete-host cookies (never a wildcard `.domain`
         // one), so a subdomain query such as `s.exhentai.org` must NOT match an `exhentai.org`
         // cookie. A suffix match let a `syncExCookies` write to one host collaterally delete a
@@ -496,7 +496,7 @@ private final class CookieClientTestingStore: Sendable {
         expiresTime: TimeInterval = .oneYear,
         sessionOnly: Bool = false
     ) {
-        guard let domain = url.host else { return }
+        guard let domain = url.host(percentEncoded: false) else { return }
         let cookie = CookieClientTestingCookie(
             domain: domain,
             path: path,

@@ -1,13 +1,13 @@
 import AppComponents
-import AppModels
+public import AppModels
 import AppTools
-import ComposableArchitecture
+public import ComposableArchitecture
 import DownloadClient
 import Foundation
 import HapticsClient
 import NetworkingFeature
 import Resources
-import Sharing
+public import Sharing
 
 @Reducer
 public struct HistoryReducer: Sendable {
@@ -145,16 +145,14 @@ public struct HistoryReducer: Sendable {
                 let host = state.setting.galleryHost
                 state.loadingState = .loading
                 return .run { send in
-                    do throws(AppError) {
-                        let galleries = try await GalleriesMetadataRequest(
+                    let result = await Result.Swift::init { () async throws(AppError) in
+                        try await GalleriesMetadataRequest(
                             host: host,
                             gidList: pairs
                         )
                         .response()
-                        await send(.fetchGalleriesDone(result: .success(galleries), endIndex: end))
-                    } catch {
-                        await send(.fetchGalleriesDone(result: .failure(error), endIndex: end))
                     }
+                    await send(.fetchGalleriesDone(result: result, endIndex: end))
                 }
                 .cancellable(id: CancelID.fetch, cancelInFlight: true)
 
@@ -188,16 +186,14 @@ public struct HistoryReducer: Sendable {
                 let host = state.setting.galleryHost
                 state.footerLoadingState = .loading
                 return .run { send in
-                    do throws(AppError) {
-                        let galleries = try await GalleriesMetadataRequest(
+                    let result = await Result.Swift::init { () async throws(AppError) in
+                        try await GalleriesMetadataRequest(
                             host: host,
                             gidList: pairs
                         )
                         .response()
-                        await send(.fetchMoreGalleriesDone(result: .success(galleries), endIndex: end))
-                    } catch {
-                        await send(.fetchMoreGalleriesDone(result: .failure(error), endIndex: end))
                     }
+                    await send(.fetchMoreGalleriesDone(result: result, endIndex: end))
                 }
                 .cancellable(id: CancelID.fetch, cancelInFlight: true)
 

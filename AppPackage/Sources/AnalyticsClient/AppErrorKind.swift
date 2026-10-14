@@ -1,4 +1,4 @@
-import AppModels
+public import AppModels
 
 // A payload-free mirror of `AppError`.
 //

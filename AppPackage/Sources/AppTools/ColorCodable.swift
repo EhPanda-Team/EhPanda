@@ -1,4 +1,4 @@
-import SwiftUI
+public import SwiftUI
 #if os(iOS)
 import UIKit
 #elseif os(watchOS)
@@ -42,7 +42,7 @@ extension Color: @retroactive Codable {
         case red, green, blue
     }
 
-    public init(from decoder: Decoder) throws {
+    public init(from decoder: any Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         let red = try container.decode(Double.self, forKey: .red)
         let green = try container.decode(Double.self, forKey: .green)
@@ -50,7 +50,7 @@ extension Color: @retroactive Codable {
         self.init(red: red, green: green, blue: blue)
     }
 
-    public func encode(to encoder: Encoder) throws {
+    public func encode(to encoder: any Encoder) throws {
         guard let colorComponents = self.colorComponents else { return }
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encode(colorComponents.red, forKey: .red)

@@ -1,5 +1,5 @@
-import AppModels
-import Foundation
+public import AppModels
+public import Foundation
 import Synchronization
 
 public struct DownloadPageTaskContext: Equatable, Sendable {
@@ -158,7 +158,7 @@ private actor BackgroundDownloadTaskHub {
         case cancelled
         case app(AppError)
 
-        var error: Error {
+        var error: any Error {
             switch self {
             case .cancelled:
                 return CancellationError()
@@ -170,7 +170,7 @@ private actor BackgroundDownloadTaskHub {
 
     private static let stashCapacity = 256
 
-    private var continuations = [Int: CheckedContinuation<DownloadPageTransfer, Error>]()
+    private var continuations = [Int: CheckedContinuation<DownloadPageTransfer, any Error>]()
     private var completions = BoundedStash<DownloadPageTransfer>(
         capacity: BackgroundDownloadTaskHub.stashCapacity
     )
@@ -213,7 +213,7 @@ private actor BackgroundDownloadTaskHub {
 
     func fail(
         taskIdentifier: Int,
-        error: Error
+        error: any Error
     ) -> Bool {
         let failure = Self.failure(from: error)
         if let continuation = continuations.removeValue(forKey: taskIdentifier) {
@@ -225,7 +225,7 @@ private actor BackgroundDownloadTaskHub {
     }
 
     private func register(
-        _ continuation: CheckedContinuation<DownloadPageTransfer, Error>,
+        _ continuation: CheckedContinuation<DownloadPageTransfer, any Error>,
         taskIdentifier: Int
     ) {
         if let transfer = completions.removeValue(forKey: taskIdentifier) {
@@ -247,7 +247,7 @@ private actor BackgroundDownloadTaskHub {
         failures.insert(.cancelled, forKey: taskIdentifier)
     }
 
-    private static func failure(from error: Error) -> Failure {
+    private static func failure(from error: any Error) -> Failure {
         if error is CancellationError {
             return .cancelled
         }
@@ -269,7 +269,7 @@ private actor BackgroundDownloadTaskHub {
 
     // Classifies a delegate error for the orphaned-failure route: `nil` for a
     // cancellation (clean up the task record only), the AppError otherwise.
-    static func orphanedFailureError(from error: Error) -> AppError? {
+    static func orphanedFailureError(from error: any Error) -> AppError? {
         switch failure(from: error) {
         case .cancelled:
             return nil
@@ -470,7 +470,7 @@ private final class BackgroundPageDownloadDelegate: NSObject, URLSessionDownload
     func urlSession(
         _: URLSession,
         task: URLSessionTask,
-        didCompleteWithError error: Error?
+        didCompleteWithError error: any Error?
     ) {
         guard let error else { return }
         complete(taskIdentifier: task.taskIdentifier, error: error)
@@ -488,7 +488,7 @@ private final class BackgroundPageDownloadDelegate: NSObject, URLSessionDownload
 
     private func complete(
         taskIdentifier: Int,
-        error: Error
+        error: any Error
     ) {
         Task {
             // The in-process waiter removes its own task record when `wait` throws;
@@ -512,7 +512,7 @@ private final class BackgroundPageDownloadDelegate: NSObject, URLSessionDownload
         taskIdentifier: Int
     ) throws -> URL {
         let stagedURL = holdingDirectory
-            .appendingPathComponent("\(taskIdentifier)-\(UUID().uuidString).download")
+            .appending(path: "\(taskIdentifier)-\(UUID().uuidString).download")
         try fileManager.operate {
             try $0.createDirectory(
                 at: holdingDirectory,

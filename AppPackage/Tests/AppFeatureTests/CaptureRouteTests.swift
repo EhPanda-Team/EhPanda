@@ -6,12 +6,17 @@ import AppTools
 import ComposableArchitecture
 import CookieClient
 import CustomDump
+import DetailFeature
 import DeviceClient
 import DownloadClient
 import Foundation
 import HapticsClient
 import HomeFeature
+import LibraryClient
 import LogsClient
+import ReadingFeature
+import SearchFeature
+import SettingFeature
 import Sharing
 import Testing
 import UserDefaultsClient

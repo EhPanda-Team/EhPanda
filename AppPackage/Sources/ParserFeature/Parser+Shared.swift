@@ -1,7 +1,7 @@
-import AppModels
+public import AppModels
 import AppTools
-import Foundation
-import Kanna
+public import Foundation
+public import Kanna
 import OSLogExt
 import RegexBuilder
 
@@ -34,7 +34,7 @@ extension Parser {
             title
                 .components(separatedBy: ":")
                 .first?
-                .replacingOccurrences(of: "Page ", with: "")
+                .replacing("Page ", with: "")
                 .trimmingCharacters(in: .whitespaces)
         )
         .flatMap(Int.init)
@@ -57,7 +57,7 @@ extension Parser {
     /// Built with `RegexBuilder` rather than a runtime-compiled `NSRegularExpression`: the regex is
     /// validated at compile time, so there is no construction failure to swallow, and `name` is
     /// matched as a literal without hand-rolled pattern escaping.
-    static func parseScriptVariable(name: String, doc: HTMLDocument) -> String? {
+    static func parseScriptVariable(name: String, doc: any HTMLDocument) -> String? {
         let quote = CharacterClass.anyOf("\"'")
         let regex = Regex {
             "var"
@@ -80,13 +80,13 @@ extension Parser {
         return nil
     }
 
-    static func parseScriptURL(name: String, doc: HTMLDocument, host: URL) -> URL? {
+    static func parseScriptURL(name: String, doc: any HTMLDocument, host: URL) -> URL? {
         guard var value = parseScriptVariable(name: name, doc: doc)?.trimmingCharacters(in: .whitespacesAndNewlines),
               !value.isEmpty
         else { return nil }
         value = value
-            .replacingOccurrences(of: "&amp;", with: "&")
-            .replacingOccurrences(of: "\\u0026", with: "&")
+            .replacing("&amp;", with: "&")
+            .replacing("\\u0026", with: "&")
 
         let baseURL = host
         let parsedURL: URL?
@@ -102,9 +102,9 @@ extension Parser {
         }
 
         let knownGalleryHosts = [
-            Defaults.URL.ehentai.host,
-            Defaults.URL.exhentai.host,
-            Defaults.URL.sexhentai.host
+            Defaults.URL.ehentai.host(percentEncoded: false),
+            Defaults.URL.exhentai.host(percentEncoded: false),
+            Defaults.URL.sexhentai.host(percentEncoded: false)
         ]
         .compactMap({ $0?.lowercased() })
 
@@ -118,13 +118,13 @@ extension Parser {
         return components.url
     }
 
-    static func parseScriptDate(name: String, doc: HTMLDocument) -> Date? {
+    static func parseScriptDate(name: String, doc: any HTMLDocument) -> Date? {
         guard let value = parseScriptVariable(name: name, doc: doc), !value.isEmpty else { return nil }
         // An invalid optional script date intentionally degrades to nil.
         return degrading("Script date", { try parseDate(time: value, format: "yyyy-MM-dd") })
     }
 
-    public static func parseDateSeekNavigation(doc: HTMLDocument, host: URL) -> DateSeekNavigation? {
+    public static func parseDateSeekNavigation(doc: any HTMLDocument, host: URL) -> DateSeekNavigation? {
         guard let minimumDate = parseScriptDate(name: "mindate", doc: doc),
               let maximumDate = parseScriptDate(name: "maxdate", doc: doc),
               let directions = DateSeekNavigation.Directions(
@@ -137,12 +137,12 @@ extension Parser {
 
     // swiftlint:disable cyclomatic_complexity
     /// Returns ratings parsed from stars image / text and if the return contains a userRating .
-    static func parseRating(node: XMLElement) throws -> RatingResult {
-        func parseTextRating(node: XMLElement) throws -> Float {
+    static func parseRating(node: any XMLElement) throws -> RatingResult {
+        func parseTextRating(node: any XMLElement) throws -> Float {
             guard let ratingString = node
               .at_xpath("//td [@id='rating_label']")?.text?
-              .replacingOccurrences(of: "Average: ", with: "")
-              .replacingOccurrences(of: "Not Yet Rated", with: "0"),
+              .replacing("Average: ", with: "")
+              .replacing("Not Yet Rated", with: "0"),
                   let rating = Float(ratingString)
             else { throw AppError.parseFailed }
 
@@ -184,7 +184,7 @@ extension Parser {
     }
     // swiftlint:enable cyclomatic_complexity
 
-    public static func parseBanInterval(doc: HTMLDocument) -> BanInterval? {
+    public static func parseBanInterval(doc: any HTMLDocument) -> BanInterval? {
         guard let text = doc.body?.text, let range = text.range(of: "The ban expires in ")
         else { return nil }
 

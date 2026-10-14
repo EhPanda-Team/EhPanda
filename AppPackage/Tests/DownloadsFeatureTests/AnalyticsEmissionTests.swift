@@ -2,6 +2,7 @@ import AnalyticsClient
 import AppModels
 import AppTools
 import ComposableArchitecture
+import DownloadClient
 @testable import DownloadsFeature
 import Foundation
 import Testing
@@ -316,7 +317,7 @@ private extension AnalyticsEmissionTests {
             rating: 4,
             onlineCoverURL: nil,
             folderURL: FileUtil.downloadsDirectoryURL
-                .appendingPathComponent(sentinelFolderName, isDirectory: true),
+                .appending(path: sentinelFolderName, directoryHint: .isDirectory),
             folderName: sentinelFolderName,
             localCoverURL: nil,
             localPageURLs: [:],

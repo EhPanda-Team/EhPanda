@@ -1,8 +1,9 @@
-import AppModels
+public import AppModels
+import AppTools
 import Dependencies
 import DeviceClient
 import Resources
-import SwiftUI
+public import SwiftUI
 
 public struct NewDawnView: View {
     @Dependency(\.deviceClient) private var deviceClient
@@ -21,9 +22,9 @@ public struct NewDawnView: View {
 
     private var gradientColors: [Color] {
         if colorScheme == .light {
-            return [Color(.systemTeal), Color(.systemIndigo)]
+            return [Color(uiColor: .systemTeal), Color(uiColor: .systemIndigo)]
         } else {
-            return [Color(.systemGray5), Color(.systemGray2)]
+            return [Color(uiColor: .systemGray5), Color(uiColor: .systemGray2)]
         }
     }
 

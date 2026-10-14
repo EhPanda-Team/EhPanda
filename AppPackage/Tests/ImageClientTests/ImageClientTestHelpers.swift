@@ -23,7 +23,7 @@ func removeTemporaryItem(at url: URL) {
 
 func makeIsolatedDataCache() -> (cache: DataCache, rootURL: URL) {
     let rootURL = FileManager.default.temporaryDirectory
-        .appendingPathComponent(UUID().uuidString, isDirectory: true)
+        .appending(path: UUID().uuidString, directoryHint: .isDirectory)
     return (DataCache(configuration: .init(rootURL: rootURL)), rootURL)
 }
 

@@ -4,6 +4,7 @@ import AppTools
 import ComposableArchitecture
 import GalleryListComponents
 import Resources
+import SFSafeSymbols
 import SFSafeSymbolsExt
 import SwiftUI
 import TagTranslationFeature

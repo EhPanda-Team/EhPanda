@@ -4,8 +4,10 @@ import Testing
 
 @Test
 func privateFilterValueReportsIssueAndReturnsZero() {
-    withExpectedIssue {
+    expectReportsIssue {
         #expect(Category.private.filterValue == 0)
+    } matching: {
+        $0.description.contains("`Category.private` has no `filterValue`")
     }
 }
 

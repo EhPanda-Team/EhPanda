@@ -1,10 +1,10 @@
-import AppModels
-import Foundation
-import Kanna
+public import AppModels
+public import Foundation
+public import Kanna
 
 extension Parser {
     // MARK: ImageURL
-    public static func parseThumbnailURLs(doc: HTMLDocument) throws -> [Int: URL] {
+    public static func parseThumbnailURLs(doc: any HTMLDocument) throws -> [Int: URL] {
         var thumbnailURLs = [Int: URL]()
 
         guard let gdtNode = doc.at_xpath("//div [@id='gdt']")
@@ -24,7 +24,7 @@ extension Parser {
         return thumbnailURLs
     }
 
-    public static func parseGalleryNormalImageURL(doc: HTMLDocument, index: Int) throws -> GalleryNormalImageInfo {
+    public static func parseGalleryNormalImageURL(doc: any HTMLDocument, index: Int) throws -> GalleryNormalImageInfo {
         guard let i3Node = doc.at_xpath("//div [@id='i3']"),
               let imageURLString = i3Node.at_css("img")?["src"],
               let imageURL = URL(string: imageURLString)
@@ -48,7 +48,7 @@ extension Parser {
         )
     }
 
-    public static func parseMPVKeys(doc: HTMLDocument) throws -> MPVImageList {
+    public static func parseMPVKeys(doc: any HTMLDocument) throws -> MPVImageList {
         var tmpMPVKey: String?
         var imgKeys = [Int: String]()
         var originalSizes = [Int: PagePixelSize]()
@@ -63,9 +63,9 @@ extension Parser {
             tmpMPVKey = String(text[rangeA.upperBound..<rangeB.lowerBound])
 
             guard let data = String(text[rangeB.upperBound..<rangeC.upperBound])
-                .replacingOccurrences(of: "\\/", with: "/")
-                .replacingOccurrences(of: "\"", with: "\"")
-                .replacingOccurrences(of: "\n", with: "")
+                .replacing("\\/", with: "/")
+                .replacing("\"", with: "\"")
+                .replacing("\n", with: "")
                 .data(using: .utf8)
             else { throw AppError.parseFailed }
 

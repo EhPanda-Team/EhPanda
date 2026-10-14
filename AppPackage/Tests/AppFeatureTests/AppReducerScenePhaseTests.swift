@@ -9,7 +9,9 @@ import CustomDump
 import DownloadClient
 import Foundation
 import LogsClient
+import SettingFeature
 import Sharing
+import SwiftUI
 import Testing
 import UserDefaultsClient
 
@@ -160,7 +162,7 @@ private extension AppReducerScenePhaseTests {
             initialState.$privacyMaskBlur.withLock({ $0 = 0 })
             initialState.appLogsPumpState.$currentRun.withLock {
                 $0 = RunLogFile(
-                    url: URL(fileURLWithPath: "/tmp/app-feature-tests.jsonl"),
+                    url: URL(filePath: "/tmp/app-feature-tests.jsonl"),
                     date: Date(timeIntervalSince1970: 0),
                     runCount: 1
                 )

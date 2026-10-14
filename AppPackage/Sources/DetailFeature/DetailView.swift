@@ -1,12 +1,14 @@
 import AppComponents
 import AppModels
 import AppTools
-import ComposableArchitecture
+public import ComposableArchitecture
 import CookieClient
 import Kingfisher
 import ReadingFeature
 import Resources
-import SwiftUI
+import SFSafeSymbols
+import SFSafeSymbolsExt
+public import SwiftUI
 import TagTranslationFeature
 
 public struct DetailView: View {
@@ -63,7 +65,7 @@ private extension DetailView {
     }
 
     var content: some View {
-        ScrollView(showsIndicators: false) {
+        ScrollView {
             VStack(spacing: 30) {
                 if let error = store.loadingState.failed,
                    store.galleryDetail != nil {
@@ -185,6 +187,7 @@ private extension DetailView {
             .padding(.bottom, 20)
             .padding(.top, 25)
         }
+        .scrollIndicators(.hidden)
         .scrollEdgeEffectStyle(.soft, for: .top)
         .animation(.default) {
             $0.visible(store.galleryDetail != nil)

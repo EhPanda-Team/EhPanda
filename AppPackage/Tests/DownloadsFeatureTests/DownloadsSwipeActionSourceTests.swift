@@ -215,7 +215,7 @@ extension DownloadsSwipeActionSourceTests {
         var directory = URL(filePath: #filePath).deletingLastPathComponent()
         var located: URL?
 
-        while located == nil, directory.path != "/" {
+        while located == nil, directory.path(percentEncoded: false) != "/" {
             if isRepositoryRoot(directory) {
                 located = directory
             } else {
@@ -234,7 +234,7 @@ extension DownloadsSwipeActionSourceTests {
         return repositoryRootMarkers.allSatisfy({ marker in
             var isDirectory: ObjCBool = false
             let exists = fileManager.fileExists(
-                atPath: directory.appending(path: marker).path,
+                atPath: directory.appending(path: marker).path(percentEncoded: false),
                 isDirectory: &isDirectory
             )
             return exists && isDirectory.boolValue

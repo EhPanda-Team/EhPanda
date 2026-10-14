@@ -1,5 +1,5 @@
-import AppModels
-import Foundation
+public import AppModels
+public import Foundation
 import OSLogExt
 import Resources
 
@@ -100,7 +100,7 @@ extension DownloadCoordinator {
         if mode == .update { return await retry(gid: gid, mode: .update) }
 
         let folderURL = download.folderURL
-        guard fileManager.operate({ $0.fileExists(atPath: folderURL.path) }) else {
+        guard fileManager.operate({ $0.fileExists(atPath: folderURL.path(percentEncoded: false)) }) else {
             return .failure(.notFound)
         }
         do {

@@ -16,7 +16,7 @@
 // dependency on generated symbols is not particular to this file either, since the project builds
 // only through Xcode and every module-local catalog already resolves the same way.
 
-import Foundation
+public import Foundation
 
 @available(macOS 13, iOS 16, tvOS 16, watchOS 9, *)
 public nonisolated extension LocalizedStringResource {

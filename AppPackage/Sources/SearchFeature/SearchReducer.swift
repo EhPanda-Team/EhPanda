@@ -1,15 +1,15 @@
 import AnalyticsClient
-import AppModels
+public import AppModels
 import AppTools
-import ComposableArchitecture
-import DateSeekFeature
+public import ComposableArchitecture
+public import DateSeekFeature
 import DownloadClient
-import FiltersFeature
+public import FiltersFeature
 import Foundation
 import HapticsClient
-import NetworkingFeature
-import QuickSearchFeature
-import Sharing
+public import NetworkingFeature
+public import QuickSearchFeature
+public import Sharing
 
 @Reducer
 public struct SearchReducer: Sendable {
@@ -146,17 +146,15 @@ public struct SearchReducer: Sendable {
                 return .merge(
                     historyEffect,
                     .run { [lastKeyword = state.lastKeyword] send in
-                        do throws(AppError) {
-                            let response = try await SearchGalleriesRequest(
+                        let result = await Result.Swift::init { () async throws(AppError) in
+                            try await SearchGalleriesRequest(
                                 host: host,
                                 keyword: lastKeyword,
                                 filter: filter
                             )
                             .response()
-                            await send(.fetchGalleriesDone(.success(response)))
-                        } catch {
-                            await send(.fetchGalleriesDone(.failure(error)))
                         }
+                        await send(.fetchGalleriesDone(result))
                     }
                     .cancellable(id: CancelID.fetchGalleries)
                 )
@@ -205,18 +203,16 @@ public struct SearchReducer: Sendable {
                 let filter = state.searchFilter
                 let host = state.setting.galleryHost
                 return .run { [lastKeyword = state.lastKeyword] send in
-                    do throws(AppError) {
-                        let response = try await MoreSearchGalleriesRequest(
+                    let result = await Result.Swift::init { () async throws(AppError) in
+                        try await MoreSearchGalleriesRequest(
                             host: host,
                             keyword: lastKeyword,
                             filter: filter,
                             lastID: lastID
                         )
                         .response()
-                        await send(.fetchMoreGalleriesDone(.success(response)))
-                    } catch {
-                        await send(.fetchMoreGalleriesDone(.failure(error)))
                     }
+                    await send(.fetchMoreGalleriesDone(result))
                 }
                 .cancellable(id: CancelID.fetchMoreGalleries)
 
@@ -263,12 +259,10 @@ public struct SearchReducer: Sendable {
                 state.pageNumber.resetPages()
                 let host = state.setting.galleryHost
                 return .run { send in
-                    do throws(AppError) {
-                        let response = try await DateSeekGalleriesRequest(host: host, url: url).response()
-                        await send(.performDateSeekDone(.success(response)))
-                    } catch {
-                        await send(.performDateSeekDone(.failure(error)))
+                    let result = await Result.Swift::init { () async throws(AppError) in
+                        try await DateSeekGalleriesRequest(host: host, url: url).response()
                     }
+                    await send(.performDateSeekDone(result))
                 }
                 .cancellable(id: CancelID.fetchDateSeekGalleries)
 

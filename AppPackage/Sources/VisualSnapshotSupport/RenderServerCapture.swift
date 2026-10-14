@@ -1,6 +1,6 @@
 import CryptoKit
-import Foundation
-import UIKit
+public import Foundation
+public import UIKit
 
 /// Reads one laid-out view hierarchy back from the render server in horizontal slices, then composes the
 /// slices into a single image on the CPU.
@@ -485,7 +485,7 @@ struct CapturedRaster {
               let context = CGContext(
                 data: buffer.baseAddress, width: image.width, height: image.height,
                 bitsPerComponent: 8, bytesPerRow: image.width * 4, space: colorSpace,
-                bitmapInfo: CGBitmapInfo.byteOrder32Big.rawValue | CGImageAlphaInfo.premultipliedLast.rawValue
+                bitmapInfo: .init(alpha: .premultipliedLast, byteOrder: .order32Big)
               ) else { throw FullContentHostError.emptyImage }
         // Copy canonical RGBA bytes, including alpha, without blending with the destination buffer.
         context.setBlendMode(.copy)
@@ -498,8 +498,7 @@ struct CapturedRaster {
               let image = CGImage(
                 width: width, height: height, bitsPerComponent: 8, bitsPerPixel: 32, bytesPerRow: width * 4,
                 space: colorSpace,
-                bitmapInfo: CGBitmapInfo(rawValue: CGBitmapInfo.byteOrder32Big.rawValue
-                                        | CGImageAlphaInfo.premultipliedLast.rawValue),
+                bitmapInfo: .init(alpha: .premultipliedLast, byteOrder: .order32Big),
                 provider: provider, decode: nil, shouldInterpolate: false, intent: .defaultIntent
               ) else { throw FullContentHostError.emptyImage }
         return UIImage(cgImage: image, scale: scale, orientation: .up)

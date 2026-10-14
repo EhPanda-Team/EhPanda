@@ -5,6 +5,7 @@ import ComposableArchitecture
 import CookieClient
 import Kingfisher
 import Resources
+import SFSafeSymbols
 import SFSafeSymbolsExt
 import SwiftUI
 import TagTranslationFeature
@@ -96,7 +97,7 @@ struct DescriptionSection: View {
         let itemWidth: (CGFloat, Axis) -> CGFloat = { width, _ in
             min(max(width / 5, minWidth), width * fraction)
         }
-        return ScrollView(.horizontal, showsIndicators: false) {
+        return ScrollView(.horizontal) {
             HStack {
                 ForEach(infos) { info in
                     item(for: info)
@@ -110,6 +111,7 @@ struct DescriptionSection: View {
                 .withHorizontalSpacing()
             }
         }
+        .scrollIndicators(.hidden)
     }
 
     private var galleryInfosButton: some View {
@@ -206,7 +208,7 @@ extension DescriptionSection {
                     .monospacedDigit()
                     .contentTransition(.numericText())
                     .animation(.default, value: title)
-                Text(String(format: "%.2f", rating))
+                Text(rating, format: .number.precision(.fractionLength(2)).grouping(.never))
                     .fontWeight(.medium)
                     .font(.title3)
                     .monospacedDigit()
@@ -395,7 +397,7 @@ extension TagsSection {
         let translateAction: (String) -> TagTranslationLookup
 
         private var reversedPrimary: Color { colorScheme == .light ? .white : .black }
-        private var backgroundColor: Color { Color(.systemGray5) }
+        private var backgroundColor: Color { Color(uiColor: .systemGray5) }
         private var padding: EdgeInsets { .init(top: 5, leading: 14, bottom: 5, trailing: 14) }
 
         /// The namespace chip is a whole tag-sized block sitting in front of the cloud of its
@@ -431,7 +433,7 @@ extension TagsSection {
                 .font(.subheadline.bold())
                 .foregroundStyle(reversedPrimary)
                 .padding(padding)
-                .background(Color(.systemGray))
+                .background(Color(uiColor: .systemGray))
                 .clipShape(.rect(cornerRadius: 5))
         }
 
@@ -558,7 +560,7 @@ struct PreviewsSection: View {
             title: .previews,
             showAll: pageCount > 20, showAllAction: navigatePreviewsAction
         ) {
-            ScrollView(.horizontal, showsIndicators: false) {
+            ScrollView(.horizontal) {
                 LazyHStack {
                     ForEach(previewURLs.tuples.sorted(by: { $0.0 < $1.0 }), id: \.0) { index, previewURL in
                         Button {
@@ -573,6 +575,7 @@ struct PreviewsSection: View {
                     .withHorizontalSpacing(height: height)
                 }
             }
+            .scrollIndicators(.hidden)
         }
     }
 }
@@ -595,14 +598,14 @@ struct CommentsSection: View {
     let navigateCommentAction: () -> Void
     let navigatePostCommentAction: () -> Void
 
-    private var backgroundColor: Color { Color(.systemGray5) }
+    private var backgroundColor: Color { Color(uiColor: .systemGray5) }
 
     var body: some View {
         SubSection(
             title: .comments,
             showAll: !comments.isEmpty, showAllAction: navigateCommentAction
         ) {
-            ScrollView(.horizontal, showsIndicators: false) {
+            ScrollView(.horizontal) {
                 HStack {
                     ForEach(comments.prefix(min(comments.count, 6))) { comment in
                         DetailView.CommentCell(comment: comment, backgroundColor: backgroundColor)
@@ -611,6 +614,7 @@ struct CommentsSection: View {
                 }
                 .drawingGroup()
             }
+            .scrollIndicators(.hidden)
             CommentButton(backgroundColor: backgroundColor, action: navigatePostCommentAction)
                 .padding(.horizontal).disabled(!didLogin)
         }

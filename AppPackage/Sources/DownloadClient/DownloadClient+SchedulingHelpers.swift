@@ -1,4 +1,4 @@
-import AppModels
+public import AppModels
 import Foundation
 
 // MARK: - Mode Resolution

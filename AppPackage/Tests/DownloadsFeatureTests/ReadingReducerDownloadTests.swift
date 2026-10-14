@@ -47,7 +47,7 @@ struct ReadingReducerDownloadTests: DownloadFeatureTestCase {
     @Test
     func testReadingReducerRemoteSourceLoadsLocalPagesAndSkipsRemoteFetchForDownloadedPage() async throws {
         let gallery = sampleGallery()
-        let localPageURL = URL(fileURLWithPath: "/tmp/\(UUID().uuidString).jpg")
+        let localPageURL = URL(filePath: "/tmp/\(UUID().uuidString).jpg")
         let remotePageURL = try #require(URL(string: "https://example.com/pages/0001.jpg"))
         var initialState = ReadingReducer.State(gallery: gallery, contentSource: .remote)
         initialState.imageURLs = [1: remotePageURL]
@@ -69,7 +69,7 @@ struct ReadingReducerDownloadTests: DownloadFeatureTestCase {
     @Test
     func testReadingReducerLocalPageLoadClearsStaleRemoteImageFailure() async throws {
         let gallery = sampleGallery()
-        let localPageURL = URL(fileURLWithPath: "/tmp/\(UUID().uuidString).jpg")
+        let localPageURL = URL(filePath: "/tmp/\(UUID().uuidString).jpg")
         var initialState = ReadingReducer.State(gallery: gallery, contentSource: .remote)
         initialState.imageURLLoadingStates[1] = .failed(.webImageFailed)
         initialState.previewLoadingStates[1] = .failed(.webImageFailed)

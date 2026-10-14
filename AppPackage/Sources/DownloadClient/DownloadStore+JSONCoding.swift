@@ -1,4 +1,4 @@
-import Foundation
+public import Foundation
 
 extension DownloadStore {
     public func writeJSON<T: Encodable>(_ value: T, to url: URL) throws {

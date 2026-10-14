@@ -1,8 +1,8 @@
-import AppModels
+public import AppModels
 import Resources
 import SFSafeSymbols
 import SFSafeSymbolsExt
-import SwiftUI
+public import SwiftUI
 
 public struct FiltersButton: View {
     private let action: () -> Void

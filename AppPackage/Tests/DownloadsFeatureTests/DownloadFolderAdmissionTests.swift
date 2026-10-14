@@ -45,11 +45,11 @@ struct DownloadFolderAdmissionTests: DownloadFeatureTestCase {
         let result = await environment.manager.deleteFolder(name: listedName.onDiskName)
 
         #expect(
-            !FileManager.default.fileExists(atPath: environment.userFolderURL.path),
+            !FileManager.default.fileExists(atPath: environment.userFolderURL.path(percentEncoded: false)),
             "A listed folder the user asked to delete must be gone from the disk"
         )
         #expect(
-            !FileManager.default.fileExists(atPath: environment.pageFileURL.path),
+            !FileManager.default.fileExists(atPath: environment.pageFileURL.path(percentEncoded: false)),
             "The contained gallery's page bytes go with the folder that held them"
         )
         await expectEveryStagedRecordCleared(environment: environment)
@@ -89,16 +89,16 @@ struct DownloadFolderAdmissionTests: DownloadFeatureTestCase {
         )
 
         let movedGalleryURL = environment.rootURL
-            .appendingPathComponent(mintedName, isDirectory: true)
-            .appendingPathComponent(environment.galleryFolderURL.lastPathComponent, isDirectory: true)
+            .appending(path: mintedName, directoryHint: .isDirectory)
+            .appending(path: environment.galleryFolderURL.lastPathComponent, directoryHint: .isDirectory)
         let movedPageURL = movedGalleryURL
-            .appendingPathComponent(environment.pageFileURL.lastPathComponent)
+            .appending(path: environment.pageFileURL.lastPathComponent)
         #expect(
-            !FileManager.default.fileExists(atPath: environment.userFolderURL.path),
+            !FileManager.default.fileExists(atPath: environment.userFolderURL.path(percentEncoded: false)),
             "The source the caller named must be the directory that moved"
         )
         #expect(
-            FileManager.default.contents(atPath: movedPageURL.path) == Self.pageData,
+            FileManager.default.contents(atPath: movedPageURL.path(percentEncoded: false)) == Self.pageData,
             "The contained gallery's bytes must arrive under the minted destination"
         )
         #expect(await environment.manager.fetchFolders() == [mintedName])
@@ -207,16 +207,16 @@ private extension DownloadFolderAdmissionTests {
         #expect(listedName.mintedSpelling != listedName.onDiskName)
 
         let rootURL = FileManager.default.temporaryDirectory
-            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+            .appending(path: UUID().uuidString, directoryHint: .isDirectory)
         let storage = DownloadStore(rootURL: rootURL, fileManager: .default)
         let manager = DownloadCoordinator(storage: storage, urlSession: .shared)
         try storage.ensureRootDirectory()
 
         let gid = "319"
         let userFolderURL = rootURL
-            .appendingPathComponent(listedName.onDiskName, isDirectory: true)
+            .appending(path: listedName.onDiskName, directoryHint: .isDirectory)
         let galleryFolderURL = userFolderURL
-            .appendingPathComponent("[\(gid)_token] Sample", isDirectory: true)
+            .appending(path: "[\(gid)_token] Sample", directoryHint: .isDirectory)
         try FileManager.default.createDirectory(
             at: galleryFolderURL,
             withIntermediateDirectories: true
@@ -225,7 +225,7 @@ private extension DownloadFolderAdmissionTests {
             sampleManifest(gid: gid, title: "Sample", pageCount: 2),
             folderURL: galleryFolderURL
         )
-        let pageFileURL = galleryFolderURL.appendingPathComponent("page-1.bin")
+        let pageFileURL = galleryFolderURL.appending(path: "page-1.bin")
         try Self.pageData.write(to: pageFileURL)
 
         await manager.testingInstallActiveTask(

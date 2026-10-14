@@ -1,10 +1,12 @@
 import AnalyticsClient
+import AppComponents
 @testable import AppFeature
 import AppModels
 import ComposableArchitecture
 import DownloadClient
 @testable import DownloadsFeature
 import Foundation
+import ReadingFeature
 import Resources
 import Testing
 
@@ -104,7 +106,7 @@ struct DownloadInspectorLoadTests: DownloadFeatureTestCase {
                     .init(
                         index: 1, status: .downloaded,
                         relativePath: "\(download.gid)_\(download.token)_1.jpg",
-                        fileURL: URL(fileURLWithPath: "/tmp/0001.jpg"), failure: nil
+                        fileURL: URL(filePath: "/tmp/0001.jpg"), failure: nil
                     ),
                     .init(
                         index: 2, status: .pending,

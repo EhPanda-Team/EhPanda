@@ -37,7 +37,7 @@ struct DownloadInterruptedResumeTests: DownloadFeatureTestCase {
     func testWipedWorkingFolderStaysIndexedWithFreshManifest() async throws {
         let gid = "913000005"
         let rootURL = FileManager.default.temporaryDirectory
-            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+            .appending(path: UUID().uuidString, directoryHint: .isDirectory)
         defer { removeTemporaryItem(at: rootURL) }
 
         let storage = DownloadStore(rootURL: rootURL, fileManager: .default)
@@ -50,14 +50,14 @@ struct DownloadInterruptedResumeTests: DownloadFeatureTestCase {
             pageHashes: ["sha256:done", ""]
         )
         await manager.reloadDownloadIndex()
-        let stalePageURL = folderURL.appendingPathComponent("\(gid)_token_1.jpg")
+        let stalePageURL = folderURL.appending(path: "\(gid)_token_1.jpg")
 
         let workingSeed = try await manager.testingPrepareWorkingSeedAnnouncingProgress(
             payload: makePayload(gid: gid, title: "Redownload", mode: .redownload),
             folderURL: folderURL
         ).workingSeed
 
-        #expect(!FileManager.default.fileExists(atPath: stalePageURL.path))
+        #expect(!FileManager.default.fileExists(atPath: stalePageURL.path(percentEncoded: false)))
         let persistedManifest = try storage.readManifest(folderURL: folderURL)
         #expect(persistedManifest == workingSeed.manifest)
         #expect(persistedManifest.pageCount == 2)
@@ -70,7 +70,7 @@ struct DownloadInterruptedResumeTests: DownloadFeatureTestCase {
     func testPauseAfterInterruptedRedownloadKeepsDownloadListed() async throws {
         let gid = "913000006"
         let rootURL = FileManager.default.temporaryDirectory
-            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+            .appending(path: UUID().uuidString, directoryHint: .isDirectory)
         defer { removeTemporaryItem(at: rootURL) }
 
         let storage = DownloadStore(rootURL: rootURL, fileManager: .default)
@@ -110,7 +110,7 @@ struct DownloadInterruptedResumeTests: DownloadFeatureTestCase {
                 progress: .init(completedPageCount: 0, pageCount: 2)
             )
         )
-        #expect(FileManager.default.fileExists(atPath: folderURL.path))
+        #expect(FileManager.default.fileExists(atPath: folderURL.path(percentEncoded: false)))
     }
 
     /// The delete route's primitive removes EVERY folder of the gallery it is given, and only that
@@ -125,7 +125,7 @@ struct DownloadInterruptedResumeTests: DownloadFeatureTestCase {
     func testRemoveGalleryFoldersRemovesEveryFolderOfTheGalleryAndNoOther() async throws {
         let gid = "913000007"
         let rootURL = FileManager.default.temporaryDirectory
-            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+            .appending(path: UUID().uuidString, directoryHint: .isDirectory)
         defer { removeTemporaryItem(at: rootURL) }
 
         let storage = DownloadStore(rootURL: rootURL, fileManager: .default)
@@ -146,9 +146,9 @@ struct DownloadInterruptedResumeTests: DownloadFeatureTestCase {
 
         try await manager.removeGalleryFolders(gid: gid, token: "token")
 
-        #expect(!FileManager.default.fileExists(atPath: oldFolderURL.path))
-        #expect(!FileManager.default.fileExists(atPath: newFolderURL.path))
-        #expect(FileManager.default.fileExists(atPath: unrelatedFolderURL.path))
+        #expect(!FileManager.default.fileExists(atPath: oldFolderURL.path(percentEncoded: false)))
+        #expect(!FileManager.default.fileExists(atPath: newFolderURL.path(percentEncoded: false)))
+        #expect(FileManager.default.fileExists(atPath: unrelatedFolderURL.path(percentEncoded: false)))
     }
 }
 
@@ -191,7 +191,7 @@ private extension DownloadInterruptedResumeTests {
         )
         for (offset, hash) in pageHashes.enumerated() where !hash.isEmpty {
             try Data([UInt8(offset + 1)]).write(
-                to: folderURL.appendingPathComponent("\(gid)_token_\(offset + 1).jpg"),
+                to: folderURL.appending(path: "\(gid)_token_\(offset + 1).jpg"),
                 options: .atomic
             )
         }

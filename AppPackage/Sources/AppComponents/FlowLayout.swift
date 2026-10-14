@@ -1,4 +1,4 @@
-import SwiftUI
+public import SwiftUI
 
 /// A layout that fills a line with as many subviews as it holds and wraps the rest onto the next
 /// one, left to right, top to bottom.

@@ -1,4 +1,4 @@
-import Foundation
+public import Foundation
 
 public struct GalleryComment: Identifiable, Equatable, Codable, Sendable {
     public init(

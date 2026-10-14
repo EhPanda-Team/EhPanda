@@ -32,7 +32,7 @@ struct LiveTextPageBitmap: Sendable {
                 bitsPerComponent: 8,
                 bytesPerRow: width * MemoryLayout<SIMD4<UInt8>>.stride,
                 space: colorSpace,
-                bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue
+                bitmapInfo: CGBitmapInfo(alpha: .premultipliedLast).rawValue
             ) else {
                 return false
             }

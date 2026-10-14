@@ -66,7 +66,7 @@ struct DownloadZeroPagePayloadTests: DownloadFeatureTestCase {
     func testPendingPageIndicesOfAZeroPagePayloadIsEmpty() async throws {
         let manager = makeTestingDownloadCoordinator()
         let folderURL = FileManager.default.temporaryDirectory
-            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+            .appending(path: UUID().uuidString, directoryHint: .isDirectory)
 
         let pending = await manager.pendingPageIndices(
             payload: makeZeroPagePayload(),
@@ -88,7 +88,7 @@ struct DownloadZeroPagePayloadTests: DownloadFeatureTestCase {
     @Test
     func testDownloadPagesWithAZeroPagePayloadCompletesWithoutTrapping() async throws {
         let rootURL = FileManager.default.temporaryDirectory
-            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+            .appending(path: UUID().uuidString, directoryHint: .isDirectory)
         defer { removeTemporaryItem(at: rootURL) }
 
         let storage = DownloadStore(rootURL: rootURL, fileManager: .default)
@@ -259,7 +259,7 @@ struct DownloadZeroPagePayloadTests: DownloadFeatureTestCase {
     func testPendingPagesReadNilAsUnrestrictedAndAPresentEmptySetAsNoPages() async throws {
         let manager = makeTestingDownloadCoordinator()
         let folderURL = FileManager.default.temporaryDirectory
-            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+            .appending(path: UUID().uuidString, directoryHint: .isDirectory)
 
         let unrestricted = await manager.pendingPageIndices(
             payload: makePayload(pageCount: 3, mode: .repair),
@@ -300,7 +300,7 @@ struct DownloadZeroPagePayloadTests: DownloadFeatureTestCase {
     func testAnAllInvalidSelectionNeverNormalizesIntoWholeGalleryWork() async throws {
         let manager = makeTestingDownloadCoordinator()
         let folderURL = FileManager.default.temporaryDirectory
-            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+            .appending(path: UUID().uuidString, directoryHint: .isDirectory)
 
         let collapse = await #expect(throws: AppError.self) {
             try await manager.normalizeFetchedPayload(
@@ -345,16 +345,16 @@ struct DownloadZeroPagePayloadTests: DownloadFeatureTestCase {
     @Test
     func testCaptureCachedPageRefusesAZeroPageRecord() async throws {
         let rootURL = FileManager.default.temporaryDirectory
-            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+            .appending(path: UUID().uuidString, directoryHint: .isDirectory)
         defer { removeTemporaryItem(at: rootURL) }
 
         let storage = DownloadStore(rootURL: rootURL, fileManager: .default)
         let manager = DownloadCoordinator(storage: storage, urlSession: .shared)
         let payload = makeZeroPagePayload()
         let gid = payload.gallery.gid
-        let folderURL = rootURL.appendingPathComponent(
+        let folderURL = rootURL.appending(path:
             "Folder/\(gid) - Zero Page",
-            isDirectory: true
+            directoryHint: .isDirectory
         )
         try FileManager.default.createDirectory(
             at: folderURL,
@@ -381,7 +381,7 @@ struct DownloadZeroPagePayloadTests: DownloadFeatureTestCase {
         let cacheKeys = imageURL.imageCacheKeys
         let dataCache = DataCache(
             configuration: .init(
-                rootURL: rootURL.appendingPathComponent("DataCache", isDirectory: true)
+                rootURL: rootURL.appending(path: "DataCache", directoryHint: .isDirectory)
             )
         )
         try await withDependencies {
@@ -391,7 +391,7 @@ struct DownloadZeroPagePayloadTests: DownloadFeatureTestCase {
 
             await manager.captureCachedPage(gid: gid, index: 1, imageURL: imageURL)
 
-            let written = try FileManager.default.contentsOfDirectory(atPath: folderURL.path)
+            let written = try FileManager.default.contentsOfDirectory(atPath: folderURL.path(percentEncoded: false))
             #expect(written.isEmpty)
             let afterwards = await manager.fetchDownload(gid: gid)
             #expect(afterwards?.manifest.pages.isEmpty == true)
@@ -404,7 +404,7 @@ struct DownloadZeroPagePayloadTests: DownloadFeatureTestCase {
     @Test
     func testEnqueueRejectsAZeroPagePayload() async throws {
         let rootURL = FileManager.default.temporaryDirectory
-            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+            .appending(path: UUID().uuidString, directoryHint: .isDirectory)
         defer { removeTemporaryItem(at: rootURL) }
 
         let storage = DownloadStore(rootURL: rootURL, fileManager: .default)

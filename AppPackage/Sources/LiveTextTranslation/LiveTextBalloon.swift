@@ -1,4 +1,4 @@
-import CoreGraphics
+public import CoreGraphics
 import Foundation
 
 /// The closed region of one color a group's lettering sits in: a speech balloon, a caption box, a
@@ -390,7 +390,7 @@ public struct LiveTextPaint: Equatable, Sendable {
                   bitsPerPixel: 32,
                   bytesPerRow: box.width * MemoryLayout<SIMD4<UInt8>>.stride,
                   space: colorSpace,
-                  bitmapInfo: CGBitmapInfo(rawValue: CGImageAlphaInfo.premultipliedLast.rawValue),
+                  bitmapInfo: CGBitmapInfo(alpha: .premultipliedLast),
                   provider: provider,
                   decode: nil,
                   shouldInterpolate: true,

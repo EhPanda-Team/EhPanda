@@ -474,7 +474,7 @@ final class FailingRemovalFileManager: FileManager {
     }
 
     override func removeItem(at url: URL) throws {
-        guard url.path.contains(pathFragment) else {
+        guard url.path(percentEncoded: false).contains(pathFragment) else {
             try super.removeItem(at: url)
             return
         }
@@ -589,7 +589,7 @@ final class PostRemovalListingFailureFileManager: FileManager {
 
     override func removeItem(at url: URL) throws {
         try super.removeItem(at: url)
-        guard url.path.contains(removedPathFragment) else { return }
+        guard url.path(percentEncoded: false).contains(removedPathFragment) else { return }
         control.arm()
     }
 
@@ -598,7 +598,7 @@ final class PostRemovalListingFailureFileManager: FileManager {
         includingPropertiesForKeys keys: [URLResourceKey]?,
         options mask: FileManager.DirectoryEnumerationOptions = []
     ) throws -> [URL] {
-        guard url.path.contains(listedPathFragment), control.shouldFailListing() else {
+        guard url.path(percentEncoded: false).contains(listedPathFragment), control.shouldFailListing() else {
             return try super.contentsOfDirectory(
                 at: url,
                 includingPropertiesForKeys: keys,
@@ -624,12 +624,12 @@ final class PostRemovalListingFailureFileManager: FileManager {
 /// the content read fails, which is `ContentMismatchScan.held`.
 func makeAssetFileUnprobeable(at fileURL: URL) throws {
     let fileManager = FileManager.default
-    if fileManager.fileExists(atPath: fileURL.path) {
+    if fileManager.fileExists(atPath: fileURL.path(percentEncoded: false)) {
         try fileManager.removeItem(at: fileURL)
     }
     try fileManager.createSymbolicLink(
-        atPath: fileURL.path,
-        withDestinationPath: fileURL.path + ".unresolvable"
+        atPath: fileURL.path(percentEncoded: false),
+        withDestinationPath: fileURL.path(percentEncoded: false) + ".unresolvable"
     )
 }
 
@@ -644,7 +644,7 @@ func makeAssetFileUnprobeable(at fileURL: URL) throws {
 func setImmutableFlag(_ isImmutable: Bool, at url: URL) throws {
     try FileManager.default.setAttributes(
         [.immutable: NSNumber(value: isImmutable)],
-        ofItemAtPath: url.path
+        ofItemAtPath: url.path(percentEncoded: false)
     )
 }
 

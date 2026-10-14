@@ -1,8 +1,8 @@
-import AppModels
+public import AppModels
 import ComposableArchitecture
 import DeviceClient
 import Resources
-import SwiftUI
+public import SwiftUI
 
 public struct ErrorInfoView: View {
     @Environment(\.dismiss) private var dismiss

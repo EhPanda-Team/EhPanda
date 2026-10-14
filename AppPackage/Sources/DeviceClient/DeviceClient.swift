@@ -1,5 +1,5 @@
-import AppTools
-import Dependencies
+public import AppTools
+public import Dependencies
 import UIKit
 
 public struct DeviceClient: Sendable {

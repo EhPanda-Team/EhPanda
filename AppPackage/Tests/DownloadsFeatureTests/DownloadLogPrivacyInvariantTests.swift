@@ -272,7 +272,7 @@ private extension DownloadLogPrivacyInvariantTests {
     private static func scannedFiles() throws -> [ScannedFile] {
         let root = try repositoryRoot()
         let fileManager = FileManager.default
-        let invariantFilePath = URL(filePath: #filePath).standardizedFileURL.path
+        let invariantFilePath = URL(filePath: #filePath).standardizedFileURL.path(percentEncoded: false)
         var files = [ScannedFile]()
 
         for scannedDirectory in scannedDirectories {
@@ -285,7 +285,7 @@ private extension DownloadLogPrivacyInvariantTests {
             )
             for case let url as URL in enumerator
             where url.pathExtension == "swift"
-                && url.standardizedFileURL.path != invariantFilePath {
+                && url.standardizedFileURL.path(percentEncoded: false) != invariantFilePath {
                 files.append(
                     ScannedFile(
                         relativePath: repositoryRelativePath(of: url, under: root),
@@ -311,7 +311,7 @@ private extension DownloadLogPrivacyInvariantTests {
         var directory = URL(filePath: #filePath).deletingLastPathComponent()
         var located: URL?
 
-        while located == nil, directory.path != "/" {
+        while located == nil, directory.path(percentEncoded: false) != "/" {
             if isRepositoryRoot(directory) {
                 located = directory
             } else {
@@ -330,17 +330,10 @@ private extension DownloadLogPrivacyInvariantTests {
         return repositoryRootMarkers.allSatisfy({ marker in
             var isDirectory: ObjCBool = false
             let exists = fileManager.fileExists(
-                atPath: directory.appending(path: marker).path,
+                atPath: directory.appending(path: marker).path(percentEncoded: false),
                 isDirectory: &isDirectory
             )
             return exists && isDirectory.boolValue
         })
-    }
-
-    static func repositoryRelativePath(of url: URL, under root: URL) -> String {
-        let path = url.standardizedFileURL.path
-        let rootPath = root.standardizedFileURL.path + "/"
-        guard path.hasPrefix(rootPath) else { return path }
-        return String(path.dropFirst(rootPath.count))
     }
 }

@@ -2,7 +2,9 @@ import AnalyticsClient
 import AppModels
 import ComposableArchitecture
 import DetailFeature
+import DeviceClient
 import Kingfisher
+import LibraryClient
 import Sharing
 import SwiftUI
 
@@ -163,12 +165,10 @@ extension HomeReducer {
                 let filter = state.globalFilter
                 let host = state.setting.galleryHost
                 return .run { send in
-                    do throws(AppError) {
-                        let galleries = try await homeClient.fetchPopularGalleries(host, filter)
-                        await send(.fetchPopularGalleriesDone(.success(galleries)))
-                    } catch {
-                        await send(.fetchPopularGalleriesDone(.failure(error)))
+                    let result = await Result.Swift::init { () async throws(AppError) in
+                        try await homeClient.fetchPopularGalleries(host, filter)
                     }
+                    await send(.fetchPopularGalleriesDone(result))
                 }
 
             case .fetchPopularGalleriesDone(let result):
@@ -192,12 +192,10 @@ extension HomeReducer {
                 let filter = state.globalFilter
                 let host = state.setting.galleryHost
                 return .run { send in
-                    do throws(AppError) {
-                        let response = try await homeClient.fetchFrontpageGalleries(host, filter)
-                        await send(.fetchFrontpageGalleriesDone(.success(response)))
-                    } catch {
-                        await send(.fetchFrontpageGalleriesDone(.failure(error)))
+                    let result = await Result.Swift::init { () async throws(AppError) in
+                        try await homeClient.fetchFrontpageGalleries(host, filter)
                     }
+                    await send(.fetchFrontpageGalleriesDone(result))
                 }
 
             case .fetchFrontpageGalleriesDone(let result):
@@ -220,12 +218,10 @@ extension HomeReducer {
                 state.toplistsLoadingState[catIndex] = .loading
                 let host = state.setting.galleryHost
                 return .run { send in
-                    do throws(AppError) {
-                        let response = try await homeClient.fetchToplistsGalleries(host, catIndex, pageNum)
-                        await send(.fetchToplistsGalleriesDone(index: catIndex, result: .success(response)))
-                    } catch {
-                        await send(.fetchToplistsGalleriesDone(index: catIndex, result: .failure(error)))
+                    let result = await Result.Swift::init { () async throws(AppError) in
+                        try await homeClient.fetchToplistsGalleries(host, catIndex, pageNum)
                     }
+                    await send(.fetchToplistsGalleriesDone(index: catIndex, result: result))
                 }
 
             case .fetchToplistsGalleriesDone(let catIndex, let result):

@@ -1,5 +1,5 @@
-import ComposableArchitecture
-import SwiftUI
+public import ComposableArchitecture
+public import SwiftUI
 
 extension Reducer {
     public func haptics<Enum, Case>(

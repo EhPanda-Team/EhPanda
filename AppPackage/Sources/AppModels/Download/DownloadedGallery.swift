@@ -1,4 +1,4 @@
-import SwiftUI
+public import SwiftUI
 
 public struct DownloadedGallery: Identifiable, Equatable, Sendable {
     public var id: String { gid }

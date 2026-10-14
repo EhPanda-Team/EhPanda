@@ -51,7 +51,7 @@ struct SurfaceInventory {
         let root = try app.snapshot()
         var occludingFrames: [CGRect] = []
         var framesByName: [String: [CGRect]] = [:]
-        var pending: [XCUIElementSnapshot] = [root]
+        var pending: [any XCUIElementSnapshot] = [root]
         while let node = pending.popLast() {
             pending.append(contentsOf: node.children)
             switch node.elementType {
@@ -79,11 +79,11 @@ struct SurfaceInventory {
     /// dimming view that is smaller than the window (the iPad form sheet, `{120, 260, 580, 650}`
     /// in an 820 × 1180 window) — or the window when nothing is presented.
     @MainActor
-    static func visibleBounds(in root: XCUIElementSnapshot) -> CGRect {
+    static func visibleBounds(in root: any XCUIElementSnapshot) -> CGRect {
         let window = root.children.first(where: { $0.elementType == .window })?.frame ?? root.frame
         var bounds = window
         // Depth-first in document order, so the last presentation found is the topmost one.
-        var pending: [XCUIElementSnapshot] = [root]
+        var pending: [any XCUIElementSnapshot] = [root]
         while let node = pending.popLast() {
             pending.append(contentsOf: node.children.reversed())
             guard node.children.contains(where: { $0.identifier == dismissRegionIdentifier }) else { continue }

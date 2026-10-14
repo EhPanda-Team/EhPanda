@@ -1,5 +1,5 @@
 import AppModels
-import Foundation
+public import Foundation
 import OSLogExt
 
 private let logger = Logger(category: .init(describing: DownloadBackgroundTaskStore.self))
@@ -71,7 +71,7 @@ public actor DownloadBackgroundTaskStore {
         fileURL: URL,
         fileManager: DownloadFileManager
     ) -> [Int: Record] {
-        guard fileManager.operate({ $0.fileExists(atPath: fileURL.path) }) else {
+        guard fileManager.operate({ $0.fileExists(atPath: fileURL.path(percentEncoded: false)) }) else {
             return [:]
         }
         do {

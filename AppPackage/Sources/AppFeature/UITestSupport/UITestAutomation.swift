@@ -2,6 +2,7 @@ import AnalyticsClient
 import AppLaunchAutomationClient
 import ApplicationClient
 import AppModels
+import AppTools
 import ClipboardClient
 import ComposableArchitecture
 import CookieClient
@@ -166,7 +167,7 @@ public enum UITestAutomation {
             environment: environment,
             key: "EHPANDA_UITEST_FIXTURE_DIR"
         )
-        .map(URL.init(fileURLWithPath:))
+        .map({ URL(filePath: $0) })
         let clipboardURL = trimmedValue(
             environment: environment,
             key: "EHPANDA_UITEST_CLIPBOARD_URL"

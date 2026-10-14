@@ -14,10 +14,34 @@ import environment
 ROOT = Path(__file__).resolve().parents[2]
 
 
+def make_contract_fixtures(directory):
+    """Small deterministic data for manifest validation; native tests verify the real image export."""
+    directory.mkdir()
+    catalog = json.loads((ROOT / 'AppPackage/Tests/VisualSnapshotTests/Resources/scenarios.json').read_text())
+    payload = b'fixture integrity test'
+    asset = directory / 'assets/home/0.png'
+    asset.parent.mkdir(parents=True)
+    asset.write_bytes(payload)
+    assets = [{'path': 'assets/home/0.png', 'bytes': len(payload),
+               'sha256': hashlib.sha256(payload).hexdigest(), 'mime': 'image/png'}]
+    serialized = json.dumps(assets, indent=2, sort_keys=True, ensure_ascii=False, separators=(',', ' : ')).encode()
+    source = 'AppPackage/Sources/VisualSnapshotSupport/PublicVisualFixtures.swift'
+    manifest = {'schemaVersion': 1, 'fixtureVersion': 'phase17-finite-v3', 'assets': assets,
+                'aggregateDigest': hashlib.sha256(serialized).hexdigest(),
+                'generatorSources': {source: hashlib.sha256((ROOT / source).read_bytes()).hexdigest()},
+                'fixtureIDs': sorted({row['fixtureID'] for row in catalog})}
+    (directory / 'manifest.json').write_text(json.dumps(manifest))
+    (directory / 'scenarios.json').write_text(json.dumps(catalog))
+    return directory
+
+
 class ContractsTests(unittest.TestCase):
     def setUp(self):
         self.contracts = importlib.import_module('contracts')
         self.scenarios = [{'id': 'home-populated', 'fixtureID': 'home-finite', 'state': 'populated'}]
+        temporary = tempfile.TemporaryDirectory()
+        self.addCleanup(temporary.cleanup)
+        self.fixtures = make_contract_fixtures(Path(temporary.name) / 'fixtures')
 
     def test_complete_axes_are_unique(self):
         rows = self.contracts.enumerate_coordinates(self.scenarios)
@@ -128,15 +152,18 @@ class ContractsTests(unittest.TestCase):
             self.contracts.validate_test_result(good, {'children': [{'nodeType': 'Repetition'}]})
 
     def test_fixture_integrity_and_provenance(self):
-        metadata = self.contracts.validate_fixtures(ROOT / '.capture/regression-v3', self.scenarios)
+        metadata = self.contracts.validate_fixtures(self.fixtures, self.scenarios)
         self.assertEqual(metadata['fixtureVersion'], 'phase17-finite-v3')
-        self.assertEqual(len(metadata['assets']), 47)
+        self.assertEqual(metadata['assets'], [{
+            'path': 'assets/home/0.png', 'bytes': len(b'fixture integrity test'), 'mime': 'image/png',
+            'sha256': hashlib.sha256(b'fixture integrity test').hexdigest(),
+        }])
 
     def test_modified_fixture_rejected(self):
         import shutil
         with tempfile.TemporaryDirectory() as directory:
             path = Path(directory) / 'fixtures'
-            shutil.copytree(ROOT / '.capture/regression-v3', path)
+            shutil.copytree(self.fixtures, path)
             (path / 'assets/home/0.png').write_bytes(b'changed')
             with self.assertRaises(ValueError):
                 self.contracts.validate_fixtures(path, self.scenarios)
@@ -144,7 +171,7 @@ class ContractsTests(unittest.TestCase):
     def test_fixture_path_escape_rejected(self):
         with tempfile.TemporaryDirectory() as directory:
             path = Path(directory)
-            source = json.loads((ROOT / '.capture/regression-v3/manifest.json').read_text())
+            source = json.loads((self.fixtures / 'manifest.json').read_text())
             source['assets'][0]['path'] = '../secret'
             (path / 'manifest.json').write_text(json.dumps(source))
             with self.assertRaises(ValueError):
@@ -429,9 +456,10 @@ class RunnerPreflightTests(unittest.TestCase):
         self.pin = self.directory / 'pin.json'
         self.pin.write_bytes((ROOT / 'Scripts/visual/regression-environment.json').read_bytes())
         self.original = self.pin.read_bytes()
+        self.fixtures = make_contract_fixtures(self.directory / 'fixtures')
         self.args = self.runner.parser().parse_args([
             '--filter', 'family=iphone,locale=en,size=large,orientation=portrait,theme=light',
-            '--mode', 'candidate', '--fixtures', str(ROOT / '.capture/regression-v3'),
+            '--mode', 'candidate', '--fixtures', str(self.fixtures),
             '--environment', str(self.pin), '--output', str(self.directory / 'result')])
 
     def test_real_validator_drift_stops_fixture_loading_and_dispatch(self):

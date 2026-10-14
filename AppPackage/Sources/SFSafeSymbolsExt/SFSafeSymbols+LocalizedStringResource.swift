@@ -1,5 +1,5 @@
-import SFSafeSymbols
-import SwiftUI
+public import SFSafeSymbols
+public import SwiftUI
 
 public extension Label where Title == Text, Icon == Image {
     /// Builds a `Label` from a `LocalizedStringResource` title and an `SFSymbol` icon,

@@ -172,7 +172,7 @@ extension DownloadFeatureTestCase {
                     index: 1,
                     status: .downloaded,
                     relativePath: "\(download.gid)_\(download.token)_1.jpg",
-                    fileURL: URL(fileURLWithPath: "/tmp/0001.jpg"),
+                    fileURL: URL(filePath: "/tmp/0001.jpg"),
                     failure: nil
                 ),
                 .init(
@@ -201,8 +201,8 @@ extension DownloadFeatureTestCase {
         localPageURLs: [Int: URL] = [:]
     ) -> DownloadedGallery {
         let resolvedFolderURL = folderURL ?? FileUtil.downloadsDirectoryURL
-            .appendingPathComponent(folderName, isDirectory: true)
-            .appendingPathComponent("[\(gid)_token] \(title)", isDirectory: true)
+            .appending(path: folderName, directoryHint: .isDirectory)
+            .appending(path: "[\(gid)_token] \(title)", directoryHint: .isDirectory)
         return DownloadedGallery(
             gid: gid,
             host: .ehentai,
@@ -239,17 +239,17 @@ extension DownloadFeatureTestCase {
             withIntermediateDirectories: true
         )
         try JSONEncoder().encode(manifest).write(
-            to: folderURL.appendingPathComponent(Defaults.FilePath.downloadManifest),
+            to: folderURL.appending(path: Defaults.FilePath.downloadManifest),
             options: .atomic
         )
         try Data([0x01]).write(
-            to: folderURL.appendingPathComponent(
+            to: folderURL.appending(path:
                 "\(manifest.gid)_\(manifest.token)_1.jpg"
             ),
             options: .atomic
         )
         try Data([0x02]).write(
-            to: folderURL.appendingPathComponent(
+            to: folderURL.appending(path:
                 "\(manifest.gid)_\(manifest.token)_2.jpg"
             ),
             options: .atomic
@@ -345,7 +345,7 @@ extension DownloadFeatureTestCase {
         )
         SharedSessionStubURLProtocol.setHandler(for: sessionID) { request in
             guard let url = request.url else { throw URLError(.badURL) }
-            if url.host == "example.com" || allowedImageURLs.contains(url.absoluteString) {
+            if url.host(percentEncoded: false) == "example.com" || allowedImageURLs.contains(url.absoluteString) {
                 recorder?.recordImageDownload()
                 return (
                     try DownloadFeatureTestStubRouter.stubResponse(
@@ -376,21 +376,21 @@ private enum DownloadFeatureTestStubRouter {
         let mpvHTML = context.content.mpvHTML
         let metadataResponse = context.content.metadataResponse
         let recorder = context.recorder
-        if url.host == "api.e-hentai.org" {
+        if url.host(percentEncoded: false) == "api.e-hentai.org" {
             recorder?.recordMetadata()
             return (try stubResponse(url: url, contentType: "application/json"), metadataResponse)
         }
-        if url.path.contains("/g/\(gid)/token") {
+        if url.path(percentEncoded: false).contains("/g/\(gid)/token") {
             let pageNum = URLComponents(url: url, resolvingAgainstBaseURL: false)?
                 .queryItems?.first { $0.name == "p" }?.value.flatMap(Int.init)
             if let pageNum { recorder?.recordPreview(pageNum) } else { recorder?.recordDetail() }
             return (try stubResponse(url: url, contentType: "text/html; charset=utf-8"), detailHTML)
         }
-        if url.path.contains("/mpv/") {
+        if url.path(percentEncoded: false).contains("/mpv/") {
             recorder?.recordMPV()
             return (try stubResponse(url: url, contentType: "text/html; charset=utf-8"), mpvHTML)
         }
-        if url.path == "/api.php" {
+        if url.path(percentEncoded: false) == "/api.php" {
             let body = requestBodyJSONObject(from: request)
             if body?["method"] as? String == "gdata" {
                 recorder?.recordMetadata()

@@ -1,4 +1,4 @@
-import Foundation
+public import Foundation
 
 /// A single browsing-history record, pairing a gallery's recency (`lastOpenDate`) with its
 /// resume position (`readingProgress`) in one lightweight value.
@@ -48,7 +48,7 @@ public struct GalleryHistoryEntry: Codable, Equatable, Identifiable, Sendable, S
 
 // MARK: Manually decode
 extension GalleryHistoryEntry {
-    public init(from decoder: Decoder) throws {
+    public init(from decoder: any Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         schemaVersion = try container.decode(SchemaVersion<GalleryHistoryEntry>.self, forKey: .schemaVersion)
         gid = try container.decode(String.self, forKey: .gid)

@@ -40,7 +40,10 @@ struct GalleriesMetadataDecodeTests {
         #expect(galleries.map(\.id) == ["100", "200"])
         #expect(galleries.first?.token == "aaa")
         #expect(galleries.first?.title == "First & Title")
-        #expect(galleries.first?.galleryURL?.host == GalleryHost.exhentai.url.host)
+        #expect(
+            galleries.first?.galleryURL?.host(percentEncoded: false)
+                == GalleryHost.exhentai.url.host(percentEncoded: false)
+        )
     }
 
     // REV-15: entities in the title decode in a single left-to-right pass. `&#38;lt;` is an escaped

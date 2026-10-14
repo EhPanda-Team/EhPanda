@@ -1,11 +1,11 @@
 import AppComponents
-import AppModels
+public import AppModels
 import AppTools
 import Kingfisher
 import PreviewSupport
 import SFSafeSymbols
 import Sharing
-import SwiftUI
+public import SwiftUI
 import TagTranslationFeature
 
 public struct GalleryThumbnailCell: View {
@@ -35,10 +35,10 @@ public struct GalleryThumbnailCell: View {
     }
 
     private var backgroundColor: Color {
-        colorScheme == .light ? Color(.systemGray6) : Color(.systemGray5)
+        colorScheme == .light ? Color(uiColor: .systemGray6) : Color(uiColor: .systemGray5)
     }
     private var tagColor: Color {
-        colorScheme == .light ? Color(.systemGray5) : Color(.systemGray4)
+        colorScheme == .light ? Color(uiColor: .systemGray5) : Color(uiColor: .systemGray4)
     }
 
     public var body: some View {

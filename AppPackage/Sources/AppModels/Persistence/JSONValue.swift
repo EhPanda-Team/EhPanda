@@ -33,7 +33,7 @@ extension JSONValue: Codable {
     /// logging it would fire on nearly every decoded value.
     private static func probe<Value: Decodable>(
         _ type: Value.Type,
-        in container: SingleValueDecodingContainer
+        in container: any SingleValueDecodingContainer
     ) -> Value? {
         do {
             return try container.decode(type)
@@ -42,7 +42,7 @@ extension JSONValue: Codable {
         }
     }
 
-    public init(from decoder: Decoder) throws {
+    public init(from decoder: any Decoder) throws {
         let container = try decoder.singleValueContainer()
         // Probe order is load-bearing: `Int` before `Double` keeps integer fields (and Int-raw
         // enums) from widening, and the composite types come last. Persisted `@Shared` models
@@ -69,7 +69,7 @@ extension JSONValue: Codable {
         }
     }
 
-    public func encode(to encoder: Encoder) throws {
+    public func encode(to encoder: any Encoder) throws {
         var container = encoder.singleValueContainer()
         switch self {
         case .null: try container.encodeNil()

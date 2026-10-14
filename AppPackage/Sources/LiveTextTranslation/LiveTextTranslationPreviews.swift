@@ -123,7 +123,7 @@ private struct PreviewTranslatedPage: View {
             )
             Image(decorative: page.image, scale: 1)
                 .resizable()
-                .aspectRatio(contentMode: .fit)
+                .scaledToFit()
                 .overlay {
                     Canvas { context, size in
                         LiveTextTranslationRenderer.draw(

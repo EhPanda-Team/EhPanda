@@ -1,5 +1,5 @@
 #if canImport(UIKit)
-import UIKit
+public import UIKit
 #endif
 
 public enum DeviceType: Equatable, Sendable, CaseIterable {

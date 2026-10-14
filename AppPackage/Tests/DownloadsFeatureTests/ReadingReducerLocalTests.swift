@@ -53,8 +53,8 @@ struct ReadingReducerLocalTests: DownloadFeatureTestCase {
         let capturedCalls = LockedBox([(String, Int, URL?)]())
         let gallery = sampleGallery()
         let localPageURL = FileManager.default.temporaryDirectory
-            .appendingPathComponent(UUID().uuidString)
-            .appendingPathComponent("0001.jpg")
+            .appending(path: UUID().uuidString)
+            .appending(path: "0001.jpg")
         var initialState = ReadingReducer.State(gallery: gallery, contentSource: .remote)
         initialState.localPageURLs = [1: localPageURL]
 
@@ -106,10 +106,10 @@ struct ReadingReducerLocalTests: DownloadFeatureTestCase {
         let gid = "777"
         let title = "Offline Archive"
         let folderURL = FileUtil.downloadsDirectoryURL
-            .appendingPathComponent("[\(gid)_token] \(title)", isDirectory: true)
+            .appending(path: "[\(gid)_token] \(title)", directoryHint: .isDirectory)
         let localPageURLs = [
-            1: folderURL.appendingPathComponent("123_token_1.jpg"),
-            2: folderURL.appendingPathComponent("123_token_2.jpg")
+            1: folderURL.appending(path: "123_token_1.jpg"),
+            2: folderURL.appending(path: "123_token_2.jpg")
         ]
         let download = sampleDownload(
             gid: gid,
@@ -141,8 +141,8 @@ struct ReadingReducerLocalTests: DownloadFeatureTestCase {
 
         // State.init applies the local source at construction, so no separate restore step is needed.
         #expect(store.state.gallery.id == download.gid)
-        #expect(store.state.localPageURLs[1] == folderURL.appendingPathComponent("123_token_1.jpg"))
-        #expect(store.state.localPageURLs[2] == folderURL.appendingPathComponent("123_token_2.jpg"))
+        #expect(store.state.localPageURLs[1] == folderURL.appending(path: "123_token_1.jpg"))
+        #expect(store.state.localPageURLs[2] == folderURL.appending(path: "123_token_2.jpg"))
         #expect(store.state.imageURLs.isEmpty)
         #expect(store.state.previewURLs.isEmpty)
         #expect(store.state.thumbnailURLs.isEmpty)
@@ -153,8 +153,8 @@ struct ReadingReducerLocalTests: DownloadFeatureTestCase {
         }
         await store.send(.reloadAllWebImages)
 
-        #expect(store.state.localPageURLs[1] == folderURL.appendingPathComponent("123_token_1.jpg"))
-        #expect(store.state.localPageURLs[2] == folderURL.appendingPathComponent("123_token_2.jpg"))
+        #expect(store.state.localPageURLs[1] == folderURL.appending(path: "123_token_1.jpg"))
+        #expect(store.state.localPageURLs[2] == folderURL.appending(path: "123_token_2.jpg"))
         #expect(store.state.imageURLs.isEmpty)
     }
 

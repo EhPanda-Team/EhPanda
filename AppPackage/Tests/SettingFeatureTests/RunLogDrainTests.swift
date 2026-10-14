@@ -28,7 +28,7 @@ struct RunLogDrainTests {
         var peak = 0
     }
 
-    private static let fileURL = URL(fileURLWithPath: "/tmp/ehpanda-run-log-drain-tests.jsonl")
+    private static let fileURL = URL(filePath: "/tmp/ehpanda-run-log-drain-tests.jsonl")
 
     @Test
     func aSecondDrainOverTheSameEntriesWritesNothing() async {

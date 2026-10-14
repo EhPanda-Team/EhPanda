@@ -1,4 +1,4 @@
-import SwiftUI
+public import SwiftUI
 
 /// A button style that draws its label exactly as given and adds nothing on press.
 ///

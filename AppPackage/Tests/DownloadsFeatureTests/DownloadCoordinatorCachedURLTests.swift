@@ -8,16 +8,16 @@ struct DownloadCoordinatorCachedURLTests {
     @Test
     func testIndexedDownloadUsesCachedLocalURLsUntilExplicitReload() async throws {
         let rootURL = FileManager.default.temporaryDirectory
-            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+            .appending(path: UUID().uuidString, directoryHint: .isDirectory)
         defer { removeTemporaryItem(at: rootURL) }
 
         let storage = DownloadStore(rootURL: rootURL, fileManager: .default)
         let manager = DownloadCoordinator(storage: storage, urlSession: .shared)
         let folderRelativePath = "Folder/[900_token] Cached"
         let folderURL = storage.folderURL(relativePath: folderRelativePath)
-        let page1URL = folderURL.appendingPathComponent("900_token_1.jpg")
-        let page2URL = folderURL.appendingPathComponent("900_token_2.jpg")
-        let coverURL = folderURL.appendingPathComponent("900_token_cover.jpg")
+        let page1URL = folderURL.appending(path: "900_token_1.jpg")
+        let page2URL = folderURL.appending(path: "900_token_2.jpg")
+        let coverURL = folderURL.appending(path: "900_token_cover.jpg")
 
         try storage.ensureRootDirectory()
         try FileManager.default.createDirectory(

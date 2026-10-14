@@ -1,10 +1,12 @@
 import AnalyticsClient
+import AppComponents
 @testable import AppFeature
 import AppModels
 import AppTools
 @testable import ClipboardClient
 import ComposableArchitecture
 import CustomDump
+import DetailFeature
 import DownloadClient
 import Foundation
 import HapticsClient
@@ -245,7 +247,7 @@ struct PresentationFeatureTests {
 
         let values = context.values.map(\.displayValue)
         #expect(values.contains(where: { $0.contains(fixture.secret) }) == false)
-        #expect(values.contains(where: { $0.contains(url.path) }) == false)
+        #expect(values.contains(where: { $0.contains(url.path(percentEncoded: false)) }) == false)
         #expect(values.contains(where: { $0.contains("next=private") }) == false)
         #expect(values.contains(where: { $0.contains(url.absoluteString) }) == false)
     }

@@ -1,13 +1,13 @@
 import AnalyticsClient
-import AppModels
+public import AppModels
 import AppTools
-import ComposableArchitecture
-import DateSeekFeature
-import FiltersFeature
+public import ComposableArchitecture
+public import DateSeekFeature
+public import FiltersFeature
 import Foundation
 import HapticsClient
-import NetworkingFeature
-import Sharing
+public import NetworkingFeature
+public import Sharing
 
 @Reducer
 public struct FrontpageReducer: Sendable {
@@ -114,12 +114,10 @@ public struct FrontpageReducer: Sendable {
                 let filter = state.globalFilter
                 let host = state.setting.galleryHost
                 return .run { send in
-                    do throws(AppError) {
-                        let response = try await FrontpageGalleriesRequest(host: host, filter: filter).response()
-                        await send(.fetchGalleriesDone(.success(response)))
-                    } catch {
-                        await send(.fetchGalleriesDone(.failure(error)))
+                    let result = await Result.Swift::init { () async throws(AppError) in
+                        try await FrontpageGalleriesRequest(host: host, filter: filter).response()
                     }
+                    await send(.fetchGalleriesDone(result))
                 }
                 .cancellable(id: CancelID.fetchGalleries)
 
@@ -152,17 +150,15 @@ public struct FrontpageReducer: Sendable {
                 let filter = state.globalFilter
                 let host = state.setting.galleryHost
                 return .run { send in
-                    do throws(AppError) {
-                        let response = try await MoreFrontpageGalleriesRequest(
+                    let result = await Result.Swift::init { () async throws(AppError) in
+                        try await MoreFrontpageGalleriesRequest(
                             host: host,
                             filter: filter,
                             lastID: lastID
                         )
                         .response()
-                        await send(.fetchMoreGalleriesDone(.success(response)))
-                    } catch {
-                        await send(.fetchMoreGalleriesDone(.failure(error)))
                     }
+                    await send(.fetchMoreGalleriesDone(result))
                 }
                 .cancellable(id: CancelID.fetchMoreGalleries)
 
@@ -195,12 +191,10 @@ public struct FrontpageReducer: Sendable {
                 state.pageNumber.resetPages()
                 let host = state.setting.galleryHost
                 return .run { send in
-                    do throws(AppError) {
-                        let response = try await DateSeekGalleriesRequest(host: host, url: url).response()
-                        await send(.performDateSeekDone(.success(response)))
-                    } catch {
-                        await send(.performDateSeekDone(.failure(error)))
+                    let result = await Result.Swift::init { () async throws(AppError) in
+                        try await DateSeekGalleriesRequest(host: host, url: url).response()
                     }
+                    await send(.performDateSeekDone(result))
                 }
                 .cancellable(id: CancelID.fetchDateSeekGalleries)
 

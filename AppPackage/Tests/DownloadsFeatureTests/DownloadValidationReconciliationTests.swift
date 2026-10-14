@@ -145,9 +145,13 @@ struct DownloadValidationReconciliationTests: DownloadFeatureTestCase {
         // pages keep their files, and only the page the content pass positively refuted lost one.
         let fileManager = FileManager.default
         let pageTwoURL = pageFileURL(for: gallery, in: fixture, index: 2)
-        #expect(fileManager.fileExists(atPath: pageTwoURL.path) == false)
-        #expect(fileManager.fileExists(atPath: pageFileURL(for: gallery, in: fixture, index: 1).path))
-        #expect(fileManager.fileExists(atPath: pageFileURL(for: gallery, in: fixture, index: 3).path))
+        #expect(fileManager.fileExists(atPath: pageTwoURL.path(percentEncoded: false)) == false)
+        #expect(
+            fileManager.fileExists(atPath: pageFileURL(for: gallery, in: fixture, index: 1).path(percentEncoded: false))
+        )
+        #expect(
+            fileManager.fileExists(atPath: pageFileURL(for: gallery, in: fixture, index: 3).path(percentEncoded: false))
+        )
         try expectNoBlankHashedPageKeptItsFile(for: gallery, in: fixture)
 
         // The relaunch pin: a fresh coordinator over the same storage holds none of this session's
@@ -214,9 +218,13 @@ struct DownloadValidationReconciliationTests: DownloadFeatureTestCase {
 
         let fileManager = FileManager.default
         let pageThreeURL = pageFileURL(for: gallery, in: fixture, index: 3)
-        #expect(fileManager.fileExists(atPath: pageThreeURL.path) == false)
-        #expect(fileManager.fileExists(atPath: pageFileURL(for: gallery, in: fixture, index: 2).path))
-        #expect(fileManager.fileExists(atPath: pageFileURL(for: gallery, in: fixture, index: 4).path))
+        #expect(fileManager.fileExists(atPath: pageThreeURL.path(percentEncoded: false)) == false)
+        #expect(
+            fileManager.fileExists(atPath: pageFileURL(for: gallery, in: fixture, index: 2).path(percentEncoded: false))
+        )
+        #expect(
+            fileManager.fileExists(atPath: pageFileURL(for: gallery, in: fixture, index: 4).path(percentEncoded: false))
+        )
         try expectNoBlankHashedPageKeptItsFile(for: gallery, in: fixture)
 
         let relaunched = DownloadCoordinator(
@@ -283,7 +291,7 @@ struct DownloadValidationReconciliationTests: DownloadFeatureTestCase {
         #expect(diskManifest.completedPageCount == 2)
         // Guard-before-removal, pinned: the mismatched file the reconciliation would have removed is
         // still there, because the refusal preceded the first destructive act.
-        #expect(FileManager.default.fileExists(atPath: pageTwoURL.path))
+        #expect(FileManager.default.fileExists(atPath: pageTwoURL.path(percentEncoded: false)))
 
         // The documented residual, pinned rather than hidden: `validationErrors` is session-scoped by
         // design, and the record the refusal preserved still claims both pages — so a fresh process
@@ -341,7 +349,7 @@ struct DownloadValidationReconciliationTests: DownloadFeatureTestCase {
         let claimedHashes = try fixture.storage.readManifest(folderURL: folderURL).pages
         let pageThreeURL = pageFileURL(for: gallery, in: fixture, index: 3)
         let originalPermissions = try #require(
-            FileManager.default.attributesOfItem(atPath: pageThreeURL.path)[.posixPermissions]
+            FileManager.default.attributesOfItem(atPath: pageThreeURL.path(percentEncoded: false))[.posixPermissions]
                 as? NSNumber
         )
         defer {
@@ -352,7 +360,7 @@ struct DownloadValidationReconciliationTests: DownloadFeatureTestCase {
         }
         try FileManager.default.setAttributes(
             [.posixPermissions: NSNumber(value: 0o000)],
-            ofItemAtPath: pageThreeURL.path
+            ofItemAtPath: pageThreeURL.path(percentEncoded: false)
         )
         await fixture.manager.reloadDownloadIndex()
 
@@ -370,11 +378,15 @@ struct DownloadValidationReconciliationTests: DownloadFeatureTestCase {
         // The positive-evidence half proceeded anyway: a hold on one page never blocks another
         // page's own determination.
         #expect(diskManifest.pages[2] == "")
-        #expect(FileManager.default.fileExists(atPath: pageFileURL(for: gallery, in: fixture, index: 2).path) == false)
+        #expect(
+            FileManager.default.fileExists(
+                atPath: pageFileURL(for: gallery, in: fixture, index: 2).path(percentEncoded: false)
+            ) == false
+        )
         // The hold's own half: page 3 keeps its recorded hash AND its file.
         #expect(diskManifest.pages[3] == claimedHashes[3])
         #expect(diskManifest.pages[3]?.isEmpty == false)
-        #expect(FileManager.default.fileExists(atPath: pageThreeURL.path))
+        #expect(FileManager.default.fileExists(atPath: pageThreeURL.path(percentEncoded: false)))
         try expectNoBlankHashedPageKeptItsFile(for: gallery, in: fixture)
     }
 
@@ -452,7 +464,7 @@ struct DownloadValidationReconciliationTests: DownloadFeatureTestCase {
         #expect(diskManifest.completedPageCount == 2)
         #expect(
             FileManager.default.fileExists(
-                atPath: pageFileURL(for: gallery, in: fixture, index: 2).path
+                atPath: pageFileURL(for: gallery, in: fixture, index: 2).path(percentEncoded: false)
             ) == false
         )
         try expectNoBlankHashedPageKeptItsFile(for: gallery, in: fixture)
@@ -538,7 +550,7 @@ struct DownloadValidationReconciliationTests: DownloadFeatureTestCase {
         // gone and the record still claims it. Nothing durable marks that, which is why it is logged.
         #expect(
             FileManager.default.fileExists(
-                atPath: pageFileURL(for: gallery, in: fixture, index: 2).path
+                atPath: pageFileURL(for: gallery, in: fixture, index: 2).path(percentEncoded: false)
             ) == false
         )
 
@@ -802,7 +814,7 @@ extension DownloadValidationReconciliationTests {
         )
         for page in manifest.pages.keys.sorted() where manifest.pages[page]?.isEmpty == true {
             let fileURL = pageFileURL(for: gallery, in: fixture, index: page)
-            #expect(FileManager.default.fileExists(atPath: fileURL.path) == false)
+            #expect(FileManager.default.fileExists(atPath: fileURL.path(percentEncoded: false)) == false)
         }
     }
 }

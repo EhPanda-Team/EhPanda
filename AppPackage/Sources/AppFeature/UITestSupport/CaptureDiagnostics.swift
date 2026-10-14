@@ -1,3 +1,5 @@
+import SearchFeature
+import SettingFeature
 #if DEBUG
 import AppModels
 import AppTools

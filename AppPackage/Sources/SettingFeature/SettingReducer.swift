@@ -1,13 +1,14 @@
 import ApplicationClient
-import AppModels
-import ComposableArchitecture
+public import AppModels
+public import ComposableArchitecture
 import CookieClient
 import DFClient
 import FileClient
-import Foundation
+public import Foundation
 import HapticsClient
 import LibraryClient
-import Sharing
+import ReadingSettingFeature
+public import Sharing
 
 @Reducer
 public struct SettingReducer: Sendable {

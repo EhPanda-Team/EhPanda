@@ -1,4 +1,4 @@
-import Foundation
+public import Foundation
 
 extension URL {
     public func appending(queryItems: [URLQueryItem]) -> URL {

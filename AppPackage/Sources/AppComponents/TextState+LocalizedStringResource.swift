@@ -1,5 +1,6 @@
 import ComposableArchitecture
-import Foundation
+public import Foundation
+public import SwiftNavigation
 
 public extension TextState {
     /// Builds a `TextState` from a `LocalizedStringResource`, resolving it eagerly the same way a

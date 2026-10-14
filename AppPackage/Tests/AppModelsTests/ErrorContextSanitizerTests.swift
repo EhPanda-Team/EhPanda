@@ -29,7 +29,7 @@ struct ErrorContextSanitizerTests {
         #expect(context[.gid]?.displayValue == fixture.expectedGalleryID)
         #expect(Set(context.keys) == [.action, .reason, .gid])
         #expect(values.contains(where: { $0.contains(fixture.secret) }) == false)
-        #expect(values.contains(where: { $0.contains(url.path) }) == false)
+        #expect(values.contains(where: { $0.contains(url.path(percentEncoded: false)) }) == false)
         #expect(values.contains(where: { $0.contains("e-hentai.org") }) == false)
         #expect(values.contains(where: { $0.contains("exhentai.org") }) == false)
         #expect(values.contains(where: { $0.contains("next=private") }) == false)

@@ -1,7 +1,7 @@
-import Foundation
-import OSLog
+public import Foundation
+public import OSLog
 import Resources
-import SwiftUI
+public import SwiftUI
 
 public struct AppActivityLog: Sendable, Equatable, Identifiable, Codable {
     public let date: Date
@@ -51,7 +51,7 @@ public struct AppActivityLog: Sendable, Equatable, Identifiable, Codable {
         case date, category, level, message
     }
 
-    public init(from decoder: Decoder) throws {
+    public init(from decoder: any Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         date = try container.decode(Date.self, forKey: .date)
         category = try container.decode(String.self, forKey: .category)
@@ -60,7 +60,7 @@ public struct AppActivityLog: Sendable, Equatable, Identifiable, Codable {
         message = try container.decode(String.self, forKey: .message)
     }
 
-    public func encode(to encoder: Encoder) throws {
+    public func encode(to encoder: any Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encode(date, forKey: .date)
         try container.encode(category, forKey: .category)

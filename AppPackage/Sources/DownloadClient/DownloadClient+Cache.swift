@@ -1,7 +1,8 @@
-import AppModels
+public import AppModels
 import AppTools
 import Dependencies
-import Foundation
+public import Foundation
+import LibraryClient
 import OSLogExt
 
 private let logger = Logger(category: .init(describing: DownloadCoordinator.self))
@@ -69,9 +70,9 @@ extension DownloadCoordinator {
         }
 
         let fileURL = folderURL
-            .appendingPathComponent(relativePath)
+            .appending(path: relativePath)
         if overwriteExistingFile
-            || !fileManager.operate({ $0.fileExists(atPath: fileURL.path) }) {
+            || !fileManager.operate({ $0.fileExists(atPath: fileURL.path(percentEncoded: false)) }) {
             try write(data: cachedData, to: fileURL)
         }
 

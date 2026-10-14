@@ -1,5 +1,5 @@
-import ComposableArchitecture
-import DetailFeature
+public import ComposableArchitecture
+public import DetailFeature
 
 // The Home tab's navigation stack: its five full-list screens plus the shared gallery drill-down,
 // nested as a `.gallery` case so the gallery routing stays defined once in `GalleryPath`.

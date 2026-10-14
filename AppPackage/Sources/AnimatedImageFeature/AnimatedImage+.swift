@@ -1,5 +1,6 @@
+public import Foundation
 import SDWebImage
-import UIKit
+public import UIKit
 import UniformTypeIdentifiers
 
 private enum ImageDataSignature {
@@ -48,13 +49,13 @@ extension Data {
         guard starts(with: ImageDataSignature.pngComplete) else { return false }
         // Walk the chunk headers in place; a still PNG returns at the first `IDAT`
         // after reading only a few header bytes, so no full-image copy is needed.
-        return withUnsafeBytes { bytes in
+        return withBytes { bytes in
             var offset = ImageDataSignature.pngComplete.count
-            while offset + 12 <= bytes.count {
+            while offset + 12 <= bytes.byteCount {
                 let chunkLength = Int(Self.bigEndianUInt32(bytes, offset: offset))
                 let chunkTypeOffset = offset + 4
                 let chunkDataOffset = offset + 8
-                guard chunkDataOffset + chunkLength + 4 <= bytes.count else { return false }
+                guard chunkDataOffset + chunkLength + 4 <= bytes.byteCount else { return false }
                 if Self.matches(ImageDataSignature.apngAnimationControl, in: bytes, at: chunkTypeOffset) {
                     return true
                 }
@@ -115,8 +116,8 @@ extension Data {
 
     private var isAnimatedGIFFormat: Bool {
         guard isGIFFormat else { return false }
-        return withUnsafeBytes { bytes in
-            guard bytes.count >= 13, let screenDescriptor = Self.byte(bytes, at: 10) else { return false }
+        return withBytes { bytes in
+            guard bytes.byteCount >= 13, let screenDescriptor = Self.byte(bytes, at: 10) else { return false }
 
             var offset = 13
             if screenDescriptor & 0x80 != 0 {
@@ -129,14 +130,14 @@ extension Data {
                 case 0x2C:
                     imageCount += 1
                     guard imageCount <= 1 else { return true }
-                    guard offset + 10 <= bytes.count,
+                    guard offset + 10 <= bytes.byteCount,
                           let packedField = Self.byte(bytes, at: offset + 9)
                     else { return false }
                     offset += 10
                     if packedField & 0x80 != 0 {
                         offset += Self.colorTableByteCount(packedField: packedField)
                     }
-                    guard offset < bytes.count else { return false }
+                    guard offset < bytes.byteCount else { return false }
                     offset += 1
                     guard Self.skipGIFSubBlocks(bytes, offset: &offset) else { return false }
 
@@ -157,18 +158,18 @@ extension Data {
 
     private var isAnimatedWebPFormat: Bool {
         guard isWebPFormat else { return false }
-        return withUnsafeBytes { bytes in
+        return withBytes { bytes in
             var offset = 12
-            while offset + 8 <= bytes.count {
+            while offset + 8 <= bytes.byteCount {
                 let chunkTypeOffset = offset
                 let chunkSize = Int(Self.littleEndianUInt32(bytes, offset: offset + 4))
                 let chunkDataOffset = offset + 8
                 let paddedChunkSize = chunkSize + (chunkSize % 2)
-                guard chunkDataOffset + paddedChunkSize <= bytes.count else { return false }
+                guard chunkDataOffset + paddedChunkSize <= bytes.byteCount else { return false }
 
                 if Self.matches(ImageDataSignature.webPExtended, in: bytes, at: chunkTypeOffset) {
                     guard chunkSize >= 1 else { return false }
-                    return bytes[chunkDataOffset] & 0x02 != 0
+                    return bytes.load(fromByteOffset: chunkDataOffset, as: UInt8.self) & 0x02 != 0
                 }
                 if Self.matches(ImageDataSignature.webPAnimation, in: bytes, at: chunkTypeOffset) {
                     return true
@@ -187,34 +188,36 @@ extension Data {
     ///
     /// Every read below comes from a length field or a walk cursor in untrusted image data, so the
     /// bounds check belongs at the read rather than at each caller, where it is easy to omit.
-    private static func byte(_ bytes: UnsafeRawBufferPointer, at offset: Int) -> UInt8? {
-        guard bytes.indices.contains(offset) else { return nil }
+    private static func byte(_ bytes: RawSpan, at offset: Int) -> UInt8? {
+        guard (0..<bytes.byteCount).contains(offset) else { return nil }
         return bytes.load(fromByteOffset: offset, as: UInt8.self)
     }
 
-    private static func skipGIFSubBlocks(_ bytes: UnsafeRawBufferPointer, offset: inout Int) -> Bool {
+    private static func skipGIFSubBlocks(_ bytes: RawSpan, offset: inout Int) -> Bool {
         while let blockSize = byte(bytes, at: offset).map(Int.init) {
             offset += 1
             guard blockSize > 0 else { return true }
-            guard offset + blockSize <= bytes.count else { return false }
+            guard offset + blockSize <= bytes.byteCount else { return false }
             offset += blockSize
         }
         return false
     }
 
-    private static func matches(_ expected: [UInt8], in bytes: UnsafeRawBufferPointer, at offset: Int) -> Bool {
-        guard offset >= 0, offset + expected.count <= bytes.count else { return false }
-        return bytes[offset..<offset + expected.count].elementsEqual(expected)
+    private static func matches(_ expected: [UInt8], in bytes: RawSpan, at offset: Int) -> Bool {
+        guard offset >= 0, offset + expected.count <= bytes.byteCount else { return false }
+        return expected.enumerated().allSatisfy { index, value in
+            bytes.load(fromByteOffset: offset + index, as: UInt8.self) == value
+        }
     }
 
-    private static func littleEndianUInt32(_ bytes: UnsafeRawBufferPointer, offset: Int) -> UInt32 {
-        guard offset >= 0, offset + 4 <= bytes.count else { return 0 }
-        return UInt32(littleEndian: bytes.loadUnaligned(fromByteOffset: offset, as: UInt32.self))
+    private static func littleEndianUInt32(_ bytes: RawSpan, offset: Int) -> UInt32 {
+        guard offset >= 0, offset + 4 <= bytes.byteCount else { return 0 }
+        return bytes.load(fromByteOffset: offset, as: UInt32.self, .littleEndian)
     }
 
-    private static func bigEndianUInt32(_ bytes: UnsafeRawBufferPointer, offset: Int) -> UInt32 {
-        guard offset >= 0, offset + 4 <= bytes.count else { return 0 }
-        return UInt32(bigEndian: bytes.loadUnaligned(fromByteOffset: offset, as: UInt32.self))
+    private static func bigEndianUInt32(_ bytes: RawSpan, offset: Int) -> UInt32 {
+        guard offset >= 0, offset + 4 <= bytes.byteCount else { return 0 }
+        return bytes.load(fromByteOffset: offset, as: UInt32.self, .bigEndian)
     }
 }
 
@@ -225,7 +228,7 @@ extension UIImage {
 
     public var animatedSourceData: Data? {
         // Prefer the original downloaded bytes so GIF/APNG/WebP keep their source format.
-        if let data = (self as? SDAnimatedImageProvider)?.animatedImageData {
+        if let data = (self as? any SDAnimatedImageProvider)?.animatedImageData {
             return data
         }
 

@@ -1,5 +1,7 @@
 @testable import AppFeature
 import AppModels
+import DownloadClient
+import Foundation
 import Kanna
 import NetworkingFeature
 import ParserFeature
@@ -93,7 +95,7 @@ struct DownloadPageErrorParserTests: TestHelper {
 }
 
 private struct FailingHTMLRequest: Request {
-    let document: HTMLDocument
+    let document: any HTMLDocument
 
     func response() async throws(AppError) {
         do {

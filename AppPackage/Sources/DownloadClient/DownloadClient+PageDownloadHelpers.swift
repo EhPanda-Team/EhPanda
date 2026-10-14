@@ -120,7 +120,7 @@ extension DownloadCoordinator {
             )
         }
         let fileURL = context.folderURL
-            .appendingPathComponent(relativePath)
+            .appending(path: relativePath)
         do {
             try moveDownloadedFile(
                 from: transfer.fileURL,

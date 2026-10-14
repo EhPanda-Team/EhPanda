@@ -1,5 +1,5 @@
 import ComposableArchitecture
-import SwiftUI
+public import SwiftUI
 
 // MARK: RootView
 public struct RootView: View {

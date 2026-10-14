@@ -2,7 +2,7 @@ import AnimatedImageFeature
 import AppComponents
 import AppModels
 import AppTools
-import ComposableArchitecture
+public import ComposableArchitecture
 import Dependencies
 import DeviceClient
 import LiveTextTranslation
@@ -12,7 +12,7 @@ import ReadingSettingFeature
 import SFSafeSymbols
 import SFSafeSymbolsExt
 import Sharing
-import SwiftUI
+public import SwiftUI
 import SystemNotification
 
 private let logger = Logger(category: .init(describing: ReadingView.self))
@@ -58,7 +58,7 @@ public struct ReadingView: View {
     }
 
     private var backgroundColor: Color {
-        colorScheme == .light ? Color(.systemGray4) : Color(.systemGray6)
+        colorScheme == .light ? Color(uiColor: .systemGray4) : Color(uiColor: .systemGray6)
     }
 
     private var isLandscape: Bool {
@@ -232,7 +232,7 @@ public struct ReadingView: View {
             setting: store.setting,
             isLandscape: isLandscape
         )
-        return ScrollView(.horizontal, showsIndicators: false) {
+        return ScrollView(.horizontal) {
             LazyHStack(spacing: 0) {
                 // `enumerated()` rather than indexing by position: `\.offset` is the identical
                 // 0-based position id the `indices` form produced, so the scroll ids are unchanged,
@@ -248,6 +248,7 @@ public struct ReadingView: View {
             }
             .scrollTargetLayout()
         }
+        .scrollIndicators(.hidden)
         .scrollTargetBehavior(.paging)
         .scrollEdgeEffectStyle(.soft, for: .top)
         .scrollPosition(id: $scrollPositionID)

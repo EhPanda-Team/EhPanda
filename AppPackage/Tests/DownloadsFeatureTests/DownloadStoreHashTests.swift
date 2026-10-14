@@ -12,7 +12,7 @@ struct DownloadStoreHashTests {
         defer { removeTemporaryItem(at: rootURL) }
 
         let (download, folderURL) = try makePreparedDownload(storage: storage)
-        let pageTwoURL = folderURL.appendingPathComponent("123_token_2.jpg")
+        let pageTwoURL = folderURL.appending(path: "123_token_2.jpg")
 
         let manifest = try storage.addingCurrentFileHashes(
             to: sampleManifest(pageCount: 2),
@@ -33,7 +33,7 @@ struct DownloadStoreHashTests {
         defer { removeTemporaryItem(at: rootURL) }
 
         let (download, folderURL) = try makePreparedDownload(storage: storage)
-        let pageTwoURL = folderURL.appendingPathComponent("123_token_2.jpg")
+        let pageTwoURL = folderURL.appending(path: "123_token_2.jpg")
 
         let manifest = try storage.addingCurrentFileHashes(
             to: sampleManifest(pageCount: 2),
@@ -58,7 +58,7 @@ struct DownloadStoreHashTests {
         defer { removeTemporaryItem(at: rootURL) }
 
         let (_, folderURL) = try makePreparedDownload(storage: storage)
-        let pageOneURL = folderURL.appendingPathComponent("123_token_1.jpg")
+        let pageOneURL = folderURL.appending(path: "123_token_1.jpg")
         let existingPageOneHash = "sha256:already-flushed"
         try Data([0x09]).write(to: pageOneURL, options: .atomic)
         let manifest = try sampleManifest(
@@ -90,15 +90,15 @@ struct DownloadStoreHashTests {
             withIntermediateDirectories: true
         )
         try Data([0xFF, 0xD8, 0xFF]).write(
-            to: folderURL.appendingPathComponent("123_token_cover.jpg"),
+            to: folderURL.appending(path: "123_token_cover.jpg"),
             options: .atomic
         )
         try Data([0x01]).write(
-            to: folderURL.appendingPathComponent("123_token_1.jpg"),
+            to: folderURL.appending(path: "123_token_1.jpg"),
             options: .atomic
         )
         try Data([0x02]).write(
-            to: folderURL.appendingPathComponent("123_token_2.jpg"),
+            to: folderURL.appending(path: "123_token_2.jpg"),
             options: .atomic
         )
         return (download, folderURL)
@@ -106,7 +106,7 @@ struct DownloadStoreHashTests {
 
     private func makeStorage() -> (store: DownloadStore, rootURL: URL) {
         let rootURL = FileManager.default.temporaryDirectory
-            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+            .appending(path: UUID().uuidString, directoryHint: .isDirectory)
         return (
             DownloadStore(rootURL: rootURL, fileManager: .default),
             rootURL

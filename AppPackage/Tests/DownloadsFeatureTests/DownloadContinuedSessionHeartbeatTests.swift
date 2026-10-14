@@ -114,7 +114,7 @@ private extension DownloadContinuedSessionHeartbeatTests {
         clock: any Clock<Duration>
     ) async throws -> SessionFixture {
         let rootURL = FileManager.default.temporaryDirectory
-            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+            .appending(path: UUID().uuidString, directoryHint: .isDirectory)
         let storage = DownloadStore(rootURL: rootURL, fileManager: .default)
         let manager = DownloadCoordinator(
             storage: storage,

@@ -1,4 +1,4 @@
-import Foundation
+public import Foundation
 
 /// Why Live Text could not translate a page.
 ///

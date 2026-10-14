@@ -4,6 +4,7 @@ import AppTools
 import DownloadClient
 import Foundation
 import Testing
+import TestingSupport
 
 struct DownloadImageParsingTests: DownloadFeatureTestCase {
     @Test
@@ -54,7 +55,7 @@ struct DownloadImageParsingTests: DownloadFeatureTestCase {
     @Test
     func testFileBasedBinaryKokomadeImageMapsToAuthenticationRequired() async throws {
         let fileURL = FileManager.default.temporaryDirectory
-            .appendingPathComponent(UUID().uuidString)
+            .appending(path: UUID().uuidString)
             .appendingPathExtension("gif")
         defer { removeTemporaryItem(at: fileURL) }
 
@@ -123,7 +124,7 @@ struct DownloadImageParsingTests: DownloadFeatureTestCase {
     @Test
     func testFileBasedTextImageLimitMapsToQuotaExceeded() async throws {
         let fileURL = FileManager.default.temporaryDirectory
-            .appendingPathComponent(UUID().uuidString)
+            .appending(path: UUID().uuidString)
             .appendingPathExtension("html")
         defer { removeTemporaryItem(at: fileURL) }
 
@@ -151,7 +152,7 @@ struct DownloadImageParsingTests: DownloadFeatureTestCase {
     func testFatalAccountPageFailureStopsSchedulingRemainingPages() async throws {
         let sessionID = UUID().uuidString
         let rootURL = FileManager.default.temporaryDirectory
-            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+            .appending(path: UUID().uuidString, directoryHint: .isDirectory)
         defer { removeTemporaryItem(at: rootURL) }
 
         let configuration = URLSessionConfiguration.ephemeral
@@ -252,7 +253,7 @@ struct DownloadImageParsingTests: DownloadFeatureTestCase {
     func testMPVImageResolutionFailsOverWithSkipServerTokenOnRetry() async throws {
         let sessionID = UUID().uuidString
         let rootURL = FileManager.default.temporaryDirectory
-            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+            .appending(path: UUID().uuidString, directoryHint: .isDirectory)
         defer { removeTemporaryItem(at: rootURL) }
 
         let configuration = URLSessionConfiguration.ephemeral

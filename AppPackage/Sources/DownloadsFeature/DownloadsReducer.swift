@@ -1,13 +1,14 @@
 import AnalyticsClient
-import AppComponents
-import AppModels
+public import AppComponents
+public import AppModels
 import AppTools
-import ComposableArchitecture
-import DetailFeature
+public import ComposableArchitecture
+public import DetailFeature
 import DeviceClient
 import DownloadClient
-import Foundation
-import ReadingFeature
+public import Foundation
+public import IdentifiedCollections
+public import ReadingFeature
 import Resources
 
 /// The downloads list.

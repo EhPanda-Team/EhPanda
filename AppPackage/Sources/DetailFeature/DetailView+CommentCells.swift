@@ -1,6 +1,7 @@
 import AppComponents
 import AppModels
 import Resources
+import SFSafeSymbols
 import SwiftUI
 
 extension DetailView {
