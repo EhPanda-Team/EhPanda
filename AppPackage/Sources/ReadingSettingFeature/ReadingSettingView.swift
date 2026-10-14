@@ -31,6 +31,33 @@ public struct ReadingSettingView: View {
                 }
                 .pickerStyle(.menu)
             }
+            Section {
+                Toggle(.matchScreenOrientation, isOn: Binding(store.sharedSetting.readingOrientation.isEnabled))
+                Picker(
+                    .landscapeDirection,
+                    selection: Binding(store.sharedSetting.readingOrientation.landscapeDirection)
+                ) {
+                    ForEach(HorizontalReadingDirection.allCases) {
+                        Text($0.readingDirection.value).tag($0)
+                    }
+                }
+                .pickerStyle(.menu)
+                .disabled(!store.setting.readingOrientation.isEnabled)
+                Picker(
+                    .portraitDirection,
+                    selection: Binding(store.sharedSetting.readingOrientation.portraitDirection)
+                ) {
+                    ForEach(ReadingDirection.allCases) {
+                        Text($0.value).tag($0)
+                    }
+                }
+                .pickerStyle(.menu)
+                .disabled(!store.setting.readingOrientation.isEnabled)
+            } header: {
+                Text(.automaticLayout)
+            } footer: {
+                Text(.automaticLayoutDescription)
+            }
             Section(.readingAppearance) {
                 Picker(
                     .separatorHeight,

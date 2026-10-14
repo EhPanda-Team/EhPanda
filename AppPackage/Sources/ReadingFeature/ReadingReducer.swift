@@ -49,11 +49,11 @@ public struct ReadingReducer: Sendable {
         public var gallery: Gallery
         public var language: Language?
 
-        // Read-only here: the reducer only reads `setting` (page math, orientation). The reading-setting
-        // editor writes it through a view-owned `@Shared(.setting)` binding instead, and the mutual
-        // scale-factor clamp lives on the `Setting` model, so those writes stay consistent without a
-        // reducer round-trip.
-        @SharedReader(.setting) public var setting: Setting
+        // Orientation changes update direction and dual-page mode together. The controls and setting
+        // editor share this same storage; model invariants apply to every write path.
+        @Shared(.setting) public var setting: Setting
+        public var layoutIsLandscape: Bool?
+        public var supportsAutomaticLayout = false
 
         public var readingProgress: Int = .zero
         // The latest page awaiting a debounced persist to `@Shared(.galleryHistory)`; kept separate
@@ -209,6 +209,8 @@ public struct ReadingReducer: Sendable {
         case destination(PresentationAction<Destination.Action>)
         case presentShare(IdentifiableBox<ShareItem>)
         case presentReadingSetting
+        case layoutChanged(isLandscape: Bool, supportsAutomaticLayout: Bool)
+        case readingOrientationPreferencesChanged
 
         case toggleShowsPanel
         case onPerformDismiss
