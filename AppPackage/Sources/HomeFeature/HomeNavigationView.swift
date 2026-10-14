@@ -44,10 +44,8 @@ struct HomePrimaryNavigationView: View {
             .toolbarTitleDisplayMode(.inlineLarge)
             .navigationTitle(.RLocalizable.home)
             .toolbar {
-                if #available(iOS 27.1, *), showsSplitHome {
-                    reloadItem.axisBehavior(.horizontalOnly)
-                } else {
-                    reloadItem
+                if !showsSplitHome {
+                    HomeReloadToolbarItem(store: store)
                 }
             }
         } destination: { store in
@@ -68,17 +66,6 @@ struct HomePrimaryNavigationView: View {
         }
     }
 
-    private var reloadItem: some ToolbarContent {
-        ToolbarItemGroup(placement: .topBarTrailing) {
-            Button {
-                store.send(.fetchAllGalleries)
-            } label: {
-                Label(.reload, systemSymbol: .arrowCounterclockwise)
-            }
-            .visible(store.popularLoadingState != .loading)
-            .overlay(ProgressView().visible(store.popularLoadingState == .loading))
-        }
-    }
 }
 
 struct HomeToplistsNavigationView: View {
@@ -93,8 +80,26 @@ struct HomeToplistsNavigationView: View {
                     ToolbarItem(placement: .topBarTrailing) {
                         Button(.showAll) { store.send(.sectionTapped(.toplists)) }
                     }
+                    HomeReloadToolbarItem(store: store)
                 }
                 .refreshable { await store.send(.fetchAllToplistsGalleries).finish() }
+        }
+    }
+}
+
+/// The refresh action belongs to all of Home; the outermost pane hosts its native toolbar item.
+private struct HomeReloadToolbarItem: ToolbarContent {
+    var store: StoreOf<HomeReducer>
+
+    var body: some ToolbarContent {
+        ToolbarItemGroup(placement: .topBarTrailing) {
+            Button {
+                store.send(.fetchAllGalleries)
+            } label: {
+                Label(.reload, systemSymbol: .arrowCounterclockwise)
+            }
+            .visible(store.popularLoadingState != .loading)
+            .overlay(ProgressView().visible(store.popularLoadingState == .loading))
         }
     }
 }

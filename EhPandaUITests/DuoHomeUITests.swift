@@ -21,7 +21,12 @@ final class DuoHomeUITests: XCTestCase {
         XCTAssertTrue(left.buttons["Frontpage"].exists)
         XCTAssertTrue(app.navigationBars["Toplists"].exists)
         XCTAssertTrue(app.navigationBars["Home"].exists)
-        XCTAssertTrue(app.navigationBars["Home"].buttons["Reload"].isHittable)
+        let reload = app.buttons["Reload"]
+        XCTAssertEqual(app.buttons.matching(identifier: "Reload").count, 1)
+        XCTAssertTrue(reload.isHittable)
+        XCTAssertEqual(reload.frame.midX, app.buttons["Home"].frame.midX, accuracy: 1)
+        XCTAssertGreaterThan(reload.frame.midX, app.windows.firstMatch.frame.midX)
+        reload.tapWhenHittable("Refresh all Home sections")
 
         var previousFrame: CGRect?
         for rank in 1...6 {
