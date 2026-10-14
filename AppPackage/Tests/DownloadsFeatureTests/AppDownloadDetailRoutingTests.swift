@@ -28,7 +28,7 @@ struct AppDownloadDetailRoutingTests: DownloadFeatureTestCase {
         await store.skipReceivedActions(strict: false)
         await store.skipInFlightEffects(strict: false)
 
-        #expect(store.state.presentationState.detail?.downloadBadge?.status == .completed)
+        #expect(store.state.presentationState.gallery?.detail.downloadBadge?.status == .completed)
         #expect(store.state.downloadsState.path.isEmpty)
     }
 
@@ -48,7 +48,7 @@ struct AppDownloadDetailRoutingTests: DownloadFeatureTestCase {
         await store.skipInFlightEffects(strict: false)
 
         #expect(store.state.downloadsState.path.count == 1)
-        #expect(store.state.presentationState.detail == nil)
+        #expect(store.state.presentationState.gallery == nil)
     }
 }
 

@@ -6,7 +6,8 @@ Apply `.scrollEdgeEffectStyle(.soft, for: .top)` directly to each app-owned page
 
 | Page | File | Actual host / required coverage | Implementation evidence |
 |---|---|---|---|
-| Home | `HomeFeature/HomeView.swift` | main ScrollView; Home tab and iPad root | HomeView.swift main NavigationStack ScrollView; direct host. |
+| Home | `HomeFeature/HomeSectionsView.swift` | single ScrollView normally; independent left/right ScrollViews while the hinge is partially open | Each vertical ScrollView carries the modifier directly. |
+| Home list sheets | `HomeFeature/HomeSheetView.swift` | Frontpage, Popular, Toplists, Watched and History NavigationStacks in HomePaneSheet-owned UIHostingControllers across the fold | Explicit modifier on the presentation content root; each child retains its own page policy. |
 | Frontpage | `HomeFeature/Frontpage/FrontpageView.swift` | GalleryList wrapper; detail and thumbnail hosts inherit | GalleryList.swift shared list/thumbnail content root; Frontpage inherits. |
 | Popular | `HomeFeature/Popular/PopularView.swift` | GalleryList wrapper; both modes inherit | GalleryList.swift shared list/thumbnail content root; Popular inherits. |
 | Watched | `HomeFeature/Watched/WatchedView.swift` | GalleryList plus logged-out/empty branch | GalleryList.swift logged-in host; Watched NotLoginView has its own modifier. |
@@ -18,6 +19,7 @@ Apply `.scrollEdgeEffectStyle(.soft, for: .top)` directly to each app-owned page
 | Downloads | `DownloadsFeature/DownloadsView.swift` | List and empty branch | DownloadsView.swift downloadsList inside GalleryNavigationContainer; direct host. |
 | Download inspector | `DownloadsFeature/DownloadsView+Subviews.swift` | DownloadInspectorView List and operation/error states | DownloadsView+Subviews.swift DownloadInspectorView List/Group root; direct host. |
 | Gallery detail | `DetailFeature/DetailView.swift` | main ScrollView; push and iPad modal | DetailView.swift main content ScrollView; modifier is inside the caller-owned navigation/presentation root. |
+| Gallery sheet | `DetailFeature/GallerySheetView.swift` | shared modal NavigationStack, hosted by HomePaneSheet for fold-aware Home presentations and SwiftUI sheets for global routing | Explicit modifier on the presentation NavigationStack; Detail and pushed destinations retain their own page policies. |
 | Previews | `DetailFeature/Previews/PreviewsView.swift` | ScrollView | PreviewsView.swift page ScrollView; direct host. |
 | Comments | `DetailFeature/Comments/CommentsView.swift` | List inside ScrollViewReader | CommentsView.swift page List/ScrollViewReader root; direct host. |
 | Post/edit comment | `DetailFeature/Components/PostCommentView.swift` | TextEditor native scroll host in sheet | PostCommentView.swift TextEditor scroll host; direct host. |

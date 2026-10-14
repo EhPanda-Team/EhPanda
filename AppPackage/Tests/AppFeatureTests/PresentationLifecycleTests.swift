@@ -28,10 +28,10 @@ struct PresentationLifecycleTests {
         let store = makePresentationStore()
 
         await store.send(.presentGalleryDetail(gallery: .preview, downloaded: nil))
-        await store.receive(\.detail.presented.onPresented)
+        await store.receive(\.gallery.presented.detail.onPresented)
         await store.skipReceivedActions(strict: false)
 
-        #expect(store.state.detail != nil)
+        #expect(store.state.gallery != nil)
     }
 
     @MainActor
@@ -41,10 +41,10 @@ struct PresentationLifecycleTests {
         let store = makePresentationStore()
 
         await store.send(.handleGalleryLink(url: url, gallery: .preview))
-        await store.receive(\.detail.presented.onPresented)
+        await store.receive(\.gallery.presented.detail.onPresented)
         await store.skipReceivedActions(strict: false)
 
-        #expect(store.state.detail != nil)
+        #expect(store.state.gallery != nil)
     }
 }
 

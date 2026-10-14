@@ -81,7 +81,7 @@ struct CaptureScreenDiagnosticsTests {
         let cover = try #require(scene.replay.first(where: { $0.value.mimeType.hasPrefix("image/") })).key
         let gallery = try await flowGallery(scene)
         var state = AppReducer.State()
-        state.presentationState.detail = try loadedDetail(gallery)
+        state.presentationState.gallery = .init(detail: try loadedDetail(gallery))
 
         let homeLoading = diagnostics(scene, state, cached: [cover])
         state.homeState = try await loadedState(scene).homeState
@@ -148,7 +148,7 @@ struct CaptureScreenDiagnosticsTests {
         let shown = diagnostics(scene, state)
         reading.imageURLLoadingStates[4] = .failed(.notFound)
         detail.destination = .reading(reading)
-        state.presentationState.detail = detail
+        state.presentationState.gallery = .init(detail: detail)
         let failedInASheet = diagnostics(scene, state)
 
         expectNoDifference(loading.screenID, .reading)

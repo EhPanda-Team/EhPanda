@@ -36,8 +36,7 @@ struct PresentationFeature {
     struct State: Equatable {
         @Presents var toast: AppAlertState<Never>?
         // The deep-link/clipboard gallery, presented modally as the root of its own gallery stack.
-        @Presents var detail: DetailReducer.State?
-        var path = StackState<GalleryPath.State>()
+        @Presents var gallery: GallerySheetFeature.State?
         @Presents var destination: Destination.State?
         var isAwaitingDetailDismissal = false
         var pendingGalleryLink: PendingGalleryLink?
@@ -49,8 +48,7 @@ struct PresentationFeature {
         case binding(BindingAction<State>)
         case toast(PresentationAction<Never>)
         case destination(PresentationAction<Destination.Action>)
-        case detail(PresentationAction<DetailReducer.Action>)
-        case path(StackActionOf<GalleryPath>)
+        case gallery(PresentationAction<GallerySheetFeature.Action>)
         case presentErrorInfo(ErrorInfo)
         case presentSetting
         case presentNewDawn(Greeting)
@@ -89,38 +87,7 @@ struct PresentationFeature {
             case .destination:
                 return .none
 
-            case .detail(.dismiss):
-                state.path.removeAll()
-                return .none
-
-            case let .detail(.presented(.delegate(delegate))):
-                guard let next = GalleryNavigation.nextScreen(for: .detail(.delegate(delegate)))
-                else { return .none }
-                return GalleryNavigation.presentationEffect(
-                    id: state.path.appendGuardingDuplicate(next),
-                    screen: next,
-                    embed: { .path(.element(id: $0, action: $1)) }
-                )
-
-            case .detail:
-                return .none
-
-            case let .path(.element(id: _, action: .comments(.delegate(.performedCommentAction(gid))))):
-                if state.detail?.gid == gid {
-                    return .send(.detail(.presented(.fetchGalleryDetail)))
-                }
-                guard let id = state.path.detailID(forGID: gid) else { return .none }
-                return .send(.path(.element(id: id, action: .detail(.fetchGalleryDetail))))
-
-            case let .path(.element(id: _, action: elementAction)):
-                guard let next = GalleryNavigation.nextScreen(for: elementAction) else { return .none }
-                return GalleryNavigation.presentationEffect(
-                    id: state.path.appendGuardingDuplicate(next),
-                    screen: next,
-                    embed: { .path(.element(id: $0, action: $1)) }
-                )
-
-            case .path:
+            case .gallery:
                 return .none
 
             case .presentErrorInfo(let errorInfo):
@@ -143,20 +110,19 @@ struct PresentationFeature {
                 // A gallery opened from a tab in a window regular in both dimensions: modal detail
                 // rooting its own gallery stack, seeded from the local download when one exists so
                 // it renders offline, otherwise from the tapped gallery.
-                state.path.removeAll()
                 // Derive the analytics payload from the same source the detail is seeded from — the
                 // download's gallery projection or the tapped gallery — so this fifth (modal) entry
                 // path emits an identical `galleryDetailOpened` shape to the four push paths.
                 let sourceGallery = download?.gallery ?? gallery
                 if let download {
-                    state.detail = .init(seededFrom: download)
+                    state.gallery = .init(detail: .init(seededFrom: download))
                 } else {
-                    state.detail = .init(gallery: gallery)
+                    state.gallery = .init(detail: .init(gallery: gallery))
                 }
                 // Presenting the modal is what starts its load — the reducer-side replacement for
                 // the detail view's former `onAppear`.
                 return .merge(
-                    .send(.detail(.presented(.onPresented))),
+                    .send(.gallery(.presented(.onPresented))),
                     // Payload is a closed `Category` plus exact per-namespace tag counts — no
                     // identifier, no title, no URL. `TagNamespaceCounts` and `Category` are the same
                     // audited, content-free reduction entry points the push paths use (D-06, D-09).
@@ -210,10 +176,9 @@ struct PresentationFeature {
                     state.toast = .error(errorInfo)
                     return .none
                 }
-                if state.detail != nil {
+                if state.gallery != nil {
                     state.isAwaitingDetailDismissal = true
-                    state.detail = nil
-                    state.path.removeAll()
+                    state.gallery = nil
                 }
                 if state.isAwaitingDetailDismissal {
                     // A later deep link supersedes any fetched link still waiting for the same
@@ -232,11 +197,10 @@ struct PresentationFeature {
                         gid: gallery.id, token: gallery.token, progress: pageIndex
                     )))
                 }
-                state.path.removeAll()
-                state.detail = DetailReducer.State(gallery: gallery, pendingDeepLink: deepLink)
+                state.gallery = .init(detail: .init(gallery: gallery, pendingDeepLink: deepLink))
                 // The deep-link/clipboard entry constructs its detail here, so it carries the load
                 // send too — the same presentation seam as the tap path, no view `onAppear`.
-                effects.append(.send(.detail(.presented(.onPresented))))
+                effects.append(.send(.gallery(.presented(.onPresented))))
                 effects.append(.run(operation: { _ in await hapticsClient.generateFeedback(.light) }))
                 return .merge(effects)
 
@@ -300,9 +264,8 @@ struct PresentationFeature {
             hapticsClient: hapticsClient
         )
         .ifLet(\.$destination, action: \.destination)
-        .ifLet(\.$detail, action: \.detail) { DetailReducer() }
+        .ifLet(\.$gallery, action: \.gallery, destination: GallerySheetFeature.init)
         .ifLet(\.$toast, action: \.toast)
-        .forEach(\.path, action: \.path)
     }
 }
 

@@ -14,6 +14,7 @@ public struct HomeReducer: Sendable {
         /// Asks the app root to open a gallery's detail. The root knows the window's size classes,
         /// so it decides between a modal and `pushGalleryDetail` back to this host.
         case openGalleryDetail(Gallery)
+        case openAccount
     }
 
     @ObservableState
@@ -24,6 +25,9 @@ public struct HomeReducer: Sendable {
         @SharedReader(.globalFilter) public var globalFilter: AppModels.Filter
         @SharedReader(.setting) public var setting: Setting
         public var path = StackState<HomePath.State>()
+        public var isPartiallyOpen = false
+        @Presents public var sheet: HomeSheetFeature.State?
+        var opensAccountAfterSheetDismissal = false
         public var cardPageIndex = Self.initialCardPageIndex
         public var currentCardID = ""
         public var allowsCardHitTesting = true
@@ -59,12 +63,15 @@ public struct HomeReducer: Sendable {
     public enum Action: BindableAction {
         case binding(BindingAction<State>)
         case onPresented
+        case hingeChanged(isPartiallyOpen: Bool)
         case delegate(Delegate)
-        case galleryTapped(Gallery)
+        case galleryTapped(Gallery, from: HomePane = .left)
         case pushGalleryDetail(Gallery)
         case sectionTapped(HomeSectionType)
         case miscTapped(HomeMiscGridType)
         case path(StackActionOf<HomePath>)
+        case sheet(PresentationAction<HomeSheetFeature.Action>)
+        case sheetDismissed
         case setAllowsCardHitTesting(Bool)
         case analyzeImageColors(gid: String, result: RetrieveImageResult)
         case analyzeImageColorsDone(gid: String, colors: [Color]?)

@@ -335,18 +335,20 @@ struct ToplistsSection: View {
 
     private let galleries: [Int: [Gallery]]
     private let isLoading: Bool
+    private let stacksSixGalleries: Bool
     private let navigateAction: (Gallery) -> Void
     private let showAllAction: () -> Void
     private let reloadAction: () -> Void
 
     init(
-        galleries: [Int: [Gallery]], isLoading: Bool,
+        galleries: [Int: [Gallery]], isLoading: Bool, stacksSixGalleries: Bool = false,
         navigateAction: @escaping (Gallery) -> Void,
         showAllAction: @escaping () -> Void,
         reloadAction: @escaping () -> Void
     ) {
         self.galleries = galleries
         self.isLoading = isLoading
+        self.stacksSixGalleries = stacksSixGalleries
         self.navigateAction = navigateAction
         self.showAllAction = showAllAction
         self.reloadAction = reloadAction
@@ -395,7 +397,14 @@ struct ToplistsSection: View {
     private func verticalStacks(type: ToplistsType) -> some View {
         VStack(alignment: .leading) {
             Text(type.value).font(.subheadline.bold())
-            if horizontalSizeClass == .regular {
+            if stacksSixGalleries {
+                VerticalToplistsStack(
+                    galleries: Array((dataSource[type.categoryIndex] ?? []).prefix(6)),
+                    startRanking: 1,
+                    widthFraction: 0.9,
+                    navigateAction: navigateAction
+                )
+            } else if horizontalSizeClass == .regular {
                 regularWidthGrid(type: type)
             } else {
                 VerticalToplistsStack(
@@ -464,15 +473,18 @@ struct VerticalToplistsStack: View {
 
     private let galleries: [Gallery]
     private let startRanking: Int
+    private let widthFraction: CGFloat?
     private let navigateAction: (Gallery) -> Void
 
     init(
         galleries: [Gallery],
         startRanking: Int,
+        widthFraction: CGFloat? = nil,
         navigateAction: @escaping (Gallery) -> Void
     ) {
         self.galleries = galleries
         self.startRanking = startRanking
+        self.widthFraction = widthFraction
         self.navigateAction = navigateAction
     }
 
@@ -491,7 +503,7 @@ struct VerticalToplistsStack: View {
             }
         }
         .containerRelativeFrame(.horizontal) { width, _ in
-            width * (horizontalSizeClass == .regular ? 0.4 : 0.7)
+            width * (widthFraction ?? (horizontalSizeClass == .regular ? 0.4 : 0.7))
         }
     }
 }

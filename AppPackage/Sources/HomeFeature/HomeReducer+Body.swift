@@ -27,6 +27,10 @@ extension HomeReducer {
             case .binding:
                 return .none
 
+            case .hingeChanged(let isPartiallyOpen):
+                state.isPartiallyOpen = isPartiallyOpen
+                return .none
+
             // Presentation-driven lifecycle: Home is a tab root that outlives any single visit, so
             // the app reducer sends this when the Home tab becomes the active one — replacing the
             // former view `onAppear`. The empty guard keeps it idempotent across tab switches.
@@ -34,8 +38,15 @@ extension HomeReducer {
                 guard state.popularGalleries.isEmpty else { return .none }
                 return .send(.fetchAllGalleries)
 
-            case .galleryTapped(let gallery),
-                 let .path(.element(id: _, action: .frontpage(.delegate(.pushDetail(gallery))))),
+            case .galleryTapped(let gallery, let side):
+                guard state.isPartiallyOpen else { return .send(.delegate(.openGalleryDetail(gallery))) }
+                return presentSheet(
+                    root: .gallery(.init(detail: .init(gallery: gallery))),
+                    on: side.opposite,
+                    state: &state
+                )
+
+            case let .path(.element(id: _, action: .frontpage(.delegate(.pushDetail(gallery))))),
                  let .path(.element(id: _, action: .popular(.delegate(.pushDetail(gallery))))),
                  let .path(.element(id: _, action: .toplists(.delegate(.pushDetail(gallery))))),
                  let .path(.element(id: _, action: .watched(.delegate(.pushDetail(gallery))))),
@@ -67,10 +78,33 @@ extension HomeReducer {
             case .delegate:
                 return .none
 
+            case .sheet(.presented(.root(.watched(.onNotLoginViewButtonTapped)))):
+                state.opensAccountAfterSheetDismissal = true
+                state.sheet = nil
+                return .none
+
+            case .sheetDismissed:
+                guard state.opensAccountAfterSheetDismissal else { return .none }
+                state.opensAccountAfterSheetDismissal = false
+                return .send(.delegate(.openAccount))
+
+            case .sheet:
+                return .none
+
             case .sectionTapped(let type):
                 let sectionViewed = Effect<Action>.run(operation: { _ in
                     analyticsClient.send(.homeSectionViewed(homeSection(for: type)))
                 })
+                if state.isPartiallyOpen {
+                    let root: HomeSheetFeature.RootFeature.State = switch type {
+                    case .frontpage: .frontpage(.init())
+                    case .toplists: .toplists(.init())
+                    }
+                    return .merge(
+                        presentSheet(root: root, on: type == .frontpage ? .right : .left, state: &state),
+                        sectionViewed
+                    )
+                }
                 switch type {
                 case .frontpage:
                     return .merge(
@@ -94,6 +128,14 @@ extension HomeReducer {
                 let sectionViewed = Effect<Action>.run(operation: { _ in
                     analyticsClient.send(.homeSectionViewed(homeSection(for: type)))
                 })
+                if state.isPartiallyOpen {
+                    let root: HomeSheetFeature.RootFeature.State = switch type {
+                    case .popular: .popular(.init())
+                    case .watched: .watched(.init())
+                    case .history: .history(.init())
+                    }
+                    return .merge(presentSheet(root: root, on: .right, state: &state), sectionViewed)
+                }
                 switch type {
                 case .popular:
                     return .merge(
@@ -248,6 +290,17 @@ extension HomeReducer {
             }
         }
         .forEach(\.path, action: \.path)
+        .ifLet(\.$sheet, action: \.sheet, destination: HomeSheetFeature.init)
+    }
+
+    private func presentSheet(
+        root: HomeSheetFeature.RootFeature.State,
+        on side: HomePane,
+        state: inout State
+    ) -> Effect<Action> {
+        guard state.sheet == nil else { return .none }
+        state.sheet = .init(root: root, side: side)
+        return .send(.sheet(.presented(.onPresented)))
     }
 
     /// Kicks off a freshly pushed screen's presentation action, the reducer-side replacement for the

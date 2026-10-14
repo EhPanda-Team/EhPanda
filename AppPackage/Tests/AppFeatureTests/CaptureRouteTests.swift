@@ -129,14 +129,14 @@ struct CaptureRouteTests {
         await store.send(.runLaunchAutomation) {
             $0.didRunLaunchAutomation = true
         }
-        await store.receive(\.home.galleryTapped, gallery)
+        await store.receive(\.home.galleryTapped)
         await store.receive(\.home.delegate.openGalleryDetail, gallery)
         await store.receive(\.home.pushGalleryDetail, gallery)
         await store.skipReceivedActions(strict: false)
         await store.skipInFlightEffects(strict: false)
 
         #expect(store.state.homeState.path.last?.gallery?.detail?.gallery == gallery)
-        #expect(store.state.presentationState.detail == nil)
+        #expect(store.state.presentationState.gallery == nil)
     }
 
     @MainActor
@@ -148,13 +148,13 @@ struct CaptureRouteTests {
         await store.send(.runLaunchAutomation) {
             $0.didRunLaunchAutomation = true
         }
-        await store.receive(\.home.galleryTapped, gallery)
+        await store.receive(\.home.galleryTapped)
         await store.receive(\.home.delegate.openGalleryDetail, gallery)
         await store.receive(\.presentation.presentGalleryDetail)
         await store.skipReceivedActions(strict: false)
         await store.skipInFlightEffects(strict: false)
 
-        #expect(store.state.presentationState.detail?.gallery == gallery)
+        #expect(store.state.presentationState.gallery?.detail.gallery == gallery)
         #expect(store.state.homeState.path.isEmpty)
     }
 
