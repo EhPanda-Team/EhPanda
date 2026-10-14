@@ -64,8 +64,8 @@ final class LandscapePaneUITests: XCTestCase {
         assertControls(in: app, onLeft: false)
         print("CAPTURE_READER_RIGHT")
         app.buttons["reading_move_controls"].tapWhenHittable("Move controls left")
-        print("CAPTURE_READER_LEFT")
         assertControls(in: app, onLeft: true)
+        print("CAPTURE_READER_LEFT")
         if isDuo { try DuoPose.set(.landscape) } else { XCUIDevice.shared.orientation = .portrait }
         XCTAssertTrue(app.buttons["reading_move_controls"].waitForNonExistence(timeout: 5))
         if isDuo { try DuoPose.set(.portrait) } else { XCUIDevice.shared.orientation = .landscapeLeft }
@@ -84,10 +84,24 @@ final class LandscapePaneUITests: XCTestCase {
             return onLeft ? panel.frame.maxX <= middle + 1 : panel.frame.minX >= middle - 1
         }, object: nil)
         XCTAssertEqual(XCTWaiter.wait(for: [settled], timeout: 5), .completed)
+        let middle = app.windows.firstMatch.frame.midX
+        if onLeft {
+            XCTAssertGreaterThanOrEqual(move.frame.minX, middle)
+        } else {
+            XCTAssertLessThanOrEqual(move.frame.maxX, middle)
+        }
+        XCTAssertTrue(move.isHittable)
         XCTAssertEqual(move.label, onLeft ? "Move controls right" : "Move controls left")
         XCTAssertEqual(move.frame.height, app.otherElements["reading_slider_row"].frame.height, accuracy: 1)
         XCTAssertGreaterThanOrEqual(move.frame.height, 44)
         XCTAssertTrue(panel.sliders.firstMatch.isHittable)
-        XCTAssertEqual(app.otherElements["reading_view"].buttons.matching(identifier: "Close").count, 1)
+        let close = panel.buttons["Close"]
+        XCTAssertEqual(close.exists, !isDuo)
+        if !isDuo {
+            XCTAssertTrue(close.isHittable)
+            XCTAssertEqual(close.frame.midX, app.otherElements["reading_slider_row"].frame.midX, accuracy: 1)
+            XCTAssertLessThan(close.frame.maxY, app.otherElements["reading_slider_row"].frame.minY)
+        }
+        XCTAssertEqual(app.otherElements["reading_view"].buttons.matching(identifier: "Close").count, isDuo ? 1 : 2)
     }
 }
