@@ -31,14 +31,6 @@ public struct HomeView: View {
                 .frame(width: showsSplitHome ? paneWidths?.left : nil)
                 .environment(\.layoutDirection, layoutDirection)
             if showsSplitHome {
-                if store.device == .pad {
-                    Rectangle()
-                        .fill(Color(.opaqueSeparator))
-                        .frame(width: 1)
-                        .ignoresSafeArea(.container, edges: .bottom)
-                        .allowsHitTesting(false)
-                        .accessibilityHidden(true)
-                }
                 HomeToplistsNavigationView(store: store)
                     .frame(maxWidth: .infinity)
                     .environment(\.layoutDirection, layoutDirection)
@@ -52,10 +44,20 @@ public struct HomeView: View {
             )
         } action: { paneWidths = $0 }
         .overlay(alignment: .leading) {
-            if showsSplitHome, case .duo = store.device, let widths = paneWidths {
-                HomeHingeCrease()
-                    .offset(x: widths.left - HomeHingeCrease.width / 2)
-                    .ignoresSafeArea(.container, edges: .vertical)
+            if showsSplitHome, let widths = paneWidths {
+                if case .duo = store.device {
+                    HomeHingeCrease()
+                        .offset(x: widths.left - HomeHingeCrease.width / 2)
+                        .ignoresSafeArea(.container, edges: .vertical)
+                } else if store.device == .pad {
+                    Rectangle()
+                        .fill(Color(.opaqueSeparator))
+                        .frame(width: 2)
+                        .offset(x: widths.left - 1)
+                        .ignoresSafeArea(.container, edges: .bottom)
+                        .allowsHitTesting(false)
+                        .accessibilityHidden(true)
+                }
             }
         }
         // Navigation ownership follows the physical fold, independently of text direction.
