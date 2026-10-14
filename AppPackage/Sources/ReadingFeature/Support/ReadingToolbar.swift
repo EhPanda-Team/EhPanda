@@ -46,7 +46,7 @@ struct ReadingToolbar: ToolbarContent {
             Button {
                 enablesLiveText.toggle()
             } label: {
-                Label(.liveText, systemSymbol: .viewfinderCircle)
+                Label(.liveText, systemSymbol: .translate)
                     .symbolVariant(enablesLiveText ? .fill : .none)
             }
         }
