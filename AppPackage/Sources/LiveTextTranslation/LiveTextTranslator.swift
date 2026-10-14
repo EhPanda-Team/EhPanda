@@ -17,11 +17,9 @@ private let logger = Logger(category: .init(describing: LiveTextTranslator.self)
 ///
 /// Pages go to the system's translation one at a time, the one nearest ``readingPage`` first, as
 /// they wait in a queue. The system translates one request at a time however many it is given, so
-/// giving it every recognized page at once only made the page being read wait behind the others;
-/// and asking it about many pages at once, as the first use of translation in a launch, had it report
-/// installed models as missing. A page's turn covers finding its language pair and translating it;
-/// laying the translations out uses only this device's processors, so it runs beside the next
-/// page's turn.
+/// giving it every recognized page at once only made the page being read wait behind the others.
+/// A page's turn covers finding its language pair and translating it; laying the translations out
+/// uses only this device's processors, so it runs beside the next page's turn.
 @Observable
 @MainActor
 public final class LiveTextTranslator {
@@ -58,6 +56,12 @@ public final class LiveTextTranslator {
     /// The translated pages being laid out, by page number.
     @ObservationIgnored private var layouts = [Int: Task<Void, Never>]()
     @ObservationIgnored private var awaitingDownload = [LiveTextLanguagePair: [PageRequest]]()
+    /// The pairs whose models the system downloaded while Live Text is on, which a page later found to
+    /// need them is translated with rather than offered their download again. The system can still
+    /// answer that such a pair's models are missing, as it can for installed models on its first
+    /// answers after a launch; and a download offered again as the last one ends could go unnoticed,
+    /// as `translationTask` runs again only when it sees its configuration change.
+    @ObservationIgnored private var downloadedPairs = Set<LiveTextLanguagePair>()
     @ObservationIgnored private var declinedPairs = Set<LiveTextLanguagePair>()
     @ObservationIgnored private var reportedFailures = Set<LiveTextTranslationFailure.Kind>()
     @ObservationIgnored @Dependency(\.liveTextTranslationClient) private var client
@@ -121,6 +125,7 @@ public final class LiveTextTranslator {
         }
         let requests = awaitingDownload.removeValue(forKey: pair) ?? []
         if succeeded {
+            downloadedPairs.insert(pair)
             for request in requests {
                 queue[request.page] = QueuedPage(request: request, pair: pair)
             }
@@ -146,6 +151,7 @@ public final class LiveTextTranslator {
         awaitingDownload.removeAll()
         download = nil
         failure = nil
+        downloadedPairs.removeAll()
         declinedPairs.removeAll()
         reportedFailures.removeAll()
         states = states.filter({ $0.value != .deferred })
@@ -280,6 +286,10 @@ public final class LiveTextTranslator {
     }
 
     private func awaitDownload(of pair: LiveTextLanguagePair, for request: PageRequest) {
+        guard !downloadedPairs.contains(pair) else {
+            queue[request.page] = QueuedPage(request: request, pair: pair)
+            return
+        }
         guard !declinedPairs.contains(pair) else {
             states[request.page] = .deferred
             return

@@ -266,6 +266,28 @@ struct LiveTextTranslatorTests {
     }
 
     @Test
+    func aPageFoundToNeedAPairJustDownloadedIsTranslatedWithIt() async throws {
+        let requests = Requests()
+        // The system still answers that the models are missing once they are downloaded.
+        let translator = Self.translator(status: .supported, requests: requests)
+        let groups = try Self.groups("Stay here!")
+
+        try await Self.translate(try Self.groups("Where are you going?"), page: 3, with: translator, in: nil)
+        translator.finishDownload(of: Self.englishToJapanese, succeeded: true)
+        try await Self.translate(groups, page: 4, with: translator, in: nil)
+
+        #expect(translator.download == nil)
+        #expect(translator.translatedPage(of: groups)?.groups.map(\.text) == ["訳: Stay here!"])
+        #expect(requests.pairs.value == [Self.englishToJapanese, Self.englishToJapanese])
+
+        // The next time Live Text is turned on, the system's answer is taken again.
+        translator.endActivation()
+        try await Self.translate(try Self.groups("Let us go home now."), page: 5, with: translator, in: nil)
+
+        #expect(translator.download == Self.englishToJapanese)
+    }
+
+    @Test
     func aDeclinedDownloadKeepsItsPagesUntilLiveTextIsTurnedOnAgain() async throws {
         let translator = Self.translator(status: .supported)
 
