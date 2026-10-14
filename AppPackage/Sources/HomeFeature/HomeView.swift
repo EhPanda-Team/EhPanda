@@ -18,11 +18,14 @@ public struct HomeView: View {
 
     // MARK: HomeView
     public var body: some View {
+        // Only Home owns the two-pane layout. Keep a pushed destination's navigation host
+        // against the display edge so its native Back and toolbar items remain available.
+        let showsSplitHome = store.usesDuoSplitLayout && store.path.isEmpty
         HStack(alignment: .top, spacing: 0) {
-            HomePrimaryNavigationView(store: store)
-                .frame(width: store.usesDuoSplitLayout ? paneWidths?.left : nil)
+            HomePrimaryNavigationView(store: store, showsSplitHome: showsSplitHome)
+                .frame(width: showsSplitHome ? paneWidths?.left : nil)
                 .environment(\.layoutDirection, layoutDirection)
-            if store.usesDuoSplitLayout {
+            if showsSplitHome {
                 HomeToplistsNavigationView(store: store)
                     .frame(maxWidth: .infinity)
                     .environment(\.layoutDirection, layoutDirection)
@@ -36,7 +39,7 @@ public struct HomeView: View {
             )
         } action: { paneWidths = $0 }
         .overlay(alignment: .leading) {
-            if store.usesDuoSplitLayout, let widths = paneWidths {
+            if showsSplitHome, let widths = paneWidths {
                 HomeHingeCrease()
                     .offset(x: widths.left - HomeHingeCrease.width / 2)
                     .ignoresSafeArea(.container, edges: .vertical)
