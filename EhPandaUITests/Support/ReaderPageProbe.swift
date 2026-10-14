@@ -72,7 +72,10 @@ struct ReaderPageProbe {
         // The Duo puts More in a vertical toolbar beside the navigation bar. Both bars belong to
         // reading_view, which excludes the More buttons of screens behind the reader.
         let buttons = readingView.buttons.matching(
-            NSPredicate(format: "identifier IN %@", ["OverflowBarButtonItem", "BottomOverflowBarButtonItem"])
+            NSPredicate(
+                format: "identifier IN %@",
+                ["OverflowBarButtonItem", "TopOverflowBarButtonItem", "BottomOverflowBarButtonItem"]
+            )
         )
         XCTAssertEqual(
             buttons.count,
@@ -112,17 +115,21 @@ struct ReaderPageProbe {
 
     /// The placeholder stacks on screen, read from one screenshot so all of them belong to the same moment. A stack's
     /// number is identified among every page the indicator counts.
-    private func screenReading() throws -> ScreenReading {
+    private func screenReading(pageColumns: Int = 1) throws -> ScreenReading {
         let viewport = pages.frame
         let screenshot = XCUIScreen.main.screenshot().image
         let pixels = try ScreenPixels(screenshot)
         let pageCount = indicatorText().split(separator: "/").last
             .flatMap({ Int($0.trimmingCharacters(in: .whitespaces)) }) ?? 0
-        return ScreenReading(
-            viewport: viewport,
-            stacks: try pixels.stacks(in: viewport, pages: 1...max(pageCount, 1)),
-            screenshot: screenshot
-        )
+        let columnWidth = viewport.width / CGFloat(pageColumns)
+        let stacks = try (0..<pageColumns).flatMap { column in
+            let frame = CGRect(
+                x: viewport.minX + CGFloat(column) * columnWidth, y: viewport.minY,
+                width: columnWidth, height: viewport.height
+            )
+            return try pixels.stacks(in: frame, pages: 1...max(pageCount, 1))
+        }
+        return ScreenReading(viewport: viewport, stacks: stacks, screenshot: screenshot)
     }
 
     /// Waits for the indicator and the screen to agree on a page that satisfies `condition`, and
@@ -248,6 +255,21 @@ struct ReaderPageProbe {
 
     private static func describe(_ page: Int?) -> String {
         page.map({ "page \($0)" }) ?? "no page"
+    }
+
+    /// Checks the actual failure placeholders, including both sides of a landscape spread.
+    /// Reading the accessibility value alone cannot detect a pager displayed at a stale position.
+    func requireRenderedPages(_ expected: [Int], timeout: TimeInterval = 10) throws {
+        let deadline = Date.now.addingTimeInterval(timeout)
+        var rendered: [Int] = []
+        repeat {
+            let viewport = pages.frame
+            let reading = try screenReading(pageColumns: expected.count)
+            rendered = reading.stacks.filter({ viewport.contains($0.center) }).compactMap(\.page).sorted()
+            if expected.allSatisfy({ rendered.contains($0) }) { return }
+            RunLoop.current.run(until: .now + 0.25)
+        } while Date.now < deadline
+        XCTFail("Expected visible pages \(expected), rendered placeholders \(rendered)")
     }
 
     // MARK: Driving

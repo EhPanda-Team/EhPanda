@@ -42,6 +42,88 @@
         }
       }
     },
+    "automatic_layout": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Automatic Layout"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Automatisches Layout"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "自動レイアウト"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "자동 레이아웃"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "自动布局"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "自動佈局"
+          }
+        }
+      }
+    },
+    "automatic_layout_description": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "On iPad and iPhone Duo, use the selected reading direction and two pages in landscape, or one page in portrait. Applies when opening the reader and when the screen orientation changes."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Auf iPad und iPhone Duo werden im Querformat zwei Seiten und im Hochformat eine Seite in der gewählten Leserichtung angezeigt. Gilt beim Öffnen und beim Ändern der Bildschirmausrichtung."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "iPadとiPhone Duoでは、選択した方向で読み進め、横向きでは2ページ、縦向きでは1ページを表示します。リーダーを開いたときと画面の向きが変わったときに適用されます。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "iPad와 iPhone Duo에서 선택한 읽기 방향을 사용하며, 가로 화면에서는 두 페이지, 세로 화면에서는 한 페이지를 표시합니다. 리더를 열거나 화면 방향을 바꾸면 적용됩니다."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在 iPad 和 iPhone Duo 上使用所选阅读方向，横屏显示双页，竖屏显示单页。打开阅读器及屏幕方向改变时自动应用。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在 iPad 和 iPhone Duo 上使用所選閱讀方向，橫向顯示雙頁，直向顯示單頁。開啟閱讀器及螢幕方向改變時自動套用。"
+          }
+        }
+      }
+    },
     "direction": {
       "extractionState": "manual",
       "localizations": {
@@ -124,6 +206,88 @@
         }
       }
     },
+    "landscape_direction": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Landscape Direction"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Leserichtung im Querformat"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "横向きの読み進む方向"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "가로 화면 읽기 방향"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "横屏阅读方向"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "橫向閱讀方向"
+          }
+        }
+      }
+    },
+    "match_screen_orientation": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Match Screen Orientation"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "An Bildschirmausrichtung anpassen"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "画面の向きに合わせる"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "화면 방향에 맞추기"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "跟随屏幕方向"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "跟隨螢幕方向"
+          }
+        }
+      }
+    },
     "maximum_scale_factor": {
       "extractionState": "manual",
       "localizations": {
@@ -161,6 +325,47 @@
           "stringUnit": {
             "state": "translated",
             "value": "縮放上限"
+          }
+        }
+      }
+    },
+    "portrait_direction": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Portrait Direction"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Leserichtung im Hochformat"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "縦向きの読み進む方向"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "세로 화면 읽기 방향"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "竖屏阅读方向"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "直向閱讀方向"
           }
         }
       }

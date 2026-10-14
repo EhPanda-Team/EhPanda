@@ -20,6 +20,7 @@ public struct Setting: Codable, Equatable, Sendable, SchemaVersioned {
         listTagsNumberMaximum: Int = 0,
         displayJapaneseTitle: Bool = true,
         readingDirection: ReadingDirection = .vertical,
+        readingOrientation: ReadingOrientationPreferences = .init(),
         prefetchLimit: Int = 10,
         enableDualPageMode: Bool = false,
         exceptCover: Bool = false,
@@ -43,6 +44,7 @@ public struct Setting: Codable, Equatable, Sendable, SchemaVersioned {
         self.listTagsNumberMaximum = listTagsNumberMaximum
         self.displayJapaneseTitle = displayJapaneseTitle
         self.readingDirection = readingDirection
+        self.readingOrientation = readingOrientation
         self.prefetchLimit = prefetchLimit
         self.enableDualPageMode = enableDualPageMode
         self.exceptCover = exceptCover
@@ -99,6 +101,25 @@ public struct Setting: Codable, Equatable, Sendable, SchemaVersioned {
     public var readingDirection: ReadingDirection = .vertical
     public var prefetchLimit = 10
     public var enableDualPageMode = false
+    // Optional storage keeps settings written before orientation automation decodable.
+    public var orientationReadingPreferences: ReadingOrientationPreferences?
+
+    public var readingOrientation: ReadingOrientationPreferences {
+        get { orientationReadingPreferences ?? .init() }
+        set { orientationReadingPreferences = newValue }
+    }
+
+    /// Enabling the toolbar's two-page option also selects a horizontal reading direction.
+    public var usesHorizontalDualPages: Bool {
+        get { enableDualPageMode && readingDirection != .vertical }
+        set {
+            enableDualPageMode = newValue
+            if newValue && readingDirection == .vertical {
+                readingDirection = readingOrientation.landscapeDirection.readingDirection
+            }
+        }
+    }
+
     public var exceptCover = false
     public var contentDividerHeight: Double = 0
     // The two scale factors are mutually clamped so `doubleTapScaleFactor <= maximumScaleFactor`

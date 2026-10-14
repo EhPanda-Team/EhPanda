@@ -35,6 +35,7 @@ public struct ReadingView: View {
     @State var pageModel = PageModel()
     @State private var scrollPositionID: Int?
     @State private var performingChanges = false
+    @State private var supportsAutomaticLayout: Bool?
 
     public init(store: StoreOf<ReadingReducer>) {
         self.store = store
@@ -69,6 +70,16 @@ public struct ReadingView: View {
         }
         .accessibilityElement(children: .contain)
         .accessibilityIdentifier("reading_view")
+        .background {
+            ReadingDeviceObservation { supports in
+                let isFirstMeasurement = supportsAutomaticLayout == nil
+                supportsAutomaticLayout = supports
+                updateReadingLayout(seed: isFirstMeasurement)
+            }
+        }
+        .onChange(of: store.setting.readingOrientation) {
+            store.send(.readingOrientationPreferencesChanged)
+        }
         .sheet(
             item: $store.scope(\.$destination, action: \.destination).readingSetting
         ) { readingSettingStore in
@@ -149,7 +160,7 @@ public struct ReadingView: View {
             // already sits on the slot `seedPager()` picked for the measured aspect ratio. Its page
             // observers come with it: created after the seed, they start from the seeded index
             // instead of reporting the seed as a page turn.
-            if gestureHandler.containerSize == .zero {
+            if gestureHandler.containerSize == .zero || supportsAutomaticLayout == nil {
                 Color.clear
             } else {
                 changeTriggers(content: { pages })
@@ -206,10 +217,16 @@ public struct ReadingView: View {
         .onGeometryChange(for: CGSize.self, of: \.size) { size in
             let isFirstMeasurement = gestureHandler.containerSize == .zero
             gestureHandler.containerSize = size
-            if isFirstMeasurement {
-                seedPager()
-            }
+            updateReadingLayout(seed: isFirstMeasurement)
         }
+    }
+
+    private func updateReadingLayout(seed: Bool) {
+        let size = gestureHandler.containerSize
+        guard let supportsAutomaticLayout,
+              size.width.isFinite, size.height.isFinite, size.width > 0, size.height > 0 else { return }
+        store.send(.layoutChanged(isLandscape: isLandscape, supportsAutomaticLayout: supportsAutomaticLayout))
+        if seed { seedPager() }
     }
 
     @ContentBuilder
