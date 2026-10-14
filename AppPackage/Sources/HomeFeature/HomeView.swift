@@ -9,18 +9,23 @@ public import SwiftUI
 
 public struct HomeView: View {
     @Environment(\.layoutDirection) private var layoutDirection
+    @Environment(\.tabBarPlacement) private var tabBarPlacement
     @Bindable private var store: StoreOf<HomeReducer>
-    @State private var paneWidths: HomePaneWidths?
+    @State private var paneWidths: HorizontalPaneWidths?
 
     public init(store: StoreOf<HomeReducer>) {
         self.store = store
+    }
+
+    private var allowsPadSplitLayout: Bool {
+        tabBarPlacement == .topBar && (paneWidths?.contentWidth ?? 0) >= 640
     }
 
     // MARK: HomeView
     public var body: some View {
         // Only Home owns the two-pane layout. Keep a pushed destination's navigation host
         // against the display edge so its native Back and toolbar items remain available.
-        let showsSplitHome = store.usesDuoSplitLayout && store.path.isEmpty
+        let showsSplitHome = store.usesSplitLayout && store.path.isEmpty
         HStack(alignment: .top, spacing: 0) {
             HomePrimaryNavigationView(store: store, showsSplitHome: showsSplitHome)
                 .frame(width: showsSplitHome ? paneWidths?.left : nil)
@@ -31,8 +36,8 @@ public struct HomeView: View {
                     .environment(\.layoutDirection, layoutDirection)
             }
         }
-        .onGeometryChange(for: HomePaneWidths.self) { geometry in
-            HomePaneWidths(
+        .onGeometryChange(for: HorizontalPaneWidths.self) { geometry in
+            HorizontalPaneWidths(
                 contentWidth: geometry.size.width,
                 leftInset: geometry.safeAreaInsets.leading,
                 rightInset: geometry.safeAreaInsets.trailing
@@ -48,18 +53,23 @@ public struct HomeView: View {
         // Navigation ownership follows the physical fold, independently of text direction.
         .environment(\.layoutDirection, .leftToRight)
         .onVisibleViewportChange { store.send(.viewportChanged($0)) }
-        .modifier(HomeHingeObservation { store.send(.hingeChanged(isPartiallyOpen: $0)) })
+        .onChange(of: allowsPadSplitLayout, initial: true) { _, allowsSplit in
+            store.send(.padLayoutChanged(allowsSplit: allowsSplit))
+        }
+        .background {
+            WindowDeviceObservation { store.send(.deviceChanged($0)) }
+        }
         .background {
             @UIBindable var presentationStore = store
             HomePaneSheet(
                 item: $presentationStore.scope(\.$sheet, action: \.sheet),
                 viewport: store.viewportSize,
-                usesDuoSplitLayout: store.usesDuoSplitLayout,
+                usesSplitLayout: store.usesSplitLayout,
                 side: { $0.side },
                 onDismiss: { store.send(.sheetDismissed) }
             ) { sheetStore in
                 HomeSheetView(
-                    store: sheetStore, viewport: store.viewportSize, usesDuoSplitLayout: store.usesDuoSplitLayout
+                    store: sheetStore, viewport: store.viewportSize, usesSplitLayout: store.usesSplitLayout
                 )
             }
         }
