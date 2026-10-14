@@ -46,9 +46,20 @@ struct ReadingToolbar: ToolbarContent {
             Button {
                 enablesLiveText.toggle()
             } label: {
-                Label(.liveText, systemSymbol: .translate)
-                    .symbolVariant(enablesLiveText ? .fill : .none)
+                Label {
+                    Text(.liveText)
+                } icon: {
+                    Image(systemSymbol: .translate)
+                        .symbolRenderingMode(enablesLiveText ? .palette : .monochrome)
+                        .foregroundStyle(.primary, Color.accentColor)
+                        .symbolEffect(.pulse, options: .repeating, isActive: enablesLiveText)
+                }
+                .frame(minWidth: 44, minHeight: 44)
+                .contentShape(.rect)
             }
+            // The automatic toolbar button style renders the symbol without its pulse.
+            .buttonStyle(.plain)
+            .accessibilityAddTraits(enablesLiveText ? .isSelected : [])
         }
         if isLandscape && setting.readingDirection != .vertical {
             ToolbarItem(placement: .topBarTrailing) {
