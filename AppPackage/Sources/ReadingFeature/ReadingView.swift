@@ -62,6 +62,7 @@ public struct ReadingView: View {
                 .scrollEdgeEffectStyle(.soft, for: .top)
                 .toolbar(content: readingToolbar)
                 .toolbarTitleDisplayMode(.inline)
+                .toolbarMinimizationBehavior(.never, for: .navigationBar)
                 .toolbarVisibility(store.showsPanel ? .visible : .hidden, for: .navigationBar)
                 .toolbarVisibility(store.showsPanel ? .visible : .hidden, for: .statusBar)
                 .toolbarBackground(.hidden, for: .navigationBar)
