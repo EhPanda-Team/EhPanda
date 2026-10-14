@@ -4,19 +4,20 @@ import XCTest
 /// An opted-in host driver applies each request with the pose CLI and acknowledges completion.
 @MainActor
 enum DuoPose {
-    enum Orientation: String {
+    enum Pose: String {
+        case closed, half, open
         case portrait
         case landscape = "landscape-left"
     }
 
-    static func set(_ orientation: Orientation) throws {
+    static func set(_ pose: Pose) throws {
         let path = try XCTUnwrap(
             ProcessInfo.processInfo.environment["EHPANDA_DUO_POSE_DIRECTORY"],
-            "Duo rotation tests require the host pose driver."
+            "Duo pose tests require the host pose driver."
         )
         let directory = URL(filePath: path, directoryHint: .isDirectory)
         let identifier = UUID().uuidString
-        let request = Data("\(identifier)\n\(orientation.rawValue)".utf8)
+        let request = Data("\(identifier)\n\(pose.rawValue)".utf8)
         try request.write(to: directory.appending(path: "request"), options: .atomic)
         let acknowledgement = directory.appending(path: "acknowledgement")
         let applied = XCTNSPredicateExpectation(predicate: NSPredicate { _, _ in

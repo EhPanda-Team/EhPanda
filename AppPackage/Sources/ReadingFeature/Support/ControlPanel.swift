@@ -7,17 +7,16 @@ import SFSafeSymbolsExt
 import SwiftUI
 
 struct ControlPanel<G: Gesture>: View {
-    // The panel is a custom overlay, not a sheet, so nothing moves VoiceOver into it by itself:
-    // showing it lands focus on the lower Close button (the panel's first control), the way a
-    // modal surface would. Hiding needs no counterpart — `.visible(false)` takes the panel out of
-    // the accessibility tree and VoiceOver falls back to the page on its own.
-    @AccessibilityFocusState private var isCloseButtonFocused: Bool
+    @AccessibilityFocusState private var focusedControl: ControlPanelFocus?
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.layoutDirection) private var layoutDirection
+    @State private var rightPaneWidth: CGFloat = 0
     @Binding var showsPanel: Bool
     @Binding var showsSliderPreview: Bool
     @Binding var sliderValue: Float
     let isReversed: Bool
     let containerSize: CGSize
+    let usesRightPane: Bool
     let range: ClosedRange<Float>
     let previewURLs: [Int: URL]
     let dismissGesture: G
@@ -30,18 +29,33 @@ struct ControlPanel<G: Gesture>: View {
     /// `.animation(.default, value: store.showsPanel)` drives that half unchanged (D-29).
     private var hiddenPanelOffset: CGFloat { reduceMotion ? 0 : 50 }
 
+    private var panelSize: CGSize {
+        CGSize(width: usesRightPane ? rightPaneWidth : containerSize.width, height: containerSize.height)
+    }
+
+    private var preferredFocus: ControlPanelFocus? {
+        guard showsPanel, range.upperBound > range.lowerBound else { return nil }
+        return usesRightPane ? .slider : .close
+    }
+
     var body: some View {
         VStack {
             Spacer()
             if range.upperBound > range.lowerBound {
                 LowerPanel(
-                    closeButtonFocus: $isCloseButtonFocused,
+                    controlFocus: $focusedControl,
+                    showsCloseButton: !usesRightPane,
                     showsSliderPreview: $showsSliderPreview,
                     sliderValue: $sliderValue, previewURLs: previewURLs, range: range,
                     isReversed: isReversed,
-                    containerSize: containerSize,
+                    containerSize: panelSize,
                     dismissGesture: dismissGesture, dismissAction: dismissAction,
                     fetchPreviewURLsAction: fetchPreviewURLsAction
+                )
+                .frame(width: usesRightPane ? rightPaneWidth : nil)
+                .frame(
+                    maxWidth: .infinity,
+                    alignment: usesRightPane ? (layoutDirection == .leftToRight ? .trailing : .leading) : .center
                 )
                 // The preview tray grows from zero height while the Close button fades out — size
                 // motion, so under Reduce Motion the tray appears in place (D-29).
@@ -49,24 +63,37 @@ struct ControlPanel<G: Gesture>: View {
                 .offset(y: showsPanel ? 0 : hiddenPanelOffset)
             }
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .onGeometryChange(for: CGFloat.self) { [layoutDirection] proxy in
+            let insets = proxy.safeAreaInsets
+            let leftInset = layoutDirection == .leftToRight ? insets.leading : insets.trailing
+            let rightInset = layoutDirection == .leftToRight ? insets.trailing : insets.leading
+            // The toolbar can make the safe area asymmetric; keep the split at the physical hinge.
+            return min(proxy.size.width, max(0, (proxy.size.width + leftInset - rightInset) / 2))
+        } action: { rightPaneWidth = $0 }
         // Match the native reading toolbar: measured on iOS 26.5 from XS through AX5.
         // This owner-approved range also covers the preview and the lower Close button.
         .dynamicTypeSize(DynamicTypeSize.large...DynamicTypeSize.xxLarge)
         .visible(showsPanel)
         .disabled(!showsPanel)
-        .onChange(of: showsPanel) { _, isShown in
-            if isShown {
-                isCloseButtonFocused = true
-            }
+        // The lower Close disappears in the folded layout; focus the first remaining control.
+        .onChange(of: preferredFocus) { _, focus in
+            focusedControl = focus
         }
     }
+}
+
+private enum ControlPanelFocus: Hashable {
+    case close
+    case slider
 }
 
 // MARK: LowerPanel
 private struct LowerPanel<G: Gesture>: View {
     @ScaledMetric(relativeTo: .title2) private var closeButtonSize: CGFloat = 44
     @GestureState private var isScrubbing = false
-    private let closeButtonFocus: AccessibilityFocusState<Bool>.Binding
+    private let controlFocus: AccessibilityFocusState<ControlPanelFocus?>.Binding
+    private let showsCloseButton: Bool
     @Binding private var showsSliderPreview: Bool
     @Binding private var sliderValue: Float
     private let previewURLs: [Int: URL]
@@ -78,13 +105,14 @@ private struct LowerPanel<G: Gesture>: View {
     private let fetchPreviewURLsAction: (Int) -> Void
 
     init(
-        closeButtonFocus: AccessibilityFocusState<Bool>.Binding,
+        controlFocus: AccessibilityFocusState<ControlPanelFocus?>.Binding, showsCloseButton: Bool,
         showsSliderPreview: Binding<Bool>, sliderValue: Binding<Float>,
         previewURLs: [Int: URL], range: ClosedRange<Float>, isReversed: Bool,
         containerSize: CGSize, dismissGesture: G, dismissAction: @escaping () -> Void,
         fetchPreviewURLsAction: @escaping (Int) -> Void
     ) {
-        self.closeButtonFocus = closeButtonFocus
+        self.controlFocus = controlFocus
+        self.showsCloseButton = showsCloseButton
         _showsSliderPreview = showsSliderPreview
         _sliderValue = sliderValue
         self.previewURLs = previewURLs
@@ -98,17 +126,19 @@ private struct LowerPanel<G: Gesture>: View {
 
     var body: some View {
         VStack(spacing: 30) {
-            Button(action: dismissAction) {
-                Label(.close, systemSymbol: .xmark)
-                    .labelStyle(.iconOnly)
-                    .font(.title2)
-                    .frame(width: closeButtonSize, height: closeButtonSize)
+            if showsCloseButton {
+                Button(action: dismissAction) {
+                    Label(.close, systemSymbol: .xmark)
+                        .labelStyle(.iconOnly)
+                        .font(.title2)
+                        .frame(width: closeButtonSize, height: closeButtonSize)
+                }
+                .foregroundStyle(.primary)
+                .glassEffect(.regular.interactive())
+                .gesture(dismissGesture)
+                .accessibilityFocused(controlFocus, equals: .close)
+                .visible(!showsSliderPreview)
             }
-            .foregroundStyle(.primary)
-            .glassEffect(.regular.interactive())
-            .gesture(dismissGesture)
-            .accessibilityFocused(closeButtonFocus)
-            .visible(!showsSliderPreview)
 
             VStack(spacing: 0) {
                 SliderPreivew(
@@ -141,6 +171,7 @@ private struct LowerPanel<G: Gesture>: View {
                     // The slider's own value would be a percentage; the page it stands for is the
                     // value that means something ("Page, 12 of 112"). `range.upperBound` is the
                     // gallery's page count — the reader passes `1...pageCount`.
+                    .accessibilityFocused(controlFocus, equals: .slider)
                     .accessibilityLabel(.accessibilityPageSlider)
                     .accessibilityValue(
                         .accessibilityPageOf(current: Int(sliderValue), total: Int(range.upperBound))
@@ -167,6 +198,8 @@ private struct LowerPanel<G: Gesture>: View {
             .glassEffect(in: .rect(cornerRadius: 16))
             .padding(.horizontal, SliderPreivew.outerPadding)
         }
+        .accessibilityElement(children: .contain)
+        .accessibilityIdentifier("reading_lower_panel")
     }
 }
 
@@ -288,6 +321,7 @@ private let previewContainerSize = CGSize(width: 375, height: 667)
         sliderValue: .constant(1),
         isReversed: false,
         containerSize: previewContainerSize,
+        usesRightPane: false,
         range: 1...14,
         previewURLs: [:],
         dismissGesture: TapGesture(),
