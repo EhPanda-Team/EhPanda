@@ -336,12 +336,13 @@ struct ToplistsSection: View {
     private let galleries: [Int: [Gallery]]
     private let isLoading: Bool
     private let stacksSixGalleries: Bool
+    private let showsHeading: Bool
     private let navigateAction: (Gallery) -> Void
     private let showAllAction: () -> Void
     private let reloadAction: () -> Void
 
     init(
-        galleries: [Int: [Gallery]], isLoading: Bool, stacksSixGalleries: Bool = false,
+        galleries: [Int: [Gallery]], isLoading: Bool, stacksSixGalleries: Bool = false, showsHeading: Bool = true,
         navigateAction: @escaping (Gallery) -> Void,
         showAllAction: @escaping () -> Void,
         reloadAction: @escaping () -> Void
@@ -349,6 +350,7 @@ struct ToplistsSection: View {
         self.galleries = galleries
         self.isLoading = isLoading
         self.stacksSixGalleries = stacksSixGalleries
+        self.showsHeading = showsHeading
         self.navigateAction = navigateAction
         self.showAllAction = showAllAction
         self.reloadAction = reloadAction
@@ -380,20 +382,29 @@ struct ToplistsSection: View {
     }
 
     var body: some View {
-        SubSection(
-            title: .toplists,
-            isLoading: isLoading,
-            reloadAction: reloadAction,
-            showAllAction: showAllAction
-        ) {
-            ScrollView(.horizontal) {
-                HStack(alignment: .top) {
-                    ForEach(ToplistsType.allCases, content: verticalStacks)
-                }
+        if showsHeading {
+            SubSection(
+                title: .toplists,
+                isLoading: isLoading,
+                reloadAction: reloadAction,
+                showAllAction: showAllAction
+            ) {
+                rankings
             }
-            .scrollIndicators(.hidden)
+        } else {
+            rankings
         }
     }
+
+    private var rankings: some View {
+        ScrollView(.horizontal) {
+            HStack(alignment: .top) {
+                ForEach(ToplistsType.allCases, content: verticalStacks)
+            }
+        }
+        .scrollIndicators(.hidden)
+    }
+
     private func verticalStacks(type: ToplistsType) -> some View {
         VStack(alignment: .leading) {
             Text(type.value).font(.subheadline.bold())

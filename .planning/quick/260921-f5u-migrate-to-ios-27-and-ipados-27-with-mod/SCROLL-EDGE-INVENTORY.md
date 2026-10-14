@@ -6,7 +6,7 @@ Apply `.scrollEdgeEffectStyle(.soft, for: .top)` directly to each app-owned page
 
 | Page | File | Actual host / required coverage | Implementation evidence |
 |---|---|---|---|
-| Home | `HomeFeature/HomeSectionsView.swift` | single ScrollView normally; independent left/right ScrollViews while the hinge is partially open | Each vertical ScrollView carries the modifier directly. |
+| Home | `HomeFeature/HomeSectionsView.swift` | single ScrollView normally; independent left/right ScrollViews, each in its own navigation host, while the hinge is partially open | Each vertical ScrollView carries the modifier directly. |
 | Home list sheets | `HomeFeature/HomeSheetView.swift` | Frontpage, Popular, Toplists, Watched and History NavigationStacks in HomePaneSheet-owned UIHostingControllers across the fold | Explicit modifier on the presentation content root; each child retains its own page policy. |
 | Frontpage | `HomeFeature/Frontpage/FrontpageView.swift` | GalleryList wrapper; detail and thumbnail hosts inherit | GalleryList.swift shared list/thumbnail content root; Frontpage inherits. |
 | Popular | `HomeFeature/Popular/PopularView.swift` | GalleryList wrapper; both modes inherit | GalleryList.swift shared list/thumbnail content root; Popular inherits. |
