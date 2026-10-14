@@ -336,13 +336,15 @@ struct ToplistsSection: View {
     private let galleries: [Int: [Gallery]]
     private let isLoading: Bool
     private let stacksSixGalleries: Bool
+    private let stackWidthFraction: CGFloat
     private let showsHeading: Bool
     private let navigateAction: (Gallery) -> Void
     private let showAllAction: () -> Void
     private let reloadAction: () -> Void
 
     init(
-        galleries: [Int: [Gallery]], isLoading: Bool, stacksSixGalleries: Bool = false, showsHeading: Bool = true,
+        galleries: [Int: [Gallery]], isLoading: Bool, stacksSixGalleries: Bool = false,
+        stackWidthFraction: CGFloat = 0.9, showsHeading: Bool = true,
         navigateAction: @escaping (Gallery) -> Void,
         showAllAction: @escaping () -> Void,
         reloadAction: @escaping () -> Void
@@ -350,6 +352,7 @@ struct ToplistsSection: View {
         self.galleries = galleries
         self.isLoading = isLoading
         self.stacksSixGalleries = stacksSixGalleries
+        self.stackWidthFraction = stackWidthFraction
         self.showsHeading = showsHeading
         self.navigateAction = navigateAction
         self.showAllAction = showAllAction
@@ -412,7 +415,7 @@ struct ToplistsSection: View {
                 VerticalToplistsStack(
                     galleries: Array((dataSource[type.categoryIndex] ?? []).prefix(6)),
                     startRanking: 1,
-                    widthFraction: 0.9,
+                    widthFraction: stackWidthFraction,
                     navigateAction: navigateAction
                 )
             } else if horizontalSizeClass == .regular {
