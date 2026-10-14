@@ -41,6 +41,7 @@ extension ReadingReducer {
     var mainReducer: some ReducerOf<Self> {
         CombineReducers {
             lifecycleReducer
+            layoutReducer
             sessionReducer
             imageFetchReducer
         }

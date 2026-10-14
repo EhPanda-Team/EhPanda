@@ -61,19 +61,19 @@ struct ReadingToolbar: ToolbarContent {
             .buttonStyle(.plain)
             .accessibilityAddTraits(enablesLiveText ? .isSelected : [])
         }
-        if isLandscape && setting.readingDirection != .vertical {
+        if isLandscape {
             ToolbarItem(placement: .topBarTrailing) {
                 Menu {
-                    Toggle(isOn: $setting.enableDualPageMode) {
+                    Toggle(isOn: $setting.usesHorizontalDualPages) {
                         Text(.dualPageMode)
                     }
                     Toggle(isOn: $setting.exceptCover) {
                         Text(.exceptTheCover)
                     }
-                    .disabled(!setting.enableDualPageMode)
+                    .disabled(!setting.usesHorizontalDualPages)
                 } label: {
                     Label(.dualPageMode, systemSymbol: .rectangleSplit2x1)
-                        .symbolVariant(setting.enableDualPageMode ? .fill : .none)
+                        .symbolVariant(setting.usesHorizontalDualPages ? .fill : .none)
                 }
             }
         }
