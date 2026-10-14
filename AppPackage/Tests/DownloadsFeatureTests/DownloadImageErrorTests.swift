@@ -1,13 +1,15 @@
 @testable import AppFeature
 import AppModels
+import DownloadClient
 import Foundation
 import Testing
+import TestingSupport
 
 struct DownloadImageErrorTests: DownloadFeatureTestCase {
     @Test
     func testFileBasedInvalidPageMapsToNotFound() async throws {
         let fileURL = FileManager.default.temporaryDirectory
-            .appendingPathComponent(UUID().uuidString)
+            .appending(path: UUID().uuidString)
             .appendingPathExtension("html")
         defer { removeTemporaryItem(at: fileURL) }
 
@@ -34,7 +36,7 @@ struct DownloadImageErrorTests: DownloadFeatureTestCase {
     @Test
     func testFileBasedKeepTryingMapsToNotFound() async throws {
         let fileURL = FileManager.default.temporaryDirectory
-            .appendingPathComponent(UUID().uuidString)
+            .appending(path: UUID().uuidString)
             .appendingPathExtension("html")
         defer { removeTemporaryItem(at: fileURL) }
 
@@ -61,7 +63,7 @@ struct DownloadImageErrorTests: DownloadFeatureTestCase {
     @Test
     func testFileBasedHTTP404MapsToNotFound() async throws {
         let fileURL = FileManager.default.temporaryDirectory
-            .appendingPathComponent(UUID().uuidString)
+            .appending(path: UUID().uuidString)
             .appendingPathExtension("txt")
         defer { removeTemporaryItem(at: fileURL) }
 
@@ -86,7 +88,7 @@ struct DownloadImageErrorTests: DownloadFeatureTestCase {
     @Test
     func testFileBased404GalleryNotAvailableFallsBackToNotFound() async throws {
         let fileURL = FileManager.default.temporaryDirectory
-            .appendingPathComponent(UUID().uuidString)
+            .appending(path: UUID().uuidString)
             .appendingPathExtension("html")
         defer { removeTemporaryItem(at: fileURL) }
 

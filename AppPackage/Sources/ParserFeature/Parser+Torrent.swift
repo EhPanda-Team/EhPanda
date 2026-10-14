@@ -1,11 +1,11 @@
-import AppModels
+public import AppModels
 import AppTools
 import Foundation
-import Kanna
+public import Kanna
 
 extension Parser {
     // swiftlint:disable:next cyclomatic_complexity function_body_length
-    public static func parseGalleryTorrents(doc: HTMLDocument) -> [GalleryTorrent] {
+    public static func parseGalleryTorrents(doc: any HTMLDocument) -> [GalleryTorrent] {
         var torrents = [GalleryTorrent]()
 
         for link in doc.xpath("//form") {
@@ -23,22 +23,22 @@ extension Parser {
                 for tdLink in trLink.xpath("//td") {
                     if let tdText = tdLink.text {
                         if tdText.contains("Posted: ") {
-                            tmpPostedTime = tdText.replacingOccurrences(of: "Posted: ", with: "")
+                            tmpPostedTime = tdText.replacing("Posted: ", with: "")
                         }
                         if tdText.contains("Size: ") {
-                            tmpFileSize = tdText.replacingOccurrences(of: "Size: ", with: "")
+                            tmpFileSize = tdText.replacing("Size: ", with: "")
                         }
                         if tdText.contains("Seeds: ") {
-                            tmpSeedCount = Int(tdText.replacingOccurrences(of: "Seeds: ", with: ""))
+                            tmpSeedCount = Int(tdText.replacing("Seeds: ", with: ""))
                         }
                         if tdText.contains("Peers: ") {
-                            tmpPeerCount = Int(tdText.replacingOccurrences(of: "Peers: ", with: ""))
+                            tmpPeerCount = Int(tdText.replacing("Peers: ", with: ""))
                         }
                         if tdText.contains("Downloads: ") {
-                            tmpDownloadCount = Int(tdText.replacingOccurrences(of: "Downloads: ", with: ""))
+                            tmpDownloadCount = Int(tdText.replacing("Downloads: ", with: ""))
                         }
                         if tdText.contains("Uploader: ") {
-                            tmpUploader = tdText.replacingOccurrences(of: "Uploader: ", with: "")
+                            tmpUploader = tdText.replacing("Uploader: ", with: "")
                         }
                     }
                     if let aLink = tdLink.at_xpath("//a"),

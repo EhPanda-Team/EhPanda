@@ -1,3 +1,4 @@
+import AppComponents
 @testable import AppFeature
 import AppModels
 import AppTools
@@ -45,7 +46,7 @@ struct DownloadFilterAndBadgeTests: DownloadFeatureTestCase {
             postedDate: .now,
             rating: 4,
             onlineCoverURL: nil,
-            folderURL: URL(fileURLWithPath: "/tmp/111 - Solo Title", isDirectory: true),
+            folderURL: URL(filePath: "/tmp/111 - Solo Title", directoryHint: .isDirectory),
             displayStatus: .completed,
             completedPageCount: 1,
             lastDownloadedDate: .now,

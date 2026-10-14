@@ -1,195 +1,198 @@
 {
-  "configurations" : [
+  "configurations": [
     {
-      "id" : "C0DEC0DE-FEED-4A11-BEEF-FEA7011E5751",
-      "name" : "Configuration 1",
-      "options" : {
-
-      }
+      "id": "C0DEC0DE-FEED-4A11-BEEF-FEA7011E5751",
+      "name": "Configuration 1",
+      "options": {}
     }
   ],
-  "defaultOptions" : {
-    "environmentVariableEntries" : [
+  "defaultOptions": {
+    "environmentVariableEntries": [
       {
-        "key" : "EHPANDA_UITEST_STUB_NETWORK",
-        "value" : "1"
+        "key": "EHPANDA_UITEST_STUB_NETWORK",
+        "value": "1"
       },
       {
-        "key" : "EHPANDA_VISUAL_TEST_HOST",
-        "value" : "1"
+        "key": "EHPANDA_VISUAL_TEST_HOST",
+        "value": "1"
       }
     ],
-    "testTimeoutsEnabled" : true
+    "testTimeoutsEnabled": true
   },
-  "testTargets" : [
+  "testTargets": [
     {
-      "target" : {
-        "containerPath" : "container:AppPackage",
-        "identifier" : "AppFeatureTests",
-        "name" : "AppFeatureTests"
+      "target": {
+        "containerPath": "container:AppPackage",
+        "identifier": "AppFeatureTests",
+        "name": "AppFeatureTests"
       }
     },
     {
-      "target" : {
-        "containerPath" : "container:AppPackage",
-        "identifier" : "AppModelsTests",
-        "name" : "AppModelsTests"
+      "target": {
+        "containerPath": "container:AppPackage",
+        "identifier": "AppModelsTests",
+        "name": "AppModelsTests"
       }
     },
     {
-      "target" : {
-        "containerPath" : "container:AppPackage",
-        "identifier" : "AppToolsTests",
-        "name" : "AppToolsTests"
+      "target": {
+        "containerPath": "container:AppPackage",
+        "identifier": "AppToolsTests",
+        "name": "AppToolsTests"
       }
     },
     {
-      "target" : {
-        "containerPath" : "container:AppPackage",
-        "identifier" : "DetailFeatureTests",
-        "name" : "DetailFeatureTests"
+      "target": {
+        "containerPath": "container:AppPackage",
+        "identifier": "DetailFeatureTests",
+        "name": "DetailFeatureTests"
       }
     },
     {
-      "target" : {
-        "containerPath" : "container:AppPackage",
-        "identifier" : "DownloadsFeatureTests",
-        "name" : "DownloadsFeatureTests"
+      "target": {
+        "containerPath": "container:AppPackage",
+        "identifier": "DownloadsFeatureTests",
+        "name": "DownloadsFeatureTests"
       }
     },
     {
-      "target" : {
-        "containerPath" : "container:AppPackage",
-        "identifier" : "FileClientTests",
-        "name" : "FileClientTests"
+      "target": {
+        "containerPath": "container:AppPackage",
+        "identifier": "FileClientTests",
+        "name": "FileClientTests"
       }
     },
     {
-      "target" : {
-        "containerPath" : "container:AppPackage",
-        "identifier" : "HomeFeatureTests",
-        "name" : "HomeFeatureTests"
+      "target": {
+        "containerPath": "container:AppPackage",
+        "identifier": "HomeFeatureTests",
+        "name": "HomeFeatureTests"
       }
     },
     {
-      "target" : {
-        "containerPath" : "container:AppPackage",
-        "identifier" : "MarkdownExtTests",
-        "name" : "MarkdownExtTests"
+      "target": {
+        "containerPath": "container:AppPackage",
+        "identifier": "MarkdownExtTests",
+        "name": "MarkdownExtTests"
       }
     },
     {
-      "target" : {
-        "containerPath" : "container:AppPackage",
-        "identifier" : "NetworkingFeatureTests",
-        "name" : "NetworkingFeatureTests"
+      "target": {
+        "containerPath": "container:AppPackage",
+        "identifier": "NetworkingFeatureTests",
+        "name": "NetworkingFeatureTests"
       }
     },
     {
-      "target" : {
-        "containerPath" : "container:AppPackage",
-        "identifier" : "ParserFeatureTests",
-        "name" : "ParserFeatureTests"
+      "target": {
+        "containerPath": "container:AppPackage",
+        "identifier": "ParserFeatureTests",
+        "name": "ParserFeatureTests"
       }
     },
     {
-      "target" : {
-        "containerPath" : "container:AppPackage",
-        "identifier" : "SettingFeatureTests",
-        "name" : "SettingFeatureTests"
+      "target": {
+        "containerPath": "container:AppPackage",
+        "identifier": "SettingFeatureTests",
+        "name": "SettingFeatureTests"
       }
     },
     {
-      "target" : {
-        "containerPath" : "container:AppPackage",
-        "identifier" : "SystemNotificationTests",
-        "name" : "SystemNotificationTests"
+      "target": {
+        "containerPath": "container:AppPackage",
+        "identifier": "SystemNotificationTests",
+        "name": "SystemNotificationTests"
       }
     },
     {
-      "target" : {
-        "containerPath" : "container:AppPackage",
-        "identifier" : "SwiftyOpenCCTests",
-        "name" : "SwiftyOpenCCTests"
+      "target": {
+        "containerPath": "container:AppPackage",
+        "identifier": "SwiftyOpenCCTests",
+        "name": "SwiftyOpenCCTests"
       }
     },
     {
-      "target" : {
-        "containerPath" : "container:AppPackage",
-        "identifier" : "TagTranslationFeatureTests",
-        "name" : "TagTranslationFeatureTests"
+      "target": {
+        "containerPath": "container:AppPackage",
+        "identifier": "TagTranslationFeatureTests",
+        "name": "TagTranslationFeatureTests"
       }
     },
     {
-      "target" : {
-        "containerPath" : "container:AppPackage",
-        "identifier" : "ImageColorsTests",
-        "name" : "ImageColorsTests"
+      "target": {
+        "containerPath": "container:AppPackage",
+        "identifier": "ImageColorsTests",
+        "name": "ImageColorsTests"
       }
     },
     {
-      "target" : {
-        "containerPath" : "container:AppPackage",
-        "identifier" : "LiveTextTranslationTests",
-        "name" : "LiveTextTranslationTests"
+      "target": {
+        "containerPath": "container:AppPackage",
+        "identifier": "LiveTextTranslationTests",
+        "name": "LiveTextTranslationTests"
       }
     },
     {
-      "target" : {
-        "containerPath" : "container:AppPackage",
-        "identifier" : "GalleryListComponentsTests",
-        "name" : "GalleryListComponentsTests"
+      "target": {
+        "containerPath": "container:AppPackage",
+        "identifier": "GalleryListComponentsTests",
+        "name": "GalleryListComponentsTests"
       }
     },
     {
-      "target" : {
-        "containerPath" : "container:AppPackage",
-        "identifier" : "CookieClientTests",
-        "name" : "CookieClientTests"
+      "target": {
+        "containerPath": "container:AppPackage",
+        "identifier": "CookieClientTests",
+        "name": "CookieClientTests"
       }
     },
     {
-      "target" : {
-        "containerPath" : "container:AppPackage",
-        "identifier" : "ImageClientTests",
-        "name" : "ImageClientTests"
+      "target": {
+        "containerPath": "container:AppPackage",
+        "identifier": "ImageClientTests",
+        "name": "ImageClientTests"
       }
     },
     {
-      "target" : {
-        "containerPath" : "container:AppPackage",
-        "identifier" : "ReadingFeatureTests",
-        "name" : "ReadingFeatureTests"
+      "target": {
+        "containerPath": "container:AppPackage",
+        "identifier": "ReadingFeatureTests",
+        "name": "ReadingFeatureTests"
       }
     },
     {
-      "target" : {
-        "containerPath" : "container:AppPackage",
-        "identifier" : "AnalyticsClientTests",
-        "name" : "AnalyticsClientTests"
+      "target": {
+        "containerPath": "container:AppPackage",
+        "identifier": "AnalyticsClientTests",
+        "name": "AnalyticsClientTests"
       }
     },
     {
-      "target" : {
-        "containerPath" : "container:AppPackage",
-        "identifier" : "SearchFeatureTests",
-        "name" : "SearchFeatureTests"
+      "target": {
+        "containerPath": "container:AppPackage",
+        "identifier": "SearchFeatureTests",
+        "name": "SearchFeatureTests"
       }
     },
     {
-      "target" : {
-        "containerPath" : "container:AppPackage",
-        "identifier" : "FavoritesFeatureTests",
-        "name" : "FavoritesFeatureTests"
+      "target": {
+        "containerPath": "container:AppPackage",
+        "identifier": "FavoritesFeatureTests",
+        "name": "FavoritesFeatureTests"
       }
     },
     {
-      "target" : {
-        "containerPath" : "container:EhPanda.xcodeproj",
-        "identifier" : "A17000000000000000000006",
-        "name" : "VisualSnapshotTests"
-      }
+      "target": {
+        "containerPath": "container:EhPanda.xcodeproj",
+        "identifier": "A17000000000000000000006",
+        "name": "VisualSnapshotTests"
+      },
+      "skippedTests": [
+        "FullContentFeasibilityTests",
+        "GeometryTests",
+        "VisualMatrixTests"
+      ]
     }
   ],
-  "version" : 1
+  "version": 1
 }

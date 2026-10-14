@@ -4,6 +4,7 @@ import AppModels
 import ComposableArchitecture
 import CookieClient
 import Foundation
+import HapticsClient
 import NetworkingFeature
 @testable import SettingFeature
 import Sharing

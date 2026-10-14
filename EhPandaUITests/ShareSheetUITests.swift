@@ -215,7 +215,7 @@ private final class LocalSharePageServer {
 
     init(galleryURL: URL) throws {
         let listener = try NWListener(using: .tcp, on: .any)
-        let readiness = Mutex<Result<Void, Error>?>(nil)
+        let readiness = Mutex<Result<Void, any Error>?>(nil)
         let readinessSignal = DispatchSemaphore(value: 0)
 
         listener.stateUpdateHandler = { state in

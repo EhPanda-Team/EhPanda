@@ -1,5 +1,6 @@
 @testable import AppFeature
 import AppModels
+import ClipboardClient
 import CustomDump
 import Foundation
 import Testing

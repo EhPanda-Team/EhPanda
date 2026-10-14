@@ -1,4 +1,4 @@
-import Foundation
+public import Foundation
 
 public struct EquatableVoid: Hashable, Sendable, Identifiable {
     public let id: UUID

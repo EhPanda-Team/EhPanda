@@ -1,10 +1,10 @@
 import AppComponents
 import AppModels
-import ComposableArchitecture
+public import ComposableArchitecture
 import Resources
 import SFSafeSymbols
 import SFSafeSymbolsExt
-import SwiftUI
+public import SwiftUI
 
 public struct QuickSearchView: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion

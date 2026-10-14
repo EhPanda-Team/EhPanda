@@ -1,15 +1,15 @@
 import AnalyticsClient
-import AppModels
+public import AppModels
 import AppTools
-import ComposableArchitecture
+public import ComposableArchitecture
 import CookieClient
-import DateSeekFeature
+public import DateSeekFeature
 import DownloadClient
-import FiltersFeature
+public import FiltersFeature
 import HapticsClient
-import NetworkingFeature
-import QuickSearchFeature
-import Sharing
+public import NetworkingFeature
+public import QuickSearchFeature
+public import Sharing
 
 @Reducer
 public struct WatchedReducer: Sendable {
@@ -155,17 +155,15 @@ public struct WatchedReducer: Sendable {
                 let filter = state.watchedFilter
                 let host = state.setting.galleryHost
                 return .run { [keyword = state.keyword] send in
-                    do throws(AppError) {
-                        let response = try await WatchedGalleriesRequest(
+                    let result = await Result.Swift::init { () async throws(AppError) in
+                        try await WatchedGalleriesRequest(
                             host: host,
                             filter: filter,
                             keyword: keyword
                         )
                         .response()
-                        await send(.fetchGalleriesDone(.success(response)))
-                    } catch {
-                        await send(.fetchGalleriesDone(.failure(error)))
                     }
+                    await send(.fetchGalleriesDone(result))
                 }
                 .cancellable(id: CancelID.fetchGalleries)
 
@@ -198,18 +196,16 @@ public struct WatchedReducer: Sendable {
                 let filter = state.watchedFilter
                 let host = state.setting.galleryHost
                 return .run { [keyword = state.keyword] send in
-                    do throws(AppError) {
-                        let response = try await MoreWatchedGalleriesRequest(
+                    let result = await Result.Swift::init { () async throws(AppError) in
+                        try await MoreWatchedGalleriesRequest(
                             host: host,
                             filter: filter,
                             lastID: lastID,
                             keyword: keyword
                         )
                         .response()
-                        await send(.fetchMoreGalleriesDone(.success(response)))
-                    } catch {
-                        await send(.fetchMoreGalleriesDone(.failure(error)))
                     }
+                    await send(.fetchMoreGalleriesDone(result))
                 }
                 .cancellable(id: CancelID.fetchMoreGalleries)
 
@@ -256,12 +252,10 @@ public struct WatchedReducer: Sendable {
                 state.pageNumber.resetPages()
                 let host = state.setting.galleryHost
                 return .run { send in
-                    do throws(AppError) {
-                        let response = try await DateSeekGalleriesRequest(host: host, url: url).response()
-                        await send(.performDateSeekDone(.success(response)))
-                    } catch {
-                        await send(.performDateSeekDone(.failure(error)))
+                    let result = await Result.Swift::init { () async throws(AppError) in
+                        try await DateSeekGalleriesRequest(host: host, url: url).response()
                     }
+                    await send(.performDateSeekDone(result))
                 }
                 .cancellable(id: CancelID.fetchDateSeekGalleries)
 

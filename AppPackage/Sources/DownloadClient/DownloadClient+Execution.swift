@@ -29,7 +29,7 @@ extension DownloadCoordinator {
             // some unrelated publish came along, which for the refusal family means a row showing
             // k-of-N over a record that reads N-of-N.
             if withdrewMeasurement && !publishedOnExit {
-                Task { await self.notifyObservers() }
+                await notifyObservers()
             }
         }
 
@@ -109,7 +109,7 @@ extension DownloadCoordinator {
     }
 
     private func handleProcessDownloadError(
-        error: Error,
+        error: any Error,
         context: FailureContext
     ) async {
         if let appError = error as? AppError {
@@ -226,7 +226,7 @@ extension DownloadCoordinator {
     }
 
     private func handleProcessDownloadGenericError(
-        error: Error,
+        error: any Error,
         context: FailureContext
     ) async {
         let appError = AppError.fileOperationFailed(

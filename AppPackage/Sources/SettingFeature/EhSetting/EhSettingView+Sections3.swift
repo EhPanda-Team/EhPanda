@@ -4,6 +4,7 @@ import AppTools
 import Dependencies
 import HapticsClient
 import Resources
+import SFSafeSymbols
 import SwiftUI
 
 extension EhSettingView {

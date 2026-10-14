@@ -2,9 +2,12 @@ import AnalyticsClient
 @testable import AppFeature
 import AppModels
 import ComposableArchitecture
+import CookieClient
+import DeviceClient
 import DownloadClient
 @testable import DownloadsFeature
 import Foundation
+import HapticsClient
 import Testing
 
 // The Downloads tab root and its inspector sheet used to start themselves from view `onAppear`;

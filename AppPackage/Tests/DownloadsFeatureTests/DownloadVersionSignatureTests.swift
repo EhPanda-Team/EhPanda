@@ -9,7 +9,7 @@ struct DownloadVersionSignatureTests: DownloadFeatureTestCase {
     func testDownloadCoordinatorReconcilePreservesIndexedFinalFolder() async throws {
         let gid = String(Int(Date().timeIntervalSince1970 * 1000) + 31)
         let rootURL = FileManager.default.temporaryDirectory
-            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+            .appending(path: UUID().uuidString, directoryHint: .isDirectory)
         defer { removeTemporaryItem(at: rootURL) }
 
         let storage = DownloadStore(rootURL: rootURL, fileManager: .default)
@@ -29,7 +29,7 @@ struct DownloadVersionSignatureTests: DownloadFeatureTestCase {
             at: folderURL,
             withIntermediateDirectories: true
         )
-        let pageURL = folderURL.appendingPathComponent("\(gid)_token_1.jpg")
+        let pageURL = folderURL.appending(path: "\(gid)_token_1.jpg")
         try Data([0x01]).write(
             to: pageURL,
             options: .atomic
@@ -42,7 +42,7 @@ struct DownloadVersionSignatureTests: DownloadFeatureTestCase {
 
         #expect(stored?.displayStatus == .inactive)
         #expect(stored?.completedPageCount == 0)
-        #expect(FileManager.default.fileExists(atPath: folderURL.path))
+        #expect(FileManager.default.fileExists(atPath: folderURL.path(percentEncoded: false)))
         #expect(localPages[1] == pageURL)
     }
 
@@ -50,7 +50,7 @@ struct DownloadVersionSignatureTests: DownloadFeatureTestCase {
     func testUpdateRemoteVersionUsesIndexedSessionFlag() async throws {
         let gid = String(Int(Date().timeIntervalSince1970 * 1000) + 104)
         let rootURL = FileManager.default.temporaryDirectory
-            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+            .appending(path: UUID().uuidString, directoryHint: .isDirectory)
         defer { removeTemporaryItem(at: rootURL) }
 
         let storage = DownloadStore(rootURL: rootURL, fileManager: .default)

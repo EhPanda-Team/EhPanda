@@ -1,6 +1,6 @@
-import AppModels
+public import AppModels
 import AppTools
-import Foundation
+public import Foundation
 import ImageIO
 import OSLogExt
 import ParserFeature

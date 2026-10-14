@@ -1,4 +1,4 @@
-import Foundation
+public import Foundation
 
 /// Accessor for the test fixtures bundled with `TestingSupport`.
 ///

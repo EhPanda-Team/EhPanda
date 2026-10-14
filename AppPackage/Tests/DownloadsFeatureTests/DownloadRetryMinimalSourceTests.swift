@@ -11,7 +11,7 @@ struct DownloadRetryMinimalSourceTests: DownloadFeatureTestCase {
         let gid = String(Int(Date().timeIntervalSince1970 * 1000) + 200)
         let pageIndex = 40
         let rootURL = FileManager.default.temporaryDirectory
-            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+            .appending(path: UUID().uuidString, directoryHint: .isDirectory)
         defer { removeTemporaryItem(at: rootURL) }
 
         let (storage, manager) = makeStubbedDownloadCoordinator(
@@ -74,7 +74,7 @@ struct DownloadRetryMinimalSourceTests: DownloadFeatureTestCase {
         let pageIndex = 40
         let remainingMissingPageIndex = 41
         let rootURL = FileManager.default.temporaryDirectory
-            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+            .appending(path: UUID().uuidString, directoryHint: .isDirectory)
         defer { removeTemporaryItem(at: rootURL) }
 
         let (storage, manager) = makeStubbedDownloadCoordinator(
@@ -190,12 +190,12 @@ private extension DownloadRetryMinimalSourceTests {
             withIntermediateDirectories: true
         )
         try Data([0x00]).write(
-            to: folderURL.appendingPathComponent("\(gid)_token_cover.jpg"),
+            to: folderURL.appending(path: "\(gid)_token_cover.jpg"),
             options: .atomic
         )
         for index in manifest.pages.keys where !missingPageIndices.contains(index) {
             try Data([UInt8(index % 255)]).write(
-                to: folderURL.appendingPathComponent("\(gid)_token_\(index).jpg"),
+                to: folderURL.appending(path: "\(gid)_token_\(index).jpg"),
                 options: .atomic
             )
         }

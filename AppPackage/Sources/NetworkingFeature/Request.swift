@@ -1,7 +1,7 @@
-import AppModels
+public import AppModels
 import AppTools
-import Foundation
-import Kanna
+public import Foundation
+public import Kanna
 import ParserFeature
 
 public protocol Request {
@@ -11,7 +11,7 @@ public protocol Request {
 }
 
 private struct ResponseParsingError: Error {
-    let underlyingError: Error
+    let underlyingError: any Error
     let responseError: AppError?
 }
 
@@ -21,7 +21,7 @@ private struct ResponseParsingError: Error {
 /// parse failure and its response context, which is the diagnostic the user is shown. Surfacing
 /// the repair attempt's own error instead would replace that context with a strictly less useful
 /// one, so it is deliberately discarded here rather than logged.
-private func repairedHTMLDocument(from data: Data) -> HTMLDocument? {
+private func repairedHTMLDocument(from data: Data) -> any HTMLDocument? {
     do {
         return try Kanna.HTML(html: data.utf8InvalidCharactersRipped, encoding: .utf8)
     } catch {
@@ -95,7 +95,7 @@ extension Request {
         return request
     }
 
-    public func htmlDocument(data: Data) throws -> HTMLDocument {
+    public func htmlDocument(data: Data) throws -> any HTMLDocument {
         do {
             return try Kanna.HTML(html: data, encoding: .utf8)
         } catch {
@@ -112,7 +112,7 @@ extension Request {
         }
     }
 
-    public func htmlDocumentWithUTF8Fallback(data: Data) throws -> HTMLDocument {
+    public func htmlDocumentWithUTF8Fallback(data: Data) throws -> any HTMLDocument {
         do {
             return try Kanna.HTML(html: data, encoding: .utf8)
         } catch {
@@ -136,8 +136,8 @@ extension Request {
     }
 
     public func parseResponse<T>(
-        doc: HTMLDocument,
-        _ parser: (HTMLDocument) throws -> T
+        doc: any HTMLDocument,
+        _ parser: (any HTMLDocument) throws -> T
     ) throws -> T {
         do {
             return try parser(doc)
@@ -169,7 +169,7 @@ extension Request {
         }
     }
 
-    public func mapAppError(error: Error) -> AppError {
+    public func mapAppError(error: any Error) -> AppError {
         if let responseParsingError = error as? ResponseParsingError {
             if let responseError = parsedResponseError(
                 from: responseParsingError

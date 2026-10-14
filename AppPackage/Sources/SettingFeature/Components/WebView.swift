@@ -40,7 +40,7 @@ struct WebView: UIViewControllerRepresentable {
             }
         }
 
-        func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
+        func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: any Error) {
             logger.error("\(error, privacy: .public)")
         }
     }

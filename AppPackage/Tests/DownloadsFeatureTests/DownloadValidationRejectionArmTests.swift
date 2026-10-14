@@ -79,7 +79,7 @@ extension DownloadValidationReconciliationTests {
         )
         // The rejection's own staging, re-read from disk: still a regular file, still empty. This is
         // what "unchanged bytes" means for a file whose whole defect is that it has none.
-        let attributes = try FileManager.default.attributesOfItem(atPath: pageOneURL.path)
+        let attributes = try FileManager.default.attributesOfItem(atPath: pageOneURL.path(percentEncoded: false))
         #expect((attributes[.type] as? FileAttributeType) == .typeRegular)
         #expect((attributes[.size] as? NSNumber)?.intValue == 0)
 
@@ -134,7 +134,7 @@ extension DownloadValidationReconciliationTests {
             claimedHashes: claimedHashes,
             rejectedPageURL: pageOneURL
         )
-        let attributes = try FileManager.default.attributesOfItem(atPath: pageOneURL.path)
+        let attributes = try FileManager.default.attributesOfItem(atPath: pageOneURL.path(percentEncoded: false))
         #expect((attributes[.type] as? FileAttributeType) == .typeDirectory)
 
         let download = try #require(await fixture.manager.fetchDownload(gid: gallery.gid))
@@ -198,8 +198,8 @@ extension DownloadValidationReconciliationTests {
 
         // Both halves of the authorized act, asserted apart: the refuted file is gone and the
         // surviving one is untouched.
-        #expect(FileManager.default.fileExists(atPath: pageTwoURL.path) == false)
-        #expect(FileManager.default.fileExists(atPath: pageOneURL.path))
+        #expect(FileManager.default.fileExists(atPath: pageTwoURL.path(percentEncoded: false)) == false)
+        #expect(FileManager.default.fileExists(atPath: pageOneURL.path(percentEncoded: false)))
         try expectNoBlankHashedPageKeptItsFile(for: gallery, in: fixture)
 
         // The relaunch pin: a fresh coordinator over the same storage holds none of this session's
@@ -261,14 +261,14 @@ extension DownloadValidationReconciliationTests {
         // anyway. Pre-fix the removal was never reached for this file at all, which is what leaves
         // the record claiming a page over positively refuted bytes.
         #expect(
-            FileManager.default.fileExists(atPath: refutedPageURL.path),
+            FileManager.default.fileExists(atPath: refutedPageURL.path(percentEncoded: false)),
             "a refused wholesale reconciliation must leave the rejected page file on disk"
         )
-        let attributes = try FileManager.default.attributesOfItem(atPath: refutedPageURL.path)
+        let attributes = try FileManager.default.attributesOfItem(atPath: refutedPageURL.path(percentEncoded: false))
         #expect((attributes[.size] as? NSNumber)?.intValue == 0)
         #expect(
             FileManager.default.fileExists(
-                atPath: pageFileURL(for: gallery, in: fixture, index: 2).path
+                atPath: pageFileURL(for: gallery, in: fixture, index: 2).path(percentEncoded: false)
             ) == false
         )
         try expectNoBlankHashedPageKeptItsFile(for: gallery, in: fixture)
@@ -319,10 +319,10 @@ extension DownloadValidationReconciliationTests {
         // The blanking and the removal are one act: a blank hash beside surviving bytes is the
         // laundering shape, and a removal beside a standing hash is the divergence.
         #expect(
-            FileManager.default.fileExists(atPath: refutedPageURL.path) == false,
+            FileManager.default.fileExists(atPath: refutedPageURL.path(percentEncoded: false)) == false,
             "an authorized reconciliation must remove the file whose hash it blanked"
         )
-        #expect(FileManager.default.fileExists(atPath: usablePageURL.path))
+        #expect(FileManager.default.fileExists(atPath: usablePageURL.path(percentEncoded: false)))
         try expectNoBlankHashedPageKeptItsFile(for: gallery, in: fixture)
 
         let reread = try await relaunchedDownload(for: gallery, in: fixture)
@@ -349,7 +349,7 @@ private extension DownloadValidationReconciliationTests {
         // The load-bearing assertion of this whole file: a pass that refused to write must not have
         // destroyed the evidence it refused to write about.
         #expect(
-            FileManager.default.fileExists(atPath: rejectedPageURL.path),
+            FileManager.default.fileExists(atPath: rejectedPageURL.path(percentEncoded: false)),
             "a refusing validate must leave the rejected page file on disk"
         )
         let diskManifest = try fixture.storage.readManifest(

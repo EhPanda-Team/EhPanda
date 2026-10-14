@@ -12,7 +12,7 @@ struct DownloadCoordinatorCaptureTests: DownloadFeatureTestCase {
     func testDownloadCoordinatorCaptureCachedPageRestoresFinalPage() async throws {
         let gid = String(Int(Date().timeIntervalSince1970 * 1000) + 27)
         let rootURL = FileManager.default.temporaryDirectory
-            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+            .appending(path: UUID().uuidString, directoryHint: .isDirectory)
         defer { removeTemporaryItem(at: rootURL) }
 
         let storage = DownloadStore(rootURL: rootURL, fileManager: .default)
@@ -21,7 +21,7 @@ struct DownloadCoordinatorCaptureTests: DownloadFeatureTestCase {
             urlSession: .shared
         )
 
-        let completedFolderURL = rootURL.appendingPathComponent("Folder/\(gid) - Capture", isDirectory: true)
+        let completedFolderURL = rootURL.appending(path: "Folder/\(gid) - Capture", directoryHint: .isDirectory)
         try FileManager.default.createDirectory(
             at: completedFolderURL,
             withIntermediateDirectories: true
@@ -45,7 +45,7 @@ struct DownloadCoordinatorCaptureTests: DownloadFeatureTestCase {
         let cacheKeys = imageURL.imageCacheKeys
         let dataCache = DataCache(
             configuration: .init(
-                rootURL: rootURL.appendingPathComponent("DataCache", isDirectory: true)
+                rootURL: rootURL.appending(path: "DataCache", directoryHint: .isDirectory)
             )
         )
         try await withDependencies {
@@ -61,7 +61,7 @@ struct DownloadCoordinatorCaptureTests: DownloadFeatureTestCase {
 
             let pageURLs = try await manager.loadLocalPageURLs(gid: gid).get()
             #expect(
-                pageURLs[1] == completedFolderURL.appendingPathComponent(
+                pageURLs[1] == completedFolderURL.appending(path:
                     storage.makePageRelativePath(
                         gid: gid,
                         token: "token",
@@ -78,7 +78,7 @@ struct DownloadCoordinatorCaptureTests: DownloadFeatureTestCase {
     func testDownloadCoordinatorCaptureCachedPageRepairsCompletedDownloadWithLatestRemoteImage() async throws {
         let gid = String(Int(Date().timeIntervalSince1970 * 1000) + 28)
         let rootURL = FileManager.default.temporaryDirectory
-            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+            .appending(path: UUID().uuidString, directoryHint: .isDirectory)
         defer { removeTemporaryItem(at: rootURL) }
 
         let storage = DownloadStore(rootURL: rootURL, fileManager: .default)
@@ -89,7 +89,7 @@ struct DownloadCoordinatorCaptureTests: DownloadFeatureTestCase {
         await manager.reloadDownloadIndex()
         let dataCache = DataCache(
             configuration: .init(
-                rootURL: rootURL.appendingPathComponent("DataCache", isDirectory: true)
+                rootURL: rootURL.appending(path: "DataCache", directoryHint: .isDirectory)
             )
         )
         try await withDependencies {
@@ -114,7 +114,7 @@ struct DownloadCoordinatorCaptureTests: DownloadFeatureTestCase {
                 index: 1,
                 fileExtension: "jpg"
             )
-            #expect(pageURLs[1] == completedFolderURL.appendingPathComponent(pageRelativePath))
+            #expect(pageURLs[1] == completedFolderURL.appending(path: pageRelativePath))
             try await dataCache.removeData(forKeys: cacheKeys)
         }
     }
@@ -125,16 +125,16 @@ struct DownloadCoordinatorCaptureTests: DownloadFeatureTestCase {
 
 private extension DownloadCoordinatorCaptureTests {
     func setupCaptureMissingFilesFolder(rootURL: URL, gid: String) throws -> URL {
-        let completedFolderURL = rootURL.appendingPathComponent("Folder/\(gid) - Pause Race", isDirectory: true)
+        let completedFolderURL = rootURL.appending(path: "Folder/\(gid) - Pause Race", directoryHint: .isDirectory)
         try FileManager.default.createDirectory(
             at: completedFolderURL,
             withIntermediateDirectories: true
         )
         try Data([0x00]).write(
-            to: completedFolderURL.appendingPathComponent("123_token_cover.jpg"), options: .atomic
+            to: completedFolderURL.appending(path: "123_token_cover.jpg"), options: .atomic
         )
         let page2RelativePath = "\(gid)_token_2.jpg"
-        let page2URL = completedFolderURL.appendingPathComponent(page2RelativePath)
+        let page2URL = completedFolderURL.appending(path: page2RelativePath)
         try Data([0x02]).write(
             to: page2URL, options: .atomic
         )
@@ -157,7 +157,7 @@ private extension DownloadCoordinatorCaptureTests {
             ]
         )
         try JSONEncoder().encode(manifest).write(
-            to: completedFolderURL.appendingPathComponent(Defaults.FilePath.downloadManifest),
+            to: completedFolderURL.appending(path: Defaults.FilePath.downloadManifest),
             options: .atomic
         )
         return completedFolderURL

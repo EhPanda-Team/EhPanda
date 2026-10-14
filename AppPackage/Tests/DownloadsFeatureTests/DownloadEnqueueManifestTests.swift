@@ -9,7 +9,7 @@ struct DownloadEnqueueManifestTests: DownloadFeatureTestCase {
     @Test
     func testEnqueueWritesInitialManifestAndQueueIntent() async throws {
         let rootURL = FileManager.default.temporaryDirectory
-            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+            .appending(path: UUID().uuidString, directoryHint: .isDirectory)
         defer { removeTemporaryItem(at: rootURL) }
 
         let storage = DownloadStore(rootURL: rootURL, fileManager: .default)
@@ -62,7 +62,7 @@ struct DownloadEnqueueManifestTests: DownloadFeatureTestCase {
         let manifestData = try Data(
             contentsOf: storage
                 .folderURL(relativePath: folderRelativePath)
-                .appendingPathComponent(Defaults.FilePath.downloadManifest)
+                .appending(path: Defaults.FilePath.downloadManifest)
         )
         let manifestObject = try #require(
             JSONSerialization.jsonObject(with: manifestData) as? [String: Any]
@@ -78,7 +78,7 @@ struct DownloadEnqueueManifestTests: DownloadFeatureTestCase {
     @Test
     func testEnqueuePreservesExistingManifestHashes() async throws {
         let rootURL = FileManager.default.temporaryDirectory
-            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+            .appending(path: UUID().uuidString, directoryHint: .isDirectory)
         defer { removeTemporaryItem(at: rootURL) }
 
         let storage = DownloadStore(rootURL: rootURL, fileManager: .default)

@@ -1,5 +1,5 @@
 import AppTools
-import Foundation
+public import Foundation
 import Resources
 
 public struct GalleryDetail: Codable, Equatable, Sendable {

@@ -8,7 +8,9 @@ import DownloadClient
 import DownloadsFeature
 import Foundation
 import ReadingFeature
+import SettingFeature
 import Sharing
+import SwiftUI
 import Testing
 
 // Scene-phase observation lives in AppReducer, not the reader view. On `.background`, AppReducer

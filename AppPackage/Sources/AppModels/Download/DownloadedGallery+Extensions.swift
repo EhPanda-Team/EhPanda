@@ -1,5 +1,5 @@
 import AppTools
-import SwiftUI
+public import SwiftUI
 
 // MARK: - DownloadBadge
 extension DownloadBadge {

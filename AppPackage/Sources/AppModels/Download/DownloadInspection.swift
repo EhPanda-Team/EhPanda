@@ -1,4 +1,4 @@
-import Foundation
+public import Foundation
 
 public enum DownloadPageStatus: String, Equatable, CaseIterable, Sendable {
     case pending

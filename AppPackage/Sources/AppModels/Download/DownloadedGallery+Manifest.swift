@@ -1,4 +1,4 @@
-import Foundation
+public import Foundation
 
 /// The identity record for a downloaded gallery, written to `manifest.json` in its folder.
 /// Identity lives *here* (`gid` / `token`), not in the folder path: the human-readable
@@ -59,13 +59,13 @@ extension DownloadManifest {
 
     public var galleryURL: URL {
         host.url
-            .appendingPathComponent("g")
-            .appendingPathComponent(gid)
-            .appendingPathComponent(token)
+            .appending(path: "g")
+            .appending(path: gid)
+            .appending(path: token)
     }
 
     public var completedPageCount: Int {
-        pages.values.filter({ !$0.isEmpty }).count
+        pages.values.count(where: { !$0.isEmpty })
     }
 
     public var isComplete: Bool {

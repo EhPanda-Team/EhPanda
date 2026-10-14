@@ -214,7 +214,7 @@ final class UnloadedPageTests: XCTestCase {
             UIColor.darkGray.setFill()
             context.fill(renderer.format.bounds)
         }
-        let url = FileManager.default.temporaryDirectory.appendingPathComponent("\(UUID().uuidString).png")
+        let url = FileManager.default.temporaryDirectory.appending(path: "\(UUID().uuidString).png")
         try data.write(to: url)
         return url
     }

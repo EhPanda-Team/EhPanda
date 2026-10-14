@@ -1,6 +1,6 @@
-import AppModels
+public import AppModels
 import AppTools
-import Foundation
+public import Foundation
 import IssueReporting
 import NetworkingFeature
 import OSLogExt
@@ -97,8 +97,8 @@ extension DownloadCoordinator {
         if let coverRelativePath = existingCoverRelativePath,
            !coverRelativePath.isEmpty {
             let localCoverURL = folderURL
-                .appendingPathComponent(coverRelativePath)
-            if fileManager.operate({ $0.fileExists(atPath: localCoverURL.path) }) {
+                .appending(path: coverRelativePath)
+            if fileManager.operate({ $0.fileExists(atPath: localCoverURL.path(percentEncoded: false)) }) {
                 return coverRelativePath
             }
         }
@@ -144,7 +144,7 @@ extension DownloadCoordinator {
                 fileExtension: ext
             )
         let fileURL = folderURL
-            .appendingPathComponent(relativePath)
+            .appending(path: relativePath)
         try write(data: cachedData, to: fileURL)
         return relativePath
     }
@@ -175,7 +175,7 @@ extension DownloadCoordinator {
                 fileExtension: ext
             )
         let fileURL = folderURL
-            .appendingPathComponent(relativePath)
+            .appending(path: relativePath)
         try moveDownloadedFile(
             from: downloadedFileURL,
             to: fileURL
@@ -699,7 +699,7 @@ extension DownloadCoordinator {
         payload: DownloadRequestPayload,
         folderURL: URL
     ) -> Bool {
-        guard fileManager.operate({ $0.fileExists(atPath: folderURL.path) }) else {
+        guard fileManager.operate({ $0.fileExists(atPath: folderURL.path(percentEncoded: false)) }) else {
             return false
         }
         switch payload.mode {
@@ -746,7 +746,7 @@ extension DownloadCoordinator {
                 logger.error("Stale working folder removal failed: \(error, privacy: .private)")
             }
         }
-        if !fileManager.operate({ $0.fileExists(atPath: folderURL.path) }) {
+        if !fileManager.operate({ $0.fileExists(atPath: folderURL.path(percentEncoded: false)) }) {
             try createDirectory(at: folderURL)
         }
     }
@@ -855,9 +855,9 @@ extension DownloadCoordinator {
                 return true
             }
             let fileURL = folderURL
-                .appendingPathComponent(relativePath)
+                .appending(path: relativePath)
             return !fileManager.operate {
-                $0.fileExists(atPath: fileURL.path)
+                $0.fileExists(atPath: fileURL.path(percentEncoded: false))
             }
         }
     }

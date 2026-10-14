@@ -1,4 +1,4 @@
-import Foundation
+public import Foundation
 
 /// The raw result of a tag-translation download: the untouched DB JSON bytes plus the release date
 /// resolved from the GitHub metadata. Decoding, OpenCC conversion, and caching happen downstream

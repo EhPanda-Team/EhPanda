@@ -1,4 +1,4 @@
-import AppModels
+public import AppModels
 import Foundation
 import OSLogExt
 import Resources
@@ -126,7 +126,7 @@ extension DownloadCoordinator {
                 )
             )
         }
-        guard fileManager.operate({ $0.fileExists(atPath: folderURL.path) }) else {
+        guard fileManager.operate({ $0.fileExists(atPath: folderURL.path(percentEncoded: false)) }) else {
             return .failure(.notFound)
         }
         let containedRecords = downloadIndex.values
@@ -237,7 +237,7 @@ extension DownloadCoordinator {
         // No in-app route reaches this exit: the move menu and the list dialog both offer values
         // `fetchFolders()` produced. But `moveDownload` is a public endpoint on `DownloadClient`,
         // and a comment asserting what its callers happen to pass is not a guard.
-        guard fileManager.operate({ $0.fileExists(atPath: destinationParentURL.path) })
+        guard fileManager.operate({ $0.fileExists(atPath: destinationParentURL.path(percentEncoded: false)) })
                 || userFolders.contains(folderName)
                 || storage.normalizedUserFolderName(folderName) == folderName
         else {
@@ -264,9 +264,9 @@ extension DownloadCoordinator {
                 )
             )
         }
-        let destinationURL = destinationParentURL.appendingPathComponent(
-            download.folderURL.lastPathComponent,
-            isDirectory: true
+        let destinationURL = destinationParentURL.appending(
+            path: download.folderURL.lastPathComponent,
+            directoryHint: .isDirectory
         )
         guard destinationURL.standardizedFileURL != download.folderURL.standardizedFileURL else {
             releaseScheduling(gid: gid)
@@ -274,7 +274,7 @@ extension DownloadCoordinator {
             await scheduleNextIfNeeded()
             return .success(())
         }
-        guard !fileManager.operate({ $0.fileExists(atPath: destinationURL.path) }) else {
+        guard !fileManager.operate({ $0.fileExists(atPath: destinationURL.path(percentEncoded: false)) }) else {
             releaseScheduling(gid: gid)
             await notifyObservers()
             await scheduleNextIfNeeded()
@@ -339,10 +339,10 @@ extension DownloadCoordinator {
                 folderURL: destinationFolderURL,
                 manifest: record.manifest,
                 localCoverURL: record.localCoverURL.map {
-                    destinationFolderURL.appendingPathComponent($0.lastPathComponent)
+                    destinationFolderURL.appending(path: $0.lastPathComponent)
                 },
                 localPageURLs: record.localPageURLs.mapValues {
-                    destinationFolderURL.appendingPathComponent($0.lastPathComponent)
+                    destinationFolderURL.appending(path: $0.lastPathComponent)
                 },
                 modificationDate: record.modificationDate,
                 parentFolderName: newName

@@ -5,14 +5,14 @@ import Kanna
 
 extension Parser {
     // swiftlint:disable:next cyclomatic_complexity function_body_length
-    static func parseComments(doc: HTMLDocument) -> [GalleryComment] {
+    static func parseComments(doc: any HTMLDocument) -> [GalleryComment] {
         var comments = [GalleryComment]()
         for link in doc.xpath("//div [@id='cdiv']") {
             for c1Link in link.xpath("//div [@class='c1']") {
                 guard let c3Node = c1Link.at_xpath("//div [@class='c3']")?.text,
                       let c6Node = c1Link.at_xpath("//div [@class='c6']"),
                       let commentID = c6Node["id"]?
-                    .replacingOccurrences(of: "comment_", with: ""),
+                    .replacing("comment_", with: ""),
                       let rangeA = c3Node.range(of: "Posted on "),
                       let rangeB = c3Node.range(of: " by:   ")
                 else { continue }
@@ -80,7 +80,7 @@ extension Parser {
 // MARK: Helpers
 private extension Parser {
     // swiftlint:disable:next function_body_length cyclomatic_complexity
-    static func parseCommentContent(node: XMLElement) -> [CommentContent] {
+    static func parseCommentContent(node: any XMLElement) -> [CommentContent] {
         var contents = [CommentContent]()
 
         for div in node.xpath("//div") {
@@ -91,13 +91,13 @@ private extension Parser {
         }
 
         guard var rawContent = node.innerHTML?
-            .replacingOccurrences(of: "<br>", with: "\n")
-            .replacingOccurrences(of: "</span>", with: "")
+            .replacing("<br>", with: "\n")
+            .replacing("</span>", with: "")
         else { return [] }
 
         while (node.xpath("//a").count
                + node.xpath("//img").count) > 0 {
-            var tmpLink: XMLElement?
+            var tmpLink: any XMLElement?
 
             let links = [
                 node.at_xpath("//a"),
@@ -121,8 +121,8 @@ private extension Parser {
 
             guard let link = tmpLink,
                   let html = link.toHTML?
-                .replacingOccurrences(of: "<br>", with: "\n")
-                .replacingOccurrences(of: "</span>", with: ""),
+                .replacing("<br>", with: "\n")
+                .replacing("</span>", with: ""),
                   let range = rawContent.range(of: html)
             else { continue }
 

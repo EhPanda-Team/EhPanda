@@ -1,3 +1,4 @@
+import AppModels
 import BackgroundProcessingClient
 import CustomDump
 import DownloadClient
@@ -587,7 +588,7 @@ struct DownloadContinuedSessionTests: DownloadFeatureTestCase {
                 fileExtension: "jpg"
             )
             try Data([UInt8(index)]).write(
-                to: folderURL.appendingPathComponent(relativePath),
+                to: folderURL.appending(path: relativePath),
                 options: .atomic
             )
             pendingResolvedPages.append(

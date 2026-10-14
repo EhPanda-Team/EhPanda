@@ -5,11 +5,14 @@ import AppTools
 import ComposableArchitecture
 import CryptoKit
 @testable import DetailFeature
+import DeviceClient
 import DownloadsFeature
 import Foundation
 import HomeFeature
+import ImageClient
 import Kingfisher
 import ReadingFeature
+import SnapshotTesting
 import SwiftUI
 import UIKit
 import VisualSnapshotSupport
@@ -25,13 +28,13 @@ final class FullContentFeasibilityTests: XCTestCase {
     func testExportPublicFixtures() throws {
         let environment = ProcessInfo.processInfo.environment
         let directory = environment["EHPANDA_PUBLIC_FIXTURE_EXPORT_DIRECTORY"].map({
-            URL(fileURLWithPath: $0, isDirectory: true)
+            URL(filePath: $0, directoryHint: .isDirectory)
         }) ?? FileManager.default.temporaryDirectory
             .appending(component: "phase17-public-export-\(UUID().uuidString)", directoryHint: .isDirectory)
         let secondDirectory = FileManager.default.temporaryDirectory
             .appending(component: "phase17-public-repeat-\(UUID().uuidString)", directoryHint: .isDirectory)
         let scenarios = try environment["EHPANDA_VISUAL_SCENARIOS"].map({
-            try Data(contentsOf: URL(fileURLWithPath: $0))
+            try Data(contentsOf: URL(filePath: $0))
         })
         do {
             let first = try PublicVisualFixtures.export(to: directory, scenarios: scenarios)
@@ -44,7 +47,7 @@ final class FullContentFeasibilityTests: XCTestCase {
             )
             XCTAssertEqual(manifest["fixtureVersion"] as? String, PublicVisualFixtures.fixtureVersion)
             let entries = try XCTUnwrap(manifest["assets"] as? [[String: Any]])
-            XCTAssertGreaterThan(entries.count, 30)
+            XCTAssertEqual(entries.count, 47)
             for entry in entries {
                 let path = try XCTUnwrap(entry["path"] as? String)
                 let bytes = try Data(contentsOf: directory.appending(path: path))
@@ -105,7 +108,7 @@ final class FullContentFeasibilityTests: XCTestCase {
             XCTAssertThrowsError(try PublicVisualFixtures.export(to: directory, scenarios: data)) { error in
                 XCTAssertEqual(error as? PublicFixtureError, catalog.expected)
             }
-            XCTAssertFalse(FileManager.default.fileExists(atPath: directory.path))
+            XCTAssertFalse(FileManager.default.fileExists(atPath: directory.path(percentEncoded: false)))
         }
     }
 
@@ -338,7 +341,7 @@ private struct FeasibilityScreen {
 
 private extension FullContentFeasibilityTests {
     static func pixelSize(_ url: URL) throws -> CGSize {
-        let image = try XCTUnwrap(UIImage(contentsOfFile: url.path)?.cgImage)
+        let image = try XCTUnwrap(UIImage(contentsOfFile: url.path(percentEncoded: false))?.cgImage)
         return CGSize(width: image.width, height: image.height)
     }
 

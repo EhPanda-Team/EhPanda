@@ -1,8 +1,10 @@
 import AppModels
 import AppTools
+import CoreGraphics
 import Foundation
 import ImageClient
 import Testing
+import UIKit
 
 struct ImageClientTests {
     @Test

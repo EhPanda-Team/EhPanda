@@ -1,10 +1,11 @@
-import AppComponents
-import AppModels
+public import AppComponents
+public import AppModels
 import AppTools
-import ComposableArchitecture
+public import ComposableArchitecture
 import HapticsClient
 import NetworkingFeature
 import Resources
+import UIKit
 
 @Reducer
 public struct ToplistsReducer: Sendable {
@@ -156,17 +157,15 @@ public struct ToplistsReducer: Sendable {
                 }
                 let host = state.setting.galleryHost
                 return .run { [type = state.type] send in
-                    do throws(AppError) {
-                        let galleries = try await ToplistsGalleriesRequest(
+                    let result = await Result.Swift::init { () async throws(AppError) in
+                        try await ToplistsGalleriesRequest(
                             host: host,
                             catIndex: type.categoryIndex,
                             pageNum: pageNum
                         )
                         .response()
-                        await send(.fetchGalleriesDone(type: type, result: .success(galleries)))
-                    } catch {
-                        await send(.fetchGalleriesDone(type: type, result: .failure(error)))
                     }
+                    await send(.fetchGalleriesDone(type: type, result: result))
                 }
                 .cancellable(id: CancelID.fetchGalleries)
 
@@ -196,17 +195,15 @@ public struct ToplistsReducer: Sendable {
                 let pageNum = pageNumber.current + 1
                 let host = state.setting.galleryHost
                 return .run { [type = state.type] send in
-                    do throws(AppError) {
-                        let galleries = try await MoreToplistsGalleriesRequest(
+                    let result = await Result.Swift::init { () async throws(AppError) in
+                        try await MoreToplistsGalleriesRequest(
                             host: host,
                             catIndex: type.categoryIndex,
                             pageNum: pageNum
                         )
                         .response()
-                        await send(.fetchMoreGalleriesDone(type: type, result: .success(galleries)))
-                    } catch {
-                        await send(.fetchMoreGalleriesDone(type: type, result: .failure(error)))
                     }
+                    await send(.fetchMoreGalleriesDone(type: type, result: result))
                 }
                 .cancellable(id: CancelID.fetchMoreGalleries)
 

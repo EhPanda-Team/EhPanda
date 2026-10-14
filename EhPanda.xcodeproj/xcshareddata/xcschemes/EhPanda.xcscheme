@@ -47,6 +47,9 @@
             default = "YES">
          </TestPlanReference>
          <TestPlanReference
+            reference = "container:AppPackage/Tests/VisualTests.xctestplan">
+         </TestPlanReference>
+         <TestPlanReference
             reference = "container:UITests.xctestplan">
          </TestPlanReference>
       </TestPlans>

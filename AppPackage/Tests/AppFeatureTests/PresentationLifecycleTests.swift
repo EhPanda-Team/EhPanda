@@ -2,6 +2,7 @@ import AnalyticsClient
 @testable import AppFeature
 import AppModels
 import ComposableArchitecture
+import DetailFeature
 import DownloadClient
 import Foundation
 import HapticsClient

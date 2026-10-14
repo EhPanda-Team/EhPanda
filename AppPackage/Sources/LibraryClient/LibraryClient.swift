@@ -2,13 +2,13 @@ import AnimatedImageFeature
 import AppModels
 import AppTools
 import ComposableArchitecture
-import Dependencies
-import Foundation
+public import Dependencies
+public import Foundation
 import ImageColors
 import Kingfisher
-import SDWebImage
+public import SDWebImage
 import SDWebImageWebPCoder
-import SwiftUI
+public import SwiftUI
 
 public struct LibraryClient: Sendable {
     public let initializeWebImage: @Sendable () -> Void
@@ -78,16 +78,8 @@ extension LibraryClient {
                 KingfisherManager.shared.cache.clearMemoryCache()
                 SDImageCache.shared.clearMemory()
                 async let dataCacheClear: Void = dataCache.removeAll()
-                async let kingfisherClear: Void = withCheckedContinuation { continuation in
-                    KingfisherManager.shared.cache.clearDiskCache {
-                        continuation.resume()
-                    }
-                }
-                async let sdWebImageClear: Void = withCheckedContinuation { continuation in
-                    SDImageCache.shared.clearDisk {
-                        continuation.resume()
-                    }
-                }
+                async let kingfisherClear: Void = KingfisherManager.shared.cache.clearDiskCache()
+                async let sdWebImageClear: Void = SDImageCache.shared.clearDiskOnCompletion()
                 do {
                     _ = try await (dataCacheClear, kingfisherClear, sdWebImageClear)
                 } catch {
@@ -107,17 +99,13 @@ extension LibraryClient {
                 return await sdWebImageCachedImageData(forKey: key)
             },
             removeCachedImage: { key in
-                async let kingfisherRemove: Void = withCheckedContinuation { continuation in
-                    KingfisherManager.shared.cache.removeImage(forKey: key) {
-                        continuation.resume()
-                    }
+                async let kingfisherRemove: Void = KingfisherManager.shared.cache.removeImage(forKey: key)
+                async let sdWebImageRemove: Void = SDImageCache.shared.removeImage(forKey: key)
+                do {
+                    _ = try await (kingfisherRemove, sdWebImageRemove)
+                } catch {
+                    // Eviction is best-effort; both caches finish before the operation returns.
                 }
-                async let sdWebImageRemove: Void = withCheckedContinuation { continuation in
-                    SDImageCache.shared.removeImage(forKey: key) {
-                        continuation.resume()
-                    }
-                }
-                _ = await (kingfisherRemove, sdWebImageRemove)
             },
             isCached: { key in
                 @Dependency(\.dataCache) var dataCache
@@ -135,24 +123,16 @@ extension LibraryClient {
             },
             calculateWebImageDiskCacheSize: {
                 @Dependency(\.dataCache) var dataCache
-                async let kingfisherSize: UInt? = withCheckedContinuation { continuation in
-                    KingfisherManager.shared.cache.calculateDiskStorageSize { result in
-                        switch result {
-                        case .success(let size):
-                            continuation.resume(returning: size)
-
-                        case .failure:
-                            // An unreadable cache size intentionally contributes no bytes to the aggregate.
-                            continuation.resume(returning: nil)
-                        }
-                    }
-                }
-                async let sdWebImageSize: UInt? = withCheckedContinuation { continuation in
-                    SDImageCache.shared.calculateSize { _, totalSize in
-                        continuation.resume(returning: UInt(totalSize))
-                    }
-                }
+                async let kingfisherSize = KingfisherManager.shared.cache.diskStorageSize
+                async let sdWebImageSize = SDImageCache.shared.calculateSize()
                 async let dataCacheSize = dataCache.totalSize()
+                let kingfisherBytes: UInt
+                do {
+                    kingfisherBytes = try await kingfisherSize
+                } catch {
+                    // An unreadable cache size intentionally contributes no bytes to the aggregate.
+                    kingfisherBytes = 0
+                }
                 let dataCacheBytes: UInt64
                 do {
                     dataCacheBytes = try await dataCacheSize
@@ -160,7 +140,8 @@ extension LibraryClient {
                     // An unreadable DataCache size intentionally contributes no bytes to the aggregate.
                     dataCacheBytes = 0
                 }
-                return await (kingfisherSize ?? 0) + (sdWebImageSize ?? 0) + UInt(dataCacheBytes)
+                let (_, sdWebImageBytes) = await sdWebImageSize
+                return kingfisherBytes + sdWebImageBytes + UInt(dataCacheBytes)
             }
         )
     }
@@ -172,17 +153,11 @@ private func kingfisherCachedImage(forKey key: String) async -> UIImage? {
         return image
     }
 
-    return await withCheckedContinuation { continuation in
-        KingfisherManager.shared.cache
-            .retrieveImage(forKey: key) { result in
-                switch result {
-                case .success(let value):
-                    continuation.resume(returning: value.image)
-
-                case .failure:
-                    continuation.resume(returning: nil)
-                }
-            }
+    do {
+        return try await KingfisherManager.shared.cache.retrieveImage(forKey: key).image
+    } catch {
+        // An unreadable cache entry is a miss; callers can try the other cache or the network.
+        return nil
     }
 }
 
@@ -202,21 +177,12 @@ private func kingfisherCachedImageData(forKey key: String) async -> Data? {
         // A failed disk-cache read is intentionally treated as a cache miss before the fallback lookup.
     }
 
-    return await withCheckedContinuation { continuation in
-        KingfisherManager.shared.cache
-            .retrieveImage(forKey: key) { result in
-                switch result {
-                case .success(let value):
-                    continuation.resume(
-                        returning: value.image.flatMap {
-                            $0.kf.data(format: .unknown)
-                        }
-                    )
-
-                case .failure:
-                    continuation.resume(returning: nil)
-                }
-            }
+    do {
+        let result = try await KingfisherManager.shared.cache.retrieveImage(forKey: key)
+        return result.image?.kf.data(format: .unknown)
+    } catch {
+        // An unreadable cache entry is a miss; callers can try the other cache or the network.
+        return nil
     }
 }
 
@@ -228,7 +194,7 @@ private func sdWebImageCachedImage(forKey key: String) async -> UIImage? {
     guard let data = await sdWebImageCachedImageData(forKey: key) else {
         return nil
     }
-    return image(from: data)
+    return data.decodedImage
 }
 
 private func sdWebImageCachedImageData(forKey key: String) async -> Data? {
@@ -241,15 +207,7 @@ private func sdWebImageCachedImageData(forKey key: String) async -> Data? {
         return data
     }
 
-    return await withCheckedContinuation { continuation in
-        SDImageCache.shared.diskImageDataQuery(forKey: key) { data in
-            continuation.resume(returning: data)
-        }
-    }
-}
-
-private func image(from data: Data) -> UIImage? {
-    data.decodedImage
+    return await SDImageCache.shared.diskImageDataQuery(forKey: key)
 }
 
 // MARK: API

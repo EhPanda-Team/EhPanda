@@ -1,5 +1,5 @@
 import AppModels
-import CoreGraphics
+public import CoreGraphics
 import Foundation
 
 /// A rectangle turned about its center, in page pixels with the origin at the page's top left.

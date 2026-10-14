@@ -190,7 +190,7 @@ private extension BackgroundExecutionInvariantTests {
         var directory = URL(filePath: #filePath).deletingLastPathComponent()
         var located: URL?
 
-        while located == nil, directory.path != "/" {
+        while located == nil, directory.path(percentEncoded: false) != "/" {
             if isRepositoryRoot(directory) {
                 located = directory
             } else {
@@ -212,7 +212,7 @@ private extension BackgroundExecutionInvariantTests {
         return repositoryRootMarkers.allSatisfy({ marker in
             var isDirectory: ObjCBool = false
             let exists = fileManager.fileExists(
-                atPath: directory.appending(path: marker).path,
+                atPath: directory.appending(path: marker).path(percentEncoded: false),
                 isDirectory: &isDirectory
             )
             return exists && isDirectory.boolValue
@@ -242,9 +242,9 @@ private extension BackgroundExecutionInvariantTests {
         }
         urls.append(root.appending(path: infoPlistRelativePath))
 
-        let invariantFilePath = URL(filePath: #filePath).standardizedFileURL.path
+        let invariantFilePath = URL(filePath: #filePath).standardizedFileURL.path(percentEncoded: false)
         var files = [ScannedFile]()
-        for url in urls where url.standardizedFileURL.path != invariantFilePath {
+        for url in urls where url.standardizedFileURL.path(percentEncoded: false) != invariantFilePath {
             files.append(
                 ScannedFile(
                     relativePath: repositoryRelativePath(of: url, under: root),
@@ -253,14 +253,5 @@ private extension BackgroundExecutionInvariantTests {
             )
         }
         return files
-    }
-
-    static func repositoryRelativePath(of url: URL, under root: URL) -> String {
-        let path = url.standardizedFileURL.path
-        let rootPath = root.standardizedFileURL.path + "/"
-        guard path.hasPrefix(rootPath) else {
-            return path
-        }
-        return String(path.dropFirst(rootPath.count))
     }
 }

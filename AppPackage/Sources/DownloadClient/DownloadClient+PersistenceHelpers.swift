@@ -1,4 +1,4 @@
-import AppModels
+public import AppModels
 import Foundation
 
 // MARK: - Error clearance
@@ -39,7 +39,7 @@ extension DownloadCoordinator {
     ) -> CaptureTargetResult? {
         let completedFolderURL = download.folderURL
         guard fileManager.operate({
-            $0.fileExists(atPath: completedFolderURL.path)
+            $0.fileExists(atPath: completedFolderURL.path(percentEncoded: false))
         })
         else {
             return nil

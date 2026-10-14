@@ -1,5 +1,6 @@
-import AppModels
-import ComposableArchitecture
+public import AppModels
+import AppTools
+public import ComposableArchitecture
 import Foundation
 import NetworkingFeature
 

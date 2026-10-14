@@ -1,5 +1,5 @@
-import AppTools
-import ComposableArchitecture
+public import AppTools
+public import ComposableArchitecture
 import Foundation
 
 public struct UserDefaultsClient: Sendable {

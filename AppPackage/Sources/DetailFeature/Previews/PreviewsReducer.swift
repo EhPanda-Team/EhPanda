@@ -1,11 +1,11 @@
-import AppModels
+public import AppModels
 import AppTools
-import ComposableArchitecture
+public import ComposableArchitecture
 import DownloadClient
-import Foundation
+public import Foundation
 import HapticsClient
 import NetworkingFeature
-import ReadingFeature
+public import ReadingFeature
 import Sharing
 
 @Reducer
@@ -198,16 +198,14 @@ public struct PreviewsReducer: Sendable {
                 state.loadingState = .loading
                 let pageNum = state.previewConfig.pageNumber(index: index)
                 return .run { send in
-                    do throws(AppError) {
-                        let previews = try await GalleryPreviewURLsRequest(
+                    let result = await Result.Swift::init { () async throws(AppError) in
+                        try await GalleryPreviewURLsRequest(
                             galleryURL: galleryURL,
                             pageNum: pageNum
                         )
                         .response()
-                        await send(.fetchPreviewURLsDone(.success(previews)))
-                    } catch {
-                        await send(.fetchPreviewURLsDone(.failure(error)))
                     }
+                    await send(.fetchPreviewURLsDone(result))
                 }
                 .cancellable(id: CancelID.fetchPreviewURLs)
 

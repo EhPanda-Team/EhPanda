@@ -1,6 +1,6 @@
 import AppTools
-import CasePaths
-import Foundation
+public import CasePaths
+public import Foundation
 
 public typealias FavoritesSortOrder = EhSetting.FavoritesSortOrder
 
@@ -175,7 +175,7 @@ extension QuickSearchWord {
     /// `content`, or carrying an unknown `schemaVersion`, throws, failing the whole
     /// `[QuickSearchWord]` decode so Sharing resets the key to `[]` instead of surfacing an entry
     /// with a random, unstable identity.
-    public init(from decoder: Decoder) throws {
+    public init(from decoder: any Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         schemaVersion = try container.decode(SchemaVersion<QuickSearchWord>.self, forKey: .schemaVersion)
         id = try container.decode(UUID.self, forKey: .id)

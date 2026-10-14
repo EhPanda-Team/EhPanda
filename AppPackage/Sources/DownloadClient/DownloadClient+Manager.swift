@@ -1,8 +1,8 @@
-import AppModels
-import BackgroundProcessingClient
-import Foundation
+public import AppModels
+public import BackgroundProcessingClient
+public import Foundation
 import IssueReporting
-import LibraryClient
+public import LibraryClient
 import OSLogExt
 
 private let logger = Logger(category: .init(describing: DownloadCoordinator.self))

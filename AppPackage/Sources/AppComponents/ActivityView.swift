@@ -1,4 +1,4 @@
-import SwiftUI
+public import SwiftUI
 
 public struct ActivityView: UIViewControllerRepresentable {
     private var activityItems: [Any]

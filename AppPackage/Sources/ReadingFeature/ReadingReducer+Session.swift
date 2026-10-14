@@ -1,6 +1,7 @@
 import AppModels
 import AppTools
 import ComposableArchitecture
+import DownloadClient
 import Sharing
 import SwiftUI
 

@@ -36,7 +36,7 @@ extension String {
               let rangeB = result.range(of: subString2),
               rangeA.lowerBound < rangeB.upperBound {
             let unwanted = result[rangeA.lowerBound..<rangeB.upperBound]
-            result = result.replacingOccurrences(of: unwanted, with: replacement)
+            result = result.replacing(unwanted, with: replacement)
         }
 
         return result

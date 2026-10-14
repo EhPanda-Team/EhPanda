@@ -1,10 +1,10 @@
-import AppModels
+public import AppModels
 import AppTools
-import Foundation
-import Kanna
+public import Foundation
+public import Kanna
 
 extension Parser {
-    public static func parseGalleryURL(doc: HTMLDocument) throws -> URL {
+    public static func parseGalleryURL(doc: any HTMLDocument) throws -> URL {
         guard let galleryURLString = doc.at_xpath("//div [@class='sb']")?.at_xpath("//a")?["href"],
               let galleryURL = URL(string: galleryURLString) else { throw AppError.parseFailed }
         return galleryURL
@@ -12,7 +12,7 @@ extension Parser {
 
     // swiftlint:disable:next function_body_length
     public static func parseGalleryDetail(
-        doc: HTMLDocument, gid: String
+        doc: any HTMLDocument, gid: String
     ) throws -> (detail: GalleryDetail, state: GalleryState) {
         var tmpGalleryDetail: GalleryDetail?
         var tmpGalleryState: GalleryState?
@@ -119,7 +119,7 @@ extension Parser {
 
 // MARK: Helpers
 private extension Parser {
-    static func parsePreviewMode(doc: HTMLDocument) throws -> String {
+    static func parsePreviewMode(doc: any HTMLDocument) throws -> String {
         if doc.at_xpath("//div [@class='gt100']") != nil {
             return "gt100"
         } else if doc.at_xpath("//div [@class='gt200']") != nil {
@@ -129,7 +129,7 @@ private extension Parser {
         }
     }
 
-    static func parsePreviewConfig(doc: HTMLDocument) throws -> PreviewConfig {
+    static func parsePreviewConfig(doc: any HTMLDocument) throws -> PreviewConfig {
         let previewMode = try parsePreviewMode(doc: doc)
         guard let gpcText = doc.at_xpath("//p [@class='gpc']")?.text,
               let rangeA = gpcText.range(of: "Showing 1 - "),
@@ -150,7 +150,7 @@ private extension Parser {
         return isLargePreview ? .large(rows: rowsCount) : .normal(rows: rowsCount)
     }
 
-    static func parseCoverURL(node: XMLElement?) throws -> URL {
+    static func parseCoverURL(node: any XMLElement?) throws -> URL {
         guard let coverHTML = node?.at_xpath("//div [@id='gd1']")?.innerHTML,
               let rangeA = coverHTML.range(of: "url("), let rangeB = coverHTML.range(of: ")"),
               let url = URL(string: .init(coverHTML[rangeA.upperBound..<rangeB.lowerBound]))
@@ -159,7 +159,7 @@ private extension Parser {
         return url
     }
 
-    static func parseGalleryTags(node: XMLElement) throws -> [GalleryTag] {
+    static func parseGalleryTags(node: any XMLElement) throws -> [GalleryTag] {
         var tags = [GalleryTag]()
         for link in node.xpath("//tr") {
             guard let tcText = link.at_xpath("//td [@class='tc']")?.text else { continue }
@@ -187,7 +187,7 @@ private extension Parser {
         return tags
     }
 
-    static func parseArcAndTor(node: XMLElement?) throws -> (archiveURL: URL?, torrentCount: Int) {
+    static func parseArcAndTor(node: any XMLElement?) throws -> (archiveURL: URL?, torrentCount: Int) {
         guard let node = node else { throw AppError.parseFailed }
 
         var archiveURL: URL?
@@ -220,7 +220,7 @@ private extension Parser {
     }
 
     // swiftlint:disable:next cyclomatic_complexity
-    static func parseInfoPanel(node: XMLElement?) throws -> InfoPanel {
+    static func parseInfoPanel(node: any XMLElement?) throws -> InfoPanel {
         guard let object = node?.xpath("//tr")
         else { throw AppError.parseFailed }
 
@@ -252,22 +252,22 @@ private extension Parser {
             }
             if gdt1Text.contains("File Size") {
                 fileSize = gdt2Text
-                    .replacingOccurrences(of: " KiB", with: "")
-                    .replacingOccurrences(of: " MiB", with: "")
-                    .replacingOccurrences(of: " GiB", with: "")
+                    .replacing(" KiB", with: "")
+                    .replacing(" MiB", with: "")
+                    .replacing(" GiB", with: "")
 
                 if gdt2Text.contains("KiB") { sizeType = "KiB" }
                 if gdt2Text.contains("MiB") { sizeType = "MiB" }
                 if gdt2Text.contains("GiB") { sizeType = "GiB" }
             }
             if gdt1Text.contains("Length") {
-                pageCount = gdt2Text.replacingOccurrences(of: " pages", with: "")
+                pageCount = gdt2Text.replacing(" pages", with: "")
             }
             if gdt1Text.contains("Favorited") {
                 favoritedCount = gdt2Text
-                    .replacingOccurrences(of: " times", with: "")
-                    .replacingOccurrences(of: "Never", with: "0")
-                    .replacingOccurrences(of: "Once", with: "1")
+                    .replacing(" times", with: "")
+                    .replacing("Never", with: "0")
+                    .replacing("Once", with: "1")
             }
         }
 
@@ -298,7 +298,7 @@ private extension Parser {
         return .no(reason: reason)
     }
 
-    static func parseUploader(node: XMLElement?) throws -> String {
+    static func parseUploader(node: any XMLElement?) throws -> String {
         guard let gdnNode = node?.at_xpath("//div [@id='gdn']") else {
             throw AppError.parseFailed
         }

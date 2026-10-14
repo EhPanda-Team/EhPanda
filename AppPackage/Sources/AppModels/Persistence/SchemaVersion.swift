@@ -53,7 +53,7 @@ extension SchemaVersion: ExpressibleByIntegerLiteral {
 }
 
 extension SchemaVersion: Codable {
-    public init(from decoder: Decoder) throws {
+    public init(from decoder: any Decoder) throws {
         let container = try decoder.singleValueContainer()
         let decoded = try container.decode(Int.self)
         guard (1...Model.currentSchemaVersion).contains(decoded) else {
@@ -68,7 +68,7 @@ extension SchemaVersion: Codable {
         value = decoded
     }
 
-    public func encode(to encoder: Encoder) throws {
+    public func encode(to encoder: any Encoder) throws {
         var container = encoder.singleValueContainer()
         try container.encode(value)
     }

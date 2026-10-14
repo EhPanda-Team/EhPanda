@@ -1,4 +1,4 @@
-import Foundation
+public import Foundation
 
 // The only numeric vocabulary an analytics payload may carry: every counter and every duration
 // ships as one of these buckets, never as an exact value, because exact counters measured against

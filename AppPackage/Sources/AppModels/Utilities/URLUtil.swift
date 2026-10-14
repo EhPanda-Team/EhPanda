@@ -1,5 +1,5 @@
 import AppTools
-import Foundation
+public import Foundation
 
 public struct URLUtil {
     // Fetch
@@ -165,11 +165,11 @@ public struct URLUtil {
 
     // GitHub
     public static func githubAPI(repoName: String) -> URL {
-        Defaults.URL.githubAPI.appendingPathComponent("\(repoName)/releases/latest")
+        Defaults.URL.githubAPI.appending(path: "\(repoName)/releases/latest")
     }
 
     public static func githubDownload(repoName: String, fileName: String) -> URL {
-        Defaults.URL.github.appendingPathComponent("\(repoName)/releases/latest/download/\(fileName)")
+        Defaults.URL.github.appending(path: "\(repoName)/releases/latest/download/\(fileName)")
     }
 }
 

@@ -304,7 +304,7 @@ struct StagedSSOTState {
             do {
                 try FileManager.default.setAttributes(
                     [.posixPermissions: permissions],
-                    ofItemAtPath: fileURL.path
+                    ofItemAtPath: fileURL.path(percentEncoded: false)
                 )
             } catch {
                 // Teardown housekeeping, never a result: a case whose external mutation DELETED the
@@ -397,7 +397,7 @@ extension DownloadManifestSSOTInvariantTests {
         for page in testCase.unreadablePageFiles {
             let fileURL = pageFileURL(for: gallery, in: fixture, index: page)
             loweredPagePermissions[fileURL] = try #require(
-                FileManager.default.attributesOfItem(atPath: fileURL.path)[.posixPermissions]
+                FileManager.default.attributesOfItem(atPath: fileURL.path(percentEncoded: false))[.posixPermissions]
                     as? NSNumber
             )
             // A REAL denial rather than a double: `attributesOfItem` still answers for a `0o000`
@@ -406,7 +406,7 @@ extension DownloadManifestSSOTInvariantTests {
             // not reachable by any other staging.
             try FileManager.default.setAttributes(
                 [.posixPermissions: NSNumber(value: 0o000)],
-                ofItemAtPath: fileURL.path
+                ofItemAtPath: fileURL.path(percentEncoded: false)
             )
         }
         await fixture.manager.reloadDownloadIndex()
@@ -690,7 +690,8 @@ extension DownloadManifestSSOTInvariantTests {
                 )
                 #expect(
                     FileManager.default.fileExists(
-                        atPath: pageFileURL(for: staged.gallery, in: staged.fixture, index: page).path
+                        atPath: pageFileURL(for: staged.gallery, in: staged.fixture, index: page)
+                            .path(percentEncoded: false)
                     ),
                     "\(testCase.name): a display read deleted page \(page)'s file."
                 )

@@ -1,9 +1,9 @@
-import AppModels
-import ComposableArchitecture
+public import AppModels
+public import ComposableArchitecture
 import Foundation
 import LogsClient
 import OSLogExt
-import Sharing
+public import Sharing
 
 private let logger = Logger(category: .init(describing: AppActivityLogsPumpReducer.self))
 

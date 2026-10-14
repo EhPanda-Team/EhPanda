@@ -1,5 +1,7 @@
-import AppTools
-import ComposableArchitecture
+import AppModels
+public import AppTools
+public import ComposableArchitecture
+import ReadingFeature
 
 // Shared routing for gallery stacks. `nextScreen` maps a gallery element's delegate action to the
 // screen that should be pushed next, so every host appends new elements the same way regardless of

@@ -1,6 +1,6 @@
-import AppModels
+public import AppModels
 import AppTools
-import Foundation
+public import Foundation
 import OSLogExt
 
 private let logger = Logger(category: .init(describing: DownloadCoordinator.self))
@@ -264,9 +264,9 @@ extension DownloadCoordinator {
     ) throws {
         guard !pages.isEmpty else { return }
         let manifestURL = folderURL
-            .appendingPathComponent(Defaults.FilePath.downloadManifest)
+            .appending(path: Defaults.FilePath.downloadManifest)
         guard fileManager.operate({
-            $0.fileExists(atPath: manifestURL.path)
+            $0.fileExists(atPath: manifestURL.path(percentEncoded: false))
         }) else {
             return
         }

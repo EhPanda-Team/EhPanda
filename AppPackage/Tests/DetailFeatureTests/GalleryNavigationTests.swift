@@ -1,6 +1,7 @@
 import AppModels
 import ComposableArchitecture
 @testable import DetailFeature
+import Foundation
 import Testing
 
 @Suite

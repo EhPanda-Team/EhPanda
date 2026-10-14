@@ -1,4 +1,6 @@
+import AppComponents
 @testable import AppFeature
+import AppModels
 import DownloadClient
 import Foundation
 import Testing
@@ -8,7 +10,7 @@ struct DownloadBackgroundCompletionTests: DownloadFeatureTestCase {
     func testOrphanedBackgroundCompletionAttachesPageAndClearsTaskRecord() async throws {
         let gid = String(Int(Date().timeIntervalSince1970 * 1000) + 901)
         let rootURL = FileManager.default.temporaryDirectory
-            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+            .appending(path: UUID().uuidString, directoryHint: .isDirectory)
         defer { removeTemporaryItem(at: rootURL) }
 
         let storage = DownloadStore(rootURL: rootURL, fileManager: .default)
@@ -51,12 +53,12 @@ struct DownloadBackgroundCompletionTests: DownloadFeatureTestCase {
             index: 1,
             fileExtension: "jpg"
         )
-        let pageURL = folderURL.appendingPathComponent(pageRelativePath)
+        let pageURL = folderURL.appending(path: pageRelativePath)
         let manifest = try storage.readManifest(folderURL: folderURL)
 
         #expect(await taskStore.record(taskIdentifier: taskIdentifier) == nil)
-        #expect(FileManager.default.fileExists(atPath: pageURL.path))
-        #expect(FileManager.default.fileExists(atPath: stagedURL.path) == false)
+        #expect(FileManager.default.fileExists(atPath: pageURL.path(percentEncoded: false)))
+        #expect(FileManager.default.fileExists(atPath: stagedURL.path(percentEncoded: false)) == false)
         #expect(manifest.pages[1]?.hasPrefix("sha256:") == true)
         #expect(try await manager.loadLocalPageURLs(gid: gid).get()[1] == pageURL)
     }
@@ -65,7 +67,7 @@ struct DownloadBackgroundCompletionTests: DownloadFeatureTestCase {
     func testReceiverReplaysCompletionBufferedBeforeCoordinatorIsSet() async throws {
         let gid = String(Int(Date().timeIntervalSince1970 * 1000) + 908)
         let rootURL = FileManager.default.temporaryDirectory
-            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+            .appending(path: UUID().uuidString, directoryHint: .isDirectory)
         defer { removeTemporaryItem(at: rootURL) }
 
         let storage = DownloadStore(rootURL: rootURL, fileManager: .default)
@@ -106,18 +108,18 @@ struct DownloadBackgroundCompletionTests: DownloadFeatureTestCase {
             index: 1,
             fileExtension: "jpg"
         )
-        let pageURL = folderURL.appendingPathComponent(pageRelativePath)
+        let pageURL = folderURL.appending(path: pageRelativePath)
 
         #expect(await taskStore.record(taskIdentifier: taskIdentifier) == nil)
-        #expect(FileManager.default.fileExists(atPath: pageURL.path))
-        #expect(FileManager.default.fileExists(atPath: stagedURL.path) == false)
+        #expect(FileManager.default.fileExists(atPath: pageURL.path(percentEncoded: false)))
+        #expect(FileManager.default.fileExists(atPath: stagedURL.path(percentEncoded: false)) == false)
     }
 
     @Test
     func testOrphanedBackgroundFailureRecordsPageFailureAndClearsTaskRecord() async throws {
         let gid = String(Int(Date().timeIntervalSince1970 * 1000) + 904)
         let rootURL = FileManager.default.temporaryDirectory
-            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+            .appending(path: UUID().uuidString, directoryHint: .isDirectory)
         defer { removeTemporaryItem(at: rootURL) }
 
         let storage = DownloadStore(rootURL: rootURL, fileManager: .default)
@@ -151,7 +153,7 @@ struct DownloadBackgroundCompletionTests: DownloadFeatureTestCase {
     func testOrphanedBackgroundFatalFailureSettlesQueueAndSurfacesError() async throws {
         let gid = String(Int(Date().timeIntervalSince1970 * 1000) + 907)
         let rootURL = FileManager.default.temporaryDirectory
-            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+            .appending(path: UUID().uuidString, directoryHint: .isDirectory)
         defer { removeTemporaryItem(at: rootURL) }
 
         let storage = DownloadStore(rootURL: rootURL, fileManager: .default)
@@ -187,7 +189,7 @@ struct DownloadBackgroundCompletionTests: DownloadFeatureTestCase {
     func testOrphanedBackgroundCancellationClearsTaskRecordWithoutPageFailure() async throws {
         let gid = String(Int(Date().timeIntervalSince1970 * 1000) + 905)
         let rootURL = FileManager.default.temporaryDirectory
-            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+            .appending(path: UUID().uuidString, directoryHint: .isDirectory)
         defer { removeTemporaryItem(at: rootURL) }
 
         let storage = DownloadStore(rootURL: rootURL, fileManager: .default)
@@ -221,7 +223,7 @@ struct DownloadBackgroundCompletionTests: DownloadFeatureTestCase {
     func testDeleteClearsPersistedBackgroundTaskRecords() async throws {
         let gid = String(Int(Date().timeIntervalSince1970 * 1000) + 902)
         let rootURL = FileManager.default.temporaryDirectory
-            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+            .appending(path: UUID().uuidString, directoryHint: .isDirectory)
         defer { removeTemporaryItem(at: rootURL) }
 
         let storage = DownloadStore(rootURL: rootURL, fileManager: .default)
@@ -251,7 +253,7 @@ struct DownloadBackgroundCompletionTests: DownloadFeatureTestCase {
     func testDeleteFolderClearsPersistedBackgroundTaskRecords() async throws {
         let gid = String(Int(Date().timeIntervalSince1970 * 1000) + 903)
         let rootURL = FileManager.default.temporaryDirectory
-            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+            .appending(path: UUID().uuidString, directoryHint: .isDirectory)
         defer { removeTemporaryItem(at: rootURL) }
 
         let storage = DownloadStore(rootURL: rootURL, fileManager: .default)
@@ -303,7 +305,7 @@ struct DownloadBackgroundCompletionTests: DownloadFeatureTestCase {
             at: holdingDirectory,
             withIntermediateDirectories: true
         )
-        let fileURL = holdingDirectory.appendingPathComponent(UUID().uuidString)
+        let fileURL = holdingDirectory.appending(path: UUID().uuidString)
         try Data([0x01, 0x02, 0x03]).write(to: fileURL, options: .atomic)
         return fileURL
     }

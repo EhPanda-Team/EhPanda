@@ -1,4 +1,4 @@
-import Foundation
+public import Foundation
 
 public struct IdentifiableBox<Value>: Identifiable {
     public let id = UUID()

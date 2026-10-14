@@ -117,7 +117,7 @@ def dispatch(args, requested, report, publish):
     devices = environment.resolve_destinations(inventory, pin['runtime'], pin['devices'])
     gate = native.Gate(argparse.Namespace(output=args.output / 'native', derived_data=environment.default_derived_data()))
     # Preflight already built the final tree. Reuse its products, but write explicit per-invocation parameters.
-    gate.single_pass_run('FeatureTests')
+    gate.single_pass_run('VisualTests')
     gate.single_pass_run('UITests')
     for family in environment.MODELS:
         family_rows = [row for row in requested if row.family == family]
@@ -138,9 +138,9 @@ def dispatch(args, requested, report, publish):
                              [native.ROTATION + f'testRotateTo{orientation.title()}'], 1)
                     for coordinate in rows:
                         subprocess.run(['xcrun', 'simctl', 'ui', device, 'appearance', coordinate.theme], check=True)
-                        configuration = configure_run(gate.test_runs['FeatureTests'], coordinate, args, report)
+                        configuration = configure_run(gate.test_runs['VisualTests'], coordinate, args, report)
                         save(args.output / 'native' / f'{coordinate.key}.configuration.json', configuration)
-                        gate.run(coordinate.key, ['test-without-building'], 'FeatureTests', device, [TEST], 1,
+                        gate.run(coordinate.key, ['test-without-building'], 'VisualTests', device, [TEST], 1,
                                  content_size=CONTENT_SIZES[coordinate.size])
                         summary = json.loads((gate.output / f'{coordinate.key}.summary.json').read_text())
                         tree = json.loads((gate.output / f'{coordinate.key}.tests.json').read_text())

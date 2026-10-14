@@ -118,7 +118,7 @@ struct CardSlideSection: View, Equatable {
     }
 
     private var carousel: some View {
-        ScrollView(.horizontal, showsIndicators: false) {
+        ScrollView(.horizontal) {
             LazyHStack(spacing: cardSpacing) {
                 ForEach(bufferedCards) { item in
                     card(for: item.gallery, id: item.id)
@@ -139,6 +139,7 @@ struct CardSlideSection: View, Equatable {
             .fixedSize(horizontal: false, vertical: true)
             .scrollTargetLayout()
         }
+        .scrollIndicators(.hidden)
         // `limitBehavior: .always` caps a gesture at one card — SwiftUIPager parity (the old
         // `Pager` had no `.multiplePagination()`, so it paged one card per swipe) AND the cap
         // that makes the sliding window's edge unreachable: without it, a violent flick's
@@ -288,7 +289,7 @@ struct CoverWallSection: View {
             reloadAction: reloadAction,
             showAllAction: showAllAction
         ) {
-            ScrollView(.horizontal, showsIndicators: false) {
+            ScrollView(.horizontal) {
                 HStack(spacing: 20) {
                     ForEach(dataSource, id: \.first) {
                         VerticalCoverStack(galleries: $0, navigateAction: navigateAction)
@@ -296,6 +297,7 @@ struct CoverWallSection: View {
                     .withHorizontalSpacing(width: 0)
                 }
             }
+            .scrollIndicators(.hidden)
             .frame(height: coverSize.height * 2 + 30)
         }
     }
@@ -385,11 +387,12 @@ struct ToplistsSection: View {
             reloadAction: reloadAction,
             showAllAction: showAllAction
         ) {
-            ScrollView(.horizontal, showsIndicators: false) {
+            ScrollView(.horizontal) {
                 HStack(alignment: .top) {
                     ForEach(ToplistsType.allCases, content: verticalStacks)
                 }
             }
+            .scrollIndicators(.hidden)
         }
     }
     private func verticalStacks(type: ToplistsType) -> some View {
@@ -506,7 +509,7 @@ struct MiscGridSection: View {
 
     var body: some View {
         SubSection(title: .other, showAll: false) {
-            ScrollView(.horizontal, showsIndicators: false) {
+            ScrollView(.horizontal) {
                 HStack {
                     let types = HomeMiscGridType.allCases
                     ForEach(types) { type in
@@ -520,6 +523,7 @@ struct MiscGridSection: View {
                     .withHorizontalSpacing()
                 }
             }
+            .scrollIndicators(.hidden)
         }
     }
 }

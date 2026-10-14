@@ -1,7 +1,11 @@
+import ApplicationClient
 import AppModels
 import AppTools
 import ComposableArchitecture
+import CookieClient
+import FileClient
 import Foundation
+import LibraryClient
 import NetworkingFeature
 import OSLogExt
 
@@ -96,12 +100,10 @@ extension SettingReducer {
             case .fetchIgneous:
                 guard cookieClient.didLogin else { return .none }
                 return .run { send in
-                    do throws(AppError) {
-                        let response = try await IgneousRequest().response()
-                        await send(.fetchIgneousDone(.success(response)))
-                    } catch {
-                        await send(.fetchIgneousDone(.failure(error)))
+                    let result = await Result.Swift::init { () async throws(AppError) in
+                        try await IgneousRequest().response()
                     }
+                    await send(.fetchIgneousDone(result))
                 }
 
             case .fetchIgneousDone(let result):
@@ -123,12 +125,10 @@ extension SettingReducer {
                     .getCookie(state.setting.galleryHost.url, Defaults.Cookie.ipbMemberId).rawValue
                 if !uid.isEmpty {
                     return .run { send in
-                        do throws(AppError) {
-                            let user = try await UserInfoRequest(uid: uid).response()
-                            await send(.fetchUserInfoDone(.success(user)))
-                        } catch {
-                            await send(.fetchUserInfoDone(.failure(error)))
+                        let result = await Result.Swift::init { () async throws(AppError) in
+                            try await UserInfoRequest(uid: uid).response()
                         }
+                        await send(.fetchUserInfoDone(result))
                     }
                 }
                 return .none
@@ -199,12 +199,10 @@ extension SettingReducer {
                 guard cookieClient.didLogin else { return .none }
                 let host = state.setting.galleryHost
                 return .run { send in
-                    do throws(AppError) {
-                        let response = try await VerifyEhProfileRequest(host: host).response()
-                        await send(.fetchEhProfileIndexDone(host: host, result: .success(response)))
-                    } catch {
-                        await send(.fetchEhProfileIndexDone(host: host, result: .failure(error)))
+                    let result = await Result.Swift::init { () async throws(AppError) in
+                        try await VerifyEhProfileRequest(host: host).response()
                     }
+                    await send(.fetchEhProfileIndexDone(host: host, result: result))
                 }
 
             case .fetchEhProfileIndexDone(let host, let result):
@@ -214,12 +212,10 @@ extension SettingReducer {
                 guard cookieClient.didLogin else { return .none }
                 let host = state.setting.galleryHost
                 return .run { send in
-                    do throws(AppError) {
-                        let categories = try await FavoriteCategoriesRequest(host: host).response()
-                        await send(.fetchFavoriteCategoriesDone(.success(categories)))
-                    } catch {
-                        await send(.fetchFavoriteCategoriesDone(.failure(error)))
+                    let result = await Result.Swift::init { () async throws(AppError) in
+                        try await FavoriteCategoriesRequest(host: host).response()
                     }
+                    await send(.fetchFavoriteCategoriesDone(result))
                 }
 
             case .fetchFavoriteCategoriesDone(let result):

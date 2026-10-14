@@ -1,5 +1,5 @@
-import Observation
-import SwiftUI
+public import Observation
+public import SwiftUI
 
 /// A capture signal installed in the environment before the first render and kept stable thereafter.
 /// Changing an environment value reconfigures unrelated platform machinery: on the iOS 27 Simulator,

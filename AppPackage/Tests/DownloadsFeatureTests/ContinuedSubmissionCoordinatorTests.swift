@@ -185,7 +185,7 @@ struct HeldSubmissionCoordinatorTests: DownloadFeatureTestCase {
         let transferProbe = TransferProbe()
         let gid = "210240"
         let rootURL = FileManager.default.temporaryDirectory
-            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+            .appending(path: UUID().uuidString, directoryHint: .isDirectory)
         defer { removeTemporaryItem(at: rootURL) }
 
         let sessionID = UUID().uuidString
@@ -215,7 +215,7 @@ struct HeldSubmissionCoordinatorTests: DownloadFeatureTestCase {
             onBytesWritten(500, 1_000)
             await transferProbe.waitForCompletionRelease()
             let fileURL = FileManager.default.temporaryDirectory
-                .appendingPathComponent(UUID().uuidString)
+                .appending(path: UUID().uuidString)
                 .appendingPathExtension("jpg")
             try Data([0xFF, 0xD8, 0xFF, 0xD9]).write(to: fileURL, options: .atomic)
             let pageURL = try #require(URL(string: "https://example.com/page.jpg"))

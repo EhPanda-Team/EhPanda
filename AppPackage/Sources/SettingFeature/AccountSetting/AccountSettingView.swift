@@ -4,6 +4,7 @@ import AppTools
 import ComposableArchitecture
 import CookieClient
 import Resources
+import SFSafeSymbols
 import Sharing
 import SwiftUI
 import SystemNotification

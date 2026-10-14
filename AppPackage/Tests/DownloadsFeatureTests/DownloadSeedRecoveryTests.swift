@@ -127,7 +127,7 @@ struct DownloadSeedRecoveryTests: DownloadFeatureTestCase {
         // fresh scan really ran. Without the second, every assertion below would be about a path
         // this case never entered.
         #expect(
-            FileManager.default.fileExists(atPath: pageTwoURL.path) == false,
+            FileManager.default.fileExists(atPath: pageTwoURL.path(percentEncoded: false)) == false,
             "the authorized removal did not destroy the refuted page file"
         )
         #expect(
@@ -210,7 +210,7 @@ struct DownloadSeedRecoveryTests: DownloadFeatureTestCase {
                 "the injected post-removal listing failure was never consumed"
             )
             #expect(prepared.workingSeed.scanSucceeded == false)
-            #expect(FileManager.default.fileExists(atPath: pageTwoURL.path) == false)
+            #expect(FileManager.default.fileExists(atPath: pageTwoURL.path(percentEncoded: false)) == false)
             // Self-healing on the run route, which is what makes the standing claim survivable: the
             // seed inherits no existing page, so every page is re-fetched.
             #expect(prepared.pendingPageIndices == [1, 2, 3])
@@ -262,7 +262,7 @@ struct DownloadSeedRecoveryTests: DownloadFeatureTestCase {
             spy: spy
         ) { prepared, pageTwoURL in
             #expect(prepared.workingSeed.scanSucceeded)
-            #expect(FileManager.default.fileExists(atPath: pageTwoURL.path) == false)
+            #expect(FileManager.default.fileExists(atPath: pageTwoURL.path(percentEncoded: false)) == false)
             #expect(prepared.pendingPageIndices == [2, 3])
         }
 
@@ -425,7 +425,7 @@ final class SeedManifestWriteRecoveryFileManager: FileManager {
 
     override func removeItem(at url: URL) throws {
         try super.removeItem(at: url)
-        guard url.path.contains(removedPathFragment) else { return }
+        guard url.path(percentEncoded: false).contains(removedPathFragment) else { return }
         control.arm()
     }
 
@@ -434,7 +434,7 @@ final class SeedManifestWriteRecoveryFileManager: FileManager {
         includingPropertiesForKeys keys: [URLResourceKey]?,
         options mask: FileManager.DirectoryEnumerationOptions = []
     ) throws -> [URL] {
-        if url.path.contains(listedPathFragment),
+        if url.path(percentEncoded: false).contains(listedPathFragment),
            let manifestURL = control.manifestURLToRelease() {
             clearImmutableFlag(at: manifestURL)
         }
@@ -513,7 +513,7 @@ final class SeedRescanFailingFileManager: FileManager {
 
     override func removeItem(at url: URL) throws {
         try super.removeItem(at: url)
-        guard url.path.contains(removedPathFragment) else { return }
+        guard url.path(percentEncoded: false).contains(removedPathFragment) else { return }
         control.arm()
     }
 
@@ -522,7 +522,7 @@ final class SeedRescanFailingFileManager: FileManager {
         includingPropertiesForKeys keys: [URLResourceKey]?,
         options mask: FileManager.DirectoryEnumerationOptions = []
     ) throws -> [URL] {
-        guard url.path.contains(listedPathFragment), control.shouldFailListing() else {
+        guard url.path(percentEncoded: false).contains(listedPathFragment), control.shouldFailListing() else {
             return try super.contentsOfDirectory(
                 at: url,
                 includingPropertiesForKeys: keys,

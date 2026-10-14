@@ -1,4 +1,5 @@
 import AnalyticsClient
+import AppComponents
 @testable import AppFeature
 import AppModels
 import ComposableArchitecture

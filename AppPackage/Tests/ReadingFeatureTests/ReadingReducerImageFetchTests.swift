@@ -50,8 +50,8 @@ struct ReadingReducerImageFetchTests {
         }
         await store.finish()
 
-        let ehentaiSkipServerURL = GalleryHost.ehentai.url.appendingPathComponent("s/")
-        let exhentaiSkipServerURL = GalleryHost.exhentai.url.appendingPathComponent("s/")
+        let ehentaiSkipServerURL = GalleryHost.ehentai.url.appending(path: "s/")
+        let exhentaiSkipServerURL = GalleryHost.exhentai.url.appending(path: "s/")
         #expect(skipServerValue(in: cookieClient, url: ehentaiSkipServerURL) == "origin-server")
         #expect(skipServerValue(in: cookieClient, url: exhentaiSkipServerURL) == nil)
     }

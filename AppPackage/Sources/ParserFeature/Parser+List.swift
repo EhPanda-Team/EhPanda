@@ -1,10 +1,10 @@
-import AppModels
+public import AppModels
 import AppTools
-import Kanna
+public import Kanna
 import SwiftUI
 
 extension Parser {
-    public static func parseGalleries(doc: HTMLDocument) throws -> [Gallery] {
+    public static func parseGalleries(doc: any HTMLDocument) throws -> [Gallery] {
         let galleries: [Gallery]
         switch parseDisplayMode(doc: doc) {
         case "Minimal":
@@ -37,11 +37,11 @@ private extension Parser {
     ///
     /// Absence is a normal outcome rather than a parse failure: toplists legitimately ship without
     /// the selector and are laid out in compact mode, which the caller's `default` branch handles.
-    static func parseDisplayMode(doc: HTMLDocument) -> String? {
+    static func parseDisplayMode(doc: any HTMLDocument) -> String? {
         guard let containerNode = doc.at_xpath("//div [@id='dms']") ?? doc.at_xpath("//div [@class='searchnav']")
         else { return nil }
 
-        var dmsNode: XMLElement?
+        var dmsNode: any XMLElement?
         for select in containerNode.xpath("//select") where select["onchange"]?.contains("inline_set=dm_") == true {
             dmsNode = select
             break
@@ -56,7 +56,7 @@ private extension Parser {
         return nil
     }
 
-    static func parseMinimalModeGalleries(doc: HTMLDocument, parsesTags: Bool) throws -> [Gallery] {
+    static func parseMinimalModeGalleries(doc: any HTMLDocument, parsesTags: Bool) throws -> [Gallery] {
         var galleries = [Gallery]()
         for link in doc.xpath("//tr") {
             let gltmNode = link.at_xpath("//div [@class='gltm']")
@@ -91,7 +91,7 @@ private extension Parser {
         return galleries
     }
 
-    static func parseCompactModeGalleries(doc: HTMLDocument) throws -> [Gallery] {
+    static func parseCompactModeGalleries(doc: any HTMLDocument) throws -> [Gallery] {
         var galleries = [Gallery]()
         for link in doc.xpath("//tr") {
             guard let gl2cNode = link.at_xpath("//td [@class='gl2c']"),
@@ -125,7 +125,7 @@ private extension Parser {
         return galleries
     }
 
-    static func parseExtendedModeGalleries(doc: HTMLDocument) throws -> [Gallery] {
+    static func parseExtendedModeGalleries(doc: any HTMLDocument) throws -> [Gallery] {
         var galleries = [Gallery]()
         for link in doc.xpath("//tr") {
             guard let gl3eSiblingNode = link.at_xpath("//div [@class='gl3e']")?.nextSibling,
@@ -156,7 +156,7 @@ private extension Parser {
         return galleries
     }
 
-    static func parseThumbnailModeGalleries(doc: HTMLDocument) throws -> [Gallery] {
+    static func parseThumbnailModeGalleries(doc: any HTMLDocument) throws -> [Gallery] {
         var galleries = [Gallery]()
         for link in doc.xpath("//div [@class='gl1t']") {
             let gl6tNode = link.at_xpath("//div [@class='gl6t']")
@@ -189,7 +189,7 @@ private extension Parser {
 
 // MARK: Helpers
 private extension Parser {
-    static func parseThumbnailPanel(node: XMLElement) throws -> ThumbnailPanelInfo {
+    static func parseThumbnailPanel(node: any XMLElement) throws -> ThumbnailPanelInfo {
         var tmpCoverURL: URL?
         var tmpCategory: AppModels.Category?
         var tmpPublishedDate: Date?
@@ -249,8 +249,8 @@ private extension Parser {
     /// only place the URL's shape is validated: a gallery URL is `/g/<gid>/<token>/`, so the two
     /// identifiers are the third and fourth path components. Pulling them out of the same `guard`
     /// that proves they exist keeps four call sites from indexing a scraped URL on trust.
-    static func parseGalleryTitle(node: XMLElement) throws -> GalleryTitleInfo {
-        func findTitle(glink: XMLElement) throws -> GalleryTitleInfo {
+    static func parseGalleryTitle(node: any XMLElement) throws -> GalleryTitleInfo {
+        func findTitle(glink: any XMLElement) throws -> GalleryTitleInfo {
             guard let glinkParentNode = glink.parent,
                   let glinkGrandParentNode = glinkParentNode.parent,
                   let title = glink.text,
@@ -279,7 +279,7 @@ private extension Parser {
         throw AppError.parseFailed
     }
 
-    static func parseGalleryTags(node: XMLElement?) throws -> [GalleryTag] {
+    static func parseGalleryTags(node: any XMLElement?) throws -> [GalleryTag] {
         guard let node = node else { throw AppError.parseFailed }
         // Tags arrive one per node and are grouped by namespace. `namespaceOrder` preserves the
         // first-appearance order the rendered tag list depends on, which a bare dictionary loses.
@@ -327,7 +327,7 @@ private extension Parser {
         }
     }
 
-    static func parseUploader(node: XMLElement) throws -> String {
+    static func parseUploader(node: any XMLElement) throws -> String {
         var tmpUploader: String?
         for link in node.xpath("//td") where link.className?.contains("glhide") == true {
             for divLink in link.xpath("//div")

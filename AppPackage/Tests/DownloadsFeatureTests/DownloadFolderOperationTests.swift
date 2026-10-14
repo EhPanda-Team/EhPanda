@@ -54,7 +54,7 @@ struct DownloadFolderOperationTests: DownloadFeatureTestCase {
         let download = await environment.manager.fetchDownload(gid: gid)
         #expect(await environment.manager.fetchFolders() == ["New Name"])
         #expect(download?.folderName == "New Name")
-        #expect(download?.folderURL.path.contains("/New Name/") == true)
+        #expect(download?.folderURL.path(percentEncoded: false).contains("/New Name/") == true)
     }
 
     @Test
@@ -89,8 +89,8 @@ struct DownloadFolderOperationTests: DownloadFeatureTestCase {
         let environment = try makeEscapeEnvironment()
         defer { removeTemporaryItem(at: environment.containerURL) }
         let aliasTargetURL = environment.rootURL
-            .appendingPathComponent("Alias Target", isDirectory: true)
-        let nestedURL = aliasTargetURL.appendingPathComponent("Nested", isDirectory: true)
+            .appending(path: "Alias Target", directoryHint: .isDirectory)
+        let nestedURL = aliasTargetURL.appending(path: "Nested", directoryHint: .isDirectory)
         try FileManager.default.createDirectory(at: nestedURL, withIntermediateDirectories: true)
 
         let oldName: String
@@ -106,7 +106,7 @@ struct DownloadFolderOperationTests: DownloadFeatureTestCase {
             preservedURL = environment.outsideFolderURL
             expectedRefusal = .invalidName
         case .absolutePath:
-            oldName = environment.outsideFolderURL.path
+            oldName = environment.outsideFolderURL.path(percentEncoded: false)
             preservedURL = environment.outsideFolderURL
             expectedRefusal = .invalidName
         case .nestedComponents:
@@ -132,7 +132,7 @@ struct DownloadFolderOperationTests: DownloadFeatureTestCase {
             expectedRefusal = .absentSource
         }
         let destinationURL = environment.rootURL
-            .appendingPathComponent("Captured", isDirectory: true)
+            .appending(path: "Captured", directoryHint: .isDirectory)
 
         let result = await environment.manager.renameFolder(oldName: oldName, newName: "Captured")
 
@@ -140,14 +140,14 @@ struct DownloadFolderOperationTests: DownloadFeatureTestCase {
         // failure, so the filesystem is the only witness that the request was refused rather than
         // performed; reading it before the early return also records it on a failing run.
         #expect(
-            FileManager.default.fileExists(atPath: preservedURL.path),
+            FileManager.default.fileExists(atPath: preservedURL.path(percentEncoded: false)),
             "The refused source must still be where the caller named it"
         )
         #expect(
-            !FileManager.default.fileExists(atPath: destinationURL.path),
+            !FileManager.default.fileExists(atPath: destinationURL.path(percentEncoded: false)),
             "A refused rename must not create the destination it was asked for"
         )
-        #expect(FileManager.default.fileExists(atPath: environment.rootURL.path))
+        #expect(FileManager.default.fileExists(atPath: environment.rootURL.path(percentEncoded: false)))
         expectRefusal(expectedRefusal, from: result, source: "\(escapeSource)")
     }
 
@@ -160,33 +160,37 @@ struct DownloadFolderOperationTests: DownloadFeatureTestCase {
     func testRenameFolderRefusesASymbolicLinkSourceEscapingTheRoot() async throws {
         let environment = try makeEscapeEnvironment()
         defer { removeTemporaryItem(at: environment.containerURL) }
-        let linkURL = environment.rootURL.appendingPathComponent("Linked", isDirectory: true)
+        let linkURL = environment.rootURL.appending(path: "Linked", directoryHint: .isDirectory)
         try FileManager.default.createSymbolicLink(
             at: linkURL,
             withDestinationURL: environment.outsideFolderURL
         )
         let destinationURL = environment.rootURL
-            .appendingPathComponent("Captured", isDirectory: true)
+            .appending(path: "Captured", directoryHint: .isDirectory)
 
         let result = await environment.manager.renameFolder(oldName: "Linked", newName: "Captured")
 
         // Disk first, verdict second, for the reason recorded on the case above.
-        #expect(FileManager.default.fileExists(atPath: environment.outsideFolderURL.path))
+        #expect(FileManager.default.fileExists(atPath: environment.outsideFolderURL.path(percentEncoded: false)))
         let sentinelData = try Data(contentsOf: environment.outsideSentinelURL)
         #expect(sentinelData == Self.outsideSentinelData, "The outside target's bytes must be untouched")
-        #expect(FileManager.default.fileExists(atPath: linkURL.path), "The link itself must survive")
         #expect(
-            !FileManager.default.fileExists(atPath: destinationURL.path),
+            FileManager.default.fileExists(atPath: linkURL.path(percentEncoded: false)), "The link itself must survive"
+        )
+        #expect(
+            !FileManager.default.fileExists(atPath: destinationURL.path(percentEncoded: false)),
             "A refused rename must not create the destination it was asked for"
         )
         guard case .failure(.fileOperationFailed) = result else {
             Issue.record("Expected a symbolic-link source to be refused, got \(result)")
             return
         }
-        let linkDestination = try FileManager.default.destinationOfSymbolicLink(atPath: linkURL.path)
+        let linkDestination = try linkURL.withUnsafeFileSystemRepresentation { path in
+            try FileManager.default.destinationOfSymbolicLink(atPath: String(cString: #require(path)))
+        }
         #expect(
-            URL(fileURLWithPath: linkDestination).standardizedFileURL.path
-                == environment.outsideFolderURL.standardizedFileURL.path,
+            URL(filePath: linkDestination).standardizedFileURL.pathComponents
+                == environment.outsideFolderURL.standardizedFileURL.pathComponents,
             "The link itself must still point where it did"
         )
     }
@@ -216,7 +220,7 @@ struct DownloadFolderOperationTests: DownloadFeatureTestCase {
 
         #expect(await environment.manager.fetchFolders().isEmpty)
         #expect(await environment.manager.fetchDownload(gid: gid) == nil)
-        #expect(!FileManager.default.fileExists(atPath: folderURL.path))
+        #expect(!FileManager.default.fileExists(atPath: folderURL.path(percentEncoded: false)))
         let queueStore = await environment.manager.queueStore
         #expect(!queueStore.contains(gid), "A performed delete must drop the queue intent")
         #expect(
@@ -254,27 +258,29 @@ struct DownloadFolderOperationTests: DownloadFeatureTestCase {
 
         // Disk first, records second, verdict last, for the reason recorded on this case.
         #expect(
-            FileManager.default.fileExists(atPath: target.preservedURL.path),
+            FileManager.default.fileExists(atPath: target.preservedURL.path(percentEncoded: false)),
             "A refused delete must leave the object it would have reached exactly where it was"
         )
         #expect(
-            FileManager.default.contents(atPath: target.sentinelURL.path) == target.sentinelData,
+            FileManager.default.contents(atPath: target.sentinelURL.path(percentEncoded: false)) == target.sentinelData,
             "The refused target's bytes must be untouched"
         )
-        #expect(FileManager.default.fileExists(atPath: staging.keeperFolderURL.path))
+        #expect(FileManager.default.fileExists(atPath: staging.keeperFolderURL.path(percentEncoded: false)))
         #expect(
-            FileManager.default.fileExists(atPath: staging.galleryFolderURL.path),
+            FileManager.default.fileExists(atPath: staging.galleryFolderURL.path(percentEncoded: false)),
             "No refused name may reach a gallery folder below a user folder"
         )
         await expectStagedRecordsSurvive(environment: environment, staging: staging)
         if case .symlinkedDirectChild = escapeSource {
             #expect(
-                FileManager.default.fileExists(atPath: staging.linkURL.path),
+                FileManager.default.fileExists(atPath: staging.linkURL.path(percentEncoded: false)),
                 "The link itself must survive rather than be removed as if it were the folder"
             )
             #expect(
-                staging.linkURL.resolvingSymlinksInPath().standardizedFileURL.path
-                    == staging.keeperFolderURL.resolvingSymlinksInPath().standardizedFileURL.path,
+                staging.linkURL.resolvingSymlinksInPath().standardizedFileURL.path(percentEncoded: false)
+                    == staging.keeperFolderURL.resolvingSymlinksInPath()
+                        .standardizedFileURL
+                        .path(percentEncoded: false),
                 "The link must still point where it did"
             )
         }
@@ -308,8 +314,8 @@ struct DownloadFolderOperationTests: DownloadFeatureTestCase {
 
         await environment.manager.reconcileDownloads()
         #expect(await environment.manager.fetchDownload(gid: gid) == nil)
-        #expect(!FileManager.default.fileExists(atPath: oldFolderURL.path))
-        #expect(!FileManager.default.fileExists(atPath: currentFolderURL.path))
+        #expect(!FileManager.default.fileExists(atPath: oldFolderURL.path(percentEncoded: false)))
+        #expect(!FileManager.default.fileExists(atPath: currentFolderURL.path(percentEncoded: false)))
     }
 
     @Test
@@ -328,8 +334,8 @@ struct DownloadFolderOperationTests: DownloadFeatureTestCase {
 
         let download = await environment.manager.fetchDownload(gid: gid)
         #expect(download?.folderName == "Target")
-        #expect(download?.folderURL.path.contains("/Target/") == true)
-        #expect(!FileManager.default.fileExists(atPath: sourceURL.path))
+        #expect(download?.folderURL.path(percentEncoded: false).contains("/Target/") == true)
+        #expect(!FileManager.default.fileExists(atPath: sourceURL.path(percentEncoded: false)))
         #expect(await environment.manager.fetchFolders() == ["Source", "Target"])
     }
 
@@ -346,7 +352,7 @@ struct DownloadFolderOperationTests: DownloadFeatureTestCase {
             Issue.record("Expected same-folder move to succeed, got \(result)")
             return
         }
-        #expect(FileManager.default.fileExists(atPath: folderURL.path))
+        #expect(FileManager.default.fileExists(atPath: folderURL.path(percentEncoded: false)))
     }
 
     /// A move may RESOLVE a destination it would not MINT, but it may not create one.
@@ -367,9 +373,9 @@ struct DownloadFolderOperationTests: DownloadFeatureTestCase {
         let result = await environment.manager.moveDownload(gid: gid, toFolderName: destination.name)
 
         expectRefusal(.invalidName, from: result, source: destination.rawValue)
-        let mintedURL = environment.rootURL.appendingPathComponent(destination.name, isDirectory: true)
-        #expect(!FileManager.default.fileExists(atPath: mintedURL.path))
-        #expect(FileManager.default.fileExists(atPath: sourceURL.path))
+        let mintedURL = environment.rootURL.appending(path: destination.name, directoryHint: .isDirectory)
+        #expect(!FileManager.default.fileExists(atPath: mintedURL.path(percentEncoded: false)))
+        #expect(FileManager.default.fileExists(atPath: sourceURL.path(percentEncoded: false)))
         let download = await environment.manager.fetchDownload(gid: gid)
         #expect(download?.folderName == "Source")
         #expect(await environment.manager.fetchFolders() == ["Source"])
@@ -388,7 +394,7 @@ struct DownloadFolderOperationTests: DownloadFeatureTestCase {
         defer { removeTemporaryItem(at: environment.rootURL) }
         let gid = "320"
         let listedName = "Art  Books"
-        let listedURL = environment.rootURL.appendingPathComponent(listedName, isDirectory: true)
+        let listedURL = environment.rootURL.appending(path: listedName, directoryHint: .isDirectory)
         try FileManager.default.createDirectory(at: listedURL, withIntermediateDirectories: true)
         _ = try writeGalleryFolder(storage: environment.storage, folderName: "Source", gid: gid)
         await environment.manager.reconcileDownloads()
@@ -405,9 +411,9 @@ struct DownloadFolderOperationTests: DownloadFeatureTestCase {
         }
         let download = await environment.manager.fetchDownload(gid: gid)
         #expect(download?.folderName == listedName)
-        #expect(FileManager.default.fileExists(atPath: listedURL.path))
-        let neighbourURL = environment.rootURL.appendingPathComponent("Art Books", isDirectory: true)
-        #expect(!FileManager.default.fileExists(atPath: neighbourURL.path))
+        #expect(FileManager.default.fileExists(atPath: listedURL.path(percentEncoded: false)))
+        let neighbourURL = environment.rootURL.appending(path: "Art Books", directoryHint: .isDirectory)
+        #expect(!FileManager.default.fileExists(atPath: neighbourURL.path(percentEncoded: false)))
     }
 
     @Test
@@ -426,7 +432,7 @@ struct DownloadFolderOperationTests: DownloadFeatureTestCase {
             Issue.record("Expected move of active download to fail")
             return
         }
-        #expect(FileManager.default.fileExists(atPath: folderURL.path))
+        #expect(FileManager.default.fileExists(atPath: folderURL.path(percentEncoded: false)))
     }
 
     @Test
@@ -647,9 +653,9 @@ private extension DownloadFolderOperationTests {
     ) async throws -> DownloadDeleteEscapeStaging {
         let gid = "318"
         let keeperFolderURL = environment.rootURL
-            .appendingPathComponent(Self.keeperFolderName, isDirectory: true)
+            .appending(path: Self.keeperFolderName, directoryHint: .isDirectory)
         let galleryFolderURL = keeperFolderURL
-            .appendingPathComponent("[\(gid)_token] Sample", isDirectory: true)
+            .appending(path: "[\(gid)_token] Sample", directoryHint: .isDirectory)
         try FileManager.default.createDirectory(
             at: galleryFolderURL,
             withIntermediateDirectories: true
@@ -658,7 +664,7 @@ private extension DownloadFolderOperationTests {
             sampleManifest(gid: gid, title: "Sample", pageCount: 2),
             folderURL: galleryFolderURL
         )
-        let pageFileURL = galleryFolderURL.appendingPathComponent("page-1.bin")
+        let pageFileURL = galleryFolderURL.appending(path: "page-1.bin")
         try Self.keeperPageData.write(to: pageFileURL)
         await environment.manager.testingInstallActiveTask(
             gid: "escape-suite-scheduler-hold",
@@ -669,7 +675,7 @@ private extension DownloadFolderOperationTests {
         let taskStore = await environment.manager.backgroundTaskStore
         await taskStore.record(taskIdentifier: 3180, gid: gid, pageIndex: 0)
         let linkURL = environment.rootURL
-            .appendingPathComponent(Self.linkedFolderName, isDirectory: true)
+            .appending(path: Self.linkedFolderName, directoryHint: .isDirectory)
         try FileManager.default.createSymbolicLink(at: linkURL, withDestinationURL: keeperFolderURL)
         return .init(
             gid: gid,
@@ -704,7 +710,7 @@ private extension DownloadFolderOperationTests {
             )
         case .absolutePath:
             return .init(
-                name: environment.outsideFolderURL.path,
+                name: environment.outsideFolderURL.path(percentEncoded: false),
                 preservedURL: environment.outsideFolderURL,
                 sentinelURL: environment.outsideSentinelURL,
                 sentinelData: Self.outsideSentinelData,
@@ -797,14 +803,14 @@ private extension DownloadFolderOperationTests {
 
     func makeEscapeEnvironment() throws -> DownloadFolderEscapeEnvironment {
         let containerURL = FileManager.default.temporaryDirectory
-            .appendingPathComponent(UUID().uuidString, isDirectory: true)
-        let rootURL = containerURL.appendingPathComponent("Downloads", isDirectory: true)
+            .appending(path: UUID().uuidString, directoryHint: .isDirectory)
+        let rootURL = containerURL.appending(path: "Downloads", directoryHint: .isDirectory)
         let storage = DownloadStore(rootURL: rootURL, fileManager: .default)
         let manager = DownloadCoordinator(storage: storage, urlSession: .shared)
         try storage.ensureRootDirectory()
-        let outsideFolderURL = containerURL.appendingPathComponent("Outside", isDirectory: true)
+        let outsideFolderURL = containerURL.appending(path: "Outside", directoryHint: .isDirectory)
         try FileManager.default.createDirectory(at: outsideFolderURL, withIntermediateDirectories: true)
-        let outsideSentinelURL = outsideFolderURL.appendingPathComponent("sentinel.txt")
+        let outsideSentinelURL = outsideFolderURL.appending(path: "sentinel.txt")
         try Self.outsideSentinelData.write(to: outsideSentinelURL)
         return .init(
             storage: storage,
@@ -818,7 +824,7 @@ private extension DownloadFolderOperationTests {
 
     func makeManager() -> DownloadFolderOperationTestEnvironment {
         let rootURL = FileManager.default.temporaryDirectory
-            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+            .appending(path: UUID().uuidString, directoryHint: .isDirectory)
         let storage = DownloadStore(rootURL: rootURL, fileManager: .default)
         let manager = DownloadCoordinator(storage: storage, urlSession: .shared)
         return .init(storage: storage, manager: manager, rootURL: rootURL)

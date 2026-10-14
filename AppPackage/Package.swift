@@ -11,33 +11,32 @@ var dependencies: [PackageDescription.Package.Dependency] = [
     // supply-chain hardening. Replaces the deprecated Colorful package (DEP-07b): Colorful
     // 1.1.x marked `ColorfulView` deprecated on non-watchOS ("This library hurts CPU alot")
     // and pointed here, so the Home gallery-card gradient now renders through ColorfulX.
-    .package(url: "https://github.com/Lakr233/ColorfulX", exact: "6.1.0"),
+    .package(url: "https://github.com/Lakr233/ColorfulX", exact: "6.2.1"),
     // App-owned fork of ddddxxx/SwiftyOpenCC, pinned exactly for DEP-01. It de-vendors the
     // OpenCC/marisa C++ engine (as a submodule) and carries the copencc shim fixes; its
     // `OpenCC` product replaces EhPanda's former app-owned SwiftyOpenCC + copencc modules.
     .package(url: "https://github.com/EhPanda-Team/SwiftyOpenCC", exact: "2.1.0"),
-    .package(url: "https://github.com/SDWebImage/SDWebImageSwiftUI", from: "3.0.0"),
-    .package(url: "https://github.com/SDWebImage/SDWebImageWebPCoder", from: "0.14.0"),
+    .package(url: "https://github.com/SDWebImage/SDWebImageSwiftUI", from: "3.1.4"),
+    .package(url: "https://github.com/SDWebImage/SDWebImageWebPCoder", from: "0.15.0"),
     .package(url: "https://github.com/SFSafeSymbols/SFSafeSymbols", from: "7.0.0"),
-    .package(url: "https://github.com/SimplyDanny/SwiftLintPlugins", from: "0.64.1"),
+    .package(url: "https://github.com/SimplyDanny/SwiftLintPlugins", from: "0.65.1"),
     // TelemetryDeck's Swift SDK. The repository is named `SwiftSDK` while the product it vends is
     // named `TelemetryDeck`, so the `.product(name:package:)` alias below cannot use one name for
-    // both. Pinned with an explicit `.upToNextMajor` range rather than a bare `from:`: 3.0.0 has
-    // only pre-release tags, and a bare `from:` can resolve one of those.
-    .package(url: "https://github.com/TelemetryDeck/SwiftSDK", .upToNextMajor(from: "2.14.1")),
-    .package(url: "https://github.com/apple/swift-markdown", from: "0.8.0"),
-    .package(url: "https://github.com/onevcat/Kingfisher", from: "8.0.0"),
-    .package(url: "https://github.com/pointfreeco/swift-case-paths", from: "1.7.0"),
+    // both. Keep the stable 2.x release series; upstream 3.0.0 tags are still prereleases.
+    .package(url: "https://github.com/TelemetryDeck/SwiftSDK", .upToNextMajor(from: "2.14.2")),
+    .package(url: "https://github.com/apple/swift-markdown", from: "0.9.0"),
+    .package(url: "https://github.com/onevcat/Kingfisher", from: "8.13.0"),
+    .package(url: "https://github.com/pointfreeco/swift-case-paths", from: "1.10.0"),
     .package(
         url: "https://github.com/pointfreeco/swift-composable-architecture",
-        from: "1.25.3",
+        from: "1.26.2",
         traits: [
             "ComposableArchitecture2Deprecations",
             "ComposableArchitecture2DeprecationOverloads"
         ]
     ),
-    .package(url: "https://github.com/pointfreeco/swift-sharing", from: "2.0.0"),
-    .package(url: "https://github.com/tid-kijyun/Kanna", from: "6.0.0"),
+    .package(url: "https://github.com/pointfreeco/swift-sharing", from: "2.10.1"),
+    .package(url: "https://github.com/tid-kijyun/Kanna", from: "6.1.0"),
     .package(url: "https://github.com/pointfreeco/swift-snapshot-testing", exact: "1.19.6")
 ]
 
@@ -64,10 +63,14 @@ let swiftLintPlugins: [PackageDescription.Target.PluginUsage] = [
     .plugin(name: "SwiftLintBuildToolPlugin", package: "SwiftLintPlugins")
 ]
 
-// Matches the app target's "Approachable Concurrency" (SWIFT_APPROACHABLE_CONCURRENCY)
-// so code keeps compiling under the same concurrency posture after moving into the package.
+// Adopt the next language mode's available features consistently across sources and tests.
+// Keep these aligned with the project-level Xcode build settings.
 let sharedSwiftSettings: [PackageDescription.SwiftSetting] = [
+    .enableUpcomingFeature("ExistentialAny"),
+    .enableUpcomingFeature("ImmutableWeakCaptures"),
     .enableUpcomingFeature("InferIsolatedConformances"),
+    .enableUpcomingFeature("InternalImportsByDefault"),
+    .enableUpcomingFeature("MemberImportVisibility"),
     .enableUpcomingFeature("NonisolatedNonsendingByDefault")
 ]
 
@@ -276,7 +279,10 @@ let targets: [PackageDescription.Target] = [
             .targetDependency(.kingfisher),
             .targetDependency(.sdWebImageSwiftUI),
             .targetDependency(.sdWebImageWebPCoder),
-            .targetDependency(.sfSafeSymbols)
+            .targetDependency(.sfSafeSymbols),
+            .module(.logsClient),
+            .module(.sfSafeSymbolsExt),
+            .targetDependency(.sharing)
         ],
         resources: [.process(.resources)]
     ),
@@ -569,7 +575,8 @@ let targets: [PackageDescription.Target] = [
             .module(.resources),
             .targetDependency(.composableArchitecture),
             .targetDependency(.sfSafeSymbols),
-            .targetDependency(.sharing)
+            .targetDependency(.sharing),
+            .module(.sfSafeSymbolsExt)
         ],
         resources: [.process(.resources)]
     ),
@@ -612,7 +619,9 @@ let targets: [PackageDescription.Target] = [
             .module(.quickSearchFeature),
             .module(.resources),
             .module(.tagTranslationFeature),
-            .targetDependency(.composableArchitecture)
+            .targetDependency(.composableArchitecture),
+            .module(.sfSafeSymbolsExt),
+            .targetDependency(.sfSafeSymbols)
         ],
         resources: [.process(.resources)]
     ),
@@ -695,7 +704,8 @@ let targets: [PackageDescription.Target] = [
             .targetDependency(.composableArchitecture),
             .targetDependency(.kingfisher),
             .targetDependency(.sfSafeSymbols),
-            .targetDependency(.sharing)
+            .targetDependency(.sharing),
+            .module(.sfSafeSymbolsExt)
         ],
         resources: [.process(.resources)]
     ),
@@ -754,7 +764,8 @@ let targets: [PackageDescription.Target] = [
             .targetDependency(.composableArchitecture),
             .targetDependency(.kingfisher),
             .targetDependency(.sdWebImageSwiftUI),
-            .targetDependency(.sfSafeSymbols)
+            .targetDependency(.sfSafeSymbols),
+            .targetDependency(.sharing)
         ],
         resources: [.process(.resources)]
     ),
@@ -819,10 +830,32 @@ let targets: [PackageDescription.Target] = [
         module: .appFeatureTests,
         dependencies: [
             .module(.analyticsClient),
+            .module(.appComponents),
             .module(.appFeature),
             .module(.homeFeature),
             .module(.parserFeature),
-            .module(.testingSupport)
+            .module(.testingSupport),
+            .module(.appLaunchAutomationClient),
+            .module(.appModels),
+            .module(.appTools),
+            .module(.clipboardClient),
+            .module(.cookieClient),
+            .module(.detailFeature),
+            .module(.deviceClient),
+            .module(.downloadClient),
+            .module(.downloadsFeature),
+            .module(.favoritesFeature),
+            .module(.filtersFeature),
+            .module(.hapticsClient),
+            .module(.libraryClient),
+            .module(.logsClient),
+            .module(.readingFeature),
+            .module(.searchFeature),
+            .module(.settingFeature),
+            .module(.userDefaultsClient),
+            .targetDependency(.composableArchitecture),
+            .targetDependency(.kingfisher),
+            .targetDependency(.sharing)
         ]
     ),
     .testTarget(
@@ -835,7 +868,17 @@ let targets: [PackageDescription.Target] = [
         module: .homeFeatureTests,
         dependencies: [
             .module(.analyticsClient),
-            .module(.homeFeature)
+            .module(.homeFeature),
+            .module(.appComponents),
+            .module(.appModels),
+            .module(.cookieClient),
+            .module(.detailFeature),
+            .module(.deviceClient),
+            .module(.downloadClient),
+            .module(.filtersFeature),
+            .module(.hapticsClient),
+            .targetDependency(.composableArchitecture),
+            .targetDependency(.sharing)
         ]
     ),
     .testTarget(
@@ -848,7 +891,8 @@ let targets: [PackageDescription.Target] = [
             .module(.appTools),
             .module(.networkingFeature),
             .module(.parserFeature),
-            .targetDependency(.kanna)
+            .targetDependency(.kanna),
+            .module(.downloadClient)
         ]
     ),
     .testTarget(
@@ -879,7 +923,14 @@ let targets: [PackageDescription.Target] = [
             .module(.userDefaultsClient),
             .targetDependency(.composableArchitecture),
             .targetDependency(.kingfisher),
-            .targetDependency(.sfSafeSymbols)
+            .targetDependency(.sfSafeSymbols),
+            .module(.appComponents),
+            .module(.logsClient),
+            .module(.parserFeature),
+            .module(.resources),
+            .module(.settingFeature),
+            .targetDependency(.kanna),
+            .targetDependency(.sharing)
         ]
     ),
     .testTarget(
@@ -901,7 +952,13 @@ let targets: [PackageDescription.Target] = [
             .module(.logsClient),
             .module(.settingFeature),
             .targetDependency(.composableArchitecture),
-            .targetDependency(.sharing)
+            .targetDependency(.sharing),
+            .module(.appComponents),
+            .module(.appTools),
+            .module(.dfClient),
+            .module(.libraryClient),
+            .module(.networkingFeature),
+            .module(.readingSettingFeature)
         ]
     ),
     .testTarget(
@@ -911,14 +968,22 @@ let targets: [PackageDescription.Target] = [
             .module(.appModels),
             .module(.detailFeature),
             .module(.hapticsClient),
-            .targetDependency(.composableArchitecture)
+            .targetDependency(.composableArchitecture),
+            .module(.appComponents),
+            .module(.appLaunchAutomationClient),
+            .module(.downloadClient),
+            .module(.fileClient),
+            .module(.readingFeature),
+            .targetDependency(.sharing)
         ]
     ),
     .testTarget(
         module: .networkingFeatureTests,
         dependencies: [
             .module(.appModels),
-            .module(.networkingFeature)
+            .module(.networkingFeature),
+            .module(.appTools),
+            .targetDependency(.kanna)
         ]
     ),
     .testTarget(
@@ -988,6 +1053,7 @@ let targets: [PackageDescription.Target] = [
     .testTarget(
         module: .readingFeatureTests,
         dependencies: [
+            .module(.appComponents),
             .module(.analyticsClient),
             .module(.appLaunchAutomationClient),
             .targetDependency(.composableArchitecture),
@@ -996,13 +1062,18 @@ let targets: [PackageDescription.Target] = [
             .module(.appTools),
             .module(.cookieClient),
             .module(.liveTextTranslation),
-            .module(.readingFeature)
+            .module(.readingFeature),
+            .module(.downloadClient),
+            .module(.hapticsClient),
+            .targetDependency(.sharing)
         ]
     ),
     .testTarget(
         module: .systemNotificationTests,
         dependencies: [
-            .module(.systemNotification)
+            .module(.systemNotification),
+            .module(.appComponents),
+            .module(.appModels)
         ]
     ),
     .testTarget(
@@ -1012,7 +1083,8 @@ let targets: [PackageDescription.Target] = [
             .module(.appModels),
             .module(.cookieClient),
             .targetDependency(.composableArchitecture),
-            .targetDependency(.sharing)
+            .targetDependency(.sharing),
+            .module(.deviceClient)
         ]
     ),
     .testTarget(
@@ -1025,7 +1097,10 @@ let targets: [PackageDescription.Target] = [
             .module(.networkingFeature),
             .module(.quickSearchFeature),
             .module(.searchFeature),
-            .targetDependency(.composableArchitecture)
+            .targetDependency(.composableArchitecture),
+            .module(.cookieClient),
+            .module(.downloadClient),
+            .module(.hapticsClient)
         ]
     ),
     .testTarget(
@@ -1034,7 +1109,10 @@ let targets: [PackageDescription.Target] = [
             .module(.analyticsClient),
             .module(.appModels),
             .module(.favoritesFeature),
-            .targetDependency(.composableArchitecture)
+            .targetDependency(.composableArchitecture),
+            .module(.cookieClient),
+            .module(.downloadClient),
+            .module(.hapticsClient)
         ]
     ),
     .target(
@@ -1060,5 +1138,6 @@ let package = Package(
         .map({ .library(name: $0, targets: [$0]) }),
     dependencies: dependencies,
     targets: targets,
+    swiftLanguageModes: [.v6],
     cxxLanguageStandard: .cxx14
 )

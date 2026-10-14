@@ -5,6 +5,7 @@ import Foundation
 @testable import LiveTextTranslation
 @testable import ReadingFeature
 import Testing
+import Translation
 
 // The reader translates the pages Live Text recognized, except in a capture launch, whose screens must
 // not depend on the system's translation models; turning Live Text off lets a page that failed be
@@ -34,7 +35,7 @@ struct LiveTextHandlerTranslationTests {
             bitsPerComponent: 8,
             bytesPerRow: 0,
             space: space,
-            bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue
+            bitmapInfo: CGBitmapInfo(alpha: .premultipliedLast).rawValue
         ))
         context.setFillColor(CGColor(srgbRed: 1, green: 1, blue: 1, alpha: 1))
         context.fill(CGRect(x: 0, y: 0, width: 1000, height: 1400))

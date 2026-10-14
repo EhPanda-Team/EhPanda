@@ -86,7 +86,9 @@ struct LinkedText: View {
     var body: some View {
         LinkColoredText(text: text, links: links)
             .font(.body) // enforce here because the link tapping won't be right if it's different
-            .overlay(LinkTapOverlay(text: text, action: action, links: links))
+            .overlay {
+                LinkTapOverlay(text: text, action: action, links: links)
+            }
     }
 }
 

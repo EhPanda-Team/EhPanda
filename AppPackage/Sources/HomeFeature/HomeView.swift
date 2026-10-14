@@ -1,13 +1,13 @@
 import AppComponents
 import AppModels
 import AppTools
-import ComposableArchitecture
+public import ComposableArchitecture
 import DetailFeature
 import Kingfisher
 import Resources
 import SFSafeSymbols
 import SFSafeSymbolsExt
-import SwiftUI
+public import SwiftUI
 
 public struct HomeView: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
@@ -27,7 +27,7 @@ public struct HomeView: View {
     // MARK: HomeView
     public var body: some View {
         NavigationStack(path: $store.scope(\.path, action: \.path)) {
-            ScrollView(showsIndicators: false) {
+            ScrollView {
                 VStack {
                     Group {
                         if !store.popularGalleries.isEmpty {
@@ -67,6 +67,7 @@ public struct HomeView: View {
                     .padding(.vertical)
                 }
             }
+            .scrollIndicators(.hidden)
             .scrollEdgeEffectStyle(.soft, for: .top)
             .onVisibleViewportChange {
                 viewportSize = $0
@@ -127,7 +128,9 @@ public struct HomeView: View {
                 Label(.reload, systemSymbol: .arrowCounterclockwise)
             }
             .visible(store.popularLoadingState != .loading)
-            .overlay(ProgressView().visible(store.popularLoadingState == .loading))
+            .overlay {
+                ProgressView().visible(store.popularLoadingState == .loading)
+            }
         }
     }
 }

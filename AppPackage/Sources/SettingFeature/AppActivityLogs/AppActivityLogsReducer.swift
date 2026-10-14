@@ -1,9 +1,10 @@
 import ApplicationClient
-import AppModels
-import ComposableArchitecture
-import Foundation
+public import AppModels
+import AppTools
+public import ComposableArchitecture
+public import Foundation
 import LogsClient
-import Sharing
+public import Sharing
 
 @Reducer
 public struct AppActivityLogsReducer: Sendable {

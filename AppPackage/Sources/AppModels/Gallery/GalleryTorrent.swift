@@ -1,4 +1,4 @@
-import Foundation
+public import Foundation
 
 public struct GalleryTorrent: Identifiable, Codable, Equatable, Sendable {
     public init(

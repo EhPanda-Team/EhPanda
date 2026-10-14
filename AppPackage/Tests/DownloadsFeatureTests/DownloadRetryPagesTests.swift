@@ -11,7 +11,7 @@ struct DownloadRetryPagesTests: DownloadFeatureTestCase {
     func testRetryPagesQueuesWorkWhenAnotherDownloadIsActive() async throws {
         let gid = String(Int(Date().timeIntervalSince1970 * 1000) + 2)
         let rootURL = FileManager.default.temporaryDirectory
-            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+            .appending(path: UUID().uuidString, directoryHint: .isDirectory)
         defer { removeTemporaryItem(at: rootURL) }
 
         let storage = DownloadStore(rootURL: rootURL, fileManager: .default)
@@ -154,7 +154,7 @@ struct DownloadRetryPagesTests: DownloadFeatureTestCase {
     func testCancelQueuedWorkClearsQueueIntent() async throws {
         let gid = "cancel-repair-\(UUID().uuidString)"
         let rootURL = FileManager.default.temporaryDirectory
-            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+            .appending(path: UUID().uuidString, directoryHint: .isDirectory)
         defer { removeTemporaryItem(at: rootURL) }
 
         let storage = DownloadStore(rootURL: rootURL, fileManager: .default)

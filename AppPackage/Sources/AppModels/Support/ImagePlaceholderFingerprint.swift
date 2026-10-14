@@ -1,5 +1,5 @@
 import CryptoKit
-import Foundation
+public import Foundation
 
 /// A known E-H asset placeholder that decodes as a valid image but is *not* page
 /// content: the ExHentai "kokomade" login wall and the H@H `509` bandwidth notice.
