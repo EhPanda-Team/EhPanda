@@ -31,6 +31,10 @@ extension HomeReducer {
                 state.isPartiallyOpen = isPartiallyOpen
                 return .none
 
+            case .viewportChanged(let size):
+                state.viewportSize = size
+                return .none
+
             // Presentation-driven lifecycle: Home is a tab root that outlives any single visit, so
             // the app reducer sends this when the Home tab becomes the active one — replacing the
             // former view `onAppear`. The empty guard keeps it idempotent across tab switches.
@@ -39,7 +43,7 @@ extension HomeReducer {
                 return .send(.fetchAllGalleries)
 
             case .galleryTapped(let gallery, let side):
-                guard state.isPartiallyOpen else { return .send(.delegate(.openGalleryDetail(gallery))) }
+                guard state.usesDuoSplitLayout else { return .send(.delegate(.openGalleryDetail(gallery))) }
                 return presentSheet(
                     root: .gallery(.init(detail: .init(gallery: gallery))),
                     on: side.opposite,
@@ -95,7 +99,7 @@ extension HomeReducer {
                 let sectionViewed = Effect<Action>.run(operation: { _ in
                     analyticsClient.send(.homeSectionViewed(homeSection(for: type)))
                 })
-                if state.isPartiallyOpen {
+                if state.usesDuoSplitLayout {
                     let root: HomeSheetFeature.RootFeature.State = switch type {
                     case .frontpage: .frontpage(.init())
                     case .toplists: .toplists(.init())
@@ -128,7 +132,7 @@ extension HomeReducer {
                 let sectionViewed = Effect<Action>.run(operation: { _ in
                     analyticsClient.send(.homeSectionViewed(homeSection(for: type)))
                 })
-                if state.isPartiallyOpen {
+                if state.usesDuoSplitLayout {
                     let root: HomeSheetFeature.RootFeature.State = switch type {
                     case .popular: .popular(.init())
                     case .watched: .watched(.init())

@@ -26,6 +26,13 @@ public struct HomeReducer: Sendable {
         @SharedReader(.setting) public var setting: Setting
         public var path = StackState<HomePath.State>()
         public var isPartiallyOpen = false
+        public var viewportSize: CGSize = .zero
+
+        public var usesDuoSplitLayout: Bool {
+            isPartiallyOpen && viewportSize.width.isFinite && viewportSize.height.isFinite
+                && viewportSize.width > 0 && viewportSize.height > 0
+                && viewportSize.width > viewportSize.height
+        }
         @Presents public var sheet: HomeSheetFeature.State?
         var opensAccountAfterSheetDismissal = false
         public var cardPageIndex = Self.initialCardPageIndex
@@ -64,6 +71,7 @@ public struct HomeReducer: Sendable {
         case binding(BindingAction<State>)
         case onPresented
         case hingeChanged(isPartiallyOpen: Bool)
+        case viewportChanged(CGSize)
         case delegate(Delegate)
         case galleryTapped(Gallery, from: HomePane = .left)
         case pushGalleryDetail(Gallery)
