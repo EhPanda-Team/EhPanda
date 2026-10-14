@@ -65,6 +65,7 @@ struct ControlPanel<G: Gesture>: View {
 // MARK: LowerPanel
 private struct LowerPanel<G: Gesture>: View {
     @ScaledMetric(relativeTo: .title2) private var closeButtonSize: CGFloat = 44
+    @GestureState private var isScrubbing = false
     private let closeButtonFocus: AccessibilityFocusState<Bool>.Binding
     @Binding private var showsSliderPreview: Bool
     @Binding private var sliderValue: Float
@@ -134,11 +135,7 @@ private struct LowerPanel<G: Gesture>: View {
                         .lineLimit(1)
                         .padding()
 
-                    Slider(
-                        value: $sliderValue,
-                        in: range,
-                        onEditingChanged: { if !$0 { showsSliderPreview = false } }
-                    )
+                    Slider(value: $sliderValue, in: range)
                     .frame(maxWidth: containerSize.width * 0.6)
                     .rotationEffect(.init(degrees: isReversed ? 180 : 0))
                     // The slider's own value would be a percentage; the page it stands for is the
@@ -148,10 +145,17 @@ private struct LowerPanel<G: Gesture>: View {
                     .accessibilityValue(
                         .accessibilityPageOf(current: Int(sliderValue), total: Int(range.upperBound))
                     )
+                    // A held track drag can emit multiple editing sessions before the finger lifts.
+                    // The preview follows the whole touch, including its stationary hold and cancellation.
                     .simultaneousGesture(
-                        LongPressGesture(minimumDuration: .infinity, maximumDistance: .infinity)
-                            .onChanged({ if $0 { showsSliderPreview = true } })
+                        DragGesture(minimumDistance: 0)
+                            .updating($isScrubbing) { _, isScrubbing, _ in
+                                isScrubbing = true
+                            }
                     )
+                    .onChange(of: isScrubbing) { _, isScrubbing in
+                        showsSliderPreview = isScrubbing
+                    }
 
                     Text(isReversed ? Int(range.lowerBound) : Int(range.upperBound), format: .number)
                         .fontWeight(.medium)
