@@ -21,6 +21,7 @@ struct ToplistsView: View {
 
     var body: some View {
         GalleryList(
+            displayMode: store.setting.galleryListPresentation[.toplists],
             galleries: store.filteredGalleries ?? [],
             pageNumber: store.pageNumber,
             loadingState: store.loadingState ?? .idle,
@@ -40,6 +41,7 @@ struct ToplistsView: View {
 
     private func toolbar() -> some ToolbarContent {
         ToolbarItemGroup(placement: .topBarTrailing) {
+            GalleryLayoutPicker(scope: .toplists)
             Menu {
                 Picker(selection: $store.type.sending(\.setToplistsType)) {
                     ForEach(ToplistsType.allCases) { type in

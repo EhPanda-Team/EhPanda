@@ -185,7 +185,8 @@ class Gate:
         else:
             command = ["xcodebuild", *actions, "-xctestrun", str(self.test_runs[plan]),
                        "-derivedDataPath", str(self.args.derived_data.resolve()),
-                       "-parallel-testing-enabled", "NO"]
+                       "-parallel-testing-enabled", "NO",
+                       "-collect-test-diagnostics", "never"]
         command += ["-destination", f"platform=iOS Simulator,id={device}"]
         command += [f"-only-testing:{test}" for test in tests]
         if expected_count is not None:

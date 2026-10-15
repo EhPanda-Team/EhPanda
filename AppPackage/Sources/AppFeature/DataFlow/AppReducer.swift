@@ -26,6 +26,7 @@ struct AppReducer {
         var presentationState = PresentationFeature.State()
         var tabBarState = TabBarReducer.State()
         var homeState = HomeReducer.State()
+        var libraryState = LibraryFeature.State()
         var favoritesState = FavoritesReducer.State()
         var searchRootState = SearchRootReducer.State()
         var downloadsState = DownloadsReducer.State()
@@ -56,6 +57,7 @@ struct AppReducer {
         case tabBar(TabBarReducer.Action)
 
         case home(HomeReducer.Action)
+        case library(LibraryFeature.Action)
         case favorites(FavoritesReducer.Action)
         case searchRoot(SearchRootReducer.Action)
         case downloads(DownloadsReducer.Action)
@@ -206,6 +208,9 @@ struct AppReducer {
                         await send(.presentation(.handleDeepLink(galleryURL)))
                     } else if let initialTab = automation.initialTab {
                         await send(.tabBar(.setTabBarItemType(initialTab)))
+                        if let group = automation.initialLibraryGroup {
+                            await send(.library(.select(group)))
+                        }
                     }
                 }
 
@@ -275,6 +280,13 @@ struct AppReducer {
                 }
                 return .merge(effects)
 
+            case .favorites(.setFavoritesIndex(let index)):
+                state.libraryState.selection = .favorites(index)
+                return .none
+
+            case .downloads(.binding(\.folderFilter)), .downloads(.fetchFoldersDone):
+                return .send(.library(.syncFromSources))
+
             case let .home(.delegate(.openGalleryDetail(gallery))):
                 return openGalleryDetail(gallery, push: .home(.pushGalleryDetail(gallery)), state: state)
 
@@ -295,15 +307,41 @@ struct AppReducer {
             case .home:
                 return .none
 
-            case .favorites:
+            case .favorites, .downloads:
+                return .none
+
+            case .library(.select(let selection)):
+                let changed = state.libraryState.selection != selection
+                state.libraryState.selection = selection
+                return changed ? librarySelectionEffect(selection, state: &state) : .none
+
+            case .library(.manageFolders):
+                let selection: LibraryGroup = if case .downloads = state.libraryState.selection {
+                    state.libraryState.selection ?? .downloads(.all)
+                } else {
+                    .downloads(.all)
+                }
+                return .run { send in
+                    await send(.library(.select(selection)))
+                    await send(.downloads(.folderManagerButtonTapped))
+                }
+
+            case .library(.syncFromSources):
+                switch state.libraryState.selection {
+                case .favorites:
+                    state.libraryState.selection = .favorites(state.favoritesState.favoritesIndex)
+                case .downloads:
+                    state.libraryState.selection = .downloads(state.downloadsState.folderFilter)
+                case .none:
+                    break
+                }
+                return .none
+
+            case .library(.binding):
                 return .none
 
             case .searchRoot:
                 return .none
-
-            case .downloads:
-                return .none
-
             case .setting(.loadUserSettingsDone):
                 var effects = [Effect<Action>]()
                 // This is the single cold-launch clipboard owner: the initial `.active` is ignored
@@ -319,7 +357,7 @@ struct AppReducer {
                 // Cold-launch counterpart of the tab-activation hook below: the tab shown at launch
                 // never gets a "became active" transition, so its presentation action fires here.
                 // Settings are loaded by now, which is what the fetches need to pick a gallery host.
-                effects.append(tabPresentationEffect(for: state.tabBarState.tabBarItemType))
+                effects.append(tabPresentationEffect(for: state.tabBarState.tabBarItemType, state: &state))
                 return effects.isEmpty ? .none : .merge(effects)
 
             case .setting(.igneousRefreshed):
@@ -344,6 +382,7 @@ struct AppReducer {
         Scope(\.appDelegateState, action: \.appDelegate, AppDelegateReducer.init)
         Scope(\.tabBarState, action: \.tabBar, TabBarReducer.init)
         Scope(\.homeState, action: \.home, HomeReducer.init)
+        Scope(\.libraryState, action: \.library, LibraryFeature.init)
         Scope(\.favoritesState, action: \.favorites, FavoritesReducer.init)
         Scope(\.searchRootState, action: \.searchRoot, SearchRootReducer.init)
         Scope(\.downloadsState, action: \.downloads, DownloadsReducer.init)
@@ -366,13 +405,25 @@ private extension AppReducer {
                 } else {
                     effects.append(.send(.home(.fetchAllGalleries)))
                 }
-            case .favorites:
-                if !state.favoritesState.path.isEmpty {
-                    state.favoritesState.path.removeAll()
-                    effects.append(hapticEffect)
-                } else if cookieClient.didLogin {
-                    effects.append(.send(.favorites(.fetchGalleries())))
-                    effects.append(hapticEffect)
+            case .library:
+                guard let selection = state.libraryState.selection else { break }
+                switch selection {
+                case .favorites:
+                    if !state.favoritesState.path.isEmpty {
+                        state.favoritesState.path.removeAll()
+                        effects.append(hapticEffect)
+                    } else if cookieClient.didLogin {
+                        effects.append(.send(.favorites(.fetchGalleries())))
+                        effects.append(hapticEffect)
+                    }
+                case .downloads:
+                    if !state.downloadsState.path.isEmpty {
+                        state.downloadsState.path.removeAll()
+                        effects.append(hapticEffect)
+                    } else {
+                        effects.append(.send(.downloads(.fetchDownloads)))
+                        effects.append(hapticEffect)
+                    }
                 }
             case .search:
                 if !state.searchRootState.path.isEmpty {
@@ -382,13 +433,6 @@ private extension AppReducer {
                     // Search tab at its root refreshes the recently-viewed galleries instead.
                     effects.append(.send(.searchRoot(.fetchHistoryGalleries)))
                 }
-            case .downloads:
-                if !state.downloadsState.path.isEmpty {
-                    state.downloadsState.path.removeAll()
-                } else {
-                    effects.append(.send(.downloads(.fetchDownloads)))
-                }
-                effects.append(hapticEffect)
             case .setting:
                 if !state.settingState.path.isEmpty {
                     state.settingState.path.removeAll()
@@ -407,7 +451,7 @@ private extension AppReducer {
             // session, so "this tab became the visible one" is what replaces their former
             // view `onAppear`. Their presentation actions are guarded, so re-activating a
             // populated tab refetches nothing.
-            effects.append(tabPresentationEffect(for: type))
+            effects.append(tabPresentationEffect(for: type, state: &state))
         }
         return effects.isEmpty ? .none : .merge(effects)
     }
@@ -415,17 +459,34 @@ private extension AppReducer {
     /// The tab root's presentation action — the reducer-side replacement for the view `onAppear` it
     /// used to run. Setting takes no action here: its root menu is a static list, and each Setting
     /// screen starts itself when `SettingReducer` pushes it.
-    func tabPresentationEffect(for type: TabBarItemType) -> Effect<Action> {
+    func tabPresentationEffect(for type: TabBarItemType, state: inout State) -> Effect<Action> {
         switch type {
         case .home:
             return .send(.home(.onPresented))
-        case .favorites:
-            return .send(.favorites(.onPresented))
+        case .library:
+            return librarySelectionEffect(state.libraryState.selection, state: &state)
         case .search:
             return .send(.searchRoot(.onPresented))
-        case .downloads:
-            return .send(.downloads(.onPresented))
         case .setting:
+            return .none
+        }
+    }
+
+    func librarySelectionEffect(_ selection: LibraryGroup?, state: inout State) -> Effect<Action> {
+        switch selection {
+        case .favorites(let index):
+            guard state.favoritesState.path.isEmpty else { return .none }
+            return .merge(
+                .send(.favorites(.setFavoritesIndex(index))),
+                .send(.favorites(.onPresented))
+            )
+        case .downloads(let filter):
+            guard state.downloadsState.path.isEmpty else { return .none }
+            return .merge(
+                .send(.downloads(.binding(.set(\.folderFilter, filter)))),
+                .send(.downloads(.onPresented))
+            )
+        case .none:
             return .none
         }
     }
@@ -510,7 +571,10 @@ private extension AppReducer {
                 await send(.searchRoot(.filtersButtonTapped))
             }
         case .downloads:
-            return .send(.tabBar(.setTabBarItemType(.downloads)))
+            return .run { send in
+                await send(.tabBar(.setTabBarItemType(.library)))
+                await send(.library(.select(.downloads(.all))))
+            }
         case .laboratory:
             return .run { send in
                 await send(.tabBar(.setTabBarItemType(.setting)))

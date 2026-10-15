@@ -401,15 +401,15 @@ private struct ShownScreens {
                 return nil
             }
             return .filters(filters)
-        case .downloads:
-            guard state.downloadsState.path.isEmpty, state.downloadsState.destination == nil else {
+        case .library:
+            guard case .downloads = state.libraryState.selection,
+                  state.downloadsState.path.isEmpty,
+                  state.downloadsState.destination == nil else {
                 return nil
             }
             return .downloads(state.downloadsState)
         case .setting:
             return settingScreen(of: state)
-        case .favorites:
-            return nil
         }
     }
 
@@ -418,9 +418,13 @@ private struct ShownScreens {
         switch state.tabBarState.tabBarItemType {
         case .home:
             state.homeState.path.isEmpty ? .home(state.homeState) : nil
-        case .downloads:
-            state.downloadsState.path.isEmpty ? .downloads(state.downloadsState) : nil
-        case .favorites, .search, .setting:
+        case .library:
+            if case .downloads = state.libraryState.selection {
+                state.downloadsState.path.isEmpty ? .downloads(state.downloadsState) : nil
+            } else {
+                nil
+            }
+        case .search, .setting:
             nil
         }
     }

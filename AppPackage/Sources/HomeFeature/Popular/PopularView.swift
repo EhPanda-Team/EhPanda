@@ -17,6 +17,7 @@ struct PopularView: View {
 
     var body: some View {
         GalleryList(
+            displayMode: store.setting.galleryListPresentation[.popular],
             galleries: store.filteredGalleries,
             pageNumber: nil,
             loadingState: store.loadingState,
@@ -40,6 +41,7 @@ struct PopularView: View {
 
     private func toolbar() -> some ToolbarContent {
         ToolbarItemGroup(placement: .topBarTrailing) {
+            GalleryLayoutPicker(scope: .popular)
             FiltersButton {
                 store.send(.filtersButtonTapped)
             }

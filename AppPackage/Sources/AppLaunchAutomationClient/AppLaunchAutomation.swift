@@ -5,6 +5,7 @@ public import Foundation
 public struct AppLaunchAutomation: Sendable {
     public init(
         initialTab: TabBarItemType? = nil,
+        initialLibraryGroup: LibraryGroup? = nil,
         autoDownloadGID: String? = nil,
         downloadFolderName: String? = nil,
         loginCookies: LoginCookies? = nil,
@@ -12,6 +13,7 @@ public struct AppLaunchAutomation: Sendable {
         captureRoute: CaptureRoute? = nil
     ) {
         self.initialTab = initialTab
+        self.initialLibraryGroup = initialLibraryGroup
         self.autoDownloadGID = autoDownloadGID
         self.downloadFolderName = downloadFolderName
         self.loginCookies = loginCookies
@@ -48,6 +50,7 @@ public struct AppLaunchAutomation: Sendable {
     }
 
     public let initialTab: TabBarItemType?
+    public let initialLibraryGroup: LibraryGroup?
     public let autoDownloadGID: String?
     public let downloadFolderName: String?
     public let loginCookies: LoginCookies?
@@ -66,8 +69,9 @@ public struct AppLaunchAutomation: Sendable {
 
     public static func resolve(environment: [String: String]) -> Self? {
         #if DEBUG
-        let initialTab = environment["EHPANDA_AUTOMATION_TAB"]
-            .flatMap(parseTab(rawValue:))
+        let rawTab = environment["EHPANDA_AUTOMATION_TAB"]
+        let initialLibraryGroup = rawTab.flatMap(parseLibraryGroup(rawValue:))
+        let initialTab = rawTab.flatMap(parseTab(rawValue:))
         let autoDownloadGID = trimmedValue(
             environment: environment,
             key: "EHPANDA_AUTOMATION_AUTO_DOWNLOAD_GID"
@@ -112,6 +116,7 @@ public struct AppLaunchAutomation: Sendable {
         }
         return .init(
             initialTab: initialTab,
+            initialLibraryGroup: initialLibraryGroup,
             autoDownloadGID: autoDownloadGID,
             downloadFolderName: downloadFolderName,
             loginCookies: loginCookies,
@@ -129,13 +134,26 @@ public struct AppLaunchAutomation: Sendable {
         case "home":
             return .home
         case "favorites":
-            return .favorites
+            return .library
         case "search":
             return .search
         case "downloads":
-            return .downloads
+            return .library
+        case "library":
+            return .library
         case "setting", "settings":
             return .setting
+        default:
+            return nil
+        }
+    }
+
+    private static func parseLibraryGroup(rawValue: String) -> LibraryGroup? {
+        switch rawValue.trimmingCharacters(in: .whitespacesAndNewlines).lowercased() {
+        case "favorites":
+            return .favorites(-1)
+        case "downloads":
+            return .downloads(.all)
         default:
             return nil
         }

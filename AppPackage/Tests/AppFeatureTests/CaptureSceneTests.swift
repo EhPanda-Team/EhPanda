@@ -408,7 +408,8 @@ struct CaptureSceneTests {
     func noScreenIsIdentifiedAwayFromHome() async throws {
         let scene = try makeScene(try MarketingFixtureBuilder.standard())
         var state = try await loadedState(scene)
-        state.tabBarState.tabBarItemType = .favorites
+        state.tabBarState.tabBarItemType = .library
+        state.libraryState.selection = .favorites(-1)
 
         let diagnostics = CaptureDiagnostics(
             scene: scene,

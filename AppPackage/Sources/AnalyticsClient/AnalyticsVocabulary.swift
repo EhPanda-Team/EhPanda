@@ -33,9 +33,8 @@ public enum HomeSection: String, CaseIterable, Equatable, Sendable {
 /// One of the app's five root tabs.
 public enum AppTab: String, CaseIterable, Equatable, Sendable {
     case home
-    case favorites
+    case library
     case search
-    case downloads
     case setting
 }
 
@@ -45,14 +44,11 @@ extension AppTab {
         case .home:
             self = .home
 
-        case .favorites:
-            self = .favorites
+        case .library:
+            self = .library
 
         case .search:
             self = .search
-
-        case .downloads:
-            self = .downloads
 
         case .setting:
             self = .setting
@@ -107,7 +103,7 @@ public enum LoginFailureKind: String, CaseIterable, Equatable, Sendable {
 
 // MARK: Stable spellings for the Int-raw domain enums
 
-// `ReadingDirection` and `ListDisplayMode` are `Int`-raw because their raw values are persisted
+// `ReadingDirection` is `Int`-raw because its raw values are persisted
 // ordinals, not names. Sending those ordinals would put a column of bare integers on the
 // dashboard, and inserting a case upstream would silently re-number every later one — changing
 // the meaning of history already collected, with nothing in the data to show that it happened.
@@ -123,18 +119,6 @@ extension ReadingDirection {
 
         case .leftToRight:
             "leftToRight"
-        }
-    }
-}
-
-extension ListDisplayMode {
-    var analyticsName: String {
-        switch self {
-        case .detail:
-            "detail"
-
-        case .thumbnail:
-            "thumbnail"
         }
     }
 }

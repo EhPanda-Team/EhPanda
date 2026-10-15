@@ -23,6 +23,8 @@ public nonisolated extension LocalizedStringResource {
     enum RLocalizable {
         public static var cancel: LocalizedStringResource { .cancel }
 
+        public static var actions: LocalizedStringResource { .actions }
+
         public static var clear: LocalizedStringResource { .clear }
 
         public static var clearDescription: LocalizedStringResource { .clearDescription }
@@ -110,6 +112,10 @@ public nonisolated extension LocalizedStringResource {
 
         public static var language: LocalizedStringResource { .language }
 
+        public static var library: LocalizedStringResource { .library }
+
+        public static var librarySelectionPrompt: LocalizedStringResource { .librarySelectionPrompt }
+
         public static var login: LocalizedStringResource { .login }
 
         public static var manageFolders: LocalizedStringResource { .manageFolders }
@@ -119,6 +125,12 @@ public nonisolated extension LocalizedStringResource {
         public static func pages(count: Int) -> LocalizedStringResource { .pages(count) }
 
         public static var quickSearch: LocalizedStringResource { .quickSearch }
+
+        public static var presentation: LocalizedStringResource { .presentation }
+
+        public static var row: LocalizedStringResource { .row }
+
+        public static var grid: LocalizedStringResource { .grid }
 
         public static var retry: LocalizedStringResource { .retry }
 

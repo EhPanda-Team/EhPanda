@@ -99,7 +99,8 @@ struct DownloadAutomationTests: DownloadFeatureTestCase {
             "EHPANDA_AUTOMATION_IGNEOUS": "igneous-value"
         ])
 
-        #expect(automation?.initialTab == .downloads)
+        #expect(automation?.initialTab == .library)
+        #expect(automation?.initialLibraryGroup == .downloads(.all))
         #expect(automation?.autoDownloadGID == "1394965")
         #expect(automation?.downloadFolderName == "UI Tests")
         #expect(
@@ -168,7 +169,8 @@ struct DownloadAutomationTests: DownloadFeatureTestCase {
     @Test
     func testRunLaunchAutomationFallsBackToInitialTabWhenGalleryURLIsUnhandleable() async {
         let automation = AppLaunchAutomation(
-            initialTab: .downloads,
+            initialTab: .library,
+            initialLibraryGroup: .downloads(.all),
             autoDownloadGID: nil,
             downloadFolderName: nil,
             loginCookies: nil,
@@ -193,8 +195,11 @@ struct DownloadAutomationTests: DownloadFeatureTestCase {
         await store.send(.runLaunchAutomation) {
             $0.didRunLaunchAutomation = true
         }
-        await store.receive(\.tabBar.setTabBarItemType, .downloads) {
-            $0.tabBarState.tabBarItemType = .downloads
+        await store.receive(\.tabBar.setTabBarItemType, .library) {
+            $0.tabBarState.tabBarItemType = .library
+        }
+        await store.receive(\.library.select, .downloads(.all)) {
+            $0.libraryState.selection = .downloads(.all)
         }
         // Landing on the tab is what starts it now; the load itself is asserted in
         // `DownloadsPresentationLifecycleTests`.

@@ -65,6 +65,7 @@ struct WatchedView: View {
     @ContentBuilder private var content: some View {
         if didLogin {
             GalleryList(
+                displayMode: store.setting.galleryListPresentation[.watched],
                 galleries: store.galleries,
                 pageNumber: store.pageNumber,
                 loadingState: store.loadingState,
@@ -86,6 +87,9 @@ struct WatchedView: View {
     }
 
     @ContentBuilder private func toolbar() -> some ToolbarContent {
+        ToolbarItem(placement: .topBarTrailing) {
+            GalleryLayoutPicker(scope: .watched)
+        }
         ToolbarItem(placement: .topBarTrailing) {
             FiltersButton {
                 store.send(.filtersButtonTapped)

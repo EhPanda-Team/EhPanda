@@ -29,9 +29,13 @@ struct DownloadsPresentationLifecycleTests: DownloadFeatureTestCase {
         }
         store.exhaustivity = .off
 
-        // The tab starts on Home, so selecting Downloads is a genuine activation, not a reselect.
-        await store.send(.tabBar(.setTabBarItemType(.downloads))) {
-            $0.tabBarState.tabBarItemType = .downloads
+        // The tab starts on Home, so selecting Library is a genuine activation, not a reselect.
+        await store.send(.tabBar(.setTabBarItemType(.library))) {
+            $0.tabBarState.tabBarItemType = .library
+        }
+        await store.send(.library(.select(.downloads(.all)))) {
+            $0.libraryState.selection = .downloads(.all)
+            $0.downloadsState.folderFilter = .all
         }
         await store.receive(\.downloads.onPresented) {
             $0.downloadsState.hasLoadedInitialDownloads = true

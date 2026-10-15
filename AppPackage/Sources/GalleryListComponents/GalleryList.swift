@@ -1,12 +1,11 @@
 import AppComponents
 public import AppModels
 import CasePathsCore
-import Sharing
 public import SwiftUI
 
 public struct GalleryList: View {
-    @SharedReader(.setting) private var setting: Setting
     @AccessibilityFocusState private var localFocusedGalleryID: String?
+    @State private var scrollPositionID: String?
     private let galleryFocus: AccessibilityFocusState<String?>.Binding?
 
     private let galleries: [Gallery]
@@ -19,8 +18,10 @@ public struct GalleryList: View {
     private let fetchMoreAction: (() -> Void)?
     private let navigateAction: ((Gallery) -> Void)?
     private let translateAction: ((String) -> TagTranslationLookup)?
+    private let displayMode: GalleryListDisplayMode
 
     public init(
+        displayMode: GalleryListDisplayMode,
         galleries: [Gallery], pageNumber: PageNumber?,
         loadingState: LoadingState, footerLoadingState: LoadingState,
         notice: LocalizedStringResource? = nil,
@@ -36,6 +37,7 @@ public struct GalleryList: View {
         self.pageNumber = pageNumber
         self.loadingState = loadingState
         self.footerLoadingState = footerLoadingState
+        self.displayMode = displayMode
         self.notice = notice
         self.fetchAction = fetchAction
         self.fetchMoreAction = fetchMoreAction
@@ -47,8 +49,8 @@ public struct GalleryList: View {
     public var body: some View {
         let focusedGalleryID = galleryFocus ?? $localFocusedGalleryID
         VStack(spacing: 0) {
-            switch setting.listDisplayMode {
-            case .detail:
+            switch displayMode {
+            case .row:
                 DetailList(
                     galleries: galleries,
                     pageNumber: pageNumber,
@@ -58,10 +60,11 @@ public struct GalleryList: View {
                     navigateAction: navigateAction,
                     translateAction: translateAction,
                     downloadBadges: downloadBadges,
-                    galleryFocus: focusedGalleryID
+                    galleryFocus: focusedGalleryID,
+                    scrollPositionID: $scrollPositionID
                 )
-            case .thumbnail:
-                ThumbnailList(
+            case .grid:
+                GridList(
                     galleries: galleries,
                     pageNumber: pageNumber,
                     footerLoadingState: footerLoadingState,
@@ -70,7 +73,8 @@ public struct GalleryList: View {
                     navigateAction: navigateAction,
                     translateAction: translateAction,
                     downloadBadges: downloadBadges,
-                    galleryFocus: focusedGalleryID
+                    galleryFocus: focusedGalleryID,
+                    scrollPositionID: $scrollPositionID
                 )
             }
         }
@@ -88,11 +92,17 @@ public struct GalleryList: View {
         }
         .refreshable { fetchAction?() }
         .scrollEdgeEffectStyle(.soft, for: .top)
+        .onChange(of: galleries.map(\.id), initial: true) { _, ids in
+            guard let current = scrollPositionID, ids.contains(current) else {
+                scrollPositionID = ids.first
+                return
+            }
+        }
     }
 }
-
 // MARK: DetailList
 private struct DetailList: View {
+    @Binding private var scrollPositionID: String?
     private let galleryFocus: AccessibilityFocusState<String?>.Binding
     private let galleries: [Gallery]
     private let downloadBadges: [String: DownloadBadge]
@@ -110,8 +120,10 @@ private struct DetailList: View {
         navigateAction: ((Gallery) -> Void)? = nil,
         translateAction: ((String) -> TagTranslationLookup)? = nil,
         downloadBadges: [String: DownloadBadge] = [:],
-        galleryFocus: AccessibilityFocusState<String?>.Binding
+        galleryFocus: AccessibilityFocusState<String?>.Binding,
+        scrollPositionID: Binding<String?>
     ) {
+        _scrollPositionID = scrollPositionID
         self.galleries = galleries
         self.downloadBadges = downloadBadges
         self.pageNumber = pageNumber
@@ -134,50 +146,53 @@ private struct DetailList: View {
     }
 
     var body: some View {
-        List {
-            notice.map(ListNoticeView.init)
+        ScrollViewReader { proxy in
+            List {
+                notice.map(ListNoticeView.init)
 
-            ForEach(galleries) { gallery in
-                Button {
-                    navigateAction?(gallery)
-                } label: {
-                    GalleryDetailCell(
-                        gallery: gallery,
-                        translateAction: translateAction,
-                        downloadBadge: downloadBadges[gallery.gid]
-                    )
+                ForEach(galleries) { gallery in
+                    Button {
+                        navigateAction?(gallery)
+                    } label: {
+                        GalleryDetailCell(
+                            gallery: gallery,
+                            translateAction: translateAction,
+                            downloadBadge: downloadBadges[gallery.gid]
+                        )
+                    }
+                    .id(gallery.id)
+                    .foregroundStyle(.primary)
+                    .accessibilityFocused(galleryFocus, equals: gallery.id)
+                    // Fetch-more fires when the trailing row actually becomes visible in the scroll
+                    // container. Reducer loading guards make repeated visibility callbacks harmless.
+                    .onScrollVisibilityChange { isVisible in
+                        guard isVisible, gallery == galleries.last else { return }
+                        fetchMoreAction?()
+                    }
+                    if shouldShowFooter(gallery: gallery) {
+                        FetchMoreFooter(loadingState: footerLoadingState, retryAction: fetchMoreAction)
+                    }
                 }
-                .foregroundStyle(.primary)
-                .accessibilityFocused(galleryFocus, equals: gallery.id)
-                // Fetch-more fires when the trailing row actually becomes visible in the scroll
-                // container — a per-scroll-arrival signal, not a view-mounting one. The geometry
-                // heuristic below (AutoLoadNextPage) cannot serve this layout: its accounting was
-                // tuned for the masonry grid's single eager row (D-36), while this list has many
-                // lazily materialized estimated-height rows and a standalone footer sibling row.
-                // The modifier is applied to every row and the guard selects the last one; wrapping
-                // it in an `if` would change row view identity. No view-local latch is needed —
-                // the reducers already guard hasNextPage() + footerLoadingState != .loading and
-                // set .loading synchronously, so a duplicate send is a no-op.
-                .onScrollVisibilityChange { isVisible in
-                    guard isVisible, gallery == galleries.last else { return }
-                    fetchMoreAction?()
-                }
-                if shouldShowFooter(gallery: gallery) {
-                    FetchMoreFooter(loadingState: footerLoadingState, retryAction: fetchMoreAction)
-                }
+            }
+            .scrollTargetLayout()
+            // The first target is the settled anchor for row mode. Keeping that anchor in the
+            // parent lets a mode change restore the nearest surviving gallery without coupling the
+            // two renderers to each other's layout assumptions.
+            .onScrollTargetVisibilityChange(idType: String.self) { visibleIDs in
+                guard let firstVisibleID = visibleIDs.first else { return }
+                scrollPositionID = firstVisibleID
+            }
+            .onChange(of: scrollPositionID) { _, id in
+                guard let id else { return }
+                proxy.scrollTo(id, anchor: .center)
             }
         }
     }
 }
-
-// MARK: ThumbnailList
-private struct ThumbnailList: View {
-    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
-    @State private var viewportSize: CGSize = .zero
-
-    /// Text scales the preferred column width; large landscape viewports retain at least three columns.
-    @ScaledMetric(relativeTo: .callout)
-    private var minCellWidth: CGFloat = MasonryLayout.defaultMinCellWidth
+// MARK: GridList
+private struct GridList: View {
+    @Binding private var scrollPositionID: String?
+    @ScaledMetric(relativeTo: .callout) private var minCellWidth: CGFloat = 180
     private let galleryFocus: AccessibilityFocusState<String?>.Binding
 
     private let galleries: [Gallery]
@@ -196,8 +211,10 @@ private struct ThumbnailList: View {
         navigateAction: ((Gallery) -> Void)? = nil,
         translateAction: ((String) -> TagTranslationLookup)? = nil,
         downloadBadges: [String: DownloadBadge] = [:],
-        galleryFocus: AccessibilityFocusState<String?>.Binding
+        galleryFocus: AccessibilityFocusState<String?>.Binding,
+        scrollPositionID: Binding<String?>
     ) {
+        _scrollPositionID = scrollPositionID
         self.galleries = galleries
         self.downloadBadges = downloadBadges
         self.pageNumber = pageNumber
@@ -210,139 +227,40 @@ private struct ThumbnailList: View {
     }
 
     var body: some View {
-        List {
+        ScrollView {
             if let notice {
-                Section {
-                    ListNoticeView(notice: notice)
-                }
+                ListNoticeView(notice: notice)
+                    .padding(.horizontal)
             }
-            // The thumbnail grid renders through the app-owned MasonryLayout (DEP-04), one eager row
-            // inside this List. `.animation(nil, value: galleries)` suppresses placement animation on
-            // fetch-more append (D-31, RESEARCH Pattern 3).
-            // The footer (spinner while loading, retry on failure) lives INSIDE the masonry's row,
-            // not as a sibling row: during an append the List keeps visible rows anchored, so a
-            // visible standalone footer row pinned the viewport to the bottom while the masonry
-            // row above it grew (measured as a negative distance-to-bottom) — chaining auto-loads
-            // page after page (D-36). As part of this single row, nothing below the grid gets
-            // anchored; appended content extends below the viewport and the scroll offset stays put.
-            VStack(spacing: 0) {
-                MasonryLayout(
-                    minCellWidth: minCellWidth,
-                    minimumColumns: GalleryViewport(
-                        size: viewportSize, isRegularWidth: horizontalSizeClass == .regular
-                    ).minimumThumbnailColumns
-                ) {
-                    ForEach(galleries) { gallery in
-                        Button {
-                            navigateAction?(gallery)
-                        } label: {
-                            GalleryThumbnailCell(
-                                gallery: gallery,
-                                translateAction: translateAction,
-                                downloadBadge: downloadBadges[gallery.gid]
-                            )
-                            .tint(.primary).multilineTextAlignment(.leading)
-                        }
-                        .buttonStyle(.borderless)
-                        .accessibilityFocused(galleryFocus, equals: gallery.id)
+            LazyVGrid(columns: [GridItem(.adaptive(minimum: minCellWidth), spacing: 12)], spacing: 16) {
+                ForEach(galleries) { gallery in
+                    Button {
+                        navigateAction?(gallery)
+                    } label: {
+                        GalleryThumbnailCell(
+                            gallery: gallery,
+                            translateAction: translateAction,
+                            downloadBadge: downloadBadges[gallery.gid]
+                        )
+                        .tint(.primary)
+                        .multilineTextAlignment(.leading)
+                    }
+                    .buttonStyle(.borderless)
+                    .accessibilityFocused(galleryFocus, equals: gallery.id)
+                    .onScrollVisibilityChange { isVisible in
+                        guard isVisible, gallery == galleries.last else { return }
+                        fetchMoreAction?()
                     }
                 }
-                .animation(nil, value: galleries)
                 if let pageNumber, pageNumber.hasNextPage() {
-                    FetchMoreFooter(
-                        loadingState: footerLoadingState,
-                        retryAction: fetchMoreAction
-                    )
+                    FetchMoreFooter(loadingState: footerLoadingState, retryAction: fetchMoreAction)
+                        .gridCellColumns(1)
                 }
             }
+            .scrollTargetLayout()
+            .padding(.horizontal)
+            .scrollEdgeEffectStyle(.soft, for: .top)
         }
-        .listStyle(.plain)
-        .onVisibleViewportChange {
-            viewportSize = $0
-        }
-        .autoLoadNextPage(
-            pageNumber: pageNumber,
-            footerLoadingState: footerLoadingState,
-            galleryCount: galleries.count,
-            fetchMoreAction: fetchMoreAction
-        )
-    }
-}
-
-// MARK: AutoLoadNextPage
-private extension View {
-    /// Auto-loads the next page as the scroll view's bottom edge nears (D-36), for the **thumbnail
-    /// grid only**. Reading scroll *geometry* rather than the last cell's appearance keeps the
-    /// scroll position stable across appends and does not depend on when the container materializes
-    /// a row — but that accounting was tuned for one specific layout: the masonry grid's single
-    /// eagerly measured row with the footer inside that row.
-    ///
-    /// The detail list is the structure D-36 records as incompatible — many lazily materialized
-    /// rows with estimated heights, plus `FetchMoreFooter` as a standalone sibling row — so it
-    /// drives fetch-more from a trailing-row scroll-visibility signal instead. Do not widen this
-    /// modifier back to that layout.
-    func autoLoadNextPage(
-        pageNumber: PageNumber?,
-        footerLoadingState: LoadingState,
-        galleryCount: Int,
-        fetchMoreAction: (() -> Void)?
-    ) -> some View {
-        modifier(AutoLoadNextPage(
-            pageNumber: pageNumber,
-            footerLoadingState: footerLoadingState,
-            galleryCount: galleryCount,
-            fetchMoreAction: fetchMoreAction
-        ))
-    }
-}
-
-private struct AutoLoadNextPage: ViewModifier {
-    let pageNumber: PageNumber?
-    let footerLoadingState: LoadingState
-    let galleryCount: Int
-    let fetchMoreAction: (() -> Void)?
-
-    // Guards for the scroll-driven auto-load below. The load's own append perturbs the scroll
-    // geometry (contentSize grows, then the List shifts contentOffset to keep the visible footer
-    // row anchored), so any geometry-keyed re-arm is re-triggered by the load itself — that fed
-    // an endless fetch loop pinned at the bottom. Instead: fire at most once per gallery count
-    // (data, which layout can't perturb) and only during user-driven scroll phases (finger drag
-    // or momentum — layout-driven offset jumps happen in the idle/animating phases). An
-    // underfilled viewport cannot scroll, so it bypasses the user-scroll requirement and chains
-    // one fetch per appended gallery count until the content fills the viewport.
-    @State private var isUserScrolling = false
-    @State private var lastAutoFetchCount: Int?
-
-    // Distance from the bottom edge at which the next page is auto-loaded (points).
-    private static let fetchMoreThreshold: CGFloat = 300
-
-    private struct FetchTrigger: Equatable {
-        var distanceToBottom: CGFloat
-        var contentFillsViewport: Bool
-    }
-
-    func body(content: Content) -> some View {
-        content
-            .onScrollPhaseChange { _, newPhase in
-                isUserScrolling = newPhase == .tracking || newPhase == .interacting || newPhase == .decelerating
-            }
-            .onScrollGeometryChange(for: FetchTrigger.self) { geometry in
-                FetchTrigger(
-                    distanceToBottom: geometry.contentSize.height - geometry.contentOffset.y
-                        - geometry.containerSize.height,
-                    contentFillsViewport: geometry.contentSize.height
-                        > geometry.containerSize.height - geometry.contentInsets.top
-                            - geometry.contentInsets.bottom
-                )
-            } action: { _, trigger in
-                guard pageNumber?.hasNextPage() == true,
-                      trigger.distanceToBottom < Self.fetchMoreThreshold,
-                      isUserScrolling || !trigger.contentFillsViewport,
-                      footerLoadingState == .idle,
-                      lastAutoFetchCount != galleryCount
-                else { return }
-                lastAutoFetchCount = galleryCount
-                fetchMoreAction?()
-            }
+        .scrollPosition(id: $scrollPositionID)
     }
 }

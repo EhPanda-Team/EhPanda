@@ -38,7 +38,7 @@ struct SettingAnalyticsOptOutTests {
         let blob = try legacyBlob {
             $0.galleryHost = .exhentai
             $0.readingDirection = .rightToLeft
-            $0.listDisplayMode = .thumbnail
+            $0.galleryListPresentation.favorites = .grid
             $0.prefetchLimit = 42
         }
 
@@ -46,7 +46,7 @@ struct SettingAnalyticsOptOutTests {
 
         #expect(decoded.galleryHost == .exhentai)
         #expect(decoded.readingDirection == .rightToLeft)
-        #expect(decoded.listDisplayMode == .thumbnail)
+        #expect(decoded.galleryListPresentation.favorites == .grid)
         #expect(decoded.prefetchLimit == 42)
     }
 

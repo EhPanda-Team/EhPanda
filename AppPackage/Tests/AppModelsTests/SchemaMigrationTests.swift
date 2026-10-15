@@ -301,6 +301,43 @@ struct SchemaMigrationTests {
         #expect(decoded.combined == "x")
     }
 
+    @Test
+    func settingMigratesLegacyDisplayModeToEveryIndependentScope() throws {
+        var object = try #require(
+            JSONSerialization.jsonObject(with: JSONEncoder().encode(Setting())) as? [String: Any]
+        )
+        object["schemaVersion"] = 1
+        object["listDisplayMode"] = 1
+        object["galleryListPresentation"] = nil
+        let data = try JSONSerialization.data(withJSONObject: object)
+
+        let migrated = try JSONDecoder().decode(Setting.self, from: data)
+
+        #expect(migrated.galleryListPresentation.frontpage == .grid)
+        #expect(migrated.galleryListPresentation.popular == .grid)
+        #expect(migrated.galleryListPresentation.toplists == .grid)
+        #expect(migrated.galleryListPresentation.favorites == .grid)
+        #expect(migrated.galleryListPresentation.search == .grid)
+        #expect(migrated.galleryListPresentation.downloads == .row)
+        #expect(migrated.galleryListPresentation.watched == .grid)
+        #expect(migrated.galleryListPresentation.history == .grid)
+    }
+
+    @Test
+    func settingRejectsLegacyDisplayModeWithAnUnknownRawValue() throws {
+        var object = try #require(
+            JSONSerialization.jsonObject(with: JSONEncoder().encode(Setting())) as? [String: Any]
+        )
+        object["schemaVersion"] = 1
+        object["listDisplayMode"] = 2
+        object["galleryListPresentation"] = nil
+        let data = try JSONSerialization.data(withJSONObject: object)
+
+        #expect(throws: (any Error).self) {
+            try JSONDecoder().decode(Setting.self, from: data)
+        }
+    }
+
     // MARK: Invariant — well-formed schema history
     @Test
     func everyModelDeclaresWellFormedSchemas() {

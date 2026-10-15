@@ -16,14 +16,13 @@ import Testing
 struct AnalyticsDefaultParametersTests {
     private static let keys: Set<String> = [
         "App.host", "App.loggedIn", "App.readingDirection",
-        "App.dualPageMode", "App.translateTags", "App.listDisplayMode"
+        "App.dualPageMode", "App.translateTags"
     ]
 
     private static func baseSetting() -> Setting {
         var setting = Setting()
         setting.galleryHost = .ehentai
         setting.readingDirection = .vertical
-        setting.listDisplayMode = .detail
         setting.translateTags = false
         setting.enableDualPageMode = false
         return setting
@@ -31,17 +30,17 @@ struct AnalyticsDefaultParametersTests {
 
     // MARK: The pure snapshot
 
-    // The shape is fixed at six entries under every input, so a parameter added or dropped fails
+    // The shape is fixed at five entries under every input, so a parameter added or dropped fails
     // here rather than silently changing the default-parameter set the whole dataset is segmented by.
     @Test
     func snapshotAlwaysCarriesExactlyTheSixExpectedKeys() {
         let parameters = AnalyticsDefaultParameters.snapshot(setting: Self.baseSetting(), didLogin: false)
 
-        #expect(parameters.count == 6)
+        #expect(parameters.count == 5)
         #expect(Set(parameters.keys) == Self.keys)
     }
 
-    // The Int-raw enums (`ReadingDirection`, `ListDisplayMode`) must ship their stable spelling, not
+    // The Int-raw `ReadingDirection` enum must ship its stable spelling, not
     // their persisted ordinal — a bare integer on the dashboard would re-number every history row the
     // moment a case is inserted upstream. Sweeping every combination proves no value is ever a digit
     // string, which is the failure a snapshot of the raw value would produce.
@@ -49,17 +48,14 @@ struct AnalyticsDefaultParametersTests {
     func noSnapshotValueIsABareInteger() {
         for host in GalleryHost.allCases {
             for direction in ReadingDirection.allCases {
-                for mode in ListDisplayMode.allCases {
-                    var setting = Self.baseSetting()
-                    setting.galleryHost = host
-                    setting.readingDirection = direction
-                    setting.listDisplayMode = mode
+                var setting = Self.baseSetting()
+                setting.galleryHost = host
+                setting.readingDirection = direction
 
-                    let parameters = AnalyticsDefaultParameters.snapshot(setting: setting, didLogin: true)
+                let parameters = AnalyticsDefaultParameters.snapshot(setting: setting, didLogin: true)
 
-                    for value in parameters.values {
-                        #expect(Int(value) == nil, "value \(value) rendered as a bare integer")
-                    }
+                for value in parameters.values {
+                    #expect(Int(value) == nil, "value \(value) rendered as a bare integer")
                 }
             }
         }
@@ -106,25 +102,6 @@ struct AnalyticsDefaultParametersTests {
         #expect(parameters["App.readingDirection"] == expected)
     }
 
-    @Test(arguments: ListDisplayMode.allCases)
-    func listDisplayModeRendersToItsStableSpelling(mode: ListDisplayMode) {
-        let expected: String
-        switch mode {
-        case .detail:
-            expected = "detail"
-
-        case .thumbnail:
-            expected = "thumbnail"
-        }
-
-        var setting = Self.baseSetting()
-        setting.listDisplayMode = mode
-
-        let parameters = AnalyticsDefaultParameters.snapshot(setting: setting, didLogin: false)
-
-        #expect(parameters["App.listDisplayMode"] == expected)
-    }
-
     @Test(arguments: [true, false])
     func dualPageModeRendersToABooleanSpelling(enabled: Bool) {
         var setting = Self.baseSetting()
@@ -169,30 +146,27 @@ struct AnalyticsDefaultParametersTests {
     func optingOutEmptiesTheSnapshotUnderEveryOtherSetting() {
         for host in GalleryHost.allCases {
             for direction in ReadingDirection.allCases {
-                for mode in ListDisplayMode.allCases {
-                    for didLogin in [true, false] {
-                        var setting = Self.baseSetting()
-                        setting.galleryHost = host
-                        setting.readingDirection = direction
-                        setting.listDisplayMode = mode
-                        setting.isSharingAnalyticsData = false
+                for didLogin in [true, false] {
+                    var setting = Self.baseSetting()
+                    setting.galleryHost = host
+                    setting.readingDirection = direction
+                    setting.isSharingAnalyticsData = false
 
-                        let parameters = AnalyticsDefaultParameters.snapshot(
-                            setting: setting, didLogin: didLogin
-                        )
+                    let parameters = AnalyticsDefaultParameters.snapshot(
+                        setting: setting, didLogin: didLogin
+                    )
 
-                        #expect(parameters.isEmpty, "leaked \(parameters.keys.sorted()) while opted out")
-                    }
+                    #expect(parameters.isEmpty, "leaked \(parameters.keys.sorted()) while opted out")
                 }
             }
         }
     }
 
-    // The shipped default is opt-in, so a caller that never touches the toggle must still see all six.
+    // The shipped default is opt-in, so a caller that never touches the toggle must still see all five.
     @Test
     func aDefaultSettingIsOptedIn() {
         #expect(Setting().isSharingAnalyticsData)
-        #expect(AnalyticsDefaultParameters.snapshot(setting: Setting(), didLogin: false).count == 6)
+        #expect(AnalyticsDefaultParameters.snapshot(setting: Setting(), didLogin: false).count == 5)
     }
 
     // MARK: The live closure

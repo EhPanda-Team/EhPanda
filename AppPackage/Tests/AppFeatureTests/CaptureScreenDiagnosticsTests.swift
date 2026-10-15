@@ -276,7 +276,8 @@ struct CaptureScreenDiagnosticsTests {
     func downloadsWithoutGalleriesFail() throws {
         let scene = try makeScene(try MarketingFixtureBuilder.standard())
         var state = AppReducer.State()
-        state.tabBarState.tabBarItemType = .downloads
+        state.tabBarState.tabBarItemType = .library
+        state.libraryState.selection = .downloads(.all)
 
         let loading = diagnostics(scene, state)
         state.downloadsState.loadingState = .idle

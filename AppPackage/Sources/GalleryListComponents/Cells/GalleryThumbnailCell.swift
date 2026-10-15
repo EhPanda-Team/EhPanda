@@ -21,15 +21,18 @@ public struct GalleryThumbnailCell: View {
     @ScaledMetric(relativeTo: .footnote) private var badgeCornerRadius: CGFloat = 15
 
     private let gallery: Gallery
+    private let coverSource: GalleryDetailCell.CoverSource
     private let translateAction: ((String) -> TagTranslationLookup)?
     private let downloadBadge: DownloadBadge?
 
     public init(
         gallery: Gallery,
+        coverSource: GalleryDetailCell.CoverSource = .dynamic,
         translateAction: ((String) -> TagTranslationLookup)? = nil,
         downloadBadge: DownloadBadge? = nil
     ) {
         self.gallery = gallery
+        self.coverSource = coverSource
         self.translateAction = translateAction
         self.downloadBadge = downloadBadge
     }
@@ -79,7 +82,7 @@ public struct GalleryThumbnailCell: View {
     /// the ~158 a half-width column leaves inside the cell's padding. `RatingView` is an `HStack` of
     /// intrinsically sized images: it can neither wrap nor compress, so the row would report a width
     /// wider than its own column and the cell's background would bleed over its neighbour — the one
-    /// thing a two-column grid cannot allow (the column floor is the owner's, see `ThumbnailList`).
+    /// thing an adaptive grid cannot allow (the column width is resolved by the containing grid).
     ///
     /// So the rating keeps its designed five symbols for exactly as long as they fit the column
     /// whole — every non-accessibility size, and the wide iPad column at every size — and otherwise
@@ -112,7 +115,7 @@ public struct GalleryThumbnailCell: View {
     /// accessibility sizes it moves into the text column, where the full column width lets its
     /// uncapped text wrap without covering the artwork.
     private var cover: some View {
-        KFImage(gallery.coverURL)
+        KFImage(resolvedCoverURL)
             .placeholder { Placeholder(style: .activity(ratio: Defaults.ImageSize.rowAspect)) }
             .imageModifier(WebtoonModifier(
                 minAspect: Defaults.ImageSize.webtoonMinAspect,
@@ -135,6 +138,15 @@ public struct GalleryThumbnailCell: View {
                     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topTrailing)
                 }
             }
+    }
+
+    private var resolvedCoverURL: URL? {
+        switch coverSource {
+        case .dynamic:
+            gallery.coverURL
+        case .static(let url):
+            url
+        }
     }
 
     /// At accessibility sizes the category is a regular text-column badge. Its background uses
@@ -295,9 +307,7 @@ private extension Gallery {
     GalleryThumbnailCell(gallery: .previewFixture(identity: 1, title: "Doujin", rating: 0, pageCount: 1))
 }
 
-// The two widths the masonry actually gives a cell at an accessibility size. The grid never falls
-// below two columns (owner, 2026-09-03), so the phone case is half a 415pt row — 200pt, the tightest
-// width this cell is ever laid out in — and the iPad portrait case is half a 794pt row.
+// Representative phone and iPad widths for accessibility-size content in the adaptive grid.
 #Preview("Long title, AX5, phone column", traits: .sizeThatFitsLayout) {
     GalleryThumbnailCell(gallery: .previewFixture(identity: 5, title: previewLongTitle, rating: 4.5, pageCount: 1234))
         .frame(width: 190)

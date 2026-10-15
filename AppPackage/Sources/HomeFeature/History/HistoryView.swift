@@ -18,6 +18,7 @@ struct HistoryView: View {
 
     var body: some View {
         GalleryList(
+            displayMode: store.setting.galleryListPresentation[.history],
             galleries: store.filteredGalleries,
             pageNumber: PageNumber(isNextButtonEnabled: store.hasMoreHistory),
             loadingState: store.loadingState,
@@ -40,6 +41,7 @@ struct HistoryView: View {
 
     private func toolbar() -> some ToolbarContent {
         ToolbarItemGroup(placement: .topBarTrailing) {
+            GalleryLayoutPicker(scope: .history)
             Button {
                 store.send(.clearHistoryButtonTapped)
             } label: {

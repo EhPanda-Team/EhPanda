@@ -33,8 +33,7 @@ enum AnalyticsDefaultParameters {
             "App.loggedIn": String(didLogin),
             "App.readingDirection": setting.readingDirection.analyticsName,
             "App.dualPageMode": String(setting.enableDualPageMode),
-            "App.translateTags": String(setting.translateTags),
-            "App.listDisplayMode": setting.listDisplayMode.analyticsName
+            "App.translateTags": String(setting.translateTags)
         ]
     }
 
