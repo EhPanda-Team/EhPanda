@@ -1,4 +1,5 @@
 import AppModels
+import CustomDump
 import Foundation
 import Testing
 
@@ -16,28 +17,6 @@ import Testing
 // FUTURE AGENT: when a model gains a REAL v2 (it adopts `MigratableModel` and appends a real
 // `VersionedSchema` to its `schemas`), DELETE that model's mock + its tests here and replace them with
 // tests over the real migration. Delete this whole file once every model has real migration coverage.
-
-// MOCK — remove with real Setting v2. RENAME: v1 `galleryHost` → v2 `host`.
-private struct SettingMock: MigratableModel {
-    var host: GalleryHost
-    static var schemas: [any VersionedSchema.Type] { [SchemaV1.self, SchemaV2.self] }
-    enum SchemaV1: VersionedSchema {
-        static let version = 1
-        static func migrate(_ object: inout [String: JSONValue]) throws {}
-    }
-    enum SchemaV2: VersionedSchema {
-        static let version = 2
-        static func migrate(_ object: inout [String: JSONValue]) throws {
-            object["host"] = object["galleryHost"]
-            object["galleryHost"] = nil
-        }
-    }
-    init(from decoder: any Decoder) throws { self = try SchemaMigrator.migrate(Self.self, from: decoder) }
-    init(currentFrom decoder: any Decoder) throws {
-        let container = try decoder.container(keyedBy: CodingKeys.self)
-        host = try container.decode(GalleryHost.self, forKey: .host)
-    }
-}
 
 // MOCK — remove with real User v2. ADD: v2 introduces a required `region`, defaulted when migrating.
 private struct UserMock: MigratableModel {
@@ -216,16 +195,29 @@ struct SchemaMigrationTests {
     }
 
     // MARK: Per-shape maps, fed a REAL v1 blob
-    @Test
-    func settingRenamesAField() throws {
-        let v1Blob = try JSONEncoder().encode(Setting(galleryHost: .exhentai))
-        let migrated = try JSONDecoder().decode(SettingMock.self, from: v1Blob)
-        #expect(migrated.host == .exhentai)
-    }
-    @Test
-    func settingMockDecodesNatively() throws {
-        let decoded = try decode(SettingMock.self, #"{"schemaVersion": 2, "host": "ExHentai"}"#)
-        #expect(decoded.host == .exhentai)
+    @Test(arguments: [0, 1])
+    func realSettingMigrationPreservesUnrelatedFields(legacyMode: Int) throws {
+        let original = Setting(galleryHost: .exhentai, privacyMaskIntensity: 17, readingDirection: .rightToLeft)
+        var object = try #require(
+            JSONSerialization.jsonObject(with: JSONEncoder().encode(original)) as? [String: Any]
+        )
+        object["schemaVersion"] = 1
+        object["galleryListPresentation"] = nil
+        object["listDisplayMode"] = legacyMode
+        let migrated = try JSONDecoder().decode(
+            Setting.self, from: JSONSerialization.data(withJSONObject: object)
+        )
+        var expected = original
+        for scope in GalleryListScope.allCases where scope != .downloads {
+            expected.galleryListPresentation[scope] = legacyMode == 0 ? .row : .grid
+        }
+        expectNoDifference(migrated, expected)
+        let encoded = try #require(
+            JSONSerialization.jsonObject(with: JSONEncoder().encode(migrated)) as? [String: Any]
+        )
+        #expect(encoded["listDisplayMode"] == nil)
+        #expect(encoded["schemaVersion"] as? Int == 2)
+        expectNoDifference(try JSONDecoder().decode(Setting.self, from: JSONEncoder().encode(migrated)), migrated)
     }
 
     @Test

@@ -77,6 +77,7 @@ private extension DownloadsView {
 
         default:
             downloadContent(for: store.setting.galleryListPresentation[.downloads])
+            .accessibilityIdentifier("downloads-gallery-list")
             .refreshable { store.send(.refreshDownloads) }
             // Scoped to row IDENTITY, never to the snapshot: `observeDownloads` re-emits the whole
             // list as pages land, so animating on `filteredDownloads` would animate every progress
@@ -86,16 +87,9 @@ private extension DownloadsView {
             // Under Reduce Motion the row snaps out instead of collapsing; delete flow and manifest unchanged.
             .animation(reduceMotion ? nil : .default, value: store.filteredDownloads.map(\.id))
             .onChange(of: store.filteredDownloads.map(\.id), initial: true) { previousIDs, ids in
-                guard let current = store.visibleGalleryID, !ids.contains(current) else { return }
-                let remaining = Set(ids)
-                if let previousIndex = previousIDs.firstIndex(of: current) {
-                    store.visibleGalleryID = previousIDs.enumerated()
-                        .filter({ remaining.contains($0.element) })
-                        .min(by: { abs($0.offset - previousIndex) < abs($1.offset - previousIndex) })?
-                        .element ?? ids.first
-                } else {
-                    store.visibleGalleryID = ids.first
-                }
+                store.visibleGalleryID = GalleryScrollAnchor.retaining(
+                    store.visibleGalleryID, previousIDs: previousIDs, currentIDs: ids
+                )
             }
         }
     }
@@ -267,7 +261,8 @@ private struct DownloadRows: View {
             }
             .onChange(of: rows.isEmpty, initial: true) { _, isEmpty in
                 guard !isEmpty, let id = restorationID else { return }
-                proxy.scrollTo(id, anchor: .top)
+                // Let the native list reveal the complete row inside its navigation insets.
+                proxy.scrollTo(id)
                 restorationID = nil
             }
         }

@@ -100,7 +100,9 @@ final class UITestStubURLProtocol: URLProtocol {
     static func fixtureName(for url: URL) -> String? {
         let path = url.path()
         if path == "/favorites.php" {
-            return "LibraryGalleries.html"
+            let hasNextPage = URLComponents(url: url, resolvingAgainstBaseURL: false)?
+                .queryItems?.contains(where: { $0.name == "next" }) == true
+            return hasNextPage ? "LibraryGalleriesNext.html" : "LibraryGalleries.html"
         }
         if path.hasPrefix("/g/2930572") {
             return "GalleryDetailAlt.html"
