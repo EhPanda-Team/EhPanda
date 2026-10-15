@@ -2,31 +2,36 @@
 """Build, enumerate and run selected UITests once through the native gate."""
 
 import argparse
+from contextlib import contextmanager
 from datetime import datetime, timezone
+import fcntl
 import json
 from pathlib import Path
 import subprocess
-import time
+import tempfile
+import uuid
 
 import environment
 
 
-def wait_for_test_window():
-    """Other work owns its processes; wait without recording its command lines."""
-    announced = False
-    while True:
-        names = subprocess.check_output(['ps', '-axo', 'ucomm='], text=True).splitlines()
-        if not any(name.strip() in ('xcodebuild', 'xctest') for name in names):
-            return
-        if not announced:
-            print('Waiting for other xcodebuild/xctest processes to finish.', flush=True)
-            announced = True
-        time.sleep(10)
+@contextmanager
+def simulator_test_window(device):
+    """Serialize this helper per dedicated simulator, allowing independent devices to run."""
+    identifier = uuid.UUID(device)
+    lock_path = Path(tempfile.gettempdir()) / f'ehpanda-tests-{identifier}.lock'
+    with lock_path.open('a') as lock:
+        try:
+            fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        except BlockingIOError:
+            print(f'Waiting for the selected simulator {identifier}.', flush=True)
+            fcntl.flock(lock, fcntl.LOCK_EX)
+        try:
+            yield
+        finally:
+            fcntl.flock(lock, fcntl.LOCK_UN)
 
 
 def run_preparation(gate, name, command):
-    if 'test-without-building' in command:
-        wait_for_test_window()
     (gate.output / f'{name}.command.json').write_text(json.dumps(command, indent=2) + '\n')
     with (gate.output / f'{name}.log').open('w') as log:
         result = subprocess.run(command, cwd=environment.ROOT, stdout=log, stderr=subprocess.STDOUT)
@@ -115,12 +120,10 @@ def execute(args):
                    '-enumerate-tests', '-test-enumeration-style', 'flat', '-test-enumeration-format', 'json',
                    '-test-enumeration-output-path', str(gate.output / 'enumeration.json'),
                    '-resultBundlePath', str(gate.output / 'enumeration.xcresult')]
-    wait_for_test_window()
-    with gate.simulator_session('selected', args.device):
+    with simulator_test_window(args.device), gate.simulator_session('selected', args.device):
         run_preparation(gate, 'enumerate', enumeration)
         expected = enumerated_tests(json.loads((gate.output / 'enumeration.json').read_text()), args.only_testing)
         native.save_json(gate.output / 'expected-tests.json', expected)
-        wait_for_test_window()
         gate.run('selected-tests', ['test-without-building'], 'UITests', args.device, expected, len(expected))
         verify_test_identity(native, json.loads((gate.output / 'selected-tests.tests.json').read_text()), expected)
     if native.source_hashes() != gate.sources:

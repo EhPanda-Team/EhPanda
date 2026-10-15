@@ -99,6 +99,9 @@ final class UITestStubURLProtocol: URLProtocol {
 
     static func fixtureName(for url: URL) -> String? {
         let path = url.path()
+        if path == "/favorites.php" {
+            return "LibraryGalleries.html"
+        }
         if path.hasPrefix("/g/2930572") {
             return "GalleryDetailAlt.html"
         }
@@ -119,6 +122,15 @@ final class UITestStubURLProtocol: URLProtocol {
     private static let htmlMIMEType = "text/html; charset=utf-8"
 
     private func loadFixture(url: URL, fixtureDirectory: URL?) {
+        if url.host() == "fixtures.ehpanda.invalid", url.path() == "/library-cover.png", let fixtureDirectory {
+            do {
+                let data = try Data(contentsOf: fixtureDirectory.appending(path: "LibraryCover.png"))
+                finish(statusCode: 200, data: data, url: url, mimeType: "image/png")
+            } catch {
+                client?.urlProtocol(self, didFailWithError: error)
+            }
+            return
+        }
         guard let fixtureName = Self.fixtureName(for: url), let fixtureDirectory else {
             finish(statusCode: 404, data: Data(), url: url, mimeType: Self.htmlMIMEType)
             return
