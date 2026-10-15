@@ -52,6 +52,8 @@
          <TestPlanReference
             reference = "container:UITests.xctestplan">
          </TestPlanReference>
+         <TestPlanReference reference = "container:AppshotCapture.xctestplan">
+         </TestPlanReference>
       </TestPlans>
    </TestAction>
    <LaunchAction

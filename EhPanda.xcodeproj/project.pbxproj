@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		A17500000000000000000001 /* AppshotXCTest in Frameworks */ = {isa = PBXBuildFile; productRef = A17500000000000000000003 /* AppshotXCTest */; };
+		A17500000000000000000002 /* AppshotProtocol in Frameworks */ = {isa = PBXBuildFile; productRef = A17500000000000000000004 /* AppshotProtocol */; };
 		A17000000000000000000011 /* VisualSnapshotSupport in Frameworks */ = {isa = PBXBuildFile; productRef = A17000000000000000000010 /* VisualSnapshotSupport */; };
 		A0F00000000000000000F001 /* AppFeature in Frameworks */ = {isa = PBXBuildFile; productRef = A0F00000000000000000F002 /* AppFeature */; };
 		AB5BE68026B95FDD007D4A55 /* ShareExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = AB5BE67626B95FDD007D4A55 /* ShareExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
@@ -156,6 +158,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A17500000000000000000001 /* AppshotXCTest in Frameworks */,
+				A17500000000000000000002 /* AppshotProtocol in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -287,6 +291,10 @@
 				A13080000000000000000002 /* EhPandaUITests */,
 			);
 			name = EhPandaUITests;
+			packageProductDependencies = (
+				A17500000000000000000003 /* AppshotXCTest */,
+				A17500000000000000000004 /* AppshotProtocol */,
+			);
 			productName = EhPandaUITests;
 			productReference = A13080000000000000000001 /* EhPandaUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
@@ -375,6 +383,7 @@
 			);
 			mainGroup = ABC3C74B2593696C00E0C11B;
 			packageReferences = (
+				A17500000000000000000005 /* XCLocalSwiftPackageReference "../appshot-cli" */,
 				A66A766B2F77C87400FC07B8 /* XCRemoteSwiftPackageReference "SwiftLintPlugins" */,
 			);
 			preferredProjectObjectVersion = 100;
@@ -868,6 +877,10 @@
 /* End XCConfigurationList section */
 
 /* Begin XCLocalSwiftPackageReference section */
+		A17500000000000000000005 /* XCLocalSwiftPackageReference "../appshot-cli" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = "../appshot-cli";
+		};
 		A0F00000000000000000F003 /* XCLocalSwiftPackageReference "AppPackage" */ = {
 			isa = XCLocalSwiftPackageReference;
 			relativePath = AppPackage;
@@ -886,6 +899,16 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		A17500000000000000000003 /* AppshotXCTest */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = A17500000000000000000005 /* XCLocalSwiftPackageReference "../appshot-cli" */;
+			productName = AppshotXCTest;
+		};
+		A17500000000000000000004 /* AppshotProtocol */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = A17500000000000000000005 /* XCLocalSwiftPackageReference "../appshot-cli" */;
+			productName = AppshotProtocol;
+		};
 		A17000000000000000000010 /* VisualSnapshotSupport */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = A0F00000000000000000F003 /* XCLocalSwiftPackageReference "AppPackage" */;

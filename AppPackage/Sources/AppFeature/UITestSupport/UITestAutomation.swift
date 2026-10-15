@@ -13,6 +13,9 @@ import HapticsClient
 import LibraryClient
 import Sharing
 import UserDefaultsClient
+#if DEBUG
+import AppshotProtocol
+#endif
 
 public enum UITestAutomation {
     public static var shouldDetectClipboardURL: Bool {
@@ -70,6 +73,7 @@ public enum UITestAutomation {
         /// A capture launch's validated scene. A capture takes no other UI-test key, so every
         /// other field is inert when this is set.
         let captureScene: CaptureScene?
+        let appshotScene: AppshotProtocol.CaptureScene?
     }
 
     /// The one clock reading of every hosted visual test and capture launch.
@@ -83,6 +87,7 @@ public enum UITestAutomation {
         let resolved: Configuration?
         do {
             resolved = try resolve(environment: environment, now: now)
+            AppshotCapture.launchedScene = resolved?.appshotScene
             if let captureScene = resolved?.captureScene {
                 try CaptureScenePreparation.install(captureScene)
             }
@@ -145,17 +150,31 @@ public enum UITestAutomation {
         now: Date,
         isTesting: Bool = AppInfo.isTesting
     ) throws(CaptureFailure) -> Configuration? {
-        if let captureScene = try CaptureScenePreparation.scene(environment: environment) {
+        let appshot = try AppshotCapture.decode(environment: environment)
+        let captureEnvironment: [String: String]
+        if let appshot {
+            captureEnvironment = try AppshotCapture.captureEnvironment(appshot, environment: environment)
+        } else {
+            captureEnvironment = environment
+        }
+        if let captureScene = try CaptureScenePreparation.scene(environment: captureEnvironment) {
             return Configuration(
                 fixtureDirectory: nil,
                 clipboardClient: nil,
                 shouldStubNetwork: false,
                 shouldUseVisualTestHost: false,
                 pauseRefusal: nil,
-                captureScene: captureScene
+                captureScene: captureScene,
+                appshotScene: appshot
             )
         }
-        let shouldUseVisualTestHost = isTesting && trimmedValue(
+        let isProbe: Bool
+        if let appshot, case .probe = appshot.coordinate {
+            isProbe = true
+        } else {
+            isProbe = false
+        }
+        let shouldUseVisualTestHost = isProbe || isTesting && trimmedValue(
             environment: environment,
             key: "EHPANDA_VISUAL_TEST_HOST"
         ) == "1"
@@ -197,7 +216,8 @@ public enum UITestAutomation {
             shouldStubNetwork: shouldStubNetwork,
             shouldUseVisualTestHost: shouldUseVisualTestHost,
             pauseRefusal: pauseRefusal,
-            captureScene: nil
+            captureScene: nil,
+            appshotScene: appshot
         )
     }
 

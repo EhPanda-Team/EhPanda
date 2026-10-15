@@ -650,3 +650,12 @@ pinned model and runtime build, validates it as the fixture tools do, and publis
 `fixtures.publish_records`, unless the sources, the pin or the current version changed meanwhile.
 `outcomes.json` names the published version. Record again after every acquisition, which starts a
 version without a record.
+
+## Standalone appshot path
+
+The actual app also exposes `AppshotCapture.xctestplan` to the sibling `appshot-cli` checkout.
+The config, setup, capture commands and current verification limits are documented in
+[17-APPSHOT-INTEGRATION.md](../../.planning/phases/17-localized-screenshot-capture-harness/17-APPSHOT-INTEGRATION.md).
+Its app-owned scene adapter and content verifier use the existing offline fixtures. The tool's source,
+commit history and GSD design live in its own repository. The Python path remains the parity reference;
+adding this entry point does not assert that the full marketing export has migrated.

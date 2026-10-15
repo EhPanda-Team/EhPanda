@@ -154,6 +154,10 @@ struct CaptureFixtureCopy: Sendable {
         try FileManager.default.createDirectory(at: root, withIntermediateDirectories: true)
         try FileManager.default.copyItem(at: source, to: version)
 
+        return try read(version: version, root: root)
+    }
+
+    static func read(version: URL, root: URL) throws -> Self {
         let manifest = try JSONDecoder().decode(
             CaptureFixtureManifest.self,
             from: Data(contentsOf: version.appending(path: "manifest.json"))
@@ -401,11 +405,12 @@ struct CaptureLauncher: Sendable {
         let settled = try start(app, scenarioID: coordinate.screen.rawValue)
         let liveText: CaptureLaunchLiveText? = switch coordinate.screen {
         case .readingLiveText:
-            try recordedLiveText()
+            try CaptureContentVerifier(coordinate: coordinate, fixture: fixture).recordedLiveText()
         case .home, .detail, .comments, .filters, .reading, .downloads, .laboratory:
             nil
         }
-        try verify(settled.diagnostics, liveText: liveText)
+        try CaptureContentVerifier(coordinate: coordinate, fixture: fixture)
+            .verify(settled.diagnostics, liveText: liveText)
         return settled
     }
 
@@ -425,7 +430,8 @@ struct CaptureLauncher: Sendable {
         XCTAssertEqual(liveText?.page, scene.page, "The recording read another page.")
         XCTAssertEqual(liveText?.source, "recognition", "The recording did not come from the reader's recognizer.")
         XCTAssertFalse(liveText?.groups.isEmpty ?? true, "The reader recognized no text to record.")
-        try verify(settled.diagnostics, liveText: liveText)
+        try CaptureContentVerifier(coordinate: coordinate, fixture: fixture)
+            .verify(settled.diagnostics, liveText: liveText)
         return settled
     }
 
@@ -466,15 +472,22 @@ struct CaptureLauncher: Sendable {
         return settled
     }
 
+}
+
+/// The content contract both capture runners check against the same fixture selection.
+struct CaptureContentVerifier {
+    let coordinate: CaptureCoordinate
+    let fixture: CaptureFixtureCopy
+
     /// The Live Text the fixture recorded on the scene's Live Text page.
-    private func recordedLiveText() throws -> CaptureLaunchLiveText {
+    func recordedLiveText() throws -> CaptureLaunchLiveText {
         let scene = try fixture.selection.scene(coordinate.set).liveText
         return try fixture.recordedLiveText(gid: scene.gallery, page: scene.page)
     }
 
     /// Fails unless `diagnostics` show exactly the coordinate's screen with `liveText`, in a sheet
     /// exactly when the coordinate's screen is one, each gallery once and each Live Text ID once.
-    private func verify(_ diagnostics: CaptureLaunchDiagnostics, liveText: CaptureLaunchLiveText?) throws {
+    func verify(_ diagnostics: CaptureLaunchDiagnostics, liveText: CaptureLaunchLiveText?) throws {
         let expected = try expectedDiagnostics(
             liveText: liveText,
             reportedDownloads: diagnostics.downloads ?? [],
@@ -554,7 +567,7 @@ struct CaptureLauncher: Sendable {
                 language: coordinate.locale.rawValue,
                 locale: coordinate.locale.launchLocale,
                 appearance: coordinate.theme.rawValue,
-                textSize: Self.textSize,
+                textSize: CaptureLauncher.textSize,
                 family: coordinate.family.rawValue
             ),
             liveText: liveText,
