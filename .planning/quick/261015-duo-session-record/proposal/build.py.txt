@@ -1,0 +1,18 @@
+from pathlib import Path
+import os
+import subprocess
+
+root = Path(__file__).resolve().parent
+app = root / 'EhPandaLayoutReview.app'
+products = root.parent / 'duo-dd/Build/Products/Debug-iphonesimulator'
+sdk = subprocess.check_output(['xcrun', '--sdk', 'iphonesimulator', '--show-sdk-path'], text=True).strip()
+command = ['xcrun', 'swiftc', '-parse-as-library', '-profile-generate', '-swift-version', '6', '-sdk', sdk,
+           '-target', 'arm64-apple-ios27.0-simulator', '-I', str(products),
+           '-module-cache-path', str(root / 'ModuleCache'), str(root / 'Prototype.swift'),
+           str(products / 'SFSafeSymbols.o'), '-o', str(app / 'EhPandaLayoutReview')]
+with (root / 'build.log').open('w') as output:
+    result = subprocess.run(command, stdout=output, stderr=subprocess.STDOUT, env={**os.environ, "SDKROOT": sdk})
+print('Swift compiler exit:', result.returncode)
+if result.returncode:
+    raise SystemExit(result.returncode)
+subprocess.run(['codesign', '--force', '--sign', '-', str(app)], check=True)
