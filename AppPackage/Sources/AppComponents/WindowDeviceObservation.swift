@@ -1,5 +1,5 @@
-import SwiftUI
-import UIKit
+public import SwiftUI
+public import UIKit
 
 /// Reads local device capabilities without mistaking a wide ordinary phone for a foldable.
 public struct WindowDeviceObservation: UIViewRepresentable {

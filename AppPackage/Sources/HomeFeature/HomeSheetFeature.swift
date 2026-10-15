@@ -1,7 +1,7 @@
 import AnalyticsClient
 import AppModels
-import ComposableArchitecture
-import DetailFeature
+public import ComposableArchitecture
+public import DetailFeature
 
 @Reducer
 public struct HomeSheetFeature {

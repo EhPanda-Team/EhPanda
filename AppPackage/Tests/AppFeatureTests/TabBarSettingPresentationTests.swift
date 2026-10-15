@@ -11,6 +11,7 @@ import Foundation
 import HapticsClient
 import HomeFeature
 import LogsClient
+import SettingFeature
 import Sharing
 import SwiftUI
 import Testing

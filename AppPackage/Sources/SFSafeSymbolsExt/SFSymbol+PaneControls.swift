@@ -1,4 +1,4 @@
-import SFSafeSymbols
+public import SFSafeSymbols
 
 public extension SFSymbol {
     static let movePaneLeft = SFSymbol(

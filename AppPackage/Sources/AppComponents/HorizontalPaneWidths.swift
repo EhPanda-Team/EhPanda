@@ -1,4 +1,4 @@
-import CoreGraphics
+public import CoreGraphics
 
 /// The system can reserve an entire side for vertical bars. Split the enclosing width before
 /// removing each side's own inset so that the divider stays on the fold as the bars minimize.
