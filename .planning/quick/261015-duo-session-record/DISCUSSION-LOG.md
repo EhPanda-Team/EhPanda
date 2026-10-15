@@ -112,9 +112,26 @@ Commit references are indexed in SUMMARY.md. “Proposed” is not owner approva
 |---|---|---|
 | D55 | After both integrated test builds passed, another session still had a long-running Xcode test. Owner explicitly answered “允許使用各自的 simulator 並行驗證”. | Supersedes the inherited cross-session single-test restriction for independent dedicated simulators. This session still runs its own test commands sequentially and never controls another session’s devices/processes. |
 
+## App-wide Library design follow-up
+
+| ID | Decision / provenance | Disposition |
+|---|---|---|
+| D56 | Owner: discussion is now at the app-design level, no longer limited to iPhone Duo. | Apply the next design discussion across the app and window sizes; no new production implementation yet. |
+| D57 | Owner proposes merging Favorites and Downloads into one Library tab because both emphasize management slightly more than browsing and share that purpose. | Current owner-proposed direction for the next design iteration. Shared entry versus a unified gallery collection remains unresolved. See LIBRARY-DIRECTION.md. |
+| D58 | Owner identifies the previous B alternatives as more management-oriented. | Reconsider the prior A recommendations around Library's management purpose; this is not blanket approval of every B detail. Previous screenshots remain comparison evidence. |
+
+## Per-list row / grid display
+
+| ID | Decision / provenance | Disposition |
+|---|---|---|
+| D59 | Owner proposes retiring the fixed global detail/thumbnail setting in favor of a row/grid switch on each list. | Adopt per-list display selection for the redesign; the global setting is to be replaced, not retained as the active authority. Production implementation and migration remain pending. |
+| D60 | Owner explicitly names Frontpage, Popular, Toplists, Favorites, Search and Downloads as independently remembered lists. | Six separate remembered choices. Favorites and Downloads retain separate preferences even when reached through Library. Initial defaults, finer category/folder scopes and unlisted lists are not decided here. |
+| D61 | Owner clarification: the modes are row/grid, and the current waterfall effect becomes the proposal's grid layout. | This changes the layout itself: regular aligned grid based on the proposal replaces masonry/waterfall. Do not merely rename detail/thumbnail or keep the old waterfall renderer as grid. Exact cell metrics and image-fit treatment remain design details. |
+
 ## Outstanding decisions / limits
 
-- Owner has not selected Favorites/Search/Downloads A or B; keep review open.
+- Favorites/Downloads now feed the combined Library discussion (D56–D58); internal hierarchy and
+  integration depth remain open. Search A/B also remains unselected. Keep the preview open.
 - Exact dual-page indicator normalization was observed; no owner request to change it was recorded.
 - Physical device, full VoiceOver, interactive iPad resizing, live RTL-language UI and native-search
   continuity are not established by the retained simulator evidence.
