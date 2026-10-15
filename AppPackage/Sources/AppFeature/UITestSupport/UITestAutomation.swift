@@ -108,11 +108,20 @@ public enum UITestAutomation {
         // because the get and the set happen inside the same preparation: reading it caches the live
         // client under the current preparation id, and the setter admits a key whose cached value
         // carries that id.
-        if configuration.shouldUseVisualTestHost
+        if configuration.shouldStubNetwork
+            || configuration.shouldUseVisualTestHost
             || configuration.clipboardClient != nil
             || configuration.pauseRefusal != nil
         {
             prepareDependencies {
+                if configuration.shouldStubNetwork && !configuration.shouldUseVisualTestHost {
+                    $0.libraryClient = .live(configuringImageSessions: { session in
+                        session.protocolClasses = [UITestStubURLProtocol.self] + (session.protocolClasses ?? [])
+                    })
+                    if let path = trimmedValue(environment: environment, key: "EHPANDA_UITEST_DOWNLOAD_ROOT") {
+                        $0.downloadClient = .live(rootURL: URL(filePath: path, directoryHint: .isDirectory))
+                    }
+                }
                 if configuration.shouldUseVisualTestHost {
                     // The hosted test process renders the app before XCTest enters any test case.
                     // Prepare explicit inert clients before the first Store or shared key is built.

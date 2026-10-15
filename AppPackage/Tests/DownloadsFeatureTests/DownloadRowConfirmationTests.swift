@@ -1,6 +1,7 @@
 import AnalyticsClient
 import AppModels
 import ComposableArchitecture
+import CustomDump
 import DownloadClient
 @testable import DownloadsFeature
 import Foundation
@@ -201,4 +202,30 @@ struct DownloadRowConfirmationTests: DownloadFeatureTestCase {
 
         #expect(deleted.value == [second.gid])
     }
+    @MainActor
+    @Test
+    func moveConfirmationFollowsItsGalleryThroughReordering() async {
+        let first = sampleDownload(gid: "901", title: "First", status: .completed)
+        let second = sampleDownload(gid: "902", title: "Second", status: .completed)
+        var initialState = DownloadsReducer.State()
+        initialState.downloads = [first, second]
+        initialState.loadingState = .idle
+        let moved = LockIsolated<[String]>([])
+        let store = TestStore(initialState: initialState, reducer: DownloadsReducer.init) {
+            $0.analyticsClient = .noop
+            $0.downloadClient.moveDownload = { gid, folder in moved.withValue({ $0.append(gid + "/" + folder) }) }
+        }
+        store.exhaustivity = .off
+        await store.send(.rows(.element(id: "902", action: .moveButtonTapped(destinations: ["Reading"]))))
+        await store.send(.observeDownloadsDone([second, first]))
+        #expect(store.state.rows[id: "902"]?.confirmationDialog != nil)
+        #expect(store.state.rows[id: "901"]?.confirmationDialog == nil)
+        await store.send(.rows(.element(id: "902", action: .confirmationDialog(.presented(.move("Reading"))))))
+        await store.receive(\.rows)
+        await store.receive(\.moveDownload)
+        await store.receive(\.moveDownloadDone)
+        await store.finish()
+        expectNoDifference(moved.value, ["902/Reading"])
+    }
+
 }
