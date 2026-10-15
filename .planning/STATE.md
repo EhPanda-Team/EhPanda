@@ -27,6 +27,8 @@ last_activity_desc: "17-06 revision (2026-10-13): capture changes d688e8fe4b..94
 
 The complete Duo/landscape session decisions, superseded choices, implementation ledger, retained verification and still-unselected wide-screen proposals are in [261015-duo-session-record/CONTEXT.md](quick/261015-duo-session-record/CONTEXT.md). This retrospective record does not complete Phase 17. Branch migration is tracked separately there.
 
+The follow-up [Library design discussion](quick/261015-duo-session-record/LIBRARY-DIRECTION.md) expands the scope to app-wide information architecture: the owner proposes a management-focused Library tab combining Favorites and Downloads. Internal Library hierarchy remains open. The owner also specifies separate row/grid choices for six lists, with a regular grid replacing waterfall. No phase plan or implementation is approved by this note.
+
 ## Project Reference
 
 See: .planning/PROJECT.md (updated 2026-09-23)

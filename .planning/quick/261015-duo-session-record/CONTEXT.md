@@ -2,7 +2,7 @@
 type: retrospective-session-context
 recorded: 2026-10-15
 session_dates: [2026-10-14, 2026-10-15]
-status: implemented-with-unselected-proposals
+status: implemented-with-app-design-follow-up
 original_source_branch: claude/iphone-duo-support-c0b23d
 working_branch: agent/iphone-duo-support
 implementation_head: 37461f3980a0a057078b5539c54efea285ebf43e
@@ -25,8 +25,14 @@ had been approved or executed. No retrospective PLAN is presented as a prior app
 - [Summary](SUMMARY.md): commit ledger and current delivery boundary.
 - [Verification](VERIFICATION.md): retained evidence, failures, corrections and remaining gaps.
 - [Learnings](LEARNINGS.md): findings grounded in this session.
-- [Wide-screen proposal](proposal/PROPOSAL.md): Favorites, Search and Downloads, nine native screenshots, still awaiting selection.
+- [Library direction](LIBRARY-DIRECTION.md): app-wide follow-up proposing one management-focused Favorites/Downloads tab; internal hierarchy remains open.
+- [Wide-screen proposal](proposal/PROPOSAL.md): nine earlier native screenshots, retained for comparison; Search remains unselected.
 - [Migration](MIGRATION.md): integration state and rewritten commit mapping.
+
+The app-design follow-up also replaces the global detail/thumbnail direction with independent
+row/grid choices for Frontpage, Popular, Toplists, Favorites, Search and Downloads. Grid replaces
+waterfall with the proposal's regular aligned layout. See D59–D61 and LIBRARY-DIRECTION.md; the
+production renderer has not yet been changed.
 
 The final decisions in DISCUSSION-LOG take precedence over historical evidence reports.
 In particular: Home splitting now includes fully open Duo and eligible iPad landscape;
@@ -46,5 +52,5 @@ geometry. Explicit device-capability requirements (automatic reader orientation 
 landscape panes) are separate product policies; they do not reinstate idiom-based width guesses.
 Unrelated Phase 17 capture work remains in progress and is not marked complete by this record.
 
-No push, PR, baseline promotion, or production implementation of the three wide-screen
+No push, PR, baseline promotion, or production implementation of the wide-screen/Library
 proposals was requested. The preview must remain available during review and worktree migration.

@@ -2,7 +2,7 @@
 type: retrospective-summary
 recorded: 2026-10-15
 implementation_commits: 21
-decision_records: 55
+decision_records: 61
 ---
 
 # Delivery and commit ledger
@@ -12,7 +12,8 @@ decision_records: 55
 This session extends measured/window-based routing with Duo Home panes, native opposite-side
 presentations, independent title behavior, persistent reader controls and configurable orientation
 automation. Later owner choices extend landscape panes to fully open Duo and eligible iPad,
-with distinct separators and movable reader controls. Favorites/Search/Downloads remain proposals.
+with distinct separators and movable reader controls. The app-wide Library follow-up now proposes
+combining Favorites/Downloads around management; its internal design and Search remain unresolved.
 
 The first four commits were inherited from the supplied handoff; the remaining seventeen were
 created during this session. Implementation references below point to the replayed commits. MIGRATION.md retains the explicit
@@ -73,3 +74,14 @@ the useful ignored evidence and existing preview, then removed the old checkout 
 one Reduce Motion source-inventory test with the approved Home extraction and slider animation.
 No production behavior was added in this follow-up. Fresh build/lint/test evidence, D55's simulator
 isolation authorization and exact migration state are in [Migration](MIGRATION.md).
+
+## App-wide design follow-up
+
+D56–D58 expand the discussion beyond Duo and propose merging Favorites/Downloads into Library.
+[Library direction](LIBRARY-DIRECTION.md) distinguishes the owner's rationale from the assistant's
+suggested hierarchy and the unanswered shared-entry versus unified-collection choice. The earlier
+A/B screenshots are comparison material, not an approved merged-Library design.
+
+D59–D61 replace the global detail/thumbnail direction with independent row/grid choices for six
+named lists. Grid is the proposal's regular aligned grid, replacing waterfall. This is an accepted
+design clarification, with rendering, persistence defaults and migration still to be implemented.
