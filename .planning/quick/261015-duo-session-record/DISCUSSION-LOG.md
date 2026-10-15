@@ -32,7 +32,7 @@ Commit references are indexed in SUMMARY.md. “Proposed” is not owner approva
 | D09 | Consult a local reference project's GSD docs and implementation for lessons. | Consulted; reproduce lessons without naming the other project in repository artifacts. |
 | D10 | Consult Xcode 27.1 resizability guidance. Later explicit correction: use `app-resizability` and `iphone-duo`, not `impeccable`. | Final proposal follows both requested skills. General visual-design guidance is not its authority. |
 | D11 | Owner questioned and rejected the need for Device Hub, then requested continued verification and remaining work. | No Device Hub needed or used for the recorded final checks; use dedicated simulator tools and simulator pose driver. |
-| D12 | Preserve other sessions' simulators/work and primary checkout changes; run one simulator test process at a time, no push/PR without request. | Continuing constraint. Handoff also requires conventional atomic commits, warning-free code/test builds, no weakened assertions or lint suppression. |
+| D12 | Preserve other sessions' simulators/work and primary checkout changes; run one simulator test process at a time, no push/PR without request. | Preserve isolation and local-only scope. Cross-session serialization superseded by D55; this session still runs its own tests sequentially. Handoff also requires conventional atomic commits, warning-free code/test builds, no weakened assertions or lint suppression. |
 | D13 | Handoff: if subagents are used, explicitly request GPT 6.1 Sol, do not inherit full history, and stop on ambiguity. | Dispatch constraint, not proof of any runtime model. Later project GSD dispatch rules apply to GSD roles. |
 | D14 | Owner requested actual screenshots for visual choices and proposals. | Crease A/B/C, NewDawn 60/50 and wide-screen A/B comparisons produced; screenshot scope must be labeled. |
 
@@ -105,6 +105,12 @@ Commit references are indexed in SUMMARY.md. “Proposed” is not owner approva
 |---|---|---|
 | D53 | Owner: cherry-pick onto `feature/gsd-phase-17`, rewrite commits so GSD SHA references are correct, move to new worktree and branch, remove old worktree/branch. | Authorized local migration; exact state/mapping in MIGRATION.md. Preserve unrelated dirty/staged primary-checkout work and preview before cleanup. |
 | D54 | Owner: GSD docs must record **all decisions in this session**, not just proposals. | This complete retrospective record, historical evidence and commit ledger address the omission. It must migrate with implementation. Future updates belong in tracked GSD docs as decisions occur. |
+
+## Runtime validation scheduling follow-up
+
+| ID | Decision / provenance | Disposition |
+|---|---|---|
+| D55 | After both integrated test builds passed, another session still had a long-running Xcode test. Owner explicitly answered “允許使用各自的 simulator 並行驗證”. | Supersedes the inherited cross-session single-test restriction for independent dedicated simulators. This session still runs its own test commands sequentially and never controls another session’s devices/processes. |
 
 ## Outstanding decisions / limits
 
