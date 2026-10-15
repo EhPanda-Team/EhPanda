@@ -128,6 +128,12 @@ Commit references are indexed in SUMMARY.md. “Proposed” is not owner approva
 | D60 | Owner explicitly names Frontpage, Popular, Toplists, Favorites, Search and Downloads as independently remembered lists. | Six separate remembered choices. Favorites and Downloads retain separate preferences even when reached through Library. Initial defaults, finer category/folder scopes and unlisted lists are not decided here. |
 | D61 | Owner clarification: the modes are row/grid, and the current waterfall effect becomes the proposal's grid layout. | This changes the layout itself: regular aligned grid based on the proposal replaces masonry/waterfall. Do not merely rename detail/thumbnail or keep the old waterfall renderer as grid. Exact cell metrics and image-fit treatment remain design details. |
 
+## Rebuild workspace from the rewritten Phase 17 branch
+
+| ID | Decision / provenance | Disposition |
+|---|---|---|
+| D62 | Owner requests a new worktree and branch from the latest feature/gsd-phase-17, moving this session's workspace there, then deleting the current worktree and branch. | New active worktree is app-design on agent/app-design, based on e6efecb69f. Carry forward the Library/row-grid record; preserve the target's rewritten SHA references and existing implementation. Exact completion/evidence in WORKSPACE-REBUILD.md. |
+
 ## Outstanding decisions / limits
 
 - Favorites/Downloads now feed the combined Library discussion (D56–D58); internal hierarchy and

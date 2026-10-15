@@ -11,6 +11,9 @@ recorded: 2026-10-15
 Reproduction prerequisite: set `POSE_DRIVER` to the absolute executable path of your simulator
 pose driver before running the commands below. The runner requires that path explicitly.
 
+This records the first migration. For the subsequent rebuild from the rewritten Phase 17 history
+and the current active workspace, see [Workspace rebuild](WORKSPACE-REBUILD.md).
+
 Owner authorized local replay onto `feature/gsd-phase-17`, SHA correction, a new worktree/branch,
 and removal of the old checkout/branch. No push or PR.
 

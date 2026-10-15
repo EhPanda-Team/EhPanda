@@ -29,6 +29,8 @@ The complete Duo/landscape session decisions, superseded choices, implementation
 
 The follow-up [Library design discussion](quick/261015-duo-session-record/LIBRARY-DIRECTION.md) expands the scope to app-wide information architecture: the owner proposes a management-focused Library tab combining Favorites and Downloads. Internal Library hierarchy remains open. The owner also specifies separate row/grid choices for six lists, with a regular grid replacing waterfall. No phase plan or implementation is approved by this note.
 
+Current design workspace: `agent/app-design`; see [workspace rebuild](quick/261015-duo-session-record/WORKSPACE-REBUILD.md).
+
 ## Project Reference
 
 See: .planning/PROJECT.md (updated 2026-09-23)

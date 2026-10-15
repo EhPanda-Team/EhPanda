@@ -2,7 +2,7 @@
 type: retrospective-summary
 recorded: 2026-10-15
 implementation_commits: 21
-decision_records: 61
+decision_records: 62
 ---
 
 # Delivery and commit ledger
@@ -85,3 +85,10 @@ A/B screenshots are comparison material, not an approved merged-Library design.
 D59–D61 replace the global detail/thumbnail direction with independent row/grid choices for six
 named lists. Grid is the proposal's regular aligned grid, replacing waterfall. This is an accepted
 design clarification, with rendering, persistence defaults and migration still to be implemented.
+
+## Workspace rebuild
+
+D62 rebuilds this session on `agent/app-design` from the latest `feature/gsd-phase-17` base
+`e6efecb69f`. The Library/per-list design record was carried forward as `3c3a12ad36`; earlier Duo
+implementation and rewritten SHA references come directly from the new base. See
+[Workspace rebuild](WORKSPACE-REBUILD.md) for preservation and cleanup evidence.

@@ -4,7 +4,7 @@ recorded: 2026-10-15
 session_dates: [2026-10-14, 2026-10-15]
 status: implemented-with-app-design-follow-up
 original_source_branch: claude/iphone-duo-support-c0b23d
-working_branch: agent/iphone-duo-support
+working_branch: agent/app-design
 implementation_head: 37461f3980a0a057078b5539c54efea285ebf43e
 ---
 
@@ -27,7 +27,8 @@ had been approved or executed. No retrospective PLAN is presented as a prior app
 - [Learnings](LEARNINGS.md): findings grounded in this session.
 - [Library direction](LIBRARY-DIRECTION.md): app-wide follow-up proposing one management-focused Favorites/Downloads tab; internal hierarchy remains open.
 - [Wide-screen proposal](proposal/PROPOSAL.md): nine earlier native screenshots, retained for comparison; Search remains unselected.
-- [Migration](MIGRATION.md): integration state and rewritten commit mapping.
+- [Migration](MIGRATION.md): original integration and rewritten commit mapping.
+- [Workspace rebuild](WORKSPACE-REBUILD.md): current branch/worktree after rebuilding from the latest Phase 17 history.
 
 The app-design follow-up also replaces the global detail/thumbnail direction with independent
 row/grid choices for Frontpage, Popular, Toplists, Favorites, Search and Downloads. Grid replaces
