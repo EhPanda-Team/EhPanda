@@ -1,26 +1,27 @@
 {
-  "configurations" : [
+  "configurations": [
     {
-      "id" : "13080000-0000-4000-8000-000000000001",
-      "name" : "Configuration 1",
-      "options" : {
-
-      }
+      "id": "13080000-0000-4000-8000-000000000001",
+      "name": "Configuration 1",
+      "options": {}
     }
   ],
-  "defaultOptions" : {
-    "maximumTestRepetitions" : 3,
-    "testRepetitionMode" : "retryOnFailure",
-    "testTimeoutsEnabled" : true
+  "defaultOptions": {
+    "maximumTestRepetitions": 3,
+    "testRepetitionMode": "retryOnFailure",
+    "testTimeoutsEnabled": true
   },
-  "testTargets" : [
+  "testTargets": [
     {
-      "target" : {
-        "containerPath" : "container:EhPanda.xcodeproj",
-        "identifier" : "A13080000000000000000006",
-        "name" : "EhPandaUITests"
-      }
+      "target": {
+        "containerPath": "container:EhPanda.xcodeproj",
+        "identifier": "A13080000000000000000006",
+        "name": "EhPandaUITests"
+      },
+      "skippedTests": [
+        "AppshotCaptureUITests"
+      ]
     }
   ],
-  "version" : 1
+  "version": 1
 }

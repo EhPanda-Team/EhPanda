@@ -2,6 +2,8 @@ import SearchFeature
 import SettingFeature
 #if DEBUG
 import AppModels
+import Appshot
+import AppshotProtocol
 import AppTools
 import ComposableArchitecture
 import DetailFeature
@@ -648,7 +650,7 @@ struct CaptureDiagnosticsAnchor: UIViewRepresentable {
     let capture: InstalledCapture
 
     func makeUIView(context: Self.Context) -> CaptureDiagnosticsElement {
-        CaptureDiagnosticsElement(store: store, capture: capture)
+        CaptureDiagnosticsElement(store: store, capture: capture, scene: AppshotCapture.launchedScene)
     }
 
     func updateUIView(_ uiView: CaptureDiagnosticsElement, context: Self.Context) {}
@@ -662,30 +664,48 @@ final class CaptureDiagnosticsElement: UIView {
     private let capture: InstalledCapture
     @Dependency(\.libraryClient) private var libraryClient
 
-    init(store: StoreOf<AppReducer>, capture: InstalledCapture) {
+    init(
+        store: StoreOf<AppReducer>,
+        capture: InstalledCapture,
+        scene: AppshotProtocol.CaptureScene? = nil
+    ) {
         self.store = store
         self.capture = capture
         super.init(frame: .zero)
         isAccessibilityElement = true
         isUserInteractionEnabled = false
         accessibilityIdentifier = CaptureDiagnostics.accessibilityIdentifier
+        if let scene {
+            isAccessibilityElement = false
+            let element = AppshotStateView(scene: scene) { [weak self] in
+                guard let self else {
+                    return ScreenState(screen: "unknown", failures: ["The app diagnostics element disappeared"])
+                }
+                return diagnostics.appshotState
+            }
+            element.frame = CGRect(x: 0, y: 0, width: 1, height: 1)
+            addSubview(element)
+        }
     }
 
     required init?(coder: NSCoder) {
         nil
     }
 
+    private var diagnostics: CaptureDiagnostics {
+        CaptureDiagnostics(
+            scene: capture.scene,
+            state: store.state,
+            rendering: .init(traits: traitCollection),
+            sheetPixels: topSheetPixels,
+            answeredURLs: capture.replay.answeredURLs,
+            unknownRequests: capture.replay.unknownRequestDescriptions,
+            isCached: libraryClient.isCached
+        )
+    }
+
     override var accessibilityValue: String? {
         get {
-            let diagnostics = CaptureDiagnostics(
-                scene: capture.scene,
-                state: store.state,
-                rendering: .init(traits: traitCollection),
-                sheetPixels: topSheetPixels,
-                answeredURLs: capture.replay.answeredURLs,
-                unknownRequests: capture.replay.unknownRequestDescriptions,
-                isCached: libraryClient.isCached
-            )
             do {
                 return try diagnostics.encodedJSON()
             } catch {

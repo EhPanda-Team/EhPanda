@@ -1,0 +1,102 @@
+// Actual-app capture through the sibling appshot-cli checkout. Real fixtures remain outside Git.
+{
+  "schemaVersion": 1,
+  "project": {
+    "xcodeproj": "EhPanda.xcodeproj",
+    "scheme": "EhPanda",
+    "testPlan": "AppshotCapture",
+    "captureTest": "EhPandaUITests/AppshotCaptureUITests/testCapture"
+  },
+  "runtime": "com.apple.CoreSimulator.SimRuntime.iOS-27-0",
+  "devices": {
+    "iphone": {
+      "simulator": "EhPanda Appshot iPhone Air",
+      "deviceType": "com.apple.CoreSimulator.SimDeviceType.iPhone-Air",
+      "settings": {
+        "reduceMotion": true
+      }
+    },
+    "ipad": {
+      "simulator": "EhPanda Appshot iPad Pro 11-inch (M5)",
+      "deviceType": "com.apple.CoreSimulator.SimDeviceType.iPad-Pro-11-inch-M5-12GB",
+      "settings": {
+        "reduceMotion": true,
+        "fullScreenApps": true
+      }
+    }
+  },
+  "axes": {
+    "screen": [
+      "home",
+      "detail",
+      "comments",
+      "filters",
+      "reading",
+      "reading-live-text",
+      "downloads",
+      "laboratory"
+    ],
+    "locale": {
+      "en": {
+        "language": "en",
+        "locale": "en_US"
+      },
+      "de": {
+        "language": "de",
+        "locale": "de_DE"
+      },
+      "ja": {
+        "language": "ja",
+        "locale": "ja_JP"
+      },
+      "ko": {
+        "language": "ko",
+        "locale": "ko_KR"
+      },
+      "zh-Hans": {
+        "language": "zh-Hans",
+        "locale": "zh_CN"
+      },
+      "zh-Hant": {
+        "language": "zh-Hant",
+        "locale": "zh_TW"
+      }
+    },
+    "appearance": [
+      "light",
+      "dark"
+    ],
+    "textSize": [
+      "large"
+    ],
+    "custom": {
+      "set": [
+        "nonexplicit",
+        "explicit"
+      ]
+    }
+  },
+  "inputs": {
+    "fixtures": {
+      "copy": true
+    }
+  },
+  "chrome": {
+    "statusBar": {
+      "time": "2026-01-01T09:41"
+    }
+  },
+  "pin": "Scripts/visual/appshot-pin.json",
+  "provenance": {
+    "sources": [
+      "App/**",
+      "AppPackage/**",
+      "EhPandaUITests/**",
+      "EhPanda.xcodeproj/**",
+      "AppshotCapture.xctestplan"
+    ]
+  },
+  "export": {
+    "layout": "{set}/{device}/{locale}/{screen}-{appearance}.png"
+  }
+}
