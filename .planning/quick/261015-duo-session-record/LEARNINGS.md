@@ -65,3 +65,13 @@ reserved-region, toolbar and arrangement details. Use both for this task. Check 
 and spelling: arrangement is 27.1 while this app also supports 27.0, and the installed toolbar API
 uses `toolbarMinimizationBehavior`. Do not substitute a generic visual-design skill after the owner
 has specified these sources. Source: D10/D24/D33/D47/D49.
+
+## Integration includes source-inventory maintenance
+
+Phase 17's explicit/public-import mode requires new public API files and tests to import the modules
+whose declarations they use. Build both code and test products before reporting compatibility.
+Moving an existing Reduce Motion gate to an extracted view and adding an approved animation also
+requires updating the pinned source inventory. Inspect the actual gates, preserve the exact two-way
+assertions, and rerun the affected target; do not suppress diagnostics or relax the inventory to make
+it pass. The first full integration run exposed three stale-inventory failures, and all 15 AppTools
+tests passed after correction. Source: MIGRATION.md and `2ce594b178`.
