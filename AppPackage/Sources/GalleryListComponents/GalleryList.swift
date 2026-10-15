@@ -92,10 +92,17 @@ public struct GalleryList: View {
         }
         .refreshable { fetchAction?() }
         .scrollEdgeEffectStyle(.soft, for: .top)
-        .onChange(of: galleries.map(\.id), initial: true) { _, ids in
-            guard let current = scrollPositionID, ids.contains(current) else {
+        .onChange(of: galleries.map(\.id), initial: true) { previousIDs, ids in
+            guard let current = scrollPositionID else { return }
+            guard !ids.contains(current) else { return }
+            let remaining = Set(ids)
+            if let previousIndex = previousIDs.firstIndex(of: current) {
+                scrollPositionID = previousIDs.enumerated()
+                    .filter({ remaining.contains($0.element) })
+                    .min(by: { abs($0.offset - previousIndex) < abs($1.offset - previousIndex) })?
+                    .element ?? ids.first
+            } else {
                 scrollPositionID = ids.first
-                return
             }
         }
     }
@@ -103,6 +110,8 @@ public struct GalleryList: View {
 // MARK: DetailList
 private struct DetailList: View {
     @Binding private var scrollPositionID: String?
+    @State private var restorationID: String?
+    @State private var visibleIDs = Set<String>()
     private let galleryFocus: AccessibilityFocusState<String?>.Binding
     private let galleries: [Gallery]
     private let downloadBadges: [String: DownloadBadge]
@@ -124,6 +133,7 @@ private struct DetailList: View {
         scrollPositionID: Binding<String?>
     ) {
         _scrollPositionID = scrollPositionID
+        _restorationID = State(initialValue: scrollPositionID.wrappedValue)
         self.galleries = galleries
         self.downloadBadges = downloadBadges
         self.pageNumber = pageNumber
@@ -165,26 +175,28 @@ private struct DetailList: View {
                     .accessibilityFocused(galleryFocus, equals: gallery.id)
                     // Fetch-more fires when the trailing row actually becomes visible in the scroll
                     // container. Reducer loading guards make repeated visibility callbacks harmless.
-                    .onScrollVisibilityChange { isVisible in
-                        guard isVisible, gallery == galleries.last else { return }
-                        fetchMoreAction?()
+                    .onScrollVisibilityChange(threshold: 0.1) { isVisible in
+                        if isVisible {
+                            visibleIDs.insert(gallery.id)
+                        } else {
+                            visibleIDs.remove(gallery.id)
+                        }
+                        if restorationID == nil {
+                            scrollPositionID = galleries.first(where: { visibleIDs.contains($0.id) })?.id
+                        }
+                        if isVisible, gallery == galleries.last {
+                            fetchMoreAction?()
+                        }
                     }
                     if shouldShowFooter(gallery: gallery) {
                         FetchMoreFooter(loadingState: footerLoadingState, retryAction: fetchMoreAction)
                     }
                 }
             }
-            .scrollTargetLayout()
-            // The first target is the settled anchor for row mode. Keeping that anchor in the
-            // parent lets a mode change restore the nearest surviving gallery without coupling the
-            // two renderers to each other's layout assumptions.
-            .onScrollTargetVisibilityChange(idType: String.self) { visibleIDs in
-                guard let firstVisibleID = visibleIDs.first else { return }
-                scrollPositionID = firstVisibleID
-            }
-            .onChange(of: scrollPositionID) { _, id in
-                guard let id else { return }
-                proxy.scrollTo(id, anchor: .center)
+            .onChange(of: galleries.isEmpty, initial: true) { _, isEmpty in
+                guard !isEmpty, let id = restorationID else { return }
+                proxy.scrollTo(id, anchor: .top)
+                restorationID = nil
             }
         }
     }
@@ -232,7 +244,9 @@ private struct GridList: View {
                 ListNoticeView(notice: notice)
                     .padding(.horizontal)
             }
-            LazyVGrid(columns: [GridItem(.adaptive(minimum: minCellWidth), spacing: 12)], spacing: 16) {
+            LazyVGrid(
+                columns: [GridItem(.adaptive(minimum: minCellWidth), spacing: 12, alignment: .top)], spacing: 16
+            ) {
                 ForEach(galleries) { gallery in
                     Button {
                         navigateAction?(gallery)
@@ -261,6 +275,6 @@ private struct GridList: View {
             .padding(.horizontal)
             .scrollEdgeEffectStyle(.soft, for: .top)
         }
-        .scrollPosition(id: $scrollPositionID)
+        .scrollPosition(id: $scrollPositionID, anchor: .top)
     }
 }

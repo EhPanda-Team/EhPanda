@@ -15,13 +15,21 @@ public struct GalleryLayoutPicker: View {
     }
 
     public var body: some View {
-        Picker(.RLocalizable.presentation, selection: Binding($setting).galleryListPresentation[scope]) {
-            Label(.RLocalizable.row, systemSymbol: .listBullet)
-                .tag(GalleryListDisplayMode.row)
-            Label(.RLocalizable.grid, systemSymbol: .squareGrid2x2)
-                .tag(GalleryListDisplayMode.grid)
+        Menu {
+            Picker(.RLocalizable.presentation, selection: Binding($setting).galleryListPresentation[scope]) {
+                Label(.RLocalizable.row, systemSymbol: .listBullet)
+                    .tag(GalleryListDisplayMode.row)
+                Label(.RLocalizable.grid, systemSymbol: .squareGrid2x2)
+                    .tag(GalleryListDisplayMode.grid)
+            }
+        } label: {
+            Label(
+                .RLocalizable.presentation,
+                systemSymbol: setting.galleryListPresentation[scope] == .row ? .listBullet : .squareGrid2x2
+            )
         }
-        .pickerStyle(.segmented)
         .accessibilityLabel(.RLocalizable.presentation)
+        .accessibilityValue(setting.galleryListPresentation[scope] == .row ? .RLocalizable.row : .RLocalizable.grid)
+        .accessibilityIdentifier("gallery-layout-\(scope.rawValue)")
     }
 }

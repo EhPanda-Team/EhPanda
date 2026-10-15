@@ -115,15 +115,19 @@ public struct GalleryThumbnailCell: View {
     /// accessibility sizes it moves into the text column, where the full column width lets its
     /// uncapped text wrap without covering the artwork.
     private var cover: some View {
-        KFImage(resolvedCoverURL)
-            .placeholder { Placeholder(style: .activity(ratio: Defaults.ImageSize.rowAspect)) }
-            .imageModifier(WebtoonModifier(
-                minAspect: Defaults.ImageSize.webtoonMinAspect,
-                idealAspect: Defaults.ImageSize.webtoonIdealAspect
-            ))
-            .fade(duration: 0.25)
-            .resizable()
-            .scaledToFit()
+        Color.clear
+            .aspectRatio(2.0 / 3.0, contentMode: .fit)
+            .overlay {
+                KFImage(resolvedCoverURL)
+                    .placeholder { Placeholder(style: .activity(ratio: Defaults.ImageSize.rowAspect)) }
+                    .imageModifier(WebtoonModifier(
+                        minAspect: Defaults.ImageSize.webtoonMinAspect,
+                        idealAspect: Defaults.ImageSize.webtoonIdealAspect
+                    ))
+                    .fade(duration: 0.25)
+                    .resizable()
+                    .scaledToFit()
+            }
             .overlay {
                 if !dynamicTypeSize.isAccessibilitySize {
                     CategoryLabel(
