@@ -4,10 +4,12 @@ import AppLaunchAutomationClient
 import AppModels
 import ComposableArchitecture
 import CookieClient
+import DetailFeature
 import DownloadClient
 import DownloadsFeature
 import Foundation
 import HapticsClient
+import SettingFeature
 import SwiftUI
 import Testing
 

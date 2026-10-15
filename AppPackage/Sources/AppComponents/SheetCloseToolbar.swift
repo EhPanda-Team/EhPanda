@@ -1,4 +1,4 @@
-import SwiftUI
+public import SwiftUI
 
 /// Keeps dismissal beside the sheet's title, including when other tools use a vertical bar.
 public struct SheetCloseToolbar: ToolbarContent {
