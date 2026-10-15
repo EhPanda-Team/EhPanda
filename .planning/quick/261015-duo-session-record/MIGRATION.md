@@ -1,6 +1,6 @@
 ---
 type: integration-record
-status: validated-awaiting-final-migration
+status: complete
 recorded: 2026-10-15
 ---
 
@@ -73,9 +73,23 @@ rebuildable caches and the intentionally relocated preview server PID/log).
 
 ## Migration completion
 
-Validation is complete. The remaining Git operations are fast-forwarding the target while preserving
-its unrelated staged/unstaged work, then removing the preserved old worktree/branch. The primary
-checkout is concurrently active; its branch must never move behind its index.
+Validation and local migration are complete. `feature/gsd-phase-17` was fast-forwarded normally
+from the integration base to `agent/iphone-duo-support`; both branches include the recovered
+session docs and validation corrections. The old worktree and `claude/iphone-duo-support-c0b23d`
+branch were removed after a fresh clean-status, history-bundle and checksum comparison. The new
+managed worktree remains attached to this chat. No push or PR was performed.
+
+The primary checkout’s five unrelated staged/unstaged entries were preserved byte-for-byte across
+the fast-forward. SHA-256 of the saved Git output remained:
+
+- `status --short`: `49617f01a18f4461c901385b4a32fc6ed45e1c9046fac7be9e60f91dae16be2e`
+- `diff --binary`: `49d81ae1fc9cc828038b147eb90e93a74521f5e67e6ae92a65417848d51fa425`
+- `diff --cached --binary`: `64ac509d0d6b822779294e9922193b5e21c3be28f73f42cea877932948137051`
+
+The archived `source-history.bundle` retains the original source tip and requires the shared
+ancestor `7aba2cdbd6ef29b2d2dcebdfdd6c3d2df634887b`, still present in this repository. Useful ignored
+evidence is retained separately from rebuildable caches. The stable preview returns HTTP 200 for
+its index and all nine proposal screenshots. Its document root is outside the removed worktree.
 
 ## Owner-approved validation scheduling
 

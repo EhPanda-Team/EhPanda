@@ -2,7 +2,7 @@
 type: retrospective-summary
 recorded: 2026-10-15
 implementation_commits: 21
-owner_decisions: 55
+decision_records: 55
 ---
 
 # Delivery and commit ledger
@@ -62,8 +62,8 @@ as historical snapshots with their obsolete statements clearly subordinate to th
 This is not a claim that all historical tests were rerun during documentation recovery.
 
 Tracked neutral screenshots make the approved visual choices and pending proposal review durable.
-Raw live-content screenshots, simulator logs and build products remain local. Migration must preserve
-the useful ignored evidence and the existing preview before removing the old checkout.
+Raw live-content screenshots, simulator logs and build products remain local. Migration preserved
+the useful ignored evidence and existing preview, then removed the old checkout and branch.
 
 ## Phase 17 integration follow-up
 
