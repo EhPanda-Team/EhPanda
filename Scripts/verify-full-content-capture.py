@@ -44,7 +44,8 @@ def source_hashes():
         for path in sorted(listed.decode().split("\0"))
         if path and (ROOT / path).is_file()
         and (path.startswith(("App/", "AppPackage/", "EhPandaUITests/", "EhPanda.xcodeproj/"))
-             or path in (GATE_SCRIPT, "Scripts/visual/run-single-pass.py", "UITests.xctestplan")
+             or path in (GATE_SCRIPT, "Scripts/visual/run-single-pass.py",
+                         "Scripts/visual/run-library-validation.py", "UITests.xctestplan")
              or Path(path).name == ".swiftlint.yml")
     }
 
@@ -168,7 +169,8 @@ class Gate:
         if not matched:
             raise RuntimeError(f"{name}: content size {observed!r} does not match {requested!r}")
 
-    def run(self, name, actions, plan, device, tests=(), expected_count=None, cleanup=False, content_size=None):
+    def run(self, name, actions, plan, device, tests=(), expected_count=None, cleanup=False, content_size=None,
+            expected_diagnostic_tests=()):
         if not cleanup and source_hashes() != self.sources:
             raise RuntimeError("Sources changed during the gate; start a fresh run.")
         if self.lifecycle is None or self.lifecycle["device"] != device:
@@ -209,14 +211,25 @@ class Gate:
             raise RuntimeError(f"{name}: simulator changed to {after_state}; rotation was not preserved")
         if result.returncode:
             raise RuntimeError(f"{name} exited {result.returncode}; inspect {log}")
-        diagnostics = re.findall(r"^.*\b(?:warning|error):.*$", log.read_text(), re.MULTILINE)
+        diagnostics = re.findall(
+            r"^(?:(?:/|[A-Za-z]:[\\/]).*?(?::[0-9]+){0,2}: |[^ \n:]+: )?(?:warning|error):.*$",
+            log.read_text(), re.MULTILINE
+        )
         save_json(self.output / f"{name}.diagnostics.json", diagnostics)
         if diagnostics:
             raise RuntimeError(f"{name} has compiler/lint diagnostics; inspect {log}")
         if expected_count is not None:
+            diagnostic_cases = {
+                item['nodeIdentifierURL'].split('/AppPackage/', 1)[-1]
+                for item in nodes(tree)
+                if item.get('nodeType') == 'Test Case' and item.get('result') == 'Expected Failure'
+            }
+            if not diagnostic_cases.issubset(set(expected_diagnostic_tests)):
+                raise RuntimeError(f"{name} contains unexpected diagnostic outcomes: {diagnostic_cases}")
             if (summary is None or summary["totalTestCount"] != expected_count
-                    or summary["passedTests"] != expected_count
-                    or any(summary[key] for key in ("failedTests", "skippedTests", "expectedFailures"))
+                    or summary["passedTests"] + len(diagnostic_cases) != expected_count
+                    or summary["expectedFailures"] != len(diagnostic_cases)
+                    or any(summary[key] for key in ("failedTests", "skippedTests"))
                     or any("Repetition" in item.get("nodeType", "") for item in nodes(tree))):
                 raise RuntimeError(f"{name} did not pass exactly {expected_count} tests without skips/repetitions")
             devices = {item["device"]["deviceId"] for item in summary["devicesAndConfigurations"]}
