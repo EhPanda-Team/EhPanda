@@ -25,7 +25,8 @@ It does not close Phase 17, establish full matrix parity, or accept appshot v1.
   The explicit `DEVELOPER_DIR` was used without changing the system selection.
 
 Evidence below is relative to `$HOME/Library/Caches/Appshot/handoff/extraction-20261015`.
-Original/frozen runs and the archived source worktree remain recovery evidence, not active sources.
+Original/frozen runs remain recovery evidence. The obsolete source worktrees are being retired only
+after complete history/document verification and a checked recovery backup; see the integration record.
 No remote was created, nothing was pushed, and compiler reports remain local.
 
 ## Executed checks
