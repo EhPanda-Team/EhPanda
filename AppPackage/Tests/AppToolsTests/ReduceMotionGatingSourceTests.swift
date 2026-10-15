@@ -66,6 +66,8 @@ struct ReduceMotionGatingSourceTests {
     /// The digit-roll transition D-29 keeps ungated.
     private static var numericTextToken: String { ".content" + "Transition(.numeric" + "Text" }
 
+    // Duo integration: Home owns its existing gate in HomeNavigationView; moving the reader controls
+    // adds one position-animation predicate in ControlPanel, consistent with D-29.
     // MARK: - Pinned inventory
 
     /// Files reading `\.accessibilityReduceMotion`, with how many views in each read it.
@@ -79,7 +81,7 @@ struct ReduceMotionGatingSourceTests {
         "DownloadsFeature/DownloadsView+Subviews.swift": 2,
         "DownloadsFeature/DownloadsView.swift": 1,
         "HomeFeature/GalleryCardCell.swift": 1,
-        "HomeFeature/HomeView.swift": 1,
+        "HomeFeature/HomeNavigationView.swift": 1,
         "QuickSearchFeature/QuickSearchView.swift": 1,
         "ReadingFeature/ReadingView.swift": 1,
         "ReadingFeature/Support/ControlPanel.swift": 1,
@@ -98,15 +100,15 @@ struct ReduceMotionGatingSourceTests {
         "DownloadsFeature/DownloadsView+Subviews.swift": 3,
         "DownloadsFeature/DownloadsView.swift": 1,
         "HomeFeature/GalleryCardCell.swift": 4,
-        "HomeFeature/HomeView.swift": 1,
+        "HomeFeature/HomeNavigationView.swift": 1,
         "QuickSearchFeature/QuickSearchView.swift": 1,
         "ReadingFeature/ReadingView.swift": 3,
-        "ReadingFeature/Support/ControlPanel.swift": 2,
+        "ReadingFeature/Support/ControlPanel.swift": 3,
         "SearchFeature/SearchRootView.swift": 1,
         "SettingFeature/GeneralSetting/GeneralSettingView.swift": 1,
         "SystemNotification/View+Toast.swift": 1
     ]
-    private static let expectedTernaryPredicateTotal = 24
+    private static let expectedTernaryPredicateTotal = 25
 
     /// The deep-linked comment scroll and the reader's page jump.
     private static let expectedWithAnimationGateTotal = 2
@@ -123,15 +125,15 @@ struct ReduceMotionGatingSourceTests {
         "DownloadsFeature/DownloadsView+Subviews.swift": 8,
         "DownloadsFeature/DownloadsView.swift": 2,
         "HomeFeature/GalleryCardCell.swift": 12,
-        "HomeFeature/HomeView.swift": 2,
+        "HomeFeature/HomeNavigationView.swift": 2,
         "QuickSearchFeature/QuickSearchView.swift": 2,
         "ReadingFeature/ReadingView.swift": 4,
-        "ReadingFeature/Support/ControlPanel.swift": 3,
+        "ReadingFeature/Support/ControlPanel.swift": 4,
         "SearchFeature/SearchRootView.swift": 2,
         "SettingFeature/GeneralSetting/GeneralSettingView.swift": 2,
         "SystemNotification/View+Toast.swift": 3
     ]
-    private static let expectedGateMentionTotal = 55
+    private static let expectedGateMentionTotal = 56
 
     /// `.contentTransition(.numericText…)` sites across the tree; every one stays ungated (D-29).
     private static let expectedNumericTextTotal = 11

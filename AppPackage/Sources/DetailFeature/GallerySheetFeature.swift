@@ -1,4 +1,5 @@
-import ComposableArchitecture
+public import ComposableArchitecture
+import ReadingFeature
 
 /// A modal gallery owns the detail root and every subsequent gallery drill-down.
 @Reducer

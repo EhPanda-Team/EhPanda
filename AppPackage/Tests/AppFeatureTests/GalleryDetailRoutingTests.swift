@@ -4,10 +4,14 @@ import AppLaunchAutomationClient
 import AppModels
 import ComposableArchitecture
 import CookieClient
+import DetailFeature
 import DownloadClient
+import FavoritesFeature
 import Foundation
 import HapticsClient
 import LogsClient
+import SearchFeature
+import SettingFeature
 import Sharing
 import Testing
 import UserDefaultsClient

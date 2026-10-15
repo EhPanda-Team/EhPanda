@@ -8,6 +8,7 @@ import DetailFeature
 import DownloadClient
 import DownloadsFeature
 import Foundation
+import HomeFeature
 import ReadingFeature
 import SettingFeature
 import Sharing

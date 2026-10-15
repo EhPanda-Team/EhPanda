@@ -2,6 +2,7 @@ import AnalyticsClient
 import AppComponents
 import AppModels
 import ComposableArchitecture
+import CookieClient
 import DetailFeature
 import DownloadClient
 import Foundation

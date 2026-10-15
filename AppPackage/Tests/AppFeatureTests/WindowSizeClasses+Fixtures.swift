@@ -1,4 +1,5 @@
 @testable import AppFeature
+import SwiftUI
 
 extension WindowSizeClasses {
     /// Regular in both dimensions, as an iPad's full-screen window is.

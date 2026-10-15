@@ -1,4 +1,4 @@
-import CoreGraphics
+public import CoreGraphics
 
 /// Device capabilities are separate from the current window's available space.
 public enum WindowDevice: Equatable, Sendable {

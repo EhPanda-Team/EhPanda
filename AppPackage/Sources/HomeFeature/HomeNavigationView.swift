@@ -1,8 +1,11 @@
 import AppComponents
+import AppModels
+import AppTools
 import ComposableArchitecture
 import DetailFeature
 import Resources
 import SFSafeSymbols
+import SFSafeSymbolsExt
 import SwiftUI
 
 /// Each folded pane owns its navigation bar, so the other pane's scroll cannot resize its title.

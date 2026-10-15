@@ -1,6 +1,6 @@
 import AppComponents
-import ComposableArchitecture
-import SwiftUI
+public import ComposableArchitecture
+public import SwiftUI
 
 public struct GallerySheetView: View {
     @Bindable private var store: StoreOf<GallerySheetFeature>
