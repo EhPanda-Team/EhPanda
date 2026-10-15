@@ -1,0 +1,796 @@
+{
+  "coverage" : {
+    "locale" : [
+      "de",
+      "en",
+      "ja",
+      "ko",
+      "zh-Hans",
+      "zh-Hant"
+    ],
+    "orientation" : [
+      "portrait"
+    ],
+    "textSize" : [
+      "large"
+    ]
+  },
+  "devices" : {
+    "ipad" : {
+      "deviceType" : "com.apple.CoreSimulator.SimDeviceType.iPad-Pro-11-inch-M5-12GB",
+      "fonts" : {
+        "large" : {
+          "de" : {
+            "body" : {
+              "lineHeight" : 20.287109375,
+              "name" : ".SFUI-Regular",
+              "pointSize" : 17
+            },
+            "callout" : {
+              "lineHeight" : 19.09375,
+              "name" : ".SFUI-Regular",
+              "pointSize" : 16
+            },
+            "caption1" : {
+              "lineHeight" : 14.3203125,
+              "name" : ".SFUI-Regular",
+              "pointSize" : 12
+            },
+            "caption2" : {
+              "lineHeight" : 13.126953125,
+              "name" : ".SFUI-Regular",
+              "pointSize" : 11
+            },
+            "footnote" : {
+              "lineHeight" : 15.513671875,
+              "name" : ".SFUI-Regular",
+              "pointSize" : 13
+            },
+            "headline" : {
+              "lineHeight" : 20.287109375,
+              "name" : ".SFUI-Semibold",
+              "pointSize" : 17
+            },
+            "largeTitle" : {
+              "lineHeight" : 40.57421875,
+              "name" : ".SFUI-Regular",
+              "pointSize" : 34
+            },
+            "subheadline" : {
+              "lineHeight" : 17.900390625,
+              "name" : ".SFUI-Regular",
+              "pointSize" : 15
+            },
+            "title1" : {
+              "lineHeight" : 33.4140625,
+              "name" : ".SFUI-Regular",
+              "pointSize" : 28
+            },
+            "title2" : {
+              "lineHeight" : 26.25390625,
+              "name" : ".SFUI-Regular",
+              "pointSize" : 22
+            },
+            "title3" : {
+              "lineHeight" : 23.8671875,
+              "name" : ".SFUI-Regular",
+              "pointSize" : 20
+            }
+          },
+          "en" : {
+            "body" : {
+              "lineHeight" : 20.287109375,
+              "name" : ".SFUI-Regular",
+              "pointSize" : 17
+            },
+            "callout" : {
+              "lineHeight" : 19.09375,
+              "name" : ".SFUI-Regular",
+              "pointSize" : 16
+            },
+            "caption1" : {
+              "lineHeight" : 14.3203125,
+              "name" : ".SFUI-Regular",
+              "pointSize" : 12
+            },
+            "caption2" : {
+              "lineHeight" : 13.126953125,
+              "name" : ".SFUI-Regular",
+              "pointSize" : 11
+            },
+            "footnote" : {
+              "lineHeight" : 15.513671875,
+              "name" : ".SFUI-Regular",
+              "pointSize" : 13
+            },
+            "headline" : {
+              "lineHeight" : 20.287109375,
+              "name" : ".SFUI-Semibold",
+              "pointSize" : 17
+            },
+            "largeTitle" : {
+              "lineHeight" : 40.57421875,
+              "name" : ".SFUI-Regular",
+              "pointSize" : 34
+            },
+            "subheadline" : {
+              "lineHeight" : 17.900390625,
+              "name" : ".SFUI-Regular",
+              "pointSize" : 15
+            },
+            "title1" : {
+              "lineHeight" : 33.4140625,
+              "name" : ".SFUI-Regular",
+              "pointSize" : 28
+            },
+            "title2" : {
+              "lineHeight" : 26.25390625,
+              "name" : ".SFUI-Regular",
+              "pointSize" : 22
+            },
+            "title3" : {
+              "lineHeight" : 23.8671875,
+              "name" : ".SFUI-Regular",
+              "pointSize" : 20
+            }
+          },
+          "ja" : {
+            "body" : {
+              "lineHeight" : 20.287109375,
+              "name" : ".SFUI-Regular",
+              "pointSize" : 17
+            },
+            "callout" : {
+              "lineHeight" : 19.09375,
+              "name" : ".SFUI-Regular",
+              "pointSize" : 16
+            },
+            "caption1" : {
+              "lineHeight" : 14.3203125,
+              "name" : ".SFUI-Regular",
+              "pointSize" : 12
+            },
+            "caption2" : {
+              "lineHeight" : 13.126953125,
+              "name" : ".SFUI-Regular",
+              "pointSize" : 11
+            },
+            "footnote" : {
+              "lineHeight" : 15.513671875,
+              "name" : ".SFUI-Regular",
+              "pointSize" : 13
+            },
+            "headline" : {
+              "lineHeight" : 20.287109375,
+              "name" : ".SFUI-Semibold",
+              "pointSize" : 17
+            },
+            "largeTitle" : {
+              "lineHeight" : 40.57421875,
+              "name" : ".SFUI-Regular",
+              "pointSize" : 34
+            },
+            "subheadline" : {
+              "lineHeight" : 17.900390625,
+              "name" : ".SFUI-Regular",
+              "pointSize" : 15
+            },
+            "title1" : {
+              "lineHeight" : 33.4140625,
+              "name" : ".SFUI-Regular",
+              "pointSize" : 28
+            },
+            "title2" : {
+              "lineHeight" : 26.25390625,
+              "name" : ".SFUI-Regular",
+              "pointSize" : 22
+            },
+            "title3" : {
+              "lineHeight" : 23.8671875,
+              "name" : ".SFUI-Regular",
+              "pointSize" : 20
+            }
+          },
+          "ko" : {
+            "body" : {
+              "lineHeight" : 20.287109375,
+              "name" : ".SFUI-Regular",
+              "pointSize" : 17
+            },
+            "callout" : {
+              "lineHeight" : 19.09375,
+              "name" : ".SFUI-Regular",
+              "pointSize" : 16
+            },
+            "caption1" : {
+              "lineHeight" : 14.3203125,
+              "name" : ".SFUI-Regular",
+              "pointSize" : 12
+            },
+            "caption2" : {
+              "lineHeight" : 13.126953125,
+              "name" : ".SFUI-Regular",
+              "pointSize" : 11
+            },
+            "footnote" : {
+              "lineHeight" : 15.513671875,
+              "name" : ".SFUI-Regular",
+              "pointSize" : 13
+            },
+            "headline" : {
+              "lineHeight" : 20.287109375,
+              "name" : ".SFUI-Semibold",
+              "pointSize" : 17
+            },
+            "largeTitle" : {
+              "lineHeight" : 40.57421875,
+              "name" : ".SFUI-Regular",
+              "pointSize" : 34
+            },
+            "subheadline" : {
+              "lineHeight" : 17.900390625,
+              "name" : ".SFUI-Regular",
+              "pointSize" : 15
+            },
+            "title1" : {
+              "lineHeight" : 33.4140625,
+              "name" : ".SFUI-Regular",
+              "pointSize" : 28
+            },
+            "title2" : {
+              "lineHeight" : 26.25390625,
+              "name" : ".SFUI-Regular",
+              "pointSize" : 22
+            },
+            "title3" : {
+              "lineHeight" : 23.8671875,
+              "name" : ".SFUI-Regular",
+              "pointSize" : 20
+            }
+          },
+          "zh-Hans" : {
+            "body" : {
+              "lineHeight" : 20.287109375,
+              "name" : ".SFUI-Regular",
+              "pointSize" : 17
+            },
+            "callout" : {
+              "lineHeight" : 19.09375,
+              "name" : ".SFUI-Regular",
+              "pointSize" : 16
+            },
+            "caption1" : {
+              "lineHeight" : 14.3203125,
+              "name" : ".SFUI-Regular",
+              "pointSize" : 12
+            },
+            "caption2" : {
+              "lineHeight" : 13.126953125,
+              "name" : ".SFUI-Regular",
+              "pointSize" : 11
+            },
+            "footnote" : {
+              "lineHeight" : 15.513671875,
+              "name" : ".SFUI-Regular",
+              "pointSize" : 13
+            },
+            "headline" : {
+              "lineHeight" : 20.287109375,
+              "name" : ".SFUI-Semibold",
+              "pointSize" : 17
+            },
+            "largeTitle" : {
+              "lineHeight" : 40.57421875,
+              "name" : ".SFUI-Regular",
+              "pointSize" : 34
+            },
+            "subheadline" : {
+              "lineHeight" : 17.900390625,
+              "name" : ".SFUI-Regular",
+              "pointSize" : 15
+            },
+            "title1" : {
+              "lineHeight" : 33.4140625,
+              "name" : ".SFUI-Regular",
+              "pointSize" : 28
+            },
+            "title2" : {
+              "lineHeight" : 26.25390625,
+              "name" : ".SFUI-Regular",
+              "pointSize" : 22
+            },
+            "title3" : {
+              "lineHeight" : 23.8671875,
+              "name" : ".SFUI-Regular",
+              "pointSize" : 20
+            }
+          },
+          "zh-Hant" : {
+            "body" : {
+              "lineHeight" : 20.287109375,
+              "name" : ".SFUI-Regular",
+              "pointSize" : 17
+            },
+            "callout" : {
+              "lineHeight" : 19.09375,
+              "name" : ".SFUI-Regular",
+              "pointSize" : 16
+            },
+            "caption1" : {
+              "lineHeight" : 14.3203125,
+              "name" : ".SFUI-Regular",
+              "pointSize" : 12
+            },
+            "caption2" : {
+              "lineHeight" : 13.126953125,
+              "name" : ".SFUI-Regular",
+              "pointSize" : 11
+            },
+            "footnote" : {
+              "lineHeight" : 15.513671875,
+              "name" : ".SFUI-Regular",
+              "pointSize" : 13
+            },
+            "headline" : {
+              "lineHeight" : 20.287109375,
+              "name" : ".SFUI-Semibold",
+              "pointSize" : 17
+            },
+            "largeTitle" : {
+              "lineHeight" : 40.57421875,
+              "name" : ".SFUI-Regular",
+              "pointSize" : 34
+            },
+            "subheadline" : {
+              "lineHeight" : 17.900390625,
+              "name" : ".SFUI-Regular",
+              "pointSize" : 15
+            },
+            "title1" : {
+              "lineHeight" : 33.4140625,
+              "name" : ".SFUI-Regular",
+              "pointSize" : 28
+            },
+            "title2" : {
+              "lineHeight" : 26.25390625,
+              "name" : ".SFUI-Regular",
+              "pointSize" : 22
+            },
+            "title3" : {
+              "lineHeight" : 23.8671875,
+              "name" : ".SFUI-Regular",
+              "pointSize" : 20
+            }
+          }
+        }
+      },
+      "model" : "iPad Pro 11-inch (M5)",
+      "modelIdentifier" : "iPad17,2",
+      "pixels" : [
+        1668,
+        2420
+      ],
+      "settings" : {
+        "fullScreenApps" : true,
+        "increaseContrast" : false,
+        "reduceMotion" : true
+      },
+      "traits" : {
+        "boldText" : false,
+        "displayGamut" : "P3",
+        "legibilityWeight" : "regular",
+        "nativeScale" : 2,
+        "points" : [
+          834,
+          1210
+        ],
+        "reduceMotion" : true,
+        "safeAreaInsets" : [
+          32,
+          0,
+          25,
+          0
+        ],
+        "scale" : 2,
+        "sizeClasses" : [
+          "regular",
+          "regular"
+        ]
+      }
+    },
+    "iphone" : {
+      "deviceType" : "com.apple.CoreSimulator.SimDeviceType.iPhone-Air",
+      "fonts" : {
+        "large" : {
+          "de" : {
+            "body" : {
+              "lineHeight" : 20.287109375,
+              "name" : ".SFUI-Regular",
+              "pointSize" : 17
+            },
+            "callout" : {
+              "lineHeight" : 19.09375,
+              "name" : ".SFUI-Regular",
+              "pointSize" : 16
+            },
+            "caption1" : {
+              "lineHeight" : 14.3203125,
+              "name" : ".SFUI-Regular",
+              "pointSize" : 12
+            },
+            "caption2" : {
+              "lineHeight" : 13.126953125,
+              "name" : ".SFUI-Regular",
+              "pointSize" : 11
+            },
+            "footnote" : {
+              "lineHeight" : 15.513671875,
+              "name" : ".SFUI-Regular",
+              "pointSize" : 13
+            },
+            "headline" : {
+              "lineHeight" : 20.287109375,
+              "name" : ".SFUI-Semibold",
+              "pointSize" : 17
+            },
+            "largeTitle" : {
+              "lineHeight" : 40.57421875,
+              "name" : ".SFUI-Regular",
+              "pointSize" : 34
+            },
+            "subheadline" : {
+              "lineHeight" : 17.900390625,
+              "name" : ".SFUI-Regular",
+              "pointSize" : 15
+            },
+            "title1" : {
+              "lineHeight" : 33.4140625,
+              "name" : ".SFUI-Regular",
+              "pointSize" : 28
+            },
+            "title2" : {
+              "lineHeight" : 26.25390625,
+              "name" : ".SFUI-Regular",
+              "pointSize" : 22
+            },
+            "title3" : {
+              "lineHeight" : 23.8671875,
+              "name" : ".SFUI-Regular",
+              "pointSize" : 20
+            }
+          },
+          "en" : {
+            "body" : {
+              "lineHeight" : 20.287109375,
+              "name" : ".SFUI-Regular",
+              "pointSize" : 17
+            },
+            "callout" : {
+              "lineHeight" : 19.09375,
+              "name" : ".SFUI-Regular",
+              "pointSize" : 16
+            },
+            "caption1" : {
+              "lineHeight" : 14.3203125,
+              "name" : ".SFUI-Regular",
+              "pointSize" : 12
+            },
+            "caption2" : {
+              "lineHeight" : 13.126953125,
+              "name" : ".SFUI-Regular",
+              "pointSize" : 11
+            },
+            "footnote" : {
+              "lineHeight" : 15.513671875,
+              "name" : ".SFUI-Regular",
+              "pointSize" : 13
+            },
+            "headline" : {
+              "lineHeight" : 20.287109375,
+              "name" : ".SFUI-Semibold",
+              "pointSize" : 17
+            },
+            "largeTitle" : {
+              "lineHeight" : 40.57421875,
+              "name" : ".SFUI-Regular",
+              "pointSize" : 34
+            },
+            "subheadline" : {
+              "lineHeight" : 17.900390625,
+              "name" : ".SFUI-Regular",
+              "pointSize" : 15
+            },
+            "title1" : {
+              "lineHeight" : 33.4140625,
+              "name" : ".SFUI-Regular",
+              "pointSize" : 28
+            },
+            "title2" : {
+              "lineHeight" : 26.25390625,
+              "name" : ".SFUI-Regular",
+              "pointSize" : 22
+            },
+            "title3" : {
+              "lineHeight" : 23.8671875,
+              "name" : ".SFUI-Regular",
+              "pointSize" : 20
+            }
+          },
+          "ja" : {
+            "body" : {
+              "lineHeight" : 20.287109375,
+              "name" : ".SFUI-Regular",
+              "pointSize" : 17
+            },
+            "callout" : {
+              "lineHeight" : 19.09375,
+              "name" : ".SFUI-Regular",
+              "pointSize" : 16
+            },
+            "caption1" : {
+              "lineHeight" : 14.3203125,
+              "name" : ".SFUI-Regular",
+              "pointSize" : 12
+            },
+            "caption2" : {
+              "lineHeight" : 13.126953125,
+              "name" : ".SFUI-Regular",
+              "pointSize" : 11
+            },
+            "footnote" : {
+              "lineHeight" : 15.513671875,
+              "name" : ".SFUI-Regular",
+              "pointSize" : 13
+            },
+            "headline" : {
+              "lineHeight" : 20.287109375,
+              "name" : ".SFUI-Semibold",
+              "pointSize" : 17
+            },
+            "largeTitle" : {
+              "lineHeight" : 40.57421875,
+              "name" : ".SFUI-Regular",
+              "pointSize" : 34
+            },
+            "subheadline" : {
+              "lineHeight" : 17.900390625,
+              "name" : ".SFUI-Regular",
+              "pointSize" : 15
+            },
+            "title1" : {
+              "lineHeight" : 33.4140625,
+              "name" : ".SFUI-Regular",
+              "pointSize" : 28
+            },
+            "title2" : {
+              "lineHeight" : 26.25390625,
+              "name" : ".SFUI-Regular",
+              "pointSize" : 22
+            },
+            "title3" : {
+              "lineHeight" : 23.8671875,
+              "name" : ".SFUI-Regular",
+              "pointSize" : 20
+            }
+          },
+          "ko" : {
+            "body" : {
+              "lineHeight" : 20.287109375,
+              "name" : ".SFUI-Regular",
+              "pointSize" : 17
+            },
+            "callout" : {
+              "lineHeight" : 19.09375,
+              "name" : ".SFUI-Regular",
+              "pointSize" : 16
+            },
+            "caption1" : {
+              "lineHeight" : 14.3203125,
+              "name" : ".SFUI-Regular",
+              "pointSize" : 12
+            },
+            "caption2" : {
+              "lineHeight" : 13.126953125,
+              "name" : ".SFUI-Regular",
+              "pointSize" : 11
+            },
+            "footnote" : {
+              "lineHeight" : 15.513671875,
+              "name" : ".SFUI-Regular",
+              "pointSize" : 13
+            },
+            "headline" : {
+              "lineHeight" : 20.287109375,
+              "name" : ".SFUI-Semibold",
+              "pointSize" : 17
+            },
+            "largeTitle" : {
+              "lineHeight" : 40.57421875,
+              "name" : ".SFUI-Regular",
+              "pointSize" : 34
+            },
+            "subheadline" : {
+              "lineHeight" : 17.900390625,
+              "name" : ".SFUI-Regular",
+              "pointSize" : 15
+            },
+            "title1" : {
+              "lineHeight" : 33.4140625,
+              "name" : ".SFUI-Regular",
+              "pointSize" : 28
+            },
+            "title2" : {
+              "lineHeight" : 26.25390625,
+              "name" : ".SFUI-Regular",
+              "pointSize" : 22
+            },
+            "title3" : {
+              "lineHeight" : 23.8671875,
+              "name" : ".SFUI-Regular",
+              "pointSize" : 20
+            }
+          },
+          "zh-Hans" : {
+            "body" : {
+              "lineHeight" : 20.287109375,
+              "name" : ".SFUI-Regular",
+              "pointSize" : 17
+            },
+            "callout" : {
+              "lineHeight" : 19.09375,
+              "name" : ".SFUI-Regular",
+              "pointSize" : 16
+            },
+            "caption1" : {
+              "lineHeight" : 14.3203125,
+              "name" : ".SFUI-Regular",
+              "pointSize" : 12
+            },
+            "caption2" : {
+              "lineHeight" : 13.126953125,
+              "name" : ".SFUI-Regular",
+              "pointSize" : 11
+            },
+            "footnote" : {
+              "lineHeight" : 15.513671875,
+              "name" : ".SFUI-Regular",
+              "pointSize" : 13
+            },
+            "headline" : {
+              "lineHeight" : 20.287109375,
+              "name" : ".SFUI-Semibold",
+              "pointSize" : 17
+            },
+            "largeTitle" : {
+              "lineHeight" : 40.57421875,
+              "name" : ".SFUI-Regular",
+              "pointSize" : 34
+            },
+            "subheadline" : {
+              "lineHeight" : 17.900390625,
+              "name" : ".SFUI-Regular",
+              "pointSize" : 15
+            },
+            "title1" : {
+              "lineHeight" : 33.4140625,
+              "name" : ".SFUI-Regular",
+              "pointSize" : 28
+            },
+            "title2" : {
+              "lineHeight" : 26.25390625,
+              "name" : ".SFUI-Regular",
+              "pointSize" : 22
+            },
+            "title3" : {
+              "lineHeight" : 23.8671875,
+              "name" : ".SFUI-Regular",
+              "pointSize" : 20
+            }
+          },
+          "zh-Hant" : {
+            "body" : {
+              "lineHeight" : 20.287109375,
+              "name" : ".SFUI-Regular",
+              "pointSize" : 17
+            },
+            "callout" : {
+              "lineHeight" : 19.09375,
+              "name" : ".SFUI-Regular",
+              "pointSize" : 16
+            },
+            "caption1" : {
+              "lineHeight" : 14.3203125,
+              "name" : ".SFUI-Regular",
+              "pointSize" : 12
+            },
+            "caption2" : {
+              "lineHeight" : 13.126953125,
+              "name" : ".SFUI-Regular",
+              "pointSize" : 11
+            },
+            "footnote" : {
+              "lineHeight" : 15.513671875,
+              "name" : ".SFUI-Regular",
+              "pointSize" : 13
+            },
+            "headline" : {
+              "lineHeight" : 20.287109375,
+              "name" : ".SFUI-Semibold",
+              "pointSize" : 17
+            },
+            "largeTitle" : {
+              "lineHeight" : 40.57421875,
+              "name" : ".SFUI-Regular",
+              "pointSize" : 34
+            },
+            "subheadline" : {
+              "lineHeight" : 17.900390625,
+              "name" : ".SFUI-Regular",
+              "pointSize" : 15
+            },
+            "title1" : {
+              "lineHeight" : 33.4140625,
+              "name" : ".SFUI-Regular",
+              "pointSize" : 28
+            },
+            "title2" : {
+              "lineHeight" : 26.25390625,
+              "name" : ".SFUI-Regular",
+              "pointSize" : 22
+            },
+            "title3" : {
+              "lineHeight" : 23.8671875,
+              "name" : ".SFUI-Regular",
+              "pointSize" : 20
+            }
+          }
+        }
+      },
+      "model" : "iPhone Air",
+      "modelIdentifier" : "iPhone18,4",
+      "pixels" : [
+        1260,
+        2736
+      ],
+      "settings" : {
+        "fullScreenApps" : false,
+        "increaseContrast" : false,
+        "reduceMotion" : true
+      },
+      "traits" : {
+        "boldText" : false,
+        "displayGamut" : "P3",
+        "legibilityWeight" : "regular",
+        "nativeScale" : 3,
+        "points" : [
+          420,
+          912
+        ],
+        "reduceMotion" : true,
+        "safeAreaInsets" : [
+          68,
+          0,
+          34,
+          0
+        ],
+        "scale" : 3,
+        "sizeClasses" : [
+          "compact",
+          "regular"
+        ]
+      }
+    }
+  },
+  "kind" : "appshot-pin",
+  "runtime" : {
+    "buildVersion" : "24A434",
+    "identifier" : "com.apple.CoreSimulator.SimRuntime.iOS-27-0",
+    "version" : "27.0"
+  },
+  "schemaVersion" : 1,
+  "toolchain" : {
+    "sdkVersion" : "27.1",
+    "swift" : "Apple Swift version 6.4 (swiftlang-6.4.0.34.1 clang-2100.3.34.1)\nTarget: arm64-apple-macosx27.0.0",
+    "xcode" : "Xcode 27.1\nBuild version 27A9275"
+  }
+}

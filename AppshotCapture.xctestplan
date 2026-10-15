@@ -1,0 +1,26 @@
+{
+  "configurations": [
+    {
+      "id": "17500000-0000-4000-8000-000000000001",
+      "name": "Capture",
+      "options": {}
+    }
+  ],
+  "defaultOptions": {
+    "testTimeoutsEnabled": true
+  },
+  "testTargets": [
+    {
+      "target": {
+        "containerPath": "container:EhPanda.xcodeproj",
+        "identifier": "A13080000000000000000006",
+        "name": "EhPandaUITests"
+      },
+      "selectedTests": [
+        "AppshotCaptureUITests/testCapture()"
+      ],
+      "parallelizable": false
+    }
+  ],
+  "version": 1
+}

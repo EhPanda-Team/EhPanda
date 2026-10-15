@@ -1,5 +1,8 @@
 import ComposableArchitecture
 public import SwiftUI
+#if DEBUG
+import Appshot
+#endif
 
 // MARK: RootView
 public struct RootView: View {
@@ -25,6 +28,10 @@ private extension View {
             background(alignment: .topLeading) {
                 CaptureDiagnosticsAnchor(store: store, capture: capture)
                     .frame(width: 1, height: 1)
+            }
+        } else if let scene = AppshotCapture.launchedScene {
+            appshotState(for: scene) {
+                ScreenState(screen: "unknown", failures: ["No capture content was installed"])
             }
         } else {
             self
