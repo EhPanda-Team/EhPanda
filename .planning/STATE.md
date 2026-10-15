@@ -5,9 +5,9 @@ current_phase: 17
 current_phase_name: Screenshot Automation, Visual Regression & OS 27 Modernization
 status: executing
 stopped_at: 17-06 revision re-shot (2026-10-13), 16/16 captured; waiting for the owner's visual review; agent prepares both gallery sets
-last_updated: "2026-10-15T06:46:16.904Z"
-last_activity: 2026-10-13
-state_head: 677421a8e4fa4b103bec183997ace5ac64b5a02d
+last_updated: "2026-10-15T16:39:27Z"
+last_activity: 2026-10-16
+state_head: 56f906c76675441de3b79e5fa372c87e5a8bff65
 progress:
   total_phases: 17
   completed_phases: 10
@@ -16,7 +16,7 @@ progress:
   percent: 59
 milestone_name: )
 source_head: af00e0da93
-last_activity_desc: "17-06 revision (2026-10-13): capture changes d688e8fe4b..9456b3a32d, Detail strip drawingGroup removed (099222846e), sheet screens compared within the sheet (af00e0da93); third re-shoot 16/16 captured"
+last_activity_desc: "Completed quick task 261015-tx1: shared Library categories and independent row/grid layouts; Phase 17 gate unchanged"
 ---
 
 # Project State
@@ -27,7 +27,7 @@ last_activity_desc: "17-06 revision (2026-10-13): capture changes d688e8fe4b..94
 
 The complete Duo/landscape session decisions, superseded choices, implementation ledger, retained verification and still-unselected wide-screen proposals are in [261015-duo-session-record/CONTEXT.md](quick/261015-duo-session-record/CONTEXT.md). This retrospective record does not complete Phase 17. Branch migration is tracked separately there.
 
-The follow-up [Library design discussion](quick/261015-duo-session-record/LIBRARY-DIRECTION.md) expands the scope to app-wide information architecture: the owner proposes a management-focused Library tab combining Favorites and Downloads. Internal Library hierarchy remains open. The owner also specifies separate row/grid choices for six lists, with a regular grid replacing waterfall. No phase plan or implementation is approved by this note.
+The follow-up [Library design](quick/261015-duo-session-record/LIBRARY-DIRECTION.md) is implemented by quick task [261015-tx1](quick/261015-tx1-implement-library-with-shared-favorites-/261015-tx1-SUMMARY.md): shared category navigation with separate Favorites/Downloads groups, independently remembered row/grid choices and a regular grid replacing waterfall. Current validation records 959 FeatureTests identities, 6/6 UI tests on each of iPhone/iPad/Duo, native resize/fold checks and bounded accessibility evidence. Search A/B remains unselected; Phase 17 status is unchanged.
 
 Current design workspace: `agent/app-design`; see [workspace rebuild](quick/261015-duo-session-record/WORKSPACE-REBUILD.md).
 
@@ -43,7 +43,7 @@ See: .planning/PROJECT.md (updated 2026-09-23)
 Phase: 17 of 17 (Screenshot Automation, Visual Regression & OS 27 Modernization)
 Plan: 6 of 24 complete (17-05, wave 6; dependency order, not numeric ID order); 17-06 implemented; the owner's 2026-10-13 review returned changes, revision in progress
 Status: executing (17-01/17-24/17-02/17-03/17-04/17-05 complete; 17-06 implemented and verified, owner review returned changes on 2026-10-13, revision in progress; the agent prepares galleries and fixtures for both content sets)
-Last activity: 2026-10-13
+Last activity: 2026-10-16 — Completed quick task 261015-tx1: Library and per-list row/grid layouts.
 
 **Phase 17 current gate:** 6/24 plans complete. 17-01 passed 32/32 capture coordinates and 66/66 tests; verified public v2 fixtures are in `.capture/regression`. 17-24 measures all four real device/orientation combinations and validates the immutable tracked rendering pin. Both final measure and validate commands pass four geometry tests plus six rotation/restore tests, with 28 Python contract tests and zero compiler/lint diagnostics or runtime warnings. Pin SHA-256: `ffd7689fcaf9a312202fdfbf9787f0198711fd477d1e72a2a013851df85a394a`; evidence is `.capture/environment-measurement/` and `.capture/environment-pin-check/`. Implementation ends at 3e69dc69d3; summary/review committed in fb83037387. Four reserved staged entries remain unchanged. Devices restore portrait/original Large and their original boot states. Continue inline with 17-06; shared CAP-17-01/02/03/04/06 remain incomplete until all declaring plans finish. No baseline promotion.
 
@@ -1004,6 +1004,7 @@ None yet.
 | 260930-o3m | Align Live Text with Apple's localized names (de Live-Text, ja テキスト認識表示, zh-Hant 原況文字; en/ko/zh-Hans already matched); audit found no other string naming it; builds clean, 1,057 feature passes plus 11 expected failures, UI tests 51 + 2 skips on iPhone Air and 53 on a fresh iPad mini 6; 24 localized reader toolbar and Large Content Viewer captures untruncated | 2026-09-30 | 63eae621 | [260930-o3m-align-live-text-localized-names-with-app](./quick/260930-o3m-align-live-text-localized-names-with-app/) |
 | 261013-ja0 | Live Text translation overlay accepted and integrated; translate symbol uses monochrome off and accent palette with repeating pulse on; 336 tests and 16 revert-isolation checks passed; JA0-D1 first-request stall remains deferred | 2026-10-14 | ea62005c37 | [261013-ja0-live-text-translation-overlay](./quick/261013-ja0-live-text-translation-overlay/261013-ja0-SUMMARY.md) |
 | 14 | Translate the single-pass proposal into English; verify all 11 GSD documents from the appshot integration task, preserving commands, paths, commit IDs and evidence. | 2026-10-15 | 677421a8e4 | [Proposal](./phases/17-localized-screenshot-capture-harness/17-SINGLE-PASS-PROPOSAL.md) |
+| 261015-tx1 | Implement shared Library categories and independent row/grid layouts | 2026-10-16 | 56f906c766 | [261015-tx1-implement-library-with-shared-favorites-](./quick/261015-tx1-implement-library-with-shared-favorites-/) |
 
 ### Roadmap Evolution
 

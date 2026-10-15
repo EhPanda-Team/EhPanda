@@ -116,15 +116,15 @@ Commit references are indexed in SUMMARY.md. “Proposed” is not owner approva
 
 | ID | Decision / provenance | Disposition |
 |---|---|---|
-| D56 | Owner: discussion is now at the app-design level, no longer limited to iPhone Duo. | Apply the next design discussion across the app and window sizes; no new production implementation yet. |
-| D57 | Owner proposes merging Favorites and Downloads into one Library tab because both emphasize management slightly more than browsing and share that purpose. | Current owner-proposed direction for the next design iteration. Shared entry versus a unified gallery collection remains unresolved. See LIBRARY-DIRECTION.md. |
+| D56 | Owner: discussion is now at the app-design level, no longer limited to iPhone Duo. | App-wide scope; subsequently implemented by D63–D64 and quick task 261015-tx1. |
+| D57 | Owner proposes merging Favorites and Downloads into one Library tab because both emphasize management slightly more than browsing and share that purpose. | Direction adopted; D64 subsequently selects shared category navigation with separate groups. See LIBRARY-DIRECTION.md. |
 | D58 | Owner identifies the previous B alternatives as more management-oriented. | Reconsider the prior A recommendations around Library's management purpose; this is not blanket approval of every B detail. Previous screenshots remain comparison evidence. |
 
 ## Per-list row / grid display
 
 | ID | Decision / provenance | Disposition |
 |---|---|---|
-| D59 | Owner proposes retiring the fixed global detail/thumbnail setting in favor of a row/grid switch on each list. | Adopt per-list display selection for the redesign; the global setting is to be replaced, not retained as the active authority. Production implementation and migration remain pending. |
+| D59 | Owner proposes retiring the fixed global detail/thumbnail setting in favor of a row/grid switch on each list. | Adopt per-list display selection for the redesign; the global setting is to be replaced, not retained as the active authority. Implementation and versioned migration completed in quick task 261015-tx1. |
 | D60 | Owner explicitly names Frontpage, Popular, Toplists, Favorites, Search and Downloads as independently remembered lists. | Six separate remembered choices. Favorites and Downloads retain separate preferences even when reached through Library. Initial defaults, finer category/folder scopes and unlisted lists are not decided here. |
 | D61 | Owner clarification: the modes are row/grid, and the current waterfall effect becomes the proposal's grid layout. | This changes the layout itself: regular aligned grid based on the proposal replaces masonry/waterfall. Do not merely rename detail/thumbnail or keep the old waterfall renderer as grid. Exact cell metrics and image-fit treatment remain design details. |
 
@@ -134,12 +134,27 @@ Commit references are indexed in SUMMARY.md. “Proposed” is not owner approva
 |---|---|---|
 | D62 | Owner requests a new worktree and branch from the latest feature/gsd-phase-17, moving this session's workspace there, then deleting the current worktree and branch. | New active worktree is app-design on agent/app-design, based on e6efecb69f. Carry forward the Library/row-grid record; preserve the target's rewritten SHA references and existing implementation. Exact completion/evidence in WORKSPACE-REBUILD.md. |
 
+## Authorized Library implementation
+
+| ID | Decision / provenance | Disposition |
+|---|---|---|
+| D63 | Owner invokes `$gsd-quick` to plan and implement the decided app-wide design direction. | Quick task `261015-tx1` owns Library and independent row/grid implementation and validation. Search A/B redesign is still not selected. |
+| D64 | Owner selects shared category navigation with separate Favorites / Downloads groups. | Library replaces the separate tabs; category/folder navigation is shared, while source identity, list preferences and management operations remain separate. |
+
+## Implementation follow-through
+
+Quick task `261015-tx1` records the implementation plan and engineering decisions in
+`../261015-tx1-implement-library-with-shared-favorites-/IMPLEMENTATION-DECISIONS.md`.
+These do not turn unspecified details into owner decisions. Current native validation is tracked
+with that task; the previous proposal screenshots remain historical comparison evidence.
+
 ## Outstanding decisions / limits
 
-- Favorites/Downloads now feed the combined Library discussion (D56–D58); internal hierarchy and
-  integration depth remain open. Search A/B also remains unselected. Keep the preview open.
+- Library structure is selected and implementation authorized (D63–D64). Search A/B remains
+  unselected. Keep the previous proposal preview open.
 - Exact dual-page indicator normalization was observed; no owner request to change it was recorded.
-- Physical device, full VoiceOver, interactive iPad resizing, live RTL-language UI and native-search
-  continuity are not established by the retained simulator evidence.
+- The earlier Duo/reader evidence did not establish physical-device, full VoiceOver or RTL coverage.
+  Quick task 261015-tx1 adds current Library interactive iPad resizing, native-search continuity,
+  selected VoiceOver flows and Duo transition evidence; its VALIDATION.md defines the exact limits.
 - Migration completion and post-integration validation are separately tracked; historical passes
   must not be reported as testing a rewritten integrated tree.

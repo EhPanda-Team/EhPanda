@@ -8,15 +8,16 @@ Apply `.scrollEdgeEffectStyle(.soft, for: .top)` directly to each app-owned page
 |---|---|---|---|
 | Home | `HomeFeature/HomeSectionsView.swift` | single ScrollView normally; independent left/right ScrollViews, each in its own navigation host, while the hinge is partially open | Each vertical ScrollView carries the modifier directly. |
 | Home list sheets | `HomeFeature/HomeSheetView.swift` | Frontpage, Popular, Toplists, Watched and History NavigationStacks in HomePaneSheet-owned UIHostingControllers across the fold | Explicit modifier on the presentation content root; each child retains its own page policy. |
-| Frontpage | `HomeFeature/Frontpage/FrontpageView.swift` | GalleryList wrapper; detail and thumbnail hosts inherit | GalleryList.swift shared list/thumbnail content root; Frontpage inherits. |
-| Popular | `HomeFeature/Popular/PopularView.swift` | GalleryList wrapper; both modes inherit | GalleryList.swift shared list/thumbnail content root; Popular inherits. |
+| Frontpage | `HomeFeature/Frontpage/FrontpageView.swift` | GalleryList wrapper; row and grid hosts inherit | GalleryList.swift shared row/grid content root; Frontpage inherits. |
+| Popular | `HomeFeature/Popular/PopularView.swift` | GalleryList wrapper; both modes inherit | GalleryList.swift shared row/grid content root; Popular inherits. |
 | Watched | `HomeFeature/Watched/WatchedView.swift` | GalleryList plus logged-out/empty branch | GalleryList.swift logged-in host; Watched NotLoginView has its own modifier. |
 | Toplists | `HomeFeature/Toplists/ToplistsView.swift` | GalleryList; each ranking selection | GalleryList.swift shared ranking content root; Toplists inherits. |
 | History | `HomeFeature/History/HistoryView.swift` | GalleryList; populated and empty | GalleryList.swift shared history content root; History inherits. |
 | Search root | `SearchFeature/SearchRootView.swift` | main ScrollView; suggestions and history | SearchRootView.swift NavigationStack suggestions ScrollView; direct host. |
 | Search results | `SearchFeature/SearchView.swift` | GalleryList; query and focused search | GalleryList.swift shared results content root; SearchView inherits. |
 | Favorites | `FavoritesFeature/FavoritesView.swift` | GalleryList and login-required branch; iPhone/iPad container | GalleryList.swift logged-in host; Favorites NotLoginView has its own modifier. |
-| Downloads | `DownloadsFeature/DownloadsView.swift` | List and empty branch | DownloadsView.swift downloadsList inside GalleryNavigationContainer; direct host. |
+| Library | `AppFeature/View/Library/LibraryView.swift` | NavigationSplitView sidebar List, detail and empty roots | Direct soft/top policy on each root; each presented source retains its own policy. |
+| Downloads | `DownloadsFeature/DownloadsView.swift` | Row List, regular grid ScrollView and empty/loading branches | DownloadsView.swift downloadsList inside GalleryNavigationContainer; direct host. |
 | Download inspector | `DownloadsFeature/DownloadsView+Subviews.swift` | DownloadInspectorView List and operation/error states | DownloadsView+Subviews.swift DownloadInspectorView List/Group root; direct host. |
 | Gallery detail | `DetailFeature/DetailView.swift` | main ScrollView; push and iPad modal | DetailView.swift main content ScrollView; modifier is inside the caller-owned navigation/presentation root. |
 | Gallery sheet | `DetailFeature/GallerySheetView.swift` | shared modal NavigationStack, hosted by HomePaneSheet for fold-aware Home presentations and SwiftUI sheets for global routing | Explicit modifier on the presentation NavigationStack; Detail and pushed destinations retain their own page policies. |
@@ -24,7 +25,7 @@ Apply `.scrollEdgeEffectStyle(.soft, for: .top)` directly to each app-owned page
 | Comments | `DetailFeature/Comments/CommentsView.swift` | List inside ScrollViewReader | CommentsView.swift page List/ScrollViewReader root; direct host. |
 | Post/edit comment | `DetailFeature/Components/PostCommentView.swift` | TextEditor native scroll host in sheet | PostCommentView.swift TextEditor scroll host; direct host. |
 | Gallery information | `DetailFeature/GalleryInfos/GalleryInfosView.swift` | List | GalleryInfosView.swift page List root; direct host. |
-| Detail search | `DetailFeature/DetailSearch/DetailSearchView.swift` | GalleryList; both modes | GalleryList.swift shared detail-search list/thumbnail root; inherits. |
+| Detail search | `DetailFeature/DetailSearch/DetailSearchView.swift` | GalleryList; both modes | GalleryList.swift shared detail-search row/grid root; inherits. |
 | Archives | `DetailFeature/Archives/ArchivesView.swift` | both ScrollView layouts: fitting card layout and AX scroll layout | ArchivesView.swift pinned and scrolling ScrollView layouts; both direct hosts. |
 | Torrents | `DetailFeature/Torrents/TorrentsView.swift` | List in sheet NavigationStack | TorrentsView.swift List and ActivityView presentation roots; direct hosts. |
 | Tag detail | `DetailFeature/Components/TagDetailView.swift` | vertical ScrollView; horizontal image strip inherits | TagDetailView.swift vertical ScrollView inside NavigationStack; direct host. |
@@ -57,7 +58,7 @@ Apply `.scrollEdgeEffectStyle(.soft, for: .top)` directly to each app-owned page
 
 ## Discovery closure
 
-Source discovery reconciled runtime navigation and presentations with the inventory, excluding previews and row-only components. Every inventoried app-owned scrolling page has the native soft/top modifier directly or through an identified content ancestor. GalleryList covers both detail and thumbnail List hosts. Settings' eleven enum-driven destinations and GalleryPath's five destinations are covered independently of their navigation containers. Site Settings pickers use menu/inline styles, with segmented controls where specified; no additional pushed picker pages exist. No runtime NavigationLink or popover was found. Native web authentication views configure their owned WKWebView scroll views. System share sheets and General Settings' file importer remain system-owned; their internal scrolling is not inspected or modified. This establishes source coverage only; visual effect, accessibility and interaction verification remain separate acceptance checks.
+Source discovery reconciled runtime navigation and presentations with the inventory, excluding previews and row-only components. Every inventoried app-owned scrolling page has the native soft/top modifier directly or through an identified content ancestor. GalleryList covers both row List and regular grid ScrollView hosts. Settings' eleven enum-driven destinations and GalleryPath's five destinations are covered independently of their navigation containers. Site Settings pickers use menu/inline styles, with segmented controls where specified; no additional pushed picker pages exist. Library category NavigationLinks use the inventoried detail root; per-gallery confirmation popovers do not introduce another app-owned scrolling page. Native web authentication views configure their owned WKWebView scroll views. System share sheets and General Settings' file importer remain system-owned; their internal scrolling is not inspected or modified. This establishes source coverage only; visual effect, accessibility and interaction verification remain separate acceptance checks.
 
 The App shell only hosts RootView and the inventoried tabs. The Share extension's handoff controller creates no content UI or scrolling host, so it adds no page to this inventory.
 

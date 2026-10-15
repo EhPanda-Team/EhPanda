@@ -1,8 +1,9 @@
 ---
 type: retrospective-summary
 recorded: 2026-10-15
-implementation_commits: 21
-decision_records: 62
+historical_duo_implementation_commits: 21
+library_implementation_commits: 5
+decision_records: 64
 ---
 
 # Delivery and commit ledger
@@ -12,8 +13,10 @@ decision_records: 62
 This session extends measured/window-based routing with Duo Home panes, native opposite-side
 presentations, independent title behavior, persistent reader controls and configurable orientation
 automation. Later owner choices extend landscape panes to fully open Duo and eligible iPad,
-with distinct separators and movable reader controls. The app-wide Library follow-up now proposes
-combining Favorites/Downloads around management; its internal design and Search remain unresolved.
+with distinct separators and movable reader controls. The app-wide Library follow-up combines
+Favorites/Downloads around management, with the owner-selected shared category navigation and
+separate groups. Quick task `261015-tx1` implements independently remembered row/grid choices and
+a regular grid. Search A/B remains unresolved; old prototypes remain comparison material.
 
 The first four commits were inherited from the supplied handoff; the remaining seventeen were
 created during this session. Implementation references below point to the replayed commits. MIGRATION.md retains the explicit
@@ -79,12 +82,13 @@ isolation authorization and exact migration state are in [Migration](MIGRATION.m
 
 D56–D58 expand the discussion beyond Duo and propose merging Favorites/Downloads into Library.
 [Library direction](LIBRARY-DIRECTION.md) distinguishes the owner's rationale from the assistant's
-suggested hierarchy and the unanswered shared-entry versus unified-collection choice. The earlier
+engineering choices and the D64-selected shared navigation with separate groups. The earlier
 A/B screenshots are comparison material, not an approved merged-Library design.
 
 D59–D61 replace the global detail/thumbnail direction with independent row/grid choices for six
 named lists. Grid is the proposal's regular aligned grid, replacing waterfall. This is an accepted
-design clarification, with rendering, persistence defaults and migration still to be implemented.
+design clarification, now implemented with rendering, independent persistence and versioned migration.
+Engineering defaults and validation are recorded in quick task `261015-tx1`.
 
 ## Workspace rebuild
 
@@ -92,3 +96,24 @@ D62 rebuilds this session on `agent/app-design` from the latest `feature/gsd-pha
 `e6efecb69f`. The Library/per-list design record was carried forward as `3c3a12ad36`; earlier Duo
 implementation and rewritten SHA references come directly from the new base. See
 [Workspace rebuild](WORKSPACE-REBUILD.md) for preservation and cleanup evidence.
+
+
+## Library implementation and current evidence
+
+| Commit | Responsibility |
+|---|---|
+| `e43ab6bd06` | Shared Library navigation, source routing and independently persisted row/grid scopes |
+| `2b361c1046` | Native layout menu, aligned grid and offline native tracer |
+| `f9058a06eb` | Downloads row/grid management with stable per-gallery confirmation ownership |
+| `5536aec8ea` | Native category links, surviving scroll anchor, visible-row restoration and pagination |
+| `56f906c766` | Current UI regression suites and exact-identity validation runner |
+
+Current evidence: 959 FeatureTests identities (949 pass and 10 named existing expected diagnostics),
+6/6 UI tests on each of iPhone, iPad and Duo, zero build warnings/errors, strict lint clean in 53
+changed Swift files. Native checks include live text sizes, iPad window resizing with query/status,
+selected VoiceOver actions and Duo folds/rotation with a retained query/status sheet. All dedicated
+devices were restored and normal launch checked. See the [quick summary](../261015-tx1-implement-library-with-shared-favorites-/261015-tx1-SUMMARY.md)
+and [validation limits and screenshots](../261015-tx1-implement-library-with-shared-favorites-/VALIDATION.md).
+
+This completes the selected Library implementation, not Phase 17 or a whole-app accessibility audit.
+The historical proposal preview remains running at `http://127.0.0.1:55920/index.html`.
