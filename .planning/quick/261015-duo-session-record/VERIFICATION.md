@@ -1,13 +1,14 @@
 ---
 type: retrospective-verification
 recorded: 2026-10-15
-status: historical-evidence-recovered
+status: historical-and-integrated-evidence
 implementation_head: 79a59892e0648457ae88710a552448ffa6a45aa8
 ---
 
 # Verification record and limits
 
-These are results retained from the implementation session, not new runs on the integration branch.
+The table below retains results from the implementation session. Fresh post-cherry-pick builds,
+unit tests and four iPad/Duo UI checks are recorded separately in [Migration](MIGRATION.md#fresh-integrated-validation-2026-10-15).
 Reports below name commands, logs, failure investigations and captures. Original source hashes are
 provenance; migration remaps implementation references but does not turn old runs into new evidence.
 
@@ -65,12 +66,14 @@ These screenshots use neutral test fixtures. Live gallery screenshots are not pu
   keyboard/focus continuity or standard/AX1/AX3/AX5 behavior for the proposed screens.
 - Known issues reported by earlier FeatureTests were pre-existing diagnostics, not new passes hidden
   by retries. Where an older log was overwritten, the historical report explicitly says so.
-- Post-cherry-pick build/tests must be recorded separately in MIGRATION.md.
+- Fresh integration coverage and the corrected inventory failures are recorded separately in MIGRATION.md;
+  they do not establish every broader historical/manual scenario on the new branch.
 
 ## Repeatable validation rules
 
-Use dedicated app simulators, check active xcodebuild processes first, and run one test command at
-a time. Build with generic iOS Simulator destination; use explicit simulator IDs for execution.
+Use dedicated app simulators and run this session’s test commands sequentially. D55 explicitly
+permits other sessions to test concurrently on their own dedicated simulators; never operate those
+devices or processes. Build with generic iOS Simulator destination; use explicit simulator IDs for execution.
 Pass `-parallel-testing-enabled NO` and `-collect-test-diagnostics never`; final validation uses a
 single attempt. Do not weaken page, geometry or uniqueness assertions to fit a test driver.
 Restore normal launches and verify no `EHPANDA_` test flags before returning devices to the owner.

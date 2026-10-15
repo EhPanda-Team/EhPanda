@@ -2,7 +2,7 @@
 type: retrospective-summary
 recorded: 2026-10-15
 implementation_commits: 21
-owner_decisions: 54
+owner_decisions: 55
 ---
 
 # Delivery and commit ledger
@@ -64,3 +64,10 @@ This is not a claim that all historical tests were rerun during documentation re
 Tracked neutral screenshots make the approved visual choices and pending proposal review durable.
 Raw live-content screenshots, simulator logs and build products remain local. Migration must preserve
 the useful ignored evidence and the existing preview before removing the old checkout.
+
+## Phase 17 integration follow-up
+
+`0af542eab` aligns 17 files with Phase 17's explicit/public-import requirements and synchronizes
+one Reduce Motion source-inventory test with the approved Home extraction and slider animation.
+No production behavior was added in this follow-up. Fresh build/lint/test evidence, D55's simulator
+isolation authorization and exact migration state are in [Migration](MIGRATION.md).

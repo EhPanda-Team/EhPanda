@@ -1,6 +1,6 @@
 ---
 type: integration-record
-status: validating
+status: validated-awaiting-final-migration
 recorded: 2026-10-15
 ---
 
@@ -63,7 +63,7 @@ at the unchanged `http://127.0.0.1:55920/index.html`; page and screenshot HTTP 2
 
 The FeatureTests and UITests generic arm64 simulator builds passed without compiler/lint warnings
 (`.build/integration/build-feature-10.log`, 16.006 s; `build-ui.log`, 10.265 s). Strict SwiftLint
-passed all 79 changed Swift files. The compatibility edits after replay are import-only in 17 files,
+passed all 80 changed Swift files after the inventory correction below. Compatibility edits are import-only in 17 files,
 required by Phase 17 InternalImportsByDefault/MemberImportVisibility. Earlier compiler failures
 are retained in the numbered build logs; no rule or diagnostic was suppressed.
 
@@ -71,9 +71,95 @@ The preserved original history bundle `source-history.bundle` passed `git bundle
 A checksum-based dry-run comparison found no missing/changed archived evidence (excluding
 rebuildable caches and the intentionally relocated preview server PID/log).
 
-## Remaining steps
+## Migration completion
 
-Execute simulator regressions when the existing test slot is free or parallel execution is approved;
-then record results, fast-forward the target while preserving
-its unrelated staged/unstaged work, and remove the old worktree/branch only after preservation.
-The primary checkout is concurrently active; its branch must never move behind its index.
+Validation is complete. The remaining Git operations are fast-forwarding the target while preserving
+its unrelated staged/unstaged work, then removing the preserved old worktree/branch. The primary
+checkout is concurrently active; its branch must never move behind its index.
+
+## Owner-approved validation scheduling
+
+After the clean builds, the owner explicitly permitted parallel validation on independent dedicated
+simulators (D55). This session runs its own test commands sequentially. The idle single-slot waiter
+was stopped before launching any test, and FeatureTests then started on the dedicated probe iPhone.
+No other session’s device or process was changed.
+
+## Reduce Motion inventory correction
+
+The first full integrated FeatureTests execution exposed three failures in the source inventory,
+not a new animation defect: Home’s existing gate moved from HomeView to HomeNavigationView, and
+the approved slider-side transition adds a position-animation gate to ControlPanel. Under Phase 16
+D-29 this motion must honor Reduce Motion. The pinned test inventory now retains 17 environment
+reads, records 25 ternary predicates and 56 mentions, and keeps 2 withAnimation gates and all 11
+ungated numericText sites unchanged. Exact two-way equality assertions remain intact. No production
+behavior or assertion strength was changed to address the inventory drift.
+
+## Fresh integrated validation (2026-10-15)
+
+Validated implementation: `0af542eabff355bb611e6aedd8cd0a23691790dd`, including the import and
+source-inventory corrections. Documentation-only changes after this commit do not change the build.
+All paths below are relative to the new worktree. Tests use Xcode 27.1 Release Candidate, explicit
+EhPanda simulator IDs, `-parallel-testing-enabled NO` and `-collect-test-diagnostics never`.
+
+| Check | Result | Local evidence |
+|---|---|---|
+| FeatureTests build-for-testing | Passed, no compiler/lint warnings; final inventory rebuild 7.593 s | `.build/integration/build-feature-10.log`, `build-inventory-final.log` |
+| UITests build-for-testing | Passed, no compiler/lint warnings, 10.265 s | `.build/integration/build-ui.log` |
+| Strict SwiftLint, all 80 integrated Swift files | Passed, exit 0; no diagnostics | `.build/integration/swiftlint-final.log` |
+| Full FeatureTests excluding VisualSnapshotTests | 1,328 tests: 1,315 passed, 3 inventory failures, 10 expected failures, 0 skipped | `.build/integration/feature-tests.xcresult`, `feature-tests-summary.json` |
+| Entire AppToolsTests target after inventory correction | 15/15 passed; 0 failures, expected failures or skips | `.build/integration/inventory-final.xcresult`, `inventory-final-summary.json` |
+| iPad LandscapePaneUITests, iOS 27.0 | 2/2 passed, 0 failures/skips, 63.847 s command duration | `.build/integration/ipad-ui.xcresult`, `ipad-ui-summary.json` |
+| Duo LandscapePaneUITests, iOS 27.1 | 2/2 passed, 0 failures/skips, 67.432 s command duration | `.build/integration/duo-ui.xcresult`, `duo-ui-summary.json` |
+| Diff whitespace check | Passed | `git diff --check` |
+
+Both UI runs execute `testHomeAndNestedSheetsUseOppositeHalves` and
+`testReaderControlsMoveAndKeepTheirSideAfterRotation`. The latter checks the opposite move button,
+slider geometry, side retention after rotation and device-specific lower Close placement/count.
+These focused integration checks do not replace the broader historical matrices in VERIFICATION.md.
+
+The first full FeatureTests run failed only the three inventory checks described above. After their
+correction the complete affected target passed. The other targets were not unnecessarily rerun;
+this record does **not** claim a second all-green full-plan execution. The 10 expected failures are
+pre-existing test diagnostics and are not presented as ordinary passes. VisualSnapshotTests were
+excluded deliberately; no baseline was promoted. SDK runtime-build parsing messages appeared in
+Xcode's test logs; they did not produce compiler warnings or test failures.
+
+The repository's `Gate.single_pass_run` helper created local copies of the FeatureTests/UITests
+manifests with repetition policy removed. The original manifests were not changed. All four
+result trees have zero `Repetition` nodes. Manifest preparation evidence is under
+`.build/integration/single-pass/`. An initial unsupported `-maximum-test-iterations 1` invocation
+exited 64 before tests ran; `feature-tests.log` retains that preflight error. Successful commands
+use the single-pass manifest copies instead.
+
+Representative execution commands (the local manifests and bundles are retained):
+
+```sh
+xcodebuild test-without-building \
+  -xctestrun .build/integration-dd/Build/Products/phase17-FeatureTests.xctestrun \
+  -destination 'platform=iOS Simulator,id=6CE1E40A-7090-484E-8C49-B7BCBDC5E684' \
+  -derivedDataPath .build/integration-dd -skip-testing:VisualSnapshotTests \
+  -parallel-testing-enabled NO -collect-test-diagnostics never \
+  -resultBundlePath .build/integration/feature-tests.xcresult
+# AppTools rerun uses -only-testing:AppToolsTests and inventory-final.xcresult.
+
+xcodebuild test-without-building \
+  -xctestrun .build/integration-dd/Build/Products/phase17-ipad-ui.xctestrun \
+  -destination 'platform=iOS Simulator,id=114E0258-098C-4C26-B2FF-0B5CECEA4810' \
+  -derivedDataPath .build/integration-dd \
+  -only-testing:EhPandaUITests/LandscapePaneUITests \
+  -parallel-testing-enabled NO -collect-test-diagnostics never \
+  -resultBundlePath .build/integration/ipad-ui.xcresult
+
+python3 Scripts/run-duo-ui-tests.py \
+  --device 05422A43-8575-4BA6-A791-FAC2D5D3BA19 \
+  --xctestrun .build/integration-dd/Build/Products/phase17-UITests.xctestrun -- \
+  -derivedDataPath .build/integration-dd -collect-test-diagnostics never \
+  -only-testing:EhPandaUITests/LandscapePaneUITests \
+  -resultBundlePath .build/integration/duo-ui.xcresult
+```
+
+After testing, each of the three dedicated simulators received a normal app launch. Process
+inspection found no `EHPANDA_` fixture flags. Duo was restored to hinge 0° / portrait and all three
+simulators returned to their recorded entry `Shutdown` state. No Reduce Motion setting was changed
+by this integration validation. See `.build/integration/simulator-cleanup.json`. No other session's
+simulator or process was operated.
