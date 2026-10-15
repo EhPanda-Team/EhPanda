@@ -3,7 +3,8 @@ type: retrospective-session-context
 recorded: 2026-10-15
 session_dates: [2026-10-14, 2026-10-15]
 status: implemented-with-unselected-proposals
-source_branch: claude/iphone-duo-support-c0b23d
+original_source_branch: claude/iphone-duo-support-c0b23d
+working_branch: agent/iphone-duo-support
 implementation_head: c274f0eac7fa47566a61985bc8866ae70faf0ff9
 ---
 
