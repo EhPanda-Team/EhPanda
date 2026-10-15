@@ -4,30 +4,59 @@ direct commands inheriting retries describe the original problem, not the correc
 entry points. The ordinary UITests plan still retains its regression retry policy. Subsequent
 appshot-specific consumer wiring is documented in [17-APPSHOT-INTEGRATION.md](17-APPSHOT-INTEGRATION.md).
 
-# Phase 17 單次執行流程提案
+# Phase 17 single-pass execution proposal
 
-本提案已獲本次執行授權。使用者說明這是選用 agent 的建議，不能據此阻止後續 agent 依新證據調整設計。執行結果另記於 `$HOME/Library/Caches/Appshot/handoff/STATUS.md`。
+The user authorized this proposal for the current task and clarified that selecting an agent's
+recommendation does not prevent future agents from revising the design based on new evidence.
+Execution results are also recorded in `$HOME/Library/Caches/Appshot/handoff/STATUS.md`.
 
-本次已獲執行授權，實作與驗證已完成，commit `cea354a45e`；原 test plan 保持不變。本提案只處理 Task A 列出的直接 UITests 命令，不移入 capture-cli 的變更。
+The authorized implementation and verification are complete in commit `cea354a45e`; the original test
+plan is unchanged. This proposal covers only the direct UITests commands listed in Task A and does
+not bring in changes from capture-cli.
 
-## 現況
+## Original state
 
-`Scripts/verify-full-content-capture.py` 的 `Gate.single_pass_run(plan)` 會從指定 DerivedData 的 `Build/Products` 找到唯一對應 test plan 的原始 xctestrun，移除所有巢狀 `TestRepetitionPolicy`，記錄移除內容，另存 `phase17-<plan>.xctestrun`。原始 xctestrun 與 UITests.xctestplan 保留。
+`Gate.single_pass_run(plan)` in `Scripts/verify-full-content-capture.py` locates the unique original
+xctestrun for the selected test plan under the specified DerivedData directory's `Build/Products`.
+It removes every nested `TestRepetitionPolicy`, records the removed entries and saves a separate
+`phase17-<plan>.xctestrun`. The original xctestrun and UITests.xctestplan are preserved.
 
-`Gate.run` 以 `test-without-building`、該副本與明確 test selector 執行，關閉平行測試，並檢查預期測試數、全部通過、沒有 skip/expected failure/Repetition 節點及指定裝置。`Scripts/visual/capture-native.py` 已使用這條路徑。
+`Gate.run` executes `test-without-building` with that copy and an explicit test selector, with
+parallel testing disabled. It checks the expected test count, that every test passed, that there
+are no skips, expected failures or Repetition nodes, and that the tests ran on the specified device.
+`Scripts/visual/capture-native.py` already uses this path.
 
-直接 `xcodebuild test -testPlan UITests` 仍繼承 test plan 的 retryOnFailure，最多三次。移除誤用的命令列旗標已修正語法，但尚未使這些直接命令成為單次視覺證據。
+Direct `xcodebuild test -testPlan UITests` commands still inherit the test plan's retryOnFailure
+policy, allowing up to three attempts. Removing the misused command-line flags corrected the syntax
+but did not make these direct commands produce evidence from a single visual test execution.
 
-## 建議範圍
+## Proposed scope
 
-1. 將 17-VALIDATION、17-RESEARCH 與 17-05、17-08、17-09、17-10、17-11 的受影響 UITests 命令，接到既有單次準備與驗證流程。保留每項原有 selector、裝置與實際預期測試數；先以建置／列舉證據確認數量，不自行猜測。
-2. 沿用指定 DerivedData 的 build-for-testing 產物及 Gate，而不是另寫一份移除重試政策或結果判定邏輯。若現有入口不能表達某個 selector，僅擴充必要的參數入口。
-3. 先用 generic simulator 目的地建置，再逐台、逐次執行 test-without-building；開始前等外來測試自行結束，保留完整命令、退出碼、日誌與 xcresult。
-4. 對單次副本與結果驗證增加有意義的檢查：原始計畫未變，副本沒有 repetition policy，重複／跳過／零測試／數量錯誤均拒絕；實際選取的測試各執行一次。
-5. 只在 Phase 17 分支另做獨立變更；先檢查其他工作新增的內容並避開未相關修改。這不包含更改 UITests.xctestplan 的一般回歸政策，也不包含執行完整視覺矩陣。
+1. Route the affected UITests commands in 17-VALIDATION, 17-RESEARCH and plans 17-05, 17-08, 17-09,
+   17-10 and 17-11 through the existing single-pass preparation and verification flow. Preserve each
+   original selector, device and actual expected test count. Establish counts from build and test
+   enumeration evidence rather than guessing.
+2. Reuse the build-for-testing products in the specified DerivedData directory and the existing Gate
+   logic for removing retry policies and evaluating results. If the entry point cannot express a
+   selector, extend only the necessary argument handling.
+3. Build for a generic simulator destination, then execute test-without-building serially, one device
+   and one invocation at a time. Wait for tests from other work to finish on their own before starting.
+   Retain the complete commands, exit codes, logs and xcresult bundles.
+4. Add meaningful checks for the single-pass copy and result validation: the original plan is
+   unchanged, the copy has no repetition policy, and repeated, skipped, zero-count or wrong-count
+   results are rejected. Each selected test must execute exactly once.
+5. Make a separate change on the Phase 17 branch. Inspect additions from other work first and preserve
+   unrelated changes. This scope excludes changes to UITests.xctestplan's ordinary regression policy
+   and execution of the full visual matrix.
 
-替代決定：維持直接命令作為一般回歸檢查，在所有受影響位置明示不能作為單次視覺驗收證據；嚴格視覺驗收繼續由既有 native runner 負責。
+Alternative: retain the direct commands as ordinary regression checks and explicitly state at every
+affected location that they cannot serve as single-pass visual acceptance evidence. The existing
+native runner would continue to handle strict visual acceptance.
 
-## 執行結果
+## Execution results
 
-196 個 Python 測試通過；iPhone、iPad 各執行一個指定測試，結果名稱、數量與列舉完全一致，沒有跳過或重複。原 test plan 保留。完整證據見 `$HOME/Library/Caches/Appshot/handoff/phase17-single-pass-verification.json`。各 producer 任務的完整場景驗收仍需另行執行。
+All 196 Python tests passed. One selected test ran on each of iPhone and iPad; the result names and
+counts matched the enumerated tests exactly, with no skips or repetitions. The original test plan
+was preserved. Complete evidence is in
+`$HOME/Library/Caches/Appshot/handoff/phase17-single-pass-verification.json`.
+Full scene acceptance for each producer task still requires separate execution.
