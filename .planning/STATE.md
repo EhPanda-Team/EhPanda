@@ -21,6 +21,10 @@ last_activity_desc: "17-06 revision (2026-10-13): capture changes faa607186..09f
 
 # Project State
 
+## Duo session record — 2026-10-15
+
+The complete Duo/landscape session decisions, superseded choices, implementation ledger, retained verification and still-unselected wide-screen proposals are in [261015-duo-session-record/CONTEXT.md](quick/261015-duo-session-record/CONTEXT.md). This retrospective record does not complete Phase 17. Branch migration is tracked separately there.
+
 ## Project Reference
 
 See: .planning/PROJECT.md (updated 2026-09-23)
