@@ -44,7 +44,9 @@ struct LibraryNavigationTests {
     @MainActor
     @Test
     func rootSelectionCanShowNavigationWithoutStartingChildWork() async {
-        let store = TestStore(initialState: AppReducer.State(), reducer: AppReducer.init)
+        var initialState = AppReducer.State()
+        initialState.libraryState.selection = .favorites(-1)
+        let store = TestStore(initialState: initialState, reducer: AppReducer.init)
 
         await store.send(.library(.select(nil))) {
             $0.libraryState.selection = nil
@@ -58,8 +60,8 @@ struct LibraryNavigationTests {
     @Test
     func changingLibraryGroupsRetainsPathsAndQueriesButUpdatesCanonicalFilters() async {
         var initialState = AppReducer.State()
-        initialState.favoritesState.path.append(.gallery(.detail(.init(gallery: .preview))))
-        initialState.downloadsState.path.append(.gallery(.detail(.init(gallery: .preview))))
+        initialState.favoritesState.path.append(.detail(.init(gallery: .preview)))
+        initialState.downloadsState.path.append(.detail(.init(gallery: .preview)))
         initialState.favoritesState.keyword = "favorite query"
         initialState.downloadsState.keyword = "download query"
         initialState.favoritesState.visibleGalleryID = "favorite anchor"

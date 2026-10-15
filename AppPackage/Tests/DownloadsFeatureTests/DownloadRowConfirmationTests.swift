@@ -214,6 +214,7 @@ struct DownloadRowConfirmationTests: DownloadFeatureTestCase {
         let store = TestStore(initialState: initialState, reducer: DownloadsReducer.init) {
             $0.analyticsClient = .noop
             $0.downloadClient.moveDownload = { gid, folder in moved.withValue({ $0.append(gid + "/" + folder) }) }
+            $0.downloadClient.fetchFolders = { ["Reading"] }
         }
         store.exhaustivity = .off
         await store.send(.rows(.element(id: "902", action: .moveButtonTapped(destinations: ["Reading"]))))

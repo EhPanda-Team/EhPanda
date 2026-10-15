@@ -198,9 +198,12 @@ struct DownloadAutomationTests: DownloadFeatureTestCase {
         await store.receive(\.tabBar.setTabBarItemType, .library) {
             $0.tabBarState.tabBarItemType = .library
         }
+        await store.receive(\.downloads.fetchFolders)
         await store.receive(\.library.select, .downloads(.all)) {
             $0.libraryState.selection = .downloads(.all)
         }
+        await store.receive(\.downloads.binding)
+        await store.receive(\.library.syncFromSources)
         // Landing on the tab is what starts it now; the load itself is asserted in
         // `DownloadsPresentationLifecycleTests`.
         await store.receive(\.downloads.onPresented) {

@@ -97,17 +97,9 @@ public struct GalleryList: View {
         .refreshable { fetchAction?() }
         .scrollEdgeEffectStyle(.soft, for: .top)
         .onChange(of: galleries.map(\.id), initial: true) { previousIDs, ids in
-            guard let current = scrollPosition.wrappedValue else { return }
-            guard !ids.contains(current) else { return }
-            let remaining = Set(ids)
-            if let previousIndex = previousIDs.firstIndex(of: current) {
-                scrollPosition.wrappedValue = previousIDs.enumerated()
-                    .filter({ remaining.contains($0.element) })
-                    .min(by: { abs($0.offset - previousIndex) < abs($1.offset - previousIndex) })?
-                    .element ?? ids.first
-            } else {
-                scrollPosition.wrappedValue = ids.first
-            }
+            scrollPosition.wrappedValue = GalleryScrollAnchor.retaining(
+                scrollPosition.wrappedValue, previousIDs: previousIDs, currentIDs: ids
+            )
         }
     }
 }
@@ -176,6 +168,7 @@ private struct DetailList: View {
                     }
                     .id(gallery.id)
                     .foregroundStyle(.primary)
+                    .accessibilityIdentifier("gallery-list-item-\(gallery.id)")
                     .accessibilityFocused(galleryFocus, equals: gallery.id)
                     // Fetch-more fires when the trailing row actually becomes visible in the scroll
                     // container. Reducer loading guards make repeated visibility callbacks harmless.
@@ -199,7 +192,8 @@ private struct DetailList: View {
             }
             .onChange(of: galleries.isEmpty, initial: true) { _, isEmpty in
                 guard !isEmpty, let id = restorationID else { return }
-                proxy.scrollTo(id, anchor: .top)
+                // Let the native list reveal the complete row inside its navigation insets.
+                proxy.scrollTo(id)
                 restorationID = nil
             }
         }
@@ -264,8 +258,9 @@ private struct GridList: View {
                         .multilineTextAlignment(.leading)
                     }
                     .buttonStyle(.borderless)
+                    .accessibilityIdentifier("gallery-list-item-\(gallery.id)")
                     .accessibilityFocused(galleryFocus, equals: gallery.id)
-                    .onScrollVisibilityChange { isVisible in
+                    .onScrollVisibilityChange(threshold: 0.1) { isVisible in
                         guard isVisible, gallery == galleries.last else { return }
                         fetchMoreAction?()
                     }

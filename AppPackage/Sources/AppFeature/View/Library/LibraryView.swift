@@ -27,32 +27,26 @@ struct LibraryView: View {
             List(selection: $store.selection.sending(\.select)) {
                 Section {
                     ForEach(-1..<10, id: \.self) { index in
-                        Button {
-                            store.send(.select(.favorites(index)))
-                        } label: {
+                        NavigationLink(value: LibraryGroup.favorites(index)) {
                             Label(favoritesStore.user.getFavoriteCategory(index: index), systemSymbol: .heart)
                         }
-                        .tag(LibraryGroup.favorites(index))
+                        .accessibilityIdentifier("library-favorites-\(index)")
                     }
                 } header: {
                     Text(.RLocalizable.favorites)
                 }
 
                 Section {
-                    Button {
-                        store.send(.select(.downloads(.all)))
-                    } label: {
+                    NavigationLink(value: LibraryGroup.downloads(.all)) {
                         Label(.RLocalizable.downloads, systemSymbol: .arrowDownCircle)
                     }
-                    .tag(LibraryGroup.downloads(.all))
+                    .accessibilityIdentifier("library-downloads-all")
 
                     ForEach(downloadsStore.folders, id: \.self) { folder in
-                        Button {
-                            store.send(.select(.downloads(.folder(folder))))
-                        } label: {
+                        NavigationLink(value: LibraryGroup.downloads(.folder(folder))) {
                             Label(folder, systemSymbol: .folder)
                         }
-                        .tag(LibraryGroup.downloads(.folder(folder)))
+                        .accessibilityIdentifier("library-downloads-\(folder)")
                     }
 
                     Button {
@@ -64,6 +58,7 @@ struct LibraryView: View {
                     Text(.RLocalizable.downloads)
                 }
             }
+            .accessibilityIdentifier("library-categories")
             .navigationTitle(.RLocalizable.library)
             .toolbarTitleDisplayMode(.inlineLarge)
             .scrollEdgeEffectStyle(.soft, for: .top)

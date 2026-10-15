@@ -31,12 +31,12 @@ import Testing
 /// updated.
 @Suite
 struct DownloadsSwipeActionSourceTests {
-    private static let viewPath = "AppPackage/Sources/DownloadsFeature/DownloadsView.swift"
+    private static let viewPath = "AppPackage/Sources/DownloadsFeature/DownloadGalleryItem.swift"
     private static let repositoryRootMarkers = ["App", "AppPackage"]
 
     private static let trailingSwipeAnchor = ".swipeActions(edge: .trailing"
     private static let leadingSwipeAnchor = ".swipeActions(edge: .leading"
-    private static let contextMenuAnchor = "func downloadContextMenu("
+    private static let contextMenuAnchor = "var contextMenu:"
 
     private static let openingBrace: Character = "{"
     private static let closingBrace: Character = "}"

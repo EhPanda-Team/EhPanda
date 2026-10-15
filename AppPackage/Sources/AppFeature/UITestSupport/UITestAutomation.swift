@@ -7,6 +7,7 @@ import ClipboardClient
 import ComposableArchitecture
 import CookieClient
 import DeviceClient
+import DFClient
 import DownloadClient
 import Foundation
 import HapticsClient
@@ -115,6 +116,8 @@ public enum UITestAutomation {
         {
             prepareDependencies {
                 if configuration.shouldStubNetwork && !configuration.shouldUseVisualTestHost {
+                    // Loading settings must not replace the offline image protocol with the live bypass protocol.
+                    $0.dfClient = .noop
                     $0.libraryClient = .live(configuringImageSessions: { session in
                         session.protocolClasses = [UITestStubURLProtocol.self] + (session.protocolClasses ?? [])
                     })
