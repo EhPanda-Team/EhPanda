@@ -1,0 +1,119 @@
+[
+  {
+    "file": null,
+    "source": ".build/library/final-ui-20261016/ipad/selected-tests-attachments/F57AB44E-50B0-471E-A371-CE74E593DB43.png",
+    "sha256": "9e129206827a6d37bf7b2ba5c693cf2424e73eeb18483a629740fdf44865f0e4",
+    "historical_image_identifiers": {
+      "file": "ipad-download-confirmation.png"
+    },
+    "image_status": "removed_from_repository_history"
+  },
+  {
+    "file": null,
+    "source": ".build/library/final-ui-20261016/ipad/selected-tests-attachments/6C99538F-4FA2-4C66-8957-8581F8EF4876.png",
+    "sha256": "e7f686760edf3524fea96af99600941e568ff703eaa9642a965c2ef03f2d8df7",
+    "historical_image_identifiers": {
+      "file": "ipad-downloads-grid.png"
+    },
+    "image_status": "removed_from_repository_history"
+  },
+  {
+    "file": null,
+    "source": ".build/library/final-ui-20261016/ipad/selected-tests-attachments/D62134A0-BBB7-4794-BB20-5DA8556CA102.png",
+    "sha256": "dfbc071c600edcd1bd4eb89a3341fcc3249d764469400d3b78004dcbdbf98f2f",
+    "historical_image_identifiers": {
+      "file": "ipad-favorites-grid.png"
+    },
+    "image_status": "removed_from_repository_history"
+  },
+  {
+    "file": null,
+    "source": ".build/library/final-ui-20261016/iphone/selected-tests-attachments/787762F6-E3C1-402C-9EC6-57B9EECA71C5.png",
+    "sha256": "d42c91ea171373031cf935aecd392abef27d915d03763bc16d20dcd6ce49a51d",
+    "historical_image_identifiers": {
+      "file": "iphone-download-confirmation.png"
+    },
+    "image_status": "removed_from_repository_history"
+  },
+  {
+    "file": null,
+    "source": ".build/library/final-ui-20261016/iphone/selected-tests-attachments/3007D551-AF9C-4E24-9919-7441269A2375.png",
+    "sha256": "6bb1df21f5bcf71d26567f0461c00f2ff8eb04d0f2212a02bb95c4d13d8643bb",
+    "historical_image_identifiers": {
+      "file": "iphone-downloads-grid.png"
+    },
+    "image_status": "removed_from_repository_history"
+  },
+  {
+    "file": null,
+    "source": ".build/library/final-ui-20261016/iphone/selected-tests-attachments/5681DF7E-2558-4873-9DD4-A9A899069FC6.png",
+    "sha256": "acce40eac0a626f1d5e6dbd56b5d0370ca1302f0bc3b9404d524b020e3dbe69c",
+    "historical_image_identifiers": {
+      "file": "iphone-favorites-grid.png"
+    },
+    "image_status": "removed_from_repository_history"
+  },
+  {
+    "file": null,
+    "source": ".build/library/native-review/ipad/window-narrow.png",
+    "sha256": "67af49f0ff2de480c5bd8eb01916f75f05d5a36f31a781ae3ae4f75f4b8760bf",
+    "historical_image_identifiers": {
+      "file": "ipad-window-narrow.png"
+    },
+    "image_status": "removed_from_repository_history"
+  },
+  {
+    "file": null,
+    "source": ".build/library/native-review/ipad/window-restored.png",
+    "sha256": "eea3171ad6dc05bfff792cecb9719eb9b412266a8ff08350b0fbefa3cdb61e5b",
+    "historical_image_identifiers": {
+      "file": "ipad-window-restored.png"
+    },
+    "image_status": "removed_from_repository_history"
+  },
+  {
+    "file": null,
+    "source": ".build/library/native-review/ipad/status-narrow.png",
+    "sha256": "afe57fb937f8a7143e3fba9874e74a95e06552948f069575f3282500e20028dc",
+    "historical_image_identifiers": {
+      "file": "ipad-status-narrow.png"
+    },
+    "image_status": "removed_from_repository_history"
+  },
+  {
+    "file": null,
+    "source": ".build/library/native-review/duo/query-1-open.png",
+    "sha256": "1775016f30b45668cbb91d5083f2d462b31bf0b711e91963a0b2f40ba6a0d2a5",
+    "historical_image_identifiers": {
+      "file": "duo-query-open.png"
+    },
+    "image_status": "removed_from_repository_history"
+  },
+  {
+    "file": null,
+    "source": ".build/library/native-review/duo/query-2-half.png",
+    "sha256": "43ac25c6f69d6432e27c394054c4cd55bef1c72e843c16a928c3ef2e1a930d14",
+    "historical_image_identifiers": {
+      "file": "duo-query-half.png"
+    },
+    "image_status": "removed_from_repository_history"
+  },
+  {
+    "file": null,
+    "source": ".build/library/native-review/duo/status-final-2-half-portrait.png",
+    "sha256": "497b9175f837a5cd7a3d85df8655d3497c9aaf4630682118df68d3d59cd62629",
+    "historical_image_identifiers": {
+      "file": "duo-status-half.png"
+    },
+    "image_status": "removed_from_repository_history"
+  },
+  {
+    "file": null,
+    "source": ".build/library/native-review/duo/status-final-3-half-landscape-left.png",
+    "sha256": "63519742dfda47edc10ad8b17f1d360ee0501e8cd5bd676c80d532a1036c4514",
+    "historical_image_identifiers": {
+      "file": "duo-status-portrait.png"
+    },
+    "image_status": "removed_from_repository_history"
+  }
+]
