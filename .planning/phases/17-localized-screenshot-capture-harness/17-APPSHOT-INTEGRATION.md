@@ -67,3 +67,45 @@ reboot and retains the recovery journal.
 Prior selections of agent-recommended engineering options are revisable on evidence. They are not
 permanent owner positions. The instruction to keep compiler reports local and post no upstream comment
 is an explicit user constraint.
+
+## Implementation map and complete split
+
+The app-only integration was committed directly on `feature/gsd-phase-17` as `0986221596`; it was
+not a literal cherry-pick of either old capture-cli branch. It owns the following boundaries:
+
+| Files | Implementation responsibility |
+|---|---|
+| `AppPackage/Package.swift`, project file and shared app scheme | Sibling package products and dedicated test plan wiring |
+| `UITestSupport/AppshotCapture.swift` | Strict scene decoding; Mutex-held launch scene; rejects competing `EHPANDA_` keys, unsupported screens, non-portrait/non-large coordinates, unexpected custom keys or input names; requires the fixtures input and one of the two supported sets |
+| `UITestSupport/UITestAutomation.swift` | Resolves the scene before Store construction, translates capture coordinates to the existing validated fixture request, preserves offline replay/storage isolation, and routes input-free probes through the isolated visual host |
+| `RootView.swift` and `UITestSupport/CaptureDiagnostics.swift` | Probe presentation and the SDK state child inside the existing diagnostics element; one app diagnostics producer supplies both consumers; pending and failed states retain blockers and unknown-request failures |
+| `EhPandaUITests/Support/CaptureLauncher.swift` | Shared `CaptureContentVerifier` preserves fixture identities, content, sheet, Live Text and download checks; `CaptureFixtureCopy.read` reads the helper-owned copy without taking teardown ownership |
+| `EhPandaUITests/AppshotCaptureUITests.swift` | One Debug-only test uses `captureAppshotScene`, maps the scene's coordinate, decodes app diagnostics and runs the shared content verifier; the SDK helper owns copying and cleanup |
+| `AppshotCapture.xctestplan`, `UITests.xctestplan` | Dedicated one-test, nonparallel, no-retry capture plan; ordinary regression tests exclude the capture class |
+| `appshot.json5`, `Scripts/visual/appshot-pin.json` | 384 app coordinates, consumer bundle/build identity, fixture input and export paths; measured device/locale pin independent of the tool example |
+| `AppshotCaptureTests.swift` under AppFeatureTests | Scene decoding, invalid-coordinate/input and conflicting-launch-key coverage; seven selected tests passed |
+
+Paths abbreviated with `UITestSupport/` are under `AppPackage/Sources/AppFeature/`. SDK geometry and
+rendering checks stay in the tool; readiness and content truth stay in the app. Release declarations
+are compiled out of the iOS SDK and app entry points; macOS CLI Release still needs the protocol.
+See [17-APPSHOT-VERIFICATION.md](17-APPSHOT-VERIFICATION.md) for the original Release failure,
+corrected binary checks, exact source identities, capture hashes and the bounded coverage claim.
+
+The earlier app-side command correction is `d6be7faa31`. The single-pass implementation `cea354a45e`
+retains `Gate.single_pass_run`, strips repetition only from a run-local xctestrun copy, enumerates
+compiled tests, validates exact selected identities/counts and rejects skips or Repetition nodes.
+Disabled tests outside the requested selection are allowed; disabled requested tests are rejected.
+Its complete [proposal and execution record](17-SINGLE-PASS-PROPOSAL.md) is now stored here, alongside
+the existing validation, research, plans 17-05/08/09/10/11 and `Scripts/visual/README.md`.
+
+All tool work moved to the sibling repository: 136 commits, 222 tip files, nine original Markdown
+paths and all 91 distinct historical document versions. The verification checked every changed
+path in every source commit, and the entire mapped tree's blobs and modes at every revision.
+The standalone repository's `.planning/migrations/standalone/PRESERVATION.md` and `PRESERVATION.json`
+contain the full proof and ownership index. Its full DESIGN, PLAN, PORT-LEDGER, VERIFICATION,
+protocol, integration guide, restoration investigation and review decisions remain there; none
+were replaced with this summary. App-specific Phase 17 documents and implementation remain here.
+
+The original and failed run evidence remains in `$HOME/Library/Caches/Appshot/`; compiler reports
+stay local. Removing the obsolete worktrees and branches after backup does not complete the
+remaining 382 app coordinates, establish reference parity, solve native persistence or accept v1.
