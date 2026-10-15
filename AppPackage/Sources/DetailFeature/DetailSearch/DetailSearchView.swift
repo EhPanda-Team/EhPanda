@@ -17,6 +17,7 @@ struct DetailSearchView: View {
 
     var body: some View {
         GalleryList(
+            displayMode: store.setting.galleryListPresentation[.search],
             galleries: store.galleries,
             pageNumber: store.pageNumber,
             loadingState: store.loadingState,
@@ -59,6 +60,7 @@ struct DetailSearchView: View {
 
     private func toolbar() -> some ToolbarContent {
         ToolbarOverflowMenu {
+            GalleryLayoutPicker(scope: .search)
             FiltersButton {
                 store.send(.filtersButtonTapped)
             }

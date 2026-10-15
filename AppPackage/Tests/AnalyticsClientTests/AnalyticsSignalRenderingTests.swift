@@ -39,8 +39,8 @@ struct AnalyticsSignalRenderingTests {
             rendered: .signal(name: "Navigation.homeSectionViewed", parameters: ["Navigation.section": "frontpage"])
         ),
         SignalRenderingFixture(
-            signal: .tabOpened(.downloads),
-            rendered: .signal(name: "Navigation.tabOpened", parameters: ["Navigation.tab": "downloads"])
+            signal: .tabOpened(.library),
+            rendered: .signal(name: "Navigation.tabOpened", parameters: ["Navigation.tab": "library"])
         ),
         // Two tags under `female` and one under a namespace the site does not publish. The counts
         // ship exact per D-16, so this reads `2` and `1` rather than a bucket spelling, and the

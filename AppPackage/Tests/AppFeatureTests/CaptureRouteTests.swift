@@ -183,11 +183,12 @@ struct CaptureRouteTests {
         await store.send(.runLaunchAutomation) {
             $0.didRunLaunchAutomation = true
         }
-        await store.receive(\.tabBar.setTabBarItemType, .downloads)
+        await store.receive(\.tabBar.setTabBarItemType, .library)
         await store.skipReceivedActions(strict: false)
         await store.skipInFlightEffects(strict: false)
 
-        #expect(store.state.tabBarState.tabBarItemType == .downloads)
+        #expect(store.state.tabBarState.tabBarItemType == .library)
+        #expect(store.state.libraryState.selection == .downloads(.all))
     }
 
     @MainActor

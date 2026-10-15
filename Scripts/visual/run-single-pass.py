@@ -109,6 +109,7 @@ def execute(args):
     gate.single_pass_run('UITests')
     enumeration = ['xcodebuild', 'test-without-building', '-xctestrun', str(gate.test_runs['UITests']),
                    '-derivedDataPath', str(args.derived_data.resolve()), '-parallel-testing-enabled', 'NO',
+                   '-collect-test-diagnostics', 'never',
                    '-destination', f'platform=iOS Simulator,id={args.device}',
                    *[f'-only-testing:{test}' for test in args.only_testing],
                    '-enumerate-tests', '-test-enumeration-style', 'flat', '-test-enumeration-format', 'json',

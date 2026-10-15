@@ -170,7 +170,8 @@ struct CaptureDownloadTests {
             into: try makeTemporaryDirectory().appending(path: "Downloads", directoryHint: .isDirectory)
         )
         var state = AppReducer.State()
-        state.tabBarState.tabBarItemType = .downloads
+        state.tabBarState.tabBarItemType = .library
+        state.libraryState.selection = .downloads(.all)
         state.downloadsState.downloads = index.downloads
         state.downloadsState.loadingState = .idle
         let covers = try Set(index.downloads.map({ try #require($0.coverURL).cacheKey }))

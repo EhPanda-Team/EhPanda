@@ -73,6 +73,7 @@ public struct FavoritesView: View {
     @ContentBuilder private var content: some View {
         if didLogin {
             GalleryList(
+                displayMode: store.setting.galleryListPresentation[.favorites],
                 galleries: store.galleries ?? [],
                 pageNumber: store.pageNumber,
                 loadingState: store.loadingState ?? .idle,
@@ -95,19 +96,7 @@ public struct FavoritesView: View {
 
     @ContentBuilder private func toolbar() -> some ToolbarContent {
         ToolbarItem(placement: .topBarTrailing) {
-            Menu {
-                Picker(selection: $store.favoritesIndex.sending(\.setFavoritesIndex)) {
-                    ForEach(-1..<10) { index in
-                        Text(store.user.getFavoriteCategory(index: index)).tag(index)
-                    }
-                } label: {
-                    Text(.RLocalizable.favorites)
-                }
-                .pickerStyle(.inline)
-            } label: {
-                Label(.RLocalizable.favorites, systemSymbol: .dialLow)
-                    .symbolRenderingMode(.hierarchical)
-            }
+            GalleryLayoutPicker(scope: .favorites)
         }
         ToolbarItem(placement: .topBarTrailing) {
             Menu {

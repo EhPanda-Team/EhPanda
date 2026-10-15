@@ -19,6 +19,7 @@ struct FrontpageView: View {
 
     var body: some View {
         GalleryList(
+            displayMode: store.setting.galleryListPresentation[.frontpage],
             galleries: store.filteredGalleries,
             pageNumber: store.pageNumber,
             loadingState: store.loadingState,
@@ -59,6 +60,7 @@ struct FrontpageView: View {
 
     private func toolbar() -> some ToolbarContent {
         ToolbarItemGroup(placement: .topBarTrailing) {
+            GalleryLayoutPicker(scope: .frontpage)
             DateSeekButton(navigation: store.dateSeekNavigation) { navigation in
                 store.send(.dateSeekButtonTapped(navigation))
             }

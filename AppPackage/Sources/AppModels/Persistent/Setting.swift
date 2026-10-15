@@ -3,7 +3,7 @@ public import Foundation
 import Resources
 public import UIKit
 
-public struct Setting: Codable, Equatable, Sendable, SchemaVersioned {
+public struct Setting: Codable, Equatable, Sendable, MigratableModel {
     public init(
         galleryHost: GalleryHost = .ehentai,
         showNewDawnGreeting: Bool = false,
@@ -14,7 +14,7 @@ public struct Setting: Codable, Equatable, Sendable, SchemaVersioned {
         redirectLinksToSelectedHost: Bool = false,
         detectLinksFromClipboard: Bool = false,
         privacyMaskIntensity: Double = 10,
-        listDisplayMode: ListDisplayMode = .detail,
+        galleryListPresentation: GalleryListPresentation = .init(),
         appIconType: AppIconType = .default,
         showTagsInList: Bool = false,
         listTagsNumberMaximum: Int = 0,
@@ -38,7 +38,7 @@ public struct Setting: Codable, Equatable, Sendable, SchemaVersioned {
         self.redirectLinksToSelectedHost = redirectLinksToSelectedHost
         self.detectLinksFromClipboard = detectLinksFromClipboard
         self.privacyMaskIntensity = privacyMaskIntensity
-        self.listDisplayMode = listDisplayMode
+        self.galleryListPresentation = galleryListPresentation
         self.appIconType = appIconType
         self.showTagsInList = showTagsInList
         self.listTagsNumberMaximum = listTagsNumberMaximum
@@ -56,18 +56,92 @@ public struct Setting: Codable, Equatable, Sendable, SchemaVersioned {
     /// This model's schema history (oldest → newest); see `SchemaVersioned` / `VersionedSchema`.
     /// `currentSchemaVersion` derives from the head. Append a `VersionedSchema` and adopt
     /// `MigratableModel` when a breaking change lands.
-    public static var schemas: [any VersionedSchema.Type] { [SchemaV1.self] }
+    public static var schemas: [any VersionedSchema.Type] { [SchemaV1.self, SchemaV2.self] }
     /// The v1 base schema. Its `migrate` is empty — nothing precedes v1, and the engine only runs
     /// schemas newer than the stored version, so it exists solely to anchor version 1.
     enum SchemaV1: VersionedSchema {
         static let version = 1
         static func migrate(_ object: inout [String: JSONValue]) throws {}
     }
+    enum SchemaV2: VersionedSchema {
+        static let version = 2
+
+        static func migrate(_ object: inout [String: JSONValue]) throws {
+            guard let rawValue = object["listDisplayMode"]?.intValue else {
+                throw DecodingError.dataCorrupted(.init(
+                    codingPath: [], debugDescription: "Setting v1 is missing listDisplayMode"
+                ))
+            }
+            let mode: GalleryListDisplayMode
+            switch rawValue {
+            case 0: mode = .row
+            case 1: mode = .grid
+            default:
+                throw DecodingError.dataCorrupted(.init(
+                    codingPath: [], debugDescription: "Setting v1 has an invalid listDisplayMode"
+                ))
+            }
+            let scopes = GalleryListScope.allCases.reduce(into: [String: JSONValue]()) { result, scope in
+                result[scope.rawValue] = .int(scope == .downloads ? GalleryListDisplayMode.row.rawValue : mode.rawValue)
+            }
+            object["galleryListPresentation"] = .object(scopes)
+            object["listDisplayMode"] = nil
+        }
+    }
+
+    public init(from decoder: any Decoder) throws {
+        self = try SchemaMigrator.migrate(Self.self, from: decoder)
+    }
+
+    public init(currentFrom decoder: any Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        schemaVersion = try container.decode(SchemaVersion<Setting>.self, forKey: .schemaVersion)
+        galleryHost = try container.decode(GalleryHost.self, forKey: .galleryHost)
+        showNewDawnGreeting = try container.decode(Bool.self, forKey: .showNewDawnGreeting)
+        enableTagsExtension = try container.decode(Bool.self, forKey: .enableTagsExtension)
+        translateTags = try container.decode(Bool.self, forKey: .translateTags)
+        showTagsSearchSuggestion = try container.decode(Bool.self, forKey: .showTagsSearchSuggestion)
+        showImagesInTags = try container.decode(Bool.self, forKey: .showImagesInTags)
+        redirectLinksToSelectedHost = try container.decode(Bool.self, forKey: .redirectLinksToSelectedHost)
+        detectLinksFromClipboard = try container.decode(Bool.self, forKey: .detectLinksFromClipboard)
+        privacyMaskIntensity = try container.decode(Double.self, forKey: .privacyMaskIntensity)
+        galleryListPresentation = try container.decode(GalleryListPresentation.self, forKey: .galleryListPresentation)
+        preferredColorScheme = try container.decode(PreferredColorScheme.self, forKey: .preferredColorScheme)
+        appIconType = try container.decode(AppIconType.self, forKey: .appIconType)
+        showTagsInList = try container.decode(Bool.self, forKey: .showTagsInList)
+        listTagsNumberMaximum = try container.decode(Int.self, forKey: .listTagsNumberMaximum)
+        displayJapaneseTitle = try container.decode(Bool.self, forKey: .displayJapaneseTitle)
+        readingDirection = try container.decode(ReadingDirection.self, forKey: .readingDirection)
+        prefetchLimit = try container.decode(Int.self, forKey: .prefetchLimit)
+        enableDualPageMode = try container.decode(Bool.self, forKey: .enableDualPageMode)
+        orientationReadingPreferences = try container.decodeIfPresent(
+            ReadingOrientationPreferences.self, forKey: .orientationReadingPreferences
+        )
+        exceptCover = try container.decode(Bool.self, forKey: .exceptCover)
+        contentDividerHeight = try container.decode(Double.self, forKey: .contentDividerHeight)
+        maximumScaleFactor = try container.decode(Double.self, forKey: .maximumScaleFactor)
+        doubleTapScaleFactor = try container.decode(Double.self, forKey: .doubleTapScaleFactor)
+        downloadThreadLimit = try container.decode(Int.self, forKey: .downloadThreadLimit)
+        downloadAllowCellular = try container.decode(Bool.self, forKey: .downloadAllowCellular)
+        downloadAutoRetryFailedPages = try container.decode(Bool.self, forKey: .downloadAutoRetryFailedPages)
+        shareAnalyticsData = try container.decodeIfPresent(Bool.self, forKey: .shareAnalyticsData)
+        bypassSNIFiltering = try container.decode(Bool.self, forKey: .bypassSNIFiltering)
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case schemaVersion, galleryHost, showNewDawnGreeting, enableTagsExtension, translateTags
+        case showTagsSearchSuggestion, showImagesInTags, redirectLinksToSelectedHost
+        case detectLinksFromClipboard, privacyMaskIntensity, galleryListPresentation, preferredColorScheme
+        case appIconType, showTagsInList, listTagsNumberMaximum, displayJapaneseTitle, readingDirection
+        case prefetchLimit, enableDualPageMode, orientationReadingPreferences, exceptCover
+        case contentDividerHeight, maximumScaleFactor, doubleTapScaleFactor, downloadThreadLimit
+        case downloadAllowCellular, downloadAutoRetryFailedPages, shareAnalyticsData, bypassSNIFiltering
+    }
     // A self-validating field: it rejects a newer/downgrade blob on decode (see `SchemaVersion`), which
     // fails the whole decode so Sharing resets to the key default. Synthesized Codable is otherwise
     // untouched, so the `didSet` couplings below and optional-field tolerance still hold; a field added
     // later must stay optional so old blobs keep decoding.
-    public var schemaVersion: SchemaVersion<Setting> = 1
+    public var schemaVersion: SchemaVersion<Setting> = 2
     // Account
     public var galleryHost: GalleryHost = .ehentai
     public var showNewDawnGreeting = false
@@ -90,7 +164,7 @@ public struct Setting: Codable, Equatable, Sendable, SchemaVersioned {
     public var privacyMaskIntensity: Double = 10
 
     // Appearance
-    public var listDisplayMode: ListDisplayMode = .detail
+    public var galleryListPresentation = GalleryListPresentation()
     public var preferredColorScheme = PreferredColorScheme.automatic
     public var appIconType: AppIconType = .default
     public var showTagsInList = false
@@ -169,7 +243,6 @@ public struct Setting: Codable, Equatable, Sendable, SchemaVersioned {
     // Laboratory
     public var bypassSNIFiltering = false
 }
-
 extension Setting {
     public var downloadRequestOptions: DownloadRequestOptions {
         .init(
@@ -179,7 +252,6 @@ extension Setting {
         )
     }
 }
-
 public enum GalleryHost: String, Codable, Equatable, CaseIterable, Identifiable, Sendable {
     case ehentai = "E-Hentai"
     case exhentai = "ExHentai"
@@ -258,23 +330,6 @@ extension ReadingDirection {
             return .readingDirectionRightToLeft
         case .leftToRight:
             return .readingDirectionLeftToRight
-        }
-    }
-}
-
-public enum ListDisplayMode: Int, Codable, CaseIterable, Identifiable, Sendable {
-    public var id: Int { rawValue }
-
-    case detail
-    case thumbnail
-}
-extension ListDisplayMode {
-    public var value: LocalizedStringResource {
-        switch self {
-        case .detail:
-            return .listDisplayModeDetail
-        case .thumbnail:
-            return .listDisplayModeThumbnail
         }
     }
 }

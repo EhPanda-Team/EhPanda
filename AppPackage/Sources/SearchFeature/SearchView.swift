@@ -18,6 +18,7 @@ struct SearchView: View {
 
     var body: some View {
         GalleryList(
+            displayMode: store.setting.galleryListPresentation[.search],
             galleries: store.galleries,
             pageNumber: store.pageNumber,
             loadingState: store.loadingState,
@@ -71,6 +72,9 @@ struct SearchView: View {
     }
 
     @ContentBuilder private func toolbar() -> some ToolbarContent {
+        ToolbarItem(placement: .topBarTrailing) {
+            GalleryLayoutPicker(scope: .search)
+        }
         ToolbarItem(placement: .topBarTrailing) {
             FiltersButton {
                 store.send(.filtersButtonTapped)

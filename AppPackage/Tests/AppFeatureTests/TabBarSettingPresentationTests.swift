@@ -21,13 +21,13 @@ struct TabBarSettingPresentationTests {
     @MainActor
     @Test
     func aRegularWindowKeepsTheCurrentTabAndPresentsSetting() async {
-        let store = makeStore(initialTab: .favorites, window: .regular)
+        let store = makeStore(initialTab: .library, window: .regular)
         store.exhaustivity = .off(showSkippedAssertions: false)
 
         await store.send(.tabBar(.setTabBarItemType(.setting)))
         await store.receive(\.tabBar.delegate.openSetting)
         await store.receive(\.presentation.presentSetting)
-        #expect(store.state.tabBarState.tabBarItemType == .favorites)
+        #expect(store.state.tabBarState.tabBarItemType == .library)
         #expect(store.state.presentationState.destination?.is(\.setting) == true)
         await store.finish()
     }
@@ -35,7 +35,7 @@ struct TabBarSettingPresentationTests {
     @MainActor
     @Test(arguments: [WindowSizeClasses.compactWidth, .compactHeight])
     func aWindowCompactInEitherDimensionSelectsTheTab(_ window: WindowSizeClasses) async {
-        let store = makeStore(initialTab: .favorites, window: window)
+        let store = makeStore(initialTab: .library, window: window)
         store.exhaustivity = .off(showSkippedAssertions: false)
 
         await store.send(.tabBar(.setTabBarItemType(.setting)))
@@ -68,12 +68,12 @@ struct TabBarSettingPresentationTests {
     @Test
     func loggedOutSettingRouteInARegularWindowPresentsWithoutSelectingTheTab() async {
         let clock = TestClock()
-        let store = makeStore(initialTab: .favorites, window: .regular, clock: clock)
+        let store = makeStore(initialTab: .library, window: .regular, clock: clock)
         store.exhaustivity = .off(showSkippedAssertions: false)
 
         await store.send(.favorites(.onNotLoginViewButtonTapped))
         await store.skipReceivedActions(strict: false)
-        #expect(store.state.tabBarState.tabBarItemType == .favorites)
+        #expect(store.state.tabBarState.tabBarItemType == .library)
         #expect(store.state.presentationState.destination?.is(\.setting) == true)
         await store.skipInFlightEffects(strict: false)
     }
@@ -81,7 +81,7 @@ struct TabBarSettingPresentationTests {
     @MainActor
     @Test
     func ordinaryTabSelectionStillSelectsTheRequestedTab() async {
-        let store = makeStore(initialTab: .favorites, window: .regular)
+        let store = makeStore(initialTab: .library, window: .regular)
         store.exhaustivity = .off(showSkippedAssertions: false)
 
         await store.send(.tabBar(.setTabBarItemType(.home))) {
@@ -94,14 +94,14 @@ struct TabBarSettingPresentationTests {
     @MainActor
     @Test
     func repeatedSettingSelectionInARegularWindowNeverSelectsTheTab() async {
-        let store = makeStore(initialTab: .downloads, window: .regular)
+        let store = makeStore(initialTab: .library, window: .regular)
         store.exhaustivity = .off(showSkippedAssertions: false)
 
         for _ in 0..<2 {
             await store.send(.tabBar(.setTabBarItemType(.setting)))
             await store.receive(\.tabBar.delegate.openSetting)
             await store.receive(\.presentation.presentSetting)
-            #expect(store.state.tabBarState.tabBarItemType == .downloads)
+            #expect(store.state.tabBarState.tabBarItemType == .library)
         }
         #expect(store.state.presentationState.destination?.is(\.setting) == true)
         await store.finish()

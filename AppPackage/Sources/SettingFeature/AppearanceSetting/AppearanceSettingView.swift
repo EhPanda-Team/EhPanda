@@ -49,18 +49,6 @@ struct AppearanceSettingView: View {
                 Text(.privacyMaskFooter)
             }
             Section(.list) {
-                Picker(
-                    .appearanceDisplayMode,
-                    selection: Binding($setting.listDisplayMode),
-                    content: {
-                        ForEach(ListDisplayMode.allCases) { listMode in
-                            Text(listMode.value)
-                                .tag(listMode)
-                        }
-                    }
-                )
-                .pickerStyle(.menu)
-
                 AppToggle(isOn: Binding($setting.showTagsInList)) {
                     Text(.showTagsInList)
                 }

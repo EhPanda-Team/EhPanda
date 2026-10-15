@@ -83,17 +83,15 @@ struct TabBarView: View {
                         HomeView(
                             store: store.scope(\.homeState, action: \.home)
                         )
-                    case .favorites:
-                        FavoritesView(
-                            store: store.scope(\.favoritesState, action: \.favorites)
+                    case .library:
+                        LibraryView(
+                            store: store.scope(\.libraryState, action: \.library),
+                            favoritesStore: store.scope(\.favoritesState, action: \.favorites),
+                            downloadsStore: store.scope(\.downloadsState, action: \.downloads)
                         )
                     case .search:
                         SearchRootView(
                             store: store.scope(\.searchRootState, action: \.searchRoot)
-                        )
-                    case .downloads:
-                        DownloadsView(
-                            store: store.scope(\.downloadsState, action: \.downloads)
                         )
                     case .setting:
                         SettingView(
@@ -114,12 +112,10 @@ extension TabBarItemType {
         switch self {
         case .home:
             return .RLocalizable.home
-        case .favorites:
-            return .RLocalizable.favorites
+        case .library:
+            return .RLocalizable.library
         case .search:
             return .RLocalizable.search
-        case .downloads:
-            return .RLocalizable.downloads
         case .setting:
             return .RLocalizable.setting
         }
@@ -128,12 +124,10 @@ extension TabBarItemType {
         switch self {
         case .home:
             return .houseCircle
-        case .favorites:
-            return .heartCircle
+        case .library:
+            return .booksVerticalCircle
         case .search:
             return .magnifyingglassCircle
-        case .downloads:
-            return .arrowDownCircle
         case .setting:
             return .gearshapeCircle
         }

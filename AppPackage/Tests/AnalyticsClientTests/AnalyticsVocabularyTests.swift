@@ -23,8 +23,8 @@ struct AnalyticsVocabularyTests {
 
     @Test
     func appTabSpellsEveryCase() {
-        #expect(AppTab.allCases.count == 5)
-        #expect(AppTab.allCases.map(\.rawValue) == ["home", "favorites", "search", "downloads", "setting"])
+        #expect(AppTab.allCases.count == 4)
+        #expect(AppTab.allCases.map(\.rawValue) == ["home", "library", "search", "setting"])
     }
 
     @Test
@@ -62,9 +62,8 @@ struct AnalyticsVocabularyTests {
 
     @Test(arguments: [
         TabFixture(type: .home, tab: .home),
-        TabFixture(type: .favorites, tab: .favorites),
+        TabFixture(type: .library, tab: .library),
         TabFixture(type: .search, tab: .search),
-        TabFixture(type: .downloads, tab: .downloads),
         TabFixture(type: .setting, tab: .setting)
     ])
     func everyTabBarItemTypeMapsToItsTab(fixture: TabFixture) {
@@ -80,7 +79,7 @@ struct AnalyticsVocabularyTests {
         #expect(Set(mapped).count == TabBarItemType.allCases.count)
     }
 
-    // `ReadingDirection` and `ListDisplayMode` are `Int`-raw domain enums. Transmitting their raw
+    // `ReadingDirection` is an `Int`-raw domain enum. Transmitting its raw
     // values would put a column of bare integers on the dashboard, and inserting a case would
     // silently re-number every later one, changing the meaning of history already collected.
     @Test
@@ -88,15 +87,6 @@ struct AnalyticsVocabularyTests {
         let names = ReadingDirection.allCases.map(\.analyticsName)
 
         #expect(names == ["vertical", "rightToLeft", "leftToRight"])
-        #expect(Set(names).count == names.count)
-        #expect(names.allSatisfy({ Int($0) == nil }))
-    }
-
-    @Test
-    func listDisplayModeSpellingsAreDistinctAndNonNumeric() {
-        let names = ListDisplayMode.allCases.map(\.analyticsName)
-
-        #expect(names == ["detail", "thumbnail"])
         #expect(Set(names).count == names.count)
         #expect(names.allSatisfy({ Int($0) == nil }))
     }
