@@ -5,7 +5,8 @@ public import SwiftUI
 
 public struct GalleryList: View {
     @AccessibilityFocusState private var localFocusedGalleryID: String?
-    @State private var scrollPositionID: String?
+    @State private var localScrollPositionID: String?
+    private let externalScrollPositionID: Binding<String?>?
     private let galleryFocus: AccessibilityFocusState<String?>.Binding?
 
     private let galleries: [Gallery]
@@ -30,7 +31,8 @@ public struct GalleryList: View {
         navigateAction: ((Gallery) -> Void)? = nil,
         translateAction: ((String) -> TagTranslationLookup)? = nil,
         downloadBadges: [String: DownloadBadge] = [:],
-        galleryFocus: AccessibilityFocusState<String?>.Binding? = nil
+        galleryFocus: AccessibilityFocusState<String?>.Binding? = nil,
+        scrollPositionID: Binding<String?>? = nil
     ) {
         self.galleries = galleries
         self.downloadBadges = downloadBadges
@@ -44,10 +46,12 @@ public struct GalleryList: View {
         self.navigateAction = navigateAction
         self.translateAction = translateAction
         self.galleryFocus = galleryFocus
+        externalScrollPositionID = scrollPositionID
     }
 
     public var body: some View {
         let focusedGalleryID = galleryFocus ?? $localFocusedGalleryID
+        let scrollPosition = externalScrollPositionID ?? $localScrollPositionID
         VStack(spacing: 0) {
             switch displayMode {
             case .row:
@@ -61,7 +65,7 @@ public struct GalleryList: View {
                     translateAction: translateAction,
                     downloadBadges: downloadBadges,
                     galleryFocus: focusedGalleryID,
-                    scrollPositionID: $scrollPositionID
+                    scrollPositionID: scrollPosition
                 )
             case .grid:
                 GridList(
@@ -74,7 +78,7 @@ public struct GalleryList: View {
                     translateAction: translateAction,
                     downloadBadges: downloadBadges,
                     galleryFocus: focusedGalleryID,
-                    scrollPositionID: $scrollPositionID
+                    scrollPositionID: scrollPosition
                 )
             }
         }
@@ -93,16 +97,16 @@ public struct GalleryList: View {
         .refreshable { fetchAction?() }
         .scrollEdgeEffectStyle(.soft, for: .top)
         .onChange(of: galleries.map(\.id), initial: true) { previousIDs, ids in
-            guard let current = scrollPositionID else { return }
+            guard let current = scrollPosition.wrappedValue else { return }
             guard !ids.contains(current) else { return }
             let remaining = Set(ids)
             if let previousIndex = previousIDs.firstIndex(of: current) {
-                scrollPositionID = previousIDs.enumerated()
+                scrollPosition.wrappedValue = previousIDs.enumerated()
                     .filter({ remaining.contains($0.element) })
                     .min(by: { abs($0.offset - previousIndex) < abs($1.offset - previousIndex) })?
                     .element ?? ids.first
             } else {
-                scrollPositionID = ids.first
+                scrollPosition.wrappedValue = ids.first
             }
         }
     }
@@ -181,7 +185,7 @@ private struct DetailList: View {
                         } else {
                             visibleIDs.remove(gallery.id)
                         }
-                        if restorationID == nil {
+                        if restorationID == nil, !visibleIDs.isEmpty {
                             scrollPositionID = galleries.first(where: { visibleIDs.contains($0.id) })?.id
                         }
                         if isVisible, gallery == galleries.last {
@@ -266,15 +270,14 @@ private struct GridList: View {
                         fetchMoreAction?()
                     }
                 }
-                if let pageNumber, pageNumber.hasNextPage() {
-                    FetchMoreFooter(loadingState: footerLoadingState, retryAction: fetchMoreAction)
-                        .gridCellColumns(1)
-                }
             }
             .scrollTargetLayout()
             .padding(.horizontal)
-            .scrollEdgeEffectStyle(.soft, for: .top)
+            if let pageNumber, pageNumber.hasNextPage() {
+                FetchMoreFooter(loadingState: footerLoadingState, retryAction: fetchMoreAction)
+            }
         }
+        .scrollEdgeEffectStyle(.soft, for: .top)
         .scrollPosition(id: $scrollPositionID, anchor: .top)
     }
 }

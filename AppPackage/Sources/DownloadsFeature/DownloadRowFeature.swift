@@ -4,7 +4,7 @@ public import ComposableArchitecture
 import Foundation
 import Resources
 
-/// One row of the downloads list, owning that row's delete confirmation.
+/// One row of the downloads list, owning that gallery's move and delete confirmations.
 ///
 /// **Why a child reducer exists for what looks like a single boolean.** The confirmation has to
 /// address exactly one row, and a presentation modifier needs a binding that is non-nil for that
@@ -15,19 +15,18 @@ import Resources
 /// `.forEach`, so each row scopes a store whose dialog is its own, and the binding is projected
 /// rather than derived.
 ///
-/// The row owns only its presentation and the intent behind it. Update, pause, move, inspect and
-/// open stay on the parent: they carry no per-row presentation state, and routing them through a
-/// delegate would add a hop without removing anything. Deletion is delegated rather than performed
-/// here because the effect belongs to the list — the download client call, its analytics, and the
-/// silent-failure policy documented on ``DownloadsReducer`` are all list-level concerns.
+/// Move and delete confirmations belong to the item that presents them. The parent performs the
+/// confirmed operations so client effects, analytics and failure handling remain shared by layouts.
 @Reducer
 public struct DownloadRowFeature: Sendable {
     public enum Delegate: Equatable, Sendable {
         case confirmDelete
+        case move(String)
     }
 
     public enum Dialog: Equatable, Sendable {
         case confirmDelete
+        case move(String)
     }
 
     @ObservableState
@@ -45,6 +44,7 @@ public struct DownloadRowFeature: Sendable {
 
     public enum Action {
         case deleteButtonTapped
+        case moveButtonTapped(destinations: [String])
         case confirmationDialog(PresentationAction<Dialog>)
         case delegate(Delegate)
     }
@@ -76,6 +76,25 @@ public struct DownloadRowFeature: Sendable {
                     )
                 }
                 return .none
+
+            case .moveButtonTapped(let destinations):
+                guard state.download.displayStatus != .active, !destinations.isEmpty else { return .none }
+                state.confirmationDialog = ConfirmationDialogState {
+                    TextState(localized: .moveToFolder)
+                } actions: {
+                    for folder in destinations {
+                        ButtonState(action: .move(folder)) {
+                            TextState(folder)
+                        }
+                    }
+                    ButtonState(role: .cancel) {
+                        TextState(localized: .RLocalizable.cancel)
+                    }
+                }
+                return .none
+
+            case .confirmationDialog(.presented(.move(let folder))):
+                return .send(.delegate(.move(folder)))
 
             case .confirmationDialog(.presented(.confirmDelete)):
                 return .send(.delegate(.confirmDelete))

@@ -40,6 +40,7 @@ public struct FavoritesReducer: Sendable {
         public var path = StackState<GalleryPath.State>()
         @Presents public var destination: Destination.State?
         public var keyword = ""
+        public var visibleGalleryID: String?
 
         public var favoritesIndex = -1
         public var sortOrder: FavoritesSortOrder?
@@ -194,6 +195,7 @@ public struct FavoritesReducer: Sendable {
             case .setFavoritesIndex(let index):
                 guard index != state.favoritesIndex else { return .none }
                 state.favoritesIndex = index
+                guard cookieClient.didLogin else { return .none }
                 guard state.galleries?.isEmpty != false else { return .none }
                 return .send(.fetchGalleries())
 

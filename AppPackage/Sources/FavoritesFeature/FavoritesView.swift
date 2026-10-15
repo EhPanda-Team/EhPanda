@@ -84,8 +84,10 @@ public struct FavoritesView: View {
                 translateAction: {
                     store.tagTranslator.lookup(word: $0, returnOriginal: !store.setting.translateTags)
                 },
-                downloadBadges: store.downloadBadges
+                downloadBadges: store.downloadBadges,
+                scrollPositionID: $store.visibleGalleryID
             )
+            .accessibilityIdentifier("favorites-gallery-list")
             .transition(.opacity)
         } else {
             NotLoginView(action: { store.send(.onNotLoginViewButtonTapped) })

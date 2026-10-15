@@ -23,8 +23,8 @@ import Resources
 /// when one is added — a new result-carrying action with no stated disposition contradicts this doc.
 ///
 /// The screen's other presentation surfaces are confirmation prompts rather than outcome channels:
-/// the per-row delete dialog owned by ``DownloadRowFeature``, plus this reducer's own move-to-folder
-/// dialog. Neither reports an outcome, so the argument is unchanged by where the confirmation lives:
+/// the per-item move and delete dialogs owned by ``DownloadRowFeature``. Neither reports an outcome,
+/// so the argument is unchanged by where the confirmation lives:
 ///
 /// - `moveDownloadDone` — **deliberately silent** on failure: the row keeps its current folder, so
 ///   the screen already says the move did not happen.
@@ -55,10 +55,6 @@ public struct DownloadsReducer: Sendable {
         case folderManager(FolderManagerReducer)
     }
 
-    public enum Dialog: Equatable, Sendable {
-        case move(gid: String, folderName: String)
-    }
-
     private enum CancelID {
         case observeDownloads
         case fetchFolders
@@ -69,9 +65,9 @@ public struct DownloadsReducer: Sendable {
         @SharedReader(.setting) public var setting: Setting
         public var path = StackState<GalleryPath.State>()
         @Presents public var destination: Destination.State?
-        @Presents public var confirmationDialog: ConfirmationDialogState<Dialog>?
         @Presents public var toast: AppAlertState<Never>?
         public var keyword = ""
+        public var visibleGalleryID: String?
         public var folderFilter: DownloadFolderFilter = .all
         public var folders = [String]()
         public var rows = IdentifiedArrayOf<DownloadRowFeature.State>()
@@ -131,10 +127,8 @@ public struct DownloadsReducer: Sendable {
         case destination(PresentationAction<Destination.Action>)
         case inspectorButtonTapped(String)
         case folderManagerButtonTapped
-        case confirmationDialog(PresentationAction<Dialog>)
         case toast(PresentationAction<Never>)
         case rows(IdentifiedActionOf<DownloadRowFeature>)
-        case moveButtonTapped(DownloadedGallery)
 
         case onPresented
         case fetchDownloads
@@ -216,33 +210,14 @@ public struct DownloadsReducer: Sendable {
                 // `onAppear` (the view is shared with DetailFeature, which does the same).
                 return .send(.destination(.presented(.folderManager(.fetchFolders))))
 
-            case .moveButtonTapped(let download):
-                let destinations = state.folders.filter({ $0 != download.folderName })
-                state.confirmationDialog = ConfirmationDialogState {
-                    TextState(localized: .moveToFolder)
-                } actions: {
-                    for folder in destinations {
-                        ButtonState(action: .move(gid: download.gid, folderName: folder)) {
-                            TextState(folder)
-                        }
-                    }
-                    ButtonState(role: .cancel) {
-                        TextState(localized: .RLocalizable.cancel)
-                    }
-                }
-                return .none
-
             // The row confirmed its own dialog; the deletion itself is a list-level effect.
             case .rows(.element(id: let gid, action: .delegate(.confirmDelete))):
                 return .send(.deleteDownload(gid))
 
-            case .rows:
-                return .none
-
-            case .confirmationDialog(.presented(.move(let gid, let folder))):
+            case .rows(.element(id: let gid, action: .delegate(.move(let folder)))):
                 return .send(.moveDownload(gid: gid, folderName: folder))
 
-            case .confirmationDialog:
+            case .rows:
                 return .none
 
             case .toast:
@@ -475,7 +450,6 @@ public struct DownloadsReducer: Sendable {
             }
         }
         .ifLet(\.$destination, action: \.destination)
-        .ifLet(\.$confirmationDialog, action: \.confirmationDialog)
         .ifLet(\.$toast, action: \.toast)
         .forEach(\.rows, action: \.rows, element: DownloadRowFeature.init)
         .forEach(\.path, action: \.path)

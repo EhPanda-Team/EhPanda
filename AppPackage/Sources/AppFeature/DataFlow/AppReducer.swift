@@ -464,7 +464,9 @@ private extension AppReducer {
         case .home:
             return .send(.home(.onPresented))
         case .library:
-            return librarySelectionEffect(state.libraryState.selection, state: &state)
+            let selectionEffect = librarySelectionEffect(state.libraryState.selection, state: &state)
+            if case .downloads = state.libraryState.selection { return selectionEffect }
+            return .merge(selectionEffect, .send(.downloads(.fetchFolders)))
         case .search:
             return .send(.searchRoot(.onPresented))
         case .setting:
@@ -475,17 +477,17 @@ private extension AppReducer {
     func librarySelectionEffect(_ selection: LibraryGroup?, state: inout State) -> Effect<Action> {
         switch selection {
         case .favorites(let index):
-            guard state.favoritesState.path.isEmpty else { return .none }
-            return .merge(
-                .send(.favorites(.setFavoritesIndex(index))),
-                .send(.favorites(.onPresented))
-            )
+            let startsPresentation = state.favoritesState.path.isEmpty
+            return .run { send in
+                await send(.favorites(.setFavoritesIndex(index)))
+                if startsPresentation { await send(.favorites(.onPresented)) }
+            }
         case .downloads(let filter):
-            guard state.downloadsState.path.isEmpty else { return .none }
-            return .merge(
-                .send(.downloads(.binding(.set(\.folderFilter, filter)))),
-                .send(.downloads(.onPresented))
-            )
+            let startsPresentation = state.downloadsState.path.isEmpty
+            return .run { send in
+                await send(.downloads(.binding(.set(\.folderFilter, filter))))
+                if startsPresentation { await send(.downloads(.onPresented)) }
+            }
         case .none:
             return .none
         }

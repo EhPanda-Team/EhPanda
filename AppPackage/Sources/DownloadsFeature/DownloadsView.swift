@@ -3,6 +3,7 @@ import AppModels
 import AppTools
 public import ComposableArchitecture
 import DetailFeature
+import GalleryListComponents
 import ReadingFeature
 import Resources
 import SFSafeSymbols
@@ -14,6 +15,7 @@ public struct DownloadsView: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @AccessibilityFocusState private var focusedRowID: String?
     @State private var inspectorOriginID: String?
+    @ScaledMetric(relativeTo: .callout) private var minCellWidth: CGFloat = 180
     @Bindable private var store: StoreOf<DownloadsReducer>
 
     public init(store: StoreOf<DownloadsReducer>) {
@@ -57,11 +59,6 @@ public struct DownloadsView: View {
                     ReadingView(store: store)
                     .privacyMask()
                 }
-                // The delete confirmation is per-row and lives on the row (see `DownloadRow`);
-                // this one is the list-level move-to-folder dialog.
-                .confirmationDialog(
-                    $store.scope(\.$confirmationDialog, action: \.confirmationDialog)
-                )
                 // The list-level toast, currently used only by a refused Pause/Resume (DEF-15-05).
                 .toast($store.scope(\.$toast, action: \.toast))
                 .navigationTitle(.RLocalizable.downloads)
@@ -79,24 +76,7 @@ private extension DownloadsView {
             LoadingView()
 
         default:
-            List {
-                // Scoped per row so each one carries its own delete confirmation. The collection
-                // is filtered rather than the state, because `.forEach` composes over the stored
-                // rows: a row hidden by the keyword or folder filter still exists, it is simply
-                // not rendered. Keyed on `state.id` because a `Store` is `Identifiable` by its own
-                // object identity, which is not the row's gid.
-                ForEach(visibleRows, id: \.state.id) { rowStore in
-                    DownloadRow(
-                        store: store,
-                        rowStore: rowStore,
-                        rowFocus: $focusedRowID,
-                        openInspectorAction: {
-                            inspectorOriginID = rowStore.state.id
-                            store.send(.inspectorButtonTapped(rowStore.state.download.gid))
-                        }
-                    )
-                }
-            }
+            downloadContent(for: store.setting.galleryListPresentation[.downloads])
             .refreshable { store.send(.refreshDownloads) }
             // Scoped to row IDENTITY, never to the snapshot: `observeDownloads` re-emits the whole
             // list as pages land, so animating on `filteredDownloads` would animate every progress
@@ -105,6 +85,55 @@ private extension DownloadsView {
             // of the snapshot snapping the row out with no transition at all.
             // Under Reduce Motion the row snaps out instead of collapsing; delete flow and manifest unchanged.
             .animation(reduceMotion ? nil : .default, value: store.filteredDownloads.map(\.id))
+            .onChange(of: store.filteredDownloads.map(\.id), initial: true) { previousIDs, ids in
+                guard let current = store.visibleGalleryID, !ids.contains(current) else { return }
+                let remaining = Set(ids)
+                if let previousIndex = previousIDs.firstIndex(of: current) {
+                    store.visibleGalleryID = previousIDs.enumerated()
+                        .filter({ remaining.contains($0.element) })
+                        .min(by: { abs($0.offset - previousIndex) < abs($1.offset - previousIndex) })?
+                        .element ?? ids.first
+                } else {
+                    store.visibleGalleryID = ids.first
+                }
+            }
+        }
+    }
+
+    @ContentBuilder
+    private func downloadContent(for displayMode: GalleryListDisplayMode) -> some View {
+        switch displayMode {
+        case .row:
+            DownloadRows(
+                store: store,
+                rows: visibleRows,
+                rowFocus: $focusedRowID,
+                scrollPositionID: $store.visibleGalleryID,
+                openInspectorAction: openInspector
+            )
+
+        case .grid:
+            ScrollView {
+                LazyVGrid(
+                    columns: [GridItem(.adaptive(minimum: minCellWidth), spacing: 12, alignment: .top)],
+                    spacing: 16
+                ) {
+                    ForEach(visibleRows, id: \.state.id) { rowStore in
+                        DownloadGalleryItem(
+                            store: store,
+                            rowStore: rowStore,
+                            layout: .grid,
+                            rowFocus: $focusedRowID,
+                            openInspectorAction: { openInspector(rowStore.state.id) }
+                        )
+                        .id(rowStore.state.id)
+                    }
+                }
+                .scrollTargetLayout()
+                .padding(.horizontal)
+                .scrollEdgeEffectStyle(.soft, for: .top)
+            }
+            .scrollPosition(id: $store.visibleGalleryID, anchor: .top)
         }
     }
 
@@ -116,6 +145,11 @@ private extension DownloadsView {
     private var visibleRows: [StoreOf<DownloadRowFeature>] {
         let visible = Set(store.filteredDownloads.map(\.id))
         return store.scope(\.rows, action: \.rows).filter({ visible.contains($0.state.id) })
+    }
+
+    private func openInspector(_ id: String) {
+        inspectorOriginID = id
+        store.send(.inspectorButtonTapped(id))
     }
 
     private func restoreInspectorFocus() {
@@ -147,6 +181,8 @@ private extension DownloadsView {
 
     @ContentBuilder private func toolbar() -> some ToolbarContent {
         ToolbarItemGroup(placement: .topBarTrailing) {
+            GalleryLayoutPicker(scope: .downloads)
+                .disabled(hasArmedConfirmation)
             Menu {
                 Section {
                     Button {
@@ -174,214 +210,67 @@ private extension DownloadsView {
         }
     }
 
+    private var hasArmedConfirmation: Bool {
+        store.rows.contains(where: { $0.confirmationDialog != nil })
+    }
+
 }
 
-// MARK: DownloadRow
-/// One row of the list, bound to its own ``DownloadRowFeature`` store.
-///
-/// The row takes both stores on purpose. `rowStore` carries the delete confirmation and the intent
-/// that presents it, because that is the only per-row presentation state on this screen. Inspect,
-/// move, update, pause, open and the detail route are list-level actions with no per-row state
-/// behind them, so they keep going to `store` instead of taking a delegate hop through the child
-/// that would relocate them without simplifying anything.
-///
-/// The dialog is attached here, to the row, and under the project's amended placement rule that is
-/// the CORRECT anchor for a per-row destructive action: the iPad popover's arrow then points at the
-/// row being acted on, rather than at the top of the list pointing at nothing meaningful. Stability
-/// is judged against changes unrelated to the dialog's own action — a row that leaves the hierarchy
-/// because its own confirmed deletion removed it is the intended terminal state, not instability.
-/// The one hazard the rule does name is a snapshot moving the row for a reason the dialog knows
-/// nothing about, and both of its shapes are pinned at reducer level by
-/// `DownloadRowConfirmationTests` (DEF-15-11): a reordering tick keeps the armed row's dialog on
-/// that row and its confirmed action still deletes that gid, and a tick that drops the row takes the
-/// dialog with it while firing no deletion at all.
-private struct DownloadRow: View {
+/// Native List supplies swipe actions; its visible row IDs bridge scroll restoration to the grid.
+private struct DownloadRows: View {
     let store: StoreOf<DownloadsReducer>
-    @Bindable var rowStore: StoreOf<DownloadRowFeature>
+    let rows: [StoreOf<DownloadRowFeature>]
     let rowFocus: AccessibilityFocusState<String?>.Binding
-    let openInspectorAction: () -> Void
+    @Binding var scrollPositionID: String?
+    let openInspectorAction: (String) -> Void
+    @State private var visibleIDs = Set<String>()
+    @State private var restorationID: String?
 
-    private var download: DownloadedGallery { rowStore.download }
+    init(
+        store: StoreOf<DownloadsReducer>,
+        rows: [StoreOf<DownloadRowFeature>],
+        rowFocus: AccessibilityFocusState<String?>.Binding,
+        scrollPositionID: Binding<String?>,
+        openInspectorAction: @escaping (String) -> Void
+    ) {
+        self.store = store
+        self.rows = rows
+        self.rowFocus = rowFocus
+        _scrollPositionID = scrollPositionID
+        _restorationID = State(initialValue: scrollPositionID.wrappedValue)
+        self.openInspectorAction = openInspectorAction
+    }
 
     var body: some View {
-        DownloadListRow(
-            download: download,
-            rowFocus: rowFocus
-        ) {
-            store.send(.openReading(download.gid))
-        }
-        .contextMenu {
-            downloadContextMenu()
-        }
-        .swipeActions(edge: .leading, allowsFullSwipe: false) {
-            inspectButton
-
-            if canMove {
-                moveButton
-                    .tint(.teal)
-            }
-        }
-        .swipeActions(edge: .trailing, allowsFullSwipe: false) {
-            if download.canTriggerUpdate {
-                updateButton
-                    .tint(.orange)
-            }
-
-            if download.canTogglePause {
-                pauseButton
-                    .tint(download.displayStatus == .inactive ? .accentColor : .indigo)
-            }
-
-            // Passed `nil` deliberately, and tinted instead — the one place the two surfaces
-            // differ, which is why the role is a parameter rather than baked into the shared
-            // button. `Button(role: .destructive)` inside `.swipeActions` makes SwiftUI play
-            // an optimistic row-removal the instant the button is tapped — before, and
-            // regardless of, any data mutation. This button mutates nothing: it only presents
-            // a confirmation dialog. So the row vanished on tap, reappeared behind the dialog
-            // (the next diff still contains it), and vanished a third time when the real
-            // deletion arrived through the observe stream. The tint carries the red the role
-            // was supplying, which is the only effect Apple documents for it here. The
-            // dialog's Delete and the context-menu Delete KEEP their roles — neither surface
-            // has the optimistic-removal behavior. Both sides are pinned by
-            // `DownloadsSwipeActionSourceTests`.
-            deleteButton(role: nil)
-                .tint(.red)
-        }
-        // SwiftUI exposes swipe actions as VoiceOver custom actions by itself, and does NOT
-        // de-duplicate: mirroring them with named actions doubled every rotor entry (measured
-        // 2026-09-12 on the iPhone 17e simulator — `["Delete", "Pages", "Pages", "Move",
-        // "Delete"]`). Context-menu items are not exposed (16-CONTRAST-AUDIT, `CONTEXTMENU=
-        // not-exposed`), so the one item that lives only in the menu is the one that needs a
-        // mirror. It is the same `detailButton` the menu shows, so name and send cannot drift.
-        .accessibilityActions {
-            detailButton
-        }
-        .confirmationDialog(
-            $rowStore.scope(\.$confirmationDialog, action: \.confirmationDialog)
-        )
-    }
-}
-
-// MARK: DownloadRow buttons
-/// Each row action is defined once and used on both surfaces.
-///
-/// The swipe actions and the context menu offer the same operations, so writing them out twice
-/// meant every change had to be made twice and any divergence between the two was invisible in
-/// review. Styling stays at the call site instead of inside the button: `.tint` is meaningful on a
-/// swipe action and not in a menu, and delete's role is a parameter because that difference is
-/// deliberate rather than incidental — see the call site in the trailing swipe.
-///
-/// Move is the exception and stays two buttons. The swipe opens the list's folder dialog; the menu
-/// inlines the destinations as a submenu. Those are different affordances, not one affordance
-/// rendered twice, so folding them together would mean inventing a third behaviour.
-private extension DownloadRow {
-    var canMove: Bool {
-        download.displayStatus != .active && !moveDestinations.isEmpty
-    }
-
-    var moveDestinations: [String] {
-        store.folders.filter({ $0 != download.folderName })
-    }
-
-    var detailButton: some View {
-        Button {
-            store.send(.galleryTapped(download.gid))
-        } label: {
-            Label(
-                .RLocalizable.detail,
-                systemSymbol: .infoCircle
-            )
-        }
-    }
-
-    var inspectButton: some View {
-        Button {
-            openInspectorAction()
-        } label: {
-            Label(
-                .inspectPages,
-                systemSymbol: .listBulletRectanglePortrait
-            )
-        }
-    }
-
-    var moveButton: some View {
-        Button {
-            store.send(.moveButtonTapped(download))
-        } label: {
-            Label(
-                .move,
-                systemSymbol: .folder
-            )
-        }
-    }
-
-    var moveMenu: some View {
-        Menu {
-            ForEach(moveDestinations, id: \.self) { folder in
-                Button(folder) {
-                    store.send(.moveDownload(gid: download.gid, folderName: folder))
+        ScrollViewReader { proxy in
+            List {
+                ForEach(rows, id: \.state.id) { rowStore in
+                    DownloadGalleryItem(
+                        store: store,
+                        rowStore: rowStore,
+                        layout: .row,
+                        rowFocus: rowFocus,
+                        openInspectorAction: { openInspectorAction(rowStore.state.id) }
+                    )
+                    .id(rowStore.state.id)
+                    .onScrollVisibilityChange(threshold: 0.1) { isVisible in
+                        if isVisible {
+                            visibleIDs.insert(rowStore.state.id)
+                        } else {
+                            visibleIDs.remove(rowStore.state.id)
+                        }
+                        if restorationID == nil, !visibleIDs.isEmpty {
+                            scrollPositionID = rows.first(where: { visibleIDs.contains($0.state.id) })?.state.id
+                        }
+                    }
                 }
             }
-        } label: {
-            Label(
-                .moveToFolder,
-                systemSymbol: .folder
-            )
+            .onChange(of: rows.isEmpty, initial: true) { _, isEmpty in
+                guard !isEmpty, let id = restorationID else { return }
+                proxy.scrollTo(id, anchor: .top)
+                restorationID = nil
+            }
         }
-    }
-
-    var updateButton: some View {
-        Button {
-            store.send(.updateDownload(download.gid))
-        } label: {
-            Label(
-                .RLocalizable.update,
-                systemSymbol: .arrowTrianglehead2ClockwiseRotate90
-            )
-        }
-    }
-
-    var pauseButton: some View {
-        Button {
-            store.send(.toggleDownloadPause(download.gid))
-        } label: {
-            Label(
-                download.displayStatus == .inactive
-                    ? .resume
-                    : .pause,
-                systemSymbol: download.displayStatus == .inactive
-                    ? .playFill
-                    : .pauseFill
-            )
-        }
-    }
-
-    func deleteButton(role: ButtonRole?) -> some View {
-        Button(role: role) {
-            rowStore.send(.deleteButtonTapped)
-        } label: {
-            Label(.RLocalizable.delete, systemSymbol: .trash)
-        }
-    }
-
-    @ContentBuilder func downloadContextMenu() -> some View {
-        detailButton
-        inspectButton
-
-        if canMove {
-            moveMenu
-        }
-
-        if download.canTriggerUpdate {
-            updateButton
-        }
-
-        if download.canTogglePause {
-            pauseButton
-        }
-
-        deleteButton(role: .destructive)
     }
 }
 
