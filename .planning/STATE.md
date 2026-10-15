@@ -1,20 +1,20 @@
 ---
 gsd_state_version: "1.0"
 milestone: v3.0.0
-milestone_name: )
 current_phase: 17
 current_phase_name: Screenshot Automation, Visual Regression & OS 27 Modernization
 status: executing
 stopped_at: 17-06 revision re-shot (2026-10-13), 16/16 captured; waiting for the owner's review and explicit-set IDs
-last_updated: "2026-10-13T10:50:00Z"
+last_updated: "2026-10-15T06:46:16.904Z"
 last_activity: 2026-10-13
-state_head: 3ed57d4f1898854e8622bd2ab9ba6cc398abd2ec
+state_head: 6d1b81b6530ac6d0a70ab0c84c00b84cd19f9f46
 progress:
   total_phases: 17
   completed_phases: 10
   total_plans: 298
   completed_plans: 280
   percent: 59
+milestone_name: )
 source_head: 734d4b61c
 last_activity_desc: "17-06 revision (2026-10-13): capture changes faa607186..09f0bae79, Detail strip drawingGroup removed (29db0712a), sheet screens compared within the sheet (734d4b61c); third re-shoot 16/16 captured"
 ---
@@ -993,6 +993,7 @@ None yet.
 | 260923-shl | Restore gallery cell vertical centering; remove the uncommitted spacer/minimum-height attempt; zero build/lint diagnostics and iPhone/iPad Dynamic Type visual checks passed | 2026-09-23 | d36539a0 | [260923-shl-restore-vertical-centering-in-gallery-de](./quick/260923-shl-restore-vertical-centering-in-gallery-de/) |
 | 260930-o3m | Align Live Text with Apple's localized names (de Live-Text, ja テキスト認識表示, zh-Hant 原況文字; en/ko/zh-Hans already matched); audit found no other string naming it; builds clean, 1,057 feature passes plus 11 expected failures, UI tests 51 + 2 skips on iPhone Air and 53 on a fresh iPad mini 6; 24 localized reader toolbar and Large Content Viewer captures untruncated | 2026-09-30 | 63eae621 | [260930-o3m-align-live-text-localized-names-with-app](./quick/260930-o3m-align-live-text-localized-names-with-app/) |
 | 261013-ja0 | Live Text translation overlay accepted and integrated; translate symbol uses monochrome off and accent palette with repeating pulse on; 336 tests and 16 revert-isolation checks passed; JA0-D1 first-request stall remains deferred | 2026-10-14 | 7afd7fbf8 | [261013-ja0-live-text-translation-overlay](./quick/261013-ja0-live-text-translation-overlay/261013-ja0-SUMMARY.md) |
+| 14 | Translate the single-pass proposal into English; verify all 11 GSD documents from the appshot integration task, preserving commands, paths, commit IDs and evidence. | 2026-10-15 | 6d1b81b65 | [Proposal](./phases/17-localized-screenshot-capture-harness/17-SINGLE-PASS-PROPOSAL.md) |
 
 ### Roadmap Evolution
 
