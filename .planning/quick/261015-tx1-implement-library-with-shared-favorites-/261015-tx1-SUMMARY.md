@@ -97,7 +97,7 @@ while each list retains its own presentation preference and management behavior.
 | Task 3 corrections | `5536aec8ea` | Native category links, pagination and scroll continuity |
 | Task 3 gates | `56f906c766` | UI regressions and exact-identity validation runner |
 
-Final code/test revision: `56f906c76675441de3b79e5fa372c87e5a8bff65` on `agent/app-design`.
+Initial implementation code/test revision: `56f906c76675441de3b79e5fa372c87e5a8bff65` on `agent/app-design`.
 The final documentation commit follows these code commits; no self-referential SHA is invented.
 
 ## Evidence
@@ -158,3 +158,16 @@ D67 adds the opaque Library sidebar in `82da111f79`. See [SIDEBAR-BACKGROUND.md]
 for the rejected native probes, controlled geometry comparison, focused build/lint checks and four
 additional unedited screenshots. Earlier broad test results above remain tied to `56f906c766`;
 they are not represented as a rerun against this later appearance-only follow-up.
+
+## Native sidebar scroll-edge correction — 2026-10-16
+
+D68 rejects D67's static-color fallback because upward scrolling still exposed a clipped native
+blur region. `e257ee2050` removes that fallback and extends only Library's completed
+NavigationSplitView through the top container safe area. Native material and progressive blur now
+reach behind the status bar, with native controls retaining safe clearance.
+
+See [SIDEBAR-SCROLL-EDGE.md](SIDEBAR-SCROLL-EDGE.md) for scrolled light/dark evidence, iPad rotation,
+iPad/iPhone cold and live standard/AX1/AX3/AX5 checks, Duo transitions, clean build/lint, the corrected
+AX5 probe timing failure and exact validation limits. Eight additional unedited screenshots are
+tracked with hashes. Earlier broad test counts remain historical, not a rerun against `e257ee2050`.
+The iPad is open at the scrolled Library for owner review; the proposal preview remains stopped.

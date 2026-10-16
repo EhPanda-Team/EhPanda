@@ -179,4 +179,10 @@ screenshots remain available; stopping the server does not delete those artifact
 
 | ID | Decision / provenance | Disposition |
 |---|---|---|
-| D67 | Owner reports the white status-bar region clashes with the Library sidebar. First try extending the sidebar to the top; if that is not supported, use an opaque sidebar because no meaningful content lies behind it. | Implemented in `82da111f79`: an opaque adaptive system-color background on the sidebar List. Native top extension did not cross the parent tab region; container-level customization introduced a measured 44 pt layout shift and was rejected. Background-only decoration matches baseline geometry and both appearances. See quick task `261015-tx1` SIDEBAR-BACKGROUND.md for probes, screenshots and limits. |
+| D67 | Owner reports the white status-bar region clashes with the Library sidebar. First try extending the sidebar to the top; if that is not supported, use an opaque sidebar because no meaningful content lies behind it. | Implemented in `82da111f79`: an opaque adaptive system-color background on the sidebar List. Native top extension did not cross the parent tab region; container-level customization introduced a measured 44 pt layout shift and was rejected. Background-only decoration matches baseline geometry and both appearances. See quick task `261015-tx1` SIDEBAR-BACKGROUND.md for historical probes and evidence. Superseded by D68 after the owner reproduced the scrolling discontinuity. |
+
+## Sidebar scroll-edge continuity — 2026-10-16
+
+| ID | Decision / provenance | Disposition |
+|---|---|---|
+| D68 | Owner shows the sidebar's progressive blur remains visibly clipped below the status bar while rows scroll upward; rejects the opaque background as symptomatic. | Implemented in `e257ee2050`: extend the completed native NavigationSplitView through the top container safe area and remove D67's opaque List fallback. Scrolled light/dark captures confirm material and progressive blur reach behind the status bar; native title/search clearance, iPad rotation, compact navigation, four text sizes and Duo transitions checked. See quick task `261015-tx1` SIDEBAR-SCROLL-EDGE.md for actual evidence and limits. |

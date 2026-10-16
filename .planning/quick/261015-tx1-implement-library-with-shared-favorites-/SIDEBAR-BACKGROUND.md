@@ -2,6 +2,10 @@
 
 > **Image evidence availability:** Image files were removed from this repository history at the owner's request. Screenshot descriptions, filenames and earlier visual checks below are historical records, not currently available image evidence. Written findings, measurements and source artifacts remain; visual review requires fresh captures.
 
+> Historical implementation, superseded by D68 and `e257ee2050`. The static color comparison below
+> did not prove scroll-edge continuity; the owner reproduced a blur boundary during upward scrolling.
+> See [SIDEBAR-SCROLL-EDGE.md](SIDEBAR-SCROLL-EDGE.md) for the native container fix and current evidence.
+
 Owner D67 requests top-edge continuity first, with an opaque sidebar as the fallback.
 Implemented in `82da111f79` on `agent/app-design`.
 
@@ -21,9 +25,11 @@ Deployment stays iOS 27.0; launch-screen and supported-orientation settings need
 
 Apple's [background modifier](https://developer.apple.com/documentation/swiftui/view/background(_:ignoressafeareaedges:))
 extends decoration across selected safe-area edges. A regular-material background with top-edge
-extension did not reach the status-bar region in this TabView hierarchy. Moving the complete
-NavigationSplitView into the safe area would also move its foreground and was not selected.
-This observation does not assert that every possible hierarchy prevents top extension.
+extension did not reach the status-bar region in this TabView hierarchy. At that stage, moving the complete
+NavigationSplitView into the safe area was rejected on an unverified assumption that foreground
+placement would become unsafe. D68 later tested that narrower container change successfully, with
+native bars retaining safe control placement. The background probe did not establish that the
+hierarchy prevented top extension.
 
 The [navigation container background](https://developer.apple.com/documentation/swiftui/containerbackgroundplacement/navigation)
 is a per-column API; [navigationSplitView background](https://developer.apple.com/documentation/swiftui/containerbackgroundplacement/navigationsplitview)

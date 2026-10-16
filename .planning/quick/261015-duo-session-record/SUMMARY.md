@@ -3,7 +3,7 @@ type: retrospective-summary
 recorded: 2026-10-15
 historical_duo_implementation_commits: 21
 library_implementation_commits: 5
-decision_records: 67
+decision_records: 68
 ---
 
 # Delivery and commit ledger
@@ -116,7 +116,7 @@ devices were restored and normal launch checked. See the [quick summary](../2610
 and [validation limits and screenshots](../261015-tx1-implement-library-with-shared-favorites-/VALIDATION.md).
 
 This completes the selected Library implementation, not Phase 17 or a whole-app accessibility audit.
-The historical proposal preview remains running at `http://127.0.0.1:55920/index.html`.
+The historical proposal preview was subsequently stopped under D65; its saved artifacts remain.
 
 ## Sidebar background follow-up — 2026-10-16
 
@@ -125,3 +125,15 @@ same-toolchain baseline title/search geometry. Native extension and container pr
 and compact screenshots, build/lint results and exact scope limits are recorded in
 `../261015-tx1-implement-library-with-shared-favorites-/SIDEBAR-BACKGROUND.md`.
 The iPad app stays open for owner review; the previous proposal preview is stopped under D65.
+
+## Native sidebar scroll-edge follow-up — 2026-10-16
+
+D68 supersedes D67 after the owner's upward-scroll capture exposed the remaining blur boundary.
+`e257ee2050` extends Library's completed native NavigationSplitView through the top container safe
+area and removes the opaque List fallback. Actual scrolled light/dark captures establish continuity
+behind the status bar, while native titles/search retain safe clearance. Focused build/lint checks,
+iPad live rotation, standard/AX1/AX3/AX5 cold/live entry on iPad and iPhone, and Duo folds/orientation
+are recorded in [the current report](../261015-tx1-implement-library-with-shared-favorites-/SIDEBAR-SCROLL-EDGE.md).
+The report distinguishes the early AX5 navigation sample from its settled successful check and
+does not claim the broader suites or iPad window resizing were repeated. The iPad remains running
+for owner review; the compact iPhone and Duo are shut down.
