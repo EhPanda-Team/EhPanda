@@ -13,27 +13,43 @@ import SettingFeature
 import SwiftUI
 import Testing
 
-// A tapped download opens native inspector content at every window size, seeded for offline access.
-// SwiftUI owns the adaptive column/sheet presentation; the app does not select it by device identity.
+// A tapped download asks the app root to open its detail, and the root routes it by the window's
+// size classes: a window regular in both dimensions presents it modally, any other pushes it onto
+// the Downloads stack. Either way the detail is seeded from the download, so it renders offline.
+// `@MainActor` sits on members so the `DownloadFeatureTestCase` conformance stays nonisolated.
 struct AppDownloadDetailRoutingTests: DownloadFeatureTestCase {
     @MainActor
+    @Test
+    func aRegularWindowPresentsTheDownloadModally() async {
+        let download = sampleDownload(gid: "123456", title: "Completed Gallery", status: .completed)
+        let store = makeStore(download: download, window: .init(horizontal: .regular, vertical: .regular))
+
+        await store.send(.downloads(.galleryTapped(download.gid)))
+        await store.receive(\.downloads.delegate.openGalleryDetail, download)
+        await store.receive(\.presentation.presentGalleryDetail)
+        await store.skipReceivedActions(strict: false)
+        await store.skipInFlightEffects(strict: false)
+
+        #expect(store.state.presentationState.gallery?.detail.downloadBadge?.status == .completed)
+        #expect(store.state.downloadsState.path.isEmpty)
+    }
+
+    @MainActor
     @Test(arguments: [
-        WindowSizeClasses(horizontal: .regular, vertical: .regular),
         WindowSizeClasses(horizontal: .compact, vertical: .regular),
         WindowSizeClasses(horizontal: .regular, vertical: .compact)
     ])
-    func everyWindowUsesTheSameSeededInspector(_ window: WindowSizeClasses) async {
+    func aWindowCompactInEitherDimensionPushesTheDownload(_ window: WindowSizeClasses) async {
         let download = sampleDownload(gid: "123456", title: "Completed Gallery", status: .completed)
         let store = makeStore(download: download, window: window)
 
         await store.send(.downloads(.galleryTapped(download.gid)))
-        await store.receive(\.downloads.inspection.presented.details.onPresented)
+        await store.receive(\.downloads.delegate.openGalleryDetail, download)
+        await store.receive(\.downloads.pushGalleryDetail, download)
         await store.skipReceivedActions(strict: false)
         await store.skipInFlightEffects(strict: false)
 
-        #expect(store.state.downloadsState.inspection?.details?.detail.downloadBadge?.status == .completed)
-        #expect(store.state.downloadsState.inspectionOriginID == download.gid)
-        #expect(store.state.downloadsState.path.isEmpty)
+        #expect(store.state.downloadsState.path.count == 1)
         #expect(store.state.presentationState.gallery == nil)
     }
 }

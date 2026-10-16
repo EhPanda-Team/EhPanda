@@ -4,11 +4,7 @@ public import SwiftUI
 public struct SheetCloseToolbar: ToolbarContent {
     @Environment(\.dismiss) private var dismiss
 
-    private let action: (() -> Void)?
-
-    public init(action: (() -> Void)? = nil) {
-        self.action = action
-    }
+    public init() {}
 
     public var body: some ToolbarContent {
         if #available(iOS 27.1, *) {
@@ -20,7 +16,7 @@ public struct SheetCloseToolbar: ToolbarContent {
 
     private var closeItem: some ToolbarContent {
         ToolbarItem(placement: .topBarLeading) {
-            Button(role: .close, action: action ?? dismiss.callAsFunction)
+            Button(role: .close, action: dismiss.callAsFunction)
         }
     }
 }

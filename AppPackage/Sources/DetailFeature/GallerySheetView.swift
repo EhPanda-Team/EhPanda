@@ -5,22 +5,17 @@ public import SwiftUI
 public struct GallerySheetView: View {
     @Bindable private var store: StoreOf<GallerySheetFeature>
     private let showsCloseButton: Bool
-    private let closeAction: (() -> Void)?
 
-    public init(
-        store: StoreOf<GallerySheetFeature>, showsCloseButton: Bool = false,
-        closeAction: (() -> Void)? = nil
-    ) {
+    public init(store: StoreOf<GallerySheetFeature>, showsCloseButton: Bool = false) {
         self.store = store
         self.showsCloseButton = showsCloseButton
-        self.closeAction = closeAction
     }
 
     public var body: some View {
         NavigationStack(path: $store.scope(\.path, action: \.path)) {
             DetailView(store: store.scope(\.detail, action: \.detail), gid: store.detail.gid)
                 .toolbar {
-                    if showsCloseButton { SheetCloseToolbar(action: closeAction) }
+                    if showsCloseButton { SheetCloseToolbar() }
                 }
         } destination: { store in
             galleryDestination(store)
