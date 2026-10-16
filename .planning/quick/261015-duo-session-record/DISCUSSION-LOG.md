@@ -219,3 +219,9 @@ and controlled reproduction are recorded in
 | D76 | Owner: “那就保留 toggle”. | Restore the native working hide/show control, with sidebar initially expanded. This supersedes D69's hidden-toggle/fixed-open requirement. Use native column-visibility state so the control can actually change visibility; retain the approved sections/actions and top scroll-edge continuity. |
 
 D76 implemented in `25848cc4dc`; final checks and screenshot are in [HEADER-STABILITY.md](../261015-tx1-implement-library-with-shared-favorites-/HEADER-STABILITY.md).
+
+## Folder-only Downloads navigation — 2026-10-16
+
+| ID | Decision / provenance | Disposition |
+|---|---|---|
+| D77 | Owner removes the generic Downloads sidebar item because downloads belong to a folder. | Remove the all-downloads NavigationLink from Library. Keep links for actual folders and native Manage Folders / conditional Create Default Folder section actions. The existing navigation regression now uses a test-owned Inbox folder. Verification and implementation revision are recorded in [SIDEBAR-ACTIONS.md](../261015-tx1-implement-library-with-shared-favorites-/SIDEBAR-ACTIONS.md#folder-only-navigation-follow-up--d77). |

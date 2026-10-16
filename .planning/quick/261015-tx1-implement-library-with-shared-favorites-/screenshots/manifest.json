@@ -322,5 +322,14 @@
       "file": "library-sidebar-toggle-restored.png"
     },
     "image_status": "removed_from_repository_history"
+  },
+  {
+    "file": null,
+    "source": ".build/library/folder-entry/ipad-final.png",
+    "sha256": "24fde9eb07fc58ed071b0f6ce33182a81ae83f76645539efa9c46061f5f8120d",
+    "historical_image_identifiers": {
+      "file": "library-download-folder-entries.png"
+    },
+    "image_status": "removed_from_repository_history"
   }
 ]

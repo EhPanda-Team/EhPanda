@@ -201,3 +201,12 @@ initially expanded. Build and strict lint are clean; iPad hide/show and tab-stat
 source switching, and iPhone category/back navigation were checked. Four cold/live text sizes
 were captured on both devices with native layout differences recorded in the investigation.
 The iPad is left running the final app for review; the header issue remains owner-deferred.
+
+## Folder-only Downloads entries — 2026-10-16
+
+D77 is implemented in `b2d1d602dc`: Library removes the generic Downloads navigation row and lists
+actual folders. Native section actions and the sidebar toggle remain. The existing source-switching
+UI regression now uses a test-owned Inbox folder and passes once on compact iPhone; build and strict
+lint are clean. The normal iPad app is updated and left on Library / Default after verifying folder
+navigation. See [SIDEBAR-ACTIONS.md](SIDEBAR-ACTIONS.md#folder-only-navigation-follow-up--d77) for the
+unedited screenshot, exact evidence and limits.

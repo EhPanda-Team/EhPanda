@@ -2,8 +2,8 @@
 type: retrospective-summary
 recorded: 2026-10-15
 historical_duo_implementation_commits: 21
-library_implementation_commits: 6
-decision_records: 76
+library_implementation_commits: 10
+decision_records: 77
 ---
 
 # Delivery and commit ledger
@@ -157,3 +157,11 @@ native toggle, initially expanded, superseding D69's fixed-open requirement. See
 D76 implementation: `25848cc4dc` — restore native sidebar visibility control. Current validation
 and the owner-deferred header issue are recorded in the linked investigation. This commit does
 not replace native navigation or claim a framework layout fix.
+
+## Folder-only Downloads navigation
+
+D77 is implemented in `b2d1d602dc`: remove the generic Downloads sidebar link, retaining actual
+folder links and native folder actions. The existing category navigation regression now uses a
+test-owned Inbox folder and passes on compact iPhone. Build/lint and iPad native folder entry are
+verified; [evidence](../261015-tx1-implement-library-with-shared-favorites-/SIDEBAR-ACTIONS.md#folder-only-navigation-follow-up--d77)
+includes the unedited final screenshot. The iPad remains open for owner review.

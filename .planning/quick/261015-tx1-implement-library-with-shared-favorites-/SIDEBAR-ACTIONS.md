@@ -96,3 +96,35 @@ preview stays stopped. No unrelated simulator was operated.
 - Compact iPhone AX5 Library (image removed from repository history)
 - Duo open (image removed from repository history)
 - Duo tall layout (image removed from repository history)
+
+## Folder-only navigation follow-up — D77
+
+Owner removes the generic Downloads navigation item because downloads belong to a folder.
+`b2d1d602dc` removes that all-downloads link from the Library sidebar. Actual folder links,
+Manage Folders, conditional Create Default Folder and the restored native toggle remain.
+This is an entry-point change: existing aggregate filtering and internal presentation routes
+are not retired. No folder or downloaded content is removed.
+
+The existing category-navigation UI test now creates its own download fixture root and selects
+Inbox, then returns to Favorites and checks that its grid choice survives. Cleanup removes only
+that test-owned root. The scroll toward Downloads follows its current position above Favorites.
+
+Evidence under `.build/library/folder-entry/`:
+
+- `build-results.json`: build-for-testing succeeds with zero warnings and errors.
+- `result.json`, `selected-tests.xcresult`: the one enumerated navigation regression passes on
+  the dedicated iPhone Air / iOS 27.0, with zero failures, skips or repetitions.
+- Strict no-cache SwiftLint passes both changed Swift files with zero violations; diff check passes.
+- `ipad-final-ui.txt` and `ipad-final.png`: the updated iPad / iPadOS 27.0 sidebar contains Default
+  and Manage Folders under Downloads, with no generic Downloads row; tapping Default opens its
+  Downloads page. Native toggle and both section disclosure controls remain visible.
+- Unedited final iPad screenshot (image removed from repository history), with source
+  and SHA-256 in the screenshot manifest.
+
+The compact simulator's sim-use preflight could not read its hierarchy after auto-recovery;
+no sim-use interaction followed there. The independent native XCTest run above passed. The iPad
+preflight and native interactions succeeded. The compact simulator returned to Shutdown; the
+normal iPad app remains open on Library / Default in landscape-right for owner review.
+
+This focused row removal does not rerun the full feature/UI matrix or claim to resolve the
+owner-deferred header displacement. The broader evidence retains its original revision.
