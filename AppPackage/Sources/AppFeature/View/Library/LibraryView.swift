@@ -62,6 +62,8 @@ struct LibraryView: View {
             .navigationTitle(.RLocalizable.library)
             .toolbarTitleDisplayMode(.inlineLarge)
             .scrollEdgeEffectStyle(.soft, for: .top)
+            .scrollContentBackground(.hidden)
+            .background(Color(uiColor: .systemBackground))
         } detail: {
             detail
                 .scrollEdgeEffectStyle(.soft, for: .top)
