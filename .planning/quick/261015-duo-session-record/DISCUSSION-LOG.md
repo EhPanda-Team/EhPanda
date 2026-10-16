@@ -158,3 +158,13 @@ with that task; the previous proposal screenshots remain historical comparison e
   selected VoiceOver flows and Duo transition evidence; its VALIDATION.md defines the exact limits.
 - Migration completion and post-integration validation are separately tracked; historical passes
   must not be reported as testing a rewritten integrated tree.
+
+
+## Preview retirement and native review — 2026-10-16
+
+| ID | Decision / provenance | Disposition |
+|---|---|---|
+| D65 | Owner no longer needs the proposal preview kept open and requests the running app for review. | Stopped the verified localhost:55920 proposal server; browser inventory contains no preview tab. Started the existing current build on the dedicated iPad, with only the Library routing flag and no offline fixtures. Native Library categories are visible through the simulator accessibility tree. The current Xcode installation exposes the simulator window through Device Hub; opening it requires resolution of the retained no-Device-Hub instruction after automatic approval review rejected that action. |
+
+This supersedes the earlier keep-preview-running preference. The saved proposal and implementation
+screenshots remain available; stopping the server does not delete those artifacts.
