@@ -6,6 +6,13 @@ Library gallery entries use single tap to open Detail and double tap to start re
 same interaction to Favorites and Downloads in both row and grid layouts. Keep the existing
 Detail push/sheet rules and reader presentation; D88's rejected sheet/inspector trials remain reverted.
 
+## Later owner revision
+
+D90 removes Detail/Read from grid context menus. Favorites' otherwise-empty grid menu is removed;
+Downloads keeps management actions in its grid menu. Row menus, default Detail activation,
+double-tap reading and the accessible Read action remain. D89's validation below is historical;
+see [the current visual/menu follow-up](LIBRARY-VISUAL-POLISH.md).
+
 ## Implementation plan
 
 1. Preserve native Button semantics and arbitrate tap counts with SwiftUI's exclusive gesture

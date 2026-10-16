@@ -2,8 +2,8 @@
 type: retrospective-summary
 recorded: 2026-10-15
 historical_duo_implementation_commits: 21
-library_implementation_commits: 17
-decision_records: 89
+library_implementation_commits: 18
+decision_records: 90
 ---
 
 # Delivery and commit ledger
@@ -244,3 +244,15 @@ progress persistence. Existing presentation routes and D88's rollback remain int
 
 Fifty feature tests and five final native iPad/iPhone UI tests pass; builds and strict lint are
 clean. The original review iPad was updated in place. See [implementation and evidence boundaries](../261015-tx1-implement-library-with-shared-favorites-/LIBRARY-TAP-ACTIONS.md).
+
+## Library visual follow-up — D90
+
+`2f5706b0cfa24a5e880cdc301b3a457b153632b8` sets leading row-title alignment, adds neutral image tiles to Detail/Previews,
+and removes Detail/Read from grid context menus. Downloads' lifted preview wraps its whole card
+in an opaque background; ordinary cards remain transparent and accessible Read remains available.
+
+Five iPad native checks pass. The iPhone management test reproduces a first-menu-item center-tap
+failure twice; an independent native ScrollView/context-menu app reproduces it too. It remains
+open, with no coordinate/timing patch or claim of all-device success. See
+[visual/menu evidence](../261015-tx1-implement-library-with-shared-favorites-/LIBRARY-VISUAL-POLISH.md).
+The review iPad is updated; the deferred header issue and Phase 17 gates remain unchanged.

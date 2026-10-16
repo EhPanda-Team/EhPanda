@@ -291,3 +291,17 @@ existing local-reader route. Existing Detail presentation and the D88 rollback r
 All 50 selected feature tests and five final iPad/iPhone UI tests pass, with clean builds and strict
 lint. The review iPad is updated without replacing its data. See [tap behavior and evidence](LIBRARY-TAP-ACTIONS.md)
 for the feature/native source boundary and accessibility/remote-image verification limits.
+
+## Row titles, preview tiles and grid menus — D90
+
+`2f5706b0cfa24a5e880cdc301b3a457b153632b8` applies explicit leading row-title alignment, shared neutral Detail/Previews
+thumbnail tiles and management-only grid menus. Downloads uses a native preview builder to put
+the entire card inside an opaque container; Favorites' now-empty grid menu is removed. Default
+Detail activation, double-tap reading, row menus and accessible Read remain.
+
+Five iPad native checks pass with clean builds/lint. iPhone verification retains a reproducible
+landscape first-menu-item tap failure, also isolated in a native ScrollView/context-menu app.
+It is unresolved; no shifted-coordinate, delayed-tap or private-API workaround is added. See
+[full results and retained screenshots](LIBRARY-VISUAL-POLISH.md) and the
+[standalone reproduction](NATIVE-MENU-HIT-TEST.md). The original review iPad is updated with its
+existing data. Earlier broad test counts remain historical; Phase 17 is unchanged.
