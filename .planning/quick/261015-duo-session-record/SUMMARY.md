@@ -3,7 +3,7 @@ type: retrospective-summary
 recorded: 2026-10-15
 historical_duo_implementation_commits: 21
 library_implementation_commits: 5
-decision_records: 64
+decision_records: 66
 ---
 
 # Delivery and commit ledger

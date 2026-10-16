@@ -164,7 +164,12 @@ with that task; the previous proposal screenshots remain historical comparison e
 
 | ID | Decision / provenance | Disposition |
 |---|---|---|
-| D65 | Owner no longer needs the proposal preview kept open and requests the running app for review. | Stopped the verified localhost:55920 proposal server; browser inventory contains no preview tab. Started the existing current build on the dedicated iPad, with only the Library routing flag and no offline fixtures. Native Library categories are visible through the simulator accessibility tree. The current Xcode installation exposes the simulator window through Device Hub; opening it requires resolution of the retained no-Device-Hub instruction after automatic approval review rejected that action. |
+| D65 | Owner no longer needs the proposal preview kept open and requests the running app for review. | Stopped the verified localhost:55920 proposal server; browser inventory contains no preview tab. Started the existing current build on the dedicated iPad, with only the Library routing flag and no offline fixtures. Native Library categories are visible through the simulator accessibility tree. The current Xcode installation exposes the simulator window through Device Hub. Automatic approval review initially rejected opening it; the owner subsequently authorized this one use in D66. |
 
 This supersedes the earlier keep-preview-running preference. The saved proposal and implementation
 screenshots remain available; stopping the server does not delete those artifacts.
+
+
+| ID | Decision / provenance | Disposition |
+|---|---|---|
+| D66 | Owner explicitly permits Device Hub for this native review: “這次允許”. | Opened Device Hub and confirmed its selected EhPanda Probe iPad window displays Library / Favorites. The normal account state is logged out, so Favorites shows the login prompt. Leave this interactive window and the app running for owner review. This is a one-time authorization, not a blanket change to future verification tooling. |
