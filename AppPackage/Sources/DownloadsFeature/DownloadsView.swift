@@ -14,8 +14,6 @@ import SystemNotification
 public struct DownloadsView: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @AccessibilityFocusState private var focusedRowID: String?
-    @State private var viewport: CGSize = .zero
-    @State private var inspectorOriginID: String?
     @ScaledMetric(relativeTo: .callout) private var minCellWidth: CGFloat = 180
     @Bindable private var store: StoreOf<DownloadsReducer>
 
@@ -40,15 +38,6 @@ public struct DownloadsView: View {
                 }
                 .searchable(text: $store.keyword, placement: .navigationBarDrawer)
                 .sheet(
-                    item: $store.scope(\.$destination, action: \.destination).inspector,
-                    onDismiss: restoreInspectorFocus
-                ) { store in
-                    NavigationStack {
-                        DownloadInspectorView(store: store)
-                    }
-                    .privacyMask()
-                }
-                .sheet(
                     item: $store.scope(\.$destination, action: \.destination).folderManager
                 ) { folderStore in
                     FolderManagerView(store: folderStore)
@@ -66,20 +55,11 @@ public struct DownloadsView: View {
                 .toolbarTitleDisplayMode(.inlineLarge)
                 .toolbar(content: toolbar)
         }
-        .onGeometryChange(for: CGSize.self) { $0.size } action: { size in
-            viewport = size
-            store.supportsFloatingPanel = size.width >= 700
-        }
-        .background {
-            @UIBindable var presentationStore = store
-            FloatingDownloadPanel(
-                item: $presentationStore.scope(\.$floatingPanel, action: \.floatingPanel),
-                viewport: viewport
-            ) {
-                if let id = store.floatingPanelOriginID, visibleRows.contains(where: { $0.state.id == id }) {
-                    focusedRowID = id
-                }
-            }
+        .onChange(of: store.inspection == nil) { _, isDismissed in
+            guard isDismissed, let id = store.inspectionOriginID,
+                  visibleRows.contains(where: { $0.state.id == id })
+            else { return }
+            focusedRowID = id
         }
     }
 }
@@ -158,16 +138,7 @@ private extension DownloadsView {
     }
 
     private func openInspector(_ id: String) {
-        inspectorOriginID = id
         store.send(.inspectorButtonTapped(id))
-    }
-
-    private func restoreInspectorFocus() {
-        defer { inspectorOriginID = nil }
-        guard let inspectorOriginID,
-              visibleRows.contains(where: { $0.state.id == inspectorOriginID })
-        else { return }
-        focusedRowID = inspectorOriginID
     }
 
     @ContentBuilder private var emptyStateView: some View {
