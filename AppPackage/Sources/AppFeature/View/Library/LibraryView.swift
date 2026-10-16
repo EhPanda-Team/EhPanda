@@ -8,6 +8,7 @@ import SFSafeSymbolsExt
 import SwiftUI
 
 struct LibraryView: View {
+    @State private var columnVisibility: NavigationSplitViewVisibility = .all
     @Bindable private var store: StoreOf<LibraryFeature>
     @Bindable private var favoritesStore: StoreOf<FavoritesReducer>
     @Bindable private var downloadsStore: StoreOf<DownloadsReducer>
@@ -23,7 +24,7 @@ struct LibraryView: View {
     }
 
     var body: some View {
-        NavigationSplitView(columnVisibility: .constant(.all)) {
+        NavigationSplitView(columnVisibility: $columnVisibility) {
             List(selection: $store.selection.sending(\.select)) {
                 Section(isExpanded: $store.isDownloadsExpanded) {
                     NavigationLink(value: LibraryGroup.downloads(.all)) {
@@ -72,7 +73,6 @@ struct LibraryView: View {
             }
             .accessibilityIdentifier("library-categories")
             .listStyle(.sidebar)
-            .toolbar(removing: .sidebarToggle)
             .navigationTitle(.RLocalizable.library)
             .toolbarTitleDisplayMode(.inlineLarge)
             .scrollEdgeEffectStyle(.soft, for: .top)
