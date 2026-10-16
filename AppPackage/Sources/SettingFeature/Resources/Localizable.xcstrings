@@ -5484,6 +5484,48 @@
         }
       }
     },
+    "simplified_titles" : {
+      "comment" : "Gallery list display option: hide bracket-enclosed author and tag text from titles.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vereinfachte Titel"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Simplified Titles"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "簡略タイトル"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "간략한 제목"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "简略标题"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "簡略標題"
+          }
+        }
+      }
+    },
     "special_thanks" : {
       "extractionState" : "manual",
       "localizations" : {

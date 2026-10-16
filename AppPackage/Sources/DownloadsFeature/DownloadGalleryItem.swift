@@ -104,6 +104,7 @@ private extension DownloadGalleryItem {
 
             gridActionsMenu
         }
+        .frame(maxHeight: .infinity, alignment: .top)
     }
 
     var gridActionsMenu: some View {

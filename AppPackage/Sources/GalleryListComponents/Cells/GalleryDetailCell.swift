@@ -177,7 +177,7 @@ private struct GalleryDetailCellContent: View {
 
     private var textColumn: some View {
         VStack(alignment: .leading, spacing: textColumnSpacing) {
-            Text(gallery.title)
+            Text(setting.simplifyGalleryTitles ? gallery.simplifiedTitle : gallery.title)
                 .lineLimit(titleLineLimit)
                 .font(.headline)
                 .foregroundStyle(.primary)

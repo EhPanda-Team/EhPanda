@@ -17,7 +17,7 @@ public struct GalleryThumbnailCell: View {
     /// drawn by the badge itself, so it scales against the badge's own text style: a 15pt notch
     /// under text drawn three times taller reads as a square block, which is the same reason the
     /// badge's insets and radius scale (`CategoryLabel`). Identity at `.large`, where 15 is the
-    /// designed radius and matches the cell's own corners.
+    /// designed category-badge radius.
     @ScaledMetric(relativeTo: .footnote) private var badgeCornerRadius: CGFloat = 15
 
     private let gallery: Gallery
@@ -38,7 +38,7 @@ public struct GalleryThumbnailCell: View {
     }
 
     private var backgroundColor: Color {
-        colorScheme == .light ? Color(uiColor: .systemGray6) : Color(uiColor: .systemGray5)
+        Color(uiColor: colorScheme == .dark ? .systemGray5 : .secondarySystemBackground)
     }
     private var tagColor: Color {
         colorScheme == .light ? Color(uiColor: .systemGray5) : Color(uiColor: .systemGray4)
@@ -47,10 +47,14 @@ public struct GalleryThumbnailCell: View {
     public var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             cover
+                .fixedSize(horizontal: false, vertical: true)
             VStack(alignment: .leading, spacing: textColumnSpacing) {
-                Text(gallery.title)
+                Text(setting.simplifyGalleryTitles ? gallery.simplifiedTitle : gallery.title)
                     .font(.callout.bold())
-                    .lineLimit(titleLineLimit)
+                    .lineLimit(3)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
+                    .accessibilityIdentifier("gallery-grid-title-\(gallery.id)")
                 let tagContents = gallery.tagContents(maximum: setting.listTagsNumberMaximum)
                 if setting.showTagsInList, !tagContents.isEmpty {
                     TagCloudView(data: tagContents) { content in
@@ -75,7 +79,7 @@ public struct GalleryThumbnailCell: View {
             }
             .padding()
         }
-        .background(backgroundColor).clipShape(.rect(cornerRadius: 15))
+        .frame(maxHeight: .infinity, alignment: .top)
     }
 
     /// Five symbols that grow with the text need roughly 245 points at `.accessibility5`, against
@@ -115,7 +119,7 @@ public struct GalleryThumbnailCell: View {
     /// accessibility sizes it moves into the text column, where the full column width lets its
     /// uncapped text wrap without covering the artwork.
     private var cover: some View {
-        Color.clear
+        backgroundColor
             .aspectRatio(2.0 / 3.0, contentMode: .fit)
             .overlay {
                 KFImage(resolvedCoverURL)
@@ -128,6 +132,7 @@ public struct GalleryThumbnailCell: View {
                     .resizable()
                     .scaledToFit()
             }
+            .clipped()
             .overlay {
                 if !dynamicTypeSize.isAccessibilitySize {
                     CategoryLabel(
@@ -230,23 +235,6 @@ public struct GalleryThumbnailCell: View {
             .labelIconToTitleSpacing(2)
         }
     }
-
-    /// Five lines at every size, with or without a download badge.
-    ///
-    /// The budget this replaces — three lines, two when a download badge took a line of its own —
-    /// was chosen for a cell whose text is drawn at the default size, and it survives neither end
-    /// of this grid's real range. A half-width column at an accessibility size fits three or four
-    /// characters to a line, so three lines name no gallery at all; an uncapped title runs a single
-    /// cell past a whole screen. Five lines is the owner's budget for both ends (owner decision,
-    /// 2026-09-03), and it is a *wider* budget than the designed one at the default size, not a
-    /// narrower one.
-    ///
-    /// It deliberately supersedes default-size appearance parity (D-15) rather than preserving it:
-    /// the owner's reading is that the old cap was an oversight in a design that never met this
-    /// case, so a uniform budget repairs the design instead of trading information away. The tail
-    /// of a title too long for five lines is reached by opening the gallery, which is what tapping
-    /// the cell already does.
-    private let titleLineLimit: Int? = 5
 
     /// The stats read in full at every non-accessibility size, so they keep their single line
     /// there — the stack, not the glyphs, is what gives when the pair stops fitting. At
