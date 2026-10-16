@@ -153,7 +153,7 @@ final class LibraryPresentationUITests: XCTestCase {
         app.descendants(matching: .any)["Close"].firstMatch.tapWhenHittable("Close inspector")
         let readTitle = app.staticTexts["Library Download 1"].firstMatch
         reveal(readTitle, in: content, app: app)
-        readTitle.tapWhenHittable("Read a local downloaded gallery")
+        readTitle.doubleTap()
         let reader = app.descendants(matching: .any)["reading_view"].firstMatch
         XCTAssertTrue(reader.waitForExistence(timeout: 10))
         ReaderPageProbe(app: app).showPanel()
@@ -183,6 +183,68 @@ final class LibraryPresentationUITests: XCTestCase {
         app.launch()
         XCTAssertTrue(app.buttons["download-gallery-9102"].waitForExistence(timeout: 15))
         XCTAssertFalse(app.descendants(matching: .any)["download-gallery-9101"].firstMatch.exists)
+    }
+
+    func testFavoritesSingleTapDetailsAndDoubleTapReads() throws {
+        XCUIDevice.shared.orientation = .landscapeLeft
+        let app = XCUIApplication()
+        try app.launchStubbed(extraEnvironment: [
+            "EHPANDA_AUTOMATION_TAB": "favorites",
+            "EHPANDA_AUTOMATION_IPB_MEMBER_ID": "fixture-member",
+            "EHPANDA_AUTOMATION_IPB_PASS_HASH": "fixture-session"
+        ])
+        defer { app.terminate() }
+        try assertLibraryTapActions(in: app, source: "favorites", item: "gallery-list-item-1001")
+    }
+
+    func testDownloadsSingleTapDetailsAndDoubleTapReads() throws {
+        XCUIDevice.shared.orientation = .landscapeLeft
+        let root = try makeDownloads()
+        let app = XCUIApplication()
+        defer {
+            app.terminate()
+            do {
+                try FileManager.default.removeItem(at: root)
+            } catch {
+                XCTFail("Unable to remove test-owned downloads: \(error)")
+            }
+        }
+        try app.launchStubbed(extraEnvironment: [
+            "EHPANDA_AUTOMATION_TAB": "downloads",
+            "EHPANDA_UITEST_DOWNLOAD_ROOT": root.path()
+        ])
+        try assertLibraryTapActions(in: app, source: "downloads", item: "download-gallery-9101")
+    }
+
+    private func assertLibraryTapActions(in app: XCUIApplication, source: String, item: String) throws {
+        let picker = app.buttons["gallery-layout-\(source)"]
+        XCTAssertTrue(picker.waitForExistence(timeout: 15))
+        for layout in ["Row", "Grid"] {
+            picker.tapWhenHittable("Choose Library layout")
+            app.buttons[layout].tapWhenHittable("Library \(layout)")
+            let gallery = app.buttons[item].firstMatch
+            XCTAssertTrue(gallery.waitForExistence(timeout: 15))
+            gallery.tapWhenHittable("Single tap opens Detail")
+            let detail = app.descendants(matching: .any)["detail_view"].firstMatch
+            XCTAssertTrue(detail.waitForExistence(timeout: 15))
+            XCTAssertFalse(app.descendants(matching: .any)["reading_view"].firstMatch.exists)
+            app.returnFromGalleryDetail()
+            XCTAssertTrue(gallery.waitForExistence(timeout: 10))
+            gallery.doubleTap()
+            let reader = app.descendants(matching: .any)["reading_view"].firstMatch
+            XCTAssertTrue(reader.waitForExistence(timeout: 15), "Double tap must open reading directly.")
+            ReaderPageProbe(app: app).showPanel()
+            reader.buttons["Close"].firstMatch.tapWhenHittable("Return from direct reading")
+            XCTAssertTrue(reader.waitForNonExistence(timeout: 10))
+            XCTAssertTrue(picker.waitForExistence(timeout: 10))
+            XCTAssertFalse(detail.exists, "Double tap must not leave Detail beneath the reader.")
+            gallery.press(forDuration: 1)
+            app.buttons["Read"].tapWhenHittable("Read remains available without a double-tap gesture")
+            XCTAssertTrue(reader.waitForExistence(timeout: 15))
+            ReaderPageProbe(app: app).showPanel()
+            reader.buttons["Close"].firstMatch.tapWhenHittable("Close menu-initiated reading")
+            XCTAssertTrue(reader.waitForNonExistence(timeout: 10))
+        }
     }
 
     /// XCTest can report clipped cards as hittable. Use the measured visible content between native bars.

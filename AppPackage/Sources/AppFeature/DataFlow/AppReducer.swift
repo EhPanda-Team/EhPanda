@@ -557,6 +557,9 @@ private extension AppReducer {
 
         // The modal detail (a deep link, or a tab's gallery in a window regular in both
         // dimensions) and the Downloads tab present a reader directly.
+        if state.favoritesState.destination?.reading != nil {
+            effects.append(.send(.favorites(.destination(.presented(.reading(.flushReadingProgress))))))
+        }
         if state.downloadsState.destination?.reading != nil {
             effects.append(.send(.downloads(.destination(.presented(.reading(.flushReadingProgress))))))
         }

@@ -21,6 +21,8 @@ public import Foundation
 @available(macOS 13, iOS 16, tvOS 16, watchOS 9, *)
 public nonisolated extension LocalizedStringResource {
     enum RLocalizable {
+        public static var read: LocalizedStringResource { .read }
+
         public static var cancel: LocalizedStringResource { .cancel }
 
         public static var actions: LocalizedStringResource { .actions }

@@ -40,9 +40,10 @@ private extension DownloadGalleryItem {
     var row: some View {
         DownloadListRow(
             download: download,
-            rowFocus: rowFocus
+            rowFocus: rowFocus,
+            readAction: { store.send(.openReading(download.gid)) }
         ) {
-            store.send(.openReading(download.gid))
+            store.send(.galleryTapped(download.gid))
         }
         .accessibilityIdentifier("download-gallery-\(download.gid)")
         .contextMenu {
@@ -67,11 +68,7 @@ private extension DownloadGalleryItem {
             deleteButton(role: nil)
                 .tint(.red)
         }
-        // Swipe actions already become VoiceOver custom actions. Only the context-menu-only
-        // detail action is mirrored here, avoiding duplicate rotor entries.
-        .accessibilityActions {
-            detailButton
-        }
+        // Swipe actions become native accessibility actions; Read is provided by the tap interaction.
         .confirmationDialog(
             $rowStore.scope(\.$confirmationDialog, action: \.confirmationDialog)
         )
@@ -79,7 +76,7 @@ private extension DownloadGalleryItem {
 
     var grid: some View {
         Button {
-            store.send(.openReading(download.gid))
+            store.send(.galleryTapped(download.gid))
         } label: {
             GalleryThumbnailCell(
                 gallery: download.gallery,
@@ -91,6 +88,10 @@ private extension DownloadGalleryItem {
             .multilineTextAlignment(.leading)
         }
         .buttonStyle(.borderless)
+        .modifier(GalleryReadInteraction(
+            detailAction: { store.send(.galleryTapped(download.gid)) },
+            readAction: { store.send(.openReading(download.gid)) }
+        ))
         .frame(maxHeight: .infinity, alignment: .top)
         .accessibilityFocused(rowFocus, equals: download.id)
         .accessibilityIdentifier("download-gallery-\(download.gid)")
@@ -98,7 +99,6 @@ private extension DownloadGalleryItem {
             contextMenu
         }
         .accessibilityActions {
-            detailButton
             inspectButton
             if canMove { moveButton }
             if download.canTriggerUpdate { updateButton }
@@ -123,6 +123,14 @@ private extension DownloadGalleryItem {
             store.send(.galleryTapped(download.gid))
         } label: {
             Label(.RLocalizable.detail, systemSymbol: .infoCircle)
+        }
+    }
+
+    var readButton: some View {
+        Button {
+            store.send(.openReading(download.gid))
+        } label: {
+            Label(.RLocalizable.read, systemSymbol: .bookFill)
         }
     }
 
@@ -184,6 +192,7 @@ private extension DownloadGalleryItem {
     @ViewBuilder
     var contextMenu: some View {
         detailButton
+        readButton
         inspectButton
         if canMove {
             moveMenu
