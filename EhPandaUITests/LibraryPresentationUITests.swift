@@ -130,7 +130,10 @@ final class LibraryPresentationUITests: XCTestCase {
         reveal(actions, in: content, app: app)
         actions.tapWhenHittable("Manage downloaded gallery")
         app.buttons["Move"].tapWhenHittable("Move downloaded gallery")
-        try XCTUnwrap(app.buttons.matching(identifier: "Reading").allElementsBoundByIndex.last)
+        // The sidebar also contains Reading; target the menu action, not query ordering.
+        app.buttons.matching(NSPredicate(
+            format: "label == %@ AND identifier == %@", "Reading", ""
+        )).firstMatch
             .tapWhenHittable("Move to Reading folder")
         let movedManifest = root.appending(path: "Reading/[9101_library] Library Download 1/manifest.json")
         let moved = XCTNSPredicateExpectation(predicate: NSPredicate { _, _ in
