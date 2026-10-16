@@ -2,6 +2,10 @@
 
 > **Image evidence availability:** Image files were removed from this repository history at the owner's request. Screenshot descriptions, filenames and earlier visual checks below are historical records, not currently available image evidence. Written findings, measurements and source artifacts remain; visual review requires fresh captures.
 
+**Later owner decision:** D76 supersedes D69's hidden-toggle/fixed-open policy. Native hide/show
+is restored, initially expanded; section ordering, disclosure and actions remain. See
+[HEADER-STABILITY.md](HEADER-STABILITY.md) for the retained issue and final validation.
+
 Implemented owner decisions D69–D73 in `21473abc07` on `agent/app-design` (2026-10-16).
 
 ## Owner decisions and implementation

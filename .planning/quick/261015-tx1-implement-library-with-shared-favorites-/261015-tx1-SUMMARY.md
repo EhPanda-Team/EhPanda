@@ -185,3 +185,19 @@ Swift source/test files. Current native screenshots cover section disclosure, cr
 back navigation, four cold/live text sizes, iPad rotation, Duo transitions and retained blur
 continuity. See [SIDEBAR-ACTIONS.md](SIDEBAR-ACTIONS.md) for corrected review findings, exact evidence
 and limitations. The iPad remains open at Library / Downloads for owner review.
+
+## Header displacement follow-up — owner-deferred
+
+D74 records the owner's intermittent header displacement, also observed with the toggle retained
+after sidebar close/reopen. A minimal native app reproduces displacement on Home→Library entry.
+No header fix is selected; all failed experiments were reverted. D75 retains the native sidebar
+and issue record; the fixed-pane prototype is not adopted. D76 restores the working native
+toggle with an initially expanded sidebar, superseding the fixed-open policy. See
+[HEADER-STABILITY.md](HEADER-STABILITY.md) and [HEADER-REPRODUCTION.md](HEADER-REPRODUCTION.md).
+Earlier build/test passes do not establish header stability.
+
+D76 is implemented in `25848cc4dc`: native column-visibility state restores the functional toggle,
+initially expanded. Build and strict lint are clean; iPad hide/show and tab-state retention,
+source switching, and iPhone category/back navigation were checked. Four cold/live text sizes
+were captured on both devices with native layout differences recorded in the investigation.
+The iPad is left running the final app for review; the header issue remains owner-deferred.

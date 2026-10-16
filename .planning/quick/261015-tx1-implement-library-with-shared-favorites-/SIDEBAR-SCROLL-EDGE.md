@@ -53,8 +53,9 @@ build results are under `.build/library/sidebar-scroll-edge/`.
 
 Cold iPad title/search origins move from the earlier same-SDK opaque baseline's 108/160 pt to
 98/150 pt. After live rotation they settle at 88/140 pt, also observed in the earlier live layout.
-These are native bar layout differences, not a pixel-position preservation claim. The acceptance
-criterion is safe, usable native placement and continuous scroll effects. No offset was added to
+This was initially accepted as native bar variation. **D74 supersedes that acceptance:** the owner
+subsequently reported intermittent header displacement, including after sidebar close/reopen;
+[HEADER-STABILITY.md](HEADER-STABILITY.md) tracks the unresolved regression. No offset was added to
 force old coordinates. At AX5, long row labels wrap through native behavior; no font clamp is added.
 
 ### Probe failures and limits

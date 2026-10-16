@@ -295,5 +295,32 @@
       "file": "library-sidebar-actions-duo-tall.png"
     },
     "image_status": "removed_from_repository_history"
+  },
+  {
+    "file": null,
+    "source": ".build/library/header-stability/baseline-cold.png",
+    "sha256": "33f638b4a2cc44eca3cf902e1ad5ce85fb98cd20bd1c842121d6edb268b5a2c6",
+    "historical_image_identifiers": {
+      "file": "library-header-displaced.png"
+    },
+    "image_status": "removed_from_repository_history"
+  },
+  {
+    "file": null,
+    "source": ".build/library/header-stability/minimal-fixed-panes.png",
+    "sha256": "9702a7e20dc3f55366c40e6c1ab861008d97fd01c2e77f15e43ee1b6a1c75b9a",
+    "historical_image_identifiers": {
+      "file": "library-header-fixed-pane-prototype.png"
+    },
+    "image_status": "removed_from_repository_history"
+  },
+  {
+    "file": null,
+    "source": ".build/library/header-stability/toggle-final-review.png",
+    "sha256": "16106ee1b5c51818c12f449140138a8c6f26c2003e7299caa8a2c31ba0945434",
+    "historical_image_identifiers": {
+      "file": "library-sidebar-toggle-restored.png"
+    },
+    "image_status": "removed_from_repository_history"
   }
 ]

@@ -191,7 +191,7 @@ screenshots remain available; stopping the server does not delete those artifact
 
 | ID | Decision / provenance | Disposition |
 |---|---|---|
-| D69 | Owner wants the native hide/show sidebar button removed and the sidebar kept expanded. | Use native fixed all-column visibility and balanced layout; remove the sidebarToggle item. Preserve the native compact-width push/back model. Verified in `21473abc07` with iPad sidebar swipes, live rotation and Duo display transitions; compact iPhone back navigation remains available. |
+| D69 | Owner wants the native hide/show sidebar button removed and the sidebar kept expanded. | Originally use native fixed all-column visibility and balanced layout; remove the sidebarToggle item. **Superseded by D76**, which restores the working toggle. Preserve the native compact-width push/back model. Verified in `21473abc07` with iPad sidebar swipes, live rotation and Duo display transitions; compact iPhone back navigation remains available. |
 | D70 | Downloads toolbar no longer needs Manage Folders because Library already provides it. | Remove the duplicate button and its empty toolbar menu Section; retain other filter/layout operations. |
 | D71 | Downloads belongs above Favorites; both sections must collapse and expand. | Native Section(isExpanded:) and sidebar List style; separate expansion state in LibraryFeature, independent of source selection. |
 | D72 | Downloads section needs the same Create Default Folder shortcut as gallery Detail. | Show only when no folders exist, matching Detail; share its six-locale label and default folder name. Route to Downloads, create via DownloadClient, refresh folders, and surface failure with a retryable control. |
@@ -199,3 +199,23 @@ screenshots remain available; stopping the server does not delete those artifact
 
 Implemented in `21473abc07`; focused verification and screenshots are tracked in quick task `261015-tx1`
 [SIDEBAR-ACTIONS.md](../261015-tx1-implement-library-with-shared-favorites-/SIDEBAR-ACTIONS.md).
+
+## Library header stability investigation
+
+| ID | Decision / provenance | Disposition |
+|---|---|---|
+| D74 | Owner reports both Library column headers occasionally moving down together; also observed once after closing and reopening the sidebar while its toggle was still present. | Investigated tab entry and sidebar transitions, not just toggle removal. Native titles/search, section actions and continuous top scroll effects are retained. D75 defers the unresolved defect; D76 supersedes the original fixed-open constraint and restores the toggle. |
+
+The earlier D68 observation of different cold-entry and post-rotation title positions is now
+treated as a regression to resolve, rather than acceptable native variation. Current investigation
+and controlled reproduction are recorded in
+[HEADER-STABILITY.md](../261015-tx1-implement-library-with-shared-favorites-/HEADER-STABILITY.md).
+
+## Native sidebar retained; toggle restored
+
+| ID | Decision / provenance | Disposition |
+|---|---|---|
+| D75 | Owner chooses to retain the native sidebar and preserve the known issue/reproduction record instead of adopting the fixed-pane prototype. | No HStack replacement or other container redesign. Header stability remains unresolved and explicitly deferred by the owner. |
+| D76 | Owner: “那就保留 toggle”. | Restore the native working hide/show control, with sidebar initially expanded. This supersedes D69's hidden-toggle/fixed-open requirement. Use native column-visibility state so the control can actually change visibility; retain the approved sections/actions and top scroll-edge continuity. |
+
+D76 implemented in `25848cc4dc`; final checks and screenshot are in [HEADER-STABILITY.md](../261015-tx1-implement-library-with-shared-favorites-/HEADER-STABILITY.md).

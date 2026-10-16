@@ -2,8 +2,8 @@
 type: retrospective-summary
 recorded: 2026-10-15
 historical_duo_implementation_commits: 21
-library_implementation_commits: 5
-decision_records: 73
+library_implementation_commits: 6
+decision_records: 76
 ---
 
 # Delivery and commit ledger
@@ -146,3 +146,14 @@ of the duplicate Downloads toolbar manager. The create operation owns its refres
 and reports retryable failure. Nine focused tests pass; native iPad/iPhone/Duo and four text-size
 checks are detailed in [SIDEBAR-ACTIONS.md](../261015-tx1-implement-library-with-shared-favorites-/SIDEBAR-ACTIONS.md).
 The iPad is left open on Library / Downloads; the other dedicated devices are shut down.
+
+## Header stability — owner-deferred; native toggle restored
+
+D74 adds the owner's Library header displacement report and sidebar close/reopen observation.
+The native tab/split interaction reproduces independently. D75 retains the native sidebar and
+defers the unresolved defect; the fixed-pane prototype is not adopted. D76 restores the working
+native toggle, initially expanded, superseding D69's fixed-open requirement. See the quick task's [investigation](../261015-tx1-implement-library-with-shared-favorites-/HEADER-STABILITY.md).
+
+D76 implementation: `25848cc4dc` — restore native sidebar visibility control. Current validation
+and the owner-deferred header issue are recorded in the linked investigation. This commit does
+not replace native navigation or claim a framework layout fix.
