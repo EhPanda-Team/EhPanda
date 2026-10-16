@@ -5,9 +5,9 @@ current_phase: 17
 current_phase_name: Screenshot Automation, Visual Regression & OS 27 Modernization
 status: executing
 stopped_at: 17-06 revision re-shot (2026-10-13), 16/16 captured; waiting for the owner's visual review; agent prepares both gallery sets
-last_updated: "2026-10-16T07:34:09Z"
+last_updated: "2026-10-16T14:24:58Z"
 last_activity: 2026-10-16
-state_head: ebcd19a3cbb73f0a5687f0e211408fbcb3e1b54d
+state_head: afc91404d1174a1b86c2abd8c6bb2c8bc5d83b51
 progress:
   total_phases: 17
   completed_phases: 10
@@ -16,7 +16,7 @@ progress:
   percent: 59
 milestone_name: )
 source_head: 2519060029
-last_activity_desc: "D79-D80 grid appearance and default-on simplified titles verified; iPad open for review; Phase 17 gate unchanged"
+last_activity_desc: "D81 four rounded cover corners, reference proportions and two-line titles verified; iPad open for review; Phase 17 gate unchanged"
 ---
 
 # Project State
@@ -40,10 +40,12 @@ D77 removes the generic Downloads sidebar link; actual folders and native sectio
 `0bb7443e67` passes the focused compact navigation regression, clean build/lint and iPad folder entry.
 See [folder-only entry evidence](quick/261015-tx1-implement-library-with-shared-favorites-/SIDEBAR-ACTIONS.md#folder-only-navigation-follow-up--d77).
 
-D79–D80 implement transparent aligned grid cards, square covers and default-on simplified titles
-for every row/grid list in `ebcd19a3cb`. Current bounded verification: 97 model tests and four UI tests
-passed; builds/lint clean. See [grid and title evidence](quick/261015-tx1-implement-library-with-shared-favorites-/GRID-TITLES.md).
-The iPad remains open with its original data and the proposal preview remains available.
+D79–D80 deliver transparent aligned cards and default-on simplified titles for every row/grid list.
+D81 (`afc91404d1`) corrects all four cover corners to rounded, uses the reference's 2117:3000 ratio and
+limits grid titles to two lines. Two focused final UI tests pass across iPad/iPhone standard and
+AX1/AX3/AX5; builds/lint clean. The earlier 97 model and four UI tests remain tied to `ebcd19a3cb`.
+See [grid and title evidence](quick/261015-tx1-implement-library-with-shared-favorites-/GRID-TITLES.md).
+The updated iPad remains open with its original data and the proposal preview remains available.
 
 ## Project Reference
 
@@ -57,7 +59,7 @@ See: .planning/PROJECT.md (updated 2026-09-23)
 Phase: 17 of 17 (Screenshot Automation, Visual Regression & OS 27 Modernization)
 Plan: 6 of 24 complete (17-05, wave 6; dependency order, not numeric ID order); 17-06 implemented; the owner's 2026-10-13 review returned changes, revision in progress
 Status: executing (17-01/17-24/17-02/17-03/17-04/17-05 complete; 17-06 implemented and verified, owner review returned changes on 2026-10-13, revision in progress; the agent prepares galleries and fixtures for both content sets)
-Last activity: 2026-10-16 — Library D75 retains native sidebar and defers header displacement; D76 restores its native toggle.
+Last activity: 2026-10-16 — D81 cover corners/proportions and two-line grid titles verified; native sidebar/header remains owner-deferred.
 
 **Phase 17 current gate:** 6/24 plans complete. 17-01 passed 32/32 capture coordinates and 66/66 tests; verified public v2 fixtures are in `.capture/regression`. 17-24 measures all four real device/orientation combinations and validates the immutable tracked rendering pin. Both final measure and validate commands pass four geometry tests plus six rotation/restore tests, with 28 Python contract tests and zero compiler/lint diagnostics or runtime warnings. Pin SHA-256: `ffd7689fcaf9a312202fdfbf9787f0198711fd477d1e72a2a013851df85a394a`; evidence is `.capture/environment-measurement/` and `.capture/environment-pin-check/`. Implementation ends at 60b26f3a29; summary/review committed in 07ffb60cff. Four reserved staged entries remain unchanged. Devices restore portrait/original Large and their original boot states. Continue inline with 17-06; shared CAP-17-01/02/03/04/06 remain incomplete until all declaring plans finish. No baseline promotion.
 
