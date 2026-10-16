@@ -3,7 +3,7 @@ type: retrospective-summary
 recorded: 2026-10-15
 historical_duo_implementation_commits: 21
 library_implementation_commits: 10
-decision_records: 77
+decision_records: 78
 ---
 
 # Delivery and commit ledger
@@ -165,3 +165,9 @@ folder links and native folder actions. The existing category navigation regress
 test-owned Inbox folder and passes on compact iPhone. Build/lint and iPad native folder entry are
 verified; [evidence](../261015-tx1-implement-library-with-shared-favorites-/SIDEBAR-ACTIONS.md#folder-only-navigation-follow-up--d77)
 includes the unedited final screenshot. The iPad remains open for owner review.
+
+## Preview review resumed
+
+D78 reopens the unchanged historical proposal at `http://127.0.0.1:55920/index.html`.
+The saved page and all nine screenshots are available, and the in-app browser tab remains open
+for review. This supersedes D65's stopped-preview state without changing any design selection.
