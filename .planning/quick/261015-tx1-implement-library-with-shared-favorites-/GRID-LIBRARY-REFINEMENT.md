@@ -102,4 +102,6 @@ right-edge floating panel has not been selected or implemented.
 
 The owner subsequently authorized a working trial. [D86](FLOATING-PANEL-PROTOTYPE.md) adds the
 native iOS 27 trailing form-sheet alternative, which was missing from D85's option list. The
-SwiftUI inspector-style finding above is unchanged; final adoption awaits visual review.
+SwiftUI inspector-style finding above is historical; D87 later measured the actual native overlay.
+D88 rejects both presentation trials and restores the pre-trial behavior, while retaining D82–D84
+grid refinements. See [rollback record](PRESENTATION-TRIAL-ROLLBACK.md).
