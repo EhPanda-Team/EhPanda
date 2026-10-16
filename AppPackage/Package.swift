@@ -594,6 +594,7 @@ let targets: [PackageDescription.Target] = [
             .module(.detailFeature),
             .module(.downloadClient),
             .module(.galleryListComponents),
+            .module(.hapticsClient),
             .module(.readingFeature),
             .module(.resources),
             .module(.systemNotification),

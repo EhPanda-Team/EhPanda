@@ -6,6 +6,8 @@ struct LibraryFeature: Sendable {
     @ObservableState
     struct State: Equatable {
         var selection: LibraryGroup?
+        var isDownloadsExpanded = true
+        var isFavoritesExpanded = true
 
         init(selection: LibraryGroup? = nil) {
             self.selection = selection
@@ -16,6 +18,7 @@ struct LibraryFeature: Sendable {
         case binding(BindingAction<State>)
         case select(LibraryGroup?)
         case manageFolders
+        case createDefaultFolder
         case syncFromSources
     }
 
@@ -28,7 +31,7 @@ struct LibraryFeature: Sendable {
             case .select(let selection):
                 state.selection = selection
                 return .none
-            case .manageFolders, .syncFromSources:
+            case .manageFolders, .createDefaultFolder, .syncFromSources:
                 return .none
             }
         }

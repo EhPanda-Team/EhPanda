@@ -2753,47 +2753,6 @@
         }
       }
     },
-    "create_default_folder": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Create Default Folder"
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Standardordner erstellen"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "デフォルトフォルダを作成"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "기본 폴더 만들기"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "创建默认文件夹"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "建立預設資料夾"
-          }
-        }
-      }
-    },
     "delete_folder": {
       "extractionState": "manual",
       "localizations": {

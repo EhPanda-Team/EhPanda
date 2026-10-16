@@ -139,7 +139,7 @@ struct HeaderSection: View {
                         if downloadFolders.isEmpty {
                             Button(action: createDefaultFolderAction) {
                                 Label(
-                                    .createDefaultFolder,
+                                    .RLocalizable.createDefaultFolder,
                                     systemSymbol: .folderBadgePlus
                                 )
                             }

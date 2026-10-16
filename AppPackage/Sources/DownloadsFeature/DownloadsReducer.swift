@@ -6,9 +6,11 @@ public import ComposableArchitecture
 public import DetailFeature
 import DownloadClient
 public import Foundation
+import HapticsClient
 public import IdentifiedCollections
 public import ReadingFeature
 import Resources
+import UIKit
 
 /// The downloads list.
 ///
@@ -21,6 +23,9 @@ import Resources
 /// through the same mapping the inspector uses (see ``DownloadInspectorReducer``). The enumeration
 /// below is the complete set of result-carrying actions and is meant to be checked against `Action`
 /// when one is added — a new result-carrying action with no stated disposition contradicts this doc.
+///
+/// - `createDefaultFolderDone` — **reports** failure through a toast and error haptic. On success,
+///   refresh the folder list so the new destination appears and its bootstrap action disappears.
 ///
 /// The screen's other presentation surfaces are confirmation prompts rather than outcome channels:
 /// the per-item move and delete dialogs owned by ``DownloadRowFeature``. Neither reports an outcome,
@@ -70,6 +75,7 @@ public struct DownloadsReducer: Sendable {
         public var visibleGalleryID: String?
         public var folderFilter: DownloadFolderFilter = .all
         public var folders = [String]()
+        public var isCreatingDefaultFolder = false
         public var rows = IdentifiedArrayOf<DownloadRowFeature.State>()
         /// Only `.loading` (until the first snapshot lands) and `.idle` ever occur: the list reads
         /// the coordinator's in-memory index, which cannot fail (DEF-15-06), so the view carries no
@@ -139,6 +145,8 @@ public struct DownloadsReducer: Sendable {
         case refreshDownloadsDone
         case fetchFolders
         case fetchFoldersDone([String])
+        case createDefaultFolder
+        case createDefaultFolderDone(Result<[String], AppError>)
         case moveDownload(gid: String, folderName: String)
         case moveDownloadDone(Result<Void, AppError>)
         case openReading(String)
@@ -157,6 +165,7 @@ public struct DownloadsReducer: Sendable {
 
     @Dependency(\.analyticsClient) private var analyticsClient
     @Dependency(\.downloadClient) private var downloadClient
+    @Dependency(\.hapticsClient) private var hapticsClient
 
     public init() {}
 
@@ -272,7 +281,33 @@ public struct DownloadsReducer: Sendable {
             case .refreshDownloadsDone:
                 return .send(.fetchFolders)
 
+            case .createDefaultFolder:
+                guard !state.isCreatingDefaultFolder, state.folders.isEmpty else { return .none }
+                state.isCreatingDefaultFolder = true
+                return .merge(
+                    .cancel(id: CancelID.fetchFolders),
+                    .run { send in
+                        try await downloadClient.createFolder(Defaults.FilePath.defaultDownloadFolder)
+                        let folders = await downloadClient.fetchFolders()
+                        await send(.createDefaultFolderDone(.success(folders)))
+                    } catch: { error, send in
+                        await send(.createDefaultFolderDone(.failure(AppError(error))))
+                    }
+                )
+
+            case .createDefaultFolderDone(let result):
+                state.isCreatingDefaultFolder = false
+                switch result {
+                case .success(let folders):
+                    state.folders = folders
+                    return .run(operation: { _ in await hapticsClient.generateNotificationFeedback(.success) })
+                case .failure(let error):
+                    state.toast = .error(caption: error.alertText)
+                    return .run(operation: { _ in await hapticsClient.generateNotificationFeedback(.error) })
+                }
+
             case .fetchFolders:
+                guard !state.isCreatingDefaultFolder else { return .none }
                 return .run { send in
                     await send(.fetchFoldersDone(await downloadClient.fetchFolders()))
                 }

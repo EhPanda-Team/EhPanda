@@ -2,10 +2,12 @@ import AnalyticsClient
 import AppComponents
 @testable import AppFeature
 import AppModels
+import AppTools
 import ComposableArchitecture
 import DownloadClient
 @testable import DownloadsFeature
 import Foundation
+import HapticsClient
 import Testing
 
 // `@MainActor` here is compiler-required, not stylistic: every case below builds a TCA
@@ -14,6 +16,69 @@ import Testing
 // stays nonisolated — a main-actor conformance cannot be used from the `@Sendable`
 // dependency closures these stores install.
 struct DownloadsReducerRefreshTests: DownloadFeatureTestCase {
+    @MainActor
+    @Test
+    func testDefaultFolderCreationRefreshesAuthoritativeFolders() async {
+        let createdFolders = LockedBox<[String]>([])
+        let refreshStarted = AsyncStream<Void>.makeStream()
+        let folderResponse = AsyncStream<[String]>.makeStream()
+        let store = TestStore(initialState: DownloadsReducer.State(), reducer: DownloadsReducer.init) {
+            $0.downloadClient.createFolder = { name in createdFolders.value.append(name) }
+            $0.downloadClient.fetchFolders = {
+                refreshStarted.continuation.yield(())
+                for await folders in folderResponse.stream { return folders }
+                return []
+            }
+            $0.hapticsClient = .noop
+        }
+
+        await store.send(.createDefaultFolder) {
+            $0.isCreatingDefaultFolder = true
+        }
+        for await _ in refreshStarted.stream { break }
+        await store.send(.createDefaultFolder)
+        await store.send(.fetchFolders)
+        #expect(createdFolders.value == [Defaults.FilePath.defaultDownloadFolder])
+        folderResponse.continuation.yield(createdFolders.value)
+        folderResponse.continuation.finish()
+        refreshStarted.continuation.finish()
+        await store.receive(\.createDefaultFolderDone) {
+            $0.isCreatingDefaultFolder = false
+            $0.folders = [Defaults.FilePath.defaultDownloadFolder]
+        }
+        await store.send(.createDefaultFolder)
+        await store.finish()
+        #expect(createdFolders.value == [Defaults.FilePath.defaultDownloadFolder])
+    }
+
+    @MainActor
+    @Test
+    func testDefaultFolderFailureReportsErrorAndAllowsRetry() async {
+        let attempts = LockedBox(0)
+        let store = TestStore(initialState: DownloadsReducer.State(), reducer: DownloadsReducer.init) {
+            $0.downloadClient.createFolder = { _ in
+                attempts.value += 1
+                throw AppError.networkingFailed
+            }
+            $0.hapticsClient = .noop
+        }
+
+        for _ in 0..<2 {
+            await store.send(.createDefaultFolder) {
+                $0.isCreatingDefaultFolder = true
+            }
+            await store.receive(\.createDefaultFolderDone) {
+                $0.isCreatingDefaultFolder = false
+                $0.toast = .error(caption: AppError.networkingFailed.alertText)
+            }
+            await store.send(.toast(.dismiss)) {
+                $0.toast = nil
+            }
+        }
+        await store.finish()
+        #expect(attempts.value == 2)
+    }
+
     @MainActor
     @Test
     func testDownloadsReducerDoesNotReconcileAfterPauseFailure() async {
