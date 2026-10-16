@@ -284,7 +284,8 @@ struct AppReducer {
                 state.libraryState.selection = .favorites(index)
                 return .none
 
-            case .downloads(.binding(\.folderFilter)), .downloads(.fetchFoldersDone):
+            case .downloads(.binding(\.folderFilter)), .downloads(.fetchFoldersDone),
+                 .downloads(.createDefaultFolderDone):
                 return .send(.library(.syncFromSources))
 
             case let .home(.delegate(.openGalleryDetail(gallery))):
@@ -324,6 +325,12 @@ struct AppReducer {
                 return .run { send in
                     await send(.library(.select(selection)))
                     await send(.downloads(.folderManagerButtonTapped))
+                }
+
+            case .library(.createDefaultFolder):
+                return .run { send in
+                    await send(.library(.select(.downloads(.all))))
+                    await send(.downloads(.createDefaultFolder))
                 }
 
             case .library(.syncFromSources):

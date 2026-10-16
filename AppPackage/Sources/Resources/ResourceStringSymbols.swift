@@ -48,6 +48,8 @@ public nonisolated extension LocalizedStringResource {
 
         public static var continuedSessionTitle: LocalizedStringResource { .continuedSessionTitle }
 
+        public static var createDefaultFolder: LocalizedStringResource { .createDefaultFolder }
+
         public static var dateSeek: LocalizedStringResource { .dateSeek }
 
         public static func days(count: Int) -> LocalizedStringResource { .days(count) }

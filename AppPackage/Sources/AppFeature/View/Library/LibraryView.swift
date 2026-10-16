@@ -23,20 +23,9 @@ struct LibraryView: View {
     }
 
     var body: some View {
-        NavigationSplitView {
+        NavigationSplitView(columnVisibility: .constant(.all)) {
             List(selection: $store.selection.sending(\.select)) {
-                Section {
-                    ForEach(-1..<10, id: \.self) { index in
-                        NavigationLink(value: LibraryGroup.favorites(index)) {
-                            Label(favoritesStore.user.getFavoriteCategory(index: index), systemSymbol: .heart)
-                        }
-                        .accessibilityIdentifier("library-favorites-\(index)")
-                    }
-                } header: {
-                    Text(.RLocalizable.favorites)
-                }
-
-                Section {
+                Section(isExpanded: $store.isDownloadsExpanded) {
                     NavigationLink(value: LibraryGroup.downloads(.all)) {
                         Label(.RLocalizable.downloads, systemSymbol: .arrowDownCircle)
                     }
@@ -48,17 +37,42 @@ struct LibraryView: View {
                         }
                         .accessibilityIdentifier("library-downloads-\(folder)")
                     }
-
+                } header: {
+                    Text(.RLocalizable.downloads)
+                }
+                .sectionActions {
                     Button {
                         store.send(.manageFolders)
                     } label: {
                         Label(.RLocalizable.manageFolders, systemSymbol: .folderBadgeGearshape)
                     }
+                    .accessibilityIdentifier("library-manage-folders")
+
+                    if downloadsStore.folders.isEmpty {
+                        Button {
+                            store.send(.createDefaultFolder)
+                        } label: {
+                            Label(.RLocalizable.createDefaultFolder, systemSymbol: .folderBadgePlus)
+                        }
+                        .disabled(downloadsStore.isCreatingDefaultFolder)
+                        .accessibilityIdentifier("library-create-default-folder")
+                    }
+                }
+
+                Section(isExpanded: $store.isFavoritesExpanded) {
+                    ForEach(-1..<10, id: \.self) { index in
+                        NavigationLink(value: LibraryGroup.favorites(index)) {
+                            Label(favoritesStore.user.getFavoriteCategory(index: index), systemSymbol: .heart)
+                        }
+                        .accessibilityIdentifier("library-favorites-\(index)")
+                    }
                 } header: {
-                    Text(.RLocalizable.downloads)
+                    Text(.RLocalizable.favorites)
                 }
             }
             .accessibilityIdentifier("library-categories")
+            .listStyle(.sidebar)
+            .toolbar(removing: .sidebarToggle)
             .navigationTitle(.RLocalizable.library)
             .toolbarTitleDisplayMode(.inlineLarge)
             .scrollEdgeEffectStyle(.soft, for: .top)
@@ -66,6 +80,7 @@ struct LibraryView: View {
             detail
                 .scrollEdgeEffectStyle(.soft, for: .top)
         }
+        .navigationSplitViewStyle(.balanced)
         .ignoresSafeArea(.container, edges: .top)
     }
 

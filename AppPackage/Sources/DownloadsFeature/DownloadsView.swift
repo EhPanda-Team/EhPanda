@@ -59,7 +59,7 @@ public struct DownloadsView: View {
                     ReadingView(store: store)
                     .privacyMask()
                 }
-                // The list-level toast, currently used only by a refused Pause/Resume (DEF-15-05).
+                // Reports refused Pause/Resume and default-folder creation failures.
                 .toast($store.scope(\.$toast, action: \.toast))
                 .navigationTitle(.RLocalizable.downloads)
                 .toolbarTitleDisplayMode(.inlineLarge)
@@ -178,16 +178,6 @@ private extension DownloadsView {
             GalleryLayoutPicker(scope: .downloads)
                 .disabled(hasArmedConfirmation)
             Menu {
-                Section {
-                    Button {
-                        store.send(.folderManagerButtonTapped)
-                    } label: {
-                        Label(
-                            .RLocalizable.manageFolders,
-                            systemSymbol: .folderBadgeGearshape
-                        )
-                    }
-                }
                 Picker(selection: $store.folderFilter) {
                     Text(DownloadFolderFilter.all.title).tag(DownloadFolderFilter.all)
                     ForEach(store.folders, id: \.self) { folder in
