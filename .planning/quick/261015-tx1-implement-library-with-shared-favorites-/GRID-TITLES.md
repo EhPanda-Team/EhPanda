@@ -5,7 +5,11 @@
 Owner decisions: D79–D81. Current appearance correction: `428897f452ea32c300c39b0657db354ad01287fd`
 on `agent/app-design`; the initial D79–D80 implementation is `7b58987a7de4bcd164bf1c3f33bc93ebb57a27cb`.
 
-## Current appearance — D81
+Later D82–D84 updates remove horizontal metadata padding, hide ratings in Library grids only, and
+replace the Downloads Actions button with a context menu. See
+[the current metadata/actions report](GRID-LIBRARY-REFINEMENT.md). D81 cover geometry remains.
+
+## Current cover geometry — D81
 
 - All four cover corners are rounded at the original 15-point radius, including the category overlay.
 - Cover width:height is 2117:3000, matching the owner's reference image's original metadata.

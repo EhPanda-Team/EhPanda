@@ -244,3 +244,15 @@ D76 implemented in `25848cc4dc`; final checks and screenshot are in [HEADER-STAB
 | ID | Owner decision | Disposition |
 |---|---|---|
 | D81 | Clarifies that “four corners” means all four cover corners should be rounded, correcting the prior square-corner interpretation. Use the linked reference cover's ratio and reduce grid titles from three lines to two. | Implemented in `428897f452`: restore the original 15-point rounding on all cover corners; use the original image metadata ratio 2117:3000. Preserve transparent containers, title centering, sibling alignment and default-enabled simplification. Evidence: [GRID-TITLES.md](../261015-tx1-implement-library-with-shared-favorites-/GRID-TITLES.md). |
+
+## Grid metadata, management and inspector question — 2026-10-16
+
+| ID | Owner request | Disposition |
+|---|---|---|
+| D82 | The information below each grid cover needs no horizontal padding. | Remove only horizontal padding in the shared grid cell; preserve vertical spacing, D81 corners/ratio/two-line titles and aligned row geometry. |
+| D83 | Library grids should not show ratings; other grids should retain them. | Favorites and Downloads opt out through an explicit grid-only view policy, default on elsewhere. Rows are unchanged. |
+| D84 | Downloads grid Actions should be a context menu instead of a visible button. | Use the card's native context menu and shared action predicates; retain accessibility actions and anchor per-gallery confirmations to the stable card. |
+| D85 | Could Details/Pages use a floating inspector from the right without taking a separate column? | Investigated Xcode 27.1's public API: SwiftUI inspector has automatic column/sheet/overlay adaptation, no forced trailing-overlay style. Native popover and app-owned trailing panel are alternatives; no replacement is selected or implemented. [Findings and implementation evidence](../261015-tx1-implement-library-with-shared-favorites-/GRID-LIBRARY-REFINEMENT.md). |
+
+D82–D84 implementation: `8b2f03519b`; five focused native UI tests pass. Full evidence and D85 API
+findings are recorded in [GRID-LIBRARY-REFINEMENT.md](../261015-tx1-implement-library-with-shared-favorites-/GRID-LIBRARY-REFINEMENT.md).

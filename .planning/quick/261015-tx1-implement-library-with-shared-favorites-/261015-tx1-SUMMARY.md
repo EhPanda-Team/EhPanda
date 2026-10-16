@@ -237,3 +237,17 @@ the first visually incorrect attempt and precise verification limits are in
 [GRID-TITLES.md](GRID-TITLES.md#cover-correction-verification--d81). Earlier broader tests remain
 historical. The review iPad is updated in place and open at Library Favorites; native header
 investigation remains deferred and Phase 17 status is unchanged.
+
+## Library grid refinements — D82–D85
+
+`8b2f03519b` implements D82–D84: no horizontal grid metadata padding, ratings hidden for Library
+grids only, and native Downloads card context menus replacing visible Actions buttons. The default
+rating policy remains enabled elsewhere, and row presentation is unchanged. Confirmation ownership
+stays on the originating card with named accessibility actions preserved.
+
+Five focused native UI tests pass across iPad/iPhone with clean builds/lint. Exact selections,
+four-size geometry checks, full context-menu operation coverage, corrected text-extent assertion
+and fifteen original screenshots are in [GRID-LIBRARY-REFINEMENT.md](GRID-LIBRARY-REFINEMENT.md).
+That report also answers D85's inspector question: automatic native adaptation has no public forced
+trailing-overlay style. No replacement presentation is selected; Details/Pages stay as implemented.
+The updated iPad is open at Library Favorites with its original data and Phase 17 gates unchanged.

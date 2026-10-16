@@ -2,8 +2,8 @@
 type: retrospective-summary
 recorded: 2026-10-15
 historical_duo_implementation_commits: 21
-library_implementation_commits: 12
-decision_records: 81
+library_implementation_commits: 13
+decision_records: 85
 ---
 
 # Delivery and commit ledger
@@ -190,3 +190,17 @@ and iPhone standard/AX1/AX3/AX5, with clean builds/lint and eight original scree
 visual attempt exposed the nested category clip; final compositing and corner checks resolve it.
 See [current evidence](../261015-tx1-implement-library-with-shared-favorites-/GRID-TITLES.md#cover-correction-verification--d81).
 The iPad is updated and open for review; the known native header issue and Phase 17 gates are unchanged.
+
+## Grid metadata and context menus — D82–D85
+
+`8b2f03519b` removes horizontal metadata padding from every grid card, hides ratings only in Library
+grids, and replaces the Downloads Actions button with the card's native context menu. Stable
+per-gallery delete confirmation and accessibility actions remain. Five focused UI tests pass on
+iPad/iPhone, including four text sizes, non-Library ratings, folder move, Pages, local reading,
+cancel/delete and relaunch. Builds/lint are clean; fifteen original fixture screenshots are retained.
+
+D85 is an API investigation, not a selected redesign: SwiftUI inspector cannot be forced into a
+right-edge floating overlay through its public style preferences. Native popover or app-owned
+panel remain alternatives; existing Details/Pages presentation is unchanged. See
+[implementation and evidence](../261015-tx1-implement-library-with-shared-favorites-/GRID-LIBRARY-REFINEMENT.md).
+The updated review iPad is open; Phase 17 and the deferred native header issue are unchanged.

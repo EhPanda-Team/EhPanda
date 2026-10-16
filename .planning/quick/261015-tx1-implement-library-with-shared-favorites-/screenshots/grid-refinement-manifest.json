@@ -1,0 +1,186 @@
+{
+  "sourceCommit": "8b2f03519b968c1ec09157a4d92cbfd5f3f750ac",
+  "exportedAt": "2026-10-16T14:51:44Z",
+  "screenshots": [
+    {
+      "file": null,
+      "source": ".build/library/grid-refinement-ipad-02/selected-tests-attachments/3D8486BC-D8F7-43C7-B601-AF23C73C9612.png",
+      "sha256": "7fb3e6e65f88c25b8c0c839587146e5fc034514e4d55f0a7e51801de4db83031",
+      "test": "GalleryCardUITests/testFrontpageGridKeepsRatings()",
+      "device": "ipad",
+      "timestamp": 1792161856.981,
+      "historical_image_identifiers": {
+        "file": "screenshots/ipad-grid-refinement-frontpage-ratings.png"
+      },
+      "image_status": "removed_from_repository_history"
+    },
+    {
+      "file": null,
+      "source": ".build/library/grid-refinement-ipad-02/selected-tests-attachments/3645B0C9-B811-41EC-8162-14A62A4D383B.png",
+      "sha256": "613c8bbda836ef3dfa1413bccb6520f91ac968e053b8e8380efa9c6ac6bed3c9",
+      "test": "GalleryCardUITests/testGridAlignsDifferentTitleLengthsAtEveryTextSize()",
+      "device": "ipad",
+      "timestamp": 1792161918.303,
+      "historical_image_identifiers": {
+        "file": "screenshots/ipad-grid-refinement-ax5.png"
+      },
+      "image_status": "removed_from_repository_history"
+    },
+    {
+      "file": null,
+      "source": ".build/library/grid-refinement-ipad-02/selected-tests-attachments/6D85EE0C-F44E-4BC8-8A6A-2B058E2EE300.png",
+      "sha256": "160b700bbb264f732fb8f3a07e01e836f34928be4676e142a796e1ac3108ccc7",
+      "test": "GalleryCardUITests/testGridAlignsDifferentTitleLengthsAtEveryTextSize()",
+      "device": "ipad",
+      "timestamp": 1792161904.787,
+      "historical_image_identifiers": {
+        "file": "screenshots/ipad-grid-refinement-ax3.png"
+      },
+      "image_status": "removed_from_repository_history"
+    },
+    {
+      "file": null,
+      "source": ".build/library/grid-refinement-ipad-02/selected-tests-attachments/1D44ED75-44FB-4F59-A7E2-02987D5EBFB9.png",
+      "sha256": "025b08d75b54d5411afc9de3ddc9706b700443bd05dca8a33a9a30ee67ef3340",
+      "test": "GalleryCardUITests/testGridAlignsDifferentTitleLengthsAtEveryTextSize()",
+      "device": "ipad",
+      "timestamp": 1792161889.774,
+      "historical_image_identifiers": {
+        "file": "screenshots/ipad-grid-refinement-ax1.png"
+      },
+      "image_status": "removed_from_repository_history"
+    },
+    {
+      "file": null,
+      "source": ".build/library/grid-refinement-ipad-02/selected-tests-attachments/3015362D-3B37-4175-9C40-2F44AACE84FE.png",
+      "sha256": "1072203a9e66b44a2ce01e0293ae849966f407636dfe4fafe6a5142c75b6e16e",
+      "test": "GalleryCardUITests/testGridAlignsDifferentTitleLengthsAtEveryTextSize()",
+      "device": "ipad",
+      "timestamp": 1792161874.378,
+      "historical_image_identifiers": {
+        "file": "screenshots/ipad-grid-refinement-standard.png"
+      },
+      "image_status": "removed_from_repository_history"
+    },
+    {
+      "file": null,
+      "source": ".build/library/grid-refinement-ipad-02/selected-tests-attachments/22DC79DE-5D2A-4ED1-BF70-AA6F5756CBB2.png",
+      "sha256": "617c6acb594eebea26074a731d82efa6e3ca0e8481316ecaa89ba4b86f3da8db",
+      "test": "LibraryPresentationUITests/testDownloadManagementInBothLayouts()",
+      "device": "ipad",
+      "timestamp": 1792161984.755,
+      "historical_image_identifiers": {
+        "file": "screenshots/ipad-grid-refinement-downloads-confirmation.png"
+      },
+      "image_status": "removed_from_repository_history"
+    },
+    {
+      "file": null,
+      "source": ".build/library/grid-refinement-ipad-02/selected-tests-attachments/7A8DDE12-B004-40FC-A553-9FD0C90BFD54.png",
+      "sha256": "5a69457680d0fb09e4d12d15dd90c9fad90d2afed322e0c4bc235fdcd335e23e",
+      "test": "LibraryPresentationUITests/testDownloadManagementInBothLayouts()",
+      "device": "ipad",
+      "timestamp": 1792161951.063,
+      "historical_image_identifiers": {
+        "file": "screenshots/ipad-grid-refinement-downloads-menu.png"
+      },
+      "image_status": "removed_from_repository_history"
+    },
+    {
+      "file": null,
+      "source": ".build/library/grid-refinement-ipad-02/selected-tests-attachments/E2D7F7EC-E0D3-4D49-B919-B8EFE0D32104.png",
+      "sha256": "2388a6a41c96bfc4b3e408e3a0009ecf052d4a5b9b9b74f3b39a1e365ddc689a",
+      "test": "LibraryPresentationUITests/testDownloadManagementInBothLayouts()",
+      "device": "ipad",
+      "timestamp": 1792161946.833,
+      "historical_image_identifiers": {
+        "file": "screenshots/ipad-grid-refinement-downloads.png"
+      },
+      "image_status": "removed_from_repository_history"
+    },
+    {
+      "file": null,
+      "source": ".build/library/grid-refinement-iphone-01/selected-tests-attachments/B1D3CFF3-B041-402D-89CB-D38F594505BB.png",
+      "sha256": "12abeaf358bd62980e472ba21868f41adca6271be40c6bdc2f7f4eb32f4109f6",
+      "test": "GalleryLayoutUITests/testNativeTitlesAndGridAtEveryTextSize()",
+      "device": "iphone",
+      "timestamp": 1792162114.289,
+      "historical_image_identifiers": {
+        "file": "screenshots/iphone-grid-refinement-ax5.png"
+      },
+      "image_status": "removed_from_repository_history"
+    },
+    {
+      "file": null,
+      "source": ".build/library/grid-refinement-iphone-01/selected-tests-attachments/488DBBBA-136A-4495-9256-95E94BEF0A43.png",
+      "sha256": "b9465cac9a7378c0728cdd557442254a8ea1d249b8e40026276d9ec444ba347c",
+      "test": "GalleryLayoutUITests/testNativeTitlesAndGridAtEveryTextSize()",
+      "device": "iphone",
+      "timestamp": 1792162099.523,
+      "historical_image_identifiers": {
+        "file": "screenshots/iphone-grid-refinement-ax3.png"
+      },
+      "image_status": "removed_from_repository_history"
+    },
+    {
+      "file": null,
+      "source": ".build/library/grid-refinement-iphone-01/selected-tests-attachments/3BC2BD46-504A-41C7-AA5B-DFABBD4EA834.png",
+      "sha256": "34317d47685edb98ec6b4b78204f234860aad1f1d8f8b15cd99b40c7bc71181c",
+      "test": "GalleryLayoutUITests/testNativeTitlesAndGridAtEveryTextSize()",
+      "device": "iphone",
+      "timestamp": 1792162084.691,
+      "historical_image_identifiers": {
+        "file": "screenshots/iphone-grid-refinement-ax1.png"
+      },
+      "image_status": "removed_from_repository_history"
+    },
+    {
+      "file": null,
+      "source": ".build/library/grid-refinement-iphone-01/selected-tests-attachments/150C3C3A-C751-457E-920D-A4E76A7AC892.png",
+      "sha256": "3144b5089d84f44768201d59531a5e5b9e961a8d8fd3ded44481b167dbe47e7c",
+      "test": "GalleryLayoutUITests/testNativeTitlesAndGridAtEveryTextSize()",
+      "device": "iphone",
+      "timestamp": 1792162069.774,
+      "historical_image_identifiers": {
+        "file": "screenshots/iphone-grid-refinement-standard.png"
+      },
+      "image_status": "removed_from_repository_history"
+    },
+    {
+      "file": null,
+      "source": ".build/library/grid-refinement-iphone-01/selected-tests-attachments/2AD42B1F-1E7B-4768-A9B7-02355D26CF2D.png",
+      "sha256": "2dabced62af59b78e25ac58b597c148a18fc7ae0aadb454d8fc4f586849f6a1d",
+      "test": "LibraryPresentationUITests/testDownloadManagementInBothLayouts()",
+      "device": "iphone",
+      "timestamp": 1792162179.96,
+      "historical_image_identifiers": {
+        "file": "screenshots/iphone-grid-refinement-downloads-confirmation.png"
+      },
+      "image_status": "removed_from_repository_history"
+    },
+    {
+      "file": null,
+      "source": ".build/library/grid-refinement-iphone-01/selected-tests-attachments/3E42C041-F357-47CA-A420-2905E498D489.png",
+      "sha256": "469b5d2463ac1c1458db5912f7917f2a2668e97de04623aed2d06be16a481303",
+      "test": "LibraryPresentationUITests/testDownloadManagementInBothLayouts()",
+      "device": "iphone",
+      "timestamp": 1792162146.724,
+      "historical_image_identifiers": {
+        "file": "screenshots/iphone-grid-refinement-downloads-menu.png"
+      },
+      "image_status": "removed_from_repository_history"
+    },
+    {
+      "file": null,
+      "source": ".build/library/grid-refinement-iphone-01/selected-tests-attachments/EFA067B7-2C85-4FD4-98B7-C8E543EFFBAD.png",
+      "sha256": "5d773cdc8d4adcc7dbb9be8593b562cf92453eb9817ac375b1d5785bcc99a9fa",
+      "test": "LibraryPresentationUITests/testDownloadManagementInBothLayouts()",
+      "device": "iphone",
+      "timestamp": 1792162143.151,
+      "historical_image_identifiers": {
+        "file": "screenshots/iphone-grid-refinement-downloads.png"
+      },
+      "image_status": "removed_from_repository_history"
+    }
+  ]
+}
