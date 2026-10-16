@@ -55,13 +55,12 @@ public struct DownloadsReducer: Sendable {
 
     @Reducer
     public enum Destination {
-        case inspector(DownloadInspectorReducer)
         case reading(ReadingReducer)
         case folderManager(FolderManagerReducer)
     }
 
     @Reducer
-    public enum FloatingPanelFeature {
+    public enum InspectionFeature {
         case details(GallerySheetFeature)
         case pages(DownloadInspectorReducer)
     }
@@ -76,9 +75,8 @@ public struct DownloadsReducer: Sendable {
         @SharedReader(.setting) public var setting: Setting
         public var path = StackState<GalleryPath.State>()
         @Presents public var destination: Destination.State?
-        @Presents public var floatingPanel: FloatingPanelFeature.State?
-        public var supportsFloatingPanel = false
-        public var floatingPanelOriginID: String?
+        @Presents public var inspection: InspectionFeature.State?
+        public var inspectionOriginID: String?
         @Presents public var toast: AppAlertState<Never>?
         public var keyword = ""
         public var visibleGalleryID: String?
@@ -140,7 +138,7 @@ public struct DownloadsReducer: Sendable {
         case pushGalleryDetail(DownloadedGallery)
         case path(StackActionOf<GalleryPath>)
         case destination(PresentationAction<Destination.Action>)
-        case floatingPanel(PresentationAction<FloatingPanelFeature.Action>)
+        case inspection(PresentationAction<InspectionFeature.Action>)
         case inspectorButtonTapped(String)
         case folderManagerButtonTapped
         case toast(PresentationAction<Never>)
@@ -191,14 +189,11 @@ public struct DownloadsReducer: Sendable {
                 // Bail if the download vanished between the observation update and this tap; routing to
                 // detail with `.empty` would write an unresolvable (random-gid) history entry.
                 guard let download = state.downloads.first(where: { $0.gid == gid }) else { return .none }
-                guard state.supportsFloatingPanel else {
-                    return .send(.delegate(.openGalleryDetail(download)))
-                }
-                state.floatingPanelOriginID = gid
-                state.floatingPanel = .details(.init(detail: .init(seededFrom: download)))
+                state.inspectionOriginID = gid
+                state.inspection = .details(.init(detail: .init(seededFrom: download)))
                 let gallery = download.gallery
                 return .merge(
-                    .send(.floatingPanel(.presented(.details(.onPresented)))),
+                    .send(.inspection(.presented(.details(.onPresented)))),
                     .run { _ in
                         analyticsClient.send(.galleryDetailOpened(
                             category: gallery.category,
@@ -232,15 +227,9 @@ public struct DownloadsReducer: Sendable {
                 return .none
 
             case .inspectorButtonTapped(let gid):
-                if state.supportsFloatingPanel {
-                    state.floatingPanelOriginID = gid
-                    state.floatingPanel = .pages(.init(gid: gid))
-                    return .send(.floatingPanel(.presented(.pages(.onPresented))))
-                }
-                state.destination = .inspector(.init(gid: gid))
-                // Presenting the inspector starts its inspection load and download observation,
-                // replacing the sheet view's former `onAppear`.
-                return .send(.destination(.presented(.inspector(.onPresented))))
+                state.inspectionOriginID = gid
+                state.inspection = .pages(.init(gid: gid))
+                return .send(.inspection(.presented(.pages(.onPresented))))
 
             case .folderManagerButtonTapped:
                 state.destination = .folderManager(.init())
@@ -509,7 +498,7 @@ public struct DownloadsReducer: Sendable {
                  .destination(.presented(.folderManager(.deleteFolderDone))):
                 return .send(.fetchFolders)
 
-            case let .floatingPanel(.presented(.details(.detail(.destination(.presented(.folderManager(action))))))):
+            case let .inspection(.presented(.details(.detail(.destination(.presented(.folderManager(action))))))):
                 switch action {
                 case .createFolderDone, .renameFolderDone, .deleteFolderDone:
                     return .send(.fetchFolders)
@@ -517,11 +506,11 @@ public struct DownloadsReducer: Sendable {
                     return .none
                 }
 
-            case .floatingPanel, .destination:
+            case .inspection, .destination:
                 return .none
             }
         }
-        .ifLet(\.$floatingPanel, action: \.floatingPanel)
+        .ifLet(\.$inspection, action: \.inspection)
         .ifLet(\.$destination, action: \.destination)
         .ifLet(\.$toast, action: \.toast)
         .forEach(\.rows, action: \.rows, element: DownloadRowFeature.init)
@@ -530,7 +519,7 @@ public struct DownloadsReducer: Sendable {
 }
 
 extension DownloadsReducer.Destination.State: Equatable {}
-extension DownloadsReducer.FloatingPanelFeature.State: Equatable {}
+extension DownloadsReducer.InspectionFeature.State: Equatable {}
 
 // MARK: Outcome transitions
 

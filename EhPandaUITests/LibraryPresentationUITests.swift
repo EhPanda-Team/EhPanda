@@ -185,7 +185,7 @@ final class LibraryPresentationUITests: XCTestCase {
         XCTAssertFalse(app.descendants(matching: .any)["download-gallery-9101"].firstMatch.exists)
     }
 
-    func testFloatingDownloadsPanelPreservesGridAndResizes() throws {
+    func testNativeDownloadsInspectorAdaptsAndNavigates() throws {
         let originalOrientation = XCUIDevice.shared.orientation
         XCUIDevice.shared.orientation = .landscapeLeft
         let root = try makeDownloads()
@@ -211,50 +211,55 @@ final class LibraryPresentationUITests: XCTestCase {
         let content = app.descendants(matching: .any)["downloads-gallery-list"].firstMatch
         reveal(first, in: content, app: app)
         let originalFrame = first.frame
-        let originalContentFrame = content.frame
-        attachPanelScreenshot("Floating panel - grid before")
+        attachPanelScreenshot("Native inspector - grid before")
         first.press(forDuration: 1)
-        app.buttons["Pages"].tapWhenHittable("Open floating Pages")
-        let panel = app.descendants(matching: .any)["download-floating-panel"].firstMatch
+        app.buttons["Pages"].tapWhenHittable("Open inspector Pages")
+        let panel = app.descendants(matching: .any)["download-native-inspector"].firstMatch
         XCTAssertTrue(panel.waitForExistence(timeout: 10))
         XCTAssertTrue(app.navigationBars["Download Status"].waitForExistence(timeout: 10))
+        XCTAssertTrue(app.navigationBars["Downloads"].exists, "Inspector must not replace the list title.")
         XCTAssertEqual(first.frame.width, originalFrame.width, accuracy: 1)
         XCTAssertEqual(first.frame.minX, originalFrame.minX, accuracy: 1)
-        XCTAssertEqual(content.frame.width, originalContentFrame.width, accuracy: 1)
-        XCTAssertGreaterThan(panel.frame.minX, content.frame.minX)
-        attachPanelScreenshot("Floating panel - Pages landscape")
+        attachPanelScreenshot("Native inspector - Pages landscape")
+        let geometry = XCTAttachment(string: "Before card: \(originalFrame); after card: \(first.frame); "
+            + "list: \(content.frame); inspector: \(panel.frame); "
+            + "list title: \(app.navigationBars["Downloads"].frame); "
+            + "inspector title: \(app.navigationBars["Download Status"].frame)")
+        geometry.name = "Native inspector geometry"
+        geometry.lifetime = .keepAlways
+        add(geometry)
         XCUIDevice.shared.orientation = .portrait
         XCTAssertTrue(app.navigationBars["Download Status"].waitForExistence(timeout: 10))
         XCTAssertLessThanOrEqual(panel.frame.maxX, app.windows.firstMatch.frame.maxX)
-        attachPanelScreenshot("Floating panel - Pages resized")
-        app.buttons["Close"].firstMatch.tapWhenHittable("Close resized floating panel")
+        attachPanelScreenshot("Native inspector - Pages resized")
+        app.buttons["Close"].firstMatch.tapWhenHittable("Close resized inspector panel")
         XCTAssertTrue(panel.waitForNonExistence(timeout: 10))
         XCUIDevice.shared.orientation = .landscapeLeft
         reveal(first, in: content, app: app)
         first.press(forDuration: 1)
-        app.buttons["Detail"].tapWhenHittable("Open floating Details")
+        app.buttons["Detail"].tapWhenHittable("Open inspector Details")
         XCTAssertTrue(panel.waitForExistence(timeout: 10))
         XCTAssertTrue(app.descendants(matching: .any)["detail_view"].firstMatch.waitForExistence(timeout: 15))
-        XCTAssertEqual(content.frame.width, originalContentFrame.width, accuracy: 1)
-        attachPanelScreenshot("Floating panel - Details landscape")
-        app.buttons["Read"].firstMatch.tapWhenHittable("Read from floating Details")
+        XCTAssertTrue(app.navigationBars["Downloads"].exists, "Inspector must not replace the list title.")
+        attachPanelScreenshot("Native inspector - Details landscape")
+        app.buttons["Read"].firstMatch.tapWhenHittable("Read from inspector Details")
         let reader = app.descendants(matching: .any)["reading_view"].firstMatch
         XCTAssertTrue(reader.waitForExistence(timeout: 10))
         ReaderPageProbe(app: app).showPanel()
-        reader.buttons["Close"].firstMatch.tapWhenHittable("Return from reader to floating Details")
+        reader.buttons["Close"].firstMatch.tapWhenHittable("Return from reader to inspector Details")
         XCTAssertTrue(panel.waitForExistence(timeout: 10))
-        app.buttons["Show All"].firstMatch.tapWhenHittable("Open Previews within floating Details")
+        app.buttons["Show All"].firstMatch.tapWhenHittable("Open Previews within inspector Details")
         let previews = app.navigationBars["Previews"]
         XCTAssertTrue(previews.waitForExistence(timeout: 10))
-        previews.buttons.firstMatch.tapWhenHittable("Return to floating Details")
+        previews.buttons.firstMatch.tapWhenHittable("Return to inspector Details")
         XCTAssertTrue(app.buttons["Read"].firstMatch.waitForExistence(timeout: 10))
-        app.buttons["Close"].firstMatch.tapWhenHittable("Close floating Details")
+        app.buttons["Close"].firstMatch.tapWhenHittable("Close inspector Details")
         XCTAssertTrue(panel.waitForNonExistence(timeout: 10))
         XCTAssertTrue(first.isHittable)
         XCTAssertEqual(first.frame.width, originalFrame.width, accuracy: 1)
     }
 
-    func testNarrowDownloadsRetainsNativePresentations() throws {
+    func testNarrowDownloadsInspectorUsesNativeSheet() throws {
         let originalOrientation = XCUIDevice.shared.orientation
         XCUIDevice.shared.orientation = .portrait
         let root = try makeDownloads()
@@ -277,14 +282,15 @@ final class LibraryPresentationUITests: XCTestCase {
         first.press(forDuration: 1)
         app.buttons["Pages"].tapWhenHittable("Open native Pages sheet")
         XCTAssertTrue(app.navigationBars["Download Status"].waitForExistence(timeout: 10))
-        XCTAssertFalse(app.descendants(matching: .any)["download-floating-panel"].firstMatch.exists)
-        attachPanelScreenshot("Floating panel - narrow native Pages")
+        XCTAssertTrue(app.descendants(matching: .any)["download-native-inspector"].firstMatch.exists)
+        attachPanelScreenshot("Native inspector - narrow native Pages")
         app.buttons["Close"].firstMatch.tapWhenHittable("Close native Pages sheet")
         first.press(forDuration: 1)
         app.buttons["Detail"].tapWhenHittable("Open native Details navigation")
         XCTAssertTrue(app.descendants(matching: .any)["detail_view"].firstMatch.waitForExistence(timeout: 15))
-        XCTAssertFalse(app.descendants(matching: .any)["download-floating-panel"].firstMatch.exists)
-        app.returnFromGalleryDetail()
+        XCTAssertTrue(app.descendants(matching: .any)["download-native-inspector"].firstMatch.exists)
+        attachPanelScreenshot("Native inspector - narrow Details")
+        app.buttons["Close"].firstMatch.tapWhenHittable("Close native Details inspector")
         XCTAssertTrue(first.waitForExistence(timeout: 10))
     }
 
