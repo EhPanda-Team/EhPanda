@@ -1,0 +1,61 @@
+{
+  "reviewStatus": "prototype-awaiting-owner-review",
+  "screenshots": [
+    {
+      "title": "Floating panel - Details landscape",
+      "file": null,
+      "source": ".build/library/floating-panel-ipad-05/selected-tests-attachments/6AF7E239-BB46-4712-8F8D-C4F575D292FB.png",
+      "sha256": "13ea3f18bebf1e41508288e2f2c70564ce40d77b071554e758bff2e465fc3135",
+      "test": "LibraryPresentationUITests/testFloatingDownloadsPanelPreservesGridAndResizes()",
+      "historical_image_identifiers": {
+        "file": "ipad-floating-details.png"
+      },
+      "image_status": "removed_from_repository_history"
+    },
+    {
+      "title": "Floating panel - Pages resized",
+      "file": null,
+      "source": ".build/library/floating-panel-ipad-05/selected-tests-attachments/78872D69-C5EA-4420-80DC-C22B4575F1EC.png",
+      "sha256": "a10f6082d8e98c19c43455860b1f99b3a72c653032d205f6530538f2e30b90f8",
+      "test": "LibraryPresentationUITests/testFloatingDownloadsPanelPreservesGridAndResizes()",
+      "historical_image_identifiers": {
+        "file": "ipad-floating-pages-portrait.png"
+      },
+      "image_status": "removed_from_repository_history"
+    },
+    {
+      "title": "Floating panel - Pages landscape",
+      "file": null,
+      "source": ".build/library/floating-panel-ipad-05/selected-tests-attachments/FE57FC47-23D4-47F6-B444-08EDA4A453E3.png",
+      "sha256": "1870d276a9682325cb91623a3230e9bef2ba7f6f1bbdcf24365988871be527d2",
+      "test": "LibraryPresentationUITests/testFloatingDownloadsPanelPreservesGridAndResizes()",
+      "historical_image_identifiers": {
+        "file": "ipad-floating-pages.png"
+      },
+      "image_status": "removed_from_repository_history"
+    },
+    {
+      "title": "Floating panel - grid before",
+      "file": null,
+      "source": ".build/library/floating-panel-ipad-05/selected-tests-attachments/1DC3773B-EF30-4B23-8BF3-1DBBBB4FCA5B.png",
+      "sha256": "f227ad8cc8851486df08e3f02eb8a0eb5ee1c1c7eb0328f856032950c13f6b9d",
+      "test": "LibraryPresentationUITests/testFloatingDownloadsPanelPreservesGridAndResizes()",
+      "historical_image_identifiers": {
+        "file": "ipad-floating-grid-before.png"
+      },
+      "image_status": "removed_from_repository_history"
+    },
+    {
+      "title": "Narrow native Pages fallback",
+      "file": null,
+      "source": ".build/library/floating-panel-iphone-01/selected-tests-attachments/CE433971-DCED-4F52-A123-D83C4845A775.png",
+      "sha256": "91d51e2f5035d18073694e1c4abb4719087776fe2dafef50c6e10d108b55c3df",
+      "test": "LibraryPresentationUITests/testNarrowDownloadsRetainsNativePresentations()",
+      "historical_image_identifiers": {
+        "file": "iphone-floating-native-fallback.png"
+      },
+      "image_status": "removed_from_repository_history"
+    }
+  ],
+  "implementationRevision": "cb029d6db0f10c42750041b15a1571ad6abe64ed"
+}

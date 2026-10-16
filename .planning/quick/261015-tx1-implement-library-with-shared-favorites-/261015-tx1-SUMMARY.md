@@ -251,3 +251,13 @@ and fifteen original screenshots are in [GRID-LIBRARY-REFINEMENT.md](GRID-LIBRAR
 That report also answers D85's inspector question: automatic native adaptation has no public forced
 trailing-overlay style. No replacement presentation is selected; Details/Pages stay as implemented.
 The updated iPad is open at Library Favorites with its original data and Phase 17 gates unchanged.
+
+## Native floating Downloads trial — D86
+
+`cb029d6db0` implements the owner's request to try floating Details/Pages, using iOS 27 native
+trailing form-sheet placement. Wide entry leaves list geometry unchanged; narrow entry keeps
+existing navigation. Three final iPad/iPhone UI tests pass, including nested reading/Previews and
+rotation; both builds and strict lint are clean. Five original neutral screenshots and the two
+discarded overlay variants' findings are recorded in [FLOATING-PANEL-PROTOTYPE.md](FLOATING-PANEL-PROTOTYPE.md).
+The review iPad is updated with existing data. This is a trial awaiting owner review, not final
+design approval or Phase 17 completion.

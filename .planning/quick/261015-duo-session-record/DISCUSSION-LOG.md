@@ -256,3 +256,11 @@ D76 implemented in `25848cc4dc`; final checks and screenshot are in [HEADER-STAB
 
 D82–D84 implementation: `8b2f03519b`; five focused native UI tests pass. Full evidence and D85 API
 findings are recorded in [GRID-LIBRARY-REFINEMENT.md](../261015-tx1-implement-library-with-shared-favorites-/GRID-LIBRARY-REFINEMENT.md).
+
+## Floating Downloads panel trial — 2026-10-17
+
+| ID | Owner request | Disposition |
+|---|---|---|
+| D86 | “試做一下看看” in response to D85's floating Details/Pages alternatives. | Authorizes a working trial, not a final presentation redesign. `cb029d6db0` uses iOS 27 native trailing form-sheet placement for wide Downloads entry; the list retains its width. Narrow entry keeps existing routes. Native navigation, nested reading and Previews, rotation and management pass focused tests. The custom overlay variants were discarded after toolbar ownership failures. Trial geometry and final adoption await owner visual review. |
+
+[Implementation, failed-variant findings and original screenshots](../261015-tx1-implement-library-with-shared-favorites-/FLOATING-PANEL-PROTOTYPE.md). D85's inspector API conclusion is retained, with native trailing sheet added as the viable alternative.

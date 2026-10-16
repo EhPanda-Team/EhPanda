@@ -5,9 +5,9 @@ current_phase: 17
 current_phase_name: Screenshot Automation, Visual Regression & OS 27 Modernization
 status: executing
 stopped_at: 17-06 revision re-shot (2026-10-13), 16/16 captured; waiting for the owner's visual review; agent prepares both gallery sets
-last_updated: "2026-10-16T14:51:44Z"
-last_activity: 2026-10-16
-state_head: 8b2f03519b968c1ec09157a4d92cbfd5f3f750ac
+last_updated: "2026-10-16T15:34:55Z"
+last_activity: 2026-10-17
+state_head: cb029d6db0f10c42750041b15a1571ad6abe64ed
 progress:
   total_phases: 17
   completed_phases: 10
@@ -16,7 +16,7 @@ progress:
   percent: 59
 milestone_name: )
 source_head: af00e0da93
-last_activity_desc: "D82-D84 Library grid refinements verified; D85 inspector API findings recorded; iPad open; Phase 17 unchanged"
+last_activity_desc: "D86 native trailing Downloads panel trial verified; owner visual review pending; iPad open; Phase 17 unchanged"
 ---
 
 # Project State
@@ -53,6 +53,11 @@ builds/lint are clean. D85's floating-inspector question is investigated, with n
 replacement selected. See [current grid refinements](quick/261015-tx1-implement-library-with-shared-favorites-/GRID-LIBRARY-REFINEMENT.md).
 
 
+D86 (`cb029d6db0`) implements the requested floating Details/Pages trial using native iOS 27 trailing
+sheets. Three final iPad/iPhone tests pass with clean build/lint and unchanged grid-width evidence;
+the review iPad is updated. Final design acceptance remains pending. See
+[trial and screenshots](quick/261015-tx1-implement-library-with-shared-favorites-/FLOATING-PANEL-PROTOTYPE.md).
+
 ## Project Reference
 
 See: .planning/PROJECT.md (updated 2026-09-23)
@@ -65,7 +70,7 @@ See: .planning/PROJECT.md (updated 2026-09-23)
 Phase: 17 of 17 (Screenshot Automation, Visual Regression & OS 27 Modernization)
 Plan: 6 of 24 complete (17-05, wave 6; dependency order, not numeric ID order); 17-06 implemented; the owner's 2026-10-13 review returned changes, revision in progress
 Status: executing (17-01/17-24/17-02/17-03/17-04/17-05 complete; 17-06 implemented and verified, owner review returned changes on 2026-10-13, revision in progress; the agent prepares galleries and fixtures for both content sets)
-Last activity: 2026-10-16 — D82–D84 grid metadata/context menus verified; D85 inspector findings recorded; native header remains owner-deferred.
+Last activity: 2026-10-17 — D86 native trailing Downloads panel trial verified; owner visual review pending; native header remains owner-deferred.
 
 **Phase 17 current gate:** 6/24 plans complete. 17-01 passed 32/32 capture coordinates and 66/66 tests; verified public v2 fixtures are in `.capture/regression`. 17-24 measures all four real device/orientation combinations and validates the immutable tracked rendering pin. Both final measure and validate commands pass four geometry tests plus six rotation/restore tests, with 28 Python contract tests and zero compiler/lint diagnostics or runtime warnings. Pin SHA-256: `ffd7689fcaf9a312202fdfbf9787f0198711fd477d1e72a2a013851df85a394a`; evidence is `.capture/environment-measurement/` and `.capture/environment-pin-check/`. Implementation ends at 3e69dc69d3; summary/review committed in fb83037387. Four reserved staged entries remain unchanged. Devices restore portrait/original Large and their original boot states. Continue inline with 17-06; shared CAP-17-01/02/03/04/06 remain incomplete until all declaring plans finish. No baseline promotion.
 

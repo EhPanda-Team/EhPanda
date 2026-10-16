@@ -2,8 +2,8 @@
 type: retrospective-summary
 recorded: 2026-10-15
 historical_duo_implementation_commits: 21
-library_implementation_commits: 13
-decision_records: 85
+library_implementation_commits: 14
+decision_records: 86
 ---
 
 # Delivery and commit ledger
@@ -204,3 +204,10 @@ right-edge floating overlay through its public style preferences. Native popover
 panel remain alternatives; existing Details/Pages presentation is unchanged. See
 [implementation and evidence](../261015-tx1-implement-library-with-shared-favorites-/GRID-LIBRARY-REFINEMENT.md).
 The updated review iPad is open; Phase 17 and the deferred native header issue are unchanged.
+
+## Native floating Downloads trial — D86
+
+`cb029d6db0` adds the authorized trial of Details/Pages over the right side of a wide Downloads list.
+It uses native iOS 27 sheet placement and leaves the grid width unchanged. Narrow entry retains its
+prior presentation. Three final UI tests pass with clean build/lint and five original screenshots.
+The review iPad is updated; final adoption awaits the owner. See [trial report](../261015-tx1-implement-library-with-shared-favorites-/FLOATING-PANEL-PROTOTYPE.md).
