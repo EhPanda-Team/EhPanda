@@ -45,13 +45,22 @@ final class LibraryPresentationUITests: XCTestCase {
 
     func testCategoryNavigationReturnsAndSwitchesSources() throws {
         XCUIDevice.shared.orientation = .portrait
+        let root = try makeDownloads()
         let app = XCUIApplication()
+        defer {
+            app.terminate()
+            do {
+                try FileManager.default.removeItem(at: root)
+            } catch {
+                XCTFail("Unable to remove test-owned downloads: \(error)")
+            }
+        }
         try app.launchStubbed(extraEnvironment: [
             "EHPANDA_AUTOMATION_TAB": "library",
+            "EHPANDA_UITEST_DOWNLOAD_ROOT": root.path(),
             "EHPANDA_AUTOMATION_IPB_MEMBER_ID": "fixture-member",
             "EHPANDA_AUTOMATION_IPB_PASS_HASH": "fixture-session"
         ])
-        defer { app.terminate() }
         let favorites = app.buttons["library-favorites--1"]
         favorites.tapWhenHittable("All Favorites category")
         let picker = app.buttons["gallery-layout-favorites"]
@@ -61,11 +70,11 @@ final class LibraryPresentationUITests: XCTestCase {
             app.descendants(matching: .any)["BackButton"].firstMatch.tapWhenHittable("Return to Library")
         }
         let categories = app.descendants(matching: .any)["library-categories"].firstMatch
-        let downloads = app.buttons["library-downloads-all"]
+        let downloads = app.buttons["library-downloads-Inbox"]
         for _ in 0..<5 where !downloads.isHittable {
-            categories.swipeUp(velocity: .slow)
+            categories.swipeDown(velocity: .slow)
         }
-        downloads.tapWhenHittable("Downloads category after returning")
+        downloads.tapWhenHittable("Inbox download folder after returning")
         XCTAssertTrue(app.buttons["gallery-layout-downloads"].waitForExistence(timeout: 10))
         if !downloads.isHittable {
             app.descendants(matching: .any)["BackButton"].firstMatch.tapWhenHittable("Return to categories")

@@ -27,11 +27,6 @@ struct LibraryView: View {
         NavigationSplitView(columnVisibility: $columnVisibility) {
             List(selection: $store.selection.sending(\.select)) {
                 Section(isExpanded: $store.isDownloadsExpanded) {
-                    NavigationLink(value: LibraryGroup.downloads(.all)) {
-                        Label(.RLocalizable.downloads, systemSymbol: .arrowDownCircle)
-                    }
-                    .accessibilityIdentifier("library-downloads-all")
-
                     ForEach(downloadsStore.folders, id: \.self) { folder in
                         NavigationLink(value: LibraryGroup.downloads(.folder(folder))) {
                             Label(folder, systemSymbol: .folder)
