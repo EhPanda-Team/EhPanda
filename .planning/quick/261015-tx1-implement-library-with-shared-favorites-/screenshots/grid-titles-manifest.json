@@ -1,0 +1,101 @@
+[
+  {
+    "file": null,
+    "source": ".build/library/grid-titles-ui-02/attachments/509C6760-C482-4DC1-AEA1-A295160CB0DC.png",
+    "sha256": "8063506000bf2a27f03f188e2c97e6c99823be6ce465f35c934f4295ccd6252b",
+    "historical_image_identifiers": {
+      "file": "ipad-grid-aligned-standard.png"
+    },
+    "image_status": "removed_from_repository_history"
+  },
+  {
+    "file": null,
+    "source": ".build/library/grid-titles-ui-02/attachments/0598F3A7-C4FA-447C-8E44-55ED7192CE47.png",
+    "sha256": "dcd01ae447ecbc39e5c808776c63819f70951c6a01f351cad585d8ebb752af0b",
+    "historical_image_identifiers": {
+      "file": "ipad-grid-aligned-ax1.png"
+    },
+    "image_status": "removed_from_repository_history"
+  },
+  {
+    "file": null,
+    "source": ".build/library/grid-titles-ui-02/attachments/D6947B9B-BA10-47B2-9733-9328F85A1777.png",
+    "sha256": "f02e06021a196efe294683ca6380179aaff32834a1d11ce7cefb33c4aeadd9f9",
+    "historical_image_identifiers": {
+      "file": "ipad-grid-aligned-ax3.png"
+    },
+    "image_status": "removed_from_repository_history"
+  },
+  {
+    "file": null,
+    "source": ".build/library/grid-titles-ui-02/attachments/4C8F3775-D160-4BAE-83ED-5D655320D13C.png",
+    "sha256": "13458e69a33b4242b7a7db72a5eeb63eeb4c983749feb80355445c432f17b776",
+    "historical_image_identifiers": {
+      "file": "ipad-grid-aligned-ax5.png"
+    },
+    "image_status": "removed_from_repository_history"
+  },
+  {
+    "file": null,
+    "source": ".build/library/grid-titles-ui-02/attachments/96562A58-02FC-4063-9928-599CDE6C84D4.png",
+    "sha256": "d19b49871809eca6eb4a41239d721c70361362974096a7f54f77988eacdae924",
+    "historical_image_identifiers": {
+      "file": "ipad-simplified-titles-on.png"
+    },
+    "image_status": "removed_from_repository_history"
+  },
+  {
+    "file": null,
+    "source": ".build/library/grid-titles-ui-02/attachments/F0A145F5-EBCC-4337-BE58-B0328CB6870B.png",
+    "sha256": "fa73f114fea9e0268c07f9d6dce108c6773ae8a51bb9b07354237a2f5b2c118c",
+    "historical_image_identifiers": {
+      "file": "ipad-simplified-titles-off.png"
+    },
+    "image_status": "removed_from_repository_history"
+  },
+  {
+    "file": null,
+    "source": ".build/library/grid-titles-downloads-02/attachments/358829F3-AC68-46FF-ABCC-672C8F1B6579.png",
+    "sha256": "c8be0dd76b9c01170c820c9ed138478b4206c7ecba3a607e3d27ca1b84b99bf2",
+    "historical_image_identifiers": {
+      "file": "ipad-downloads-grid-square.png"
+    },
+    "image_status": "removed_from_repository_history"
+  },
+  {
+    "file": null,
+    "source": ".build/library/grid-titles-iphone-01/attachments/99A56A5C-E9B8-4A20-B8DD-CF72CD97B96D.png",
+    "sha256": "daae60338d29933cd8ce02f2abde8db040af801138503639e012878844181832",
+    "historical_image_identifiers": {
+      "file": "iphone-grid-square-ax5.png"
+    },
+    "image_status": "removed_from_repository_history"
+  },
+  {
+    "file": null,
+    "source": ".build/library/grid-titles-iphone-01/attachments/A77FBC08-BE15-4C60-8005-11898F5B4D1E.png",
+    "sha256": "8645cf453f0a9b0da9ba695c74321b7a74f063ca81213b035c2a12cf4fe0670c",
+    "historical_image_identifiers": {
+      "file": "iphone-grid-square-ax3.png"
+    },
+    "image_status": "removed_from_repository_history"
+  },
+  {
+    "file": null,
+    "source": ".build/library/grid-titles-iphone-01/attachments/901954A9-9205-4538-A461-D95050BA56AD.png",
+    "sha256": "fe06f990019d080b978d563cb89c1b4add66078fea0c5e221285ae077a9cf0ab",
+    "historical_image_identifiers": {
+      "file": "iphone-grid-square-ax1.png"
+    },
+    "image_status": "removed_from_repository_history"
+  },
+  {
+    "file": null,
+    "source": ".build/library/grid-titles-iphone-01/attachments/BFEC773C-304C-4BBF-A639-3F77F159B5DA.png",
+    "sha256": "3be62d6b50df70ec6a62d75d59597bba9967c652f7ca9d2ac93086cbca9c1dbf",
+    "historical_image_identifiers": {
+      "file": "iphone-grid-square-standard.png"
+    },
+    "image_status": "removed_from_repository_history"
+  }
+]
