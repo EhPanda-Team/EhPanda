@@ -223,5 +223,77 @@
       "file": "sidebar-duo-half.png"
     },
     "image_status": "removed_from_repository_history"
+  },
+  {
+    "file": null,
+    "source": ".build/library/sidebar-actions/ipad-initial.png",
+    "sha256": "c89ed6070baa5ba80e64fbfba90aebfa410555a8d307e6d19d5546889901a1b3",
+    "historical_image_identifiers": {
+      "file": "library-sidebar-actions-empty.png"
+    },
+    "image_status": "removed_from_repository_history"
+  },
+  {
+    "file": null,
+    "source": ".build/library/sidebar-actions/final-review.png",
+    "sha256": "0e707e45d92e590dc9f6f2beb7c560a6cc4fe9355c342d9641f7b076d7f56290",
+    "historical_image_identifiers": {
+      "file": "library-sidebar-actions-final.png"
+    },
+    "image_status": "removed_from_repository_history"
+  },
+  {
+    "file": null,
+    "source": ".build/library/sidebar-actions/ipad-collapsed-sections.png",
+    "sha256": "304bf965ea8bbc9563d77f57abeec41bf9e1d2a6cc67538804cea34f32eba8bc",
+    "historical_image_identifiers": {
+      "file": "library-sidebar-actions-collapsed.png"
+    },
+    "image_status": "removed_from_repository_history"
+  },
+  {
+    "file": null,
+    "source": ".build/library/sidebar-actions/ipad-scroll.png",
+    "sha256": "6d71dc9528b03499d498b385d97d41cdcd57373dde0ea7f948a13752506ef0a2",
+    "historical_image_identifiers": {
+      "file": "library-sidebar-actions-scroll.png"
+    },
+    "image_status": "removed_from_repository_history"
+  },
+  {
+    "file": null,
+    "source": ".build/library/sidebar-actions/ipad-portrait.png",
+    "sha256": "5490b13db605bc57a6a9437304980cc48bfafa8af9c696e09fb8db19b2ea8b19",
+    "historical_image_identifiers": {
+      "file": "library-sidebar-actions-portrait.png"
+    },
+    "image_status": "removed_from_repository_history"
+  },
+  {
+    "file": null,
+    "source": ".build/library/sidebar-actions/iphone-accessibility-extra-extra-extra-large-sidebar.png",
+    "sha256": "851f69bb983df74f88d32d9e38cda3cfc834a5c7d78b9d7395231228ee6b0a79",
+    "historical_image_identifiers": {
+      "file": "library-sidebar-actions-iphone-ax5.png"
+    },
+    "image_status": "removed_from_repository_history"
+  },
+  {
+    "file": null,
+    "source": ".build/library/sidebar-actions/duo-open.png",
+    "sha256": "c751efb89802f21a142a566c9085f6e9668858ed247f105e60fece002bfacb02",
+    "historical_image_identifiers": {
+      "file": "library-sidebar-actions-duo-open.png"
+    },
+    "image_status": "removed_from_repository_history"
+  },
+  {
+    "file": null,
+    "source": ".build/library/sidebar-actions/duo-tall.png",
+    "sha256": "157f4a5b3a46dea18d680e675efc190bec30f839b402ecdf7f32cc36a0a3dcf9",
+    "historical_image_identifiers": {
+      "file": "library-sidebar-actions-duo-tall.png"
+    },
+    "image_status": "removed_from_repository_history"
   }
 ]

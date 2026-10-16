@@ -171,3 +171,17 @@ iPad/iPhone cold and live standard/AX1/AX3/AX5 checks, Duo transitions, clean bu
 AX5 probe timing failure and exact validation limits. Eight additional unedited screenshots are
 tracked with hashes. Earlier broad test counts remain historical, not a rerun against `e257ee2050`.
 The iPad is open at the scrolled Library for owner review; the proposal preview remains stopped.
+
+## Sidebar navigation and actions — 2026-10-16
+
+`21473abc07` implements D69–D73 with native fixed expanded sidebar preferences, no toggle, Downloads
+above Favorites, independent section disclosure, and .sectionActions for folder operations. The
+Downloads toolbar no longer duplicates Manage Folders. Create Default Folder shares Detail's
+translations and default name, routes to Downloads, and remains guarded through authoritative
+refresh; errors are visible and retryable.
+
+Nine focused tests pass with zero compiler warnings/errors; strict lint is clean in eight changed
+Swift source/test files. Current native screenshots cover section disclosure, creation, compact
+back navigation, four cold/live text sizes, iPad rotation, Duo transitions and retained blur
+continuity. See [SIDEBAR-ACTIONS.md](SIDEBAR-ACTIONS.md) for corrected review findings, exact evidence
+and limitations. The iPad remains open at Library / Downloads for owner review.

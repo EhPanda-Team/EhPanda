@@ -186,3 +186,16 @@ screenshots remain available; stopping the server does not delete those artifact
 | ID | Decision / provenance | Disposition |
 |---|---|---|
 | D68 | Owner shows the sidebar's progressive blur remains visibly clipped below the status bar while rows scroll upward; rejects the opaque background as symptomatic. | Implemented in `e257ee2050`: extend the completed native NavigationSplitView through the top container safe area and remove D67's opaque List fallback. Scrolled light/dark captures confirm material and progressive blur reach behind the status bar; native title/search clearance, iPad rotation, compact navigation, four text sizes and Duo transitions checked. See quick task `261015-tx1` SIDEBAR-SCROLL-EDGE.md for actual evidence and limits. |
+
+## Library sidebar navigation and actions — 2026-10-16
+
+| ID | Decision / provenance | Disposition |
+|---|---|---|
+| D69 | Owner wants the native hide/show sidebar button removed and the sidebar kept expanded. | Use native fixed all-column visibility and balanced layout; remove the sidebarToggle item. Preserve the native compact-width push/back model. Verified in `21473abc07` with iPad sidebar swipes, live rotation and Duo display transitions; compact iPhone back navigation remains available. |
+| D70 | Downloads toolbar no longer needs Manage Folders because Library already provides it. | Remove the duplicate button and its empty toolbar menu Section; retain other filter/layout operations. |
+| D71 | Downloads belongs above Favorites; both sections must collapse and expand. | Native Section(isExpanded:) and sidebar List style; separate expansion state in LibraryFeature, independent of source selection. |
+| D72 | Downloads section needs the same Create Default Folder shortcut as gallery Detail. | Show only when no folders exist, matching Detail; share its six-locale label and default folder name. Route to Downloads, create via DownloadClient, refresh folders, and surface failure with a retryable control. |
+| D73 | Section operations must use section action APIs. | Manage Folders and Create Default Folder live in .sectionActions on the Downloads Section. Native iOS renders section actions after section content. |
+
+Implemented in `21473abc07`; focused verification and screenshots are tracked in quick task `261015-tx1`
+[SIDEBAR-ACTIONS.md](../261015-tx1-implement-library-with-shared-favorites-/SIDEBAR-ACTIONS.md).

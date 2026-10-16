@@ -3,7 +3,7 @@ type: retrospective-summary
 recorded: 2026-10-15
 historical_duo_implementation_commits: 21
 library_implementation_commits: 5
-decision_records: 68
+decision_records: 73
 ---
 
 # Delivery and commit ledger
@@ -137,3 +137,12 @@ are recorded in [the current report](../261015-tx1-implement-library-with-shared
 The report distinguishes the early AX5 navigation sample from its settled successful check and
 does not claim the broader suites or iPad window resizing were repeated. The iPad remains running
 for owner review; the compact iPhone and Duo are shut down.
+
+## Library sidebar actions — 2026-10-16
+
+`21473abc07` delivers D69–D73: native fixed expanded columns with the toggle removed, Downloads-first
+expandable sections, native sectionActions for management and default-folder creation, and removal
+of the duplicate Downloads toolbar manager. The create operation owns its refresh through completion
+and reports retryable failure. Nine focused tests pass; native iPad/iPhone/Duo and four text-size
+checks are detailed in [SIDEBAR-ACTIONS.md](../261015-tx1-implement-library-with-shared-favorites-/SIDEBAR-ACTIONS.md).
+The iPad is left open on Library / Downloads; the other dedicated devices are shut down.
