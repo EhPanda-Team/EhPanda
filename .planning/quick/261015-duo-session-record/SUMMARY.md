@@ -3,7 +3,7 @@ type: retrospective-summary
 recorded: 2026-10-15
 historical_duo_implementation_commits: 21
 library_implementation_commits: 5
-decision_records: 66
+decision_records: 67
 ---
 
 # Delivery and commit ledger
@@ -117,3 +117,11 @@ and [validation limits and screenshots](../261015-tx1-implement-library-with-sha
 
 This completes the selected Library implementation, not Phase 17 or a whole-app accessibility audit.
 The historical proposal preview remains running at `http://127.0.0.1:55920/index.html`.
+
+## Sidebar background follow-up — 2026-10-16
+
+D67 is implemented in `82da111f79`: opaque adaptive Library sidebar background, preserving the
+same-toolchain baseline title/search geometry. Native extension and container probes, light/dark
+and compact screenshots, build/lint results and exact scope limits are recorded in
+`../261015-tx1-implement-library-with-shared-favorites-/SIDEBAR-BACKGROUND.md`.
+The iPad app stays open for owner review; the previous proposal preview is stopped under D65.

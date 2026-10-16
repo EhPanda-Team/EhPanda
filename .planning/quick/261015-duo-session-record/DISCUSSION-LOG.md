@@ -151,7 +151,7 @@ with that task; the previous proposal screenshots remain historical comparison e
 ## Outstanding decisions / limits
 
 - Library structure is selected and implementation authorized (D63–D64). Search A/B remains
-  unselected. Keep the previous proposal preview open.
+  unselected. The previous keep-preview-open instruction was superseded by D65.
 - Exact dual-page indicator normalization was observed; no owner request to change it was recorded.
 - The earlier Duo/reader evidence did not establish physical-device, full VoiceOver or RTL coverage.
   Quick task 261015-tx1 adds current Library interactive iPad resizing, native-search continuity,
@@ -173,3 +173,10 @@ screenshots remain available; stopping the server does not delete those artifact
 | ID | Decision / provenance | Disposition |
 |---|---|---|
 | D66 | Owner explicitly permits Device Hub for this native review: “這次允許”. | Opened Device Hub and confirmed its selected EhPanda Probe iPad window displays Library / Favorites. The normal account state is logged out, so Favorites shows the login prompt. Leave this interactive window and the app running for owner review. This is a one-time authorization, not a blanket change to future verification tooling. |
+
+
+## Library sidebar and status-bar continuity — 2026-10-16
+
+| ID | Decision / provenance | Disposition |
+|---|---|---|
+| D67 | Owner reports the white status-bar region clashes with the Library sidebar. First try extending the sidebar to the top; if that is not supported, use an opaque sidebar because no meaningful content lies behind it. | Implemented in `82da111f79`: an opaque adaptive system-color background on the sidebar List. Native top extension did not cross the parent tab region; container-level customization introduced a measured 44 pt layout shift and was rejected. Background-only decoration matches baseline geometry and both appearances. See quick task `261015-tx1` SIDEBAR-BACKGROUND.md for probes, screenshots and limits. |

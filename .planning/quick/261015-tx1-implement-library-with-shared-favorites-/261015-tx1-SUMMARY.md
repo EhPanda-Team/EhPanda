@@ -147,3 +147,14 @@ by normal launches, fresh Home was checked, then devices shut down. No Device Hu
 The previous preview remains running and open at `http://127.0.0.1:55920/index.html`. No new dependency,
 external configuration, push or pull request is required. Phase 17 and its unrelated owner review gates
 remain unchanged. STATE, the session decision log/commit ledger and scroll-edge inventory are updated.
+
+## Owner review follow-up — 2026-10-16
+
+The cleanup state above describes initial implementation delivery. D65 subsequently retires the
+proposal preview and requests a running app; D66 authorizes Device Hub for this one native review.
+The iPad is now running Library/Favorites in normal logged-out state for owner inspection.
+
+D67 adds the opaque Library sidebar in `82da111f79`. See [SIDEBAR-BACKGROUND.md](SIDEBAR-BACKGROUND.md)
+for the rejected native probes, controlled geometry comparison, focused build/lint checks and four
+additional unedited screenshots. Earlier broad test results above remain tied to `56f906c766`;
+they are not represented as a rerun against this later appearance-only follow-up.

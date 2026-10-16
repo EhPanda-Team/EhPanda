@@ -115,5 +115,41 @@
       "file": "duo-status-portrait.png"
     },
     "image_status": "removed_from_repository_history"
+  },
+  {
+    "file": null,
+    "source": ".build/library/sidebar-background/baseline-current.png",
+    "sha256": "cd9baba67dd69679878374f565e9fc5661b52796182119e4d6ddfc7f7d0ff695",
+    "historical_image_identifiers": {
+      "file": "sidebar-before.png"
+    },
+    "image_status": "removed_from_repository_history"
+  },
+  {
+    "file": null,
+    "source": ".build/library/sidebar-background/decoration-light.png",
+    "sha256": "08809026e2d8cf30358d4214be2528396e640aa5f4a4e0aa670f62450a0cba9c",
+    "historical_image_identifiers": {
+      "file": "sidebar-light.png"
+    },
+    "image_status": "removed_from_repository_history"
+  },
+  {
+    "file": null,
+    "source": ".build/library/sidebar-background/decoration-dark.png",
+    "sha256": "4688152dbabd0550f2b5e7c4ecbcaf8f82b20bd432ac4b232046a2371dc80188",
+    "historical_image_identifiers": {
+      "file": "sidebar-dark.png"
+    },
+    "image_status": "removed_from_repository_history"
+  },
+  {
+    "file": null,
+    "source": ".build/library/sidebar-background/compact-sidebar.png",
+    "sha256": "b4eb94414e1fa1576d4e0b764bccfef860a057554dae909ab3096459a15d6ffc",
+    "historical_image_identifiers": {
+      "file": "sidebar-compact.png"
+    },
+    "image_status": "removed_from_repository_history"
   }
 ]
