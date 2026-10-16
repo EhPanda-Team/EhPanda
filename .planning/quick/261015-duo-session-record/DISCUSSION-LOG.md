@@ -225,3 +225,9 @@ D76 implemented in `25848cc4dc`; final checks and screenshot are in [HEADER-STAB
 | ID | Decision / provenance | Disposition |
 |---|---|---|
 | D77 | Owner removes the generic Downloads sidebar item because downloads belong to a folder. | Remove the all-downloads NavigationLink from Library. Keep links for actual folders and native Manage Folders / conditional Create Default Folder section actions. The existing navigation regression now uses a test-owned Inbox folder. Verification and implementation revision are recorded in [SIDEBAR-ACTIONS.md](../261015-tx1-implement-library-with-shared-favorites-/SIDEBAR-ACTIONS.md#folder-only-navigation-follow-up--d77). |
+
+## Proposal preview reopened — 2026-10-16
+
+| ID | Decision / provenance | Disposition |
+|---|---|---|
+| D78 | Owner asks to reopen the previous preview for review. | Restart the preserved proposal server at http://127.0.0.1:55920/index.html and reopen its in-app browser tab. Index and all nine saved screenshots return HTTP 200; the browser displays the original comparison page and retains its current selection. Keep it open for review, superseding D65's stopped-preview state. This does not change the selected Library implementation or select a Search redesign. |
