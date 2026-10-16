@@ -18,6 +18,8 @@ struct DownloadGalleryItem: View {
         case grid
     }
 
+    @State private var gridCellWidth: CGFloat?
+
     @Bindable var store: StoreOf<DownloadsReducer>
     @Bindable var rowStore: StoreOf<DownloadRowFeature>
     let layout: Layout
@@ -47,7 +49,9 @@ private extension DownloadGalleryItem {
         }
         .accessibilityIdentifier("download-gallery-\(download.gid)")
         .contextMenu {
-            contextMenu
+            detailButton
+            readButton
+            managementMenu
         }
         .swipeActions(edge: .leading, allowsFullSwipe: false) {
             inspectButton
@@ -78,14 +82,10 @@ private extension DownloadGalleryItem {
         Button {
             store.send(.galleryTapped(download.gid))
         } label: {
-            GalleryThumbnailCell(
-                gallery: download.gallery,
-                coverSource: .static(download.coverURL),
-                downloadBadge: download.badge,
-                showsRating: false
-            )
-            .tint(.primary)
-            .multilineTextAlignment(.leading)
+            gridCell
+                .onGeometryChange(for: CGFloat.self, of: \.size.width) {
+                    gridCellWidth = $0
+                }
         }
         .buttonStyle(.borderless)
         .modifier(GalleryReadInteraction(
@@ -96,7 +96,13 @@ private extension DownloadGalleryItem {
         .accessibilityFocused(rowFocus, equals: download.id)
         .accessibilityIdentifier("download-gallery-\(download.gid)")
         .contextMenu {
-            contextMenu
+            managementMenu
+        } preview: {
+            gridCell
+                .frame(width: gridCellWidth)
+                .fixedSize(horizontal: false, vertical: true)
+                .padding(12)
+                .background(.background, in: .rect(cornerRadius: 24))
         }
         .accessibilityActions {
             inspectButton
@@ -108,6 +114,17 @@ private extension DownloadGalleryItem {
         .confirmationDialog(
             $rowStore.scope(\.$confirmationDialog, action: \.confirmationDialog)
         )
+    }
+
+    var gridCell: some View {
+        GalleryThumbnailCell(
+            gallery: download.gallery,
+            coverSource: .static(download.coverURL),
+            downloadBadge: download.badge,
+            showsRating: false
+        )
+        .tint(.primary)
+        .multilineTextAlignment(.leading)
     }
 
     var canMove: Bool {
@@ -190,9 +207,7 @@ private extension DownloadGalleryItem {
     }
 
     @ViewBuilder
-    var contextMenu: some View {
-        detailButton
-        readButton
+    var managementMenu: some View {
         inspectButton
         if canMove {
             moveMenu

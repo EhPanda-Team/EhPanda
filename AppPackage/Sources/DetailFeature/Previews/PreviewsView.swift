@@ -42,7 +42,7 @@ struct PreviewsView: View {
                             store.send(.updateReadingProgress(page))
                             store.send(.openReading(page))
                         } label: {
-                            PreviewImageView(originalURL: displayPreviewURLs[page])
+                            PreviewThumbnail(url: displayPreviewURLs[page])
                         }
                         // The thumbnail is the button's only content; the page it opens is its name.
                         .accessibilityLabel(.accessibilityPreviewPage(page: page))

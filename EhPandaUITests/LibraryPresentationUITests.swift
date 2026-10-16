@@ -131,6 +131,8 @@ final class LibraryPresentationUITests: XCTestCase {
         reveal(first, in: content, app: app)
         first.press(forDuration: 1)
         XCTAssertTrue(app.buttons["Pages"].waitForExistence(timeout: 5))
+        XCTAssertFalse(app.buttons["Detail"].exists, "Grid menus contain management actions only.")
+        XCTAssertFalse(app.buttons["Read"].exists, "Grid reading remains available through double tap.")
         let menuScreenshot = XCTAttachment(screenshot: XCUIScreen.main.screenshot())
         menuScreenshot.name = "Library Downloads grid context menu"
         menuScreenshot.lifetime = .keepAlways
@@ -238,12 +240,18 @@ final class LibraryPresentationUITests: XCTestCase {
             XCTAssertTrue(reader.waitForNonExistence(timeout: 10))
             XCTAssertTrue(picker.waitForExistence(timeout: 10))
             XCTAssertFalse(detail.exists, "Double tap must not leave Detail beneath the reader.")
-            gallery.press(forDuration: 1)
-            app.buttons["Read"].tapWhenHittable("Read remains available without a double-tap gesture")
-            XCTAssertTrue(reader.waitForExistence(timeout: 15))
-            ReaderPageProbe(app: app).showPanel()
-            reader.buttons["Close"].firstMatch.tapWhenHittable("Close menu-initiated reading")
-            XCTAssertTrue(reader.waitForNonExistence(timeout: 10))
+            if layout == "Row" {
+                let screenshot = XCTAttachment(screenshot: XCUIScreen.main.screenshot())
+                screenshot.name = "Library \(source) row"
+                screenshot.lifetime = .keepAlways
+                add(screenshot)
+                gallery.press(forDuration: 1)
+                app.buttons["Read"].tapWhenHittable("Rows retain their Read menu action")
+                XCTAssertTrue(reader.waitForExistence(timeout: 15))
+                ReaderPageProbe(app: app).showPanel()
+                reader.buttons["Close"].firstMatch.tapWhenHittable("Close menu-initiated reading")
+                XCTAssertTrue(reader.waitForNonExistence(timeout: 10))
+            }
         }
     }
 

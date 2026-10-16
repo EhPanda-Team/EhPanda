@@ -180,6 +180,7 @@ private struct GalleryDetailCellContent: View {
             Text(setting.simplifyGalleryTitles ? gallery.simplifiedTitle : gallery.title)
                 .lineLimit(titleLineLimit)
                 .font(.headline)
+                .multilineTextAlignment(.leading)
                 .foregroundStyle(.primary)
                 .fixedSize(horizontal: false, vertical: true)
 
