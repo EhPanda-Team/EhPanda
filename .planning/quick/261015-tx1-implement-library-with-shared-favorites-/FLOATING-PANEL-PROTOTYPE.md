@@ -2,6 +2,12 @@
 
 > **Image evidence availability:** Image files were removed from this repository history at the owner's request. Screenshot descriptions, filenames and earlier visual checks below are historical records, not currently available image evidence. Written findings, measurements and source artifacts remain; visual review requires fresh captures.
 
+**Disposition — D88 (2026-10-17): rejected and reverted.** The owner rejects the sheet effect,
+the inspector's transparent background, and the recurrence of the previously resolved
+background-not-extending-to-the-top problem after introducing the inspector. All non-documentation
+changes from D86 onward are reverted; this report and its original evidence remain historical.
+See [rollback scope and verification](PRESENTATION-TRIAL-ROLLBACK.md).
+
 ## Authorization and scope
 
 The owner asks to try the D85 alternative. This authorizes a working prototype, not a final design
@@ -55,7 +61,7 @@ The 700-point threshold only controls new entry; it never destroys an active pan
 
 ## Final candidate and verification
 
-Implementation: `cb029d6db0f10c42750041b15a1571ad6abe64ed`. **Prototype awaiting owner visual review**, not a finalized Library
+Implementation: `cb029d6db0f10c42750041b15a1571ad6abe64ed`. **Historical prototype; rejected and reverted by D88**, not an adopted Library
 design. Other tabs and Phase 17 remain unchanged.
 
 | Evidence under `.build/library/` | Result |
@@ -94,10 +100,10 @@ remains open.
 
 These are original neutral-fixture captures. They do not contain the review iPad's account content.
 
-## Scope of verification and remaining review
+## Historical verification scope
 
-The 700-point entry threshold and preferred 480-point width are trial geometry, pending owner
-feedback. The presentation is a system form sheet with native trailing placement; it does not
+The 700-point entry threshold and preferred 480-point width were trial geometry; D88 rejects
+the result. The presentation is a system form sheet with native trailing placement; it does not
 reserve a list column. Native presentation controls animation and Reduce Motion, dismissal and
 accessibility semantics; the originating row is explicitly restored as the accessibility focus
 target on dismissal when it still exists. No custom keyboard/VoiceOver controls were introduced.
@@ -109,6 +115,6 @@ owner-deferred native sidebar/header displacement is not repaired by this trial.
 
 ## Subsequent comparison trial
 
-D87 explicitly requests the actual SwiftUI inspector. That candidate is now installed for review;
-this D86 sheet version remains recoverable at its recorded commit. Neither is a final owner choice.
+D87 explicitly requested the actual SwiftUI inspector and replaced the installed D86 trial.
+D88 subsequently rejects and reverts both candidates; their recorded commits and evidence remain available.
 See [native inspector results and original captures](NATIVE-INSPECTOR-PROTOTYPE.md).

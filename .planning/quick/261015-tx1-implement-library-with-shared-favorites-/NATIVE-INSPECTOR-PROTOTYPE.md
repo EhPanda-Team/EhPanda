@@ -2,6 +2,12 @@
 
 > **Image evidence availability:** Image files were removed from this repository history at the owner's request. Screenshot descriptions, filenames and earlier visual checks below are historical records, not currently available image evidence. Written findings, measurements and source artifacts remain; visual review requires fresh captures.
 
+**Disposition — D88 (2026-10-17): rejected and reverted.** The owner rejects the sheet effect,
+the inspector's transparent background, and the recurrence of the previously resolved
+background-not-extending-to-the-top problem after introducing the inspector. All non-documentation
+changes from D86 onward are reverted; this report and its original evidence remain historical.
+See [rollback scope and verification](PRESENTATION-TRIAL-ROLLBACK.md).
+
 ## Owner request and plan
 
 The owner explicitly asks to try SwiftUI inspector after reviewing the native trailing-sheet
@@ -17,7 +23,7 @@ prototype (D86). This is a separate review candidate, not final adoption.
   simulators and neutral fixtures; retain original screenshots for owner comparison.
 - Preserve the native Library sidebar and the deferred header-displacement issue.
 
-The active candidate remains a prototype pending owner review. See the findings and verification below.
+The findings below describe the historical D87 candidate. D88 rejects and reverts it.
 
 ## Integration findings
 
@@ -69,7 +75,7 @@ header displacement remains recorded and is not fixed by this inspector trial.
 
 ## Final candidate and verification
 
-Implementation: `658ba665b2fd5976f17878b22d53a6fcd9093aaf`. **Native inspector trial awaiting owner review**.
+Implementation: `658ba665b2fd5976f17878b22d53a6fcd9093aaf`. **Historical native inspector trial; rejected and reverted by D88**.
 The earlier trailing-sheet implementation remains at `cb029d6db0` for comparison.
 
 | Evidence under `.build/library/` | Result |
@@ -103,5 +109,5 @@ after export. The existing web proposal preview remains untouched.
 - [Native frame measurements](screenshots/native-inspector-geometry.txt)
 
 The six images are original neutral-fixture screenshots, not edited mockups or review-account
-captures. The native sidebar/header issue remains deferred under D75/D76. D87 is the currently
-installed trial; neither candidate is marked as the final design.
+captures. The native sidebar/header issue remains deferred under D75/D76. D87 was the installed trial at the time of these captures; D88 rejects both candidates
+and restores the pre-trial implementation.

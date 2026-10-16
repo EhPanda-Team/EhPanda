@@ -259,14 +259,24 @@ trailing form-sheet placement. Wide entry leaves list geometry unchanged; narrow
 existing navigation. Three final iPad/iPhone UI tests pass, including nested reading/Previews and
 rotation; both builds and strict lint are clean. Five original neutral screenshots and the two
 discarded overlay variants' findings are recorded in [FLOATING-PANEL-PROTOTYPE.md](FLOATING-PANEL-PROTOTYPE.md).
-The review iPad is updated with existing data. This is a trial awaiting owner review, not final
-design approval or Phase 17 completion.
+The review iPad was updated with existing data for that trial. D88 subsequently rejects and
+reverts it; the evidence remains historical and does not complete Phase 17.
 
 ## Native inspector follow-up — D87
 
 The owner explicitly requests actual SwiftUI inspector after the trailing-sheet trial.
-`658ba665b2` is the current review candidate: native adaptive inspector for Downloads Details/Pages,
+`658ba665b2` was the D87 review candidate: native adaptive inspector for Downloads Details/Pages,
 with separate navigation ownership, state-driven Details Close and unchanged card geometry in
 the measured iPad overlay. Thirty feature tests and three native UI tests pass with zero build
-warnings/errors and zero lint violations. The trial remains pending owner acceptance; Phase 17
-and the deferred sidebar/header issue are unchanged. [Report and screenshots](NATIVE-INSPECTOR-PROTOTYPE.md).
+warnings/errors and zero lint violations. D88 subsequently rejects and reverts the trial because
+of its appearance and the recurrence of the top-background continuity issue; Phase 17 is unchanged. [Report and screenshots](NATIVE-INSPECTOR-PROTOTYPE.md).
+
+## Presentation trials rejected and reverted — D88
+
+All non-documentation changes from the D86 “試做一下看看” trial onward are reverted. The prior
+Details/Pages routes and sidebar safe-area composition are restored; earlier grid refinements remain.
+The sheet effect, inspector transparency and reintroduced top-background discontinuity are the
+owner’s rejection reasons. Trial docs and screenshots are retained.
+Rollback `b20b6ff8a43d45d8c05d04dcdfb203699201fb9c` restores exact pre-trial source equality.
+All 32 selected feature tests and one iPad management UI test pass with clean builds/lint; the
+original review iPad is updated in place. See [verification](PRESENTATION-TRIAL-ROLLBACK.md).

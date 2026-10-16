@@ -2,8 +2,8 @@
 type: retrospective-summary
 recorded: 2026-10-15
 historical_duo_implementation_commits: 21
-library_implementation_commits: 15
-decision_records: 87
+library_implementation_commits: 16
+decision_records: 88
 ---
 
 # Delivery and commit ledger
@@ -210,7 +210,7 @@ The updated review iPad is open; Phase 17 and the deferred native header issue a
 `cb029d6db0` adds the authorized trial of Details/Pages over the right side of a wide Downloads list.
 It uses native iOS 27 sheet placement and leaves the grid width unchanged. Narrow entry retains its
 prior presentation. Three final UI tests pass with clean build/lint and five original screenshots.
-The review iPad is updated; final adoption awaits the owner. See [trial report](../261015-tx1-implement-library-with-shared-favorites-/FLOATING-PANEL-PROTOTYPE.md).
+The review iPad was updated for the trial; D88 subsequently rejects and reverts it. See [trial report](../261015-tx1-implement-library-with-shared-favorites-/FLOATING-PANEL-PROTOTYPE.md).
 
 ## Actual SwiftUI inspector trial — D87
 
@@ -219,5 +219,17 @@ NavigationSplitView. On the tested iPad it automatically overlays the right side
 grid-card geometry; on iPhone it becomes a native sheet. The Details close action targets the
 presentation state so it still works after nested navigation. All 30 selected feature tests and
 three iPad/iPhone UI tests pass with clean build/lint and matching source hashes. Six original
-screenshots and the frame record are retained. The review iPad is updated and running Library.
-Final adoption remains pending. See [D87 report](../261015-tx1-implement-library-with-shared-favorites-/NATIVE-INSPECTOR-PROTOTYPE.md).
+screenshots and the frame record are retained. The review iPad was updated for that trial.
+D88 rejects and reverts the trial. See [D87 report](../261015-tx1-implement-library-with-shared-favorites-/NATIVE-INSPECTOR-PROTOTYPE.md).
+
+## Presentation trial rollback — D88
+
+The owner rejects the sheet effect, inspector transparency and inspector-induced recurrence of
+background clipping below the status bar. Every non-docs change since D86 is reverted, restoring
+`019b598a66` source behavior while preserving the trial docs and screenshots. D82–D84 remain active.
+Rollback commit: `b20b6ff8a43d45d8c05d04dcdfb203699201fb9c`.
+The implementation-commit count includes this rollback, not an additional delivered feature.
+See [rollback record](../261015-tx1-implement-library-with-shared-favorites-/PRESENTATION-TRIAL-ROLLBACK.md).
+
+Rollback validation: 32/32 feature tests and 1/1 iPad UI test pass; zero build/lint diagnostics.
+The original review iPad is running the restored implementation with existing data.
