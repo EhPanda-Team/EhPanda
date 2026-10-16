@@ -297,3 +297,16 @@ build/lint; original review iPad updated in place.
 
 D89 implementation: `8c19f5f0fa4b0f013e0185cab74d3b0a8b2ecd89`. Fifty feature tests and five final native iPad/iPhone UI tests pass;
 strict lint and builds are clean. Review iPad updated in place; evidence boundaries are in the linked record.
+
+## Library row, preview and context-menu polish — 2026-10-17
+
+| ID | Owner request | Disposition |
+|---|---|---|
+| D90 | Leading-aligned row titles; backgrounds behind Detail/Previews images; grid context menu omits Detail/Read and previews the cell inside a background container. | Fix shared row text alignment, reuse one Detail preview tile, and use a native Downloads custom context-menu preview. Remove Favorites' now-empty grid menu; preserve row menus, double-tap reading and accessible Read. |
+
+[Implementation and verification](../261015-tx1-implement-library-with-shared-favorites-/LIBRARY-VISUAL-POLISH.md).
+
+D90 implementation: `545c3f34ca62f3da9396d55c0f96c7d6421c120e`. Five iPad checks pass; iPhone landscape management exposes
+an unresolved native first-menu-item hit-test failure, reproduced independently. This is not an
+all-device pass or an owner-approved change to presentation/scrolling policy. Exact results and
+limitations are in the linked record.
