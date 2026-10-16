@@ -2,8 +2,8 @@
 type: retrospective-summary
 recorded: 2026-10-15
 historical_duo_implementation_commits: 21
-library_implementation_commits: 14
-decision_records: 86
+library_implementation_commits: 15
+decision_records: 87
 ---
 
 # Delivery and commit ledger
@@ -211,3 +211,13 @@ The updated review iPad is open; Phase 17 and the deferred native header issue a
 It uses native iOS 27 sheet placement and leaves the grid width unchanged. Narrow entry retains its
 prior presentation. Three final UI tests pass with clean build/lint and five original screenshots.
 The review iPad is updated; final adoption awaits the owner. See [trial report](../261015-tx1-implement-library-with-shared-favorites-/FLOATING-PANEL-PROTOTYPE.md).
+
+## Actual SwiftUI inspector trial — D87
+
+`658ba665b2` replaces the D86 presentation with real `.inspector`, owned outside Library's native
+NavigationSplitView. On the tested iPad it automatically overlays the right side with unchanged
+grid-card geometry; on iPhone it becomes a native sheet. The Details close action targets the
+presentation state so it still works after nested navigation. All 30 selected feature tests and
+three iPad/iPhone UI tests pass with clean build/lint and matching source hashes. Six original
+screenshots and the frame record are retained. The review iPad is updated and running Library.
+Final adoption remains pending. See [D87 report](../261015-tx1-implement-library-with-shared-favorites-/NATIVE-INSPECTOR-PROTOTYPE.md).

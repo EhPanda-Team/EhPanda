@@ -5,9 +5,9 @@ current_phase: 17
 current_phase_name: Screenshot Automation, Visual Regression & OS 27 Modernization
 status: executing
 stopped_at: 17-06 revision re-shot (2026-10-13), 16/16 captured; waiting for the owner's visual review; agent prepares both gallery sets
-last_updated: "2026-10-16T15:34:55Z"
+last_updated: "2026-10-16T16:06:16Z"
 last_activity: 2026-10-17
-state_head: cb029d6db0f10c42750041b15a1571ad6abe64ed
+state_head: 658ba665b2fd5976f17878b22d53a6fcd9093aaf
 progress:
   total_phases: 17
   completed_phases: 10
@@ -16,7 +16,7 @@ progress:
   percent: 59
 milestone_name: )
 source_head: af00e0da93
-last_activity_desc: "D86 native trailing Downloads panel trial verified; owner visual review pending; iPad open; Phase 17 unchanged"
+last_activity_desc: "D87 actual SwiftUI inspector trial verified; review iPad updated; owner review pending; Phase 17 unchanged"
 ---
 
 # Project State
@@ -58,6 +58,11 @@ sheets. Three final iPad/iPhone tests pass with clean build/lint and unchanged g
 the review iPad is updated. Final design acceptance remains pending. See
 [trial and screenshots](quick/261015-tx1-implement-library-with-shared-favorites-/FLOATING-PANEL-PROTOTYPE.md).
 
+D87 (`658ba665b2`) is the current trial: actual SwiftUI inspector, automatically overlaid on the
+measured iPad and presented as a native sheet on iPhone. Thirty selected feature tests and three
+UI tests pass, with zero build/lint warnings and exact source-hash matches. The review iPad is
+updated; final adoption is pending. See [inspector evidence and screenshots](quick/261015-tx1-implement-library-with-shared-favorites-/NATIVE-INSPECTOR-PROTOTYPE.md).
+
 ## Project Reference
 
 See: .planning/PROJECT.md (updated 2026-09-23)
@@ -70,7 +75,7 @@ See: .planning/PROJECT.md (updated 2026-09-23)
 Phase: 17 of 17 (Screenshot Automation, Visual Regression & OS 27 Modernization)
 Plan: 6 of 24 complete (17-05, wave 6; dependency order, not numeric ID order); 17-06 implemented; the owner's 2026-10-13 review returned changes, revision in progress
 Status: executing (17-01/17-24/17-02/17-03/17-04/17-05 complete; 17-06 implemented and verified, owner review returned changes on 2026-10-13, revision in progress; the agent prepares galleries and fixtures for both content sets)
-Last activity: 2026-10-17 — D86 native trailing Downloads panel trial verified; owner visual review pending; native header remains owner-deferred.
+Last activity: 2026-10-17 — D87 native inspector trial verified; review iPad updated; owner acceptance remains pending.
 
 **Phase 17 current gate:** 6/24 plans complete. 17-01 passed 32/32 capture coordinates and 66/66 tests; verified public v2 fixtures are in `.capture/regression`. 17-24 measures all four real device/orientation combinations and validates the immutable tracked rendering pin. Both final measure and validate commands pass four geometry tests plus six rotation/restore tests, with 28 Python contract tests and zero compiler/lint diagnostics or runtime warnings. Pin SHA-256: `ffd7689fcaf9a312202fdfbf9787f0198711fd477d1e72a2a013851df85a394a`; evidence is `.capture/environment-measurement/` and `.capture/environment-pin-check/`. Implementation ends at 3e69dc69d3; summary/review committed in fb83037387. Four reserved staged entries remain unchanged. Devices restore portrait/original Large and their original boot states. Continue inline with 17-06; shared CAP-17-01/02/03/04/06 remain incomplete until all declaring plans finish. No baseline promotion.
 
@@ -99,7 +104,7 @@ The following snapshots preserve earlier decisions and provenance. Their pending
 Phase: 16 (dynamic-type-accessibility) — EXECUTING
 Plan: 26 of 26 — Plan 16-25 walkthrough closure is closed with carried items; 16-26 D-25 measurement/documentation is complete, current-runtime closing gates passed, Task 3 owner sign-off remains; plans 16-01 through 16-25 complete — 25/26 plans complete
 Status: Round 2 executing — current closure and carry-forward status are recorded above. Historical colour, audit, and candidate context follows: round-2 colour decisions recorded 2026-09-11 in `16-CONTRAST-AUDIT.md § Decisions`: `STARS=B CATEGORYCELL=A HC=A D28=ok CONTEXTMENU=not-exposed` (CONTEXTMENU is a simulator accessibility-tree read via agent-device, not a device rotor pass). D-26 contrast foundation landed (plan 16-14): `Color+Contrast.swift` in `AppTools` and the 84-variant colorset invariant with the standard-44 pin `f940492a…5363` (never changes) and the HC-40 pin, re-pinned by 16-15 under HC=A from `e81b0604…0937` to `84accf72…9407` after the 19 `lower` Increase Contrast entries were rewritten (0/40 HC variants below standard). Plan 16-15 also made both badge sites adaptive (`CategoryLabel`, `CategoryCell` as a `Button` + `.isSelected`; CATEGORYCELL=A, no visible cue). Historical D-25 candidates included `#32 Activity Logs` and `#36 Laboratory`, but the 2026-09-17 superseding ruling below limits current rendered scope to Search root, Favorites and Watched; Gallery Detail remains withdrawn. 16-23 closed every `D28=ok` id and `STARS=B` (RatingStar and CommentLink module colorsets, the `Color.mix` idiom, the Read glyph via the 16-14 helper; `log-glyph-error` fixed at the use site; the comment-link underline built at all three link-run sites; 16-22's deferred entry closed) with after-measurements in `16-CONTRAST-AUDIT.md § 16-23 result (contrast)` — no residual, no screen added to D-25. Of the two items 16-16 handed to the orchestrator, the tag-cell `.contextMenu` was routed to 16-19 and is now mirrored (`accessibilityActions` from the menu builder in `DetailView+Subviews.swift`); Torrents / Archive counters announced as bare numbers (the glyph was the unit) remain open for the owner. 16-19 established that SwiftUI exposes `.swipeActions` as custom actions and does not de-duplicate named mirrors — later plans mirror only context-menu-only items. Round 1 signed off (owner `approved` 2026-09-11T08:35Z, `16-SWEEP.md § Owner sign-off`). 16-24 closed the automated audit gate (D-31): stable audit types only, two allow-list entries, green on iPhone 17 iOS 26.5 and iPad (A16) iPadOS 26.5; the seven login-gated surfaces go to 16-25 and the D-25 re-sweep; iPadOS 27 beta Gallery Detail stall deferred.
-Last activity: 2026-09-23 — Final full iPhone UI gate passed 54 tests with two expected skips; iPad passed all 56. Both have zero failures and zero Repetition nodes. FeatureTests remain current at 1055 passes plus 11 expected failures; strict SwiftLint is zero in 586 files. Code review found zero new findings; UI review remains 21/24 with accepted/deferred limits. W-38 remains owner-approved without an index-logic change. Task 3 whole-phase sign-off is pending. See `16-SWEEP.md § Final current-source closing gates`.
+Last activity: 2026-10-17 — D87 native inspector trial verified; review iPad updated; owner acceptance remains pending.
 
 **Current owner dispositions:** W-8 and W-35 were approved on 2026-09-22; VO-3/W-13 Comments retain their Apple-bug disposition. W-38 was approved on 2026-09-23 after the longer screen recording and is now closed. Its earlier additive-repair request and request for a current reproduction are superseded; no reader source patch is pending. The exact approval is in `16-SWEEP.md § Owner W-38 approval`. This is not whole-phase approval.
 

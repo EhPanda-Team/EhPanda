@@ -106,3 +106,9 @@ This run does not claim a new full Dynamic Type matrix, physical-device VoiceOve
 audit, Reduce Motion comparison, arbitrary live-window resize matrix or Duo folding sweep.
 Rotation and the narrow-entry fallback above are the measured adaptive cases. The previously
 owner-deferred native sidebar/header displacement is not repaired by this trial.
+
+## Subsequent comparison trial
+
+D87 explicitly requests the actual SwiftUI inspector. That candidate is now installed for review;
+this D86 sheet version remains recoverable at its recorded commit. Neither is a final owner choice.
+See [native inspector results and original captures](NATIVE-INSPECTOR-PROTOTYPE.md).

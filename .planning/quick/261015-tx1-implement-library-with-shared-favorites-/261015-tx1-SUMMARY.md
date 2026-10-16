@@ -261,3 +261,12 @@ rotation; both builds and strict lint are clean. Five original neutral screensho
 discarded overlay variants' findings are recorded in [FLOATING-PANEL-PROTOTYPE.md](FLOATING-PANEL-PROTOTYPE.md).
 The review iPad is updated with existing data. This is a trial awaiting owner review, not final
 design approval or Phase 17 completion.
+
+## Native inspector follow-up — D87
+
+The owner explicitly requests actual SwiftUI inspector after the trailing-sheet trial.
+`658ba665b2` is the current review candidate: native adaptive inspector for Downloads Details/Pages,
+with separate navigation ownership, state-driven Details Close and unchanged card geometry in
+the measured iPad overlay. Thirty feature tests and three native UI tests pass with zero build
+warnings/errors and zero lint violations. The trial remains pending owner acceptance; Phase 17
+and the deferred sidebar/header issue are unchanged. [Report and screenshots](NATIVE-INSPECTOR-PROTOTYPE.md).

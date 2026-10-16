@@ -1,0 +1,64 @@
+{
+  "sourceCommit": "658ba665b2fd5976f17878b22d53a6fcd9093aaf",
+  "assets": [
+    {
+      "file": null,
+      "source": ".build/library/native-inspector-ipad-03/selected-tests-attachments/F3AA8959-00D6-4F32-8783-850E9B5297F0.png",
+      "sha256": "6d2d8660cb80242c457a31016c920bdb3472869b82b8a2f910d4b143bd6e4621",
+      "historical_image_identifiers": {
+        "file": "ipad-native-inspector-details.png"
+      },
+      "image_status": "removed_from_repository_history"
+    },
+    {
+      "file": null,
+      "source": ".build/library/native-inspector-ipad-03/selected-tests-attachments/6777FBB5-9E23-4C5D-9185-07BE97A544FE.png",
+      "sha256": "ceabde7b54254e62f3c1dfc9bf774566fa3dd601af791960d5b05aeb4a81ca8b",
+      "historical_image_identifiers": {
+        "file": "ipad-native-inspector-pages.png"
+      },
+      "image_status": "removed_from_repository_history"
+    },
+    {
+      "file": null,
+      "source": ".build/library/native-inspector-ipad-03/selected-tests-attachments/FB06D7BE-3007-441B-B0B7-2AC9E756BD45.png",
+      "sha256": "555288e26a25d15dc5a2ae91e83e78cf33fb02fd1358de6aebcfb2cf647b325d",
+      "historical_image_identifiers": {
+        "file": "ipad-native-inspector-portrait.png"
+      },
+      "image_status": "removed_from_repository_history"
+    },
+    {
+      "file": null,
+      "source": ".build/library/native-inspector-ipad-03/selected-tests-attachments/DC81330A-C194-472F-B2EB-7098824B7A37.png",
+      "sha256": "124c6da9b3ca99954ef164286ea23ea96385ab50bb5a260246b961ef5f61e077",
+      "historical_image_identifiers": {
+        "file": "ipad-native-inspector-before.png"
+      },
+      "image_status": "removed_from_repository_history"
+    },
+    {
+      "file": "native-inspector-geometry.txt",
+      "source": ".build/library/native-inspector-ipad-03/selected-tests-attachments/DAEB9593-0A5E-443A-BF42-9457B6E79CFB.txt",
+      "sha256": "56aa4c004296f3017c66b57da16bdcfa8a7c2f688d71ab765322432fb1f32603"
+    },
+    {
+      "file": null,
+      "source": ".build/library/native-inspector-iphone-01/selected-tests-attachments/A7C57931-DE80-4E1C-B187-A99B41E0D51E.png",
+      "sha256": "86eeb89b1bd201b7d71a268a3fd55eaf015df799cf34586a0540942596eb98b3",
+      "historical_image_identifiers": {
+        "file": "iphone-native-inspector-details.png"
+      },
+      "image_status": "removed_from_repository_history"
+    },
+    {
+      "file": null,
+      "source": ".build/library/native-inspector-iphone-01/selected-tests-attachments/D32CBFDA-BB80-45C8-813B-17346A85C387.png",
+      "sha256": "fab65606a5ac3e8ca0dd2655621ce3ad2220f0fb0c8df6d79f4905497e366734",
+      "historical_image_identifiers": {
+        "file": "iphone-native-inspector-pages.png"
+      },
+      "image_status": "removed_from_repository_history"
+    }
+  ]
+}

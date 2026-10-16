@@ -264,3 +264,13 @@ findings are recorded in [GRID-LIBRARY-REFINEMENT.md](../261015-tx1-implement-li
 | D86 | “試做一下看看” in response to D85's floating Details/Pages alternatives. | Authorizes a working trial, not a final presentation redesign. `cb029d6db0` uses iOS 27 native trailing form-sheet placement for wide Downloads entry; the list retains its width. Narrow entry keeps existing routes. Native navigation, nested reading and Previews, rotation and management pass focused tests. The custom overlay variants were discarded after toolbar ownership failures. Trial geometry and final adoption await owner visual review. |
 
 [Implementation, failed-variant findings and original screenshots](../261015-tx1-implement-library-with-shared-favorites-/FLOATING-PANEL-PROTOTYPE.md). D85's inspector API conclusion is retained, with native trailing sheet added as the viable alternative.
+
+## Actual SwiftUI inspector trial — 2026-10-17
+
+| ID | Owner request | Disposition |
+|---|---|---|
+| D87 | “試一下 inspector” after asking whether D86 used inspector or a sheet. | Try the actual SwiftUI `.inspector` API for Downloads Details/Pages, including native size adaptation. D86 remains a comparison candidate in Git; no final presentation choice is implied. Record actual grid geometry, navigation/dismissal behavior and original screenshots in the linked trial report. |
+
+[Native inspector plan and evidence](../261015-tx1-implement-library-with-shared-favorites-/NATIVE-INSPECTOR-PROTOTYPE.md).
+
+D87 implementation: `658ba665b2fd5976f17878b22d53a6fcd9093aaf`. Native iPad overlay and iPhone sheet are verified; final design review remains open.
