@@ -286,3 +286,14 @@ D87 implementation: `658ba665b2fd5976f17878b22d53a6fcd9093aaf`. Native iPad over
 D88 rollback implementation: `b20b6ff8a43d45d8c05d04dcdfb203699201fb9c`.
 Validation: exact pre-trial non-docs tree, 32/32 feature tests, 1/1 iPad management UI test and clean
 build/lint; original review iPad updated in place.
+
+## Library tap actions — 2026-10-17
+
+| ID | Owner request | Disposition |
+|---|---|---|
+| D89 | Library should open reading on double tap and Detail on single tap. | Implement for Favorites and Downloads, row and grid. Preserve pre-trial presentation rules; provide Read through context menus and accessibility actions. Native gesture arbitration must prevent single-tap Detail during a double tap. |
+
+[Implementation plan and verification](../261015-tx1-implement-library-with-shared-favorites-/LIBRARY-TAP-ACTIONS.md).
+
+D89 implementation: `c484eb3a0aa4dde4eed037e071b74d5f6c153b20`. Fifty feature tests and five final native iPad/iPhone UI tests pass;
+strict lint and builds are clean. Review iPad updated in place; evidence boundaries are in the linked record.

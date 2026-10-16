@@ -280,3 +280,14 @@ owner’s rejection reasons. Trial docs and screenshots are retained.
 Rollback `b20b6ff8a43d45d8c05d04dcdfb203699201fb9c` restores exact pre-trial source equality.
 All 32 selected feature tests and one iPad management UI test pass with clean builds/lint; the
 original review iPad is updated in place. See [verification](PRESENTATION-TRIAL-ROLLBACK.md).
+
+## Library gallery tap behavior — D89
+
+`c484eb3a0aa4dde4eed037e071b74d5f6c153b20` implements single-tap Detail and double-tap direct reading for both Library
+sources and layouts. Native Buttons retain default activation, with Read in context menus and
+accessibility actions. Local/remote Favorites reading preserves progress; Downloads reuses its
+existing local-reader route. Existing Detail presentation and the D88 rollback remain unchanged.
+
+All 50 selected feature tests and five final iPad/iPhone UI tests pass, with clean builds and strict
+lint. The review iPad is updated without replacing its data. See [tap behavior and evidence](LIBRARY-TAP-ACTIONS.md)
+for the feature/native source boundary and accessibility/remote-image verification limits.

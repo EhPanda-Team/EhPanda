@@ -2,8 +2,8 @@
 type: retrospective-summary
 recorded: 2026-10-15
 historical_duo_implementation_commits: 21
-library_implementation_commits: 16
-decision_records: 88
+library_implementation_commits: 17
+decision_records: 89
 ---
 
 # Delivery and commit ledger
@@ -233,3 +233,14 @@ See [rollback record](../261015-tx1-implement-library-with-shared-favorites-/PRE
 
 Rollback validation: 32/32 feature tests and 1/1 iPad UI test pass; zero build/lint diagnostics.
 The original review iPad is running the restored implementation with existing data.
+
+## Library single/double tap — D89
+
+`c484eb3a0aa4dde4eed037e071b74d5f6c153b20` makes single tap open Detail and double tap open reading in Library Favorites
+and Downloads, in both row and grid. Native exclusive recognition prevents a hidden Detail beneath
+the reader; Read remains in context menus and accessibility actions. Favorites prefers local
+content and otherwise resolves remote reader metadata, with loading/error feedback and background
+progress persistence. Existing presentation routes and D88's rollback remain intact.
+
+Fifty feature tests and five final native iPad/iPhone UI tests pass; builds and strict lint are
+clean. The original review iPad was updated in place. See [implementation and evidence boundaries](../261015-tx1-implement-library-with-shared-favorites-/LIBRARY-TAP-ACTIONS.md).

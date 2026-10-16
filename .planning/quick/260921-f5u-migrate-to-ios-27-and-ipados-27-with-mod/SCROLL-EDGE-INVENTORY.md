@@ -35,6 +35,7 @@ Apply `.scrollEdgeEffectStyle(.soft, for: .top)` directly to each app-owned page
 | Date seek | `DateSeekFeature/DateSeekPickerView.swift` | Form | DateSeekPickerView.swift Form root; direct host. |
 | Quick search | `QuickSearchFeature/QuickSearchView.swift` | list and scrolling suggestions branches | QuickSearchView.swift list page root; direct host. |
 | Quick-search word editor | `QuickSearchFeature/QuickSearchView.swift` | EditWordView Form destination | QuickSearchView.swift EditWordView Form destination; direct host. |
+| Favorites direct reader cover (D89) | `FavoritesFeature/FavoritesView.swift` | Native fullScreenCover hosting ReadingView | ReadingView page root explicitly carries the soft top-edge policy inside the presentation boundary. |
 | Reader horizontal | `ReadingFeature/ReadingView.swift` | horizontalPagingList ScrollView plus reader page root | ReadingView.swift page root and horizontalPagingList ScrollView; direct hosts. |
 | Reader vertical | `ReadingFeature/Support/AdvancedList.swift` | native vertical ScrollView; no app-owned UIScrollView bridge found | AdvancedList.swift vertical ScrollView; direct host. |
 | Reader settings sheet | `ReadingSettingFeature/ReadingSettingView.swift` | Form; shared with Settings navigation | ReadingSettingView.swift Form root; direct host. |
