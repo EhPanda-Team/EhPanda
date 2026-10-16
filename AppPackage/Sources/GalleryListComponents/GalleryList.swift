@@ -1,6 +1,7 @@
 import AppComponents
 public import AppModels
 import CasePathsCore
+import Resources
 public import SwiftUI
 
 public struct GalleryList: View {
@@ -18,6 +19,7 @@ public struct GalleryList: View {
     private let fetchAction: (() -> Void)?
     private let fetchMoreAction: (() -> Void)?
     private let navigateAction: ((Gallery) -> Void)?
+    private let readAction: ((Gallery) -> Void)?
     private let translateAction: ((String) -> TagTranslationLookup)?
     private let displayMode: GalleryListDisplayMode
     private let showsGridRating: Bool
@@ -31,6 +33,7 @@ public struct GalleryList: View {
         fetchAction: (() -> Void)? = nil,
         fetchMoreAction: (() -> Void)? = nil,
         navigateAction: ((Gallery) -> Void)? = nil,
+        readAction: ((Gallery) -> Void)? = nil,
         translateAction: ((String) -> TagTranslationLookup)? = nil,
         downloadBadges: [String: DownloadBadge] = [:],
         galleryFocus: AccessibilityFocusState<String?>.Binding? = nil,
@@ -47,6 +50,7 @@ public struct GalleryList: View {
         self.fetchAction = fetchAction
         self.fetchMoreAction = fetchMoreAction
         self.navigateAction = navigateAction
+        self.readAction = readAction
         self.translateAction = translateAction
         self.galleryFocus = galleryFocus
         externalScrollPositionID = scrollPositionID
@@ -65,6 +69,7 @@ public struct GalleryList: View {
                     notice: notice,
                     fetchMoreAction: fetchMoreAction,
                     navigateAction: navigateAction,
+                    readAction: readAction,
                     translateAction: translateAction,
                     downloadBadges: downloadBadges,
                     galleryFocus: focusedGalleryID,
@@ -79,6 +84,7 @@ public struct GalleryList: View {
                     notice: notice,
                     fetchMoreAction: fetchMoreAction,
                     navigateAction: navigateAction,
+                    readAction: readAction,
                     translateAction: translateAction,
                     downloadBadges: downloadBadges,
                     galleryFocus: focusedGalleryID,
@@ -120,6 +126,7 @@ private struct DetailList: View {
     private let notice: LocalizedStringResource?
     private let fetchMoreAction: (() -> Void)?
     private let navigateAction: ((Gallery) -> Void)?
+    private let readAction: ((Gallery) -> Void)?
     private let translateAction: ((String) -> TagTranslationLookup)?
 
     init(
@@ -127,6 +134,7 @@ private struct DetailList: View {
         footerLoadingState: LoadingState, notice: LocalizedStringResource? = nil,
         fetchMoreAction: (() -> Void)?,
         navigateAction: ((Gallery) -> Void)? = nil,
+        readAction: ((Gallery) -> Void)? = nil,
         translateAction: ((String) -> TagTranslationLookup)? = nil,
         downloadBadges: [String: DownloadBadge] = [:],
         galleryFocus: AccessibilityFocusState<String?>.Binding,
@@ -141,6 +149,7 @@ private struct DetailList: View {
         self.notice = notice
         self.fetchMoreAction = fetchMoreAction
         self.navigateAction = navigateAction
+        self.readAction = readAction
         self.translateAction = translateAction
         self.galleryFocus = galleryFocus
     }
@@ -172,6 +181,15 @@ private struct DetailList: View {
                     }
                     .id(gallery.id)
                     .foregroundStyle(.primary)
+                    .modifier(GalleryReadInteraction(
+                        detailAction: { navigateAction?(gallery) },
+                        readAction: readAction.map { action in { action(gallery) } }
+                    ))
+                    .contextMenu {
+                        if let readAction {
+                            Button(.RLocalizable.read) { readAction(gallery) }
+                        }
+                    }
                     .accessibilityIdentifier("gallery-list-item-\(gallery.id)")
                     .accessibilityFocused(galleryFocus, equals: gallery.id)
                     // Fetch-more fires when the trailing row actually becomes visible in the scroll
@@ -217,6 +235,7 @@ private struct GridList: View {
     private let notice: LocalizedStringResource?
     private let fetchMoreAction: (() -> Void)?
     private let navigateAction: ((Gallery) -> Void)?
+    private let readAction: ((Gallery) -> Void)?
     private let translateAction: ((String) -> TagTranslationLookup)?
 
     init(
@@ -225,6 +244,7 @@ private struct GridList: View {
         footerLoadingState: LoadingState, notice: LocalizedStringResource? = nil,
         fetchMoreAction: (() -> Void)?,
         navigateAction: ((Gallery) -> Void)? = nil,
+        readAction: ((Gallery) -> Void)? = nil,
         translateAction: ((String) -> TagTranslationLookup)? = nil,
         downloadBadges: [String: DownloadBadge] = [:],
         galleryFocus: AccessibilityFocusState<String?>.Binding,
@@ -239,6 +259,7 @@ private struct GridList: View {
         self.notice = notice
         self.fetchMoreAction = fetchMoreAction
         self.navigateAction = navigateAction
+        self.readAction = readAction
         self.translateAction = translateAction
         self.galleryFocus = galleryFocus
     }
@@ -266,6 +287,15 @@ private struct GridList: View {
                         .multilineTextAlignment(.leading)
                     }
                     .buttonStyle(.borderless)
+                    .modifier(GalleryReadInteraction(
+                        detailAction: { navigateAction?(gallery) },
+                        readAction: readAction.map { action in { action(gallery) } }
+                    ))
+                    .contextMenu {
+                        if let readAction {
+                            Button(.RLocalizable.read) { readAction(gallery) }
+                        }
+                    }
                     .accessibilityIdentifier("gallery-list-item-\(gallery.id)")
                     .accessibilityFocused(galleryFocus, equals: gallery.id)
                     .onScrollVisibilityChange(threshold: 0.1) { isVisible in

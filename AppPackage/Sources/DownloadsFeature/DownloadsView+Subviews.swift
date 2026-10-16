@@ -397,23 +397,24 @@ struct DownloadListRow: View {
     @SharedReader(.setting) private var setting: Setting
     let download: DownloadedGallery
     let rowFocus: AccessibilityFocusState<String?>.Binding
+    let readAction: () -> Void
     let openAction: () -> Void
 
     var body: some View {
-        GalleryDetailCell(
-            gallery: download.gallery,
-            coverSource: .static(download.coverURL),
-            translateAction: {
-                tagTranslator.lookup(word: $0, returnOriginal: !setting.translateTags)
-            },
-            downloadBadge: download.badge
-        )
-        .allowsHitTesting(false)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .contentShape(.rect)
-        .onTapGesture(perform: openAction)
-        .accessibilityAddTraits(.isButton)
-        .accessibilityElement(children: .combine)
+        Button(action: openAction) {
+            GalleryDetailCell(
+                gallery: download.gallery,
+                coverSource: .static(download.coverURL),
+                translateAction: {
+                    tagTranslator.lookup(word: $0, returnOriginal: !setting.translateTags)
+                },
+                downloadBadge: download.badge
+            )
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .contentShape(.rect)
+        }
+        .buttonStyle(.borderless)
+        .modifier(GalleryReadInteraction(detailAction: openAction, readAction: readAction))
         .accessibilityFocused(rowFocus, equals: download.id)
     }
 }

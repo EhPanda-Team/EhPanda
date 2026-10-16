@@ -7,8 +7,10 @@ import ComposableArchitecture
 import CookieClient
 import CustomDump
 import DownloadClient
+import FavoritesFeature
 import Foundation
 import LogsClient
+import ReadingFeature
 import SettingFeature
 import Sharing
 import SwiftUI
@@ -20,6 +22,37 @@ import UserDefaultsClient
 // make the suite's protocol conformances main-actor-isolated too (see 11-22-SUMMARY.md).
 // Any case left unannotated is deliberately free to run off the main actor.
 struct AppReducerScenePhaseTests {
+    @MainActor
+    @Test
+    func backgroundFlushesDirectFavoritesReadingProgress() async {
+        let gallery = Gallery(
+            gid: "98123", token: "library", title: "Progress fixture", rating: 0, tags: [],
+            category: .manga, uploader: "", pageCount: 10, postedDate: .distantPast,
+            coverURL: nil, galleryURL: nil
+        )
+        let appStorage = UserDefaults.inMemory
+        var reading = withDependencies {
+            $0.defaultAppStorage = appStorage
+        } operation: {
+            ReadingReducer.State(gallery: gallery)
+        }
+        reading.pendingReadingProgress = 7
+        let store = makeStore(
+            detectLinksFromClipboard: false, privacyMaskIntensity: 0,
+            favoritesReading: reading, appStorage: appStorage
+        )
+        store.exhaustivity = .off
+        await store.send(.onScenePhaseChange(.background))
+        await store.receive(\.favorites.destination.presented.reading.flushReadingProgress)
+        let history = withDependencies {
+            $0.defaultAppStorage = appStorage
+        } operation: {
+            Shared<[GalleryHistoryEntry]>(.galleryHistory)
+        }
+        #expect(history.wrappedValue.readingProgress(gid: gallery.id) == 7)
+        await store.finish()
+    }
+
     @MainActor
     @Test
     func scenePhaseWritesPrivacyMaskAndStartsForegroundEffectsOnce() async {
@@ -142,9 +175,10 @@ private extension AppReducerScenePhaseTests {
         clipboardDetectionCount: LockIsolated<Int>? = nil,
         detectLinksFromClipboard: Bool,
         privacyMaskIntensity: Double,
-        hasLoadedInitialSetting: Bool = true
+        hasLoadedInitialSetting: Bool = true,
+        favoritesReading: ReadingReducer.State? = nil,
+        appStorage: UserDefaults = .inMemory
     ) -> TestStoreOf<AppReducer> {
-        let appStorage = UserDefaults.inMemory
         let inMemoryStorage = InMemoryStorage()
 
         return withDependencies {
@@ -152,6 +186,9 @@ private extension AppReducerScenePhaseTests {
             $0.defaultInMemoryStorage = inMemoryStorage
         } operation: {
             var initialState = AppReducer.State()
+            if let favoritesReading {
+                initialState.favoritesState.destination = .reading(favoritesReading)
+            }
             initialState.settingState.hasLoadedInitialSetting = hasLoadedInitialSetting
             initialState.settingState.$setting.withLock {
                 $0 = Setting(
@@ -173,6 +210,7 @@ private extension AppReducerScenePhaseTests {
                 reducer: AppReducer.init,
                 withDependencies: {
                     $0.analyticsClient = .noop
+                    $0.date = .constant(.distantPast)
                     $0.appLaunchAutomationClient = .none
                     $0.clipboardClient = clipboardDetectionCount.map(ClipboardClient.countingDetections) ?? .noop
                     $0.continuousClock = TestClock()
