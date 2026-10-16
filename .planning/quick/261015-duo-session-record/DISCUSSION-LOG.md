@@ -236,5 +236,11 @@ D76 implemented in `25848cc4dc`; final checks and screenshot are in [HEADER-STAB
 
 | ID | Decision / provenance | Disposition |
 |---|---|---|
-| D79 | Owner selects only these proposal details: no grid-container background, existing cover background color, square cover corners, three-line grid titles, and equal top/bottom alignment within each row with vertically centered titles absorbing spare space above/below. | Apply to the shared grid cell, including Downloads. Keep other metadata, spacing, actions, navigation and proposal choices unchanged. |
+| D79 | Owner selects only these proposal details: no grid-container background, existing cover background color, “four corners” (clarified as all-rounded in D81), three-line grid titles, and equal top/bottom alignment within each row with vertically centered titles absorbing spare space above/below. | Apply to the shared grid cell, including Downloads. The initial implementation misread the corner request as square; D81 corrects it. Keep other metadata, spacing, actions, navigation and proposal choices unchanged. |
 | D80 | Add Appearance → Gallery simplified titles; remove bracket-enclosed content including nested and international bracket forms; clean removal-boundary whitespace without destroying spaces within the title. Owner explicitly selects default on for all row/grid lists. | Add a backward-compatible persisted option and a display-only transformation shared by both list cells. Keep original titles for stored data, search and gallery detail. Plan/evidence: [GRID-TITLES.md](../261015-tx1-implement-library-with-shared-favorites-/GRID-TITLES.md). |
+
+## Grid correction — 2026-10-16
+
+| ID | Owner decision | Disposition |
+|---|---|---|
+| D81 | Clarifies that “four corners” means all four cover corners should be rounded, correcting the prior square-corner interpretation. Use the linked reference cover's ratio and reduce grid titles from three lines to two. | Implemented in `428897f452`: restore the original 15-point rounding on all cover corners; use the original image metadata ratio 2117:3000. Preserve transparent containers, title centering, sibling alignment and default-enabled simplification. Evidence: [GRID-TITLES.md](../261015-tx1-implement-library-with-shared-favorites-/GRID-TITLES.md). |

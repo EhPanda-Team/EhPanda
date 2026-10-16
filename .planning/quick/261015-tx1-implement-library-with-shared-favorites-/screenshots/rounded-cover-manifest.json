@@ -1,0 +1,110 @@
+{
+  "sourceCommit": "428897f452ea32c300c39b0657db354ad01287fd",
+  "exportedAt": "2026-10-16T14:24:58Z",
+  "screenshots": [
+    {
+      "file": null,
+      "source": ".build/library/rounded-cover-ipad-02/attachments/8B39962C-E106-4C46-B71F-69AC79BDB53A.png",
+      "sha256": "ec1387d42a24588bcd49efad6e48fea7f3d0f4d0e40db032deedb9a5d3aa800c",
+      "device": "ipad",
+      "textSize": "ax5",
+      "test": "GalleryCardUITests/testGridAlignsDifferentTitleLengthsAtEveryTextSize()",
+      "timestamp": 1792160377.083,
+      "historical_image_identifiers": {
+        "file": "screenshots/ipad-grid-rounded-ax5.png"
+      },
+      "image_status": "removed_from_repository_history"
+    },
+    {
+      "file": null,
+      "source": ".build/library/rounded-cover-ipad-02/attachments/1CF59990-106D-42A3-AA65-7767E84F8F0E.png",
+      "sha256": "c661ddcf83eb7f42b64d7002baa582a0f9a6a98416ef6ca1088be58672a3916e",
+      "device": "ipad",
+      "textSize": "ax3",
+      "test": "GalleryCardUITests/testGridAlignsDifferentTitleLengthsAtEveryTextSize()",
+      "timestamp": 1792160363.65,
+      "historical_image_identifiers": {
+        "file": "screenshots/ipad-grid-rounded-ax3.png"
+      },
+      "image_status": "removed_from_repository_history"
+    },
+    {
+      "file": null,
+      "source": ".build/library/rounded-cover-ipad-02/attachments/A99AF4C7-59FD-4226-81BB-E190A6BE7412.png",
+      "sha256": "627093d2c80691b37ec63996636a18d57c6e98dbd6554a46de8a2d7a6e56dcea",
+      "device": "ipad",
+      "textSize": "ax1",
+      "test": "GalleryCardUITests/testGridAlignsDifferentTitleLengthsAtEveryTextSize()",
+      "timestamp": 1792160348.487,
+      "historical_image_identifiers": {
+        "file": "screenshots/ipad-grid-rounded-ax1.png"
+      },
+      "image_status": "removed_from_repository_history"
+    },
+    {
+      "file": null,
+      "source": ".build/library/rounded-cover-ipad-02/attachments/C55ED971-3401-4076-928C-5FA715D0AA17.png",
+      "sha256": "c87b5e2492571aaa12564b87610fd5e13fd650a3cd14fe1ba6996cd3e0047372",
+      "device": "ipad",
+      "textSize": "standard",
+      "test": "GalleryCardUITests/testGridAlignsDifferentTitleLengthsAtEveryTextSize()",
+      "timestamp": 1792160332.919,
+      "historical_image_identifiers": {
+        "file": "screenshots/ipad-grid-rounded-standard.png"
+      },
+      "image_status": "removed_from_repository_history"
+    },
+    {
+      "file": null,
+      "source": ".build/library/rounded-cover-iphone-02/attachments/D843E837-2919-4AFF-B800-0018C0C073FF.png",
+      "sha256": "7cdcf523d6470d588fe7933b238ad2ab81ba29d6005a5095d7b3d55f9e7476f6",
+      "device": "iphone",
+      "textSize": "ax5",
+      "test": "GalleryLayoutUITests/testNativeTitlesAndGridAtEveryTextSize()",
+      "timestamp": 1792160569.606,
+      "historical_image_identifiers": {
+        "file": "screenshots/iphone-grid-rounded-ax5.png"
+      },
+      "image_status": "removed_from_repository_history"
+    },
+    {
+      "file": null,
+      "source": ".build/library/rounded-cover-iphone-02/attachments/53765228-1568-4040-8AA3-DA6425AAE85B.png",
+      "sha256": "f77343e23d55a1c507f692ea14488e34a3912c8168c04952572c3d98dd3a13c5",
+      "device": "iphone",
+      "textSize": "ax3",
+      "test": "GalleryLayoutUITests/testNativeTitlesAndGridAtEveryTextSize()",
+      "timestamp": 1792160554.74,
+      "historical_image_identifiers": {
+        "file": "screenshots/iphone-grid-rounded-ax3.png"
+      },
+      "image_status": "removed_from_repository_history"
+    },
+    {
+      "file": null,
+      "source": ".build/library/rounded-cover-iphone-02/attachments/F3466285-6941-4F7A-A1C4-D8776F175564.png",
+      "sha256": "a78ef545599b46a670b2571e146e9ffb3a42d1d3f408be6a70f4f850d9714bd5",
+      "device": "iphone",
+      "textSize": "ax1",
+      "test": "GalleryLayoutUITests/testNativeTitlesAndGridAtEveryTextSize()",
+      "timestamp": 1792160539.673,
+      "historical_image_identifiers": {
+        "file": "screenshots/iphone-grid-rounded-ax1.png"
+      },
+      "image_status": "removed_from_repository_history"
+    },
+    {
+      "file": null,
+      "source": ".build/library/rounded-cover-iphone-02/attachments/E18064D5-D339-4C6E-8071-E09D12C4A0EF.png",
+      "sha256": "c1ac5a8122afff051684af3bd5380491176ee5c1905c12e96174169a2f956291",
+      "device": "iphone",
+      "textSize": "standard",
+      "test": "GalleryLayoutUITests/testNativeTitlesAndGridAtEveryTextSize()",
+      "timestamp": 1792160524.514,
+      "historical_image_identifiers": {
+        "file": "screenshots/iphone-grid-rounded-standard.png"
+      },
+      "image_status": "removed_from_repository_history"
+    }
+  ]
+}

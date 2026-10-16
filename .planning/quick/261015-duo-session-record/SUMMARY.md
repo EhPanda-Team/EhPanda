@@ -2,8 +2,8 @@
 type: retrospective-summary
 recorded: 2026-10-15
 historical_duo_implementation_commits: 21
-library_implementation_commits: 11
-decision_records: 80
+library_implementation_commits: 12
+decision_records: 81
 ---
 
 # Delivery and commit ledger
@@ -97,7 +97,6 @@ D62 rebuilds this session on `agent/app-design` from the latest `feature/gsd-pha
 implementation and rewritten SHA references come directly from the new base. See
 [Workspace rebuild](WORKSPACE-REBUILD.md) for preservation and cleanup evidence.
 
-
 ## Library implementation and current evidence
 
 | Commit | Responsibility |
@@ -174,10 +173,20 @@ for review. This supersedes D65's stopped-preview state without changing any des
 
 ## Grid appearance and simplified titles
 
-D79–D80 are implemented in `7b58987a7d`: transparent grid cards, square covers using the established
-background, three-line vertically centered titles, aligned row edges, and default-on simplified
+Initial D79–D80 delivery in `7b58987a7d` (corner/ratio/line limit superseded by D81): transparent grid
+cards, square covers using the established background, three-line vertically centered titles, aligned row edges, and default-on simplified
 titles across all row/grid lists. The setting is in Appearance → Gallery and preserves old settings.
 The 97 model tests and four UI tests pass, with zero build warnings/errors or lint violations.
 See [implementation and retained evidence](../261015-tx1-implement-library-with-shared-favorites-/GRID-TITLES.md)
 for exact scope, corrected failed attempts, eleven native screenshots and review-device state.
 The iPad remains open at Library Favorites with its real data; Phase 17 gates are unchanged.
+
+## Grid cover clarification — D81
+
+`428897f452` corrects all four cover corners to rounded, uses the owner's reference cover's original
+2117:3000 ratio and reduces grid titles to two lines. Transparent containers, centered short titles,
+aligned row edges and default-on simplified titles remain. Two focused UI tests pass across iPad
+and iPhone standard/AX1/AX3/AX5, with clean builds/lint and eight original screenshots. The first
+visual attempt exposed the nested category clip; final compositing and corner checks resolve it.
+See [current evidence](../261015-tx1-implement-library-with-shared-favorites-/GRID-TITLES.md#cover-correction-verification--d81).
+The iPad is updated and open for review; the known native header issue and Phase 17 gates are unchanged.

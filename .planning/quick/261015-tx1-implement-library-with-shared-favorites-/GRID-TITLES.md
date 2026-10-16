@@ -2,9 +2,21 @@
 
 > **Image evidence availability:** Image files were removed from this repository history at the owner's request. Screenshot descriptions, filenames and earlier visual checks below are historical records, not currently available image evidence. Written findings, measurements and source artifacts remain; visual review requires fresh captures.
 
-Owner decisions: D79–D80. Implemented in `7b58987a7de4bcd164bf1c3f33bc93ebb57a27cb` on `agent/app-design`.
+Owner decisions: D79–D81. Current appearance correction: `428897f452ea32c300c39b0657db354ad01287fd`
+on `agent/app-design`; the initial D79–D80 implementation is `7b58987a7de4bcd164bf1c3f33bc93ebb57a27cb`.
 
-## Scope and plan
+## Current appearance — D81
+
+- All four cover corners are rounded at the original 15-point radius, including the category overlay.
+- Cover width:height is 2117:3000, matching the owner's reference image's original metadata.
+- Grid titles stop at two lines. Transparent containers, adaptive cover backgrounds, vertically
+  centered short titles, aligned row edges and default-enabled row/grid simplification remain.
+
+The initial-delivery sections below retain the prior square-corner interpretation, 2:3 ratio and
+three-line limit as history only; D81 supersedes those three values. Final evidence appears under
+[Cover correction verification](#cover-correction-verification--d81).
+
+## Initial D79–D80 scope and plan (historical)
 
 1. Add default-enabled Appearance → Gallery simplified titles, decoding older settings without
    resetting other preferences. Localize the control in all six existing locales.
@@ -32,7 +44,7 @@ stable gallery IDs and view composition. The owner explicitly restricts changes 
 This supersedes the earlier five-line grid-title budget only. Row title limits and native navigation
 remain as designed; the separate known header displacement remains deferred.
 
-## Delivered behavior
+## Initial D79–D80 delivered behavior (historical)
 
 Appearance → Gallery now includes Simplified Titles in all six supported locales. It defaults to
 on for fresh installs and older settings without resetting unrelated preferences. The optional
@@ -54,7 +66,7 @@ cover and metadata. Titles stop at three lines. Metadata, typography, tag/rating
 column sizing and navigation otherwise remain as before. Downloads extends the same row-height
 proposal through its enclosing card and retains the Actions menu below it.
 
-## Verification
+## Initial D79–D80 verification (historical)
 
 Xcode 27.1, iOS/iPadOS 27.0 simulators. All final selections execute each enumerated identity once,
 without retries or skips. The final production source matches the implementation commit above;
@@ -88,7 +100,7 @@ full prior rotation/live-size matrix or constitute physical-device/Phase 17 sign
   menu action and sidebar item separately. The test now selects the menu's label/empty identifier
   explicitly, eliminating ordering dependence; the full operation test then passed.
 
-## Review artifacts and runtime state
+## Initial D79–D80 review artifacts and runtime state (historical)
 
 The eleven original neutral-fixture screenshots are recorded with source paths and SHA256 hashes in
 [screenshots/grid-titles-manifest.json](screenshots/grid-titles-manifest.json). They are exported
@@ -107,3 +119,59 @@ an incompatible installed version, so native XCTest and Xcode simctl provided ve
 Device Hub or global tool upgrade was needed. The historical proposal preview remains running.
 
 The separately recorded native sidebar/header displacement remains owner-deferred (D75–D76).
+
+## Cover correction verification — D81
+
+D81 corrects the prior misunderstanding of “four corners”: every outer cover corner is rounded.
+The completed image/background/category composition is clipped together, keeping the badge's
+existing inward corner while rounding the cover's top-trailing corner too. No other list style,
+metadata, setting or navigation policy changes.
+
+The [owner's reference gallery](https://e-hentai.org/g/1272615/fe3eace134/) points to a
+[cover page](https://e-hentai.org/s/c14674c2bf/1272615-1) reporting the original as 2117 × 3000.
+That exact original ratio is used instead of its rounded 250 × 354 thumbnail or 1280 × 1814 display
+image. [Reference metadata](reference-cover-metadata.json) retains the public dimensions; no
+reference artwork was downloaded or committed.
+
+| Final evidence under `.build/library/` | Result |
+|---|---|
+| `rounded-cover-ipad-02` | One existing grid geometry test passed at standard, AX1, AX3 and AX5; mixed short/long titles, equal sibling top/bottom edges where multiple columns fit, and single-column viewport bounds. |
+| `rounded-cover-iphone-02` | One existing native title/grid test passed at all four text sizes, including horizontal bounds and usable layout toolbar. |
+
+Both final selections ran each enumerated test once, with no retries or skips and unchanged source
+hashes. Both builds report zero compiler/analyzer warnings or errors. Strict SwiftLint reports zero
+violations in the one changed Swift file with Xcode 27.1 explicitly selected. The 97 model tests,
+setting-persistence and Downloads operation tests above belong to the prior delivery and were not
+rerun for this view-only refinement. Cold-size checks do not replace the broader live resize/rotation
+matrix, physical-device verification or Phase 17 review.
+
+### Visual correction retained
+
+The initial `rounded-cover-ipad-01` and `rounded-cover-iphone-01` test selections passed geometry,
+but manual screenshot review found that the category overlay's nested clip still left a square
+outer top-right corner. A native compositing group before the final rounded clip corrects that
+composition. This follows [SwiftUI compositingGroup](https://developer.apple.com/documentation/swiftui/view/compositinggroup())
+semantics; no custom mask or drawingGroup is introduced.
+
+The final standard iPad image visibly rounds all four corners and shows a two-line long title beside
+vertically centered short titles with aligned metadata. On the orientation-normalized 2420 × 1668
+image, corner samples (675, 411), (1080, 411), (675, 987), (1080, 987) are all white page background;
+the top-right sample was blue before grouping. Interior samples retain the cover and badge colors.
+At AX3/AX5, much of the card extends below the first viewport; those screenshots alone do not prove
+bottom-edge appearance. The geometry assertions remain the alignment evidence at those sizes.
+
+One standalone lint invocation omitted DEVELOPER_DIR and failed to load SourceKit from the machine's
+obsolete default Xcode location. Rerunning with the same explicit Xcode 27.1 toolchain as the builds
+passed without source changes or rule suppression.
+
+Eight unchanged neutral-fixture screenshots and their SHA256 hashes are retained in
+[screenshots/rounded-cover-manifest.json](screenshots/rounded-cover-manifest.json).
+
+- iPad final grid (image removed from repository history)
+- iPad AX1 (image removed from repository history)
+- iPhone final grid (image removed from repository history)
+
+The review iPad was updated in place and opened to Library Favorites with its original account/data.
+Its local-only live screenshot confirms the new corners, ratio, two-line titles and alignment.
+The disposable iPad was removed after export; the dedicated iPhone returned to Shutdown. The
+historical proposal remains available. D75–D76's native sidebar/header issue stays owner-deferred.

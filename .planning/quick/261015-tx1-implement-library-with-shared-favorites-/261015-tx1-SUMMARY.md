@@ -213,8 +213,8 @@ unedited screenshot, exact evidence and limits.
 
 ## Grid appearance and simplified titles — 2026-10-16
 
-D79–D80 are implemented in `7b58987a7d`. Shared grid cards now have transparent containers, square
-covers with the established adaptive background, and three-line titles centered in flexible space
+Initial D79–D80 delivery in `7b58987a7d` (corner/ratio/line limit superseded by D81) has transparent
+containers, square covers with the established adaptive background, and three-line titles centered in flexible space
 so every card in a row aligns. Appearance → Gallery adds default-on simplified titles for all
 row/grid lists, preserving original stored/search/detail titles and existing settings.
 
@@ -223,3 +223,17 @@ AX1/AX3/AX5 coverage, setting persistence and Downloads management. Builds and s
 See [GRID-TITLES.md](GRID-TITLES.md) for implementation, failed-attempt corrections, limits and eleven
 original screenshots with hashes. The normal iPad is updated and open for review; the prior header
 issue remains owner-deferred and the historical proposal preview remains running.
+
+## Cover corners, proportions and title limit — D81
+
+`428897f452` applies the owner's clarification: all four cover corners rounded at 15 points, width:height
+2117:3000 from the referenced cover's original metadata, and a two-line grid-title limit. Other
+approved appearance and simplified-title behavior is preserved. A native compositing group keeps
+the category overlay within the top-right rounded corner.
+
+The final iPad geometry and iPhone native title/grid tests pass at standard, AX1, AX3 and AX5, with
+zero build warnings/errors and clean strict lint. Eight unchanged neutral screenshots are retained;
+the first visually incorrect attempt and precise verification limits are in
+[GRID-TITLES.md](GRID-TITLES.md#cover-correction-verification--d81). Earlier broader tests remain
+historical. The review iPad is updated in place and open at Library Favorites; native header
+investigation remains deferred and Phase 17 status is unchanged.
