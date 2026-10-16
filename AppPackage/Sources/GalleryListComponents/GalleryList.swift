@@ -291,11 +291,6 @@ private struct GridList: View {
                         detailAction: { navigateAction?(gallery) },
                         readAction: readAction.map { action in { action(gallery) } }
                     ))
-                    .contextMenu {
-                        if let readAction {
-                            Button(.RLocalizable.read) { readAction(gallery) }
-                        }
-                    }
                     .accessibilityIdentifier("gallery-list-item-\(gallery.id)")
                     .accessibilityFocused(galleryFocus, equals: gallery.id)
                     .onScrollVisibilityChange(threshold: 0.1) { isVisible in

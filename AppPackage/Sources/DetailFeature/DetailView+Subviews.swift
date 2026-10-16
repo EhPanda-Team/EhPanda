@@ -566,7 +566,7 @@ struct PreviewsSection: View {
                         Button {
                             navigateReadingAction(index)
                         } label: {
-                            PreviewImageView(originalURL: previewURL)
+                            PreviewThumbnail(url: previewURL)
                                 .frame(width: width, height: height)
                         }
                         // The thumbnail is the button's only content; the page it opens is its name.
