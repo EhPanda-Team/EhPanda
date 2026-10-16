@@ -5,9 +5,9 @@ current_phase: 17
 current_phase_name: Screenshot Automation, Visual Regression & OS 27 Modernization
 status: executing
 stopped_at: 17-06 revision re-shot (2026-10-13), 16/16 captured; waiting for the owner's visual review; agent prepares both gallery sets
-last_updated: "2026-10-16T03:45:03Z"
+last_updated: "2026-10-16T04:24:30Z"
 last_activity: 2026-10-16
-state_head: 251ea0adfe9dbcbdb34543c40385b17a85503869
+state_head: 0bb7443e674469795436b651c1dc7f3021549e4f
 progress:
   total_phases: 17
   completed_phases: 10
@@ -16,7 +16,7 @@ progress:
   percent: 59
 milestone_name: )
 source_head: 2519060029
-last_activity_desc: "Library D75 retains native sidebar and defers header displacement; D76 restores native toggle; Phase 17 gate unchanged"
+last_activity_desc: "Library D77 removes generic Downloads sidebar entry; folder navigation verified; Phase 17 gate unchanged"
 ---
 
 # Project State
@@ -35,6 +35,10 @@ Library follow-up: D75 keeps the native sidebar and records the unresolved heade
 D76 restores the working hide/show toggle, initially expanded. See
 [header investigation and reproduction](quick/261015-tx1-implement-library-with-shared-favorites-/HEADER-STABILITY.md).
 This supersedes D69's fixed-open policy and does not claim a header fix or change the Phase 17 gate.
+
+D77 removes the generic Downloads sidebar link; actual folders and native section actions remain.
+`0bb7443e67` passes the focused compact navigation regression, clean build/lint and iPad folder entry.
+See [folder-only entry evidence](quick/261015-tx1-implement-library-with-shared-favorites-/SIDEBAR-ACTIONS.md#folder-only-navigation-follow-up--d77).
 
 ## Project Reference
 
