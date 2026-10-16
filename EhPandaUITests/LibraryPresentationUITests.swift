@@ -185,6 +185,116 @@ final class LibraryPresentationUITests: XCTestCase {
         XCTAssertFalse(app.descendants(matching: .any)["download-gallery-9101"].firstMatch.exists)
     }
 
+    func testFloatingDownloadsPanelPreservesGridAndResizes() throws {
+        let originalOrientation = XCUIDevice.shared.orientation
+        XCUIDevice.shared.orientation = .landscapeLeft
+        let root = try makeDownloads()
+        let app = XCUIApplication()
+        defer {
+            app.terminate()
+            XCUIDevice.shared.orientation = originalOrientation
+            do {
+                try FileManager.default.removeItem(at: root)
+            } catch {
+                XCTFail("Unable to remove test-owned downloads: \(error)")
+            }
+        }
+        try app.launchStubbed(extraEnvironment: [
+            "EHPANDA_AUTOMATION_TAB": "downloads",
+            "EHPANDA_UITEST_DOWNLOAD_ROOT": root.path()
+        ])
+        let picker = app.buttons["gallery-layout-downloads"]
+        picker.tapWhenHittable("Downloads presentation")
+        app.buttons["Grid"].tapWhenHittable("Downloads Grid")
+        let first = app.buttons["download-gallery-9101"]
+        XCTAssertTrue(first.waitForExistence(timeout: 15))
+        let content = app.descendants(matching: .any)["downloads-gallery-list"].firstMatch
+        reveal(first, in: content, app: app)
+        let originalFrame = first.frame
+        let originalContentFrame = content.frame
+        attachPanelScreenshot("Floating panel - grid before")
+        first.press(forDuration: 1)
+        app.buttons["Pages"].tapWhenHittable("Open floating Pages")
+        let panel = app.descendants(matching: .any)["download-floating-panel"].firstMatch
+        XCTAssertTrue(panel.waitForExistence(timeout: 10))
+        XCTAssertTrue(app.navigationBars["Download Status"].waitForExistence(timeout: 10))
+        XCTAssertEqual(first.frame.width, originalFrame.width, accuracy: 1)
+        XCTAssertEqual(first.frame.minX, originalFrame.minX, accuracy: 1)
+        XCTAssertEqual(content.frame.width, originalContentFrame.width, accuracy: 1)
+        XCTAssertGreaterThan(panel.frame.minX, content.frame.minX)
+        attachPanelScreenshot("Floating panel - Pages landscape")
+        XCUIDevice.shared.orientation = .portrait
+        XCTAssertTrue(app.navigationBars["Download Status"].waitForExistence(timeout: 10))
+        XCTAssertLessThanOrEqual(panel.frame.maxX, app.windows.firstMatch.frame.maxX)
+        attachPanelScreenshot("Floating panel - Pages resized")
+        app.buttons["Close"].firstMatch.tapWhenHittable("Close resized floating panel")
+        XCTAssertTrue(panel.waitForNonExistence(timeout: 10))
+        XCUIDevice.shared.orientation = .landscapeLeft
+        reveal(first, in: content, app: app)
+        first.press(forDuration: 1)
+        app.buttons["Detail"].tapWhenHittable("Open floating Details")
+        XCTAssertTrue(panel.waitForExistence(timeout: 10))
+        XCTAssertTrue(app.descendants(matching: .any)["detail_view"].firstMatch.waitForExistence(timeout: 15))
+        XCTAssertEqual(content.frame.width, originalContentFrame.width, accuracy: 1)
+        attachPanelScreenshot("Floating panel - Details landscape")
+        app.buttons["Read"].firstMatch.tapWhenHittable("Read from floating Details")
+        let reader = app.descendants(matching: .any)["reading_view"].firstMatch
+        XCTAssertTrue(reader.waitForExistence(timeout: 10))
+        ReaderPageProbe(app: app).showPanel()
+        reader.buttons["Close"].firstMatch.tapWhenHittable("Return from reader to floating Details")
+        XCTAssertTrue(panel.waitForExistence(timeout: 10))
+        app.buttons["Show All"].firstMatch.tapWhenHittable("Open Previews within floating Details")
+        let previews = app.navigationBars["Previews"]
+        XCTAssertTrue(previews.waitForExistence(timeout: 10))
+        previews.buttons.firstMatch.tapWhenHittable("Return to floating Details")
+        XCTAssertTrue(app.buttons["Read"].firstMatch.waitForExistence(timeout: 10))
+        app.buttons["Close"].firstMatch.tapWhenHittable("Close floating Details")
+        XCTAssertTrue(panel.waitForNonExistence(timeout: 10))
+        XCTAssertTrue(first.isHittable)
+        XCTAssertEqual(first.frame.width, originalFrame.width, accuracy: 1)
+    }
+
+    func testNarrowDownloadsRetainsNativePresentations() throws {
+        let originalOrientation = XCUIDevice.shared.orientation
+        XCUIDevice.shared.orientation = .portrait
+        let root = try makeDownloads()
+        let app = XCUIApplication()
+        defer {
+            app.terminate()
+            XCUIDevice.shared.orientation = originalOrientation
+            do {
+                try FileManager.default.removeItem(at: root)
+            } catch {
+                XCTFail("Unable to remove test-owned downloads: \(error)")
+            }
+        }
+        try app.launchStubbed(extraEnvironment: [
+            "EHPANDA_AUTOMATION_TAB": "downloads",
+            "EHPANDA_UITEST_DOWNLOAD_ROOT": root.path()
+        ])
+        let first = app.descendants(matching: .any)["download-gallery-9101"].firstMatch
+        XCTAssertTrue(first.waitForExistence(timeout: 15))
+        first.press(forDuration: 1)
+        app.buttons["Pages"].tapWhenHittable("Open native Pages sheet")
+        XCTAssertTrue(app.navigationBars["Download Status"].waitForExistence(timeout: 10))
+        XCTAssertFalse(app.descendants(matching: .any)["download-floating-panel"].firstMatch.exists)
+        attachPanelScreenshot("Floating panel - narrow native Pages")
+        app.buttons["Close"].firstMatch.tapWhenHittable("Close native Pages sheet")
+        first.press(forDuration: 1)
+        app.buttons["Detail"].tapWhenHittable("Open native Details navigation")
+        XCTAssertTrue(app.descendants(matching: .any)["detail_view"].firstMatch.waitForExistence(timeout: 15))
+        XCTAssertFalse(app.descendants(matching: .any)["download-floating-panel"].firstMatch.exists)
+        app.returnFromGalleryDetail()
+        XCTAssertTrue(first.waitForExistence(timeout: 10))
+    }
+
+    private func attachPanelScreenshot(_ name: String) {
+        let attachment = XCTAttachment(screenshot: XCUIScreen.main.screenshot())
+        attachment.name = name
+        attachment.lifetime = .keepAlways
+        add(attachment)
+    }
+
     /// XCTest can report clipped cards as hittable. Use the measured visible content between native bars.
     private func reveal(_ element: XCUIElement, in content: XCUIElement, app: XCUIApplication) {
         let frame = content.frame.intersection(app.windows.firstMatch.frame)

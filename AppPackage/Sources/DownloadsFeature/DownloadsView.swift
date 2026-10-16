@@ -14,6 +14,7 @@ import SystemNotification
 public struct DownloadsView: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @AccessibilityFocusState private var focusedRowID: String?
+    @State private var viewport: CGSize = .zero
     @State private var inspectorOriginID: String?
     @ScaledMetric(relativeTo: .callout) private var minCellWidth: CGFloat = 180
     @Bindable private var store: StoreOf<DownloadsReducer>
@@ -64,6 +65,21 @@ public struct DownloadsView: View {
                 .navigationTitle(.RLocalizable.downloads)
                 .toolbarTitleDisplayMode(.inlineLarge)
                 .toolbar(content: toolbar)
+        }
+        .onGeometryChange(for: CGSize.self) { $0.size } action: { size in
+            viewport = size
+            store.supportsFloatingPanel = size.width >= 700
+        }
+        .background {
+            @UIBindable var presentationStore = store
+            FloatingDownloadPanel(
+                item: $presentationStore.scope(\.$floatingPanel, action: \.floatingPanel),
+                viewport: viewport
+            ) {
+                if let id = store.floatingPanelOriginID, visibleRows.contains(where: { $0.state.id == id }) {
+                    focusedRowID = id
+                }
+            }
         }
     }
 }
