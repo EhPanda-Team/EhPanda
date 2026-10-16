@@ -20,9 +20,11 @@ public struct GalleryList: View {
     private let navigateAction: ((Gallery) -> Void)?
     private let translateAction: ((String) -> TagTranslationLookup)?
     private let displayMode: GalleryListDisplayMode
+    private let showsGridRating: Bool
 
     public init(
         displayMode: GalleryListDisplayMode,
+        showsGridRating: Bool = true,
         galleries: [Gallery], pageNumber: PageNumber?,
         loadingState: LoadingState, footerLoadingState: LoadingState,
         notice: LocalizedStringResource? = nil,
@@ -40,6 +42,7 @@ public struct GalleryList: View {
         self.loadingState = loadingState
         self.footerLoadingState = footerLoadingState
         self.displayMode = displayMode
+        self.showsGridRating = showsGridRating
         self.notice = notice
         self.fetchAction = fetchAction
         self.fetchMoreAction = fetchMoreAction
@@ -69,6 +72,7 @@ public struct GalleryList: View {
                 )
             case .grid:
                 GridList(
+                    showsRating: showsGridRating,
                     galleries: galleries,
                     pageNumber: pageNumber,
                     footerLoadingState: footerLoadingState,
@@ -206,6 +210,7 @@ private struct GridList: View {
     private let galleryFocus: AccessibilityFocusState<String?>.Binding
 
     private let galleries: [Gallery]
+    private let showsRating: Bool
     private let downloadBadges: [String: DownloadBadge]
     private let pageNumber: PageNumber?
     private let footerLoadingState: LoadingState
@@ -215,6 +220,7 @@ private struct GridList: View {
     private let translateAction: ((String) -> TagTranslationLookup)?
 
     init(
+        showsRating: Bool,
         galleries: [Gallery], pageNumber: PageNumber?,
         footerLoadingState: LoadingState, notice: LocalizedStringResource? = nil,
         fetchMoreAction: (() -> Void)?,
@@ -226,6 +232,7 @@ private struct GridList: View {
     ) {
         _scrollPositionID = scrollPositionID
         self.galleries = galleries
+        self.showsRating = showsRating
         self.downloadBadges = downloadBadges
         self.pageNumber = pageNumber
         self.footerLoadingState = footerLoadingState
@@ -252,7 +259,8 @@ private struct GridList: View {
                         GalleryThumbnailCell(
                             gallery: gallery,
                             translateAction: translateAction,
-                            downloadBadge: downloadBadges[gallery.gid]
+                            downloadBadge: downloadBadges[gallery.gid],
+                            showsRating: showsRating
                         )
                         .tint(.primary)
                         .multilineTextAlignment(.leading)

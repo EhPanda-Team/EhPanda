@@ -74,6 +74,7 @@ public struct FavoritesView: View {
         if didLogin {
             GalleryList(
                 displayMode: store.setting.galleryListPresentation[.favorites],
+                showsGridRating: false,
                 galleries: store.galleries ?? [],
                 pageNumber: store.pageNumber,
                 loadingState: store.loadingState ?? .idle,

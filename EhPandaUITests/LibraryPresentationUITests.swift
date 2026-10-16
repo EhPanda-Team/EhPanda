@@ -119,17 +119,23 @@ final class LibraryPresentationUITests: XCTestCase {
 
         picker.tapWhenHittable("Downloads presentation")
         app.buttons["Grid"].tapWhenHittable("Downloads Grid")
-        let actions = app.buttons["download-actions-9101"]
-        XCTAssertTrue(actions.waitForExistence(timeout: 10))
+        XCTAssertTrue(first.waitForExistence(timeout: 10))
+        XCTAssertFalse(app.buttons["download-actions-9101"].exists)
+        XCTAssertFalse(app.descendants(matching: .any)["gallery-grid-rating-9101"].firstMatch.exists)
         let content = app.descendants(matching: .any)["downloads-gallery-list"].firstMatch
-        reveal(actions, in: content, app: app)
+        reveal(first, in: content, app: app)
         let gridScreenshot = XCTAttachment(screenshot: XCUIScreen.main.screenshot())
         gridScreenshot.name = "Library Downloads grid"
         gridScreenshot.lifetime = .keepAlways
         add(gridScreenshot)
-        reveal(actions, in: content, app: app)
-        actions.tapWhenHittable("Manage downloaded gallery")
-        app.buttons["Move"].tapWhenHittable("Move downloaded gallery")
+        reveal(first, in: content, app: app)
+        first.press(forDuration: 1)
+        XCTAssertTrue(app.buttons["Pages"].waitForExistence(timeout: 5))
+        let menuScreenshot = XCTAttachment(screenshot: XCUIScreen.main.screenshot())
+        menuScreenshot.name = "Library Downloads grid context menu"
+        menuScreenshot.lifetime = .keepAlways
+        add(menuScreenshot)
+        app.buttons["Move to Folder"].tapWhenHittable("Move downloaded gallery")
         // The sidebar also contains Reading; target the menu action, not query ordering.
         app.buttons.matching(NSPredicate(
             format: "label == %@ AND identifier == %@", "Reading", ""
@@ -140,8 +146,8 @@ final class LibraryPresentationUITests: XCTestCase {
             FileManager.default.fileExists(atPath: movedManifest.path(percentEncoded: false))
         }, object: nil)
         XCTAssertEqual(XCTWaiter.wait(for: [moved], timeout: 5), .completed)
-        reveal(actions, in: content, app: app)
-        actions.tapWhenHittable("Manage moved gallery")
+        reveal(first, in: content, app: app)
+        first.press(forDuration: 1)
         app.buttons["Pages"].tapWhenHittable("Inspect downloaded pages from grid")
         XCTAssertTrue(app.navigationBars["Download Status"].waitForExistence(timeout: 10))
         app.descendants(matching: .any)["Close"].firstMatch.tapWhenHittable("Close inspector")
@@ -152,9 +158,9 @@ final class LibraryPresentationUITests: XCTestCase {
         XCTAssertTrue(reader.waitForExistence(timeout: 10))
         ReaderPageProbe(app: app).showPanel()
         reader.buttons["Close"].firstMatch.tapWhenHittable("Close local reader")
-        XCTAssertTrue(actions.waitForExistence(timeout: 10))
-        reveal(actions, in: content, app: app)
-        actions.tapWhenHittable("Manage downloaded gallery")
+        XCTAssertTrue(first.waitForExistence(timeout: 10))
+        reveal(first, in: content, app: app)
+        first.press(forDuration: 1)
         app.buttons["Delete"].tapWhenHittable("Request delete")
         XCTAssertTrue(app.buttons["Delete"].waitForExistence(timeout: 5))
         if app.buttons["Cancel"].exists {
@@ -163,8 +169,8 @@ final class LibraryPresentationUITests: XCTestCase {
             picker.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
         }
         XCTAssertTrue(first.exists, "Cancel must keep the downloaded gallery.")
-        reveal(actions, in: content, app: app)
-        actions.tapWhenHittable("Manage gallery after cancel")
+        reveal(first, in: content, app: app)
+        first.press(forDuration: 1)
         app.buttons["Delete"].tapWhenHittable("Request deletion again")
         let screenshot = XCTAttachment(screenshot: XCUIScreen.main.screenshot())
         screenshot.name = "Library Downloads anchored confirmation"
@@ -172,10 +178,10 @@ final class LibraryPresentationUITests: XCTestCase {
         add(screenshot)
         app.buttons["Delete"].tapWhenHittable("Confirm gallery deletion")
         XCTAssertTrue(first.waitForNonExistence(timeout: 10))
-        XCTAssertTrue(app.buttons["download-actions-9102"].exists, "Deleting one card must preserve its neighbor.")
+        XCTAssertTrue(app.buttons["download-gallery-9102"].exists, "Deleting one card must preserve its neighbor.")
         app.terminate()
         app.launch()
-        XCTAssertTrue(app.buttons["download-actions-9102"].waitForExistence(timeout: 15))
+        XCTAssertTrue(app.buttons["download-gallery-9102"].waitForExistence(timeout: 15))
         XCTAssertFalse(app.descendants(matching: .any)["download-gallery-9101"].firstMatch.exists)
     }
 
