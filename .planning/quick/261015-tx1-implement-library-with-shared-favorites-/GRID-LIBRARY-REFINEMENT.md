@@ -97,3 +97,9 @@ Its local-only screenshot confirms no horizontal metadata inset and no ratings. 
 fixture iPad was deleted after export; the dedicated iPhone returned to Shutdown. The existing
 proposal preview remains available. Details and Pages retain their existing presentation; a forced
 right-edge floating panel has not been selected or implemented.
+
+## Subsequent trial — D86
+
+The owner subsequently authorized a working trial. [D86](FLOATING-PANEL-PROTOTYPE.md) adds the
+native iOS 27 trailing form-sheet alternative, which was missing from D85's option list. The
+SwiftUI inspector-style finding above is unchanged; final adoption awaits visual review.
