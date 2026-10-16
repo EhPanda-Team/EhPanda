@@ -543,10 +543,6 @@ private extension AppReducer {
             effects.append(.send(.downloads(.path(.element(id: id, action: action)))))
         }
 
-        if let action = state.downloadsState.inspection?.details?.readingFlushAction {
-            effects.append(.send(.downloads(.inspection(.presented(.details(action))))))
-        }
-
         // Home / SearchRoot nest the gallery stack under a `.gallery` element.
         if let id = state.homeState.path.ids.last,
            case .gallery(let gallery)? = state.homeState.path[id: id],

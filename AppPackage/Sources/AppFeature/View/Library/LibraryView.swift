@@ -77,14 +77,6 @@ struct LibraryView: View {
         }
         .navigationSplitViewStyle(.balanced)
         .ignoresSafeArea(.container, edges: .top)
-        .inspector(isPresented: Binding($downloadsStore.scope(\.$inspection, action: \.inspection))) {
-            if let inspectionStore = downloadsStore.scope(\.inspection, action: \.inspection.presented) {
-                DownloadInspectionView(store: inspectionStore) {
-                    downloadsStore.send(.inspection(.dismiss))
-                }
-                .inspectorColumnWidth(min: 320, ideal: 480, max: 600)
-            }
-        }
     }
 
     @ViewBuilder private var detail: some View {

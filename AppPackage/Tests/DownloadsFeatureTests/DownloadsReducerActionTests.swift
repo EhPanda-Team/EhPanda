@@ -107,6 +107,31 @@ struct DownloadsReducerActionTests: DownloadFeatureTestCase {
 
     @MainActor
     @Test
+    func testDownloadsReducerAsksTheAppRootToOpenATappedDownload() async {
+        let download = sampleDownload(
+            gid: "123456",
+            title: "Completed Gallery",
+            status: .completed
+        )
+        var initialState = DownloadsReducer.State()
+        initialState.downloads = [download]
+
+        let store = TestStore(
+            initialState: initialState,
+            reducer: DownloadsReducer.init,
+            withDependencies: {
+                $0.analyticsClient = .noop
+            }
+        )
+
+        await store.send(.galleryTapped(download.gid))
+        // The host does not push on its own: the app root, which knows the window's size classes,
+        // presents a modal or answers with `pushGalleryDetail`.
+        await store.receive(\.delegate.openGalleryDetail, download)
+    }
+
+    @MainActor
+    @Test
     func testDownloadsReducerIgnoresATapOnAVanishedDownload() async {
         let store = TestStore(initialState: DownloadsReducer.State(), reducer: DownloadsReducer.init) {
             $0.analyticsClient = .noop

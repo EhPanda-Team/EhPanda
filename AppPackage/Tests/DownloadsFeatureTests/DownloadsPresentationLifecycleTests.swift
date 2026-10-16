@@ -10,7 +10,7 @@ import Foundation
 import HapticsClient
 import Testing
 
-// The Downloads tab root and its inspector used to start themselves from view `onAppear`;
+// The Downloads tab root and its inspector sheet used to start themselves from view `onAppear`;
 // both are now started by the transition that presents them.
 // `@MainActor` here is compiler-required, not stylistic: every case below builds a TCA
 // `TestStore`, whose `init` and `state` accessor are main-actor-isolated. It is applied
@@ -64,13 +64,13 @@ struct DownloadsPresentationLifecycleTests: DownloadFeatureTestCase {
         store.exhaustivity = .off
 
         await store.send(.inspectorButtonTapped(download.gid))
-        #expect(store.state.inspection?.pages?.gid == download.gid)
-        await store.receive(\.inspection.presented.pages.onPresented)
-        await store.receive(\.inspection.presented.pages.loadInspection)
-        await store.receive(\.inspection.presented.pages.observeDownloads)
-        await store.receive(\.inspection.presented.pages.loadInspectionDone)
+        #expect(store.state.destination?.inspector?.gid == download.gid)
+        await store.receive(\.destination.presented.inspector.onPresented)
+        await store.receive(\.destination.presented.inspector.loadInspection)
+        await store.receive(\.destination.presented.inspector.observeDownloads)
+        await store.receive(\.destination.presented.inspector.loadInspectionDone)
 
-        #expect(store.state.inspection?.pages?.inspection == inspection)
+        #expect(store.state.destination?.inspector?.inspection == inspection)
         await store.finish()
     }
 }
