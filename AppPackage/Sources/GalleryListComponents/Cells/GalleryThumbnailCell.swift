@@ -24,17 +24,20 @@ public struct GalleryThumbnailCell: View {
     private let coverSource: GalleryDetailCell.CoverSource
     private let translateAction: ((String) -> TagTranslationLookup)?
     private let downloadBadge: DownloadBadge?
+    private let showsRating: Bool
 
     public init(
         gallery: Gallery,
         coverSource: GalleryDetailCell.CoverSource = .dynamic,
         translateAction: ((String) -> TagTranslationLookup)? = nil,
-        downloadBadge: DownloadBadge? = nil
+        downloadBadge: DownloadBadge? = nil,
+        showsRating: Bool = true
     ) {
         self.gallery = gallery
         self.coverSource = coverSource
         self.translateAction = translateAction
         self.downloadBadge = downloadBadge
+        self.showsRating = showsRating
     }
 
     private var backgroundColor: Color {
@@ -75,9 +78,12 @@ public struct GalleryThumbnailCell: View {
                         .frame(maxWidth: .infinity, alignment: .leading)
                 }
 
-                rating
+                if showsRating {
+                    rating
+                        .accessibilityIdentifier("gallery-grid-rating-\(gallery.id)")
+                }
             }
-            .padding()
+            .padding(.vertical)
         }
         .frame(maxHeight: .infinity, alignment: .top)
     }

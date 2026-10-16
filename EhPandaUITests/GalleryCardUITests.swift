@@ -39,12 +39,41 @@ final class GalleryCardUITests: XCTestCase {
                 XCTAssertGreaterThan(first.frame.width, window.width / 2)
             }
             XCTAssertTrue(app.staticTexts["A Journey"].firstMatch.exists)
+            XCTAssertFalse(app.descendants(matching: .any)["gallery-grid-rating-1001"].firstMatch.exists)
+            let title = app.staticTexts["gallery-grid-title-1001"].firstMatch
+            XCTAssertEqual(title.frame.minX, first.frame.minX, accuracy: 1)
+            XCTAssertLessThanOrEqual(title.frame.maxX, first.frame.maxX)
+            if size == .large {
+                let language = first.staticTexts["English"].firstMatch
+                XCTAssertTrue(language.exists)
+                XCTAssertEqual(language.frame.maxX, first.frame.maxX, accuracy: 1)
+            }
             let screenshot = XCTAttachment(screenshot: XCUIScreen.main.screenshot())
             screenshot.name = "Grid aligned titles \(size.rawValue)"
             screenshot.lifetime = .keepAlways
             add(screenshot)
             app.terminate()
         }
+    }
+
+    func testFrontpageGridKeepsRatings() throws {
+        let originalOrientation = XCUIDevice.shared.orientation
+        addTeardownBlock { XCUIDevice.shared.orientation = originalOrientation }
+        XCUIDevice.shared.orientation = .portrait
+        let app = XCUIApplication()
+        addTeardownBlock { app.terminate() }
+        try app.launchStubbed(extraEnvironment: ["EHPANDA_AUTOMATION_TAB": "home"])
+        app.buttons["Show All"].firstMatch.tapWhenHittable("Frontpage")
+        app.buttons["gallery-layout-frontpage"].tapWhenHittable("Frontpage presentation")
+        app.buttons["Grid"].tapWhenHittable("Frontpage Grid")
+        let ratings = app.descendants(matching: .any).matching(NSPredicate(
+            format: "identifier BEGINSWITH %@", "gallery-grid-rating-"
+        ))
+        XCTAssertTrue(ratings.firstMatch.waitForExistence(timeout: 10))
+        let screenshot = XCTAttachment(screenshot: XCUIScreen.main.screenshot())
+        screenshot.name = "Frontpage grid retains ratings"
+        screenshot.lifetime = .keepAlways
+        add(screenshot)
     }
 
     func testSimplifiedTitleSettingUpdatesBothLayoutsAndPersists() throws {

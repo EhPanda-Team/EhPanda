@@ -78,54 +78,33 @@ private extension DownloadGalleryItem {
     }
 
     var grid: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Button {
-                store.send(.openReading(download.gid))
-            } label: {
-                GalleryThumbnailCell(
-                    gallery: download.gallery,
-                    coverSource: .static(download.coverURL),
-                    downloadBadge: download.badge
-                )
-                .tint(.primary)
-                .multilineTextAlignment(.leading)
-            }
-            .buttonStyle(.borderless)
-            .accessibilityFocused(rowFocus, equals: download.id)
-            .accessibilityIdentifier("download-gallery-\(download.gid)")
-            .accessibilityActions {
-                detailButton
-                inspectButton
-                if canMove { moveButton }
-                if download.canTriggerUpdate { updateButton }
-                if download.canTogglePause { pauseButton }
-                deleteButton(role: .destructive)
-            }
-
-            gridActionsMenu
+        Button {
+            store.send(.openReading(download.gid))
+        } label: {
+            GalleryThumbnailCell(
+                gallery: download.gallery,
+                coverSource: .static(download.coverURL),
+                downloadBadge: download.badge,
+                showsRating: false
+            )
+            .tint(.primary)
+            .multilineTextAlignment(.leading)
         }
+        .buttonStyle(.borderless)
         .frame(maxHeight: .infinity, alignment: .top)
-    }
-
-    var gridActionsMenu: some View {
-        Menu {
+        .accessibilityFocused(rowFocus, equals: download.id)
+        .accessibilityIdentifier("download-gallery-\(download.gid)")
+        .contextMenu {
+            contextMenu
+        }
+        .accessibilityActions {
             detailButton
             inspectButton
-            if canMove {
-                moveButton
-            }
-            if download.canTriggerUpdate {
-                updateButton
-            }
-            if download.canTogglePause {
-                pauseButton
-            }
+            if canMove { moveButton }
+            if download.canTriggerUpdate { updateButton }
+            if download.canTogglePause { pauseButton }
             deleteButton(role: .destructive)
-        } label: {
-            Label(.RLocalizable.actions, systemSymbol: .ellipsisCircle)
-                .frame(maxWidth: .infinity, alignment: .leading)
         }
-        .accessibilityIdentifier("download-actions-\(download.gid)")
         .confirmationDialog(
             $rowStore.scope(\.$confirmationDialog, action: \.confirmationDialog)
         )
