@@ -51,7 +51,7 @@ public struct GalleryThumbnailCell: View {
             VStack(alignment: .leading, spacing: textColumnSpacing) {
                 Text(setting.simplifyGalleryTitles ? gallery.simplifiedTitle : gallery.title)
                     .font(.callout.bold())
-                    .lineLimit(3)
+                    .lineLimit(2)
                     .fixedSize(horizontal: false, vertical: true)
                     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
                     .accessibilityIdentifier("gallery-grid-title-\(gallery.id)")
@@ -120,7 +120,7 @@ public struct GalleryThumbnailCell: View {
     /// uncapped text wrap without covering the artwork.
     private var cover: some View {
         backgroundColor
-            .aspectRatio(2.0 / 3.0, contentMode: .fit)
+            .aspectRatio(2117.0 / 3000.0, contentMode: .fit)
             .overlay {
                 KFImage(resolvedCoverURL)
                     .placeholder { Placeholder(style: .activity(ratio: Defaults.ImageSize.rowAspect)) }
@@ -132,7 +132,6 @@ public struct GalleryThumbnailCell: View {
                     .resizable()
                     .scaledToFit()
             }
-            .clipped()
             .overlay {
                 if !dynamicTypeSize.isAccessibilitySize {
                     CategoryLabel(
@@ -147,6 +146,8 @@ public struct GalleryThumbnailCell: View {
                     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topTrailing)
                 }
             }
+            .compositingGroup()
+            .clipShape(.rect(cornerRadius: 15))
     }
 
     private var resolvedCoverURL: URL? {
