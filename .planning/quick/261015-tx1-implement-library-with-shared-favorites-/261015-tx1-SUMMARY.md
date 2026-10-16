@@ -210,3 +210,16 @@ UI regression now uses a test-owned Inbox folder and passes once on compact iPho
 lint are clean. The normal iPad app is updated and left on Library / Default after verifying folder
 navigation. See [SIDEBAR-ACTIONS.md](SIDEBAR-ACTIONS.md#folder-only-navigation-follow-up--d77) for the
 unedited screenshot, exact evidence and limits.
+
+## Grid appearance and simplified titles — 2026-10-16
+
+D79–D80 are implemented in `7b58987a7d`. Shared grid cards now have transparent containers, square
+covers with the established adaptive background, and three-line titles centered in flexible space
+so every card in a row aligns. Appearance → Gallery adds default-on simplified titles for all
+row/grid lists, preserving original stored/search/detail titles and existing settings.
+
+97 model tests and four UI tests pass with no skips/retries, including iPhone/iPad standard and
+AX1/AX3/AX5 coverage, setting persistence and Downloads management. Builds and strict lint are clean.
+See [GRID-TITLES.md](GRID-TITLES.md) for implementation, failed-attempt corrections, limits and eleven
+original screenshots with hashes. The normal iPad is updated and open for review; the prior header
+issue remains owner-deferred and the historical proposal preview remains running.

@@ -231,3 +231,10 @@ D76 implemented in `25848cc4dc`; final checks and screenshot are in [HEADER-STAB
 | ID | Decision / provenance | Disposition |
 |---|---|---|
 | D78 | Owner asks to reopen the previous preview for review. | Restart the preserved proposal server at http://127.0.0.1:55920/index.html and reopen its in-app browser tab. Index and all nine saved screenshots return HTTP 200; the browser displays the original comparison page and retains its current selection. Keep it open for review, superseding D65's stopped-preview state. This does not change the selected Library implementation or select a Search redesign. |
+
+## Grid appearance and simplified titles — 2026-10-16
+
+| ID | Decision / provenance | Disposition |
+|---|---|---|
+| D79 | Owner selects only these proposal details: no grid-container background, existing cover background color, square cover corners, three-line grid titles, and equal top/bottom alignment within each row with vertically centered titles absorbing spare space above/below. | Apply to the shared grid cell, including Downloads. Keep other metadata, spacing, actions, navigation and proposal choices unchanged. |
+| D80 | Add Appearance → Gallery simplified titles; remove bracket-enclosed content including nested and international bracket forms; clean removal-boundary whitespace without destroying spaces within the title. Owner explicitly selects default on for all row/grid lists. | Add a backward-compatible persisted option and a display-only transformation shared by both list cells. Keep original titles for stored data, search and gallery detail. Plan/evidence: [GRID-TITLES.md](../261015-tx1-implement-library-with-shared-favorites-/GRID-TITLES.md). |

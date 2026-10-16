@@ -2,8 +2,8 @@
 type: retrospective-summary
 recorded: 2026-10-15
 historical_duo_implementation_commits: 21
-library_implementation_commits: 10
-decision_records: 78
+library_implementation_commits: 11
+decision_records: 80
 ---
 
 # Delivery and commit ledger
@@ -171,3 +171,13 @@ includes the unedited final screenshot. The iPad remains open for owner review.
 D78 reopens the unchanged historical proposal at `http://127.0.0.1:55920/index.html`.
 The saved page and all nine screenshots are available, and the in-app browser tab remains open
 for review. This supersedes D65's stopped-preview state without changing any design selection.
+
+## Grid appearance and simplified titles
+
+D79–D80 are implemented in `7b58987a7d`: transparent grid cards, square covers using the established
+background, three-line vertically centered titles, aligned row edges, and default-on simplified
+titles across all row/grid lists. The setting is in Appearance → Gallery and preserves old settings.
+The 97 model tests and four UI tests pass, with zero build warnings/errors or lint violations.
+See [implementation and retained evidence](../261015-tx1-implement-library-with-shared-favorites-/GRID-TITLES.md)
+for exact scope, corrected failed attempts, eleven native screenshots and review-device state.
+The iPad remains open at Library Favorites with its real data; Phase 17 gates are unchanged.

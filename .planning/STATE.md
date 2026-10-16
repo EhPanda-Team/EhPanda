@@ -5,9 +5,9 @@ current_phase: 17
 current_phase_name: Screenshot Automation, Visual Regression & OS 27 Modernization
 status: executing
 stopped_at: 17-06 revision re-shot (2026-10-13), 16/16 captured; waiting for the owner's visual review; agent prepares both gallery sets
-last_updated: "2026-10-16T04:24:30Z"
+last_updated: "2026-10-16T07:34:09Z"
 last_activity: 2026-10-16
-state_head: b2d1d602dc848b682835fbff0253d2e39d7c7c25
+state_head: 7b58987a7de4bcd164bf1c3f33bc93ebb57a27cb
 progress:
   total_phases: 17
   completed_phases: 10
@@ -16,7 +16,7 @@ progress:
   percent: 59
 milestone_name: )
 source_head: af00e0da93
-last_activity_desc: "Library D77 removes generic Downloads sidebar entry; folder navigation verified; Phase 17 gate unchanged"
+last_activity_desc: "D79-D80 grid appearance and default-on simplified titles verified; iPad open for review; Phase 17 gate unchanged"
 ---
 
 # Project State
@@ -39,6 +39,11 @@ This supersedes D69's fixed-open policy and does not claim a header fix or chang
 D77 removes the generic Downloads sidebar link; actual folders and native section actions remain.
 `b2d1d602dc` passes the focused compact navigation regression, clean build/lint and iPad folder entry.
 See [folder-only entry evidence](quick/261015-tx1-implement-library-with-shared-favorites-/SIDEBAR-ACTIONS.md#folder-only-navigation-follow-up--d77).
+
+D79–D80 implement transparent aligned grid cards, square covers and default-on simplified titles
+for every row/grid list in `7b58987a7d`. Current bounded verification: 97 model tests and four UI tests
+passed; builds/lint clean. See [grid and title evidence](quick/261015-tx1-implement-library-with-shared-favorites-/GRID-TITLES.md).
+The iPad remains open with its original data and the proposal preview remains available.
 
 ## Project Reference
 
