@@ -3,7 +3,7 @@ type: retrospective-summary
 recorded: 2026-10-15
 historical_duo_implementation_commits: 21
 library_implementation_commits: 19
-decision_records: 94
+decision_records: 97
 ---
 
 # Delivery and commit ledger
@@ -278,3 +278,13 @@ compare balanced, cover-led and grouped metadata presentations for iPad and a fu
 The framework, section order and destinations remain fixed. Owner review is pending; no app
 source, implementation-commit count or Phase 17 gate changes. The brief itself is the reference,
 following the owner’s instruction to stop inspecting the Mac App Store.
+
+
+## Preferred Home refinement — D95–D97
+
+The owner leans toward B and keeps C-style slideshow grouping only for ample available space.
+The [B revision](../../sketches/001-large-home-information/README.md) removes the redundant Popular
+source label and excludes uploader/date. One metadata set flows normally or groups at extra-wide
+width; it is never repeated as a second summary. Other sections retain B, while original A/B/C
+remain reviewable. Browser screenshots/geometry cover ordinary and extra-wide layouts, with a
+600-wide check. This remains proposal work, not production approval or native validation.

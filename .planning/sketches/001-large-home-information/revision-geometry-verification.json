@@ -1,0 +1,47 @@
+[
+  {
+    "canvas": 1194,
+    "copy": "A Journey Through SummerCategoryArtbookPages48 pagesLanguageEnglishRating★ 4.8watercolorlandscapefull color",
+    "copyWidth": 803,
+    "fields": [
+      "Artbook",
+      "48 pages",
+      "English",
+      "★ 4.8"
+    ],
+    "heroHeight": 312,
+    "layout": "flex",
+    "pageWidth": 1194,
+    "width": 1194
+  },
+  {
+    "canvas": 1680,
+    "copy": "A Journey Through SummerCategoryArtbookPages48 pagesLanguageEnglishRating★ 4.8watercolorlandscapefull color",
+    "copyWidth": 1289,
+    "fields": [
+      "Artbook",
+      "48 pages",
+      "English",
+      "★ 4.8"
+    ],
+    "heroHeight": 312,
+    "layout": "grid",
+    "pageWidth": 1680,
+    "width": 1680
+  },
+  {
+    "canvas": 600,
+    "copyWidth": 312,
+    "fields": [
+      "Artbook",
+      "48 pages",
+      "English",
+      "★ 4.8"
+    ],
+    "heroHeight": 312,
+    "layout": "flex",
+    "pageWidth": 600,
+    "tagsVisible": "flex",
+    "width": 600
+  }
+]

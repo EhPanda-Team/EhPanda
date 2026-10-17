@@ -5,7 +5,7 @@ current_phase: 17
 current_phase_name: Screenshot Automation, Visual Regression & OS 27 Modernization
 status: executing
 stopped_at: 17-06 revision re-shot (2026-10-13), 16/16 captured; waiting for the owner's visual review; agent prepares both gallery sets
-last_updated: "2026-10-17T08:56:08Z"
+last_updated: "2026-10-17T09:14:57Z"
 last_activity: 2026-10-17
 state_head: ee11c8e800474bddfb5cb1054870ccb9ae9c242f
 progress:
@@ -16,7 +16,7 @@ progress:
   percent: 59
 milestone_name: )
 source_head: af00e0da93
-last_activity_desc: "D92-D94 retain three large-window Home section proposals for owner review; fixed framework, no app source change; Phase 17 unchanged"
+last_activity_desc: "D95-D97 prefer B Home with conditional slideshow grouping; revised preview excludes redundant Popular label and uploader/date; no app source change; Phase 17 unchanged"
 ---
 
 # Project State
@@ -93,7 +93,7 @@ See: .planning/PROJECT.md (updated 2026-09-23)
 Phase: 17 of 17 (Screenshot Automation, Visual Regression & OS 27 Modernization)
 Plan: 6 of 24 complete (17-05, wave 6; dependency order, not numeric ID order); 17-06 implemented; the owner's 2026-10-13 review returned changes, revision in progress
 Status: executing (17-01/17-24/17-02/17-03/17-04/17-05 complete; 17-06 implemented and verified, owner review returned changes on 2026-10-13, revision in progress; the agent prepares galleries and fixtures for both content sets)
-Last activity: 2026-10-17 — D92-D94 retain three large-window Home section proposals for owner review; fixed framework, no app source change; Phase 17 unchanged.
+Last activity: 2026-10-17 — D95-D97 prefer B Home with conditional slideshow grouping; revised preview excludes redundant Popular label and uploader/date; no app source change; Phase 17 unchanged.
 
 **Phase 17 current gate:** 6/24 plans complete. 17-01 passed 32/32 capture coordinates and 66/66 tests; verified public v2 fixtures are in `.capture/regression`. 17-24 measures all four real device/orientation combinations and validates the immutable tracked rendering pin. Both final measure and validate commands pass four geometry tests plus six rotation/restore tests, with 28 Python contract tests and zero compiler/lint diagnostics or runtime warnings. Pin SHA-256: `ffd7689fcaf9a312202fdfbf9787f0198711fd477d1e72a2a013851df85a394a`; evidence is `.capture/environment-measurement/` and `.capture/environment-pin-check/`. Implementation ends at 3e69dc69d3; summary/review committed in fb83037387. Four reserved staged entries remain unchanged. Devices restore portrait/original Large and their original boot states. Continue inline with 17-06; shared CAP-17-01/02/03/04/06 remain incomplete until all declaring plans finish. No baseline promotion.
 

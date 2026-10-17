@@ -27,7 +27,7 @@ had been approved or executed. No retrospective PLAN is presented as a prior app
 - [Learnings](LEARNINGS.md): findings grounded in this session.
 - [Library direction](LIBRARY-DIRECTION.md): management-focused Library with the selected shared category navigation and separate Favorites/Downloads groups.
 - [Wide-screen proposal](proposal/PROPOSAL.md): nine earlier native screenshots, retained for comparison; Search remains unselected.
-- [Large Home proposals](../../sketches/001-large-home-information/README.md): three unselected section-information alternatives for iPad/future macOS; fixed framework (D92–D94).
+- [Large Home proposals](../../sketches/001-large-home-information/README.md): original A/B/C plus preferred B revision for iPad/future macOS; conditional slideshow grouping, no repeated source label or uploader/date (D92–D97). Implementation remains unapproved.
 - [Migration](MIGRATION.md): original integration and rewritten commit mapping.
 - [Workspace rebuild](WORKSPACE-REBUILD.md): current branch/worktree after rebuilding from the latest Phase 17 history.
 
