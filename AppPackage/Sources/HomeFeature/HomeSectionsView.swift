@@ -9,6 +9,12 @@ struct HomeSectionsView: View {
     var pane: HomePane?
     @State private var viewport: CGSize = .zero
 
+    private var showsRichInformation: Bool {
+        pane == nil && GalleryViewport(
+            size: viewport, isRegularWidth: horizontalSizeClass == .regular
+        ).isLarge
+    }
+
     var body: some View {
         ScrollView(showsIndicators: false) {
             VStack {
@@ -40,6 +46,7 @@ struct HomeSectionsView: View {
                 currentID: store.currentCardID,
                 colors: store.cardColors,
                 carouselWidth: viewport.width,
+                showsRichInformation: showsRichInformation,
                 maximumCardHeight: GalleryViewport(
                     size: viewport, isRegularWidth: horizontalSizeClass == .regular
                 ).maximumSlideshowHeight,
@@ -59,6 +66,7 @@ struct HomeSectionsView: View {
             CoverWallSection(
                 galleries: store.frontpageGalleries,
                 isLoading: store.frontpageLoadingState == .loading,
+                showsRichInformation: showsRichInformation,
                 navigateAction: { store.send(.galleryTapped($0, from: .left)) },
                 showAllAction: { store.send(.sectionTapped(.frontpage)) },
                 reloadAction: { store.send(.fetchFrontpageGalleries) }
@@ -71,6 +79,7 @@ struct HomeSectionsView: View {
             galleries: store.toplistsGalleries,
             isLoading: !store.toplistsLoadingState.values.allSatisfy({ $0 != .loading }),
             stacksSixGalleries: store.usesSplitLayout,
+            showsRichInformation: showsRichInformation,
             showsHeading: pane != .right,
             navigateAction: { store.send(.galleryTapped($0, from: .right)) },
             showAllAction: { store.send(.sectionTapped(.toplists)) },
@@ -79,6 +88,9 @@ struct HomeSectionsView: View {
     }
 
     private var other: some View {
-        MiscGridSection(navigateAction: { store.send(.miscTapped($0)) })
+        MiscGridSection(
+            showsRichInformation: showsRichInformation,
+            navigateAction: { store.send(.miscTapped($0)) }
+        )
     }
 }

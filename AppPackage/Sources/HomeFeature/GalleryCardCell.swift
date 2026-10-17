@@ -5,6 +5,7 @@ import ColorfulX
 public import Kingfisher
 import PreviewSupport
 import SFSafeSymbols
+import Sharing
 import SpringInterpolation
 public import SwiftUI
 
@@ -12,11 +13,12 @@ public struct GalleryCardCell: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.colorScheme) private var colorScheme
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
-    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+    @SharedReader(.setting) private var setting: Setting
 
     @ScaledMetric(relativeTo: .title3) private var titleLineHeight: CGFloat = 24
     @ScaledMetric(relativeTo: .caption2) private var ratingLineHeight: CGFloat = 18
 
+    private let showsRichInformation: Bool
     private let maximumHeight: CGFloat?
     private let currentID: String
     private let colors: [Color]
@@ -41,9 +43,10 @@ public struct GalleryCardCell: View {
 
     public init(
         gallery: Gallery, currentID: String, colors: [Color],
-        maximumHeight: CGFloat? = nil,
+        maximumHeight: CGFloat? = nil, showsRichInformation: Bool = false,
         webImageSuccessAction: @escaping (RetrieveImageResult) -> Void
     ) {
+        self.showsRichInformation = showsRichInformation
         self.maximumHeight = maximumHeight
         self.gallery = gallery
         self.currentID = currentID
@@ -56,19 +59,35 @@ public struct GalleryCardCell: View {
         return gallery.gid == currentID
     }
     private var title: String {
-        // A regular-width card has room for the full title; a narrower one trims a long title.
-        if horizontalSizeClass == .regular {
-            return gallery.title
-        }
-        let trimmedTitle = gallery.trimmedTitle
-        return trimmedTitle.count > 20 ? trimmedTitle : gallery.title
+        setting.simplifyGalleryTitles ? gallery.simplifiedTitle : gallery.title
     }
 
     public var body: some View {
-        GalleryCardHeightLayout(maximumHeight: maximumHeight.map({ max(0, $0 - 40) })) {
-            cardContent
+        Group {
+            if showsRichInformation {
+                HStack(spacing: 30) {
+                    GalleryCover(
+                        url: gallery.coverURL, style: .homeSlideshow,
+                        onSuccess: handleCoverSuccess
+                    )
+                    VStack(alignment: .leading, spacing: 12) {
+                        Text(title)
+                            .accessibilityIdentifier("home_slideshow_title_\(gallery.id)")
+                            .font(.title2.bold())
+                            .lineLimit(2, reservesSpace: true)
+                            .fixedSize(horizontal: false, vertical: true)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                        HomeSlideshowInformation(gallery: gallery)
+                    }
+                }
+                .frame(minHeight: 222)
+            } else {
+                GalleryCardHeightLayout(maximumHeight: maximumHeight.map({ max(0, $0 - 40) })) {
+                    cardContent
+                }
+            }
         }
-        .padding(20)
+        .padding(showsRichInformation ? 26 : 20)
         .frame(maxWidth: .infinity)
         .background {
             if animated {
@@ -135,6 +154,7 @@ public struct GalleryCardCell: View {
     private func textColumn(titleLines: Int) -> some View {
         VStack(alignment: .leading, spacing: 8) {
             Text(title)
+                .accessibilityIdentifier("home_slideshow_title_\(gallery.id)")
                 .font(.title3.bold())
                 .lineLimit(titleLines, reservesSpace: true)
                 .fixedSize(horizontal: false, vertical: true)

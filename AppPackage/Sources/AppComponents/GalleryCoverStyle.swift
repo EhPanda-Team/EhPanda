@@ -6,6 +6,9 @@ public enum GalleryCoverStyle: Sendable {
     case compact
     case standard
     case hero
+    case homeSlideshow
+    case homeFrontpage
+    case homeRanking
 
     public static let aspectRatio: CGFloat = 8 / 11
     public static let maximumScale: CGFloat = 1.25
@@ -15,6 +18,9 @@ public enum GalleryCoverStyle: Sendable {
         case .compact: 90
         case .standard: 120
         case .hero: 150
+        case .homeSlideshow: 211.75
+        case .homeFrontpage: 199.375
+        case .homeRanking: 115.5
         }
     }
 
