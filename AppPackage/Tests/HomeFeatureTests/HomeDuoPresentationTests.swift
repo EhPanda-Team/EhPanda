@@ -46,10 +46,10 @@ struct HomeDuoPresentationTests {
     }
 
     @MainActor
-    @Test(arguments: HomeSectionType.allCases)
-    func portraitPartialSectionKeepsStackRouting(_ section: HomeSectionType) async {
-        let store = homeStore(device: .duo(.partiallyOpen)) {
-            $0.viewportSize = CGSize(width: 669, height: 951)
+    @Test(arguments: [WindowDevice.duo(.partiallyOpen), .pad], HomeSectionType.allCases)
+    func singlePaneSectionsKeepStackRouting(_ device: WindowDevice, _ section: HomeSectionType) async {
+        let store = homeStore(device: device) {
+            if case .duo = device { $0.viewportSize = CGSize(width: 669, height: 951) }
         }
         store.exhaustivity = .off
         await store.send(.sectionTapped(section))
@@ -62,10 +62,10 @@ struct HomeDuoPresentationTests {
     }
 
     @MainActor
-    @Test(arguments: HomeMiscGridType.allCases)
-    func portraitPartialOtherListsKeepStackRouting(_ section: HomeMiscGridType) async {
-        let store = homeStore(device: .duo(.partiallyOpen)) {
-            $0.viewportSize = CGSize(width: 669, height: 951)
+    @Test(arguments: [WindowDevice.duo(.partiallyOpen), .pad], HomeMiscGridType.allCases)
+    func singlePaneOtherListsKeepStackRouting(_ device: WindowDevice, _ section: HomeMiscGridType) async {
+        let store = homeStore(device: device) {
+            if case .duo = device { $0.viewportSize = CGSize(width: 669, height: 951) }
         }
         store.exhaustivity = .off
         await store.send(.miscTapped(section))
@@ -99,7 +99,7 @@ struct HomeDuoPresentationTests {
     }
 
     @MainActor
-    @Test(arguments: [WindowDevice.duo(.partiallyOpen), .duo(.fullyOpen), .pad], [HomePane.left, .right])
+    @Test(arguments: [WindowDevice.duo(.partiallyOpen), .duo(.fullyOpen)], [HomePane.left, .right])
     func landscapeGalleryUsesTheOppositeSide(_ device: WindowDevice, _ source: HomePane) async throws {
         let store = homeStore(device: device)
         store.exhaustivity = .off
@@ -113,7 +113,7 @@ struct HomeDuoPresentationTests {
     }
 
     @MainActor
-    @Test(arguments: [WindowDevice.other, .duo(.closed)], [HomePane.left, .right])
+    @Test(arguments: [WindowDevice.other, .duo(.closed), .pad], [HomePane.left, .right])
     func otherPosturesKeepAppOwnedGalleryRouting(_ device: WindowDevice, _ source: HomePane) async {
         let store = homeStore(device: device)
 
@@ -251,20 +251,21 @@ struct HomeDuoPresentationTests {
 
     @MainActor
     @Test
-    func padLayoutAdaptsWithoutDiscardingAnOpenSheet() async {
+    func padResizingKeepsSinglePaneAndExistingNavigation() async {
         let store = homeStore(device: .pad) {
-            $0.sheet = .init(root: .history(.init()), side: .right)
-        }
-        #expect(store.state.usesSplitLayout)
-        await store.send(.padLayoutChanged(allowsSplit: false)) {
-            $0.allowsPadSplitLayout = false
+            $0.path.append(.popular(.init()))
         }
         #expect(!store.state.usesSplitLayout)
-        #expect(store.state.sheet?.side == .right)
-        await store.send(.padLayoutChanged(allowsSplit: true)) {
-            $0.allowsPadSplitLayout = true
+        await store.send(.viewportChanged(CGSize(width: 669, height: 951))) {
+            $0.viewportSize = CGSize(width: 669, height: 951)
         }
-        #expect(store.state.usesSplitLayout)
+        #expect(!store.state.usesSplitLayout)
+        await store.send(.viewportChanged(CGSize(width: 1366, height: 1024))) {
+            $0.viewportSize = CGSize(width: 1366, height: 1024)
+        }
+        #expect(!store.state.usesSplitLayout)
+        #expect(store.state.path.last?.popular != nil)
+        #expect(store.state.sheet == nil)
         await store.finish()
     }
 
@@ -280,7 +281,6 @@ struct HomeDuoPresentationTests {
             var state = HomeReducer.State()
             state.popularGalleries = [.preview]
             state.device = device
-            state.allowsPadSplitLayout = true
             state.viewportSize = CGSize(width: 951, height: 669)
             configure(&state)
             return TestStore(initialState: state, reducer: HomeReducer.init) {

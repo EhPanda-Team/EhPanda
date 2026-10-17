@@ -9,16 +9,11 @@ public import SwiftUI
 
 public struct HomeView: View {
     @Environment(\.layoutDirection) private var layoutDirection
-    @Environment(\.tabBarPlacement) private var tabBarPlacement
     @Bindable private var store: StoreOf<HomeReducer>
     @State private var paneWidths: HorizontalPaneWidths?
 
     public init(store: StoreOf<HomeReducer>) {
         self.store = store
-    }
-
-    private var allowsPadSplitLayout: Bool {
-        tabBarPlacement == .topBar && (paneWidths?.contentWidth ?? 0) >= 640
     }
 
     // MARK: HomeView
@@ -45,27 +40,14 @@ public struct HomeView: View {
         } action: { paneWidths = $0 }
         .overlay(alignment: .leading) {
             if showsSplitHome, let widths = paneWidths {
-                if case .duo = store.device {
-                    HomeHingeCrease()
-                        .offset(x: widths.left - HomeHingeCrease.width / 2)
-                        .ignoresSafeArea(.container, edges: .vertical)
-                } else if store.device == .pad {
-                    Rectangle()
-                        .fill(Color(.opaqueSeparator))
-                        .frame(width: 2)
-                        .offset(x: widths.left - 1)
-                        .ignoresSafeArea(.container, edges: .bottom)
-                        .allowsHitTesting(false)
-                        .accessibilityHidden(true)
-                }
+                HomeHingeCrease()
+                    .offset(x: widths.left - HomeHingeCrease.width / 2)
+                    .ignoresSafeArea(.container, edges: .vertical)
             }
         }
         // Navigation ownership follows the physical fold, independently of text direction.
         .environment(\.layoutDirection, .leftToRight)
         .onVisibleViewportChange { store.send(.viewportChanged($0)) }
-        .onChange(of: allowsPadSplitLayout, initial: true) { _, allowsSplit in
-            store.send(.padLayoutChanged(allowsSplit: allowsSplit))
-        }
         .background {
             WindowDeviceObservation { store.send(.deviceChanged($0)) }
         }

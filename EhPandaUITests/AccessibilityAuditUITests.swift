@@ -624,9 +624,13 @@ private extension AccessibilityAuditUITests {
 
     func centeredCarouselButton(in carousel: XCUIElement) throws -> XCUIElement {
         let viewport = carousel.frame
-        let visibleButtons = carousel.buttons.allElementsBoundByIndex.filter { button in
+        let buttons = carousel.buttons.allElementsBoundByIndex
+        let visibleButtons = buttons.compactMap { button -> (element: XCUIElement, frame: CGRect)? in
             let frame = button.frame
-            return !button.label.isEmpty && frame.width > 0 && frame.height > 0 && frame.intersects(viewport)
+            guard frame.width > 0, frame.height > 0, frame.intersects(viewport), !button.label.isEmpty else {
+                return nil
+            }
+            return (element: button, frame: frame)
         }
         let nearest = visibleButtons.min { left, right in
             abs(left.frame.midX - viewport.midX) < abs(right.frame.midX - viewport.midX)
@@ -638,7 +642,7 @@ private extension AccessibilityAuditUITests {
             accuracy: 1,
             "The selected Home carousel card was not centered in its viewport."
         )
-        return centered
+        return centered.element
     }
 
     @discardableResult
