@@ -3,7 +3,7 @@ type: retrospective-summary
 recorded: 2026-10-15
 historical_duo_implementation_commits: 21
 library_implementation_commits: 19
-decision_records: 91
+decision_records: 94
 ---
 
 # Delivery and commit ledger
@@ -270,3 +270,11 @@ Implementation: `ee11c8e800474bddfb5cb1054870ccb9ae9c242f`. Forty-four feature t
 final Home audit pass within their documented source boundaries. Rotation preserves the centered
 carousel gallery via its native center anchor. Builds and strict lint are clean; the review iPad
 is updated and the temporary test device removed. Intermediate failures remain in the report.
+
+## Large-window Home exploration — D92–D94
+
+Three [section-information proposals](../../sketches/001-large-home-information/README.md)
+compare balanced, cover-led and grouped metadata presentations for iPad and a future macOS Home.
+The framework, section order and destinations remain fixed. Owner review is pending; no app
+source, implementation-commit count or Phase 17 gate changes. The brief itself is the reference,
+following the owner’s instruction to stop inspecting the Mac App Store.

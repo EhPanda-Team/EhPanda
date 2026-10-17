@@ -325,3 +325,15 @@ D91 implementation: `ee11c8e800474bddfb5cb1054870ccb9ae9c242f`. Forty-four featu
 passes on the rollback source, and the final Home audit passes after the native carousel center
 anchor fix. Failed intermediate runs remain documented; builds/lint are clean. The review iPad is
 updated and the disposable test iPad removed.
+
+## Large-window Home proposals — 2026-10-17
+
+| ID | Owner direction | Disposition |
+|---|---|---|
+| D92 | Consider richer large-screen Home design for iPad and a future macOS app, focusing on slideshow height/information, Frontpage cover-wall sizing, Toplists covers/information and Other card sizing/information. | Prepare visual alternatives grounded in existing gallery fields. This is exploration, not an approved implementation. |
+| D93 | As before, show several proposals; the basic framework is fixed and the focus is how added information appears within each section. | Three variants preserve section order and navigation, with independent per-section choices. No iPad Home split layout is reintroduced. |
+| D94 | Do not inspect the Mac App Store; the original instruction already expresses the owner’s understanding of it. | Stop reference-app inspection/research. Use the owner’s brief as the design authority. |
+
+[Sketch 001](../../sketches/001-large-home-information/README.md) retains A/B/C, screenshots,
+responsive checks and the pending selection. No production source is changed and no winner is
+recorded. Native layout/accessibility validation belongs to a later approved implementation.
