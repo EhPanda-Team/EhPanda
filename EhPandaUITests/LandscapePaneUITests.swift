@@ -89,6 +89,97 @@ final class LandscapePaneUITests: XCTestCase {
         }
     }
 
+    func testHomeTitlesFollowSimplifiedSettingLive() throws {
+        try XCTSkipUnless(!isDuo)
+        let originalOrientation = XCUIDevice.shared.orientation
+        addTeardownBlock { XCUIDevice.shared.orientation = originalOrientation }
+        XCUIDevice.shared.orientation = .landscapeLeft
+        let root = FileManager.default.temporaryDirectory.appending(path: "HomeTitles-\(UUID())")
+        try FileManager.default.createDirectory(at: root, withIntermediateDirectories: true)
+        addTeardownBlock { try FileManager.default.removeItem(at: root) }
+        let source = try XCTUnwrap(Bundle(for: Self.self).resourceURL)
+        for file in try FileManager.default.contentsOfDirectory(at: source, includingPropertiesForKeys: nil)
+        where ["html", "png"].contains(file.pathExtension) {
+            try FileManager.default.copyItem(at: file, to: root.appending(path: file.lastPathComponent))
+        }
+        let fixture = root.appending(path: "FrontPageList.html")
+        var html = try String(contentsOf: fixture, encoding: .utf8)
+        let titles = try NSRegularExpression(pattern: #"<div class="glink">[^<]+</div>"#)
+        let matches = titles.matches(in: html, range: NSRange(html.startIndex..., in: html))
+        XCTAssertGreaterThan(matches.count, 1)
+        // Frontpage intentionally deduplicates titles, so each fixture must keep its own title.
+        for (index, match) in matches.enumerated().reversed() {
+            let range = try XCTUnwrap(Range(match.range, in: html))
+            html.replaceSubrange(range, with: "<div class=\"glink\">[Studio] Home Study \(index + 1) [English]</div>")
+        }
+        try html.write(to: fixture, atomically: true, encoding: .utf8)
+        let app = XCUIApplication()
+        addTeardownBlock { app.terminate() }
+        try app.launchStubbed(extraEnvironment: [
+            "EHPANDA_AUTOMATION_TAB": "home", UITestConstants.fixtureDirectoryEnvironmentKey: root.path()
+        ])
+        assertSingleHomePane(in: app)
+        for (iteration, enabled) in [true, false, true].enumerated() {
+            if iteration > 0 {
+                app.descendants(matching: .any)["gearshape.circle"].firstMatch.tapWhenHittable("Settings")
+                app.buttons["Appearance"].tapWhenHittable("Appearance")
+                let toggle = app.switches["simplified-gallery-titles"]
+                XCTAssertTrue(toggle.waitForExistence(timeout: 5))
+                toggle.coordinate(withNormalizedOffset: CGVector(dx: 0.9, dy: 0.5)).press(forDuration: 0.05)
+                let changed = XCTNSPredicateExpectation(
+                    predicate: NSPredicate(format: "value == %@", enabled ? "1" : "0"), object: toggle
+                )
+                XCTAssertEqual(XCTWaiter.wait(for: [changed], timeout: 5), .completed)
+                let title = app.navigationBars["Appearance"].firstMatch
+                title.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).press(
+                    forDuration: 0.05,
+                    thenDragTo: app.windows.firstMatch.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.95))
+                )
+                XCTAssertTrue(title.waitForNonExistence(timeout: 5))
+            }
+            for prefix in ["home_slideshow_title_", "home_frontpage_title_", "home_ranking_title_"] {
+                let type: XCUIElement.ElementType = prefix == "home_frontpage_title_" ? .button : .staticText
+                let title = app.descendants(matching: type)
+                    .matching(NSPredicate(format: "identifier BEGINSWITH %@", prefix)).firstMatch
+                XCTAssertTrue(title.waitForExistence(timeout: 10), prefix)
+                let pattern = enabled
+                    ? #"^Home Study [0-9]+(?:,|$)"#
+                    : #"^\[Studio\] Home Study [0-9]+ \[English\](?:,|$)"#
+                XCTAssertNotNil(
+                    title.label.range(of: pattern, options: .regularExpression), "\(prefix): \(title.label)"
+                )
+                if enabled { XCTAssertFalse(title.label.contains("[Studio]"), prefix) }
+            }
+        }
+        let screenshot = XCTAttachment(screenshot: XCUIScreen.main.screenshot())
+        screenshot.name = "Home B sections with C slideshow and simplified titles"
+        screenshot.lifetime = .keepAlways
+        add(screenshot)
+        let covers = app.buttons.matching(NSPredicate(format: "identifier BEGINSWITH %@", "home_frontpage_title_"))
+        let firstRow = covers.allElementsBoundByIndex.prefix(4).map(\.frame)
+        XCTAssertEqual(firstRow.count, 4)
+        let firstTop = try XCTUnwrap(firstRow.first).minY
+        for frame in firstRow { XCTAssertEqual(frame.minY, firstTop, accuracy: 1) }
+        let history = app.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", "History")).firstMatch
+        let sections = app.scrollViews["home_sections"]
+        for _ in 0..<12 where !history.isHittable { sections.swipeUp() }
+        XCTAssertTrue(history.isHittable)
+        let window = app.windows.firstMatch.frame
+        let historyFrame = history.frame
+        for name in ["Popular", "Watched", "History"] {
+            let card = app.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", name)).firstMatch
+            XCTAssertTrue(card.isHittable, name)
+            let frame = card.frame
+            XCTAssertEqual(frame.minY, historyFrame.minY, accuracy: 1, name)
+            XCTAssertGreaterThanOrEqual(frame.minX, window.minX, name)
+            XCTAssertLessThanOrEqual(frame.maxX, window.maxX + 1, name)
+        }
+        let lowerSections = XCTAttachment(screenshot: XCUIScreen.main.screenshot())
+        lowerSections.name = "Home B Toplists and Other sections"
+        lowerSections.lifetime = .keepAlways
+        add(lowerSections)
+    }
+
     private func assertSingleHomePane(in app: XCUIApplication, landscape: Bool = true) {
         let orientation = XCTNSPredicateExpectation(predicate: NSPredicate { _, _ in
             let frame = app.windows.firstMatch.frame

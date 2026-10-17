@@ -32,6 +32,7 @@ struct CardSlideSection: View, Equatable {
     private let galleries: [Gallery]
     private let currentID: String
     private let colors: [Color]
+    private let showsRichInformation: Bool
     private let carouselWidth: CGFloat
     private let maximumCardHeight: CGFloat
     private let navigateAction: (Gallery) -> Void
@@ -39,7 +40,7 @@ struct CardSlideSection: View, Equatable {
 
     init(
         galleries: [Gallery], pageIndex: Binding<Int>, currentID: String,
-        colors: [Color], carouselWidth: CGFloat, maximumCardHeight: CGFloat,
+        colors: [Color], carouselWidth: CGFloat, showsRichInformation: Bool = false, maximumCardHeight: CGFloat,
         navigateAction: @escaping (Gallery) -> Void,
         webImageSuccessAction: @escaping (String, RetrieveImageResult) -> Void
     ) {
@@ -47,6 +48,7 @@ struct CardSlideSection: View, Equatable {
         _pageIndex = pageIndex
         self.currentID = currentID
         self.colors = colors
+        self.showsRichInformation = showsRichInformation
         self.carouselWidth = carouselWidth
         self.maximumCardHeight = maximumCardHeight
         self.navigateAction = navigateAction
@@ -62,6 +64,7 @@ struct CardSlideSection: View, Equatable {
         lhs.galleries == rhs.galleries
             && lhs.currentID == rhs.currentID
             && lhs.colors == rhs.colors
+            && lhs.showsRichInformation == rhs.showsRichInformation
             && lhs.carouselWidth == rhs.carouselWidth
             && lhs.maximumCardHeight == rhs.maximumCardHeight
     }
@@ -176,7 +179,7 @@ struct CardSlideSection: View, Equatable {
         }
     }
 
-    private var cardWidth: CGFloat { carouselWidth * 0.8 }
+    private var cardWidth: CGFloat { carouselWidth * (showsRichInformation ? 0.9 : 0.8) }
     private let cardSpacing: CGFloat = 20
 
     // Center the snapped card: bare `.viewAligned` aligns the card's leading edge to the
@@ -195,6 +198,7 @@ struct CardSlideSection: View, Equatable {
                 currentID: currentID,
                 colors: colors,
                 maximumHeight: maximumCardHeight,
+                showsRichInformation: showsRichInformation,
                 webImageSuccessAction: {
                     webImageSuccessAction(gallery.gid, $0)
                 }
@@ -247,6 +251,7 @@ struct CardSlideSection: View, Equatable {
 // MARK: CoverWallSection
 struct CoverWallSection: View {
     @GalleryCoverMetrics(.standard) private var coverSize
+    private let showsRichInformation: Bool
     private let galleries: [Gallery]
     private let isLoading: Bool
     private let navigateAction: (Gallery) -> Void
@@ -254,11 +259,12 @@ struct CoverWallSection: View {
     private let reloadAction: () -> Void
 
     init(
-        galleries: [Gallery], isLoading: Bool,
+        galleries: [Gallery], isLoading: Bool, showsRichInformation: Bool = false,
         navigateAction: @escaping (Gallery) -> Void,
         showAllAction: @escaping () -> Void,
         reloadAction: @escaping () -> Void
     ) {
+        self.showsRichInformation = showsRichInformation
         self.galleries = galleries
         self.isLoading = isLoading
         self.navigateAction = navigateAction
@@ -288,15 +294,19 @@ struct CoverWallSection: View {
             showAllAction: showAllAction
         ) {
             ScrollView(.horizontal) {
-                HStack(spacing: 20) {
-                    ForEach(dataSource, id: \.first) {
-                        VerticalCoverStack(galleries: $0, navigateAction: navigateAction)
+                if showsRichInformation {
+                    HomeFrontpageWall(columns: dataSource, navigateAction: navigateAction)
+                } else {
+                    HStack(spacing: 20) {
+                        ForEach(dataSource, id: \.first) {
+                            VerticalCoverStack(galleries: $0, navigateAction: navigateAction)
+                        }
+                        .withHorizontalSpacing(width: 0)
                     }
-                    .withHorizontalSpacing(width: 0)
                 }
             }
             .scrollIndicators(.hidden)
-            .frame(height: coverSize.height * 2 + 30)
+            .frame(height: showsRichInformation ? nil : coverSize.height * 2 + 30)
         }
     }
 }
@@ -317,9 +327,10 @@ struct VerticalCoverStack: View {
         Button {
             navigateAction(gallery)
         } label: {
-            GalleryCover(url: gallery.coverURL, style: .standard)
+            HomeFrontpageCell(gallery: gallery, showsRichInformation: false)
         }
-        .accessibilityLabel(gallery.title)
+        .tint(.primary)
+        .multilineTextAlignment(.leading)
     }
 
     var body: some View {
@@ -333,6 +344,7 @@ struct VerticalCoverStack: View {
 struct ToplistsSection: View {
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
 
+    private let showsRichInformation: Bool
     private let galleries: [Int: [Gallery]]
     private let isLoading: Bool
     private let stacksSixGalleries: Bool
@@ -343,11 +355,12 @@ struct ToplistsSection: View {
 
     init(
         galleries: [Int: [Gallery]], isLoading: Bool, stacksSixGalleries: Bool = false,
-        showsHeading: Bool = true,
+        showsRichInformation: Bool = false, showsHeading: Bool = true,
         navigateAction: @escaping (Gallery) -> Void,
         showAllAction: @escaping () -> Void,
         reloadAction: @escaping () -> Void
     ) {
+        self.showsRichInformation = showsRichInformation
         self.galleries = galleries
         self.isLoading = isLoading
         self.stacksSixGalleries = stacksSixGalleries
@@ -412,7 +425,7 @@ struct ToplistsSection: View {
             if stacksSixGalleries {
                 VerticalToplistsStack(
                     galleries: Array((dataSource[type.categoryIndex] ?? []).prefix(6)),
-                    startRanking: 1,
+                    startRanking: 1, showsRichInformation: showsRichInformation,
                     widthFraction: 0.9,
                     navigateAction: navigateAction
                 )
@@ -421,6 +434,7 @@ struct ToplistsSection: View {
             } else {
                 VerticalToplistsStack(
                     galleries: galleries(type: type, range: 0...2), startRanking: 1,
+                    showsRichInformation: showsRichInformation,
                     navigateAction: navigateAction
                 )
             }
@@ -469,7 +483,9 @@ struct ToplistsSection: View {
             Button {
                 navigateAction(gallery)
             } label: {
-                GalleryRankingCell(gallery: gallery, ranking: ranking)
+                GalleryRankingCell(
+                    gallery: gallery, ranking: ranking, showsRichInformation: showsRichInformation
+                )
                     .tint(.primary)
                     .multilineTextAlignment(.leading)
             }
@@ -483,6 +499,7 @@ struct ToplistsSection: View {
 struct VerticalToplistsStack: View {
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
 
+    private let showsRichInformation: Bool
     private let galleries: [Gallery]
     private let startRanking: Int
     private let widthFraction: CGFloat?
@@ -490,10 +507,11 @@ struct VerticalToplistsStack: View {
 
     init(
         galleries: [Gallery],
-        startRanking: Int,
+        startRanking: Int, showsRichInformation: Bool = false,
         widthFraction: CGFloat? = nil,
         navigateAction: @escaping (Gallery) -> Void
     ) {
+        self.showsRichInformation = showsRichInformation
         self.galleries = galleries
         self.startRanking = startRanking
         self.widthFraction = widthFraction
@@ -507,7 +525,10 @@ struct VerticalToplistsStack: View {
                     Button {
                         navigateAction(gallery)
                     } label: {
-                        GalleryRankingCell(gallery: gallery, ranking: startRanking + offset)
+                        GalleryRankingCell(
+                            gallery: gallery, ranking: startRanking + offset,
+                            showsRichInformation: showsRichInformation
+                        )
                             .tint(.primary).multilineTextAlignment(.leading)
                     }
                     Divider().opacity(offset == galleries.count - 1 ? 0 : 1)
@@ -522,26 +543,41 @@ struct VerticalToplistsStack: View {
 
 // MARK: MiscGridSection
 struct MiscGridSection: View {
+    private let showsRichInformation: Bool
     private let navigateAction: (HomeMiscGridType) -> Void
 
-    init(navigateAction: @escaping (HomeMiscGridType) -> Void) {
+    init(showsRichInformation: Bool = false, navigateAction: @escaping (HomeMiscGridType) -> Void) {
+        self.showsRichInformation = showsRichInformation
         self.navigateAction = navigateAction
     }
 
     var body: some View {
         SubSection(title: .other, showAll: false) {
             ScrollView(.horizontal) {
-                HStack {
-                    let types = HomeMiscGridType.allCases
-                    ForEach(types) { type in
-                        Button {
-                            navigateAction(type)
-                        } label: {
-                            MiscGridItem(title: type.title, symbol: type.symbol).tint(.primary)
+                if showsRichInformation {
+                    HStack(spacing: 20) {
+                        ForEach(HomeMiscGridType.allCases) { type in
+                            Button {
+                                navigateAction(type)
+                            } label: {
+                                HomeDestinationCard(type: type)
+                            }
                         }
-                        .padding(.trailing, type == types.last ? 0 : 10)
                     }
-                    .withHorizontalSpacing()
+                    .padding(.horizontal, 20)
+                } else {
+                    HStack {
+                        let types = HomeMiscGridType.allCases
+                        ForEach(types) { type in
+                            Button {
+                                navigateAction(type)
+                            } label: {
+                                MiscGridItem(title: type.title, symbol: type.symbol).tint(.primary)
+                            }
+                            .padding(.trailing, type == types.last ? 0 : 10)
+                        }
+                        .withHorizontalSpacing()
+                    }
                 }
             }
             .scrollIndicators(.hidden)

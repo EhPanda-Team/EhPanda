@@ -2,15 +2,20 @@ import AppComponents
 public import AppModels
 import AppTools
 import PreviewSupport
+import Sharing
 public import SwiftUI
 
 public struct GalleryRankingCell: View {
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
+    @SharedReader(.setting) private var setting: Setting
+
+    private let showsRichInformation: Bool
     private let gallery: Gallery
     private let ranking: Int
 
-    public init(gallery: Gallery, ranking: Int) {
+    public init(gallery: Gallery, ranking: Int, showsRichInformation: Bool = false) {
+        self.showsRichInformation = showsRichInformation
         self.gallery = gallery
         self.ranking = ranking
     }
@@ -50,19 +55,20 @@ public struct GalleryRankingCell: View {
     }
 
     private var cover: some View {
-        GalleryCover(url: gallery.coverURL, style: .compact)
+        GalleryCover(url: gallery.coverURL, style: showsRichInformation ? .homeRanking : .compact)
     }
 
     private var rankNumber: some View {
         Text(String(ranking))
             .fontWeight(.medium)
             .font(.title2)
-            .padding(.horizontal)
+            .padding(.horizontal, showsRichInformation ? 4 : 16)
     }
 
     private var textColumn: some View {
         VStack(alignment: .leading) {
-            Text(gallery.trimmedTitle)
+            Text(setting.simplifyGalleryTitles ? gallery.simplifiedTitle : gallery.title)
+                .accessibilityIdentifier("home_ranking_title_\(gallery.id)")
                 .bold()
                 .lineLimit(textLineLimit(2))
                 .fixedSize(horizontal: false, vertical: true)
@@ -70,9 +76,16 @@ public struct GalleryRankingCell: View {
             gallery.uploader.map(Text.init)?
                 .foregroundStyle(.secondary)
                 .lineLimit(textLineLimit(1))
+
+            if showsRichInformation {
+                Text(gallery.category.value)
+                    .foregroundStyle(.secondary)
+                HomePageLanguage(gallery: gallery)
+                HomeGalleryRating(rating: gallery.rating)
+            }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-        .font(.caption)
+        .font(showsRichInformation ? .subheadline : .caption)
     }
 
     /// The title and the uploader are user-authored text, so above the default size they carry no

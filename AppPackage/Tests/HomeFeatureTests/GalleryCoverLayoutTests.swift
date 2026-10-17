@@ -84,6 +84,42 @@ struct GalleryCoverLayoutTests {
     }
 
     @MainActor
+    @Test(arguments: [DynamicTypeSize.large, .accessibility1, .accessibility3, .accessibility5])
+    func richSlideshowGrowsForMetadataWithoutClipping(textSize: DynamicTypeSize) {
+        let gallery = Gallery(
+            gid: "rich-card", token: "", title: "[Studio] A  Journey [English]", rating: 4.5,
+            tags: [], category: .doujinshi, pageCount: 48,
+            postedDate: .now, coverURL: nil, galleryURL: nil
+        )
+        let content = GalleryCardCell(
+            gallery: gallery, currentID: gallery.id, colors: [], maximumHeight: 290,
+            showsRichInformation: true, webImageSuccessAction: { _ in }
+        )
+        let size = measure(content, textSize: textSize, width: 1000)
+        #expect(size.width <= 1000)
+        #expect(size.height >= 274)
+        if textSize == .large { #expect(size.height < 300) }
+        if textSize == .accessibility5 { #expect(size.height > 290) }
+    }
+
+    @Test
+    func slideshowTagsExcludeLanguageCategoryAndDuplicates() {
+        func tag(_ namespace: String, _ texts: [String]) -> GalleryTag {
+            .init(rawNamespace: namespace, contents: texts.map { text in
+                .init(rawNamespace: namespace, text: text, isVotedUp: false, isVotedDown: false)
+            })
+        }
+        var gallery = Gallery.preview
+        gallery.tags = [
+            tag("language", ["english", "translated"]),
+            tag("misc", ["Doujinshi", "watercolor", "Watercolor", "landscape", "full color", "extra"])
+        ]
+        #expect(gallery.homeSlideshowTags.map(\.text) == ["watercolor", "landscape", "full color"])
+        gallery.tags = []
+        #expect(gallery.homeSlideshowTags.isEmpty)
+    }
+
+    @MainActor
     private func card(title: String, maximumHeight: CGFloat? = nil) -> some View {
         let gallery = Gallery(
             gid: "cover-layout", token: "", title: title, rating: 4.5, tags: [],
