@@ -350,3 +350,13 @@ recorded. Native layout/accessibility validation belongs to a later approved imp
 [Sketch 001 revision](../../sketches/001-large-home-information/README.md#b-revision--owner-feedback-d95d97)
 contains normal/extra-wide screenshots and measured browser evidence. The conditional threshold is
 provisional; no app source, native baseline, implementation count or Phase 17 gate is changed.
+
+
+## Slideshow section selection — 2026-10-17
+
+| ID | Owner direction | Disposition |
+|---|---|---|
+| D98 | Use C for slideshow; set space changes aside for now. | Select C's slideshow layout and starting dimensions, retaining D96–D97's exclusions and no duplicate fields. Keep the other sections in B. Supersede D95's conditional grouping and remove the preview's 1000-pixel switch; defer responsive design. Update the proposal only, not app source. |
+
+[Current B+C proposal and screenshot](../../sketches/001-large-home-information/README.md#selected-c-slideshow--d98).
+The prior adaptive revision and screenshots remain historical evidence.
