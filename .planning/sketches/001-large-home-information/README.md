@@ -2,8 +2,8 @@
 sketch: 001
 name: large-home-information
 question: "How should existing Home sections use more room for gallery information?"
-winner: null
-status: slideshow-direction-selected
+winner: B sections with C slideshow
+status: implemented-trial
 tags: [home, ipad, macos-future, information-density, section-sizing]
 ---
 
@@ -20,14 +20,16 @@ original description is the reference; inspecting the Mac App Store is unnecessa
 All three variants keep Slideshow → Frontpage → Toplists → Other in one vertical Home scroll.
 Frontpage stays a two-row horizontal shelf. Each Toplists category keeps two columns of three
 ranked galleries at large widths. Popular / Watched / History remain the three Other destinations.
-The iPad Home split rollback remains active. App code, reader controls, Library, Duo behavior,
-macOS window chrome and navigation policy are not being implemented or reopened here.
+The iPad Home split rollback remains active. The proposal artifacts preserve this comparison
+frame; D99 later authorizes the native implementation linked below. Reader controls, Library,
+Duo split behavior, macOS window chrome and navigation policy are outside this change.
 
 These are HTML design studies, not native SwiftUI screenshots or proof of a macOS port.
 The top navigation is a fixed comparison frame. D98 selects the C slideshow while leaving B's other sections in the preferred combination.
 D96–D97's slideshow field exclusions remain active. Responsive design is deferred for now.
 Original A/B/C remain historical comparisons; the B+C section mix is the current default.
-This section choice does not authorize implementation in the app.
+D99 subsequently authorizes implementing this combination; D100 applies shared simplified titles
+to every Home gallery title. See the implementation record below.
 
 ## Four comparison questions
 
@@ -183,6 +185,11 @@ HTML proposal checks only; no app source, native baseline or production test is 
 
 ## Remaining design scope
 
-Slideshow C is selected, with the existing field exclusions. The remaining sections continue to
-reflect the owner's B preference. Responsive adaptation is deferred; production implementation
-has not been requested. The iPad single-pane Home rollback remains unchanged.
+Slideshow C and B Frontpage/Toplists/Other are implemented as a review trial under D99–D100 in
+`1cc211aee6158251c5ae3533cc59a22e33af1dc2`. The existing measured large single-pane policy selects the rich sections;
+compact/Duo structure remains. Every Home gallery title honors the shared simplified-title setting.
+The conditional slideshow grouping mode remains deferred, and the iPad single-pane rollback stays active.
+
+See [native implementation, verification and source boundaries](../../quick/261017-pjj-implement-b-home-sections-with-selected-/261017-pjj-SUMMARY.md).
+The HTML screenshots and earlier browser results above remain proposal evidence, not native baselines.
+No macOS port or Phase 17 baseline promotion is claimed.

@@ -360,3 +360,13 @@ provisional; no app source, native baseline, implementation count or Phase 17 ga
 
 [Current B+C proposal and screenshot](../../sketches/001-large-home-information/README.md#selected-c-slideshow--d98).
 The prior adaptive revision and screenshots remain historical evidence.
+
+## Home implementation trial and shared title policy — 2026-10-17
+
+| ID | Owner direction | Disposition |
+|---|---|---|
+| D99 | Implement the B direction for a trial. | Implement the current combination: B Frontpage/Toplists/Other and D98's selected C slideshow. Apply the richer sections to the existing measured large single-pane Home; preserve narrow/Duo structure and routing. No macOS target port, source-label duplication or uploader/date in slideshow. Quick task 261017-pjj is implemented in `1cc211aee6` and verified; available for owner review. |
+| D100 | Every title appearing in Home must use simplified titles. | Every Home gallery title and cover accessibility label follows the existing shared simplifyGalleryTitles setting and parser. Default-on, with full titles restored when disabled; do not retain the older unconditional trimming rules. Applies to compact/Duo as well as large-window Home. |
+
+[Implementation plan](../261017-pjj-implement-b-home-sections-with-selected-/261017-pjj-PLAN.md) and
+[delivery, source boundaries and retained diagnostics](../261017-pjj-implement-b-home-sections-with-selected-/261017-pjj-SUMMARY.md).

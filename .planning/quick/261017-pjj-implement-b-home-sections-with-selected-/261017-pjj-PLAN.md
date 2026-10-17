@@ -1,6 +1,6 @@
 ---
 quick: 261017-pjj
-status: planned
+status: complete
 mode: quick
 files_modified:
   - AppPackage/Sources/HomeFeature/

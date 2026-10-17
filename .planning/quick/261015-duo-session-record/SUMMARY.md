@@ -2,8 +2,8 @@
 type: retrospective-summary
 recorded: 2026-10-15
 historical_duo_implementation_commits: 21
-library_implementation_commits: 19
-decision_records: 98
+library_implementation_commits: 20
+decision_records: 100
 ---
 
 # Delivery and commit ledger
@@ -297,3 +297,19 @@ The [current B+C preview](../../sketches/001-large-home-information/README.md#se
 uses C's compact card and below-title grouping while preserving the removal of Popular,
 uploader/date and duplicate information. Other sections retain B. This supersedes D95's
 conditional grouping; responsive design is deferred and app code remains unchanged.
+
+
+## Home implementation and shared titles — D99–D100
+
+`1cc211aee6158251c5ae3533cc59a22e33af1dc2` implements C slideshow with B Frontpage, Toplists and Other for measured
+large single-pane Home. Compact/Duo structure and navigation stay intact. Slideshow excludes
+Popular, uploader/date and duplicated metadata. Every Home gallery title and cover accessibility
+label now follows the same default-on simplified-title setting; disabling it restores full titles.
+
+Fifty feature/model tests pass; three native iPad UI cases pass, followed by a final-source pass
+of the expanded title/layout case. Native four-size cold/rotation and live-size captures are
+retained for iPad, with additional iPhone cold/live checks. Initial native-title blank frames and
+LLVM profile-writer diagnostics are documented rather than suppressed. The original review iPad
+has the final app with its data preserved; temporary test resources are restored/removed. See
+[implementation and exact evidence boundaries](../261017-pjj-implement-b-home-sections-with-selected-/261017-pjj-SUMMARY.md).
+Phase 17 and screenshot baselines are unchanged; this remains an owner-review implementation trial.
