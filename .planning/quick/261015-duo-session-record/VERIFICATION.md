@@ -9,6 +9,10 @@ implementation_head: 37461f3980a0a057078b5539c54efea285ebf43e
 
 > **Image evidence availability:** Image files were removed from this repository history at the owner's request. Screenshot descriptions, filenames and earlier visual checks below are historical records, not currently available image evidence. Written findings, measurements and source artifacts remain; visual review requires fresh captures.
 
+D91 withdraws the iPad Home two-column implementation and its divider/ranking refinements.
+The older results below remain historical; current rollback checks are recorded in
+[the iPad Home rollback](IPAD-HOME-ROLLBACK.md).
+
 The table below retains results from the implementation session. Fresh post-cherry-pick builds,
 unit tests and four iPad/Duo UI checks are recorded separately in [Migration](MIGRATION.md#fresh-integrated-validation-2026-10-15).
 Reports below name commands, logs, failure investigations and captures. Original source hashes are

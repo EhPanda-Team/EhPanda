@@ -2,8 +2,8 @@
 type: retrospective-summary
 recorded: 2026-10-15
 historical_duo_implementation_commits: 21
-library_implementation_commits: 18
-decision_records: 90
+library_implementation_commits: 19
+decision_records: 91
 ---
 
 # Delivery and commit ledger
@@ -12,8 +12,9 @@ decision_records: 90
 
 This session extends measured/window-based routing with Duo Home panes, native opposite-side
 presentations, independent title behavior, persistent reader controls and configurable orientation
-automation. Later owner choices extend landscape panes to fully open Duo and eligible iPad,
-with distinct separators and movable reader controls. The app-wide Library follow-up combines
+automation. Later owner choices initially extend landscape panes to fully open Duo and eligible
+iPad, with distinct separators and movable reader controls. D91 restores iPad Home to one pane;
+the independent iPad reader controls remain active. The app-wide Library follow-up combines
 Favorites/Downloads around management, with the owner-selected shared category navigation and
 separate groups. Quick task `261015-tx1` implements independently remembered row/grid choices and
 a regular grid. Search A/B remains unresolved; old prototypes remain comparison material.
@@ -51,7 +52,8 @@ old→new mapping. Historical test results belong to original source trees, not 
 - Ordinary navigation still follows window size classes. Home's special opposite-side presentation
   policy applies to eligible split Home and its nested lists/details; there is no all-tab sheet rewrite.
 - Split Home is landscape-only, root-only, and preserves a full navigation host for pushed pages.
-  iPad additionally needs top tabs and at least 640 pt content width. Duo cover remains single-pane.
+  D91 restores iPad Home to a single pane; Duo cover remains single-pane. The iPad reader still
+  supports movable half-width controls independently of Home.
 - Physical placement accounts for asymmetric safe areas and stays physical left/right in RTL.
   A native presentation owner handles the nested sheet composition that failed in the SwiftUI experiment.
 - Reader auto-orientation is a persistent, default-enabled capability policy for iPad/Duo, including
@@ -256,3 +258,15 @@ failure twice; an independent native ScrollView/context-menu app reproduces it t
 open, with no coordinate/timing patch or claim of all-device success. See
 [visual/menu evidence](../261015-tx1-implement-library-with-shared-favorites-/LIBRARY-VISUAL-POLISH.md).
 The review iPad is updated; the deferred header issue and Phase 17 gates remain unchanged.
+
+## iPad Home rollback — D91
+
+The owner withdraws iPad Home's two-column display and associated behavior. Home restores its
+single scrolling section hierarchy, regular ranking layout and ordinary list/gallery routing;
+the iPad divider and layout gating are removed. Duo Home and the shared reader capability policy
+remain active. See [the scoped rollback and verification](IPAD-HOME-ROLLBACK.md).
+
+Implementation: `ee11c8e800474bddfb5cb1054870ccb9ae9c242f`. Forty-four feature tests, the four-size single-pane UI case and the
+final Home audit pass within their documented source boundaries. Rotation preserves the centered
+carousel gallery via its native center anchor. Builds and strict lint are clean; the review iPad
+is updated and the temporary test device removed. Intermediate failures remain in the report.

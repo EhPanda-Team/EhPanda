@@ -66,17 +66,17 @@ Commit references are indexed in SUMMARY.md. “Proposed” is not owner approva
 
 | ID | Decision / provenance | Disposition |
 |---|---|---|
-| D31 | Owner asked to extend half-fold behavior, including opposite-side sheets, to fully open Duo and iPad landscape. | `5ab03faff3`: Home-origin opposite-side and nested presentation flow extended. This is not a claim that every sheet in every tab has opposite-side support. |
-| D32 | Answer: also wants Home dual columns, conditional on iPad tab placement. Owner then required a separator whenever dual columns are used, not only when folded. | `5ab03faff3`: iPad landscape additionally requires top tab placement and ≥640 pt content width; open/half Duo landscape qualifies; cover/portrait do not. Initial all-device crease superseded for iPad by D38. |
+| D31 | Owner asked to extend half-fold behavior, including opposite-side sheets, to fully open Duo and iPad landscape. | `5ab03faff3`: Home-origin opposite-side and nested presentation flow extended. This is not a claim that every sheet in every tab has opposite-side support. iPad Home's extension is withdrawn by D91; reader behavior remains active. |
+| D32 | Answer: also wants Home dual columns, conditional on iPad tab placement. Owner then required a separator whenever dual columns are used, not only when folded. | `5ab03faff3`: iPad landscape additionally requires top tab placement and ≥640 pt content width; open/half Duo landscape qualifies; cover/portrait do not. Initial all-device crease superseded for iPad by D38. iPad Home's portion is withdrawn by D91. |
 | D33 | Investigate iOS 27 arrangement for a half-width slider while completely open. | Native 27.1 split arrangement feasibility proved at 0.5 ratio; overlay did not force half width. Production keeps shared safe-area-aware geometry and supports deployment target 27.0; arrangement adoption itself was not required by owner. |
 | D34 | Add equally tall glass buttons using `inset.filled.lefthalf.arrowtriangle.left.rectangle` and `inset.filled.righthalf.arrowtriangle.right.rectangle` to move slider left/right. | `5ab03faff3`, `24ede29e5f`; typed SF symbols, at least 44 pt row height, physical sides independent of text direction. |
 | D35 | Owner: move button belongs on the **other** half, because current slider may be hard to reach. | `24ede29e5f`; supersedes initial same-side button arrangement. |
 | D36 | Slider swap must animate; iPad lower Close must stay centered **above the slider** as before. Only Duo landscape omits duplicate lower Close because its main Close is on side. | `24ede29e5f`: slider and iPad Close move together with 0.35 s smooth animation. |
 | D37 | Owner saw no transition and questioned Reduce Motion remaining on. | Simulator Reduce Motion caused immediate movement. With it off, recorded intermediate frames establish actual movement; product continues to honor Reduce Motion. Later review session left iPad/Duo Reduce Motion off. Do not remove accessibility support to force animation. |
-| D38 | Owner superseded all-device crease: **only Duo uses crease**; iPad Home uses ordinary divider and does not extend into tab bar. | `1eb8bdcdfe`; top content boundary respected, bottom may extend. |
-| D39 | Owner requested thicker divider and corrected “vertical padding” to **top padding**. | `52e2547c11`; preserve bottom extent, avoid tab area. |
-| D40 | Owner: iPad Toplists cells are too wide, filling entire right half. | `52e2547c11`: restore constrained ranking cell width; six vertical items retained. |
-| D41 | Owner: “再粗一點”. | `37461f3980`: final plain iPad divider is **2 pt**, centered overlay that consumes no pane width. |
+| D38 | Owner superseded all-device crease: **only Duo uses crease**; iPad Home uses ordinary divider and does not extend into tab bar. | `1eb8bdcdfe`; top content boundary respected, bottom may extend. This iPad Home refinement is withdrawn by D91. |
+| D39 | Owner requested thicker divider and corrected “vertical padding” to **top padding**. | `52e2547c11`; preserve bottom extent, avoid tab area. This iPad Home refinement is withdrawn by D91. |
+| D40 | Owner: iPad Toplists cells are too wide, filling entire right half. | `52e2547c11`: restore constrained ranking cell width; six vertical items retained. This iPad Home refinement is withdrawn by D91. |
+| D41 | Owner: “再粗一點”. | `37461f3980`: final plain iPad divider is **2 pt**, centered overlay that consumes no pane width. This iPad Home refinement is withdrawn by D91. |
 | D42 | Owner asked to launch iPad for review before continuing move-button changes. | iPad launched for review; simulator remains available. Review request is not automatic approval of unrelated proposals. |
 
 ## Verification discoveries and handoff corrections
@@ -310,3 +310,18 @@ D90 implementation: `2f5706b0cfa24a5e880cdc301b3a457b153632b8`. Five iPad checks
 an unresolved native first-menu-item hit-test failure, reproduced independently. This is not an
 all-device pass or an owner-approved change to presentation/scrolling policy. Exact results and
 limitations are in the linked record.
+
+## iPad Home single-pane restoration — 2026-10-17
+
+| ID | Owner request | Disposition |
+|---|---|---|
+| D91 | Withdraw the changes related to iPad Home's two-column display. | Restore one Home scroll hierarchy, standard section order and ordinary navigation on iPad. Remove the divider, six-row ranking variant and iPad split-specific sheet routing. Retain Duo Home and independently configured reading controls. |
+
+This supersedes D31–D32's iPad Home extension and D38–D41's divider/ranking refinements.
+The previous implementation and tests remain historical evidence. See
+[rollback scope and verification](IPAD-HOME-ROLLBACK.md).
+
+D91 implementation: `ee11c8e800474bddfb5cb1054870ccb9ae9c242f`. Forty-four feature tests pass; the four-size single-pane UI case
+passes on the rollback source, and the final Home audit passes after the native carousel center
+anchor fix. Failed intermediate runs remain documented; builds/lint are clean. The review iPad is
+updated and the disposable test iPad removed.

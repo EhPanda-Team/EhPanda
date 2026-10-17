@@ -25,7 +25,7 @@ had been approved or executed. No retrospective PLAN is presented as a prior app
 - [Summary](SUMMARY.md): commit ledger and current delivery boundary.
 - [Verification](VERIFICATION.md): retained evidence, failures, corrections and remaining gaps.
 - [Learnings](LEARNINGS.md): findings grounded in this session.
-- [Library direction](LIBRARY-DIRECTION.md): app-wide follow-up proposing one management-focused Favorites/Downloads tab; internal hierarchy remains open.
+- [Library direction](LIBRARY-DIRECTION.md): management-focused Library with the selected shared category navigation and separate Favorites/Downloads groups.
 - [Wide-screen proposal](proposal/PROPOSAL.md): nine earlier native screenshots, retained for comparison; Search remains unselected.
 - [Migration](MIGRATION.md): original integration and rewritten commit mapping.
 - [Workspace rebuild](WORKSPACE-REBUILD.md): current branch/worktree after rebuilding from the latest Phase 17 history.
@@ -33,12 +33,14 @@ had been approved or executed. No retrospective PLAN is presented as a prior app
 The app-design follow-up also replaces the global detail/thumbnail direction with independent
 row/grid choices for Frontpage, Popular, Toplists, Favorites, Search and Downloads. Grid replaces
 waterfall with the proposal's regular aligned layout. See D59–D61 and LIBRARY-DIRECTION.md; the
-production renderer has not yet been changed.
+production renderer is implemented by quick task `261015-tx1` and its later owner follow-ups.
 
 The final decisions in DISCUSSION-LOG take precedence over historical evidence reports.
-In particular: Home splitting now includes fully open Duo and eligible iPad landscape;
-iPad uses a plain 2 pt divider; the move button is opposite the slider; iPad retains its
-lower Close; native Duo side tabs remain; and normal simulator launches must clear fixture flags.
+In particular: D91 restores iPad Home to a single pane and ordinary navigation, removing its
+divider and split-only ranking layout. Home splitting remains available on fully open/half-fold
+Duo landscape. The move button stays opposite the reader slider; iPad retains its lower Close;
+native Duo side tabs remain; and normal simulator launches must clear fixture flags. See
+[the iPad Home rollback](IPAD-HOME-ROLLBACK.md).
 
 ## Scope and provenance
 
@@ -53,5 +55,6 @@ geometry. Explicit device-capability requirements (automatic reader orientation 
 landscape panes) are separate product policies; they do not reinstate idiom-based width guesses.
 Unrelated Phase 17 capture work remains in progress and is not marked complete by this record.
 
-No push, PR, baseline promotion, or production implementation of the wide-screen/Library
-proposals was requested. The preview must remain available during review and worktree migration.
+The initial Duo delivery did not include a push, PR, baseline promotion or implementation of
+the wide-screen/Library proposals. Later owner decisions authorize the Library implementation;
+its evidence is recorded separately. The saved proposal remains comparison material.
