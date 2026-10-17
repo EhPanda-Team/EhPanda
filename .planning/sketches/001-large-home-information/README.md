@@ -3,7 +3,7 @@ sketch: 001
 name: large-home-information
 question: "How should existing Home sections use more room for gallery information?"
 winner: null
-status: preferred-direction-under-review
+status: slideshow-direction-selected
 tags: [home, ipad, macos-future, information-density, section-sizing]
 ---
 
@@ -24,9 +24,10 @@ The iPad Home split rollback remains active. App code, reader controls, Library,
 macOS window chrome and navigation policy are not being implemented or reopened here.
 
 These are HTML design studies, not native SwiftUI screenshots or proof of a macOS port.
-The top navigation is a fixed comparison frame. D95–D97 prefer B with a conditional C-style
-slideshow grouping; this is a direction for refinement, not final implementation approval.
-Original A/B/C remain historical comparison material; B revision is the current default.
+The top navigation is a fixed comparison frame. D98 selects the C slideshow while leaving B's other sections in the preferred combination.
+D96–D97's slideshow field exclusions remain active. Responsive design is deferred for now.
+Original A/B/C remain historical comparisons; the B+C section mix is the current default.
+This section choice does not authorize implementation in the app.
 
 ## Four comparison questions
 
@@ -43,7 +44,7 @@ Serve `.planning/sketches/` with a local HTTP server and open
 `001-large-home-information/index.html`. It can also be opened directly as a local HTML file.
 The page is self-contained apart from the sibling theme CSS; it requests no remote media or data.
 
-Use original A/B/C and B revision to compare, the section selector to keep a section in view while switching, and the
+Use original A/B/C and the current B+C mix to compare, the section selector to keep a section in view while switching, and the
 width selector for 1194, 1450, 1680, 834 or 600 CSS-pixel content widths. The browser window must be at
 least that wide; the canvas never forces the containing page to overflow. Theme, annotations,
 slideshow arrows, card taps, section actions and refresh provide working prototype feedback.
@@ -118,6 +119,9 @@ are included.
 
 ## B revision — owner feedback D95–D97
 
+Historical iteration from `9a2db8c723`; D98 supersedes its adaptive slideshow layout below.
+The screenshots and measurements are retained as evidence of that iteration.
+
 The owner currently prefers B. Retain C's slideshow information grouping only when there is
 substantially more usable space. Slideshow galleries already come from Popular; repeating that
 source label adds no useful information or meaningful decorative value. Remove it. Uploader and
@@ -158,9 +162,27 @@ their responsive rules independent.
 - Complete B revision, normal width (image removed from repository history)
 - Complete B revision, extra-wide window (image removed from repository history)
 
-## Pending owner review
+## Selected C slideshow — D98
 
-B is preferred, with conditional grouping and the slideshow field exclusions above decided.
-The refined presentation, final dimensions, maximum readable width and responsive threshold
-still await review. Original variants are not current field-inclusion recommendations. No winner
-or production redesign is approved; app code and the iPad single-pane rollback remain unchanged.
+The owner selects C for the slideshow and asks to set space-dependent adaptation aside for now.
+The current B+C preview uses C's 274-high starting card, 154-wide cover and 25-point title. Rating
+and language sit below the title; Pages and Category form the next labeled row, followed by tags.
+Popular, uploader and upload date stay excluded under D96–D97, and no field is repeated.
+Frontpage, Toplists and Other continue to use B. The former 1000-pixel switch and right-side
+metadata group have been removed from the live preview. Basic overflow protection remains, but
+no new responsive design choice is made by this iteration.
+
+At 1194 and 1680 canvas widths, browser measurements show the same 274-high card, 154-wide cover
+and 240/240 field columns, with no outer overflow. At 1194, Frontpage's cover remains 145 wide and
+Toplists' cover remains 84 wide, matching B. No browser warnings/errors were recorded. These are
+HTML proposal checks only; no app source, native baseline or production test is changed.
+
+- Current slideshow screenshot (image removed from repository history)
+- Current complete B+C preview (image removed from repository history)
+- [Current geometry evidence](selected-c-geometry.json)
+
+## Remaining design scope
+
+Slideshow C is selected, with the existing field exclusions. The remaining sections continue to
+reflect the owner's B preference. Responsive adaptation is deferred; production implementation
+has not been requested. The iPad single-pane Home rollback remains unchanged.

@@ -3,7 +3,7 @@ type: retrospective-summary
 recorded: 2026-10-15
 historical_duo_implementation_commits: 21
 library_implementation_commits: 19
-decision_records: 97
+decision_records: 98
 ---
 
 # Delivery and commit ledger
@@ -288,3 +288,12 @@ source label and excludes uploader/date. One metadata set flows normally or grou
 width; it is never repeated as a second summary. Other sections retain B, while original A/B/C
 remain reviewable. Browser screenshots/geometry cover ordinary and extra-wide layouts, with a
 600-wide check. This remains proposal work, not production approval or native validation.
+
+
+## Slideshow selection — D98
+
+C is now selected for slideshow, with no space-dependent mode switching in this iteration.
+The [current B+C preview](../../sketches/001-large-home-information/README.md#selected-c-slideshow--d98)
+uses C's compact card and below-title grouping while preserving the removal of Popular,
+uploader/date and duplicate information. Other sections retain B. This supersedes D95's
+conditional grouping; responsive design is deferred and app code remains unchanged.
