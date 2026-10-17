@@ -145,7 +145,7 @@ struct CardSlideSection: View, Equatable {
         // every settle (sim-measured), clamping at the window edge before any `.idle` rebase.
         .scrollTargetBehavior(.viewAligned(limitBehavior: .always))
         .fixedSize(horizontal: false, vertical: true)
-        .scrollPosition(id: $scrollPositionID)
+        .scrollPosition(id: $scrollPositionID, anchor: .center)
         .contentMargins(.horizontal, centeringMargin, for: .scrollContent)
         .scrollClipDisabled()
         .accessibilityIdentifier("home_carousel")
@@ -336,7 +336,6 @@ struct ToplistsSection: View {
     private let galleries: [Int: [Gallery]]
     private let isLoading: Bool
     private let stacksSixGalleries: Bool
-    private let stackWidthFraction: CGFloat
     private let showsHeading: Bool
     private let navigateAction: (Gallery) -> Void
     private let showAllAction: () -> Void
@@ -344,7 +343,7 @@ struct ToplistsSection: View {
 
     init(
         galleries: [Int: [Gallery]], isLoading: Bool, stacksSixGalleries: Bool = false,
-        stackWidthFraction: CGFloat = 0.9, showsHeading: Bool = true,
+        showsHeading: Bool = true,
         navigateAction: @escaping (Gallery) -> Void,
         showAllAction: @escaping () -> Void,
         reloadAction: @escaping () -> Void
@@ -352,7 +351,6 @@ struct ToplistsSection: View {
         self.galleries = galleries
         self.isLoading = isLoading
         self.stacksSixGalleries = stacksSixGalleries
-        self.stackWidthFraction = stackWidthFraction
         self.showsHeading = showsHeading
         self.navigateAction = navigateAction
         self.showAllAction = showAllAction
@@ -415,7 +413,7 @@ struct ToplistsSection: View {
                 VerticalToplistsStack(
                     galleries: Array((dataSource[type.categoryIndex] ?? []).prefix(6)),
                     startRanking: 1,
-                    widthFraction: stackWidthFraction,
+                    widthFraction: 0.9,
                     navigateAction: navigateAction
                 )
             } else if horizontalSizeClass == .regular {

@@ -71,7 +71,6 @@ struct HomeSectionsView: View {
             galleries: store.toplistsGalleries,
             isLoading: !store.toplistsLoadingState.values.allSatisfy({ $0 != .loading }),
             stacksSixGalleries: store.usesSplitLayout,
-            stackWidthFraction: store.device == .pad ? 0.7 : 0.9,
             showsHeading: pane != .right,
             navigateAction: { store.send(.galleryTapped($0, from: .right)) },
             showAllAction: { store.send(.sectionTapped(.toplists)) },

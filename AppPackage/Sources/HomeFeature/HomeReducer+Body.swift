@@ -31,10 +31,6 @@ extension HomeReducer {
                 state.device = device
                 return .none
 
-            case .padLayoutChanged(let allowsSplit):
-                state.allowsPadSplitLayout = allowsSplit
-                return .none
-
             case .viewportChanged(let size):
                 state.viewportSize = size
                 return .none

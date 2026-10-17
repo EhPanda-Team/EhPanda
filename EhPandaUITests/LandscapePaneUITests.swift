@@ -1,3 +1,4 @@
+import UIKit
 import XCTest
 
 @MainActor
@@ -19,6 +20,7 @@ final class LandscapePaneUITests: XCTestCase {
     }
 
     func testHomeAndNestedSheetsUseOppositeHalves() throws {
+        try XCTSkipUnless(isDuo)
         try prepareLandscape()
         let app = XCUIApplication()
         try app.launchStubbed()
@@ -28,13 +30,6 @@ final class LandscapePaneUITests: XCTestCase {
         XCTAssertGreaterThan(window.frame.width, window.frame.height)
         XCTAssertEqual(left.frame.maxX, window.frame.midX, accuracy: 1)
         XCTAssertEqual(right.frame.minX, window.frame.midX, accuracy: 1)
-        if !isDuo {
-            let homeTab = app.buttons["house.circle"].firstMatch
-            let favoritesTab = app.buttons["heart.circle"].firstMatch
-            XCTAssertEqual(homeTab.frame.midY, favoritesTab.frame.midY, accuracy: 1)
-            XCTAssertTrue(homeTab.isHittable)
-            XCTAssertLessThan(homeTab.frame.maxY, window.frame.midY)
-        }
         print("CAPTURE_LANDSCAPE_HOME")
         let title = app.navigationBars["Home"].staticTexts["Home"]
         let titleFrame = title.frame
@@ -53,6 +48,61 @@ final class LandscapePaneUITests: XCTestCase {
         })
         sheetClose.tapWhenHittable("Detail Close")
         XCTAssertTrue(frontpage.exists)
+    }
+
+    func testPadHomeKeepsSinglePaneAcrossRotationAndTextSizes() throws {
+        try XCTSkipUnless(!isDuo)
+        let originalOrientation = XCUIDevice.shared.orientation
+        addTeardownBlock { XCUIDevice.shared.orientation = originalOrientation }
+        let sizes: [UIContentSizeCategory] = [
+            .large, .accessibilityMedium, .accessibilityExtraLarge, .accessibilityExtraExtraExtraLarge
+        ]
+        for size in sizes {
+            XCUIDevice.shared.orientation = .landscapeLeft
+            let app = XCUIApplication()
+            app.launchArguments = ["-UIPreferredContentSizeCategoryName", size.rawValue]
+            try app.launchStubbed(extraEnvironment: ["EHPANDA_AUTOMATION_TAB": "home"])
+            defer { app.terminate() }
+            assertSingleHomePane(in: app)
+            if size == .large {
+                let sections = app.scrollViews["home_sections"]
+                let showAll = sections.buttons["Show All"].firstMatch
+                for _ in 0..<6 where !showAll.isHittable { sections.swipeUp() }
+                showAll.tapWhenHittable("Frontpage from single-pane Home")
+                let frontpage = app.navigationBars["Frontpage"]
+                XCTAssertTrue(frontpage.waitForExistence(timeout: 10))
+                let window = app.windows.firstMatch.frame
+                XCTAssertLessThan(frontpage.frame.minX, window.midX)
+                XCTAssertGreaterThan(frontpage.frame.maxX, window.midX)
+                frontpage.buttons["Home"].tapWhenHittable("Return to Home")
+                assertSingleHomePane(in: app)
+            }
+            XCUIDevice.shared.orientation = .portrait
+            assertSingleHomePane(in: app, landscape: false)
+            XCUIDevice.shared.orientation = .landscapeLeft
+            assertSingleHomePane(in: app)
+            let screenshot = XCTAttachment(screenshot: XCUIScreen.main.screenshot())
+            screenshot.name = "iPad single-pane Home \(size.rawValue)"
+            screenshot.lifetime = .keepAlways
+            add(screenshot)
+            app.terminate()
+        }
+    }
+
+    private func assertSingleHomePane(in app: XCUIApplication, landscape: Bool = true) {
+        let orientation = XCTNSPredicateExpectation(predicate: NSPredicate { _, _ in
+            let frame = app.windows.firstMatch.frame
+            return landscape ? frame.width > frame.height : frame.height > frame.width
+        }, object: nil)
+        XCTAssertEqual(XCTWaiter.wait(for: [orientation], timeout: 5), .completed)
+        let sections = app.scrollViews["home_sections"]
+        XCTAssertTrue(sections.waitForExistence(timeout: 15))
+        XCTAssertFalse(app.scrollViews["home_left_pane"].exists)
+        XCTAssertFalse(app.scrollViews["home_right_pane"].exists)
+        let window = app.windows.firstMatch.frame
+        XCTAssertLessThan(sections.frame.minX, window.midX)
+        XCTAssertGreaterThan(sections.frame.maxX, window.midX)
+        XCTAssertTrue(app.navigationBars["Home"].staticTexts["Home"].isHittable)
     }
 
     func testReaderControlsMoveAndKeepTheirSideAfterRotation() throws {

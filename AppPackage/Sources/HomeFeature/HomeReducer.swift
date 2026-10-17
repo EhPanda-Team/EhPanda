@@ -27,11 +27,11 @@ public struct HomeReducer: Sendable {
         @SharedReader(.setting) public var setting: Setting
         public var path = StackState<HomePath.State>()
         public var device: WindowDevice = .other
-        public var allowsPadSplitLayout = false
         public var viewportSize: CGSize = .zero
 
         public var usesSplitLayout: Bool {
-            device.supportsLandscapePanes(in: viewportSize) && (device != .pad || allowsPadSplitLayout)
+            guard case .duo = device else { return false }
+            return device.supportsLandscapePanes(in: viewportSize)
         }
         @Presents public var sheet: HomeSheetFeature.State?
         var opensAccountAfterSheetDismissal = false
@@ -71,7 +71,6 @@ public struct HomeReducer: Sendable {
         case binding(BindingAction<State>)
         case onPresented
         case deviceChanged(WindowDevice)
-        case padLayoutChanged(allowsSplit: Bool)
         case viewportChanged(CGSize)
         case delegate(Delegate)
         case galleryTapped(Gallery, from: HomePane = .left)
