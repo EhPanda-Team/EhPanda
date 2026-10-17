@@ -337,3 +337,16 @@ updated and the disposable test iPad removed.
 [Sketch 001](../../sketches/001-large-home-information/README.md) retains A/B/C, screenshots,
 responsive checks and the pending selection. No production source is changed and no winner is
 recorded. Native layout/accessibility validation belongs to a later approved implementation.
+
+
+## Preferred Home direction and slideshow information — 2026-10-17
+
+| ID | Owner direction | Disposition |
+|---|---|---|
+| D95 | Currently lean toward B; retain C's slideshow information grouping for occasions when space is genuinely excessive. | B revision preserves B's other sections and shows the same slideshow fields flowing at ordinary width or grouped in an ample measured text region. This is preference and iteration, not final implementation approval. |
+| D96 | Do not add ineffective duplicated information; slideshow data comes from Popular, so repeating it is unacceptable without meaningful decorative value. | Remove the Popular eyebrow in the revision. Do not repeat values in a summary and grouped fields or invent filler merely to occupy space. Preserve historical A/B/C for comparison. |
+| D97 | Uploader and upload date are not important in slideshow. | Exclude both from revised slideshow metadata; retain title, category, pages, language, rating and tags once each. This does not remove fields from unrelated sections. |
+
+[Sketch 001 revision](../../sketches/001-large-home-information/README.md#b-revision--owner-feedback-d95d97)
+contains normal/extra-wide screenshots and measured browser evidence. The conditional threshold is
+provisional; no app source, native baseline, implementation count or Phase 17 gate is changed.

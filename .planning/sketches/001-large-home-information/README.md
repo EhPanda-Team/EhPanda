@@ -3,7 +3,7 @@ sketch: 001
 name: large-home-information
 question: "How should existing Home sections use more room for gallery information?"
 winner: null
-status: awaiting-owner-review
+status: preferred-direction-under-review
 tags: [home, ipad, macos-future, information-density, section-sizing]
 ---
 
@@ -24,7 +24,9 @@ The iPad Home split rollback remains active. App code, reader controls, Library,
 macOS window chrome and navigation policy are not being implemented or reopened here.
 
 These are HTML design studies, not native SwiftUI screenshots or proof of a macOS port.
-The top navigation is a fixed comparison frame. No variant has been selected.
+The top navigation is a fixed comparison frame. D95–D97 prefer B with a conditional C-style
+slideshow grouping; this is a direction for refinement, not final implementation approval.
+Original A/B/C remain historical comparison material; B revision is the current default.
 
 ## Four comparison questions
 
@@ -41,14 +43,14 @@ Serve `.planning/sketches/` with a local HTTP server and open
 `001-large-home-information/index.html`. It can also be opened directly as a local HTML file.
 The page is self-contained apart from the sibling theme CSS; it requests no remote media or data.
 
-Use A/B/C to compare, the section selector to keep a section in view while switching, and the
-width selector for 1194, 1450, 834 or 600 CSS-pixel content widths. The browser window must be at
+Use original A/B/C and B revision to compare, the section selector to keep a section in view while switching, and the
+width selector for 1194, 1450, 1680, 834 or 600 CSS-pixel content widths. The browser window must be at
 least that wide; the canvas never forces the containing page to overflow. Theme, annotations,
 slideshow arrows, card taps, section actions and refresh provide working prototype feedback.
 Destination taps deliberately show a labeled simulation message rather than inventing new Detail
 or list navigation. There are no fake tabs for the other app features.
 
-## Variants and measured starting dimensions
+## Original variants and measured starting dimensions
 
 The following values are comparison starting points at the normal text scale, not implementation
 constants. A native implementation must let text grow, retain Dynamic Type and measure available
@@ -114,8 +116,51 @@ are included.
 - C, iPad-width (image removed from repository history)
 - B, large window (image removed from repository history)
 
+## B revision — owner feedback D95–D97
+
+The owner currently prefers B. Retain C's slideshow information grouping only when there is
+substantially more usable space. Slideshow galleries already come from Popular; repeating that
+source label adds no useful information or meaningful decorative value. Remove it. Uploader and
+upload date are explicitly low-priority and excluded from slideshow metadata.
+
+The revision keeps B's 312-high minimum slideshow, 177-wide cover and all other sections. Its
+metadata is one set of title, category, pages, language, rating and up to three tags. The default
+presents flowing metadata below the title. With a very wide text region, the same values become
+a labeled two-by-two group beside the title and tags. There is no parallel summary row repeating
+those values. This is a presentation alternative, not a second source of information. Repeated
+values must not be introduced merely to fill space; decorative repetition needs a meaningful
+visual role. Optional/missing fields still do not justify Detail fetches or invented metadata.
+
+The HTML switches at **1000 CSS pixels of actual slideshow text-region width**, as a provisional
+sketch value, not a selected production threshold or a device identity check. Native layout must
+account for real text sizes and available region geometry. The grouping does not automatically
+apply to every iPad or every landscape orientation. The named Home and slideshow containers keep
+their responsive rules independent.
+
+### Revision verification
+
+- At canvas widths 600 and 1194, metadata is flowing; at 1680 it is grouped. No outer overflow.
+- At 1194/1680, the same four metadata values occur once each in one description list; title and
+  tags also appear once in the metadata area. No Popular eyebrow, uploader or date appears there.
+- Both comparison screenshots use the same gallery. The slideshow remains 312 high in these
+  standard-text fixtures. Tags remain visible at 600 after scoping nested container queries.
+- Next gallery changes the title and all fields together. Original B remains selectable and
+  unchanged; B revision is separately selectable. Dark mode and return to narrow width work.
+- Browser console reports no warnings/errors in the focused revision checks. These remain HTML
+  checks, not native Dynamic Type, VoiceOver or platform implementation validation.
+- Measurements are in [revision-geometry-verification.json](revision-geometry-verification.json).
+  Earlier screenshot/geometry artifacts remain historical, not regenerated native baselines.
+
+### Revised screenshots
+
+- Slideshow, normal 1194-wide canvas (image removed from repository history)
+- Slideshow, extra-wide 1680 canvas (image removed from repository history)
+- Complete B revision, normal width (image removed from repository history)
+- Complete B revision, extra-wide window (image removed from repository history)
+
 ## Pending owner review
 
-Choose a whole variant or a Slideshow / Frontpage / Toplists / Other combination. Field inclusion,
-final dimensions, maximum readable content width and the final responsive thresholds remain open.
-The owner has authorized proposals; this record does not authorize a production redesign.
+B is preferred, with conditional grouping and the slideshow field exclusions above decided.
+The refined presentation, final dimensions, maximum readable width and responsive threshold
+still await review. Original variants are not current field-inclusion recommendations. No winner
+or production redesign is approved; app code and the iPad single-pane rollback remain unchanged.
