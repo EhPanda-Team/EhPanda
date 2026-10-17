@@ -1,0 +1,65 @@
+[
+  {
+    "canvas": 1194,
+    "hero": 244,
+    "pageWidth": 1194,
+    "rankCover": 70,
+    "sections": [
+      "Frontpage",
+      "Toplists",
+      "Other"
+    ],
+    "variant": "canvas a",
+    "viewport": 1194
+  },
+  {
+    "canvas": 1194,
+    "hero": 312,
+    "pageWidth": 1194,
+    "rankCover": 84,
+    "sections": [
+      "Frontpage",
+      "Toplists",
+      "Other"
+    ],
+    "variant": "canvas b",
+    "viewport": 1194
+  },
+  {
+    "canvas": 1194,
+    "hero": 277,
+    "pageWidth": 1194,
+    "rankCover": 77,
+    "sections": [
+      "Frontpage",
+      "Toplists",
+      "Other"
+    ],
+    "variant": "canvas c",
+    "viewport": 1194
+  },
+  {
+    "canvas": 1450,
+    "pageWidth": 1450,
+    "variant": "canvas b",
+    "viewport": 1450
+  },
+  {
+    "canvas": 600,
+    "pageWidth": 600,
+    "variant": "canvas a",
+    "viewport": 600
+  },
+  {
+    "canvas": 600,
+    "pageWidth": 600,
+    "variant": "canvas b",
+    "viewport": 600
+  },
+  {
+    "canvas": 600,
+    "pageWidth": 600,
+    "variant": "canvas c",
+    "viewport": 600
+  }
+]

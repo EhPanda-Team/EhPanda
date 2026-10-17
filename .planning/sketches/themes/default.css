@@ -1,0 +1,3 @@
+
+:root{--bg:#fff;--surface:#f3f3f7;--text:#18181a;--secondary:#747478;--line:#e5e5e9;--accent:#609e25;--soft:#edf3e7;--font:-apple-system,BlinkMacSystemFont,"Helvetica Neue",sans-serif;--radius:14px}
+:root[data-theme="dark"]{--bg:#161618;--surface:#242428;--text:#f4f4f5;--secondary:#a4a4ac;--line:#35353b;--accent:#99cb61;--soft:#25351f}
