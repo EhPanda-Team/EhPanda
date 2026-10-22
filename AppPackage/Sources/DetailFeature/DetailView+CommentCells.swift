@@ -32,10 +32,10 @@ extension DetailView {
                 Text(content)
                     .padding(.top, 1)
             }
-            .frame(maxHeight: .infinity, alignment: .top)
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
             .padding()
-            .background(backgroundColor)
             .frame(width: cardWidth, height: cardHeight * cardHeightScale)
+            .background(backgroundColor)
             .clipShape(.rect(cornerRadius: 15))
             .accessibilityElement(children: .combine)
             .accessibilityValue(.accessibilityVotedUp, isEnabled: comment.votedUp)
