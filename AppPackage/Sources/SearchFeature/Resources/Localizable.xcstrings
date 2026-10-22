@@ -1,6 +1,48 @@
 {
   "sourceLanguage": "en",
   "strings": {
+    "quick_search_empty": {
+      "comment": "Empty Quick Search section on the Search root; no user-saved search shortcuts yet.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No saved searches."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keine gespeicherten Suchanfragen."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "保存した検索はありません。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "저장된 검색이 없습니다."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "暂无快速搜索。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "尚無快速搜尋。"
+          }
+        }
+      }
+    },
     "recently_searched": {
       "extractionState": "manual",
       "localizations": {
@@ -42,6 +84,48 @@
         }
       }
     },
+    "recently_searched_empty": {
+      "comment": "Empty Recently Searched section on the Search root; short placeholder below its heading.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No recent searches."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keine letzten Suchanfragen."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "最近の検索はありません。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "최근 검색 기록이 없습니다."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "暂无搜索记录。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "尚無搜尋紀錄。"
+          }
+        }
+      }
+    },
     "recently_seen": {
       "extractionState": "manual",
       "localizations": {
@@ -79,6 +163,48 @@
           "stringUnit": {
             "state": "translated",
             "value": "最近閱讀"
+          }
+        }
+      }
+    },
+    "recently_seen_empty": {
+      "comment": "Empty Recently Seen section on the Search root; short placeholder for gallery browsing history.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No recently viewed galleries."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keine zuletzt angesehenen Galerien."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "最近閲覧したギャラリーはありません。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "최근 본 갤러리가 없습니다."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "暂无浏览记录。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "尚無瀏覽紀錄。"
           }
         }
       }
