@@ -91,5 +91,19 @@ controls and 96-point minimum empty-content height.
 Pinned strict SwiftLint and whitespace checks pass. The generic Simulator build succeeds with
 zero compiler/analyzer warnings or errors. The review iPad is updated and launches normally
 (PID 61134), preserving its data. Evidence is in `.build/library/search-section-spacing-64/`.
-No new screenshot or behavior test run is claimed for this one-value change. Earlier captures
-and tests remain tied to their original source versions. Phase 17 gates are unchanged.
+The initial delivery did not add a screenshot or behavior test run. The requested capture is
+recorded below; earlier captures and tests retain their original source versions. Phase 17 gates
+are unchanged.
+
+
+### Owner-requested 64-point screenshot — 2026-10-23
+
+The 64-point native iPad landscape screenshot (image removed from repository history) uses the
+same synthetic recent searches, ten gallery records, neutral covers and saved searches as the
+32-point capture. It uses the same landscape viewport and bottom scroll position to show the
+expanded gap on either side of Recently Seen. The review iPad's data and settings are untouched.
+
+Temporary state seeding is restored byte-for-byte. Both the preview and restored normal builds
+pass with zero compiler/analyzer warnings or errors. The dedicated capture simulator is shut
+down and deleted. No production-source change or new design choice is made. Evidence is under
+`.build/library/search-spacing-64-populated/` and `.build/library/search-spacing-64-restored/`.
