@@ -5,9 +5,9 @@ current_phase: 17
 current_phase_name: Screenshot Automation, Visual Regression & OS 27 Modernization
 status: executing
 stopped_at: 17-06 revision re-shot (2026-10-13), 16/16 captured; waiting for the owner's visual review; agent prepares both gallery sets
-last_updated: "2026-10-17T10:09:35Z"
-last_activity: 2026-10-17
-state_head: 7545d6c89769027ba7340b4ed8f785cb67ea7e9b
+last_updated: "2026-10-22T03:52:07Z"
+last_activity: 2026-10-22
+state_head: a6872762922be171adf9558408a4c6740fd85a3d
 progress:
   total_phases: 17
   completed_phases: 10
@@ -16,7 +16,7 @@ progress:
   percent: 59
 milestone_name: )
 source_head: 2519060029
-last_activity_desc: "D99–D100 implement B Home sections with C slideshow and shared simplified titles; feature/native UI verification recorded; review iPad updated; Phase 17 unchanged"
+last_activity_desc: "D101–D103 restore Other footnotes, remove Toplists uploader and inherit rating foregrounds; 2/2 iPad UI checks pass; D104 slideshow proposals await selection; Phase 17 unchanged"
 ---
 
 # Project State
@@ -100,7 +100,7 @@ See: .planning/PROJECT.md (updated 2026-09-23)
 Phase: 17 of 17 (Screenshot Automation, Visual Regression & OS 27 Modernization)
 Plan: 6 of 24 complete (17-05, wave 6; dependency order, not numeric ID order); 17-06 implemented; the owner's 2026-10-13 review returned changes, revision in progress
 Status: executing (17-01/17-24/17-02/17-03/17-04/17-05 complete; 17-06 implemented and verified, owner review returned changes on 2026-10-13, revision in progress; the agent prepares galleries and fixtures for both content sets)
-Last activity: 2026-10-17 — D99–D100 implement B Home sections with C slideshow and shared simplified titles; feature/native UI verification recorded; review iPad updated; Phase 17 unchanged.
+Last activity: 2026-10-17 — D101–D103 restore Other footnotes, remove Toplists uploader and inherit rating foregrounds; 2/2 iPad UI checks pass; D104 slideshow proposals await selection; Phase 17 unchanged.
 
 **Phase 17 current gate:** 6/24 plans complete. 17-01 passed 32/32 capture coordinates and 66/66 tests; verified public v2 fixtures are in `.capture/regression`. 17-24 measures all four real device/orientation combinations and validates the immutable tracked rendering pin. Both final measure and validate commands pass four geometry tests plus six rotation/restore tests, with 28 Python contract tests and zero compiler/lint diagnostics or runtime warnings. Pin SHA-256: `ffd7689fcaf9a312202fdfbf9787f0198711fd477d1e72a2a013851df85a394a`; evidence is `.capture/environment-measurement/` and `.capture/environment-pin-check/`. Implementation ends at 60b26f3a29; summary/review committed in 07ffb60cff. Four reserved staged entries remain unchanged. Devices restore portrait/original Large and their original boot states. Continue inline with 17-06; shared CAP-17-01/02/03/04/06 remain incomplete until all declaring plans finish. No baseline promotion.
 
@@ -1112,3 +1112,10 @@ The dated feedback below is historical and superseded by the Phase 16 verificati
 W-34 is accepted only for MiB pronunciation; W-33 remains uncertain. The user separately accepted only the W-31 empty uploader button capsule under Button Shapes, not other blank controls. This is follow-up status, not phase or A11Y-02 approval.
 
 **2026-09-18 owner decision follow-up (recorded 2026-09-17T16:01:34Z).** The user accepted D-25 finding #39 as an Apple native-search bug with no app fix requested; the nine-cell result remains eight pass cells plus one accepted finding. W-8, W-35, VO-3, and W-13 require root-cause investigation; W-38 awaits an operation demonstration. W-33 is in revision toward ordinary P M pronunciation; W-34 and W-31 retain their scoped confirmations. This does not approve the phase or A11Y-02.
+
+
+D101–D103 (`a6872762922be171adf9558408a4c6740fd85a3d`) correct Home card footnotes, Toplists uploader and
+rating foregrounds. [Native verification](quick/261017-pjj-implement-b-home-sections-with-selected-/FOLLOW-UP-20261022.md)
+passes two focused iPad UI cases and build/lint; review iPad is updated in place. D104 has
+[three landscape slideshow proposals](sketches/002-landscape-slideshow/README.md) with portrait
+preserved and no selection. Phase 17 owner gates and baselines remain unchanged.
