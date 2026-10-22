@@ -27,7 +27,7 @@ had been approved or executed. No retrospective PLAN is presented as a prior app
 - [Learnings](LEARNINGS.md): findings grounded in this session.
 - [Library direction](LIBRARY-DIRECTION.md): management-focused Library with the selected shared category navigation and separate Favorites/Downloads groups.
 - [Wide-screen proposal](proposal/PROPOSAL.md): nine earlier native screenshots, retained for comparison; Search remains unselected.
-- [Large Home proposals](../../sketches/001-large-home-information/README.md): original A/B/C plus current B+C mix for iPad/future macOS; D98 selects C slideshow and defers space-dependent adaptation. No repeated source label or uploader/date; other sections retain B. D99–D100 implement this mix and shared simplified titles in [quick task 261017-pjj](../261017-pjj-implement-b-home-sections-with-selected-/261017-pjj-SUMMARY.md), available for owner review.
+- [Large Home proposals](../../sketches/001-large-home-information/README.md): original A/B/C plus current B+C mix for iPad/future macOS; D98 selects C slideshow and defers space-dependent adaptation. No repeated source label or uploader/date; other sections retain B. D99–D100 originally implement this mix and shared simplified titles in [quick task 261017-pjj](../261017-pjj-implement-b-home-sections-with-selected-/261017-pjj-SUMMARY.md), available for owner review.
 - [Home corrections and landscape slideshow](../261017-pjj-implement-b-home-sections-with-selected-/FOLLOW-UP-20261022.md): D101–D103 implemented; D105 selects slideshow A from sketch 002 and D106 adds Toplists spacing. [Native A verification](../261017-pjj-implement-b-home-sections-with-selected-/SLIDESHOW-A.md) records implementation and screenshots. [D107–D109 cell finishes](../261017-pjj-implement-b-home-sections-with-selected-/HOME-CELL-FINISHES.md) supersede fixed ranking gaps, fill slideshow covers and adapt tag backgrounds.
 - [Migration](MIGRATION.md): original integration and rewritten commit mapping.
 - [Workspace rebuild](WORKSPACE-REBUILD.md): current branch/worktree after rebuilding from the latest Phase 17 history.
@@ -38,6 +38,9 @@ waterfall with the proposal's regular aligned layout. See D59–D61 and LIBRARY-
 production renderer is implemented by quick task `261015-tx1` and its later owner follow-ups.
 
 The final decisions in DISCUSSION-LOG take precedence over historical evidence reports.
+D119 removes the simplified-title setting and transformation throughout Home and row/grid lists;
+see [the retirement record](../261015-tx1-implement-library-with-shared-favorites-/REMOVE-SIMPLIFIED-TITLES.md).
+Existing line limits, geometry and Japanese-title selection remain.
 In particular: D91 restores iPad Home to a single pane and ordinary navigation, removing its
 divider and split-only ranking layout. Home splitting remains available on fully open/half-fold
 Duo landscape. The move button stays opposite the reader slider; iPad retains its lower Close;
