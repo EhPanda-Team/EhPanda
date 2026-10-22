@@ -41,6 +41,10 @@ def validate_feature_results(native, output, expected, device):
     results = {}
     for case in cases:
         identifier = case['nodeIdentifierURL'].split('/AppPackage/', 1)[1]
+        # XCTest result URLs omit empty argument lists; enumeration and Swift Testing retain them.
+        # Compare the same method identity without relaxing the selected-test or duplicate checks.
+        if not identifier.endswith(')'):
+            identifier += '()'
         if identifier in results:
             raise RuntimeError(f'Duplicate test result: {identifier}')
         results[identifier] = case['result']
