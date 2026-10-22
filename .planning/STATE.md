@@ -5,9 +5,9 @@ current_phase: 17
 current_phase_name: Screenshot Automation, Visual Regression & OS 27 Modernization
 status: executing
 stopped_at: 17-06 revision re-shot (2026-10-13), 16/16 captured; waiting for the owner's visual review; agent prepares both gallery sets
-last_updated: "2026-10-22T10:51:32Z"
+last_updated: "2026-10-22T11:17:08Z"
 last_activity: 2026-10-22
-state_head: 20f9f8735f18013ae994f4a2b4a919c3256d6243
+state_head: a516a4adfe88fa5fcdd67db798e6918840f0aedc
 progress:
   total_phases: 17
   completed_phases: 10
@@ -16,7 +16,7 @@ progress:
   percent: 59
 milestone_name: )
 source_head: af00e0da93
-last_activity_desc: "D116 applies aspect-fill to Home Toplists covers; strict lint and clean native build pass; review iPad updated; Phase 17 unchanged"
+last_activity_desc: "D117 tightens slideshow metadata; D118 uses native tab placement/title removal on iPad; clean build/lint and two UI tests pass; review iPad updated; Phase 17 unchanged"
 ---
 
 # Project State
@@ -1159,3 +1159,10 @@ claimed. [Exact scope and evidence](quick/261017-pjj-implement-b-home-sections-w
 D116 (`20f9f8735f18013ae994f4a2b4a919c3256d6243`) applies aspect-fill to Home Toplists covers in rich and compact arrangements.
 Strict lint and a clean native build pass; the review iPad is updated normally. No new UI run is
 claimed. [Exact scope and evidence](quick/261017-pjj-implement-b-home-sections-with-selected-/HOME-CELL-FINISHES.md).
+
+D117 (`34afba01d8219fd36e649cdb2e393c650ace25b4`) brings slideshow Pages/Category closer; D118
+(`a516a4adfe88fa5fcdd67db798e6918840f0aedc`) uses official tab-placement and toolbar-title APIs to hide
+Home's title only for iPad top tabs, restoring it when tabs move below. The owner-directed API
+investigation, native resizing captures and two passing final-source UI tests are recorded in
+[Home title/tab placement](quick/261017-pjj-implement-b-home-sections-with-selected-/HOME-TITLE-TAB-PLACEMENT.md).
+Review iPad updated normally; Phase 17 review gates remain unchanged.

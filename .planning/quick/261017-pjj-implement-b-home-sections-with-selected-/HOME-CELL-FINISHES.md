@@ -117,3 +117,18 @@ log/xcresult, structured diagnostics, changed-source hash and normal review-devi
 No new tests or visual captures were added for this one-argument presentation change; historical
 screenshots do not verify its final appearance. The review iPad was updated in place and launched
 without fixture flags, preserving account/data/settings. Phase 17 gates remain unchanged.
+
+## Closer slideshow metadata — D117, 2026-10-22
+
+The owner asks for Pages and Category to sit slightly closer. `34afba01d8219fd36e649cdb2e393c650ace25b4` reduces
+HomeSlideshowInformation's metadata group maximum width from 500 to 360 points. The existing
+two fields, fonts, 28-point minimum inter-column spacing, wrapping and card dimensions remain.
+No metadata is added or repeated; the selected Liquid Glass tags remain unchanged.
+
+Before (image removed from repository history) and
+after (image removed from repository history) use neutral loaded artwork on the same task-owned
+iPad. The after image also includes D118's title policy. Strict lint and native builds pass without
+compiler/analyzer warnings or errors. Two final-source native iPad UI regressions pass, covering
+four text sizes, rotation, Frontpage push/back, slideshow sizing, selection and swipe behavior.
+[Exact verification, placement investigation and delivery](HOME-TITLE-TAB-PLACEMENT.md).
+The existing review iPad is updated in place; its account/data/settings are preserved.

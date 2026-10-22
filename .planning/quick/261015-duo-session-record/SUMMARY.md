@@ -2,8 +2,8 @@
 type: retrospective-summary
 recorded: 2026-10-15
 historical_duo_implementation_commits: 21
-library_implementation_commits: 28
-decision_records: 116
+library_implementation_commits: 30
+decision_records: 118
 ---
 
 # Delivery and commit ledger
@@ -389,3 +389,16 @@ normally. [Verification scope](../261017-pjj-implement-b-home-sections-with-sele
 cover dimensions, information and spacing. Strict lint and a clean native build pass; the review
 iPad is updated in place and launched normally. No new UI test run or screenshot is claimed.
 [Verification scope](../261017-pjj-implement-b-home-sections-with-selected-/HOME-CELL-FINISHES.md).
+
+## Closer slideshow fields and native iPad title policy — D117–D118
+
+`34afba01d8219fd36e649cdb2e393c650ace25b4` reduces the Pages/Category group width cap to 360 points.
+`a516a4adfe88fa5fcdd67db798e6918840f0aedc` hides Home's native title only on iPad with actual top-bar tabs,
+using public tabBarPlacement/title-removal APIs and inline display mode. The localized navigation
+title and Home back label remain; bottom/side/undefined placements retain inlineLarge.
+
+Strict lint and native builds pass with zero compiler/analyzer warnings/errors; exactly two UI
+tests pass with no skips/repetitions. They cover four-size cold entry/rotation, Frontpage push/back,
+slideshow geometry and selection. Native live-resize evidence also verifies bottom-tab title
+restoration. Review iPad updated normally, account/data/settings preserved; task devices removed.
+[Research-first owner direction, official references, screenshots and exact scope](../261017-pjj-implement-b-home-sections-with-selected-/HOME-TITLE-TAB-PLACEMENT.md).
