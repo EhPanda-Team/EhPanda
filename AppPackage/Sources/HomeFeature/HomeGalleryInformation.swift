@@ -67,21 +67,14 @@ struct HomeSlideshowInformation: View {
             }
             .frame(maxWidth: 500, alignment: .leading)
             if !gallery.homeSlideshowTags.isEmpty {
-                TagCloudView(data: gallery.homeSlideshowTags) { tag in
-                    TagCloudCell(
-                        text: tag.text, imageURL: nil, showsImages: false, font: .caption2,
-                        padding: .init(top: 4, leading: 8, bottom: 4, trailing: 8),
-                        textColor: colorScheme == .dark ? .primary : .secondary, backgroundColor: .clear
-                    )
-                    .background(
-                        colorScheme == .dark
-                            ? AnyShapeStyle(.regularMaterial)
-                            : AnyShapeStyle(Color(uiColor: .systemBackground)),
-                        in: .rect(cornerRadius: 6)
-                    )
-                    .overlay {
-                        RoundedRectangle(cornerRadius: 6)
-                            .strokeBorder(.quaternary, lineWidth: 1)
+                GlassEffectContainer(spacing: 0) {
+                    TagCloudView(data: gallery.homeSlideshowTags) { tag in
+                        TagCloudCell(
+                            text: tag.text, imageURL: nil, showsImages: false, font: .caption2,
+                            padding: .init(top: 4, leading: 8, bottom: 4, trailing: 8),
+                            textColor: colorScheme == .dark ? .primary : .secondary, backgroundColor: .clear
+                        )
+                        .glassEffect(.regular, in: .rect(cornerRadius: 6))
                     }
                 }
             }
