@@ -77,3 +77,11 @@ and title/metadata foreground policy. The proposed gradient dimming is not adopt
 and no longer awaits an answer. The observed contrast limitation remains; this decision does not
 claim it is fixed or rule out a future separately authorized change. No additional source change
 or simulator validation is required for this documentation-only scope decision.
+
+## Selected Liquid Glass tags — D114, 2026-10-22
+
+After the D113 native comparison, the owner selects A. `75a50edd83449783730eab8931b515dd00f51c52` replaces D109's
+light-solid/dark-material tag containers with regular Liquid Glass in both appearances, preserving
+the reviewed tag geometry/foregrounds and D111's card-wide gradient policy. Exact prototype parity,
+fresh clean build/lint and the normal review-iPad launch are recorded in
+[sketch 003](../../sketches/003-slideshow-tag-containers/README.md).

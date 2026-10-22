@@ -448,8 +448,18 @@ updated in place. [Verification and native image](../261022-comment-card-backgro
 
 | ID | Owner direction | Disposition |
 |---|---|---|
-| D113 | Try Liquid Glass and Material containers for slideshow tags. | Build both native variants, capture light/warm-dark/cool-dark samples, and present a side-by-side review. Keep tag geometry/content and D111's gradient scope. No winner selected; restore production source and build after capturing. |
+| D113 | Try Liquid Glass and Material containers for slideshow tags. | Build both native variants, capture light/warm-dark/cool-dark samples, and present a side-by-side review. Keep tag geometry/content and D111's gradient scope. Restore production source and build after capturing; D114 later selects A. |
 
 [Native comparison, source patches and verification](../../sketches/003-slideshow-tag-containers/README.md).
 Both prototype builds and baseline restoration build pass without warnings/errors. Six native
 captures and three browser comparisons are retained. Normal review iPad settings/data stay intact.
+
+## Selected slideshow tag container — 2026-10-22
+
+| ID | Owner direction | Disposition |
+|---|---|---|
+| D114 | Select Liquid Glass. | Apply sketch 003 A exactly: regular glass per tag in light/dark, grouped in GlassEffectContainer with zero fusion spacing. Preserve the reviewed geometry/foregrounds and D111's card-wide gradient scope. B remains reference only. |
+
+Implementation: `75a50edd83449783730eab8931b515dd00f51c52`. Source hash matches the reviewed A prototype, strict lint and
+fresh native build pass, and the review iPad is updated in place with its data/settings preserved.
+[Evidence and verification scope](../../sketches/003-slideshow-tag-containers/README.md).

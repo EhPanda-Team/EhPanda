@@ -2,8 +2,8 @@
 type: retrospective-summary
 recorded: 2026-10-15
 historical_duo_implementation_commits: 21
-library_implementation_commits: 25
-decision_records: 113
+library_implementation_commits: 26
+decision_records: 114
 ---
 
 # Delivery and commit ledger
@@ -366,5 +366,12 @@ The review iPad is updated in place.
 
 [Sketch 003](../../sketches/003-slideshow-tag-containers/README.md) compares native Liquid Glass and
 regular Material in light and two dark palettes. Both variants pass strict lint/native builds;
-production source and build are restored after six captures. Owner selection is pending. This
-adds review artifacts, not a production implementation commit.
+production source and build were restored after six captures. D114 below resolves the selection.
+D113 added review artifacts, not a production implementation commit.
+
+## Selected Liquid Glass slideshow tags — D114
+
+`75a50edd83449783730eab8931b515dd00f51c52` adopts sketch 003 A in both appearances. The final file matches the reviewed
+prototype byte-for-byte; strict lint and a fresh native build pass. Existing A captures cover
+light, warm dark and cool dark. The review iPad is updated in place and launched normally.
+[Selection and verification](../../sketches/003-slideshow-tag-containers/README.md).

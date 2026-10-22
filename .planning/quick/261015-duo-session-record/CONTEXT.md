@@ -72,6 +72,6 @@ is no longer pending. See [the recorded disposition](../261017-pjj-implement-b-h
 Comment follow-up: D112 aligns stacked comment metadata to trailing while the author stays leading.
 [Implementation and native evidence](../261022-comment-card-background/SUMMARY.md).
 
-Latest visual review: D113 compares slideshow tag Liquid Glass and Material containers in
-[sketch 003](../../sketches/003-slideshow-tag-containers/README.md). Native screenshots are ready;
-no winner is selected, and production source/build are restored to the pre-proposal baseline.
+D113 compares slideshow tag Liquid Glass and Material containers in
+[sketch 003](../../sketches/003-slideshow-tag-containers/README.md). D114 selects and implements A
+(Liquid Glass) exactly; fresh lint/build pass and the review iPad is updated in place.

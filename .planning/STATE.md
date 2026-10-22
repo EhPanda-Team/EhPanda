@@ -5,9 +5,9 @@ current_phase: 17
 current_phase_name: Screenshot Automation, Visual Regression & OS 27 Modernization
 status: executing
 stopped_at: 17-06 revision re-shot (2026-10-13), 16/16 captured; waiting for the owner's visual review; agent prepares both gallery sets
-last_updated: "2026-10-22T09:28:31Z"
+last_updated: "2026-10-22T10:15:48Z"
 last_activity: 2026-10-22
-state_head: 2a208fd3e7f02c5aeb380ae5eef7d0f2d09f5c6e
+state_head: 75a50edd83449783730eab8931b515dd00f51c52
 progress:
   total_phases: 17
   completed_phases: 10
@@ -16,7 +16,7 @@ progress:
   percent: 59
 milestone_name: )
 source_head: af00e0da93
-last_activity_desc: "D113 native slideshow tag Glass/Material comparison ready; six captures and clean builds; source restored, no option selected; Phase 17 unchanged"
+last_activity_desc: "D114 selects and implements Liquid Glass slideshow tags; exact prototype parity and clean lint/build verified; review iPad updated; Phase 17 unchanged"
 ---
 
 # Project State
@@ -1145,4 +1145,9 @@ render tests pass with 16 configurations, plus clean lint/build and visual align
 
 D113 supplies [native slideshow tag container alternatives](sketches/003-slideshow-tag-containers/README.md):
 Liquid Glass and regular Material, with six light/warm-dark/cool-dark captures. The comparison page
-is open for review. Source and baseline build are restored; no selection or Phase 17 approval is implied.
+retains the native comparison. D114 below selects A; the D113 restoration is historical. No Phase 17
+approval is implied.
+
+D114 (`75a50edd83449783730eab8931b515dd00f51c52`) implements the selected A Liquid Glass tags in both appearances.
+The final source matches the reviewed prototype; fresh strict lint/native build pass and the review
+iPad is updated normally. [Exact scope and evidence](sketches/003-slideshow-tag-containers/README.md).
