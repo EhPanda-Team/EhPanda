@@ -11,10 +11,12 @@ import SwiftUI
 /// Each folded pane owns its navigation bar, so the other pane's scroll cannot resize its title.
 struct HomePrimaryNavigationView: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.tabBarPlacement) private var tabBarPlacement
     @Bindable var store: StoreOf<HomeReducer>
     let showsSplitHome: Bool
 
     var body: some View {
+        let hidesTitle = store.device == .pad && tabBarPlacement == .topBar
         NavigationStack(path: $store.scope(\.path, action: \.path)) {
             HomeSectionsView(store: store, pane: showsSplitHome ? .left : nil)
             .animation(.default) {
@@ -44,8 +46,9 @@ struct HomePrimaryNavigationView: View {
                     $0.visible(store.popularGalleries.isEmpty && error != nil)
                 }
             }
-            .toolbarTitleDisplayMode(.inlineLarge)
+            .toolbarTitleDisplayMode(hidesTitle ? .inline : .inlineLarge)
             .navigationTitle(.RLocalizable.home)
+            .toolbar(removing: hidesTitle ? .title : nil)
             .toolbar {
                 if !showsSplitHome {
                     HomeReloadToolbarItem(store: store)
