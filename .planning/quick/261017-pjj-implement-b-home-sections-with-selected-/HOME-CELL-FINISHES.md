@@ -102,3 +102,18 @@ single content-mode change; earlier screenshots are not presented as evidence of
 
 The existing review iPad was updated in place and launched without fixture flags, retaining its
 account/data/settings. D114's selected Liquid Glass tags and Phase 17 gates remain unchanged.
+
+## Toplists aspect-fill — D116, 2026-10-22
+
+Following D115, the owner requests the same fill policy for Toplists. `658597089e40c179a46c0028001e9b4ed454c012` passes `.fill` to
+GalleryCover in Home's GalleryRankingCell. Both rich and compact ranking covers, including the
+accessibility arrangement, preserve artwork proportions while cropping to their existing rounded
+frames. Cover dimensions, ranking information and flexible spacing stay unchanged. This is scoped
+to Home Toplists; the shared cover default and separate gallery row/grid lists are unchanged.
+
+Strict SwiftLint reports zero violations. A fresh native iPad build succeeds with zero errors,
+compiler warnings and analyzer warnings. `.build/library/toplists-cover-fill/` retains the build
+log/xcresult, structured diagnostics, changed-source hash and normal review-device launch record.
+No new tests or visual captures were added for this one-argument presentation change; historical
+screenshots do not verify its final appearance. The review iPad was updated in place and launched
+without fixture flags, preserving account/data/settings. Phase 17 gates remain unchanged.

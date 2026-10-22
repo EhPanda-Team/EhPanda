@@ -2,8 +2,8 @@
 type: retrospective-summary
 recorded: 2026-10-15
 historical_duo_implementation_commits: 21
-library_implementation_commits: 27
-decision_records: 115
+library_implementation_commits: 28
+decision_records: 116
 ---
 
 # Delivery and commit ledger
@@ -382,3 +382,10 @@ light, warm dark and cool dark. The review iPad is updated in place and launched
 The existing frame and rounded clip crop excess artwork while preserving its proportions. Strict
 lint and a native iPad build pass without warnings/errors; the review iPad is updated and launched
 normally. [Verification scope](../261017-pjj-implement-b-home-sections-with-selected-/HOME-CELL-FINISHES.md).
+
+## Toplists aspect-fill — D116
+
+`658597089e40c179a46c0028001e9b4ed454c012` makes Home Toplists covers use aspect-fill in rich and compact arrangements, retaining
+cover dimensions, information and spacing. Strict lint and a clean native build pass; the review
+iPad is updated in place and launched normally. No new UI test run or screenshot is claimed.
+[Verification scope](../261017-pjj-implement-b-home-sections-with-selected-/HOME-CELL-FINISHES.md).

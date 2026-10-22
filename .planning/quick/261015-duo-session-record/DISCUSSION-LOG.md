@@ -473,3 +473,13 @@ fresh native build pass, and the review iPad is updated in place with its data/s
 Implementation: `3d6d4d8c8a47c1d4bdd112db5f9f22b7a59ed599`. Strict lint and the native iPad build pass with zero compiler/analyzer
 warnings or errors. Review iPad updated in place and launched normally with its data/settings
 preserved. [Verification scope](../261017-pjj-implement-b-home-sections-with-selected-/HOME-CELL-FINISHES.md).
+
+## Toplists cover fill — 2026-10-22
+
+| ID | Owner direction | Disposition |
+|---|---|---|
+| D116 | Apply the same fill change to Toplists. | Use aspect-fill in Home GalleryRankingCell for rich and compact covers, including the accessibility arrangement. Keep cover geometry, ranking information and spacing. Shared defaults and separate row/grid lists retain their existing behavior. |
+
+Implementation: `658597089e40c179a46c0028001e9b4ed454c012`. Strict lint and a native iPad build pass with zero compiler/analyzer
+warnings or errors. Review iPad updated in place and launched normally.
+[Verification scope](../261017-pjj-implement-b-home-sections-with-selected-/HOME-CELL-FINISHES.md).
