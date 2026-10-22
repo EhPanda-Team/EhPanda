@@ -60,7 +60,22 @@ minimum keyword controls and 96-point minimum empty-content height.
 Pinned strict SwiftLint and whitespace checks pass. The generic Simulator build succeeds with
 zero compiler/analyzer warnings or errors. The existing review iPad receives the normal build and
 launches without seed flags (PID 84434), preserving its data and preferences. Evidence is under
-`.build/library/search-section-spacing-32/`. No new screenshot, native geometry measurement or
-behavior test run is claimed for this one-value layout change. The earlier screenshot and
+`.build/library/search-section-spacing-32/`. The initial delivery did not add a screenshot, native geometry measurement or
+behavior test run; the owner-requested capture is recorded below. The earlier screenshot and
 24-point measurements remain tied to D127; D126's behavior tests retain their original source
 boundary. Phase 17 gates are unchanged.
+
+
+### Owner-requested populated screenshot — 2026-10-23
+
+The 32-point native iPad landscape screenshot (image removed from repository history) shows
+the same synthetic recent searches, ten gallery records and saved searches used for D127.
+It is scrolled to the bottom so Recently Seen and both adjacent section boundaries are visible.
+The review iPad currently has empty keyword sections, so the populated comparison uses a separate
+temporary simulator and neutral fixture covers; the review device's data is unchanged.
+
+The temporary data-only state seed is restored byte-for-byte, and the normal app is rebuilt.
+Both builds pass with zero compiler/analyzer warnings or errors. The capture simulator is shut
+down and deleted. No production-source change or new design choice is made. Commands, restoration
+checks and build evidence are in `.build/library/search-spacing-32-populated/` and
+`.build/library/search-spacing-32-restored/`. Earlier behavior tests retain their original scope.
