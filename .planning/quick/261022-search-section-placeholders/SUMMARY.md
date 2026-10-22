@@ -5,7 +5,9 @@
 Date: 2026-10-22
 
 Implementation: `cd74630199e756ba662d5395e4a7a034739cfe4f`.
-Status: D123 complete; review iPad updated.
+Status: D124–D126 complete; review iPad updated.
+
+Current follow-up: [section spacing, equal row height and Remove All actions](SEARCH-ACTIONS.md).
 
 **Current follow-up — D123:** retain D122's 96-point minimum empty-content height, but align
 placeholder text to the top leading edge. The D121/D122 screenshots below are historical;
@@ -142,3 +144,12 @@ Base source: `7137543a3faee765bce4ff0997701fb398c74c7f` (documentation HEAD at c
 `26fddef9445f7185a69c409fc835639d556ce508`). Commands, lint/build results, the original and seeded
 source hashes, capture parameters and cleanup evidence are in `.build/library/search-populated-review/`.
 No new automated suite, behavior verification or Phase 17 gate change is claimed.
+
+
+## Search spacing and history actions — D124–D126
+
+`92f99a315d541029419db962d9c7a02933eaaacd` adds 24-point section spacing, equal 44-point minimum keyword-control
+heights and native header Remove All actions. Confirmations anchor to their triggers. Sixteen
+Search tests, clean native builds, catalog/lint checks and isolated iPad actions pass. The review
+iPad is updated normally and its data is preserved.
+[Behavior, history-policy assumption, screenshots and precise verification](SEARCH-ACTIONS.md).
