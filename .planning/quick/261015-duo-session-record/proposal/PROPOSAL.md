@@ -8,6 +8,8 @@
 
 ## 後續方向更新
 
+2026-10-22（D120）：使用者認為現有 Search 已足夠接近提供的 Apple Books 參考，決定保留現狀。Search A／B 不採用，相關截圖及 preview 僅保留作歷史比較。目前 Search 依序為 Quick Search、Recently Searched、Recently Seen；沒有資料的區塊隱藏。下方尚未定案及建議 A 的敘述屬於早期提案。
+
 2026-10-15：使用者將討論提升到 app 整體設計層級，提出把 Favorites 與 Downloads 合併為 Library，理由是兩者的管理重心略大於瀏覽，並指出 B 較符合這個定位。下一輪應以此重新設計；本文件原有 A/B 建議與截圖保留作比較，並非已選定的 Library 方案。合併後的層級與資料整合程度仍待討論；Search 也尚未定案。詳見 [Library 方向](../LIBRARY-DIRECTION.md)。
 
 補充決定：全域 detail／thumbnail 設定將改為 Frontpage、Popular、Toplists、Favorites、Search、Downloads 各自記憶的 row／grid 切換。Grid 採本提案的規則、對齊網格，取代現有 waterfall／瀑布流；不能只重新命名舊模式。下方「保留 detail／thumbnail 設定」是先前提案的歷史描述，已被此決定取代。

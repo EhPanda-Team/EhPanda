@@ -84,7 +84,8 @@ selected design. Implementation is tracked by quick task `261015-tx1`.
 ## Relationship to previous proposal
 
 Favorites and Downloads A/B are now inputs to this combined Library discussion, rather than two
-independent tab-layout selections. Search remains a separate unresolved design discussion.
+independent tab-layout selections. D120 keeps the existing Search design; the previous Search A/B
+choice is closed without adopting either proposal.
 The existing [proposal](proposal/PROPOSAL.md) and preview remain available and unchanged visually.
 The earlier discussion changed documentation only. Quick task `261015-tx1` now owns implementation
 and current validation; historical prototype screenshots are not implementation evidence.
