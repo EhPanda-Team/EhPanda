@@ -160,7 +160,7 @@ private struct SuggestionsPanel: View {
                 searchAction: searchKeywordAction
             )
         }
-        VStack(spacing: 32) {
+        VStack(spacing: 64) {
             ForEach(sections: sections) { section in
                 SearchSuggestionSection(section: section)
             }
