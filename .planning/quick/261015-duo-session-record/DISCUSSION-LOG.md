@@ -483,3 +483,24 @@ preserved. [Verification scope](../261017-pjj-implement-b-home-sections-with-sel
 Implementation: `658597089e40c179a46c0028001e9b4ed454c012`. Strict lint and a native iPad build pass with zero compiler/analyzer
 warnings or errors. Review iPad updated in place and launched normally.
 [Verification scope](../261017-pjj-implement-b-home-sections-with-selected-/HOME-CELL-FINISHES.md).
+
+## Slideshow metadata spacing — 2026-10-22
+
+| ID | Owner direction | Disposition |
+|---|---|---|
+| D117 | Bring slideshow Pages and Category slightly closer. | Reduce the metadata group width cap from 500 to 360 points; preserve field content, typography, wrapping and card geometry. |
+
+Implementation: `4fa62a44b34f6c53036442187a4cc22acc9a5d6f`. Neutral native before/after captures confirm the change.
+Strict lint/build and two final-source iPad UI regressions pass. Review iPad updated in place.
+[Evidence](../261017-pjj-implement-b-home-sections-with-selected-/HOME-CELL-FINISHES.md).
+
+## iPad Home title with floating top tabs — 2026-10-22
+
+| ID | Owner direction | Disposition |
+|---|---|---|
+| D118 | Hide Home's title whenever iPad tabs float at the top; investigate official APIs first, before custom implementation. | Inspect Xcode 27.1 SDK and Apple documentation. Use actual `tabBarPlacement == .topBar`, native title removal and inline mode only on iPad; retain the localized navigation title and restore inlineLarge elsewhere. No single automatic tab-dependent visibility setting was found. |
+
+Implementation: `3174c4a6723ac4a7a36d52d12ce3a17d1af5afa1`. Native full/narrow-window captures verify hiding and live restoration.
+Two UI tests pass, including four text sizes, rotation, Frontpage push/back and slideshow geometry.
+[Official sources, unsuccessful inlineLarge trial, screenshots and verification limits](../261017-pjj-implement-b-home-sections-with-selected-/HOME-TITLE-TAB-PLACEMENT.md).
+Review iPad updated normally; Phase 17 owner gates remain unchanged.

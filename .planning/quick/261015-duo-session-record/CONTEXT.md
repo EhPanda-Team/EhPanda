@@ -81,3 +81,8 @@ cover defaults remain unchanged. [Implementation and verification](../261017-pjj
 
 D116 applies the same aspect-fill policy to Home Toplists covers in rich and compact arrangements.
 [Implementation and verification](../261017-pjj-implement-b-home-sections-with-selected-/HOME-CELL-FINISHES.md).
+
+D117 brings slideshow Pages/Category closer. D118 hides Home's native title on iPad only while
+actual tabs occupy the top bar, and restores it for other placements. The owner explicitly requests
+official API investigation before custom implementation; the result uses public SwiftUI APIs.
+[Research, native screenshots, two passing UI regressions and delivery](../261017-pjj-implement-b-home-sections-with-selected-/HOME-TITLE-TAB-PLACEMENT.md).
