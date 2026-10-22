@@ -123,7 +123,9 @@ struct HomeFrontpageCell: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
-            GalleryCover(url: gallery.coverURL, style: showsRichInformation ? .homeFrontpage : .standard)
+            GalleryCover(
+                url: gallery.coverURL, style: showsRichInformation ? .homeFrontpage : .standard, contentMode: .fill
+            )
                 .accessibilityHidden(true)
             if showsRichInformation {
                 Text(title)
