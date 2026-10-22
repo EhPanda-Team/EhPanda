@@ -68,3 +68,6 @@ reproduces and fixes narrow square backgrounds, with native before/after evidenc
 Latest scope decision: D111 limits this pass to the completed slideshow tag adjustment. Preserve
 card-wide gradient brightness/color variation and title/metadata foregrounds; the dimming proposal
 is no longer pending. See [the recorded disposition](../261017-pjj-implement-b-home-sections-with-selected-/HOME-CELL-FINISHES.md).
+
+Comment follow-up: D112 aligns stacked comment metadata to trailing while the author stays leading.
+[Implementation and native evidence](../261022-comment-card-background/SUMMARY.md).

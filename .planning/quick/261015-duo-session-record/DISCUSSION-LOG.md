@@ -433,3 +433,13 @@ Implementation: `15b882b5d18a6ada97c8c37e6ff99e2537481245`. Nine selected native
 
 [Evidence and scope](../261017-pjj-implement-b-home-sections-with-selected-/HOME-CELL-FINISHES.md).
 This documentation-only decision leaves prior implementation verification and Phase 17 gates unchanged.
+
+## Comment metadata alignment — 2026-10-22
+
+| ID | Owner direction | Disposition |
+|---|---|---|
+| D112 | Align the time/metadata row to trailing after the header switches to a VStack. | Fill the fallback metadata row's available width and align it to trailing; keep the author leading and the horizontal candidate unchanged. |
+
+Implementation: `915a40146a26f3d8137458941ad2499cc641548f`. Strict lint/build pass; two existing native rendering tests pass
+with 16 configurations. Stacked and single-line screenshots visually confirm alignment. Review iPad
+updated in place. [Verification and native image](../261022-comment-card-background/SUMMARY.md).
