@@ -411,8 +411,8 @@ and four-size cold entry/rotation. Strict lint/build checks pass; review iPad up
 
 Implementation: `13e688a7ad404ea45b6099fb99f478f1f187fa93`. Three native iPad UI tests pass before the final dark-tag
 foreground refinement; the final source then passes a clean build and loaded-cover light/warm-dark/
-cool-dark visual checks. [Exact evidence and pending gradient finding](../261017-pjj-implement-b-home-sections-with-selected-/HOME-CELL-FINISHES.md).
-Review iPad updated in place. Card-wide gradient dimming is proposed separately and remains unapproved.
+cool-dark visual checks. [Exact evidence and gradient scope decision](../261017-pjj-implement-b-home-sections-with-selected-/HOME-CELL-FINISHES.md).
+Review iPad updated in place. The separate card-wide gradient proposal is resolved by D111 below.
 
 
 ## Comment preview shape investigation — 2026-10-22
@@ -424,3 +424,12 @@ Review iPad updated in place. Card-wide gradient dimming is proposed separately 
 Implementation: `b15f385ee83eda5c5fdb7290ae08a1e09a056b0a`. Nine selected native tests pass; comment coverage includes
 16 light/dark and Large/AX1/AX3/AX5 renders. Review iPad updated in place.
 [Root cause, before/after images and supporting test repairs](../261022-comment-card-background/SUMMARY.md).
+
+## Slideshow gradient scope — 2026-10-22
+
+| ID | Owner direction | Disposition |
+|---|---|---|
+| D111 | Adjust only tags in this pass. | Retain D109's tag styling; preserve card-wide gradient brightness/color variation and the existing title/metadata foreground policy. Do not adopt the proposed gradient dimming in this pass. The observed contrast limitation remains recorded, with no pending owner question or additional source change. |
+
+[Evidence and scope](../261017-pjj-implement-b-home-sections-with-selected-/HOME-CELL-FINISHES.md).
+This documentation-only decision leaves prior implementation verification and Phase 17 gates unchanged.

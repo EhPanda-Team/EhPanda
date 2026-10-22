@@ -5,7 +5,7 @@ current_phase: 17
 current_phase_name: Screenshot Automation, Visual Regression & OS 27 Modernization
 status: executing
 stopped_at: 17-06 revision re-shot (2026-10-13), 16/16 captured; waiting for the owner's visual review; agent prepares both gallery sets
-last_updated: "2026-10-22T06:46:07Z"
+last_updated: "2026-10-22T07:48:18Z"
 last_activity: 2026-10-22
 state_head: b15f385ee83eda5c5fdb7290ae08a1e09a056b0a
 progress:
@@ -16,7 +16,7 @@ progress:
   percent: 59
 milestone_name: )
 source_head: af00e0da93
-last_activity_desc: "D110 fixes comment preview background/frame mismatch; 9 native tests pass with 16 light/dark/text-size renders; review iPad updated; Phase 17 unchanged"
+last_activity_desc: "D111 records tag-only scope for this pass; retain slideshow gradient brightness; no additional source changes; Phase 17 unchanged"
 ---
 
 # Project State
@@ -1130,7 +1130,9 @@ selection; portrait, navigation and Phase 17 owner gates/baselines remain unchan
 D107–D109 (`13e688a7ad404ea45b6099fb99f478f1f187fa93`) refine ranking spacing, slideshow aspect-fill and adaptive
 tag backgrounds. [Native evidence and final-build scope](quick/261017-pjj-implement-b-home-sections-with-selected-/HOME-CELL-FINISHES.md)
 record the three passing behavioral cases and final foreground-only visual verification. Review
-iPad updated in place; card-wide gradient dimming remains a separate pending proposal.
+iPad updated in place. D111 resolves the separate gradient proposal: adjust only tags in this pass,
+retaining card-wide gradient brightness/color variation and title/metadata foregrounds. The observed
+contrast limitation stays recorded; no additional source change or validation run is required.
 
 
 D110 (`b15f385ee83eda5c5fdb7290ae08a1e09a056b0a`) reproduces and fixes the comment preview background/frame mismatch.

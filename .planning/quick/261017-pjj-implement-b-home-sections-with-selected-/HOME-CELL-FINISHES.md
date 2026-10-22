@@ -68,9 +68,12 @@ The existing review iPad was updated in place and launched with no fixture argum
 keys; account/data remain intact. The task-created test iPad was shut down and deleted after evidence
 capture. Preview pages and Phase 17 owner gates remain unchanged.
 
-## Separate finding awaiting owner direction
+## Owner scope decision — D111, 2026-10-22
 
 Bright cover-derived gradients can still reduce contrast of the card's existing white title and
-metadata. The warm/cool evidence demonstrates it. The agent proposed darkening the gradient while
-preserving color variation; no owner choice has arrived, so no card-wide dimming or foreground
-policy change is included. This is distinct from the completed tag-background correction.
+metadata, as shown by the warm/cool evidence. The owner chose to adjust only tags in this pass.
+Retain D109's completed tag styling and the existing card-wide gradient brightness, color variation
+and title/metadata foreground policy. The proposed gradient dimming is not adopted for this pass
+and no longer awaits an answer. The observed contrast limitation remains; this decision does not
+claim it is fixed or rule out a future separately authorized change. No additional source change
+or simulator validation is required for this documentation-only scope decision.
