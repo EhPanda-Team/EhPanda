@@ -413,3 +413,14 @@ Implementation: `347616927064f94ede7e6c50f99004c67129e28e`. Three native iPad UI
 foreground refinement; the final source then passes a clean build and loaded-cover light/warm-dark/
 cool-dark visual checks. [Exact evidence and pending gradient finding](../261017-pjj-implement-b-home-sections-with-selected-/HOME-CELL-FINISHES.md).
 Review iPad updated in place. Card-wide gradient dimming is proposed separately and remains unapproved.
+
+
+## Comment preview shape investigation — 2026-10-22
+
+| ID | Owner direction | Disposition |
+|---|---|---|
+| D110 | Investigate comment cells that sometimes become square and narrow. | Reproduce the background/frame mismatch with native rendering. Expand content width with leading alignment and paint the background after the final card frame, retaining the existing rounded clip and accessibility sizing. |
+
+Implementation: `15b882b5d18a6ada97c8c37e6ff99e2537481245`. Nine selected native tests pass; comment coverage includes
+16 light/dark and Large/AX1/AX3/AX5 renders. Review iPad updated in place.
+[Root cause, before/after images and supporting test repairs](../261022-comment-card-background/SUMMARY.md).

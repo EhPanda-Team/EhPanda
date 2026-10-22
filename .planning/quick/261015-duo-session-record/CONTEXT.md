@@ -60,3 +60,7 @@ Unrelated Phase 17 capture work remains in progress and is not marked complete b
 The initial Duo delivery did not include a push, PR, baseline promotion or implementation of
 the wide-screen/Library proposals. Later owner decisions authorize the Library implementation;
 its evidence is recorded separately. The saved proposal remains comparison material.
+
+
+Latest investigation: [D110 comment preview shape](../261022-comment-card-background/SUMMARY.md)
+reproduces and fixes narrow square backgrounds, with native before/after evidence and final tests.
