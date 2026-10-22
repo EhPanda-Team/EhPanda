@@ -105,7 +105,6 @@ public struct GalleryThumbnailCell: View {
             RatingView(rating: gallery.rating)
             compactRating
         }
-        .foregroundStyle(.yellow)
         .font(.caption)
     }
 

@@ -36,7 +36,6 @@ public struct GalleryHistoryCell: View {
                     .lineLimit(2)
 
                 RatingView(rating: gallery.rating)
-                    .foregroundStyle(.primary)
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
             .font(.caption)

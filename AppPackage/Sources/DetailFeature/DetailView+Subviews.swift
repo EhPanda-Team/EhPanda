@@ -220,7 +220,6 @@ extension DescriptionSection {
                 // from the text above, so the drawn stars stay out of its combined element.
                 RatingView(rating: rating)
                     .font(.caption)
-                    .foregroundStyle(.primary)
                     .accessibilityHidden(true)
             }
             // One element for the column: the caption-sized star group on its own was a 13-point
@@ -286,7 +285,6 @@ struct ActionSection: View {
                 HStack {
                     RatingView(rating: Float(userRating) / 2)
                         .font(.system(size: userRatingSymbolSize))
-                        .foregroundStyle(.yellow)
                         .gesture(
                             DragGesture(minimumDistance: 0)
                                 .onChanged(updateRatingAction)

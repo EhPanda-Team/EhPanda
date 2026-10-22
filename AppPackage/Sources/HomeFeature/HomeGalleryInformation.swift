@@ -34,10 +34,8 @@ struct HomeGalleryRating: View {
     var body: some View {
         Label {
             Text(rating.halfRounded, format: .number)
-                .foregroundStyle(.primary)
         } icon: {
             Image(systemSymbol: .starFill)
-                .foregroundStyle(.yellow)
         }
         .accessibilityRepresentation { RatingView(rating: rating) }
     }
@@ -185,10 +183,16 @@ struct HomeDestinationCard: View {
                 .foregroundStyle(.secondary)
                 .fixedSize(horizontal: false, vertical: true)
             Spacer(minLength: 0)
-            Image(systemSymbol: .arrowUpRight)
-                .frame(maxWidth: .infinity, alignment: .trailing)
-                .foregroundStyle(.secondary)
-                .accessibilityHidden(true)
+            Divider()
+            HStack(alignment: .firstTextBaseline) {
+                Text(type.footnote)
+                    .fixedSize(horizontal: false, vertical: true)
+                Spacer(minLength: 8)
+                Image(systemSymbol: .arrowUpRight)
+                    .accessibilityHidden(true)
+            }
+            .font(.caption)
+            .foregroundStyle(.secondary)
         }
         .frame(maxWidth: .infinity, minHeight: 138, alignment: .topLeading)
         .padding(24)
@@ -200,6 +204,14 @@ struct HomeDestinationCard: View {
 }
 
 extension HomeMiscGridType {
+    var footnote: LocalizedStringResource {
+        switch self {
+        case .popular: .homePopularFootnote
+        case .watched: .homeWatchedFootnote
+        case .history: .homeHistoryFootnote
+        }
+    }
+
     var summary: LocalizedStringResource {
         switch self {
         case .popular: .homePopularDescription

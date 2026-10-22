@@ -27,8 +27,7 @@ public struct GalleryRankingCell: View {
     /// The row sits in a column whose width is a fixed fraction of the screen, and both of the
     /// members it leads with — the cover and the rank number — are intrinsically sized and refuse
     /// to compress. At an accessibility size the text column left beside them is narrower than the
-    /// text it has to hold, which is what used to eat the title's tail and then remove the
-    /// uploader from the row entirely. Keeping the two identifiers on a line of their own and
+    /// text it has to hold. Keeping the cover and rank on a line of their own and
     /// handing the text the column's whole width beneath them gives it the only width there is to
     /// give; the row's height was never bounded, so it simply grows to hold what it now shows.
     ///
@@ -73,10 +72,6 @@ public struct GalleryRankingCell: View {
                 .lineLimit(textLineLimit(2))
                 .fixedSize(horizontal: false, vertical: true)
 
-            gallery.uploader.map(Text.init)?
-                .foregroundStyle(.secondary)
-                .lineLimit(textLineLimit(1))
-
             if showsRichInformation {
                 Text(gallery.category.value)
                     .foregroundStyle(.secondary)
@@ -88,11 +83,8 @@ public struct GalleryRankingCell: View {
         .font(showsRichInformation ? .subheadline : .caption)
     }
 
-    /// The title and the uploader are user-authored text, so above the default size they carry no
-    /// cap at all: a long title keeps every word and a long uploader every character, and the row
-    /// grows to hold them instead of surrendering a tail one size step at a time. At and below the
-    /// default size each keeps its designed budget verbatim — two lines for the title, one for the
-    /// uploader — which is what default-size appearance parity requires.
+    /// Above the default size, the title grows to retain every word. At and below the default
+    /// size, it keeps its designed two-line budget.
     private func textLineLimit(_ budget: Int) -> Int? {
         dynamicTypeSize <= .large ? budget : nil
     }
