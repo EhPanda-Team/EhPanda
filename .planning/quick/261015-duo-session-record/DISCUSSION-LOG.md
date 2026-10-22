@@ -463,3 +463,13 @@ captures and three browser comparisons are retained. Normal review iPad settings
 Implementation: `e82d636b4d556ad8a71a648b215e5a4e477bef9c`. Source hash matches the reviewed A prototype, strict lint and
 fresh native build pass, and the review iPad is updated in place with its data/settings preserved.
 [Evidence and verification scope](../../sketches/003-slideshow-tag-containers/README.md).
+
+## Frontpage cover fill — 2026-10-22
+
+| ID | Owner direction | Disposition |
+|---|---|---|
+| D115 | Frontpage covers should fill rather than fit too. | Set HomeFrontpageCell's native content mode to aspect-fill for rich and compact Home cover walls. Preserve aspect ratio and crop to the existing frame/rounded clip; leave shared cover defaults and separate row/grid lists unchanged. |
+
+Implementation: `3d6d4d8c8a47c1d4bdd112db5f9f22b7a59ed599`. Strict lint and the native iPad build pass with zero compiler/analyzer
+warnings or errors. Review iPad updated in place and launched normally with its data/settings
+preserved. [Verification scope](../261017-pjj-implement-b-home-sections-with-selected-/HOME-CELL-FINISHES.md).

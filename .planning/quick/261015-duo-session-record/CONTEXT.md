@@ -75,3 +75,6 @@ Comment follow-up: D112 aligns stacked comment metadata to trailing while the au
 D113 compares slideshow tag Liquid Glass and Material containers in
 [sketch 003](../../sketches/003-slideshow-tag-containers/README.md). D114 selects and implements A
 (Liquid Glass) exactly; fresh lint/build pass and the review iPad is updated in place.
+
+D115 extends aspect-fill to Home Frontpage covers in rich and compact layouts. Separate row/grid
+cover defaults remain unchanged. [Implementation and verification](../261017-pjj-implement-b-home-sections-with-selected-/HOME-CELL-FINISHES.md).
