@@ -622,3 +622,13 @@ Phase 17 gates are unchanged.
 Implementation: `bc2ee41157178508972dd3d2e8c9aa46019e93e2`.
 [Scope and verification](../261022-search-section-placeholders/EQUAL-SECTION-SPACING.md#larger-shared-gap--d128).
 Phase 17 gates remain unchanged.
+
+
+## Double Search section spacing — 2026-10-23
+
+| ID | Owner direction | Disposition |
+|---|---|---|
+| D129 | Double the spacing shown in the 32-point screenshot. | Set the shared inter-section gap to 64 points. Preserve equal gaps around Recently Seen and all section-internal geometry. |
+
+Implementation: `71c7fd3f37707dfc76c42ce083bbfc28c80c5e18`.
+[Verification](../261022-search-section-placeholders/EQUAL-SECTION-SPACING.md#double-the-shared-gap--d129).
