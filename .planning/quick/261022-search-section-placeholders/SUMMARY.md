@@ -1,15 +1,15 @@
-# Search section order and empty placeholders — D121–D122
+# Search section order and empty placeholders — D121–D123
 
 > **Image evidence availability:** Image files were removed from this repository history at the owner's request. Screenshot descriptions, filenames and earlier visual checks below are historical records, not currently available image evidence. Written findings, measurements and source artifacts remain; visual review requires fresh captures.
 
 Date: 2026-10-22
 
 Implementation: `7dea2ee67a3515e2a6abdf0ebd697c5b8200682e`.
-Status: D121 and D122 complete; review iPad updated.
+Status: D123 complete; review iPad updated.
 
-**Current follow-up — D122:** the owner found the original empty sections too compact.
-Give each empty content area a 96-point minimum height, retaining vertically centered, leading
-secondary text. The original screenshot below remains the pre-spacing record.
+**Current follow-up — D123:** retain D122's 96-point minimum empty-content height, but align
+placeholder text to the top leading edge. The D121/D122 screenshots below are historical;
+D123 supersedes D122's vertical-centering choice.
 
 ## Owner direction
 
@@ -95,3 +95,19 @@ in place and launched normally (PID 46211), without fixture flags or data/settin
 task-created test iPad was shut down and deleted. Initial attempts and successful retry results
 are retained separately; no shared Simulator service or other session's device was reset.
 Phase 17 owner gates remain unchanged.
+
+
+## Top-aligned empty text — D123
+
+The owner requests that empty-section text not be vertically centered. Change only the three
+empty-text frame alignments from `.leading` to `.topLeading`, preserving their 96-point minimum
+height and existing heading-to-content spacing. Copy, styling, horizontal margins and populated
+content remain unchanged. This uses the existing native SwiftUI frame modifier, following the
+SwiftUI specialist guidance without adding view wrappers or branches.
+
+Implementation: `35957ec4ebd19fba24800dee725fdbc8514a443a`. Pinned strict SwiftLint and whitespace validation pass.
+The generic Simulator SDK build succeeds with zero compiler/analyzer warnings or errors. The
+review iPad is updated in place and launched normally (PID 58304), without fixture flags or
+data/settings changes. No new automated suite or screenshot was run for this alignment-only
+adjustment; D122 images remain explicitly historical. Evidence is under
+`.build/library/search-empty-top-alignment/`. Phase 17 owner gates are unchanged.

@@ -2,8 +2,8 @@
 type: retrospective-summary
 recorded: 2026-10-15
 historical_duo_implementation_commits: 21
-library_implementation_commits: 33
-decision_records: 122
+library_implementation_commits: 34
+decision_records: 123
 ---
 
 # Delivery and commit ledger
@@ -444,3 +444,9 @@ Secondary text remains leading and vertically centered; populated sections stay 
 Strict lint and the native build pass without warnings/errors. A new native iPad screenshot
 confirms the roomier layout. Review iPad updated normally after a bounded retry; the task test
 device is removed. [Screenshot and verification limits](../261022-search-section-placeholders/SUMMARY.md).
+
+
+## Top-aligned Search placeholders — D123
+
+`35957ec4ebd19fba24800dee725fdbc8514a443a` changes the three empty frames to `.topLeading`, retaining the 96-point minimum
+height and existing section spacing. [Verification and delivery](../261022-search-section-placeholders/SUMMARY.md).

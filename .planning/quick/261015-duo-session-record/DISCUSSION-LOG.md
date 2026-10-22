@@ -563,3 +563,12 @@ without compiler/analyzer warnings or errors. Native iPad capture verifies the a
 Agent-device startup timed out; native Simulator capture supplied the visual evidence instead.
 [New screenshot, exact verification and delivery](../261022-search-section-placeholders/SUMMARY.md).
 Phase 17 owner gates remain unchanged.
+
+
+## Search placeholder top alignment — 2026-10-22
+
+| ID | Owner direction | Disposition |
+|---|---|---|
+| D123 | Do not vertically center the empty-section text. | Use top-leading alignment for all three placeholders while retaining D122's 96-point minimum content height. Supersedes only D122's vertical centering. |
+
+Implementation: `35957ec4ebd19fba24800dee725fdbc8514a443a`. [Verification and delivery](../261022-search-section-placeholders/SUMMARY.md).
