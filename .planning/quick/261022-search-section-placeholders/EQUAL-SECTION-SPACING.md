@@ -1,6 +1,9 @@
-# Equal spacing around Recently Seen — D127
+# Equal spacing around Recently Seen — D127–D128
 
 > **Image evidence availability:** Image files were removed from this repository history at the owner's request. Screenshot descriptions, filenames and earlier visual checks below are historical records, not currently available image evidence. Written findings, measurements and source artifacts remain; visual review requires fresh captures.
+
+Current spacing: D128 increases the shared inter-section gap to 32 points. The 24-point
+measurements and screenshot below are historical D127 evidence.
 
 Date: 2026-10-23. Implementation: `105950892dbe7b28e4b2e80ce85a447378f9f5a9`.
 
@@ -45,3 +48,19 @@ raw native rectangles and computed gaps are under `.build/library/search-equal-s
 and `.build/library/search-equal-spacing-final/`. A compact text-role selector did not match the
 native StaticText role; the full raw snapshot supplied the exact rectangles for measurement.
 Phase 17 owner gates are unchanged.
+
+
+## Larger shared gap — D128
+
+Implementation: `afeed90a362421da10d900a571af18d1e15eac0a`. The owner asks to increase spacing after D127
+equalized it. Increase only the shared section stack gap from 24 to 32 points, keeping the
+same gap above and below Recently Seen. Retain the 8-point heading/content gap, 44-point
+minimum keyword controls and 96-point minimum empty-content height.
+
+Pinned strict SwiftLint and whitespace checks pass. The generic Simulator build succeeds with
+zero compiler/analyzer warnings or errors. The existing review iPad receives the normal build and
+launches without seed flags (PID 84434), preserving its data and preferences. Evidence is under
+`.build/library/search-section-spacing-32/`. No new screenshot, native geometry measurement or
+behavior test run is claimed for this one-value layout change. The earlier screenshot and
+24-point measurements remain tied to D127; D126's behavior tests retain their original source
+boundary. Phase 17 gates are unchanged.

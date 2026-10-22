@@ -611,3 +611,14 @@ sides of Recently Seen and 8-point heading/content gaps. Builds and lint pass; n
 test suite is claimed for this layout-only change. Review iPad updated normally; task device removed.
 [Root cause, screenshot and precise measurements](../261022-search-section-placeholders/EQUAL-SECTION-SPACING.md).
 Phase 17 gates are unchanged.
+
+
+## Increase Search section spacing — 2026-10-23
+
+| ID | Owner direction | Disposition |
+|---|---|---|
+| D128 | Increase spacing. | Increase the shared inter-section gap from 24 to 32 points, preserving equal gaps around Recently Seen. Retain the 8-point heading/content gap, 44-point minimum keyword controls and 96-point empty-content floor. |
+
+Implementation: `afeed90a362421da10d900a571af18d1e15eac0a`.
+[Scope and verification](../261022-search-section-placeholders/EQUAL-SECTION-SPACING.md#larger-shared-gap--d128).
+Phase 17 gates remain unchanged.

@@ -5,9 +5,9 @@
 Date: 2026-10-22
 
 Implementation: `7dea2ee67a3515e2a6abdf0ebd697c5b8200682e`.
-Status: D127 complete; review iPad updated.
+Status: D128 complete; review iPad updated.
 
-Current follow-up: [consistent spacing around Recently Seen](EQUAL-SECTION-SPACING.md).
+Current follow-up: [consistent 32-point spacing around Recently Seen](EQUAL-SECTION-SPACING.md).
 D124–D126 remain documented in [section spacing and history actions](SEARCH-ACTIONS.md).
 
 **Current follow-up — D123:** retain D122's 96-point minimum empty-content height, but align

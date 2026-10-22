@@ -2,8 +2,8 @@
 type: retrospective-summary
 recorded: 2026-10-15
 historical_duo_implementation_commits: 21
-library_implementation_commits: 36
-decision_records: 127
+library_implementation_commits: 37
+decision_records: 128
 ---
 
 # Delivery and commit ledger
@@ -472,3 +472,10 @@ verification evidence remain unchanged.
 space. Native iPad measurements confirm equal 24-point inter-section gaps; heading/content gaps
 are 8 points and keyword controls retain their 44-point minimum. Clean builds/lint; review iPad
 updated normally, capture simulator removed. [Evidence](../261022-search-section-placeholders/EQUAL-SECTION-SPACING.md).
+
+
+## Larger Search section gap — D128
+
+`afeed90a362421da10d900a571af18d1e15eac0a` increases the shared inter-section gap from 24 to 32 points.
+D127's equal-spacing structure, heading/content gap and control heights remain intact.
+[Scope and verification](../261022-search-section-placeholders/EQUAL-SECTION-SPACING.md#larger-shared-gap--d128).
