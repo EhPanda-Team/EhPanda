@@ -443,3 +443,13 @@ This documentation-only decision leaves prior implementation verification and Ph
 Implementation: `2a208fd3e7f02c5aeb380ae5eef7d0f2d09f5c6e`. Strict lint/build pass; two existing native rendering tests pass
 with 16 configurations. Stacked and single-line screenshots visually confirm alignment. Review iPad
 updated in place. [Verification and native image](../261022-comment-card-background/SUMMARY.md).
+
+## Slideshow tag container comparison — 2026-10-22
+
+| ID | Owner direction | Disposition |
+|---|---|---|
+| D113 | Try Liquid Glass and Material containers for slideshow tags. | Build both native variants, capture light/warm-dark/cool-dark samples, and present a side-by-side review. Keep tag geometry/content and D111's gradient scope. No winner selected; restore production source and build after capturing. |
+
+[Native comparison, source patches and verification](../../sketches/003-slideshow-tag-containers/README.md).
+Both prototype builds and baseline restoration build pass without warnings/errors. Six native
+captures and three browser comparisons are retained. Normal review iPad settings/data stay intact.

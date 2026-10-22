@@ -3,7 +3,7 @@ type: retrospective-summary
 recorded: 2026-10-15
 historical_duo_implementation_commits: 21
 library_implementation_commits: 25
-decision_records: 112
+decision_records: 113
 ---
 
 # Delivery and commit ledger
@@ -361,3 +361,10 @@ Review iPad updated; full Comments list behavior and Phase 17 owner gates remain
 single-line arrangement unchanged. Two existing tests pass across 16 native render configurations;
 strict lint/build pass. [Screenshot and verification scope](../261022-comment-card-background/SUMMARY.md).
 The review iPad is updated in place.
+
+## Slideshow tag material prototypes — D113
+
+[Sketch 003](../../sketches/003-slideshow-tag-containers/README.md) compares native Liquid Glass and
+regular Material in light and two dark palettes. Both variants pass strict lint/native builds;
+production source and build are restored after six captures. Owner selection is pending. This
+adds review artifacts, not a production implementation commit.

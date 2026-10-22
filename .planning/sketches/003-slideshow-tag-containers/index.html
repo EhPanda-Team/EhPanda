@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Slideshow tags · Liquid Glass / Material</title>
+<style>
+:root{color-scheme:light;--page:#f4f5f3;--surface:#fff;--ink:#202420;--muted:#626960;--line:#dce1d8;--active:#345d28;--tint:#e3eddd}*{box-sizing:border-box}body{margin:0;background:var(--page);color:var(--ink);font:16px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}body.dark{color-scheme:dark;--page:#131613;--surface:#1e231e;--ink:#f0f3ed;--muted:#aeb7aa;--line:#384033;--active:#d5f4c4;--tint:#35492c}main{max-width:1420px;margin:auto;padding:42px 28px 56px}header{display:flex;align-items:flex-end;justify-content:space-between;gap:24px;flex-wrap:wrap}h1{font-size:30px;letter-spacing:-.8px;margin:0 0 6px}p{margin:0;color:var(--muted)}.switch{display:flex;gap:5px;flex-wrap:wrap;padding:5px;border:1px solid var(--line);border-radius:14px;background:var(--surface)}button{font:inherit;font-size:14px;border:0;padding:10px 16px;border-radius:9px;background:transparent;color:var(--muted);cursor:pointer}button[aria-pressed=true]{background:var(--tint);color:var(--active);font-weight:650}button:focus-visible,a:focus-visible{outline:3px solid var(--active);outline-offset:3px}.comparison{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:30px}.option{background:var(--surface);border:1px solid var(--line);border-radius:20px;overflow:hidden}.label{display:flex;align-items:center;gap:12px;padding:22px 24px 18px}.letter{display:grid;place-items:center;width:38px;height:38px;border-radius:12px;background:var(--tint);color:var(--active);font-weight:700}h2{font-size:22px;line-height:1.2;margin:0 0 3px}.label p{font-size:14px}.crop{width:100%;display:block}.tag-crop{border-block:1px solid var(--line)}.caption{font-size:12px;letter-spacing:.08em;padding:16px 24px 8px;color:var(--muted)}.card-crop{padding:0 12px 8px}footer{display:flex;justify-content:space-between;gap:12px;padding:14px 24px 20px;font-size:13px;color:var(--muted)}a{color:var(--active);text-underline-offset:3px}.note{margin-top:22px;font-size:14px}.small{font-size:12px;margin-top:8px}@media(max-width:840px){main{padding:24px 16px}.comparison{grid-template-columns:1fr;gap:18px}h1{font-size:25px}.switch{width:100%}.switch button{flex:1;padding-inline:9px}}
+</style>
+</head>
+<body><main>
+<header><div><h1>Slideshow tags</h1><p>兩種原生容器，並排比較。</p></div><nav class="switch" aria-label="比較外觀"><button data-scene="light" aria-pressed="true">淺色</button><button data-scene="dark-warm" aria-pressed="false">深色 · 暖色封面</button><button data-scene="dark-cool" aria-pressed="false">深色 · 冷色封面</button></nav></header>
+<div class="comparison">
+<section class="option" data-variant="a-glass"><div class="label"><span class="letter">A</span><div><h2>Liquid Glass</h2><p>原生玻璃高光與折射邊緣</p></div></div><p class="note">歷史原生截圖已移除，視覺比較需要重新擷取。</p><div class="caption">放回 slideshow 卡片</div><p class="note">歷史原生截圖已移除，視覺比較需要重新擷取。</p><footer><span>相同文字、尺寸與間距</span><span>原生截圖已移除</span></footer></section>
+<section class="option" data-variant="b-material"><div class="label"><span class="letter">B</span><div><h2>Material</h2><p>regular Material 霧面容器</p></div></div><p class="note">歷史原生截圖已移除，視覺比較需要重新擷取。</p><div class="caption">放回 slideshow 卡片</div><p class="note">歷史原生截圖已移除，視覺比較需要重新擷取。</p><footer><span>相同文字、尺寸與間距</span><span>原生截圖已移除</span></footer></section>
+</div><p class="note">這是歷史比較的文字紀錄；原生圖片已從儲存庫移除，目前無法據此頁重新評估材質效果。</p><p class="note small">沿用卡片原本的漸層與文字樣式；本次只比較 tag 容器。原始 tags 與卡片的視覺比較需要重新擷取原生畫面。</p>
+</main><script>
+function show(scene){document.body.classList.toggle('dark',scene!=='light');document.querySelectorAll('[data-scene]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.scene===scene)));}
+document.querySelectorAll('[data-scene]').forEach(b=>b.addEventListener('click',()=>show(b.dataset.scene)));
+const scene=new URLSearchParams(location.search).get('scene');show(['light','dark-warm','dark-cool'].includes(scene)?scene:'light');
+</script></body></html>
