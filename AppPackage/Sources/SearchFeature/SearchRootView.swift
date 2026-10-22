@@ -194,7 +194,7 @@ private struct QuickSearchWordsSection: View {
                 Text(.quickSearchEmpty)
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
-                    .frame(maxWidth: .infinity, minHeight: 96, alignment: .leading)
+                    .frame(maxWidth: .infinity, minHeight: 96, alignment: .topLeading)
                     .padding(.horizontal)
             } else {
                 DoubleVerticalKeywordsStack(keywords: keywords, searchAction: searchAction)
@@ -221,7 +221,7 @@ private struct HistoryKeywordsSection: View {
                 Text(.recentlySearchedEmpty)
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
-                    .frame(maxWidth: .infinity, minHeight: 96, alignment: .leading)
+                    .frame(maxWidth: .infinity, minHeight: 96, alignment: .topLeading)
                     .padding(.horizontal)
             } else {
                 DoubleVerticalKeywordsStack(
@@ -250,7 +250,7 @@ private struct HistoryGalleriesSection: View {
                 Text(.recentlySeenEmpty)
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
-                    .frame(maxWidth: .infinity, minHeight: 96, alignment: .leading)
+                    .frame(maxWidth: .infinity, minHeight: 96, alignment: .topLeading)
                     .padding(.horizontal)
             } else {
                 ScrollView(.horizontal) {
