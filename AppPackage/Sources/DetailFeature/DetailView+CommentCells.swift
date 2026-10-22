@@ -74,6 +74,7 @@ extension DetailView {
                 VStack(alignment: .leading) {
                     authorText
                     metadata
+                        .frame(maxWidth: .infinity, alignment: .trailing)
                 }
             }
         }
