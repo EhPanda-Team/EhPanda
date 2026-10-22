@@ -580,3 +580,19 @@ The owner asks to fill all three sections for review. A native iPad capture show
 search terms, recent galleries and saved Quick Search entries using the current layout. Temporary
 state seeding was restored exactly and the normal app rebuilt; no new production implementation
 or design selection is implied. [Screenshot and provenance](../261022-search-section-placeholders/SUMMARY.md#populated-search-review--2026-10-22).
+
+
+## Search spacing and history actions — 2026-10-22
+
+| ID | Owner direction | Disposition |
+|---|---|---|
+| D124 | Recently Seen and Quick Search are too close. | Set the section stack spacing to 24 points while preserving empty-content height. |
+| D125 | Quick Search and Recently Searched should have the same row height. | Give the common search control the same 44-point minimum as the existing delete control; retain wrapping and larger-text growth. |
+| D126 | Add Remove All to Recently Seen and Recently Searched where Show All appears. | Use native sectionActions with anchored confirmation dialogs; disable empty actions and preserve Quick Search Show All. Search removal clears only keywords; browsing removal follows existing History semantics including resume positions, explicitly named by the confirmation. |
+
+The optional question about keeping resume positions remains unanswered; reuse of History's
+existing semantics was disclosed as an implementation assumption, not attributed to the owner.
+Implementation: `15c4e9ead3ad10da71974bf7a93f87aa2fc976b4`. Sixteen focused Search tests and clean builds/lint pass;
+native iPad interactions verify anchors, cancel/confirm, persistence after relaunch and Show All.
+[Full scope, screenshots and provenance](../261022-search-section-placeholders/SEARCH-ACTIONS.md).
+Review iPad updated normally; task device removed. Phase 17 gates remain unchanged.

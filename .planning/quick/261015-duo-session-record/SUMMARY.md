@@ -2,8 +2,8 @@
 type: retrospective-summary
 recorded: 2026-10-15
 historical_duo_implementation_commits: 21
-library_implementation_commits: 34
-decision_records: 123
+library_implementation_commits: 35
+decision_records: 126
 ---
 
 # Delivery and commit ledger
@@ -450,3 +450,13 @@ device is removed. [Screenshot and verification limits](../261022-search-section
 
 `35957ec4ebd19fba24800dee725fdbc8514a443a` changes the three empty frames to `.topLeading`, retaining the 96-point minimum
 height and existing section spacing. [Verification and delivery](../261022-search-section-placeholders/SUMMARY.md).
+
+
+## Search spacing and history actions — D124–D126
+
+`15c4e9ead3ad10da71974bf7a93f87aa2fc976b4` adds 24-point section gaps, equal keyword-control minimum heights and
+native header Remove All actions. Both confirmations anchor correctly. Search removal retains
+saved searches; browsing removal follows existing History semantics, explicitly including resume
+positions. Sixteen Search tests, clean builds/lint and isolated iPad clear/relaunch checks pass.
+[Decisions, policy assumption, screenshots and delivery](../261022-search-section-placeholders/SEARCH-ACTIONS.md).
+Review iPad updated normally, original data preserved; task device removed. Phase 17 unchanged.

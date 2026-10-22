@@ -1,0 +1,54 @@
+--- a/AppPackage/Sources/SearchFeature/SearchRootReducer.swift
++++ b/AppPackage/Sources/SearchFeature/SearchRootReducer.swift
+@@ -4,6 +4,7 @@
+ public import ComposableArchitecture
+ import DetailFeature
+ public import FiltersFeature
++import Foundation
+ import HapticsClient
+ import NetworkingFeature
+ public import QuickSearchFeature
+@@ -43,7 +44,42 @@
+         @SharedReader(.tagTranslator) public var tagTranslator: TagTranslator
+         @SharedReader(.setting) public var setting: Setting
+ 
+-        public init() {}
++        public init() {
++            #if DEBUG
++            guard ProcessInfo.processInfo.environment["EHPANDA_UITEST_SEED_SEARCH"] == "1" else { return }
++            let searches = [
++                "watercolor", "landscape", "character design", "artbook", "sketchbook", "city lights",
++                "fantasy", "illustration", "summer", "digital art", "color studies", "architecture",
++                "concept art", "travel journal"
++            ]
++            $historyKeywords.withLock({ $0 = searches })
++            $quickSearchWords.withLock { words in
++                words = [
++                    "Artbooks", "Illustrations", "Landscape Studies", "Character Design", "Watercolor",
++                    "Sketchbooks", "Concept Art", "Architecture", "Travel Journals", "Digital Painting",
++                    "Color Studies", "Recently Updated"
++                ].map { name in
++                    QuickSearchWord(name: name, content: name.lowercased())
++                }
++            }
++            historyGalleries = [
++                "A Journey Through Summer", "City Lights — Illustration Collection", "Sketchbook: Everyday Stories",
++                "The Garden Beyond the Window", "Cloud Atlas: Character Studies", "Sunday Morning",
++                "Harbor Notes", "Seasons in Color", "Quiet Streets", "Mountain Sketches"
++            ].enumerated().map { index, title in
++                Gallery(
++                    gid: String(9000 + index), token: "fixture", title: title, rating: 4.5,
++                    tags: [], category: .nonH, uploader: "Studio \(index + 1)", pageCount: 48,
++                    postedDate: .now,
++                    coverURL: URL(string: "https://fixtures.ehpanda.invalid/library-cover.png"), galleryURL: nil
++                )
++            }
++            let history = historyGalleries.map { gallery in
++                GalleryHistoryEntry(gid: gallery.gid, token: gallery.token, lastOpenDate: .now)
++            }
++            $galleryHistory.withLock({ $0 = history })
++            #endif
++        }
+ 
+         mutating func appendHistoryKeywords(_ keywords: [String]) {
+             guard !keywords.isEmpty else { return }

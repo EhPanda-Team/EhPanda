@@ -5,9 +5,9 @@ current_phase: 17
 current_phase_name: Screenshot Automation, Visual Regression & OS 27 Modernization
 status: executing
 stopped_at: 17-06 revision re-shot (2026-10-13), 16/16 captured; waiting for the owner's visual review; agent prepares both gallery sets
-last_updated: "2026-10-22T14:07:44Z"
+last_updated: "2026-10-22T14:55:42Z"
 last_activity: 2026-10-22
-state_head: 35957ec4ebd19fba24800dee725fdbc8514a443a
+state_head: 15c4e9ead3ad10da71974bf7a93f87aa2fc976b4
 progress:
   total_phases: 17
   completed_phases: 10
@@ -16,7 +16,7 @@ progress:
   percent: 59
 milestone_name: )
 source_head: af00e0da93
-last_activity_desc: "D123 top-aligns Search empty text and preserves section height; clean build/lint; review iPad updated; Phase 17 unchanged"
+last_activity_desc: "D124–D126 add Search spacing, equal row heights and Remove All; 16 tests and native iPad checks pass; Phase 17 unchanged"
 ---
 
 # Project State
@@ -27,7 +27,7 @@ last_activity_desc: "D123 top-aligns Search empty text and preserves section hei
 
 The complete Duo/landscape session decisions, superseded choices, implementation ledger, retained verification and historical wide-screen proposals are in [261015-duo-session-record/CONTEXT.md](quick/261015-duo-session-record/CONTEXT.md). This retrospective record does not complete Phase 17. Branch migration is tracked separately there.
 
-The follow-up [Library design](quick/261015-duo-session-record/LIBRARY-DIRECTION.md) is implemented by quick task [261015-tx1](quick/261015-tx1-implement-library-with-shared-favorites-/261015-tx1-SUMMARY.md): shared category navigation with separate Favorites/Downloads groups, independently remembered row/grid choices and a regular grid replacing waterfall. Current validation records 959 FeatureTests identities, 6/6 UI tests on each of iPhone/iPad/Duo, native resize/fold checks and bounded accessibility evidence. D120 keeps the current Search design and closes the earlier A/B selection. D121 reorders its sections and keeps empty placeholders visible; D122 reserves minimum height for empty content and D123 top-aligns its text; see [the follow-up](quick/261022-search-section-placeholders/SUMMARY.md). Phase 17 status is unchanged.
+The follow-up [Library design](quick/261015-duo-session-record/LIBRARY-DIRECTION.md) is implemented by quick task [261015-tx1](quick/261015-tx1-implement-library-with-shared-favorites-/261015-tx1-SUMMARY.md): shared category navigation with separate Favorites/Downloads groups, independently remembered row/grid choices and a regular grid replacing waterfall. Current validation records 959 FeatureTests identities, 6/6 UI tests on each of iPhone/iPad/Duo, native resize/fold checks and bounded accessibility evidence. D120 keeps the current Search design and closes the earlier A/B selection. D121 reorders its sections and keeps empty placeholders visible; D122 reserves minimum height for empty content and D123 top-aligns its text. D124–D126 add section spacing, equal keyword-row heights and native Remove All actions; see [the follow-up](quick/261022-search-section-placeholders/SEARCH-ACTIONS.md). Phase 17 status is unchanged.
 
 Current design workspace: `agent/app-design`; see [workspace rebuild](quick/261015-duo-session-record/WORKSPACE-REBUILD.md).
 
