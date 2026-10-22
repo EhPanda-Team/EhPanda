@@ -60,7 +60,7 @@ struct DoubleVerticalKeywordsStack: View {
                 )
             }
         }
-        .padding()
+        .padding(.horizontal)
     }
 }
 
@@ -80,7 +80,9 @@ struct VerticalKeywordsStack: View {
             ForEach(keywords, id: \.self) { keyword in
                 VStack(alignment: .leading, spacing: 10) {
                     KeywordCell(wrappedKeyword: keyword, searchAction: searchAction, removeAction: removeAction)
-                    Divider().opacity(keyword == keywords.last ? 0 : 1)
+                    if keyword != keywords.last {
+                        Divider()
+                    }
                 }
             }
         }
