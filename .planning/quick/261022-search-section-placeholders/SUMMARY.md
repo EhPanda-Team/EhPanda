@@ -118,3 +118,27 @@ the final light-appearance capture was visually inspected. Evidence is under
 `.build/library/search-empty-top-alignment/`. Phase 17 owner gates are unchanged.
 
 The task-created capture iPad was shut down and deleted after the final screenshot was retained.
+
+
+## Populated Search review — 2026-10-22
+
+The owner requests a view with data in all three sections. The
+populated native iPad screenshot (image removed from repository history) uses 14 recent search terms,
+10 recent galleries and 12 saved Quick Search entries. Gallery covers reuse the neutral
+`EhPandaUITests/Fixtures/LibraryCover.png` fixture; titles and search terms are synthetic.
+The screenshot shows the existing two-column keyword lists and horizontal history-gallery row.
+This is review evidence, not a new layout decision or a change to the user's stored history.
+
+A temporary DEBUG-only [state-seeding patch](populated-preview-seed.patch) supplied data before
+rendering on an isolated iPad. No production view or layout was changed. The preview used the
+existing offline network/image fixture path and only ran on the task-created device. The initial
+fixture lint attempt found a single-line trailing-closure violation; it was corrected, and strict
+lint plus the preview build passed. Source was restored byte-for-byte immediately after copying
+the preview app, and a normal restoration build also passed. Both builds have zero compiler or
+analyzer warnings and errors. The original review iPad was not changed. The dedicated preview
+iPad was shut down and deleted after the screenshot was inspected and retained.
+
+Base source: `35957ec4ebd19fba24800dee725fdbc8514a443a` (documentation HEAD at capture preparation:
+`1a76125fb0fd5f6051d3de55efc1b139cc44f752`). Commands, lint/build results, the original and seeded
+source hashes, capture parameters and cleanup evidence are in `.build/library/search-populated-review/`.
+No new automated suite, behavior verification or Phase 17 gate change is claimed.

@@ -572,3 +572,11 @@ Phase 17 owner gates remain unchanged.
 | D123 | Do not vertically center the empty-section text. | Use top-leading alignment for all three placeholders while retaining D122's 96-point minimum content height. Supersedes only D122's vertical centering. |
 
 Implementation: `35957ec4ebd19fba24800dee725fdbc8514a443a`. [Verification and delivery](../261022-search-section-placeholders/SUMMARY.md).
+
+
+### Populated Search review following D123 — 2026-10-22
+
+The owner asks to fill all three sections for review. A native iPad capture shows synthetic recent
+search terms, recent galleries and saved Quick Search entries using the current layout. Temporary
+state seeding was restored exactly and the normal app rebuilt; no new production implementation
+or design selection is implied. [Screenshot and provenance](../261022-search-section-placeholders/SUMMARY.md#populated-search-review--2026-10-22).
