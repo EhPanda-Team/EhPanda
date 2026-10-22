@@ -2,8 +2,8 @@
 type: retrospective-summary
 recorded: 2026-10-15
 historical_duo_implementation_commits: 21
-library_implementation_commits: 24
-decision_records: 111
+library_implementation_commits: 25
+decision_records: 112
 ---
 
 # Delivery and commit ledger
@@ -354,3 +354,10 @@ background painting with the final card frame. Nine native test identities pass,
 comment render configurations. Two separate verification repairs address a missing fixture argument
 and XCTest result-name normalization. [Cause, commits and before/after evidence](../261022-comment-card-background/SUMMARY.md).
 Review iPad updated; full Comments list behavior and Phase 17 owner gates remain unchanged.
+
+## Stacked comment metadata — D112
+
+`2a208fd3e7f02c5aeb380ae5eef7d0f2d09f5c6e` aligns the fallback score/date row to trailing, with the author leading and the
+single-line arrangement unchanged. Two existing tests pass across 16 native render configurations;
+strict lint/build pass. [Screenshot and verification scope](../261022-comment-card-background/SUMMARY.md).
+The review iPad is updated in place.

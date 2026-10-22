@@ -5,9 +5,9 @@ current_phase: 17
 current_phase_name: Screenshot Automation, Visual Regression & OS 27 Modernization
 status: executing
 stopped_at: 17-06 revision re-shot (2026-10-13), 16/16 captured; waiting for the owner's visual review; agent prepares both gallery sets
-last_updated: "2026-10-22T07:48:18Z"
+last_updated: "2026-10-22T08:56:54Z"
 last_activity: 2026-10-22
-state_head: b15f385ee83eda5c5fdb7290ae08a1e09a056b0a
+state_head: 2a208fd3e7f02c5aeb380ae5eef7d0f2d09f5c6e
 progress:
   total_phases: 17
   completed_phases: 10
@@ -16,7 +16,7 @@ progress:
   percent: 59
 milestone_name: )
 source_head: af00e0da93
-last_activity_desc: "D111 records tag-only scope for this pass; retain slideshow gradient brightness; no additional source changes; Phase 17 unchanged"
+last_activity_desc: "D112 aligns stacked comment metadata to trailing; two native render tests and clean lint/build pass; review iPad updated; Phase 17 unchanged"
 ---
 
 # Project State
@@ -1138,3 +1138,7 @@ contrast limitation stays recorded; no additional source change or validation ru
 D110 (`b15f385ee83eda5c5fdb7290ae08a1e09a056b0a`) reproduces and fixes the comment preview background/frame mismatch.
 [Investigation and native comparisons](quick/261022-comment-card-background/SUMMARY.md) record nine
 passing test identities and sixteen render configurations; review iPad updated in place.
+
+D112 (`2a208fd3e7f02c5aeb380ae5eef7d0f2d09f5c6e`) aligns only the stacked comment metadata row to trailing. Two native
+render tests pass with 16 configurations, plus clean lint/build and visual alignment checks.
+[Evidence](quick/261022-comment-card-background/SUMMARY.md); review iPad updated in place.

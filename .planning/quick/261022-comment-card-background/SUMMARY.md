@@ -61,3 +61,21 @@ No failing check was suppressed or relaxed. Raw Xcode SDK-record messages remain
 
 All examples use neutral synthetic comment text. No owner account/gallery content is copied into
 the repository. Phase 17 gates and screenshot baselines remain unchanged.
+
+## Stacked metadata alignment — D112, 2026-10-22
+
+The owner requests trailing alignment for the score/date line when the header falls back to a
+VStack. `2a208fd3e7f02c5aeb380ae5eef7d0f2d09f5c6e` gives only that fallback metadata row a full-width frame with trailing
+alignment. The author remains leading, and the horizontal candidate keeps its existing spacer
+and measurement behavior.
+
+Strict lint and the native build pass without compiler/analyzer warnings or errors. Both existing
+CommentCardLayoutTests pass, retaining all 16 light/dark and Large/AX1/AX3/AX5 renders and rounded
+background assertions. Visual review of the Large dark stacked and single-line captures confirms
+the requested alignment and unchanged single-line layout. The tests assert card shape; alignment
+is verified visually, not by a new pixel assertion. No fresh full-page navigation/VoiceOver sweep
+is claimed. Evidence: `.build/library/comment-metadata-trailing/`.
+
+Native stacked header with trailing metadata (image removed from repository history).
+The review iPad was updated in place and launched normally; existing account/data are preserved.
+The dedicated test simulator was deleted. Phase 17 gates and baselines remain unchanged.
