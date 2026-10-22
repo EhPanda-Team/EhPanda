@@ -82,20 +82,20 @@ private extension RatingView {
 #Preview("Interactive", traits: .sizeThatFitsLayout) {
     @Previewable @State var rating: Float = 2.5
     VStack(spacing: 16) {
-        RatingView(rating: rating).foregroundStyle(.yellow)
+        RatingView(rating: rating)
         Slider(value: $rating, in: 0...5, step: 0.5)
     }
     .padding()
 }
 
 #Preview("Empty (0)", traits: .sizeThatFitsLayout) {
-    RatingView(rating: 0).foregroundStyle(.yellow)
+    RatingView(rating: 0)
 }
 
 #Preview("Half (2.5)", traits: .sizeThatFitsLayout) {
-    RatingView(rating: 2.5).foregroundStyle(.yellow)
+    RatingView(rating: 2.5)
 }
 
 #Preview("Full (5)", traits: .sizeThatFitsLayout) {
-    RatingView(rating: 5).foregroundStyle(.yellow)
+    RatingView(rating: 5)
 }
