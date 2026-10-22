@@ -66,7 +66,8 @@ struct AppshotCaptureTests {
 
     @Test func probeIsIsolatedWithoutFixtures() throws {
         let request = AppshotProtocol.CaptureScene(
-            coordinate: .probe(.init(device: "iphone", locale: "en", textSize: .large)), inputs: [:]
+            coordinate: .probe(.init(device: "iphone", locale: "en", textSize: .large, orientation: .portrait)),
+            inputs: [:]
         )
         let json = try StrictJSON.encodeLine(request)
         let configuration = try #require(try UITestAutomation.resolve(
