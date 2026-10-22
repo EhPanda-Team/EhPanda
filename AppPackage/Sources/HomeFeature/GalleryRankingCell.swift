@@ -50,6 +50,7 @@ public struct GalleryRankingCell: View {
                 rankNumber
                 textColumn
             }
+            .fixedSize(horizontal: false, vertical: true)
         }
     }
 
@@ -65,7 +66,7 @@ public struct GalleryRankingCell: View {
     }
 
     private var textColumn: some View {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: 0) {
             Text(setting.simplifyGalleryTitles ? gallery.simplifiedTitle : gallery.title)
                 .accessibilityIdentifier("home_ranking_title_\(gallery.id)")
                 .bold()
@@ -73,13 +74,20 @@ public struct GalleryRankingCell: View {
                 .fixedSize(horizontal: false, vertical: true)
 
             if showsRichInformation {
+                Spacer(minLength: 8)
                 Text(gallery.category.value)
                     .foregroundStyle(.secondary)
+                Spacer(minLength: 8)
                 HomePageLanguage(gallery: gallery)
+                Spacer(minLength: 8)
                 HomeGalleryRating(rating: gallery.rating)
             }
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
+        .frame(
+            maxWidth: .infinity,
+            maxHeight: showsRichInformation && !dynamicTypeSize.isAccessibilitySize ? .infinity : nil,
+            alignment: .leading
+        )
         .font(showsRichInformation ? .subheadline : .caption)
     }
 
