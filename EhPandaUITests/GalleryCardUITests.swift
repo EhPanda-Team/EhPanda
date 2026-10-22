@@ -38,7 +38,7 @@ final class GalleryCardUITests: XCTestCase {
                 XCTAssertLessThanOrEqual(first.frame.maxX, window.maxX)
                 XCTAssertGreaterThan(first.frame.width, window.width / 2)
             }
-            XCTAssertTrue(app.staticTexts["A Journey"].firstMatch.exists)
+            XCTAssertTrue(app.staticTexts[shortTitle].firstMatch.exists)
             XCTAssertFalse(app.descendants(matching: .any)["gallery-grid-rating-1001"].firstMatch.exists)
             let title = app.staticTexts["gallery-grid-title-1001"].firstMatch
             XCTAssertEqual(title.frame.minX, first.frame.minX, accuracy: 1)
@@ -76,49 +76,29 @@ final class GalleryCardUITests: XCTestCase {
         add(screenshot)
     }
 
-    func testSimplifiedTitleSettingUpdatesBothLayoutsAndPersists() throws {
+    func testOriginalTitlesInBothLayoutsAndSettingRemoved() throws {
         let fixtures = try makeFixtures()
         let app = XCUIApplication()
         addTeardownBlock { app.terminate() }
         try launch(app, fixtures: fixtures)
-        app.buttons["gallery-layout-favorites"].tapWhenHittable("Presentation")
-        app.buttons["Row"].tapWhenHittable("Row")
-        XCTAssertTrue(app.staticTexts["A Journey"].firstMatch.waitForExistence(timeout: 10))
-        app.descendants(matching: .any)["gearshape.circle"].firstMatch.tapWhenHittable("Setting tab")
-        app.buttons["Appearance"].tapWhenHittable("Appearance settings")
-        let toggle = app.switches["simplified-gallery-titles"]
-        try setSimplifiedTitles(false, toggle: toggle, app: app)
-        XCTAssertTrue(app.staticTexts[shortTitle].firstMatch.waitForExistence(timeout: 10))
-        app.buttons["gallery-layout-favorites"].tapWhenHittable("Presentation")
-        app.buttons["Grid"].tapWhenHittable("Grid")
-        XCTAssertTrue(app.staticTexts[shortTitle].firstMatch.waitForExistence(timeout: 10))
+        for layout in ["Row", "Grid"] {
+            app.buttons["gallery-layout-favorites"].tapWhenHittable("Presentation")
+            app.buttons[layout].tapWhenHittable(layout)
+            for title in [shortTitle, longTitle] {
+                XCTAssertTrue(app.staticTexts[title].firstMatch.waitForExistence(timeout: 10))
+            }
+        }
         app.terminate()
         app.launch()
         XCTAssertTrue(app.staticTexts[shortTitle].firstMatch.waitForExistence(timeout: 15))
         app.descendants(matching: .any)["gearshape.circle"].firstMatch.tapWhenHittable("Setting tab")
-        app.buttons["Appearance"].tapWhenHittable("Appearance settings after relaunch")
-        try setSimplifiedTitles(true, toggle: toggle, app: app)
-        XCTAssertTrue(app.staticTexts["A Journey"].firstMatch.waitForExistence(timeout: 10))
-    }
-
-    private func setSimplifiedTitles(_ enabled: Bool, toggle: XCUIElement, app: XCUIApplication) throws {
-        XCTAssertTrue(toggle.waitForExistence(timeout: 5))
-        // Native SwiftUI switches expose the entire row; activate the trailing switch itself.
-        toggle.coordinate(withNormalizedOffset: CGVector(dx: 0.9, dy: 0.5)).press(forDuration: 0.05)
-        let changed = XCTNSPredicateExpectation(
-            predicate: NSPredicate(format: "value == %@", enabled ? "1" : "0"), object: toggle
-        )
-        XCTAssertEqual(XCTWaiter.wait(for: [changed], timeout: 5), .completed)
+        app.buttons["Appearance"].tapWhenHittable("Appearance settings")
+        XCTAssertTrue(app.navigationBars["Appearance"].waitForExistence(timeout: 5))
+        XCTAssertFalse(app.switches["simplified-gallery-titles"].exists)
         let screenshot = XCTAttachment(screenshot: XCUIScreen.main.screenshot())
-        screenshot.name = "Simplified titles setting \(enabled)"
+        screenshot.name = "Appearance settings without title simplification"
         screenshot.lifetime = .keepAlways
         add(screenshot)
-        let title = app.navigationBars["Appearance"].firstMatch
-        title.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).press(
-            forDuration: 0.05,
-            thenDragTo: app.windows.firstMatch.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.95))
-        )
-        XCTAssertTrue(title.waitForNonExistence(timeout: 5))
     }
 
     private func launch(_ app: XCUIApplication, fixtures: URL) throws {

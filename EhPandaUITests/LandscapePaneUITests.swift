@@ -149,7 +149,7 @@ final class LandscapePaneUITests: XCTestCase {
         })
     }
 
-    func testHomeTitlesFollowSimplifiedSettingLive() throws {
+    func testHomePreservesOriginalTitlesAndSectionLayout() throws {
         try XCTSkipUnless(!isDuo)
         let originalOrientation = XCUIDevice.shared.orientation
         addTeardownBlock { XCUIDevice.shared.orientation = originalOrientation }
@@ -179,40 +179,18 @@ final class LandscapePaneUITests: XCTestCase {
             "EHPANDA_AUTOMATION_TAB": "home", UITestConstants.fixtureDirectoryEnvironmentKey: root.path()
         ])
         assertSingleHomePane(in: app)
-        for (iteration, enabled) in [true, false, true].enumerated() {
-            if iteration > 0 {
-                app.descendants(matching: .any)["gearshape.circle"].firstMatch.tapWhenHittable("Settings")
-                app.buttons["Appearance"].tapWhenHittable("Appearance")
-                let toggle = app.switches["simplified-gallery-titles"]
-                XCTAssertTrue(toggle.waitForExistence(timeout: 5))
-                toggle.coordinate(withNormalizedOffset: CGVector(dx: 0.9, dy: 0.5)).press(forDuration: 0.05)
-                let changed = XCTNSPredicateExpectation(
-                    predicate: NSPredicate(format: "value == %@", enabled ? "1" : "0"), object: toggle
-                )
-                XCTAssertEqual(XCTWaiter.wait(for: [changed], timeout: 5), .completed)
-                let title = app.navigationBars["Appearance"].firstMatch
-                title.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).press(
-                    forDuration: 0.05,
-                    thenDragTo: app.windows.firstMatch.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.95))
-                )
-                XCTAssertTrue(title.waitForNonExistence(timeout: 5))
-            }
-            for prefix in ["home_slideshow_title_", "home_frontpage_title_", "home_ranking_title_"] {
-                let type: XCUIElement.ElementType = prefix == "home_frontpage_title_" ? .button : .staticText
-                let title = app.descendants(matching: type)
-                    .matching(NSPredicate(format: "identifier BEGINSWITH %@", prefix)).firstMatch
-                XCTAssertTrue(title.waitForExistence(timeout: 10), prefix)
-                let pattern = enabled
-                    ? #"^Home Study [0-9]+(?:,|$)"#
-                    : #"^\[Studio\] Home Study [0-9]+ \[English\](?:,|$)"#
-                XCTAssertNotNil(
-                    title.label.range(of: pattern, options: .regularExpression), "\(prefix): \(title.label)"
-                )
-                if enabled { XCTAssertFalse(title.label.contains("[Studio]"), prefix) }
-            }
+        for prefix in ["home_slideshow_title_", "home_frontpage_title_", "home_ranking_title_"] {
+            let type: XCUIElement.ElementType = prefix == "home_frontpage_title_" ? .button : .staticText
+            let title = app.descendants(matching: type)
+                .matching(NSPredicate(format: "identifier BEGINSWITH %@", prefix)).firstMatch
+            XCTAssertTrue(title.waitForExistence(timeout: 10), prefix)
+            let pattern = #"^\[Studio\] Home Study [0-9]+ \[English\](?:,|$)"#
+            XCTAssertNotNil(
+                title.label.range(of: pattern, options: .regularExpression), "\(prefix): \(title.label)"
+            )
         }
         let screenshot = XCTAttachment(screenshot: XCUIScreen.main.screenshot())
-        screenshot.name = "Home B sections with C slideshow and simplified titles"
+        screenshot.name = "Home sections preserve original titles"
         screenshot.lifetime = .keepAlways
         add(screenshot)
         let covers = app.buttons.matching(NSPredicate(format: "identifier BEGINSWITH %@", "home_frontpage_title_"))

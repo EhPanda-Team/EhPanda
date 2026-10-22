@@ -19,7 +19,6 @@ public struct Setting: Codable, Equatable, Sendable, MigratableModel {
         showTagsInList: Bool = false,
         listTagsNumberMaximum: Int = 0,
         displayJapaneseTitle: Bool = true,
-        simplifyGalleryTitles: Bool = true,
         readingDirection: ReadingDirection = .vertical,
         readingOrientation: ReadingOrientationPreferences = .init(),
         prefetchLimit: Int = 10,
@@ -44,7 +43,6 @@ public struct Setting: Codable, Equatable, Sendable, MigratableModel {
         self.showTagsInList = showTagsInList
         self.listTagsNumberMaximum = listTagsNumberMaximum
         self.displayJapaneseTitle = displayJapaneseTitle
-        self.simplifyGalleryTitles = simplifyGalleryTitles
         self.readingDirection = readingDirection
         self.readingOrientation = readingOrientation
         self.prefetchLimit = prefetchLimit
@@ -113,7 +111,6 @@ public struct Setting: Codable, Equatable, Sendable, MigratableModel {
         showTagsInList = try container.decode(Bool.self, forKey: .showTagsInList)
         listTagsNumberMaximum = try container.decode(Int.self, forKey: .listTagsNumberMaximum)
         displayJapaneseTitle = try container.decode(Bool.self, forKey: .displayJapaneseTitle)
-        simplifiedGalleryTitles = try container.decodeIfPresent(Bool.self, forKey: .simplifiedGalleryTitles)
         readingDirection = try container.decode(ReadingDirection.self, forKey: .readingDirection)
         prefetchLimit = try container.decode(Int.self, forKey: .prefetchLimit)
         enableDualPageMode = try container.decode(Bool.self, forKey: .enableDualPageMode)
@@ -136,7 +133,7 @@ public struct Setting: Codable, Equatable, Sendable, MigratableModel {
         case showTagsSearchSuggestion, showImagesInTags, redirectLinksToSelectedHost
         case detectLinksFromClipboard, privacyMaskIntensity, galleryListPresentation, preferredColorScheme
         case appIconType, showTagsInList, listTagsNumberMaximum, displayJapaneseTitle, readingDirection
-        case prefetchLimit, enableDualPageMode, orientationReadingPreferences, exceptCover, simplifiedGalleryTitles
+        case prefetchLimit, enableDualPageMode, orientationReadingPreferences, exceptCover
         case contentDividerHeight, maximumScaleFactor, doubleTapScaleFactor, downloadThreadLimit
         case downloadAllowCellular, downloadAutoRetryFailedPages, shareAnalyticsData, bypassSNIFiltering
     }
@@ -173,13 +170,6 @@ public struct Setting: Codable, Equatable, Sendable, MigratableModel {
     public var showTagsInList = false
     public var listTagsNumberMaximum = 0
     public var displayJapaneseTitle = true
-    // Optional storage preserves settings written before this default-enabled presentation option.
-    public var simplifiedGalleryTitles: Bool?
-
-    public var simplifyGalleryTitles: Bool {
-        get { simplifiedGalleryTitles ?? true }
-        set { simplifiedGalleryTitles = newValue }
-    }
 
     // Reading
     public var readingDirection: ReadingDirection = .vertical
