@@ -2,8 +2,8 @@
 type: retrospective-summary
 recorded: 2026-10-15
 historical_duo_implementation_commits: 21
-library_implementation_commits: 31
-decision_records: 120
+library_implementation_commits: 32
+decision_records: 121
 ---
 
 # Delivery and commit ledger
@@ -426,3 +426,12 @@ Recently Searched and Recently Seen in that order when data exists. Source inspe
 saved query shortcuts, up to 20 recent keywords and the 10 most recent gallery-history entries.
 Neither earlier A/B proposal is selected. This records a design decision only; implementation
 commit counts and the previous verified source remain unchanged.
+
+
+## Search section order and empty text — D121
+
+`cd74630199e756ba662d5395e4a7a034739cfe4f` changes the order to Recently Searched → Recently Seen → Quick Search and keeps
+empty sections visible with localized secondary text. Populated content and native Search behavior
+remain. Pinned lint/catalog checks and a generic Simulator SDK build pass without warnings/errors;
+native empty-state/Show All checks pass, the review iPad is updated in place and the task device
+is removed. [Verification and scope](../261022-search-section-placeholders/SUMMARY.md).

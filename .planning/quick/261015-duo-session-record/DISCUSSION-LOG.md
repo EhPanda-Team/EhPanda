@@ -537,3 +537,16 @@ Source inspection at `4fcdcf601f74f15644b026eb92ac60102a263561` confirms:
 This is a documentation-only owner decision. No app code, tests, screenshot baseline, navigation
 or Phase 17 gate changes. The old proposal and browser preview remain comparison material.
 The verbatim owner note is [retained here](../../notes/2026-10-22-retain-current-search-design.md).
+
+
+## Search section order and empty text — 2026-10-22
+
+| ID | Owner direction | Disposition |
+|---|---|---|
+| D121 | Order Search as Recently Searched, Recently Seen, Quick Search; show a secondary-text placeholder even when a section is empty. | Keep all three headings visible in that order, use short localized secondary text for empty content and retain Quick Search's Show All/editor action. Refines D120 without adopting Search A/B. |
+
+Implementation: `cd74630199e756ba662d5395e4a7a034739cfe4f`. Pinned SwiftLint, catalog checks and the generic Simulator SDK build
+pass with zero compiler/analyzer warnings or errors. Original device-specific build and creation
+were interrupted by simulator-service unavailability. Native empty-state capture and Show All
+interaction subsequently pass; review iPad updated normally and the task device is removed.
+[Exact verification, tooling interruptions and delivery](../261022-search-section-placeholders/SUMMARY.md).
