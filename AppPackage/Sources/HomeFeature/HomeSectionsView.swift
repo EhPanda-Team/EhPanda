@@ -45,7 +45,7 @@ struct HomeSectionsView: View {
                 pageIndex: $store.cardPageIndex,
                 currentID: store.currentCardID,
                 colors: store.cardColors,
-                carouselWidth: viewport.width,
+                carouselSize: viewport,
                 showsRichInformation: showsRichInformation,
                 maximumCardHeight: GalleryViewport(
                     size: viewport, isRegularWidth: horizontalSizeClass == .regular

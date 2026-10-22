@@ -33,14 +33,14 @@ struct CardSlideSection: View, Equatable {
     private let currentID: String
     private let colors: [Color]
     private let showsRichInformation: Bool
-    private let carouselWidth: CGFloat
+    private let carouselSize: CGSize
     private let maximumCardHeight: CGFloat
     private let navigateAction: (Gallery) -> Void
     private let webImageSuccessAction: (String, RetrieveImageResult) -> Void
 
     init(
         galleries: [Gallery], pageIndex: Binding<Int>, currentID: String,
-        colors: [Color], carouselWidth: CGFloat, showsRichInformation: Bool = false, maximumCardHeight: CGFloat,
+        colors: [Color], carouselSize: CGSize, showsRichInformation: Bool = false, maximumCardHeight: CGFloat,
         navigateAction: @escaping (Gallery) -> Void,
         webImageSuccessAction: @escaping (String, RetrieveImageResult) -> Void
     ) {
@@ -49,7 +49,7 @@ struct CardSlideSection: View, Equatable {
         self.currentID = currentID
         self.colors = colors
         self.showsRichInformation = showsRichInformation
-        self.carouselWidth = carouselWidth
+        self.carouselSize = carouselSize
         self.maximumCardHeight = maximumCardHeight
         self.navigateAction = navigateAction
         self.webImageSuccessAction = webImageSuccessAction
@@ -65,7 +65,7 @@ struct CardSlideSection: View, Equatable {
             && lhs.currentID == rhs.currentID
             && lhs.colors == rhs.colors
             && lhs.showsRichInformation == rhs.showsRichInformation
-            && lhs.carouselWidth == rhs.carouselWidth
+            && lhs.carouselSize == rhs.carouselSize
             && lhs.maximumCardHeight == rhs.maximumCardHeight
     }
 
@@ -111,7 +111,7 @@ struct CardSlideSection: View, Equatable {
         // local width measurement can still hold a provisional ideal width when the height becomes
         // ready, seeding the lazy stack against the wrong geometry and leaving its card off-center.
         // Keep readiness and card geometry on the same measurement before resolving the seed.
-        if carouselWidth > 0 && maximumCardHeight > 0 {
+        if carouselSize.width > 0 && maximumCardHeight > 0 {
             carousel
         } else {
             Color.clear
@@ -179,14 +179,19 @@ struct CardSlideSection: View, Equatable {
         }
     }
 
-    private var cardWidth: CGFloat { carouselWidth * (showsRichInformation ? 0.9 : 0.8) }
+    private var cardWidth: CGFloat {
+        guard showsRichInformation else { return carouselSize.width * 0.8 }
+        let width = carouselSize.width * 0.9
+        // Preserve the portrait composition; excess width in a wide viewport reveals neighbors.
+        return carouselSize.width > 900 && carouselSize.width > carouselSize.height ? min(width, 720) : width
+    }
     private let cardSpacing: CGFloat = 20
 
     // Center the snapped card: bare `.viewAligned` aligns the card's leading edge to the
     // content edge, dumping all the peek on the trailing side, while SwiftUIPager centered
     // the focused card. Symmetric margins of the leftover width restore the centered peek.
     private var centeringMargin: CGFloat {
-        (carouselWidth - cardWidth) / 2
+        (carouselSize.width - cardWidth) / 2
     }
 
     private func card(for gallery: Gallery, id: Int) -> some View {

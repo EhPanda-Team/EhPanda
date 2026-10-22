@@ -89,6 +89,66 @@ final class LandscapePaneUITests: XCTestCase {
         }
     }
 
+    func testWideSlideshowRevealsNeighborsAndPreservesSelectionAcrossRotation() throws {
+        try XCTSkipUnless(!isDuo)
+        let originalOrientation = XCUIDevice.shared.orientation
+        addTeardownBlock { XCUIDevice.shared.orientation = originalOrientation }
+        XCUIDevice.shared.orientation = .landscapeLeft
+        let app = XCUIApplication()
+        addTeardownBlock { app.terminate() }
+        try app.launchStubbed(extraEnvironment: ["EHPANDA_AUTOMATION_TAB": "home"])
+        let carousel = app.requireElement("home_carousel", matching: .scrollView)
+        let landscapeCard = try centeredSlideshowCard(in: carousel, width: 720)
+        let initialLabel = landscapeCard.label
+        let initialHeight = landscapeCard.frame.height
+        let visible = carousel.buttons.allElementsBoundByIndex.map(\.frame).filter {
+            $0.intersects(carousel.frame) && $0.width > 0
+        }
+        XCTAssertTrue(visible.contains {
+            $0.midX < carousel.frame.midX && $0.maxX > carousel.frame.minX + 100
+        })
+        XCTAssertTrue(visible.contains {
+            $0.midX > carousel.frame.midX && $0.minX < carousel.frame.maxX - 100
+        })
+        let landscape = XCTAttachment(screenshot: XCUIScreen.main.screenshot())
+        landscape.name = "Selected A landscape slideshow with neighboring cards"
+        landscape.lifetime = .keepAlways
+        add(landscape)
+
+        XCUIDevice.shared.orientation = .portrait
+        assertSingleHomePane(in: app, landscape: false)
+        let portraitCard = try centeredSlideshowCard(in: carousel, width: app.windows.firstMatch.frame.width * 0.9)
+        XCTAssertEqual(portraitCard.label, initialLabel)
+        XCTAssertEqual(portraitCard.frame.height, initialHeight, accuracy: 1)
+        let portrait = XCTAttachment(screenshot: XCUIScreen.main.screenshot())
+        portrait.name = "Selected A preserves portrait slideshow"
+        portrait.lifetime = .keepAlways
+        add(portrait)
+
+        XCUIDevice.shared.orientation = .landscapeLeft
+        assertSingleHomePane(in: app)
+        XCTAssertEqual(try centeredSlideshowCard(in: carousel, width: 720).label, initialLabel)
+        carousel.swipeLeft()
+        let nextCard = try centeredSlideshowCard(in: carousel, width: 720)
+        XCTAssertNotEqual(nextCard.label, initialLabel)
+        carousel.swipeRight()
+        XCTAssertEqual(try centeredSlideshowCard(in: carousel, width: 720).label, initialLabel)
+    }
+
+    private func centeredSlideshowCard(in carousel: XCUIElement, width: CGFloat) throws -> XCUIElement {
+        let centered = XCTNSPredicateExpectation(predicate: NSPredicate { _, _ in
+            carousel.buttons.allElementsBoundByIndex.contains {
+                let frame = $0.frame
+                return !frame.isEmpty && abs(frame.midX - carousel.frame.midX) < 1 && abs(frame.width - width) < 1
+            }
+        }, object: nil)
+        XCTAssertEqual(XCTWaiter.wait(for: [centered], timeout: 10), .completed)
+        return try XCTUnwrap(carousel.buttons.allElementsBoundByIndex.first {
+            let frame = $0.frame
+            return !frame.isEmpty && abs(frame.midX - carousel.frame.midX) < 1 && abs(frame.width - width) < 1
+        })
+    }
+
     func testHomeTitlesFollowSimplifiedSettingLive() throws {
         try XCTSkipUnless(!isDuo)
         let originalOrientation = XCUIDevice.shared.orientation

@@ -65,7 +65,7 @@ public struct GalleryRankingCell: View {
     }
 
     private var textColumn: some View {
-        VStack(alignment: .leading) {
+        VStack(alignment: .leading, spacing: 8) {
             Text(setting.simplifyGalleryTitles ? gallery.simplifiedTitle : gallery.title)
                 .accessibilityIdentifier("home_ranking_title_\(gallery.id)")
                 .bold()
