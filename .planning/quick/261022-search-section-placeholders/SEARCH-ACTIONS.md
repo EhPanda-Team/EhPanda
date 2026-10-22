@@ -19,10 +19,11 @@ Status: implemented and delivered to the existing review iPad.
 Each confirmation dialog belongs to its stable triggering button, preserving the native iPad arrow
 anchor. Recently Searched clears only its persisted keywords. Recently Seen uses the existing
 History policy: all persisted browsing records, including their saved reading positions, are removed.
-Its confirmation explicitly names both. This policy was stated as the implementation assumption
-while an optional owner question about retaining reading positions remained unanswered; it is not
-recorded as a new explicit owner preference. Retaining positions would require a separate history
-storage decision. No real review-device history was cleared during verification.
+Its confirmation explicitly names both. On 2026-10-23 the owner explicitly confirmed this policy:
+clear all browsing history and reading positions, matching History. This resolves the previously
+disclosed implementation assumption; no source change or new verification run is required.
+The [verbatim confirmation](../../notes/2026-10-23-confirm-history-clear-policy.md) is retained.
+No real review-device history was cleared during verification.
 
 The reducer cancels the history metadata fetch on clear and filters queued responses against the
 current persisted history. Clearing all records therefore cannot be undone by a late response.

@@ -152,4 +152,4 @@ No new automated suite, behavior verification or Phase 17 gate change is claimed
 heights and native header Remove All actions. Confirmations anchor to their triggers. Sixteen
 Search tests, clean native builds, catalog/lint checks and isolated iPad actions pass. The review
 iPad is updated normally and its data is preserved.
-[Behavior, history-policy assumption, screenshots and precise verification](SEARCH-ACTIONS.md).
+[Behavior, confirmed history policy, screenshots and precise verification](SEARCH-ACTIONS.md).

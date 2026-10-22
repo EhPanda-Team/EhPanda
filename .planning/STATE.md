@@ -5,8 +5,8 @@ current_phase: 17
 current_phase_name: Screenshot Automation, Visual Regression & OS 27 Modernization
 status: executing
 stopped_at: 17-06 revision re-shot (2026-10-13), 16/16 captured; waiting for the owner's visual review; agent prepares both gallery sets
-last_updated: "2026-10-22T14:55:42Z"
-last_activity: 2026-10-22
+last_updated: "2026-10-22T15:06:56Z"
+last_activity: 2026-10-23
 state_head: 15c4e9ead3ad10da71974bf7a93f87aa2fc976b4
 progress:
   total_phases: 17
@@ -16,7 +16,7 @@ progress:
   percent: 59
 milestone_name: )
 source_head: af00e0da93
-last_activity_desc: "D124–D126 add Search spacing, equal row heights and Remove All; 16 tests and native iPad checks pass; Phase 17 unchanged"
+last_activity_desc: "Owner confirms D126: clear browsing history and reading positions together; implementation unchanged; Phase 17 unchanged"
 ---
 
 # Project State

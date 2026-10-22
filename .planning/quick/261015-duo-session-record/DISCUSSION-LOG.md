@@ -590,8 +590,10 @@ or design selection is implied. [Screenshot and provenance](../261022-search-sec
 | D125 | Quick Search and Recently Searched should have the same row height. | Give the common search control the same 44-point minimum as the existing delete control; retain wrapping and larger-text growth. |
 | D126 | Add Remove All to Recently Seen and Recently Searched where Show All appears. | Use native sectionActions with anchored confirmation dialogs; disable empty actions and preserve Quick Search Show All. Search removal clears only keywords; browsing removal follows existing History semantics including resume positions, explicitly named by the confirmation. |
 
-The optional question about keeping resume positions remains unanswered; reuse of History's
-existing semantics was disclosed as an implementation assumption, not attributed to the owner.
+On 2026-10-23 the owner explicitly selected: “沿用 History：清除全部瀏覽紀錄與閱讀位置”.
+This confirms D126's existing implementation and resolves the earlier disclosed assumption.
+No source change or repeated test run is needed. The
+[verbatim confirmation](../../notes/2026-10-23-confirm-history-clear-policy.md) is retained.
 Implementation: `15c4e9ead3ad10da71974bf7a93f87aa2fc976b4`. Sixteen focused Search tests and clean builds/lint pass;
 native iPad interactions verify anchors, cancel/confirm, persistence after relaunch and Show All.
 [Full scope, screenshots and provenance](../261022-search-section-placeholders/SEARCH-ACTIONS.md).

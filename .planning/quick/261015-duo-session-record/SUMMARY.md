@@ -458,5 +458,9 @@ height and existing section spacing. [Verification and delivery](../261022-searc
 native header Remove All actions. Both confirmations anchor correctly. Search removal retains
 saved searches; browsing removal follows existing History semantics, explicitly including resume
 positions. Sixteen Search tests, clean builds/lint and isolated iPad clear/relaunch checks pass.
-[Decisions, policy assumption, screenshots and delivery](../261022-search-section-placeholders/SEARCH-ACTIONS.md).
+[Decisions, confirmed policy, screenshots and delivery](../261022-search-section-placeholders/SEARCH-ACTIONS.md).
 Review iPad updated normally, original data preserved; task device removed. Phase 17 unchanged.
+
+Owner confirmation on 2026-10-23 resolves D126's earlier assumption: Recently Seen Remove All
+clears all browsing records and their reading positions, matching History. Implementation and
+verification evidence remain unchanged.

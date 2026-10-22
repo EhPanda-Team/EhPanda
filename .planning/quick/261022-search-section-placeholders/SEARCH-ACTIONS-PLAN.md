@@ -16,8 +16,8 @@ Searched row height, and add Remove All beside both history headings in the Show
 3. Add persistent Remove All handling for search history and browsing history with confirmation
    dialogs anchored to the triggering header control. Disable rather than remove empty actions.
    Reuse History's existing clear-records-and-resume-positions behavior and state both in the
-   confirmation. An optional question about preserving progress remains unanswered; this is a
-   disclosed implementation assumption, not an explicit new owner selection.
+   confirmation. The owner explicitly confirmed this policy on 2026-10-23, resolving the
+   earlier implementation assumption without changing the verified implementation.
 4. Verify persisted clearing, cancellation and protection against stale gallery fetch results;
    verify row-height parity, section gaps, action placement and dialog anchors on the dedicated
    iPad. Preserve the normal review iPad's data. Run focused reducer/UI checks and pinned lint,
