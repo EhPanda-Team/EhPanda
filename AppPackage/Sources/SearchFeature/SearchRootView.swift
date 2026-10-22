@@ -132,26 +132,20 @@ private struct SuggestionsPanel: View {
 
     var body: some View {
         VStack {
-            if !quickSearchWords.isEmpty {
-                QuickSearchWordsSection(
-                    quickSearchWords: quickSearchWords,
-                    showAllAction: navigateQuickSearchAction,
-                    searchAction: searchKeywordAction
-                )
-            }
-            if !historyKeywords.isEmpty {
-                HistoryKeywordsSection(
-                    keywords: historyKeywords,
-                    searchAction: searchKeywordAction,
-                    removeAction: removeKeywordAction
-                )
-            }
-            if !historyGalleries.isEmpty {
-                HistoryGalleriesSection(
-                    galleries: historyGalleries,
-                    navigationAction: navigateGalleryAction
-                )
-            }
+            HistoryKeywordsSection(
+                keywords: historyKeywords,
+                searchAction: searchKeywordAction,
+                removeAction: removeKeywordAction
+            )
+            HistoryGalleriesSection(
+                galleries: historyGalleries,
+                navigationAction: navigateGalleryAction
+            )
+            QuickSearchWordsSection(
+                quickSearchWords: quickSearchWords,
+                showAllAction: navigateQuickSearchAction,
+                searchAction: searchKeywordAction
+            )
         }
         // Keep rows at their intrinsic height before applying the sparse-content viewport floor.
         .fixedSize(horizontal: false, vertical: true)
@@ -196,7 +190,15 @@ private struct QuickSearchWordsSection: View {
             title: .RLocalizable.quickSearch,
             showAll: true, showAllAction: showAllAction
         ) {
-            DoubleVerticalKeywordsStack(keywords: keywords, searchAction: searchAction)
+            if quickSearchWords.isEmpty {
+                Text(.quickSearchEmpty)
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.horizontal)
+            } else {
+                DoubleVerticalKeywordsStack(keywords: keywords, searchAction: searchAction)
+            }
         }
     }
 }
@@ -215,11 +217,19 @@ private struct HistoryKeywordsSection: View {
 
     var body: some View {
         SubSection(title: .recentlySearched, showAll: false) {
-            DoubleVerticalKeywordsStack(
-                keywords: keywords.map(WrappedKeyword.init),
-                searchAction: searchAction,
-                removeAction: removeAction
-            )
+            if keywords.isEmpty {
+                Text(.recentlySearchedEmpty)
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.horizontal)
+            } else {
+                DoubleVerticalKeywordsStack(
+                    keywords: keywords.map(WrappedKeyword.init),
+                    searchAction: searchAction,
+                    removeAction: removeAction
+                )
+            }
         }
     }
 }
@@ -236,22 +246,30 @@ private struct HistoryGalleriesSection: View {
 
     var body: some View {
         SubSection(title: .recentlySeen, showAll: false) {
-            ScrollView(.horizontal) {
-                HStack {
-                    ForEach(galleries) { gallery in
-                        Button {
-                            navigationAction(gallery)
-                        } label: {
-                            GalleryHistoryCell(gallery: gallery)
-                                .tint(.primary).multilineTextAlignment(.leading)
+            if galleries.isEmpty {
+                Text(.recentlySeenEmpty)
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.horizontal)
+            } else {
+                ScrollView(.horizontal) {
+                    HStack {
+                        ForEach(galleries) { gallery in
+                            Button {
+                                navigationAction(gallery)
+                            } label: {
+                                GalleryHistoryCell(gallery: gallery)
+                                    .tint(.primary).multilineTextAlignment(.leading)
+                            }
+                            .frame(maxHeight: .infinity, alignment: .top)
                         }
-                        .frame(maxHeight: .infinity, alignment: .top)
+                        .withHorizontalSpacing()
                     }
-                    .withHorizontalSpacing()
+                    .fixedSize(horizontal: false, vertical: true)
                 }
-                .fixedSize(horizontal: false, vertical: true)
+                .scrollIndicators(.hidden)
             }
-            .scrollIndicators(.hidden)
         }
     }
 }
