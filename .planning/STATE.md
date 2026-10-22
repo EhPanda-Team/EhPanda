@@ -5,9 +5,9 @@ current_phase: 17
 current_phase_name: Screenshot Automation, Visual Regression & OS 27 Modernization
 status: executing
 stopped_at: 17-06 revision re-shot (2026-10-13), 16/16 captured; waiting for the owner's visual review; agent prepares both gallery sets
-last_updated: "2026-10-22T11:17:08Z"
+last_updated: "2026-10-22T12:55:41Z"
 last_activity: 2026-10-22
-state_head: a516a4adfe88fa5fcdd67db798e6918840f0aedc
+state_head: 8fcf087616613319652f6e3a0c38d7094d3f30c5
 progress:
   total_phases: 17
   completed_phases: 10
@@ -16,7 +16,7 @@ progress:
   percent: 59
 milestone_name: )
 source_head: af00e0da93
-last_activity_desc: "D117 tightens slideshow metadata; D118 uses native tab placement/title removal on iPad; clean build/lint and two UI tests pass; review iPad updated; Phase 17 unchanged"
+last_activity_desc: "D119 removes title simplification; clean build/lint, 94 model and three iPad UI tests pass; review iPad updated; Phase 17 unchanged"
 ---
 
 # Project State
@@ -40,7 +40,8 @@ D77 removes the generic Downloads sidebar link; actual folders and native sectio
 `b2d1d602dc` passes the focused compact navigation regression, clean build/lint and iPad folder entry.
 See [folder-only entry evidence](quick/261015-tx1-implement-library-with-shared-favorites-/SIDEBAR-ACTIONS.md#folder-only-navigation-follow-up--d77).
 
-D79–D80 deliver transparent aligned cards and default-on simplified titles for every row/grid list.
+D79–D80 originally delivered transparent aligned cards and default-on simplified titles for every row/grid list.
+D119 retires simplification throughout lists and Home; see [the current removal record](quick/261015-tx1-implement-library-with-shared-favorites-/REMOVE-SIMPLIFIED-TITLES.md).
 D81 (`428897f452`) corrects all four cover corners to rounded, uses the reference's 2117:3000 ratio and
 limits grid titles to two lines. Two focused final UI tests pass across iPad/iPhone standard and
 AX1/AX3/AX5; builds/lint clean. The earlier 97 model and four UI tests remain tied to `7b58987a7d`.
@@ -82,7 +83,7 @@ screenshots. D98 selects C slideshow with B elsewhere; D99 subsequently authoriz
 The owner fixes the framework and makes the original brief the reference, with no further Mac
 App Store inspection. The original comparisons remain historical.
 
-D99–D100 (`1cc211aee6158251c5ae3533cc59a22e33af1dc2`) deliver the selected B+C Home and shared simplified titles.
+D99–D100 (`1cc211aee6158251c5ae3533cc59a22e33af1dc2`) originally delivered the selected B+C Home and shared simplified titles; D119 retires title simplification.
 Fifty feature/model tests and native iPad UI checks pass within their recorded source boundaries.
 Four-size iPad/iPhone captures, initial title blank frames and LLVM tooling diagnostics are retained.
 The review iPad has the final app; Phase 17 remains unchanged. See

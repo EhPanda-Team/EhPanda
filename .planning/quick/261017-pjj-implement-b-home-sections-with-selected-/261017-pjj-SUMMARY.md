@@ -10,6 +10,10 @@ implementation_commit: 1cc211aee6158251c5ae3533cc59a22e33af1dc2
 
 > **Image evidence availability:** Image files were removed from this repository history at the owner's request. Screenshot descriptions, filenames and earlier visual checks below are historical records, not currently available image evidence. Written findings, measurements and source artifacts remain; visual review requires fresh captures.
 
+**Title follow-up — D119:** [Title simplification is removed](../261015-tx1-implement-library-with-shared-favorites-/REMOVE-SIMPLIFIED-TITLES.md).
+This supersedes D100: Home displays stored gallery titles directly, retaining its existing line
+budgets, layouts and cover accessibility labels. The original delivery record below is historical.
+
 **Follow-up:** [D101–D104 correction and proposal record](FOLLOW-UP-20261022.md) supersedes the
 uploader and omitted-footer choices below and removes explicit rating colors. The original
 implementation/verification history is retained. [D105–D106](SLIDESHOW-A.md) subsequently apply

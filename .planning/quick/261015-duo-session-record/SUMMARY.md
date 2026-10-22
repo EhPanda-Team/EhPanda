@@ -2,13 +2,16 @@
 type: retrospective-summary
 recorded: 2026-10-15
 historical_duo_implementation_commits: 21
-library_implementation_commits: 30
-decision_records: 118
+library_implementation_commits: 31
+decision_records: 119
 ---
 
 # Delivery and commit ledger
 
 > **Image evidence availability:** Image files were removed from this repository history at the owner's request. Screenshot descriptions, filenames and earlier visual checks below are historical records, not currently available image evidence. Written findings, measurements and source artifacts remain; visual review requires fresh captures.
+
+Current title policy: D119 retires the simplified-title setting and transformation from lists and
+Home. Earlier D80/D100 entries below remain historical; existing line limits/layouts are retained.
 
 This session extends measured/window-based routing with Duo Home panes, native opposite-side
 presentations, independent title behavior, persistent reader controls and configurable orientation
@@ -402,3 +405,14 @@ tests pass with no skips/repetitions. They cover four-size cold entry/rotation, 
 slideshow geometry and selection. Native live-resize evidence also verifies bottom-tab title
 restoration. Review iPad updated normally, account/data/settings preserved; task devices removed.
 [Research-first owner direction, official references, screenshots and exact scope](../261017-pjj-implement-b-home-sections-with-selected-/HOME-TITLE-TAB-PLACEMENT.md).
+
+
+## Original gallery titles — D119
+
+`8fcf087616613319652f6e3a0c38d7094d3f30c5` removes the simplification setting and bracket-removal implementation. Row/grid lists
+and Home use stored titles directly, preserving line limits, layouts and Japanese-title selection.
+Old settings retain unrelated preferences and omit the retired key on their next save. Strict lint,
+native builds, 94 model test identities and three focused iPad UI tests pass. The UI checks cover
+four text sizes, row/grid/relaunch, Appearance and Home. Review iPad updated in place; the task
+test device is removed.
+[Retirement, compatibility coverage and delivery evidence](../261015-tx1-implement-library-with-shared-favorites-/REMOVE-SIMPLIFIED-TITLES.md).

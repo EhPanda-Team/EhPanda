@@ -504,3 +504,17 @@ Implementation: `a516a4adfe88fa5fcdd67db798e6918840f0aedc`. Native full/narrow-w
 Two UI tests pass, including four text sizes, rotation, Frontpage push/back and slideshow geometry.
 [Official sources, unsuccessful inlineLarge trial, screenshots and verification limits](../261017-pjj-implement-b-home-sections-with-selected-/HOME-TITLE-TAB-PLACEMENT.md).
 Review iPad updated normally; Phase 17 owner gates remain unchanged.
+
+
+## Retire title simplification — 2026-10-22
+
+| ID | Owner direction | Disposition |
+|---|---|---|
+| D119 | Remove the title simplification feature. | Remove its Appearance control, localized strings, persisted option and bracket filtering. Render stored gallery titles directly in shared row/grid cells and all Home sections, including accessibility labels. Keep existing line limits/layout and Japanese-title selection. Supersedes D80 and D100's simplification policy. |
+
+Implementation: `8fcf087616613319652f6e3a0c38d7094d3f30c5`. Strict lint and native builds pass; 94 model test identities pass,
+including compatibility for the retired key absent/true/false. All three focused iPad UI tests pass,
+covering four text sizes, row/grid/relaunch, Appearance and Home. Review iPad updated normally;
+the task-created test device is removed.
+[Implementation scope, exact verification and simulator setup interruptions](../261015-tx1-implement-library-with-shared-favorites-/REMOVE-SIMPLIFIED-TITLES.md).
+Phase 17 owner gates and unselected Search proposals remain unchanged.

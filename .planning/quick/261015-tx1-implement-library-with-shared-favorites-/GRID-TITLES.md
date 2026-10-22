@@ -2,6 +2,10 @@
 
 > **Image evidence availability:** Image files were removed from this repository history at the owner's request. Screenshot descriptions, filenames and earlier visual checks below are historical records, not currently available image evidence. Written findings, measurements and source artifacts remain; visual review requires fresh captures.
 
+**Current direction — D119:** [Remove title simplification](REMOVE-SIMPLIFIED-TITLES.md)
+supersedes D80. Row/grid and Home now display the stored title directly; the option and its
+processing are removed. Cover geometry and the two-line grid limit below remain active.
+
 Owner decisions: D79–D81. Current appearance correction: `428897f452ea32c300c39b0657db354ad01287fd`
 on `agent/app-design`; the initial D79–D80 implementation is `7b58987a7de4bcd164bf1c3f33bc93ebb57a27cb`.
 
@@ -14,7 +18,7 @@ replace the Downloads Actions button with a context menu. See
 - All four cover corners are rounded at the original 15-point radius, including the category overlay.
 - Cover width:height is 2117:3000, matching the owner's reference image's original metadata.
 - Grid titles stop at two lines. Transparent containers, adaptive cover backgrounds, vertically
-  centered short titles, aligned row edges and default-enabled row/grid simplification remain.
+  centered short titles and aligned row edges remain; D119 retires title simplification.
 
 The initial-delivery sections below retain the prior square-corner interpretation, 2:3 ratio and
 three-line limit as history only; D81 supersedes those three values. Final evidence appears under
