@@ -120,3 +120,8 @@ Hermetic UI fixtures retain placeholder covers; these checks do not prove live r
 Duo preservation is checked by existing feature routing tests, not a new physical fold/VoiceOver run.
 The unresolved Library header/context-menu issues and Phase 17 owner gates are outside this task.
 No reference screenshot, full-content capture baseline or production release is promoted.
+
+
+D107–D109 refine rich ranking spacing, slideshow aspect-fill and tag appearance. See
+[the cell-finish record](HOME-CELL-FINISHES.md) for the final code SHA, light/dark captures,
+verification boundaries and separate pending gradient-contrast proposal.
