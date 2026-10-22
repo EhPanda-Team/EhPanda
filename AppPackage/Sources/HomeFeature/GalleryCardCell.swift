@@ -67,7 +67,7 @@ public struct GalleryCardCell: View {
             if showsRichInformation {
                 HStack(spacing: 30) {
                     GalleryCover(
-                        url: gallery.coverURL, style: .homeSlideshow,
+                        url: gallery.coverURL, style: .homeSlideshow, contentMode: .fill,
                         onSuccess: handleCoverSuccess
                     )
                     VStack(alignment: .leading, spacing: 12) {

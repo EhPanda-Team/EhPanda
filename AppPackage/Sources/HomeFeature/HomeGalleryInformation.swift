@@ -42,6 +42,8 @@ struct HomeGalleryRating: View {
 }
 
 struct HomeSlideshowInformation: View {
+    @Environment(\.colorScheme) private var colorScheme
+
     let gallery: Gallery
 
     var body: some View {
@@ -69,8 +71,18 @@ struct HomeSlideshowInformation: View {
                     TagCloudCell(
                         text: tag.text, imageURL: nil, showsImages: false, font: .caption2,
                         padding: .init(top: 4, leading: 8, bottom: 4, trailing: 8),
-                        textColor: .secondary, backgroundColor: Color(uiColor: .secondarySystemBackground)
+                        textColor: colorScheme == .dark ? .primary : .secondary, backgroundColor: .clear
                     )
+                    .background(
+                        colorScheme == .dark
+                            ? AnyShapeStyle(.regularMaterial)
+                            : AnyShapeStyle(Color(uiColor: .systemBackground)),
+                        in: .rect(cornerRadius: 6)
+                    )
+                    .overlay {
+                        RoundedRectangle(cornerRadius: 6)
+                            .strokeBorder(.quaternary, lineWidth: 1)
+                    }
                 }
             }
         }
