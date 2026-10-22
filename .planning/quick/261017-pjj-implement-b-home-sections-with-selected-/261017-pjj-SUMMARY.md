@@ -124,4 +124,5 @@ No reference screenshot, full-content capture baseline or production release is 
 
 D107–D109 refine rich ranking spacing, slideshow aspect-fill and tag appearance. See
 [the cell-finish record](HOME-CELL-FINISHES.md) for the final code SHA, light/dark captures,
-verification boundaries and separate pending gradient-contrast proposal.
+verification boundaries and D111's tag-only scope decision. Card-wide gradient brightness and
+foregrounds remain unchanged; the observed contrast limitation is retained in the record.

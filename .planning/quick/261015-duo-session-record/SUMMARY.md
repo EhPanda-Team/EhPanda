@@ -3,7 +3,7 @@ type: retrospective-summary
 recorded: 2026-10-15
 historical_duo_implementation_commits: 21
 library_implementation_commits: 24
-decision_records: 110
+decision_records: 111
 ---
 
 # Delivery and commit ledger
@@ -342,7 +342,9 @@ for rich slideshow covers, and restores light tag backgrounds/fine outlines with
 material and legible dark tag text. Native Home regressions pass; the final foreground-only change
 receives a clean build and neutral warm/cool visual checks. The review iPad is updated with its data
 preserved. [Verification, screenshots and scope](../261017-pjj-implement-b-home-sections-with-selected-/HOME-CELL-FINISHES.md).
-D107 supersedes D106's fixed gaps. Card-wide bright-gradient contrast is a separate pending proposal.
+D107 supersedes D106's fixed gaps. D111 resolves the separate gradient proposal: only tags change
+in this pass; retain the existing card-wide brightness and foreground policy. The observed contrast
+limitation remains documented. This scope decision requires no additional source change.
 
 
 ## Comment preview background — D110

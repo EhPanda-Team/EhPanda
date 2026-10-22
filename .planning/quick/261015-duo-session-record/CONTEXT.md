@@ -64,3 +64,7 @@ its evidence is recorded separately. The saved proposal remains comparison mater
 
 Latest investigation: [D110 comment preview shape](../261022-comment-card-background/SUMMARY.md)
 reproduces and fixes narrow square backgrounds, with native before/after evidence and final tests.
+
+Latest scope decision: D111 limits this pass to the completed slideshow tag adjustment. Preserve
+card-wide gradient brightness/color variation and title/metadata foregrounds; the dimming proposal
+is no longer pending. See [the recorded disposition](../261017-pjj-implement-b-home-sections-with-selected-/HOME-CELL-FINISHES.md).
