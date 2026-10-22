@@ -2,8 +2,8 @@
 type: retrospective-summary
 recorded: 2026-10-15
 historical_duo_implementation_commits: 21
-library_implementation_commits: 21
-decision_records: 104
+library_implementation_commits: 22
+decision_records: 106
 ---
 
 # Delivery and commit ledger
@@ -324,3 +324,12 @@ retained tooling diagnostics and evidence boundaries are in the
 [follow-up record](../261017-pjj-implement-b-home-sections-with-selected-/FOLLOW-UP-20261022.md).
 Review iPad is updated in place with data preserved. [Sketch 002](../../sketches/002-landscape-slideshow/README.md)
 provides three landscape slideshow alternatives and portrait comparison; no winner is selected.
+
+
+## Selected slideshow A and ranking spacing — D105–D106
+
+`6644232f25285fa9724d5e708b8d10f8a5e964a9` applies the selected 720-point card cap in measured wide Home
+viewports, preserving portrait and compact/Duo geometry. Toplists information uses an 8-point gap.
+Three focused native iPad UI tests pass with clean build/lint, and the review iPad is updated in
+place. [Exact verification and screenshots](../261017-pjj-implement-b-home-sections-with-selected-/SLIDESHOW-A.md).
+This supersedes D104's pending selection; B/C remain comparison alternatives only.

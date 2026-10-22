@@ -5,9 +5,9 @@ current_phase: 17
 current_phase_name: Screenshot Automation, Visual Regression & OS 27 Modernization
 status: executing
 stopped_at: 17-06 revision re-shot (2026-10-13), 16/16 captured; waiting for the owner's visual review; agent prepares both gallery sets
-last_updated: "2026-10-22T03:52:07Z"
+last_updated: "2026-10-22T04:07:21Z"
 last_activity: 2026-10-22
-state_head: 3673f4670652afa91bf54aa043b8ebdac2a81801
+state_head: 6644232f25285fa9724d5e708b8d10f8a5e964a9
 progress:
   total_phases: 17
   completed_phases: 10
@@ -16,7 +16,7 @@ progress:
   percent: 59
 milestone_name: )
 source_head: af00e0da93
-last_activity_desc: "D101–D103 restore Other footnotes, remove Toplists uploader and inherit rating foregrounds; 2/2 iPad UI checks pass; D104 slideshow proposals await selection; Phase 17 unchanged"
+last_activity_desc: "D105 selects slideshow A; wide cards capped at 720 with portrait preserved; D106 adds ranking spacing; 3/3 iPad UI checks pass; review iPad updated; Phase 17 unchanged"
 ---
 
 # Project State
@@ -1119,3 +1119,9 @@ rating foregrounds. [Native verification](quick/261017-pjj-implement-b-home-sect
 passes two focused iPad UI cases and build/lint; review iPad is updated in place. D104 has
 [three landscape slideshow proposals](sketches/002-landscape-slideshow/README.md) with portrait
 preserved and no selection. Phase 17 owner gates and baselines remain unchanged.
+
+
+D105–D106 (`6644232f25285fa9724d5e708b8d10f8a5e964a9`) implement the selected narrow landscape slideshow
+and roomier Toplists information. [Verification and native screenshots](quick/261017-pjj-implement-b-home-sections-with-selected-/SLIDESHOW-A.md)
+record 3/3 passing native iPad UI tests and clean build/lint. This supersedes D104's pending
+selection; portrait, navigation and Phase 17 owner gates/baselines remain unchanged.
