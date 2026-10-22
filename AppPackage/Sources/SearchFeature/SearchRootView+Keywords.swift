@@ -159,6 +159,8 @@ struct KeywordCell: View {
                     .multilineTextAlignment(.leading)
                     .frame(maxWidth: .infinity, alignment: .leading)
             }
+            .frame(minHeight: 44)
+            .contentShape(.rect)
         }
         .tint(.primary)
     }
