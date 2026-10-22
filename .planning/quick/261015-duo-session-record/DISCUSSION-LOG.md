@@ -550,3 +550,16 @@ pass with zero compiler/analyzer warnings or errors. Original device-specific bu
 were interrupted by simulator-service unavailability. Native empty-state capture and Show All
 interaction subsequently pass; review iPad updated normally and the task device is removed.
 [Exact verification, tooling interruptions and delivery](../261022-search-section-placeholders/SUMMARY.md).
+
+
+## Search empty-section height — 2026-10-22
+
+| ID | Owner direction | Disposition |
+|---|---|---|
+| D122 | Empty sections still look too compact; preserve some height even with no content. | Give each of the three empty content frames a 96-point minimum height, with leading, vertically centered secondary text. Retain headings, populated layout, section order and existing actions. |
+
+Implementation: `b19295afa2a69925a7ac0de7e73f0008d7681840`. Pinned strict lint and a generic Simulator SDK build pass
+without compiler/analyzer warnings or errors. Native iPad capture verifies the added spacing.
+Agent-device startup timed out; native Simulator capture supplied the visual evidence instead.
+[New screenshot, exact verification and delivery](../261022-search-section-placeholders/SUMMARY.md).
+Phase 17 owner gates remain unchanged.
