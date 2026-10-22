@@ -55,7 +55,7 @@ public struct GalleryRankingCell: View {
     }
 
     private var cover: some View {
-        GalleryCover(url: gallery.coverURL, style: showsRichInformation ? .homeRanking : .compact)
+        GalleryCover(url: gallery.coverURL, style: showsRichInformation ? .homeRanking : .compact, contentMode: .fill)
     }
 
     private var rankNumber: some View {
