@@ -385,3 +385,17 @@ D101–D103 implementation: `a6872762922be171adf9558408a4c6740fd85a3d`. Two nati
 and compiler/analyzer checks are clean; the known profile-writer tooling diagnostic remains.
 See [correction verification](../261017-pjj-implement-b-home-sections-with-selected-/FOLLOW-UP-20261022.md)
 and [proposal screenshots and measurements](../../sketches/002-landscape-slideshow/README.md).
+
+
+## Selected landscape slideshow and Toplists spacing — 2026-10-22
+
+| ID | Owner direction | Disposition |
+|---|---|---|
+| D105 | Select A from sketch 002. | Implement the narrower centered card in wide single-pane Home, revealing neighboring galleries. Preserve portrait, height, cover size and metadata; measured width/height protect portrait on larger iPads. Supersedes D104's pending selection. |
+| D106 | Toplists information is too tight; add a little spacing. | Set the existing information VStack to 8-point spacing. Keep cover sizes, ranking arrangements and fields unchanged. |
+
+[Execution plan and results](../261017-pjj-implement-b-home-sections-with-selected-/SLIDESHOW-A.md).
+
+D105–D106 implementation: `5b01f7f0cadee5b156764fcabff89349f8af8a1e`. Three native iPad UI tests pass,
+including centered landscape width, preserved portrait selection/height, bidirectional swiping
+and four-size cold entry/rotation. Strict lint/build checks pass; review iPad updated in place.

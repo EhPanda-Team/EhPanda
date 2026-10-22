@@ -28,7 +28,7 @@ had been approved or executed. No retrospective PLAN is presented as a prior app
 - [Library direction](LIBRARY-DIRECTION.md): management-focused Library with the selected shared category navigation and separate Favorites/Downloads groups.
 - [Wide-screen proposal](proposal/PROPOSAL.md): nine earlier native screenshots, retained for comparison; Search remains unselected.
 - [Large Home proposals](../../sketches/001-large-home-information/README.md): original A/B/C plus current B+C mix for iPad/future macOS; D98 selects C slideshow and defers space-dependent adaptation. No repeated source label or uploader/date; other sections retain B. D99–D100 implement this mix and shared simplified titles in [quick task 261017-pjj](../261017-pjj-implement-b-home-sections-with-selected-/261017-pjj-SUMMARY.md), available for owner review.
-- [Home corrections and landscape slideshow](../261017-pjj-implement-b-home-sections-with-selected-/FOLLOW-UP-20261022.md): D101–D103 implemented; D104 has three visual alternatives in sketch 002, with no winner selected.
+- [Home corrections and landscape slideshow](../261017-pjj-implement-b-home-sections-with-selected-/FOLLOW-UP-20261022.md): D101–D103 implemented; D105 selects slideshow A from sketch 002 and D106 adds Toplists spacing. [Native A verification](../261017-pjj-implement-b-home-sections-with-selected-/SLIDESHOW-A.md) records implementation and screenshots.
 - [Migration](MIGRATION.md): original integration and rewritten commit mapping.
 - [Workspace rebuild](WORKSPACE-REBUILD.md): current branch/worktree after rebuilding from the latest Phase 17 history.
 

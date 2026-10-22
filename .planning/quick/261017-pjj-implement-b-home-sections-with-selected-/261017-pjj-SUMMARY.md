@@ -12,7 +12,8 @@ implementation_commit: 7545d6c89769027ba7340b4ed8f785cb67ea7e9b
 
 **Follow-up:** [D101–D104 correction and proposal record](FOLLOW-UP-20261022.md) supersedes the
 uploader and omitted-footer choices below and removes explicit rating colors. The original
-implementation/verification history is retained; new landscape slideshow alternatives are unselected.
+implementation/verification history is retained. [D105–D106](SLIDESHOW-A.md) subsequently apply
+slideshow A in wide viewports and increase Toplists information spacing.
 
 ## Owner direction and delivery scope
 
