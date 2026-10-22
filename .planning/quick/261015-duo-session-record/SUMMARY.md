@@ -2,8 +2,8 @@
 type: retrospective-summary
 recorded: 2026-10-15
 historical_duo_implementation_commits: 21
-library_implementation_commits: 23
-decision_records: 109
+library_implementation_commits: 24
+decision_records: 110
 ---
 
 # Delivery and commit ledger
@@ -343,3 +343,12 @@ material and legible dark tag text. Native Home regressions pass; the final fore
 receives a clean build and neutral warm/cool visual checks. The review iPad is updated with its data
 preserved. [Verification, screenshots and scope](../261017-pjj-implement-b-home-sections-with-selected-/HOME-CELL-FINISHES.md).
 D107 supersedes D106's fixed gaps. Card-wide bright-gradient contrast is a separate pending proposal.
+
+
+## Comment preview background — D110
+
+`b15f385ee83eda5c5fdb7290ae08a1e09a056b0a` fixes content-dependent square/narrow comment preview cards by aligning
+background painting with the final card frame. Nine native test identities pass, including sixteen
+comment render configurations. Two separate verification repairs address a missing fixture argument
+and XCTest result-name normalization. [Cause, commits and before/after evidence](../261022-comment-card-background/SUMMARY.md).
+Review iPad updated; full Comments list behavior and Phase 17 owner gates remain unchanged.

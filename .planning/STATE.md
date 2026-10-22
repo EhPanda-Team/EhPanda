@@ -5,9 +5,9 @@ current_phase: 17
 current_phase_name: Screenshot Automation, Visual Regression & OS 27 Modernization
 status: executing
 stopped_at: 17-06 revision re-shot (2026-10-13), 16/16 captured; waiting for the owner's visual review; agent prepares both gallery sets
-last_updated: "2026-10-22T06:30:20Z"
+last_updated: "2026-10-22T06:46:07Z"
 last_activity: 2026-10-22
-state_head: 13e688a7ad404ea45b6099fb99f478f1f187fa93
+state_head: b15f385ee83eda5c5fdb7290ae08a1e09a056b0a
 progress:
   total_phases: 17
   completed_phases: 10
@@ -16,7 +16,7 @@ progress:
   percent: 59
 milestone_name: )
 source_head: af00e0da93
-last_activity_desc: "D107-D109 implement flexible ranking gaps, slideshow aspect-fill and adaptive tags; native layout and light/dark checks recorded; review iPad updated; Phase 17 unchanged"
+last_activity_desc: "D110 fixes comment preview background/frame mismatch; 9 native tests pass with 16 light/dark/text-size renders; review iPad updated; Phase 17 unchanged"
 ---
 
 # Project State
@@ -1131,3 +1131,8 @@ D107–D109 (`13e688a7ad404ea45b6099fb99f478f1f187fa93`) refine ranking spacing,
 tag backgrounds. [Native evidence and final-build scope](quick/261017-pjj-implement-b-home-sections-with-selected-/HOME-CELL-FINISHES.md)
 record the three passing behavioral cases and final foreground-only visual verification. Review
 iPad updated in place; card-wide gradient dimming remains a separate pending proposal.
+
+
+D110 (`b15f385ee83eda5c5fdb7290ae08a1e09a056b0a`) reproduces and fixes the comment preview background/frame mismatch.
+[Investigation and native comparisons](quick/261022-comment-card-background/SUMMARY.md) record nine
+passing test identities and sixteen render configurations; review iPad updated in place.
