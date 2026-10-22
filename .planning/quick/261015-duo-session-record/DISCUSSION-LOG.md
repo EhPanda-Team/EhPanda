@@ -518,3 +518,22 @@ covering four text sizes, row/grid/relaunch, Appearance and Home. Review iPad up
 the task-created test device is removed.
 [Implementation scope, exact verification and simulator setup interruptions](../261015-tx1-implement-library-with-shared-favorites-/REMOVE-SIMPLIFIED-TITLES.md).
 Phase 17 owner gates and unselected Search proposals remain unchanged.
+
+
+## Retain the current Search design — 2026-10-22
+
+| ID | Owner direction | Disposition |
+|---|---|---|
+| D120 | The current Search already resembles the supplied Apple Books reference sufficiently; no redesign is needed. Confirm its existing sections. | Keep the current Search root and results flow. Close the prior A/B selection as retain-current; neither proposal is adopted. Existing sections are Quick Search, Recently Searched and Recently Seen, in that order, each hidden when its collection is empty. |
+
+Source inspection at `8fcf087616613319652f6e3a0c38d7094d3f30c5` confirms:
+
+- `AppPackage/Sources/SearchFeature/SearchRootView.swift` defines the three conditional sections;
+  Quick Search exposes saved query shortcuts and a Show All action.
+- `AppPackage/Sources/SearchFeature/SearchRootReducer.swift` retains up to 20 search-history
+  keywords and fetches metadata for the 10 most recent gallery-history entries.
+- Recently Seen uses a horizontal gallery row. No Discover or Trending section is present.
+
+This is a documentation-only owner decision. No app code, tests, screenshot baseline, navigation
+or Phase 17 gate changes. The old proposal and browser preview remain comparison material.
+The verbatim owner note is [retained here](../../notes/2026-10-22-retain-current-search-design.md).

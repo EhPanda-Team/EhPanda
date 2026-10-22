@@ -3,7 +3,7 @@ type: retrospective-summary
 recorded: 2026-10-15
 historical_duo_implementation_commits: 21
 library_implementation_commits: 31
-decision_records: 119
+decision_records: 120
 ---
 
 # Delivery and commit ledger
@@ -20,7 +20,8 @@ iPad, with distinct separators and movable reader controls. D91 restores iPad Ho
 the independent iPad reader controls remain active. The app-wide Library follow-up combines
 Favorites/Downloads around management, with the owner-selected shared category navigation and
 separate groups. Quick task `261015-tx1` implements independently remembered row/grid choices and
-a regular grid. Search A/B remains unresolved; old prototypes remain comparison material.
+a regular grid. D120 retains the current Search design and closes the earlier A/B choice; old
+prototypes remain comparison material.
 
 The first four commits were inherited from the supplied handoff; the remaining seventeen were
 created during this session. Implementation references below point to the replayed commits. MIGRATION.md retains the explicit
@@ -416,3 +417,12 @@ native builds, 94 model test identities and three focused iPad UI tests pass. Th
 four text sizes, row/grid/relaunch, Appearance and Home. Review iPad updated in place; the task
 test device is removed.
 [Retirement, compatibility coverage and delivery evidence](../261015-tx1-implement-library-with-shared-favorites-/REMOVE-SIMPLIFIED-TITLES.md).
+
+
+## Retain current Search — D120
+
+The owner accepts the current Search design and requests no redesign. Its root shows Quick Search,
+Recently Searched and Recently Seen in that order when data exists. Source inspection confirms
+saved query shortcuts, up to 20 recent keywords and the 10 most recent gallery-history entries.
+Neither earlier A/B proposal is selected. This records a design decision only; implementation
+commit counts and the previous verified source remain unchanged.

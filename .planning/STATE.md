@@ -5,7 +5,7 @@ current_phase: 17
 current_phase_name: Screenshot Automation, Visual Regression & OS 27 Modernization
 status: executing
 stopped_at: 17-06 revision re-shot (2026-10-13), 16/16 captured; waiting for the owner's visual review; agent prepares both gallery sets
-last_updated: "2026-10-22T12:55:41Z"
+last_updated: "2026-10-22T13:03:51Z"
 last_activity: 2026-10-22
 state_head: 8fcf087616613319652f6e3a0c38d7094d3f30c5
 progress:
@@ -16,7 +16,7 @@ progress:
   percent: 59
 milestone_name: )
 source_head: af00e0da93
-last_activity_desc: "D119 removes title simplification; clean build/lint, 94 model and three iPad UI tests pass; review iPad updated; Phase 17 unchanged"
+last_activity_desc: "D120 retains current Search and closes A/B selection; documentation only; D119 verified source and Phase 17 gates unchanged"
 ---
 
 # Project State
@@ -25,9 +25,9 @@ last_activity_desc: "D119 removes title simplification; clean build/lint, 94 mod
 
 ## Duo session record — 2026-10-15
 
-The complete Duo/landscape session decisions, superseded choices, implementation ledger, retained verification and still-unselected wide-screen proposals are in [261015-duo-session-record/CONTEXT.md](quick/261015-duo-session-record/CONTEXT.md). This retrospective record does not complete Phase 17. Branch migration is tracked separately there.
+The complete Duo/landscape session decisions, superseded choices, implementation ledger, retained verification and historical wide-screen proposals are in [261015-duo-session-record/CONTEXT.md](quick/261015-duo-session-record/CONTEXT.md). This retrospective record does not complete Phase 17. Branch migration is tracked separately there.
 
-The follow-up [Library design](quick/261015-duo-session-record/LIBRARY-DIRECTION.md) is implemented by quick task [261015-tx1](quick/261015-tx1-implement-library-with-shared-favorites-/261015-tx1-SUMMARY.md): shared category navigation with separate Favorites/Downloads groups, independently remembered row/grid choices and a regular grid replacing waterfall. Current validation records 959 FeatureTests identities, 6/6 UI tests on each of iPhone/iPad/Duo, native resize/fold checks and bounded accessibility evidence. Search A/B remains unselected; Phase 17 status is unchanged.
+The follow-up [Library design](quick/261015-duo-session-record/LIBRARY-DIRECTION.md) is implemented by quick task [261015-tx1](quick/261015-tx1-implement-library-with-shared-favorites-/261015-tx1-SUMMARY.md): shared category navigation with separate Favorites/Downloads groups, independently remembered row/grid choices and a regular grid replacing waterfall. Current validation records 959 FeatureTests identities, 6/6 UI tests on each of iPhone/iPad/Duo, native resize/fold checks and bounded accessibility evidence. D120 keeps the current Search design and closes the earlier A/B selection; Phase 17 status is unchanged.
 
 Current design workspace: `agent/app-design`; see [workspace rebuild](quick/261015-duo-session-record/WORKSPACE-REBUILD.md).
 
