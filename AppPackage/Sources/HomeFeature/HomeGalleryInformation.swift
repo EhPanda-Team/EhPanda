@@ -65,7 +65,7 @@ struct HomeSlideshowInformation: View {
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
             }
-            .frame(maxWidth: 500, alignment: .leading)
+            .frame(maxWidth: 360, alignment: .leading)
             if !gallery.homeSlideshowTags.isEmpty {
                 GlassEffectContainer(spacing: 0) {
                     TagCloudView(data: gallery.homeSlideshowTags) { tag in
