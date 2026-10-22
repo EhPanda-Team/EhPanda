@@ -108,6 +108,13 @@ SwiftUI specialist guidance without adding view wrappers or branches.
 Implementation: `7137543a3faee765bce4ff0997701fb398c74c7f`. Pinned strict SwiftLint and whitespace validation pass.
 The generic Simulator SDK build succeeds with zero compiler/analyzer warnings or errors. The
 review iPad is updated in place and launched normally (PID 58304), without fixture flags or
-data/settings changes. No new automated suite or screenshot was run for this alignment-only
-adjustment; D122 images remain explicitly historical. Evidence is under
+data/settings changes. No new automated suite was run for this alignment-only adjustment.
+At the owner's follow-up request, the updated native iPad screenshot (image removed from repository history)
+confirms top-leading placeholders and the retained section height. D122 images remain historical.
+The capture uses the same final-source build on an isolated fresh iPad, entering Search with
+network stubbing so all three sections are empty; review-device data is untouched. The first
+capture caught SpringBoard during initial setup and is not app evidence. After a settled relaunch,
+the final light-appearance capture was visually inspected. Evidence is under
 `.build/library/search-empty-top-alignment/`. Phase 17 owner gates are unchanged.
+
+The task-created capture iPad was shut down and deleted after the final screenshot was retained.
