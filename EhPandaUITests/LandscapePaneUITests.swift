@@ -253,7 +253,8 @@ final class LandscapePaneUITests: XCTestCase {
         let window = app.windows.firstMatch.frame
         XCTAssertLessThan(sections.frame.minX, window.midX)
         XCTAssertGreaterThan(sections.frame.maxX, window.midX)
-        XCTAssertTrue(app.navigationBars["Home"].staticTexts["Home"].isHittable)
+        XCTAssertTrue(app.navigationBars.staticTexts["Home"].firstMatch.waitForNonExistence(timeout: 5))
+        XCTAssertTrue(app.navigationBars.buttons["Reload"].firstMatch.isHittable)
     }
 
     func testReaderControlsMoveAndKeepTheirSideAfterRotation() throws {
