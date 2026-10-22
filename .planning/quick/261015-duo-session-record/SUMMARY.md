@@ -2,8 +2,8 @@
 type: retrospective-summary
 recorded: 2026-10-15
 historical_duo_implementation_commits: 21
-library_implementation_commits: 32
-decision_records: 121
+library_implementation_commits: 33
+decision_records: 122
 ---
 
 # Delivery and commit ledger
@@ -435,3 +435,12 @@ empty sections visible with localized secondary text. Populated content and nati
 remain. Pinned lint/catalog checks and a generic Simulator SDK build pass without warnings/errors;
 native empty-state/Show All checks pass, the review iPad is updated in place and the task device
 is removed. [Verification and scope](../261022-search-section-placeholders/SUMMARY.md).
+
+
+## Search empty-section spacing — D122
+
+`187a3a5f7c7e564a6b7846e62ae94ed064c1f844` adds a 96-point minimum height to the three empty section content frames.
+Secondary text remains leading and vertically centered; populated sections stay unchanged.
+Strict lint and the native build pass without warnings/errors. A new native iPad screenshot
+confirms the roomier layout. Review iPad updated normally after a bounded retry; the task test
+device is removed. [Screenshot and verification limits](../261022-search-section-placeholders/SUMMARY.md).
