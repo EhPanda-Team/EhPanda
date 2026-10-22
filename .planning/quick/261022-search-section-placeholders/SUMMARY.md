@@ -5,9 +5,10 @@
 Date: 2026-10-22
 
 Implementation: `7dea2ee67a3515e2a6abdf0ebd697c5b8200682e`.
-Status: D124–D126 complete; review iPad updated.
+Status: D127 complete; review iPad updated.
 
-Current follow-up: [section spacing, equal row height and Remove All actions](SEARCH-ACTIONS.md).
+Current follow-up: [consistent spacing around Recently Seen](EQUAL-SECTION-SPACING.md).
+D124–D126 remain documented in [section spacing and history actions](SEARCH-ACTIONS.md).
 
 **Current follow-up — D123:** retain D122's 96-point minimum empty-content height, but align
 placeholder text to the top leading edge. The D121/D122 screenshots below are historical;
@@ -153,3 +154,11 @@ heights and native header Remove All actions. Confirmations anchor to their trig
 Search tests, clean native builds, catalog/lint checks and isolated iPad actions pass. The review
 iPad is updated normally and its data is preserved.
 [Behavior, confirmed history policy, screenshots and precise verification](SEARCH-ACTIONS.md).
+
+
+## Consistent section spacing — D127
+
+`105950892dbe7b28e4b2e80ce85a447378f9f5a9` removes nested keyword vertical padding and the invisible last
+separator footprint. Native iPad measurements confirm 24-point gaps on both sides of Recently
+Seen, with 8-point heading/content gaps. Clean build/lint; review iPad updated normally.
+[Cause, screenshot, measurements and verification limits](EQUAL-SECTION-SPACING.md).

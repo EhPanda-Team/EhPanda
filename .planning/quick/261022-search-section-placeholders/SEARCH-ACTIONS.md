@@ -4,6 +4,8 @@
 
 Implementation: `15c4e9ead3ad10da71974bf7a93f87aa2fc976b4`. Date: 2026-10-22.
 Status: implemented and delivered to the existing review iPad.
+Spacing is subsequently corrected by [D127](EQUAL-SECTION-SPACING.md), which removes nested
+keyword padding and invisible last-row separator space; the actions and their behavior remain.
 
 ## Owner direction and behavior
 

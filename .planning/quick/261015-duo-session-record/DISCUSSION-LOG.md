@@ -598,3 +598,16 @@ Implementation: `15c4e9ead3ad10da71974bf7a93f87aa2fc976b4`. Sixteen focused Sear
 native iPad interactions verify anchors, cancel/confirm, persistence after relaunch and Show All.
 [Full scope, screenshots and provenance](../261022-search-section-placeholders/SEARCH-ACTIONS.md).
 Review iPad updated normally; task device removed. Phase 17 gates remain unchanged.
+
+
+## Equal spacing around Recently Seen — 2026-10-23
+
+| ID | Owner direction | Disposition |
+|---|---|---|
+| D127 | Make Recently Seen's spacing to the sections above and below consistent. | Remove nested keyword vertical padding and the last hidden separator's layout footprint. Retain the outer 24-point gap, use a common 8-point heading/content gap, and preserve 44-point minimum keyword controls. Corrects D124's incomplete spacing adjustment. |
+
+Implementation: `105950892dbe7b28e4b2e80ce85a447378f9f5a9`. Native iPad content bounds confirm 24 points on both
+sides of Recently Seen and 8-point heading/content gaps. Builds and lint pass; no new behavior
+test suite is claimed for this layout-only change. Review iPad updated normally; task device removed.
+[Root cause, screenshot and precise measurements](../261022-search-section-placeholders/EQUAL-SECTION-SPACING.md).
+Phase 17 gates are unchanged.

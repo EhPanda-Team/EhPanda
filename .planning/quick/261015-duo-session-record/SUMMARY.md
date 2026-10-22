@@ -2,8 +2,8 @@
 type: retrospective-summary
 recorded: 2026-10-15
 historical_duo_implementation_commits: 21
-library_implementation_commits: 35
-decision_records: 126
+library_implementation_commits: 36
+decision_records: 127
 ---
 
 # Delivery and commit ledger
@@ -464,3 +464,11 @@ Review iPad updated normally, original data preserved; task device removed. Phas
 Owner confirmation on 2026-10-23 resolves D126's earlier assumption: Recently Seen Remove All
 clears all browsing records and their reading positions, matching History. Implementation and
 verification evidence remain unchanged.
+
+
+## Equal spacing around Recently Seen — D127
+
+`105950892dbe7b28e4b2e80ce85a447378f9f5a9` removes keyword-only vertical padding and trailing invisible separator
+space. Native iPad measurements confirm equal 24-point inter-section gaps; heading/content gaps
+are 8 points and keyword controls retain their 44-point minimum. Clean builds/lint; review iPad
+updated normally, capture simulator removed. [Evidence](../261022-search-section-placeholders/EQUAL-SECTION-SPACING.md).
