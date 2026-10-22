@@ -22,6 +22,7 @@ public struct SearchRootView: View {
                 SuggestionsPanel(
                     historyKeywords: store.historyKeywords.reversed(),
                     historyGalleries: store.historyGalleries,
+                    hasGalleryHistory: !store.galleryHistory.isEmpty,
                     quickSearchWords: store.quickSearchWords,
                     containerHeight: containerHeight,
                     navigateGalleryAction: { store.send(.galleryTapped($0)) },
@@ -30,7 +31,9 @@ public struct SearchRootView: View {
                         store.send(.setKeyword(keyword))
                         store.send(.pushSearch)
                     },
-                    removeKeywordAction: { store.send(.removeHistoryKeyword($0)) }
+                    removeKeywordAction: { store.send(.removeHistoryKeyword($0)) },
+                    removeAllKeywordsAction: { store.send(.removeAllHistoryKeywords) },
+                    removeAllGalleriesAction: { store.send(.removeAllHistoryGalleries) }
                 )
             }
             .scrollIndicators(.hidden)
@@ -99,29 +102,37 @@ private struct SuggestionsPanel: View {
 
     private let historyKeywords: [String]
     private let historyGalleries: [Gallery]
+    private let hasGalleryHistory: Bool
     private let quickSearchWords: [QuickSearchWord]
     private let containerHeight: CGFloat
     private let navigateGalleryAction: (Gallery) -> Void
     private let navigateQuickSearchAction: () -> Void
     private let searchKeywordAction: (String) -> Void
     private let removeKeywordAction: (String) -> Void
+    private let removeAllKeywordsAction: () -> Void
+    private let removeAllGalleriesAction: () -> Void
 
     init(
-        historyKeywords: [String], historyGalleries: [Gallery],
+        historyKeywords: [String], historyGalleries: [Gallery], hasGalleryHistory: Bool,
         quickSearchWords: [QuickSearchWord], containerHeight: CGFloat,
         navigateGalleryAction: @escaping (Gallery) -> Void,
         navigateQuickSearchAction: @escaping () -> Void,
         searchKeywordAction: @escaping (String) -> Void,
-        removeKeywordAction: @escaping (String) -> Void
+        removeKeywordAction: @escaping (String) -> Void,
+        removeAllKeywordsAction: @escaping () -> Void,
+        removeAllGalleriesAction: @escaping () -> Void
     ) {
         self.historyKeywords = historyKeywords
         self.historyGalleries = historyGalleries
+        self.hasGalleryHistory = hasGalleryHistory
         self.quickSearchWords = quickSearchWords
         self.containerHeight = containerHeight
         self.navigateGalleryAction = navigateGalleryAction
         self.navigateQuickSearchAction = navigateQuickSearchAction
         self.searchKeywordAction = searchKeywordAction
         self.removeKeywordAction = removeKeywordAction
+        self.removeAllKeywordsAction = removeAllKeywordsAction
+        self.removeAllGalleriesAction = removeAllGalleriesAction
     }
 
     /// Each section inserts or removes whole rows as words, keywords and galleries come and go —
@@ -131,21 +142,28 @@ private struct SuggestionsPanel: View {
     }
 
     var body: some View {
-        VStack {
+        let sections = Group {
             HistoryKeywordsSection(
                 keywords: historyKeywords,
                 searchAction: searchKeywordAction,
-                removeAction: removeKeywordAction
+                removeAction: removeKeywordAction,
+                removeAllAction: removeAllKeywordsAction
             )
             HistoryGalleriesSection(
-                galleries: historyGalleries,
-                navigationAction: navigateGalleryAction
+                galleries: historyGalleries, hasHistory: hasGalleryHistory,
+                navigationAction: navigateGalleryAction,
+                removeAllAction: removeAllGalleriesAction
             )
             QuickSearchWordsSection(
                 quickSearchWords: quickSearchWords,
                 showAllAction: navigateQuickSearchAction,
                 searchAction: searchKeywordAction
             )
+        }
+        VStack(spacing: 24) {
+            ForEach(sections: sections) { section in
+                SearchSuggestionSection(section: section)
+            }
         }
         // Keep rows at their intrinsic height before applying the sparse-content viewport floor.
         .fixedSize(horizontal: false, vertical: true)
@@ -186,10 +204,7 @@ private struct QuickSearchWordsSection: View {
     }
 
     var body: some View {
-        SubSection(
-            title: .RLocalizable.quickSearch,
-            showAll: true, showAllAction: showAllAction
-        ) {
+        Section {
             if quickSearchWords.isEmpty {
                 Text(.quickSearchEmpty)
                     .font(.subheadline)
@@ -199,6 +214,11 @@ private struct QuickSearchWordsSection: View {
             } else {
                 DoubleVerticalKeywordsStack(keywords: keywords, searchAction: searchAction)
             }
+        } header: {
+            Text(.RLocalizable.quickSearch)
+        }
+        .sectionActions {
+            Button(.showAll, action: showAllAction)
         }
     }
 }
@@ -207,16 +227,21 @@ private struct QuickSearchWordsSection: View {
 private struct HistoryKeywordsSection: View {
     private let keywords: [String]
     private let searchAction: (String) -> Void
-    private let removeAction: ((String) -> Void)
+    private let removeAction: (String) -> Void
+    private let removeAllAction: () -> Void
 
-    init(keywords: [String], searchAction: @escaping (String) -> Void, removeAction: @escaping (String) -> Void) {
+    init(
+        keywords: [String], searchAction: @escaping (String) -> Void,
+        removeAction: @escaping (String) -> Void, removeAllAction: @escaping () -> Void
+    ) {
         self.keywords = keywords
         self.searchAction = searchAction
         self.removeAction = removeAction
+        self.removeAllAction = removeAllAction
     }
 
     var body: some View {
-        SubSection(title: .recentlySearched, showAll: false) {
+        Section {
             if keywords.isEmpty {
                 Text(.recentlySearchedEmpty)
                     .font(.subheadline)
@@ -230,6 +255,14 @@ private struct HistoryKeywordsSection: View {
                     removeAction: removeAction
                 )
             }
+        } header: {
+            Text(.recentlySearched)
+        }
+        .sectionActions {
+            RemoveSearchHistoryButton(
+                message: .removeSearchesConfirmation, isEmpty: keywords.isEmpty,
+                identifier: "search-remove-all-keywords", action: removeAllAction
+            )
         }
     }
 }
@@ -237,15 +270,22 @@ private struct HistoryKeywordsSection: View {
 // MARK: HistoryGalleriesSection
 private struct HistoryGalleriesSection: View {
     private let galleries: [Gallery]
+    private let hasHistory: Bool
     private let navigationAction: (Gallery) -> Void
+    private let removeAllAction: () -> Void
 
-    init(galleries: [Gallery], navigationAction: @escaping (Gallery) -> Void) {
+    init(
+        galleries: [Gallery], hasHistory: Bool, navigationAction: @escaping (Gallery) -> Void,
+        removeAllAction: @escaping () -> Void
+    ) {
         self.galleries = galleries
+        self.hasHistory = hasHistory
         self.navigationAction = navigationAction
+        self.removeAllAction = removeAllAction
     }
 
     var body: some View {
-        SubSection(title: .recentlySeen, showAll: false) {
+        Section {
             if galleries.isEmpty {
                 Text(.recentlySeenEmpty)
                     .font(.subheadline)
@@ -270,6 +310,62 @@ private struct HistoryGalleriesSection: View {
                 }
                 .scrollIndicators(.hidden)
             }
+        } header: {
+            Text(.recentlySeen)
+        }
+        .sectionActions {
+            RemoveSearchHistoryButton(
+                message: .removeSeenConfirmation, isEmpty: !hasHistory,
+                identifier: "search-remove-all-galleries", action: removeAllAction
+            )
+        }
+    }
+}
+
+private struct SearchSuggestionSection: View {
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+    let section: SectionConfiguration
+
+    var body: some View {
+        VStack(alignment: .leading) {
+            let headingLayout = dynamicTypeSize.isAccessibilitySize
+                ? AnyLayout(VStackLayout(alignment: .leading, spacing: 8))
+                : AnyLayout(HStackLayout())
+            headingLayout {
+                HStack {
+                    section.header
+                }
+                .font(.title3.bold())
+                .multilineTextAlignment(.leading)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .accessibilityAddTraits(.isHeader)
+
+                section.actions
+                    .font(.subheadline)
+                    .multilineTextAlignment(.leading)
+            }
+            .padding(.horizontal)
+
+            section.content
+        }
+    }
+}
+
+private struct RemoveSearchHistoryButton: View {
+    @State private var isConfirming = false
+    let message: LocalizedStringResource
+    let isEmpty: Bool
+    let identifier: String
+    let action: () -> Void
+
+    var body: some View {
+        Button(.removeAll) {
+            isConfirming = true
+        }
+        .disabled(isEmpty)
+        .accessibilityIdentifier(identifier)
+        .confirmationDialog(message, isPresented: $isConfirming, titleVisibility: .visible) {
+            Button(.removeAll, role: .destructive, action: action)
         }
     }
 }

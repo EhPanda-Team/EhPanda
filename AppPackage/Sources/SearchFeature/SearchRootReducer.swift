@@ -35,10 +35,11 @@ public struct SearchRootReducer: Sendable {
         public var keyword = ""
         public var historyGalleries = [Gallery]()
 
-        // Persisted directly in app storage; both are also read/written by pushed Search screens
-        // and the QuickSearch editor, which share the same keys, so changes stay live without reloads.
+        // Shared with pushed Search screens, the QuickSearch editor and History. All mutations
+        // update the persisted collections directly, so other surfaces observe the same records.
         @Shared(.historyKeywords) public var historyKeywords: [String]
         @Shared(.quickSearchWords) public var quickSearchWords: [QuickSearchWord]
+        @Shared(.galleryHistory) public var galleryHistory: [GalleryHistoryEntry]
         @SharedReader(.tagTranslator) public var tagTranslator: TagTranslator
         @SharedReader(.setting) public var setting: Setting
 
@@ -90,6 +91,8 @@ public struct SearchRootReducer: Sendable {
 
         case appendHistoryKeyword(String)
         case removeHistoryKeyword(String)
+        case removeAllHistoryKeywords
+        case removeAllHistoryGalleries
         case fetchHistoryGalleries
         case fetchHistoryGalleriesDone(Result<[Gallery], AppError>)
     }
@@ -212,11 +215,20 @@ public struct SearchRootReducer: Sendable {
                 state.removeHistoryKeyword(keyword)
                 return .none
 
+            case .removeAllHistoryKeywords:
+                state.$historyKeywords.withLock({ $0.removeAll() })
+                return .none
+
+            case .removeAllHistoryGalleries:
+                // Match History's clear action: the persisted entries also hold resume positions.
+                state.$galleryHistory.withLock({ $0.removeAll() })
+                state.historyGalleries = []
+                return .cancel(id: CancelID.fetchHistoryGalleries)
+
             case .fetchHistoryGalleries:
                 // "Recently seen" suggestions: the 10 most-recent history entries, metadata
                 // refetched on demand since no gallery snapshot is persisted.
-                @Shared(.galleryHistory) var galleryHistory
-                let pairs = galleryHistory.prefix(10).map({ (gid: $0.gid, token: $0.token) })
+                let pairs = state.galleryHistory.prefix(10).map({ (gid: $0.gid, token: $0.token) })
                 guard !pairs.isEmpty else {
                     state.historyGalleries = []
                     return .none
@@ -240,7 +252,9 @@ public struct SearchRootReducer: Sendable {
 
             case .fetchHistoryGalleriesDone(let result):
                 if case .success(let galleries) = result {
-                    state.historyGalleries = galleries
+                    // A response already queued before clearing must not restore removed history.
+                    let currentIDs = Set(state.galleryHistory.prefix(10).map(\.gid))
+                    state.historyGalleries = galleries.filter({ currentIDs.contains($0.gid) })
                 }
                 return .none
             }
