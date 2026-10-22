@@ -78,3 +78,6 @@ D113 compares slideshow tag Liquid Glass and Material containers in
 
 D115 extends aspect-fill to Home Frontpage covers in rich and compact layouts. Separate row/grid
 cover defaults remain unchanged. [Implementation and verification](../261017-pjj-implement-b-home-sections-with-selected-/HOME-CELL-FINISHES.md).
+
+D116 applies the same aspect-fill policy to Home Toplists covers in rich and compact arrangements.
+[Implementation and verification](../261017-pjj-implement-b-home-sections-with-selected-/HOME-CELL-FINISHES.md).
