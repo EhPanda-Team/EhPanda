@@ -5,7 +5,6 @@ import ColorfulX
 public import Kingfisher
 import PreviewSupport
 import SFSafeSymbols
-import Sharing
 import SpringInterpolation
 public import SwiftUI
 
@@ -13,7 +12,6 @@ public struct GalleryCardCell: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.colorScheme) private var colorScheme
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
-    @SharedReader(.setting) private var setting: Setting
 
     @ScaledMetric(relativeTo: .title3) private var titleLineHeight: CGFloat = 24
     @ScaledMetric(relativeTo: .caption2) private var ratingLineHeight: CGFloat = 18
@@ -58,9 +56,6 @@ public struct GalleryCardCell: View {
         guard colorScheme == .dark else { return false }
         return gallery.gid == currentID
     }
-    private var title: String {
-        setting.simplifyGalleryTitles ? gallery.simplifiedTitle : gallery.title
-    }
 
     public var body: some View {
         Group {
@@ -71,7 +66,7 @@ public struct GalleryCardCell: View {
                         onSuccess: handleCoverSuccess
                     )
                     VStack(alignment: .leading, spacing: 12) {
-                        Text(title)
+                        Text(gallery.title)
                             .accessibilityIdentifier("home_slideshow_title_\(gallery.id)")
                             .font(.title2.bold())
                             .lineLimit(2, reservesSpace: true)
@@ -153,7 +148,7 @@ public struct GalleryCardCell: View {
     /// The destination provides the complete title, while rating stays in this text column.
     private func textColumn(titleLines: Int) -> some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text(title)
+            Text(gallery.title)
                 .accessibilityIdentifier("home_slideshow_title_\(gallery.id)")
                 .font(.title3.bold())
                 .lineLimit(titleLines, reservesSpace: true)

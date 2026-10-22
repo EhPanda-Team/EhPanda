@@ -69,9 +69,6 @@ struct AppearanceSettingView: View {
                 .disabled(!setting.showTagsInList)
             }
             Section(.gallery) {
-                AppToggle(.simplifiedTitles, isOn: Binding($setting.simplifyGalleryTitles))
-                    .accessibilityIdentifier("simplified-gallery-titles")
-
                 AppToggle(
                     .displayJapaneseTitle,
                     isOn: Binding($setting.displayJapaneseTitle)

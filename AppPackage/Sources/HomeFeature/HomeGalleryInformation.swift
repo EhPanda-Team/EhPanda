@@ -3,7 +3,6 @@ import AppModels
 import AppTools
 import Resources
 import SFSafeSymbols
-import Sharing
 import SwiftUI
 
 struct HomePageLanguage: View {
@@ -106,7 +105,6 @@ extension Gallery {
 }
 
 struct HomeFrontpageCell: View {
-    @SharedReader(.setting) private var setting: Setting
     @GalleryCoverMetrics private var coverSize: CGSize
     let gallery: Gallery
     let showsRichInformation: Bool
@@ -117,10 +115,6 @@ struct HomeFrontpageCell: View {
         _coverSize = GalleryCoverMetrics(showsRichInformation ? .homeFrontpage : .standard)
     }
 
-    private var title: String {
-        setting.simplifyGalleryTitles ? gallery.simplifiedTitle : gallery.title
-    }
-
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
             GalleryCover(
@@ -128,7 +122,7 @@ struct HomeFrontpageCell: View {
             )
                 .accessibilityHidden(true)
             if showsRichInformation {
-                Text(title)
+                Text(gallery.title)
                     .font(.subheadline.bold())
                     .lineLimit(2, reservesSpace: true)
                     .fixedSize(horizontal: false, vertical: true)
@@ -139,7 +133,7 @@ struct HomeFrontpageCell: View {
         }
         .frame(width: coverSize.width, alignment: .leading)
         .accessibilityElement(children: .combine)
-        .accessibilityLabel(title, isEnabled: !showsRichInformation)
+        .accessibilityLabel(gallery.title, isEnabled: !showsRichInformation)
         .accessibilityIdentifier("home_frontpage_title_\(gallery.id)")
     }
 }

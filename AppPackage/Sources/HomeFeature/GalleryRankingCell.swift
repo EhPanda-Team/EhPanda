@@ -2,13 +2,10 @@ import AppComponents
 public import AppModels
 import AppTools
 import PreviewSupport
-import Sharing
 public import SwiftUI
 
 public struct GalleryRankingCell: View {
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
-
-    @SharedReader(.setting) private var setting: Setting
 
     private let showsRichInformation: Bool
     private let gallery: Gallery
@@ -67,7 +64,7 @@ public struct GalleryRankingCell: View {
 
     private var textColumn: some View {
         VStack(alignment: .leading, spacing: 0) {
-            Text(setting.simplifyGalleryTitles ? gallery.simplifiedTitle : gallery.title)
+            Text(gallery.title)
                 .accessibilityIdentifier("home_ranking_title_\(gallery.id)")
                 .bold()
                 .lineLimit(textLineLimit(2))

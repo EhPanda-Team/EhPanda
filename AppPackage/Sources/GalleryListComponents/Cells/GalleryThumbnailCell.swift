@@ -52,7 +52,7 @@ public struct GalleryThumbnailCell: View {
             cover
                 .fixedSize(horizontal: false, vertical: true)
             VStack(alignment: .leading, spacing: textColumnSpacing) {
-                Text(setting.simplifyGalleryTitles ? gallery.simplifiedTitle : gallery.title)
+                Text(gallery.title)
                     .font(.callout.bold())
                     .lineLimit(2)
                     .fixedSize(horizontal: false, vertical: true)
