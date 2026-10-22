@@ -1,0 +1,22 @@
+diff --git a/AppPackage/Sources/HomeFeature/HomeGalleryInformation.swift b/AppPackage/Sources/HomeFeature/HomeGalleryInformation.swift
+index c26dde849..8265a65ab 100644
+--- a/AppPackage/Sources/HomeFeature/HomeGalleryInformation.swift
++++ b/AppPackage/Sources/HomeFeature/HomeGalleryInformation.swift
+@@ -73,16 +73,7 @@ struct HomeSlideshowInformation: View {
+                         padding: .init(top: 4, leading: 8, bottom: 4, trailing: 8),
+                         textColor: colorScheme == .dark ? .primary : .secondary, backgroundColor: .clear
+                     )
+-                    .background(
+-                        colorScheme == .dark
+-                            ? AnyShapeStyle(.regularMaterial)
+-                            : AnyShapeStyle(Color(uiColor: .systemBackground)),
+-                        in: .rect(cornerRadius: 6)
+-                    )
+-                    .overlay {
+-                        RoundedRectangle(cornerRadius: 6)
+-                            .strokeBorder(.quaternary, lineWidth: 1)
+-                    }
++                    .background(.regularMaterial, in: .rect(cornerRadius: 6))
+                 }
+             }
+         }
