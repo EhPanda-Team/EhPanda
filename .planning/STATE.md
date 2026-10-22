@@ -5,9 +5,9 @@ current_phase: 17
 current_phase_name: Screenshot Automation, Visual Regression & OS 27 Modernization
 status: executing
 stopped_at: 17-06 revision re-shot (2026-10-13), 16/16 captured; waiting for the owner's visual review; agent prepares both gallery sets
-last_updated: "2026-10-22T04:07:21Z"
+last_updated: "2026-10-22T06:30:20Z"
 last_activity: 2026-10-22
-state_head: 6644232f25285fa9724d5e708b8d10f8a5e964a9
+state_head: 13e688a7ad404ea45b6099fb99f478f1f187fa93
 progress:
   total_phases: 17
   completed_phases: 10
@@ -16,7 +16,7 @@ progress:
   percent: 59
 milestone_name: )
 source_head: af00e0da93
-last_activity_desc: "D105 selects slideshow A; wide cards capped at 720 with portrait preserved; D106 adds ranking spacing; 3/3 iPad UI checks pass; review iPad updated; Phase 17 unchanged"
+last_activity_desc: "D107-D109 implement flexible ranking gaps, slideshow aspect-fill and adaptive tags; native layout and light/dark checks recorded; review iPad updated; Phase 17 unchanged"
 ---
 
 # Project State
@@ -1125,3 +1125,9 @@ D105–D106 (`6644232f25285fa9724d5e708b8d10f8a5e964a9`) implement the selected 
 and roomier Toplists information. [Verification and native screenshots](quick/261017-pjj-implement-b-home-sections-with-selected-/SLIDESHOW-A.md)
 record 3/3 passing native iPad UI tests and clean build/lint. This supersedes D104's pending
 selection; portrait, navigation and Phase 17 owner gates/baselines remain unchanged.
+
+
+D107–D109 (`13e688a7ad404ea45b6099fb99f478f1f187fa93`) refine ranking spacing, slideshow aspect-fill and adaptive
+tag backgrounds. [Native evidence and final-build scope](quick/261017-pjj-implement-b-home-sections-with-selected-/HOME-CELL-FINISHES.md)
+record the three passing behavioral cases and final foreground-only visual verification. Review
+iPad updated in place; card-wide gradient dimming remains a separate pending proposal.

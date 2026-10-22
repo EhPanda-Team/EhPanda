@@ -399,3 +399,17 @@ and [proposal screenshots and measurements](../../sketches/002-landscape-slidesh
 D105–D106 implementation: `6644232f25285fa9724d5e708b8d10f8a5e964a9`. Three native iPad UI tests pass,
 including centered landscape width, preserved portrait selection/height, bidirectional swiping
 and four-size cold entry/rotation. Strict lint/build checks pass; review iPad updated in place.
+
+
+## Home cell spacing, cover fill and tag appearance — 2026-10-22
+
+| ID | Owner direction | Disposition |
+|---|---|---|
+| D107 | Toplist element spacing should fill the cell height. | Replace fixed rich-information gaps with flexible spacers, minimum 8 points; keep intrinsic height and accessibility reflow. Supersedes D106's fixed spacing. |
+| D108 | Slideshow covers should preserve aspect ratio while filling, not fitting. | Use native aspect-fill in the existing rich cover frame; crop overflow without distorting artwork. |
+| D109 | Match proposal tag backgrounds and account for varying dark-mode colors. | Light semantic system background with fine outline; dark regular material blends with cover-derived gradients and uses primary tag text. Tag fields/font stay unchanged. |
+
+Implementation: `13e688a7ad404ea45b6099fb99f478f1f187fa93`. Three native iPad UI tests pass before the final dark-tag
+foreground refinement; the final source then passes a clean build and loaded-cover light/warm-dark/
+cool-dark visual checks. [Exact evidence and pending gradient finding](../261017-pjj-implement-b-home-sections-with-selected-/HOME-CELL-FINISHES.md).
+Review iPad updated in place. Card-wide gradient dimming is proposed separately and remains unapproved.

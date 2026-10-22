@@ -2,8 +2,8 @@
 type: retrospective-summary
 recorded: 2026-10-15
 historical_duo_implementation_commits: 21
-library_implementation_commits: 22
-decision_records: 106
+library_implementation_commits: 23
+decision_records: 109
 ---
 
 # Delivery and commit ledger
@@ -333,3 +333,13 @@ viewports, preserving portrait and compact/Duo geometry. Toplists information us
 Three focused native iPad UI tests pass with clean build/lint, and the review iPad is updated in
 place. [Exact verification and screenshots](../261017-pjj-implement-b-home-sections-with-selected-/SLIDESHOW-A.md).
 This supersedes D104's pending selection; B/C remain comparison alternatives only.
+
+
+## Home cell finishes — D107–D109
+
+`13e688a7ad404ea45b6099fb99f478f1f187fa93` makes rich ranking gaps expand through the cell height, uses aspect-fill
+for rich slideshow covers, and restores light tag backgrounds/fine outlines with adaptive dark
+material and legible dark tag text. Native Home regressions pass; the final foreground-only change
+receives a clean build and neutral warm/cool visual checks. The review iPad is updated with its data
+preserved. [Verification, screenshots and scope](../261017-pjj-implement-b-home-sections-with-selected-/HOME-CELL-FINISHES.md).
+D107 supersedes D106's fixed gaps. Card-wide bright-gradient contrast is a separate pending proposal.
