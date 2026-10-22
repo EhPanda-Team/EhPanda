@@ -2,8 +2,8 @@
 type: retrospective-summary
 recorded: 2026-10-15
 historical_duo_implementation_commits: 21
-library_implementation_commits: 20
-decision_records: 100
+library_implementation_commits: 21
+decision_records: 104
 ---
 
 # Delivery and commit ledger
@@ -313,3 +313,14 @@ LLVM profile-writer diagnostics are documented rather than suppressed. The origi
 has the final app with its data preserved; temporary test resources are restored/removed. See
 [implementation and exact evidence boundaries](../261017-pjj-implement-b-home-sections-with-selected-/261017-pjj-SUMMARY.md).
 Phase 17 and screenshot baselines are unchanged; this remains an owner-review implementation trial.
+
+
+## Home corrections and slideshow proposals — D101–D104
+
+`3673f4670652afa91bf54aa043b8ebdac2a81801` restores B Other divider/footnotes, removes Home Toplists uploader
+and makes rating stars inherit text foreground throughout the app. Two existing native iPad UI
+cases pass, including four-size cold entry/rotation and live title settings. Build/lint pass;
+retained tooling diagnostics and evidence boundaries are in the
+[follow-up record](../261017-pjj-implement-b-home-sections-with-selected-/FOLLOW-UP-20261022.md).
+Review iPad is updated in place with data preserved. [Sketch 002](../../sketches/002-landscape-slideshow/README.md)
+provides three landscape slideshow alternatives and portrait comparison; no winner is selected.

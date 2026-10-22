@@ -10,6 +10,10 @@ implementation_commit: 1cc211aee6158251c5ae3533cc59a22e33af1dc2
 
 > **Image evidence availability:** Image files were removed from this repository history at the owner's request. Screenshot descriptions, filenames and earlier visual checks below are historical records, not currently available image evidence. Written findings, measurements and source artifacts remain; visual review requires fresh captures.
 
+**Follow-up:** [D101–D104 correction and proposal record](FOLLOW-UP-20261022.md) supersedes the
+uploader and omitted-footer choices below and removes explicit rating colors. The original
+implementation/verification history is retained; new landscape slideshow alternatives are unselected.
+
 ## Owner direction and delivery scope
 
 D99 authorizes the current B+C combination: C slideshow with B Frontpage, Toplists and Other.

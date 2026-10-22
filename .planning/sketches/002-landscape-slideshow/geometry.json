@@ -1,0 +1,450 @@
+[
+  {
+    "cover": {
+      "height": 211.75,
+      "width": 154,
+      "x": 85.6937255859375,
+      "y": 193.125
+    },
+    "facts": {
+      "height": 74.5,
+      "width": 838.59375,
+      "x": 269.6937255859375,
+      "y": 322
+    },
+    "frontpage": {
+      "height": 27,
+      "width": 1138,
+      "x": 28,
+      "y": 506
+    },
+    "hero": {
+      "height": 274,
+      "width": 1074.59375,
+      "x": 59.6937255859375,
+      "y": 162
+    },
+    "overflow": false,
+    "url": "?capture=1&w=1194&v=current"
+  },
+  {
+    "cover": {
+      "height": 211.75,
+      "width": 154,
+      "x": 263,
+      "y": 193.125
+    },
+    "facts": {
+      "height": 74.5,
+      "width": 484,
+      "x": 447,
+      "y": 322
+    },
+    "frontpage": {
+      "height": 27,
+      "width": 1138,
+      "x": 28,
+      "y": 506
+    },
+    "hero": {
+      "height": 274,
+      "width": 720,
+      "x": 237,
+      "y": 162
+    },
+    "overflow": false,
+    "url": "?capture=1&w=1194&v=a"
+  },
+  {
+    "cover": {
+      "height": 291.5,
+      "width": 212,
+      "x": 99.6937255859375,
+      "y": 194.25
+    },
+    "facts": {
+      "height": 74.5,
+      "width": 660,
+      "x": 392.9906005859375,
+      "y": 369.25
+    },
+    "frontpage": {
+      "height": 27,
+      "width": 1138,
+      "x": 28,
+      "y": 588
+    },
+    "hero": {
+      "height": 356,
+      "width": 1074.59375,
+      "x": 59.6937255859375,
+      "y": 162
+    },
+    "overflow": false,
+    "url": "?capture=1&w=1194&v=b"
+  },
+  {
+    "cover": {
+      "height": 211.75,
+      "width": 154,
+      "x": 85.6937255859375,
+      "y": 193.125
+    },
+    "facts": {
+      "height": 74.5,
+      "width": 371.5234375,
+      "x": 736.7640380859375,
+      "y": 261.75
+    },
+    "frontpage": {
+      "height": 27,
+      "width": 1138,
+      "x": 28,
+      "y": 506
+    },
+    "hero": {
+      "height": 274,
+      "width": 1074.59375,
+      "x": 59.6937255859375,
+      "y": 162
+    },
+    "overflow": false,
+    "url": "?capture=1&w=1194&v=c"
+  },
+  {
+    "cover": {
+      "height": 211.75,
+      "width": 154,
+      "x": 67.6937255859375,
+      "y": 193.125
+    },
+    "facts": {
+      "height": 74.5,
+      "width": 514.59375,
+      "x": 251.6937255859375,
+      "y": 322
+    },
+    "frontpage": {
+      "height": 27,
+      "width": 778,
+      "x": 28,
+      "y": 506
+    },
+    "hero": {
+      "height": 274,
+      "width": 750.59375,
+      "x": 41.6937255859375,
+      "y": 162
+    },
+    "overflow": false,
+    "url": "?capture=1&w=834&v=current"
+  },
+  {
+    "cover": {
+      "height": 211.75,
+      "width": 154,
+      "x": 67.6937255859375,
+      "y": 193.125
+    },
+    "facts": {
+      "height": 74.5,
+      "width": 514.59375,
+      "x": 251.6937255859375,
+      "y": 322
+    },
+    "frontpage": {
+      "height": 27,
+      "width": 778,
+      "x": 28,
+      "y": 506
+    },
+    "hero": {
+      "height": 274,
+      "width": 750.59375,
+      "x": 41.6937255859375,
+      "y": 162
+    },
+    "overflow": false,
+    "url": "?capture=1&w=834&v=a"
+  },
+  {
+    "cover": {
+      "height": 211.75,
+      "width": 154,
+      "x": 67.6937255859375,
+      "y": 193.125
+    },
+    "facts": {
+      "height": 74.5,
+      "width": 514.59375,
+      "x": 251.6937255859375,
+      "y": 322
+    },
+    "frontpage": {
+      "height": 27,
+      "width": 778,
+      "x": 28,
+      "y": 506
+    },
+    "hero": {
+      "height": 274,
+      "width": 750.59375,
+      "x": 41.6937255859375,
+      "y": 162
+    },
+    "overflow": false,
+    "url": "?capture=1&w=834&v=b"
+  },
+  {
+    "cover": {
+      "height": 211.75,
+      "width": 154,
+      "x": 67.6937255859375,
+      "y": 193.125
+    },
+    "facts": {
+      "height": 74.5,
+      "width": 514.59375,
+      "x": 251.6937255859375,
+      "y": 322
+    },
+    "frontpage": {
+      "height": 27,
+      "width": 778,
+      "x": 28,
+      "y": 506
+    },
+    "hero": {
+      "height": 274,
+      "width": 750.59375,
+      "x": 41.6937255859375,
+      "y": 162
+    },
+    "overflow": false,
+    "url": "?capture=1&w=834&v=c"
+  },
+  {
+    "cover": {
+      "height": 211.75,
+      "width": 154,
+      "x": 98.5,
+      "y": 193.125
+    },
+    "facts": {
+      "height": 74.5,
+      "width": 1069,
+      "x": 282.5,
+      "y": 322
+    },
+    "frontpage": {
+      "height": 27,
+      "width": 1394,
+      "x": 28,
+      "y": 506
+    },
+    "hero": {
+      "height": 274,
+      "width": 1305,
+      "x": 72.5,
+      "y": 162
+    },
+    "overflow": false,
+    "url": "?capture=1&w=1450&v=current"
+  },
+  {
+    "cover": {
+      "height": 211.75,
+      "width": 154,
+      "x": 391,
+      "y": 193.125
+    },
+    "facts": {
+      "height": 74.5,
+      "width": 484,
+      "x": 575,
+      "y": 322
+    },
+    "frontpage": {
+      "height": 27,
+      "width": 1394,
+      "x": 28,
+      "y": 506
+    },
+    "hero": {
+      "height": 274,
+      "width": 720,
+      "x": 365,
+      "y": 162
+    },
+    "overflow": false,
+    "url": "?capture=1&w=1450&v=a"
+  },
+  {
+    "cover": {
+      "height": 291.5,
+      "width": 212,
+      "x": 112.5,
+      "y": 194.25
+    },
+    "facts": {
+      "height": 74.5,
+      "width": 660,
+      "x": 521,
+      "y": 369.25
+    },
+    "frontpage": {
+      "height": 27,
+      "width": 1394,
+      "x": 28,
+      "y": 588
+    },
+    "hero": {
+      "height": 356,
+      "width": 1305,
+      "x": 72.5,
+      "y": 162
+    },
+    "overflow": false,
+    "url": "?capture=1&w=1450&v=b"
+  },
+  {
+    "cover": {
+      "height": 211.75,
+      "width": 154,
+      "x": 98.5,
+      "y": 193.125
+    },
+    "facts": {
+      "height": 74.5,
+      "width": 477.3828125,
+      "x": 874.1171875,
+      "y": 261.75
+    },
+    "frontpage": {
+      "height": 27,
+      "width": 1394,
+      "x": 28,
+      "y": 506
+    },
+    "hero": {
+      "height": 274,
+      "width": 1305,
+      "x": 72.5,
+      "y": 162
+    },
+    "overflow": false,
+    "url": "?capture=1&w=1450&v=c"
+  },
+  {
+    "cover": {
+      "height": 159.5,
+      "width": 116,
+      "x": 50,
+      "y": 176.5
+    },
+    "facts": {
+      "height": 74.5,
+      "width": 364,
+      "x": 186,
+      "y": 289.5
+    },
+    "frontpage": {
+      "height": 27,
+      "width": 544,
+      "x": 28,
+      "y": 500.5
+    },
+    "hero": {
+      "height": 274,
+      "width": 540,
+      "x": 30,
+      "y": 156.5
+    },
+    "overflow": false,
+    "url": "?capture=1&w=600&v=current"
+  },
+  {
+    "cover": {
+      "height": 159.5,
+      "width": 116,
+      "x": 50,
+      "y": 176.5
+    },
+    "facts": {
+      "height": 74.5,
+      "width": 364,
+      "x": 186,
+      "y": 289.5
+    },
+    "frontpage": {
+      "height": 27,
+      "width": 544,
+      "x": 28,
+      "y": 500.5
+    },
+    "hero": {
+      "height": 274,
+      "width": 540,
+      "x": 30,
+      "y": 156.5
+    },
+    "overflow": false,
+    "url": "?capture=1&w=600&v=a"
+  },
+  {
+    "cover": {
+      "height": 159.5,
+      "width": 116,
+      "x": 50,
+      "y": 176.5
+    },
+    "facts": {
+      "height": 74.5,
+      "width": 364,
+      "x": 186,
+      "y": 289.5
+    },
+    "frontpage": {
+      "height": 27,
+      "width": 544,
+      "x": 28,
+      "y": 500.5
+    },
+    "hero": {
+      "height": 274,
+      "width": 540,
+      "x": 30,
+      "y": 156.5
+    },
+    "overflow": false,
+    "url": "?capture=1&w=600&v=b"
+  },
+  {
+    "cover": {
+      "height": 159.5,
+      "width": 116,
+      "x": 50,
+      "y": 176.5
+    },
+    "facts": {
+      "height": 74.5,
+      "width": 364,
+      "x": 186,
+      "y": 289.5
+    },
+    "frontpage": {
+      "height": 27,
+      "width": 544,
+      "x": 28,
+      "y": 500.5
+    },
+    "hero": {
+      "height": 274,
+      "width": 540,
+      "x": 30,
+      "y": 156.5
+    },
+    "overflow": false,
+    "url": "?capture=1&w=600&v=c"
+  }
+]

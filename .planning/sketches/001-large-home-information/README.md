@@ -193,3 +193,14 @@ The conditional slideshow grouping mode remains deferred, and the iPad single-pa
 See [native implementation, verification and source boundaries](../../quick/261017-pjj-implement-b-home-sections-with-selected-/261017-pjj-SUMMARY.md).
 The HTML screenshots and earlier browser results above remain proposal evidence, not native baselines.
 No macOS port or Phase 17 baseline promotion is claimed.
+
+
+## Follow-up — D101–D104 (2026-10-22)
+
+The owner corrects three details: restore this B proposal's Other divider/footnotes in native,
+remove Home Toplists uploader and inherit text color for all rating stars. Implemented in
+`3673f4670652afa91bf54aa043b8ebdac2a81801`; [verification](../../quick/261017-pjj-implement-b-home-sections-with-selected-/FOLLOW-UP-20261022.md).
+This directory's HTML/screenshots remain historical comparison material and may still show the
+superseded uploader/star color. [Sketch 002](../002-landscape-slideshow/README.md) reflects the
+corrections and compares three new slideshow landscape treatments while retaining portrait.
+No landscape alternative is selected; the native C arrangement remains active.

@@ -370,3 +370,18 @@ The prior adaptive revision and screenshots remain historical evidence.
 
 [Implementation plan](../261017-pjj-implement-b-home-sections-with-selected-/261017-pjj-PLAN.md) and
 [delivery, source boundaries and retained diagnostics](../261017-pjj-implement-b-home-sections-with-selected-/261017-pjj-SUMMARY.md).
+
+
+## Home corrections and landscape slideshow review — 2026-10-22
+
+| ID | Owner direction | Disposition |
+|---|---|---|
+| D101 | Original B Other cards include a divider and footnote that the implementation omitted. | Restore the native divider and original three scope footnotes with six-locale strings. Supersedes the unrequested footer omission recorded in the initial implementation summary. |
+| D102 | Remove uploader from Toplists cells. | Remove Home ranking uploader at all sizes, retaining title/category/pages/language/rating and existing reflow. |
+| D103 | Every star should use text color with no explicit color. | Remove explicit rating foregrounds throughout Home, row/grid, history, Detail and rating input; inherit surrounding text appearance. |
+| D104 | Portrait slideshow is satisfactory; landscape still feels sparse. Show visual solutions. | Sketch 002 compares narrower cards, a larger cover and horizontal groups using the same fields. Preserve portrait; no alternative is selected or applied to native slideshow. |
+
+D101–D103 implementation: `3673f4670652afa91bf54aa043b8ebdac2a81801`. Two native iPad UI cases pass, strict lint
+and compiler/analyzer checks are clean; the known profile-writer tooling diagnostic remains.
+See [correction verification](../261017-pjj-implement-b-home-sections-with-selected-/FOLLOW-UP-20261022.md)
+and [proposal screenshots and measurements](../../sketches/002-landscape-slideshow/README.md).
