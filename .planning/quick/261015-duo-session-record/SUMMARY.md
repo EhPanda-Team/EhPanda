@@ -2,8 +2,8 @@
 type: retrospective-summary
 recorded: 2026-10-15
 historical_duo_implementation_commits: 21
-library_implementation_commits: 37
-decision_records: 128
+library_implementation_commits: 38
+decision_records: 129
 ---
 
 # Delivery and commit ledger
@@ -479,3 +479,9 @@ updated normally, capture simulator removed. [Evidence](../261022-search-section
 `afeed90a362421da10d900a571af18d1e15eac0a` increases the shared inter-section gap from 24 to 32 points.
 D127's equal-spacing structure, heading/content gap and control heights remain intact.
 [Scope and verification](../261022-search-section-placeholders/EQUAL-SECTION-SPACING.md#larger-shared-gap--d128).
+
+
+## Double Search section spacing — D129
+
+`0720e193e56c3e72c79649e38829445b7478b995` doubles the shared section gap from 32 to 64 points following
+the owner's screenshot review. [Verification](../261022-search-section-placeholders/EQUAL-SECTION-SPACING.md#double-the-shared-gap--d129).

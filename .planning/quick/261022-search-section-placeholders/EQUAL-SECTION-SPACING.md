@@ -1,9 +1,9 @@
-# Equal spacing around Recently Seen — D127–D128
+# Equal spacing around Recently Seen — D127–D129
 
 > **Image evidence availability:** Image files were removed from this repository history at the owner's request. Screenshot descriptions, filenames and earlier visual checks below are historical records, not currently available image evidence. Written findings, measurements and source artifacts remain; visual review requires fresh captures.
 
-Current spacing: D128 increases the shared inter-section gap to 32 points. The 24-point
-measurements and screenshot below are historical D127 evidence.
+Current spacing: D129 doubles the shared inter-section gap to 64 points. The earlier 24-point
+measurements and 32-point screenshot are historical D127/D128 evidence.
 
 Date: 2026-10-23. Implementation: `105950892dbe7b28e4b2e80ce85a447378f9f5a9`.
 
@@ -79,3 +79,17 @@ Both builds pass with zero compiler/analyzer warnings or errors. The capture sim
 down and deleted. No production-source change or new design choice is made. Commands, restoration
 checks and build evidence are in `.build/library/search-spacing-32-populated/` and
 `.build/library/search-spacing-32-restored/`. Earlier behavior tests retain their original scope.
+
+
+## Double the shared gap — D129
+
+Implementation: `0720e193e56c3e72c79649e38829445b7478b995`. After reviewing the 32-point populated screenshot,
+the owner requests double the spacing. Set only the outer section stack spacing to 64 points.
+Keep equal gaps around Recently Seen, the 8-point heading/content gap, 44-point minimum keyword
+controls and 96-point minimum empty-content height.
+
+Pinned strict SwiftLint and whitespace checks pass. The generic Simulator build succeeds with
+zero compiler/analyzer warnings or errors. The review iPad is updated and launches normally
+(PID 61134), preserving its data. Evidence is in `.build/library/search-section-spacing-64/`.
+No new screenshot or behavior test run is claimed for this one-value change. Earlier captures
+and tests remain tied to their original source versions. Phase 17 gates are unchanged.
