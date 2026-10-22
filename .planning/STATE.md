@@ -5,9 +5,9 @@ current_phase: 17
 current_phase_name: Screenshot Automation, Visual Regression & OS 27 Modernization
 status: executing
 stopped_at: 17-06 revision re-shot (2026-10-13), 16/16 captured; waiting for the owner's visual review; agent prepares both gallery sets
-last_updated: "2026-10-22T10:15:48Z"
+last_updated: "2026-10-22T10:38:42Z"
 last_activity: 2026-10-22
-state_head: 75a50edd83449783730eab8931b515dd00f51c52
+state_head: 980ea59d687ce6219fafb0725e9a5f70842eaa80
 progress:
   total_phases: 17
   completed_phases: 10
@@ -16,7 +16,7 @@ progress:
   percent: 59
 milestone_name: )
 source_head: af00e0da93
-last_activity_desc: "D114 selects and implements Liquid Glass slideshow tags; exact prototype parity and clean lint/build verified; review iPad updated; Phase 17 unchanged"
+last_activity_desc: "D115 applies aspect-fill to Home Frontpage covers; strict lint and clean native build pass; review iPad updated; Phase 17 unchanged"
 ---
 
 # Project State
@@ -1151,3 +1151,7 @@ approval is implied.
 D114 (`75a50edd83449783730eab8931b515dd00f51c52`) implements the selected A Liquid Glass tags in both appearances.
 The final source matches the reviewed prototype; fresh strict lint/native build pass and the review
 iPad is updated normally. [Exact scope and evidence](sketches/003-slideshow-tag-containers/README.md).
+
+D115 (`980ea59d687ce6219fafb0725e9a5f70842eaa80`) switches Home Frontpage covers to aspect-fill for rich and compact arrangements.
+Strict lint and a clean native build pass; the review iPad is updated normally. No new UI run is
+claimed. [Exact scope and evidence](quick/261017-pjj-implement-b-home-sections-with-selected-/HOME-CELL-FINISHES.md).

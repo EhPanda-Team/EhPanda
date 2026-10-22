@@ -2,8 +2,8 @@
 type: retrospective-summary
 recorded: 2026-10-15
 historical_duo_implementation_commits: 21
-library_implementation_commits: 26
-decision_records: 114
+library_implementation_commits: 27
+decision_records: 115
 ---
 
 # Delivery and commit ledger
@@ -375,3 +375,10 @@ D113 added review artifacts, not a production implementation commit.
 prototype byte-for-byte; strict lint and a fresh native build pass. Existing A captures cover
 light, warm dark and cool dark. The review iPad is updated in place and launched normally.
 [Selection and verification](../../sketches/003-slideshow-tag-containers/README.md).
+
+## Frontpage aspect-fill — D115
+
+`980ea59d687ce6219fafb0725e9a5f70842eaa80` makes the Home Frontpage cover wall use aspect-fill in both rich and compact layouts.
+The existing frame and rounded clip crop excess artwork while preserving its proportions. Strict
+lint and a native iPad build pass without warnings/errors; the review iPad is updated and launched
+normally. [Verification scope](../261017-pjj-implement-b-home-sections-with-selected-/HOME-CELL-FINISHES.md).

@@ -85,3 +85,20 @@ light-solid/dark-material tag containers with regular Liquid Glass in both appea
 the reviewed tag geometry/foregrounds and D111's card-wide gradient policy. Exact prototype parity,
 fresh clean build/lint and the normal review-iPad launch are recorded in
 [sketch 003](../../sketches/003-slideshow-tag-containers/README.md).
+
+## Frontpage aspect-fill — D115, 2026-10-22
+
+The owner requests fill for Frontpage too. `980ea59d687ce6219fafb0725e9a5f70842eaa80` passes `.fill` to the shared GalleryCover from
+HomeFrontpageCell, covering both the rich wall and compact/Duo wall. The shared renderer preserves
+artwork proportions and clips excess content to the existing fixed frame and rounded corners.
+Shared defaults and independent gallery row/grid covers remain unchanged. This supersedes the
+Frontpage fit behavior visible in the historical D107–D109 screenshots above.
+
+Strict SwiftLint reports zero violations. The fresh native build succeeds with zero errors,
+compiler warnings and analyzer warnings. Evidence is retained under
+`.build/library/frontpage-cover-fill/`: build log/xcresult, structured build results, changed-source
+hash and normal review-device launch record. No new UI tests or visual captures were run for this
+single content-mode change; earlier screenshots are not presented as evidence of the new fill.
+
+The existing review iPad was updated in place and launched without fixture flags, retaining its
+account/data/settings. D114's selected Liquid Glass tags and Phase 17 gates remain unchanged.
