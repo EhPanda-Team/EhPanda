@@ -136,3 +136,13 @@ was not restarted, and no product code changed. Recovery evidence is retained in
 `.build/manual-review-phones/device-hub-coredevice-after-restart.json`. This resolves the
 observed discovery and display-connection issue; it does not establish why the shared service
 originally stopped synchronizing its inventory.
+
+
+## Phone Home and adaptive Library — 2026-10-23
+
+D130–D132 are implemented and delivered to the retained review iPhone, Duo and iPad. The
+[follow-up verification record](PHONE-HOME-LIBRARY.md) contains exact source commits, seven
+Library feature tests, four passing UI cases, cold and live text-size coverage, the six Duo
+pose results, normal launch evidence and a neutral phone screenshot. It distinguishes the
+final sidebar-state correction's native checks from the earlier UI runs, and records fixture
+side effects on review-device preferences/authentication. Phase 17 gates are unchanged.

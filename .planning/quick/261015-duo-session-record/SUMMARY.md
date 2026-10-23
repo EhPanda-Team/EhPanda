@@ -2,8 +2,8 @@
 type: retrospective-summary
 recorded: 2026-10-15
 historical_duo_implementation_commits: 21
-library_implementation_commits: 38
-decision_records: 129
+library_implementation_commits: 40
+decision_records: 132
 ---
 
 # Delivery and commit ledger
@@ -485,3 +485,20 @@ D127's equal-spacing structure, heading/content gap and control heights remain i
 
 `71c7fd3f37707dfc76c42ce083bbfc28c80c5e18` doubles the shared section gap from 32 to 64 points following
 the owner's screenshot review. [Verification](../261022-search-section-placeholders/EQUAL-SECTION-SPACING.md#double-the-shared-gap--d129).
+
+
+## Phone Home information — D130
+
+`38ff0f4b1349dcab91711d373517cd46708e3fa2` extends the existing Frontpage, Toplists and Other information designs
+to iPhone, with readable narrow-viewport Other cards. Slideshow keeps its existing rules.
+[Scope and verification](PHONE-HOME-LIBRARY.md).
+
+## Adaptive phone Library — D131–D132
+
+`af54545f6f1203b7f282f70f1cf87df8e98c1692` adds a lower-trailing native glass Downloads/Favorites picker on ordinary
+iPhone and on Duo in every portrait posture or closed landscape. Only partially/fully open
+landscape Duo keeps the native sidebar; iPad keeps its existing sidebar. Source menus retain
+category and folder management. Sidebar visibility belongs to its host so returning from phone
+layout starts expanded, with the native toggle available. Seven focused feature tests and four
+UI cases pass; the final host-state extraction has separate build/lint and six-pose native checks.
+All three normal review apps are running. [Screenshot, exact test boundaries and delivery](PHONE-HOME-LIBRARY.md).
