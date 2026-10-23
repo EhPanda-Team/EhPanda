@@ -107,3 +107,19 @@ The installed iOS 27.1 runtime supports only Duo. Creating an iPhone 17 on it re
 incompatible-device error, so the ordinary iPhone uses the compatible iOS 27.0 runtime. Commands,
 device IDs and delivery evidence are retained in `.build/manual-review-phones/`. This is a manual
 review handoff, not completion of any outstanding acceptance gate.
+
+
+### Device Hub visibility follow-up — 2026-10-23
+
+The owner can see only the review iPad in Device Hub. A fresh `simctl` inventory confirms all
+three EhPanda review devices are booted, but CoreDevice's inventory contains only the iPad.
+Device Hub displays that same stale inventory. Its simulator filter is correct. New Window and
+Quit and Keep Simulators Running actions, followed by reopening the app, leave the two phones
+absent. Thus the earlier successful install/launch and process checks did not establish that
+the devices were accessible for inspection through Device Hub.
+
+Filtered evidence is retained in `.build/manual-review-phones/device-hub-simctl.json` and
+`.build/manual-review-phones/device-hub-coredevice.json`. The proposed next step is restarting
+only CoreDeviceService to reconnect device discovery. Because it is shared with other sessions
+and can interrupt their device connections, owner approval is pending. No shared service has
+been restarted, no simulator has been deleted, and no product code has changed.
