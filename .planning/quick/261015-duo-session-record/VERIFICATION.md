@@ -83,3 +83,27 @@ devices or processes. Build with generic iOS Simulator destination; use explicit
 Pass `-parallel-testing-enabled NO` and `-collect-test-diagnostics never`; final validation uses a
 single attempt. Do not weaken page, geometry or uniqueness assertions to fit a test driver.
 Restore normal launches and verify no `EHPANDA_` test flags before returning devices to the owner.
+
+
+## Owner inspection launch — 2026-10-23
+
+The owner requests the current app on Duo and a non-Duo iPhone. Both dedicated review simulators
+remain booted with the app running for manual inspection:
+
+| Device | Runtime | Simulator UUID | Launch PID |
+|---|---|---|---:|
+| EhPanda Review iPhone Duo | iOS 27.1 | `004AEA0A-A396-4F39-93B8-118DD2F05975` | 40755 |
+| EhPanda Review iPhone 17 | iOS 27.0 | `CC444738-6672-47F8-BCCC-AC3BFBC344C5` | 41480 |
+
+Both use the same normal universal app already installed on the review iPad after D129
+(`0720e193e56c3e72c79649e38829445b7478b995`, including the 64-point Search section gap).
+The former build cache is no longer present, so the installed verified artifact is reused and its
+executable hashes are retained in `.build/manual-review-phones/provenance.json`. This launch does
+not claim a new build or test run. Installation, launch and subsequent process checks succeed;
+all inherited `SIMCTL_CHILD_` variables are removed from the launch environment. The phones have
+their own app data; no review-iPad data or settings are copied.
+
+The installed iOS 27.1 runtime supports only Duo. Creating an iPhone 17 on it returned an
+incompatible-device error, so the ordinary iPhone uses the compatible iOS 27.0 runtime. Commands,
+device IDs and delivery evidence are retained in `.build/manual-review-phones/`. This is a manual
+review handoff, not completion of any outstanding acceptance gate.
