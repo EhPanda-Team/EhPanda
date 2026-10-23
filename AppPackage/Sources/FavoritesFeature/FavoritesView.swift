@@ -19,8 +19,11 @@ public struct FavoritesView: View {
     @SharedReader(.didLogin) private var didLogin: Bool
     @Bindable private var store: StoreOf<FavoritesReducer>
 
-    public init(store: StoreOf<FavoritesReducer>) {
+    private let showsCategoryControls: Bool
+
+    public init(store: StoreOf<FavoritesReducer>, showsCategoryControls: Bool = false) {
         self.store = store
+        self.showsCategoryControls = showsCategoryControls
     }
 
     private var navigationTitle: String {
@@ -125,6 +128,14 @@ public struct FavoritesView: View {
             }
         }
         ToolbarOverflowMenu {
+            if showsCategoryControls {
+                Picker(.RLocalizable.favorites, selection: $store.favoritesIndex.sending(\.setFavoritesIndex)) {
+                    ForEach(-1..<10, id: \.self) { index in
+                        Text(store.user.getFavoriteCategory(index: index)).tag(index)
+                    }
+                }
+                .accessibilityIdentifier("library-favorites-category")
+            }
             DateSeekButton(navigation: store.dateSeekNavigation) { navigation in
                 store.send(.dateSeekButtonTapped(navigation))
             }

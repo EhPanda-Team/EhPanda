@@ -18,8 +18,11 @@ public struct DownloadsView: View {
     @ScaledMetric(relativeTo: .callout) private var minCellWidth: CGFloat = 180
     @Bindable private var store: StoreOf<DownloadsReducer>
 
-    public init(store: StoreOf<DownloadsReducer>) {
+    private let showsFolderManagement: Bool
+
+    public init(store: StoreOf<DownloadsReducer>, showsFolderManagement: Bool = false) {
         self.store = store
+        self.showsFolderManagement = showsFolderManagement
     }
 
     public var body: some View {
@@ -187,6 +190,22 @@ private extension DownloadsView {
                     Text(.RLocalizable.filters)
                 }
                 .pickerStyle(.inline)
+                if showsFolderManagement {
+                    Divider()
+                    Button {
+                        store.send(.folderManagerButtonTapped)
+                    } label: {
+                        Label(.RLocalizable.manageFolders, systemSymbol: .folderBadgeGearshape)
+                    }
+                    if store.folders.isEmpty {
+                        Button {
+                            store.send(.createDefaultFolder)
+                        } label: {
+                            Label(.RLocalizable.createDefaultFolder, systemSymbol: .folderBadgePlus)
+                        }
+                        .disabled(store.isCreatingDefaultFolder)
+                    }
+                }
             } label: {
                 Label(.RLocalizable.filters, systemSymbol: .dialLow)
                     .symbolRenderingMode(.hierarchical)

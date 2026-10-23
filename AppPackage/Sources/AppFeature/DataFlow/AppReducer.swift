@@ -344,7 +344,10 @@ struct AppReducer {
                 }
                 return .none
 
-            case .library(.binding):
+            case .library(.showInitialFavorites):
+                return .send(.library(.select(.favorites(state.favoritesState.favoritesIndex))))
+
+            case .library(.binding), .library(.deviceChanged), .library(.viewportChanged):
                 return .none
 
             case .searchRoot:

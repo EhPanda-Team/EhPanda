@@ -1,7 +1,9 @@
+import AppComponents
 @testable import AppFeature
 import AppModels
 import ComposableArchitecture
 import CookieClient
+import CoreGraphics
 import CustomDump
 import DetailFeature
 import DownloadsFeature
@@ -10,6 +12,65 @@ import Testing
 
 @Suite
 struct LibraryNavigationTests {
+    @Test(arguments: [WindowDevice.other, .duo(.closed), .duo(.partiallyOpen), .duo(.fullyOpen), .pad])
+    func sidebarFollowsDeviceAndAvailableShape(device: WindowDevice) {
+        var state = LibraryFeature.State(selection: .downloads(.folder("Reading")))
+        state.device = device
+        state.viewport = CGSize(width: 390, height: 844)
+        #expect(state.usesSidebar == (device == .pad))
+
+        state.viewport = CGSize(width: 1000, height: 700)
+        let expectsSidebar = device == .pad || device == .duo(.partiallyOpen) || device == .duo(.fullyOpen)
+        #expect(state.usesSidebar == expectsSidebar)
+        #expect(state.selection == .downloads(.folder("Reading")))
+    }
+
+    @MainActor
+    @Test
+    func phoneEntryUsesRememberedFavoritesWithoutResettingItsNavigation() async {
+        var initialState = AppReducer.State()
+        initialState.favoritesState.favoritesIndex = 3
+        initialState.favoritesState.path.append(.detail(.init(gallery: .preview)))
+        initialState.favoritesState.keyword = "remembered query"
+        let store = TestStore(initialState: initialState, reducer: AppReducer.init)
+
+        await store.send(.library(.deviceChanged(.other))) {
+            $0.libraryState.device = .other
+        }
+        await store.receive(\.library.showInitialFavorites)
+        await store.receive(\.library.select, .favorites(3)) {
+            $0.libraryState.selection = .favorites(3)
+        }
+        await store.receive(\.favorites.setFavoritesIndex, 3)
+        await store.finish()
+        expectNoDifference(store.state.favoritesState.path, initialState.favoritesState.path)
+        expectNoDifference(store.state.favoritesState.keyword, "remembered query")
+    }
+
+    @MainActor
+    @Test
+    func rotatingAndFoldingRetainsTheSelectedDownloadFolder() async {
+        var state = LibraryFeature.State(selection: .downloads(.folder("Reading")))
+        state.device = .duo(.fullyOpen)
+        state.viewport = CGSize(width: 1000, height: 700)
+        let store = TestStore(initialState: state, reducer: LibraryFeature.init)
+
+        await store.send(.viewportChanged(CGSize(width: 700, height: 1000))) {
+            $0.viewport = CGSize(width: 700, height: 1000)
+        }
+        #expect(!store.state.usesSidebar)
+        await store.send(.viewportChanged(CGSize(width: 1000, height: 700))) {
+            $0.viewport = CGSize(width: 1000, height: 700)
+        }
+        #expect(store.state.usesSidebar)
+        await store.send(.deviceChanged(.duo(.closed))) {
+            $0.device = .duo(.closed)
+        }
+        #expect(!store.state.usesSidebar)
+        #expect(store.state.selection == .downloads(.folder("Reading")))
+        await store.finish()
+    }
+
     @MainActor
     @Test
     func selectingEachLibraryGroupUpdatesTypedSelection() async {
