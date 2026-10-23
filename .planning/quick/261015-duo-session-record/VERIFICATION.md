@@ -118,8 +118,21 @@ Quit and Keep Simulators Running actions, followed by reopening the app, leave t
 absent. Thus the earlier successful install/launch and process checks did not establish that
 the devices were accessible for inspection through Device Hub.
 
-Filtered evidence is retained in `.build/manual-review-phones/device-hub-simctl.json` and
-`.build/manual-review-phones/device-hub-coredevice.json`. The proposed next step is restarting
-only CoreDeviceService to reconnect device discovery. Because it is shared with other sessions
-and can interrupt their device connections, owner approval is pending. No shared service has
-been restarted, no simulator has been deleted, and no product code has changed.
+Filtered evidence before recovery is retained in
+`.build/manual-review-phones/device-hub-simctl.json` and
+`.build/manual-review-phones/device-hub-coredevice.json`.
+
+The owner explicitly approved restarting the shared CoreDeviceService on 2026-10-23. Sending
+SIGTERM to that service alone replaced PID 8402 with PID 18153; CoreSimulatorService retained
+PID 33626. CoreDevice discovery then included all three EhPanda review devices, and Device Hub
+showed the same restored inventory. Selecting the iPad, iPhone 17 and iPhone Duo successfully
+connected their app displays. The two phones exposed the live Home and Frontpage accessibility
+content; Duo also exposed all four app tabs. Device Hub is left on Duo for owner inspection.
+
+All three simulators remain booted. No simulator was deleted or reset, CoreSimulatorService
+was not restarted, and no product code changed. Recovery evidence is retained in
+`.build/manual-review-phones/coredevice-restart.json`,
+`.build/manual-review-phones/coredevice-refresh-command.json` and
+`.build/manual-review-phones/device-hub-coredevice-after-restart.json`. This resolves the
+observed discovery and display-connection issue; it does not establish why the shared service
+originally stopped synchronizing its inventory.
