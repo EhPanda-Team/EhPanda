@@ -198,7 +198,9 @@ struct HomeDestinationCard: View {
         .frame(maxWidth: .infinity, minHeight: 138, alignment: .topLeading)
         .padding(24)
         .background(Color(uiColor: .secondarySystemBackground), in: .rect(cornerRadius: 15))
-        .containerRelativeFrame(.horizontal) { width, _ in (width - 80) / 3 }
+        .containerRelativeFrame(.horizontal) { width, _ in
+            width >= 744 ? (width - 80) / 3 : width * 0.7
+        }
         .tint(.primary)
         .multilineTextAlignment(.leading)
     }
