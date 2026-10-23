@@ -632,3 +632,15 @@ Phase 17 gates remain unchanged.
 
 Implementation: `0720e193e56c3e72c79649e38829445b7478b995`.
 [Verification](../261022-search-section-placeholders/EQUAL-SECTION-SPACING.md#double-the-shared-gap--d129).
+
+
+## Phone Home and Library — 2026-10-23
+
+| ID | Owner direction | Disposition |
+|---|---|---|
+| D130 | Extend the iPad Frontpage, Toplists and Other designs to iPhone. | Reuse their rich information components, retaining slideshow rules and adapting Other cards to narrower viewports. |
+| D131 | Try a glass Downloads/Favorites toggle above the lower-right tab bar instead of navigation split view on iPhone. | Native segmented source control with safe-area placement; source menus retain category/folder actions. |
+| D132 | Duo uses the phone layout when closed in either shape, and when partially/fully open in portrait; otherwise preserve the current style. | Native sidebar only for partially/fully open landscape Duo, and all iPad layouts. Supersedes the intervening closed-only instruction. |
+
+[Scope, native screenshot and verification](PHONE-HOME-LIBRARY.md). Home: `6c284c70fddc3b8199fdaa64104bf990859b08e7`.
+Library: `d66f39b7e635c0a605c0cb9fe6abeabd6f0d2cb7`. Both are installed on the three retained review devices; owner visual acceptance is pending.

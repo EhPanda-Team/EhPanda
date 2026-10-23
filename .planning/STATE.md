@@ -5,9 +5,9 @@ current_phase: 17
 current_phase_name: Screenshot Automation, Visual Regression & OS 27 Modernization
 status: executing
 stopped_at: 17-06 revision re-shot (2026-10-13), 16/16 captured; waiting for the owner's visual review; agent prepares both gallery sets
-last_updated: "2026-10-22T16:32:47Z"
+last_updated: "2026-10-23T11:05:11Z"
 last_activity: 2026-10-23
-state_head: 0720e193e56c3e72c79649e38829445b7478b995
+state_head: d66f39b7e635c0a605c0cb9fe6abeabd6f0d2cb7
 progress:
   total_phases: 17
   completed_phases: 10
@@ -16,7 +16,7 @@ progress:
   percent: 59
 milestone_name: )
 source_head: af00e0da93
-last_activity_desc: "D129 doubles equal Search section gaps to 64 points; clean build/lint; review iPad updated; Phase 17 unchanged"
+last_activity_desc: "D130–D132 extend Home information to iPhone and add adaptive phone Library; three review apps updated; Phase 17 unchanged"
 ---
 
 # Project State
@@ -28,6 +28,12 @@ last_activity_desc: "D129 doubles equal Search section gaps to 64 points; clean 
 The complete Duo/landscape session decisions, superseded choices, implementation ledger, retained verification and historical wide-screen proposals are in [261015-duo-session-record/CONTEXT.md](quick/261015-duo-session-record/CONTEXT.md). This retrospective record does not complete Phase 17. Branch migration is tracked separately there.
 
 The follow-up [Library design](quick/261015-duo-session-record/LIBRARY-DIRECTION.md) is implemented by quick task [261015-tx1](quick/261015-tx1-implement-library-with-shared-favorites-/261015-tx1-SUMMARY.md): shared category navigation with separate Favorites/Downloads groups, independently remembered row/grid choices and a regular grid replacing waterfall. Current validation records 959 FeatureTests identities, 6/6 UI tests on each of iPhone/iPad/Duo, native resize/fold checks and bounded accessibility evidence. D120 keeps the current Search design and closes the earlier A/B selection. D121 reorders its sections and keeps empty placeholders visible; D122 reserves minimum height for empty content and D123 top-aligns its text. D124–D126 add section spacing, equal keyword-row heights and native Remove All actions; see [the follow-up](quick/261022-search-section-placeholders/SEARCH-ACTIONS.md). D127 removes nested whitespace to make the section gaps consistent; D128 increases their shared value to 32 points; D129 doubles it to the current 64 points ([measurements](quick/261022-search-section-placeholders/EQUAL-SECTION-SPACING.md)). Phase 17 status is unchanged.
+
+D130–D132 extend Home section information to iPhone and introduce the native glass Library source
+picker. Duo uses the phone layout in portrait at every posture, plus closed landscape; only
+partially/fully open landscape keeps the sidebar. iPad retains its sidebar. See
+[implementation, screenshot and verification boundaries](quick/261015-duo-session-record/PHONE-HOME-LIBRARY.md).
+The three review apps are running; owner visual acceptance remains pending.
 
 Current design workspace: `agent/app-design`; see [workspace rebuild](quick/261015-duo-session-record/WORKSPACE-REBUILD.md).
 
@@ -101,7 +107,7 @@ See: .planning/PROJECT.md (updated 2026-09-23)
 Phase: 17 of 17 (Screenshot Automation, Visual Regression & OS 27 Modernization)
 Plan: 6 of 24 complete (17-05, wave 6; dependency order, not numeric ID order); 17-06 implemented; the owner's 2026-10-13 review returned changes, revision in progress
 Status: executing (17-01/17-24/17-02/17-03/17-04/17-05 complete; 17-06 implemented and verified, owner review returned changes on 2026-10-13, revision in progress; the agent prepares galleries and fixtures for both content sets)
-Last activity: 2026-10-17 — D101–D103 restore Other footnotes, remove Toplists uploader and inherit rating foregrounds; 2/2 iPad UI checks pass; D104 slideshow proposals await selection; Phase 17 unchanged.
+Last activity: 2026-10-23 — D130–D132 deliver iPhone Home information and adaptive Library; focused tests and six Duo pose checks pass; three review apps updated; Phase 17 unchanged.
 
 **Phase 17 current gate:** 6/24 plans complete. 17-01 passed 32/32 capture coordinates and 66/66 tests; verified public v2 fixtures are in `.capture/regression`. 17-24 measures all four real device/orientation combinations and validates the immutable tracked rendering pin. Both final measure and validate commands pass four geometry tests plus six rotation/restore tests, with 28 Python contract tests and zero compiler/lint diagnostics or runtime warnings. Pin SHA-256: `ffd7689fcaf9a312202fdfbf9787f0198711fd477d1e72a2a013851df85a394a`; evidence is `.capture/environment-measurement/` and `.capture/environment-pin-check/`. Implementation ends at 3e69dc69d3; summary/review committed in fb83037387. Four reserved staged entries remain unchanged. Devices restore portrait/original Large and their original boot states. Continue inline with 17-06; shared CAP-17-01/02/03/04/06 remain incomplete until all declaring plans finish. No baseline promotion.
 
