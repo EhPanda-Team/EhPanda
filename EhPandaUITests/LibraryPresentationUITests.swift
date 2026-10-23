@@ -61,6 +61,25 @@ final class LibraryPresentationUITests: XCTestCase {
             "EHPANDA_AUTOMATION_IPB_MEMBER_ID": "fixture-member",
             "EHPANDA_AUTOMATION_IPB_PASS_HASH": "fixture-session"
         ])
+        let sourcePicker = app.segmentedControls["library-source-picker"]
+        if sourcePicker.waitForExistence(timeout: 10) {
+            let presentation = app.buttons["gallery-layout-favorites"]
+            presentation.tapWhenHittable("Favorites presentation")
+            app.buttons["Grid"].tapWhenHittable("Favorites Grid")
+            sourcePicker.buttons["Downloads"].tapWhenHittable("Phone Library Downloads")
+            XCTAssertTrue(app.buttons["gallery-layout-downloads"].waitForExistence(timeout: 10))
+            app.buttons["Filters"].tapWhenHittable("Download folder menu")
+            app.buttons["Inbox"].tapWhenHittable("Inbox download folder")
+            sourcePicker.buttons["Favorites"].tapWhenHittable("Phone Library Favorites")
+            XCTAssertTrue(presentation.waitForExistence(timeout: 10))
+            assertGrid(in: app)
+            XCTAssertFalse(app.descendants(matching: .any)["library-categories"].exists)
+            let screenshot = XCTAttachment(screenshot: XCUIScreen.main.screenshot())
+            screenshot.name = "Phone Library source switch"
+            screenshot.lifetime = .keepAlways
+            add(screenshot)
+            return
+        }
         let favorites = app.buttons["library-favorites--1"]
         favorites.tapWhenHittable("All Favorites category")
         let picker = app.buttons["gallery-layout-favorites"]
