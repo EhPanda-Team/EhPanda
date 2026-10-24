@@ -731,3 +731,13 @@ No production change. D136's native-tab requirement remains in force.
 [Actual light/dark screenshots, retained prototype and verification limits](LIBRARY-SUBTITLE-MENU.md#app-drawn-circular-arrow--d140-2026-10-24).
 The arrow is app-authored, not a system-generated disclosure indicator. This is the requested
 visual prototype; production integration and full navigation/accessibility validation remain pending.
+
+
+## Multi-device title and scroll review — D141, 2026-10-24
+
+| ID | Owner direction | Disposition |
+|---|---|---|
+| D141 | Show iPhone, iPhone Duo and iPad orientations at initial and scrolled positions. | Captured 20 native screenshots across portrait/landscape and all three Duo hinge postures. Every scrolled capture hides the main title, subtitle and arrow; this remains a prototype limitation, not an accepted final behavior. |
+
+[Interactive gallery, findings and verification boundaries](LIBRARY-TITLE-MATRIX.md).
+No production source changes or new title behavior are selected by this screenshot request.

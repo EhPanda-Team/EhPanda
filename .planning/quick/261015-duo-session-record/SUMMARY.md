@@ -3,7 +3,7 @@ type: retrospective-summary
 recorded: 2026-10-15
 historical_duo_implementation_commits: 21
 library_implementation_commits: 41
-decision_records: 140
+decision_records: 141
 ---
 
 # Delivery and commit ledger
@@ -572,3 +572,11 @@ Light/dark screenshots and a lint-clean prototype source are retained in the
 [report](LIBRARY-SUBTITLE-MENU.md#app-drawn-circular-arrow--d140-2026-10-24).
 This supersedes the earlier drawn-arrow restriction, not the native-tab requirement.
 Production integration and interaction/accessibility validation remain pending; D133 is installed.
+
+
+## Multi-device title scroll captures — D141
+
+Twenty native screenshots compare initial/scrolled states on iPhone, iPad and closed/half/open Duo
+in portrait and landscape. The custom title Menu scrolls away in every captured case; production
+integration remains pending. [Gallery and measured boundaries](LIBRARY-TITLE-MATRIX.md).
+The temporary simulators were removed and the screenshot page remains open for owner review.
