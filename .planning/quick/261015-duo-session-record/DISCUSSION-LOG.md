@@ -700,3 +700,13 @@ Library title (`.large`), or a trailing source Menu beside the existing `.inline
 [Native screenshot, placement comparison and verification limits](LIBRARY-SUBTITLE-MENU.md).
 This is a standalone rendering probe, not completed production integration. D133 remains installed;
 D135's long-press sheet remains unimplemented. No custom tab bar is being proposed.
+
+
+## Retain the system title-menu arrow — D138, 2026-10-24
+
+| ID | Owner direction | Disposition |
+|---|---|---|
+| D138 | Ask whether the original system circular disclosure arrow can be retained instead of the manually added glyph. | `.inline` plus native title menu and text subtitle preserves the arrow beside Library. The tested `.inlineLarge` subtitle Menu variants do not show it, even with `.menuIndicator(.visible)`. Do not claim the manual glyph is system-provided or silently choose a different title layout. |
+
+[Five native rendering comparisons and screenshots](LIBRARY-SUBTITLE-MENU.md#system-circular-menu-indicator--d138-2026-10-24).
+No production change; the requested exact native subtitle-arrow combination remains unresolved.

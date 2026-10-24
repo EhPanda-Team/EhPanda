@@ -16,7 +16,7 @@ progress:
   percent: 59
 milestone_name: )
 source_head: af00e0da93
-last_activity_desc: "D137 clarifies one title region; native largeSubtitle Menu verified with inlineLarge in isolated probe; no app change"
+last_activity_desc: "D138 native circular arrow verified on inline title menu with subtitle; requested subtitle-menu arrow unresolved; no app change"
 ---
 
 # Project State
@@ -42,7 +42,9 @@ that Library and the source-menu subtitle must occupy one navigation-title regio
 earlier separate-position alternatives. A native `.largeSubtitle` Menu with `.inlineLarge` renders
 that composition; the system reduces the title font size to fit the subtitle.
 [Native screenshot and verification limits](quick/261015-duo-session-record/LIBRARY-SUBTITLE-MENU.md).
-Production integration remains pending.
+D138 asks to retain the original system circular arrow: it renders beside Library with an inline
+title menu and text subtitle, but not in the tested inline-large subtitle Menu. The exact requested
+subtitle-arrow combination remains unresolved; production integration remains pending.
 See [the tested native prototype and screenshot](quick/261015-duo-session-record/LIBRARY-TITLE-MENU.md).
 D133 remains the approved implementation.
 

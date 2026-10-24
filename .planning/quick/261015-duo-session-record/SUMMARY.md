@@ -3,7 +3,7 @@ type: retrospective-summary
 recorded: 2026-10-15
 historical_duo_implementation_commits: 21
 library_implementation_commits: 41
-decision_records: 137
+decision_records: 138
 ---
 
 # Delivery and commit ledger
@@ -545,3 +545,11 @@ public `.largeSubtitle` placement accepts a Menu under Library with `.inlineLarg
 the system adjusts the title font size to fit. [Screenshot and evidence](LIBRARY-SUBTITLE-MENU.md).
 No app source changed or new implementation commit is claimed. D133 remains installed and the
 native tab bar remains mandatory.
+
+
+## Native circular title-menu arrow — D138
+
+The owner asks to retain the system circular arrow. Native rendering confirms it with `.inline`
+and a text subtitle, beside the Library main title. The tested `.inlineLarge` subtitle Menu does
+not display an indicator, including `.menuIndicator(.visible)`. [Comparison and limits](LIBRARY-SUBTITLE-MENU.md#system-circular-menu-indicator--d138-2026-10-24).
+No title-layout choice or production change is inferred. Native tabs remain required.
