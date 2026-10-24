@@ -81,3 +81,10 @@ Original capture outputs and per-pose command/UI logs remain in
 ```sh
 python3 -m http.server 53140 --bind 127.0.0.1 --directory .planning/quick/261015-duo-session-record/evidence/library-title-matrix
 ```
+
+
+## Follow-up — D142
+
+The owner requests persistent title controls. [The follow-up experiment](LIBRARY-TITLE-PERSISTENCE.md)
+retains this baseline and supplies 20 new captures of an `.inline` alternative. It does not rewrite
+D141's observed result or claim `.inlineLarge` itself has been pinned.

@@ -741,3 +741,13 @@ visual prototype; production integration and full navigation/accessibility valid
 
 [Interactive gallery, findings and verification boundaries](LIBRARY-TITLE-MATRIX.md).
 No production source changes or new title behavior are selected by this screenshot request.
+
+
+## Keep Library title controls visible while scrolling — D142, 2026-10-24
+
+| ID | Owner direction | Disposition |
+|---|---|---|
+| D142 | Ask whether the title, subtitle and arrow can remain visible instead of collapsing in all D141 configurations. | A native `.title` / `.inline` / browser-role prototype keeps them visible with identical initial/scrolled frames across all 10 configurations. Adding `.never` alone to `.inlineLarge` did not fix the disappearing title. The working alternative changes title mode and moves the iPad title alongside floating tabs; production acceptance remains pending. |
+
+[Actual captures, native API findings, interaction check and limits](LIBRARY-TITLE-PERSISTENCE.md).
+The system tab bar is retained. D133 production code is unchanged.

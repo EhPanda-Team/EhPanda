@@ -1,0 +1,38 @@
+App: CustomArrowProbe  402x874
+
+[Top  y<120]
+  @1  GenericElement  "Dynamic Island, Empty"  (138,14 125x37)
+  @2  GenericElement  "Cellular"  (285,25 20x14)
+  @3  GenericElement  "SSID, 3 of 3 Wi-Fi bars"  #3 of 3 Wi-Fi bars  (314,26 18x13)
+  @4  GenericElement  "100% battery power"  (341,25 29x14)
+  @5  StaticText  "17:53"  (56,22 37x22)
+  @6  PopUpButton  "Library"  #library-title-menu  (16,64 99x26)
+  @7  Button  "Grid"  (346,66 36x36)
+  @8  StaticText  "Favorites"  (16,90 51x14)
+  @9  Group  ""  #Library  (0,62 402x106)
+
+[Content  y=120..754]
+  @10  TextField  "Search"  (16,116 370x42)
+  @11 #1  StaticText  "Gallery 1"  (16,168 370x52)
+  @12 #2  StaticText  "Gallery 2"  (16,220 370x52)
+  @13 #3  StaticText  "Gallery 3"  (16,272 370x52)
+  @14 #4  StaticText  "Gallery 4"  (16,324 370x52)
+  @15 #5  StaticText  "Gallery 5"  (16,376 370x52)
+  @16  Group  ""  (0,0 402x874)
+  @17 #6  StaticText  "Gallery 6"  (16,428 370x52)
+  @18 #7  StaticText  "Gallery 7"  (16,480 370x52)
+  @19 #8  StaticText  "Gallery 8"  (16,532 370x52)
+  @20 #9  StaticText  "Gallery 9"  (16,584 370x52)
+  @21 #10  StaticText  "Gallery 10"  (16,636 370x52)
+  @22 #11  StaticText  "Gallery 11"  (16,688 370x52)
+
+[Bottom  y>=754]
+  @23 #12  StaticText  "Gallery 12"  (16,740 370x52)
+  @24 #13  StaticText  "Gallery 13"  (16,792 370x52)
+  @29 #14  StaticText  "Gallery 14"  (16,844 370x52)
+
+[Group  "Tab Bar"]
+  @25  RadioButton  "Home"  (25,795 98x54)
+  @26  RadioButton  "Library"  (110,795 98x54)  selected
+  @27  RadioButton  "Search"  (194,795 98x54)
+  @28  RadioButton  "Setting"  (279,795 98x54)

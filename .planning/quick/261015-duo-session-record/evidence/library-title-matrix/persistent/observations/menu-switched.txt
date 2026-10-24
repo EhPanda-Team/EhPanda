@@ -1,0 +1,27 @@
+App: CustomArrowProbe  874x402  (landscape-left)
+
+[Top  y<120]
+  @1 #1  StaticText  "Gallery 1"  (78,-13 718x52)
+  @2  GenericElement  "Dynamic Island, Empty"  (138,14 125x37)
+  @3  PopUpButton  "Library"  #library-title-menu  (78,26 99x26)
+  @4  Button  "Grid"  (796,28 36x36)
+  @5  Group  ""  #Library  (0,24 874x54)
+  @6  StaticText  "Downloads"  (78,52 62x14)
+  @7 #2  StaticText  "Gallery 2"  (78,39 718x52)
+  @8 #3  StaticText  "Gallery 3"  (78,91 718x52)
+
+[Content  y=120..282]
+  @9 #4  StaticText  "Gallery 4"  (78,143 718x52)
+  @10  Group  ""  (0,0 874x402)
+  @11 #5  StaticText  "Gallery 5"  (78,195 718x52)
+  @12 #6  StaticText  "Gallery 6"  (78,247 718x52)
+
+[Bottom  y>=282]
+  @13 #7  StaticText  "Gallery 7"  (78,299 718x52)
+  @18 #8  StaticText  "Gallery 8"  (78,351 718x52)
+
+[Group  "Tab Bar"]
+  @14  RadioButton  "Home"  #house  (257,342 84x36)
+  @15  RadioButton  "Library"  #books.vertical  (345,342 91x36)  selected
+  @16  RadioButton  "Search"  #magnifyingglass  (440,342 86x36)
+  @17  RadioButton  "Setting"  #gearshape  (530,342 87x36)
