@@ -87,6 +87,7 @@ private struct LibrarySourcePicker: View {
                 .tag(Optional(LibraryGroup.favorites(favoritesIndex)))
         }
         .pickerStyle(.segmented)
+        .labelStyle(.iconOnly)
         .controlSize(.large)
         .fixedSize(horizontal: true, vertical: false)
         .glassEffect(.regular, in: .capsule)
