@@ -3,7 +3,7 @@ type: retrospective-summary
 recorded: 2026-10-15
 historical_duo_implementation_commits: 21
 library_implementation_commits: 41
-decision_records: 133
+decision_records: 135
 ---
 
 # Delivery and commit ledger
@@ -510,3 +510,13 @@ All three normal review apps are running. [Screenshot, exact test boundaries and
 native icon-only presentation. Build/lint pass; a normal native iPhone screenshot confirms the
 smaller symbol-only control. Both phones are updated without fixture launches.
 [Verification and screenshot](PHONE-HOME-LIBRARY.md#symbol-only-source-picker--d133).
+
+
+## Pending Library entry-point changes — D134–D135
+
+The owner requests a native navigation title menu and a half-height sheet triggered by a
+Library-tab long press. A title-menu prototype passes the focused phone switching test, but
+requires `.inline` on the tested runtime; that exception to the retained large-title policy
+awaits an owner choice. The native tab bar has no identified public per-item long-press hook.
+The approved D133 implementation remains active; no new implementation commit is claimed.
+[Review screenshot, native API findings and verification](LIBRARY-TITLE-MENU.md).
