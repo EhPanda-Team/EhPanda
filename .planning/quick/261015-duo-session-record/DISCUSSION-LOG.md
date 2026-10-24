@@ -710,3 +710,13 @@ D135's long-press sheet remains unimplemented. No custom tab bar is being propos
 
 [Five native rendering comparisons and screenshots](LIBRARY-SUBTITLE-MENU.md#system-circular-menu-indicator--d138-2026-10-24).
 No production change; the requested exact native subtitle-arrow combination remains unresolved.
+
+
+## Main-title arrow with inline-large requested — D139, 2026-10-24
+
+| ID | Owner direction | Disposition |
+|---|---|---|
+| D139 | Accept the system arrow beside Library and request a preview combining the main title, subtitle, system arrow and `.inlineLarge`. | Arrow placement is approved. The tested native title-menu combinations on iOS 27.0 and 27.1 do not display the arrow with `.inlineLarge`, including explicit indicator visibility and browser role. Show the actual result; do not substitute `.inline` or an app-drawn arrow as though it met the request. |
+
+[Actual screenshots, additional native checks and limits](LIBRARY-SUBTITLE-MENU.md#main-title-arrow-accepted-inline-large-combination-requested--d139-2026-10-24).
+No production change. D136's native-tab requirement remains in force.
