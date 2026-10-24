@@ -662,6 +662,16 @@ Implementation: `79655f31db0a3ff8854c50f168e75fcc2b0e497c`. Clean build/lint and
 | ID | Owner direction | Disposition |
 |---|---|---|
 | D134 | Replace the phone Library toggle with a navigation title menu. | A native menu prototype passes the focused switching test using `.inline`. `.inlineLarge` did not expose the menu on the tested runtime; the root-title policy exception awaits the owner's choice. D133 remains active pending that choice. |
-| D135 | Also open a half-height source-switch sheet by long-pressing the Library tab. | No public per-tab long-press hook was found for the existing native tab bar; Tab contextMenu is sidebar-only. Native-bar retention versus a separate custom-bar investigation awaits the owner's choice. No replacement gesture or sheet is silently substituted. |
+| D135 | Also open a half-height source-switch sheet by long-pressing the Library tab. | No public per-tab long-press hook was found for the existing native tab bar; Tab contextMenu is sidebar-only. The owner subsequently authorized custom-bar feasibility research; its findings are recorded below. No replacement gesture or sheet is silently substituted. |
 
 [Native screenshot, API evidence, tested prototype and delivery boundaries](LIBRARY-TITLE-MENU.md).
+
+
+### D134–D135 follow-up: closed title and custom-bar research
+
+The owner requested the closed-menu screenshot before accepting the title-mode exception and
+selected “另行研究客製 tab bar 的可行性”. The existing passing test supplied the unchanged native
+screenshot. Research confirms public building blocks for a custom glass bar and long-press sheet,
+including the 27.1 preferred vertical-edge API; matching native Duo tab behavior still requires
+substantial custom interaction/layout work. This is research authorization, not implementation or
+visual acceptance. [Screenshot, candidates and exact verification boundaries](CUSTOM-TAB-BAR-FEASIBILITY.md).

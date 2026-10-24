@@ -517,6 +517,9 @@ smaller symbol-only control. Both phones are updated without fixture launches.
 The owner requests a native navigation title menu and a half-height sheet triggered by a
 Library-tab long press. A title-menu prototype passes the focused phone switching test, but
 requires `.inline` on the tested runtime; that exception to the retained large-title policy
-awaits an owner choice. The native tab bar has no identified public per-item long-press hook.
+awaits an owner choice. The native tab bar has no identified public per-item long-press hook. The owner authorized a
+custom-bar feasibility study, now documented with the requested closed-menu screenshot in
+[CUSTOM-TAB-BAR-FEASIBILITY.md](CUSTOM-TAB-BAR-FEASIBILITY.md). Implementation and title-style
+acceptance remain pending.
 The approved D133 implementation remains active; no new implementation commit is claimed.
 [Review screenshot, native API findings and verification](LIBRARY-TITLE-MENU.md).

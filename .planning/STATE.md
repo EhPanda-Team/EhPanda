@@ -5,7 +5,7 @@ current_phase: 17
 current_phase_name: Screenshot Automation, Visual Regression & OS 27 Modernization
 status: executing
 stopped_at: 17-06 revision re-shot (2026-10-13), 16/16 captured; waiting for the owner's visual review; agent prepares both gallery sets
-last_updated: "2026-10-24T03:41:30Z"
+last_updated: "2026-10-24T04:25:00Z"
 last_activity: 2026-10-24
 state_head: 79655f31db0a3ff8854c50f168e75fcc2b0e497c
 progress:
@@ -16,7 +16,7 @@ progress:
   percent: 59
 milestone_name: )
 source_head: af00e0da93
-last_activity_desc: "D134/D135 native Library entry-point investigation recorded; title-mode exception and tab-bar approach await owner choice; D133 retained"
+last_activity_desc: "D134 closed-title screenshot supplied; D135 authorized custom-tab feasibility research completed; implementation unapproved; D133 retained"
 ---
 
 # Project State
@@ -35,7 +35,9 @@ partially/fully open landscape keeps the sidebar. iPad retains its sidebar. See
 [implementation, screenshot and verification boundaries](quick/261015-duo-session-record/PHONE-HOME-LIBRARY.md).
 The three review apps are running; owner visual acceptance remains pending. D133 now shows only
 the source-picker symbols while retaining localized Labels. D134/D135 request a title menu and
-a long-press tab sheet; the title-mode exception and native-tab API limitation await owner choices.
+a long-press tab sheet. The owner requested a closed-title screenshot and authorized custom-bar
+research; [findings and screenshot](quick/261015-duo-session-record/CUSTOM-TAB-BAR-FEASIBILITY.md)
+are recorded. The title-mode exception and custom-bar implementation remain unapproved.
 See [the tested native prototype and screenshot](quick/261015-duo-session-record/LIBRARY-TITLE-MENU.md).
 D133 remains the approved implementation.
 
