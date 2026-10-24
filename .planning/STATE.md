@@ -16,7 +16,7 @@ progress:
   percent: 59
 milestone_name: )
 source_head: af00e0da93
-last_activity_desc: "D138 native circular arrow verified on inline title menu with subtitle; requested subtitle-menu arrow unresolved; no app change"
+last_activity_desc: "D139 accepts main-title arrow; native inlineLarge title-menu arrow absent on tested 27.0/27.1 configurations; no app change"
 ---
 
 # Project State
@@ -42,9 +42,11 @@ that Library and the source-menu subtitle must occupy one navigation-title regio
 earlier separate-position alternatives. A native `.largeSubtitle` Menu with `.inlineLarge` renders
 that composition; the system reduces the title font size to fit the subtitle.
 [Native screenshot and verification limits](quick/261015-duo-session-record/LIBRARY-SUBTITLE-MENU.md).
-D138 asks to retain the original system circular arrow: it renders beside Library with an inline
-title menu and text subtitle, but not in the tested inline-large subtitle Menu. The exact requested
-subtitle-arrow combination remains unresolved; production integration remains pending.
+D138 asks to retain the original system circular arrow. D139 accepts it beside Library and requests
+the complete composition with `.inlineLarge`. Native title-menu probes on 27.0 and 27.1 render no
+arrow in that mode, including explicit indicator visibility; the `.inline` controls show it.
+The remaining issue is the title mode, not the accepted main-title arrow placement.
+Production integration remains pending; no different title mode or manually drawn arrow is approved.
 See [the tested native prototype and screenshot](quick/261015-duo-session-record/LIBRARY-TITLE-MENU.md).
 D133 remains the approved implementation.
 

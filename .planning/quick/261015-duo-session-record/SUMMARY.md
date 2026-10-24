@@ -3,7 +3,7 @@ type: retrospective-summary
 recorded: 2026-10-15
 historical_duo_implementation_commits: 21
 library_implementation_commits: 41
-decision_records: 138
+decision_records: 139
 ---
 
 # Delivery and commit ledger
@@ -553,3 +553,12 @@ The owner asks to retain the system circular arrow. Native rendering confirms it
 and a text subtitle, beside the Library main title. The tested `.inlineLarge` subtitle Menu does
 not display an indicator, including `.menuIndicator(.visible)`. [Comparison and limits](LIBRARY-SUBTITLE-MENU.md#system-circular-menu-indicator--d138-2026-10-24).
 No title-layout choice or production change is inferred. Native tabs remain required.
+
+
+## Arrow beside Library accepted; inline-large preview — D139
+
+The owner accepts the system arrow beside the main title and asks for the complete composition
+with `.inlineLarge`. Targeted iOS 27.1 title-menu checks corroborate the earlier 27.0 result:
+`.inlineLarge` has no arrow even with explicit indicator visibility; the `.inline` control shows it.
+[Actual native screenshots and evidence boundaries](LIBRARY-SUBTITLE-MENU.md#main-title-arrow-accepted-inline-large-combination-requested--d139-2026-10-24).
+No replacement glyph, different title mode or production implementation is inferred as approved.
