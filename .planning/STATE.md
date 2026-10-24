@@ -16,7 +16,7 @@ progress:
   percent: 59
 milestone_name: )
 source_head: af00e0da93
-last_activity_desc: "D136 retains native tabs; two native Library large-title/source-menu layouts verified in isolated probe; no app change"
+last_activity_desc: "D137 clarifies one title region; native largeSubtitle Menu verified with inlineLarge in isolated probe; no app change"
 ---
 
 # Project State
@@ -37,10 +37,12 @@ The three review apps are running; owner visual acceptance remains pending. D133
 the source-picker symbols while retaining localized Labels. D134/D135 request a title menu and
 a long-press tab sheet. The owner requested a closed-title screenshot and authorized custom-bar
 research; [findings and screenshot](quick/261015-duo-session-record/CUSTOM-TAB-BAR-FEASIBILITY.md)
-are recorded. D136 rejects custom-bar implementation and retains the system tab bar. The owner is reviewing
-whether a large Library title can coexist with the smaller source menu.
-[Two native arrangements are confirmed](quick/261015-duo-session-record/LIBRARY-DUAL-TITLE.md);
-no production layout has been selected.
+are recorded. D136 rejects custom-bar implementation and retains the system tab bar. D137 clarifies
+that Library and the source-menu subtitle must occupy one navigation-title region, superseding the
+earlier separate-position alternatives. A native `.largeSubtitle` Menu with `.inlineLarge` renders
+that composition; the system reduces the title font size to fit the subtitle.
+[Native screenshot and verification limits](quick/261015-duo-session-record/LIBRARY-SUBTITLE-MENU.md).
+Production integration remains pending.
 See [the tested native prototype and screenshot](quick/261015-duo-session-record/LIBRARY-TITLE-MENU.md).
 D133 remains the approved implementation.
 

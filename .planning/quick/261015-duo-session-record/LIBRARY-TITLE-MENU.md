@@ -4,9 +4,12 @@
 
 ## Current native-only direction
 
-D136 rejects custom tab bars. A later native probe confirms that a separate SwiftUI Menu can
-coexist with a large Library title in two arrangements; see [screenshots and exact scope](LIBRARY-DUAL-TITLE.md).
-The original inline title-menu experiment below remains historical and is not the only layout option.
+D136 rejects custom tab bars. D137 clarifies that Library and the source-menu subtitle must
+occupy one navigation-title region. A native `.largeSubtitle` Menu with `.inlineLarge` now renders
+that composition; see [screenshot and verification limits](LIBRARY-SUBTITLE-MENU.md). The earlier
+separate-position alternatives misunderstood this requirement and are superseded. The original
+inline title-menu experiment below remains historical; its `.inline` requirement belongs to
+`toolbarTitleMenu`, not to the native subtitle-menu route.
 
 ## Owner requests and pending choices
 

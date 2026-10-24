@@ -689,3 +689,14 @@ path without a new owner direction. The long-press sheet is not claimed as compl
 Native iPhone rendering now confirms two compositions: a small native source Menu above a large
 Library title (`.large`), or a trailing source Menu beside the existing `.inlineLarge` title.
 [Both screenshots and verification limits](LIBRARY-DUAL-TITLE.md). No layout choice is inferred.
+
+
+## One native title region with a menu subtitle — D137
+
+| ID | Owner direction | Disposition |
+|---|---|---|
+| D137 | Place Library as the main title and Favorites/Downloads as a menu subtitle in the same navigation-title area. | Supersedes both separate-position D136 alternatives. The public `.largeSubtitle` toolbar placement renders a native Menu below Library while retaining `.inlineLarge`; the system reduces the main-title font to fit the subtitle. Preserve the native tab bar. |
+
+[Native screenshot, placement comparison and verification limits](LIBRARY-SUBTITLE-MENU.md).
+This is a standalone rendering probe, not completed production integration. D133 remains installed;
+D135's long-press sheet remains unimplemented. No custom tab bar is being proposed.
