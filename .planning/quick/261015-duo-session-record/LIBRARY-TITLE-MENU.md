@@ -11,9 +11,10 @@ The established iPad/Duo sidebar routing is not being redesigned.
 
 The native title-menu prototype is functional, but it changes the phone root title from
 `.inlineLarge` to `.inline`. The repository navigation policy explicitly preserves the former.
-An owner choice is pending for that specific exception. The second pending choice concerns
-whether to retain the native tab bar and defer D135, or separately investigate a custom bar.
-Neither choice has been inferred from the absence of a response.
+The owner requested the closed-menu screenshot before deciding that exception and explicitly
+authorized research into a custom tab bar. That research is recorded in
+[CUSTOM-TAB-BAR-FEASIBILITY.md](CUSTOM-TAB-BAR-FEASIBILITY.md), together with the requested closed
+screenshot. Authorization to research does not approve shipping a custom bar or the title change.
 
 ## Native API evidence
 
