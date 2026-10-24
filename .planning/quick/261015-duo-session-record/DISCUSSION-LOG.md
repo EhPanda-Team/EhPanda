@@ -655,3 +655,13 @@ Library: `d66f39b7e635c0a605c0cb9fe6abeabd6f0d2cb7`. Both are installed on the t
 D131/D132 placement, source state and device/posture routing remain unchanged.
 Implementation: `79655f31db0a3ff8854c50f168e75fcc2b0e497c`. Clean build/lint and a native iPhone screenshot confirm symbol-only rendering.
 [Verification and screenshot](PHONE-HOME-LIBRARY.md#symbol-only-source-picker--d133).
+
+
+## Library title menu and long-press request — 2026-10-24
+
+| ID | Owner direction | Disposition |
+|---|---|---|
+| D134 | Replace the phone Library toggle with a navigation title menu. | A native menu prototype passes the focused switching test using `.inline`. `.inlineLarge` did not expose the menu on the tested runtime; the root-title policy exception awaits the owner's choice. D133 remains active pending that choice. |
+| D135 | Also open a half-height source-switch sheet by long-pressing the Library tab. | No public per-tab long-press hook was found for the existing native tab bar; Tab contextMenu is sidebar-only. Native-bar retention versus a separate custom-bar investigation awaits the owner's choice. No replacement gesture or sheet is silently substituted. |
+
+[Native screenshot, API evidence, tested prototype and delivery boundaries](LIBRARY-TITLE-MENU.md).
