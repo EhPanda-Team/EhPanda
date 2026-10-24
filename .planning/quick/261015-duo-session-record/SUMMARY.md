@@ -3,7 +3,7 @@ type: retrospective-summary
 recorded: 2026-10-15
 historical_duo_implementation_commits: 21
 library_implementation_commits: 41
-decision_records: 136
+decision_records: 137
 ---
 
 # Delivery and commit ledger
@@ -535,3 +535,13 @@ No production title or bar change is approved by this question.
 A standalone native iPhone probe confirms [two dual-title arrangements](LIBRARY-DUAL-TITLE.md):
 stacked large title plus source Menu, or inline-large title plus trailing source Menu. Both preserve
 the native tab bar. This is scoped rendering evidence; no production layout selection is implied.
+
+
+## Main title and menu subtitle in one region — D137
+
+The owner clarifies that Library and the source-menu subtitle must occupy the same navigation-title
+region. The D136 alternatives are superseded. A standalone native iPhone probe now confirms the
+public `.largeSubtitle` placement accepts a Menu under Library with `.inlineLarge` retained;
+the system adjusts the title font size to fit. [Screenshot and evidence](LIBRARY-SUBTITLE-MENU.md).
+No app source changed or new implementation commit is claimed. D133 remains installed and the
+native tab bar remains mandatory.

@@ -2,6 +2,10 @@
 
 > **Image evidence availability:** Image files were removed from this repository history at the owner's request. Screenshot descriptions, filenames and earlier visual checks below are historical records, not currently available image evidence. Written findings, measurements and source artifacts remain; visual review requires fresh captures.
 
+> Superseded interpretation: D137 clarifies that the main title and menu subtitle must occupy
+> the same navigation-title region. Neither alternative below matches that request. The native
+> subtitle placement is now verified in [LIBRARY-SUBTITLE-MENU.md](LIBRARY-SUBTITLE-MENU.md).
+
 The owner asks whether the smaller source title/menu can coexist with a large Library title and
 explicitly rejects custom tab bars. The answer is yes for a native navigation bar containing a
 separate native Menu. This is a layout feasibility result, not implementation approval.
