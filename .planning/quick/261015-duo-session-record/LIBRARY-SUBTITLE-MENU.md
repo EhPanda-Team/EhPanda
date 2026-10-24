@@ -172,3 +172,60 @@ The task-owned Duo was deleted afterward, and the existing review devices were u
 Original source and full screenshots are retained in `/tmp/ehpanda-inlinelarge-native-title-probe/`.
 No production files changed. D133 remains installed; D139's exact native combination is not claimed
 as achieved. The accepted arrow placement is recorded for subsequent implementation choices.
+
+
+## App-drawn circular arrow — D140, 2026-10-24
+
+The owner now explicitly requests an app-drawn arrow resembling the system indicator. This
+supersedes D139's restriction against substituting a drawn arrow; it does not authorize a custom
+tab bar or changing `.inlineLarge` to `.inline`.
+
+### Native prototype
+
+A native SwiftUI `Menu` occupies the public `.largeTitle` toolbar slot. Its label combines Library
+with a typed SF Symbol `chevronDown` on a circular `secondarySystemFill` background. The chevron
+uses secondary foreground styling. The initial dimensions are an 18-point circle, 10-point bold
+chevron and 8-point label gap; circle/font sizes use `@ScaledMetric`. The Library label uses the
+semantic `.title2.bold()` style to match the measured two-line native title treatment. These are
+app-chosen visual values, not a guarantee of pixel-identical system internals.
+
+A leading-aligned flexible frame keeps the title in the same native region as
+`navigationSubtitle(source)`. `.toolbarTitleDisplayMode(.inlineLarge)` remains in place.
+The Menu contains a native inline Picker for Favorites/Downloads; the arrow is decorative and
+hidden from accessibility, while the Menu exposes the selected source as its accessibility value.
+The surrounding navigation stack, searchable field and four-tab bar are native.
+
+Earlier experiments supplying both `.title` and `.largeTitle` rendered duplicate titles. Supplying
+only `.largeTitle`, removing the oversized custom font and aligning the content leading resolved
+the duplicate/misaligned composition in the final captures. No view-controller introspection,
+manual bar height, negative offsets or custom tab bar were used.
+
+Historical screenshot: Light appearance (image removed from repository history)
+
+Historical screenshot: Dark appearance (image removed from repository history)
+
+These are unretouched top crops of actual simulator captures. Full captures:
+light (image removed from repository history),
+dark (image removed from repository history).
+The [standalone Swift source](evidence/LibraryCustomTitleArrowProbe.swift) is retained as research
+evidence and is not part of the app target.
+
+### Verification boundary
+
+- Compiled with Xcode 27.1's simulator SDK for iOS 27.0. The final prototype compile emitted no
+  diagnostics; project SwiftLint reported zero violations for its source.
+- Captured standard-size light cold entry and a live switch to dark appearance on a task-owned
+  iPhone 17 simulator. The main title, subtitle and arrow share one title region in both captures.
+- The fresh standalone SFSafeSymbols dependency compilation emitted existing deprecated-alias and
+  dynamic-member warnings. They were not suppressed or edited; the clean prototype compilation
+  above is a separate result, not a claim that the dependency build was warning-free.
+- Menu tapping, source-switch interaction, scroll collapse, search focus, live Dynamic Type,
+  AX1/AX3/AX5 and iPad/Duo integration are not verified by this rendering probe.
+- Automatic approval review refused selecting Device Hub because the owner had reserved operating
+  it. No further Device Hub control was attempted; direct simulator screenshots supplied the
+  requested visual evidence without taking over that app.
+- The task-only simulator was shut down and deleted after capture. Review devices, app data and
+  production sources remain unchanged. D133 remains installed; this does not complete D134's
+  production integration or D135's unimplemented tab-long-press request.
+
+Local build outputs and original captures remain in `/tmp/ehpanda-custom-title-arrow-probe/`.

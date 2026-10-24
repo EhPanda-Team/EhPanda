@@ -3,7 +3,7 @@ type: retrospective-summary
 recorded: 2026-10-15
 historical_duo_implementation_commits: 21
 library_implementation_commits: 41
-decision_records: 139
+decision_records: 140
 ---
 
 # Delivery and commit ledger
@@ -562,3 +562,13 @@ with `.inlineLarge`. Targeted iOS 27.1 title-menu checks corroborate the earlier
 `.inlineLarge` has no arrow even with explicit indicator visibility; the `.inline` control shows it.
 [Actual native screenshots and evidence boundaries](LIBRARY-SUBTITLE-MENU.md#main-title-arrow-accepted-inline-large-combination-requested--d139-2026-10-24).
 No replacement glyph, different title mode or production implementation is inferred as approved.
+
+
+## App-drawn circular title arrow — D140
+
+The owner explicitly authorizes drawing the circular downward chevron. The standalone native
+prototype retains `.inlineLarge`, a Library title Menu, source subtitle and native tab bar.
+Light/dark screenshots and a lint-clean prototype source are retained in the
+[report](LIBRARY-SUBTITLE-MENU.md#app-drawn-circular-arrow--d140-2026-10-24).
+This supersedes the earlier drawn-arrow restriction, not the native-tab requirement.
+Production integration and interaction/accessibility validation remain pending; D133 is installed.

@@ -720,3 +720,14 @@ No production change; the requested exact native subtitle-arrow combination rema
 
 [Actual screenshots, additional native checks and limits](LIBRARY-SUBTITLE-MENU.md#main-title-arrow-accepted-inline-large-combination-requested--d139-2026-10-24).
 No production change. D136's native-tab requirement remains in force.
+
+
+## App-drawn circular title arrow — D140, 2026-10-24
+
+| ID | Owner direction | Disposition |
+|---|---|---|
+| D140 | Draw an arrow that resembles the system circular title-menu arrow. | Explicitly authorizes an app-drawn replacement after D139's native rendering results. A standalone SwiftUI prototype now places the circular chevron beside Library, with the current source as the native subtitle and `.inlineLarge` retained. The native Menu and tab bar remain. |
+
+[Actual light/dark screenshots, retained prototype and verification limits](LIBRARY-SUBTITLE-MENU.md#app-drawn-circular-arrow--d140-2026-10-24).
+The arrow is app-authored, not a system-generated disclosure indicator. This is the requested
+visual prototype; production integration and full navigation/accessibility validation remain pending.
