@@ -5,7 +5,7 @@ current_phase: 17
 current_phase_name: Screenshot Automation, Visual Regression & OS 27 Modernization
 status: executing
 stopped_at: 17-06 revision re-shot (2026-10-13), 16/16 captured; waiting for the owner's visual review; agent prepares both gallery sets
-last_updated: "2026-10-24T08:27:43Z"
+last_updated: "2026-10-24T08:40:09Z"
 last_activity: 2026-10-24
 state_head: 79655f31db0a3ff8854c50f168e75fcc2b0e497c
 progress:
@@ -16,7 +16,7 @@ progress:
   percent: 59
 milestone_name: )
 source_head: af00e0da93
-last_activity_desc: "D140 authorizes a custom circular title arrow; native inlineLarge light/dark prototype captured; production unchanged"
+last_activity_desc: "D141 captures 20 title/scroll screenshots across iPhone, Duo and iPad; prototype title Menu disappears after scroll; production unchanged"
 ---
 
 # Project State
@@ -50,7 +50,9 @@ combines it with the Library title, source subtitle and `.inlineLarge`; actual l
 are recorded in the same report. Production integration remains pending; no different title mode
 or custom tab bar is approved.
 See [the tested native prototype and screenshot](quick/261015-duo-session-record/LIBRARY-TITLE-MENU.md).
-D133 remains the approved implementation.
+D141 adds [20 multi-device initial/scroll screenshots](quick/261015-duo-session-record/LIBRARY-TITLE-MATRIX.md).
+The custom title Menu disappears after scrolling in every captured case; this is an unresolved
+prototype behavior, not owner acceptance. D133 remains the approved implementation.
 
 Current design workspace: `agent/app-design`; see [workspace rebuild](quick/261015-duo-session-record/WORKSPACE-REBUILD.md).
 
