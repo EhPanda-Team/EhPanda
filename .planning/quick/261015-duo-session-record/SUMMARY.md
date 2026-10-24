@@ -3,7 +3,7 @@ type: retrospective-summary
 recorded: 2026-10-15
 historical_duo_implementation_commits: 21
 library_implementation_commits: 41
-decision_records: 135
+decision_records: 136
 ---
 
 # Delivery and commit ledger
@@ -523,3 +523,15 @@ custom-bar feasibility study, now documented with the requested closed-menu scre
 acceptance remain pending.
 The approved D133 implementation remains active; no new implementation commit is claimed.
 [Review screenshot, native API findings and verification](LIBRARY-TITLE-MENU.md).
+
+
+## Native tab bar retained — D136
+
+The owner rejects a custom tab bar. Preserve the native system bar; the earlier feasibility
+report is historical and no longer an implementation option. The title-menu discussion continues
+with a question about keeping a large Library title and a smaller source menu simultaneously.
+No production title or bar change is approved by this question.
+
+A standalone native iPhone probe confirms [two dual-title arrangements](LIBRARY-DUAL-TITLE.md):
+stacked large title plus source Menu, or inline-large title plus trailing source Menu. Both preserve
+the native tab bar. This is scoped rendering evidence; no production layout selection is implied.

@@ -675,3 +675,17 @@ screenshot. Research confirms public building blocks for a custom glass bar and 
 including the 27.1 preferred vertical-edge API; matching native Duo tab behavior still requires
 substantial custom interaction/layout work. This is research authorization, not implementation or
 visual acceptance. [Screenshot, candidates and exact verification boundaries](CUSTOM-TAB-BAR-FEASIBILITY.md).
+
+
+## Native-only Library navigation — D136
+
+| ID | Owner direction | Disposition |
+|---|---|---|
+| D136 | Reject a custom tab bar. Ask whether the small source title can coexist with a large Library title. | Retain the system tab bar and close custom-tab implementation as rejected. Investigate native title/toolbar composition for D134; the question is not approval to change the app's title layout. |
+
+The earlier custom-bar feasibility study remains historical. Do not reopen that implementation
+path without a new owner direction. The long-press sheet is not claimed as completed.
+
+Native iPhone rendering now confirms two compositions: a small native source Menu above a large
+Library title (`.large`), or a trailing source Menu beside the existing `.inlineLarge` title.
+[Both screenshots and verification limits](LIBRARY-DUAL-TITLE.md). No layout choice is inferred.

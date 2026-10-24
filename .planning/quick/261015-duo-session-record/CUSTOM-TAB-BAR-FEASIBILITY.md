@@ -2,7 +2,14 @@
 
 > **Image evidence availability:** Image files were removed from this repository history at the owner's request. Screenshot descriptions, filenames and earlier visual checks below are historical records, not currently available image evidence. Written findings, measurements and source artifacts remain; visual review requires fresh captures.
 
-## Scope and conclusion
+## Current owner resolution — D136
+
+The owner rejects a custom tab bar: “不接受客製化 tab bar”. Keep the system TabView/tab bar.
+The research below is retained as history, not an implementation recommendation or pending
+approval request. The earlier long-press sheet request remains unsupported by the identified
+native per-tab APIs; do not pursue a custom bar to implement it.
+
+## Historical research scope and conclusion
 
 The owner explicitly chose to research a custom tab bar after the native-tab long-press
 limitation was reported (D135). This authorizes investigation, not replacing the shipping bar.
@@ -94,5 +101,6 @@ is smaller and leading with a disclosure arrow; it is not necessarily centered.
 
 Historical screenshot: Library title menu closed (image removed from repository history)
 
-D134 remains awaiting visual acceptance. D135's feasibility research is complete; implementation
-scope and design acceptance remain open. D133 remains the production source-switch design.
+D136 rejects custom-tab implementation. D134 remains under native title-layout review, including
+the owner's question about a simultaneous Library large title and smaller source menu. D133
+remains the production source-switch design.

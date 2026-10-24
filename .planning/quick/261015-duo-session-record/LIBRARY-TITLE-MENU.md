@@ -2,6 +2,12 @@
 
 > **Image evidence availability:** Image files were removed from this repository history at the owner's request. Screenshot descriptions, filenames and earlier visual checks below are historical records, not currently available image evidence. Written findings, measurements and source artifacts remain; visual review requires fresh captures.
 
+## Current native-only direction
+
+D136 rejects custom tab bars. A later native probe confirms that a separate SwiftUI Menu can
+coexist with a large Library title in two arrangements; see [screenshots and exact scope](LIBRARY-DUAL-TITLE.md).
+The original inline title-menu experiment below remains historical and is not the only layout option.
+
 ## Owner requests and pending choices
 
 D134 requests replacing the phone Library source picker with a navigation title menu.

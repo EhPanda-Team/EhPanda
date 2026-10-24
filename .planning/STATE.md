@@ -16,7 +16,7 @@ progress:
   percent: 59
 milestone_name: )
 source_head: af00e0da93
-last_activity_desc: "D134 closed-title screenshot supplied; D135 authorized custom-tab feasibility research completed; implementation unapproved; D133 retained"
+last_activity_desc: "D136 retains native tabs; two native Library large-title/source-menu layouts verified in isolated probe; no app change"
 ---
 
 # Project State
@@ -37,7 +37,10 @@ The three review apps are running; owner visual acceptance remains pending. D133
 the source-picker symbols while retaining localized Labels. D134/D135 request a title menu and
 a long-press tab sheet. The owner requested a closed-title screenshot and authorized custom-bar
 research; [findings and screenshot](quick/261015-duo-session-record/CUSTOM-TAB-BAR-FEASIBILITY.md)
-are recorded. The title-mode exception and custom-bar implementation remain unapproved.
+are recorded. D136 rejects custom-bar implementation and retains the system tab bar. The owner is reviewing
+whether a large Library title can coexist with the smaller source menu.
+[Two native arrangements are confirmed](quick/261015-duo-session-record/LIBRARY-DUAL-TITLE.md);
+no production layout has been selected.
 See [the tested native prototype and screenshot](quick/261015-duo-session-record/LIBRARY-TITLE-MENU.md).
 D133 remains the approved implementation.
 
