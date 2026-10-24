@@ -3,7 +3,7 @@ type: retrospective-summary
 recorded: 2026-10-15
 historical_duo_implementation_commits: 21
 library_implementation_commits: 41
-decision_records: 141
+decision_records: 142
 ---
 
 # Delivery and commit ledger
@@ -580,3 +580,13 @@ Twenty native screenshots compare initial/scrolled states on iPhone, iPad and cl
 in portrait and landscape. The custom title Menu scrolls away in every captured case; production
 integration remains pending. [Gallery and measured boundaries](LIBRARY-TITLE-MATRIX.md).
 The temporary simulators were removed and the screenshot page remains open for owner review.
+
+
+## Persistent Library title alternative — D142
+
+The owner requests visible title controls after scrolling. A native `.title` placement with `.inline`
+and browser role retains the title Menu, arrow and source subtitle across 10 device/posture/direction
+configurations. Their initial/scrolled frames match; the scrolled iPhone Menu also switches source.
+The `.inlineLarge` plus `.never` control still hides the title. The working alternative changes title
+mode and moves iPad titles beside floating tabs; it remains an isolated prototype awaiting layout
+acceptance and production integration. [Evidence and limits](LIBRARY-TITLE-PERSISTENCE.md).

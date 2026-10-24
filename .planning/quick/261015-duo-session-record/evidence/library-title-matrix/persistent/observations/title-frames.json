@@ -1,0 +1,142 @@
+[
+  {
+    "case": "iphone-portrait",
+    "same_frames": true,
+    "observations": {
+      "initial": {
+        "title": "@6  PopUpButton  \"Library\"  #library-title-menu  (16,64 99x26)",
+        "subtitle": "@8  StaticText  \"Favorites\"  (16,90 51x14)"
+      },
+      "scrolled": {
+        "title": "@3  PopUpButton  \"Library\"  #library-title-menu  (16,64 99x26)",
+        "subtitle": "@6  StaticText  \"Favorites\"  (16,90 51x14)"
+      }
+    }
+  },
+  {
+    "case": "iphone-landscape",
+    "same_frames": true,
+    "observations": {
+      "initial": {
+        "title": "@2  PopUpButton  \"Library\"  #library-title-menu  (78,26 99x26)",
+        "subtitle": "@5  StaticText  \"Favorites\"  (78,52 51x14)"
+      },
+      "scrolled": {
+        "title": "@3  PopUpButton  \"Library\"  #library-title-menu  (78,26 99x26)",
+        "subtitle": "@6  StaticText  \"Favorites\"  (78,52 51x14)"
+      }
+    }
+  },
+  {
+    "case": "duo-closed-portrait",
+    "same_frames": true,
+    "observations": {
+      "initial": {
+        "title": "@1  PopUpButton  \"Library\"  #library-title-menu  (20,28 99x26)",
+        "subtitle": "@2  StaticText  \"Favorites\"  (20,54 51x15)"
+      },
+      "scrolled": {
+        "title": "@2  PopUpButton  \"Library\"  #library-title-menu  (20,28 99x26)",
+        "subtitle": "@4  StaticText  \"Favorites\"  (20,54 51x15)"
+      }
+    }
+  },
+  {
+    "case": "duo-closed-landscape",
+    "same_frames": true,
+    "observations": {
+      "initial": {
+        "title": "@1  PopUpButton  \"Library\"  #library-title-menu  (20,28 99x26)",
+        "subtitle": "@2  StaticText  \"Favorites\"  (20,54 51x15)"
+      },
+      "scrolled": {
+        "title": "@3  PopUpButton  \"Library\"  #library-title-menu  (20,28 99x26)",
+        "subtitle": "@4  StaticText  \"Favorites\"  (20,54 51x15)"
+      }
+    }
+  },
+  {
+    "case": "duo-half-portrait",
+    "same_frames": true,
+    "observations": {
+      "initial": {
+        "title": "@1  PopUpButton  \"Library\"  #library-title-menu  (20,28 99x26)",
+        "subtitle": "@5  StaticText  \"Favorites\"  (20,54 51x14)"
+      },
+      "scrolled": {
+        "title": "@3  PopUpButton  \"Library\"  #library-title-menu  (20,28 99x26)",
+        "subtitle": "@8  StaticText  \"Favorites\"  (20,54 51x14)"
+      }
+    }
+  },
+  {
+    "case": "duo-half-landscape",
+    "same_frames": true,
+    "observations": {
+      "initial": {
+        "title": "@1  PopUpButton  \"Library\"  #library-title-menu  (20,28 99x26)",
+        "subtitle": "@2  StaticText  \"Favorites\"  (20,54 51x14)"
+      },
+      "scrolled": {
+        "title": "@2  PopUpButton  \"Library\"  #library-title-menu  (20,28 99x26)",
+        "subtitle": "@4  StaticText  \"Favorites\"  (20,54 51x14)"
+      }
+    }
+  },
+  {
+    "case": "duo-open-portrait",
+    "same_frames": true,
+    "observations": {
+      "initial": {
+        "title": "@1  PopUpButton  \"Library\"  #library-title-menu  (20,28 99x26)",
+        "subtitle": "@5  StaticText  \"Favorites\"  (20,54 51x15)"
+      },
+      "scrolled": {
+        "title": "@3  PopUpButton  \"Library\"  #library-title-menu  (20,28 99x26)",
+        "subtitle": "@8  StaticText  \"Favorites\"  (20,54 51x15)"
+      }
+    }
+  },
+  {
+    "case": "duo-open-landscape",
+    "same_frames": true,
+    "observations": {
+      "initial": {
+        "title": "@1  PopUpButton  \"Library\"  #library-title-menu  (20,28 99x26)",
+        "subtitle": "@2  StaticText  \"Favorites\"  (20,54 51x14)"
+      },
+      "scrolled": {
+        "title": "@2  PopUpButton  \"Library\"  #library-title-menu  (20,28 99x26)",
+        "subtitle": "@4  StaticText  \"Favorites\"  (20,54 51x14)"
+      }
+    }
+  },
+  {
+    "case": "ipad-portrait",
+    "same_frames": true,
+    "observations": {
+      "initial": {
+        "title": "@1  PopUpButton  \"Library\"  #library-title-menu  (20,34 99x27)",
+        "subtitle": "@7  StaticText  \"Favorites\"  (20,60 52x15)"
+      },
+      "scrolled": {
+        "title": "@2  PopUpButton  \"Library\"  #library-title-menu  (20,34 99x27)",
+        "subtitle": "@10  StaticText  \"Favorites\"  (20,60 52x15)"
+      }
+    }
+  },
+  {
+    "case": "ipad-landscape",
+    "same_frames": true,
+    "observations": {
+      "initial": {
+        "title": "@1  PopUpButton  \"Library\"  #library-title-menu  (20,34 99x27)",
+        "subtitle": "@7  StaticText  \"Favorites\"  (20,60 52x15)"
+      },
+      "scrolled": {
+        "title": "@3  PopUpButton  \"Library\"  #library-title-menu  (20,34 99x27)",
+        "subtitle": "@10  StaticText  \"Favorites\"  (20,60 52x15)"
+      }
+    }
+  }
+]

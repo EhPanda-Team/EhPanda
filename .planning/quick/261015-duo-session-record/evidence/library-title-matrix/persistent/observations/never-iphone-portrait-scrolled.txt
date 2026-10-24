@@ -1,0 +1,33 @@
+App: CustomArrowProbe  402x874
+
+[Top  y<120]
+  @1 #1  StaticText  "Gallery 4"  (16,-21 370x52)
+  @2 #2  StaticText  "Gallery 5"  (16,30 370x52)
+  @3  Button  "Grid"  (346,66 36x36)
+  @4 #3  StaticText  "Gallery 6"  (16,82 370x52)
+
+[Content  y=120..754]
+  @5 #4  StaticText  "Gallery 7"  (16,134 370x52)
+  @6 #5  StaticText  "Gallery 8"  (16,186 370x52)
+  @7 #6  StaticText  "Gallery 9"  (16,238 370x52)
+  @8 #7  StaticText  "Gallery 10"  (16,290 370x52)
+  @9 #8  StaticText  "Gallery 11"  (16,342 370x52)
+  @10 #9  StaticText  "Gallery 12"  (16,394 370x52)
+  @11  Group  ""  (0,0 402x874)
+  @12 #10  StaticText  "Gallery 13"  (16,446 370x52)
+  @13 #11  StaticText  "Gallery 14"  (16,498 370x52)
+  @14 #12  StaticText  "Gallery 15"  (16,550 370x52)
+  @15 #13  StaticText  "Gallery 16"  (16,602 370x52)
+  @16 #14  StaticText  "Gallery 17"  (16,654 370x52)
+  @17 #15  StaticText  "Gallery 18"  (16,706 370x52)
+
+[Bottom  y>=754]
+  @18 #16  StaticText  "Gallery 19"  (16,758 370x52)
+  @23 #17  StaticText  "Gallery 20"  (16,810 370x52)
+  @24 #18  StaticText  "Gallery 21"  (16,862 370x52)
+
+[Group  "Tab Bar"]
+  @19  RadioButton  "Home"  #house  (25,795 98x54)
+  @20  RadioButton  "Library"  #books.vertical  (110,795 98x54)  selected
+  @21  RadioButton  "Search"  #magnifyingglass  (194,795 98x54)
+  @22  RadioButton  "Setting"  #gearshape  (279,795 98x54)

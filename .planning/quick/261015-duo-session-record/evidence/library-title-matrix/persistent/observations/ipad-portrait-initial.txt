@@ -1,0 +1,38 @@
+App: CustomArrowProbe  834x1210
+
+[Top  y<120]
+  @1  PopUpButton  "Library"  #library-title-menu  (20,34 99x27)
+  @2  RadioButton  "Home"  #house  (247,36 79x36)
+  @3  RadioButton  "Library"  #books.vertical  (325,36 87x36)  selected
+  @4  RadioButton  "Search"  #magnifyingglass  (412,36 87x36)
+  @5  RadioButton  "Setting"  #gearshape  (499,36 89x36)
+  @6  Button  "Grid"  (784,36 36x36)
+  @7  StaticText  "Favorites"  (20,60 52x15)
+  @8  Group  ""  #Library  (0,32 834x106)
+  @9  TextField  "Search"  (20,86 794x42)
+
+[Content  y=120..1090]
+  @10 #1  StaticText  "Gallery 1"  (20,138 794x52)
+  @11 #2  StaticText  "Gallery 2"  (20,190 794x52)
+  @12 #3  StaticText  "Gallery 3"  (20,242 794x52)
+  @13 #4  StaticText  "Gallery 4"  (20,294 794x52)
+  @14 #5  StaticText  "Gallery 5"  (20,346 794x52)
+  @15 #6  StaticText  "Gallery 6"  (20,398 794x52)
+  @16 #7  StaticText  "Gallery 7"  (20,450 794x52)
+  @17 #8  StaticText  "Gallery 8"  (20,502 794x52)
+  @18 #9  StaticText  "Gallery 9"  (20,554 794x52)
+  @19  Group  ""  (0,0 834x1210)
+  @20 #10  StaticText  "Gallery 10"  (20,606 794x52)
+  @21 #11  StaticText  "Gallery 11"  (20,658 794x52)
+  @22 #12  StaticText  "Gallery 12"  (20,710 794x52)
+  @23 #13  StaticText  "Gallery 13"  (20,762 794x52)
+  @24 #14  StaticText  "Gallery 14"  (20,814 794x52)
+  @25 #15  StaticText  "Gallery 15"  (20,866 794x52)
+  @26 #16  StaticText  "Gallery 16"  (20,918 794x52)
+  @27 #17  StaticText  "Gallery 17"  (20,970 794x52)
+  @28 #18  StaticText  "Gallery 18"  (20,1022 794x52)
+
+[Bottom  y>=1090]
+  @29 #19  StaticText  "Gallery 19"  (20,1074 794x52)
+  @30 #20  StaticText  "Gallery 20"  (20,1126 794x52)
+  @31 #21  StaticText  "Gallery 21"  (20,1178 794x52)
