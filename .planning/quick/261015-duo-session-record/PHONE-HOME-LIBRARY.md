@@ -120,3 +120,26 @@ Historical screenshot: Phone Library with the native glass source picker (image 
 
 Phase 17 acceptance gates remain unchanged. Owner visual acceptance is still pending.
 
+
+
+## Symbol-only source picker — D133
+
+On 2026-10-24 the owner clarified that both text and symbols must remain defined, while only
+symbols appear visually. `79655f31db0a3ff8854c50f168e75fcc2b0e497c` adds `.labelStyle(.iconOnly)` to the native
+segmented Picker. Both localized Labels remain intact: Downloads with `arrow.down.circle`,
+Favorites with `heart`. No source-selection, device/posture or placement behavior changes.
+
+The generic simulator build passes with no compiler warnings/errors (`icon-picker-build.log`
+and `icon-picker-build.xcresult` under the existing evidence root); strict pinned SwiftLint and
+`git diff --check` pass. A normal iPhone launch and native screenshot verify the two symbols and
+the smaller control width. Both retained phones were installed/launched successfully, recorded
+in `icon-picker-delivery.json`. No fixture launches, cookie replacement, or test-state seeding
+were used for this follow-up; the iPad app was not reinstalled because its sidebar is unaffected.
+
+The device automation client could not establish daemon ownership. Native UI interaction plus
+a direct simulator screenshot supplied the visual check without resetting shared services.
+Localized accessibility names remain supplied by the original Labels; this follow-up does not
+claim an independent VoiceOver announcement test. No automated behavior suite was rerun for this
+presentation-only modifier. Earlier test results retain their documented source boundaries.
+
+Historical screenshot: Symbol-only phone Library source picker (image removed from repository history)

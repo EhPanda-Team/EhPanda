@@ -644,3 +644,14 @@ Implementation: `0720e193e56c3e72c79649e38829445b7478b995`.
 
 [Scope, native screenshot and verification](PHONE-HOME-LIBRARY.md). Home: `6c284c70fddc3b8199fdaa64104bf990859b08e7`.
 Library: `d66f39b7e635c0a605c0cb9fe6abeabd6f0d2cb7`. Both are installed on the three retained review devices; owner visual acceptance is pending.
+
+
+## Symbol-only phone Library source switch — 2026-10-24
+
+| ID | Owner direction | Disposition |
+|---|---|---|
+| D133 | Define both text and symbol for the lower-right toggle, but display only the symbol. | Retain localized Downloads/Favorites Labels and their symbols; apply native icon-only label style to the segmented Picker. |
+
+D131/D132 placement, source state and device/posture routing remain unchanged.
+Implementation: `79655f31db0a3ff8854c50f168e75fcc2b0e497c`. Clean build/lint and a native iPhone screenshot confirm symbol-only rendering.
+[Verification and screenshot](PHONE-HOME-LIBRARY.md#symbol-only-source-picker--d133).

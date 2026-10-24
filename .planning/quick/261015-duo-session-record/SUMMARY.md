@@ -2,8 +2,8 @@
 type: retrospective-summary
 recorded: 2026-10-15
 historical_duo_implementation_commits: 21
-library_implementation_commits: 40
-decision_records: 132
+library_implementation_commits: 41
+decision_records: 133
 ---
 
 # Delivery and commit ledger
@@ -502,3 +502,11 @@ category and folder management. Sidebar visibility belongs to its host so return
 layout starts expanded, with the native toggle available. Seven focused feature tests and four
 UI cases pass; the final host-state extraction has separate build/lint and six-pose native checks.
 All three normal review apps are running. [Screenshot, exact test boundaries and delivery](PHONE-HOME-LIBRARY.md).
+
+
+## Symbol-only Library source picker — D133
+
+`79655f31db0a3ff8854c50f168e75fcc2b0e497c` retains the localized text and SF Symbols in both Labels and applies
+native icon-only presentation. Build/lint pass; a normal native iPhone screenshot confirms the
+smaller symbol-only control. Both phones are updated without fixture launches.
+[Verification and screenshot](PHONE-HOME-LIBRARY.md#symbol-only-source-picker--d133).
