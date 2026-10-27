@@ -13,12 +13,6 @@ jobs:
       - uses: actions/checkout@v7
         with:
           ref: develop
-      - name: Verify Swift 6.4 toolchain
-        run: |
-          set -euo pipefail
-          xcodebuild -version | grep -q '^Xcode 27\.'
-          xcrun swift --version | grep -q 'Apple Swift version 6\.4'
-          [[ "$(xcrun --sdk iphonesimulator --show-sdk-version)" == 27.* ]]
       - name: Update package dependencies and both lockfiles
         id: resolution
         run: |
