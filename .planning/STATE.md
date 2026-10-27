@@ -5,10 +5,10 @@ current_phase: 17
 current_phase_name: Screenshot Automation, Visual Regression & OS 27 Modernization
 status: executing
 stopped_at: 17-06 revision re-shot (2026-10-13), 16/16 captured; waiting for the owner's visual review; agent prepares both gallery sets
-last_updated: "2026-10-27T09:04:21.801Z"
+last_updated: "2026-10-27T14:39:12.728Z"
 last_activity: 2026-10-27
-last_activity_desc: "D145 sanitizes the 126-commit session history, removes planning images, repairs references and reconstructs two fixed-clock timestamps; no additional commit"
-state_head: 79655f31db0a3ff8854c50f168e75fcc2b0e497c
+last_activity_desc: Completed quick task 261027-vgt; public builds resolve without the private capture SDK, and explicit local SDK snapshots build and pass adapter tests
+state_head: 391edb63edb2e07bd8e50b4e9e77884103238c36
 progress:
   total_phases: 17
   completed_phases: 10
@@ -96,7 +96,6 @@ move Downloads actions into the native card context menu. Five focused iPad/iPho
 builds/lint are clean. D85's floating-inspector question is investigated, with no presentation
 replacement selected. See [current grid refinements](quick/261015-tx1-implement-library-with-shared-favorites-/GRID-LIBRARY-REFINEMENT.md).
 
-
 D86 (`cb029d6db0`) and D87 (`658ba665b2`) are historical, rejected presentation trials. Their original
 functional results and screenshots remain in the [sheet report](quick/261015-tx1-implement-library-with-shared-favorites-/FLOATING-PANEL-PROTOTYPE.md)
 and [inspector report](quick/261015-tx1-implement-library-with-shared-favorites-/NATIVE-INSPECTOR-PROTOTYPE.md).
@@ -144,7 +143,7 @@ See: .planning/PROJECT.md (updated 2026-09-23)
 Phase: 17 of 17 (Screenshot Automation, Visual Regression & OS 27 Modernization)
 Plan: 6 of 24 complete (17-05, wave 6; dependency order, not numeric ID order); 17-06 implemented; the owner's 2026-10-13 review returned changes, revision in progress
 Status: executing (17-01/17-24/17-02/17-03/17-04/17-05 complete; 17-06 implemented and verified, owner review returned changes on 2026-10-13, revision in progress; the agent prepares galleries and fixtures for both content sets)
-Last activity: 2026-10-24 — D133 makes the Library picker visually symbol-only; localized Labels retained, build/lint and native visual check pass; both review phones updated; Phase 17 unchanged.
+Last activity: 2026-10-27 — Completed quick task 261027-vgt: public dependency resolution, Debug/Release builds and 130 tests pass without the private capture SDK; explicit local SDK snapshots build and pass 134 tests. Capture runtime remains limited by the existing configuration schema mismatch and missing fixtures; Phase 17 unchanged.
 
 **Phase 17 current gate:** 6/24 plans complete. 17-01 passed 32/32 capture coordinates and 66/66 tests; verified public v2 fixtures are in `.capture/regression`. 17-24 measures all four real device/orientation combinations and validates the immutable tracked rendering pin. Both final measure and validate commands pass four geometry tests plus six rotation/restore tests, with 28 Python contract tests and zero compiler/lint diagnostics or runtime warnings. Pin SHA-256: `ffd7689fcaf9a312202fdfbf9787f0198711fd477d1e72a2a013851df85a394a`; evidence is `.capture/environment-measurement/` and `.capture/environment-pin-check/`. Implementation ends at 3e69dc69d3; summary/review committed in fb83037387. Four reserved staged entries remain unchanged. Devices restore portrait/original Large and their original boot states. Continue inline with 17-06; shared CAP-17-01/02/03/04/06 remain incomplete until all declaring plans finish. No baseline promotion.
 
@@ -1109,6 +1108,8 @@ None yet.
 
 | 261017-pjj | Implement B Home sections with selected C slideshow and shared simplified titles | 2026-10-17 | 1cc211aee6 | [261017-pjj implementation](./quick/261017-pjj-implement-b-home-sections-with-selected-/261017-pjj-SUMMARY.md) |
 | 16 | Integrate all 107 app-design commits into feature/gsd-phase-17 by fast-forward; preserve SHAs and pending prototype boundaries | 2026-10-27 | a7853729fb | [D143 integration](./quick/261015-duo-session-record/SUMMARY.md#phase-17-integration--d143) |
+| 261027-ci-cleanup | Remove unrequested privacy, disclosure and toolchain checks, visual tooling checks from app tests, and the visual capture workflow; squash all five prior CI commits | 2026-10-27 | 50deca5ac5 | — |
+| 261027-vgt | Make CI builds independent of private local capture tooling while preserving local captures | 2026-10-27 | 391edb63ed | [261027-vgt-make-ci-builds-independent-of-private-lo](./quick/261027-vgt-make-ci-builds-independent-of-private-lo/) |
 
 ### Roadmap Evolution
 
@@ -1158,19 +1159,16 @@ W-34 is accepted only for MiB pronunciation; W-33 remains uncertain. The user se
 
 **2026-09-18 owner decision follow-up (recorded 2026-09-17T16:01:34Z).** The user accepted D-25 finding #39 as an Apple native-search bug with no app fix requested; the nine-cell result remains eight pass cells plus one accepted finding. W-8, W-35, VO-3, and W-13 require root-cause investigation; W-38 awaits an operation demonstration. W-33 is in revision toward ordinary P M pronunciation; W-34 and W-31 retain their scoped confirmations. This does not approve the phase or A11Y-02.
 
-
 D101–D103 (`3673f4670652afa91bf54aa043b8ebdac2a81801`) correct Home card footnotes, Toplists uploader and
 rating foregrounds. [Native verification](quick/261017-pjj-implement-b-home-sections-with-selected-/FOLLOW-UP-20261022.md)
 passes two focused iPad UI cases and build/lint; review iPad is updated in place. D104 has
 [three landscape slideshow proposals](sketches/002-landscape-slideshow/README.md) with portrait
 preserved and no selection. Phase 17 owner gates and baselines remain unchanged.
 
-
 D105–D106 (`6644232f25285fa9724d5e708b8d10f8a5e964a9`) implement the selected narrow landscape slideshow
 and roomier Toplists information. [Verification and native screenshots](quick/261017-pjj-implement-b-home-sections-with-selected-/SLIDESHOW-A.md)
 record 3/3 passing native iPad UI tests and clean build/lint. This supersedes D104's pending
 selection; portrait, navigation and Phase 17 owner gates/baselines remain unchanged.
-
 
 D107–D109 (`13e688a7ad404ea45b6099fb99f478f1f187fa93`) refine ranking spacing, slideshow aspect-fill and adaptive
 tag backgrounds. [Native evidence and final-build scope](quick/261017-pjj-implement-b-home-sections-with-selected-/HOME-CELL-FINISHES.md)
@@ -1178,7 +1176,6 @@ record the three passing behavioral cases and final foreground-only visual verif
 iPad updated in place. D111 resolves the separate gradient proposal: adjust only tags in this pass,
 retaining card-wide gradient brightness/color variation and title/metadata foregrounds. The observed
 contrast limitation stays recorded; no additional source change or validation run is required.
-
 
 D110 (`b15f385ee83eda5c5fdb7290ae08a1e09a056b0a`) reproduces and fixes the comment preview background/frame mismatch.
 [Investigation and native comparisons](quick/261022-comment-card-background/SUMMARY.md) record nine
