@@ -211,7 +211,12 @@ class CanonicalGraphTests(unittest.TestCase):
             text=True,
         )
         package = json.loads(manifest.stdout)
-        self.assertFalse(any(dependency.get("identity") == "appshot" for dependency in package["dependencies"]))
+        local_packages = [
+            local
+            for dependency in package["dependencies"]
+            for local in dependency.get("fileSystem", [])
+        ]
+        self.assertNotIn("Appshot", [local.get("nameForTargetDependencyResolutionOnly") for local in local_packages])
         for target in package["targets"]:
             for dependency in target.get("dependencies", []):
                 product_dependency = dependency.get("product")
