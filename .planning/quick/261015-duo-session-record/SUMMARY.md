@@ -3,7 +3,7 @@ type: retrospective-summary
 recorded: 2026-10-15
 historical_duo_implementation_commits: 21
 library_implementation_commits: 41
-decision_records: 142
+decision_records: 145
 ---
 
 # Delivery and commit ledger
@@ -590,3 +590,84 @@ configurations. Their initial/scrolled frames match; the scrolled iPhone Menu al
 The `.inlineLarge` plus `.never` control still hides the title. The working alternative changes title
 mode and moves iPad titles beside floating tabs; it remains an isolated prototype awaiting layout
 acceptance and production integration. [Evidence and limits](LIBRARY-TITLE-PERSISTENCE.md).
+
+
+## Phase 17 integration — D143
+
+On 2026-10-27, the owner requested integration of all current work into `gsd-phase-17`, resolved
+to the existing `feature/gsd-phase-17` branch. Both checkouts were clean and the target had no
+commits absent from `agent/app-design`.
+
+- Previous target: `e6efecb69f2430365061e81b1eb4547a04aa555f`.
+- Integrated source: `a7853729fb7634d4b0d099329b255082d1cd04dd`.
+- Method: `git merge --ff-only agent/app-design`; all 107 commits retain their original IDs.
+- Scope: all implementation, tests, proposals, screenshots and GSD records from the source branch.
+- Verification: the target tree after fast-forward exactly matches the source tree; the source
+  is an ancestor of the target. Only this integration's documentation bookkeeping follows it.
+- The complete-range whitespace check reports four single-space context lines inside two retained
+  unified patch artifacts (`actions-preview-seed.patch` and `populated-preview-seed.patch` in
+  `quick/261022-search-section-placeholders`). Those spaces are patch syntax, not source defects.
+  The new documentation diff passes its whitespace check.
+- No fresh build or simulator tests are claimed: the source tree is unchanged by the fast-forward,
+  and earlier test evidence retains its documented source revisions and limits.
+
+The source worktree and branch are retained; no remote push is performed. D142's pending title
+alternative remains a prototype, and the Phase 17 review gates remain unchanged.
+
+
+## UTC+8 history rewrite - D144
+
+On 2026-10-27, the owner requested UTC+8 author and committer offsets for the 108 commits
+integrated in D143, with all affected GSD SHA references corrected inside their owning commits.
+The existing final integration documentation commit carries this record; no commit is appended.
+
+- The base commit preceding the 108-commit range remains unchanged.
+- Author/committer identities and Unix timestamps are preserved; both stored offsets become +0800.
+- Commits are rebuilt chronologically, remapping parents and every affected full or abbreviated
+  SHA in each documentation snapshot. All references in this range point backward, so each target
+  is finalized before the referencing commit is written. Commit-message references are also checked.
+- Every rewritten commit retains exactly the same non-planning tree as its original counterpart.
+- Verification covers all 108 parent links, date offsets, timestamps, source trees and documentation
+  replacements, with no old in-range SHA references left in the rewritten GSD history.
+- The app-design branch follows its corresponding rewritten commit. Local backup refs and an
+  external mapping retain recovery information without inserting old SHAs into the new GSD history.
+
+This supersedes D143's retained-SHA state. Previous test evidence keeps its stated scope; no new
+build or simulator run is claimed for the metadata/documentation rewrite. Phase 17 review gates
+and pending title-prototype acceptance remain unchanged. No remote push is performed.
+
+
+## History cleanup and test-clock correction - D145
+
+On 2026-10-27, the owner requested a new rewrite starting with the first simulator-driver introduction, inclusive, after the owner
+approved extending the initial boundary to avoid retaining the removed name in deletion diffs. This supersedes D143/D144's commit IDs and image-retention state. The existing
+final documentation commit carries this record; no extra commit is introduced.
+
+- Range: 126 commits, with the preceding base unchanged. Author/committer identities and UTC+8
+  offsets are retained. Dates remain unchanged except for the two corrections below.
+- A local simulator-tool name is removed from all tracked text snapshots in the selected range.
+  The tool runner now requires `--pose-driver /path/to/pose-driver`. Its request, acknowledgement,
+  failure propagation and test-manifest preservation behavior remain intact. The adaptation lands
+  in the runner's original introduction commit, including later changes to that script.
+- All 301 planning image paths are removed from the selected history. Markdown no longer embeds
+  or links to those files. Manifests mark them unavailable and retain historical identifiers;
+  checksum inventories omit deleted assets. Image-dependent galleries retain text/configuration
+  metadata and issue no image requests. Written findings and original validation limits remain.
+- Full and abbreviated commit references are remapped in each owning historical snapshot.
+- The two fixed-clock timestamps are reconstructed by evenly spacing the commits between their
+  October 24 neighbors. These are owner-approved ordering estimates, not recovered wall-clock times:
+
+| Rewritten commit | Author and committer timestamp |
+|---|---|
+| `45640f3e25e5ded7fb3fb0de585e5f5382dc3ca3` | 2026-10-24 13:39:29 +0800 |
+| `127aa344c939a048fbe6981d51d383d63b22fbb1` | 2026-10-24 14:53:33 +0800 |
+
+Verification checks every selected commit for signatures, parents, dates, removed assets/tool
+name, updated SHA references and preservation of the app/test source trees. The only executable
+source change is the explicit pose-driver argument; focused mocked-driver checks cover that path.
+No new app build, simulator run or visual acceptance is claimed. Phase 17 gates stay unchanged.
+
+No non-image planning blob reaches 1 MiB in the 126 snapshots. The largest current file is the
+Phase 16 sweep at 735,861 bytes; it is retained. Recovery refs and the old/new SHA mapping are
+local, outside the rewritten branch's tracked files. Ancestors before the requested boundary are
+unchanged. No remote push is performed.

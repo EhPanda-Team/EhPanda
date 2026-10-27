@@ -5,8 +5,9 @@ current_phase: 17
 current_phase_name: Screenshot Automation, Visual Regression & OS 27 Modernization
 status: executing
 stopped_at: 17-06 revision re-shot (2026-10-13), 16/16 captured; waiting for the owner's visual review; agent prepares both gallery sets
-last_updated: "2026-10-24T09:03:38Z"
-last_activity: 2026-10-24
+last_updated: "2026-10-27T09:04:21.801Z"
+last_activity: 2026-10-27
+last_activity_desc: "D145 sanitizes the 126-commit session history, removes planning images, repairs references and reconstructs two fixed-clock timestamps; no additional commit"
 state_head: 79655f31db0a3ff8854c50f168e75fcc2b0e497c
 progress:
   total_phases: 17
@@ -16,12 +17,18 @@ progress:
   percent: 59
 milestone_name: )
 source_head: af00e0da93
-last_activity_desc: "D142 verifies persistent native inline title alternative across 10 configurations; inlineLarge tradeoff awaits acceptance; production unchanged"
 ---
 
 # Project State
 
 > **Image evidence availability:** Image files were removed from this repository history at the owner's request. Screenshot descriptions, filenames and earlier visual checks below are historical records, not currently available image evidence. Written findings, measurements and source artifacts remain; visual review requires fresh captures.
+
+## History cleanup - D145, 2026-10-27
+
+The owner requested removal of a local simulator-tool name throughout tracked project content
+and removal of image files from planning history. The 126 commits in the selected range are
+rewritten in place, with SHA references repaired in each historical snapshot. Two fixed-clock
+commit dates are reconstructed on October 24; see the [cleanup record](quick/261015-duo-session-record/SUMMARY.md#history-cleanup-and-test-clock-correction--d145).
 
 ## Duo session record — 2026-10-15
 
@@ -57,7 +64,15 @@ D142 verifies a [persistent native inline alternative](quick/261015-duo-session-
 across the same 10 configurations. Its title mode and iPad vertical placement differ from D141;
 acceptance and production integration remain pending.
 
-Current design workspace: `agent/app-design`; see [workspace rebuild](quick/261015-duo-session-record/WORKSPACE-REBUILD.md).
+D143 integrates all 107 commits from `agent/app-design` into `feature/gsd-phase-17` by fast-forward,
+preserving original commit IDs and GSD references. The consolidated target is `feature/gsd-phase-17`;
+the `agent/app-design` worktree and branch remain available. This integration does not approve or
+implement the pending D142 title alternative and does not complete Phase 17.
+See [integration verification](quick/261015-duo-session-record/SUMMARY.md#phase-17-integration--d143)
+and the earlier [workspace rebuild](quick/261015-duo-session-record/WORKSPACE-REBUILD.md).
+D144 subsequently normalizes author and committer offsets to UTC+8 while preserving their Unix
+timestamps. SHA references are repaired within each rewritten commit; the range remains 108
+commits. See the [rewrite record](quick/261015-duo-session-record/SUMMARY.md#utc8-history-rewrite--d144).
 
 Library follow-up: D75 keeps the native sidebar and records the unresolved header displacement;
 D76 restores the working hide/show toggle, initially expanded. See
@@ -1093,6 +1108,7 @@ None yet.
 | 261015-tx1 | Implement shared Library categories and independent row/grid layouts | 2026-10-16 | 56f906c766 | [261015-tx1-implement-library-with-shared-favorites-](./quick/261015-tx1-implement-library-with-shared-favorites-/) |
 
 | 261017-pjj | Implement B Home sections with selected C slideshow and shared simplified titles | 2026-10-17 | 1cc211aee6 | [261017-pjj implementation](./quick/261017-pjj-implement-b-home-sections-with-selected-/261017-pjj-SUMMARY.md) |
+| 16 | Integrate all 107 app-design commits into feature/gsd-phase-17 by fast-forward; preserve SHAs and pending prototype boundaries | 2026-10-27 | a7853729fb | [D143 integration](./quick/261015-duo-session-record/SUMMARY.md#phase-17-integration--d143) |
 
 ### Roadmap Evolution
 
