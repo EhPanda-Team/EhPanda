@@ -75,7 +75,7 @@ public enum UITestAutomation {
         /// other field is inert when this is set.
         let captureScene: CaptureScene?
         #if DEBUG && canImport(Appshot) && canImport(AppshotProtocol)
-        var appshotScene: AppshotProtocol.CaptureScene? = nil
+        var appshotScene: AppshotProtocol.CaptureScene?
         #endif
     }
 
@@ -166,14 +166,16 @@ public enum UITestAutomation {
         now: Date,
         isTesting: Bool = AppInfo.isTesting
     ) throws(CaptureFailure) -> Configuration? {
-        var appshot: AppshotProtocol.CaptureScene?
-        var captureEnvironment = environment
         #if DEBUG && canImport(Appshot) && canImport(AppshotProtocol)
-        appshot = try AppshotCapture.decode(environment: environment)
+        let appshot = try AppshotCapture.decode(environment: environment)
+        let captureEnvironment: [String: String]
         if let appshot {
             captureEnvironment = try AppshotCapture.captureEnvironment(appshot, environment: environment)
+        } else {
+            captureEnvironment = environment
         }
         #else
+        let captureEnvironment = environment
         if environment.keys.contains("APPSHOT_SCENE") {
             throw .malformedConfiguration(
                 "APPSHOT_SCENE requires the explicit local capture composition; prepare a snapshot with the real SDK."
@@ -181,7 +183,12 @@ public enum UITestAutomation {
         }
         #endif
         if let captureScene = try CaptureScenePreparation.scene(environment: captureEnvironment) {
-            var configuration = Configuration(
+            #if DEBUG && canImport(Appshot) && canImport(AppshotProtocol)
+            var configuration: Configuration
+            #else
+            let configuration: Configuration
+            #endif
+            configuration = Configuration(
                 fixtureDirectory: nil,
                 clipboardClient: nil,
                 shouldStubNetwork: false,
@@ -194,12 +201,16 @@ public enum UITestAutomation {
             #endif
             return configuration
         }
+        #if DEBUG && canImport(Appshot) && canImport(AppshotProtocol)
         let isProbe: Bool
         if let appshot, case .probe = appshot.coordinate {
             isProbe = true
         } else {
             isProbe = false
         }
+        #else
+        let isProbe = false
+        #endif
         let shouldUseVisualTestHost = isProbe || isTesting && trimmedValue(
             environment: environment,
             key: "EHPANDA_VISUAL_TEST_HOST"
@@ -236,7 +247,12 @@ public enum UITestAutomation {
         guard shouldStubNetwork || clipboardClient != nil || pauseRefusal != nil else {
             return nil
         }
-        var configuration = Configuration(
+        #if DEBUG && canImport(Appshot) && canImport(AppshotProtocol)
+        var configuration: Configuration
+        #else
+        let configuration: Configuration
+        #endif
+        configuration = Configuration(
             fixtureDirectory: fixtureDirectory,
             clipboardClient: clipboardClient,
             shouldStubNetwork: shouldStubNetwork,

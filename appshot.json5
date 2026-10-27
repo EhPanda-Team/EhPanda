@@ -1,4 +1,4 @@
-// Actual-app capture through the sibling appshot-cli checkout. Real fixtures remain outside Git.
+// Actual-app capture through the private capture tool. Real fixtures remain outside Git.
 {
   "schemaVersion": 1,
   "project": {
