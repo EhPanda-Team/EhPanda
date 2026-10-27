@@ -16,6 +16,8 @@ import Testing
 /// call site and `.destructive` at the other. That reads as an oversight to anyone who has not
 /// followed the reasoning above, and a comment alone would not survive the first contributor who
 /// "fixes" it back. That is what this suite is for.
+/// The row and grid context menus both delegate to `managementMenu`; the context-menu check follows
+/// each call site to that shared builder before checking its delete role.
 ///
 /// **Why every check is region-scoped, and why that is not fussiness.** The role is correct
 /// everywhere else it appears — the dialog's Delete `ButtonState` and the context-menu Delete both
@@ -36,7 +38,9 @@ struct DownloadsSwipeActionSourceTests {
 
     private static let trailingSwipeAnchor = ".swipeActions(edge: .trailing"
     private static let leadingSwipeAnchor = ".swipeActions(edge: .leading"
-    private static let contextMenuAnchor = "var contextMenu:"
+    private static let contextMenuAnchor = ".contextMenu"
+    private static let managementMenuAnchor = "var managementMenu:"
+    private static let managementMenuReference = "managementMenu"
 
     private static let openingBrace: Character = "{"
     private static let closingBrace: Character = "}"
@@ -93,9 +97,15 @@ extension DownloadsSwipeActionSourceTests {
     /// The other side of the pin. Without it, deleting the context menu's role would satisfy a
     /// carelessly-written sweep, and the destructive semantics would be lost on the surface that
     /// can afford to keep them.
-    @Test
-    func testTheContextMenuDeleteKeepsItsDestructiveRole() throws {
-        let region = try Self.contextMenuRegion()
+    @Test(arguments: ["var row:", "var grid:"])
+    func testTheContextMenuDeleteKeepsItsDestructiveRole(_ viewAnchor: String) throws {
+        let view = try Self.bracedRegion(openingAfter: viewAnchor, in: Self.viewContents())
+        let contextMenu = try Self.executableText(in: Self.bracedRegion(openingAfter: Self.contextMenuAnchor, in: view))
+        #expect(
+            Self.occurrences(of: Self.managementMenuReference, in: contextMenu) == 1,
+            "The context menu must use the shared management menu whose delete role is checked below."
+        )
+        let region = try Self.managementMenuRegion()
 
         #expect(
             Self.occurrences(of: Self.destructiveRoleToken, in: region) == 1,
@@ -122,26 +132,26 @@ extension DownloadsSwipeActionSourceTests {
     func testTheExtractedRegionsAreTheSpansTheirNamesClaim() throws {
         let contents = try Self.executableText(in: Self.viewContents())
         let trailingSwipe = try Self.trailingSwipeRegion()
-        let contextMenu = try Self.contextMenuRegion()
+        let managementMenu = try Self.managementMenuRegion()
 
         #expect(Self.occurrences(of: Self.deleteActionToken, in: trailingSwipe) == 1)
-        #expect(Self.occurrences(of: Self.deleteActionToken, in: contextMenu) == 1)
+        #expect(Self.occurrences(of: Self.deleteActionToken, in: managementMenu) == 1)
 
-        #expect(!trailingSwipe.contains(Self.leadingSwipeAnchor))
-        #expect(!trailingSwipe.contains(Self.contextMenuAnchor))
-        #expect(!contextMenu.contains(Self.leadingSwipeAnchor))
-        #expect(!contextMenu.contains(Self.trailingSwipeAnchor))
+        #expect(trailingSwipe.contains(Self.leadingSwipeAnchor) == false)
+        #expect(trailingSwipe.contains(Self.contextMenuAnchor) == false)
+        #expect(managementMenu.contains(Self.leadingSwipeAnchor) == false)
+        #expect(managementMenu.contains(Self.trailingSwipeAnchor) == false)
 
         #expect(trailingSwipe.count < contents.count)
-        #expect(contextMenu.count < contents.count)
+        #expect(managementMenu.count < contents.count)
     }
 
     private static func trailingSwipeRegion() throws -> String {
         try executableText(in: bracedRegion(openingAfter: trailingSwipeAnchor, in: try viewContents()))
     }
 
-    private static func contextMenuRegion() throws -> String {
-        try executableText(in: bracedRegion(openingAfter: contextMenuAnchor, in: try viewContents()))
+    private static func managementMenuRegion() throws -> String {
+        try executableText(in: bracedRegion(openingAfter: managementMenuAnchor, in: try viewContents()))
     }
 
     /// `text` with its comment lines dropped, which is not tidiness but the whole reason this
