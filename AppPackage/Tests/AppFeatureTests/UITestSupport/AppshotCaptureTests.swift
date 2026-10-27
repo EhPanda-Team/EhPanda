@@ -1,3 +1,4 @@
+#if DEBUG && canImport(Appshot) && canImport(AppshotProtocol)
 @testable import AppFeature
 import AppshotProtocol
 import Foundation
@@ -91,3 +92,4 @@ struct AppshotCaptureTests {
         }
     }
 }
+#endif
