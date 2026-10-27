@@ -7,7 +7,6 @@ import PackageDescription
 
 // MARK: Dependency
 var dependencies: [PackageDescription.Package.Dependency] = [
-    .package(name: "Appshot", path: "../../appshot-cli"),
     // ColorfulX (Lakr233) — Metal-backed animated multicolor gradient, pinned exactly for
     // supply-chain hardening. Replaces the deprecated Colorful package (DEP-07b): Colorful
     // 1.1.x marked `ColorfulView` deprecated on non-watchOS ("This library hurts CPU alot")
@@ -238,12 +237,10 @@ extension PackageDescription.Target {
 }
 
 // MARK: Target
-let targets: [PackageDescription.Target] = [
+var targets: [PackageDescription.Target] = [
     .target(
         module: .appFeature,
         dependencies: [
-            .targetDependency(.product(name: "Appshot", package: "Appshot")),
-            .targetDependency(.product(name: "AppshotProtocol", package: "Appshot")),
             .module(.analyticsClient),
             .module(.appComponents),
             .module(.appLaunchAutomationClient),
@@ -830,8 +827,6 @@ let targets: [PackageDescription.Target] = [
     .testTarget(
         module: .appFeatureTests,
         dependencies: [
-            .targetDependency(.product(name: "Appshot", package: "Appshot")),
-            .targetDependency(.product(name: "AppshotProtocol", package: "Appshot")),
             .module(.analyticsClient),
             .module(.appComponents),
             .module(.appFeature),
