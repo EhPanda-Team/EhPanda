@@ -50,15 +50,49 @@ class SnapshotTests(unittest.TestCase):
             ).stdout
             self.assertIn("?? tracked.swift", status)
 
-    def test_source_symlink_is_rejected(self) -> None:
+    def test_direct_relative_symlink_to_included_file_is_preserved(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
             (root / "target.txt").write_text("data", encoding="utf-8")
-            (root / "source-link").symlink_to(root / "target.txt")
+            (root / "source-link").symlink_to("./target.txt")
+            source_link_bytes = (root / "source-link").readlink().as_posix()
             subprocess.run(["git", "init", "--quiet"], cwd=root, check=True)
+            destination = Path(temporary) / "snapshot"
 
-            with self.assertRaisesRegex(capture.PreparationError, "source symlink"):
-                capture.listed_sources(root)
+            capture.copy_snapshot(root, destination, capture.listed_sources(root))
+
+            self.assertTrue((destination / "source-link").is_symlink())
+            self.assertEqual((destination / "source-link").readlink().as_posix(), source_link_bytes)
+            self.assertEqual((destination / "source-link").read_text(encoding="utf-8"), "data")
+
+    def test_unsafe_source_symlink_categories_are_rejected(self) -> None:
+        links = {
+            "absolute": "/tmp/foreign-target",
+            "escaping": "../outside.txt",
+            "dangling": "missing.txt",
+            "directory-link": "directory",
+            "ignored": "ignored.txt",
+            "chained": "chain-a",
+            "cyclic": "cycle-a",
+        }
+        for name, target in links.items():
+            with tempfile.TemporaryDirectory() as temporary:
+                root = Path(temporary)
+                (root / "target.txt").write_text("data", encoding="utf-8")
+                (root / "directory").mkdir()
+                (root / "directory/file.txt").write_text("data", encoding="utf-8")
+                (root / ".gitignore").write_text("ignored.txt\n", encoding="utf-8")
+                (root / "ignored.txt").write_text("ignored", encoding="utf-8")
+                if name == "chained":
+                    (root / "chain-a").symlink_to("target.txt")
+                if name == "cyclic":
+                    (root / "cycle-a").symlink_to("cycle-b")
+                    (root / "cycle-b").symlink_to("cycle-a")
+                (root / name).symlink_to(target)
+                subprocess.run(["git", "init", "--quiet"], cwd=root, check=True)
+
+                with self.subTest(link=name), self.assertRaises(capture.PreparationError):
+                    capture.listed_sources(root)
 
     def test_output_must_be_new_and_inside_capture_directory(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
@@ -186,10 +220,21 @@ class CanonicalGraphTests(unittest.TestCase):
 
         project = capture.load_project(root / "EhPanda.xcodeproj/project.pbxproj")
         objects = project["objects"]
-        self.assertFalse(any(
-            item.get("isa") == "XCLocalSwiftPackageReference" and "Appshot" in str(item)
-            for item in objects.values()
-        ))
+        local_references = {
+            object_id: item
+            for object_id, item in objects.items()
+            if item.get("isa") == "XCLocalSwiftPackageReference"
+        }
+        self.assertEqual(len(local_references), 1)
+        app_package_id, app_package = next(iter(local_references.items()))
+        self.assertEqual(app_package.get("relativePath"), "AppPackage")
+        projects = [item for item in objects.values() if item.get("isa") == "PBXProject"]
+        self.assertEqual(len(projects), 1)
+        local_products = [
+            item for item in objects.values()
+            if item.get("isa") == "XCSwiftPackageProductDependency" and item.get("package") == app_package_id
+        ]
+        self.assertEqual({item.get("productName") for item in local_products}, {"AppFeature", "VisualSnapshotSupport"})
         self.assertFalse(any(
             item.get("isa") == "XCSwiftPackageProductDependency"
             and item.get("productName") in {"Appshot", "AppshotProtocol", "AppshotXCTest"}

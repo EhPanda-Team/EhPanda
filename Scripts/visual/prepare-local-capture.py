@@ -8,8 +8,8 @@ import hashlib
 import json
 import os
 import plistlib
-import re
 import shutil
+import stat
 import subprocess
 import sys
 from pathlib import Path
@@ -57,12 +57,8 @@ let appshotTargetNames = ["AppFeature", "AppFeatureTests"]
 for targetName in appshotTargetNames {{
     precondition(targets.filter({{ $0.name == targetName }}).count == 1, "Expected exactly one \\(targetName) target")
 }}
-targets = targets.map {{ target in
-    var target = target
-    if appshotTargetNames.contains(target.name) {{
-        target.dependencies.append(contentsOf: appshotTargetDependencies)
-    }}
-    return target
+for target in targets where appshotTargetNames.contains(target.name) {{
+    target.dependencies.append(contentsOf: appshotTargetDependencies)
 }}
 
 '''
@@ -191,10 +187,27 @@ def listed_sources(root: Path) -> list[str]:
     ]
     if submodules:
         raise PreparationError(f"Cannot snapshot Git submodules: {', '.join(submodules)}")
+    included = set(result)
     for relative in result:
         source = root / relative
         if source.is_symlink():
-            raise PreparationError(f"Cannot snapshot source symlink: {relative}")
+            target = os.readlink(source)
+            if os.path.isabs(target):
+                raise PreparationError(f"Cannot snapshot absolute source symlink: {relative}")
+            target_relative = os.path.normpath(os.path.join(os.path.dirname(relative), target))
+            if target_relative == ".." or target_relative.startswith(f"..{os.sep}"):
+                raise PreparationError(f"Cannot snapshot escaping source symlink: {relative}")
+            if target_relative not in included:
+                raise PreparationError(f"Cannot snapshot dangling or ignored-target source symlink: {relative}")
+            target_path = root / target_relative
+            if target_path.is_symlink():
+                raise PreparationError(f"Cannot snapshot chained or cyclic source symlink: {relative}")
+            try:
+                target_mode = target_path.lstat().st_mode
+            except OSError as error:
+                raise PreparationError(f"Cannot inspect source symlink target: {relative}") from error
+            if not stat.S_ISREG(target_mode):
+                raise PreparationError(f"Cannot snapshot directory or non-file source symlink: {relative}")
         if source.exists() and not source.is_file():
             raise PreparationError(f"Cannot snapshot non-file source entry: {relative}")
     return result
@@ -204,11 +217,18 @@ def copy_snapshot(root: Path, destination: Path, sources: list[str]) -> None:
     destination.mkdir(parents=True, exist_ok=False)
     for relative in sources:
         source = root / relative
-        if not source.exists():
+        if not source.exists() or source.is_symlink():
             continue
         target = destination / relative
         target.parent.mkdir(parents=True, exist_ok=True)
         shutil.copy2(source, target)
+    for relative in sources:
+        source = root / relative
+        if not source.is_symlink():
+            continue
+        target = destination / relative
+        target.parent.mkdir(parents=True, exist_ok=True)
+        os.symlink(os.readlink(source), target)
     run(["git", "init", "--quiet"], cwd=destination)
 
 

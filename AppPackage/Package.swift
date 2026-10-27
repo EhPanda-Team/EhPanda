@@ -237,7 +237,7 @@ extension PackageDescription.Target {
 }
 
 // MARK: Target
-var targets: [PackageDescription.Target] = [
+let targets: [PackageDescription.Target] = [
     .target(
         module: .appFeature,
         dependencies: [
