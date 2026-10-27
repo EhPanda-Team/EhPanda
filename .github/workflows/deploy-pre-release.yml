@@ -41,6 +41,8 @@ jobs:
         run: xcodebuild -version
       - name: Run tests
         run: xcodebuild clean test
+          -skipMacroValidation
+          -skipPackagePluginValidation
           -scheme ${{ env.SCHEME_NAME }}
           -testPlan FeatureTests
           -destination 'platform=iOS Simulator,name=iPhone Air,OS=27.0'
@@ -49,6 +51,8 @@ jobs:
           TELEMETRYDECK_APP_ID: ${{ secrets.TELEMETRYDECK_APP_ID }}
           TELEMETRYDECK_SALT: ${{ secrets.TELEMETRYDECK_SALT }}
         run: xcodebuild archive
+          -skipMacroValidation
+          -skipPackagePluginValidation
           -scheme ${{ env.SCHEME_NAME }}
           -destination 'generic/platform=iOS'
           -archivePath ${{ env.ARCHIVE_PATH }}
