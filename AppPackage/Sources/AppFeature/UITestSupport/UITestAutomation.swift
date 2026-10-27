@@ -14,7 +14,7 @@ import HapticsClient
 import LibraryClient
 import Sharing
 import UserDefaultsClient
-#if DEBUG
+#if DEBUG && canImport(Appshot) && canImport(AppshotProtocol)
 import AppshotProtocol
 #endif
 
@@ -74,7 +74,9 @@ public enum UITestAutomation {
         /// A capture launch's validated scene. A capture takes no other UI-test key, so every
         /// other field is inert when this is set.
         let captureScene: CaptureScene?
-        let appshotScene: AppshotProtocol.CaptureScene?
+        #if DEBUG && canImport(Appshot) && canImport(AppshotProtocol)
+        var appshotScene: AppshotProtocol.CaptureScene? = nil
+        #endif
     }
 
     /// The one clock reading of every hosted visual test and capture launch.
@@ -88,7 +90,9 @@ public enum UITestAutomation {
         let resolved: Configuration?
         do {
             resolved = try resolve(environment: environment, now: now)
+            #if DEBUG && canImport(Appshot) && canImport(AppshotProtocol)
             AppshotCapture.launchedScene = resolved?.appshotScene
+            #endif
             if let captureScene = resolved?.captureScene {
                 try CaptureScenePreparation.install(captureScene)
             }
@@ -162,23 +166,33 @@ public enum UITestAutomation {
         now: Date,
         isTesting: Bool = AppInfo.isTesting
     ) throws(CaptureFailure) -> Configuration? {
-        let appshot = try AppshotCapture.decode(environment: environment)
-        let captureEnvironment: [String: String]
+        var appshot: AppshotProtocol.CaptureScene?
+        var captureEnvironment = environment
+        #if DEBUG && canImport(Appshot) && canImport(AppshotProtocol)
+        appshot = try AppshotCapture.decode(environment: environment)
         if let appshot {
             captureEnvironment = try AppshotCapture.captureEnvironment(appshot, environment: environment)
-        } else {
-            captureEnvironment = environment
         }
+        #else
+        if environment.keys.contains("APPSHOT_SCENE") {
+            throw .malformedConfiguration(
+                "APPSHOT_SCENE requires the explicit local capture composition; prepare a snapshot with the real SDK."
+            )
+        }
+        #endif
         if let captureScene = try CaptureScenePreparation.scene(environment: captureEnvironment) {
-            return Configuration(
+            var configuration = Configuration(
                 fixtureDirectory: nil,
                 clipboardClient: nil,
                 shouldStubNetwork: false,
                 shouldUseVisualTestHost: false,
                 pauseRefusal: nil,
-                captureScene: captureScene,
-                appshotScene: appshot
+                captureScene: captureScene
             )
+            #if DEBUG && canImport(Appshot) && canImport(AppshotProtocol)
+            configuration.appshotScene = appshot
+            #endif
+            return configuration
         }
         let isProbe: Bool
         if let appshot, case .probe = appshot.coordinate {
@@ -222,15 +236,18 @@ public enum UITestAutomation {
         guard shouldStubNetwork || clipboardClient != nil || pauseRefusal != nil else {
             return nil
         }
-        return Configuration(
+        var configuration = Configuration(
             fixtureDirectory: fixtureDirectory,
             clipboardClient: clipboardClient,
             shouldStubNetwork: shouldStubNetwork,
             shouldUseVisualTestHost: shouldUseVisualTestHost,
             pauseRefusal: pauseRefusal,
-            captureScene: nil,
-            appshotScene: appshot
+            captureScene: nil
         )
+        #if DEBUG && canImport(Appshot) && canImport(AppshotProtocol)
+        configuration.appshotScene = appshot
+        #endif
+        return configuration
     }
 
     static func shouldDetectClipboardURL(

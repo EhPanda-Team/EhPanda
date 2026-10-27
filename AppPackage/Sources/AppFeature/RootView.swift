@@ -1,6 +1,6 @@
 import ComposableArchitecture
 public import SwiftUI
-#if DEBUG
+#if DEBUG && canImport(Appshot) && canImport(AppshotProtocol)
 import Appshot
 #endif
 
@@ -29,12 +29,18 @@ private extension View {
                 CaptureDiagnosticsAnchor(store: store, capture: capture)
                     .frame(width: 1, height: 1)
             }
-        } else if let scene = AppshotCapture.launchedScene {
+        } else {
+            #if canImport(Appshot) && canImport(AppshotProtocol)
+            if let scene = AppshotCapture.launchedScene {
             appshotState(for: scene) {
                 ScreenState(screen: "unknown", failures: ["No capture content was installed"])
             }
-        } else {
+            } else {
+                self
+            }
+            #else
             self
+            #endif
         }
         #else
         self
