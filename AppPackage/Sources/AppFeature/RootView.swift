@@ -32,9 +32,9 @@ private extension View {
         } else {
             #if canImport(Appshot) && canImport(AppshotProtocol)
             if let scene = AppshotCapture.launchedScene {
-            appshotState(for: scene) {
-                ScreenState(screen: "unknown", failures: ["No capture content was installed"])
-            }
+                appshotState(for: scene) {
+                    ScreenState(screen: "unknown", failures: ["No capture content was installed"])
+                }
             } else {
                 self
             }

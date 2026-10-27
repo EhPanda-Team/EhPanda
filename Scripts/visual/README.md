@@ -653,9 +653,56 @@ version without a record.
 
 ## Standalone appshot path
 
-The actual app also exposes `AppshotCapture.xctestplan` to the sibling `appshot-cli` checkout.
-The config, setup, capture commands and current verification limits are documented in
-[17-APPSHOT-INTEGRATION.md](../../.planning/phases/17-localized-screenshot-capture-harness/17-APPSHOT-INTEGRATION.md).
-Its app-owned scene adapter and content verifier use the existing offline fixtures. The tool's source,
-commit history and GSD design live in its own repository. The Python path remains the parity reference;
-adding this entry point does not assert that the full marketing export has migrated.
+The app exposes `AppshotCapture.xctestplan` to a private capture tool. The public source tree has no
+dependency on that tool. Its actual SDK integration is available only in an explicitly prepared local
+snapshot; the canonical checkout and public builds stay independent of private files.
+
+### Public build
+
+Create a self-contained snapshot with no capture SDK edges, then build from that source tree:
+
+```sh
+python3 -B Scripts/visual/prepare-local-capture.py --output .capture/public-build
+xcodebuild -resolvePackageDependencies \
+  -project .capture/public-build/EhPanda.xcodeproj -scheme EhPanda
+swift package --package-path .capture/public-build/AppPackage resolve
+xcodebuild build -project .capture/public-build/EhPanda.xcodeproj -scheme EhPanda \
+  -configuration Debug -destination 'generic/platform=iOS Simulator' CODE_SIGNING_ALLOWED=NO
+xcodebuild build -project .capture/public-build/EhPanda.xcodeproj -scheme EhPanda \
+  -configuration Release -destination 'generic/platform=iOS Simulator' CODE_SIGNING_ALLOWED=NO
+```
+
+Build the ordinary UI-test bundle with the shared `UITests` plan when that plan is declared by the
+scheme. Run the app-hosted unit tests separately with the project's configured simulator destination.
+
+### Explicit local capture
+
+Set `CAPTURE_SDK` to an owner-supplied checkout containing `Package.swift`, `CAPTURE_CLI` to its
+independently supplied executable, and `CAPTURE_FIXTURES` to an existing licensed fixture version.
+Fixture and output paths passed to the runner must be absolute because the CLI runs with the copied
+snapshot as its working directory.
+
+```sh
+python3 -B Scripts/visual/prepare-local-capture.py \
+  --output .capture/local-build --sdk "$CAPTURE_SDK"
+xcodebuild -resolvePackageDependencies \
+  -project .capture/local-build/EhPanda.xcodeproj -scheme EhPanda
+swift package --package-path .capture/local-build/AppPackage resolve
+xcodebuild build-for-testing -project .capture/local-build/EhPanda.xcodeproj \
+  -scheme EhPanda -testPlan AppshotCapture -destination 'generic/platform=iOS Simulator' \
+  CODE_SIGNING_ALLOWED=NO
+
+CAPTURE_FIXTURES=/absolute/path/to/fixtures/version
+CAPTURE_OUTPUT=/absolute/path/to/new/capture-output
+(cd .capture/local-build && \
+  "$CAPTURE_CLI" capture \
+    --filter 'device=iphone,locale=en,screen=home,appearance=light,set=nonexplicit' \
+    --input "fixtures=$CAPTURE_FIXTURES" --output "$CAPTURE_OUTPUT")
+```
+
+The explicit snapshot composes the real SDK into both the Swift package and Xcode UI-test target.
+It preserves the adapter's offline fixture validation, probe isolation, geometry checks and content
+verification. Snapshot contents reflect the source tree at preparation time; after editing sources,
+prepare a new output directory and build from that snapshot. The canonical manifest and project are
+never rewritten by snapshot generation. Capture inputs, generated projects and evidence remain local
+under ignored `.capture/` output.
