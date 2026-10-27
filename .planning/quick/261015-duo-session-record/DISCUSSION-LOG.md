@@ -751,3 +751,37 @@ No production source changes or new title behavior are selected by this screensh
 
 [Actual captures, native API findings, interaction check and limits](LIBRARY-TITLE-PERSISTENCE.md).
 The system tab bar is retained. D133 production code is unchanged.
+
+
+## Integrate all current work into Phase 17 — D143, 2026-10-27
+
+| ID | Owner direction | Disposition |
+|---|---|---|
+| D143 | Merge all changes into gsd-phase-17. | Fast-forward `feature/gsd-phase-17` to `agent/app-design`, incorporating all 107 commits with their original IDs, implementation, proposals, screenshots and GSD records. No history rewrite is needed. |
+
+[Integration verification and scope](SUMMARY.md#phase-17-integration--d143).
+D142 remains a prototype awaiting acceptance; merging its evidence does not authorize production
+integration. Existing Phase 17 review gates remain open. No remote push or worktree deletion is
+part of this request.
+
+
+## Rewrite integrated commit time zones and references - D144, 2026-10-27
+
+| ID | Owner direction | Disposition |
+|---|---|---|
+| D144 | Rewrite the 108 integrated commits to UTC+8 and repair GSD commit SHA references within each owning commit, without adding a follow-up commit. | Preserve author/committer identities, Unix timestamps, commit order, source content and all 108 commits. Rewrite the date offsets and parent links; update affected full and abbreviated SHA references in every historical documentation snapshot. This record is included in the existing integration documentation commit. |
+
+[Rewrite method and verification](SUMMARY.md#utc8-history-rewrite--d144).
+D143 records the preceding fast-forward; D144 supersedes its retained-SHA state. No prototype
+acceptance, production behavior change or remote push is implied.
+
+
+## Historical content cleanup and test-clock correction - D145, 2026-10-27
+
+| ID | Owner direction | Disposition |
+|---|---|---|
+| D145 | Rewrite the session history from the first simulator-driver introduction onward: remove the local simulator-tool name throughout the project, remove planning image files, repair GSD references and correct two dates produced under fixed-clock testing. | Preserve 126 commits. Remove image binaries and active image links from each affected snapshot; retain written findings and identify unavailable visual evidence. Replace the test runner's hard-coded executable with required `--pose-driver`. Reconstruct the two dates between their October 24 neighbors in UTC+8, as approved. |
+
+[Scope, reconstructed timestamps and verification](SUMMARY.md#history-cleanup-and-test-clock-correction--d145).
+The owner also requested a report of large non-image planning files. None reaches 1 MiB in any
+selected snapshot; those files remain untouched apart from separately required reference updates.
