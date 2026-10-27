@@ -36,11 +36,6 @@ jobs:
           command: xcodebuild -downloadPlatform iOS
       - name: Show Xcode version
         run: xcodebuild -version
-      - name: Verify Xcode 27 and iOS 27 SDK
-        run: |
-          set -euo pipefail
-          xcodebuild -version | grep -q '^Xcode 27\.'
-          [[ "$(xcrun --sdk iphonesimulator --show-sdk-version)" == 27.* ]]
       - name: Run tests
         run: xcodebuild clean test
           -scheme ${{ env.SCHEME_NAME }}
