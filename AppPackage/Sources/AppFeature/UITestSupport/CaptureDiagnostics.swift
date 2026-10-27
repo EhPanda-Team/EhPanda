@@ -2,8 +2,6 @@ import SearchFeature
 import SettingFeature
 #if DEBUG
 import AppModels
-import Appshot
-import AppshotProtocol
 import AppTools
 import ComposableArchitecture
 import DetailFeature
@@ -17,6 +15,10 @@ import ParserFeature
 import ReadingFeature
 import SwiftUI
 import UIKit
+#if canImport(Appshot) && canImport(AppshotProtocol)
+import Appshot
+import AppshotProtocol
+#endif
 
 /// How the app renders, as its own traits report it, with each axis named as capture
 /// coordinates name it.
@@ -658,7 +660,13 @@ struct CaptureDiagnosticsAnchor: UIViewRepresentable {
     let capture: InstalledCapture
 
     func makeUIView(context: Self.Context) -> CaptureDiagnosticsElement {
-        CaptureDiagnosticsElement(store: store, capture: capture, scene: AppshotCapture.launchedScene)
+        let element = CaptureDiagnosticsElement(store: store, capture: capture)
+        #if canImport(Appshot) && canImport(AppshotProtocol)
+        if let scene = AppshotCapture.launchedScene {
+            element.addAppshotState(scene: scene)
+        }
+        #endif
+        return element
     }
 
     func updateUIView(_ uiView: CaptureDiagnosticsElement, context: Self.Context) {}
@@ -674,8 +682,7 @@ final class CaptureDiagnosticsElement: UIView {
 
     init(
         store: StoreOf<AppReducer>,
-        capture: InstalledCapture,
-        scene: AppshotProtocol.CaptureScene? = nil
+        capture: InstalledCapture
     ) {
         self.store = store
         self.capture = capture
@@ -683,18 +690,21 @@ final class CaptureDiagnosticsElement: UIView {
         isAccessibilityElement = true
         isUserInteractionEnabled = false
         accessibilityIdentifier = CaptureDiagnostics.accessibilityIdentifier
-        if let scene {
-            isAccessibilityElement = false
-            let element = AppshotStateView(scene: scene) { [weak self] in
-                guard let self else {
-                    return ScreenState(screen: "unknown", failures: ["The app diagnostics element disappeared"])
-                }
-                return diagnostics.appshotState
-            }
-            element.frame = CGRect(x: 0, y: 0, width: 1, height: 1)
-            addSubview(element)
-        }
     }
+
+    #if canImport(Appshot) && canImport(AppshotProtocol)
+    func addAppshotState(scene: AppshotProtocol.CaptureScene) {
+        isAccessibilityElement = false
+        let element = AppshotStateView(scene: scene) { [weak self] in
+            guard let self else {
+                return ScreenState(screen: "unknown", failures: ["The app diagnostics element disappeared"])
+            }
+            return diagnostics.appshotState
+        }
+        element.frame = CGRect(x: 0, y: 0, width: 1, height: 1)
+        addSubview(element)
+    }
+    #endif
 
     required init?(coder: NSCoder) {
         nil

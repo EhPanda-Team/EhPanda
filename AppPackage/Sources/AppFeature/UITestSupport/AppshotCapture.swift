@@ -1,4 +1,4 @@
-#if DEBUG
+#if DEBUG && canImport(Appshot) && canImport(AppshotProtocol)
 import Appshot
 import AppshotProtocol
 import Foundation

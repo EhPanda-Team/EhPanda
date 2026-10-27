@@ -1,4 +1,4 @@
-#if DEBUG
+#if DEBUG && canImport(AppshotXCTest) && canImport(AppshotProtocol)
 import AppshotProtocol
 import AppshotXCTest
 import XCTest
