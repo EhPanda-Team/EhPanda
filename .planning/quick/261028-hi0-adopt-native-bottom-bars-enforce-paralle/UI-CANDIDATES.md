@@ -1,8 +1,10 @@
 # Bottom-edge and safe-area-bar review
 
-Status: proposed; no UI source changed. Inspected 2026-10-28 at the current working tree.
+Status: proposed; production page UI is unchanged. Inspected 2026-10-28 at the current working tree.
+The owner clarified that review requires screenshots. See [18 native before/after pairs](SCREENSHOTS.md)
+and the preserved [prototype patch](UI-PROPOSAL.patch); the textual inventory below explains their scope.
 The existing top-edge inventory remains authoritative. This list adds selective bottom treatment;
-it does not replace top-edge coverage or claim visual verification.
+it does not replace top-edge coverage or claim the complete acceptance matrix passed.
 
 ## Before / after choices
 
@@ -60,4 +62,5 @@ The installed SDK and SwiftUI skill guidance corroborate the proposed use of bar
 | Optional B6 | Compare standard footer clearance and spacing; AX1/AX3/AX5 still scroll funds and action together with the grid. |
 | Duo | Tab migration to vertical chrome; open/half-fold pane boundaries; no new bottom haze where no bar exists. |
 
-These are required verification cases, not results. There are no fabricated before/after screenshots.
+These are required verification cases. The bounded screenshot results and remaining coverage are
+recorded in [SCREENSHOTS.md](SCREENSHOTS.md); the complete matrix is not yet verified.

@@ -1,0 +1,422 @@
+{
+  "sourceBase": "f195b7eaaf",
+  "uiChangesInProduction": false,
+  "captureDate": "2026-10-28",
+  "appearance": "light",
+  "language": "en",
+  "locale": "en_US",
+  "orientation": "portrait",
+  "statusBarTime": "9:41",
+  "devices": {
+    "iphone": {
+      "name": "iPhone 17",
+      "runtime": "iOS 27.0",
+      "points": [
+        402,
+        874
+      ]
+    },
+    "ipad": {
+      "name": "iPad Pro 11-inch (M5)",
+      "runtime": "iPadOS 27.0",
+      "points": [
+        834,
+        1210
+      ]
+    }
+  },
+  "prototypePatchSHA256": "793abab255548dee1c6711035be2ac9b873c53de8cdb66ab18673bb7c24e3b08",
+  "beforeBinarySHA256": "ad30505bb404cb856bb1aaab043dfdab3e64f5a2fddd1ff95361538d8c7577e6",
+  "afterBinarySHA256": "252cfb1a8e3f40652a1484f12eff0731a01f6c83aa406090f22054a1aa5005af",
+  "fixtures": {
+    "FrontPageList.html": "98ef20cfb85792d76b007456603d8757a067f6d66905b813264bbad8783378e3",
+    "GalleryArchive.html": "40c615b719a3558276fc37287d28c84cbc7f4e4c7dd6ed538939eaedd3d4df71",
+    "GalleryDetail.html": "edf4e22fc759abda7806ba875732f2c7eab201d1f22b70573768f49adadfcfbb",
+    "GalleryDetailAlt.html": "568031ceb052aa30ad9e2381e88edbb7ac7e5ad1072cabb617a9b4fdd342c5d3",
+    "GallerySinglePage.html": "21a8c03c1508f24fe22a545c98c9d2920da3fc80e7b208722ccc1a169c821fd2",
+    "LibraryCover.png": "61c91029e52ae84d400b279b6967291eea03feec5d340ffa3783393627e89f8b",
+    "LibraryGalleries.html": "98ef20cfb85792d76b007456603d8757a067f6d66905b813264bbad8783378e3",
+    "LibraryGalleriesNext.html": "bc233137b07b0c9b2918f0fecdede1f42526da1afafa66d34ea7a052cc2eefa9"
+  },
+  "pairs": [
+    {
+      "id": "iphone-library",
+      "device": "iphone",
+      "title": "Library \u00b7 Standard",
+      "candidate": "B1 / B5",
+      "note": "The compact source picker uses safeAreaBar and a soft bottom edge. The expanded iPad sidebar retains automatic bottom treatment with top tabs.",
+      "before": {
+        "path": "before/iphone-library.png",
+        "width": 1206,
+        "height": 2622,
+        "sha256": "58f91cb8b1a5074134310ec431a118d45ee1853804291495eb8d2207b4a72f68",
+        "outlineSHA256": "1e384f307056093debe96d8dbf57942cf50ede5534fdc4307c13fad0b5008490"
+      },
+      "after": {
+        "path": "after/iphone-library.png",
+        "width": 1206,
+        "height": 2622,
+        "sha256": "1698d2a3dc8d71b78e6950b68b3a831aa8976eff4124743af1daee6caaf7e31b",
+        "outlineSHA256": "f34e39815c289da3d22a82b0a1f3101c146162252d5ba3c1f861b7cb29c5a267"
+      }
+    },
+    {
+      "id": "iphone-home",
+      "device": "iphone",
+      "title": "Home \u00b7 Standard",
+      "candidate": "B2",
+      "note": "Soft bottom treatment follows actual bottom-tab placement. The automatic slideshow can show a different gallery between captures; this is content timing, not the proposed UI change.",
+      "before": {
+        "path": "before/iphone-home.png",
+        "width": 1206,
+        "height": 2622,
+        "sha256": "cf39d32ffa0686471b65f7b4e23747454f5f23d2b2185444f709925869d2f387",
+        "outlineSHA256": "86edd7ac8a15514a71a447abdb4108fd987cd0f10bb6fae3a935d4d91604c126"
+      },
+      "after": {
+        "path": "after/iphone-home.png",
+        "width": 1206,
+        "height": 2622,
+        "sha256": "2658dd4772d4e50bf3bb36946ef7639207c801a0afae3286941f9b7457166bfb",
+        "outlineSHA256": "0fb17263ca84824a63a042271fd3137233330e88894f6977d4c4e5f0a93b6f5e"
+      }
+    },
+    {
+      "id": "iphone-search",
+      "device": "iphone",
+      "title": "Search \u00b7 Standard",
+      "candidate": "B3",
+      "note": "The tab-hosted navigation root adopts soft bottom treatment. This empty fixture has little content near the bottom, so its visible difference is small.",
+      "before": {
+        "path": "before/iphone-search.png",
+        "width": 1206,
+        "height": 2622,
+        "sha256": "d8ff19b053c0459f55b49f93291c1c9a872a196edc271ead470c4ddb3e405df5",
+        "outlineSHA256": "5cb0b97beff92a74e6558f0278f6d12daaddbe175f05e36bb111a60118ac8d8c"
+      },
+      "after": {
+        "path": "after/iphone-search.png",
+        "width": 1206,
+        "height": 2622,
+        "sha256": "58e27aac63c9ca069ac5af994597d6600d16a0e122b6a59b6d0227ecb3e19ec7",
+        "outlineSHA256": "b823ae390bbfbd53f6284b89c727277abde54efa25c40bac93a4feef3354e345"
+      }
+    },
+    {
+      "id": "iphone-settings",
+      "device": "iphone",
+      "title": "Settings \u00b7 Standard",
+      "candidate": "B4",
+      "note": "The tab-hosted settings hierarchy adopts soft bottom treatment only when bottom tabs are present.",
+      "before": {
+        "path": "before/iphone-settings.png",
+        "width": 1206,
+        "height": 2622,
+        "sha256": "1e1508aa80a69bbc674ce12c5379d417df99bd8f18369e65424554b77b38b5ab",
+        "outlineSHA256": "a1ae3ab801b687ec1f089df6a85c9307beb153026afcab3692164a8fdb636595"
+      },
+      "after": {
+        "path": "after/iphone-settings.png",
+        "width": 1206,
+        "height": 2622,
+        "sha256": "1e1508aa80a69bbc674ce12c5379d417df99bd8f18369e65424554b77b38b5ab",
+        "outlineSHA256": "a95170502bf2af1fd281191af79b5d7e9ab519a00e3071fb4ef4642e82a1a099"
+      }
+    },
+    {
+      "id": "iphone-library-ax1",
+      "device": "iphone",
+      "title": "Library \u00b7 AX1",
+      "candidate": "B1 / B5",
+      "note": "Cold entry at Accessibility 1. Review the native title, search field, source picker and lower content clearance.",
+      "before": {
+        "path": "before/iphone-library-ax1.png",
+        "width": 1206,
+        "height": 2622,
+        "sha256": "d0ac3c2a21aa71657c8a12c7825bb253f18603ed52a46312e1ab70ed4b81b884",
+        "outlineSHA256": "ac49a470031bf824ae87845eff3fe78343ac9cbf4540b642b4c28ba289c1663c"
+      },
+      "after": {
+        "path": "after/iphone-library-ax1.png",
+        "width": 1206,
+        "height": 2622,
+        "sha256": "db33ff53f83dad89f27b0eec4322a3912b8224528329adc35635cd05681ae5ef",
+        "outlineSHA256": "6fccd1ba89e4dad8d4df3976cf7627d44a3d74e20ba092e7dd8b297876404c47"
+      }
+    },
+    {
+      "id": "iphone-library-ax3",
+      "device": "iphone",
+      "title": "Library \u00b7 AX3",
+      "candidate": "B1 / B5",
+      "note": "Cold entry at Accessibility 3. Review the native title, search field, source picker and lower content clearance.",
+      "before": {
+        "path": "before/iphone-library-ax3.png",
+        "width": 1206,
+        "height": 2622,
+        "sha256": "e233b064774c42a398ffec0bde918b4c2cd80af3542076275b41d010cd972e2c",
+        "outlineSHA256": "f217c9b30972be983c5bcb9d5689057cc230f183ae37c0c23faeb4baa470f6c1"
+      },
+      "after": {
+        "path": "after/iphone-library-ax3.png",
+        "width": 1206,
+        "height": 2622,
+        "sha256": "85e4e1719e6993ce389a771d57e1c712eb46403672075ca814f3e8c223bd28c6",
+        "outlineSHA256": "1e5d0a19aa62077c85ed82be841c976ee6992ebe97c1ea673cbab23f26b1f34c"
+      }
+    },
+    {
+      "id": "iphone-library-ax5",
+      "device": "iphone",
+      "title": "Library \u00b7 AX5",
+      "candidate": "B1 / B5",
+      "note": "Cold entry at Accessibility 5. The content continues below the viewport; the picker stays above native tab chrome.",
+      "before": {
+        "path": "before/iphone-library-ax5.png",
+        "width": 1206,
+        "height": 2622,
+        "sha256": "2f4918047d0dafea75603885c75b0da0ce3bc5467f08509eb117d791548b5e18",
+        "outlineSHA256": "7e3665cc564a6d9300358cb691f1bfba73b69ebef6b4b144172117ac8efc90f4"
+      },
+      "after": {
+        "path": "after/iphone-library-ax5.png",
+        "width": 1206,
+        "height": 2622,
+        "sha256": "03e9c2f2b90e637796d923a9c7b51c8f98e9099c14a16013f8fc095e26b327f7",
+        "outlineSHA256": "d06ad0ec34e196ee5ccfb7b7a62d7256d625d1c8eb32e702f7121989e2b9b75b"
+      }
+    },
+    {
+      "id": "iphone-archives",
+      "device": "iphone",
+      "title": "Archives \u00b7 Standard",
+      "candidate": "B6 \u00b7 Optional",
+      "note": "The funds and action move into a native safeAreaBar on the archive grid. The visible footer position is preserved in these portrait captures.",
+      "before": {
+        "path": "before/iphone-archives.png",
+        "width": 1206,
+        "height": 2622,
+        "sha256": "3952483d9bdec3208e8b263e80ed01d66c92e9ababf013dd2c82f9480709d6fe",
+        "outlineSHA256": "b453800630b03901c48d613c6f8c6b01b9eb75071e8c0f184e3d136e74baabb4"
+      },
+      "after": {
+        "path": "after/iphone-archives.png",
+        "width": 1206,
+        "height": 2622,
+        "sha256": "36ab00a3a83583a2af162ea9bb13efff7f8f1cfc8738dfe1c8070a4ef4a11a3d",
+        "outlineSHA256": "a8c54ba902014f4438bf677032fecea7d778dad2c9467401cd3c8ef30390d8ad"
+      }
+    },
+    {
+      "id": "iphone-archives-ax5",
+      "device": "iphone",
+      "title": "Archives \u00b7 AX5",
+      "candidate": "B6 \u00b7 Retained behavior",
+      "note": "Live change to Accessibility 5, then scroll to the footer. Funds and the action remain in the single scrolling column; no pinned accessibility bar is introduced.",
+      "before": {
+        "path": "before/iphone-archives-ax5.png",
+        "width": 1206,
+        "height": 2622,
+        "sha256": "26806fe0e02683349d5b838e689061baac6b098495619e08af375aec538241e1",
+        "outlineSHA256": "445b9af615dfdf9f6b9daa1b90724e331c1f29b198e6dfcc7475c4915feb845d"
+      },
+      "after": {
+        "path": "after/iphone-archives-ax5.png",
+        "width": 1206,
+        "height": 2622,
+        "sha256": "52b11435784f7dd1fd5b2c4010ae4fc80b3dafa5cabc629df92b19e8eeea65a1",
+        "outlineSHA256": "486cc27e7b9ccbc5c8f2cd0834384ba7a8c0ed326413468d4872389a29923513"
+      }
+    },
+    {
+      "id": "ipad-library",
+      "device": "ipad",
+      "title": "Library \u00b7 Standard",
+      "candidate": "B1 / B5",
+      "note": "The compact source picker uses safeAreaBar and a soft bottom edge. The expanded iPad sidebar retains automatic bottom treatment with top tabs.",
+      "before": {
+        "path": "before/ipad-library.png",
+        "width": 1668,
+        "height": 2420,
+        "sha256": "db3c5bd00deb3bd468b5ad6fb1dfa91410df002658125b954d94d4f7bd7be34d",
+        "outlineSHA256": "8916d16e925499e05f533335aa7d431da54194db9bb8af5b46005228c9f3a1ef"
+      },
+      "after": {
+        "path": "after/ipad-library.png",
+        "width": 1668,
+        "height": 2420,
+        "sha256": "fb5800e2a094a67d8e3309ef9cf3ed8b5afe5f4f7619a0508729f94703c5a8fa",
+        "outlineSHA256": "8916d16e925499e05f533335aa7d431da54194db9bb8af5b46005228c9f3a1ef"
+      }
+    },
+    {
+      "id": "ipad-home",
+      "device": "ipad",
+      "title": "Home \u00b7 Standard",
+      "candidate": "B2",
+      "note": "Soft bottom treatment follows actual bottom-tab placement. The automatic slideshow can show a different gallery between captures; this is content timing, not the proposed UI change.",
+      "before": {
+        "path": "before/ipad-home.png",
+        "width": 1668,
+        "height": 2420,
+        "sha256": "02f5c37cb7a0f5e909340af783c63e4e2134126094077fc9b3351a088d31fcd5",
+        "outlineSHA256": "b488b214f60735a16cc16e902cd4bbfee37a6aa2cbd7e13eacd227191108c767"
+      },
+      "after": {
+        "path": "after/ipad-home.png",
+        "width": 1668,
+        "height": 2420,
+        "sha256": "0cf5547b6c5f99b3218014b33294a1679a6b819b7f80b0b685df10c9fa384380",
+        "outlineSHA256": "a4c709414d67401f65ca74cb8ee8c04a57ec36aab633ab0e19c39dcefba0902f"
+      }
+    },
+    {
+      "id": "ipad-search",
+      "device": "ipad",
+      "title": "Search \u00b7 Standard",
+      "candidate": "B3",
+      "note": "The tab-hosted navigation root adopts soft bottom treatment. This empty fixture has little content near the bottom, so its visible difference is small.",
+      "before": {
+        "path": "before/ipad-search.png",
+        "width": 1668,
+        "height": 2420,
+        "sha256": "577e1c3c688d77320ec1c991406c27eabe15c8d7f5365db530bf642a4c44e592",
+        "outlineSHA256": "0807d6176cc857c372c632a41ca41ea98505162a610342114d43b2eb6bb4b9de"
+      },
+      "after": {
+        "path": "after/ipad-search.png",
+        "width": 1668,
+        "height": 2420,
+        "sha256": "577e1c3c688d77320ec1c991406c27eabe15c8d7f5365db530bf642a4c44e592",
+        "outlineSHA256": "0807d6176cc857c372c632a41ca41ea98505162a610342114d43b2eb6bb4b9de"
+      }
+    },
+    {
+      "id": "ipad-settings",
+      "device": "ipad",
+      "title": "Settings \u00b7 Standard",
+      "candidate": "B4",
+      "note": "The tab-hosted settings hierarchy adopts soft bottom treatment only when bottom tabs are present.",
+      "before": {
+        "path": "before/ipad-settings.png",
+        "width": 1668,
+        "height": 2420,
+        "sha256": "6522af9840ca1e83536f2a2aceb74c83b786c566bc26bac0f321343e499355e4",
+        "outlineSHA256": "a07826ec54d3c8454d781c65cfb473e7abaf593b70473ef9c29694163db85af1"
+      },
+      "after": {
+        "path": "after/ipad-settings.png",
+        "width": 1668,
+        "height": 2420,
+        "sha256": "de6aa5884610ed528fbcd96b1301ddb681f82be4b4e6b1834603612570e45fd0",
+        "outlineSHA256": "46e8547fe4b0b364a3c081dbbeb1a0d6ccb8c49351ebc27bd27792168104c3ef"
+      }
+    },
+    {
+      "id": "ipad-library-ax1",
+      "device": "ipad",
+      "title": "Library \u00b7 AX1",
+      "candidate": "B1 / B5",
+      "note": "Cold entry at Accessibility 1. Review the native title, search field, source picker and lower content clearance.",
+      "before": {
+        "path": "before/ipad-library-ax1.png",
+        "width": 1668,
+        "height": 2420,
+        "sha256": "2a67095b47c5ac88bacef943db8c43a8485ebe2c9887358ee983b7601f84a15b",
+        "outlineSHA256": "3b44f1f86b0c809da02f10711222c38895cfc3d9b2133444af22033ccf5e990c"
+      },
+      "after": {
+        "path": "after/ipad-library-ax1.png",
+        "width": 1668,
+        "height": 2420,
+        "sha256": "2a67095b47c5ac88bacef943db8c43a8485ebe2c9887358ee983b7601f84a15b",
+        "outlineSHA256": "3b44f1f86b0c809da02f10711222c38895cfc3d9b2133444af22033ccf5e990c"
+      }
+    },
+    {
+      "id": "ipad-library-ax3",
+      "device": "ipad",
+      "title": "Library \u00b7 AX3",
+      "candidate": "B1 / B5",
+      "note": "Cold entry at Accessibility 3. Review the native title, search field, source picker and lower content clearance.",
+      "before": {
+        "path": "before/ipad-library-ax3.png",
+        "width": 1668,
+        "height": 2420,
+        "sha256": "be11e7a570c6c20ad9034ae0e1fdc2d7297bc33fb3b6071fb22f1b9ef82ace55",
+        "outlineSHA256": "85eda5569866138c5cf8fd773f13f59622b17837db52b16b6ef1dc9c1f6b3e52"
+      },
+      "after": {
+        "path": "after/ipad-library-ax3.png",
+        "width": 1668,
+        "height": 2420,
+        "sha256": "5229f4b1af6ba692c8c64f78cd89a8b1c50f04e376e8c23842815ca642cdcf5c",
+        "outlineSHA256": "85eda5569866138c5cf8fd773f13f59622b17837db52b16b6ef1dc9c1f6b3e52"
+      }
+    },
+    {
+      "id": "ipad-library-ax5",
+      "device": "ipad",
+      "title": "Library \u00b7 AX5",
+      "candidate": "B1 / B5",
+      "note": "Cold entry at Accessibility 5. The content continues below the viewport; the picker stays above native tab chrome.",
+      "before": {
+        "path": "before/ipad-library-ax5.png",
+        "width": 1668,
+        "height": 2420,
+        "sha256": "87466038fa6d1478fe5de01db2cf300dfbceb797e34aeb26dd3e421c5aa34bab",
+        "outlineSHA256": "15faebf7b97bed36e1e6e7dc5aea8573251598a088dd3ac2b7a7410b25649179"
+      },
+      "after": {
+        "path": "after/ipad-library-ax5.png",
+        "width": 1668,
+        "height": 2420,
+        "sha256": "87466038fa6d1478fe5de01db2cf300dfbceb797e34aeb26dd3e421c5aa34bab",
+        "outlineSHA256": "15faebf7b97bed36e1e6e7dc5aea8573251598a088dd3ac2b7a7410b25649179"
+      }
+    },
+    {
+      "id": "ipad-archives",
+      "device": "ipad",
+      "title": "Archives \u00b7 Standard",
+      "candidate": "B6 \u00b7 Optional",
+      "note": "The funds and action move into a native safeAreaBar on the archive grid. The visible footer position is preserved in these portrait captures.",
+      "before": {
+        "path": "before/ipad-archives.png",
+        "width": 1668,
+        "height": 2420,
+        "sha256": "5959d249262429c619dbf464dfa35756a8fffb67f0c1ae7586a448ee1bc30f86",
+        "outlineSHA256": "ce9652f892fd893f83d5d4e2b361343be0a94011d0b489c3b143d82a0757f0dc"
+      },
+      "after": {
+        "path": "after/ipad-archives.png",
+        "width": 1668,
+        "height": 2420,
+        "sha256": "505bea8fe8d5aa7ed7b034db2c03db35517d016eb4cc093cd89c653ee9e99d40",
+        "outlineSHA256": "d5baa36dc54d9ac1f5c19c83306b0952cc8963f76517b1c02a8d62d7d296f3b0"
+      }
+    },
+    {
+      "id": "ipad-archives-ax5",
+      "device": "ipad",
+      "title": "Archives \u00b7 AX5",
+      "candidate": "B6 \u00b7 Retained behavior",
+      "note": "Live change to Accessibility 5, then scroll to the footer. Funds and the action remain in the single scrolling column; no pinned accessibility bar is introduced.",
+      "before": {
+        "path": "before/ipad-archives-ax5.png",
+        "width": 1668,
+        "height": 2420,
+        "sha256": "8f19ddb47b1008de81fec3560dfd48e5d053a482565017ecf878667f5619f72c",
+        "outlineSHA256": "6cfc1c1465eaac83fe1eb2339823afd0b74fc29b32826801146925ce2bb89ea8"
+      },
+      "after": {
+        "path": "after/ipad-archives-ax5.png",
+        "width": 1668,
+        "height": 2420,
+        "sha256": "a8179843dbf7d6462ee1f37f21951f8223049590127c1050ee106d0dce95e8c3",
+        "outlineSHA256": "74b2905be03a38dcd4e8bb1894dc0880062a008e3c1a610fad3e913333b1d07d"
+      }
+    }
+  ],
+  "captureFixturePatchSHA256": "775743c9c7e06d8512729c471864fc02b7c33f58a13071c25fb08ecf912aa3e2"
+}

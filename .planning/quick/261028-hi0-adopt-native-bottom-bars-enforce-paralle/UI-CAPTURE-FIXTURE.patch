@@ -1,0 +1,6 @@
+--- a/AppPackage/Sources/AppFeature/UITestSupport/UITestStubURLProtocol.swift
++++ b/AppPackage/Sources/AppFeature/UITestSupport/UITestStubURLProtocol.swift
+@@ -101,0 +102,3 @@
++        if path == "/archiver.php" {
++            return "GalleryArchive.html"
++        }

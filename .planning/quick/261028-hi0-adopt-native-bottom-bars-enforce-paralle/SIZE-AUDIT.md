@@ -2,7 +2,9 @@
 
 Measured 2026-10-28. **The unsigned, unthinned Release app payload is 33,989,732 bytes
 (33.99 MB / 32.42 MiB).** This is an archive measurement, not the footprint reported by iOS Settings.
-No shipping resource, feature, dependency or optimization setting was changed.
+This is the original baseline audit. The owner subsequently authorized implementation; the
+[applied reductions and optional approaches](SIZE-REDUCTION.md) now record a **29,793,340-byte**
+payload, saving **4,196,392 bytes (12.35%)**. The baseline findings below remain historical evidence.
 
 ## Baseline
 

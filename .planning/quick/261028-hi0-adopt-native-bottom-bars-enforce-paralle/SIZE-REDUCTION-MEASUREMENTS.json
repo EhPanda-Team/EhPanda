@@ -1,0 +1,309 @@
+{
+  "measurement": "Unsigned unthinned arm64 Release archive payload; not measured installed size",
+  "sourceBase": "f195b7eaaf",
+  "stages": {
+    "current": {
+      "totalBytes": 33989732,
+      "fileCount": 289,
+      "mainExecutableBytes": 22126576,
+      "assetCatalogBytes": 9488728,
+      "extensionBytes": 73278
+    },
+    "osize": {
+      "totalBytes": 29908452,
+      "fileCount": 289,
+      "mainExecutableBytes": 18045256,
+      "assetCatalogBytes": 9488728,
+      "extensionBytes": 73318
+    },
+    "final": {
+      "totalBytes": 29859028,
+      "fileCount": 289,
+      "mainExecutableBytes": 17995832,
+      "assetCatalogBytes": 9488728,
+      "extensionBytes": 73318
+    },
+    "complete": {
+      "totalBytes": 29793340,
+      "fileCount": 289,
+      "mainExecutableBytes": 17930144,
+      "assetCatalogBytes": 9488728,
+      "extensionBytes": 73318
+    }
+  },
+  "savedBytes": 4196392,
+  "savedPercent": 12.346057921256925,
+  "shippingSwiftOptimization": {
+    "TelemetryDeck": [
+      "-Osize"
+    ],
+    "SpringInterpolation": [
+      "-Osize"
+    ],
+    "Sharing2": [
+      "-Osize"
+    ],
+    "Sharing1": [
+      "-Osize"
+    ],
+    "ShareExtension": [
+      "-Osize"
+    ],
+    "SFSafeSymbols": [
+      "-Osize"
+    ],
+    "SDWebImageSwiftUI": [
+      "-Osize"
+    ],
+    "Resources": [
+      "-Osize"
+    ],
+    "PreviewSupport": [
+      "-Osize"
+    ],
+    "OpenCC": [
+      "-Osize"
+    ],
+    "Markdown": [
+      "-Osize"
+    ],
+    "LegacyCFReadStream": [
+      "-Osize"
+    ],
+    "Kingfisher": [
+      "-Osize"
+    ],
+    "Kanna": [
+      "-Osize"
+    ],
+    "IssueReporting": [
+      "-Osize"
+    ],
+    "InternalCollectionsUtilities": [
+      "-Osize"
+    ],
+    "ImageColors": [
+      "-Osize"
+    ],
+    "DisplayLink": [
+      "-Osize"
+    ],
+    "ConcurrencyExtras": [
+      "-Osize"
+    ],
+    "ColorVector": [
+      "-Osize"
+    ],
+    "SFSafeSymbolsExt": [
+      "-Osize"
+    ],
+    "PerceptionCore": [
+      "-Osize"
+    ],
+    "OrderedCollections": [
+      "-Osize"
+    ],
+    "MarkdownExt": [
+      "-Osize"
+    ],
+    "CustomDump": [
+      "-Osize"
+    ],
+    "CombineSchedulers": [
+      "-Osize"
+    ],
+    "ColorfulX": [
+      "-Osize"
+    ],
+    "Clocks": [
+      "-Osize"
+    ],
+    "CasePathsCore": [
+      "-Osize"
+    ],
+    "AnimatedImageFeature": [
+      "-Osize"
+    ],
+    "DependenciesMacros": [
+      "-Osize"
+    ],
+    "Perception": [
+      "-Osize"
+    ],
+    "IdentifiedCollections": [
+      "-Osize"
+    ],
+    "Dependencies": [
+      "-Osize"
+    ],
+    "Sharing": [
+      "-Osize"
+    ],
+    "CasePaths": [
+      "-Osize"
+    ],
+    "SwiftNavigation": [
+      "-Osize"
+    ],
+    "UIKitNavigation": [
+      "-Osize"
+    ],
+    "SwiftUINavigation": [
+      "-Osize"
+    ],
+    "ComposableArchitecture": [
+      "-Osize"
+    ],
+    "HapticsClient": [
+      "-Osize"
+    ],
+    "ClipboardClient": [
+      "-Osize"
+    ],
+    "AppTools": [
+      "-Osize"
+    ],
+    "UserDefaultsClient": [
+      "-Osize"
+    ],
+    "OSLogExt": [
+      "-Osize"
+    ],
+    "DeviceClient": [
+      "-Osize"
+    ],
+    "ApplicationClient": [
+      "-Osize"
+    ],
+    "BackgroundProcessingClient": [
+      "-Osize"
+    ],
+    "AppModels": [
+      "-Osize"
+    ],
+    "TagTranslationFeature": [
+      "-Osize"
+    ],
+    "ParserFeature": [
+      "-Osize"
+    ],
+    "LogsClient": [
+      "-Osize"
+    ],
+    "ReadingSettingFeature": [
+      "-Osize"
+    ],
+    "LibraryClient": [
+      "-Osize"
+    ],
+    "ImageClient": [
+      "-Osize"
+    ],
+    "LiveTextTranslation": [
+      "-Osize"
+    ],
+    "FileClient": [
+      "-Osize"
+    ],
+    "DateSeekFeature": [
+      "-Osize"
+    ],
+    "AppLaunchAutomationClient": [
+      "-Osize"
+    ],
+    "CookieClient": [
+      "-Osize"
+    ],
+    "NetworkingFeature": [
+      "-Osize"
+    ],
+    "AnalyticsClient": [
+      "-Osize"
+    ],
+    "AppComponents": [
+      "-Osize"
+    ],
+    "SystemNotification": [
+      "-Osize"
+    ],
+    "QuickSearchFeature": [
+      "-Osize"
+    ],
+    "GalleryListComponents": [
+      "-Osize"
+    ],
+    "DownloadClient": [
+      "-Osize"
+    ],
+    "FiltersFeature": [
+      "-Osize"
+    ],
+    "DFClient": [
+      "-Osize"
+    ],
+    "SettingFeature": [
+      "-Osize"
+    ],
+    "ReadingFeature": [
+      "-Osize"
+    ],
+    "DetailFeature": [
+      "-Osize"
+    ],
+    "HomeFeature": [
+      "-Osize"
+    ],
+    "SearchFeature": [
+      "-Osize"
+    ],
+    "FavoritesFeature": [
+      "-Osize"
+    ],
+    "DownloadsFeature": [
+      "-Osize"
+    ],
+    "AppFeature": [
+      "-Osize"
+    ],
+    "EhPanda": [
+      "-Osize"
+    ]
+  },
+  "hostMacroOptimization": {
+    "PerceptionMacros": [
+      "-Osize"
+    ],
+    "DependenciesMacrosPlugin": [
+      "-Osize"
+    ],
+    "ComposableArchitectureMacros": [
+      "-Osize"
+    ],
+    "CasePathsMacrosSupport": [
+      "-Osize"
+    ],
+    "SwiftNavigationMacros": [
+      "-Osize"
+    ],
+    "CasePathsMacros": [
+      "-Osize"
+    ]
+  },
+  "changedArchiveFiles": [
+    "Assets.car",
+    "EhPanda",
+    "PlugIns/ShareExtension.appex/ShareExtension"
+  ],
+  "previewUUIDCountPreserved": 1000,
+  "previewIdentifiersAbsentFromReleaseBinary": true,
+  "debugOptimization": "-Onone",
+  "thinningExport": "No Team Found in Archive; no signing configuration changed",
+  "testResult": {
+    "totalIdentities": 1431,
+    "passed": 1421,
+    "preExistingExpectedOutcomes": 10,
+    "failed": 0,
+    "skipped": 0,
+    "repetitionNodes": 0
+  }
+}
