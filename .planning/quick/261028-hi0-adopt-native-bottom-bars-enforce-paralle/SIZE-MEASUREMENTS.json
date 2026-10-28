@@ -1,0 +1,1903 @@
+{
+  "files": [
+    {
+      "path": "AppIcon_Default_iPad.png",
+      "bytes": 12870,
+      "allocatedBytes": 16384
+    },
+    {
+      "path": "README.jpn.md",
+      "bytes": 5514,
+      "allocatedBytes": 8192
+    },
+    {
+      "path": "AppIcon_NotMyPresident_iPad@2x.png",
+      "bytes": 24573,
+      "allocatedBytes": 24576
+    },
+    {
+      "path": "AppIcon_Ukiyoe_iPad@2x.png",
+      "bytes": 31789,
+      "allocatedBytes": 32768
+    },
+    {
+      "path": "AppIcon_Developer_iPad.png",
+      "bytes": 11527,
+      "allocatedBytes": 12288
+    },
+    {
+      "path": "AppIcon_Developer@2x.png",
+      "bytes": 20046,
+      "allocatedBytes": 20480
+    },
+    {
+      "path": "AppIcon_Ukiyoe_iPad.png",
+      "bytes": 11972,
+      "allocatedBytes": 12288
+    },
+    {
+      "path": "AppIcon_NotMyPresident@3x.png",
+      "bytes": 30657,
+      "allocatedBytes": 32768
+    },
+    {
+      "path": "AppIcon_Default_iPad@2x.png",
+      "bytes": 33853,
+      "allocatedBytes": 36864
+    },
+    {
+      "path": "AppIcon_StandWithUkraine2022_iPad.png",
+      "bytes": 7535,
+      "allocatedBytes": 8192
+    },
+    {
+      "path": "AppIcon_NotMyPresident@2x.png",
+      "bytes": 19208,
+      "allocatedBytes": 20480
+    },
+    {
+      "path": "AppIcon_Developer@3x.png",
+      "bytes": 35154,
+      "allocatedBytes": 36864
+    },
+    {
+      "path": "AppIcon_Developer_iPad@2x.png",
+      "bytes": 27669,
+      "allocatedBytes": 28672
+    },
+    {
+      "path": "README.de.md",
+      "bytes": 4980,
+      "allocatedBytes": 8192
+    },
+    {
+      "path": "README.chs.md",
+      "bytes": 4295,
+      "allocatedBytes": 8192
+    },
+    {
+      "path": "README.md",
+      "bytes": 4546,
+      "allocatedBytes": 8192
+    },
+    {
+      "path": "AppIcon_Default@2x.png",
+      "bytes": 23889,
+      "allocatedBytes": 24576
+    },
+    {
+      "path": "AppIcon_StandWithUkraine2022_iPad@2x.png",
+      "bytes": 17345,
+      "allocatedBytes": 20480
+    },
+    {
+      "path": "README.cht.md",
+      "bytes": 4391,
+      "allocatedBytes": 8192
+    },
+    {
+      "path": "AppIcon_NotMyPresident_iPad_Pro@2x.png",
+      "bytes": 28199,
+      "allocatedBytes": 28672
+    },
+    {
+      "path": "Assets.car",
+      "bytes": 9488728,
+      "allocatedBytes": 9490432
+    },
+    {
+      "path": "EhPanda",
+      "bytes": 22126576,
+      "allocatedBytes": 22126592
+    },
+    {
+      "path": "AppIcon_Developer_iPad_Pro@2x.png",
+      "bytes": 31796,
+      "allocatedBytes": 32768
+    },
+    {
+      "path": "AppIcon_Default@3x.png",
+      "bytes": 44363,
+      "allocatedBytes": 45056
+    },
+    {
+      "path": "EhPanda60x60@2x.png",
+      "bytes": 25959,
+      "allocatedBytes": 28672
+    },
+    {
+      "path": "AppIcon_Ukiyoe@2x.png",
+      "bytes": 22579,
+      "allocatedBytes": 24576
+    },
+    {
+      "path": "AppIcon_StandWithUkraine2022@2x.png",
+      "bytes": 12920,
+      "allocatedBytes": 16384
+    },
+    {
+      "path": "AppIcon_Default_iPad_Pro@2x.png",
+      "bytes": 39616,
+      "allocatedBytes": 40960
+    },
+    {
+      "path": "README.ko.md",
+      "bytes": 4959,
+      "allocatedBytes": 8192
+    },
+    {
+      "path": "AppIcon_NotMyPresident_iPad.png",
+      "bytes": 11345,
+      "allocatedBytes": 12288
+    },
+    {
+      "path": "AppIcon_StandWithUkraine2022_iPad_Pro@2x.png",
+      "bytes": 19613,
+      "allocatedBytes": 20480
+    },
+    {
+      "path": "Info.plist",
+      "bytes": 2610,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "EhPanda76x76@2x~ipad.png",
+      "bytes": 38198,
+      "allocatedBytes": 40960
+    },
+    {
+      "path": "AppIcon_StandWithUkraine2022@3x.png",
+      "bytes": 21696,
+      "allocatedBytes": 24576
+    },
+    {
+      "path": "AppIcon_Ukiyoe@3x.png",
+      "bytes": 40458,
+      "allocatedBytes": 40960
+    },
+    {
+      "path": "PkgInfo",
+      "bytes": 8,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppIcon_Ukiyoe_iPad_Pro@2x.png",
+      "bytes": 36351,
+      "allocatedBytes": 36864
+    },
+    {
+      "path": "de.lproj/InfoPlist.strings",
+      "bytes": 171,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "swift-composable-architecture_ComposableArchitecture.bundle/PrivacyInfo.xcprivacy",
+      "bytes": 598,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "swift-composable-architecture_ComposableArchitecture.bundle/Info.plist",
+      "bytes": 753,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "zh-Hans.lproj/InfoPlist.strings",
+      "bytes": 134,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "ja.lproj/InfoPlist.strings",
+      "bytes": 158,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_Resources.bundle/Info.plist",
+      "bytes": 689,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_Resources.bundle/de.lproj/Constant.strings",
+      "bytes": 128,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_Resources.bundle/de.lproj/Localizable.strings",
+      "bytes": 2608,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_Resources.bundle/de.lproj/Localizable.stringsdict",
+      "bytes": 712,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_Resources.bundle/zh-Hans.lproj/Constant.strings",
+      "bytes": 128,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_Resources.bundle/zh-Hans.lproj/Localizable.strings",
+      "bytes": 1666,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_Resources.bundle/zh-Hans.lproj/Localizable.stringsdict",
+      "bytes": 618,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_Resources.bundle/ja.lproj/Constant.strings",
+      "bytes": 128,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_Resources.bundle/ja.lproj/Localizable.strings",
+      "bytes": 2037,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_Resources.bundle/ja.lproj/Localizable.stringsdict",
+      "bytes": 626,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_Resources.bundle/en.lproj/Constant.strings",
+      "bytes": 128,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_Resources.bundle/en.lproj/Localizable.strings",
+      "bytes": 1960,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_Resources.bundle/en.lproj/Localizable.stringsdict",
+      "bytes": 705,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_Resources.bundle/ko.lproj/Constant.strings",
+      "bytes": 128,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_Resources.bundle/ko.lproj/Localizable.strings",
+      "bytes": 1945,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_Resources.bundle/ko.lproj/Localizable.stringsdict",
+      "bytes": 614,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_Resources.bundle/zh-Hant.lproj/Constant.strings",
+      "bytes": 128,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_Resources.bundle/zh-Hant.lproj/Localizable.strings",
+      "bytes": 1670,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_Resources.bundle/zh-Hant.lproj/Localizable.stringsdict",
+      "bytes": 618,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_ReadingSettingFeature.bundle/Info.plist",
+      "bytes": 713,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_ReadingSettingFeature.bundle/de.lproj/Constant.strings",
+      "bytes": 86,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_ReadingSettingFeature.bundle/de.lproj/Localizable.strings",
+      "bytes": 1042,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_ReadingSettingFeature.bundle/zh-Hans.lproj/Constant.strings",
+      "bytes": 86,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_ReadingSettingFeature.bundle/zh-Hans.lproj/Localizable.strings",
+      "bytes": 640,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_ReadingSettingFeature.bundle/ja.lproj/Constant.strings",
+      "bytes": 86,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_ReadingSettingFeature.bundle/ja.lproj/Localizable.strings",
+      "bytes": 740,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_ReadingSettingFeature.bundle/en.lproj/Constant.strings",
+      "bytes": 86,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_ReadingSettingFeature.bundle/en.lproj/Localizable.strings",
+      "bytes": 787,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_ReadingSettingFeature.bundle/ko.lproj/Constant.strings",
+      "bytes": 86,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_ReadingSettingFeature.bundle/ko.lproj/Localizable.strings",
+      "bytes": 778,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_ReadingSettingFeature.bundle/zh-Hant.lproj/Constant.strings",
+      "bytes": 86,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_ReadingSettingFeature.bundle/zh-Hant.lproj/Localizable.strings",
+      "bytes": 642,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "en.lproj/InfoPlist.strings",
+      "bytes": 171,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_HomeFeature.bundle/Info.plist",
+      "bytes": 693,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_HomeFeature.bundle/de.lproj/Localizable.strings",
+      "bytes": 959,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_HomeFeature.bundle/de.lproj/Localizable.stringsdict",
+      "bytes": 474,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_HomeFeature.bundle/zh-Hans.lproj/Localizable.strings",
+      "bytes": 732,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_HomeFeature.bundle/zh-Hans.lproj/Localizable.stringsdict",
+      "bytes": 395,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_HomeFeature.bundle/ja.lproj/Localizable.strings",
+      "bytes": 852,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_HomeFeature.bundle/ja.lproj/Localizable.stringsdict",
+      "bytes": 415,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_HomeFeature.bundle/en.lproj/Localizable.strings",
+      "bytes": 855,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_HomeFeature.bundle/en.lproj/Localizable.stringsdict",
+      "bytes": 406,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_HomeFeature.bundle/ko.lproj/Localizable.strings",
+      "bytes": 852,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_HomeFeature.bundle/ko.lproj/Localizable.stringsdict",
+      "bytes": 419,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_HomeFeature.bundle/zh-Hant.lproj/Localizable.strings",
+      "bytes": 732,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_HomeFeature.bundle/zh-Hant.lproj/Localizable.stringsdict",
+      "bytes": 395,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_AppComponents.bundle/Info.plist",
+      "bytes": 697,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_AppComponents.bundle/de.lproj/Localizable.strings",
+      "bytes": 1028,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_AppComponents.bundle/de.lproj/Localizable.stringsdict",
+      "bytes": 363,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_AppComponents.bundle/zh-Hans.lproj/Localizable.strings",
+      "bytes": 679,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_AppComponents.bundle/zh-Hans.lproj/Localizable.stringsdict",
+      "bytes": 379,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_AppComponents.bundle/ja.lproj/Localizable.strings",
+      "bytes": 765,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_AppComponents.bundle/ja.lproj/Localizable.stringsdict",
+      "bytes": 379,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_AppComponents.bundle/en.lproj/Localizable.strings",
+      "bytes": 811,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_AppComponents.bundle/en.lproj/Localizable.stringsdict",
+      "bytes": 387,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_AppComponents.bundle/ko.lproj/Localizable.strings",
+      "bytes": 777,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_AppComponents.bundle/ko.lproj/Localizable.stringsdict",
+      "bytes": 377,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_AppComponents.bundle/zh-Hant.lproj/Localizable.strings",
+      "bytes": 693,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_AppComponents.bundle/zh-Hant.lproj/Localizable.stringsdict",
+      "bytes": 379,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_AppFeature.bundle/Info.plist",
+      "bytes": 691,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "PlugIns/ShareExtension.appex/ShareExtension",
+      "bytes": 72200,
+      "allocatedBytes": 73728
+    },
+    {
+      "path": "PlugIns/ShareExtension.appex/Info.plist",
+      "bytes": 1078,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_DownloadsFeature.bundle/Info.plist",
+      "bytes": 703,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_DownloadsFeature.bundle/de.lproj/Localizable.strings",
+      "bytes": 1017,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_DownloadsFeature.bundle/de.lproj/Localizable.stringsdict",
+      "bytes": 375,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_DownloadsFeature.bundle/zh-Hans.lproj/Localizable.strings",
+      "bytes": 643,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_DownloadsFeature.bundle/zh-Hans.lproj/Localizable.stringsdict",
+      "bytes": 394,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_DownloadsFeature.bundle/ja.lproj/Localizable.strings",
+      "bytes": 789,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_DownloadsFeature.bundle/ja.lproj/Localizable.stringsdict",
+      "bytes": 404,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_DownloadsFeature.bundle/en.lproj/Localizable.strings",
+      "bytes": 773,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_DownloadsFeature.bundle/en.lproj/Localizable.stringsdict",
+      "bytes": 359,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_DownloadsFeature.bundle/ko.lproj/Localizable.strings",
+      "bytes": 793,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_DownloadsFeature.bundle/ko.lproj/Localizable.stringsdict",
+      "bytes": 400,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_DownloadsFeature.bundle/zh-Hant.lproj/Localizable.strings",
+      "bytes": 647,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_DownloadsFeature.bundle/zh-Hant.lproj/Localizable.stringsdict",
+      "bytes": 394,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "SDWebImage_SDWebImage.bundle/PrivacyInfo.xcprivacy",
+      "bytes": 599,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "SDWebImage_SDWebImage.bundle/Info.plist",
+      "bytes": 691,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_SettingFeature.bundle/Info.plist",
+      "bytes": 699,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_SettingFeature.bundle/de.lproj/Constant.strings",
+      "bytes": 3520,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_SettingFeature.bundle/de.lproj/Localizable.strings",
+      "bytes": 17683,
+      "allocatedBytes": 20480
+    },
+    {
+      "path": "AppPackage_SettingFeature.bundle/de.lproj/Localizable.stringsdict",
+      "bytes": 508,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_SettingFeature.bundle/zh-Hans.lproj/Constant.strings",
+      "bytes": 3520,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_SettingFeature.bundle/zh-Hans.lproj/Localizable.strings",
+      "bytes": 8821,
+      "allocatedBytes": 12288
+    },
+    {
+      "path": "AppPackage_SettingFeature.bundle/zh-Hans.lproj/Localizable.stringsdict",
+      "bytes": 438,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_SettingFeature.bundle/ja.lproj/Constant.strings",
+      "bytes": 3520,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_SettingFeature.bundle/ja.lproj/Localizable.strings",
+      "bytes": 10874,
+      "allocatedBytes": 12288
+    },
+    {
+      "path": "AppPackage_SettingFeature.bundle/ja.lproj/Localizable.stringsdict",
+      "bytes": 458,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_SettingFeature.bundle/en.lproj/Constant.strings",
+      "bytes": 3520,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_SettingFeature.bundle/en.lproj/Localizable.strings",
+      "bytes": 11227,
+      "allocatedBytes": 12288
+    },
+    {
+      "path": "AppPackage_SettingFeature.bundle/en.lproj/Localizable.stringsdict",
+      "bytes": 418,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_SettingFeature.bundle/ko.lproj/Constant.strings",
+      "bytes": 3520,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_SettingFeature.bundle/ko.lproj/Localizable.strings",
+      "bytes": 11036,
+      "allocatedBytes": 12288
+    },
+    {
+      "path": "AppPackage_SettingFeature.bundle/ko.lproj/Localizable.stringsdict",
+      "bytes": 450,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_SettingFeature.bundle/zh-Hant.lproj/Constant.strings",
+      "bytes": 3520,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_SettingFeature.bundle/zh-Hant.lproj/Localizable.strings",
+      "bytes": 9399,
+      "allocatedBytes": 12288
+    },
+    {
+      "path": "AppPackage_SettingFeature.bundle/zh-Hant.lproj/Localizable.stringsdict",
+      "bytes": 438,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "Kingfisher_Kingfisher.bundle/PrivacyInfo.xcprivacy",
+      "bytes": 707,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "Kingfisher_Kingfisher.bundle/Info.plist",
+      "bytes": 691,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_FiltersFeature.bundle/Info.plist",
+      "bytes": 699,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_FiltersFeature.bundle/de.lproj/Constant.strings",
+      "bytes": 66,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_FiltersFeature.bundle/de.lproj/Localizable.strings",
+      "bytes": 1256,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_FiltersFeature.bundle/zh-Hans.lproj/Constant.strings",
+      "bytes": 66,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_FiltersFeature.bundle/zh-Hans.lproj/Localizable.strings",
+      "bytes": 891,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_FiltersFeature.bundle/ja.lproj/Constant.strings",
+      "bytes": 66,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_FiltersFeature.bundle/ja.lproj/Localizable.strings",
+      "bytes": 1021,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_FiltersFeature.bundle/en.lproj/Constant.strings",
+      "bytes": 66,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_FiltersFeature.bundle/en.lproj/Localizable.strings",
+      "bytes": 1070,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_FiltersFeature.bundle/ko.lproj/Constant.strings",
+      "bytes": 66,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_FiltersFeature.bundle/ko.lproj/Localizable.strings",
+      "bytes": 1033,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_FiltersFeature.bundle/zh-Hant.lproj/Constant.strings",
+      "bytes": 66,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_FiltersFeature.bundle/zh-Hant.lproj/Localizable.strings",
+      "bytes": 889,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "ko.lproj/InfoPlist.strings",
+      "bytes": 184,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_FavoritesFeature.bundle/Info.plist",
+      "bytes": 703,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_FavoritesFeature.bundle/de.lproj/Localizable.strings",
+      "bytes": 78,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_FavoritesFeature.bundle/zh-Hans.lproj/Localizable.strings",
+      "bytes": 66,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_FavoritesFeature.bundle/ja.lproj/Localizable.strings",
+      "bytes": 64,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_FavoritesFeature.bundle/en.lproj/Localizable.strings",
+      "bytes": 68,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_FavoritesFeature.bundle/ko.lproj/Localizable.strings",
+      "bytes": 68,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_FavoritesFeature.bundle/zh-Hant.lproj/Localizable.strings",
+      "bytes": 66,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "zh-Hant.lproj/InfoPlist.strings",
+      "bytes": 148,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_QuickSearchFeature.bundle/Info.plist",
+      "bytes": 707,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_QuickSearchFeature.bundle/de.lproj/Localizable.strings",
+      "bytes": 203,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_QuickSearchFeature.bundle/de.lproj/Localizable.stringsdict",
+      "bytes": 365,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_QuickSearchFeature.bundle/zh-Hans.lproj/Localizable.strings",
+      "bytes": 168,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_QuickSearchFeature.bundle/zh-Hans.lproj/Localizable.stringsdict",
+      "bytes": 276,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_QuickSearchFeature.bundle/ja.lproj/Localizable.strings",
+      "bytes": 180,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_QuickSearchFeature.bundle/ja.lproj/Localizable.stringsdict",
+      "bytes": 290,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_QuickSearchFeature.bundle/en.lproj/Localizable.strings",
+      "bytes": 172,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_QuickSearchFeature.bundle/en.lproj/Localizable.stringsdict",
+      "bytes": 267,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_QuickSearchFeature.bundle/ko.lproj/Localizable.strings",
+      "bytes": 176,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_QuickSearchFeature.bundle/ko.lproj/Localizable.stringsdict",
+      "bytes": 296,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_QuickSearchFeature.bundle/zh-Hant.lproj/Localizable.strings",
+      "bytes": 174,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_QuickSearchFeature.bundle/zh-Hant.lproj/Localizable.stringsdict",
+      "bytes": 276,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_LiveTextTranslation.bundle/Info.plist",
+      "bytes": 709,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_LiveTextTranslation.bundle/de.lproj/Localizable.strings",
+      "bytes": 462,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_LiveTextTranslation.bundle/zh-Hans.lproj/Localizable.strings",
+      "bytes": 262,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_LiveTextTranslation.bundle/ja.lproj/Localizable.strings",
+      "bytes": 337,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_LiveTextTranslation.bundle/en.lproj/Localizable.strings",
+      "bytes": 319,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_LiveTextTranslation.bundle/ko.lproj/Localizable.strings",
+      "bytes": 349,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_LiveTextTranslation.bundle/zh-Hant.lproj/Localizable.strings",
+      "bytes": 262,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "SDWebImageSwiftUI_SDWebImageSwiftUI.bundle/PrivacyInfo.xcprivacy",
+      "bytes": 372,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "SDWebImageSwiftUI_SDWebImageSwiftUI.bundle/Info.plist",
+      "bytes": 719,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "swift-sharing_Sharing.bundle/PrivacyInfo.xcprivacy",
+      "bytes": 815,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "swift-sharing_Sharing.bundle/Info.plist",
+      "bytes": 691,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "Kanna_Kanna.bundle/PrivacyInfo.xcprivacy",
+      "bytes": 373,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "Kanna_Kanna.bundle/Info.plist",
+      "bytes": 669,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_DetailFeature.bundle/Info.plist",
+      "bytes": 697,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_DetailFeature.bundle/de.lproj/Constant.strings",
+      "bytes": 377,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_DetailFeature.bundle/de.lproj/Localizable.strings",
+      "bytes": 4390,
+      "allocatedBytes": 8192
+    },
+    {
+      "path": "AppPackage_DetailFeature.bundle/de.lproj/Localizable.stringsdict",
+      "bytes": 1628,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_DetailFeature.bundle/zh-Hans.lproj/Constant.strings",
+      "bytes": 377,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_DetailFeature.bundle/zh-Hans.lproj/Localizable.strings",
+      "bytes": 3017,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_DetailFeature.bundle/zh-Hans.lproj/Localizable.stringsdict",
+      "bytes": 1596,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_DetailFeature.bundle/ja.lproj/Constant.strings",
+      "bytes": 377,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_DetailFeature.bundle/ja.lproj/Localizable.strings",
+      "bytes": 3684,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_DetailFeature.bundle/ja.lproj/Localizable.stringsdict",
+      "bytes": 1670,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_DetailFeature.bundle/en.lproj/Constant.strings",
+      "bytes": 377,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_DetailFeature.bundle/en.lproj/Localizable.strings",
+      "bytes": 3455,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_DetailFeature.bundle/en.lproj/Localizable.stringsdict",
+      "bytes": 1492,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_DetailFeature.bundle/ko.lproj/Constant.strings",
+      "bytes": 377,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_DetailFeature.bundle/ko.lproj/Localizable.strings",
+      "bytes": 3552,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_DetailFeature.bundle/ko.lproj/Localizable.stringsdict",
+      "bytes": 1686,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_DetailFeature.bundle/zh-Hant.lproj/Constant.strings",
+      "bytes": 377,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_DetailFeature.bundle/zh-Hant.lproj/Localizable.strings",
+      "bytes": 3073,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_DetailFeature.bundle/zh-Hant.lproj/Localizable.stringsdict",
+      "bytes": 1606,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_DateSeekFeature.bundle/Info.plist",
+      "bytes": 701,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_DateSeekFeature.bundle/de.lproj/Localizable.strings",
+      "bytes": 225,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_DateSeekFeature.bundle/zh-Hans.lproj/Localizable.strings",
+      "bytes": 144,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_DateSeekFeature.bundle/ja.lproj/Localizable.strings",
+      "bytes": 170,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_DateSeekFeature.bundle/en.lproj/Localizable.strings",
+      "bytes": 167,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_DateSeekFeature.bundle/ko.lproj/Localizable.strings",
+      "bytes": 178,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_DateSeekFeature.bundle/zh-Hant.lproj/Localizable.strings",
+      "bytes": 144,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_GalleryListComponents.bundle/Info.plist",
+      "bytes": 713,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_GalleryListComponents.bundle/de.lproj/Localizable.strings",
+      "bytes": 408,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_GalleryListComponents.bundle/de.lproj/Localizable.stringsdict",
+      "bytes": 410,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_GalleryListComponents.bundle/zh-Hans.lproj/Localizable.strings",
+      "bytes": 282,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_GalleryListComponents.bundle/zh-Hans.lproj/Localizable.stringsdict",
+      "bytes": 425,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_GalleryListComponents.bundle/ja.lproj/Localizable.strings",
+      "bytes": 315,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_GalleryListComponents.bundle/ja.lproj/Localizable.stringsdict",
+      "bytes": 427,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_GalleryListComponents.bundle/en.lproj/Localizable.strings",
+      "bytes": 325,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_GalleryListComponents.bundle/en.lproj/Localizable.stringsdict",
+      "bytes": 410,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_GalleryListComponents.bundle/ko.lproj/Localizable.strings",
+      "bytes": 321,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_GalleryListComponents.bundle/ko.lproj/Localizable.stringsdict",
+      "bytes": 427,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_GalleryListComponents.bundle/zh-Hant.lproj/Localizable.strings",
+      "bytes": 282,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_GalleryListComponents.bundle/zh-Hant.lproj/Localizable.stringsdict",
+      "bytes": 425,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_AppModels.bundle/Info.plist",
+      "bytes": 689,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_AppModels.bundle/de.lproj/Localizable.strings",
+      "bytes": 28081,
+      "allocatedBytes": 28672
+    },
+    {
+      "path": "AppPackage_AppModels.bundle/de.lproj/Localizable.stringsdict",
+      "bytes": 254,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_AppModels.bundle/zh-Hans.lproj/Localizable.strings",
+      "bytes": 22615,
+      "allocatedBytes": 24576
+    },
+    {
+      "path": "AppPackage_AppModels.bundle/zh-Hans.lproj/Localizable.stringsdict",
+      "bytes": 263,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_AppModels.bundle/ja.lproj/Localizable.strings",
+      "bytes": 25189,
+      "allocatedBytes": 28672
+    },
+    {
+      "path": "AppPackage_AppModels.bundle/ja.lproj/Localizable.stringsdict",
+      "bytes": 267,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_AppModels.bundle/en.lproj/Localizable.strings",
+      "bytes": 24708,
+      "allocatedBytes": 28672
+    },
+    {
+      "path": "AppPackage_AppModels.bundle/en.lproj/Localizable.stringsdict",
+      "bytes": 254,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_AppModels.bundle/ko.lproj/Localizable.strings",
+      "bytes": 24578,
+      "allocatedBytes": 28672
+    },
+    {
+      "path": "AppPackage_AppModels.bundle/ko.lproj/Localizable.stringsdict",
+      "bytes": 265,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_AppModels.bundle/zh-Hant.lproj/Localizable.strings",
+      "bytes": 22968,
+      "allocatedBytes": 24576
+    },
+    {
+      "path": "AppPackage_AppModels.bundle/zh-Hant.lproj/Localizable.stringsdict",
+      "bytes": 263,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_CookieClient.bundle/Info.plist",
+      "bytes": 695,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_CookieClient.bundle/de.lproj/Localizable.strings",
+      "bytes": 159,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_CookieClient.bundle/zh-Hans.lproj/Localizable.strings",
+      "bytes": 141,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_CookieClient.bundle/ja.lproj/Localizable.strings",
+      "bytes": 139,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_CookieClient.bundle/en.lproj/Localizable.strings",
+      "bytes": 142,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_CookieClient.bundle/ko.lproj/Localizable.strings",
+      "bytes": 139,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_CookieClient.bundle/zh-Hant.lproj/Localizable.strings",
+      "bytes": 139,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_SearchFeature.bundle/Info.plist",
+      "bytes": 697,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_SearchFeature.bundle/de.lproj/Localizable.strings",
+      "bytes": 618,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_SearchFeature.bundle/zh-Hans.lproj/Localizable.strings",
+      "bytes": 449,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_SearchFeature.bundle/ja.lproj/Localizable.strings",
+      "bytes": 541,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_SearchFeature.bundle/en.lproj/Localizable.strings",
+      "bytes": 530,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_SearchFeature.bundle/ko.lproj/Localizable.strings",
+      "bytes": 549,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_SearchFeature.bundle/zh-Hant.lproj/Localizable.strings",
+      "bytes": 447,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_ReadingFeature.bundle/Info.plist",
+      "bytes": 699,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_ReadingFeature.bundle/de.lproj/Localizable.strings",
+      "bytes": 908,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_ReadingFeature.bundle/de.lproj/Localizable.stringsdict",
+      "bytes": 981,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_ReadingFeature.bundle/zh-Hans.lproj/Localizable.strings",
+      "bytes": 737,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_ReadingFeature.bundle/zh-Hans.lproj/Localizable.stringsdict",
+      "bytes": 1057,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_ReadingFeature.bundle/ja.lproj/Localizable.strings",
+      "bytes": 829,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_ReadingFeature.bundle/ja.lproj/Localizable.stringsdict",
+      "bytes": 1099,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_ReadingFeature.bundle/en.lproj/Localizable.strings",
+      "bytes": 786,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_ReadingFeature.bundle/en.lproj/Localizable.stringsdict",
+      "bytes": 950,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_ReadingFeature.bundle/ko.lproj/Localizable.strings",
+      "bytes": 815,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_ReadingFeature.bundle/ko.lproj/Localizable.stringsdict",
+      "bytes": 1083,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_ReadingFeature.bundle/zh-Hant.lproj/Localizable.strings",
+      "bytes": 732,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "AppPackage_ReadingFeature.bundle/zh-Hant.lproj/Localizable.stringsdict",
+      "bytes": 1065,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "SwiftyOpenCC_OpenCC.bundle/Info.plist",
+      "bytes": 687,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "SwiftyOpenCC_OpenCC.bundle/Dictionary/STPhrases_GeneratedFromRegionalPhrases.ocd2",
+      "bytes": 17839,
+      "allocatedBytes": 20480
+    },
+    {
+      "path": "SwiftyOpenCC_OpenCC.bundle/Dictionary/TWVariants.ocd2",
+      "bytes": 4587,
+      "allocatedBytes": 8192
+    },
+    {
+      "path": "SwiftyOpenCC_OpenCC.bundle/Dictionary/TWPhrases.ocd2",
+      "bytes": 22360,
+      "allocatedBytes": 24576
+    },
+    {
+      "path": "SwiftyOpenCC_OpenCC.bundle/Dictionary/TSCharacters.ocd2",
+      "bytes": 52394,
+      "allocatedBytes": 53248
+    },
+    {
+      "path": "SwiftyOpenCC_OpenCC.bundle/Dictionary/STCharacters.ocd2",
+      "bytes": 45873,
+      "allocatedBytes": 49152
+    },
+    {
+      "path": "SwiftyOpenCC_OpenCC.bundle/Dictionary/JPShinjitaiCharacters.ocd2",
+      "bytes": 8715,
+      "allocatedBytes": 12288
+    },
+    {
+      "path": "SwiftyOpenCC_OpenCC.bundle/Dictionary/HKVariantsRevPhrases.ocd2",
+      "bytes": 10336,
+      "allocatedBytes": 12288
+    },
+    {
+      "path": "SwiftyOpenCC_OpenCC.bundle/Dictionary/HKVariantsRev.ocd2",
+      "bytes": 4989,
+      "allocatedBytes": 8192
+    },
+    {
+      "path": "SwiftyOpenCC_OpenCC.bundle/Dictionary/TWVariantsRevPhrases.ocd2",
+      "bytes": 24353,
+      "allocatedBytes": 24576
+    },
+    {
+      "path": "SwiftyOpenCC_OpenCC.bundle/Dictionary/TWVariantsPhrases.ocd2",
+      "bytes": 4215,
+      "allocatedBytes": 8192
+    },
+    {
+      "path": "SwiftyOpenCC_OpenCC.bundle/Dictionary/STPhrases.ocd2",
+      "bytes": 925273,
+      "allocatedBytes": 925696
+    },
+    {
+      "path": "SwiftyOpenCC_OpenCC.bundle/Dictionary/HKVariants.ocd2",
+      "bytes": 4957,
+      "allocatedBytes": 8192
+    },
+    {
+      "path": "SwiftyOpenCC_OpenCC.bundle/Dictionary/TSPhrases.ocd2",
+      "bytes": 13393,
+      "allocatedBytes": 16384
+    },
+    {
+      "path": "SwiftyOpenCC_OpenCC.bundle/Dictionary/HKVariantsPhrases.ocd2",
+      "bytes": 10522,
+      "allocatedBytes": 12288
+    },
+    {
+      "path": "SwiftyOpenCC_OpenCC.bundle/Dictionary/JPShinjitaiPhrases.ocd2",
+      "bytes": 8493,
+      "allocatedBytes": 12288
+    },
+    {
+      "path": "SwiftyOpenCC_OpenCC.bundle/Dictionary/TWPhrasesRev.ocd2",
+      "bytes": 22282,
+      "allocatedBytes": 24576
+    },
+    {
+      "path": "SwiftyOpenCC_OpenCC.bundle/Dictionary/TWVariantsRev.ocd2",
+      "bytes": 4611,
+      "allocatedBytes": 8192
+    },
+    {
+      "path": "SwiftyOpenCC_OpenCC.bundle/Dictionary/TSCharactersExt.ocd2",
+      "bytes": 14362,
+      "allocatedBytes": 16384
+    },
+    {
+      "path": "SwiftyOpenCC_OpenCC.bundle/Dictionary/CJK_Compatibility_Ideographs.ocd2",
+      "bytes": 13843,
+      "allocatedBytes": 16384
+    },
+    {
+      "path": "TelemetryDeck_TelemetryDeck.bundle/PrivacyInfo.xcprivacy",
+      "bytes": 1458,
+      "allocatedBytes": 4096
+    },
+    {
+      "path": "TelemetryDeck_TelemetryDeck.bundle/Info.plist",
+      "bytes": 698,
+      "allocatedBytes": 4096
+    }
+  ],
+  "duplicates": [
+    [
+      {
+        "path": "AppPackage_SettingFeature.bundle/de.lproj/Constant.strings",
+        "bytes": 3520,
+        "allocatedBytes": 4096
+      },
+      {
+        "path": "AppPackage_SettingFeature.bundle/zh-Hans.lproj/Constant.strings",
+        "bytes": 3520,
+        "allocatedBytes": 4096
+      },
+      {
+        "path": "AppPackage_SettingFeature.bundle/ja.lproj/Constant.strings",
+        "bytes": 3520,
+        "allocatedBytes": 4096
+      },
+      {
+        "path": "AppPackage_SettingFeature.bundle/en.lproj/Constant.strings",
+        "bytes": 3520,
+        "allocatedBytes": 4096
+      },
+      {
+        "path": "AppPackage_SettingFeature.bundle/ko.lproj/Constant.strings",
+        "bytes": 3520,
+        "allocatedBytes": 4096
+      },
+      {
+        "path": "AppPackage_SettingFeature.bundle/zh-Hant.lproj/Constant.strings",
+        "bytes": 3520,
+        "allocatedBytes": 4096
+      }
+    ]
+  ],
+  "totalBytes": 33989732,
+  "allocatedBytes": 34881536,
+  "sourceRevision": "3572963941a8939aa863a0a5681df5651104f0df",
+  "measurementKind": "Unsigned, unthinned arm64 device Release archive app payload; not device installed size",
+  "xcodeVersion": "27.1 (27A9275)",
+  "sdk": "iphoneos27.1",
+  "appVersion": "3.0.0 (158)",
+  "codeSigningBytes": 0,
+  "packageResolvedSHA256": "6d1d37697cd947f964cb0935efb8645dbe50b85649b82cb2ceda8ed35fe16202",
+  "deviceSwiftOptimization": {
+    "TelemetryDeck": [
+      "-O"
+    ],
+    "SpringInterpolation": [
+      "-O"
+    ],
+    "Sharing2": [
+      "-O"
+    ],
+    "Sharing1": [
+      "-O"
+    ],
+    "ShareExtension": [
+      "-O"
+    ],
+    "SFSafeSymbols": [
+      "-O"
+    ],
+    "SDWebImageSwiftUI": [
+      "-O"
+    ],
+    "Resources": [
+      "-O"
+    ],
+    "PreviewSupport": [
+      "-O"
+    ],
+    "OpenCC": [
+      "-O"
+    ],
+    "Markdown": [
+      "-O"
+    ],
+    "LegacyCFReadStream": [
+      "-O"
+    ],
+    "Kingfisher": [
+      "-O"
+    ],
+    "Kanna": [
+      "-O"
+    ],
+    "IssueReporting": [
+      "-O"
+    ],
+    "InternalCollectionsUtilities": [
+      "-O"
+    ],
+    "ImageColors": [
+      "-O"
+    ],
+    "DisplayLink": [
+      "-O"
+    ],
+    "ConcurrencyExtras": [
+      "-O"
+    ],
+    "ColorVector": [
+      "-O"
+    ],
+    "PerceptionCore": [
+      "-O"
+    ],
+    "OrderedCollections": [
+      "-O"
+    ],
+    "CustomDump": [
+      "-O"
+    ],
+    "CombineSchedulers": [
+      "-O"
+    ],
+    "ColorfulX": [
+      "-O"
+    ],
+    "DependenciesMacros": [
+      "-O"
+    ],
+    "Clocks": [
+      "-O"
+    ],
+    "CasePathsCore": [
+      "-O"
+    ],
+    "AnimatedImageFeature": [
+      "-O"
+    ],
+    "Perception": [
+      "-O"
+    ],
+    "Dependencies": [
+      "-O"
+    ],
+    "CasePaths": [
+      "-O"
+    ],
+    "IdentifiedCollections": [
+      "-O"
+    ],
+    "MarkdownExt": [
+      "-O"
+    ],
+    "SwiftNavigation": [
+      "-O"
+    ],
+    "Sharing": [
+      "-O"
+    ],
+    "UIKitNavigation": [
+      "-O"
+    ],
+    "SwiftUINavigation": [
+      "-O"
+    ],
+    "ComposableArchitecture": [
+      "-O"
+    ],
+    "SFSafeSymbolsExt": [
+      "-O"
+    ],
+    "HapticsClient": [
+      "-O"
+    ],
+    "ClipboardClient": [
+      "-O"
+    ],
+    "AppTools": [
+      "-O"
+    ],
+    "UserDefaultsClient": [
+      "-O"
+    ],
+    "DeviceClient": [
+      "-O"
+    ],
+    "OSLogExt": [
+      "-O"
+    ],
+    "ApplicationClient": [
+      "-O"
+    ],
+    "BackgroundProcessingClient": [
+      "-O"
+    ],
+    "AppModels": [
+      "-O"
+    ],
+    "TagTranslationFeature": [
+      "-O"
+    ],
+    "ParserFeature": [
+      "-O"
+    ],
+    "LogsClient": [
+      "-O"
+    ],
+    "LibraryClient": [
+      "-O"
+    ],
+    "ImageClient": [
+      "-O"
+    ],
+    "FileClient": [
+      "-O"
+    ],
+    "AppLaunchAutomationClient": [
+      "-O"
+    ],
+    "LiveTextTranslation": [
+      "-O"
+    ],
+    "ReadingSettingFeature": [
+      "-O"
+    ],
+    "DateSeekFeature": [
+      "-O"
+    ],
+    "CookieClient": [
+      "-O"
+    ],
+    "AnalyticsClient": [
+      "-O"
+    ],
+    "NetworkingFeature": [
+      "-O"
+    ],
+    "AppComponents": [
+      "-O"
+    ],
+    "SystemNotification": [
+      "-O"
+    ],
+    "QuickSearchFeature": [
+      "-O"
+    ],
+    "GalleryListComponents": [
+      "-O"
+    ],
+    "FiltersFeature": [
+      "-O"
+    ],
+    "DownloadClient": [
+      "-O"
+    ],
+    "DFClient": [
+      "-O"
+    ],
+    "SettingFeature": [
+      "-O"
+    ],
+    "ReadingFeature": [
+      "-O"
+    ],
+    "DetailFeature": [
+      "-O"
+    ],
+    "FavoritesFeature": [
+      "-O"
+    ],
+    "SearchFeature": [
+      "-O"
+    ],
+    "HomeFeature": [
+      "-O"
+    ],
+    "DownloadsFeature": [
+      "-O"
+    ],
+    "AppFeature": [
+      "-O"
+    ],
+    "EhPanda": [
+      "-O"
+    ]
+  },
+  "liveSymbolBytesIncludingVirtualStorage": {
+    "linker synthesized": 319171,
+    "EhPandaApp.o": 3140,
+    "GeneratedAssetSymbols.o": 536,
+    "GeneratedStringSymbols_InfoPlist.o": 520,
+    "AppFeature.o": 680566,
+    "ComposableArchitecture.o": 901415,
+    "CasePaths.o": 32211,
+    "IssueReporting.o": 103613,
+    "CasePathsCore.o": 32894,
+    "Clocks.o": 58484,
+    "ConcurrencyExtras.o": 33465,
+    "CombineSchedulers.o": 102794,
+    "CustomDump.o": 234012,
+    "Dependencies.o": 190596,
+    "DependenciesMacros.o": 596,
+    "IdentifiedCollections.o": 48589,
+    "OrderedCollections.o": 181439,
+    "InternalCollectionsUtilities.o": 35705,
+    "PerceptionCore.o": 75522,
+    "Sharing.o": 244719,
+    "SwiftUINavigation.o": 79610,
+    "SwiftNavigation.o": 216838,
+    "UIKitNavigation.o": 159106,
+    "UIKitNavigationShim.o": 1960,
+    "AppTools.o": 124247,
+    "Resources.o": 13118,
+    "OSLogExt.o": 503,
+    "AppModels.o": 714371,
+    "CookieClient.o": 47708,
+    "DeviceClient.o": 6726,
+    "TelemetryDeck.o": 184850,
+    "AnalyticsClient.o": 56551,
+    "SFSafeSymbols.o": 2364736,
+    "SFSafeSymbolsExt.o": 978,
+    "HapticsClient.o": 8458,
+    "Kanna.o": 66671,
+    "ParserFeature.o": 209761,
+    "Markdown.o": 606212,
+    "CAtomic.o": 36,
+    "cmark-gfm.o": 151822,
+    "cmark-gfm-extensions.o": 19536,
+    "MarkdownExt.o": 7506,
+    "TagTranslationFeature.o": 3203,
+    "Kingfisher.o": 1136967,
+    "AppComponents.o": 382861,
+    "AppLaunchAutomationClient.o": 38220,
+    "ApplicationClient.o": 17749,
+    "SDWebImageSwiftUI.o": 133523,
+    "SDWebImage.o": 290178,
+    "AnimatedImageFeature.o": 7231,
+    "ClipboardClient.o": 6917,
+    "DateSeekFeature.o": 69394,
+    "BackgroundProcessingClient.o": 40675,
+    "ImageColors.o": 16096,
+    "SDWebImageWebPCoder.o": 17253,
+    "libwebp.o": 306957,
+    "LibraryClient.o": 29677,
+    "LegacyCFReadStream.o": 188,
+    "NetworkingFeature.o": 374119,
+    "DownloadClient.o": 828219,
+    "OpenCC.o": 23930,
+    "copencc.o": 104909,
+    "FileClient.o": 20672,
+    "FiltersFeature.o": 106313,
+    "PreviewSupport.o": 54397,
+    "GalleryListComponents.o": 178224,
+    "QuickSearchFeature.o": 134871,
+    "ImageClient.o": 23734,
+    "LiveTextTranslation.o": 265970,
+    "ReadingSettingFeature.o": 56978,
+    "SystemNotification.o": 41580,
+    "ReadingFeature.o": 760352,
+    "DetailFeature.o": 1917505,
+    "DFClient.o": 3152,
+    "DownloadsFeature.o": 592125,
+    "FavoritesFeature.o": 325161,
+    "ColorfulX.o": 105597,
+    "ColorVector.o": 22919,
+    "SpringInterpolation.o": 14967,
+    "DisplayLink.o": 47061,
+    "HomeFeature.o": 1505402,
+    "SearchFeature.o": 529031,
+    "LogsClient.o": 33229,
+    "SettingFeature.o": 1241070,
+    "UserDefaultsClient.o": 3929,
+    "libclang_rt.ios.a(os_version_check.c.o)": 1599,
+    "libswiftCompatibility56.a(Task.cpp.o)": 1276,
+    "libswiftCompatibility56.a(TaskStatus.cpp.o)": 1108,
+    "libswiftCompatibility56.a(Actor.cpp.o)": 675,
+    "libswiftCompatibility56.a(ThreadSanitizer.cpp.o)": 350,
+    "libswiftCompatibility56.a(MutexPThread.cpp.o)": 48,
+    "libswiftCompatibility56.a(Exclusivity.cpp.o)": 389,
+    "libswiftCompatibilityPacks.a(Metadata.cpp.o)": 2000,
+    "libswiftCompatibility56.a(Error.cpp.o)": 12,
+    "_PhotosUI_SwiftUI.tbd": 68,
+    "_AppIntents_UIKit.tbd": 20,
+    "AppIntents.tbd": 48,
+    "Foundation.tbd": 10644,
+    "libswiftObjectiveC.tbd": 144,
+    "libswiftObservation.tbd": 156,
+    "Translation.tbd": 352,
+    "CoreGraphics.tbd": 2064,
+    "libswiftRegexBuilder.tbd": 284,
+    "Accessibility.tbd": 132,
+    "libswiftCoreFoundation.tbd": 108,
+    "libswiftSynchronization.tbd": 48,
+    "libswift_StringProcessing.tbd": 432,
+    "SwiftUI.tbd": 10776,
+    "libswiftUniformTypeIdentifiers.tbd": 208,
+    "libswiftos.tbd": 388,
+    "UIKitCore": 932,
+    "Charts.tbd": 100,
+    "libswiftDarwin.tbd": 20,
+    "libswift_DarwinFoundation2.tbd": 20,
+    "Vision.tbd": 364,
+    "Combine.tbd": 2260,
+    "Network.tbd": 260,
+    "SwiftUICore.tbd": 12872,
+    "_Translation_SwiftUI.tbd": 28,
+    "_AppIntents_SwiftUI.tbd": 40,
+    "Symbols.tbd": 128,
+    "libswiftDispatch.tbd": 1328,
+    "PhotosUI.tbd": 68,
+    "StoreKit.tbd": 840,
+    "CryptoKit.tbd": 212,
+    "libswiftCore.tbd": 17184,
+    "libswift_Concurrency.tbd": 2628,
+    "libswiftOSLog.tbd": 20,
+    "libswiftNaturalLanguage.tbd": 40,
+    "libswiftQuartzCore.tbd": 20,
+    "CoreMedia.tbd": 40,
+    "QuartzCore.tbd": 44,
+    "libcommonCrypto.dylib": 20,
+    "CoreFoundation.tbd": 556,
+    "CFNetwork.tbd": 212,
+    "ImageIO.tbd": 628,
+    "CoreText.tbd": 176,
+    "Metal.tbd": 20,
+    "Security.tbd": 80,
+    "CoreServices.tbd": 76,
+    "libsystem_blocks.dylib": 88,
+    "libunwind.dylib": 20,
+    "libc++.tbd": 1120,
+    "libsystem_c.dylib": 796,
+    "libsystem_kernel.dylib": 240,
+    "libsystem_m.dylib": 320,
+    "libxpc.dylib": 20,
+    "libdyld.dylib": 120,
+    "libobjc.tbd": 1524,
+    "libsystem_trace.dylib": 68,
+    "libsystem_malloc.dylib": 120,
+    "libdispatch.dylib": 244,
+    "libxml2.tbd": 600,
+    "libsystem_platform.dylib": 40,
+    "libsystem_pthread.dylib": 140,
+    "vImage.tbd": 260,
+    "Perception.o": 146,
+    "Sharing1.o": 10,
+    "Sharing2.o": 10,
+    "libcompiler_rt.dylib": 8,
+    "AVFCore": 24,
+    "BackgroundTasks.tbd": 24,
+    "CarPlay.tbd": 8,
+    "CoreImage.tbd": 104,
+    "CoreTransferable.tbd": 8,
+    "NaturalLanguage.tbd": 40,
+    "OSLog.tbd": 16,
+    "Photos.tbd": 48,
+    "UIFoundation": 64,
+    "ShareSheet": 8,
+    "WebKit.tbd": 24,
+    "_LocationEssentials.tbd": 24,
+    "libswiftCompatibility56.a(Overrides.cpp.o)": 593
+  }
+}

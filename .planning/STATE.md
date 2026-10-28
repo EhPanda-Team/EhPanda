@@ -5,9 +5,9 @@ current_phase: 17
 current_phase_name: Screenshot Automation, Visual Regression & OS 27 Modernization
 status: executing
 stopped_at: 17-06 revision re-shot (2026-10-13), 16/16 captured; waiting for the owner's visual review; agent prepares both gallery sets
-last_updated: "2026-10-27T14:39:12.728Z"
-last_activity: 2026-10-27
-last_activity_desc: Completed quick task 261027-vgt; public builds resolve without the private capture SDK, and explicit local SDK snapshots build and pass adapter tests
+last_updated: "2026-10-28T04:16:05.901Z"
+last_activity: 2026-10-28
+last_activity_desc: Quick task 261028-hi0 review checkpoint; UI and size audits delivered, lint and normal test-plan parallelism verified, device-bound runner exceptions await owner decision
 state_head: 391edb63edb2e07bd8e50b4e9e77884103238c36
 progress:
   total_phases: 17
@@ -143,7 +143,7 @@ See: .planning/PROJECT.md (updated 2026-09-23)
 Phase: 17 of 17 (Screenshot Automation, Visual Regression & OS 27 Modernization)
 Plan: 6 of 24 complete (17-05, wave 6; dependency order, not numeric ID order); 17-06 implemented; the owner's 2026-10-13 review returned changes, revision in progress
 Status: executing (17-01/17-24/17-02/17-03/17-04/17-05 complete; 17-06 implemented and verified, owner review returned changes on 2026-10-13, revision in progress; the agent prepares galleries and fixtures for both content sets)
-Last activity: 2026-10-27 — Completed quick task 261027-vgt: public dependency resolution, Debug/Release builds and 130 tests pass without the private capture SDK; explicit local SDK snapshots build and pass 134 tests. Capture runtime remains limited by the existing configuration schema mismatch and missing fixtures; Phase 17 unchanged.
+Last activity: 2026-10-28 — Quick task 261028-hi0 delivers UI before/after proposals and a 33.99 MB unsigned Release payload audit. Serialization lint policy, normal parallel test plans and fixture repairs are verified; device-bound runner exceptions await explicit owner approval. Quick task incomplete; Phase 17 unchanged.
 
 **Phase 17 current gate:** 6/24 plans complete. 17-01 passed 32/32 capture coordinates and 66/66 tests; verified public v2 fixtures are in `.capture/regression`. 17-24 measures all four real device/orientation combinations and validates the immutable tracked rendering pin. Both final measure and validate commands pass four geometry tests plus six rotation/restore tests, with 28 Python contract tests and zero compiler/lint diagnostics or runtime warnings. Pin SHA-256: `ffd7689fcaf9a312202fdfbf9787f0198711fd477d1e72a2a013851df85a394a`; evidence is `.capture/environment-measurement/` and `.capture/environment-pin-check/`. Implementation ends at 3e69dc69d3; summary/review committed in fb83037387. Four reserved staged entries remain unchanged. Devices restore portrait/original Large and their original boot states. Continue inline with 17-06; shared CAP-17-01/02/03/04/06 remain incomplete until all declaring plans finish. No baseline promotion.
 
@@ -1085,6 +1085,12 @@ None yet.
 - DownloadContinuedSessionTests.swift sits at 999 of 1000 lines (file_length is error severity); the next added line fails the build. Sanctioned remedy recorded in 15-22-SUMMARY.md: relocate testEmptySchedulableSetStillPushesAPositiveTotal into the ledger suite.
 - Phase 16 accepted coverage limit: Tag Detail sheet (#21) is unreachable in the English fixture because translated descriptions are empty; six historical matrix rows remain unavailable. This is not an open Phase 16 sign-off blocker.
 - Phase 16 evidence limits: fifteen unreached sites, spoken Voice Control, nonreader native double-tap, W-21 and W-24 retain their owner-approved dispositions. Historical reference warnings are listed in `phases/16-dynamic-type-accessibility/16-CLOSEOUT-NOTES.md`.
+
+### Quick Tasks In Progress
+
+| # | Status | Next decision | Record |
+|---|---|---|---|
+| 261028-hi0 | UI/size audits delivered; lint, test-plan parallelism and fixture repairs verified; runner migration partial | Review B1–B5/B6 UI candidates and decide the three narrowly scoped device-bound serialization exceptions | [Checkpoint](quick/261028-hi0-adopt-native-bottom-bars-enforce-paralle/261028-hi0-SUMMARY.md) |
 
 ### Quick Tasks Completed
 
