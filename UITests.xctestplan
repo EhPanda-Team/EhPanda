@@ -20,7 +20,8 @@
       },
       "skippedTests": [
         "AppshotCaptureUITests"
-      ]
+      ],
+      "parallelizable": true
     }
   ],
   "version": 1

@@ -25,161 +25,184 @@
         "containerPath": "container:AppPackage",
         "identifier": "AppFeatureTests",
         "name": "AppFeatureTests"
-      }
+      },
+      "parallelizable": true
     },
     {
       "target": {
         "containerPath": "container:AppPackage",
         "identifier": "AppModelsTests",
         "name": "AppModelsTests"
-      }
+      },
+      "parallelizable": true
     },
     {
       "target": {
         "containerPath": "container:AppPackage",
         "identifier": "AppToolsTests",
         "name": "AppToolsTests"
-      }
+      },
+      "parallelizable": true
     },
     {
       "target": {
         "containerPath": "container:AppPackage",
         "identifier": "DetailFeatureTests",
         "name": "DetailFeatureTests"
-      }
+      },
+      "parallelizable": true
     },
     {
       "target": {
         "containerPath": "container:AppPackage",
         "identifier": "DownloadsFeatureTests",
         "name": "DownloadsFeatureTests"
-      }
+      },
+      "parallelizable": true
     },
     {
       "target": {
         "containerPath": "container:AppPackage",
         "identifier": "FileClientTests",
         "name": "FileClientTests"
-      }
+      },
+      "parallelizable": true
     },
     {
       "target": {
         "containerPath": "container:AppPackage",
         "identifier": "HomeFeatureTests",
         "name": "HomeFeatureTests"
-      }
+      },
+      "parallelizable": true
     },
     {
       "target": {
         "containerPath": "container:AppPackage",
         "identifier": "MarkdownExtTests",
         "name": "MarkdownExtTests"
-      }
+      },
+      "parallelizable": true
     },
     {
       "target": {
         "containerPath": "container:AppPackage",
         "identifier": "NetworkingFeatureTests",
         "name": "NetworkingFeatureTests"
-      }
+      },
+      "parallelizable": true
     },
     {
       "target": {
         "containerPath": "container:AppPackage",
         "identifier": "ParserFeatureTests",
         "name": "ParserFeatureTests"
-      }
+      },
+      "parallelizable": true
     },
     {
       "target": {
         "containerPath": "container:AppPackage",
         "identifier": "SettingFeatureTests",
         "name": "SettingFeatureTests"
-      }
+      },
+      "parallelizable": true
     },
     {
       "target": {
         "containerPath": "container:AppPackage",
         "identifier": "SystemNotificationTests",
         "name": "SystemNotificationTests"
-      }
+      },
+      "parallelizable": true
     },
     {
       "target": {
         "containerPath": "container:AppPackage",
         "identifier": "SwiftyOpenCCTests",
         "name": "SwiftyOpenCCTests"
-      }
+      },
+      "parallelizable": true
     },
     {
       "target": {
         "containerPath": "container:AppPackage",
         "identifier": "TagTranslationFeatureTests",
         "name": "TagTranslationFeatureTests"
-      }
+      },
+      "parallelizable": true
     },
     {
       "target": {
         "containerPath": "container:AppPackage",
         "identifier": "ImageColorsTests",
         "name": "ImageColorsTests"
-      }
+      },
+      "parallelizable": true
     },
     {
       "target": {
         "containerPath": "container:AppPackage",
         "identifier": "LiveTextTranslationTests",
         "name": "LiveTextTranslationTests"
-      }
+      },
+      "parallelizable": true
     },
     {
       "target": {
         "containerPath": "container:AppPackage",
         "identifier": "GalleryListComponentsTests",
         "name": "GalleryListComponentsTests"
-      }
+      },
+      "parallelizable": true
     },
     {
       "target": {
         "containerPath": "container:AppPackage",
         "identifier": "CookieClientTests",
         "name": "CookieClientTests"
-      }
+      },
+      "parallelizable": true
     },
     {
       "target": {
         "containerPath": "container:AppPackage",
         "identifier": "ImageClientTests",
         "name": "ImageClientTests"
-      }
+      },
+      "parallelizable": true
     },
     {
       "target": {
         "containerPath": "container:AppPackage",
         "identifier": "ReadingFeatureTests",
         "name": "ReadingFeatureTests"
-      }
+      },
+      "parallelizable": true
     },
     {
       "target": {
         "containerPath": "container:AppPackage",
         "identifier": "AnalyticsClientTests",
         "name": "AnalyticsClientTests"
-      }
+      },
+      "parallelizable": true
     },
     {
       "target": {
         "containerPath": "container:AppPackage",
         "identifier": "SearchFeatureTests",
         "name": "SearchFeatureTests"
-      }
+      },
+      "parallelizable": true
     },
     {
       "target": {
         "containerPath": "container:AppPackage",
         "identifier": "FavoritesFeatureTests",
         "name": "FavoritesFeatureTests"
-      }
+      },
+      "parallelizable": true
     },
     {
       "target": {
@@ -191,7 +214,8 @@
         "FullContentFeasibilityTests",
         "GeometryTests",
         "VisualMatrixTests"
-      ]
+      ],
+      "parallelizable": true
     }
   ],
   "version": 1
