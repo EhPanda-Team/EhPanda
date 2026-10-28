@@ -2,6 +2,11 @@
 
 > **Image evidence availability:** Image files were removed from this repository history at the owner's request. Screenshot descriptions, filenames and earlier visual checks below are historical records, not currently available image evidence. Written findings, measurements and source artifacts remain; visual review requires fresh captures.
 
+**2026-10-28 follow-up:** The owner requests restoration of this final persistent design with its
+custom system-style arrow. Production integration and final-source verification are tracked in
+[the current quick task](../261028-hi0-adopt-native-bottom-bars-enforce-paralle/UI-IMPLEMENTATION.md).
+The investigation and pending status below describe the earlier prototype date.
+
 2026-10-24. The owner asks to prevent the title, subtitle and arrow from disappearing after
 scrolling in D141's prototype. This is an isolated native rendering and interaction experiment.
 Production still uses D133; a different title mode has not been accepted for production.

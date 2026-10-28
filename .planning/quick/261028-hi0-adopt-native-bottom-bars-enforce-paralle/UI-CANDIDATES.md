@@ -1,8 +1,10 @@
 # Bottom-edge and safe-area-bar review
 
-Status: proposed; production page UI is unchanged. Inspected 2026-10-28 at the current working tree.
-The owner clarified that review requires screenshots. See [18 native before/after pairs](SCREENSHOTS.md)
-and the preserved [prototype patch](UI-PROPOSAL.patch); the textual inventory below explains their scope.
+Status: the owner selected B1–B6 on 2026-10-28. [UI-IMPLEMENTATION.md](UI-IMPLEMENTATION.md) records
+integration and the subsequent request to restore the persistent Library title menu. That menu
+supersedes B1's compact bottom picker; Library retains the placement-aware bottom-edge policy.
+The [18 native before/after pairs](SCREENSHOTS.md) and [prototype patch](UI-PROPOSAL.patch) preserve
+the earlier review. The textual inventory below describes that original proposal, not the later menu.
 The existing top-edge inventory remains authoritative. This list adds selective bottom treatment;
 it does not replace top-edge coverage or claim the complete acceptance matrix passed.
 

@@ -4,6 +4,11 @@ Status: lint policy and normal test-plan parallelism implemented and tested; run
 owner decision on the concrete exceptions below.
 Date: 2026-10-28.
 
+Owner follow-up: **“discuss later.”** The exception discussion is deferred, and none of the three
+exceptions is approved. UI adoption continues independently. A command disabling concurrent
+destinations was rejected by automatic approval review; the current UI verification instead launches
+independent iPhone/iPad jobs concurrently, each with parallel workers enabled and no serial flag.
+
 ## Baseline and implemented enforcement
 
 - No executable `.serialized` trait occurs in the package tests or UI tests. The occurrence in
@@ -89,3 +94,13 @@ Device-dependent capture and Duo pose execution still require their own prerequi
 scope. Ordinary parallel tests do not verify those external workflows. After the pending decision,
 change the common runner and its callers together, prove cloned-worker result attribution, and run
 the affected contract and native checks before closing this task.
+
+## UI adoption verification follow-up
+
+The concurrent iPhone/iPad jobs each dispatch three active XCTest class workers. The initial
+11-method selection yields 10 passes and one Search hit-region failure per device. After correcting
+the actual labels, three affected/relevant methods pass once per device (6/6), with no skips or
+repetition nodes. The corrected iPad run uses two active workers; an iPhone worker launch failure
+leaves its scheduler using one worker, with no configured cap or serial flag. The initial run proves
+three active class workers per device. The failed bundles and launch diagnostics remain available; no serialization
+setting or audit exclusion hides them. See [the detailed record](UI-IMPLEMENTATION.md).
