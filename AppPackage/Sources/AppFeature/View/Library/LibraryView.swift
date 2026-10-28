@@ -9,6 +9,7 @@ import SFSafeSymbolsExt
 import SwiftUI
 
 struct LibraryView: View {
+    @Environment(\.tabBarPlacement) private var tabBarPlacement
     @Bindable var store: StoreOf<LibraryFeature>
     var favoritesStore: StoreOf<FavoritesReducer>
     var downloadsStore: StoreOf<DownloadsReducer>
@@ -22,33 +23,22 @@ struct LibraryView: View {
             } else {
                 LibraryDetailView(
                     selection: store.selection, favoritesStore: favoritesStore,
-                    downloadsStore: downloadsStore, showsCategoryControls: true
+                    downloadsStore: downloadsStore, showsCategoryControls: true,
+                    libraryTitleMenu: LibraryTitleMenu(
+                        selection: $store.selection.sending(\.select),
+                        favoritesIndex: favoritesStore.favoritesIndex,
+                        downloadFilter: downloadsStore.folderFilter
+                    )
                 )
-                .safeAreaInset(edge: .bottom, alignment: .trailing, spacing: 12) {
-                    if showsSourcePicker {
-                        LibrarySourcePicker(
-                            store: store, favoritesIndex: favoritesStore.favoritesIndex,
-                            downloadFilter: downloadsStore.folderFilter
-                        )
-                        .padding(.horizontal, 16)
-                        .padding(.bottom, 8)
-                    }
-                }
             }
         }
+        .scrollEdgeEffectStyle(tabBarPlacement == .bottomBar ? .soft : .automatic, for: .bottom)
         .onVisibleViewportChange { store.send(.viewportChanged($0)) }
         .background {
             WindowDeviceObservation { store.send(.deviceChanged($0)) }
         }
     }
 
-    private var showsSourcePicker: Bool {
-        switch store.selection {
-        case .favorites: favoritesStore.path.isEmpty
-        case .downloads: downloadsStore.path.isEmpty
-        case .none: true
-        }
-    }
 }
 
 private struct LibrarySidebarView: View {
@@ -65,7 +55,7 @@ private struct LibrarySidebarView: View {
         } detail: {
             LibraryDetailView(
                 selection: store.selection, favoritesStore: favoritesStore,
-                downloadsStore: downloadsStore, showsCategoryControls: false
+                downloadsStore: downloadsStore, showsCategoryControls: false, libraryTitleMenu: nil
             )
             .scrollEdgeEffectStyle(.soft, for: .top)
         }
@@ -74,39 +64,23 @@ private struct LibrarySidebarView: View {
     }
 }
 
-private struct LibrarySourcePicker: View {
-    @Bindable var store: StoreOf<LibraryFeature>
-    let favoritesIndex: Int
-    let downloadFilter: DownloadFolderFilter
-
-    var body: some View {
-        Picker(.RLocalizable.library, selection: $store.selection.sending(\.select)) {
-            Label(.RLocalizable.downloads, systemSymbol: .arrowDownCircle)
-                .tag(Optional(LibraryGroup.downloads(downloadFilter)))
-            Label(.RLocalizable.favorites, systemSymbol: .heart)
-                .tag(Optional(LibraryGroup.favorites(favoritesIndex)))
-        }
-        .pickerStyle(.segmented)
-        .labelStyle(.iconOnly)
-        .controlSize(.large)
-        .fixedSize(horizontal: true, vertical: false)
-        .glassEffect(.regular, in: .capsule)
-        .accessibilityIdentifier("library-source-picker")
-    }
-}
-
 private struct LibraryDetailView: View {
     let selection: LibraryGroup?
     let favoritesStore: StoreOf<FavoritesReducer>
     let downloadsStore: StoreOf<DownloadsReducer>
     let showsCategoryControls: Bool
+    let libraryTitleMenu: LibraryTitleMenu?
 
     var body: some View {
         switch selection {
         case .favorites:
-            FavoritesView(store: favoritesStore, showsCategoryControls: showsCategoryControls)
+            FavoritesView(
+                store: favoritesStore, showsCategoryControls: showsCategoryControls, libraryTitleMenu: libraryTitleMenu
+            )
         case .downloads:
-            DownloadsView(store: downloadsStore, showsFolderManagement: showsCategoryControls)
+            DownloadsView(
+                store: downloadsStore, showsFolderManagement: showsCategoryControls, libraryTitleMenu: libraryTitleMenu
+            )
         case .none:
             ContentUnavailableView {
                 Label(.RLocalizable.library, systemSymbol: .booksVertical)

@@ -17,9 +17,11 @@ final class LibraryPresentationUITests: XCTestCase {
         ])
         defer { app.terminate() }
 
-        XCTAssertTrue(app.navigationBars["Favorites"].waitForExistence(timeout: 15))
         let gallery = app.staticTexts["Library Study 01"].firstMatch
         XCTAssertTrue(gallery.waitForExistence(timeout: 15), "Favorites must load the real parsed fixture list.")
+        app.requireLibraryNavigationTitle("Favorites")
+        let titleMenu = app.descendants(matching: .any)["library-title-menu"].firstMatch
+        let usesTitleMenu = titleMenu.exists
         let presentation = app.buttons["gallery-layout-favorites"]
         presentation.tapWhenHittable("Favorites presentation")
         app.buttons["Grid"].tapWhenHittable("Favorites Grid")
@@ -27,9 +29,13 @@ final class LibraryPresentationUITests: XCTestCase {
         XCTAssertTrue(gallery.isHittable)
         gallery.tapWhenHittable("Open a Favorites gallery")
         XCTAssertTrue(app.descendants(matching: .any)["detail_view"].waitForExistence(timeout: 15))
+        if usesTitleMenu {
+            XCTAssertTrue(titleMenu.waitForNonExistence(timeout: 5), "Source menu belongs only to the Library root.")
+        }
         XCTAssertTrue(app.buttons[UITestConstants.primaryMarkerTitle].waitForExistence(timeout: 5))
         app.returnFromGalleryDetail()
         XCTAssertTrue(presentation.waitForExistence(timeout: 10))
+        app.requireLibraryNavigationTitle("Favorites")
         assertGrid(in: app)
 
         app.terminate()
@@ -37,6 +43,17 @@ final class LibraryPresentationUITests: XCTestCase {
         XCTAssertTrue(presentation.waitForExistence(timeout: 15))
         XCTAssertTrue(gallery.waitForExistence(timeout: 15))
         assertGrid(in: app)
+        if usesTitleMenu {
+            let titleFrame = titleMenu.frame
+            let galleryFrame = gallery.frame
+            app.descendants(matching: .any)["favorites-gallery-list"].firstMatch.swipeUp()
+            XCTAssertTrue(
+                !gallery.exists || gallery.frame != galleryFrame,
+                "The persistence check must actually scroll the list."
+            )
+            XCTAssertTrue(titleMenu.isHittable, "The Library menu must remain available after scrolling.")
+            XCTAssertEqual(titleMenu.frame, titleFrame, "The persistent title must not collapse with the list.")
+        }
         let screenshot = XCTAttachment(screenshot: XCUIScreen.main.screenshot())
         screenshot.name = "Library Favorites grid"
         screenshot.lifetime = .keepAlways
@@ -61,21 +78,25 @@ final class LibraryPresentationUITests: XCTestCase {
             "EHPANDA_AUTOMATION_IPB_MEMBER_ID": "fixture-member",
             "EHPANDA_AUTOMATION_IPB_PASS_HASH": "fixture-session"
         ])
-        let sourcePicker = app.segmentedControls["library-source-picker"]
-        if sourcePicker.waitForExistence(timeout: 10) {
+        let titleMenu = app.descendants(matching: .any)["library-title-menu"].firstMatch
+        if titleMenu.waitForExistence(timeout: 10) {
             let presentation = app.buttons["gallery-layout-favorites"]
             presentation.tapWhenHittable("Favorites presentation")
             app.buttons["Grid"].tapWhenHittable("Favorites Grid")
-            sourcePicker.buttons["Downloads"].tapWhenHittable("Phone Library Downloads")
+            titleMenu.tapWhenHittable("Library source menu")
+            app.buttons["Downloads"].tapWhenHittable("Phone Library Downloads")
             XCTAssertTrue(app.buttons["gallery-layout-downloads"].waitForExistence(timeout: 10))
+            app.requireLibraryNavigationTitle("Downloads")
             app.buttons["Filters"].tapWhenHittable("Download folder menu")
             app.buttons["Inbox"].tapWhenHittable("Inbox download folder")
-            sourcePicker.buttons["Favorites"].tapWhenHittable("Phone Library Favorites")
+            titleMenu.tapWhenHittable("Library source menu")
+            app.buttons["Favorites"].tapWhenHittable("Phone Library Favorites")
             XCTAssertTrue(presentation.waitForExistence(timeout: 10))
+            app.requireLibraryNavigationTitle("Favorites")
             assertGrid(in: app)
             XCTAssertFalse(app.descendants(matching: .any)["library-categories"].exists)
             let screenshot = XCTAttachment(screenshot: XCUIScreen.main.screenshot())
-            screenshot.name = "Phone Library source switch"
+            screenshot.name = "Phone Library title-menu source switch"
             screenshot.lifetime = .keepAlways
             add(screenshot)
             return
@@ -277,7 +298,7 @@ final class LibraryPresentationUITests: XCTestCase {
     /// XCTest can report clipped cards as hittable. Use the measured visible content between native bars.
     private func reveal(_ element: XCUIElement, in content: XCUIElement, app: XCUIApplication) {
         let frame = content.frame.intersection(app.windows.firstMatch.frame)
-        let navigation = app.navigationBars["Downloads"].frame
+        let navigation = app.requireLibraryNavigationTitle("Downloads").frame
         let tabBar = app.tabBars.firstMatch.exists ? app.tabBars.firstMatch.frame : .zero
         let top = navigation.width > navigation.height ? max(frame.minY, navigation.maxY) : frame.minY
         let bottom = tabBar.width > tabBar.height && tabBar.minY > frame.midY

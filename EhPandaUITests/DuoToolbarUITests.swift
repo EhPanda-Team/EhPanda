@@ -22,6 +22,6 @@ final class DuoToolbarUITests: XCTestCase {
         XCTAssertFalse(app.windows.firstMatch.frame.contains(CGPoint(x: downloads.midX, y: downloads.midY)))
         app.buttons["Home"].tapWhenHittable("Expand tabs")
         app.buttons["Favorites"].tapWhenHittable("Favorites")
-        XCTAssertTrue(app.navigationBars["Favorites"].waitForExistence(timeout: 10))
+        app.requireLibraryNavigationTitle("Favorites")
     }
 }

@@ -1,4 +1,4 @@
-import AppComponents
+public import AppComponents
 import AppModels
 import AppTools
 public import ComposableArchitecture
@@ -19,10 +19,15 @@ public struct DownloadsView: View {
     @Bindable private var store: StoreOf<DownloadsReducer>
 
     private let showsFolderManagement: Bool
+    private let libraryTitleMenu: LibraryTitleMenu?
 
-    public init(store: StoreOf<DownloadsReducer>, showsFolderManagement: Bool = false) {
+    public init(
+        store: StoreOf<DownloadsReducer>, showsFolderManagement: Bool = false,
+        libraryTitleMenu: LibraryTitleMenu? = nil
+    ) {
         self.store = store
         self.showsFolderManagement = showsFolderManagement
+        self.libraryTitleMenu = libraryTitleMenu
     }
 
     public var body: some View {
@@ -64,8 +69,9 @@ public struct DownloadsView: View {
                 }
                 // Reports refused Pause/Resume and default-folder creation failures.
                 .toast($store.scope(\.$toast, action: \.toast))
-                .navigationTitle(.RLocalizable.downloads)
-                .toolbarTitleDisplayMode(.inlineLarge)
+                .modifier(LibraryNavigationTitle(
+                    title: String(localized: .RLocalizable.downloads), menu: libraryTitleMenu
+                ))
                 .toolbar(content: toolbar)
         }
     }
