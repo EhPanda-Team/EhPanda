@@ -10,13 +10,14 @@ provides:
   - Restored persistent Library title menu with a scaled custom system-style chevron
   - Serialization lint enforcement and explicit normal test-plan parallelism
   - Isolated hosted-app test dependencies and repaired simulator-lock tests
-  - Reproducible unsigned Release measurements and a verified 12.35 percent reduction
+  - Historical unsigned Release size comparison and retained preview-only cleanup
 affects: [test-runners, ui-review, release-size]
 requirements-completed: [QUICK-UI-REVIEW, QUICK-SIZE-AUDIT]
 requirements-pending: [QUICK-PARALLEL-TESTS]
 key-decisions:
   - Owner selected B1–B6; their final choice keeps the persistent title menu and removes the bottom-right switch.
   - Existing serial runner settings are pending decisions, not grandfathered exceptions.
+  - Owner prioritizes speed and drops the -Osize commit; Release uses -O and preview cleanup remains.
   - Archive payload, installed footprint and download size are separate measurements.
   - The unavailable configured executor was not silently replaced with another model.
 ---
@@ -24,8 +25,9 @@ key-decisions:
 # Quick task 261028-hi0 checkpoint
 
 **The approved bottom-edge changes and Archives footer are implemented. The final persistent Library
-title menu is restored with its custom circular chevron. The size-only revision saves 4.20 MB
-(12.35%). Device-bound serialization exceptions remain unapproved; the owner deferred discussion.**
+title menu is restored with its custom circular chevron. Release uses `-O` after the owner drops
+the `-Osize` commit; preview cleanup remains. Device-bound serialization exceptions remain unapproved;
+the owner deferred discussion.**
 
 ## Delivered
 
@@ -42,14 +44,20 @@ title menu is restored with its custom circular chevron. The size-only revision 
 - [SIZE-AUDIT.md](SIZE-AUDIT.md) and [SIZE-MEASUREMENTS.json](SIZE-MEASUREMENTS.json) record an unsigned
   Release archive: 33,989,732 logical bytes, including 22,126,576 executable bytes and 9,488,728 asset
   catalog bytes. This is the original baseline.
-- The owner-directed [follow-up](FOLLOW-UP-PLAN.md) implements build-wide Release `-Osize` and excludes
-  preview-only helpers and the frozen identifier table from Release. The measured `-Osize` payload with preview cleanup represented by `279897ed0c` was
-  **29,793,340 bytes**, saving **4,196,392 bytes (12.35%)**. Debug keeps `-Onone` and all preview IDs.
+- The owner-directed [follow-up](FOLLOW-UP-PLAN.md) measured build-wide Release `-Osize` and excluded
+  preview-only helpers and the frozen identifier table. The owner then [drops the optimization commit](SPEED-PRIORITY.md)
+  to prioritize speed: Release returns to `-O`, while preview cleanup remains. The historical payload
+  with preview cleanup represented by `279897ed0c` was **29,793,340 bytes**, saving **4,196,392 bytes (12.35%)** under `-Osize`.
+  The current payload is unmeasured. Debug keeps `-Onone` and all preview IDs.
   [SIZE-REDUCTION.md](SIZE-REDUCTION.md) records each measured stage and five optional approaches.
   No shipping feature, resource or dependency was removed. Signed thinning is still unmeasured:
   export of the unsigned archive returned **No Team Found in Archive**.
 
 ## Verification
+
+The history drop passes patch-preservation checks, manifest/workflow validation and resolved
+Release/Debug setting checks; see [SPEED-PRIORITY.md](SPEED-PRIORITY.md). The runtime and archive
+results below retain their original, pre-rewrite provenance.
 
 - New SwiftLint rule: ordinary, backtick, spaced and parameterized spellings rejected; comments and
   strings accepted. Both actual test trees pass; changed Swift files pass strict lint.
@@ -90,10 +98,12 @@ annotation was used to conceal a new failure. Existing snapshot/capture skips re
 2. `b3434f9999` — bind the hosted application Store to its inert fixtures and add a scope-change regression.
 3. `16732691a0` — replace obsolete process-window tests with simulator-lock behavior checks.
 4. `4d4b04d756` — enable parallel execution in every normal feature/UI test-plan target.
-5. `32bf2a30` — use `-Osize` across Release app/package compilation and both deployment workflows.
-6. `279897ed0c` — exclude preview helpers and the preserved identifier table from Release.
-7. `25649f32c2` — restore the persistent Library title menu with the custom system-style arrow.
-8. `adaf3d6017` — adopt bottom edges and Archives safeAreaBar; repair Search header hit regions.
+5. `279897ed0c` — exclude preview helpers and the preserved identifier table from Release.
+6. `25649f32c2` — restore the persistent Library title menu with the custom system-style arrow.
+7. `adaf3d6017` — adopt bottom edges and Archives safeAreaBar; repair Search header hit regions.
+
+The `-Osize` commit `32bf2a307` is dropped at the owner's request. The [history mapping](SPEED-PRIORITY.md)
+preserves the provenance of earlier measurements and captures.
 
 The original review checkpoint is `f195b7eaaf`. Follow-up measurements and screenshots are recorded
 in a separate documentation commit after implementation verification.

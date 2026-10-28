@@ -1,26 +1,23 @@
-# Release size optimization
+# Release optimization policy
 
-Both release workflows archive with `-xcconfig Config/SizeOptimization.xcconfig`. That build-wide
-override applies `-Osize` to the app, extension and source-built Swift packages, including third-party
-packages. Its assignment is conditional on Release; Debug keeps `-Onone`.
+The owner prioritizes runtime speed. The build-wide `-Osize` change has been dropped from the
+branch; `SizeOptimization.xcconfig` no longer exists. Project Release settings and both deployment
+workflows use `-O`. The local package has no custom optimization override, so it uses the normal
+Release optimization. Debug retains `-Onone`; whole-module Release compilation remains enabled.
 
-The Xcode project and local package also select `-Osize` for their own Release targets. Those local
-settings alone do not change third-party package compilation. Use the shared override for comparable
-local archives:
+Preview-only helpers and their frozen identifiers remain excluded from Release. No runtime feature
+or asset was removed. For a comparable local unsigned archive:
 
 ```sh
 xcodebuild archive \
   -project EhPanda.xcodeproj -scheme EhPanda -configuration Release \
-  -xcconfig Config/SizeOptimization.xcconfig \
   -destination 'generic/platform=iOS' \
-  -archivePath /tmp/EhPanda.xcarchive
+  -archivePath /tmp/EhPanda.xcarchive \
+  SWIFT_OPTIMIZATION_LEVEL=-O CODE_SIGNING_ALLOWED=NO
 ```
 
-For an unsigned size-only measurement, add `CODE_SIGNING_ALLOWED=NO`. An ordinary Archive action
-inside Xcode does not supply this command-line override; use the command above when comparing the
-full package graph. Do not place this configuration in application resources.
-
-The measured 2026-10-28 unsigned arm64 payload is 29,793,340 bytes, compared with 33,989,732 bytes
-before these changes. This is an unthinned archive measurement. A signed export's App Thinning Size
-Report and a device installation answer different size questions. See the
-[measurement and optional follow-ups](../.planning/quick/261028-hi0-adopt-native-bottom-bars-enforce-paralle/SIZE-REDUCTION.md).
+The earlier 29,793,340-byte payload used the withdrawn `-Osize` configuration. The current `-O` plus
+preview-cleanup payload has not been remeasured. Archive payload, installed-device footprint and
+App Store download size remain separate measurements. See the
+[decision and verification](../.planning/quick/261028-hi0-adopt-native-bottom-bars-enforce-paralle/SPEED-PRIORITY.md)
+and [historical measurements](../.planning/quick/261028-hi0-adopt-native-bottom-bars-enforce-paralle/SIZE-REDUCTION.md).

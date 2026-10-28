@@ -116,6 +116,9 @@ $HOME/.codex/visualizations/2026/10/28/01a18093-35bb-7490-9bee-b93c0bc77dd8/bott
 ```
 
 All 36 implemented images are original native screenshots, with matching accessibility outlines.
+Commit links in this capture record identify corresponding retained UI changes. The
+[history record](SPEED-PRIORITY.md) explains the rewrite; captured binary and image hashes remain
+unchanged and preserve the actual evidence.
 [UI-IMPLEMENTATION-MANIFEST.json](UI-IMPLEMENTATION-MANIFEST.json) records dimensions, hashes and
 capture app binaries. Source is `25649f32c2` plus `adaf3d6017`; the Search pair was refreshed after the
 hit-region correction. The remaining captures use the identical UI code before that isolated Search
