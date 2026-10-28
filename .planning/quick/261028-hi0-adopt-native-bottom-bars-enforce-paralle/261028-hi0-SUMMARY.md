@@ -15,7 +15,7 @@ affects: [test-runners, ui-review, release-size]
 requirements-completed: [QUICK-UI-REVIEW, QUICK-SIZE-AUDIT]
 requirements-pending: [QUICK-PARALLEL-TESTS]
 key-decisions:
-  - Owner selected B1–B6; the subsequent persistent title menu replaces the compact bottom picker.
+  - Owner selected B1–B6; their final choice keeps the persistent title menu and removes the bottom-right switch.
   - Existing serial runner settings are pending decisions, not grandfathered exceptions.
   - Archive payload, installed footprint and download size are separate measurements.
   - The unavailable configured executor was not silently replaced with another model.
