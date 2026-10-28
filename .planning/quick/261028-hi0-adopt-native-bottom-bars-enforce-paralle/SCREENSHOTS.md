@@ -1,8 +1,15 @@
 # Native before / after screenshot review
 
+The owner subsequently selected B1–B6 and requested the persistent Library title menu, replacing
+the compact source picker shown in this earlier proposal. See [the implementation record](UI-IMPLEMENTATION.md)
+for final-source captures; these 18 pairs remain the original review evidence.
+The final gallery is `implemented.html` in the same folder: 18 baseline/implemented pairs and
+18 supplementary captures. Its exact list and checksums are in
+[UI-IMPLEMENTATION-MANIFEST.json](UI-IMPLEMENTATION-MANIFEST.json).
+
 The owner's clarification replaces the earlier text-only UI deliverable with **18 native screenshot
 pairs (36 originals)**. The after images come from a disposable native prototype of B1–B6; production
-page UI is unchanged pending review. Images remain outside repository history.
+page UI was unchanged when those review images were captured. Images remain outside repository history.
 
 ## Review gallery
 

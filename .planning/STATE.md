@@ -5,9 +5,9 @@ current_phase: 17
 current_phase_name: Screenshot Automation, Visual Regression & OS 27 Modernization
 status: executing
 stopped_at: 17-06 revision re-shot (2026-10-13), 16/16 captured; waiting for the owner's visual review; agent prepares both gallery sets
-last_updated: "2026-10-28T05:21:18.474Z"
+last_updated: "2026-10-28T07:41:34.382614Z"
 last_activity: 2026-10-28
-last_activity_desc: Quick task 261028-hi0 applies size reductions to 29.79 MB, saving 12.35 percent; 18 native UI comparison pairs delivered; device-bound runner exceptions await owner decision
+last_activity_desc: Quick task 261028-hi0 adopts bottom edges and Archives safeAreaBar, restores persistent Library title menu; size-only revision saves 12.35 percent; serial exceptions discussion deferred
 state_head: 391edb63edb2e07bd8e50b4e9e77884103238c36
 progress:
   total_phases: 17
@@ -63,6 +63,11 @@ prototype behavior, not owner acceptance. D133 remains the approved implementati
 D142 verifies a [persistent native inline alternative](quick/261015-duo-session-record/LIBRARY-TITLE-PERSISTENCE.md)
 across the same 10 configurations. Its title mode and iPad vertical placement differ from D141;
 acceptance and production integration remain pending.
+
+On 2026-10-28 the owner requests the final persistent title design with the custom system-style
+arrow. [Quick task 261028-hi0](quick/261028-hi0-adopt-native-bottom-bars-enforce-paralle/UI-IMPLEMENTATION.md)
+restores it on compact Library roots, replacing the bottom source picker. This later decision
+supersedes the pending-integration status above; the expanded sidebar retains its existing titles.
 
 D143 integrates all 107 commits from `agent/app-design` into `feature/gsd-phase-17` by fast-forward,
 preserving original commit IDs and GSD references. The consolidated target is `feature/gsd-phase-17`;
@@ -143,7 +148,7 @@ See: .planning/PROJECT.md (updated 2026-09-23)
 Phase: 17 of 17 (Screenshot Automation, Visual Regression & OS 27 Modernization)
 Plan: 6 of 24 complete (17-05, wave 6; dependency order, not numeric ID order); 17-06 implemented; the owner's 2026-10-13 review returned changes, revision in progress
 Status: executing (17-01/17-24/17-02/17-03/17-04/17-05 complete; 17-06 implemented and verified, owner review returned changes on 2026-10-13, revision in progress; the agent prepares galleries and fixtures for both content sets)
-Last activity: 2026-10-28 — Quick task 261028-hi0 applies Release size reductions: 33.99 MB to 29.79 MB (4.20 MB / 12.35% saved), with optimized tests and Debug builds verified. Eighteen native before/after UI screenshot pairs are ready for review; production page adoption is pending. Serialization lint policy, normal parallel test plans and fixture repairs are verified; device-bound runner exceptions await explicit owner approval. Quick task incomplete; Phase 17 unchanged.
+Last activity: 2026-10-28 — Quick task 261028-hi0 applies Release size reductions: 33.99 MB to 29.79 MB (4.20 MB / 12.35% saved), with optimized tests and Debug builds verified. Approved bottom edges and Archives safeAreaBar are implemented, with the final persistent Library title menu and custom circular arrow. The implemented gallery contains 18 comparison pairs and 18 additional captures. Serialization lint policy, normal parallel test plans and fixture repairs are verified; the owner deferred the device-bound runner exception discussion. Quick task incomplete; Phase 17 unchanged.
 
 **Phase 17 current gate:** 6/24 plans complete. 17-01 passed 32/32 capture coordinates and 66/66 tests; verified public v2 fixtures are in `.capture/regression`. 17-24 measures all four real device/orientation combinations and validates the immutable tracked rendering pin. Both final measure and validate commands pass four geometry tests plus six rotation/restore tests, with 28 Python contract tests and zero compiler/lint diagnostics or runtime warnings. Pin SHA-256: `ffd7689fcaf9a312202fdfbf9787f0198711fd477d1e72a2a013851df85a394a`; evidence is `.capture/environment-measurement/` and `.capture/environment-pin-check/`. Implementation ends at 3e69dc69d3; summary/review committed in fb83037387. Four reserved staged entries remain unchanged. Devices restore portrait/original Large and their original boot states. Continue inline with 17-06; shared CAP-17-01/02/03/04/06 remain incomplete until all declaring plans finish. No baseline promotion.
 
@@ -1090,7 +1095,7 @@ None yet.
 
 | # | Status | Next decision | Record |
 |---|---|---|---|
-| 261028-hi0 | Size reductions save 12.35%; 18 native UI screenshot pairs delivered; lint, test-plan parallelism and fixture repairs verified; runner migration partial | Review B1–B5/B6 screenshots and decide the three narrowly scoped device-bound serialization exceptions | [Checkpoint](quick/261028-hi0-adopt-native-bottom-bars-enforce-paralle/261028-hi0-SUMMARY.md) |
+| 261028-hi0 | Bottom edges, Archives safeAreaBar and persistent Library title menu implemented; size-only revision saves 12.35%; normal test plans parallel | Owner deferred the three device-bound serialization exceptions; runner migration remains partial | [Checkpoint](quick/261028-hi0-adopt-native-bottom-bars-enforce-paralle/261028-hi0-SUMMARY.md) |
 
 ### Quick Tasks Completed
 

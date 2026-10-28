@@ -1,12 +1,13 @@
 ---
 phase: quick-261028-hi0
 plan: 01
-subsystem: testing-and-build
+subsystem: ui-testing-and-build
 tags: [swiftui, swift-testing, swiftlint, size-audit, size-reduction, screenshots]
 status: incomplete
 checkpoint_date: 2026-10-28
 provides:
-  - Page-specific native bottom-bar proposals with 18 before/after screenshot pairs
+  - Approved native bottom edges and Archives safeAreaBar, with 18 before/after screenshot pairs
+  - Restored persistent Library title menu with a scaled custom system-style chevron
   - Serialization lint enforcement and explicit normal test-plan parallelism
   - Isolated hosted-app test dependencies and repaired simulator-lock tests
   - Reproducible unsigned Release measurements and a verified 12.35 percent reduction
@@ -14,7 +15,7 @@ affects: [test-runners, ui-review, release-size]
 requirements-completed: [QUICK-UI-REVIEW, QUICK-SIZE-AUDIT]
 requirements-pending: [QUICK-PARALLEL-TESTS]
 key-decisions:
-  - UI source changes follow the requested page-selection review.
+  - Owner selected B1–B6; the subsequent persistent title menu replaces the compact bottom picker.
   - Existing serial runner settings are pending decisions, not grandfathered exceptions.
   - Archive payload, installed footprint and download size are separate measurements.
   - The unavailable configured executor was not silently replaced with another model.
@@ -22,20 +23,19 @@ key-decisions:
 
 # Quick task 261028-hi0 checkpoint
 
-**The recommended size reductions save 4.20 MB (12.35%), and 18 native before/after screenshot pairs
-are ready for review. Lint enforcement and normal test plans favor parallel execution. Three
-device-bound workflow exceptions still await an explicit owner decision.**
+**The approved bottom-edge changes and Archives footer are implemented. The final persistent Library
+title menu is restored with its custom circular chevron. The size-only revision saves 4.20 MB
+(12.35%). Device-bound serialization exceptions remain unapproved; the owner deferred discussion.**
 
 ## Delivered
 
-- [UI-CANDIDATES.md](UI-CANDIDATES.md) classifies all discovered bottom-control contexts. B1 replaces
-  the compact Library picker inset with `safeAreaBar`; B2–B5 apply soft bottom effects only where
-  actual native tab chrome warrants them. B6 optionally moves the standard-size Archives footer.
-  Reader controls, toasts and independent presentations retain their existing behavior. These are
-  proposals, with an iPhone/iPad accessibility and navigation verification matrix. The owner clarified
-  that the review must contain images: [SCREENSHOTS.md](SCREENSHOTS.md) now records 18 native pairs,
-  including Library at AX1/AX3/AX5 and optional Archives at standard/AX5. Production page UI is unchanged;
-  [UI-PROPOSAL.patch](UI-PROPOSAL.patch) preserves the disposable prototype.
+- [UI-IMPLEMENTATION.md](UI-IMPLEMENTATION.md) records B1–B6 adoption and the later title-menu
+  request, which supersedes B1's bottom picker. Home, Search, Settings and Library use soft bottom
+  edges only with bottom tabs. Archives uses a native bottom bar at standard text sizes and retains
+  its accessibility scrolling column. Compact Library roots restore the final persistent native
+  title design, source subtitle and scaled custom arrow; expanded sidebar routing is unchanged.
+- [SCREENSHOTS.md](SCREENSHOTS.md) links the original review and the implemented comparison gallery:
+  18 baseline/implemented pairs plus 18 additional native captures. Originals remain outside Git.
 - [PARALLEL-TESTS.md](PARALLEL-TESTS.md) records the new error-level `no_serialized_test` rule,
   owner-approval policy, explicit parallelism on 24 FeatureTests targets and the normal UI target,
   the hosted Store fixture repair, Python test repair, and the remaining runner coupling.
@@ -43,7 +43,7 @@ device-bound workflow exceptions still await an explicit owner decision.**
   Release archive: 33,989,732 logical bytes, including 22,126,576 executable bytes and 9,488,728 asset
   catalog bytes. This is the original baseline.
 - The owner-directed [follow-up](FOLLOW-UP-PLAN.md) implements build-wide Release `-Osize` and excludes
-  preview-only helpers and the frozen identifier table from Release. The final payload is
+  preview-only helpers and the frozen identifier table from Release. The measured `-Osize` payload with preview cleanup represented by `279897ed0c` was
   **29,793,340 bytes**, saving **4,196,392 bytes (12.35%)**. Debug keeps `-Onone` and all preview IDs.
   [SIZE-REDUCTION.md](SIZE-REDUCTION.md) records each measured stage and five optional approaches.
   No shipping feature, resource or dependency was removed. Signed thinning is still unmeasured:
@@ -75,6 +75,11 @@ device-bound workflow exceptions still await an explicit owner decision.**
   matching dimensions within their pair and recorded hashes. The gallery's selector and original-image
   links were checked in the browser. This is bounded proposal evidence, not full UI acceptance.
 
+- UI adoption: 20 initial UI executions pass; the two Search audit failures expose existing small
+  header-action bounds. After the label hit regions are corrected, all six selected follow-up
+  executions pass once. Final Debug build and strict lint pass; native live-size and footer checks
+  are recorded in [UI-IMPLEMENTATION.md](UI-IMPLEMENTATION.md).
+
 The initial parallel feature failure and intermediate compile error are retained in the test report;
 the final successful bundle comes from corrected source. No retry, serial switch or expected-failure
 annotation was used to conceal a new failure. Existing snapshot/capture skips remain unchanged.
@@ -87,6 +92,8 @@ annotation was used to conceal a new failure. Existing snapshot/capture skips re
 4. `4d4b04d756` — enable parallel execution in every normal feature/UI test-plan target.
 5. `32bf2a30` — use `-Osize` across Release app/package compilation and both deployment workflows.
 6. `279897ed0c` — exclude preview helpers and the preserved identifier table from Release.
+7. `25649f32c2` — restore the persistent Library title menu with the custom system-style arrow.
+8. `adaf3d6017` — adopt bottom edges and Archives safeAreaBar; repair Search header hit regions.
 
 The original review checkpoint is `f195b7eaaf`. Follow-up measurements and screenshots are recorded
 in a separate documentation commit after implementation verification.
@@ -104,12 +111,10 @@ host-driven orientation/capture operations from cloned workers and race the Duo 
 
 ## Pending owner decisions and continuation
 
-1. Review the [native screenshot gallery and list](SCREENSHOTS.md): recommended B1–B5, optionally
-   include B6. The original text-only inventory was insufficient under the owner's clarification;
-   these images supply the requested deliverable. Production adoption and the full acceptance matrix
-   follow the owner's selection.
-2. Decide whether to approve serialization only for the existing full-content/geometry capture
-   sequence, host-driven Duo pose runner and one-test external Appshot capture plan. The alternative
+1. UI adoption and the restored title menu are implemented; inspect the final captures through
+   [UI-IMPLEMENTATION.md](UI-IMPLEMENTATION.md). Bounded checks do not claim a full Duo or VoiceOver matrix.
+2. The owner deferred this discussion. Later, decide whether to approve serialization only for the
+   existing full-content/geometry capture sequence, host-driven Duo pose runner and one-test external Appshot capture plan. The alternative
    is a separate implementation that routes state and pose commands to isolated workers. No exception
    is approved or recorded as accepted yet; the authority requirement comes from the owner's request.
 3. Once that decision arrives, change the shared Gate and normal runner callers together, preserving

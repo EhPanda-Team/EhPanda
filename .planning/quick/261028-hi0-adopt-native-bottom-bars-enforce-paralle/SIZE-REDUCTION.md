@@ -5,8 +5,9 @@ The measured binaries used the recorded `-Osize` experiment configuration; their
 and artifact hashes are historical evidence, not measurements of the rewritten `-O` branch.
 
 The owner authorized the recommended reductions after reviewing the audit. The unsigned Release
-payload is now **29,793,340 bytes (29.79 MB / 28.41 MiB)**, down **4,196,392 bytes (12.35%)**.
+payload with `-Osize` and the preview cleanup represented by `279897ed0c` was **29,793,340 bytes (29.79 MB / 28.41 MiB)**, down **4,196,392 bytes (12.35%)**.
 These are archive payload measurements, not an installed-device or App Store download measurement.
+The later UI adoption is outside this exact byte comparison; it does not change the applied size optimizations.
 
 ## Applied changes and measured effects
 

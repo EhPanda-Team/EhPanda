@@ -1,0 +1,550 @@
+{
+  "captureDate": "2026-10-28",
+  "sourceBase": "f45d526203",
+  "sourceCommits": [
+    "25649f32c2",
+    "adaf3d6017"
+  ],
+  "sourceRecord": "UI-IMPLEMENTATION.md",
+  "imagesEdited": false,
+  "captureAppBinaries": {
+    "iphone": {
+      "EhPanda": "4d47f15e45ebd9d30287385e228e336a7feea2410148ffb586cd07a1ed7c570a",
+      "EhPanda.debug.dylib": "5e3197c59fadfbf6e0a5f29ed6796c9800f25a61872880148e61302f8e05134f"
+    },
+    "ipad": {
+      "EhPanda": "4d47f15e45ebd9d30287385e228e336a7feea2410148ffb586cd07a1ed7c570a",
+      "EhPanda.debug.dylib": "5e3197c59fadfbf6e0a5f29ed6796c9800f25a61872880148e61302f8e05134f"
+    }
+  },
+  "pairs": [
+    {
+      "id": "iphone-library",
+      "device": "iphone",
+      "title": "Library \u00b7 Standard",
+      "candidate": "Library title / B5",
+      "note": "Persistent Library menu with the custom circular chevron and native source subtitle on compact layouts. The expanded iPad sidebar keeps its existing navigation.",
+      "before": {
+        "path": "before/iphone-library.png",
+        "width": 1206,
+        "height": 2622,
+        "sha256": "58f91cb8b1a5074134310ec431a118d45ee1853804291495eb8d2207b4a72f68",
+        "outlineSHA256": "1e384f307056093debe96d8dbf57942cf50ede5534fdc4307c13fad0b5008490"
+      },
+      "after": {
+        "path": "implemented/iphone-library.png",
+        "width": 1206,
+        "height": 2622,
+        "sha256": "6b499e90c897090064371e4a4dbaa1faf5ad7e229763a2290616bbff7d3835fe",
+        "outlineSHA256": "1922f8a0196eff7de19a9a8bf4ed09b56bd6a4ad0e53237b9bcf004b9cdf47b4"
+      }
+    },
+    {
+      "id": "iphone-home",
+      "device": "iphone",
+      "title": "Home \u00b7 Standard",
+      "candidate": "B2",
+      "note": "Soft bottom effects follow actual bottom-tab placement. Home slideshow timing may differ between captures. Search includes the independently corrected header-action hit regions.",
+      "before": {
+        "path": "before/iphone-home.png",
+        "width": 1206,
+        "height": 2622,
+        "sha256": "cf39d32ffa0686471b65f7b4e23747454f5f23d2b2185444f709925869d2f387",
+        "outlineSHA256": "86edd7ac8a15514a71a447abdb4108fd987cd0f10bb6fae3a935d4d91604c126"
+      },
+      "after": {
+        "path": "implemented/iphone-home.png",
+        "width": 1206,
+        "height": 2622,
+        "sha256": "d4aff89bd8d703893579e2997bcb72e80f12b51bf0cd2c693815e37cc27d697b",
+        "outlineSHA256": "867a13d5d04e62a0d1be40bede9c8c2f9ea3575ff1dd70382ac61c44abc8379f"
+      }
+    },
+    {
+      "id": "iphone-search",
+      "device": "iphone",
+      "title": "Search \u00b7 Standard",
+      "candidate": "B3",
+      "note": "Soft bottom effects follow actual bottom-tab placement. Home slideshow timing may differ between captures. Search includes the independently corrected header-action hit regions.",
+      "before": {
+        "path": "before/iphone-search.png",
+        "width": 1206,
+        "height": 2622,
+        "sha256": "d8ff19b053c0459f55b49f93291c1c9a872a196edc271ead470c4ddb3e405df5",
+        "outlineSHA256": "5cb0b97beff92a74e6558f0278f6d12daaddbe175f05e36bb111a60118ac8d8c"
+      },
+      "after": {
+        "path": "implemented/iphone-search.png",
+        "width": 1206,
+        "height": 2622,
+        "sha256": "bd92cb15a536e2f76e8d7807e4bfc0f2778124b0068b7b5e720c4316d92e8e20",
+        "outlineSHA256": "f4abbf1def38da7863ce5a34f43449b9f476c1ec0aeff030e353df5324b91b2f"
+      }
+    },
+    {
+      "id": "iphone-settings",
+      "device": "iphone",
+      "title": "Settings \u00b7 Standard",
+      "candidate": "B4",
+      "note": "Soft bottom effects follow actual bottom-tab placement. Home slideshow timing may differ between captures. Search includes the independently corrected header-action hit regions.",
+      "before": {
+        "path": "before/iphone-settings.png",
+        "width": 1206,
+        "height": 2622,
+        "sha256": "1e1508aa80a69bbc674ce12c5379d417df99bd8f18369e65424554b77b38b5ab",
+        "outlineSHA256": "a1ae3ab801b687ec1f089df6a85c9307beb153026afcab3692164a8fdb636595"
+      },
+      "after": {
+        "path": "implemented/iphone-settings.png",
+        "width": 1206,
+        "height": 2622,
+        "sha256": "1e1508aa80a69bbc674ce12c5379d417df99bd8f18369e65424554b77b38b5ab",
+        "outlineSHA256": "9053e5966144f3606687b100774b1e1ae771fef4c1ab6ea49aa1f450110f1c23"
+      }
+    },
+    {
+      "id": "iphone-library-ax1",
+      "device": "iphone",
+      "title": "Library \u00b7 AX1",
+      "candidate": "Library title / B5",
+      "note": "Persistent Library menu with the custom circular chevron and native source subtitle on compact layouts. The expanded iPad sidebar keeps its existing navigation.",
+      "before": {
+        "path": "before/iphone-library-ax1.png",
+        "width": 1206,
+        "height": 2622,
+        "sha256": "d0ac3c2a21aa71657c8a12c7825bb253f18603ed52a46312e1ab70ed4b81b884",
+        "outlineSHA256": "ac49a470031bf824ae87845eff3fe78343ac9cbf4540b642b4c28ba289c1663c"
+      },
+      "after": {
+        "path": "implemented/iphone-library-ax1.png",
+        "width": 1206,
+        "height": 2622,
+        "sha256": "298863443c0b576999f73e661e4f9dcd0de91089a21da27862abbe392ff35825",
+        "outlineSHA256": "ec6ca1a6aa11cdbd3ef6c760ed6bd1b5e3c91f5fa8bdf2a51450ed872919ca90"
+      }
+    },
+    {
+      "id": "iphone-library-ax3",
+      "device": "iphone",
+      "title": "Library \u00b7 AX3",
+      "candidate": "Library title / B5",
+      "note": "Persistent Library menu with the custom circular chevron and native source subtitle on compact layouts. The expanded iPad sidebar keeps its existing navigation.",
+      "before": {
+        "path": "before/iphone-library-ax3.png",
+        "width": 1206,
+        "height": 2622,
+        "sha256": "e233b064774c42a398ffec0bde918b4c2cd80af3542076275b41d010cd972e2c",
+        "outlineSHA256": "f217c9b30972be983c5bcb9d5689057cc230f183ae37c0c23faeb4baa470f6c1"
+      },
+      "after": {
+        "path": "implemented/iphone-library-ax3.png",
+        "width": 1206,
+        "height": 2622,
+        "sha256": "b958be1e099fc4339eefb0c9fb5bc684dad8c83ef3f9113ff68a2f23db61fabe",
+        "outlineSHA256": "ca2f4bbee45b4dbb3961d186c1bf9581ee2cd858950600fc9325c61dc56057a3"
+      }
+    },
+    {
+      "id": "iphone-library-ax5",
+      "device": "iphone",
+      "title": "Library \u00b7 AX5",
+      "candidate": "Library title / B5",
+      "note": "Persistent Library menu with the custom circular chevron and native source subtitle on compact layouts. The expanded iPad sidebar keeps its existing navigation.",
+      "before": {
+        "path": "before/iphone-library-ax5.png",
+        "width": 1206,
+        "height": 2622,
+        "sha256": "2f4918047d0dafea75603885c75b0da0ce3bc5467f08509eb117d791548b5e18",
+        "outlineSHA256": "7e3665cc564a6d9300358cb691f1bfba73b69ebef6b4b144172117ac8efc90f4"
+      },
+      "after": {
+        "path": "implemented/iphone-library-ax5.png",
+        "width": 1206,
+        "height": 2622,
+        "sha256": "abc1c5ae0a82141ab1764262f7f8ee32f8bff11bf8802a9e4674a9bac5db2d89",
+        "outlineSHA256": "b22884721f14589ed5e7880b66191d48e08bff8f44dc04fea484c5a27f271c48"
+      }
+    },
+    {
+      "id": "iphone-archives",
+      "device": "iphone",
+      "title": "Archives \u00b7 Standard",
+      "candidate": "B6 \u00b7 Implemented",
+      "note": "Standard-size funds and action use safeAreaBar. Accessibility sizes retain one scrolling column; the captured action is enabled but was never invoked.",
+      "before": {
+        "path": "before/iphone-archives.png",
+        "width": 1206,
+        "height": 2622,
+        "sha256": "3952483d9bdec3208e8b263e80ed01d66c92e9ababf013dd2c82f9480709d6fe",
+        "outlineSHA256": "b453800630b03901c48d613c6f8c6b01b9eb75071e8c0f184e3d136e74baabb4"
+      },
+      "after": {
+        "path": "implemented/iphone-archives.png",
+        "width": 1206,
+        "height": 2622,
+        "sha256": "801f308d66efe780b0c5078326401704542720a06052903aa3c426c453155e06",
+        "outlineSHA256": "0b4f85d8681c4d03647bac428c478e03ff0540de2ad6870e1c5f3e5ee7305468"
+      }
+    },
+    {
+      "id": "iphone-archives-ax5",
+      "device": "iphone",
+      "title": "Archives \u00b7 AX5",
+      "candidate": "B6 \u00b7 Implemented",
+      "note": "Standard-size funds and action use safeAreaBar. Accessibility sizes retain one scrolling column; the captured action is enabled but was never invoked.",
+      "before": {
+        "path": "before/iphone-archives-ax5.png",
+        "width": 1206,
+        "height": 2622,
+        "sha256": "26806fe0e02683349d5b838e689061baac6b098495619e08af375aec538241e1",
+        "outlineSHA256": "445b9af615dfdf9f6b9daa1b90724e331c1f29b198e6dfcc7475c4915feb845d"
+      },
+      "after": {
+        "path": "implemented/iphone-archives-ax5.png",
+        "width": 1206,
+        "height": 2622,
+        "sha256": "48751151ad710f8d0a6a4474e4ad46d0eeeec77ed7465027d27a8a84100ba886",
+        "outlineSHA256": "6f8a9a32f0f26337265048ee07d5cdb121dced47e21b23f404ea1c1d04bf5032"
+      }
+    },
+    {
+      "id": "ipad-library",
+      "device": "ipad",
+      "title": "Library \u00b7 Standard",
+      "candidate": "Library title / B5",
+      "note": "Persistent Library menu with the custom circular chevron and native source subtitle on compact layouts. The expanded iPad sidebar keeps its existing navigation.",
+      "before": {
+        "path": "before/ipad-library.png",
+        "width": 1668,
+        "height": 2420,
+        "sha256": "db3c5bd00deb3bd468b5ad6fb1dfa91410df002658125b954d94d4f7bd7be34d",
+        "outlineSHA256": "8916d16e925499e05f533335aa7d431da54194db9bb8af5b46005228c9f3a1ef"
+      },
+      "after": {
+        "path": "implemented/ipad-library.png",
+        "width": 1668,
+        "height": 2420,
+        "sha256": "db3c5bd00deb3bd468b5ad6fb1dfa91410df002658125b954d94d4f7bd7be34d",
+        "outlineSHA256": "8916d16e925499e05f533335aa7d431da54194db9bb8af5b46005228c9f3a1ef"
+      }
+    },
+    {
+      "id": "ipad-home",
+      "device": "ipad",
+      "title": "Home \u00b7 Standard",
+      "candidate": "B2",
+      "note": "Soft bottom effects follow actual bottom-tab placement. Home slideshow timing may differ between captures. Search includes the independently corrected header-action hit regions.",
+      "before": {
+        "path": "before/ipad-home.png",
+        "width": 1668,
+        "height": 2420,
+        "sha256": "02f5c37cb7a0f5e909340af783c63e4e2134126094077fc9b3351a088d31fcd5",
+        "outlineSHA256": "b488b214f60735a16cc16e902cd4bbfee37a6aa2cbd7e13eacd227191108c767"
+      },
+      "after": {
+        "path": "implemented/ipad-home.png",
+        "width": 1668,
+        "height": 2420,
+        "sha256": "5c46734550551587372442197edc832f7166567bcd2dd3e649d8fd4477a21399",
+        "outlineSHA256": "7e13a3c941dfac00111c189c0a9e8ef1a70e425a706038cfcf75d93099dfb15c"
+      }
+    },
+    {
+      "id": "ipad-search",
+      "device": "ipad",
+      "title": "Search \u00b7 Standard",
+      "candidate": "B3",
+      "note": "Soft bottom effects follow actual bottom-tab placement. Home slideshow timing may differ between captures. Search includes the independently corrected header-action hit regions.",
+      "before": {
+        "path": "before/ipad-search.png",
+        "width": 1668,
+        "height": 2420,
+        "sha256": "577e1c3c688d77320ec1c991406c27eabe15c8d7f5365db530bf642a4c44e592",
+        "outlineSHA256": "0807d6176cc857c372c632a41ca41ea98505162a610342114d43b2eb6bb4b9de"
+      },
+      "after": {
+        "path": "implemented/ipad-search.png",
+        "width": 1668,
+        "height": 2420,
+        "sha256": "577e1c3c688d77320ec1c991406c27eabe15c8d7f5365db530bf642a4c44e592",
+        "outlineSHA256": "7f3af9d913d2a01ecad0aa16bb65aa3a4a97df7c8fe8b328be1be34ffa190535"
+      }
+    },
+    {
+      "id": "ipad-settings",
+      "device": "ipad",
+      "title": "Settings \u00b7 Standard",
+      "candidate": "B4",
+      "note": "Soft bottom effects follow actual bottom-tab placement. Home slideshow timing may differ between captures. Search includes the independently corrected header-action hit regions.",
+      "before": {
+        "path": "before/ipad-settings.png",
+        "width": 1668,
+        "height": 2420,
+        "sha256": "6522af9840ca1e83536f2a2aceb74c83b786c566bc26bac0f321343e499355e4",
+        "outlineSHA256": "a07826ec54d3c8454d781c65cfb473e7abaf593b70473ef9c29694163db85af1"
+      },
+      "after": {
+        "path": "implemented/ipad-settings.png",
+        "width": 1668,
+        "height": 2420,
+        "sha256": "6522af9840ca1e83536f2a2aceb74c83b786c566bc26bac0f321343e499355e4",
+        "outlineSHA256": "bac92ee8962431dd1331ad965d6627c90ad7dce79434b516184efd0d932f9be0"
+      }
+    },
+    {
+      "id": "ipad-library-ax1",
+      "device": "ipad",
+      "title": "Library \u00b7 AX1",
+      "candidate": "Library title / B5",
+      "note": "Persistent Library menu with the custom circular chevron and native source subtitle on compact layouts. The expanded iPad sidebar keeps its existing navigation.",
+      "before": {
+        "path": "before/ipad-library-ax1.png",
+        "width": 1668,
+        "height": 2420,
+        "sha256": "2a67095b47c5ac88bacef943db8c43a8485ebe2c9887358ee983b7601f84a15b",
+        "outlineSHA256": "3b44f1f86b0c809da02f10711222c38895cfc3d9b2133444af22033ccf5e990c"
+      },
+      "after": {
+        "path": "implemented/ipad-library-ax1.png",
+        "width": 1668,
+        "height": 2420,
+        "sha256": "2a67095b47c5ac88bacef943db8c43a8485ebe2c9887358ee983b7601f84a15b",
+        "outlineSHA256": "d7086b7e7fa50b2b58c78f6ba099a8a0392e79c4e80239f2049c7bf04324406e"
+      }
+    },
+    {
+      "id": "ipad-library-ax3",
+      "device": "ipad",
+      "title": "Library \u00b7 AX3",
+      "candidate": "Library title / B5",
+      "note": "Persistent Library menu with the custom circular chevron and native source subtitle on compact layouts. The expanded iPad sidebar keeps its existing navigation.",
+      "before": {
+        "path": "before/ipad-library-ax3.png",
+        "width": 1668,
+        "height": 2420,
+        "sha256": "be11e7a570c6c20ad9034ae0e1fdc2d7297bc33fb3b6071fb22f1b9ef82ace55",
+        "outlineSHA256": "85eda5569866138c5cf8fd773f13f59622b17837db52b16b6ef1dc9c1f6b3e52"
+      },
+      "after": {
+        "path": "implemented/ipad-library-ax3.png",
+        "width": 1668,
+        "height": 2420,
+        "sha256": "5229f4b1af6ba692c8c64f78cd89a8b1c50f04e376e8c23842815ca642cdcf5c",
+        "outlineSHA256": "85eda5569866138c5cf8fd773f13f59622b17837db52b16b6ef1dc9c1f6b3e52"
+      }
+    },
+    {
+      "id": "ipad-library-ax5",
+      "device": "ipad",
+      "title": "Library \u00b7 AX5",
+      "candidate": "Library title / B5",
+      "note": "Persistent Library menu with the custom circular chevron and native source subtitle on compact layouts. The expanded iPad sidebar keeps its existing navigation.",
+      "before": {
+        "path": "before/ipad-library-ax5.png",
+        "width": 1668,
+        "height": 2420,
+        "sha256": "87466038fa6d1478fe5de01db2cf300dfbceb797e34aeb26dd3e421c5aa34bab",
+        "outlineSHA256": "15faebf7b97bed36e1e6e7dc5aea8573251598a088dd3ac2b7a7410b25649179"
+      },
+      "after": {
+        "path": "implemented/ipad-library-ax5.png",
+        "width": 1668,
+        "height": 2420,
+        "sha256": "87466038fa6d1478fe5de01db2cf300dfbceb797e34aeb26dd3e421c5aa34bab",
+        "outlineSHA256": "15faebf7b97bed36e1e6e7dc5aea8573251598a088dd3ac2b7a7410b25649179"
+      }
+    },
+    {
+      "id": "ipad-archives",
+      "device": "ipad",
+      "title": "Archives \u00b7 Standard",
+      "candidate": "B6 \u00b7 Implemented",
+      "note": "Standard-size funds and action use safeAreaBar. Accessibility sizes retain one scrolling column; the captured action is enabled but was never invoked.",
+      "before": {
+        "path": "before/ipad-archives.png",
+        "width": 1668,
+        "height": 2420,
+        "sha256": "5959d249262429c619dbf464dfa35756a8fffb67f0c1ae7586a448ee1bc30f86",
+        "outlineSHA256": "ce9652f892fd893f83d5d4e2b361343be0a94011d0b489c3b143d82a0757f0dc"
+      },
+      "after": {
+        "path": "implemented/ipad-archives.png",
+        "width": 1668,
+        "height": 2420,
+        "sha256": "496010e6ce792c113745ed4d70831d22378edf5184564308a98218092f9ece65",
+        "outlineSHA256": "48a57745117fda79aa3ad4a1de8b55c244a83d4cf92d16a552d600bde61c150c"
+      }
+    },
+    {
+      "id": "ipad-archives-ax5",
+      "device": "ipad",
+      "title": "Archives \u00b7 AX5",
+      "candidate": "B6 \u00b7 Implemented",
+      "note": "Standard-size funds and action use safeAreaBar. Accessibility sizes retain one scrolling column; the captured action is enabled but was never invoked.",
+      "before": {
+        "path": "before/ipad-archives-ax5.png",
+        "width": 1668,
+        "height": 2420,
+        "sha256": "8f19ddb47b1008de81fec3560dfd48e5d053a482565017ecf878667f5619f72c",
+        "outlineSHA256": "6cfc1c1465eaac83fe1eb2339823afd0b74fc29b32826801146925ce2bb89ea8"
+      },
+      "after": {
+        "path": "implemented/ipad-archives-ax5.png",
+        "width": 1668,
+        "height": 2420,
+        "sha256": "94d639270ccb4a5f1cd586e1b97046ceb5bd21c95f4982ff409d192ede4558b5",
+        "outlineSHA256": "81b556993a8dd588cea598af44f377f698d4d8b554209f92e73853c20cee0919"
+      }
+    }
+  ],
+  "supplementary": [
+    {
+      "id": "ipad-archives-ax1",
+      "path": "implemented/ipad-archives-ax1.png",
+      "width": 1668,
+      "height": 2420,
+      "sha256": "714e61d88ef080c6c37e739a9b009504076d0d291fe02e03e93eac8e59a9dc54",
+      "outlineSHA256": "5584473414018899762211cee3188444512e9f6afcacde6de97801e16f075496"
+    },
+    {
+      "id": "ipad-archives-ax3",
+      "path": "implemented/ipad-archives-ax3.png",
+      "width": 1668,
+      "height": 2420,
+      "sha256": "92c858192bbe838b8cd68b4e9e9a70770be76d2406cacab152fabc6e44a0c27e",
+      "outlineSHA256": "c1f01abf40fefe1e451baa2da0a9414eb979a2b230315456c6971a7b484f54f5"
+    },
+    {
+      "id": "ipad-archives-landscape",
+      "path": "implemented/ipad-archives-landscape.png",
+      "width": 1668,
+      "height": 2420,
+      "sha256": "b2357cbb19db3b20a6f883fdbd8bdce5544749c0e877459530e12f50885c6175",
+      "outlineSHA256": "3a8ff41728cf1af9c9e515248973e569eb684c7ed3ff31d54522d7cc14749ca6"
+    },
+    {
+      "id": "ipad-library-dark",
+      "path": "implemented/ipad-library-dark.png",
+      "width": 1668,
+      "height": 2420,
+      "sha256": "e16adea2c68161749238f1a8e755847550fd76d2d191c4287dbf5e9ad89a3ae8",
+      "outlineSHA256": "2724bca6b424c58968fb84d88cd4b8900131be72c9a58f18d1b232903c215ba8"
+    },
+    {
+      "id": "ipad-library-live-ax1",
+      "path": "implemented/ipad-library-live-ax1.png",
+      "width": 1668,
+      "height": 2420,
+      "sha256": "b110abc74fb6cb6318f63cc25a9fe7fbfc4857ae5f6247ba20d51b5c54d72e70",
+      "outlineSHA256": "5ba92b42086c8a388e1f40e0b175a78368217acee4869f6c126c7d27a54db4c9"
+    },
+    {
+      "id": "ipad-library-live-ax3",
+      "path": "implemented/ipad-library-live-ax3.png",
+      "width": 1668,
+      "height": 2420,
+      "sha256": "d3295f623b90d59b4f4454a2a98cdbb0978f412602086c7c084861f4b0690070",
+      "outlineSHA256": "1baf39f2cefde64980a38d2fd07ce0ca4e4d3e9a8d1b75b38965cac989306794"
+    },
+    {
+      "id": "ipad-library-live-ax5",
+      "path": "implemented/ipad-library-live-ax5.png",
+      "width": 1668,
+      "height": 2420,
+      "sha256": "b27f95b157c3f8a6afac1be0e57d4f103f47211688319415e92040bcd7a8b526",
+      "outlineSHA256": "e8c8942c36dab024949a114842397cae30d6509a099835febcdc5dfd0a030f45"
+    },
+    {
+      "id": "iphone-archives-ax1",
+      "path": "implemented/iphone-archives-ax1.png",
+      "width": 1206,
+      "height": 2622,
+      "sha256": "bd7bb5e0d11421e12eb82dbd4b399663aa861e681002619181f4cf40e7e2d3ac",
+      "outlineSHA256": "28237750b5f8da227ff58bed9a103cf15cafd26be4aff66bf433734995cb7d41"
+    },
+    {
+      "id": "iphone-archives-ax3",
+      "path": "implemented/iphone-archives-ax3.png",
+      "width": 1206,
+      "height": 2622,
+      "sha256": "066762c4d676aed87a5897028d479940f16b29079096bd33c34f4f521d24938c",
+      "outlineSHA256": "1c9b94603fc5ffb5825d095757d9a3109c8e4b714ae91b415841274af1770ef3"
+    },
+    {
+      "id": "iphone-archives-landscape",
+      "path": "implemented/iphone-archives-landscape.png",
+      "width": 1206,
+      "height": 2622,
+      "sha256": "b08d48f92d06bd270270bb752d75cd2ae4538d12864b628974c449ef5c00b9f7",
+      "outlineSHA256": "4d5842e78b9956a1aacabe45b8702154d62ea15fd0fbcd30724d61aaacc231d0"
+    },
+    {
+      "id": "iphone-library-dark",
+      "path": "implemented/iphone-library-dark.png",
+      "width": 1206,
+      "height": 2622,
+      "sha256": "829bb4ed3580408ba61fd3c19537053b43484b15fa8a3a4bf64b789968dad5f7",
+      "outlineSHA256": "e953babb3b5556dca9d69263c4fa7303a8828acab57f976c756ba11616513519"
+    },
+    {
+      "id": "iphone-library-downloads",
+      "path": "implemented/iphone-library-downloads.png",
+      "width": 1206,
+      "height": 2622,
+      "sha256": "71a48927f3a43556e6a59d5527178a3c51d939dd575b20aab0da8ec86fcc8ce3",
+      "outlineSHA256": "62fe97857bad722691f46af3bb863c397148173f830074064c0f76ea35463161"
+    },
+    {
+      "id": "iphone-library-landscape",
+      "path": "implemented/iphone-library-landscape.png",
+      "width": 1206,
+      "height": 2622,
+      "sha256": "ca163bd59acd4d4eb531dc71ec5e6dc24897a255325512b7c517114a04f1acf1",
+      "outlineSHA256": "06dc5c1f313988266801dd10e393e7a6b4dc255b63517bf9814cacd4a717f07c"
+    },
+    {
+      "id": "iphone-library-live-ax1",
+      "path": "implemented/iphone-library-live-ax1.png",
+      "width": 1206,
+      "height": 2622,
+      "sha256": "f3e64ca133904d3e00830e07a3c2cf86c3b6e7510e04aa267e8c6d45a7edfc74",
+      "outlineSHA256": "8bcf6de0815785e44977a2088680cde3f14e5b5accbd28ce4953dd5f871d6ba3"
+    },
+    {
+      "id": "iphone-library-live-ax3",
+      "path": "implemented/iphone-library-live-ax3.png",
+      "width": 1206,
+      "height": 2622,
+      "sha256": "e714ba2b56970746b0055b76fcad3207d576cfe240bfc706ac9a8aef7381e55a",
+      "outlineSHA256": "115490a7f25c69161dd59732a3a26d5287cceafcacf7063d4ad8a67db8e0de76"
+    },
+    {
+      "id": "iphone-library-live-ax5",
+      "path": "implemented/iphone-library-live-ax5.png",
+      "width": 1206,
+      "height": 2622,
+      "sha256": "1d9348750acebf2159eb375d4740912f355aa389e8fcdf080efcffb28ab9116c",
+      "outlineSHA256": "602cfd30c0d8fd262a6315b95f21df4406a3f77aabc88beab19837e3b27ae342"
+    },
+    {
+      "id": "iphone-library-menu",
+      "path": "implemented/iphone-library-menu.png",
+      "width": 1206,
+      "height": 2622,
+      "sha256": "f3c91891774953d6279c26d93ec88d368bc4eea186526bc78c8eccdef9af1f92",
+      "outlineSHA256": "9c502b0b4807d8df21ae2304a4c71c6b599a5ee5d6ede34f4193ef6c8ca2c132"
+    },
+    {
+      "id": "iphone-library-scrolled",
+      "path": "implemented/iphone-library-scrolled.png",
+      "width": 1206,
+      "height": 2622,
+      "sha256": "d69636c62ca1609dbbc4e112f860df9d21fa8decc0d131cc10b05a5e0e9d9c99",
+      "outlineSHA256": "d3984f8218bb31beb8a4696d97b2a399a6c0ad0c488378e20623586e277bff64"
+    }
+  ],
+  "searchCaptureAppBinaries": {
+    "EhPanda": "2759b13df80c50a1d96aa784a68f4ad8ad97a24a17597eece1c57d5c86f890d5",
+    "EhPanda.debug.dylib": "30f417f0f8cb7d2a025c095c14f990d45f4821310e955bc56cdd7da3de8d94bd"
+  }
+}
