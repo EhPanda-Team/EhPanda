@@ -132,20 +132,7 @@ public enum UITestAutomation {
                 if configuration.shouldUseVisualTestHost {
                     // The hosted test process renders the app before XCTest enters any test case.
                     // Prepare explicit inert clients before the first Store or shared key is built.
-                    $0.analyticsClient = .noop
-                    $0.appLaunchAutomationClient = .none
-                    $0.applicationClient = .noop
-                    $0.clipboardClient = .noop
-                    $0.cookieClient = .noop
-                    $0.deviceClient = .live
-                    $0.downloadClient = .noop
-                    $0.hapticsClient = .noop
-                    $0.libraryClient = .noop
-                    $0.userDefaultsClient = .noop
-                    $0.defaultAppStorage = UserDefaults.inMemory
-                    $0.defaultInMemoryStorage = InMemoryStorage()
-                    $0.date.now = fixedDate
-                    $0.uuid = .incrementing
+                    configureVisualTestHost(&$0)
                 }
                 if let clipboardClient = configuration.clipboardClient {
                     $0.clipboardClient = clipboardClient
@@ -156,6 +143,25 @@ public enum UITestAutomation {
             }
         }
         return configuration
+    }
+
+    /// Install isolated fixtures both for hosted rendering and explicitly on the app's Store.
+    /// Global preparation alone cannot bind the host Store to fixtures when XCTest changes scopes.
+    static func configureVisualTestHost(_ dependencies: inout DependencyValues) {
+        dependencies.analyticsClient = .noop
+        dependencies.appLaunchAutomationClient = .none
+        dependencies.applicationClient = .noop
+        dependencies.clipboardClient = .noop
+        dependencies.cookieClient = .noop
+        dependencies.deviceClient = .live
+        dependencies.downloadClient = .noop
+        dependencies.hapticsClient = .noop
+        dependencies.libraryClient = .noop
+        dependencies.userDefaultsClient = .noop
+        dependencies.defaultAppStorage = UserDefaults.inMemory
+        dependencies.defaultInMemoryStorage = InMemoryStorage()
+        dependencies.date.now = fixedDate
+        dependencies.uuid = .incrementing
     }
 
     /// The configuration `environment` requests, or `nil` when it requests none.

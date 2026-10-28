@@ -3,6 +3,7 @@ import AppModels
 import AppTools
 public import ComposableArchitecture
 import DownloadClient
+import Foundation
 import LibraryClient
 import OSLogExt
 import Sharing
@@ -52,8 +53,16 @@ public class AppDelegate: UIResponder, UIApplicationDelegate {
     let store: StoreOf<AppReducer>
 
     public override init() {
-        UITestAutomation.prepareIfNeeded()
-        store = Store(initialState: .init(), reducer: AppReducer.init)
+        #if DEBUG
+        let configuration = UITestAutomation.prepare(environment: ProcessInfo.processInfo.environment)
+        #endif
+        store = Store(initialState: .init(), reducer: AppReducer.init) { dependencies in
+            #if DEBUG
+            if configuration?.shouldUseVisualTestHost == true {
+                UITestAutomation.configureVisualTestHost(&dependencies)
+            }
+            #endif
+        }
         super.init()
     }
 
