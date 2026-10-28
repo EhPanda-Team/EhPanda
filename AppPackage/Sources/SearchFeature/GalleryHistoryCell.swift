@@ -1,8 +1,11 @@
 import AppComponents
 public import AppModels
 import AppTools
-import PreviewSupport
 public import SwiftUI
+
+#if DEBUG
+import PreviewSupport
+#endif
 
 public struct GalleryHistoryCell: View {
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
@@ -63,6 +66,7 @@ public struct GalleryHistoryCell: View {
 
 }
 
+#if DEBUG
 private let previewLongTitle =
     "(C99) [Sample Circle (Sample Artist)] An Exceptionally Long Doujinshi "
     + "Title That Wraps Across Several Lines To Exercise Truncation [English]"
@@ -105,3 +109,4 @@ private extension Gallery {
     )
     .environment(\.dynamicTypeSize, .accessibility5)
 }
+#endif
