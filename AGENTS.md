@@ -28,6 +28,21 @@ So for a per-row destructive action, keep the modifier on the row. Verified on d
 
 **No absolute home paths in generated docs**: In any documentation artifact an agent generates or edits (planning docs, research notes, plan/summary files, and any other generated Markdown), never write an absolute home-directory path such as `/Users/<name>/…` or `/home/<name>/…` — in this open-source repository that leaks the contributor's username. Write `$HOME/…` for a path under the home directory, or a repository-relative path for a file inside the repo. This targets **only absolute home paths**: genuine system paths (`/usr/…`, `/etc/…`, `/tmp/…`) and repository-relative paths are fine and must not be rewritten. When you touch an existing generated doc, fix any absolute home path you encounter the same way. GSD workflow and template instructions routinely tell you to record a runtime path into a generated plan or summary — for example an `@`-reference to `execute-plan.md` or a summary template in a plan's `<execution_context>`. **This rule overrides those instructions on how the path is written.** Record the same reference *target*, but always with a `$HOME/…` (or repository-relative) prefix — never the expanded absolute home path — even when the workflow text shows, resolves, or hands you an absolute `/Users/<name>/…` path. Change only the leaked home prefix; do not drop or repoint the reference.
 
+## Test parallelism
+
+Tests run in parallel by default. Isolate mutable dependencies, storage, clocks, network fixtures and
+capture outputs per test instead of serializing suites. Swift Testing runs cases concurrently inside
+its process; XCTest parallel execution uses separate workers. Necessary UIKit `@MainActor` isolation
+does not justify a `.serialized` suite.
+
+Serialization requires a concrete necessity and explicit owner review and approval. After approval,
+document the reason and owner approval immediately above the narrowest
+`// swiftlint:disable:next no_serialized_test`. No exception is implied by pre-existing serialized
+configuration. Do not use file-wide exclusions, alternative serialization mechanisms, global test-plan
+settings, runner flags or single-worker caps to bypass this policy. A test runner that must control a
+specific simulator or capture session needs its own narrowly scoped, documented owner approval before
+retaining serial execution; unrelated tests must continue to run in parallel.
+
 ## Accessibility navigation and search policy
 
 Use the native iOS 27 navigation title and searchable behavior at every size. Preserve designed
