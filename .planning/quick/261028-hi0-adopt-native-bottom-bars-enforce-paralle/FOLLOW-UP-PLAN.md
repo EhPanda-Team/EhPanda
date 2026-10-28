@@ -1,5 +1,9 @@
 # Owner-directed follow-up — 2026-10-28
 
+Final amendment: the owner later prioritizes speed and asks to drop the `-Osize` commit.
+[SPEED-PRIORITY.md](SPEED-PRIORITY.md) records that change; preview-only cleanup remains. The original
+experiment plan below is retained as historical context.
+
 The owner authorizes implementing the recommended size reductions and requests a list of optional
 approaches. The UI review must contain actual before/after screenshots, correcting the earlier
 text-only deliverable. The three serialization exceptions remain undecided.

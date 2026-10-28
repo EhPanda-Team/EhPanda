@@ -2,9 +2,10 @@
 
 Measured 2026-10-28. **The unsigned, unthinned Release app payload is 33,989,732 bytes
 (33.99 MB / 32.42 MiB).** This is an archive measurement, not the footprint reported by iOS Settings.
-This is the original baseline audit. The owner subsequently authorized implementation; the
-[applied reductions and optional approaches](SIZE-REDUCTION.md) now record a **29,793,340-byte**
-payload, saving **4,196,392 bytes (12.35%)**. The baseline findings below remain historical evidence.
+This is the original baseline audit. The [size experiment](SIZE-REDUCTION.md) measured a
+**29,793,340-byte** payload with `-Osize`, saving **4,196,392 bytes (12.35%)**. The owner subsequently
+[drops that optimization](SPEED-PRIORITY.md) to prioritize speed, retaining the preview cleanup.
+Current Release builds use `-O` and have not been remeasured; these audit findings are historical.
 
 ## Baseline
 
