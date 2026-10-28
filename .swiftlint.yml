@@ -272,6 +272,18 @@ custom_rules:
       - string
     severity: error
 
+  no_serialized_test:
+    name: "No Serialized Test"
+    regex: '\.\s*`?serialized\b`?'
+    message: "Tests must run in parallel. A .serialized exception requires a documented necessity and owner approval."
+    excluded_match_kinds:
+      - comment
+      - comment.url
+      - doccomment
+      - doccomment.field
+      - string
+    severity: error
+
   no_unchecked_sendable:
     name: "No @unchecked Sendable"
     regex: "@unchecked\\s+Sendable"
