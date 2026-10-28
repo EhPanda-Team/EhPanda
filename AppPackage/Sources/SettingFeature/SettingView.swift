@@ -8,6 +8,7 @@ public import SwiftUI
 public struct SettingView: View {
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @Environment(\.isPresented) private var isPresented
+    @Environment(\.tabBarPlacement) private var tabBarPlacement
 
     @Bindable private var store: StoreOf<SettingReducer>
 
@@ -45,6 +46,7 @@ public struct SettingView: View {
         } destination: { pathStore in
             destination(pathStore)
         }
+        .scrollEdgeEffectStyle(!isPresented && tabBarPlacement == .bottomBar ? .soft : .automatic, for: .bottom)
     }
 
     // MARK: Destinations

@@ -9,6 +9,7 @@ import Resources
 public import SwiftUI
 
 public struct SearchRootView: View {
+    @Environment(\.tabBarPlacement) private var tabBarPlacement
     @Bindable private var store: StoreOf<SearchRootReducer>
     @State private var containerHeight: CGFloat = 0
 
@@ -80,6 +81,7 @@ public struct SearchRootView: View {
                 galleryDestination(store)
             }
         }
+        .scrollEdgeEffectStyle(tabBarPlacement == .bottomBar ? .soft : .automatic, for: .bottom)
     }
 
     @ContentBuilder private func toolbar() -> some ToolbarContent {
@@ -218,7 +220,11 @@ private struct QuickSearchWordsSection: View {
             Text(.RLocalizable.quickSearch)
         }
         .sectionActions {
-            Button(.showAll, action: showAllAction)
+            Button(action: showAllAction) {
+                Text(.showAll)
+                    .frame(minWidth: 24, minHeight: 24)
+                    .contentShape(.rect)
+            }
         }
     }
 }
@@ -359,8 +365,12 @@ private struct RemoveSearchHistoryButton: View {
     let action: () -> Void
 
     var body: some View {
-        Button(.removeAll) {
+        Button {
             isConfirming = true
+        } label: {
+            Text(.removeAll)
+                .frame(minWidth: 24, minHeight: 24)
+                .contentShape(.rect)
         }
         .disabled(isEmpty)
         .accessibilityIdentifier(identifier)
