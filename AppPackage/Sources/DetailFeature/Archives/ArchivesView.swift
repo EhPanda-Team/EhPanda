@@ -84,18 +84,19 @@ struct ArchivesView: View {
     /// and the download banner stay pinned below it, always on screen. Used verbatim at every size
     /// below the accessibility threshold.
     private var pinnedColumn: some View {
-        VStack {
-            ScrollView {
-                archiveGrid
-            }
-            .scrollIndicators(.hidden)
-            .frame(maxHeight: .infinity, alignment: .top)
-            .scrollEdgeEffectStyle(.soft, for: .top)
-
-            funds
-            downloadButton
+        ScrollView {
+            archiveGrid
         }
+        .scrollIndicators(.hidden)
+        .frame(maxHeight: .infinity, alignment: .top)
         .scrollEdgeEffectStyle(.soft, for: .top)
+        .safeAreaBar(edge: .bottom, spacing: 8) {
+            VStack {
+                funds
+                downloadButton
+            }
+        }
+        .scrollEdgeEffectStyle(.soft, for: .bottom)
     }
 
     /// Above the threshold the pinned footer is given up: it grows with the text until it owns the

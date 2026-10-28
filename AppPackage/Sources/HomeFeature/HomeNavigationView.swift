@@ -70,11 +70,13 @@ struct HomePrimaryNavigationView: View {
                 galleryDestination(store)
             }
         }
+        .scrollEdgeEffectStyle(tabBarPlacement == .bottomBar ? .soft : .automatic, for: .bottom)
     }
 
 }
 
 struct HomeToplistsNavigationView: View {
+    @Environment(\.tabBarPlacement) private var tabBarPlacement
     @Bindable var store: StoreOf<HomeReducer>
 
     var body: some View {
@@ -90,6 +92,7 @@ struct HomeToplistsNavigationView: View {
                 }
                 .refreshable { await store.send(.fetchAllToplistsGalleries).finish() }
         }
+        .scrollEdgeEffectStyle(tabBarPlacement == .bottomBar ? .soft : .automatic, for: .bottom)
     }
 }
 
