@@ -1,11 +1,14 @@
 import AppComponents
 public import AppModels
 import AppTools
-import PreviewSupport
 import SFSafeSymbols
 import Sharing
 public import SwiftUI
 import TagTranslationFeature
+
+#if DEBUG
+import PreviewSupport
+#endif
 
 public struct GalleryDetailCell: View {
     public enum CoverSource {
@@ -321,6 +324,7 @@ private struct GalleryDetailCellContent: View {
     }
 }
 
+#if DEBUG
 private let previewLongTitle =
     "(C99) [Sample Circle (Sample Artist)] An Exceptionally Long Doujinshi "
     + "Title That Wraps Across Several Lines To Exercise Truncation [English]"
@@ -359,3 +363,4 @@ private extension Gallery {
     GalleryDetailCell(gallery: .previewFixture(identity: 4, title: previewLongTitle, rating: 4.5, pageCount: 1234))
         .environment(\.dynamicTypeSize, .accessibility5)
 }
+#endif

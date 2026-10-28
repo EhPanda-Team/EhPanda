@@ -3,10 +3,13 @@ public import AppModels
 import AppTools
 import ColorfulX
 public import Kingfisher
-import PreviewSupport
 import SFSafeSymbols
 import SpringInterpolation
 public import SwiftUI
+
+#if DEBUG
+import PreviewSupport
+#endif
 
 public struct GalleryCardCell: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
@@ -245,6 +248,7 @@ private final class FixedSpeckleDirector: SpeckleAnimationDirector {
     }
 }
 
+#if DEBUG
 private let previewLongTitle =
     "(C99) [Sample Circle (Sample Artist)] An Exceptionally Long Doujinshi "
     + "Title That Wraps Across Several Lines To Exercise Truncation [English]"
@@ -338,3 +342,4 @@ private extension Gallery {
     .padding()
     .environment(\.dynamicTypeSize, .accessibility5)
 }
+#endif

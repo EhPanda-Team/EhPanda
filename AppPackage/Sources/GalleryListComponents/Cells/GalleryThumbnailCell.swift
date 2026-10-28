@@ -2,11 +2,14 @@ import AppComponents
 public import AppModels
 import AppTools
 import Kingfisher
-import PreviewSupport
 import SFSafeSymbols
 import Sharing
 public import SwiftUI
 import TagTranslationFeature
+
+#if DEBUG
+import PreviewSupport
+#endif
 
 public struct GalleryThumbnailCell: View {
     @Environment(\.colorScheme) private var colorScheme
@@ -271,6 +274,7 @@ public struct GalleryThumbnailCell: View {
     }
 }
 
+#if DEBUG
 private let previewLongTitle =
     "(C99) [Sample Circle (Sample Artist)] An Exceptionally Long Doujinshi "
     + "Title That Wraps Across Several Lines To Exercise Truncation [English]"
@@ -323,3 +327,4 @@ private extension Gallery {
         .frame(width: 180)
         .environment(\.dynamicTypeSize, .xxxLarge)
 }
+#endif

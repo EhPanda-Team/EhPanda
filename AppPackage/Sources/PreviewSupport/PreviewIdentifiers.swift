@@ -1,3 +1,4 @@
+#if DEBUG
 public import Foundation
 
 // reason: the 1,000 frozen literals below ARE this file; splitting them hides the count it asserts.
@@ -1047,3 +1048,4 @@ public enum PreviewIdentifiers {
         return all[index]
     }
 }
+#endif
