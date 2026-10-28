@@ -1,6 +1,7 @@
 """Single-pass evidence must cover exactly the selected compiled UI tests."""
 
 import copy
+import fcntl
 import importlib.util
 import json
 from pathlib import Path
@@ -10,6 +11,7 @@ import tempfile
 from types import SimpleNamespace
 import unittest
 from unittest.mock import patch
+import uuid
 
 import environment
 
@@ -149,27 +151,42 @@ class NativeGateTests(unittest.TestCase):
             self.invoke({**summary, 'devicesAndConfigurations': [{'device': {'deviceId': 'other'}}]}, {})
 
 
-class ProcessWindowTests(unittest.TestCase):
-    def test_generic_build_does_not_wait_but_discovery_does(self):
+class SimulatorWindowTests(unittest.TestCase):
+    def test_preparation_does_not_acquire_a_simulator(self):
         runner = load_runner()
         with tempfile.TemporaryDirectory() as directory:
             gate = SimpleNamespace(output=Path(directory))
-            for action, expected_waits in [('build-for-testing', 0), ('test-without-building', 1)]:
+            for action in ['build-for-testing', 'test-without-building']:
                 with self.subTest(action=action), \
-                        patch.object(runner, 'wait_for_test_window') as wait, \
+                        patch.object(runner, 'simulator_test_window') as window, \
                         patch.object(runner.subprocess, 'run', return_value=subprocess.CompletedProcess([], 0)):
                     runner.run_preparation(gate, action, ['xcodebuild', action])
-                    self.assertEqual(wait.call_count, expected_waits)
+                    window.assert_not_called()
 
-    def test_only_exact_accounting_names_block_and_no_process_is_signaled(self):
+    def test_same_device_is_exclusive_but_other_devices_are_independent(self):
         runner = load_runner()
-        with patch.object(runner.subprocess, 'check_output', side_effect=[
-                'xcodebuild\nPython\n', 'xctest\n', 'xcodebuild-helper\nPython\n']) as read, \
-                patch.object(runner.time, 'sleep') as sleep:
-            runner.wait_for_test_window()
-        self.assertEqual(read.call_count, 3)
-        self.assertEqual(sleep.call_count, 2)
-        self.assertEqual(read.call_args.args[0], ['ps', '-axo', 'ucomm='])
+        device, other_device = str(uuid.uuid4()), str(uuid.uuid4())
+        with tempfile.TemporaryDirectory() as directory, \
+                patch.object(runner.tempfile, 'gettempdir', return_value=directory):
+            with runner.simulator_test_window(device):
+                lock_path = Path(directory) / f'ehpanda-tests-{device}.lock'
+                with lock_path.open('a') as competing_lock:
+                    with self.assertRaises(BlockingIOError):
+                        fcntl.flock(competing_lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
+                with runner.simulator_test_window(other_device):
+                    self.assertTrue((Path(directory) / f'ehpanda-tests-{other_device}.lock').is_file())
+
+    def test_failure_releases_device_ownership(self):
+        runner = load_runner()
+        device = str(uuid.uuid4())
+        with tempfile.TemporaryDirectory() as directory, \
+                patch.object(runner.tempfile, 'gettempdir', return_value=directory):
+            with self.assertRaisesRegex(RuntimeError, 'capture failed'):
+                with runner.simulator_test_window(device):
+                    raise RuntimeError('capture failed')
+            with (Path(directory) / f'ehpanda-tests-{device}.lock').open('a') as lock:
+                fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
+                fcntl.flock(lock, fcntl.LOCK_UN)
 
 
 if __name__ == '__main__':
