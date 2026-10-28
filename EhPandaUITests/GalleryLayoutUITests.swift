@@ -20,8 +20,7 @@ final class GalleryLayoutUITests: XCTestCase {
             let picker = app.buttons["gallery-layout-favorites"]
             picker.tapWhenHittable("Presentation at \(size.rawValue)")
             app.buttons["Grid"].tapWhenHittable("Grid at \(size.rawValue)")
-            let title = app.navigationBars["Favorites"].staticTexts["Favorites"]
-            XCTAssertTrue(title.isHittable, "Native title must remain usable at \(size.rawValue)")
+            app.requireLibraryNavigationTitle("Favorites")
             let gallery = app.staticTexts["Library Study 01"].firstMatch
             XCTAssertTrue(gallery.waitForExistence(timeout: 10))
             let viewport = app.windows.firstMatch.frame
@@ -54,7 +53,7 @@ final class GalleryLayoutUITests: XCTestCase {
             format: "identifier BEGINSWITH %@", "gallery-list-item-"
         ))
         let visibleFrame = app.windows.firstMatch.frame
-        let navigationBottom = app.navigationBars["Favorites"].frame.maxY
+        let navigationBottom = app.requireLibraryNavigationTitle("Favorites").frame.maxY
         let tabs = app.tabBars.firstMatch
         let bottom = tabs.exists && tabs.frame.minY > visibleFrame.midY ? tabs.frame.minY : visibleFrame.maxY
         let anchor = try XCTUnwrap(candidates.allElementsBoundByIndex.first(where: {
@@ -69,7 +68,7 @@ final class GalleryLayoutUITests: XCTestCase {
         app.buttons["Row"].tapWhenHittable("Row")
         let restored = app.buttons[anchorID]
         XCTAssertTrue(restored.isHittable)
-        XCTAssertGreaterThan(restored.frame.midY, app.navigationBars["Favorites"].frame.maxY)
+        XCTAssertGreaterThan(restored.frame.midY, app.requireLibraryNavigationTitle("Favorites").frame.maxY)
         let screenshot = XCTAttachment(screenshot: XCUIScreen.main.screenshot())
         screenshot.name = "Library row restored after grid"
         screenshot.lifetime = .keepAlways

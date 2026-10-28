@@ -51,6 +51,13 @@ including cold entry and live size changes on iPhone and iPad. Keep sheet-specif
 search focus, query and orientation behavior intact. Do not reintroduce the removed accessibility
 title or search workarounds, dynamic-type branches, or fallback placement modifiers.
 
+The owner's 2026-10-28 restoration of the final persistent Library title menu is a scoped exception:
+compact Library roots use the native `.title` toolbar slot and `.inline` mode, with a semantic
+`.title2.bold()` Library label, Favorites/Downloads subtitle and scaled custom circular chevron.
+Keep that menu visible while scrolling through the native navigation-bar minimization policy.
+Expanded sidebar roots and unrelated pages retain their existing title modes; do not introduce a
+custom navigation bar, custom tab bar or text-size-dependent title fallback.
+
 ## Scroll-edge policy
 
 Every app-owned page carries `.scrollEdgeEffectStyle(.soft, for: .top)` at its effective scroll

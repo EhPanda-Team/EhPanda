@@ -1,4 +1,4 @@
-import AppComponents
+public import AppComponents
 import AppModels
 import AppTools
 public import ComposableArchitecture
@@ -20,10 +20,15 @@ public struct FavoritesView: View {
     @Bindable private var store: StoreOf<FavoritesReducer>
 
     private let showsCategoryControls: Bool
+    private let libraryTitleMenu: LibraryTitleMenu?
 
-    public init(store: StoreOf<FavoritesReducer>, showsCategoryControls: Bool = false) {
+    public init(
+        store: StoreOf<FavoritesReducer>, showsCategoryControls: Bool = false,
+        libraryTitleMenu: LibraryTitleMenu? = nil
+    ) {
         self.store = store
         self.showsCategoryControls = showsCategoryControls
+        self.libraryTitleMenu = libraryTitleMenu
     }
 
     private var navigationTitle: String {
@@ -75,8 +80,7 @@ public struct FavoritesView: View {
                 store.send(.fetchGalleries())
             }
             .toolbar(content: toolbar)
-            .navigationTitle(navigationTitle)
-            .toolbarTitleDisplayMode(.inlineLarge)
+            .modifier(LibraryNavigationTitle(title: navigationTitle, menu: libraryTitleMenu))
         }
     }
 

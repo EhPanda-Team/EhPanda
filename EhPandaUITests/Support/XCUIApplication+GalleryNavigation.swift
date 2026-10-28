@@ -3,6 +3,24 @@ import XCTest
 
 @MainActor
 extension XCUIApplication {
+    @discardableResult
+    func requireLibraryNavigationTitle(
+        _ source: String, file: StaticString = #filePath, line: UInt = #line
+    ) -> XCUIElement {
+        let hasSidebar = descendants(matching: .any)["library-categories"].firstMatch.exists
+        let navigation = navigationBars[hasSidebar ? source : "Library"]
+        XCTAssertTrue(navigation.waitForExistence(timeout: 15), file: file, line: line)
+        if hasSidebar {
+            XCTAssertTrue(navigation.staticTexts[source].isHittable, file: file, line: line)
+        } else {
+            let menu = descendants(matching: .any)["library-title-menu"].firstMatch
+            XCTAssertTrue(menu.waitForExistence(timeout: 5), file: file, line: line)
+            XCTAssertTrue(menu.isHittable, file: file, line: line)
+            XCTAssertTrue(navigation.staticTexts[source].isHittable, file: file, line: line)
+        }
+        return navigation
+    }
+
     func returnFromGalleryDetail(file: StaticString = #filePath, line: UInt = #line) {
         let detail = descendants(matching: .any)["detail_view"].firstMatch
         XCTAssertTrue(detail.waitForExistence(timeout: 10), file: file, line: line)

@@ -126,7 +126,7 @@ final class AccessibilityAuditUITests: XCTestCase {
 
     func testDownloadsEmptyStateAudit() throws {
         let app = try launch(tab: "downloads")
-        requireNavigationTitle("Downloads", in: app)
+        app.requireLibraryNavigationTitle("Downloads")
         try audit(app, surface: "Downloads (empty)")
     }
 
@@ -134,7 +134,7 @@ final class AccessibilityAuditUITests: XCTestCase {
     /// the fixtures can reach, and it is what this test audits.
     func testFavoritesLoginPlaceholderAudit() throws {
         let app = try launch(tab: "favorites")
-        requireNavigationTitle("Favorites", in: app)
+        app.requireLibraryNavigationTitle("Favorites")
         XCTAssertTrue(
             app.buttons["Login"].firstMatch.waitForExistence(timeout: 15),
             "Favorites did not render its login placeholder."
