@@ -1,0 +1,59 @@
+--- a/AppPackage/Sources/AppFeature/View/Library/LibraryView.swift
++++ b/AppPackage/Sources/AppFeature/View/Library/LibraryView.swift
+@@ -11,0 +12 @@
++    @Environment(\.tabBarPlacement) private var tabBarPlacement
+@@ -27 +28 @@
+-                .safeAreaInset(edge: .bottom, alignment: .trailing, spacing: 12) {
++                .safeAreaBar(edge: .bottom, alignment: .trailing, spacing: 12) {
+@@ -38,0 +40,4 @@
++        .scrollEdgeEffectStyle(
++            tabBarPlacement == .bottomBar || (!store.usesSidebar && showsSourcePicker) ? .soft : .automatic,
++            for: .bottom
++        )
+--- a/AppPackage/Sources/DetailFeature/Archives/ArchivesView.swift
++++ b/AppPackage/Sources/DetailFeature/Archives/ArchivesView.swift
+@@ -87,11 +87,5 @@
+-        VStack {
+-            ScrollView {
+-                archiveGrid
+-            }
+-            .scrollIndicators(.hidden)
+-            .frame(maxHeight: .infinity, alignment: .top)
+-            .scrollEdgeEffectStyle(.soft, for: .top)
+-
+-            funds
+-            downloadButton
+-        }
++        ScrollView {
++            archiveGrid
++        }
++        .scrollIndicators(.hidden)
++        .frame(maxHeight: .infinity, alignment: .top)
+@@ -98,0 +93,7 @@
++        .safeAreaBar(edge: .bottom, spacing: 8) {
++            VStack {
++                funds
++                downloadButton
++            }
++        }
++        .scrollEdgeEffectStyle(.soft, for: .bottom)
+--- a/AppPackage/Sources/HomeFeature/HomeNavigationView.swift
++++ b/AppPackage/Sources/HomeFeature/HomeNavigationView.swift
+@@ -72,0 +73 @@
++        .scrollEdgeEffectStyle(tabBarPlacement == .bottomBar ? .soft : .automatic, for: .bottom)
+@@ -77,0 +79 @@
++    @Environment(\.tabBarPlacement) private var tabBarPlacement
+@@ -92,0 +95 @@
++        .scrollEdgeEffectStyle(tabBarPlacement == .bottomBar ? .soft : .automatic, for: .bottom)
+--- a/AppPackage/Sources/SearchFeature/SearchRootView.swift
++++ b/AppPackage/Sources/SearchFeature/SearchRootView.swift
+@@ -11,0 +12 @@
++    @Environment(\.tabBarPlacement) private var tabBarPlacement
+@@ -82,0 +84 @@
++        .scrollEdgeEffectStyle(tabBarPlacement == .bottomBar ? .soft : .automatic, for: .bottom)
+--- a/AppPackage/Sources/SettingFeature/SettingView.swift
++++ b/AppPackage/Sources/SettingFeature/SettingView.swift
+@@ -10,0 +11 @@
++    @Environment(\.tabBarPlacement) private var tabBarPlacement
+@@ -47,0 +49 @@
++        .scrollEdgeEffectStyle(!isPresented && tabBarPlacement == .bottomBar ? .soft : .automatic, for: .bottom)
