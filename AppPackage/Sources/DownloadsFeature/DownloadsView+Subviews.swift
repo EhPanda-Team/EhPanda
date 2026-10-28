@@ -413,6 +413,8 @@ struct DownloadListRow: View {
             .frame(maxWidth: .infinity, alignment: .leading)
             .contentShape(.rect)
         }
+        // Match GalleryList's neutral button foreground; the cell's styles are hierarchical.
+        .foregroundStyle(.primary)
         .buttonStyle(.borderless)
         .modifier(GalleryReadInteraction(detailAction: openAction, readAction: readAction))
         .accessibilityFocused(rowFocus, equals: download.id)
