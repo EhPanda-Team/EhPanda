@@ -5,7 +5,7 @@ current_phase: 17
 current_phase_name: Screenshot Automation, Visual Regression & OS 27 Modernization
 status: executing
 stopped_at: 17-06 revision re-shot (2026-10-13), 16/16 captured; waiting for the owner's visual review; agent prepares both gallery sets
-last_updated: "2026-10-28T07:41:34.382614Z"
+last_updated: "2026-10-28T07:58:48.936052Z"
 last_activity: 2026-10-28
 last_activity_desc: Quick task 261028-hi0 adopts bottom edges and Archives safeAreaBar, restores persistent Library title menu; size-only revision saves 12.35 percent; serial exceptions discussion deferred
 state_head: 391edb63edb2e07bd8e50b4e9e77884103238c36
@@ -66,7 +66,8 @@ acceptance and production integration remain pending.
 
 On 2026-10-28 the owner requests the final persistent title design with the custom system-style
 arrow. [Quick task 261028-hi0](quick/261028-hi0-adopt-native-bottom-bars-enforce-paralle/UI-IMPLEMENTATION.md)
-restores it on compact Library roots, replacing the bottom source picker. This later decision
+restores it on compact Library roots. After briefly requesting both controls, the owner explicitly
+chooses to remove the bottom-right switch and keep only the title menu. This final decision
 supersedes the pending-integration status above; the expanded sidebar retains its existing titles.
 
 D143 integrates all 107 commits from `agent/app-design` into `feature/gsd-phase-17` by fast-forward,

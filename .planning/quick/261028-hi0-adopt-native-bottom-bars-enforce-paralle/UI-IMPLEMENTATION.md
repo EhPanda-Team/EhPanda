@@ -11,8 +11,9 @@ The owner clarifies that they want the final persistent large-looking title with
 system-style arrow. Its preserved source uses a native `.title` slot and `.inline` mode with a
 `.title2.bold()` label, native subtitle, browser role and navigation-bar minimization disabled. This
 implementation detail was disclosed; the earlier `.inlineLarge` prototype scrolls away and is not
-the final persistent design. The restored menu supersedes the compact bottom source picker, while
-preserving shared selection and the expanded sidebar's category navigation.
+the final persistent design. After briefly requesting both controls, the owner changes their mind
+and explicitly removes the bottom-right switch. The final UI retains only the title menu on compact
+roots, preserving shared selection and the expanded sidebar's category navigation.
 
 ## Execution plan
 
@@ -151,3 +152,23 @@ were not run or approved. The earlier size results remain tied to the size-only 
 The selected UI work is implemented and verified within the stated bounds. The quick task remains
 incomplete only for the deferred serial-runner decision and resulting runner migration. Phase 17's
 existing owner-review gate is unchanged.
+
+## Final Library control choice
+
+The owner first asks to retain both controls, then explicitly withdraws that request: remove the
+bottom-right switch. The uncommitted restoration and its test-only assertions are removed. App and
+UI-test source match the previously verified title-menu-only implementation at `96f4276c27`; no new
+selection state or layout behavior remains. AGENTS.md records the final choice.
+
+The current `implemented.html` again shows the original title-menu-only captures and their existing
+manifest provenance. The withdrawn both-controls screenshots remain outside Git for comparison.
+The iPad test run for that withdrawn design finished with three passes; the iPhone job was canceled
+after the owner changed scope, then terminated when log finalization stalled. Neither is claimed as
+verification of the final source. Existing title-only UI results above remain the applicable tests.
+
+A fresh Debug build-for-testing succeeds in 17.493 seconds with zero compiler/lint warnings. The
+rebuilt app is installed on the review iPhone; native inspection confirms the bottom switch is absent
+and the title menu still switches Favorites → Downloads → Favorites. Fresh originals and matching
+accessibility outlines are `final-title-only/iphone-library` and
+`final-title-only/iphone-library-downloads` under the same external gallery folder. The current
+gallery's Library comparison and its title-only image links are verified in the browser.

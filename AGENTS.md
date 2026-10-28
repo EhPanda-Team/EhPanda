@@ -55,6 +55,7 @@ The owner's 2026-10-28 restoration of the final persistent Library title menu is
 compact Library roots use the native `.title` toolbar slot and `.inline` mode, with a semantic
 `.title2.bold()` Library label, Favorites/Downloads subtitle and scaled custom circular chevron.
 Keep that menu visible while scrolling through the native navigation-bar minimization policy.
+The owner's final choice is the title menu alone; compact Library has no bottom-right source switch.
 Expanded sidebar roots and unrelated pages retain their existing title modes; do not introduce a
 custom navigation bar, custom tab bar or text-size-dependent title fallback.
 
