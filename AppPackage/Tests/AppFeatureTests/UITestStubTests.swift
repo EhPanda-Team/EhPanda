@@ -1,11 +1,34 @@
 @testable import AppFeature
 import AppModels
 import ClipboardClient
+import ComposableArchitecture
 import CustomDump
+import DownloadClient
 import Foundation
+import SwiftUI
 import Testing
 
 struct UITestStubTests {
+    @MainActor
+    @Test
+    func hostedStoreKeepsItsFixturesWhenTheCallingTestScopeChanges() async {
+        let store = Store(
+            initialState: AppReducer.State(), reducer: AppReducer.init,
+            withDependencies: UITestAutomation.configureVisualTestHost
+        )
+
+        await withDependencies {
+            // A host scene transition can arrive while an unrelated test's dependencies are current.
+            // Calling this test value would report the same unimplemented endpoint as the regression.
+            $0.downloadClient = DownloadClientKey.testValue
+        } operation: {
+            await store.send(.onScenePhaseChange(.background)).finish()
+        }
+
+        #expect(store.scenePhase == .background)
+        #expect(store.hasEnteredBackground)
+    }
+
     @Test
     func visualHostOptInForcesOfflineBootstrap() throws {
         let configuration = try #require(
