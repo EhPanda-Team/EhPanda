@@ -67,6 +67,13 @@ capture-owned folders holding real page files, whose manifests carry the files' 
 and alone decide completeness. All eight marketing screens capture on both visual simulators with
 byte-identical cold reruns.**
 
+## Later review delivery — 2026-10-29
+
+The [fresh local review record](17-06-REVIEW-20261029.md) covers the owner-requested gallery
+proposal and 32 current screenshots. Its limited review capture and website checks do not repeat
+or replace the historical task verification below. Owner acceptance is still pending; no requirement,
+plan-completion count or baseline is promoted by this follow-up.
+
 ## Performance
 
 - First source commit `e5c22bf10f` at 2026-10-09T00:35:02Z, last `41bd307350` at
