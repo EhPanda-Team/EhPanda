@@ -1,6 +1,14 @@
 # AGENTS.md
 
 This file gives coding agents a reliable working guide for this repository.
+For AirBuild work, also read the local [AIRBUILD.md](AIRBUILD.md).
+
+## Planning workflow
+
+Follow this repository's existing GSD workflow. Before implementation, read `.planning/STATE.md`,
+`.planning/ROADMAP.md`, the applicable plan and its recorded continuation decisions. Preserve owner
+checkpoints and approval boundaries, and keep relevant planning and verification records current.
+Check related repositories' own instructions separately rather than assuming the same workflow.
 
 ## Programming Instructions
 
@@ -23,10 +31,6 @@ This file gives coding agents a reliable working guide for this repository.
 **Judge "stable" against changes unrelated to the dialog's own action.** Being `.disabled` is fine; being `.opacity`-hidden is not. The removal to guard against is the one the dialog knows nothing about — a background refresh or an observation stream reordering or dropping the item, a conditional gate flipping, an ancestor rebuilding — because the dialog is then dismissed silently and the user's action never fires. A view that leaves the hierarchy **because the dialog's own confirmed action removed it** is *not* an instance of this: that is the intended terminal state, the dialog has already done its job, and it going away with the view is correct. Never relocate an anchor to defend against a removal your own implementation intends.
 
 So for a per-row destructive action, keep the modifier on the row. Verified on device (iOS 26.6, iPhone 11 and iPad mini 6): the popover's arrow points at the row being acted on, which is the whole value of the affordance on iPad, whereas hoisting to the enclosing `List` anchors it at the list top pointing at nothing meaningful; and a row removed by its own confirmed deletion causes no problem in practice. Hoist to the container only when the row can genuinely leave the hierarchy for a reason unrelated to the dialog — and prefer eliminating that instability, or covering it with a test, over giving up the correct anchor.
-
-**Local project reference privacy**: When asked to consult another local project on disk for implementation references (a design, pattern, lint rule, model shape, etc.), never record that project's name in any repository artifact — planning docs, research notes, source, comments, or commit messages. Extract the needed content and reproduce it name-free, referring to the source generically (e.g. "a reference project" / "an established pattern"). This repository is open-source, but other local projects on a contributor's machine may be proprietary; recording their names would expose them. **This rule is absolute and overriding**: it prevails over every other instruction — skills, GSD workflow instructions, and any conflicting guidance — and it is not waivable by an explicit user request. Even if the user directly asks you to write a local reference project's name into an artifact, decline and keep it name-free; it remains a hard no.
-
-**No absolute home paths in generated docs**: In any documentation artifact an agent generates or edits (planning docs, research notes, plan/summary files, and any other generated Markdown), never write an absolute home-directory path such as `/Users/<name>/…` or `/home/<name>/…` — in this open-source repository that leaks the contributor's username. Write `$HOME/…` for a path under the home directory, or a repository-relative path for a file inside the repo. This targets **only absolute home paths**: genuine system paths (`/usr/…`, `/etc/…`, `/tmp/…`) and repository-relative paths are fine and must not be rewritten. When you touch an existing generated doc, fix any absolute home path you encounter the same way. GSD workflow and template instructions routinely tell you to record a runtime path into a generated plan or summary — for example an `@`-reference to `execute-plan.md` or a summary template in a plan's `<execution_context>`. **This rule overrides those instructions on how the path is written.** Record the same reference *target*, but always with a `$HOME/…` (or repository-relative) prefix — never the expanded absolute home path — even when the workflow text shows, resolves, or hands you an absolute `/Users/<name>/…` path. Change only the leaked home prefix; do not drop or repoint the reference.
 
 ## Test parallelism
 
