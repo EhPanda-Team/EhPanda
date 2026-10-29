@@ -140,7 +140,7 @@ final class FixtureArtworkTests: XCTestCase {
                         let height = size.height * displayScale
                         expectNoDifference(width, width.rounded())
                         expectNoDifference(height, height.rounded())
-                        XCTAssertLessThanOrEqual(abs(width - height * 8 / 11), 0.5)
+                        XCTAssertLessThanOrEqual(abs(width - height * 0.707), 0.5)
                         let nominal = style.baseHeight * min(max(metric, 1), 1.25)
                         XCTAssertLessThanOrEqual(abs(height - min(nominal, maximumHeight ?? nominal) * displayScale),
                                                 0.5)
@@ -149,7 +149,7 @@ final class FixtureArtworkTests: XCTestCase {
             }
         }
         expectNoDifference(GalleryCoverStyle.compact.size(scale: 1.25, displayScale: 3),
-                           CGSize(width: 82, height: 338.0 / 3))
+                           CGSize(width: 239.0 / 3, height: 338.0 / 3))
     }
 
     @MainActor

@@ -6,8 +6,10 @@ public struct Defaults: Sendable {
         public static let identifier = "app.ehpanda"
     }
     public struct ImageSize: Sendable {
-        public static let rowAspect: CGFloat = 8/11
-        public static let headerAspect: CGFloat = 8/11
+        /// Shared width-to-height proportion for gallery covers, including grid tiles.
+        public static let coverAspect: CGFloat = 0.707
+        public static let rowAspect: CGFloat = coverAspect
+        public static let headerAspect: CGFloat = coverAspect
         public static let previewAspect: CGFloat = 8/11
         public static let contentAspect: CGFloat = 7/10
         public static let webtoonMinAspect: CGFloat = 1/4

@@ -128,7 +128,7 @@ public struct GalleryThumbnailCell: View {
     /// uncapped text wrap without covering the artwork.
     private var cover: some View {
         backgroundColor
-            .aspectRatio(2117.0 / 3000.0, contentMode: .fit)
+            .aspectRatio(GalleryCoverStyle.aspectRatio, contentMode: .fit)
             .overlay {
                 KFImage(resolvedCoverURL)
                     .placeholder { Placeholder(style: .activity(ratio: Defaults.ImageSize.rowAspect)) }

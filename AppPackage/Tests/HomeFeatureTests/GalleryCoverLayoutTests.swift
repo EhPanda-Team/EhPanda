@@ -1,5 +1,6 @@
 import AppComponents
 import AppModels
+import AppTools
 import Foundation
 @testable import HomeFeature
 import SwiftUI
@@ -7,6 +8,26 @@ import Testing
 import UIKit
 
 struct GalleryCoverLayoutTests {
+    @Test
+    func coverFramesShareTheRequestedBookProportion() {
+        #expect(Defaults.ImageSize.coverAspect == 0.707)
+        #expect(Defaults.ImageSize.rowAspect == 0.707)
+        #expect(Defaults.ImageSize.headerAspect == 0.707)
+        #expect(GalleryCoverStyle.aspectRatio == 0.707)
+        let styles: [GalleryCoverStyle] = [
+            .compact, .standard, .hero, .homeSlideshow, .homeFrontpage, .homeRanking
+        ]
+        for style in styles {
+            for displayScale: CGFloat in [2, 3] {
+                for scale: CGFloat in [1, 1.25, 2] {
+                    let size = style.size(scale: scale, displayScale: displayScale)
+                    #expect(abs(size.width * displayScale - size.height * displayScale * 0.707) <= 0.5)
+                    #expect(size.height <= (style.baseHeight * 1.25 * displayScale).rounded() / displayScale)
+                }
+            }
+        }
+    }
+
     @Test
     func viewportRulesRespectWindowSizeAndOrientation() {
         let phone = GalleryViewport(size: CGSize(width: 420, height: 800), isRegularWidth: false)
@@ -38,7 +59,7 @@ struct GalleryCoverLayoutTests {
             #expect(hero.height >= 150 && hero.height <= 188)
             #expect(compact.height < standard.height)
             #expect(standard.height < hero.height)
-            #expect(abs(hero.width - hero.height * 8 / 11) < 1)
+            #expect(abs(hero.width - hero.height * 0.707) < 1)
             if textSize == .large {
                 #expect(hero.height == 150)
             }

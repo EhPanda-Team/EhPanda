@@ -1,7 +1,7 @@
+import AppTools
 public import CoreGraphics
 
-/// Fixed-cover roles share one proportion and retain their hierarchy at every text size.
-/// Masonry artwork deliberately uses its own image-driven aspect ratio.
+/// Fixed-cover roles share the grid's book proportion and retain their hierarchy at every text size.
 public enum GalleryCoverStyle: Sendable {
     case compact
     case standard
@@ -10,7 +10,7 @@ public enum GalleryCoverStyle: Sendable {
     case homeFrontpage
     case homeRanking
 
-    public static let aspectRatio: CGFloat = 8 / 11
+    public static let aspectRatio: CGFloat = Defaults.ImageSize.coverAspect
     public static let maximumScale: CGFloat = 1.25
 
     public var baseHeight: CGFloat {
