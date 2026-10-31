@@ -5,10 +5,10 @@ current_phase: 17
 current_phase_name: Screenshot Automation, Visual Regression & OS 27 Modernization
 status: executing
 stopped_at: 17-06 revision re-shot (2026-10-13), 16/16 captured; waiting for the owner's visual review; agent prepares both gallery sets
-last_updated: "2026-10-28T08:12:05.697777Z"
+last_updated: "2026-10-31T15:09:20.485Z"
 last_activity: 2026-10-28
 last_activity_desc: Quick task 261028-hi0 adopts bottom edges and Archives safeAreaBar, restores persistent Library title menu; Release -O restored and preview cleanup retained; serial exceptions discussion deferred; 12 unpushed commits normalized to UTC+8 with in-place GSD SHA repairs
-state_head: 391edb63edb2e07bd8e50b4e9e77884103238c36
+state_head: 685e32e3a7a9b1af8c77015ea6c05b547e4ef265
 progress:
   total_phases: 17
   completed_phases: 10
@@ -1126,6 +1126,7 @@ None yet.
 | 16 | Integrate all 107 app-design commits into feature/gsd-phase-17 by fast-forward; preserve SHAs and pending prototype boundaries | 2026-10-27 | a7853729fb | [D143 integration](./quick/261015-duo-session-record/SUMMARY.md#phase-17-integration--d143) |
 | 261027-ci-cleanup | Remove unrequested privacy, disclosure and toolchain checks, visual tooling checks from app tests, and the visual capture workflow; squash all five prior CI commits | 2026-10-27 | 50deca5ac5 | — |
 | 261027-vgt | Make CI builds independent of private local capture tooling while preserving local captures | 2026-10-27 | 391edb63ed | [261027-vgt-make-ci-builds-independent-of-private-lo](./quick/261027-vgt-make-ci-builds-independent-of-private-lo/) |
+| 261031-sim | Record the iOS simulator rule in AGENTS.md: create a project-prefixed simulator when a task needs one, delete it when no task does, and never delete simulators outside this project's scope (owner request) | 2026-10-31 | 685e32e3a | — |
 
 ### Roadmap Evolution
 
