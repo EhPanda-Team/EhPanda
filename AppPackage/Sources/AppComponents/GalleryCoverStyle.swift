@@ -6,6 +6,7 @@ public enum GalleryCoverStyle: Sendable {
     case compact
     case standard
     case hero
+    case homeCompact
     case homeSlideshow
     case homeFrontpage
     case homeRanking
@@ -18,6 +19,7 @@ public enum GalleryCoverStyle: Sendable {
         case .compact: 90
         case .standard: 120
         case .hero: 150
+        case .homeCompact: 165
         case .homeSlideshow: 211.75
         case .homeFrontpage: 199.375
         case .homeRanking: 115.5

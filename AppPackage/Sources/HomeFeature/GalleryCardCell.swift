@@ -18,8 +18,10 @@ public struct GalleryCardCell: View {
 
     @ScaledMetric(relativeTo: .title3) private var titleLineHeight: CGFloat = 24
     @ScaledMetric(relativeTo: .caption2) private var ratingLineHeight: CGFloat = 18
+    @GalleryCoverMetrics(.homeCompact) private var compactCoverSize
 
     private let showsRichInformation: Bool
+    private let usesCompactInformation: Bool
     private let maximumHeight: CGFloat?
     private let currentID: String
     private let colors: [Color]
@@ -45,9 +47,11 @@ public struct GalleryCardCell: View {
     public init(
         gallery: Gallery, currentID: String, colors: [Color],
         maximumHeight: CGFloat? = nil, showsRichInformation: Bool = false,
+        usesCompactInformation: Bool = false,
         webImageSuccessAction: @escaping (RetrieveImageResult) -> Void
     ) {
         self.showsRichInformation = showsRichInformation
+        self.usesCompactInformation = usesCompactInformation
         self.maximumHeight = maximumHeight
         self.gallery = gallery
         self.currentID = currentID
@@ -63,29 +67,40 @@ public struct GalleryCardCell: View {
     public var body: some View {
         Group {
             if showsRichInformation {
-                HStack(spacing: 30) {
+                HStack(spacing: usesCompactInformation ? 16 : 30) {
                     GalleryCover(
-                        url: gallery.coverURL, style: .homeSlideshow, contentMode: .fill,
+                        url: gallery.coverURL,
+                        style: usesCompactInformation ? .homeCompact : .homeSlideshow, contentMode: .fill,
                         onSuccess: handleCoverSuccess
                     )
                     VStack(alignment: .leading, spacing: 12) {
-                        Text(gallery.title)
-                            .accessibilityIdentifier("home_slideshow_title_\(gallery.id)")
-                            .font(.title2.bold())
-                            .lineLimit(2, reservesSpace: true)
-                            .fixedSize(horizontal: false, vertical: true)
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                        HomeSlideshowInformation(gallery: gallery)
+                        if usesCompactInformation {
+                            Text(gallery.title)
+                                .accessibilityIdentifier("home_slideshow_title_\(gallery.id)")
+                                .font(.subheadline.bold())
+                                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+                            HomeCompactSlideshowInformation(gallery: gallery)
+                                .fixedSize(horizontal: false, vertical: true)
+                        } else {
+                            Text(gallery.title)
+                                .accessibilityIdentifier("home_slideshow_title_\(gallery.id)")
+                                .font(.title2.bold())
+                                .lineLimit(2, reservesSpace: true)
+                                .fixedSize(horizontal: false, vertical: true)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                            HomeSlideshowInformation(gallery: gallery)
+                        }
                     }
+                    .frame(height: usesCompactInformation ? compactCoverSize.height : nil, alignment: .top)
                 }
-                .frame(minHeight: 222)
+                .frame(minHeight: usesCompactInformation ? compactCoverSize.height : 222)
             } else {
                 GalleryCardHeightLayout(maximumHeight: maximumHeight.map({ max(0, $0 - 40) })) {
                     cardContent
                 }
             }
         }
-        .padding(showsRichInformation ? 26 : 20)
+        .padding(showsRichInformation && !usesCompactInformation ? 26 : 20)
         .frame(maxWidth: .infinity)
         .background {
             if animated {

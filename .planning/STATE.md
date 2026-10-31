@@ -21,6 +21,20 @@ source_head: af00e0da93
 
 # Project State
 
+## Home screenshot review accepted — 2026-11-01
+
+The owner accepts the final iPhone Home review and requests committing the work. Compact slideshow
+metadata, typography and matching Frontpage covers are implemented; gallery 3600779 is the selected
+center in fixture `marketing-a6157bfafd6db913` (local fixture commit `83f9adb`). The final native light
+screenshot has no Dynamic Island capsule or charging indicator. Build/lint and the native capture
+pass; the cover-layout suite passed at its recorded source boundary. See
+[review record](quick/261101-phone-slideshow-review/SUMMARY.md) for evidence and limitations.
+
+**Next: Live Text screenshot review.** The current fixture contains book 4217037; the owner's second
+selected book is 4223235 and its review composition remains to be decided. Final screenshot generation,
+rendering-pin changes and website publication remain outside this acceptance. Phase 17 gates are unchanged.
+
+
 > **Image evidence availability:** Image files were removed from this repository history at the owner's request. Screenshot descriptions, filenames and earlier visual checks below are historical records, not currently available image evidence. Written findings, measurements and source artifacts remain; visual review requires fresh captures.
 
 ## History cleanup - D145, 2026-10-27

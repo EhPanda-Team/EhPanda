@@ -22,6 +22,7 @@ private let middleBlock = windowBlocks / 2
 // MARK: CardSlideSection
 struct CardSlideSection: View, Equatable {
     @Environment(\.layoutDirection) private var layoutDirection
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @State private var scrollPositionID: Int?
     // Origin of the sliding id window (see `bufferedCards`). Only ever shifted by whole
     // blocks (multiples of `galleries.count`), so a card's logical index is invariant
@@ -204,6 +205,9 @@ struct CardSlideSection: View, Equatable {
                 colors: colors,
                 maximumHeight: maximumCardHeight,
                 showsRichInformation: showsRichInformation,
+                usesCompactInformation: !GalleryViewport(
+                    size: carouselSize, isRegularWidth: horizontalSizeClass == .regular
+                ).isLarge,
                 webImageSuccessAction: {
                     webImageSuccessAction(gallery.gid, $0)
                 }

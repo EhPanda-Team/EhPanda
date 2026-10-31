@@ -9,12 +9,6 @@ struct HomeSectionsView: View {
     var pane: HomePane?
     @State private var viewport: CGSize = .zero
 
-    private var showsRichSlideshowInformation: Bool {
-        pane == nil && GalleryViewport(
-            size: viewport, isRegularWidth: horizontalSizeClass == .regular
-        ).isLarge
-    }
-
     var body: some View {
         ScrollView(showsIndicators: false) {
             VStack {
@@ -46,7 +40,7 @@ struct HomeSectionsView: View {
                 currentID: store.currentCardID,
                 colors: store.cardColors,
                 carouselSize: viewport,
-                showsRichInformation: showsRichSlideshowInformation,
+                showsRichInformation: pane == nil,
                 maximumCardHeight: GalleryViewport(
                     size: viewport, isRegularWidth: horizontalSizeClass == .regular
                 ).maximumSlideshowHeight,
