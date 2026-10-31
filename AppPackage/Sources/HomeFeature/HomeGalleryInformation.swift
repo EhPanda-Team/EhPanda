@@ -32,7 +32,7 @@ struct HomeGalleryRating: View {
 
     var body: some View {
         Label {
-            Text(rating.halfRounded, format: .number)
+            Text(rating.halfRounded, format: .number.precision(.fractionLength(1)))
         } icon: {
             Image(systemSymbol: .starFill)
         }
@@ -108,22 +108,24 @@ struct HomeFrontpageCell: View {
     @GalleryCoverMetrics private var coverSize: CGSize
     let gallery: Gallery
     let showsRichInformation: Bool
+    let coverStyle: GalleryCoverStyle
 
-    init(gallery: Gallery, showsRichInformation: Bool) {
+    init(gallery: Gallery, showsRichInformation: Bool, coverStyle: GalleryCoverStyle = .homeFrontpage) {
         self.gallery = gallery
         self.showsRichInformation = showsRichInformation
-        _coverSize = GalleryCoverMetrics(showsRichInformation ? .homeFrontpage : .standard)
+        self.coverStyle = showsRichInformation ? coverStyle : .standard
+        _coverSize = GalleryCoverMetrics(showsRichInformation ? coverStyle : .standard)
     }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
             GalleryCover(
-                url: gallery.coverURL, style: showsRichInformation ? .homeFrontpage : .standard, contentMode: .fill
+                url: gallery.coverURL, style: coverStyle, contentMode: .fill
             )
                 .accessibilityHidden(true)
             if showsRichInformation {
                 Text(gallery.title)
-                    .font(.subheadline.bold())
+                    .font(coverStyle == .homeCompact ? .footnote.bold() : .subheadline.bold())
                     .lineLimit(2, reservesSpace: true)
                     .fixedSize(horizontal: false, vertical: true)
                     .frame(maxWidth: .infinity, alignment: .leading)
@@ -140,6 +142,7 @@ struct HomeFrontpageCell: View {
 
 /// A shared row height keeps both cover rows aligned when metadata wraps differently.
 struct HomeFrontpageWall: View {
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     let columns: [[Gallery]]
     let navigateAction: (Gallery) -> Void
 
@@ -159,7 +162,10 @@ struct HomeFrontpageWall: View {
         Button {
             navigateAction(gallery)
         } label: {
-            HomeFrontpageCell(gallery: gallery, showsRichInformation: true)
+            HomeFrontpageCell(
+                gallery: gallery, showsRichInformation: true,
+                coverStyle: horizontalSizeClass == .regular ? .homeFrontpage : .homeCompact
+            )
         }
         .tint(.primary)
         .multilineTextAlignment(.leading)

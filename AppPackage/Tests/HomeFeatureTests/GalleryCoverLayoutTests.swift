@@ -15,7 +15,7 @@ struct GalleryCoverLayoutTests {
         #expect(Defaults.ImageSize.headerAspect == 0.707)
         #expect(GalleryCoverStyle.aspectRatio == 0.707)
         let styles: [GalleryCoverStyle] = [
-            .compact, .standard, .hero, .homeSlideshow, .homeFrontpage, .homeRanking
+            .compact, .standard, .hero, .homeCompact, .homeSlideshow, .homeFrontpage, .homeRanking
         ]
         for style in styles {
             for displayScale: CGFloat in [2, 3] {
