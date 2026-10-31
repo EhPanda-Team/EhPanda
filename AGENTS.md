@@ -47,6 +47,12 @@ settings, runner flags or single-worker caps to bypass this policy. A test runne
 specific simulator or capture session needs its own narrowly scoped, documented owner approval before
 retaining serial execution; unrelated tests must continue to run in parallel.
 
+## iOS simulators
+
+- Create an iOS simulator when a task needs one, and delete it once no task needs it any more.
+- Name every simulator you create with the project prefix, for example `EhPanda iPhone Air`. Delete only
+  simulators within this project's scope; never delete a simulator outside it.
+
 ## Accessibility navigation and search policy
 
 Use the native iOS 27 navigation title and searchable behavior at every size. Preserve designed
