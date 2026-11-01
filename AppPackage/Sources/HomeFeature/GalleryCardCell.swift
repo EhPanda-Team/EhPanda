@@ -212,7 +212,11 @@ public struct GalleryCardCell: View {
 // and `FixedSpeckleDirector` gives its points one arrangement, leaving a static gradient that looks
 // the same every time and whose focus handoff remains the parent's opacity cross-fade. Skipping the
 // late palette's fade is an owner-approved exception to Phase 16 D-29 (17-05-PLAN.md).
+// Every palette passes through `CardGradientCeiling` on its way to ColorfulX, so the white text stays
+// readable; a Contrast change reaches ColorfulX as a palette change and transitions like one.
 private struct CardGradientView: View {
+    @Environment(\.colorSchemeContrast) private var colorSchemeContrast
+
     let colors: [Color]
     let reduceMotion: Bool
     let speed: Double
@@ -228,7 +232,7 @@ private struct CardGradientView: View {
 
     var body: some View {
         ColorfulView(
-            color: displayedColors,
+            color: displayedColors.map(CardGradientCeiling(colorSchemeContrast).limit),
             speed: .constant(reduceMotion ? 0 : speed),
             transitionSpeed: .constant(reduceMotion ? 0 : 6),
             animationDirector: reduceMotion ? FixedSpeckleDirector() : SpeckleAnimationRandomDirector()
