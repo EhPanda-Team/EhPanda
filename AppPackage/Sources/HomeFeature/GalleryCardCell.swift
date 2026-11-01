@@ -75,12 +75,7 @@ public struct GalleryCardCell: View {
                     )
                     VStack(alignment: .leading, spacing: 12) {
                         if usesCompactInformation {
-                            Text(gallery.title)
-                                .accessibilityIdentifier("home_slideshow_title_\(gallery.id)")
-                                .font(.subheadline.bold())
-                                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-                            HomeCompactSlideshowInformation(gallery: gallery)
-                                .fixedSize(horizontal: false, vertical: true)
+                            HomeCompactSlideshowContent(gallery: gallery)
                         } else {
                             Text(gallery.title)
                                 .accessibilityIdentifier("home_slideshow_title_\(gallery.id)")
@@ -93,14 +88,20 @@ public struct GalleryCardCell: View {
                     }
                     .frame(height: usesCompactInformation ? compactCoverSize.height : nil, alignment: .top)
                 }
-                .frame(minHeight: usesCompactInformation ? compactCoverSize.height : 222)
+                .frame(
+                    minHeight: usesCompactInformation
+                        ? compactCoverSize.height : HomeSlideshowSizing.regularMinimumContentHeight
+                )
             } else {
                 GalleryCardHeightLayout(maximumHeight: maximumHeight.map({ max(0, $0 - 40) })) {
                     cardContent
                 }
             }
         }
-        .padding(showsRichInformation && !usesCompactInformation ? 26 : 20)
+        .padding(
+            showsRichInformation && !usesCompactInformation
+                ? HomeSlideshowSizing.regularPadding : HomeSlideshowSizing.compactPadding
+        )
         .frame(maxWidth: .infinity)
         .background {
             if animated {

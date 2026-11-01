@@ -123,6 +123,52 @@ struct GalleryCoverLayoutTests {
         if textSize == .accessibility5 { #expect(size.height > 290) }
     }
 
+    @MainActor
+    @Test(arguments: [GalleryCoverStyle.hero, .homeCompact], [DynamicTypeSize.large, .accessibility5])
+    func frontpageCoverMatchesItsSlideshowCeiling(style: GalleryCoverStyle, textSize: DynamicTypeSize) {
+        let slideshow = measure(GalleryCover(url: nil, style: style), textSize: textSize)
+        let frontpage = measure(
+            HomeFrontpageCell(
+                gallery: .preview, showsRichInformation: true, maximumCoverHeight: slideshow.height
+            ),
+            textSize: textSize
+        )
+        #expect(abs(frontpage.width - slideshow.width) < 1)
+    }
+
+    @MainActor
+    @Test(arguments: [DynamicTypeSize.large, .accessibility1, .accessibility3, .accessibility5], [false, true])
+    func slideshowNeverExceedsReferenceAspectRatio(textSize: DynamicTypeSize, compact: Bool) {
+        let cover = measure(GalleryCover(url: nil, style: .homeCompact), textSize: textSize)
+        let minimumHeight = compact ? cover.height + 40 : 274
+        for availableWidth: CGFloat in [402, 818, 900, 901, 939, 1210] {
+            let width = HomeSlideshowSizing.cardWidth(
+                availableWidth: availableWidth, minimumHeight: minimumHeight, showsRichInformation: true
+            )
+            let content = GalleryCardCell(
+                gallery: .preview, currentID: "", colors: [], showsRichInformation: true,
+                usesCompactInformation: compact, webImageSuccessAction: { _ in }
+            )
+            let size = measure(content, textSize: textSize, width: width)
+            #expect(size.width / size.height <= 751.0 / 274.0 + 0.01)
+            #expect(size.width <= availableWidth * 0.9 + 1)
+            if compact && textSize == .large { #expect(abs(size.height - 205) < 1) }
+        }
+    }
+
+    @MainActor
+    @Test(arguments: [DynamicTypeSize.large, .accessibility5], [CGFloat(180), 300])
+    func splitSlideshowKeepsHeightBudgetAndReferenceProportion(textSize: DynamicTypeSize, maximumHeight: CGFloat) {
+        let cover = measure(GalleryCover(url: nil, style: .hero), textSize: textSize)
+        let width = HomeSlideshowSizing.cardWidth(
+            availableWidth: 1000, minimumHeight: min(cover.height + 40, maximumHeight),
+            showsRichInformation: false
+        )
+        let size = measure(card(title: "Short title", maximumHeight: maximumHeight), textSize: textSize, width: width)
+        #expect(size.width / size.height <= 751.0 / 274.0 + 0.01)
+        #expect(size.height <= maximumHeight + 1)
+    }
+
     @Test
     func slideshowTagsExcludeLanguageCategoryAndDuplicates() {
         func tag(_ namespace: String, _ texts: [String]) -> GalleryTag {

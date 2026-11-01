@@ -23,6 +23,8 @@ private let middleBlock = windowBlocks / 2
 struct CardSlideSection: View, Equatable {
     @Environment(\.layoutDirection) private var layoutDirection
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+    @GalleryCoverMetrics(.homeCompact) private var compactCoverSize
+    @GalleryCoverMetrics(.hero) private var heroCoverSize
     @State private var scrollPositionID: Int?
     // Origin of the sliding id window (see `bufferedCards`). Only ever shifted by whole
     // blocks (multiples of `galleries.count`), so a card's logical index is invariant
@@ -180,11 +182,25 @@ struct CardSlideSection: View, Equatable {
         }
     }
 
+    private var usesCompactInformation: Bool {
+        !GalleryViewport(size: carouselSize, isRegularWidth: horizontalSizeClass == .regular).isLarge
+    }
+
     private var cardWidth: CGFloat {
-        guard showsRichInformation else { return carouselSize.width * 0.8 }
-        let width = carouselSize.width * 0.9
-        // Preserve the portrait composition; excess width in a wide viewport reveals neighbors.
-        return carouselSize.width > 900 && carouselSize.width > carouselSize.height ? min(width, 720) : width
+        let minimumHeight: CGFloat
+        if showsRichInformation {
+            minimumHeight = usesCompactInformation
+                ? compactCoverSize.height + 2 * HomeSlideshowSizing.compactPadding
+                : HomeSlideshowSizing.regularMinimumContentHeight + 2 * HomeSlideshowSizing.regularPadding
+        } else {
+            minimumHeight = min(heroCoverSize.height + 2 * HomeSlideshowSizing.compactPadding, maximumCardHeight)
+        }
+        // Cap the width against the shortest rendered card. Text may grow taller at larger sizes,
+        // but no card becomes flatter than the owner's reference, even in a short, wide window.
+        return HomeSlideshowSizing.cardWidth(
+            availableWidth: carouselSize.width, minimumHeight: minimumHeight,
+            showsRichInformation: showsRichInformation
+        )
     }
     private let cardSpacing: CGFloat = 20
 
@@ -205,9 +221,7 @@ struct CardSlideSection: View, Equatable {
                 colors: colors,
                 maximumHeight: maximumCardHeight,
                 showsRichInformation: showsRichInformation,
-                usesCompactInformation: !GalleryViewport(
-                    size: carouselSize, isRegularWidth: horizontalSizeClass == .regular
-                ).isLarge,
+                usesCompactInformation: usesCompactInformation,
                 webImageSuccessAction: {
                     webImageSuccessAction(gallery.gid, $0)
                 }
@@ -260,6 +274,7 @@ struct CardSlideSection: View, Equatable {
 // MARK: CoverWallSection
 struct CoverWallSection: View {
     @GalleryCoverMetrics(.standard) private var coverSize
+    private let maximumCoverHeight: CGFloat?
     private let showsRichInformation: Bool
     private let galleries: [Gallery]
     private let isLoading: Bool
@@ -269,10 +284,12 @@ struct CoverWallSection: View {
 
     init(
         galleries: [Gallery], isLoading: Bool, showsRichInformation: Bool = false,
+        maximumCoverHeight: CGFloat? = nil,
         navigateAction: @escaping (Gallery) -> Void,
         showAllAction: @escaping () -> Void,
         reloadAction: @escaping () -> Void
     ) {
+        self.maximumCoverHeight = maximumCoverHeight
         self.showsRichInformation = showsRichInformation
         self.galleries = galleries
         self.isLoading = isLoading
@@ -304,7 +321,9 @@ struct CoverWallSection: View {
         ) {
             ScrollView(.horizontal) {
                 if showsRichInformation {
-                    HomeFrontpageWall(columns: dataSource, navigateAction: navigateAction)
+                    HomeFrontpageWall(
+                        columns: dataSource, maximumCoverHeight: maximumCoverHeight, navigateAction: navigateAction
+                    )
                 } else {
                     HStack(spacing: 20) {
                         ForEach(dataSource, id: \.first) {
