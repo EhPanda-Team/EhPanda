@@ -1073,37 +1073,37 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "You’ve reached your image viewing limit.\nTry again later."
+            "value": "You’ve reached your image viewing limit."
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Dein Bildkontingent ist aufgebraucht.\nVersuche es später erneut."
+            "value": "Dein Bildkontingent ist aufgebraucht."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "画像の閲覧上限に達しました。\nしばらく待ってからもう一度お試しください。"
+            "value": "画像の閲覧上限に達しました。"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "이미지 할당량을 모두 사용했습니다.\n잠시 후 다시 시도해 주세요."
+            "value": "이미지 할당량을 모두 사용했습니다."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "图片配额已用尽。\n请稍后再试。"
+            "value": "图片配额已用尽。"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "已超過可瀏覽的圖片額度。\n請稍後再試。"
+            "value": "已超過可瀏覽的圖片額度。"
           }
         }
       }
@@ -1436,43 +1436,44 @@
         }
       }
     },
-    "ban_interval.and": {
+    "ban_interval.compound": {
+      "comment": "A ban duration made of two units, such as 2 hours and 30 minutes.",
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "and"
+            "value": "%1$@ and %2$@"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "und"
+            "value": "%1$@ und %2$@"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": ""
+            "value": "%1$@%2$@"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": ""
+            "value": "%1$@ %2$@"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": ""
+            "value": "%1$@ %2$@"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": ""
+            "value": "%1$@ %2$@"
           }
         }
       }
@@ -13914,6 +13915,170 @@
         }
       }
     },
+    "greeting.reward_credits": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ Credits"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ Credits"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ クレジット"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ 크레딧"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ Credits"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ 信用點數"
+          }
+        }
+      }
+    },
+    "greeting.reward_exp": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ EXP"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ EXP"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ EXP"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ EXP"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ EXP"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ EXP"
+          }
+        }
+      }
+    },
+    "greeting.reward_gp": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ GP"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ GP"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ GP"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ GP"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ GP"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ GP"
+          }
+        }
+      }
+    },
+    "greeting.reward_hath": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ Hath"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ Hath"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ Hath"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ Hath"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ Hath"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ Hath"
+          }
+        }
+      }
+    },
     "greeting.separator": {
       "extractionState": "manual",
       "localizations": {
@@ -14402,6 +14567,48 @@
           "stringUnit": {
             "state": "translated",
             "value": "你的 IP 因頁面載入次數過多而遭暫時封鎖，系統判定你可能在使用自動鏡像或爬蟲軟體。封鎖會在 %@後解除。"
+          }
+        }
+      }
+    },
+    "ip_banned_unknown_duration": {
+      "comment": "Shown instead of ip_banned when the site's ban duration could not be parsed.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your IP address is temporarily banned for excessive page loads, which suggests automated download software."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Deine IP-Adresse wurde wegen zu vieler Seitenaufrufe vorübergehend gesperrt. Das deutet auf automatisierte Download-Software hin."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ページの読み込みが多すぎるため、自動収集ツールの使用が疑われ、このIPアドレスは一時的にブロックされました。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "페이지 요청이 과도해 자동 미러링·수집 프로그램을 사용하는 것으로 판단되어 IP 주소가 일시적으로 차단되었습니다."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "页面加载次数过多，疑似使用了自动抓取工具，你的 IP 地址已被暂时封禁。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "你的 IP 因頁面載入次數過多而遭暫時封鎖，系統判定你可能在使用自動鏡像或爬蟲軟體。"
           }
         }
       }

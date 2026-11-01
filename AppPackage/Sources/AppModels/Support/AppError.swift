@@ -93,6 +93,10 @@ extension AppError {
         case .copyrightClaim(let owner):
             return String(localized: .copyrightClaim(owner))
         case .ipBanned(let interval):
+            // An unparsed duration is the site's English text, which can't sit inside a translation.
+            if case .unrecognized = interval {
+                return String(localized: .ipBannedUnknownDuration)
+            }
             return String(localized: .ipBanned(interval.description))
         case .expunged(let reason):
             switch reason {
@@ -102,7 +106,8 @@ extension AppError {
                 return reason
             }
         case .networkingFailed:
-            return [String(localized: .networkError), tryLater].joined(separator: "\n")
+            // `solution` already says to retry, so the body doesn't repeat it.
+            return String(localized: .networkError)
         case .parseFailed:
             return [String(localized: .parsing), tryLater].joined(separator: "\n")
         case .quotaExceeded:
@@ -191,29 +196,21 @@ public enum BanInterval: Equatable, Hashable, Sendable {
 
 extension BanInterval {
     public var description: String {
-        var params: [String]
-        let and = String(localized: .banIntervalAnd)
-
         switch self {
         case .days(let days, let hours):
-            params = [daysWithUnit(days)]
-            if let hours = hours {
-                params += [and, hoursWithUnit(hours)]
-            }
+            compound(daysWithUnit(days), hours.map(hoursWithUnit))
         case .hours(let hours, let minutes):
-            params = [hoursWithUnit(hours)]
-            if let minutes = minutes {
-                params += [and, minutesWithUnit(minutes)]
-            }
+            compound(hoursWithUnit(hours), minutes.map(minutesWithUnit))
         case .minutes(let minutes, let seconds):
-            params = [minutesWithUnit(minutes)]
-            if let seconds = seconds {
-                params += [and, secondsWithUnit(seconds)]
-            }
+            compound(minutesWithUnit(minutes), seconds.map(secondsWithUnit))
         case .unrecognized(let content):
-            params = [content]
+            content
         }
-        return params.filter({ !$0.isEmpty }).joined(separator: " ")
+    }
+
+    private func compound(_ larger: String, _ smaller: String?) -> String {
+        guard let smaller else { return larger }
+        return String(localized: .banIntervalCompound(larger, smaller))
     }
 
     private func daysWithUnit(_ days: Int) -> String {

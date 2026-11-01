@@ -25,6 +25,21 @@ struct AppErrorStructuredTests {
                 + "automated download software. The ban expires in 1 hour."
         ),
         Expectation(
+            error: .ipBanned(.hours(hours: 2, minutes: 30)),
+            isRetryable: false,
+            localizedDescription: "IP Banned",
+            alertText: "Your IP address is temporarily banned for excessive page loads, which suggests "
+                + "automated download software. The ban expires in 2 hours and 30 minutes."
+        ),
+        // An unparsed duration is the site's English text, so the body says nothing about when it ends.
+        Expectation(
+            error: .ipBanned(.unrecognized(content: "soon")),
+            isRetryable: false,
+            localizedDescription: "IP Banned",
+            alertText: "Your IP address is temporarily banned for excessive page loads, which suggests "
+                + "automated download software."
+        ),
+        Expectation(
             error: .expunged("Removed by the uploader."),
             isRetryable: false,
             localizedDescription: "Gallery Expunged",
@@ -34,7 +49,7 @@ struct AppErrorStructuredTests {
             error: .networkingFailed,
             isRetryable: true,
             localizedDescription: "Network Error",
-            alertText: "A network error occurred.\nTry again later."
+            alertText: "A network error occurred."
         ),
         Expectation(
             error: .webImageFailed,
@@ -52,7 +67,7 @@ struct AppErrorStructuredTests {
             error: .quotaExceeded,
             isRetryable: false,
             localizedDescription: "Image Limit Reached",
-            alertText: "You’ve reached your image viewing limit.\nTry again later."
+            alertText: "You’ve reached your image viewing limit."
         ),
         Expectation(
             error: .authenticationRequired,
