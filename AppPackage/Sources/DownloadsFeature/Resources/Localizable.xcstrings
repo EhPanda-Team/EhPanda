@@ -25,7 +25,7 @@
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "동작"
+            "value" : "작업"
           }
         },
         "zh-Hans" : {
@@ -66,7 +66,7 @@
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "필터 지우기"
+            "value" : "필터 초기화"
           }
         },
         "zh-Hans" : {
@@ -113,13 +113,13 @@
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "这将取消当前下载并从此设备移除它。"
+            "value" : "将取消当前下载，并从此设备移除已下载的内容。"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "這將取消目前下載並從此裝置移除它。"
+            "value" : "會取消目前的下載，並從此裝置移除。"
           }
         }
       }
@@ -130,7 +130,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Downloadstatus"
+            "value" : "Download-Status"
           }
         },
         "en" : {
@@ -259,7 +259,7 @@
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "已下载 (%#@count@)"
+            "value" : "已下载（%#@count@）"
           },
           "substitutions" : {
             "count" : {
@@ -281,7 +281,7 @@
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "已下載 (%#@count@)"
+            "value" : "已下載（%#@count@）"
           },
           "substitutions" : {
             "count" : {
@@ -308,7 +308,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Heruntergeladene Galerien werden hier angezeigt."
+            "value" : "Heruntergeladene Galerien erscheinen hier."
           }
         },
         "en" : {
@@ -437,7 +437,7 @@
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "失败 (%#@count@)"
+            "value" : "失败（%#@count@）"
           },
           "substitutions" : {
             "count" : {
@@ -459,7 +459,7 @@
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "失敗 (%#@count@)"
+            "value" : "失敗（%#@count@）"
           },
           "substitutions" : {
             "count" : {
@@ -492,7 +492,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Image data could not be validated."
+            "value" : "Couldn’t verify images."
           }
         },
         "ja" : {
@@ -510,7 +510,7 @@
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "无法验证图像数据。"
+            "value" : "无法验证图片数据。"
           }
         },
         "zh-Hant" : {
@@ -533,7 +533,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Image data is valid"
+            "value" : "All images verified."
           }
         },
         "ja" : {
@@ -551,7 +551,7 @@
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "图像数据有效"
+            "value" : "图片数据有效"
           }
         },
         "zh-Hant" : {
@@ -574,7 +574,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Pages"
+            "value" : "Download Status"
           }
         },
         "ja" : {
@@ -691,7 +691,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Keine Downloads entsprechen den aktuellen Filtern."
+            "value" : "Keine Downloads passen zu den aktuellen Filtern."
           }
         },
         "en" : {
@@ -715,13 +715,13 @@
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "没有下载项符合当前筛选条件。"
+            "value" : "没有符合筛选条件的下载内容。"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "沒有下載項符合目前的篩選條件。"
+            "value" : "沒有符合篩選條件的下載項目。"
           }
         }
       }
@@ -902,7 +902,7 @@
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "等待中 (%#@count@)"
+            "value" : "等待中（%#@count@）"
           },
           "substitutions" : {
             "count" : {
@@ -924,7 +924,7 @@
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "等待中 (%#@count@)"
+            "value" : "等待中（%#@count@）"
           },
           "substitutions" : {
             "count" : {
@@ -992,7 +992,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Seiten erneut versuchen"
+            "value" : "Seiten erneut laden"
           }
         },
         "en" : {
@@ -1010,7 +1010,7 @@
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "페이지 다시 시도"
+            "value" : "페이지 재시도"
           }
         },
         "zh-Hans" : {
@@ -1033,13 +1033,13 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Bilddaten validieren"
+            "value" : "Bilddaten prüfen"
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Validate Image Data"
+            "value" : "Verify Images"
           }
         },
         "ja" : {
@@ -1074,37 +1074,37 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Bilddaten werden geprüft..."
+            "value" : "Bilddaten werden geprüft …"
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Validating Image Data..."
+            "value" : "Verifying Images…"
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "画像データを検証中..."
+            "value" : "画像データを検証中…"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "이미지 데이터 검증 중..."
+            "value" : "이미지 데이터 검증 중…"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "正在验证图像数据..."
+            "value" : "正在验证图片数据…"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "正在驗證圖片資料..."
+            "value" : "正在驗證圖片資料⋯"
           }
         }
       }

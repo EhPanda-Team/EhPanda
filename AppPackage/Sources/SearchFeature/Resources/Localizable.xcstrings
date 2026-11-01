@@ -8,31 +8,31 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "No saved searches."
+            "value": "No saved searches"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Keine gespeicherten Suchanfragen."
+            "value": "Keine gespeicherten Suchbegriffe."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "保存した検索はありません。"
+            "value": "保存したキーワードはありません。"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "저장된 검색이 없습니다."
+            "value": "저장된 검색어가 없습니다."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "暂无快速搜索。"
+            "value": "暂无已保存的关键词。"
           }
         },
         "zh-Hant": {
@@ -49,7 +49,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Recently Searched"
+            "value": "Recent Searches"
           }
         },
         "de": {
@@ -61,7 +61,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "最近検索した項目"
+            "value": "最近の検索"
           }
         },
         "ko": {
@@ -91,13 +91,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "No recent searches."
+            "value": "No recent searches"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Keine letzten Suchanfragen."
+            "value": "Noch keine Suchanfragen."
           }
         },
         "ja": {
@@ -109,7 +109,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "최근 검색 기록이 없습니다."
+            "value": "최근 검색어가 없습니다."
           }
         },
         "zh-Hans": {
@@ -132,7 +132,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Recently Seen"
+            "value": "Recently Viewed"
           }
         },
         "de": {
@@ -144,25 +144,25 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "最近閲覧した項目"
+            "value": "最近閲覧したギャラリー"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "최근 본 항목"
+            "value": "최근 본 갤러리"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "最近看过"
+            "value": "最近浏览"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "最近閱讀"
+            "value": "最近瀏覽"
           }
         }
       }
@@ -174,7 +174,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "No recently viewed galleries."
+            "value": "No recently viewed galleries"
           }
         },
         "de": {
@@ -240,7 +240,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "全部移除"
+            "value": "清空"
           }
         },
         "zh-Hant": {
@@ -264,31 +264,31 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Alle letzten Suchanfragen entfernen? Deine gespeicherten Suchanfragen bleiben erhalten."
+            "value": "Den gesamten Suchverlauf entfernen? Gespeicherte Suchbegriffe bleiben erhalten."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "最近の検索をすべて削除しますか？保存した検索は保持されます。"
+            "value": "最近の検索をすべて削除しますか？保存したキーワードは残ります。"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "최근 검색 기록을 모두 삭제할까요? 저장된 검색은 유지됩니다."
+            "value": "최근 검색어를 모두 삭제할까요? 저장된 검색어는 유지됩니다."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "移除所有最近搜索记录？已保存的快速搜索将会保留。"
+            "value": "清空最近搜索？已保存的关键词不受影响。"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "移除所有最近搜尋紀錄？已儲存的快速搜尋會保留。"
+            "value": "要移除所有最近的搜尋紀錄嗎？已儲存的快速搜尋會保留。"
           }
         }
       }
@@ -306,31 +306,31 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Den gesamten Browserverlauf und alle gespeicherten Lesepositionen entfernen?"
+            "value": "Den gesamten Verlauf und alle gespeicherten Lesepositionen entfernen?"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "閲覧履歴と保存された読書位置をすべて削除しますか？"
+            "value": "閲覧履歴と読書位置をすべて削除しますか？"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "모든 탐색 기록과 저장된 읽기 위치를 삭제할까요?"
+            "value": "최근 본 갤러리와 저장된 읽기 위치를 모두 삭제할까요?"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "移除全部浏览记录及已保存的阅读位置？"
+            "value": "清空浏览记录及已保存的阅读位置？"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "移除全部瀏覽紀錄及已儲存的閱讀位置？"
+            "value": "要移除所有瀏覽紀錄及已儲存的閱讀位置嗎？"
           }
         }
       }
@@ -359,13 +359,13 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "모두　보기"
+            "value": "모두 보기"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "显示全部"
+            "value": "查看全部"
           }
         },
         "zh-Hant": {

@@ -54,25 +54,25 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Galerien rund um das gewählte Datum aufsuchen."
+            "value": "Springt zu Galerien rund um das gewählte Datum."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "選択した日付付近のギャラリーへ移動します。"
+            "value": "選択した日付前後のギャラリーに移動します。"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "선택한 날짜 근처의 갤러리로 이동합니다."
+            "value": "선택한 날짜 전후의 갤러리로 이동합니다."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "前往所选日期附近的画廊。"
+            "value": "跳转到所选日期前后发布的画廊。"
           }
         },
         "zh-Hant": {
@@ -107,7 +107,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "새로운 쪽"
+            "value": "이후"
           }
         },
         "zh-Hans": {
@@ -148,7 +148,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "오래된 쪽"
+            "value": "이전"
           }
         },
         "zh-Hans": {

@@ -66,7 +66,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "거절됨"
+            "value": "거부됨"
           }
         },
         "zh-Hans": {
@@ -78,7 +78,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "被拒絕"
+            "value": "遭拒絕"
           }
         }
       }
@@ -113,13 +113,13 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "无内容"
+            "value": "未设置"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "None"
+            "value": "無"
           }
         }
       }

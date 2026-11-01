@@ -178,7 +178,7 @@ struct DownloadContinuedSessionTests: DownloadFeatureTestCase {
 
         let recordedTitle = try #require(spy.startTitles.first)
         let recordedSubtitle = try #require(spy.startSubtitles.first)
-        #expect(recordedTitle == "Downloading galleries")
+        #expect(recordedTitle == "Downloading Galleries")
         // Two pages, none downloaded, one gallery: the fixture manifest's whole content surface.
         #expect(recordedSubtitle == "0 / 2 pages · 1 gallery")
         for recorded in [recordedTitle, recordedSubtitle] {

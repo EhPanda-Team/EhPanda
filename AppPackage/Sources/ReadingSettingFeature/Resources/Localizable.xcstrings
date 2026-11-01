@@ -89,7 +89,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "On iPad and iPhone Duo, use the selected reading direction and two pages in landscape, or one page in portrait. Applies when opening the reader and when the screen orientation changes."
+            "value": "On iPad and iPhone Duo, landscape shows two pages and portrait shows one, each in the direction selected above. Applies when you open the reader and when the orientation changes."
           }
         },
         "de": {
@@ -101,13 +101,13 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "iPadとiPhone Duoでは、選択した方向で読み進め、横向きでは2ページ、縦向きでは1ページを表示します。リーダーを開いたときと画面の向きが変わったときに適用されます。"
+            "value": "iPadとiPhone Duoでは、選択した方向で読み進め、横向きでは見開き、縦向きでは1ページで表示します。リーダーを開いたときと画面の向きが変わったときに適用されます。"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "iPad와 iPhone Duo에서 선택한 읽기 방향을 사용하며, 가로 화면에서는 두 페이지, 세로 화면에서는 한 페이지를 표시합니다. 리더를 열거나 화면 방향을 바꾸면 적용됩니다."
+            "value": "iPad와 iPhone Duo에서 선택한 읽기 방향을 사용하며, 가로 화면에서는 두 페이지, 세로 화면에서는 한 페이지를 표시합니다. 뷰어를 열거나 화면 방향을 바꾸면 적용됩니다."
           }
         },
         "zh-Hans": {
@@ -160,7 +160,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "翻頁方向"
+            "value": "閱讀方向"
           }
         }
       }
@@ -171,37 +171,37 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Double Tap Scale Factor"
+            "value": "Double-Tap Zoom"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Doppel-Tap Skalierungsfaktor"
+            "value": "Zoom bei Doppeltippen"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "ダブルタップスケール係数"
+            "value": "ダブルタップ時の倍率"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "더블 탭 확대 비율"
+            "value": "더블 탭 확대 배율"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "双击缩放系数"
+            "value": "双击缩放倍数"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "雙擊縮放值"
+            "value": "點兩下的縮放倍率"
           }
         }
       }
@@ -218,19 +218,19 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Leserichtung im Querformat"
+            "value": "Querformat"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "横向きの読み進む方向"
+            "value": "横向き時の方向"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "가로 화면 읽기 방향"
+            "value": "가로 읽기 방향"
           }
         },
         "zh-Hans": {
@@ -259,7 +259,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "An Bildschirmausrichtung anpassen"
+            "value": "An Ausrichtung anpassen"
           }
         },
         "ja": {
@@ -294,31 +294,31 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Maximum Scale Factor"
+            "value": "Maximum Zoom"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Maximaler Skalierungsfaktor"
+            "value": "Maximaler Zoom"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "最大スケール係数"
+            "value": "最大倍率"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "최대 확대 비율"
+            "value": "최대 확대 배율"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "最大缩放系数"
+            "value": "最大缩放倍数"
           }
         },
         "zh-Hant": {
@@ -341,19 +341,19 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Leserichtung im Hochformat"
+            "value": "Hochformat"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "縦向きの読み進む方向"
+            "value": "縦向き時の方向"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "세로 화면 읽기 방향"
+            "value": "세로 읽기 방향"
           }
         },
         "zh-Hans": {
@@ -388,19 +388,19 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "プリロード上限数"
+            "value": "先読みページ数"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "페이지 미리 로딩"
+            "value": "미리 불러올 페이지"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "预加载数量上限"
+            "value": "预加载页数"
           }
         },
         "zh-Hant": {
@@ -423,7 +423,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Am Lesen"
+            "value": "Lesen"
           }
         },
         "ja": {
@@ -447,7 +447,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "閱讀設定"
+            "value": "閱讀"
           }
         }
       }
@@ -464,7 +464,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Oberfläche"
+            "value": "Darstellung"
           }
         },
         "ja": {
@@ -476,7 +476,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "외관"
+            "value": "화면 표시"
           }
         },
         "zh-Hans": {
@@ -499,25 +499,25 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Separator Height"
+            "value": "Page Spacing"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Höhe der Teilung"
+            "value": "Seitenabstand"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "仕切りの高さ"
+            "value": "ページの間隔"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "페이지 간 여백 두께"
+            "value": "페이지 간격"
           }
         },
         "zh-Hans": {
@@ -529,7 +529,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "頁間分隔高度"
+            "value": "頁面間距"
           }
         }
       }

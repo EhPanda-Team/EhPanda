@@ -154,13 +154,13 @@
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "账户"
+            "value" : "账号"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "帳號設定"
+            "value" : "帳號"
           }
         }
       }
@@ -253,7 +253,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Downloads über Mobilfunk erlauben"
+            "value" : "Downloads über Mobilfunk"
           }
         },
         "en" : {
@@ -265,19 +265,19 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "モバイル通信でのダウンロードを許可"
+            "value" : "モバイル通信でのダウンロード"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "셀룰러 다운로드 허용"
+            "value" : "모바일 데이터 다운로드 허용"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "允许蜂窝网络下载"
+            "value" : "允许使用移动网络下载"
           }
         },
         "zh-Hant" : {
@@ -294,7 +294,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "AltStore Quelle"
+            "value" : "AltStore-Quelle"
           }
         },
         "en" : {
@@ -306,7 +306,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "AltStore ソース"
+            "value" : "AltStoreソース"
           }
         },
         "ko" : {
@@ -324,7 +324,7 @@
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "AltStore source"
+            "value" : "AltStore 來源"
           }
         }
       }
@@ -359,7 +359,7 @@
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "分析"
+            "value" : "使用统计"
           }
         },
         "zh-Hant" : {
@@ -388,7 +388,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "アプリアクティビティログ"
+            "value" : "アクティビティログ"
           }
         },
         "ko" : {
@@ -406,7 +406,7 @@
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "應用程式活動日誌"
+            "value" : "App 活動紀錄"
           }
         }
       }
@@ -470,13 +470,13 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "他のログ"
+            "value" : "その他のログ"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "더 많은 로그"
+            "value" : "로그 더 보기"
           }
         },
         "zh-Hans" : {
@@ -488,7 +488,7 @@
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "更多日誌"
+            "value" : "更多紀錄"
           }
         }
       }
@@ -529,7 +529,7 @@
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "找不到日誌"
+            "value" : "找不到紀錄"
           }
         }
       }
@@ -552,7 +552,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "ファイルで開く"
+            "value" : "「ファイル」アプリで開く"
           }
         },
         "ko" : {
@@ -581,7 +581,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Ausführung %#@count@"
+            "value" : "Sitzung %#@count@"
           },
           "substitutions" : {
             "count" : {
@@ -625,7 +625,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "起動 %#@count@"
+            "value" : "%#@count@回目の起動"
           },
           "substitutions" : {
             "count" : {
@@ -669,7 +669,7 @@
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "运行 %#@count@"
+            "value" : "第 %#@count@ 次运行"
           },
           "substitutions" : {
             "count" : {
@@ -691,7 +691,7 @@
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "運行 %#@count@"
+            "value" : "第 %#@count@ 次執行"
           },
           "substitutions" : {
             "count" : {
@@ -718,7 +718,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Ausführungen"
+            "value" : "Sitzungen"
           }
         },
         "en" : {
@@ -730,25 +730,25 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "起動"
+            "value" : "起動履歴"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "실행"
+            "value" : "실행 기록"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "运行"
+            "value" : "运行记录"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "運行"
+            "value" : "執行紀錄"
           }
         }
       }
@@ -771,7 +771,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "アプリアクティビティログ"
+            "value" : "アクティビティログ"
           }
         },
         "ko" : {
@@ -789,7 +789,7 @@
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "應用程式活動日誌"
+            "value" : "App 活動紀錄"
           }
         }
       }
@@ -830,7 +830,7 @@
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "App 圖案"
+            "value" : "App 圖示"
           }
         }
       }
@@ -841,7 +841,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Oberfläche"
+            "value" : "Darstellung"
           }
         },
         "en" : {
@@ -859,7 +859,7 @@
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "외관"
+            "value" : "화면 표시"
           }
         },
         "zh-Hans" : {
@@ -871,7 +871,7 @@
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "外觀設定"
+            "value" : "外觀"
           }
         }
       }
@@ -900,7 +900,7 @@
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "표시방식"
+            "value" : "표시 방식"
           }
         },
         "zh-Hans" : {
@@ -953,7 +953,7 @@
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "存檔邏輯設定"
+            "value" : "壓縮檔邏輯設定"
           }
         }
       }
@@ -994,7 +994,7 @@
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "存檔的預設邏輯是確認原始圖片或重新採樣後進行存檔的成本差異與選擇，然後顯示一個可以在其他地方點擊、複製的連結，你可以在此處更改他的運作方式。"
+            "value" : "壓縮檔的預設邏輯是確認原始圖片或重新採樣後進行壓縮的成本差異與選擇，然後顯示一個可以在其他地方點擊、複製的連結，你可以在此處更改它的運作方式。"
           }
         }
       }
@@ -1035,7 +1035,7 @@
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "存檔設定"
+            "value" : "壓縮檔設定"
           }
         }
       }
@@ -1046,7 +1046,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "SNI Filter umgehen"
+            "value" : "SNI-Filter umgehen"
           }
         },
         "en" : {
@@ -1058,7 +1058,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "SNI フィルタリング回避"
+            "value" : "SNIフィルタリング回避"
           }
         },
         "ko" : {
@@ -1070,7 +1070,7 @@
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "域前置绕过 SNI 阻断"
+            "value" : "绕过 SNI 阻断"
           }
         },
         "zh-Hant" : {
@@ -1093,7 +1093,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Caches"
+            "value" : "Cache"
           }
         },
         "ja" : {
@@ -1128,13 +1128,13 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Zwischengespeicherte Bilder (Cache) löschen"
+            "value" : "Bildcache löschen"
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Clear Image Caches"
+            "value" : "Clear Image Cache"
           }
         },
         "ja" : {
@@ -1146,7 +1146,7 @@
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "이미지 캐시 지우기"
+            "value" : "이미지 캐시 삭제"
           }
         },
         "zh-Hans" : {
@@ -1158,7 +1158,7 @@
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "清理圖片快取"
+            "value" : "清除圖片快取"
           }
         }
       }
@@ -1175,13 +1175,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Code-level Contributors"
+            "value" : "Code Contributors"
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "コードレベル貢献者"
+            "value" : "コードの貢献者"
           }
         },
         "ko" : {
@@ -1193,7 +1193,7 @@
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "代码级贡献者"
+            "value" : "代码贡献者"
           }
         },
         "zh-Hant" : {
@@ -1269,7 +1269,7 @@
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "평가의 시간을 보이기"
+            "value" : "댓글 투표 표시 시점"
           }
         },
         "zh-Hans" : {
@@ -1298,7 +1298,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Concurrent Image Downloads"
+            "value" : "Simultaneous Downloads"
           }
         },
         "ja" : {
@@ -1316,13 +1316,13 @@
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "并发图片下载"
+            "value" : "同时下载图片数"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "並行圖片下載"
+            "value" : "同時下載頁數"
           }
         }
       }
@@ -1345,25 +1345,25 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "クッキーをコピー"
+            "value" : "Cookieをコピー"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "쿠키 복사하기"
+            "value" : "쿠키 복사"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "复制 Cookies"
+            "value" : "复制 Cookie"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "複製 Cookies"
+            "value" : "複製 Cookie"
           }
         }
       }
@@ -1404,7 +1404,7 @@
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "在縮圖與放大檢視這兩種檢視模式下，封面的重新採樣比率介於 %1$@ 至 %2$@."
+            "value" : "在縮圖與延伸這兩種顯示模式下，畫廊列表的封面可縮放到 %1$@ 至 %2$@ 之間。"
           }
         }
       }
@@ -1509,7 +1509,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "無効"
+            "value" : "不明"
           }
         },
         "ko" : {
@@ -1521,13 +1521,13 @@
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "无效"
+            "value" : "未知"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "N/A"
+            "value" : "不適用"
           }
         }
       }
@@ -1579,31 +1579,31 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Übernimmt automatisch Links aus der Zwischenablage"
+            "value" : "Links aus Zwischenablage"
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Detect Links from the Clipboard"
+            "value" : "Detect Links in Clipboard"
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "クリップボードからリンクを探知"
+            "value" : "クリップボードのリンクを検出"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "클립보드의 링크 인식하기"
+            "value" : "클립보드의 링크 감지"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "从剪切板检测链接"
+            "value" : "检测剪贴板中的链接"
           }
         },
         "zh-Hant" : {
@@ -1626,7 +1626,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Display Japanese Title"
+            "value" : "Show Japanese Titles"
           }
         },
         "ja" : {
@@ -1638,7 +1638,7 @@
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "일본어 제목 보여주기"
+            "value" : "일본어 제목 표시"
           }
         },
         "zh-Hans" : {
@@ -1650,7 +1650,7 @@
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "以日文顯示標籤"
+            "value" : "顯示日文標題"
           }
         }
       }
@@ -1679,7 +1679,7 @@
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "표시방식"
+            "value" : "표시 방식"
           }
         },
         "zh-Hans" : {
@@ -1732,7 +1732,7 @@
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "你想在首頁和搜尋結果中使用哪一種顯示方式?"
+            "value" : "你想在首頁和搜尋結果中使用哪一種顯示方式？"
           }
         }
       }
@@ -1755,7 +1755,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "表示仕様"
+            "value" : "表示スタイル"
           }
         },
         "ko" : {
@@ -1849,7 +1849,7 @@
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "在画廊页面启用缩图选择器"
+            "value" : "在画廊页面启用缩略图选择器"
           }
         },
         "zh-Hant" : {
@@ -1872,19 +1872,19 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Enable Tags Extension"
+            "value" : "Enhanced Tags"
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "タグの拡張機能を有効"
+            "value" : "タグ拡張機能"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "태그 확장 기능 사용하기"
+            "value" : "태그 확장 기능 사용"
           }
         },
         "zh-Hans" : {
@@ -1896,7 +1896,7 @@
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "啟用自訂標籤擴充功能"
+            "value" : "啟用標籤擴充功能"
           }
         }
       }
@@ -1960,19 +1960,19 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "特定の言語のギャラリーをリストと検索結果から隠したい場合、下に選択してください。注意：どんな検索クエリーを使ってもこれらの言語のギャラリーは表示されません。"
+            "value" : "特定の言語のギャラリーをリストと検索結果から隠したい場合、下で選択してください。注意：どんな検索クエリーを使ってもこれらの言語のギャラリーは表示されません。"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "갤러리 목록에서 특정 언어로 된 갤러리를 숨기고 검색하려면 아래 목록에서 해당 갤러리를 선택해주세요. 검색어에 관계없이 일치하는 갤러리는 나타나지 않아요."
+            "value" : "갤러리 목록과 검색에서 특정 언어로 된 갤러리를 숨기려면 아래 목록에서 해당 언어를 선택해주세요. 검색어에 관계없이 일치하는 갤러리는 나타나지 않아요."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "如果你希望以从列表或搜索结果中隐藏特定语言的画廊，请从下面的列表中选择。注意：无论搜索条件为何，这些画廊都不会出现。"
+            "value" : "如果你希望从列表或搜索结果中隐藏特定语言的画廊，请从下面的列表中选择。注意：无论搜索条件为何，这些画廊都不会出现。"
           }
         },
         "zh-Hant" : {
@@ -2007,7 +2007,7 @@
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "제외된 업로드"
+            "value" : "제외된 업로더"
           }
         },
         "zh-Hans" : {
@@ -2066,7 +2066,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "You are currently using **%#@used@ / %#@limit@** exclusion slots."
+            "value" : "You are currently using **%#@used@ of %#@limit@** exclusion slots."
           },
           "substitutions" : {
             "limit" : {
@@ -2269,7 +2269,7 @@
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "갤러리 목록 및 검색에서 특정 업로더의 갤러리를 숨기려면 아래에 해당 갤러리를 추가해주세요. 한 줄에 하나의 사용자 이름을 입력해주세요. 이러한 업로더의 갤러리는 검색 쿼리에 관계없이 나타나지 않아요."
+            "value" : "갤러리 목록 및 검색에서 특정 업로더의 갤러리를 숨기려면 아래에 해당 업로더를 추가해주세요. 한 줄에 하나의 사용자 이름을 입력해주세요. 이러한 업로더의 갤러리는 검색 쿼리에 관계없이 나타나지 않아요."
           }
         },
         "zh-Hans" : {
@@ -2281,7 +2281,7 @@
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "如果你希望從畫廊列表和搜尋結果中隱藏某些上傳者的畫廊，請將它們新增到下方，每行輸入一個使用者名稱。請注意，無論你的搜尋結果如何，這些上傳者的畫廊都不會出現。"
+            "value" : "如果你希望從畫廊列表和搜尋結果中隱藏某些上傳者的畫廊，請將它們新增到下方，每行輸入一個使用者名稱。請注意，無論你的搜尋條件如何，這些上傳者的畫廊都不會出現。"
           }
         }
       }
@@ -2310,7 +2310,7 @@
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "여기서 좋아하는 장르들을 선택하고 이름을 바꿀 수 있어요."
+            "value" : "여기서 즐겨찾기 카테고리를 선택하고 이름을 바꿀 수 있어요."
           }
         },
         "zh-Hans" : {
@@ -2392,7 +2392,7 @@
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "관심 순서를 배열"
+            "value" : "즐겨찾기 정렬 순서"
           }
         },
         "zh-Hans" : {
@@ -2415,37 +2415,37 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Du kannst auch die Standardsortierung für Galerien auf deiner Favoritenseite festlegen. Favoriten, die vor der Überarbeitung im März 2016 hinzugefügt wurden, haben keinen Zeitstempel und werden unabhängig von dieser Einstellung nach dem Veröffentlichungszeitpunkt der Galerie sortiert."
+            "value" : "Standardsortierung für Galerien auf deiner Favoritenseite."
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "You can also select your default sort order for galleries on your favorites page. Note that favorites added prior to the March 2016 revamp did not store a timestamp, and will use the gallery posted time regardless of this setting."
+            "value" : "Default sort order for galleries on your favorites page."
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "お気に入りページのデフォルト並び替え順序も変更可能です。注意：平成28年3月の改修前にお気に入りに追加した項目はタイムスタンプが含まれていないため、この設定を無視して代わりにギャラリーの投稿時間を使います。"
+            "value" : "お気に入りページのギャラリーのデフォルト並び替え順序です。"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "당신의 관심 페이지의 기본 정렬 방식을 선택할 수 있어요. 2016년 3월 개정 전에 추가된 즐겨찾기는 타임스탬프가 저장되지 않아 이 설정에 관계없이 갤러리가 게시된 시간으로 정렬되어요."
+            "value" : "즐겨찾기 페이지에 있는 갤러리의 기본 정렬 방식이에요."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "你也可以选择收藏夹中默认排序。注意：2016 年 3 月改版之前加入收藏夹的画廊并未保存收藏时间，会以画廊发布时间代替。"
+            "value" : "收藏夹页面中画廊的默认排序。"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "你還可以在收藏匣頁面上為畫廊選擇預設排列順序。 請注意，在 2016 年 3 月網站改版之前新增的畫廊並不儲存時間印記，並且無論使用何種設定，都將使用畫廊發佈時間作為排序參考。"
+            "value" : "收藏匣頁面上畫廊的預設排列順序。"
           }
         }
       }
@@ -2497,37 +2497,37 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Soll die Meldung „Deine Standardfilter haben XX Galerien von dieser Seite entfernt“ angezeigt werden?"
+            "value" : "Soll die Meldung „Deine benutzerdefinierten Filter haben XX Galerien von dieser Seite entfernt“ angezeigt werden?"
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Show the \"Your default filters removed XX galleries from this page\" readout?"
+            "value" : "Show the \"Your custom filters removed XX galleries from this page\" readout?"
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "「既定フィルターにより本ページから XX 個のギャラリーが除去されました」を表示しますか？"
+            "value" : "「カスタムフィルターにより本ページから XX 個のギャラリーが除去されました」を表示しますか？"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "\"기본 필터가 이 페이지에서 갤러리 XX개를 제거했어요\" 문구를 표시할까요?"
+            "value" : "\"사용자 지정 필터가 이 페이지에서 갤러리 XX개를 제거했어요\" 문구를 표시할까요?"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "要显示“你的默认筛选器从本页移除了 XX 个画廊”提示吗？"
+            "value" : "要显示“你的自定义筛选器从本页移除了 XX 个画廊”提示吗？"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "顯示 \"Your default filters removed XX galleries from this page\" ?"
+            "value" : "顯示「你的自訂篩選條件已從此頁移除 XX 個畫廊」的提示嗎？"
           }
         }
       }
@@ -2538,37 +2538,37 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Startseite"
+            "value" : "Startseite / Suche"
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Front Page Settings"
+            "value" : "Front Page / Search Settings"
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "フロントページ設定"
+            "value" : "フロントページ・検索設定"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "프론트 페이지 설정"
+            "value" : "프론트 페이지 / 검색 설정"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "扉页设置"
+            "value" : "首页 / 搜索设置"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "首頁設定"
+            "value" : "首頁 / 搜尋設定"
           }
         }
       }
@@ -2632,7 +2632,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "フロント・検索ページでどれらのカテゴリーのギャラリーを表示しますか？"
+            "value" : "フロント・検索ページでどのカテゴリーのギャラリーを表示しますか？"
           }
         },
         "ko" : {
@@ -2650,7 +2650,7 @@
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "預設情況下你希望在首頁和搜尋結果中顯示哪些類別的結果?"
+            "value" : "預設情況下你希望在首頁和搜尋結果中顯示哪些類別的結果？"
           }
         }
       }
@@ -2767,13 +2767,13 @@
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "很多画廊都同时拥有英文或者日文标题，你想默认显示哪一个？"
+            "value" : "很多画廊都同时拥有英文（或罗马音）和日文标题，你想默认显示哪一个？"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "許多畫廊同時提供了英文/預設標題與日文標題，你想優先顯示哪種畫廊名稱?"
+            "value" : "許多畫廊同時提供了英文或羅馬拼音標題與日文標題，你想優先顯示哪種畫廊名稱？"
           }
         }
       }
@@ -2931,13 +2931,13 @@
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "一般"
+            "value" : "通用"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "一般設定"
+            "value" : "一般"
           }
         }
       }
@@ -3007,7 +3007,7 @@
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "**%1$@**에 있거나 이 나라의 VPN을 사용하는 것 같네요. 기본적으로 **%2$@** H@H 지역에서 이미지를 로드할 거에요. 만약에 이 결과가 잘못되었거나 분할 터널링 VPN을 사용하는 경우와 같이 어떤 이유로든 다른 지역을 사용하려는 경우라면, 아래에서 원하는 지역을 선택할 수 있어요."
+            "value" : "**%1$@**에 있거나 이 나라의 VPN을 사용하는 것 같네요. 기본적으로 **%2$@** H@H 지역에서 이미지를 로드할 거예요. 만약에 이 결과가 잘못되었거나 분할 터널링 VPN을 사용하는 경우와 같이 어떤 이유로든 다른 지역을 사용하려는 경우라면, 아래에서 원하는 지역을 선택할 수 있어요."
           }
         },
         "zh-Hans" : {
@@ -3288,7 +3288,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "サイト側は画像を自動的にスクリーンに適したサイズにスケールしますが、手動的にその画像の表示サイズ最大値を指定することも可能です。ブラウザが処理を実行するため、画像のリサンプリングは行われません。（ゼロは無制限を意味します）"
+            "value" : "サイト側は画像を自動的にスクリーンに適したサイズにスケールしますが、手動でその画像の表示サイズ最大値を指定することも可能です。ブラウザが処理を実行するため、画像のリサンプリングは行われません。（ゼロは無制限を意味します）"
           }
         },
         "ko" : {
@@ -3306,7 +3306,7 @@
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "雖然網站會自動縮小圖片以適應瀏覽裝置的螢幕寬度，但您也可以手動限製圖片的最大顯示尺寸。 像自動縮放一樣，這不會重新採樣圖像，因為調整大小是在瀏覽器完成的 (0 = 沒有限制)"
+            "value" : "雖然網站會自動縮小圖片以適應瀏覽裝置的螢幕寬度，但您也可以手動限制圖片的最大顯示尺寸。 像自動縮放一樣，這不會重新採樣圖像，因為調整大小是在瀏覽器完成的 (0 = 沒有限制)"
           }
         }
       }
@@ -3358,7 +3358,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Benutzerdefinierte Übersetzungen importieren"
+            "value" : "Eigene Übersetzungen importieren"
           }
         },
         "en" : {
@@ -3370,7 +3370,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "カスタム翻訳を取り込む"
+            "value" : "カスタム翻訳をインポート"
           }
         },
         "ko" : {
@@ -3405,7 +3405,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Infite"
+            "value" : "No Limit"
           }
         },
         "ja" : {
@@ -3499,7 +3499,7 @@
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "리스트"
+            "value" : "목록"
           }
         },
         "zh-Hans" : {
@@ -3522,37 +3522,37 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Bilder über das Hath-Netzwerk laden"
+            "value" : "Bilder über das Hentai@Home-Netzwerk laden"
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Load Images through the Hath Network"
+            "value" : "Load Images through the Hentai@Home Network"
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Hath ネットワーク経由で画像を読み込む"
+            "value" : "Hentai@Home ネットワーク経由で画像を読み込む"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Hath 네트워크를 통하여 이미지 로드"
+            "value" : "Hentai@Home 네트워크를 통하여 이미지 로드"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "通过 Hath 网络加载图像"
+            "value" : "通过 Hentai@Home 网络加载图像"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "透過 Hath Network 載入圖片"
+            "value" : "透過 Hentai@Home Network 載入圖片"
           }
         }
       }
@@ -3563,13 +3563,13 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Ausloggen"
+            "value" : "Abmelden"
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Logout"
+            "value" : "Log Out"
           }
         },
         "ja" : {
@@ -3604,25 +3604,25 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Bist du sicher das du dich ausloggen möchtest?"
+            "value" : "Möchtest du dich wirklich abmelden?"
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Are you sure to logout?"
+            "value" : "Are you sure you want to log out?"
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "本当にログアウトしてもよろしいですか？"
+            "value" : "ログアウトしますか？"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "로그아웃 하시겠어요?"
+            "value" : "로그아웃할까요?"
           }
         },
         "zh-Hans" : {
@@ -3634,7 +3634,7 @@
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "確定要登出嗎?"
+            "value" : "確定要登出嗎？"
           }
         }
       }
@@ -3657,13 +3657,13 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "タグ数上限"
+            "value" : "タグ数の上限"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "태그 갯수"
+            "value" : "최대 태그 수"
           }
         },
         "zh-Hans" : {
@@ -3675,7 +3675,7 @@
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "標籤最大顯示數量"
+            "value" : "標籤顯示上限"
           }
         }
       }
@@ -3745,7 +3745,7 @@
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "내비게이션"
+            "value" : "링크"
           }
         },
         "zh-Hans" : {
@@ -3809,37 +3809,37 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Es wird immer nur eine Galerie gleichzeitig heruntergeladen. Mit dieser Einstellung steuerst du, wie viele Galerieseiten parallel geladen werden, ob Mobilfunk erlaubt ist und dass Dateien im Downloads-Ordner der App gespeichert werden."
+            "value" : "Es wird immer nur eine Galerie heruntergeladen. Hier legst du fest, wie viele Seiten gleichzeitig geladen werden und ob Mobilfunk erlaubt ist. Die Dateien liegen im Downloads-Ordner der App."
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Only one gallery downloads at a time. This setting controls how many gallery pages can download in parallel, can allow or block cellular downloads, and stores files in the app's Downloads folder."
+            "value" : "Galleries download one at a time. Choose how many pages download at once and whether cellular data can be used. Files are saved in the app’s Downloads folder."
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "一度にダウンロードされるギャラリーは 1 件だけです。この設定では、1 つのギャラリー内で同時にダウンロードするページ数、モバイル通信の許可または禁止、そしてファイルをアプリの Downloads フォルダに保存する動作を管理します。"
+            "value" : "ギャラリーは1件ずつダウンロードされます。ここでは、同時にダウンロードするページ数とモバイル通信の使用を設定できます。ファイルはアプリの「Downloads」フォルダに保存されます。"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "한 번에 하나의 갤러리만 다운로드됩니다. 이 설정으로 한 갤러리 안에서 동시에 다운로드할 페이지 수, 셀룰러 다운로드 허용 여부, 그리고 파일을 앱의 Downloads 폴더에 저장하는 방식을 제어합니다."
+            "value" : "갤러리는 한 번에 하나씩 다운로드됩니다. 여기서 동시에 다운로드할 페이지 수와 모바일 데이터 다운로드 허용 여부를 설정합니다. 파일은 앱의 Downloads 폴더에 저장됩니다."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "每次只会下载一个画廊。这个设置用于控制单个画廊内页面的并行下载数量、是否允许蜂窝网络下载，以及文件在应用 Downloads 文件夹中的存储方式。"
+            "value" : "每次只下载一个画廊。可设置同时下载的页数和是否允许使用移动网络。文件保存在应用的 Downloads 文件夹中。"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "每次只會下載一個畫廊。此設定用於控制單個畫廊內頁面的並行下載數量、是否允許行動網路下載，以及檔案在應用程式 Downloads 資料夾中的儲存方式。"
+            "value" : "一次只會下載一個畫廊。你可以設定同時下載的頁數以及是否允許使用行動網路，檔案會儲存在 App 的 Downloads 資料夾。"
           }
         }
       }
@@ -3962,7 +3962,7 @@
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "要使用原始圖片而非重新取樣的版本嗎? 若您在上方選擇「自動」以外的水準解析度且圖片較寬，或原始圖片大於 10 MiB（一年以上的圖庫則為 4 MiB），系統仍會使用重新取樣的圖片。"
+            "value" : "要使用原始圖片而非重新取樣的版本嗎？若您在上方選擇「自動」以外的水平解析度且圖片較寬，或原始圖片大於 10 MiB（一年以上的畫廊則為 4 MiB），系統仍會使用重新取樣的圖片。"
           }
         }
       }
@@ -4003,7 +4003,7 @@
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Password"
+            "value" : "密碼"
           }
         }
       }
@@ -4014,7 +4014,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Datenschutzmaske"
+            "value" : "Sichtschutz"
           }
         },
         "en" : {
@@ -4055,7 +4055,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Verwischt die App im App-Umschalter und wenn sie in den Hintergrund wechselt."
+            "value" : "Macht die App im App-Umschalter und beim Wechsel in den Hintergrund unscharf."
           }
         },
         "en" : {
@@ -4067,25 +4067,25 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Appスイッチャー内およびバックグラウンドに移行したときに、アプリをぼかします。"
+            "value" : "アプリスイッチャー内およびバックグラウンドに移行したときに、アプリをぼかします。"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "앱 전환기와 앱이 백그라운드로 전환될 때 앱을 흐리게 표시합니다."
+            "value" : "앱 전환 화면에 나타나거나 백그라운드로 전환될 때 앱을 흐리게 표시합니다."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "在 App 切换器中以及应用进入后台时模糊应用内容。"
+            "value" : "在多任务界面和切到后台时模糊应用内容。"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "在 App 切換器中以及 App 進入背景時模糊 App 內容。"
+            "value" : "在 App 切換器中及進入背景時，模糊 App 畫面。"
           }
         }
       }
@@ -4190,7 +4190,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "デフォルトでは、評価済みのギャラリーは 2 以下の評価に赤い星を使う、2.5 ~ 4 には緑、4.5 以上には青。下に色の組み合わせを入れることでこのルールをカスタマイズできます。一つの星の色は一つの文字で指定します。デフォルトの「RRGGB」は「一番目と二番目の星は赤（Red）、三番と四番は緑（Green）、五番は青（Blue）」を意味します。黄色（Yellow）も使用可能です。R・G・B・Yで組み合わせた五文字はどれも機能します。"
+            "value" : "デフォルトでは、評価済みのギャラリーは 2 以下の評価に赤い星、2.5 ~ 4 には緑、4.5 以上には青を使います。下に色の組み合わせを入れることでこのルールをカスタマイズできます。一つの星の色は一つの文字で指定します。デフォルトの「RRGGB」は「一番目と二番目の星は赤（Red）、三番と四番は緑（Green）、五番は青（Blue）」を意味します。黄色（Yellow）も使用可能です。R・G・B・Yで組み合わせた五文字はどれも機能します。"
           }
         },
         "ko" : {
@@ -4202,7 +4202,7 @@
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "默认设置下，你评为 2 星及以下的画廊显示为红星，2.5 ~ 4 星显示为绿星，4.5 ~ 5 星显示为蓝星。你可以将其设定为其它颜色组合。每一个字幕代表一颗星, 默认的 RRGGB 表示第一第二颗星显示为红色 R(ed)，第三第四颗星显示是绿色 G(reen)，第五颗星显示为蓝色 B(lue)。你也可以使用黄色 (Y)ellow，R/G/B/Y 任何五个组合都是有效的。"
+            "value" : "默认设置下，你评为 2 星及以下的画廊显示为红星，2.5 ~ 4 星显示为绿星，4.5 ~ 5 星显示为蓝星。你可以将其设定为其它颜色组合。每一个字母代表一颗星，默认的 RRGGB 表示第一第二颗星显示为红色 R(ed)，第三第四颗星显示为绿色 G(reen)，第五颗星显示为蓝色 B(lue)。你也可以使用黄色 (Y)ellow，R/G/B/Y 任何五个组合都是有效的。"
           }
         },
         "zh-Hant" : {
@@ -4260,37 +4260,37 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Links zum ausgewählten Host umleiten"
+            "value" : "Links zur gewählten Website"
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Redirect Links to the Selected Host"
+            "value" : "Open Links on Selected Site"
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "リンクを選択されたホストへリダイレクト"
+            "value" : "リンクを選択中のホストで開く"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "선택한 서버로 이동하기"
+            "value" : "선택한 웹사이트로 링크 열기"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "重定向链接到选定的站点"
+            "value" : "将链接重定向到所选网站"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "將連結重新導向至選擇的網站"
+            "value" : "將連結導向所選網站"
           }
         }
       }
@@ -4342,7 +4342,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Benutzerdefinierte Übersetzungen entfernen"
+            "value" : "Eigene Übersetzungen entfernen"
           }
         },
         "en" : {
@@ -4372,7 +4372,7 @@
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "刪除自訂標籤翻譯"
+            "value" : "移除自訂標籤翻譯"
           }
         }
       }
@@ -4383,25 +4383,25 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Möchtest du deine benutzerdefinierten Übersetzungen wirklich entfernen?"
+            "value" : "Möchtest du deine eigenen Übersetzungen wirklich entfernen?"
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Are you sure to remove your custom translations?"
+            "value" : "Remove your custom translations?"
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "本当にカスタム翻訳を削除してもよろしいですか？"
+            "value" : "カスタム翻訳を削除しますか？"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "사용자 지정 번역을 삭제하시겠어요?"
+            "value" : "사용자 지정 번역을 삭제할까요?"
           }
         },
         "zh-Hans" : {
@@ -4413,7 +4413,7 @@
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "是否確定要刪除所有自訂翻譯?"
+            "value" : "要移除所有自訂標籤翻譯嗎？"
           }
         }
       }
@@ -4536,7 +4536,7 @@
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "你希望每頁顯示幾個搜尋結果?\n(該功能需要有 Hath Perk: Paging Enlargement)"
+            "value" : "你希望每頁顯示幾個搜尋結果？\n(該功能需要有 Hath Perk: Paging Enlargement)"
           }
         }
       }
@@ -4547,13 +4547,13 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Fehlgeschlagene Seiten automatisch erneut versuchen"
+            "value" : "Seiten bei Fehlern neu laden"
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Retry Failed Pages Automatically"
+            "value" : "Auto-Retry Failed Pages"
           }
         },
         "ja" : {
@@ -4817,7 +4817,7 @@
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "账户"
+            "value" : "账号"
           }
         },
         "zh-Hant" : {
@@ -4834,7 +4834,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Oberfläche"
+            "value" : "Darstellung"
           }
         },
         "en" : {
@@ -4852,7 +4852,7 @@
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "외관"
+            "value" : "화면 표시"
           }
         },
         "zh-Hans" : {
@@ -4881,7 +4881,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Download"
+            "value" : "Downloads"
           }
         },
         "ja" : {
@@ -4940,7 +4940,7 @@
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "一般"
+            "value" : "通用"
           }
         },
         "zh-Hant" : {
@@ -4998,7 +4998,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Am Lesen"
+            "value" : "Lesen"
           }
         },
         "en" : {
@@ -5063,7 +5063,7 @@
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "共享分析数据"
+            "value" : "发送使用数据"
           }
         },
         "zh-Hant" : {
@@ -5080,37 +5080,37 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Hilft den Betreuern von EhPanda zu erkennen, welche Funktionen wichtig sind. Suchanfragen werden nur als Form übertragen, nie als Text, und niemals ein Galerietitel, Link oder Bezeichner. Wenn dies deaktiviert ist, werden keine Ereignisse mehr gesendet; deine Installation wird weiterhin gezählt."
+            "value" : "Zeigt den Entwicklern von EhPanda, welche Funktionen wichtig sind. Suchanfragen werden nur in ihrer Struktur übertragen, nie als Text. Galerietitel, Links und Kennungen werden nie gesendet. Ist diese Option aus, werden keine Ereignisse mehr gesendet, deine Installation wird aber weiterhin gezählt."
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Helps EhPanda's maintainers see which features matter. Searches are sent as a shape, never as text, and no gallery title, link or identifier is ever included. Turning this off stops these events; your installation is still counted."
+            "value" : "Helps EhPanda’s maintainers see which features matter. For searches, only the length and format are sent, never the text, and no gallery title, link, or identifier is ever included. Turning this off stops these events, but your installation is still counted."
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "どの機能が重要かを EhPanda の開発者が把握するのに役立ちます。検索は本文ではなく特徴のみが送信され、ギャラリーのタイトル・リンク・識別子が含まれることはありません。オフにするとこれらの送信は停止しますが、インストール数は引き続き集計されます。"
+            "value" : "どの機能が重要かをEhPandaの開発者が把握するのに役立ちます。検索は語句ではなく形式のみが送信され、ギャラリーのタイトル、リンク、識別子が含まれることはありません。オフにするとこれらの送信は停止しますが、インストール数は引き続き集計されます。"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "어떤 기능이 중요한지 EhPanda 관리자가 파악하는 데 도움이 됩니다. 검색은 본문이 아니라 형태만 전송되며, 갤러리 제목·링크·식별자는 절대 포함되지 않습니다. 이 설정을 끄면 이러한 전송이 중단되지만 설치 수는 계속 집계됩니다."
+            "value" : "어떤 기능이 중요한지 EhPanda 개발자가 파악하는 데 도움이 됩니다. 검색어는 내용 없이 형태만 전송되며, 갤러리 제목·링크·식별자는 절대 포함되지 않습니다. 이 설정을 끄면 이러한 전송이 중단되지만 설치 수는 계속 집계됩니다."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "帮助 EhPanda 的维护者了解哪些功能重要。搜索仅以特征形式发送，绝不发送文本，也绝不包含任何画廊标题、链接或标识符。关闭后将停止发送这些事件，但仍会统计你的安装。"
+            "value" : "帮助 EhPanda 维护者了解哪些功能更重要。搜索只发送结构特征，不发送文字内容，也不包含画廊标题、链接或标识符。关闭后将不再发送这些事件，但仍会统计安装量。"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "協助 EhPanda 的維護者了解哪些功能重要。搜尋僅以特徵形式傳送，絕不傳送文字，也絕不包含任何畫廊標題、連結或識別碼。關閉後將停止傳送這些事件，但仍會統計你的安裝。"
+            "value" : "協助 EhPanda 維護者了解哪些功能重要。搜尋只會傳送概略特徵，不含搜尋文字，也不含任何畫廊標題、連結或識別碼。關閉後會停止傳送這些事件，但你的安裝仍會計入統計。"
           }
         }
       }
@@ -5180,19 +5180,19 @@
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "태그에 이미지 보여주기"
+            "value" : "태그에 이미지 표시"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "显示标签中的图像"
+            "value" : "显示标签中的图片"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "在標籤顯示圖片"
+            "value" : "在標籤中顯示圖片"
           }
         }
       }
@@ -5262,13 +5262,13 @@
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "새벽 인사 구독하기"
+            "value" : "새벽 인사 표시"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "显示黎明问候"
+            "value" : "显示每日问候"
           }
         },
         "zh-Hant" : {
@@ -5367,7 +5367,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Tags als Liste anzeigen"
+            "value" : "Tags in der Liste anzeigen"
           }
         },
         "en" : {
@@ -5379,13 +5379,13 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "リストでタグを表示"
+            "value" : "リストにタグを表示"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "리스트에서 태그 보여주기"
+            "value" : "목록에 태그 표시"
           }
         },
         "zh-Hans" : {
@@ -5408,25 +5408,25 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Tag-Vorschläge bei der Suche anzeigen"
+            "value" : "Tag-Vorschläge anzeigen"
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Show Tags Search Suggestion"
+            "value" : "Show Tag Suggestions"
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "タグの検索提案を表示"
+            "value" : "タグの検索候補を表示"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "태그 검색 제안 보여주기"
+            "value" : "태그 검색 제안 표시"
           }
         },
         "zh-Hans" : {
@@ -5502,7 +5502,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "特別な感謝"
+            "value" : "スペシャルサンクス"
           }
         },
         "ko" : {
@@ -5537,7 +5537,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Submit"
+            "value" : "Save"
           }
         },
         "ja" : {
@@ -5619,7 +5619,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "You can soft filter tags by adding them to My Tags with a negative weight. If a gallery has tags that add up to weight below this value, it is filtered from view. This threshold can be set between 0 and -9999."
+            "value" : "You can soft filter tags by adding them to My Tags with a negative weight. If a gallery has tags that add up to a weight below this value, it is filtered from view. This threshold can be set between 0 and -9999."
           }
         },
         "ja" : {
@@ -5643,7 +5643,7 @@
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "你可以透過將標籤新增到具有負數權重的“我的標籤”清單中來過濾標籤。 如果畫廊的標籤加起來的權重低於此值，則會被從列表中過濾掉，此閾值可以設定在 0 ~ -9999 之間"
+            "value" : "你可以透過將標籤以負數權重新增到「我的標籤」來過濾標籤。 如果畫廊的標籤加起來的權重低於此值，則會被從列表中過濾掉，此閾值可以設定在 0 ~ -9999 之間"
           }
         }
       }
@@ -5666,25 +5666,25 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "タグ購読しきい値"
+            "value" : "タグフォローのしきい値"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "태그 보여주기 임계값"
+            "value" : "관심 태그 임계값"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "标签订阅阈值"
+            "value" : "标签关注阈值"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "關注標籤閾值"
+            "value" : "追蹤標籤閾值"
           }
         }
       }
@@ -5695,25 +5695,25 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Kürzlich hochgeladene Galerien erscheinen unter „Meine Tags“, wenn sie mindestens einen beobachteten Tag mit positivem Gewicht haben und die Gewichte ihrer beobachteten Tags zusammen diesen Wert erreichen oder überschreiten. Der Schwellenwert kann zwischen 0 und 9999 liegen."
+            "value" : "Kürzlich hochgeladene Galerien erscheinen unter „Beobachtet“, wenn sie mindestens einen beobachteten Tag mit positivem Gewicht haben und die Gewichte ihrer beobachteten Tags zusammen diesen Wert erreichen oder überschreiten. Der Schwellenwert kann zwischen 0 und 9999 liegen."
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Recently uploaded galleries will be included on the watched screen if it has at least one watched tag with positive weight, and the sum of weights on its watched tags add up to this value or higher. This threshold can be set between 0 and 9999."
+            "value" : "Recently uploaded galleries will be included on the watched screen if they have at least one watched tag with positive weight, and the sum of weights on their watched tags adds up to this value or higher. This threshold can be set between 0 and 9999."
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "もしあるギャラリーは最近投稿されたもので、少なくても一つの正の重みの購読タグを持っていて、購読タグの重み総和がこのしきい値と同じまたはより高ければ、そのギャラリーは購読画面で表示されます。このしきい値はゼロから 9999 まで設定できます。"
+            "value" : "もしあるギャラリーは最近投稿されたもので、少なくとも一つの正の重みのフォロー中のタグを持っていて、フォロー中のタグの重み総和がこのしきい値と同じまたはより高ければ、そのギャラリーは「フォロー中」画面で表示されます。このしきい値はゼロから 9999 まで設定できます。"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "최근에 업로드된 갤러리는 최소 1개의 Watched 태그가 있고 Watched 태그의 가중치의 합이 이 값 이상이 될 경우 Watched 화면에 포함되어요. 이 임계값은 0과 9999 사이에서 설정할 수 있어요."
+            "value" : "최근에 업로드된 갤러리는 최소 1개의 관심 태그가 있고 관심 태그의 가중치의 합이 이 값 이상이 될 경우 관심 태그 화면에 포함되어요. 이 임계값은 0과 9999 사이에서 설정할 수 있어요."
           }
         },
         "zh-Hans" : {
@@ -5725,7 +5725,7 @@
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "如果最近上傳的畫廊中至少有一個具有正權重的你正在關注/追蹤的標籤，並且這些標籤所具有的權重高於此設定中的數值，那這個畫廊將會出現在「追蹤標籤」頁面中，此閾值可以設定在 0 ~ -9999 之間"
+            "value" : "如果最近上傳的畫廊中至少有一個具有正權重的你正在追蹤的標籤，並且這些標籤所具有的權重高於此設定中的數值，那這個畫廊將會出現在「追蹤中」頁面中，此閾值可以設定在 0 ~ 9999 之間"
           }
         }
       }
@@ -5783,31 +5783,31 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Manage Tags Subscription"
+            "value" : "My Tags"
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "タグの購読を管理"
+            "value" : "マイタグを管理"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "태그 구독 관리"
+            "value" : "My Tags 관리"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "管理标签订阅"
+            "value" : "管理我的标签"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "管理訂閱標籤"
+            "value" : "管理我的標籤"
           }
         }
       }
@@ -5836,7 +5836,7 @@
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "태그 순서를 배열"
+            "value" : "태그 정렬 순서"
           }
         },
         "zh-Hans" : {
@@ -5859,7 +5859,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Erscheinungsbild"
+            "value" : "Design"
           }
         },
         "en" : {
@@ -5912,7 +5912,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "すべてのギャラリーに適応するデフォルトのサムネイル構成を設定できます。"
+            "value" : "すべてのギャラリーに適用するデフォルトのサムネイル構成を設定できます。"
           }
         },
         "ko" : {
@@ -5982,37 +5982,37 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Wann sollen die Mouseover-Vorschaubilder auf der Startseite im Listenmodus geladen werden?"
+            "value" : "Wann sollen die Mouseover-Vorschaubilder auf der Startseite im Anzeigemodus „Minimal“ oder „Kompakt“ geladen werden?"
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "How would you like the mouse-over thumbnails on the front page to load when using List Mode?"
+            "value" : "How would you like the mouse-over thumbnails on the front page to load when using Minimal or Compact display mode?"
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "リストでは、どんなタイミングでホームページのマウスオーバーサムネイルを読み込みますか？"
+            "value" : "「最小化」または「コンパクト」表示モードでは、どんなタイミングでホームページのマウスオーバーサムネイルを読み込みますか？"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "목록 모드를 사용할 때 앞 페이지의 마우스 오버 미리 보기를 어떻게 로드할까요?"
+            "value" : "미니멀 또는 컴팩트 표시 방식을 사용할 때 앞 페이지의 마우스 오버 미리 보기를 어떻게 로드할까요?"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "你希望列表中的鼠标悬停缩略图何时加载？"
+            "value" : "在最小化或紧凑显示模式下，你希望鼠标悬停缩略图何时加载？"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "使用列表模式時，你希望如何載入以滑鼠位置顯示的縮圖?"
+            "value" : "使用「最小」或「緊湊」顯示模式時，你希望如何載入滑鼠移過時顯示的縮圖？"
           }
         }
       }
@@ -6053,7 +6053,7 @@
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "行數"
+            "value" : "列數"
           }
         }
       }
@@ -6152,7 +6152,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Download"
+            "value" : "Downloads"
           }
         },
         "ja" : {
@@ -6199,13 +6199,13 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "タグを訳す"
+            "value" : "タグを翻訳"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "태그 번역하기"
+            "value" : "태그 번역"
           }
         },
         "zh-Hans" : {
@@ -6217,7 +6217,7 @@
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "標籤翻譯"
+            "value" : "翻譯標籤"
           }
         }
       }
@@ -6240,7 +6240,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "翻訳貢献者"
+            "value" : "翻訳の貢献者"
           }
         },
         "ko" : {
@@ -6328,7 +6328,7 @@
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "원본 뷰어 적용"
+            "value" : "원본 이미지 사용"
           }
         },
         "zh-Hans" : {
@@ -6369,7 +6369,7 @@
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "이름"
+            "value" : "아이디"
           }
         },
         "zh-Hans" : {
@@ -6381,7 +6381,7 @@
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Username"
+            "value" : "使用者名稱"
           }
         }
       }
@@ -6574,7 +6574,7 @@
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "모바일 장치의 사이트 가상 너비를 설정할 수 있어요. 일반적으로 DPI에 따라 장치에 의해 자동으로 결정되어요. %@ 썸네일 스케일의 추천 값은 640에서 1400 사이에요."
+            "value" : "모바일 장치의 사이트 가상 너비를 설정할 수 있어요. 일반적으로 DPI에 따라 장치에 의해 자동으로 결정되어요. %@ 썸네일 스케일의 추천 값은 640에서 1400 사이예요."
           }
         },
         "zh-Hans" : {
@@ -6609,7 +6609,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "ウェブサイト"
+            "value" : "Webサイト"
           }
         },
         "ko" : {
@@ -6627,7 +6627,7 @@
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "官方網站"
+            "value" : "網站"
           }
         }
       }

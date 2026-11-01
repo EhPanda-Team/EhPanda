@@ -807,7 +807,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "%#@total@ ページ中 %#@first@–%#@last@ ページ"
+            "value": "%#@total@ページ中%#@first@から%#@last@ページ"
           },
           "substitutions": {
             "first": {
@@ -907,7 +907,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "第 %#@first@–%#@last@ 页，共 %#@total@ 页"
+            "value": "第 %#@first@ 至 %#@last@ 页，共 %#@total@ 页"
           },
           "substitutions": {
             "first": {
@@ -957,7 +957,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "第 %#@first@–%#@last@ 頁，共 %#@total@ 頁"
+            "value": "第 %#@first@ 到 %#@last@ 頁，共 %#@total@ 頁"
           },
           "substitutions": {
             "first": {
@@ -1119,7 +1119,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "%#@page@ 페이지 재시도"
+            "value": "%#@page@ 페이지 다시 불러오기"
           },
           "substitutions": {
             "page": {
@@ -1163,7 +1163,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "重新整理第 %#@page@ 頁"
+            "value": "重新載入第 %#@page@ 頁"
           },
           "substitutions": {
             "page": {
@@ -1212,7 +1212,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Original von Seite %#@page@ sichern"
+            "value": "Original von Seite %#@page@ speichern"
           },
           "substitutions": {
             "page": {
@@ -1349,7 +1349,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Seite %#@page@ sichern"
+            "value": "Seite %#@page@ speichern"
           },
           "substitutions": {
             "page": {
@@ -1619,7 +1619,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "자동 재생"
+            "value": "자동 넘김"
           }
         },
         "zh-Hans": {
@@ -1666,7 +1666,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "不启用"
+            "value": "关闭"
           }
         },
         "zh-Hant": {
@@ -1777,13 +1777,13 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "デュアルページモード"
+            "value": "見開き表示"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "두 장을 한 화면으로 보기"
+            "value": "두 페이지 보기"
           }
         },
         "zh-Hans": {
@@ -1806,25 +1806,25 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Except the Cover"
+            "value": "Show Cover Alone"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Außer dem Cover"
+            "value": "Cover einzeln"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "カバーを除く"
+            "value": "表紙を除く"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "표지 제외하기"
+            "value": "표지 제외"
           }
         },
         "zh-Hans": {
@@ -1847,7 +1847,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Reading Setting"
+            "value": "Reading Settings"
           }
         },
         "de": {
@@ -1906,7 +1906,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "재시도"
+            "value": "다시 불러오기"
           }
         },
         "zh-Hans": {
@@ -1918,7 +1918,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "重新整理"
+            "value": "重新載入"
           }
         }
       }
@@ -1976,13 +1976,13 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Fehlgeschlagene Bilder erneut laden"
+            "value": "Fehlerhafte Bilder neu laden"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "読み込み失敗した画像をすべてリトライ"
+            "value": "失敗した画像をすべて再試行"
           }
         },
         "ko": {
@@ -1994,7 +1994,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "重试所有读取失败图片"
+            "value": "重试所有加载失败的图片"
           }
         },
         "zh-Hant": {
@@ -2017,7 +2017,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Sichern"
+            "value": "Speichern"
           }
         },
         "ja": {
@@ -2058,7 +2058,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Original sichern"
+            "value": "Original speichern"
           }
         },
         "ja": {

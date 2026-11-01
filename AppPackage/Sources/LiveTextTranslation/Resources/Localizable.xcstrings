@@ -13,7 +13,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Couldn't translate this page."
+            "value" : "Couldn’t translate this page."
           }
         },
         "ja" : {
@@ -54,7 +54,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Couldn't tell which language this page is in."
+            "value" : "Couldn’t tell which language this page is in."
           }
         },
         "ja" : {
@@ -95,7 +95,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Can't translate %1$@ into %2$@ on this device."
+            "value" : "Can’t translate %1$@ into %2$@ on this device."
           }
         },
         "ja" : {
