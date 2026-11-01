@@ -41,7 +41,7 @@ struct CaptureScreenDiagnosticsTests {
     }
 
     @Test
-    func aPushedDetailWaitsForItsDetailCoverAndPreviews() async throws {
+    func aPushedDetailWaitsForItsDetailCoverAndRequestedPreviews() async throws {
         let fixture = try MarketingFixtureBuilder.standard().addingPreview()
         let scene = try makeScene(fixture)
         let cover = try #require(fixture.files.first(where: { $0.kind == .cover })?.url)
@@ -54,6 +54,7 @@ struct CaptureScreenDiagnosticsTests {
         let loading = diagnostics(scene, state)
         detail = try loadedDetail(gallery, previewImage: preview)
         state.homeState.path = StackState([.gallery(.detail(detail))])
+        let offscreenPreview = diagnostics(scene, state, answered: [cover], cached: [cover])
         let previewPending = diagnostics(scene, state, answered: [cover, preview], cached: [cover])
         let ready = diagnostics(scene, state, answered: [cover, preview], cached: [cover, preview])
         // A preview's image view caches it under the app's stable key for its URL.
@@ -64,10 +65,12 @@ struct CaptureScreenDiagnosticsTests {
         expectNoDifference(loading.galleryIDs, [MarketingFixtureBuilder.flowGID])
         expectNoDifference(loading.readiness, .loading)
         expectNoDifference(loading.blockers, ["The detail is loading", "The cover is not shown"])
+        expectNoDifference(offscreenPreview.readiness, .ready)
+        expectNoDifference(offscreenPreview.blockers, [])
         expectNoDifference(previewPending.readiness, .loading)
         expectNoDifference(
             previewPending.blockers,
-            ["1 preview images are not shown", "1 delivered images are not cached yet"]
+            ["1 delivered images are not cached yet"]
         )
         expectNoDifference(ready.readiness, .ready)
         expectNoDifference(ready.blockers, [])

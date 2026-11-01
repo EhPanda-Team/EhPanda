@@ -103,6 +103,8 @@ struct CaptureSelection: Equatable, Sendable, Decodable {
     struct Scene: Equatable, Sendable, Decodable {
         let home: Home
         let flow: Flow
+        let detailGallery: String?
+        let commentsGallery: String?
         let liveText: LiveText
         /// The galleries the Downloads screen lists, in display order.
         let downloads: [Download]

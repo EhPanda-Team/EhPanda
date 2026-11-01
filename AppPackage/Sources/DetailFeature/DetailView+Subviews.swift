@@ -1,4 +1,5 @@
 import AppComponents
+import AppLaunchAutomationClient
 import AppModels
 import AppTools
 import ComposableArchitecture
@@ -258,6 +259,9 @@ extension DescriptionSection {
 
 // MARK: ActionSection
 struct ActionSection: View {
+    #if DEBUG
+    @Dependency(\.appLaunchAutomationClient) private var appLaunchAutomationClient
+    #endif
     @SharedReader(.didLogin) private var didLogin: Bool
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     let galleryDetail: GalleryDetail
@@ -269,6 +273,16 @@ struct ActionSection: View {
     let navigateSimilarGalleryAction: () -> Void
     // 24pt at default (.large); scales with Dynamic Type relative to the nearest text style (.title2, 22pt).
     @ScaledMetric(relativeTo: .title2) private var userRatingSymbolSize: CGFloat = 24
+
+    private var isRatingEnabled: Bool {
+        #if DEBUG
+        // Screenshot-only presentation; account state and production authentication stay unchanged.
+        if let route = appLaunchAutomationClient.current()?.captureRoute, case .detail = route {
+            return true
+        }
+        #endif
+        return didLogin
+    }
 
     var body: some View {
         VStack {
@@ -308,7 +322,7 @@ struct ActionSection: View {
                 }
                 .frame(maxWidth: .infinity)
             }
-            .disabled(!didLogin)
+            .disabled(!isRatingEnabled)
 
             Button(action: navigateSimilarGalleryAction) {
                 Label {

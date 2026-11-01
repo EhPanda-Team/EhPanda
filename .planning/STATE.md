@@ -21,6 +21,12 @@ source_head: af00e0da93
 
 # Project State
 
+## Toplists spacing review — 2026-11-01
+
+Stars now match the pages caption style; category/pages/rating use fixed 4-point gaps.
+Build and lint pass, and the native iPad screenshot is ready for owner review. Uncommitted
+continuation recorded in the adaptive Home summary.
+
 ## Cover-tinted light-mode slideshow card — 2026-11-01
 
 The focused light-mode Home card now shows its cover gradient through `CardGradientTint`, which
@@ -1324,3 +1330,38 @@ Home's title only for iPad top tabs, restoring it when tabs move below. The owne
 investigation, native resizing captures and two passing final-source UI tests are recorded in
 [Home title/tab placement](quick/261017-pjj-implement-b-home-sections-with-selected-/HOME-TITLE-TAB-PLACEMENT.md).
 Review iPad updated normally; Phase 17 review gates remain unchanged.
+
+
+Website screenshot preparation is complete (192/192 verified; owner review pending): see `quick/261101-website-review/PLAN.md` and
+`SUMMARY.md`. Owner revisions include tags-visible Home center, populated Comments, default
+Filters, Chinese 全年齡/全年龄, screenshot-only enabled rating appearance, and the corrected
+2026-10-31 adult selection. The local review is not publication or baseline approval.
+
+Slideshow tags now exclude title-bracket duplicates and non-solid vote tiers, prioritize eligible
+artist/group tags, and retain source order within the strong tier (owner confirmed). Focused tests
+pass; one broader, tag-independent rich-card height assertion remains recorded for investigation.
+See `quick/261101-website-review/SUMMARY.md`.
+
+Both slideshow sets now have all 31 center candidates captured in light/dark (124 native iPhone Air
+images), with paired local review and two original-image ZIPs. Full capture audit and browser review
+checks pass; the existing 192-screen review remains intact. Owner selected centers 4284679 (nonexplicit) and 1320054 (explicit). See `quick/261101-website-review/SUMMARY.md`.
+
+Frontpage review now has twenty native light-mode Home screenshots: ten seeded random arrangements
+per group, with the approved center excluded from Frontpage. Capture audit and browser checks pass;
+owner choice of each Frontpage version remains pending. See `quick/261101-website-review/SUMMARY.md`.
+
+Owner Frontpage choices are applied to capture fixtures: nonexplicit version 05 and a custom explicit
+six-gallery first viewport (4286547, 4294199, 4281489 / 4291491, 3760512, 3002185 in reading order).
+Both centers remain fixed and fixtures validate. Custom explicit recapture and Toplists selection
+remain pending; see `quick/261101-website-review/SUMMARY.md`.
+
+### 2026-11-01 — slideshow tag translation review
+
+Shared slideshow tags now use existing translation settings/data. Corrected the full-color
+Traditional Chinese exception to match raw tag identity. Eight native light-mode screenshots
+(four supported tag languages × two groups) are ready at
+http://127.0.0.1:8774/tag-translations/; 31 focused tests passed. Current centers and Frontpage
+choices preserved. See quick task `261101-website-review/SUMMARY.md`; owner visual review pending.
+
+Website screenshot refresh is held at the owner’s request until the parallel app-copy update
+finishes. The eight translated slideshow cards were approved; review-task changes are being committed.

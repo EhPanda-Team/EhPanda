@@ -136,12 +136,14 @@ class Site:
         self.calls = []
         self.responses = {}
         flows = set(fixtures.reader_galleries(value))
+        details = {scene.get(key, scene['flow']['gallery'])
+                   for scene in value['scenes'].values() for key in ('detailGallery', 'commentsGallery')}
         downloads = {entry['gallery'] for scene in value['scenes'].values() for entry in scene['downloads']}
         for gallery in value['galleries']:
             gid = gallery['url'].split('/')[4]
             self.html(gallery['url'] + '?hc=1', detail_html(gid, pages, shown))
             self.image(f'https://ehgt.org/w/{gid}/cover.jpg')
-            if gid in flows:
+            if gid in flows | details:
                 for page in range(1, min(shown, pages) + 1, 20):
                     self.image(sprite_url(gid, page), PNG)
             if gid not in flows | downloads:
@@ -237,6 +239,19 @@ class AcquisitionTests(FixtureTestCase):
         details = [url for url in site.calls if url.endswith('?hc=1')]
         self.assertEqual(details, [gallery['url'] + '?hc=1' for gallery in self.selection['galleries']])
         self.assertIn(gallery_url('101') + '?p=0', site.calls)
+
+    def test_detail_and_comments_select_galleries_without_acquiring_their_book_pages(self):
+        scene = self.selection['scenes']['nonexplicit']
+        scene.update(detailGallery='102', commentsGallery='103')
+        site = Site(self.selection)
+        target, _ = self.acquire(site)
+        manifest = fixtures.validate_fixtures(target)
+        rows = fixtures.screen_occurrences(scene)
+        self.assertEqual(rows['detail'][0][2], '102')
+        self.assertEqual(rows['comments'][0][2], '103')
+        for gid in ('102', '103'):
+            kinds = {asset['kind'] for asset in manifest['assets'] if asset['gid'] == gid}
+            self.assertEqual(kinds, {'detail', 'cover', 'preview'})
 
     def test_reader_page_beyond_the_first_batch_uses_the_app_page_number(self):
         read(self.selection, pages=[55], page=55)
