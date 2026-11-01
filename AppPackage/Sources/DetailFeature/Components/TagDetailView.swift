@@ -16,9 +16,15 @@ struct TagDetailView: View {
         NavigationStack {
             ScrollView {
                 VStack {
-                    TagDescriptionSection(description: detail.description)
-                    ImagesSection(imageURLs: detail.imageURLs).padding(.vertical)
-                    LinksSection(links: detail.links).padding(.vertical)
+                    if !detail.description.isEmpty {
+                        TagDescriptionSection(description: detail.description)
+                    }
+                    if !detail.imageURLs.isEmpty {
+                        ImagesSection(imageURLs: detail.imageURLs).padding(.vertical)
+                    }
+                    if !detail.links.isEmpty {
+                        LinksSection(links: detail.links).padding(.vertical)
+                    }
                 }
             }
             .scrollIndicators(.hidden)

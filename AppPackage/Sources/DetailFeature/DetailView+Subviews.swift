@@ -485,15 +485,9 @@ extension TagsSection {
             content: GalleryTag.Content,
             translation: TagTranslation?
         ) -> some View {
-            if let translation = translation,
-               let description = translation.descriptionPlainText,
-               !description.isEmpty {
+            if let detail = translation?.detail {
                 Button {
-                    navigateTagDetailAction(.init(
-                        title: translation.displayValue, description: description,
-                        imageURLs: translation.descriptionImageURLs,
-                        links: translation.links
-                    ))
+                    navigateTagDetailAction(detail)
                 } label: {
                     Label(.RLocalizable.detail, systemSymbol: .richtextPage)
                 }
