@@ -129,7 +129,7 @@ struct ImageClientTests {
     }
 
     @Test
-    func rejectsQuotaPlaceholderFromNetworkWithoutCachingIt() async throws {
+    func rejectsLimitPlaceholderFromNetworkWithoutCachingIt() async throws {
         let (cache, rootURL) = makeIsolatedDataCache()
         defer { removeTemporaryItem(at: rootURL) }
         let url = try #require(URL(string: "https://ehgt.org/g/509.gif"))
@@ -145,7 +145,7 @@ struct ImageClientTests {
             try await client.fetchImageAsset(url: url).get()
         }
 
-        #expect(error == .quotaExceeded)
+        #expect(error == .imageLimitReached)
         #expect(await cache.data(forKeys: url.imageCacheKeys) == nil)
     }
 
@@ -166,7 +166,7 @@ struct ImageClientTests {
             try await client.fetchImageAsset(url: url).get()
         }
 
-        #expect(error == .authenticationRequired)
+        #expect(error == .loginRequired)
         #expect(await cache.data(forKeys: url.imageCacheKeys) == nil)
     }
 

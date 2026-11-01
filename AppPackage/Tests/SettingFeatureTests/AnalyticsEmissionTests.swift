@@ -49,7 +49,7 @@ struct AnalyticsEmissionTests {
         (error: AppError.networkingFailed, kind: LoginFailureKind.networkingFailed),
         (error: AppError.loginRejected("You must enter a username"), kind: LoginFailureKind.rejected),
         (error: AppError.unknown, kind: LoginFailureKind.rejected),
-        (error: AppError.quotaExceeded, kind: LoginFailureKind.other)
+        (error: AppError.imageLimitReached, kind: LoginFailureKind.other)
     ])
     func aFailedLoginRecordsOneClassifiedSignal(error: AppError, kind: LoginFailureKind) async {
         let recorded = LockIsolated<[AnalyticsSignal]>([])
@@ -74,7 +74,7 @@ struct AnalyticsEmissionTests {
         (error: AppError.networkingFailed, kind: LoginFailureKind.networkingFailed),
         (error: AppError.loginRejected("Bad password."), kind: LoginFailureKind.rejected),
         (error: AppError.unknown, kind: LoginFailureKind.rejected),
-        (error: AppError.quotaExceeded, kind: LoginFailureKind.other),
+        (error: AppError.imageLimitReached, kind: LoginFailureKind.other),
         (error: AppError.notFound, kind: LoginFailureKind.other),
         (error: AppError.fileOperationFailed("disk"), kind: LoginFailureKind.other)
     ])

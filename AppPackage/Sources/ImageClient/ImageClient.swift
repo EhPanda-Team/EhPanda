@@ -108,7 +108,7 @@ extension ImageClient {
         }
         let cacheKeys = url.imageCacheKeys
         if let data = await dataCache.data(forKeys: cacheKeys) {
-            // A known placeholder (quota/login wall) that was cached before this
+            // A known placeholder (limit/login wall) that was cached before this
             // guard existed must not be re-served; purge it and re-fetch so a
             // since-lifted limit recovers on its own.
             if ImagePlaceholderFingerprint.match(data) == nil {
@@ -123,7 +123,7 @@ extension ImageClient {
         let data = try await downloadReaderData(
             url: url, urlSession: urlSession, onProgress: onProgress
         )
-        // E-H serves quota/auth placeholders as valid 200 images; reject them as the
+        // E-H serves limit/login placeholders as valid 200 images; reject them as the
         // errors they are (matching the download pipeline) so they're never cached,
         // displayed, or exported as the real page.
         if let placeholder = ImagePlaceholderFingerprint.match(data) {

@@ -118,7 +118,7 @@ extension DownloadCoordinator {
         )
     }
 
-    func isQuotaExceededResponse(
+    func isImageLimitReachedResponse(
         fullData: Data?,
         fileURL: URL?,
         response: URLResponse,
@@ -129,7 +129,7 @@ extension DownloadCoordinator {
         let lowercasedURLs = urls
             .map({ $0.absoluteString.lowercased() })
         guard lowercasedURLs.contains(where: { url in
-            Self.quotaExceededImageURLSuffixes
+            Self.imageLimitReachedImageURLSuffixes
                 .contains(where: url.hasSuffix)
         }) else {
             return false
@@ -138,7 +138,7 @@ extension DownloadCoordinator {
         let byteCount = fullData?.count
             ?? responseContentLength(response)
             ?? fileSize(at: fileURL)
-        guard byteCount == ImagePlaceholderFingerprint.quotaExceededByteCount
+        guard byteCount == ImagePlaceholderFingerprint.imageLimitReachedByteCount
         else {
             return false
         }
@@ -148,25 +148,25 @@ extension DownloadCoordinator {
             data = fullData
         } else if let fileURL {
             // Loading file bytes is an optional fingerprint probe; failure means this
-            // response cannot be confirmed as the quota placeholder by content.
+            // response cannot be confirmed as the limit placeholder by content.
             data = probeFileData(at: fileURL)
         } else {
             data = nil
         }
         guard let data else { return false }
-        return isQuotaExceededAssetData(data)
+        return isImageLimitReachedAssetData(data)
     }
 
-    func isAuthenticationRequiredPlaceholderResponse(
+    func isLoginRequiredPlaceholderResponse(
         response: URLResponse,
         requestURL: URL?
     ) -> Bool {
         [requestURL, response.url].contains {
-            isAuthenticationRequiredPlaceholderURL($0)
+            isLoginRequiredPlaceholderURL($0)
         }
     }
 
-    func isAuthenticationRequiredPlaceholderURL(
+    func isLoginRequiredPlaceholderURL(
         _ url: URL?
     ) -> Bool {
         guard let url else { return false }
@@ -185,7 +185,7 @@ extension DownloadCoordinator {
             .contains(where: normalizedURL.hasSuffix)
     }
 
-    func isAuthenticationRequiredResponse(
+    func isLoginRequiredResponse(
         prefixData: Data,
         fullData: Data?,
         response: URLResponse,
@@ -324,14 +324,14 @@ extension DownloadCoordinator {
         }
     }
 
-    func isAuthenticationRequiredPlaceholderImageData(
+    func isLoginRequiredPlaceholderImageData(
         _ data: Data
     ) -> Bool {
-        ImagePlaceholderFingerprint.match(data) == .authenticationRequired
+        ImagePlaceholderFingerprint.match(data) == .loginRequired
     }
 
-    func isQuotaExceededAssetData(_ data: Data) -> Bool {
-        ImagePlaceholderFingerprint.match(data) == .quotaExceeded
+    func isImageLimitReachedAssetData(_ data: Data) -> Bool {
+        ImagePlaceholderFingerprint.match(data) == .imageLimitReached
     }
 
     func isDecodableImageData(_ data: Data) -> Bool {

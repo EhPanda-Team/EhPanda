@@ -176,13 +176,13 @@ struct DownloadBackgroundCompletionTests: DownloadFeatureTestCase {
         // download like the foreground path, not just record a page failure.
         await manager.handleBackgroundPageDownloadFailed(
             taskIdentifier: taskIdentifier,
-            error: .authenticationRequired
+            error: .loginRequired
         )
 
         let failed = try #require(await manager.fetchDownload(gid: gid))
         #expect(queueStore.gids == [])
         #expect(failed.displayStatus == .error)
-        #expect(failed.lastError?.code == .authenticationRequired)
+        #expect(failed.lastError?.code == .loginRequired)
     }
 
     @Test

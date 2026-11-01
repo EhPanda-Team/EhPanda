@@ -106,8 +106,8 @@ public struct LoginRequest: Request {
         // The successful forum response also links to `bounce_login.php` to finish sign-in.
         // That site-wide marker alone cannot classify this POST. Preserve explicit errors below,
         // then require fresh authentication cookies before accepting a page carrying the marker.
-        if let siteError, siteError != .authenticationRequired {
-            // A genuine site condition — a quota, a ban — keeps its own case and its tailored
+        if let siteError, siteError != .loginRequired {
+            // A genuine site condition — an image limit, a ban — keeps its own case and its tailored
             // recovery suggestion rather than collapsing into a login refusal.
             logger.warning("Login blocked by a site error: \(String(describing: siteError), privacy: .public)")
             throw siteError
@@ -124,7 +124,7 @@ public struct LoginRequest: Request {
             // lockout, and dropping it is what made every refusal arrive on screen as "unknown".
             throw AppError.loginRejected(message)
         }
-        if siteError == .authenticationRequired {
+        if siteError == .loginRequired {
             let headers = httpResponse?.allHeaderFields as? [String: String] ?? [:]
             let cookies = HTTPCookie.cookies(withResponseHeaderFields: headers, for: Defaults.URL.login)
             let credentialNames = Set(cookies.filter { cookie in

@@ -8,28 +8,28 @@ import TestingSupport
 
 struct DownloadImageParsingTests: DownloadFeatureTestCase {
     @Test
-    func testFileBasedQuotaImageMapsToQuotaExceeded() async throws {
+    func testFileBasedLimitImageMapsToImageLimitReached() async throws {
         let fileURL = try writeFixtureToTemporaryFile(filename: .bandwidthExceeded)
         defer { removeTemporaryItem(at: fileURL) }
 
         let manager = makeTestingDownloadCoordinator()
-        let quotaImageURL = try #require(URL(string: "https://ehgt.org/g/509.gif"))
+        let limitImageURL = try #require(URL(string: "https://ehgt.org/g/509.gif"))
         let response = try makeResponse(
-            url: quotaImageURL,
+            url: limitImageURL,
             contentType: "image/gif",
             contentLength: 28658
         )
         let error = await manager.detectResponseError(
             fileURL: fileURL,
             response: response,
-            requestURL: quotaImageURL
+            requestURL: limitImageURL
         )
 
-        #expect(error == .quotaExceeded)
+        #expect(error == .imageLimitReached)
     }
 
     @Test
-    func testFileBasedQuotaImageRequiresKnown509Signature() async throws {
+    func testFileBasedLimitImageRequiresKnown509Signature() async throws {
         let fileURL = try writeFixtureToTemporaryFile(filename: .bandwidthExceeded)
         defer { removeTemporaryItem(at: fileURL) }
 
@@ -37,23 +37,23 @@ struct DownloadImageParsingTests: DownloadFeatureTestCase {
         var data = try Data(contentsOf: fileURL)
         data[0] = 0
         try data.write(to: fileURL, options: .atomic)
-        let quotaImageURL = try #require(URL(string: "https://ehgt.org/g/509.gif"))
+        let limitImageURL = try #require(URL(string: "https://ehgt.org/g/509.gif"))
         let response = try makeResponse(
-            url: quotaImageURL,
+            url: limitImageURL,
             contentType: "image/gif",
             contentLength: data.count
         )
         let error = await manager.detectResponseError(
             fileURL: fileURL,
             response: response,
-            requestURL: quotaImageURL
+            requestURL: limitImageURL
         )
 
         #expect(error == nil)
     }
 
     @Test
-    func testFileBasedBinaryKokomadeImageMapsToAuthenticationRequired() async throws {
+    func testFileBasedBinaryKokomadeImageMapsToLoginRequired() async throws {
         let fileURL = FileManager.default.temporaryDirectory
             .appending(path: UUID().uuidString)
             .appendingPathExtension("gif")
@@ -75,11 +75,11 @@ struct DownloadImageParsingTests: DownloadFeatureTestCase {
             requestURL: URL(string: "https://exhentai.org/fullimg.php?gid=1&page=1")
         )
 
-        #expect(error == .authenticationRequired)
+        #expect(error == .loginRequired)
     }
 
     @Test
-    func testFileBasedQuotaImageFingerprintMapsToQuotaExceededEvenWhenURLLooksNormal() async throws {
+    func testFileBasedLimitImageFingerprintMapsToImageLimitReachedEvenWhenURLLooksNormal() async throws {
         let fileURL = try writeFixtureToTemporaryFile(filename: .bandwidthExceeded)
         defer { removeTemporaryItem(at: fileURL) }
 
@@ -96,11 +96,11 @@ struct DownloadImageParsingTests: DownloadFeatureTestCase {
             requestURL: normalImageURL
         )
 
-        #expect(error == .quotaExceeded)
+        #expect(error == .imageLimitReached)
     }
 
     @Test
-    func testFileBasedKokomadeImageFingerprintMapsToAuthenticationRequiredEvenWhenURLLooksNormal() async throws {
+    func testFileBasedKokomadeImageFingerprintMapsToLoginRequiredEvenWhenURLLooksNormal() async throws {
         let fileURL = try writeFixtureToTemporaryFile(resource: "Kokomade", pathExtension: "jpg")
         defer { removeTemporaryItem(at: fileURL) }
 
@@ -118,11 +118,11 @@ struct DownloadImageParsingTests: DownloadFeatureTestCase {
             requestURL: normalImageURL
         )
 
-        #expect(error == .authenticationRequired)
+        #expect(error == .loginRequired)
     }
 
     @Test
-    func testFileBasedTextImageLimitMapsToQuotaExceeded() async throws {
+    func testFileBasedTextImageLimitMapsToImageLimitReached() async throws {
         let fileURL = FileManager.default.temporaryDirectory
             .appending(path: UUID().uuidString)
             .appendingPathExtension("html")
@@ -134,18 +134,18 @@ struct DownloadImageParsingTests: DownloadFeatureTestCase {
         try htmlData.write(to: fileURL, options: .atomic)
 
         let manager = makeTestingDownloadCoordinator()
-        let quotaURL = try #require(URL(string: "https://e-hentai.org/s/1/1-1"))
+        let limitURL = try #require(URL(string: "https://e-hentai.org/s/1/1-1"))
         let response = try makeResponse(
-            url: quotaURL,
+            url: limitURL,
             contentType: "text/html"
         )
         let error = await manager.detectResponseError(
             fileURL: fileURL,
             response: response,
-            requestURL: quotaURL
+            requestURL: limitURL
         )
 
-        #expect(error == .quotaExceeded)
+        #expect(error == .imageLimitReached)
     }
 
     @Test
@@ -166,7 +166,7 @@ struct DownloadImageParsingTests: DownloadFeatureTestCase {
             urlSession: URLSession(configuration: configuration)
         )
         let recorder = RequestRecorder()
-        let quotaHTML = Data("""
+        let limitHTML = Data("""
         <html><body>You have exceeded your image viewing limits</body></html>
         """.utf8)
         SharedSessionStubURLProtocol.setHandler(for: sessionID) { request in
@@ -178,7 +178,7 @@ struct DownloadImageParsingTests: DownloadFeatureTestCase {
                     httpVersion: nil,
                     headerFields: ["Content-Type": "text/html"]
                 )),
-                quotaHTML
+                limitHTML
             )
         }
         defer {
@@ -235,15 +235,15 @@ struct DownloadImageParsingTests: DownloadFeatureTestCase {
         )
 
         #expect(batchResult.failedPages.map(\.index) == [1])
-        #expect(batchResult.failedPages.first?.error == .quotaExceeded)
+        #expect(batchResult.failedPages.first?.error == .imageLimitReached)
         #expect(recorder.snapshot().imageDownloads == 1)
     }
 
     @Test
-    func testCachedQuotaPlaceholderStoredUnderNormalImageURLIsRejected() async throws {
+    func testCachedLimitPlaceholderStoredUnderNormalImageURLIsRejected() async throws {
         try await expectCachedPlaceholderRejected(
             url: try #require(
-                URL(string: "https://ehgt.org/h/quota-placeholder-cache-\(UUID().uuidString)/1")
+                URL(string: "https://ehgt.org/h/image-limit-placeholder-cache-\(UUID().uuidString)/1")
             ),
             placeholderData: try fixtureData(filename: .bandwidthExceeded)
         )

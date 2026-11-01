@@ -23,7 +23,7 @@
 /// nudges at the ten-second liveness cadence is about five minutes. The longest legitimate flat
 /// stretch this app can produce is a page starving through its attempts under the abandon rule:
 /// roughly two attempts of seventy seconds, about a hundred and forty seconds plus resolution
-/// latency — less than half the cap. The often-cited counter-example, a back-off wait after a quota
+/// latency — less than half the cap. The often-cited counter-example, a back-off wait after a limit
 /// refusal, names no wait this app makes: a refusal arrives as a placeholder image, becomes a fatal
 /// account error, and the run fails rather than waiting, so the queue moves or drains. Past the cap
 /// the published count goes flat ON PURPOSE: the system reclaims the session about thirty seconds

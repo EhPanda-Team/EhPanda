@@ -103,7 +103,7 @@ extension DownloadCoordinator {
         } catch {
             logger.error("\(error, privacy: .private)")
             removeStagedBackgroundFile(fileURL)
-            // A fatal account error (quota/auth/ban) detected on an orphaned page must
+            // A fatal account error (limit/login/ban) detected on an orphaned page must
             // settle the whole download like the foreground does, so scheduleNextIfNeeded
             // below can't auto-resume it against the ban (BUG-6 / no-auto-retry).
             if let appError = error as? AppError, isFatalAccountAppError(appError) {

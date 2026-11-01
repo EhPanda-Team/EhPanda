@@ -280,7 +280,7 @@ struct RoutineRequestBaselineTests {
         #expect(request.mapAppError(error: URLError(.notConnectedToInternet)) == .networkingFailed)
         #expect(request.mapAppError(error: ParseError.EncodingMismatch) == .parseFailed)
         #expect(request.mapAppError(error: decodingError) == .parseFailed)
-        #expect(request.mapAppError(error: AppError.quotaExceeded) == .quotaExceeded)
+        #expect(request.mapAppError(error: AppError.imageLimitReached) == .imageLimitReached)
         #expect(request.mapAppError(error: RoutineBaselineError.arbitrary) == .unknown)
     }
 

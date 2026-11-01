@@ -30,7 +30,7 @@ struct LoginRejectionSurfacingTests {
     @Test
     func aRecognisedResponseErrorKeepsItsOwnCaseInsteadOfCollapsingToUnknown() async {
         let (session, handle) = makeStubbedSession(
-            script: StubScript([Defaults.URL.login: [.http(status: 200, data: Self.quotaPage)]])
+            script: StubScript([Defaults.URL.login: [.http(status: 200, data: Self.imageLimitPage)]])
         )
         defer { cleanUp(session: session, handle: handle) }
 
@@ -40,7 +40,7 @@ struct LoginRejectionSurfacingTests {
 
         // The existing site-wide parser runs first, so conditions the app already models keep their
         // structured case and their tailored recovery suggestion.
-        #expect(result == .failure(.quotaExceeded))
+        #expect(result == .failure(.imageLimitReached))
     }
 
     @Test
@@ -186,7 +186,7 @@ struct LoginRejectionSurfacingTests {
         """.utf8
     )
 
-    private static let quotaPage = Data(
+    private static let imageLimitPage = Data(
         "<html><body><p>You have exceeded your image viewing limits.</p></body></html>".utf8
     )
 
