@@ -30,6 +30,7 @@ struct AccountSettingView: View {
                 .labelsHidden()
 
                 AccountSection(
+                    galleryHost: setting.galleryHost,
                     showNewDawnGreeting: Binding($setting.showNewDawnGreeting),
                     bypassSNIFiltering: setting.bypassSNIFiltering,
                     loginAction: { store.send(.delegate(.pushLogin)) },
@@ -37,7 +38,7 @@ struct AccountSettingView: View {
                     logoutConfirmationDialog: $store.scope(
                         \.$confirmationDialog, action: \.confirmationDialog
                     ),
-                    configureAccountAction: { store.send(.delegate(.pushEhSetting)) },
+                    openHostSettingsAction: { store.send(.delegate(.pushEhSetting)) },
                     manageTagsAction: {
                         store.send(.presentWebView(Defaults.URL.myTags(host: setting.galleryHost)))
                     }
@@ -65,29 +66,32 @@ struct AccountSettingView: View {
 private struct AccountSection: View {
     @SharedReader(.didLogin) private var didLogin: Bool
     @Binding private var showNewDawnGreeting: Bool
+    private let galleryHost: GalleryHost
     private let bypassSNIFiltering: Bool
     private let loginAction: () -> Void
     private let logoutDialogAction: () -> Void
     private let logoutConfirmationDialog:
         Binding<Store<ConfirmationDialogState<AccountSettingReducer.Dialog>, AccountSettingReducer.Dialog>?>
-    private let configureAccountAction: () -> Void
+    private let openHostSettingsAction: () -> Void
     private let manageTagsAction: () -> Void
 
     init(
+        galleryHost: GalleryHost,
         showNewDawnGreeting: Binding<Bool>, bypassSNIFiltering: Bool,
         loginAction: @escaping () -> Void,
         logoutDialogAction: @escaping () -> Void,
         logoutConfirmationDialog:
             Binding<Store<ConfirmationDialogState<AccountSettingReducer.Dialog>, AccountSettingReducer.Dialog>?>,
-        configureAccountAction: @escaping () -> Void,
+        openHostSettingsAction: @escaping () -> Void,
         manageTagsAction: @escaping () -> Void
     ) {
+        self.galleryHost = galleryHost
         _showNewDawnGreeting = showNewDawnGreeting
         self.bypassSNIFiltering = bypassSNIFiltering
         self.loginAction = loginAction
         self.logoutDialogAction = logoutDialogAction
         self.logoutConfirmationDialog = logoutConfirmationDialog
-        self.configureAccountAction = configureAccountAction
+        self.openHostSettingsAction = openHostSettingsAction
         self.manageTagsAction = manageTagsAction
     }
 
@@ -102,8 +106,8 @@ private struct AccountSection: View {
             .confirmationDialog(logoutConfirmationDialog)
             Group {
                 Button(
-                    .accountConfiguration,
-                    action: configureAccountAction
+                    .hostSettings(galleryHost.rawValue),
+                    action: openHostSettingsAction
                 )
                 .withArrow()
                 if !bypassSNIFiltering {
