@@ -171,7 +171,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "History keeps your latest %#@limit@ galleries."
+            "value": "%#@limit@"
           },
           "substitutions": {
             "limit": {
@@ -179,10 +179,16 @@
               "formatSpecifier": "lld",
               "variations": {
                 "plural": {
+                  "one": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "History keeps your latest gallery."
+                    }
+                  },
                   "other": {
                     "stringUnit": {
                       "state": "translated",
-                      "value": "%arg"
+                      "value": "History keeps your latest %arg galleries."
                     }
                   }
                 }
@@ -193,7 +199,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Nur die neuesten %#@limit@ Einträge werden gespeichert."
+            "value": "%#@limit@"
           },
           "substitutions": {
             "limit": {
@@ -201,10 +207,16 @@
               "formatSpecifier": "lld",
               "variations": {
                 "plural": {
+                  "one": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "Nur der neueste Eintrag wird gespeichert."
+                    }
+                  },
                   "other": {
                     "stringUnit": {
                       "state": "translated",
-                      "value": "%arg"
+                      "value": "Nur die neuesten %arg Einträge werden gespeichert."
                     }
                   }
                 }

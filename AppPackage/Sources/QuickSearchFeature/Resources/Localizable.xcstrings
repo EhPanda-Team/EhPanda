@@ -253,7 +253,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "You can save up to %#@limit@ searches."
+            "value": "%#@limit@"
           },
           "substitutions": {
             "limit": {
@@ -261,10 +261,16 @@
               "formatSpecifier": "lld",
               "variations": {
                 "plural": {
+                  "one": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "You can save up to %arg search."
+                    }
+                  },
                   "other": {
                     "stringUnit": {
                       "state": "translated",
-                      "value": "%arg"
+                      "value": "You can save up to %arg searches."
                     }
                   }
                 }
@@ -275,7 +281,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Du kannst bis zu %#@limit@ Suchbegriffe speichern."
+            "value": "%#@limit@"
           },
           "substitutions": {
             "limit": {
@@ -283,10 +289,16 @@
               "formatSpecifier": "lld",
               "variations": {
                 "plural": {
+                  "one": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "Du kannst bis zu %arg Suchbegriff speichern."
+                    }
+                  },
                   "other": {
                     "stringUnit": {
                       "state": "translated",
-                      "value": "%arg"
+                      "value": "Du kannst bis zu %arg Suchbegriffe speichern."
                     }
                   }
                 }
