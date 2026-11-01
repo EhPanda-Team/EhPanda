@@ -5046,6 +5046,7 @@
       }
     },
     "read": {
+      "comment": "Verb on the button that opens this gallery in the reader.",
       "extractionState": "manual",
       "localizations": {
         "en": {

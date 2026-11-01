@@ -2,6 +2,7 @@
   "sourceLanguage" : "en",
   "strings" : {
     "read" : {
+      "comment" : "Verb on the button that opens this gallery in the reader.",
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
@@ -2277,6 +2278,7 @@
       }
     },
     "update" : {
+      "comment" : "Verb on the button that updates a downloaded gallery to its newest version.",
       "extractionState" : "manual",
       "localizations" : {
         "de" : {

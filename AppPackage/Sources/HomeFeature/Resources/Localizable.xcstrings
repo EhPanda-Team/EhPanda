@@ -84,6 +84,7 @@
       }
     },
     "filter": {
+      "comment": "Prompt of the search field in a gallery list, meaning: narrow this list down.",
       "extractionState": "manual",
       "localizations": {
         "en": {

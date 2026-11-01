@@ -54,6 +54,10 @@ public struct DownloadBadgeLabel: View {
     }
 
     private var accessibilityText: String {
-        [String(localized: statusText), String(localized: progressText)].joined(separator: " ")
+        let progress = LocalizedStringResource.downloadBadgeProgressAccessibility(
+            completed: badge.progress.displayCompletedPageCount,
+            total: badge.progress.displayPageCount
+        )
+        return [String(localized: statusText), String(localized: progress)].joined(separator: " ")
     }
 }
