@@ -4,7 +4,20 @@ import MarkdownExt
 
 extension TagTranslation {
     public var displayValue: String {
-        valuePlainText ?? value
+        let text = valuePlainText ?? value
+        return text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? key : text
+    }
+
+    public var detail: TagDetail? {
+        let description = descriptionPlainText ?? ""
+        var images = descriptionImageURLs
+        if let image = valueImageURL, !images.contains(image) {
+            images.insert(image, at: 0)
+        }
+        let links = links
+        guard !description.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+                || !images.isEmpty || !links.isEmpty else { return nil }
+        return .init(title: displayValue, description: description, imageURLs: images, links: links)
     }
 
     public var valuePlainText: String? {

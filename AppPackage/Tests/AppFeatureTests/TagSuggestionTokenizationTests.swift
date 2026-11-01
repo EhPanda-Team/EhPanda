@@ -4,6 +4,18 @@ import Testing
 
 @MainActor
 struct TagSuggestionTokenizationTests {
+    @Test(arguments: ["location:sch", "LOCATION:sch", "location:"])
+    func fullNamespaceWithoutAbbreviationSupportsCompletion(_ input: String) throws {
+        let tag = TagTranslation(namespace: .location, key: "school", value: "")
+        let handler = TagTranslationHandler()
+        var keyword = input
+        handler.analyze(text: &keyword, translations: ["locationschool": tag])
+        let suggestion = try #require(handler.suggestions.first)
+        #expect(suggestion.matchesNamespace)
+        handler.autoComplete(suggestion: suggestion, keyword: &keyword)
+        #expect(keyword == "location:school$ ")
+    }
+
     @Test(arguments: ["🐼🐼🐼 ", "中文 ", "artist:\"known name\" "])
     func preservesUnicodeAndQuotedTokensDuringCompletion(_ prefix: String) throws {
         let translation = TagTranslation(namespace: .female, key: "cat", value: "貓")

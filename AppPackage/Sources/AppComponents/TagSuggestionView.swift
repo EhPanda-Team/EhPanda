@@ -176,14 +176,13 @@ final class TagTranslationHandler {
         let originalKeyword = keyword
         var keyword = keyword
         var namespace: String?
-        let namespaceAbbreviations = TagNamespace.abbreviations
 
         if let colon = keyword.firstIndex(of: ":") {
             let key = String(keyword[keyword.startIndex..<colon])
-            if let match = namespaceAbbreviations.first(where: {
-                $0.caseInsensitiveEqualsTo(key) || $1.caseInsensitiveEqualsTo(key)
+            if let match = TagNamespace.allCases.first(where: {
+                $0.rawValue.caseInsensitiveEqualsTo(key) || $0.abbreviation?.caseInsensitiveEqualsTo(key) == true
             }) {
-                namespace = match.key
+                namespace = match.rawValue
                 keyword = .init(keyword[keyword.index(colon, offsetBy: 1)..<keyword.endIndex])
             }
         }

@@ -13,6 +13,7 @@ public enum TagNamespace: String, Codable, CaseIterable, Sendable {
     case mixed
     case cosplayer
     case other
+    case location
     case temp
 
     public static let abbreviations: [String: String] = {
@@ -41,6 +42,7 @@ extension TagNamespace {
         case .mixed: return 8
         case .cosplayer: return 2.4
         case .other: return 10
+        case .location: return 10
         case .temp: return 0.1
         }
     }
@@ -57,6 +59,7 @@ extension TagNamespace {
         case .mixed: return "x"
         case .cosplayer: return "cos"
         case .other: return "o"
+        case .location: return nil
         case .temp: return nil
         }
     }
@@ -73,6 +76,7 @@ extension TagNamespace {
         case .mixed: return .tagNamespaceMixed
         case .cosplayer: return .tagNamespaceCosplayer
         case .other: return .tagNamespaceOther
+        case .location: return .tagNamespaceLocation
         case .temp: return .tagNamespaceTemp
         }
     }

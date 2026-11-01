@@ -101,6 +101,22 @@ final class FileClientTests {
         #expect(rebuilt.translations.count == 1)
     }
 
+    @Test(arguments: [TranslatableLanguage.english, .japanese])
+    func emptyNamesAndLocationSurviveCacheRoundTrip(language: TranslatableLanguage) throws {
+        let response = EhTagTranslationDatabaseResponse(data: [
+            .init(namespace: "rows", data: ["location": .init(name: "Location")]),
+            .init(namespace: "location", data: ["school": .init(name: "", intro: "", links: "")]),
+            .init(namespace: "female", data: ["glasses": .init(name: language == .japanese ? "眼鏡" : "")])
+        ])
+        let raw = try JSONEncoder().encode(response)
+        let built = try client.cacheAndBuildRemoteTagTranslator(raw, language, .distantPast)
+        let rebuilt = try client.loadCachedTagTranslator(TagTranslatorInfo(language: language))
+        #expect(built == rebuilt)
+        #expect(rebuilt.translations.count == 2)
+        #expect(rebuilt.translations["locationschool"]?.value == "")
+        #expect(try Data(contentsOf: cacheURL(language)) == raw)
+    }
+
     @Test
     func rebuildsCustomTableFromApplicationSupport() async throws {
         let url = try writeTemporaryFile(try sampleResponseData())

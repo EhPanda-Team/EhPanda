@@ -14,9 +14,16 @@ extension TagSuggestion {
     }
     public var displayValue: String {
         let text = tag.displayValue
-        let leftSideString = leftSideString(of: valueRange, string: text)
-        var middleString = middleString(of: valueRange, string: text)
-        let rightSideString = rightSideString(of: valueRange, string: text)
+        // A range into raw Markdown cannot be reused after rendering or falling back to the key.
+        let range: Range<String.Index>?
+        if let valueRange {
+            range = text.range(of: String(tag.value[valueRange]), options: .caseInsensitive)
+        } else {
+            range = nil
+        }
+        let leftSideString = leftSideString(of: range, string: text)
+        var middleString = middleString(of: range, string: text)
+        let rightSideString = rightSideString(of: range, string: text)
         middleString = middleString.isEmpty ? middleString : middleString.linkStyled
         return [leftSideString, middleString, rightSideString].joined()
     }
