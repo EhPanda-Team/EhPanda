@@ -12,10 +12,6 @@ var dependencies: [PackageDescription.Package.Dependency] = [
     // 1.1.x marked `ColorfulView` deprecated on non-watchOS ("This library hurts CPU alot")
     // and pointed here, so the Home gallery-card gradient now renders through ColorfulX.
     .package(url: "https://github.com/Lakr233/ColorfulX", exact: "6.2.1"),
-    // App-owned fork of ddddxxx/SwiftyOpenCC, pinned exactly for DEP-01. It de-vendors the
-    // OpenCC/marisa C++ engine (as a submodule) and carries the copencc shim fixes; its
-    // `OpenCC` product replaces EhPanda's former app-owned SwiftyOpenCC + copencc modules.
-    .package(url: "https://github.com/EhPanda-Team/SwiftyOpenCC", exact: "2.1.0"),
     .package(url: "https://github.com/SDWebImage/SDWebImageSwiftUI", from: "3.1.4"),
     .package(url: "https://github.com/SDWebImage/SDWebImageWebPCoder", from: "0.15.0"),
     .package(url: "https://github.com/SFSafeSymbols/SFSafeSymbols", from: "7.0.0"),
@@ -50,7 +46,6 @@ extension PackageDescription.Target.Dependency {
     static let kanna: Self = .product(name: "Kanna", package: "Kanna")
     static let kingfisher: Self = .product(name: "Kingfisher", package: "Kingfisher")
     static let markdown: Self = .product(name: "Markdown", package: "swift-markdown")
-    static let openCC: Self = .product(name: "OpenCC", package: "SwiftyOpenCC")
     static let sdWebImageSwiftUI: Self = .product(name: "SDWebImageSwiftUI", package: "SDWebImageSwiftUI")
     static let sdWebImageWebPCoder: Self = .product(name: "SDWebImageWebPCoder", package: "SDWebImageWebPCoder")
     static let sfSafeSymbols: Self = .product(name: "SFSafeSymbols", package: "SFSafeSymbols")
@@ -137,7 +132,6 @@ enum Module: String {
     case networkingFeatureTests = "NetworkingFeatureTests"
     case appModelsTests = "AppModelsTests"
     case cookieClientTests = "CookieClientTests"
-    case swiftyOpenCCTests = "SwiftyOpenCCTests"
     case imageClientTests = "ImageClientTests"
     case imageColorsTests = "ImageColorsTests"
     case liveTextTranslationTests = "LiveTextTranslationTests"
@@ -330,8 +324,7 @@ let targets: [PackageDescription.Target] = [
         dependencies: [
             .module(.appModels),
             .module(.appTools),
-            .targetDependency(.composableArchitecture),
-            .targetDependency(.openCC)
+            .targetDependency(.composableArchitecture)
         ]
     ),
     .target(
@@ -995,12 +988,6 @@ let targets: [PackageDescription.Target] = [
             .module(.cookieClient),
             .module(.appModels),
             .targetDependency(.composableArchitecture)
-        ]
-    ),
-    .testTarget(
-        module: .swiftyOpenCCTests,
-        dependencies: [
-            .targetDependency(.openCC)
         ]
     ),
     .testTarget(
