@@ -21,6 +21,19 @@ source_head: 2519060029
 
 # Project State
 
+## iPad top-bar Reload fixed — 2026-11-01
+
+UIKit merges a tab's navigation bar into the iPad top tab bar only while the NavigationStack is the
+tab's sole child controller. `HomePaneSheet`, a `UIViewControllerRepresentable` beside Home's stack
+since `628b8b715`, broke that and dropped Reload to y=100. The owner chose moving it into the stack's
+root content (`13a461c0c`): Reload shares the tab row (y=36), pushed Home pages merge Back and their
+items too, and iPhone and Duo frames are unchanged. A UI assertion guards the row.
+[Quick task](quick/261101-ipad-reload-row/SUMMARY.md). A pure SwiftUI probe on 27.2 matches the
+half-open Duo sheets, including nested ones. Fully open sheets cross the fold unless sized with the
+system's outer margin, which the SDK does not expose, and placement does not update on presented
+sheets. The owner keeps `HomePaneSheet`; revisit only when the SDK closes both gaps.
+[Probe results](quick/261101-ipad-reload-row/SWIFTUI-SHEET-SPIKE.md).
+
 ## Home screenshot review accepted — 2026-11-01
 
 The owner accepts the final iPhone Home review and requests committing the work. Compact slideshow
@@ -1141,6 +1154,7 @@ None yet.
 | 261027-ci-cleanup | Remove unrequested privacy, disclosure and toolchain checks, visual tooling checks from app tests, and the visual capture workflow; squash all five prior CI commits | 2026-10-27 | 2762227700 | — |
 | 261027-vgt | Make CI builds independent of private local capture tooling while preserving local captures | 2026-10-27 | d4db052079 | [261027-vgt-make-ci-builds-independent-of-private-lo](./quick/261027-vgt-make-ci-builds-independent-of-private-lo/) |
 | 261031-sim | Record the iOS simulator rule in AGENTS.md: create a project-prefixed simulator when a task needs one, delete it when no task does, and never delete simulators outside this project's scope (owner request) | 2026-10-31 | a5ea1ec3e | — |
+| 261101-ipad-reload-row | Keep Home's Reload in the iPad top tab bar row by hosting the Duo sheet presenter inside Home's NavigationStack; UI regression assertion; iPad, iPhone and Duo verified | 2026-11-01 | 13a461c0c | [261101-ipad-reload-row](./quick/261101-ipad-reload-row/SUMMARY.md) |
 
 ### Roadmap Evolution
 
