@@ -57,7 +57,7 @@ struct AppearanceSettingView: View {
                     .maximumNumberOfTags,
                     selection: Binding($setting.listTagsNumberMaximum)
                 ) {
-                    Text(.infite)
+                    Text(.noLimit)
                         .tag(0)
 
                     ForEach(Array(stride(from: 5, through: 20, by: 5)), id: \.self) { num in

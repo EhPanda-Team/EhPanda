@@ -243,11 +243,11 @@ struct FrontPageSettingsSection: View {
 
         Section {
             AppToggle(
-                .showSearchRangeIndicatorDescription,
+                .showSearchRangeIndicator,
                 isOn: $ehSetting.showSearchRangeIndicator
             )
         } header: {
-            Text(.showSearchRangeIndicator)
+            Text(.searchRangeIndicator)
                 .ehSettingRegularHeaderStyled()
         }
     }
