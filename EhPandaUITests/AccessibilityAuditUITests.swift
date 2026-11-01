@@ -559,7 +559,8 @@ private extension AccessibilityAuditUITests {
             app.textViews.firstMatch.waitForExistence(timeout: 5),
             "New Saved Search did not expose its content editor."
         )
-        app.navigationBars["New Saved Search"].buttons["Quick Search"].firstMatch.tapWhenHittable("New Saved Search Back")
+        let backButton = app.navigationBars["New Saved Search"].buttons["Quick Search"].firstMatch
+        backButton.tapWhenHittable("New Saved Search Back")
         requireNavigationTitle("Quick Search", in: app)
     }
 
