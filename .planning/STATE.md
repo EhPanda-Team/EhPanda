@@ -21,13 +21,22 @@ source_head: 2519060029
 
 # Project State
 
+## Cover-tinted light-mode slideshow card — 2026-11-01
+
+The focused light-mode Home card now shows its cover gradient through `CardGradientTint`, which
+keeps each palette hue at OKLCH chroma ≤ 0.035 (owner's option 2a, chosen in the simulator over the
+paler 2f) and pays for chroma with lightness, so every color carries the gray fallback's weight and
+the card's text keeps its contrast (within 0.2%); hues past the sRGB gamut keep the most chroma that
+fits. Unselected cards keep the gray fallback. Light-mode Home baselines change; not promoted.
+[Quick task](quick/261101-slideshow-light-tint/SUMMARY.md).
+
 ## Readable dark-mode slideshow gradient — 2026-11-01
 
 Owner chose the per-color design: `CardGradientCeiling` dims each cover-palette color above a knee
 in linear light (hue kept) so the focused dark-mode card's white and secondary text stay readable.
 Ceilings hold for every sRGB hue, because ColorfulX's Lab blends take hues the palette lacks:
 L* 32.2 standard, 27.1 with Increase Contrast (the approved mockup's gray-derived 41.1 failed
-saturated colors). Light-mode tinting is still under discussion.
+saturated colors). Light-mode tinting followed as its own task (above).
 [Quick task](quick/261101-slideshow-dark-ceiling/SUMMARY.md).
 
 ## Reviewed Home and translation work committed — 2026-11-01

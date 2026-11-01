@@ -9,6 +9,7 @@ import HomeFeature
 import LibraryClient
 import SettingFeature
 import Sharing
+import SwiftUI
 import Testing
 
 // A capture launch turns two environment keys into a validated, isolated, offline scene. These
@@ -593,6 +594,8 @@ func loadedState(_ scene: CaptureScene) async throws -> AppReducer.State {
     let popular = try await scene.homeClient.fetchPopularGalleries(.ehentai, Filter())
     state.homeState.popularGalleries = popular
     state.homeState.currentCardID = popular[HomeReducer.State.initialCardPageIndex].gid
+    // The current card's gradient shows its cover's colors, so a loaded Home has them analyzed.
+    state.homeState.rawCardColors[state.homeState.currentCardID] = [.red]
     state.homeState.frontpageGalleries = try await scene.homeClient
         .fetchFrontpageGalleries(.ehentai, Filter())
         .galleries

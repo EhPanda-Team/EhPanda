@@ -23,22 +23,21 @@ import UIKit
 // it shows its configured content and every image it must show. These cases seed the state each
 // route leaves, step by step, and read the diagnostics UI tests receive.
 struct CaptureScreenDiagnosticsTests {
-    @Test
-    func darkHomeWaitsForTheCurrentCardsColors() async throws {
+    @Test(arguments: [CaptureRendering.lightPhone, .darkPhone])
+    func homeWaitsForTheCurrentCardsColors(_ rendering: CaptureRendering) async throws {
         let scene = try makeScene(try MarketingFixtureBuilder.standard())
         let cover = try #require(scene.replay.first(where: { $0.value.mimeType.hasPrefix("image/") })).key
         var state = try await loadedState(scene)
+        state.homeState.rawCardColors = [:]
 
-        let light = diagnostics(scene, state, cached: [cover])
-        let darkAnalyzing = diagnostics(scene, state, rendering: .darkPhone, cached: [cover])
+        let analyzing = diagnostics(scene, state, rendering: rendering, cached: [cover])
         state.homeState.rawCardColors[state.homeState.currentCardID] = [.red]
-        let darkAnalyzed = diagnostics(scene, state, rendering: .darkPhone, cached: [cover])
+        let analyzed = diagnostics(scene, state, rendering: rendering, cached: [cover])
 
-        expectNoDifference(light.readiness, .ready)
-        expectNoDifference(darkAnalyzing.readiness, .loading)
-        expectNoDifference(darkAnalyzing.blockers, ["The current card's colors are not analyzed"])
-        expectNoDifference(darkAnalyzed.readiness, .ready)
-        expectNoDifference(darkAnalyzed.rendering, .darkPhone)
+        expectNoDifference(analyzing.readiness, .loading)
+        expectNoDifference(analyzing.blockers, ["The current card's colors are not analyzed"])
+        expectNoDifference(analyzed.readiness, .ready)
+        expectNoDifference(analyzed.rendering, rendering)
     }
 
     @Test
@@ -91,7 +90,11 @@ struct CaptureScreenDiagnosticsTests {
         expectNoDifference(homeLoading.readiness, .loading)
         expectNoDifference(
             homeLoading.blockers,
-            ["Around the sheet: Home lists are loading", "Around the sheet: The current card's cover is not shown"]
+            [
+                "Around the sheet: Home lists are loading",
+                "Around the sheet: The current card's cover is not shown",
+                "Around the sheet: The current card's colors are not analyzed"
+            ]
         )
         expectNoDifference(ready.readiness, .ready)
         expectNoDifference(ready.galleryIDs, [MarketingFixtureBuilder.flowGID])
