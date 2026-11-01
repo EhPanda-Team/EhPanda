@@ -37,14 +37,41 @@ struct LibraryNavigationTests {
         await store.send(.library(.deviceChanged(.other))) {
             $0.libraryState.device = .other
         }
-        await store.receive(\.library.showInitialFavorites)
-        await store.receive(\.library.select, .favorites(3)) {
+        await store.receive(\.library.showInitialFavorites) {
             $0.libraryState.selection = .favorites(3)
         }
         await store.receive(\.favorites.setFavoritesIndex, 3)
         await store.finish()
         expectNoDifference(store.state.favoritesState.path, initialState.favoritesState.path)
         expectNoDifference(store.state.favoritesState.keyword, "remembered query")
+    }
+
+    @MainActor
+    @Test
+    func delayedInitialFavoritesDoesNotReplaceAnExplicitDownloadSelection() async {
+        var initialState = AppReducer.State()
+        initialState.libraryState.selection = .downloads(.all)
+        let store = TestStore(initialState: initialState, reducer: AppReducer.init)
+
+        await store.send(.library(.showInitialFavorites))
+        await store.finish()
+        #expect(store.state.libraryState.selection == .downloads(.all))
+    }
+
+    @MainActor
+    @Test
+    func delayedFavoritesIndexDoesNotReplaceTheSelectedDownloads() async {
+        var initialState = AppReducer.State()
+        initialState.libraryState.selection = .downloads(.all)
+        let store = TestStore(initialState: initialState, reducer: AppReducer.init) {
+            $0.cookieClient = .noop
+        }
+
+        await store.send(.favorites(.setFavoritesIndex(3))) {
+            $0.favoritesState.favoritesIndex = 3
+        }
+        await store.finish()
+        #expect(store.state.libraryState.selection == .downloads(.all))
     }
 
     @MainActor

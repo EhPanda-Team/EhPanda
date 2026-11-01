@@ -281,6 +281,7 @@ struct AppReducer {
                 return .merge(effects)
 
             case .favorites(.setFavoritesIndex(let index)):
+                guard case .favorites = state.libraryState.selection else { return .none }
                 state.libraryState.selection = .favorites(index)
                 return .none
 
@@ -345,7 +346,10 @@ struct AppReducer {
                 return .none
 
             case .library(.showInitialFavorites):
-                return .send(.library(.select(.favorites(state.favoritesState.favoritesIndex))))
+                guard state.libraryState.selection == nil else { return .none }
+                let selection = LibraryGroup.favorites(state.favoritesState.favoritesIndex)
+                state.libraryState.selection = selection
+                return librarySelectionEffect(selection, state: &state)
 
             case .library(.binding), .library(.deviceChanged), .library(.viewportChanged):
                 return .none
