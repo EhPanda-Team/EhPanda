@@ -96,6 +96,7 @@ final class LiveTextHandler {
         }
         switch capture.decision(gid: gid, page: page) {
         case .show(let groups):
+            guard capture.translation == nil else { return false }
             liveTextGroups[page] = groups
             return true
         case .skip:
@@ -107,6 +108,26 @@ final class LiveTextHandler {
     #endif
 
     func analyzeImage(_ cgImage: CGImage, size: CGSize, page: Int, recognitionLanguages: [String]?) {
+        #if DEBUG
+        if let capture, let translation = capture.translation, page == capture.page,
+           case .replay(let groups) = capture.source {
+            guard analysisTasks[page] == nil else { return }
+            analysisTasks[page] = Task { [weak self] in
+                guard let self else { return }
+                await translator.replay(
+                    groups: groups,
+                    sources: Dictionary(uniqueKeysWithValues: translation.entries.map({ ($0.id, $0.source) })),
+                    translations: Dictionary(uniqueKeysWithValues: translation.entries.map({ ($0.id, $0.target) })),
+                    language: Locale.Language(identifier: translation.targetLanguage),
+                    page: (number: page, image: cgImage)
+                )
+                guard !Task.isCancelled else { return }
+                liveTextGroups[page] = groups
+                capture.replayed(groups)
+            }
+            return
+        }
+        #endif
         if let groups = liveTextGroups[page] {
             translate(groups, on: cgImage, page: page, recognitionLanguages: recognitionLanguages)
             return

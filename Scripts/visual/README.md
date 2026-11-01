@@ -651,6 +651,21 @@ pinned model and runtime build, validates it as the fixture tools do, and publis
 `outcomes.json` names the published version. Record again after every acquisition, which starts a
 version without a record.
 
+### Recorded translation review
+
+A Live Text record may additionally contain `translation`, with `sourceLanguage`, `targetLanguage`
+and `entries`. Each entry has `id` (the recognized group UUID), `source` (the normalized text sent
+to translation) and `target` (the recorded model response). The reader validates complete, unique
+coverage of the translatable groups and exact normalized source text before replay. Original
+recognition-only records remain valid for recording and diagnostics.
+
+Translated captures reuse the normal image sampling, lettering removal, text fitting and Canvas
+renderer. Readiness stays pending until that layout is installed; no translation model runs during
+replay. Save genuine model responses and their recording evidence locally, and publish a new fixture
+version through `fixtures.publish_records`. Use a coordinate whose language matches the record's target.
+The current recording command still records recognition only; automatic translation recording and
+locale-specific fixture selection for final generation are separate work.
+
 ## Standalone appshot path
 
 The app exposes `AppshotCapture.xctestplan` to a private capture tool. The public source tree has no

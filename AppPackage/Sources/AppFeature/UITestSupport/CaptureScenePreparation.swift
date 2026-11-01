@@ -404,7 +404,10 @@ private struct MarketingGalleries {
                 pageSHA256: image.sha256,
                 recognitionLanguages: try parsedDetail(gid).detail.language.codes
             )
-            return LiveTextCapture(gid: gid, page: page, source: .replay(groups))
+            if let translation = record.translation, !translation.matches(groups) {
+                throw .malformedScene("the Live Text translation does not match its recognized groups")
+            }
+            return LiveTextCapture(gid: gid, page: page, source: .replay(groups), translation: record.translation)
         case .liveTextRecording:
             return LiveTextCapture(gid: gid, page: page, source: .record)
         case .screen(.home), .screen(.detail), .screen(.comments), .screen(.filters), .screen(.reading),

@@ -2,6 +2,7 @@
 import AppModels
 import CoreGraphics
 import Foundation
+import LiveTextTranslation
 import ReadingFeature
 
 /// A Live Text recording a marketing fixture holds (17-06): what the app's own Live Text found on
@@ -24,6 +25,7 @@ struct CaptureLiveTextRecord: Equatable, Sendable {
     let recognitionLanguages: [String]?
     let recordedOn: Device
     let groups: [CaptureLiveTextGroup]
+    var translation: LiveTextCapture.Translation?
 }
 
 /// Lines the reader groups into one selectable region, as records and diagnostics carry them.
@@ -188,11 +190,12 @@ extension CaptureLiveTextRecord: Decodable {
         case recognitionLanguages
         case recordedOn
         case groups
+        case translation
     }
 
     /// Decodes a record whose every object has exactly its keys, matching the fixture tools' schema.
     init(from decoder: any Decoder) throws {
-        try decoder.requireExactKeys(CodingKeys.self)
+        try decoder.requireExactKeys(CodingKeys.self, optional: ["translation"])
         let container = try decoder.container(keyedBy: CodingKeys.self)
         schemaVersion = try container.decode(Int.self, forKey: .schemaVersion)
         gid = try container.decode(String.self, forKey: .gid)
@@ -201,6 +204,7 @@ extension CaptureLiveTextRecord: Decodable {
         recognitionLanguages = try container.decode([String]?.self, forKey: .recognitionLanguages)
         recordedOn = try container.decode(Device.self, forKey: .recordedOn)
         groups = try container.decode([CaptureLiveTextGroup].self, forKey: .groups)
+        translation = try container.decodeIfPresent(LiveTextCapture.Translation.self, forKey: .translation)
     }
 }
 
