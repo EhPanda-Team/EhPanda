@@ -135,7 +135,7 @@ public struct ToplistsReducer: Sendable {
                     ),
                     actions: {
                         ButtonState(action: .performJumpPage) {
-                            TextState(localized: .confirm)
+                            TextState(localized: .go)
                         }
                         ButtonState(role: .cancel) {
                             TextState(localized: .RLocalizable.cancel)

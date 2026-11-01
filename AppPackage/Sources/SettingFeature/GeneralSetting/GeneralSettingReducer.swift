@@ -55,7 +55,7 @@ public struct GeneralSettingReducer: Sendable {
         case removeCustomTranslationsButtonTapped
         case onRemoveCustomTranslations
 
-        case clearImageCachesButtonTapped
+        case clearImageCacheButtonTapped
         case clearWebImageCache
         case navigateToSystemSetting
         case calculateWebImageDiskCache
@@ -100,7 +100,7 @@ public struct GeneralSettingReducer: Sendable {
                 }
                 return .none
 
-            case .clearImageCachesButtonTapped:
+            case .clearImageCacheButtonTapped:
                 state.clearCacheDialog = ConfirmationDialogState(titleVisibility: .hidden) {
                     TextState(localized: .RLocalizable.clear)
                 } actions: {

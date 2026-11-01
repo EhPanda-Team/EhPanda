@@ -211,7 +211,7 @@ extension QuickSearchView {
                     TextField(.optionalPlaceholder, text: $savedSearch.name)
                         .submitLabel(.next).focused(focusedField, equals: .name)
                 }
-                Section(.content) {
+                Section(.searchTerms) {
                     TextEditor(text: $savedSearch.content)
                         .autocorrectionDisabled(true)
                         .textInputAutocapitalization(.never)

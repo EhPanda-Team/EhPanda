@@ -16,20 +16,20 @@ public struct GalleryLayoutPicker: View {
 
     public var body: some View {
         Menu {
-            Picker(.RLocalizable.presentation, selection: Binding($setting).galleryListPresentation[scope]) {
-                Label(.RLocalizable.row, systemSymbol: .listBullet)
+            Picker(.RLocalizable.layout, selection: Binding($setting).galleryListPresentation[scope]) {
+                Label(.RLocalizable.list, systemSymbol: .listBullet)
                     .tag(GalleryListDisplayMode.row)
                 Label(.RLocalizable.grid, systemSymbol: .squareGrid2x2)
                     .tag(GalleryListDisplayMode.grid)
             }
         } label: {
             Label(
-                .RLocalizable.presentation,
+                .RLocalizable.layout,
                 systemSymbol: setting.galleryListPresentation[scope] == .row ? .listBullet : .squareGrid2x2
             )
         }
-        .accessibilityLabel(.RLocalizable.presentation)
-        .accessibilityValue(setting.galleryListPresentation[scope] == .row ? .RLocalizable.row : .RLocalizable.grid)
+        .accessibilityLabel(.RLocalizable.layout)
+        .accessibilityValue(setting.galleryListPresentation[scope] == .row ? .RLocalizable.list : .RLocalizable.grid)
         .accessibilityIdentifier("gallery-layout-\(scope.rawValue)")
     }
 }

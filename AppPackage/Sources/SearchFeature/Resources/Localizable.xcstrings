@@ -43,7 +43,7 @@
         }
       }
     },
-    "recently_searched": {
+    "recent_searches": {
       "extractionState": "manual",
       "localizations": {
         "en": {
@@ -84,7 +84,7 @@
         }
       }
     },
-    "recently_searched_empty": {
+    "recent_searches_empty": {
       "comment": "Empty Recently Searched section on the Search root; short placeholder below its heading.",
       "extractionState": "manual",
       "localizations": {
@@ -126,7 +126,7 @@
         }
       }
     },
-    "recently_seen": {
+    "recently_viewed": {
       "extractionState": "manual",
       "localizations": {
         "en": {
@@ -167,7 +167,7 @@
         }
       }
     },
-    "recently_seen_empty": {
+    "recently_viewed_empty": {
       "comment": "Empty Recently Seen section on the Search root; short placeholder for gallery browsing history.",
       "extractionState": "manual",
       "localizations": {

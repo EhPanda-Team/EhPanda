@@ -112,7 +112,7 @@ private struct AccountSection: View {
                 .withArrow()
                 if !bypassSNIFiltering {
                     Button(
-                        .tagsManagement,
+                        .myTags,
                         action: manageTagsAction
                     )
                     .withArrow()

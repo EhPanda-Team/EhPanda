@@ -69,7 +69,7 @@ struct GeneralSettingView: View {
             }
             Section(.tags) {
                 HStack {
-                    Text(.enableTagsExtension)
+                    Text(.enhancedTags)
                         .accessibilityHidden(true)
                         .frame(maxWidth: .infinity, alignment: .leading)
 
@@ -91,7 +91,7 @@ struct GeneralSettingView: View {
                                 }
                         }
 
-                    AppToggle(.enableTagsExtension, isOn: Binding($setting.enableTagsExtension))
+                    AppToggle(.enhancedTags, isOn: Binding($setting.enableTagsExtension))
                         .labelsHidden()
                         .frame(width: 50)
                         .padding(.leading, 20)
@@ -99,7 +99,7 @@ struct GeneralSettingView: View {
                 if setting.enableTagsExtension && !tagTranslatorEmpty {
                     AppToggle(.translateTags, isOn: Binding($setting.translateTags))
                     AppToggle(
-                        .showTagsSearchSuggestion,
+                        .showTagSuggestions,
                         isOn: Binding($setting.showTagsSearchSuggestion)
                     )
                     AppToggle(.showImagesInTags, isOn: Binding($setting.showImagesInTags))
@@ -127,7 +127,7 @@ struct GeneralSettingView: View {
             }
             Section(.navigation) {
                 AppToggle(
-                    .redirectLinksToTheSelectedHost,
+                    .openLinksOnSelectedSite,
                     isOn: Binding($setting.redirectLinksToSelectedHost)
                 )
                 AppToggle(
@@ -135,12 +135,12 @@ struct GeneralSettingView: View {
                     isOn: Binding($setting.detectLinksFromClipboard)
                 )
             }
-            Section(.caches) {
+            Section(.cache) {
                 Button {
-                    store.send(.clearImageCachesButtonTapped)
+                    store.send(.clearImageCacheButtonTapped)
                 } label: {
                     HStack {
-                        Text(.clearImageCaches)
+                        Text(.clearImageCache)
                             .frame(maxWidth: .infinity, alignment: .leading)
 
                         Text(store.diskImageCacheSize)

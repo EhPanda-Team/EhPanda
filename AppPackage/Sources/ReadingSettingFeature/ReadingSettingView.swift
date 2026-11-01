@@ -60,7 +60,7 @@ public struct ReadingSettingView: View {
             }
             Section(.readingAppearance) {
                 Picker(
-                    .separatorHeight,
+                    .pageSpacing,
                     selection: Binding(store.sharedSetting.contentDividerHeight)
                 ) {
                     ForEach(Array(stride(from: 0, through: 20, by: 5)), id: \.self) { value in
@@ -72,13 +72,13 @@ public struct ReadingSettingView: View {
 
                 ScaleFactorRow(
                     scaleFactor: Binding(store.sharedSetting.maximumScaleFactor),
-                    labelContent: .maximumScaleFactor,
+                    labelContent: .maximumZoom,
                     minFactor: 1.5, maxFactor: 10
                 )
 
                 ScaleFactorRow(
                     scaleFactor: Binding(store.sharedSetting.doubleTapScaleFactor),
-                    labelContent: .doubleTapScaleFactor,
+                    labelContent: .doubleTapZoom,
                     minFactor: 1.5, maxFactor: 5
                 )
             }

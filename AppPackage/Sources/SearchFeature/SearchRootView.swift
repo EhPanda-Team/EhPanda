@@ -249,7 +249,7 @@ private struct HistoryKeywordsSection: View {
     var body: some View {
         Section {
             if keywords.isEmpty {
-                Text(.recentlySearchedEmpty)
+                Text(.recentSearchesEmpty)
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
                     .frame(maxWidth: .infinity, minHeight: 96, alignment: .topLeading)
@@ -262,7 +262,7 @@ private struct HistoryKeywordsSection: View {
                 )
             }
         } header: {
-            Text(.recentlySearched)
+            Text(.recentSearches)
         }
         .sectionActions {
             RemoveSearchHistoryButton(
@@ -293,7 +293,7 @@ private struct HistoryGalleriesSection: View {
     var body: some View {
         Section {
             if galleries.isEmpty {
-                Text(.recentlySeenEmpty)
+                Text(.recentlyViewedEmpty)
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
                     .frame(maxWidth: .infinity, minHeight: 96, alignment: .topLeading)
@@ -317,7 +317,7 @@ private struct HistoryGalleriesSection: View {
                 .scrollIndicators(.hidden)
             }
         } header: {
-            Text(.recentlySeen)
+            Text(.recentlyViewed)
         }
         .sectionActions {
             RemoveSearchHistoryButton(

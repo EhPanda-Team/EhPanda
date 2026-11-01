@@ -130,7 +130,7 @@ private extension DetailView {
                     showUserRatingAction: { store.send(.toggleShowUserRating) },
                     updateRatingAction: { store.send(.updateRating($0)) },
                     confirmRatingAction: { store.send(.confirmRating($0)) },
-                    navigateSimilarGalleryAction: {
+                    findSimilarAction: {
                         if let trimmedTitle = store.galleryDetail?.trimmedTitle {
                             store.send(.delegate(.pushDetailSearch(trimmedTitle)))
                         }

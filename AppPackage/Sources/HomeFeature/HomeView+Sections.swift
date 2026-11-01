@@ -580,7 +580,7 @@ struct MiscGridSection: View {
     }
 
     var body: some View {
-        SubSection(title: .other, showAll: false) {
+        SubSection(title: .more, showAll: false) {
             ScrollView(.horizontal) {
                 if showsRichInformation {
                     HStack(spacing: 20) {

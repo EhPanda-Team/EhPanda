@@ -270,7 +270,7 @@ struct ActionSection: View {
     let showUserRatingAction: () -> Void
     let updateRatingAction: (DragGesture.Value) -> Void
     let confirmRatingAction: (DragGesture.Value) -> Void
-    let navigateSimilarGalleryAction: () -> Void
+    let findSimilarAction: () -> Void
     // 24pt at default (.large); scales with Dynamic Type relative to the nearest text style (.title2, 22pt).
     @ScaledMetric(relativeTo: .title2) private var userRatingSymbolSize: CGFloat = 24
 
@@ -315,7 +315,7 @@ struct ActionSection: View {
         Group {
             Button(action: showUserRatingAction) {
                 Label {
-                    Text(.giveARating)
+                    Text(.rateGallery)
                         .bold()
                 } icon: {
                     Image(systemSymbol: .squareAndPencil)
@@ -324,9 +324,9 @@ struct ActionSection: View {
             }
             .disabled(!isRatingEnabled)
 
-            Button(action: navigateSimilarGalleryAction) {
+            Button(action: findSimilarAction) {
                 Label {
-                    Text(.similarGallery).bold()
+                    Text(.findSimilar).bold()
                 } icon: {
                     Image(systemSymbol: .photoOnRectangleAngled)
                 }
@@ -346,7 +346,7 @@ struct ActionSection: View {
         showUserRatingAction: {},
         updateRatingAction: { _ in },
         confirmRatingAction: { _ in },
-        navigateSimilarGalleryAction: {}
+        findSimilarAction: {}
     )
 }
 

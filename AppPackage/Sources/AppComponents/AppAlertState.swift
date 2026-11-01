@@ -141,7 +141,7 @@ extension AppAlertState where Action == Never {
     public static var communicating: Self {
         .init(
             style: .toast(icon: .loading, autoHide: false),
-            title: TextState(localized: .communicating)
+            title: TextState(localized: .sendingRequest)
         )
     }
     // `caption` has two overloads: a `LocalizedStringResource` one for captions that come from a
