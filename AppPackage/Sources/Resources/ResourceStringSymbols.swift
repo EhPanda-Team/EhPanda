@@ -29,8 +29,6 @@ public nonisolated extension LocalizedStringResource {
 
         public static var clear: LocalizedStringResource { .clear }
 
-        public static var clearDescription: LocalizedStringResource { .clearDescription }
-
         /// The continued-download card's subtitle: three counts, no wording of its own.
         ///
         /// The catalog owns every separator and plural form, and the key accepts nothing but
@@ -57,8 +55,6 @@ public nonisolated extension LocalizedStringResource {
         public static func days(count: Int) -> LocalizedStringResource { .days(count) }
 
         public static var delete: LocalizedStringResource { .delete }
-
-        public static var deleteDescription: LocalizedStringResource { .deleteDescription }
 
         public static var deleteDownload: LocalizedStringResource { .deleteDownload }
 

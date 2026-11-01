@@ -105,7 +105,7 @@ public struct QuickSearchReducer: Sendable {
                             TextState(localized: .RLocalizable.cancel)
                         }
                     } message: {
-                        TextState(localized: .RLocalizable.deleteDescription)
+                        TextState(localized: .deleteSavedSearchDescription)
                     }
                     return .none
 

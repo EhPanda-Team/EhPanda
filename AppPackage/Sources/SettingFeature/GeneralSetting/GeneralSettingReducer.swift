@@ -111,7 +111,7 @@ public struct GeneralSettingReducer: Sendable {
                         TextState(localized: .RLocalizable.cancel)
                     }
                 } message: {
-                    TextState(localized: .RLocalizable.clearDescription)
+                    TextState(localized: .clearImageCacheDescription)
                 }
                 return .none
 

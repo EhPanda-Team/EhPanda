@@ -130,7 +130,7 @@ public struct ToplistsReducer: Sendable {
                         TextState(localized: .RLocalizable.jumpPage)
                     },
                     textField: .init(
-                        placeholder: TextState(localized: .RLocalizable.jumpPage),
+                        placeholder: TextState(localized: .pageNumber),
                         keyboard: .numberPad
                     ),
                     actions: {
