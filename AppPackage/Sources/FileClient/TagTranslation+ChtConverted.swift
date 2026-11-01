@@ -8,15 +8,6 @@ import OpenCC
 // general-purpose `OpenCC` converter package (which stays focused on string conversion).
 extension Dictionary where Value == TagTranslation {
     var chtConverted: Self {
-        func customConversion(text: String) -> String {
-            switch text {
-            case "full color":
-                return "全彩"
-            default:
-                return text
-            }
-        }
-
         guard let preferredLanguage = Locale.preferredLanguages.first else { return self }
 
         var options: ChineseConverter.Options = [.traditionalize]
@@ -34,9 +25,11 @@ extension Dictionary where Value == TagTranslation {
             return self
         }
         return mapValues { value in
-            TagTranslation(
+            let translatedValue = value.namespace == .other && value.key == "full color"
+                ? "全彩" : converter.convert(value.value)
+            return TagTranslation(
                 namespace: value.namespace, key: value.key,
-                value: customConversion(text: converter.convert(value.value)),
+                value: translatedValue,
                 description: value.description, linksString: value.linksString
             )
         }

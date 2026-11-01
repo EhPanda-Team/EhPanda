@@ -34,3 +34,8 @@ Reduce only the Toplists rating star by one semantic font step, from inherited s
 footnote. Preserve rating digits, Dynamic Type and slideshow rating appearance. Validate build
 and strict lint, then commit this change together with the outstanding iPad title work and records.
 Preserve the separately committed slideshow color adjustments.
+
+## Owner continuation: tighter Toplists metadata
+
+Match the Toplists star to the pages caption style, and group category/pages/rating with a
+4-point gap so flexible spacers do not expand those internal gaps. Capture the updated iPad Home.

@@ -75,12 +75,12 @@ public struct GalleryRankingCell: View {
 
             if showsRichInformation {
                 Spacer(minLength: 8)
-                Text(gallery.category.value)
-                    .foregroundStyle(.secondary)
-                Spacer(minLength: 8)
-                HomePageLanguage(gallery: gallery)
-                Spacer(minLength: 8)
-                HomeGalleryRating(rating: gallery.rating, iconFont: .footnote)
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(gallery.category.value)
+                        .foregroundStyle(.secondary)
+                    HomePageLanguage(gallery: gallery)
+                    HomeGalleryRating(rating: gallery.rating, iconFont: .caption)
+                }
             }
         }
         .frame(

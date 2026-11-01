@@ -53,11 +53,11 @@ final class FileClientTests {
     // Simplified-Chinese source values plus the custom `full color` case, used to prove OpenCC
     // conversion is applied only for `.traditionalChinese`. `简体` traditionalizes to `簡體` under
     // every regional standard, so the expectation is machine-locale-invariant.
-    private func chineseResponseData() throws -> Data {
+    private func chineseResponseData(fullColor: String = "全彩") throws -> Data {
         let response = EhTagTranslationDatabaseResponse(
-            data: [.init(namespace: "female", data: [
+            data: [.init(namespace: "other", data: [
                 "simp": .init(name: "简体"),
-                "fc": .init(name: "full color")
+                "full color": .init(name: fullColor)
             ])]
         )
         return try JSONEncoder().encode(response)
@@ -116,13 +116,13 @@ final class FileClientTests {
 
     // DEP-01 parity: a remote table built for Traditional Chinese must apply OpenCC conversion
     // (`简体` → `簡體`) and the custom `full color` → `全彩` mapping.
-    @Test
-    func traditionalChineseAppliesOpenCCConversionAndCustomFullColor() throws {
+    @Test(arguments: ["全彩", "full color"])
+    func traditionalChineseAppliesOpenCCConversionAndCustomFullColor(fullColor: String) throws {
         let built = try client.cacheAndBuildRemoteTagTranslator(
-            try chineseResponseData(), .traditionalChinese, .distantPast
+            try chineseResponseData(fullColor: fullColor), .traditionalChinese, .distantPast
         )
         #expect(value(forKey: "simp", in: built) == "簡體")
-        #expect(value(forKey: "fc", in: built) == "全彩")
+        #expect(value(forKey: "full color", in: built) == "全彩")
     }
 
     // DEP-01 parity: any non-Traditional-Chinese table keeps its raw values untouched — no OpenCC
@@ -133,7 +133,7 @@ final class FileClientTests {
             try chineseResponseData(), .simplifiedChinese, .distantPast
         )
         #expect(value(forKey: "simp", in: built) == "简体")
-        #expect(value(forKey: "fc", in: built) == "full color")
+        #expect(value(forKey: "full color", in: built) == "全彩")
     }
 
     @Test

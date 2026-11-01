@@ -173,7 +173,7 @@ struct GalleryCoverLayoutTests {
     func slideshowTagsExcludeLanguageCategoryAndDuplicates() {
         func tag(_ namespace: String, _ texts: [String]) -> GalleryTag {
             .init(rawNamespace: namespace, contents: texts.map { text in
-                .init(rawNamespace: namespace, text: text, isVotedUp: false, isVotedDown: false)
+                .init(rawNamespace: namespace, text: text, isVotedUp: false, isVotedDown: false, voteStrength: .strong)
             })
         }
         var gallery = Gallery.preview
