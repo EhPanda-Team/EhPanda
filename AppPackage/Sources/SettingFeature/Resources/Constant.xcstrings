@@ -841,7 +841,7 @@
         }
       }
     },
-    "code_level_contributor.Jimmy-Prime": {
+    "code_contributor.Jimmy-Prime": {
       "extractionState": "manual",
       "shouldTranslate": false,
       "localizations": {
@@ -883,7 +883,7 @@
         }
       }
     },
-    "code_level_contributor.Jimmy-Prime_link": {
+    "code_contributor.Jimmy-Prime_link": {
       "extractionState": "manual",
       "shouldTranslate": false,
       "localizations": {
@@ -925,7 +925,7 @@
         }
       }
     },
-    "code_level_contributor.Kaed3mi": {
+    "code_contributor.Kaed3mi": {
       "extractionState": "manual",
       "shouldTranslate": false,
       "localizations": {
@@ -967,7 +967,7 @@
         }
       }
     },
-    "code_level_contributor.Kaed3mi_link": {
+    "code_contributor.Kaed3mi_link": {
       "extractionState": "manual",
       "shouldTranslate": false,
       "localizations": {
@@ -1009,7 +1009,7 @@
         }
       }
     },
-    "code_level_contributor.aalberrty": {
+    "code_contributor.aalberrty": {
       "extractionState": "manual",
       "shouldTranslate": false,
       "localizations": {
@@ -1051,7 +1051,7 @@
         }
       }
     },
-    "code_level_contributor.aalberrty_link": {
+    "code_contributor.aalberrty_link": {
       "extractionState": "manual",
       "shouldTranslate": false,
       "localizations": {
@@ -1093,7 +1093,7 @@
         }
       }
     },
-    "code_level_contributor.vvbbnn00": {
+    "code_contributor.vvbbnn00": {
       "extractionState": "manual",
       "shouldTranslate": false,
       "localizations": {
@@ -1135,7 +1135,7 @@
         }
       }
     },
-    "code_level_contributor.vvbbnn00_link": {
+    "code_contributor.vvbbnn00_link": {
       "extractionState": "manual",
       "shouldTranslate": false,
       "localizations": {
@@ -1177,7 +1177,7 @@
         }
       }
     },
-    "code_level_contributor.xioxin": {
+    "code_contributor.xioxin": {
       "extractionState": "manual",
       "shouldTranslate": false,
       "localizations": {
@@ -1219,7 +1219,7 @@
         }
       }
     },
-    "code_level_contributor.xioxin_link": {
+    "code_contributor.xioxin_link": {
       "extractionState": "manual",
       "shouldTranslate": false,
       "localizations": {

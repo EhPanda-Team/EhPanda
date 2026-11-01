@@ -6,7 +6,7 @@ import HapticsClient
 import UIKit
 
 @Reducer
-public struct GalleryInfosReducer: Sendable {
+public struct GalleryInfoReducer: Sendable {
     @ObservableState
     public struct State: Equatable {
         @Presents public var toast: AppAlertState<Never>?

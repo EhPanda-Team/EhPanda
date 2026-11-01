@@ -17,7 +17,7 @@ struct DescriptionSection: View {
 
     let gallery: Gallery
     let galleryDetail: GalleryDetail
-    let navigateGalleryInfosAction: () -> Void
+    let navigateGalleryInfoAction: () -> Void
 
     // 60pt at default (.large); scales with Dynamic Type relative to the row's dominant text style (.title3).
     @ScaledMetric(relativeTo: .title3) private var rowHeight: CGFloat = 60
@@ -105,7 +105,7 @@ struct DescriptionSection: View {
                         .containerRelativeFrame(.horizontal, itemWidth)
                     Divider()
                     if info == infos.last {
-                        galleryInfosButton
+                        galleryInfoButton
                             .containerRelativeFrame(.horizontal, itemWidth)
                     }
                 }
@@ -115,9 +115,9 @@ struct DescriptionSection: View {
         .scrollIndicators(.hidden)
     }
 
-    private var galleryInfosButton: some View {
-        Button(action: navigateGalleryInfosAction) {
-            Label(.metadataGalleryInfos, systemSymbol: .ellipsis)
+    private var galleryInfoButton: some View {
+        Button(action: navigateGalleryInfoAction) {
+            Label(.metadataGalleryInfo, systemSymbol: .ellipsis)
                 .labelStyle(.iconOnly)
                 .font(.title3.weight(.bold))
         }
@@ -244,7 +244,7 @@ extension DescriptionSection {
     DescriptionSection(
         gallery: .preview,
         galleryDetail: .preview,
-        navigateGalleryInfosAction: {}
+        navigateGalleryInfoAction: {}
     )
 }
 
@@ -252,7 +252,7 @@ extension DescriptionSection {
     DescriptionSection(
         gallery: .preview,
         galleryDetail: .preview,
-        navigateGalleryInfosAction: {}
+        navigateGalleryInfoAction: {}
     )
     .environment(\.dynamicTypeSize, .accessibility5)
 }

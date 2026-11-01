@@ -20,7 +20,7 @@ struct DownloadSettingView: View {
                     Slider(value: Binding($setting.downloadThreadLimitSliderValue), in: 1...5, step: 1)
                 }
                 AppToggle(
-                    .retryFailedPagesAutomatically,
+                    .autoRetryFailedPages,
                     isOn: Binding($setting.downloadAutoRetryFailedPages)
                 )
             }

@@ -1000,6 +1000,47 @@
         }
       }
     },
+    "auto_retry_failed_pages" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Seiten bei Fehlern neu laden"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Auto-Retry Failed Pages"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "失敗したページを自動で再試行"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "실패한 페이지 자동 재시도"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "自动重试失败页面"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "自動重試失敗頁面"
+          }
+        }
+      }
+    },
     "bypass_SNI_filtering" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1164,7 +1205,7 @@
         }
       }
     },
-    "code_level_contributors" : {
+    "code_contributors" : {
       "extractionState" : "manual",
       "localizations" : {
         "de" : {
@@ -1574,7 +1615,7 @@
         }
       }
     },
-    "detect_links_from_clipboard" : {
+    "detect_links_in_clipboard" : {
       "extractionState" : "manual",
       "localizations" : {
         "de" : {
@@ -4634,47 +4675,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "你希望每頁顯示幾個搜尋結果？\n(該功能需要有 Hath Perk: Paging Enlargement)"
-          }
-        }
-      }
-    },
-    "retry_failed_pages_automatically" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Seiten bei Fehlern neu laden"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Auto-Retry Failed Pages"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "失敗したページを自動で再試行"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "실패한 페이지 자동 재시도"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "自动重试失败页面"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "自動重試失敗頁面"
           }
         }
       }

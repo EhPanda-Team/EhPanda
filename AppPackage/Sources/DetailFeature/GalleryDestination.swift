@@ -23,9 +23,9 @@ public func galleryDestination(
         )
     case .detailSearch(let searchStore):
         DetailSearchView(store: searchStore)
-    case .galleryInfos(let infosStore):
-        GalleryInfosView(
-            store: infosStore, gallery: infosStore.gallery, galleryDetail: infosStore.galleryDetail
+    case .galleryInfo(let infoStore):
+        GalleryInfoView(
+            store: infoStore, gallery: infoStore.gallery, galleryDetail: infoStore.galleryDetail
         )
     }
 }

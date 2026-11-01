@@ -440,7 +440,7 @@ private struct ShownScreens {
             detail.destination?.reading.map(ShownScreen.reading) ?? .detail(detail)
         case .comments(let comments):
             .comments(comments)
-        case .previews, .detailSearch, .galleryInfos:
+        case .previews, .detailSearch, .galleryInfo:
             nil
         }
     }
