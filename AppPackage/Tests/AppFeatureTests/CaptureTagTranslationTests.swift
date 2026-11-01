@@ -7,7 +7,7 @@ import Sharing
 import Testing
 
 struct CaptureTagTranslationTests {
-    @Test(arguments: ["en", "ja", "zh-Hans", "zh-Hant"])
+    @Test(arguments: ["en", "ja", "ko", "zh-Hans", "zh-Hant"])
     func loadsVerifiedTableThroughProductionDecoder(languageCode: String) throws {
         let directory = FileManager.default.temporaryDirectory.appending(component: UUID().uuidString)
         try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
@@ -17,7 +17,12 @@ struct CaptureTagTranslationTests {
         let data = Data(#"{"data":[{"namespace":"other","data":{"artbook":{"name":"画集"}}}]}"#.utf8)
         let path = directory.appending(component: "table.json")
         try data.write(to: path)
-        let metadata = Data(#"{"published_at":"2022-02-23T15:08:42Z"}"#.utf8)
+        let metadata = Data(
+            """
+            {"assets":[{"name":"\(languageCode).json","digest":"sha256:table",
+             "browser_download_url":"https://example.com/\(languageCode).json"}]}
+            """.utf8
+        )
         let releasePath = directory.appending(component: "release.json")
         try metadata.write(to: releasePath)
         let source = CaptureTagTranslation(
@@ -26,9 +31,34 @@ struct CaptureTagTranslationTests {
         )
         let prepared = try source.prepare(in: directory)
         let translator = prepared.translator
+        #expect(prepared.replay.keys.contains("https://example.com/\(languageCode).json"))
         #expect(prepared.replay.count == 2)
         #expect(translator.language?.languageCode == languageCode)
-        #expect(translator.translations["otherartbook"]?.value == (languageCode == "zh-Hant" ? "畫集" : "画集"))
+        #expect(translator.digest == "sha256:table")
+        #expect(translator.translations["otherartbook"]?.value == "画集")
+    }
+
+    @Test
+    func rejectsReleaseWithoutTheLanguage() throws {
+        let directory = FileManager.default.temporaryDirectory.appending(component: UUID().uuidString)
+        try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+        defer {
+            do { try FileManager.default.removeItem(at: directory) } catch { Issue.record(error) }
+        }
+        let data = Data(#"{"data":[{"namespace":"other","data":{"artbook":{"name":"画集"}}}]}"#.utf8)
+        let path = directory.appending(component: "table.json")
+        try data.write(to: path)
+        let metadata = Data(#"{"assets":[]}"#.utf8)
+        let releasePath = directory.appending(component: "release.json")
+        try metadata.write(to: releasePath)
+        let source = CaptureTagTranslation(
+            path: path.path(), sha256: CaptureFixture.sha256(data), languageCode: "ko",
+            releasePath: releasePath.path(), releaseSHA256: CaptureFixture.sha256(metadata)
+        )
+        let failure = CaptureFailure.malformedScene("Tag translation release metadata has no asset for the language")
+        #expect(throws: failure) {
+            try source.prepare(in: directory)
+        }
     }
 
     @Test
@@ -39,7 +69,7 @@ struct CaptureTagTranslationTests {
             do { try FileManager.default.removeItem(at: directory) } catch { Issue.record(error) }
         }
         let scene = try makeScene(try MarketingFixtureBuilder.standard())
-        let translator = TagTranslator(language: .japanese, translations: [
+        let translator = TagTranslator(language: .japanese, digest: "sha256:table", translations: [
             "otherartbook": .init(namespace: .other, key: "artbook", value: "画集")
         ])
         withDependencies {
@@ -54,6 +84,7 @@ struct CaptureTagTranslationTests {
             #expect(setting.translateTags && setting.enableTagsExtension)
             #expect(installed == translator)
             #expect(info.language == .japanese)
+            #expect(info.digest == "sha256:table")
         }
     }
 

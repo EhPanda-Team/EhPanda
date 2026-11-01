@@ -167,10 +167,6 @@ public struct URLUtil {
     public static func githubAPI(repoName: String) -> URL {
         Defaults.URL.githubAPI.appending(path: "\(repoName)/releases/latest")
     }
-
-    public static func githubDownload(repoName: String, fileName: String) -> URL {
-        Defaults.URL.github.appending(path: "\(repoName)/releases/latest/download/\(fileName)")
-    }
 }
 
 // MARK: Combining (Filter)

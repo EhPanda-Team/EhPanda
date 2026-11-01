@@ -277,7 +277,7 @@ enum CaptureScenePreparation {
                 $sharedTranslator.withLock({ $0 = tagTranslator })
                 @Shared(.tagTranslatorInfo) var info
                 $info.withLock {
-                    $0 = TagTranslatorInfo(language: tagTranslator.language, updatedDate: tagTranslator.updatedDate)
+                    $0 = TagTranslatorInfo(language: tagTranslator.language, digest: tagTranslator.digest)
                 }
             }
         }

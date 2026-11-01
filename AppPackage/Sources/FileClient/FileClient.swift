@@ -5,12 +5,11 @@ public import Foundation
 public struct FileClient: Sendable {
     public var createFile: @concurrent @Sendable (String, Data?) async -> Bool
     public var importTagTranslator: @Sendable (URL) async -> Result<TagTranslator, AppError>
-    /// Decodes the raw downloaded DB JSON, applies OpenCC conversion for Traditional Chinese, caches
-    /// the raw bytes for a launch-time rebuild, and returns the built translator (`nil` on decode
-    /// failure throws a file-operation error). The raw file — not the converted dictionary — is
-    /// what persists.
+    /// Decodes the raw downloaded DB JSON, caches the raw bytes for a launch-time rebuild, and returns
+    /// the built translator carrying the asset digest. A decode failure throws a file-operation error.
+    /// The raw file — not the decoded dictionary — is what persists.
     public var cacheAndBuildRemoteTagTranslator: @Sendable (
-        Data, TranslatableLanguage, Date
+        Data, TranslatableLanguage, String
     ) throws(AppError) -> TagTranslator
     /// Rebuilds the in-memory translator from the cached raw JSON described by `info` — Application
     /// Support for a custom import, Caches for a remote download. A missing cache throws a
@@ -25,23 +24,17 @@ public struct FileClient: Sendable {
 // re-downloaded (unlike a remote table, which lives in purgeable Caches).
 private let customTranslationsFilename = "tagTranslations-custom.json"
 
-// Decode raw DB JSON → flatten → OpenCC-convert for Traditional Chinese.
-private func decodeTranslations(
-    _ data: Data, applyingChtFor language: TranslatableLanguage?
-) throws(AppError) -> [String: TagTranslation] {
-    let decodedTranslations: [String: TagTranslation]
+// Decode raw DB JSON → flatten.
+private func decodeTranslations(_ data: Data) throws(AppError) -> [String: TagTranslation] {
+    let translations: [String: TagTranslation]
     do {
-        decodedTranslations = try JSONDecoder()
+        translations = try JSONDecoder()
             .decode(EhTagTranslationDatabaseResponse.self, from: data).tagTranslations
     } catch {
         throw .fileOperationFailed("Decode tag translations")
     }
-    guard !decodedTranslations.isEmpty else {
+    guard !translations.isEmpty else {
         throw .fileOperationFailed("Decode tag translations")
-    }
-    var translations = decodedTranslations
-    if language == .traditionalChinese {
-        translations = translations.chtConverted
     }
     return translations
 }
@@ -77,11 +70,11 @@ private struct TagTranslationStore: Sendable {
     func buildAndCacheTranslations(
         data: Data,
         language: TranslatableLanguage,
-        date: Date
+        digest: String
     ) throws(AppError) -> TagTranslator {
-        let translations = try decodeTranslations(data, applyingChtFor: language)
+        let translations = try decodeTranslations(data)
         try writeTranslations(data, to: remoteTranslationsURL(language))
-        return TagTranslator(language: language, updatedDate: date, translations: translations)
+        return TagTranslator(language: language, digest: digest, translations: translations)
     }
 
     func loadCachedTranslations(info: TagTranslatorInfo) throws(AppError) -> TagTranslator {
@@ -92,7 +85,7 @@ private struct TagTranslationStore: Sendable {
             } catch {
                 throw .fileOperationFailed("Read imported tag translations")
             }
-            let translations = try decodeTranslations(data, applyingChtFor: nil)
+            let translations = try decodeTranslations(data)
             return TagTranslator(hasCustomTranslations: true, translations: translations)
         }
         guard let language = info.language else {
@@ -104,10 +97,8 @@ private struct TagTranslationStore: Sendable {
         } catch {
             throw .fileOperationFailed("Read cached tag translations")
         }
-        let translations = try decodeTranslations(data, applyingChtFor: language)
-        return TagTranslator(
-            language: language, updatedDate: info.updatedDate, translations: translations
-        )
+        let translations = try decodeTranslations(data)
+        return TagTranslator(language: language, digest: info.digest, translations: translations)
     }
 
     func removeCustomTranslationsFile() throws(AppError) {
@@ -157,7 +148,7 @@ extension FileClient {
                             } catch {
                                 throw .fileOperationFailed("Read imported tag translations")
                             }
-                            let translations = try decodeTranslations(data, applyingChtFor: nil)
+                            let translations = try decodeTranslations(data)
                             // Persist the raw bytes so a launch-time rebuild can restore the import.
                             try writeTranslations(data, to: store.customTranslationsURL)
                             continuation.resume(
@@ -202,7 +193,7 @@ extension FileClient {
     public static let noop: Self = .init(
         createFile: { _, _ in false },
         importTagTranslator: { _ in .success(.init()) },
-        cacheAndBuildRemoteTagTranslator: { (_: Data, _: TranslatableLanguage, _: Date) throws(AppError) in
+        cacheAndBuildRemoteTagTranslator: { (_: Data, _: TranslatableLanguage, _: String) throws(AppError) in
             throw .fileOperationFailed("Cache tag translations")
         },
         loadCachedTagTranslator: { (_: TagTranslatorInfo) throws(AppError) -> TagTranslator in

@@ -204,17 +204,6 @@ extension Request {
         }
     }
 
-    func decodeJSONDictionary(_ data: Data) throws(AppError) -> [String: Any] {
-        do {
-            guard let dictionary = try JSONSerialization.jsonObject(with: data) as? [String: Any] else {
-                throw AppError.parseFailed
-            }
-            return dictionary
-        } catch {
-            throw .parseFailed
-        }
-    }
-
     private func parsedResponseError(
         from error: ResponseParsingError
     ) -> AppError? {
@@ -377,54 +366,43 @@ public struct FavoriteCategoriesRequest: Request {
 public struct TagTranslatorRequest: Request {
     public init(
         language: TranslatableLanguage,
-        updatedDate: Date,
+        currentDigest: String?,
         urlSession: URLSession = .shared
     ) {
         self.language = language
-        self.updatedDate = updatedDate
+        self.currentDigest = currentDigest
         self.urlSession = urlSession
     }
     public let language: TranslatableLanguage
-    public let updatedDate: Date
+    public let currentDigest: String?
     public let urlSession: URLSession
 
-    public var dateFormatter: DateFormatter {
-        let formatter = DateFormatter()
-        formatter.dateFormat = Defaults.DateFormat.github
-        formatter.timeZone = TimeZone(secondsFromGMT: 0)
-        formatter.locale = Locale(identifier: "en_US_POSIX")
-        return formatter
-    }
-
-    // Returns the untouched DB JSON bytes plus the release date; decoding, OpenCC conversion, and
-    // caching are done downstream by `FileClient` so this layer stays purely network.
+    // Returns the untouched DB JSON bytes plus the asset's published digest; decoding and caching are
+    // done downstream by `FileClient` so this layer stays purely network.
 
     public func response() async throws(AppError) -> TagTranslatorPayload {
         let metadataRequest = urlRequest(
-            url: URLUtil.githubAPI(repoName: language.repoName),
+            url: URLUtil.githubAPI(repoName: TranslatableLanguage.repoName),
             allowsCellular: true
         )
         let (metadata, _) = try await fetch(metadataRequest, in: urlSession)
-        let dictionary = try decodeJSONDictionary(metadata)
-        guard let postedDateString = dictionary["published_at"] as? String,
-            let postedDate = dateFormatter.date(from: postedDateString)
-        else {
+        let release: TagDatabaseRelease
+        do {
+            release = try JSONDecoder().decode(TagDatabaseRelease.self, from: metadata)
+        } catch {
             throw AppError.parseFailed
         }
-        guard postedDate > updatedDate else {
+        guard let asset = release.asset(for: language), let digest = asset.digest else {
+            throw AppError.parseFailed
+        }
+        guard digest != currentDigest else {
             throw AppError.noUpdates
         }
 
         do {
-            let downloadRequest = urlRequest(
-                url: URLUtil.githubDownload(
-                    repoName: language.repoName,
-                    fileName: language.remoteFilename
-                ),
-                allowsCellular: true
-            )
+            let downloadRequest = urlRequest(url: asset.downloadURL, allowsCellular: true)
             let (data, _) = try await urlSession.data(for: downloadRequest)
-            return TagTranslatorPayload(data: data, updatedDate: postedDate)
+            return TagTranslatorPayload(data: data, digest: digest)
         } catch {
             throw mapAppError(error: error)
         }

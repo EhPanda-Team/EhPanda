@@ -38,7 +38,6 @@ public struct Defaults: Sendable {
         public static let publish = "yyyy-MM-dd HH:mm"
         public static let torrent = "yyyy-MM-dd HH:mm"
         public static let comment = "dd MMMM yyyy, HH:mm"
-        public static let github = "yyyy-MM-dd'T'HH:mm:ss'Z'"
     }
     public struct FilePath: Sendable {
         // User-visible in the Files app (`UIFileSharingEnabled` over `Documents`), hence the
@@ -77,7 +76,6 @@ public struct Defaults: Sendable {
         public static let toplist = ehentai.appending(path: "toplist.php")
 
         // GitHub
-        public static let github: Foundation.URL = .init(string: "https://github.com/").forceUnwrapped
         public static let githubAPI: Foundation.URL = .init(string: "https://api.github.com/repos/").forceUnwrapped
 
         // swiftlint:disable nesting identifier_name
