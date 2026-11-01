@@ -39,22 +39,16 @@ struct CardGradientCeiling {
         self = contrast == .increased ? .increased : .standard
     }
 
-    /// Colors at or below the knee keep their lightness.
-    private var knee: Double {
-        lightness * 0.7
+    /// Colors at or below 70% of the ceiling keep their lightness; L\* 100 lands exactly on it.
+    private var curve: SoftCeiling {
+        SoftCeiling(knee: lightness * 0.7, ceiling: lightness, domain: 100)
     }
 
-    /// Above the knee, the curve leaves it with the identity's slope and compresses the rest of the
-    /// range so L\* 100 lands exactly on the ceiling. The compression is smooth and keeps the
-    /// palette's lightness order, so a color crossing the knee during ColorfulX's color transition
-    /// shows no kink.
     func limit(_ color: Color.Resolved) -> Color.Resolved {
         let luminance = Double(0.2126 * color.linearRed + 0.7152 * color.linearGreen + 0.0722 * color.linearBlue)
         let current = Self.lightness(ofLuminance: luminance)
-        guard current > knee else { return color }
-        let progress = min((current - knee) / (100 - knee), 1)
-        let exponent = (100 - knee) / (lightness - knee)
-        let limited = knee + (lightness - knee) * (1 - pow(1 - progress, exponent))
+        let limited = curve(current)
+        guard limited < current else { return color }
         let scale = Float(Self.luminance(ofLightness: limited) / luminance)
         return Color.Resolved(
             colorSpace: .sRGBLinear,
@@ -63,13 +57,6 @@ struct CardGradientCeiling {
             blue: color.linearBlue * scale,
             opacity: color.opacity
         )
-    }
-
-    /// Card palettes hold absolute sRGB values (`ImageColors` builds them with `Color(.sRGB, …)`), which
-    /// resolve the same in every environment; ColorfulX bridges them the same way, through `UIColor`
-    /// without a trait collection.
-    func limit(_ color: Color) -> Color {
-        Color(limit(color.resolve(in: EnvironmentValues())))
     }
 
     /// CIE L\* of a relative luminance, with white at 1.

@@ -251,7 +251,7 @@ private struct MatrixGeometry: Decodable {
     let scale: CGFloat
     let horizontalSizeClass: Int
     let verticalSizeClass: Int
-    /// Pinned on: Reduce Motion is the only switch that freezes the dark Home card's Metal gradient.
+    /// Pinned on: Reduce Motion is the only switch that freezes the Home card's Metal gradient.
     let reduceMotionEnabled: Bool
 }
 

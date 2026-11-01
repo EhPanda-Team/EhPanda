@@ -504,7 +504,7 @@ private struct ScreenInspector {
     /// Home waits for all of its lists and for the current card's cover: the current card is
     /// always on screen, so its cover proves the first render requested every visible image;
     /// without it, the moment between the lists arriving and their covers being requested would
-    /// read as ready. In dark appearance the card's gradient shows its cover's colors, so the card
+    /// read as ready. The card's gradient shows its cover's colors in both appearances, so the card
     /// also waits for their analysis.
     private func homeReport(_ home: HomeReducer.State) -> ScreenReport {
         let toplists = ToplistsType.allCases.map({ home.toplistsGalleries[$0.categoryIndex] ?? [] })
@@ -522,7 +522,7 @@ private struct ScreenInspector {
         if !shows(currentCard?.coverURL) {
             report.blockers.append("The current card's cover is not shown")
         }
-        if rendering.appearance == .dark, !home.rawCardColors.keys.contains(home.currentCardID) {
+        if !home.rawCardColors.keys.contains(home.currentCardID) {
             report.blockers.append("The current card's colors are not analyzed")
         }
         return report

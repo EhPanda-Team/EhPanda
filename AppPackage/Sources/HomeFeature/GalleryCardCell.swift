@@ -13,7 +13,6 @@ import PreviewSupport
 
 public struct GalleryCardCell: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
-    @Environment(\.colorScheme) private var colorScheme
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
     @ScaledMetric(relativeTo: .title3) private var titleLineHeight: CGFloat = 24
@@ -30,19 +29,15 @@ public struct GalleryCardCell: View {
     private let gallery: Gallery
 
     // ColorfulX renders a full-bleed, opaque Metal gradient that always paints — unlike the
-    // former Colorful view (translucent circles that only laid out when `animated`). To keep
-    // the pre-migration behavior, the whole `ColorfulView` is gated on `animated`: it is inserted
-    // only for the focused card in dark mode. Unselected cards and light mode show just the gray
-    // fallback, and the cover-color analysis is skipped until dark (see `handleCoverSuccess`).
+    // former Colorful view (translucent circles that only laid out while animated). The whole
+    // `ColorfulView` is therefore gated on `showsGradient`: it is inserted only for the focused card,
+    // in both appearances, and unselected cards show just the gray fallback. Light mode tones the
+    // palette down to the fallback's own weight (`CardGradientTint`), so the focused card is tinted
+    // by its cover without standing out more than its neighbors.
     // With Reduce Motion enabled, the gradient is seeded directly from the palette and its Metal
     // field is frozen in one fixed arrangement; the focus handoff remains an opacity cross-fade.
     // `animationSpeed` is the subjective, user-tunable motion knob (01-COLORFUL-UAT.md, D-19).
     private let animationSpeed: Double = 0.5
-
-    // Retains the last cover-image result so color analysis can be deferred: light mode never
-    // shows the gradient, so analysis is skipped there; switching to dark replays this result to
-    // compute the focused card's colors on demand, without reloading the cover.
-    @State private var lastImageResult: RetrieveImageResult?
 
     public init(
         gallery: Gallery, currentID: String, colors: [Color],
@@ -59,9 +54,8 @@ public struct GalleryCardCell: View {
         self.webImageSuccessAction = webImageSuccessAction
     }
 
-    private var animated: Bool {
-        guard colorScheme == .dark else { return false }
-        return gallery.gid == currentID
+    private var showsGradient: Bool {
+        gallery.gid == currentID
     }
 
     public var body: some View {
@@ -71,7 +65,7 @@ public struct GalleryCardCell: View {
                     GalleryCover(
                         url: gallery.coverURL,
                         style: usesCompactInformation ? .homeCompact : .homeSlideshow, contentMode: .fill,
-                        onSuccess: handleCoverSuccess
+                        onSuccess: webImageSuccessAction
                     )
                     VStack(alignment: .leading, spacing: 12) {
                         if usesCompactInformation {
@@ -104,7 +98,7 @@ public struct GalleryCardCell: View {
         )
         .frame(maxWidth: .infinity)
         .background {
-            if animated {
+            if showsGradient {
                 CardGradientView(colors: colors, reduceMotion: reduceMotion, speed: animationSpeed)
                     // Cross-fade the focus handoff: the gradient is inserted/removed per focus
                     // change, and a bare conditional pops — the outgoing card's gradient would
@@ -114,15 +108,10 @@ public struct GalleryCardCell: View {
             }
         }
         .background {
-            Color.gray
-                .opacity(0.2)
+            Color.homeCardFallback
         }
         .clipShape(.rect(cornerRadius: 15))
-        .animation(.easeInOut(duration: 0.5), value: animated)
-        .onChange(of: colorScheme) { _, newScheme in
-            guard newScheme == .dark, let lastImageResult else { return }
-            webImageSuccessAction(lastImageResult)
-        }
+        .animation(.easeInOut(duration: 0.5), value: showsGradient)
     }
 
     private var cardContent: some View {
@@ -143,7 +132,7 @@ public struct GalleryCardCell: View {
                 GalleryCover(
                     url: gallery.coverURL, style: .hero, contentMode: .fill,
                     maximumHeight: max(0, (maximumHeight ?? 190) - 40),
-                    onSuccess: handleCoverSuccess
+                    onSuccess: webImageSuccessAction
                 )
                 textColumn(titleLines: compactTitleLines)
             }
@@ -160,7 +149,7 @@ public struct GalleryCardCell: View {
     }
 
     private var cover: some View {
-        GalleryCover(url: gallery.coverURL, style: .hero, contentMode: .fill, onSuccess: handleCoverSuccess)
+        GalleryCover(url: gallery.coverURL, style: .hero, contentMode: .fill, onSuccess: webImageSuccessAction)
     }
 
     /// Reserve the same preview height for every gallery at a given arrangement.
@@ -190,31 +179,32 @@ public struct GalleryCardCell: View {
         .font(dynamicTypeSize.isAccessibilitySize ? .caption2 : .body)
         .frame(maxWidth: .infinity, alignment: .leading)
     }
+}
 
-    // Color analysis is only meaningful when the gradient is visible (dark mode). The result is
-    // always retained so a later light → dark switch can trigger analysis without reloading.
-    private func handleCoverSuccess(_ result: RetrieveImageResult) {
-        lastImageResult = result
-        guard colorScheme == .dark else { return }
-        webImageSuccessAction(result)
-    }
+extension Color {
+    /// The Home card's background wherever no gradient shows; the light-mode tint keeps its weight.
+    static let homeCardFallback = Color.gray.opacity(0.2)
 }
 
 // Wraps `ColorfulView` so the gradient blooms in gradually instead of popping to full intensity.
 // ColorfulX snaps the FIRST color set it receives (`initialSetup`) and only lerps SUBSEQUENT
 // changes over `transitionSpeed`. Seeding the layer with a neutral dark color and then applying
 // the real palette at appearance time turns the initial paint into an animated transition — reproducing
-// the former Colorful view's gradual appearance. Fresh `@State` (the parent re-inserts this view
-// per focus via `if animated`) guarantees the bloom each time a card becomes current.
+// the former Colorful view's gradual appearance. The seed is toned like any palette, and light mode
+// tones every neutral to the gray fallback's weight, so there the bloom starts from the card's own
+// gray. Fresh `@State` (the parent re-inserts this view per focus via `if showsGradient`) guarantees
+// the bloom each time a card becomes current.
 // Under Reduce Motion the same first-set snap is used the other way around: init seeds the real
 // palette directly (no bloom — the first paint is already final), a `transitionSpeed` of 0 makes
 // ColorfulX apply a palette that arrives later at once as well, `speed` 0 freezes the Metal field
 // and `FixedSpeckleDirector` gives its points one arrangement, leaving a static gradient that looks
 // the same every time and whose focus handoff remains the parent's opacity cross-fade. Skipping the
 // late palette's fade is an owner-approved exception to Phase 16 D-29 (17-05-PLAN.md).
-// Every palette passes through `CardGradientCeiling` on its way to ColorfulX, so the white text stays
-// readable; a Contrast change reaches ColorfulX as a palette change and transitions like one.
+// Every palette is toned on its way to ColorfulX: dark mode holds it under `CardGradientCeiling` so the
+// white text stays readable, light mode tints the gray card with it (`CardGradientTint`). An appearance
+// or Contrast change reaches ColorfulX as a palette change and transitions like one.
 private struct CardGradientView: View {
+    @Environment(\.colorScheme) private var colorScheme
     @Environment(\.colorSchemeContrast) private var colorSchemeContrast
 
     let colors: [Color]
@@ -232,7 +222,7 @@ private struct CardGradientView: View {
 
     var body: some View {
         ColorfulView(
-            color: displayedColors.map(CardGradientCeiling(colorSchemeContrast).limit),
+            color: displayedColors.map(toned),
             speed: .constant(reduceMotion ? 0 : speed),
             transitionSpeed: .constant(reduceMotion ? 0 : 6),
             animationDirector: reduceMotion ? FixedSpeckleDirector() : SpeckleAnimationRandomDirector()
@@ -246,6 +236,18 @@ private struct CardGradientView: View {
         .onChange(of: colors, initial: true) { _, newColors in
             displayedColors = newColors
         }
+    }
+
+    /// Card palettes hold absolute sRGB values (`ImageColors` builds them with `Color(.sRGB, …)`), which
+    /// resolve the same in every environment; ColorfulX bridges them the same way, through `UIColor`
+    /// without a trait collection.
+    private func toned(_ color: Color) -> Color {
+        let resolved = color.resolve(in: EnvironmentValues())
+        return Color(
+            colorScheme == .dark
+                ? CardGradientCeiling(colorSchemeContrast).limit(resolved)
+                : CardGradientTint.standard.tint(resolved)
+        )
     }
 }
 
