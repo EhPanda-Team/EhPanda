@@ -547,7 +547,7 @@ def validate_live_text(record, gid, page, page_sha):
     Every group and line must have an ID, every line text and a quadrilateral that has an extent and overlaps its
     page. Vision may place a corner slightly outside the image, so corners are not clamped to the page.
     """
-    keys(record, LIVE_TEXT_KEYS, 'Live Text record')
+    keys(record, (*LIVE_TEXT_KEYS, 'translation') if 'translation' in record else LIVE_TEXT_KEYS, 'Live Text record')
     if not current_schema(record['schemaVersion']):
         raise ValueError(f'Live Text record schemaVersion must be {SCHEMA_VERSION}')
     if (record['gid'], record['page']) != (gid, page):
@@ -562,6 +562,25 @@ def validate_live_text(record, gid, page, page_sha):
     keys(record['recordedOn'], ('model', 'runtimeBuild'), 'Live Text recordedOn')
     if not all(isinstance(value, str) and value for value in record['recordedOn'].values()):
         raise ValueError('Live Text recordedOn must name the model and runtime build')
+    if 'translation' in record:
+        translation = record['translation']
+        keys(translation, ('sourceLanguage', 'targetLanguage', 'entries'), 'Live Text translation')
+        if not all(isinstance(translation[k], str) and translation[k] for k in ('sourceLanguage', 'targetLanguage')):
+            raise ValueError('Translation languages must be nonempty identifiers')
+        if translation['sourceLanguage'] == translation['targetLanguage']:
+            raise ValueError('Translation source and target must differ')
+        entries = translation['entries']
+        if not isinstance(entries, list) or not entries:
+            raise ValueError('Translation entries must not be empty')
+        group_ids = {group['id'] for group in record['groups']}
+        seen = set()
+        for entry in entries:
+            keys(entry, ('id', 'source', 'target'), 'Live Text translation entry')
+            if entry['id'] not in group_ids or entry['id'] in seen:
+                raise ValueError('Translation repeats or names an unknown group')
+            seen.add(entry['id'])
+            if not all(isinstance(entry[k], str) and entry[k].strip() for k in ('source', 'target')):
+                raise ValueError('Translation source and target text must not be empty')
     groups, ids = record['groups'], set()
     if not isinstance(groups, list) or not groups:
         raise ValueError('Live Text record holds no groups')
@@ -784,7 +803,7 @@ def publish_records(output, records, recorded_at):
         selection = validate_selection(json.loads((source / 'selection.json').read_text()))
         # Publication validates each record completely; its keys are needed first to place it.
         for record in records:
-            keys(record, LIVE_TEXT_KEYS, 'Live Text record')
+            keys(record, (*LIVE_TEXT_KEYS, 'translation') if 'translation' in record else LIVE_TEXT_KEYS, 'Live Text record')
         replaced = {(record['gid'], record['page']) for record in records}
         assets = [entry for entry in manifest['assets']
                   if entry['kind'] not in RECORD_KINDS or (entry['gid'], entry['index']) not in replaced]

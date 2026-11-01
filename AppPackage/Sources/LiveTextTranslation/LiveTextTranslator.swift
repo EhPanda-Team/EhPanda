@@ -1,7 +1,7 @@
 public import AppModels
 public import CoreGraphics
 import Dependencies
-import Foundation
+public import Foundation
 public import Observation
 import OSLogExt
 import Translation
@@ -83,6 +83,34 @@ public final class LiveTextTranslator {
         )
         translateNext()
     }
+
+    #if DEBUG
+    /// Replays recorded responses through the same layout used by a completed system translation.
+    public func replay(
+        groups: [LiveTextGroup], sources: [UUID: String], translations: [UUID: String],
+        language: Locale.Language, page: (number: Int, image: CGImage)
+    ) async {
+        let translated = await Self.layoutReplay(
+            groups: groups, sources: sources, translations: translations, language: language, image: page.image
+        )
+        guard !Task.isCancelled else { return }
+        for group in groups {
+            pageByGroupID[group.id] = page.number
+        }
+        translatedPages[page.number] = translated
+        states[page.number] = .settled
+    }
+
+    @concurrent
+    private static func layoutReplay(
+        groups: [LiveTextGroup], sources: [UUID: String], translations: [UUID: String],
+        language: Locale.Language, image: CGImage
+    ) async -> LiveTextTranslatedPage {
+        LiveTextTranslatedPage.layOut(
+            groups: groups, sources: sources, translations: translations, language: language, image: image
+        )
+    }
+    #endif
 
     public func takeFailure() -> LiveTextTranslationFailure? {
         defer { failure = nil }

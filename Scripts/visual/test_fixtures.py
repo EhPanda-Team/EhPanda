@@ -822,6 +822,19 @@ class RecordTests(FixtureTestCase):
     def records(self, manifest):
         return [entry for entry in manifest['assets'] if entry['kind'] == 'liveText']
 
+    def test_translation_responses_publish_and_reject_unknown_or_repeated_groups(self):
+        record = live_text_record(self.manifest)
+        entries = [{'id': group['id'], 'source': ' '.join(block['text'] for block in group['blocks']),
+                    'target': '翻訳'} for group in record['groups']]
+        record['translation'] = {'sourceLanguage': 'en', 'targetLanguage': 'ja', 'entries': entries}
+        target, _ = fixtures.publish_records(self.output, [record], '2026-11-01T00:00:00+00:00')
+        fixtures.validate_fixtures(target)
+        for invalid in [entries + [entries[0]], [{**entries[0], 'id': 'unknown'}],
+                        [{**entries[0], 'target': ''}]]:
+            with self.subTest(entries=invalid), self.assertRaises(ValueError):
+                record['translation']['entries'] = invalid
+                fixtures.validate_live_text(record, '101', 4, record['pageSHA256'])
+
     def test_a_record_publishes_a_version_that_keeps_every_other_file(self):
         record = live_text_record(self.manifest)
         target, changed = fixtures.publish_records(self.output, [record], '2026-10-09T01:00:00+00:00')

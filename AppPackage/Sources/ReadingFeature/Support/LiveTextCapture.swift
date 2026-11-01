@@ -1,6 +1,8 @@
 #if DEBUG
 public import AppModels
 public import Dependencies
+import Foundation
+import LiveTextTranslation
 import Synchronization
 
 /// The Live Text a capture launch shows on one reader page (17-06, D-06).
@@ -41,12 +43,14 @@ public final class LiveTextCapture: Sendable {
     public let gid: String
     public let page: Int
     public let source: Source
+    public let translation: Translation?
     private let state = Mutex<Outcome?>(nil)
 
-    public init(gid: String, page: Int, source: Source) {
+    public init(gid: String, page: Int, source: Source, translation: Translation? = nil) {
         self.gid = gid
         self.page = page
         self.source = source
+        self.translation = translation
     }
 
     /// What the reader did with the capture's page, or `nil` until it asked for it.
@@ -68,11 +72,18 @@ public final class LiveTextCapture: Sendable {
         }
         switch source {
         case .replay(let groups):
-            state.withLock({ $0 = .replayed(groups) })
+            if translation == nil {
+                replayed(groups)
+            }
             return .show(groups)
         case .record:
             return .recognize
         }
+    }
+
+    /// Signals readiness only after translated layout has been installed in the reader.
+    func replayed(_ groups: [LiveTextGroup]) {
+        state.withLock({ $0 = .replayed(groups) })
     }
 
     /// Keeps what the reader's recognizer found on `page`, when this capture records that page.

@@ -194,10 +194,10 @@ private struct AnyCodingKey: CodingKey {
 extension Decoder {
     /// Rejects an object whose keys differ from `Keys`, so a misspelled or extra key fails instead
     /// of being ignored, matching the fixture tools' exact key sets.
-    func requireExactKeys<Keys: CodingKey & CaseIterable>(_: Keys.Type) throws {
+    func requireExactKeys<Keys: CodingKey & CaseIterable>(_: Keys.Type, optional: Set<String> = []) throws {
         let found = Set(try container(keyedBy: AnyCodingKey.self).allKeys.map(\.stringValue))
         let expected = Set(Keys.allCases.map(\.stringValue))
-        guard found == expected else {
+        guard found.subtracting(optional) == expected.subtracting(optional) else {
             let unknown = found.subtracting(expected).sorted()
             let missing = expected.subtracting(found).sorted()
             throw DecodingError.dataCorrupted(

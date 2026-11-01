@@ -42,6 +42,39 @@ struct LiveTextHandlerTranslationTests {
         return try #require(context.makeImage())
     }
 
+    @Test
+    func recordedTranslationsBindToTheRecognizedTextAndUseTheNormalLayout() async throws {
+        let groups = try Self.groups()
+        let group = try #require(groups.first)
+        let translation = LiveTextCapture.Translation(
+            sourceLanguage: "en", targetLanguage: "ja",
+            entries: [.init(id: group.id, source: "You sent me away,", target: "あなたは私を追い払った。")]
+        )
+        #expect(translation.matches(groups))
+        let changed = LiveTextCapture.Translation(
+            sourceLanguage: "en", targetLanguage: "ja",
+            entries: [.init(id: group.id, source: "Unrelated text", target: "別の文章")]
+        )
+        #expect(!changed.matches(groups))
+        let duplicated = LiveTextCapture.Translation(
+            sourceLanguage: "en", targetLanguage: "ja", entries: translation.entries + translation.entries
+        )
+        #expect(!duplicated.matches(groups))
+        let capture = LiveTextCapture(gid: Self.gid, page: 4, source: .replay(groups), translation: translation)
+        let handler = Self.handler(capture: capture, calls: LockIsolated(0))
+        #expect(!handler.capturesLiveText(gid: Self.gid, page: 4))
+        #expect(capture.outcome == nil)
+
+        await handler.translator.replay(
+            groups: groups, sources: [group.id: "You sent me away,"],
+            translations: [group.id: "あなたは私を追い払った。"], language: Locale.Language(identifier: "ja"),
+            page: (number: 4, image: try Self.image())
+        )
+        let page = try #require(handler.translator.translatedPage(of: groups))
+        #expect(!page.groups.isEmpty)
+        #expect(!handler.translator.needsTranslation(page: 4))
+    }
+
     /// A handler for a Japanese reader, counting the translation client's calls in `calls`.
     private static func handler(
         capture: LiveTextCapture? = nil,
