@@ -21,6 +21,15 @@ source_head: af00e0da93
 
 # Project State
 
+## Readable dark-mode slideshow gradient — 2026-11-01
+
+Owner chose the per-color design: `CardGradientCeiling` dims each cover-palette color above a knee
+in linear light (hue kept) so the focused dark-mode card's white and secondary text stay readable.
+Ceilings hold for every sRGB hue, because ColorfulX's Lab blends take hues the palette lacks:
+L* 32.2 standard, 27.1 with Increase Contrast (the approved mockup's gray-derived 41.1 failed
+saturated colors). Light-mode tinting is still under discussion.
+[Quick task](quick/261101-slideshow-dark-ceiling/SUMMARY.md).
+
 ## Reviewed Home and translation work committed — 2026-11-01
 
 Owner requested committing the outstanding changes: Home tags/proportions/covers `3bdd9865e`;
