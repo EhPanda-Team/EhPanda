@@ -232,7 +232,11 @@ final class LandscapePaneUITests: XCTestCase {
         XCTAssertLessThan(sections.frame.minX, window.midX)
         XCTAssertGreaterThan(sections.frame.maxX, window.midX)
         XCTAssertTrue(app.navigationBars.staticTexts["Home"].firstMatch.waitForNonExistence(timeout: 5))
-        XCTAssertTrue(app.navigationBars.buttons["Reload"].firstMatch.isHittable)
+        let reload = app.navigationBars.buttons["Reload"].firstMatch
+        XCTAssertTrue(reload.isHittable)
+        // A controller beside Home's stack stops the top tab bar from hosting its bar in the same row.
+        let tab = app.buttons["Home"].firstMatch.frame
+        XCTAssertTrue((tab.minY...tab.maxY).contains(reload.frame.midY), "Reload \(reload.frame), tab \(tab)")
     }
 
     func testReaderControlsMoveAndKeepTheirSideAfterRotation() throws {

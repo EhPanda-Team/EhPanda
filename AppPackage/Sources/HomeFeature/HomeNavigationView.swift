@@ -46,6 +46,23 @@ struct HomePrimaryNavigationView: View {
                     $0.visible(store.popularGalleries.isEmpty && error != nil)
                 }
             }
+            // UIKit merges this bar into the iPad top tab bar only while the stack is the tab's sole
+            // child controller. The sheet presenter is a controller, so beside the stack it would drop
+            // the bar and Reload onto a row of their own; inside the root content it does not.
+            .background {
+                @UIBindable var presentationStore = store
+                HomePaneSheet(
+                    item: $presentationStore.scope(\.$sheet, action: \.sheet),
+                    viewport: store.viewportSize,
+                    usesSplitLayout: store.usesSplitLayout,
+                    side: { $0.side },
+                    onDismiss: { store.send(.sheetDismissed) }
+                ) { sheetStore in
+                    HomeSheetView(
+                        store: sheetStore, viewport: store.viewportSize, usesSplitLayout: store.usesSplitLayout
+                    )
+                }
+            }
             .toolbarTitleDisplayMode(hidesTitle ? .inline : .inlineLarge)
             .navigationTitle(.RLocalizable.home)
             .toolbar(removing: hidesTitle ? .title : nil)
