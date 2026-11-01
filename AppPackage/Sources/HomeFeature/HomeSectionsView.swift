@@ -16,7 +16,7 @@ struct HomeSectionsView: View {
             VStack {
                 if pane != .right {
                     slideshow.padding(.vertical)
-                    frontpage.padding(.vertical)
+                    frontPage.padding(.vertical)
                 }
                 if pane != .left {
                     toplists.padding(.vertical)
@@ -57,21 +57,21 @@ struct HomeSectionsView: View {
     }
 
     @ViewBuilder
-    private var frontpage: some View {
-        if store.frontpageGalleries.count > 1 {
+    private var frontPage: some View {
+        if store.frontPageGalleries.count > 1 {
             CoverWallSection(
-                galleries: store.frontpageGalleries,
-                isLoading: store.frontpageLoadingState == .loading,
+                galleries: store.frontPageGalleries,
+                isLoading: store.frontPageLoadingState == .loading,
                 showsRichInformation: true,
-                maximumCoverHeight: maximumFrontpageCoverHeight,
+                maximumCoverHeight: maximumFrontPageCoverHeight,
                 navigateAction: { store.send(.galleryTapped($0, from: .left)) },
-                showAllAction: { store.send(.sectionTapped(.frontpage)) },
-                reloadAction: { store.send(.fetchFrontpageGalleries) }
+                showAllAction: { store.send(.sectionTapped(.frontPage)) },
+                reloadAction: { store.send(.fetchFrontPageGalleries) }
             )
         }
     }
 
-    private var maximumFrontpageCoverHeight: CGFloat? {
+    private var maximumFrontPageCoverHeight: CGFloat? {
         let galleryViewport = GalleryViewport(size: viewport, isRegularWidth: horizontalSizeClass == .regular)
         if pane != nil {
             return min(heroCoverSize.height, max(0, galleryViewport.maximumSlideshowHeight - 40))

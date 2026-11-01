@@ -62,7 +62,7 @@ struct HomeClientTests {
     @Test
     func presentationShowsEveryListInTheClientsOrder() async {
         let popular = makeGalleries(titleLengths: [2, 9, 4, 12, 1, 7])
-        let frontpage = [makeGallery(gid: "f0", title: "Front A"), makeGallery(gid: "f1", title: "Front B")]
+        let frontPage = [makeGallery(gid: "f0", title: "Front A"), makeGallery(gid: "f1", title: "Front B")]
         let appStorage = UserDefaults.inMemory
         let store = withDependencies {
             $0.defaultAppStorage = appStorage
@@ -77,8 +77,8 @@ struct HomeClientTests {
                         fetchPopularGalleries: { (_: GalleryHost, _: AppModels.Filter) async throws(AppError) in
                             popular
                         },
-                        fetchFrontpageGalleries: { (_: GalleryHost, _: AppModels.Filter) async throws(AppError) in
-                            (pageNumber: PageNumber(), galleries: frontpage)
+                        fetchFrontPageGalleries: { (_: GalleryHost, _: AppModels.Filter) async throws(AppError) in
+                            (pageNumber: PageNumber(), galleries: frontPage)
                         },
                         fetchToplistsGalleries: { (_: GalleryHost, catIndex: Int, _: Int?) async throws(AppError) in
                             (pageNumber: PageNumber(), galleries: [makeGallery(gid: "t\(catIndex)", title: "Top")])
@@ -95,7 +95,7 @@ struct HomeClientTests {
 
         expectNoDifference(store.state.popularGalleries.map(\.gid), ["0", "1", "2", "3", "4", "5"])
         expectNoDifference(store.state.currentCardID, "1")
-        expectNoDifference(store.state.frontpageGalleries.map(\.gid), ["f0", "f1"])
+        expectNoDifference(store.state.frontPageGalleries.map(\.gid), ["f0", "f1"])
         expectNoDifference(
             store.state.toplistsGalleries.mapValues({ $0.map(\.gid) }),
             Dictionary(

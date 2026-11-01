@@ -232,6 +232,7 @@ struct CaptureFixtureSelection: Decodable, Sendable {
 
     struct Home: Decodable, Sendable {
         let hero: Hero
+        /// Spelled as the key in the selections already on disk.
         let frontpage: [String]
         let toplists: [String: [String]]
     }

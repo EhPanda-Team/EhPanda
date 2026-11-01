@@ -131,7 +131,7 @@ final class VisualMatrixTests: XCTestCase {
             state.popularGalleries = [try XCTUnwrap(expected.first)] + neighbors
             state.cardPageIndex = 0
             state.currentCardID = try XCTUnwrap(expected.first).gid
-            state.frontpageGalleries = Array(expected.dropFirst().prefix(2))
+            state.frontPageGalleries = Array(expected.dropFirst().prefix(2))
             state.toplistsGalleries = Dictionary(
                 uniqueKeysWithValues: ToplistsType.allCases.map({ ($0.categoryIndex, []) })
             )

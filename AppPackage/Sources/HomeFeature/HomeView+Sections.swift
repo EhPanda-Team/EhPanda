@@ -129,7 +129,7 @@ struct CardSlideSection: View, Equatable {
                         // One pass of the galleries for assistive technologies. The window carries
                         // `windowBlocks` copies of the list, and every copy the lazy stack builds is
                         // an accessibility element, so linear VoiceOver navigation reads the same
-                        // galleries over and over and never leaves the carousel for the Frontpage
+                        // galleries over and over and never leaves the carousel for the Front Page
                         // heading. Exposing only the middle block leaves one pass, and the `.idle`
                         // rebase already keeps the centred card in that block, so whatever is on
                         // screen is always among the six. This is the same form `visible(_:)` uses
@@ -314,14 +314,14 @@ struct CoverWallSection: View {
 
     var body: some View {
         SubSection(
-            title: .frontpage,
+            title: .frontPage,
             isLoading: isLoading,
             reloadAction: reloadAction,
             showAllAction: showAllAction
         ) {
             ScrollView(.horizontal) {
                 if showsRichInformation {
-                    HomeFrontpageWall(
+                    HomeFrontPageWall(
                         columns: dataSource, maximumCoverHeight: maximumCoverHeight, navigateAction: navigateAction
                     )
                 } else {
@@ -355,7 +355,7 @@ struct VerticalCoverStack: View {
         Button {
             navigateAction(gallery)
         } label: {
-            HomeFrontpageCell(gallery: gallery, showsRichInformation: false)
+            HomeFrontPageCell(gallery: gallery, showsRichInformation: false)
         }
         .tint(.primary)
         .multilineTextAlignment(.leading)
@@ -402,7 +402,7 @@ struct ToplistsSection: View {
         guard !galleries.isEmpty else {
             var dictionary = [Int: [Gallery]]()
             // Blank skeleton galleries have no cover, so the loading rows show the cover's own
-            // placeholder and request nothing, like the Frontpage skeleton.
+            // placeholder and request nothing, like the Front Page skeleton.
             let galleries = Gallery.mockGalleries(count: 6, randomID: false).map { blank in
                 var gallery = blank
                 gallery.title = "......"

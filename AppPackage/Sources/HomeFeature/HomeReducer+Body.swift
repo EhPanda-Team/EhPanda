@@ -50,7 +50,7 @@ extension HomeReducer {
                     state: &state
                 )
 
-            case let .path(.element(id: _, action: .frontpage(.delegate(.pushDetail(gallery))))),
+            case let .path(.element(id: _, action: .frontPage(.delegate(.pushDetail(gallery))))),
                  let .path(.element(id: _, action: .popular(.delegate(.pushDetail(gallery))))),
                  let .path(.element(id: _, action: .toplists(.delegate(.pushDetail(gallery))))),
                  let .path(.element(id: _, action: .watched(.delegate(.pushDetail(gallery))))),
@@ -101,20 +101,20 @@ extension HomeReducer {
                 })
                 if state.usesSplitLayout {
                     let root: HomeSheetFeature.RootFeature.State = switch type {
-                    case .frontpage: .frontpage(.init())
+                    case .frontPage: .frontPage(.init())
                     case .toplists: .toplists(.init())
                     }
                     return .merge(
-                        presentSheet(root: root, on: type == .frontpage ? .right : .left, state: &state),
+                        presentSheet(root: root, on: type == .frontPage ? .right : .left, state: &state),
                         sectionViewed
                     )
                 }
                 switch type {
-                case .frontpage:
+                case .frontPage:
                     return .merge(
                         presentationEffect(
-                            id: state.path.appendGuardingDuplicate(.frontpage(.init())),
-                            action: .frontpage(.onPresented)
+                            id: state.path.appendGuardingDuplicate(.frontPage(.init())),
+                            action: .frontPage(.onPresented)
                         ),
                         sectionViewed
                     )
@@ -189,7 +189,7 @@ extension HomeReducer {
             case .fetchAllGalleries:
                 return .merge(
                     .send(.fetchPopularGalleries),
-                    .send(.fetchFrontpageGalleries),
+                    .send(.fetchFrontPageGalleries),
                     .send(.fetchAllToplistsGalleries)
                 )
 
@@ -228,30 +228,30 @@ extension HomeReducer {
                 }
                 return .none
 
-            case .fetchFrontpageGalleries:
-                guard state.frontpageLoadingState != .loading else { return .none }
-                state.frontpageLoadingState = .loading
+            case .fetchFrontPageGalleries:
+                guard state.frontPageLoadingState != .loading else { return .none }
+                state.frontPageLoadingState = .loading
                 let filter = state.globalFilter
                 let host = state.setting.galleryHost
                 return .run { send in
                     let result = await Result.Swift::init { () async throws(AppError) in
-                        try await homeClient.fetchFrontpageGalleries(host, filter)
+                        try await homeClient.fetchFrontPageGalleries(host, filter)
                     }
-                    await send(.fetchFrontpageGalleriesDone(result))
+                    await send(.fetchFrontPageGalleriesDone(result))
                 }
 
-            case .fetchFrontpageGalleriesDone(let result):
-                state.frontpageLoadingState = .idle
+            case .fetchFrontPageGalleriesDone(let result):
+                state.frontPageLoadingState = .idle
                 switch result {
                 case .success(let (_, galleries)):
                     guard !galleries.isEmpty else {
-                        state.frontpageLoadingState = .failed(.notFound)
+                        state.frontPageLoadingState = .failed(.notFound)
                         return .none
                     }
-                    state.setFrontpageGalleries(galleries)
+                    state.setFrontPageGalleries(galleries)
                     return .none
                 case .failure(let error):
-                    state.frontpageLoadingState = .failed(error)
+                    state.frontPageLoadingState = .failed(error)
                 }
                 return .none
 
@@ -324,8 +324,8 @@ extension HomeReducer {
     /// screen that ships silently unmeasured (T-14-14).
     private func homeSection(for type: HomeSectionType) -> HomeSection {
         switch type {
-        case .frontpage:
-            return .frontpage
+        case .frontPage:
+            return .frontPage
         case .toplists:
             return .toplists
         }

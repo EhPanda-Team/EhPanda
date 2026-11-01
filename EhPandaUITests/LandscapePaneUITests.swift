@@ -35,10 +35,10 @@ final class LandscapePaneUITests: XCTestCase {
         let titleFrame = title.frame
         right.swipeUp()
         XCTAssertEqual(title.frame, titleFrame)
-        left.buttons["Show All"].firstMatch.tapWhenHittable("Frontpage")
-        let frontpage = app.navigationBars["Frontpage"]
-        XCTAssertTrue(frontpage.waitForExistence(timeout: 10))
-        XCTAssertGreaterThanOrEqual(frontpage.frame.minX, window.frame.midX)
+        left.buttons["Show All"].firstMatch.tapWhenHittable("Front Page")
+        let frontPage = app.navigationBars["Front Page"]
+        XCTAssertTrue(frontPage.waitForExistence(timeout: 10))
+        XCTAssertGreaterThanOrEqual(frontPage.frame.minX, window.frame.midX)
         print("CAPTURE_LANDSCAPE_SHEET")
         app.collectionViews.buttons.firstMatch.tapWhenHittable("Gallery")
         let detail = app.requireElement("detail_view", matching: .scrollView)
@@ -47,7 +47,7 @@ final class LandscapePaneUITests: XCTestCase {
             $0.isHittable && $0.frame.midX < window.frame.midX
         })
         sheetClose.tapWhenHittable("Detail Close")
-        XCTAssertTrue(frontpage.exists)
+        XCTAssertTrue(frontPage.exists)
     }
 
     func testPadHomeKeepsSinglePaneAcrossRotationAndTextSizes() throws {
@@ -68,13 +68,13 @@ final class LandscapePaneUITests: XCTestCase {
                 let sections = app.scrollViews["home_sections"]
                 let showAll = sections.buttons["Show All"].firstMatch
                 for _ in 0..<6 where !showAll.isHittable { sections.swipeUp() }
-                showAll.tapWhenHittable("Frontpage from single-pane Home")
-                let frontpage = app.navigationBars["Frontpage"]
-                XCTAssertTrue(frontpage.waitForExistence(timeout: 10))
+                showAll.tapWhenHittable("Front Page from single-pane Home")
+                let frontPage = app.navigationBars["Front Page"]
+                XCTAssertTrue(frontPage.waitForExistence(timeout: 10))
                 let window = app.windows.firstMatch.frame
-                XCTAssertLessThan(frontpage.frame.minX, window.midX)
-                XCTAssertGreaterThan(frontpage.frame.maxX, window.midX)
-                frontpage.buttons["Home"].tapWhenHittable("Return to Home")
+                XCTAssertLessThan(frontPage.frame.minX, window.midX)
+                XCTAssertGreaterThan(frontPage.frame.maxX, window.midX)
+                frontPage.buttons["Home"].tapWhenHittable("Return to Home")
                 assertSingleHomePane(in: app)
             }
             XCUIDevice.shared.orientation = .portrait
@@ -167,7 +167,7 @@ final class LandscapePaneUITests: XCTestCase {
         let titles = try NSRegularExpression(pattern: #"<div class="glink">[^<]+</div>"#)
         let matches = titles.matches(in: html, range: NSRange(html.startIndex..., in: html))
         XCTAssertGreaterThan(matches.count, 1)
-        // Frontpage intentionally deduplicates titles, so each fixture must keep its own title.
+        // Front Page intentionally deduplicates titles, so each fixture must keep its own title.
         for (index, match) in matches.enumerated().reversed() {
             let range = try XCTUnwrap(Range(match.range, in: html))
             html.replaceSubrange(range, with: "<div class=\"glink\">[Studio] Home Study \(index + 1) [English]</div>")
@@ -179,8 +179,8 @@ final class LandscapePaneUITests: XCTestCase {
             "EHPANDA_AUTOMATION_TAB": "home", UITestConstants.fixtureDirectoryEnvironmentKey: root.path()
         ])
         assertSingleHomePane(in: app)
-        for prefix in ["home_slideshow_title_", "home_frontpage_title_", "home_ranking_title_"] {
-            let type: XCUIElement.ElementType = prefix == "home_frontpage_title_" ? .button : .staticText
+        for prefix in ["home_slideshow_title_", "home_front_page_title_", "home_ranking_title_"] {
+            let type: XCUIElement.ElementType = prefix == "home_front_page_title_" ? .button : .staticText
             let title = app.descendants(matching: type)
                 .matching(NSPredicate(format: "identifier BEGINSWITH %@", prefix)).firstMatch
             XCTAssertTrue(title.waitForExistence(timeout: 10), prefix)
@@ -193,7 +193,7 @@ final class LandscapePaneUITests: XCTestCase {
         screenshot.name = "Home sections preserve original titles"
         screenshot.lifetime = .keepAlways
         add(screenshot)
-        let covers = app.buttons.matching(NSPredicate(format: "identifier BEGINSWITH %@", "home_frontpage_title_"))
+        let covers = app.buttons.matching(NSPredicate(format: "identifier BEGINSWITH %@", "home_front_page_title_"))
         let firstRow = covers.allElementsBoundByIndex.prefix(4).map(\.frame)
         XCTAssertEqual(firstRow.count, 4)
         let firstTop = try XCTUnwrap(firstRow.first).minY

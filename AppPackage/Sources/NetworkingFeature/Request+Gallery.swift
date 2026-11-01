@@ -109,7 +109,7 @@ public struct DateSeekGalleriesRequest: Request {
     }
 }
 
-public struct FrontpageGalleriesRequest: Request {
+public struct FrontPageGalleriesRequest: Request {
     public init(
         host: GalleryHost,
         filter: Filter,
@@ -124,7 +124,7 @@ public struct FrontpageGalleriesRequest: Request {
     public let urlSession: URLSession
 
     public func response() async throws(AppError) -> GalleriesResult {
-        let request = URLRequest(url: URLUtil.frontpageList(host: host, filter: filter))
+        let request = URLRequest(url: URLUtil.frontPageList(host: host, filter: filter))
         let (data, _) = try await fetch(request, in: urlSession)
         do {
             let document = try htmlDocument(data: data)
@@ -141,7 +141,7 @@ public struct FrontpageGalleriesRequest: Request {
     }
 }
 
-public struct MoreFrontpageGalleriesRequest: Request {
+public struct MoreFrontPageGalleriesRequest: Request {
     public init(
         host: GalleryHost,
         filter: Filter,
@@ -159,7 +159,7 @@ public struct MoreFrontpageGalleriesRequest: Request {
     public let urlSession: URLSession
 
     public func response() async throws(AppError) -> GalleriesResult {
-        let url = URLUtil.moreFrontpageList(host: host, filter: filter, lastID: lastID)
+        let url = URLUtil.moreFrontPageList(host: host, filter: filter, lastID: lastID)
         let (data, _) = try await fetch(URLRequest(url: url), in: urlSession)
         do {
             let document = try htmlDocument(data: data)

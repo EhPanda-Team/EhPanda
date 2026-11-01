@@ -13,8 +13,8 @@ struct HomeSheetView: View {
             switch store.scope(\.root, action: \.root).case {
             case .gallery(let store):
                 GallerySheetView(store: store, showsCloseButton: true)
-            case .frontpage(let store):
-                NavigationStack { FrontpageView(store: store).toolbar { SheetCloseToolbar() } }
+            case .frontPage(let store):
+                NavigationStack { FrontPageView(store: store).toolbar { SheetCloseToolbar() } }
             case .popular(let store):
                 NavigationStack { PopularView(store: store).toolbar { SheetCloseToolbar() } }
             case .toplists(let store):

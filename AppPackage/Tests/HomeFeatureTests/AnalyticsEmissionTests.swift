@@ -105,12 +105,12 @@ struct AnalyticsEmissionTests {
 
     @MainActor
     @Test
-    func openingTheFrontpageFilterPanelRecordsOneSignalNamingFrontpage() async {
+    func openingTheFrontPageFilterPanelRecordsOneSignalNamingFrontPage() async {
         let recorded = LockIsolated<[AnalyticsSignal]>([])
         await withDependencies {
             $0.defaultAppStorage = UserDefaults.inMemory
         } operation: {
-            let store = TestStore(initialState: .init(), reducer: FrontpageReducer.init) {
+            let store = TestStore(initialState: .init(), reducer: FrontPageReducer.init) {
                 $0.analyticsClient = .recording(into: recorded)
                 $0.defaultAppStorage = UserDefaults.inMemory
                 $0.hapticsClient = .noop
@@ -120,7 +120,7 @@ struct AnalyticsEmissionTests {
             await store.send(.filtersButtonTapped)
             await store.skipInFlightEffects(strict: false)
 
-            expectNoDifference(recorded.value, [.filterPanelOpened(.frontpage)])
+            expectNoDifference(recorded.value, [.filterPanelOpened(.frontPage)])
         }
     }
 
@@ -200,8 +200,8 @@ private extension AnalyticsEmissionTests {
     // a new screen into a neighbour.
     static func expectedSection(for type: HomeSectionType) -> HomeSection {
         switch type {
-        case .frontpage:
-            return .frontpage
+        case .frontPage:
+            return .frontPage
         case .toplists:
             return .toplists
         }

@@ -80,7 +80,7 @@ struct HomeSlideshowInformation: View {
     }
 }
 
-struct HomeFrontpageCell: View {
+struct HomeFrontPageCell: View {
     @GalleryCoverMetrics private var coverSize: CGSize
     let gallery: Gallery
     let showsRichInformation: Bool
@@ -88,7 +88,7 @@ struct HomeFrontpageCell: View {
     let maximumCoverHeight: CGFloat?
 
     init(
-        gallery: Gallery, showsRichInformation: Bool, coverStyle: GalleryCoverStyle = .homeFrontpage,
+        gallery: Gallery, showsRichInformation: Bool, coverStyle: GalleryCoverStyle = .homeFrontPage,
         maximumCoverHeight: CGFloat? = nil
     ) {
         self.maximumCoverHeight = maximumCoverHeight
@@ -119,12 +119,12 @@ struct HomeFrontpageCell: View {
         .frame(width: coverSize.width, alignment: .leading)
         .accessibilityElement(children: .combine)
         .accessibilityLabel(gallery.title, isEnabled: !showsRichInformation)
-        .accessibilityIdentifier("home_frontpage_title_\(gallery.id)")
+        .accessibilityIdentifier("home_front_page_title_\(gallery.id)")
     }
 }
 
 /// A shared row height keeps both cover rows aligned when metadata wraps differently.
-struct HomeFrontpageWall: View {
+struct HomeFrontPageWall: View {
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     let columns: [[Gallery]]
     let maximumCoverHeight: CGFloat?
@@ -146,9 +146,9 @@ struct HomeFrontpageWall: View {
         Button {
             navigateAction(gallery)
         } label: {
-            HomeFrontpageCell(
+            HomeFrontPageCell(
                 gallery: gallery, showsRichInformation: true,
-                coverStyle: horizontalSizeClass == .regular ? .homeFrontpage : .homeCompact,
+                coverStyle: horizontalSizeClass == .regular ? .homeFrontPage : .homeCompact,
                 maximumCoverHeight: maximumCoverHeight
             )
         }

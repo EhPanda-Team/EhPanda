@@ -150,10 +150,10 @@ final class AccessibilityAuditUITests: XCTestCase {
 
     // MARK: Home children
 
-    func testFrontpageAudit() throws {
+    func testFrontPageAudit() throws {
         let app = try launch(tab: "home")
-        try pushFrontpage(in: app)
-        try audit(app, surface: "Frontpage")
+        try pushFrontPage(in: app)
+        try audit(app, surface: "Front Page")
     }
 
     func testPopularAudit() throws {
@@ -183,7 +183,7 @@ final class AccessibilityAuditUITests: XCTestCase {
 
     func testFiltersSheetAudit() throws {
         let app = try launch(tab: "home")
-        try pushFrontpage(in: app)
+        try pushFrontPage(in: app)
         try presentSheet(titled: "Filters", from: "Filters", in: app)
         try audit(app, surface: "Filters sheet")
         dismissSheet(in: app)
@@ -191,7 +191,7 @@ final class AccessibilityAuditUITests: XCTestCase {
 
     func testDateSeekSheetAudit() throws {
         let app = try launch(tab: "home")
-        try pushFrontpage(in: app)
+        try pushFrontPage(in: app)
         try presentSheet(titled: "Date Seek", from: "Date Seek", in: app)
         try audit(app, surface: "Date Seek sheet")
         dismissSheet(in: app)
@@ -376,7 +376,7 @@ final class AccessibilityAuditUITests: XCTestCase {
         requireHomeRoot(in: homeApp)
         homeApp.buttons["Show All"].firstMatch.tap()
         let firstGalleryRow = homeApp.collectionViews.buttons.firstMatch
-        XCTAssertTrue(firstGalleryRow.waitForExistence(timeout: 15), "Frontpage did not render a gallery row.")
+        XCTAssertTrue(firstGalleryRow.waitForExistence(timeout: 15), "Front Page did not render a gallery row.")
         firstGalleryRow.tap()
         homeApp.requireElement("detail_view", matching: .scrollView)
         try audit(homeApp, surface: "Gallery Detail (iPad modal)")
@@ -418,8 +418,8 @@ private extension AccessibilityAuditUITests {
 
     /// The audit runs as one `performAccessibilityAudit(for:)` call per audit type, never one
     /// `.all` call. On the iPad (A16) a single `.all` call over a long surface hit the engine's own
-    /// limit of about 600 s ("Audit failed to complete in time", error −56: Frontpage and Popular
-    /// in `a11y-final-ipad`; Date Seek, Filters, Frontpage, Popular and the iPad modals in
+    /// limit of about 600 s ("Audit failed to complete in time", error −56: Front Page and Popular
+    /// in `a11y-final-ipad`; Date Seek, Filters, Front Page, Popular and the iPad modals in
     /// `diag-25`), which fails the test with no report at all. Owner: "Split audits, fix helper"
     /// (2026-09-13).
     static let auditTypeGroups: [XCUIAccessibilityAuditType] = auditTypeNames.map(\.type)
@@ -514,21 +514,21 @@ private extension AccessibilityAuditUITests {
         )
     }
 
-    /// Home has rendered once its Frontpage section offers Show All.
+    /// Home has rendered once its Front Page section offers Show All.
     func requireHomeRoot(in app: XCUIApplication, file: StaticString = #filePath, line: UInt = #line) {
         XCTAssertTrue(
             app.buttons["Show All"].firstMatch.waitForExistence(timeout: 15),
-            "Home did not render its Frontpage section.",
+            "Home did not render its Front Page section.",
             file: file,
             line: line
         )
     }
 
-    func pushFrontpage(in app: XCUIApplication) throws {
+    func pushFrontPage(in app: XCUIApplication) throws {
         requireHomeRoot(in: app)
-        // The first Show All on Home belongs to the Frontpage section.
+        // The first Show All on Home belongs to the Front Page section.
         app.buttons["Show All"].firstMatch.tap()
-        requireNavigationTitle("Frontpage", in: app)
+        requireNavigationTitle("Front Page", in: app)
     }
 
     func pushSettingRow(_ label: String, titled title: String? = nil, in app: XCUIApplication) throws {

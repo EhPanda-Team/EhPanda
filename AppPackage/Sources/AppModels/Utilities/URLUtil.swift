@@ -16,11 +16,11 @@ public struct URLUtil {
         host.url.appending(queryItems: [.fSearch: keyword, .next: lastID]).applyingFilter(filter)
     }
 
-    public static func frontpageList(host: GalleryHost, filter: Filter) -> URL {
+    public static func frontPageList(host: GalleryHost, filter: Filter) -> URL {
         host.url.applyingFilter(filter)
     }
 
-    public static func moreFrontpageList(
+    public static func moreFrontPageList(
         host: GalleryHost,
         filter: Filter,
         lastID: String

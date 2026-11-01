@@ -133,7 +133,7 @@ struct CaptureSceneTests {
         let scene = try makeScene(fixture)
 
         let popular = try await scene.homeClient.fetchPopularGalleries(.ehentai, Filter())
-        let frontpage = try await scene.homeClient.fetchFrontpageGalleries(.ehentai, Filter())
+        let frontPage = try await scene.homeClient.fetchFrontPageGalleries(.ehentai, Filter())
         var toplists = [Int: [String]]()
         for type in ToplistsType.allCases {
             toplists[type.categoryIndex] = try await scene.homeClient
@@ -143,7 +143,7 @@ struct CaptureSceneTests {
         }
 
         expectNoDifference(popular.map(\.gid), MarketingFixtureBuilder.heroGIDs)
-        expectNoDifference(frontpage.galleries.map(\.gid), MarketingFixtureBuilder.frontpageGIDs)
+        expectNoDifference(frontPage.galleries.map(\.gid), MarketingFixtureBuilder.frontPageGIDs)
         expectNoDifference(
             toplists,
             Dictionary(
@@ -154,7 +154,7 @@ struct CaptureSceneTests {
             )
         )
         let cover = try #require(fixture.files.first(where: { $0.kind == .cover }))
-        for gallery in popular + frontpage.galleries {
+        for gallery in popular + frontPage.galleries {
             expectNoDifference(gallery.token, MarketingFixtureBuilder.token)
             expectNoDifference(
                 gallery.galleryURL?.absoluteString,
@@ -596,8 +596,8 @@ func loadedState(_ scene: CaptureScene) async throws -> AppReducer.State {
     state.homeState.currentCardID = popular[HomeReducer.State.initialCardPageIndex].gid
     // The current card's gradient shows its cover's colors, so a loaded Home has them analyzed.
     state.homeState.rawCardColors[state.homeState.currentCardID] = [.red]
-    state.homeState.frontpageGalleries = try await scene.homeClient
-        .fetchFrontpageGalleries(.ehentai, Filter())
+    state.homeState.frontPageGalleries = try await scene.homeClient
+        .fetchFrontPageGalleries(.ehentai, Filter())
         .galleries
     for type in ToplistsType.allCases {
         state.homeState.toplistsGalleries[type.categoryIndex] = try await scene.homeClient

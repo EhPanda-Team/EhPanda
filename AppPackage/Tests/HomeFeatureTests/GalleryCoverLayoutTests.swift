@@ -15,7 +15,7 @@ struct GalleryCoverLayoutTests {
         #expect(Defaults.ImageSize.headerAspect == 0.707)
         #expect(GalleryCoverStyle.aspectRatio == 0.707)
         let styles: [GalleryCoverStyle] = [
-            .compact, .standard, .hero, .homeCompact, .homeSlideshow, .homeFrontpage, .homeRanking
+            .compact, .standard, .hero, .homeCompact, .homeSlideshow, .homeFrontPage, .homeRanking
         ]
         for style in styles {
             for displayScale: CGFloat in [2, 3] {
@@ -125,15 +125,15 @@ struct GalleryCoverLayoutTests {
 
     @MainActor
     @Test(arguments: [GalleryCoverStyle.hero, .homeCompact], [DynamicTypeSize.large, .accessibility5])
-    func frontpageCoverMatchesItsSlideshowCeiling(style: GalleryCoverStyle, textSize: DynamicTypeSize) {
+    func frontPageCoverMatchesItsSlideshowCeiling(style: GalleryCoverStyle, textSize: DynamicTypeSize) {
         let slideshow = measure(GalleryCover(url: nil, style: style), textSize: textSize)
-        let frontpage = measure(
-            HomeFrontpageCell(
+        let frontPage = measure(
+            HomeFrontPageCell(
                 gallery: .preview, showsRichInformation: true, maximumCoverHeight: slideshow.height
             ),
             textSize: textSize
         )
-        #expect(abs(frontpage.width - slideshow.width) < 1)
+        #expect(abs(frontPage.width - slideshow.width) < 1)
     }
 
     @MainActor

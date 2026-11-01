@@ -15,7 +15,7 @@ public struct HomeClient: Sendable {
         _ host: GalleryHost,
         _ filter: AppModels.Filter
     ) async throws(AppError) -> [Gallery]
-    public var fetchFrontpageGalleries: @Sendable (
+    public var fetchFrontPageGalleries: @Sendable (
         _ host: GalleryHost,
         _ filter: AppModels.Filter
     ) async throws(AppError) -> (pageNumber: PageNumber, galleries: [Gallery])
@@ -30,7 +30,7 @@ public struct HomeClient: Sendable {
             _ host: GalleryHost,
             _ filter: AppModels.Filter
         ) async throws(AppError) -> [Gallery],
-        fetchFrontpageGalleries: @escaping @Sendable (
+        fetchFrontPageGalleries: @escaping @Sendable (
             _ host: GalleryHost,
             _ filter: AppModels.Filter
         ) async throws(AppError) -> (pageNumber: PageNumber, galleries: [Gallery]),
@@ -41,7 +41,7 @@ public struct HomeClient: Sendable {
         ) async throws(AppError) -> (pageNumber: PageNumber, galleries: [Gallery])
     ) {
         self.fetchPopularGalleries = fetchPopularGalleries
-        self.fetchFrontpageGalleries = fetchFrontpageGalleries
+        self.fetchFrontPageGalleries = fetchFrontPageGalleries
         self.fetchToplistsGalleries = fetchToplistsGalleries
     }
 }
@@ -53,8 +53,8 @@ extension HomeClient {
             var generator = SystemRandomNumberGenerator()
             return arrangedCarousel(galleries, using: &generator)
         },
-        fetchFrontpageGalleries: { (host: GalleryHost, filter: AppModels.Filter) async throws(AppError) in
-            let response = try await FrontpageGalleriesRequest(host: host, filter: filter).response()
+        fetchFrontPageGalleries: { (host: GalleryHost, filter: AppModels.Filter) async throws(AppError) in
+            let response = try await FrontPageGalleriesRequest(host: host, filter: filter).response()
             return (pageNumber: response.pageNumber, galleries: response.galleries)
         },
         fetchToplistsGalleries: { (host: GalleryHost, catIndex: Int, pageNum: Int?) async throws(AppError) in
@@ -96,7 +96,7 @@ extension DependencyValues {
 extension HomeClient {
     public static let noop = Self(
         fetchPopularGalleries: { (_: GalleryHost, _: AppModels.Filter) async throws(AppError) in [] },
-        fetchFrontpageGalleries: { (_: GalleryHost, _: AppModels.Filter) async throws(AppError) in
+        fetchFrontPageGalleries: { (_: GalleryHost, _: AppModels.Filter) async throws(AppError) in
             (pageNumber: PageNumber(), galleries: [])
         },
         fetchToplistsGalleries: { (_: GalleryHost, _: Int, _: Int?) async throws(AppError) in
@@ -108,7 +108,7 @@ extension HomeClient {
     /// test without ending the test process.
     public static let unimplemented = Self(
         fetchPopularGalleries: IssueReporting.unimplemented(throwing: AppError.unknown),
-        fetchFrontpageGalleries: IssueReporting.unimplemented(throwing: AppError.unknown),
+        fetchFrontPageGalleries: IssueReporting.unimplemented(throwing: AppError.unknown),
         fetchToplistsGalleries: IssueReporting.unimplemented(throwing: AppError.unknown)
     )
 }

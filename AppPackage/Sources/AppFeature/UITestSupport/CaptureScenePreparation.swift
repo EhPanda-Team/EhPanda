@@ -346,7 +346,7 @@ private struct MarketingGalleries {
             throw .malformedScene("Toplists periods must be exactly \(periods)")
         }
         let hero = try home.hero.galleries.map(gallery)
-        let frontpage = try home.frontpage.map(gallery)
+        let frontPage = try home.frontpage.map(gallery)
         var toplistsByIndex = [Int: [Gallery]]()
         for type in ToplistsType.allCases {
             toplistsByIndex[type.categoryIndex] = try home.toplists[Self.selectionKey(for: type), default: []]
@@ -355,8 +355,8 @@ private struct MarketingGalleries {
         let toplists = toplistsByIndex
         return HomeClient(
             fetchPopularGalleries: { (_: GalleryHost, _: AppModels.Filter) async throws(AppError) in hero },
-            fetchFrontpageGalleries: { (_: GalleryHost, _: AppModels.Filter) async throws(AppError) in
-                (pageNumber: PageNumber(), galleries: frontpage)
+            fetchFrontPageGalleries: { (_: GalleryHost, _: AppModels.Filter) async throws(AppError) in
+                (pageNumber: PageNumber(), galleries: frontPage)
             },
             fetchToplistsGalleries: { (_: GalleryHost, catIndex: Int, pageNum: Int?) async throws(AppError) in
                 // Home loads only each period's first page.

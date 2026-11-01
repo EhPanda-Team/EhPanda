@@ -8,7 +8,7 @@ public enum GalleryCoverStyle: Sendable {
     case hero
     case homeCompact
     case homeSlideshow
-    case homeFrontpage
+    case homeFrontPage
     case homeRanking
 
     public static let aspectRatio: CGFloat = Defaults.ImageSize.coverAspect
@@ -21,7 +21,7 @@ public enum GalleryCoverStyle: Sendable {
         case .hero: 150
         case .homeCompact: 165
         case .homeSlideshow: 211.75
-        case .homeFrontpage: 199.375
+        case .homeFrontPage: 199.375
         case .homeRanking: 115.5
         }
     }
