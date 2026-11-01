@@ -240,7 +240,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "全部清空"
+            "value": "全部移除"
           }
         },
         "zh-Hant": {
@@ -282,7 +282,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "要清空所有最近的搜索记录吗？已保存的快速搜索会保留。"
+            "value": "要移除所有最近的搜索记录吗？已保存的快速搜索会保留。"
           }
         },
         "zh-Hant": {
@@ -324,7 +324,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "要清空所有浏览记录及已保存的阅读位置吗？"
+            "value": "要移除所有浏览记录及已保存的阅读位置吗？"
           }
         },
         "zh-Hant": {

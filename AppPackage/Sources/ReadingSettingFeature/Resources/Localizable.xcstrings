@@ -195,13 +195,13 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "双击缩放倍数"
+            "value": "双击缩放倍率"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "點兩下的縮放倍率"
+            "value": "點兩下縮放倍率"
           }
         }
       }
@@ -318,7 +318,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "最大缩放倍数"
+            "value": "最大缩放倍率"
           }
         },
         "zh-Hant": {

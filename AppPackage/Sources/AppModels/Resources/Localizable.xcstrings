@@ -17937,7 +17937,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "E-Hentai 贊助者功能: 在現代瀏覽器上預設設定可能無法正常工作，僅推薦用於傳統瀏覽器。"
+            "value": "E-Hentai 贊助者功能：在現代瀏覽器上預設設定可能無法正常工作，僅推薦用於傳統瀏覽器。"
           }
         }
       }
@@ -18019,7 +18019,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "E-Hentai 贊助者功能: 可瀏覽的頁面數會減少，僅在出現重大錯誤時才啟用這個選項。"
+            "value": "E-Hentai 贊助者功能：可瀏覽的頁面數會減少，僅在出現重大錯誤時才啟用這個選項。"
           }
         }
       }
@@ -19612,7 +19612,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "昨日"
+            "value": "昨天"
           }
         },
         "zh-Hant": {
@@ -19694,13 +19694,13 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "发生了未知错误。"
+            "value": "发生未知错误。"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "發生未知的錯誤。"
+            "value": "發生未知錯誤。"
           }
         }
       }

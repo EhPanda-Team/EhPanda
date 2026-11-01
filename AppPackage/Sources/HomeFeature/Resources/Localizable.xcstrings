@@ -31,7 +31,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "确定要清空历史记录吗？"
+            "value": "确定要清除浏览记录吗？"
           }
         },
         "zh-Hant": {
@@ -196,7 +196,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "历史记录"
+            "value": "浏览记录"
           }
         },
         "zh-Hant": {
@@ -509,7 +509,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "历史记录"
+            "value": "浏览记录"
           }
         },
         "zh-Hant": {
@@ -544,7 +544,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "인기 작품"
+            "value": "인기"
           }
         },
         "zh-Hans": {
@@ -928,7 +928,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "인기 작품"
+            "value": "인기"
           }
         },
         "zh-Hans": {

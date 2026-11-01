@@ -639,7 +639,7 @@
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "移到資料夾"
+            "value" : "移動到資料夾"
           }
         }
       }
@@ -680,7 +680,7 @@
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "沒有符合篩選條件的下載項目。"
+            "value" : "沒有符合篩選條件的下載內容。"
           }
         }
       }

@@ -373,7 +373,7 @@
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "描述"
+            "value" : "说明"
           }
         },
         "zh-Hant" : {
@@ -747,7 +747,7 @@
                   "other" : {
                     "stringUnit" : {
                       "state" : "translated",
-                      "value" : "找到 %arg 个结果"
+                      "value" : "找到 %arg 个结果。"
                     }
                   }
                 }
@@ -769,7 +769,7 @@
                   "other" : {
                     "stringUnit" : {
                       "state" : "translated",
-                      "value" : "找到 %arg 項結果"
+                      "value" : "找到 %arg 項結果。"
                     }
                   }
                 }
