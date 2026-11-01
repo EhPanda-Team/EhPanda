@@ -94,7 +94,7 @@ public struct EhSettingReducer: Sendable {
                         TextState(localized: .RLocalizable.cancel)
                     }
                 } message: {
-                    TextState(localized: .RLocalizable.deleteDescription)
+                    TextState(localized: .deleteProfileDescription)
                 }
                 return .none
 

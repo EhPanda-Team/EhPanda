@@ -44,7 +44,7 @@ struct FavoritesSection: View {
                         .frame(width: 10)
 
                     SettingTextField(
-                        text: nameBinding, title: .favoriteCategories,
+                        text: nameBinding, title: .favoriteCategoryName,
                         width: nil, alignment: .leading, background: .clear
                     )
                     .focused($isFocused)

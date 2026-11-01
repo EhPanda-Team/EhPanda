@@ -110,7 +110,7 @@ public struct HistoryReducer: Sendable {
                         TextState(localized: .RLocalizable.cancel)
                     }
                 } message: {
-                    TextState(localized: .RLocalizable.clearDescription)
+                    TextState(localized: .clearHistoryDescription)
                 }
                 return .none
 
