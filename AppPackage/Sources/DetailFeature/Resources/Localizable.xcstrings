@@ -363,7 +363,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "信用點數餘額：%#@balance@"
+            "value": "Credits 餘額：%#@balance@"
           },
           "substitutions": {
             "balance": {
@@ -461,7 +461,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "刪除已下載畫廊"
+            "value": "刪除已下載的畫廊"
           }
         }
       }
@@ -781,7 +781,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "GP 余额：%#@balance@"
+            "value": "画廊点数余额：%#@balance@"
           },
           "substitutions": {
             "balance": {
@@ -989,7 +989,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Download erneut versuchen. %#@available@ von %#@total@ Seiten sind bereits verfügbar."
+            "value": "Download erneut versuchen. %#@available@ von %#@total@ Seiten heruntergeladen."
           },
           "substitutions": {
             "available": {
@@ -1097,7 +1097,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "重新下载。已有 %#@available@ 页可用，共 %#@total@ 页。"
+            "value": "重试下载。已下载 %#@available@ 页，共 %#@total@ 页。"
           },
           "substitutions": {
             "available": {
@@ -1133,7 +1133,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "重試下載。共 %#@total@ 頁，已有 %#@available@ 頁可用。"
+            "value": "重試下載。已下載 %#@available@ 頁，共 %#@total@ 頁。"
           },
           "substitutions": {
             "available": {
@@ -1395,7 +1395,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "繼續下載。已完成 %#@completed@ 頁，共 %#@total@ 頁"
+            "value": "繼續下載。已暫停，已完成 %#@completed@ 頁，共 %#@total@ 頁"
           },
           "substitutions": {
             "completed": {
@@ -1448,7 +1448,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "ダウンロード情報を取得中"
+            "value": "ダウンロードを準備中"
           }
         },
         "ko": {
@@ -1466,7 +1466,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "正在取得下載資訊"
+            "value": "正在準備下載"
           }
         }
       }
@@ -1638,7 +1638,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "已加入下载队列"
+            "value": "等待中"
           }
         },
         "zh-Hant": {
@@ -1685,7 +1685,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "從收藏移除"
+            "value": "取消收藏"
           }
         }
       }
@@ -1726,7 +1726,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "修復下載檔案"
+            "value": "修復下載內容"
           }
         }
       }
@@ -1761,7 +1761,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "重新下载"
+            "value": "重试下载"
           }
         },
         "zh-Hant": {
@@ -1911,7 +1911,7 @@
                   "other": {
                     "stringUnit": {
                       "state": "translated",
-                      "value": "十億位元組"
+                      "value": "GB"
                     }
                   }
                 }
@@ -2060,7 +2060,7 @@
                   "other": {
                     "stringUnit": {
                       "state": "translated",
-                      "value": "千位元組"
+                      "value": "KB"
                     }
                   }
                 }
@@ -2209,7 +2209,7 @@
                   "other": {
                     "stringUnit": {
                       "state": "translated",
-                      "value": "百萬位元組"
+                      "value": "MB"
                     }
                   }
                 }
@@ -2472,7 +2472,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "下載者：%#@count@"
+            "value": "下載者數：%#@count@"
           },
           "substitutions": {
             "count": {
@@ -2609,7 +2609,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "種子數：%#@count@"
+            "value": "做種數：%#@count@"
           },
           "substitutions": {
             "count": {
@@ -2701,7 +2701,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "已反对"
+            "value": "已投反对票"
           }
         },
         "zh-Hant": {
@@ -2742,7 +2742,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "已赞同"
+            "value": "已投赞成票"
           }
         },
         "zh-Hant": {
@@ -3922,7 +3922,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "畫廊 ID"
+            "value": "ID"
           }
         }
       }
@@ -4209,7 +4209,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "前一版畫廊網址"
+            "value": "父畫廊網址"
           }
         }
       }
@@ -4291,7 +4291,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "評分次數"
+            "value": "評分人數"
           }
         }
       }
@@ -4525,7 +4525,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "공개 여부"
+            "value": "표시 여부"
           }
         },
         "zh-Hans": {
@@ -4537,7 +4537,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "是否公開"
+            "value": "是否可見"
           }
         }
       }
@@ -5076,7 +5076,7 @@
                   "other": {
                     "stringUnit": {
                       "state": "translated",
-                      "value": "%arg 則評分"
+                      "value": "%arg 人評分"
                     }
                   }
                 }
@@ -5199,7 +5199,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "重新下载画廊？"
+            "value": "要重新下载此画廊吗？"
           }
         },
         "zh-Hant": {
@@ -5222,31 +5222,31 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Alle Seiten werden neu geladen."
+            "value": "Der Download beginnt von vorn und ersetzt bereits gespeicherte Seiten."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "このギャラリーを最初からダウンロードし直します。"
+            "value": "最初からダウンロードし直し、保存済みのページを置き換えます。"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "처음부터 다시 다운로드합니다."
+            "value": "처음부터 다시 다운로드하고 이미 저장된 페이지를 대체합니다."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "将从头开始下载此画廊。"
+            "value": "将从头开始下载，并替换已保存的页面。"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "會從頭下載整個畫廊。"
+            "value": "會從頭開始下載，並取代已儲存的頁面。"
           }
         }
       }
@@ -5322,7 +5322,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "修复下载内容？"
+            "value": "要修复此下载项目吗？"
           }
         },
         "zh-Hant": {
@@ -5345,31 +5345,31 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Nur beschädigte Seiten werden neu geladen."
+            "value": "Nur fehlende oder beschädigte Seiten werden neu geladen."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "破損したページのみをダウンロードし直します。"
+            "value": "欠落または破損したページのみをダウンロードし直します。"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "손상된 페이지만 다시 다운로드합니다."
+            "value": "누락되었거나 손상된 페이지만 다시 다운로드합니다."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "将重新下载此画廊已损坏或缺失的页面。"
+            "value": "只会重新下载此画廊缺失或损坏的页面。"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "只會重新下載此畫廊損壞的頁面。"
+            "value": "只會重新下載此畫廊缺失或損壞的頁面。"
           }
         }
       }
@@ -5410,7 +5410,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "無法更新線上資訊，目前顯示已儲存的內容。"
+            "value": "無法取得最新詳細資訊，目前顯示已儲存的內容。"
           }
         }
       }
@@ -5623,7 +5623,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "更新下载内容？"
+            "value": "要更新此下载项目吗？"
           }
         },
         "zh-Hant": {
@@ -5670,7 +5670,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "會更新為此畫廊的線上最新版本。"
+            "value": "會將此畫廊更新到網站上的最新版本。"
           }
         }
       }
@@ -5705,7 +5705,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "反对"
+            "value": "投反对票"
           }
         },
         "zh-Hant": {
@@ -5746,7 +5746,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "赞同"
+            "value": "投赞成票"
           }
         },
         "zh-Hant": {

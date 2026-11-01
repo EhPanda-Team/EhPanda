@@ -154,7 +154,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "浏览已删除的画廊"
+            "value": "浏览已下架的画廊"
           }
         },
         "zh-Hant": {
@@ -365,7 +365,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "評分下限"
+            "value": "最低評分"
           }
         }
       }
@@ -441,7 +441,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "必须包含种子"
+            "value": "仅限有种子的画廊"
           }
         },
         "zh-Hant": {
@@ -505,31 +505,31 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Alle Filter zurücksetzen?"
+            "value": "Alle Filter auf die Standardwerte zurücksetzen?"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "フィルターをリセットしますか？"
+            "value": "フィルターをデフォルトに戻しますか？"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "초기화할까요?"
+            "value": "필터를 기본값으로 초기화할까요?"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "确定要重置吗？"
+            "value": "确定要将筛选条件重置为默认值吗？"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "確定要重設嗎？"
+            "value": "確定要將篩選條件重設為預設值嗎？"
           }
         }
       }
@@ -564,7 +564,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "重置所有选项"
+            "value": "重置筛选条件"
           }
         },
         "zh-Hant": {
@@ -611,7 +611,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "設定評分下限"
+            "value": "設定最低評分"
           }
         }
       }

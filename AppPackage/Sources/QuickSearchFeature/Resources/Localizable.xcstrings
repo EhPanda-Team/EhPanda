@@ -13,25 +13,25 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Diesen Suchbegriff wirklich löschen?"
+            "value": "Diese gespeicherte Suche wirklich löschen?"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "このキーワードを削除しますか？"
+            "value": "この保存した検索を削除しますか？"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "이 검색어를 삭제할까요?"
+            "value": "이 저장된 검색을 삭제할까요?"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "确定要删除这个关键词吗？"
+            "value": "确定要删除这条快速搜索吗？"
           }
         },
         "zh-Hant": {
@@ -95,25 +95,25 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Suchbegriff bearbeiten"
+            "value": "Suche bearbeiten"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "キーワードを編集"
+            "value": "保存した検索を編集"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "검색어 편집"
+            "value": "저장된 검색 편집"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "编辑关键词"
+            "value": "编辑快速搜索"
           }
         },
         "zh-Hant": {
@@ -177,25 +177,25 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Neuer Suchbegriff"
+            "value": "Suche speichern"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "キーワードを追加"
+            "value": "保存した検索を追加"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "새 검색어"
+            "value": "저장된 검색 추가"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "添加关键词"
+            "value": "添加快速搜索"
           }
         },
         "zh-Hant": {
@@ -292,13 +292,13 @@
                   "one": {
                     "stringUnit": {
                       "state": "translated",
-                      "value": "Du kannst bis zu %arg Suchbegriff speichern."
+                      "value": "Du kannst bis zu %arg Suche speichern."
                     }
                   },
                   "other": {
                     "stringUnit": {
                       "state": "translated",
-                      "value": "Du kannst bis zu %arg Suchbegriffe speichern."
+                      "value": "Du kannst bis zu %arg Suchen speichern."
                     }
                   }
                 }
@@ -309,7 +309,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "最大%#@limit@件のキーワードを保存できます。"
+            "value": "最大%#@limit@件の検索を保存できます。"
           },
           "substitutions": {
             "limit": {
@@ -331,7 +331,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "검색어는 최대 %#@limit@개까지 저장할 수 있습니다."
+            "value": "검색은 최대 %#@limit@개까지 저장할 수 있습니다."
           },
           "substitutions": {
             "limit": {
@@ -353,7 +353,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "最多可保存 %#@limit@ 个关键词。"
+            "value": "最多可保存 %#@limit@ 条快速搜索。"
           },
           "substitutions": {
             "limit": {
@@ -408,25 +408,25 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Inhalt"
+            "value": "Suchbegriffe"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "内容"
+            "value": "検索キーワード"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "내용"
+            "value": "검색어"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "内容"
+            "value": "搜索内容"
           }
         },
         "zh-Hant": {

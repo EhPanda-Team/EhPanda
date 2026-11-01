@@ -482,7 +482,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "画廊已删除"
+            "value": "画廊已下架"
           }
         },
         "zh-Hant": {
@@ -505,7 +505,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Kontingent überschritten"
+            "value": "Bildkontingent aufgebraucht"
           }
         },
         "ja": {
@@ -517,13 +517,13 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "할당량 초과"
+            "value": "이미지 할당량 초과"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "配额已用尽"
+            "value": "图片配额已用尽"
           }
         },
         "zh-Hant": {
@@ -564,13 +564,13 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "图片配额已用尽。"
+            "value": "你已用完图片浏览配额。"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "已超過可瀏覽的圖片額度。"
+            "value": "你已用完圖片瀏覽額度。"
           }
         }
       }
@@ -663,7 +663,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Couldn’t update files on this device."
+            "value": "A file operation failed on this device."
           }
         },
         "de": {
@@ -681,7 +681,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "파일 작업을 완료하지 못했습니다."
+            "value": "이 기기에서 파일 작업을 완료하지 못했습니다."
           }
         },
         "zh-Hans": {
@@ -716,7 +716,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "ログインにCAPTCHAが必要です"
+            "value": "CAPTCHAが必要です"
           }
         },
         "ko": {
@@ -728,13 +728,13 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "登录需要验证码"
+            "value": "需要验证码"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "登入需要驗證碼"
+            "value": "需要驗證碼"
           }
         }
       }
@@ -775,7 +775,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "論壇的登入頁要求輸入驗證碼，以使用者名稱和密碼登入無法完成驗證。"
+            "value": "論壇的登入頁要求輸入驗證碼，無法僅用使用者名稱和密碼登入。"
           }
         }
       }
@@ -786,7 +786,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Couldn’t Log In"
+            "value": "Login Rejected"
           }
         },
         "de": {
@@ -880,7 +880,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "ユーザー名とパスワードを確認して、もう一度お試しください。\n失敗が続く場合は、右上の地球儀ボタンからWebサイトでログインしてください。"
+            "value": "ユーザー名とパスワードを確認して、もう一度お試しください。\n失敗が続く場合は、右上のブラウザからログインしてください。"
           }
         },
         "ko": {
@@ -921,13 +921,13 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "認証が必要です"
+            "value": "ログインが必要です"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "인증 필요"
+            "value": "로그인 필요"
           }
         },
         "zh-Hans": {
@@ -974,7 +974,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "访问此内容需要登录。"
+            "value": "登录后才能查看此内容。"
           }
         },
         "zh-Hant": {
@@ -1138,7 +1138,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "未找到"
+            "value": "找不到内容"
           }
         },
         "zh-Hant": {
@@ -1161,31 +1161,31 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Daten nicht lesbar"
+            "value": "Seite nicht lesbar"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "データを読み取れません"
+            "value": "ページを読み取れません"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "데이터를 읽을 수 없음"
+            "value": "페이지를 읽을 수 없음"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "页面读取失败"
+            "value": "无法读取页面"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "無法讀取內容"
+            "value": "無法讀取頁面"
           }
         }
       }
@@ -1431,7 +1431,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "Stand With Ukraine (2022)"
+            "value": "與烏克蘭同在（2022）"
           }
         }
       }
@@ -1507,7 +1507,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "原图"
+            "value": "原始画质"
           }
         },
         "zh-Hant": {
@@ -2732,7 +2732,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "네덜란드령 카리브"
+            "value": "보네르, 신트외스타티위스, 사바"
           }
         },
         "zh-Hans": {
@@ -2744,7 +2744,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "荷蘭加勒比區"
+            "value": "波奈、聖佑達修斯及沙巴"
           }
         }
       }
@@ -2966,7 +2966,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Brunei Darussalam"
+            "value": "Brunei"
           }
         },
         "ja": {
@@ -3534,7 +3534,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Cocos (Keeling) Islands"
+            "value": "Cocos Islands"
           }
         },
         "de": {
@@ -3564,7 +3564,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "科克斯（基靈）群島"
+            "value": "科克斯群島"
           }
         }
       }
@@ -3675,7 +3675,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "콩고"
+            "value": "콩고 공화국"
           }
         },
         "zh-Hans": {
@@ -6879,7 +6879,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "马其顿"
+            "value": "北马其顿"
           }
         },
         "zh-Hant": {
@@ -8466,7 +8466,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "パレスチナ"
+            "value": "パレスチナ自治区"
           }
         },
         "ko": {
@@ -8478,7 +8478,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "巴勒斯坦"
+            "value": "巴勒斯坦自治区"
           }
         },
         "zh-Hant": {
@@ -9245,7 +9245,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "サン・マルタン島"
+            "value": "サン・マルタン"
           }
         },
         "ko": {
@@ -11875,7 +11875,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "일러스트"
+            "value": "작가 CG"
           }
         },
         "zh-Hans": {
@@ -12174,7 +12174,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "其他"
+            "value": "雜項"
           }
         }
       }
@@ -12496,7 +12496,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "悬停或点击时"
+            "value": "悬停或点击分数时"
           }
         },
         "zh-Hant": {
@@ -12906,13 +12906,13 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "自动选择压缩画质，自动下载"
+            "value": "自动选择重新采样，自动下载"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "自動選擇重新採樣並開始下載"
+            "value": "自動選擇重新取樣並開始下載"
           }
         }
       }
@@ -12947,13 +12947,13 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "自动选择压缩画质，手动下载"
+            "value": "自动选择重新采样，手动下载"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "自動選擇重新採樣，手動開始下載"
+            "value": "自動選擇重新取樣，手動開始下載"
           }
         }
       }
@@ -13370,7 +13370,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "原始語言"
+            "value": "原始版本"
           }
         }
       }
@@ -13406,13 +13406,13 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "改编版本"
+            "value": "改写版本"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "改寫"
+            "value": "改寫版本"
           }
         }
       }
@@ -13453,7 +13453,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "翻譯語言"
+            "value": "翻譯版本"
           }
         }
       }
@@ -13865,7 +13865,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "영어 제목"
+            "value": "기본 제목"
           }
         },
         "zh-Hans": {
@@ -14070,19 +14070,19 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "이 갤러리는 삭제되었거나 볼 수 없습니다."
+            "value": "이 갤러리는 볼 수 없습니다."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "该画廊已被移除或不可用。"
+            "value": "此画廊无法访问。"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "此畫廊已移除或無法存取。"
+            "value": "此畫廊無法存取。"
           }
         }
       }
@@ -14117,7 +14117,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "已删除"
+            "value": "已下架"
           }
         },
         "zh-Hant": {
@@ -14328,7 +14328,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ 信用點數"
+            "value": "%@ Credits"
           }
         }
       }
@@ -14931,7 +14931,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "페이지 요청이 과도해 자동 미러링·수집 프로그램을 사용하는 것으로 판단되어 IP 주소가 일시적으로 차단되었습니다. 차단은 %@ 후에 해제됩니다."
+            "value": "페이지 요청이 과도해 자동 다운로드 프로그램을 사용하는 것으로 의심되어 IP 주소가 일시적으로 차단되었습니다. 차단은 %@ 후에 해제됩니다."
           }
         },
         "zh-Hans": {
@@ -14943,7 +14943,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "你的 IP 因頁面載入次數過多而遭暫時封鎖，系統判定你可能在使用自動鏡像或爬蟲軟體。封鎖會在 %@後解除。"
+            "value": "頁面載入次數過多，疑似使用了自動抓取工具，你的 IP 位址已遭暫時封鎖。封鎖會在 %@後解除。"
           }
         }
       }
@@ -14973,7 +14973,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "페이지 요청이 과도해 자동 미러링·수집 프로그램을 사용하는 것으로 판단되어 IP 주소가 일시적으로 차단되었습니다."
+            "value": "페이지 요청이 과도해 자동 다운로드 프로그램을 사용하는 것으로 의심되어 IP 주소가 일시적으로 차단되었습니다."
           }
         },
         "zh-Hans": {
@@ -14985,7 +14985,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "你的 IP 因頁面載入次數過多而遭暫時封鎖，系統判定你可能在使用自動鏡像或爬蟲軟體。"
+            "value": "頁面載入次數過多，疑似使用了自動抓取工具，你的 IP 位址已遭暫時封鎖。"
           }
         }
       }
@@ -16115,7 +16115,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "不明"
+            "value": "該当なし"
           }
         },
         "ko": {
@@ -16127,7 +16127,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "未知"
+            "value": "不适用"
           }
         },
         "zh-Hant": {
@@ -17773,7 +17773,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "建議選項(預設)"
+            "value": "建議選項。"
           }
         }
       }
@@ -17855,7 +17855,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "較慢。僅在網路防火牆或代理伺服器阻擋非標準傳出連接埠時使用這個選項"
+            "value": "較慢。僅在網路防火牆或代理伺服器阻擋非標準傳出連接埠時使用這個選項。"
           }
         }
       }
@@ -17937,7 +17937,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "E-Hentai 贊助者功能: 在現代瀏覽器上預設設定可能無法正常工作，僅推薦用於傳統瀏覽器"
+            "value": "E-Hentai 贊助者功能: 在現代瀏覽器上預設設定可能無法正常工作，僅推薦用於傳統瀏覽器。"
           }
         }
       }
@@ -18007,19 +18007,19 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "기부자 전용 기능이에요. 심각한 문제가 있는 경우를 제외하고는 사용하지 말아주세요."
+            "value": "기부자 전용 기능이에요. 볼 수 있는 페이지 수가 줄어들어요. 심각한 문제가 있는 경우를 제외하고는 사용하지 말아주세요."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "仅限赞助者。配额消耗会加快。只建议在遇到严重问题时使用。"
+            "value": "仅限赞助者。可浏览的页面数会减少。只建议在遇到严重问题时使用。"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "E-Hentai 贊助者功能: 可瀏覽的頁面數會減少，僅在出現重大錯誤時才啟用這個選項"
+            "value": "E-Hentai 贊助者功能: 可瀏覽的頁面數會減少，僅在出現重大錯誤時才啟用這個選項。"
           }
         }
       }
@@ -18177,7 +18177,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "网络连接出现问题。"
+            "value": "网络发生错误。"
           }
         },
         "zh-Hant": {
@@ -18224,7 +18224,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "這裡似乎沒有內容。"
+            "value": "這裡似乎什麼也沒有。"
           }
         }
       }
@@ -18241,13 +18241,13 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Die Daten konnten nicht gelesen werden."
+            "value": "Die Antwort der Website konnte nicht gelesen werden."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "データの読み取り中に問題が発生しました。"
+            "value": "サイトの応答を読み取れませんでした。"
           }
         },
         "ko": {
@@ -18265,7 +18265,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "無法解讀網站回傳的內容。"
+            "value": "無法讀取網站回傳的內容。"
           }
         }
       }
@@ -18306,7 +18306,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "自動"
+            "value": "跟隨系統"
           }
         }
       }
@@ -19208,7 +19208,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "網頁的載入速度更快，但縮圖出現的時間可能稍有延遲"
+            "value": "網頁的載入速度更快，但縮圖出現的時間可能稍有延遲。"
           }
         }
       }
@@ -19290,7 +19290,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "網頁需要更多的載入時間，但是在網頁完全載入後縮圖顯示不會有任何延遲"
+            "value": "網頁需要更多的載入時間，但是在網頁完全載入後縮圖顯示不會有任何延遲。"
           }
         }
       }
@@ -19723,7 +19723,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "ログイン画面右上の地球儀ボタンからWebサイトでログインするか、「アカウント」画面でCookieを手動で入力してください。"
+            "value": "ログイン画面右上のブラウザからログインするか、「設定 > アカウント」でCookieを手動で入力してください。"
           }
         },
         "ko": {
@@ -19805,7 +19805,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "ログイン画面右上の地球儀ボタンからWebサイトでログインすると、CAPTCHAを完了できます。または「アカウント」画面でCookieを手動で入力してください。"
+            "value": "ログイン画面右上のブラウザからログインすると、CAPTCHAを完了できます。または「設定 > アカウント」でCookieを手動で入力してください。"
           }
         },
         "ko": {
@@ -19823,7 +19823,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "請透過登入畫面右上角的瀏覽器登入以完成驗證碼，或在「設定 > 帳號」中手動輸入 Cookie。"
+            "value": "請透過登入畫面右上角的瀏覽器登入並完成驗證，或在「設定 > 帳號」中手動輸入 Cookie。"
           }
         }
       }
@@ -19981,13 +19981,13 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "这不是 EhPanda 支持的画廊链接。"
+            "value": "EhPanda 只能打开画廊链接。"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "這不是 EhPanda 支援的畫廊連結。"
+            "value": "EhPanda 只能開啟畫廊連結。"
           }
         }
       }
@@ -20004,31 +20004,31 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Öffne einen Link zu einer Galerie (/g/…), einer Galerieseite (/s/…) oder einem Galeriekommentar auf e-hentai.org oder exhentai.org."
+            "value": "Öffne einen Galerie-, Seiten- oder Kommentarlink von e-hentai.org oder exhentai.org."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "e-hentai.orgまたはexhentai.orgのギャラリー（/g/…）、ページ（/s/…）、コメントのリンクを開いてください。"
+            "value": "e-hentai.orgまたはexhentai.orgのギャラリー、ページ、コメントのリンクを開いてください。"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "e-hentai.org 또는 exhentai.org의 갤러리 링크(/g/…), 갤러리 페이지 링크(/s/…), 갤러리 댓글 링크를 열어 주세요."
+            "value": "e-hentai.org 또는 exhentai.org의 갤러리, 페이지, 댓글 링크를 열어 주세요."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "请打开 e-hentai.org 或 exhentai.org 的画廊链接（/g/…）、画廊页面链接（/s/…）或画廊评论链接。"
+            "value": "请打开 e-hentai.org 或 exhentai.org 的画廊、页面或评论链接。"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "請開啟 e-hentai.org 或 exhentai.org 的畫廊連結（/g/…）、畫廊頁面連結（/s/…）或畫廊留言連結。"
+            "value": "請開啟 e-hentai.org 或 exhentai.org 的畫廊、頁面或留言連結。"
           }
         }
       }

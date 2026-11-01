@@ -576,7 +576,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "日付指定"
+            "value" : "日付へ移動"
           }
         },
         "ko" : {
@@ -588,7 +588,7 @@
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "日期定位"
+            "value" : "跳转到日期"
           }
         },
         "zh-Hant" : {
@@ -759,7 +759,7 @@
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "删除下载内容？"
+            "value" : "要删除此下载项目吗？"
           }
         },
         "zh-Hant" : {
@@ -923,7 +923,7 @@
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "下载文件夹缺失。"
+            "value" : "找不到下载文件夹。"
           }
         },
         "zh-Hant" : {
@@ -1251,7 +1251,7 @@
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "第 %lld 页缺失。"
+            "value" : "找不到第 %lld 页。"
           }
         },
         "zh-Hant" : {
@@ -1421,7 +1421,7 @@
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "篩選條件"
+            "value" : "篩選"
           }
         }
       }
@@ -1462,7 +1462,7 @@
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "總覽"
+            "value" : "主頁"
           }
         }
       }
@@ -1586,7 +1586,7 @@
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "页码跳转"
+            "value" : "跳转到页面"
           }
         },
         "zh-Hant" : {
@@ -1652,12 +1652,12 @@
     "library_selection_prompt" : {
       "extractionState" : "manual",
       "localizations" : {
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "Wähle eine Kategorie" } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Select Favorites or Downloads." } },
-        "ja" : { "stringUnit" : { "state" : "translated", "value" : "カテゴリを選択" } },
-        "ko" : { "stringUnit" : { "state" : "translated", "value" : "카테고리 선택" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "选择类别" } },
-        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "選擇類別" } }
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Wähle Favoriten oder Downloads" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Select Favorites or Downloads" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "お気に入りまたはダウンロードを選択" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "즐겨찾기 또는 다운로드 선택" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "选择收藏或下载" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "選擇收藏或下載" } }
       }
     },
     "login" : {

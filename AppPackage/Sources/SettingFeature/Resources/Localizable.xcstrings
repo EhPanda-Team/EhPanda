@@ -236,7 +236,7 @@
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "允许使用移动网络下载"
+            "value" : "允许移动网络下载"
           }
         },
         "zh-Hant" : {
@@ -318,7 +318,7 @@
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "使用统计"
+            "value" : "分析"
           }
         },
         "zh-Hant" : {
@@ -913,7 +913,7 @@
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "壓縮檔邏輯設定"
+            "value" : "壓縮檔下載方式"
           }
         }
       }
@@ -948,13 +948,13 @@
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "默认归档下载方式为手动选择（原画质或压缩画质），然后手动复制或点击下载链接。你可以修改归档下载方式。"
+            "value" : "默认归档下载方式为先确认费用并选择（原画质或重新采样），然后显示可点击或复制到别处的下载链接。你可以在此修改归档下载方式。"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "壓縮檔的預設邏輯是確認原始圖片或重新採樣後進行壓縮的成本差異與選擇，然後顯示一個可以在其他地方點擊、複製的連結，你可以在此處更改它的運作方式。"
+            "value" : "壓縮檔的預設下載方式是確認原始圖片或重新取樣後進行壓縮的成本差異與選擇，然後顯示一個可以在其他地方點擊、複製的連結，你可以在此處更改它的運作方式。"
           }
         }
       }
@@ -1305,7 +1305,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "コメントスコア表示タイミング"
+            "value" : "コメント投票表示タイミング"
           }
         },
         "ko" : {
@@ -1317,7 +1317,7 @@
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "显示评论分数时机"
+            "value" : "评论投票数显示时机"
           }
         },
         "zh-Hant" : {
@@ -1528,7 +1528,7 @@
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "不適用"
+            "value" : "未知"
           }
         }
       }
@@ -1686,7 +1686,7 @@
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "显示样式"
+            "value" : "显示模式"
           }
         },
         "zh-Hant" : {
@@ -1727,13 +1727,13 @@
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "你希望在扉页和搜索页显示哪种样式？"
+            "value" : "你希望在首页和搜索页使用哪种显示模式？"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "你想在首頁和搜尋結果中使用哪一種顯示方式？"
+            "value" : "你想在首頁和搜尋頁使用哪一種顯示模式？"
           }
         }
       }
@@ -1774,7 +1774,7 @@
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "顯示方式"
+            "value" : "顯示樣式"
           }
         }
       }
@@ -1867,7 +1867,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Tag-Erweiterung aktivieren"
+            "value" : "Erweiterte Tags"
           }
         },
         "en" : {
@@ -1891,13 +1891,13 @@
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "启用标签扩展"
+            "value" : "增强标签"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "啟用標籤擴充功能"
+            "value" : "增強標籤"
           }
         }
       }
@@ -2223,7 +2223,7 @@
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "你正在使用 **%#@used@ / %#@limit@** 排除欄位"
+            "value" : "你正在使用 **%#@used@ / %#@limit@** 排除欄位。"
           },
           "substitutions" : {
             "limit" : {
@@ -2288,7 +2288,7 @@
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "如果你希望在画廊中和搜索中隐藏某个上传者的话，请把他们的用户名填写在下方，每行一个。注意：无论搜索条件为何，这些上传者都不会出现。"
+            "value" : "如果你希望从画廊列表和搜索结果中隐藏某些上传者的画廊，请把他们的用户名填写在下方，每行一个。注意：无论搜索条件为何，这些上传者的画廊都不会出现。"
           }
         },
         "zh-Hant" : {
@@ -2317,7 +2317,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "ここではお気に入りカテゴリー名の変更ができます。"
+            "value" : "ここではお気に入りカテゴリーの選択と名前の変更ができます。"
           }
         },
         "ko" : {
@@ -2329,13 +2329,13 @@
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "在这里你可以重命名你的收藏夹。"
+            "value" : "在这里你可以选择并重命名你的收藏夹。"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "在這裡你可以選擇並重新命名收藏匣"
+            "value" : "在這裡你可以選擇並重新命名收藏匣。"
           }
         }
       }
@@ -2418,7 +2418,7 @@
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "收藏匣"
+            "value" : "收藏"
           }
         }
       }
@@ -2459,7 +2459,7 @@
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "收藏匣排序"
+            "value" : "收藏排序方式"
           }
         }
       }
@@ -2541,7 +2541,7 @@
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "顯示過濾結果計數器"
+            "value" : "篩選器移除數"
           }
         }
       }
@@ -2687,19 +2687,19 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "フロント・検索ページでどのカテゴリーのギャラリーを表示しますか？"
+            "value" : "フロント・検索ページでデフォルトで表示するカテゴリーはどれにしますか？"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "프론트와 검색 페이지에서 어떤 카테고리가 보여지도록 할까요?"
+            "value" : "프론트와 검색 페이지에서 기본으로 어떤 카테고리가 보여지도록 할까요?"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "你希望在扉页和搜索页看到哪些类别？"
+            "value" : "默认情况下你希望在首页和搜索结果中显示哪些类别的结果？"
           }
         },
         "zh-Hant" : {
@@ -2816,7 +2816,7 @@
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "영어 제목과 일본어 제목 중 기본값으로 보일 언어를 선택해주세요."
+            "value" : "많은 갤러리에 영어/로마자 제목과 일본어 제목이 모두 있어요. 어떤 갤러리 이름을 기본으로 표시할까요?"
           }
         },
         "zh-Hans" : {
@@ -3115,7 +3115,7 @@
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "水平尺寸(寬)"
+            "value" : "寬度"
           }
         }
       }
@@ -3197,7 +3197,7 @@
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "圖片來源設定"
+            "value" : "圖片載入設定"
           }
         }
       }
@@ -3279,7 +3279,7 @@
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "一般情況下圖片會被縮放成 1280 px（桌面版）或 800 px（行動版）水平解析度以供線上瀏覽，你也可以選擇下列替代解析度之一。"
+            "value" : "一般情況下圖片會被重新取樣成 1280 px（桌面版）或 800 px（行動版）水平解析度以供線上瀏覽，你也可以選擇下列替代解析度之一。"
           }
         }
       }
@@ -3349,19 +3349,19 @@
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "사이트가 사용자의 화면 너비에 맞게 이미지를 자동으로 축소시키지만, 수동으로 크기를 정할 수도 있어요. 크기 조정은 브라우저 측에서 수행되므로 이미지가 다시 샘플링되지 않아요. (0 = no limit)"
+            "value" : "사이트가 사용자의 화면 너비에 맞게 이미지를 자동으로 축소시키지만, 수동으로 최대 표시 크기를 정할 수도 있어요. 크기 조정은 브라우저 측에서 수행되므로 이미지가 다시 샘플링되지 않아요. (0 = 제한 없음)"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "虽然图片会自动根据窗口缩小，你也可以手动设置最大大小，图片并没有重新采样。（0 为不限制）"
+            "value" : "虽然网站会自动缩小图片以适应屏幕宽度，但你也可以手动限制图片的最大显示尺寸。与自动缩放一样，这不会重新采样图片，因为调整大小是在浏览器端完成的。（0 为不限制）"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "雖然網站會自動縮小圖片以適應瀏覽裝置的螢幕寬度，但您也可以手動限制圖片的最大顯示尺寸。 像自動縮放一樣，這不會重新採樣圖像，因為調整大小是在瀏覽器完成的 (0 = 沒有限制)"
+            "value" : "雖然網站會自動縮小圖片以適應瀏覽裝置的螢幕寬度，但您也可以手動限制圖片的最大顯示尺寸。像自動縮放一樣，這不會重新取樣圖片，因為調整大小是在瀏覽器完成的 (0 = 沒有限制)"
           }
         }
       }
@@ -3443,7 +3443,7 @@
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "匯入自訂標籤翻譯"
+            "value" : "匯入自訂翻譯"
           }
         }
       }
@@ -3454,7 +3454,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Experimentelles"
+            "value" : "Labor"
           }
         },
         "en" : {
@@ -3484,7 +3484,7 @@
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "實驗性功能"
+            "value" : "實驗室"
           }
         }
       }
@@ -3566,7 +3566,7 @@
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "透過 Hentai@Home Network 載入圖片"
+            "value" : "透過 Hentai@Home 網路載入圖片"
           }
         }
       }
@@ -3689,7 +3689,7 @@
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "標籤顯示上限"
+            "value" : "標籤數量上限"
           }
         }
       }
@@ -3730,7 +3730,7 @@
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "多頁瀏覽"
+            "value" : "多頁檢視器"
           }
         }
       }
@@ -3741,7 +3741,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Meine Tags bearbeiten"
+            "value" : "Meine Tags"
           }
         },
         "en" : {
@@ -3753,25 +3753,25 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "マイタグを管理"
+            "value" : "マイタグ"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "My Tags 관리"
+            "value" : "My Tags"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "管理我的标签"
+            "value" : "我的标签"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "管理我的標籤"
+            "value" : "我的標籤"
           }
         }
       }
@@ -3800,7 +3800,7 @@
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "링크"
+            "value" : "내비게이션"
           }
         },
         "zh-Hans" : {
@@ -3958,7 +3958,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "リンクを選択中のホストで開く"
+            "value" : "リンクを選択中のサイトで開く"
           }
         },
         "ko" : {
@@ -3999,7 +3999,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "UI の表示制御"
+            "value" : "オプションの UI 要素"
           }
         },
         "ko" : {
@@ -4093,7 +4093,7 @@
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "是否使用原始图像而非重新采样的版本？如果您在上方选择的水平分辨率不是“自动”，并且所查看的图像更宽，或者原始图像大于 10 MiB（对于超过一年的图库，则为 4 MiB），那么仍将使用重新采样的图像。"
+            "value" : "是否使用原始图像而非重新采样的版本？如果您在上方选择的水平分辨率不是“自动”，并且所查看的图像更宽，或者原始图像大于 10 MiB（对于超过一年的画廊，则为 4 MiB），那么仍将使用重新采样的图像。"
           }
         },
         "zh-Hant" : {
@@ -4387,7 +4387,7 @@
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "預設情況下，你評分的畫廊將 2 星及以下的評分顯示為紅色星，2.5 ~ 4 顆星的評分為綠色，4.5 ~ 5 顆星的評分為藍色。 透過在下面輸入顏色組合你可以自訂想顯示的顏色。 每個字母各代表一顆星(1~5)，預設的 RRGGB 表示第一顆和第二顆星的 R(ed)，第三顆和第四顆的 G(reen)，第五顆的 B(lue)。 你也可以將 (Y)ellow 用於普通星星。 任何五個字母的 R/G/B/Y 組合都有效"
+            "value" : "預設情況下，你評分的畫廊將 2 星及以下的評分顯示為紅色星，2.5 ~ 4 顆星的評分為綠色，4.5 ~ 5 顆星的評分為藍色。 透過在下面輸入顏色組合你可以自訂想顯示的顏色。 每個字母各代表一顆星(1~5)，預設的 RRGGB 表示第一顆和第二顆星的 R(ed)，第三顆和第四顆的 G(reen)，第五顆的 B(lue)。 你也可以將 (Y)ellow 用於普通星星。 任何五個字母的 R/G/B/Y 組合都有效。"
           }
         }
       }
@@ -4510,7 +4510,7 @@
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "移除自訂標籤翻譯"
+            "value" : "移除自訂翻譯"
           }
         }
       }
@@ -4551,7 +4551,7 @@
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "要移除所有自訂標籤翻譯嗎？"
+            "value" : "確定要移除自訂翻譯嗎？"
           }
         }
       }
@@ -4633,7 +4633,7 @@
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "數量上限"
+            "value" : "結果數"
           }
         }
       }
@@ -4668,13 +4668,13 @@
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "搜索页面每页显示多少条数据？\n（需要“Hath Perk：页面扩大”）"
+            "value" : "你希望索引/搜索页和种子搜索页每页显示多少条结果？\n（需要“Hath Perk：Paging Enlargement”）"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "你希望每頁顯示幾個搜尋結果？\n(該功能需要有 Hath Perk: Paging Enlargement)"
+            "value" : "你希望索引/搜尋頁和種子搜尋頁每頁顯示幾個結果？\n(該功能需要有 Hath Perk: Paging Enlargement)"
           }
         }
       }
@@ -4685,7 +4685,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Senden"
+            "value" : "Speichern"
           }
         },
         "en" : {
@@ -4697,25 +4697,25 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "送信"
+            "value" : "保存"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "제출"
+            "value" : "저장"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "提交"
+            "value" : "保存"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "送出"
+            "value" : "儲存"
           }
         }
       }
@@ -4838,7 +4838,7 @@
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "搜尋結果數量上限"
+            "value" : "搜尋結果數"
           }
         }
       }
@@ -4879,7 +4879,7 @@
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "選擇設定檔"
+            "value" : "目前選定設定檔"
           }
         }
       }
@@ -5054,7 +5054,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Download"
+            "value" : "Downloads"
           }
         },
         "en" : {
@@ -5136,7 +5136,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Experimentelles"
+            "value" : "Labor"
           }
         },
         "en" : {
@@ -5166,7 +5166,7 @@
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "實驗性功能"
+            "value" : "實驗室"
           }
         }
       }
@@ -5242,7 +5242,7 @@
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "发送使用数据"
+            "value" : "分享分析数据"
           }
         },
         "zh-Hant" : {
@@ -5259,7 +5259,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Zeigt den Entwicklern von EhPanda, welche Funktionen wichtig sind. Suchanfragen werden nur in ihrer Struktur übertragen, nie als Text. Galerietitel, Links und Kennungen werden nie gesendet. Ist diese Option aus, werden keine Ereignisse mehr gesendet, deine Installation wird aber weiterhin gezählt."
+            "value" : "Zeigt den Entwicklern von EhPanda, welche Funktionen wichtig sind. Bei Suchanfragen werden nur Länge und Format übertragen, nie der Text. Galerietitel, Links und Kennungen werden nie gesendet. Ist diese Option aus, werden keine Ereignisse mehr gesendet, deine Installation wird aber weiterhin gezählt."
           }
         },
         "en" : {
@@ -5271,25 +5271,25 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "どの機能が重要かをEhPandaの開発者が把握するのに役立ちます。検索は語句ではなく形式のみが送信され、ギャラリーのタイトル、リンク、識別子が含まれることはありません。オフにするとこれらの送信は停止しますが、インストール数は引き続き集計されます。"
+            "value" : "どの機能が重要かをEhPandaの開発者が把握するのに役立ちます。検索は語句ではなく長さと形式のみが送信され、ギャラリーのタイトル、リンク、識別子が含まれることはありません。オフにするとこれらの送信は停止しますが、インストール数は引き続き集計されます。"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "어떤 기능이 중요한지 EhPanda 개발자가 파악하는 데 도움이 됩니다. 검색어는 내용 없이 형태만 전송되며, 갤러리 제목·링크·식별자는 절대 포함되지 않습니다. 이 설정을 끄면 이러한 전송이 중단되지만 설치 수는 계속 집계됩니다."
+            "value" : "어떤 기능이 중요한지 EhPanda 개발자가 파악하는 데 도움이 됩니다. 검색어는 내용 없이 길이와 형식만 전송되며, 갤러리 제목·링크·식별자는 절대 포함되지 않습니다. 이 설정을 끄면 이러한 전송이 중단되지만 설치 수는 계속 집계됩니다."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "帮助 EhPanda 维护者了解哪些功能更重要。搜索只发送结构特征，不发送文字内容，也不包含画廊标题、链接或标识符。关闭后将不再发送这些事件，但仍会统计安装量。"
+            "value" : "帮助 EhPanda 维护者了解哪些功能重要。搜索只会发送长度和格式，不含搜索文字，也不含任何画廊标题、链接或标识符。关闭后会停止发送这些事件，但你的安装仍会计入统计。"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "協助 EhPanda 維護者了解哪些功能重要。搜尋只會傳送概略特徵，不含搜尋文字，也不含任何畫廊標題、連結或識別碼。關閉後會停止傳送這些事件，但你的安裝仍會計入統計。"
+            "value" : "協助 EhPanda 維護者了解哪些功能重要。搜尋只會傳送長度與格式，不含搜尋文字，也不含任何畫廊標題、連結或識別碼。關閉後會停止傳送這些事件，但你的安裝仍會計入統計。"
           }
         }
       }
@@ -5330,7 +5330,7 @@
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "是否顯示過濾結果計數器"
+            "value" : "顯示篩選器移除數"
           }
         }
       }
@@ -5488,7 +5488,7 @@
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "显示每日问候"
+            "value" : "显示黎明问候"
           }
         },
         "zh-Hant" : {
@@ -5576,7 +5576,7 @@
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "搜尋時顯示標籤建議"
+            "value" : "顯示標籤搜尋建議"
           }
         }
       }
@@ -5652,7 +5652,7 @@
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "显示缩略图侧栏"
+            "value" : "显示缩略图窗格"
           }
         },
         "zh-Hant" : {
@@ -5699,7 +5699,7 @@
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "同時下載頁數"
+            "value" : "同時下載圖片數"
           }
         }
       }
@@ -5781,7 +5781,7 @@
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "過濾標籤閾值"
+            "value" : "標籤篩選閾值"
           }
         }
       }
@@ -5810,19 +5810,19 @@
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "마이너스 가중치로 My Tags에 추가하여 태그를 소프트 필터할 수 있어요. 갤러리에 이 값 이하의 가중치를 추가하는 태그가 있으면 보기에서 필터링되어요. 이 임계값은 0과 -9999 사이에서 설정할 수 있어요."
+            "value" : "마이너스 가중치로 My Tags에 추가하여 태그를 소프트 필터할 수 있어요. 갤러리 태그의 가중치 합이 이 값 미만이면 보기에서 필터링되어요. 이 임계값은 0과 -9999 사이에서 설정할 수 있어요."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "你可以通过将标签加入“我的标签”并设置一个负权重来软过滤它们。如果一个作品所有的标签权重之和低于设定值，此作品将从视图中被过滤。这个值可以设定为 0 ~ -9999。"
+            "value" : "你可以通过将标签加入“我的标签”并设置一个负权重来软筛选它们。如果一个画廊所有的标签权重之和低于设定值，此画廊将从列表中被筛除。这个值可以设定为 0 ~ -9999。"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "你可以透過將標籤以負數權重新增到「我的標籤」來過濾標籤。 如果畫廊的標籤加起來的權重低於此值，則會被從列表中過濾掉，此閾值可以設定在 0 ~ -9999 之間"
+            "value" : "你可以透過將標籤以負數權重新增到「我的標籤」來軟篩選標籤。如果畫廊的標籤加起來的權重低於此值，則會被從列表中篩除，此閾值可以設定在 0 ~ -9999 之間。"
           }
         }
       }
@@ -5892,19 +5892,19 @@
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "최근에 업로드된 갤러리는 최소 1개의 관심 태그가 있고 관심 태그의 가중치의 합이 이 값 이상이 될 경우 관심 태그 화면에 포함되어요. 이 임계값은 0과 9999 사이에서 설정할 수 있어요."
+            "value" : "최근에 업로드된 갤러리는 양수 가중치의 관심 태그가 최소 1개 있고 관심 태그의 가중치의 합이 이 값 이상이 될 경우 관심 태그 화면에 포함되어요. 이 임계값은 0과 9999 사이에서 설정할 수 있어요."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "你可以通过将标签加入“我的标签”并设置一个正权重来关注它们。如果一个最近上传的作品所有标签的权重之和高于设定值，则它将会被包含在“关注”里。这个值可以设定为 0 ~ 9999。"
+            "value" : "如果一个最近上传的画廊至少有一个正权重的已关注标签，且已关注标签的权重之和达到或高于设定值，它就会被包含在“关注”里。这个值可以设定为 0 ~ 9999。"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "如果最近上傳的畫廊中至少有一個具有正權重的你正在追蹤的標籤，並且這些標籤所具有的權重高於此設定中的數值，那這個畫廊將會出現在「追蹤中」頁面中，此閾值可以設定在 0 ~ 9999 之間"
+            "value" : "如果最近上傳的畫廊至少有一個正權重的已追蹤標籤，且已追蹤標籤的權重總和達到或高於此數值，它就會出現在「追蹤中」頁面，此閾值可以設定在 0 ~ 9999 之間。"
           }
         }
       }
@@ -5986,7 +5986,7 @@
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "標籤顯示順序"
+            "value" : "標籤排序方式"
           }
         }
       }
@@ -6056,7 +6056,7 @@
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "모든 방문한 갤러리에 대하여 기본 썸네일을 설정할 수 있어요."
+            "value" : "모든 방문한 갤러리에 대하여 기본 썸네일 구성을 설정할 수 있어요."
           }
         },
         "zh-Hans" : {
@@ -6097,7 +6097,7 @@
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "썸네일 로드 시간"
+            "value" : "썸네일 로드 시점"
           }
         },
         "zh-Hans" : {
@@ -6109,7 +6109,7 @@
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "縮圖載入時機設定"
+            "value" : "縮圖載入時機"
           }
         }
       }
@@ -6284,7 +6284,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Download"
+            "value" : "Downloads"
           }
         },
         "en" : {
@@ -6437,7 +6437,7 @@
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "使用多頁瀏覽"
+            "value" : "使用多頁檢視器"
           }
         }
       }
@@ -6472,13 +6472,13 @@
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "显示原图"
+            "value" : "使用原始图片"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "使用原始圖片(原解析度)"
+            "value" : "使用原始圖片"
           }
         }
       }
@@ -6601,7 +6601,7 @@
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "垂直尺寸(長)"
+            "value" : "高度"
           }
         }
       }
@@ -6642,7 +6642,7 @@
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "視窗覆蓋"
+            "value" : "覆寫可視區域"
           }
         }
       }
@@ -6718,13 +6718,13 @@
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "允许你覆写移动设备的可视区域，默认是根据 DPI 自动计算的，%@ 缩略图比例下的合理值在 640 到 1400 之间。"
+            "value" : "允许你覆写移动设备上网站的虚拟宽度，通常由设备根据 DPI 自动确定，%@ 缩略图比例下的合理值在 640 到 1400 之间。"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "允許你覆蓋行動裝置網站的虛擬寬度。 這通常由你的裝置根據其 DPI 自動確定。 %@ 縮圖比例的合理值介於 640 和 1400 之間。"
+            "value" : "允許你覆寫行動裝置網站的虛擬寬度。這通常由你的裝置根據其 DPI 自動確定。%@ 縮圖比例的合理值介於 640 和 1400 之間。"
           }
         }
       }

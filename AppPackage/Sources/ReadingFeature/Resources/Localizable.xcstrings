@@ -907,7 +907,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "第 %#@first@ 至 %#@last@ 页，共 %#@total@ 页"
+            "value": "第 %#@first@ 到 %#@last@ 页，共 %#@total@ 页"
           },
           "substitutions": {
             "first": {
@@ -1300,7 +1300,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "儲存第 %#@page@ 頁原始圖片"
+            "value": "儲存第 %#@page@ 頁原圖"
           },
           "substitutions": {
             "page": {
@@ -1437,7 +1437,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "儲存第 %#@page@ 頁圖片"
+            "value": "儲存第 %#@page@ 頁"
           },
           "substitutions": {
             "page": {
@@ -1959,7 +1959,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "重新載入失敗圖片"
+            "value": "重試所有載入失敗的圖片"
           }
         }
       }
@@ -2000,7 +2000,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "儲存圖片"
+            "value": "儲存"
           }
         }
       }
@@ -2041,7 +2041,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "儲存原始圖片"
+            "value": "儲存原圖"
           }
         }
       }
@@ -2146,25 +2146,25 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "表紙を除く"
+            "value": "表紙を単独表示"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "표지 제외"
+            "value": "표지 단독 표시"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "封面除外"
+            "value": "封面单独显示"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "封面除外"
+            "value": "封面單獨顯示"
           }
         }
       }
