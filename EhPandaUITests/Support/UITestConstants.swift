@@ -11,7 +11,7 @@ enum UITestConstants {
 
     static let primaryMarkerTitle = "EhPanda UITest Fixture"
     static let alternateMarkerTitle = "EhPanda UITest Fixture Alt"
-    static let unsupportedLinkDescription = "This link wasn't recognized as an EhPanda gallery link."
+    static let unsupportedLinkDescription = "EhPanda can only open gallery links."
 
     static let stubNetworkEnvironmentKey = "EHPANDA_UITEST_STUB_NETWORK"
     static let fixtureDirectoryEnvironmentKey = "EHPANDA_UITEST_FIXTURE_DIR"

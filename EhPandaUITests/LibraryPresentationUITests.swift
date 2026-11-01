@@ -149,11 +149,11 @@ final class LibraryPresentationUITests: XCTestCase {
         let picker = app.buttons["gallery-layout-downloads"]
         XCTAssertTrue(picker.waitForExistence(timeout: 15))
         picker.tapWhenHittable("Downloads presentation")
-        app.buttons["Row"].tapWhenHittable("Downloads Row")
+        app.buttons["List"].tapWhenHittable("Downloads Row")
         let first = app.descendants(matching: .any)["download-gallery-9101"].firstMatch
         XCTAssertTrue(first.waitForExistence(timeout: 15))
         first.press(forDuration: 1)
-        app.buttons["Pages"].tapWhenHittable("Inspect downloaded pages from row")
+        app.buttons["Download Status"].tapWhenHittable("Inspect downloaded pages from row")
         XCTAssertTrue(app.navigationBars["Download Status"].waitForExistence(timeout: 10))
         app.descendants(matching: .any)["Close"].firstMatch.tapWhenHittable("Close inspector")
 
@@ -170,8 +170,8 @@ final class LibraryPresentationUITests: XCTestCase {
         add(gridScreenshot)
         reveal(first, in: content, app: app)
         first.press(forDuration: 1)
-        XCTAssertTrue(app.buttons["Pages"].waitForExistence(timeout: 5))
-        XCTAssertFalse(app.buttons["Detail"].exists, "Grid menus contain management actions only.")
+        XCTAssertTrue(app.buttons["Download Status"].waitForExistence(timeout: 5))
+        XCTAssertFalse(app.buttons["Details"].exists, "Grid menus contain management actions only.")
         XCTAssertFalse(app.buttons["Read"].exists, "Grid reading remains available through double tap.")
         let menuScreenshot = XCTAttachment(screenshot: XCUIScreen.main.screenshot())
         menuScreenshot.name = "Library Downloads grid context menu"
@@ -190,7 +190,7 @@ final class LibraryPresentationUITests: XCTestCase {
         XCTAssertEqual(XCTWaiter.wait(for: [moved], timeout: 5), .completed)
         reveal(first, in: content, app: app)
         first.press(forDuration: 1)
-        app.buttons["Pages"].tapWhenHittable("Inspect downloaded pages from grid")
+        app.buttons["Download Status"].tapWhenHittable("Inspect downloaded pages from grid")
         XCTAssertTrue(app.navigationBars["Download Status"].waitForExistence(timeout: 10))
         app.descendants(matching: .any)["Close"].firstMatch.tapWhenHittable("Close inspector")
         let readTitle = app.staticTexts["Library Download 1"].firstMatch
@@ -261,7 +261,7 @@ final class LibraryPresentationUITests: XCTestCase {
     private func assertLibraryTapActions(in app: XCUIApplication, source: String, item: String) throws {
         let picker = app.buttons["gallery-layout-\(source)"]
         XCTAssertTrue(picker.waitForExistence(timeout: 15))
-        for layout in ["Row", "Grid"] {
+        for layout in ["List", "Grid"] {
             picker.tapWhenHittable("Choose Library layout")
             app.buttons[layout].tapWhenHittable("Library \(layout)")
             let gallery = app.buttons[item].firstMatch
@@ -280,7 +280,7 @@ final class LibraryPresentationUITests: XCTestCase {
             XCTAssertTrue(reader.waitForNonExistence(timeout: 10))
             XCTAssertTrue(picker.waitForExistence(timeout: 10))
             XCTAssertFalse(detail.exists, "Double tap must not leave Detail beneath the reader.")
-            if layout == "Row" {
+            if layout == "List" {
                 let screenshot = XCTAttachment(screenshot: XCUIScreen.main.screenshot())
                 screenshot.name = "Library \(source) row"
                 screenshot.lifetime = .keepAlways

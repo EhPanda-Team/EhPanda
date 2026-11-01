@@ -41,8 +41,8 @@ final class GalleryLayoutUITests: XCTestCase {
         try launchFavorites(app)
         defer { app.terminate() }
         let picker = app.buttons["gallery-layout-favorites"]
-        picker.tapWhenHittable("Favorites presentation")
-        app.buttons["Row"].tapWhenHittable("Favorites Row")
+        picker.tapWhenHittable("Favorites layout")
+        app.buttons["List"].tapWhenHittable("Favorites Row")
         let gallery = app.staticTexts["Library Study 12"].firstMatch
         let content = app.descendants(matching: .any)["favorites-gallery-list"].firstMatch
         for _ in 0..<12 where !gallery.isHittable {
@@ -65,7 +65,7 @@ final class GalleryLayoutUITests: XCTestCase {
         XCTAssertTrue(app.buttons[anchorID].waitForExistence(timeout: 5))
         XCTAssertTrue(app.buttons[anchorID].isHittable, "Switching layouts must retain the visible gallery anchor.")
         picker.tapWhenHittable("Restore rows")
-        app.buttons["Row"].tapWhenHittable("Row")
+        app.buttons["List"].tapWhenHittable("List")
         let restored = app.buttons[anchorID]
         XCTAssertTrue(restored.isHittable)
         XCTAssertGreaterThan(restored.frame.midY, app.requireLibraryNavigationTitle("Favorites").frame.maxY)
@@ -92,7 +92,7 @@ final class GalleryLayoutUITests: XCTestCase {
         let app = XCUIApplication()
         try launchFavorites(app)
         defer { app.terminate() }
-        app.buttons["gallery-layout-favorites"].tapWhenHittable("Favorites presentation")
+        app.buttons["gallery-layout-favorites"].tapWhenHittable("Favorites layout")
         app.buttons["Grid"].tapWhenHittable("Grid")
         let content = app.descendants(matching: .any)["favorites-gallery-list"].firstMatch
         let nextPage = app.buttons["gallery-list-item-1025"]

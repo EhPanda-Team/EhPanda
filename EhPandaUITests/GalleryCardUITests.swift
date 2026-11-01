@@ -21,7 +21,7 @@ final class GalleryCardUITests: XCTestCase {
             addTeardownBlock { app.terminate() }
             app.launchArguments = ["-UIPreferredContentSizeCategoryName", size.rawValue]
             try launch(app, fixtures: fixtures)
-            app.buttons["gallery-layout-favorites"].tapWhenHittable("Presentation")
+            app.buttons["gallery-layout-favorites"].tapWhenHittable("Layout")
             app.buttons["Grid"].tapWhenHittable("Grid")
             let first = app.buttons["gallery-list-item-1001"]
             let second = app.buttons["gallery-list-item-1002"]
@@ -64,7 +64,7 @@ final class GalleryCardUITests: XCTestCase {
         addTeardownBlock { app.terminate() }
         try app.launchStubbed(extraEnvironment: ["EHPANDA_AUTOMATION_TAB": "home"])
         app.buttons["Show All"].firstMatch.tapWhenHittable("Front Page")
-        app.buttons["gallery-layout-frontpage"].tapWhenHittable("Front Page presentation")
+        app.buttons["gallery-layout-frontpage"].tapWhenHittable("Front Page layout")
         app.buttons["Grid"].tapWhenHittable("Front Page Grid")
         let ratings = app.descendants(matching: .any).matching(NSPredicate(
             format: "identifier BEGINSWITH %@", "gallery-grid-rating-"
@@ -81,8 +81,8 @@ final class GalleryCardUITests: XCTestCase {
         let app = XCUIApplication()
         addTeardownBlock { app.terminate() }
         try launch(app, fixtures: fixtures)
-        for layout in ["Row", "Grid"] {
-            app.buttons["gallery-layout-favorites"].tapWhenHittable("Presentation")
+        for layout in ["List", "Grid"] {
+            app.buttons["gallery-layout-favorites"].tapWhenHittable("Layout")
             app.buttons[layout].tapWhenHittable(layout)
             for title in [shortTitle, longTitle] {
                 XCTAssertTrue(app.staticTexts[title].firstMatch.waitForExistence(timeout: 10))

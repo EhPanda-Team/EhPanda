@@ -81,7 +81,7 @@ final class AccessibilityAuditUITests: XCTestCase {
     /// `GalleryDetail.html`, `hobohobo` from the first `FrontPageList.html` row the iPad modal opens).
     private static let designedHitRegionButtons: Set<String> = [
         "Show All",
-        "Similar Gallery",
+        "Find Similar",
         "Pokom",
         "hobohobo"
     ]
@@ -136,7 +136,7 @@ final class AccessibilityAuditUITests: XCTestCase {
         let app = try launch(tab: "favorites")
         app.requireLibraryNavigationTitle("Favorites")
         XCTAssertTrue(
-            app.buttons["Login"].firstMatch.waitForExistence(timeout: 15),
+            app.buttons["Log In"].firstMatch.waitForExistence(timeout: 15),
             "Favorites did not render its login placeholder."
         )
         try audit(app, surface: "Favorites (login placeholder)")
@@ -144,8 +144,8 @@ final class AccessibilityAuditUITests: XCTestCase {
 
     func testSettingRootAudit() throws {
         let app = try launch(tab: "setting")
-        requireNavigationTitle("Setting", in: app)
-        try audit(app, surface: "Setting root")
+        requireNavigationTitle("Settings", in: app)
+        try audit(app, surface: "Settings root")
     }
 
     // MARK: Home children
@@ -192,8 +192,8 @@ final class AccessibilityAuditUITests: XCTestCase {
     func testDateSeekSheetAudit() throws {
         let app = try launch(tab: "home")
         try pushFrontPage(in: app)
-        try presentSheet(titled: "Date Seek", from: "Date Seek", in: app)
-        try audit(app, surface: "Date Seek sheet")
+        try presentSheet(titled: "Seek to Date", from: "Seek to Date", in: app)
+        try audit(app, surface: "Seek to Date sheet")
         dismissSheet(in: app)
     }
 
@@ -213,13 +213,13 @@ final class AccessibilityAuditUITests: XCTestCase {
     func testAccountSettingAudit() throws {
         let app = try launch(tab: "setting")
         try pushSettingRow("Account", in: app)
-        try audit(app, surface: "Setting › Account")
+        try audit(app, surface: "Settings › Account")
     }
 
     func testGeneralSettingAudit() throws {
         let app = try launch(tab: "setting")
         try pushSettingRow("General", in: app)
-        try audit(app, surface: "Setting › General")
+        try audit(app, surface: "Settings › General")
     }
 
     func testActivityLogsAudit() throws {
@@ -232,38 +232,38 @@ final class AccessibilityAuditUITests: XCTestCase {
             app.collectionViews.cells.firstMatch.waitForExistence(timeout: 15),
             "App Activity Logs did not render a log row."
         )
-        try audit(app, surface: "Setting › General › App Activity Logs")
+        try audit(app, surface: "Settings › General › App Activity Logs")
     }
 
     func testAppearanceSettingAudit() throws {
         let app = try launch(tab: "setting")
         try pushSettingRow("Appearance", in: app)
-        try audit(app, surface: "Setting › Appearance")
+        try audit(app, surface: "Settings › Appearance")
     }
 
     func testReadingSettingAudit() throws {
         let app = try launch(tab: "setting")
         try pushSettingRow("Reading", in: app)
-        try audit(app, surface: "Setting › Reading")
+        try audit(app, surface: "Settings › Reading")
     }
 
     func testDownloadSettingAudit() throws {
         let app = try launch(tab: "setting")
-        try pushSettingRow("Download", in: app)
-        try audit(app, surface: "Setting › Download")
+        try pushSettingRow("Downloads", in: app)
+        try audit(app, surface: "Settings › Downloads")
     }
 
     func testLaboratorySettingAudit() throws {
         let app = try launch(tab: "setting")
         try pushSettingRow("Laboratory", in: app)
-        try audit(app, surface: "Setting › Laboratory")
+        try audit(app, surface: "Settings › Laboratory")
     }
 
     /// The About screen's navigation title is the app name, not the row's label.
     func testAboutAudit() throws {
         let app = try launch(tab: "setting")
         try pushSettingRow("About", titled: "EhPanda", in: app)
-        try audit(app, surface: "Setting › About")
+        try audit(app, surface: "Settings › About")
     }
 
     // MARK: Gallery detail and its children
@@ -289,14 +289,14 @@ final class AccessibilityAuditUITests: XCTestCase {
         let detailView = try openGalleryDetail(in: app)
         // The Gallery Infos button is the last item of the horizontal stats strip: bring the strip
         // on screen first, then scroll the strip itself until the button can be tapped.
-        let infosButton = detailView.buttons["Gallery Infos"].firstMatch
+        let infosButton = detailView.buttons["Gallery Info"].firstMatch
         XCTAssertTrue(infosButton.waitForExistence(timeout: 15), "Detail did not render its stats strip.")
         try scrollUntilHittable(infosButton, in: app, of: app, direction: .upward)
         try scrollUntilHittable(infosButton, in: detailView.scrollViews.firstMatch, of: app, direction: .leftward)
         XCTAssertTrue(infosButton.isHittable, "The Gallery Infos button never became hittable.")
         infosButton.tap()
-        requireNavigationTitle("Gallery Infos", in: app)
-        try audit(app, surface: "Detail › Gallery Infos")
+        requireNavigationTitle("Gallery Info", in: app)
+        try audit(app, surface: "Detail › Gallery Info")
     }
 
     func testCommentsAudit() throws {
@@ -333,11 +333,11 @@ final class AccessibilityAuditUITests: XCTestCase {
         let moreButton = app.buttons["More"].firstMatch
         XCTAssertTrue(moreButton.waitForExistence(timeout: 15), "The reader toolbar did not expose More.")
         moreButton.tap()
-        let settingButton = app.buttons["Reading Setting"].firstMatch
+        let settingButton = app.buttons["Reading Settings"].firstMatch
         XCTAssertTrue(settingButton.waitForExistence(timeout: 15), "The More menu did not list Reading Setting.")
         settingButton.tap()
         requireNavigationTitle("Reading", in: app)
-        try audit(app, surface: "Reading › Reading Setting sheet")
+        try audit(app, surface: "Reading › Reading Settings sheet")
     }
 
     // MARK: Error surface
@@ -369,8 +369,8 @@ final class AccessibilityAuditUITests: XCTestCase {
         }
 
         let app = try launch(tab: "setting")
-        requireNavigationTitle("Setting", in: app)
-        try audit(app, surface: "Setting (iPad modal)")
+        requireNavigationTitle("Settings", in: app)
+        try audit(app, surface: "Settings (iPad modal)")
 
         let homeApp = try launch(tab: "home")
         requireHomeRoot(in: homeApp)
@@ -532,7 +532,7 @@ private extension AccessibilityAuditUITests {
     }
 
     func pushSettingRow(_ label: String, titled title: String? = nil, in app: XCUIApplication) throws {
-        requireNavigationTitle("Setting", in: app)
+        requireNavigationTitle("Settings", in: app)
         try tapScrolling(app.buttons[label].firstMatch, in: app)
         requireNavigationTitle(title ?? label, in: app)
     }
