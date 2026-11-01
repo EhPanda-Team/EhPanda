@@ -51,20 +51,6 @@ public struct HomeView: View {
         .background {
             WindowDeviceObservation { store.send(.deviceChanged($0)) }
         }
-        .background {
-            @UIBindable var presentationStore = store
-            HomePaneSheet(
-                item: $presentationStore.scope(\.$sheet, action: \.sheet),
-                viewport: store.viewportSize,
-                usesSplitLayout: store.usesSplitLayout,
-                side: { $0.side },
-                onDismiss: { store.send(.sheetDismissed) }
-            ) { sheetStore in
-                HomeSheetView(
-                    store: sheetStore, viewport: store.viewportSize, usesSplitLayout: store.usesSplitLayout
-                )
-            }
-        }
     }
 }
 
