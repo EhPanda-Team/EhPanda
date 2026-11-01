@@ -8,6 +8,7 @@ import ComposableArchitecture
 import CookieClient
 import DFClient
 import DownloadClient
+import FileClient
 import Foundation
 import HomeFeature
 import Kanna
@@ -48,6 +49,8 @@ struct InstalledCapture: Sendable {
 /// The capture-owned directory one capture launch keeps its caches in.
 struct CaptureStorage: Equatable, Sendable {
     let root: URL
+
+    var tagTranslations: URL { root.appending(component: "tag-translations") }
 
     var dataCache: URL {
         root.appending(path: "DataCache", directoryHint: .isDirectory)
@@ -188,6 +191,7 @@ enum CaptureScenePreparation {
     static func install(_ scene: CaptureScene, storageRoot: URL = defaultStorageRoot) throws(CaptureFailure) {
         let storage = try CaptureStorage.reset(at: storageRoot)
         let downloads = try scene.downloads?.seed(into: storage.downloads) ?? .empty
+        let translation = try scene.configuration.tagTranslation?.prepare(in: storage.tagTranslations)
         do {
             let imageCache = try ImageCache(name: "capture", cacheDirectoryURL: storage.kingfisherCache)
             try downloads.preloadCovers(into: imageCache)
@@ -200,7 +204,13 @@ enum CaptureScenePreparation {
         NotificationCenter.default.removeObserver(ImageCache.default)
         // Before anything creates SDWebImage's shared cache, so it never opens the user's.
         SDImageCache.defaultDiskCacheDirectory = storage.sdWebImageCache.path(percentEncoded: false)
-        let replay = CaptureReplay(responses: scene.replay)
+        var responses = scene.replay
+        for (url, response) in translation?.replay ?? [:] {
+            guard responses.updateValue(response, forKey: url) == nil else {
+                throw .malformedScene("Tag translation replay URL conflicts with gallery fixture")
+            }
+        }
+        let replay = CaptureReplay(responses: responses)
         UITestStubURLProtocol.configure(replay: replay)
         URLProtocol.registerClass(UITestStubURLProtocol.self)
         installation.withLock({ $0 = InstalledCapture(scene: scene, replay: replay) })
@@ -218,7 +228,10 @@ enum CaptureScenePreparation {
             calculateWebImageDiskCacheSize: live.calculateWebImageDiskCacheSize
         )
         prepareDependencies {
-            isolate(&$0, scene: scene, storage: storage, libraryClient: libraryClient, downloads: downloads)
+            isolate(
+                &$0, scene: scene, storage: storage, libraryClient: libraryClient,
+                downloads: downloads, tagTranslator: translation?.translator
+            )
         }
         // After isolation, so the reader cache its purge observers guard is the capture's.
         live.initializeWebImage()
@@ -233,7 +246,8 @@ enum CaptureScenePreparation {
         scene: CaptureScene,
         storage: CaptureStorage,
         libraryClient: LibraryClient,
-        downloads: CaptureDownloadIndex
+        downloads: CaptureDownloadIndex,
+        tagTranslator: TagTranslator? = nil
     ) {
         dependencies.analyticsClient = .noop
         // The capture's route is the launch's only automation.
@@ -245,14 +259,33 @@ enum CaptureScenePreparation {
         dependencies.dataCache = DataCache(configuration: .init(rootURL: storage.dataCache))
         dependencies.date.now = UITestAutomation.fixedDate
         let appStorage = UserDefaults.inMemory
+        let inMemoryStorage = InMemoryStorage()
         withDependencies {
             $0.defaultAppStorage = appStorage
+            $0.defaultInMemoryStorage = inMemoryStorage
         } operation: {
             @Shared(.setting) var setting
-            $setting.withLock({ $0 = sceneSetting })
+            $setting.withLock {
+                $0 = sceneSetting
+                if tagTranslator != nil {
+                    $0.enableTagsExtension = true
+                    $0.translateTags = true
+                }
+            }
+            if let tagTranslator {
+                @Shared(.tagTranslator) var sharedTranslator
+                $sharedTranslator.withLock({ $0 = tagTranslator })
+                @Shared(.tagTranslatorInfo) var info
+                $info.withLock {
+                    $0 = TagTranslatorInfo(language: tagTranslator.language, updatedDate: tagTranslator.updatedDate)
+                }
+            }
         }
         dependencies.defaultAppStorage = appStorage
-        dependencies.defaultInMemoryStorage = InMemoryStorage()
+        dependencies.defaultInMemoryStorage = inMemoryStorage
+        dependencies.fileClient = .live(
+            applicationSupportURL: storage.tagTranslations, cachesURL: storage.tagTranslations
+        )
         dependencies.dfClient = .noop
         // Never the live client, which would adopt the app's background download session and could
         // fetch outside the replay.
@@ -349,9 +382,9 @@ private struct MarketingGalleries {
         case .screen(.home):
             .home
         case .screen(.detail):
-            .detail(try gallery(flow.gallery))
+            .detail(try gallery(scene.detailGallery ?? flow.gallery))
         case .screen(.comments):
-            .comments(try gallery(flow.gallery))
+            .comments(try gallery(scene.commentsGallery ?? flow.gallery))
         case .screen(.filters):
             .filters
         case .screen(.reading):

@@ -224,6 +224,8 @@ struct CaptureFixtureSelection: Decodable, Sendable {
     struct Scene: Decodable, Sendable {
         let home: Home
         let flow: Flow
+        let detailGallery: String?
+        let commentsGallery: String?
         let liveText: LiveText
         let downloads: [Download]
     }
@@ -525,7 +527,11 @@ struct CaptureContentVerifier {
         let galleryIDs: [String] = switch coordinate.screen {
         case .home:
             try scene.home.galleryIDs()
-        case .detail, .comments, .reading:
+        case .detail:
+            [scene.detailGallery ?? scene.flow.gallery]
+        case .comments:
+            [scene.commentsGallery ?? scene.flow.gallery]
+        case .reading:
             [scene.flow.gallery]
         case .readingLiveText:
             [scene.liveText.gallery]

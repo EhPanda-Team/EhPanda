@@ -11,7 +11,6 @@ import Foundation
 import HomeFeature
 import Kingfisher
 import LibraryClient
-import ParserFeature
 import ReadingFeature
 import SwiftUI
 import UIKit
@@ -137,7 +136,6 @@ extension CaptureDiagnostics {
         // Read once, so the screen, its readiness and the reported groups agree.
         let liveText = scene.liveText.map({ ReaderLiveText(capture: $0, outcome: $0.outcome) })
         let inspector = ScreenInspector(
-            replay: scene.replay,
             rendering: rendering,
             liveText: liveText,
             holdsImage: holdsImage
@@ -477,7 +475,6 @@ private struct ScreenReport {
 }
 
 private struct ScreenInspector {
-    let replay: [String: CaptureReplay.Response]
     let rendering: CaptureRendering
     let liveText: ReaderLiveText?
     let holdsImage: (String) -> Bool
@@ -528,8 +525,8 @@ private struct ScreenInspector {
         return report
     }
 
-    /// Detail waits for its detail, its cover and every preview the fixture holds: the previews
-    /// render once the detail arrives, after the cover was already requested.
+    /// Detail waits for its metadata and cover. The shared pending-image check waits for
+    /// requested previews; offscreen thumbnails in the lazy row need not be loaded.
     private func detailReport(_ detail: DetailReducer.State) -> ScreenReport {
         var report = ScreenReport(galleryIDs: [detail.gallery.gid])
         if Self.isFailure(detail.loadingState) {
@@ -540,14 +537,6 @@ private struct ScreenInspector {
         }
         if !shows(detail.gallery.coverURL) {
             report.blockers.append("The cover is not shown")
-        }
-        // A combined preview names its image and the region it shows of it.
-        let previewImages = Set(detail.galleryPreviewURLs.values.map({ url in
-            Parser.parsePreviewConfigs(url: url)?.plainURL ?? url
-        }))
-        let pendingPreviews = previewImages.filter({ replay[$0.absoluteString] != nil && !shows($0) })
-        if !pendingPreviews.isEmpty {
-            report.blockers.append("\(pendingPreviews.count) preview images are not shown")
         }
         return report
     }

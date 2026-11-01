@@ -18,6 +18,7 @@ struct CaptureSceneConfiguration: Equatable, Sendable {
     /// The fixture the scene reads: a public fixture ID such as `home-finite`, or a marketing
     /// selection set such as `nonexplicit`.
     let fixtureID: String
+    var tagTranslation: CaptureTagTranslation?
 }
 
 /// The screens a marketing capture exports (D-15), by the IDs the export names them with.
@@ -58,6 +59,7 @@ extension CaptureSceneConfiguration: Decodable {
         case purpose
         case scenarioID
         case fixtureID
+        case tagTranslation
     }
 
     /// Decodes a configuration, rejecting malformed JSON, missing or unknown keys, an unknown
@@ -71,11 +73,12 @@ extension CaptureSceneConfiguration: Decodable {
     }
 
     init(from decoder: any Decoder) throws {
-        try decoder.requireExactKeys(CodingKeys.self)
+        try decoder.requireExactKeys(CodingKeys.self, optional: ["tagTranslation"])
         let container = try decoder.container(keyedBy: CodingKeys.self)
         purpose = try container.decode(Purpose.self, forKey: .purpose)
         scenarioID = try container.decodeIdentifier(forKey: .scenarioID)
         fixtureID = try container.decodeIdentifier(forKey: .fixtureID)
+        tagTranslation = try container.decodeIfPresent(CaptureTagTranslation.self, forKey: .tagTranslation)
     }
 }
 

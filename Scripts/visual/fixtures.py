@@ -120,7 +120,8 @@ def reader_galleries(selection):
 
 def screen_occurrences(scene, context='Scene'):
     """Every gallery occurrence of one content set's scene, by screen, as (section, slot, gid) in configured order."""
-    keys(scene, ('home', 'flow', 'liveText', 'downloads'), context)
+    optional = tuple(key for key in ('detailGallery', 'commentsGallery') if key in scene)
+    keys(scene, ('home', 'flow', 'liveText', 'downloads') + optional, context)
     home, flow, live_text, downloads = scene['home'], scene['flow'], scene['liveText'], scene['downloads']
     keys(home, ('hero', 'frontpage', 'toplists'), f'{context} home')
     keys(home['hero'], ('galleries', 'selectedIndex'), f'{context} home hero')
@@ -151,7 +152,9 @@ def screen_occurrences(scene, context='Scene'):
                     + [(f'toplists.{period}', slot, gid) for period in TOPLISTS
                        for slot, gid in enumerate(gallery_ids(home['toplists'][period], f'{context} toplists'))])
     for screen in ('detail', 'comments', 'reading'):
-        rows[screen] = [('flow', 0, flow['gallery'])]
+        gid = scene.get(screen + 'Gallery', flow['gallery'])
+        gallery_ids([gid], f'{context} {screen}')
+        rows[screen] = [('flow', 0, gid)]
     rows['reading-live-text'] = [('liveText', 0, live_text['gallery'])]
     rows['downloads'] = [('downloads', slot, entry['gallery']) for slot, entry in enumerate(downloads)]
     return rows
@@ -424,6 +427,9 @@ def collect(selection, retrieve):
     the preview page of each batch holding one of those pages, and each of those pages' reader page.
     """
     readers = reader_galleries(selection)
+    detail_galleries = {scene.get(key, scene['flow']['gallery'])
+                        for scene in selection['scenes'].values()
+                        for key in ('detailGallery', 'commentsGallery')}
     downloads = {entry['gallery']: entry for scene in selection['scenes'].values() for entry in scene['downloads']}
     for gallery in selection['galleries']:
         gid, token = GALLERY_URL.fullmatch(gallery['url']).groups()
@@ -435,10 +441,11 @@ def collect(selection, retrieve):
         identity(text, gid, token)
         retrieve('cover', gid, None, detail['cover'])
         loaded = set()
-        if gid in readers:
+        if gid in readers or gid in detail_galleries:
             previews = dict.fromkeys(detail['previews'][page] for page in sorted(detail['previews']))
             for index, url in enumerate(previews):
                 retrieve('preview', gid, index, url)
+        if gid in readers:
             pages = readers[gid]
             if pages[-1] > detail['pageCount']:
                 raise ValueError(f'{gid}: reader page {pages[-1]} exceeds the {detail["pageCount"]} pages')
