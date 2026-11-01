@@ -1,5 +1,48 @@
 {
   "sourceLanguage": "en",
-  "strings": {},
+  "strings": {
+    "load_gallery": {
+      "comment": "The step that failed, shown next to Action on the error details screen.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Load Gallery"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Galerie laden"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ギャラリーを読み込む"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "갤러리 불러오기"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "加载画廊"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "載入畫廊"
+          }
+        }
+      }
+    }
+  },
   "version": "1.0"
 }

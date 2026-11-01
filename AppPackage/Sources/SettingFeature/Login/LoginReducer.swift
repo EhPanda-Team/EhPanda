@@ -7,6 +7,7 @@ import CookieClient
 import HapticsClient
 import NetworkingFeature
 public import OSLogExt
+import Resources
 import SwiftUI
 
 private let logger = Logger(category: .init(describing: LoginReducer.self))
@@ -249,9 +250,10 @@ public struct LoginReducer: Sendable {
                     state.loginState = .failed(failure)
                     // The clearance value itself is never carried here — only the whitelisted
                     // rows that tell the user which request failed and how.
+                    let action = AnyHashableBox(String(localized: .RLocalizable.login))
                     let context: Context = failure == .cloudflareChallengeFailed
-                        ? [.action: "Login", .statusCode: 403]
-                        : [.action: "Login"]
+                        ? [.action: action, .statusCode: 403]
+                        : [.action: action]
                     state.toast = .error(.init(error: failure, context: context))
                     effects.append(.run(operation: { _ in
                         logger.warning("Login failed.")

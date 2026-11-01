@@ -37,7 +37,7 @@ struct UnsupportedDeepLinkErrorTests {
         let context = Context.unsupportedLink(url: url)
         let values = context.values.map(\.displayValue)
 
-        #expect(context[.action]?.displayValue == "Open link")
+        #expect(context[.action]?.displayValue == "Open Link")
         #expect(context[.reason]?.displayValue == "The link is not a recognized gallery link.")
         #expect(context[.link]?.displayValue == fixture.expectedRendering)
         #expect(Set(context.keys) == [.action, .reason, .link])

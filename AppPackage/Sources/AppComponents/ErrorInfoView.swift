@@ -1,4 +1,5 @@
 public import AppModels
+import AppTools
 import ComposableArchitecture
 import DeviceClient
 import Resources
@@ -11,6 +12,20 @@ public struct ErrorInfoView: View {
 
     public init(errorInfo: ErrorInfo) {
         self.errorInfo = errorInfo
+    }
+
+    /// Product names, which no language translates, so the row never shows a raw case name such as `phone`.
+    private var deviceName: String {
+        switch deviceClient.deviceType() {
+        case .phone: "iPhone"
+        case .pad: "iPad"
+        case .mac: "Mac"
+        case .vision: "Apple Vision"
+        case .tv: "Apple TV"
+        case .carPlay: "CarPlay"
+        case .watch: "Apple Watch"
+        case .unspecified: "-"
+        }
     }
 
     public var body: some View {
@@ -43,7 +58,7 @@ public struct ErrorInfoView: View {
                             context.sorted(by: { $0.key.rawValue < $1.key.rawValue }),
                             id: \.key
                         ) { key, value in
-                            LabeledContent(key.rawValue, value: value.displayValue)
+                            LabeledContent(key.label, value: value.displayValue)
                         }
                     }
                 }
@@ -54,7 +69,7 @@ public struct ErrorInfoView: View {
                     )
                     LabeledContent(
                         .errorInfoDevice,
-                        value: String(describing: deviceClient.deviceType())
+                        value: deviceName
                     )
                     LabeledContent(
                         .errorInfoOS,

@@ -182,7 +182,7 @@ struct LoginChallengeFlowTests {
             state.toast = .error(
                 .init(
                     error: .cloudflareChallengeFailed,
-                    context: [.action: "Login", .statusCode: 403]
+                    context: [.action: "Log In", .statusCode: 403]
                 )
             )
         }
@@ -310,7 +310,7 @@ struct LoginChallengeFlowTests {
     func tappingTheFailureToastPresentsTheErrorInfoSurface() async {
         let errorInfo = ErrorInfo(
             error: .cloudflareChallengeFailed,
-            context: [.action: "Login", .statusCode: 403]
+            context: [.action: "Log In", .statusCode: 403]
         )
         let harness = Self.makeHarness(responses: [], toast: .error(errorInfo))
 

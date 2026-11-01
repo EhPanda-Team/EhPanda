@@ -243,7 +243,7 @@ struct PresentationFeature {
                 case .failure(let error):
                     let context = Context.galleryFailure(
                         url: url,
-                        action: "Fetch gallery",
+                        action: String(localized: .loadGallery),
                         reason: error.localizedDescription
                     )
                     let errorInfo = ErrorInfo(error: error, context: context)
