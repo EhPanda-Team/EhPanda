@@ -113,7 +113,7 @@
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "将取消当前下载，并从此设备移除已下载的内容。"
+            "value" : "将取消当前下载，并从此设备移除。"
           }
         },
         "zh-Hant" : {
@@ -533,7 +533,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "All images verified."
+            "value" : "All images verified"
           }
         },
         "ja" : {
@@ -715,7 +715,7 @@
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "无页面"
+            "value" : "没有页面"
           }
         },
         "zh-Hant" : {

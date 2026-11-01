@@ -160,7 +160,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "閱讀方向"
+            "value": "方向"
           }
         }
       }
@@ -324,7 +324,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "縮放上限"
+            "value": "最大縮放倍率"
           }
         }
       }
@@ -359,7 +359,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "分隔线高度"
+            "value": "页面间距"
           }
         },
         "zh-Hant": {

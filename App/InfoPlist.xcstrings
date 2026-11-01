@@ -80,7 +80,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "EhPanda 需要此權限才能將圖片儲存到「照片」。"
+            "value": "需要此權限才能將圖片儲存到「照片」。"
           }
         }
       }

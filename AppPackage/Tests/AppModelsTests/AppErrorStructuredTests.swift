@@ -79,7 +79,7 @@ struct AppErrorStructuredTests {
         Expectation(
             error: .loginRejected("You must enter a password."),
             isRetryable: true,
-            localizedDescription: "Couldn’t Log In",
+            localizedDescription: "Login Rejected",
             alertText: "You must enter a password."
         ),
         // A refusal the page gave no reason for is still a refusal, never an unknown error: the
@@ -88,14 +88,14 @@ struct AppErrorStructuredTests {
         Expectation(
             error: .loginRejected(nil),
             isRetryable: true,
-            localizedDescription: "Couldn’t Log In",
+            localizedDescription: "Login Rejected",
             alertText: "The site refused the login without saying why."
         ),
         Expectation(
             error: .fileOperationFailed("Disk full."),
             isRetryable: true,
             localizedDescription: "File Error",
-            alertText: "Couldn’t update files on this device.\nDisk full."
+            alertText: "A file operation failed on this device.\nDisk full."
         ),
         Expectation(
             error: .noUpdates,

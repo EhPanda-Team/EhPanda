@@ -203,7 +203,7 @@
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "클립보드에 복사되었습니다."
+            "value" : "클립보드에 복사되었습니다"
           }
         },
         "zh-Hans" : {
@@ -537,7 +537,7 @@
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "解决方法"
+            "value" : "建议做法"
           }
         },
         "zh-Hant" : {
@@ -578,7 +578,7 @@
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "又是全新的一天！"
+            "value" : "黎明已至，新的一天开始了！"
           }
         },
         "zh-Hant" : {
@@ -791,13 +791,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Log In to Use This Feature"
+            "value" : "Log in to use this feature."
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "この機能を使うにはログインが必要です"
+            "value" : "この機能を使うにはログインが必要です。"
           }
         },
         "ko" : {
@@ -809,7 +809,7 @@
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "登录后才能使用此功能"
+            "value" : "登录后才能使用此功能。"
           }
         },
         "zh-Hant" : {
@@ -844,7 +844,7 @@
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "사진 보관함에 저장되었습니다."
+            "value" : "사진 보관함에 저장되었습니다"
           }
         },
         "zh-Hans" : {
@@ -891,7 +891,7 @@
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "回顾至今的历程，发觉自己更睿智了一些。"
+            "value" : "回顾至今的旅程，你发现自己又睿智了一些。"
           }
         },
         "zh-Hant" : {
@@ -908,7 +908,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Wird verbunden …"
+            "value" : "Anfrage wird gesendet …"
           }
         },
         "en" : {
@@ -938,7 +938,7 @@
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "連線中⋯"
+            "value" : "正在傳送請求⋯"
           }
         }
       }
@@ -979,7 +979,7 @@
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "顯示全部"
+            "value" : "查看全部"
           }
         }
       }

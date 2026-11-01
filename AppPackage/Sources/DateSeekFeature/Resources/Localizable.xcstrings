@@ -72,13 +72,13 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "跳转到所选日期前后发布的画廊。"
+            "value": "跳转到所选日期前后的画廊。"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "前往所選日期附近的畫廊。"
+            "value": "前往所選日期前後的畫廊。"
           }
         }
       }

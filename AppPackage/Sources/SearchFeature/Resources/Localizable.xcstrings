@@ -14,31 +14,31 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Keine gespeicherten Suchbegriffe."
+            "value": "Keine gespeicherten Suchen"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "保存したキーワードはありません。"
+            "value": "保存した検索はありません"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "저장된 검색어가 없습니다."
+            "value": "저장된 검색이 없습니다"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "暂无已保存的关键词。"
+            "value": "暂无快速搜索"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "尚無快速搜尋。"
+            "value": "尚無快速搜尋"
           }
         }
       }
@@ -97,31 +97,31 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Noch keine Suchanfragen."
+            "value": "Noch keine Suchanfragen"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "最近の検索はありません。"
+            "value": "最近の検索はありません"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "최근 검색어가 없습니다."
+            "value": "최근 검색어가 없습니다"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "暂无搜索记录。"
+            "value": "暂无搜索记录"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "尚無搜尋紀錄。"
+            "value": "尚無搜尋紀錄"
           }
         }
       }
@@ -180,31 +180,31 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Keine zuletzt angesehenen Galerien."
+            "value": "Keine zuletzt angesehenen Galerien"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "最近閲覧したギャラリーはありません。"
+            "value": "最近閲覧したギャラリーはありません"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "최근 본 갤러리가 없습니다."
+            "value": "최근 본 갤러리가 없습니다"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "暂无浏览记录。"
+            "value": "暂无浏览记录"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "尚無瀏覽紀錄。"
+            "value": "尚無瀏覽紀錄"
           }
         }
       }
@@ -240,7 +240,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "清空"
+            "value": "全部清空"
           }
         },
         "zh-Hant": {
@@ -264,25 +264,25 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Den gesamten Suchverlauf entfernen? Gespeicherte Suchbegriffe bleiben erhalten."
+            "value": "Den gesamten Suchverlauf entfernen? Gespeicherte Suchen bleiben erhalten."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "最近の検索をすべて削除しますか？保存したキーワードは残ります。"
+            "value": "最近の検索をすべて削除しますか？保存した検索は残ります。"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "최근 검색어를 모두 삭제할까요? 저장된 검색어는 유지됩니다."
+            "value": "최근 검색어를 모두 삭제할까요? 저장된 검색은 유지됩니다."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "清空最近搜索？已保存的关键词不受影响。"
+            "value": "要清空所有最近的搜索记录吗？已保存的快速搜索会保留。"
           }
         },
         "zh-Hant": {
@@ -324,7 +324,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "清空浏览记录及已保存的阅读位置？"
+            "value": "要清空所有浏览记录及已保存的阅读位置吗？"
           }
         },
         "zh-Hant": {
@@ -371,7 +371,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "顯示全部"
+            "value": "查看全部"
           }
         }
       },

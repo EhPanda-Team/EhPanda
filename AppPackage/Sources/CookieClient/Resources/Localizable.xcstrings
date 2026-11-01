@@ -95,7 +95,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Nicht vorhanden"
+            "value": "Keine"
           }
         },
         "ja": {
@@ -113,7 +113,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "未设置"
+            "value": "无"
           }
         },
         "zh-Hant": {
