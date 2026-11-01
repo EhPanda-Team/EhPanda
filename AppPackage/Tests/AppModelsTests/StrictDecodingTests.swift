@@ -23,6 +23,28 @@ struct StrictDecodingTests {
     }
 
     @Test
+    func aFilterBlobCarryingRemovedFieldsDecodesAndKeepsItsSettings() throws {
+        // E-Hentai and ExHentai ignore these search toggles, so the fields are gone; stored blobs still carry them.
+        let removedKeys = [
+            "galleryName", "galleryTags", "galleryDesc", "torrentFilenames", "lowPowerTags", "downvotedTags"
+        ]
+        let original = Filter(advanced: true, onlyWithTorrents: true, minRating: 4)
+        let currentBlob = try JSONEncoder().encode(original)
+        var storedObject = try #require(JSONSerialization.jsonObject(with: currentBlob) as? [String: Any])
+        for key in removedKeys {
+            storedObject[key] = true
+        }
+
+        let storedBlob = try JSONSerialization.data(withJSONObject: storedObject)
+        let decoded = try JSONDecoder().decode(Filter.self, from: storedBlob)
+        #expect(decoded == original)
+
+        let savedBlob = try JSONEncoder().encode(decoded)
+        let savedObject = try #require(JSONSerialization.jsonObject(with: savedBlob) as? [String: Any])
+        #expect(removedKeys.allSatisfy({ savedObject[$0] == nil }))
+    }
+
+    @Test
     func aWholeStructModelRejectsAPartialBlob() {
         // Missing required keys → synthesized decode throws → Sharing falls back to the key default.
         #expect(throws: (any Error).self) {

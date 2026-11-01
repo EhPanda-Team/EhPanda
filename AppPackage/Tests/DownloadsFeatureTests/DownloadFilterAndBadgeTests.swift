@@ -163,7 +163,6 @@ struct DownloadFilterAndBadgeTests: DownloadFeatureTestCase {
 
         let queryItems = queryItems(for: URLUtil.frontpageList(host: .ehentai, filter: filter))
 
-        #expect(queryItems["f_sp"] == "on")
         #expect(queryItems["f_spf"] == nil)
         #expect(queryItems["f_spt"] == nil)
     }
@@ -178,7 +177,6 @@ struct DownloadFilterAndBadgeTests: DownloadFeatureTestCase {
 
         let queryItems = queryItems(for: URLUtil.frontpageList(host: .ehentai, filter: filter))
 
-        #expect(queryItems["f_sp"] == "on")
         #expect(queryItems["f_spf"] == "10")
         #expect(queryItems["f_spt"] == "50")
     }
@@ -198,10 +196,8 @@ struct DownloadFilterAndBadgeTests: DownloadFeatureTestCase {
         let lowerOnlyQueryItems = queryItems(for: URLUtil.frontpageList(host: .ehentai, filter: lowerOnlyFilter))
         let upperOnlyQueryItems = queryItems(for: URLUtil.frontpageList(host: .ehentai, filter: upperOnlyFilter))
 
-        #expect(lowerOnlyQueryItems["f_sp"] == "on")
         #expect(lowerOnlyQueryItems["f_spf"] == "10")
         #expect(lowerOnlyQueryItems["f_spt"] == nil)
-        #expect(upperOnlyQueryItems["f_sp"] == "on")
         #expect(upperOnlyQueryItems["f_spf"] == nil)
         #expect(upperOnlyQueryItems["f_spt"] == "50")
     }

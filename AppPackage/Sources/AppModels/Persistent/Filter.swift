@@ -14,13 +14,7 @@ public struct Filter: Codable, Equatable, Sendable, SchemaVersioned {
         asianPorn: Bool = false,
         misc: Bool = false,
         advanced: Bool = false,
-        galleryName: Bool = true,
-        galleryTags: Bool = true,
-        galleryDesc: Bool = false,
-        torrentFilenames: Bool = false,
         onlyWithTorrents: Bool = false,
-        lowPowerTags: Bool = false,
-        downvotedTags: Bool = false,
         expungedGalleries: Bool = false,
         minRatingActivated: Bool = false,
         minRating: Int = 2,
@@ -42,13 +36,7 @@ public struct Filter: Codable, Equatable, Sendable, SchemaVersioned {
         self.asianPorn = asianPorn
         self.misc = misc
         self.advanced = advanced
-        self.galleryName = galleryName
-        self.galleryTags = galleryTags
-        self.galleryDesc = galleryDesc
-        self.torrentFilenames = torrentFilenames
         self.onlyWithTorrents = onlyWithTorrents
-        self.lowPowerTags = lowPowerTags
-        self.downvotedTags = downvotedTags
         self.expungedGalleries = expungedGalleries
         self.minRatingActivated = minRatingActivated
         self.minRating = minRating
@@ -71,8 +59,8 @@ public struct Filter: Codable, Equatable, Sendable, SchemaVersioned {
     }
     // A self-validating field: it rejects a newer/downgrade blob on decode (see `SchemaVersion`), which
     // fails the whole decode so Sharing resets to the key default. Synthesized Codable is otherwise
-    // untouched, so the `didSet` couplings below and optional-field tolerance still hold; a field added
-    // later must stay optional so old blobs keep decoding.
+    // untouched, so optional-field tolerance still holds: a field added later must stay optional so old
+    // blobs keep decoding, and a removed field needs no new schema because decoding skips its stale key.
     public var schemaVersion: SchemaVersion<Filter> = 1
     public var doujinshi = false
     public var manga = false
@@ -86,25 +74,7 @@ public struct Filter: Codable, Equatable, Sendable, SchemaVersioned {
     public var misc = false
 
     public var advanced = false
-    public var galleryName = true
-    public var galleryTags = true
-    public var galleryDesc = false
-    public var torrentFilenames = false
     public var onlyWithTorrents = false
-    public var lowPowerTags = false {
-        didSet {
-            if lowPowerTags {
-                downvotedTags = false
-            }
-        }
-    }
-    public var downvotedTags = false {
-        didSet {
-            if downvotedTags {
-                lowPowerTags = false
-            }
-        }
-    }
     public var expungedGalleries = false
 
     public var minRatingActivated = false
