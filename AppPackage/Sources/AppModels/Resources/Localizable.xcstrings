@@ -14052,19 +14052,19 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "This gallery has been removed or is unavailable."
+            "value": "This gallery is unavailable."
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Diese Galerie wurde entfernt oder ist nicht verfügbar."
+            "value": "Diese Galerie ist nicht verfügbar."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "このギャラリーは削除されたか、利用できません。"
+            "value": "このギャラリーは利用できません。"
           }
         },
         "ko": {
@@ -19963,19 +19963,19 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "EhPanda erkennt diesen Link nicht als Galerie-Link."
+            "value": "EhPanda öffnet nur Galerie-Links."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "このリンクはEhPandaで開けるギャラリーのリンクではありません。"
+            "value": "ギャラリーのリンクのみ開けます。"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "이 링크는 EhPanda에서 열 수 있는 갤러리 링크가 아닙니다."
+            "value": "갤러리 링크만 열 수 있습니다."
           }
         },
         "zh-Hans": {
