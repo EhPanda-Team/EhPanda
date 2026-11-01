@@ -15,14 +15,14 @@ struct AppErrorStructuredTests {
             error: .copyrightClaim("Alice"),
             isRetryable: false,
             localizedDescription: "Copyright Claim",
-            alertText: "This gallery is unavailable due to a copyright claim by Alice. Sorry about that."
+            alertText: "This gallery is unavailable due to a copyright claim by Alice."
         ),
         Expectation(
             error: .ipBanned(.hours(hours: 1, minutes: nil)),
             isRetryable: false,
             localizedDescription: "IP Banned",
-            alertText: "Your IP address has been temporarily banned for excessive pageloads which indicates that "
-                + "you are using automated mirroring / harvesting software. The ban expires in 1 hour."
+            alertText: "Your IP address is temporarily banned for excessive page loads, which suggests "
+                + "automated download software. The ban expires in 1 hour."
         ),
         Expectation(
             error: .expunged("Removed by the uploader."),
@@ -34,37 +34,37 @@ struct AppErrorStructuredTests {
             error: .networkingFailed,
             isRetryable: true,
             localizedDescription: "Network Error",
-            alertText: "A network error occurred.\nPlease try again later."
+            alertText: "A network error occurred.\nTry again later."
         ),
         Expectation(
             error: .webImageFailed,
             isRetryable: true,
-            localizedDescription: "Web Image Loading Error",
+            localizedDescription: "Couldn’t Load Image",
             alertText: ""
         ),
         Expectation(
             error: .parseFailed,
             isRetryable: true,
-            localizedDescription: "Parse Error",
-            alertText: "A parsing error occurred.\nPlease try again later."
+            localizedDescription: "Couldn’t Read Page",
+            alertText: "The site’s response couldn’t be read.\nTry again later."
         ),
         Expectation(
             error: .quotaExceeded,
             isRetryable: false,
-            localizedDescription: "Quota Exceeded",
-            alertText: "Image quota exceeded.\nPlease wait and try again later."
+            localizedDescription: "Image Limit Reached",
+            alertText: "You’ve reached your image viewing limit.\nTry again later."
         ),
         Expectation(
             error: .authenticationRequired,
             isRetryable: false,
-            localizedDescription: "Authentication Required",
-            alertText: "Login required to access this content."
+            localizedDescription: "Login Required",
+            alertText: "Log in to view this content."
         ),
         // The forum's own refusal wording is the alert text, verbatim — the point of the case.
         Expectation(
             error: .loginRejected("You must enter a password."),
             isRetryable: true,
-            localizedDescription: "Login Rejected",
+            localizedDescription: "Couldn’t Log In",
             alertText: "You must enter a password."
         ),
         // A refusal the page gave no reason for is still a refusal, never an unknown error: the
@@ -73,14 +73,14 @@ struct AppErrorStructuredTests {
         Expectation(
             error: .loginRejected(nil),
             isRetryable: true,
-            localizedDescription: "Login Rejected",
-            alertText: "The site refused the sign-in without saying why."
+            localizedDescription: "Couldn’t Log In",
+            alertText: "The site refused the login without saying why."
         ),
         Expectation(
             error: .fileOperationFailed("Disk full."),
             isRetryable: true,
-            localizedDescription: "File Operation Failed",
-            alertText: "Local file operation failed.\nDisk full."
+            localizedDescription: "File Error",
+            alertText: "Couldn’t update files on this device.\nDisk full."
         ),
         Expectation(
             error: .noUpdates,
@@ -98,7 +98,7 @@ struct AppErrorStructuredTests {
             error: .unknown,
             isRetryable: true,
             localizedDescription: "Unknown Error",
-            alertText: "An unknown error occurred.\nPlease try again later."
+            alertText: "An unknown error occurred.\nTry again later."
         )
     ])
     func existingErrorBehaviorRemainsStable(_ expectation: Expectation) throws {

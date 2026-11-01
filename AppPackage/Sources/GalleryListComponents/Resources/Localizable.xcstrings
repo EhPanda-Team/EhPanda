@@ -73,7 +73,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "평점 %#@rating@점, 5점 만점"
+            "value": "별점, 5점 만점에 %#@rating@점"
           },
           "substitutions": {
             "rating": {
@@ -191,7 +191,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Lädt herunter"
+            "value": "Wird heruntergeladen"
           }
         },
         "ja": {
@@ -535,7 +535,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "In Warteschlange"
+            "value": "In der Warteschlange"
           }
         },
         "ja": {
@@ -553,13 +553,13 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "已排队"
+            "value": "等待中"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "已排隊"
+            "value": "等待中"
           }
         }
       }
@@ -594,13 +594,13 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "有可更新"
+            "value": "可更新"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "有可更新"
+            "value": "有更新"
           }
         }
       }

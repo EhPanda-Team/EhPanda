@@ -25,7 +25,7 @@
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "평점"
+            "value" : "별점"
           }
         },
         "zh-Hans" : {
@@ -185,37 +185,37 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Verbinde..."
+            "value" : "Wird verbunden …"
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Communicating..."
+            "value" : "Sending Request…"
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "通信中..."
+            "value" : "通信中…"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "접속 중..."
+            "value" : "요청 중…"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "通信中..."
+            "value" : "正在发送请求…"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "連線中..."
+            "value" : "連線中⋯"
           }
         }
       }
@@ -244,13 +244,13 @@
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "클립보드에 복사되었어요"
+            "value" : "클립보드에 복사되었습니다."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "已复制到剪切板"
+            "value" : "已复制到剪贴板"
           }
         },
         "zh-Hant" : {
@@ -285,7 +285,7 @@
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "실패"
+            "value" : "오류"
           }
         },
         "zh-Hans" : {
@@ -373,13 +373,13 @@
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "上下文"
+            "value" : "相关信息"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "上下文"
+            "value" : "相關資訊"
           }
         }
       }
@@ -420,7 +420,7 @@
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "描述"
+            "value" : "說明"
           }
         }
       }
@@ -578,13 +578,13 @@
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "建议的解决方案"
+            "value" : "解决方法"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "建議的解決方案"
+            "value" : "建議做法"
           }
         }
       }
@@ -595,7 +595,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Es ist der Beginn eines neuen Tages!"
+            "value" : "Ein neuer Tag bricht an!"
           }
         },
         "en" : {
@@ -607,13 +607,13 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "新しい一日の夜明けです！"
+            "value" : "新たな一日の夜明けだ！"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "새로운 하루가 시작되었어요!"
+            "value" : "새로운 날이 밝았습니다!"
           }
         },
         "zh-Hans" : {
@@ -625,7 +625,7 @@
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "現在是嶄新的一天！"
+            "value" : "黎明已至，新的一天開始了！"
           }
         }
       }
@@ -636,37 +636,37 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Wird geladen..."
+            "value" : "Wird geladen …"
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Loading..."
+            "value" : "Loading…"
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "読み込み中..."
+            "value" : "読み込み中…"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "로딩 중..."
+            "value" : "불러오는 중…"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "加载中..."
+            "value" : "加载中…"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "載入中..."
+            "value" : "載入中⋯"
           }
         }
       }
@@ -744,7 +744,7 @@
                   "other" : {
                     "stringUnit" : {
                       "state" : "translated",
-                      "value" : "%arg 件の該当項目"
+                      "value" : "%arg件の候補"
                     }
                   }
                 }
@@ -788,7 +788,7 @@
                   "other" : {
                     "stringUnit" : {
                       "state" : "translated",
-                      "value" : "找到 %arg 项结果"
+                      "value" : "找到 %arg 个结果"
                     }
                   }
                 }
@@ -867,37 +867,37 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Du musst dich einloggen, um diese Funktion nutzen zu können."
+            "value" : "Melde dich an, um diese Funktion zu nutzen."
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "You need to login to access this feature."
+            "value" : "Log In to Use This Feature"
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "本機能をご利用になるにはログインが必要です"
+            "value" : "この機能を使うにはログインが必要です"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "이 기능을 사용하려면 로그인이 필요해요."
+            "value" : "이 기능을 사용하려면 로그인해야 합니다."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "你需要登录才能使用该功能"
+            "value" : "登录后才能使用此功能"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "你需要登入才能完成這個動作"
+            "value" : "登入後才能使用此功能。"
           }
         }
       }
@@ -908,7 +908,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "In der Fotomediathek gesichert"
+            "value" : "In Fotos gespeichert"
           }
         },
         "en" : {
@@ -920,19 +920,19 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "ライブラリに保存しました"
+            "value" : "写真ライブラリに保存しました"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "이미지 저장"
+            "value" : "사진 보관함에 저장되었습니다."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "已保存到图库"
+            "value" : "已保存到相册"
           }
         },
         "zh-Hant" : {
@@ -949,7 +949,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Als du auf deine bisherige Reise zurückblickst wirst du ein kleines bisschen weiser."
+            "value" : "Beim Blick auf deine bisherige Reise merkst du, dass du ein wenig weiser geworden bist."
           }
         },
         "en" : {
@@ -967,7 +967,7 @@
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "지금까지의 여정을 돌이켜보면, 당신은 조금 더 현명해진 것 같죠?"
+            "value" : "지금까지의 여정을 돌아보니 조금 더 현명해진 것 같습니다."
           }
         },
         "zh-Hans" : {
@@ -979,7 +979,7 @@
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "回顧到目前為止的旅程，你發現自己睿智了一點。"
+            "value" : "回顧至今的旅程，你發現自己又睿智了一些。"
           }
         }
       }
@@ -1008,13 +1008,13 @@
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "모두　보기"
+            "value" : "모두 보기"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "显示全部"
+            "value" : "查看全部"
           }
         },
         "zh-Hant" : {
@@ -1031,7 +1031,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Erfolg"
+            "value" : "Erledigt"
           }
         },
         "en" : {
@@ -1043,7 +1043,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "成功"
+            "value" : "完了"
           }
         },
         "ko" : {
@@ -1072,37 +1072,37 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Wird geladen..."
+            "value" : "Wird geladen …"
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Loading..."
+            "value" : "Loading…"
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "読み込み中..."
+            "value" : "読み込み中…"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "로딩 중..."
+            "value" : "불러오는 중…"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "加载中..."
+            "value" : "加载中…"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "載入中..."
+            "value" : "載入中⋯"
           }
         }
       }

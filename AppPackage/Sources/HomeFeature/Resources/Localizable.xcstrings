@@ -7,7 +7,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Confirm"
+            "value": "Go"
           }
         },
         "de": {
@@ -19,7 +19,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "確認"
+            "value": "移動"
           }
         },
         "ko": {
@@ -31,7 +31,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "确认"
+            "value": "跳转"
           }
         },
         "zh-Hant": {
@@ -78,7 +78,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "過濾"
+            "value": "篩選"
           }
         }
       }
@@ -89,7 +89,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Frontpage"
+            "value": "Front Page"
           }
         },
         "de": {
@@ -101,19 +101,19 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "フロントページ"
+            "value": "トップページ"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "프론트 페이지"
+            "value": "메인 페이지"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "扉页"
+            "value": "首页"
           }
         },
         "zh-Hant": {
@@ -148,19 +148,19 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "읽은 목록"
+            "value": "최근 본 갤러리"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "历史"
+            "value": "历史记录"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "歷程"
+            "value": "瀏覽紀錄"
           }
         }
       }
@@ -171,7 +171,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Only the latest %#@limit@ records are preserved."
+            "value": "History keeps your latest %#@limit@ galleries."
           },
           "substitutions": {
             "limit": {
@@ -193,7 +193,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Es werden nur die neuesten %#@limit@ Einträge aufbewahrt."
+            "value": "Nur die neuesten %#@limit@ Einträge werden gespeichert."
           },
           "substitutions": {
             "limit": {
@@ -215,7 +215,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "最新の %#@limit@ 件のみが保存されます。"
+            "value": "最新の%#@limit@件のみ保存されます。"
           },
           "substitutions": {
             "limit": {
@@ -281,7 +281,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "僅保留最近的 %#@limit@ 筆記錄。"
+            "value": "僅保留最近的 %#@limit@ 筆紀錄。"
           },
           "substitutions": {
             "limit": {
@@ -320,25 +320,25 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "最近開いたギャラリーに戻りましょう。"
+            "value": "最近開いたギャラリーをもう一度見る"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "최근에 열어 본 갤러리로 돌아가세요."
+            "value": "최근에 본 갤러리를 이어서 보세요."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "返回最近浏览过的画廊。"
+            "value": "查看最近打开过的画廊。"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "返回最近瀏覽過的畫廊。"
+            "value": "回到最近開啟過的畫廊。"
           }
         }
       }
@@ -361,7 +361,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "カテゴリー"
+            "value": "カテゴリ"
           }
         },
         "ko": {
@@ -449,19 +449,19 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "읽은 목록"
+            "value": "최근 본 갤러리"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "历史"
+            "value": "历史记录"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "歷程"
+            "value": "瀏覽紀錄"
           }
         }
       }
@@ -519,31 +519,31 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Meine Tags"
+            "value": "Beobachtet"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "タグの購読"
+            "value": "フォロー中"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "주시 태그"
+            "value": "관심 태그"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "标签"
+            "value": "关注"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "關注"
+            "value": "追蹤中"
           }
         }
       }
@@ -554,7 +554,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Browse the galleries readers are enjoying now."
+            "value": "See what’s trending across the site."
           }
         },
         "de": {
@@ -566,7 +566,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "今人気のギャラリーを見つけましょう。"
+            "value": "今人気のギャラリーを見る"
           }
         },
         "ko": {
@@ -607,7 +607,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "ウォッチ中のタグに合う新着ギャラリーを探しましょう。"
+            "value": "フォロー中のタグに一致する新着を見る"
           }
         },
         "ko": {
@@ -625,7 +625,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "尋找符合關注標籤的最新畫廊。"
+            "value": "查看符合追蹤標籤的最新上傳。"
           }
         }
       }
@@ -636,7 +636,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Enter a page number between 1 and %#@max@ to jump to."
+            "value": "Enter a page number from 1 to %#@max@."
           },
           "substitutions": {
             "max": {
@@ -658,7 +658,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Geben Sie eine Seitenzahl zwischen 1 und %#@max@ ein."
+            "value": "Gib eine Seitenzahl zwischen 1 und %#@max@ ein."
           },
           "substitutions": {
             "max": {
@@ -680,7 +680,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "1 ~ %#@max@ のページ番号を入力してください。"
+            "value": "1〜%#@max@のページ番号を入力してください。"
           },
           "substitutions": {
             "max": {
@@ -773,7 +773,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Other"
+            "value": "More"
           }
         },
         "de": {
@@ -797,7 +797,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "其它"
+            "value": "其他"
           }
         },
         "zh-Hant": {
@@ -873,7 +873,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "재시도"
+            "value": "새로고침"
           }
         },
         "zh-Hans": {
@@ -885,7 +885,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "重新整理"
+            "value": "重新載入"
           }
         }
       }
@@ -914,13 +914,13 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "모두　보기"
+            "value": "모두 보기"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "显示全部"
+            "value": "查看全部"
           }
         },
         "zh-Hant": {
@@ -955,19 +955,19 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "상위 목록"
+            "value": "랭킹"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "排行"
+            "value": "排行榜"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "排行"
+            "value": "排行榜"
           }
         }
       }
@@ -978,37 +978,37 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Typ"
+            "value": "Zeitraum"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Type"
+            "value": "Time Range"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "種類"
+            "value": "期間"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "유형"
+            "value": "기간"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "类型"
+            "value": "时间范围"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "類型"
+            "value": "期間"
           }
         }
       }
@@ -1025,31 +1025,31 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Meine Tags"
+            "value": "Beobachtet"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "タグの購読"
+            "value": "フォロー中"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "주시 태그"
+            "value": "관심 태그"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "标签"
+            "value": "关注"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "關注"
+            "value": "追蹤中"
           }
         }
       }
@@ -1061,19 +1061,19 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Global popularity"
+            "value": "Trending site-wide"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Globale Beliebtheit"
+            "value": "Weltweit beliebt"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "全体の人気"
+            "value": "サイト全体"
           }
         },
         "ko": {
@@ -1115,7 +1115,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "ウォッチ中のタグ"
+            "value": "フォロー中のタグ"
           }
         },
         "ko": {
@@ -1133,7 +1133,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "你關注的標籤"
+            "value": "你追蹤的標籤"
           }
         }
       }
@@ -1157,13 +1157,13 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "最近開いた項目"
+            "value": "最近開いたギャラリー"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "최근에 연 항목"
+            "value": "최근에 본 항목"
           }
         },
         "zh-Hans": {
@@ -1204,7 +1204,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "평점"
+            "value": "별점"
           }
         },
         "zh-Hans": {

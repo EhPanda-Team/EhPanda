@@ -19,7 +19,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "高度"
+            "value": "詳細"
           }
         },
         "ko": {
@@ -60,7 +60,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "高度な設定"
+            "value": "詳細設定"
           }
         },
         "ko": {
@@ -89,37 +89,37 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Browse Only Expunged Galleries"
+            "value": "Browse Expunged Galleries"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Nur gelöschte Galerien zeigen"
+            "value": "Entfernte Galerien durchsuchen"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "削除済みのギャラリーのみを表示"
+            "value": "削除済みギャラリーを閲覧"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "삭제된 갤러리만 보기"
+            "value": "삭제된 갤러리 보기"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "仅浏览已被删除的画廊"
+            "value": "浏览已删除的画廊"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "僅瀏覽已被刪除的畫廊"
+            "value": "瀏覽已下架的畫廊"
           }
         }
       }
@@ -177,7 +177,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Gefilterte Sprachen miteinbeziehen"
+            "value": "Sprachfilter ignorieren"
           }
         },
         "ja": {
@@ -218,7 +218,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Gefilterte Tags miteinbeziehen"
+            "value": "Tag-Filter ignorieren"
           }
         },
         "ja": {
@@ -259,13 +259,13 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Gefilterte Uploader miteinbeziehen"
+            "value": "Uploader-Filter ignorieren"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "アップローダフィルターを無効化"
+            "value": "投稿者フィルターを無効化"
           }
         },
         "ko": {
@@ -300,7 +300,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Minimale Bewertung"
+            "value": "Mindestbewertung"
           }
         },
         "ja": {
@@ -318,7 +318,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "评分下限"
+            "value": "最低评分"
           }
         },
         "zh-Hant": {
@@ -335,19 +335,19 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Pages Range"
+            "value": "Page Range"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Seitenzahl-Bereich"
+            "value": "Seitenzahl"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "ページ数範囲"
+            "value": "ページ数の範囲"
           }
         },
         "ko": {
@@ -382,19 +382,19 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Galerie-Torrent erforderlich"
+            "value": "Nur Galerien mit Torrent"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "トレント必須"
+            "value": "トレントありのみ"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "토렌트 필수"
+            "value": "토렌트 있는 갤러리만"
           }
         },
         "zh-Hans": {
@@ -406,7 +406,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "必須包含種子"
+            "value": "僅限有種子的畫廊"
           }
         }
       }
@@ -429,7 +429,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "戻す"
+            "value": "リセット"
           }
         },
         "ko": {
@@ -458,25 +458,25 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Are you sure to reset?"
+            "value": "Reset these filters to their defaults?"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Bist du sicher?"
+            "value": "Alle Filter zurücksetzen?"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "本当に戻してもよろしいですか？"
+            "value": "フィルターをリセットしますか？"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "초기화하시겠어요?"
+            "value": "초기화할까요?"
           }
         },
         "zh-Hans": {
@@ -488,7 +488,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "確定要重設嗎?"
+            "value": "確定要重設嗎？"
           }
         }
       }
@@ -511,13 +511,13 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "既定値に戻す"
+            "value": "フィルターをリセット"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "모든 필터 초기화"
+            "value": "필터 초기화"
           }
         },
         "zh-Hans": {
@@ -529,7 +529,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "重設所有選項"
+            "value": "重設篩選條件"
           }
         }
       }
@@ -540,7 +540,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Search Range"
+            "value": "Applies To"
           }
         },
         "de": {
@@ -587,7 +587,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Minimaleste Bewertung festlegen"
+            "value": "Mindestbewertung festlegen"
           }
         },
         "ja": {
@@ -599,13 +599,13 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "최소 별점 설정하기"
+            "value": "최소 별점 설정"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "设置评分下限"
+            "value": "设置最低评分"
           }
         },
         "zh-Hant": {
@@ -622,19 +622,19 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Set Pages Range"
+            "value": "Set Page Range"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Seitenzahl-Bereich festlegen"
+            "value": "Seitenzahl begrenzen"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "ページ数範囲を指定"
+            "value": "ページ数の範囲を指定"
           }
         },
         "ko": {

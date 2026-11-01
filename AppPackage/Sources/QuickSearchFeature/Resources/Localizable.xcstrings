@@ -7,7 +7,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Content"
+            "value": "Search Terms"
           }
         },
         "de": {
@@ -89,7 +89,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Edit Word"
+            "value": "Edit Saved Search"
           }
         },
         "de": {
@@ -107,7 +107,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "키워드 편집"
+            "value": "검색어 편집"
           }
         },
         "zh-Hans": {
@@ -119,7 +119,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "編輯關鍵字"
+            "value": "編輯快速搜尋"
           }
         }
       }
@@ -171,7 +171,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "New Word"
+            "value": "New Saved Search"
           }
         },
         "de": {
@@ -189,7 +189,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "새 키워드"
+            "value": "새 검색어"
           }
         },
         "zh-Hans": {
@@ -201,7 +201,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "新關鍵字"
+            "value": "新增快速搜尋"
           }
         }
       }
@@ -236,13 +236,13 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "可选"
+            "value": "选填"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "(可選)"
+            "value": "選填"
           }
         }
       }
@@ -253,7 +253,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Up to %#@limit@ words can be saved."
+            "value": "You can save up to %#@limit@ searches."
           },
           "substitutions": {
             "limit": {
@@ -275,7 +275,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Es können bis zu %#@limit@ Suchbegriffe gespeichert werden."
+            "value": "Du kannst bis zu %#@limit@ Suchbegriffe speichern."
           },
           "substitutions": {
             "limit": {
@@ -297,7 +297,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "最大 %#@limit@ 件のキーワードを保存できます。"
+            "value": "最大%#@limit@件のキーワードを保存できます。"
           },
           "substitutions": {
             "limit": {
@@ -319,7 +319,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "최대 %#@limit@개의 키워드를 저장할 수 있습니다."
+            "value": "검색어는 최대 %#@limit@개까지 저장할 수 있습니다."
           },
           "substitutions": {
             "limit": {
@@ -363,7 +363,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "最多可儲存 %#@limit@ 個關鍵字。"
+            "value": "最多可儲存 %#@limit@ 筆快速搜尋。"
           },
           "substitutions": {
             "limit": {

@@ -50,37 +50,37 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "We need this permission to save images to your photo library."
+            "value": "Lets you save images to your photo library."
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "We need this permission to save images to your photo library."
+            "value": "Wird benötigt, um Bilder in deinen Fotos zu speichern."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "画像をライブラリに保存するにはこの権限が必要です"
+            "value": "画像を写真ライブラリに保存するために使用します。"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "이미지를 사진 라이브러리에 저정하고 싶으면 이 권한을 허용해주세요."
+            "value": "이미지를 사진 보관함에 저장하려면 이 권한이 필요합니다."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "需要此权限以保存图像到相册"
+            "value": "需要此权限才能将图片保存到相册。"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "我們需要您提供照片權限來保存圖片到照片"
+            "value": "EhPanda 需要此權限才能將圖片儲存到「照片」。"
           }
         }
       }

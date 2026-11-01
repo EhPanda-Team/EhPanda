@@ -294,13 +294,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Authentication Required"
+            "value": "Login Required"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Authentifizierung erforderlich"
+            "value": "Anmeldung erforderlich"
           }
         },
         "ja": {
@@ -335,13 +335,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Login required to access this content."
+            "value": "Log in to view this content."
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Für den Zugriff auf diesen Inhalt ist eine Anmeldung erforderlich."
+            "value": "Für diesen Inhalt musst du angemeldet sein."
           }
         },
         "ja": {
@@ -365,7 +365,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "存取此內容需要登入。"
+            "value": "登入後才能查看此內容。"
           }
         }
       }
@@ -382,13 +382,13 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Cloudflare-Verifizierung fehlgeschlagen"
+            "value": "Cloudflare-Prüfung fehlgeschlagen"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "Cloudflare の認証に失敗しました"
+            "value": "Cloudflareの認証に失敗しました"
           }
         },
         "ko": {
@@ -417,19 +417,19 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Cloudflare's verification couldn't be completed after repeated attempts."
+            "value": "Cloudflare’s verification couldn’t be completed after repeated attempts."
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Die Verifizierung von Cloudflare konnte auch nach mehreren Versuchen nicht abgeschlossen werden."
+            "value": "Die Cloudflare-Prüfung ist auch nach mehreren Versuchen fehlgeschlagen."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "何度か試しましたが、Cloudflare の認証を完了できませんでした。"
+            "value": "何度か試しましたが、Cloudflareの認証を完了できませんでした。"
           }
         },
         "ko": {
@@ -482,13 +482,13 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "版权声明"
+            "value": "版权投诉"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "版權聲明"
+            "value": "版權申訴"
           }
         }
       }
@@ -499,7 +499,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "File Operation Failed"
+            "value": "File Error"
           }
         },
         "de": {
@@ -552,7 +552,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "ギャラリー削除済み"
+            "value": "ギャラリーは削除済みです"
           }
         },
         "ko": {
@@ -570,7 +570,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "畫廊已刪除"
+            "value": "畫廊已下架"
           }
         }
       }
@@ -593,7 +593,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "IP アドレスがブロックされました"
+            "value": "IPアドレスがブロックされました"
           }
         },
         "ko": {
@@ -611,7 +611,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "IP 已封禁"
+            "value": "IP 已遭封鎖"
           }
         }
       }
@@ -622,7 +622,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Local file operation failed."
+            "value": "Couldn’t update files on this device."
           }
         },
         "de": {
@@ -640,7 +640,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "로컬 파일 작업에 실패했습니다."
+            "value": "파일 작업을 완료하지 못했습니다."
           }
         },
         "zh-Hans": {
@@ -663,25 +663,25 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Login Requires a CAPTCHA"
+            "value": "CAPTCHA Required"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Anmeldung erfordert ein CAPTCHA"
+            "value": "CAPTCHA erforderlich"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "ログインに CAPTCHA が必要です"
+            "value": "ログインにCAPTCHAが必要です"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "로그인에 CAPTCHA가 필요합니다"
+            "value": "CAPTCHA 인증 필요"
           }
         },
         "zh-Hans": {
@@ -704,37 +704,37 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "The forum is asking for a CAPTCHA on its login form, which signing in with a username and password can't complete."
+            "value": "The forum’s login form is asking for a CAPTCHA, which can’t be completed with a username and password."
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Das Forum verlangt in seinem Anmeldeformular ein CAPTCHA, das die Anmeldung mit Benutzername und Passwort nicht lösen kann."
+            "value": "Das Forum verlangt bei der Anmeldung ein CAPTCHA, das sich hier mit Benutzername und Passwort nicht lösen lässt."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "フォーラムのログインフォームで CAPTCHA が要求されています。ユーザー名とパスワードによるログインでは完了できません。"
+            "value": "フォーラムのログインフォームでCAPTCHAが求められています。ユーザー名とパスワードではログインできません。"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "포럼이 로그인 양식에서 CAPTCHA를 요구하고 있어, 사용자 이름과 비밀번호 로그인으로는 완료할 수 없습니다."
+            "value": "포럼 로그인에 CAPTCHA 인증이 필요해 아이디와 비밀번호만으로는 로그인할 수 없습니다."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "论坛的登录表单要求完成验证码，使用用户名和密码登录无法完成该验证。"
+            "value": "论坛的登录页面要求输入验证码，无法仅用用户名和密码登录。"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "論壇的登入表單要求完成驗證碼，使用使用者名稱和密碼登入無法完成該驗證。"
+            "value": "論壇的登入頁要求輸入驗證碼，以使用者名稱和密碼登入無法完成驗證。"
           }
         }
       }
@@ -745,7 +745,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Login Rejected"
+            "value": "Couldn’t Log In"
           }
         },
         "de": {
@@ -763,7 +763,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "로그인이 거부되었습니다"
+            "value": "로그인 거부됨"
           }
         },
         "zh-Hans": {
@@ -786,7 +786,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "The site refused the sign-in without saying why."
+            "value": "The site refused the login without saying why."
           }
         },
         "de": {
@@ -798,7 +798,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "サイトは理由を示さずにサインインを拒否しました。"
+            "value": "サイトにログインを拒否されました。理由は示されていません。"
           }
         },
         "ko": {
@@ -827,7 +827,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Check your username and password, then try again.\nIf it keeps failing, sign in through the browser at the top right."
+            "value": "Check your username and password, then try again.\nIf it keeps failing, log in through the browser at the top right."
           }
         },
         "de": {
@@ -839,13 +839,13 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "ユーザー名とパスワードを確認して、もう一度お試しください。\n失敗が続く場合は、右上のブラウザからサインインしてください。"
+            "value": "ユーザー名とパスワードを確認して、もう一度お試しください。\n失敗が続く場合は、右上の地球儀ボタンからWebサイトでログインしてください。"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "사용자 이름과 비밀번호를 확인한 후 다시 시도해 주세요.\n계속 실패하면 오른쪽 위의 브라우저에서 로그인해 주세요."
+            "value": "아이디와 비밀번호를 확인한 후 다시 시도해 주세요.\n계속 실패하면 오른쪽 위의 브라우저에서 로그인해 주세요."
           }
         },
         "zh-Hans": {
@@ -921,7 +921,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "利用可能な更新はありません"
+            "value": "更新はありません"
           }
         },
         "ko": {
@@ -980,7 +980,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "未找到"
+            "value": "找不到內容"
           }
         }
       }
@@ -991,37 +991,37 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Parse Error"
+            "value": "Couldn’t Read Page"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Parserfehler"
+            "value": "Daten nicht lesbar"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "解析エラー"
+            "value": "データを読み取れません"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "파싱 오류"
+            "value": "데이터를 읽을 수 없음"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "解析错误"
+            "value": "页面读取失败"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "解析錯誤"
+            "value": "無法讀取內容"
           }
         }
       }
@@ -1032,7 +1032,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Quota Exceeded"
+            "value": "Image Limit Reached"
           }
         },
         "de": {
@@ -1044,7 +1044,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "画像割り当て超過"
+            "value": "画像の閲覧上限に達しました"
           }
         },
         "ko": {
@@ -1056,13 +1056,13 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "流量额度已用尽"
+            "value": "配额已用尽"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "流量額度已用盡"
+            "value": "圖片額度已用完"
           }
         }
       }
@@ -1073,19 +1073,19 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Image quota exceeded.\nPlease wait and try again later."
+            "value": "You’ve reached your image viewing limit.\nTry again later."
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Bildkontingent überschritten.\nBitte warte einen Moment und versuche es dann erneut."
+            "value": "Dein Bildkontingent ist aufgebraucht.\nVersuche es später erneut."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "画像の帯域割り当てを使い切りました。\nしばらく待ってからもう一度お試しください。"
+            "value": "画像の閲覧上限に達しました。\nしばらく待ってからもう一度お試しください。"
           }
         },
         "ko": {
@@ -1097,13 +1097,13 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "图片流量额度已用尽。\n请稍后再试。"
+            "value": "图片配额已用尽。\n请稍后再试。"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "圖片流量額度已用盡。\n請稍後再試。"
+            "value": "已超過可瀏覽的圖片額度。\n請稍後再試。"
           }
         }
       }
@@ -1155,37 +1155,37 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Web Image Loading Error"
+            "value": "Couldn’t Load Image"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Fehler beim Laden des Webbilds"
+            "value": "Fehler beim Laden des Bilds"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "Web 画像の読み込みエラー"
+            "value": "画像の読み込みエラー"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "웹 이미지 로드 오류"
+            "value": "이미지 불러오기 실패"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "网页图片加载错误"
+            "value": "图片加载失败"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "網頁圖片載入錯誤"
+            "value": "圖片載入失敗"
           }
         }
       }
@@ -1267,7 +1267,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "Developer"
+            "value": "開發者"
           }
         }
       }
@@ -1290,7 +1290,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "私の大統領ではない"
+            "value": "NOT MY PRESIDENT"
           }
         },
         "ko": {
@@ -1331,7 +1331,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "ウクライナと共に (2022)"
+            "value": "ウクライナと共に（2022）"
           }
         },
         "ko": {
@@ -1343,7 +1343,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "与乌克兰同在 (2022)"
+            "value": "与乌克兰同在（2022）"
           }
         },
         "zh-Hant": {
@@ -1390,7 +1390,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ukiyo-e"
+            "value": "浮世繪"
           }
         }
       }
@@ -1425,7 +1425,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "原始分辨率"
+            "value": "原图"
           }
         },
         "zh-Hant": {
@@ -1524,13 +1524,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Aland Islands"
+            "value": "Åland Islands"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Aland Islands"
+            "value": "Ålandinseln"
           }
         },
         "ja": {
@@ -1542,7 +1542,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "알란드 제도"
+            "value": "올란드 제도"
           }
         },
         "zh-Hans": {
@@ -1571,7 +1571,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Albania"
+            "value": "Albanien"
           }
         },
         "ja": {
@@ -1612,7 +1612,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Algeria"
+            "value": "Algerien"
           }
         },
         "ja": {
@@ -1624,7 +1624,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "알제리아"
+            "value": "알제리"
           }
         },
         "zh-Hans": {
@@ -1653,7 +1653,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "American Samoa"
+            "value": "Amerikanisch-Samoa"
           }
         },
         "ja": {
@@ -1788,7 +1788,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "안젤라"
+            "value": "앵귈라"
           }
         },
         "zh-Hans": {
@@ -1800,7 +1800,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "安圭拉"
+            "value": "安奎拉"
           }
         }
       }
@@ -1817,7 +1817,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Antarctica"
+            "value": "Antarktis"
           }
         },
         "ja": {
@@ -1858,7 +1858,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Antigua and Barbuda"
+            "value": "Antigua und Barbuda"
           }
         },
         "ja": {
@@ -1899,7 +1899,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Argentina"
+            "value": "Argentinien"
           }
         },
         "ja": {
@@ -1940,7 +1940,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Armenia"
+            "value": "Armenien"
           }
         },
         "ja": {
@@ -1993,7 +1993,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "아루바 섬"
+            "value": "아루바"
           }
         },
         "zh-Hans": {
@@ -2022,7 +2022,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Asia-Pacific Region"
+            "value": "Asien-Pazifik-Region"
           }
         },
         "ja": {
@@ -2034,7 +2034,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "아시아 태평양 영역"
+            "value": "아시아 태평양 지역"
           }
         },
         "zh-Hans": {
@@ -2063,7 +2063,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Australia"
+            "value": "Australien"
           }
         },
         "ja": {
@@ -2104,7 +2104,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Austria"
+            "value": "Österreich"
           }
         },
         "ja": {
@@ -2145,7 +2145,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Azerbaijan"
+            "value": "Aserbaidschan"
           }
         },
         "ja": {
@@ -2198,7 +2198,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "바하마스"
+            "value": "바하마"
           }
         },
         "zh-Hans": {
@@ -2268,7 +2268,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Bangladesh"
+            "value": "Bangladesch"
           }
         },
         "ja": {
@@ -2391,7 +2391,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Belgium"
+            "value": "Belgien"
           }
         },
         "ja": {
@@ -2596,7 +2596,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Bolivia"
+            "value": "Bolivien"
           }
         },
         "ja": {
@@ -2631,13 +2631,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Bonaire Saint Eustatius and Saba"
+            "value": "Bonaire, Sint Eustatius, and Saba"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Bonaire Saint Eustatius and Saba"
+            "value": "Bonaire, Sint Eustatius und Saba"
           }
         },
         "ja": {
@@ -2649,19 +2649,19 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "보네르 성 유스타티우스와 사바"
+            "value": "네덜란드령 카리브"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "博奈尔、圣尤斯特歇斯与萨巴"
+            "value": "博奈尔、圣尤斯特歇斯和萨巴"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "博奈爾、聖尤斯特歇斯和薩巴"
+            "value": "荷蘭加勒比區"
           }
         }
       }
@@ -2678,7 +2678,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Bosnia and Herzegovina"
+            "value": "Bosnien und Herzegowina"
           }
         },
         "ja": {
@@ -2690,7 +2690,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "보스니아 헤르체코비나 "
+            "value": "보스니아 헤르체고비나"
           }
         },
         "zh-Hans": {
@@ -2702,7 +2702,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "波士尼亞"
+            "value": "波士尼亞與赫塞哥維納"
           }
         }
       }
@@ -2760,7 +2760,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Bouvet Island"
+            "value": "Bouvetinsel"
           }
         },
         "ja": {
@@ -2801,7 +2801,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Brazil"
+            "value": "Brasilien"
           }
         },
         "ja": {
@@ -2842,7 +2842,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "British Indian Ocean Territory"
+            "value": "Britisches Territorium im Indischen Ozean"
           }
         },
         "ja": {
@@ -2854,7 +2854,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "영국령 인도양 식민지"
+            "value": "영국령 인도양 지역"
           }
         },
         "zh-Hans": {
@@ -2877,7 +2877,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Brunei Darussalam"
+            "value": "Brunei"
           }
         },
         "de": {
@@ -2889,13 +2889,13 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "ブルネイ・ダルサラーム"
+            "value": "ブルネイ"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "브루나이 다루살람"
+            "value": "브루나이"
           }
         },
         "zh-Hans": {
@@ -2924,7 +2924,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Bulgaria"
+            "value": "Bulgarien"
           }
         },
         "ja": {
@@ -2977,7 +2977,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "부르키나 파소"
+            "value": "부르키나파소"
           }
         },
         "zh-Hans": {
@@ -3024,7 +3024,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "蒲隆地"
+            "value": "布隆迪"
           }
         },
         "zh-Hant": {
@@ -3047,7 +3047,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Cambodia"
+            "value": "Kambodscha"
           }
         },
         "ja": {
@@ -3088,7 +3088,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Cameroon"
+            "value": "Kamerun"
           }
         },
         "ja": {
@@ -3129,7 +3129,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Canada"
+            "value": "Kanada"
           }
         },
         "ja": {
@@ -3170,7 +3170,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Cape Verde"
+            "value": "Kap Verde"
           }
         },
         "ja": {
@@ -3182,7 +3182,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "포르투갈어"
+            "value": "카보베르데"
           }
         },
         "zh-Hans": {
@@ -3211,7 +3211,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Cayman Islands"
+            "value": "Kaimaninseln"
           }
         },
         "ja": {
@@ -3252,7 +3252,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Central African Republic"
+            "value": "Zentralafrikanische Republik"
           }
         },
         "ja": {
@@ -3270,13 +3270,13 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "中非"
+            "value": "中非共和国"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "中非"
+            "value": "中非共和國"
           }
         }
       }
@@ -3293,7 +3293,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Chad"
+            "value": "Tschad"
           }
         },
         "ja": {
@@ -3381,7 +3381,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "中華人民共和国"
+            "value": "中国"
           }
         },
         "ko": {
@@ -3393,7 +3393,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "中华人民共和国"
+            "value": "中国"
           }
         },
         "zh-Hant": {
@@ -3416,7 +3416,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Christmas Island"
+            "value": "Weihnachtsinsel"
           }
         },
         "ja": {
@@ -3451,13 +3451,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Cocos Islands"
+            "value": "Cocos (Keeling) Islands"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Cocos Islands"
+            "value": "Kokosinseln"
           }
         },
         "ja": {
@@ -3475,13 +3475,13 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "科科斯岛"
+            "value": "科科斯群岛"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "科科斯(基林)群島"
+            "value": "科克斯（基靈）群島"
           }
         }
       }
@@ -3498,7 +3498,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Colombia"
+            "value": "Kolumbien"
           }
         },
         "ja": {
@@ -3539,7 +3539,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Comoros"
+            "value": "Komoren"
           }
         },
         "ja": {
@@ -3574,13 +3574,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Congo"
+            "value": "Republic of the Congo"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Congo"
+            "value": "Republik Kongo"
           }
         },
         "ja": {
@@ -3621,7 +3621,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Cook Islands"
+            "value": "Cookinseln"
           }
         },
         "ja": {
@@ -3633,7 +3633,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "쿡제도"
+            "value": "쿡 제도"
           }
         },
         "zh-Hans": {
@@ -3697,13 +3697,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Cote D'Ivoire"
+            "value": "Côte d’Ivoire"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Cote D'Ivoire"
+            "value": "Côte d’Ivoire"
           }
         },
         "ja": {
@@ -3744,7 +3744,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Croatia"
+            "value": "Kroatien"
           }
         },
         "ja": {
@@ -3785,7 +3785,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Cuba"
+            "value": "Kuba"
           }
         },
         "ja": {
@@ -3820,25 +3820,25 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Curacao"
+            "value": "Curaçao"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Curacao"
+            "value": "Curaçao"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "キュラソー島"
+            "value": "キュラソー"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "큐라소"
+            "value": "퀴라소"
           }
         },
         "zh-Hans": {
@@ -3867,7 +3867,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Cyprus"
+            "value": "Zypern"
           }
         },
         "ja": {
@@ -3908,7 +3908,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Czech Republic"
+            "value": "Tschechien"
           }
         },
         "ja": {
@@ -3920,7 +3920,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "체코 공화국"
+            "value": "체코"
           }
         },
         "zh-Hans": {
@@ -3932,7 +3932,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "捷克共和國"
+            "value": "捷克"
           }
         }
       }
@@ -3949,7 +3949,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Denmark"
+            "value": "Dänemark"
           }
         },
         "ja": {
@@ -3990,7 +3990,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Djibouti"
+            "value": "Dschibuti"
           }
         },
         "ja": {
@@ -4037,7 +4037,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "ドミニカ"
+            "value": "ドミニカ国"
           }
         },
         "ko": {
@@ -4072,7 +4072,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Dominican Republic"
+            "value": "Dominikanische Republik"
           }
         },
         "ja": {
@@ -4154,7 +4154,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Egypt"
+            "value": "Ägypten"
           }
         },
         "ja": {
@@ -4236,7 +4236,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Equatorial Guinea"
+            "value": "Äquatorialguinea"
           }
         },
         "ja": {
@@ -4318,7 +4318,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Estonia"
+            "value": "Estland"
           }
         },
         "ja": {
@@ -4359,7 +4359,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ethiopia"
+            "value": "Äthiopien"
           }
         },
         "ja": {
@@ -4400,7 +4400,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Europe"
+            "value": "Europa"
           }
         },
         "ja": {
@@ -4441,7 +4441,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Falkland Islands"
+            "value": "Falklandinseln"
           }
         },
         "ja": {
@@ -4482,7 +4482,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Faroe Islands"
+            "value": "Färöer"
           }
         },
         "ja": {
@@ -4494,7 +4494,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "페로스 제도"
+            "value": "페로 제도"
           }
         },
         "zh-Hans": {
@@ -4523,7 +4523,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Fiji"
+            "value": "Fidschi"
           }
         },
         "ja": {
@@ -4564,7 +4564,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Finland"
+            "value": "Finnland"
           }
         },
         "ja": {
@@ -4605,7 +4605,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "France"
+            "value": "Frankreich"
           }
         },
         "ja": {
@@ -4646,7 +4646,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "French Guiana"
+            "value": "Französisch-Guayana"
           }
         },
         "ja": {
@@ -4687,7 +4687,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "French Polynesia"
+            "value": "Französisch-Polynesien"
           }
         },
         "ja": {
@@ -4728,7 +4728,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "French Southern Territories"
+            "value": "Französische Süd- und Antarktisgebiete"
           }
         },
         "ja": {
@@ -4740,7 +4740,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "프랑스령 남부와 남극지역"
+            "value": "프랑스령 남방 지역"
           }
         },
         "zh-Hans": {
@@ -4752,7 +4752,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "法屬南部領土"
+            "value": "法屬南部屬地"
           }
         }
       }
@@ -4769,7 +4769,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Gabon"
+            "value": "Gabun"
           }
         },
         "ja": {
@@ -4851,7 +4851,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Georgia"
+            "value": "Georgien"
           }
         },
         "ja": {
@@ -4863,7 +4863,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "그루지야"
+            "value": "조지아"
           }
         },
         "zh-Hans": {
@@ -4892,7 +4892,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Germany"
+            "value": "Deutschland"
           }
         },
         "ja": {
@@ -5015,7 +5015,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Greece"
+            "value": "Griechenland"
           }
         },
         "ja": {
@@ -5027,7 +5027,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "희랍"
+            "value": "그리스"
           }
         },
         "zh-Hans": {
@@ -5056,7 +5056,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Greenland"
+            "value": "Grönland"
           }
         },
         "ja": {
@@ -5150,7 +5150,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "과들루프 섬"
+            "value": "과들루프"
           }
         },
         "zh-Hans": {
@@ -5273,19 +5273,19 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "건지종 젖소"
+            "value": "건지"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "根西"
+            "value": "根西岛"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "耿西"
+            "value": "根息"
           }
         }
       }
@@ -5466,7 +5466,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Heard Island and McDonald Islands"
+            "value": "Heard und McDonaldinseln"
           }
         },
         "ja": {
@@ -5490,7 +5490,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "赫德島和麥克唐納群島"
+            "value": "赫德島及麥唐納群島"
           }
         }
       }
@@ -5548,7 +5548,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Hong Kong"
+            "value": "Hongkong"
           }
         },
         "ja": {
@@ -5589,7 +5589,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Hungary"
+            "value": "Ungarn"
           }
         },
         "ja": {
@@ -5630,7 +5630,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Iceland"
+            "value": "Island"
           }
         },
         "ja": {
@@ -5642,7 +5642,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "Iceland"
+            "value": "아이슬란드"
           }
         },
         "zh-Hans": {
@@ -5671,7 +5671,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "India"
+            "value": "Indien"
           }
         },
         "ja": {
@@ -5712,7 +5712,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Indonesia"
+            "value": "Indonesien"
           }
         },
         "ja": {
@@ -5736,7 +5736,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "印度尼西亞(印尼)"
+            "value": "印尼"
           }
         }
       }
@@ -5794,7 +5794,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Iraq"
+            "value": "Irak"
           }
         },
         "ja": {
@@ -5835,7 +5835,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ireland"
+            "value": "Irland"
           }
         },
         "ja": {
@@ -5894,7 +5894,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "曼岛"
+            "value": "马恩岛"
           }
         },
         "zh-Hant": {
@@ -5958,7 +5958,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Italy"
+            "value": "Italien"
           }
         },
         "ja": {
@@ -5999,7 +5999,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Jamaica"
+            "value": "Jamaika"
           }
         },
         "ja": {
@@ -6011,7 +6011,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "자마이카"
+            "value": "자메이카"
           }
         },
         "zh-Hans": {
@@ -6093,13 +6093,13 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "저시"
+            "value": "저지"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "泽西"
+            "value": "泽西岛"
           }
         },
         "zh-Hant": {
@@ -6122,7 +6122,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Jordan"
+            "value": "Jordanien"
           }
         },
         "ja": {
@@ -6134,7 +6134,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "요단"
+            "value": "요르단"
           }
         },
         "zh-Hans": {
@@ -6163,7 +6163,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Kazakhstan"
+            "value": "Kasachstan"
           }
         },
         "ja": {
@@ -6187,7 +6187,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "哈薩克共和國"
+            "value": "哈薩克"
           }
         }
       }
@@ -6204,7 +6204,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Kenya"
+            "value": "Kenia"
           }
         },
         "ja": {
@@ -6327,7 +6327,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Kyrgyzstan"
+            "value": "Kirgisistan"
           }
         },
         "ja": {
@@ -6362,13 +6362,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Lao People's Democratic Republic"
+            "value": "Laos"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Lao People's Democratic Republic"
+            "value": "Laos"
           }
         },
         "ja": {
@@ -6380,7 +6380,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "라오 인민민주공화국"
+            "value": "라오스"
           }
         },
         "zh-Hans": {
@@ -6409,7 +6409,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Latvia"
+            "value": "Lettland"
           }
         },
         "ja": {
@@ -6450,7 +6450,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Lebanon"
+            "value": "Libanon"
           }
         },
         "ja": {
@@ -6544,7 +6544,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "리베리아"
+            "value": "라이베리아"
           }
         },
         "zh-Hans": {
@@ -6573,7 +6573,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Libya"
+            "value": "Libyen"
           }
         },
         "ja": {
@@ -6655,7 +6655,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Lithuania"
+            "value": "Litauen"
           }
         },
         "ja": {
@@ -6696,7 +6696,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Luxembourg"
+            "value": "Luxemburg"
           }
         },
         "ja": {
@@ -6772,25 +6772,25 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Macedonia"
+            "value": "North Macedonia"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Macedonia"
+            "value": "Nordmazedonien"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "マケドニア"
+            "value": "北マケドニア"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "마케도니아"
+            "value": "북마케도니아"
           }
         },
         "zh-Hans": {
@@ -6819,7 +6819,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Madagascar"
+            "value": "Madagaskar"
           }
         },
         "ja": {
@@ -6831,7 +6831,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "마다스카르"
+            "value": "마다가스카르"
           }
         },
         "zh-Hans": {
@@ -6942,7 +6942,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Maldives"
+            "value": "Malediven"
           }
         },
         "ja": {
@@ -6954,7 +6954,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "말디브"
+            "value": "몰디브"
           }
         },
         "zh-Hans": {
@@ -7036,7 +7036,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "말타"
+            "value": "몰타"
           }
         },
         "zh-Hans": {
@@ -7065,7 +7065,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Marshall Islands"
+            "value": "Marshallinseln"
           }
         },
         "ja": {
@@ -7077,7 +7077,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "마샬군도"
+            "value": "마셜 제도"
           }
         },
         "zh-Hans": {
@@ -7147,7 +7147,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Mauritania"
+            "value": "Mauretanien"
           }
         },
         "ja": {
@@ -7159,7 +7159,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "모리타니아"
+            "value": "모리타니"
           }
         },
         "zh-Hans": {
@@ -7206,7 +7206,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "模里西斯"
+            "value": "毛里求斯"
           }
         },
         "zh-Hant": {
@@ -7241,7 +7241,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "마요트 섬"
+            "value": "마요트"
           }
         },
         "zh-Hans": {
@@ -7270,7 +7270,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Mexico"
+            "value": "Mexiko"
           }
         },
         "ja": {
@@ -7282,7 +7282,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "맥시코"
+            "value": "멕시코"
           }
         },
         "zh-Hans": {
@@ -7311,7 +7311,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Micronesia"
+            "value": "Mikronesien"
           }
         },
         "ja": {
@@ -7323,7 +7323,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "마크로네시아"
+            "value": "미크로네시아"
           }
         },
         "zh-Hans": {
@@ -7352,7 +7352,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Moldova"
+            "value": "Moldau"
           }
         },
         "ja": {
@@ -7434,7 +7434,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Mongolia"
+            "value": "Mongolei"
           }
         },
         "ja": {
@@ -7446,7 +7446,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "몽콜"
+            "value": "몽골"
           }
         },
         "zh-Hans": {
@@ -7528,19 +7528,19 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "몬트세라트섬"
+            "value": "몬트세라트"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "蒙塞拉特岛"
+            "value": "蒙特塞拉特"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "蒙特塞拉特"
+            "value": "蒙哲臘"
           }
         }
       }
@@ -7557,7 +7557,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Morocco"
+            "value": "Marokko"
           }
         },
         "ja": {
@@ -7569,7 +7569,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "모로코가족"
+            "value": "모로코"
           }
         },
         "zh-Hans": {
@@ -7598,7 +7598,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Mozambique"
+            "value": "Mosambik"
           }
         },
         "ja": {
@@ -7739,7 +7739,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "诺鲁"
+            "value": "瑙鲁"
           }
         },
         "zh-Hant": {
@@ -7803,7 +7803,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Netherlands"
+            "value": "Niederlande"
           }
         },
         "ja": {
@@ -7844,7 +7844,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "New Caledonia"
+            "value": "Neukaledonien"
           }
         },
         "ja": {
@@ -7885,7 +7885,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "New Zealand"
+            "value": "Neuseeland"
           }
         },
         "ja": {
@@ -7938,7 +7938,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "나카라과"
+            "value": "니카라과"
           }
         },
         "zh-Hans": {
@@ -8061,7 +8061,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "니우에 섬"
+            "value": "니우에"
           }
         },
         "zh-Hans": {
@@ -8090,7 +8090,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Norfolk Island"
+            "value": "Norfolkinsel"
           }
         },
         "ja": {
@@ -8131,13 +8131,13 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "North Korea"
+            "value": "Nordkorea"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "朝鮮"
+            "value": "北朝鮮"
           }
         },
         "ko": {
@@ -8155,7 +8155,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "朝鮮"
+            "value": "北韓"
           }
         }
       }
@@ -8172,7 +8172,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Northern Mariana Islands"
+            "value": "Nördliche Marianen"
           }
         },
         "ja": {
@@ -8196,7 +8196,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "北馬里亞納群島"
+            "value": "北馬利安納群島"
           }
         }
       }
@@ -8213,7 +8213,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Norway"
+            "value": "Norwegen"
           }
         },
         "ja": {
@@ -8354,7 +8354,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "帛琉"
+            "value": "帕劳"
           }
         },
         "zh-Hant": {
@@ -8371,13 +8371,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Palestinian Territory"
+            "value": "Palestinian Territories"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Palestinian Territory"
+            "value": "Palästinensische Gebiete"
           }
         },
         "ja": {
@@ -8389,7 +8389,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "팔레스타인의 지역"
+            "value": "팔레스타인 지구"
           }
         },
         "zh-Hans": {
@@ -8401,7 +8401,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "巴勒斯坦領土"
+            "value": "巴勒斯坦自治區"
           }
         }
       }
@@ -8430,7 +8430,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "파나마모자"
+            "value": "파나마"
           }
         },
         "zh-Hans": {
@@ -8459,7 +8459,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Papua New Guinea"
+            "value": "Papua-Neuguinea"
           }
         },
         "ja": {
@@ -8582,7 +8582,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Philippines"
+            "value": "Philippinen"
           }
         },
         "ja": {
@@ -8623,7 +8623,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Pitcairn Islands"
+            "value": "Pitcairninseln"
           }
         },
         "ja": {
@@ -8647,7 +8647,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "皮特凱恩群島"
+            "value": "皮特肯群島"
           }
         }
       }
@@ -8664,7 +8664,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Poland"
+            "value": "Polen"
           }
         },
         "ja": {
@@ -8787,7 +8787,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Qatar"
+            "value": "Katar"
           }
         },
         "ja": {
@@ -8799,7 +8799,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "카타로"
+            "value": "카타르"
           }
         },
         "zh-Hans": {
@@ -8822,25 +8822,25 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Reunion"
+            "value": "Réunion"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Reunion"
+            "value": "Réunion"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "ユニオン"
+            "value": "レユニオン"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "레워니옹"
+            "value": "레위니옹"
           }
         },
         "zh-Hans": {
@@ -8869,7 +8869,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Romania"
+            "value": "Rumänien"
           }
         },
         "ja": {
@@ -8887,7 +8887,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": ""
+            "value": "罗马尼亚"
           }
         },
         "zh-Hant": {
@@ -8904,13 +8904,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Russian Federation"
+            "value": "Russia"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Russian Federation"
+            "value": "Russland"
           }
         },
         "ja": {
@@ -8922,7 +8922,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "러시아 연방"
+            "value": "러시아"
           }
         },
         "zh-Hans": {
@@ -8951,7 +8951,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Rwanda"
+            "value": "Ruanda"
           }
         },
         "ja": {
@@ -8986,13 +8986,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Saint Barthelemy"
+            "value": "Saint Barthélemy"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Saint Barthelemy"
+            "value": "Saint-Barthélemy"
           }
         },
         "ja": {
@@ -9033,7 +9033,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Saint Helena"
+            "value": "St. Helena"
           }
         },
         "ja": {
@@ -9045,7 +9045,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "세인츠헬레나 섬"
+            "value": "세인트헬레나"
           }
         },
         "zh-Hans": {
@@ -9074,7 +9074,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Saint Kitts and Nevis"
+            "value": "St. Kitts und Nevis"
           }
         },
         "ja": {
@@ -9092,7 +9092,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "圣基茨岛"
+            "value": "圣基茨和尼维斯"
           }
         },
         "zh-Hant": {
@@ -9115,7 +9115,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Saint Lucia"
+            "value": "St. Lucia"
           }
         },
         "ja": {
@@ -9156,7 +9156,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Saint Martin"
+            "value": "Saint-Martin"
           }
         },
         "ja": {
@@ -9168,19 +9168,19 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "세인트 마틴"
+            "value": "생마르탱"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "圣马丁岛"
+            "value": "法属圣马丁"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "聖馬丁"
+            "value": "法屬聖馬丁"
           }
         }
       }
@@ -9197,7 +9197,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Saint Pierre and Miquelon"
+            "value": "Saint-Pierre und Miquelon"
           }
         },
         "ja": {
@@ -9209,7 +9209,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "생피에르 미글롱"
+            "value": "생피에르 미클롱"
           }
         },
         "zh-Hans": {
@@ -9238,7 +9238,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Saint Vincent and the Grenadines"
+            "value": "St. Vincent und die Grenadinen"
           }
         },
         "ja": {
@@ -9355,13 +9355,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Sao Tome and Principe"
+            "value": "São Tomé and Príncipe"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Sao Tome and Principe"
+            "value": "São Tomé und Príncipe"
           }
         },
         "ja": {
@@ -9373,7 +9373,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "상투메 프린시페 도브라"
+            "value": "상투메 프린시페"
           }
         },
         "zh-Hans": {
@@ -9402,7 +9402,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Saudi Arabia"
+            "value": "Saudi-Arabien"
           }
         },
         "ja": {
@@ -9414,13 +9414,13 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "사우디 아라비아"
+            "value": "사우디아라비아"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "沙地阿拉伯"
+            "value": "沙特阿拉伯"
           }
         },
         "zh-Hant": {
@@ -9484,7 +9484,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Serbia"
+            "value": "Serbien"
           }
         },
         "ja": {
@@ -9525,7 +9525,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Seychelles"
+            "value": "Seychellen"
           }
         },
         "ja": {
@@ -9607,7 +9607,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Singapore"
+            "value": "Singapur"
           }
         },
         "ja": {
@@ -9666,13 +9666,13 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "圣马丁岛"
+            "value": "荷属圣马丁"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "聖馬丁"
+            "value": "荷屬聖馬丁"
           }
         }
       }
@@ -9689,7 +9689,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Slovakia"
+            "value": "Slowakei"
           }
         },
         "ja": {
@@ -9730,7 +9730,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Slovenia"
+            "value": "Slowenien"
           }
         },
         "ja": {
@@ -9771,7 +9771,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Solomon Islands"
+            "value": "Salomonen"
           }
         },
         "ja": {
@@ -9853,7 +9853,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "South Africa"
+            "value": "Südafrika"
           }
         },
         "ja": {
@@ -9865,7 +9865,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "남아프리카"
+            "value": "남아프리카 공화국"
           }
         },
         "zh-Hans": {
@@ -9894,7 +9894,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "South Georgia and the South Sandwich Islands"
+            "value": "Südgeorgien und die Südlichen Sandwichinseln"
           }
         },
         "ja": {
@@ -9918,7 +9918,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "南喬治亞和南桑威奇群島"
+            "value": "南喬治亞與南三明治群島"
           }
         }
       }
@@ -9935,7 +9935,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "South Korea"
+            "value": "Südkorea"
           }
         },
         "ja": {
@@ -9959,7 +9959,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "韓國"
+            "value": "南韓"
           }
         }
       }
@@ -9976,7 +9976,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "South Sudan"
+            "value": "Südsudan"
           }
         },
         "ja": {
@@ -10017,7 +10017,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Spain"
+            "value": "Spanien"
           }
         },
         "ja": {
@@ -10181,13 +10181,13 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Svalbard and Jan Mayen"
+            "value": "Svalbard und Jan Mayen"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "スヴァールバル諸島およびヤンマイエン島"
+            "value": "スバールバル諸島およびヤンマイエン島"
           }
         },
         "ko": {
@@ -10216,13 +10216,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Swaziland"
+            "value": "Eswatini"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Swaziland"
+            "value": "Eswatini"
           }
         },
         "ja": {
@@ -10234,13 +10234,13 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "스와질란드"
+            "value": "에스와티니"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "史瓦帝尼"
+            "value": "斯威士兰"
           }
         },
         "zh-Hant": {
@@ -10263,7 +10263,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Sweden"
+            "value": "Schweden"
           }
         },
         "ja": {
@@ -10304,7 +10304,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Switzerland"
+            "value": "Schweiz"
           }
         },
         "ja": {
@@ -10339,13 +10339,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Syrian Arab Republic"
+            "value": "Syria"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Syrian Arab Republic"
+            "value": "Syrien"
           }
         },
         "ja": {
@@ -10410,7 +10410,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "臺灣"
+            "value": "台灣"
           }
         }
       }
@@ -10427,7 +10427,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tajikistan"
+            "value": "Tadschikistan"
           }
         },
         "ja": {
@@ -10468,7 +10468,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tanzania"
+            "value": "Tansania"
           }
         },
         "ja": {
@@ -10480,7 +10480,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "탄지니아"
+            "value": "탄자니아"
           }
         },
         "zh-Hans": {
@@ -10544,13 +10544,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "The Democratic Republic of the Congo"
+            "value": "Democratic Republic of the Congo"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "The Democratic Republic of the Congo"
+            "value": "Demokratische Republik Kongo"
           }
         },
         "ja": {
@@ -10755,7 +10755,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Trinidad and Tobago"
+            "value": "Trinidad und Tobago"
           }
         },
         "ja": {
@@ -10779,7 +10779,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "千里達和托巴哥"
+            "value": "千里達及托巴哥"
           }
         }
       }
@@ -10796,7 +10796,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tunisia"
+            "value": "Tunesien"
           }
         },
         "ja": {
@@ -10837,7 +10837,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Turkey"
+            "value": "Türkei"
           }
         },
         "ja": {
@@ -10849,7 +10849,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "터키"
+            "value": "튀르키예"
           }
         },
         "zh-Hans": {
@@ -10919,7 +10919,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Turks and Caicos Islands"
+            "value": "Turks- und Caicosinseln"
           }
         },
         "ja": {
@@ -10931,7 +10931,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "터크스카이코스 제도"
+            "value": "터크스 케이커스 제도"
           }
         },
         "zh-Hans": {
@@ -11083,7 +11083,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "United Arab Emirates"
+            "value": "Vereinigte Arabische Emirate"
           }
         },
         "ja": {
@@ -11095,7 +11095,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "아랍 에미리트 연합국"
+            "value": "아랍에미리트"
           }
         },
         "zh-Hans": {
@@ -11124,7 +11124,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "United Kingdom"
+            "value": "Vereinigtes Königreich"
           }
         },
         "ja": {
@@ -11165,7 +11165,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "United States"
+            "value": "Vereinigte Staaten"
           }
         },
         "ja": {
@@ -11206,7 +11206,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "United States Minor Outlying Islands"
+            "value": "Amerikanische Überseeinseln"
           }
         },
         "ja": {
@@ -11288,7 +11288,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Uzbekistan"
+            "value": "Usbekistan"
           }
         },
         "ja": {
@@ -11341,7 +11341,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "바누어투"
+            "value": "바누아투"
           }
         },
         "zh-Hans": {
@@ -11364,13 +11364,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Vatican City State"
+            "value": "Vatican City"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Vatican City State"
+            "value": "Vatikanstadt"
           }
         },
         "ja": {
@@ -11388,7 +11388,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "梵蒂冈城国"
+            "value": "梵蒂冈"
           }
         },
         "zh-Hant": {
@@ -11429,7 +11429,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "委內瑞拉"
+            "value": "委内瑞拉"
           }
         },
         "zh-Hant": {
@@ -11493,7 +11493,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "U.S. Virgin Islands"
+            "value": "Amerikanische Jungferninseln"
           }
         },
         "ja": {
@@ -11505,7 +11505,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "세인트존 섬"
+            "value": "미국령 버진아일랜드"
           }
         },
         "zh-Hans": {
@@ -11534,19 +11534,19 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "British Virgin Islands"
+            "value": "Britische Jungferninseln"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "イギリス領バージン諸島"
+            "value": "イギリス領ヴァージン諸島"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "영국령 버진 제도"
+            "value": "영국령 버진아일랜드"
           }
         },
         "zh-Hans": {
@@ -11575,7 +11575,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Wallis and Futuna"
+            "value": "Wallis und Futuna"
           }
         },
         "ja": {
@@ -11587,7 +11587,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "월리스 푸투나제도"
+            "value": "왈리스-푸투나 제도"
           }
         },
         "zh-Hans": {
@@ -11616,7 +11616,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Western Sahara"
+            "value": "Westsahara"
           }
         },
         "ja": {
@@ -11657,7 +11657,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Yemen"
+            "value": "Jemen"
           }
         },
         "ja": {
@@ -11698,7 +11698,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Zambia"
+            "value": "Sambia"
           }
         },
         "ja": {
@@ -11739,7 +11739,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Zimbabwe"
+            "value": "Simbabwe"
           }
         },
         "ja": {
@@ -11786,7 +11786,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "イラスト"
+            "value": "CG集"
           }
         },
         "ko": {
@@ -11798,13 +11798,13 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "插画"
+            "value": "画师 CG"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "插畫"
+            "value": "繪師 CG"
           }
         }
       }
@@ -11833,7 +11833,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "Asian Porn"
+            "value": "아시안"
           }
         },
         "zh-Hans": {
@@ -11880,13 +11880,13 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "角色扮演"
+            "value": "Cosplay"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "角色扮演"
+            "value": "Cosplay"
           }
         }
       }
@@ -11950,7 +11950,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "ゲーム CG"
+            "value": "ゲームCG"
           }
         },
         "ko": {
@@ -11997,19 +11997,19 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "포토북"
+            "value": "이미지 모음"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "照片集"
+            "value": "图集"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "圖片集"
+            "value": "圖集"
           }
         }
       }
@@ -12085,13 +12085,13 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "其它"
+            "value": "杂项"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "其它"
+            "value": "其他"
           }
         }
       }
@@ -12120,7 +12120,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "Non-H"
+            "value": "전연령"
           }
         },
         "zh-Hans": {
@@ -12161,13 +12161,13 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "Private"
+            "value": "비공개"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "非公开"
+            "value": "私人"
           }
         },
         "zh-Hant": {
@@ -12255,7 +12255,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "最相關留言優先"
+            "value": "最高分留言優先"
           }
         }
       }
@@ -12401,13 +12401,13 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "スコアに経過・クリック時"
+            "value": "スコアにマウスオーバー・クリック時"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "점수를 가리키커나 클리하기"
+            "value": "점수를 가리키거나 클릭하기"
           }
         },
         "zh-Hans": {
@@ -12430,37 +12430,37 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "This gallery is unavailable due to a copyright claim by %@. Sorry about that."
+            "value": "This gallery is unavailable due to a copyright claim by %@."
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Diese Galerie ist wegen eines Urheberrechtsanspruchs von %@ nicht verfügbar. Das tut uns leid."
+            "value": "Diese Galerie ist wegen eines Urheberrechtsanspruchs von %@ nicht verfügbar."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "申し訳ありませんが、このギャラリーは %@ の著作権主張によってアクセス不可になっています。"
+            "value": "%@からの著作権侵害の申し立てにより、このギャラリーは閲覧できません。"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@의 저작권 요청으로 인하여 이 갤러리를 사용할 수 없어요."
+            "value": "%@의 저작권 신고로 이 갤러리를 볼 수 없습니다."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "抱歉，该画廊因 %@ 的版权主张已无法访问。"
+            "value": "由于 %@ 提出版权投诉，此画廊无法访问。"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "非常抱歉，這個畫廊已因為 %@ 提出的版權聲索而不再提供存取"
+            "value": "此畫廊因 %@ 提出版權申訴而無法存取。"
           }
         }
       }
@@ -12542,7 +12542,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "放大(Extended)"
+            "value": "延伸(Extended)"
           }
         }
       }
@@ -12788,7 +12788,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "自動選擇原始畫質,，手動開始下載"
+            "value": "自動選擇原始畫質，手動開始下載"
           }
         }
       }
@@ -13034,7 +13034,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "覆寫"
+            "value": "改寫"
           }
         }
       }
@@ -13104,7 +13104,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "모두"
+            "value": "전체"
           }
         },
         "zh-Hans": {
@@ -13276,13 +13276,13 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "気に入った時間の新しい順"
+            "value": "追加日時の新しい順"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "별점 시간으로"
+            "value": "즐겨찾기한 시간으로"
           }
         },
         "zh-Hans": {
@@ -13434,31 +13434,31 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Meine Tags"
+            "value": "Beobachtet"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "タグの購読"
+            "value": "フォロー中"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "주시 태그"
+            "value": "관심 태그"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "标签"
+            "value": "关注"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "標籤"
+            "value": "追蹤中"
           }
         }
       }
@@ -13686,13 +13686,13 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "このギャラリーはすでに削除済みまたは無効です。"
+            "value": "このギャラリーは削除されたか、利用できません。"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "이 갤러리는 제거되었거나 사용할 수 없어요."
+            "value": "이 갤러리는 삭제되었거나 볼 수 없습니다."
           }
         },
         "zh-Hans": {
@@ -13704,7 +13704,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "此畫廊已被刪除或你沒有權限存取"
+            "value": "此畫廊已移除或無法存取。"
           }
         }
       }
@@ -13745,7 +13745,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "已被刪除"
+            "value": "已下架"
           }
         }
       }
@@ -13768,25 +13768,25 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "いいえ (%@)"
+            "value": "いいえ（%@）"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "아니요 (%@)"
+            "value": "아니요(%@)"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "否 (%@)"
+            "value": "否（%@）"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "No (%@)"
+            "value": "否（%@）"
           }
         }
       }
@@ -13827,7 +13827,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "Yes"
+            "value": "是"
           }
         }
       }
@@ -13850,13 +13850,13 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": " と "
+            "value": "と"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": " 과 "
+            "value": ", "
           }
         },
         "zh-Hans": {
@@ -13897,7 +13897,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "획득했어요!"
+            "value": " 획득!"
           }
         },
         "zh-Hans": {
@@ -13967,7 +13967,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Du erhälst "
+            "value": "Du erhältst "
           }
         },
         "ja": {
@@ -14295,7 +14295,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Frei"
+            "value": "Kostenlos"
           }
         },
         "ja": {
@@ -14371,37 +14371,37 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Your IP address has been temporarily banned for excessive pageloads which indicates that you are using automated mirroring / harvesting software. The ban expires in %@."
+            "value": "Your IP address is temporarily banned for excessive page loads, which suggests automated download software. The ban expires in %@."
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Deine IP-Adresse wurde wegen übermäßig vieler Seitenaufrufe vorübergehend gesperrt. Das deutet auf automatische Mirroring- oder Harvesting-Software hin. Die Sperre läuft in %@ ab."
+            "value": "Deine IP-Adresse wurde wegen zu vieler Seitenaufrufe vorübergehend gesperrt. Das deutet auf automatisierte Download-Software hin. Verbleibende Sperrzeit: %@."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "この IP アドレスを経由して過剰なページロードが行われました。クローラの疑いがあるため、この IP アドレスは一時的にブロックされました。ブロックは %@後に解除されます。"
+            "value": "ページの読み込みが多すぎるため、自動収集ツールの使用が疑われ、このIPアドレスは一時的にブロックされました。%@後に解除されます。"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "자동화된 미러링/수집 소프트웨어 사용이 의심되는 과도한 페이지 로드로 인해 IP 주소가 일시적으로 차단되었어요. 차단은 %@ 후에 해제돼요."
+            "value": "페이지 요청이 과도해 자동 미러링·수집 프로그램을 사용하는 것으로 판단되어 IP 주소가 일시적으로 차단되었습니다. 차단은 %@ 후에 해제됩니다."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "当前的 IP 地址发生了过量的页面加载，因有使用爬虫程序的嫌疑已被暂时封禁。封禁将在 %@后解除。"
+            "value": "页面加载次数过多，疑似使用了自动抓取工具，你的 IP 地址已被暂时封禁。封禁将在 %@后解除。"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "你的 IP 因為頁面載入次數過於頻繁而被暫時禁止存取，這可能是因為你正在使用爬蟲/鏡像軟體，禁止存取將在 %@ 後解除"
+            "value": "你的 IP 因頁面載入次數過多而遭暫時封鎖，系統判定你可能在使用自動鏡像或爬蟲軟體。封鎖會在 %@後解除。"
           }
         }
       }
@@ -14418,7 +14418,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Afrikaan"
+            "value": "Afrikaans"
           }
         },
         "ja": {
@@ -14436,13 +14436,13 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "南非语"
+            "value": "南非荷兰语"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "南非語"
+            "value": "南非荷蘭文"
           }
         }
       }
@@ -14483,7 +14483,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "阿爾巴尼亞語"
+            "value": "阿爾巴尼亞文"
           }
         }
       }
@@ -14524,7 +14524,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "阿拉伯語"
+            "value": "阿拉伯文"
           }
         }
       }
@@ -14553,7 +14553,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "벵갈어"
+            "value": "벵골어"
           }
         },
         "zh-Hans": {
@@ -14565,7 +14565,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "孟加拉語"
+            "value": "孟加拉文"
           }
         }
       }
@@ -14606,7 +14606,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "波士尼亞語"
+            "value": "波士尼亞文"
           }
         }
       }
@@ -14647,7 +14647,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "保加利亞語"
+            "value": "保加利亞文"
           }
         }
       }
@@ -14670,13 +14670,13 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "ビルマ語"
+            "value": "ミャンマー語"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "버마어"
+            "value": "미얀마어"
           }
         },
         "zh-Hans": {
@@ -14688,7 +14688,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "緬甸語"
+            "value": "緬甸文"
           }
         }
       }
@@ -14729,7 +14729,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "加泰隆尼亞語"
+            "value": "加泰蘭文"
           }
         }
       }
@@ -14758,19 +14758,19 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "세부어"
+            "value": "세부아노어"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "宿雾語"
+            "value": "宿务语"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "宿霧語"
+            "value": "宿霧文"
           }
         }
       }
@@ -14805,13 +14805,13 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "汉语"
+            "value": "中文"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "漢語"
+            "value": "中文"
           }
         }
       }
@@ -14852,7 +14852,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "克羅埃西亞語"
+            "value": "克羅埃西亞文"
           }
         }
       }
@@ -14893,7 +14893,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "捷克語"
+            "value": "捷克文"
           }
         }
       }
@@ -14934,7 +14934,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "丹麥語"
+            "value": "丹麥文"
           }
         }
       }
@@ -14975,7 +14975,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "荷蘭語"
+            "value": "荷蘭文"
           }
         }
       }
@@ -15016,7 +15016,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "英語"
+            "value": "英文"
           }
         }
       }
@@ -15039,25 +15039,25 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "国際語"
+            "value": "エスペラント語"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "국제어"
+            "value": "에스페란토어"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "国际语"
+            "value": "世界语"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "國際語"
+            "value": "世界語"
           }
         }
       }
@@ -15074,7 +15074,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Estländisch"
+            "value": "Estnisch"
           }
         },
         "ja": {
@@ -15098,7 +15098,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "愛沙尼亞語"
+            "value": "愛沙尼亞文"
           }
         }
       }
@@ -15139,7 +15139,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "芬蘭語"
+            "value": "芬蘭文"
           }
         }
       }
@@ -15180,7 +15180,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "法語"
+            "value": "法文"
           }
         }
       }
@@ -15203,13 +15203,13 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "グルジア語"
+            "value": "ジョージア語"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "그루지야어"
+            "value": "조지아어"
           }
         },
         "zh-Hans": {
@@ -15221,7 +15221,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "喬治亞語"
+            "value": "喬治亞文"
           }
         }
       }
@@ -15262,7 +15262,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "德語"
+            "value": "德文"
           }
         }
       }
@@ -15285,7 +15285,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "ギリシア語"
+            "value": "ギリシャ語"
           }
         },
         "ko": {
@@ -15303,7 +15303,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "希臘語"
+            "value": "希臘文"
           }
         }
       }
@@ -15344,7 +15344,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "希伯來語"
+            "value": "希伯來文"
           }
         }
       }
@@ -15385,7 +15385,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "印度語"
+            "value": "印地文"
           }
         }
       }
@@ -15408,13 +15408,13 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "ミャオ語"
+            "value": "モン語"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "묘어"
+            "value": "몽어"
           }
         },
         "zh-Hans": {
@@ -15467,7 +15467,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "匈牙利語"
+            "value": "匈牙利文"
           }
         }
       }
@@ -15508,7 +15508,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "印尼語"
+            "value": "印尼文"
           }
         }
       }
@@ -15525,31 +15525,31 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "./."
+            "value": "k. A."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "無効"
+            "value": "不明"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "무효"
+            "value": "해당 없음"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "无效"
+            "value": "未知"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "無效"
+            "value": "不適用"
           }
         }
       }
@@ -15566,7 +15566,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Italian"
+            "value": "Italienisch"
           }
         },
         "ja": {
@@ -15590,7 +15590,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "義大利語"
+            "value": "義大利文"
           }
         }
       }
@@ -15631,7 +15631,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "日語"
+            "value": "日文"
           }
         }
       }
@@ -15648,7 +15648,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Kazakhstanisch"
+            "value": "Kasachisch"
           }
         },
         "ja": {
@@ -15672,7 +15672,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "哈薩克語"
+            "value": "哈薩克文"
           }
         }
       }
@@ -15701,19 +15701,19 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "크메르원"
+            "value": "크메르어"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "高棉文"
+            "value": "高棉语"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "高棉語"
+            "value": "高棉文"
           }
         }
       }
@@ -15754,7 +15754,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "韓語"
+            "value": "韓文"
           }
         }
       }
@@ -15795,7 +15795,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "庫德語"
+            "value": "庫德文"
           }
         }
       }
@@ -15818,13 +15818,13 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "ラーオ語"
+            "value": "ラオ語"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "라오스어"
+            "value": "라오어"
           }
         },
         "zh-Hans": {
@@ -15836,7 +15836,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "寮語"
+            "value": "寮文"
           }
         }
       }
@@ -15877,7 +15877,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "拉丁語"
+            "value": "拉丁文"
           }
         }
       }
@@ -15918,7 +15918,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "蒙古語"
+            "value": "蒙古文"
           }
         }
       }
@@ -15947,7 +15947,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "은데벨리어"
+            "value": "은데벨레어"
           }
         },
         "zh-Hans": {
@@ -15959,7 +15959,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "恩德貝萊語"
+            "value": "恩德貝萊文"
           }
         }
       }
@@ -16000,7 +16000,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "尼泊爾語"
+            "value": "尼泊爾文"
           }
         }
       }
@@ -16029,7 +16029,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "노르웨이어로"
+            "value": "노르웨이어"
           }
         },
         "zh-Hans": {
@@ -16041,7 +16041,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "挪威語"
+            "value": "挪威文"
           }
         }
       }
@@ -16082,7 +16082,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "奧羅莫語"
+            "value": "奧羅莫文"
           }
         }
       }
@@ -16099,7 +16099,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Other"
+            "value": "Sonstige"
           }
         },
         "ja": {
@@ -16111,19 +16111,19 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "Other"
+            "value": "기타"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "其它"
+            "value": "其他"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "其它"
+            "value": "其他"
           }
         }
       }
@@ -16140,13 +16140,13 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Pashto"
+            "value": "Paschtu"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "パシュトー語"
+            "value": "パシュトゥー語"
           }
         },
         "ko": {
@@ -16164,7 +16164,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "普什圖語"
+            "value": "普什圖文"
           }
         }
       }
@@ -16205,7 +16205,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "波斯語"
+            "value": "波斯文"
           }
         }
       }
@@ -16246,7 +16246,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "波蘭語"
+            "value": "波蘭文"
           }
         }
       }
@@ -16287,7 +16287,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "葡萄牙語"
+            "value": "葡萄牙文"
           }
         }
       }
@@ -16310,7 +16310,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "パンジャーブ語"
+            "value": "パンジャブ語"
           }
         },
         "ko": {
@@ -16328,7 +16328,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "旁遮普語"
+            "value": "旁遮普文"
           }
         }
       }
@@ -16369,7 +16369,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "羅馬尼亞語"
+            "value": "羅馬尼亞文"
           }
         }
       }
@@ -16410,7 +16410,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "俄語"
+            "value": "俄文"
           }
         }
       }
@@ -16439,7 +16439,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "쌍고어"
+            "value": "산고어"
           }
         },
         "zh-Hans": {
@@ -16451,7 +16451,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "桑戈語"
+            "value": "桑戈文"
           }
         }
       }
@@ -16492,7 +16492,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "塞爾維亞語"
+            "value": "塞爾維亞文"
           }
         }
       }
@@ -16533,7 +16533,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "紹納語"
+            "value": "紹納文"
           }
         }
       }
@@ -16550,7 +16550,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Slovakisch"
+            "value": "Slowakisch"
           }
         },
         "ja": {
@@ -16574,7 +16574,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "斯洛伐克語"
+            "value": "斯洛伐克文"
           }
         }
       }
@@ -16591,7 +16591,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Slovenisch"
+            "value": "Slowenisch"
           }
         },
         "ja": {
@@ -16615,7 +16615,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "斯洛維尼亞語"
+            "value": "斯洛維尼亞文"
           }
         }
       }
@@ -16656,7 +16656,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "索馬利語"
+            "value": "索馬利文"
           }
         }
       }
@@ -16697,7 +16697,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "西班牙語"
+            "value": "西班牙文"
           }
         }
       }
@@ -16726,7 +16726,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "스와히리어로"
+            "value": "스와힐리어"
           }
         },
         "zh-Hans": {
@@ -16738,7 +16738,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "斯瓦希里語"
+            "value": "史瓦希里文"
           }
         }
       }
@@ -16779,7 +16779,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "瑞典語"
+            "value": "瑞典文"
           }
         }
       }
@@ -16808,19 +16808,19 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "타갈로어"
+            "value": "타갈로그어"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "他加洛语"
+            "value": "他加禄语"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "他加祿語"
+            "value": "他加祿文"
           }
         }
       }
@@ -16849,7 +16849,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "타이어"
+            "value": "태국어"
           }
         },
         "zh-Hans": {
@@ -16861,7 +16861,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "泰語"
+            "value": "泰文"
           }
         }
       }
@@ -16890,19 +16890,19 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "티글리니아어"
+            "value": "티그리냐어"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "提格利尼亚语"
+            "value": "提格里尼亚语"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "提格利尼亞語"
+            "value": "提格利尼亞文"
           }
         }
       }
@@ -16931,7 +16931,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "터키어"
+            "value": "튀르키예어"
           }
         },
         "zh-Hans": {
@@ -16943,7 +16943,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "土耳其語"
+            "value": "土耳其文"
           }
         }
       }
@@ -16984,7 +16984,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "烏克蘭語"
+            "value": "烏克蘭文"
           }
         }
       }
@@ -17025,7 +17025,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "烏爾都語"
+            "value": "烏都文"
           }
         }
       }
@@ -17066,7 +17066,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "越南語"
+            "value": "越南文"
           }
         }
       }
@@ -17107,7 +17107,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "祖魯語"
+            "value": "祖魯文"
           }
         }
       }
@@ -17323,37 +17323,37 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Can be slower. Enable if behind firewall/proxy that blocks outgoing non-standard ports."
+            "value": "Slower. Use only if behind a firewall or proxy that blocks outgoing non-standard ports."
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Kann langsamer sein. Aktiviere dies nur, wenn eine Firewall oder ein Proxy ausgehende Nicht-Standard-Ports blockiert."
+            "value": "Langsamer. Nur verwenden, wenn eine Firewall oder ein Proxy ausgehende Nicht-Standard-Ports blockiert."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "遅くなることがあります。非標準発信ポートがファイヤーウォール・プロキシにブロックされた場合のみ有効にしてください。"
+            "value": "遅くなります。非標準発信ポートがファイヤーウォール・プロキシにブロックされた場合のみ有効にしてください。"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "더 느려질 수 있어요. 나가는 비표준 포트를 차단하는 방화벽/프록시가 있는 경우 사용하세요."
+            "value": "더 느려요. 나가는 비표준 포트를 차단하는 방화벽/프록시가 있는 경우에만 사용하세요."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "可能稍慢。当防火墙或代理阻止非标准接口的流量时启用此项。"
+            "value": "较慢。仅在防火墙或代理阻止非标准端口的出站流量时启用此项。"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "如果網路防火牆會阻擋任何非預設傳出連接埠則使用這個選項(可能較慢)"
+            "value": "較慢。僅在網路防火牆或代理伺服器阻擋非標準傳出連接埠時使用這個選項"
           }
         }
       }
@@ -17417,7 +17417,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "寄付者独占オプション。モダンブラウザでは機能しないこともあります。レガシー・旧型ブラウザの場合以外おすすめしません。"
+            "value": "寄付者限定オプション。モダンブラウザでは機能しないこともあります。レガシー・旧型ブラウザの場合以外おすすめしません。"
           }
         },
         "ko": {
@@ -17499,7 +17499,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "寄付者独占オプション。閲覧による割当額の消耗は激しくなります。厳重な問題が起こった場合以外おすすめしません。"
+            "value": "寄付者限定オプション。閲覧できるページ数が少なくなります。深刻な問題が起こった場合以外おすすめしません。"
           }
         },
         "ko": {
@@ -17517,7 +17517,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "E-Hentai 贊助者功能: 你將無法同時瀏覽多個頁面，僅在出現重大錯誤時才啟用這個選項"
+            "value": "E-Hentai 贊助者功能: 可瀏覽的頁面數會減少，僅在出現重大錯誤時才啟用這個選項"
           }
         }
       }
@@ -17528,7 +17528,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Align center, always scale"
+            "value": "Align center; Always scale images to fit browser width"
           }
         },
         "de": {
@@ -17569,7 +17569,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Align center, scale if overwidth"
+            "value": "Align center; Only scale if image is larger than browser width"
           }
         },
         "de": {
@@ -17610,7 +17610,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Align left, scale if overwidth"
+            "value": "Align left; Only scale if image is larger than browser width"
           }
         },
         "de": {
@@ -17663,25 +17663,25 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "ネットワーク障害が発生しました"
+            "value": "ネットワークエラーが発生しました。"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "인터넷 접속 오류가 발생했어요."
+            "value": "네트워크 오류가 발생했습니다."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "发生了网络故障"
+            "value": "网络连接出现问题。"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "網路發生故障，請檢查網路狀態"
+            "value": "網路發生錯誤。"
           }
         }
       }
@@ -17704,25 +17704,25 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "ここには何もないようです"
+            "value": "ここには何もないようです。"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "여기가 아무도 없는 것 같습니다."
+            "value": "여기에는 아무것도 없는 것 같습니다."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "这里似乎什么也没有"
+            "value": "这里似乎什么也没有。"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "這邊看起來空空如也"
+            "value": "這裡似乎沒有內容。"
           }
         }
       }
@@ -17733,37 +17733,37 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "A parsing error occurred."
+            "value": "The site’s response couldn’t be read."
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ein Parserfehler ist aufgetreten."
+            "value": "Die Daten konnten nicht gelesen werden."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "解析中に問題が発生しました"
+            "value": "データの読み取り中に問題が発生しました。"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "구분 분석 오류가 발생했어요."
+            "value": "사이트 응답을 읽지 못했습니다."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "发生了解析错误"
+            "value": "无法读取网站返回的内容。"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "網頁解析器發生故障"
+            "value": "無法解讀網站回傳的內容。"
           }
         }
       }
@@ -17798,7 +17798,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "自动"
+            "value": "跟随系统"
           }
         },
         "zh-Hant": {
@@ -17897,7 +17897,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Left-to-right"
+            "value": "Left to Right"
           }
         },
         "de": {
@@ -17921,13 +17921,13 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "左至右"
+            "value": "从左到右"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "由左至右滑"
+            "value": "由左至右"
           }
         }
       }
@@ -17938,7 +17938,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Right-to-left"
+            "value": "Right to Left"
           }
         },
         "de": {
@@ -17962,13 +17962,13 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "右至左"
+            "value": "从右到左"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "由右至左滑"
+            "value": "由右至左"
           }
         }
       }
@@ -18114,19 +18114,19 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "レイヤー"
+            "value": "コスプレイヤー"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "Cosplayer"
+            "value": "코스플레이어"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "扮装者"
+            "value": "Coser"
           }
         },
         "zh-Hant": {
@@ -18196,7 +18196,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "団体"
+            "value": "サークル"
           }
         },
         "ko": {
@@ -18208,13 +18208,13 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "团体"
+            "value": "社团"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "團體"
+            "value": "社團"
           }
         }
       }
@@ -18354,31 +18354,31 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Mixed"
+            "value": "Gemischt"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "混在性別"
+            "value": "混合"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "Mixed"
+            "value": "혼합"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "混合性别"
+            "value": "混合"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "Mixed"
+            "value": "混合"
           }
         }
       }
@@ -18395,7 +18395,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Other"
+            "value": "Sonstige"
           }
         },
         "ja": {
@@ -18407,13 +18407,13 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "Other"
+            "value": "기타"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "其它"
+            "value": "其他"
           }
         },
         "zh-Hant": {
@@ -18495,7 +18495,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "重归类"
+            "value": "重新分类"
           }
         },
         "zh-Hant": {
@@ -18524,13 +18524,13 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "一時的"
+            "value": "一時"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "Temp"
+            "value": "임시"
           }
         },
         "zh-Hans": {
@@ -18542,7 +18542,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "Temp"
+            "value": "臨時"
           }
         }
       }
@@ -18612,7 +18612,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "태크 가중치로"
+            "value": "태그 가중치로"
           }
         },
         "zh-Hans": {
@@ -18647,7 +18647,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "マウス経過時"
+            "value": "マウスオーバー時"
           }
         },
         "ko": {
@@ -18665,7 +18665,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "滑鼠位置"
+            "value": "滑鼠移過時"
           }
         }
       }
@@ -18694,7 +18694,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "페이지가 더 빨리 로드되지만 엄지손가락이 나타나기 전까지 약간의 지연이 있을 수 있어요."
+            "value": "페이지가 더 빨리 로드되지만 썸네일이 나타나기 전까지 약간의 지연이 있을 수 있어요."
           }
         },
         "zh-Hans": {
@@ -18747,7 +18747,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "網頁載入位置"
+            "value": "網頁載入時"
           }
         }
       }
@@ -18963,7 +18963,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "All Time"
+            "value": "All-Time"
           }
         },
         "de": {
@@ -18975,25 +18975,25 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "すべて"
+            "value": "全期間"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "전체"
+            "value": "전체 기간"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "全部"
+            "value": "总榜"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "所有時間"
+            "value": "總排行"
           }
         }
       }
@@ -19016,25 +19016,25 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "先月"
+            "value": "過去1か月"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "지난 달"
+            "value": "최근 1개월"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "上月"
+            "value": "近一个月"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "上個月"
+            "value": "近一個月"
           }
         }
       }
@@ -19057,25 +19057,25 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "去年"
+            "value": "過去1年"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "지난 해"
+            "value": "최근 1년"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "去年"
+            "value": "近一年"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "去年"
+            "value": "近一年"
           }
         }
       }
@@ -19127,19 +19127,19 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Please try again later."
+            "value": "Try again later."
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Bitte versuche es später erneut."
+            "value": "Versuche es später erneut."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "しばらくしてからもう一度お試しください"
+            "value": "しばらくしてからもう一度お試しください。"
           }
         },
         "ko": {
@@ -19151,13 +19151,13 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "请稍后再试"
+            "value": "请稍后再试。"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "請稍後再試"
+            "value": "請稍後再試。"
           }
         }
       }
@@ -19180,25 +19180,25 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "不明なエラーが発生しました"
+            "value": "不明なエラーが発生しました。"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "알 수 없는 오류가 발생했어요."
+            "value": "알 수 없는 오류가 발생했습니다."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "发生了未知错误"
+            "value": "发生了未知错误。"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "發生不明錯誤"
+            "value": "發生未知的錯誤。"
           }
         }
       }
@@ -19209,7 +19209,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Sign in again, then try once more."
+            "value": "Log in again, then try once more."
           }
         },
         "de": {
@@ -19221,7 +19221,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "もう一度サインインしてから、再試行してください。"
+            "value": "もう一度ログインしてから、再試行してください。"
           }
         },
         "ko": {
@@ -19250,37 +19250,37 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Sign in through the browser at the top right of the login screen, or enter your cookies manually in Account Configuration."
+            "value": "Log in through the browser at the top right of the login screen, or enter your cookies in Settings > Account."
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Melde dich über den Browser oben rechts im Anmeldebildschirm an oder gib deine Cookies manuell unter „Kontoeinstellungen“ ein."
+            "value": "Melde dich über den Browser oben rechts im Anmeldebildschirm an oder gib deine Cookies manuell unter „Einstellungen > Konto“ ein."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "ログイン画面右上のブラウザからサインインするか、「アカウント設定」でクッキーを手動で入力してください。"
+            "value": "ログイン画面右上の地球儀ボタンからWebサイトでログインするか、「アカウント」画面でCookieを手動で入力してください。"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "로그인 화면 오른쪽 위의 브라우저에서 로그인하거나, ‘계정 설정’에서 쿠키를 직접 입력해 주세요."
+            "value": "로그인 화면 오른쪽 위의 브라우저에서 로그인하거나, ‘설정 > 계정’에서 쿠키를 직접 입력해 주세요."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "请通过登录界面右上角的浏览器登录，或在“账户设置”中手动输入 Cookies。"
+            "value": "请通过登录界面右上角的浏览器登录，或在“设置 > 账号”中手动输入 Cookie。"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "請透過登入畫面右上角的瀏覽器登入，或在「帳號設定」中手動輸入 Cookies。"
+            "value": "請透過登入畫面右上角的瀏覽器登入，或在「設定 > 帳號」中手動輸入 Cookie。"
           }
         }
       }
@@ -19291,7 +19291,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Wait until the restriction expires, then try again."
+            "value": "Wait until the ban expires, then try again."
           }
         },
         "de": {
@@ -19303,25 +19303,25 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "アクセス制限が解除されてから、もう一度お試しください。"
+            "value": "ブロックが解除されてから、もう一度お試しください。"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "접근 제한이 해제된 후 다시 시도해 주세요."
+            "value": "차단이 해제된 후 다시 시도해 주세요."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "请等待访问限制解除后再试。"
+            "value": "请等待封禁解除后再试。"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "請等待存取限制解除後再試。"
+            "value": "請等封鎖解除後再試。"
           }
         }
       }
@@ -19332,37 +19332,37 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Sign in through the browser at the top right of the login screen, where the CAPTCHA can be completed. You can also enter your cookies manually in Account Configuration."
+            "value": "Log in through the browser at the top right of the login screen, where you can complete the CAPTCHA. You can also enter your cookies in Settings > Account."
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Melde dich über den Browser oben rechts im Anmeldebildschirm an, wo sich das CAPTCHA lösen lässt. Alternativ kannst du deine Cookies manuell unter „Kontoeinstellungen“ eingeben."
+            "value": "Melde dich über den Browser oben rechts im Anmeldebildschirm an, wo sich das CAPTCHA lösen lässt. Alternativ kannst du deine Cookies manuell unter „Einstellungen > Konto“ eingeben."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "ログイン画面右上のブラウザからサインインすると CAPTCHA を完了できます。または「アカウント設定」でクッキーを手動で入力してください。"
+            "value": "ログイン画面右上の地球儀ボタンからWebサイトでログインすると、CAPTCHAを完了できます。または「アカウント」画面でCookieを手動で入力してください。"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "로그인 화면 오른쪽 위의 브라우저에서 로그인하면 CAPTCHA를 완료할 수 있습니다. 또는 ‘계정 설정’에서 쿠키를 직접 입력해 주세요."
+            "value": "로그인 화면 오른쪽 위의 브라우저에서 로그인하면 CAPTCHA를 완료할 수 있습니다. 또는 ‘설정 > 계정’에서 쿠키를 직접 입력해 주세요."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "请通过登录界面右上角的浏览器登录以完成验证码，或在“账户设置”中手动输入 Cookies。"
+            "value": "请通过登录界面右上角的浏览器登录并完成验证，或在“设置 > 账号”中手动输入 Cookie。"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "請透過登入畫面右上角的瀏覽器登入以完成驗證碼，或在「帳號設定」中手動輸入 Cookies。"
+            "value": "請透過登入畫面右上角的瀏覽器登入以完成驗證碼，或在「設定 > 帳號」中手動輸入 Cookie。"
           }
         }
       }
@@ -19444,7 +19444,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "請檢查畫廊位址後再試。"
+            "value": "請檢查畫廊網址後再試。"
           }
         }
       }
@@ -19455,7 +19455,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Wait for your quota to reset, then try again."
+            "value": "Wait for your limit to reset, then try again."
           }
         },
         "de": {
@@ -19485,7 +19485,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "請等待配額重設後再試。"
+            "value": "請等額度重設後再試。"
           }
         }
       }
@@ -19537,37 +19537,37 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "This link wasn't recognized as an EhPanda gallery link."
+            "value": "EhPanda can only open gallery links."
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Dieser Link wurde nicht als von EhPanda unterstützter Galerie-Link erkannt."
+            "value": "EhPanda erkennt diesen Link nicht als Galerie-Link."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "このリンクは EhPanda が対応するギャラリーリンクとして認識されませんでした。"
+            "value": "このリンクはEhPandaで開けるギャラリーのリンクではありません。"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "이 링크는 EhPanda가 지원하는 갤러리 링크로 인식되지 않았습니다."
+            "value": "이 링크는 EhPanda에서 열 수 있는 갤러리 링크가 아닙니다."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "此链接未被识别为 EhPanda 支持的画廊链接。"
+            "value": "这不是 EhPanda 支持的画廊链接。"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "此連結未被識別為 EhPanda 支援的畫廊連結。"
+            "value": "這不是 EhPanda 支援的畫廊連結。"
           }
         }
       }
@@ -19578,25 +19578,25 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Open an e-hentai.org or exhentai.org gallery link (/g/…), gallery page link (/s/…), or gallery comment link."
+            "value": "Open a gallery, page, or comment link from e-hentai.org or exhentai.org."
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Öffne einen Galerie-Link (/g/…), Galerie-Seiten-Link (/s/…) oder Galerie-Kommentar-Link von e-hentai.org oder exhentai.org."
+            "value": "Öffne einen Link zu einer Galerie (/g/…), einer Galerieseite (/s/…) oder einem Galeriekommentar auf e-hentai.org oder exhentai.org."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "e-hentai.org または exhentai.org のギャラリーリンク（/g/…）、ギャラリーページリンク（/s/…）、またはギャラリーコメントリンクを開いてください。"
+            "value": "e-hentai.orgまたはexhentai.orgのギャラリー（/g/…）、ページ（/s/…）、コメントのリンクを開いてください。"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "e-hentai.org 또는 exhentai.org의 갤러리 링크(/g/…), 갤러리 페이지 링크(/s/…), 갤러리 댓글 링크를 여세요."
+            "value": "e-hentai.org 또는 exhentai.org의 갤러리 링크(/g/…), 갤러리 페이지 링크(/s/…), 갤러리 댓글 링크를 열어 주세요."
           }
         },
         "zh-Hans": {
