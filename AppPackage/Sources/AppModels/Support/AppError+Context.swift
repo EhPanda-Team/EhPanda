@@ -84,8 +84,8 @@ extension Dictionary where Key == ContextKey, Value == AnyHashableBox {
     /// Builds diagnostics for an unsupported link without retaining access-bearing URL components.
     public static func unsupportedLink(url: URL) -> Self {
         [
-            .action: "Open link",
-            .reason: "The link is not a recognized gallery link.",
+            .action: AnyHashableBox(String(localized: .errorContextOpenLink)),
+            .reason: AnyHashableBox(String(localized: .errorContextUnrecognizedLink)),
             .link: AnyHashableBox(sanitizedUnsupportedLink(url))
         ]
     }
@@ -94,7 +94,7 @@ extension Dictionary where Key == ContextKey, Value == AnyHashableBox {
         guard let source = URLComponents(url: url, resolvingAgainstBaseURL: false),
               let scheme = source.scheme,
               let host = source.host else {
-            return "Unsupported link"
+            return String(localized: .appErrorUnsupportedDeepLink)
         }
 
         var sanitized = URLComponents()
@@ -107,20 +107,31 @@ extension Dictionary where Key == ContextKey, Value == AnyHashableBox {
         }
 
         guard let rendering = sanitized.string else {
-            return "Unsupported link"
+            return String(localized: .appErrorUnsupportedDeepLink)
         }
         return pathComponents.count > 1 ? rendering + "/…" : rendering
     }
 }
 
-/// User-visible diagnostic labels. This fixed whitelist deliberately has no raw URL slot: gallery diagnostics
+/// User-visible diagnostic rows. This fixed whitelist deliberately has no raw URL slot: gallery diagnostics
 /// retain only a validated numeric identifier, while unsupported-link diagnostics retain a sanitized rendering.
+/// The raw value only keeps the rows in the same order in every language; ``label`` is what the user reads.
 public enum ContextKey: String, Hashable, Sendable {
     case action = "Action"
     case reason = "Reason"
     case statusCode = "Status Code"
     case gid = "Gallery ID"
     case link = "Link"
+
+    public var label: LocalizedStringResource {
+        switch self {
+        case .action: .errorContextAction
+        case .reason: .errorContextReason
+        case .statusCode: .errorContextStatusCode
+        case .gid: .errorContextGalleryId
+        case .link: .errorContextLink
+        }
+    }
 }
 
 /// A surfaced error and its per-incident diagnostic context.

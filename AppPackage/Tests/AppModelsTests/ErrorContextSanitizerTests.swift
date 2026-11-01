@@ -19,12 +19,12 @@ struct ErrorContextSanitizerTests {
         let url = try #require(URL(string: fixture.url))
         let context = Context.galleryFailure(
             url: url,
-            action: "Fetch gallery",
+            action: "Load Gallery",
             reason: "The request failed."
         )
         let values = context.values.map(\.displayValue)
 
-        #expect(context[.action]?.displayValue == "Fetch gallery")
+        #expect(context[.action]?.displayValue == "Load Gallery")
         #expect(context[.reason]?.displayValue == "The request failed.")
         #expect(context[.gid]?.displayValue == fixture.expectedGalleryID)
         #expect(Set(context.keys) == [.action, .reason, .gid])
@@ -44,7 +44,7 @@ struct ErrorContextSanitizerTests {
         let url = try #require(URL(string: urlString))
         let context = Context.galleryFailure(
             url: url,
-            action: "Fetch gallery",
+            action: "Load Gallery",
             reason: "The request failed."
         )
 

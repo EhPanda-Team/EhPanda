@@ -228,7 +228,7 @@ struct PresentationFeatureTests {
         let url = try #require(URL(string: fixture.url))
         let context = Context.galleryFailure(
             url: url,
-            action: "Fetch gallery",
+            action: "Load Gallery",
             reason: AppError.networkingFailed.localizedDescription
         )
         let errorInfo = ErrorInfo(error: .networkingFailed, context: context)
