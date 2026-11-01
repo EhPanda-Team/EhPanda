@@ -212,7 +212,7 @@ final class DuoHomeUITests: XCTestCase {
         XCTAssertTrue(back.waitForExistence(timeout: 5))
         XCTAssertTrue(back.isHittable)
         XCTAssertFalse(app.scrollViews["home_right_pane"].exists)
-        XCTAssertTrue(app.buttons["Date Seek"].isHittable)
+        XCTAssertTrue(app.buttons["Seek to Date"].isHittable)
         XCTAssertTrue(app.buttons["Filters"].isHittable)
         assertVerticalTabs(in: app)
         back.tapWhenHittable("Return to split Home")

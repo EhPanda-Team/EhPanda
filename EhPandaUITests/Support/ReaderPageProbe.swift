@@ -26,7 +26,7 @@ struct ReaderPageProbe {
     /// The reading directions the tests run under, named as the Reading Setting picker names them.
     enum Direction: String, CaseIterable {
         case vertical = "Vertical"
-        case leftToRight = "Left-to-right"
+        case leftToRight = "Left to Right"
     }
 
     /// Where the reader stands: what the panel says, and what the screen shows.
@@ -356,7 +356,7 @@ struct ReaderPageProbe {
     /// the direction it runs under instead of inheriting one.
     func setDirection(_ direction: Direction) {
         moreMenuButton.tapWhenHittable("The reader toolbar's More menu")
-        app.buttons["Reading Setting"].firstMatch.tapWhenHittable("More's Reading Setting")
+        app.buttons["Reading Settings"].firstMatch.tapWhenHittable("More's Reading Setting")
 
         let sheetTitle = app.navigationBars["Reading"].firstMatch
         XCTAssertTrue(sheetTitle.waitForExistence(timeout: 5), "The Reading Setting sheet did not appear.")

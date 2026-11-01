@@ -37,7 +37,7 @@ final class ReadingOrientationUITests: XCTestCase {
         try setOrientation(landscape: true)
         requireViewport(in: app, landscape: true)
         try requirePages(in: app, dual: true, containing: resumedPage)
-        assertDirection("Right-to-left", in: app)
+        assertDirection("Right to Left", in: app)
         readAgain(in: app)
         try requirePages(in: app, dual: true, containing: resumedPage)
 
@@ -90,10 +90,10 @@ final class ReadingOrientationUITests: XCTestCase {
             .tapWhenHittable("Enable two pages")
         ReaderPageProbe(app: app).showPanel()
         try requirePages(in: app, dual: true)
-        assertDirection("Right-to-left", in: app)
+        assertDirection("Right to Left", in: app)
         try setOrientation(landscape: false)
         try requirePages(in: app, dual: false)
-        assertDirection("Right-to-left", in: app)
+        assertDirection("Right to Left", in: app)
     }
 
     private func setOrientation(landscape: Bool) throws {
@@ -162,7 +162,7 @@ final class ReadingOrientationUITests: XCTestCase {
             ["OverflowBarButtonItem", "TopOverflowBarButtonItem", "BottomOverflowBarButtonItem"]
         )).firstMatch
             .tapWhenHittable("Reader More")
-        app.buttons["Reading Setting"].firstMatch.tapWhenHittable("Reading Setting")
+        app.buttons["Reading Settings"].firstMatch.tapWhenHittable("Reading Settings")
         XCTAssertTrue(app.navigationBars["Reading"].waitForExistence(timeout: 5))
     }
 

@@ -14,7 +14,7 @@ final class DuoToolbarUITests: XCTestCase {
         app.requireElement("home_carousel", matching: .scrollView)
         app.buttons["Show All"].firstMatch.tapWhenHittable("Front Page")
         XCTAssertTrue(app.navigationBars["Front Page"].waitForExistence(timeout: 10))
-        XCTAssertTrue(app.buttons["Date Seek"].isHittable)
+        XCTAssertTrue(app.buttons["Seek to Date"].isHittable)
         XCTAssertTrue(app.buttons["Filters"].isHittable)
         // The native bar keeps clipped tabs in the accessibility tree, and XCTest can report
         // those as hittable. Their actual positions distinguish the collapsed and expanded bar.
