@@ -113,13 +113,7 @@ private struct AdvancedSection: View {
     var body: some View {
         Group {
             Section(.advanced) {
-                AppToggle(.searchGalleryName, isOn: $filter.galleryName)
-                AppToggle(.searchGalleryTags, isOn: $filter.galleryTags)
-                AppToggle(.searchGalleryDescription, isOn: $filter.galleryDesc)
-                AppToggle(.searchTorrentFilenames, isOn: $filter.torrentFilenames)
                 AppToggle(.requireGalleryTorrent, isOn: $filter.onlyWithTorrents)
-                AppToggle(.searchLowPowerTags, isOn: $filter.lowPowerTags)
-                AppToggle(.searchDownvotedTags, isOn: $filter.downvotedTags)
                 AppToggle(.browseOnlyExpungedGalleries, isOn: $filter.expungedGalleries)
             }
             Section {

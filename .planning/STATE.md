@@ -21,6 +21,13 @@ source_head: 2519060029
 
 # Project State
 
+## Legacy search toggles removed — 2026-11-01
+
+Live comparisons on E-Hentai and ExHentai showed the six Filters toggles no longer affect results
+(`f_sdt2` by indirect evidence only), so the owner chose to remove them, along with `f_sr` and `f_sp`. No
+schema change is needed. 24 Filters website screenshots are affected and not yet recaptured.
+[Quick task](quick/261101-remove-legacy-search-toggles/SUMMARY.md).
+
 ## Toplists spacing review — 2026-11-01
 
 Stars now match the pages caption style; category/pages/rating use fixed 4-point gaps.
