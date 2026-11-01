@@ -94,3 +94,13 @@ The separate slideshow color commits are preserved. Final simulator build-for-te
 without compiler warnings or errors, and strict SwiftLint passes for all three changed Swift files.
 No additional runtime tests or captures were needed for the star-only typography adjustment.
 This commit supersedes the uncommitted-status notes for the iPad title continuation above.
+
+## Tighter Toplists metadata — 2026-11-01
+
+Owner requested matching the rating star to the pages font and reducing metadata gaps. The
+star now uses caption; category/pages/rating sit in a 4-point-spaced stack, with the remaining
+flexible space above that group. Rating digits and category keep their prior font. Simulator
+build and strict lint pass. Native iPad portrait capture was inspected and diagnostics are ready
+with no blockers or unknown requests. Evidence is under
+`$HOME/.codex/visualizations/2026/10/31/01a192a6-7c25-7c91-b3a7-e39878397f4c/toplists-spacing-review/`.
+Changes await owner review and are uncommitted.

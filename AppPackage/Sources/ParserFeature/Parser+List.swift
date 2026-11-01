@@ -318,7 +318,8 @@ private extension Parser {
                     rawNamespace: namespace, text: contentText,
                     isVotedUp: false, isVotedDown: false,
                     textColor: contentTextColor,
-                    backgroundColor: contentBackgroundColor
+                    backgroundColor: contentBackgroundColor,
+                    voteStrength: tagVoteStrength(cssClasses: tagLink.className)
                 )
             )
         }

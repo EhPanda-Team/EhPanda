@@ -176,7 +176,8 @@ private extension Parser {
                         isVotedUp: aClass == "tup",
                         isVotedDown: aClass == "tdn",
                         textColor: nil,
-                        backgroundColor: nil
+                        backgroundColor: nil,
+                        voteStrength: tagVoteStrength(cssClasses: divLink.className)
                     )
                 )
             }

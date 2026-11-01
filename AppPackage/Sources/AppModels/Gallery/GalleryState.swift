@@ -62,6 +62,13 @@ public struct GalleryTag: Codable, Equatable, Hashable, Identifiable, Sendable {
         self.rawNamespace = rawNamespace
         self.contents = contents
     }
+    /// The site exposes weighted-vote tiers, not the exact vote total or voter count.
+    public enum VoteStrength: String, Codable, Sendable {
+        case weak
+        case active
+        case strong
+    }
+
     public struct Content: Codable, Equatable, Hashable, Identifiable, Sendable {
         public init(
             rawNamespace: String,
@@ -69,7 +76,8 @@ public struct GalleryTag: Codable, Equatable, Hashable, Identifiable, Sendable {
             isVotedUp: Bool,
             isVotedDown: Bool,
             textColor: Color? = nil,
-            backgroundColor: Color? = nil
+            backgroundColor: Color? = nil,
+            voteStrength: VoteStrength? = nil
         ) {
             self.rawNamespace = rawNamespace
             self.text = text
@@ -77,6 +85,7 @@ public struct GalleryTag: Codable, Equatable, Hashable, Identifiable, Sendable {
             self.isVotedDown = isVotedDown
             self.textColor = textColor
             self.backgroundColor = backgroundColor
+            self.voteStrength = voteStrength
         }
         public var id: String { rawNamespace + text }
         public var firstLetterCapitalizedText: String {
@@ -98,6 +107,8 @@ public struct GalleryTag: Codable, Equatable, Hashable, Identifiable, Sendable {
         public let isVotedDown: Bool
         public let textColor: Color?
         public let backgroundColor: Color?
+        /// Nil preserves old cached records without inventing a vote strength.
+        public let voteStrength: VoteStrength?
     }
 
     public var id: String { rawNamespace }

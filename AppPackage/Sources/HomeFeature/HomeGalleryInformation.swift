@@ -80,21 +80,6 @@ struct HomeSlideshowInformation: View {
     }
 }
 
-extension Gallery {
-    /// Language is already a field; duplicate names never fill additional chip positions.
-    var homeSlideshowTags: [GalleryTag.Content] {
-        var names: Set<String> = [category.rawValue.lowercased()]
-        return Array(tags
-            .filter({ $0.namespace != .language })
-            .flatMap(\.contents)
-            .filter { tag in
-                let name = tag.text.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
-                return !name.isEmpty && names.insert(name).inserted
-            }
-            .prefix(3))
-    }
-}
-
 struct HomeFrontpageCell: View {
     @GalleryCoverMetrics private var coverSize: CGSize
     let gallery: Gallery
