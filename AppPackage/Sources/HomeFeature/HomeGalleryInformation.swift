@@ -41,8 +41,6 @@ struct HomeGalleryRating: View {
 }
 
 struct HomeSlideshowInformation: View {
-    @Environment(\.colorScheme) private var colorScheme
-
     let gallery: Gallery
 
     var body: some View {
@@ -66,16 +64,7 @@ struct HomeSlideshowInformation: View {
             }
             .frame(maxWidth: 360, alignment: .leading)
             if !gallery.homeSlideshowTags.isEmpty {
-                GlassEffectContainer(spacing: 0) {
-                    TagCloudView(data: gallery.homeSlideshowTags) { tag in
-                        TagCloudCell(
-                            text: tag.text, imageURL: nil, showsImages: false, font: .caption2,
-                            padding: .init(top: 4, leading: 8, bottom: 4, trailing: 8),
-                            textColor: colorScheme == .dark ? .primary : .secondary, backgroundColor: .clear
-                        )
-                        .glassEffect(.regular, in: .rect(cornerRadius: 6))
-                    }
-                }
+                HomeSlideshowTags(gallery: gallery)
             }
         }
         .accessibilityIdentifier("home_slideshow_information")
@@ -109,18 +98,25 @@ struct HomeFrontpageCell: View {
     let gallery: Gallery
     let showsRichInformation: Bool
     let coverStyle: GalleryCoverStyle
+    let maximumCoverHeight: CGFloat?
 
-    init(gallery: Gallery, showsRichInformation: Bool, coverStyle: GalleryCoverStyle = .homeFrontpage) {
+    init(
+        gallery: Gallery, showsRichInformation: Bool, coverStyle: GalleryCoverStyle = .homeFrontpage,
+        maximumCoverHeight: CGFloat? = nil
+    ) {
+        self.maximumCoverHeight = maximumCoverHeight
         self.gallery = gallery
         self.showsRichInformation = showsRichInformation
         self.coverStyle = showsRichInformation ? coverStyle : .standard
-        _coverSize = GalleryCoverMetrics(showsRichInformation ? coverStyle : .standard)
+        _coverSize = GalleryCoverMetrics(
+            showsRichInformation ? coverStyle : .standard, maximumHeight: maximumCoverHeight
+        )
     }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
             GalleryCover(
-                url: gallery.coverURL, style: coverStyle, contentMode: .fill
+                url: gallery.coverURL, style: coverStyle, contentMode: .fill, maximumHeight: maximumCoverHeight
             )
                 .accessibilityHidden(true)
             if showsRichInformation {
@@ -144,6 +140,7 @@ struct HomeFrontpageCell: View {
 struct HomeFrontpageWall: View {
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     let columns: [[Gallery]]
+    let maximumCoverHeight: CGFloat?
     let navigateAction: (Gallery) -> Void
 
     var body: some View {
@@ -164,7 +161,8 @@ struct HomeFrontpageWall: View {
         } label: {
             HomeFrontpageCell(
                 gallery: gallery, showsRichInformation: true,
-                coverStyle: horizontalSizeClass == .regular ? .homeFrontpage : .homeCompact
+                coverStyle: horizontalSizeClass == .regular ? .homeFrontpage : .homeCompact,
+                maximumCoverHeight: maximumCoverHeight
             )
         }
         .tint(.primary)

@@ -5,6 +5,8 @@ import SwiftUI
 
 struct HomeSectionsView: View {
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+    @GalleryCoverMetrics(.homeCompact) private var compactCoverSize
+    @GalleryCoverMetrics(.hero) private var heroCoverSize
     @Bindable var store: StoreOf<HomeReducer>
     var pane: HomePane?
     @State private var viewport: CGSize = .zero
@@ -61,11 +63,20 @@ struct HomeSectionsView: View {
                 galleries: store.frontpageGalleries,
                 isLoading: store.frontpageLoadingState == .loading,
                 showsRichInformation: true,
+                maximumCoverHeight: maximumFrontpageCoverHeight,
                 navigateAction: { store.send(.galleryTapped($0, from: .left)) },
                 showAllAction: { store.send(.sectionTapped(.frontpage)) },
                 reloadAction: { store.send(.fetchFrontpageGalleries) }
             )
         }
+    }
+
+    private var maximumFrontpageCoverHeight: CGFloat? {
+        let galleryViewport = GalleryViewport(size: viewport, isRegularWidth: horizontalSizeClass == .regular)
+        if pane != nil {
+            return min(heroCoverSize.height, max(0, galleryViewport.maximumSlideshowHeight - 40))
+        }
+        return galleryViewport.isLarge ? nil : compactCoverSize.height
     }
 
     private var toplists: some View {
