@@ -25,9 +25,9 @@ struct AboutView: View {
                     LinkRow(urlString: specialThank.urlString, text: specialThank.text)
                 }
             }
-            Section(.codeLevelContributors) {
-                ForEach(codeLevelContributors) { codeLevelContributor in
-                    LinkRow(urlString: codeLevelContributor.urlString, text: codeLevelContributor.text)
+            Section(.codeContributors) {
+                ForEach(codeContributors) { codeContributor in
+                    LinkRow(urlString: codeContributor.urlString, text: codeContributor.text)
                 }
             }
             Section(.translationContributors) {
@@ -102,26 +102,26 @@ struct AboutView: View {
     ]}()
 
     // MARK: Code level contributors
-    private let codeLevelContributors: [Info] = {[
+    private let codeContributors: [Info] = {[
         .init(
-            urlString: String(localized: .Constant.codeLevelContributorVvbbnn00Link),
-            text: .Constant.codeLevelContributorVvbbnn00
+            urlString: String(localized: .Constant.codeContributorVvbbnn00Link),
+            text: .Constant.codeContributorVvbbnn00
         ),
         .init(
-            urlString: String(localized: .Constant.codeLevelContributorKaed3MiLink),
-            text: .Constant.codeLevelContributorKaed3Mi
+            urlString: String(localized: .Constant.codeContributorKaed3MiLink),
+            text: .Constant.codeContributorKaed3Mi
         ),
         .init(
-            urlString: String(localized: .Constant.codeLevelContributorAalberrtyLink),
-            text: .Constant.codeLevelContributorAalberrty
+            urlString: String(localized: .Constant.codeContributorAalberrtyLink),
+            text: .Constant.codeContributorAalberrty
         ),
         .init(
-            urlString: String(localized: .Constant.codeLevelContributorJimmyPrimeLink),
-            text: .Constant.codeLevelContributorJimmyPrime
+            urlString: String(localized: .Constant.codeContributorJimmyPrimeLink),
+            text: .Constant.codeContributorJimmyPrime
         ),
         .init(
-            urlString: String(localized: .Constant.codeLevelContributorXioxinLink),
-            text: .Constant.codeLevelContributorXioxin
+            urlString: String(localized: .Constant.codeContributorXioxinLink),
+            text: .Constant.codeContributorXioxin
         )
     ]}()
 

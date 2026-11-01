@@ -23,7 +23,7 @@ public struct DetailReducer: Sendable {
             galleryURL: URL, comments: [GalleryComment], scrollCommentID: String?
         )
         case pushDetailSearch(String)
-        case pushGalleryInfos(gallery: Gallery, galleryDetail: GalleryDetail)
+        case pushGalleryInfo(gallery: Gallery, galleryDetail: GalleryDetail)
     }
 
     @Reducer

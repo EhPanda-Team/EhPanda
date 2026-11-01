@@ -36,8 +36,8 @@ public enum GalleryNavigation {
                 ))
             case .pushDetailSearch(let keyword):
                 return .detailSearch(.init(keyword: keyword))
-            case let .pushGalleryInfos(gallery, galleryDetail):
-                return .galleryInfos(.init(gallery: gallery, galleryDetail: galleryDetail))
+            case let .pushGalleryInfo(gallery, galleryDetail):
+                return .galleryInfo(.init(gallery: gallery, galleryDetail: galleryDetail))
             }
 
         case let .comments(.delegate(delegate)):
@@ -94,7 +94,7 @@ extension GalleryPath.State {
             return .comments(.onPresented)
         case .detailSearch:
             return .detailSearch(.onPresented)
-        case .galleryInfos:
+        case .galleryInfo:
             // Fully seeded by the pushing context: it renders the gallery and detail it was handed
             // and fetches nothing.
             return nil
@@ -113,8 +113,8 @@ extension GalleryPath.State: GalleryRouteIdentifiable {
             return "comments:\(state.gid)"
         case .detailSearch(let state):
             return "detailSearch:\(state.keyword)"
-        case .galleryInfos(let state):
-            return "galleryInfos:\(state.gallery.id)"
+        case .galleryInfo(let state):
+            return "galleryInfo:\(state.gallery.id)"
         }
     }
 }

@@ -131,7 +131,7 @@ struct GeneralSettingView: View {
                     isOn: Binding($setting.redirectLinksToSelectedHost)
                 )
                 AppToggle(
-                    .detectLinksFromClipboard,
+                    .detectLinksInClipboard,
                     isOn: Binding($setting.detectLinksFromClipboard)
                 )
             }

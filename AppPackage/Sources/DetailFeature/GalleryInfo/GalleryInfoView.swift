@@ -5,14 +5,14 @@ import Resources
 import SwiftUI
 import SystemNotification
 
-struct GalleryInfosView: View {
+struct GalleryInfoView: View {
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
-    @Bindable private var store: StoreOf<GalleryInfosReducer>
+    @Bindable private var store: StoreOf<GalleryInfoReducer>
     @SharedReader(.setting) private var setting: Setting
     private let gallery: Gallery
     private let galleryDetail: GalleryDetail
 
-    init(store: StoreOf<GalleryInfosReducer>, gallery: Gallery, galleryDetail: GalleryDetail) {
+    init(store: StoreOf<GalleryInfoReducer>, gallery: Gallery, galleryDetail: GalleryDetail) {
         self.store = store
         self.gallery = gallery
         self.galleryDetail = galleryDetail
@@ -134,7 +134,7 @@ struct GalleryInfosView: View {
         }
         .scrollEdgeEffectStyle(.soft, for: .top)
         .toast($store.scope(\.$toast, action: \.toast))
-        .navigationTitle(.metadataGalleryInfos)
+        .navigationTitle(.metadataGalleryInfo)
     }
 
     private func content(for info: Info, lineLimit: Int?) -> some View {
@@ -173,10 +173,10 @@ private struct Info: Identifiable {
 
 #Preview("Loaded") {
     NavigationStack {
-        GalleryInfosView(
+        GalleryInfoView(
             store: .init(
                 initialState: .init(gallery: .preview, galleryDetail: .preview),
-                reducer: GalleryInfosReducer.init
+                reducer: GalleryInfoReducer.init
             ),
             gallery: .preview,
             galleryDetail: .preview

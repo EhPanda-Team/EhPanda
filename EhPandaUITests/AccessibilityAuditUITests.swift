@@ -118,7 +118,7 @@ final class AccessibilityAuditUITests: XCTestCase {
         requireNavigationTitle("Search", in: app)
         XCTAssertTrue(app.searchFields.firstMatch.isHittable, "Search field was hidden on cold entry at AX5.")
         try presentSheet(titled: "Quick Search", from: "Quick Search", in: app)
-        exerciseNewWordEditor(in: app)
+        exerciseNewSavedSearchEditor(in: app)
         dismissSheet(in: app)
         requireNavigationTitle("Search", in: app)
         try exerciseSearchRoot(in: app)
@@ -203,7 +203,7 @@ final class AccessibilityAuditUITests: XCTestCase {
         requireNavigationTitle("Search", in: app)
         try presentSheet(titled: "Quick Search", from: "Quick Search", in: app)
         try audit(app, surface: "Quick Search sheet")
-        exerciseNewWordEditor(in: app)
+        exerciseNewSavedSearchEditor(in: app)
         dismissSheet(in: app)
         requireNavigationTitle("Search", in: app)
     }
@@ -284,17 +284,17 @@ final class AccessibilityAuditUITests: XCTestCase {
         try audit(app, surface: "Detail › Previews")
     }
 
-    func testGalleryInfosAudit() throws {
+    func testGalleryInfoAudit() throws {
         let app = XCUIApplication()
         let detailView = try openGalleryDetail(in: app)
-        // The Gallery Infos button is the last item of the horizontal stats strip: bring the strip
+        // The Gallery Info button is the last item of the horizontal stats strip: bring the strip
         // on screen first, then scroll the strip itself until the button can be tapped.
-        let infosButton = detailView.buttons["Gallery Info"].firstMatch
-        XCTAssertTrue(infosButton.waitForExistence(timeout: 15), "Detail did not render its stats strip.")
-        try scrollUntilHittable(infosButton, in: app, of: app, direction: .upward)
-        try scrollUntilHittable(infosButton, in: detailView.scrollViews.firstMatch, of: app, direction: .leftward)
-        XCTAssertTrue(infosButton.isHittable, "The Gallery Infos button never became hittable.")
-        infosButton.tap()
+        let infoButton = detailView.buttons["Gallery Info"].firstMatch
+        XCTAssertTrue(infoButton.waitForExistence(timeout: 15), "Detail did not render its stats strip.")
+        try scrollUntilHittable(infoButton, in: app, of: app, direction: .upward)
+        try scrollUntilHittable(infoButton, in: detailView.scrollViews.firstMatch, of: app, direction: .leftward)
+        XCTAssertTrue(infoButton.isHittable, "The Gallery Info button never became hittable.")
+        infoButton.tap()
         requireNavigationTitle("Gallery Info", in: app)
         try audit(app, surface: "Detail › Gallery Info")
     }
@@ -548,7 +548,7 @@ private extension AccessibilityAuditUITests {
         cancelButton.tapWhenHittable("Sheet Cancel")
     }
 
-    func exerciseNewWordEditor(in app: XCUIApplication) {
+    func exerciseNewSavedSearchEditor(in app: XCUIApplication) {
         app.buttons["New Saved Search"].firstMatch.tapWhenHittable("New Saved Search")
         requireNavigationTitle("New Saved Search", in: app)
         XCTAssertTrue(
@@ -697,7 +697,7 @@ private extension AccessibilityAuditUITests {
     ///
     /// What is shown is the presented sheet's frame, or the window's when none is presented
     /// (`SurfaceInventory.visibleBounds(in:)`): on the iPad the Detail form sheet is 580 points
-    /// wide inside an 820-point window, so the stats strip's Gallery Infos button lay inside the
+    /// wide inside an 820-point window, so the stats strip's Gallery Info button lay inside the
     /// window yet past the sheet's trailing edge, and a window test swiped the page upward until
     /// the strip left the sheet (`a11y-final-ipad`, `diag-25`). Each call settles its own axis —
     /// an upward swipe stops once the element lies within the bounds vertically, a leftward swipe

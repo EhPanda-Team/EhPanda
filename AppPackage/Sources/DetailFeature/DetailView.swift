@@ -115,10 +115,10 @@ private extension DetailView {
                 DescriptionSection(
                     gallery: store.gallery,
                     galleryDetail: store.galleryDetail ?? .empty,
-                    navigateGalleryInfosAction: {
+                    navigateGalleryInfoAction: {
                         if let galleryDetail = store.galleryDetail {
                             store.send(.delegate(
-                                .pushGalleryInfos(gallery: store.gallery, galleryDetail: galleryDetail)
+                                .pushGalleryInfo(gallery: store.gallery, galleryDetail: galleryDetail)
                             ))
                         }
                     }
