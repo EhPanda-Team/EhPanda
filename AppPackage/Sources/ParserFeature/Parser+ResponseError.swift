@@ -11,7 +11,7 @@ extension Parser {
         // Ex login failures commonly surface as a kokomade placeholder wall when `igneous` is missing.
         // Reference: https://github.com/OpportunityLiu/E-Viewer/issues/124
         if doc.at_xpath("//img[contains(@src, 'kokomade.jpg')]") != nil {
-            return .authenticationRequired
+            return .loginRequired
         }
 
         for candidate in responseErrorCandidates(doc: doc) {
@@ -68,15 +68,15 @@ extension Parser {
         // Reference: https://github.com/OpportunityLiu/E-Viewer/issues/124
         if normalizedContent.contains("kokomade.jpg")
             || normalizedContent.contains("access to exhentai.org is restricted") {
-            return .authenticationRequired
+            return .loginRequired
         }
-        // JDownloader matches these image-limit texts to distinguish quota exhaustion from generic HTML failures.
+        // JDownloader matches these image-limit texts to distinguish the image limit from generic HTML failures.
         // Reference: https://github.com/mirror/jdownloader/blob/master/src/jd/plugins/hoster/EHentaiOrg.java
         if normalizedContent.contains("you have exceeded your image viewing limits")
             || normalizedContent.contains(
                 "you have reached the image limit, and do not have sufficient gp to buy a download quota"
             ) {
-            return .quotaExceeded
+            return .imageLimitReached
         }
         // `Gallery Not Available` is intentionally not mapped to `.expunged` in the download parser.
         // gallery-dl treats `404 + Gallery Not Available` as an authorization-like unavailable state:
@@ -89,7 +89,7 @@ extension Parser {
         // Reference: https://github.com/mirror/jdownloader/blob/master/src/jd/plugins/hoster/EHentaiOrg.java
         if normalizedContent.contains("bounce_login.php"),
            !looksLikeGalleryDetailMarkup(normalizedContent) {
-            return .authenticationRequired
+            return .loginRequired
         }
         // gallery-dl treats `Key missing` and `Gallery not found` as gallery-level not-found conditions.
         // Reference: https://github.com/mikf/gallery-dl/blob/master/gallery_dl/extractor/exhentai.py

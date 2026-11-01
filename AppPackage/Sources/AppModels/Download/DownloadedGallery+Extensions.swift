@@ -56,7 +56,7 @@ public struct DownloadRequestPayload: Equatable, Sendable {
 /// How the reader sources its pages. `.local` is an explicit *offline mode*, not a redundant
 /// copy of `.remote`: it is a wholesale network kill-switch (remote mode reads a downloaded
 /// file per page when present, so a single missing entry would otherwise trigger a live,
-/// quota-burning H@H fetch; the offline gate prevents that for offline reads) and it carries
+/// limit-burning H@H fetch; the offline gate prevents that for offline reads) and it carries
 /// manifest metadata provenance (gallery + language seeded from the manifest, so a downloaded
 /// gallery reads entirely from its local files and manifest). When the local files turn up empty
 /// it auto-promotes to `.remote`.

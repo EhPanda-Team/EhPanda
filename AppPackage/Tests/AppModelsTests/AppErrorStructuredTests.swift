@@ -64,13 +64,13 @@ struct AppErrorStructuredTests {
             alertText: "The site’s response couldn’t be read.\nTry again later."
         ),
         Expectation(
-            error: .quotaExceeded,
+            error: .imageLimitReached,
             isRetryable: false,
             localizedDescription: "Image Limit Reached",
             alertText: "You’ve reached your image viewing limit."
         ),
         Expectation(
-            error: .authenticationRequired,
+            error: .loginRequired,
             isRetryable: false,
             localizedDescription: "Login Required",
             alertText: "Log in to view this content."
@@ -125,9 +125,9 @@ struct AppErrorStructuredTests {
     @Test
     func actionableErrorsProvideRecoverySuggestions() throws {
         #expect(AppError.networkingFailed.solution != nil)
-        #expect(AppError.authenticationRequired.solution != nil)
+        #expect(AppError.loginRequired.solution != nil)
         #expect(AppError.ipBanned(.minutes(minutes: 1, seconds: nil)).solution != nil)
-        #expect(AppError.quotaExceeded.solution != nil)
+        #expect(AppError.imageLimitReached.solution != nil)
         #expect(AppError.notFound.solution != nil)
         // Both shapes of a refusal are actionable, and by the same route: re-check the credential,
         // then fall back to the web-login button. A reasonless refusal needs it most, since its
@@ -201,8 +201,8 @@ struct AppErrorStructuredTests {
             .networkingFailed,
             .webImageFailed,
             .parseFailed,
-            .quotaExceeded,
-            .authenticationRequired,
+            .imageLimitReached,
+            .loginRequired,
             .cloudflareChallengeFailed,
             .loginCaptchaRequired,
             .loginRejected("You must enter a password."),
@@ -217,9 +217,9 @@ struct AppErrorStructuredTests {
 
     @Test(arguments: [
         AppError.networkingFailed,
-        .authenticationRequired,
+        .loginRequired,
         .ipBanned(.minutes(minutes: 1, seconds: nil)),
-        .quotaExceeded,
+        .imageLimitReached,
         .notFound
     ])
     func localizedErrorUsesTheExistingDescriptionAndSolution(_ error: AppError) throws {

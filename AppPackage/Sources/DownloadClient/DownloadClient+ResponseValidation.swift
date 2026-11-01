@@ -82,28 +82,28 @@ extension DownloadCoordinator {
             fileURL: fileURL
         )
         if let placeholderData {
-            if isAuthenticationRequiredPlaceholderImageData(
+            if isLoginRequiredPlaceholderImageData(
                 placeholderData
             ) {
-                return .authenticationRequired
+                return .loginRequired
             }
-            if isQuotaExceededAssetData(placeholderData) {
-                return .quotaExceeded
+            if isImageLimitReachedAssetData(placeholderData) {
+                return .imageLimitReached
             }
         }
-        if isAuthenticationRequiredPlaceholderResponse(
+        if isLoginRequiredPlaceholderResponse(
             response: response,
             requestURL: requestURL
         ) {
-            return .authenticationRequired
+            return .loginRequired
         }
-        if isQuotaExceededResponse(
+        if isImageLimitReachedResponse(
             fullData: nil,
             fileURL: fileURL,
             response: response,
             requestURL: requestURL
         ) {
-            return .quotaExceeded
+            return .imageLimitReached
         }
         return nil
     }
@@ -165,13 +165,13 @@ extension DownloadCoordinator {
                 return error
             }
         }
-        if isAuthenticationRequiredResponse(
+        if isLoginRequiredResponse(
             prefixData: prefixData,
             fullData: fullData,
             response: response,
             requestURL: requestURL
         ) {
-            return .authenticationRequired
+            return .loginRequired
         }
         guard shouldInspect else { return nil }
 
@@ -191,28 +191,28 @@ extension DownloadCoordinator {
         requestURL: URL?
     ) -> AppError? {
         if let fullData {
-            if isAuthenticationRequiredPlaceholderImageData(
+            if isLoginRequiredPlaceholderImageData(
                 fullData
             ) {
-                return .authenticationRequired
+                return .loginRequired
             }
-            if isQuotaExceededAssetData(fullData) {
-                return .quotaExceeded
+            if isImageLimitReachedAssetData(fullData) {
+                return .imageLimitReached
             }
         }
-        if isAuthenticationRequiredPlaceholderResponse(
+        if isLoginRequiredPlaceholderResponse(
             response: response,
             requestURL: requestURL
         ) {
-            return .authenticationRequired
+            return .loginRequired
         }
-        if isQuotaExceededResponse(
+        if isImageLimitReachedResponse(
             fullData: fullData,
             fileURL: nil,
             response: response,
             requestURL: requestURL
         ) {
-            return .quotaExceeded
+            return .imageLimitReached
         }
         return nil
     }
@@ -287,8 +287,8 @@ extension DownloadCoordinator {
         let byteCount = responseContentLength(response)
             ?? fileSize(at: fileURL)
         guard let byteCount,
-              byteCount == ImagePlaceholderFingerprint.authenticationRequiredByteCount
-                || byteCount == ImagePlaceholderFingerprint.quotaExceededByteCount
+              byteCount == ImagePlaceholderFingerprint.loginRequiredByteCount
+                || byteCount == ImagePlaceholderFingerprint.imageLimitReachedByteCount
         else {
             return nil
         }

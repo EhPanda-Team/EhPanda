@@ -81,7 +81,7 @@ public actor DownloadCoordinator {
     public static let kokomadeImageURLSuffixes = [
         "exhentai.org/img/kokomade.jpg"
     ]
-    public static let quotaExceededImageURLSuffixes = [
+    public static let imageLimitReachedImageURLSuffixes = [
         "exhentai.org/img/509.gif",
         "ehgt.org/g/509.gif"
     ]
@@ -455,7 +455,7 @@ public actor DownloadCoordinator {
     /// Transient, session-scoped status: deliberately in-memory only, never written to disk.
     /// Download-level errors, per-page failures, validation results, and the update-available
     /// set are status *about* a download, not durable properties of it; they are cheap to
-    /// re-derive and re-derivation yields the *current* truth (e.g. a lifted quota simply
+    /// re-derive and re-derivation yields the *current* truth (e.g. a lifted limit simply
     /// succeeds on the next attempt). Durable facts (downloaded pages, hashes, metadata)
     /// live in the manifest. The accepted cost is that after relaunch a failed download
     /// surfaces as inactive ("Paused") until its error re-surfaces on the next manual retry.

@@ -329,7 +329,7 @@ extension DownloadCoordinator {
 
     /// Whether an error is account-level fatal and must abort the whole page batch.
     ///
-    /// Scope is intentionally **account-level only**: quota, auth, IP ban and an unsolved Cloudflare
+    /// Scope is intentionally **account-level only**: limit, login, IP ban and an unsolved Cloudflare
     /// wall affect every in-flight and queued page, so continuing the batch only wastes requests and
     /// can worsen a ban.
     /// Gallery-level errors (`.expunged`, `.copyrightClaim`) are deliberately *not* fatal here — they
@@ -341,7 +341,7 @@ extension DownloadCoordinator {
         // but it is account-level auth by the rule above, so it is classified with its neighbours
         // rather than defaulted. If a future path ever does surface it here, aborting the batch is
         // the safe reading: no page request succeeds while the credential is refused.
-        case .quotaExceeded, .authenticationRequired, .ipBanned, .cloudflareChallengeFailed,
+        case .imageLimitReached, .loginRequired, .ipBanned, .cloudflareChallengeFailed,
              .loginCaptchaRequired, .loginRejected:
             return true
         case .copyrightClaim, .expunged, .networkingFailed,

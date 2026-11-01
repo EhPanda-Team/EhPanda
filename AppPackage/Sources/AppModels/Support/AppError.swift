@@ -14,8 +14,8 @@ public enum AppError: Error, Identifiable, Equatable, Hashable, Sendable {
     case networkingFailed
     case webImageFailed
     case parseFailed
-    case quotaExceeded
-    case authenticationRequired
+    case imageLimitReached
+    case loginRequired
     case cloudflareChallengeFailed
     case loginCaptchaRequired
     /// The forum refused the credential, with its own explanation when it gave one.
@@ -46,7 +46,7 @@ extension AppError {
         case .networkingFailed, .parseFailed,
              .fileOperationFailed, .noUpdates, .unknown, .webImageFailed, .loginRejected:
             return true
-        case .copyrightClaim, .expunged, .quotaExceeded, .authenticationRequired, .notFound,
+        case .copyrightClaim, .expunged, .imageLimitReached, .loginRequired, .notFound,
              .ipBanned, .cloudflareChallengeFailed, .loginCaptchaRequired, .unsupportedDeepLink:
             return false
         }
@@ -65,10 +65,10 @@ extension AppError {
             return String(localized: .appErrorWebImageLoadingError)
         case .parseFailed:
             return String(localized: .appErrorParseError)
-        case .quotaExceeded:
-            return String(localized: .appErrorQuotaExceeded)
-        case .authenticationRequired:
-            return String(localized: .appErrorAuthenticationRequired)
+        case .imageLimitReached:
+            return String(localized: .appErrorImageLimitReached)
+        case .loginRequired:
+            return String(localized: .appErrorLoginRequired)
         case .cloudflareChallengeFailed:
             return String(localized: .appErrorCloudflareChallengeFailed)
         case .loginCaptchaRequired:
@@ -110,10 +110,10 @@ extension AppError {
             return String(localized: .networkError)
         case .parseFailed:
             return [String(localized: .parsing), tryLater].joined(separator: "\n")
-        case .quotaExceeded:
-            return String(localized: .appErrorQuotaExceededDescription)
-        case .authenticationRequired:
-            return String(localized: .appErrorAuthenticationRequiredDescription)
+        case .imageLimitReached:
+            return String(localized: .appErrorImageLimitReachedDescription)
+        case .loginRequired:
+            return String(localized: .appErrorLoginRequiredDescription)
         case .cloudflareChallengeFailed:
             return String(localized: .appErrorCloudflareChallengeFailedDescription)
         case .loginCaptchaRequired:
@@ -146,8 +146,8 @@ extension AppError {
         switch self {
         case .networkingFailed:
             String(localized: .appErrorNetworkSolution)
-        case .authenticationRequired:
-            String(localized: .appErrorAuthenticationSolution)
+        case .loginRequired:
+            String(localized: .appErrorLoginRequiredSolution)
         case .cloudflareChallengeFailed:
             String(localized: .appErrorCloudflareChallengeSolution)
         case .loginCaptchaRequired:
@@ -166,8 +166,8 @@ extension AppError {
             String(localized: .appErrorUnsupportedDeepLinkSolution)
         case .ipBanned:
             String(localized: .appErrorIpBannedSolution)
-        case .quotaExceeded:
-            String(localized: .appErrorQuotaExceededSolution)
+        case .imageLimitReached:
+            String(localized: .appErrorImageLimitReachedSolution)
         case .notFound:
             String(localized: .appErrorNotFoundSolution)
         case .copyrightClaim, .expunged, .webImageFailed, .parseFailed, .fileOperationFailed,

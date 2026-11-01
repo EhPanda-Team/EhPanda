@@ -12,9 +12,9 @@ extension AppError {
             return .wifiExclamationmark
         case .parseFailed:
             return .rectangleAndTextMagnifyingglass
-        case .quotaExceeded:
+        case .imageLimitReached:
             return .gaugeWithDotsNeedle67percent
-        case .authenticationRequired:
+        case .loginRequired:
             return .lockCircleFill
         case .cloudflareChallengeFailed:
             return .exclamationmarkShieldFill

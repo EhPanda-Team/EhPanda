@@ -45,7 +45,7 @@ struct DownloadPageErrorParserTests: TestHelper {
     }
 
     @Test
-    func testAuthenticationRequiredMarkersMapToAuthenticationRequired() throws {
+    func testLoginRequiredMarkersMapToLoginRequired() throws {
         let document = try Kanna.HTML(
             html: """
             <html>
@@ -59,7 +59,7 @@ struct DownloadPageErrorParserTests: TestHelper {
             encoding: .utf8
         )
 
-        #expect(Parser.parseResponseError(doc: document) == .authenticationRequired)
+        #expect(Parser.parseResponseError(doc: document) == .loginRequired)
     }
 
     @Test

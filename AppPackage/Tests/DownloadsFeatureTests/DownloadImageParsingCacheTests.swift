@@ -19,7 +19,7 @@ struct DownloadImageParsingCacheTests: DownloadFeatureTestCase {
     }
 
     @Test
-    func testFileBasedEmptyExResponseMapsToAuthenticationRequired() async throws {
+    func testFileBasedEmptyExResponseMapsToLoginRequired() async throws {
         let fileURL = try writeFixtureToTemporaryFile(filename: .exLoginRequired)
         defer { removeTemporaryItem(at: fileURL) }
 
@@ -37,11 +37,11 @@ struct DownloadImageParsingCacheTests: DownloadFeatureTestCase {
             requestURL: URL(string: "https://exhentai.org/g/1/1/")
         )
 
-        #expect(error == .authenticationRequired)
+        #expect(error == .loginRequired)
     }
 
     @Test
-    func testFileBasedAuthHTMLMarkersMapToAuthenticationRequired() async throws {
+    func testFileBasedAuthHTMLMarkersMapToLoginRequired() async throws {
         let fileURL = FileManager.default.temporaryDirectory
             .appending(path: UUID().uuidString)
             .appendingPathExtension("html")
@@ -69,7 +69,7 @@ struct DownloadImageParsingCacheTests: DownloadFeatureTestCase {
             requestURL: URL(string: "https://exhentai.org/g/1/1/")
         )
 
-        #expect(error == .authenticationRequired)
+        #expect(error == .loginRequired)
     }
 
 }

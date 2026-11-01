@@ -1,6 +1,8 @@
 public enum DownloadFailureCode: String, Codable, Equatable, Sendable {
-    case quotaExceeded
-    case authenticationRequired
+    /// Keeps the value already written into download manifests.
+    case imageLimitReached = "quotaExceeded"
+    /// Keeps the value already written into download manifests.
+    case loginRequired = "authenticationRequired"
     case fileOperationFailed
     case ipBanned
     case networkingFailed
@@ -20,10 +22,10 @@ public struct DownloadFailure: Codable, Equatable, Sendable {
 
     public init(error: AppError) {
         switch error {
-        case .quotaExceeded:
-            self = .init(code: .quotaExceeded, message: error.alertText)
-        case .authenticationRequired:
-            self = .init(code: .authenticationRequired, message: error.alertText)
+        case .imageLimitReached:
+            self = .init(code: .imageLimitReached, message: error.alertText)
+        case .loginRequired:
+            self = .init(code: .loginRequired, message: error.alertText)
         case .fileOperationFailed(let reason):
             self = .init(code: .fileOperationFailed, message: reason)
         case .ipBanned(let interval):
@@ -41,10 +43,10 @@ public struct DownloadFailure: Codable, Equatable, Sendable {
 
     public var appError: AppError {
         switch code {
-        case .quotaExceeded:
-            return .quotaExceeded
-        case .authenticationRequired:
-            return .authenticationRequired
+        case .imageLimitReached:
+            return .imageLimitReached
+        case .loginRequired:
+            return .loginRequired
         case .fileOperationFailed:
             return .fileOperationFailed(message)
         case .ipBanned:

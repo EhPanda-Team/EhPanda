@@ -26,8 +26,10 @@ public enum AppErrorKind: String, CaseIterable, Equatable, Sendable {
     case networkingFailed
     case webImageFailed
     case parseFailed
-    case quotaExceeded
-    case authenticationRequired
+    /// Keeps the value already reported, so the signal's history stays one series.
+    case imageLimitReached = "quotaExceeded"
+    /// Keeps the value already reported, so the signal's history stays one series.
+    case loginRequired = "authenticationRequired"
     case cloudflareChallengeFailed
     case loginCaptchaRequired
     case loginRejected
@@ -59,11 +61,11 @@ extension AppErrorKind {
         case .parseFailed:
             self = .parseFailed
 
-        case .quotaExceeded:
-            self = .quotaExceeded
+        case .imageLimitReached:
+            self = .imageLimitReached
 
-        case .authenticationRequired:
-            self = .authenticationRequired
+        case .loginRequired:
+            self = .loginRequired
 
         case .cloudflareChallengeFailed:
             self = .cloudflareChallengeFailed
@@ -129,7 +131,7 @@ extension AppErrorKind {
         case .loginCaptchaRequired, .unsupportedDeepLink, .notFound, .loginRejected:
             .userInput
 
-        case .copyrightClaim, .ipBanned, .expunged, .quotaExceeded, .authenticationRequired,
+        case .copyrightClaim, .ipBanned, .expunged, .imageLimitReached, .loginRequired,
              .noUpdates:
             .appState
         }

@@ -126,11 +126,11 @@ extension DownloadCoordinator {
         referenceURLs _: [URL?]
     ) -> AppError? {
         guard !data.isEmpty else { return .parseFailed }
-        if isAuthenticationRequiredPlaceholderImageData(data) {
-            return .authenticationRequired
+        if isLoginRequiredPlaceholderImageData(data) {
+            return .loginRequired
         }
-        if isQuotaExceededAssetData(data) {
-            return .quotaExceeded
+        if isImageLimitReachedAssetData(data) {
+            return .imageLimitReached
         }
 
         let looksLikeHTML = prefixLooksLikeHTML(

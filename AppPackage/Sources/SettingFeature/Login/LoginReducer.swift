@@ -103,8 +103,8 @@ public struct LoginReducer: Sendable {
         // the wording — which is also why the wording cannot ride along.
         case .loginRejected, .unknown:
             return .rejected
-        case .copyrightClaim, .ipBanned, .expunged, .webImageFailed, .parseFailed, .quotaExceeded,
-             .authenticationRequired, .unsupportedDeepLink, .fileOperationFailed, .noUpdates,
+        case .copyrightClaim, .ipBanned, .expunged, .webImageFailed, .parseFailed, .imageLimitReached,
+             .loginRequired, .unsupportedDeepLink, .fileOperationFailed, .noUpdates,
              .notFound:
             return .other
         }
