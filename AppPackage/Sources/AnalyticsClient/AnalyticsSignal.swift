@@ -34,7 +34,7 @@ public enum AnalyticsSignal: Equatable, Sendable {
     case searchPerformed(shape: SearchShape, resultCount: CountBucket)
     case filterPanelOpened(SearchSurface)
     case quickSearchPanelOpened(SearchSurface)
-    case quickSearchWordUsed
+    case savedSearchUsed
     case tagTapped(namespace: TagNamespace?)
 
     // MARK: Reading and downloads

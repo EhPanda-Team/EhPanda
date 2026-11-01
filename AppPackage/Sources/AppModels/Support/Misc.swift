@@ -134,7 +134,7 @@ public struct PageNumber: Equatable, Sendable {
     }
 }
 
-public struct QuickSearchWord: Codable, Equatable, Identifiable, Sendable, SchemaVersioned {
+public struct SavedSearch: Codable, Equatable, Identifiable, Sendable, SchemaVersioned {
     public init(
         id: UUID = .init(),
         name: String,
@@ -158,7 +158,7 @@ public struct QuickSearchWord: Codable, Equatable, Identifiable, Sendable, Schem
     }
     // Self-validating (see `SchemaVersion`): a newer/downgrade value is rejected on decode; the
     // identity guards in `init(from:)` below stay hand-written.
-    public var schemaVersion: SchemaVersion<QuickSearchWord> = 1
+    public var schemaVersion: SchemaVersion<SavedSearch> = 1
     public var id: UUID = .init()
     public var name: String
     public var content: String
@@ -169,15 +169,15 @@ public struct QuickSearchWord: Codable, Equatable, Identifiable, Sendable, Schem
 }
 
 // MARK: Manually decode
-extension QuickSearchWord {
+extension SavedSearch {
     /// Strict, throwing decode. `id` is decoded, never fabricated — a tolerant `UUID()` fallback
     /// would hand a corrupt entry a fresh identity on every decode. A blob missing `id`/`name`/
     /// `content`, or carrying an unknown `schemaVersion`, throws, failing the whole
-    /// `[QuickSearchWord]` decode so Sharing resets the key to `[]` instead of surfacing an entry
+    /// `[SavedSearch]` decode so Sharing resets the key to `[]` instead of surfacing an entry
     /// with a random, unstable identity.
     public init(from decoder: any Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        schemaVersion = try container.decode(SchemaVersion<QuickSearchWord>.self, forKey: .schemaVersion)
+        schemaVersion = try container.decode(SchemaVersion<SavedSearch>.self, forKey: .schemaVersion)
         id = try container.decode(UUID.self, forKey: .id)
         name = try container.decode(String.self, forKey: .name)
         content = try container.decode(String.self, forKey: .content)

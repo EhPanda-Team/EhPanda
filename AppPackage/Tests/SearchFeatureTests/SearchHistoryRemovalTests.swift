@@ -14,7 +14,7 @@ struct SearchHistoryRemovalTests {
             $0.defaultAppStorage = storage
         } operation: {
             let state = populatedState()
-            let savedSearches = state.quickSearchWords
+            let savedSearches = state.savedSearches
             let browsingHistory = state.galleryHistory
             let store = TestStore(initialState: state, reducer: SearchRootReducer.init)
 
@@ -23,7 +23,7 @@ struct SearchHistoryRemovalTests {
             }
             let reopened = SearchRootReducer.State()
             #expect(reopened.historyKeywords.isEmpty)
-            #expect(reopened.quickSearchWords == savedSearches)
+            #expect(reopened.savedSearches == savedSearches)
             #expect(reopened.galleryHistory == browsingHistory)
             await store.finish()
         }
@@ -38,7 +38,7 @@ struct SearchHistoryRemovalTests {
         } operation: {
             let state = populatedState()
             let searches = state.historyKeywords
-            let savedSearches = state.quickSearchWords
+            let savedSearches = state.savedSearches
             let store = TestStore(initialState: state, reducer: SearchRootReducer.init)
 
             await store.send(.removeAllHistoryGalleries) {
@@ -48,7 +48,7 @@ struct SearchHistoryRemovalTests {
             let reopened = SearchRootReducer.State()
             #expect(reopened.galleryHistory.isEmpty)
             #expect(reopened.historyKeywords == searches)
-            #expect(reopened.quickSearchWords == savedSearches)
+            #expect(reopened.savedSearches == savedSearches)
             await store.send(.onPresented)
             await store.receive(\.fetchHistoryGalleries)
             await store.finish()
@@ -95,7 +95,7 @@ struct SearchHistoryRemovalTests {
     private func populatedState() -> SearchRootReducer.State {
         var state = SearchRootReducer.State()
         state.$historyKeywords.withLock({ $0 = ["watercolor", "artbook"] })
-        state.$quickSearchWords.withLock({ $0 = [.init(name: "Artbooks", content: "artbook")] })
+        state.$savedSearches.withLock({ $0 = [.init(name: "Artbooks", content: "artbook")] })
         state.$galleryHistory.withLock { entries in
             // Recently Seen displays ten, but Remove All must also remove older persisted entries.
             entries = (1...12).map {

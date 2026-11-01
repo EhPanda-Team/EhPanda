@@ -38,7 +38,7 @@ public struct SearchRootReducer: Sendable {
         // Shared with pushed Search screens, the QuickSearch editor and History. All mutations
         // update the persisted collections directly, so other surfaces observe the same records.
         @Shared(.historyKeywords) public var historyKeywords: [String]
-        @Shared(.quickSearchWords) public var quickSearchWords: [QuickSearchWord]
+        @Shared(.savedSearches) public var savedSearches: [SavedSearch]
         @Shared(.galleryHistory) public var galleryHistory: [GalleryHistoryEntry]
         @SharedReader(.tagTranslator) public var tagTranslator: TagTranslator
         @SharedReader(.setting) public var setting: Setting

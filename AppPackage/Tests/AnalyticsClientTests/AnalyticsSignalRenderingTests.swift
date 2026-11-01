@@ -82,7 +82,7 @@ struct AnalyticsSignalRenderingTests {
             rendered: .signal(name: "Search.quickSearchPanelOpened", parameters: ["Search.surface": "searchRoot"])
         ),
         SignalRenderingFixture(
-            signal: .quickSearchWordUsed,
+            signal: .savedSearchUsed,
             rendered: .signal(name: "Search.quickSearchWordUsed", parameters: [:])
         ),
         SignalRenderingFixture(

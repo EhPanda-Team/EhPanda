@@ -107,8 +107,8 @@ private struct GalleryHistoryEntryMock: MigratableModel {
     }
 }
 
-// MOCK — remove with real QuickSearchWord v2. MERGE: v1 `name` + `content` → v2 `combined`.
-private struct QuickSearchWordMock: MigratableModel {
+// MOCK — remove with real SavedSearch v2. MERGE: v1 `name` + `content` → v2 `combined`.
+private struct SavedSearchMock: MigratableModel {
     var combined: String
     static var schemas: [any VersionedSchema.Type] { [SchemaV1.self, SchemaV2.self] }
     enum SchemaV1: VersionedSchema {
@@ -282,14 +282,14 @@ struct SchemaMigrationTests {
     }
 
     @Test
-    func quickSearchWordMergesFields() throws {
-        let v1Blob = try JSONEncoder().encode(QuickSearchWord(name: "n", content: "c"))
-        let migrated = try JSONDecoder().decode(QuickSearchWordMock.self, from: v1Blob)
+    func savedSearchMergesFields() throws {
+        let v1Blob = try JSONEncoder().encode(SavedSearch(name: "n", content: "c"))
+        let migrated = try JSONDecoder().decode(SavedSearchMock.self, from: v1Blob)
         #expect(migrated.combined == "n: c")
     }
     @Test
-    func quickSearchWordMockDecodesNatively() throws {
-        let decoded = try decode(QuickSearchWordMock.self, #"{"schemaVersion": 2, "combined": "x"}"#)
+    func savedSearchMockDecodesNatively() throws {
+        let decoded = try decode(SavedSearchMock.self, #"{"schemaVersion": 2, "combined": "x"}"#)
         #expect(decoded.combined == "x")
     }
 
@@ -338,7 +338,7 @@ struct SchemaMigrationTests {
         #expect(Filter.hasWellFormedSchemas)
         #expect(TagTranslatorInfo.hasWellFormedSchemas)
         #expect(GalleryHistoryEntry.hasWellFormedSchemas)
-        #expect(QuickSearchWord.hasWellFormedSchemas)
+        #expect(SavedSearch.hasWellFormedSchemas)
         #expect(ProgressiveMock.hasWellFormedSchemas)   // versions 1, 2, 3 — contiguous from 1
     }
 }
