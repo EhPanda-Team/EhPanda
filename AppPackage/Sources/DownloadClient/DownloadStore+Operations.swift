@@ -5,7 +5,7 @@ import Resources
 
 private let logger = Logger(category: .init(describing: DownloadStore.self))
 
-/// What one validation pass is permitted to do while it forms its verdict.
+/// What one verification pass is permitted to do while it forms its verdict.
 ///
 /// Both members are decided ONCE, at the public boundary, and never vary per page, so they travel as
 /// one value rather than as two flags threaded side by side through every level of the walk. Naming
@@ -13,11 +13,11 @@ private let logger = Logger(category: .init(describing: DownloadStore.self))
 /// "what may this pass do to the thing it is judging" — `verifiesContentHashes` says how deeply it
 /// may READ, and `discardingRejected` says whether it may WRITE at all.
 ///
-/// The second is the one CR-01 added, and no validation route sets it: a pass whose evidence
+/// The second is the one CR-01 added, and no verification route sets it: a pass whose evidence
 /// gathering deletes files cannot honour a refusal, because the refusal arrives after the deletion.
 /// Since CR-03 that is what the parameter's default already says, so the member exists to carry the
 /// public boundary's decision inward rather than to record an opt-out at each level.
-private struct DownloadValidationPolicy {
+private struct DownloadVerificationPolicy {
     let verifiesContentHashes: Bool
     let discardingRejected: Bool
 }
@@ -35,7 +35,7 @@ private struct DownloadValidationPolicy {
 struct ContentMismatchScan: Equatable, Sendable {
     /// The recorded hash and the file's fresh hash agree.
     ///
-    /// Read by `reconcileValidatedRecordAgainstPageFiles`' coverage answer, which subtracts the
+    /// Read by `reconcileVerifiedRecordAgainstPageFiles`' coverage answer, which subtracts the
     /// whole partition from the claimed set to name the pages the pass could not classify at all.
     /// Without this member that subtraction would report every intact page as unclassified, so the
     /// set is load-bearing rather than informational.
@@ -54,8 +54,8 @@ extension DownloadStore {
     /// Returns the manifest with any missing page hashes filled in. Hashes are recorded at
     /// write time (per page as it downloads, and on capture-restore), so finalize only
     /// *merges*: it hashes a page solely when its recorded hash is empty, never re-hashing
-    /// the whole gallery. There is no automatic re-validation anywhere; verifying existing
-    /// bytes against their hashes is a user-initiated action (`validateImageData(gid:)`).
+    /// the whole gallery. There is no automatic re-verification anywhere; verifying existing
+    /// bytes against their hashes is a user-initiated action (`verifyImages(gid:)`).
     public func addingCurrentFileHashes(
         to manifest: DownloadManifest,
         folderURL: URL
@@ -139,23 +139,23 @@ extension DownloadStore {
     ///
     /// **D-SSOT-01: a readable file whose fresh hash mismatches its recorded hash is POSITIVE,
     /// page-scoped evidence — the same evidence class as a positive absence — so `mismatched`
-    /// licenses durable blanking.** That is what shrinks the validation refusal surface to
+    /// licenses durable blanking.** That is what shrinks the verification refusal surface to
     /// operation-level signals: a scan that could not run, a page that could not be read, and the
     /// wholesale-shape guard. `verified` licenses nothing and is returned because the caller
     /// deciding whether the pass covered every claimed page reads the whole partition rather than a
-    /// remainder it re-derives — `reconcileValidatedRecordAgainstPageFiles`' `unclassifiedPages`,
+    /// remainder it re-derives — `reconcileVerifiedRecordAgainstPageFiles`' `unclassifiedPages`,
     /// where a re-derived remainder is exactly what lost the unprobed population once.
     ///
     /// **D-SSOT-03: `held` is a NON-ANSWER, and a non-answer is never authority to destroy state.**
     /// A page lands there when its bytes could not be probed or could not be read at all — the same
     /// per-file class D-G13-01 protects one level up, where an unprobeable file's recorded hash
     /// survives. Nothing about such a page was established, so its hash stands and its file stays.
-    /// `validate(download:verifiesContentHashes:)` deliberately REPORTS an unreadable page as
+    /// `verify(download:verifiesContentHashes:)` deliberately REPORTS an unreadable page as
     /// corrupted, because for a reader they are equally unusable; that equivalence is a message, and
     /// a message is not a licence to blank.
     ///
-    /// The classification is taken fresh and never from a validation verdict.
-    /// `validate(download:verifiesContentHashes:)` returns at its FIRST failing page, so its message
+    /// The classification is taken fresh and never from a verification verdict.
+    /// `verify(download:verifiesContentHashes:)` returns at its FIRST failing page, so its message
     /// names one page while a partially-mismatched gallery has a SET — and reconciling from the
     /// verdict would correct whichever page the short-circuit happened to reach and silently leave
     /// its siblings claiming bytes that are no longer there.
@@ -177,12 +177,12 @@ extension DownloadStore {
             else {
                 continue
             }
-            // Non-discarding, like every other pass validation takes before its guard has authorized
+            // Non-discarding, like every other pass verification takes before its guard has authorized
             // anything (CR-01) — and since CR-03 that is simply the default, so nothing is written
             // here. This re-probe can only disagree with the presence scan that just yielded the
             // file if the file CHANGED between the two reads, and a race is the weakest evidence in
             // the building — so the page is held, with its hash and its file both intact, and the
-            // next validate classifies it from a settled disk.
+            // next verify classifies it from a settled disk.
             guard let pageURL = validatedChildURL(root: folderURL, relativePath: relativePath),
                   sanitizeAssetFileIfNeeded(at: pageURL)
             else {
@@ -224,7 +224,7 @@ extension DownloadStore {
     /// pages down to those whose file is MISSING before it resolves any fetch, so a repair would skip
     /// a blanked page whose file survived. `finalizeDownload`'s `addingCurrentFileHashes` merge then
     /// hashes exactly the blank-hash pages from the files currently on disk, so the stale bytes would
-    /// be re-recorded as truth and every later validation would pass over them. Both behaviors are
+    /// be re-recorded as truth and every later verification would pass over them. Both behaviors are
     /// correct for the missing-file family — an existing file there really is reusable — and only
     /// this family makes them wrong, which is why the fix is to remove the file rather than to add a
     /// branch to either of them.
@@ -563,14 +563,14 @@ extension DownloadStore {
     /// repair-versus-redownload question decide nothing irreversible, and both of them nevertheless
     /// deleted a claimed page's file on an ordinary read while nothing on either route wrote the
     /// manifest — so the record went on claiming a page the app itself had removed, across relaunch.
-    /// A report is a read. `validateImageData` needs the same value for a further reason: its
+    /// A report is a read. `verifyImages` needs the same value for a further reason: its
     /// verdict is the input to a reconciliation that may refuse, and a refusal must find the disk
     /// exactly as it was.
-    public func validate(
+    public func verify(
         download: DownloadedGallery,
         verifiesContentHashes: Bool,
         discardingRejected: Bool = false
-    ) -> DownloadValidationState {
+    ) -> DownloadVerificationState {
         let folderURL = download.folderURL
         guard fileManager.operate({ $0.fileExists(atPath: folderURL.path(percentEncoded: false)) }) else {
             return .missingFiles(.RLocalizable.downloadStoreDownloadFolderMissing)
@@ -579,25 +579,25 @@ extension DownloadStore {
         guard fileManager.operate({ $0.fileExists(atPath: manifestURL.path(percentEncoded: false)) }) else {
             return .missingFiles(.RLocalizable.downloadStoreManifestMissing)
         }
-        // Validation converts any manifest read or decode failure into the existing corrupted-files state.
+        // Verification converts any manifest read or decode failure into the existing corrupted-files state.
         // Unlike the discovery probes, the manifest file is known to exist here (checked above),
         // so a failure is genuine corruption and worth a log line.
         let manifest: DownloadManifest
         do {
             manifest = try readManifest(folderURL: folderURL)
         } catch {
-            logger.error("Download manifest read failed during validation: \(error, privacy: .private)")
+            logger.error("Download manifest read failed during verification: \(error, privacy: .private)")
             return .missingFiles(.RLocalizable.downloadStoreManifestCorrupted)
         }
-        if let pageValidationFailure = validatePages(
+        if let pageVerificationFailure = verifyPages(
             folderURL: folderURL,
             manifest: manifest,
-            policy: DownloadValidationPolicy(
+            policy: DownloadVerificationPolicy(
                 verifiesContentHashes: verifiesContentHashes,
                 discardingRejected: discardingRejected
             )
         ) {
-            return pageValidationFailure
+            return pageVerificationFailure
         }
         return .valid
     }
@@ -618,37 +618,37 @@ extension DownloadStore {
         return try fileHash(at: fileURL)
     }
 
-    private func validatePages(
+    private func verifyPages(
         folderURL: URL,
         manifest: DownloadManifest,
-        policy: DownloadValidationPolicy
-    ) -> DownloadValidationState? {
+        policy: DownloadVerificationPolicy
+    ) -> DownloadVerificationState? {
         let existingPages = existingPageRelativePaths(
             folderURL: folderURL,
             manifest: manifest,
             discardingRejected: policy.discardingRejected
         )
         for page in manifest.pages.keys.sorted() {
-            if let validationFailure = validatePage(
+            if let verificationFailure = verifyPage(
                 folderURL: folderURL,
                 page: page,
                 expectedHash: manifest.pages[page] ?? "",
                 existingPageRelativePaths: existingPages,
                 policy: policy
             ) {
-                return validationFailure
+                return verificationFailure
             }
         }
         return nil
     }
 
-    private func validatePage(
+    private func verifyPage(
         folderURL: URL,
         page: Int,
         expectedHash: String,
         existingPageRelativePaths: [Int: String],
-        policy: DownloadValidationPolicy
-    ) -> DownloadValidationState? {
+        policy: DownloadVerificationPolicy
+    ) -> DownloadVerificationState? {
         guard !expectedHash.isEmpty else {
             return nil
         }
@@ -664,13 +664,13 @@ extension DownloadStore {
         }
 
         if policy.verifiesContentHashes {
-            // Validation deliberately treats hash-read failures the same as a content-hash mismatch:
+            // Verification deliberately treats hash-read failures the same as a content-hash mismatch:
             // a page whose bytes cannot be read is as unusable as one whose bytes changed.
             let actualHash: String?
             do {
                 actualHash = try fileHash(at: pageURL)
             } catch {
-                logger.error("Download page hash read failed during validation: \(error, privacy: .private)")
+                logger.error("Download page hash read failed during verification: \(error, privacy: .private)")
                 actualHash = nil
             }
             guard actualHash == expectedHash else {

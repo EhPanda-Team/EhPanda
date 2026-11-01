@@ -50,7 +50,7 @@ public struct DownloadInspection: Equatable, Sendable {
     /// D-SSOT-08: the pages the inspector's retry action may send — the failed set everywhere EXCEPT
     /// over a file-shaped failure on the error surface, where it is the WHOLE page set.
     ///
-    /// That surface carries an OPERATION-level signal and nothing else: it says the last validation
+    /// That surface carries an OPERATION-level signal and nothing else: it says the last verification
     /// could not produce trustworthy evidence for every claimed page — a directory listing that
     /// failed, a page whose bytes could not be read, a wholesale reconciliation the irreversibility
     /// guard refused. It says nothing about any individual page, so no per-page subset is derivable
@@ -85,7 +85,7 @@ public struct DownloadInspection: Equatable, Sendable {
     /// For the second it fetches nothing: the run's `pendingPageIndices` narrows any selection to
     /// pages whose file is MISSING, so an unreadable-but-present page is skipped, the entry has
     /// already been cleared at enqueue, and the record settles back to `.completed` until the next
-    /// Validate re-raises it. That family's effective affordances are re-Validate and the
+    /// Verify re-raises it. That family's effective affordances are re-Verify and the
     /// destructive route; it is pinned as current behavior by
     /// `SSOTStateCase.unreadablePageHeldOverACompleteClaim`.
     ///
@@ -95,7 +95,7 @@ public struct DownloadInspection: Equatable, Sendable {
     /// and narrowing this basis cannot target the held family without un-claiming the
     /// wholesale-refusal one, because D-SSOT-07 forbids consulting the disk to tell them apart. The
     /// sanctioned way to separate them, if it is ever wanted, is an operation-level FAMILY TAG on
-    /// the `validationErrors` entry — not a per-page verdict, session-scoped like the entry itself,
+    /// the `verificationErrors` entry — not a per-page verdict, session-scoped like the entry itself,
     /// and moot after a relaunch, which equalizes the families anyway. That is a design round.
     public var retryablePageIndices: [Int] {
         guard download.displayStatus == .error,

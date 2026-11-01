@@ -87,7 +87,7 @@ struct DownloadLogPrivacyInvariantTests {
     /// assertion kept passing. An equality against this table makes every such change a deliberate,
     /// visible edit here — including the working-manifest reconciliation notice, whose whole purpose
     /// is to leave a blanking trail a device archive can show.
-    /// The `+PersistenceNormalize.swift` entry is the validate-time recovery's forensic line, added
+    /// The `+PersistenceNormalize.swift` entry is the verify-time recovery's forensic line, added
     /// deliberately rather than inherited: where a reconciliation removed refuted page files and then
     /// could not make the matching blank durable — twice, counting its single retry — the record
     /// describes files this app deleted, and that divergence outlives the session while the transient

@@ -182,7 +182,7 @@ struct DownloadInspectorRetryTests: DownloadFeatureTestCase {
     /// resettles the list but reports nothing: the rows flash to `.pending` from the optimistic
     /// rewrite and then silently revert, indistinguishable from a network failure or from a tap
     /// that never registered. The reducer already owns a toast surface and already uses it to
-    /// report a validation result, so this wires an existing affordance rather than inventing one.
+    /// report a verification result, so this wires an existing affordance rather than inventing one.
     ///
     /// **The caption is the CLIENT's sentence, not one this screen picks.** Only the boundary knows
     /// which of its refusals happened, and the distinct error exists precisely so the message can

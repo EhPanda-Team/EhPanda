@@ -7,7 +7,7 @@ import Testing
 
 struct DownloadStoreHashTests {
     @Test
-    func testValidateReportsCorruptedPageImageData() throws {
+    func testVerifyReportsCorruptedPageImageData() throws {
         let (storage, rootURL) = makeStorage()
         defer { removeTemporaryItem(at: rootURL) }
 
@@ -22,7 +22,7 @@ struct DownloadStoreHashTests {
         try Data([0x03]).write(to: pageTwoURL, options: .atomic)
 
         #expect(
-            storage.validate(download: download, verifiesContentHashes: true)
+            storage.verify(download: download, verifiesContentHashes: true)
                 == .missingFiles(.RLocalizable.downloadStorePageImageCorrupted(page: 2))
         )
     }
@@ -49,7 +49,7 @@ struct DownloadStoreHashTests {
 
         #expect(refreshedManifest.pages[1] == manifest.pages[1])
         #expect(refreshedManifest.pages[2] != manifest.pages[2])
-        #expect(storage.validate(download: download, verifiesContentHashes: true) == .valid)
+        #expect(storage.verify(download: download, verifiesContentHashes: true) == .valid)
     }
 
     @Test

@@ -21,7 +21,7 @@ import Resources
 ///   mapping; success is silent because the observe stream renders the queued work.
 /// - `toggleDownloadPauseDone` — **reports**: failure sets `toast` through the same mapping;
 ///   success is silent for the same reason as retry.
-/// - `validateImageDataDone` — **reports both outcomes**: validation is a question the user asked,
+/// - `verifyImagesDone` — **reports both outcomes**: verification is a question the user asked,
 ///   so its answer is a toast whether or not the pages turned out valid.
 ///
 /// `observeDownloadsDone` carries no outcome — it is a stream of records, with no failure channel
@@ -44,7 +44,7 @@ public struct DownloadInspectorReducer: Sendable {
         public var loadingState: LoadingState = .loading
         public var inspectionRequestID = UUID()
         public var retryingPageIndices = Set<Int>()
-        public var isValidatingImageData = false
+        public var isVerifyingImages = false
 
         public init(gid: String = "") {
             self.gid = gid
@@ -64,8 +64,8 @@ public struct DownloadInspectorReducer: Sendable {
         case retryPagesDone(Result<Void, AppError>)
         case toggleDownloadPause
         case toggleDownloadPauseDone(Result<Void, AppError>)
-        case validateImageData
-        case validateImageDataDone(DownloadValidationState?)
+        case verifyImages
+        case verifyImagesDone(DownloadVerificationState?)
     }
 
     @Dependency(\.analyticsClient) private var analyticsClient
@@ -254,19 +254,19 @@ public struct DownloadInspectorReducer: Sendable {
                 // observe stream renders it, so a success toast would be noise to dismiss.
                 return .none
 
-            case .validateImageData:
+            case .verifyImages:
                 guard !state.gid.isEmpty,
-                      state.inspection?.canValidateImageData == true,
-                      !state.isValidatingImageData
+                      state.inspection?.canVerifyImages == true,
+                      !state.isVerifyingImages
                 else { return .none }
-                state.isValidatingImageData = true
+                state.isVerifyingImages = true
                 return .run { [gid = state.gid] send in
-                    await send(.validateImageDataDone(await downloadClient.validateImageData(gid)))
+                    await send(.verifyImagesDone(await downloadClient.verifyImages(gid)))
                 }
 
-            case .validateImageDataDone(let validation):
-                state.isValidatingImageData = false
-                state.toast = validation.toastConfig
+            case .verifyImagesDone(let verification):
+                state.isVerifyingImages = false
+                state.toast = verification.toastConfig
                 return .send(.loadInspection)
             }
         }
@@ -274,17 +274,17 @@ public struct DownloadInspectorReducer: Sendable {
     }
 }
 
-private extension Optional where Wrapped == DownloadValidationState {
+private extension Optional where Wrapped == DownloadVerificationState {
     var toastConfig: AppAlertState<Never> {
         switch self {
         case .some(.valid):
-            return .success(caption: .imageDataValid)
+            return .success(caption: .imagesVerified)
 
         case .some(.missingFiles(let message)):
             return .error(caption: message)
 
         case nil:
-            return .error(caption: .imageDataUnavailable)
+            return .error(caption: .imageVerificationUnavailable)
         }
     }
 }

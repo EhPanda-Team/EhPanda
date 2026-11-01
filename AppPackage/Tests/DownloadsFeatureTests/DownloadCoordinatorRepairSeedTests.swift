@@ -79,12 +79,12 @@ struct DownloadCoordinatorRepairSeedTests: DownloadFeatureTestCase {
     /// D-SSOT-07 that record's completeness comes from the manifest while its page URLs are rendering
     /// resources only. A probe that deleted the file here would let a routine refresh destroy a page
     /// the manifest still claims, leaving the page reading `.downloaded` over nothing, licensed by no
-    /// reconciliation and invisible until the user runs Validate.
+    /// reconciliation and invisible until the user runs Verify.
     ///
     /// The housekeeping was not lost, only moved behind the one path entitled to act. CR-03 then
     /// narrowed that set to what the entitlement actually licenses: the repair seed alone names the
     /// discarding flag, because every page it removes is one the same bracketed preparation blanks
-    /// the record for. `validate`, the finalize merge, the capture target and the coordinator's
+    /// the record for. `verify`, the finalize merge, the capture target and the coordinator's
     /// former folder sweep were never in that position — they delete and reconcile nothing — so they
     /// are reads now, and the sweep, which existed for the deletion and nothing else, is gone.
     /// This case pins the file's SURVIVAL rather than dropping the assertion: a display path that

@@ -409,7 +409,7 @@ struct DownloadQueueIntentSnapshot: Equatable {
     let queuedMode: DownloadStartMode?
     let queuedPageSelection: [Int]?
     let downloadError: DownloadFailure?
-    let validationError: DownloadFailure?
+    let verificationError: DownloadFailure?
     let failedPageIndices: [Int]
     let hasContinuedSession: Bool
     let backgroundSessionStartCount: Int
@@ -434,7 +434,7 @@ extension DownloadCoordinator {
             queuedMode: queuedModes[gid],
             queuedPageSelection: queuedPageSelections[gid],
             downloadError: downloadErrors[gid],
-            validationError: validationErrors[gid],
+            verificationError: verificationErrors[gid],
             failedPageIndices: (failedPageErrors[gid] ?? [:]).keys.sorted(),
             hasContinuedSession: testingHasContinuedSession(),
             backgroundSessionStartCount: backgroundSessionStartCount
@@ -557,8 +557,8 @@ final class PostRemovalListingFailureControl: Sendable {
 /// filesystem operation to `FileManager` unchanged.
 ///
 /// **The listing-call choreography this keys on**, because keying on an ordinal would silently
-/// re-target itself the moment a call is added. Inside one `validateImageData` over a mismatched
-/// page, the gallery folder is enumerated by `storage.validate`'s own page check, then by the
+/// re-target itself the moment a call is added. Inside one `verifyImages` over a mismatched
+/// page, the gallery folder is enumerated by `storage.verify`'s own page check, then by the
 /// reconciliation's presence scan, then — after `removeRefutedPageFiles` has deleted the refuted
 /// file — by the blanking pass's rescan, and then once more by the recovery's rescan. Only the third
 /// of those follows a removal, so "the first listing after the removal" names the post-removal

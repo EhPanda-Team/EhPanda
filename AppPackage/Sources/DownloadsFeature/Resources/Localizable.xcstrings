@@ -480,7 +480,7 @@
         }
       }
     },
-    "image_data_unavailable" : {
+    "image_verification_unavailable" : {
       "extractionState" : "manual",
       "localizations" : {
         "de" : {
@@ -521,7 +521,7 @@
         }
       }
     },
-    "image_data_valid" : {
+    "images_verified" : {
       "extractionState" : "manual",
       "localizations" : {
         "de" : {
@@ -1027,7 +1027,7 @@
         }
       }
     },
-    "validate_image_data" : {
+    "verify_images" : {
       "extractionState" : "manual",
       "localizations" : {
         "de" : {
@@ -1068,7 +1068,7 @@
         }
       }
     },
-    "validating_image_data" : {
+    "verifying_images" : {
       "extractionState" : "manual",
       "localizations" : {
         "de" : {

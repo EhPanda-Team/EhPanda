@@ -5,20 +5,20 @@ import Foundation
 import Resources
 import Testing
 
-/// D-G5B-01 and D-SSOT-01: what a `.missingFiles` validation verdict is allowed to make DURABLE, and
+/// D-G5B-01 and D-SSOT-01: what a `.missingFiles` verification verdict is allowed to make DURABLE, and
 /// what it must leave transient.
 ///
 /// The suite is deliberately piecewise, because the contract is. On one side of the boundary the
-/// validate-time reconciliation holds POSITIVE per-page evidence — a successful page-file scan that
+/// verify-time reconciliation holds POSITIVE per-page evidence — a successful page-file scan that
 /// names the pages whose files are gone, and a fresh content pass that names the pages whose files
 /// are there and whose bytes no longer hash to what the record claims — and the record is corrected
 /// on disk: the hashes of exactly those pages are blanked, every provably-mismatched file is removed
 /// so the blanked page is genuinely repairable, the manifest is written, the index is updated, and
-/// the transient `validationErrors` entry is dropped so nothing outranks the honest record. On the
+/// the transient `verificationErrors` entry is dropped so nothing outranks the honest record. On the
 /// other side the pass could not produce trustworthy evidence for every claimed page — a failed
 /// scan, a page whose bytes could not be read at all, or a shape where every claimed page would be
 /// blanked at once — the manifest is left verbatim where the guard refused, and the
-/// `validationErrors` entry is what the user sees.
+/// `verificationErrors` entry is what the user sees.
 ///
 /// Each arm asserts its OWN regime and borrows nothing from the other's expectations: a single
 /// blanket assertion across the boundary would either pin the refusal family to a correction it
@@ -26,18 +26,18 @@ import Testing
 /// after a RELAUNCH — a second coordinator built over the same storage root — because durability is
 /// the whole point of the durable arm and the refusal arm's residual is only honest if its
 /// post-relaunch reading is stated rather than assumed.
-struct DownloadValidationReconciliationTests: DownloadFeatureTestCase {
-    /// The durable arm: a partially-missing gallery is corrected on disk by the validation that
+struct DownloadVerificationReconciliationTests: DownloadFeatureTestCase {
+    /// The durable arm: a partially-missing gallery is corrected on disk by the verification that
     /// found it, so the record, the count and the start gates all read one truth.
     ///
     /// Three of the three claimed pages are recorded complete, pages 1 and 3 really exist with the
     /// bytes their hashes name, and page 2's file is gone — the reported scenario in miniature. The
     /// scan classifies every page, so the blanking covers the missing SET rather than the single
-    /// page `storage.validate` short-circuits on, and the record afterwards reads 2 of 3 with no
+    /// page `storage.verify` short-circuits on, and the record afterwards reads 2 of 3 with no
     /// error over it: `.inactive`, which is what `canTogglePause` accepts and what `resumeMode`
     /// resolves to `.repair`.
     @Test
-    func testValidatingAPartiallyMissingGalleryBlanksExactlyTheMissingPagesOnDisk() async throws {
+    func testVerifyingAPartiallyMissingGalleryBlanksExactlyTheMissingPagesOnDisk() async throws {
         let gallery = SessionGallery(
             gid: "215601",
             title: "Reconciled",
@@ -57,9 +57,9 @@ struct DownloadValidationReconciliationTests: DownloadFeatureTestCase {
         try recordRealPageHashes(for: gallery, in: fixture, indices: [1, 3])
         await fixture.manager.reloadDownloadIndex()
 
-        let validation = await fixture.manager.validateImageData(gid: gallery.gid)
+        let verification = await fixture.manager.verifyImages(gid: gallery.gid)
 
-        #expect(validation == .missingFiles(.RLocalizable.downloadStorePageMissing(page: 2)))
+        #expect(verification == .missingFiles(.RLocalizable.downloadStorePageMissing(page: 2)))
         let download = try #require(await fixture.manager.fetchDownload(gid: gallery.gid))
         #expect(download.displayStatus == .inactive)
         #expect(download.lastError == nil)
@@ -89,7 +89,7 @@ struct DownloadValidationReconciliationTests: DownloadFeatureTestCase {
     }
 
     /// The content-durable arm (D-SSOT-01): a page whose file is THERE and whose bytes no longer
-    /// hash to the recorded value is corrected on disk by the validation that found it, exactly as a
+    /// hash to the recorded value is corrected on disk by the verification that found it, exactly as a
     /// missing page is.
     ///
     /// A readable file whose fresh hash mismatches its record is a positive, page-scoped
@@ -97,13 +97,13 @@ struct DownloadValidationReconciliationTests: DownloadFeatureTestCase {
     /// blanking. The corrupt file is removed as part of that blanking (D-SSOT-04): a blanked page
     /// whose file survived would be skipped by `resolveSourceIfNeeded`'s missing-file filter and then
     /// re-hashed from the stale bytes by `finalizeDownload`'s `addingCurrentFileHashes` merge, which
-    /// would launder the corruption into a record that validates clean forever.
+    /// would launder the corruption into a record that verifies clean forever.
     ///
     /// All three pages are recorded complete and all three files exist; only page 2's bytes were
     /// overwritten. The record afterwards reads 2 of 3 with no error over it — `.inactive`, which is
     /// what `canTogglePause` accepts and what `resumeMode` resolves to `.repair`.
     @Test
-    func testValidatingAMismatchedPageBlanksItsHashAndRemovesItsFileOnDisk() async throws {
+    func testVerifyingAMismatchedPageBlanksItsHashAndRemovesItsFileOnDisk() async throws {
         let gallery = SessionGallery(
             gid: "215605",
             title: "Mismatched",
@@ -124,9 +124,9 @@ struct DownloadValidationReconciliationTests: DownloadFeatureTestCase {
         try corruptPageFile(for: gallery, in: fixture, index: 2)
         await fixture.manager.reloadDownloadIndex()
 
-        let validation = await fixture.manager.validateImageData(gid: gallery.gid)
+        let verification = await fixture.manager.verifyImages(gid: gallery.gid)
 
-        #expect(validation == .missingFiles(.RLocalizable.downloadStorePageImageCorrupted(page: 2)))
+        #expect(verification == .missingFiles(.RLocalizable.downloadStorePageImageCorrupted(page: 2)))
         let download = try #require(await fixture.manager.fetchDownload(gid: gallery.gid))
         #expect(download.displayStatus == .inactive)
         #expect(download.lastError == nil)
@@ -168,16 +168,16 @@ struct DownloadValidationReconciliationTests: DownloadFeatureTestCase {
         #expect(await relaunched.resumeMode(for: reread) == .repair)
     }
 
-    /// The mixed arm: absence and mismatch are the same evidence class, so ONE validate reconciles
+    /// The mixed arm: absence and mismatch are the same evidence class, so ONE verify reconciles
     /// both families at once.
     ///
     /// Page 1 has no file and page 3's bytes were overwritten, so the prospective blank set is
     /// exactly `{1, 3}` out of four claimed pages. The evidence is also proven to be gathered fresh
-    /// rather than taken from the verdict: `storage.validate` short-circuits at page 1 and never
+    /// rather than taken from the verdict: `storage.verify` short-circuits at page 1 and never
     /// looks at page 3 at all, yet page 3 is reconciled — which a verdict-shaped implementation
     /// could not do.
     @Test
-    func testValidatingAMixedMissingAndMismatchedGalleryReconcilesBothFamiliesAtOnce() async throws {
+    func testVerifyingAMixedMissingAndMismatchedGalleryReconcilesBothFamiliesAtOnce() async throws {
         let gallery = SessionGallery(
             gid: "215606",
             title: "Mixed",
@@ -200,9 +200,9 @@ struct DownloadValidationReconciliationTests: DownloadFeatureTestCase {
         try corruptPageFile(for: gallery, in: fixture, index: 3)
         await fixture.manager.reloadDownloadIndex()
 
-        let validation = await fixture.manager.validateImageData(gid: gallery.gid)
+        let verification = await fixture.manager.verifyImages(gid: gallery.gid)
 
-        #expect(validation == .missingFiles(.RLocalizable.downloadStorePageMissing(page: 1)))
+        #expect(verification == .missingFiles(.RLocalizable.downloadStorePageMissing(page: 1)))
         let download = try #require(await fixture.manager.fetchDownload(gid: gallery.gid))
         #expect(download.displayStatus == .inactive)
         #expect(download.lastError == nil)
@@ -278,9 +278,9 @@ struct DownloadValidationReconciliationTests: DownloadFeatureTestCase {
         try corruptPageFile(for: gallery, in: fixture, index: 2)
         await fixture.manager.reloadDownloadIndex()
 
-        let validation = await fixture.manager.validateImageData(gid: gallery.gid)
+        let verification = await fixture.manager.verifyImages(gid: gallery.gid)
 
-        #expect(validation == .missingFiles(.RLocalizable.downloadStorePageMissing(page: 1)))
+        #expect(verification == .missingFiles(.RLocalizable.downloadStorePageMissing(page: 1)))
         let download = try #require(await fixture.manager.fetchDownload(gid: gallery.gid))
         #expect(download.displayStatus == .error)
         #expect(download.lastError?.code == .fileOperationFailed)
@@ -293,9 +293,9 @@ struct DownloadValidationReconciliationTests: DownloadFeatureTestCase {
         // still there, because the refusal preceded the first destructive act.
         #expect(FileManager.default.fileExists(atPath: pageTwoURL.path(percentEncoded: false)))
 
-        // The documented residual, pinned rather than hidden: `validationErrors` is session-scoped by
+        // The documented residual, pinned rather than hidden: `verificationErrors` is session-scoped by
         // design, and the record the refusal preserved still claims both pages — so a fresh process
-        // reads this gallery as `.completed` until the user validates again. That is the
+        // reads this gallery as `.completed` until the user verifies again. That is the
         // irreversibility defence working as designed, not a durability miss, and 15-57's widened
         // inspector retry is what starts such a record in-session.
         let relaunched = DownloadCoordinator(
@@ -315,7 +315,7 @@ struct DownloadValidationReconciliationTests: DownloadFeatureTestCase {
     /// file. So the hold is per-page rather than wholesale: page 2's positive mismatch still
     /// reconciles durably while page 3 keeps both its hash and its file.
     ///
-    /// What the hold costs is the `validationErrors` entry, and that is the whole of D-SSOT-05: the
+    /// What the hold costs is the `verificationErrors` entry, and that is the whole of D-SSOT-05: the
     /// entry now signals only that the pass could not produce trustworthy evidence for every claimed
     /// page, which is exactly true here. The record is honest about page 2 and unchanged about page
     /// 3; the session says the operation was incomplete. The gallery stays startable through 15-57's
@@ -364,9 +364,9 @@ struct DownloadValidationReconciliationTests: DownloadFeatureTestCase {
         )
         await fixture.manager.reloadDownloadIndex()
 
-        let validation = await fixture.manager.validateImageData(gid: gallery.gid)
+        let verification = await fixture.manager.verifyImages(gid: gallery.gid)
 
-        #expect(validation == .missingFiles(.RLocalizable.downloadStorePageImageCorrupted(page: 2)))
+        #expect(verification == .missingFiles(.RLocalizable.downloadStorePageImageCorrupted(page: 2)))
         let download = try #require(await fixture.manager.fetchDownload(gid: gallery.gid))
         // The operation-level surface, kept: the pass classified pages 1 and 2 and could not
         // classify page 3, so it cannot claim to have reconciled everything it judged.
@@ -443,14 +443,14 @@ struct DownloadValidationReconciliationTests: DownloadFeatureTestCase {
         try corruptPageFile(for: gallery, in: fixture, index: 2)
         await fixture.manager.reloadDownloadIndex()
 
-        let validation = await fixture.manager.validateImageData(gid: gallery.gid)
+        let verification = await fixture.manager.verifyImages(gid: gallery.gid)
 
         // Anti-vacuity first: the case really entered the post-removal exit the recovery exists for.
         #expect(
             control.consumedFailureCount == 1,
             "the injected post-removal rescan failure was not consumed exactly once"
         )
-        #expect(validation == .missingFiles(.RLocalizable.downloadStorePageImageCorrupted(page: 2)))
+        #expect(verification == .missingFiles(.RLocalizable.downloadStorePageImageCorrupted(page: 2)))
         let download = try #require(await fixture.manager.fetchDownload(gid: gallery.gid))
         #expect(download.displayStatus == .inactive)
         #expect(download.lastError == nil)
@@ -480,7 +480,7 @@ struct DownloadValidationReconciliationTests: DownloadFeatureTestCase {
     }
 
     /// The recovery's own failure (CR-02): when the retry cannot write either, the entry survives
-    /// and the NEXT validate converges the record by itself.
+    /// and the NEXT verify converges the record by itself.
     ///
     /// The write is staged to throw for real rather than through a double: the store's `writeJSON`
     /// bottoms out in `Data.write(to:options:.atomic)`, which takes no injected collaborator, so the
@@ -498,7 +498,7 @@ struct DownloadValidationReconciliationTests: DownloadFeatureTestCase {
     /// guards with nothing special-cased: the divergence is self-healing at the next tap, which is
     /// exactly why the removal-first ordering stays and the reversal was rejected.
     @Test
-    func testAnUnwritableManifestKeepsTheEntryAndTheNextValidateConvergesTheRecord() async throws {
+    func testAnUnwritableManifestKeepsTheEntryAndTheNextVerifyConvergesTheRecord() async throws {
         let gallery = SessionGallery(
             gid: "215611",
             title: "Unwritable",
@@ -530,7 +530,7 @@ struct DownloadValidationReconciliationTests: DownloadFeatureTestCase {
             clearImmutableFlag(at: manifestURL)
         }
 
-        let heldValidation = await fixture.manager.validateImageData(gid: gallery.gid)
+        let heldVerification = await fixture.manager.verifyImages(gid: gallery.gid)
 
         // THE STAGING PREMISE, asserted first and named: if an atomic write over an immutable target
         // does not throw on this filesystem, nothing below is about the recovery at all, and this
@@ -541,7 +541,7 @@ struct DownloadValidationReconciliationTests: DownloadFeatureTestCase {
             "staging premise: the atomic manifest write must throw over an immutable target"
         )
 
-        #expect(heldValidation == .missingFiles(.RLocalizable.downloadStorePageImageCorrupted(page: 2)))
+        #expect(heldVerification == .missingFiles(.RLocalizable.downloadStorePageImageCorrupted(page: 2)))
         let held = try #require(await fixture.manager.fetchDownload(gid: gallery.gid))
         #expect(held.displayStatus == .error)
         #expect(held.lastError?.code == .fileOperationFailed)
@@ -556,11 +556,11 @@ struct DownloadValidationReconciliationTests: DownloadFeatureTestCase {
 
         clearImmutableFlag(at: manifestURL)
 
-        let convergingValidation = await fixture.manager.validateImageData(gid: gallery.gid)
+        let convergingVerification = await fixture.manager.verifyImages(gid: gallery.gid)
 
         // The removed page reads as the positive absence it now is, so the ordinary presence arm
         // reconciles it — no branch anywhere knows this record was ever mid-recovery.
-        #expect(convergingValidation == .missingFiles(.RLocalizable.downloadStorePageMissing(page: 2)))
+        #expect(convergingVerification == .missingFiles(.RLocalizable.downloadStorePageMissing(page: 2)))
         let converged = try #require(await fixture.manager.fetchDownload(gid: gallery.gid))
         #expect(converged.displayStatus == .inactive)
         #expect(converged.lastError == nil)
@@ -583,11 +583,11 @@ struct DownloadValidationReconciliationTests: DownloadFeatureTestCase {
     /// dropped the only signal saying otherwise.
     ///
     /// What that cost is pinned here from the far side rather than left implicit.
-    /// `canValidateImageData` is `[.completed, .updateAvailable].contains(displayStatus) ||
+    /// `canVerifyImages` is `[.completed, .updateAvailable].contains(displayStatus) ||
     /// lastError?.code == .fileOperationFailed`, so a record left `.inactive` with no entry
     /// satisfies neither disjunct: the single sensor would be unreachable for the very page nobody
     /// could answer for. Keeping the entry is what keeps it reachable, and the assertion on
-    /// `canValidateImageData` is the proof rather than the status assertion above it.
+    /// `canVerifyImages` is the proof rather than the status assertion above it.
     ///
     /// The durable half is asserted in the same gallery deliberately: a hold that also blocked its
     /// sibling's correction would satisfy every status assertion here while doing nothing.
@@ -617,16 +617,16 @@ struct DownloadValidationReconciliationTests: DownloadFeatureTestCase {
         try makeAssetFileUnprobeable(at: pageFileURL(for: gallery, in: fixture, index: 2))
         await fixture.manager.reloadDownloadIndex()
 
-        let validation = await fixture.manager.validateImageData(gid: gallery.gid)
+        let verification = await fixture.manager.verifyImages(gid: gallery.gid)
 
-        #expect(validation == .missingFiles(.RLocalizable.downloadStorePageMissing(page: 1)))
+        #expect(verification == .missingFiles(.RLocalizable.downloadStorePageMissing(page: 1)))
         let download = try #require(await fixture.manager.fetchDownload(gid: gallery.gid))
         #expect(download.displayStatus == .error)
         #expect(download.lastError?.code == .fileOperationFailed)
         #expect(download.completedPageCount == 2)
         // The reason the entry has to survive: it is the only disjunct left that keeps the sensor
         // reachable for the page this pass could not answer for.
-        #expect(download.canValidateImageData)
+        #expect(download.canVerifyImages)
 
         let diskManifest = try fixture.storage.readManifest(folderURL: folderURL)
         // The positive-evidence half proceeded anyway: a non-answer on one page never blocks
@@ -652,7 +652,7 @@ struct DownloadValidationReconciliationTests: DownloadFeatureTestCase {
     }
 
     /// The refusal arm: blanking that would empty every claimed hash at once is refused, so the
-    /// verdict stays the transient `validationErrors` entry it has always been.
+    /// verdict stays the transient `verificationErrors` entry it has always been.
     ///
     /// The single-page fixture is the smallest wholesale shape — one claimed page, no file — so the
     /// all-or-nothing guard fires. That guard is the irreversibility defence: the manifest was just
@@ -682,9 +682,9 @@ struct DownloadValidationReconciliationTests: DownloadFeatureTestCase {
             fixture.storage.readManifest(folderURL: folderURL).pages[1]
         )
 
-        let validation = await fixture.manager.validateImageData(gid: gallery.gid)
+        let verification = await fixture.manager.verifyImages(gid: gallery.gid)
 
-        #expect(validation == .missingFiles(.RLocalizable.downloadStorePageMissing(page: 1)))
+        #expect(verification == .missingFiles(.RLocalizable.downloadStorePageMissing(page: 1)))
         let download = try #require(await fixture.manager.fetchDownload(gid: gallery.gid))
         #expect(download.displayStatus == .error)
         #expect(download.lastError?.code == .fileOperationFailed)
@@ -694,9 +694,9 @@ struct DownloadValidationReconciliationTests: DownloadFeatureTestCase {
         #expect(diskManifest.pages[1] == claimedHash)
         #expect(diskManifest.completedPageCount == 1)
 
-        // The documented residual, pinned rather than hidden: `validationErrors` is session-scoped
+        // The documented residual, pinned rather than hidden: `verificationErrors` is session-scoped
         // by design, and the record the refusal preserved still claims its page — so a fresh
-        // process reads this gallery as `.completed` until the user validates again. That is the
+        // process reads this gallery as `.completed` until the user verifies again. That is the
         // irreversibility defence working as designed, not a durability miss; the wholesale shape
         // is exactly the one the guard cannot distinguish from a probe that explained nothing.
         let relaunched = DownloadCoordinator(
@@ -714,7 +714,7 @@ struct DownloadValidationReconciliationTests: DownloadFeatureTestCase {
     ///
     /// This is the whole point of the fix, so it is driven through `togglePause(gid:)` — the very
     /// call the inspector's Resume button makes — rather than through a synthetic enqueue. The old
-    /// shape could not get here at all: a complete-claiming record under a `validationErrors` entry
+    /// shape could not get here at all: a complete-claiming record under a `verificationErrors` entry
     /// derives `.error`, and `togglePause`'s `.error` arm hard-fails with `.unknown`. Nothing new
     /// was built to fix that; the record was made honest, and honest records were always startable.
     ///
@@ -766,14 +766,14 @@ struct DownloadValidationReconciliationTests: DownloadFeatureTestCase {
         let blocking = try #require(await fixture.manager.fetchDownload(gid: blocker.gid))
         #expect(blocking.displayStatus == .active)
 
-        let validation = await fixture.manager.validateImageData(gid: target.gid)
+        let verification = await fixture.manager.verifyImages(gid: target.gid)
 
-        #expect(validation == .missingFiles(.RLocalizable.downloadStorePageMissing(page: 2)))
-        let validated = try #require(await fixture.manager.fetchDownload(gid: target.gid))
-        // The clearance proof: `validationErrors` outranks everything in the derivation, so
+        #expect(verification == .missingFiles(.RLocalizable.downloadStorePageMissing(page: 2)))
+        let verified = try #require(await fixture.manager.fetchDownload(gid: target.gid))
+        // The clearance proof: `verificationErrors` outranks everything in the derivation, so
         // `.inactive` is only reachable once the entry is gone.
-        #expect(validated.displayStatus == .inactive)
-        #expect(validated.canTogglePause)
+        #expect(verified.displayStatus == .inactive)
+        #expect(verified.canTogglePause)
 
         try await fixture.manager.togglePause(gid: target.gid).get()
 
@@ -784,7 +784,7 @@ struct DownloadValidationReconciliationTests: DownloadFeatureTestCase {
     }
 }
 
-extension DownloadValidationReconciliationTests {
+extension DownloadVerificationReconciliationTests {
     /// D-SSOT-04's structural pin: after a reconciliation, no page may carry a blank hash while its
     /// file is still on disk.
     ///
@@ -802,7 +802,7 @@ extension DownloadValidationReconciliationTests {
     /// answer to where the fixture's files live.
     ///
     /// Suite-scoped rather than file-private, because the suite now spans two files: the rejection
-    /// arm lives in `DownloadValidationRejectionArmTests.swift` as an extension of this same suite,
+    /// arm lives in `DownloadVerificationRejectionArmTests.swift` as an extension of this same suite,
     /// and it asserts the identical no-laundering shape. A file-private copy there would be a second
     /// answer to the question this member exists to answer once.
     func expectNoBlankHashedPageKeptItsFile(

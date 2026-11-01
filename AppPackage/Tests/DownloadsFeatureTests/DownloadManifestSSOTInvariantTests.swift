@@ -22,7 +22,7 @@ import Testing
 /// 2. **Derivation totality** — `displayStatus` and every affordance predicate are functions of
 ///    (persisted record, queue membership, operation-level transient signal) and of nothing else.
 ///    That is made *executable* rather than argued: the filesystem is mutated behind the app's back,
-///    a full production rescan is run, and nothing displayed is allowed to move until `Validate`
+///    a full production rescan is run, and nothing displayed is allowed to move until `Verify`
 ///    senses it. Any display or predicate that consults the disk fails this by construction.
 /// 3. **No dead end** — no non-terminal incomplete state lacks a forward affordance that actually
 ///    succeeds when driven, which is precisely the property whose absence let G-15-5 ship.
@@ -46,7 +46,7 @@ import Testing
 /// `DownloadRunProgressOverlayTests`, which also pins that the overlay writes nothing.
 ///
 /// **Contract-faithful choreography, everywhere.** No state is installed through a non-production
-/// seam: an operation-level `validationErrors` entry arrives only by running `validateImageData`,
+/// seam: an operation-level `verificationErrors` entry arrives only by running `verifyImages`,
 /// the target's queue membership only through `togglePause` or `retryPages`, the process boundary
 /// only as a fresh coordinator over the same storage root, and every external mutation is a direct
 /// file operation with no client call. The one fixture seam used is the BLOCKER gallery's queue
@@ -114,11 +114,11 @@ struct DownloadManifestSSOTInvariantTests: DownloadFeatureTestCase {
     /// thing the directory listing is still allowed to answer for after D-SSOT-07 — must have
     /// followed the disk in exactly the pages the mutation touched.
     ///
-    /// Then `Validate` is run, and the boundary is pinned from BOTH sides: where its gate is open the
+    /// Then `Verify` is run, and the boundary is pinned from BOTH sides: where its gate is open the
     /// state must move to the regime 15-58's rules predict, and where its gate is closed — an
     /// honestly-incomplete record, which has nothing left to sense — the state must not move at all.
     @Test(arguments: SSOTStateCase.all)
-    func testAnExternalFilesystemMutationMovesNothingDisplayedUntilValidateSensesIt(
+    func testAnExternalFilesystemMutationMovesNothingDisplayedUntilVerifySensesIt(
         _ testCase: SSOTStateCase
     ) async throws {
         let staged = try await stage(testCase)
@@ -135,28 +135,28 @@ struct DownloadManifestSSOTInvariantTests: DownloadFeatureTestCase {
         #expect(
             after.displayed == before.displayed,
             """
-            \(testCase.name): a filesystem mutation moved a displayed quantity before Validate \
+            \(testCase.name): a filesystem mutation moved a displayed quantity before Verify \
             sensed it, so something displayed is deriving from the disk.
             """
         )
         expectRenderingResourcesFollowedTheDisk(testCase, in: staged, before: before, after: after)
 
-        let validation = await manager.validateImageData(gid: testCase.gid)
+        let verification = await manager.verifyImages(gid: testCase.gid)
         let sensed = try await snapshot(testCase.gid, in: staged)
         switch testCase.expectedSensing {
         case .gateClosed:
-            // The sensor's own boundary: an honestly-incomplete record is not offered Validate,
+            // The sensor's own boundary: an honestly-incomplete record is not offered Verify,
             // because the record already states what a pass would find.
-            #expect(validation == nil, "\(testCase.name): the Validate gate should be closed here.")
+            #expect(verification == nil, "\(testCase.name): the Verify gate should be closed here.")
             #expect(sensed.displayed == before.displayed, "\(testCase.name): a closed gate moved state.")
 
         case .reconciled(let completedPageCount):
-            #expect(validation != nil, "\(testCase.name): the Validate gate should be open here.")
+            #expect(verification != nil, "\(testCase.name): the Verify gate should be open here.")
             #expect(sensed.displayed.completedPageCount == completedPageCount, "\(testCase.name)")
             #expect(sensed.displayed.displayStatus == .inactive, "\(testCase.name)")
             #expect(sensed.displayed.lastErrorCode == nil, "\(testCase.name)")
             // The whole difference between a sensor and a display basis: only this call may move it.
-            #expect(sensed.displayed != before.displayed, "\(testCase.name): Validate sensed nothing.")
+            #expect(sensed.displayed != before.displayed, "\(testCase.name): Verify sensed nothing.")
             let download = try #require(await manager.fetchDownload(gid: testCase.gid))
             let inspection = try await manager.loadInspection(gid: testCase.gid).get()
             expectOneCompletenessBasis(
@@ -166,7 +166,7 @@ struct DownloadManifestSSOTInvariantTests: DownloadFeatureTestCase {
             )
 
         case .refused:
-            #expect(validation != nil, "\(testCase.name): the Validate gate should be open here.")
+            #expect(verification != nil, "\(testCase.name): the Verify gate should be open here.")
             // A pass that established nothing it could write, re-pinned over a state the probe
             // itself produced. Two shapes reach here — the irreversibility guard refusing a
             // wholesale blanking, and a pass whose positive evidence set is simply empty — and both
@@ -182,16 +182,16 @@ struct DownloadManifestSSOTInvariantTests: DownloadFeatureTestCase {
     /// Family 3 — no dead end, enforced by DRIVING rather than by reading predicates.
     ///
     /// A state is non-terminal incomplete when its persisted record reads incomplete, or an
-    /// operation-level `validationErrors` entry stands over it, and it is not already moving
+    /// operation-level `verificationErrors` entry stands over it, and it is not already moving
     /// (`.active`/`.queued` are in motion; a clean complete record is terminal, because it is not
     /// asking for work). For every such state at least one forward affordance must SUCCEED when
     /// actually called: `togglePause`, `retryPages` over `retryablePageIndices`, or
-    /// `validateImageData` followed by one of those on the state it produces.
+    /// `verifyImages` followed by one of those on the state it produces.
     ///
     /// Predicates alone are not enough, and that is the whole lesson of G-15-5: its dead end had
     /// predicates that each looked reasonable in isolation — the button was on the screen with an
     /// empty selection behind it — so nothing short of reaching `.queued` proves the way out exists.
-    /// The outranking hazard (`validationErrors` outranks both `activeGalleryID` and queue
+    /// The outranking hazard (`verificationErrors` outranks both `activeGalleryID` and queue
     /// membership in `displayStatus`) is covered the same way: only a drive that actually lands
     /// `.queued` proves the entry was cleared at enqueue.
     ///
@@ -232,7 +232,7 @@ struct DownloadManifestSSOTInvariantTests: DownloadFeatureTestCase {
             // gone: the single sensor is reachable from the screen that reports the problem, and
             // family 2 pins that running it moves the record into the startable regime.
             #expect(
-                inspection.canValidateImageData,
+                inspection.canVerifyImages,
                 "\(testCase.name): the sensor is unreachable from a complete-claiming record."
             )
 
@@ -244,7 +244,7 @@ struct DownloadManifestSSOTInvariantTests: DownloadFeatureTestCase {
     /// Family 3's FIFTH entrance, driven separately because the table's regimes reach the queue
     /// through `togglePause` and `retryPages` only.
     ///
-    /// `validationErrors` outranks queue membership in `displayStatus`, so the rule on its
+    /// `verificationErrors` outranks queue membership in `displayStatus`, so the rule on its
     /// declaration — anything that enqueues must clear it at or before the enqueue — is what stops a
     /// queued gallery from deriving `.error` and failing both arms of `shouldSchedule` forever.
     /// `enqueue(payload:)` is the one entrance that never called `clearDownloadFailureState`, and it
@@ -259,7 +259,7 @@ struct DownloadManifestSSOTInvariantTests: DownloadFeatureTestCase {
     @Test
     func testEnqueueingARecordUnderAnOperationLevelEntryStillReachesTheQueue() async throws {
         let testCase = try #require(
-            SSOTStateCase.all.first(where: { $0.name == "refusedWholesaleAfterValidating" })
+            SSOTStateCase.all.first(where: { $0.name == "refusedWholesaleAfterVerifying" })
         )
         let staged = try await stage(testCase)
         defer { staged.tearDown() }
@@ -337,7 +337,7 @@ struct DisplayedRecordState: Equatable, Sendable {
     let pageStatuses: [DownloadPageStatus]
     let canTogglePause: Bool
     let canRetryPages: Bool
-    let canValidateImageData: Bool
+    let canVerifyImages: Bool
     let retryablePageIndices: [Int]
     let hasDownloadedPages: Bool
     let isIncomplete: Bool
@@ -414,8 +414,8 @@ extension DownloadManifestSSOTInvariantTests {
         await fixture.manager.scheduleNextIfNeeded()
         await control.started()
 
-        if testCase.runsValidation {
-            _ = await fixture.manager.validateImageData(gid: gallery.gid)
+        if testCase.runsVerification {
+            _ = await fixture.manager.verifyImages(gid: gallery.gid)
         }
         if testCase.resumesThroughTogglePause {
             try await fixture.manager.togglePause(gid: gallery.gid).get()
@@ -442,7 +442,7 @@ extension DownloadManifestSSOTInvariantTests {
                 pageStatuses: inspection.pages.map(\.status),
                 canTogglePause: download.canTogglePause,
                 canRetryPages: inspection.canRetryPages,
-                canValidateImageData: inspection.canValidateImageData,
+                canVerifyImages: inspection.canVerifyImages,
                 retryablePageIndices: inspection.retryablePageIndices,
                 hasDownloadedPages: inspection.hasDownloadedPages,
                 isIncomplete: download.isIncomplete,
@@ -486,7 +486,7 @@ extension DownloadManifestSSOTInvariantTests {
     ///
     /// The inventory is the full set of consumers reachable at the client seam. `DownloadBadgeLabel`
     /// renders `badge.progress`, the inspector's page groups partition `inspection.pages`, the
-    /// header cell takes `inspection.download.badge`, `hasDownloadedPages` gates the Validate row and
+    /// header cell takes `inspection.download.badge`, `hasDownloadedPages` gates the Verify row and
     /// `isIncomplete` decides `resumeMode`. Detail's `isPartialDownloadError` and `downloadNeedsRepair`
     /// are pure functions of `badge.progress` with no independent basis of their own, so pinning the
     /// pair the badge carries is what covers them.
@@ -514,7 +514,7 @@ extension DownloadManifestSSOTInvariantTests {
         )
         #expect(
             inspection.hasDownloadedPages == (recorded > 0),
-            "\(regime): the Validate gate's basis disagrees with the record."
+            "\(regime): the Verify gate's basis disagrees with the record."
         )
         #expect(
             download.isIncomplete == (recorded < download.pageCount),
@@ -541,7 +541,7 @@ extension DownloadManifestSSOTInvariantTests {
     /// is what "forward" means here, since a start that does not become schedulable is the dead end
     /// under another name.
     ///
-    /// The validate-then-start arm is deliberately kept even though no case in the current table
+    /// The verify-then-start arm is deliberately kept even though no case in the current table
     /// needs it: the property is about the state space, not about this table, and a future case that
     /// can only sense its way out must find the arm already here rather than be quietly reclassified
     /// as a dead end.
@@ -556,8 +556,8 @@ extension DownloadManifestSSOTInvariantTests {
 
         if try await driveStart(testCase, in: staged, download: download, inspection: inspection) {
             // Started directly.
-        } else if inspection.canValidateImageData {
-            _ = await manager.validateImageData(gid: testCase.gid)
+        } else if inspection.canVerifyImages {
+            _ = await manager.verifyImages(gid: testCase.gid)
             let sensed = try #require(await manager.fetchDownload(gid: testCase.gid))
             let sensedInspection = try await manager.loadInspection(gid: testCase.gid).get()
             guard try await driveStart(
@@ -630,14 +630,14 @@ extension DownloadManifestSSOTInvariantTests {
     ) {
         Issue.record(
             """
-            \(testCase.name) is a dead end\(sensed ? " even after Validate" : ""): \
+            \(testCase.name) is a dead end\(sensed ? " even after Verify" : ""): \
             displayStatus \(download.displayStatus), \
             completedPageCount \(download.completedPageCount) of \(download.pageCount), \
             lastError \(String(describing: download.lastError?.code)), \
             canTogglePause \(download.canTogglePause), \
             canRetryPages \(inspection.canRetryPages), \
             retryablePageIndices \(inspection.retryablePageIndices), \
-            canValidateImageData \(inspection.canValidateImageData).
+            canVerifyImages \(inspection.canVerifyImages).
             """
         )
     }

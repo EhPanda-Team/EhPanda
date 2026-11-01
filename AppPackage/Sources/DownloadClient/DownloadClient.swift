@@ -30,7 +30,7 @@ public struct DownloadClient: Sendable {
     public var fetchDownload: @Sendable (String) async -> DownloadedGallery?
     public var reconcileDownloads: @Sendable () async -> Void
     public var refreshDownloads: @Sendable () async -> Void
-    public var validateImageData: @Sendable (String) async -> DownloadValidationState?
+    public var verifyImages: @Sendable (String) async -> DownloadVerificationState?
     public var fetchVersionMetadata: @Sendable (String, String) async -> DownloadVersionMetadata?
     public var updateRemoteVersion: @Sendable (String, DownloadVersionMetadata) async -> DownloadedGallery?
     public var enqueue: @Sendable (DownloadRequestPayload) async throws -> Void
@@ -146,7 +146,7 @@ extension DownloadClient {
             fetchDownload: { gid in await manager.fetchDownload(gid: gid) },
             reconcileDownloads: { await manager.reconcileDownloads() },
             refreshDownloads: { await manager.refreshDownloads() },
-            validateImageData: { gid in await manager.validateImageData(gid: gid) },
+            verifyImages: { gid in await manager.verifyImages(gid: gid) },
             fetchVersionMetadata: { gid, token in
                 @Shared(.setting) var setting
                 // Remote version metadata is optional by API contract; fetch failure
@@ -229,7 +229,7 @@ extension DownloadClient {
         fetchDownload: { _ in nil },
         reconcileDownloads: {},
         refreshDownloads: {},
-        validateImageData: { _ in nil },
+        verifyImages: { _ in nil },
         fetchVersionMetadata: { _, _ in nil },
         updateRemoteVersion: { _, _ in nil },
         enqueue: { _ in },
