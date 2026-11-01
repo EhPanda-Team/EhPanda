@@ -197,7 +197,7 @@ private func runLabel(_ run: RunLogFile?) -> String {
         return String(localized: .appActivityLogsViewCurrent)
     }
     let title = String(localized: .appActivityLogsViewRun(count: run.runCount))
-    return "\(title) (\(runTimeFormatter.string(from: run.date)))"
+    return String(localized: .appActivityLogsViewRunTitle(title, runTimeFormatter.string(from: run.date)))
 }
 
 private func groupedRuns(_ runs: [RunLogFile]) -> [(day: Date, runs: [RunLogFile])] {

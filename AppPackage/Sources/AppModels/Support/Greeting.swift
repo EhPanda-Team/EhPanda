@@ -44,16 +44,16 @@ public struct Greeting: Codable, Equatable, Hashable, Identifiable, Sendable {
 
         var rewards = [String]()
         if let exp = formatNumber(gainedEXP) {
-            rewards.append("\(exp) EXP")
+            rewards.append(String(localized: .greetingRewardExp(exp)))
         }
         if let credits = formatNumber(gainedCredits) {
-            rewards.append("\(credits) Credits")
+            rewards.append(String(localized: .greetingRewardCredits(credits)))
         }
         if let galleryPoint = formatNumber(gainedGP) {
-            rewards.append("\(galleryPoint) GP")
+            rewards.append(String(localized: .greetingRewardGp(galleryPoint)))
         }
         if let hath = formatNumber(gainedHath) {
-            rewards.append("\(hath) Hath")
+            rewards.append(String(localized: .greetingRewardHath(hath)))
         }
         return rewards
     }
@@ -71,7 +71,7 @@ public struct Greeting: Codable, Equatable, Hashable, Identifiable, Sendable {
                 if offset == 0 {
                     return element
                 } else if offset == rewards.count - 1 {
-                    return [rewards.count > 2 ? and : separator, element].joined()
+                    return [and, element].joined()
                 } else {
                     return [separator, element].joined()
                 }
