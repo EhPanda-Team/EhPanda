@@ -66,3 +66,31 @@ the owner's standard iPhone remains on the previously verified aspect-ratio buil
 The owner requested committing the outstanding work. Implementation committed as `ecdc11f68`;
 this supersedes the earlier uncommitted-status notes. Signature verified and both timestamps use
 the repository convention. Local review evidence remains outside Git.
+
+## iPad slideshow title alignment — 2026-11-01
+
+Owner requested applying the compact title's maximum-height and top alignment to regular iPad
+cards. The regular title now uses `maxHeight: .infinity` with `.topLeading`, without the former
+two-line reservation or vertical intrinsic-size override. Metadata retains intrinsic height so
+the title receives the remaining space. Existing title typography and card sizing are preserved.
+
+Validation: simulator build-for-testing passes with no compiler warnings or errors; strict
+SwiftLint reports zero violations for GalleryCardCell. No new screenshots or runtime layout tests
+were run for this modifier-only change. No baseline update or commit made.
+
+Follow-up native capture: iPad Pro full-screen portrait and landscape show the updated top-aligned
+title and lower metadata. Both captures report ready, with no blockers or unknown requests.
+Light-mode PNGs and accessibility evidence are retained in
+`$HOME/.codex/visualizations/2026/10/31/01a192a6-7c25-7c91-b3a7-e39878397f4c/ipad-title-review/`.
+
+## Owner-requested title and Toplists commit — 2026-11-01
+
+Toplists rating stars now use footnote, one semantic step below their inherited subheadline;
+rating digits retain subheadline and one-decimal formatting. HomeGalleryRating accepts an optional
+icon font so the slideshow keeps its inherited icon appearance. Dynamic Type remains native.
+
+The owner requested committing this change with the outstanding iPad title alignment and records.
+The separate slideshow color commits are preserved. Final simulator build-for-testing passes
+without compiler warnings or errors, and strict SwiftLint passes for all three changed Swift files.
+No additional runtime tests or captures were needed for the star-only typography adjustment.
+This commit supersedes the uncommitted-status notes for the iPad title continuation above.

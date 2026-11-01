@@ -80,7 +80,7 @@ public struct GalleryRankingCell: View {
                 Spacer(minLength: 8)
                 HomePageLanguage(gallery: gallery)
                 Spacer(minLength: 8)
-                HomeGalleryRating(rating: gallery.rating)
+                HomeGalleryRating(rating: gallery.rating, iconFont: .footnote)
             }
         }
         .frame(

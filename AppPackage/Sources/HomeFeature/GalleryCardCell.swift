@@ -74,10 +74,9 @@ public struct GalleryCardCell: View {
                             Text(gallery.title)
                                 .accessibilityIdentifier("home_slideshow_title_\(gallery.id)")
                                 .font(.title2.bold())
-                                .lineLimit(2, reservesSpace: true)
-                                .fixedSize(horizontal: false, vertical: true)
-                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
                             HomeSlideshowInformation(gallery: gallery)
+                                .fixedSize(horizontal: false, vertical: true)
                         }
                     }
                     .frame(height: usesCompactInformation ? compactCoverSize.height : nil, alignment: .top)

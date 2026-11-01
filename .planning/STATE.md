@@ -39,6 +39,14 @@ L* 32.2 standard, 27.1 with Increase Contrast (the approved mockup's gray-derive
 saturated colors). Light-mode tinting followed as its own task (above).
 [Quick task](quick/261101-slideshow-dark-ceiling/SUMMARY.md).
 
+## iPad slideshow title alignment — 2026-11-01
+
+Owner-requested regular slideshow titles now fill available height with top-leading alignment,
+matching the compact title policy. The two-line reservation is removed; metadata retains its
+intrinsic height. Toplists stars now use footnote while rating digits retain subheadline. The owner requested
+committing both changes and their records after build and lint validation; see the
+[adaptive Home summary](quick/261101-home-adaptive-tags-covers/SUMMARY.md).
+
 ## Reviewed Home and translation work committed — 2026-11-01
 
 Owner requested committing the outstanding changes: Home tags/proportions/covers `ecdc11f68`;

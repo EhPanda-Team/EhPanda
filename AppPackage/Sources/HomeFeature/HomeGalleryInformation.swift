@@ -29,12 +29,14 @@ struct HomePageLanguage: View {
 
 struct HomeGalleryRating: View {
     let rating: Float
+    var iconFont: Font?
 
     var body: some View {
         Label {
             Text(rating.halfRounded, format: .number.precision(.fractionLength(1)))
         } icon: {
             Image(systemSymbol: .starFill)
+                .font(iconFont)
         }
         .accessibilityRepresentation { RatingView(rating: rating) }
     }
