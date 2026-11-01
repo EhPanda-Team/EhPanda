@@ -11,6 +11,16 @@ import Sharing
 
 private let logger = Logger(category: .init(describing: SettingReducer.self))
 
+extension SettingReducer.State {
+    /// What the tag database update check compares against: the loaded table, not the persisted metadata.
+    ///
+    /// When the system purged the cache, the launch rebuild leaves no table while the metadata still
+    /// names the old download. Comparing the metadata would report no updates and keep the table empty.
+    var loadedTagDatabaseDigest: String? {
+        tagTranslator.digest
+    }
+}
+
 extension SettingReducer {
     /// Gallery host lives only in `@Shared(.setting)` and resets to `.ehentai` if that blob is lost.
     func handleLoadUserSettings(_ state: inout State) -> Effect<Action> {
@@ -93,17 +103,17 @@ extension SettingReducer {
             state.$tagTranslator.withLock({ $0 = TagTranslator(language: language) })
             state.$tagTranslatorInfo.withLock({ $0 = TagTranslatorInfo(language: language) })
         }
-        let updatedDate = state.tagTranslatorInfo.updatedDate
+        let currentDigest = state.loadedTagDatabaseDigest
         return .run { send in
-            // Download the raw JSON, then let `FileClient` decode/convert/cache it into a translator.
+            // Download the raw JSON, then let `FileClient` decode/cache it into a translator.
             do throws(AppError) {
                 let payload = try await TagTranslatorRequest(
                     language: language,
-                    updatedDate: updatedDate
+                    currentDigest: currentDigest
                 )
                 .response()
                 let tagTranslator = try fileClient.cacheAndBuildRemoteTagTranslator(
-                    payload.data, language, payload.updatedDate
+                    payload.data, language, payload.digest
                 )
                 await send(.fetchTagTranslatorDone(.success(tagTranslator)))
             } catch {

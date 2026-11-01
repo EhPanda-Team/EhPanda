@@ -1,22 +1,20 @@
-public import Foundation
-
 /// Thin, `appStorage`-persisted metadata for the tag-translation table.
 ///
 /// The translations dictionary itself is NOT persisted — it is large, derived, and
 /// re-downloadable, so it lives only in memory and is rebuilt at launch from the cached raw JSON
 /// (Caches for a remote download, Application Support for a user import). This record remembers just
-/// enough to rebuild the right file and to let the update check know what it already has: which
-/// language/version is cached and whether a custom import is active.
+/// enough to rebuild the right file and to restore what the update check compares: which language
+/// and asset digest are cached, and whether a custom import is active.
 public struct TagTranslatorInfo: Codable, Equatable, Sendable, SchemaVersioned {
     public init(
         schemaVersion: SchemaVersion<TagTranslatorInfo> = 1,
         language: TranslatableLanguage? = nil,
-        updatedDate: Date = .distantPast,
+        digest: String? = nil,
         hasCustomTranslations: Bool = false
     ) {
         self.schemaVersion = schemaVersion
         self.language = language
-        self.updatedDate = updatedDate
+        self.digest = digest
         self.hasCustomTranslations = hasCustomTranslations
     }
     /// This model's schema history (oldest → newest); see `SchemaVersioned` / `VersionedSchema`.
@@ -35,6 +33,7 @@ public struct TagTranslatorInfo: Codable, Equatable, Sendable, SchemaVersioned {
     // blobs keep decoding.
     public var schemaVersion: SchemaVersion<TagTranslatorInfo>
     public var language: TranslatableLanguage?
-    public var updatedDate: Date
+    /// The release asset digest of the cached file; `nil` before the first download.
+    public var digest: String?
     public var hasCustomTranslations: Bool
 }

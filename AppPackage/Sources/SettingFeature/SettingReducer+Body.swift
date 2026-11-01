@@ -166,7 +166,7 @@ extension SettingReducer {
                     state.$tagTranslatorInfo.withLock {
                         $0 = TagTranslatorInfo(
                             language: tagTranslator.language,
-                            updatedDate: tagTranslator.updatedDate,
+                            digest: tagTranslator.digest,
                             hasCustomTranslations: tagTranslator.hasCustomTranslations
                         )
                     }

@@ -50,14 +50,11 @@ final class FileClientTests {
         return try JSONEncoder().encode(response)
     }
 
-    // Simplified-Chinese source values plus the custom `full color` case, used to prove OpenCC
-    // conversion is applied only for `.traditionalChinese`. `简体` traditionalizes to `簡體` under
-    // every regional standard, so the expectation is machine-locale-invariant.
-    private func chineseResponseData(fullColor: String = "全彩") throws -> Data {
+    private func chineseResponseData() throws -> Data {
         let response = EhTagTranslationDatabaseResponse(
             data: [.init(namespace: "other", data: [
                 "simp": .init(name: "简体"),
-                "full color": .init(name: fullColor)
+                "full color": .init(name: "full color")
             ])]
         )
         return try JSONEncoder().encode(response)
@@ -89,15 +86,17 @@ final class FileClientTests {
         let language = TranslatableLanguage.english
 
         let built = try client.cacheAndBuildRemoteTagTranslator(
-            try sampleResponseData(), language, .distantPast
+            try sampleResponseData(), language, "sha256:table"
         )
         #expect(built.language == language)
+        #expect(built.digest == "sha256:table")
         #expect(built.translations.count == 1)
         #expect(FileManager.default.fileExists(atPath: cacheURL(language).path(percentEncoded: false)))
 
         // A launch-time rebuild restores the same table from the cached file the metadata points at.
-        let rebuilt = try client.loadCachedTagTranslator(TagTranslatorInfo(language: language))
+        let rebuilt = try client.loadCachedTagTranslator(TagTranslatorInfo(language: language, digest: "sha256:table"))
         #expect(rebuilt.language == language)
+        #expect(rebuilt.digest == "sha256:table")
         #expect(rebuilt.translations.count == 1)
     }
 
@@ -109,8 +108,8 @@ final class FileClientTests {
             .init(namespace: "female", data: ["glasses": .init(name: language == .japanese ? "眼鏡" : "")])
         ])
         let raw = try JSONEncoder().encode(response)
-        let built = try client.cacheAndBuildRemoteTagTranslator(raw, language, .distantPast)
-        let rebuilt = try client.loadCachedTagTranslator(TagTranslatorInfo(language: language))
+        let built = try client.cacheAndBuildRemoteTagTranslator(raw, language, "sha256:table")
+        let rebuilt = try client.loadCachedTagTranslator(TagTranslatorInfo(language: language, digest: "sha256:table"))
         #expect(built == rebuilt)
         #expect(rebuilt.translations.count == 2)
         #expect(rebuilt.translations["locationschool"]?.value == "")
@@ -130,26 +129,12 @@ final class FileClientTests {
         #expect(rebuilt.translations.count == 1)
     }
 
-    // DEP-01 parity: a remote table built for Traditional Chinese must apply OpenCC conversion
-    // (`简体` → `簡體`) and the custom `full color` → `全彩` mapping.
-    @Test(arguments: ["全彩", "full color"])
-    func traditionalChineseAppliesOpenCCConversionAndCustomFullColor(fullColor: String) throws {
-        let built = try client.cacheAndBuildRemoteTagTranslator(
-            try chineseResponseData(fullColor: fullColor), .traditionalChinese, .distantPast
-        )
-        #expect(value(forKey: "simp", in: built) == "簡體")
-        #expect(value(forKey: "full color", in: built) == "全彩")
-    }
-
-    // DEP-01 parity: any non-Traditional-Chinese table keeps its raw values untouched — no OpenCC
-    // conversion and no custom `full color` remap.
-    @Test
-    func nonTraditionalChineseLeavesTagValuesUnconverted() throws {
-        let built = try client.cacheAndBuildRemoteTagTranslator(
-            try chineseResponseData(), .simplifiedChinese, .distantPast
-        )
+    // Conversion belongs to the database pipeline, so every language shows the published values as is.
+    @Test(arguments: TranslatableLanguage.allCases)
+    func everyLanguageKeepsPublishedValues(language: TranslatableLanguage) throws {
+        let built = try client.cacheAndBuildRemoteTagTranslator(try chineseResponseData(), language, "sha256:table")
         #expect(value(forKey: "simp", in: built) == "简体")
-        #expect(value(forKey: "full color", in: built) == "全彩")
+        #expect(value(forKey: "full color", in: built) == "full color")
     }
 
     @Test

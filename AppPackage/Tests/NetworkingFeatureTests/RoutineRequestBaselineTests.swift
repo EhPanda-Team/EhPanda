@@ -115,21 +115,15 @@ struct RoutineRequestBaselineTests {
 
     // MARK: Tag translator chain
 
-    /// A newer release fetches metadata once, then downloads the exact payload once.
+    /// A changed digest fetches metadata once, then downloads the exact payload once.
     @Test
-    func tagTranslatorNewerReleaseDownloadsPayload() async throws {
-        let language = TranslatableLanguage.english
-        let apiURL = URLUtil.githubAPI(repoName: language.repoName)
-        let downloadURL = URLUtil.githubDownload(
-            repoName: language.repoName,
-            fileName: language.remoteFilename
-        )
-        let updatedDate = try #require(ISO8601DateFormatter().date(from: "2026-07-11T10:00:00Z"))
-        let postedDate = try #require(ISO8601DateFormatter().date(from: "2026-07-12T10:00:00Z"))
+    func tagTranslatorChangedDigestDownloadsPayload() async throws {
+        let apiURL = URLUtil.githubAPI(repoName: TranslatableLanguage.repoName)
+        let downloadURL = try #require(URL(string: Data.englishDatabaseURL))
         let payload = Data(#"{"baseline":true}"#.utf8)
         let (session, handle) = makeStubbedSession(
             script: StubScript([
-                apiURL: [.http(status: 200, data: .newerReleaseFixture)],
+                apiURL: [.http(status: 200, data: .tagDatabaseReleaseFixture)],
                 downloadURL: [.http(status: 200, data: payload)]
             ])
         )
@@ -140,31 +134,52 @@ struct RoutineRequestBaselineTests {
 
         let result = try await capture { () async throws(AppError) -> TagTranslatorPayload in
             try await TagTranslatorRequest(
-                language: language,
-                updatedDate: updatedDate,
+                language: .english,
+                currentDigest: "sha256:previous",
                 urlSession: session
             )
             .response()
         }
         .get()
 
-        #expect(result == TagTranslatorPayload(data: payload, updatedDate: postedDate))
+        #expect(result == TagTranslatorPayload(data: payload, digest: "sha256:english"))
         #expect(handle.attempts(for: apiURL) == 1)
         #expect(handle.attempts(for: downloadURL) == 1)
     }
 
-    /// A release that is not newer exits with noUpdates before the download URL is loaded.
+    /// With no table loaded, such as after the system purged the cache, the current asset downloads.
     @Test
-    func tagTranslatorNoUpdatesSkipsDownload() async throws {
-        let language = TranslatableLanguage.english
-        let apiURL = URLUtil.githubAPI(repoName: language.repoName)
-        let downloadURL = URLUtil.githubDownload(
-            repoName: language.repoName,
-            fileName: language.remoteFilename
-        )
-        let updatedDate = try #require(ISO8601DateFormatter().date(from: "2026-07-12T10:00:00Z"))
+    func tagTranslatorWithNoLoadedTableDownloadsPayload() async throws {
+        let apiURL = URLUtil.githubAPI(repoName: TranslatableLanguage.repoName)
+        let downloadURL = try #require(URL(string: Data.englishDatabaseURL))
+        let payload = Data(#"{"baseline":true}"#.utf8)
         let (session, handle) = makeStubbedSession(
-            script: StubScript([apiURL: [.http(status: 200, data: .newerReleaseFixture)]])
+            script: StubScript([
+                apiURL: [.http(status: 200, data: .tagDatabaseReleaseFixture)],
+                downloadURL: [.http(status: 200, data: payload)]
+            ])
+        )
+        defer {
+            session.invalidateAndCancel()
+            handle.tearDown()
+        }
+
+        let result = try await capture { () async throws(AppError) -> TagTranslatorPayload in
+            try await TagTranslatorRequest(language: .english, currentDigest: nil, urlSession: session).response()
+        }
+        .get()
+
+        #expect(result.digest == "sha256:english")
+        #expect(handle.attempts(for: downloadURL) == 1)
+    }
+
+    /// A matching digest exits with noUpdates, whatever changed for the release's other languages.
+    @Test
+    func tagTranslatorMatchingDigestSkipsDownload() async throws {
+        let apiURL = URLUtil.githubAPI(repoName: TranslatableLanguage.repoName)
+        let downloadURL = try #require(URL(string: Data.englishDatabaseURL))
+        let (session, handle) = makeStubbedSession(
+            script: StubScript([apiURL: [.http(status: 200, data: .tagDatabaseReleaseFixture)]])
         )
         defer {
             session.invalidateAndCancel()
@@ -173,8 +188,8 @@ struct RoutineRequestBaselineTests {
 
         let result = await capture { () async throws(AppError) -> TagTranslatorPayload in
             try await TagTranslatorRequest(
-                language: language,
-                updatedDate: updatedDate,
+                language: .english,
+                currentDigest: "sha256:english",
                 urlSession: session
             )
             .response()
@@ -188,13 +203,8 @@ struct RoutineRequestBaselineTests {
     /// Malformed release metadata maps to parseFailed and never reaches the download step.
     @Test
     func tagTranslatorMalformedMetadataMapsParseFailure() async throws {
-        let language = TranslatableLanguage.english
-        let apiURL = URLUtil.githubAPI(repoName: language.repoName)
-        let downloadURL = URLUtil.githubDownload(
-            repoName: language.repoName,
-            fileName: language.remoteFilename
-        )
-        let updatedDate = try #require(ISO8601DateFormatter().date(from: "2026-07-11T10:00:00Z"))
+        let apiURL = URLUtil.githubAPI(repoName: TranslatableLanguage.repoName)
+        let downloadURL = try #require(URL(string: Data.englishDatabaseURL))
         let (session, handle) = makeStubbedSession(
             script: StubScript([apiURL: [.http(status: 200, data: Data("{}".utf8))]])
         )
@@ -204,12 +214,7 @@ struct RoutineRequestBaselineTests {
         }
 
         let result = await capture { () async throws(AppError) -> TagTranslatorPayload in
-            try await TagTranslatorRequest(
-                language: language,
-                updatedDate: updatedDate,
-                urlSession: session
-            )
-            .response()
+            try await TagTranslatorRequest(language: .english, currentDigest: nil, urlSession: session).response()
         }
 
         #expect(result == .failure(.parseFailed))
@@ -217,19 +222,33 @@ struct RoutineRequestBaselineTests {
         #expect(handle.attempts(for: downloadURL) == 0)
     }
 
+    /// A release missing the language's asset, or its digest, maps to parseFailed without downloading.
+    @Test(arguments: [TranslatableLanguage.korean, .japanese])
+    func tagTranslatorUnusableAssetMapsParseFailure(language: TranslatableLanguage) async throws {
+        let apiURL = URLUtil.githubAPI(repoName: TranslatableLanguage.repoName)
+        let (session, handle) = makeStubbedSession(
+            script: StubScript([apiURL: [.http(status: 200, data: .tagDatabaseReleaseFixture)]])
+        )
+        defer {
+            session.invalidateAndCancel()
+            handle.tearDown()
+        }
+
+        let result = await capture { () async throws(AppError) -> TagTranslatorPayload in
+            try await TagTranslatorRequest(language: language, currentDigest: nil, urlSession: session).response()
+        }
+
+        #expect(result == .failure(.parseFailed))
+    }
+
     /// The second fetch remains un-retried even though the metadata fetch uses the generic retry policy.
     @Test
     func tagTranslatorDownloadTransportFailureIsNotRetried() async throws {
-        let language = TranslatableLanguage.english
-        let apiURL = URLUtil.githubAPI(repoName: language.repoName)
-        let downloadURL = URLUtil.githubDownload(
-            repoName: language.repoName,
-            fileName: language.remoteFilename
-        )
-        let updatedDate = try #require(ISO8601DateFormatter().date(from: "2026-07-11T10:00:00Z"))
+        let apiURL = URLUtil.githubAPI(repoName: TranslatableLanguage.repoName)
+        let downloadURL = try #require(URL(string: Data.englishDatabaseURL))
         let (session, handle) = makeStubbedSession(
             script: StubScript([
-                apiURL: [.http(status: 200, data: .newerReleaseFixture)],
+                apiURL: [.http(status: 200, data: .tagDatabaseReleaseFixture)],
                 downloadURL: [.transportFailure(.timedOut)]
             ])
         )
@@ -239,12 +258,7 @@ struct RoutineRequestBaselineTests {
         }
 
         let result = await capture { () async throws(AppError) -> TagTranslatorPayload in
-            try await TagTranslatorRequest(
-                language: language,
-                updatedDate: updatedDate,
-                urlSession: session
-            )
-            .response()
+            try await TagTranslatorRequest(language: .english, currentDigest: nil, urlSession: session).response()
         }
 
         #expect(result == .failure(.networkingFailed))
@@ -323,8 +337,17 @@ private extension Data {
         """.utf8
     )
 
-    static let newerReleaseFixture = Data(
-        #"{"published_at":"2026-07-12T10:00:00Z"}"#.utf8
+    static let englishDatabaseURL = "https://example.com/db-1/en.json"
+
+    // Japanese has no digest yet, and Korean has no asset at all.
+    static let tagDatabaseReleaseFixture = Data(
+        #"""
+        {"assets":[
+          {"name":"en.json","digest":"sha256:english","browser_download_url":"\#(englishDatabaseURL)"},
+          {"name":"ja.json","digest":null,"browser_download_url":"https://example.com/ja.json"},
+          {"name":"sources.json","digest":"sha256:sources","browser_download_url":"https://example.com/sources.json"}
+        ]}
+        """#.utf8
     )
 
     static let ipBanFixture = Data(

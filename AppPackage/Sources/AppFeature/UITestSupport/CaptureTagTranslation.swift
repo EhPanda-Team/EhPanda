@@ -21,25 +21,26 @@ struct CaptureTagTranslation: Equatable, Sendable {
         else { throw .malformedConfiguration("Invalid tag translation language") }
         let data = try verifiedData(path: path, digest: sha256)
         let metadata = try verifiedData(path: releasePath, digest: releaseSHA256)
-        let release: CaptureTranslationRelease
+        let release: TagDatabaseRelease
         do {
-            let decoder = JSONDecoder()
-            decoder.dateDecodingStrategy = .iso8601
-            release = try decoder.decode(CaptureTranslationRelease.self, from: metadata)
+            release = try JSONDecoder().decode(TagDatabaseRelease.self, from: metadata)
         } catch {
             throw .malformedScene("Cannot decode tag translation release metadata")
+        }
+        guard let asset = release.asset(for: language), let digest = asset.digest else {
+            throw .malformedScene("Tag translation release metadata has no asset for the language")
         }
         let translator: TagTranslator
         do {
             let client = FileClient.live(applicationSupportURL: directory, cachesURL: directory)
-            translator = try client.cacheAndBuildRemoteTagTranslator(data, language, release.publicationDate)
+            translator = try client.cacheAndBuildRemoteTagTranslator(data, language, digest)
         } catch {
             throw .malformedScene("Cannot decode tag translation source")
         }
         return Prepared(translator: translator, replay: [
-            URLUtil.githubAPI(repoName: language.repoName).absoluteString:
+            URLUtil.githubAPI(repoName: TranslatableLanguage.repoName).absoluteString:
                 .init(data: metadata, mimeType: "application/json"),
-            URLUtil.githubDownload(repoName: language.repoName, fileName: language.remoteFilename).absoluteString:
+            asset.downloadURL.absoluteString:
                 .init(data: data, mimeType: "application/json")
         ])
     }
@@ -56,13 +57,6 @@ struct CaptureTagTranslation: Equatable, Sendable {
         return data
     }
 
-}
-
-private struct CaptureTranslationRelease: Decodable {
-    let publicationDate: Date
-    private enum CodingKeys: String, CodingKey {
-        case publicationDate = "published_at"
-    }
 }
 
 extension CaptureTagTranslation: Decodable {
