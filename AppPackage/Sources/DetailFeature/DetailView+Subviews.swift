@@ -41,7 +41,7 @@ struct DescriptionSection: View {
     private var infos: [DescScrollInfo] {[
         DescScrollInfo(
             title: .favorited,
-            description: String(localized: .favoritedUnit),
+            description: String(localized: .favoritedUnit(count: galleryDetail.favoritedCount)),
             value: .init(galleryDetail.favoritedCount)
         ),
         DescScrollInfo(
@@ -56,7 +56,7 @@ struct DescriptionSection: View {
         ),
         DescScrollInfo(
             title: .pageCount,
-            description: String(localized: .pageCountUnit),
+            description: String(localized: .pageCountUnit(count: galleryDetail.pageCount)),
             value: .init(galleryDetail.pageCount)
         ),
         DescScrollInfo(

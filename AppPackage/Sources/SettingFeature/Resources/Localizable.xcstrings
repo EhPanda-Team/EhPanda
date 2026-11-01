@@ -2030,7 +2030,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Du belegst derzeit **%#@used@ / %#@limit@** Ausschlussplätze."
+            "value" : "Du belegst derzeit **%#@used@ / %#@limit@**."
           },
           "substitutions" : {
             "limit" : {
@@ -2038,10 +2038,16 @@
               "formatSpecifier" : "lld",
               "variations" : {
                 "plural" : {
+                  "one" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg Ausschlussplatz"
+                    }
+                  },
                   "other" : {
                     "stringUnit" : {
                       "state" : "translated",
-                      "value" : "%arg"
+                      "value" : "%arg Ausschlussplätze"
                     }
                   }
                 }
@@ -2066,7 +2072,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "You are currently using **%#@used@ of %#@limit@** exclusion slots."
+            "value" : "You are currently using **%#@used@ of %#@limit@**."
           },
           "substitutions" : {
             "limit" : {
@@ -2074,10 +2080,16 @@
               "formatSpecifier" : "lld",
               "variations" : {
                 "plural" : {
+                  "one" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg exclusion slot"
+                    }
+                  },
                   "other" : {
                     "stringUnit" : {
                       "state" : "translated",
-                      "value" : "%arg"
+                      "value" : "%arg exclusion slots"
                     }
                   }
                 }
