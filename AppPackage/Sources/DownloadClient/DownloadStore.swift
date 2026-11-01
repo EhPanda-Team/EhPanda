@@ -7,7 +7,7 @@ import Resources
 
 private let logger = Logger(category: .init(describing: DownloadStore.self))
 
-public enum DownloadValidationState: Equatable, Sendable {
+public enum DownloadVerificationState: Equatable, Sendable {
     case valid
     case missingFiles(LocalizedStringResource)
 }
@@ -586,7 +586,7 @@ public struct DownloadStore: Sendable {
     /// without a decodable manifest is the ordinary negative answer, not a failure. The error
     /// is therefore discarded rather than logged: logging it would emit a line per unrelated
     /// folder on every scan. Callers that treat an unreadable manifest as corruption (e.g.
-    /// `validate(download:verifiesContentHashes:)`) read and handle the error themselves.
+    /// `verify(download:verifiesContentHashes:)`) read and handle the error themselves.
     func probeManifest(folderURL: URL) -> DownloadManifest? {
         do {
             return try readManifest(folderURL: folderURL)
@@ -780,13 +780,13 @@ public struct DownloadStore: Sendable {
     /// agreed about what had just happened. The status now comes from the manifest hash, so a
     /// display read that deletes a zero-byte or non-regular page file leaves the page reading
     /// `.downloaded` over a file the READ destroyed — a record/disk divergence created by looking,
-    /// licensed by no reconciliation, and invisible until the user runs Validate. A read may
+    /// licensed by no reconciliation, and invisible until the user runs Verify. A read may
     /// classify; only a reconciliation may act.
     ///
     /// **CR-01 is the same rule one step further in, and it is why VALIDATION opts out too.** A
-    /// display read had no business acting; validation does have business acting, but not yet — its
+    /// display read had no business acting; verification does have business acting, but not yet — its
     /// scan is evidence GATHERING, and the authority to destroy anything belongs to the combined
-    /// wholesale guard that runs after all the evidence is in. While validation scanned with the
+    /// wholesale guard that runs after all the evidence is in. While verification scanned with the
     /// default, a one-page gallery whose only page file was zero bytes had that file deleted by the
     /// probe, and the guard then refused to blank the hash it was deleted for: the pass mutated the
     /// disk in exactly the case it decided it must not touch the record. Classification and mutation

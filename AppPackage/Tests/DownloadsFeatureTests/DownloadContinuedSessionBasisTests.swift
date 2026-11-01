@@ -596,7 +596,7 @@ struct DownloadContinuedSessionBasisTests: DownloadFeatureTestCase {
     ///
     /// `shouldReuseWorkingFolder` returns true unconditionally for `.repair`, so the working folder
     /// and every page file in it survive this run. `ensureWorkingManifest` replaces the record all
-    /// the same, because `validatedManifest` requires `manifest.pageCount ==
+    /// the same, because `verifiedManifest` requires `manifest.pageCount ==
     /// payload.galleryDetail.pageCount` and returns nil on the mismatch — the state a gallery
     /// reaches when pages are added upstream, or when a crash truncates the stored manifest. A fresh
     /// all-empty manifest at the new page count is written and re-indexed, so the record falls from

@@ -7,7 +7,7 @@ import Testing
 
 struct DownloadStoreTests {
     @Test
-    func testWriteReadAndValidateManifest() throws {
+    func testWriteReadAndVerifyManifest() throws {
         let (storage, rootURL) = makeStorage()
         defer { removeTemporaryItem(at: rootURL) }
 
@@ -36,7 +36,7 @@ struct DownloadStoreTests {
         let loadedManifest = try storage.readManifest(folderURL: folderURL)
 
         #expect(loadedManifest == manifest)
-        #expect(storage.validate(download: download, verifiesContentHashes: true) == .valid)
+        #expect(storage.verify(download: download, verifiesContentHashes: true) == .valid)
     }
 
     @Test
@@ -108,7 +108,7 @@ struct DownloadStoreTests {
     }
 
     @Test
-    func testValidateReportsMissingPageFiles() throws {
+    func testVerifyReportsMissingPageFiles() throws {
         let (storage, rootURL) = makeStorage()
         defer { removeTemporaryItem(at: rootURL) }
 
@@ -131,21 +131,21 @@ struct DownloadStoreTests {
         )
 
         #expect(
-            storage.validate(download: download, verifiesContentHashes: true)
+            storage.verify(download: download, verifiesContentHashes: true)
                 == .missingFiles(.RLocalizable.downloadStorePageMissing(page: 2))
         )
     }
 
     /// A zero-byte page is reported as missing content, and the report leaves it where it is.
     ///
-    /// This case used to assert the opposite half — that `validate` DELETED the file — which is the
+    /// This case used to assert the opposite half — that `verify` DELETED the file — which is the
     /// read-path mutation CR-03 removed, so the assertion is inverted rather than dropped. Keeping
     /// the verdict assertion beside it is the load-bearing part: it shows the deletion was never
     /// what produced the answer, so withholding it costs the caller nothing. Nothing on this route
     /// writes the manifest, so a deletion here left the record claiming a page the report itself had
     /// destroyed — the divergence AGENTS.md forbids, created by asking a question.
     @Test
-    func testValidateReportsAZeroBytePageWithoutRemovingIt() throws {
+    func testVerifyReportsAZeroBytePageWithoutRemovingIt() throws {
         let (storage, rootURL) = makeStorage()
         defer { removeTemporaryItem(at: rootURL) }
 
@@ -175,7 +175,7 @@ struct DownloadStoreTests {
         )
 
         #expect(
-            storage.validate(download: download, verifiesContentHashes: true)
+            storage.verify(download: download, verifiesContentHashes: true)
                 == .missingFiles(.RLocalizable.downloadStorePageMissing(page: 1))
         )
         #expect(

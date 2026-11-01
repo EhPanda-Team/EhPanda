@@ -59,8 +59,8 @@ struct DownloadInspectorView: View {
 
                         let isPauseResumeDisabled = !inspection.download.canTogglePause
                         let isRetryPagesDisabled = !inspection.canRetryPages
-                        let isValidateImageDataDisabled =
-                            !inspection.canValidateImageData || store.isValidatingImageData
+                        let isVerifyImagesDisabled =
+                            !inspection.canVerifyImages || store.isVerifyingImages
                         Section(.actions) {
                             Button {
                                 store.send(.toggleDownloadPause)
@@ -90,15 +90,15 @@ struct DownloadInspectorView: View {
                             .disabled(isRetryPagesDisabled)
 
                             Button {
-                                store.send(.validateImageData)
+                                store.send(.verifyImages)
                             } label: {
-                                DownloadInspectorValidationActionLabel(
-                                    isValidating: store.isValidatingImageData,
-                                    isDisabled: isValidateImageDataDisabled,
+                                DownloadInspectorVerificationActionLabel(
+                                    isVerifying: store.isVerifyingImages,
+                                    isDisabled: isVerifyImagesDisabled,
                                     reduceMotion: reduceMotion
                                 )
                             }
-                            .disabled(isValidateImageDataDisabled)
+                            .disabled(isVerifyImagesDisabled)
                         }
                     }
                 }
@@ -117,15 +117,15 @@ struct DownloadInspectorView: View {
     }
 }
 
-private struct DownloadInspectorValidationActionLabel: View {
-    let isValidating: Bool
+private struct DownloadInspectorVerificationActionLabel: View {
+    let isVerifying: Bool
     let isDisabled: Bool
     let reduceMotion: Bool
 
     private var title: LocalizedStringResource {
-        isValidating
-            ? .validatingImageData
-            : .validateImageData
+        isVerifying
+            ? .verifyingImages
+            : .verifyImages
     }
 
     private var progressAnimation: Animation? {
@@ -142,7 +142,7 @@ private struct DownloadInspectorValidationActionLabel: View {
                 .animation(.default) {
                     // The spinner's arrival grows from 85 % as it fades in. Under Reduce Motion the
                     // scale is dropped and the fade alone carries the transition (D-29).
-                    $0.visible(isValidating)
+                    $0.visible(isVerifying)
                         .transition(reduceMotion ? .opacity : .opacity.combined(with: .scale(scale: 0.85)))
                 }
                 .frame(width: 20, height: 20)
@@ -326,14 +326,14 @@ private func previewInspection(
 @MainActor private func previewInspectorStore(
     inspection: DownloadInspection?,
     loadingState: LoadingState = .idle,
-    isValidatingImageData: Bool = false
+    isVerifyingImages: Bool = false
 ) -> StoreOf<DownloadInspectorReducer> {
     .init(
         initialState: {
             var state = DownloadInspectorReducer.State()
             state.inspection = inspection
             state.loadingState = loadingState
-            state.isValidatingImageData = isValidatingImageData
+            state.isVerifyingImages = isVerifyingImages
             return state
         }(),
         reducer: DownloadInspectorReducer.init
@@ -365,12 +365,12 @@ private func previewInspection(
     }
 }
 
-#Preview("Validating") {
+#Preview("Verifying") {
     NavigationStack {
         DownloadInspectorView(
             store: previewInspectorStore(
                 inspection: previewInspection(displayStatus: .completed, downloaded: Array(1...24)),
-                isValidatingImageData: true
+                isVerifyingImages: true
             )
         )
     }

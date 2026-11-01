@@ -6,7 +6,7 @@ private let logger = Logger(category: .init(describing: DownloadCoordinator.self
 
 // MARK: - Manifest, Folder & Normalize
 extension DownloadCoordinator {
-    public func validatedManifest(
+    public func verifiedManifest(
         at folderURL: URL,
         gid: String,
         pageCount: Int
@@ -85,10 +85,10 @@ extension DownloadCoordinator {
         downloadErrors[activeGalleryID] = nil
     }
 
-    /// User-initiated integrity check (the inspector's "validate" action): the only path
+    /// User-initiated integrity check (the inspector's "verify" action): the only path
     /// that re-reads page bytes and verifies them against their recorded hashes
     /// (`verifiesContentHashes: true`). Routine scans and opens check file *presence* only;
-    /// automatic content re-validation was removed because it re-hashed whole galleries on
+    /// automatic content re-verification was removed because it re-hashed whole galleries on
     /// hot paths.
     ///
     /// **D-G5B-01: a `.missingFiles` verdict reconciles the record it judged, wherever the evidence
@@ -98,7 +98,7 @@ extension DownloadCoordinator {
     /// its own refusal discipline. When the loop blanks, the record itself now says the gallery is
     /// incomplete — the badge count, `displayStatus`, the start gates and `resumeMode` all read that
     /// one persisted truth, and it survives relaunch because the loop writes the manifest and
-    /// re-indexes it. `validationErrors` is then cleared, deliberately: it outranks everything in
+    /// re-indexes it. `verificationErrors` is then cleared, deliberately: it outranks everything in
     /// `displayStatus`, so an entry left behind would pin `.error` over an honest record and make it
     /// unstartable, which is the whole defect this closes.
     ///
@@ -118,46 +118,46 @@ extension DownloadCoordinator {
     /// this route writes no argument: the property now holds for a scan a later round adds here
     /// without anyone remembering to opt it out.
     ///
-    /// **D-SSOT-05: `validationErrors` is an OPERATION-level signal and nothing else.** An entry
+    /// **D-SSOT-05: `verificationErrors` is an OPERATION-level signal and nothing else.** An entry
     /// means the pass could not produce trustworthy evidence for every claimed page — the scan
     /// failed, a page's bytes could not be read, or the wholesale guard refused the whole
     /// reconciliation — never that the record is suspect. Where the pass classified every claimed
     /// page and the licensed correction was written, the record states the finding itself and the
-    /// entry is dropped; `canValidateImageData`'s error disjunct keeps Validate re-runnable wherever
+    /// entry is dropped; `canVerifyImages`'s error disjunct keeps Verify re-runnable wherever
     /// one is kept.
-    public func validateImageData(gid: String) async -> DownloadValidationState? {
+    public func verifyImages(gid: String) async -> DownloadVerificationState? {
         guard let download = await fetchDownload(gid: gid),
-              download.canValidateImageData
+              download.canVerifyImages
         else { return nil }
-        let validation = storage.validate(
+        let verification = storage.verify(
             download: download,
             verifiesContentHashes: true
         )
-        switch validation {
+        switch verification {
         case .valid:
-            validationErrors[download.gid] = nil
+            verificationErrors[download.gid] = nil
 
         case .missingFiles(let message):
-            if reconcileValidatedRecordAgainstPageFiles(download: download) {
-                validationErrors[download.gid] = nil
+            if reconcileVerifiedRecordAgainstPageFiles(download: download) {
+                verificationErrors[download.gid] = nil
             } else {
-                validationErrors[download.gid] = DownloadFailure(
+                verificationErrors[download.gid] = DownloadFailure(
                     code: .fileOperationFailed,
                     message: String(localized: message)
                 )
             }
         }
         await notifyObservers()
-        return validation
+        return verification
     }
 
     /// Makes a `.missingFiles` verdict durable for every page this pass positively classified, and
     /// reports whether the pass covered every claimed page (D-G5B-01, D-SSOT-01).
     ///
-    /// The evidence is gathered here and now, never taken from the verdict: `storage.validate`
+    /// The evidence is gathered here and now, never taken from the verdict: `storage.verify`
     /// short-circuits at the first failing page, so its message names one page while the gallery has
     /// a SET — and a partially-broken gallery must reconcile exactly that set, whichever page
-    /// validate happened to report. Two passes supply it, in the order their guards demand:
+    /// verify happened to report. Two passes supply it, in the order their guards demand:
     ///
     /// 1. A page-file scan, whose 15-56 refusal line is kept verbatim — a failed enumeration answers
     ///    nothing at all, so the whole reconciliation refuses (G-15-9).
@@ -175,7 +175,7 @@ extension DownloadCoordinator {
     ///
     /// **CR-01: "before any destructive step" now includes the evidence gathering itself, and that
     /// is what makes the sentence true rather than aspirational.** The probe's housekeeping deletion
-    /// used to fire while the pass was still deciding: `storage.validate` and this function's own
+    /// used to fire while the pass was still deciding: `storage.verify` and this function's own
     /// presence scan both took the discarding default, so a zero-byte or non-regular page file was
     /// deleted BY the classification. On a one-page gallery the guard then refused — the prospective
     /// set was the whole record — and the pass ended having destroyed the file it had just declined
@@ -198,9 +198,9 @@ extension DownloadCoordinator {
     /// run's `pendingPageIndices` fetches only pages whose file is MISSING, so the surviving corrupt
     /// file is never re-fetched; and `finalizeDownload`'s `addingCurrentFileHashes` merge then
     /// re-hashes exactly the blank-hash pages from the bytes on disk, recording the corruption as
-    /// truth with a matching hash no later validation can refute. The current order's own failure
+    /// truth with a matching hash no later verification can refute. The current order's own failure
     /// state — files gone, hashes still claimed — is strictly more recoverable, because the removed
-    /// files are positively absent, so the next validate blanks them under the ordinary guards. That
+    /// files are positively absent, so the next verify blanks them under the ordinary guards. That
     /// asymmetry is why the destructive step stays first and the recovery below exists instead.
     ///
     /// **Recover once, never return verbatim, and never silently (CR-02).** Three exits fire AFTER
@@ -227,13 +227,13 @@ extension DownloadCoordinator {
     /// unmodified — so there is no second blanking rule to drift from the first. A page whose file
     /// could not be removed is folded into the held set instead, keeping its hash.
     ///
-    /// A nil manifest probe is treated as a refusal rather than a fresh start. Validation just
+    /// A nil manifest probe is treated as a refusal rather than a fresh start. Verification just
     /// proved that file readable, so failing now is a race with a concurrent deletion — a
     /// non-answer, and a non-answer is never authority to destroy recorded hashes.
     ///
     /// The `withdrawingCountedBasisMovement` bracket is the same sibling bracket the repair-seed
     /// preparation wraps this loop in. Blanking lowers the record's counted basis, and a live
-    /// continued session may still be counting this gallery — a completed-then-validated gallery
+    /// continued session may still be counting this gallery — a completed-then-verified gallery
     /// while the queue drains — so the write has to withdraw its counted portion from the monotonic
     /// floor. The bracket is delta-keyed, so a refusal withdraws exactly zero by construction. It
     /// opens BELOW the removal, because D-G7-01's own exclusion forbids a deletion inside it, and
@@ -250,7 +250,7 @@ extension DownloadCoordinator {
     /// has something the manifest legitimately cannot record. "Every claimed page" is answered off
     /// the content pass's own partition rather than re-derived — see `unclassifiedPages` — so a
     /// population that is invisible to one of the two sets cannot be invisible to only one of them.
-    private func reconcileValidatedRecordAgainstPageFiles(
+    private func reconcileVerifiedRecordAgainstPageFiles(
         download: DownloadedGallery
     ) -> Bool {
         let folderURL = download.folderURL
@@ -362,7 +362,7 @@ extension DownloadCoordinator {
     /// (WR-03).** `withdrawingCountedBasisMovement` composes as SIBLINGS only, so a helper that
     /// bracketed itself could not be called from `prepareWorkingSeed`, whose own bracket is already
     /// open around everything it does — the inner delta would be measured twice and withdrawn twice.
-    /// The bracket therefore belongs to the CALLER: this file's validate route supplies one span
+    /// The bracket therefore belongs to the CALLER: this file's verify route supplies one span
     /// around both of its attempts, and the seed route supplies `prepareWorkingSeed`'s. Nesting is
     /// prevented by that discipline rather than by the type system: the closure is non-escaping and
     /// non-`Sendable`, so it inherits the enclosing actor isolation and a synchronous actor method
@@ -403,19 +403,19 @@ extension DownloadCoordinator {
     /// construction, so an attempt that gets an answer blanks exactly them.
     ///
     /// **The caller supplies the bracket; this opens none.** `withdrawingCountedBasisMovement`
-    /// composes as SIBLINGS only, so the validate route runs this inside the one span it opens after
+    /// composes as SIBLINGS only, so the verify route runs this inside the one span it opens after
     /// its removal and `prepareWorkingSeed` runs it inside the bracket that is already open around
     /// its whole preparation. Opening one here would nest inside the second caller and withdraw its
     /// delta twice.
     ///
     /// It answers with the MANIFEST rather than a flag because the two callers need different halves
-    /// of the same answer and neither may re-derive it: the validate route reports success or failure
-    /// to its own `validationErrors` bookkeeping, while the seed route has to carry the corrected
+    /// of the same answer and neither may re-derive it: the verify route reports success or failure
+    /// to its own `verificationErrors` bookkeeping, while the seed route has to carry the corrected
     /// record forward into the working seed — a stale copy there would announce and fetch against
     /// claims the recovery had just retracted.
     ///
     /// A second failure is NOT silent. Recorded hashes now describe files this app deleted, and that
-    /// divergence outlives the session while the `validationErrors` entry marking it does not, so the
+    /// divergence outlives the session while the `verificationErrors` entry marking it does not, so the
     /// removed page indices go to the log at `error` with the gid hash-masked — the module's identity
     /// pattern, and the only trail a device archive could show. This is the single call site for that
     /// message family; a second one would be a second rule.
@@ -438,7 +438,7 @@ extension DownloadCoordinator {
         let removedPageList = removedPages.sorted().map(String.init).joined(separator: ", ")
         logger.error(
             """
-            Validation removed refuted page files the record still claims, pages: \
+            Verification removed refuted page files the record still claims, pages: \
             \(removedPageList, privacy: .public), \
             gid: \(gid, privacy: .private(mask: .hash)).
             """
@@ -493,7 +493,7 @@ extension DownloadCoordinator {
     /// and it joins the held set: the blanking loop already refuses to touch it and
     /// `prospectiveBlankPages` already excludes it, so the coverage answer was the one reader that
     /// never saw the population — which cleared the operation-level signal over an unanswered page
-    /// and, with it, disabled the only sensor that could ask again (`canValidateImageData`).
+    /// and, with it, disabled the only sensor that could ask again (`canVerifyImages`).
     ///
     /// `verified` is load-bearing here rather than decorative: dropping it from the union would
     /// report every intact page as unclassified. That is why the content pass returns a whole

@@ -15,11 +15,11 @@ import Testing
 /// only positive per-page determination the PROBE could make by itself. Absence is decided by a
 /// listing and mismatch by a content pass, so neither of them can act while it is being gathered.
 /// A rejection is decided by `probeAssetFile`, which — for every caller that did not opt out — also
-/// DELETED the file it had just rejected, as housekeeping. Validation never opted out, so its
+/// DELETED the file it had just rejected, as housekeeping. Verification never opted out, so its
 /// evidence gathering destroyed page files before the reconciliation's wholesale guard had
 /// authorized anything, and the guard then refused to blank the very hashes whose files were
 /// already gone. The record and the disk diverged in the one direction nothing can undo, marked
-/// only by a session-scoped `validationErrors` entry that a relaunch drops.
+/// only by a session-scoped `verificationErrors` entry that a relaunch drops.
 ///
 /// So the boundary these cases pin is not about WHICH pages a pass may correct — that is settled by
 /// D-SSOT-01/02/03 and pinned next door — but about WHEN it may touch anything at all: classify
@@ -27,14 +27,14 @@ import Testing
 /// refusal cases therefore assert the FILE directly rather than only the manifest: a manifest-only
 /// assertion passes unchanged against the defect, because the manifest is exactly what the refusal
 /// did preserve.
-extension DownloadValidationReconciliationTests {
+extension DownloadVerificationReconciliationTests {
     /// The smallest wholesale rejection: one claimed page whose file is zero bytes.
     ///
     /// The combined prospective blank set is that single page, and the record claims exactly one, so
     /// the all-or-nothing guard refuses — the same irreversibility defence the all-missing and
     /// all-mismatched shapes get, extended to the third positive determination. A refusal means
     /// nothing moved: the recorded hash stands, and the file the pass declined to blank for is still
-    /// on disk with its bytes unchanged, so a later validate over a repaired filesystem can still
+    /// on disk with its bytes unchanged, so a later verify over a repaired filesystem can still
     /// reach the ordinary guards.
     ///
     /// The file assertion is the load-bearing one. Against the pre-fix ordering the manifest
@@ -68,12 +68,12 @@ extension DownloadValidationReconciliationTests {
         let folderURL = galleryFolderURL(for: gallery, in: fixture)
         let claimedHashes = try fixture.storage.readManifest(folderURL: folderURL).pages
 
-        let validation = await fixture.manager.validateImageData(gid: gallery.gid)
+        let verification = await fixture.manager.verifyImages(gid: gallery.gid)
 
         try expectAWholesaleRejectionChangedNothing(
             for: gallery,
             in: fixture,
-            validation: validation,
+            verification: verification,
             claimedHashes: claimedHashes,
             rejectedPageURL: pageOneURL
         )
@@ -86,7 +86,7 @@ extension DownloadValidationReconciliationTests {
         let download = try #require(await fixture.manager.fetchDownload(gid: gallery.gid))
         #expect(download.displayStatus == .error)
         #expect(download.lastError?.code == .fileOperationFailed)
-        #expect(download.canValidateImageData)
+        #expect(download.canVerifyImages)
     }
 
     /// The same refusal for the other structural rejection: the page's path is not a regular file.
@@ -125,12 +125,12 @@ extension DownloadValidationReconciliationTests {
         let folderURL = galleryFolderURL(for: gallery, in: fixture)
         let claimedHashes = try fixture.storage.readManifest(folderURL: folderURL).pages
 
-        let validation = await fixture.manager.validateImageData(gid: gallery.gid)
+        let verification = await fixture.manager.verifyImages(gid: gallery.gid)
 
         try expectAWholesaleRejectionChangedNothing(
             for: gallery,
             in: fixture,
-            validation: validation,
+            verification: verification,
             claimedHashes: claimedHashes,
             rejectedPageURL: pageOneURL
         )
@@ -140,13 +140,13 @@ extension DownloadValidationReconciliationTests {
         let download = try #require(await fixture.manager.fetchDownload(gid: gallery.gid))
         #expect(download.displayStatus == .error)
         #expect(download.lastError?.code == .fileOperationFailed)
-        #expect(download.canValidateImageData)
+        #expect(download.canVerifyImages)
     }
 
     /// The positive boundary: where the combined set is NOT wholesale, the authorized correction
     /// still happens — file removed, hash blanked, entry cleared, and all of it durable.
     ///
-    /// Without this case the refusal cases alone would be satisfied by a validation that stopped
+    /// Without this case the refusal cases alone would be satisfied by a verification that stopped
     /// correcting rejections altogether, which trades one record/disk divergence for a permanently
     /// over-claiming record. Two claimed pages, one of them valid, put the prospective set at one of
     /// two, so the guard authorizes; the ordering then runs forward instead of backward — authorize,
@@ -180,9 +180,9 @@ extension DownloadValidationReconciliationTests {
         try Data().write(to: pageTwoURL, options: .atomic)
         await fixture.manager.reloadDownloadIndex()
 
-        let validation = await fixture.manager.validateImageData(gid: gallery.gid)
+        let verification = await fixture.manager.verifyImages(gid: gallery.gid)
 
-        #expect(validation == .missingFiles(.RLocalizable.downloadStorePageMissing(page: 2)))
+        #expect(verification == .missingFiles(.RLocalizable.downloadStorePageMissing(page: 2)))
         let download = try #require(await fixture.manager.fetchDownload(gid: gallery.gid))
         // The clearance half: the operation classified every claimed page and wrote what they
         // licensed, so nothing operation-level is left to outrank the record.
@@ -287,7 +287,7 @@ extension DownloadValidationReconciliationTests {
     /// automatic route was missing: `probeAssetFileContent` returns a surviving rejection
     /// unconditionally — it never deletes, deliberately, because metadata never confirmed anything
     /// about the file — and the removal primitive was reachable only from the user-initiated
-    /// Validate pass. So on the repair-seed route a page whose bytes were positively refuted kept
+    /// Verify pass. So on the repair-seed route a page whose bytes were positively refuted kept
     /// its claimed hash indefinitely: the record went on describing a complete page over unusable
     /// bytes, which is the D-SSOT-04 shape from the other direction, and no automatic pass could
     /// ever clear it.
@@ -331,7 +331,7 @@ extension DownloadValidationReconciliationTests {
     }
 }
 
-private extension DownloadValidationReconciliationTests {
+private extension DownloadVerificationReconciliationTests {
     /// The refusal contract itself, shared by both rejection families because it is one contract:
     /// the verdict is reported, the record is byte-identical, and the refuted path is still there.
     ///
@@ -341,16 +341,16 @@ private extension DownloadValidationReconciliationTests {
     func expectAWholesaleRejectionChangedNothing(
         for gallery: SessionGallery,
         in fixture: SessionFixture,
-        validation: DownloadValidationState?,
+        verification: DownloadVerificationState?,
         claimedHashes: [Int: String],
         rejectedPageURL: URL
     ) throws {
-        #expect(validation == .missingFiles(.RLocalizable.downloadStorePageMissing(page: 1)))
+        #expect(verification == .missingFiles(.RLocalizable.downloadStorePageMissing(page: 1)))
         // The load-bearing assertion of this whole file: a pass that refused to write must not have
         // destroyed the evidence it refused to write about.
         #expect(
             FileManager.default.fileExists(atPath: rejectedPageURL.path(percentEncoded: false)),
-            "a refusing validate must leave the rejected page file on disk"
+            "a refusing verify must leave the rejected page file on disk"
         )
         let diskManifest = try fixture.storage.readManifest(
             folderURL: galleryFolderURL(for: gallery, in: fixture)

@@ -371,7 +371,7 @@ struct DownloadCoordinatorStorageTests: DownloadFeatureTestCase {
         #expect(clearedDownload?.lastError == nil)
     }
 
-    // The validation cases moved to `DownloadValidationReconciliationTests.swift`, which owns the
+    // The verification cases moved to `DownloadVerificationReconciliationTests.swift`, which owns the
     // durable/refusal boundary D-G5B-01 draws. A relocation for headroom: this file sits against a
     // `file_length` limit of 1000 at error severity, and the boundary needs both arms.
 

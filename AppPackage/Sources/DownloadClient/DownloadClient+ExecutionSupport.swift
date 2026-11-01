@@ -286,8 +286,8 @@ extension DownloadCoordinator {
     /// withdrawing on top of that would count the same correction twice. So a vanished reading is
     /// read as the before-count rather than as zero, leaving a delta of zero. No call site deletes —
     /// the exclusion is stated here because it is the invariant every other writer is dispositioned
-    /// against. The validate-time caller is the one that needed the disposition restated rather than
-    /// inherited: `reconcileValidatedRecordAgainstPageFiles` DOES delete page files, but every
+    /// against. The verify-time caller is the one that needed the disposition restated rather than
+    /// inherited: `reconcileVerifiedRecordAgainstPageFiles` DOES delete page files, but every
     /// removal happens BEFORE the bracket opens, so what the bracket wraps still only lowers a
     /// record's counted basis and never removes the record or its basis. A future caller that
     /// deleted INSIDE the bracket would break this rule silently.
@@ -336,7 +336,7 @@ extension DownloadCoordinator {
     /// Module-internal rather than file-private because most call sites live outside this file —
     /// `DownloadClient+PublicAPI.swift`, `DownloadClient+PersistenceNormalize.swift` and
     /// `DownloadClient+Manager.swift`. One implementation is what stops the withdrawal rule from
-    /// forking between the run route, the enqueue route, the validate route and the queue-intent
+    /// forking between the run route, the enqueue route, the verify route and the queue-intent
     /// stamp — and it is also what gives the depth counter a single place to live.
     func withdrawingCountedBasisMovement<T>(
         gid: String,
@@ -403,7 +403,7 @@ extension DownloadCoordinator {
     ///    persist what it decided, so the run must fail; what it may not do is fail over a lying
     ///    record. Pinned by `testAThrownSeedManifestWriteRecoversTheRecordBeforeFailing`.
     ///
-    /// All three reach `recoveredBlanking`, the validate route's own implementation, which is the
+    /// All three reach `recoveredBlanking`, the verify route's own implementation, which is the
     /// point: a second copy of the ordering is what dropped the compensation, and a second copy of
     /// the recovery would drop it again. It opens no bracket, so it runs inside THIS one — the
     /// bracket rule is that movements compose as SIBLINGS and never nest.
@@ -435,7 +435,7 @@ extension DownloadCoordinator {
                 folderURL: folderURL
             )
             // CLASSIFY. Non-mutating, because until the guard below authorizes, this preparation is
-            // gathering evidence and nothing more — the ordering `reconcileValidatedRecordAgainstPage
+            // gathering evidence and nothing more — the ordering `reconcileVerifiedRecordAgainstPage
             // Files` has had since CR-01, adopted here by WR-02. It used to name
             // `discardingRejected: true`, which deleted a refused page file WHILE the classification
             // was being formed: the wholesale guard could then refuse to blank a hash whose file the
@@ -682,7 +682,7 @@ extension DownloadCoordinator {
         payload: DownloadRequestPayload,
         folderURL: URL
     ) throws -> DownloadManifest {
-        if let manifest = validatedManifest(
+        if let manifest = verifiedManifest(
             at: folderURL,
             gid: payload.gallery.gid,
             pageCount: payload.galleryDetail.pageCount

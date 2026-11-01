@@ -13,7 +13,7 @@ import Testing
 // A capture of the Downloads screen lists real download folders: the selection's galleries, each
 // seeded into capture-owned storage as a download leaves it, with the page files it holds and a
 // manifest that records their hashes. These cases seed the folders, read them back with the app's
-// own scan and validation, and refuse every selection a folder could not truthfully show.
+// own scan and verification, and refuse every selection a folder could not truthfully show.
 struct CaptureDownloadTests {
     /// The saved detail page every test gallery shows has this many pages.
     private static let pageCount = 156
@@ -35,7 +35,7 @@ struct CaptureDownloadTests {
         for download in index.downloads {
             let held = download.gid == "101" ? Set(1...2) : Set(1...Self.pageCount)
             // The app's own check: every recorded hash is the hash of the file beside it.
-            #expect(store.validate(download: download, verifiesContentHashes: true) == .valid)
+            #expect(store.verify(download: download, verifiesContentHashes: true) == .valid)
             expectNoDifference(Set(download.manifest.pages.filter({ !$0.value.isEmpty }).keys), held)
             expectNoDifference(Set(download.localPageURLs.keys), held)
             for (pageNumber, url) in download.localPageURLs {

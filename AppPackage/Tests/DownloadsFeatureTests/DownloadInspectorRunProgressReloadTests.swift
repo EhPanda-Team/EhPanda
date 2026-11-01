@@ -116,7 +116,7 @@ private extension DownloadInspectorRunProgressReloadTests {
                 $0.downloadClient.fetchDownloads = { [] }
                 $0.downloadClient.fetchDownload = { _ in nil }
                 $0.downloadClient.refreshDownloads = {}
-                $0.downloadClient.validateImageData = { _ in nil }
+                $0.downloadClient.verifyImages = { _ in nil }
                 $0.downloadClient.enqueue = { _ in }
                 $0.downloadClient.togglePause = { _ in }
                 $0.downloadClient.retry = { _, _ in }

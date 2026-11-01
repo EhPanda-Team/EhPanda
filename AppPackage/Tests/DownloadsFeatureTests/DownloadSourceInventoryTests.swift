@@ -188,13 +188,13 @@ struct DownloadSourceInventoryTests {
     /// function a reader is looking at. It is a CALLER count on purpose, because the floor census
     /// above provably cannot be one: it counts assignments to the floor, and one shared
     /// implementation keeps that number constant no matter how many sites open the bracket. A round
-    /// added the validate-time caller and left three sentences — in `+Manager.swift`,
+    /// added the verify-time caller and left three sentences — in `+Manager.swift`,
     /// `+ExecutionSupport.swift` and this file — describing three call sites and two, with every
     /// census still green.
     ///
     /// Derived from source rather than copied: `prepareWorkingSeed` and
     /// `prepareWorkingSeedAnnouncingProgress` (`+ExecutionSupport.swift`), `writeInitialManifest`
-    /// (`+PublicAPI.swift`), the validate-time `blankingPass` (`+PersistenceNormalize.swift`),
+    /// (`+PublicAPI.swift`), the verify-time `blankingPass` (`+PersistenceNormalize.swift`),
     /// `advanceQueueIntentGeneration` (`+Manager.swift`) and the nesting probe
     /// (`+Testing.swift`). The generic declaration carries `<T>` between the name and its
     /// parenthesis, so it does not match this token at all and needs no exclusion; doc-comment
@@ -230,7 +230,7 @@ struct DownloadSourceInventoryTests {
 
     /// Every entrance to the queue store, named per file.
     ///
-    /// This is the census `validationErrors`' own declaration reasons from: "anything that enqueues
+    /// This is the census `verificationErrors`' own declaration reasons from: "anything that enqueues
     /// must clear it at or before the enqueue". That rule is not derivable from any one of these
     /// sites, and its failure mode is silent — the map outranks queue membership in `displayStatus`,
     /// so a gallery enqueued with an entry standing derives `.error`, fails both arms of
@@ -556,7 +556,7 @@ struct DownloadSourceInventoryTests {
             callSites == Self.expectedQueueEnqueueCallSites,
             """
             The queue-entrance census moved. Re-read EVERY entrance against the rule on \
-            validationErrors' declaration — anything that enqueues must clear the failure state at \
+            verificationErrors' declaration — anything that enqueues must clear the failure state at \
             or before the enqueue — and only then update this table. An entrance that does not \
             clear leaves a gallery queued and permanently unschedulable.
             """

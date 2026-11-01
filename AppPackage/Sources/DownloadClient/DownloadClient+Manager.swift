@@ -453,14 +453,14 @@ public actor DownloadCoordinator {
     public var hasLoadedIndex = false
     public var userFolders = [String]()
     /// Transient, session-scoped status: deliberately in-memory only, never written to disk.
-    /// Download-level errors, per-page failures, validation results, and the update-available
+    /// Download-level errors, per-page failures, verification results, and the update-available
     /// set are status *about* a download, not durable properties of it; they are cheap to
     /// re-derive and re-derivation yields the *current* truth (e.g. a lifted limit simply
     /// succeeds on the next attempt). Durable facts (downloaded pages, hashes, metadata)
     /// live in the manifest. The accepted cost is that after relaunch a failed download
     /// surfaces as inactive ("Paused") until its error re-surfaces on the next manual retry.
     public var downloadErrors = [String: DownloadFailure]()
-    /// An **operation-level** signal about the last validation, and nothing else (D-SSOT-05).
+    /// An **operation-level** signal about the last verification, and nothing else (D-SSOT-05).
     ///
     /// An entry says one thing: that pass could not produce trustworthy evidence for every page the
     /// record claims. It never says anything about the record. Wherever the pass did classify every
@@ -482,7 +482,7 @@ public actor DownloadCoordinator {
     /// manifest in `displayStatus`, so an entry left behind would pin `.error` over an honest record
     /// and leave it unstartable — which is why anything that enqueues must clear it at or before the
     /// enqueue.
-    public var validationErrors = [String: DownloadFailure]()
+    public var verificationErrors = [String: DownloadFailure]()
     public var failedPageErrors = [String: [Int: PageFailure]]()
     public var updatedGalleryIDs = Set<String>()
     public var queuedModes = [String: DownloadStartMode]()
@@ -623,7 +623,7 @@ public actor DownloadCoordinator {
     ///    That bracket has five production call sites — `prepareWorkingSeed`'s whole preparation
     ///    and the basis announcement in `prepareWorkingSeedAnnouncingProgress`, both in
     ///    `DownloadClient+ExecutionSupport.swift`, `writeInitialManifest`'s body in
-    ///    `DownloadClient+PublicAPI.swift`, the validate-time `blankingPass` in
+    ///    `DownloadClient+PublicAPI.swift`, the verify-time `blankingPass` in
     ///    `DownloadClient+PersistenceNormalize.swift`, and `advanceQueueIntentGeneration`'s own
     ///    increment in this file — plus the deliberately-nesting probe in
     ///    `DownloadClient+Testing.swift`, but one implementation, so this writer is
@@ -940,7 +940,7 @@ extension DownloadCoordinator {
         includePageFailures: Bool = true
     ) {
         downloadErrors[gid] = nil
-        validationErrors[gid] = nil
+        verificationErrors[gid] = nil
         if includePageFailures {
             failedPageErrors[gid] = nil
         }

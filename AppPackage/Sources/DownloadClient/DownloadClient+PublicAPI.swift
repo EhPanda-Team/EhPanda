@@ -104,7 +104,7 @@ extension DownloadCoordinator {
                 payload: payload,
                 folderRelativePath: folderRelativePath
             )
-            // The fifth entrance to the queue, and the one that used to skip this. `validationErrors`
+            // The fifth entrance to the queue, and the one that used to skip this. `verificationErrors`
             // and `downloadErrors` outrank queue membership in `displayStatus`, so an entry standing
             // over a gallery this call enqueues derives `.error`, `shouldSchedule` fails both arms,
             // and the gallery sits in the queue store forever without ever running — the G-15-5 dead
@@ -274,7 +274,7 @@ extension DownloadCoordinator {
         gid: String
     ) async -> Result<(download: DownloadedGallery, manifest: DownloadManifest), AppError> {
         // Opening a gallery is a READ end to end (CR-03). This used to route through the coordinator
-        // sweep, whose only effect was the probe's housekeeping deletion, and then validate on the
+        // sweep, whose only effect was the probe's housekeeping deletion, and then verify on the
         // discarding default — so a reader open destroyed a zero-byte or non-regular page or cover
         // file, reported the page missing, and wrote nothing to the manifest. The record kept its
         // non-empty hash, the gallery kept deriving `.completed` under D-SSOT-07, and the divergence
@@ -282,7 +282,7 @@ extension DownloadCoordinator {
         guard let download = await fetchDownload(gid: gid) else {
             return .failure(.notFound)
         }
-        switch storage.validate(
+        switch storage.verify(
             download: download,
             verifiesContentHashes: false
         ) {
@@ -394,7 +394,7 @@ extension DownloadCoordinator {
         // non-regular page file. Under the presence basis that deletion was self-consistent — the
         // page read `.pending` immediately after. Under the manifest basis the page goes on reading
         // `.downloaded` over a file this read destroyed, which is a record/disk divergence created
-        // by looking, licensed by no reconciliation, and invisible until the user runs Validate.
+        // by looking, licensed by no reconciliation, and invisible until the user runs Verify.
         // Since CR-03 that is the default for every caller rather than this route's opt-out, so both
         // resolutions below read as written.
         let existingRelativePaths = activeFolderURL.map {

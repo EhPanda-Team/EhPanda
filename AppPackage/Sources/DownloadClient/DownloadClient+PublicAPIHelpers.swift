@@ -37,7 +37,7 @@ extension DownloadCoordinator {
     ///
     /// So the inspector shows the record's CLAIM. After an external deletion that claim is stale,
     /// and it is deliberately shown stale: it is honest about what the record says, it agrees with
-    /// the badge beside it, and **Validate is the single tap that senses such a divergence and
+    /// the badge beside it, and **Verify is the single tap that senses such a divergence and
     /// reconciles it durably** (D-G5B-01, D-SSOT-01) — after which this same derivation reports the
     /// correction, because the record moved. A sensor here could only re-open a disagreement it has
     /// no authority to fix: this function writes nothing.
@@ -45,7 +45,7 @@ extension DownloadCoordinator {
     /// The directory listing keeps exactly one job: resolving a page's on-disk `relativePath` and
     /// `fileURL` so a thumbnail can render, answering nil when no file is there. It is a
     /// rendering-resource resolver, never a status basis — so a missing thumbnail under a downloaded
-    /// claim is the approved pre-validate appearance, and a stray file beside a blank hash renders
+    /// claim is the approved pre-verify appearance, and a stray file beside a blank hash renders
     /// while still reading `.pending`. `existingRelativePaths` is already an existence-verified
     /// listing, so this helper performs no file-system call of its own.
     public func buildInspectionPages(

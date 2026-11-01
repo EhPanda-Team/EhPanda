@@ -16,20 +16,20 @@ extension DownloadCoordinator {
     /// Removes the page files this preparation positively refuted, once — and only once — the
     /// combined wholesale guard authorizes the whole set, and answers with a scan taken afterwards.
     ///
-    /// **WR-02: the automatic route gets the ordering the validated-record route already had.** The
+    /// **WR-02: the automatic route gets the ordering the verified-record route already had.** The
     /// shape being closed is not "a file was deleted too early" but "a file was never deleted at
     /// all". `probeAssetFileContent` — the exit `probeAssetFile` falls back to when the metadata
     /// read throws — reports an empty file as `.rejected(fileRemains: true)` unconditionally and
     /// deliberately, so a discarding scan does not clear it either. `removeRefutedPageFiles` was
-    /// reachable from `reconcileValidatedRecordAgainstPageFiles` alone, which only a user-initiated
-    /// Validate reaches. Between the two, a repair-seed preparation could meet a claimed page whose
+    /// reachable from `reconcileVerifiedRecordAgainstPageFiles` alone, which only a user-initiated
+    /// Verify reaches. Between the two, a repair-seed preparation could meet a claimed page whose
     /// bytes had been positively refuted and leave it exactly as found, run after run: a record
     /// claiming a complete page over unusable bytes, with the loop's line 2b correctly declining to
     /// blank it because nothing had removed the file. Removing it here is what converts the page
     /// into the positively-absent shape the blanking loop, the fetch filter and finalize all already
     /// handle.
     ///
-    /// It mirrors `reconcileValidatedRecordAgainstPageFiles`' ordering — classify, guard, remove,
+    /// It mirrors `reconcileVerifiedRecordAgainstPageFiles`' ordering — classify, guard, remove,
     /// rescan, blank — rather than inventing a second one, with one evidence class fewer: there is
     /// no content pass on this route, so the refutations are the presence scan's own rejections and
     /// nothing else. The claimed-page derivation, the `unprobedPages` subtraction and the
@@ -92,7 +92,7 @@ extension DownloadCoordinator {
             pageRelativePaths: classifiedScan.rejectedPageRelativePaths,
             refutedPages: refutedPages
         )
-        // The pages whose files this pass actually destroyed — the validate route's own expression.
+        // The pages whose files this pass actually destroyed — the verify route's own expression.
         // The unremoved complement is still not carried INTO THE SCAN: the rescan below re-derives
         // it from the disk, which is the stronger evidence and cannot drift from what the loop is
         // about to read. What the complement decides here is a different question the disk cannot

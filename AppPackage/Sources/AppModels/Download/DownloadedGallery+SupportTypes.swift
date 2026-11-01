@@ -32,7 +32,7 @@ extension DownloadedGallery {
     /// count, and it is the record's own count otherwise (D-SSOT-10). The denominator is the
     /// record's page count either way — the run's target is the whole gallery.
     ///
-    /// `completedPageCount`, `isIncomplete`, `canValidateImageData` and every gate below stay on the
+    /// `completedPageCount`, `isIncomplete`, `canVerifyImages` and every gate below stay on the
     /// RECORD. Only what a user is shown moves.
     public var badge: DownloadBadge {
         DownloadBadge(
@@ -60,7 +60,7 @@ extension DownloadedGallery {
         )
     }
 
-    public var canValidateImageData: Bool {
+    public var canVerifyImages: Bool {
         [.completed, .updateAvailable].contains(displayStatus)
             || lastError?.code == .fileOperationFailed
     }
@@ -114,7 +114,7 @@ extension DownloadInspection {
         !retryablePageIndices.isEmpty
     }
 
-    public var canValidateImageData: Bool {
-        hasDownloadedPages && download.canValidateImageData
+    public var canVerifyImages: Bool {
+        hasDownloadedPages && download.canVerifyImages
     }
 }

@@ -19,17 +19,17 @@ import Testing
 /// reading 3-of-3 while the page list reads one pending. This suite pins the single basis that
 /// removes that possibility — a page's status is a function of (recorded hash, recorded page
 /// failure) alone — and it pins it from BOTH sides of the divergence window, because the honest
-/// pre-validate reading (the record's claim) and the converged post-validate reading (the
+/// pre-verify reading (the record's claim) and the converged post-verify reading (the
 /// reconciled record) are different assertions and only one of them is about the fix.
 ///
 /// The live directory listing survives with exactly one job: resolving a page's on-disk
 /// relativePath/fileURL so a thumbnail can render. That resource is asserted separately from the
 /// status precisely because the two are now independent — a page can read `.downloaded` with no
-/// file to show (the record's claim, pre-validate) and a page can read `.pending` with a file
-/// sitting at its path (the totality case). Validate is the single tap that senses such a
+/// file to show (the record's claim, pre-verify) and a page can read `.pending` with a file
+/// sitting at its path (the totality case). Verify is the single tap that senses such a
 /// divergence and reconciles it durably; nothing else is allowed to sense it.
 struct DownloadInspectionBasisTests: DownloadFeatureTestCase {
-    /// Claim-vs-disk divergence, PRE-validate: an externally deleted page still reads the record's
+    /// Claim-vs-disk divergence, PRE-verify: an externally deleted page still reads the record's
     /// claim, so the page list and the badge cannot disagree.
     ///
     /// Three claimed pages with real hashes and real files, then page 2's file is deleted behind the
@@ -37,7 +37,7 @@ struct DownloadInspectionBasisTests: DownloadFeatureTestCase {
     /// `.downloaded`, which is what the record says and what the badge shows; only the rendering
     /// resource for page 2 is gone, which is the approved appearance for a stale-but-honest reading.
     @Test
-    func testAnExternallyDeletedPageStillReadsTheRecordsClaimBeforeValidation() async throws {
+    func testAnExternallyDeletedPageStillReadsTheRecordsClaimBeforeVerification() async throws {
         let gallery = SessionGallery(
             gid: "215901",
             title: "Claiming",
@@ -67,7 +67,7 @@ struct DownloadInspectionBasisTests: DownloadFeatureTestCase {
         #expect(inspection.download.completedPageCount == 3)
 
         // The rendering resource, asserted separately from the status: the deleted page has nothing
-        // to show, and that is all the deletion is allowed to change before Validate runs.
+        // to show, and that is all the deletion is allowed to change before Verify runs.
         let deleted = try requirePage(2, in: inspection)
         #expect(deleted.fileURL == nil)
         #expect(deleted.relativePath == nil)
@@ -75,14 +75,14 @@ struct DownloadInspectionBasisTests: DownloadFeatureTestCase {
         #expect(try requirePage(3, in: inspection).fileURL != nil)
     }
 
-    /// Convergence, POST-validate: the same divergence, sensed and durably reconciled by the single
+    /// Convergence, POST-verify: the same divergence, sensed and durably reconciled by the single
     /// tap, converges the page list and the badge together.
     ///
     /// This is the other side of the window, and it is a different assertion from the case above
-    /// rather than its continuation: pre-validate the inspector must show the claim, post-validate it
+    /// rather than its continuation: pre-verify the inspector must show the claim, post-verify it
     /// must show the correction. Both readings come from the same derivation — only the record moved.
     @Test
-    func testValidatingConvergesTheInspectorOnTheReconciledRecord() async throws {
+    func testVerifyingConvergesTheInspectorOnTheReconciledRecord() async throws {
         let gallery = SessionGallery(
             gid: "215902",
             title: "Converging",
@@ -103,9 +103,9 @@ struct DownloadInspectionBasisTests: DownloadFeatureTestCase {
         try FileManager.default.removeItem(at: pageFileURL(for: gallery, in: fixture, index: 2))
         await fixture.manager.reloadDownloadIndex()
 
-        let validation = await fixture.manager.validateImageData(gid: gallery.gid)
+        let verification = await fixture.manager.verifyImages(gid: gallery.gid)
 
-        #expect(validation == .missingFiles(.RLocalizable.downloadStorePageMissing(page: 2)))
+        #expect(verification == .missingFiles(.RLocalizable.downloadStorePageMissing(page: 2)))
         let inspection = try await fixture.manager.loadInspection(gid: gallery.gid).get()
 
         let reconciled = try requirePage(2, in: inspection)

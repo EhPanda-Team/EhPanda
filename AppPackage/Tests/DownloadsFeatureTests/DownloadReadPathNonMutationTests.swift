@@ -32,7 +32,7 @@ struct DownloadReadPathNonMutationTests: DownloadFeatureTestCase {
     /// Opening a downloaded gallery whose only page file has been truncated behind the app's back.
     ///
     /// This is the reported sequence in miniature. `loadManifest` runs the coordinator's folder
-    /// sweep and then `storage.validate`, and before the flip BOTH of them probed on the discarding
+    /// sweep and then `storage.verify`, and before the flip BOTH of them probed on the discarding
     /// default — the sweep discarding its results outright, since it existed for the deletion and
     /// nothing else. The verdict is the same either way (a zero-byte file is missing content whether
     /// or not it is deleted), which is the whole point: the answer never needed the deletion, so the
@@ -79,14 +79,14 @@ struct DownloadReadPathNonMutationTests: DownloadFeatureTestCase {
 
     /// The second discarding read route, reached without opening anything: deciding how to resume.
     ///
-    /// `resumeMode` asks `storage.validate` whether a record that reads COMPLETE is contradicted by
+    /// `resumeMode` asks `storage.verify` whether a record that reads COMPLETE is contradicted by
     /// its files, and routes a contradiction to `.repair` rather than to `.redownload` so the pages
     /// already on disk are kept. Answering that question by deleting the very file that answers it
     /// is self-defeating, and it converges only if the user then starts the download — until then the
     /// record lies about a page this call destroyed.
     ///
     /// The record is staged COMPLETE deliberately: an incomplete record short-circuits two branches
-    /// earlier and never reaches the validate, so `isIncomplete` is asserted false before the call
+    /// earlier and never reaches the verify, so `isIncomplete` is asserted false before the call
     /// rather than assumed, or the case would prove nothing about the branch it is named for.
     @Test
     func testResumeModeOverAZeroBytePageResolvesRepairWithoutDeletingIt() async throws {

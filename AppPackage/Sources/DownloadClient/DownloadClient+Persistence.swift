@@ -83,7 +83,7 @@ extension DownloadCoordinator {
             localPageURLs: record.localPageURLs,
             modificationDate: record.modificationDate,
             displayStatus: displayStatus(for: record),
-            lastError: validationErrors[gid] ?? downloadErrors[gid],
+            lastError: verificationErrors[gid] ?? downloadErrors[gid],
             runProgress: publishedRunProgress(gid: gid)
         )
     }
@@ -92,7 +92,7 @@ extension DownloadCoordinator {
         for record: DownloadFolderRecord
     ) -> DownloadDisplayStatus {
         let gid = record.manifest.gid
-        if validationErrors[gid] != nil {
+        if verificationErrors[gid] != nil {
             return .error
         }
         if activeGalleryID == gid {

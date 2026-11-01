@@ -13,7 +13,7 @@ extension DownloadCoordinator {
     /// claiming a page the app itself had removed, across relaunch. The scan is deleted rather than
     /// made non-discarding: with the deletion withheld it computed two answers nobody read.
     ///
-    /// What remains is the half that was always real. `validationErrors` and `downloadErrors` are
+    /// What remains is the half that was always real. `verificationErrors` and `downloadErrors` are
     /// session-scoped operation-level signals that OUTRANK the record in status derivation, so an
     /// operation that has just made one of them false has to retract it or the gallery keeps
     /// displaying a failure the disk no longer supports. `failedPageErrors` is deliberately left

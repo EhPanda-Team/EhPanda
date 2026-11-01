@@ -55,10 +55,10 @@ struct DownloadRetryPagesTests: DownloadFeatureTestCase {
     /// moved, and the start does not depend on the record's claims.
     ///
     /// The fixture is the shape 15-56 deliberately left on the `.error` surface — a complete-claiming
-    /// record whose page files are all gone. Validation reports `.missingFiles`, the blanking loop's
+    /// record whose page files are all gone. Verification reports `.missingFiles`, the blanking loop's
     /// all-or-nothing guard refuses to empty every claimed hash at once, so the manifest stands and
-    /// the transient `validationErrors` entry pins `.error`. From there `togglePause` is hard-closed
-    /// and Validate only re-reports itself; the one route out is `retryPages`, whose page selection
+    /// the transient `verificationErrors` entry pins `.error`. From there `togglePause` is hard-closed
+    /// and Verify only re-reports itself; the one route out is `retryPages`, whose page selection
     /// travels EXPLICITLY and therefore never consults the manifest's claims.
     ///
     /// **The composition hazard this case exists to name.** Under D-SSOT-07 the page states are
@@ -69,7 +69,7 @@ struct DownloadRetryPagesTests: DownloadFeatureTestCase {
     /// non-empty and equal to the whole page set BEFORE `retryPages` is driven, so a regression to
     /// any subset-shaped basis fails here rather than in a device session.
     ///
-    /// The `.queued` assertion is the load-bearing one: `validationErrors` outranks both
+    /// The `.queued` assertion is the load-bearing one: `verificationErrors` outranks both
     /// `activeGalleryID` and queue membership in `displayStatus`, so `.queued` is reachable only
     /// once `performRetryPages`'s failure-state clearing has removed the entry at enqueue.
     ///
@@ -115,9 +115,9 @@ struct DownloadRetryPagesTests: DownloadFeatureTestCase {
         let blocking = try #require(await fixture.manager.fetchDownload(gid: blocker.gid))
         #expect(blocking.displayStatus == .active)
 
-        let validation = await fixture.manager.validateImageData(gid: target.gid)
+        let verification = await fixture.manager.verifyImages(gid: target.gid)
 
-        #expect(validation == .missingFiles(.RLocalizable.downloadStorePageMissing(page: 1)))
+        #expect(verification == .missingFiles(.RLocalizable.downloadStorePageMissing(page: 1)))
         let refused = try #require(await fixture.manager.fetchDownload(gid: target.gid))
         #expect(refused.displayStatus == .error)
         #expect(refused.lastError?.code == .fileOperationFailed)
@@ -194,7 +194,7 @@ struct DownloadRetryPagesTests: DownloadFeatureTestCase {
     /// The widened regime, and the only one: at `.error` over a file-shaped failure the basis is the
     /// WHOLE page set, whatever the individual pages happen to read.
     ///
-    /// The failure is operation-level — it says the last validation could not produce trustworthy
+    /// The failure is operation-level — it says the last verification could not produce trustworthy
     /// evidence for every claimed page — so no per-page subset is derivable from it, and drawing one
     /// anyway is a category error. Every index goes, and the repair run's own evidence (the working
     /// seed's scan, the missing-file fetch filter) decides what is actually re-fetched.

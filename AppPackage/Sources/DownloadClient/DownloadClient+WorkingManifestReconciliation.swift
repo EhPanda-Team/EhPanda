@@ -13,7 +13,7 @@ extension DownloadCoordinator {
     ///
     /// It closes the RUN-TIME half of G-15-5: a record that goes on reading complete while a repair
     /// run is fetching the very pages it claims. That is a distinct hole from the VALIDATE-TIME one
-    /// D-G5B-01 closes in `validateImageData` — a record that goes on reading complete after the
+    /// D-G5B-01 closes in `verifyImages` — a record that goes on reading complete after the
     /// user's own integrity check has proved files missing, with no run in sight — and this
     /// paragraph is not to be read as covering it. The two share this loop deliberately: the second
     /// caller reuses these refusal lines rather than growing a laxer blanking rule of its own.
@@ -43,17 +43,17 @@ extension DownloadCoordinator {
     /// `.repair` for it exactly as its missingFiles branch did before, so no route is lost — the
     /// files really are missing, and the record finally says so.
     ///
-    /// The same movement reaches `storage.validate`, and that consequence was considered rather
-    /// than missed. `validatePage` (`DownloadStore+Operations.swift`) returns nil for an empty
+    /// The same movement reaches `storage.verify`, and that consequence was considered rather
+    /// than missed. `verifyPage` (`DownloadStore+Operations.swift`) returns nil for an empty
     /// expected hash — nothing claimed, nothing to check — so a blanked page that previously
     /// produced `.missingFiles` now leaves the record reporting `.valid`. Two consumers see it:
-    /// `validateImageData(gid:)`, the inspector's user-initiated integrity check, and
+    /// `verifyImages(gid:)`, the inspector's user-initiated integrity check, and
     /// `loadManifest(gid:)`, whose missingFiles gate decides whether the offline reader opens the
     /// gallery or falls back to remote. Both answer differently for an interrupted repair, and
     /// that is correct rather than lost coverage: the manifest genuinely no longer claims those
     /// pages, which is the exact state an interrupted `.initial` download has always presented,
     /// and mode resolution still reaches `.repair` through `isIncomplete` so the missing pages are
-    /// still fetched. Validation reports what the record claims; it is not a second source of
+    /// still fetched. Verification reports what the record claims; it is not a second source of
     /// truth about what the gallery ought to contain.
     ///
     /// This function does no basis accounting of its own, deliberately. Its index write is one of
@@ -105,7 +105,7 @@ extension DownloadCoordinator {
     ///
     ///    **The removal belongs to the CALLER, and since WR-02 BOTH callers perform it.** A caller
     ///    that removed the file first sees the page as a positive absence on its own fresh scan and
-    ///    gets the blanking through line 2's path. `reconcileValidatedRecordAgainstPageFiles` has
+    ///    gets the blanking through line 2's path. `reconcileVerifiedRecordAgainstPageFiles` has
     ///    done that since CR-01; `prepareWorkingSeed` does it now, through the same
     ///    `removeRefutedPageFiles` primitive under the same combined guard. Whatever survives a
     ///    caller's removal — a `removeItem` that threw, a relative path that would escape the folder
@@ -167,7 +167,7 @@ extension DownloadCoordinator {
     ///
     /// **What the defence deliberately costs.** A genuinely all-pages-vanished repair is no longer
     /// reconciled: it falls back to the pre-D-G5-01 arc, where the seed's empty `existingPages`
-    /// makes the run re-fetch every page, and `resumeMode`'s `storage.validate` branch remains the
+    /// makes the run re-fetch every page, and `resumeMode`'s `storage.verify` branch remains the
     /// route that resolves `.repair` for such a record — re-verified, and its (a)/(b) doc still
     /// reads true, since a refusal is exactly its case (a). An unprobed page pays the same way, one
     /// page at a time. That is accepted against the alternative — letting a transient failure
@@ -187,16 +187,16 @@ extension DownloadCoordinator {
     /// flush really is enough — which is what the sibling refusal cases in
     /// `DownloadContinuedSessionReconciliationTests` stage.
     ///
-    /// **Second caller: `validateImageData(gid:)` (D-G5B-01).** The name still holds there, because
+    /// **Second caller: `verifyImages(gid:)` (D-G5B-01).** The name still holds there, because
     /// a repair's working folder IS the gallery's own folder — `shouldReuseWorkingFolder` returns
-    /// true unconditionally for `.repair` — so validate-time reconciliation runs this identical loop
+    /// true unconditionally for `.repair` — so verify-time reconciliation runs this identical loop
     /// over the identical folder shape, against a manifest read out of that same folder. What the
     /// second caller must supply is what `prepareWorkingSeed` supplies: a scan of that folder taken
-    /// fresh (never a verdict — `storage.validate` returns at its FIRST failing page, so its message
+    /// fresh (never a verdict — `storage.verify` returns at its FIRST failing page, so its message
     /// names one page rather than the missing set), and an enclosing `withdrawingCountedBasisMovement`
     /// bracket, since this function still does no basis accounting of its own. Module-internal rather
     /// than file-private for exactly that caller: one implementation is what stops the blanking
-    /// evidence rule from forking between repair-preparation time and validate time.
+    /// evidence rule from forking between repair-preparation time and verify time.
     func reconcileWorkingManifestAgainstPageFiles(
         manifest: DownloadManifest,
         pageFileScan: PageFileScan,
@@ -212,7 +212,7 @@ extension DownloadCoordinator {
             // nothing about the page, so it may not license an act here or move the threshold for
             // any other page. Checked first because a page can carry BOTH signals — one candidate
             // file unprobeable, another refused — and the non-answer wins, exactly as it does in
-            // `reconcileValidatedRecordAgainstPageFiles`' own refuted-set derivation.
+            // `reconcileVerifiedRecordAgainstPageFiles`' own refuted-set derivation.
             guard pages[page]?.isEmpty == false,
                   !pageFileScan.unprobedPages.contains(page)
             else { continue }

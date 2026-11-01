@@ -6,10 +6,10 @@ import Synchronization
 import Testing
 
 /// WR-03: what the REPAIR-SEED route owes after it has destroyed a page file — the same debt the
-/// validate route has paid since CR-02, on the copy that inherited the ordering without the
+/// verify route has paid since CR-02, on the copy that inherited the ordering without the
 /// compensation.
 ///
-/// `prepareWorkingSeed`'s authorized removal mirrors `reconcileValidatedRecordAgainstPageFiles`'
+/// `prepareWorkingSeed`'s authorized removal mirrors `reconcileVerifiedRecordAgainstPageFiles`'
 /// classify → guard → remove → rescan → blank ordering, and that ordering is deliberate: reversing
 /// it would leave a failed removal as a blank hash beside a surviving file, which is the D-SSOT-04
 /// laundering shape. Its price is a window. Three exits fire AFTER the removal — a rescan that could
@@ -41,8 +41,8 @@ struct DownloadSeedRecoveryTests: DownloadFeatureTestCase {
     /// Exit 3 on the seed route: the blanking loop's manifest write throws with the refuted file
     /// already destroyed, and the record must not be left claiming it.
     ///
-    /// The staging is the validate route's own (`testAnUnwritableManifestKeepsTheEntryAndTheNext
-    /// ValidateConvergesTheRecord`): the store's `writeJSON` bottoms out in
+    /// The staging is the verify route's own (`testAnUnwritableManifestKeepsTheEntryAndTheNext
+    /// VerifyConvergesTheRecord`): the store's `writeJSON` bottoms out in
     /// `Data.write(to:options:.atomic)`, which takes no injected collaborator, so the faithful way
     /// to make a manifest write throw is an immutable `manifest.json` inside a still-writable
     /// folder — the `rename` the atomic write performs fails with `EPERM` while the refuted page
@@ -486,7 +486,7 @@ final class SeedRescanFailureControl: Sendable {
 /// classification returns before authorizing anything and no removal would happen at all — while
 /// the post-removal rescan and everything after it fail.
 ///
-/// **It stays armed, unlike the validate route's single-shot double, and that is the point.** A
+/// **It stays armed, unlike the verify route's single-shot double, and that is the point.** A
 /// one-shot failure lets the recovery's own rescan answer, which blanks the removed page and makes
 /// the record honest by itself; the announced basis would then be honest for a reason that has
 /// nothing to do with the subtraction under test. Staying armed keeps the record's claim standing —

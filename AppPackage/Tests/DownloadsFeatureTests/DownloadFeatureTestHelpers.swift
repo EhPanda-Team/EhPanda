@@ -420,7 +420,7 @@ extension DownloadFeatureTestCase {
     ///
     /// Fixture manifests carry hash entries but no files, which is enough for arithmetic over the
     /// record alone. It is not enough for the states the production folder contract distinguishes:
-    /// a record that reads complete while some of its files are gone is what `storage.validate`
+    /// a record that reads complete while some of its files are gone is what `storage.verify`
     /// reports as `.missingFiles`, what `resumeMode` resolves to `.repair`, and what the working
     /// seed's reconciliation blanks. Staging those files here is what lets a case reach that state
     /// through the contract instead of patching the index behind it.
@@ -489,7 +489,7 @@ extension DownloadFeatureTestCase {
     /// Replaces the fixture's placeholder hashes for `indices` with the real hashes of the page
     /// files `writePageFiles` just landed.
     ///
-    /// Content validation compares recorded hashes against the bytes on disk, so a surviving page
+    /// Content verification compares recorded hashes against the bytes on disk, so a surviving page
     /// carrying a placeholder hash would be reported corrupted and short-circuit the verdict before
     /// it ever reached the page a case actually staged as broken. Aligning the intact pages is what
     /// makes the staged one the thing under test.
@@ -611,7 +611,7 @@ extension DownloadFeatureTestCase {
     /// `pageCountOverride` moves only the payload's *gallery-detail* page count, which is the value
     /// `ensureWorkingManifest` validates the stored manifest against and the value a fresh manifest
     /// is built at. Overriding it is how a case stages the upstream-page-count change that makes
-    /// `validatedManifest` return nil without deleting anything.
+    /// `verifiedManifest` return nil without deleting anything.
     ///
     /// `pageSelection` is placed on the payload exactly as production's fetch step places it —
     /// `fetchLatestPayload(for:mode:options:pageSelection:)` takes the raw `[Int]?` the coordinator

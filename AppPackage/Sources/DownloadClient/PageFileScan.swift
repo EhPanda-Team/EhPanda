@@ -35,7 +35,7 @@
 /// **Why the rejected pages need an identity of their own, and why the identity is conditional on
 /// the file SURVIVING.** A rejection used to be indistinguishable from an absence here, and that was
 /// self-consistent only because the probe deleted the file it rejected: the page really had no file
-/// by the time anyone read the answer. A caller that may not mutate — validation, before its own
+/// by the time anyone read the answer. A caller that may not mutate — verification, before its own
 /// guard has authorized anything — gets the same classification with the file left in place, and for
 /// that caller "not in `pages`" would silently mean two different things: a page with nothing on
 /// disk, and a page with a refuted file still on disk. The first is blankable on its own; the second
@@ -55,7 +55,7 @@
 /// caller "reports nothing here … which keeps every pre-existing caller byte for byte", and the
 /// consequence of believing it was not cosmetic: a page refused through the content read kept its
 /// recorded hash beside its refuted bytes on every AUTOMATIC route, because the only remover was
-/// the user-initiated validate pass. Both blanking entry points now classify, authorize and remove
+/// the user-initiated verify pass. Both blanking entry points now classify, authorize and remove
 /// in that order, so a surviving refutation is either removed under the same guard that licensed
 /// the blanking of its hash, or kept whole — hash and file together.
 public struct PageFileScan: Equatable, Sendable {
