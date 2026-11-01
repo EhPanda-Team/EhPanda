@@ -136,7 +136,7 @@
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "清空"
+            "value" : "清除"
           }
         },
         "zh-Hant" : {
@@ -806,7 +806,7 @@
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "已下載的畫廊會從此裝置移除。"
+            "value" : "會從此裝置移除已下載的畫廊。"
           }
         }
       }
@@ -882,7 +882,7 @@
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "该下载正在进行中。"
+            "value" : "此下载正在进行中。"
           }
         },
         "zh-Hant" : {
@@ -964,13 +964,13 @@
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "已存在同名文件夹。"
+            "value" : "已有同名文件夹。"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "已有同名的資料夾。"
+            "value" : "已有同名資料夾。"
           }
         }
       }
@@ -1005,7 +1005,7 @@
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "该文件夹中有正在进行的下载。"
+            "value" : "此文件夹中有正在进行的下载。"
           }
         },
         "zh-Hant" : {

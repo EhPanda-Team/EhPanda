@@ -25,7 +25,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "비슷한 작품"
+            "value": "비슷한 갤러리"
           }
         },
         "zh-Hans": {
@@ -37,7 +37,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "類似畫廊"
+            "value": "相似畫廊"
           }
         }
       }
@@ -297,7 +297,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "クレジット残高: %#@balance@"
+            "value": "クレジット残高：%#@balance@"
           },
           "substitutions": {
             "balance": {
@@ -737,7 +737,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "ギャラリーポイント残高: %#@balance@"
+            "value": "ギャラリーポイント残高：%#@balance@"
           },
           "substitutions": {
             "balance": {
@@ -2269,7 +2269,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "完了したダウンロード数: %#@count@"
+            "value": "完了したダウンロード数：%#@count@"
           },
           "substitutions": {
             "count": {
@@ -2406,7 +2406,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "ピア数: %#@count@"
+            "value": "ピア数：%#@count@"
           },
           "substitutions": {
             "count": {
@@ -2543,7 +2543,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "シード数: %#@count@"
+            "value": "シード数：%#@count@"
           },
           "substitutions": {
             "count": {
@@ -5787,7 +5787,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "撤销投票"
+            "value": "撤回投票"
           }
         },
         "zh-Hant": {
