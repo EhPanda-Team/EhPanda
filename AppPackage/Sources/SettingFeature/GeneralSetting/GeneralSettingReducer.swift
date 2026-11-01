@@ -149,7 +149,8 @@ public struct GeneralSettingReducer: Sendable {
             case .calculateWebImageDiskCacheDone(let bytes):
                 guard let bytes = bytes else { return .none }
                 let formatter = ByteCountFormatter()
-                formatter.allowedUnits = .useAll
+                formatter.allowedUnits = [.useKB, .useMB, .useGB]
+                formatter.allowsNonnumericFormatting = false
                 state.diskImageCacheSize = formatter.string(fromByteCount: .init(bytes))
                 return .none
             }
