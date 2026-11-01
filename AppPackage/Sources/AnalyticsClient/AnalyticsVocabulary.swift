@@ -23,7 +23,8 @@ public import AppModels
 /// package holds everywhere else, so the emission site does the mapping and this stays a plain
 /// closed enum.
 public enum HomeSection: String, CaseIterable, Equatable, Sendable {
-    case frontpage
+    /// Keeps the value already reported, so the signal's history stays one series.
+    case frontPage = "frontpage"
     case toplists
     case popular
     case watched
@@ -63,7 +64,8 @@ extension AppTab {
 public enum SearchSurface: String, CaseIterable, Equatable, Sendable {
     case search
     case searchRoot
-    case frontpage
+    /// Keeps the value already reported, so the signal's history stays one series.
+    case frontPage = "frontpage"
     case popular
     case watched
     case favorites

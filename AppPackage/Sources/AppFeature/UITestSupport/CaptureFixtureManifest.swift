@@ -130,6 +130,7 @@ struct CaptureSelection: Equatable, Sendable, Decodable {
 
     struct Home: Equatable, Sendable, Decodable {
         let hero: Hero
+        /// Spelled as the key in the selections already on disk.
         let frontpage: [String]
         /// Gallery IDs by Toplists period: `yesterday`, `pastMonth`, `pastYear` and `allTime`.
         let toplists: [String: [String]]

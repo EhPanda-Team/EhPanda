@@ -305,7 +305,7 @@ struct SchemaMigrationTests {
 
         let migrated = try JSONDecoder().decode(Setting.self, from: data)
 
-        #expect(migrated.galleryListPresentation.frontpage == .grid)
+        #expect(migrated.galleryListPresentation.frontPage == .grid)
         #expect(migrated.galleryListPresentation.popular == .grid)
         #expect(migrated.galleryListPresentation.toplists == .grid)
         #expect(migrated.galleryListPresentation.favorites == .grid)

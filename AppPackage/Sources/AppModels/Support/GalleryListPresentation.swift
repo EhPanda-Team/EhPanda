@@ -2,7 +2,8 @@ import Foundation
 
 /// The independently remembered gallery list contexts.
 public enum GalleryListScope: String, Codable, CaseIterable, Identifiable, Sendable {
-    case frontpage
+    /// Keeps the value it was stored with before the Front Page rename.
+    case frontPage = "frontpage"
     case popular
     case toplists
     case favorites
@@ -24,7 +25,7 @@ public enum GalleryListDisplayMode: Int, Codable, CaseIterable, Identifiable, Se
 
 /// Persisted presentation choices for each semantic list scope.
 public struct GalleryListPresentation: Codable, Equatable, Sendable {
-    public var frontpage: GalleryListDisplayMode
+    public var frontPage: GalleryListDisplayMode
     public var popular: GalleryListDisplayMode
     public var toplists: GalleryListDisplayMode
     public var favorites: GalleryListDisplayMode
@@ -33,8 +34,14 @@ public struct GalleryListPresentation: Codable, Equatable, Sendable {
     public var watched: GalleryListDisplayMode
     public var history: GalleryListDisplayMode
 
+    /// `frontpage` is the key saved before the Front Page rename, so existing choices stay readable.
+    private enum CodingKeys: String, CodingKey {
+        case frontPage = "frontpage"
+        case popular, toplists, favorites, search, downloads, watched, history
+    }
+
     public init(
-        frontpage: GalleryListDisplayMode = .row,
+        frontPage: GalleryListDisplayMode = .row,
         popular: GalleryListDisplayMode = .row,
         toplists: GalleryListDisplayMode = .row,
         favorites: GalleryListDisplayMode = .row,
@@ -43,7 +50,7 @@ public struct GalleryListPresentation: Codable, Equatable, Sendable {
         watched: GalleryListDisplayMode = .row,
         history: GalleryListDisplayMode = .row
     ) {
-        self.frontpage = frontpage
+        self.frontPage = frontPage
         self.popular = popular
         self.toplists = toplists
         self.favorites = favorites
@@ -56,7 +63,7 @@ public struct GalleryListPresentation: Codable, Equatable, Sendable {
     public subscript(scope: GalleryListScope) -> GalleryListDisplayMode {
         get {
             switch scope {
-            case .frontpage: frontpage
+            case .frontPage: frontPage
             case .popular: popular
             case .toplists: toplists
             case .favorites: favorites
@@ -68,7 +75,7 @@ public struct GalleryListPresentation: Codable, Equatable, Sendable {
         }
         set {
             switch scope {
-            case .frontpage: frontpage = newValue
+            case .frontPage: frontPage = newValue
             case .popular: popular = newValue
             case .toplists: toplists = newValue
             case .favorites: favorites = newValue

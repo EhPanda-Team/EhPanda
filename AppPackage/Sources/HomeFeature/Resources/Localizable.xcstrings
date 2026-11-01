@@ -125,7 +125,7 @@
         }
       }
     },
-    "frontpage": {
+    "front_page": {
       "extractionState": "manual",
       "localizations": {
         "en": {

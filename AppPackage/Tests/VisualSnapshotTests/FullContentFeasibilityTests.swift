@@ -526,7 +526,7 @@ private extension FullContentFeasibilityTests {
             XCTAssertTrue(Set(neighbors.map(\.gid)).isDisjoint(with: Set(expectations(galleries).map(\.marker))))
             state.cardPageIndex = 0
             state.currentCardID = try XCTUnwrap(galleries.first).gid
-            state.frontpageGalleries = Array(galleries.dropFirst().prefix(2))
+            state.frontPageGalleries = Array(galleries.dropFirst().prefix(2))
             state.toplistsGalleries = Dictionary(
                 uniqueKeysWithValues: ToplistsType.allCases.map({ ($0.categoryIndex, []) })
             )

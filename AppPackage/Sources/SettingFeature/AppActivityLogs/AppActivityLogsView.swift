@@ -305,7 +305,7 @@ private struct AppActivityLogRow: View {
                     state.selectedRunLogs = [
                         .init(
                             date: .now, category: "Networking",
-                            level: .info, message: "Fetched frontpage galleries."
+                            level: .info, message: "Fetched front page galleries."
                         ),
                         .init(
                             date: .now, category: "Database",

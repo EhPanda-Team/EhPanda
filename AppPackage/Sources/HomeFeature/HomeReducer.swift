@@ -45,8 +45,8 @@ public struct HomeReducer: Sendable {
 
         public var popularGalleries = [Gallery]()
         public var popularLoadingState: LoadingState = .idle
-        public var frontpageGalleries = [Gallery]()
-        public var frontpageLoadingState: LoadingState = .idle
+        public var frontPageGalleries = [Gallery]()
+        public var frontPageLoadingState: LoadingState = .idle
         public var toplistsGalleries = [Int: [Gallery]]()
         public var toplistsLoadingState = [Int: LoadingState]()
 
@@ -60,8 +60,8 @@ public struct HomeReducer: Sendable {
             currentCardID = galleries[cardPageIndex].gid
         }
 
-        mutating func setFrontpageGalleries(_ galleries: [Gallery]) {
-            frontpageGalleries = Array(galleries.prefix(min(galleries.count, 25)))
+        mutating func setFrontPageGalleries(_ galleries: [Gallery]) {
+            frontPageGalleries = Array(galleries.prefix(min(galleries.count, 25)))
                 .removeDuplicates(by: \.trimmedTitle)
         }
 
@@ -88,8 +88,8 @@ public struct HomeReducer: Sendable {
         case fetchAllToplistsGalleries
         case fetchPopularGalleries
         case fetchPopularGalleriesDone(Result<[Gallery], AppError>)
-        case fetchFrontpageGalleries
-        case fetchFrontpageGalleriesDone(Result<(pageNumber: PageNumber, galleries: [Gallery]), AppError>)
+        case fetchFrontPageGalleries
+        case fetchFrontPageGalleriesDone(Result<(pageNumber: PageNumber, galleries: [Gallery]), AppError>)
         case fetchToplistsGalleries(index: Int, pageNum: Int? = nil)
         case fetchToplistsGalleriesDone(
             index: Int, result: Result<(pageNumber: PageNumber, galleries: [Gallery]), AppError>

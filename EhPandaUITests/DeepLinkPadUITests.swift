@@ -22,20 +22,20 @@ final class DeepLinkPadUITests: XCTestCase {
         try app.launchStubbed()
         app.requireForeground()
 
-        // Home's Frontpage section, then its first gallery row: the tab-rooted tap
+        // Home's Front Page section, then its first gallery row: the tab-rooted tap
         // that routes through `presentGalleryDetail` in this window instead of
         // pushing onto the tab's own stack.
         let showAllButton = app.buttons["Show All"].firstMatch
         XCTAssertTrue(
             showAllButton.waitForExistence(timeout: 15),
-            "Home did not render its Frontpage section."
+            "Home did not render its Front Page section."
         )
         showAllButton.tap()
 
         let firstGalleryRow = app.collectionViews.buttons.firstMatch
         XCTAssertTrue(
             firstGalleryRow.waitForExistence(timeout: 15),
-            "The Frontpage list did not render a gallery row."
+            "The Front Page list did not render a gallery row."
         )
         firstGalleryRow.tap()
 

@@ -73,8 +73,8 @@ struct HomePrimaryNavigationView: View {
             }
         } destination: { store in
             switch store.case {
-            case .frontpage(let store):
-                FrontpageView(store: store)
+            case .frontPage(let store):
+                FrontPageView(store: store)
             case .popular(let store):
                 PopularView(store: store)
             case .toplists(let store):

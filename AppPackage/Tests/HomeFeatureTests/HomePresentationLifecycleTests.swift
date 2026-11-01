@@ -119,14 +119,14 @@ struct HomePresentationLifecycleTests {
 
     @MainActor
     @Test
-    func frontpagePresentationSkipsFetchWhenAlreadyPopulated() async {
+    func frontPagePresentationSkipsFetchWhenAlreadyPopulated() async {
         let store = TestStore(
             initialState: {
-                var state = FrontpageReducer.State()
+                var state = FrontPageReducer.State()
                 state.galleries = [.preview]
                 return state
             }(),
-            reducer: FrontpageReducer.init,
+            reducer: FrontPageReducer.init,
             withDependencies: { $0.analyticsClient = .noop }
         )
 

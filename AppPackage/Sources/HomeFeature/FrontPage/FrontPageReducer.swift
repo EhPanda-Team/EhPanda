@@ -10,7 +10,7 @@ public import NetworkingFeature
 public import Sharing
 
 @Reducer
-public struct FrontpageReducer: Sendable {
+public struct FrontPageReducer: Sendable {
     public enum Delegate: Equatable, Sendable {
         case pushDetail(Gallery)
     }
@@ -100,7 +100,7 @@ public struct FrontpageReducer: Sendable {
                 // persisted shared value with no distinct reducer action, so only the open is counted.
                 return .merge(
                     .send(.destination(.presented(.filters(.fetchFilters)))),
-                    .run(operation: { _ in analyticsClient.send(.filterPanelOpened(.frontpage)) })
+                    .run(operation: { _ in analyticsClient.send(.filterPanelOpened(.frontPage)) })
                 )
 
             case .dateSeekButtonTapped(let navigation):
@@ -115,7 +115,7 @@ public struct FrontpageReducer: Sendable {
                 let host = state.setting.galleryHost
                 return .run { send in
                     let result = await Result.Swift::init { () async throws(AppError) in
-                        try await FrontpageGalleriesRequest(host: host, filter: filter).response()
+                        try await FrontPageGalleriesRequest(host: host, filter: filter).response()
                     }
                     await send(.fetchGalleriesDone(result))
                 }
@@ -151,7 +151,7 @@ public struct FrontpageReducer: Sendable {
                 let host = state.setting.galleryHost
                 return .run { send in
                     let result = await Result.Swift::init { () async throws(AppError) in
-                        try await MoreFrontpageGalleriesRequest(
+                        try await MoreFrontPageGalleriesRequest(
                             host: host,
                             filter: filter,
                             lastID: lastID
@@ -234,4 +234,4 @@ public struct FrontpageReducer: Sendable {
     }
 }
 
-extension FrontpageReducer.Destination.State: Equatable, Sendable {}
+extension FrontPageReducer.Destination.State: Equatable, Sendable {}

@@ -56,22 +56,22 @@ final class GalleryCardUITests: XCTestCase {
         }
     }
 
-    func testFrontpageGridKeepsRatings() throws {
+    func testFrontPageGridKeepsRatings() throws {
         let originalOrientation = XCUIDevice.shared.orientation
         addTeardownBlock { XCUIDevice.shared.orientation = originalOrientation }
         XCUIDevice.shared.orientation = .portrait
         let app = XCUIApplication()
         addTeardownBlock { app.terminate() }
         try app.launchStubbed(extraEnvironment: ["EHPANDA_AUTOMATION_TAB": "home"])
-        app.buttons["Show All"].firstMatch.tapWhenHittable("Frontpage")
-        app.buttons["gallery-layout-frontpage"].tapWhenHittable("Frontpage presentation")
-        app.buttons["Grid"].tapWhenHittable("Frontpage Grid")
+        app.buttons["Show All"].firstMatch.tapWhenHittable("Front Page")
+        app.buttons["gallery-layout-frontpage"].tapWhenHittable("Front Page presentation")
+        app.buttons["Grid"].tapWhenHittable("Front Page Grid")
         let ratings = app.descendants(matching: .any).matching(NSPredicate(
             format: "identifier BEGINSWITH %@", "gallery-grid-rating-"
         ))
         XCTAssertTrue(ratings.firstMatch.waitForExistence(timeout: 10))
         let screenshot = XCTAttachment(screenshot: XCUIScreen.main.screenshot())
-        screenshot.name = "Frontpage grid retains ratings"
+        screenshot.name = "Front Page grid retains ratings"
         screenshot.lifetime = .keepAlways
         add(screenshot)
     }

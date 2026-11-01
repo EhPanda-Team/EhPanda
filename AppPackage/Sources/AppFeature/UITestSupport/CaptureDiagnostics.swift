@@ -505,8 +505,8 @@ private struct ScreenInspector {
     /// also waits for their analysis.
     private func homeReport(_ home: HomeReducer.State) -> ScreenReport {
         let toplists = ToplistsType.allCases.map({ home.toplistsGalleries[$0.categoryIndex] ?? [] })
-        let lists = [home.popularGalleries, home.frontpageGalleries] + toplists
-        let loadingStates = [home.popularLoadingState, home.frontpageLoadingState]
+        let lists = [home.popularGalleries, home.frontPageGalleries] + toplists
+        let loadingStates = [home.popularLoadingState, home.frontPageLoadingState]
             + ToplistsType.allCases.compactMap({ home.toplistsLoadingState[$0.categoryIndex] })
         var report = ScreenReport(galleryIDs: lists.flatMap({ $0.map(\.gid) }))
         if loadingStates.contains(where: Self.isFailure) {

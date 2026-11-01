@@ -6,7 +6,7 @@ import UIKit
 import XCTest
 
 /// Coordinate inputs use the same headline ramp and cover roles as the production views. Home's center and
-/// neighbors use hero, Frontpage uses standard, and Toplists uses compact. Downloads uses standard throughout.
+/// neighbors use hero, Front Page uses standard, and Toplists uses compact. Downloads uses standard throughout.
 /// Reader controls are hidden in these fixtures, so its preview images are not displayed.
 @MainActor
 struct FixtureArtwork {

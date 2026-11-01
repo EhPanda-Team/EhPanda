@@ -55,7 +55,7 @@ struct HomeDuoPresentationTests {
         await store.send(.sectionTapped(section))
         #expect(store.state.sheet == nil)
         switch section {
-        case .frontpage: #expect(store.state.path.last?.frontpage != nil)
+        case .frontPage: #expect(store.state.path.last?.frontPage != nil)
         case .toplists: #expect(store.state.path.last?.toplists != nil)
         }
         await store.skipInFlightEffects(strict: false)
@@ -132,9 +132,9 @@ struct HomeDuoPresentationTests {
         await store.send(.sectionTapped(section))
         let sheet = try #require(store.state.sheet)
         switch section {
-        case .frontpage:
+        case .frontPage:
             #expect(sheet.side == .right)
-            #expect(sheet.root.frontpage != nil)
+            #expect(sheet.root.frontPage != nil)
         case .toplists:
             #expect(sheet.side == .left)
             #expect(sheet.root.toplists != nil)

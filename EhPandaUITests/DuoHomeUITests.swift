@@ -18,7 +18,7 @@ final class DuoHomeUITests: XCTestCase {
 
         XCTAssertEqual(left.frame.maxX, app.windows.firstMatch.frame.midX, accuracy: 1)
         XCTAssertEqual(right.frame.minX, app.windows.firstMatch.frame.midX, accuracy: 1)
-        XCTAssertTrue(left.buttons["Frontpage"].exists)
+        XCTAssertTrue(left.buttons["Front Page"].exists)
         XCTAssertTrue(app.navigationBars["Toplists"].exists)
         XCTAssertTrue(app.navigationBars["Home"].exists)
         let reload = app.buttons["Reload"]
@@ -46,18 +46,18 @@ final class DuoHomeUITests: XCTestCase {
         let app = XCUIApplication()
         try app.launchStubbed()
         let left = app.requireElement("home_left_pane", matching: .scrollView)
-        left.buttons["Show All"].firstMatch.tapWhenHittable("Frontpage Show All")
-        let frontpage = app.navigationBars["Frontpage"]
-        XCTAssertTrue(frontpage.waitForExistence(timeout: 15))
-        XCTAssertGreaterThanOrEqual(frontpage.frame.minX, app.windows.firstMatch.frame.midX)
+        left.buttons["Show All"].firstMatch.tapWhenHittable("Front Page Show All")
+        let frontPage = app.navigationBars["Front Page"]
+        XCTAssertTrue(frontPage.waitForExistence(timeout: 15))
+        XCTAssertGreaterThanOrEqual(frontPage.frame.minX, app.windows.firstMatch.frame.midX)
 
-        app.collectionViews.buttons.firstMatch.tapWhenHittable("Frontpage gallery")
+        app.collectionViews.buttons.firstMatch.tapWhenHittable("Front Page gallery")
         let detail = app.requireElement("detail_view", matching: .scrollView)
         XCTAssertLessThanOrEqual(detail.frame.maxX, app.windows.firstMatch.frame.midX)
         try closeSheet(in: app, onLeft: true)
-        XCTAssertTrue(frontpage.exists, "Closing Detail must retain its presenting list")
+        XCTAssertTrue(frontPage.exists, "Closing Detail must retain its presenting list")
         try closeSheet(in: app, onLeft: false)
-        XCTAssertTrue(frontpage.waitForNonExistence(timeout: 5))
+        XCTAssertTrue(frontPage.waitForNonExistence(timeout: 5))
 
         app.requireElement("home_right_pane", matching: .scrollView)
         app.navigationBars["Toplists"].buttons["Show All"].tapWhenHittable("Toplists Show All")
@@ -87,13 +87,13 @@ final class DuoHomeUITests: XCTestCase {
             let left = app.requireElement("home_left_pane", matching: .scrollView)
             let right = app.requireElement("home_right_pane", matching: .scrollView)
             let title = app.navigationBars["Home"].staticTexts["Home"]
-            let frontpage = left.buttons["Frontpage"]
+            let frontPage = left.buttons["Front Page"]
             let ranking = right.buttons.matching(NSPredicate(
                 format: "label BEGINSWITH '1, ' AND NOT label CONTAINS '......'"
             )).firstMatch
             XCTAssertTrue(title.isHittable)
             let titleFrame = title.frame
-            let frontpageFrame = frontpage.frame
+            let frontPageFrame = frontPage.frame
             let rankingFrame = ranking.frame
 
             right.swipeUp()
@@ -104,7 +104,7 @@ final class DuoHomeUITests: XCTestCase {
             XCTAssertEqual(title.frame.minY, titleFrame.minY, accuracy: 1)
             XCTAssertEqual(title.frame.width, titleFrame.width, accuracy: 1)
             XCTAssertEqual(title.frame.height, titleFrame.height, accuracy: 1)
-            XCTAssertEqual(frontpage.frame.minY, frontpageFrame.minY, accuracy: 1)
+            XCTAssertEqual(frontPage.frame.minY, frontPageFrame.minY, accuracy: 1)
             XCTAssertEqual(left.frame.maxX, app.windows.firstMatch.frame.midX, accuracy: 1)
             XCTAssertEqual(right.frame.minX, app.windows.firstMatch.frame.midX, accuracy: 1)
         }
@@ -183,8 +183,8 @@ final class DuoHomeUITests: XCTestCase {
         let app = XCUIApplication()
         try app.launchStubbed()
         let left = app.requireElement("home_left_pane", matching: .scrollView)
-        left.buttons["Show All"].firstMatch.tapWhenHittable("Frontpage")
-        XCTAssertTrue(app.navigationBars["Frontpage"].waitForExistence(timeout: 10))
+        left.buttons["Show All"].firstMatch.tapWhenHittable("Front Page")
+        XCTAssertTrue(app.navigationBars["Front Page"].waitForExistence(timeout: 10))
         let url = try XCTUnwrap(UITestConstants.galleryURL(
             scheme: "ehpanda", gid: UITestConstants.alternateGID, token: UITestConstants.alternateToken
         ))
@@ -202,11 +202,11 @@ final class DuoHomeUITests: XCTestCase {
         XCTAssertLessThan(app.windows.firstMatch.frame.width, app.windows.firstMatch.frame.height)
         XCTAssertFalse(app.scrollViews["home_left_pane"].exists)
         XCTAssertFalse(app.scrollViews["home_right_pane"].exists)
-        app.buttons["Show All"].firstMatch.tapWhenHittable("Portrait Frontpage Show All")
-        let frontpage = app.navigationBars["Frontpage"]
-        XCTAssertTrue(frontpage.waitForExistence(timeout: 10))
-        XCTAssertTrue(frontpage.buttons["Home"].exists, "Portrait should push onto the Home navigation stack")
-        XCTAssertEqual(frontpage.frame.width, app.windows.firstMatch.frame.width, accuracy: 1)
+        app.buttons["Show All"].firstMatch.tapWhenHittable("Portrait Front Page Show All")
+        let frontPage = app.navigationBars["Front Page"]
+        XCTAssertTrue(frontPage.waitForExistence(timeout: 10))
+        XCTAssertTrue(frontPage.buttons["Home"].exists, "Portrait should push onto the Home navigation stack")
+        XCTAssertEqual(frontPage.frame.width, app.windows.firstMatch.frame.width, accuracy: 1)
         try DuoPose.set(.portrait)
         let back = app.buttons["BackButton"]
         XCTAssertTrue(back.waitForExistence(timeout: 5))
@@ -220,9 +220,9 @@ final class DuoHomeUITests: XCTestCase {
         assertVerticalTabs(in: app)
         try DuoPose.set(.landscape)
         XCTAssertFalse(app.scrollViews["home_right_pane"].exists)
-        app.buttons["Show All"].firstMatch.tapWhenHittable("Portrait Frontpage Show All")
-        XCTAssertTrue(frontpage.buttons["Home"].waitForExistence(timeout: 5))
-        frontpage.buttons["Home"].tapWhenHittable("Return to Home")
+        app.buttons["Show All"].firstMatch.tapWhenHittable("Portrait Front Page Show All")
+        XCTAssertTrue(frontPage.buttons["Home"].waitForExistence(timeout: 5))
+        frontPage.buttons["Home"].tapWhenHittable("Return to Home")
         XCTAssertTrue(app.navigationBars["Home"].exists)
     }
 

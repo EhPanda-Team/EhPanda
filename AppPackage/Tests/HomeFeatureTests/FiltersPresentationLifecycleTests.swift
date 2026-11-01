@@ -9,7 +9,7 @@ import Sharing
 import Testing
 
 // `FiltersView`'s former `onAppear` loaded the persisted filters into the sheet's working copies.
-// Six screens present that sheet; each now sends the load itself. Frontpage stands in for all of
+// Six screens present that sheet; each now sends the load itself. Front Page stands in for all of
 // them here — the shape is identical at every site.
 // @MainActor sits on members, never on this type: TCA's `TestStore.init` and `.state` are
 // main-actor-isolated, so every store-driving case needs it. Annotating the type instead would
@@ -31,7 +31,7 @@ struct FiltersPresentationLifecycleTests {
             @Shared(.searchFilter) var searchFilter
             $searchFilter.withLock({ $0 = stored })
 
-            let store = TestStore(initialState: .init(), reducer: FrontpageReducer.init) {
+            let store = TestStore(initialState: .init(), reducer: FrontPageReducer.init) {
                 $0.analyticsClient = .noop
                 $0.defaultAppStorage = defaults
                 $0.hapticsClient = .noop

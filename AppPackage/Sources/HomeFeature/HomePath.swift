@@ -5,7 +5,7 @@ public import DetailFeature
 // nested as a `.gallery` case so the gallery routing stays defined once in `GalleryPath`.
 @Reducer
 public enum HomePath {
-    case frontpage(FrontpageReducer)
+    case frontPage(FrontPageReducer)
     case popular(PopularReducer)
     case toplists(ToplistsReducer)
     case watched(WatchedReducer)
@@ -18,8 +18,8 @@ extension HomePath.State: Equatable {}
 extension HomePath.State: GalleryRouteIdentifiable {
     public var routeKey: String {
         switch self {
-        case .frontpage:
-            return "frontpage"
+        case .frontPage:
+            return "frontPage"
         case .popular:
             return "popular"
         case .toplists:

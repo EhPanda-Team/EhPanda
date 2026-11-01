@@ -89,7 +89,7 @@ extension HomeMiscGridType {
 public enum HomeSectionType: String, CaseIterable, Identifiable, Sendable {
     public var id: String { rawValue }
 
-    case frontpage
+    case frontPage
     case toplists
 }
 
@@ -101,7 +101,7 @@ public enum HomeSectionType: String, CaseIterable, Identifiable, Sendable {
                 let popular = Gallery.previews(count: 5)
                 state.popularGalleries = popular
                 state.currentCardID = popular.first?.id ?? ""
-                state.frontpageGalleries = Gallery.previews(count: 4)
+                state.frontPageGalleries = Gallery.previews(count: 4)
                 return state
             }(),
             reducer: HomeReducer.init

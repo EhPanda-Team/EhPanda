@@ -9,17 +9,17 @@ import Resources
 import SwiftUI
 import TagTranslationFeature
 
-struct FrontpageView: View {
+struct FrontPageView: View {
     @AccessibilityFocusState private var focusedGalleryID: String?
-    @Bindable private var store: StoreOf<FrontpageReducer>
+    @Bindable private var store: StoreOf<FrontPageReducer>
 
-    init(store: StoreOf<FrontpageReducer>) {
+    init(store: StoreOf<FrontPageReducer>) {
         self.store = store
     }
 
     var body: some View {
         GalleryList(
-            displayMode: store.setting.galleryListPresentation[.frontpage],
+            displayMode: store.setting.galleryListPresentation[.frontPage],
             galleries: store.filteredGalleries,
             pageNumber: store.pageNumber,
             loadingState: store.loadingState,
@@ -55,12 +55,12 @@ struct FrontpageView: View {
             focusedGalleryID = firstGallery.id
         }
         .toolbar(content: toolbar)
-        .navigationTitle(.frontpage)
+        .navigationTitle(.frontPage)
     }
 
     private func toolbar() -> some ToolbarContent {
         ToolbarItemGroup(placement: .topBarTrailing) {
-            GalleryLayoutPicker(scope: .frontpage)
+            GalleryLayoutPicker(scope: .frontPage)
             DateSeekButton(navigation: store.dateSeekNavigation) { navigation in
                 store.send(.dateSeekButtonTapped(navigation))
             }
@@ -73,14 +73,14 @@ struct FrontpageView: View {
 
 #Preview("Initial") {
     NavigationStack {
-        FrontpageView(
+        FrontPageView(
             store: .init(
                 initialState: {
-                    var state = FrontpageReducer.State()
+                    var state = FrontPageReducer.State()
                     state.galleries = Gallery.previews(count: 10)
                     return state
                 }(),
-                reducer: FrontpageReducer.init
+                reducer: FrontPageReducer.init
             )
         )
     }

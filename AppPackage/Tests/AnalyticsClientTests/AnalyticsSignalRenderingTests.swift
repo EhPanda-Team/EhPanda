@@ -35,7 +35,7 @@ struct AnalyticsSignalRenderingTests {
     // live, noop and spy clients, so a single fixture list serves both suites and cannot drift.
     static let fixtures: [SignalRenderingFixture] = [
         SignalRenderingFixture(
-            signal: .homeSectionViewed(.frontpage),
+            signal: .homeSectionViewed(.frontPage),
             rendered: .signal(name: "Navigation.homeSectionViewed", parameters: ["Navigation.section": "frontpage"])
         ),
         SignalRenderingFixture(
@@ -74,7 +74,7 @@ struct AnalyticsSignalRenderingTests {
             ])
         ),
         SignalRenderingFixture(
-            signal: .filterPanelOpened(.frontpage),
+            signal: .filterPanelOpened(.frontPage),
             rendered: .signal(name: "Search.filterPanelOpened", parameters: ["Search.surface": "frontpage"])
         ),
         SignalRenderingFixture(

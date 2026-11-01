@@ -408,10 +408,10 @@ extension FixtureFile {
 struct MarketingFixtureBuilder: Sendable {
     static let token = "0123456789"
     static let heroGIDs = ["101", "102", "103"]
-    static let frontpageGIDs = ["104"]
+    static let frontPageGIDs = ["104"]
     /// One gallery per Toplists period, in `yesterday`, `pastMonth`, `pastYear`, `allTime` order.
     static let toplistsGIDs = ["105", "106", "107", "108"]
-    static var allGIDs: [String] { heroGIDs + frontpageGIDs + toplistsGIDs }
+    static var allGIDs: [String] { heroGIDs + frontPageGIDs + toplistsGIDs }
 
     var files: [FixtureFile]
     var selectedIndex = 1
@@ -468,7 +468,7 @@ struct MarketingFixtureBuilder: Sendable {
                 "nonexplicit": [
                     "home": [
                         "hero": ["galleries": Self.heroGIDs, "selectedIndex": selectedIndex],
-                        "frontpage": Self.frontpageGIDs,
+                        "frontpage": Self.frontPageGIDs,
                         "toplists": toplists
                     ],
                     "flow": ["gallery": "101", "readerPage": 1, "pages": [1]],

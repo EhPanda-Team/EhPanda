@@ -7,7 +7,7 @@ public import DetailFeature
 public struct HomeSheetFeature {
     @Reducer
     public enum RootFeature {
-        case frontpage(FrontpageReducer)
+        case frontPage(FrontPageReducer)
         case popular(PopularReducer)
         case toplists(ToplistsReducer)
         case watched(WatchedReducer)
@@ -55,8 +55,8 @@ public struct HomeSheetFeature {
             switch action {
             case .onPresented:
                 switch state.root {
-                case .frontpage:
-                    return .send(.root(.frontpage(.onPresented)))
+                case .frontPage:
+                    return .send(.root(.frontPage(.onPresented)))
                 case .popular:
                     return .send(.root(.popular(.onPresented)))
                 case .toplists:
@@ -69,7 +69,7 @@ public struct HomeSheetFeature {
                     return .merge(.send(.root(.gallery(.onPresented))), detailOpened(gallery.detail.gallery))
                 }
 
-            case .root(.frontpage(.delegate(.pushDetail(let gallery)))),
+            case .root(.frontPage(.delegate(.pushDetail(let gallery)))),
                  .root(.popular(.delegate(.pushDetail(let gallery)))),
                  .root(.toplists(.delegate(.pushDetail(let gallery)))),
                  .root(.watched(.delegate(.pushDetail(let gallery)))),

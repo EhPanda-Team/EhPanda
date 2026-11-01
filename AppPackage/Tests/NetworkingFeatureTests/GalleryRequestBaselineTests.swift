@@ -77,13 +77,13 @@ struct GalleryRequestBaselineTests {
     }
 
     @Test
-    func frontpageGalleriesRequestLocksURLAndParsing() async throws {
-        let expectedURL = URLUtil.frontpageList(host: galleryHost, filter: Filter())
+    func frontPageGalleriesRequestLocksURLAndParsing() async throws {
+        let expectedURL = URLUtil.frontPageList(host: galleryHost, filter: Filter())
         let (session, handle) = listSession(url: expectedURL)
         defer { cleanUp(session: session, handle: handle) }
 
         let result = try await capture { () async throws(AppError) -> GalleriesResult in
-            try await FrontpageGalleriesRequest(
+            try await FrontPageGalleriesRequest(
                 host: galleryHost,
                 filter: Filter(),
                 urlSession: session
@@ -98,13 +98,13 @@ struct GalleryRequestBaselineTests {
     }
 
     @Test
-    func moreFrontpageGalleriesRequestLocksURLAndParsing() async throws {
-        let expectedURL = URLUtil.moreFrontpageList(host: galleryHost, filter: Filter(), lastID: "456")
+    func moreFrontPageGalleriesRequestLocksURLAndParsing() async throws {
+        let expectedURL = URLUtil.moreFrontPageList(host: galleryHost, filter: Filter(), lastID: "456")
         let (session, handle) = listSession(url: expectedURL)
         defer { cleanUp(session: session, handle: handle) }
 
         let result = try await capture { () async throws(AppError) -> GalleriesResult in
-            try await MoreFrontpageGalleriesRequest(
+            try await MoreFrontPageGalleriesRequest(
                 host: galleryHost,
                 filter: Filter(),
                 lastID: "456",
