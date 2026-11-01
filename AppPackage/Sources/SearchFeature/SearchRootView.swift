@@ -24,7 +24,7 @@ public struct SearchRootView: View {
                     historyKeywords: store.historyKeywords.reversed(),
                     historyGalleries: store.historyGalleries,
                     hasGalleryHistory: !store.galleryHistory.isEmpty,
-                    quickSearchWords: store.quickSearchWords,
+                    savedSearches: store.savedSearches,
                     containerHeight: containerHeight,
                     navigateGalleryAction: { store.send(.galleryTapped($0)) },
                     navigateQuickSearchAction: { store.send(.quickSearchButtonTapped) },
@@ -105,7 +105,7 @@ private struct SuggestionsPanel: View {
     private let historyKeywords: [String]
     private let historyGalleries: [Gallery]
     private let hasGalleryHistory: Bool
-    private let quickSearchWords: [QuickSearchWord]
+    private let savedSearches: [SavedSearch]
     private let containerHeight: CGFloat
     private let navigateGalleryAction: (Gallery) -> Void
     private let navigateQuickSearchAction: () -> Void
@@ -116,7 +116,7 @@ private struct SuggestionsPanel: View {
 
     init(
         historyKeywords: [String], historyGalleries: [Gallery], hasGalleryHistory: Bool,
-        quickSearchWords: [QuickSearchWord], containerHeight: CGFloat,
+        savedSearches: [SavedSearch], containerHeight: CGFloat,
         navigateGalleryAction: @escaping (Gallery) -> Void,
         navigateQuickSearchAction: @escaping () -> Void,
         searchKeywordAction: @escaping (String) -> Void,
@@ -127,7 +127,7 @@ private struct SuggestionsPanel: View {
         self.historyKeywords = historyKeywords
         self.historyGalleries = historyGalleries
         self.hasGalleryHistory = hasGalleryHistory
-        self.quickSearchWords = quickSearchWords
+        self.savedSearches = savedSearches
         self.containerHeight = containerHeight
         self.navigateGalleryAction = navigateGalleryAction
         self.navigateQuickSearchAction = navigateQuickSearchAction
@@ -137,7 +137,7 @@ private struct SuggestionsPanel: View {
         self.removeAllGalleriesAction = removeAllGalleriesAction
     }
 
-    /// Each section inserts or removes whole rows as words, keywords and galleries come and go —
+    /// Each section inserts or removes whole rows as saved searches, keywords and galleries come and go —
     /// position motion, so the diffs land instantly under Reduce Motion (D-29).
     private var listAnimation: Animation? {
         reduceMotion ? nil : .default
@@ -156,8 +156,8 @@ private struct SuggestionsPanel: View {
                 navigationAction: navigateGalleryAction,
                 removeAllAction: removeAllGalleriesAction
             )
-            QuickSearchWordsSection(
-                quickSearchWords: quickSearchWords,
+            SavedSearchesSection(
+                savedSearches: savedSearches,
                 showAllAction: navigateQuickSearchAction,
                 searchAction: searchKeywordAction
             )
@@ -171,31 +171,31 @@ private struct SuggestionsPanel: View {
         .fixedSize(horizontal: false, vertical: true)
         // Keep the panel at least as tall as its scroll viewport when content is sparse.
         .frame(maxWidth: .infinity, minHeight: containerHeight, alignment: .top)
-        .animation(listAnimation, value: quickSearchWords)
+        .animation(listAnimation, value: savedSearches)
         .animation(listAnimation, value: historyGalleries)
         .animation(listAnimation, value: historyKeywords)
         .padding(.vertical)
     }
 }
 
-// MARK: QuickSearchWordsSection
-private struct QuickSearchWordsSection: View {
-    private let quickSearchWords: [QuickSearchWord]
+// MARK: SavedSearchesSection
+private struct SavedSearchesSection: View {
+    private let savedSearches: [SavedSearch]
     private let showAllAction: () -> Void
     private let searchAction: (String) -> Void
 
     init(
-        quickSearchWords: [QuickSearchWord],
+        savedSearches: [SavedSearch],
         showAllAction: @escaping () -> Void,
         searchAction: @escaping (String) -> Void
     ) {
-        self.quickSearchWords = quickSearchWords
+        self.savedSearches = savedSearches
         self.showAllAction = showAllAction
         self.searchAction = searchAction
     }
 
     private var keywords: [WrappedKeyword] {
-        quickSearchWords
+        savedSearches
             .map {
                 .init(
                     keyword: $0.effectiveSearchText,
@@ -207,7 +207,7 @@ private struct QuickSearchWordsSection: View {
 
     var body: some View {
         Section {
-            if quickSearchWords.isEmpty {
+            if savedSearches.isEmpty {
                 Text(.quickSearchEmpty)
                     .font(.subheadline)
                     .foregroundStyle(.secondary)

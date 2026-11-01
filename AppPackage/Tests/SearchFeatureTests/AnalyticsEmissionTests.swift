@@ -231,14 +231,14 @@ struct AnalyticsEmissionTests {
         expectNoDifference(recorded.value, [.quickSearchPanelOpened(.searchRoot)])
     }
 
-    // MARK: Quick-search word (QuickSearchReducer)
+    // MARK: Saved search (QuickSearchReducer)
 
-    // The word-usage signal is payload-free by construction: the word's name and content are forbidden
+    // The usage signal is payload-free by construction: the saved search's name and content are forbidden
     // content, so nothing about it may be transmitted. The reflection assertion pins that a distinctive
-    // fixture word survives nowhere in the recorded signal (T-14-01).
+    // fixture survives nowhere in the recorded signal (T-14-01).
     @MainActor
     @Test
-    func selectingAQuickSearchWordRecordsOnePayloadFreeSignal() async {
+    func selectingASavedSearchRecordsOnePayloadFreeSignal() async {
         let recorded = LockIsolated<[AnalyticsSignal]>([])
         await withDependencies {
             $0.defaultAppStorage = UserDefaults.inMemory
@@ -249,12 +249,12 @@ struct AnalyticsEmissionTests {
             }
             store.exhaustivity = .off(showSkippedAssertions: false)
 
-            await store.send(.wordTapped)
+            await store.send(.savedSearchTapped)
             await store.skipInFlightEffects(strict: false)
 
-            expectNoDifference(recorded.value, [.quickSearchWordUsed])
+            expectNoDifference(recorded.value, [.savedSearchUsed])
             let leaves = Mirror(reflecting: recorded.value).leafRenderings
-            #expect(leaves.contains(where: { $0.contains(Self.sentinelWord) }) == false)
+            #expect(leaves.contains(where: { $0.contains(Self.sentinelSearch) }) == false)
         }
     }
 }
@@ -277,7 +277,7 @@ private extension AnalyticsClient {
 
 private extension AnalyticsEmissionTests {
     static let sentinelKeyword = "SENTINEL_KEYWORD_must_never_leak"
-    static let sentinelWord = "SENTINEL_WORD_must_never_leak"
+    static let sentinelSearch = "SENTINEL_SEARCH_must_never_leak"
     static let sentinelTitle = "SENTINEL_TITLE_must_never_leak"
     static let sentinelTagText = "SENTINEL_TAGTEXT_must_never_leak"
 

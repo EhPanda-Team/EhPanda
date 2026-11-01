@@ -8,10 +8,10 @@ import UIKit
 
 struct DownloadPauseAndReconcileTests: DownloadFeatureTestCase {
     @Test
-    func testQuickSearchWordUsesNameWhenContentIsEmpty() {
-        let word = QuickSearchWord(name: "artist:hossy", content: "")
+    func testSavedSearchUsesNameWhenContentIsEmpty() {
+        let savedSearch = SavedSearch(name: "artist:hossy", content: "")
 
-        #expect(word.effectiveSearchText == "artist:hossy")
+        #expect(savedSearch.effectiveSearchText == "artist:hossy")
     }
 
     @Test

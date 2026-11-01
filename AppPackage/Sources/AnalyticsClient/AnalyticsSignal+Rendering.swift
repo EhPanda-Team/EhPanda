@@ -82,8 +82,8 @@ extension AnalyticsSignal {
                 parameters: [ParameterKey.searchSurface: surface.rawValue]
             )
 
-        case .quickSearchWordUsed:
-            .signal(name: SignalName.quickSearchWordUsed, parameters: [:])
+        case .savedSearchUsed:
+            .signal(name: SignalName.savedSearchUsed, parameters: [:])
 
         case .tagTapped(let namespace):
             .signal(
@@ -182,7 +182,7 @@ private enum SignalName {
     static let searchPerformed = "Search.performed"
     static let filterPanelOpened = "Search.filterPanelOpened"
     static let quickSearchPanelOpened = "Search.quickSearchPanelOpened"
-    static let quickSearchWordUsed = "Search.quickSearchWordUsed"
+    static let savedSearchUsed = "Search.quickSearchWordUsed"
     static let tagTapped = "Search.tagTapped"
     static let readingSessionEnded = "Reading.sessionEnded"
     static let downloadStateChanged = "Download.stateChanged"

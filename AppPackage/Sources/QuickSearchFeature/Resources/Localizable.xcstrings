@@ -124,7 +124,7 @@
         }
       }
     },
-    "edit_word": {
+    "edit_saved_search": {
       "extractionState": "manual",
       "localizations": {
         "en": {
@@ -206,7 +206,7 @@
         }
       }
     },
-    "new_word": {
+    "new_saved_search": {
       "extractionState": "manual",
       "localizations": {
         "en": {
@@ -288,7 +288,7 @@
         }
       }
     },
-    "word_limit_description": {
+    "saved_search_limit_description": {
       "extractionState": "manual",
       "localizations": {
         "en": {

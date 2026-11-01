@@ -8,7 +8,7 @@ public import Sharing
 // each model as a single Codable value in UserDefaults via Sharing's `appStorage` strategy.
 //
 // Why whole structs in app storage rather than a database or per-field keys:
-//   • Every value here is either capped (`galleryHistory`, `historyKeywords`, `quickSearchWords`)
+//   • Every value here is either capped (`galleryHistory`, `historyKeywords`, `savedSearches`)
 //     or inherently small (`setting`, `user`, the filters), so the defaults domain comfortably
 //     holds it.
 //   • Keeping the structs intact preserves their invariants (e.g. `Setting`/`Filter` `didSet`
@@ -24,9 +24,9 @@ public import Sharing
 //     trimmed only by a launch-time prune, so in-session upserts may briefly exceed the cap.
 //   • `historyKeywords` (auto-recorded searches) is capped at write time by evicting the oldest,
 //     keeping the most recent 20.
-//   • `quickSearchWords` (user-*authored* presets) is capped at `QuickSearchReducer.wordLimit` but is
+//   • `savedSearches` (user-*authored* presets) is capped at `QuickSearchReducer.savedSearchLimit` but is
 //     never evicted — the add control is simply disabled at the limit, because silently dropping a
-//     saved word would lose user work. Auto-recorded data is disposable; authored data is not.
+//     saved search would lose user work. Auto-recorded data is disposable; authored data is not.
 //
 // Every model carries a self-validating `SchemaVersion` field (default 1) that rejects a
 // newer/downgrade value on decode and logs the anomaly via OSLog (see `SchemaVersion`), then fails
@@ -34,7 +34,7 @@ public import Sharing
 // four whole-struct models (`Setting`,
 // `User`, the filters, `TagTranslatorInfo`) keep synthesized strict Codable — the typed field gates
 // the version without a hand-written decoder, preserving their `didSet` invariants and optional-field
-// tolerance. The two identity-bearing array-element models (`GalleryHistoryEntry`, `QuickSearchWord`)
+// tolerance. The two identity-bearing array-element models (`GalleryHistoryEntry`, `SavedSearch`)
 // still hand-write `init(from:)` for their identity invariants, decoding that same `SchemaVersion`
 // field for the version check. Every model also declares an ordered `schemas` history (à la SwiftData's
 // `SchemaMigrationPlan.schemas`), starting at its v1 base schema, from which `currentSchemaVersion` is
@@ -112,8 +112,9 @@ extension SharedKey where Self == AppStorageKey<[String]>.Default {
     }
 }
 
-extension SharedKey where Self == AppStorageKey<[QuickSearchWord]>.Default {
-    public static var quickSearchWords: Self {
+extension SharedKey where Self == AppStorageKey<[SavedSearch]>.Default {
+    /// Stays under the key existing installs already hold.
+    public static var savedSearches: Self {
         Self[.appStorage("quickSearchWords"), default: []]
     }
 }

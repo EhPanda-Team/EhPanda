@@ -549,17 +549,17 @@ private extension AccessibilityAuditUITests {
     }
 
     func exerciseNewWordEditor(in app: XCUIApplication) {
-        app.buttons["New Word"].firstMatch.tapWhenHittable("New Word")
-        requireNavigationTitle("New Word", in: app)
+        app.buttons["New Saved Search"].firstMatch.tapWhenHittable("New Saved Search")
+        requireNavigationTitle("New Saved Search", in: app)
         XCTAssertTrue(
             app.textFields.firstMatch.waitForExistence(timeout: 5),
-            "New Word did not expose its name field."
+            "New Saved Search did not expose its name field."
         )
         XCTAssertTrue(
             app.textViews.firstMatch.waitForExistence(timeout: 5),
-            "New Word did not expose its content editor."
+            "New Saved Search did not expose its content editor."
         )
-        app.navigationBars["New Word"].buttons["Quick Search"].firstMatch.tapWhenHittable("New Word Back")
+        app.navigationBars["New Saved Search"].buttons["Quick Search"].firstMatch.tapWhenHittable("New Saved Search Back")
         requireNavigationTitle("Quick Search", in: app)
     }
 

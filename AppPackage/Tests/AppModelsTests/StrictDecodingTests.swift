@@ -5,7 +5,7 @@ import Testing
 // #2: persisted models decode *strictly* — the blanket-tolerant decoder is gone. A corrupt or
 // shape-incompatible blob fails to decode so Sharing resets the key to its default (a clean, coherent
 // value) instead of surfacing a partially-filled Franken-value. Identity-bearing array elements
-// (`GalleryHistoryEntry`, `QuickSearchWord`) validate their identity and reject an unknown
+// (`GalleryHistoryEntry`, `SavedSearch`) validate their identity and reject an unknown
 // `schemaVersion`; whole-struct models (`Filter`, `Setting`, …) keep synthesized strict Codable and
 // reject an unknown `schemaVersion` through a self-validating `SchemaVersion` field.
 @Suite
@@ -113,31 +113,31 @@ struct StrictDecodingTests {
     }
 
     @Test
-    func quickSearchWordPreservesItsPersistedIdentity() throws {
+    func savedSearchPreservesItsPersistedIdentity() throws {
         let id = UUID()
         let json = #"{"schemaVersion": 1, "id": "\#(id.uuidString)", "name": "n", "content": "c"}"#
-        let word = try decode(QuickSearchWord.self, json)
-        #expect(word.id == id)   // decoded, never a fresh random UUID
-        #expect(word.name == "n")
+        let savedSearch = try decode(SavedSearch.self, json)
+        #expect(savedSearch.id == id)   // decoded, never a fresh random UUID
+        #expect(savedSearch.name == "n")
     }
 
     @Test
-    func quickSearchWordRejectsAMissingIdentity() {
+    func savedSearchRejectsAMissingIdentity() {
         // Previously a missing `id` fabricated a fresh UUID() on every decode; now it throws.
         #expect(throws: (any Error).self) {
-            try decode(QuickSearchWord.self, #"{"schemaVersion": 1, "name": "n", "content": "c"}"#)
+            try decode(SavedSearch.self, #"{"schemaVersion": 1, "name": "n", "content": "c"}"#)
         }
     }
 
     @Test
-    func quickSearchWordRejectsAnUnknownSchemaVersion() {
+    func savedSearchRejectsAnUnknownSchemaVersion() {
         // The version now validates through the shared `SchemaVersion` field, like the whole-struct
         // models; a newer value throws, failing the (array) decode even when the identity is valid.
         let json = """
         {"schemaVersion": 2, "id": "00000000-0000-0000-0000-000000000000", "name": "n", "content": "c"}
         """
         #expect(throws: (any Error).self) {
-            try decode(QuickSearchWord.self, json)
+            try decode(SavedSearch.self, json)
         }
     }
 
