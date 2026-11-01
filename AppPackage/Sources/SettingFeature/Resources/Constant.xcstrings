@@ -85,6 +85,90 @@
         }
       }
     },
+    "acknowledgement.ehPandaTagDatabase": {
+      "extractionState": "manual",
+      "shouldTranslate": false,
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "EhPanda-Team/ehpanda-tag-database"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "EhPanda-Team/ehpanda-tag-database"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "EhPanda-Team/ehpanda-tag-database"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "EhPanda-Team/ehpanda-tag-database"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "EhPanda-Team/ehpanda-tag-database"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "EhPanda-Team/ehpanda-tag-database"
+          }
+        }
+      }
+    },
+    "acknowledgement.ehPandaTagDatabase_link": {
+      "extractionState": "manual",
+      "shouldTranslate": false,
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "https://github.com/EhPanda-Team/ehpanda-tag-database"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "https://github.com/EhPanda-Team/ehpanda-tag-database"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "https://github.com/EhPanda-Team/ehpanda-tag-database"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "https://github.com/EhPanda-Team/ehpanda-tag-database"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "https://github.com/EhPanda-Team/ehpanda-tag-database"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "https://github.com/EhPanda-Team/ehpanda-tag-database"
+          }
+        }
+      }
+    },
     "acknowledgement.ehTagTranslationDatabase": {
       "extractionState": "manual",
       "shouldTranslate": false,
@@ -501,90 +585,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "https://github.com/apple/swift-markdown"
-          }
-        }
-      }
-    },
-    "acknowledgement.swiftyOpenCC": {
-      "extractionState": "manual",
-      "shouldTranslate": false,
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "SwiftyOpenCC"
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "SwiftyOpenCC"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "SwiftyOpenCC"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "SwiftyOpenCC"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "SwiftyOpenCC"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "SwiftyOpenCC"
-          }
-        }
-      }
-    },
-    "acknowledgement.swiftyOpenCC_link": {
-      "extractionState": "manual",
-      "shouldTranslate": false,
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "https://github.com/ddddxxx/SwiftyOpenCC"
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "https://github.com/ddddxxx/SwiftyOpenCC"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "https://github.com/ddddxxx/SwiftyOpenCC"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "https://github.com/ddddxxx/SwiftyOpenCC"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "https://github.com/ddddxxx/SwiftyOpenCC"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "https://github.com/ddddxxx/SwiftyOpenCC"
           }
         }
       }

@@ -1,5 +1,5 @@
 {
-  "originHash" : "326b1262ec59317ef8a7925e0331e8e7cca177db44845f5e44f930d32c277b1c",
+  "originHash" : "9d4aad0fe72511b0a4c1c03b88ac5b65ef8bba02f493fa6b6f3cf34fb007fe78",
   "pins" : [
     {
       "identity" : "colorfulx",
@@ -269,15 +269,6 @@
       "state" : {
         "revision" : "58f436299d3f6710bcedc18aff26480aaf1879fc",
         "version" : "2.14.2"
-      }
-    },
-    {
-      "identity" : "swiftyopencc",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/EhPanda-Team/SwiftyOpenCC",
-      "state" : {
-        "revision" : "cc776a3c0d0147b90febfbe30439213e80f5cc46",
-        "version" : "2.1.0"
       }
     }
   ],

@@ -160,10 +160,6 @@ struct AboutView: View {
             text: .Constant.acknowledgementKingfisher
         ),
         .init(
-            urlString: String(localized: .Constant.acknowledgementSwiftyOpenCCLink),
-            text: .Constant.acknowledgementSwiftyOpenCC
-        ),
-        .init(
             urlString: String(localized: .Constant.acknowledgementUiImageColorsLink),
             text: .Constant.acknowledgementUiImageColors
         ),
@@ -182,6 +178,10 @@ struct AboutView: View {
         .init(
             urlString: String(localized: .Constant.acknowledgementEhTagTranslationDatabaseLink),
             text: .Constant.acknowledgementEhTagTranslationDatabase
+        ),
+        .init(
+            urlString: String(localized: .Constant.acknowledgementEhPandaTagDatabaseLink),
+            text: .Constant.acknowledgementEhPandaTagDatabase
         ),
         .init(
             urlString: String(localized: .Constant.acknowledgementTcaLink),
