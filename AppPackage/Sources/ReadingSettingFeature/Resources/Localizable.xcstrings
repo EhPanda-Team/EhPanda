@@ -165,7 +165,7 @@
         }
       }
     },
-    "double_tap_scale_factor": {
+    "double_tap_zoom": {
       "extractionState": "manual",
       "localizations": {
         "en": {
@@ -288,7 +288,7 @@
         }
       }
     },
-    "maximum_scale_factor": {
+    "maximum_zoom": {
       "extractionState": "manual",
       "localizations": {
         "en": {
@@ -325,6 +325,47 @@
           "stringUnit": {
             "state": "translated",
             "value": "縮放上限"
+          }
+        }
+      }
+    },
+    "page_spacing": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Page Spacing"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Seitenabstand"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ページの間隔"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "페이지 간격"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "分隔线高度"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "頁面間距"
           }
         }
       }
@@ -489,47 +530,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "外觀"
-          }
-        }
-      }
-    },
-    "separator_height": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Page Spacing"
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Seitenabstand"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "ページの間隔"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "페이지 간격"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "分隔线高度"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "頁面間距"
           }
         }
       }

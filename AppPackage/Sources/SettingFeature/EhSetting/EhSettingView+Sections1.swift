@@ -78,7 +78,7 @@ struct ImageLoadSettingsSection: View {
     var body: some View {
         Section {
             Picker(
-                .loadImagesThroughTheHathNetwork,
+                .loadImagesThroughHentaiAtHome,
                 selection: $ehSetting.loadThroughHathSetting
             ) {
                 ForEach(ehSetting.capableLoadThroughHathSettings) { setting in

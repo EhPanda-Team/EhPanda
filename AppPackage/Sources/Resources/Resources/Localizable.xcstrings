@@ -1,6 +1,28 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
+    "layout" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Darstellung" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Layout" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "表示" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "보기 방식" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "显示方式" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "顯示方式" } }
+      }
+    },
+    "list" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Liste" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "List" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "リスト" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "목록" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "列表" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "列表" } }
+      }
+    },
     "read" : {
       "comment" : "Verb on the button that opens this gallery in the reader.",
       "extractionState" : "manual",
@@ -2084,28 +2106,6 @@
             }
           }
         }
-      }
-    },
-    "presentation" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "Darstellung" } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Layout" } },
-        "ja" : { "stringUnit" : { "state" : "translated", "value" : "表示" } },
-        "ko" : { "stringUnit" : { "state" : "translated", "value" : "보기 방식" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "显示方式" } },
-        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "顯示方式" } }
-      }
-    },
-    "row" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "Liste" } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "List" } },
-        "ja" : { "stringUnit" : { "state" : "translated", "value" : "リスト" } },
-        "ko" : { "stringUnit" : { "state" : "translated", "value" : "목록" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "列表" } },
-        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "列表" } }
       }
     },
     "grid" : {

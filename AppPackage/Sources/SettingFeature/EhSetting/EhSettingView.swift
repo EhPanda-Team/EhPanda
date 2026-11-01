@@ -118,7 +118,7 @@ struct EhSettingView: View {
                 Button {
                     store.send(.submitChanges)
                 } label: {
-                    Label(.submit, systemSymbol: .icloudAndArrowUp)
+                    Label(.save, systemSymbol: .icloudAndArrowUp)
                 }
                 .disabled(store.ehSetting == nil)
             }

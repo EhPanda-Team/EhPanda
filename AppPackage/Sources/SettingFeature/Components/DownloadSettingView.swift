@@ -11,7 +11,7 @@ struct DownloadSettingView: View {
         Form {
             Section {
                 VStack(alignment: .leading) {
-                    LabeledContent(.concurrentImageDownloads) {
+                    LabeledContent(.simultaneousDownloads) {
                         Text(setting.downloadThreadLimit, format: .number)
                             .monospacedDigit()
                             .contentTransition(.numericText(value: Double(setting.downloadThreadLimit)))

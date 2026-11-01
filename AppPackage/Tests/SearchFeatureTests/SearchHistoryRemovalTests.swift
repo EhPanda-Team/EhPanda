@@ -31,7 +31,7 @@ struct SearchHistoryRemovalTests {
 
     @MainActor
     @Test
-    func removingRecentlySeenClearsAllPersistedHistoryAndResumePositions() async {
+    func removingRecentlyViewedClearsAllPersistedHistoryAndResumePositions() async {
         let storage = UserDefaults.inMemory
         await withDependencies {
             $0.defaultAppStorage = storage

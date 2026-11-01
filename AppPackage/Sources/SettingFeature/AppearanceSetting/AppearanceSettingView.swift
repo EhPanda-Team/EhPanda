@@ -70,7 +70,7 @@ struct AppearanceSettingView: View {
             }
             Section(.gallery) {
                 AppToggle(
-                    .displayJapaneseTitle,
+                    .showJapaneseTitles,
                     isOn: Binding($setting.displayJapaneseTitle)
                 )
             }

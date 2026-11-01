@@ -162,7 +162,7 @@ final class VisualMatrixTests: XCTestCase {
                            configuration.geometry.horizontalSizeClass)
             XCTAssertEqual(host.viewport.traits.verticalSizeClass.rawValue,
                            configuration.geometry.verticalSizeClass)
-            var trailingResource: LocalizedStringResource = .other
+            var trailingResource: LocalizedStringResource = .more
             trailingResource.locale = locale
             let evidence = try await host.capture(
                 expectedItems: expected.map({ .init(title: $0.title, marker: $0.gid, artworkAspectRatio: 8.0 / 11.0) }),

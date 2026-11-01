@@ -155,7 +155,7 @@ private extension DownloadGalleryItem {
         Button {
             openInspectorAction()
         } label: {
-            Label(.inspectPages, systemSymbol: .listBulletRectanglePortrait)
+            Label(.downloadStatus, systemSymbol: .listBulletRectanglePortrait)
         }
     }
 

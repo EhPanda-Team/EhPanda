@@ -68,7 +68,7 @@ struct ReadingToolbar: ToolbarContent {
                         Text(.dualPageMode)
                     }
                     Toggle(isOn: $setting.exceptCover) {
-                        Text(.exceptTheCover)
+                        Text(.showCoverAlone)
                     }
                     .disabled(!setting.usesHorizontalDualPages)
                 } label: {
@@ -99,7 +99,7 @@ struct ReadingToolbar: ToolbarContent {
                 Label(.reloadAllImages, systemSymbol: .arrowCounterclockwise)
             }
             Button(action: navigateSettingAction) {
-                Label(.readingSetting, systemSymbol: .gear)
+                Label(.readingSettings, systemSymbol: .gear)
             }
         }
     }

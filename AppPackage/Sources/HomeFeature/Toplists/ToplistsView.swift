@@ -48,11 +48,11 @@ struct ToplistsView: View {
                         Text(type.value).tag(type)
                     }
                 } label: {
-                    Text(.toplistsType)
+                    Text(.timeRange)
                 }
                 .pickerStyle(.inline)
             } label: {
-                Label(.toplistsType, systemSymbol: .dialLow)
+                Label(.timeRange, systemSymbol: .dialLow)
                     .symbolRenderingMode(.hierarchical)
             }
             .disabled(store.alert != nil)

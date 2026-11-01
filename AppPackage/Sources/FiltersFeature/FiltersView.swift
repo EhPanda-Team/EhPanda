@@ -77,7 +77,7 @@ private struct BasicSection: View {
 
     var body: some View {
         Section {
-            Picker(.searchRange, selection: $filterRange) {
+            Picker(.appliesTo, selection: $filterRange) {
                 ForEach(FilterRange.allCases) { range in
                     Text(range.value).tag(range)
                 }
@@ -114,15 +114,15 @@ private struct AdvancedSection: View {
         Group {
             Section(.advanced) {
                 AppToggle(.requireGalleryTorrent, isOn: $filter.onlyWithTorrents)
-                AppToggle(.browseOnlyExpungedGalleries, isOn: $filter.expungedGalleries)
+                AppToggle(.browseExpungedGalleries, isOn: $filter.expungedGalleries)
             }
             Section {
                 AppToggle(.setMinimumRating, isOn: $filter.minRatingActivated)
                 MinimumRatingSetter(minimum: $filter.minRating)
                     .disabled(!filter.minRatingActivated)
-                AppToggle(.setPagesRange, isOn: $filter.pageRangeActivated)
+                AppToggle(.setPageRange, isOn: $filter.pageRangeActivated)
                     .disabled(focusedBound.wrappedValue != nil)
-                PagesRangeSetter(
+                PageRangeSetter(
                     lowerBound: $filter.pageLowerBound,
                     upperBound: $filter.pageUpperBound,
                     focusedBound: focusedBound,
@@ -158,8 +158,8 @@ private struct MinimumRatingSetter: View {
     }
 }
 
-// MARK: PagesRangeSetter
-private struct PagesRangeSetter: View {
+// MARK: PageRangeSetter
+private struct PageRangeSetter: View {
     @Binding private var lowerBound: String
     @Binding private var upperBound: String
     private let focusedBound: FocusState<FiltersReducer.FocusedBound?>.Binding
@@ -179,16 +179,16 @@ private struct PagesRangeSetter: View {
 
     var body: some View {
         HStack {
-            Text(.pagesRange)
+            Text(.pageRange)
                 .frame(maxWidth: .infinity, alignment: .leading)
 
-            SettingTextField(text: $lowerBound, title: .pagesRange)
+            SettingTextField(text: $lowerBound, title: .pageRange)
                 .focused(focusedBound, equals: .lower)
                 .submitLabel(.next)
 
             Text(.Constant.rangeSeparator)
 
-            SettingTextField(text: $upperBound, title: .pagesRange)
+            SettingTextField(text: $upperBound, title: .pageRange)
                 .focused(focusedBound, equals: .upper)
                 .submitLabel(.done)
         }

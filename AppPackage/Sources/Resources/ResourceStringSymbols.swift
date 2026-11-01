@@ -126,9 +126,9 @@ public nonisolated extension LocalizedStringResource {
 
         public static var quickSearch: LocalizedStringResource { .quickSearch }
 
-        public static var presentation: LocalizedStringResource { .presentation }
+        public static var layout: LocalizedStringResource { .layout }
 
-        public static var row: LocalizedStringResource { .row }
+        public static var list: LocalizedStringResource { .list }
 
         public static var grid: LocalizedStringResource { .grid }
 
