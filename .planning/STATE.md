@@ -21,6 +21,16 @@ source_head: af00e0da93
 
 # Project State
 
+## Reviewed Home and translation work committed — 2026-11-01
+
+Owner requested committing the outstanding changes: Home tags/proportions/covers `3bdd9865e`;
+Live Text translation replay `388b68ec6`. Signatures verified. The 52 Python fixture tests pass.
+Fresh Duo/iPad Home captures are complete: 14 configurations, 111 native PNGs, two verified ZIPs.
+The merged iPad refresh row is visible in the expanded layouts.
+[Recapture evidence](quick/261101-home-poses-review/SUMMARY.md#refresh-fix-recapture-r2--2026-11-01).
+Owner visual review remains pending.
+
+
 ## iPad top-bar Reload fixed — 2026-11-01
 
 UIKit merges a tab's navigation bar into the iPad top tab bar only while the NavigationStack is the
@@ -33,6 +43,41 @@ half-open Duo sheets, including nested ones. Fully open sheets cross the fold un
 system's outer margin, which the SDK does not expose, and placement does not update on presented
 sheets. The owner keeps `HomePaneSheet`; revisit only when the SDK closes both gaps.
 [Probe results](quick/261101-ipad-reload-row/SWIFTUI-SHEET-SPIKE.md).
+
+## Native iPad refresh placement experiment — 2026-11-01
+
+Owner-requested same-row experiment did not succeed with semantic placement, a direct single-column
+navigation container, or the browser toolbar role. All experiment source edits restored. No refresh
+UX change retained; prior accepted work preserved. Evidence and details are in the adaptive Home summary.
+
+## Home slideshow aspect ratio — 2026-11-01
+
+Owner-selected maximum width/height ratio is approximately 2.74:1 (751/274). Height-derived width
+ceilings replace the previous wide-landscape threshold. Native compact window: 562 × 205; regular
+landscape: 751 × 274. Both builds, strict lint and 39 focused cases pass. Standard iPhone review app
+updated and left running; changes remain uncommitted. See the adaptive Home summary below.
+
+## Adaptive Home tags and covers — 2026-11-01
+
+Owner-directed follow-up implements fitting-only compact slideshow tags and caps oversized
+Frontpage covers to their slideshow counterparts. Build, strict lint and 27 focused layout cases pass.
+[Implementation and native evidence](quick/261101-home-adaptive-tags-covers/SUMMARY.md). Changes remain uncommitted.
+
+## Home pose screenshot review — 2026-11-01
+
+The owner requested whole-Home screenshots for Duo and iPad Pro, expanded to Stage Manager,
+Split View and portrait/landscape windows. [Capture matrix and evidence](quick/261101-home-poses-review/SUMMARY.md).
+This review does not change Home source, final generation authorization or the rendering pin.
+
+## Translated Live Text screenshots approved — 2026-11-01
+
+The owner rejected recognition-only highlights and requested original lettering replaced by translation.
+Debug replay now binds recorded Apple Translation responses to recognized groups, uses the normal
+layout/renderer and waits for completion. Both page-12 captures (Japanese → English and English →
+Japanese) pass and were approved by the owner. 20 focused Swift tests, 52 fixture tests and strict lint pass. Heading OCR/translation
+quality and the large fallback plate remain visible review findings. See
+[review evidence](quick/261101-live-text-review/SUMMARY.md). Changes remain uncommitted.
+Final generation/locale selection and rendering-pin decisions are pending; Phase 17 gates remain unchanged.
 
 ## Home screenshot review accepted — 2026-11-01
 
