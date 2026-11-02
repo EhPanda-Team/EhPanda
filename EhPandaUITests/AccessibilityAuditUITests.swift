@@ -606,21 +606,29 @@ private extension AccessibilityAuditUITests {
         let carousel = query.element(boundBy: 0)
         XCTAssertTrue(carousel.waitForExistence(timeout: 15), "Home did not expose its carousel scroll view.")
         XCTAssertEqual(query.count, 1, "Home exposed an unexpected number of carousel scroll views.")
-        let expectedLabel = try centeredCarouselButton(in: carousel).label
-        XCTAssertFalse(expectedLabel.isEmpty, "The centered Home carousel gallery had no label.")
+        let expectedGallery = try centeredCarouselGallery(in: carousel)
 
         for orientation in [UIDeviceOrientation.landscapeLeft, .portrait] {
             let rotationStart = ContinuousClock.now
             XCUIDevice.shared.orientation = orientation
             XCTAssertTrue(carousel.waitForExistence(timeout: 10), "Home carousel disappeared after rotation.")
-            let label = try centeredCarouselButton(in: carousel).label
+            let gallery = try centeredCarouselGallery(in: carousel)
             XCTAssertLessThan(
                 ContinuousClock.now - rotationStart,
                 Duration.seconds(15),
                 "Home carousel rotation exceeded the 15-second screen-readiness budget."
             )
-            XCTAssertEqual(label, expectedLabel, "Rotation changed the centered Home carousel gallery.")
+            XCTAssertEqual(gallery, expectedGallery, "Rotation changed the centered Home carousel gallery.")
         }
+    }
+
+    /// The identifier of the centered gallery's title. The card's label also reads the tags that
+    /// fit its width, so the same gallery can have a longer label in landscape than in portrait.
+    func centeredCarouselGallery(in carousel: XCUIElement) throws -> String {
+        let title = try centeredCarouselButton(in: carousel).descendants(matching: .any)
+            .matching(NSPredicate(format: "identifier BEGINSWITH %@", "home_slideshow_title_")).firstMatch
+        XCTAssertTrue(title.exists, "The centered Home carousel gallery had no title.")
+        return title.identifier
     }
 
     func centeredCarouselButton(in carousel: XCUIElement) throws -> XCUIElement {
