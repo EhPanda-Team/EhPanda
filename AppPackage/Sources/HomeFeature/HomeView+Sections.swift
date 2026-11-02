@@ -10,7 +10,7 @@ import SwiftUI
 // `windowBlocks` concatenated copies of the gallery list, and every settle rebases the
 // window so the settled card sits back in `middleBlock`. Rebasing is only safe at
 // `.idle` — while a scroll is in flight the content offset is pinned, so any mid-flight
-// window shift makes `scrollPosition(id:)` re-derive its id by the same shift and the
+// window shift makes `scrollPosition` re-derive its id by the same shift and the
 // rebase re-triggers itself, endlessly (sim-measured). The width therefore carries the
 // whole burst budget: chained flicks that never let the scroll settle consume headroom
 // that only an `.idle` can restore. With `limitBehavior: .always` capping each gesture
@@ -25,7 +25,7 @@ struct CardSlideSection: View, Equatable {
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @GalleryCoverMetrics(.homeCompact) private var compactCoverSize
     @GalleryCoverMetrics(.hero) private var heroCoverSize
-    @State private var scrollPositionID: Int?
+    @State private var position: ScrollPosition
     // Origin of the sliding id window (see `bufferedCards`). Only ever shifted by whole
     // blocks (multiples of `galleries.count`), so a card's logical index is invariant
     // under rebase whether derived from its id or from its layout slot.
@@ -59,8 +59,12 @@ struct CardSlideSection: View, Equatable {
         // Seed the initial position to the MIDDLE block's entry for the inbound page index
         // (`Page.withIndex` parity: `cardPageIndex` defaults to 1, so the carousel must not open
         // on the first card), giving the loop headroom on both sides from the first frame.
-        let seedIndex = galleries.isEmpty ? nil : min(max(pageIndex.wrappedValue, 0), galleries.count - 1)
-        _scrollPositionID = State(initialValue: seedIndex.map({ galleries.count * middleBlock + $0 }))
+        let seedIndex = min(max(pageIndex.wrappedValue, 0), galleries.count - 1)
+        // The id must be a plain `Int`: an `Int?` id is a different identity that matches no card.
+        _position = State(initialValue: galleries.isEmpty
+            ? ScrollPosition(idType: Int.self)
+            : ScrollPosition(id: galleries.count * middleBlock + seedIndex, anchor: .center)
+        )
     }
 
     static func == (lhs: CardSlideSection, rhs: CardSlideSection) -> Bool {
@@ -76,12 +80,12 @@ struct CardSlideSection: View, Equatable {
     // shows `windowBlocks` concatenated copies of `galleries`, with `id % count` picking the
     // gallery. When a scroll settles outside the middle block, the window REBASES: `windowBase`
     // shifts by whole blocks so the settled id is back in the middle. Only the ForEach data
-    // changes — `scrollPosition(id:)` keeps the settled view pinned across the content diff and
-    // `scrollPositionID` is never written during scrolling — so the focused card's view identity
+    // changes — `scrollPosition` keeps the settled view pinned across the content diff and
+    // `position` is never written during scrolling — so the focused card's view identity
     // (and its gradient playback) survives every wrap, and no programmatic scroll can cancel an
     // in-flight gesture. A gallery-count change invalidates the id space and reseeds the anchor.
-    // Native gesture settling owns scroll-position updates; geometry only observes selection, so
-    // a layout change never issues a scroll command.
+    // Native gesture settling owns the selected id and geometry only observes it, so a layout
+    // change can repeat that id (see `onChange(of: centeringMargin)`) but never chooses another.
     private struct BufferedCard: Identifiable, Equatable {
         let id: Int
         let gallery: Gallery
@@ -151,19 +155,32 @@ struct CardSlideSection: View, Equatable {
         // every settle (sim-measured), clamping at the window edge before any `.idle` rebase.
         .scrollTargetBehavior(.viewAligned(limitBehavior: .always))
         .fixedSize(horizontal: false, vertical: true)
-        .scrollPosition(id: $scrollPositionID, anchor: .center)
+        .scrollPosition($position, anchor: .center)
         .contentMargins(.horizontal, centeringMargin, for: .scrollContent)
         .scrollClipDisabled()
         .accessibilityIdentifier("home_carousel")
         .onChange(of: galleries.count) { _, newCount in
             guard newCount > 0 else { return }
             windowBase = 0
-            scrollPositionID = newCount * middleBlock + min(max(pageIndex, 0), newCount - 1)
+            position.scrollTo(id: newCount * middleBlock + min(max(pageIndex, 0), newCount - 1), anchor: .center)
+        }
+        // The margin moves whenever the card width or the available width does. At a new width the
+        // lazy stack places the selected card from its estimates for the unbuilt cards before it, and
+        // the first layout can miss by more than half a card (measured on iPhone Air, 2026-11-02, on
+        // the first portrait-to-landscape rotation). `.viewAligned` then snaps to the neighbor while
+        // `viewID` keeps the selected id and no phase fires, so nothing else corrects the offset.
+        // Repeating the id resolves it against the new layout. A drag or deceleration never moves the
+        // margin, and neither does a height-only change, so neither one reaches this.
+        .onChange(of: centeringMargin) {
+            guard let selectedID = position.viewID(type: Int.self) else { return }
+            position.scrollTo(id: selectedID, anchor: .center)
         }
         // Native snapping has settled by `.idle`; this handler only reconciles the selected
         // buffered ID and rebases the sliding window without changing the settled gesture.
         .onScrollPhaseChange { _, newPhase in
-            guard newPhase == .idle, let settledID = scrollPositionID, !galleries.isEmpty else { return }
+            guard newPhase == .idle, let settledID = position.viewID(type: Int.self), !galleries.isEmpty else {
+                return
+            }
             let count = galleries.count
             let logical = logicalIndex(of: settledID)
             // Outward-only `.synchronize` parity: the reducer only observes `cardPageIndex`,
@@ -172,8 +189,8 @@ struct CardSlideSection: View, Equatable {
                 pageIndex = logical
             }
             // Window rebase: shift `windowBase` so the settled card sits in the middle block.
-            // This is a pure data change — the settled id keeps existing, `scrollPosition(id:)`
-            // holds that view's offset across the diff, and `scrollPositionID` is untouched, so
+            // This is a pure data change — the settled id keeps existing, `scrollPosition`
+            // holds that view's offset across the diff, and `position` is untouched, so
             // the rebase is invisible, resets no view identity, and can't cancel a gesture.
             let slot = min(max(settledID - windowBase, 0), count * windowBlocks - 1)
             let block = slot / count
@@ -239,7 +256,7 @@ struct CardSlideSection: View, Equatable {
         //
         // Geometry observation updates only the semantic page index, preserving the gradient's
         // nearest-card timing. It cannot distinguish a resize from VoiceOver navigation, so it
-        // never writes `scrollPositionID`; native gesture settling owns the target binding.
+        // never writes `position`; native gesture settling owns the selected id.
         .onGeometryChange(for: Bool.self) { [layoutDirection] proxy in
             guard let viewport = proxy.bounds(of: .scrollView(axis: .horizontal)), proxy.size.width > 0 else {
                 return false
