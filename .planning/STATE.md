@@ -4,22 +4,46 @@ milestone: v3.0.0
 current_phase: 17
 current_phase_name: Screenshot Automation, Visual Regression & OS 27 Modernization
 status: executing
-stopped_at: 17-06 revision re-shot (2026-10-13), 16/16 captured; waiting for the owner's visual review; agent prepares both gallery sets
-last_updated: "2026-10-31T15:09:20.485Z"
-last_activity: 2026-10-28
-last_activity_desc: Quick task 261028-hi0 adopts bottom edges and Archives safeAreaBar, restores persistent Library title menu; Release -O restored and preview cleanup retained; serial exceptions discussion deferred; 12 unpushed commits normalized to UTC+8 with in-place GSD SHA repairs
-state_head: a5ea1ec3e2ce65985dee1ac0bfd0c772863e9ba8
+stopped_at: Phase 17 reduced and Phase 18 added (2026-11-03, planning only); next execute 17-16, 17-17, 17-18, 17-19, 17-14 (T2) and 17-23, then the Phase 17 close steps
+last_updated: "2026-11-02T16:42:35.103Z"
+last_activity: 2026-11-03
+last_activity_desc: Owner msg 1305 reduces Phase 17 (CAP-17-04 and CAP-17-07 amended, eleven plans moved with status superseded) and adds Phase 18 for 3.0 release readiness with eleven requirements; planning documents only, Phase 17 not complete and no VERIFICATION.md written
+state_head: 668cca623c228df536242488ae3a6923d85982da
 progress:
-  total_phases: 17
-  completed_phases: 10
-  total_plans: 298
-  completed_plans: 280
-  percent: 59
+  total_phases: 18
+  completed_phases: 15
+  total_plans: 287
+  completed_plans: 281
+  percent: 83
 milestone_name: )
 source_head: 2519060029
 ---
 
 # Project State
+
+## Phase 17 reduced, Phase 18 added — 2026-11-03
+
+Owner msg 1305 closes Phase 17 small. CAP-17-04 is amended to the 192 owner-approved website images
+of 2026-11-02 and CAP-17-07 to the size-class migration that already landed through quick task
+`261015-duo-session-record`, before snapshot coverage existed. Plans 17-07 to 17-13, 17-15 and
+17-20 to 17-22 carry `status: superseded` with a pointer to Phase 18; 17-14 keeps only its T2
+Release isolation check, 17-16 to 17-18 become short verifications of the landed layout, 17-19
+becomes the census of the remaining idiom reads with an owner keep/change checkpoint, and 17-23 is
+rewritten as the reduced-scope report. CAP-17-02, CAP-17-03, CAP-17-05 and the moved parts of
+CAP-17-01 and CAP-17-06 map to Phase 18; they are moved, not satisfied.
+
+Phase 18, "3.0 Release Readiness: Age Wall, Consent, Marketplace Distribution & Visual
+Regression", is the remaining 3.0 phase (owner msgs 1287, 1289, 1294, 1299, 1305). New requirements:
+REL-18-01, DIST-18-01, AGE-18-01, CONSENT-18-01, UGC-18-01, VIS-18-01, MKT-18-01, DIST-18-02,
+DIST-18-03, DEV-18-01, ANALYTICS-02 (44/44 mapped). The ROADMAP holds a twelve-step outline with its
+owner checkpoints; PLAN files come from `/gsd-plan-phase 18`.
+
+Per owner msg 1307, Phase 17 is not marked complete and no VERIFICATION.md is written here. Next:
+execute the remaining Phase 17 plans in order (17-16, 17-17, 17-18, 17-19 with its owner
+checkpoint, 17-14 T2, 17-23), then the GSD close steps: the `/gsd-execute-phase 17` phase gates
+(code review via `/gsd-code-review`, regression gate, and the `gsd-verifier` agent writing
+`17-VERIFICATION.md`), `/gsd-verify-work 17`, `/gsd-secure-phase 17` and `/gsd-validate-phase 17`.
+Planning documents only; no app code, build or simulator run.
 
 ## History compaction — 2026-11-03
 
@@ -337,14 +361,18 @@ The review iPad has the final app; Phase 17 remains unchanged. See
 See: .planning/PROJECT.md (updated 2026-09-23)
 
 **Core value:** The load-bearing paths — fetch, parse, read, download galleries — keep working; every task is a foundation change held to behavior/appearance parity.
-**Current focus:** Phase 17 — Screenshot Automation, Visual Regression & OS 27 Modernization
+**Current focus:** Phase 17 — Screenshot Automation, Visual Regression & OS 27 Modernization (reduced 2026-11-03); Phase 18 — 3.0 Release Readiness follows
 
 ## Current Position
 
-Phase: 17 of 17 (Screenshot Automation, Visual Regression & OS 27 Modernization)
-Plan: 6 of 24 complete (17-05, wave 6; dependency order, not numeric ID order); 17-06 implemented; the owner's 2026-10-13 review returned changes, revision in progress
-Status: executing (17-01/17-24/17-02/17-03/17-04/17-05 complete; 17-06 implemented and verified, owner review returned changes on 2026-10-13, revision in progress; the agent prepares galleries and fixtures for both content sets)
-Last activity: 2026-10-28 — Quick task 261028-hi0 restores Release `-O` after the owner requests dropping the size-optimization commit. Preview cleanup remains; the earlier 12.35% saving describes the withdrawn experiment, and current size is unmeasured. Approved bottom edges and Archives safeAreaBar are implemented, with the final persistent Library title menu and custom circular arrow. The implemented gallery contains 18 comparison pairs and 18 additional captures. Serialization lint policy, normal parallel test plans and fixture repairs are verified; the owner deferred the device-bound runner exception discussion. Quick task incomplete; Phase 17 unchanged.
+Phase: 17 of 18 (Screenshot Automation, Visual Regression & OS 27 Modernization)
+Plan: 7 of 13 in-scope plans complete (17-01 to 17-06, 17-24); 11 plans moved to Phase 18 with `status: superseded` (owner msg 1305, 2026-11-03); next 17-16 (wave 8)
+Status: executing (remaining order 17-16, 17-17, 17-18, 17-19 with owner checkpoint, 17-14 T2, 17-23; then the GSD close steps; the phase is not complete and 17-VERIFICATION.md does not exist yet)
+Last activity: 2026-11-03 — Owner msg 1305 reduces Phase 17 and adds Phase 18 for 3.0 release readiness; planning documents only.
+
+**2026-11-03 scope reduction:** see the top section. The 17-06 owner review is superseded by the owner's 2026-11-02 approval of the complete 192-image website set. The older Phase 17 gate notes below are historical; their "6/24" counts and "next" pointers are superseded.
+
+**Previous activity (2026-10-28, historical):** Quick task 261028-hi0 restores Release `-O` after the owner requests dropping the size-optimization commit. Preview cleanup remains; the earlier 12.35% saving describes the withdrawn experiment, and current size is unmeasured. Approved bottom edges and Archives safeAreaBar are implemented, with the final persistent Library title menu and custom circular arrow. The implemented gallery contains 18 comparison pairs and 18 additional captures. Serialization lint policy, normal parallel test plans and fixture repairs are verified; the owner deferred the device-bound runner exception discussion. Quick task incomplete; Phase 17 unchanged.
 
 **2026-10-29 local review delivery:** The owner-requested gallery proposal now fills all 31 Home slots, and 32 fresh English/Large/portrait screenshots cover eight screens on iPhone/iPad in light/dark. The local review preserves the earlier batch and notes. [Capture evidence and website-owner handoff](phases/17-localized-screenshot-capture-harness/17-06-REVIEW-20261029.md) record the exact scope and remaining pin/preflight limits. Owner visual acceptance remains pending; Phase 17 stays 6/24, with no baseline promotion or 17-07 execution.
 
@@ -405,7 +433,7 @@ Round-1 state: closed and signed. 38 findings — 32 `re-verified`, 6 `accepted`
 
 D-01 amendment 2 authorizes agent-written fixes; the original owner-only implementation restriction is superseded. All five Dynamic Type lint rules (`no_dynamic_type_size_modifier`, `no_geometry_reader`, `no_fixed_system_font_size`, `accessibility_hardcoded_string`, `no_minimum_scale_factor`) are live at error severity with the tree at 0 for each. A11Y-01 is complete; A11Y-02 (round 2) is open; the phase is not complete. Do not push without the owner.
 
-Progress: 276/298 authored plans complete; GSD-recorded phase progress: [██████░░░░] 59%; Phase 17 has 2/24 plans complete; the remaining dependency-ordered plans keep the milestone open.
+Progress: 281/287 in-scope plans complete (the 11 superseded Phase 17 plans are excluded); GSD-recorded phase progress: [████████░░] 83%; Phase 17 has 7/13 in-scope plans complete; Phase 18 has no plans yet; the remaining Phase 17 plans and Phase 18 keep the milestone open.
 
 ## Performance Metrics
 
@@ -1344,6 +1372,8 @@ None yet.
 - Phase 15 inserted after Phase 14: Continued Background Downloads (BGContinuedProcessingTask); Dynamic Type Accessibility renumbered 15 to 16
 - Phase 17 added: Localized Screenshot Capture Harness — all-language / light+dark deterministic marketing screenshots from owner-chosen real-gallery mock data under a locked clock, for the EhPanda website and AltStore
 - Phase 17 edited: Expanded existing Phase 17: real-gallery fixtures, full language/Dynamic Type/orientation/device/color-scheme capture matrix, website and AltStore exports, snapshot regression tests, iOS/iPadOS 27 native API migration and app-wide soft top scroll-edge effect. Phase 16 remains active.
+- Phase 17 edited (2026-11-03, owner msg 1305): reduced scope. CAP-17-04 and CAP-17-07 amended; 17-07 to 17-13, 17-15 and 17-20 to 17-22 superseded and moved to Phase 18; 17-14 reduced to T2; 17-16 to 17-19 reduced to verification and census; 17-23 rewritten.
+- Phase 18 added (2026-11-03): 3.0 Release Readiness: Age Wall, Consent, Marketplace Distribution & Visual Regression — the remaining 3.0 phase, with the work moved from Phase 17 (owner msgs 1287, 1289, 1294, 1299, 1305).
 
 Continuation corrections (2026-09-16): W-13's earlier `pid=61210` crash/loading-error claim is withdrawn; lifecycle evidence identifies `pid=61450` as the explicit relaunch and the saved `w13-showall.png` as normal Detail. Its prior Reader return used VoiceOver off and is not a valid pass. W-22 v3 provenance is invalid because source was restored during execution; v3b completed with exit 0 in 39.433 seconds and restored five temporary files byte-exactly, with only the cold S2 AX5 second row confirmed so far. W-29 remains a read-only proposal targeting the first Frontpage gallery and profile Picker. W-35 has an approved, unimplemented title-focus probe; runtime and the W-8 idle check remain open.
 
@@ -1355,14 +1385,16 @@ Items acknowledged and carried forward from previous milestone close:
 |----------|------|--------|-------------|
 | Test infrastructure | Group the deep-link accessibility identifiers into one shared constants file (e.g. `AccessibilityIdentifiers.readingView`, plus a `commentCell(id:)` for the interpolated one). Today the 7 identifiers are literals in `AppPackage/Sources` and are re-typed as 18 literal call sites across the 5 `EhPandaUITests` files, with no compile-time link between the two sides — a rename fails at runtime, not at build time. | Open | Phase 13 UAT (2026-07-23) |
 | Comments | Keep a comment's styles and link targets when editing it. The edit form pre-fills `GalleryComment.plainTextContent`, plain text without BBCode, so saving an edit in the app removes them. Prefer the source text the site's own edit form uses; verifying a save needs a logged-in account. See `quick/261102-comment-parser/SUMMARY.md`. | Open | 2026-11-02 |
-| Compliance | **Age wall (standard for every build, not only AltStore).** On first launch, before any content is shown or any network request is made, the user must confirm they are an adult, and legally allowed to view explicit content under every law that applies to them, wherever it comes from (for example where they are, where they live, or their citizenship). Owner msgs 1235 and 1239: not just "18 or older", and not only the law of the place they live; e.g. an American citizen living abroad. Until they do, nothing else in the app works, and there is no skip. Answering no keeps them on that screen. The answer is stored on the device. Reference: Hot Tub's onboarding; notarization guideline on honest age rating and verified or declared age (Ampo msg 1211). Owner msgs 1231, 1235 and 1239, spec Ato msgs 1232, 1236 and 1240. The website's adult-mode declaration should use this same wording (Ato msg 1240), which today says only "declares they are an adult" (Ato msg 1236). | Open | 2026-11-02 |
-| Privacy | **Analytics consent (standard for every build).** No analytics are collected until the user chooses. A first-launch screen offers a few levels of sharing, including none, as in Hot Tub. The choice can be changed later in Settings. This replaces today's "on by default, switch off in Settings". Guideline 5.1.1: consent is needed even for anonymous usage data (Ampo msg 1211). Owner msg 1231, spec Ato msg 1232. | Open | 2026-11-02 |
+| Compliance | **Age wall (standard for every build, not only AltStore).** On first launch, before any content is shown or any network request is made, the user must confirm they are an adult, and legally allowed to view explicit content under every law that applies to them, wherever it comes from (for example where they are, where they live, or their citizenship). Owner msgs 1235 and 1239: not just "18 or older", and not only the law of the place they live; e.g. an American citizen living abroad. Until they do, nothing else in the app works, and there is no skip. Answering no keeps them on that screen. The answer is stored on the device. Reference: Hot Tub's onboarding; notarization guideline on honest age rating and verified or declared age (Ampo msg 1211). Owner msgs 1231, 1235 and 1239, spec Ato msgs 1232, 1236 and 1240. The website's adult-mode declaration should use this same wording (Ato msg 1240), which today says only "declares they are an adult" (Ato msg 1236). | Planned: Phase 18 (AGE-18-01) | 2026-11-02 |
+| Privacy | **Analytics consent (standard for every build).** No analytics are collected until the user chooses. A first-launch screen offers a few levels of sharing, including none, as in Hot Tub. The choice can be changed later in Settings. This replaces today's "on by default, switch off in Settings". Guideline 5.1.1: consent is needed even for anonymous usage data (Ampo msg 1211). Owner msg 1231, spec Ato msg 1232. | Planned: Phase 18 (CONSENT-18-01) | 2026-11-02 |
 
 ## Session Continuity
 
-Last session: 2026-10-13T10:50:00Z
-Stopped at: 17-06 revision re-shot, 16/16 captured (`.capture/17-06-t-native-*`); waiting for the owner's review of the frames and the explicit-set IDs
+Last session: 2026-11-02T16:45:00Z
+Stopped at: Phase 17 reduced and Phase 18 added (planning documents only); next `/gsd-execute-phase 17` for 17-16, 17-17, 17-18, 17-19 (owner checkpoint), 17-14 T2 and 17-23, then the Phase 17 close steps
 Resume file: .planning/phases/17-localized-screenshot-capture-harness/.continue-here.md
+
+Earlier stop (2026-10-13T10:50:00Z, historical): 17-06 revision re-shot, 16/16 captured (`.capture/17-06-t-native-*`); superseded by the owner's 2026-11-02 approval of the 192-image website set.
 
 The dated feedback below is historical and superseded by the Phase 16 verification and final owner sign-off.
 

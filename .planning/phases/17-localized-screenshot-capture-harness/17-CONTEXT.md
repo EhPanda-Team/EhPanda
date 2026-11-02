@@ -2,6 +2,7 @@
 
 **Gathered:** 2026-09-23 through 2026-10-02
 **Status:** Ready for planning
+**Amended:** 2026-11-03 (owner msg 1305). Phase 17 closes at reduced scope; see ROADMAP.md Phase 17 and REQUIREMENTS.md CAP-17-04/07. The communicated website contract supersedes D-16's iPad axis for the website export (192 approved images). D-27's order was not followed: the size-class migration landed in quick task `261015-duo-session-record` before snapshot coverage, and 17-16 to 17-19 verify it. Decisions owned by the moved plans (17-07 to 17-13, 17-14 T1/T3, 17-15, 17-20 to 17-22) carry into Phase 18 unchanged.
 
 <domain>
 ## Phase Boundary

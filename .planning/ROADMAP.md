@@ -10,7 +10,11 @@ into the big framework migration (Combine→async/await, TCA traits), then the U
 hygiene refactors (adaptive layout, GenericList→GalleryList rename, root privacy mask, auto-lock removal,
 de-globalized clients) with their folded-in security/test/correctness concerns, and finishing with a
 structured error surface and a lint capstone. Refactor-gated lint rules land with the refactors that
-enable them; the mechanical rules sweep last.
+enable them; the mechanical rules sweep last. Later phases restore login, harden deep links, add
+analytics, continued downloads and accessibility, and capture the screenshot foundation. Phase 17
+closes a reduced screenshot and layout scope; Phase 18 is the remaining 3.0 phase: the first-launch
+age wall, analytics consent, comment moderation, marketplace distribution (AltStore PAL and others),
+release fixes, real-device checks and the visual-regression and marketing work moved from Phase 17.
 
 ## Phases
 
@@ -30,14 +34,15 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 7: Root Privacy Mask & Auto-Lock Removal** - One shared-state mask per root surface; remove the custom auto-lock for iOS's built-in per-app lock (completed 2026-07-14)
 - [x] **Phase 8: Architecture Hygiene & Client Seams** - De-globalize side-effecting Utils, audit cookie logging, and cover reworked seams with tests (completed 2026-07-14)
 - [x] **Phase 9: Correctness & Structured Error Handling** - Kill the private-category crash and replace silent try? with a user-facing error surface (completed 2026-07-16)
-- [x] **Phase 10: UI Polish** - Monospaced digits and numeric-text transitions; reduce ZStack in favor of overlay/background
-- [x] **Phase 11: Infra Refactor & Lint Capstone** - Resolve infra-level refactors (incl. test-isolation cleanup), then ratchet SwiftLint to the stricter ruleset at error; mechanical sweep last, refactor-gated rules flipped on
+- [x] **Phase 10: UI Polish** - Monospaced digits and numeric-text transitions; reduce ZStack in favor of overlay/background (completed 2026-07-20)
+- [x] **Phase 11: Infra Refactor & Lint Capstone** - Resolve infra-level refactors (incl. test-isolation cleanup), then ratchet SwiftLint to the stricter ruleset at error; mechanical sweep last, refactor-gated rules flipped on (completed 2026-07-22)
 - [x] **Phase 12: Cloudflare Login Restoration** - Restore username/password login broken by the Cloudflare wall: detect the challenge, clear it in an in-app browser, replay login with an in-memory cf_clearance (completed 2026-07-23)
 - [x] **Phase 13: Deep Link Hardening** - Code-review the deep-link implementation and make it less hacky and more durable at navigating to the correct destination; add UI automation tests covering deep-link navigation (completed 2026-07-23)
 - [x] **Phase 14: Analytics Instrumentation (TelemetryDeck)** - Add privacy-first analytics via the TelemetryDeck SDK — on by default with a runtime opt-out in General Settings (D-01 reversed) — instrumenting key user flows (completed 2026-07-27)
 - [x] **Phase 15: Continued Background Downloads** - Adopt `BGContinuedProcessingTask` so a user-started gallery download keeps running after backgrounding, with the system-provided progress UI (completed 2026-08-19)
 - [x] **Phase 16: Accessibility (Dynamic Type + Assistive Technology)** - Two rounds against the settled UI: full-range Dynamic Type (AX1–AX5, human-implemented, agent verify-only), then a VoiceOver / Voice Control / Reduced Motion / Contrast / Differentiate-Without-Color pass (agent-implemented), held to the App Store Accessibility Nutrition Label bar (completed 2026-09-23)
-- [ ] **Phase 17: Screenshot Automation, Visual Regression & OS 27 Modernization** - Separate complete regression and real-app marketing workflows, local designer/website handoffs, preservation of native OS27 behavior and post-snapshot size-class layout audit
+- [ ] **Phase 17: Screenshot Automation, Visual Regression & OS 27 Modernization** - Reduced 2026-11-03: capture foundation and the approved 192-image website set, verification of the landed size-class layout, the remaining idiom census and the Release isolation check; regression, marketing export and AltStore work moved to Phase 18
+- [ ] **Phase 18: 3.0 Release Readiness: Age Wall, Consent, Marketplace Distribution & Visual Regression** - First-launch age wall, analytics consent, comment moderation, AltStore PAL/marketplace build and notarization pipeline, release fixes, real-device checks, the moved regression/marketing work, and a final analytics revision with install-source tracking
 
 ## Phase Details
 
@@ -673,7 +678,7 @@ Plans:
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 → 9 → 10 → 11 → 12 → 13 → 14 → 15 → 16 → 17
+Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 → 9 → 10 → 11 → 12 → 13 → 14 → 15 → 16 → 17 → 18
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
@@ -681,19 +686,20 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 2. Native Masonry Grid Swap | 4/4 | Complete    | 2026-07-11 |
 | 3. Native Reader Paging Swap | 5/5 | Complete    | 2026-07-12 |
 | 4. Concurrency & Framework Migration | 14/14 | Complete    | 2026-07-12 |
-| 5. Adaptive Layout & Universal Orientation | 18/18 | In Progress|  |
+| 5. Adaptive Layout & Universal Orientation | 18/18 | Complete    | 2026-07-13 |
 | 6. GalleryList Rename | — | Delivered (rescoped) | 2026-07-13 |
 | 7. Root Privacy Mask & Auto-Lock Removal | 12/12 | Complete    | 2026-07-14 |
 | 8. Architecture Hygiene & Client Seams | 18/18 | Complete    | 2026-07-14 |
 | 9. Correctness & Structured Error Handling | 13/13 | Complete    | 2026-07-16 |
-| 10. UI Polish | 12/12 | In Progress|  |
+| 10. UI Polish | 12/12 | Complete    | 2026-07-20 |
 | 11. Infra Refactor & Lint Capstone | 32/32 | Complete    | 2026-07-22 |
 | 12. Cloudflare Login Restoration | 6/6 | Complete    | 2026-07-23 |
 | 13. Deep Link Hardening | 10/10 | Complete    | 2026-07-23 |
 | 14. Analytics Instrumentation (TelemetryDeck) | 18/18 | Complete    | 2026-07-27 |
 | 15. Continued Background Downloads | 77/77 | Complete    | 2026-08-19 |
 | 16. Dynamic Type Accessibility | 26/26 | Complete    | 2026-09-23 |
-| 17. Screenshot Automation, Visual Regression & OS 27 Modernization | 2/24 | In Progress|  |
+| 17. Screenshot Automation, Visual Regression & OS 27 Modernization | 7/13 | In Progress|  |
+| 18. 3.0 Release Readiness: Age Wall, Consent, Marketplace Distribution & Visual Regression | 0/TBD | Not started|  |
 
 ### Phase 12: Cloudflare Login Restoration
 
@@ -1234,32 +1240,31 @@ Plans:
 
 ### Phase 17: Screenshot Automation, Visual Regression & OS 27 Modernization
 
-**Goal**: Deliver separate deterministic SnapshotTesting regression and actual-app simulator marketing workflows, complete reviewed regression coverage, final real-gallery website captures and separately designed AltStore promotional assets through local handoffs. Preserve the already-landed iOS/iPadOS27 native behavior, then replace idiom-based layout decisions with size classes after snapshot implementation.
+**Goal**: Close the screenshot and OS 27 layout work that 3.0 needs, at reduced scope (owner decision 2026-11-03, msg 1305). Keep the delivered capture foundation (17-01 to 17-06, 17-24) and the owner-approved 192-image website screenshot set as the screenshot-export result. Confirm the size-class layout migration that already landed through quick task `261015-duo-session-record`, close the remaining device-idiom census with the owner, prove once that Release ships no capture or test code, and verify the phase honestly. The visual-regression matrix, baselines, CI snapshot gate, preview tooling, 384-image marketing export, final gallery selection and AltStore promotional images move to Phase 18; they are moved, not satisfied.
 **Depends on**: Phase16 — current owner-approved verification and explicit evidence bounds; historical pending wording is superseded.
-**Requirements**: CAP-17-01, CAP-17-02, CAP-17-03, CAP-17-04, CAP-17-05, CAP-17-06, CAP-17-07.
+**Requirements**: CAP-17-01 (fixture part), CAP-17-04 (amended 2026-11-03), CAP-17-06 (bounded part), CAP-17-07 (amended 2026-11-03). CAP-17-02, CAP-17-03, CAP-17-05 and the moved parts of CAP-17-01 and CAP-17-06 map to Phase 18.
 
 **Scope and owner decisions**:
 
-1. Explicit real-gallery acquisition/refresh produces versioned provenance and checksummed offline fixtures. Agent-selected provisional content is authorized now; final owner identifiers, sets, ordering and reader pages require reacquisition and regeneration before closure. Public regression test data may be synthetic, real or mixed independently.
-2. Expand the current42 surface groups into all meaningful states. Each scenario requests576 coordinates: six locales × twelve Dynamic Type sizes × two orientations × two full-size families × two themes. Prove actual ScrollView/List/lazy full-content capture and retain native-frame presentations. No reduced-window iPad axis or sampled PR replacement.
-3. Routine SnapshotTesting comparisons use explicit never-record behavior. Public baselines are committed beside tests only after complete agent visual review and explicit owner acceptance. Provide grouped/filterable baseline/actual/diff reports and controlled-regression red/restoration-green evidence. Every PR and release runs the full matrix.
-4. A separate actual-app workflow exports all384 website coordinates for the eight D-15 identities, six locales, two themes, iPhoneAir/iPadPro11-inch(M5), and two declared content sets. Use normal portrait dimensions, fixed text size, measured geometry/runtime,9:41, verified capsule removal and byte-identical cold reruns. Real UI may simulate coherent downloads and selected-page Live Text; visible content stays real and within the active selection.
-5. Deliver native-format local images, complete inventory including failures, D-21 provenance, instructions and results. Validate local consumer importability without external-project lookup, conversion, promotion, icon work or public publishing.
-6. A separate designer owns AltStore count/order/matrix/composition/copy/dimensions/frames and delivers actual promotional assets; raw screenshots do not satisfy that work. Capture supplies final source material and additional requested captures, then validates intended local references.
-7. OS27/Swift6.4 modernization is already implemented. Preserve current native title/search/overflow/selection marks/anchors/soft-top-edge behavior, including standard/AX1/AX3/AX5 cold/live checks. Use verified Xcode27 preview tools as review aids. Audit direct/client-mediated/derived idiom-layout decisions only after completed snapshots; retain non-layout capabilities and appropriate container fitting.
-8. Keep capture activation, assets and SnapshotTesting outside Release. Preserve download manifest SSOT, same-run folder deletion, strict lint and warning cleanliness.
+1. Explicit real-gallery acquisition/refresh produces versioned provenance and checksummed offline fixtures (17-03, 17-04, 17-06). The owner-approved website fixtures (16 immutable versions, `quick/261101-website-review/APPROVAL-20261102.md`) are the final selection for the website set. Public regression test-data dispatch (17-11) and the final 384 reacquisition (17-21) move to Phase 18.
+2. Screenshot export (CAP-17-04, amended): met by the 192 owner-approved iPhone Air website images of 2026-11-02 (two content sets × six locales × two themes × eight screens). The communicated website contract drops D-16's iPad axis. The 384-coordinate export tooling and its handoff validator (17-07) move to Phase 18.
+3. Layout (CAP-17-07, amended): the device-idiom → size-class migration landed in quick task `261015-duo-session-record` (`8fb2374536` routes screens by window size classes at the app root; `e89e896634` picks view layouts by size class; `0a42b7fbb4` sizes NewDawn for wide sheets; `7015d62cd3` seeds the reader pager from its measured size) **before** snapshot coverage existed, against D-27's intended order. 17-16 to 17-18 close as already landed after a short verification; 17-19 is reduced to the census of the remaining idiom reads with an owner keep/change checkpoint.
+4. Release isolation (CAP-17-07): 17-14 is reduced to its T2 Release isolation check, run once at Phase 17 close; its T1/T3 CI snapshot gate moves to Phase 18, which repeats the scan on the final 3.0 Release build.
+5. OS27/Swift6.4 native behavior (CAP-17-06): signed off with bounded evidence (existing behavioral tests, the recorded standard/AX1/AX3/AX5 title/search/top-edge checks). The snapshot-measured parts (17-09-T2 native visual policy tests, 17-15 preview review) move to Phase 18.
+6. The 17-06 open items are settled by the owner's 2026-11-02 approval of the complete 192-image website set: the 16-frame review, the explicit-set preparation and the fixed 9:41 status bar per theme on the website images. The iPad Toplists gap between Yesterday and Past Month is not owned by any Phase 17 plan and is carried to the owner as a separate decision.
+7. Keep capture activation, assets and SnapshotTesting outside Release. Preserve download manifest SSOT, same-run folder deletion, strict lint and warning cleanliness.
 
-**Success Criteria**:
+**Success Criteria** (what must be TRUE):
 
-- All seven CAP requirements and all27 current context decisions have evidence-linked executable coverage.
-- Every expanded regression scenario accounts for all576 coordinates and every native/full-content capture kind.
-- Initial and changed public baselines have complete visual disposition and explicit owner acceptance before promotion.
-- Full PR/release comparison, behavioral/native tests, lint and Release isolation pass on the pinned environment.
-- All384 final-owner marketing coordinates pass state, native chrome, metadata and byte-repeatability checks.
-- Accepted designer-created promotional assets resolve through a validated local AltStore handoff.
-- Full-content, clean integration, chrome and repeatability gates halt execution when unproven; no silent substitutions or scope reductions.
+  1. The reduced plan set (17-01 to 17-06, 17-24, 17-14 T2, 17-16 to 17-19, 17-23) has summaries with evidence; the moved plans carry `status: superseded` and a pointer to Phase 18.
+  2. The 192 approved website images and their fixtures are recorded as meeting the amended CAP-17-04, citing the 2026-11-02 approval.
+  3. The landed size-class routing and layout pass the existing reducer tests and one simulator check on iPad full width, a narrow iPad window and iPhone landscape; every remaining idiom read has an owner keep/change disposition.
+  4. The 3.0-candidate Release build contains no capture code, fixtures, test assets or SnapshotTesting linkage, and no environment flag activates capture.
+  5. FeatureTests and UITests pass on phone then tablet, one invocation at a time, with strict no-cache lint.
+  6. CAP-17-02, CAP-17-03, CAP-17-05 and the moved parts of CAP-17-01/06 are listed as moved to Phase 18, never as satisfied.
+  7. Phase 17 closes only through the GSD close steps: the execute-phase gates (code review, regression gate, `gsd-verifier` writing `17-VERIFICATION.md`), then verify-work (UAT), secure-phase and validate-phase.
 
-**Plans**: 5/24 plans executed and53 tasks in24 sequential waves. Execute17-01,17-24 (wave2, measured environment then tracked pin),17-02–17-07,17-11 (wave9),17-08 (wave10),17-09 (wave11),17-10 (wave12), then17-12–17-23. Native dispatch precedes expansion.17-14-T3 runs complete clean-checkout/Release acceptance only after17-14-T1 andT2 verify and commit their producers.
+**Plans**: 7/13 plans executed (11 plans moved to Phase 18 and marked `status: superseded`). Remaining order: 17-16, 17-17, 17-18, 17-19 (owner checkpoint), 17-14 (T2 only), 17-23.
 
 Plans:
 **Wave 1**
@@ -1282,80 +1287,100 @@ Plans:
 
 - [x] 17-04-PLAN.md — Activate isolated offline capture scenes through existing app launch
 
-**Wave 6** *(ready; 17-04 complete; The agent prepares explicit-set galleries and fixtures)*
+**Wave 6** *(complete)*
 
-- [ ] 17-05-PLAN.md — Drive verified native app screens and capture normal device frames
+- [x] 17-05-PLAN.md — Drive verified native app screens and capture normal device frames
 
-**Wave 7** *(blocked on Wave 6 completion)*
+**Wave 7** *(complete; open owner review superseded by the 2026-11-02 website approval)*
 
-- [ ] 17-06-PLAN.md — Render deterministic Live Text and coherent Downloads in actual UI
+- [x] 17-06-PLAN.md — Render deterministic Live Text and coherent Downloads in actual UI
 
-**Wave 8** *(blocked on Wave 7 completion)*
+**Wave 8** *(ready)*
 
-- [ ] 17-07-PLAN.md — Produce all 384 marketing outputs and a complete local handoff
+- [ ] 17-16-PLAN.md — Verify the landed size-class view layouts (closed as landed via `261015-duo-session-record`)
 
 **Wave 9** *(blocked on Wave 8 completion)*
 
-- [ ] 17-11-PLAN.md — Establish public native dispatch before scenario expansion (wave9)
+- [ ] 17-17-PLAN.md — Verify the landed Home and Library gallery routing by window size classes
 
 **Wave 10** *(blocked on Wave 9 completion)*
 
-- [ ] 17-08-PLAN.md — Expand regression coverage for browsing and gallery content
+- [ ] 17-18-PLAN.md — Verify the landed Search and Downloads routing and the removed idiom helper
 
-**Wave 11** *(blocked on Wave 10 completion)*
+**Wave 11** *(blocked on Wave 10 completion; owner checkpoint)*
 
-- [ ] 17-09-PLAN.md — Cover reader modes and overlays across complete regression axes
+- [ ] 17-19-PLAN.md — Verify Settings presentation, census the remaining idiom reads and record the owner's keep/change decisions
 
 **Wave 12** *(blocked on Wave 11 completion)*
 
-- [ ] 17-10-PLAN.md — Cover settings, utilities and remaining presentation states
+- [ ] 17-14-PLAN.md — Prove Release ships and activates no capture facilities (T2 only; T1/T3 moved to Phase 18)
 
 **Wave 13** *(blocked on Wave 12 completion)*
 
-- [ ] 17-12-PLAN.md — Compare native and hosted images strictly and build the review report
+- [ ] 17-23-PLAN.md — Verify the reduced phase delivery and record moved requirements honestly
 
-**Wave 14** *(blocked on Wave 13 completion)*
+**Moved to Phase 18** *(owner decision 2026-11-03, msg 1305; plan files kept in place with `status: superseded`)*:
 
-- [ ] 17-13-PLAN.md — Review and approve the initial complete snapshot baseline
-
-**Wave 15** *(blocked on Wave 14 completion)*
-
-- [ ] 17-14-PLAN.md — Gate every PR and release on full snapshots and Release isolation
-
-**Wave 16** *(blocked on Wave 15 completion)*
-
-- [ ] 17-15-PLAN.md — Document and validate reusable Xcode agent preview review
-
-**Wave 17** *(blocked on Wave 16 completion)*
-
-- [ ] 17-16-PLAN.md — Audit idiom-driven layout and migrate view-only decisions
-
-**Wave 18** *(blocked on Wave 17 completion)*
-
-- [ ] 17-17-PLAN.md — Route Home and Favorites gallery presentation from live layout traits
-
-**Wave 19** *(blocked on Wave 18 completion)*
-
-- [ ] 17-18-PLAN.md — Route Search and Downloads by traits and remove obsolete idiom helper
-
-**Wave 20** *(blocked on Wave 19 completion)*
-
-- [ ] 17-19-PLAN.md — Migrate Settings and reader layout decisions and close idiom census
-
-**Wave 21** *(blocked on Wave 20 completion)*
-
-- [ ] 17-20-PLAN.md — Review and approve post-audit snapshot changes
-
-**Wave 22** *(blocked on Wave 21 completion)*
-
-- [ ] 17-21-PLAN.md — Replace provisional galleries with final owner selections
-
-**Wave 23** *(blocked on Wave 22 completion)*
-
-- [ ] 17-22-PLAN.md — Hand off sources to the designer and validate promotional delivery
-
-**Wave 24** *(blocked on Wave 23 completion)*
-
-- [ ] 17-23-PLAN.md — Verify complete phase delivery and preserve unresolved evidence honestly
+- 17-07-PLAN.md — Produce all 384 marketing outputs and a complete local handoff
+- 17-08-PLAN.md — Expand regression coverage for browsing and gallery content
+- 17-09-PLAN.md — Cover reader modes and overlays across complete regression axes
+- 17-10-PLAN.md — Cover settings, utilities and remaining presentation states
+- 17-11-PLAN.md — Establish public native dispatch before scenario expansion
+- 17-12-PLAN.md — Compare native and hosted images strictly and build the review report
+- 17-13-PLAN.md — Review and approve the initial complete snapshot baseline
+- 17-14 T1/T3 — Full-matrix PR/release snapshot gate and clean-checkout acceptance
+- 17-15-PLAN.md — Document and validate reusable Xcode agent preview review
+- 17-20-PLAN.md — Review and approve post-audit snapshot changes (no longer needed separately: the layout migration already landed, so Phase 18's single baseline approval covers it)
+- 17-21-PLAN.md — Replace provisional galleries with final owner selections
+- 17-22-PLAN.md — Hand off sources to the designer and validate promotional delivery
 
 Planning artifacts do not claim executed implementation, completed approvals or phase completion. Current context, source audit and validation strategy govern execution.
+
+### Phase 18: 3.0 Release Readiness: Age Wall, Consent, Marketplace Distribution & Visual Regression
+
+**Goal**: Make 3.0 releasable through the existing GitHub/AltStore Classic channel and through AltStore PAL and other potential marketplaces. Every build gains a first-launch age wall, analytics consent and comment moderation (App Review Guideline 1.2, part of the notarization subset). Add the marketplace build, listing and notarization pipeline, fix the release mechanics, run the two outstanding real-device checks, and complete the visual-regression and marketing work moved from Phase 17, covering the new screens too. The last plan revises analytics for everything this phase changes, including the install source.
+**Depends on**: Phase 17
+**Requirements**: REL-18-01, DIST-18-01, AGE-18-01, CONSENT-18-01, UGC-18-01, VIS-18-01, MKT-18-01, DIST-18-02, DIST-18-03, DEV-18-01, ANALYTICS-02; moved from Phase 17: CAP-17-02, CAP-17-03, CAP-17-05 and the moved parts of CAP-17-01 and CAP-17-06.
+
+**Scope and owner decisions**:
+
+1. Owner msg 1305 (2026-11-03): Phase 18 is the remaining 3.0 phase. Snapshot tests (17-08 to 17-13, 17-14 T1/T3, 17-15, 17-20), the 384 marketing export (17-07, 17-21) and AltStore promotional images (17-22) are not deferred past 3.0; they move here.
+2. Owner msg 1287: Phase 18 takes all implementation needed for AltStore PAL and other potential marketplaces. Owner msg 1289: analytics also tracks the marketplace/install source; the analytics revision for that and the other Phase 18 changes is the last plan.
+3. Owner msg 1294 and research msg 1299: comment report, block user, contact details and a posting filter ship to all users in every build.
+4. The age wall and analytics consent are standards for every build (2026-11-02 deferred items, wording kept in STATE.md and REQUIREMENTS.md).
+5. Apple-service actions (App IDs, the app record, distribution certificates, API keys, marketplace registration, trader status) happen in the collaborator's App Store Connect account, by the collaborator or with the owner's explicit authorization at that time; agents never create them on their own.
+6. External dependencies: the privacy policy and support pages are website work owned by another team member; the website's adult-mode declaration uses the age-wall wording. This phase records the URLs it needs and waits for them.
+
+**Success Criteria** (what must be TRUE):
+
+  1. A 3.0 release run produces a GitHub release whose tag matches the AltStore download URL, with a build number above 158, `MKSellsDigitalGoods` set to `NO`, and an AltStore Classic listing that keeps the version history and shows non-explicit screenshots.
+  2. On first launch, before any content is shown or any network request is made, the age wall blocks the app until the user confirms the recorded wording; there is no skip.
+  3. No analytics are sent and the analytics SDK is not started until the user chooses a level; the levels include none and can be changed in Settings.
+  4. Every comment can be reported (E-Hentai's own report option where it exists, otherwise the support contact), every comment author can be blocked on this device, contact details appear on the support page and in Settings, and comment posting passes a filter, in every build.
+  5. The snapshot regression matrix covers every screen including the age wall, consent and comment-moderation UI, with strict never-record comparison, one owner-approved baseline and a full CI gate on PRs and releases.
+  6. The marketing export, final owner gallery selection, 384 regeneration and designer-made AltStore promotional images are delivered and owner-approved.
+  7. A marketplace build with its own bundle ID, a PAL source JSON (`marketplaceID`, `nsfw: true`, ADP download URLs), all-ages icon and listing screenshots, in-app and listing privacy policy, a support URL, and no "Apple-approved" wording exist.
+  8. A CI job submits for notarization, waits for the ADP and publishes it; whether an App Manager API key can submit is tested and recorded.
+  9. The iPad Gallery Detail stall is checked on a Release build and continued background downloads are checked on an iPhone, on owner hardware.
+  10. Analytics record the install source and the Phase 18 flows under the consent levels, as the final plan.
+
+**Plans**: 0 plans (outline only; PLAN files come from `/gsd-plan-phase 18`, which may split or renumber these steps).
+
+Ordered plan outline:
+
+- **Step 1:** Release mechanics and marketplace plumbing (REL-18-01, DIST-18-01): match the tag and the AltStore `downloadURL` in both release workflows; raise the build number above 158; keep AltStore.json version history instead of overwriting; add `MKSellsDigitalGoods=NO`; marketplace build flavor with its own bundle ID through the existing bundle-ID suffix setting. **Checkpoint (owner):** remove or rename the existing `3.0.0` tag, approved at that time.
+- **Step 2:** Age wall (AGE-18-01).
+- **Step 3:** Analytics consent (CONSENT-18-01), replacing Phase 14's on-by-default opt-out.
+- **Step 4:** Comment report, block, contact details and posting filter (UGC-18-01).
+- **Step 5:** Snapshot test scenarios, real-app public dispatch and strict compare/report covering all screens, including the new age-wall, consent and comment UI (VIS-18-01; from 17-08 to 17-12).
+- **Step 6:** **Checkpoint (owner):** one baseline approval of the complete snapshot set (VIS-18-01; from 17-13). The post-layout re-approval 17-20 is not needed separately because the layout migration already landed before the baseline.
+- **Step 7:** CI snapshot gate on every PR and release plus preview review docs (VIS-18-01; from 17-14 T1/T3 and 17-15); the release gate repeats the Release isolation scan on the final 3.0 build.
+- **Step 8:** Marketing export tooling, final gallery selection and 384 regeneration (MKT-18-01; from 17-07 and 17-21). **Checkpoint (owner):** final gallery selection.
+- **Step 9:** AltStore/PAL listing assets: all-ages icon and screenshots, designer promotional images, PAL source JSON, privacy and support URLs, wording check (DIST-18-02, MKT-18-01; from 17-22). **Checkpoint (owner):** promotional images and listing assets. Depends on the website's privacy and support pages.
+- **Step 10:** Notarization pipeline: signed archive, notarization submission through the collaborator's account, ADP wait and publish; test whether an App Manager API key can submit (DIST-18-03). **Checkpoint (collaborator and owner):** account setup, keys and the first submission.
+- **Step 11:** Real-device checks: iPad Gallery Detail stall on a Release build, continued background downloads on an iPhone (DEV-18-01). **Checkpoint (owner hardware).**
+- **Step 12:** **Last:** analytics revision, including marketplace/install-source tracking and the signals for every Phase 18 change, under the consent levels (ANALYTICS-02).
+
+Plans:
+
+- [ ] TBD (run /gsd-plan-phase 18 to break down)
