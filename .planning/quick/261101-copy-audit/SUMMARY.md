@@ -46,8 +46,9 @@ information and scope must match. zh-Hans and zh-Hant differ only in regional vo
 - Kept on purpose: 申訴 for Copyright Claim, SNI 阻断, 屏蔽 and 排除, `not_my_president`, ko Watched, 归档 and 壓縮檔 for
   Archive, and the `ja` Home card descriptions, which are fragments and carry no sentence ending.
 - The E-Hentai settings page still has wording differences between zh-Hans and zh-Hant, because that page changes only
-  for real errors, punctuation and the site's newer text. Punctuation in 15 of its zh-Hant strings was corrected. Its
-  mix of 你 and 您 and the English glosses in zh-Hant `display_mode.*` were left alone.
+  for real errors, punctuation and the site's newer text. Punctuation in 15 of its zh-Hant strings was corrected, and
+  the owner asked on 2026-11-02 to replace its five remaining 您 with 你, so Chinese now uses 你 everywhere. The English
+  glosses in zh-Hant `display_mode.*` were left alone.
 
 ## Everyday-usage baseline
 
