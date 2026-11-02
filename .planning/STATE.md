@@ -21,6 +21,13 @@ source_head: af00e0da93
 
 # Project State
 
+## Search range indicator setting — 2026-11-02
+
+The E-Hentai settings section now mirrors the site: its question as the header, and a picker with Normal and Disabled
+in place of a toggle, in all six languages. The section was rendered but not seen inside the running app, because that
+page needs a login. A side-by-side pass then corrected the page's zh-Hant and zh-Hans strings whose meaning differed,
+leaving differences of wording and regional vocabulary. [Quick task](quick/261102-search-range-setting/SUMMARY.md).
+
 ## Gallery rating display — 2026-11-02
 
 Gallery Info now shows the average to two decimals and the user's rating to one, instead of truncating them. The parser
