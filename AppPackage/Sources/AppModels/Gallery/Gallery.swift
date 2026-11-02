@@ -40,11 +40,7 @@ public struct Gallery: Identifiable, Codable, Equatable, Hashable, Sendable {
         uploader: "Anonymous",
         pageCount: 1,
         postedDate: .now,
-        coverURL: URL(
-            string: "https://github.com/"
-                + "EhPanda-Team/Imageset/blob/"
-                + "main/JPGs/2.jpg?raw=true"
-        ),
+        coverURL: URL(string: "https://picsum.photos/id/1015/400/566"),
         galleryURL: nil
     )
 

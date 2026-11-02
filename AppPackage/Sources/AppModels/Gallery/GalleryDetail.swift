@@ -69,11 +69,7 @@ public struct GalleryDetail: Codable, Equatable, Sendable {
         language: .japanese,
         uploader: "Anonymous",
         postedDate: .distantPast,
-        coverURL: URL(
-            string: "https://github.com/"
-                + "EhPanda-Team/Imageset/blob/"
-                + "main/JPGs/2.jpg?raw=true"
-        ),
+        coverURL: Gallery.preview.coverURL,
         favoritedCount: 514,
         pageCount: 114,
         sizeCount: 514,
