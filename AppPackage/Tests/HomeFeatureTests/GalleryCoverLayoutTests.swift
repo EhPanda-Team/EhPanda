@@ -116,7 +116,9 @@ struct GalleryCoverLayoutTests {
             gallery: gallery, currentID: gallery.id, colors: [], maximumHeight: 290,
             showsRichInformation: true, webImageSuccessAction: { _ in }
         )
-        let size = measure(content, textSize: textSize, width: 1000)
+        // The title's flexible frame takes any height it is offered, so measure the ideal height:
+        // the carousel lays its cards out at that height through its own `fixedSize`.
+        let size = measure(content.fixedSize(horizontal: false, vertical: true), textSize: textSize, width: 1000)
         #expect(size.width <= 1000)
         #expect(size.height >= 274)
         if textSize == .large { #expect(size.height < 300) }
