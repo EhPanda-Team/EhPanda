@@ -91,6 +91,8 @@ final class LandscapePaneUITests: XCTestCase {
 
     func testWideSlideshowRevealsNeighborsAndPreservesSelectionAcrossRotation() throws {
         try XCTSkipUnless(!isDuo)
+        // `HomeSlideshowSizing` caps the card at the owner's 751-point reference in a wide window.
+        let landscapeCardWidth: CGFloat = 751
         let originalOrientation = XCUIDevice.shared.orientation
         addTeardownBlock { XCUIDevice.shared.orientation = originalOrientation }
         XCUIDevice.shared.orientation = .landscapeLeft
@@ -98,7 +100,7 @@ final class LandscapePaneUITests: XCTestCase {
         addTeardownBlock { app.terminate() }
         try app.launchStubbed(extraEnvironment: ["EHPANDA_AUTOMATION_TAB": "home"])
         let carousel = app.requireElement("home_carousel", matching: .scrollView)
-        let landscapeCard = try centeredSlideshowCard(in: carousel, width: 720)
+        let landscapeCard = try centeredSlideshowCard(in: carousel, width: landscapeCardWidth)
         let initialLabel = landscapeCard.label
         let initialHeight = landscapeCard.frame.height
         let visible = carousel.buttons.allElementsBoundByIndex.map(\.frame).filter {
@@ -127,12 +129,12 @@ final class LandscapePaneUITests: XCTestCase {
 
         XCUIDevice.shared.orientation = .landscapeLeft
         assertSingleHomePane(in: app)
-        XCTAssertEqual(try centeredSlideshowCard(in: carousel, width: 720).label, initialLabel)
+        XCTAssertEqual(try centeredSlideshowCard(in: carousel, width: landscapeCardWidth).label, initialLabel)
         carousel.swipeLeft()
-        let nextCard = try centeredSlideshowCard(in: carousel, width: 720)
+        let nextCard = try centeredSlideshowCard(in: carousel, width: landscapeCardWidth)
         XCTAssertNotEqual(nextCard.label, initialLabel)
         carousel.swipeRight()
-        XCTAssertEqual(try centeredSlideshowCard(in: carousel, width: 720).label, initialLabel)
+        XCTAssertEqual(try centeredSlideshowCard(in: carousel, width: landscapeCardWidth).label, initialLabel)
     }
 
     private func centeredSlideshowCard(in carousel: XCUIElement, width: CGFloat) throws -> XCUIElement {
