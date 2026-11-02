@@ -297,6 +297,11 @@ final class AccessibilityAuditUITests: XCTestCase {
         infoButton.tap()
         requireNavigationTitle("Gallery Info", in: app)
         try audit(app, surface: "Detail › Gallery Info")
+        // The fixture's stars round to 4.5, while its label reads the real average.
+        let averageRating = app.descendants(matching: .any)
+            .matching(NSPredicate(format: "label == %@", "Average Rating")).firstMatch
+        for _ in 0..<8 where !averageRating.exists { app.swipeUp() }
+        XCTAssertEqual(averageRating.value as? String, "4.74")
     }
 
     func testCommentsAudit() throws {
