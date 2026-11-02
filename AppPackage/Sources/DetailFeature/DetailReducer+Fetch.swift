@@ -47,7 +47,7 @@ extension DetailReducer {
                     if let config = response.galleryState.previewConfig {
                         state.previewConfig = config
                     }
-                    state.userRating = Int(response.galleryDetail.userRating) * 2
+                    state.userRating = Int(response.galleryDetail.userRating * 2)
                     if shouldRequestVersionMetadata(state: state) {
                         effects.append(.send(.fetchVersionMetadataIfNeeded))
                     }
