@@ -62,7 +62,7 @@ struct DescriptionSection: View {
         DescScrollInfo(
             title: .fileSize,
             description: galleryDetail.sizeType,
-            value: .init(galleryDetail.sizeCount),
+            value: galleryDetail.formattedSizeCount(),
             accessibilityDescription: galleryDetail.accessibilitySizeUnit(
                 quantity: Double(galleryDetail.sizeCount)
             )
