@@ -4,22 +4,34 @@ milestone: v3.0.0
 current_phase: 17
 current_phase_name: Screenshot Automation, Visual Regression & OS 27 Modernization
 status: executing
-stopped_at: Completed 17-17-PLAN.md; next execute 17-18, 17-19 (owner checkpoint), 17-14 (T2) and 17-23, then the Phase 17 close steps
-last_updated: "2026-11-02T16:59:23.000Z"
+stopped_at: Completed 17-18-PLAN.md; next execute 17-19 (owner checkpoint), 17-14 (T2) and 17-23, then the Phase 17 close steps
+last_updated: "2026-11-02T17:04:18.000Z"
 last_activity: 2026-11-03
-last_activity_desc: 17-17 verified Home and Library gallery routing at the app root by window size classes (routing tests pass on phone and tablet); no app source change
+last_activity_desc: 17-18 verified Search and Downloads routing at the app root and the removed routeGalleryDetail helper (tests pass on phone and tablet); no app source change; next 17-19 with its owner checkpoint
 state_head: 668cca623c228df536242488ae3a6923d85982da
 progress:
   total_phases: 18
   completed_phases: 15
   total_plans: 287
-  completed_plans: 283
+  completed_plans: 284
   percent: 83
 milestone_name: )
 source_head: 2519060029
 ---
 
 # Project State
+
+## 17-18 landed Search and Downloads routing verified — 2026-11-03
+
+Search and Downloads taps send `openGalleryDetail` to the app root, which applies the same
+both-regular rule (Downloads' modal is seeded from the download); `routeGalleryDetail` has no
+reference left and GalleryNavigation keeps `presentationEffect`, `nextScreen` and
+`appendGuardingDuplicate`. The migration's Downloads diff is routing-only, so the manifest, deletion
+and dialog-anchor rules are untouched. AppDownloadDetailRoutingTests, DownloadAutomationTests and
+GalleryNavigationTests pass on iPhone Air then iPad Pro 11-inch (11 cases each, no Repetition). No
+app source change. The census items 17-16 to 17-18 hand to 17-19: Home's Duo split-layout read
+(`HomeReducer.usesSplitLayout`). [Summary](phases/17-localized-screenshot-capture-harness/17-18-SUMMARY.md).
+Next: 17-19 (owner keep/change checkpoint).
 
 ## 17-17 landed Home and Library routing verified — 2026-11-03
 
