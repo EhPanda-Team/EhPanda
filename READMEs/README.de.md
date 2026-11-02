@@ -19,8 +19,7 @@
 1. Lade die IPA-Datei hier herunter: [Releases](https://github.com/EhPanda-Team/EhPanda/releases).
 2. Nutze eine Programm zur Installation von nicht im Appstore gelisteten Dateien wie z.B. [AltStore](https://altstore.io) um die IPA-Datei zu installieren.
 
-## Systemanforderungen
-Diese App erfordert iOS / iPadOS 27.0 oder neuer.
+<sub>Diese App erfordert iOS / iPadOS 27.0 oder neuer.</sub>
 
 ## Inhalte & Copyright
 Der Inhalt der von dieser App verwaltet wird, wird von E-Hentai geladen. Hierbei handelt es sich um von anderen Nutzern generierten Inhalt.
@@ -44,6 +43,3 @@ Offizielle Releases werden mit Analyse-Zugangsdaten gebaut, die der Release-Work
 [![Twitter](https://img.shields.io/badge/Twitter-2CA5E0?style=for-the-badge&logo=twitter&logoColor=white)](https://twitter.com/ehpandaapp)
 [![Discord](https://img.shields.io/badge/Discord-7289DA?style=for-the-badge&logo=discord&logoColor=white)](https://discord.gg/BSBE9FCBTq)
 [![Telegram](https://img.shields.io/badge/Telegram-858585?style=for-the-badge&logo=telegram&logoColor=white)](https://t.me/ehpanda)
-
-## Screenshots
-https://ehpanda.app

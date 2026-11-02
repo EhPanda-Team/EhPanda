@@ -19,8 +19,7 @@
 1. [Releases](https://github.com/EhPanda-Team/EhPanda/releases) から ipa ファイルを取得。
 2. [AltStore](https://altstore.io) とかで ipa ファイルをデバイスにインストール。
 
-## 必要システム構成
-iOS・iPadOS 27.0 以上が必要です。
+<sub>iOS・iPadOS 27.0 以上が必要です。</sub>
 
 ## コンテンツとその著作権
 本アプリの内容はすべて E-Hentai 由来のもので、E-Hentai の内容もまたすべてユーザー生成コンテンツです。
@@ -44,6 +43,3 @@ EhPanda は、どの機能が使われているかを開発者が把握できる
 [![Twitter](https://img.shields.io/badge/Twitter-2CA5E0?style=for-the-badge&logo=twitter&logoColor=white)](https://twitter.com/ehpandaapp)
 [![Discord](https://img.shields.io/badge/Discord-7289DA?style=for-the-badge&logo=discord&logoColor=white)](https://discord.gg/BSBE9FCBTq)
 [![Telegram](https://img.shields.io/badge/Telegram-858585?style=for-the-badge&logo=telegram&logoColor=white)](https://t.me/ehpanda)
-
-## スクリーンショット
-https://ehpanda.app
