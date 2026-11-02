@@ -4,22 +4,31 @@ milestone: v3.0.0
 current_phase: 17
 current_phase_name: Screenshot Automation, Visual Regression & OS 27 Modernization
 status: executing
-stopped_at: Phase 17 reduced and Phase 18 added (2026-11-03, planning only); next execute 17-16, 17-17, 17-18, 17-19, 17-14 (T2) and 17-23, then the Phase 17 close steps
-last_updated: "2026-11-02T16:42:35.103Z"
+stopped_at: Completed 17-16-PLAN.md; next execute 17-17, 17-18, 17-19 (owner checkpoint), 17-14 (T2) and 17-23, then the Phase 17 close steps
+last_updated: "2026-11-02T16:51:37.000Z"
 last_activity: 2026-11-03
-last_activity_desc: Owner msg 1305 reduces Phase 17 (CAP-17-04 and CAP-17-07 amended, eleven plans moved with status superseded) and adds Phase 18 for 3.0 release readiness with eleven requirements; planning documents only, Phase 17 not complete and no VERIFICATION.md written
+last_activity_desc: 17-16 verified the landed size-class view layouts at HEAD (five sites, no idiom read; Home and Search tests pass on phone and tablet); no app source change
 state_head: 668cca623c228df536242488ae3a6923d85982da
 progress:
   total_phases: 18
   completed_phases: 15
   total_plans: 287
-  completed_plans: 281
+  completed_plans: 282
   percent: 83
 milestone_name: )
 source_head: 2519060029
 ---
 
 # Project State
+
+## 17-16 landed view layouts verified — 2026-11-03
+
+Home Toplists, Search keywords, TagSuggestion, GalleryCardCell and NewDawn read size classes, the
+system's suggestion placement or container fitting at HEAD; `e89e896634` and `0a42b7fbb4` are
+ancestors and an idiom grep over the five files finds nothing for the 17-19 census. HomeFeatureTests
+and SearchFeatureTests pass on iPhone Air then iPad Pro 11-inch (90 each, no Repetition). No app
+source change. [Audit](phases/17-localized-screenshot-capture-harness/17-LAYOUT-AUDIT.md),
+[summary](phases/17-localized-screenshot-capture-harness/17-16-SUMMARY.md). Next: 17-17.
 
 ## Phase 17 reduced, Phase 18 added — 2026-11-03
 
