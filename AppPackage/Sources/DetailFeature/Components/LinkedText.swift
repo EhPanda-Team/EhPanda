@@ -11,187 +11,51 @@ private let linkDetector: NSDataDetector? = {
     }
 }()
 
-private struct LinkColoredText: View {
-    private enum Component {
-        case text(String)
-        case link(title: String, url: URL)
-    }
-
-    private let text: String
-    private let components: [Component]
-
-    init(text: String, links: [NSTextCheckingResult]) {
-        self.text = text
-        let nsText = text as NSString
-
-        var components: [Component] = []
-        var index = 0
-        for result in links {
-            if result.range.location > index {
-                let trimmedText = nsText.substring(
-                    with: NSRange(location: index, length: result.range.location - index)
-                )
-                components.append(.text(trimmedText))
-            }
-            let linkText = nsText.substring(with: result.range)
-            if let url = result.url {
-                components.append(.link(title: linkText, url: url))
-            } else {
-                components.append(.text(linkText))
-            }
-            index = result.range.location + result.range.length
-        }
-
-        if index < nsText.length {
-            components.append(.text(nsText.substring(from: index)))
-        }
-
-        self.components = components
-    }
-
-    var body: Text {
-        var result = AttributedString()
-        for component in components {
-            switch component {
-            case .text(let text):
-                result.append(AttributedString(text))
-            case .link(let text, _):
-                var link = AttributedString(text)
-                link.foregroundColor = .accentColor
-                result.append(link)
-            }
-        }
-        return Text(result)
-    }
-}
-
+/// A comment's text with its links tappable. `Text` lays out the author's styles and the links
+/// together, so a link lands where it is drawn at any size, weight or slant.
 struct LinkedText: View {
-    private let text: String
+    private let text: AttributedString
     private let action: (URL) -> Void
-    private let links: [NSTextCheckingResult]
 
-    init (text: String, action: @escaping (URL) -> Void) {
+    /// Links whatever the detector finds in `text`.
+    init(text: AttributedString, action: @escaping (URL) -> Void) {
+        self.text = Self.detectingLinks(in: text)
+        self.action = action
+    }
+
+    /// Links the whole of `text` to `link`.
+    init(text: AttributedString, link: URL, action: @escaping (URL) -> Void) {
+        var text = text
+        text.link = link
         self.text = text
         self.action = action
-        links = Self.linkMatches(in: text)
     }
 
-    /// The URL ranges of `text`, from the same detector the view colours and taps by — so a
-    /// caller listing a comment's links names exactly the runs this view makes tappable.
-    static func linkMatches(in text: String) -> [NSTextCheckingResult] {
+    /// The URL ranges of `text`, from the same detector the view links by — so a caller listing a
+    /// comment's links names exactly the runs this view makes tappable.
+    nonisolated static func linkMatches(in text: String) -> [NSTextCheckingResult] {
         let wholeString = NSRange(location: 0, length: (text as NSString).length)
         return linkDetector?.matches(in: text, options: [], range: wholeString) ?? []
     }
 
+    nonisolated static func detectingLinks(in text: AttributedString) -> AttributedString {
+        let string = String(text.characters)
+        var result = text
+        for match in linkMatches(in: string) {
+            guard let url = match.url,
+                  let stringRange = Range(match.range, in: string),
+                  let range = Range(stringRange, in: result)
+            else { continue }
+            result[range].link = url
+        }
+        return result
+    }
+
     var body: some View {
-        LinkColoredText(text: text, links: links)
-            .font(.body) // enforce here because the link tapping won't be right if it's different
-            .overlay {
-                LinkTapOverlay(text: text, action: action, links: links)
-            }
-    }
-}
-
-private struct LinkTapOverlay: UIViewRepresentable {
-    private let text: String
-    private let action: (URL) -> Void
-    private let links: [NSTextCheckingResult]
-
-    init(text: String, action: @escaping (URL) -> Void, links: [NSTextCheckingResult]) {
-        self.text = text
-        self.action = action
-        self.links = links
-    }
-
-    func makeUIView(context: Self.Context) -> LinkTapOverlayView {
-        let view = LinkTapOverlayView()
-        view.textContainer = context.coordinator.textContainer
-
-        view.isUserInteractionEnabled = true
-        let tapGesture = UITapGestureRecognizer(
-            target: context.coordinator,
-            action: #selector(Coordinator.didTapLabel(_:))
-        )
-        tapGesture.delegate = context.coordinator
-        view.addGestureRecognizer(tapGesture)
-
-        return view
-    }
-
-    func updateUIView(_ uiView: LinkTapOverlayView, context: Self.Context) {
-        let attributedString = NSAttributedString(
-            string: text, attributes: [.font: UIFont.preferredFont(forTextStyle: .body)]
-        )
-        let textStorage = NSTextStorage(attributedString: attributedString)
-        textStorage.addLayoutManager(context.coordinator.layoutManager)
-        context.coordinator.textStorage = textStorage
-    }
-
-    func makeCoordinator() -> Coordinator {
-        Coordinator(overlay: self)
-    }
-
-    final class Coordinator: NSObject, UIGestureRecognizerDelegate {
-        let overlay: LinkTapOverlay
-
-        let layoutManager = NSLayoutManager()
-        let textContainer = NSTextContainer(size: .zero)
-        var textStorage: NSTextStorage?
-
-        init(overlay: LinkTapOverlay) {
-            self.overlay = overlay
-
-            textContainer.lineFragmentPadding = 0
-            textContainer.lineBreakMode = .byWordWrapping
-            textContainer.maximumNumberOfLines = 0
-            layoutManager.addTextContainer(textContainer)
-        }
-
-        func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldReceive touch: UITouch) -> Bool {
-            guard let view = gestureRecognizer.view else { return false }
-            let location = touch.location(in: view)
-            let result = link(at: location)
-            return result != nil
-        }
-
-        @objc func didTapLabel(_ gesture: UITapGestureRecognizer) {
-            guard let view = gesture.view else { return }
-            let location = gesture.location(in: view)
-            guard let result = link(at: location) else {
-                return
-            }
-
-            guard let url = result.url else {
-                return
-            }
-
-            overlay.action(url)
-        }
-
-        private func link(at point: CGPoint) -> NSTextCheckingResult? {
-            guard !overlay.links.isEmpty else {
-                return nil
-            }
-
-            let indexOfCharacter = layoutManager.characterIndex(
-                for: point,
-                in: textContainer,
-                fractionOfDistanceBetweenInsertionPoints: nil
-            )
-
-            return overlay.links.first(where: { $0.range.contains(indexOfCharacter) })
-        }
-    }
-}
-
-private final class LinkTapOverlayView: UIView {
-    var textContainer: NSTextContainer?
-
-    override func layoutSubviews() {
-        super.layoutSubviews()
-
-        var newSize = bounds.size
-        newSize.height += 20 // need some extra space here to actually get the last line
-        textContainer?.size = newSize
+        Text(text)
+            .environment(\.openURL, OpenURLAction { url in
+                action(url)
+                return .handled
+            })
     }
 }

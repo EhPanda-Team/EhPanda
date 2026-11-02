@@ -633,7 +633,7 @@ private func previewComment(
     .init(
         votedUp: votedUp, votedDown: false, votable: true, editable: false,
         score: score, author: author,
-        contents: [.init(type: .plainText, text: text)],
+        contents: [.init(type: .plainText, text: AttributedString(text))],
         commentID: id, commentDate: .now
     )
 }

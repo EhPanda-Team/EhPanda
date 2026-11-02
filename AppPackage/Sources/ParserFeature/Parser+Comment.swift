@@ -2,6 +2,7 @@ import AppModels
 import AppTools
 import Foundation
 import Kanna
+import SwiftUI
 
 extension Parser {
     // swiftlint:disable:next cyclomatic_complexity function_body_length
@@ -90,15 +91,16 @@ private extension Parser {
 ///
 /// The text has to come from text nodes, which hold what the author wrote with the site's escaping
 /// undone exactly once. Serialized HTML is the wrong source: it carries inline tags and re-escapes
-/// `<`, `>` and `&`, and no replacing can tell that markup from a `<strong>` the author typed.
+/// `<`, `>` and `&`, and no replacing can tell that markup from a `<strong>` the author typed. The
+/// elements around a text node become its attributes, so the styles survive as data the views render.
 private struct CommentContentBuilder {
     private var contents = [CommentContent]()
-    private var pendingText = ""
+    private var pendingText = AttributedString()
 
     /// `node()` rather than `children`, which lists elements only and would lose the text.
-    mutating func appendChildren(of parent: any XMLElement) {
+    mutating func appendChildren(of parent: any XMLElement, attributes: AttributeContainer = .init()) {
         for child in parent.xpath("node()") {
-            append(child)
+            append(child, attributes: attributes)
         }
     }
 
@@ -107,28 +109,57 @@ private struct CommentContentBuilder {
         return contents
     }
 
-    private mutating func append(_ node: any XMLElement) {
+    private mutating func append(_ node: any XMLElement, attributes: AttributeContainer) {
         switch node.tagName {
         case "text":
-            pendingText += node.text ?? ""
+            pendingText.append(AttributedString(node.text ?? "", attributes: attributes))
         case "br":
-            pendingText += "\n"
+            pendingText.append(AttributedString("\n", attributes: attributes))
         case "a":
-            appendLink(node)
+            appendLink(node, attributes: attributes)
         case "img":
             appendImage(node)
         case "div":
             // Not comment text: no saved comment has one, and the parser has always left them out.
             break
         default:
-            // Inline formatting such as `strong`, `em` or `span`: its text belongs to the run.
-            appendChildren(of: node)
+            appendChildren(of: node, attributes: Self.attributes(attributes, addingStyleOf: node))
         }
     }
 
-    private mutating func appendLink(_ link: any XMLElement) {
+    /// What an element adds to the text inside it. Saved and live pages write `[b]` as `strong`, `[i]`
+    /// as `em`, `[s]` as `del` and `[u]` as a `span` with an inline `text-decoration`; the other tags
+    /// are their HTML equivalents. Any other element adds nothing, and its text still reads.
+    private static func attributes(
+        _ attributes: AttributeContainer, addingStyleOf element: any XMLElement
+    ) -> AttributeContainer {
+        var attributes = attributes
+        switch element.tagName {
+        case "strong", "b":
+            attributes.inlinePresentationIntent = (attributes.inlinePresentationIntent ?? []).union(.stronglyEmphasized)
+        case "em", "i":
+            attributes.inlinePresentationIntent = (attributes.inlinePresentationIntent ?? []).union(.emphasized)
+        case "del", "s", "strike":
+            attributes.swiftUI.strikethroughStyle = .single
+        case "u", "ins":
+            attributes.swiftUI.underlineStyle = .single
+        case "span":
+            let style = element["style"] ?? ""
+            if style.contains("underline") {
+                attributes.swiftUI.underlineStyle = .single
+            }
+            if style.contains("line-through") {
+                attributes.swiftUI.strikethroughStyle = .single
+            }
+        default:
+            break
+        }
+        return attributes
+    }
+
+    private mutating func appendLink(_ link: any XMLElement, attributes: AttributeContainer) {
         guard let href = link["href"], let url = URL(string: href) else {
-            appendChildren(of: link)
+            appendChildren(of: link, attributes: attributes)
             return
         }
         flushText()
@@ -148,12 +179,14 @@ private struct CommentContentBuilder {
             } else {
                 contents.append(CommentContent(type: .linkedImg, link: url, imgURL: imgURL))
             }
-        } else if let title = link.text?.trimmingCharacters(in: .whitespacesAndNewlines) {
-            if !title.isEmpty {
-                contents.append(CommentContent(type: .linkedText, text: title, link: url))
-            }
-        } else {
+        } else if link.text == nil {
             contents.append(CommentContent(type: .singleLink, link: url))
+        } else {
+            var title = CommentContentBuilder()
+            title.appendChildren(of: link, attributes: attributes)
+            if let text = Self.trimmed(title.pendingText) {
+                contents.append(CommentContent(type: .linkedText, text: text, link: url))
+            }
         }
     }
 
@@ -170,10 +203,21 @@ private struct CommentContentBuilder {
     }
 
     private mutating func flushText() {
-        let text = pendingText.trimmingCharacters(in: .whitespacesAndNewlines)
-        pendingText = ""
-        if !text.isEmpty {
+        if let text = Self.trimmed(pendingText) {
             contents.append(CommentContent(type: .plainText, text: text))
         }
+        pendingText = AttributedString()
+    }
+
+    /// `CharacterSet` rather than `Character.isWhitespace`, which keeps a zero-width space.
+    private static func trimmed(_ text: AttributedString) -> AttributedString? {
+        let isContent = { (character: Character) in
+            !character.unicodeScalars.allSatisfy({ CharacterSet.whitespacesAndNewlines.contains($0) })
+        }
+        let characters = text.characters
+        guard let first = characters.firstIndex(where: isContent),
+              let last = characters.lastIndex(where: isContent)
+        else { return nil }
+        return AttributedString(text[first...last])
     }
 }

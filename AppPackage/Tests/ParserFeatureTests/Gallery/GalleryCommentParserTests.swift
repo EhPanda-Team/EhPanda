@@ -2,6 +2,7 @@ import AppModels
 import Foundation
 import Kanna
 @testable import ParserFeature
+import SwiftUI
 import Testing
 
 struct GalleryCommentParserTests {
@@ -12,7 +13,7 @@ struct GalleryCommentParserTests {
     }
 
     @Test
-    func strongTextBesideAnImageLosesOnlyItsTags() throws {
+    func strongTextBesideAnImageKeepsItsStyle() throws {
         let runs = try parseRuns(
             """
             https://example.com/book<br />If you like please <strong>Support the Artist</strong><br /><br />\
@@ -23,7 +24,9 @@ struct GalleryCommentParserTests {
             runs == [
                 Run(
                     type: .plainText,
-                    text: "https://example.com/book\nIf you like please Support the Artist\n\nThanks"
+                    text: styled("https://example.com/book\nIf you like please ")
+                        + styled("Support the Artist", .bold)
+                        + styled("\n\nThanks")
                 ),
                 Run(type: .singleImg, imgURL: URL(string: "https://ehgt.org/w/cover.webp"))
             ]
@@ -31,24 +34,101 @@ struct GalleryCommentParserTests {
     }
 
     @Test(
-        arguments: [
-            "<strong>word</strong>",
-            "<em>word</em>",
-            "<u>word</u>",
-            "<s>word</s>",
-            #"<span style="color:#f00">word</span>"#,
-            "<strong><em>word</em></strong>"
-        ]
+        arguments: zip(
+            [
+                "<strong>word</strong>",
+                "<b>word</b>",
+                "<em>word</em>",
+                "<i>word</i>",
+                "<del>word</del>",
+                "<s>word</s>",
+                "<strike>word</strike>",
+                "<u>word</u>",
+                "<ins>word</ins>",
+                #"<span style="text-decoration:underline;">word</span>"#,
+                #"<span style="text-decoration:line-through;">word</span>"#,
+                #"<span style="color:#f00">word</span>"#,
+                "<font>word</font>"
+            ],
+            [
+                AttributeContainer.bold, .bold, .italic, .italic,
+                .strikethrough, .strikethrough, .strikethrough,
+                .underline, .underline, .underline, .strikethrough,
+                .init(), .init()
+            ]
+        )
     )
-    func inlineFormattingKeepsItsText(markup: String) throws {
+    func elementStylesItsText(markup: String, style: AttributeContainer) throws {
         let runs = try parseRuns("before \(markup) after")
-        #expect(runs == [Run(type: .plainText, text: "before word after")])
+        #expect(runs == [Run(type: .plainText, text: styled("before ") + styled("word", style) + styled(" after"))])
     }
 
     @Test
-    func spaceBetweenFormattedWordsSurvives() throws {
+    func nestedStylesCombine() throws {
+        let runs = try parseRuns(
+            #"<strong><em><del><span style="text-decoration:underline;">word</span></del></em></strong>"#
+        )
+        var all = AttributeContainer()
+        all.inlinePresentationIntent = [.stronglyEmphasized, .emphasized]
+        all.swiftUI.strikethroughStyle = .single
+        all.swiftUI.underlineStyle = .single
+        #expect(runs == [Run(type: .plainText, text: styled("word", all))])
+    }
+
+    @Test
+    func styleEndsWithItsElementAndAcrossLineBreaks() throws {
+        let runs = try parseRuns("<strong>one<br />two</strong>three")
+        #expect(runs == [Run(type: .plainText, text: styled("one\ntwo", .bold) + styled("three"))])
+    }
+
+    @Test
+    func spaceBetweenStyledWordsSurvivesUnstyled() throws {
         let runs = try parseRuns("<strong>one</strong> <em>two</em>")
-        #expect(runs == [Run(type: .plainText, text: "one two")])
+        #expect(runs == [Run(type: .plainText, text: styled("one", .bold) + styled(" ") + styled("two", .italic))])
+    }
+
+    @Test
+    func trimmingKeepsTheStyleOfWhatRemains() throws {
+        let runs = try parseRuns("  <strong> word 😀 </strong>  <br />")
+        #expect(runs == [Run(type: .plainText, text: styled("word 😀", .bold))])
+    }
+
+    @Test
+    func invisibleSpaceAtTheEdgesIsTrimmed() throws {
+        let runs = try parseRuns("\u{00A0}word\u{200B}")
+        #expect(runs == [Run(type: .plainText, text: "word")])
+    }
+
+    /// The shape of a comment on the live site: `[u][url]` around each link, with `[s]` beside them.
+    @Test
+    func underlinedLinksAndStruckTextReadInOrder() throws {
+        let runs = try parseRuns(
+            """
+            one<span style="text-decoration:underline;"><a href="https://example.com/a">title</a></span>two\
+            <del>gone</del>
+            """
+        )
+        #expect(
+            runs == [
+                Run(type: .plainText, text: "one"),
+                Run(type: .linkedText, text: styled("title", .underline), link: URL(string: "https://example.com/a")),
+                Run(type: .plainText, text: styled("two") + styled("gone", .strikethrough))
+            ]
+        )
+    }
+
+    @Test
+    func styleInsideALinkStaysOnItsWords() throws {
+        let runs = try parseRuns(#"<a href="https://example.com/a">plain <em>slanted</em></a>"#)
+        #expect(
+            runs == [
+                Run(
+                    type: .linkedText,
+                    text: styled("plain ") + styled("slanted", .italic),
+                    link: URL(string: "https://example.com/a")
+                )
+            ]
+        )
     }
 
     /// The site escapes what an author types, so escaped markup is the author's own text and must
@@ -66,9 +146,9 @@ struct GalleryCommentParserTests {
         )
         #expect(
             runs == [
-                Run(type: .plainText, text: "see"),
-                Run(type: .linkedText, text: "this & that", link: URL(string: "https://example.com/a")),
-                Run(type: .plainText, text: "now then")
+                Run(type: .plainText, text: styled("see", .bold)),
+                Run(type: .linkedText, text: styled("this & that", .bold), link: URL(string: "https://example.com/a")),
+                Run(type: .plainText, text: styled("now", .bold) + styled(" then"))
             ]
         )
     }
@@ -184,7 +264,7 @@ struct GalleryCommentParserTests {
 /// A parsed run without its per-parse `id`, so runs compare by what they show.
 private struct Run: Equatable {
     var type: CommentContentType
-    var text: String?
+    var text: AttributedString?
     var link: URL?
     var imgURL: URL?
     var secondLink: URL?
@@ -202,6 +282,33 @@ private extension Run {
             secondImgURL: content.secondImgURL
         )
     }
+}
+
+private extension AttributeContainer {
+    static let bold = {
+        var container = AttributeContainer()
+        container.inlinePresentationIntent = .stronglyEmphasized
+        return container
+    }()
+    static let italic = {
+        var container = AttributeContainer()
+        container.inlinePresentationIntent = .emphasized
+        return container
+    }()
+    static let underline = {
+        var container = AttributeContainer()
+        container.swiftUI.underlineStyle = .single
+        return container
+    }()
+    static let strikethrough = {
+        var container = AttributeContainer()
+        container.swiftUI.strikethroughStyle = .single
+        return container
+    }()
+}
+
+private func styled(_ text: String, _ style: AttributeContainer = .init()) -> AttributedString {
+    AttributedString(text, attributes: style)
 }
 
 private func parseRuns(_ body: String) throws -> [Run] {

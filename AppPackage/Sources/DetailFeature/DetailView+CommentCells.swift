@@ -14,11 +14,13 @@ extension DetailView {
         // 120pt at default (.large); scales with Dynamic Type relative to the card body text style (.body).
         @ScaledMetric(relativeTo: .body) private var cardHeight: CGFloat = 120
 
-        private var content: String {
+        private var content: AttributedString {
             comment.contents
                 .filter({ [.plainText, .linkedText].contains($0.type) })
                 .compactMap(\.text)
-                .joined()
+                .reduce(into: AttributedString()) { result, text in
+                    result.append(text)
+                }
         }
 
         /// The card is one accessibility element: a comment is read as a unit — author, vote,

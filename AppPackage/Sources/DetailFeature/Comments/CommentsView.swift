@@ -153,9 +153,9 @@ extension CommentsView {
         /// The row is one accessibility element: a comment is read as a unit — author, vote,
         /// score, date, then its runs in order — instead of as one stop per run. The vote travels
         /// as the element's value, never as text (the thumb glyph is hidden below), and only while
-        /// a vote exists. The link runs are reached by tap gestures VoiceOver and Voice Control
-        /// cannot see, so every link the comment carries is also a named action on the element;
-        /// the tap gestures stay for sighted users. The swipe actions need nothing here: iOS
+        /// a vote exists. The links sit inside that one element, so every link the comment carries
+        /// is also a named action on it, which is how VoiceOver and Voice Control reach them; taps
+        /// on the text itself stay for sighted users. The swipe actions need nothing here: iOS
         /// surfaces them on the row's element already (`CONTEXTMENU=not-exposed` read, 16-CONTRAST-AUDIT).
         var body: some View {
             let links = links
@@ -170,13 +170,11 @@ extension CommentsView {
                         }
                     case .linkedText:
                         if let text = content.text, let link = content.link {
-                            Text(text).foregroundStyle(.tint)
-                                .onTapGesture { linkAction(link) }
+                            LinkedText(text: text, link: link, action: linkAction)
                         }
                     case .singleLink:
                         if let link = content.link {
-                            Text(link.absoluteString).foregroundStyle(.tint)
-                                .onTapGesture { linkAction(link) }
+                            LinkedText(text: AttributedString(link.absoluteString), link: link, action: linkAction)
                         }
                     case .singleImg, .doubleImg, .linkedImg, .doubleLinkedImg:
                         generateWebImages(
@@ -212,7 +210,7 @@ extension CommentsView {
         private func links(in content: CommentContent) -> [URL] {
             switch content.type {
             case .plainText:
-                content.text.map({ LinkedText.linkMatches(in: $0).compactMap(\.url) }) ?? []
+                content.text.map({ LinkedText.linkMatches(in: String($0.characters)).compactMap(\.url) }) ?? []
             case .linkedText, .singleLink:
                 content.link.map({ [$0] }) ?? []
             case .singleImg, .doubleImg, .linkedImg, .doubleLinkedImg:
