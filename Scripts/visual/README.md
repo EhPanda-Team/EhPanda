@@ -756,3 +756,8 @@ Reading and Live Text share the same source book: English for ja/de, Japanese fo
 locales. Live Text replays recorded Apple Translation results into the app's renderer for the
 selected target locale; it is not evidence of an end-to-end live translation-button interaction.
 The index records all 192 approved image hashes; screenshot files and review sites remain local.
+
+Capture tooling belongs in this app repository; static inputs, the original acquisition archive
+and the manual-comment override belong in the private fixture repository. Use an ignored local
+output directory for captures and review sites. The approved 2026-11-02 review is stored in the
+Codex visualization workspace.

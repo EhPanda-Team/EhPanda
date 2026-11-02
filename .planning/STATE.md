@@ -21,6 +21,15 @@ source_head: 2519060029
 
 # Project State
 
+## History compaction — 2026-11-03
+
+The owner requested fewer commits. The 106 unpushed commits on this branch become 72, rewritten
+in place with SHA references repaired in each historical snapshot; the existing final documentation
+commit carries this record and no commit is appended. Planning-only commits moved forward to join
+their record, and every commit keeps the non-planning tree of its last original commit, so earlier
+build and test evidence keeps its stated scope and no new build or simulator run is claimed. The
+base commit is unchanged. No remote push.
+
 ## Approved Comments screenshot matrix — 2026-11-02
 
 Owner approved the complete 192-image screenshot set after the 14-comment composite on gallery
