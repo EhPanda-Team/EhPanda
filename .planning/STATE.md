@@ -21,6 +21,14 @@ source_head: af00e0da93
 
 # Project State
 
+## Gallery rating display — 2026-11-02
+
+Gallery Info now shows the average to two decimals and the user's rating to one, instead of truncating them. The parser
+takes the site's average rather than the half-star image, which also corrects the Detail page, and a half-star rating
+reopens correctly in the rating control. The File Size row keeps its decimals and shares a format with the Detail page.
+The live site was not checked.
+[Quick task](quick/261102-rating-display/SUMMARY.md).
+
 ## Home test repairs — 2026-11-02
 
 The Home tests that failed regardless of other work now pass. Three were stale, along with a fourth stale test that is
