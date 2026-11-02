@@ -21,6 +21,14 @@ source_head: 2519060029
 
 # Project State
 
+## Comment parser — 2026-11-02
+
+Comments no longer show `&gt;` or literal tags such as `<strong>`, and they now render the author's bold, italic,
+underline and strikethrough. The parser took its text from serialized HTML, so it now walks the DOM (`1ef14ca1e`) and
+keeps the styles in an `AttributedString`, which native `Text` draws together with its links (`5d4c24553`). Chinese and
+Japanese italics stay upright, and editing a comment drops its styles. Underline and strikethrough were not seen in the
+running app, and the 24 website Comments captures predate this. [Quick task](quick/261102-comment-parser/SUMMARY.md).
+
 ## README cleanup and copy audit — 2026-11-02
 
 Screenshots is gone from all six READMEs and System Requirements is now a small note under Installation. The audit's 96
@@ -1316,6 +1324,7 @@ Items acknowledged and carried forward from previous milestone close:
 | Category | Item | Status | Deferred At |
 |----------|------|--------|-------------|
 | Test infrastructure | Group the deep-link accessibility identifiers into one shared constants file (e.g. `AccessibilityIdentifiers.readingView`, plus a `commentCell(id:)` for the interpolated one). Today the 7 identifiers are literals in `AppPackage/Sources` and are re-typed as 18 literal call sites across the 5 `EhPandaUITests` files, with no compile-time link between the two sides — a rename fails at runtime, not at build time. | Open | Phase 13 UAT (2026-07-23) |
+| Comments | Keep a comment's styles and link targets when editing it. The edit form pre-fills `GalleryComment.plainTextContent`, plain text without BBCode, so saving an edit in the app removes them. Prefer the source text the site's own edit form uses; verifying a save needs a logged-in account. See `quick/261102-comment-parser/SUMMARY.md`. | Open | 2026-11-02 |
 
 ## Session Continuity
 
