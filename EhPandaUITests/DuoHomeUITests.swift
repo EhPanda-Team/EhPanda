@@ -116,8 +116,8 @@ final class DuoHomeUITests: XCTestCase {
             try app.launchStubbed()
             let left = app.requireElement("home_left_pane", matching: .scrollView)
             left.swipeUp()
-            let button = left.buttons[title].firstMatch
-            let other = left.scrollViews.containing(.button, identifier: "Popular").firstMatch
+            let button = left.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", title)).firstMatch
+            let other = left.scrollViews.containing(NSPredicate(format: "label BEGINSWITH 'Popular'")).firstMatch
             for _ in 0..<2 where !button.isHittable {
                 let start = other.coordinate(withNormalizedOffset: CGVector(dx: 0.8, dy: 0.5))
                 let end = other.coordinate(withNormalizedOffset: CGVector(dx: 0.2, dy: 0.5))
@@ -228,11 +228,11 @@ final class DuoHomeUITests: XCTestCase {
 
     private func assertVerticalTabs(in app: XCUIApplication) {
         let home = app.buttons["house.circle"]
-        let favorites = app.buttons["heart.circle"]
+        let library = app.buttons["books.vertical.circle"]
         XCTAssertTrue(home.isHittable)
-        XCTAssertTrue(favorites.isHittable)
-        XCTAssertEqual(home.frame.midX, favorites.frame.midX, accuracy: 1)
-        XCTAssertGreaterThan(favorites.frame.midY, home.frame.midY)
+        XCTAssertTrue(library.isHittable)
+        XCTAssertEqual(home.frame.midX, library.frame.midX, accuracy: 1)
+        XCTAssertGreaterThan(library.frame.midY, home.frame.midY)
         XCTAssertGreaterThan(home.frame.midX, app.windows.firstMatch.frame.midX)
     }
 
