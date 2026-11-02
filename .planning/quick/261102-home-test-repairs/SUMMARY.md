@@ -51,9 +51,6 @@ All on iOS 27.2 simulators, iPhone Air and iPad Pro 11-inch (M5). No test passed
   momentary `interacting` phase, which is consistent with VoiceOver's own scroll to its focus. With focus elsewhere
   there is no offset. The old code does this in portrait; with this fix it also happens in landscape. It is not
   corrected, because writing the position at `.idle` is what the carousel's design rules out.
-- **VoiceOver order, on the old code too.** From the card focused at launch, one flick reaches the next card and the
-  second jumps to the Front Page heading. Flicking back from the heading enters at the third card. Both builds took the
-  same path in the same walk on iPhone. The cause has not been investigated.
 - **Carousel rotation on Duo.** The suites below rotate Duo with Home open, but none of them checks which card stays
   selected, so the rotation fix was not exercised there. The test that checks it runs on iPad and is skipped on Duo.
 
@@ -90,3 +87,62 @@ inferred from the test's history, since no build from before that change was run
 
 Landscape on the closed display has to be set while an app is frontmost, because the Home Screen refuses it. The toolbar
 suite's first run was in portrait for that reason, and its later runs were in landscape.
+
+## VoiceOver order
+
+Fixed in `bea94f1cd`. On iPhone Air the old code went from the card focused at launch to the next card, and the second
+flick jumped to the Front Page heading. Flicking back from the heading entered at the third card.
+
+VoiceOver moves to the next card only if that card reaches at least 21 points into the scroll view's bounds, whether or
+not that part is on screen. On iPhone Air 20 points fails and 21 passes, at any card width or spacing tried. Why it
+depends on this is unknown.
+
+The fix has two parts, and the card keeps the owner's 90% width:
+
+- The scroll view extends past the available width by `HomeSlideshowSizing.viewportOverhang`, and its content margin
+  grows by the same amount. No card moves on screen, and the section still reports the available width.
+- Card widths round to whole points. A fractional width made VoiceOver leave after one card at 361.8 points, and left a
+  re-entered card 40 points off center at 669.6 and 750.6 points. A fractional content margin did the same on phones.
+
+| Display | Available width | Card width | Overhang | Old code |
+| --- | --- | --- | --- | --- |
+| iPhone 17e | 390 | 351 | 21.5 | not walked |
+| iPhone 18 Pro | 402 | 361.8 to 362 | 21 | not walked |
+| iPhone Air | 420 | 378 | 20 | leaves early both ways |
+| iPhone 18 Pro Max | 440 | 396 | 19 | not walked |
+| iPad mini | 744 | 669.6 to 670 | 4 | leaves early going back |
+| iPad Pro 11-inch (M5) | 834 | 750.6 to 751 | 0 | walks, but 39 points off after re-entry from Reload |
+| iPhone Duo, inner, left pane | 391 | 313 | 2 | leaves after two cards going back |
+| iPhone Duo, cover | 382 | 344 | 22 | not walked |
+
+Rejected:
+
+- Capping the card width. A 21-point peek makes the phone card about 40 points narrower, which undoes the chosen width.
+- A plain `HStack`. It walks at any peek, but the seed is not honored, and every copy of the current gallery would run
+  its gradient.
+- `AccessibilityNotification.LayoutChanged`, `.contentShape(.accessibility)`,
+  `.accessibilityElement(children: .contain)` and removing `.scrollTransition` or `.scrollClipDisabled`. None changed
+  the path.
+
+Verified on iOS 27.2 simulators:
+
+- VoiceOver flicks reach all six cards in both directions on every display in the table, and a card re-entered from the
+  Front Page is centered. Cursor positions come from screenshots, except on the Duo cover, where screenshots are black
+  and the order comes from which card is centered. The card there sits 42 points left of the screen's center from launch
+  because the vertical bar takes the right side.
+- With VoiceOver off on iPhone Air, 13 swipes moved one card each across the window rebase, the neighbor's color at the
+  screen edge is unchanged, and tapping a card opens its detail page.
+- `FeatureTests` without `VisualSnapshotTests`: 1,402 tests, 1,392 passed, 10 expected failures, 0 failed.
+- `testHomeRootAudit` passed on iPhone Air. `LandscapePaneUITests` on iPad: 4 passed, 1 Duo-only case skipped.
+- `DuoHomeUITests` half open: 8 passed. `DuoToolbarUITests` closed, in landscape: 1 passed. Each passed on its first
+  attempt, in a second serial run the owner approved on 2026-11-02, because both read `home_carousel`. It used the same
+  scratch driver, on an `EhPanda iPhone Duo` simulator on iOS 27.2 (24B91016s) created for the run and deleted after it.
+- SwiftLint reports no violations.
+
+Not verified:
+
+- Real devices, spoken output and right-to-left layouts.
+- The moment `.scrollTransition` flips a card's opacity during a swipe. By reasoning it now happens up to the overhang
+  earlier, which was not measured frame by frame. The settled look is identical.
+- On iPhone, card labels in later runs began with "In progress, " while the cover loads, and covers never load in the
+  test stub. The cause was not investigated, so nothing ties it to this change or rules that out.
