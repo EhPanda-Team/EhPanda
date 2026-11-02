@@ -1,0 +1,3385 @@
+{
+ "about": "Later corrections to proposals.json. side_by_side holds every finding from comparing all six locales per key, with its decision. pair_check holds strings changed after comparing zh-Hans with a script conversion of zh-Hant line by line, plus the last on-screen findings.",
+ "side_by_side": [
+  {
+   "mod": "AppModels",
+   "key": "app_error.copyright_claim",
+   "why": "zh-Hant 申訴 can read as an appeal against a decision, while zh-Hans 投诉 and the other locales mean a complaint or claim.",
+   "proposal": {
+    "zh-Hant": "版權投訴"
+   },
+   "confidence": "judgment",
+   "mirror": false,
+   "en_change": false,
+   "decision": "kept",
+   "note": "申訴 is the everyday Taiwanese word for filing a claim, so this is regional vocabulary."
+  },
+  {
+   "mod": "AppModels",
+   "key": "copyright_claim",
+   "why": "zh-Hant 申訴 can read as an appeal against a decision, while zh-Hans 投诉 and the other locales mean a complaint or claim.",
+   "proposal": {
+    "zh-Hant": "此畫廊因 %@ 提出版權投訴而無法存取。"
+   },
+   "confidence": "judgment",
+   "mirror": false,
+   "en_change": false,
+   "decision": "kept",
+   "note": "申訴 is the everyday Taiwanese word for filing a claim, so this is regional vocabulary."
+  },
+  {
+   "mod": "AppModels",
+   "key": "app_error.gallery_expunged",
+   "why": "zh-Hans says deleted while zh-Hant says delisted, and expunged galleries stay reachable with a filter; FiltersFeature browse_expunged_galleries needs the same term.",
+   "proposal": {
+    "zh-Hans": "画廊已下架"
+   },
+   "confidence": "clear",
+   "mirror": false,
+   "en_change": false,
+   "decision": "accepted",
+   "applied": {
+    "zh-Hans": "画廊已下架"
+   }
+  },
+  {
+   "mod": "AppModels",
+   "key": "gallery_visibility.expunged",
+   "why": "zh-Hans says deleted while zh-Hant says delisted, and expunged galleries stay reachable with a filter.",
+   "proposal": {
+    "zh-Hans": "已下架"
+   },
+   "confidence": "clear",
+   "mirror": false,
+   "en_change": false,
+   "decision": "accepted",
+   "applied": {
+    "zh-Hans": "已下架"
+   }
+  },
+  {
+   "mod": "AppModels",
+   "key": "app_error.image_limit_reached",
+   "why": "de, ko and zh-Hans drop Image and speak of a bare quota, while en, ja and zh-Hant name the image limit.",
+   "proposal": {
+    "de": "Bildkontingent aufgebraucht",
+    "ko": "이미지 할당량 초과",
+    "zh-Hans": "图片配额已用尽"
+   },
+   "confidence": "clear",
+   "mirror": false,
+   "en_change": false,
+   "decision": "accepted",
+   "applied": {
+    "de": "Bildkontingent aufgebraucht",
+    "ko": "이미지 할당량 초과",
+    "zh-Hans": "图片配额已用尽"
+   }
+  },
+  {
+   "mod": "AppModels",
+   "key": "app_error.image_limit_reached_description",
+   "why": "zh-Hant says the viewable quota was exceeded while zh-Hans and the others say the image quota is used up or reached.",
+   "proposal": {
+    "zh-Hant": "圖片額度已用完。"
+   },
+   "confidence": "clear",
+   "mirror": false,
+   "en_change": false,
+   "decision": "changed",
+   "applied": {
+    "zh-Hans": "你已用完图片浏览配额。",
+    "zh-Hant": "你已用完圖片瀏覽額度。"
+   }
+  },
+  {
+   "mod": "AppModels",
+   "key": "app_error.local_file_operation_failed",
+   "why": "English is the problem: update is narrower than the other locales' file operation and is wrong for read and validation failures that use this string, and ko also drops local.",
+   "proposal": {
+    "en": "Couldn’t complete a file operation on this device.",
+    "ko": "이 기기에서 파일 작업을 완료하지 못했습니다."
+   },
+   "confidence": "judgment",
+   "mirror": false,
+   "en_change": true,
+   "decision": "changed",
+   "applied": {
+    "en": "A file operation failed on this device.",
+    "ko": "이 기기에서 파일 작업을 완료하지 못했습니다."
+   }
+  },
+  {
+   "mod": "AppModels",
+   "key": "app_error.login_captcha_required",
+   "why": "ja and both Chinese locales add that login requires it, while en, de and ko say only that a CAPTCHA is required.",
+   "proposal": {
+    "ja": "CAPTCHAが必要です",
+    "zh-Hans": "需要验证码",
+    "zh-Hant": "需要驗證碼"
+   },
+   "confidence": "judgment",
+   "mirror": false,
+   "en_change": false,
+   "decision": "accepted",
+   "applied": {
+    "ja": "CAPTCHAが必要です",
+    "zh-Hans": "需要验证码",
+    "zh-Hant": "需要驗證碼"
+   }
+  },
+  {
+   "mod": "AppModels",
+   "key": "app_error.login_captcha_required_description",
+   "why": "zh-Hant says logging in with a username and password cannot complete verification, while zh-Hans says you cannot log in with only those.",
+   "proposal": {
+    "zh-Hant": "論壇的登入頁要求輸入驗證碼，無法僅用使用者名稱和密碼登入。"
+   },
+   "confidence": "judgment",
+   "mirror": false,
+   "en_change": false,
+   "decision": "accepted",
+   "applied": {
+    "zh-Hant": "論壇的登入頁要求輸入驗證碼，無法僅用使用者名稱和密碼登入。"
+   }
+  },
+  {
+   "mod": "AppModels",
+   "key": "app_error.login_rejected",
+   "why": "English is the outlier: it says only that login failed, while all five translations and the description say the site rejected it.",
+   "proposal": {
+    "en": "Login Rejected"
+   },
+   "confidence": "judgment",
+   "mirror": false,
+   "en_change": true,
+   "decision": "accepted",
+   "applied": {
+    "en": "Login Rejected"
+   }
+  },
+  {
+   "mod": "AppModels",
+   "key": "app_error.login_rejected_solution",
+   "why": "ja names a globe button and the website where the others name the browser, against AppError.swift's documented rule to name the browser and never the icon.",
+   "proposal": {
+    "ja": "ユーザー名とパスワードを確認して、もう一度お試しください。\n失敗が続く場合は、右上のブラウザからログインしてください。"
+   },
+   "confidence": "clear",
+   "mirror": false,
+   "en_change": false,
+   "decision": "accepted",
+   "applied": {
+    "ja": "ユーザー名とパスワードを確認して、もう一度お試しください。\n失敗が続く場合は、右上のブラウザからログインしてください。"
+   }
+  },
+  {
+   "mod": "AppModels",
+   "key": "app_error.login_required",
+   "why": "ja and ko say authentication is required while the other locales and their own descriptions say login.",
+   "proposal": {
+    "ja": "ログインが必要です",
+    "ko": "로그인 필요"
+   },
+   "confidence": "clear",
+   "mirror": false,
+   "en_change": false,
+   "decision": "accepted",
+   "applied": {
+    "ja": "ログインが必要です",
+    "ko": "로그인 필요"
+   }
+  },
+  {
+   "mod": "AppModels",
+   "key": "app_error.login_required_description",
+   "why": "zh-Hans says accessing the content requires login while zh-Hant and en say log in to view it.",
+   "proposal": {
+    "zh-Hans": "登录后才能查看此内容。"
+   },
+   "confidence": "judgment",
+   "mirror": false,
+   "en_change": false,
+   "decision": "accepted",
+   "applied": {
+    "zh-Hans": "登录后才能查看此内容。"
+   }
+  },
+  {
+   "mod": "AppModels",
+   "key": "app_error.not_found",
+   "why": "zh-Hant adds content (內容) where zh-Hans and every other locale say only not found.",
+   "proposal": {
+    "zh-Hant": "找不到"
+   },
+   "confidence": "judgment",
+   "mirror": false,
+   "en_change": false,
+   "decision": "changed",
+   "applied": {
+    "zh-Hans": "找不到内容"
+   }
+  },
+  {
+   "mod": "AppModels",
+   "key": "not_found",
+   "why": "zh-Hant says there seems to be no content while zh-Hans and the others say there seems to be nothing here.",
+   "proposal": {
+    "zh-Hant": "這裡似乎什麼也沒有。"
+   },
+   "confidence": "judgment",
+   "mirror": false,
+   "en_change": false,
+   "decision": "accepted",
+   "applied": {
+    "zh-Hant": "這裡似乎什麼也沒有。"
+   }
+  },
+  {
+   "mod": "AppModels",
+   "key": "app_error.parse_error",
+   "why": "The object differs: en and zh-Hans say page, de, ja and ko say data, and zh-Hant says content.",
+   "proposal": {
+    "de": "Seite nicht lesbar",
+    "ja": "ページを読み取れません",
+    "ko": "페이지를 읽을 수 없음",
+    "zh-Hant": "頁面讀取失敗"
+   },
+   "confidence": "clear",
+   "mirror": false,
+   "en_change": false,
+   "decision": "changed",
+   "applied": {
+    "de": "Seite nicht lesbar",
+    "ja": "ページを読み取れません",
+    "ko": "페이지를 읽을 수 없음",
+    "zh-Hans": "无法读取页面",
+    "zh-Hant": "無法讀取頁面"
+   }
+  },
+  {
+   "mod": "AppModels",
+   "key": "parsing",
+   "why": "de and ja say data rather than the site's response, and zh-Hant says interpret (解讀) where zh-Hans says read (读取).",
+   "proposal": {
+    "de": "Die Antwort der Website konnte nicht gelesen werden.",
+    "ja": "サイトの応答を読み取れませんでした。",
+    "zh-Hant": "無法讀取網站回傳的內容。"
+   },
+   "confidence": "clear",
+   "mirror": false,
+   "en_change": false,
+   "decision": "accepted",
+   "applied": {
+    "de": "Die Antwort der Website konnte nicht gelesen werden.",
+    "ja": "サイトの応答を読み取れませんでした。",
+    "zh-Hant": "無法讀取網站回傳的內容。"
+   }
+  },
+  {
+   "mod": "AppModels",
+   "key": "app_icon_type.not_my_president",
+   "why": "zh-Hans adds he and says chairman instead of president, while zh-Hant and ja keep the English slogan.",
+   "proposal": {
+    "zh-Hans": "NOT MY PRESIDENT"
+   },
+   "confidence": "judgment",
+   "mirror": false,
+   "en_change": false,
+   "decision": "kept",
+   "note": "An icon's name with a deliberate local reading, not a meaning error."
+  },
+  {
+   "mod": "AppModels",
+   "key": "app_icon_type.stand_with_ukraine_2022",
+   "why": "zh-Hant stays in English while zh-Hans and the other locales translate the name.",
+   "proposal": {
+    "zh-Hant": "與烏克蘭同在（2022）"
+   },
+   "confidence": "judgment",
+   "mirror": false,
+   "en_change": false,
+   "decision": "accepted",
+   "applied": {
+    "zh-Hant": "與烏克蘭同在（2022）"
+   }
+  },
+  {
+   "mod": "AppModels",
+   "key": "archive_resolution.original",
+   "why": "zh-Hans says original image while zh-Hant says original quality, and zh-Hans already uses 原始画质 in its archiver settings.",
+   "proposal": {
+    "zh-Hans": "原始画质"
+   },
+   "confidence": "judgment",
+   "mirror": false,
+   "en_change": false,
+   "decision": "accepted",
+   "applied": {
+    "zh-Hans": "原始画质"
+   }
+  },
+  {
+   "mod": "AppModels",
+   "key": "category.artist_CG",
+   "why": "ko says illustration, a concept the ja and zh audits already rejected for this category, and it loses the pairing with Game CG.",
+   "proposal": {
+    "ko": "작가 CG"
+   },
+   "confidence": "clear",
+   "mirror": false,
+   "en_change": false,
+   "decision": "accepted",
+   "applied": {
+    "ko": "작가 CG"
+   }
+  },
+  {
+   "mod": "AppModels",
+   "key": "category.misc",
+   "why": "zh-Hant says other (其他), the same word as the Other tag namespace, while zh-Hans deliberately says miscellaneous (杂项).",
+   "proposal": {
+    "zh-Hant": "雜項"
+   },
+   "confidence": "judgment",
+   "mirror": false,
+   "en_change": false,
+   "decision": "accepted",
+   "applied": {
+    "zh-Hant": "雜項"
+   }
+  },
+  {
+   "mod": "AppModels",
+   "key": "comments_votes_show_timing.on_hover_or_click",
+   "why": "zh-Hans drops score, so it does not say what to hover over or click.",
+   "proposal": {
+    "zh-Hans": "悬停或点击分数时"
+   },
+   "confidence": "judgment",
+   "mirror": true,
+   "en_change": false,
+   "decision": "accepted",
+   "applied": {
+    "zh-Hans": "悬停或点击分数时"
+   }
+  },
+  {
+   "mod": "AppModels",
+   "key": "eh_setting.archiver_behavior.auto_select_resample_auto_start",
+   "why": "zh-Hans says compressed quality while zh-Hant and its own original_images string say resampled; SettingFeature archiver_behavior_description has the same term.",
+   "proposal": {
+    "zh-Hans": "自动选择重新采样，自动下载"
+   },
+   "confidence": "judgment",
+   "mirror": true,
+   "en_change": false,
+   "decision": "changed",
+   "applied": {
+    "zh-Hans": "自动选择重新采样，自动下载",
+    "zh-Hant": "自動選擇重新取樣並開始下載"
+   }
+  },
+  {
+   "mod": "AppModels",
+   "key": "eh_setting.archiver_behavior.auto_select_resample_manual_start",
+   "why": "zh-Hans says compressed quality while zh-Hant and its own original_images string say resampled; SettingFeature archiver_behavior_description has the same term.",
+   "proposal": {
+    "zh-Hans": "自动选择重新采样，手动下载"
+   },
+   "confidence": "judgment",
+   "mirror": true,
+   "en_change": false,
+   "decision": "changed",
+   "applied": {
+    "zh-Hans": "自动选择重新采样，手动下载",
+    "zh-Hant": "自動選擇重新取樣，手動開始下載"
+   }
+  },
+  {
+   "mod": "AppModels",
+   "key": "excluded_languages_category.original",
+   "why": "zh-Hant says original language while zh-Hans says original version in the same table column.",
+   "proposal": {
+    "zh-Hant": "原始版本"
+   },
+   "confidence": "judgment",
+   "mirror": true,
+   "en_change": false,
+   "decision": "accepted",
+   "applied": {
+    "zh-Hant": "原始版本"
+   }
+  },
+  {
+   "mod": "AppModels",
+   "key": "excluded_languages_category.rewrite",
+   "why": "zh-Hans 改编 means adapted where the column means rewritten text, and zh-Hant omits the 版本 its sibling columns would carry.",
+   "proposal": {
+    "zh-Hans": "改写版本",
+    "zh-Hant": "改寫版本"
+   },
+   "confidence": "clear",
+   "mirror": true,
+   "en_change": false,
+   "decision": "accepted",
+   "applied": {
+    "zh-Hans": "改写版本",
+    "zh-Hant": "改寫版本"
+   }
+  },
+  {
+   "mod": "AppModels",
+   "key": "excluded_languages_category.translated",
+   "why": "zh-Hant says translation language while zh-Hans says translated version in the same table column.",
+   "proposal": {
+    "zh-Hant": "翻譯版本"
+   },
+   "confidence": "judgment",
+   "mirror": true,
+   "en_change": false,
+   "decision": "accepted",
+   "applied": {
+    "zh-Hant": "翻譯版本"
+   }
+  },
+  {
+   "mod": "AppModels",
+   "key": "filter_range.watched",
+   "why": "ko names tags of interest while the others name the watched or followed listing; HomeFeature watched and home_misc_grid_type.watched share this value.",
+   "proposal": {
+    "ko": "팔로잉"
+   },
+   "confidence": "judgment",
+   "mirror": false,
+   "en_change": false,
+   "decision": "kept",
+   "note": "The owner was shown the Watched translations on 2026-11-01 and kept them."
+  },
+  {
+   "mod": "AppModels",
+   "key": "gallery_name.default",
+   "why": "ko says English title while every other locale says default title.",
+   "proposal": {
+    "ko": "기본 제목"
+   },
+   "confidence": "clear",
+   "mirror": true,
+   "en_change": false,
+   "decision": "accepted",
+   "applied": {
+    "ko": "기본 제목"
+   }
+  },
+  {
+   "mod": "AppModels",
+   "key": "gallery_unavailable",
+   "why": "ko and both Chinese locales add removed or, while en, de and ja say only unavailable.",
+   "proposal": {
+    "ko": "이 갤러리는 볼 수 없습니다.",
+    "zh-Hans": "此画廊无法访问。",
+    "zh-Hant": "此畫廊無法存取。"
+   },
+   "confidence": "clear",
+   "mirror": false,
+   "en_change": false,
+   "decision": "accepted",
+   "applied": {
+    "ko": "이 갤러리는 볼 수 없습니다.",
+    "zh-Hans": "此画廊无法访问。",
+    "zh-Hant": "此畫廊無法存取。"
+   }
+  },
+  {
+   "mod": "AppModels",
+   "key": "greeting.reward_credits",
+   "why": "zh-Hant translates the site currency as credit points while zh-Hans keeps Credits; DetailFeature accessibility.credits_balance has the same split.",
+   "proposal": {
+    "zh-Hant": "%@ Credits"
+   },
+   "confidence": "judgment",
+   "mirror": false,
+   "en_change": false,
+   "decision": "accepted",
+   "applied": {
+    "zh-Hant": "%@ Credits"
+   }
+  },
+  {
+   "mod": "AppModels",
+   "key": "ip_banned",
+   "why": "zh-Hant says the system judged you may use mirroring or crawler software and ko says it determined mirroring or harvesting, while en, de and zh-Hans only suspect automated tools.",
+   "proposal": {
+    "ko": "페이지 요청이 과도해 자동 다운로드 프로그램을 사용하는 것으로 의심되어 IP 주소가 일시적으로 차단되었습니다. 차단은 %@ 후에 해제됩니다.",
+    "zh-Hant": "頁面載入次數過多，疑似使用了自動抓取工具，你的 IP 位址已遭暫時封鎖。封鎖會在 %@後解除。"
+   },
+   "confidence": "clear",
+   "mirror": false,
+   "en_change": false,
+   "decision": "accepted",
+   "applied": {
+    "ko": "페이지 요청이 과도해 자동 다운로드 프로그램을 사용하는 것으로 의심되어 IP 주소가 일시적으로 차단되었습니다. 차단은 %@ 후에 해제됩니다.",
+    "zh-Hant": "頁面載入次數過多，疑似使用了自動抓取工具，你的 IP 位址已遭暫時封鎖。封鎖會在 %@後解除。"
+   }
+  },
+  {
+   "mod": "AppModels",
+   "key": "ip_banned_unknown_duration",
+   "why": "zh-Hant says the system judged you may use mirroring or crawler software and ko says it determined mirroring or harvesting, while en, de and zh-Hans only suspect automated tools.",
+   "proposal": {
+    "ko": "페이지 요청이 과도해 자동 다운로드 프로그램을 사용하는 것으로 의심되어 IP 주소가 일시적으로 차단되었습니다.",
+    "zh-Hant": "頁面載入次數過多，疑似使用了自動抓取工具，你的 IP 位址已遭暫時封鎖。"
+   },
+   "confidence": "clear",
+   "mirror": false,
+   "en_change": false,
+   "decision": "accepted",
+   "applied": {
+    "ko": "페이지 요청이 과도해 자동 다운로드 프로그램을 사용하는 것으로 의심되어 IP 주소가 일시적으로 차단되었습니다.",
+    "zh-Hant": "頁面載入次數過多，疑似使用了自動抓取工具，你的 IP 位址已遭暫時封鎖。"
+   }
+  },
+  {
+   "mod": "AppModels",
+   "key": "load_through_hath_setting.any_client_description",
+   "why": "zh-Hant adds default, which the site's text and the other locales do not say.",
+   "proposal": {
+    "zh-Hant": "建議選項"
+   },
+   "confidence": "judgment",
+   "mirror": true,
+   "en_change": false,
+   "decision": "accepted",
+   "applied": {
+    "zh-Hant": "建議選項"
+   }
+  },
+  {
+   "mod": "AppModels",
+   "key": "load_through_hath_setting.modern_no_description",
+   "why": "ko drops the fewer-pages warning and zh-Hans replaces it with faster quota use, while the site and the others say you can browse fewer pages.",
+   "proposal": {
+    "ko": "기부자 전용 기능이에요. 볼 수 있는 페이지 수가 줄어들어요. 심각한 문제가 있는 경우를 제외하고는 사용하지 말아주세요.",
+    "zh-Hans": "仅限赞助者。可浏览的页面数会减少。只建议在遇到严重问题时使用。"
+   },
+   "confidence": "clear",
+   "mirror": true,
+   "en_change": false,
+   "decision": "accepted",
+   "applied": {
+    "ko": "기부자 전용 기능이에요. 볼 수 있는 페이지 수가 줄어들어요. 심각한 문제가 있는 경우를 제외하고는 사용하지 말아주세요.",
+    "zh-Hans": "仅限赞助者。可浏览的页面数会减少。只建议在遇到严重问题时使用。"
+   }
+  },
+  {
+   "mod": "AppModels",
+   "key": "network_error",
+   "why": "zh-Hans narrows it to a network connection problem while zh-Hant and the others say a network error occurred.",
+   "proposal": {
+    "zh-Hans": "发生了网络错误。"
+   },
+   "confidence": "clear",
+   "mirror": false,
+   "en_change": false,
+   "decision": "changed",
+   "applied": {
+    "zh-Hans": "网络发生错误。"
+   }
+  },
+  {
+   "mod": "AppModels",
+   "key": "preferred_color_scheme.automatic",
+   "why": "zh-Hans says follow system by baseline decision while zh-Hant says automatic, so the proposal moves zh-Hant and leaves that decision intact.",
+   "proposal": {
+    "zh-Hant": "跟隨系統"
+   },
+   "confidence": "judgment",
+   "mirror": false,
+   "en_change": false,
+   "decision": "accepted",
+   "applied": {
+    "zh-Hant": "跟隨系統"
+   }
+  },
+  {
+   "mod": "AppModels",
+   "key": "app_error.cloudflare_challenge_solution",
+   "why": "ja drops Settings from the path and names a globe button and the website, against AppError.swift's documented rule to name the browser and never the icon.",
+   "proposal": {
+    "ja": "ログイン画面右上のブラウザからログインするか、「設定 > アカウント」でCookieを手動で入力してください。"
+   },
+   "confidence": "clear",
+   "mirror": false,
+   "en_change": false,
+   "decision": "accepted",
+   "applied": {
+    "ja": "ログイン画面右上のブラウザからログインするか、「設定 > アカウント」でCookieを手動で入力してください。"
+   }
+  },
+  {
+   "mod": "AppModels",
+   "key": "app_error.login_captcha_solution",
+   "why": "ja drops Settings from the path and names a globe button against AppError.swift's rule, and zh-Hant says complete the code (驗證碼) where zh-Hans says complete verification.",
+   "proposal": {
+    "ja": "ログイン画面右上のブラウザからログインすると、CAPTCHAを完了できます。または「設定 > アカウント」でCookieを手動で入力してください。",
+    "zh-Hant": "請透過登入畫面右上角的瀏覽器登入並完成驗證，或在「設定 > 帳號」中手動輸入 Cookie。"
+   },
+   "confidence": "clear",
+   "mirror": false,
+   "en_change": false,
+   "decision": "accepted",
+   "applied": {
+    "ja": "ログイン画面右上のブラウザからログインすると、CAPTCHAを完了できます。または「設定 > アカウント」でCookieを手動で入力してください。",
+    "zh-Hant": "請透過登入畫面右上角的瀏覽器登入並完成驗證，或在「設定 > 帳號」中手動輸入 Cookie。"
+   }
+  },
+  {
+   "mod": "AppModels",
+   "key": "app_error.unsupported_deep_link.description",
+   "why": "Both Chinese locales say this is not a supported gallery link, implying other gallery links fail, while the others say EhPanda opens only gallery links.",
+   "proposal": {
+    "zh-Hans": "EhPanda 只能打开画廊链接。",
+    "zh-Hant": "EhPanda 只能開啟畫廊連結。"
+   },
+   "confidence": "clear",
+   "mirror": false,
+   "en_change": false,
+   "decision": "accepted",
+   "applied": {
+    "zh-Hans": "EhPanda 只能打开画廊链接。",
+    "zh-Hant": "EhPanda 只能開啟畫廊連結。"
+   }
+  },
+  {
+   "mod": "SettingFeature",
+   "key": "analytics",
+   "why": "zh-Hans says usage statistics while every other language says analytics.",
+   "proposal": {
+    "zh-Hans": "分析"
+   },
+   "confidence": "clear",
+   "mirror": false,
+   "en_change": false,
+   "decision": "accepted",
+   "applied": {
+    "zh-Hans": "分析"
+   }
+  },
+  {
+   "mod": "SettingFeature",
+   "key": "shareAnalyticsData",
+   "why": "zh-Hans says send usage data while every other language says share analytics data.",
+   "proposal": {
+    "zh-Hans": "分享分析数据"
+   },
+   "confidence": "clear",
+   "mirror": false,
+   "en_change": false,
+   "decision": "accepted",
+   "applied": {
+    "zh-Hans": "分享分析数据"
+   }
+  },
+  {
+   "mod": "SettingFeature",
+   "key": "shareAnalyticsDataFooter",
+   "why": "English states searches send only length and format, but de, ko and zh-Hans say structure or form, ja says format only and zh-Hant says rough traits, which blurs a privacy statement.",
+   "proposal": {
+    "de": "Zeigt den Entwicklern von EhPanda, welche Funktionen wichtig sind. Bei Suchanfragen werden nur Länge und Format übertragen, nie der Text. Galerietitel, Links und Kennungen werden nie gesendet. Ist diese Option aus, werden keine Ereignisse mehr gesendet, deine Installation wird aber weiterhin gezählt.",
+    "ja": "どの機能が重要かをEhPandaの開発者が把握するのに役立ちます。検索は語句ではなく長さと形式のみが送信され、ギャラリーのタイトル、リンク、識別子が含まれることはありません。オフにするとこれらの送信は停止しますが、インストール数は引き続き集計されます。",
+    "ko": "어떤 기능이 중요한지 EhPanda 개발자가 파악하는 데 도움이 됩니다. 검색어는 내용 없이 길이와 형식만 전송되며, 갤러리 제목·링크·식별자는 절대 포함되지 않습니다. 이 설정을 끄면 이러한 전송이 중단되지만 설치 수는 계속 집계됩니다.",
+    "zh-Hans": "帮助 EhPanda 维护者了解哪些功能重要。搜索只会发送长度和格式，不含搜索文字，也不含任何画廊标题、链接或标识符。关闭后会停止发送这些事件，但你的安装仍会计入统计。",
+    "zh-Hant": "協助 EhPanda 維護者了解哪些功能重要。搜尋只會傳送長度與格式，不含搜尋文字，也不含任何畫廊標題、連結或識別碼。關閉後會停止傳送這些事件，但你的安裝仍會計入統計。"
+   },
+   "confidence": "clear",
+   "mirror": false,
+   "en_change": false,
+   "decision": "accepted",
+   "applied": {
+    "de": "Zeigt den Entwicklern von EhPanda, welche Funktionen wichtig sind. Bei Suchanfragen werden nur Länge und Format übertragen, nie der Text. Galerietitel, Links und Kennungen werden nie gesendet. Ist diese Option aus, werden keine Ereignisse mehr gesendet, deine Installation wird aber weiterhin gezählt.",
+    "ja": "どの機能が重要かをEhPandaの開発者が把握するのに役立ちます。検索は語句ではなく長さと形式のみが送信され、ギャラリーのタイトル、リンク、識別子が含まれることはありません。オフにするとこれらの送信は停止しますが、インストール数は引き続き集計されます。",
+    "ko": "어떤 기능이 중요한지 EhPanda 개발자가 파악하는 데 도움이 됩니다. 검색어는 내용 없이 길이와 형식만 전송되며, 갤러리 제목·링크·식별자는 절대 포함되지 않습니다. 이 설정을 끄면 이러한 전송이 중단되지만 설치 수는 계속 집계됩니다.",
+    "zh-Hans": "帮助 EhPanda 维护者了解哪些功能重要。搜索只会发送长度和格式，不含搜索文字，也不含任何画廊标题、链接或标识符。关闭后会停止发送这些事件，但你的安装仍会计入统计。",
+    "zh-Hant": "協助 EhPanda 維護者了解哪些功能重要。搜尋只會傳送長度與格式，不含搜尋文字，也不含任何畫廊標題、連結或識別碼。關閉後會停止傳送這些事件，但你的安裝仍會計入統計。"
+   }
+  },
+  {
+   "mod": "SettingFeature",
+   "key": "default_language_description",
+   "why": "zh-Hant says not applicable while de, ja, ko and zh-Hans say unknown for a language that could not be determined.",
+   "proposal": {
+    "zh-Hant": "未知"
+   },
+   "confidence": "clear",
+   "mirror": false,
+   "en_change": false,
+   "decision": "accepted",
+   "applied": {
+    "zh-Hant": "未知"
+   }
+  },
+  {
+   "mod": "SettingFeature",
+   "key": "laboratory",
+   "why": "de and zh-Hant say experimental features while en, ja, ko and zh-Hans say laboratory.",
+   "proposal": {
+    "de": "Labor",
+    "zh-Hant": "實驗室"
+   },
+   "confidence": "clear",
+   "mirror": false,
+   "en_change": false,
+   "decision": "accepted",
+   "applied": {
+    "de": "Labor",
+    "zh-Hant": "實驗室"
+   }
+  },
+  {
+   "mod": "SettingFeature",
+   "key": "setting_state_route.laboratory",
+   "why": "de and zh-Hant say experimental features while en, ja, ko and zh-Hans say laboratory.",
+   "proposal": {
+    "de": "Labor",
+    "zh-Hant": "實驗室"
+   },
+   "confidence": "clear",
+   "mirror": false,
+   "en_change": false,
+   "decision": "accepted",
+   "applied": {
+    "de": "Labor",
+    "zh-Hant": "實驗室"
+   }
+  },
+  {
+   "mod": "SettingFeature",
+   "key": "save",
+   "why": "English became Save in the first pass, but every translation still says Send or Submit for this button.",
+   "proposal": {
+    "de": "Speichern",
+    "ja": "保存",
+    "ko": "저장",
+    "zh-Hans": "保存",
+    "zh-Hant": "儲存"
+   },
+   "confidence": "clear",
+   "mirror": false,
+   "en_change": false,
+   "decision": "accepted",
+   "applied": {
+    "de": "Speichern",
+    "ja": "保存",
+    "ko": "저장",
+    "zh-Hans": "保存",
+    "zh-Hant": "儲存"
+   }
+  },
+  {
+   "mod": "SettingFeature",
+   "key": "import_custom_translations",
+   "why": "zh-Hant narrows custom translations to custom tag translations, unlike every other language.",
+   "proposal": {
+    "zh-Hant": "匯入自訂翻譯"
+   },
+   "confidence": "clear",
+   "mirror": false,
+   "en_change": false,
+   "decision": "accepted",
+   "applied": {
+    "zh-Hant": "匯入自訂翻譯"
+   }
+  },
+  {
+   "mod": "SettingFeature",
+   "key": "remove_custom_translations",
+   "why": "zh-Hant narrows custom translations to custom tag translations, unlike every other language.",
+   "proposal": {
+    "zh-Hant": "移除自訂翻譯"
+   },
+   "confidence": "clear",
+   "mirror": false,
+   "en_change": false,
+   "decision": "accepted",
+   "applied": {
+    "zh-Hant": "移除自訂翻譯"
+   }
+  },
+  {
+   "mod": "SettingFeature",
+   "key": "remove_custom_translations_confirmation",
+   "why": "zh-Hant adds all and tag, which no other language says.",
+   "proposal": {
+    "zh-Hant": "確定要移除自訂翻譯嗎？"
+   },
+   "confidence": "clear",
+   "mirror": false,
+   "en_change": false,
+   "decision": "accepted",
+   "applied": {
+    "zh-Hant": "確定要移除自訂翻譯嗎？"
+   }
+  },
+  {
+   "mod": "SettingFeature",
+   "key": "display_mode",
+   "why": "zh-Hans says display style, the same text it uses for Display Style, while zh-Hant and the others say display mode.",
+   "proposal": {
+    "zh-Hans": "显示模式"
+   },
+   "confidence": "clear",
+   "mirror": true,
+   "en_change": false,
+   "decision": "accepted",
+   "applied": {
+    "zh-Hans": "显示模式"
+   }
+  },
+  {
+   "mod": "SettingFeature",
+   "key": "display_mode_description",
+   "why": "zh-Hans calls the front page 扉页 (a book's title page) and says style, while zh-Hant says 首頁 and search results; the pair should name the same pages and the same mode.",
+   "proposal": {
+    "zh-Hans": "你希望在首页和搜索页使用哪种显示模式？",
+    "zh-Hant": "你想在首頁和搜尋頁使用哪一種顯示模式？"
+   },
+   "confidence": "clear",
+   "mirror": true,
+   "en_change": false,
+   "decision": "accepted",
+   "applied": {
+    "zh-Hans": "你希望在首页和搜索页使用哪种显示模式？",
+    "zh-Hant": "你想在首頁和搜尋頁使用哪一種顯示模式？"
+   }
+  },
+  {
+   "mod": "SettingFeature",
+   "key": "gallery_category",
+   "why": "zh-Hans, ja and ko drop by default, and zh-Hans also calls the front page 扉页 (a book's title page).",
+   "proposal": {
+    "zh-Hans": "默认情况下你希望在首页和搜索结果中显示哪些类别的结果？",
+    "ja": "フロント・検索ページでデフォルトで表示するカテゴリーはどれにしますか？",
+    "ko": "프론트와 검색 페이지에서 기본으로 어떤 카테고리가 보여지도록 할까요?"
+   },
+   "confidence": "clear",
+   "mirror": true,
+   "en_change": false,
+   "decision": "accepted",
+   "applied": {
+    "zh-Hans": "默认情况下你希望在首页和搜索结果中显示哪些类别的结果？",
+    "ja": "フロント・検索ページでデフォルトで表示するカテゴリーはどれにしますか？",
+    "ko": "프론트와 검색 페이지에서 기본으로 어떤 카테고리가 보여지도록 할까요?"
+   }
+  },
+  {
+   "mod": "SettingFeature",
+   "key": "excluded_uploaders_description",
+   "why": "zh-Hans says the uploaders are hidden, while English and zh-Hant say their galleries are hidden.",
+   "proposal": {
+    "zh-Hans": "如果你希望从画廊列表和搜索结果中隐藏某些上传者的画廊，请把他们的用户名填写在下方，每行一个。注意：无论搜索条件为何，这些上传者的画廊都不会出现。"
+   },
+   "confidence": "clear",
+   "mirror": true,
+   "en_change": false,
+   "decision": "accepted",
+   "applied": {
+    "zh-Hans": "如果你希望从画廊列表和搜索结果中隐藏某些上传者的画廊，请把他们的用户名填写在下方，每行一个。注意：无论搜索条件为何，这些上传者的画廊都不会出现。"
+   }
+  },
+  {
+   "mod": "SettingFeature",
+   "key": "favorite_categories",
+   "why": "ja and zh-Hans drop choose and mention only renaming, while en, de, ko and zh-Hant say choose and rename.",
+   "proposal": {
+    "zh-Hans": "在这里你可以选择并重命名你的收藏夹。",
+    "ja": "ここではお気に入りカテゴリーの選択と名前の変更ができます。"
+   },
+   "confidence": "clear",
+   "mirror": true,
+   "en_change": false,
+   "decision": "accepted",
+   "applied": {
+    "zh-Hans": "在这里你可以选择并重命名你的收藏夹。",
+    "ja": "ここではお気に入りカテゴリーの選択と名前の変更ができます。"
+   }
+  },
+  {
+   "mod": "SettingFeature",
+   "key": "image_load_settings",
+   "why": "zh-Hant says image source settings while the others say image loading settings.",
+   "proposal": {
+    "zh-Hant": "圖片載入設定"
+   },
+   "confidence": "clear",
+   "mirror": true,
+   "en_change": false,
+   "decision": "accepted",
+   "applied": {
+    "zh-Hant": "圖片載入設定"
+   }
+  },
+  {
+   "mod": "SettingFeature",
+   "key": "filtered_removal_count",
+   "why": "zh-Hant says filter result counter, which reads as results kept rather than galleries removed, unlike zh-Hans and the others.",
+   "proposal": {
+    "zh-Hant": "篩選器移除數"
+   },
+   "confidence": "clear",
+   "mirror": true,
+   "en_change": false,
+   "decision": "accepted",
+   "applied": {
+    "zh-Hant": "篩選器移除數"
+   }
+  },
+  {
+   "mod": "SettingFeature",
+   "key": "show_filtered_removal_count",
+   "why": "zh-Hant says whether to show a filter result counter, which reads as results kept rather than galleries removed.",
+   "proposal": {
+    "zh-Hant": "顯示篩選器移除數"
+   },
+   "confidence": "clear",
+   "mirror": true,
+   "en_change": false,
+   "decision": "accepted",
+   "applied": {
+    "zh-Hant": "顯示篩選器移除數"
+   }
+  },
+  {
+   "mod": "SettingFeature",
+   "key": "result_count",
+   "why": "zh-Hant says upper limit on the amount and omits results, while the others say result count.",
+   "proposal": {
+    "zh-Hant": "結果數"
+   },
+   "confidence": "clear",
+   "mirror": true,
+   "en_change": false,
+   "decision": "accepted",
+   "applied": {
+    "zh-Hant": "結果數"
+   }
+  },
+  {
+   "mod": "SettingFeature",
+   "key": "search_result_count",
+   "why": "zh-Hant adds upper limit, which no other language says.",
+   "proposal": {
+    "zh-Hant": "搜尋結果數"
+   },
+   "confidence": "clear",
+   "mirror": true,
+   "en_change": false,
+   "decision": "accepted",
+   "applied": {
+    "zh-Hant": "搜尋結果數"
+   }
+  },
+  {
+   "mod": "SettingFeature",
+   "key": "open_links_on_selected_site",
+   "why": "ja still says host from the old English while every other language says site, and the picker this refers to is named Webサイト.",
+   "proposal": {
+    "ja": "リンクを選択中のサイトで開く"
+   },
+   "confidence": "clear",
+   "mirror": false,
+   "en_change": false,
+   "decision": "accepted",
+   "applied": {
+    "ja": "リンクを選択中のサイトで開く"
+   }
+  },
+  {
+   "mod": "SettingFeature",
+   "key": "show_new_dawn_greeting",
+   "why": "zh-Hans says daily greeting while zh-Hant, en, ja and ko say dawn greeting; the first pass moved zh-Hans to daily, so reverting it is the owner's call.",
+   "proposal": {
+    "zh-Hans": "显示黎明问候"
+   },
+   "confidence": "clear",
+   "mirror": false,
+   "en_change": false,
+   "decision": "accepted",
+   "applied": {
+    "zh-Hans": "显示黎明问候"
+   }
+  },
+  {
+   "mod": "SettingFeature",
+   "key": "simultaneous_downloads",
+   "why": "zh-Hans counts images while zh-Hant counts pages, and the zh-Hans network description on the same screen also says pages.",
+   "proposal": {
+    "zh-Hans": "同时下载页数"
+   },
+   "confidence": "clear",
+   "mirror": false,
+   "en_change": false,
+   "decision": "changed",
+   "applied": {
+    "zh-Hant": "同時下載圖片數"
+   }
+  },
+  {
+   "mod": "SettingFeature",
+   "key": "tag_watching_threshold_description",
+   "why": "zh-Hans adds an unrelated first sentence, sums all tags, says above instead of at least and drops the positive-weight condition; zh-Hant also says above, and ko drops positive weight.",
+   "proposal": {
+    "zh-Hans": "如果一个最近上传的画廊至少有一个正权重的已关注标签，且已关注标签的权重之和达到或高于设定值，它就会被包含在“关注”里。这个值可以设定为 0 ~ 9999。",
+    "zh-Hant": "如果最近上傳的畫廊至少有一個正權重的已追蹤標籤，且已追蹤標籤的權重總和達到或高於此數值，它就會出現在「追蹤中」頁面，此閾值可以設定在 0 ~ 9999 之間",
+    "ko": "최근에 업로드된 갤러리는 양수 가중치의 관심 태그가 최소 1개 있고 관심 태그의 가중치의 합이 이 값 이상이 될 경우 관심 태그 화면에 포함되어요. 이 임계값은 0과 9999 사이에서 설정할 수 있어요."
+   },
+   "confidence": "clear",
+   "mirror": true,
+   "en_change": false,
+   "decision": "accepted",
+   "applied": {
+    "zh-Hans": "如果一个最近上传的画廊至少有一个正权重的已关注标签，且已关注标签的权重之和达到或高于设定值，它就会被包含在“关注”里。这个值可以设定为 0 ~ 9999。",
+    "zh-Hant": "如果最近上傳的畫廊至少有一個正權重的已追蹤標籤，且已追蹤標籤的權重總和達到或高於此數值，它就會出現在「追蹤中」頁面，此閾值可以設定在 0 ~ 9999 之間",
+    "ko": "최근에 업로드된 갤러리는 양수 가중치의 관심 태그가 최소 1개 있고 관심 태그의 가중치의 합이 이 값 이상이 될 경우 관심 태그 화면에 포함되어요. 이 임계값은 0과 9999 사이에서 설정할 수 있어요."
+   }
+  },
+  {
+   "mod": "SettingFeature",
+   "key": "tag_filtering_threshold_description",
+   "why": "zh-Hans says works instead of galleries, zh-Hant drops soft, and ko says at or below instead of below and loses that the weights are summed.",
+   "proposal": {
+    "zh-Hans": "你可以通过将标签加入“我的标签”并设置一个负权重来软筛选它们。如果一个画廊所有的标签权重之和低于设定值，此画廊将从列表中被筛除。这个值可以设定为 0 ~ -9999。",
+    "zh-Hant": "你可以透過將標籤以負數權重新增到「我的標籤」來軟篩選標籤。 如果畫廊的標籤加起來的權重低於此值，則會被從列表中篩除，此閾值可以設定在 0 ~ -9999 之間",
+    "ko": "마이너스 가중치로 My Tags에 추가하여 태그를 소프트 필터할 수 있어요. 갤러리 태그의 가중치 합이 이 값 미만이면 보기에서 필터링되어요. 이 임계값은 0과 -9999 사이에서 설정할 수 있어요."
+   },
+   "confidence": "clear",
+   "mirror": true,
+   "en_change": false,
+   "decision": "changed",
+   "applied": {
+    "ko": "마이너스 가중치로 My Tags에 추가하여 태그를 소프트 필터할 수 있어요. 갤러리 태그의 가중치 합이 이 값 미만이면 보기에서 필터링되어요. 이 임계값은 0과 -9999 사이에서 설정할 수 있어요.",
+    "zh-Hans": "你可以通过将标签加入“我的标签”并设置一个负权重来软筛选它们。如果一个画廊所有的标签权重之和低于设定值，此画廊将从列表中被筛除。这个值可以设定为 0 ~ -9999。",
+    "zh-Hant": "你可以透過將標籤以負數權重新增到「我的標籤」來軟篩選標籤。如果畫廊的標籤加起來的權重低於此值，則會被從列表中篩除，此閾值可以設定在 0 ~ -9999 之間"
+   }
+  },
+  {
+   "mod": "SettingFeature",
+   "key": "viewport_override",
+   "why": "zh-Hant says window covering, a different concept from zh-Hans and the site's viewport override.",
+   "proposal": {
+    "zh-Hant": "覆寫可視區域"
+   },
+   "confidence": "clear",
+   "mirror": true,
+   "en_change": false,
+   "decision": "accepted",
+   "applied": {
+    "zh-Hant": "覆寫可視區域"
+   }
+  },
+  {
+   "mod": "SettingFeature",
+   "key": "virtual_width_description",
+   "why": "zh-Hans overrides the visible area instead of the site's virtual width, and zh-Hant says cover instead of override.",
+   "proposal": {
+    "zh-Hans": "允许你覆写移动设备上网站的虚拟宽度，通常由设备根据 DPI 自动确定，%@ 缩略图比例下的合理值在 640 到 1400 之间。",
+    "zh-Hant": "允許你覆寫行動裝置網站的虛擬寬度。 這通常由你的裝置根據其 DPI 自動確定。 %@ 縮圖比例的合理值介於 640 和 1400 之間。"
+   },
+   "confidence": "clear",
+   "mirror": true,
+   "en_change": false,
+   "decision": "changed",
+   "applied": {
+    "zh-Hans": "允许你覆写移动设备上网站的虚拟宽度，通常由设备根据 DPI 自动确定，%@ 缩略图比例下的合理值在 640 到 1400 之间。",
+    "zh-Hant": "允許你覆寫行動裝置網站的虛擬寬度。這通常由你的裝置根據其 DPI 自動確定。%@ 縮圖比例的合理值介於 640 和 1400 之間。"
+   }
+  },
+  {
+   "mod": "SettingFeature",
+   "key": "archiver_behavior_description",
+   "why": "zh-Hans drops the cost confirmation and that the link can be copied elsewhere, and says download method where zh-Hant says logic.",
+   "proposal": {
+    "zh-Hans": "默认归档下载方式为先确认费用并选择（原画质或压缩画质），然后显示可点击或复制到别处的下载链接。你可以在此修改归档下载方式。",
+    "zh-Hant": "壓縮檔的預設下載方式是確認原始圖片或重新採樣後進行壓縮的成本差異與選擇，然後顯示一個可以在其他地方點擊、複製的連結，你可以在此處更改它的運作方式。"
+   },
+   "confidence": "clear",
+   "mirror": true,
+   "en_change": false,
+   "decision": "changed",
+   "applied": {
+    "zh-Hans": "默认归档下载方式为先确认费用并选择（原画质或重新采样），然后显示可点击或复制到别处的下载链接。你可以在此修改归档下载方式。",
+    "zh-Hant": "壓縮檔的預設下載方式是確認原始圖片或重新取樣後進行壓縮的成本差異與選擇，然後顯示一個可以在其他地方點擊、複製的連結，你可以在此處更改它的運作方式。"
+   }
+  },
+  {
+   "mod": "SettingFeature",
+   "key": "thumbnail_load_timing",
+   "why": "ko says load time, which reads as a duration, where the others say timing; zh-Hant also adds settings.",
+   "proposal": {
+    "ko": "썸네일 로드 시점",
+    "zh-Hant": "縮圖載入時機"
+   },
+   "confidence": "clear",
+   "mirror": true,
+   "en_change": false,
+   "decision": "accepted",
+   "applied": {
+    "ko": "썸네일 로드 시점",
+    "zh-Hant": "縮圖載入時機"
+   }
+  },
+  {
+   "mod": "SettingFeature",
+   "key": "original_images",
+   "why": "zh-Hans says 图库 (image library) for galleries while zh-Hant and the rest of zh-Hans use gallery.",
+   "proposal": {
+    "zh-Hans": "是否使用原始图像而非重新采样的版本？如果您在上方选择的水平分辨率不是“自动”，并且所查看的图像更宽，或者原始图像大于 10 MiB（对于超过一年的画廊，则为 4 MiB），那么仍将使用重新采样的图像。"
+   },
+   "confidence": "clear",
+   "mirror": true,
+   "en_change": false,
+   "decision": "accepted",
+   "applied": {
+    "zh-Hans": "是否使用原始图像而非重新采样的版本？如果您在上方选择的水平分辨率不是“自动”，并且所查看的图像更宽，或者原始图像大于 10 MiB（对于超过一年的画廊，则为 4 MiB），那么仍将使用重新采样的图像。"
+   }
+  },
+  {
+   "mod": "SettingFeature",
+   "key": "image_size_description",
+   "why": "zh-Hans says window instead of screen width and drops the browser-side reason that zh-Hant keeps; ko drops maximum display size and leaves no limit in English.",
+   "proposal": {
+    "zh-Hans": "虽然网站会自动缩小图片以适应屏幕宽度，但你也可以手动限制图片的最大显示尺寸。与自动缩放一样，这不会重新采样图片，因为调整大小是在浏览器端完成的。（0 为不限制）",
+    "ko": "사이트가 사용자의 화면 너비에 맞게 이미지를 자동으로 축소시키지만, 수동으로 최대 표시 크기를 정할 수도 있어요. 크기 조정은 브라우저 측에서 수행되므로 이미지가 다시 샘플링되지 않아요. (0 = 제한 없음)"
+   },
+   "confidence": "clear",
+   "mirror": true,
+   "en_change": false,
+   "decision": "changed",
+   "applied": {
+    "ko": "사이트가 사용자의 화면 너비에 맞게 이미지를 자동으로 축소시키지만, 수동으로 최대 표시 크기를 정할 수도 있어요. 크기 조정은 브라우저 측에서 수행되므로 이미지가 다시 샘플링되지 않아요. (0 = 제한 없음)",
+    "zh-Hans": "虽然网站会自动缩小图片以适应屏幕宽度，但你也可以手动限制图片的最大显示尺寸。与自动缩放一样，这不会重新采样图片，因为调整大小是在浏览器端完成的。（0 为不限制）",
+    "zh-Hant": "雖然網站會自動縮小圖片以適應瀏覽裝置的螢幕寬度，但您也可以手動限制圖片的最大顯示尺寸。像自動縮放一樣，這不會重新取樣圖片，因為調整大小是在瀏覽器完成的 (0 = 沒有限制)"
+   }
+  },
+  {
+   "mod": "SettingFeature",
+   "key": "allow_cellular_downloads",
+   "why": "zh-Hans adds use (使用) where zh-Hant does not, a length-only difference between the pair.",
+   "proposal": {
+    "zh-Hans": "允许移动网络下载"
+   },
+   "confidence": "judgment",
+   "mirror": false,
+   "en_change": false,
+   "decision": "accepted",
+   "applied": {
+    "zh-Hans": "允许移动网络下载"
+   }
+  },
+  {
+   "mod": "SettingFeature",
+   "key": "archiver_behavior",
+   "why": "zh-Hans says download method while zh-Hant says logic settings.",
+   "proposal": {
+    "zh-Hant": "壓縮檔下載方式"
+   },
+   "confidence": "judgment",
+   "mirror": true,
+   "en_change": false,
+   "decision": "accepted",
+   "applied": {
+    "zh-Hant": "壓縮檔下載方式"
+   }
+  },
+  {
+   "mod": "SettingFeature",
+   "key": "bypass_SNI_filtering",
+   "why": "zh-Hans says blocking while en and zh-Hant say filtering, though SNI 阻断 is common mainland usage.",
+   "proposal": {
+    "zh-Hans": "绕过 SNI 过滤"
+   },
+   "confidence": "judgment",
+   "mirror": false,
+   "en_change": false,
+   "decision": "kept",
+   "note": "SNI 阻断 is the everyday mainland term, so this is regional vocabulary."
+  },
+  {
+   "mod": "SettingFeature",
+   "key": "comments_votes_show_timing",
+   "why": "zh-Hans and ja say comment score, but the site's setting shows votes and treats the score as the hover target; zh-Hant says vote count.",
+   "proposal": {
+    "zh-Hans": "评论投票数显示时机",
+    "ja": "コメント投票表示タイミング"
+   },
+   "confidence": "judgment",
+   "mirror": true,
+   "en_change": false,
+   "decision": "accepted",
+   "applied": {
+    "zh-Hans": "评论投票数显示时机",
+    "ja": "コメント投票表示タイミング"
+   }
+  },
+  {
+   "mod": "SettingFeature",
+   "key": "display_style",
+   "why": "zh-Hant says display manner while zh-Hans and the others say display style.",
+   "proposal": {
+    "zh-Hant": "顯示樣式"
+   },
+   "confidence": "judgment",
+   "mirror": true,
+   "en_change": false,
+   "decision": "accepted",
+   "applied": {
+    "zh-Hant": "顯示樣式"
+   }
+  },
+  {
+   "mod": "SettingFeature",
+   "key": "enhanced_tags",
+   "why": "English became Enhanced Tags to avoid reading as a plug-in, but de and both Chinese locales still say enable tag extension, and 擴充功能 and Erweiterung are the words for browser extensions.",
+   "proposal": {
+    "de": "Erweiterte Tags",
+    "zh-Hans": "标签增强",
+    "zh-Hant": "標籤增強"
+   },
+   "confidence": "judgment",
+   "mirror": false,
+   "en_change": false,
+   "decision": "changed",
+   "applied": {
+    "de": "Erweiterte Tags",
+    "zh-Hans": "增强标签",
+    "zh-Hant": "增強標籤"
+   }
+  },
+  {
+   "mod": "SettingFeature",
+   "key": "favorites_section",
+   "why": "zh-Hant says favorites folder while zh-Hans, the app-wide Favorites string and the others say favorites.",
+   "proposal": {
+    "zh-Hant": "收藏"
+   },
+   "confidence": "judgment",
+   "mirror": true,
+   "en_change": false,
+   "decision": "accepted",
+   "applied": {
+    "zh-Hant": "收藏"
+   }
+  },
+  {
+   "mod": "SettingFeature",
+   "key": "favorites_sort_order",
+   "why": "zh-Hant says favorites folder sorting while zh-Hans says favorites sort order.",
+   "proposal": {
+    "zh-Hant": "收藏排序方式"
+   },
+   "confidence": "judgment",
+   "mirror": true,
+   "en_change": false,
+   "decision": "accepted",
+   "applied": {
+    "zh-Hant": "收藏排序方式"
+   }
+  },
+  {
+   "mod": "SettingFeature",
+   "key": "gallery_name_description",
+   "why": "ko alone drops that many galleries have both titles and the Romanized option, and asks for a language rather than a gallery name.",
+   "proposal": {
+    "ko": "많은 갤러리에 영어/로마자 제목과 일본어 제목이 모두 있어요. 어떤 갤러리 이름을 기본으로 표시할까요?"
+   },
+   "confidence": "judgment",
+   "mirror": true,
+   "en_change": false,
+   "decision": "accepted",
+   "applied": {
+    "ko": "많은 갤러리에 영어/로마자 제목과 일본어 제목이 모두 있어요. 어떤 갤러리 이름을 기본으로 표시할까요?"
+   }
+  },
+  {
+   "mod": "SettingFeature",
+   "key": "horizontal",
+   "why": "zh-Hant says horizontal size (width) while zh-Hans and ja say width, a large length gap for a short field label.",
+   "proposal": {
+    "zh-Hant": "寬度"
+   },
+   "confidence": "judgment",
+   "mirror": true,
+   "en_change": false,
+   "decision": "accepted",
+   "applied": {
+    "zh-Hant": "寬度"
+   }
+  },
+  {
+   "mod": "SettingFeature",
+   "key": "vertical",
+   "why": "zh-Hant says vertical size (length) while zh-Hans and ja say height, a large length gap for a short field label.",
+   "proposal": {
+    "zh-Hant": "高度"
+   },
+   "confidence": "judgment",
+   "mirror": true,
+   "en_change": false,
+   "decision": "accepted",
+   "applied": {
+    "zh-Hant": "高度"
+   }
+  },
+  {
+   "mod": "SettingFeature",
+   "key": "image_resolution_description",
+   "why": "zh-Hant says images are scaled while en and zh-Hans say resampled, a distinction the Image Size text on the same page relies on.",
+   "proposal": {
+    "zh-Hant": "一般情況下圖片會被重新取樣成 1280 px（桌面版）或 800 px（行動版）水平解析度以供線上瀏覽，你也可以選擇下列替代解析度之一。"
+   },
+   "confidence": "judgment",
+   "mirror": true,
+   "en_change": false,
+   "decision": "accepted",
+   "applied": {
+    "zh-Hant": "一般情況下圖片會被重新取樣成 1280 px（桌面版）或 800 px（行動版）水平解析度以供線上瀏覽，你也可以選擇下列替代解析度之一。"
+   }
+  },
+  {
+   "mod": "SettingFeature",
+   "key": "load_images_through_hentai_at_home",
+   "why": "zh-Hant leaves Network in English while every other language translates it.",
+   "proposal": {
+    "zh-Hant": "透過 Hentai@Home 網路載入圖片"
+   },
+   "confidence": "judgment",
+   "mirror": false,
+   "en_change": false,
+   "decision": "accepted",
+   "applied": {
+    "zh-Hant": "透過 Hentai@Home 網路載入圖片"
+   }
+  },
+  {
+   "mod": "SettingFeature",
+   "key": "maximum_number_of_tags",
+   "why": "zh-Hant says display limit while zh-Hans says quantity limit.",
+   "proposal": {
+    "zh-Hant": "標籤數量上限"
+   },
+   "confidence": "judgment",
+   "mirror": false,
+   "en_change": false,
+   "decision": "accepted",
+   "applied": {
+    "zh-Hant": "標籤數量上限"
+   }
+  },
+  {
+   "mod": "SettingFeature",
+   "key": "multi_page_viewer",
+   "why": "zh-Hant says multi-page browsing while zh-Hans and the others name a viewer.",
+   "proposal": {
+    "zh-Hant": "多頁檢視器"
+   },
+   "confidence": "judgment",
+   "mirror": true,
+   "en_change": false,
+   "decision": "accepted",
+   "applied": {
+    "zh-Hant": "多頁檢視器"
+   }
+  },
+  {
+   "mod": "SettingFeature",
+   "key": "use_multi_page_viewer",
+   "why": "zh-Hant says use multi-page browsing while zh-Hans and the others name a viewer.",
+   "proposal": {
+    "zh-Hant": "使用多頁檢視器"
+   },
+   "confidence": "judgment",
+   "mirror": true,
+   "en_change": false,
+   "decision": "accepted",
+   "applied": {
+    "zh-Hant": "使用多頁檢視器"
+   }
+  },
+  {
+   "mod": "SettingFeature",
+   "key": "my_tags",
+   "why": "English follows the site's page name My Tags, but every translation adds manage or edit, and the threshold descriptions use the bare name.",
+   "proposal": {
+    "de": "Meine Tags",
+    "ja": "マイタグ",
+    "ko": "My Tags",
+    "zh-Hans": "我的标签",
+    "zh-Hant": "我的標籤"
+   },
+   "confidence": "judgment",
+   "mirror": false,
+   "en_change": false,
+   "decision": "accepted",
+   "applied": {
+    "de": "Meine Tags",
+    "ja": "マイタグ",
+    "ko": "My Tags",
+    "zh-Hans": "我的标签",
+    "zh-Hant": "我的標籤"
+   }
+  },
+  {
+   "mod": "SettingFeature",
+   "key": "navigation",
+   "why": "ko says links while every other language says navigation; the first pass chose it because the section only has two link toggles.",
+   "proposal": {
+    "ko": "내비게이션"
+   },
+   "confidence": "judgment",
+   "mirror": false,
+   "en_change": false,
+   "decision": "accepted",
+   "applied": {
+    "ko": "내비게이션"
+   }
+  },
+  {
+   "mod": "SettingFeature",
+   "key": "optional_UI_elements",
+   "why": "ja says UI display control while the others say optional UI elements.",
+   "proposal": {
+    "ja": "オプションの UI 要素"
+   },
+   "confidence": "judgment",
+   "mirror": true,
+   "en_change": false,
+   "decision": "accepted",
+   "applied": {
+    "ja": "オプションの UI 要素"
+   }
+  },
+  {
+   "mod": "SettingFeature",
+   "key": "result_count_description",
+   "why": "Both Chinese locales drop the index and torrent search pages, and zh-Hans translates the perk name while zh-Hant keeps the site's English name.",
+   "proposal": {
+    "zh-Hans": "你希望索引/搜索页和种子搜索页每页显示多少条结果？\n（需要“Hath Perk：Paging Enlargement”）",
+    "zh-Hant": "你希望索引/搜尋頁和種子搜尋頁每頁顯示幾個結果？\n(該功能需要有 Hath Perk: Paging Enlargement)"
+   },
+   "confidence": "judgment",
+   "mirror": true,
+   "en_change": false,
+   "decision": "accepted",
+   "applied": {
+    "zh-Hans": "你希望索引/搜索页和种子搜索页每页显示多少条结果？\n（需要“Hath Perk：Paging Enlargement”）",
+    "zh-Hant": "你希望索引/搜尋頁和種子搜尋頁每頁顯示幾個結果？\n(該功能需要有 Hath Perk: Paging Enlargement)"
+   }
+  },
+  {
+   "mod": "SettingFeature",
+   "key": "selected_profile",
+   "why": "zh-Hant reads as the action select a profile while zh-Hans and the others name the selected one.",
+   "proposal": {
+    "zh-Hant": "目前選定設定檔"
+   },
+   "confidence": "judgment",
+   "mirror": true,
+   "en_change": false,
+   "decision": "accepted",
+   "applied": {
+    "zh-Hant": "目前選定設定檔"
+   }
+  },
+  {
+   "mod": "SettingFeature",
+   "key": "show_tag_suggestions",
+   "why": "zh-Hant says show tag suggestions when searching while zh-Hans says show tag search suggestions, the same meaning in a different structure.",
+   "proposal": {
+    "zh-Hant": "顯示標籤搜尋建議"
+   },
+   "confidence": "judgment",
+   "mirror": false,
+   "en_change": false,
+   "decision": "accepted",
+   "applied": {
+    "zh-Hant": "顯示標籤搜尋建議"
+   }
+  },
+  {
+   "mod": "SettingFeature",
+   "key": "show_thumbnail_pane",
+   "why": "zh-Hans says sidebar while zh-Hant and English say pane.",
+   "proposal": {
+    "zh-Hans": "显示缩略图窗格"
+   },
+   "confidence": "judgment",
+   "mirror": true,
+   "en_change": false,
+   "decision": "accepted",
+   "applied": {
+    "zh-Hans": "显示缩略图窗格"
+   }
+  },
+  {
+   "mod": "SettingFeature",
+   "key": "tag_filtering_threshold",
+   "why": "zh-Hant uses 過濾 while zh-Hans uses 筛选, and the owner's zh-Hant term for filter is 篩選.",
+   "proposal": {
+    "zh-Hant": "標籤篩選閾值"
+   },
+   "confidence": "judgment",
+   "mirror": true,
+   "en_change": false,
+   "decision": "accepted",
+   "applied": {
+    "zh-Hant": "標籤篩選閾值"
+   }
+  },
+  {
+   "mod": "SettingFeature",
+   "key": "tags_sort_order",
+   "why": "zh-Hant says tag display order while zh-Hans and its sibling comment key say sort order.",
+   "proposal": {
+    "zh-Hant": "標籤排序方式"
+   },
+   "confidence": "judgment",
+   "mirror": true,
+   "en_change": false,
+   "decision": "accepted",
+   "applied": {
+    "zh-Hant": "標籤排序方式"
+   }
+  },
+  {
+   "mod": "SettingFeature",
+   "key": "thumbnail_configuration",
+   "why": "ko says set a default thumbnail while the others say a default thumbnail configuration.",
+   "proposal": {
+    "ko": "모든 방문한 갤러리에 대하여 기본 썸네일 구성을 설정할 수 있어요."
+   },
+   "confidence": "judgment",
+   "mirror": true,
+   "en_change": false,
+   "decision": "accepted",
+   "applied": {
+    "ko": "모든 방문한 갤러리에 대하여 기본 썸네일 구성을 설정할 수 있어요."
+   }
+  },
+  {
+   "mod": "SettingFeature",
+   "key": "title",
+   "why": "de says Download while English and the de row that opens this page say Downloads.",
+   "proposal": {
+    "de": "Downloads"
+   },
+   "confidence": "judgment",
+   "mirror": false,
+   "en_change": false,
+   "decision": "accepted",
+   "applied": {
+    "de": "Downloads"
+   }
+  },
+  {
+   "mod": "SettingFeature",
+   "key": "use_original_images",
+   "why": "zh-Hans says show original images while zh-Hant says use them and adds (original resolution).",
+   "proposal": {
+    "zh-Hans": "使用原图",
+    "zh-Hant": "使用原始圖片"
+   },
+   "confidence": "judgment",
+   "mirror": true,
+   "en_change": false,
+   "decision": "changed",
+   "applied": {
+    "zh-Hans": "使用原始图片",
+    "zh-Hant": "使用原始圖片"
+   }
+  },
+  {
+   "mod": "AppComponents",
+   "key": "errorInfoSolution",
+   "why": "zh-Hans says plain 'solution' while zh-Hant, en, de and ko keep 'suggested'.",
+   "proposal": {
+    "zh-Hans": "建议做法"
+   },
+   "confidence": "clear",
+   "mirror": false,
+   "en_change": false,
+   "decision": "accepted",
+   "applied": {
+    "zh-Hans": "建议做法"
+   }
+  },
+  {
+   "mod": "AppComponents",
+   "key": "first",
+   "why": "zh-Hans drops the dawn image and says 'yet another new day', while zh-Hant and every other locale keep the dawn.",
+   "proposal": {
+    "zh-Hans": "黎明已至，新的一天开始了！"
+   },
+   "confidence": "clear",
+   "mirror": false,
+   "en_change": false,
+   "decision": "accepted",
+   "applied": {
+    "zh-Hans": "黎明已至，新的一天开始了！"
+   }
+  },
+  {
+   "mod": "AppComponents",
+   "key": "second",
+   "why": "zh-Hans says 'course' with no 'you' while zh-Hant says 'journey' and addresses the reader, as en does.",
+   "proposal": {
+    "zh-Hans": "回顾至今的旅程，你发现自己又睿智了一些。"
+   },
+   "confidence": "judgment",
+   "mirror": false,
+   "en_change": false,
+   "decision": "accepted",
+   "applied": {
+    "zh-Hans": "回顾至今的旅程，你发现自己又睿智了一些。"
+   }
+  },
+  {
+   "mod": "AppComponents",
+   "key": "sending_request",
+   "why": "de and zh-Hant say 'connecting' while en, ko and zh-Hans say a request is being sent.",
+   "proposal": {
+    "de": "Anfrage wird gesendet …",
+    "zh-Hant": "正在傳送要求⋯"
+   },
+   "confidence": "clear",
+   "mirror": false,
+   "en_change": false,
+   "decision": "changed",
+   "applied": {
+    "de": "Anfrage wird gesendet …",
+    "zh-Hant": "正在傳送請求⋯"
+   }
+  },
+  {
+   "mod": "AppComponents",
+   "key": "show_all",
+   "why": "zh-Hans says 'view all' and zh-Hant 'display all'; 查看全部 is the zh-Hans baseline and is also everyday in Taiwan.",
+   "proposal": {
+    "zh-Hant": "查看全部"
+   },
+   "confidence": "judgment",
+   "mirror": false,
+   "en_change": false,
+   "decision": "accepted",
+   "applied": {
+    "zh-Hant": "查看全部"
+   }
+  },
+  {
+   "mod": "CookieClient",
+   "key": "cookie_value.none",
+   "why": "zh-Hans says 'not set' and de 'not present' while the others say 'none'.",
+   "proposal": {
+    "de": "Keine",
+    "zh-Hans": "无"
+   },
+   "confidence": "clear",
+   "mirror": false,
+   "en_change": false,
+   "decision": "accepted",
+   "applied": {
+    "de": "Keine",
+    "zh-Hans": "无"
+   }
+  },
+  {
+   "mod": "DateSeekFeature",
+   "key": "seek_around_date",
+   "why": "zh-Hans adds 'posted' and says 'before and after the date' while zh-Hant says 'near the date' with no 'posted'.",
+   "proposal": {
+    "zh-Hans": "跳转到所选日期前后的画廊。",
+    "zh-Hant": "前往所選日期前後的畫廊。"
+   },
+   "confidence": "judgment",
+   "mirror": false,
+   "en_change": false,
+   "decision": "accepted",
+   "applied": {
+    "zh-Hans": "跳转到所选日期前后的画廊。",
+    "zh-Hant": "前往所選日期前後的畫廊。"
+   }
+  },
+  {
+   "mod": "DetailFeature",
+   "key": "accessibility.credits_balance",
+   "why": "zh-Hant invents 'credit points' while en and zh-Hans keep the site's currency name Credits.",
+   "proposal": {
+    "zh-Hant": "Credits 餘額：%arg"
+   },
+   "confidence": "clear",
+   "mirror": false,
+   "en_change": false,
+   "plural": true,
+   "decision": "changed",
+   "applied": {
+    "zh-Hant": "Credits 餘額：%#@balance@"
+   }
+  },
+  {
+   "mod": "DetailFeature",
+   "key": "accessibility.downloaded",
+   "why": "zh-Hant drops the 的 that zh-Hans uses, a structure difference only.",
+   "proposal": {
+    "zh-Hant": "刪除已下載的畫廊"
+   },
+   "confidence": "judgment",
+   "mirror": false,
+   "en_change": false,
+   "decision": "accepted",
+   "applied": {
+    "zh-Hant": "刪除已下載的畫廊"
+   }
+  },
+  {
+   "mod": "DetailFeature",
+   "key": "accessibility.gallery_points_balance",
+   "why": "zh-Hans reads the abbreviation GP while en and every other locale spell out gallery points.",
+   "proposal": {
+    "zh-Hans": "画廊点数余额：%arg"
+   },
+   "confidence": "clear",
+   "mirror": false,
+   "en_change": false,
+   "plural": true,
+   "decision": "changed",
+   "applied": {
+    "zh-Hans": "画廊点数余额：%#@balance@"
+   }
+  },
+  {
+   "mod": "DetailFeature",
+   "key": "accessibility.partial",
+   "why": "zh-Hans says 'redownload', a separate destructive action, and zh-Hans, zh-Hant and de say pages are 'available' where en says downloaded.",
+   "proposal": {
+    "de": "Download erneut versuchen. %arg von %arg Seiten heruntergeladen.",
+    "zh-Hans": "重试下载。已下载 %arg 页，共 %arg 页。",
+    "zh-Hant": "重試下載。共 %arg 頁，已下載 %arg 頁。"
+   },
+   "confidence": "clear",
+   "mirror": false,
+   "en_change": false,
+   "plural": true,
+   "decision": "changed",
+   "applied": {
+    "de": "Download erneut versuchen. %#@available@ von %#@total@ Seiten heruntergeladen.",
+    "zh-Hans": "重试下载。已下载 %#@available@ 页，共 %#@total@ 页。",
+    "zh-Hant": "重試下載。已下載 %#@available@ 頁，共 %#@total@ 頁。"
+   }
+  },
+  {
+   "mod": "DetailFeature",
+   "key": "accessibility.paused",
+   "why": "zh-Hant drops 'paused', which en and every other locale state.",
+   "proposal": {
+    "zh-Hant": "繼續下載。已暫停，已完成 %arg 頁，共 %arg 頁"
+   },
+   "confidence": "clear",
+   "mirror": false,
+   "en_change": false,
+   "plural": true,
+   "decision": "changed",
+   "applied": {
+    "zh-Hant": "繼續下載。已暫停，已完成 %#@completed@ 頁，共 %#@total@ 頁"
+   }
+  },
+  {
+   "mod": "DetailFeature",
+   "key": "accessibility.preparing",
+   "why": "ja and zh-Hant say 'fetching download info' while the others say 'preparing the download'.",
+   "proposal": {
+    "ja": "ダウンロードを準備中",
+    "zh-Hant": "正在準備下載"
+   },
+   "confidence": "clear",
+   "mirror": false,
+   "en_change": false,
+   "decision": "accepted",
+   "applied": {
+    "ja": "ダウンロードを準備中",
+    "zh-Hant": "正在準備下載"
+   }
+  },
+  {
+   "mod": "DetailFeature",
+   "key": "accessibility.queued",
+   "why": "zh-Hans says 'added to the download queue' while zh-Hant and the zh-Hans badge string say 'waiting'.",
+   "proposal": {
+    "zh-Hans": "等待中"
+   },
+   "confidence": "clear",
+   "mirror": false,
+   "en_change": false,
+   "decision": "accepted",
+   "applied": {
+    "zh-Hans": "等待中"
+   }
+  },
+  {
+   "mod": "DetailFeature",
+   "key": "accessibility.remove_from_favorites",
+   "why": "zh-Hans says 'unfavorite' and zh-Hant 'remove from favorites'; 取消收藏 is everyday in both regions.",
+   "proposal": {
+    "zh-Hant": "取消收藏"
+   },
+   "confidence": "judgment",
+   "mirror": false,
+   "en_change": false,
+   "decision": "accepted",
+   "applied": {
+    "zh-Hant": "取消收藏"
+   }
+  },
+  {
+   "mod": "DetailFeature",
+   "key": "accessibility.repair",
+   "why": "zh-Hant says 'downloaded files' while zh-Hans and zh-Hant's own update string say 'downloaded content'.",
+   "proposal": {
+    "zh-Hant": "修復下載內容"
+   },
+   "confidence": "judgment",
+   "mirror": false,
+   "en_change": false,
+   "decision": "accepted",
+   "applied": {
+    "zh-Hant": "修復下載內容"
+   }
+  },
+  {
+   "mod": "DetailFeature",
+   "key": "accessibility.retry",
+   "why": "zh-Hans reads exactly like Redownload (重新下载), a separate destructive action, while en and zh-Hant say retry.",
+   "proposal": {
+    "zh-Hans": "重试下载"
+   },
+   "confidence": "clear",
+   "mirror": false,
+   "en_change": false,
+   "decision": "accepted",
+   "applied": {
+    "zh-Hans": "重试下载"
+   }
+  },
+  {
+   "mod": "DetailFeature",
+   "key": "accessibility.size.gibibyte",
+   "why": "zh-Hans reads GB while zh-Hant reads 'billion bytes'; GB is what readers see every day in both regions.",
+   "proposal": {
+    "zh-Hant": "GB"
+   },
+   "confidence": "clear",
+   "mirror": false,
+   "en_change": false,
+   "plural": true,
+   "decision": "accepted",
+   "applied": {
+    "zh-Hant": "GB"
+   }
+  },
+  {
+   "mod": "DetailFeature",
+   "key": "accessibility.size.kibibyte",
+   "why": "zh-Hans reads KB while zh-Hant reads 'thousand bytes'; KB is what readers see every day in both regions.",
+   "proposal": {
+    "zh-Hant": "KB"
+   },
+   "confidence": "clear",
+   "mirror": false,
+   "en_change": false,
+   "plural": true,
+   "decision": "accepted",
+   "applied": {
+    "zh-Hant": "KB"
+   }
+  },
+  {
+   "mod": "DetailFeature",
+   "key": "accessibility.size.mebibyte",
+   "why": "zh-Hans reads MB while zh-Hant reads 'million bytes'; MB is what readers see every day in both regions.",
+   "proposal": {
+    "zh-Hant": "MB"
+   },
+   "confidence": "clear",
+   "mirror": false,
+   "en_change": false,
+   "plural": true,
+   "decision": "accepted",
+   "applied": {
+    "zh-Hant": "MB"
+   }
+  },
+  {
+   "mod": "DetailFeature",
+   "key": "accessibility.torrent_peers",
+   "why": "zh-Hans gives a count form and zh-Hant does not; the regional BT words 用户 and 下載者 are left alone.",
+   "proposal": {
+    "zh-Hant": "下載者數：%arg"
+   },
+   "confidence": "judgment",
+   "mirror": false,
+   "en_change": false,
+   "plural": true,
+   "decision": "changed",
+   "applied": {
+    "zh-Hant": "下載者數：%#@count@"
+   }
+  },
+  {
+   "mod": "DetailFeature",
+   "key": "accessibility.torrent_seeds",
+   "why": "zh-Hans says 'seeding count' while zh-Hant's 種子數 reads like the torrent count 種子數量, since 種子 also means Torrents there.",
+   "proposal": {
+    "zh-Hant": "做種數：%arg"
+   },
+   "confidence": "judgment",
+   "mirror": false,
+   "en_change": false,
+   "plural": true,
+   "decision": "changed",
+   "applied": {
+    "zh-Hant": "做種數：%#@count@"
+   }
+  },
+  {
+   "mod": "DetailFeature",
+   "key": "accessibility.voted_down",
+   "why": "zh-Hans says 'opposed' while en and zh-Hant say 'voted against'.",
+   "proposal": {
+    "zh-Hans": "已投反对票"
+   },
+   "confidence": "judgment",
+   "mirror": false,
+   "en_change": false,
+   "decision": "accepted",
+   "applied": {
+    "zh-Hans": "已投反对票"
+   }
+  },
+  {
+   "mod": "DetailFeature",
+   "key": "accessibility.voted_up",
+   "why": "zh-Hans says 'agreed' while en and zh-Hant say 'voted for'.",
+   "proposal": {
+    "zh-Hans": "已投赞成票"
+   },
+   "confidence": "judgment",
+   "mirror": false,
+   "en_change": false,
+   "decision": "accepted",
+   "applied": {
+    "zh-Hans": "已投赞成票"
+   }
+  },
+  {
+   "mod": "DetailFeature",
+   "key": "archives",
+   "why": "zh-Hans says 'filing' (归档) while zh-Hant says 'compressed file'; the site's archive is a ZIP, so 压缩包 is the regional pair of the owner-reviewed 壓縮檔.",
+   "proposal": {
+    "zh-Hans": "压缩包"
+   },
+   "confidence": "clear",
+   "mirror": false,
+   "en_change": false,
+   "decision": "kept",
+   "note": "归档 matches English and the community's term; 壓縮檔 is the owner-reviewed Taiwanese word. Raised to the owner."
+  },
+  {
+   "mod": "DetailFeature",
+   "key": "archives_action",
+   "why": "zh-Hans says 'filing' (归档) while zh-Hant says 'compressed file'; the site's archive is a ZIP, so 压缩包 is the regional pair of the owner-reviewed 壓縮檔.",
+   "proposal": {
+    "zh-Hans": "压缩包"
+   },
+   "confidence": "clear",
+   "mirror": false,
+   "en_change": false,
+   "decision": "kept",
+   "note": "归档 matches English and the community's term; 壓縮檔 is the owner-reviewed Taiwanese word. Raised to the owner."
+  },
+  {
+   "mod": "DetailFeature",
+   "key": "metadata.archive_URL",
+   "why": "zh-Hans says 'filing link' (归档) while zh-Hant says 'compressed file URL'.",
+   "proposal": {
+    "zh-Hans": "压缩包链接"
+   },
+   "confidence": "clear",
+   "mirror": false,
+   "en_change": false,
+   "decision": "kept",
+   "note": "归档 matches English and the community's term; 壓縮檔 is the owner-reviewed Taiwanese word. Raised to the owner."
+  },
+  {
+   "mod": "DetailFeature",
+   "key": "metadata.id",
+   "why": "zh-Hant adds 'gallery' while en and every other locale say only ID.",
+   "proposal": {
+    "zh-Hant": "ID"
+   },
+   "confidence": "clear",
+   "mirror": false,
+   "en_change": false,
+   "decision": "accepted",
+   "applied": {
+    "zh-Hant": "ID"
+   }
+  },
+  {
+   "mod": "DetailFeature",
+   "key": "metadata.parent_URL",
+   "why": "zh-Hant says 'previous-version gallery' while en and every other locale say parent.",
+   "proposal": {
+    "zh-Hant": "父畫廊網址"
+   },
+   "confidence": "clear",
+   "mirror": false,
+   "en_change": false,
+   "decision": "accepted",
+   "applied": {
+    "zh-Hant": "父畫廊網址"
+   }
+  },
+  {
+   "mod": "DetailFeature",
+   "key": "metadata.rating_count",
+   "why": "zh-Hans counts raters and zh-Hant counts ratings; the zh-Hans baseline counts people.",
+   "proposal": {
+    "zh-Hant": "評分人數"
+   },
+   "confidence": "judgment",
+   "mirror": false,
+   "en_change": false,
+   "decision": "accepted",
+   "applied": {
+    "zh-Hant": "評分人數"
+   }
+  },
+  {
+   "mod": "DetailFeature",
+   "key": "metadata.visibility",
+   "why": "zh-Hant and ko say 'public or not' while en, de and zh-Hans say visible; the row reports the expunged state, not access.",
+   "proposal": {
+    "ko": "표시 여부",
+    "zh-Hant": "是否可見"
+   },
+   "confidence": "clear",
+   "mirror": false,
+   "en_change": false,
+   "decision": "accepted",
+   "applied": {
+    "ko": "표시 여부",
+    "zh-Hant": "是否可見"
+   }
+  },
+  {
+   "mod": "DetailFeature",
+   "key": "ratings_count",
+   "why": "zh-Hans counts people and zh-Hant counts entries; the zh-Hans baseline counts people.",
+   "proposal": {
+    "zh-Hant": "%arg 人評分"
+   },
+   "confidence": "judgment",
+   "mirror": false,
+   "en_change": false,
+   "plural": true,
+   "decision": "accepted",
+   "applied": {
+    "zh-Hant": "%arg 人評分"
+   }
+  },
+  {
+   "mod": "DetailFeature",
+   "key": "redownload_gallery",
+   "why": "zh-Hant asks a full question about 'this gallery' while zh-Hans is a bare verb phrase.",
+   "proposal": {
+    "zh-Hans": "要重新下载此画廊吗？"
+   },
+   "confidence": "judgment",
+   "mirror": false,
+   "en_change": false,
+   "decision": "accepted",
+   "applied": {
+    "zh-Hans": "要重新下载此画廊吗？"
+   }
+  },
+  {
+   "mod": "DetailFeature",
+   "key": "redownload_gallery_description",
+   "why": "en warns that saved pages are replaced, but every translation drops it and de says only 'all pages reload'.",
+   "proposal": {
+    "de": "Der Download beginnt von vorn und ersetzt bereits gespeicherte Seiten.",
+    "ja": "最初からダウンロードし直し、保存済みのページを置き換えます。",
+    "ko": "처음부터 다시 다운로드하고 이미 저장된 페이지를 대체합니다.",
+    "zh-Hans": "将从头开始下载，并替换已保存的页面。",
+    "zh-Hant": "會從頭開始下載，並取代已儲存的頁面。"
+   },
+   "confidence": "clear",
+   "mirror": false,
+   "en_change": false,
+   "decision": "accepted",
+   "applied": {
+    "de": "Der Download beginnt von vorn und ersetzt bereits gespeicherte Seiten.",
+    "ja": "最初からダウンロードし直し、保存済みのページを置き換えます。",
+    "ko": "처음부터 다시 다운로드하고 이미 저장된 페이지를 대체합니다.",
+    "zh-Hans": "将从头开始下载，并替换已保存的页面。",
+    "zh-Hant": "會從頭開始下載，並取代已儲存的頁面。"
+   }
+  },
+  {
+   "mod": "DetailFeature",
+   "key": "repair_download",
+   "why": "zh-Hant asks a full question about 'this download' while zh-Hans is a bare verb phrase.",
+   "proposal": {
+    "zh-Hans": "要修复此下载内容吗？"
+   },
+   "confidence": "judgment",
+   "mirror": false,
+   "en_change": false,
+   "decision": "changed",
+   "applied": {
+    "zh-Hans": "要修复此下载项目吗？"
+   }
+  },
+  {
+   "mod": "DetailFeature",
+   "key": "repair_download_description",
+   "why": "de, ja, ko and zh-Hant drop 'missing' and zh-Hans drops 'only', so no translation carries both parts of en.",
+   "proposal": {
+    "de": "Nur fehlende oder beschädigte Seiten werden neu geladen.",
+    "ja": "欠落または破損したページのみをダウンロードし直します。",
+    "ko": "누락되었거나 손상된 페이지만 다시 다운로드합니다.",
+    "zh-Hans": "只会重新下载此画廊缺失或损坏的页面。",
+    "zh-Hant": "只會重新下載此畫廊缺失或損壞的頁面。"
+   },
+   "confidence": "clear",
+   "mirror": false,
+   "en_change": false,
+   "decision": "accepted",
+   "applied": {
+    "de": "Nur fehlende oder beschädigte Seiten werden neu geladen.",
+    "ja": "欠落または破損したページのみをダウンロードし直します。",
+    "ko": "누락되었거나 손상된 페이지만 다시 다운로드합니다.",
+    "zh-Hans": "只会重新下载此画廊缺失或损坏的页面。",
+    "zh-Hant": "只會重新下載此畫廊缺失或損壞的頁面。"
+   }
+  },
+  {
+   "mod": "DetailFeature",
+   "key": "saved_details",
+   "why": "zh-Hans says 'couldn't get the latest details' while zh-Hant says 'couldn't update online info'.",
+   "proposal": {
+    "zh-Hant": "無法取得最新詳細資訊，目前顯示已儲存的內容。"
+   },
+   "confidence": "judgment",
+   "mirror": false,
+   "en_change": false,
+   "decision": "accepted",
+   "applied": {
+    "zh-Hant": "無法取得最新詳細資訊，目前顯示已儲存的內容。"
+   }
+  },
+  {
+   "mod": "DetailFeature",
+   "key": "update_download",
+   "why": "zh-Hant asks a full question about 'this download' while zh-Hans is a bare verb phrase.",
+   "proposal": {
+    "zh-Hans": "要更新此下载内容吗？"
+   },
+   "confidence": "judgment",
+   "mirror": false,
+   "en_change": false,
+   "decision": "changed",
+   "applied": {
+    "zh-Hans": "要更新此下载项目吗？"
+   }
+  },
+  {
+   "mod": "DetailFeature",
+   "key": "update_download_description",
+   "why": "zh-Hans names this gallery as the object and 'the website' as the source while zh-Hant structures it differently and says 'online'.",
+   "proposal": {
+    "zh-Hant": "會將此畫廊更新到網站上的最新版本。"
+   },
+   "confidence": "judgment",
+   "mirror": false,
+   "en_change": false,
+   "decision": "accepted",
+   "applied": {
+    "zh-Hant": "會將此畫廊更新到網站上的最新版本。"
+   }
+  },
+  {
+   "mod": "DetailFeature",
+   "key": "vote_down",
+   "why": "zh-Hans says 'oppose' while en and zh-Hant say 'vote against'.",
+   "proposal": {
+    "zh-Hans": "投反对票"
+   },
+   "confidence": "judgment",
+   "mirror": false,
+   "en_change": false,
+   "decision": "accepted",
+   "applied": {
+    "zh-Hans": "投反对票"
+   }
+  },
+  {
+   "mod": "DetailFeature",
+   "key": "vote_up",
+   "why": "zh-Hans says 'agree' while en and zh-Hant say 'vote for'.",
+   "proposal": {
+    "zh-Hans": "投赞成票"
+   },
+   "confidence": "judgment",
+   "mirror": false,
+   "en_change": false,
+   "decision": "accepted",
+   "applied": {
+    "zh-Hans": "投赞成票"
+   }
+  },
+  {
+   "mod": "DownloadsFeature",
+   "key": "delete_active_download",
+   "why": "zh-Hans adds 'the downloaded content' while en and zh-Hant remove the download itself.",
+   "proposal": {
+    "zh-Hans": "将取消当前下载，并从此设备移除。"
+   },
+   "confidence": "judgment",
+   "mirror": false,
+   "en_change": false,
+   "decision": "accepted",
+   "applied": {
+    "zh-Hans": "将取消当前下载，并从此设备移除。"
+   }
+  },
+  {
+   "mod": "DownloadsFeature",
+   "key": "no_pages",
+   "why": "zh-Hans uses the terse 无 form while zh-Hant uses the full 沒有 form, a length difference only.",
+   "proposal": {
+    "zh-Hans": "没有页面"
+   },
+   "confidence": "judgment",
+   "mirror": false,
+   "en_change": false,
+   "decision": "accepted",
+   "applied": {
+    "zh-Hans": "没有页面"
+   }
+  },
+  {
+   "mod": "FiltersFeature",
+   "key": "browse_expunged_galleries",
+   "why": "zh-Hans says 'deleted' while zh-Hant says 'taken down'; expunged galleries stay reachable, so 'deleted' overstates it.",
+   "proposal": {
+    "zh-Hans": "浏览已下架的画廊"
+   },
+   "confidence": "clear",
+   "mirror": false,
+   "en_change": false,
+   "decision": "accepted",
+   "applied": {
+    "zh-Hans": "浏览已下架的画廊"
+   }
+  },
+  {
+   "mod": "FiltersFeature",
+   "key": "minimum_rating",
+   "why": "zh-Hans says 'lowest rating' while zh-Hant says 'rating lower limit'.",
+   "proposal": {
+    "zh-Hant": "最低評分"
+   },
+   "confidence": "judgment",
+   "mirror": false,
+   "en_change": false,
+   "decision": "accepted",
+   "applied": {
+    "zh-Hant": "最低評分"
+   }
+  },
+  {
+   "mod": "FiltersFeature",
+   "key": "require_gallery_torrent",
+   "why": "zh-Hans says 'must contain a torrent' while zh-Hant says 'only galleries with torrents'.",
+   "proposal": {
+    "zh-Hans": "仅限有种子的画廊"
+   },
+   "confidence": "judgment",
+   "mirror": false,
+   "en_change": false,
+   "decision": "accepted",
+   "applied": {
+    "zh-Hans": "仅限有种子的画廊"
+   }
+  },
+  {
+   "mod": "FiltersFeature",
+   "key": "reset_description",
+   "why": "en says these filters go back to defaults, but ko and both zh locales name neither and de and ja omit the defaults.",
+   "proposal": {
+    "de": "Alle Filter auf die Standardwerte zurücksetzen?",
+    "ja": "フィルターをデフォルトに戻しますか？",
+    "ko": "필터를 기본값으로 초기화할까요?",
+    "zh-Hans": "确定要将筛选条件重置为默认值吗？",
+    "zh-Hant": "確定要將篩選條件重設為預設值嗎？"
+   },
+   "confidence": "judgment",
+   "mirror": false,
+   "en_change": false,
+   "decision": "accepted",
+   "applied": {
+    "de": "Alle Filter auf die Standardwerte zurücksetzen?",
+    "ja": "フィルターをデフォルトに戻しますか？",
+    "ko": "필터를 기본값으로 초기화할까요?",
+    "zh-Hans": "确定要将筛选条件重置为默认值吗？",
+    "zh-Hant": "確定要將篩選條件重設為預設值嗎？"
+   }
+  },
+  {
+   "mod": "FiltersFeature",
+   "key": "set_minimum_rating",
+   "why": "zh-Hans says 'lowest rating' while zh-Hant says 'rating lower limit'.",
+   "proposal": {
+    "zh-Hant": "設定最低評分"
+   },
+   "confidence": "judgment",
+   "mirror": false,
+   "en_change": false,
+   "decision": "accepted",
+   "applied": {
+    "zh-Hant": "設定最低評分"
+   }
+  },
+  {
+   "mod": "GalleryListComponents",
+   "key": "download_badge.update_available",
+   "why": "zh-Hans says 'can update' while zh-Hant says 'has an update'.",
+   "proposal": {
+    "zh-Hant": "可更新"
+   },
+   "confidence": "judgment",
+   "mirror": false,
+   "en_change": false,
+   "decision": "accepted",
+   "applied": {
+    "zh-Hant": "可更新"
+   }
+  },
+  {
+   "mod": "HomeFeature",
+   "key": "go",
+   "why": "de, ko and zh-Hant say a generic 'confirm' while en, ja and zh-Hans name the jump.",
+   "proposal": {
+    "de": "Springen",
+    "ko": "이동",
+    "zh-Hant": "前往"
+   },
+   "confidence": "clear",
+   "mirror": false,
+   "en_change": false,
+   "decision": "accepted",
+   "applied": {
+    "de": "Springen",
+    "ko": "이동",
+    "zh-Hant": "前往"
+   }
+  },
+  {
+   "mod": "HomeFeature",
+   "key": "home_history_description",
+   "why": "zh-Hans says 'view' while en and zh-Hant say 'return to'.",
+   "proposal": {
+    "zh-Hans": "回到最近打开过的画廊。"
+   },
+   "confidence": "judgment",
+   "mirror": false,
+   "en_change": false,
+   "decision": "accepted",
+   "applied": {
+    "zh-Hans": "回到最近打开过的画廊。"
+   }
+  },
+  {
+   "mod": "HomeFeature",
+   "key": "home_misc_grid_type.watched",
+   "why": "ko names the tags themselves while the screen lists galleries, which every other locale's label allows.",
+   "proposal": {
+    "ko": "관심 갤러리"
+   },
+   "confidence": "judgment",
+   "mirror": false,
+   "en_change": false,
+   "decision": "kept",
+   "note": "The owner was shown the Watched translations on 2026-11-01 and kept them."
+  },
+  {
+   "mod": "HomeFeature",
+   "key": "home_popular_footnote",
+   "why": "de says 'worldwide' while en and the others say site-wide, which changes the scope.",
+   "proposal": {
+    "de": "Auf der Website beliebt"
+   },
+   "confidence": "clear",
+   "mirror": false,
+   "en_change": false,
+   "decision": "changed",
+   "applied": {
+    "de": "Seitenweit beliebt"
+   }
+  },
+  {
+   "mod": "HomeFeature",
+   "key": "home_watched_description",
+   "why": "zh-Hans says 'find the newest galleries' while en and zh-Hant name uploads and zh-Hant says 'view'.",
+   "proposal": {
+    "zh-Hans": "查看符合关注标签的最新上传。"
+   },
+   "confidence": "judgment",
+   "mirror": false,
+   "en_change": false,
+   "decision": "accepted",
+   "applied": {
+    "zh-Hans": "查看符合关注标签的最新上传。"
+   }
+  },
+  {
+   "mod": "HomeFeature",
+   "key": "show_all",
+   "why": "zh-Hans says 'view all' and zh-Hant 'display all'; 查看全部 is the zh-Hans baseline and is also everyday in Taiwan.",
+   "proposal": {
+    "zh-Hant": "查看全部"
+   },
+   "confidence": "judgment",
+   "mirror": false,
+   "en_change": false,
+   "decision": "accepted",
+   "applied": {
+    "zh-Hant": "查看全部"
+   }
+  },
+  {
+   "mod": "HomeFeature",
+   "key": "time_range",
+   "why": "zh-Hans says 'time range' while zh-Hant says 'period'.",
+   "proposal": {
+    "zh-Hant": "時間範圍"
+   },
+   "confidence": "judgment",
+   "mirror": false,
+   "en_change": false,
+   "decision": "accepted",
+   "applied": {
+    "zh-Hant": "時間範圍"
+   }
+  },
+  {
+   "mod": "HomeFeature",
+   "key": "watched",
+   "why": "ko names the tags themselves while the screen lists galleries, which every other locale's label allows.",
+   "proposal": {
+    "ko": "관심 갤러리"
+   },
+   "confidence": "judgment",
+   "mirror": false,
+   "en_change": false,
+   "decision": "kept",
+   "note": "The owner was shown the Watched translations on 2026-11-01 and kept them."
+  },
+  {
+   "mod": "QuickSearchFeature",
+   "key": "delete_saved_search_description",
+   "why": "de, ja, ko and zh-Hans call the entry a 'keyword' while en says saved search and zh-Hant Quick Search; an entry holds a name and full search syntax.",
+   "proposal": {
+    "de": "Diese gespeicherte Suche wirklich löschen?",
+    "ja": "この保存した検索を削除しますか？",
+    "ko": "이 저장된 검색을 삭제할까요?",
+    "zh-Hans": "确定要删除这条快速搜索吗？"
+   },
+   "confidence": "clear",
+   "mirror": false,
+   "en_change": false,
+   "decision": "accepted",
+   "applied": {
+    "de": "Diese gespeicherte Suche wirklich löschen?",
+    "ja": "この保存した検索を削除しますか？",
+    "ko": "이 저장된 검색을 삭제할까요?",
+    "zh-Hans": "确定要删除这条快速搜索吗？"
+   }
+  },
+  {
+   "mod": "QuickSearchFeature",
+   "key": "edit_saved_search",
+   "why": "de, ja, ko and zh-Hans call the entry a 'keyword' while en says saved search and zh-Hant Quick Search; an entry holds a name and full search syntax.",
+   "proposal": {
+    "de": "Suche bearbeiten",
+    "ja": "保存した検索を編集",
+    "ko": "저장된 검색 편집",
+    "zh-Hans": "编辑快速搜索"
+   },
+   "confidence": "clear",
+   "mirror": false,
+   "en_change": false,
+   "decision": "accepted",
+   "applied": {
+    "de": "Suche bearbeiten",
+    "ja": "保存した検索を編集",
+    "ko": "저장된 검색 편집",
+    "zh-Hans": "编辑快速搜索"
+   }
+  },
+  {
+   "mod": "QuickSearchFeature",
+   "key": "new_saved_search",
+   "why": "de, ja, ko and zh-Hans call the entry a 'keyword' while en says saved search and zh-Hant Quick Search; an entry holds a name and full search syntax.",
+   "proposal": {
+    "de": "Suche speichern",
+    "ja": "保存した検索を追加",
+    "ko": "저장된 검색 추가",
+    "zh-Hans": "添加快速搜索"
+   },
+   "confidence": "clear",
+   "mirror": false,
+   "en_change": false,
+   "decision": "accepted",
+   "applied": {
+    "de": "Suche speichern",
+    "ja": "保存した検索を追加",
+    "ko": "저장된 검색 추가",
+    "zh-Hans": "添加快速搜索"
+   }
+  },
+  {
+   "mod": "QuickSearchFeature",
+   "key": "saved_search_limit_description",
+   "why": "de, ja, ko and zh-Hans count 'keywords' while en counts searches and zh-Hant counts Quick Search entries.",
+   "proposal": {
+    "de": "Du kannst bis zu %arg Suchen speichern.",
+    "ja": "最大%arg件の検索を保存できます。",
+    "ko": "검색은 최대 %arg개까지 저장할 수 있습니다.",
+    "zh-Hans": "最多可保存 %arg 条快速搜索。"
+   },
+   "confidence": "clear",
+   "mirror": false,
+   "en_change": false,
+   "plural": true,
+   "decision": "changed",
+   "applied": {
+    "ja": "最大%#@limit@件の検索を保存できます。",
+    "ko": "검색은 최대 %#@limit@개까지 저장할 수 있습니다.",
+    "zh-Hans": "最多可保存 %#@limit@ 条快速搜索。",
+    "de": "Du kannst bis zu %arg Suchen speichern."
+   }
+  },
+  {
+   "mod": "QuickSearchFeature",
+   "key": "search_terms",
+   "why": "de, ja, ko and zh-Hans say only 'content' while en and zh-Hant say what the content is, search terms.",
+   "proposal": {
+    "de": "Suchbegriffe",
+    "ja": "検索キーワード",
+    "ko": "검색어",
+    "zh-Hans": "搜索内容"
+   },
+   "confidence": "clear",
+   "mirror": false,
+   "en_change": false,
+   "decision": "accepted",
+   "applied": {
+    "de": "Suchbegriffe",
+    "ja": "検索キーワード",
+    "ko": "검색어",
+    "zh-Hans": "搜索内容"
+   }
+  },
+  {
+   "mod": "ReadingFeature",
+   "key": "accessibility.pages_of",
+   "why": "zh-Hans uses 至 where zh-Hant uses 到, and 到 is what both use for ranges elsewhere.",
+   "proposal": {
+    "zh-Hans": "第 %arg 到 %arg 页，共 %arg 页"
+   },
+   "confidence": "judgment",
+   "mirror": false,
+   "en_change": false,
+   "plural": true,
+   "decision": "changed",
+   "applied": {
+    "zh-Hans": "第 %#@first@ 到 %#@last@ 页，共 %#@total@ 页"
+   }
+  },
+  {
+   "mod": "ReadingFeature",
+   "key": "accessibility.save_original_page",
+   "why": "zh-Hans says 'original image' with 原图 while zh-Hant spells out 原始圖片; 原圖 is the same short form in Taiwan.",
+   "proposal": {
+    "zh-Hant": "儲存第 %arg 頁原圖"
+   },
+   "confidence": "judgment",
+   "mirror": false,
+   "en_change": false,
+   "plural": true,
+   "decision": "changed",
+   "applied": {
+    "zh-Hant": "儲存第 %#@page@ 頁原圖"
+   }
+  },
+  {
+   "mod": "ReadingFeature",
+   "key": "accessibility.save_page",
+   "why": "zh-Hant adds 'image' while en and every other locale say save the page.",
+   "proposal": {
+    "zh-Hant": "儲存第 %arg 頁"
+   },
+   "confidence": "clear",
+   "mirror": false,
+   "en_change": false,
+   "plural": true,
+   "decision": "changed",
+   "applied": {
+    "zh-Hant": "儲存第 %#@page@ 頁"
+   }
+  },
+  {
+   "mod": "ReadingFeature",
+   "key": "retry_all_failed_images",
+   "why": "zh-Hant says 'reload failed images' and drops 'all' while en and zh-Hans say 'retry all'.",
+   "proposal": {
+    "zh-Hant": "重試所有載入失敗的圖片"
+   },
+   "confidence": "judgment",
+   "mirror": false,
+   "en_change": false,
+   "decision": "accepted",
+   "applied": {
+    "zh-Hant": "重試所有載入失敗的圖片"
+   }
+  },
+  {
+   "mod": "ReadingFeature",
+   "key": "save",
+   "why": "zh-Hant says 'save image' while en and every other locale say only save.",
+   "proposal": {
+    "zh-Hant": "儲存"
+   },
+   "confidence": "clear",
+   "mirror": false,
+   "en_change": false,
+   "decision": "accepted",
+   "applied": {
+    "zh-Hant": "儲存"
+   }
+  },
+  {
+   "mod": "ReadingFeature",
+   "key": "save_original",
+   "why": "zh-Hans says 'original image' with 原图 while zh-Hant spells out 原始圖片; 原圖 is the same short form in Taiwan.",
+   "proposal": {
+    "zh-Hant": "儲存原圖"
+   },
+   "confidence": "judgment",
+   "mirror": false,
+   "en_change": false,
+   "decision": "accepted",
+   "applied": {
+    "zh-Hant": "儲存原圖"
+   }
+  },
+  {
+   "mod": "ReadingFeature",
+   "key": "show_cover_alone",
+   "why": "en and de say the cover is shown alone, but ja, ko and both zh locales say 'except the cover', which can read as hiding it.",
+   "proposal": {
+    "ja": "表紙を単独表示",
+    "ko": "표지 단독 표시",
+    "zh-Hans": "封面单独显示",
+    "zh-Hant": "封面單獨顯示"
+   },
+   "confidence": "clear",
+   "mirror": false,
+   "en_change": false,
+   "decision": "accepted",
+   "applied": {
+    "ja": "表紙を単独表示",
+    "ko": "표지 단독 표시",
+    "zh-Hans": "封面单独显示",
+    "zh-Hant": "封面單獨顯示"
+   }
+  },
+  {
+   "mod": "ReadingSettingFeature",
+   "key": "direction",
+   "why": "zh-Hant adds 'reading' while en and zh-Hans say only direction.",
+   "proposal": {
+    "zh-Hant": "方向"
+   },
+   "confidence": "judgment",
+   "mirror": false,
+   "en_change": false,
+   "decision": "accepted",
+   "applied": {
+    "zh-Hant": "方向"
+   }
+  },
+  {
+   "mod": "ReadingSettingFeature",
+   "key": "maximum_zoom",
+   "why": "zh-Hans says 'maximum zoom factor' while zh-Hant says 'zoom upper limit'.",
+   "proposal": {
+    "zh-Hant": "最大縮放倍率"
+   },
+   "confidence": "judgment",
+   "mirror": false,
+   "en_change": false,
+   "decision": "accepted",
+   "applied": {
+    "zh-Hant": "最大縮放倍率"
+   }
+  },
+  {
+   "mod": "Resources",
+   "key": "date_seek",
+   "why": "zh-Hans says 'date positioning' and ja 'date specification' while en, de, ko and zh-Hant say go to a date.",
+   "proposal": {
+    "ja": "日付へ移動",
+    "zh-Hans": "跳转到日期"
+   },
+   "confidence": "judgment",
+   "mirror": false,
+   "en_change": false,
+   "decision": "accepted",
+   "applied": {
+    "ja": "日付へ移動",
+    "zh-Hans": "跳转到日期"
+   }
+  },
+  {
+   "mod": "Resources",
+   "key": "delete_download",
+   "why": "zh-Hant asks a full question about 'this download' while zh-Hans is a bare verb phrase.",
+   "proposal": {
+    "zh-Hans": "要删除此下载内容吗？"
+   },
+   "confidence": "judgment",
+   "mirror": false,
+   "en_change": false,
+   "decision": "changed",
+   "applied": {
+    "zh-Hans": "要删除此下载项目吗？"
+   }
+  },
+  {
+   "mod": "Resources",
+   "key": "download_store.download_folder_missing",
+   "why": "zh-Hans says the folder 'is missing' while zh-Hant and zh-Hans's own manifest string say 'can't find'.",
+   "proposal": {
+    "zh-Hans": "找不到下载文件夹。"
+   },
+   "confidence": "judgment",
+   "mirror": false,
+   "en_change": false,
+   "decision": "accepted",
+   "applied": {
+    "zh-Hans": "找不到下载文件夹。"
+   }
+  },
+  {
+   "mod": "Resources",
+   "key": "download_store.page_missing",
+   "why": "zh-Hans says the page 'is missing' while zh-Hant and zh-Hans's own manifest string say 'can't find'.",
+   "proposal": {
+    "zh-Hans": "找不到第 %lld 页。"
+   },
+   "confidence": "judgment",
+   "mirror": false,
+   "en_change": false,
+   "decision": "accepted",
+   "applied": {
+    "zh-Hans": "找不到第 %lld 页。"
+   }
+  },
+  {
+   "mod": "Resources",
+   "key": "filters",
+   "why": "zh-Hant says 'filter conditions' while en and zh-Hans name just the filters.",
+   "proposal": {
+    "zh-Hant": "篩選"
+   },
+   "confidence": "judgment",
+   "mirror": false,
+   "en_change": false,
+   "decision": "accepted",
+   "applied": {
+    "zh-Hant": "篩選"
+   }
+  },
+  {
+   "mod": "Resources",
+   "key": "home",
+   "why": "zh-Hant says 'overview' while en and every other locale say home.",
+   "proposal": {
+    "zh-Hant": "主頁"
+   },
+   "confidence": "clear",
+   "mirror": false,
+   "en_change": false,
+   "decision": "accepted",
+   "applied": {
+    "zh-Hant": "主頁"
+   }
+  },
+  {
+   "mod": "Resources",
+   "key": "jump_page",
+   "why": "zh-Hans is the noun phrase 'page-number jump' while en and zh-Hant say go to a page.",
+   "proposal": {
+    "zh-Hans": "跳转到页面"
+   },
+   "confidence": "judgment",
+   "mirror": false,
+   "en_change": false,
+   "decision": "accepted",
+   "applied": {
+    "zh-Hans": "跳转到页面"
+   }
+  },
+  {
+   "mod": "Resources",
+   "key": "library_selection_prompt",
+   "why": "en names Favorites and Downloads, but every translation says 'category', the word the app uses for gallery categories.",
+   "proposal": {
+    "de": "Wähle Favoriten oder Downloads",
+    "ja": "お気に入りまたはダウンロードを選択",
+    "ko": "즐겨찾기 또는 다운로드 선택",
+    "zh-Hans": "选择收藏或下载",
+    "zh-Hant": "選擇收藏或下載"
+   },
+   "confidence": "clear",
+   "mirror": false,
+   "en_change": false,
+   "decision": "accepted",
+   "applied": {
+    "de": "Wähle Favoriten oder Downloads",
+    "ja": "お気に入りまたはダウンロードを選択",
+    "ko": "즐겨찾기 또는 다운로드 선택",
+    "zh-Hans": "选择收藏或下载",
+    "zh-Hant": "選擇收藏或下載"
+   }
+  },
+  {
+   "mod": "SearchFeature",
+   "key": "quick_search_empty",
+   "why": "de, ja, ko and zh-Hans say 'no saved keywords' while en says saved searches and zh-Hant Quick Search.",
+   "proposal": {
+    "de": "Keine gespeicherten Suchen",
+    "ja": "保存した検索はありません",
+    "ko": "저장된 검색이 없습니다",
+    "zh-Hans": "暂无快速搜索"
+   },
+   "confidence": "clear",
+   "mirror": false,
+   "en_change": false,
+   "decision": "accepted",
+   "applied": {
+    "de": "Keine gespeicherten Suchen",
+    "ja": "保存した検索はありません",
+    "ko": "저장된 검색이 없습니다",
+    "zh-Hans": "暂无快速搜索"
+   }
+  },
+  {
+   "mod": "SearchFeature",
+   "key": "remove_all",
+   "why": "zh-Hans 清空 drops the explicit 'all' that en and zh-Hant state; 清空 itself stays as the zh-Hans baseline.",
+   "proposal": {
+    "zh-Hans": "全部清空"
+   },
+   "confidence": "judgment",
+   "mirror": false,
+   "en_change": false,
+   "decision": "accepted",
+   "applied": {
+    "zh-Hans": "全部清空"
+   }
+  },
+  {
+   "mod": "SearchFeature",
+   "key": "remove_searches_confirmation",
+   "why": "de, ja, ko and zh-Hans promise saved 'keywords' are kept while en says saved searches; zh-Hans also drops 'all' and the question form zh-Hant has.",
+   "proposal": {
+    "de": "Den gesamten Suchverlauf entfernen? Gespeicherte Suchen bleiben erhalten.",
+    "ja": "最近の検索をすべて削除しますか？保存した検索は残ります。",
+    "ko": "최근 검색어를 모두 삭제할까요? 저장된 검색은 유지됩니다.",
+    "zh-Hans": "要清空所有最近的搜索记录吗？已保存的快速搜索会保留。"
+   },
+   "confidence": "clear",
+   "mirror": false,
+   "en_change": false,
+   "decision": "accepted",
+   "applied": {
+    "de": "Den gesamten Suchverlauf entfernen? Gespeicherte Suchen bleiben erhalten.",
+    "ja": "最近の検索をすべて削除しますか？保存した検索は残ります。",
+    "ko": "최근 검색어를 모두 삭제할까요? 저장된 검색은 유지됩니다.",
+    "zh-Hans": "要清空所有最近的搜索记录吗？已保存的快速搜索会保留。"
+   }
+  },
+  {
+   "mod": "SearchFeature",
+   "key": "remove_seen_confirmation",
+   "why": "zh-Hans drops 'all' and the question form that en and zh-Hant have.",
+   "proposal": {
+    "zh-Hans": "要清空所有浏览记录及已保存的阅读位置吗？"
+   },
+   "confidence": "judgment",
+   "mirror": false,
+   "en_change": false,
+   "decision": "accepted",
+   "applied": {
+    "zh-Hans": "要清空所有浏览记录及已保存的阅读位置吗？"
+   }
+  },
+  {
+   "mod": "SearchFeature",
+   "key": "show_all",
+   "why": "zh-Hans says 'view all' and zh-Hant 'display all'; 查看全部 is the zh-Hans baseline and is also everyday in Taiwan.",
+   "proposal": {
+    "zh-Hant": "查看全部"
+   },
+   "confidence": "judgment",
+   "mirror": false,
+   "en_change": false,
+   "decision": "accepted",
+   "applied": {
+    "zh-Hant": "查看全部"
+   }
+  },
+  {
+   "mod": "App",
+   "key": "NSPhotoLibraryAddUsageDescription",
+   "why": "zh-Hant names EhPanda as the subject while zh-Hans and the others do not.",
+   "proposal": {
+    "zh-Hant": "需要此權限才能將圖片儲存到「照片」。"
+   },
+   "confidence": "judgment",
+   "mirror": false,
+   "en_change": false,
+   "decision": "accepted",
+   "applied": {
+    "zh-Hant": "需要此權限才能將圖片儲存到「照片」。"
+   }
+  },
+  {
+   "mod": "AppModels",
+   "key": "browsing_country.bonaire_saint_eustatius_and_saba",
+   "why": "ko and zh-Hant use a 'Dutch Caribbean' region label, which can read as wider than the three islands every other locale names.",
+   "proposal": {
+    "ko": "보네르, 신트외스타티위스, 사바",
+    "zh-Hant": "波奈、聖佑達修斯及沙巴"
+   },
+   "confidence": "judgment",
+   "mirror": false,
+   "en_change": false,
+   "decision": "accepted",
+   "applied": {
+    "ko": "보네르, 신트외스타티위스, 사바",
+    "zh-Hant": "波奈、聖佑達修斯及沙巴"
+   }
+  },
+  {
+   "mod": "AppModels",
+   "key": "browsing_country.brunei_darussalam",
+   "why": "de keeps the official long form while en and all other locales say Brunei.",
+   "proposal": {
+    "de": "Brunei"
+   },
+   "confidence": "clear",
+   "mirror": false,
+   "en_change": false,
+   "decision": "accepted",
+   "applied": {
+    "de": "Brunei"
+   }
+  },
+  {
+   "mod": "AppModels",
+   "key": "browsing_country.cocos_islands",
+   "why": "en and zh-Hant carry the official '(Keeling)' form, while the site's list says Cocos Islands and de, ja, ko and zh-Hans use the short name.",
+   "proposal": {
+    "en": "Cocos Islands",
+    "zh-Hant": "科克斯群島"
+   },
+   "confidence": "judgment",
+   "mirror": false,
+   "en_change": true,
+   "decision": "accepted",
+   "applied": {
+    "en": "Cocos Islands",
+    "zh-Hant": "科克斯群島"
+   }
+  },
+  {
+   "mod": "AppModels",
+   "key": "browsing_country.congo",
+   "why": "ko says only Congo where every other locale says Republic of the Congo, which blurs it with the separate DR Congo entry.",
+   "proposal": {
+    "ko": "콩고 공화국"
+   },
+   "confidence": "clear",
+   "mirror": false,
+   "en_change": false,
+   "decision": "accepted",
+   "applied": {
+    "ko": "콩고 공화국"
+   }
+  },
+  {
+   "mod": "AppModels",
+   "key": "browsing_country.macedonia",
+   "why": "zh-Hans keeps the former name Macedonia while every other locale says North Macedonia.",
+   "proposal": {
+    "zh-Hans": "北马其顿"
+   },
+   "confidence": "clear",
+   "mirror": false,
+   "en_change": false,
+   "decision": "accepted",
+   "applied": {
+    "zh-Hans": "北马其顿"
+   }
+  },
+  {
+   "mod": "AppModels",
+   "key": "browsing_country.palestinian_territory",
+   "why": "ja and zh-Hans say Palestine, a different political scope from the Palestinian Territories named by en, de, ko and zh-Hant.",
+   "proposal": {
+    "ja": "パレスチナ自治区",
+    "zh-Hans": "巴勒斯坦自治区"
+   },
+   "confidence": "clear",
+   "mirror": false,
+   "en_change": false,
+   "decision": "accepted",
+   "applied": {
+    "ja": "パレスチナ自治区",
+    "zh-Hans": "巴勒斯坦自治区"
+   }
+  },
+  {
+   "mod": "AppModels",
+   "key": "browsing_country.saint_martin",
+   "why": "ja names the whole island, which also covers the separate Sint Maarten entry, while the other locales name only the French part.",
+   "proposal": {
+    "ja": "サン・マルタン"
+   },
+   "confidence": "judgment",
+   "mirror": false,
+   "en_change": false,
+   "decision": "accepted",
+   "applied": {
+    "ja": "サン・マルタン"
+   }
+  },
+  {
+   "mod": "AppModels",
+   "key": "language.invalid",
+   "why": "ja and zh-Hans say Unknown while en, ko and zh-Hant say not applicable, so the two Chinese locales disagree in meaning.",
+   "proposal": {
+    "ja": "該当なし",
+    "zh-Hans": "不适用"
+   },
+   "confidence": "clear",
+   "mirror": false,
+   "en_change": false,
+   "decision": "accepted",
+   "applied": {
+    "ja": "該当なし",
+    "zh-Hans": "不适用"
+   }
+  }
+ ],
+ "pair_check": [
+  {
+   "key": "errorInfoDescription",
+   "locale": "zh-Hans",
+   "old": "描述",
+   "new": "说明"
+  },
+  {
+   "key": "toplists_type.yesterday",
+   "locale": "zh-Hans",
+   "old": "昨日",
+   "new": "昨天"
+  },
+  {
+   "key": "unknown",
+   "locale": "zh-Hans",
+   "old": "发生了未知错误。",
+   "new": "发生未知错误。"
+  },
+  {
+   "key": "unknown",
+   "locale": "zh-Hant",
+   "old": "發生未知的錯誤。",
+   "new": "發生未知錯誤。"
+  },
+  {
+   "key": "withdraw_vote",
+   "locale": "zh-Hans",
+   "old": "撤销投票",
+   "new": "撤回投票"
+  },
+  {
+   "key": "history",
+   "locale": "zh-Hans",
+   "old": "历史记录",
+   "new": "浏览记录"
+  },
+  {
+   "key": "home_misc_grid_type.history",
+   "locale": "zh-Hans",
+   "old": "历史记录",
+   "new": "浏览记录"
+  },
+  {
+   "key": "clear_history_description",
+   "locale": "zh-Hans",
+   "old": "确定要清空历史记录吗？",
+   "new": "确定要清除浏览记录吗？"
+  },
+  {
+   "key": "maximum_zoom",
+   "locale": "zh-Hans",
+   "old": "最大缩放倍数",
+   "new": "最大缩放倍率"
+  },
+  {
+   "key": "double_tap_zoom",
+   "locale": "zh-Hans",
+   "old": "双击缩放倍数",
+   "new": "双击缩放倍率"
+  },
+  {
+   "key": "double_tap_zoom",
+   "locale": "zh-Hant",
+   "old": "點兩下的縮放倍率",
+   "new": "點兩下縮放倍率"
+  },
+  {
+   "key": "clear",
+   "locale": "zh-Hans",
+   "old": "清空",
+   "new": "清除"
+  },
+  {
+   "key": "clear_image_cache",
+   "locale": "zh-Hans",
+   "old": "清空图片缓存",
+   "new": "清除图片缓存"
+  },
+  {
+   "key": "clear_image_cache_description",
+   "locale": "zh-Hans",
+   "old": "确定要清空图片缓存吗？",
+   "new": "确定要清除图片缓存吗？"
+  },
+  {
+   "key": "remove_all",
+   "locale": "zh-Hans",
+   "old": "全部清空",
+   "new": "全部移除"
+  },
+  {
+   "key": "remove_searches_confirmation",
+   "locale": "zh-Hans",
+   "old": "要清空所有最近的搜索记录吗？已保存的快速搜索会保留。",
+   "new": "要移除所有最近的搜索记录吗？已保存的快速搜索会保留。"
+  },
+  {
+   "key": "remove_seen_confirmation",
+   "locale": "zh-Hans",
+   "old": "要清空所有浏览记录及已保存的阅读位置吗？",
+   "new": "要移除所有浏览记录及已保存的阅读位置吗？"
+  },
+  {
+   "key": "download_store.download_busy",
+   "locale": "zh-Hans",
+   "old": "该下载正在进行中。",
+   "new": "此下载正在进行中。"
+  },
+  {
+   "key": "download_store.folder_busy_downloading",
+   "locale": "zh-Hans",
+   "old": "该文件夹中有正在进行的下载。",
+   "new": "此文件夹中有正在进行的下载。"
+  },
+  {
+   "key": "download_store.folder_already_exists",
+   "locale": "zh-Hans",
+   "old": "已存在同名文件夹。",
+   "new": "已有同名文件夹。"
+  },
+  {
+   "key": "download_store.folder_already_exists",
+   "locale": "zh-Hant",
+   "old": "已有同名的資料夾。",
+   "new": "已有同名資料夾。"
+  },
+  {
+   "key": "app_activity_logs_view.no_logs",
+   "locale": "zh-Hans",
+   "old": "未找到日志",
+   "new": "找不到日志"
+  },
+  {
+   "key": "privacy_mask_footer",
+   "locale": "zh-Hans",
+   "old": "在多任务界面和切到后台时模糊应用内容。",
+   "new": "在多任务界面和切到后台时模糊应用画面。"
+  },
+  {
+   "key": "privacy_mask_footer",
+   "locale": "zh-Hant",
+   "old": "在 App 切換器中及進入背景時，模糊 App 畫面。",
+   "new": "在 App 切換器中及進入背景時模糊 App 畫面。"
+  },
+  {
+   "key": "open_links_on_selected_site",
+   "locale": "zh-Hans",
+   "old": "将链接重定向到所选网站",
+   "new": "在所选网站打开链接"
+  },
+  {
+   "key": "open_links_on_selected_site",
+   "locale": "zh-Hant",
+   "old": "將連結導向所選網站",
+   "new": "在所選網站開啟連結"
+  },
+  {
+   "key": "find_similar",
+   "locale": "zh-Hant",
+   "old": "類似畫廊",
+   "new": "相似畫廊"
+  },
+  {
+   "key": "find_similar",
+   "locale": "ko",
+   "old": "비슷한 작품",
+   "new": "비슷한 갤러리"
+  },
+  {
+   "key": "move_to_folder",
+   "locale": "zh-Hant",
+   "old": "移到資料夾",
+   "new": "移動到資料夾"
+  },
+  {
+   "key": "no_matching_filters",
+   "locale": "zh-Hant",
+   "old": "沒有符合篩選條件的下載項目。",
+   "new": "沒有符合篩選條件的下載內容。"
+  },
+  {
+   "key": "delete_downloaded_gallery",
+   "locale": "zh-Hant",
+   "old": "已下載的畫廊會從此裝置移除。",
+   "new": "會從此裝置移除已下載的畫廊。"
+  },
+  {
+   "key": "network_description",
+   "locale": "zh-Hant",
+   "old": "一次只會下載一個畫廊。你可以設定同時下載的頁數以及是否允許使用行動網路，檔案會儲存在 App 的 Downloads 資料夾。",
+   "new": "每次只下載一個畫廊。可設定同時下載的頁數和是否允許使用行動網路。檔案儲存在 App 的 Downloads 資料夾中。"
+  },
+  {
+   "key": "load_through_hath_setting.legacy_no_description",
+   "locale": "zh-Hant",
+   "old": "E-Hentai 贊助者功能: 在現代瀏覽器上預設設定可能無法正常工作，僅推薦用於傳統瀏覽器。",
+   "new": "E-Hentai 贊助者功能：在現代瀏覽器上預設設定可能無法正常工作，僅推薦用於傳統瀏覽器。"
+  },
+  {
+   "key": "load_through_hath_setting.modern_no_description",
+   "locale": "zh-Hant",
+   "old": "E-Hentai 贊助者功能: 可瀏覽的頁面數會減少，僅在出現重大錯誤時才啟用這個選項。",
+   "new": "E-Hentai 贊助者功能：可瀏覽的頁面數會減少，僅在出現重大錯誤時才啟用這個選項。"
+  },
+  {
+   "key": "my_tags",
+   "locale": "ko",
+   "old": "My Tags",
+   "new": "내 태그"
+  },
+  {
+   "key": "popular",
+   "locale": "ko",
+   "old": "인기 작품",
+   "new": "인기"
+  },
+  {
+   "key": "home_misc_grid_type.popular",
+   "locale": "ko",
+   "old": "인기 작품",
+   "new": "인기"
+  },
+  {
+   "key": "accessibility.credits_balance",
+   "locale": "ja",
+   "old": "クレジット残高: %#@balance@",
+   "new": "クレジット残高：%#@balance@"
+  },
+  {
+   "key": "accessibility.gallery_points_balance",
+   "locale": "ja",
+   "old": "ギャラリーポイント残高: %#@balance@",
+   "new": "ギャラリーポイント残高：%#@balance@"
+  },
+  {
+   "key": "accessibility.torrent_downloads",
+   "locale": "ja",
+   "old": "完了したダウンロード数: %#@count@",
+   "new": "完了したダウンロード数：%#@count@"
+  },
+  {
+   "key": "accessibility.torrent_peers",
+   "locale": "ja",
+   "old": "ピア数: %#@count@",
+   "new": "ピア数：%#@count@"
+  },
+  {
+   "key": "accessibility.torrent_seeds",
+   "locale": "ja",
+   "old": "シード数: %#@count@",
+   "new": "シード数：%#@count@"
+  },
+  {
+   "key": "matches_count",
+   "locale": "zh-Hans",
+   "old": "找到 %arg 个结果",
+   "new": "找到 %arg 个结果。"
+  },
+  {
+   "key": "matches_count",
+   "locale": "zh-Hant",
+   "old": "找到 %arg 項結果",
+   "new": "找到 %arg 項結果。"
+  },
+  {
+   "key": "image_size_description",
+   "locale": "zh-Hant",
+   "old": "雖然網站會自動縮小圖片以適應瀏覽裝置的螢幕寬度，但您也可以手動限制圖片的最大顯示尺寸。像自動縮放一樣，這不會重新取樣圖片，因為調整大小是在瀏覽器完成的 (0 = 沒有限制)",
+   "new": "雖然網站會自動縮小圖片以適應瀏覽裝置的螢幕寬度，但您也可以手動限制圖片的最大顯示尺寸。像自動縮放一樣，這不會重新取樣圖片，因為調整大小是在瀏覽器完成的。（0 = 沒有限制）"
+  },
+  {
+   "key": "ratings_color_description",
+   "locale": "zh-Hant",
+   "old": "預設情況下，你評分的畫廊將 2 星及以下的評分顯示為紅色星，2.5 ~ 4 顆星的評分為綠色，4.5 ~ 5 顆星的評分為藍色。 透過在下面輸入顏色組合你可以自訂想顯示的顏色。 每個字母各代表一顆星(1~5)，預設的 RRGGB 表示第一顆和第二顆星的 R(ed)，第三顆和第四顆的 G(reen)，第五顆的 B(lue)。 你也可以將 (Y)ellow 用於普通星星。 任何五個字母的 R/G/B/Y 組合都有效。",
+   "new": "預設情況下，你評分的畫廊將 2 星及以下的評分顯示為紅色星，2.5 ~ 4 顆星的評分為綠色，4.5 ~ 5 顆星的評分為藍色。透過在下面輸入顏色組合你可以自訂想顯示的顏色。每個字母各代表一顆星(1~5)，預設的 RRGGB 表示第一顆和第二顆星的 R(ed)，第三顆和第四顆的 G(reen)，第五顆的 B(lue)。你也可以將 (Y)ellow 用於普通星星。任何五個字母的 R/G/B/Y 組合都有效。"
+  }
+ ]
+}

@@ -21,6 +21,14 @@ source_head: af00e0da93
 
 # Project State
 
+## App-wide copywriting audit — 2026-11-02
+
+The audit is applied in all six locales, with changed English terms renamed through keys, files and types while stored
+and wire names stay. After the owner found languages drifting apart, every key was compared side by side, so copy now
+matches across languages in concept and scope. Six locales were checked on iPhone Air screens at the default text size;
+the E-Hentai settings page contents, iPad and larger text sizes were not rendered, and no human native speaker has
+reviewed the result. Marketing and website screenshots are stale. [Quick task](quick/261101-copy-audit/SUMMARY.md).
+
 ## Consolidated tag database — 2026-11-02
 
 All five tag datasets now come from one repository, `EhPanda-Team/ehpanda-tag-database`, whose pipeline runs the OpenCC
