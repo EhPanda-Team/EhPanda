@@ -56,3 +56,60 @@ runtest <project-id> --script app --additional-options \
 
 Counts come from `xcrun xcresulttool get test-results summary` and `tests`. App source diff
 after the runs: none (`git status --short` lists only the owner's untracked `.claude/`).
+
+## Home and Library routing (17-17)
+
+Source HEAD: `4ea5dbd22` (no app source change since `c5bc2c98b`). Landing commit `605b4e4749`
+("route screens by window size classes") is an ancestor of HEAD (exit 0). Decisions:
+`261015-duo-session-record` DISCUSSION-LOG D01–D02 (modal only when both window size classes are
+regular), D63–D64 (Favorites lives in the merged Library tab, which keeps its own Favorites and
+Downloads reducers).
+
+| Item | File and line at HEAD | Behavior at HEAD |
+|---|---|---|
+| Rule | `AppPackage/Sources/AppFeature/DataFlow/WindowSizeClasses.swift:17-19` | `presentsModally` is `horizontal == .regular && vertical == .regular`. |
+| Report | `AppPackage/Sources/AppFeature/View/TabBar/TabBarView.swift:66-71`; `AppReducer.swift:175-178` | The root view reports `WindowSizeClasses(horizontal:vertical:)` from its environment with `.onChange(of:initial: true)`, so once at first appearance and again on every change; the reducer stores it in `state.windowSizeClasses`. |
+| Apply | `AppPackage/Sources/AppFeature/DataFlow/AppReducer.swift:521-529` (`openGalleryDetail`) | `guard state.windowSizeClasses?.presentsModally == true else { return .send(push) }`, otherwise `.presentation(.presentGalleryDetail(...))`. One decision at the app root; no per-feature `isRegularWidth` state. |
+| Home | `AppReducer.swift:292-293` | `.home(.delegate(.openGalleryDetail))` → `openGalleryDetail(..., push: .home(.pushGalleryDetail))`. Home's slideshow and section taps (`HomeReducer+Body.swift:46`, `:61`) send that delegate. |
+| Library (Favorites) | `AppReducer.swift:298-299` | `.favorites(.delegate(.openGalleryDetail))` → `openGalleryDetail(..., push: .favorites(.pushGalleryDetail))`; `FavoritesReducer.swift:162` sends the delegate. Library's Downloads source is covered in 17-18. |
+
+Covering tests (Swift Testing, all in `AppPackage/Tests/AppFeatureTests/`):
+
+| Test | Window | Asserts |
+|---|---|---|
+| `GalleryDetailRoutingTests.favoritesPushesInAWindowCompactInEitherDimension` | `.compactWidth`, `.compactHeight` | Favorites path count 1; no modal gallery |
+| `GalleryDetailRoutingTests.favoritesPresentsInARegularWindow` | `.regular` | Modal gallery holds the tapped gallery; Favorites path empty |
+| `GalleryDetailRoutingTests.searchPushesInAWindowCompactInEitherDimension` / `searchPresentsInARegularWindow` | same three | Same pair for Search (recorded again in 17-18) |
+| `CaptureRouteTests.aGalleryScreenStartsWithATapOnItsCardThatACompactWindowPushes` | `.compactWidth` | Home tap → `home.pushGalleryDetail`; Home path top is the detail; no modal |
+| `CaptureRouteTests.aGalleryScreenStartsWithATapOnItsCardThatARegularWindowPresents` | `.regular` | Home tap → `presentation.presentGalleryDetail`; Home path empty |
+| `CaptureRouteTests.theLaboratoryOpensInTheSettingTabInACompactWindow` / `...InTheSettingSheetInARegularWindow` and the other capture routes | `.compactWidth`, `.regular` | Launch automation routes through the same root decision |
+
+Window fixtures (`WindowSizeClasses+Fixtures.swift`): `.regular` = regular/regular (full-screen
+iPad), `.compactWidth` = compact/regular (iPhone portrait, folded Duo, narrow iPad window),
+`.compactHeight` = regular/compact (large iPhone landscape).
+
+Coverage observation (not a defect): no test drives a Home tap in `.compactHeight`. Home shares
+`openGalleryDetail` with Favorites, Search and Downloads, whose `.compactHeight` cases pass, so the
+rule is exercised; only Home's own entry for iPhone landscape is unasserted.
+
+**For 17-19 census:** `AppPackage/Sources/HomeFeature/HomeReducer.swift:32-35` —
+`usesSplitLayout` reads `WindowDevice` (`.duo`) and, when true, Home opens the gallery in its own
+opposite-pane sheet (`HomeReducer+Body.swift:46`) instead of asking the app root. This is the
+recorded Duo capability exception (D31); `HomeDuoPresentationTests` covered it in the 17-16 runs.
+It is listed for the census, not changed.
+
+Tests, as run (one at a time, phone then tablet):
+
+```sh
+runtest <project-id> --script app --additional-options \
+  '-testPlan FeatureTests -destination id=$PHONE_UDID -only-testing:AppFeatureTests/GalleryDetailRoutingTests -only-testing:AppFeatureTests/CaptureRouteTests'
+runtest <project-id> --script app --additional-options \
+  '-testPlan FeatureTests -destination id=$TABLET_UDID -only-testing:AppFeatureTests/GalleryDetailRoutingTests -only-testing:AppFeatureTests/CaptureRouteTests'
+```
+
+| Device | Exit | Result | Test cases (argument runs) | Failed / skipped | Repetition nodes | Result bundle |
+|---|---|---|---|---|---|---|
+| EhPanda iPhone Air, iOS 27.2 | 0 | TEST SUCCEEDED | 15 (GalleryDetailRouting 4 with 4 argument runs; CaptureRoute 11 with 16 argument runs) | 0 / 0 | 0 | `/tmp/ehpanda-17-16-18/17-17-phone.xcresult` |
+| EhPanda iPad Pro 11-inch (M5), iOS 27.2 | 0 | TEST SUCCEEDED | 15 (same) | 0 / 0 | 0 | `/tmp/ehpanda-17-16-18/17-17-tablet.xcresult` |
+
+App source diff after the runs: none.
