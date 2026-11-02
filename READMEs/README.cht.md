@@ -19,8 +19,7 @@
 1. 在 [Releases](https://github.com/EhPanda-Team/EhPanda/releases) 取得 ipa 文件。
 2. 使用 [AltStore](https://altstore.io) 這類軟件將 ipa 文件安裝到你的裝置。
 
-## 系統需求
-須使用 iOS / iPadOS 27.0 或以上版本。
+<sub>須使用 iOS / iPadOS 27.0 或以上版本。</sub>
 
 ## 內容及其著作權
 本應用程式內的內容均來自 E-Hentai，而 E-Hentai 的內容均為用戶生成內容。
@@ -44,6 +43,3 @@ EhPanda 會向 [TelemetryDeck](https://telemetrydeck.com) 傳送匿名分析資�
 [![Twitter](https://img.shields.io/badge/Twitter-2CA5E0?style=for-the-badge&logo=twitter&logoColor=white)](https://twitter.com/ehpandaapp)
 [![Discord](https://img.shields.io/badge/Discord-7289DA?style=for-the-badge&logo=discord&logoColor=white)](https://discord.gg/BSBE9FCBTq)
 [![Telegram](https://img.shields.io/badge/Telegram-858585?style=for-the-badge&logo=telegram&logoColor=white)](https://t.me/ehpanda)
-
-## 螢幕截圖
-https://ehpanda.app
