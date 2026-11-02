@@ -61,9 +61,8 @@ reviewed the result. Marketing and website screenshots are stale. [Quick task](q
 ## Consolidated tag database — 2026-11-02
 
 All five tag datasets now come from one repository, `EhPanda-Team/ehpanda-tag-database`, whose pipeline runs the OpenCC
-conversion. The app compares its own language's asset digest and no longer depends on OpenCC. The repository is private
-for now and its first release is verified, but anonymous requests get 404. The app has nothing to download until the
-owner makes it public, so the live simulator download remains unverified.
+conversion. The app compares its own language's asset digest and no longer depends on OpenCC. The repository is public,
+and a live simulator download passed for all five languages on 2026-11-02.
 [Quick task](quick/261102-tag-database-consolidation/SUMMARY.md).
 
 ## Legacy search toggles removed — 2026-11-01
