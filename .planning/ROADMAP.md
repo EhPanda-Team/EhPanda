@@ -698,7 +698,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 14. Analytics Instrumentation (TelemetryDeck) | 18/18 | Complete    | 2026-07-27 |
 | 15. Continued Background Downloads | 77/77 | Complete    | 2026-08-19 |
 | 16. Dynamic Type Accessibility | 26/26 | Complete    | 2026-09-23 |
-| 17. Screenshot Automation, Visual Regression & OS 27 Modernization | 9/13 | In Progress|  |
+| 17. Screenshot Automation, Visual Regression & OS 27 Modernization | 10/13 | In Progress|  |
 | 18. 3.0 Release Readiness: Age Wall, Consent, Marketplace Distribution & Visual Regression | 0/TBD | Not started|  |
 
 ### Phase 12: Cloudflare Login Restoration
@@ -1264,7 +1264,7 @@ Plans:
   6. CAP-17-02, CAP-17-03, CAP-17-05 and the moved parts of CAP-17-01/06 are listed as moved to Phase 18, never as satisfied.
   7. Phase 17 closes only through the GSD close steps: the execute-phase gates (code review, regression gate, `gsd-verifier` writing `17-VERIFICATION.md`), then verify-work (UAT), secure-phase and validate-phase.
 
-**Plans**: 9/13 plans executed (11 plans moved to Phase 18 and marked `status: superseded`). Remaining order: 17-18, 17-19 (owner checkpoint), 17-14 (T2 only), 17-23.
+**Plans**: 10/13 plans executed (11 plans moved to Phase 18 and marked `status: superseded`). Remaining order: 17-19 (owner checkpoint), 17-14 (T2 only), 17-23.
 
 Plans:
 **Wave 1**
@@ -1303,11 +1303,11 @@ Plans:
 
 - [x] 17-17-PLAN.md — Verify the landed Home and Library gallery routing by window size classes
 
-**Wave 10** *(ready)*
+**Wave 10** *(complete)*
 
-- [ ] 17-18-PLAN.md — Verify the landed Search and Downloads routing and the removed idiom helper
+- [x] 17-18-PLAN.md — Verify the landed Search and Downloads routing and the removed idiom helper
 
-**Wave 11** *(blocked on Wave 10 completion; owner checkpoint)*
+**Wave 11** *(ready; owner checkpoint)*
 
 - [ ] 17-19-PLAN.md — Verify Settings presentation, census the remaining idiom reads and record the owner's keep/change decisions
 

@@ -113,3 +113,65 @@ runtest <project-id> --script app --additional-options \
 | EhPanda iPad Pro 11-inch (M5), iOS 27.2 | 0 | TEST SUCCEEDED | 15 (same) | 0 / 0 | 0 | `/tmp/ehpanda-17-16-18/17-17-tablet.xcresult` |
 
 App source diff after the runs: none.
+
+## Search and Downloads routing (17-18)
+
+Source HEAD: `d37f4bd19` (no app source change since `c5bc2c98b`). Landing commit `605b4e4749` is an
+ancestor of HEAD (exit 0). Decisions: `261015-duo-session-record` DISCUSSION-LOG D01–D02.
+
+| Item | File and line at HEAD | Behavior at HEAD |
+|---|---|---|
+| Search tap | `AppPackage/Sources/SearchFeature/SearchRootReducer.swift:133` | `galleryTapped` and a nested search result's `pushDetail` send `.delegate(.openGalleryDetail(gallery))`; no device read. |
+| Search route | `AppPackage/Sources/AppFeature/DataFlow/AppReducer.swift:295-296` | `openGalleryDetail(gallery, push: .searchRoot(.pushGalleryDetail(gallery)), state:)` — the same `presentsModally` decision as 17-17. |
+| Downloads tap | `AppPackage/Sources/DownloadsFeature/DownloadsReducer.swift:184` | After the existing vanished-download guard, sends `.delegate(.openGalleryDetail(download))`. |
+| Downloads route | `AppReducer.swift:301-307` | `openGalleryDetail(download.gallery, downloaded: download, push: .downloads(.pushGalleryDetail(download)), state:)`; the modal is seeded from the download, so it renders offline. |
+
+Helper removal, as run:
+
+```sh
+git grep -n routeGalleryDetail -- AppPackage            # exit 1, no matches
+git grep -n routeGalleryDetail -- . ':!.planning'       # exit 1, no matches outside planning records
+```
+
+`AppPackage/Sources/DetailFeature/GalleryNavigation.swift` still provides
+`GalleryNavigation.presentationEffect(id:screen:embed:)` (`:14`), `GalleryNavigation.nextScreen(for:)`
+(`:23`), the `GalleryRouteIdentifiable` protocol with `StackState.appendGuardingDuplicate(_:)` (`:76`),
+`GalleryPath.State.onPresentedAction` and `routeKey`, `StackState.detailID(forGID:)` (`:125`),
+`topReadingFlush` and `readingFlushAction`. `605b4e4749` removed only `routeGalleryDetail` and its
+`AppTools` import from this file.
+
+Invariants: in `605b4e4749` the Downloads and Search reducer diffs change only the tap route, the
+delegate case and the removed `DeviceClient` dependency (plus an analytics comment in Search). No
+download manifest, folder deletion or confirmation-dialog code is touched, and no app source has
+changed since. The Downloads automation tests (foreground reconcile, launch automation) pass below.
+
+Covering tests:
+
+| Test | Window | Asserts |
+|---|---|---|
+| `DownloadsFeatureTests/AppDownloadDetailRoutingTests.aRegularWindowPresentsTheDownloadModally` | regular/regular | Modal detail carries the download's completed badge; Downloads path empty |
+| `DownloadsFeatureTests/AppDownloadDetailRoutingTests.aWindowCompactInEitherDimensionPushesTheDownload` | compact/regular, regular/compact | Downloads path count 1; no modal |
+| `AppFeatureTests/GalleryDetailRoutingTests.searchPushesInAWindowCompactInEitherDimension` / `searchPresentsInARegularWindow` | `.compactWidth`, `.compactHeight`, `.regular` | Search push vs. modal (run in 17-17) |
+| `DownloadsFeatureTests/DownloadAutomationTests` (8 cases) | — | Foreground-return reconcile and launch-automation behavior unchanged |
+| `DetailFeatureTests/GalleryNavigationTests.appendGuardingDuplicateSkipsOnlyAdjacentDuplicates` | — | Adjacent-duplicate guard only |
+
+Coverage observation (not a defect): `GalleryNavigationTests` holds one case, for
+`appendGuardingDuplicate`. `presentationEffect` and `nextScreen` are exercised through the host
+lifecycle suites (for example `HomePresentationLifecycleTests.pushingGalleryDetailStartsItsLoad`,
+passed in the 17-16 runs), not in this file.
+
+Tests, as run (one at a time, phone then tablet):
+
+```sh
+runtest <project-id> --script app --additional-options \
+  '-testPlan FeatureTests -destination id=$PHONE_UDID -only-testing:DownloadsFeatureTests/AppDownloadDetailRoutingTests -only-testing:DownloadsFeatureTests/DownloadAutomationTests -only-testing:DetailFeatureTests/GalleryNavigationTests'
+runtest <project-id> --script app --additional-options \
+  '-testPlan FeatureTests -destination id=$TABLET_UDID -only-testing:DownloadsFeatureTests/AppDownloadDetailRoutingTests -only-testing:DownloadsFeatureTests/DownloadAutomationTests -only-testing:DetailFeatureTests/GalleryNavigationTests'
+```
+
+| Device | Exit | Result | Test cases | Failed / skipped | Repetition nodes | Result bundle |
+|---|---|---|---|---|---|---|
+| EhPanda iPhone Air, iOS 27.2 | 0 | TEST SUCCEEDED | 11 (AppDownloadDetailRouting 2 with 2 argument runs, DownloadAutomation 8, GalleryNavigation 1) | 0 / 0 | 0 | `/tmp/ehpanda-17-16-18/17-18-phone.xcresult` |
+| EhPanda iPad Pro 11-inch (M5), iOS 27.2 | 0 | TEST SUCCEEDED | 11 (same) | 0 / 0 | 0 | `/tmp/ehpanda-17-16-18/17-18-tablet.xcresult` |
+
+App source diff after the runs: none.
