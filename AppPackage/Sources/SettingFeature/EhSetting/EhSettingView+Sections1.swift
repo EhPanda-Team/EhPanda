@@ -242,12 +242,15 @@ struct FrontPageSettingsSection: View {
         }
 
         Section {
-            AppToggle(
-                .showSearchRangeIndicator,
-                isOn: $ehSetting.showSearchRangeIndicator
-            )
+            Picker(.searchRangeIndicator, selection: $ehSetting.searchRangeIndicatorStyle) {
+                ForEach(EhSetting.SearchRangeIndicatorStyle.allCases) { style in
+                    Text(style.value)
+                        .tag(style)
+                }
+            }
+            .ehSettingPickerStyled()
         } header: {
-            Text(.searchRangeIndicator)
+            Text(.searchRangeIndicatorDescription)
                 .ehSettingRegularHeaderStyled()
         }
     }

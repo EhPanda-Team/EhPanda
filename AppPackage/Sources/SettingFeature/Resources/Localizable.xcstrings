@@ -4802,6 +4802,47 @@
         }
       }
     },
+    "search_range_indicator_description" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Welchen Darstellungsstil möchtest du für die Suchbereichsanzeige verwenden?"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Which display style would you like for the search range indicator?"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "検索範囲インジケーターの表示スタイルはどれにしますか？"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "검색 범위 표시기에 사용할 보여주기 스타일을 선택하세요."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "你希望搜索范围指示器使用哪种显示样式？"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "你希望搜尋範圍指示器使用哪種顯示樣式？"
+          }
+        }
+      }
+    },
     "search_result_count" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -5495,47 +5536,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "顯示黎明問候"
-          }
-        }
-      }
-    },
-    "show_search_range_indicator" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Suchbereichsanzeige einblenden"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Show Search Range Indicator"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "検索範囲インジケーターを表示"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "검색 범위 표시기 표시"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "显示搜索范围指示器"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "顯示搜尋範圍指示器"
           }
         }
       }

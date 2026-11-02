@@ -1,5 +1,6 @@
 @testable import AppFeature
 import AppModels
+import Foundation
 import Kanna
 import ParserFeature
 import Testing
@@ -13,6 +14,18 @@ struct EhSettingParserTests: TestHelper {
         testEhProfiles(ehSetting.ehProfiles)
         testCapability(ehSetting: ehSetting)
         testRemainingStuff(ehSetting: ehSetting)
+    }
+
+    @Test
+    func testDisabledSearchRangeIndicator() throws {
+        let normal = #"name="pp" value="0" checked="checked""#
+        let disabled = #"name="pp" value="1""#
+        var html = try htmlString(filename: .ehSetting)
+        try #require(html.contains(normal) && html.contains(disabled))
+        html = html.replacing(normal, with: #"name="pp" value="0""#)
+        html = html.replacing(disabled, with: #"name="pp" value="1" checked="checked""#)
+        let ehSetting = try Parser.parseEhSetting(doc: Kanna.HTML(html: html, encoding: .utf8))
+        #expect(ehSetting.searchRangeIndicatorStyle == .disabled)
     }
 
     func testEhProfiles(_ profiles: [EhProfile]) {
@@ -71,7 +84,7 @@ struct EhSettingParserTests: TestHelper {
         #expect(ehSetting.galleryName == .japanese)
         #expect(ehSetting.archiverBehavior == .manualSelectManualStart)
         #expect(ehSetting.displayMode == .compact)
-        #expect(ehSetting.showSearchRangeIndicator == true)
+        #expect(ehSetting.searchRangeIndicatorStyle == .normal)
         #expect(ehSetting.disabledCategories == .init(repeating: false, count: 10))
         #expect(ehSetting.favoriteCategories == [
             "Favorites 0", "Favorites 1", "Favorites 2", "Favorites 3", "Favorites 4",

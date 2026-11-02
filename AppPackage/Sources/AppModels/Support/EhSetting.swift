@@ -21,7 +21,7 @@ public struct EhSetting: Equatable, Sendable {
         galleryName: GalleryName,
         archiverBehavior: ArchiverBehavior,
         displayMode: DisplayMode,
-        showSearchRangeIndicator: Bool,
+        searchRangeIndicatorStyle: SearchRangeIndicatorStyle,
         enableGalleryThumbnailSelector: Bool,
         disabledCategories: [Bool],
         favoriteCategories: [String],
@@ -64,7 +64,7 @@ public struct EhSetting: Equatable, Sendable {
         self.galleryName = galleryName
         self.archiverBehavior = archiverBehavior
         self.displayMode = displayMode
-        self.showSearchRangeIndicator = showSearchRangeIndicator
+        self.searchRangeIndicatorStyle = searchRangeIndicatorStyle
         self.enableGalleryThumbnailSelector = enableGalleryThumbnailSelector
         self.disabledCategories = disabledCategories
         self.favoriteCategories = favoriteCategories
@@ -95,7 +95,7 @@ public struct EhSetting: Equatable, Sendable {
     // swiftlint:disable line_length
     /// `empty` with a caller-supplied profile list, so a fixture that needs a *named* profile (the
     /// app's own `EhPanda` profile, say) doesn't have to restate all forty defaults.
-    public static func empty(ehProfiles: [EhProfile]) -> Self { .init(ehProfiles: ehProfiles, isCapableOfCreatingNewProfile: true, capableLoadThroughHathSetting: .anyClient, capableImageResolution: .auto, capableSearchResultCount: .fifty, capableThumbnailConfigRowCount: .forty, capableThumbnailConfigSizes: [], loadThroughHathSetting: .anyClient, hahRegion: .autoDetect, imageResolution: .auto, imageSizeWidth: 0, imageSizeHeight: 0, galleryName: .default, archiverBehavior: .autoSelectOriginalAutoStart, displayMode: .compact, showSearchRangeIndicator: true, enableGalleryThumbnailSelector: false, disabledCategories: Array(repeating: false, count: 10), favoriteCategories: Array(repeating: "", count: 10), favoritesSortOrder: .favoritedTime, ratingsColor: "", tagFilteringThreshold: 0, tagWatchingThreshold: 0, showFilteredRemovalCount: true, excludedLanguages: Array(repeating: false, count: 50), excludedUploaders: "", searchResultCount: .fifty, thumbnailLoadTiming: .onPageLoad, thumbnailConfigSize: .normal, thumbnailConfigRows: .ten, coverScaleFactor: 0, viewportVirtualWidth: 0, commentsSortOrder: .recent, commentVotesShowTiming: .always, tagsSortOrder: .alphabetical, galleryPageNumbering: .none) }
+    public static func empty(ehProfiles: [EhProfile]) -> Self { .init(ehProfiles: ehProfiles, isCapableOfCreatingNewProfile: true, capableLoadThroughHathSetting: .anyClient, capableImageResolution: .auto, capableSearchResultCount: .fifty, capableThumbnailConfigRowCount: .forty, capableThumbnailConfigSizes: [], loadThroughHathSetting: .anyClient, hahRegion: .autoDetect, imageResolution: .auto, imageSizeWidth: 0, imageSizeHeight: 0, galleryName: .default, archiverBehavior: .autoSelectOriginalAutoStart, displayMode: .compact, searchRangeIndicatorStyle: .normal, enableGalleryThumbnailSelector: false, disabledCategories: Array(repeating: false, count: 10), favoriteCategories: Array(repeating: "", count: 10), favoritesSortOrder: .favoritedTime, ratingsColor: "", tagFilteringThreshold: 0, tagWatchingThreshold: 0, showFilteredRemovalCount: true, excludedLanguages: Array(repeating: false, count: 50), excludedUploaders: "", searchResultCount: .fifty, thumbnailLoadTiming: .onPageLoad, thumbnailConfigSize: .normal, thumbnailConfigRows: .ten, coverScaleFactor: 0, viewportVirtualWidth: 0, commentsSortOrder: .recent, commentVotesShowTiming: .always, tagsSortOrder: .alphabetical, galleryPageNumbering: .none) }
     // swiftlint:enable line_length
 
     public static let categoryNames = Category.allFiltersCases.map(\.rawValue).map { value in
@@ -168,7 +168,7 @@ public struct EhSetting: Equatable, Sendable {
     public var galleryName: GalleryName
     public var archiverBehavior: ArchiverBehavior
     public var displayMode: DisplayMode
-    public var showSearchRangeIndicator: Bool
+    public var searchRangeIndicatorStyle: SearchRangeIndicatorStyle
     public var enableGalleryThumbnailSelector: Bool
     public var disabledCategories: [Bool]
     public var favoriteCategories: [String]
@@ -381,6 +381,26 @@ extension EhSetting.DisplayMode {
             return .displayModeMinimal
         case .minimalPlus:
             return .displayModeMinimalPlus
+        }
+    }
+}
+
+// MARK: SearchRangeIndicatorStyle
+extension EhSetting {
+    public enum SearchRangeIndicatorStyle: Int, CaseIterable, Identifiable, Sendable {
+        case normal
+        case disabled
+    }
+}
+extension EhSetting.SearchRangeIndicatorStyle {
+    public var id: Int { rawValue }
+
+    public var value: LocalizedStringResource {
+        switch self {
+        case .normal:
+            return .searchRangeIndicatorStyleNormal
+        case .disabled:
+            return .searchRangeIndicatorStyleDisabled
         }
     }
 }
