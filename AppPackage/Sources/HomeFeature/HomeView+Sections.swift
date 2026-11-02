@@ -127,7 +127,7 @@ struct CardSlideSection: View, Equatable {
 
     private var carousel: some View {
         ScrollView(.horizontal) {
-            LazyHStack(spacing: cardSpacing) {
+            LazyHStack(spacing: HomeSlideshowSizing.cardSpacing) {
                 ForEach(bufferedCards) { item in
                     card(for: item.gallery, id: item.id)
                         // One pass of the galleries for assistive technologies. The window carries
@@ -156,8 +156,12 @@ struct CardSlideSection: View, Equatable {
         .scrollTargetBehavior(.viewAligned(limitBehavior: .always))
         .fixedSize(horizontal: false, vertical: true)
         .scrollPosition($position, anchor: .center)
-        .contentMargins(.horizontal, centeringMargin, for: .scrollContent)
+        .contentMargins(.horizontal, centeringMargin + viewportOverhang, for: .scrollContent)
         .scrollClipDisabled()
+        // Widens the scroll view past the available width for VoiceOver's sake (see
+        // `HomeSlideshowSizing.minimumNeighborExposure`). No card moves on screen, because the margin
+        // above grows by the same amount, and the section still reports the available width.
+        .padding(.horizontal, -viewportOverhang)
         .accessibilityIdentifier("home_carousel")
         .onChange(of: galleries.count) { _, newCount in
             guard newCount > 0 else { return }
@@ -219,13 +223,16 @@ struct CardSlideSection: View, Equatable {
             showsRichInformation: showsRichInformation
         )
     }
-    private let cardSpacing: CGFloat = 20
 
     // Center the snapped card: bare `.viewAligned` aligns the card's leading edge to the
     // content edge, dumping all the peek on the trailing side, while SwiftUIPager centered
     // the focused card. Symmetric margins of the leftover width restore the centered peek.
     private var centeringMargin: CGFloat {
         (carouselSize.width - cardWidth) / 2
+    }
+
+    private var viewportOverhang: CGFloat {
+        HomeSlideshowSizing.viewportOverhang(availableWidth: carouselSize.width, cardWidth: cardWidth)
     }
 
     private func card(for gallery: Gallery, id: Int) -> some View {
@@ -262,7 +269,7 @@ struct CardSlideSection: View, Equatable {
                 return false
             }
             let relativeMidpoint = viewport.midX - proxy.size.width / 2
-            let halfInterval = (proxy.size.width + cardSpacing) / 2
+            let halfInterval = (proxy.size.width + HomeSlideshowSizing.cardSpacing) / 2
             let isNearest: Bool
             switch layoutDirection {
             case .leftToRight:

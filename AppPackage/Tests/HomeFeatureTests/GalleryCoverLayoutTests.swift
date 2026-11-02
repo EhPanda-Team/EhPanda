@@ -171,6 +171,26 @@ struct GalleryCoverLayoutTests {
         #expect(size.height <= maximumHeight + 1)
     }
 
+    @Test(arguments: [CGFloat(375), 390, 402, 420, 440, 466, 669, 744, 834, 1210], [false, true])
+    func viewportOverhangKeepsTheNeighborInReachOfVoiceOver(availableWidth: CGFloat, showsRichInformation: Bool) {
+        let cardWidth = HomeSlideshowSizing.cardWidth(
+            availableWidth: availableWidth, minimumHeight: 274, showsRichInformation: showsRichInformation
+        )
+        let overhang = HomeSlideshowSizing.viewportOverhang(availableWidth: availableWidth, cardWidth: cardWidth)
+        let onScreen = (availableWidth - cardWidth) / 2 - HomeSlideshowSizing.cardSpacing
+        #expect(cardWidth == cardWidth.rounded())
+        #expect(onScreen + overhang >= HomeSlideshowSizing.minimumNeighborExposure)
+        #expect(overhang == max(0, HomeSlideshowSizing.minimumNeighborExposure - onScreen))
+    }
+
+    @Test(arguments: [CGFloat(834), 1194, 1210])
+    func viewportOverhangStaysOutOfLayoutsThatReachTheThresholdThemselves(availableWidth: CGFloat) {
+        let cardWidth = HomeSlideshowSizing.cardWidth(
+            availableWidth: availableWidth, minimumHeight: 274, showsRichInformation: true
+        )
+        #expect(HomeSlideshowSizing.viewportOverhang(availableWidth: availableWidth, cardWidth: cardWidth) == 0)
+    }
+
     @Test
     func slideshowTagsExcludeLanguageCategoryAndDuplicates() {
         func tag(_ namespace: String, _ texts: [String]) -> GalleryTag {
