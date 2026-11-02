@@ -46,9 +46,11 @@ The live site was not checked.
 
 The Home tests that failed regardless of other work now pass. Three were stale, along with a fourth stale test that is
 skipped by default. One exposed a real bug: the first portrait-to-landscape rotation on iPhone left the previous
-gallery in the carousel's center, now fixed. VoiceOver's rotation offset and forward order remain open. The Duo suites
-then passed in an owner-approved serial run, after three more stale tests were repaired; none of them checks the
-carousel's selection across rotation. [Quick task](quick/261102-home-test-repairs/SUMMARY.md).
+gallery in the carousel's center, now fixed. VoiceOver now walks all six carousel cards both ways (`d9f3a2473`); its
+rotation offset remains open. The Duo suites passed in an owner-approved serial run before that fix, after three more
+stale tests were repaired; none of them checks the carousel's selection across rotation. `DuoHomeUITests` and
+`DuoToolbarUITests` passed again on the fix in a second approved run.
+[Quick task](quick/261102-home-test-repairs/SUMMARY.md).
 
 ## App-wide copywriting audit — 2026-11-02
 
