@@ -21,6 +21,12 @@ source_head: 2519060029
 
 # Project State
 
+## README cleanup and copy audit — 2026-11-02
+
+Screenshots is gone from all six READMEs and System Requirements is now a small note under Installation. The audit's 96
+copy edits are applied, two sections are now Disclaimer and Community, and Community sits under Installation. No native
+speaker reviewed German, Japanese or Korean. [Quick task](quick/261102-readme-copy-audit/SUMMARY.md).
+
 ## Search range indicator setting — 2026-11-02
 
 The E-Hentai settings section now mirrors the site: its question as the header, and a picker with Normal and Disabled
