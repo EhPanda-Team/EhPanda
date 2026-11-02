@@ -1,6 +1,6 @@
 <h1 align="center">EhPanda</h1>
 
-<h4 align="center">An unofficial E-Hentai App for iOS.</h4>
+<h4 align="center">An unofficial E-Hentai app for iOS</h4>
 
 <p align="center">
 <img src="https://user-images.githubusercontent.com/31207151/105609404-0acbff00-5de4-11eb-9e88-f3c6e0ba9d44.png" width="400"></img>
@@ -16,15 +16,20 @@
 </p>
 
 ## Installation
-1. Get the ipa file from [Releases](https://github.com/EhPanda-Team/EhPanda/releases).
-2. Use some software like [AltStore](https://altstore.io) to install the ipa file on your device.
+1. Download the IPA file from [Releases](https://github.com/EhPanda-Team/EhPanda/releases).
+2. Install it on your device with a tool like [AltStore](https://altstore.io).
 
-<sub>This app requires iOS / iPadOS 27.0 or later.</sub>
+<sub>Requires iOS / iPadOS 27.0 or later.</sub>
 
-## Content & Copyright
-The content in this application is derived from E-Hentai, which is user-generated content.
+## Community
+[![Twitter](https://img.shields.io/badge/Twitter-2CA5E0?style=for-the-badge&logo=twitter&logoColor=white)](https://twitter.com/ehpandaapp)
+[![Discord](https://img.shields.io/badge/Discord-7289DA?style=for-the-badge&logo=discord&logoColor=white)](https://discord.gg/BSBE9FCBTq)
+[![Telegram](https://img.shields.io/badge/Telegram-858585?style=for-the-badge&logo=telegram&logoColor=white)](https://t.me/ehpanda)
 
-**Users of this application should access the E-Hentai content at their own risk.**
+## Disclaimer
+All content in this app comes from E-Hentai and is uploaded by its users.
+
+**You access E-Hentai content at your own risk.**
 
 ## Analytics
 EhPanda sends anonymous analytics data to [TelemetryDeck](https://telemetrydeck.com) so its maintainers can see which features matter. **This is on by default. You can turn it off at any time in Settings → General → Analytics.**
@@ -35,11 +40,6 @@ Every event also carries a standard set of technical details that the TelemetryD
 
 Events carry TelemetryDeck's built-in anonymous per-install identifier, hashed on the device before sending, and TelemetryDeck retains no IP addresses. The identifier is not tied to you, and it resets whenever iOS regenerates the device's vendor identifier, which happens when every app from the same developer is removed. See the [TelemetryDeck privacy policy](https://telemetrydeck.com/privacy) for how the data is handled.
 
-Turning off "Share Analytics Data" stops every one of the events described above, along with the six app settings that accompany them. Your installation is still counted, so the maintainers can tell how many people use the app: that means the anonymous identifier, and the technical details in the paragraph above, are still sent once per session. Switching it off makes you far less legible, but it does not make the app silent.
+Turning off "Share Analytics Data" stops every one of the events described above, along with the six app settings that accompany them. Your installation is still counted, so the maintainers can tell how many people use the app: that means the anonymous identifier, and the technical details in the paragraph above, are still sent once per session. Turning it off greatly reduces what the app sends, but does not stop it entirely.
 
 Official releases are built with analytics credentials, which the release workflow supplies from repository secrets, so they send the events described above unless you turn the setting off. A build made without those credentials sends nothing at all, whatever that setting says: contributor builds from source and forks have analytics disabled because the credentials are absent.
-
-## Questions & Feedback
-[![Twitter](https://img.shields.io/badge/Twitter-2CA5E0?style=for-the-badge&logo=twitter&logoColor=white)](https://twitter.com/ehpandaapp)
-[![Discord](https://img.shields.io/badge/Discord-7289DA?style=for-the-badge&logo=discord&logoColor=white)](https://discord.gg/BSBE9FCBTq)
-[![Telegram](https://img.shields.io/badge/Telegram-858585?style=for-the-badge&logo=telegram&logoColor=white)](https://t.me/ehpanda)
