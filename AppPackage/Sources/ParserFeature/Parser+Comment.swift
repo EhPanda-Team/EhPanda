@@ -79,180 +79,101 @@ extension Parser {
 
 // MARK: Helpers
 private extension Parser {
-    // swiftlint:disable:next function_body_length cyclomatic_complexity
     static func parseCommentContent(node: any XMLElement) -> [CommentContent] {
-        var contents = [CommentContent]()
+        var builder = CommentContentBuilder()
+        builder.appendChildren(of: node)
+        return builder.build()
+    }
+}
 
-        for div in node.xpath("//div") {
-            node.removeChild(div)
+/// Turns a comment body into its runs by walking the DOM.
+///
+/// The text has to come from text nodes, which hold what the author wrote with the site's escaping
+/// undone exactly once. Serialized HTML is the wrong source: it carries inline tags and re-escapes
+/// `<`, `>` and `&`, and no replacing can tell that markup from a `<strong>` the author typed.
+private struct CommentContentBuilder {
+    private var contents = [CommentContent]()
+    private var pendingText = ""
+
+    /// `node()` rather than `children`, which lists elements only and would lose the text.
+    mutating func appendChildren(of parent: any XMLElement) {
+        for child in parent.xpath("node()") {
+            append(child)
         }
-        for span in node.xpath("span") {
-            node.removeChild(span)
-        }
+    }
 
-        guard var rawContent = node.innerHTML?
-            .replacing("<br>", with: "\n")
-            .replacing("</span>", with: "")
-        else { return [] }
-
-        while (node.xpath("//a").count
-               + node.xpath("//img").count) > 0 {
-            var tmpLink: any XMLElement?
-
-            let links = [
-                node.at_xpath("//a"),
-                node.at_xpath("//img")
-            ]
-                .compactMap({ $0 })
-
-            links.forEach { newLink in
-                if tmpLink == nil {
-                    tmpLink = newLink
-                } else {
-                    if let tmpHTML = tmpLink?.toHTML,
-                       let newHTML = newLink.toHTML,
-                       let tmpBound = rawContent.range(of: tmpHTML)?.lowerBound,
-                       let newBound = rawContent.range(of: newHTML)?.lowerBound,
-                       newBound < tmpBound {
-                        tmpLink = newLink
-                    }
-                }
-            }
-
-            guard let link = tmpLink,
-                  let html = link.toHTML?
-                .replacing("<br>", with: "\n")
-                .replacing("</span>", with: ""),
-                  let range = rawContent.range(of: html)
-            else { continue }
-
-            let text = String(rawContent[..<range.lowerBound])
-            if !text.trimmingCharacters(
-                in: .whitespacesAndNewlines
-            ).isEmpty {
-                contents.append(
-                    CommentContent(
-                        type: .plainText,
-                        text: text
-                            .trimmingCharacters(
-                                in: .whitespacesAndNewlines
-                            )
-                    )
-                )
-            }
-
-            if let href = link["href"], let url = URL(string: href) {
-                if let imgSrc = link.at_xpath("//img")?["src"],
-                   let imgURL = URL(string: imgSrc) {
-                    if let content = contents.last,
-                       content.type == .linkedImg {
-                        contents = contents.dropLast()
-                        contents.append(
-                            CommentContent(
-                                type: .doubleLinkedImg,
-                                link: content.link,
-                                imgURL: content.imgURL,
-                                secondLink: url,
-                                secondImgURL: imgURL
-                            )
-                        )
-                    } else {
-                        contents.append(
-                            CommentContent(
-                                type: .linkedImg,
-                                link: url,
-                                imgURL: imgURL
-                            )
-                        )
-                    }
-                } else if let text = link.text {
-                    if !text
-                        .trimmingCharacters(
-                            in: .whitespacesAndNewlines
-                        )
-                            .isEmpty {
-                        contents.append(
-                            CommentContent(
-                                type: .linkedText,
-                                text: text
-                                    .trimmingCharacters(
-                                        in: .whitespacesAndNewlines
-                                    ),
-                                link: url
-                            )
-                        )
-                    }
-                } else {
-                    contents.append(
-                        CommentContent(
-                            type: .singleLink,
-                            link: url
-                        )
-                    )
-                }
-            } else if let src = link["src"], let url = URL(string: src) {
-                if let content = contents.last,
-                   content.type == .singleImg {
-                    contents = contents.dropLast()
-                    contents.append(
-                        CommentContent(
-                            type: .doubleImg,
-                            imgURL: content.imgURL,
-                            secondImgURL: url
-                        )
-                    )
-                } else {
-                    contents.append(
-                        CommentContent(
-                            type: .singleImg,
-                            imgURL: url
-                        )
-                    )
-                }
-
-            }
-
-            rawContent.removeSubrange(..<range.upperBound)
-            node.removeChild(link)
-
-            if (node.xpath("//a").count
-                + node.xpath("//img").count) <= 0 {
-                if !rawContent
-                    .trimmingCharacters(
-                        in: .whitespacesAndNewlines
-                    )
-                    .isEmpty {
-                    contents.append(
-                        CommentContent(
-                            type: .plainText,
-                            text: rawContent
-                                .trimmingCharacters(
-                                    in: .whitespacesAndNewlines
-                                )
-                        )
-                    )
-                }
-            }
-        }
-
-        if !rawContent.isEmpty && contents.isEmpty {
-            if !rawContent
-                .trimmingCharacters(
-                    in: .whitespacesAndNewlines
-                )
-                .isEmpty {
-                contents.append(
-                    CommentContent(
-                        type: .plainText,
-                        text: rawContent
-                            .trimmingCharacters(
-                                in: .whitespacesAndNewlines
-                            )
-                    )
-                )
-            }
-        }
-
+    mutating func build() -> [CommentContent] {
+        flushText()
         return contents
+    }
+
+    private mutating func append(_ node: any XMLElement) {
+        switch node.tagName {
+        case "text":
+            pendingText += node.text ?? ""
+        case "br":
+            pendingText += "\n"
+        case "a":
+            appendLink(node)
+        case "img":
+            appendImage(node)
+        case "div":
+            // Not comment text: no saved comment has one, and the parser has always left them out.
+            break
+        default:
+            // Inline formatting such as `strong`, `em` or `span`: its text belongs to the run.
+            appendChildren(of: node)
+        }
+    }
+
+    private mutating func appendLink(_ link: any XMLElement) {
+        guard let href = link["href"], let url = URL(string: href) else {
+            appendChildren(of: link)
+            return
+        }
+        flushText()
+
+        if let imgSrc = link.at_xpath("//img")?["src"], let imgURL = URL(string: imgSrc) {
+            if let last = contents.last, last.type == .linkedImg {
+                contents.removeLast()
+                contents.append(
+                    CommentContent(
+                        type: .doubleLinkedImg,
+                        link: last.link,
+                        imgURL: last.imgURL,
+                        secondLink: url,
+                        secondImgURL: imgURL
+                    )
+                )
+            } else {
+                contents.append(CommentContent(type: .linkedImg, link: url, imgURL: imgURL))
+            }
+        } else if let title = link.text?.trimmingCharacters(in: .whitespacesAndNewlines) {
+            if !title.isEmpty {
+                contents.append(CommentContent(type: .linkedText, text: title, link: url))
+            }
+        } else {
+            contents.append(CommentContent(type: .singleLink, link: url))
+        }
+    }
+
+    private mutating func appendImage(_ image: any XMLElement) {
+        guard let src = image["src"], let url = URL(string: src) else { return }
+        flushText()
+
+        if let last = contents.last, last.type == .singleImg {
+            contents.removeLast()
+            contents.append(CommentContent(type: .doubleImg, imgURL: last.imgURL, secondImgURL: url))
+        } else {
+            contents.append(CommentContent(type: .singleImg, imgURL: url))
+        }
+    }
+
+    private mutating func flushText() {
+        let text = pendingText.trimmingCharacters(in: .whitespacesAndNewlines)
+        pendingText = ""
+        if !text.isEmpty {
+            contents.append(CommentContent(type: .plainText, text: text))
+        }
     }
 }
