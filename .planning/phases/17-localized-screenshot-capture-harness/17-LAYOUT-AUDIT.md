@@ -15,7 +15,7 @@ are not recorded.
 
 ## View layouts (17-16)
 
-Source HEAD: `c5bc2c98b`. Landing commits `e89e896634` ("pick layouts by size class, not idiom")
+Source HEAD: `39397e500`. Landing commits `e89e896634` ("pick layouts by size class, not idiom")
 and `0a42b7fbb4` ("size NewDawn sun for wide sheets") are both ancestors of HEAD (exit 0 each).
 Decisions: `261015-duo-session-record` DISCUSSION-LOG D01 (size classes for ordinary layout),
 D28 (NewDawn ratio by canvas width).
@@ -59,7 +59,7 @@ after the runs: none (`git status --short` lists only the owner's untracked `.cl
 
 ## Home and Library routing (17-17)
 
-Source HEAD: `4ea5dbd22` (no app source change since `c5bc2c98b`). Landing commit `8fb2374536`
+Source HEAD: `55119b1ec` (no app source change since `39397e500`). Landing commit `8fb2374536`
 ("route screens by window size classes") is an ancestor of HEAD (exit 0). Decisions:
 `261015-duo-session-record` DISCUSSION-LOG D01–D02 (modal only when both window size classes are
 regular), D63–D64 (Favorites lives in the merged Library tab, which keeps its own Favorites and
@@ -116,7 +116,7 @@ App source diff after the runs: none.
 
 ## Search and Downloads routing (17-18)
 
-Source HEAD: `d37f4bd19` (no app source change since `c5bc2c98b`). Landing commit `8fb2374536` is an
+Source HEAD: `b1119beef` (no app source change since `39397e500`). Landing commit `8fb2374536` is an
 ancestor of HEAD (exit 0). Decisions: `261015-duo-session-record` DISCUSSION-LOG D01–D02.
 
 | Item | File and line at HEAD | Behavior at HEAD |

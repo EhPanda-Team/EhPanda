@@ -52,7 +52,7 @@ coverage:
 duration: 20min
 completed: 2026-11-03
 status: complete
-source_head: c5bc2c98b
+source_head: 39397e500
 ---
 
 # Phase 17 Plan 16: Landed size-class view layouts Summary
