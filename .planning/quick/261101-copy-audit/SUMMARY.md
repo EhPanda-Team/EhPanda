@@ -147,6 +147,7 @@ UI tests ran one class at a time, before a final rebase that only brought in tag
 
 The three failures are `testHomeRootAudit`, `testPopularAudit` and `testHistoryAudit`. They fail the same way on the
 unmodified base commit, so the copy did not cause them. One `GalleryCardUITests` case passed only on the plan's retry.
+They were fixed later in the [Home test repairs](../261102-home-test-repairs/SUMMARY.md).
 
 Screens: a throwaway test, not committed, captured 44 surfaces plus dialogs, the error details screen and logged-in
 states on an iPhone Air simulator at the default text size, and the six locales were read side by side. No text was cut
