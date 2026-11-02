@@ -12584,7 +12584,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "緊湊(Compact)"
+            "value": "緊湊"
           }
         }
       }
@@ -12625,7 +12625,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "延伸(Extended)"
+            "value": "延伸"
           }
         }
       }
@@ -12666,7 +12666,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "最小(Minimal)"
+            "value": "最小化"
           }
         }
       }
@@ -12707,7 +12707,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "Minimal+"
+            "value": "最小化 +"
           }
         }
       }
@@ -12748,7 +12748,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "縮圖(Thumbnail)"
+            "value": "縮圖"
           }
         }
       }
@@ -12912,7 +12912,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "自動選擇原始畫質並開始下載"
+            "value": "自動選擇原始畫質，自動開始下載"
           }
         }
       }
@@ -12994,7 +12994,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "自動選擇重新取樣並開始下載"
+            "value": "自動選擇重新取樣，自動開始下載"
           }
         }
       }
@@ -13117,7 +13117,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "手動選擇，手動開始下載(預設)"
+            "value": "手動選擇，手動開始下載（預設）"
           }
         }
       }
@@ -13754,7 +13754,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "透過收藏順序排序"
+            "value": "依收藏時間"
           }
         }
       }
@@ -13795,7 +13795,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "透過最後更新時間排序"
+            "value": "依更新時間"
           }
         }
       }
@@ -14000,7 +14000,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "日文標題(若該畫廊支援)"
+            "value": "日文標題（如果有）"
           }
         }
       }
@@ -17808,7 +17808,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "所有客户端"
+            "value": "任何客户端"
           }
         },
         "zh-Hant": {
@@ -17972,13 +17972,13 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "不通过 [旧式 / HTTP]"
+            "value": "不使用 [旧式 / HTTP]"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "No [傳統/Legacy/HTTP]"
+            "value": "不使用 [舊式 / HTTP]"
           }
         }
       }
@@ -18019,7 +18019,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "E-Hentai 贊助者功能：在現代瀏覽器上預設設定可能無法正常工作，僅推薦用於傳統瀏覽器。"
+            "value": "僅限贊助者。在現代瀏覽器可能無法使用。只建議在舊式 / 過時的瀏覽器使用。"
           }
         }
       }
@@ -18054,13 +18054,13 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "不通过 [现代 / HTTPS]"
+            "value": "不使用 [现代 / HTTPS]"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "No [現代/Modern/HTTPS]"
+            "value": "不使用 [現代 / HTTPS]"
           }
         }
       }
@@ -18101,7 +18101,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "E-Hentai 贊助者功能：可瀏覽的頁面數會減少，僅在出現重大錯誤時才啟用這個選項。"
+            "value": "僅限贊助者。可瀏覽的頁面數會減少。只建議在遇到嚴重問題時使用。"
           }
         }
       }
@@ -19284,7 +19284,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "页面加载快，缩略图加载有延迟。"
+            "value": "页面的加载速度更快，但缩略图出现的时间可能稍有延迟。"
           }
         },
         "zh-Hant": {
@@ -19454,7 +19454,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "大型"
+            "value": "較大"
           }
         }
       }
@@ -19495,7 +19495,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "正常"
+            "value": "普通"
           }
         }
       }
@@ -19536,7 +19536,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "小型"
+            "value": "較小"
           }
         }
       }
