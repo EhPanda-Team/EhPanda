@@ -65,10 +65,10 @@ struct GalleryInfoView: View {
             Info(title: .metadataPageCount, value: String(galleryDetail.pageCount)),
             Info(
                 title: .metadataFileSize,
-                value: String(Int(galleryDetail.sizeCount)) + galleryDetail.sizeType,
+                value: galleryDetail.formattedSizeCount() + " " + galleryDetail.sizeType,
                 accessibilityValue: galleryDetail
-                    .accessibilitySizeUnit(quantity: Double(Int(galleryDetail.sizeCount)))
-                    .map { String(Int(galleryDetail.sizeCount)) + " " + $0 }
+                    .accessibilitySizeUnit(quantity: Double(galleryDetail.sizeCount))
+                    .map { galleryDetail.formattedSizeCount() + " " + $0 }
             ),
             Info(
                 title: .metadataFavoritedTimes,

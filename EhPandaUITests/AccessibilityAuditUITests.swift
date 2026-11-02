@@ -297,11 +297,9 @@ final class AccessibilityAuditUITests: XCTestCase {
         infoButton.tap()
         requireNavigationTitle("Gallery Info", in: app)
         try audit(app, surface: "Detail › Gallery Info")
+        XCTAssertEqual(galleryInfoValue("File Size", in: app), "314.3 mebibytes")
         // The fixture's stars round to 4.5, while its label reads the real average.
-        let averageRating = app.descendants(matching: .any)
-            .matching(NSPredicate(format: "label == %@", "Average Rating")).firstMatch
-        for _ in 0..<8 where !averageRating.exists { app.swipeUp() }
-        XCTAssertEqual(averageRating.value as? String, "4.74")
+        XCTAssertEqual(galleryInfoValue("Average Rating", in: app), "4.74")
     }
 
     func testCommentsAudit() throws {
@@ -689,6 +687,13 @@ private extension AccessibilityAuditUITests {
 
     /// Waits for the element, scrolls it into the hittable area if the screen is longer than what
     /// is shown, then taps it.
+    /// The list builds a row only near the screen, so this swipes down to the row before reading it.
+    func galleryInfoValue(_ title: String, in app: XCUIApplication) -> String? {
+        let row = app.descendants(matching: .any).matching(NSPredicate(format: "label == %@", title)).firstMatch
+        for _ in 0..<8 where !row.exists { app.swipeUp() }
+        return row.value as? String
+    }
+
     /// A Home destination card reads its title, summary and footnote as one label, and only the
     /// title is stable, so the card is found by the title its label starts with.
     func homeDestination(_ title: String, in app: XCUIApplication) -> XCUIElement {
