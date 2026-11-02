@@ -1,5 +1,14 @@
 # Shared book-cover proportion and refreshed review — 2026-10-29
 
+> Workspace retirement notice (2026-11-02): The owner plans to delete the historical
+> `ehpanda-screenshot-review` workspace. Paths and localhost links below describe evidence
+> available at the time of this report; they are not current reproduction dependencies and
+> may no longer resolve after deletion. Current capture instructions are in the app repository
+> `Scripts/visual/README.md`; the private fixture repository
+> `active-fixtures.json.websiteCaptureIndex` identifies the approved inputs. This notice does
+> not claim that historical screenshots, scripts or QA evidence have been migrated.
+
+
 ## Scope and disposition
 
 The owner requested exact width:height **0.707:1** throughout cover frames, removal of active screenshot galleries losing more than **10%** of their area to aspect-fill cropping, and anonymous nonexplicit replacements. App changes and data preparation proceeded in parallel. This is a provisional local review delivery: no visual acceptance, baseline promotion, 17-07 execution or change to Phase 17's **6/24** completion count. Deferred runner-serialization decisions and release/publication holds remain unchanged.
