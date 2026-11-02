@@ -159,7 +159,7 @@ final class AccessibilityAuditUITests: XCTestCase {
     func testPopularAudit() throws {
         let app = try launch(tab: "home")
         requireHomeRoot(in: app)
-        try tapScrolling(app.buttons["Popular"].firstMatch, in: app)
+        try tapScrolling(homeDestination("Popular", in: app), in: app)
         requireNavigationTitle("Popular", in: app)
         try audit(app, surface: "Popular")
     }
@@ -169,10 +169,10 @@ final class AccessibilityAuditUITests: XCTestCase {
         requireHomeRoot(in: app)
         // History is the last item of the horizontal misc grid at the foot of Home: scroll the
         // page down to the grid, then scroll the grid itself sideways until the item is on screen.
-        let historyButton = app.buttons["History"].firstMatch
+        let historyButton = homeDestination("History", in: app)
         XCTAssertTrue(historyButton.waitForExistence(timeout: 15), "Home did not render its misc grid.")
         try scrollUntilHittable(historyButton, in: app, of: app, direction: .upward)
-        try scrollUntilHittable(historyButton, in: app.buttons["Popular"].firstMatch, of: app, direction: .leftward)
+        try scrollUntilHittable(historyButton, in: homeDestination("Popular", in: app), of: app, direction: .leftward)
         XCTAssertTrue(historyButton.isHittable, "The History grid item never became hittable.")
         historyButton.tap()
         requireNavigationTitle("History", in: app)
@@ -676,6 +676,12 @@ private extension AccessibilityAuditUITests {
 
     /// Waits for the element, scrolls it into the hittable area if the screen is longer than what
     /// is shown, then taps it.
+    /// A Home destination card reads its title, summary and footnote as one label, and only the
+    /// title is stable, so the card is found by the title its label starts with.
+    func homeDestination(_ title: String, in app: XCUIApplication) -> XCUIElement {
+        app.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", title)).firstMatch
+    }
+
     func tapScrolling(
         _ element: XCUIElement,
         in app: XCUIApplication,
