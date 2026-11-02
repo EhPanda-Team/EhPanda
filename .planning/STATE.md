@@ -8,7 +8,7 @@ stopped_at: Completed 17-18-PLAN.md; next execute 17-19 (owner checkpoint), 17-1
 last_updated: "2026-11-02T17:04:18.000Z"
 last_activity: 2026-11-03
 last_activity_desc: 17-18 verified Search and Downloads routing at the app root and the removed routeGalleryDetail helper (tests pass on phone and tablet); no app source change; next 17-19 with its owner checkpoint
-state_head: 668cca623c228df536242488ae3a6923d85982da
+state_head: e255b3e6275b71efb6e3b8d4f29fa98cbc188da7
 progress:
   total_phases: 18
   completed_phases: 15
