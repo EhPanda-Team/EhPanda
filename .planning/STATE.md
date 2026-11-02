@@ -21,6 +21,13 @@ source_head: af00e0da93
 
 # Project State
 
+## Home test repairs — 2026-11-02
+
+The Home tests that failed regardless of other work now pass. Three were stale, along with a fourth stale test that is
+skipped by default. One exposed a real bug: the first portrait-to-landscape rotation on iPhone left the previous
+gallery in the carousel's center, now fixed. VoiceOver's rotation offset and forward order remain open, and the Duo
+tests were not run. [Quick task](quick/261102-home-test-repairs/SUMMARY.md).
+
 ## App-wide copywriting audit — 2026-11-02
 
 The audit is applied in all six locales, with changed English terms renamed through keys, files and types while stored
