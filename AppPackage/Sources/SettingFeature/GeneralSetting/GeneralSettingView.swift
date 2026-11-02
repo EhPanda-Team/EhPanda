@@ -93,7 +93,6 @@ struct GeneralSettingView: View {
 
                     AppToggle(.enhancedTags, isOn: Binding($setting.enableTagsExtension))
                         .labelsHidden()
-                        .frame(width: 50)
                         .padding(.leading, 20)
                 }
                 if setting.enableTagsExtension && !tagTranslatorEmpty {
