@@ -4,22 +4,32 @@ milestone: v3.0.0
 current_phase: 17
 current_phase_name: Screenshot Automation, Visual Regression & OS 27 Modernization
 status: executing
-stopped_at: Completed 17-16-PLAN.md; next execute 17-17, 17-18, 17-19 (owner checkpoint), 17-14 (T2) and 17-23, then the Phase 17 close steps
-last_updated: "2026-11-02T16:51:37.000Z"
+stopped_at: Completed 17-17-PLAN.md; next execute 17-18, 17-19 (owner checkpoint), 17-14 (T2) and 17-23, then the Phase 17 close steps
+last_updated: "2026-11-02T16:59:23.000Z"
 last_activity: 2026-11-03
-last_activity_desc: 17-16 verified the landed size-class view layouts at HEAD (five sites, no idiom read; Home and Search tests pass on phone and tablet); no app source change
+last_activity_desc: 17-17 verified Home and Library gallery routing at the app root by window size classes (routing tests pass on phone and tablet); no app source change
 state_head: 668cca623c228df536242488ae3a6923d85982da
 progress:
   total_phases: 18
   completed_phases: 15
   total_plans: 287
-  completed_plans: 282
+  completed_plans: 283
   percent: 83
 milestone_name: )
 source_head: 2519060029
 ---
 
 # Project State
+
+## 17-17 landed Home and Library routing verified — 2026-11-03
+
+Home and Library (Favorites) gallery taps reach `AppReducer.openGalleryDetail`, which presents a
+sheet only when `WindowSizeClasses.presentsModally` (both classes regular) and pushes otherwise;
+`8fb2374536` is an ancestor. GalleryDetailRoutingTests and CaptureRouteTests pass on iPhone Air then
+iPad Pro 11-inch (15 cases each, no Repetition). Home's `.compactHeight` entry has no test of its own
+(shared helper covered by the other hosts); Home's Duo split-layout read goes to the 17-19 census.
+No app source change. [Summary](phases/17-localized-screenshot-capture-harness/17-17-SUMMARY.md).
+Next: 17-18.
 
 ## 17-16 landed view layouts verified — 2026-11-03
 
