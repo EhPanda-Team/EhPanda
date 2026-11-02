@@ -85,11 +85,12 @@ struct GalleryInfoView: View {
             ),
             Info(
                 title: .metadataAverageRating,
-                value: String(Int(galleryDetail.rating))
+                value: galleryDetail.rating.formatted(.number.precision(.fractionLength(2)).grouping(.never))
             ),
             Info(
                 title: .metadataMyRating,
-                value: galleryDetail.userRating == 0 ? nil : String(Int(galleryDetail.userRating))
+                value: galleryDetail.userRating == 0 ? nil
+                    : galleryDetail.userRating.formatted(.number.precision(.fractionLength(1)))
             ),
             Info(
                 title: .metadataTorrentCount,
