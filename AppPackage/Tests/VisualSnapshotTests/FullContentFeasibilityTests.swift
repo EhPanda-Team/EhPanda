@@ -542,7 +542,7 @@ private extension FullContentFeasibilityTests {
                     votedUp: false, votedDown: false, votable: false, editable: false,
                     author: "Public Author", contents: [CommentContent(
                         id: try XCTUnwrap(UUID(uuidString: String(format: "00000000-0000-0000-0000-%012d", index + 1))),
-                        type: .plainText, text: PublicVisualFixtures.commentText(index: index)
+                        type: .plainText, text: AttributedString(PublicVisualFixtures.commentText(index: index))
                     )], commentID: identifier, commentDate: PublicVisualFixtures.fixedDate
                 )
             }

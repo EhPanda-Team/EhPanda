@@ -20,7 +20,7 @@ final class CommentCardLayoutTests: XCTestCase {
     private func verifyCard(author: String, text: String, name: String) throws {
         let comment = GalleryComment(
             votedUp: false, votedDown: false, votable: true, editable: false,
-            score: "+283", author: author, contents: [.init(type: .plainText, text: text)],
+            score: "+283", author: author, contents: [.init(type: .plainText, text: AttributedString(text))],
             commentID: "card-shape", commentDate: Date(timeIntervalSince1970: 1_787_409_540)
         )
         for size in [DynamicTypeSize.large, .accessibility1, .accessibility3, .accessibility5] {

@@ -38,7 +38,9 @@ public struct GalleryComment: Identifiable, Equatable, Codable, Sendable {
     public var plainTextContent: String {
         contents
             .filter({ [.plainText, .linkedText, .singleLink].contains($0.type) })
-            .compactMap({ $0.type == .singleLink ? $0.link?.absoluteString : $0.text })
+            .compactMap({ content in
+                content.type == .singleLink ? content.link?.absoluteString : content.text.map({ String($0.characters) })
+            })
             .joined()
     }
 }
@@ -53,7 +55,7 @@ public struct CommentContent: Identifiable, Equatable, Codable, Sendable {
     public init(
         id: UUID = .init(),
         type: CommentContentType,
-        text: String? = nil,
+        text: AttributedString? = nil,
         link: URL? = nil,
         imgURL: URL? = nil,
         secondLink: URL? = nil,
@@ -69,7 +71,8 @@ public struct CommentContent: Identifiable, Equatable, Codable, Sendable {
     }
     public var id: UUID = .init()
     public let type: CommentContentType
-    public var text: String?
+    /// The run's text, carrying the author's bold, italic, underline and strikethrough as attributes.
+    public var text: AttributedString?
     public var link: URL?
     public var imgURL: URL?
 
