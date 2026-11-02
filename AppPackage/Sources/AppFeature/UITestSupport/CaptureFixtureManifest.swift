@@ -53,6 +53,7 @@ struct MarketingCaptureManifest: Equatable, Sendable {
         case cover
         case preview
         case page
+        case commentImage
         /// What the app's own Live Text found on a flow page, saved by `record-live-text.py`.
         case liveText
 
@@ -60,7 +61,7 @@ struct MarketingCaptureManifest: Equatable, Sendable {
             switch self {
             case .detail, .thumbnails, .imagePage:
                 true
-            case .cover, .preview, .page, .liveText:
+            case .cover, .preview, .page, .commentImage, .liveText:
                 false
             }
         }
@@ -71,7 +72,7 @@ struct MarketingCaptureManifest: Equatable, Sendable {
             switch self {
             case .liveText:
                 true
-            case .detail, .thumbnails, .imagePage, .cover, .preview, .page:
+            case .detail, .thumbnails, .imagePage, .cover, .preview, .page, .commentImage:
                 false
             }
         }

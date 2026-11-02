@@ -116,3 +116,87 @@ mode on iPhone Air (8 images). Load hash-pinned real release tables into isolate
 use the production decoder and OpenCC conversion. Preserve current centers and Frontpage choices,
 including the latest nonexplicit lower-left/upper-right swap. Present native images on a local
 review page; do not publish or commit.
+
+## Full copy refresh — 2026-11-02
+
+Owner confirms the App-wide text update is finished and requests a complete recapture.
+Record all 192 coordinates on iPhone Air portrait, retaining the approved current fixture
+versions, Home compositions, populated Comments, default Filters and translated Live Text.
+Pin the unified tag-database release for the five supported languages; German keeps raw tags.
+Extend the existing native UI capture launcher's optional configuration to use the same
+hash-pinned source as direct captures. Retain default test parallelism. Archive the prior review
+unchanged and present a new full-matrix review. No publication or baseline approval is implied.
+
+## Global gallery-title preference — 2026-11-02
+
+Owner requests applying Use Japanese Title to every gallery-title surface and recapturing the
+complete website matrix. Preserve both title variants in Gallery, decode the existing gdata
+Japanese title, enrich HTML-list titles through the bounded metadata request, and use the shared
+preference in Home and shared list/grid cells. Download projections must preserve both variants
+instead of unconditionally preferring Japanese. Detail and accessibility titles follow the same
+fallback rule (missing/blank Japanese title uses normal title). Explicit metadata fields retain
+their distinct labels and download folder identities are unchanged. Verify preference toggling,
+legacy decoding, metadata merging/error behavior and native screens before the 192-image recapture.
+
+Owner refinement: for this website screenshot set only, Korean/Japanese/Traditional Chinese/Simplified
+Chinese use Japanese titles; English/German use original titles. Preserve the app's existing default
+and manual switch. Recapture the 64 English/German coordinates; retain matching Asian-language captures.
+
+## Reading language and initial Comments — 2026-11-02
+
+Owner requests translation into the selected interface language. Both groups use the English book
+4223235 for Japanese/German targets, and the Japanese book 4217037 for English/Korean/Traditional
+Chinese/Simplified Chinese targets. Reading must use the same source-language book as Live Text.
+Record genuine Apple Translation responses and preserve earlier fixture versions and review images.
+Recapture these two screens and Comments (72 coordinates). Comments stays at its initial position.
+The current 64-gallery fixture inventory contains an image in the first uploader comment of 3845660;
+use this gallery for both groups, acquiring its referenced image into a checked fixture asset.
+Retain all other approved screen selections, including the title preference's screenshot-only scope.
+
+## Owner-requested composite comment — 2026-11-02
+
+Owner selected image candidate B (4236534, comment 8715661) and explicitly requests moving that
+image into the third comment of a gallery whose visible comments contain no Chinese, with a random
+author name. Owner clarified that the Chinese subtitle embedded in the image must also be removed.
+Prepare a clearly documented, screenshot-only composite based on an English-comment gallery;
+preserve original source responses and the website. Use a separate provisional fixture
+and native preview, retaining the current full review. Record the edited-image provenance and
+synthetic author. Verify initial scroll position, third-comment visibility, and absence of CJK
+characters in visible comment text; inspect the edited image for subtitle removal.
+
+The initial 4210994 trial put the third row below the viewport because the uploader's update log
+was long. Use 4087956 (The Making of Fantastic Mr. Fox), whose first two comments are short English
+messages, with random author CedarComet91. The inserted image is an imagegen edit with its Chinese
+subtitle removed. Keep the source image and synthetic transformation provenance distinct.
+
+The English light iPhone Air preview passed readiness, complete third-row visibility, no CJK in
+visible comment labels, and consecutive identical native PNG checks (1260 × 2736). The third row
+and its edited image were visually inspected. Local preview: `/comment-composite-20261102/` on the
+existing review server. The full 192-coordinate review remains the preceding version. The temporary
+simulator was removed. The composite is recorded in `.capture/website-comment-composite-20261102/`;
+its provenance explicitly identifies the synthetic insertion, random author and imagegen edit.
+
+Owner requests more comments than the four-row composite. Prepare a new provisional preview based
+on 2758456 (The Owl House: Next Generation + Grom Factor): 13 saved/current comments, 14 with the
+same third-position edited B image and CedarComet91 insertion. Visible comment text and authors
+must remain free of Chinese; verify the image fits in the initial viewport and further rows continue
+below it. Preserve the preceding preview and the full website matrix.
+
+The revised English light preview passed: 14 comments, first five rows in the initial viewport,
+synthetic third row fully visible (y 406, height 216 points), no CJK in visible comment labels,
+zero unknown requests or pending images, and stable 1260 × 2736 PNGs. Visual inspection confirms
+the page continues below the image without the previous empty lower area. Review route:
+`/comment-more-20261102/`. The temporary simulator was removed; prior previews remain available.
+
+Owner approved the populated preview and requested updating the full screenshot set. Recapture
+all 24 Comments coordinates (two groups, six locales, two themes) with this same 14-comment
+composition, retaining the other 168 images and prior reviews. Verify native readiness, initial
+position, full third-row visibility, and the fixture's Chinese-free comment text/author names;
+localized interface/date labels naturally follow each coordinate's locale. The edited image and
+synthetic-comment provenance stay explicit in the local review artifacts.
+
+Complete: all 24 Comments coordinates recaptured and all 192 review coordinates passed artifact
+and browser checks (1260 × 2736, readiness, image settlement, locale/theme, fixture identity,
+third-row visibility and previous-image links; no JavaScript errors). The other 168 PNGs retain
+their previous hashes. Current full review: `/comments-20261102/` on the local server. Both
+temporary matrix simulators were removed. No publication or commit was requested.

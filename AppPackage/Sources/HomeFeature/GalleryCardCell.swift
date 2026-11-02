@@ -4,6 +4,7 @@ import AppTools
 import ColorfulX
 public import Kingfisher
 import SFSafeSymbols
+import Sharing
 import SpringInterpolation
 public import SwiftUI
 
@@ -12,6 +13,7 @@ import PreviewSupport
 #endif
 
 public struct GalleryCardCell: View {
+    @SharedReader(.setting) private var setting: Setting
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
@@ -71,7 +73,7 @@ public struct GalleryCardCell: View {
                         if usesCompactInformation {
                             HomeCompactSlideshowContent(gallery: gallery)
                         } else {
-                            Text(gallery.title)
+                            Text(gallery.displayTitle(prefersJapanese: setting.displayJapaneseTitle))
                                 .accessibilityIdentifier("home_slideshow_title_\(gallery.id)")
                                 .font(.title2.bold())
                                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
@@ -155,7 +157,7 @@ public struct GalleryCardCell: View {
     /// The destination provides the complete title, while rating stays in this text column.
     private func textColumn(titleLines: Int) -> some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text(gallery.title)
+            Text(gallery.displayTitle(prefersJapanese: setting.displayJapaneseTitle))
                 .accessibilityIdentifier("home_slideshow_title_\(gallery.id)")
                 .font(.title3.bold())
                 .lineLimit(titleLines, reservesSpace: true)

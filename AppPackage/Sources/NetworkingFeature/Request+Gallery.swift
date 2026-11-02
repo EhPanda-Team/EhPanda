@@ -27,11 +27,12 @@ public struct SearchGalleriesRequest: Request {
         let (data, _) = try await fetch(request, in: urlSession)
         do {
             let document = try htmlDocument(data: data)
+            let galleries = try await galleriesWithTitles(doc: document, host: host, in: urlSession)
             return try parseResponse(doc: document) {
                 GalleriesResult(
                     pageNumber: Parser.parsePageNum(doc: $0),
                     dateSeekNavigation: Parser.parseDateSeekNavigation(doc: $0, host: host.url),
-                    galleries: try Parser.parseGalleries(doc: $0)
+                    galleries: galleries
                 )
             }
         } catch {
@@ -65,11 +66,12 @@ public struct MoreSearchGalleriesRequest: Request {
         let (data, _) = try await fetch(URLRequest(url: url), in: urlSession)
         do {
             let document = try htmlDocument(data: data)
+            let galleries = try await galleriesWithTitles(doc: document, host: host, in: urlSession)
             return try parseResponse(doc: document) {
                 GalleriesResult(
                     pageNumber: Parser.parsePageNum(doc: $0),
                     dateSeekNavigation: Parser.parseDateSeekNavigation(doc: $0, host: host.url),
-                    galleries: try Parser.parseGalleries(doc: $0)
+                    galleries: galleries
                 )
             }
         } catch {
@@ -96,11 +98,12 @@ public struct DateSeekGalleriesRequest: Request {
         let (data, _) = try await fetch(URLRequest(url: url), in: urlSession)
         do {
             let document = try htmlDocument(data: data)
+            let galleries = try await galleriesWithTitles(doc: document, host: host, in: urlSession)
             return try parseResponse(doc: document) {
                 GalleriesResult(
                     pageNumber: Parser.parsePageNum(doc: $0),
                     dateSeekNavigation: Parser.parseDateSeekNavigation(doc: $0, host: host.url),
-                    galleries: try Parser.parseGalleries(doc: $0)
+                    galleries: galleries
                 )
             }
         } catch {
@@ -128,11 +131,12 @@ public struct FrontPageGalleriesRequest: Request {
         let (data, _) = try await fetch(request, in: urlSession)
         do {
             let document = try htmlDocument(data: data)
+            let galleries = try await galleriesWithTitles(doc: document, host: host, in: urlSession)
             return try parseResponse(doc: document) {
                 GalleriesResult(
                     pageNumber: Parser.parsePageNum(doc: $0),
                     dateSeekNavigation: Parser.parseDateSeekNavigation(doc: $0, host: host.url),
-                    galleries: try Parser.parseGalleries(doc: $0)
+                    galleries: galleries
                 )
             }
         } catch {
@@ -163,11 +167,12 @@ public struct MoreFrontPageGalleriesRequest: Request {
         let (data, _) = try await fetch(URLRequest(url: url), in: urlSession)
         do {
             let document = try htmlDocument(data: data)
+            let galleries = try await galleriesWithTitles(doc: document, host: host, in: urlSession)
             return try parseResponse(doc: document) {
                 GalleriesResult(
                     pageNumber: Parser.parsePageNum(doc: $0),
                     dateSeekNavigation: Parser.parseDateSeekNavigation(doc: $0, host: host.url),
-                    galleries: try Parser.parseGalleries(doc: $0)
+                    galleries: galleries
                 )
             }
         } catch {
@@ -195,7 +200,8 @@ public struct PopularGalleriesRequest: Request {
         let (data, _) = try await fetch(request, in: urlSession)
         do {
             let document = try htmlDocument(data: data)
-            return try parseResponse(doc: document, Parser.parseGalleries)
+            let galleries = try await galleriesWithTitles(doc: document, host: host, in: urlSession)
+            return galleries
         } catch {
             throw mapAppError(error: error)
         }
@@ -224,11 +230,12 @@ public struct WatchedGalleriesRequest: Request {
         let (data, _) = try await fetch(request, in: urlSession)
         do {
             let document = try htmlDocument(data: data)
+            let galleries = try await galleriesWithTitles(doc: document, host: host, in: urlSession)
             return try parseResponse(doc: document) {
                 GalleriesResult(
                     pageNumber: Parser.parsePageNum(doc: $0),
                     dateSeekNavigation: Parser.parseDateSeekNavigation(doc: $0, host: host.url),
-                    galleries: try Parser.parseGalleries(doc: $0)
+                    galleries: galleries
                 )
             }
         } catch {
@@ -267,11 +274,12 @@ public struct MoreWatchedGalleriesRequest: Request {
         let (data, _) = try await fetch(URLRequest(url: url), in: urlSession)
         do {
             let document = try htmlDocument(data: data)
+            let galleries = try await galleriesWithTitles(doc: document, host: host, in: urlSession)
             return try parseResponse(doc: document) {
                 GalleriesResult(
                     pageNumber: Parser.parsePageNum(doc: $0),
                     dateSeekNavigation: Parser.parseDateSeekNavigation(doc: $0, host: host.url),
-                    galleries: try Parser.parseGalleries(doc: $0)
+                    galleries: galleries
                 )
             }
         } catch {
@@ -310,12 +318,13 @@ public struct FavoritesGalleriesRequest: Request {
         let (data, _) = try await fetch(URLRequest(url: url), in: urlSession)
         do {
             let document = try htmlDocument(data: data)
+            let galleries = try await galleriesWithTitles(doc: document, host: host, in: urlSession)
             return try parseResponse(doc: document) {
                 FavoritesGalleriesResult(
                     pageNumber: Parser.parsePageNum(doc: $0),
                     dateSeekNavigation: Parser.parseDateSeekNavigation(doc: $0, host: host.url),
                     sortOrder: Parser.parseFavoritesSortOrder(doc: $0),
-                    galleries: try Parser.parseGalleries(doc: $0)
+                    galleries: galleries
                 )
             }
         } catch {
@@ -358,12 +367,13 @@ public struct MoreFavoritesGalleriesRequest: Request {
         let (data, _) = try await fetch(URLRequest(url: url), in: urlSession)
         do {
             let document = try htmlDocument(data: data)
+            let galleries = try await galleriesWithTitles(doc: document, host: host, in: urlSession)
             return try parseResponse(doc: document) {
                 FavoritesGalleriesResult(
                     pageNumber: Parser.parsePageNum(doc: $0),
                     dateSeekNavigation: Parser.parseDateSeekNavigation(doc: $0, host: host.url),
                     sortOrder: Parser.parseFavoritesSortOrder(doc: $0),
-                    galleries: try Parser.parseGalleries(doc: $0)
+                    galleries: galleries
                 )
             }
         } catch {
@@ -394,8 +404,9 @@ public struct ToplistsGalleriesRequest: Request {
         let (data, _) = try await fetch(URLRequest(url: url), in: urlSession)
         do {
             let document = try htmlDocument(data: data)
+            let galleries = try await galleriesWithTitles(doc: document, host: host, in: urlSession)
             return try parseResponse(doc: document) {
-                (Parser.parsePageNum(doc: $0), try Parser.parseGalleries(doc: $0))
+                (Parser.parsePageNum(doc: $0), galleries)
             }
         } catch {
             throw mapAppError(error: error)
@@ -425,8 +436,9 @@ public struct MoreToplistsGalleriesRequest: Request {
         let (data, _) = try await fetch(URLRequest(url: url), in: urlSession)
         do {
             let document = try htmlDocument(data: data)
+            let galleries = try await galleriesWithTitles(doc: document, host: host, in: urlSession)
             return try parseResponse(doc: document) {
-                (Parser.parsePageNum(doc: $0), try Parser.parseGalleries(doc: $0))
+                (Parser.parsePageNum(doc: $0), galleries)
             }
         } catch {
             throw mapAppError(error: error)

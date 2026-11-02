@@ -53,8 +53,10 @@ struct HeaderSection: View {
     @ScaledMetric(relativeTo: .callout) private var progressRingInset: CGFloat = 3
 
     private var title: String {
-        let normalTitle = galleryDetail.title
-        return displayJapaneseTitle ? galleryDetail.jpnTitle ?? normalTitle : normalTitle
+        var titledGallery = gallery
+        titledGallery.title = galleryDetail.title
+        titledGallery.jpnTitle = galleryDetail.jpnTitle
+        return titledGallery.displayTitle(prefersJapanese: displayJapaneseTitle)
     }
     private var showsMetadataPreparation: Bool { isPreparingDownload && downloadBadge == nil }
     /// Whether the download glyph turns while the gallery's metadata is being prepared. Spinning is

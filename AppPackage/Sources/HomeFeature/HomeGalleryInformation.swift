@@ -3,6 +3,7 @@ import AppModels
 import AppTools
 import Resources
 import SFSafeSymbols
+import Sharing
 import SwiftUI
 
 struct HomePageLanguage: View {
@@ -81,6 +82,7 @@ struct HomeSlideshowInformation: View {
 }
 
 struct HomeFrontPageCell: View {
+    @SharedReader(.setting) private var setting: Setting
     @GalleryCoverMetrics private var coverSize: CGSize
     let gallery: Gallery
     let showsRichInformation: Bool
@@ -107,7 +109,7 @@ struct HomeFrontPageCell: View {
             )
                 .accessibilityHidden(true)
             if showsRichInformation {
-                Text(gallery.title)
+                Text(gallery.displayTitle(prefersJapanese: setting.displayJapaneseTitle))
                     .font(coverStyle == .homeCompact ? .footnote.bold() : .subheadline.bold())
                     .lineLimit(2, reservesSpace: true)
                     .fixedSize(horizontal: false, vertical: true)
@@ -118,7 +120,9 @@ struct HomeFrontPageCell: View {
         }
         .frame(width: coverSize.width, alignment: .leading)
         .accessibilityElement(children: .combine)
-        .accessibilityLabel(gallery.title, isEnabled: !showsRichInformation)
+        .accessibilityLabel(
+            gallery.displayTitle(prefersJapanese: setting.displayJapaneseTitle), isEnabled: !showsRichInformation
+        )
         .accessibilityIdentifier("home_front_page_title_\(gallery.id)")
     }
 }

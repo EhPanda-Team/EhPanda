@@ -456,7 +456,10 @@ struct CaptureLauncher: Sendable {
         let configuration = CaptureConfiguration(
             purpose: "marketingReal",
             scenarioID: scenarioID,
-            fixtureID: coordinate.set
+            fixtureID: coordinate.set,
+            tagTranslation: try ProcessInfo.processInfo.environment["EHPANDA_CAPTURE_TAG_TRANSLATION"].map {
+                try JSONDecoder().decode(CaptureTagTranslationSource.self, from: Data($0.utf8))
+            }
         )
         app.launchArguments = [
             "-AppleLanguages", "(\(coordinate.locale.rawValue))",
@@ -600,10 +603,20 @@ enum CaptureLaunchError: Error {
 }
 
 /// The capture configuration a launch passes in `EHPANDA_CAPTURE_CONFIGURATION`.
+/// The same hash-pinned translation source accepted by the app's isolated capture configuration.
+private struct CaptureTagTranslationSource: Codable {
+    let path: String
+    let sha256: String
+    let languageCode: String
+    let releasePath: String
+    let releaseSHA256: String
+}
+
 private struct CaptureConfiguration: Encodable {
     let purpose: String
     let scenarioID: String
     let fixtureID: String
+    let tagTranslation: CaptureTagTranslationSource?
 
     func json() throws -> String {
         let encoder = JSONEncoder()

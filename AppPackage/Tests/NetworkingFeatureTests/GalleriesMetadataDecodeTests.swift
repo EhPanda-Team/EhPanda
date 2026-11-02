@@ -57,6 +57,7 @@ struct GalleriesMetadataDecodeTests {
             {
               "gid": 100, "token": "aaa",
               "title": "&#38;lt; &#x41; &amp; &lt;tag&gt;",
+              "title_jpn": "日本語 &amp; &#x41;",
               "category": "Doujinshi", "thumb": "https://example.com/1.jpg",
               "posted": "1600000000", "filecount": "20", "rating": "4.5"
             }
@@ -69,6 +70,7 @@ struct GalleriesMetadataDecodeTests {
         )
         // &#38;lt; -> "&lt;" (not "<"), &#x41; -> "A", &amp; -> "&", &lt;tag&gt; -> "<tag>".
         #expect(galleries.first?.title == "&lt; A & <tag>")
+        #expect(galleries.first?.jpnTitle == "日本語 & A")
     }
 
     // A tokenless (but error-free) entry is unresolvable — its gallery URL can't be built — so it is

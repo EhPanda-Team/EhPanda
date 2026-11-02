@@ -3,10 +3,6 @@ public import SwiftUI
 
 // MARK: DownloadedGallery Computed Properties
 extension DownloadedGallery {
-    public var displayTitle: String {
-        jpnTitle?.nonEmpty ?? title
-    }
-
     public var searchableText: String {
         [
             title,
@@ -48,7 +44,8 @@ extension DownloadedGallery {
         Gallery(
             gid: gid,
             token: token,
-            title: displayTitle,
+            title: title,
+            jpnTitle: jpnTitle,
             rating: rating,
             tags: tags,
             category: category,

@@ -36,7 +36,7 @@ IMAGE_HOSTS = frozenset({'ehgt.org', 'gt0.ehgt.org', 'gt1.ehgt.org', 'gt2.ehgt.o
 HATH_HOST = re.compile(r'(?:[a-z0-9]+\.)+hath\.network')
 GALLERY_URL = re.compile(r'https://e-hentai\.org/g/([1-9][0-9]*)/([0-9a-f]{10})/')
 PAGE_KINDS = ('detail', 'thumbnails', 'imagePage')
-IMAGE_KINDS = ('cover', 'preview', 'page')
+IMAGE_KINDS = ('cover', 'preview', 'page', 'commentImage')
 # Records are made rather than fetched, so they answer no replay URL: a Live Text record is what the app's own
 # recognizer found on a scene's Live Text page, saved by record-live-text.py after acquisition.
 RECORD_KINDS = ('liveText',)
@@ -417,7 +417,7 @@ def download_pages(entry, page_count):
     return set(range(1, entry['completedPages'] + 1))
 
 
-def collect(selection, retrieve):
+def collect(selection, retrieve, *, include_comment_images=False):
     """Derive every required resource in declaration order; retrieve(kind, gid, index, url) returns its bytes.
 
     A reader gallery's resources, the flow's or the Live Text one's, follow the app's reader: the preview page of
@@ -440,6 +440,15 @@ def collect(selection, retrieve):
             raise ValueError(f'{gid}: {error}') from None
         identity(text, gid, token)
         retrieve('cover', gid, None, detail['cover'])
+        if include_comment_images and any(
+                scene.get('commentsGallery', scene['flow']['gallery']) == gid
+                for scene in selection['scenes'].values()):
+            document = parse_html(text)
+            urls = dict.fromkeys(image.attributes['src']
+                                 for body in document.walk() if body.attributes.get('class') == 'c6'
+                                 for image in body.walk() if image.tag == 'img' and image.attributes.get('src'))
+            for index, url in enumerate(urls):
+                retrieve('commentImage', gid, index, url)
         loaded = set()
         if gid in readers or gid in detail_galleries:
             previews = dict.fromkeys(detail['previews'][page] for page in sorted(detail['previews']))
@@ -508,7 +517,8 @@ def asset_path(kind, gid, index, mime):
                                       'imagePage': f'pages/{index}'}[kind] + '.html'
     if kind in RECORD_KINDS:
         return f'records/{gid}/{kind}/{index}.json'
-    return f'assets/{gid}/' + {'cover': 'cover', 'preview': f'previews/{index}', 'page': f'pages/{index}'}[kind] \
+    return f'assets/{gid}/' + {'cover': 'cover', 'preview': f'previews/{index}', 'page': f'pages/{index}',
+                             'commentImage': f'comments/{index}'}[kind] \
         + f'.{MEDIA[mime]}'
 
 
@@ -676,7 +686,8 @@ def verify_contents(directory):
         visited.append(entry)
         return data
 
-    collect(selection, retrieve)
+    # Older fixtures predate comment-image acquisition; new manifests opt in by listing that kind.
+    collect(selection, retrieve, include_comment_images=any(entry['kind'] == 'commentImage' for entry in assets))
     records = [entry for entry in assets if entry['kind'] in RECORD_KINDS]
     if len(visited) + len(records) != len(assets):
         raise ValueError('Fixture manifest lists resources the selection does not require')

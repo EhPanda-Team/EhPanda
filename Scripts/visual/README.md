@@ -721,3 +721,38 @@ verification. Snapshot contents reflect the source tree at preparation time; aft
 prepare a new output directory and build from that snapshot. The canonical manifest and project are
 never rewritten by snapshot generation. Capture inputs, generated projects and evidence remain local
 under ignored `.capture/` output.
+
+### Approved website fixtures and manual image comment (2026-11-02)
+
+The private fixture repository's `active-fixtures.json` points to
+`website-capture-20261102.json` via `websiteCaptureIndex`. Use that index for the approved
+192-image matrix (two groups, six locales, two appearances, eight screens). Resolve its fixture
+paths against the private repository root: Comments uses each group's `comments` fixture;
+Reading and Live Text use `readerByLocale`; other screens use `default`. Validate the selected
+immutable fixture with this repository's fixture validator before capture.
+
+**The third image comment is manually inserted screenshot data, not a comment posted on the
+website.** Both groups use gallery 2758456 with its 13 original comments plus this synthetic
+comment. The private `overrides/website-comments-20261102/override.json` records the exact
+HTML, source/edited image files, hashes and reconstruction steps. Position three counts the
+uploader's comment as position one. Keep comment ID `9000000001`, author `CedarComet91` and
+timestamp fixed; the author was randomly chosen once, not on every capture.
+
+The image came from gallery 4236534, comment 8715661. Its embedded Chinese subtitle was
+removed with image generation at the owner's request. Replay maps the original image URL to
+the approved edited PNG (`commentImage`, gallery 2758456, index 0, MIME `image/png`). Do not
+fetch that URL again or regenerate the image when reproducing these screenshots.
+
+Prefer the frozen fixtures. On an explicitly requested source refresh, insert the saved HTML
+before the third original comment, or verify the existing synthetic ID instead of inserting a
+duplicate. Preserve all original comments, include the edited image replay asset, and select
+`commentsGallery` 2758456. Create and validate a new content-addressed version rather than
+editing an existing version. Capture Comments at its initial scroll position; check that the
+third image is fully visible and comment text, names and the image contain no Chinese. UI
+labels still follow the selected locale.
+
+Only these captures select Japanese titles for ja/ko/zh-Hant/zh-Hans; en/de use original titles.
+Reading and Live Text share the same source book: English for ja/de, Japanese for the other
+locales. Live Text replays recorded Apple Translation results into the app's renderer for the
+selected target locale; it is not evidence of an end-to-end live translation-button interaction.
+The index records all 192 approved image hashes; screenshot files and review sites remain local.
