@@ -60,8 +60,12 @@ public struct DetailView: View {
 // MARK: Content
 private extension DetailView {
     var navigationTitle: String {
-        let title = store.galleryDetail?.title ?? store.gallery.title
-        return store.setting.displayJapaneseTitle ? store.galleryDetail?.jpnTitle ?? title : title
+        var gallery = store.gallery
+        if let detail = store.galleryDetail {
+            gallery.title = detail.title
+            gallery.jpnTitle = detail.jpnTitle
+        }
+        return gallery.displayTitle(prefersJapanese: store.setting.displayJapaneseTitle)
     }
 
     var content: some View {

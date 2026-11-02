@@ -180,7 +180,7 @@ private struct GalleryDetailCellContent: View {
 
     private var textColumn: some View {
         VStack(alignment: .leading, spacing: textColumnSpacing) {
-            Text(gallery.title)
+            Text(gallery.displayTitle(prefersJapanese: setting.displayJapaneseTitle))
                 .lineLimit(titleLineLimit)
                 .font(.headline)
                 .multilineTextAlignment(.leading)

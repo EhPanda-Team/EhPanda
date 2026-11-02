@@ -305,6 +305,10 @@ enum CaptureScenePreparation {
     static var sceneSetting: Setting {
         var setting = Setting()
         setting.bypassSNIFiltering = true
+        // Website captures use Japanese titles for Korean, Japanese and Chinese interfaces only.
+        // This changes the isolated capture setting, not the app's defaults or a person's preference.
+        let language = Locale.current.language.languageCode
+        setting.displayJapaneseTitle = language == .japanese || language == .korean || language == .chinese
         return setting
     }
 
@@ -572,6 +576,7 @@ private struct MarketingGalleries {
             gid: gid,
             token: token,
             title: parsed.detail.title,
+            jpnTitle: parsed.detail.jpnTitle,
             rating: parsed.detail.rating,
             tags: parsed.state.tags,
             category: parsed.detail.category,

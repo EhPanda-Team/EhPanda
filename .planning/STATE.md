@@ -21,13 +21,34 @@ source_head: af00e0da93
 
 # Project State
 
+## Approved Comments screenshot matrix — 2026-11-02
+
+Owner approved the complete 192-image screenshot set after the 14-comment composite on gallery
+2758456 was applied. All 24 Comments coordinates now show the initial position with CedarComet91's edited
+B image fully visible in the third row. Comment text and author names contain no Chinese; interface
+and date labels follow the selected locale. The other 168 images are retained. All 192 artifacts
+and browser routes passed checks; the full local review is `/comments-20261102/`. Synthetic
+insertion and image-edit provenance are preserved in the private fixture repository, with the
+approved routing in `website-capture-20261102.json`. See the [approval record](quick/261101-website-review/APPROVAL-20261102.md).
+Both task simulators were removed. No publication.
+[Plan and verification](quick/261101-website-review/PLAN.md).
+
 ## Comment parser — 2026-11-02
 
 Comments no longer show `&gt;` or literal tags such as `<strong>`, and they now render the author's bold, italic,
 underline and strikethrough. The parser took its text from serialized HTML, so it now walks the DOM (`965c53d5a`) and
 keeps the styles in an `AttributedString`, which native `Text` draws together with its links (`cf0573b00`). Chinese and
 Japanese italics stay upright, and editing a comment drops its styles. Underline and strikethrough were not seen in the
-running app, and the 24 website Comments captures predate this. [Quick task](quick/261102-comment-parser/SUMMARY.md).
+running app. The final 24 website Comments captures use the updated parser and styles. [Quick task](quick/261102-comment-parser/SUMMARY.md).
+
+## Website reading-language refresh — 2026-11-02
+
+Reading and Live Text now share the requested source-language book per screenshot locale; real Apple
+translations target that locale in both groups. Comments uses gallery 3845660's image-bearing first
+comment at the initial position. Recaptured 72 coordinates; the complete 192-image local review
+passed artifact and browser checks. Existing literal `<strong>` comment markup is annotated for
+owner review. No publication or visual approval is implied.
+[Record](quick/261101-website-review/LANGUAGES-20261102.md).
 
 ## README cleanup and copy audit — 2026-11-02
 
@@ -1427,3 +1448,22 @@ choices preserved. See quick task `261101-website-review/SUMMARY.md`; owner visu
 
 Website screenshot refresh is held at the owner’s request until the parallel app-copy update
 finishes. The eight translated slideshow cards were approved; review-task changes are being committed.
+
+
+### 2026-11-02 — complete website copy refresh
+
+Owner released the copy-update hold. All 192 iPhone Air website coordinates were recaptured from
+`b55058415`, with approved fixtures and unified tag database `v7.29536.1`. Native evidence audit
+and all 192 browser routes pass; prior screenshots remain unchanged. New owner-review page:
+http://127.0.0.1:8774/refresh-20261102/. No publication or baseline approval is implied.
+See `quick/261101-website-review/REFRESH-20261102.md` for capture recovery and provenance.
+
+
+### 2026-11-02 — global title preference and language-specific website review
+
+Show Japanese Titles now applies across Home and shared gallery lists/grids, including downloads,
+and Detail. Both title variants are retained; HTML list requests enrich titles through existing
+batch metadata. 22 focused tests, builds and strict lint pass. Website captures use Japanese titles
+for ko/ja/zh-Hant/zh-Hans, original titles for en/de; this is capture-only, not a new app default.
+All 192 coordinates pass the capture audit. Review: http://127.0.0.1:8774/titles-20261102/.
+See `quick/261101-website-review/TITLE-PREFERENCE-20261102.md`. Owner review remains pending.

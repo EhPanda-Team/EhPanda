@@ -340,7 +340,10 @@ struct GalleryRequestBaselineTests {
 
 private func listSession(url: URL) -> (session: URLSession, handle: StubHandle) {
     makeStubbedSession(
-        script: StubScript([url: [.http(status: 200, data: .compactListFixture)]])
+        script: StubScript([
+            url: [.http(status: 200, data: .compactListFixture)],
+            Defaults.URL.api(host: galleryHost): [.http(status: 200, data: .titleMetadataFixture)]
+        ])
     )
 }
 
@@ -368,6 +371,7 @@ private func expectGalleries(
     #expect(galleries.first?.token == "token", sourceLocation: sourceLocation)
     #expect(galleries.first?.title == "Baseline Gallery", sourceLocation: sourceLocation)
     #expect(galleries.first?.pageCount == 12, sourceLocation: sourceLocation)
+    #expect(galleries.first?.jpnTitle == "日本語の題名", sourceLocation: sourceLocation)
 }
 
 private func expectGET(
@@ -392,6 +396,12 @@ private func expectGET(
 }
 
 private extension Data {
+    static let titleMetadataFixture = Data("""
+        {"gmetadata":[{"gid":123,"token":"token","title":"Baseline Gallery",
+        "title_jpn":"日本語の題名","category":"Doujinshi","thumb":"https://example.com/api-cover.jpg",
+        "posted":"1600000000","filecount":"999","rating":"1.0"}]}
+        """.utf8)
+
     static let compactListFixture = Data(
         """
         <html><body>

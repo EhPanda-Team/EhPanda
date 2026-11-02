@@ -18,6 +18,7 @@ private struct GalleryMetadata: Decodable {
     let token: String?
     let error: String?
     let title: String?
+    let jpnTitle: String?
     let category: String?
     let thumb: String?
     let uploader: String?
@@ -25,6 +26,11 @@ private struct GalleryMetadata: Decodable {
     let filecount: String?
     let rating: String?
     let tags: [String]?
+
+    private enum CodingKeys: String, CodingKey {
+        case gid, token, error, title, category, thumb, uploader, posted, filecount, rating, tags
+        case jpnTitle = "title_jpn"
+    }
 
     func gallery(host: GalleryHost) -> Gallery? {
         // Match the HTML list parser: a resolved row needs its full display set, or it is dropped.
@@ -42,6 +48,7 @@ private struct GalleryMetadata: Decodable {
             gid: String(gid),
             token: token,
             title: title.htmlEntitiesDecoded,
+            jpnTitle: jpnTitle?.htmlEntitiesDecoded,
             rating: rating,
             tags: Self.parseTags(tags ?? []),
             category: category,

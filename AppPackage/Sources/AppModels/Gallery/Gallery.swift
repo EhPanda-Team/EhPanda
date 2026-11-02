@@ -65,6 +65,13 @@ public struct Gallery: Identifiable, Codable, Equatable, Hashable, Sendable {
         }
     }
 
+    /// Resolves the display preference without losing either source title.
+    public func displayTitle(prefersJapanese: Bool) -> String {
+        guard prefersJapanese, let japanese = jpnTitle?.trimmingCharacters(in: .whitespacesAndNewlines),
+              !japanese.isEmpty else { return title }
+        return japanese
+    }
+
     public var trimmedTitle: String {
         var title = title
         if let range = title.range(of: "|") {
@@ -91,6 +98,7 @@ public struct Gallery: Identifiable, Codable, Equatable, Hashable, Sendable {
     public let token: String
 
     public var title: String
+    public var jpnTitle: String?
     public var rating: Float
     public var tags: [GalleryTag]
     public let category: Category
@@ -105,6 +113,7 @@ public struct Gallery: Identifiable, Codable, Equatable, Hashable, Sendable {
         gid: String,
         token: String,
         title: String,
+        jpnTitle: String? = nil,
         rating: Float,
         tags: [GalleryTag],
         category: Category,
@@ -118,6 +127,7 @@ public struct Gallery: Identifiable, Codable, Equatable, Hashable, Sendable {
         self.gid = gid
         self.token = token
         self.title = title
+        self.jpnTitle = jpnTitle
         self.rating = rating
         self.tags = tags
         self.category = category

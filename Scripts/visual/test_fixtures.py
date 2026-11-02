@@ -206,6 +206,28 @@ class FixtureTestCase(unittest.TestCase):
 
 
 class AcquisitionTests(FixtureTestCase):
+    def test_comment_images_are_opt_in_scoped_and_deduplicated(self):
+        value = selection()
+        site = Site(value)
+        image = 'https://ehgt.org/w/comment.webp'
+        body = ('<img src="https://ehgt.org/g/contact.png">'
+                f'<div class="c6"><img src="{image}"><img src="{image}"></div>')
+        for gid in ('101', '102'):
+            site.html(gallery_url(gid) + '?hc=1', detail_html(gid, body=body))
+        site.image(image)
+        calls = []
+
+        def retrieve(kind, gid, index, url):
+            calls.append((kind, gid, index, url))
+            return site(url)[0]
+
+        fixtures.collect(value, retrieve)
+        self.assertFalse(any(kind == 'commentImage' for kind, _, _, _ in calls))
+        calls.clear()
+        fixtures.collect(value, retrieve, include_comment_images=True)
+        self.assertEqual([entry for entry in calls if entry[0] == 'commentImage'],
+                         [('commentImage', '101', 0, image)])
+
     def test_publishes_versioned_selection_with_provenance(self):
         site = Site(self.selection)
         target, changed = self.acquire(site)

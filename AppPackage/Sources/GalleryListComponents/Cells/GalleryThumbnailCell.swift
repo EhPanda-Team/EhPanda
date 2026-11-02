@@ -55,7 +55,7 @@ public struct GalleryThumbnailCell: View {
             cover
                 .fixedSize(horizontal: false, vertical: true)
             VStack(alignment: .leading, spacing: textColumnSpacing) {
-                Text(gallery.title)
+                Text(gallery.displayTitle(prefersJapanese: setting.displayJapaneseTitle))
                     .font(.callout.bold())
                     .lineLimit(2)
                     .fixedSize(horizontal: false, vertical: true)

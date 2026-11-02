@@ -1,6 +1,7 @@
 import AppComponents
 public import AppModels
 import AppTools
+import Sharing
 public import SwiftUI
 
 #if DEBUG
@@ -8,6 +9,7 @@ import PreviewSupport
 #endif
 
 public struct GalleryRankingCell: View {
+    @SharedReader(.setting) private var setting: Setting
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
     private let showsRichInformation: Bool
@@ -67,7 +69,7 @@ public struct GalleryRankingCell: View {
 
     private var textColumn: some View {
         VStack(alignment: .leading, spacing: 0) {
-            Text(gallery.title)
+            Text(gallery.displayTitle(prefersJapanese: setting.displayJapaneseTitle))
                 .accessibilityIdentifier("home_ranking_title_\(gallery.id)")
                 .bold()
                 .lineLimit(textLineLimit(2))

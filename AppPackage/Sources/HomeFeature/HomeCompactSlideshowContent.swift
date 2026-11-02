@@ -1,8 +1,10 @@
 import AppModels
+import Sharing
 import SwiftUI
 
 /// Tags are optional; measuring the complete title prevents them from causing truncation.
 struct HomeCompactSlideshowContent: View {
+    @SharedReader(.setting) private var setting: Setting
     let gallery: Gallery
 
     var body: some View {
@@ -26,7 +28,7 @@ struct HomeCompactSlideshowContent: View {
     }
 
     private var title: some View {
-        Text(gallery.title)
+        Text(gallery.displayTitle(prefersJapanese: setting.displayJapaneseTitle))
             .accessibilityIdentifier("home_slideshow_title_\(gallery.id)")
             .font(.subheadline.bold())
             .frame(maxWidth: .infinity, alignment: .topLeading)
