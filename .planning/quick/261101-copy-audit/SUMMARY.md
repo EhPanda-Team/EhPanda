@@ -172,7 +172,10 @@ Audit checks, 2026-11-01:
 - The contents of the E-Hentai settings page were not rendered, because that needs a real login. Neither were the
   confirm dialogs for deleting a saved search, clearing history and deleting a download, iPad, or larger text sizes.
 - No human native speaker has reviewed the copy. German, Japanese and Korean should get one before release.
-- `show_search_range_indicator` needs the owner to confirm actual behavior.
+- `show_search_range_indicator`: both sites now ask "Which display style would you like for the search range
+  indicator?" with Normal and Disabled, and the app maps them correctly (`pp` 0 and 1). The parser does not read the
+  bar, so the setting only changes the website. The header and toggle do not mirror the site's text, and how they
+  should read awaits the owner.
 - Favorites parameters `sn`, `st` and `sf` were not tested. `f_sr` and `f_sp` were removed by the toggles task without
   comparing results on ExHentai.
 - Screenshots on the website and in marketing are stale from these copy changes, and 24 Filters website screenshots
