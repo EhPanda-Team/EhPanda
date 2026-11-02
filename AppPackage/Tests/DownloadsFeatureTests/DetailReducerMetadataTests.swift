@@ -16,6 +16,28 @@ import Testing
 // stays nonisolated — a main-actor conformance cannot be used from the `@Sendable`
 // dependency closures these stores install.
 struct DetailReducerMetadataTests: DownloadFeatureTestCase {
+    /// The rating control counts half stars, so a 3.5-star rating must reopen as seven of them.
+    @MainActor
+    @Test
+    func testDetailReducerKeepsHalfStarUserRating() async throws {
+        let gallery = sampleGallery()
+        var detail = sampleGalleryDetail(gid: gallery.gid, title: gallery.title)
+        detail.userRating = 3.5
+
+        let store = makeMetadataTestStore(
+            gid: gallery.gid, gallery: gallery,
+            downloadValue: nil, updateCheckCount: LockedBox(0)
+        )
+        store.exhaustivity = .off
+
+        await store.send(.fetchGalleryDetailDone(.success(GalleryDetailResponse(
+            galleryDetail: detail, galleryState: GalleryState(gid: gallery.gid), apiKey: "", greeting: nil
+        ))))
+        await store.skipReceivedActions(strict: false)
+
+        #expect(store.state.userRating == 7)
+    }
+
     @MainActor
     @Test
     func testDetailReducerDoesNotRequestVersionMetadataForUndownloadedGallery() async throws {
