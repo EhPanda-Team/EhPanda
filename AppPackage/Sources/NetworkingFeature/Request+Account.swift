@@ -339,7 +339,7 @@ public struct SubmitEhSettingChangesRequest: Request {
             "tl": String(ehSetting.galleryName.rawValue),
             "ar": String(ehSetting.archiverBehavior.rawValue),
             "dm": String(ehSetting.displayMode.rawValue),
-            "pp": ehSetting.showSearchRangeIndicator ? "0" : "1",
+            "pp": String(ehSetting.searchRangeIndicatorStyle.rawValue),
             "fs": String(ehSetting.favoritesSortOrder.rawValue),
             "ru": ehSetting.ratingsColor,
             "ft": String(Int(ehSetting.tagFilteringThreshold)),
