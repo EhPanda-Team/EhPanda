@@ -68,7 +68,9 @@ extension Parser {
                 jpnTitle: jpnTitle,
                 isFavorited: isFavorited,
                 visibility: visibility,
-                rating: ratingResult.containsUserRating ? ratingResult.textRating ?? 0.0 : ratingResult.imgRating,
+                // The star image rounds the average to a half star and turns into the user's own
+                // rating once they rate, so only the label carries the real average.
+                rating: ratingResult.textRating ?? (ratingResult.containsUserRating ? 0.0 : ratingResult.imgRating),
                 userRating: ratingResult.containsUserRating ? ratingResult.imgRating : 0.0,
                 ratingCount: ratingCount,
                 category: category,
