@@ -54,6 +54,39 @@ All on iOS 27.2 simulators, iPhone Air and iPad Pro 11-inch (M5). No test passed
 - **VoiceOver order, on the old code too.** From the card focused at launch, one flick reaches the next card and the
   second jumps to the Front Page heading. Flicking back from the heading enters at the third card. Both builds took the
   same path in the same walk on iPhone. The cause has not been investigated.
-- **`DuoHomeUITests.testOtherListsPresentOnTheRight`.** It queries `left.buttons[title]`, and Duo's left pane also uses
-  destination cards, so it is probably stale in the same way. Duo tests need a serial run, which needs owner approval,
-  so this test was neither run nor changed.
+- **Carousel rotation on Duo.** The suites below rotate Duo with Home open, but none of them checks which card stays
+  selected, so the rotation fix was not exercised there. The test that checks it runs on iPad and is skipped on Duo.
+
+## Duo run
+
+The owner approved a serial run on 2026-11-02 for the Duo suites below. `Scripts/run-duo-ui-tests.py` passes
+`-parallel-testing-enabled NO`, because a simulator clone loses the posed hinge. Test plans, suites and the runner are
+unchanged. The host pose driver the runner asks for was not installed, so this run used a scratch driver over the
+simulator's command-line tools, which is not committed. An `EhPanda iPhone Duo` simulator on iOS 27.2 (24B91016s) was
+created for the run and deleted after it.
+
+| Suite | Pose | Result |
+| --- | --- | --- |
+| `DuoHomeUITests` | half open (130 degrees) | 8 passed |
+| `LandscapePaneUITests` | open | 2 passed, 3 iPad-only cases skipped |
+| `DuoReadingPanelUITests` | half open | 2 passed |
+| `ReadingOrientationUITests` | half open | 2 passed, 1 ordinary-phone case skipped |
+| `ReadingOrientationUITests` | closed, with `--cover-display` | 2 passed, 1 ordinary-phone case skipped |
+| `DuoToolbarUITests` | closed, landscape | 1 passed |
+
+Each passed on its first attempt. The first run failed three stale tests, and no app code changed for them.
+
+- `testOtherListsPresentOnTheRight` queried a button labeled exactly `Popular`. Destination cards combine their labels,
+  so it now matches the start of the label, as `LandscapePaneUITests` does (`9426dd900`).
+- `testPortraitUsesOnePaneAndPushesLists` looked for the old Favorites tab, `heart.circle`. It now uses the Library tab,
+  `books.vertical.circle` (`9426dd900`).
+- `DuoToolbarUITests` still expected a five-tab bar that collapses, with both list tools visible. It failed all three
+  attempts. The bar now has four tabs, and on the closed display in landscape they all fit while the system folds Seek
+  to Date and Filters into its More menu. The test is now `testListToolsAndEveryTabStayReachable`, which checks the
+  tabs' positions, switches to Library and back, and opens Filters from More (`9426dd900`).
+
+The two list tools therefore take one more tap in that pose. That the folding began with the move to four tabs is
+inferred from the test's history, since no build from before that change was run.
+
+Landscape on the closed display has to be set while an app is frontmost, because the Home Screen refuses it. The toolbar
+suite's first run was in portrait for that reason, and its later runs were in landscape.
