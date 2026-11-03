@@ -39,6 +39,66 @@ have zero warnings/errors. `--output` defaults to `.capture/single-pass/<timesta
 `--derived-data` defaults to `<output>/DerivedData`, or can name a dedicated directory reused by
 serial invocations. Build and test logs stay in the specified directories.
 
+# Release isolation
+
+`verify-release.py` proves a Release build ships, links and activates no capture, UI-test or
+snapshot facility. Build the Release simulator app with link maps in a new DerivedData directory,
+keeping the full log:
+
+```sh
+xcodebuild build -project EhPanda.xcodeproj -scheme EhPanda -configuration Release \
+  -destination 'generic/platform=iOS Simulator' -derivedDataPath .capture/release/DerivedData \
+  CODE_SIGN_IDENTITY=- CLANG_COVERAGE_MAPPING=NO LD_GENERATE_MAP_FILE=YES \
+  > .capture/release/build.log 2>&1
+python3 -B Scripts/visual/verify-release.py \
+  --app .capture/release/DerivedData/Build/Products/Release-iphonesimulator/EhPanda.app \
+  --build-log .capture/release/build.log \
+  --link-map PATH --output .capture/release/scan \
+  --device "$UDID" --debug-control PATH/Debug-iphonesimulator/EhPanda.app
+```
+
+Keep `CLANG_COVERAGE_MAPPING=NO`: the scheme's test plans gather coverage, so a plain `build`
+inherits `CLANG_COVERAGE_MAPPING = YES` and compiles Release with profile counters, which the
+shipped archive does not carry (`-enableCodeCoverage` is refused outside testing). Build the Debug
+control the same way with `-configuration Debug` into its own DerivedData directory and log.
+
+Pass `--link-map` for the final binaries: `EhPanda-LinkMap-normal-<arch>.txt` and
+`ShareExtension-LinkMap-normal-<arch>.txt` under `Intermediates.noindex/EhPanda.build`, each
+architecture. A package target's own link map is a partial link that the app's map already lists.
+The scanner fails on:
+
+- a bundle file named like a test bundle, fixture, snapshot reference, `.debug.dylib` or HTML page;
+- any bundle file holding a capture, UI-test or snapshot string: an `EHPANDA_` or `APPSHOT_` key,
+  `capture_diagnostics`, `EhPandaCapture`, a capture or UI-test type name, `SnapshotTesting` or
+  `XCUI`;
+- a linked object file or library of a test or snapshot framework (`XCTest`, `Testing`,
+  `XCUIAutomation`, SnapshotTesting), or a live (not dead-stripped) symbol naming one of those
+  types; an empty object file of a DEBUG-only source is not linkage;
+- a log without `** BUILD SUCCEEDED **`, without a target dependency graph, with a Debug product
+  path, with a forbidden target in the graph, or with a compiler invocation that defines `DEBUG`
+  or instruments coverage.
+
+`XCTest` text alone is not a finding. swift-issue-reporting and swift-case-paths keep strings such
+as `XCTestConfigurationFilePath` in Release to detect a test host at run time; linking XCTest is
+what would ship it.
+
+`UITestAutomation` is the one capture-side name Release keeps: an inert shell whose
+`shouldDetectClipboardURL` is `false` and whose `prepareIfNeeded` is empty outside DEBUG, because
+Release call sites read them. Its name is moved to `accepted` (kind `inert-shell`) only while every
+live symbol carrying it is the shell's type metadata or those two members. Any other member, such
+as `prepare(environment:)`, fails the scan, and so does the name without link-map evidence.
+
+The log's resolved-package list covers the whole project, test targets included, so a package such
+as `swift-snapshot-testing` there is recorded as `resolutionOnly`, never a finding by itself: the
+graph and link map decide linkage.
+
+With `--device`, the scanner installs the app and launches it with every capture and UI-test key
+set to a value a DEBUG build refuses (`PROBE_ENVIRONMENT`). The Release process must still run
+after `--wait` seconds. With `--debug-control`, the same launch of a Debug app must end, which
+proves the probe would activate capture if Release read it. The launch talks to the app's normal
+servers, so keep no screenshot of it. The report is `release-isolation.json` in `--output`; the
+exit is 1 on any finding.
+
 # Rendering environment
 
 `regression-environment.json` is the tracked, immutable rendering contract shared by
