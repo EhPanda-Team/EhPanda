@@ -116,8 +116,6 @@ public struct GalleryList: View {
 // MARK: DetailList
 private struct DetailList: View {
     @Binding private var scrollPositionID: String?
-    @State private var restorationID: String?
-    @State private var visibleIDs = Set<String>()
     private let galleryFocus: AccessibilityFocusState<String?>.Binding
     private let galleries: [Gallery]
     private let downloadBadges: [String: DownloadBadge]
@@ -141,7 +139,6 @@ private struct DetailList: View {
         scrollPositionID: Binding<String?>
     ) {
         _scrollPositionID = scrollPositionID
-        _restorationID = State(initialValue: scrollPositionID.wrappedValue)
         self.galleries = galleries
         self.downloadBadges = downloadBadges
         self.pageNumber = pageNumber
@@ -165,58 +162,43 @@ private struct DetailList: View {
     }
 
     var body: some View {
-        ScrollViewReader { proxy in
-            List {
-                notice.map(ListNoticeView.init)
+        GalleryAnchoredList(anchorID: $scrollPositionID, ids: galleries.map(\.id)) {
+            notice.map(ListNoticeView.init)
 
-                ForEach(galleries) { gallery in
-                    Button {
-                        navigateAction?(gallery)
-                    } label: {
-                        GalleryDetailCell(
-                            gallery: gallery,
-                            translateAction: translateAction,
-                            downloadBadge: downloadBadges[gallery.gid]
-                        )
-                    }
-                    .id(gallery.id)
-                    .foregroundStyle(.primary)
-                    .modifier(GalleryReadInteraction(
-                        detailAction: { navigateAction?(gallery) },
-                        readAction: readAction.map { action in { action(gallery) } }
-                    ))
-                    .contextMenu {
-                        if let readAction {
-                            Button(.RLocalizable.read) { readAction(gallery) }
-                        }
-                    }
-                    .accessibilityIdentifier("gallery-list-item-\(gallery.id)")
-                    .accessibilityFocused(galleryFocus, equals: gallery.id)
-                    // Fetch-more fires when the trailing row actually becomes visible in the scroll
-                    // container. Reducer loading guards make repeated visibility callbacks harmless.
-                    .onScrollVisibilityChange(threshold: 0.1) { isVisible in
-                        if isVisible {
-                            visibleIDs.insert(gallery.id)
-                        } else {
-                            visibleIDs.remove(gallery.id)
-                        }
-                        if restorationID == nil, !visibleIDs.isEmpty {
-                            scrollPositionID = galleries.first(where: { visibleIDs.contains($0.id) })?.id
-                        }
-                        if isVisible, gallery == galleries.last {
-                            fetchMoreAction?()
-                        }
-                    }
-                    if shouldShowFooter(gallery: gallery) {
-                        FetchMoreFooter(loadingState: footerLoadingState, retryAction: fetchMoreAction)
+            ForEach(galleries) { gallery in
+                Button {
+                    navigateAction?(gallery)
+                } label: {
+                    GalleryDetailCell(
+                        gallery: gallery,
+                        translateAction: translateAction,
+                        downloadBadge: downloadBadges[gallery.gid]
+                    )
+                }
+                .id(gallery.id)
+                .foregroundStyle(.primary)
+                .modifier(GalleryReadInteraction(
+                    detailAction: { navigateAction?(gallery) },
+                    readAction: readAction.map { action in { action(gallery) } }
+                ))
+                .contextMenu {
+                    if let readAction {
+                        Button(.RLocalizable.read) { readAction(gallery) }
                     }
                 }
-            }
-            .onChange(of: galleries.isEmpty, initial: true) { _, isEmpty in
-                guard !isEmpty, let id = restorationID else { return }
-                // Let the native list reveal the complete row inside its navigation insets.
-                proxy.scrollTo(id)
-                restorationID = nil
+                .accessibilityIdentifier("gallery-list-item-\(gallery.id)")
+                .accessibilityFocused(galleryFocus, equals: gallery.id)
+                .galleryRowAnchor(gallery.id)
+                // Fetch-more fires when the trailing row actually becomes visible in the scroll
+                // container. Reducer loading guards make repeated visibility callbacks harmless.
+                .onScrollVisibilityChange(threshold: 0.1) { isVisible in
+                    if isVisible, gallery == galleries.last {
+                        fetchMoreAction?()
+                    }
+                }
+                if shouldShowFooter(gallery: gallery) {
+                    FetchMoreFooter(loadingState: footerLoadingState, retryAction: fetchMoreAction)
+                }
             }
         }
     }

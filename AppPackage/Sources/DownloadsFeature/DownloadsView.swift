@@ -225,15 +225,13 @@ private extension DownloadsView {
 
 }
 
-/// Native List supplies swipe actions; its visible row IDs bridge scroll restoration to the grid.
+/// Native List supplies swipe actions; its anchored rows bridge scroll restoration to the grid.
 private struct DownloadRows: View {
     let store: StoreOf<DownloadsReducer>
     let rows: [StoreOf<DownloadRowFeature>]
     let rowFocus: AccessibilityFocusState<String?>.Binding
     @Binding var scrollPositionID: String?
     let openInspectorAction: (String) -> Void
-    @State private var visibleIDs = Set<String>()
-    @State private var restorationID: String?
 
     init(
         store: StoreOf<DownloadsReducer>,
@@ -246,39 +244,21 @@ private struct DownloadRows: View {
         self.rows = rows
         self.rowFocus = rowFocus
         _scrollPositionID = scrollPositionID
-        _restorationID = State(initialValue: scrollPositionID.wrappedValue)
         self.openInspectorAction = openInspectorAction
     }
 
     var body: some View {
-        ScrollViewReader { proxy in
-            List {
-                ForEach(rows, id: \.state.id) { rowStore in
-                    DownloadGalleryItem(
-                        store: store,
-                        rowStore: rowStore,
-                        layout: .row,
-                        rowFocus: rowFocus,
-                        openInspectorAction: { openInspectorAction(rowStore.state.id) }
-                    )
-                    .id(rowStore.state.id)
-                    .onScrollVisibilityChange(threshold: 0.1) { isVisible in
-                        if isVisible {
-                            visibleIDs.insert(rowStore.state.id)
-                        } else {
-                            visibleIDs.remove(rowStore.state.id)
-                        }
-                        if restorationID == nil, !visibleIDs.isEmpty {
-                            scrollPositionID = rows.first(where: { visibleIDs.contains($0.state.id) })?.state.id
-                        }
-                    }
-                }
-            }
-            .onChange(of: rows.isEmpty, initial: true) { _, isEmpty in
-                guard !isEmpty, let id = restorationID else { return }
-                // Let the native list reveal the complete row inside its navigation insets.
-                proxy.scrollTo(id)
-                restorationID = nil
+        GalleryAnchoredList(anchorID: $scrollPositionID, ids: rows.map(\.state.id)) {
+            ForEach(rows, id: \.state.id) { rowStore in
+                DownloadGalleryItem(
+                    store: store,
+                    rowStore: rowStore,
+                    layout: .row,
+                    rowFocus: rowFocus,
+                    openInspectorAction: { openInspectorAction(rowStore.state.id) }
+                )
+                .id(rowStore.state.id)
+                .galleryRowAnchor(rowStore.state.id)
             }
         }
     }
