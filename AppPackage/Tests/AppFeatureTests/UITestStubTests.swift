@@ -87,6 +87,8 @@ struct UITestStubTests {
             try Data(fixture.body.utf8)
                 .write(to: fixtureDirectory.appending(path: fixture.name))
         }
+        try JSONSerialization.data(withJSONObject: Self.savedMetadata)
+            .write(to: fixtureDirectory.appending(path: UITestStubURLProtocol.galleryMetadataFixtureName))
 
         UITestStubURLProtocol.configure(fixtureDirectory: fixtureDirectory)
         let configuration = URLSessionConfiguration.ephemeral
@@ -111,6 +113,60 @@ struct UITestStubTests {
             expectNoDifference(body, route.body)
             #expect(httpResponse.statusCode == route.statusCode)
         }
+
+        // The configured mode is process-wide, so the `api.php` POST routes share this test's directory
+        // rather than racing a parallel test's.
+        let gdata = try await post(["method": "gdata", "gidlist": [[1001, "fixture1"]], "namespace": 1], in: session)
+        #expect(gdata.statusCode == 200)
+        let object = try #require(try JSONSerialization.jsonObject(with: gdata.data) as? [String: Any])
+        let entries = try #require(object["gmetadata"] as? [[String: Any]])
+        expectNoDifference(entries.map({ $0["title"] as? String }), ["Library Study 01"])
+
+        let rating = try await post(["method": "rategallery", "gid": 1001, "token": "fixture1"], in: session)
+        #expect(rating.statusCode == 404)
+        #expect(rating.data.isEmpty)
+    }
+
+    private static var savedMetadata: [String: Any] {
+        ["gmetadata": [
+            ["gid": 1001, "token": "fixture1", "title": "Library Study 01", "title_jpn": ""],
+            ["gid": 1002, "token": "fixture2", "title": "Library Study 02", "title_jpn": "図書館 02"]
+        ]]
+    }
+
+    /// List pages enrich their rows through `gdata`, so the stub answers it as the site does: the
+    /// saved entry for each matching gid and token, in request order, and the API's error entry for
+    /// any other pair. Another `api.php` method still has no fixture.
+    @Test
+    func galleryMetadataResponseAnswersRequestedPairsInOrder() throws {
+        let fixture = try JSONSerialization.data(withJSONObject: Self.savedMetadata)
+        let request = try JSONSerialization.data(withJSONObject: [
+            "method": "gdata", "namespace": 1,
+            "gidlist": [[1002, "fixture2"], [1001, "fixture1"], [1001, "other"], [7, "seven"]]
+        ])
+        let response = try #require(
+            try UITestStubURLProtocol.galleryMetadataResponse(requestBody: request, fixture: fixture)
+        )
+        let object = try #require(try JSONSerialization.jsonObject(with: response) as? [String: Any])
+        let entries = try #require(object["gmetadata"] as? [[String: Any]])
+        expectNoDifference(entries.map({ $0["gid"] as? Int }), [1002, 1001, 1001, 7])
+        expectNoDifference(entries.map({ $0["title_jpn"] as? String }), ["図書館 02", "", nil, nil])
+        expectNoDifference(
+            entries.map({ $0["error"] as? String }),
+            [nil, nil, "Key missing, or incorrect key provided.", "Key missing, or incorrect key provided."]
+        )
+
+        let rating = try JSONSerialization.data(withJSONObject: ["method": "rategallery", "gid": 1001])
+        #expect(try UITestStubURLProtocol.galleryMetadataResponse(requestBody: rating, fixture: fixture) == nil)
+    }
+
+    private func post(_ body: [String: Any], in session: URLSession) async throws -> (data: Data, statusCode: Int) {
+        let url = try #require(URL(string: "https://e-hentai.org/api.php"))
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.httpBody = try JSONSerialization.data(withJSONObject: body)
+        let (data, response) = try await session.data(for: request)
+        return (data, try #require(response as? HTTPURLResponse).statusCode)
     }
 
     @Test
