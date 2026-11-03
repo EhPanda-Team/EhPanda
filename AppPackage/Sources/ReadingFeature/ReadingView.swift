@@ -35,6 +35,8 @@ public struct ReadingView: View {
     @State var pageModel = PageModel()
     @State private var scrollPositionID: Int?
     @State private var pagerTurnGate = PagerTurnGate()
+    /// The position that alone fills the pager, read from the screen rather than from the position binding.
+    @State private var shownPagerPosition: Int?
     @State private var performingChanges = false
     @State private var deviceState: WindowDevice?
 
@@ -285,6 +287,9 @@ public struct ReadingView: View {
         .scrollTargetBehavior(.paging)
         .scrollEdgeEffectStyle(.soft, for: .top)
         .scrollPosition(id: $scrollPositionID)
+        .onScrollTargetVisibilityChange(idType: Int.self, threshold: 0.5) { positions in
+            shownPagerPosition = positions.count == 1 ? positions.first : nil
+        }
         .scrollDisabled(gestureHandler.scale != 1)
         // RTL flips only the paging axis; the data source stays forward so every index keeps
         // its logical meaning (PageHandler stays direction-agnostic).
@@ -304,6 +309,8 @@ public struct ReadingView: View {
                 DispatchQueue.main.asyncAfter(deadline: .now() + PageModel.echoGuardDuration) {
                     performingChanges = false
                 }
+                // The binding can name a page the pager stopped short of; check the screen once it has caught up.
+                DispatchQueue.main.async { correctPager() }
             }
         }
         // `initial: true` re-applies the seed at appearance, which is what the former `.onAppear`
@@ -362,6 +369,10 @@ public struct ReadingView: View {
                 if !store.showsSliderPreview {
                     setPageIndex(sliderValue: newValue)
                 }
+            }
+            // A pager built for the new direction reports its own page; the last one's is no page to check against.
+            .onChange(of: store.setting.readingDirection) {
+                shownPagerPosition = nil
             }
             .onChange(of: store.showsSliderPreview) { _, newValue in
                 if !newValue { setPageIndex(sliderValue: pageHandler.sliderValue) }
@@ -459,6 +470,22 @@ extension ReadingView {
         withAnimation(reduceMotion ? nil : .default) {
             scrollPositionID = position
         }
+        // A turn that lands as the pager comes to rest can be lost without a scroll starting, so nothing reports a rest
+        // to check at. By this delay a scroll that did start is under way, and its own rest is checked instead.
+        DispatchQueue.main.asyncAfter(deadline: .now() + PageModel.echoGuardDuration) {
+            correctPager()
+        }
+    }
+    /// Sends the pager again to the index when it is at rest on another page (`PagerTurnGate`).
+    private func correctPager() {
+        guard store.setting.readingDirection != .vertical,
+              pagerTurnGate.needsCorrection(shown: shownPagerPosition, index: pageModel.index),
+              let shownPagerPosition
+        else { return }
+        // The binding still names the page that was lost; pointing it at the page on screen moves nothing, and lets
+        // the turn to the index register as a change again.
+        scrollPositionID = shownPagerPosition
+        DispatchQueue.main.async { scrollPager(to: pageModel.index) }
     }
     /// Positions the pager on the slider's page for the reading area it is about to lay out in.
     ///

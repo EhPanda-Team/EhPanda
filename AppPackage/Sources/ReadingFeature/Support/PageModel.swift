@@ -42,18 +42,27 @@ final class PageModel {
     }
 }
 
-/// Holds a programmatic page turn back while the horizontal pager is still animating to the previous one.
+/// Keeps the horizontal pager on the index while page turns are sent to it programmatically.
 ///
-/// The paging ScrollView can drop a position it is handed while it animates to an earlier one: it comes to rest on the
-/// earlier position, and its position binding keeps naming the later one, which is what the index then reads at rest.
-/// The indicator then names the later page and the screen shows the earlier one until the next turn. This was measured
-/// on iOS 27.2 (2026-11-03) with the slider seeking the pager while it still scrolled, the screen left a page or two
-/// short. So a turn that arrives mid-animation only moves the index, and the pager is sent to the index once it is at
-/// rest. Holding the turn, rather than checking where the pager came to rest, keeps the page the reader asked for.
-/// A pager built anew, as after a change of direction, reports `.idle` as it appears, which also clears a gate left
-/// behind by a pager torn down mid-animation.
+/// The paging ScrollView can lose a position it is handed while it is still moving, or as it comes to rest: it stays
+/// on the earlier page, and its position binding keeps naming the later one, which is what the index then reads at
+/// rest. The indicator then names the later page and the screen shows the earlier one until the next turn. This was
+/// measured on iOS 27.2 (2026-11-03) with the slider seeking the pager while it still scrolled, the screen left a page
+/// or two short; on an iPad the last turn of a drag, landing as the pager came to rest, was lost the same way.
+///
+/// Two rules keep the two in step. A turn that arrives while the pager animates only moves the index, and the pager
+/// is sent to the index once it is at rest: holding the turn, rather than accepting where the pager stopped, keeps the
+/// page the reader asked for. And once the pager is at rest, the page it shows is checked against the index, so a turn
+/// lost at the moment of rest is sent again. A pager built anew, as after a change of direction, reports `.idle` as it
+/// appears, which also clears a gate left behind by a pager torn down mid-animation.
 struct PagerTurnGate {
+    /// How many times in a row the pager is sent again to a page it does not reach, before the gate waits for the
+    /// next turn or scroll instead.
+    static let correctionLimit = 2
+
     private var isAnimating = false
+    private var isAtRest = true
+    private var corrections = 0
     private(set) var holdsTurn = false
 
     /// Whether a turn may be sent to the pager now; if not, it is held until the pager is at rest.
@@ -67,8 +76,22 @@ struct PagerTurnGate {
     /// drops the held turn: that scroll decides the page.
     mutating func phaseChanged(to phase: ScrollPhase) -> Bool {
         isAnimating = phase == .animating
+        isAtRest = phase == .idle
         guard !isAnimating else { return false }
         defer { holdsTurn = false }
         return phase == .idle && holdsTurn
+    }
+
+    /// Whether the pager, at rest on the `shown` position, has to be sent again to `index`. `shown` is `nil` while no
+    /// single page fills the pager. Pages the pager keeps failing to reach are given up after `correctionLimit` tries.
+    mutating func needsCorrection(shown: Int?, index: Int) -> Bool {
+        guard isAtRest, let shown else { return false }
+        guard shown != index else {
+            corrections = 0
+            return false
+        }
+        guard corrections < Self.correctionLimit else { return false }
+        corrections += 1
+        return true
     }
 }
