@@ -362,7 +362,12 @@ struct ReaderPageProbe {
     func setMatchesScreenOrientation(_ enabled: Bool) {
         let sheetTitle = openReadingSetting()
         let toggle = app.switches["Match Screen Orientation"].firstMatch
-        XCTAssertTrue(toggle.waitForExistence(timeout: 5), "The sheet did not expose Match Screen Orientation.")
+        // The press goes to a point inside the switch's frame, so the sheet has to have finished presenting: a frame
+        // read while the sheet still slides in puts the press beside the switch.
+        XCTAssertTrue(
+            toggle.waitUntilHittable(timeout: XCUIElement.hittableTimeout),
+            "The sheet did not expose a hittable Match Screen Orientation."
+        )
         if (toggle.value as? String == "1") != enabled {
             // SwiftUI exposes the whole row; stay inside the switch, away from its trailing margin.
             toggle.coordinate(withNormalizedOffset: CGVector(dx: 0.9, dy: 0.5)).press(forDuration: 0.05)
@@ -370,9 +375,11 @@ struct ReaderPageProbe {
         let changed = XCTNSPredicateExpectation(
             predicate: NSPredicate(format: "value == %@", enabled ? "1" : "0"), object: toggle
         )
-        XCTAssertEqual(
-            XCTWaiter.wait(for: [changed], timeout: 5), .completed, "Match Screen Orientation did not change."
-        )
+        let result = XCTWaiter.wait(for: [changed], timeout: XCUIElement.hittableTimeout)
+        if result != .completed {
+            toggle.attachScreenState("Match Screen Orientation unchanged")
+        }
+        XCTAssertEqual(result, .completed, "Match Screen Orientation did not change.")
         dismissReadingSetting(sheetTitle)
     }
 
