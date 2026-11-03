@@ -89,7 +89,7 @@ final class DetailNavigationTitleUITests: XCTestCase {
         XCTAssertFalse(headerTitle.isHittable, "The inline title appeared before the header scrolled away.")
         XCTAssertFalse(app.buttons["Read"].firstMatch.isHittable, "The header actions are still visible.")
         XCTAssertTrue(
-            app.navigationBars.buttons["OverflowBarButtonItem"].firstMatch.isHittable,
+            app.navigationBars.buttons.matching(UITestConstants.overflowButtonPredicate).firstMatch.isHittable,
             "Showing the inline title must preserve the Detail overflow control."
         )
 
@@ -107,16 +107,8 @@ final class DetailNavigationTitleUITests: XCTestCase {
     }
 
     private func makeScrollableGalleryFixture() throws -> URL {
-        let directory = FileManager.default.temporaryDirectory.appending(path: UUID().uuidString)
-        try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
-        addTeardownBlock {
-            try FileManager.default.removeItem(at: directory)
-        }
-        let bundle = Bundle(for: Self.self)
-        for name in ["GalleryDetail", "GalleryDetailAlt", "GallerySinglePage", "FrontPageList"] {
-            let source = try XCTUnwrap(bundle.url(forResource: name, withExtension: "html"))
-            try FileManager.default.copyItem(at: source, to: directory.appending(path: "\(name).html"))
-        }
+        // Every fixture, so Home behind the gallery still loads its list and the list's metadata.
+        let directory = try StubFixtureCopy(for: self, named: "DetailNavigationTitle").root
 
         // The shared fixture is too short to scroll the whole header away, especially on iPad.
         let gallery = directory.appending(path: "GalleryDetail.html")

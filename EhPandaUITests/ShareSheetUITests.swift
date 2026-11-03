@@ -20,7 +20,7 @@ final class ShareSheetUITests: XCTestCase {
             "The fixture gallery detail did not render."
         )
 
-        app.buttons.matching(identifier: "OverflowBarButtonItem")
+        app.buttons.matching(UITestConstants.overflowButtonPredicate)
             .firstMatch.tapWhenHittable("Detail More")
 
         let archives = app.buttons["Archives"].firstMatch
