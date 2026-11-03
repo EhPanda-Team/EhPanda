@@ -303,11 +303,15 @@ enum CaptureScenePreparation {
     /// decision, 2026-10-13). They live only in the capture's in-memory storage, so no person's
     /// settings change.
     static var sceneSetting: Setting {
+        sceneSetting(languageCode: Locale.current.language.languageCode)
+    }
+
+    /// The scene settings for an interface language.
+    static func sceneSetting(languageCode language: Locale.LanguageCode?) -> Setting {
         var setting = Setting()
         setting.bypassSNIFiltering = true
         // Website captures use Japanese titles for Korean, Japanese and Chinese interfaces only.
         // This changes the isolated capture setting, not the app's defaults or a person's preference.
-        let language = Locale.current.language.languageCode
         setting.displayJapaneseTitle = language == .japanese || language == .korean || language == .chinese
         return setting
     }

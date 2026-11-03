@@ -557,11 +557,25 @@ struct CaptureSceneTests {
         }
     }
 
-    @Test
-    func sceneSettingsAreTheDefaultsWithTheBypassOn() {
+    /// The defaults with the bypass on, and Japanese titles only for a Korean, Japanese or Chinese
+    /// interface (owner's capture preference, 2026-11-02), whatever the app's own default.
+    @Test(arguments: [
+        ("en", false), ("de", false), ("ja", true), ("ko", true), ("zh-Hans", true), ("zh-Hant", true)
+    ])
+    func sceneSettingsAreTheDefaultsWithTheBypassOn(locale: String, japaneseTitles: Bool) {
         var expected = Setting()
         expected.bypassSNIFiltering = true
-        expectNoDifference(CaptureScenePreparation.sceneSetting, expected)
+        expected.displayJapaneseTitle = japaneseTitles
+        let language = Locale(identifier: locale).language.languageCode
+        expectNoDifference(CaptureScenePreparation.sceneSetting(languageCode: language), expected)
+    }
+
+    @Test
+    func sceneSettingsFollowTheProcessLanguage() {
+        expectNoDifference(
+            CaptureScenePreparation.sceneSetting,
+            CaptureScenePreparation.sceneSetting(languageCode: Locale.current.language.languageCode)
+        )
     }
 
     @Test
