@@ -11,11 +11,11 @@ requires:
 provides:
   - Scripts/visual/verify-release.py, a Release payload, dependency, linkage and activation scanner
   - Scripts/visual/test_release.py, scanner tests including a seeded bad payload
-  - 17-RELEASE-ISOLATION.md, evidence at 9805537a9
+  - 17-RELEASE-ISOLATION.md, first run at 9805537a9 and the passing final run at 1829841d8
 affects: [17-23, 18]
 actuals:
   tasks: 1
-  commits: 3
+  commits: 5
 tech-stack:
   added: []
   patterns:
@@ -40,10 +40,10 @@ coverage:
     requirement: CAP-17-07
     verification:
       - kind: other
-        ref: "python3 -B Scripts/visual/verify-release.py on the Release-iphonesimulator build of 9805537a9 with four final link maps: exit 0, PASS 0 findings"
+        ref: "python3 -B Scripts/visual/verify-release.py on the Release-iphonesimulator build of the 1829841d8 app source (worktree at ef625c0cb, identical app source) with four final link maps: exit 0, PASS 0 findings"
         status: pass
       - kind: other
-        ref: "Same scanner on the Debug build: exit 1, 991 findings (debug-define, instrumented, capture strings, debug/preview dylibs)"
+        ref: "Same scanner on the Debug build of that source: exit 1, 991 findings (debug-define, instrumented, capture strings, debug/preview dylibs)"
         status: pass
     human_judgment: false
   - id: D2
@@ -51,7 +51,7 @@ coverage:
     requirement: CAP-17-07
     verification:
       - kind: other
-        ref: "verify-release.py --device probe on EhPanda iPhone Air: Release survives the capture/UI-test environment for 8 s; the Debug control is ended by UITestAutomation"
+        ref: "verify-release.py --device probe on EhPanda iPhone Air at the 1829841d8 app source: Release survives the capture/UI-test environment for 8 s; the Debug control is ended by UITestAutomation"
         status: pass
     human_judgment: false
   - id: D3
@@ -59,7 +59,7 @@ coverage:
     requirement: CAP-17-07
     verification:
       - kind: unit
-        ref: "python3 -B -m unittest discover -s Scripts/visual -p test_release.py: 19 tests OK (RED eadb4e8a1, GREEN 7af68d0e6)"
+        ref: "python3 -B -m unittest discover -s Scripts/visual -p test_release.py at 1829841d8: 19 tests OK (RED eadb4e8a1, GREEN 7af68d0e6)"
         status: pass
     human_judgment: false
   - id: D4
@@ -67,40 +67,45 @@ coverage:
     requirement: CAP-17-07
     verification:
       - kind: other
-        ref: "SwiftLint 0.65.1 lint --strict --no-cache: 0 violations in 753 files"
+        ref: "SwiftLint 0.65.1 lint --strict --no-cache at 1829841d8: 0 violations in 756 files"
         status: pass
       - kind: unit
-        ref: "FeatureTests on EhPanda iPhone Air: 1510 cases, 2 failed, 9 expected failures, 0 Repetition (exit 65)"
-        status: fail
+        ref: "FeatureTests on EhPanda iPhone Air (ef625c0cb source, identical for this plan): 1522 cases, 1512 passed, 0 failed, 10 expected failures, 0 Repetition (exit 0)"
+        status: pass
       - kind: unit
-        ref: "FeatureTests on EhPanda iPad Pro 11-inch (M5): 1510 cases, 7 failed, 9 expected failures, 0 Repetition (exit 65)"
-        status: fail
+        ref: "FeatureTests on EhPanda iPad Pro 11-inch (M5) (same source): 1522 cases, 1512 passed, 0 failed, 10 expected failures, 0 Repetition (exit 0)"
+        status: pass
       - kind: unit
-        ref: "UITests on EhPanda iPhone Air: 91 cases, 48 passed, 23 failed, 20 skipped, 71 Repetition nodes (exit 65)"
-        status: fail
+        ref: "UITests on EhPanda iPhone Air at 1829841d8: 88 cases, 68 passed, 0 failed, 20 skipped, 0 Repetition (exit 0)"
+        status: pass
       - kind: unit
-        ref: "UITests on EhPanda iPad Pro 11-inch (M5): 91 cases, 48 passed, 26 failed, 17 skipped, 78 Repetition nodes (exit 65)"
-        status: fail
+        ref: "UITests on EhPanda iPad Pro 11-inch (M5) at 1829841d8: 88 cases, 71 passed, 0 failed, 17 skipped, 0 Repetition (exit 0)"
+        status: pass
     human_judgment: false
-duration: 4h
+duration: 4h (first run) + gate rerun
 completed: 2026-11-03
-status: blocked
-blocked_on: "Behavior gate (D4) fails on regressions outside this plan's tooling scope; orchestrator direction needed"
-source_head: 9805537a9
+status: complete
+source_head: 1829841d8
 ---
 
 # Phase 17 Plan 14: Release isolation (T2) Summary
 
-**The Release simulator build of `9805537a9` ships and activates no capture facility: the new
-scanner passes it with 0 findings, finds 991 on the Debug build and rejects a seeded bad payload,
-and strict lint is clean. T2's acceptance is not met: FeatureTests and UITests fail on phone and
-tablet. Most UITests failures trace to `9da595d93`, whose new `/api.php` metadata request has no
-UI-test stub route. Per the plan's success criteria, this gate pauses for orchestrator direction.**
+**The Release simulator build of the source at `1829841d8` ships and activates no capture facility.**
+**T2's acceptance is met.**
+
+- The scanner passes the Release build with 0 findings and finds 991 on the Debug build. It rejects a
+  seeded bad payload.
+- Strict lint is clean.
+- FeatureTests and UITests pass on the phone and the tablet, with 0 failures and 0 Repetition nodes.
+- The first run, at `9805537a9`, failed the behavior gate. It got there after:
+  - quick task `261103-test-plan-repairs`;
+  - two app fixes, `d8567a8f8` (Library and gallery-list row restore) and `ef625c0cb` (the Auto-Play menu);
+  - four UI-test fixes, one of which ends an orientation leak.
 
 ## Performance
 
-- Tasks: 1/1 executed (T2 only; T1/T3 moved to Phase 18). Acceptance: blocked on D4.
-- Commits: RED, GREEN, isolation evidence; this summary and the STATE/ROADMAP record follow.
+- Tasks: 1/1 executed (T2 only; T1/T3 moved to Phase 18). Acceptance: met at `1829841d8` (D1 to D4 pass).
+- Commits: RED, GREEN, first-run evidence, the first-run STATE/ROADMAP record, and the final-run record.
 
 ## Accomplishments
 
@@ -123,12 +128,93 @@ UI-test stub route. Per the plan's success criteria, this gate pauses for orches
 1. `eadb4e8a1` test(17-14): add failing Release isolation scanner tests (RED)
 2. `7af68d0e6` feat(17-14): scan Release builds for capture payload, linkage and activation (GREEN)
 3. `035c4a65b` docs(17-14): record Release isolation evidence at 9805537a9
+4. `0f36e362f` docs(17-14): record T2 run and open behavior gate in STATE and ROADMAP
+5. This record: the final run at `1829841d8` in 17-RELEASE-ISOLATION.md, this summary, STATE and ROADMAP
+
+The fixes that unblocked the gate are their own commits, listed under "Final gate".
 
 RED: with only `test_release.py`, all 19 tests error with `FileNotFoundError` (no scanner). Against
 the first scanner draft, the 9 new behavior tests failed. Those were the indented graph, `XCTest`
 linkage, coverage and the accepted shell. GREEN: 19 OK.
 
-## Verification
+## Final gate at `1829841d8`
+
+Evidence: the "Final run" section of 17-RELEASE-ISOLATION.md. All runs took place on 2026-11-03, on
+iOS 27.2 simulators, one at a time.
+
+**Release checks.**
+
+- Release and Debug were built by one `runbuild` in the clean worktree
+  `.airbuild/worktree/ehpanda-1714-release-3` at `ef625c0cb`, exit 0. The worktree was removed after
+  the evidence was recorded.
+- `git diff --stat ef625c0cb 1829841d8` lists only `EhPandaUITests/LibraryPresentationUITests.swift`.
+  That file is in neither the app nor the share extension, so the built source is `1829841d8`'s.
+- The Release scan with the four link maps and the phone probe exits 0 with 0 findings.
+- The Debug negative control exits 1 with 991 findings, the same as the first run.
+- The scanner tests give 19 OK. Strict lint finds 0 violations in 756 files.
+
+**Behavior runs.**
+
+| Plan, device (iOS 27.2) | Source | Exit | Cases | Passed | Failed | Skipped | Expected failures | Repetition nodes |
+|---|---|---|---|---|---|---|---|---|
+| FeatureTests, EhPanda iPhone Air | `ef625c0cb` | 0 | 1522 | 1512 | 0 | 0 | 10 | 0 |
+| FeatureTests, EhPanda iPad Pro 11-inch (M5) | `ef625c0cb` | 0 | 1522 | 1512 | 0 | 0 | 10 | 0 |
+| UITests, EhPanda iPhone Air | `1829841d8` | 0 | 88 | 68 | 0 | 20 | 0 | 0 |
+| UITests, EhPanda iPad Pro 11-inch (M5) | `1829841d8` | 0 | 88 | 71 | 0 | 17 | 0 | 0 |
+
+- FeatureTests' source is identical to `1829841d8` for that plan.
+- `UITests.xctestplan` keeps `retryOnFailure`, unchanged as in 16-24. The bundles show single runs
+  (0 Repetition nodes).
+- The 10th expected failure compared with the first run is
+  `SettingReducerTests.defaultProfileCreationUsesOriginatingHostAfterSharedHostChanges`. Its
+  non-strict `skipInFlightEffects` records a known issue only when its live profile request is still
+  in flight (`b89fec6dc`). That depends on timing, and it is not a new failure.
+- Auto-Play stress, at the `ef625c0cb` app source: 5 of 5 on each device.
+- DeepLinkScheme page-link tests after `1829841d8`: they passed on the iPad and the iPhone in a serial
+  run after the two landscape Library tests. The device was back in portrait afterwards.
+
+**App bugs fixed.**
+
+1. `d8567a8f8` fix(gallery-list): return the row a person saw to the top after a layout switch. This
+   covers Library (Favorites, Downloads) and gallery-list restore.
+   - Row lists anchored on any row at least 10% visible, including one hidden under the navigation
+     bar. The restore used the minimal scroll.
+   - Rows now report their frames to a shared `GalleryAnchoredList`. The anchor is the highest row whose
+     center is in the list's clear area, and the list scrolls it to the top.
+2. `ef625c0cb` fix(reader): keep the open Auto-Play menu across page turns.
+   - Each page turn re-evaluated the reader toolbar, and on some launches that rebuilt the open menu's
+     rows, so their accessibility IDs changed. A tap on Off could land on a replaced row and be lost.
+   - The menu is now its own view, with the `AutoPlayHandler` as its only input. The page indicator is
+     unchanged.
+
+**Test fixes.**
+
+- Quick task `261103-test-plan-repairs`: `9a51c80d3`, `a163d729d`, `2e996b69f`, `d1a4abb60`,
+  `bace0fd3f`, `e4b63d6a5`, `604bdc200`, `a01a74123`, `ca4bb3c95`, `4d14e86a9`, `88a847fcc`. It covers
+  the stub `gdata` route, iOS 27 overflow identifiers, the capture-only suite skips, stale scene and
+  tracer tests, download test clocks, galleries in any layout, and reader orientation matching.
+- `7ede42c85` test(ui): require the restored row at the top, clear of both bars.
+- `900501eaf` test(ui): give hittable waits room for XCUITest's own query time.
+- `b24f8b3dd` test(ui): read the Home carousel in one snapshot and wait for its card.
+- `1829841d8` test(ui): restore portrait after the landscape Library tap tests. This is the
+  orientation leak below.
+
+**DeepLinkScheme failures: an orientation leak, not the app.**
+
+- In one iPad UITests run at `ef625c0cb`, both page-link tests
+  (`testPageLinkColdLaunchOpensReaderAtPage`, `testPageLinkWarmForegroundOpensReaderAtPage`) failed all
+  three attempts: "the indicator names page 2 and the screen shows no page".
+- Cause: `LibraryPresentationUITests.testFavoritesSingleTapDetailsAndDoubleTapReads` and
+  `testDownloadsSingleTapDetailsAndDoubleTapReads` turned the device to landscape and never turned it
+  back. The orientation outlives the test on its simulator clone. DeepLinkScheme ran next on that clone
+  and opened the iPad reader as a two-page spread.
+- The failure screenshot shows the spread of pages 1 and 2 with "2 / 156". So the reader did open at
+  the linked page.
+- In a serial run that rotates to landscape first, both tests fail the same way with the `ef625c0cb`
+  app and with the `b24f8b3dd` app. The app change is not involved.
+- `1829841d8` restores portrait in a teardown block in both tests.
+
+## First run at `9805537a9` (superseded)
 
 ```sh
 python3 -B -m unittest discover -s Scripts/visual -p test_release.py           # 19 OK
@@ -185,39 +271,61 @@ Result bundles are kept locally under `/tmp/ehpanda-17-14/` and aren't committed
 3. **Coverage override.** The first Release build was coverage-instrumented (inherited from the test
    plans). It was rebuilt with `CLANG_COVERAGE_MAPPING=NO`, and the scanner now fails instrumented
    compiles. The shipped CI archive path reports no coverage setting.
+4. **Final-run sources by equivalence.**
+   - The final Release and Debug builds come from a worktree at `ef625c0cb`, not `1829841d8`. FeatureTests
+     also ran at the `ef625c0cb` source.
+   - The only difference is `EhPandaUITests/LibraryPresentationUITests.swift`. It is in neither the app,
+     the share extension nor the FeatureTests plan.
+   - UITests, lint and the scanner tests ran at `1829841d8` itself.
+5. **Phone booted for the probe.** The Release scan's launch probe needs a booted simulator. The first
+   attempt in the final run stopped at `simctl install` on the shut-down phone, before any finding. The
+   phone was booted, the scan was rerun, and afterwards the app was uninstalled and the phone shut down.
 
-**Total deviations:** 3 (2 procedural, 1 found and fixed in the tooling). **Impact:** none on the
+**Total deviations:** 5 (4 procedural, 1 found and fixed in the tooling). **Impact:** none on the
 Release evidence.
 
 ## Issues Encountered
 
-1. **UI-test stub has no route for list metadata (regression, open).** `9da595d93` (2026-11-02,
-   "apply title preference across views") makes every gallery list call `galleriesWithTitles`, which
-   sends `POST /api.php`. `UITestStubURLProtocol.fixtureName` has no route for it, so the stub
-   answers 404. The list then fails, and Home and Favorites show "Couldn't Read Page". Reproduced
-   outside XCTest: the Debug app launched on the phone with only `EHPANDA_UITEST_STUB_NETWORK` and
-   a host fixture directory shows the same page. Fixing it is app/test code, out of this plan's scope.
-2. **Detail overflow control not found (open, not root-caused).** `ShareSheetUITests` (1) and
-   `DetailNavigationTitleUITests` (4) can't find the Detail "More"/`OverflowBarButtonItem` button.
-   No hierarchy shows "Couldn't Read Page", so this may be separate from issue 1.
-3. **Env-gated capture tests run in UITests (open).** `MarketingCaptureUITests` (2) and
-   `CaptureIsolationUITests` (1) fail on `XCTUnwrap` of `TEST_RUNNER_EHPANDA_CAPTURE_*`. The plan
-   skips only `AppshotCaptureUITests`.
-4. **CaptureSceneTests settings drift (open).** `sceneSettingsAreTheDefaultsWithTheBypassOn` now
-   gets `displayJapaneseTitle: true`. `9da595d93` also changed `CaptureScenePreparation`.
-5. **VisualTracerTests.testHomeFullContentTracer (open, not root-caused).**
-   `clippedItem("Visual Home Gallery 1")` on both devices.
-6. **Tablet-only DownloadContinuedSession timeouts (open).** 5 Interleave, Expiration and Ledger
-   cases time out or race on the tablet only, with no Repetition. Not investigated further.
-7. **Tablet reader rotation (open, not root-caused).** `ReaderPageSyncUITests` reports a page
-   indicator with no page on screen after the turn to landscape.
-8. **Scanner limit.** Inert-shell acceptance judges the link maps it's given. It can't tell they
-   came from the scanned binary. The README names which final link maps to pass; the caller must
-   take them from the same build.
+The first run's issues are all resolved for the gate. The orientation leak was found during the rerun.
+
+1. **UI-test stub had no route for list metadata.** Fixed by `9a51c80d3` and `a163d729d` (the stub
+   answers `gdata`).
+2. **Detail overflow control not found.** Fixed by `2e996b69f`: iOS 27 names it `TopOverflowBarButtonItem`.
+3. **Env-gated capture tests ran in UITests.** Fixed by `88a847fcc` and `4d14e86a9`, which skip the
+   capture-only suites.
+4. **CaptureSceneTests settings drift.** Stale test, fixed by `ca4bb3c95`.
+5. **VisualTracerTests clipped item.** Stale test, fixed by `a01a74123` and `bace0fd3f`.
+6. **Tablet-only DownloadContinuedSession timeouts.** Fixed by `604bdc200`, which adds a test clock and
+   30 s hang bounds.
+7. **Tablet reader rotation.** Fixed by `d1a4abb60`, which turns orientation matching off in the test.
+8. **Orientation leak into DeepLinkScheme.** Fixed by `1829841d8`, described above.
+9. **Scanner limit (unchanged).** Inert-shell acceptance judges the link maps it's given. It can't tell
+   they came from the scanned binary. The README names which final link maps to pass, and the caller
+   must take them from the same build.
+
+## Known risks
+
+None of these failed the final gate. They are recorded so a later failure is recognized.
+
+- **`ReaderPageProbe` can't read an iPad landscape spread.** It checks the page under the reader's
+  center, which in a two-page spread is the gutter, so it reports "no page". Any page-link or reader
+  test that runs while the iPad is in landscape with orientation matching on fails this way, even when
+  the reader is right. `ReaderPageSyncUITests` and `ReadingOrientationUITests` avoid it by turning
+  matching off (`d1a4abb60`). DeepLinkScheme relies on starting in portrait.
+- **DeepLinkScheme depends on the clone's orientation.** `1829841d8` fixes the one known leak. A future
+  test that leaves landscape behind would bring the failure back.
+- **Long-press in Library downloads (iPad).**
+  - In one diagnostic iPad run, `LibraryPresentationUITests.testDownloadManagementInBothLayouts` failed
+    with "Inspect downloaded pages from grid never became hittable" after `press(forDuration: 1)`.
+  - It did not recur in the final runs. The cause is not established.
+- **Show All on the Front Page (iPad).**
+  - In the same diagnostic run, `AccessibilityAuditUITests.testFrontPageAudit` failed with "Front Page
+    navigation title did not appear".
+  - It did not recur in the final runs. The cause is not established.
 
 ## Next
 
-Paused for orchestrator direction on D4. The Release isolation evidence (D1 to D3) stands at
-`9805537a9`. 17-23 is not started.
+17-23: the final reduced-scope gate and the completion report. The GSD close steps follow 17-23 and
+are not part of this plan.
 
-## Self-Check: PASSED (deliverables present; acceptance gate D4 open)
+## Self-Check: PASSED (deliverables present; D1 to D4 pass at 1829841d8)

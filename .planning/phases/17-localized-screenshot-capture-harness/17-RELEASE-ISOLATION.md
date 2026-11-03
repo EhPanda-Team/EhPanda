@@ -2,6 +2,87 @@
 
 Plan 17-14 Task 2 (CAP-17-07), run once at Phase 17 close on 2026-11-03.
 
+## Final run at `1829841d8`: gate passes
+
+The first run, at `9805537a9` and recorded from "Source and toolchain" on, had clean Release
+evidence but a failing behavior gate. After the repairs listed below, everything was run again at
+`1829841d8` on 2026-11-03. **Every check passes.**
+
+**Source.** Tests and lint ran in the main checkout at `1829841d8` (`feature/gsd-phase-17`). The
+Release and Debug builds come from the clean detached worktree `.airbuild/worktree/ehpanda-1714-release-3`
+at `ef625c0cb`. `git diff --stat ef625c0cb 1829841d8` lists one file,
+`EhPandaUITests/LibraryPresentationUITests.swift`, which is not built into the app or the share
+extension. So the built app source is the source at `1829841d8`. The FeatureTests runs also used the
+`ef625c0cb` source, for the same reason. Toolchain and simulators are as in the first run.
+
+**Builds.** One `runbuild` ran the worktree's git-ignored build script, with the same Release and Debug
+`xcodebuild build` commands as the first run (`CLANG_COVERAGE_MAPPING=NO LD_GENERATE_MAP_FILE=YES` for
+Release). Exit 0. Both logs end in `** BUILD SUCCEEDED **`. The script's `airbuild-xcode archive` step
+also succeeded, but it builds Debug simulator paths again, so it is not evidence.
+
+**Release scan.** This is the command under "Scan" below, with the four final link maps and
+`--device` set to the iPhone Air. The simulator was booted for the probe, then the app was uninstalled
+and the simulator shut down. **Exit 0, `PASS: 0 finding(s)`.**
+
+| Evidence | Result at `1829841d8` |
+|---|---|
+| Payload | 377 files in `EhPanda.app`, no finding |
+| Dependency graph | 150 targets, none a test, snapshot or UI-test target |
+| Package resolution | 31 packages; `swift-snapshot-testing` resolution-only |
+| Compiles | 1613 compiler invocations, none defining `DEBUG`, none instrumented |
+| Link maps | App 187 objects / 290 961 live symbols (arm64), 187 / 279 449 (x86_64); share extension 24 / 338 and 24 / 307. No test or snapshot object, library or live symbol |
+| Inert shell (accepted) | `UITestAutomation`, 11 live symbols per app slice, all type metadata or its two DEBUG-gated members |
+| Launched activation | Release still running after 8 s with `PROBE_ENVIRONMENT`. The Debug control ended |
+
+**Debug negative control.** This uses the same scanner on the Debug app and log, with the Release
+arm64 app link map, as in the first run (the Debug build writes no link map). **Exit 1, 991 findings**,
+the same as the first run:
+
+- 483 `debug-define` and 492 `instrumented` compile lines;
+- 11 capture strings;
+- 4 payload files (both `.debug.dylib`, both `__preview.dylib`);
+- 1 build-log finding (not exclusively a Release build).
+
+**Scanner tests.** `python3 -B -m unittest discover -s Scripts/visual -p test_release.py` at `1829841d8`:
+19 tests, OK. The scanner hasn't changed since `7af68d0e6`.
+
+**Lint.** SwiftLint 0.65.1, `lint --strict --no-cache` over the five paths: exit 0, 0 violations in 756
+files.
+
+**Behavior tests.** These ran through `runtest`, one at a time. The phone ran before the tablet for
+each plan.
+
+- UITests ran at `1829841d8`. FeatureTests ran at the `ef625c0cb` source, which is identical for that
+  plan.
+- `UITests.xctestplan` keeps `retryOnFailure`, unchanged as in 16-24. Single runs are shown by the
+  result bundles: 0 Repetition nodes.
+
+| Plan, device (iOS 27.2) | Exit | Cases | Passed | Failed | Skipped | Expected failures | Repetition nodes |
+|---|---|---|---|---|---|---|---|
+| FeatureTests, EhPanda iPhone Air | 0 | 1522 | 1512 | 0 | 0 | 10 | 0 |
+| FeatureTests, EhPanda iPad Pro 11-inch (M5) | 0 | 1522 | 1512 | 0 | 0 | 10 | 0 |
+| UITests, EhPanda iPhone Air | 0 | 88 | 68 | 0 | 20 | 0 | 0 |
+| UITests, EhPanda iPad Pro 11-inch (M5) | 0 | 88 | 71 | 0 | 17 | 0 | 0 |
+
+Result bundles and logs are kept locally and are not committed.
+
+**What changed between the runs.** These fixes are described in 17-14-SUMMARY.md.
+
+- Two app bugs: `d8567a8f8` (Library and gallery-list row restore after a layout switch) and
+  `ef625c0cb` (the open Auto-Play menu across page turns).
+- Quick task `261103-test-plan-repairs`, which fixed the stub `api.php` route and the test plan.
+- Five UI-test fixes. One of them, `1829841d8`, ends the orientation leak that failed
+  DeepLinkScheme's page-link tests on the iPad.
+
+**Verdict.** Release payload, dependency and activation evidence is clean, the Debug control and the
+seeded bad payload fail, lint is clean, and all four behavior runs pass with 0 failures and 0 Repetition
+nodes. T2's acceptance is met at `1829841d8`.
+
+## First run at `9805537a9`
+
+The sections from here to the end record the first run. Its Release evidence was clean and its
+behavior gate failed. The commands under "Builds" and "Scan" are the ones the final run repeated.
+
 ## Source and toolchain
 
 - App source: `9805537a9` (`feature/gsd-phase-17`). It was built from a clean detached worktree
@@ -147,7 +228,7 @@ Failures by cause. None of them is in the Release isolation tooling.
 - **FeatureTests, tablet only (5).** `DownloadContinuedSession` Interleave 1, Expiration 3, Ledger 1:
   timeouts or ordering races.
 
-## Verdict
+## Verdict of the first run (superseded by the final run above)
 
 Release payload, dependency and activation evidence is clean, the scanner rejects a seeded bad
 payload, and lint is clean. **The behavior gate fails:** FeatureTests and UITests fail on both

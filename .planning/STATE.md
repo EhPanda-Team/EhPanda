@@ -4,22 +4,59 @@ milestone: v3.0.0
 current_phase: 17
 current_phase_name: Screenshot Automation, Visual Regression & OS 27 Modernization
 status: executing
-stopped_at: 17-19 complete (owner kept all five idiom places); 17-14 T2 behavior gate still open; 17-23 not started
-last_updated: "2026-11-03T04:51:01.000Z"
+stopped_at: 17-14 complete (T2 gate passes at 1829841d8); next 17-23, then the Phase 17 close steps
+last_updated: "2026-11-03T12:09:46.000Z"
 last_activity: 2026-11-03
-last_activity_desc: 17-19 complete; Settings tests pass on phone and tablet, Detail is a sheet only at iPad full width and pushes in a narrow iPad window and iPhone landscape, and the owner kept all five remaining idiom places (msg 1409)
+last_activity_desc: 17-14 T2 complete at 1829841d8; Release scan 0 findings (Debug negative 991, scanner tests 19 OK), strict lint clean, FeatureTests and UITests pass on phone and tablet with 0 failures and 0 Repetition after two app fixes (d8567a8f8, ef625c0cb) and the test fixes
 state_head: e255b3e6275b71efb6e3b8d4f29fa98cbc188da7
 progress:
   total_phases: 18
   completed_phases: 15
   total_plans: 287
-  completed_plans: 285
+  completed_plans: 286
   percent: 83
 milestone_name: )
 source_head: af00e0da93
 ---
 
 # Project State
+
+## 17-14 T2 Release isolation gate passes — 2026-11-03
+
+At `1829841d8` every T2 check passes.
+
+- **Release scan.** The Release build has 0 findings, and the launched probe can't activate capture.
+  The Debug control finds 991. The scanner tests give 19 OK.
+  - The builds come from a worktree at `ef625c0cb`, which has the same app and extension source.
+  - The worktree was removed after the evidence was recorded.
+- **Lint.** Strict lint finds 0 violations in 756 files.
+- **FeatureTests.** 1522 cases on iPhone Air and on iPad Pro 11-inch (M5). 0 failed, 10 expected
+  failures, 0 Repetition.
+- **UITests.** 88 cases, 0 failed and 0 Repetition: 68 passed on the iPhone, 71 on the iPad.
+
+**What it took.**
+
+- Two app bugs were fixed:
+  - `d8567a8f8`: a Library or gallery list returns the row a person saw to the top after a layout
+    switch.
+  - `ef625c0cb`: the open Auto-Play menu is no longer rebuilt on page turns.
+- Test fixes:
+  - quick task `261103-test-plan-repairs`;
+  - `7ede42c85`, `900501eaf` and `b24f8b3dd`;
+  - `1829841d8`. The two landscape Library tap tests left the iPad in landscape, so DeepLinkScheme's
+    page-link tests opened a two-page spread. `1829841d8` restores portrait. It was not an app
+    regression.
+
+**Known risks** (none failed the final gate):
+
+- `ReaderPageProbe` can't read an iPad landscape spread.
+- One diagnostic iPad run saw two failures that did not recur:
+  - the long-press "Inspect downloaded pages" in `testDownloadManagementInBothLayouts`;
+  - the Front Page title in `testFrontPageAudit` (Show All).
+
+[Evidence](phases/17-localized-screenshot-capture-harness/17-RELEASE-ISOLATION.md),
+[summary](phases/17-localized-screenshot-capture-harness/17-14-SUMMARY.md).
+Next: 17-23, then the Phase 17 close steps.
 
 ## 17-19 Settings, Detail routing and idiom census complete — 2026-11-03
 
