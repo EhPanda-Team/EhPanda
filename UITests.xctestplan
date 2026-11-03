@@ -19,7 +19,9 @@
         "name": "EhPandaUITests"
       },
       "skippedTests": [
-        "AppshotCaptureUITests"
+        "AppshotCaptureUITests",
+        "CaptureIsolationUITests",
+        "MarketingCaptureUITests"
       ],
       "parallelizable": true
     }

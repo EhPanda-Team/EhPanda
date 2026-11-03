@@ -18,6 +18,8 @@ GATE_SCRIPT = Path(__file__).resolve().relative_to(ROOT).as_posix()
 FEASIBILITY = "VisualSnapshotTests/FullContentFeasibilityTests/"
 ROTATION = "EhPandaUITests/VisualCaptureOrientationUITests/"
 CONTENT_SIZES = {"large": "large", "AX5": "accessibility-extra-extra-extra-large"}
+# The UITests plan skips these suites, which need a capture's own inputs; the single-pass copy runs them.
+CAPTURE_ONLY_SUITES = ("MarketingCaptureUITests", "CaptureIsolationUITests")
 NATIVE_TESTS = [
     FEASIBILITY + name for name in (
         "testExportPublicFixtures", "testExportRendersReaderPagesAtRequestedPixelWidth",
@@ -253,6 +255,11 @@ class Gate:
         for item in nodes(data):
             if "TestRepetitionPolicy" in item:
                 removed.append({"key": "TestRepetitionPolicy", "value": item.pop("TestRepetitionPolicy")})
+            skipped = item.get("SkipTestIdentifiers")
+            if isinstance(skipped, list) and any(test in CAPTURE_ONLY_SUITES for test in skipped):
+                item["SkipTestIdentifiers"] = [test for test in skipped if test not in CAPTURE_ONLY_SUITES]
+                removed.append({"key": "SkipTestIdentifiers",
+                                "value": [test for test in skipped if test in CAPTURE_ONLY_SUITES]})
         save_json(self.output / f"{plan}-single-pass.json", {"source": source.name, "removed": removed})
         destination = products / f"phase17-{plan}.xctestrun"
         destination.write_bytes(plistlib.dumps(data))
