@@ -220,7 +220,10 @@ final class VisualTracerTests: XCTestCase {
             return
         }
 
-        XCTAssertEqual(evidence.viewport.traits.userInterfaceIdiom, UIUserInterfaceIdiom.phone)
+        // The plan runs on iPhone and iPad; either way the viewport keeps the device's own idiom.
+        let idiom = evidence.viewport.traits.userInterfaceIdiom
+        XCTAssertEqual(idiom, UIDevice.current.userInterfaceIdiom)
+        XCTAssertTrue(idiom == .phone || idiom == .pad)
         XCTAssertGreaterThan(evidence.viewport.size.width, 0)
         XCTAssertGreaterThan(evidence.viewport.size.height, 0)
         XCTAssertGreaterThan(evidence.viewport.scale, 0)
