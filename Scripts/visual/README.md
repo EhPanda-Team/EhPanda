@@ -556,8 +556,11 @@ launch attaches its diagnostics and a screenshot to the result bundle. The test 
 into its own temporary directory and removes the copy when it ends.
 
 The fixture holds real content, so the runner names it through an environment variable instead of
-the repository. Without it the test fails rather than skip. Run on a visual simulator, one
-destination at a time, and return each simulator to the power state you found:
+the repository. Without it the test fails rather than skip. The UITests plan skips this suite and
+`MarketingCaptureUITests`, so an ordinary plan run needs no capture inputs; the single-pass copy
+of the plan's test run removes those two skips and records it in `UITests-single-pass.json`. Run
+on a visual simulator, one destination at a time, and return each simulator to the power state you
+found:
 
 ```sh
 TEST_RUNNER_EHPANDA_CAPTURE_SOURCE="$PWD/.capture/marketing/current" \
