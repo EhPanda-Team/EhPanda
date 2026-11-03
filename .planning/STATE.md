@@ -31,6 +31,8 @@ on the phone and 7 on the tablet; UITests fail 23 on the phone and 26 on the tab
 nodes. Most UITests failures come from `300a29ac4`: its new `POST /api.php` list metadata request
 has no route in `UITestStubURLProtocol`, so Home and Favorites show "Couldn't Read Page". Fixing it
 is app/test code, outside this plan, and needs orchestrator direction. 17-14 is not marked complete.
+Quick task 261103-test-plan-repairs has since repaired these failures in tests and test support, without changing the
+app. T2 still needs a fresh run.
 [Evidence](phases/17-localized-screenshot-capture-harness/17-RELEASE-ISOLATION.md),
 [summary](phases/17-localized-screenshot-capture-harness/17-14-SUMMARY.md).
 Next: the owner's 17-19 keep/change answers and orchestrator direction on the 17-14 behavior gate.
@@ -1396,6 +1398,7 @@ None yet.
 | 261027-vgt | Make CI builds independent of private local capture tooling while preserving local captures | 2026-10-27 | d4db052079 | [261027-vgt-make-ci-builds-independent-of-private-lo](./quick/261027-vgt-make-ci-builds-independent-of-private-lo/) |
 | 261031-sim | Record the iOS simulator rule in AGENTS.md: create a project-prefixed simulator when a task needs one, delete it when no task does, and never delete simulators outside this project's scope (owner request) | 2026-10-31 | a5ea1ec3e | — |
 | 261101-ipad-reload-row | Keep Home's Reload in the iPad top tab bar row by hosting the Duo sheet presenter inside Home's NavigationStack; UI regression assertion; iPad, iPhone and Duo verified | 2026-11-01 | 13a461c0c | [261101-ipad-reload-row](./quick/261101-ipad-reload-row/SUMMARY.md) |
+| 261103-test-plan-repairs | Repair the 17-14 T2 test failures: the UI-test stub answers `gdata`; More matches iOS 27's overflow identifiers; UITests skips the two capture-only suites; stale capture-scene, tracer and reader-orientation tests; download helpers use a test clock and 30 s hang bounds; galleries found in any layout. Final runs have 0 failures on iPhone Air and iPad Pro 11-inch (M5), and 6 tests have passed only on a retry | 2026-11-03 | 61b65f0bf | [261103-test-plan-repairs](./quick/261103-test-plan-repairs/SUMMARY.md) |
 
 ### Roadmap Evolution
 
