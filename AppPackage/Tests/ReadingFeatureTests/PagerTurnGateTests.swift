@@ -2,9 +2,10 @@
 import SwiftUI
 import Testing
 
-// Pins the rule that keeps the horizontal pager on the index: a turn that arrives while the pager animates to the
-// previous one is held and sent once the pager is at rest, because the paging ScrollView can drop a position handed
-// to it mid-animation and come to rest short of it (see `PagerTurnGate`).
+// Pins the rules that keep the horizontal pager on the index, because the paging ScrollView can drop a position handed
+// to it while it moves or comes to rest, and stay short of it (see `PagerTurnGate`): a turn that arrives while the
+// pager animates to the previous one is held and sent once the pager is at rest, and a pager at rest on another page
+// than the index is sent to the index again.
 @Suite
 struct PagerTurnGateTests {
     @Test
@@ -71,5 +72,45 @@ struct PagerTurnGateTests {
         #expect(!held)
         #expect(sendsOnAppearance)
         #expect(admitted)
+    }
+
+    @Test
+    func aPagerAtRestOnAnotherPageIsSentToTheIndexAgain() {
+        var gate = PagerTurnGate()
+        _ = gate.phaseChanged(to: .animating)
+        _ = gate.phaseChanged(to: .idle)
+        let corrects = gate.needsCorrection(shown: 106, index: 107)
+        #expect(corrects)
+    }
+
+    @Test
+    func aPagerAtRestOnTheIndexIsLeftAlone() {
+        var gate = PagerTurnGate()
+        let onTheIndex = gate.needsCorrection(shown: 107, index: 107)
+        let noSinglePage = gate.needsCorrection(shown: nil, index: 107)
+        #expect(!onTheIndex)
+        #expect(!noSinglePage)
+    }
+
+    @Test(arguments: [ScrollPhase.animating, .tracking, .interacting, .decelerating])
+    func aMovingPagerIsNotCorrected(phase: ScrollPhase) {
+        var gate = PagerTurnGate()
+        _ = gate.phaseChanged(to: phase)
+        let corrects = gate.needsCorrection(shown: 106, index: 107)
+        #expect(!corrects)
+    }
+
+    @Test
+    func aPageThePagerKeepsMissingIsGivenUpUntilItLandsAgain() {
+        var gate = PagerTurnGate()
+        let tries = (0..<PagerTurnGate.correctionLimit).map({ _ in gate.needsCorrection(shown: 106, index: 107) })
+        let beyondTheLimit = gate.needsCorrection(shown: 106, index: 107)
+        #expect(tries == Array(repeating: true, count: PagerTurnGate.correctionLimit))
+        #expect(!beyondTheLimit)
+
+        // Landing on the index starts the count over.
+        _ = gate.needsCorrection(shown: 107, index: 107)
+        let afterLanding = gate.needsCorrection(shown: 107, index: 108)
+        #expect(afterLanding)
     }
 }
