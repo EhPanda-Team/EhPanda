@@ -4,10 +4,10 @@ milestone: v3.0.0
 current_phase: 17
 current_phase_name: Screenshot Automation, Visual Regression & OS 27 Modernization
 status: executing
-stopped_at: Completed 17-18-PLAN.md; next execute 17-19 (owner checkpoint), 17-14 (T2) and 17-23, then the Phase 17 close steps
+stopped_at: 17-14 T2 executed, behavior gate open (paused for orchestrator direction); 17-19 census awaits the owner checkpoint; 17-23 not started
 last_updated: "2026-11-02T17:04:18.000Z"
 last_activity: 2026-11-03
-last_activity_desc: 17-18 verified Search and Downloads routing at the app root and the removed routeGalleryDetail helper (tests pass on phone and tablet); no app source change; next 17-19 with its owner checkpoint
+last_activity_desc: 17-14 T2 Release isolation evidence clean at 9805537a9 (scanner 0 findings, Debug negative 991, seeded payload rejected, lint clean); FeatureTests and UITests fail on phone and tablet (UI-test stub lacks /api.php since 9da595d93), so acceptance is open
 state_head: e255b3e6275b71efb6e3b8d4f29fa98cbc188da7
 progress:
   total_phases: 18
@@ -20,6 +20,20 @@ source_head: af00e0da93
 ---
 
 # Project State
+
+## 17-14 T2 Release isolation run, behavior gate open — 2026-11-03
+
+The Release simulator build of `9805537a9` ships and activates no capture facility.
+`Scripts/visual/verify-release.py` passes it with 0 findings and finds 991 on the Debug build. Its 19
+tests pass, including a seeded bad payload (RED `eadb4e8a1`, GREEN `7af68d0e6`, evidence
+`035c4a65b`). Strict no-cache lint is clean. **T2 acceptance is not met:** FeatureTests fail 2 cases
+on the phone and 7 on the tablet; UITests fail 23 on the phone and 26 on the tablet, with Repetition
+nodes. Most UITests failures come from `9da595d93`: its new `POST /api.php` list metadata request
+has no route in `UITestStubURLProtocol`, so Home and Favorites show "Couldn't Read Page". Fixing it
+is app/test code, outside this plan, and needs orchestrator direction. 17-14 is not marked complete.
+[Evidence](phases/17-localized-screenshot-capture-harness/17-RELEASE-ISOLATION.md),
+[summary](phases/17-localized-screenshot-capture-harness/17-14-SUMMARY.md).
+Next: the owner's 17-19 keep/change answers and orchestrator direction on the 17-14 behavior gate.
 
 ## 17-18 landed Search and Downloads routing verified — 2026-11-03
 
