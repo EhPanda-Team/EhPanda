@@ -137,11 +137,10 @@ public struct ReadingView: View {
 
     private func readingToolbar() -> some ToolbarContent {
         @Bindable var bindableLiveTextHandler = liveTextHandler
-        @Bindable var bindableAutoPlayHandler = autoPlayHandler
         return ReadingToolbar(
             setting: Binding($setting),
             enablesLiveText: $bindableLiveTextHandler.enablesLiveText,
-            autoPlayPolicy: $bindableAutoPlayHandler.policy,
+            autoPlayHandler: autoPlayHandler,
             title: "\(max(Int(pageHandler.sliderValue), 1)) / \(store.gallery.pageCount)",
             isLandscape: isLandscape,
             dismissAction: { store.send(.onPerformDismiss) },

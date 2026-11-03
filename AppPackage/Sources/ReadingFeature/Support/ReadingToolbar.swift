@@ -8,7 +8,7 @@ import SwiftUI
 struct ReadingToolbar: ToolbarContent {
     @Binding var setting: Setting
     @Binding var enablesLiveText: Bool
-    @Binding var autoPlayPolicy: AutoPlayPolicy
+    let autoPlayHandler: AutoPlayHandler
     let title: String
     let isLandscape: Bool
     let dismissAction: () -> Void
@@ -26,6 +26,8 @@ struct ReadingToolbar: ToolbarContent {
         // Leading in every size class, never `.title`: the bar leaves a `.title` item out of its visibility-priority
         // overflow and drops it outright when it does not fit, as in a narrow iPad window whose window controls take
         // the leading edge. Here, at high priority, it stays and the automatic-priority actions overflow instead.
+        // The toolbar is handed the title rather than a view of its own reading the page: in a toolbar item, such a
+        // view was measured (2026-11-03, iOS 27) to keep showing a page after the reader had left it.
         ToolbarItem(placement: .topBarLeading) {
             Text(title)
                 .font(.headline)
@@ -78,18 +80,7 @@ struct ReadingToolbar: ToolbarContent {
             }
         }
         ToolbarItem(placement: .topBarTrailing) {
-            Menu {
-                Picker(selection: $autoPlayPolicy) {
-                    ForEach(AutoPlayPolicy.allCases) { policy in
-                        Text(policy.value).tag(policy)
-                    }
-                } label: {
-                    Text(.autoPlay)
-                }
-                .pickerStyle(.inline)
-            } label: {
-                Label(.autoPlay, systemSymbol: .timer)
-            }
+            AutoPlayMenu(handler: autoPlayHandler)
         }
         ToolbarOverflowMenu {
             Button(action: retryAllFailedImagesAction) {
@@ -101,6 +92,30 @@ struct ReadingToolbar: ToolbarContent {
             Button(action: navigateSettingAction) {
                 Label(.readingSettings, systemSymbol: .gear)
             }
+        }
+    }
+}
+
+/// The Auto-Play menu. Every page turn re-evaluates the toolbar, as it is handed the page's title.
+/// The menu's one input is the handler, so those evaluations leave it as it is and it is redrawn only
+/// when the policy changes: an open menu is not rebuilt under a reader's finger, which could lose a
+/// tap on Off made during auto-play.
+private struct AutoPlayMenu: View {
+    let handler: AutoPlayHandler
+
+    var body: some View {
+        @Bindable var handler = handler
+        Menu {
+            Picker(selection: $handler.policy) {
+                ForEach(AutoPlayPolicy.allCases) { policy in
+                    Text(policy.value).tag(policy)
+                }
+            } label: {
+                Text(.autoPlay)
+            }
+            .pickerStyle(.inline)
+        } label: {
+            Label(.autoPlay, systemSymbol: .timer)
         }
     }
 }

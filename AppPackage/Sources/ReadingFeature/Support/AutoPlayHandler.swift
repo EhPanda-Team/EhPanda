@@ -8,11 +8,11 @@ final class AutoPlayHandler {
     /// The interval auto-play turns pages at, `.off` while it does not. Every assignment restarts the ticking, so the
     /// toolbar's menu and the reader's stops only assign it.
     ///
-    /// The toolbar's menu binds it as `$handler.policy`. A closure `Binding` is a new value on every evaluation of the
-    /// reader's body, and every page auto-play turns redraws the toolbar's page indicator, so SwiftUI gave the menu's
-    /// toolbar item a new `UIMenu` on each turn, and a tap on the open menu could land on a replaced row and be lost
-    /// (measured 2026-10-12 on iOS 27: a new menu on each title change with a closure binding, the same menu with
-    /// this binding).
+    /// The toolbar's menu is a view of its own whose one input is this handler, and it binds `$handler.policy`. Every
+    /// page turn re-evaluates the toolbar, which is handed the page's title; a menu built inline in the toolbar, as
+    /// before, could be given a new `UIMenu` on such a turn, and a tap on the open menu could land on a replaced row
+    /// and be lost. A closure binding did so on every turn (measured 2026-10-12); this binding still did so in some
+    /// launches (measured 2026-11-03, the item IDs of the open menu changing on each turn), both on iOS 27.
     var policy = AutoPlayPolicy.off {
         didSet { restartTicking() }
     }
