@@ -34,6 +34,7 @@ public struct ReadingView: View {
     @State private var pageHandler: PageHandler
     @State var pageModel = PageModel()
     @State private var scrollPositionID: Int?
+    @State private var pagerTurnGate = PagerTurnGate()
     @State private var performingChanges = false
     @State private var deviceState: WindowDevice?
 
@@ -292,6 +293,11 @@ public struct ReadingView: View {
             store.setting.readingDirection == .rightToLeft ? .rightToLeft : .leftToRight
         )
         .onScrollPhaseChange { _, newValue in
+            // A turn held while the pager animated has already moved the index; only the pager is left to follow.
+            if pagerTurnGate.phaseChanged(to: newValue) {
+                scrollPager(to: pageModel.index)
+                return
+            }
             if newValue == .idle, let position = scrollPositionID {
                 performingChanges = true
                 pageModel.update(.new(index: position))
@@ -440,12 +446,18 @@ extension ReadingView {
         // A jump slides the pager across every page in between; under Reduce Motion it lands
         // instantly. The echo guard around it is independent of the animation: it covers the
         // observer round-trip of the index write, not the scroll's travel, so its window stays
-        // `echoGuardDuration` in both modes (D-29).
-        withAnimation(reduceMotion ? nil : .default) {
-            scrollPositionID = clampedIndex
+        // `echoGuardDuration` in both modes (D-29). A turn that arrives while the pager still animates to the last one
+        // is held, and sent once the pager is at rest (`PagerTurnGate`).
+        if pagerTurnGate.admitsTurn() {
+            scrollPager(to: clampedIndex)
         }
         DispatchQueue.main.asyncAfter(deadline: .now() + PageModel.echoGuardDuration) {
             performingChanges = false
+        }
+    }
+    private func scrollPager(to position: Int) {
+        withAnimation(reduceMotion ? nil : .default) {
+            scrollPositionID = position
         }
     }
     /// Positions the pager on the slider's page for the reading area it is about to lay out in.
