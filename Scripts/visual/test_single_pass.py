@@ -113,6 +113,22 @@ class NativeGateTests(unittest.TestCase):
         evidence = json.loads((self.directory / 'UITests-single-pass.json').read_text())
         self.assertEqual(len(evidence['removed']), 2)
 
+    def test_preparation_runs_the_capture_only_suites_the_plan_skips(self):
+        original = self.products / 'generated.xctestrun'
+        skipped = ['AppshotCaptureUITests', 'MarketingCaptureUITests', 'CaptureIsolationUITests']
+        data = {'TestPlan': {'Name': 'UITests'}, 'TestConfigurations': [{
+            'TestTargets': [{'SkipTestIdentifiers': skipped}],
+        }]}
+        original.write_bytes(plistlib.dumps(data))
+        self.gate.single_pass_run('UITests')
+        self.assertEqual(plistlib.loads(original.read_bytes()), data)
+        copy_data = plistlib.loads(self.gate.test_runs['UITests'].read_bytes())
+        # The appshot suite has its own plan, so it stays skipped here.
+        self.assertEqual(copy_data['TestConfigurations'][0]['TestTargets'][0]['SkipTestIdentifiers'],
+                         ['AppshotCaptureUITests'])
+        evidence = json.loads((self.directory / 'UITests-single-pass.json').read_text())
+        self.assertEqual(evidence['removed'], [{'key': 'SkipTestIdentifiers', 'value': skipped[1:]}])
+
     def test_ambiguous_and_missing_build_products_fail(self):
         with self.assertRaisesRegex(RuntimeError, 'found 0'):
             self.gate.single_pass_run('UITests')
