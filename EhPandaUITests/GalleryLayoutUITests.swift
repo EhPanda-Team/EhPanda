@@ -63,12 +63,28 @@ final class GalleryLayoutUITests: XCTestCase {
         picker.tapWhenHittable("Switch a scrolled list")
         app.buttons["Grid"].tapWhenHittable("Grid")
         XCTAssertTrue(app.buttons[anchorID].waitForExistence(timeout: 5))
-        XCTAssertTrue(app.buttons[anchorID].isHittable, "Switching layouts must retain the visible gallery anchor.")
+        XCTAssertTrue(
+            app.buttons[anchorID].waitUntilHittable(timeout: 5),
+            "Switching layouts must retain the visible gallery anchor."
+        )
         picker.tapWhenHittable("Restore rows")
         app.buttons["List"].tapWhenHittable("List")
         let restored = app.buttons[anchorID]
-        XCTAssertTrue(restored.isHittable)
-        XCTAssertGreaterThan(restored.frame.midY, app.requireLibraryNavigationTitle("Favorites").frame.maxY)
+        XCTAssertTrue(
+            restored.waitUntilHittable(timeout: 5),
+            "Switching back to rows must retain the visible gallery anchor."
+        )
+        // The anchor returns as the first row below the navigation bar, complete and clear of both bars.
+        let restoredTop = app.requireLibraryNavigationTitle("Favorites").frame.maxY
+        let restoredFrame = restored.frame
+        XCTAssertGreaterThanOrEqual(
+            restoredFrame.minY, restoredTop - 1, "The navigation bar must not cover the anchor."
+        )
+        XCTAssertLessThanOrEqual(restoredFrame.maxY, bottom + 1, "The tab bar must not cover the anchor.")
+        XCTAssertLessThan(
+            restoredFrame.minY, restoredTop + restoredFrame.height / 2,
+            "The anchor must return to the top of the list, not merely somewhere on screen."
+        )
         let screenshot = XCTAttachment(screenshot: XCUIScreen.main.screenshot())
         screenshot.name = "Library row restored after grid"
         screenshot.lifetime = .keepAlways
