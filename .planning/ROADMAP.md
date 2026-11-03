@@ -1264,7 +1264,7 @@ Plans:
   6. CAP-17-02, CAP-17-03, CAP-17-05 and the moved parts of CAP-17-01/06 are listed as moved to Phase 18, never as satisfied.
   7. Phase 17 closes only through the GSD close steps: the execute-phase gates (code review, regression gate, `gsd-verifier` writing `17-VERIFICATION.md`), then verify-work (UAT), secure-phase and validate-phase.
 
-**Plans**: 10/13 plans executed (11 plans moved to Phase 18 and marked `status: superseded`). Remaining order: 17-19 (owner checkpoint), 17-14 (T2 only), 17-23. 17-14 T2 has run: its Release isolation evidence is clean, but the behavior gate is open (FeatureTests and UITests fail; see 17-14-SUMMARY.md).
+**Plans**: 11/13 plans executed (11 plans moved to Phase 18 and marked `status: superseded`). Remaining order: 17-14 (T2 only), 17-23. 17-19 is complete: the owner kept all five remaining device-idiom places (2026-11-03, msg 1409). 17-14 T2 has run: its Release isolation evidence is clean, but the behavior gate is open (see 17-14-SUMMARY.md).
 
 Plans:
 **Wave 1**
@@ -1307,9 +1307,9 @@ Plans:
 
 - [x] 17-18-PLAN.md — Verify the landed Search and Downloads routing and the removed idiom helper
 
-**Wave 11** *(ready; owner checkpoint)*
+**Wave 11** *(complete; owner kept all five idiom places)*
 
-- [ ] 17-19-PLAN.md — Verify Settings presentation, census the remaining idiom reads and record the owner's keep/change decisions
+- [x] 17-19-PLAN.md — Verify Settings presentation, census the remaining idiom reads and record the owner's keep/change decisions
 
 **Wave 12** *(T2 executed; Release isolation clean; behavior gate open, awaiting orchestrator direction)*
 

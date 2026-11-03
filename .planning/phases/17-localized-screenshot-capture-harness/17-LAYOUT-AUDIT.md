@@ -175,3 +175,97 @@ runtest <project-id> --script app --additional-options \
 | EhPanda iPad Pro 11-inch (M5), iOS 27.2 | 0 | TEST SUCCEEDED | 11 (same) | 0 / 0 | 0 | `/tmp/ehpanda-17-16-18/17-18-tablet.xcresult` |
 
 App source diff after the runs: none.
+
+## Settings presentation (17-19)
+
+Source HEAD: `5a7fe7f13`. App source is unchanged since `6bccf8468` apart from two DEBUG-only
+UI-test support files (`UITestStubURLProtocol.swift`, `CaptureScenePreparation.swift`, quick task
+261103-test-plan-repairs). Landing commit `8fb2374536` is an ancestor of HEAD (exit 0). Decision:
+`261015-duo-session-record` DISCUSSION-LOG D02.
+
+| Item | File and line at HEAD | Behavior at HEAD |
+|---|---|---|
+| Rule | `AppPackage/Sources/AppFeature/DataFlow/WindowSizeClasses.swift:17-19` | `presentsModally` is `horizontal == .regular && vertical == .regular`. |
+| Settings decision | `AppPackage/Sources/AppFeature/DataFlow/AppReducer.swift:514-516` | `opensSettingAsSheet` holds only when `presentsModally` holds **and** the selected tab is not already Settings. |
+| Settings route | `AppReducer.swift:248-251` | `.tabBar(.delegate(.openSetting))` sends `.presentation(.presentSetting)` when `opensSettingAsSheet`, otherwise `.tabBar(.selectSettingInline)`. |
+| Inline selection | `AppReducer.swift:253-258` | `setTabBarItemType(.setting)` is ignored; only `selectSettingInline` selects the tab, through `tabSelectionEffect(type: .setting, …)`. |
+
+Tests, as run (one at a time, phone then tablet):
+
+```sh
+runtest <project-id> --script app --additional-options \
+  '-testPlan FeatureTests -destination id=$PHONE_UDID -only-testing:AppFeatureTests/TabBarSettingPresentationTests'
+runtest <project-id> --script app --additional-options \
+  '-testPlan FeatureTests -destination id=$TABLET_UDID -only-testing:AppFeatureTests/TabBarSettingPresentationTests'
+```
+
+| Device | Exit | Result | Test cases | Failed / skipped | Repetition nodes | Result bundle |
+|---|---|---|---|---|---|---|
+| EhPanda iPhone Air, iOS 27.2 | 0 | TEST SUCCEEDED | 8 (7 tests; `aWindowCompactInEitherDimensionSelectsTheTab` runs `.compactWidth` and `.compactHeight`) | 0 / 0 | 0 | `/tmp/ehp-17finish/runs/1719-settings-phone.xcresult` |
+| EhPanda iPad Pro 11-inch (M5), iOS 27.2 | 0 | TEST SUCCEEDED | 8 (same) | 0 / 0 | 0 | `/tmp/ehp-17finish/runs/1719-settings-tablet.xcresult` |
+
+App source diff after the runs: none.
+
+## Simulator pass (17-19)
+
+One throwaway UI-test driver, kept in a scratch worktree under `.airbuild/worktree/` and never
+committed, drove the Debug app through its stubbed UI-test launch. It records each observation as
+an attachment and asserts nothing about layout. Screenshots stay local, outside the repository.
+Window shapes, on `EhPanda iPad Pro 11-inch (M5)` and `EhPanda iPhone Air` (iOS 27.2):
+
+1. **iPad full width**: landscape, 1210×834 pt (regular/regular).
+2. **iPad narrow window**: Windowed Apps on, landscape, the window dragged to 375×834 pt (compact
+   width). The driver switched Multitasking back to Full Screen Apps afterwards.
+3. **iPhone landscape**: 912×420 pt (compact height).
+
+The census observations (Home, Library, reader and error details) come from the first pass at
+`6bccf8468`. Its stubbed lists failed to load, so no gallery could be opened then: the stub had no
+`api.php` route, fixed by quick task 261103-test-plan-repairs (`e6e725fd1`). The Detail rows below
+come from a second pass on 2026-11-03 at HEAD `5a7fe7f13`'s source.
+
+| Shape | Settings expected | Settings observed | Detail expected | Detail observed |
+|---|---|---|---|---|
+| iPad full width | sheet | sheet: navigation bar at x 315, width 580; no bottom tab bar | sheet | **sheet**: `detail_view` is a 580×660 pt form sheet at (315, 87) over the Library split view; no Back control, no tab bar in the sheet |
+| iPad narrow window | inline tab | inline: full-width bar, bottom tab bar at y 757 | push | **push**: `detail_view` fills the 375×834 pt window, with a Back control at (496, 32) and the bottom tab bar |
+| iPhone landscape | inline tab | inline: bar 912 pt wide, bottom tab bar at y 356 | push | **push**: `detail_view` fills the 912×420 pt window, with a Back control at (38, 24) and the tab bar |
+
+Every observed routing matches the D02 rule. In the second pass, the tablet run passed both shapes
+(`TEST SUCCEEDED`, 2 tests). The phone run recorded the Detail and Settings rows above, then failed
+in the driver's own reader step, which this pass did not need: `reading_view` didn't appear after
+the warm deep link, and the plan's retry ran the driver three times. The reader rows below come from
+the first pass. Result bundles: `/tmp/ehp-17finish/runs/1719-pass-{phone,tablet}.xcresult`.
+
+## Remaining idiom census and owner decisions (17-19)
+
+Command, at HEAD `5a7fe7f13`:
+
+```sh
+git grep -nE "userInterfaceIdiom|deviceState|deviceType|== \.pad|case \.pad" -- AppPackage/Sources
+```
+
+The hits are the same files and lines as at `6bccf8468`. The owner was asked about the five places
+on 2026-11-03 (msg 1408) and answered **keep all five** on 2026-11-03 (msg 1409).
+
+| # | Place (code at HEAD) | What the device read decides | Earlier decision | Observed in the pass | Owner decision |
+|---|---|---|---|---|---|
+| 1 | Reader lower Close: `ReadingFeature/ReadingView.swift:204,212`, `showsCloseButton: !usesHalfWidth \|\| deviceState == .pad` | The lower Close disappears only in the half-width landscape layout. The `.pad` term keeps it on iPad there, so only an open Duo in landscape loses it. | D36 | iPad full width: two pages, lower panel half-width, Close centered above the slider, top Close also shown. iPad narrow window: one page, lower Close shown. iPhone landscape: lower Close shown. | Owner decision: **keep** (2026-11-03, msg 1409). Reason: it does what D36 asks, and a size-class rule can't tell iPad landscape from an open Duo. |
+| 2 | Library sidebar: `AppFeature/View/Library/LibraryFeature.swift:16-22`, `usesSidebar` | Split view with a category sidebar, or a single stack with the title menu; also whether Favorites opens at launch. | D132 | iPad full width: 320 pt sidebar. iPad narrow window: the split view collapses as the system does in compact width (category list root, Favorites pushed). iPhone landscape: no sidebar, title menu. | Owner decision: **keep** (2026-11-03, msg 1409). Reason: it matches D132; the narrow iPad window is handled by the split view's own collapse. |
+| 3 | Home title: `HomeFeature/HomeNavigationView.swift:19`, `hidesTitle = store.device == .pad && tabBarPlacement == .topBar` | Hides the Home title when the tabs sit at the top of an iPad window. | D118 | iPad full width: top tabs, no title. iPad narrow window and iPhone landscape: bottom tab bar, title shown. | Owner decision: **keep** (2026-11-03, msg 1409). Reason: it behaves as D118 says. The optional cleanup (dropping the redundant `.pad` term) is not taken. |
+| 4 | Device name in error details: `AppComponents/ErrorInfoView.swift:19-21` (`deviceClient.deviceType()`, `DeviceClient/DeviceClient.swift:36`, mapped in `AppTools/DeviceType.swift:15`) | The Environment section's "Device" text. Diagnostics, not layout. | None | "iPad" at full width and in the narrow window; "iPhone" in iPhone landscape. | Owner decision: **keep** (2026-11-03, msg 1409). Reason: a bug report names the hardware, not the window size. |
+| 5 | Duo/iPad capability: `AppComponents/WindowDevice.swift:15-25`, `AppComponents/WindowDeviceObservation.swift:63` | The one place that tells Duo, iPad and other devices apart; it feeds rows 1 and 2, `HomeReducer.usesSplitLayout` (`HomeReducer.swift:32-35`) and the reader's automatic dual page (`ReadingView.swift:229-232`). | D91, D26 | iPad full width: single-column Home, two reader pages in landscape. iPad narrow window: one reader page. Duo can't be simulated; unit tests cover its branch. | Owner decision: **keep** (2026-11-03, msg 1409). Reason: a hinge isn't a size class, and D91 and D26 depend on telling an open Duo from an iPad. |
+
+Other grep hits, classified (no decision needed):
+
+| Hit | Classification |
+|---|---|
+| `ErrorInfoView.swift:19,21` | Row 4. |
+| `WindowDevice.swift:22`, `WindowDeviceObservation.swift:63` | Row 5. |
+| `LibraryFeature.swift:18` | Row 2. |
+| `HomeNavigationView.swift:19` | Row 3. |
+| `ReadingView.swift:38,75,76,163,204,212,229,232` | Row 1 (204, 212) and row 5 (229, 232). Lines 38, 75, 76 and 163 store the measured `WindowDevice` and wait for it before the first layout; they make no idiom decision. |
+| `DeviceClient.swift:6,16,19,26,36,65,72`, `AppTools/DeviceType.swift:15` | The source mapping behind row 4: the live client (36), the preview value (65) and the test placeholder (72). No other consumer. |
+| `AppFeature/UITestSupport/CaptureDiagnostics.swift:208,264` | DEBUG-only capture diagnostics, not compiled into Release (17-RELEASE-ISOLATION.md). No user-visible behavior. |
+
+No row is "change", so 17-19 hands nothing to a separate plan. The iPad Toplists gap was resolved
+by the owner on 2026-11-03 as fixture-caused and is not asked again. The Duo branch is not covered
+by the simulator pass.
