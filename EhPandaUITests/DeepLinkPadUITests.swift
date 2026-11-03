@@ -32,7 +32,7 @@ final class DeepLinkPadUITests: XCTestCase {
         )
         showAllButton.tap()
 
-        let firstGalleryRow = app.collectionViews.buttons.firstMatch
+        let firstGalleryRow = app.buttons.matching(UITestConstants.galleryItemPredicate).firstMatch
         XCTAssertTrue(
             firstGalleryRow.waitForExistence(timeout: 15),
             "The Front Page list did not render a gallery row."

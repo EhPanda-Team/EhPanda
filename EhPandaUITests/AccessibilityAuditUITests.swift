@@ -378,7 +378,7 @@ final class AccessibilityAuditUITests: XCTestCase {
         let homeApp = try launch(tab: "home")
         requireHomeRoot(in: homeApp)
         homeApp.buttons["Show All"].firstMatch.tap()
-        let firstGalleryRow = homeApp.collectionViews.buttons.firstMatch
+        let firstGalleryRow = homeApp.buttons.matching(UITestConstants.galleryItemPredicate).firstMatch
         XCTAssertTrue(firstGalleryRow.waitForExistence(timeout: 15), "Front Page did not render a gallery row.")
         firstGalleryRow.tap()
         homeApp.requireElement("detail_view", matching: .scrollView)
