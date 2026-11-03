@@ -53,11 +53,21 @@ final class PageModel {
 /// Two rules keep the two in step. A turn that arrives while the pager animates only moves the index, and the pager
 /// is sent to the index once it is at rest: holding the turn, rather than accepting where the pager stopped, keeps the
 /// page the reader asked for. And once the pager is at rest, the page it shows is checked against the index, so a turn
-/// lost at the moment of rest is sent again. A pager built anew, as after a change of direction, reports `.idle` as it
-/// appears, which also clears a gate left behind by a pager torn down mid-animation.
+/// lost at the moment of rest is sent again; a page the pager keeps missing is given up, and the index follows the page
+/// on screen instead, so the indicator never names a page the screen does not show. A pager built anew, as after a
+/// change of direction, reports `.idle` as it appears, which also clears a gate left behind by a pager torn down
+/// mid-animation.
 struct PagerTurnGate {
-    /// How many times in a row the pager is sent again to a page it does not reach, before the gate waits for the
-    /// next turn or scroll instead.
+    /// What brings a pager at rest on another page than the index back in step with it.
+    enum Correction: Equatable {
+        /// Send the pager to the index again.
+        case sendAgain
+        /// Give the index up, and let it follow the page on screen.
+        case followScreen
+    }
+
+    /// How many times in a row the pager is sent again to a page it does not reach, before the index follows the
+    /// page on screen instead.
     static let correctionLimit = 2
 
     private var isAnimating = false
@@ -82,16 +92,20 @@ struct PagerTurnGate {
         return phase == .idle && holdsTurn
     }
 
-    /// Whether the pager, at rest on the `shown` position, has to be sent again to `index`. `shown` is `nil` while no
-    /// single page fills the pager. Pages the pager keeps failing to reach are given up after `correctionLimit` tries.
-    mutating func needsCorrection(shown: Int?, index: Int) -> Bool {
-        guard isAtRest, let shown else { return false }
+    /// How the pager, at rest on the `shown` position, is brought back in step with `index`, or `nil` when it is in
+    /// step or still moving. `shown` is `nil` while no single page fills the pager. The pager is sent again up to
+    /// `correctionLimit` times in a row; after that the index follows the page on screen.
+    mutating func correction(shown: Int?, index: Int) -> Correction? {
+        guard isAtRest, let shown else { return nil }
         guard shown != index else {
             corrections = 0
-            return false
+            return nil
         }
-        guard corrections < Self.correctionLimit else { return false }
+        guard corrections < Self.correctionLimit else {
+            corrections = 0
+            return .followScreen
+        }
         corrections += 1
-        return true
+        return .sendAgain
     }
 }

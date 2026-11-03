@@ -5,7 +5,7 @@ import Testing
 // Pins the rules that keep the horizontal pager on the index, because the paging ScrollView can drop a position handed
 // to it while it moves or comes to rest, and stay short of it (see `PagerTurnGate`): a turn that arrives while the
 // pager animates to the previous one is held and sent once the pager is at rest, and a pager at rest on another page
-// than the index is sent to the index again.
+// than the index is sent to the index again, until the index follows the page on screen instead.
 @Suite
 struct PagerTurnGateTests {
     @Test
@@ -79,38 +79,50 @@ struct PagerTurnGateTests {
         var gate = PagerTurnGate()
         _ = gate.phaseChanged(to: .animating)
         _ = gate.phaseChanged(to: .idle)
-        let corrects = gate.needsCorrection(shown: 106, index: 107)
-        #expect(corrects)
+        let correction = gate.correction(shown: 106, index: 107)
+        #expect(correction == .sendAgain)
     }
 
     @Test
     func aPagerAtRestOnTheIndexIsLeftAlone() {
         var gate = PagerTurnGate()
-        let onTheIndex = gate.needsCorrection(shown: 107, index: 107)
-        let noSinglePage = gate.needsCorrection(shown: nil, index: 107)
-        #expect(!onTheIndex)
-        #expect(!noSinglePage)
+        let onTheIndex = gate.correction(shown: 107, index: 107)
+        let noSinglePage = gate.correction(shown: nil, index: 107)
+        #expect(onTheIndex == nil)
+        #expect(noSinglePage == nil)
     }
 
     @Test(arguments: [ScrollPhase.animating, .tracking, .interacting, .decelerating])
     func aMovingPagerIsNotCorrected(phase: ScrollPhase) {
         var gate = PagerTurnGate()
         _ = gate.phaseChanged(to: phase)
-        let corrects = gate.needsCorrection(shown: 106, index: 107)
-        #expect(!corrects)
+        let correction = gate.correction(shown: 106, index: 107)
+        #expect(correction == nil)
+    }
+
+    /// The indicator must never name a page the screen does not show: once the pager has missed the index
+    /// `correctionLimit` times in a row, the index follows the page on screen.
+    @Test
+    func theIndexFollowsTheScreenWhenThePagerKeepsMissingIt() {
+        var gate = PagerTurnGate()
+        let tries = (0..<PagerTurnGate.correctionLimit).map({ _ in gate.correction(shown: 106, index: 107) })
+        let beyondTheLimit = gate.correction(shown: 106, index: 107)
+        #expect(tries == Array(repeating: .sendAgain, count: PagerTurnGate.correctionLimit))
+        #expect(beyondTheLimit == .followScreen)
+
+        // With the index on the page on screen, the two are in step and the count starts over.
+        let inStep = gate.correction(shown: 106, index: 106)
+        let nextMiss = gate.correction(shown: 106, index: 110)
+        #expect(inStep == nil)
+        #expect(nextMiss == .sendAgain)
     }
 
     @Test
-    func aPageThePagerKeepsMissingIsGivenUpUntilItLandsAgain() {
+    func landingOnTheIndexStartsTheCountOver() {
         var gate = PagerTurnGate()
-        let tries = (0..<PagerTurnGate.correctionLimit).map({ _ in gate.needsCorrection(shown: 106, index: 107) })
-        let beyondTheLimit = gate.needsCorrection(shown: 106, index: 107)
-        #expect(tries == Array(repeating: true, count: PagerTurnGate.correctionLimit))
-        #expect(!beyondTheLimit)
-
-        // Landing on the index starts the count over.
-        _ = gate.needsCorrection(shown: 107, index: 107)
-        let afterLanding = gate.needsCorrection(shown: 107, index: 108)
-        #expect(afterLanding)
+        _ = gate.correction(shown: 106, index: 107)
+        _ = gate.correction(shown: 107, index: 107)
+        let tries = (0..<PagerTurnGate.correctionLimit).map({ _ in gate.correction(shown: 107, index: 108) })
+        #expect(tries == Array(repeating: .sendAgain, count: PagerTurnGate.correctionLimit))
     }
 }
