@@ -157,10 +157,7 @@ final class ReadingOrientationUITests: XCTestCase {
 
     private func openSettings(in app: XCUIApplication) {
         let reader = app.requireElement("reading_view")
-        reader.buttons.matching(NSPredicate(
-            format: "identifier IN %@",
-            ["OverflowBarButtonItem", "TopOverflowBarButtonItem", "BottomOverflowBarButtonItem"]
-        )).firstMatch
+        reader.buttons.matching(UITestConstants.overflowButtonPredicate).firstMatch
             .tapWhenHittable("Reader More")
         app.buttons["Reading Settings"].firstMatch.tapWhenHittable("Reading Settings")
         XCTAssertTrue(app.navigationBars["Reading"].waitForExistence(timeout: 5))
@@ -180,18 +177,7 @@ final class ReadingOrientationUITests: XCTestCase {
     }
 
     private func configureAutomation(in app: XCUIApplication, enabled: Bool) {
-        openSettings(in: app)
-        let toggle = app.switches["Match Screen Orientation"].firstMatch
-        XCTAssertTrue(toggle.waitForExistence(timeout: 5))
-        if (toggle.value as? String == "1") != enabled {
-            // SwiftUI exposes the whole row; stay inside the switch, away from its trailing margin.
-            toggle.coordinate(withNormalizedOffset: CGVector(dx: 0.9, dy: 0.5)).press(forDuration: 0.05)
-        }
-        let changed = XCTNSPredicateExpectation(
-            predicate: NSPredicate(format: "value == %@", enabled ? "1" : "0"), object: toggle
-        )
-        XCTAssertEqual(XCTWaiter.wait(for: [changed], timeout: 5), .completed)
-        dismissSettings(in: app)
+        ReaderPageProbe(app: app).setMatchesScreenOrientation(enabled)
     }
 
     private func assertDirection(_ expected: String, in app: XCUIApplication) {
