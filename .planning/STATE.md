@@ -4,22 +4,36 @@ milestone: v3.0.0
 current_phase: 17
 current_phase_name: Screenshot Automation, Visual Regression & OS 27 Modernization
 status: executing
-stopped_at: 17-14 T2 executed, behavior gate open (paused for orchestrator direction); 17-19 census awaits the owner checkpoint; 17-23 not started
-last_updated: "2026-11-02T17:04:18.000Z"
+stopped_at: 17-19 complete (owner kept all five idiom places); 17-14 T2 behavior gate still open; 17-23 not started
+last_updated: "2026-11-03T04:51:01.000Z"
 last_activity: 2026-11-03
-last_activity_desc: 17-14 T2 Release isolation evidence clean at 9805537a9 (scanner 0 findings, Debug negative 991, seeded payload rejected, lint clean); FeatureTests and UITests fail on phone and tablet (UI-test stub lacks /api.php since 9da595d93), so acceptance is open
+last_activity_desc: 17-19 complete; Settings tests pass on phone and tablet, Detail is a sheet only at iPad full width and pushes in a narrow iPad window and iPhone landscape, and the owner kept all five remaining idiom places (msg 1409)
 state_head: e255b3e6275b71efb6e3b8d4f29fa98cbc188da7
 progress:
   total_phases: 18
   completed_phases: 15
   total_plans: 287
-  completed_plans: 284
+  completed_plans: 285
   percent: 83
 milestone_name: )
 source_head: af00e0da93
 ---
 
 # Project State
+
+## 17-19 Settings, Detail routing and idiom census complete — 2026-11-03
+
+`TabBarSettingPresentationTests` passes on iPhone Air and on iPad Pro 11-inch (8 cases each, no Repetition).
+A second simulator pass at HEAD's source recorded what the first pass couldn't, because the stub
+then had no `api.php` route. Detail is a 580×660 pt sheet at iPad full width. It pushes, with Back
+and the tab bar, in a 375 pt iPad window and in iPhone landscape. Settings is a sheet only at full
+width. All of this matches D02. Every hit of the idiom grep has a census row. On 2026-11-03 the
+owner chose to keep all five places (msg 1409, answering msg 1408): the reader lower Close, the
+Library sidebar, the Home title, the device name in error details and the Duo/iPad capability. No
+change plan follows, and no app source changed.
+[Audit](phases/17-localized-screenshot-capture-harness/17-LAYOUT-AUDIT.md),
+[summary](phases/17-localized-screenshot-capture-harness/17-19-SUMMARY.md).
+Next: the 17-14 T2 behavior gate, then 17-23.
 
 ## 17-14 T2 Release isolation run, behavior gate open — 2026-11-03
 
