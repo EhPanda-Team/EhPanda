@@ -609,52 +609,84 @@ private extension AccessibilityAuditUITests {
         let carousel = query.element(boundBy: 0)
         XCTAssertTrue(carousel.waitForExistence(timeout: 15), "Home did not expose its carousel scroll view.")
         XCTAssertEqual(query.count, 1, "Home exposed an unexpected number of carousel scroll views.")
-        let expectedGallery = try centeredCarouselGallery(in: carousel)
+        let expected = try XCTUnwrap(
+            Self.centeredCard(in: carousel.snapshot()), "Home carousel had no visible labeled gallery button."
+        )
+        Self.assertCentered(expected)
 
         for orientation in [UIDeviceOrientation.landscapeLeft, .portrait] {
             let rotationStart = ContinuousClock.now
+            let deadline = rotationStart + .seconds(15)
             XCUIDevice.shared.orientation = orientation
-            XCTAssertTrue(carousel.waitForExistence(timeout: 10), "Home carousel disappeared after rotation.")
-            let gallery = try centeredCarouselGallery(in: carousel)
+            // Read until the selected gallery is centered again. The first layout at a new width can snap to a
+            // neighbor, and the carousel then scrolls back to the selected card (`CardSlideSection`'s
+            // `onChange(of: centeringMargin)`); on iPhone Air a read 2.5 s after the turn found the neighbor
+            // (2026-11-03). Each read is one snapshot, which both finds the carousel and reads its cards: a separate
+            // existence check costs another full query of Home's hierarchy, 7.4 s of a 15.6 s rotation under five
+            // parallel iPad clones.
+            // A snapshot fails while the carousel is missing, for example while the rotation rebuilds it.
+            var reading = Result { try Self.centeredCard(in: carousel.snapshot()) }
+            while !Self.shows(expected.gallery, centeredIn: reading), ContinuousClock.now < deadline {
+                RunLoop.current.run(until: .now + 0.25)
+                reading = Result { try Self.centeredCard(in: carousel.snapshot()) }
+            }
+            let elapsed = ContinuousClock.now - rotationStart
+            let card = try XCTUnwrap(
+                reading.get(), "Home carousel had no visible labeled gallery button after rotation."
+            )
+            Self.assertCentered(card)
+            XCTAssertEqual(card.gallery, expected.gallery, "Rotation changed the centered Home carousel gallery.")
             XCTAssertLessThan(
-                ContinuousClock.now - rotationStart,
+                elapsed,
                 Duration.seconds(15),
                 "Home carousel rotation exceeded the 15-second screen-readiness budget."
             )
-            XCTAssertEqual(gallery, expectedGallery, "Rotation changed the centered Home carousel gallery.")
         }
     }
 
-    /// The identifier of the centered gallery's title. The card's label also reads the tags that
-    /// fit its width, so the same gallery can have a longer label in landscape than in portrait.
-    func centeredCarouselGallery(in carousel: XCUIElement) throws -> String {
-        let title = try centeredCarouselButton(in: carousel).descendants(matching: .any)
-            .matching(NSPredicate(format: "identifier BEGINSWITH %@", "home_slideshow_title_")).firstMatch
-        XCTAssertTrue(title.exists, "The centered Home carousel gallery had no title.")
-        return title.identifier
+    /// The carousel card nearest the center of its viewport, read from one snapshot, so every card's frame and label
+    /// come from the same moment and cost one query. Reading each card's frame and label separately took one query
+    /// apiece, and under the plan's parallel simulators those queries alone used several seconds of the rotation's
+    /// readiness budget.
+    struct CarouselCard {
+        /// The identifier of the card's title. The card's label also reads the tags that fit its width, so the same
+        /// gallery can have a longer label in landscape than in portrait.
+        let gallery: String?
+        let offset: CGFloat
+
+        var isCentered: Bool { abs(offset) <= 1 }
     }
 
-    func centeredCarouselButton(in carousel: XCUIElement) throws -> XCUIElement {
-        let viewport = carousel.frame
-        let buttons = carousel.buttons.allElementsBoundByIndex
-        let visibleButtons = buttons.compactMap { button -> (element: XCUIElement, frame: CGRect)? in
-            let frame = button.frame
-            guard frame.width > 0, frame.height > 0, frame.intersects(viewport), !button.label.isEmpty else {
-                return nil
-            }
-            return (element: button, frame: frame)
+    static func centeredCard(in snapshot: any XCUIElementSnapshot) -> CarouselCard? {
+        let viewport = snapshot.frame
+        let visibleButtons = descendants(of: snapshot).filter { element in
+            element.elementType == .button && element.frame.width > 0 && element.frame.height > 0
+                && element.frame.intersects(viewport) && !element.label.isEmpty
         }
         let nearest = visibleButtons.min { left, right in
             abs(left.frame.midX - viewport.midX) < abs(right.frame.midX - viewport.midX)
         }
-        let centered = try XCTUnwrap(nearest, "Home carousel had no visible labeled gallery button.")
+        return nearest.map { card in
+            let title = descendants(of: card).first(where: { $0.identifier.hasPrefix("home_slideshow_title_") })
+            return CarouselCard(gallery: title?.identifier, offset: card.frame.midX - viewport.midX)
+        }
+    }
+
+    static func shows(_ gallery: String?, centeredIn reading: Result<CarouselCard?, any Error>) -> Bool {
+        guard case .success(let card?) = reading else { return false }
+        return card.isCentered && card.gallery == gallery
+    }
+
+    static func assertCentered(_ card: CarouselCard, file: StaticString = #filePath, line: UInt = #line) {
         XCTAssertEqual(
-            centered.frame.midX,
-            viewport.midX,
-            accuracy: 1,
-            "The selected Home carousel card was not centered in its viewport."
+            card.offset, 0, accuracy: 1,
+            "The selected Home carousel card was not centered in its viewport.", file: file, line: line
         )
-        return centered.element
+        XCTAssertNotNil(card.gallery, "The centered Home carousel gallery had no title.", file: file, line: line)
+    }
+
+    private static func descendants(of snapshot: any XCUIElementSnapshot) -> [any XCUIElementSnapshot] {
+        snapshot.children.flatMap({ [$0] + descendants(of: $0) })
     }
 
     @discardableResult
