@@ -18,6 +18,15 @@ enum UITestConstants {
     static let clipboardURLEnvironmentKey = "EHPANDA_UITEST_CLIPBOARD_URL"
     static let launchGalleryURLEnvironmentKey = "EHPANDA_AUTOMATION_GALLERY_URL"
 
+    /// UIKit names a toolbar's More button itself, and the name depends on the bar holding it:
+    /// iOS 27 calls a navigation bar's `TopOverflowBarButtonItem`.
+    static let overflowButtonIdentifiers = [
+        "OverflowBarButtonItem", "TopOverflowBarButtonItem", "BottomOverflowBarButtonItem"
+    ]
+    static var overflowButtonPredicate: NSPredicate {
+        NSPredicate(format: "identifier IN %@", overflowButtonIdentifiers)
+    }
+
     static func galleryURL(
         scheme: String,
         gid: String = primaryGID,
