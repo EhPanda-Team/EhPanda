@@ -156,29 +156,16 @@ final class LandscapePaneUITests: XCTestCase {
         let originalOrientation = XCUIDevice.shared.orientation
         addTeardownBlock { XCUIDevice.shared.orientation = originalOrientation }
         XCUIDevice.shared.orientation = .landscapeLeft
-        let root = FileManager.default.temporaryDirectory.appending(path: "HomeTitles-\(UUID())")
-        try FileManager.default.createDirectory(at: root, withIntermediateDirectories: true)
-        addTeardownBlock { try FileManager.default.removeItem(at: root) }
-        let source = try XCTUnwrap(Bundle(for: Self.self).resourceURL)
-        for file in try FileManager.default.contentsOfDirectory(at: source, includingPropertiesForKeys: nil)
-        where ["html", "png"].contains(file.pathExtension) {
-            try FileManager.default.copyItem(at: file, to: root.appending(path: file.lastPathComponent))
-        }
-        let fixture = root.appending(path: "FrontPageList.html")
-        var html = try String(contentsOf: fixture, encoding: .utf8)
-        let titles = try NSRegularExpression(pattern: #"<div class="glink">[^<]+</div>"#)
-        let matches = titles.matches(in: html, range: NSRange(html.startIndex..., in: html))
-        XCTAssertGreaterThan(matches.count, 1)
+        let fixtures = try StubFixtureCopy(for: self, named: "HomeTitles")
         // Front Page intentionally deduplicates titles, so each fixture must keep its own title.
-        for (index, match) in matches.enumerated().reversed() {
-            let range = try XCTUnwrap(Range(match.range, in: html))
-            html.replaceSubrange(range, with: "<div class=\"glink\">[Studio] Home Study \(index + 1) [English]</div>")
+        let count = try fixtures.retitle(listNamed: "FrontPageList.html") { index, _ in
+            "[Studio] Home Study \(index + 1) [English]"
         }
-        try html.write(to: fixture, atomically: true, encoding: .utf8)
+        XCTAssertGreaterThan(count, 1)
         let app = XCUIApplication()
         addTeardownBlock { app.terminate() }
         try app.launchStubbed(extraEnvironment: [
-            "EHPANDA_AUTOMATION_TAB": "home", UITestConstants.fixtureDirectoryEnvironmentKey: root.path()
+            "EHPANDA_AUTOMATION_TAB": "home", UITestConstants.fixtureDirectoryEnvironmentKey: fixtures.root.path()
         ])
         assertSingleHomePane(in: app)
         for prefix in ["home_slideshow_title_", "home_front_page_title_", "home_ranking_title_"] {

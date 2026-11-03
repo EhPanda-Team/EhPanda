@@ -112,19 +112,10 @@ final class GalleryCardUITests: XCTestCase {
     }
 
     private func makeFixtures() throws -> URL {
-        let root = FileManager.default.temporaryDirectory.appending(path: "GalleryCardUITest-\(UUID())")
-        try FileManager.default.createDirectory(at: root, withIntermediateDirectories: true)
-        addTeardownBlock { try FileManager.default.removeItem(at: root) }
-        let source = try XCTUnwrap(Bundle(for: Self.self).resourceURL)
-        for file in try FileManager.default.contentsOfDirectory(at: source, includingPropertiesForKeys: nil)
-        where ["html", "png"].contains(file.pathExtension) {
-            try FileManager.default.copyItem(at: file, to: root.appending(path: file.lastPathComponent))
+        let fixtures = try StubFixtureCopy(for: self, named: "GalleryCardUITest")
+        try fixtures.retitle(listNamed: "LibraryGalleries.html") { _, current in
+            ["Library Study 01": shortTitle, "Library Study 02": longTitle][current]
         }
-        let list = root.appending(path: "LibraryGalleries.html")
-        let html = try String(contentsOf: list, encoding: .utf8)
-            .replacingOccurrences(of: "Library Study 01", with: shortTitle)
-            .replacingOccurrences(of: "Library Study 02", with: longTitle)
-        try html.write(to: list, atomically: true, encoding: .utf8)
-        return root
+        return fixtures.root
     }
 }

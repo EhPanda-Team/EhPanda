@@ -45,8 +45,9 @@ final class CaptureReplay: Sendable {
 
 /// Answers every HTTP(S) request of a UI-test or capture launch, so none reaches the network.
 ///
-/// The UI tests' hermetic fixture directory maps request paths to a few saved pages by prefix; a
-/// capture launch installs its ``CaptureReplay`` instead, and every request it cannot answer fails.
+/// The UI tests' hermetic fixture directory maps request paths to a few saved pages by prefix, and
+/// answers the `gdata` metadata API from a saved response; a capture launch installs its
+/// ``CaptureReplay`` instead, and every request it cannot answer fails.
 final class UITestStubURLProtocol: URLProtocol {
     private enum Mode {
         case fixtureDirectory(URL?)
@@ -136,6 +137,10 @@ final class UITestStubURLProtocol: URLProtocol {
             }
             return
         }
+        if url.path() == "/api.php" {
+            loadGalleryMetadata(url: url, fixtureDirectory: fixtureDirectory)
+            return
+        }
         guard let fixtureName = Self.fixtureName(for: url), let fixtureDirectory else {
             finish(statusCode: 404, data: Data(), url: url, mimeType: Self.htmlMIMEType)
             return
@@ -147,6 +152,76 @@ final class UITestStubURLProtocol: URLProtocol {
         } catch {
             finish(statusCode: 404, data: Data(), url: url, mimeType: Self.htmlMIMEType)
         }
+    }
+
+    /// Answers a `gdata` metadata request from the fixture directory's saved API response. Any
+    /// other `api.php` method has no fixture and gets 404, as before.
+    private func loadGalleryMetadata(url: URL, fixtureDirectory: URL?) {
+        do {
+            guard let fixtureDirectory, let body = Self.body(of: request),
+                  let data = try Self.galleryMetadataResponse(
+                    requestBody: body,
+                    fixture: Data(contentsOf: fixtureDirectory.appending(path: Self.galleryMetadataFixtureName))
+                  )
+            else {
+                finish(statusCode: 404, data: Data(), url: url, mimeType: Self.htmlMIMEType)
+                return
+            }
+            finish(statusCode: 200, data: data, url: url, mimeType: "application/json")
+        } catch {
+            finish(statusCode: 404, data: Data(), url: url, mimeType: Self.htmlMIMEType)
+        }
+    }
+
+    static let galleryMetadataFixtureName = "GalleryMetadata.json"
+
+    /// The site's answer to a `gdata` request body, built from a saved `gmetadata` response: each
+    /// requested pair in request order, with the API's error entry for a gid the fixture lacks or a
+    /// token that doesn't match. `nil` when the body isn't a `gdata` request; throws when either
+    /// body isn't JSON.
+    static func galleryMetadataResponse(requestBody: Data, fixture: Data) throws -> Data? {
+        guard let request = try JSONSerialization.jsonObject(with: requestBody) as? [String: Any],
+              request["method"] as? String == "gdata",
+              let pairs = request["gidlist"] as? [[Any]],
+              let saved = try JSONSerialization.jsonObject(with: fixture) as? [String: Any],
+              let entries = saved["gmetadata"] as? [[String: Any]]
+        else { return nil }
+        let entriesByGID = Dictionary(
+            entries.compactMap { entry in (entry["gid"] as? Int).map({ ($0, entry) }) },
+            uniquingKeysWith: { first, _ in first }
+        )
+        var metadata = [[String: Any]]()
+        for pair in pairs {
+            guard let gid = pair.first as? Int else { return nil }
+            if let entry = entriesByGID[gid], entry["token"] as? String == pair.dropFirst().first as? String {
+                metadata.append(entry)
+            } else {
+                metadata.append(["gid": gid, "error": "Key missing, or incorrect key provided."])
+            }
+        }
+        return try JSONSerialization.data(withJSONObject: ["gmetadata": metadata], options: [.sortedKeys])
+    }
+
+    /// A URL session hands a protocol its POST body as a stream rather than as `httpBody`.
+    private static func body(of request: URLRequest) -> Data? {
+        if let body = request.httpBody {
+            return body
+        }
+        guard let stream = request.httpBodyStream else {
+            return nil
+        }
+        stream.open()
+        defer { stream.close() }
+        var data = Data()
+        var buffer = [UInt8](repeating: 0, count: 4096)
+        while stream.hasBytesAvailable {
+            let count = stream.read(&buffer, maxLength: buffer.count)
+            guard count > 0 else {
+                break
+            }
+            data.append(contentsOf: buffer.prefix(count))
+        }
+        return data
     }
 
     private func finish(
