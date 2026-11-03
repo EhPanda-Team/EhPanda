@@ -96,14 +96,14 @@ extension DownloadFeatureTestCase {
     /// Awaits `task`'s value, failing with a named error rather than hanging the suite.
     ///
     /// The deadline bounds a genuine hang and nothing else: every caller awaits work that finishes
-    /// the moment its notification lands, so a longer bound costs a healthy run nothing. It is ten
+    /// the moment its notification lands, so a longer bound costs a healthy run nothing. It is thirty
     /// seconds for the reason `waitUntil` records beside its own — the whole target's suites run in
-    /// parallel, and a task can sit unscheduled far longer than the work itself takes. A
-    /// one-second bound did not survive that, intermittently failing three observer cases that
-    /// pass in isolation in milliseconds, so it measured the scheduler rather than the code.
+    /// parallel, and a task can sit unscheduled far longer than the work itself takes. One second,
+    /// then ten on a loaded iPad simulator, failed cases that pass in isolation in milliseconds, so
+    /// those bounds measured the scheduler rather than the code.
     func waitForTaskValue<T>(
         _ task: Task<T, Never>,
-        timeout: Duration = .seconds(10),
+        timeout: Duration = .seconds(30),
         description: String
     ) async throws -> T {
         try await withThrowingTaskGroup(of: T.self) { group in
@@ -370,11 +370,15 @@ extension DownloadFeatureTestCase {
     /// is a live detail request: left on the shared session that request reaches the network, which
     /// is neither offline-safe nor deterministic. This is the same seam
     /// `makeStubbedDownloadCoordinator` already opens for the process suites.
+    ///
+    /// The default clock never advances, so the continued-session heartbeat never beats unless a
+    /// case injects its own: its real ten seconds elapse mid-case on a loaded simulator and add a push.
     func makeQueuedCoordinator(
         galleries: [SessionGallery],
         queuedGIDs: [String]? = nil,
         client: BackgroundProcessingClient,
         now: @escaping @Sendable () -> Date = { Date() },
+        clock: any Clock<Duration> = TestClock(),
         taskRunner: DownloadTaskRunner = DownloadTaskRunner(),
         fileManager: sending FileManager = FileManager.default,
         urlSession: URLSession = .shared
@@ -387,7 +391,8 @@ extension DownloadFeatureTestCase {
             urlSession: urlSession,
             backgroundProcessingClient: client,
             taskRunner: taskRunner,
-            now: now
+            now: now,
+            clock: clock
         )
 
         try storage.ensureRootDirectory()
@@ -953,7 +958,8 @@ func makeBlockingCoordinator(
         storage: storage,
         urlSession: .shared,
         backgroundProcessingClient: backgroundProcessingClient,
-        taskRunner: taskRunner
+        taskRunner: taskRunner,
+        clock: TestClock()  // No heartbeat, as in `makeQueuedCoordinator`.
     )
 
     try storage.ensureRootDirectory()
@@ -977,10 +983,10 @@ func makeBlockingCoordinator(
 }
 
 // The poll returns the moment the condition holds, so the deadline costs nothing on a healthy
-// run and only bounds a genuine hang. One second did not survive CI, where the whole target's
-// suites run in parallel and a task can sit unscheduled far longer than the work itself takes.
+// run and only bounds a genuine hang. One second did not survive CI, nor ten a loaded iPad simulator,
+// where the whole target's suites run in parallel and a task can sit unscheduled far longer.
 func waitUntil(
-    timeout: Duration = .seconds(10),
+    timeout: Duration = .seconds(30),
     _ condition: @Sendable () async -> Bool
 ) async throws {
     let clock = ContinuousClock()

@@ -348,7 +348,6 @@ private extension DownloadContinuedSessionExpirationTests {
         spy.expire()
         try await waitForTaskValue(
             sessionTask,
-            timeout: .seconds(10),
             description: "the session's consuming task to finish after expiration"
         )
     }

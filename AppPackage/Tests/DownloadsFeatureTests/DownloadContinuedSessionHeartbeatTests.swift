@@ -105,9 +105,9 @@ private extension DownloadContinuedSessionHeartbeatTests {
     /// One queued gallery on disk, over an injected clock and a constant environment probe.
     ///
     /// Built here rather than through the shared queued-coordinator helper because that helper
-    /// exposes no clock seam, and because the shared helpers file sits against its `file_length`
-    /// gate. The environment probe is a constant so the session's start line cannot depend on the
-    /// host's real network or thermal state.
+    /// exposes no environment-probe seam, and because the shared helpers file sits against its
+    /// `file_length` gate. The environment probe is a constant so the session's start line cannot
+    /// depend on the host's real network or thermal state.
     func makeClockedFixture(
         gallery: SessionGallery,
         client: BackgroundProcessingClient,
