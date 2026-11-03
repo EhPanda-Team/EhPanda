@@ -698,7 +698,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 14. Analytics Instrumentation (TelemetryDeck) | 18/18 | Complete    | 2026-07-27 |
 | 15. Continued Background Downloads | 77/77 | Complete    | 2026-08-19 |
 | 16. Dynamic Type Accessibility | 26/26 | Complete    | 2026-09-23 |
-| 17. Screenshot Automation, Visual Regression & OS 27 Modernization | 10/13 | In Progress|  |
+| 17. Screenshot Automation, Visual Regression & OS 27 Modernization | 12/13 | In Progress|  |
 | 18. 3.0 Release Readiness: Age Wall, Consent, Marketplace Distribution & Visual Regression | 0/TBD | Not started|  |
 
 ### Phase 12: Cloudflare Login Restoration
@@ -1264,7 +1264,7 @@ Plans:
   6. CAP-17-02, CAP-17-03, CAP-17-05 and the moved parts of CAP-17-01/06 are listed as moved to Phase 18, never as satisfied.
   7. Phase 17 closes only through the GSD close steps: the execute-phase gates (code review, regression gate, `gsd-verifier` writing `17-VERIFICATION.md`), then verify-work (UAT), secure-phase and validate-phase.
 
-**Plans**: 11/13 plans executed (11 plans moved to Phase 18 and marked `status: superseded`). Remaining order: 17-14 (T2 only), 17-23. 17-19 is complete: the owner kept all five remaining device-idiom places (2026-11-03, msg 1409). 17-14 T2 has run: its Release isolation evidence is clean, but the behavior gate is open (see 17-14-SUMMARY.md).
+**Plans**: 12/13 plans executed (11 plans moved to Phase 18 and marked `status: superseded`). Remaining: 17-23, then the GSD close steps. 17-19 is complete: the owner kept all five remaining device-idiom places (2026-11-03, msg 1409). 17-14 (T2) is complete: at `50c794b53` the Release scan has 0 findings, strict lint is clean, and FeatureTests and UITests pass on phone and tablet with 0 failures and 0 Repetition. It took two app fixes (`e4e3ddd74` Library/gallery-list row restore, `1a21bc8d8` Auto-Play menu) and test fixes (see 17-14-SUMMARY.md).
 
 Plans:
 **Wave 1**
@@ -1313,7 +1313,7 @@ Plans:
 
 **Wave 12** *(T2 executed; Release isolation clean; behavior gate open, awaiting orchestrator direction)*
 
-- [ ] 17-14-PLAN.md — Prove Release ships and activates no capture facilities (T2 only; T1/T3 moved to Phase 18)
+- [x] 17-14-PLAN.md — Prove Release ships and activates no capture facilities (T2 only; T1/T3 moved to Phase 18)
 
 **Wave 13** *(blocked on Wave 12 completion)*
 
