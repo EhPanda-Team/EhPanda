@@ -201,10 +201,14 @@ final class VisualTracerTests: XCTestCase {
                 )
                 defer { host.dismiss() }
                 let evidence = try await host.capture(
+                    // Home's covers use the shared book proportion, no longer the preview's 8:11.
                     expectedItems: galleries.map({
-                        CaptureItemExpectation(title: $0.title, marker: $0.gid, artworkAspectRatio: 8.0 / 11.0)
+                        CaptureItemExpectation(
+                            title: $0.title, marker: $0.gid, artworkAspectRatio: Defaults.ImageSize.coverAspect
+                        )
                     }),
-                    trailingMarker: "Other",
+                    // Home's last section heading, renamed from Other by the copy audit (61ef0232b).
+                    trailingMarker: "More",
                     outputDirectory: outputDirectory,
                     record: .all
                 )
