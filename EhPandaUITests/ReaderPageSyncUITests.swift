@@ -129,7 +129,8 @@ final class ReaderPageSyncUITests: XCTestCase {
     /// Turning the device after a resume, with no jump since, keeps the page named and at the top of the screen. After
     /// each turn the number of the page's placeholder lies exactly where a resume in that orientation puts it, and a
     /// resume puts the page's top on the screen's top row. `AdvancedList` positions its page again after each change of
-    /// its width.
+    /// its width. The vertical reader stays vertical in landscape only with Match Screen Orientation off;
+    /// `ReadingOrientationUITests` covers the turn into two pages.
     func testTurningTheDeviceKeepsTheResumedPageAtTheTop() throws {
         let device = XCUIDevice.shared
         device.orientation = .portrait
@@ -140,6 +141,7 @@ final class ReaderPageSyncUITests: XCTestCase {
         }
 
         let reader = try openReader()
+        reader.setMatchesScreenOrientation(false)
         reader.setDirection(.vertical)
         reader.dragSlider(toNormalizedPosition: 0.3)
         let page = try reader.requirePage("After dragging the slider", where: { $0 > 5 })
@@ -158,6 +160,9 @@ final class ReaderPageSyncUITests: XCTestCase {
         XCTAssertEqual(firstLandscape, landscape, "Turned to landscape")
         XCTAssertEqual(portraitAgain, portrait, "Turned back to portrait")
         XCTAssertEqual(secondLandscape, landscape, "Turned to landscape again")
+        // Back in portrait, restores the default for the suites that follow on this simulator.
+        device.orientation = .portrait
+        reader.setMatchesScreenOrientation(true)
     }
 
     // MARK: Helpers

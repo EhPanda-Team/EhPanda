@@ -71,12 +71,7 @@ struct ReaderPageProbe {
         )
         // The Duo puts More in a vertical toolbar beside the navigation bar. Both bars belong to
         // reading_view, which excludes the More buttons of screens behind the reader.
-        let buttons = readingView.buttons.matching(
-            NSPredicate(
-                format: "identifier IN %@",
-                ["OverflowBarButtonItem", "TopOverflowBarButtonItem", "BottomOverflowBarButtonItem"]
-            )
-        )
+        let buttons = readingView.buttons.matching(UITestConstants.overflowButtonPredicate)
         XCTAssertEqual(
             buttons.count,
             1,
@@ -355,15 +350,45 @@ struct ReaderPageProbe {
     /// leaves the sheet dismissed. The setting persists between launches, so every test states
     /// the direction it runs under instead of inheriting one.
     func setDirection(_ direction: Direction) {
+        let sheetTitle = openReadingSetting()
+        app.buttons.matching(NSPredicate(format: "label BEGINSWITH 'Direction'"))
+            .firstMatch.tapWhenHittable("The sheet's Direction picker")
+        app.buttons[direction.rawValue].firstMatch.tapWhenHittable("Direction's \(direction.rawValue)")
+        dismissReadingSetting(sheetTitle)
+    }
+
+    /// Sets Match Screen Orientation through the Reading Setting sheet. On iPad it is on by default and turns a
+    /// landscape reader into two pages right to left; like the direction, it persists between launches.
+    func setMatchesScreenOrientation(_ enabled: Bool) {
+        let sheetTitle = openReadingSetting()
+        let toggle = app.switches["Match Screen Orientation"].firstMatch
+        XCTAssertTrue(toggle.waitForExistence(timeout: 5), "The sheet did not expose Match Screen Orientation.")
+        if (toggle.value as? String == "1") != enabled {
+            // SwiftUI exposes the whole row; stay inside the switch, away from its trailing margin.
+            toggle.coordinate(withNormalizedOffset: CGVector(dx: 0.9, dy: 0.5)).press(forDuration: 0.05)
+        }
+        let changed = XCTNSPredicateExpectation(
+            predicate: NSPredicate(format: "value == %@", enabled ? "1" : "0"), object: toggle
+        )
+        XCTAssertEqual(
+            XCTWaiter.wait(for: [changed], timeout: 5), .completed, "Match Screen Orientation did not change."
+        )
+        dismissReadingSetting(sheetTitle)
+    }
+
+    private func openReadingSetting() -> XCUIElement {
+        // A turn rebuilds the toolbar, so More can be missing for a moment right after one.
+        _ = readingView.buttons.matching(UITestConstants.overflowButtonPredicate).firstMatch
+            .waitForExistence(timeout: 5)
         moreMenuButton.tapWhenHittable("The reader toolbar's More menu")
         app.buttons["Reading Settings"].firstMatch.tapWhenHittable("More's Reading Setting")
 
         let sheetTitle = app.navigationBars["Reading"].firstMatch
         XCTAssertTrue(sheetTitle.waitForExistence(timeout: 5), "The Reading Setting sheet did not appear.")
-        app.buttons.matching(NSPredicate(format: "label BEGINSWITH 'Direction'"))
-            .firstMatch.tapWhenHittable("The sheet's Direction picker")
-        app.buttons[direction.rawValue].firstMatch.tapWhenHittable("Direction's \(direction.rawValue)")
+        return sheetTitle
+    }
 
+    private func dismissReadingSetting(_ sheetTitle: XCUIElement) {
         // Compact-height presentations provide Close; other sheets dismiss by dragging their title.
         let closeButton = sheetTitle.buttons["Close"].firstMatch
         if closeButton.exists {
