@@ -357,7 +357,7 @@ Plans:
 
 - [x] 08-11-PLAN.md — Seam F.cookie: CookieClientTests target (full didLogin/setCredentials/... matrix) (QUAL-02, D-10)
 
-**Wave 12** *(T2 executed; Release isolation clean; behavior gate open, awaiting orchestrator direction)*
+**Wave 12** *(blocked on Wave 11 completion)*
 
 - [x] 08-12-PLAN.md — Seam B.cookie: delete CookieUtil + migrate 12 login-gated view sites (D-04/D-05)
 
@@ -443,7 +443,7 @@ Plans:
 
 - [x] 09-11-PLAN.md — try? sweep tail (JSONValue probes + view/markdown) + phase gate: residual audit + full suite + SwiftLint clean (QUAL-04)
 
-**Wave 12** *(T2 executed; Release isolation clean; behavior gate open, awaiting orchestrator direction)*
+**Wave 12** *(blocked on Wave 11 completion)*
 
 - [x] 09-12-PLAN.md — Privacy-safe gallery diagnostic context with route-aware `/g` and `/s` token redaction regressions (QUAL-04)
 
@@ -519,7 +519,7 @@ Plans:
 
 - [x] 10-11-PLAN.md — Dynamic Type reflow fixes (never cap) + default-size parity (criterion 5)
 
-**Wave 12** *(T2 executed; Release isolation clean; behavior gate open, awaiting orchestrator direction)*
+**Wave 12** *(blocked on Wave 11 completion)*
 
 - [x] 10-12-PLAN.md — Full suite + phase grep battery (criteria 1-4, 6-12) + ProgressView tint-regression fix; criterion-5 D-03 Dynamic Type device UAT deferred to Phase 16
 
@@ -594,7 +594,7 @@ Plans:
 
 - [x] 11-11-PLAN.md — Component lifecycle + flip `lifecycle_modifiers` & narrowed `binding_initializer` (D-05)
 
-**Wave 12** *(T2 executed; Release isolation clean; behavior gate open, awaiting orchestrator direction)*
+**Wave 12** *(blocked on Wave 11 completion)*
 
 - [x] 11-12-PLAN.md — PreviewSupport module: stable UUID table + checked subscript (D-09)
 
@@ -1180,7 +1180,7 @@ Plans:
 
 - [x] 16-12-PLAN.md — `no_minimum_scale_factor` rule after the 5 removals; owner-signed UAT gate (criterion 5)
 
-**Wave 12** *(T2 executed; Release isolation clean; behavior gate open, awaiting orchestrator direction)*
+**Wave 12** *(blocked on Wave 11 completion)*
 
 - [x] 16-13-PLAN.md — `16-CONTRAST-AUDIT.md`: category / Increase Contrast / non-category / DWC audit; owner colour decisions checkpoint (D-22)
 - [x] 16-14-PLAN.md — `Color+Contrast` helper + category colorset invariant test (84/84, two hash pins) (D-26/27)
