@@ -476,16 +476,27 @@ extension ReadingView {
             correctPager()
         }
     }
-    /// Sends the pager again to the index when it is at rest on another page (`PagerTurnGate`).
+    /// Brings the pager and the index back in step when the pager is at rest on another page (`PagerTurnGate`).
     private func correctPager() {
         guard store.setting.readingDirection != .vertical,
-              pagerTurnGate.needsCorrection(shown: shownPagerPosition, index: pageModel.index),
+              let correction = pagerTurnGate.correction(shown: shownPagerPosition, index: pageModel.index),
               let shownPagerPosition
         else { return }
         // The binding still names the page that was lost; pointing it at the page on screen moves nothing, and lets
-        // the turn to the index register as a change again.
+        // a turn to the index register as a change again.
         scrollPositionID = shownPagerPosition
-        DispatchQueue.main.async { scrollPager(to: pageModel.index) }
+        switch correction {
+        case .sendAgain:
+            DispatchQueue.main.async { scrollPager(to: pageModel.index) }
+
+        case .followScreen:
+            // The pager does not reach the index; the index, and the indicator with it, follow the page on screen.
+            performingChanges = true
+            pageModel.update(.new(index: shownPagerPosition))
+            DispatchQueue.main.asyncAfter(deadline: .now() + PageModel.echoGuardDuration) {
+                performingChanges = false
+            }
+        }
     }
     /// Positions the pager on the slider's page for the reading area it is about to lay out in.
     ///
