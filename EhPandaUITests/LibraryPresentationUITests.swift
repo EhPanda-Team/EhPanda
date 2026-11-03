@@ -229,6 +229,10 @@ final class LibraryPresentationUITests: XCTestCase {
 
     func testFavoritesSingleTapDetailsAndDoubleTapReads() throws {
         XCUIDevice.shared.orientation = .landscapeLeft
+        // The orientation outlives the test on this simulator clone. Left in landscape, it turns the next test's
+        // iPad reader into a two-page spread. A failed check stops the test without running a `defer`, so a teardown
+        // block restores portrait.
+        addTeardownBlock { XCUIDevice.shared.orientation = .portrait }
         let app = XCUIApplication()
         try app.launchStubbed(extraEnvironment: [
             "EHPANDA_AUTOMATION_TAB": "favorites",
@@ -241,6 +245,8 @@ final class LibraryPresentationUITests: XCTestCase {
 
     func testDownloadsSingleTapDetailsAndDoubleTapReads() throws {
         XCUIDevice.shared.orientation = .landscapeLeft
+        // Restores portrait for the next test, as in the Favorites case above.
+        addTeardownBlock { XCUIDevice.shared.orientation = .portrait }
         let root = try makeDownloads()
         let app = XCUIApplication()
         defer {
