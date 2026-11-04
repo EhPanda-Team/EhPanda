@@ -61,17 +61,48 @@ struct PagerTurnGateTests {
         #expect(!sendsAtRest)
     }
 
+    /// A pager built anew, after a forced refresh or a change of direction, starts at rest and reports no phase until
+    /// it moves. A gate the old pager left mid-animation must not go on holding the new pager's turns.
     @Test
-    func aPagerBuiltAnewClearsAGateLeftMidAnimation() {
+    func aPagerBuiltAnewAdmitsTurnsAGateLeftMidAnimationHeld() {
         var gate = PagerTurnGate()
         _ = gate.phaseChanged(to: .animating)
         let held = gate.admitsTurn()
-        // The new pager's first report is `.idle`: the held turn is sent to the index, and turns pass again.
-        let sendsOnAppearance = gate.phaseChanged(to: .idle)
+        gate.pagerRebuilt()
         let admitted = gate.admitsTurn()
         #expect(!held)
-        #expect(sendsOnAppearance)
         #expect(admitted)
+        #expect(!gate.holdsTurn)
+    }
+
+    /// The new pager is placed on the index, which the held turn has already moved, so its first rest sends nothing.
+    @Test
+    func aPagerBuiltAnewDropsTheTurnHeldForTheOldOne() {
+        var gate = PagerTurnGate()
+        _ = gate.phaseChanged(to: .animating)
+        _ = gate.admitsTurn()
+        gate.pagerRebuilt()
+        let sendsAtFirstRest = gate.phaseChanged(to: .idle)
+        #expect(!sendsAtFirstRest)
+    }
+
+    /// Without a phase report from the new pager, the page it shows is still checked against the index.
+    @Test
+    func aPagerBuiltAnewIsCheckedAtRest() {
+        var gate = PagerTurnGate()
+        _ = gate.phaseChanged(to: .animating)
+        gate.pagerRebuilt()
+        let correction = gate.correction(shown: 106, index: 107)
+        #expect(correction == .sendAgain)
+    }
+
+    @Test
+    func aPagerBuiltAnewStartsTheCountOver() {
+        var gate = PagerTurnGate()
+        _ = gate.correction(shown: 106, index: 107)
+        gate.pagerRebuilt()
+        let tries = (0..<PagerTurnGate.correctionLimit).map({ _ in gate.correction(shown: 106, index: 110) })
+        #expect(tries == Array(repeating: .sendAgain, count: PagerTurnGate.correctionLimit))
     }
 
     @Test

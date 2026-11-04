@@ -217,6 +217,10 @@ public struct ReadingView: View {
         .accessibilityZoomAction(performAccessibilityZoom)
         .ignoresSafeArea()
         .id(store.forceRefreshID)
+        // Outside the identity it changes, so it sees the change: a forced refresh builds the pager anew.
+        .onChange(of: store.forceRefreshID) {
+            pagerRebuilt()
+        }
         .background {
             backgroundColor
                 .ignoresSafeArea()
@@ -411,9 +415,8 @@ public struct ReadingView: View {
                     setPageIndex(sliderValue: newValue)
                 }
             }
-            // A pager built for the new direction reports its own page; the last one's is no page to check against.
             .onChange(of: store.setting.readingDirection) {
-                shownPagerPosition = nil
+                pagerRebuilt()
             }
             .onChange(of: store.showsSliderPreview) { _, newValue in
                 if !newValue { setPageIndex(sliderValue: pageHandler.sliderValue) }
@@ -516,6 +519,14 @@ extension ReadingView {
         DispatchQueue.main.asyncAfter(deadline: .now() + PageModel.echoGuardDuration) {
             correctPager()
         }
+    }
+    /// Starts the pager's state in this view over for a pager built anew, after a forced refresh or a change of
+    /// direction. The new pager reports its own page; the last one's is no page to check against. And it is placed on
+    /// the index directly: its own placement on the index is skipped inside the echo guard of a turn just made.
+    private func pagerRebuilt() {
+        pagerTurnGate.pagerRebuilt()
+        shownPagerPosition = nil
+        scrollPositionID = pageModel.index
     }
     /// Brings the pager and the index back in step when the pager is at rest on another page (`PagerTurnGate`).
     private func correctPager() {
