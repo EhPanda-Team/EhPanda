@@ -75,6 +75,9 @@ public struct ReadingView: View {
                 .toolbarVisibility(store.showsPanel ? .visible : .hidden, for: .navigationBar)
                 .toolbarVisibility(store.showsPanel ? .visible : .hidden, for: .statusBar)
                 .toolbarBackground(.hidden, for: .navigationBar)
+                // The home indicator follows the controls like the status bar: hidden controls leave
+                // the page alone on the screen, and the system still answers a swipe from the edge.
+                .persistentSystemOverlays(store.showsPanel ? .automatic : .hidden)
         }
         .accessibilityElement(children: .contain)
         .accessibilityIdentifier("reading_view")
