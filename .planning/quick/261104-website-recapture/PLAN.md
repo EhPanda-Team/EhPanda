@@ -53,3 +53,13 @@ Filters owns a separately presented NavigationStack, so apply the existing DEBUG
 overlay preference directly to that presentation root, then recapture German Filters. Preserve
 the six replacement images whose bottom edges already passed inspection. Ordinary launches and
 Release remain unchanged.
+
+## Full-signal pixel replacement — 10 samples first
+
+The owner supplied a 101-image list and requested ten sample results from different existing
+originals to review replacement quality. Do not recapture images and do not process the remaining
+91 outputs before that review. Verify every supplied original checksum, reuse today's native
+four-bar glyph, restore the exact source background under the old dots, and change nothing outside
+the allowed signal rectangle `[880, 85, 975, 145]`. Choose representative light/dark samples from
+all listed screenshot groups. Deliver full-size edited PNGs, per-file diff boxes and checksums,
+and before/after comparisons outside the website repository. Preserve all original files.

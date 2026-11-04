@@ -138,3 +138,30 @@ visualization output, containing only the seven original-coordinate PNG names, m
 Private evidence, rejected frames and the runner crash log remain under ignored
 `.capture/website-recapture-20261104/filters-detail-revision/`. The task-created simulator and testing
 clones were removed after verification. No website files were changed and no publication occurred.
+
+## Full-signal replacement samples — awaiting owner quality review
+
+The owner requested ten sample edits from the supplied 101-image list, explicitly without
+recapturing. All 101 original SHA-256 values match the requirements. Only ten output images were
+generated: five light and five dark, covering all nine listed groups and all six locales.
+The remaining 91 edits await review.
+
+Every source signal-region background is exactly flat outside the old grey dots: black, white,
+system light gray `(242,242,247)`, or dimmed gray `(204,204,204)`. Clearing the dots therefore restores
+the exact background without generative editing or inpainting. Matching black/white/dimmed-gray
+backgrounds reuse native crop pixels from today's accepted Filters/Detail captures. The system-gray
+sample composites the captured native antialias coverage mask onto its original background.
+The light and dark native coverage masks are byte-identical; size and placement are retained.
+
+All ten exact RGB difference boxes are `[895,92,960,135]` (right/bottom exclusive), entirely inside
+the allowed `[880,85,975,145]` rectangle. Every pixel outside that region is identical to the original.
+Opaque source alpha, where present, was dropped without altering RGB pixels. Outputs are
+1260 × 2736 RGB PNGs, no alpha, standard sRGB IEC61966-2.1 ICC profile and no extra metadata.
+Per-file original/output hashes, byte counts, diff boxes and methods are in the manifest.
+
+Delivery: `ehpanda-screenshot-source-20261104-signal-samples/` and its ZIP in the current chat's
+visualization output. Ten full-size edited PNGs keep their original filenames. A two-times-scale
+before/after glyph sheet and a full-status-bar comparison provide review context. Both were visually
+inspected. Original files, today's 17 recaptures and website assets remain unchanged; no simulator,
+recapture, generation model, website modification or publication was used for these sample edits.
+Private scripts and checksum evidence are under `.capture/website-recapture-20261104/signal-samples/`.
