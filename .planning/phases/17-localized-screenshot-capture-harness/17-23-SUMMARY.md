@@ -39,6 +39,7 @@ key-decisions:
   - "The pager is seeded at the first measurement with both a width and a height, and its pages are built only after that."
   - "The soft bottom edge's invisible bar appears only after the reader has a reading area, so it cannot be mistaken for one."
   - "The owner chose a 5-iteration iPad page-sync stress instead of 20 to close the phase on 2026-11-04; recorded as a known limit."
+  - "At the closing source b5eca09d1 both devices ran the page-sync stress ×5; the owner accepted that as a known limit on 2026-11-05 (owner msg 1640)."
 requirements-completed: [CAP-17-01, CAP-17-04, CAP-17-06, CAP-17-07]
 ---
 
@@ -103,23 +104,30 @@ The owner's website recapture added two DEBUG-only capture commits during the ga
 
 ## After the code review
 
-The phase code review's WR-01 and IN-01 were fixed (`fb1ea4b18`, `443e74541`), and the whole gate ran
-again at `b5eca09d1`: all four runs exit 0 with 0 failures and 0 Repetition, lint and the Release scan clean,
-ReaderPageSyncUITests ×5 on phone (40 of 40 passed, 0 retries) and iPad (40 of 40 passed, 0 retries). See 17-FINAL-VALIDATION.md
-section 9. The reader's page tracking moves to one source of truth in Phase 18.
+The phase code review's WR-01 and IN-01 were fixed (`fb1ea4b18`, `443e74541`), and the gate ran
+again at `b5eca09d1`, except the Debug negative-control scan (last run at `52df81fa3`). All four
+runs exit 0 with 0 failures and 0 Repetition; lint and the Release scan are clean. ReaderPageSyncUITests
+ran ×5 on the phone (40 of 40 passed, 0 retries) and on the iPad (40 of 40 passed, 0 retries). See
+17-FINAL-VALIDATION.md section 9. The reader's page tracking moves to one source of truth in Phase 18.
 
 ## Deviations
 
 - **Release scan repeated.** The plan cites 17-RELEASE-ISOLATION.md only if the source equals 17-14's
   commit. It doesn't, so the Release build and scan ran again at `52df81fa3`.
-- **Reduced iPad stress.** 5 iterations instead of 20, by the owner's choice (see key decisions).
-- **17-VERIFICATION.md.** This plan says not to write it. It was written at the orchestrator's
-  direction as part of closing the phase tonight, as a separate commit after this plan's records.
+- **Reduced stress.** At `52df81fa3`, the iPad ran 5 iterations instead of 20, by the owner's choice
+  (see key decisions). At the closing source `b5eca09d1`, **both** devices ran ×5; the ×20 phone run
+  is at `33dbf648b`, before WR-01/IN-01. The owner accepted ×5 on both devices as a known limit
+  (owner msg 1640).
+- **17-VERIFICATION.md.** This plan says not to write it, and its records do not include it. The
+  gsd-verifier wrote it after this plan's records; it was committed as `8c5dc3af2`. (Corrected
+  2026-11-05: this bullet used to say the file had been written at the orchestrator's direction.
+  No such file was committed before `8c5dc3af2`, and the executor's draft was never committed.)
 
 ## Unresolved gates and known limits
 
-- The verifier confirms the CAP-17-07 unclassified-edge classification and the owner-approved
-  synthetic comment in gallery 2758456 (17-FINAL-VALIDATION.md section 8).
+- The CAP-17-07 unclassified-edge classification and the owner-approved synthetic comment in gallery
+  2758456 (17-FINAL-VALIDATION.md sections 3 and 8): the verifier concurred, and the owner accepted
+  both on 2026-11-05 (owner msg 1640).
 - UAT and the remaining close steps.
 - The slider's preview gesture ends before the finger lifts, so the rest of a drag seeks live. The
   fixes keep the indicator correct; the gesture itself is unchanged.

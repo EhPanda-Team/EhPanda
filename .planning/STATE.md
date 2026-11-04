@@ -4,10 +4,10 @@ milestone: v3.0.0
 current_phase: 17
 current_phase_name: Screenshot Automation, Visual Regression & OS 27 Modernization
 status: executing
-stopped_at: Phase 17 code review fixed; gate repeated at b5eca09d1; next the verifier and the remaining close steps
-last_updated: "2026-11-04T16:01:49.000Z"
-last_activity: 2026-11-04
-last_activity_desc: Phase 17 review fixes (WR-01, IN-01); gate repeated and passing at b5eca09d1
+stopped_at: Phase 17 verified (human_needed, 8c5dc3af2); records corrected per owner msg 1640; next the verifier's update, then UAT, secure-phase and validate-phase
+last_updated: "2026-11-04T16:48:39.000Z"
+last_activity: 2026-11-05
+last_activity_desc: Phase 17 records corrected per owner decisions (msg 1640)
 state_head: 33dbf648b1af47be2ed0690035caf34892fc60a5
 progress:
   total_phases: 18
@@ -21,12 +21,35 @@ source_head: 2519060029
 
 # Project State
 
+## Phase 17 records corrected per owner decisions (msg 1640) — 2026-11-05
+
+The verifier's 17-VERIFICATION.md (`8c5dc3af2`) is `human_needed`. The owner decided five of its human
+items (2, 3, 4, 6 and 7) on 2026-11-05 (msg 1640); the records now say so (docs only).
+
+- **Page-sync stress.** ×5 on both phone and iPad at `b5eca09d1` (40/40 each) is accepted as a known
+  limit. The ×20 phone run is at `33dbf648b`, before the WR-01/IN-01 fixes.
+- **Stale `requirements-completed`.** 17-01, 17-02 and 17-24 no longer claim CAP-17-02, CAP-17-03 or
+  CAP-17-06; each summary has a correction note.
+- **CAP-17-04** means the current website image set: the 2026-11-04 recapture (118 files serving the
+  192 coordinates, owner msg 1581; website repository `d4393bd`). See 17-FINAL-VALIDATION.md section 3.
+- **Accepted:** the CAP-17-07 unclassified-edge classification and the synthetic-comment exception
+  (comment 9000000001 by CedarComet91 on gallery 2758456, and the edited image B).
+
+Also corrected: the 17-VALIDATION.md banner now names `b5eca09d1`. 17-FINAL-VALIDATION.md section 9
+says that no Debug negative-control scan ran at `b5eca09d1`; the last one ran at `52df81fa3`. 17-23's
+note on 17-VERIFICATION.md is corrected, and the 17-LAYOUT-AUDIT.md ReadingView line numbers are dated
+to `5a7fe7f13`. The Phase 18 roadmap now carries the reader rework, IN-02 and IN-03.
+
+Next: the verifier updates 17-VERIFICATION.md, then UAT, secure-phase and validate-phase.
+
 ## Phase 17 code review fixed; gate repeated at `b5eca09d1` — 2026-11-04
 
 The phase code review found 0 critical, 2 warnings, 3 info. WR-01 (the reader's page-turn gate
 survived a pager rebuild) and IN-01 are fixed (`fb1ea4b18`, `443e74541`); WR-02 is not a gap (owner,
-msg 1627); IN-02 and IN-03 are deferred to Phase 18. Every 17-23 check passed again at `b5eca09d1`, with
-ReaderPageSyncUITests ×5 on phone (40 of 40 passed, 0 retries) and iPad (40 of 40 passed, 0 retries).
+msg 1627); IN-02 and IN-03 are deferred to Phase 18. Every 17-23 check except the Debug negative-control
+scan passed again at `b5eca09d1`, with ReaderPageSyncUITests ×5 on phone (40 of 40 passed, 0 retries)
+and iPad (40 of 40 passed, 0 retries). Known limit: both devices ran ×5 at `b5eca09d1`, not just the
+iPad (owner-accepted, msg 1640).
 
 **Carried to Phase 18 (owner msg 1630, product lead msg 1631).** Rework how the reader tracks its
 current page: one source of truth for the page shown and the number displayed, as one task, not more
@@ -54,7 +77,8 @@ hides the home indicator with its controls (`33dbf648b`).
 
 **Known limits.**
 
-- The iPad page-sync stress ran 5 iterations, not 20 (owner's choice, 2026-11-04).
+- The iPad page-sync stress ran 5 iterations, not 20 (owner's choice, 2026-11-04). At the closing source
+  `b5eca09d1` both devices ran ×5 (owner-accepted, msg 1640; see the 2026-11-05 entry).
 - Page-sync tests don't cover right-to-left reading or an iPad landscape spread.
 - The slider still seeks live during a drag; the indicator stays correct.
 

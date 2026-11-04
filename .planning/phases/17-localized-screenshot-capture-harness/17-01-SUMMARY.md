@@ -47,7 +47,7 @@ patterns-established:
   - Sequential real-device-family gates reject empty, skipped, repeated or failed test runs and source drift.
   - Canonical sRGB pixel storage is shared by composite output and rendered-content inspection.
   - Named XCTest attachments carry repeatable fixtures and structured capture evidence to host tooling.
-requirements-completed: [CAP-17-02, CAP-17-03, CAP-17-06]
+requirements-completed: []
 coverage:
   - id: D1
     description: Genuine app-hosted capture preserves native viewport pixels and captures all finite content on 32 coordinates.
@@ -156,3 +156,16 @@ None for this completed feasibility plan. Final marketing gallery selection and 
 ## Next Plan Readiness
 
 Ready for **17-24**, then 17-02. The immutable rendering pin must be based on new real geometry measurements before matrix-runner production. Phase progress is 1/24 plans; shared CAP-17-02, CAP-17-03 and CAP-17-06 remain incomplete in REQUIREMENTS.md until every declaring plan finishes. The required frontmatter IDs identify this plan's contributions, not whole-phase completion.
+
+## Record correction (2026-11-05)
+
+Following owner msg 1640, `requirements-completed` changed from `[CAP-17-02, CAP-17-03, CAP-17-06]` to `[]`.
+
+- CAP-17-02 and CAP-17-03 moved to Phase 18 (VIS-18-01; owner msg 1305). This plan built their
+  foundation; it did not complete them.
+- CAP-17-06: this plan's part was the capture side. Full-content capture keeps the native viewport
+  and size classes and does not change app layout. That part supports the snapshot-measured part of
+  CAP-17-06, which moved to Phase 18 (VIS-18-01, with 17-09 T2 and 17-15). Phase 17's bounded
+  CAP-17-06 sign-off rests on the behavior suites and the recorded standard/AX1/AX3/AX5 title,
+  search and top-edge checks (17-FINAL-VALIDATION.md section 6), not on this plan.
+- The `coverage` entries above are kept as this plan's historical evidence.

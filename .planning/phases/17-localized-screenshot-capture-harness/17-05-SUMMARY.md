@@ -197,7 +197,8 @@ checks without a failing test (R-8), fixed in `66aa2be32f`. The final gate ran o
   the host took screenshots, was removed with it.
 - **Settle rules.** A frame needs two identical screenshots a second apart; the Settings launch
   uses the same rule, with simctl screenshots, before it quits.
-- The plan names `scripts/visual`; the repository directory is `Scripts/visual`.
+- The plan names `scripts/visual`; the repository directory is `Scripts/visual`. (Erratum, confirmed
+  2026-11-05: the executed plan is not rewritten.)
 - No acceptance criterion or threshold changed.
 
 ## Unresolved Gates

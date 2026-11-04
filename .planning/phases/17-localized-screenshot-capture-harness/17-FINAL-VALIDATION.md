@@ -3,8 +3,9 @@
 Plan 17-23, run 2026-11-03 to 2026-11-04. This record covers what Phase 17 still owns after the owner
 reduced its scope on 2026-11-03 (msg 1305). Moved work is listed as moved, never as satisfied.
 
-This plan does not mark the phase complete. 17-VERIFICATION.md is written for the GSD close steps at
-the orchestrator's direction, not as a product of this plan. The close steps come after this record:
+This plan does not mark the phase complete. 17-VERIFICATION.md is the gsd-verifier's report for the
+GSD close steps, committed as `8c5dc3af2`; it is not a product of this plan. The close steps come
+after this record:
 
 1. `/gsd-execute-phase 17`'s phase gates: code review through `gsd-code-review`, the regression gate,
    and the verifier's 17-VERIFICATION.md.
@@ -107,6 +108,8 @@ without a retry.
   2026-11-04, instead of 20. The iPad page-sync evidence is therefore 5 iterations, plus the single
   iPad UITests run above. Earlier iPad stress runs found one desync in 20 (`4cc9925e1`) and one cold
   opening on page 1 in 160 (`b2c958838`), so 5 iterations cannot rule out a rate that low.
+  At the closing source `b5eca09d1` the phone also ran ×5, so both devices have ×5 there (section 9;
+  owner-accepted as a known limit, owner msg 1640).
 - RTL reading is not in ReaderPageSyncUITests; `ReaderPageProbe` covers only the vertical strip and the
   left-to-right pager.
 
@@ -152,6 +155,8 @@ Exit 0: `Ran 19 tests … OK`. That includes the seeded bad payload.
 - **CAP-17-04:** met by the 192 owner-approved website images of 2026-11-02 (iPhone Air portrait; eight
   screens × six locales × two themes × two content sets). The website contract drops the iPad axis.
   The 384 export tooling and regeneration move to Phase 18 (MKT-18-01).
+  - *Clarified 2026-11-05 (owner msg 1640):* the requirement means the current website image set,
+    the 2026-11-04 recapture approved in msg 1581, over the same 192 coordinates. See section 3.
 - **CAP-17-07:** the idiom → size-class layout migration landed through quick task
   `261015-duo-session-record` (`8fb2374536`, `e89e896634`, `0a42b7fbb4`, `7015d62cd3`). It landed
   before snapshot coverage existed, not after it as D-27 intended. It is verified by 17-16 to 17-19,
@@ -159,7 +164,29 @@ Exit 0: `Ran 19 tests … OK`. That includes the seeded bad payload.
 
 The same wording is in `.planning/REQUIREMENTS.md` and the Phase 17 section of `.planning/ROADMAP.md`.
 
-## 3. Website images: the owner's approval of 2026-11-02
+## 3. Website images: the current set (approved 2026-11-04) and the approval of 2026-11-02
+
+**Which set CAP-17-04 cites (owner msg 1640, 2026-11-05).** Amended CAP-17-04 means the current
+website image set. That set is the 2026-11-04 recapture (quick task `261104-website-recapture`):
+118 image files that serve all 192 coordinates.
+
+- **17 recaptures.** 10 reader and Live Text images, plus 7 Filters and adult-mode Detail images
+  recaptured without the home indicator.
+- **101 status-bar edits.** Each one changes only the cellular glyph of a 2026-11-02 capture.
+- **The approval.** The owner approved all 118 files on 2026-11-04 (msg 1581). The approval is
+  recorded in the website repository (`ehpanda-website`, `develop` branch, commit `d4393bd`).
+- **The provenance record.** That approval sits in
+  `.planning/phases/07-full-image-matrix-import-review-promote/07-SCREENSHOT-PROVENANCE-20261104.json`.
+  Its entries supersede the 2026-11-02 record for every served path. It keeps each source's SHA-256.
+  For the 101 edits, it also names the 2026-11-02 original and that original's SHA-256.
+- **Fixtures.** The Live Text recaptures used new immutable local fixture versions. Those versions add
+  the later chapter pages from the saved response archive. The approved fixtures did not change.
+
+The 2026-11-02 approval below still records which coordinates exist and which fixtures they come from.
+The image hashes in its index, `website-capture-20261102.json`, describe the 2026-11-02 captures, not
+the files delivered now.
+
+### The approval of 2026-11-02
 
 [`quick/261101-website-review/APPROVAL-20261102.md`](../../quick/261101-website-review/APPROVAL-20261102.md)
 records the owner's approval of the complete local review.
@@ -180,6 +207,9 @@ records the owner's approval of the complete local review.
   `overrides/website-comments-20261102/`.
   - This is an owner-approved exception to the spec-less prohibition "Marketing MUST NOT invent gallery
     content" (17-SOURCE-AUDIT.md). It is flagged here, not treated as satisfied silently.
+  - **Accepted (owner msg 1640, 2026-11-05)** as the approved exception: comment 9000000001
+    (CedarComet91) on gallery 2758456 and the edited image B. The current set's Comments images are
+    status-bar edits of the 2026-11-02 captures, so they carry the same comment.
 - **Scope.** The approval covers screenshot content only, not a regression baseline or a rendering-pin
   change.
 
@@ -224,7 +254,7 @@ unit tests cover it.
 | Requirement (Phase 17 part) | Status in Phase 17 | Evidence |
 |---|---|---|
 | **CAP-17-01**, fixture part: explicit acquisition and refresh, provenance, checksums, offline replay without account or credentials | Evidenced | 17-03 (anonymous acquisition into scrubbed, checksummed, versioned fixtures; offline review); 17-04 (the app launches on one validated fixture version, offline and isolated from the device's account, settings, caches and downloads; every image from the fixture, none refused); 17-06 (Live Text records and download page files with SHA-256 manifests, which alone decide completeness). The download suites in FeatureTests pass in section 1; this record does not separately re-prove the same-run folder deletion invariant. The 16 owner-approved website fixture versions (APPROVAL-20261102.md). |
-| **CAP-17-04**, amended | Evidenced | Section 3: 192 owner-approved iPhone Air website images of 2026-11-02, their 16 fixture versions and the website contract without the iPad axis. Capture foundation: 17-05 (eight screens through the app's own navigation, 9:41 and no capsule, byte-identical cold reruns), 17-06 (all eight screens capturable on both visual simulators). |
+| **CAP-17-04**, amended | Evidenced | Section 3: the current website set, the 2026-11-04 recapture (118 files serving the 192 coordinates approved on 2026-11-02; approved in owner msg 1581; referent per owner msg 1640), the 16 approved fixture versions and the website contract without the iPad axis. Capture foundation: 17-05 (eight screens through the app's own navigation, 9:41 and no capsule, byte-identical cold reruns), 17-06 (all eight screens capturable on both visual simulators). |
 | **CAP-17-06**, bounded part: iOS/iPadOS 27, Swift 6.4, native navigation, search, toolbar and top-edge behavior preserved | Evidenced within bounds | Section 7 (D-25, D-26 rows): deployment target 27.0, Swift tools 6.4; behavior suites pass in section 1; the standard/AX1/AX3/AX5 title, search and top-edge checks recorded in quick task 260921-f5u (260921-f5u-VERIFICATION.md) and the Phase 16 verification. |
 | **CAP-17-07**, amended | Evidenced | Release isolation: the Release scan at `52df81fa3` (section 1), after 17-RELEASE-ISOLATION.md's run at `50c794b53`. Layout: section 4 and 17-LAYOUT-AUDIT.md. No lint or warning suppression. |
 
@@ -288,17 +318,21 @@ remaining obligation is moved to Phase 18 with its plans.
     Release keeps running with every capture key set, and the Debug control ends) and the idiom census (17-19: every
     read has an owner decision).
   - No acceptance predicate is invented. The verifier should confirm this classification.
+  - **Accepted by the owner (owner msg 1640, 2026-11-05).** The verifier concurred in 17-VERIFICATION.md.
 - **Spec-less prohibitions (flagged-unverified, unchanged).**
   - "Marketing MUST NOT invent gallery content": flagged, with the owner-approved synthetic comment in
-    section 3.
+    section 3. The exception was accepted on 2026-11-05 (owner msg 1640).
   - "Generated image equality MUST NOT substitute for review and owner baseline acceptance": moved to
     Phase 18 with 17-12.
   - "Raw captures MUST NOT be represented as designer artwork": moved to Phase 18 with 17-22.
 - **Known test risks (from 17-14 and this gate).** None failed this gate.
   - `ReaderPageProbe` can't read an iPad landscape two-page spread, and ReaderPageSyncUITests does not
     cover right-to-left reading.
-  - **Reduced iPad page-sync coverage:** 5 stress iterations on the iPad instead of 20 (owner's choice,
-    2026-11-04). See section 1.
+  - **Reduced page-sync coverage on both devices:** at 17-23's `52df81fa3`, the iPad ran 5 stress
+    iterations instead of 20 (owner's choice, 2026-11-04). At the closing source `b5eca09d1`, **both**
+    devices ran ×5 (phone 40/40, iPad 40/40). The ×20 phone run (160/160) is at `33dbf648b`, before
+    the WR-01/IN-01 fixes. The owner accepted ×5 on both devices as a known limit (owner msg 1640).
+    See sections 1 and 9.
   - DeepLinkScheme depends on starting in portrait.
   - A diagnostic iPad run once saw the long-press "Inspect downloaded pages" and the Front Page (Show
     All) title not appearing. Neither recurred.
@@ -322,8 +356,8 @@ home indicator"). Fixes and dispositions are in 17-REVIEW-FIX.md and 17-REVIEW-D
 | `fb1ea4b18` | WR-01: the reader's page-turn gate starts over when the pager is rebuilt (reload of all images, the local-to-remote fallback, a vertical-to-horizontal direction change) |
 | `443e74541` | IN-01: the pager's miss count starts over for each turn |
 
-Because these change the built source, every section 1 check ran again at `b5eca09d1`, from a clean tree,
-one invocation at a time:
+Because these change the built source, every section 1 check except the Debug negative-control scan
+ran again at `b5eca09d1`, from a clean tree, one invocation at a time:
 
 | # | Check | Result at `b5eca09d1` |
 |---|---|---|
@@ -332,7 +366,7 @@ one invocation at a time:
 | 3 | FeatureTests, EhPanda iPad Pro 11-inch (M5) | exit 0; 1541 cases: 1531 passed, 0 failed, 10 expected failures, 0 Repetition |
 | 4 | UITests, EhPanda iPad Pro 11-inch (M5) | exit 0; 88 cases: 71 passed, 0 failed, 17 skipped, 0 Repetition |
 | 5 | Strict lint, no cache | 0 violations in 759 files |
-| 6 | Release scan (Release build in the clean worktree `ehpanda-1723-final2` at `b5eca09d1`) | exit 0, 0 findings |
+| 6 | Release scan (Release build in the clean worktree `ehpanda-1723-final2` at `b5eca09d1`) | exit 0, 0 findings; launch probe: Release still running with every capture key set, Debug control app ended (`release-isolation.json`) |
 | 7 | Scanner tests (`test_release.py`) | 19 OK |
 | 8 | ReaderPageSyncUITests ×5, iPhone Air | 40 of 40 passed, 0 retries |
 | 9 | ReaderPageSyncUITests ×5, iPad Pro 11-inch (M5) | 40 of 40 passed, 0 retries |
@@ -340,6 +374,15 @@ one invocation at a time:
 - The 6 new cases are the WR-01 and IN-01 unit tests in `PagerTurnGateTests`.
 - On both devices the tenth expected failure is the known `SettingReducerTests` timing issue (section 1).
 - Result bundles are kept locally (`f23d-*`, `stress9-*`) and are not committed.
+- **No Debug negative control at `b5eca09d1`.** The Debug app and log were not scanned again at
+  `b5eca09d1`. The last Debug negative-control scan (exit 1, 991 findings) ran at `52df81fa3`
+  (section 1). The one before it ran at 17-14's `50c794b53`. Row 6's "Debug control" is only the
+  launch probe's Debug app, which ended under the probe.
+- **Page-sync stress at the closing source (known limit, owner msg 1640).** Rows 8 and 9 are ×5 on
+  **both** devices. The phone's ×20 run (160/160) is at `33dbf648b`, before the WR-01/IN-01 fixes;
+  no ×20 run exists at `b5eca09d1` on either device. Earlier iPad desyncs occurred at about 1 in 20
+  and 1 in 160, and 5 iterations cannot rule out those rates. The owner accepted ×5 on both devices
+  on 2026-11-05.
 
 **Verdict at `b5eca09d1`:** Pass. This is the source the phase closes on.
 

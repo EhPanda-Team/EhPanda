@@ -239,6 +239,10 @@ the first pass. Result bundles: `/tmp/ehp-17finish/runs/1719-pass-{phone,tablet}
 
 Command, at HEAD `5a7fe7f13`:
 
+> **Note, 2026-11-05.** The `ReadingView.swift` line numbers in this section (204, 212, 229, 232; 38,
+> 75, 76, 163) are from `5a7fe7f13`. Later reader commits moved them. They have not been re-derived
+> here. 17-VERIFICATION.md reports the census unchanged at `b5eca09d1` (same files, no new idiom read).
+
 ```sh
 git grep -nE "userInterfaceIdiom|deviceState|deviceType|== \.pad|case \.pad" -- AppPackage/Sources
 ```

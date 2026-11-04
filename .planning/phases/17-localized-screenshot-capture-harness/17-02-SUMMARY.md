@@ -63,7 +63,7 @@ patterns-established:
   - The real error of a failed capture is read from capture-error.json, never from the XCTest failure text.
   - Device settings the pin depends on are documented with restore commands next to the pin.
   - OCR identifies and locates; geometry claims stay within the pixels that were analyzed.
-requirements-completed: [CAP-17-02, CAP-17-03]
+requirements-completed: []
 coverage:
   - id: D1
     description: The runner requests exactly 576 canonical coordinates per scenario, validates the pin before capture and accounts for every requested row, including interruption.
@@ -241,3 +241,10 @@ native dispatcher, and 17-08 to 17-10 expand the scenario inventory beyond the o
 Candidate output has not been promoted; approved references need the owner's review. Phase progress
 is 3/24 plans; the shared CAP-17-02 and CAP-17-03 requirements stay open until every declaring plan
 finishes.
+
+## Record correction (2026-11-05)
+
+Following owner msg 1640, `requirements-completed` changed from `[CAP-17-02, CAP-17-03]` to `[]`.
+Both requirements moved to Phase 18 (VIS-18-01; owner msg 1305). The runner and the 576-coordinate
+hosted tracer delivered here are the foundation Phase 18 builds on, not their completion. The
+`coverage` entries above are kept as this plan's historical evidence.
