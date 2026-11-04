@@ -21,6 +21,9 @@ public struct ReadingView: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.colorScheme) private var colorScheme
     @Environment(\.verticalSizeClass) private var verticalSizeClass
+    #if DEBUG
+    @Environment(\.captureSystemOverlayVisibility) private var captureSystemOverlayVisibility
+    #endif
 
     @Bindable var store: StoreOf<ReadingReducer>
     // Write handle backing the reader's own controls (e.g. the ControlPanel slider). The reading-setting
@@ -62,6 +65,15 @@ public struct ReadingView: View {
         gestureHandler.containerSize.width > gestureHandler.containerSize.height
     }
 
+    private var systemOverlayVisibility: Visibility {
+        #if DEBUG
+        if let captureSystemOverlayVisibility {
+            return captureSystemOverlayVisibility
+        }
+        #endif
+        return store.showsPanel ? .automatic : .hidden
+    }
+
     public var body: some View {
         NavigationStack {
             content
@@ -75,9 +87,9 @@ public struct ReadingView: View {
                 .toolbarVisibility(store.showsPanel ? .visible : .hidden, for: .navigationBar)
                 .toolbarVisibility(store.showsPanel ? .visible : .hidden, for: .statusBar)
                 .toolbarBackground(.hidden, for: .navigationBar)
-                // The home indicator follows the controls like the status bar: hidden controls leave
-                // the page alone on the screen, and the system still answers a swipe from the edge.
-                .persistentSystemOverlays(store.showsPanel ? .automatic : .hidden)
+                // Outside captures, the home indicator follows the controls like the status bar.
+                // The system still answers a swipe from the edge when its indicator is hidden.
+                .persistentSystemOverlays(systemOverlayVisibility)
         }
         .accessibilityElement(children: .contain)
         .accessibilityIdentifier("reading_view")
