@@ -101,3 +101,40 @@ every rendered RGB pixel. The original package and revision 2 are superseded, re
 Private evidence is under `.capture/website-recapture-20261104/reader-indicator-revision/`, including
 the rejected dark frame and its independently accepted replacement. The task-created simulator and
 testing clones were removed after capture. No website publication.
+
+## Seven older Filters and adult-mode Detail replacements
+
+The owner identified five Filters images (English light/dark, German light, Simplified Chinese
+light/dark) and two adult-mode Detail images (English light, Korean light) with home indicators.
+These came from the original general website corpus, outside the reader/Live Text replacement set.
+
+Recaptured exactly those seven coordinates using the approved default fixtures and v7.29536.1
+hash-pinned tag translations. Filters uses the nonexplicit fixture shared by the website modes;
+Detail uses the approved explicit fixture and its original gallery, initial position and title rules.
+The base app source is `d474d7f68`.
+
+The first German replacement still showed an indicator despite the app-root capture preference.
+Filters owns a separately presented NavigationStack. It now explicitly consumes the existing
+DEBUG-only capture visibility preference at that presentation root, as the reader does. Ordinary
+launches and Release retain their existing policy. This build passed and strict no-cache lint
+reported zero violations in FiltersView. A new German capture passed, and its bottom edge is clean.
+
+All seven accepted images passed native content/readiness checks and explicit visual bottom-edge
+inspection. Each is a 1260 × 2736 RGB PNG without alpha, with sRGB IEC61966-2.1. SHA-256, byte counts
+and nine-file ZIP integrity were verified. Metadata normalization preserves all rendered RGB pixels.
+The previous corpus and reader/Live Text revision 3 remain unchanged; no screenshot retouching.
+
+Capture issues preserved separately:
+
+- The initial German XCTest runner crashed during setup before the coordinate executed.
+- A mixed-appearance batch produced two light frames for dark coordinates. The native theme checks
+  rejected them. Both dark coordinates subsequently passed with Simulator appearance pinned to dark.
+- The final German native test passed once, but the wrapper's status-bar monitor encountered a
+  clone-shutdown race after capture. The official result summary and attachments were verified
+  directly; the exported frame has the required status bar and no home indicator.
+
+Delivery: `ehpanda-screenshot-source-20261104-filters-detail/` and its ZIP in the current chat's
+visualization output, containing only the seven original-coordinate PNG names, manifest and README.
+Private evidence, rejected frames and the runner crash log remain under ignored
+`.capture/website-recapture-20261104/filters-detail-revision/`. The task-created simulator and testing
+clones were removed after verification. No website files were changed and no publication occurred.

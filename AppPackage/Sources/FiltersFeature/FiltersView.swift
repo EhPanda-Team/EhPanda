@@ -6,6 +6,9 @@ public import SwiftUI
 
 public struct FiltersView: View {
     @Environment(\.dismiss) private var dismiss
+    #if DEBUG
+    @Environment(\.captureSystemOverlayVisibility) private var captureSystemOverlayVisibility
+    #endif
     @Bindable private var store: StoreOf<FiltersReducer>
 
     @FocusState private var focusedBound: FiltersReducer.FocusedBound?
@@ -48,6 +51,9 @@ public struct FiltersView: View {
             }
             .navigationTitle(.RLocalizable.filters)
         }
+        #if DEBUG
+        .persistentSystemOverlays(captureSystemOverlayVisibility ?? .automatic)
+        #endif
     }
 }
 
