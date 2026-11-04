@@ -39,6 +39,7 @@ public struct ReadingView: View {
     @State private var shownPagerPosition: Int?
     @State private var performingChanges = false
     @State private var deviceState: WindowDevice?
+    @State private var pagerSeed = PagerSeed()
 
     public init(store: StoreOf<ReadingReducer>) {
         self.store = store
@@ -75,9 +76,8 @@ public struct ReadingView: View {
         .accessibilityIdentifier("reading_view")
         .background {
             WindowDeviceObservation { state in
-                let isFirstMeasurement = deviceState == nil
                 deviceState = state
-                updateReadingLayout(seed: isFirstMeasurement)
+                updateReadingLayout()
             }
         }
         .onChange(of: store.setting.readingOrientation) {
@@ -158,11 +158,11 @@ public struct ReadingView: View {
         @Bindable var bindablePageHandler = pageHandler
 
         VStack {
-            // The pager is built only once the container has been measured, so its first layout
-            // already sits on the slot `seedPager()` picked for the measured aspect ratio. Its page
-            // observers come with it: created after the seed, they start from the seeded index
-            // instead of reporting the seed as a page turn.
-            if gestureHandler.containerSize == .zero || deviceState == nil {
+            // The pager is built only once it has been seeded, so its first layout already sits on
+            // the slot `seedPager()` picked for the measured aspect ratio. Its page observers come
+            // with it: created after the seed, they start from the seeded index instead of
+            // reporting the seed as a page turn.
+            if !pagerSeed.isSeeded {
                 Color.clear
             } else {
                 changeTriggers(content: { pages })
@@ -220,20 +220,18 @@ public struct ReadingView: View {
             )
         }
         .onGeometryChange(for: CGSize.self, of: \.size) { size in
-            let isFirstMeasurement = gestureHandler.containerSize == .zero
             gestureHandler.containerSize = size
-            updateReadingLayout(seed: isFirstMeasurement)
+            updateReadingLayout()
         }
     }
 
-    private func updateReadingLayout(seed: Bool) {
+    private func updateReadingLayout() {
         let size = gestureHandler.containerSize
-        guard let deviceState,
-              size.width.isFinite, size.height.isFinite, size.width > 0, size.height > 0 else { return }
+        guard let deviceState, PagerSeed.isReadingArea(size) else { return }
         store.send(.layoutChanged(
             isLandscape: isLandscape, supportsAutomaticLayout: deviceState.supportsAutomaticLayout
         ))
-        if seed { seedPager() }
+        if pagerSeed.seeds() { seedPager() }
     }
 
     @ContentBuilder
