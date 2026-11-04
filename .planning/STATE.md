@@ -32,6 +32,10 @@ repository keep only the latest copies (msg 1647). Fixture repository commit `8e
   files. It is built from the website provenance record at `d4393bd`.
 - **Removed.** The 11 versions the current set does not use, and `website-capture-20261102.json`.
   The `data/` archive stays.
+- **Carried to Phase 18.** `Scripts/visual/README.md` ("Approved website fixtures", 2026-11-02) still
+  describes `website-capture-20261102.json` and `readerByLocale`. No code reads them (checked: no reference in
+  Scripts, AppPackage or UITests). Rewrite that section with the Phase 18 capture work; it is left as is so
+  the Phase 17 source stays the tested `891103afa` tree.
 
 17-FINAL-VALIDATION.md section 3 names the versions. ROADMAP Phase 17 criterion 2 now also cites the
 2026-11-04 approval (msg 1581). The reader root-cause analysis is committed as 17-READER-ROOT-CAUSE.md;
