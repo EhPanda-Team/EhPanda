@@ -33,7 +33,7 @@ key-decisions:
 patterns-established:
   - Author the pin only after the real measurement producer passes and is committed.
   - Validation never regenerates its input or reuses prior run-local destination IDs.
-requirements-completed: [CAP-17-02, CAP-17-03]
+requirements-completed: []
 coverage:
   - id: D1
     description: Both device families and orientations have actual-window geometry and rendering metadata.
@@ -114,6 +114,8 @@ The same bytes survive both the initial failed validation and final successful v
 
 The repository uses `Scripts/` with uppercase S; commands and artifacts follow the actual directory. The approved producer/consumer split is preserved. Task 2's real validation exposed reliance on dictionary insertion order; execution now explicitly follows the approved phone-then-tablet sequence. The producer was remeasured and committed before Task 2 resumed. No acceptance threshold, model, geometry or pin value was relaxed.
 
+Erratum (2026-11-05): 17-24-PLAN.md writes `scripts/visual`; the real path is `Scripts/visual`. The executed plan is not rewritten.
+
 ## Issues Encountered
 
 The first metadata lookup omitted an explicit simulator destination, producing an Xcode selection warning. Adding the simulator destination corrected the command; subsequent actual measurement passed. The sorted-pin failure is retained at `/tmp/ehpanda-phase17-environment-pin-order-failed/`; its pin and simulator state remained intact. Earlier successful measurements are retained under `/tmp/ehpanda-phase17-environment-measurement-first/` and `/tmp/ehpanda-phase17-environment-measurement-before-order-fix/`. Current canonical evidence is under the two .capture directories above.
@@ -127,3 +129,10 @@ Use the selected Xcode/runtime and one available simulator for each pinned model
 ## Next Plan Readiness
 
 Ready for **17-02**, which owns the regression matrix runner and consumes this pin. Plans 17-05/17-07 later use the same unchanged input for marketing. Run observations cannot substitute for a pin. Phase progress is 2/24 plans; shared CAP-17-02 and CAP-17-03 remain open until all declaring sibling plans finish.
+
+## Record correction (2026-11-05)
+
+Following owner msg 1640, `requirements-completed` changed from `[CAP-17-02, CAP-17-03]` to `[]`.
+Both requirements moved to Phase 18 (VIS-18-01; owner msg 1305). The measured geometry and the
+rendering pin delivered here are the foundation Phase 18 builds on, not their completion. The
+`coverage` entries above are kept as this plan's historical evidence.

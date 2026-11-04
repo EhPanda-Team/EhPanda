@@ -11,7 +11,8 @@ signed_off_source: "891103afa"
 
 # Phase17 validation strategy
 
-> **Reduced scope, 2026-11-03 (owner msg 1305); signed off by 17-23 on 2026-11-04 at `97b31b063`.** Only
+> **Reduced scope, 2026-11-03 (owner msg 1305); signed off on 2026-11-04 at `891103afa`** (17-23's gate
+> at `97b31b063`, repeated at `891103afa` after the code review). Only
 > the plans Phase 17 kept were executed. The map below is the original plan; rows for moved plans are
 > moved to Phase 18 and are not evidence. See "Reduced-scope sign-off" at the end and
 > 17-FINAL-VALIDATION.md. `nyquist_compliant` stays `false` until `/gsd-validate-phase 17`.
@@ -160,7 +161,8 @@ in the next section.
 
 ## Reduced-scope sign-off (17-23, 2026-11-04)
 
-Signed off at `97b31b063` only where evidence exists. Evidence and counts:
+Signed off at `97b31b063` only where evidence exists, then repeated at the closing source `891103afa`
+(see "Repeated after the code review"). Evidence and counts:
 [17-FINAL-VALIDATION.md](17-FINAL-VALIDATION.md), section 1.
 
 | Kept plan or gate | Validation evidence | Status |
@@ -172,7 +174,7 @@ Signed off at `97b31b063` only where evidence exists. Evidence and counts:
 | Existing behavior | FeatureTests and UITests, phone then tablet, one invocation at a time, 0 failures and 0 Repetition nodes | Passed at `97b31b063`: all four runs exit 0, 0 failures, 0 Repetition (FV section 1) |
 | Strict lint | SwiftLint 0.65.1, `--strict --no-cache`, the five paths: 0 violations in 759 files | Passed |
 | Release gate | `verify-release.py` on a Release build of `97b31b063`; `test_release.py` 19 OK | Passed (0 findings; Debug control 991) |
-| Reader page sync | ReaderPageSyncUITests ×20 on the iPhone Air (`e745f38f6`), ×5 on the iPad (`97b31b063`) | Passed: 160 of 160 and 40 of 40, 0 retries. Known limit: the iPad ran ×5, not ×20 (owner, 2026-11-04) |
+| Reader page sync | ReaderPageSyncUITests ×20 on the iPhone Air (`e745f38f6`), ×5 on the iPad (`97b31b063`) | Passed: 160 of 160 and 40 of 40, 0 retries. At the closing source `891103afa` both devices ran ×5 (see below) |
 
 **Moved, not validated here.** Complete regression (17-12), candidate and baseline generation (17-13,
 17-20), the 384 website export (17-07, 17-21), the designer handoff (17-22), native visual-policy and
@@ -181,19 +183,25 @@ preview checks (17-09 T2, 17-15), public dispatch (17-11), scenario expansion (1
 DIST-18-02).
 
 **Repeated after the code review.** The review fixes `92181ccd2` and `18ec91b86` changed the built
-source, so every check above ran again at `891103afa` and passed, with ReaderPageSyncUITests ×5 on each
-device: phone 40 of 40 passed, 0 retries; iPad 40 of 40 passed, 0 retries. See 17-FINAL-VALIDATION.md section 9.
+source, so every check above except the Debug negative-control scan ran again at `891103afa` and
+passed, with ReaderPageSyncUITests ×5 on each device: phone 40 of 40 passed, 0 retries; iPad 40 of 40
+passed, 0 retries. The last Debug negative-control scan (991 findings) is at `97b31b063`; none ran at
+`891103afa`. See 17-FINAL-VALIDATION.md section 9.
 
 **Known limits.**
 
-- **Reduced iPad page-sync coverage.** The iPad ReaderPageSyncUITests stress ran 5 iterations, not
-  20, by the owner's choice on 2026-11-04. Earlier iPad desyncs occurred about once in 20 runs or less,
-  so 5 iterations cannot exclude that rate.
+- **Reduced page-sync coverage on both devices.** At the closing source `891103afa`,
+  ReaderPageSyncUITests ran 5 iterations on **both** the phone and the iPad (40 of 40 each). The ×20
+  phone run is at `e745f38f6`, before the WR-01/IN-01 fixes. (At `97b31b063` only the iPad was
+  reduced, by the owner's choice on 2026-11-04.) Earlier iPad desyncs occurred about once in 20 runs
+  or less, so 5 iterations cannot exclude that rate. The owner accepted ×5 on both devices as a known
+  limit (owner msg 1640).
 - ReaderPageSyncUITests covers the vertical strip and the left-to-right pager, not right-to-left.
 - `ReaderPageProbe` can't read an iPad landscape two-page spread.
 - The reader still keeps several copies of the current page; Phase 18 reworks it to one source of truth.
 
 **Still open, flagged.** The CAP-17-07 unclassified edge is classified in 17-FINAL-VALIDATION.md
-section 8 and needs the verifier's confirmation. The three descriptor-less prohibitions stay
-flagged-unverified per 17-SOURCE-AUDIT.md: the first with the owner-approved synthetic comment, the
-other two moved to Phase 18. UAT (`/gsd-verify-work 17`) and the remaining close steps are ahead.
+section 8; the verifier concurred and the owner accepted it (owner msg 1640). The three descriptor-less
+prohibitions stay flagged-unverified per 17-SOURCE-AUDIT.md: the first with the owner-approved synthetic
+comment (exception accepted, owner msg 1640), the other two moved to Phase 18. UAT
+(`/gsd-verify-work 17`) and the remaining close steps are ahead.

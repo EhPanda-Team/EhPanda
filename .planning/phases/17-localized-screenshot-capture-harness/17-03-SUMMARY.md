@@ -214,6 +214,7 @@ defects and one test-isolation weakness. Each is fixed with a test that fails on
 
 - **Owner delegation, 2026-10-07.** The agent assists with provisional gallery selection, review and fixture acquisition for both nonexplicit and explicit content sets; the owner confirms the final selection at Phase 17 closure.
 - **Owner instruction, later on 2026-10-07.** The nonexplicit sample uses Non-H; the agent also prepares the explicit selection through the same acquisition and review tooling.
+- **Erratum (2026-11-05).** 17-03-PLAN.md writes `scripts/visual`; the real path is `Scripts/visual`. The executed plan is not rewritten.
 ## Unresolved Gates
 
 1. **Agent-assisted explicit fixture preparation.** The agent prepares provisional gallery URLs, declared set assignments, Home composition, flow/Live Text pages and download states, then validates and acquires the selection with `acquire-fixtures.py` and `selection-review.py`.

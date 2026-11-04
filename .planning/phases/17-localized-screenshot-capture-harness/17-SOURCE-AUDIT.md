@@ -141,7 +141,7 @@ All22 surfaced items are retained:21 explicit acceptance predicates are projecte
 | CAP-17-05/concurrency | 17-22 | explicit — Interrupted designer handoff remains incomplete; capture/test runs stay serialized and cannot imply acceptance. |
 | CAP-17-06/idempotency | 17-09 | explicit — Repeated native cold/live size-transition checks preserve title/search/query and current selected state. |
 | CAP-17-06/concurrency | 17-09 | explicit — Simulator tests and locale preview calls execute sequentially and interruption cannot count as passed evidence. |
-| CAP-17-07/unclassified | 17-23-T1 | unresolved at planning — classified by 17-23 (17-FINAL-VALIDATION.md section 8) against the Release launch probe and the idiom census; the verifier confirms. No acceptance predicate is invented. |
+| CAP-17-07/unclassified | 17-23-T1 | unresolved at planning — classified by 17-23 (17-FINAL-VALIDATION.md section 8) against the Release launch probe and the idiom census; the verifier concurred (17-VERIFICATION.md) and the owner accepted the classification (owner msg 1640, 2026-11-05). No acceptance predicate is invented. |
 
 ## Spec-less prohibition fallback
 
@@ -232,7 +232,10 @@ with their plans.
 
 - Edge predicates owned by kept plans (CAP-17-01, CAP-17-02 adjacency/empty/ordering) were tested by
   17-03 and 17-02. Those owned by moved plans (17-07, 17-09, 17-12, 17-22) moved with them.
-- CAP-17-07/unclassified: classified by 17-23, verifier to confirm (row above).
+- CAP-17-07/unclassified: classified by 17-23; the verifier concurred and the owner accepted it
+  (owner msg 1640, 2026-11-05) (row above).
 - Prohibitions: "Marketing MUST NOT invent gallery content" stays flagged-unverified, with the
-  owner-approved synthetic comment in gallery 2758456 (FV section 3). The other two moved to Phase 18
+  owner-approved synthetic comment in gallery 2758456 (FV section 3). The owner accepted that
+  exception (comment 9000000001 by CedarComet91, and the edited image B) on 2026-11-05 (owner msg
+  1640). The other two moved to Phase 18
   with 17-12 and 17-22.
