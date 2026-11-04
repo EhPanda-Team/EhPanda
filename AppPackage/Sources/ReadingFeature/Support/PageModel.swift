@@ -109,3 +109,25 @@ struct PagerTurnGate {
         return .sendAgain
     }
 }
+
+/// Seeds the pager once, at the first measurement of an area it can lay pages out in.
+///
+/// The first measurement can be degenerate. With a full-width bar inset at the bottom of the reader, the iPad reader
+/// first measured 0 by 1 pt, then 834 by 1052 pt (measured 2026-11-04 on iOS 27.2). The seed had waited for the first
+/// measurement other than zero. That measurement was 0 by 1, too narrow to lay pages out in, so the seed was skipped,
+/// and every later measurement was no longer the first one. The pager then opened on page 1 while the slider, and the
+/// indicator with it, kept the resume page it is given at construction.
+struct PagerSeed {
+    private(set) var isSeeded = false
+
+    /// Whether `size` is an area the pager can lay pages out in.
+    static func isReadingArea(_ size: CGSize) -> Bool {
+        size.width.isFinite && size.height.isFinite && size.width > 0 && size.height > 0
+    }
+
+    /// Whether the pager is to be seeded now, at a measurement of a reading area: `true` once, the first time.
+    mutating func seeds() -> Bool {
+        defer { isSeeded = true }
+        return !isSeeded
+    }
+}
