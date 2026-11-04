@@ -5,10 +5,10 @@ current_phase: 17
 current_phase_name: Screenshot Automation, Visual Regression & OS 27 Modernization
 status: executing
 stopped_at: 17-14 complete (T2 gate passes at 1829841d8); next 17-23, then the Phase 17 close steps
-last_updated: "2026-11-03T12:09:46.000Z"
+last_updated: "2026-11-04T08:22:31.667Z"
 last_activity: 2026-11-03
 last_activity_desc: 17-14 T2 complete at 1829841d8; Release scan 0 findings (Debug negative 991, scanner tests 19 OK), strict lint clean, FeatureTests and UITests pass on phone and tablet with 0 failures and 0 Repetition after two app fixes (d8567a8f8, ef625c0cb) and the test fixes
-state_head: e255b3e6275b71efb6e3b8d4f29fa98cbc188da7
+state_head: edb77faf7395e5642a39baf4ed735646b19cadae
 progress:
   total_phases: 18
   completed_phases: 15
@@ -1450,6 +1450,7 @@ None yet.
 | 261031-sim | Record the iOS simulator rule in AGENTS.md: create a project-prefixed simulator when a task needs one, delete it when no task does, and never delete simulators outside this project's scope (owner request) | 2026-10-31 | 685e32e3a | — |
 | 261101-ipad-reload-row | Keep Home's Reload in the iPad top tab bar row by hosting the Duo sheet presenter inside Home's NavigationStack; UI regression assertion; iPad, iPhone and Duo verified | 2026-11-01 | 350773d46 | [261101-ipad-reload-row](./quick/261101-ipad-reload-row/SUMMARY.md) |
 | 261103-test-plan-repairs | Repair the 17-14 T2 test failures: the UI-test stub answers `gdata`; More matches iOS 27's overflow identifiers; UITests skips the two capture-only suites; stale capture-scene, tracer and reader-orientation tests; download helpers use a test clock and 30 s hang bounds; galleries found in any layout. Final runs have 0 failures on iPhone Air and iPad Pro 11-inch (M5), and 6 tests have passed only on a retry | 2026-11-03 | e4b63d6a5 | [261103-test-plan-repairs](./quick/261103-test-plan-repairs/SUMMARY.md) |
+| 16 | Commit website screenshot recapture records and discard incomplete Phase 17 drafts | 2026-11-04 | edb77faf7 | — |
 
 ### Roadmap Evolution
 
