@@ -212,16 +212,22 @@ public struct ReadingView: View {
         // pages above already ignore the safe area, so the bar's inset never reaches them: pager
         // frames, paging snaps and the vertical list's center anchor keep their geometry.
         .safeAreaBar(edge: .bottom, spacing: 0) {
-            // The effect only follows bar elements such as text, so the bar holds a blank line.
-            // It stays inset like the panel: a full-width bar moved the vertical reader's
-            // opening page on iOS 26.
-            Text(verbatim: " ")
-                .frame(maxWidth: .infinity)
-                .frame(height: lowerPanelHeight)
-                .padding(.horizontal)
-                .opacity(0)
-                .allowsHitTesting(false)
-                .accessibilityHidden(true)
+            // The bar waits for a reading area. While the reader is presented it is offered no size,
+            // and the bar's padding and height alone made it measure 32 by 118 pt, which seeded the
+            // vertical list at that width: the pages built above the resume page kept the heights
+            // they had there, and a rotation then left the page off the top of the screen.
+            if PagerSeed.isReadingArea(gestureHandler.containerSize) {
+                // The effect only follows bar elements such as text, so the bar holds a blank line.
+                // It stays inset like the panel: a full-width bar moved the vertical reader's
+                // opening page on iOS 26.
+                Text(verbatim: " ")
+                    .frame(maxWidth: .infinity)
+                    .frame(height: lowerPanelHeight)
+                    .padding(.horizontal)
+                    .opacity(0)
+                    .allowsHitTesting(false)
+                    .accessibilityHidden(true)
+            }
         }
         .overlay {
             let usesHalfWidth = deviceState?.supportsLandscapePanes(in: gestureHandler.containerSize) == true
