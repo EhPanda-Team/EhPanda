@@ -6,7 +6,7 @@ nyquist_compliant: false
 wave_0_complete: false
 created: "2026-10-02"
 signed_off: "2026-11-04"
-signed_off_source: "97b31b063"
+signed_off_source: "891103afa"
 ---
 
 # Phase17 validation strategy
@@ -180,6 +180,10 @@ preview checks (17-09 T2, 17-15), public dispatch (17-11), scenario expansion (1
 17-14 T1/T3. Their commands above stay unexecuted and move to Phase 18 (VIS-18-01, MKT-18-01,
 DIST-18-02).
 
+**Repeated after the code review.** The review fixes `92181ccd2` and `18ec91b86` changed the built
+source, so every check above ran again at `891103afa` and passed, with ReaderPageSyncUITests ×5 on each
+device: phone 40 of 40 passed, 0 retries; iPad 40 of 40 passed, 0 retries. See 17-FINAL-VALIDATION.md section 9.
+
 **Known limits.**
 
 - **Reduced iPad page-sync coverage.** The iPad ReaderPageSyncUITests stress ran 5 iterations, not
@@ -187,6 +191,7 @@ DIST-18-02).
   so 5 iterations cannot exclude that rate.
 - ReaderPageSyncUITests covers the vertical strip and the left-to-right pager, not right-to-left.
 - `ReaderPageProbe` can't read an iPad landscape two-page spread.
+- The reader still keeps several copies of the current page; Phase 18 reworks it to one source of truth.
 
 **Still open, flagged.** The CAP-17-07 unclassified edge is classified in 17-FINAL-VALIDATION.md
 section 8 and needs the verifier's confirmation. The three descriptor-less prohibitions stay

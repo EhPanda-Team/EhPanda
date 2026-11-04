@@ -4,10 +4,10 @@ milestone: v3.0.0
 current_phase: 17
 current_phase_name: Screenshot Automation, Visual Regression & OS 27 Modernization
 status: executing
-stopped_at: 17-23 complete (reduced gate passes at 97b31b063); next the Phase 17 close steps
-last_updated: "2026-11-04T13:24:57.000Z"
+stopped_at: Phase 17 code review fixed; gate repeated at 891103afa; next the verifier and the remaining close steps
+last_updated: "2026-11-04T16:01:49.000Z"
 last_activity: 2026-11-04
-last_activity_desc: 17-23 reduced gate passes at 97b31b063; Phase 17 13/13 plans executed, close steps next
+last_activity_desc: Phase 17 review fixes (WR-01, IN-01); gate repeated and passing at 891103afa
 state_head: e745f38f657119e7be6c159153f44f8672055b82
 progress:
   total_phases: 18
@@ -20,6 +20,19 @@ source_head: af00e0da93
 ---
 
 # Project State
+
+## Phase 17 code review fixed; gate repeated at `891103afa` — 2026-11-04
+
+The phase code review found 0 critical, 2 warnings, 3 info. WR-01 (the reader's page-turn gate
+survived a pager rebuild) and IN-01 are fixed (`92181ccd2`, `18ec91b86`); WR-02 is not a gap (owner,
+msg 1627); IN-02 and IN-03 are deferred to Phase 18. Every 17-23 check passed again at `891103afa`, with
+ReaderPageSyncUITests ×5 on phone (40 of 40 passed, 0 retries) and iPad (40 of 40 passed, 0 retries).
+
+**Carried to Phase 18 (owner msg 1630, product lead msg 1631).** Rework how the reader tracks its
+current page: one source of truth for the page shown and the number displayed, as one task, not more
+patches.
+
+Next: the verifier's 17-VERIFICATION.md, then UAT, secure-phase and validate-phase.
 
 ## 17-23 reduced-scope gate passes — 2026-11-04
 
