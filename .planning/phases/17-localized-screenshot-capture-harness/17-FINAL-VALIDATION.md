@@ -174,17 +174,37 @@ website image set. That set is the 2026-11-04 recapture (quick task `261104-webs
   recaptured without the home indicator.
 - **101 status-bar edits.** Each one changes only the cellular glyph of a 2026-11-02 capture.
 - **The approval.** The owner approved all 118 files on 2026-11-04 (msg 1581). The approval is
-  recorded in the website repository (`ehpanda-website`, `develop` branch, commit `d4393bd`).
-- **The provenance record.** That approval sits in
+  recorded in the website repository (`ehpanda-website`, commit `d4393bd`, on both `develop` and
+  `main`).
+- **The provenance record.** That approval sits in the `ehpanda-website` repository, not this one, at
   `.planning/phases/07-full-image-matrix-import-review-promote/07-SCREENSHOT-PROVENANCE-20261104.json`.
   Its entries supersede the 2026-11-02 record for every served path. It keeps each source's SHA-256.
   For the 101 edits, it also names the 2026-11-02 original and that original's SHA-256.
-- **Fixtures.** The Live Text recaptures used new immutable local fixture versions. Those versions add
-  the later chapter pages from the saved response archive. The approved fixtures did not change.
+- **Fixtures.** The private fixture repository (`ehpanda-fixture`, commit `8ee4fc2`, signed) holds the
+  fixtures behind the current set. Its index, `website-capture-20261104.json`, names the fixture
+  behind each of the 118 files; `active-fixtures.json.websiteCaptureIndex` points to it.
+  - **Live Text (owner msg 1645).** The six Live Text versions are retained:
+    `marketing-e21df44ae7f9a521` (en), `marketing-5ec8abb6b5b9ff4b` (de),
+    `marketing-4f2ac4b9bf0054c9` (ja), `marketing-79494cb0384c200f` (ko),
+    `marketing-c3d49c5a48153585` (zh-Hans) and `marketing-7d7cea6102958b16` (zh-Hant). They add the
+    later chapter pages from the saved response archive.
+  - **Translation records.** Each version carries its Live Text translation record in
+    `records/<gallery>/liveText/12.json`, the layout the earlier versions used. The de, ko, zh-Hans
+    and zh-Hant records were newly recorded on 2026-11-04. The en and ja records are byte-identical
+    to the approved 2026-11-02 records.
+  - **The other screens** use five versions that were already approved: `marketing-1e33788fc9228d9f`
+    and `marketing-1bbee205f2f1f108` (defaults), `marketing-0d1b87cf8ef5a9e8` (Comments, both
+    groups), `marketing-58abe2abbdeb7391` and `marketing-15d9f3402020edef` (Reading).
+  - **Removed (owner msg 1647: keep only the latest copies).** The fixture repository now keeps only
+    these 11 versions. It no longer keeps the 11 versions the current set does not use: the explicit
+    Comments version, the four non-explicit reader versions for de, ko, zh-Hant and zh-Hans, and the six
+    explicit reader versions. The 2026-11-02 index, `website-capture-20261102.json`, is removed too.
+    The new index keeps the 2026-11-02 capture hashes behind the 101 edits and 7 recaptures. The
+    original acquisition archive `data/` is not a fixture version and stays.
 
-The 2026-11-02 approval below still records which coordinates exist and which fixtures they come from.
-The image hashes in its index, `website-capture-20261102.json`, describe the 2026-11-02 captures, not
-the files delivered now.
+The 2026-11-02 approval below still records which coordinates exist. Its index and its 16 fixture
+versions were the record until 2026-11-04. They remain in the fixture repository's history at
+`134cbf3`.
 
 ### The approval of 2026-11-02
 
@@ -193,9 +213,9 @@ records the owner's approval of the complete local review.
 
 - **The images.** 192 iPhone Air portrait images at 1260 × 2736: two content groups × six locales ×
   two themes × eight screens. All artifact and browser checks passed.
-- **The fixtures.** They come from 16 immutable fixture versions in the private fixture repository,
-  indexed by `website-capture-20261102.json` through `active-fixtures.json.websiteCaptureIndex`. That
-  index records:
+- **The fixtures.** They came from 16 immutable fixture versions in the private fixture repository,
+  indexed by `website-capture-20261102.json` (fixture repository `134cbf3`; superseded by
+  `website-capture-20261104.json` and removed in `8ee4fc2`, owner msg 1647). That index recorded:
   - coordinate routing and title and source-language rules;
   - tag translation asset hashes;
   - all 192 approved image hashes.
