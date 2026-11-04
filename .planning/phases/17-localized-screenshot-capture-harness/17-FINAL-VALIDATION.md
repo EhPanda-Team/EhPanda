@@ -310,3 +310,46 @@ remaining obligation is moved to Phase 18 with its plans.
 - **Human gates still ahead.** The GSD close steps, including UAT (`/gsd-verify-work 17`). No owner
   approval is inferred from this record.
 - **Not claimed.** Phase completion, any moved requirement, and any snapshot or baseline evidence.
+
+## 9. Code-review fixes and the gate repeated at `b5eca09d1`
+
+The phase code review (17-REVIEW.md, `128891b1d`) found 0 critical, 2 warnings and 3 info. The owner
+decided on 2026-11-04 (msg 1627): fix WR-01 now; WR-02 is not a gap ("the required pages don't show a
+home indicator"). Fixes and dispositions are in 17-REVIEW-FIX.md and 17-REVIEW-DISPOSITION.md (`b5eca09d1`).
+
+| Commit | Change |
+|---|---|
+| `fb1ea4b18` | WR-01: the reader's page-turn gate starts over when the pager is rebuilt (reload of all images, the local-to-remote fallback, a vertical-to-horizontal direction change) |
+| `443e74541` | IN-01: the pager's miss count starts over for each turn |
+
+Because these change the built source, every section 1 check ran again at `b5eca09d1`, from a clean tree,
+one invocation at a time:
+
+| # | Check | Result at `b5eca09d1` |
+|---|---|---|
+| 1 | FeatureTests, EhPanda iPhone Air | exit 0; 1541 cases: 1531 passed, 0 failed, 10 expected failures, 0 Repetition |
+| 2 | UITests, EhPanda iPhone Air | exit 0; 88 cases: 68 passed, 0 failed, 20 skipped, 0 Repetition |
+| 3 | FeatureTests, EhPanda iPad Pro 11-inch (M5) | exit 0; 1541 cases: 1531 passed, 0 failed, 10 expected failures, 0 Repetition |
+| 4 | UITests, EhPanda iPad Pro 11-inch (M5) | exit 0; 88 cases: 71 passed, 0 failed, 17 skipped, 0 Repetition |
+| 5 | Strict lint, no cache | 0 violations in 759 files |
+| 6 | Release scan (Release build in the clean worktree `ehpanda-1723-final2` at `b5eca09d1`) | exit 0, 0 findings |
+| 7 | Scanner tests (`test_release.py`) | 19 OK |
+| 8 | ReaderPageSyncUITests ×5, iPhone Air | 40 of 40 passed, 0 retries |
+| 9 | ReaderPageSyncUITests ×5, iPad Pro 11-inch (M5) | 40 of 40 passed, 0 retries |
+
+- The 6 new cases are the WR-01 and IN-01 unit tests in `PagerTurnGateTests`.
+- On both devices the tenth expected failure is the known `SettingReducerTests` timing issue (section 1).
+- Result bundles are kept locally (`f23d-*`, `stress9-*`) and are not committed.
+
+**Verdict at `b5eca09d1`:** Pass. This is the source the phase closes on.
+
+**Not verified at runtime.** The rebuild wiring (that the new observers fire on refresh and direction
+change) is covered by unit tests of the gate, not by a UI test. Whether a left-to-right to right-to-left
+switch keeps the same pager is unconfirmed.
+
+**Root cause, carried to Phase 18 (owner msg 1630, product lead msg 1631).** The reader page-sync fixes
+in this phase (`3708ac32c`, `4cc9925e1`, `a7627790a`, `b2c958838`, `3642b8cec`, `fb1ea4b18`, `443e74541`)
+each close one path where the reader's copies of "the current page" drift apart: the page model's
+index, the pager's scroll position, the slider value shown, the reducer's reading progress and the
+vertical list's own position. Phase 18 replaces them with one source of truth for the page shown and
+the number displayed, as one task, not further patches.

@@ -101,6 +101,13 @@ The owner's website recapture added two DEBUG-only capture commits during the ga
   these two edits were discarded on 2026-11-04 during another agent's cleanup of incomplete Phase 17
   drafts; they were rewritten for this commit.
 
+## After the code review
+
+The phase code review's WR-01 and IN-01 were fixed (`fb1ea4b18`, `443e74541`), and the whole gate ran
+again at `b5eca09d1`: all four runs exit 0 with 0 failures and 0 Repetition, lint and the Release scan clean,
+ReaderPageSyncUITests ×5 on phone (40 of 40 passed, 0 retries) and iPad (40 of 40 passed, 0 retries). See 17-FINAL-VALIDATION.md
+section 9. The reader's page tracking moves to one source of truth in Phase 18.
+
 ## Deviations
 
 - **Release scan repeated.** The plan cites 17-RELEASE-ISOLATION.md only if the source equals 17-14's
