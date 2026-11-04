@@ -54,9 +54,9 @@ final class PageModel {
 /// is sent to the index once it is at rest: holding the turn, rather than accepting where the pager stopped, keeps the
 /// page the reader asked for. And once the pager is at rest, the page it shows is checked against the index, so a turn
 /// lost at the moment of rest is sent again; a page the pager keeps missing is given up, and the index follows the page
-/// on screen instead, so the indicator never names a page the screen does not show. A pager built anew, as after a
-/// change of direction, reports `.idle` as it appears, which also clears a gate left behind by a pager torn down
-/// mid-animation.
+/// on screen instead, so the indicator never names a page the screen does not show. A pager built anew, after a forced
+/// refresh or a change of direction, starts the gate over (`pagerRebuilt()`): it need not report a phase as it appears,
+/// so a gate left behind by a pager torn down mid-animation would otherwise hold every later turn.
 struct PagerTurnGate {
     /// What brings a pager at rest on another page than the index back in step with it.
     enum Correction: Equatable {
@@ -90,6 +90,14 @@ struct PagerTurnGate {
         guard !isAnimating else { return false }
         defer { holdsTurn = false }
         return phase == .idle && holdsTurn
+    }
+
+    /// Starts the gate over for a pager built anew. A new pager starts at rest and need not report a scroll phase until
+    /// it moves, so a gate left mid-animation by the pager it replaces would hold every turn and never check the page
+    /// on screen. The new pager is placed on the index, which a held turn has already moved, so no turn is left to
+    /// send.
+    mutating func pagerRebuilt() {
+        self = Self()
     }
 
     /// How the pager, at rest on the `shown` position, is brought back in step with `index`, or `nil` when it is in
