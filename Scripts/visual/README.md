@@ -622,6 +622,8 @@ SwiftUI visibility preference. The DEBUG-only capture environment carries that p
 presented readers, including readers whose controls are visible. Ordinary launches keep each
 screen's own visibility policy. Verify the home indicator is absent in every exported screenshot;
 stable frames alone do not prove that system chrome has disappeared.
+Separately presented NavigationStacks, including Filters, consume the capture preference at their
+own presentation root instead of relying on the app root's system-overlay preference to propagate.
 
 `capture-native.py` records the frame a marketing image is made from: the actual app's screen with
 the system's own status bar, at the device's native size, identical across independent cold

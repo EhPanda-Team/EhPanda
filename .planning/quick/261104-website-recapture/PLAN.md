@@ -36,3 +36,20 @@ propagate it through presented readers. Ordinary launches retain their existing 
 Regenerate all ten coordinates consistently, verify the indicator is absent in every PNG, and
 deliver a new revision with updated checksums and build provenance. Keep the preceding packages
 as historical outputs. Commit the completed capture change and records after verification.
+
+## Seven older Filters and adult-mode Detail images
+
+The owner identified remaining home indicators in five Filters screenshots (English light/dark,
+German light, Simplified Chinese light/dark) and two adult-mode Detail screenshots (English light,
+Korean light). These belong to the original general website corpus rather than the reader/Live Text
+replacement matrix. Use the approved default fixtures and hash-pinned tag translations from that
+corpus, the current capture-only chrome policy and native sustained settlement. Recapture exactly
+these seven coordinates, inspect every bottom edge, validate PNGs and checksums, and deliver them
+as a separate replacement package. Preserve the reader/Live Text revision and the original corpus.
+No website modification or publication.
+
+Visual inspection of the first replacement German Filters image still found a home indicator.
+Filters owns a separately presented NavigationStack, so apply the existing DEBUG-only capture
+overlay preference directly to that presentation root, then recapture German Filters. Preserve
+the six replacement images whose bottom edges already passed inspection. Ordinary launches and
+Release remain unchanged.
