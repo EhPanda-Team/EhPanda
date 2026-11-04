@@ -4,22 +4,50 @@ milestone: v3.0.0
 current_phase: 17
 current_phase_name: Screenshot Automation, Visual Regression & OS 27 Modernization
 status: executing
-stopped_at: 17-14 complete (T2 gate passes at 1829841d8); next 17-23, then the Phase 17 close steps
-last_updated: "2026-11-04T08:45:33.123Z"
-last_activity: 2026-11-03
-last_activity_desc: 17-14 T2 complete at 1829841d8; Release scan 0 findings (Debug negative 991, scanner tests 19 OK), strict lint clean, FeatureTests and UITests pass on phone and tablet with 0 failures and 0 Repetition after two app fixes (d8567a8f8, ef625c0cb) and the test fixes
+stopped_at: 17-23 complete (reduced gate passes at 97b31b063); next the Phase 17 close steps
+last_updated: "2026-11-04T13:24:57.000Z"
+last_activity: 2026-11-04
+last_activity_desc: 17-23 reduced gate passes at 97b31b063; Phase 17 13/13 plans executed, close steps next
 state_head: e745f38f657119e7be6c159153f44f8672055b82
 progress:
   total_phases: 18
   completed_phases: 15
   total_plans: 287
-  completed_plans: 286
+  completed_plans: 287
   percent: 83
 milestone_name: )
 source_head: af00e0da93
 ---
 
 # Project State
+
+## 17-23 reduced-scope gate passes — 2026-11-04
+
+At `97b31b063` every 17-23 check passes, and Phase 17 has executed 13 of 13 plans. The GSD close steps
+are next.
+
+- **FeatureTests.** iPhone Air 1526 passed, iPad 1525 passed, 0 failed, 0 Repetition (9 and 10 expected failures; the iPad's extra one is the known SettingReducerTests timing issue).
+- **UITests.** iPhone Air 68 passed, 20 skipped; iPad 71 passed, 17 skipped; 0 failed, 0 Repetition.
+- **Lint.** Strict lint finds 0 violations in 759 files.
+- **Release scan.** Repeated at `97b31b063`, because the reader fixes changed the built source: exit 0, 0 findings; the launched probe can't activate capture.
+  The Debug control finds 991. The scanner tests give 19 OK.
+- **Reader page-sync stress.** ReaderPageSyncUITests ×20 on the iPhone Air at `e745f38f6`: 160 of 160 passed, 0 retries.
+  ×5 on the iPad at `97b31b063`: 40 of 40 passed, 0 retries.
+
+**What it took.** Reader fixes found by the gate: `adbd63809`, `8f0d09fff`, `2539331b2` (indicator
+and screen agree after a slider drag), `4372e4b8f` (cold opening on the resume page), `346a3ea87`
+(landscape after the soft bottom edge). The reader also gained a soft bottom edge (`90d6a6339`) and
+hides the home indicator with its controls (`e745f38f6`).
+
+**Known limits.**
+
+- The iPad page-sync stress ran 5 iterations, not 20 (owner's choice, 2026-11-04).
+- Page-sync tests don't cover right-to-left reading or an iPad landscape spread.
+- The slider still seeks live during a drag; the indicator stays correct.
+
+[Evidence](phases/17-localized-screenshot-capture-harness/17-FINAL-VALIDATION.md),
+[summary](phases/17-localized-screenshot-capture-harness/17-23-SUMMARY.md).
+Next: the Phase 17 close steps (code review, regression gate, verification, UAT, secure, validate).
 
 ## 17-14 T2 Release isolation gate passes — 2026-11-03
 

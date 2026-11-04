@@ -2,6 +2,11 @@
 
 Planning coverage only; no implementation gate is claimed passed. All27 locked decisions and all7 CAP requirements have executable owners. No deferred idea is introduced.
 
+> **Reduced scope, 2026-11-03 (owner msg 1305).** The tables below are the planning-time audit and are
+> kept as written. The status of each row at Phase 17 close, with evidence and the plans moved to
+> Phase 18, is in "Execution status at Phase 17 close (17-23)" at the end of this file. A "COVERED"
+> below means a plan owned the item, not that the item is satisfied.
+
 | SOURCE | ID | Feature/requirement | Plans | Status | Notes |
 |---|---|---|---|---|---|
 | GOAL | G17 | Separate deterministic public regression and real actual-app marketing, local website/designer handoffs, preserve native behavior and audit layout after snapshots | 01–24 | COVERED | Superseding current context, not historical modernization work. |
@@ -136,7 +141,7 @@ All22 surfaced items are retained:21 explicit acceptance predicates are projecte
 | CAP-17-05/concurrency | 17-22 | explicit — Interrupted designer handoff remains incomplete; capture/test runs stay serialized and cannot imply acceptance. |
 | CAP-17-06/idempotency | 17-09 | explicit — Repeated native cold/live size-transition checks preserve title/search/query and current selected state. |
 | CAP-17-06/concurrency | 17-09 | explicit — Simulator tests and locale preview calls execute sequentially and interruption cannot count as passed evidence. |
-| CAP-17-07/unclassified | 17-23-T1 | unresolved — manually classify the probe before closure; no acceptance predicate is invented. |
+| CAP-17-07/unclassified | 17-23-T1 | unresolved at planning — classified by 17-23 (17-FINAL-VALIDATION.md section 8) against the Release launch probe and the idiom census; the verifier confirms. No acceptance predicate is invented. |
 
 ## Spec-less prohibition fallback
 
@@ -182,3 +187,52 @@ All24 waves serialize shared scenario/fixture/README/baseline resources; simulat
 The owner requested targeted fixes, not acceptance of findings. The environment/geometry producer is now17-24, between17-01 and17-02; its pin is authored only after real measurements pass. Plan02 keeps matrix production and complete tracer acceptance. Plan14 now separates current-tree CI and Release producer acceptance/commits from task3 archived-HEAD acceptance. Task3 owns only17-CI-CLEAN-CHECKOUT.md; that new evidence document is not a CI input. It checks committed source identity before the real full run and records all hashes, negatives and Release evidence afterward. All seven CAP requirements and27 locked decisions remain planned; no execution success is claimed.
 
 Revision2 authoring checks: all24 frontmatter and24 plan-structure validations passed without warnings; dependency/wave arithmetic, per-task ownership, same-wave ownership and task counts passed. Maximum per-plan scope is9 paths. The decision gate passed27/27, all7 CAP IDs remain assigned, and all64 automated commands have immediate failure directions. The command-path probe reported not_applicable with no blockers/warnings; it does not prove future target registration. Independent review remains the next gate. No implementation or full-run execution was performed by this revision.
+
+## Execution status at Phase 17 close (17-23)
+
+Recorded 2026-11-04 at `97b31b063`. Evidence: [17-FINAL-VALIDATION.md](17-FINAL-VALIDATION.md) (FV) and
+the plan summaries. "Moved" means moved to Phase 18, not satisfied.
+
+### Plans
+
+| Plan | Status | Evidence or destination |
+|---|---|---|
+| 17-01, 17-24, 17-02 | Executed | Their summaries |
+| 17-03, 17-04, 17-05, 17-06 | Executed | Their summaries; FV section 3 (192 approved website images, 16 fixture versions) |
+| 17-16, 17-17, 17-18, 17-19 | Executed (landed migration verified; owner kept all five idiom reads) | Their summaries; 17-LAYOUT-AUDIT.md; FV section 4 |
+| 17-14 | T2 executed; T1/T3 moved | 17-RELEASE-ISOLATION.md at `1829841d8`; repeated at `97b31b063` (FV section 1). T1/T3 → VIS-18-01 |
+| 17-23 | Executed | FV; 17-23-SUMMARY.md |
+| 17-07, 17-21 | Moved (`status: superseded`) | MKT-18-01 (384 export, final selection) |
+| 17-08, 17-09, 17-10, 17-11, 17-12, 17-13 | Moved (`status: superseded`) | VIS-18-01 |
+| 17-15 | Moved (`status: superseded`) | VIS-18-01 |
+| 17-20 | Moved (`status: superseded`) | Folded into Phase 18's single baseline approval |
+| 17-22 | Moved (`status: superseded`) | MKT-18-01, DIST-18-02 |
+
+### Requirements
+
+| ID | Status at close | Evidence or destination |
+|---|---|---|
+| CAP-17-01 | Fixture part evidenced; dispatch and final 384 reacquisition moved | FV section 6; 17-03, 17-04, 17-06; moved part → VIS-18-01, MKT-18-01 |
+| CAP-17-02 | Moved | VIS-18-01 |
+| CAP-17-03 | Moved | VIS-18-01 |
+| CAP-17-04 | Evidenced as amended 2026-11-03 (192 approved website images); 384 tooling moved | FV sections 2, 3; moved part → MKT-18-01 |
+| CAP-17-05 | Moved | MKT-18-01, DIST-18-02 |
+| CAP-17-06 | Bounded part evidenced; snapshot-measured parts moved | FV sections 6, 7 (D-25, D-26); moved part → VIS-18-01 |
+| CAP-17-07 | Evidenced as amended 2026-11-03 | FV sections 1 (Release scan at `97b31b063`), 4; 17-LAYOUT-AUDIT.md |
+
+### Decisions and research items
+
+D-01 to D-27 are reconciled one by one in FV section 7: delivered, delivered in part, moved, D-16
+superseded for CAP-17-04 by the website contract, and D-27's ordering not followed (owner amendment of
+CAP-17-07). Research items: R1, R2, R3, R7, R10 and R11 are owned by kept plans, whose summaries carry the
+evidence; R5 and R6 are split (kept: 17-03, 17-04; moved: 17-11, 17-21); R4, R8, R9 and R12 moved
+with their plans.
+
+### Spec-less items
+
+- Edge predicates owned by kept plans (CAP-17-01, CAP-17-02 adjacency/empty/ordering) were tested by
+  17-03 and 17-02. Those owned by moved plans (17-07, 17-09, 17-12, 17-22) moved with them.
+- CAP-17-07/unclassified: classified by 17-23, verifier to confirm (row above).
+- Prohibitions: "Marketing MUST NOT invent gallery content" stays flagged-unverified, with the
+  owner-approved synthetic comment in gallery 2758456 (FV section 3). The other two moved to Phase 18
+  with 17-12 and 17-22.
