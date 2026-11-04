@@ -63,3 +63,10 @@ four-bar glyph, restore the exact source background under the old dots, and chan
 the allowed signal rectangle `[880, 85, 975, 145]`. Choose representative light/dark samples from
 all listed screenshot groups. Deliver full-size edited PNGs, per-file diff boxes and checksums,
 and before/after comparisons outside the website repository. Preserve all original files.
+
+The owner accepted the ten samples and authorized replacing all 101 listed targets, reusing samples
+that satisfy the requirements. Revalidate the originals, references and approved samples, copy the
+ten qualifying sample PNGs unchanged, and generate the remaining 91 with the approved method.
+Verify the complete exact target set, per-file checksums, diff bounds, unchanged outside pixels,
+RGB/sRGB/no-alpha format and clean delivery contents. Deliver the full package outside the website
+repository; keep the original corpus and today's seventeen recaptures unchanged.
