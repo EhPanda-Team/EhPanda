@@ -25,6 +25,7 @@ struct ControlPanel<G: Gesture>: View {
     let dismissGesture: G
     let dismissAction: () -> Void
     let fetchPreviewURLsAction: (Int) -> Void
+    var lowerPanelHeightChangeAction: (CGFloat) -> Void = { _ in }
 
     /// Where the hidden panel rests: 50 pt below its shown position, so showing it is a rise
     /// paired with the fade `.visible(showsPanel)` provides. The rise is position motion, so under
@@ -97,6 +98,8 @@ struct ControlPanel<G: Gesture>: View {
                 // motion, so under Reduce Motion the tray appears in place (D-29).
                 .animation(reduceMotion ? nil : .default, value: showsSliderPreview)
                 .animation(reduceMotion ? nil : .smooth(duration: 0.35), value: controlsOnLeft)
+                // Measured before the hide offset: the reader sizes its bottom edge effect to it.
+                .onGeometryChange(for: CGFloat.self, of: \.size.height, action: lowerPanelHeightChangeAction)
                 .offset(y: showsPanel ? 0 : hiddenPanelOffset)
             }
         }

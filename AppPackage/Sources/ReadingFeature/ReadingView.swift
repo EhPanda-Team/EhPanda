@@ -40,6 +40,7 @@ public struct ReadingView: View {
     @State private var performingChanges = false
     @State private var deviceState: WindowDevice?
     @State private var pagerSeed = PagerSeed()
+    @State private var lowerPanelHeight: CGFloat = 0
 
     public init(store: StoreOf<ReadingReducer>) {
         self.store = store
@@ -64,7 +65,10 @@ public struct ReadingView: View {
     public var body: some View {
         NavigationStack {
             content
-                .scrollEdgeEffectStyle(.soft, for: .top)
+                .scrollEdgeEffectStyle(.soft, for: [.top, .bottom])
+                // The bottom edge softens only under the shown control panel; a hidden panel
+                // leaves the page edge to edge.
+                .scrollEdgeEffectHidden(!store.showsPanel, for: .bottom)
                 .toolbar(content: readingToolbar)
                 .toolbarTitleDisplayMode(.inline)
                 .toolbarMinimizationBehavior(.never, for: .navigationBar)
@@ -202,6 +206,23 @@ public struct ReadingView: View {
             backgroundColor
                 .ignoresSafeArea()
         }
+        // The control panel is an overlay, so the scroll views can't see it as a bar. This
+        // invisible bar spans the lower panel to give the bottom edge the soft effect the
+        // navigation bar gives the top; `.scrollEdgeEffectHidden` drops it with the panel. The
+        // pages above already ignore the safe area, so the bar's inset never reaches them: pager
+        // frames, paging snaps and the vertical list's center anchor keep their geometry.
+        .safeAreaBar(edge: .bottom, spacing: 0) {
+            // The effect only follows bar elements such as text, so the bar holds a blank line.
+            // It stays inset like the panel: a full-width bar moved the vertical reader's
+            // opening page on iOS 26.
+            Text(verbatim: " ")
+                .frame(maxWidth: .infinity)
+                .frame(height: lowerPanelHeight)
+                .padding(.horizontal)
+                .opacity(0)
+                .allowsHitTesting(false)
+                .accessibilityHidden(true)
+        }
         .overlay {
             let usesHalfWidth = deviceState?.supportsLandscapePanes(in: gestureHandler.containerSize) == true
             ControlPanel(
@@ -216,7 +237,8 @@ public struct ReadingView: View {
                 previewURLs: store.displayPreviewURLs,
                 dismissGesture: controlPanelDismissGesture,
                 dismissAction: { store.send(.onPerformDismiss) },
-                fetchPreviewURLsAction: { store.send(.fetchPreviewURLs($0)) }
+                fetchPreviewURLsAction: { store.send(.fetchPreviewURLs($0)) },
+                lowerPanelHeightChangeAction: { lowerPanelHeight = $0 }
             )
         }
         .onGeometryChange(for: CGSize.self, of: \.size) { size in
@@ -283,7 +305,7 @@ public struct ReadingView: View {
         }
         .scrollIndicators(.hidden)
         .scrollTargetBehavior(.paging)
-        .scrollEdgeEffectStyle(.soft, for: .top)
+        .scrollEdgeEffectStyle(.soft, for: [.top, .bottom])
         .scrollPosition(id: $scrollPositionID)
         .onScrollTargetVisibilityChange(idType: Int.self, threshold: 0.5) { positions in
             shownPagerPosition = positions.count == 1 ? positions.first : nil
