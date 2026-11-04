@@ -659,11 +659,11 @@ extension XCUIApplication {
 }
 
 extension XCUIScreen {
-    /// How many screenshots a capture takes, a second apart, waiting for two in a row to agree.
+    /// How many screenshots a capture takes, a second apart, waiting for three unchanged intervals.
     private static let settleAttempts = 10
 
-    /// The screen as the system renders a screenshot, once two renders a second apart are
-    /// byte-identical; when they never agree, the last render with `isSettled` false.
+    /// The system-rendered screenshot after three consecutive byte-identical one-second intervals;
+    /// when the screen does not settle, returns the last render with `isSettled` false.
     ///
     /// The system renders a screenshot whole, so one screen gives the same bytes on every launch.
     /// The display's framebuffer, which `simctl io screenshot` reads, keeps Liquid Glass as it last
@@ -671,10 +671,14 @@ extension XCUIScreen {
     @MainActor
     func settledScreenshot() -> (png: Data, isSettled: Bool) {
         var previous = screenshot().pngRepresentation
+        var unchangedIntervals = 0
         for _ in 1..<Self.settleAttempts {
             Thread.sleep(forTimeInterval: 1)
             let current = screenshot().pngRepresentation
-            if current == previous {
+            unchangedIntervals = current == previous ? unchangedIntervals + 1 : 0
+            // System chrome can pause before fading, so one unchanged interval can capture
+            // a transient home indicator even after the app content is ready.
+            if unchangedIntervals >= 3 {
                 return (current, true)
             }
             previous = current

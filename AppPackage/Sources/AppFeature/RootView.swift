@@ -1,3 +1,4 @@
+import AppComponents
 import ComposableArchitecture
 public import SwiftUI
 #if DEBUG && canImport(Appshot) && canImport(AppshotProtocol)
@@ -19,8 +20,8 @@ public struct RootView: View {
 }
 
 private extension View {
-    /// In a capture launch, adds the invisible element UI tests read the capture's diagnostics
-    /// from; any other launch, and every Release build, shows the view unchanged.
+    /// Capture launches expose diagnostics and hide persistent system chrome in exported screenshots.
+    /// Every other launch, including Release builds, retains the screen's own visibility policy.
     @ViewBuilder
     func captureDiagnostics(store: StoreOf<AppReducer>) -> some View {
         #if DEBUG
@@ -29,6 +30,8 @@ private extension View {
                 CaptureDiagnosticsAnchor(store: store, capture: capture)
                     .frame(width: 1, height: 1)
             }
+            .environment(\.captureSystemOverlayVisibility, .hidden)
+            .persistentSystemOverlays(.hidden)
         } else {
             #if canImport(Appshot) && canImport(AppshotProtocol)
             if let scene = AppshotCapture.launchedScene {

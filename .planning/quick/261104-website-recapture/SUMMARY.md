@@ -69,3 +69,35 @@ and size were updated, the README records mixed-build provenance, all ten PNG/pr
 checks pass, and the twelve-file ZIP passes integrity verification. The original package is superseded.
 Private evidence is under `.capture/website-recapture-20261104/home-indicator-revision/`.
 The revision's task-created simulator and testing clones were removed. No commit or publication.
+
+## Revision 3 — no home indicator in any screenshot
+
+The owner also rejected `reading-ja-light.png`, then clarified: no home indicator in any delivered
+screenshot, including readers with visible controls. The capture root now installs a DEBUG-only
+`captureSystemOverlayVisibility` environment preference and requests hidden persistent system
+overlays. Presented readers honor that preference ahead of their normal control-dependent policy.
+Ordinary launches, including Release, retain their existing behavior.
+
+All ten coordinates were regenerated from source based on `33dbf648b` plus this capture policy.
+The Simulator build passed and strict no-cache lint found zero violations in the changed Swift files.
+All ten accepted native captures passed their content/readiness checks. Visual inspection of every
+bottom edge confirms the indicator is absent, including `reading-ja-light.png` with controls shown.
+
+The first dark English reader frame retained a transient indicator even though two consecutive
+screenshots agreed. It was rejected. Native screenshot settlement now requires three consecutive
+unchanged one-second intervals, allowing delayed system chrome to finish fading. A new build passed;
+the replacement dark English capture passed and its bottom edge was inspected separately. Failed or
+rejected frames are excluded from the delivery; raw evidence is preserved.
+
+The six final Live Text images have identical RGB pixels to revision 2. Reader central page content
+remains identical to the preceding captures and across light/dark pairs. The required fade remains
+visible, every reader says 6 / 80, and Live Text stays on page 12. The source-gallery mapping is unchanged.
+
+Delivery: `ehpanda-screenshot-source-20261104-r3/` and its ZIP in the current chat's visualization output.
+Exactly ten 1260 × 2736 RGB PNGs, no alpha, standard sRGB IEC61966-2.1 profile, manifest and README.
+All file sizes, SHA-256 checksums and ZIP integrity were verified. Metadata normalization preserves
+every rendered RGB pixel. The original package and revision 2 are superseded, retained as history.
+
+Private evidence is under `.capture/website-recapture-20261104/reader-indicator-revision/`, including
+the rejected dark frame and its independently accepted replacement. The task-created simulator and
+testing clones were removed after capture. No website publication.

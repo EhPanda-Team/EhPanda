@@ -599,8 +599,8 @@ each row must have its entry's status, count its entry's pages as downloaded (ev
 complete entry) and hold that many page files. The diagnostics report the screenshot pixels of the
 sheet the screen shows in, and there must be one exactly when the coordinate's screen is a sheet:
 Filters always, and on iPad Detail, Comments and Laboratory. It then takes the system's screenshot
-of the screen, `XCUIScreen.main.screenshot()`, a second apart until two in a row are
-byte-identical, and fails if they never are. Either way it attaches the diagnostics and that
+of the screen, `XCUIScreen.main.screenshot()`, a second apart until the renders remain byte-identical
+for three consecutive intervals, and fails if they never do. Either way it attaches the diagnostics and that
 screenshot's PNG. The runner names the coordinate and the fixture version through environment
 variables:
 
@@ -616,6 +616,12 @@ The UITests plan retries a failed test, so a result with repetitions counts as f
 runner below runs each launch once.
 
 ## Capture natively
+
+Capture launches hide persistent system overlays, including the home indicator, through the native
+SwiftUI visibility preference. The DEBUG-only capture environment carries that preference into
+presented readers, including readers whose controls are visible. Ordinary launches keep each
+screen's own visibility policy. Verify the home indicator is absent in every exported screenshot;
+stable frames alone do not prove that system chrome has disappeared.
 
 `capture-native.py` records the frame a marketing image is made from: the actual app's screen with
 the system's own status bar, at the device's native size, identical across independent cold

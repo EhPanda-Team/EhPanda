@@ -26,3 +26,13 @@ Use the native persistent-system-overlay visibility preference when reader contr
 then recapture only that image. Preserve the other nine delivery images. Update the manifest,
 README and ZIP with the replacement and its precise build provenance. This continuation supersedes
 the original no-app-source-change scope only for this native reader visibility correction.
+
+## Owner clarification: no home indicator in any screenshot
+
+After rejecting `reading-ja-light.png`, the owner clarified that the home indicator must be absent
+from all delivered screenshots, including readers whose controls are visible. This is a capture
+requirement. Install a DEBUG-only system-overlay visibility preference for capture launches and
+propagate it through presented readers. Ordinary launches retain their existing visibility policy.
+Regenerate all ten coordinates consistently, verify the indicator is absent in every PNG, and
+deliver a new revision with updated checksums and build provenance. Keep the preceding packages
+as historical outputs. Commit the completed capture change and records after verification.
