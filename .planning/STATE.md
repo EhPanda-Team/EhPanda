@@ -5,10 +5,10 @@ current_phase: 17
 current_phase_name: Screenshot Automation, Visual Regression & OS 27 Modernization
 status: executing
 stopped_at: Phase 17 verified (human_needed, 7900db15e); records corrected per owner msg 1640; next the verifier's update, then UAT, secure-phase and validate-phase
-last_updated: "2026-11-04T16:48:39.000Z"
+last_updated: "2026-11-04T17:10:19.000Z"
 last_activity: 2026-11-05
-last_activity_desc: Phase 17 records corrected per owner decisions (msg 1640)
-state_head: e745f38f657119e7be6c159153f44f8672055b82
+last_activity_desc: Live Text fixtures retained (msg 1645); fixture repository reduced to the current set (msg 1647)
+state_head: dab8bb8c23e50c0adbc996dd921127675b13a235
 progress:
   total_phases: 18
   completed_phases: 15
@@ -20,6 +20,22 @@ source_head: af00e0da93
 ---
 
 # Project State
+
+## Live Text fixtures retained; fixture repository holds only the current set — 2026-11-05
+
+Re-verification human item 3 is decided. The owner kept the six Live Text fixture versions behind the
+current website set and their translation records (msg 1645). Then the owner asked that the fixture
+repository keep only the latest copies (msg 1647). Fixture repository commit `8ee4fc2`:
+
+- **Added.** The six Live Text versions, with their translation records.
+- **New index.** `website-capture-20261104.json` names the fixture behind each of the 118 approved
+  files. It is built from the website provenance record at `d4393bd`.
+- **Removed.** The 11 versions the current set does not use, and `website-capture-20261102.json`.
+  The `data/` archive stays.
+
+17-FINAL-VALIDATION.md section 3 names the versions. ROADMAP Phase 17 criterion 2 now also cites the
+2026-11-04 approval (msg 1581). The reader root-cause analysis is committed as 17-READER-ROOT-CAUSE.md;
+Phase 18 Step 4b points to it.
 
 ## Phase 17 records corrected per owner decisions (msg 1640) — 2026-11-05
 
