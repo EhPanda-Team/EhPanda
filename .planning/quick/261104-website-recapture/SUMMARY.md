@@ -165,3 +165,25 @@ before/after glyph sheet and a full-status-bar comparison provide review context
 inspected. Original files, today's 17 recaptures and website assets remain unchanged; no simulator,
 recapture, generation model, website modification or publication was used for these sample edits.
 Private scripts and checksum evidence are under `.capture/website-recapture-20261104/signal-samples/`.
+
+## Full-signal batch complete — all 101 targets
+
+The owner accepted the ten samples and authorized the complete target list, permitting reuse of
+qualifying samples. All 101 original checksums and the native glyph reference checksums were
+revalidated. The ten approved PNGs were copied byte-for-byte; the remaining 91 were generated with
+the approved deterministic replacement method. No image was recaptured.
+
+The exact 101-file target set is complete. Backgrounds: 52 black, 28 white, 18 system light gray,
+and 3 dimmed gray. Matching backgrounds use native reference pixels; system light gray uses the
+approved native coverage-mask composition. Every output has the exact RGB diff box
+`[895,92,960,135]`, wholly inside the allowed region. All other RGB pixels are unchanged. The full
+101-glyph contact sheet was visually inspected. All files are 1260 × 2736 RGB PNGs without alpha,
+with only the standard sRGB IEC61966-2.1 ICC profile. Original source checksums still match after
+processing. Today's seventeen recaptures are excluded and unchanged.
+
+Delivery: `ehpanda-screenshot-source-20261104-signal/` and its ZIP in the current chat's visualization
+output. The package contains exactly 101 images, `manifest.json` with original/output SHA-256,
+byte counts and per-file diff boxes, and `README.md` documenting the approved method and references.
+All 103 ZIP entries passed integrity verification. Private batch scripts, verification counts and
+the contact sheet remain under ignored `.capture/website-recapture-20261104/signal-final/`.
+No app source, website files or original screenshot files were changed; no publication occurred.
