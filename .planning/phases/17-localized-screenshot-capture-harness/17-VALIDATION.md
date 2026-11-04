@@ -1,13 +1,20 @@
 ---
 phase: "17"
 slug: localized-screenshot-capture-harness
-status: planned
+status: signed-off-reduced-scope
 nyquist_compliant: false
 wave_0_complete: false
 created: "2026-10-02"
+signed_off: "2026-11-04"
+signed_off_source: "52df81fa3"
 ---
 
 # Phase17 validation strategy
+
+> **Reduced scope, 2026-11-03 (owner msg 1305); signed off by 17-23 on 2026-11-04 at `52df81fa3`.** Only
+> the plans Phase 17 kept were executed. The map below is the original plan; rows for moved plans are
+> moved to Phase 18 and are not evidence. See "Reduced-scope sign-off" at the end and
+> 17-FINAL-VALIDATION.md. `nyquist_compliant` stays `false` until `/gsd-validate-phase 17`.
 
 Exact producer/task map below is planned, not executed. Set implementation compliance flags only after runtime evidence. Every plan task has an automated command and immediately adjacent observable fails_when; checkpoints additionally require explicit human evidence.
 
@@ -147,6 +154,41 @@ Every command below is runnable only after its own producer task creates the sui
 
 ## Sign-off and unresolved assumptions
 
-Owner checkpoints17-13-T2,17-20-T2,17-21-T1 and designer/owner17-22-T2 remain unexecuted. Clean integration, host/full-content feasibility, capsule removal and byte repeatability remain measured gates. CAP-17-07 unclassified edge and three descriptor-less product prohibitions remain flagged-unverified per17-SOURCE-AUDIT.md, not silently green.
+Planning-time text (2026-10-02): owner checkpoints 17-13-T2, 17-20-T2, 17-21-T1 and designer/owner
+17-22-T2 remain unexecuted. Those plans moved to Phase 18 and are still unexecuted. The final state is
+in the next section.
 
-No implementation tests ran during planning. Final17-23 updates this record only after complete evidence exists.
+## Reduced-scope sign-off (17-23, 2026-11-04)
+
+Signed off at `52df81fa3` only where evidence exists. Evidence and counts:
+[17-FINAL-VALIDATION.md](17-FINAL-VALIDATION.md), section 1.
+
+| Kept plan or gate | Validation evidence | Status |
+|---|---|---|
+| 17-01, 17-24, 17-02 | Clean SnapshotTesting integration, actual-window tracer, measured pin and 576-coordinate hosted tracer (their summaries) | Executed earlier; not re-run by 17-23 |
+| 17-03, 17-04, 17-05, 17-06 | Fixture acquisition, isolated capture scenes, native screens, Live Text and Downloads (their summaries); the 192 approved website images | Executed earlier; capture suites pass in the final FeatureTests and UITests runs |
+| 17-16 to 17-19 | Size-class layout and routing tests, simulator checks, owner's keep decision for all five idiom reads (17-LAYOUT-AUDIT.md) | Executed; their tests pass in the final runs |
+| 17-14 T2 | Release scan, Debug negative control, scanner tests (17-RELEASE-ISOLATION.md, at `50c794b53`) | Executed; repeated at `52df81fa3` by 17-23 |
+| Existing behavior | FeatureTests and UITests, phone then tablet, one invocation at a time, 0 failures and 0 Repetition nodes | Passed at `52df81fa3`: all four runs exit 0, 0 failures, 0 Repetition (FV section 1) |
+| Strict lint | SwiftLint 0.65.1, `--strict --no-cache`, the five paths: 0 violations in 759 files | Passed |
+| Release gate | `verify-release.py` on a Release build of `52df81fa3`; `test_release.py` 19 OK | Passed (0 findings; Debug control 991) |
+| Reader page sync | ReaderPageSyncUITests ×20 on the iPhone Air (`33dbf648b`), ×5 on the iPad (`52df81fa3`) | Passed: 160 of 160 and 40 of 40, 0 retries. Known limit: the iPad ran ×5, not ×20 (owner, 2026-11-04) |
+
+**Moved, not validated here.** Complete regression (17-12), candidate and baseline generation (17-13,
+17-20), the 384 website export (17-07, 17-21), the designer handoff (17-22), native visual-policy and
+preview checks (17-09 T2, 17-15), public dispatch (17-11), scenario expansion (17-08 to 17-10), and
+17-14 T1/T3. Their commands above stay unexecuted and move to Phase 18 (VIS-18-01, MKT-18-01,
+DIST-18-02).
+
+**Known limits.**
+
+- **Reduced iPad page-sync coverage.** The iPad ReaderPageSyncUITests stress ran 5 iterations, not
+  20, by the owner's choice on 2026-11-04. Earlier iPad desyncs occurred about once in 20 runs or less,
+  so 5 iterations cannot exclude that rate.
+- ReaderPageSyncUITests covers the vertical strip and the left-to-right pager, not right-to-left.
+- `ReaderPageProbe` can't read an iPad landscape two-page spread.
+
+**Still open, flagged.** The CAP-17-07 unclassified edge is classified in 17-FINAL-VALIDATION.md
+section 8 and needs the verifier's confirmation. The three descriptor-less prohibitions stay
+flagged-unverified per 17-SOURCE-AUDIT.md: the first with the owner-approved synthetic comment, the
+other two moved to Phase 18. UAT (`/gsd-verify-work 17`) and the remaining close steps are ahead.
