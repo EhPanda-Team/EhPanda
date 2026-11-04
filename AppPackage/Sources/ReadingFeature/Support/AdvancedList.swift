@@ -90,7 +90,7 @@ where PageView: View, G: Gesture {
             .coordinateSpace(.advancedListContent)
         }
         .scrollIndicators(.hidden)
-        .scrollEdgeEffectStyle(.soft, for: .top)
+        .scrollEdgeEffectStyle(.soft, for: [.top, .bottom])
         .scrollPosition($position, anchor: .center)
         .onScrollPhaseChange { _, newValue in
             scrollPhase = newValue
