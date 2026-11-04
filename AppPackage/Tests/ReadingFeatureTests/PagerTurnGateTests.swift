@@ -156,4 +156,38 @@ struct PagerTurnGateTests {
         let tries = (0..<PagerTurnGate.correctionLimit).map({ _ in gate.correction(shown: 107, index: 108) })
         #expect(tries == Array(repeating: .sendAgain, count: PagerTurnGate.correctionLimit))
     }
+
+    /// A try counted for one turn's miss is not carried over to the next turn's.
+    @Test
+    func aNewTurnStartsTheCountOver() {
+        var gate = PagerTurnGate()
+        _ = gate.correction(shown: 106, index: 107)
+        let admitted = gate.admitsTurn()
+        let tries = (0..<PagerTurnGate.correctionLimit).map({ _ in gate.correction(shown: 106, index: 110) })
+        #expect(admitted)
+        #expect(tries == Array(repeating: .sendAgain, count: PagerTurnGate.correctionLimit))
+    }
+
+    /// The reader's own scroll decides the page, so a miss after it is a new one.
+    @Test(arguments: [ScrollPhase.tracking, .interacting, .decelerating])
+    func theReadersOwnScrollStartsTheCountOver(phase: ScrollPhase) {
+        var gate = PagerTurnGate()
+        _ = gate.correction(shown: 106, index: 107)
+        _ = gate.phaseChanged(to: phase)
+        _ = gate.phaseChanged(to: .idle)
+        let tries = (0..<PagerTurnGate.correctionLimit).map({ _ in gate.correction(shown: 103, index: 104) })
+        #expect(tries == Array(repeating: .sendAgain, count: PagerTurnGate.correctionLimit))
+    }
+
+    /// A held turn's own retries keep their count: the pager animating to the index is no new turn.
+    @Test
+    func aProgrammaticScrollKeepsTheCount() {
+        var gate = PagerTurnGate()
+        let first = gate.correction(shown: 106, index: 107)
+        _ = gate.phaseChanged(to: .animating)
+        _ = gate.phaseChanged(to: .idle)
+        let second = gate.correction(shown: 106, index: 107)
+        let third = gate.correction(shown: 106, index: 107)
+        #expect([first, second, third] == [.sendAgain, .sendAgain, .followScreen])
+    }
 }

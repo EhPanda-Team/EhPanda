@@ -75,19 +75,25 @@ struct PagerTurnGate {
     private var corrections = 0
     private(set) var holdsTurn = false
 
-    /// Whether a turn may be sent to the pager now; if not, it is held until the pager is at rest.
+    /// Whether a turn may be sent to the pager now; if not, it is held until the pager is at rest. A turn sent is a new
+    /// target, so the pager's misses are counted afresh for it.
     mutating func admitsTurn() -> Bool {
-        if isAnimating { holdsTurn = true }
+        if isAnimating {
+            holdsTurn = true
+        } else {
+            corrections = 0
+        }
         return !isAnimating
     }
 
     /// Follows the pager's scroll phase. Returns `true` when the pager has come to rest with a turn held, and so
     /// has to be sent to the index. Any phase other than a programmatic animation, such as the reader's own drag,
-    /// drops the held turn: that scroll decides the page.
+    /// drops the held turn and starts the count of misses over: that scroll decides the page.
     mutating func phaseChanged(to phase: ScrollPhase) -> Bool {
         isAnimating = phase == .animating
         isAtRest = phase == .idle
         guard !isAnimating else { return false }
+        if !isAtRest { corrections = 0 }
         defer { holdsTurn = false }
         return phase == .idle && holdsTurn
     }
@@ -102,7 +108,7 @@ struct PagerTurnGate {
 
     /// How the pager, at rest on the `shown` position, is brought back in step with `index`, or `nil` when it is in
     /// step or still moving. `shown` is `nil` while no single page fills the pager. The pager is sent again up to
-    /// `correctionLimit` times in a row; after that the index follows the page on screen.
+    /// `correctionLimit` times in a row for one turn; after that the index follows the page on screen.
     mutating func correction(shown: Int?, index: Int) -> Correction? {
         guard isAtRest, let shown else { return nil }
         guard shown != index else {
