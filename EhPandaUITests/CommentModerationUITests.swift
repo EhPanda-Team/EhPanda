@@ -300,14 +300,25 @@ private extension CommentModerationUITests {
             detail.swipeUp()
             swipes += 1
         }
+        // A drag can carry the strip past the card, so a card that ends up sticking out of the leading edge is dragged
+        // back the other way.
         var drags = 0
-        while element.exists, element.frame.maxX > visible.maxX - 8, drags < 6 {
-            let distance = min(element.frame.maxX - visible.maxX + 24, visible.width / 2)
+        while element.exists, drags < 6 {
+            let frame = element.frame
+            let distance: CGFloat
+            if frame.maxX > visible.maxX - 8 {
+                distance = -min(frame.maxX - visible.maxX + 24, visible.width / 2)
+            } else if frame.minX < visible.minX + 8 {
+                distance = min(visible.minX - frame.minX + 24, visible.width / 2)
+            } else {
+                break
+            }
+            let startX = distance < 0 ? 0.75 : 0.25
             let start = window.coordinate(withNormalizedOffset: .zero).withOffset(CGVector(
-                dx: visible.minX + visible.width * 0.75 - window.frame.minX, dy: element.frame.midY - window.frame.minY
+                dx: visible.minX + visible.width * startX - window.frame.minX, dy: frame.midY - window.frame.minY
             ))
             start.press(
-                forDuration: 0.05, thenDragTo: start.withOffset(CGVector(dx: -distance, dy: 0)),
+                forDuration: 0.05, thenDragTo: start.withOffset(CGVector(dx: distance, dy: 0)),
                 withVelocity: .slow, thenHoldForDuration: 0.3
             )
             drags += 1
