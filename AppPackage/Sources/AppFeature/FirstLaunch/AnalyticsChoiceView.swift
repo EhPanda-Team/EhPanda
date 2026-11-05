@@ -81,6 +81,8 @@ struct AnalyticsChoiceView: View {
                 .contentShape(.rect)
                 .padding(.vertical, -Self.linkHitPadding)
             }
+            // A link takes the tint, the accent; the spec keeps the accent for selection (UI-SPEC Color).
+            .tint(.primary)
             .accessibilityIdentifier("first_launch_privacy_link")
         }
     }
