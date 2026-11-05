@@ -9,6 +9,9 @@ import Appshot
 
 // MARK: RootView
 public struct RootView: View {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.scenePhase) private var scenePhase
+
     private let appDelegate: AppDelegate
 
     public init(appDelegate: AppDelegate) {
@@ -16,8 +19,33 @@ public struct RootView: View {
     }
 
     public var body: some View {
-        TabBarView(store: appDelegate.store)
+        content
+            .animation(.easeInOut(duration: reduceMotion ? 0.2 : 0.3), value: isFirstLaunchComplete)
             .captureDiagnostics(store: appDelegate.store)
+    }
+
+    private var store: StoreOf<AppReducer> { appDelegate.store }
+
+    private var isFirstLaunchComplete: Bool {
+        store.firstLaunch.step == .complete
+    }
+
+    /// Until both first-launch answers exist, the first launch replaces the app at the root (DD-06), so nothing of
+    /// the app is rendered behind it; the app then crossfades in. While the gate shows it owns link delivery, and
+    /// `AppReducer` queues a link until the age wall is answered (DD-07); it also reports the scene phase, which
+    /// `AppReducer` records for the deferred launch. Once the app shows, `TabBarView` does both.
+    @ViewBuilder private var content: some View {
+        if isFirstLaunchComplete {
+            TabBarView(store: store)
+                .transition(.opacity)
+        } else {
+            FirstLaunchGateView(store: store.scope(\.firstLaunch, action: \.firstLaunch))
+                .transition(.opacity)
+                .onOpenURL { store.send(.openURL($0)) }
+                .onChange(of: scenePhase) { _, newValue in
+                    store.send(.onScenePhaseChange(newValue))
+                }
+        }
     }
 }
 
