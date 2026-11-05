@@ -45,7 +45,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 15: Continued Background Downloads** - Adopt `BGContinuedProcessingTask` so a user-started gallery download keeps running after backgrounding, with the system-provided progress UI (completed 2026-08-19)
 - [x] **Phase 16: Accessibility (Dynamic Type + Assistive Technology)** - Two rounds against the settled UI: full-range Dynamic Type (AX1–AX5, human-implemented, agent verify-only), then a VoiceOver / Voice Control / Reduced Motion / Contrast / Differentiate-Without-Color pass (agent-implemented), held to the App Store Accessibility Nutrition Label bar (completed 2026-09-23)
 - [x] **Phase 17: Screenshot Automation, Visual Regression & OS 27 Modernization** - Reduced 2026-11-03: capture foundation and the approved 192-image website set, verification of the landed size-class layout, the remaining idiom census and the Release isolation check; regression, marketing export and AltStore work moved to Phase 18 (now split: regression and marketing export → Phase 19, AltStore work → Phase 20) (completed 2026-11-05)
-- [ ] **Phase 18: In-App 3.0 Readiness: Age Wall, Analytics Choice, Comment Moderation & Reader Rework** - Two first-launch screens for everyone (age wall, then None/Basic/Full analytics choice, SDK off until chosen), E-Hentai comment report, posting warning, collapsed blocking and a Blocked Users list, the reader page-tracking rework with G1/G2 UI tests, IN-02/IN-03 and `MKSellsDigitalGoods`
+- [ ] **Phase 18: In-App 3.0 Readiness: Age Wall, Analytics Choice, Comment Moderation & Reader Rework** - Two first-launch screens for everyone (age wall, then Minimal/Basic/Full analytics choice, SDK off until chosen), E-Hentai comment report, posting warning, collapsed blocking and a Blocked Users list, the reader page-tracking rework with G1/G2 UI tests, IN-02/IN-03 and `MKSellsDigitalGoods`
 - [ ] **Phase 19: Visual Regression & Marketing Export** - The snapshot matrix, one owner-approved baseline, the full-matrix CI gate, preview review, the 384 export with its final selection and six-per-period Toplists fixtures, and the `Scripts/visual/README.md` rewrite, moved from Phase 17 and covering the Phase 18 screens
 - [ ] **Phase 20: 3.0 Distribution: Marketplace Build, Notarization, Listing & Release Checks** - AltStore PAL marketplace build (same features), notarization pipeline, PAL source and listing with decorated store screenshots, website privacy/support/contact links, release mechanics, real-device checks, the repeated Release isolation scan and, last, the analytics revision with install source
 
@@ -1375,7 +1375,7 @@ Phase 17 is complete (2026-11-05) at the reduced scope above. The moved plans ar
   9. IN-02 (`captureSystemOverlay` in `verify-release.py`'s `FORBIDDEN_CONTENT`, with a `test_release.py` case) and IN-03 (RootView's `import AppComponents` inside its `#if DEBUG` block) are closed, and `MKSellsDigitalGoods` is `NO`.
   10. The UI matches the UI-SPEC, and FeatureTests and UITests pass on phone then tablet with 0 failures and 0 Repetition, with strict no-cache lint.
 
-**Plans**: 0 plans (outline only; PLAN files come from `/gsd-plan-phase 18`, which may split or renumber these steps).
+**Plans**: 12 plans in 4 waves (planned 2026-11-05; list below). *Amended 2026-11-05 (owner msgs 1805, 1818; CONTEXT D-06a to D-06c):* the level None is now Minimal, which sends only one install signal with its install source; the SDK never starts under Minimal, so no level sends nothing.
 
 Ordered plan outline (old step numbers are the original Phase 18's):
 
@@ -1394,7 +1394,28 @@ Ordered plan outline (old step numbers are the original Phase 18's):
 
 Plans:
 
-- [ ] TBD (run /gsd-plan-phase 18 to break down)
+**Wave 1**
+- [ ] 18-01-PLAN.md — IN-02, IN-03 and `MKSellsDigitalGoods = NO`
+- [ ] 18-02-PLAN.md — first-launch gate logic and storage (AGE-18-01, CONSENT-18-01)
+- [ ] 18-04-PLAN.md — moderation core: filter, report target, own-comment rule, block store, session cookies (UGC-18-01)
+- [ ] 18-06-PLAN.md — every approved string, verbatim in six languages, with the copy check
+- [ ] 18-07-PLAN.md — reader page tracking on one `ReaderPosition`
+
+**Wave 2** *(blocked on Wave 1 completion)*
+- [ ] 18-03-PLAN.md — the three analytics levels and the install signal (CONSENT-18-01)
+- [ ] 18-05-PLAN.md — moderation reducers: posting warning, report, block, show-once (UGC-18-01)
+- [ ] 18-08-PLAN.md — DEBUG launch keys and the G1/G2 reader UI tests
+
+**Wave 3** *(blocked on Wave 2 completion; UI tasks follow the committed UI-SPEC)*
+- [ ] 18-09-PLAN.md — age wall and analytics choice screens at the root, with the title line-break check
+- [ ] 18-10-PLAN.md — Settings analytics picker and Blocked Users
+- [ ] 18-11-PLAN.md — comment moderation UI, report sheet with the app's sign-in
+
+**Wave 4** *(blocked on Wave 3 completion)*
+- [ ] 18-12-PLAN.md — README Analytics sections, the phase gate, the owner's live report-page check
+
+**Cross-cutting constraints:**
+- Every UI task here follows the committed `18-UI-SPEC.md` (the final spec, msg 1826, with the C-3 title rule) as the design contract; layout calls are the designer's and are not changed in execution (D-17, D-17a).
 
 ### Phase 19: Visual Regression & Marketing Export
 

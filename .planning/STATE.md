@@ -3,16 +3,16 @@ gsd_state_version: "1.0"
 milestone: v3.0.0
 current_phase: 18
 current_phase_name: "In-App 3.0 Readiness: Age Wall, Analytics Choice, Comment Moderation & Reader Rework"
-status: planning
-stopped_at: "Phase 18 context gathered (discuss-phase done); next: /gsd-plan-phase 18"
-last_updated: "2026-11-05T04:32:40.599Z"
+status: executing
+stopped_at: "Phase 18 planned (12 plans, 4 waves); next: /gsd-execute-phase 18"
+last_updated: "2026-11-05T05:31:23.337Z"
 last_activity: 2026-11-05
-last_activity_desc: Phase 18 split into Phases 18 to 20 (owner msg 1753); Phase 18 discuss-phase done (18-CONTEXT.md)
-state_head: 401e78f8deb1c0c60b3c05465f9c1ce7de908c17
+last_activity_desc: Phase 18 planned (12 plans, 4 waves) against the final UI-SPEC (msg 1826)
+state_head: f8dae9d7dd2df70b56793b361515068c13697b2b
 progress:
   total_phases: 20
   completed_phases: 16
-  total_plans: 287
+  total_plans: 299
   completed_plans: 287
   percent: 80
 milestone_name: Dependency Reduction & Modernization
@@ -617,10 +617,10 @@ See: .planning/PROJECT.md (updated 2026-11-05)
 
 ## Current Position
 
-Phase: 18 of 20 (In-App 3.0 Readiness: Age Wall, Analytics Choice, Comment Moderation & Reader Rework)
+Phase: 18 (In-App 3.0 Readiness: Age Wall, Analytics Choice, Comment Moderation & Reader Rework) — READY TO EXECUTE
 Plan: Not started
-Status: Ready to plan
-Last activity: 2026-11-05 — Phase 18 split into Phases 18 to 20 (owner msg 1753); Phase 18 discuss-phase done (18-CONTEXT.md)
+Status: Ready to execute
+Last activity: 2026-11-05 — Phase 18 planned: 12 plans in 4 waves, against the final UI-SPEC (msg 1826)
 
 Phase 17 closed with 13/13 in-scope plans, verification passed 8/8, UAT 31/31, security verified and validation
 validated. Phase 18 has its CONTEXT.md (2026-11-05) and no plans yet; Phases 19 and 20 have owner-decision CONTEXT
@@ -689,9 +689,9 @@ Round-1 state: closed and signed. 38 findings — 32 `re-verified`, 6 `accepted`
 
 D-01 amendment 2 authorizes agent-written fixes; the original owner-only implementation restriction is superseded. All five Dynamic Type lint rules (`no_dynamic_type_size_modifier`, `no_geometry_reader`, `no_fixed_system_font_size`, `accessibility_hardcoded_string`, `no_minimum_scale_factor`) are live at error severity with the tree at 0 for each. A11Y-01 is complete; A11Y-02 (round 2) is open; the phase is not complete. Do not push without the owner.
 
-Progress: [████████████████████] 287/287 plans (100%), excluding the 11 superseded Phase 17 plans. GSD counts
+Progress: [███████████████████░] 287/299 plans (96%), excluding the 11 superseded Phase 17 plans. GSD counts
 16 of 20 phases complete (80%): Phase 6 is recorded as "Delivered (rescoped)" and Phases 18 to 20 have not started.
-Phase 17 has 13/13 in-scope plans complete. Phases 18 to 20 have no plans yet and keep the milestone open.
+Phase 17 has 13/13 in-scope plans complete. Phase 18 has 12 plans, none executed; Phases 19 and 20 have no plans yet. They keep the milestone open.
 
 ## Performance Metrics
 

@@ -2,6 +2,9 @@
 
 **Gathered:** 2026-11-05
 **Status:** Ready for planning. UI execution waits for the UI-SPEC (D-17).
+**Amended:** 2026-11-05, during planning: D-06a, D-06b, DD-09a (owner msgs 1795, 1796, 1805; analytics "Minimal"),
+D-06c (owner msgs 1812, 1818; the install signal carries the install source), D-14a (owner msg 1795; Blocked Users in Account settings), D-17a (UI-SPEC delivered, msgs 1791, 1803, 1807, 1820, 1826). The
+original decisions are kept as written; where an amendment differs, the amendment wins.
 **Sources:** the discussion prep [18-DISCUSSION-PREP.md](18-DISCUSSION-PREP.md) (locked decisions L1 to L46, gray areas GA-1 to GA-8, developer defaults, outside blockers, split proposal); the owner's answers to card msg 1748 (owner msg 1753) and card msg 1759 (owner msg 1765); the owner's copy approvals (msgs 1767, 1780). Where the owner answered, the answer overrides the prep. All dates are UTC.
 
 <domain>
@@ -10,11 +13,12 @@
 Phase 18 is the in-app part of the original Phase 18, which the owner split into three phases (msg 1753). It
 delivers, in every build and for every user:
 
-- **First launch:** the age wall, then the analytics choice (None / Basic / Full). Both are shown once to everyone,
+- **First launch:** the age wall, then the analytics choice (Minimal / Basic / Full; D-06a). Both are shown once to everyone,
   upgraders included. No content, network request or analytics SDK start happens before them.
 - **Analytics in Settings:** a picker with the three levels replaces today's "Share Analytics Data" toggle.
 - **Comment moderation (Guideline 1.2):** an E-Hentai report action on every comment, a posting warning that still
-  allows posting, blocking that collapses a blocked user's comments, and a Blocked Users list in Settings.
+  allows posting, blocking that collapses a blocked user's comments, and a Blocked Users list in Account settings
+  (D-14a).
 - **Reader page tracking:** one source of truth for the page shown and the number displayed, with committed UI tests
   for Phase 17's gaps G1/G2.
 - **In-app carries and release fix:** IN-02, IN-03 and `MKSellsDigitalGoods = NO`.
@@ -25,8 +29,9 @@ delivers, in every build and for every user:
   `Scripts/visual/README.md` rewrite. Phase 19 must cover this phase's new screens.
 - **Phase 20:** the marketplace build flavor and bundle ID, the PAL source and listing, store screenshots and
   decorations, notarization, the website pages and the published contact link, the release workflows and build
-  number, the real-device checks, the final Release isolation scan and the analytics revision with install source
-  (ANALYTICS-02).
+  number, the real-device checks, the final Release isolation scan and the analytics revision (ANALYTICS-02), which
+  reuses this phase's `InstallSourceClient`, verifies and if needed extends its mapping on the real marketplace build
+  and on a device, and adds the install source to the Basic/Full signals (D-06c).
 - **No phase:** tag creation and release order (owner msg 1753: "Tagging is not your business").
 
 </domain>
@@ -49,6 +54,9 @@ Owner decisions are binding. "Prep L*n*" and "GA-*n*" refer to [18-DISCUSSION-PR
   It adds no new signals for the age wall, the analytics choice or moderation; those come with ANALYTICS-02.
   This updates prep L3 ("last plan" now means the last plan of Phase 20) and prep L1 (Phase 20, not 18, is the last
   3.0 phase).
+  **Amended by D-06c (owner msg 1812):** the install source client is created in this phase, for the one install
+  signal only; Phase 20's ANALYTICS-02 extends and verifies it (real marketplace build, device) and adds the source
+  to the Basic/Full signals.
 
 ### First launch: age wall (AGE-18-01)
 
@@ -79,6 +87,72 @@ Owner decisions are binding. "Prep L*n*" and "GA-*n*" refer to [18-DISCUSSION-PR
 
   Basic's install source is added by ANALYTICS-02 in Phase 20. Until then Basic just doesn't send it; no build ships
   in between. If what a level sends changes, its description must change too, which needs a new owner approval.
+- **D-06a (amends D-06; owner msgs 1795, 1796, 1805):** the lowest level is **Minimal**, not None. The levels are
+  **Minimal / Basic / Full**, in that order, all equally prominent, **none pre-selected**. Minimal sends only the
+  installation: an install count and nothing else (D-06c adds where it was installed from). No level sends nothing any more, so every statement that a level
+  "sends nothing" or that "None means no SDK" is withdrawn (D-06's first bullet, prep L14's "never starts under
+  None", DD-09's "above None"). Before the choice nothing starts and nothing is sent, as before (D-04). The approved
+  strings are in [18-COPY-MINIMAL.md](18-COPY-MINIMAL.md) (owner msg 1805): `consent.level.minimal`,
+  `consent.level.minimal.description` and a new `consent.body`; `consent.level.none` and
+  `consent.level.none.description` are retired, and `shareAnalyticsDataFooter` stays retired (D-07). The Settings
+  footer keeps its rule (the selected level's description). This also amends D-02 for one signal: the install signal
+  of D-06b is new in this phase; every other new signal still waits for ANALYTICS-02.
+- **D-06b (developer's technical decision for D-06a, relayed by the lead; confirmed to Camo in msg 1798):** what
+  "Minimal" sends, exactly.
+  - **Why not the SDK.** Phase 14's "your installation is still counted" came from the SDK's own signals:
+    `TelemetryDeck.Session.started` on every cold launch and every foreground after 5 minutes, and
+    `TelemetryDeck.Acquisition.newInstallDetected` once, with session-duration tracking running. Every SDK signal
+    carries the full `DefaultSignalPayload` (device model, OS, locale, region, time zone, screen, app version,
+    accessibility and calendar settings, retention counters). Starting the SDK under Minimal would make "Sends only a
+    signal that EhPanda is installed" false.
+  - **Under Minimal the TelemetryDeck SDK is never initialised.**
+  - **One install signal, once per install, at every level.** After a level is chosen (any level), the app sends one
+    install signal through a small sender of its own, unless the persisted "install signal settled" flag is set.
+    Upgraders from 2.x and the 3.0 pre-release send it once, on their first 3.0 launch, after choosing. The same signal
+    is sent at Basic and Full, so install counts are comparable across levels.
+  - **The request** (format verified against SwiftSDK 2.14.2, `SignalManager.swift` `send`/`getServiceUrl` and
+    `Signal.swift` `SignalPostBody`): `POST https://nom.telemetrydeck.com/v2/`, `Content-Type: application/json`,
+    body a one-element JSON array of `{receivedAt, appID, clientUser, sessionID, type, payload, isTestMode}`:
+    `receivedAt` formatted `yyyy-MM-dd'T'HH:mm:ssZ` in UTC; `appID` the build's TelemetryDeck app ID; `clientUser`
+    the SHA-256 hex of a random UUID plus the salt (the SDK's hashing), generated once and kept only until the signal
+    settles; `sessionID` a fresh random UUID; `type` `App.installed`; `payload` **`{}`**; `isTestMode` `"true"` in
+    DEBUG, `"false"` in Release (the SDK's default); no `floatValue`. No device, OS, locale, region, time-zone,
+    screen or app-version field exists anywhere in the request. The session is ephemeral (no cookies, no cache).
+  - **Retries.** The response disposition mirrors the SDK's: 2xx settles; 400, 401, 403, 404, 413, 422, 501, 505 also
+    settle (the server rejected it; retrying cannot help; logged); anything else, or a transport error, is retried
+    with backoff in the process (10 s, 20 s, 40 s) and again at the next launch. Once settled it is never sent again.
+    One request in flight at a time. A build without a TelemetryDeck app ID sends nothing (Phase 14's D-13 gate).
+  - **Basic and Full** start the SDK after the choice, as planned. The SDK's own `newInstallDetected` duplicates the
+    install signal there; that is a carry for Phase 20's ANALYTICS-02 to reconcile, not a defect here.
+  - **Level changes.** Minimal → Basic/Full starts the SDK at that moment. Basic/Full → Minimal stops every app signal
+    at once and calls `TelemetryDeck.terminate()`; nothing re-initialises it in this process or at any later launch
+    while the level is Minimal. Chosen over "flip `analyticsDisabled` and keep the SDK alive" because a terminated
+    SDK has no session timer and no lifecycle observers left that could emit anything; signals already cached by the
+    SDK under the earlier level may still flush (Pitfall P-5).
+  - **Tests must prove:** nothing is sent before the choice; Minimal makes exactly one request, with an empty
+    payload, and never a second one (also across a relaunch and after a level change); the SDK is never initialised
+    under Minimal.
+  - **Amended by D-06c:** the payload is no longer `{}`; it holds exactly one key, the install source.
+- **D-06c (amends D-06b; owner msg 1812, developer decision relayed by the lead; copy approved in owner msg 1818):**
+  the Minimal install signal also carries where the app was installed from, and nothing else.
+  - **One parameter.** The one-time `App.installed` signal (at every level, as in D-06b) has exactly one payload key,
+    `App.installSource`, whose value is one of a small fixed enum, `InstallSource`: `appStore`, `testFlight`,
+    `marketplace(<the marketplace bundle ID as reported>)`, `web`, `other`, `unknown`. On the wire the values are the
+    strings `appStore`, `testFlight`, `marketplace:<id>`, `web`, `other`, `unknown`. No other field is added; every
+    other part of D-06b's request is unchanged.
+  - **`InstallSourceClient` (`@Dependency`)** produces it from MarketplaceKit's `AppDistributor.current` (`async
+    throws`). The deployment target is iOS 27, above the API's iOS 17.4 (and `.web`'s 17.5), so no availability guard
+    is needed. A thrown error, a case added in a later SDK (`@unknown default`) and a marketplace ID that is not a
+    plausible bundle ID (empty, longer than 155 characters, or outside `A-Z a-z 0-9 . -`) all map to `unknown`.
+    Simulator builds return `unknown` and other DEBUG builds return `other` without asking MarketplaceKit, so a
+    development install can never be counted as a store install.
+  - **Tests** assert the payload has exactly the one key and that its value comes from the enum, and cover the
+    mapping of every `AppDistributor` case.
+  - **Phase 20 (ANALYTICS-02)** reuses the same client: it verifies, and if needed extends, the mapping on the real
+    marketplace build and on a device, and adds the source to the Basic/Full signals (D-02 as amended).
+  - **Copy:** the Minimal description is now "Sends only a signal that EhPanda is installed, and where you installed
+    the app from." (Revision 2 in [18-COPY-MINIMAL.md](18-COPY-MINIMAL.md), owner msg 1818). `consent.body` and the
+    level name are unchanged.
 - **D-07:** Settings follows the copy file's "Settings (replaces today's toggle)" section:
   - The row label `shareAnalyticsData` stays, now as a picker with the three level labels.
   - The footer shows the selected level's description.
@@ -118,6 +192,9 @@ Owner decisions are binding. "Prep L*n*" and "GA-*n*" refer to [18-DISCUSSION-PR
   - Blocking is local to this device (prep L19).
 - **D-14:** **The Blocked Users list in Settings is included** (owner msg 1780). It has a footer, an empty state ("You
   haven't blocked anyone.") and a swipe action to unblock.
+- **D-14a (amends D-14's location; owner msg 1795):** the Blocked Users row and list live in **Account** settings
+  (`AccountSettingView`), not General: a section between the account section and the cookie section, shown whether
+  or not the user is signed in (UI-SPEC C-10).
 - **D-15:** All comment-moderation strings come **verbatim** from [18-COPY-COMMENTS.md](18-COPY-COMMENTS.md) (owner msg
   1780). `{site}` may be the gallery's site name or a fixed form, whichever the developer finds simpler; the copy file
   allows either. Cancel reuses the existing `cancel` key.
@@ -136,6 +213,14 @@ Owner decisions are binding. "Prep L*n*" and "GA-*n*" refer to [18-DISCUSSION-PR
     store, the reader rework, IN-02/IN-03 and `MKSellsDigitalGoods`.
   - Layout choices left open by the copy, such as whether the analytics choice uses a separate Continue button or
     saves on tap, are Colo's.
+- **D-17a (amends D-17's status):** the UI-SPEC exists. Colo delivered it in msg 1791, revised it for D-06a/D-14a in
+  msg 1803, finalised it in msg 1807 and refreshed the Minimal line and mockups 03, 04, 13 and 21 for D-06c
+  in msg 1820, and added the title line-break rule (owner msg 1822; C-3: a title's last line is never a single
+  word, or for zh/ja/ko never a single character, in any locale or text size) in msg 1826: [18-UI-SPEC.md](18-UI-SPEC.md) with 24 mockups in `mockups/`. It is the
+  design contract for every UI task; `/gsd-ui-phase` is not run. His layout calls: a separate Continue on the
+  analytics choice, dimmed until a level is picked; a `…` menu on each comment in the list with the same items on
+  long-press and as VoiceOver actions, long-press only on the Detail strip; Report, Block and the posting warning are
+  alerts, with Edit as the cancel-role default; the collapsed row uses the plain "Unblock".
 
 ### Reader page tracking (carried from Phase 17)
 
@@ -199,6 +284,12 @@ They come from the prep's GA-4/GA-5 recommendations and its section 3.
 - **DD-09, SDK lifecycle:** `AnalyticsClient.start` runs only at a level above None. Raising the level at runtime
   starts the SDK. Lowering it stops app signals immediately and disables the SDK (`analyticsDisabled`). Unit tests
   prove no SDK call before consent.
+- **DD-09a (amends DD-09; owner msgs 1795, 1796; developer decision D-06b):** nothing starts before the choice. After
+  it, every level sends the one install signal (D-06b); the SDK starts at Basic and Full only. Raising to Basic/Full
+  starts the SDK; lowering to Minimal stops app signals at once and terminates the SDK, which then stays down. Unit
+  tests prove no request and no SDK call before the choice and no SDK initialisation under Minimal. Ato's msg 1796
+  ("the SDK starts at every level") is met in substance by the own sender: what the owner asked for is that Minimal
+  sends the install signal, and the SDK cannot send it without device details.
 - **DD-10, moderation storage:** the block list is an `@Shared` set of author names. The report and block actions go
   in the comment cell's menu.
 - **DD-11, reader structure:** a `ReaderPosition` in reducer state with a generation counter (17-READER-ROOT-CAUSE.md
@@ -223,6 +314,10 @@ layout, test structure and the bundled filter list's contents.
 - `.planning/phases/18-in-app-3-0-readiness-age-wall-analytics-choice-comment-moder/18-COPY-FIRST-LAUNCH.md`: age
   wall, analytics choice and Settings strings in six languages (owner msg 1767). The `age_wall.declaration` row is the
   owner-approved website sentence (msgs 1454, 1457).
+- `.planning/phases/18-in-app-3-0-readiness-age-wall-analytics-choice-comment-moder/18-COPY-MINIMAL.md` (**D-06a**):
+  the approved Minimal level name and description and the new `consent.body`, six languages (owner msg 1805). It
+  supersedes the None strings and `consent.body` in the first-launch copy file. Its Revision 2 (owner msg 1818,
+  **D-06c**) supersedes the Minimal description in its own first table.
 - `.planning/phases/18-in-app-3-0-readiness-age-wall-analytics-choice-comment-moder/18-COPY-COMMENTS.md`: report,
   posting warning, blocking and Blocked Users strings in six languages (owner msg 1780).
 - Age-wall sentence source: owner msgs 1454 and 1457 (the website's adult-mode sentence). Its text is
@@ -235,8 +330,8 @@ layout, test structure and the bundled filter list's contents.
   proposal. Where this CONTEXT records an owner answer, this CONTEXT wins.
 - `.planning/phases/18-in-app-3-0-readiness-age-wall-analytics-choice-comment-moder/18-DISCUSSION-LOG.md`: the options
   and the owner's choices (audit trail only).
-- `.planning/phases/18-in-app-3-0-readiness-age-wall-analytics-choice-comment-moder/18-UI-SPEC.md`: **does not exist
-  yet.** It comes from Colo or from `/gsd-ui-phase 18`, and UI execution waits for it (D-17).
+- `.planning/phases/18-in-app-3-0-readiness-age-wall-analytics-choice-comment-moder/18-UI-SPEC.md` and `mockups/`:
+  Colo's final design contract (msg 1826, revising msgs 1807 and 1820; D-17a).
 - `.planning/ROADMAP.md`, Phase 18 (and the split map at the end of that section); Phases 19 and 20 for the work that
   is not here.
 - `.planning/REQUIREMENTS.md`: AGE-18-01, CONSENT-18-01, UGC-18-01, DIST-18-01 and their 2026-11-05 amendments.
@@ -314,6 +409,7 @@ These notes come from the approved copy files and keep their intent:
 - **Analytics title:** it is neutral on purpose ("Choose what EhPanda shares"), because a choice with no default
   shouldn't nudge.
 - **"None" in ko, ja and zh:** it reads as "Don't share", since a bare 없음 / なし / 无 is unclear as a button.
+  (Withdrawn with None itself: D-06a, 18-COPY-MINIMAL.md.)
 - **Blocking terms:** zh-Hans uses 屏蔽 for blocking, matching "Excluded Uploaders"; zh-Hant uses 封鎖.
 - **The website's privacy page:** it says sharing is on by default and that a switch turns it off. It must be
   rewritten for the three levels when 3.0 ships, not before (website, Phase 20).
@@ -325,8 +421,9 @@ These notes come from the approved copy files and keep their intent:
 
 - **Contact option:** no in-app contact option or support mailbox for now (Ampo msg 1774). Phase 20 needs a published
   contact link (GitHub Issues on the website, Leto) before the AltStore build goes to Apple.
-- **New analytics signals and the install source:** signals for the age wall, the analytics choice and moderation,
-  and the install source, come with ANALYTICS-02, the last plan of Phase 20 (D-02).
+- **New analytics signals and the install source on Basic/Full:** signals for the age wall, the analytics choice and
+  moderation, and the install source on the Basic/Full signals, come with ANALYTICS-02, the last plan of Phase 20
+  (D-02). The install source client itself and its use in the one install signal are in this phase (D-06c).
 - **iPad two-page spread test:** a known limit (DD-03).
 - **Comment styles on edit:** keeping a comment's styles and links when editing is still an open STATE Deferred Item.
   The posting warning applies to edits, but this phase does not change the edit form's plain-text pre-fill.
