@@ -154,19 +154,7 @@ struct GeneralSettingView: View {
                     $store.scope(\.$clearCacheDialog, action: \.clearCacheDialog)
                 )
             }
-            // The binding writes `Setting.isSharingAnalyticsData`, whose setter pins the underlying
-            // optional; `AnalyticsClient.send` re-reads it per signal, so the toggle takes effect
-            // immediately rather than at the next launch.
-            Section {
-                AppToggle(
-                    .shareAnalyticsData,
-                    isOn: Binding($setting.isSharingAnalyticsData)
-                )
-            } header: {
-                Text(.analytics)
-            } footer: {
-                Text(.shareAnalyticsDataFooter)
-            }
+            // The level picker returns in 18-10.
         }
         .animation(rowAnimation, value: tagTranslatorHasCustomTranslations)
         .animation(rowAnimation, value: setting.enableTagsExtension)
