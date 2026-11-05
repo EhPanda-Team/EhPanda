@@ -13,6 +13,9 @@ import SFSafeSymbolsExt
 import Sharing
 public import SwiftUI
 import SystemNotification
+#if DEBUG
+import Synchronization
+#endif
 
 private let logger = Logger(category: .init(describing: ReadingView.self))
 
@@ -650,11 +653,23 @@ private struct HorizontalPager<PageView: View>: View {
 }
 
 #if DEBUG
+/// The reader's UI-test options. The app's UI-test automation sets them once at launch, before any reader is built,
+/// from its own launch keys (`EHPANDA_UITEST_DROP_INITIAL_IDLE`); no launch key is read in this module.
+public enum ReaderUITestOptions {
+    private static let dropsInitialIdleReportValue = Mutex(false)
+
+    /// The default of `EnvironmentValues.dropsReaderInitialIdleReport`; false unless a UI-test launch asks for it.
+    public static var dropsInitialIdleReport: Bool {
+        get { dropsInitialIdleReportValue.withLock({ $0 }) }
+        set { dropsInitialIdleReportValue.withLock({ $0 = newValue }) }
+    }
+}
+
 public extension EnvironmentValues {
     /// Drops the first `.idle` report of each horizontal pager the reader builds, so a UI test can show that a new
     /// pager's turns and its page do not depend on that report (17-VERIFICATION.md R5-1). Ordinary launches leave it
-    /// false; no launch key is read in this module.
-    @Entry var dropsReaderInitialIdleReport = false
+    /// false; a UI-test launch sets the default through `ReaderUITestOptions`.
+    @Entry var dropsReaderInitialIdleReport = ReaderUITestOptions.dropsInitialIdleReport
 }
 #endif
 

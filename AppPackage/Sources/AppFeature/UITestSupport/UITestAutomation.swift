@@ -12,6 +12,7 @@ import DownloadClient
 import Foundation
 import HapticsClient
 import LibraryClient
+import ReadingFeature
 import Sharing
 import UserDefaultsClient
 #if DEBUG && canImport(Appshot) && canImport(AppshotProtocol)
@@ -68,15 +69,19 @@ public enum UITestAutomation {
     /// The first-launch answers an automated launch starts from (D-03, A-8).
     ///
     /// Every UI test, capture and hosted visual-test launch would otherwise stop at the age wall, so
-    /// each is preset past both screens unless `EHPANDA_UITEST_FIRST_LAUNCH=show` asks for the real
-    /// first launch, which the first-launch UI tests use. Any other value of the key is ignored, and
-    /// the key is read only here, inside `#if DEBUG` (P-9).
+    /// each is preset past both screens unless `EHPANDA_UITEST_FIRST_LAUNCH` asks for the real first
+    /// launch (`show`) or for its analytics choice alone (`analytics`), which the first-launch UI tests
+    /// use. Any other value of the key is ignored, and the key is read only here, inside `#if DEBUG`
+    /// (P-9).
     enum FirstLaunchPreset: Equatable, Sendable {
         /// The current age declaration confirmed and the Minimal level chosen. Test hosts carry no
         /// analytics app ID, so even Minimal's install signal is a no-op there.
         case answered
         /// Both answers cleared, so the launch meets the age wall, then the analytics choice.
         case cleared
+        /// The current age declaration confirmed and the level cleared, so the launch opens on the
+        /// analytics choice.
+        case ageConfirmed
 
         static let environmentKey = "EHPANDA_UITEST_FIRST_LAUNCH"
 
@@ -91,7 +96,41 @@ public enum UITestAutomation {
                 // a preset an earlier launch wrote would otherwise skip the screens under test.
                 setting.ageDeclarationVersion = nil
                 setting.analyticsLevel = nil
+            case .ageConfirmed:
+                setting.ageDeclarationVersion = AgeDeclaration.currentVersion
+                setting.analyticsLevel = nil
             }
+        }
+    }
+
+    /// The stored state every stubbed-network launch starts from, so what a UI test finds stored never
+    /// depends on the test that ran before it: a stubbed launch keeps the simulator's storage.
+    ///
+    /// `EHPANDA_UITEST_BLOCKED_AUTHORS` names the comment block list as a JSON array of author names;
+    /// absent or malformed, the list is empty. `EHPANDA_UITEST_DISPLAY_NAME` names the signed-in user
+    /// for the own-comment tests; absent, no name is stored. Both keys are read only here, inside
+    /// `#if DEBUG` (P-9).
+    struct StoragePreset: Equatable, Sendable {
+        static let blockedAuthorsEnvironmentKey = "EHPANDA_UITEST_BLOCKED_AUTHORS"
+        static let displayNameEnvironmentKey = "EHPANDA_UITEST_DISPLAY_NAME"
+
+        /// Built through `block(author:)`, so each name is held once and an empty one is dropped.
+        let blockedCommentAuthors: [String]
+        let displayName: String?
+
+        init(blockedCommentAuthors: [String], displayName: String?) {
+            self.blockedCommentAuthors = blockedCommentAuthors.reduce(into: []) { list, author in
+                list.block(author: author)
+            }
+            self.displayName = displayName
+        }
+
+        /// Replaces the stored block list and the user's display name in the current app storage.
+        func apply() {
+            @Shared(.blockedCommentAuthors) var blockedAuthors
+            @Shared(.user) var user
+            $blockedAuthors.withLock({ $0 = blockedCommentAuthors })
+            $user.withLock({ $0.displayName = displayName })
         }
     }
 
@@ -107,6 +146,15 @@ public enum UITestAutomation {
         /// `nil` for a launch that only overrides a client (the clipboard, a pause refusal): it runs
         /// the real app on the user's data, answers included.
         let firstLaunchPreset: FirstLaunchPreset?
+        /// A stubbed-network launch's stored block list and display name; `nil` for every other
+        /// launch, including a hosted visual test, whose fresh storage already holds neither.
+        var storagePreset: StoragePreset?
+        /// `EHPANDA_UITEST_REQUEST_LOG`: the file the stub protocol appends each request it sees to.
+        /// Only a stubbed-network launch has one.
+        var requestLogURL: URL?
+        /// `EHPANDA_UITEST_DROP_INITIAL_IDLE=1`: each horizontal pager the reader builds drops its
+        /// first `.idle` report (17-VERIFICATION.md R5-1). Only a stubbed-network launch sets it.
+        var dropsReaderInitialIdleReport = false
         #if DEBUG && canImport(Appshot) && canImport(AppshotProtocol)
         var appshotScene: AppshotProtocol.CaptureScene?
         #endif
@@ -142,7 +190,10 @@ public enum UITestAutomation {
 
         if configuration.shouldStubNetwork {
             UITestStubURLProtocol.configure(fixtureDirectory: configuration.fixtureDirectory)
+            UITestStubURLProtocol.configure(requestLog: configuration.requestLogURL)
             URLProtocol.registerClass(UITestStubURLProtocol.self)
+            // Set before the first reader is built; the reader reads it as its environment default.
+            ReaderUITestOptions.dropsInitialIdleReport = configuration.dropsReaderInitialIdleReport
         }
         // Both overrides share one preparation. The get-then-set on `$0.downloadClient` is accepted
         // because the get and the set happen inside the same preparation: reading it caches the live
@@ -180,6 +231,7 @@ public enum UITestAutomation {
         // A visual host's preset went into its own storage above; a stubbed launch keeps the app's.
         if !configuration.shouldUseVisualTestHost {
             applyFirstLaunchPreset(configuration.firstLaunchPreset)
+            configuration.storagePreset?.apply()
         }
         return configuration
     }
@@ -193,9 +245,33 @@ public enum UITestAutomation {
         isAutomatedLaunch: Bool
     ) -> FirstLaunchPreset? {
         guard isAutomatedLaunch else { return nil }
-        return trimmedValue(environment: environment, key: FirstLaunchPreset.environmentKey) == "show"
-            ? .cleared
-            : .answered
+        switch trimmedValue(environment: environment, key: FirstLaunchPreset.environmentKey) {
+        case "show": return .cleared
+        case "analytics": return .ageConfirmed
+        default: return .answered
+        }
+    }
+
+    /// The stored state `environment` asks a stubbed-network launch to start from.
+    static func storagePreset(environment: [String: String]) -> StoragePreset {
+        StoragePreset(
+            blockedCommentAuthors: blockedAuthors(
+                trimmedValue(environment: environment, key: StoragePreset.blockedAuthorsEnvironmentKey)
+            ),
+            displayName: trimmedValue(environment: environment, key: StoragePreset.displayNameEnvironmentKey)
+        )
+    }
+
+    /// The names a JSON array of strings holds; empty for no value or anything else.
+    private static func blockedAuthors(_ value: String?) -> [String] {
+        guard let value else { return [] }
+        do {
+            return try JSONDecoder().decode([String].self, from: Data(value.utf8))
+        } catch {
+            // A malformed list starts the launch from no blocks, the same as an absent one: a test
+            // that misspells it sees its blocked comments shown, never another test's list.
+            return []
+        }
     }
 
     /// Writes `preset` into the shared setting of the current app storage, before the store reads it.
@@ -342,7 +418,15 @@ public enum UITestAutomation {
             shouldUseVisualTestHost: shouldUseVisualTestHost,
             pauseRefusal: pauseRefusal,
             captureScene: nil,
-            firstLaunchPreset: firstLaunchPreset(environment: environment, isAutomatedLaunch: shouldStubNetwork)
+            firstLaunchPreset: firstLaunchPreset(environment: environment, isAutomatedLaunch: shouldStubNetwork),
+            storagePreset: shouldStubNetwork && !shouldUseVisualTestHost
+                ? storagePreset(environment: environment)
+                : nil,
+            requestLogURL: shouldStubNetwork
+                ? trimmedValue(environment: environment, key: "EHPANDA_UITEST_REQUEST_LOG").map({ URL(filePath: $0) })
+                : nil,
+            dropsReaderInitialIdleReport: shouldStubNetwork
+                && trimmedValue(environment: environment, key: "EHPANDA_UITEST_DROP_INITIAL_IDLE") == "1"
         )
         #if DEBUG && canImport(Appshot) && canImport(AppshotProtocol)
         configuration.appshotScene = appshot

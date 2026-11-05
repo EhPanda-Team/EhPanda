@@ -17,8 +17,17 @@ enum UITestConstants {
     static let fixtureDirectoryEnvironmentKey = "EHPANDA_UITEST_FIXTURE_DIR"
     static let clipboardURLEnvironmentKey = "EHPANDA_UITEST_CLIPBOARD_URL"
     static let launchGalleryURLEnvironmentKey = "EHPANDA_AUTOMATION_GALLERY_URL"
-    /// `show` launches into the real first launch; absent, a stubbed launch is preset past it.
+    /// `show` launches into the real first launch, `analytics` onto its analytics choice with the age
+    /// already confirmed; absent (or any other value), a stubbed launch is preset past both.
     static let firstLaunchEnvironmentKey = "EHPANDA_UITEST_FIRST_LAUNCH"
+    /// A file path; the stub protocol appends one `METHOD host path` line to it for each request it sees.
+    static let requestLogEnvironmentKey = "EHPANDA_UITEST_REQUEST_LOG"
+    /// A JSON array of author names, written as the comment block list at launch; absent, the list is empty.
+    static let blockedAuthorsEnvironmentKey = "EHPANDA_UITEST_BLOCKED_AUTHORS"
+    /// The signed-in user's display name, for own-comment tests; absent, no name is stored.
+    static let displayNameEnvironmentKey = "EHPANDA_UITEST_DISPLAY_NAME"
+    /// `1` makes each horizontal pager the reader builds drop its first `.idle` report.
+    static let dropInitialIdleEnvironmentKey = "EHPANDA_UITEST_DROP_INITIAL_IDLE"
 
     /// UIKit names a toolbar's More button itself, and the name depends on the bar holding it:
     /// iOS 27 calls a navigation bar's `TopOverflowBarButtonItem`.

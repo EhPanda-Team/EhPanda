@@ -47,7 +47,9 @@ final class CaptureReplay: Sendable {
 ///
 /// The UI tests' hermetic fixture directory maps request paths to a few saved pages by prefix, and
 /// answers the `gdata` metadata API from a saved response; a capture launch installs its
-/// ``CaptureReplay`` instead, and every request it cannot answer fails.
+/// ``CaptureReplay`` instead, and every request it cannot answer fails. A stubbed launch can also name
+/// a request log (`EHPANDA_UITEST_REQUEST_LOG`), which gets one `METHOD host path` line for each
+/// request the protocol sees, so a UI test can prove which requests a screen made.
 final class UITestStubURLProtocol: URLProtocol {
     private enum Mode {
         case fixtureDirectory(URL?)
@@ -55,6 +57,8 @@ final class UITestStubURLProtocol: URLProtocol {
     }
 
     private static let mode = Mutex(Mode.fixtureDirectory(nil))
+    /// The request log's file. Each line is written while the lock is held, so lines never interleave.
+    private static let requestLog = Mutex<URL?>(nil)
 
     override static func canInit(with request: URLRequest) -> Bool {
         guard let scheme = request.url?.scheme?.lowercased() else {
@@ -68,6 +72,7 @@ final class UITestStubURLProtocol: URLProtocol {
     }
 
     override func startLoading() {
+        Self.logRequest(request)
         guard let url = request.url else {
             finish(statusCode: 404, data: Data(), url: URL(filePath: "/"), mimeType: Self.htmlMIMEType)
             return
@@ -96,6 +101,44 @@ final class UITestStubURLProtocol: URLProtocol {
         mode.withLock {
             $0 = .replay(replay)
         }
+    }
+
+    /// Names the file each request is appended to; `nil` logs nothing.
+    static func configure(requestLog url: URL?) {
+        requestLog.withLock {
+            $0 = url
+        }
+    }
+
+    /// Appends `METHOD host path` for `request` to the request log, if one is named. The path carries no
+    /// query. A failed write is ignored: the log never changes how a request is answered.
+    private static func logRequest(_ request: URLRequest) {
+        requestLog.withLock { url in
+            guard let url else { return }
+            let line = "\(request.httpMethod ?? "GET") \(request.url?.host() ?? "") \(request.url?.path() ?? "")\n"
+            do {
+                try append(line, to: url)
+            } catch {
+                // The test reading the log finds the line missing; the app under test carries on.
+            }
+        }
+    }
+
+    private static func append(_ line: String, to url: URL) throws {
+        let path = url.path(percentEncoded: false)
+        if !FileManager.default.fileExists(atPath: path) {
+            FileManager.default.createFile(atPath: path, contents: nil)
+        }
+        let handle = try FileHandle(forWritingTo: url)
+        defer {
+            do {
+                try handle.close()
+            } catch {
+                // Closing after a completed write loses nothing the log needs.
+            }
+        }
+        try handle.seekToEnd()
+        try handle.write(contentsOf: Data(line.utf8))
     }
 
     static func fixtureName(for url: URL) -> String? {
