@@ -1,6 +1,8 @@
-import AppComponents
 import ComposableArchitecture
 public import SwiftUI
+#if DEBUG
+import AppComponents
+#endif
 #if DEBUG && canImport(Appshot) && canImport(AppshotProtocol)
 import Appshot
 #endif
