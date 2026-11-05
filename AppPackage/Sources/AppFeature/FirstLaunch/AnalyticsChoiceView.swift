@@ -110,7 +110,7 @@ struct AnalyticsChoiceView: View {
     private static var intro: String {
         let body = String(localized: .RLocalizable.consentBody)
         let footer = String(localized: .RLocalizable.consentFooter)
-        return body + introSeparator(languageCode: FirstLaunchLanguage.code) + footer
+        return body + introSeparator(languageCode: ResolvedAppLanguage.code) + footer
     }
 
     /// What joins the intro's two sentences (D-06g): one space in en, de and ko; nothing in ja, zh-Hans and zh-Hant,
