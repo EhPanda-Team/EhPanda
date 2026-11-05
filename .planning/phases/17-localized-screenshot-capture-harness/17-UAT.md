@@ -17,18 +17,21 @@ expected: On an iPhone and on an iPad, open any gallery in the reader with Direc
 result: pass
 source: agent
 evidence: "Agent-run (owner rule msg 1652), throwaway XCUITest at b5eca09d1 source on iPhone Air and iPad Pro 11 sims, offline fixtures. iPhone run D: edge tap 5->6, Reload All Images, settles on 6; edge taps +/-1, slider lands as picked, Auto-Play steps by one (video-confirmed). iPad run B: lands on 6, slider and Auto-Play correct. Menu reached 2.7 s and Reload 4.8-5.0 s after the edge tap (XCUITest idles between taps)."
+addendum 2026-11-05: rebuild-during-turn condition exercised separately, see 17-WR01-MIDTURN.md
 
 ### 2. Switch from Vertical to Left-to-right while reading
 expected: On an iPhone and on an iPad, read a gallery with Direction set to Vertical and scroll partway into a page around page 5. Open Reading Settings from the ••• menu, change Direction to Left-to-right and close the settings. The reader shows a page and the page number names that same page. Then turn pages by tapping the edges, by the slider and with Auto-Play: every turn moves the page, the page number always matches the page on screen, and nothing jumps or gets stuck.
 result: pass
 source: agent
 evidence: "Agent-run. iPhone run A: page 6 before, page 5 after the switch, indicator matches; taps, slider and Auto-Play fine. iPad run B: pass."
+addendum 2026-11-05: rebuild-during-turn condition exercised separately, see 17-WR01-MIDTURN.md
 
 ### 3. Switch from Left-to-right to Right-to-left while reading
 expected: On an iPhone and on an iPad, while reading around page 5 in Left-to-right, change Direction to Right-to-left in Reading Settings and close the settings. The same page stays on screen with the matching page number. Tapping the left edge now goes to the next page and the right edge to the previous one, and the slider and Auto-Play also move the pages in the right-to-left order. The page number always matches the page on screen, and turning keeps working.
 result: pass
 source: agent
 evidence: "Agent-run. iPhone run C: left taps go forward (5->8), right taps back; slider left quarter -> 106, right quarter -> 42 (reversed as RTL); Auto-Play forward. iPad run B: slider 109/45, pass. Run A's failure was a harness fault (accessibility slider value is not screen position under the RTL rotation)."
+addendum 2026-11-05: rebuild-during-turn condition exercised separately, see 17-WR01-MIDTURN.md
 
 ### 4. Reader reopens on the right page and keeps up with quick turns
 expected: Close the reader on a later page (for example page 8) and open the gallery's reader again, once in Vertical and once in Left-to-right: it opens on that page and the page number says so. In Left-to-right, tap an edge several times quickly: the reader ends up as many pages forward as you tapped, and the page number matches the page shown. On an iPhone, open the Vertical reader in portrait and turn the phone to landscape: it stays on the page you were reading. (One quick self-correction of the page right after a rotation is a known limit.)

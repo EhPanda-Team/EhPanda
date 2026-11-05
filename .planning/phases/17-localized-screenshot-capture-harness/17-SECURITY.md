@@ -131,11 +131,11 @@ No security weight.
 | ID | Severity | Where | Finding | Status |
 |---|---|---|---|---|
 | F-17-FX-01 | low | Private fixture repository `ehpanda-fixture`, `data/objects/` (original acquisition archive) | 160 saved image-page responses keep their static-link (`/r/`) and `/fullimg/` path access tokens unzeroed. These tokens are in neither `fixtures/versions/` (0 nonzero of 680) nor `overrides/`. In the same archive, `apikey`, `showkey` and `keystamp` are all zeroed, and every page has `apiuid = -1`. So the tokens were issued to an anonymous visitor and are not account credentials. This contradicts the fixture repo's own `AGENTS.md` ("transient access values scrubbed") and the 17-03 `SECRETS` list. The tokens have been in `6d5c308` since 2026-11-01, and that commit is already on the private remote. | accepted — owner, 2026-11-05 (msg 1667); see Accepted Risks Log |
-| F-17-DOC-01 | informational | `17-REVIEW-FIX.md:108` | A tracked phase record contains the absolute local checkout path, including the macOS user name. It is not a credential, LAN address or simulator ID. | noted |
+| F-17-DOC-01 | informational | `17-REVIEW-FIX.md:108` | A tracked phase record contained the absolute local checkout path, including the macOS user name. It was not a credential, LAN address or simulator ID. | fixed in `b2cb11dad` (now `~/Fork/EhPanda`) |
 
 ---
 
-## Fixture Repository Spot-Check (`ehpanda-fixture`, HEAD `8ee4fc2`, 1 commit ahead of origin)
+## Fixture Repository Spot-Check (`ehpanda-fixture`, HEAD now `f71d108`, 2 commits ahead of origin, unpushed; `f71d108` is a README-only change)
 
 The scan covered `8ee4fc2`, every commit in `git rev-list --all` (5 commits), and the commit messages.
 
