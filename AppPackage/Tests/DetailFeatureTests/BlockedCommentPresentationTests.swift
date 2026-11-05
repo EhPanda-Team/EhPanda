@@ -5,6 +5,7 @@ import CookieClient
 import Foundation
 import SwiftUI
 import Testing
+import UIKit
 import WebKit
 
 /// The comment moderation surfaces (UI-SPEC C-4 to C-8): the menu's items from one table, the collapsed row that cannot
@@ -92,6 +93,42 @@ struct BlockedCommentPresentationTests {
         #expect(actions.author == "someone")
         #expect(own.items.isEmpty)
         #expect(noGallery.items == [.block])
+    }
+
+    // MARK: Accessibility actions
+
+    /// VoiceOver, Voice Control and Switch Control reach the menu through the element's named actions, after the link
+    /// actions, with the visible menu strings (C-4); XCUITest cannot read custom actions, so they are read here.
+    @Test
+    func theListCellAndTheCardNameTheMenuItemsAsAccessibilityActions() {
+        let comment = Self.comment(author: "someone")
+        let actions = CommentModerationActions(
+            items: [.report, .block], siteName: "E-Hentai", author: comment.author, perform: { _ in }
+        )
+        let revealed = CommentModerationActions(
+            items: [.report, .unblock, .hide], siteName: "E-Hentai", author: comment.author, perform: { _ in }
+        )
+
+        let cell = AccessibilityTree.customActionNames(
+            in: CommentsView.CommentCell(gid: "3103480", comment: comment, moderation: actions, linkAction: { _ in })
+        )
+        let card = AccessibilityTree.customActionNames(
+            in: DetailView.CommentCell(comment: comment, backgroundColor: .gray, moderation: revealed)
+        )
+        let own = AccessibilityTree.customActionNames(
+            in: CommentsView.CommentCell(gid: "3103480", comment: comment, linkAction: { _ in })
+        )
+        let linkedComment = Self.comment(author: "someone", text: "See https://example.com/a")
+        let linked = AccessibilityTree.customActionNames(
+            in: CommentsView.CommentCell(
+                gid: "3103480", comment: linkedComment, moderation: actions, linkAction: { _ in }
+            )
+        )
+
+        #expect(cell == ["Report on E-Hentai", "Block someone"])
+        #expect(card == ["Report on E-Hentai", "Unblock someone", "Hide"])
+        #expect(own.isEmpty)
+        #expect(linked == ["Open link", "Report on E-Hentai", "Block someone"])
     }
 
     // MARK: Collapsed row
@@ -187,10 +224,10 @@ struct BlockedCommentPresentationTests {
 
     // MARK: Fixtures
 
-    private static func comment(author: String) -> GalleryComment {
+    private static func comment(author: String, text: AttributedString = "Text") -> GalleryComment {
         GalleryComment(
             votedUp: false, votedDown: false, votable: true, editable: false,
-            score: "+1", author: author, contents: [.init(type: .plainText, text: "Text")],
+            score: "+1", author: author, contents: [.init(type: .plainText, text: text)],
             commentID: "comment-\(author)", commentDate: Date(timeIntervalSince1970: 0)
         )
     }
@@ -221,5 +258,50 @@ private final class RecordingTarget: SessionWebViewTarget {
         if let url = request.url {
             calls.append(.load(url))
         }
+    }
+}
+
+/// Reads a SwiftUI view's accessibility tree as UIKit exposes it to assistive technologies.
+@MainActor
+private enum AccessibilityTree {
+    /// SwiftUI builds its accessibility elements only while accessibility is on in the process, which a test process
+    /// does not have unless it asks, as an assistive technology would.
+    private static let enableAccessibility: Void = {
+        guard let library = dlopen("/usr/lib/libAccessibility.dylib", RTLD_NOW),
+              let symbol = dlsym(library, "_AXSApplicationAccessibilitySetEnabled")
+        else { return }
+        typealias SetEnabled = @convention(c) (Bool) -> Void
+        unsafeBitCast(symbol, to: SetEnabled.self)(true)
+    }()
+
+    static func customActionNames(in view: some View) -> [String] {
+        _ = enableAccessibility
+        let controller = UIHostingController(rootView: view.environment(\.locale, Locale(identifier: "en_US")))
+        guard let root = controller.view else { return [] }
+        let window = UIWindow(frame: CGRect(x: 0, y: 0, width: 420, height: 900))
+        window.rootViewController = controller
+        window.makeKeyAndVisible()
+        defer { window.isHidden = true }
+        root.frame = window.bounds
+        root.layoutIfNeeded()
+        RunLoop.main.run(until: .now.addingTimeInterval(0.2))
+        return elements(under: root, depth: 0).flatMap { element in
+            element.accessibilityCustomActions?.map(\.name) ?? []
+        }
+    }
+
+    private static func elements(under object: NSObject, depth: Int) -> [NSObject] {
+        guard depth < 40 else { return [object] }
+        var children = (object.accessibilityElements ?? []).compactMap({ $0 as? NSObject })
+        if children.isEmpty {
+            let count = object.accessibilityElementCount()
+            if count > 0, count != NSNotFound {
+                children = (0..<count).compactMap({ object.accessibilityElement(at: $0) as? NSObject })
+            }
+        }
+        if children.isEmpty, let view = object as? UIView {
+            children = view.subviews
+        }
+        return [object] + children.flatMap({ elements(under: $0, depth: depth + 1) })
     }
 }

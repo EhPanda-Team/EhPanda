@@ -258,6 +258,15 @@ struct GalleryCommentParserTests {
         #expect(first.isEmpty == false)
         #expect(first == second)
     }
+
+    /// The site follows the author's link with `&nbsp; &nbsp;` and a forum contact link; the name is only the link's
+    /// text, as the block list, the menu labels and the own-comment rule compare names exactly.
+    @Test
+    func theAuthorCarriesNoSpaceFromTheContactLink() throws {
+        let contact = #"&nbsp; &nbsp; <a href="https://forums.e-hentai.org/index.php?showuser=1"><img alt="PM" /></a>"#
+        let comment = try #require(Parser.parseComments(doc: document(body: "text", afterAuthor: contact)).first)
+        #expect(comment.author == "author")
+    }
 }
 
 // MARK: Helpers
@@ -320,12 +329,12 @@ private func parseComment(_ body: String) throws -> GalleryComment {
 }
 
 /// A page with one comment, in the structure of a saved gallery detail page.
-private func document(body: String) throws -> any HTMLDocument {
+private func document(body: String, afterAuthor: String = "") throws -> any HTMLDocument {
     try Kanna.HTML(
         html: """
         <html><body><div id="cdiv" class="gm"><a name="c1"></a><div class="c1"><div class="c2">\
         <div class="c3">Posted on 18 March 2026, 10:20 by: &nbsp; \
-        <a href="https://e-hentai.org/uploader/author">author</a></div>\
+        <a href="https://e-hentai.org/uploader/author">author</a>\(afterAuthor)</div>\
         <div class="c"></div></div><div class="c6" id="comment_1">\(body)</div>\
         <div class="c7" id="cvotes_1" style="display:none"></div></div></div></body></html>
         """,

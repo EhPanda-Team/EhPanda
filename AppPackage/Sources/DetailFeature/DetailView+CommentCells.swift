@@ -50,7 +50,7 @@ extension DetailView {
             .accessibilityValue(.accessibilityVotedUp, isEnabled: comment.votedUp)
             .accessibilityValue(.accessibilityVotedDown, isEnabled: comment.votedDown)
             .accessibilityActions {
-                CommentModerationButtons(actions: moderation)
+                CommentModerationButtons(actions: moderation, isReversed: true)
             }
         }
 
