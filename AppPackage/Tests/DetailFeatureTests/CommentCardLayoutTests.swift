@@ -17,6 +17,41 @@ final class CommentCardLayoutTests: XCTestCase {
         )
     }
 
+    /// The collapsed card (C-8) takes the comment card's size from the same metric at every Dynamic Type step, so a
+    /// strip that mixes the two keeps equal cards.
+    func testCollapsedCardMatchesTheCommentCardAtEverySize() throws {
+        let comment = GalleryComment(
+            votedUp: false, votedDown: false, votable: true, editable: false,
+            score: "+1", author: "Author", contents: [.init(type: .plainText, text: "Text")],
+            commentID: "card-size", commentDate: Date(timeIntervalSince1970: 1_787_409_540)
+        )
+        let background = Color(uiColor: .systemGray5)
+        for size in DynamicTypeSize.allCases {
+            let commentCard = try renderedSize(
+                DetailView.CommentCell(comment: comment, backgroundColor: background), size: size
+            )
+            let collapsedCard = try renderedSize(
+                BlockedCommentCard(
+                    commentID: comment.commentID, backgroundColor: background, showAction: {}, unblockAction: {}
+                ),
+                size: size
+            )
+
+            XCTAssertEqual(collapsedCard, commentCard, "\(size)")
+            XCTAssertEqual(commentCard.width, CommentCardMetrics.width(for: size), "\(size)")
+        }
+    }
+
+    private func renderedSize(_ view: some View, size: DynamicTypeSize) throws -> CGSize {
+        let renderer = ImageRenderer(content: view
+            .environment(\.dynamicTypeSize, size)
+            .environment(\.locale, Locale(identifier: "en_US"))
+        )
+        renderer.scale = 1
+        let image = try XCTUnwrap(renderer.cgImage, "\(size)")
+        return CGSize(width: image.width, height: image.height)
+    }
+
     private func verifyCard(author: String, text: String, name: String) throws {
         let comment = GalleryComment(
             votedUp: false, votedDown: false, votable: true, editable: false,

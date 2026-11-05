@@ -597,15 +597,30 @@ struct PreviewsSection: View {
 }
 
 // MARK: CommentsSection
+/// The screen's moderation alert as the row or card that asked for it sees it: the alert while `isPresented`, else
+/// `nil`, so the alert sits on the control that triggered it (AGENTS.md).
+typealias CommentModerationAlertItem = (_ isPresented: Bool) -> CommentModerationAlertBinding
+
 struct CommentsSection: View {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @SharedReader(.didLogin) private var didLogin: Bool
+    @SharedReader(.user) private var user: User
+    /// The card whose Report or Block was chosen last: it presents the moderation alert, and after a Block VoiceOver
+    /// moves to its collapsed card (C-4, C-8).
+    @State private var moderationTargetID: String?
+    @AccessibilityFocusState private var focusedCommentID: String?
 
     let comments: [GalleryComment]
+    let moderation: CommentModerationFeature.State
+    let moderationAlert: CommentModerationAlertItem
+    let moderationAction: (CommentModerationFeature.Action) -> Void
     let navigateCommentAction: () -> Void
     let navigatePostCommentAction: () -> Void
 
     private var backgroundColor: Color { Color(uiColor: .systemGray5) }
 
+    // The strip is not composited as one drawing group: that flattens the cards into one bitmap, which would take the
+    // context menus, the collapsed cards' buttons and their hover effects with it (C-8, research §5.6 a).
     var body: some View {
         SubSection(
             title: .comments,
@@ -614,15 +629,71 @@ struct CommentsSection: View {
             ScrollView(.horizontal) {
                 HStack {
                     ForEach(comments.prefix(min(comments.count, 6))) { comment in
-                        DetailView.CommentCell(comment: comment, backgroundColor: backgroundColor)
+                        card(comment)
+                            .appAlert(moderationAlert(moderationTargetID == comment.commentID))
                     }
                     .withHorizontalSpacing()
                 }
-                .drawingGroup()
             }
             .scrollIndicators(.hidden)
+            .animation(reduceMotion ? nil : .default, value: moderation.blockedAuthors)
+            .animation(reduceMotion ? nil : .default, value: moderation.revealedCommentIDs)
+            .onChange(of: moderation.blockedAuthors) {
+                // After a Block, VoiceOver continues on the collapsed card of the comment acted on (C-4).
+                if let moderationTargetID,
+                   let comment = comments.first(where: { $0.commentID == moderationTargetID }),
+                   moderation.isCollapsed(comment)
+                {
+                    focusedCommentID = moderationTargetID
+                }
+            }
             CommentButton(backgroundColor: backgroundColor, action: navigatePostCommentAction)
                 .padding(.horizontal).disabled(!didLogin)
+        }
+    }
+
+    /// A blocked author's comment as the collapsed card (C-8), else the comment card with its moderation items.
+    @ViewBuilder private func card(_ comment: GalleryComment) -> some View {
+        if moderation.isCollapsed(comment) {
+            BlockedCommentCard(
+                commentID: comment.commentID,
+                backgroundColor: backgroundColor,
+                showAction: { moderationAction(.show(commentID: comment.commentID)) },
+                unblockAction: { moderationAction(.unblock(author: comment.author)) }
+            )
+            .accessibilityFocused($focusedCommentID, equals: comment.commentID)
+        } else {
+            let actions = moderationActions(for: comment)
+            if actions.items.isEmpty {
+                DetailView.CommentCell(comment: comment, backgroundColor: backgroundColor)
+                    .accessibilityIdentifier("comment_card_" + comment.commentID)
+            } else {
+                DetailView.CommentCell(comment: comment, backgroundColor: backgroundColor, moderation: actions)
+                    .accessibilityIdentifier("comment_card_" + comment.commentID)
+                    .contentShape(.contextMenuPreview, .rect(cornerRadius: CommentCardMetrics.cornerRadius))
+                    .contextMenu {
+                        CommentModerationButtons(actions: actions)
+                    }
+            }
+        }
+    }
+
+    private func moderationActions(for comment: GalleryComment) -> CommentModerationActions {
+        moderation.actions(
+            for: comment, on: .card, didLogin: didLogin, displayName: user.displayName
+        ) { item in
+            switch item {
+            case .report:
+                moderationTargetID = comment.commentID
+                moderationAction(.reportTapped(comment))
+            case .block:
+                moderationTargetID = comment.commentID
+                moderationAction(.blockTapped(comment))
+            case .unblock:
+                moderationAction(.unblock(author: comment.author))
+            case .hide:
+                moderationAction(.hide(commentID: comment.commentID))
+            }
         }
     }
 }
@@ -653,6 +724,9 @@ private func previewComment(
                     text: "Agreed. The later pages look excellent."
                 )
             ],
+            moderation: .init(galleryURL: nil),
+            moderationAlert: { _ in .constant(nil) },
+            moderationAction: { _ in },
             navigateCommentAction: {},
             navigatePostCommentAction: {}
         )
@@ -665,6 +739,9 @@ private func previewComment(
     } operation: {
         CommentsSection(
             comments: [],
+            moderation: .init(galleryURL: nil),
+            moderationAlert: { _ in .constant(nil) },
+            moderationAction: { _ in },
             navigateCommentAction: {},
             navigatePostCommentAction: {}
         )
