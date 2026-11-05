@@ -118,6 +118,7 @@ the system scales between.
 | Screen title | `.title` | 28pt | 58pt | `.bold()` | Age wall title, analytics title; centred; `.accessibilityAddTraits(.isHeader)` |
 | Body | `.body` | 17pt | 53pt | regular | Age wall body + declaration, analytics body, Settings rows |
 | Level name | `.headline` | 17pt | 53pt | semibold | Analytics card titles |
+| Recommended label | `.caption` | 12pt | 40pt | semibold, `.primary` | Capsule after the Basic name (C-3) |
 | Level description | `.subheadline` | 15pt | 49pt | regular, `.secondary` | Analytics card descriptions |
 | Button | `.headline` | 17pt | 53pt | semibold | Continue |
 | Collapsed-row label | `.subheadline` | 15pt | 49pt | regular, `.secondary` | "Comment from a user you've blocked" |
@@ -177,7 +178,7 @@ the catalog may rename them, never the text. Nothing on any screen below may say
 | Continue hint while dimmed (VoiceOver) | `age_wall.continue_hint` (age wall only — see C-2) |
 | Age wall footnote (always visible) | `age_wall.footnote` |
 | Analytics title / body | `consent.title` / `consent.body` |
-| Level names / descriptions | `consent.level.{minimal,basic,full}` / `…description`. Minimal replaces None (owner msg 1795); its name and description and the new `consent.body` are Camo's wording: name and `consent.body` from msg 1797 (approved msg 1805), Minimal's description from Revision 2 in msg 1815 (**approved msg 1818**, replaces the 1805 line), Basic's description from Revision 3 in msg 1832 (**approved msg 1839**), `consent.body` from the Revision 5 fallback in msg 1857 (**approved msg 1864**, replaces the 1805 body), as shown in the mockups |
+| Level names / descriptions | `consent.level.{minimal,basic,full}` / `…description`. Minimal replaces None (owner msg 1795); its name and description and the new `consent.body` are Camo's wording: name and `consent.body` from msg 1797 (approved msg 1805), Minimal's description from Revision 2 in msg 1815 (**approved msg 1818**, replaces the 1805 line), Basic's and Full's descriptions from Revision 6 in msg 1875 (**approved msg 1880**; screens and features moved from Full to Basic, replaces the 1839 Basic line), `consent.body` from the Revision 5 fallback in msg 1857 (**approved msg 1864**, replaces the 1805 body), as shown in the mockups |
 | Analytics footer | `consent.footer` |
 | Privacy link (both places) | `consent.privacy_link` |
 | Settings analytics row | `shareAnalyticsData` (existing key, now a picker); section header `analytics` (existing) |
@@ -262,7 +263,7 @@ hint) → footnote. Initial focus: the title.
 
 ### C-3 · Analytics choice [03, 04, 18, 21]
 
-**Layout decision: separate Continue, not save-on-tap.** Reason: with no default and three long descriptions, people
+**Layout decision: separate Continue, not save-on-tap.** Reason: nothing is pre-selected (owner msg 1882), so people
 read and compare before choosing; save-on-tap commits on a stray tap while scrolling and gives no chance to change
 your mind, and a shared Continue keeps both first-launch screens one pattern.
 
@@ -277,7 +278,7 @@ your mind, and a shared Continue keeps both first-launch screens one pattern.
    Same rule for the age wall title (C-2) and the Blocked Users empty-state title.
 3. 8pt · Body `consent.body`, `.body`, `.secondary`, centred.
 4. 24pt · **Three `ChoiceCard`s**, order Minimal, Basic, Full (owner's order; Minimal replaces None, owner msg 1795), 12pt apart, all identical in size rules,
-   type and colour while unselected — no badge, no "recommended", no different weight.
+   type and colour while unselected — the only difference is Basic's Recommended label below; no different weight or colour.
    - Card: `secondarySystemGroupedBackground`, radius 15, padding 16, full width, whole card tappable,
      `.hoverEffect(.highlight)` as C-2.
    - `HStack(alignment: .firstTextBaseline, spacing: 12)`: radio glyph, then `VStack(alignment: .leading, spacing: 4)`
@@ -285,8 +286,18 @@ your mind, and a shared Continue keeps both first-launch screens one pattern.
    - Radio: `circle` `.secondary` → `checkmark.circle.fill` accent, ≈ 28pt, `.symbolEffect(.replace)` (none with
      Reduce Motion).
    - Selected card: plus `.strokeBorder(Color.accentColor, lineWidth: 2)` on the card shape. Unselected: no stroke.
-   - Initially **none selected**. Tapping a card selects it (and deselects the others); tapping the selected card
-     keeps it. Haptic `.selection`.
+   - Initially **none selected** (owner msg 1882: Basic is recommended, not pre-selected). Tapping a card selects it
+     (and deselects the others); tapping the selected card keeps it. Haptic `.selection`.
+   - **Recommended label on Basic only** (`consent.level.recommended`, approved with msg 1882; Camo's msg 1875 file):
+     a capsule right after the name, inside the name row — `HStack(alignment: .firstTextBaseline, spacing: 8)` { name;
+     label }, wrapped in `ViewThatFits` so at large sizes the label drops onto its own line under the name, leading-
+     aligned, 4pt below. Label: `.caption.weight(.semibold)`, `.primary` (not `.secondary`: 12pt text needs 4.5:1, and `.primary` on the fill is > 12:1 in both modes), padding 8 h / 2 v,
+     `Capsule().fill(Color(.tertiarySystemFill))`. Neutral, never accent: accent means "selected", and the label
+     stays the same whether Basic is selected or not. `.accessibilityHidden` is NOT set — it is read as part of the
+     card (see VoiceOver below).
+   - **Order stays Minimal, Basic, Full** (layout call, Ato msg 1883). Reason: the descriptions are a ladder
+     ("Everything in Minimal, plus…", "Everything in Basic, plus…") that only reads top-down in that order, and the
+     label is what makes Basic stand out, not its position.
 5. 16pt · `consent.footer`, `.footnote`, `.secondary`, centred.
 6. 8pt · `Link(consent.privacy_link, destination: privacyURL)` with a trailing `arrow.up.right` (`.imageScale(.small)`,
    AX-hidden) — `.footnote.weight(.semibold)`, `.primary`, centred, 44pt min hit height. Opens in the default browser
@@ -296,7 +307,7 @@ your mind, and a shared Continue keeps both first-launch screens one pattern.
 On Continue: store the level, start the SDK only if Basic/Full (DD-09), crossfade to the app.
 
 VoiceOver: each card is one element — `.accessibilityElement(children: .combine)`, `.isButton`, `.isSelected` when
-selected, label = name + description. The three cards sit in a container labelled by the title
+selected, label = name + description; for Basic, name + "Recommended" + description (e.g. "Basic, Recommended, Everything in Minimal…"). The three cards sit in a container labelled by the title
 (`.accessibilityElement(children: .contain)`). Initial focus: the title.
 
 ### C-4 · Comment menu (comments list and Detail strip) [05, 09, 22]
@@ -443,7 +454,7 @@ Applicable state considerations resolved: 21 covered, 3 backstop, 0 unresolved.
 | Category | Element(s) | Status | Resolution / Reason |
 |----------|------------|--------|---------------------|
 | empty | Age wall, initial | ✅ covered | Checkbox unticked, Continue disabled and announced "dimmed" with `age_wall.continue_hint`; footnote visible |
-| empty | Analytics choice, initial | ✅ covered | No card selected, no stroke, Continue disabled |
+| empty | Analytics choice, initial | ✅ covered | No card selected, no stroke, Recommended label on Basic, Continue disabled |
 | empty | Blocked Users list | ✅ covered | `ContentUnavailableView` with `blocked_users.empty`, footer hidden |
 | empty | Blocked Users row, nobody blocked | ✅ covered | Row shows count "0" and still pushes the list |
 | loading | First-launch screens, Settings, Blocked Users | ✅ covered | No loading state: everything is local and instant |
@@ -487,8 +498,8 @@ Applicable state considerations resolved: 21 covered, 3 backstop, 0 unresolved.
 
 ### Mockup index (`mockups/`)
 
-01 age wall light, unticked · 02 age wall dark, ticked · 03 analytics light, nothing picked · 04 analytics dark,
-Basic · 05 comment menu · 06 report confirmation · 07 block confirmation dark · 08 collapsed row · 09 revealed row +
+01 age wall light, unticked · 02 age wall dark, ticked · 03 analytics light, as it opens (nothing picked, Basic recommended) · 04 analytics dark,
+Basic picked · 05 comment menu · 06 report confirmation · 07 block confirmation dark · 08 collapsed row · 09 revealed row +
 Unblock menu, dark · 10 posting warning · 11 Detail strip collapsed card · 12 General settings light (analytics) · 13 General settings dark,
 Minimal · 14 Blocked Users with swipe · 15 Blocked Users empty, dark · 16/17 age wall AX5 top/bottom · 18 analytics
 AX5 · 19 collapsed row AX5 · 20 iPad age wall landscape · 21 iPad analytics portrait dark · 22 iPad comments with a

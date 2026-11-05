@@ -719,7 +719,7 @@ adds the failing tests. No framework install is needed.
 
 - Code at `43333aae0` (files cited inline); TelemetryDeck SwiftSDK 2.14.2 resolved checkout.
 - `18-CONTEXT.md` (incl. amendments D-06a, D-06b, D-06c, D-06d, D-06e, D-06f, DD-09a, D-14a, D-17a), `18-COPY-FIRST-LAUNCH.md`,
-  `18-COPY-MINIMAL.md` (with Revision 2, msg 1818, Revision 3, msg 1839, Revision 5, msg 1864, and Revision 6, msg 1880), `18-COPY-COMMENTS.md`, `18-UI-SPEC.md` (final, msg 1826; Basic line refreshed, msg 1843), `18-DISCUSSION-PREP.md`,
+  `18-COPY-MINIMAL.md` (with Revision 2, msg 1818, Revision 3, msg 1839, Revision 5, msg 1864, and Revision 6, msg 1880), `18-COPY-COMMENTS.md`, `18-UI-SPEC.md` (final, msg 1826; refreshed in msgs 1843, 1866 and 1886, the last adding the Recommended label), `18-DISCUSSION-PREP.md`,
   `18-DISCUSSION-LOG.md`.
 - iOS 27.2 SDK `MarketplaceKit.framework` Swift interface (`AppDistributor`).
 - TelemetryDeck SwiftSDK 2.14.2 at `AppPackage/.build/checkouts/SwiftSDK`: `TelemetryDeck.swift`,
