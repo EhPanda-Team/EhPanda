@@ -517,6 +517,17 @@ struct FirstLaunchGateTests {
         }
         await store.send(.ageWallContinue)
     }
+
+    // MARK: Analytics intro
+
+    // The intro joins `consent.body` and `consent.footer` (D-06g): a space where sentences are
+    // spaced, nothing after the full-width stops of ja and zh.
+    @Test(arguments: [
+        ("en", " "), ("de", " "), ("ko", " "), ("ja", ""), ("zh", ""), (nil, " ")
+    ] as [(String?, String)])
+    func theIntroSeparatorFollowsTheLanguage(languageCode: String?, separator: String) {
+        #expect(AnalyticsChoiceView.introSeparator(languageCode: languageCode) == separator)
+    }
 }
 
 // MARK: Helpers

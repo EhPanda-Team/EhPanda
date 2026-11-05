@@ -35,6 +35,10 @@ import Testing
 /// after the card appears at once under Reduce Motion, a colour change D-29 would leave ungated. The
 /// card already skipped its first fade under Reduce Motion, and the owner approved extending that to
 /// a late palette (17-05-PLAN.md, 2026-10-08).
+///
+/// The first launch (Phase 18 UI-SPEC C-1) is the other: its step change slides and its handover to the
+/// app crossfades, and under Reduce Motion the spec turns the slide into a dissolve and shortens both
+/// crossfades from 0.35s and 0.3s to 0.2s. The crossfades still run; only their length reads the value.
 @Suite
 struct ReduceMotionGatingSourceTests {
     private struct ScannedFile {
@@ -76,6 +80,8 @@ struct ReduceMotionGatingSourceTests {
         "AppComponents/CheckboxToggleStyle.swift": 1,
         "AppComponents/ChoiceCard.swift": 1,
         "AppComponents/ViewModifiers.swift": 1,
+        "AppFeature/FirstLaunch/FirstLaunchGateView.swift": 1,
+        "AppFeature/RootView.swift": 1,
         "DetailFeature/Comments/CommentsView.swift": 1,
         "DetailFeature/DetailView+HeaderSection.swift": 1,
         "DetailFeature/DetailView.swift": 1,
@@ -94,12 +100,14 @@ struct ReduceMotionGatingSourceTests {
         "SettingFeature/GeneralSetting/GeneralSettingView.swift": 1,
         "SystemNotification/View+Toast.swift": 1
     ]
-    private static let expectedEnvironmentReadTotal = 20
+    private static let expectedEnvironmentReadTotal = 22
 
     /// Executable lines carrying the ternary predicate, per file.
     private static let expectedTernaryPredicates: [String: Int] = [
         "AppComponents/CheckboxToggleStyle.swift": 1,
         "AppComponents/ChoiceCard.swift": 1,
+        "AppFeature/FirstLaunch/FirstLaunchGateView.swift": 2,
+        "AppFeature/RootView.swift": 1,
         "DetailFeature/Comments/CommentsView.swift": 1,
         "DetailFeature/DetailView.swift": 3,
         "DetailFeature/FolderManager/FolderManagerView.swift": 1,
@@ -115,7 +123,7 @@ struct ReduceMotionGatingSourceTests {
         "SettingFeature/GeneralSetting/GeneralSettingView.swift": 1,
         "SystemNotification/View+Toast.swift": 1
     ]
-    private static let expectedTernaryPredicateTotal = 27
+    private static let expectedTernaryPredicateTotal = 30
 
     /// The deep-linked comment scroll and the reader's page jump.
     private static let expectedWithAnimationGateTotal = 2
@@ -126,6 +134,8 @@ struct ReduceMotionGatingSourceTests {
         "AppComponents/CheckboxToggleStyle.swift": 2,
         "AppComponents/ChoiceCard.swift": 2,
         "AppComponents/ViewModifiers.swift": 2,
+        "AppFeature/FirstLaunch/FirstLaunchGateView.swift": 3,
+        "AppFeature/RootView.swift": 2,
         "DetailFeature/Comments/CommentsView.swift": 2,
         "DetailFeature/DetailView+HeaderSection.swift": 3,
         "DetailFeature/DetailView.swift": 4,
@@ -142,7 +152,7 @@ struct ReduceMotionGatingSourceTests {
         "SettingFeature/GeneralSetting/GeneralSettingView.swift": 2,
         "SystemNotification/View+Toast.swift": 3
     ]
-    private static let expectedGateMentionTotal = 61
+    private static let expectedGateMentionTotal = 66
 
     /// `.contentTransition(.numericText…)` sites across the tree; every one stays ungated (D-29).
     private static let expectedNumericTextTotal = 11
