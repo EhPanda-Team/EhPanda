@@ -177,7 +177,7 @@ the catalog may rename them, never the text. Nothing on any screen below may say
 | Continue hint while dimmed (VoiceOver) | `age_wall.continue_hint` (age wall only — see C-2) |
 | Age wall footnote (always visible) | `age_wall.footnote` |
 | Analytics title / body | `consent.title` / `consent.body` |
-| Level names / descriptions | `consent.level.{minimal,basic,full}` / `…description`. **Minimal's name and description, the Settings footer that reuses it and `consent.body` are being redrafted by Camo for owner approval (owner msg 1795, Ato msg 1796).** Mockups show Camo's draft (msg 1797, not yet approved); use the approved text when it lands. Layout does not change with it |
+| Level names / descriptions | `consent.level.{minimal,basic,full}` / `…description`. Minimal replaces None (owner msg 1795); its name and description and the new `consent.body` are Camo's wording from msg 1797, **approved by the owner in msg 1805**, as shown in the mockups |
 | Analytics footer | `consent.footer` |
 | Privacy link (both places) | `consent.privacy_link` |
 | Settings analytics row | `shareAnalyticsData` (existing key, now a picker); section header `analytics` (existing) |
