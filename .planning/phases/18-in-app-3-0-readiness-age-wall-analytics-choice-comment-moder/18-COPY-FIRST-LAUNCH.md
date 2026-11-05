@@ -1,3 +1,6 @@
+> **Superseded in part:** None strings and consent.body superseded by [18-COPY-MINIMAL.md](18-COPY-MINIMAL.md)
+> (owner msgs 1795, 1805).
+
 # EhPanda 3.0: first-launch copy (age wall + analytics choice)
 
 APPROVED by the owner, msg 1767 (2026-11-05), all six languages. Author: Camo. Delivered in msg 1761.
