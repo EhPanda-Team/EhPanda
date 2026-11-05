@@ -124,7 +124,14 @@ public struct Setting: Codable, Equatable, Sendable, MigratableModel {
         downloadThreadLimit = try container.decode(Int.self, forKey: .downloadThreadLimit)
         downloadAllowCellular = try container.decode(Bool.self, forKey: .downloadAllowCellular)
         downloadAutoRetryFailedPages = try container.decode(Bool.self, forKey: .downloadAutoRetryFailedPages)
-        shareAnalyticsData = try container.decodeIfPresent(Bool.self, forKey: .shareAnalyticsData)
+        ageDeclarationVersion = try container.decodeIfPresent(Int.self, forKey: .ageDeclarationVersion)
+        // A level this build does not know (a withdrawn one, or one from a newer build) reads as "not
+        // chosen yet" instead of failing the decode and resetting every other preference.
+        do {
+            analyticsLevel = try container.decodeIfPresent(AnalyticsLevel.self, forKey: .analyticsLevel)
+        } catch {
+            analyticsLevel = nil
+        }
         bypassSNIFiltering = try container.decode(Bool.self, forKey: .bypassSNIFiltering)
     }
 
@@ -135,7 +142,8 @@ public struct Setting: Codable, Equatable, Sendable, MigratableModel {
         case appIconType, showTagsInList, listTagsNumberMaximum, displayJapaneseTitle, readingDirection
         case prefetchLimit, enableDualPageMode, orientationReadingPreferences, exceptCover
         case contentDividerHeight, maximumScaleFactor, doubleTapScaleFactor, downloadThreadLimit
-        case downloadAllowCellular, downloadAutoRetryFailedPages, shareAnalyticsData, bypassSNIFiltering
+        case downloadAllowCellular, downloadAutoRetryFailedPages, ageDeclarationVersion, analyticsLevel
+        case bypassSNIFiltering
     }
     // A self-validating field: it rejects a newer/downgrade blob on decode (see `SchemaVersion`), which
     // fails the whole decode so Sharing resets to the key default. Synthesized Codable is otherwise
@@ -224,21 +232,19 @@ public struct Setting: Codable, Equatable, Sendable, MigratableModel {
     public var downloadAllowCellular = Self.downloadAllowCellularDefaultValue
     public var downloadAutoRetryFailedPages = Self.downloadAutoRetryFailedPagesDefaultValue
 
-    // Analytics
-    // Optional by necessity, not by taste: synthesized `Codable` throws on a missing non-optional key,
-    // so a `Setting` blob written before this field existed would fail to decode and reset every other
-    // preference to its default. `nil` therefore means "written before the toggle shipped", which is
-    // the opt-in state the build already had. Read it through ``isSharingAnalyticsData``, not directly.
-    public var shareAnalyticsData: Bool?
+    // First launch
+    // Both optional because `nil` means "never answered", which is also what an absent key decodes to:
+    // a blob written before 3.0 carries neither, so every upgrader meets the age wall and the analytics
+    // choice once (D-03). Adding them needed no schema bump or migration (D-22). The 2.x
+    // `shareAnalyticsData` toggle is retired, not migrated: its key is ignored on decode and never
+    // written again, so no earlier answer can stand in for the 3.0 choice (DD-08).
 
-    /// Whether analytics may be sent, resolving the pre-toggle `nil` blob to the shipped default.
+    /// The wording version of the age declaration the user confirmed; `nil` = never confirmed.
     ///
-    /// Settable so a SwiftUI `Toggle` can bind to a plain `Bool`; writing here is what first pins the
-    /// stored value, after which `nil` never reappears.
-    public var isSharingAnalyticsData: Bool {
-        get { shareAnalyticsData ?? true }
-        set { shareAnalyticsData = newValue }
-    }
+    /// Compare it with `AgeDeclaration.isConfirmed(_:)`, never directly, so a different version asks again.
+    public var ageDeclarationVersion: Int?
+    /// The analytics level the user chose; `nil` = not chosen yet, so nothing is sent (D-04, D-06a).
+    public var analyticsLevel: AnalyticsLevel?
 
     // Laboratory
     public var bypassSNIFiltering = false

@@ -72,17 +72,13 @@ extension AnalyticsClient {
             send: { signal in
                 guard started.withLock({ $0 }) else { return }
 
-                // The runtime opt-out. Read live inside the closure, never captured, so toggling the
-                // setting takes effect on the very next signal rather than at the next launch.
-                //
-                // The gate sits on `send` alone, deliberately leaving `start` untouched: the SDK stays
-                // initialized so its own session signal keeps counting installs and retention, while
-                // every app-authored signal stops. `Config.analyticsDisabled` would silence both and is
-                // opted out in COVERAGE.md for that reason.
+                // Read live inside the closure, never captured, so a level change takes effect on the
+                // very next signal rather than at the next launch.
+                // Replaced by the level gate in 18-03.
                 @Shared(.setting) var setting
-                guard setting.isSharingAnalyticsData else { return }
+                guard [.basic, .full].contains(setting.analyticsLevel) else { return }
 
-                // Refreshed here, after the opt-out gate, so an opted-out install never touches the
+                // Refreshed here, after the level gate, so a signal that is dropped never touches the
                 // scene graph on behalf of analytics.
                 orientation.refresh()
 

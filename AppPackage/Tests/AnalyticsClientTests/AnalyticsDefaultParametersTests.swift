@@ -21,6 +21,8 @@ struct AnalyticsDefaultParametersTests {
 
     private static func baseSetting() -> Setting {
         var setting = Setting()
+        // A level that shares the parameters; the gate itself is pinned in "The level gate" below.
+        setting.analyticsLevel = .full
         setting.galleryHost = .ehentai
         setting.readingDirection = .vertical
         setting.translateTags = false
@@ -123,50 +125,56 @@ struct AnalyticsDefaultParametersTests {
         #expect(parameters["App.translateTags"] == (enabled ? "true" : "false"))
     }
 
-    // MARK: The opt-out
+    // MARK: The level gate
 
-    // The runtime opt-out's half of the contract that lives in this file. An opted-out install still
-    // emits the SDK's own session signal — that is what keeps install and retention counts working —
-    // so the guarantee cannot be "nothing is sent"; it has to be "no app-authored parameter rides on
-    // what is sent". Asserting emptiness rather than a smaller key set is deliberate: a future
-    // parameter added to `snapshot` above the guard would leak onto an opted-out user's session
-    // signal, and this fails the moment it does.
-    @Test
-    func snapshotIsEmptyWhenTheUserHasOptedOut() {
+    // The bridge until 18-03's level gate: only a level that shares the parameters gets any. Asserting
+    // emptiness rather than a smaller key set is deliberate: a future parameter added to `snapshot`
+    // above the guard would leak onto a signal the user did not agree to, and this fails the moment
+    // it does.
+    @Test(arguments: [nil, .minimal] as [AnalyticsLevel?])
+    func snapshotIsEmptyWithoutALevelThatSharesIt(level: AnalyticsLevel?) {
         var setting = Self.baseSetting()
-        setting.isSharingAnalyticsData = false
+        setting.analyticsLevel = level
 
         #expect(AnalyticsDefaultParameters.snapshot(setting: setting, didLogin: false).isEmpty)
         #expect(AnalyticsDefaultParameters.snapshot(setting: setting, didLogin: true).isEmpty)
     }
 
-    // The opt-out must not depend on any other field's value, or a particular combination of
-    // preferences could keep leaking parameters after the user opted out.
+    // The gate must not depend on any other field's value, or a particular combination of
+    // preferences could leak parameters before the user chose a level that shares them.
     @Test
-    func optingOutEmptiesTheSnapshotUnderEveryOtherSetting() {
+    func noLevelEmptiesTheSnapshotUnderEveryOtherSetting() {
         for host in GalleryHost.allCases {
             for direction in ReadingDirection.allCases {
                 for didLogin in [true, false] {
                     var setting = Self.baseSetting()
                     setting.galleryHost = host
                     setting.readingDirection = direction
-                    setting.isSharingAnalyticsData = false
+                    setting.analyticsLevel = nil
 
                     let parameters = AnalyticsDefaultParameters.snapshot(
                         setting: setting, didLogin: didLogin
                     )
 
-                    #expect(parameters.isEmpty, "leaked \(parameters.keys.sorted()) while opted out")
+                    #expect(parameters.isEmpty, "leaked \(parameters.keys.sorted()) with no level chosen")
                 }
             }
         }
     }
 
-    // The shipped default is opt-in, so a caller that never touches the toggle must still see all five.
+    // Nothing is chosen until the user chooses, so a caller that never sets a level gets nothing.
     @Test
-    func aDefaultSettingIsOptedIn() {
-        #expect(Setting().isSharingAnalyticsData)
-        #expect(AnalyticsDefaultParameters.snapshot(setting: Setting(), didLogin: false).count == 5)
+    func aDefaultSettingHasNoLevelAndCarriesNoParameters() {
+        #expect(Setting().analyticsLevel == nil)
+        #expect(AnalyticsDefaultParameters.snapshot(setting: Setting(), didLogin: false).isEmpty)
+    }
+
+    @Test(arguments: [.basic, .full] as [AnalyticsLevel])
+    func aSharingLevelCarriesAllFiveParameters(level: AnalyticsLevel) {
+        var setting = Self.baseSetting()
+        setting.analyticsLevel = level
+
+        #expect(Set(AnalyticsDefaultParameters.snapshot(setting: setting, didLogin: false).keys) == Self.keys)
     }
 
     // MARK: The live closure
@@ -186,7 +194,10 @@ struct AnalyticsDefaultParametersTests {
             $0.cookieClient = .testing()
         } operation: {
             @Shared(.setting) var setting
-            $setting.withLock({ $0.galleryHost = .ehentai })
+            $setting.withLock {
+                $0.analyticsLevel = .full
+                $0.galleryHost = .ehentai
+            }
 
             let first = AnalyticsDefaultParameters.live()
             #expect(first["App.host"] == GalleryHost.ehentai.rawValue)
