@@ -52,8 +52,10 @@ public class AppDelegate: UIResponder, UIApplicationDelegate {
         #endif
         store = Store(initialState: .init(), reducer: AppReducer.init) { dependencies in
             #if DEBUG
-            if configuration?.shouldUseVisualTestHost == true {
-                UITestAutomation.configureVisualTestHost(&dependencies)
+            if let configuration, configuration.shouldUseVisualTestHost {
+                UITestAutomation.configureVisualTestHost(
+                    &dependencies, firstLaunch: configuration.firstLaunchPreset
+                )
             }
             #endif
         }

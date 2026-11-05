@@ -5,6 +5,7 @@ import ComposableArchitecture
 import CustomDump
 import DownloadClient
 import Foundation
+import Sharing
 import SwiftUI
 import Testing
 
@@ -25,8 +26,93 @@ struct UITestStubTests {
             await store.send(.onScenePhaseChange(.background)).finish()
         }
 
+        // The host is preset past the age wall, so the phase report reached the store's client.
+        #expect(store.isUnlocked)
+        #expect(store.recordedScenePhase == nil)
         #expect(store.scenePhase == .background)
         #expect(store.hasEnteredBackground)
+    }
+
+    // MARK: First-launch preset
+
+    @Test(arguments: [
+        ["EHPANDA_UITEST_STUB_NETWORK": "1"],
+        ["EHPANDA_VISUAL_TEST_HOST": "1"],
+        ["EHPANDA_UITEST_STUB_NETWORK": "1", "EHPANDA_UITEST_FIRST_LAUNCH": "analytics"],
+        ["EHPANDA_UITEST_STUB_NETWORK": "1", "EHPANDA_UITEST_FIRST_LAUNCH": ""]
+    ])
+    func anAutomatedLaunchIsPresetPastTheFirstLaunch(environment: [String: String]) throws {
+        let configuration = try #require(
+            try UITestAutomation.resolve(environment: environment, now: .now, isTesting: true)
+        )
+        #expect(configuration.firstLaunchPreset == .answered)
+    }
+
+    @Test(arguments: ["show", " show\n"])
+    func showAsksForTheRealFirstLaunch(value: String) throws {
+        let configuration = try #require(
+            try UITestAutomation.resolve(
+                environment: ["EHPANDA_UITEST_STUB_NETWORK": "1", "EHPANDA_UITEST_FIRST_LAUNCH": value],
+                now: .now
+            )
+        )
+        #expect(configuration.firstLaunchPreset == .cleared)
+    }
+
+    // A launch that only overrides a client runs the real app on the user's data, answers included.
+    @Test(arguments: [
+        ["EHPANDA_UITEST_CLIPBOARD_URL": "https://e-hentai.org/g/1/token/"],
+        ["EHPANDA_UITEST_FORCE_PAUSE_REFUSAL": "notFound"],
+        ["EHPANDA_UITEST_CLIPBOARD_URL": "https://e-hentai.org/g/1/token/", "EHPANDA_UITEST_FIRST_LAUNCH": "show"]
+    ])
+    func aClientOverrideAloneGetsNoPreset(environment: [String: String]) throws {
+        let configuration = try #require(try UITestAutomation.resolve(environment: environment, now: .now))
+        #expect(configuration.firstLaunchPreset == nil)
+    }
+
+    @Test(arguments: [[:], ["EHPANDA_UITEST_FIRST_LAUNCH": "show"]])
+    func noAutomationKeyMeansNoPreset(environment: [String: String]) throws {
+        #expect(try UITestAutomation.resolve(environment: environment, now: .now) == nil)
+        #expect(UITestAutomation.firstLaunchPreset(environment: environment, isAutomatedLaunch: false) == nil)
+    }
+
+    @Test
+    func aCaptureLaunchIsPreset() {
+        #expect(UITestAutomation.firstLaunchPreset(environment: [:], isAutomatedLaunch: true) == .answered)
+        #expect(
+            UITestAutomation.firstLaunchPreset(
+                environment: ["EHPANDA_UITEST_FIRST_LAUNCH": "show"], isAutomatedLaunch: true
+            ) == .cleared
+        )
+    }
+
+    @Test
+    func thePresetWritesBothAnswersAndShowClearsThem() {
+        withDependencies {
+            $0.defaultAppStorage = .inMemory
+        } operation: {
+            @Shared(.setting) var setting
+            UITestAutomation.applyFirstLaunchPreset(.answered)
+            #expect(setting.ageDeclarationVersion == AgeDeclaration.currentVersion)
+            #expect(setting.analyticsLevel == .minimal)
+
+            UITestAutomation.applyFirstLaunchPreset(.cleared)
+            #expect(setting.ageDeclarationVersion == nil)
+            #expect(setting.analyticsLevel == nil)
+
+            $setting.withLock({ $0.analyticsLevel = .full })
+            UITestAutomation.applyFirstLaunchPreset(nil)
+            #expect(setting.analyticsLevel == .full)
+        }
+    }
+
+    @MainActor
+    @Test
+    func aVisualHostShownTheFirstLaunchStartsLocked() {
+        let store = Store(initialState: AppReducer.State(), reducer: AppReducer.init) {
+            UITestAutomation.configureVisualTestHost(&$0, firstLaunch: .cleared)
+        }
+        #expect(!store.isUnlocked)
     }
 
     @Test
