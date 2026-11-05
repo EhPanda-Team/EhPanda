@@ -103,9 +103,12 @@ extension Optional {
 /// names are the visible menu strings, so Voice Control and VoiceOver use what the screen shows.
 struct CommentModerationButtons: View {
     let actions: CommentModerationActions
+    /// Declares the items last first. An `accessibilityActions` block hands its actions to assistive technologies in
+    /// the reverse of their declaration order, so a block declares its items reversed to list them as the menu does.
+    var isReversed = false
 
     var body: some View {
-        ForEach(actions.items, id: \.self) { item in
+        ForEach(isReversed ? actions.items.reversed() : actions.items, id: \.self) { item in
             switch item {
             case .report:
                 if let siteName = actions.siteName {

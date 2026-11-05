@@ -281,12 +281,14 @@ extension CommentsView {
             .accessibilityValue(.accessibilityVotedUp, isEnabled: comment.votedUp)
             .accessibilityValue(.accessibilityVotedDown, isEnabled: comment.votedDown)
             .accessibilityActions {
-                ForEach(links, id: \.self) { link in
+                // Declared last first: the block hands its actions over reversed, and the links lead, then the
+                // moderation items in menu order.
+                CommentModerationButtons(actions: moderation, isReversed: true)
+                ForEach(links.reversed(), id: \.self) { link in
                     Button(openLinkActionName(link, distinguished: links.count > 1)) {
                         linkAction(link)
                     }
                 }
-                CommentModerationButtons(actions: moderation)
             }
         }
 
