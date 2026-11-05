@@ -6,6 +6,8 @@ Developer confirmation (msg 1798): under Minimal the analytics SDK never starts;
 
 **Revision 2 APPROVED by the owner, msg 1818 (2026-11-05):** owner msg 1812 adds the install channel to the Minimal signal (D-06c, developer msg 1814). The Minimal description in the table below is SUPERSEDED by Revision 2 at the end of this file; everything else stays as approved in msg 1805.
 
+**Revision 3 APPROVED by the owner, msg 1839 (2026-11-05):** owner msg 1830 notes that the Basic description repeated Minimal's install line (the copywriter's draft is msg 1832). Basic's description now builds on Minimal ("Everything in Minimal, plus ..."); what Basic sends does not change (D-06d). Revision 3 at the end of this file supersedes the Basic description (`consent.level.basic.description`) in 18-COPY-FIRST-LAUNCH.md, in all six languages. Minimal (Revision 2), Full, `consent.title` and `consent.body` are unchanged.
+
 ## What changes
 
 1. The level name and its description (key renamed `consent.level.none` -> `consent.level.minimal`).
@@ -24,7 +26,7 @@ Developer confirmation (msg 1798): under Minimal the analytics SDK never starts;
 
 Retired: `consent.level.none` ("None"), `consent.level.none.description` ("Nothing is sent.").
 
-Unchanged and still correct: `consent.title` ("Choose what EhPanda shares"), the Basic and Full names and descriptions, `consent.footer` ("You can change this anytime in Settings."), `consent.privacy_link`, `shareAnalyticsData`.
+Unchanged and still correct: `consent.title` ("Choose what EhPanda shares"), the Basic and Full names and descriptions (Basic's description later superseded by Revision 3, msg 1839), `consent.footer` ("You can change this anytime in Settings."), `consent.privacy_link`, `shareAnalyticsData`.
 
 ## Notes
 
@@ -47,3 +49,14 @@ Only `consent.level.minimal.description` changes. The name "Minimal", `consent.b
 Notes:
 - "Where you installed the app from" is word for word the phrase already approved in Basic's description, in every language, so the two levels name the install channel the same way. No new term ("marketplace", "channel", "install source") reaches the user.
 - Still true only if the signal carries nothing beyond the install and its source, once per install (D-06b/D-06c).
+
+## Revision 3 (owner msg 1830: Basic's description repeats Minimal's; APPROVED owner msg 1839)
+
+Only `consent.level.basic.description` changes. Basic now builds on Minimal the same way Full builds on Basic ("Everything in X, plus ..."), so the three read as one ladder and the install line appears once. Content is unchanged: Basic still sends the install signal and where it came from (via "Everything in Minimal"), usage frequency, device model and app version, and error kinds.
+
+| Key | en | de | ko | ja | zh-Hans | zh-Hant |
+|---|---|---|---|---|---|---|
+| consent.level.basic.description | Everything in Minimal, plus how often the app is used, technical details such as device model and app version, and which kinds of errors occur. | Alles aus „Minimal“, dazu wie oft die App genutzt wird, technische Angaben wie Gerätemodell und App-Version und welche Arten von Fehlern auftreten. | 최소 항목에 더해 앱 사용 빈도, 기기 모델과 앱 버전 같은 기술 정보, 발생한 오류의 종류를 보냅니다. | 「最小限」の内容に加え、アプリの利用頻度、デバイスのモデルやアプリのバージョンなどの技術情報、発生したエラーの種類を送信します。 | 在“最少”的基础上，还会发送应用的使用频率、设备型号和应用版本等技术信息，以及出现的错误类型。 | 在「最少」之外，還會傳送 App 的使用頻率、裝置型號和 App 版本等技術資訊，以及發生的錯誤類型。 |
+
+Unchanged: Minimal (Revision 2, msg 1818), Full, the title and the intro.
+Side effect: in Settings the footer for Basic now starts "Everything in Minimal", which reads fine beside the picker that lists Minimal.

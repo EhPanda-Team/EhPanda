@@ -3,7 +3,8 @@
 **Gathered:** 2026-11-05
 **Status:** Ready for planning. UI execution waits for the UI-SPEC (D-17).
 **Amended:** 2026-11-05, during planning: D-06a, D-06b, DD-09a (owner msgs 1795, 1796, 1805; analytics "Minimal"),
-D-06c (owner msgs 1812, 1818; the install signal carries the install source), D-14a (owner msg 1795; Blocked Users in Account settings), D-17a (UI-SPEC delivered, msgs 1791, 1803, 1807, 1820, 1826). The
+D-06c (owner msgs 1812, 1818; the install signal carries the install source), D-06d (owner msgs 1830, 1839; Basic's
+description builds on Minimal), D-14a (owner msg 1795; Blocked Users in Account settings), D-17a (UI-SPEC delivered, msgs 1791, 1803, 1807, 1820, 1826, 1843). The
 original decisions are kept as written; where an amendment differs, the amendment wins.
 **Sources:** the discussion prep [18-DISCUSSION-PREP.md](18-DISCUSSION-PREP.md) (locked decisions L1 to L46, gray areas GA-1 to GA-8, developer defaults, outside blockers, split proposal); the owner's answers to card msg 1748 (owner msg 1753) and card msg 1759 (owner msg 1765); the owner's copy approvals (msgs 1767, 1780). Where the owner answered, the answer overrides the prep. All dates are UTC.
 
@@ -152,7 +153,18 @@ Owner decisions are binding. "Prep L*n*" and "GA-*n*" refer to [18-DISCUSSION-PR
     marketplace build and on a device, and adds the source to the Basic/Full signals (D-02 as amended).
   - **Copy:** the Minimal description is now "Sends only a signal that EhPanda is installed, and where you installed
     the app from." (Revision 2 in [18-COPY-MINIMAL.md](18-COPY-MINIMAL.md), owner msg 1818). `consent.body` and the
-    level name are unchanged.
+    level name are unchanged. Copy precedence: Revision 3 of the same file (owner msg 1839, D-06d) supersedes the
+    first-launch Basic description.
+- **D-06d (amends the Basic copy only; owner msgs 1830, 1839):** the owner noted that Basic's description repeated
+  Minimal's install line (msg 1830). Basic's description now builds on Minimal the way Full builds on Basic:
+  "Everything in Minimal, plus how often the app is used, technical details such as device model and app version, and
+  which kinds of errors occur." (Revision 3 in [18-COPY-MINIMAL.md](18-COPY-MINIMAL.md), drafted in msg 1832,
+  approved in owner msg 1839, six languages). It supersedes `consent.level.basic.description` in
+  [18-COPY-FIRST-LAUNCH.md](18-COPY-FIRST-LAUNCH.md); that file's Basic line is retired and must not appear in any
+  catalog or README. **What Basic sends does not change** (D-06's Basic bullet, D-06b, D-06c): the install signal
+  and its source come through "Everything in Minimal". Minimal (Revision 2), Full, `consent.title` and
+  `consent.body` are unchanged. The Settings footer rule is unchanged, so at Basic it now starts "Everything in
+  Minimal".
 - **D-07:** Settings follows the copy file's "Settings (replaces today's toggle)" section:
   - The row label `shareAnalyticsData` stays, now as a picker with the three level labels.
   - The footer shows the selected level's description.
@@ -215,8 +227,9 @@ Owner decisions are binding. "Prep L*n*" and "GA-*n*" refer to [18-DISCUSSION-PR
     saves on tap, are Colo's.
 - **D-17a (amends D-17's status):** the UI-SPEC exists. Colo delivered it in msg 1791, revised it for D-06a/D-14a in
   msg 1803, finalised it in msg 1807 and refreshed the Minimal line and mockups 03, 04, 13 and 21 for D-06c
-  in msg 1820, and added the title line-break rule (owner msg 1822; C-3: a title's last line is never a single
-  word, or for zh/ja/ko never a single character, in any locale or text size) in msg 1826: [18-UI-SPEC.md](18-UI-SPEC.md) with 24 mockups in `mockups/`. It is the
+  in msg 1820, added the title line-break rule (owner msg 1822; C-3: a title's last line is never a single
+  word, or for zh/ja/ko never a single character, in any locale or text size) in msg 1826, and took the Revision 3
+  Basic line (D-06d, owner msg 1839) into the spec and refreshed mockups 03, 04, 12 and 21 in msg 1843: [18-UI-SPEC.md](18-UI-SPEC.md) with 24 mockups in `mockups/`. It is the
   design contract for every UI task; `/gsd-ui-phase` is not run. His layout calls: a separate Continue on the
   analytics choice, dimmed until a level is picked; a `…` menu on each comment in the list with the same items on
   long-press and as VoiceOver actions, long-press only on the Detail strip; Report, Block and the posting warning are
@@ -317,7 +330,8 @@ layout, test structure and the bundled filter list's contents.
 - `.planning/phases/18-in-app-3-0-readiness-age-wall-analytics-choice-comment-moder/18-COPY-MINIMAL.md` (**D-06a**):
   the approved Minimal level name and description and the new `consent.body`, six languages (owner msg 1805). It
   supersedes the None strings and `consent.body` in the first-launch copy file. Its Revision 2 (owner msg 1818,
-  **D-06c**) supersedes the Minimal description in its own first table.
+  **D-06c**) supersedes the Minimal description in its own first table. Its Revision 3 (owner msg 1839, **D-06d**)
+  supersedes the Basic description in the first-launch copy file.
 - `.planning/phases/18-in-app-3-0-readiness-age-wall-analytics-choice-comment-moder/18-COPY-COMMENTS.md`: report,
   posting warning, blocking and Blocked Users strings in six languages (owner msg 1780).
 - Age-wall sentence source: owner msgs 1454 and 1457 (the website's adult-mode sentence). Its text is
