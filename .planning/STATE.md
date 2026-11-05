@@ -4,16 +4,16 @@ milestone: v3.0.0
 current_phase: 18
 current_phase_name: "In-App 3.0 Readiness: Age Wall, Analytics Choice, Comment Moderation & Reader Rework"
 status: executing
-stopped_at: Completed 18-10-PLAN.md
-last_updated: "2026-11-05T11:58:23.246Z"
+stopped_at: Completed 18-11-PLAN.md
+last_updated: "2026-11-05T14:37:30.000Z"
 last_activity: 2026-11-05
 last_activity_desc: Phase 18 planned (12 plans, 4 waves) against the final UI-SPEC (msg 1826)
-state_head: 9fde1f1e76d2cd1c3dd0286e1b67efc3aa32ea53
+state_head: a74766eb8d154bdf5e303f6791b44f937f2f2287
 progress:
   total_phases: 20
   completed_phases: 16
   total_plans: 299
-  completed_plans: 297
+  completed_plans: 298
   percent: 80
 milestone_name: Dependency Reduction & Modernization
 source_head: b5eca09d1
@@ -689,11 +689,11 @@ Round-1 state: closed and signed. 38 findings — 32 `re-verified`, 6 `accepted`
 
 D-01 amendment 2 authorizes agent-written fixes; the original owner-only implementation restriction is superseded. All five Dynamic Type lint rules (`no_dynamic_type_size_modifier`, `no_geometry_reader`, `no_fixed_system_font_size`, `accessibility_hardcoded_string`, `no_minimum_scale_factor`) are live at error severity with the tree at 0 for each. A11Y-01 is complete; A11Y-02 (round 2) is open; the phase is not complete. Do not push without the owner.
 
-Progress: [███████████████████░] 297/299 plans ([████████░░] 80%), excluding the 11 superseded Phase 17 plans. GSD counts
+Progress: [███████████████████░] 298/299 plans ([████████░░] 80%), excluding the 11 superseded Phase 17 plans. GSD counts
 16 of 20 phases complete (80%): Phase 6 is recorded as "Delivered (rescoped)", Phase 18 is in progress and Phases 19
 and 20 have not started.
-Phase 17 has 13/13 in-scope plans complete. Phase 18 has 10 of 12 plans executed (18-01, 18-02, 18-03, 18-04, 18-05,
-18-06, 18-07, 18-08, 18-09, 18-10); Phases 19 and 20 have no plans yet. They keep the milestone open.
+Phase 17 has 13/13 in-scope plans complete. Phase 18 has 11 of 12 plans executed (18-01, 18-02, 18-03, 18-04, 18-05,
+18-06, 18-07, 18-08, 18-09, 18-10, 18-11); Phases 19 and 20 have no plans yet. They keep the milestone open.
 
 ## Performance Metrics
 
@@ -1001,6 +1001,7 @@ Phase 17 has 13/13 in-scope plans complete. Phase 18 has 10 of 12 plans executed
 | Phase 18 P08 | about 1h | 2 tasks | 8 files |
 | Phase 18 P09 | about 1h | 3 tasks | 15 files |
 | Phase 18 P10 | about 2h | 3 tasks | 19 files |
+| Phase 18 P11 | about 1h20m (final session) | 4 tasks | 15 files |
 
 ## Accumulated Context
 
@@ -1572,6 +1573,7 @@ Recent decisions affecting current work:
 - [Phase 18]: 18-08: five DEBUG-only launch keys, read only for stubbed launches: EHPANDA_UITEST_FIRST_LAUNCH=analytics (age answered, level cleared), EHPANDA_UITEST_BLOCKED_AUTHORS (JSON array; absent or malformed is empty) and EHPANDA_UITEST_DISPLAY_NAME (absent is none), both reset at every stubbed launch that is not the visual host, EHPANDA_UITEST_REQUEST_LOG (one `METHOD host path` line per stubbed request) and EHPANDA_UITEST_DROP_INITIAL_IDLE (sets ReaderUITestOptions, the default of 18-07's seam; ReadingFeature reads no key). LocalizedLaunch uses launch arguments only. ReaderRebuildUITests guards G1 (reload then turn, with and without the first idle report; direction change after auto-play, restarted because a sheet stops it) and G2 (LTR/RTL/LTR). — Later UI plans (18-09 to 18-11) isolate storage through these keys, never test order; 18-12 re-checks the keys stay out of Release.
 - [Phase 18]: 18-09: RootView renders FirstLaunchGateView (age wall, then analytics choice) instead of TabBarView until both answers exist, so nothing of the app renders and no request is made before the age wall's Continue; links opened at the gate are queued (DD-07). Continue is pinned in a .safeAreaBar at every text size (D-17b, owner msg 1903, designer msg 1905); at AX sizes the age-wall footnote is the last scroll item. The titles carry a widow guard (lead msg 1900): the last two words are joined with U+00A0 when the pair fits the measured width in bold .title1, otherwise left as is; catalog strings unchanged. 48-row title table: 46 pass, 2 phone-AX5 rows (en analytics "shares", de age wall "Erwachsene") accepted by the owner (msg 1903). AGE-18-01 and CONSENT-18-01 stay Pending: 18-10 and 18-12 share them. — Later UI plans reuse FirstLaunchPage/FirstLaunchTitle patterns; 18-12 reruns both first-launch UI suites and carries the two accepted rows.
 - [Phase 18]: 18-10: General → Analytics is a menu Picker over Minimal, Basic and Full (no Recommended label) with the selected level's approved description as its footer and a Privacy Policy row; shareAnalyticsDataFooter is gone. A pick sends analyticsLevelPicked, and GeneralSettingReducer stores the level and calls analyticsClient.apply once (picking the current level does nothing), so lowering to Minimal stops the SDK at once (DD-09a). Account has a Blocked Users row (count, signed in or out) pushing SettingPath.blockedUsers; the list is in localizedStandardCompare order, unblocks by full swipe or context menu with no confirmation, and switches in place to the C-12 empty state. TitleWidowGuard moved to AppComponents (with ResolvedAppLanguage) and guards the empty-state title in bold .title3. 24-row title table: 22 pass, 2 phone-AX5 rows (en "anyone.", de "blockiert.") accepted by the lead under the same principle as owner msg 1903. CONSENT-18-01 and UGC-18-01 stay Pending: 18-11, 18-12 and Phase 20 share them. — 18-11 can reuse TitleWidowGuard from AppComponents; 18-12 reruns SettingsModerationUITests and BlockedUsersTitleLayoutUITests and carries the two accepted rows.
+- [Phase 18]: 18-11: comment moderation UI on 18-05's reducers. Report opens ReportPageSheet, a SessionWebView (AppComponents) on WKWebsiteDataStore.nonPersistent() seeded, before load, with sessionCookies(for:) for the report host only; nothing is written back, and stubbed launches never load. CommentModerationMenu is one item table (Report, Block / Unblock, Hide on a revealed card) for the list's AX-hidden `…` Menu, the cell and strip-card context menus and their accessibilityActions, which are declared reversed because SwiftUI hands them over last first. BlockedCommentRow (C-6/C-7) and BlockedCommentCard (C-8) take no author. The strip lost .drawingGroup() and takes a scoped StoreOf<CommentModerationFeature> (a state copy went stale on Show/Hide). PostCommentView sends postTapped and the views no longer dismiss the editor (P-8). The parser now trims the author (the site's trailing &nbsp; broke every name match). CommentModerationUITests 7/7 on phone and pad; mockups 05 to 11 match on both; the list `…` renders in the tint, not .secondary (left for the lead). UGC-18-01 stays Pending: 18-12 and Phase 20 share it. — 18-12 reruns CommentModerationUITests on both devices.
 
 ### Phase 16 transition decisions (2026-09-23)
 
@@ -1687,8 +1689,8 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-11-05T11:58:09.656Z
-Stopped at: Completed 18-10-PLAN.md
+Last session: 2026-11-05T14:37:30.000Z
+Stopped at: Completed 18-11-PLAN.md
 Resume file: None
 
 Earlier stop (2026-10-13T10:50:00Z, historical): 17-06 revision re-shot, 16/16 captured (`.capture/17-06-t-native-*`); superseded by the owner's 2026-11-02 approval of the 192-image website set.
