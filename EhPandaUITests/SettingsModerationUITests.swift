@@ -4,7 +4,7 @@ import XCTest
 /// list in Account (C-10 to C-12).
 ///
 /// Every launch is stubbed and signed out, starts at the Settings tab and presets its own block list through
-/// `EHPANDA_UITEST_BLOCKED_AUTHORS`, so no case depends on another's storage. A stubbed launch is preset past the first
+/// `EHPANDA_UITEST_BLOCKED_USERS`, so no case depends on another's storage. A stubbed launch is preset past the first
 /// launch with the Minimal level, so the picker always starts from Minimal.
 @MainActor
 final class SettingsModerationUITests: XCTestCase {
@@ -32,7 +32,7 @@ final class SettingsModerationUITests: XCTestCase {
     // MARK: Analytics
 
     func testTheAnalyticsPickerChangesTheLevelAndItsDescription() throws {
-        let app = try launchAtSettings(blockedAuthors: [])
+        let app = try launchAtSettings(blockedUsers: [])
         try push(Copy.general, in: app)
 
         let picker = app.buttons["setting_analytics_level"]
@@ -60,7 +60,9 @@ final class SettingsModerationUITests: XCTestCase {
     // MARK: Blocked Users
 
     func testBlockedUsersCanBeUnblockedBySwipeAndContextMenu() throws {
-        let app = try launchAtSettings(blockedAuthors: ["囧斯诺", "Roobubba"])
+        let app = try launchAtSettings(blockedUsers: [
+            ["memberID": "5764485", "name": "囧斯诺"], ["memberID": "990213", "name": "Roobubba"]
+        ])
         try push(Copy.account, in: app)
 
         // Blocking works without an account, so the row is there signed out (D-14a).
@@ -107,7 +109,7 @@ final class SettingsModerationUITests: XCTestCase {
     }
 
     func testTheRowCountsZeroAndOpensTheEmptyList() throws {
-        let app = try launchAtSettings(blockedAuthors: [])
+        let app = try launchAtSettings(blockedUsers: [])
         try push(Copy.account, in: app)
 
         let row = app.buttons["setting_blocked_users"]
@@ -125,14 +127,15 @@ final class SettingsModerationUITests: XCTestCase {
 // MARK: Helpers
 
 private extension SettingsModerationUITests {
-    func launchAtSettings(blockedAuthors: [String]) throws -> XCUIApplication {
+    /// Launches at Settings with `blockedUsers`, `{"memberID": …, "name": …}` entries, as the block list.
+    func launchAtSettings(blockedUsers: [[String: String]]) throws -> XCUIApplication {
         let app = XCUIApplication()
-        let names = try XCTUnwrap(
-            String(bytes: JSONSerialization.data(withJSONObject: blockedAuthors), encoding: .utf8)
+        let users = try XCTUnwrap(
+            String(bytes: JSONSerialization.data(withJSONObject: blockedUsers), encoding: .utf8)
         )
         try app.launchStubbed(extraEnvironment: [
             "EHPANDA_AUTOMATION_TAB": "setting",
-            UITestConstants.blockedAuthorsEnvironmentKey: names
+            UITestConstants.blockedUsersEnvironmentKey: users
         ])
         app.requireForeground()
         requireNavigationTitle(Copy.settings, in: app)

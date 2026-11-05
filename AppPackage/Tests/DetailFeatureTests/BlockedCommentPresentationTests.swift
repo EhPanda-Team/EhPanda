@@ -17,7 +17,7 @@ struct BlockedCommentPresentationTests {
     @Test(arguments: [CommentModerationSurface.list, .card])
     func aForeignCommentOffersReportThenBlock(surface: CommentModerationSurface) {
         let items = CommentModerationMenu.items(
-            for: surface, isBlocked: false, isRevealed: false, isOwn: false, hasReportTarget: true
+            for: surface, blockStatus: .notBlocked, isRevealed: false, isOwn: false, hasReportTarget: true
         )
 
         #expect(items == [.report, .block])
@@ -26,7 +26,7 @@ struct BlockedCommentPresentationTests {
     @Test
     func aRevealedCommentInTheListOffersReportThenUnblock() {
         let items = CommentModerationMenu.items(
-            for: .list, isBlocked: true, isRevealed: true, isOwn: false, hasReportTarget: true
+            for: .list, blockStatus: .blocked, isRevealed: true, isOwn: false, hasReportTarget: true
         )
 
         #expect(items == [.report, .unblock])
@@ -35,7 +35,7 @@ struct BlockedCommentPresentationTests {
     @Test
     func aRevealedCardAddsHideAsTheThirdItem() {
         let items = CommentModerationMenu.items(
-            for: .card, isBlocked: true, isRevealed: true, isOwn: false, hasReportTarget: true
+            for: .card, blockStatus: .blocked, isRevealed: true, isOwn: false, hasReportTarget: true
         )
 
         #expect(items == [.report, .unblock, .hide])
@@ -44,7 +44,8 @@ struct BlockedCommentPresentationTests {
     @Test(arguments: [CommentModerationSurface.list, .card], [false, true])
     func theUsersOwnCommentOffersNothing(surface: CommentModerationSurface, isBlocked: Bool) {
         let items = CommentModerationMenu.items(
-            for: surface, isBlocked: isBlocked, isRevealed: true, isOwn: true, hasReportTarget: true
+            for: surface, blockStatus: isBlocked ? .blocked : .notBlocked, isRevealed: true, isOwn: true,
+            hasReportTarget: true
         )
 
         #expect(items.isEmpty)
@@ -53,7 +54,7 @@ struct BlockedCommentPresentationTests {
     @Test(arguments: [CommentModerationSurface.list, .card])
     func aCollapsedCommentOffersNothing(surface: CommentModerationSurface) {
         let items = CommentModerationMenu.items(
-            for: surface, isBlocked: true, isRevealed: false, isOwn: false, hasReportTarget: true
+            for: surface, blockStatus: .blocked, isRevealed: false, isOwn: false, hasReportTarget: true
         )
 
         #expect(items.isEmpty)
@@ -63,14 +64,29 @@ struct BlockedCommentPresentationTests {
     @Test
     func aGalleryWithNoReportPageOffersNoReport() {
         let foreign = CommentModerationMenu.items(
-            for: .list, isBlocked: false, isRevealed: false, isOwn: false, hasReportTarget: false
+            for: .list, blockStatus: .notBlocked, isRevealed: false, isOwn: false, hasReportTarget: false
         )
         let revealedCard = CommentModerationMenu.items(
-            for: .card, isBlocked: true, isRevealed: true, isOwn: false, hasReportTarget: false
+            for: .card, blockStatus: .blocked, isRevealed: true, isOwn: false, hasReportTarget: false
         )
 
         #expect(foreign == [.block])
         #expect(revealedCard == [.unblock, .hide])
+    }
+
+    /// Lead decision (owner msg 1918): a comment with no member ID has nothing stable to block by, so Block is left
+    /// out, Report kept; it is never blocked, so no Unblock or Hide either.
+    @Test(arguments: [CommentModerationSurface.list, .card])
+    func aCommentWithNoMemberIDOffersNoBlock(surface: CommentModerationSurface) {
+        let withReport = CommentModerationMenu.items(
+            for: surface, blockStatus: .noMemberID, isRevealed: false, isOwn: false, hasReportTarget: true
+        )
+        let withoutReport = CommentModerationMenu.items(
+            for: surface, blockStatus: .noMemberID, isRevealed: false, isOwn: false, hasReportTarget: false
+        )
+
+        #expect(withReport == [.report])
+        #expect(withoutReport.isEmpty)
     }
 
     @Test
@@ -93,6 +109,12 @@ struct BlockedCommentPresentationTests {
         #expect(actions.author == "someone")
         #expect(own.items.isEmpty)
         #expect(noGallery.items == [.block])
+
+        let noMemberID = state.actions(
+            for: Self.comment(author: "someone", memberID: nil), on: .list, didLogin: true, displayName: "reader",
+            perform: { _ in }
+        )
+        #expect(noMemberID.items == [.report])
     }
 
     // MARK: Accessibility actions
@@ -224,10 +246,12 @@ struct BlockedCommentPresentationTests {
 
     // MARK: Fixtures
 
-    private static func comment(author: String, text: AttributedString = "Text") -> GalleryComment {
+    private static func comment(
+        author: String, memberID: String? = "990213", text: AttributedString = "Text"
+    ) -> GalleryComment {
         GalleryComment(
             votedUp: false, votedDown: false, votable: true, editable: false,
-            score: "+1", author: author, contents: [.init(type: .plainText, text: text)],
+            score: "+1", author: author, authorMemberID: memberID, contents: [.init(type: .plainText, text: text)],
             commentID: "comment-\(author)", commentDate: Date(timeIntervalSince1970: 0)
         )
     }

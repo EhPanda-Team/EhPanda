@@ -22,6 +22,16 @@ enum CommentModerationSurface: Sendable {
     case card
 }
 
+/// Where a comment's poster stands with the block list (owner msg 1918: blocks match the member ID).
+enum CommentBlockStatus: Sendable {
+    /// The poster's member ID is blocked.
+    case blocked
+    /// The poster has a member ID that is not blocked, so Block can add it.
+    case notBlocked
+    /// The comment carries no member ID: there is nothing stable to block by, and it is never blocked.
+    case noMemberID
+}
+
 /// The items of a comment's moderation menu, from one source for every entry point: the `…` `Menu` of the comments
 /// list, the `.contextMenu` of a list cell or a Detail strip card, and the `accessibilityActions` of the cell's
 /// combined element (C-4; a context menu alone is not a VoiceOver source here, research §5.5).
@@ -30,17 +40,27 @@ enum CommentModerationMenu {
     /// - A collapsed comment (blocked, not revealed) has none: it shows only the collapsed row or card (C-6, C-8).
     /// - Otherwise Report then Block, or Report then Unblock when the author is blocked and the comment revealed.
     ///   Report is left out when the gallery has no report page, as there would be nowhere to go (lead decision).
+    ///   Block is left out when the comment carries no member ID, as there is nothing stable to block by (lead
+    ///   decision, owner msg 1918); such a comment is never blocked, so it never needs Unblock either.
     /// - A revealed card adds Hide as the third item (C-8).
     static func items(
         for surface: CommentModerationSurface,
-        isBlocked: Bool, isRevealed: Bool, isOwn: Bool, hasReportTarget: Bool
+        blockStatus: CommentBlockStatus, isRevealed: Bool, isOwn: Bool, hasReportTarget: Bool
     ) -> [CommentModerationItem] {
+        let isBlocked = blockStatus == .blocked
         guard !isOwn, !isBlocked || isRevealed else { return [] }
         var items = [CommentModerationItem]()
         if hasReportTarget {
             items.append(.report)
         }
-        items.append(isBlocked ? .unblock : .block)
+        switch blockStatus {
+        case .blocked:
+            items.append(.unblock)
+        case .notBlocked:
+            items.append(.block)
+        case .noMemberID:
+            break
+        }
         if isBlocked, surface == .card {
             items.append(.hide)
         }
@@ -72,9 +92,16 @@ extension CommentModerationFeature.State {
     ) -> CommentModerationActions {
         let siteName = galleryURL.flatMap(CommentReportTarget.siteName(for:))
         let hasReportTarget = siteName != nil && galleryURL.flatMap(CommentReportTarget.reportURL(for:)) != nil
+        let blockStatus: CommentBlockStatus = if isBlocked(comment) {
+            .blocked
+        } else if comment.authorMemberID?.isEmpty == false {
+            .notBlocked
+        } else {
+            .noMemberID
+        }
         let items = CommentModerationMenu.items(
             for: surface,
-            isBlocked: isBlocked(comment),
+            blockStatus: blockStatus,
             isRevealed: revealedCommentIDs.contains(comment.commentID),
             isOwn: CommentOwnership.isOwn(comment, didLogin: didLogin, displayName: displayName),
             hasReportTarget: hasReportTarget

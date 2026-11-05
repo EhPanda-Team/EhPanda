@@ -57,7 +57,7 @@ private extension BlockedUsersTitleLayoutUITests {
             let localized = LocalizedLaunch(language: language, textSize: textSize)
             try localized.launch(app, extraEnvironment: [
                 "EHPANDA_AUTOMATION_TAB": "setting",
-                UITestConstants.blockedAuthorsEnvironmentKey: "[]"
+                UITestConstants.blockedUsersEnvironmentKey: "[]"
             ])
             app.requireForeground()
 

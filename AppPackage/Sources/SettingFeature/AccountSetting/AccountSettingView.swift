@@ -134,7 +134,7 @@ private struct AccountSection: View {
 /// It is one element: the visible title is its label, so Voice Control can name it, and the count is its value, so
 /// VoiceOver reads "Blocked Users, 2" as a title and a number rather than two texts.
 private struct BlockedUsersRow: View {
-    @SharedReader(.blockedCommentAuthors) private var blockedAuthors: [String]
+    @SharedReader(.blockedCommentUsers) private var blockedUsers: [BlockedCommentUser]
     private let action: () -> Void
 
     init(action: @escaping () -> Void) {
@@ -146,14 +146,14 @@ private struct BlockedUsersRow: View {
             HStack {
                 Text(.RLocalizable.blockedUsers)
                 Spacer()
-                Text(blockedAuthors.count, format: .number)
+                Text(blockedUsers.count, format: .number)
                     .foregroundStyle(.secondary)
                     .monospacedDigit()
             }
         }
         .foregroundStyle(.primary)
         .accessibilityLabel(.RLocalizable.blockedUsers)
-        .accessibilityValue(blockedAuthors.count.formatted(.number))
+        .accessibilityValue(blockedUsers.count.formatted(.number))
         .accessibilityIdentifier("setting_blocked_users")
         .withArrow()
     }

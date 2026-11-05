@@ -124,11 +124,12 @@ extension SharedKey where Self == AppStorageKey<InstallSignalState>.Default {
 
 // MARK: Comment moderation
 
-extension SharedKey where Self == AppStorageKey<[String]>.Default {
-    /// The authors whose comments are collapsed, as exact names in the order they were blocked (DD-10, D-13). Kept on
-    /// this device only; edit it through `block(author:)` and `unblock(author:)` so each name is held once.
-    public static var blockedCommentAuthors: Self {
-        Self[.appStorage("blockedCommentAuthors"), default: []]
+extension SharedKey where Self == AppStorageKey<[BlockedCommentUser]>.Default {
+    /// The posters whose comments are collapsed, by E-Hentai member ID, in the order they were blocked (DD-10, D-13;
+    /// owner msg 1918). Kept on this device only; edit it through `block(memberID:name:)` and `unblock(memberID:)` so
+    /// each ID is held once. The key is new with the member ID: the name-keyed list before it never shipped.
+    public static var blockedCommentUsers: Self {
+        Self[.appStorage("blockedCommentUsers"), default: []]
     }
 }
 

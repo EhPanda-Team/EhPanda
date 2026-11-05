@@ -22,8 +22,9 @@ enum UITestConstants {
     static let firstLaunchEnvironmentKey = "EHPANDA_UITEST_FIRST_LAUNCH"
     /// A file path; the stub protocol appends one `METHOD host path` line to it for each request it sees.
     static let requestLogEnvironmentKey = "EHPANDA_UITEST_REQUEST_LOG"
-    /// A JSON array of author names, written as the comment block list at launch; absent, the list is empty.
-    static let blockedAuthorsEnvironmentKey = "EHPANDA_UITEST_BLOCKED_AUTHORS"
+    /// A JSON array of `{"memberID": …, "name": …}` objects, written as the comment block list at launch; absent, the
+    /// list is empty.
+    static let blockedUsersEnvironmentKey = "EHPANDA_UITEST_BLOCKED_USERS"
     /// The signed-in user's display name, for own-comment tests; absent, no name is stored.
     static let displayNameEnvironmentKey = "EHPANDA_UITEST_DISPLAY_NAME"
     /// `1` makes each horizontal pager the reader builds drop its first `.idle` report.

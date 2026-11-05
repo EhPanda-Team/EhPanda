@@ -126,18 +126,26 @@ struct UITestStubTests {
     // MARK: Stubbed-launch storage, request log and reader keys
 
     @Test(arguments: [
-        BlockListCase(value: #"["A","B"]"#, expected: ["A", "B"]),
+        BlockListCase(
+            value: #"[{"memberID":"1","name":"A"},{"memberID":"2","name":"B"}]"#,
+            expected: [.init(memberID: "1", name: "A"), .init(memberID: "2", name: "B")]
+        ),
         BlockListCase(value: nil, expected: []),
         BlockListCase(value: "not json", expected: []),
         BlockListCase(value: #"{"A": "B"}"#, expected: []),
-        BlockListCase(value: #"["A", 1]"#, expected: []),
-        BlockListCase(value: #"["A", "", "A"]"#, expected: ["A"])
+        // The name-keyed list from before the member ID (owner msg 1918) is malformed now.
+        BlockListCase(value: #"["A","B"]"#, expected: []),
+        BlockListCase(value: #"[{"memberID":"1","name":"A"},{"name":"B"}]"#, expected: []),
+        BlockListCase(
+            value: #"[{"memberID":"1","name":"A"},{"memberID":"","name":"B"},{"memberID":"1","name":"C"}]"#,
+            expected: [.init(memberID: "1", name: "A")]
+        )
     ])
     func everyStubbedLaunchStartsFromTheBlockListItNames(_ blockList: BlockListCase) throws {
         var environment = ["EHPANDA_UITEST_STUB_NETWORK": "1"]
-        environment["EHPANDA_UITEST_BLOCKED_AUTHORS"] = blockList.value
+        environment["EHPANDA_UITEST_BLOCKED_USERS"] = blockList.value
         let configuration = try #require(try UITestAutomation.resolve(environment: environment, now: .now))
-        expectNoDifference(configuration.storagePreset?.blockedCommentAuthors, blockList.expected)
+        expectNoDifference(configuration.storagePreset?.blockedCommentUsers, blockList.expected)
     }
 
     @Test
@@ -153,7 +161,7 @@ struct UITestStubTests {
         let unnamed = try #require(
             try UITestAutomation.resolve(environment: ["EHPANDA_UITEST_STUB_NETWORK": "1"], now: .now)
         )
-        #expect(unnamed.storagePreset == UITestAutomation.StoragePreset(blockedCommentAuthors: [], displayName: nil))
+        #expect(unnamed.storagePreset == UITestAutomation.StoragePreset(blockedCommentUsers: [], displayName: nil))
     }
 
     @Test
@@ -161,17 +169,18 @@ struct UITestStubTests {
         withDependencies {
             $0.defaultAppStorage = .inMemory
         } operation: {
-            @Shared(.blockedCommentAuthors) var blockedAuthors
+            @Shared(.blockedCommentUsers) var blockedUsers
             @Shared(.user) var user
-            $blockedAuthors.withLock({ $0 = ["Earlier"] })
+            $blockedUsers.withLock({ $0 = [.init(memberID: "9", name: "Earlier")] })
             $user.withLock({ $0.displayName = "Earlier" })
 
-            UITestAutomation.StoragePreset(blockedCommentAuthors: ["A", "B"], displayName: "X").apply()
-            expectNoDifference(blockedAuthors, ["A", "B"])
+            let preset: [BlockedCommentUser] = [.init(memberID: "1", name: "A"), .init(memberID: "2", name: "B")]
+            UITestAutomation.StoragePreset(blockedCommentUsers: preset, displayName: "X").apply()
+            expectNoDifference(blockedUsers, preset)
             expectNoDifference(user.displayName, "X")
 
-            UITestAutomation.StoragePreset(blockedCommentAuthors: [], displayName: nil).apply()
-            expectNoDifference(blockedAuthors, [])
+            UITestAutomation.StoragePreset(blockedCommentUsers: [], displayName: nil).apply()
+            expectNoDifference(blockedUsers, [])
             expectNoDifference(user.displayName, nil)
         }
     }
@@ -245,7 +254,7 @@ struct UITestStubTests {
         let keys = [
             "EHPANDA_UITEST_FIRST_LAUNCH": "analytics",
             "EHPANDA_UITEST_REQUEST_LOG": "/tmp/requests.log",
-            "EHPANDA_UITEST_BLOCKED_AUTHORS": #"["A"]"#,
+            "EHPANDA_UITEST_BLOCKED_USERS": #"[{"memberID":"1","name":"A"}]"#,
             "EHPANDA_UITEST_DISPLAY_NAME": "X",
             "EHPANDA_UITEST_DROP_INITIAL_IDLE": "1"
         ]
@@ -269,7 +278,10 @@ struct UITestStubTests {
     func aVisualHostWritesNoStoragePreset() throws {
         let configuration = try #require(
             try UITestAutomation.resolve(
-                environment: ["EHPANDA_VISUAL_TEST_HOST": "1", "EHPANDA_UITEST_BLOCKED_AUTHORS": #"["A"]"#],
+                environment: [
+                    "EHPANDA_VISUAL_TEST_HOST": "1",
+                    "EHPANDA_UITEST_BLOCKED_USERS": #"[{"memberID":"1","name":"A"}]"#
+                ],
                 now: .now,
                 isTesting: true
             )
@@ -534,7 +546,7 @@ struct UITestStubTests {
 
 struct BlockListCase: Sendable, CustomTestStringConvertible {
     let value: String?
-    let expected: [String]
+    let expected: [BlockedCommentUser]
 
     var testDescription: String { value ?? "absent" }
 }

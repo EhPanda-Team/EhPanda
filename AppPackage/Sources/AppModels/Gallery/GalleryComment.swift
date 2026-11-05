@@ -8,6 +8,7 @@ public struct GalleryComment: Identifiable, Equatable, Codable, Sendable {
         editable: Bool,
         score: String? = nil,
         author: String,
+        authorMemberID: String? = nil,
         contents: [CommentContent],
         commentID: String,
         commentDate: Date
@@ -18,6 +19,7 @@ public struct GalleryComment: Identifiable, Equatable, Codable, Sendable {
         self.editable = editable
         self.score = score
         self.author = author
+        self.authorMemberID = authorMemberID
         self.contents = contents
         self.commentID = commentID
         self.commentDate = commentDate
@@ -31,6 +33,9 @@ public struct GalleryComment: Identifiable, Equatable, Codable, Sendable {
 
     public let score: String?
     public let author: String
+    /// The poster's E-Hentai member ID, from the forum contact link the site prints after the name; `nil` when the
+    /// comment has none. Comment blocking matches on it, never on the name, which can change (owner msg 1918).
+    public let authorMemberID: String?
     public let contents: [CommentContent]
     public let commentID: String
     public let commentDate: Date

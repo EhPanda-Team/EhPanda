@@ -642,9 +642,9 @@ struct CommentsSection: View {
                 }
             }
             .scrollIndicators(.hidden)
-            .animation(reduceMotion ? nil : .default, value: moderation.blockedAuthors)
+            .animation(reduceMotion ? nil : .default, value: moderation.blockedMemberIDs)
             .animation(reduceMotion ? nil : .default, value: moderation.revealedCommentIDs)
-            .onChange(of: moderation.blockedAuthors) {
+            .onChange(of: moderation.blockedMemberIDs) {
                 // After a Block, VoiceOver continues on the collapsed card of the comment acted on (C-4).
                 if let moderationTargetID,
                    let comment = comments.first(where: { $0.commentID == moderationTargetID }),
@@ -665,7 +665,11 @@ struct CommentsSection: View {
                 commentID: comment.commentID,
                 backgroundColor: backgroundColor,
                 showAction: { moderationAction(.show(commentID: comment.commentID)) },
-                unblockAction: { moderationAction(.unblock(author: comment.author)) }
+                unblockAction: {
+                    if let memberID = comment.authorMemberID {
+                        moderationAction(.unblock(memberID: memberID))
+                    }
+                }
             )
             .accessibilityFocused($focusedCommentID, equals: comment.commentID)
         } else {
@@ -696,7 +700,9 @@ struct CommentsSection: View {
                 moderationTargetID = comment.commentID
                 moderationAction(.blockTapped(comment))
             case .unblock:
-                moderationAction(.unblock(author: comment.author))
+                if let memberID = comment.authorMemberID {
+                    moderationAction(.unblock(memberID: memberID))
+                }
             case .hide:
                 moderationAction(.hide(commentID: comment.commentID))
             }

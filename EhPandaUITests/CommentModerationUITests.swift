@@ -9,7 +9,8 @@ import XCTest
 ///
 /// Every launch is stubbed: the gallery and its comments come from the bundled fixtures, the report sheet never loads
 /// the live site, and sign-in uses the launch automation's cookie keys with placeholder values. Each case presets its
-/// own block list through `EHPANDA_UITEST_BLOCKED_AUTHORS`, so no case depends on another's storage.
+/// own block list through `EHPANDA_UITEST_BLOCKED_USERS`, so no case depends on another's storage. Blocks match the
+/// poster's E-Hentai member ID, never the name (owner msg 1918).
 @MainActor
 final class CommentModerationUITests: XCTestCase {
     private enum Copy {
@@ -17,6 +18,10 @@ final class CommentModerationUITests: XCTestCase {
         static let author = "黑锋血色"
         /// The fixture's second comment, inside the Detail strip's first six cards.
         static let stripAuthor = "Roobubba"
+        /// `stripAuthor`'s member ID in the fixture's contact link.
+        static let stripAuthorMemberID = "990213"
+        /// A name `stripAuthor` no longer goes by: a block stored under it still collapses the card, by member ID.
+        static let stripAuthorStaleName = "Roobubba-old"
         static let stripCommentID = "5143504"
         static let reportOnSite = "Report on E-Hentai"
         static let reportTitle = "Report this comment?"
@@ -63,7 +68,7 @@ final class CommentModerationUITests: XCTestCase {
     // MARK: Comments list
 
     func testTheMenuOffersReportThenBlockAndReportOpensTheSignedInSheet() throws {
-        let app = try openComments(blockedAuthors: [], signedIn: true)
+        let app = try openComments(blockedUsers: [], signedIn: true)
         let cell = requireCell(in: app)
 
         openMenu(of: cell, in: app)
@@ -94,7 +99,7 @@ final class CommentModerationUITests: XCTestCase {
     }
 
     func testBlockCollapsesTheAuthorsCommentsAndShowHideAndUnblockWork() throws {
-        let app = try openComments(blockedAuthors: [], signedIn: false)
+        let app = try openComments(blockedUsers: [], signedIn: false)
         let cell = requireCell(in: app)
 
         openMenu(of: cell, in: app)
@@ -125,7 +130,7 @@ final class CommentModerationUITests: XCTestCase {
     }
 
     func testTheCellOffersReportAndBlockInItsContextMenu() throws {
-        let app = try openComments(blockedAuthors: [], signedIn: false)
+        let app = try openComments(blockedUsers: [], signedIn: false)
         let cell = requireCell(in: app)
 
         cell.press(forDuration: 1.2)
@@ -138,7 +143,7 @@ final class CommentModerationUITests: XCTestCase {
     }
 
     func testTheUsersOwnCommentOffersNoModeration() throws {
-        let app = try openComments(blockedAuthors: [], signedIn: true, displayName: Copy.author)
+        let app = try openComments(blockedUsers: [], signedIn: true, displayName: Copy.author)
         let cell = requireCell(in: app)
 
         XCTAssertFalse(menuButton(of: cell).exists, "The own comment has a … button.")
@@ -154,7 +159,7 @@ final class CommentModerationUITests: XCTestCase {
     // MARK: Detail strip
 
     func testAStripCardOffersReportAndBlockOnALongPress() throws {
-        let app = try openDetail(blockedAuthors: [])
+        let app = try openDetail(blockedUsers: [])
         let card = try requireStripElement(Identifier.stripCard, in: app)
 
         card.press(forDuration: 1.2)
@@ -168,7 +173,10 @@ final class CommentModerationUITests: XCTestCase {
     }
 
     func testABlockedAuthorsCardIsCollapsedAndShowAndUnblockWork() throws {
-        let app = try openDetail(blockedAuthors: [Copy.stripAuthor])
+        // The block was stored under a name the poster has since changed; the member ID still matches.
+        let app = try openDetail(blockedUsers: [
+            BlockedUser(memberID: Copy.stripAuthorMemberID, name: Copy.stripAuthorStaleName)
+        ])
         let card = try requireStripElement(Identifier.blockedCard, in: app)
         XCTAssertTrue(card.staticTexts[Copy.blockedRow].exists, "The collapsed card does not say what it is.")
         XCTAssertFalse(
@@ -199,7 +207,7 @@ final class CommentModerationUITests: XCTestCase {
     // MARK: Posting warning
 
     func testAMatchingCommentWaitsForTheSecondTap() throws {
-        let app = try openComments(blockedAuthors: [], signedIn: true)
+        let app = try openComments(blockedUsers: [], signedIn: true)
         let term = try firstEnglishFilterTerm()
 
         app.buttons[Copy.postComment].firstMatch.tapWhenHittable("Post Comment")
@@ -234,10 +242,16 @@ final class CommentModerationUITests: XCTestCase {
 // MARK: Helpers
 
 private extension CommentModerationUITests {
-    func environment(blockedAuthors: [String], signedIn: Bool, displayName: String?) throws -> [String: String] {
-        let names = try XCTUnwrap(String(bytes: JSONEncoder().encode(blockedAuthors), encoding: .utf8))
+    /// One entry of the preset block list: the poster's member ID and the name it was stored under.
+    struct BlockedUser: Encodable {
+        let memberID: String
+        let name: String
+    }
+
+    func environment(blockedUsers: [BlockedUser], signedIn: Bool, displayName: String?) throws -> [String: String] {
+        let users = try XCTUnwrap(String(bytes: JSONEncoder().encode(blockedUsers), encoding: .utf8))
         var environment = [
-            UITestConstants.blockedAuthorsEnvironmentKey: names,
+            UITestConstants.blockedUsersEnvironmentKey: users,
             UITestConstants.requestLogEnvironmentKey: requestLogURL.path()
         ]
         if signedIn {
@@ -252,23 +266,23 @@ private extension CommentModerationUITests {
 
     /// Opens the fixture's comment link cold, which lands on the comments list scrolled to comment 6894060.
     func openComments(
-        blockedAuthors: [String], signedIn: Bool, displayName: String? = nil
+        blockedUsers: [BlockedUser], signedIn: Bool, displayName: String? = nil
     ) throws -> XCUIApplication {
         let app = XCUIApplication()
         let url = try XCTUnwrap(UITestConstants.commentURL(scheme: "ehpanda"))
         try app.openCold(url, extraEnvironment: environment(
-            blockedAuthors: blockedAuthors, signedIn: signedIn, displayName: displayName
+            blockedUsers: blockedUsers, signedIn: signedIn, displayName: displayName
         ))
         app.requireForeground()
         app.requireElement(Identifier.commentsView, matching: .collectionView)
         return app
     }
 
-    func openDetail(blockedAuthors: [String]) throws -> XCUIApplication {
+    func openDetail(blockedUsers: [BlockedUser]) throws -> XCUIApplication {
         let app = XCUIApplication()
         let url = try XCTUnwrap(UITestConstants.galleryURL(scheme: "ehpanda"))
         try app.openCold(url, extraEnvironment: environment(
-            blockedAuthors: blockedAuthors, signedIn: false, displayName: nil
+            blockedUsers: blockedUsers, signedIn: false, displayName: nil
         ))
         app.requireForeground()
         app.requireElement(Identifier.detailView, matching: .scrollView)
