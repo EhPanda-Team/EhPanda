@@ -13,7 +13,12 @@ import SystemNotification
 struct CommentsView: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @SharedReader(.didLogin) private var didLogin: Bool
+    @SharedReader(.user) private var user: User
     @Bindable private var store: StoreOf<CommentsReducer>
+    /// The comment whose Report or Block was chosen last: its row presents the moderation alert, and after a Block
+    /// VoiceOver moves to its collapsed row (C-4).
+    @State private var moderationTargetID: String?
+    @AccessibilityFocusState private var focusedCommentID: String?
     private let gid: String
     private let token: String
     private let apiKey: String
@@ -37,55 +42,29 @@ struct CommentsView: View {
     var body: some View {
         ScrollViewReader { proxy in
             List(comments) { comment in
-                CommentCell(
-                    gid: gid, comment: comment,
-                    linkAction: { store.send(.handleCommentLink($0)) }
-                )
-                .accessibilityIdentifier("comment_cell_" + comment.commentID)
-                .animation(.default) {
-                    $0.opacity(
-                        comment.commentID == store.scrollCommentID
-                            ? store.scrollRowOpacity : 1
-                    )
-                }
-                .swipeActions(edge: .leading) {
-                    if comment.votable {
-                        Button {
-                            store.send(.voteComment(
-                                gid: gid, token: token, apiKey: apiKey, commentID: comment.commentID, vote: -1
-                            ))
-                        } label: {
-                            Label(.voteDown, systemSymbol: .handThumbsdown)
-                                .labelStyle(.iconOnly)
-                        }
-                        .tint(.red)
+                row(comment)
+                    .accessibilityIdentifier("comment_cell_" + comment.commentID)
+                    .animation(.default) {
+                        $0.opacity(
+                            comment.commentID == store.scrollCommentID
+                                ? store.scrollRowOpacity : 1
+                        )
                     }
-                }
-                .swipeActions(edge: .trailing) {
-                    if comment.votable {
-                        Button {
-                            store.send(.voteComment(
-                                gid: gid, token: token, apiKey: apiKey, commentID: comment.commentID, vote: 1
-                            ))
-                        } label: {
-                            Label(.voteUp, systemSymbol: .handThumbsup)
-                                .labelStyle(.iconOnly)
-                        }
-                        .tint(.accentColor)
-                    }
-                    if comment.editable {
-                        Button {
-                            store.send(
-                                .presentPostComment(commentID: comment.commentID, content: comment.plainTextContent)
-                            )
-                        } label: {
-                            Label(.editComment, systemSymbol: .squareAndPencil)
-                                .labelStyle(.iconOnly)
-                        }
-                    }
-                }
+                    // The moderation alert sits on the row that asked for it (AGENTS.md alert placement).
+                    .appAlert(moderationAlert(for: comment))
             }
             .accessibilityIdentifier("comments_view")
+            // Blocking or unblocking collapses or expands every comment of the author at once (C-4, C-6).
+            .animation(reduceMotion ? nil : .default, value: store.moderation.blockedAuthors)
+            .onChange(of: store.moderation.blockedAuthors) {
+                // After a Block, VoiceOver continues on the collapsed row of the comment acted on (C-4).
+                if let moderationTargetID,
+                   let comment = comments.first(where: { $0.commentID == moderationTargetID }),
+                   store.moderation.isCollapsed(comment)
+                {
+                    focusedCommentID = moderationTargetID
+                }
+            }
             // View-local scrolling needs the `proxy`, so it stays in the view. `initial: true` gives
             // the first-render fire the former `onAppear` provided, for the deep-linked comment id
             // the screen is constructed with; later changes are no-ops because the id only clears.
@@ -125,6 +104,90 @@ struct CommentsView: View {
         .navigationTitle(.comments)
     }
 
+    /// A comment's row: the collapsed row for a blocked author (C-6), else the comment, with the C-7 line above it
+    /// when it was revealed, its swipe actions and, unless it is the user's own, its moderation menu (C-4).
+    @ViewBuilder private func row(_ comment: GalleryComment) -> some View {
+        if store.moderation.isCollapsed(comment) {
+            BlockedCommentRow(
+                commentID: comment.commentID,
+                showAction: { store.send(.moderation(.show(commentID: comment.commentID))) },
+                unblockAction: { store.send(.moderation(.unblock(author: comment.author))) }
+            )
+            .accessibilityFocused($focusedCommentID, equals: comment.commentID)
+        } else {
+            let actions = moderationActions(for: comment)
+            CommentCell(
+                gid: gid, comment: comment, moderation: actions,
+                hideAction: store.moderation.isBlocked(comment)
+                    ? { store.send(.moderation(.hide(commentID: comment.commentID))) } : nil,
+                linkAction: { store.send(.handleCommentLink($0)) }
+            )
+            .moderationContextMenu(actions)
+            .swipeActions(edge: .leading) {
+                if comment.votable {
+                    Button {
+                        store.send(.voteComment(
+                            gid: gid, token: token, apiKey: apiKey, commentID: comment.commentID, vote: -1
+                        ))
+                    } label: {
+                        Label(.voteDown, systemSymbol: .handThumbsdown)
+                            .labelStyle(.iconOnly)
+                    }
+                    .tint(.red)
+                }
+            }
+            .swipeActions(edge: .trailing) {
+                if comment.votable {
+                    Button {
+                        store.send(.voteComment(
+                            gid: gid, token: token, apiKey: apiKey, commentID: comment.commentID, vote: 1
+                        ))
+                    } label: {
+                        Label(.voteUp, systemSymbol: .handThumbsup)
+                            .labelStyle(.iconOnly)
+                    }
+                    .tint(.accentColor)
+                }
+                if comment.editable {
+                    Button {
+                        store.send(
+                            .presentPostComment(commentID: comment.commentID, content: comment.plainTextContent)
+                        )
+                    } label: {
+                        Label(.editComment, systemSymbol: .squareAndPencil)
+                            .labelStyle(.iconOnly)
+                    }
+                }
+            }
+        }
+    }
+
+    /// The moderation alert as `comment`'s row sees it: present only for the row it was chosen on, and never while the
+    /// editor is up, as the posting warning is presented over the editor.
+    private func moderationAlert(for comment: GalleryComment) -> CommentModerationAlertBinding {
+        let isPresented = moderationTargetID == comment.commentID && store.destination?.is(\.postComment) != true
+        return $store.scope(\.moderation.$alert, action: \.moderation.alert)[presentedIf: isPresented]
+    }
+
+    private func moderationActions(for comment: GalleryComment) -> CommentModerationActions {
+        store.moderation.actions(
+            for: comment, on: .list, didLogin: didLogin, displayName: user.displayName
+        ) { item in
+            switch item {
+            case .report:
+                moderationTargetID = comment.commentID
+                store.send(.moderation(.reportTapped(comment)))
+            case .block:
+                moderationTargetID = comment.commentID
+                store.send(.moderation(.blockTapped(comment)))
+            case .unblock:
+                store.send(.moderation(.unblock(author: comment.author)))
+            case .hide:
+                store.send(.moderation(.hide(commentID: comment.commentID)))
+            }
+        }
+    }
+
     private func toolbar() -> some ToolbarContent {
         ToolbarItemGroup(placement: .topBarTrailing) {
             Button {
@@ -141,11 +204,23 @@ extension CommentsView {
     struct CommentCell: View {
         private let gid: String
         private var comment: GalleryComment
+        private let moderation: CommentModerationActions
+        private let hideAction: (() -> Void)?
         private let linkAction: (URL) -> Void
 
-        init(gid: String, comment: GalleryComment, linkAction: @escaping (URL) -> Void) {
+        /// - Parameters:
+        ///   - moderation: The comment's Report and Block (or Unblock) items; none for the user's own comment.
+        ///   - hideAction: Set for a blocked author's comment shown once (C-7): the cell then opens with the
+        ///     collapsed label and a Hide pill.
+        init(
+            gid: String, comment: GalleryComment,
+            moderation: CommentModerationActions = .none, hideAction: (() -> Void)? = nil,
+            linkAction: @escaping (URL) -> Void
+        ) {
             self.gid = gid
             self.comment = comment
+            self.moderation = moderation
+            self.hideAction = hideAction
             self.linkAction = linkAction
         }
 
@@ -156,9 +231,27 @@ extension CommentsView {
         /// is also a named action on it, which is how VoiceOver and Voice Control reach them; taps
         /// on the text itself stay for sighted users. The swipe actions need nothing here: iOS
         /// surfaces them on the row's element already (`CONTEXTMENU=not-exposed` read, 16-CONTRAST-AUDIT).
+        ///
+        /// The context menu is not surfaced that way, so the moderation items (Report, then Block or
+        /// Unblock; UI-SPEC C-4) follow the link actions as named actions of their own, and the `…`
+        /// button that also holds them is hidden from accessibility. A revealed comment's C-7 line sits
+        /// above the element, outside it, so its Hide stays an ordinary button.
         var body: some View {
+            VStack(alignment: .leading, spacing: 0) {
+                if let hideAction {
+                    RevealedCommentLine(hideAction: hideAction)
+                        .padding([.horizontal, .top])
+                }
+                commentContent
+                    .padding([.horizontal, .bottom])
+                    // 4pt under the C-7 line; the cell's usual top padding otherwise.
+                    .padding(.top, hideAction == nil ? nil : 4)
+            }
+        }
+
+        private var commentContent: some View {
             let links = links
-            VStack(alignment: .leading) {
+            return VStack(alignment: .leading) {
                 authorAndMetadata
 
                 ForEach(comment.contents) { content in
@@ -184,7 +277,6 @@ extension CommentsView {
                 }
                 .fixedSize(horizontal: false, vertical: true)
             }
-            .padding()
             .accessibilityElement(children: .combine)
             .accessibilityValue(.accessibilityVotedUp, isEnabled: comment.votedUp)
             .accessibilityValue(.accessibilityVotedDown, isEnabled: comment.votedDown)
@@ -194,6 +286,7 @@ extension CommentsView {
                         linkAction(link)
                     }
                 }
+                CommentModerationButtons(actions: moderation)
             }
         }
 
@@ -243,6 +336,10 @@ extension CommentsView {
         /// beside it short, which is how a date starts ellipsising at the default size the moment
         /// the shrink that had been papering over it is removed. `minLength: 0` keeps the spacer
         /// from claiming width of its own, so the pair renders exactly where it does today.
+        ///
+        /// The `…` moderation button ends the row in both candidates: after the metadata on one line,
+        /// and on the author's line, top-trailing, once the pair stacks (C-4). Its hit area overhangs
+        /// the row's padding, so it adds no height.
         private var authorAndMetadata: some View {
             ViewThatFits(in: .horizontal) {
                 HStack {
@@ -251,13 +348,26 @@ extension CommentsView {
                     Spacer(minLength: 0)
 
                     metadata
+                    moderationMenu
                 }
                 .lineLimit(1)
 
                 VStack(alignment: .leading) {
-                    authorText
+                    HStack(alignment: .firstTextBaseline) {
+                        authorText
+
+                        Spacer(minLength: 0)
+
+                        moderationMenu
+                    }
                     metadata
                 }
+            }
+        }
+
+        @ViewBuilder private var moderationMenu: some View {
+            if !moderation.items.isEmpty {
+                CommentModerationMenuButton(actions: moderation)
             }
         }
 
@@ -329,6 +439,19 @@ extension CommentsView {
                 .buttonStyle(.plain)
             } else {
                 image
+            }
+        }
+    }
+}
+
+private extension View {
+    /// The comment's moderation items as a context menu (C-4); the user's own comment has none, so no menu at all.
+    @ViewBuilder func moderationContextMenu(_ actions: CommentModerationActions) -> some View {
+        if actions.items.isEmpty {
+            self
+        } else {
+            contextMenu {
+                CommentModerationButtons(actions: actions)
             }
         }
     }
