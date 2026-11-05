@@ -34,6 +34,7 @@ public struct CommentsReducer: Sendable {
         @SharedReader(.setting) public var setting: Setting
         @Presents public var toast: AppAlertState<Never>?
         @Presents public var destination: Destination.State?
+        public var moderation = CommentModerationFeature.State()
         public var commentContent = ""
         public var postCommentFocused = false
         public var scrollCommentID: String?
@@ -64,6 +65,9 @@ public struct CommentsReducer: Sendable {
         case toast(PresentationAction<Never>)
         case destination(PresentationAction<Destination.Action>)
         case presentPostComment(commentID: String, content: String? = nil)
+        /// The editor's Post: sends the comment and closes the editor, or holds both for the posting warning.
+        case postTapped
+        case moderation(CommentModerationFeature.Action)
         case clearScrollCommentID
         case delegate(Delegate)
 
@@ -88,11 +92,14 @@ public struct CommentsReducer: Sendable {
     @Dependency(\.hapticsClient) private var hapticsClient
     @Dependency(\.cookieClient) private var cookieClient
     @Dependency(\.date) private var date
+    @Dependency(\.commentFilterTerms) private var commentFilterTerms
 
     public init() {}
 
     public var body: some Reducer<State, Action> {
         BindingReducer()
+
+        Scope(state: \.moderation, action: \.moderation, child: CommentModerationFeature.init)
 
         Reduce { state, action in
             switch action {
@@ -119,6 +126,27 @@ public struct CommentsReducer: Sendable {
                     try await Task.sleep(for: .milliseconds(750))
                     await send(.setPostCommentFocused(true))
                 }
+
+            // The reducer, not the view, closes the editor: a matching comment keeps it open with the
+            // text as typed while the warning is up (D-12, P-8). Nothing is sent before the decision.
+            case .postTapped:
+                guard case .postComment(let commentID) = state.destination else { return .none }
+                if CommentFilter.matches(state.commentContent, terms: commentFilterTerms) {
+                    state.moderation.presentPostingWarning()
+                    return .none
+                }
+                return postAndDismiss(commentID: commentID, state: state)
+
+            case .moderation(.delegate(.post)):
+                guard case .postComment(let commentID) = state.destination else { return .none }
+                return postAndDismiss(commentID: commentID, state: state)
+
+            case .moderation(.delegate(.resumeEditing)):
+                state.postCommentFocused = true
+                return .none
+
+            case .moderation:
+                return .none
 
             case .clearScrollCommentID:
                 state.scrollCommentID = nil
@@ -282,6 +310,14 @@ public struct CommentsReducer: Sendable {
         )
         .ifLet(\.$destination, action: \.destination)
         .ifLet(\.$toast, action: \.toast)
+    }
+
+    /// Sends the editor's comment (an edit when `commentID` isn't empty), then closes the editor.
+    private func postAndDismiss(commentID: String, state: State) -> Effect<Action> {
+        .concatenate(
+            .send(.postComment(galleryURL: state.galleryURL, commentID: commentID.isEmpty ? nil : commentID)),
+            .send(.destination(.dismiss))
+        )
     }
 }
 

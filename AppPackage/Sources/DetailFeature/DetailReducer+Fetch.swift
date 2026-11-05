@@ -178,6 +178,24 @@ extension DetailReducer {
                 }
                 .cancellable(id: CancelID.postComment(state.cancellationGalleryID))
 
+            // The reducer, not the view, closes the editor: a matching comment keeps it open with the
+            // text as typed while the warning is up (D-12, P-8). Nothing is sent before the decision.
+            case .postTapped:
+                guard case .postComment = state.destination else { return .none }
+                if CommentFilter.matches(state.commentContent, terms: commentFilterTerms) {
+                    state.moderation.presentPostingWarning()
+                    return .none
+                }
+                return postAndDismiss(state: state)
+
+            case .moderation(.delegate(.post)):
+                guard case .postComment = state.destination else { return .none }
+                return postAndDismiss(state: state)
+
+            case .moderation(.delegate(.resumeEditing)):
+                state.postCommentFocused = true
+                return .none
+
             case .voteTag(let tag, let vote):
                 guard let apiuid = Int(cookieClient.apiuid(host: state.setting.galleryHost)),
                       let gid = Int(state.gallery.id)
@@ -215,5 +233,11 @@ extension DetailReducer {
                 return .none
             }
         }
+    }
+
+    /// Sends the editor's comment, then closes the editor; without a gallery URL there is nothing to send.
+    private func postAndDismiss(state: State) -> Effect<Action> {
+        guard let galleryURL = state.gallery.galleryURL else { return .send(.destination(.dismiss)) }
+        return .concatenate(.send(.postComment(galleryURL)), .send(.destination(.dismiss)))
     }
 }
