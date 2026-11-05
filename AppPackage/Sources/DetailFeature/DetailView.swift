@@ -176,14 +176,13 @@ private extension DetailView {
                 }
                 CommentsSection(
                     comments: store.galleryComments,
-                    moderation: store.moderation,
+                    moderationStore: store.scope(state: \.moderation, action: \.moderation),
                     // Never from a card while the editor is up: the posting warning is presented over the editor.
                     moderationAlert: { isPresented in
                         $store.scope(\.moderation.$alert, action: \.moderation.alert)[
                             presentedIf: isPresented && store.destination?.is(\.postComment) != true
                         ]
                     },
-                    moderationAction: { store.send(.moderation($0)) },
                     navigateCommentAction: {
                         if let galleryURL = store.gallery.galleryURL {
                             store.send(.delegate(.pushComments(

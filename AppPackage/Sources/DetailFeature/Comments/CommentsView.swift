@@ -43,7 +43,6 @@ struct CommentsView: View {
         ScrollViewReader { proxy in
             List(comments) { comment in
                 row(comment)
-                    .accessibilityIdentifier("comment_cell_" + comment.commentID)
                     .animation(.default) {
                         $0.opacity(
                             comment.commentID == store.scrollCommentID
@@ -122,6 +121,8 @@ struct CommentsView: View {
                     ? { store.send(.moderation(.hide(commentID: comment.commentID))) } : nil,
                 linkAction: { store.send(.handleCommentLink($0)) }
             )
+            // Here, not on the row: on the row it would replace the collapsed row's own identifier.
+            .accessibilityIdentifier("comment_cell_" + comment.commentID)
             .moderationContextMenu(actions)
             .swipeActions(edge: .leading) {
                 if comment.votable {
