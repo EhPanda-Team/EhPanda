@@ -114,6 +114,7 @@ final class CommentModerationUITests: XCTestCase {
         XCTAssertTrue(app.staticTexts[Copy.author].waitForExistence(timeout: 10), "Show did not reveal the comment.")
         let hide = app.buttons[Copy.hide].firstMatch
         XCTAssertTrue(hide.exists, "The revealed comment has no Hide.")
+        keepScreenshot("comments-revealed-row", app: app)
         hide.tapWhenHittable("Hide")
         XCTAssertTrue(row.waitForExistence(timeout: 10), "Hide did not collapse the comment again.")
 
@@ -162,6 +163,7 @@ final class CommentModerationUITests: XCTestCase {
         XCTAssertTrue(report.waitForExistence(timeout: 10), "The card's context menu holds no Report.")
         XCTAssertTrue(block.exists, "The card's context menu holds no Block.")
         XCTAssertLessThan(report.frame.minY, block.frame.minY, "Report does not come before Block.")
+        keepScreenshot("strip-card-menu", app: app)
         app.terminate()
     }
 
@@ -173,6 +175,7 @@ final class CommentModerationUITests: XCTestCase {
             app.descendants(matching: .any)[Identifier.stripCard].exists, "The blocked comment's card is still shown."
         )
         XCTAssertFalse(nameIsOnScreen(Copy.stripAuthor, in: app), "The strip still names the blocked user.")
+        keepScreenshot("strip-collapsed-card", app: app)
 
         card.buttons[Copy.show].tapWhenHittable("Show on the card")
         let revealed = app.descendants(matching: .any)[Identifier.stripCard]
@@ -283,21 +286,26 @@ private extension CommentModerationUITests {
     }
 
     /// Scrolls the Detail screen down to the comment strip, then the strip along, until the whole of `identifier` is
-    /// on screen: a card that sticks out past the edge has its center, where a tap lands, off screen.
+    /// in the Detail screen's visible area: a card that sticks out past its edge has its center, where a tap lands,
+    /// out of reach. The area is the Detail scroll view's frame, since on the iPad the screen is a sheet smaller than
+    /// the window.
     func requireStripElement(_ identifier: String, in app: XCUIApplication) throws -> XCUIElement {
         let element = app.descendants(matching: .any)[identifier]
         let detail = app.scrollViews[Identifier.detailView].firstMatch
-        let screen = app.windows.firstMatch.frame
+        XCTAssertTrue(detail.waitForExistence(timeout: 10), "The Detail screen is not shown.")
+        let visible = detail.frame
+        let window = app.windows.firstMatch
         var swipes = 0
-        while !(element.exists && element.frame.maxY < screen.maxY - 24), swipes < 10 {
+        while !(element.exists && element.frame.maxY < visible.maxY - 24), swipes < 10 {
             detail.swipeUp()
             swipes += 1
         }
         var drags = 0
-        while element.exists, element.frame.maxX > screen.maxX - 8, drags < 6 {
-            let distance = min(element.frame.maxX - screen.maxX + 24, screen.width / 2)
-            let start = app.windows.firstMatch.coordinate(withNormalizedOffset: .zero)
-                .withOffset(CGVector(dx: screen.width * 0.75, dy: element.frame.midY - screen.minY))
+        while element.exists, element.frame.maxX > visible.maxX - 8, drags < 6 {
+            let distance = min(element.frame.maxX - visible.maxX + 24, visible.width / 2)
+            let start = window.coordinate(withNormalizedOffset: .zero).withOffset(CGVector(
+                dx: visible.minX + visible.width * 0.75 - window.frame.minX, dy: element.frame.midY - window.frame.minY
+            ))
             start.press(
                 forDuration: 0.05, thenDragTo: start.withOffset(CGVector(dx: -distance, dy: 0)),
                 withVelocity: .slow, thenHoldForDuration: 0.3
@@ -305,7 +313,7 @@ private extension CommentModerationUITests {
             drags += 1
         }
         XCTAssertTrue(element.waitUntilHittable(timeout: XCUIElement.hittableTimeout), "\(identifier) is out of reach.")
-        XCTAssertTrue(screen.contains(element.frame), "\(identifier) is not wholly on screen: \(element.frame).")
+        XCTAssertTrue(visible.contains(element.frame), "\(identifier) is not wholly in view: \(element.frame).")
         return element
     }
 
