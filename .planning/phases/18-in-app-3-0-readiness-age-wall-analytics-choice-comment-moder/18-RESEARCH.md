@@ -25,6 +25,11 @@ sends is unchanged. The UI-SPEC and mockups refresh for it (msg 1843) is committ
 `18-COPY-MINIMAL.md` ("Anonymous analytics. Your searches and the galleries you view are never sent."), superseding
 the msg-1805 intro; the purpose and TelemetryDeck's name move to the Privacy Policy (website, Phase 20). Revision 4
 (msg 1847) was not approved. The same sections change.
+**Revised a fifth time the same day** for D-06f (owner msgs 1869, 1880, 1882; developer mapping msg 1878): the
+screen and feature signals move from Full to Basic and `cloudflareChallengeEncountered` is Basic (§4.3, A-3; OI-3
+closed); Basic's and Full's descriptions are Revision 6 of `18-COPY-MINIMAL.md`, which also adds
+`consent.level.recommended` (Basic marked Recommended, nothing pre-selected). §4.3, §8, §9, §11, User Constraints,
+Validation Architecture and Sources change.
 
 <user_constraints>
 ## User Constraints (from 18-CONTEXT.md)
@@ -39,15 +44,18 @@ the msg-1805 intro; the purpose and TelemetryDeck's name move to the Privacy Pol
   upgraders. Before the age wall is confirmed: no content, no network request, no analytics SDK start, nothing else
   works. No skip and no "No"; Continue dimmed until the checkbox is ticked; footnote always visible; nothing suggests
   the age was checked; the answer is stored on the device. The declaration is the approved sentence, unchanged.
-- **D-06/D-06a/D-06b/D-07/D-08/D-09:** Minimal / Basic / Full (D-06a), equally prominent, none pre-selected;
+- **D-06/D-06a/D-06b/D-07/D-08/D-09:** Minimal / Basic / Full (D-06a), equally prominent, none pre-selected
+  (Basic carries a "Recommended" label, D-06f);
   nothing starts or is sent before the choice; each level sends only what its approved description says. Minimal
   sends one install signal through the app's own sender and never initialises the SDK; its payload is exactly one
   key, the install source (D-06c); the same one-time install signal goes out at every level; the SDK starts at
-  Basic and Full (D-06b). Settings gets a
+  Basic and Full (D-06b). Basic sends the screen, feature and error signals, Full adds reading, download and the
+  settings parameters (D-06f, §4.3). Settings gets a
   picker (row label `shareAnalyticsData`), a footer with the selected level's description, a Privacy Policy row;
   `shareAnalyticsDataFooter`, `consent.level.none` and its description are retired. ANALYTICS-01's vocabulary rules
   stay. Strings verbatim from `18-COPY-FIRST-LAUNCH.md` as superseded in part by `18-COPY-MINIMAL.md` (its
-  Revision 2 for Minimal's description, its Revision 3 for Basic's, D-06d, its Revision 5 for `consent.body`, D-06e).
+  Revision 2 for Minimal's description, its Revision 6 for Basic's and Full's and `consent.level.recommended`,
+  D-06f, its Revision 5 for `consent.body`, D-06e).
 - **D-10..D-16:** "Report on {site}" on every comment → confirmation → the gallery's report page on E-Hentai/ExHentai;
   no email or contact fallback. No in-app contact option. The filter warns (Edit default, Post Anyway), never names
   the word, applies to edits. Blocking collapses the comment into "Comment from a user you've blocked" with Show and
@@ -256,12 +264,15 @@ comment is rewritten, not kept (Pitfall P-4).
 |-------|-----|----------------------------------|-------------|--------------------|-----------------------------|
 | nil (not chosen) | never initialised | none | none | — | not sent |
 | Minimal | **never initialised**; terminated if it was running in this process | none | none | — | once per install, payload = install source only |
-| Basic | started | yes | `errorSurfaced`, `loginFailed` only ("which kinds of errors occur") | `[:]` | once per install (same signal) |
-| Full | started | yes | every `AnalyticsSignal` case | the five `App.*` parameters ("your main settings") | once per install (same signal) |
+| Basic | started | yes | screens and features ("which screens and features you use"): `tabOpened`, `homeSectionViewed`, `filterPanelOpened`, `quickSearchPanelOpened`, `savedSearchUsed`, `tagTapped`, `searchPerformed`; kinds of errors ("which kinds of errors occur"): `errorSurfaced`, `loginFailed`, `cloudflareChallengeEncountered` | `[:]` | once per install (same signal) |
+| Full | started | yes | everything in Basic, plus reading and download activity: `galleryDetailOpened`, `readingSessionEnded`, `downloadStateChanged` (i.e. every `AnalyticsSignal` case) | the five `App.*` parameters ("your main settings") | once per install (same signal) |
+
+Split per D-06f (owner msgs 1869, 1880; developer mapping msg 1878), replacing the earlier "Basic = errors only"
+split. All 13 `AnalyticsSignal` cases are classified: 10 Basic, 3 Full.
 
 - The gate is an exhaustive `switch` over `AnalyticsSignal` (no `default`), `AnalyticsSignal.minimumLevel`, so a case
-  added later must be classified. **Default recorded (A-3):** `cloudflareChallengeEncountered` is Full (it is an
-  access event, not an error kind). This is a technical decision; the owner is tagged in the report.
+  added later must be classified. **A-3 as amended by D-06f:** `cloudflareChallengeEncountered` is Basic, with the
+  error kinds (developer decision, msg 1878; it was Full by default before, as an access event). OI-3 is closed.
 - The install source rides only on the own install signal in this phase (D-06c); the Basic/Full SDK signals get it
   in ANALYTICS-02 (D-06, D-02 as amended). The SDK's `newInstallDetected` at Basic/Full
   duplicates the own install signal; ANALYTICS-02 reconciles it (carry to Phase 20, D-06b).
@@ -543,15 +554,23 @@ The key is absent today. Add `<key>MKSellsDigitalGoods</key><false/>`. Verify on
 - **Basic (D-06d, owner msgs 1830, 1839):** `consentLevelBasicDescription` takes Revision 3 of the Minimal file
   ("Everything in Minimal, plus how often the app is used, technical details such as device model and app version, and
   which kinds of errors occur." and its five translations); the first-launch file's Basic description is retired.
-  The Basic name stays the first-launch file's.
+  The Basic name stays the first-launch file's. **Superseded by D-06f:** see the next bullet.
+- **Basic, Full and Recommended (D-06f, owner msgs 1869, 1880, 1882):** `consentLevelBasicDescription` and
+  `consentLevelFullDescription` take Revision 6 of the Minimal file (Basic: "Everything in Minimal, plus how often the
+  app is used, which screens and features you use, technical details such as device model and app version, and which
+  kinds of errors occur."; Full: "Everything in Basic, plus your reading and download activity and your main
+  settings."); the Revision 3 Basic line and the first-launch Full line are retired. A new key
+  `consent.level.recommended` ("Recommended" and its five translations, Revision 6) labels Basic on the first-launch
+  screen only (UI-SPEC C-3).
 - **Intro (D-06e, owner msgs 1844, 1854, 1864):** `consentBody` takes Revision 5 of the Minimal file ("Anonymous
   analytics. Your searches and the galleries you view are never sent." and its five translations); the msg-1805
   first-table `consent.body` is retired, like the original first-launch one. Revision 4 (msg 1847) was not approved.
-- Copy precedence: the Minimal file's Revision 5 (`consent.body`), Revision 3 (Basic description) and Revision 2
-  (Minimal description) > its first table > the first-launch file. The copy check reads the Minimal file for those
-  four keys and the first-launch file for the rest, and fails if any retired text (`None`/`Nothing is sent.` rows,
-  both old `consent.body` texts, the superseded first-table Minimal description, the first-launch Basic description)
-  appears in a catalog.
+- Copy precedence: the Minimal file's Revision 6 (Basic and Full descriptions, `consent.level.recommended`),
+  Revision 5 (`consent.body`) and Revision 2 (Minimal description) > its first table > the first-launch file
+  (Revision 3 is superseded by Revision 6). The copy check reads the Minimal file for those six keys and the
+  first-launch file for the rest, and fails if any retired text (`None`/`Nothing is sent.` rows, both old
+  `consent.body` texts, the superseded first-table Minimal description, the first-launch Basic description, the
+  Revision 3 Basic description, the first-launch Full description) appears in a catalog.
 - `shareAnalyticsDataFooter` (and the old toggle's use of `shareAnalyticsData` as a toggle label) is removed in the
   same plan that removes its last use (the Settings UI plan, 18-10), or the module stops compiling.
 - READMEs: `README.md` "## Analytics" (`:34-43`) and the five files in `READMEs/` describe on-by-default and "your
@@ -564,7 +583,7 @@ The key is absent today. Add `<key>MKSellsDigitalGoods</key><false/>`. Verify on
 |----|---------|-----|-----------|
 | A-1 | Run all GSD roles inline; no `/gsd-ui-phase`; UI gate honoured by task dependencies on the committed UI-SPEC | user instruction for this run | — |
 | A-2 | Network may start at age confirmation, before the analytics choice is made | D-04 ties the network rule to the age wall; only the SDK waits for the choice (D-06) | technical |
-| A-3 | Basic = SDK session/acquisition signals + `errorSurfaced`, `loginFailed`; everything else, including `cloudflareChallengeEncountered`, is Full; default parameters Full only; Minimal = the own install signal only, SDK never initialised (D-06b) | approved descriptions | technical; owner tagged |
+| A-3 | *Amended by D-06f (owner msgs 1869, 1880; developer msg 1878):* Basic = SDK session/acquisition signals + `tabOpened`, `homeSectionViewed`, `filterPanelOpened`, `quickSearchPanelOpened`, `savedSearchUsed`, `tagTapped`, `searchPerformed` + `errorSurfaced`, `loginFailed`, `cloudflareChallengeEncountered`; Full = Basic + `galleryDetailOpened`, `readingSessionEnded`, `downloadStateChanged`; default parameters Full only; Minimal = the own install signal only, SDK never initialised (D-06b) | approved descriptions | technical; owner tagged |
 | A-4 | Both new fields on `Setting`; retire `shareAnalyticsData` by removal | DD-08, D-22 | technical |
 | A-5 | Report page opens in an in-app sheet (`SessionWebView`) whose non-persistent web view is seeded with the app's cookies for the gallery host (revised from "system browser" after reading the cookie code, §5.2) | the site's form needs the session, which only the app's cookie store holds; the designer's preference | technical |
 | A-6 | Privacy URL `https://ehpanda.app/privacy` as a constant, confirmed by the website owner before Phase 20 | the page exists (copy file, "Knock-on for the website"); its exact path is not in the repo | open item OI-2 |
@@ -615,7 +634,8 @@ The key is absent today. Add `<key>MKSellsDigitalGoods</key><false/>`. Verify on
   sentence stays. If an executor or the owner finds a per-comment report link on the live site, drop the second
   sentence of `comment.report.confirm_body` in all six locales (copy file note) and point the action at that link.
 - **OI-2 Privacy page URL.** Default A-6; the website owner confirms the path before Phase 20's listing work.
-- **OI-3 Basic vs Full classification of `cloudflareChallengeEncountered`.** Default A-3; owner tagged.
+- **OI-3 Basic vs Full classification of `cloudflareChallengeEncountered`.** CLOSED: Basic (developer decision msg
+  1878, with D-06f).
 - **OI-4 Install-count duplicate at Basic/Full.** The SDK's `newInstallDetected` and the own `App.installed` both
   arrive for Basic/Full installs. Carry to Phase 20's ANALYTICS-02 (D-06b); the dashboard should count `App.installed`.
 - **OI-5 Existing web sheets' sign-in.** uConfig and My Tags use the default WebKit store (§5.2), so their sign-in can
@@ -666,11 +686,11 @@ upgraded. `T-18-SC` is carried in every plan as not applicable.
 | AGE-18-01 | unlock runs the deferred work once; queued deep link routes after load | unit | `AppFeatureTests/FirstLaunchGateTests` | ❌ W0 (18-02) |
 | AGE-18-01 | answers persist; wording-version re-prompt; legacy blobs | unit | `AppModelsTests/SettingFirstLaunchFieldsTests` | ❌ W0 (18-02) |
 | AGE-18-01 | Continue dimmed until ticked; nothing else reachable; no request before Continue | UI | `EhPandaUITests/FirstLaunchUITests` | ❌ (18-09) |
-| CONSENT-18-01 | no SDK call and no request before the choice; SDK never initialised under Minimal; Basic/Full gating; lowering terminates | unit | `AnalyticsClientTests/AnalyticsLevelGateTests` | ❌ W0 (18-03) |
+| CONSENT-18-01 | no SDK call and no request before the choice; SDK never initialised under Minimal; Basic/Full gating per §4.3 (D-06f: 10 Basic cases, 3 Full-only); lowering terminates | unit | `AnalyticsClientTests/AnalyticsLevelGateTests` | ❌ W0 (18-03) |
 | CONSENT-18-01 | Minimal: exactly one request, payload exactly `App.installSource`, exact wire keys, never a second (relaunch, level change, concurrency); retry/drop rules | unit | `AnalyticsClientTests/InstallSignalSenderTests` | ❌ W0 (18-03) |
 | CONSENT-18-01 | install-source mapping, ID validation, wire values | unit | `AnalyticsClientTests/InstallSourceTests` | ❌ W0 (18-03) |
 | CONSENT-18-01 | Settings picker writes the level and calls `apply` | unit | `SettingFeatureTests/GeneralSettingReducerTests` | extend (18-10) |
-| CONSENT-18-01 | first-launch choice screen has no default, three equal options, Continue dimmed until picked | UI | `FirstLaunchUITests` | ❌ (18-09) |
+| CONSENT-18-01 | first-launch choice screen has no default, three equal options, Recommended label on Basic only, Continue dimmed until picked | UI | `FirstLaunchUITests` | ❌ (18-09) |
 | UGC-18-01 | filter normalisation and matching; bundled list | unit | `DetailFeatureTests/CommentFilterTests` | ❌ W0 (18-04) |
 | UGC-18-01 | report URL and site name; own-comment rule; session cookies scoped to the host | unit | `DetailFeatureTests/CommentReportTargetTests`, `DetailFeatureTests/CommentOwnershipTests`, `CookieClientTests` | ❌ W0 (18-04) |
 | UGC-18-01 | block store ordering and de-duplication | unit | `AppModelsTests/BlockedCommentAuthorsTests` | ❌ W0 (18-04) |
@@ -698,8 +718,8 @@ adds the failing tests. No framework install is needed.
 ## Sources
 
 - Code at `43333aae0` (files cited inline); TelemetryDeck SwiftSDK 2.14.2 resolved checkout.
-- `18-CONTEXT.md` (incl. amendments D-06a, D-06b, D-06c, D-06d, D-06e, DD-09a, D-14a, D-17a), `18-COPY-FIRST-LAUNCH.md`,
-  `18-COPY-MINIMAL.md` (with Revision 2, msg 1818, Revision 3, msg 1839, and Revision 5, msg 1864), `18-COPY-COMMENTS.md`, `18-UI-SPEC.md` (final, msg 1826; Basic line refreshed, msg 1843), `18-DISCUSSION-PREP.md`,
+- `18-CONTEXT.md` (incl. amendments D-06a, D-06b, D-06c, D-06d, D-06e, D-06f, DD-09a, D-14a, D-17a), `18-COPY-FIRST-LAUNCH.md`,
+  `18-COPY-MINIMAL.md` (with Revision 2, msg 1818, Revision 3, msg 1839, Revision 5, msg 1864, and Revision 6, msg 1880), `18-COPY-COMMENTS.md`, `18-UI-SPEC.md` (final, msg 1826; Basic line refreshed, msg 1843), `18-DISCUSSION-PREP.md`,
   `18-DISCUSSION-LOG.md`.
 - iOS 27.2 SDK `MarketplaceKit.framework` Swift interface (`AppDistributor`).
 - TelemetryDeck SwiftSDK 2.14.2 at `AppPackage/.build/checkouts/SwiftSDK`: `TelemetryDeck.swift`,

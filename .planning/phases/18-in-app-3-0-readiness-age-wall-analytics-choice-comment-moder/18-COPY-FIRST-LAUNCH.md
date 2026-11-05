@@ -4,6 +4,9 @@
 > (owner msgs 1830, 1839; CONTEXT D-06d). The Basic description in the table below is the retired text.
 > `consent.body` is superseded by Revision 5 in [18-COPY-MINIMAL.md](18-COPY-MINIMAL.md) (owner msg 1864; CONTEXT D-06e).
 > The `consent.body` row in the table below is the retired text.
+> `consent.level.basic.description` (again) and `consent.level.full.description` are superseded by Revision 6 in
+> [18-COPY-MINIMAL.md](18-COPY-MINIMAL.md) (owner msgs 1869, 1880; CONTEXT D-06f). The Full description in the table below is the retired text.
+> Basic carries a "Recommended" label (`consent.level.recommended`, Revision 6; owner msg 1882); nothing is pre-selected.
 
 # EhPanda 3.0: first-launch copy (age wall + analytics choice)
 
@@ -53,6 +56,7 @@ Three options, all equally prominent, none pre-selected (Pluso's recommendation 
 
 Note (owner msg 1839): the `consent.level.basic.description` row below is retired; use Revision 3 in [18-COPY-MINIMAL.md](18-COPY-MINIMAL.md) (D-06d).
 Note (owner msg 1864): the `consent.body` row below is retired; use Revision 5 in [18-COPY-MINIMAL.md](18-COPY-MINIMAL.md) (D-06e).
+Note (owner msgs 1880, 1882): the `consent.level.full.description` row below is retired; Basic's and Full's descriptions come from Revision 6 in [18-COPY-MINIMAL.md](18-COPY-MINIMAL.md), which also adds `consent.level.recommended`, shown on Basic only. Still none pre-selected (D-06f).
 
 The SDK doesn't start before this choice (L14), so "None" really means nothing is sent. The level descriptions follow Pluso's GA-2 option A; if the developer changes what a level sends, the description has to change with it.
 

@@ -4,7 +4,8 @@
 **Status:** Ready for planning. UI execution waits for the UI-SPEC (D-17).
 **Amended:** 2026-11-05, during planning: D-06a, D-06b, DD-09a (owner msgs 1795, 1796, 1805; analytics "Minimal"),
 D-06c (owner msgs 1812, 1818; the install signal carries the install source), D-06d (owner msgs 1830, 1839; Basic's
-description builds on Minimal), D-06e (owner msgs 1844, 1854, 1864; the short analytics intro), D-14a (owner msg 1795; Blocked Users in Account settings), D-17a (UI-SPEC delivered, msgs 1791, 1803, 1807, 1820, 1826, 1843, 1866). The
+description builds on Minimal), D-06e (owner msgs 1844, 1854, 1864; the short analytics intro), D-06f (owner msgs 1869, 1880, 1882; screens and
+features move to Basic, Basic marked Recommended), D-14a (owner msg 1795; Blocked Users in Account settings), D-17a (UI-SPEC delivered, msgs 1791, 1803, 1807, 1820, 1826, 1843, 1866). The
 original decisions are kept as written; where an amendment differs, the amendment wins.
 **Sources:** the discussion prep [18-DISCUSSION-PREP.md](18-DISCUSSION-PREP.md) (locked decisions L1 to L46, gray areas GA-1 to GA-8, developer defaults, outside blockers, split proposal); the owner's answers to card msg 1748 (owner msg 1753) and card msg 1759 (owner msg 1765); the owner's copy approvals (msgs 1767, 1780). Where the owner answered, the answer overrides the prep. All dates are UTC.
 
@@ -85,6 +86,8 @@ Owner decisions are binding. "Prep L*n*" and "GA-*n*" refer to [18-DISCUSSION-PR
   - **Basic** sends how often the app is used (the SDK's session signal), technical details (device model, app
     version), the install source and error kinds.
   - **Full** sends Basic plus the screens and features used, reading and download activity, and the main settings.
+  - **Amended by D-06f (owner msgs 1869, 1880):** the screens and features used move from Full to Basic; Full adds
+    reading and download activity and the main settings. "None pre-selected" stays; Basic is marked Recommended.
 
   Basic's install source is added by ANALYTICS-02 in Phase 20. Until then Basic just doesn't send it; no build ships
   in between. If what a level sends changes, its description must change too, which needs a new owner approval.
@@ -154,14 +157,15 @@ Owner decisions are binding. "Prep L*n*" and "GA-*n*" refer to [18-DISCUSSION-PR
   - **Copy:** the Minimal description is now "Sends only a signal that EhPanda is installed, and where you installed
     the app from." (Revision 2 in [18-COPY-MINIMAL.md](18-COPY-MINIMAL.md), owner msg 1818). `consent.body` and the
     level name are unchanged. Copy precedence: Revision 3 of the same file (owner msg 1839, D-06d) supersedes the
-    first-launch Basic description; Revision 5 (owner msg 1864, D-06e) supersedes `consent.body`.
-- **D-06d (amends the Basic copy only; owner msgs 1830, 1839):** the owner noted that Basic's description repeated
+    first-launch Basic description; Revision 5 (owner msg 1864, D-06e) supersedes `consent.body`; Revision 6 (owner
+    msg 1880, D-06f) supersedes Revision 3's Basic description and the first-launch Full description.
+- **D-06d (amends the Basic copy only; owner msgs 1830, 1839; its Basic line is superseded by D-06f):** the owner noted that Basic's description repeated
   Minimal's install line (msg 1830). Basic's description now builds on Minimal the way Full builds on Basic:
   "Everything in Minimal, plus how often the app is used, technical details such as device model and app version, and
   which kinds of errors occur." (Revision 3 in [18-COPY-MINIMAL.md](18-COPY-MINIMAL.md), drafted in msg 1832,
   approved in owner msg 1839, six languages). It supersedes `consent.level.basic.description` in
   [18-COPY-FIRST-LAUNCH.md](18-COPY-FIRST-LAUNCH.md); that file's Basic line is retired and must not appear in any
-  catalog or README. **What Basic sends does not change** (D-06's Basic bullet, D-06b, D-06c): the install signal
+  catalog or README. **What Basic sends does not change** (D-06's Basic bullet, D-06b, D-06c; D-06f changes it later): the install signal
   and its source come through "Everything in Minimal". Minimal (Revision 2), Full, `consent.title` and
   `consent.body` are unchanged (`consent.body` later changes under D-06e). The Settings footer rule is unchanged, so
   at Basic it now starts "Everything in Minimal".
@@ -183,6 +187,34 @@ Owner decisions are binding. "Prep L*n*" and "GA-*n*" refer to [18-DISCUSSION-PR
   - **Layout:** about 77 characters in en, two lines on iPhone at default size (designer msgs 1846, 1850); German may
     wrap to three lines on the smallest iPhones, which is acceptable. `consent.title`, the level names and
     descriptions, `consent.footer` and the Settings footer rule are unchanged.
+- **D-06f (amends D-06, D-06d and Research A-3; owner msgs 1869, 1880, 1882; developer mapping msg 1878):** the
+  owner moved the screens and features from Full to Basic (msg 1869, "move screen + features to basic") and chose to
+  mark Basic as recommended (msg 1882).
+  - **Copy (Revision 6 in [18-COPY-MINIMAL.md](18-COPY-MINIMAL.md), approved in owner msg 1880, six languages):**
+    Basic: "Everything in Minimal, plus how often the app is used, which screens and features you use, technical
+    details such as device model and app version, and which kinds of errors occur." Full: "Everything in Basic, plus
+    your reading and download activity and your main settings." It supersedes the Revision 3 Basic line (msg 1839)
+    and the first-launch Full line ("Everything in Basic, plus which screens and features you use, your reading and
+    download activity, and your main settings."); both are retired in all six languages and must not appear in any
+    catalog or README. Minimal (Revision 2), `consent.title`, `consent.body` (Revision 5) and the names are unchanged.
+  - **What each level sends** (replaces D-06's Basic/Full bullets and Research A-3; the developer's mapping, msg
+    1878, matches the copywriter's lines):
+    - **Minimal:** unchanged (D-06b, D-06c): the one install signal; the SDK is never initialised.
+    - **Basic:** the SDK's session and acquisition signals; the screens and features: `tabOpened`,
+      `homeSectionViewed`, `filterPanelOpened`, `quickSearchPanelOpened`, `savedSearchUsed`, `tagTapped`,
+      `searchPerformed`; the kinds of errors: `errorSurfaced`, `loginFailed`, `cloudflareChallengeEncountered`.
+      Default parameters stay `[:]`.
+    - **Full:** everything in Basic, plus reading and download activity: `galleryDetailOpened`,
+      `readingSessionEnded`, `downloadStateChanged`; plus the main settings: the five `App.*` default parameters.
+    - Research OI-3 is closed: `cloudflareChallengeEncountered` is Basic (developer decision, msg 1878).
+  - **Recommended, not pre-selected (owner msg 1882, card 1873; options in msgs 1872 and 1874):** Basic shows a
+    "Recommended" label (`consent.level.recommended`, six languages in Revision 6). Nothing is pre-selected (D-06,
+    D-06a stay true) and Continue stays disabled until a level is tapped. The pre-selected variant (msg 1871) was not
+    chosen. The order stays Minimal, Basic, Full (designer's call, msg 1886): the descriptions are a ladder that reads
+    top-down. The label follows UI-SPEC C-3: a neutral grey capsule in Basic's name row, never accent (accent means
+    selected) and the same whether Basic is selected or not; it drops under the name at accessibility sizes; VoiceOver
+    reads it as part of the card ("Basic, Recommended, ..."). The Settings picker is unchanged (UI-SPEC C-9: the three
+    names only, no label); its footer shows the Revision 6 descriptions.
 - **D-07:** Settings follows the copy file's "Settings (replaces today's toggle)" section:
   - The row label `shareAnalyticsData` stays, now as a picker with the three level labels.
   - The footer shows the selected level's description.
@@ -353,7 +385,10 @@ layout, test structure and the bundled filter list's contents.
   supersedes the Basic description in the first-launch copy file. Its Revision 5 (owner msg 1864, **D-06e**)
   supersedes `consent.body` in its own first table (msg 1805) and in the first-launch copy file. Precedence: Revision
   5 (`consent.body`), Revision 3 (Basic description), Revision 2 (Minimal description) > its first table > the
-  first-launch copy file. Revision 4 (msg 1847) was not approved.
+  first-launch copy file. Revision 4 (msg 1847) was not approved. Its Revision 6 (owner msg 1880, **D-06f**)
+  supersedes Revision 3's Basic description and the first-launch Full description, and adds
+  `consent.level.recommended`. Precedence now: Revision 6 (Basic and Full descriptions, `consent.level.recommended`),
+  Revision 5 (`consent.body`), Revision 2 (Minimal description) > its first table > the first-launch copy file.
 - `.planning/phases/18-in-app-3-0-readiness-age-wall-analytics-choice-comment-moder/18-COPY-COMMENTS.md`: report,
   posting warning, blocking and Blocked Users strings in six languages (owner msg 1780).
 - Age-wall sentence source: owner msgs 1454 and 1457 (the website's adult-mode sentence). Its text is
@@ -443,7 +478,8 @@ These notes come from the approved copy files and keep their intent:
   statement by the user, never a check by us.
 - **Continue:** the button is "Continue", not "I agree"; the agreement is the checkbox.
 - **Analytics title:** it is neutral on purpose ("Choose what EhPanda shares"), because a choice with no default
-  shouldn't nudge.
+  shouldn't nudge. (The owner chose to mark Basic "Recommended", msg 1882, D-06f; the title stays neutral and
+  nothing is pre-selected.)
 - **"None" in ko, ja and zh:** it reads as "Don't share", since a bare 없음 / なし / 无 is unclear as a button.
   (Withdrawn with None itself: D-06a, 18-COPY-MINIMAL.md.)
 - **Blocking terms:** zh-Hans uses 屏蔽 for blocking, matching "Excluded Uploaders"; zh-Hant uses 封鎖.
