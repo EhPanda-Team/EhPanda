@@ -28,6 +28,7 @@ FORBIDDEN_CONTENT = (
     b'CaptureRendering',
     b'CaptureLiveText',
     b'CaptureTagTranslation',
+    b'captureSystemOverlay',
     b'UITestAutomation',
     b'UITestStub',
     b'SnapshotTesting',

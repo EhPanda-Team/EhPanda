@@ -125,6 +125,19 @@ class ScannerTests(unittest.TestCase):
         self.assertTrue({'EhPanda.debug.dylib', 'Fixtures', 'Fixtures/GalleryDetail.html',
                          'AppPackage_VisualSnapshotTests.bundle/__Snapshots__'} <= paths, paths)
 
+    def test_capture_system_overlay_key_in_release_fails(self):
+        (self.fixture.app / 'EhPanda').write_bytes(b'\xcf\xfa\xed\xfe captureSystemOverlayVisibility')
+        with redirect_stdout(io.StringIO()), redirect_stderr(io.StringIO()):
+            exit_code = self.scanner.main([
+                '--app', str(self.fixture.app), '--build-log', str(self.fixture.log),
+                '--link-map', str(self.fixture.link_map), '--output', str(self.fixture.output),
+            ])
+        self.assertEqual(exit_code, 1)
+        report = json.loads((self.fixture.output / 'release-isolation.json').read_text())
+        self.assertFalse(report['passed'])
+        tokens = {finding.get('token') for finding in report['findings'] if finding['kind'] == 'content'}
+        self.assertIn('captureSystemOverlay', tokens)
+
     def test_clean_bundle_exits_zero(self):
         with redirect_stdout(io.StringIO()):
             exit_code = self.scanner.main([
