@@ -213,6 +213,17 @@ extension CookieClient {
     public func cookies(for url: URL) -> [HTTPCookie] {
         cookiesForURL(url)
     }
+    /// The app's session for `url`: the cookies the store would send to that URL's host, and only those, unexpired.
+    ///
+    /// Read-only. The comment report sheet seeds its private web view with them, so the page is signed in exactly
+    /// when the app is, and no other site's cookies reach it (research §5.2, A-5; T-18-11). `HTTPCookieStorage`
+    /// matches the host, path and secure flag, the way it does for the app's own requests.
+    public func sessionCookies(for url: URL) -> [HTTPCookie] {
+        let now = Date.now
+        return cookiesForURL(url).filter({ cookie in
+            cookie.expiresDate.map({ $0 > now }) ?? true
+        })
+    }
 }
 
 // MARK: Accessor

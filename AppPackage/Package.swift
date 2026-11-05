@@ -981,7 +981,8 @@ let targets: [PackageDescription.Target] = [
     .testTarget(
         module: .appModelsTests,
         dependencies: [
-            .module(.appModels)
+            .module(.appModels),
+            .targetDependency(.composableArchitecture)
         ]
     ),
     .testTarget(

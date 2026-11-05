@@ -112,6 +112,16 @@ extension SharedKey where Self == AppStorageKey<[String]>.Default {
     }
 }
 
+// MARK: Comment moderation
+
+extension SharedKey where Self == AppStorageKey<[String]>.Default {
+    /// The authors whose comments are collapsed, as exact names in the order they were blocked (DD-10, D-13). Kept on
+    /// this device only; edit it through `block(author:)` and `unblock(author:)` so each name is held once.
+    public static var blockedCommentAuthors: Self {
+        Self[.appStorage("blockedCommentAuthors"), default: []]
+    }
+}
+
 extension SharedKey where Self == AppStorageKey<[SavedSearch]>.Default {
     /// Stays under the key existing installs already hold.
     public static var savedSearches: Self {

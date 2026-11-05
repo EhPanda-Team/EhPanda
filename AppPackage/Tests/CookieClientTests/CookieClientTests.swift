@@ -270,6 +270,62 @@ struct CookieClientTests {
     }
 
     @Test
+    func sessionCookiesAreOnlyThoseOfTheRequestedHost() throws {
+        let storage = makeCookieStorage()
+        let client = CookieClient.live(cookieStorage: storage)
+        defer { client.clearAll() }
+        let expiry = Date(timeIntervalSinceNow: 86_400)
+        let siblingURL = try #require(GalleryHost.exhentai.cookieURLs.last)
+        for (url, value) in [
+            (GalleryHost.ehentai.url, "eh-member"),
+            (GalleryHost.exhentai.url, "ex-member"),
+            (siblingURL, "sibling-member")
+        ] {
+            storage.setCookie(try makeCookie(
+                url: url, name: CookieName.memberID, value: value, expiresDate: expiry
+            ))
+        }
+        storage.setCookie(try makeCookie(
+            url: GalleryHost.exhentai.url, name: CookieName.igneous, value: "ex-igneous", expiresDate: expiry
+        ))
+        storage.setCookie(try makeCookie(
+            url: GalleryHost.ehentai.url, name: CookieName.passHash, value: "eh-pass", expiresDate: expiry
+        ))
+        let reportURL = try #require(URL(string: "https://e-hentai.org/g/3103480/0000000000/?report=select"))
+
+        let cookies = client.sessionCookies(for: reportURL)
+
+        #expect(Set(cookies.map(\.value)) == ["eh-member", "eh-pass"])
+        let domains = Set(cookies.map({ $0.domain.trimmingCharacters(in: CharacterSet(charactersIn: ".")) }))
+        #expect(domains == ["e-hentai.org"])
+    }
+
+    @Test
+    func sessionCookiesReadWithoutWriting() throws {
+        let storage = makeCookieStorage()
+        let client = CookieClient.live(cookieStorage: storage)
+        defer { client.clearAll() }
+        storage.setCookie(try makeCookie(
+            url: GalleryHost.exhentai.url,
+            name: CookieName.memberID,
+            value: "ex-member",
+            expiresDate: Date(timeIntervalSinceNow: 86_400)
+        ))
+        let before = Set((storage.cookies ?? []).map(\.name))
+
+        let cookies = client.sessionCookies(for: GalleryHost.exhentai.url)
+
+        #expect(cookies.map(\.value) == ["ex-member"])
+        #expect(Set((storage.cookies ?? []).map(\.name)) == before)
+        #expect(client.sessionCookies(for: GalleryHost.ehentai.url).isEmpty)
+    }
+
+    @Test
+    func theNoopClientHasNoSessionCookies() {
+        #expect(CookieClient.noop.sessionCookies(for: GalleryHost.ehentai.url).isEmpty)
+    }
+
+    @Test
     func importsAutomationCredentialsAcrossCookieHosts() throws {
         let client = CookieClient.testing()
         let ehentaiURL = GalleryHost.ehentai.url
