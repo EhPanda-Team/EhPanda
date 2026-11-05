@@ -215,10 +215,10 @@ Numbers C-1…C-12 are referenced from UI Considerations. Mockup frame numbers i
 - Background `systemGroupedBackground`, edge to edge. No navigation bar, no back, no close, no skip.
 - Content: `ScrollView` → `VStack(spacing: 0)` capped at 560pt, centred, side margins 24pt.
 - **Continue bar:** `.safeAreaBar(edge: .bottom)` (soft scroll-edge effect under it) holding `FirstLaunchContinueButton`
-  full column width, 8pt top, 16pt bottom above the safe area. At accessibility sizes
-  (`dynamicTypeSize.isAccessibilitySize`) the bar is removed and the same button (plus the age-wall footnote) is the
-  last item of the scroll content, 24pt below the last card, with 48pt after it — a pinned bar would cover half the
-  screen at AX5 [16, 17].
+  full column width, 8pt top, 16pt bottom above the safe area. **Pinned at every text size** (owner msg 1903),
+  including accessibility sizes: the button alone is ≈ 18% of an iPhone screen at AX5, which keeps Continue one tap
+  away without scrolling. The bar holds only the button; the age-wall footnote's place depends on size (C-2 item 6).
+  The last scroll item ends 24pt above the bar (the bar's safe-area inset handles the rest) [16, 17, 18].
 - `FirstLaunchContinueButton`: `Button { } label: { Text(age_wall.continue).frame(maxWidth: .infinity) }`,
   `.buttonStyle(.glassProminent)`, `.controlSize(.large)`, `.tint(.accentColor)`, label colour per Color (on-accent),
   `.keyboardShortcut(.defaultAction)`. `.disabled(...)` per screen.
@@ -250,8 +250,10 @@ Top to bottom inside the column:
      (≈ 28pt at default); `.contentTransition(.symbolEffect(.replace))`; Reduce Motion: no effect.
    - Haptic on tick and untick: `.sensoryFeedback(.selection, trigger: isOn)`.
 5. Continue (in the bar) — `.disabled(!isOn)`. While disabled: `.accessibilityHint(age_wall.continue_hint)`.
-6. 12pt under Continue · Footnote `age_wall.footnote`, `.footnote`, `.secondary`, centred. **Always rendered** (D-04)
-   — in the bar under the button, or at AX sizes right under the in-content button.
+6. Footnote `age_wall.footnote`, `.footnote`, `.secondary`, centred. **Always rendered** (D-04). Default sizes: in the
+   bar, 12pt under the button. Accessibility sizes (`dynamicTypeSize.isAccessibilitySize`): the last item of the
+   scroll content, 16pt under the checkbox card — in the bar it would add three AX5 lines (≈ 160pt) to the pinned
+   area [17].
 
 Behaviour: unticking re-dims Continue. Continue stores the answer + wording version, then transitions to C-3. There is
 no "No" button, no exit button, no "verify", no date picker, no age number, no "18+". Return key triggers Continue
@@ -475,7 +477,7 @@ Applicable state considerations resolved: 21 covered, 3 backstop, 0 unresolved.
 | long-text | German / Korean / Japanese strings in alerts and menus | ✅ covered | System alerts stack buttons vertically when they don't fit; menus wrap |
 | long-text | Long author names in "Block %@", list rows | ✅ covered | Menus and list rows wrap; nothing truncates |
 | long-text | Collapsed label in other languages | ✅ covered | `ViewThatFits` falls back to stacked; buttons wrap at AX sizes |
-| overflow | Age wall / analytics at AX5, landscape iPhone | ✅ covered | Everything scrolls; Continue + footnote move into the content at AX sizes |
+| overflow | Age wall / analytics at AX5, landscape iPhone | ✅ covered | Content scrolls under the pinned Continue bar; at AX sizes the age-wall footnote becomes the last scroll item |
 | privacy | Collapsed row | ✅ covered | Never the name, avatar, score, date or text — also not in accessibility labels or values |
 | input | Pointer / trackpad / keyboard | ✅ covered | System hover on buttons and menus, `.hoverEffect(.highlight)` on the cards, secondary click opens the context menu, Return = Continue when enabled, alerts take Return/Esc. Hover follows the input that is present, never the device type |
 | visual | All new screens light/dark, iPhone/iPad, default and AX5 | 🧪 backstop | Phase 19 snapshots must include frames 01–22's states; compare against `mockups/` |
