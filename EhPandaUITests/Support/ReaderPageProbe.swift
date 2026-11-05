@@ -27,6 +27,11 @@ struct ReaderPageProbe {
     enum Direction: String, CaseIterable {
         case vertical = "Vertical"
         case leftToRight = "Left to Right"
+        case rightToLeft = "Right to Left"
+
+        /// The directions `ReaderPageSyncUITests` runs every route under. Right to left is left out: its routes
+        /// mirror left to right's, and `ReaderRebuildUITests` switches into and out of it on its own.
+        static var allCases: [Direction] { [.vertical, .leftToRight] }
     }
 
     /// Where the reader stands: what the panel says, and what the screen shows.
@@ -277,7 +282,8 @@ struct ReaderPageProbe {
         XCTAssertTrue(indicator.waitForExistence(timeout: 5), "The reader did not show its panel.")
     }
 
-    /// Scrolls towards the following pages: up the strip, or to the left of a left-to-right pager.
+    /// Scrolls towards the following pages: up the strip, to the left of a left-to-right pager, or to the right of a
+    /// right-to-left one.
     func scrollForward(under direction: Direction) {
         switch direction {
         case .vertical:
@@ -294,16 +300,19 @@ struct ReaderPageProbe {
                     thenHoldForDuration: 0.3
                 )
         case .leftToRight: pages.swipeLeft()
+        case .rightToLeft: pages.swipeRight()
         }
     }
 
-    /// Taps the trailing fifth of a left-to-right pager, its "next page" zone.
-    func tapNextPageZone() {
+    /// Taps a pager's "next page" zone: the trailing fifth of a left-to-right pager, the leading fifth of a right to
+    /// left one.
+    func tapNextPageZone(under direction: Direction = .leftToRight) {
         let viewport = pages.frame
         let controls = readingView.buttons.allElementsBoundByIndex.filter(\.isHittable)
             .map({ $0.frame.insetBy(dx: -8, dy: -8) })
+        let zone = direction == .rightToLeft ? 0.1 : 0.9
         let locations = [0.5, 0.25, 0.75].map {
-            CGPoint(x: viewport.minX + viewport.width * 0.9, y: viewport.minY + viewport.height * $0)
+            CGPoint(x: viewport.minX + viewport.width * zone, y: viewport.minY + viewport.height * $0)
         }
         guard let location = locations.first(where: { point in
             !controls.contains(where: { $0.contains(point) })
@@ -344,6 +353,17 @@ struct ReaderPageProbe {
             option.waitForNonExistence(timeout: 5),
             "The Auto-Play menu did not dismiss after selecting \(title)."
         )
+    }
+
+    /// Picks Reload All Images from the toolbar's More menu, which builds the reader's pages anew.
+    func reloadAllImages() {
+        // A turn rebuilds the toolbar, so More can be missing for a moment right after one.
+        _ = readingView.buttons.matching(UITestConstants.overflowButtonPredicate).firstMatch
+            .waitForExistence(timeout: 5)
+        moreMenuButton.tapWhenHittable("The reader toolbar's More menu")
+        let reload = app.buttons["Reload All Images"].firstMatch
+        reload.tapWhenHittable("More's Reload All Images")
+        XCTAssertTrue(reload.waitForNonExistence(timeout: 5), "The More menu did not dismiss after Reload All Images.")
     }
 
     /// Sets the reading direction through the Reading Setting sheet, the way a reader does, and
