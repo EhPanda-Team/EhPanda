@@ -64,6 +64,7 @@ public struct DetailReducer: Sendable {
         @SharedReader(.setting) public var setting: Setting
         @Presents public var destination: Destination.State?
         @Presents public var alert: AppAlertState<Alert>?
+        public var moderation = CommentModerationFeature.State()
         public var commentContent = ""
         public var postCommentFocused = false
         public var showsUserRating = false
@@ -221,6 +222,9 @@ public struct DetailReducer: Sendable {
         case favorGallery(Int)
         case unfavorGallery
         case postComment(URL)
+        /// The editor's Post: sends the comment and closes the editor, or holds both for the posting warning.
+        case postTapped
+        case moderation(CommentModerationFeature.Action)
         case voteTag(tag: String, weight: Int)
         case anyGalleryOpsDone(Result<Void, AppError>)
     }
@@ -235,6 +239,7 @@ public struct DetailReducer: Sendable {
     @Dependency(\.cookieClient) var cookieClient
     @Dependency(\.appLaunchAutomationClient) var appLaunchAutomationClient
     @Dependency(\.date) var date
+    @Dependency(\.commentFilterTerms) var commentFilterTerms
 
     public init() {}
 
@@ -246,6 +251,7 @@ extension DetailReducer {
     @ReducerBuilder<State, Action>
     var detailBody: some Reducer<State, Action> {
         BindingReducer()
+        Scope(state: \.moderation, action: \.moderation, child: CommentModerationFeature.init)
         navigationReducer
         uiReducer
         syncReducer

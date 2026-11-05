@@ -72,4 +72,27 @@ struct CommentsReducerTests {
             $0.postCommentFocused = true
         }
     }
+
+    // The editor's Post closes the editor from the reducer, after the request, rather than from the view (P-8):
+    // with the bundled filter list, an ordinary comment posts and closes exactly as before.
+    @MainActor
+    @Test
+    func postClosesTheEditorAfterSending() async throws {
+        let galleryURL = try #require(URL(string: "ehpanda-test://e-hentai.org/g/42/abc123/"))
+        var initialState = CommentsReducer.State(galleryURL: galleryURL)
+        initialState.destination = .postComment("")
+        initialState.commentContent = "Thanks for the upload!"
+        let store = TestStore(initialState: initialState, reducer: CommentsReducer.init) {
+            $0.analyticsClient = .noop
+            $0.hapticsClient = .noop
+        }
+
+        await store.send(.postTapped)
+        await store.receive(\.postComment)
+        await store.receive(\.destination.dismiss) {
+            $0.destination = nil
+        }
+        await store.receive(\.performCommentActionDone, timeout: .seconds(10))
+        #expect(store.state.commentContent == "Thanks for the upload!")
+    }
 }
