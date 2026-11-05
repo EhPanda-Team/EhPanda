@@ -4,16 +4,16 @@ milestone: v3.0.0
 current_phase: 18
 current_phase_name: "In-App 3.0 Readiness: Age Wall, Analytics Choice, Comment Moderation & Reader Rework"
 status: executing
-stopped_at: Completed 18-05-PLAN.md
-last_updated: "2026-11-05T08:59:00.000Z"
+stopped_at: Completed 18-08-PLAN.md
+last_updated: "2026-11-05T09:51:00.000Z"
 last_activity: 2026-11-05
 last_activity_desc: Phase 18 planned (12 plans, 4 waves) against the final UI-SPEC (msg 1826)
-state_head: fb03b7638e9a4ec2a1a2cb9feffc86333159b5fa
+state_head: d9c60dba69556e741ba11599b965d73b6bb3258e
 progress:
   total_phases: 20
   completed_phases: 16
   total_plans: 299
-  completed_plans: 294
+  completed_plans: 295
   percent: 80
 milestone_name: Dependency Reduction & Modernization
 source_head: 891103afa
@@ -689,11 +689,11 @@ Round-1 state: closed and signed. 38 findings — 32 `re-verified`, 6 `accepted`
 
 D-01 amendment 2 authorizes agent-written fixes; the original owner-only implementation restriction is superseded. All five Dynamic Type lint rules (`no_dynamic_type_size_modifier`, `no_geometry_reader`, `no_fixed_system_font_size`, `accessibility_hardcoded_string`, `no_minimum_scale_factor`) are live at error severity with the tree at 0 for each. A11Y-01 is complete; A11Y-02 (round 2) is open; the phase is not complete. Do not push without the owner.
 
-Progress: [███████████████████░] 294/299 plans (98%), excluding the 11 superseded Phase 17 plans. GSD counts
+Progress: [███████████████████░] 295/299 plans (99%), excluding the 11 superseded Phase 17 plans. GSD counts
 16 of 20 phases complete (80%): Phase 6 is recorded as "Delivered (rescoped)", Phase 18 is in progress and Phases 19
 and 20 have not started.
-Phase 17 has 13/13 in-scope plans complete. Phase 18 has 7 of 12 plans executed (18-01, 18-02, 18-03, 18-04, 18-05,
-18-06, 18-07); Phases 19 and 20 have no plans yet. They keep the milestone open.
+Phase 17 has 13/13 in-scope plans complete. Phase 18 has 8 of 12 plans executed (18-01, 18-02, 18-03, 18-04, 18-05,
+18-06, 18-07, 18-08); Phases 19 and 20 have no plans yet. They keep the milestone open.
 
 ## Performance Metrics
 
@@ -998,6 +998,7 @@ Phase 17 has 13/13 in-scope plans complete. Phase 18 has 7 of 12 plans executed 
 | Phase 18 P06 | 3 min | 2 tasks | 5 files |
 | Phase 18 P03 | about 30 min | 4 tasks | 19 files |
 | Phase 18 P05 | 28 min | 2 tasks | 7 files |
+| Phase 18 P08 | about 1h | 2 tasks | 8 files |
 
 ## Accumulated Context
 
@@ -1566,6 +1567,7 @@ Recent decisions affecting current work:
 - [Phase 18]: 18-06: the 38 approved Phase 18 keys are in the Resources, Resources Constant and DetailFeature catalogs verbatim in six languages, with RLocalizable/RConstant forwarders; 18-copy-check.py derives the expected values and the 48 retired texts from the copy files (Revision 6, 5, 2 > first table > first-launch file) and matches the retired level name only as a consent.* value. shareAnalyticsData/shareAnalyticsDataFooter stay in SettingFeature's catalog for 18-10. AGE-18-01, CONSENT-18-01 and UGC-18-01 stay Pending: later plans share them. — One script is the gate for copy drift (T-18-14), re-run in 18-12; nothing in a catalog is retyped by hand.
 - [Phase 18]: 18-03: AnalyticsClient.start is now apply(level). No level does nothing; Minimal sends only the own InstallSignalSender's App.installed request (seven fields, payload App.installSource only, settled once per install) and never initialises the SDK, terminating it if running; Basic and Full initialise it once. send reads the stored level live; minimumLevel puts the 10 screen, feature and error signals at Basic and the 3 reading and download signals at Full; the five App.* parameters ride at Full only. TelemetryDeck is imported only by TelemetrySDK.swift and MarketplaceKit only by InstallSourceClient.swift. AppReducer applies the stored level in the deferred launch and the chosen level on levelChosen once that has run. CONSENT-18-01 stays Pending: 18-09 and 18-10 share it. Phase 20 carries OI-4 (newInstallDetected vs App.installed) and ANALYTICS-02 (reuse InstallSourceClient, verify on the marketplace build and a device, add the source to Basic/Full). — Minimal's description promises only an install signal, so the SDK's device payload must never leave under it (D-06b, D-06c, D-06f).
 - [Phase 18]: 18-05: one CommentModerationFeature child, scoped as `moderation` into CommentsReducer and DetailReducer, owns the posting warning, Report, Block, Unblock and Show/Hide. postTapped checks CommentFilter before anything is sent; the reducer (not the view) closes the editor after .postComment, and Edit keeps the text and refocuses (P-8). Report asks with the site and author, then presents Destination.reportPage(?report=select); a gallery with no report target gets no alert (owner to confirm). Block adds the author once and re-collapses their revealed comments; Unblock is immediate; revealedCommentIDs is per screen and never stored. Own comments (editable or the signed-in name) get neither action; no moderation action sends a signal. Alerts use AppAlertState (one mechanism per screen). UGC-18-01 stays Pending: 18-10, 18-11 and Phase 20 share it. — The views (18-11) only send these actions and read this state.
+- [Phase 18]: 18-08: five DEBUG-only launch keys, read only for stubbed launches: EHPANDA_UITEST_FIRST_LAUNCH=analytics (age answered, level cleared), EHPANDA_UITEST_BLOCKED_AUTHORS (JSON array; absent or malformed is empty) and EHPANDA_UITEST_DISPLAY_NAME (absent is none), both reset at every stubbed launch that is not the visual host, EHPANDA_UITEST_REQUEST_LOG (one `METHOD host path` line per stubbed request) and EHPANDA_UITEST_DROP_INITIAL_IDLE (sets ReaderUITestOptions, the default of 18-07's seam; ReadingFeature reads no key). LocalizedLaunch uses launch arguments only. ReaderRebuildUITests guards G1 (reload then turn, with and without the first idle report; direction change after auto-play, restarted because a sheet stops it) and G2 (LTR/RTL/LTR). — Later UI plans (18-09 to 18-11) isolate storage through these keys, never test order; 18-12 re-checks the keys stay out of Release.
 
 ### Phase 16 transition decisions (2026-09-23)
 
@@ -1682,7 +1684,7 @@ Items acknowledged and carried forward from previous milestone close:
 ## Session Continuity
 
 Last session: 2026-11-05T07:54:34.656Z
-Stopped at: Completed 18-05-PLAN.md
+Stopped at: Completed 18-08-PLAN.md
 Resume file: None
 
 Earlier stop (2026-10-13T10:50:00Z, historical): 17-06 revision re-shot, 16/16 captured (`.capture/17-06-t-native-*`); superseded by the owner's 2026-11-02 approval of the 192-image website set.
