@@ -54,6 +54,7 @@ struct AppReadingFlushTests: DownloadFeatureTestCase {
 
         var initialState = AppReducer.State()
         initialState.settingState.hasLoadedInitialSetting = true
+        initialState.settingState.$setting.withLock({ $0.ageDeclarationVersion = AgeDeclaration.currentVersion })
         initialState.downloadsState.destination = .reading(reader)
 
         let store = TestStore(
@@ -89,6 +90,7 @@ struct AppReadingFlushTests: DownloadFeatureTestCase {
 
         var initialState = AppReducer.State()
         initialState.settingState.hasLoadedInitialSetting = true
+        initialState.settingState.$setting.withLock({ $0.ageDeclarationVersion = AgeDeclaration.currentVersion })
         switch host {
         case .app:
             initialState.presentationState.gallery = gallerySheet
@@ -135,6 +137,7 @@ struct AppReadingFlushTests: DownloadFeatureTestCase {
 
         var initialState = AppReducer.State()
         initialState.settingState.hasLoadedInitialSetting = true
+        initialState.settingState.$setting.withLock({ $0.ageDeclarationVersion = AgeDeclaration.currentVersion })
 
         let store = TestStore(
             initialState: initialState,

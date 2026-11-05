@@ -42,6 +42,23 @@ struct AppReducer {
         var hasEnteredBackground = false
         var didRunLaunchAutomation = false
         var isAwaitingIgneousForLaunchAutomation = false
+
+        // The first-launch gate (D-03, D-04, DD-06). Until the current age declaration is confirmed,
+        // only local work runs: nothing touches the download client, loads settings (which starts the
+        // network) or routes a link.
+        var firstLaunch = FirstLaunchReducer.State()
+        /// Whether the current age declaration is confirmed, which is what opens the network.
+        var isUnlocked: Bool {
+            AgeDeclaration.isConfirmed(settingState.setting.ageDeclarationVersion)
+        }
+        /// Whether the launch's cookie maintenance finished while locked, so unlocking may load settings.
+        var didFinishLaunchPreparation = false
+        /// The one-shot latch on the deferred launch work: it runs once per process.
+        var didRunDeferredLaunch = false
+        /// The download-client phase report withheld while locked, replayed by the deferred launch.
+        var recordedScenePhase: ScenePhase?
+        /// A link opened while locked: one slot, the latest wins, routed once settings have loaded.
+        var pendingDeepLink: URL?
     }
 
     enum Action: BindableAction {
@@ -50,6 +67,9 @@ struct AppReducer {
         case windowSizeClassesChanged(WindowSizeClasses)
         case continuedSessionLivenessChanged(Bool)
         case runLaunchAutomation
+        /// A URL the app was asked to open. Routed now when unlocked, queued while locked (DD-07).
+        case openURL(URL)
+        case launchPreparationFinished
 
         case appDelegate(AppDelegateReducer.Action)
         case presentation(PresentationFeature.Action)
@@ -63,6 +83,7 @@ struct AppReducer {
         case downloads(DownloadsReducer.Action)
         case setting(SettingReducer.Action)
         case appLogsPump(AppActivityLogsPumpReducer.Action)
+        case firstLaunch(FirstLaunchReducer.Action)
     }
 
     @Dependency(\.hapticsClient) private var hapticsClient
@@ -92,12 +113,14 @@ struct AppReducer {
 
                 // Collected before the settings guard, because reporting the scene phase to the
                 // download client is not a setting-dependent behavior: a transfer created while
-                // backgrounded must be stamped as such however far the launch has got.
+                // backgrounded must be stamped as such however far the launch has got. The age wall
+                // still comes first: the first access builds the live client, which resumes queued
+                // transfers, so a locked launch records the phase for the deferred launch instead.
                 var effects = [Effect<Action>]()
                 switch scenePhase {
                 case .active:
                     state.$privacyMaskBlur.withLock({ $0 = 0 })
-                    effects.append(.run(operation: { _ in await downloadClient.setIsInBackground(false) }))
+                    effects.append(contentsOf: downloadPhaseEffects(scenePhase, state: &state))
 
                 case .inactive:
                     let intensity = state.settingState.setting.privacyMaskIntensity
@@ -105,7 +128,7 @@ struct AppReducer {
 
                 case .background:
                     state.hasEnteredBackground = true
-                    effects.append(.run(operation: { _ in await downloadClient.setIsInBackground(true) }))
+                    effects.append(contentsOf: downloadPhaseEffects(scenePhase, state: &state))
 
                 default:
                     break
@@ -191,18 +214,27 @@ struct AppReducer {
                 // igneous cookie an ExHentai route needs, and the root view's first report of the
                 // window, whose size classes route the screens the automation opens. It runs once,
                 // on whichever of them completes the set.
+                //
+                // A link queued while locked waits only for the settings, not for the automation's
+                // other preconditions: the settings pick the gallery host the link resolves against.
+                var pendingDeepLinkEffect = Effect<Action>.none
+                if state.isUnlocked, state.settingState.hasLoadedInitialSetting,
+                   let url = state.pendingDeepLink {
+                    state.pendingDeepLink = nil
+                    pendingDeepLinkEffect = .send(.presentation(.handleDeepLink(url)))
+                }
                 guard !state.didRunLaunchAutomation,
                       state.settingState.hasLoadedInitialSetting,
                       !state.isAwaitingIgneousForLaunchAutomation,
                       state.windowSizeClasses != nil,
                       let automation = appLaunchAutomationClient.current()
-                else { return .none }
+                else { return pendingDeepLinkEffect }
 
                 state.didRunLaunchAutomation = true
                 if let captureRoute = automation.captureRoute {
-                    return captureRouteEffect(captureRoute)
+                    return .merge(pendingDeepLinkEffect, captureRouteEffect(captureRoute))
                 }
-                return .run { send in
+                return .merge(pendingDeepLinkEffect, .run { send in
                     if let galleryURL = automation.galleryURL,
                        GalleryURLParser.parse(galleryURL) != nil {
                         await send(.presentation(.handleDeepLink(galleryURL)))
@@ -212,20 +244,39 @@ struct AppReducer {
                             await send(.library(.select(group)))
                         }
                     }
+                })
+
+            case .openURL(let url):
+                guard state.isUnlocked else {
+                    state.pendingDeepLink = url
+                    return .none
                 }
+                // Unlocked links route at once, as `TabBarView.onOpenURL` does; one still queued from
+                // before the unlock is older, so the newer link replaces it.
+                state.pendingDeepLink = nil
+                return .send(.presentation(.handleDeepLink(url)))
+
+            case .launchPreparationFinished:
+                state.didFinishLaunchPreparation = true
+                return deferredLaunchEffect(state: &state)
 
             case .appDelegate(.onLaunchFinish):
-                // Finish cookie maintenance before importing automation credentials or loading settings.
+                // The local half always runs: the log pump and cookie maintenance touch no network.
+                // The deferred half (liveness observation, settings load, the withheld phase report)
+                // runs here only when the age is already confirmed; otherwise the age wall's
+                // confirmation runs it once this preparation has finished.
                 let loginCookies = appLaunchAutomationClient.current()?.loginCookies
-                return .merge(
-                    .send(.appLogsPump(.startPump)),
-                    // Long-lived: the coordinator yields the current liveness on subscribe and every
-                    // transition after it, for as long as the app runs.
-                    .run { send in
-                        for await isLive in downloadClient.observeContinuedSessionLiveness() {
-                            await send(.continuedSessionLivenessChanged(isLive))
-                        }
-                    },
+                let runsDeferredLaunch = state.isUnlocked && !state.didRunDeferredLaunch
+                if runsDeferredLaunch {
+                    state.didRunDeferredLaunch = true
+                }
+                var effects: [Effect<Action>] = [.send(.appLogsPump(.startPump))]
+                if runsDeferredLaunch {
+                    effects.append(continuedSessionLivenessEffect())
+                    effects.append(contentsOf: recordedPhaseEffects(state: &state))
+                }
+                // Finish cookie maintenance before importing automation credentials or loading settings.
+                effects.append(
                     .run { send in
                         await cookieClient.prepareForLaunch()
                         if let loginCookies {
@@ -235,9 +286,10 @@ struct AppReducer {
                                 igneous: loginCookies.igneous
                             )
                         }
-                        await send(.setting(.loadUserSettings))
+                        await send(runsDeferredLaunch ? .setting(.loadUserSettings) : .launchPreparationFinished)
                     }
                 )
+                return .merge(effects)
 
             case .appDelegate:
                 return .none
@@ -389,6 +441,19 @@ struct AppReducer {
 
             case .appLogsPump:
                 return .none
+
+            case .firstLaunch(.delegate(.ageConfirmed)):
+                // Before the launch preparation finishes, `launchPreparationFinished` runs it instead,
+                // so settings never load ahead of the cookie maintenance.
+                guard state.didFinishLaunchPreparation else { return .none }
+                return deferredLaunchEffect(state: &state)
+
+            case .firstLaunch(.delegate(.levelChosen)):
+                // The level is applied to the analytics client in 18-03.
+                return .none
+
+            case .firstLaunch:
+                return .none
             }
         }
 
@@ -402,6 +467,53 @@ struct AppReducer {
         Scope(\.downloadsState, action: \.downloads, DownloadsReducer.init)
         Scope(\.settingState, action: \.setting, SettingReducer.init)
         Scope(\.appLogsPumpState, action: \.appLogsPump, AppActivityLogsPumpReducer.init)
+        Scope(\.firstLaunch, action: \.firstLaunch, FirstLaunchReducer.init)
+    }
+}
+
+// MARK: First-launch gate
+private extension AppReducer {
+    /// The launch work held behind the age wall, run once per process after both the unlock and the
+    /// launch preparation: the liveness observation and the first download-client access, the
+    /// settings load that starts the network, and the phase report withheld while locked.
+    func deferredLaunchEffect(state: inout State) -> Effect<Action> {
+        guard state.isUnlocked, !state.didRunDeferredLaunch else { return .none }
+        state.didRunDeferredLaunch = true
+        var effects = [continuedSessionLivenessEffect(), .send(.setting(.loadUserSettings))]
+        effects.append(contentsOf: recordedPhaseEffects(state: &state))
+        return .merge(effects)
+    }
+
+    /// Long-lived: the coordinator yields the current liveness on subscribe and every transition
+    /// after it, for as long as the app runs.
+    func continuedSessionLivenessEffect() -> Effect<Action> {
+        .run { send in
+            for await isLive in downloadClient.observeContinuedSessionLiveness() {
+                await send(.continuedSessionLivenessChanged(isLive))
+            }
+        }
+    }
+
+    /// Reports a scene phase to the download client when unlocked; while locked, records it instead.
+    func downloadPhaseEffects(_ phase: ScenePhase, state: inout State) -> [Effect<Action>] {
+        guard state.isUnlocked else {
+            state.recordedScenePhase = phase
+            return []
+        }
+        // A live report supersedes a recorded one, which is older.
+        state.recordedScenePhase = nil
+        return [setIsInBackgroundEffect(phase == .background)]
+    }
+
+    /// The phase report withheld while locked, if any, now that the download client may be reached.
+    func recordedPhaseEffects(state: inout State) -> [Effect<Action>] {
+        guard let phase = state.recordedScenePhase else { return [] }
+        state.recordedScenePhase = nil
+        return [setIsInBackgroundEffect(phase == .background)]
+    }
+
+    func setIsInBackgroundEffect(_ isInBackground: Bool) -> Effect<Action> {
+        .run(operation: { _ in await downloadClient.setIsInBackground(isInBackground) })
     }
 }
 
