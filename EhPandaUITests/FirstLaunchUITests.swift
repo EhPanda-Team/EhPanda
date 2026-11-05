@@ -67,6 +67,8 @@ final class FirstLaunchUITests: XCTestCase {
         let continueButton = app.buttons[Identifier.continueButton]
         XCTAssertTrue(continueButton.exists, "Continue is missing.")
         XCTAssertFalse(continueButton.isEnabled, "Continue must stay dimmed until the statement is ticked.")
+        // At the default size the footnote sits in the bar, under Continue (UI-SPEC C-2 item 6).
+        XCTAssertLessThan(continueButton.frame.maxY, app.staticTexts[Copy.footnote].frame.minY)
         requireNoAppContent(app)
 
         // Give the launch time to start anything it would start, then require that the stub saw nothing.
@@ -102,6 +104,46 @@ final class FirstLaunchUITests: XCTestCase {
         app.requireElement(Identifier.analyticsChoice)
         XCTAssertTrue(app.staticTexts[Copy.consentTitle].exists, "The analytics title is missing.")
         XCTAssertFalse(app.staticTexts[Copy.ageWallTitle].exists, "The age wall is still shown.")
+    }
+
+    /// At AX5 Continue stays pinned in the bar on both screens, in reach without a swipe, and the age-wall footnote
+    /// is the last scroll item, under the checkbox card (D-17b, owner msg 1903; UI-SPEC C-1, C-2 item 6). The cards
+    /// may still need a swipe.
+    func testContinueStaysPinnedAtTheLargestTextSize() throws {
+        let app = XCUIApplication()
+        let ax5 = LocalizedLaunch(language: .english, textSize: .accessibility5)
+        try ax5.launch(app, extraEnvironment: environment(firstLaunch: "show"))
+        app.requireForeground()
+
+        app.requireElement(Identifier.ageWall)
+        let ageWall = app.scrollViews[Identifier.ageWall]
+        let continueButton = app.buttons[Identifier.continueButton]
+        requirePinned(continueButton, in: app)
+        let declaration = app.switches[Identifier.declaration]
+        let footnote = app.staticTexts[Copy.footnote]
+        XCTAssertTrue(footnote.exists, "The footnote must always be rendered.")
+        XCTAssertLessThan(declaration.frame.maxY, footnote.frame.minY, "The footnote must follow the checkbox card.")
+
+        tapAfterScrolling(declaration, in: ageWall, clearOf: continueButton, name: "Statement")
+        XCTAssertTrue(
+            continueButton.wait(for: \.isEnabled, toEqual: true, timeout: 5),
+            "Ticking did not enable Continue."
+        )
+        requirePinned(continueButton, in: app)
+        keepScreenshot(named: "age-wall-en-AX5-bottom", of: app)
+        continueButton.tap()
+
+        app.requireElement(Identifier.analyticsChoice)
+        let analyticsChoice = app.scrollViews[Identifier.analyticsChoice]
+        requirePinned(continueButton, in: app)
+        XCTAssertFalse(continueButton.isEnabled, "Continue must stay dimmed until a level is picked.")
+        let basic = app.buttons[Identifier.level("basic")]
+        tapAfterScrolling(basic, in: analyticsChoice, clearOf: continueButton, name: "Basic")
+        XCTAssertTrue(basic.wait(for: \.isSelected, toEqual: true, timeout: 5), "Basic did not become selected.")
+        requirePinned(continueButton, in: app)
+        keepScreenshot(named: "analytics-choice-en-AX5-basic", of: app)
+        continueButton.tap()
+        requireAppContent(app)
     }
 
     // MARK: Analytics choice
@@ -217,6 +259,45 @@ private extension FirstLaunchUITests {
         app.requireElement(Identifier.ageWall)
         app.switches[Identifier.declaration].tapWhenHittable("Statement")
         app.buttons[Identifier.continueButton].tapWhenHittable("Continue")
+    }
+
+    /// Requires `continueButton` in reach as the screen first appears or wherever it is scrolled to: on screen, in
+    /// the bottom part of the window and hittable, with no swipe.
+    func requirePinned(_ continueButton: XCUIElement, in app: XCUIApplication, file: StaticString = #filePath,
+                       line: UInt = #line) {
+        XCTAssertTrue(continueButton.waitUntilHittable(timeout: XCUIElement.hittableTimeout),
+                      "Continue is out of reach without a swipe.", file: file, line: line)
+        let window = app.windows.firstMatch.frame
+        XCTAssertLessThanOrEqual(continueButton.frame.maxY, window.maxY, file: file, line: line)
+        XCTAssertGreaterThan(continueButton.frame.minY, window.midY, "Continue is not in the bottom bar.",
+                             file: file, line: line)
+    }
+
+    /// Taps `element`, swiping `scrollView` up first until it clears `bar`, the pinned Continue (at AX5 the cards run
+    /// past the screen, and a card half under the bar would take the tap on the bar).
+    func tapAfterScrolling(_ element: XCUIElement, in scrollView: XCUIElement, clearOf bar: XCUIElement,
+                           name: String, file: StaticString = #filePath, line: UInt = #line) {
+        var swipes = 0
+        // The tap lands on the element's centre, so the centre must clear the bar.
+        while !element.exists || element.frame.midY >= bar.frame.minY - 16, swipes < 12 {
+            scrollView.swipeUp()
+            swipes += 1
+        }
+        XCTAssertTrue(
+            element.waitUntilHittable(timeout: XCUIElement.hittableTimeout),
+            "\(name) is out of reach.",
+            file: file,
+            line: line
+        )
+        element.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
+    }
+
+    /// Keeps a screenshot of the screen as it is now in the test's results, for the visual check against the mockups.
+    func keepScreenshot(named name: String, of app: XCUIApplication) {
+        let attachment = XCTAttachment(screenshot: app.screenshot())
+        attachment.name = name
+        attachment.lifetime = .keepAlways
+        add(attachment)
     }
 
     /// The lines the stub protocol logged so far; none when the file was never written.

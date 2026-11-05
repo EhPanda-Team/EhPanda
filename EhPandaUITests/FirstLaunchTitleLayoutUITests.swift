@@ -71,10 +71,13 @@ private extension FirstLaunchTitleLayoutUITests {
             XCTAssertTrue(app.staticTexts[Identifier.ageWallTitle].exists, "The age wall title is missing.")
             localized.keepScreenshot(of: "age-wall", app: app, in: self)
 
-            tapAfterScrolling(app.switches[Identifier.declaration], in: ageWall, name: "Statement")
             let continueButton = app.buttons[Identifier.continueButton]
+            tapAfterScrolling(
+                app.switches[Identifier.declaration], in: ageWall, clearOf: continueButton, name: "Statement"
+            )
             XCTAssertTrue(continueButton.wait(for: \.isEnabled, toEqual: true, timeout: 5), "Continue stayed dimmed.")
-            tapAfterScrolling(continueButton, in: ageWall, name: "Continue")
+            // Continue is pinned in the bar at every size (D-17b), so it needs no swipe.
+            continueButton.tapWhenHittable("Continue")
 
             let analyticsChoice = app.scrollViews[Identifier.analyticsChoice]
             XCTAssertTrue(analyticsChoice.waitForExistence(timeout: 15), "The analytics choice is missing.")
@@ -90,20 +93,28 @@ private extension FirstLaunchTitleLayoutUITests {
         app.terminate()
     }
 
-    /// Taps `element`, swiping `scrollView` up first while it is out of reach (at AX5 the controls sit at the end
-    /// of the scroll content).
+    /// Taps `element`, swiping `scrollView` up first until it clears `bar`, the pinned Continue (at AX5 the checkbox
+    /// card runs past the screen, and a card half under the bar would take the tap on the bar).
     func tapAfterScrolling(
         _ element: XCUIElement,
         in scrollView: XCUIElement,
+        clearOf bar: XCUIElement,
         name: String,
         file: StaticString = #filePath,
         line: UInt = #line
     ) {
         var swipes = 0
-        while !(element.exists && element.isHittable), swipes < Self.maximumSwipes {
+        // The tap lands on the element's centre, so the centre must clear the bar.
+        while !element.exists || element.frame.midY >= bar.frame.minY - 16, swipes < Self.maximumSwipes {
             scrollView.swipeUp()
             swipes += 1
         }
-        element.tapWhenHittable(name, file: file, line: line)
+        XCTAssertTrue(
+            element.waitUntilHittable(timeout: XCUIElement.hittableTimeout),
+            "\(name) is out of reach.",
+            file: file,
+            line: line
+        )
+        element.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
     }
 }
