@@ -2,24 +2,60 @@
 gsd_state_version: "1.0"
 milestone: v3.0.0
 current_phase: 18
-current_phase_name: "3.0 Release Readiness: Age Wall, Consent, Marketplace Distribution & Visual Regression"
+current_phase_name: "In-App 3.0 Readiness: Age Wall, Analytics Choice, Comment Moderation & Reader Rework"
 status: planning
-stopped_at: Phase 17 complete, ready to plan Phase 18
-last_updated: "2026-11-05T03:48:31.844Z"
+stopped_at: "Phase 18 context gathered (discuss-phase done); next: /gsd-plan-phase 18"
+last_updated: "2026-11-05T04:32:40.599Z"
 last_activity: 2026-11-05
-last_activity_desc: Phase 17 complete, transitioned to Phase 18
-state_head: 143ca6fa0ffcbcbad0dd6528acce2724a0af4a7d
+last_activity_desc: Phase 18 split into Phases 18 to 20 (owner msg 1753); Phase 18 discuss-phase done (18-CONTEXT.md)
+state_head: b84c3d9dd08725da328fd2eb848c934095bb24ad
 progress:
-  total_phases: 18
+  total_phases: 20
   completed_phases: 16
   total_plans: 287
   completed_plans: 287
-  percent: 89
+  percent: 80
 milestone_name: Dependency Reduction & Modernization
 source_head: 891103afa
 ---
 
 # Project State
+
+## Phase 18 split into three phases; Phase 18 context gathered — 2026-11-05
+
+The owner split the original Phase 18 into three phases (msg 1753, card msg 1748). Nothing was dropped; the split
+map is at the end of the ROADMAP Phase 18 section, and REQUIREMENTS.md traceability names each requirement's phase.
+
+- **Phase 18: In-App 3.0 Readiness: Age Wall, Analytics Choice, Comment Moderation & Reader Rework.** AGE-18-01,
+  CONSENT-18-01, UGC-18-01 (report, posting warning, blocking), DIST-18-01 (`MKSellsDigitalGoods`), the reader
+  page-tracking rework with the G1/G2 UI tests, and IN-02/IN-03. The directory was renamed to
+  `phases/18-in-app-3-0-readiness-age-wall-analytics-choice-comment-moder/`.
+- **Phase 19: Visual Regression & Marketing Export.** VIS-18-01, MKT-18-01 (384 export, final selection,
+  regeneration), CAP-17-02, CAP-17-03, the moved parts of CAP-17-01/04/06, the six-per-period Toplists fixtures and
+  the `Scripts/visual/README.md` rewrite. It covers the Phase 18 screens.
+- **Phase 20: 3.0 Distribution: Marketplace Build, Notarization, Listing & Release Checks.** DIST-18-01 (flavor),
+  DIST-18-02, DIST-18-03, DEV-18-01, REL-18-01, MKT-18-01 (store screenshots and promotional images, CAP-17-05),
+  UGC-18-01 (published contact link), the repeated Release isolation scan and, as the last plan, ANALYTICS-02. The
+  install source needs the marketplace build, so the analytics revision sits there.
+
+Owner decisions of 2026-11-05 (msgs 1753, 1765, 1767, 1780):
+
+- **First launch:** two screens, everyone once (age wall, then the analytics choice), with None / Basic / Full and
+  none pre-selected. The age-wall sentence is the approved website sentence (msgs 1454, 1457) with no examples.
+- **Comments:** reporting goes to E-Hentai only, with no in-app contact option now (msg 1774). The posting filter
+  warns and allows posting anyway. Blocked comments collapse, and a Blocked Users list goes in Settings.
+- **Marketplace build:** same features, PAL only.
+- **Tagging:** "Tagging is not your business"; tag and release-order decisions are dropped.
+- **Copy:** the approved six-language copy is committed in the Phase 18 directory as `18-COPY-FIRST-LAUNCH.md` and
+  `18-COPY-COMMENTS.md`.
+- **Design:** the designer Colo owns the layout spec (msg 1757), so Phase 18 UI execution waits for a UI-SPEC
+  (`/gsd-ui-phase 18` or his spec).
+
+Phase 18's discuss step is done: `18-CONTEXT.md` and `18-DISCUSSION-LOG.md`, with the prep kept as
+`18-DISCUSSION-PREP.md` (L10 updated per msg 1753). `19-CONTEXT.md` and `20-CONTEXT.md` hold the owner decisions for
+those phases; their discussions have not run yet. Planning documents only; no app code.
+
+Next: `/gsd-plan-phase 18`. UI tasks depend on the UI-SPEC.
 
 ## Phase 17 complete — 2026-11-05
 
@@ -577,17 +613,18 @@ The review iPad has the final app; Phase 17 remains unchanged. See
 See: .planning/PROJECT.md (updated 2026-11-05)
 
 **Core value:** The load-bearing paths — fetch, parse, read, download galleries — keep working; every task is a foundation change held to behavior/appearance parity.
-**Current focus:** Phase 18 — 3.0 Release Readiness: Age Wall, Consent, Marketplace Distribution & Visual Regression (Phase 17 complete 2026-11-05)
+**Current focus:** Phase 18 — In-App 3.0 Readiness: Age Wall, Analytics Choice, Comment Moderation & Reader Rework (Phase 17 complete 2026-11-05; Phases 19 and 20 follow)
 
 ## Current Position
 
-Phase: 18 of 18 (3.0 Release Readiness: Age Wall, Consent, Marketplace Distribution & Visual Regression)
+Phase: 18 of 20 (In-App 3.0 Readiness: Age Wall, Analytics Choice, Comment Moderation & Reader Rework)
 Plan: Not started
 Status: Ready to plan
-Last activity: 2026-11-05 — Phase 17 complete, transitioned to Phase 18
+Last activity: 2026-11-05 — Phase 18 split into Phases 18 to 20 (owner msg 1753); Phase 18 discuss-phase done (18-CONTEXT.md)
 
 Phase 17 closed with 13/13 in-scope plans, verification passed 8/8, UAT 31/31, security verified and validation
-validated (see the top section). Phase 18 has no CONTEXT.md and no plans yet.
+validated. Phase 18 has its CONTEXT.md (2026-11-05) and no plans yet; Phases 19 and 20 have owner-decision CONTEXT
+files but no discussion or plans (see the top section).
 
 **2026-11-03 scope reduction (historical):** see the section "Phase 17 reduced, Phase 18 added" above. The 17-06 owner review is superseded by the owner's 2026-11-02 approval of the complete 192-image website set. The older Phase 17 gate notes below are historical; their "6/24" counts and "next" pointers are superseded.
 
@@ -653,8 +690,8 @@ Round-1 state: closed and signed. 38 findings — 32 `re-verified`, 6 `accepted`
 D-01 amendment 2 authorizes agent-written fixes; the original owner-only implementation restriction is superseded. All five Dynamic Type lint rules (`no_dynamic_type_size_modifier`, `no_geometry_reader`, `no_fixed_system_font_size`, `accessibility_hardcoded_string`, `no_minimum_scale_factor`) are live at error severity with the tree at 0 for each. A11Y-01 is complete; A11Y-02 (round 2) is open; the phase is not complete. Do not push without the owner.
 
 Progress: [████████████████████] 287/287 plans (100%), excluding the 11 superseded Phase 17 plans. GSD counts
-16 of 18 phases complete (89%): Phase 6 is recorded as "Delivered (rescoped)" and Phase 18 has not started.
-Phase 17 has 13/13 in-scope plans complete. Phase 18 has no plans yet and keeps the milestone open.
+16 of 20 phases complete (80%): Phase 6 is recorded as "Delivered (rescoped)" and Phases 18 to 20 have not started.
+Phase 17 has 13/13 in-scope plans complete. Phases 18 to 20 have no plans yet and keep the milestone open.
 
 ## Performance Metrics
 
@@ -1550,7 +1587,7 @@ None yet.
 - Phase 16 evidence limits: fifteen unreached sites, spoken Voice Control, nonreader native double-tap, W-21 and W-24 retain their owner-approved dispositions. Historical reference warnings are listed in `phases/16-dynamic-type-accessibility/16-CLOSEOUT-NOTES.md`.
 - [Phase 17] Nyquist gaps G1 and G2 stay open (`nyquist_compliant: false`): the WR-01 rebuild-during-turn and RTL page-sync checks used throwaway harnesses (17-WR01-MIDTURN.md). Committed UI tests are Phase 18 Step 4b; 17-VERIFICATION.md R5-1 suggests their scope.
 - [Phase 17] The fixture repository commits behind the current website set (`8ee4fc2`, `f71d108`) are local only and not pushed (R4-3). Pushing is the owner's decision.
-- [Phase 17] No Debug negative-control Release scan ran at `891103afa`; the last one is at `97b31b063` (17-FINAL-VALIDATION.md section 9). Phase 18 Step 7 repeats the Release scan on the final 3.0 build.
+- [Phase 17] No Debug negative-control Release scan ran at `891103afa`; the last one is at `97b31b063` (17-FINAL-VALIDATION.md section 9). Phase 20 repeats the Release scan on the final 3.0 build (was Phase 18 Step 7 before the 2026-11-05 split).
 
 ### Quick Tasks In Progress
 
@@ -1610,6 +1647,9 @@ None yet.
 - Phase 17 edited: Expanded existing Phase 17: real-gallery fixtures, full language/Dynamic Type/orientation/device/color-scheme capture matrix, website and AltStore exports, snapshot regression tests, iOS/iPadOS 27 native API migration and app-wide soft top scroll-edge effect. Phase 16 remains active.
 - Phase 17 edited (2026-11-03, owner msg 1305): reduced scope. CAP-17-04 and CAP-17-07 amended; 17-07 to 17-13, 17-15 and 17-20 to 17-22 superseded and moved to Phase 18; 17-14 reduced to T2; 17-16 to 17-19 reduced to verification and census; 17-23 rewritten.
 - Phase 18 added (2026-11-03): 3.0 Release Readiness: Age Wall, Consent, Marketplace Distribution & Visual Regression — the remaining 3.0 phase, with the work moved from Phase 17 (owner msgs 1287, 1289, 1294, 1299, 1305).
+- Phase 18 edited: 2026-11-05 (owner msg 1753): split into three phases. Phase 18 renamed In-App 3.0 Readiness: Age Wall, Analytics Choice, Comment Moderation & Reader Rework (directory renamed); its visual-regression and marketing-export work moved to Phase 19 and its distribution work to Phase 20
+- Phase 19 added: Visual Regression & Marketing Export: the snapshot, CI gate, preview and 384 work from the original Phase 18 (moved there from Phase 17)
+- Phase 20 added: 3.0 Distribution: Marketplace Build, Notarization, Listing & Release Checks: the original Phase 18's distribution, release-mechanics and device-check work, ending with the analytics revision (ANALYTICS-02)
 
 Continuation corrections (2026-09-16): W-13's earlier `pid=61210` crash/loading-error claim is withdrawn; lifecycle evidence identifies `pid=61450` as the explicit relaunch and the saved `w13-showall.png` as normal Detail. Its prior Reader return used VoiceOver off and is not a valid pass. W-22 v3 provenance is invalid because source was restored during execution; v3b completed with exit 0 in 39.433 seconds and restored five temporary files byte-exactly, with only the cold S2 AX5 second row confirmed so far. W-29 remains a read-only proposal targeting the first Frontpage gallery and profile Picker. W-35 has an approved, unimplemented title-focus probe; runtime and the W-8 idle check remain open.
 
@@ -1626,9 +1666,9 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-11-05T03:48:31Z
-Stopped at: Phase 17 complete, ready to plan Phase 18
-Resume file: None (the stale Phase 17 `.continue-here.md` handoff was deleted at the transition)
+Last session: 2026-11-05T04:32:21.901Z
+Stopped at: Phase 18 context gathered (discuss-phase done); next: /gsd-plan-phase 18
+Resume file: .planning/phases/18-in-app-3-0-readiness-age-wall-analytics-choice-comment-moder/18-CONTEXT.md
 
 Earlier stop (2026-10-13T10:50:00Z, historical): 17-06 revision re-shot, 16/16 captured (`.capture/17-06-t-native-*`); superseded by the owner's 2026-11-02 approval of the 192-image website set.
 
