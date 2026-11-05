@@ -1,6 +1,6 @@
 ---
 phase: 17-localized-screenshot-capture-harness
-verified: 2026-11-05T04:06:59Z
+verified: 2026-11-05T04:15:55Z
 status: passed
 score: 8/8 must-haves verified
 verification_scope: "Reduced scope (owner decision 2026-11-03, msg 1305). Executed plans 17-01 to 17-06, 17-24, 17-14 (T2), 17-16 to 17-19, 17-23. Plans 17-07 to 17-13, 17-15, 17-20 to 17-22 and 17-14 T1/T3 are moved to Phase 18 and are not verified here."
@@ -8,10 +8,10 @@ verified_head: 940b2b5bf
 tested_source: b5eca09d1
 effort: "high (resolved from .planning/config.json)"
 covered_files: [".gitignore", ".planning/REQUIREMENTS.md", ".planning/ROADMAP.md", ".planning/phases/17-localized-screenshot-capture-harness/17-01-PLAN.md", ".planning/phases/17-localized-screenshot-capture-harness/17-01-SUMMARY.md", ".planning/phases/17-localized-screenshot-capture-harness/17-02-PLAN.md", ".planning/phases/17-localized-screenshot-capture-harness/17-02-SUMMARY.md", ".planning/phases/17-localized-screenshot-capture-harness/17-03-PLAN.md", ".planning/phases/17-localized-screenshot-capture-harness/17-03-SUMMARY.md", ".planning/phases/17-localized-screenshot-capture-harness/17-04-PLAN.md", ".planning/phases/17-localized-screenshot-capture-harness/17-04-SUMMARY.md", ".planning/phases/17-localized-screenshot-capture-harness/17-05-PLAN.md", ".planning/phases/17-localized-screenshot-capture-harness/17-05-SUMMARY.md", ".planning/phases/17-localized-screenshot-capture-harness/17-06-PLAN.md", ".planning/phases/17-localized-screenshot-capture-harness/17-06-SUMMARY.md", ".planning/phases/17-localized-screenshot-capture-harness/17-07-PLAN.md", ".planning/phases/17-localized-screenshot-capture-harness/17-08-PLAN.md", ".planning/phases/17-localized-screenshot-capture-harness/17-09-PLAN.md", ".planning/phases/17-localized-screenshot-capture-harness/17-10-PLAN.md", ".planning/phases/17-localized-screenshot-capture-harness/17-11-PLAN.md", ".planning/phases/17-localized-screenshot-capture-harness/17-12-PLAN.md", ".planning/phases/17-localized-screenshot-capture-harness/17-13-PLAN.md", ".planning/phases/17-localized-screenshot-capture-harness/17-14-PLAN.md", ".planning/phases/17-localized-screenshot-capture-harness/17-14-SUMMARY.md", ".planning/phases/17-localized-screenshot-capture-harness/17-15-PLAN.md", ".planning/phases/17-localized-screenshot-capture-harness/17-16-PLAN.md", ".planning/phases/17-localized-screenshot-capture-harness/17-16-SUMMARY.md", ".planning/phases/17-localized-screenshot-capture-harness/17-17-PLAN.md", ".planning/phases/17-localized-screenshot-capture-harness/17-17-SUMMARY.md", ".planning/phases/17-localized-screenshot-capture-harness/17-18-PLAN.md", ".planning/phases/17-localized-screenshot-capture-harness/17-18-SUMMARY.md", ".planning/phases/17-localized-screenshot-capture-harness/17-19-PLAN.md", ".planning/phases/17-localized-screenshot-capture-harness/17-19-SUMMARY.md", ".planning/phases/17-localized-screenshot-capture-harness/17-20-PLAN.md", ".planning/phases/17-localized-screenshot-capture-harness/17-21-PLAN.md", ".planning/phases/17-localized-screenshot-capture-harness/17-22-PLAN.md", ".planning/phases/17-localized-screenshot-capture-harness/17-23-PLAN.md", ".planning/phases/17-localized-screenshot-capture-harness/17-23-SUMMARY.md", ".planning/phases/17-localized-screenshot-capture-harness/17-24-PLAN.md", ".planning/phases/17-localized-screenshot-capture-harness/17-24-SUMMARY.md", ".planning/phases/17-localized-screenshot-capture-harness/17-CONTEXT.md", ".planning/phases/17-localized-screenshot-capture-harness/17-FINAL-VALIDATION.md", ".planning/phases/17-localized-screenshot-capture-harness/17-LAYOUT-AUDIT.md", ".planning/phases/17-localized-screenshot-capture-harness/17-READER-ROOT-CAUSE.md", ".planning/phases/17-localized-screenshot-capture-harness/17-RELEASE-ISOLATION.md", ".planning/phases/17-localized-screenshot-capture-harness/17-RESEARCH.md", ".planning/phases/17-localized-screenshot-capture-harness/17-REVIEW-DISPOSITION.md", ".planning/phases/17-localized-screenshot-capture-harness/17-REVIEW-FIX.md", ".planning/phases/17-localized-screenshot-capture-harness/17-REVIEW.md", ".planning/phases/17-localized-screenshot-capture-harness/17-SECURITY.md", ".planning/phases/17-localized-screenshot-capture-harness/17-SOURCE-AUDIT.md", ".planning/phases/17-localized-screenshot-capture-harness/17-UAT.md", ".planning/phases/17-localized-screenshot-capture-harness/17-VALIDATION.md", ".planning/phases/17-localized-screenshot-capture-harness/17-WR01-MIDTURN.md", ".planning/quick/261101-website-review/APPROVAL-20261102.md", ".planning/quick/261101-website-review/PLAN.md", ".swiftlint.yml", "AppPackage/Package.swift", "AppPackage/Sources/AppComponents/CaptureSystemOverlays.swift", "AppPackage/Sources/AppComponents/ErrorInfoView.swift", "AppPackage/Sources/AppComponents/GalleryCover.swift", "AppPackage/Sources/AppComponents/GalleryCoverMetrics.swift", "AppPackage/Sources/AppComponents/GalleryCoverStyle.swift", "AppPackage/Sources/AppComponents/GalleryViewport.swift", "AppPackage/Sources/AppComponents/WindowDevice.swift", "AppPackage/Sources/AppComponents/WindowDeviceObservation.swift", "AppPackage/Sources/AppFeature/DataFlow/AppReducer.swift", "AppPackage/Sources/AppFeature/DataFlow/WindowSizeClasses.swift", "AppPackage/Sources/AppFeature/RootView.swift", "AppPackage/Sources/AppFeature/UITestSupport/AppshotCapture.swift", "AppPackage/Sources/AppFeature/UITestSupport/CaptureDiagnostics.swift", "AppPackage/Sources/AppFeature/UITestSupport/CaptureFixtureManifest.swift", "AppPackage/Sources/AppFeature/UITestSupport/CaptureLiveText.swift", "AppPackage/Sources/AppFeature/UITestSupport/CaptureSceneConfiguration.swift", "AppPackage/Sources/AppFeature/UITestSupport/CaptureScenePreparation.swift", "AppPackage/Sources/AppFeature/UITestSupport/CaptureTagTranslation.swift", "AppPackage/Sources/AppFeature/UITestSupport/UITestAutomation.swift", "AppPackage/Sources/AppFeature/UITestSupport/UITestStubURLProtocol.swift", "AppPackage/Sources/AppFeature/View/Library/LibraryFeature.swift", "AppPackage/Sources/AppFeature/View/TabBar/TabBarView.swift", "AppPackage/Sources/AppLaunchAutomationClient/AppLaunchAutomation.swift", "AppPackage/Sources/AppTools/DataCache.swift", "AppPackage/Sources/DetailFeature/DetailReducer+Download.swift", "AppPackage/Sources/DetailFeature/GalleryNavigation.swift", "AppPackage/Sources/FiltersFeature/FiltersView.swift", "AppPackage/Sources/GalleryListComponents/GalleryList.swift", "AppPackage/Sources/HomeFeature/GalleryCardCell.swift", "AppPackage/Sources/HomeFeature/HomeClient.swift", "AppPackage/Sources/HomeFeature/HomeNavigationView.swift", "AppPackage/Sources/HomeFeature/HomeReducer+Body.swift", "AppPackage/Sources/HomeFeature/HomeReducer.swift", "AppPackage/Sources/HomeFeature/HomeView+Sections.swift", "AppPackage/Sources/HomeFeature/HomeView.swift", "AppPackage/Sources/ImageColors/ImageColors.swift", "AppPackage/Sources/LibraryClient/LibraryClient.swift", "AppPackage/Sources/ReadingFeature/ReadingView.swift", "AppPackage/Sources/ReadingFeature/Support/AdvancedList.swift", "AppPackage/Sources/ReadingFeature/Support/ControlPanel.swift", "AppPackage/Sources/ReadingFeature/Support/LiveTextCapture.swift", "AppPackage/Sources/ReadingFeature/Support/LiveTextHandler.swift", "AppPackage/Sources/ReadingFeature/Support/PageModel.swift", "AppPackage/Sources/VisualSnapshotSupport/FullContentHost.swift", "AppPackage/Sources/VisualSnapshotSupport/PublicVisualFixtures.swift", "AppPackage/Sources/VisualSnapshotSupport/RenderServerCapture.swift", "AppPackage/Sources/VisualSnapshotSupport/RenderSettlement.swift", "AppPackage/Sources/VisualSnapshotSupport/RenderedContentInspection.swift", "AppPackage/Tests/AppFeatureTests/CaptureDownloadTests.swift", "AppPackage/Tests/AppFeatureTests/CaptureFixtureTests.swift", "AppPackage/Tests/AppFeatureTests/CaptureLiveTextRecordTests.swift", "AppPackage/Tests/AppFeatureTests/CaptureRouteTests.swift", "AppPackage/Tests/AppFeatureTests/CaptureSceneTests.swift", "AppPackage/Tests/AppFeatureTests/CaptureScreenDiagnosticsTests.swift", "AppPackage/Tests/AppFeatureTests/GalleryDetailRoutingTests.swift", "AppPackage/Tests/AppFeatureTests/LibraryClientReaderCacheTests.swift", "AppPackage/Tests/AppFeatureTests/TabBarSettingPresentationTests.swift", "AppPackage/Tests/AppFeatureTests/UITestStubTests.swift", "AppPackage/Tests/DetailFeatureTests/DetailCaptureRouteTests.swift", "AppPackage/Tests/DetailFeatureTests/GalleryNavigationTests.swift", "AppPackage/Tests/DownloadsFeatureTests/DownloadAutomationTests.swift", "AppPackage/Tests/FeatureTests.xctestplan", "AppPackage/Tests/HomeFeatureTests/HomeClientTests.swift", "AppPackage/Tests/ReadingFeatureTests/CaptureLiveTextTests.swift", "AppPackage/Tests/ReadingFeatureTests/PagerSeedTests.swift", "AppPackage/Tests/ReadingFeatureTests/PagerTurnGateTests.swift", "AppPackage/Tests/VisualSnapshotTests/FixtureArtwork.swift", "AppPackage/Tests/VisualSnapshotTests/FixtureArtworkTests.swift", "AppPackage/Tests/VisualSnapshotTests/FullContentFeasibilityTests.swift", "AppPackage/Tests/VisualSnapshotTests/GeometryTests.swift", "AppPackage/Tests/VisualSnapshotTests/HostedHierarchyTests.swift", "AppPackage/Tests/VisualSnapshotTests/RenderServerCaptureTests.swift", "AppPackage/Tests/VisualSnapshotTests/RenderSettlementTests.swift", "AppPackage/Tests/VisualSnapshotTests/RenderedContentInspectionTests.swift", "AppPackage/Tests/VisualSnapshotTests/Resources/scenarios.json", "AppPackage/Tests/VisualSnapshotTests/VisualMatrixTests.swift", "EhPanda.xcodeproj/project.pbxproj", "EhPandaUITests/CaptureIsolationUITests.swift", "EhPandaUITests/MarketingCaptureUITests.swift", "EhPandaUITests/ReaderPageSyncUITests.swift", "EhPandaUITests/Support/CaptureLauncher.swift", "Scripts/check-cookie-logging.sh", "Scripts/verify-full-content-capture.py", "Scripts/visual/README.md", "Scripts/visual/acquire-fixtures.py", "Scripts/visual/capture-native.py", "Scripts/visual/contracts.py", "Scripts/visual/environment.py", "Scripts/visual/fixtures.py", "Scripts/visual/record-live-text.py", "Scripts/visual/regression-environment.json", "Scripts/visual/run-regression.py", "Scripts/visual/selection-review.py", "Scripts/visual/test_capture_native.py", "Scripts/visual/test_contracts.py", "Scripts/visual/test_environment.py", "Scripts/visual/test_fixtures.py", "Scripts/visual/test_record_live_text.py", "Scripts/visual/test_release.py", "Scripts/visual/test_selection_review.py", "Scripts/visual/verify-release.py", "UITests.xctestplan"]
-covered_digest: "v4:sha256:1983d964531074ae2ef8710e17c5a2bf15a6f58259fe9d4bdbcb68f28a32d74e"
+covered_digest: "v4:sha256:f4eb8a5dd2eebbc85f85ead733aaaf402ddd3c21b0691805f108ddf8604a4bb8"
 behavior_unverified: 0
 overrides_applied: 0
-history_rewrite: "Owner msg 1749: the 18 unpushed commits from the tested source onward were rewritten to remove a local home path from 17-REVIEW-FIX.md. Old tested ID 814fb819d is the same source as b5eca09d1 (only that doc line differs); raw run evidence under /tmp carries the old ID. Refresh only, no re-verification; verdicts unchanged"
+history_rewrite: "Two owner-approved rewrites of unpushed commits. Owner msg 1749 removed a local home path from 17-REVIEW-FIX.md; owner msg 1773 replaced local time-zone labels in the phase docs with UTC. Both remapped commit IDs. The tested source is 814fb819d -> 9cc6eb059 -> b5eca09d1, with identical code and tests; raw run evidence under /tmp carries 814fb819d. Refresh only; verdicts unchanged"
 re_verification:
   previous_status: human_needed
   previous_score: 7/8
@@ -75,7 +75,7 @@ census with the owner. Prove once that Release ships no capture or test code. Ve
 visual-regression matrix, baselines, CI snapshot gate, preview tooling, 384-image marketing export, final
 gallery selection and AltStore promotional images move to Phase 18; they are moved, not satisfied.
 
-**Verified:** 2026-11-05T03:12:12Z (round 5); refreshed 2026-11-05T04:06:59Z after the path-removal history rewrite (owner msg 1749, see "History rewrite (owner msg 1749)" below)
+**Verified:** 2026-11-05T03:12:12Z (round 5); refreshed 2026-11-05T04:06:59Z and 2026-11-05T04:15:55Z after the history rewrites of owner msgs 1749 and 1773 (see "History rewrites" below)
 **Status:** passed
 **Re-verification:** Yes, the fourth re-verification (round 5). It follows the agent-run WR-01
 rebuild-during-turn check in 17-WR01-MIDTURN.md (`1efd9093e`). The earlier reports are `8c5dc3af2` (initial,
@@ -84,7 +84,7 @@ close steps, 7/8). `fba61bc61` was `711cfe202` before the history rewrite the ow
 and its content is unchanged. The "Round 2" to "Round 5" sections below keep each round.
 **Effort:** high (resolved from .planning/config.json)
 **Source:** verified head `940b2b5bf` (signed, `G`), the commit before the Phase 17 transition commit `66886d6be`.
-The tested source is `b5eca09d1`, recorded as `814fb819d` in the raw run evidence (see the history rewrite note).
+The tested source is `b5eca09d1`, recorded as `814fb819d` in the raw run evidence (see "History rewrites").
 `git diff --stat b5eca09d1 940b2b5bf -- . ':!.planning'` lists only `.github/dependabot.yml`, the weekly
 dependency-update schedule. That file is neither built nor tested, so the final run results still apply.
 Round 5 itself read `1efd9093e`.
@@ -309,40 +309,61 @@ None. The previous report's only item (truth 8, WR-01 rebuild during a turn) is 
 in 17-WR01-MIDTURN.md (round 5). No override was needed or recorded. The rounds before closed UAT,
 secure-phase and validate-phase (truth 7).
 
-### History rewrite (owner msg 1749)
+### History rewrites (owner msgs 1749 and 1773)
 
 This is a refresh only, not a re-verification. Every verdict, the score and the status are unchanged from round 5.
 
-With the owner's OK (msg 1749), the 18 unpushed commits from the tested source onward were rewritten to remove
-a local home path from `17-REVIEW-FIX.md`. That path was present at the tested commit and was later removed by
-`b2cb11dad`. Every commit ID in that range changed, and the IDs written in the `.planning` docs and commit
-messages were remapped to the new IDs. The old commits stay reachable through `backup/pre-path-rewrite-17`.
+There were two rewrites of unpushed commits, both approved by the owner:
 
-| Role | Old ID | New ID |
-|---|---|---|
-| Tested source | `814fb819d` | `b5eca09d1` |
-| WR-01 rebuild-during-turn check | `e8a01314e` | `1efd9093e` |
-| Round 5 report | `c83bc355a` | `4597173e2` |
-| Verified head (before the transition) | `ba3707356` | `940b2b5bf` |
-| Phase 17 transition (HEAD at refresh) | `aaa514d46` | `66886d6be` |
+- **Rewrite 1 (owner msg 1749).** The 18 commits from the tested source onward were rewritten to remove a local
+  home path from `17-REVIEW-FIX.md`. That path was in the tested commit and was later removed by `b2cb11dad`.
+  The pre-rewrite head is on `backup/pre-path-rewrite-17`.
+- **Rewrite 2 (owner msg 1773).** The 23 commits from `dd7df2178` onward were rewritten because the push check
+  rejected local time-zone labels. The filter changed four time phrases in the Phase 17 docs to UTC, and it
+  remapped commit IDs. The pre-rewrite head is kept on a second `backup/` branch.
+
+Each rewrite remapped the IDs in the `.planning` docs and commit messages. So the rest of this report uses current
+IDs. Old IDs appear only where named on purpose: in this section, and as `814fb819d`, the ID in the raw run
+evidence.
+
+| Role | Original | After rewrite 1 | Current |
+|---|---|---|---|
+| Code-review fix WR-01 | `6ba4a90d7` | (unchanged) | `fb1ea4b18` |
+| Code-review fix IN-01 | `b5816dd96` | (unchanged) | `443e74541` |
+| Tested source | `814fb819d` | `9cc6eb059` | `b5eca09d1` |
+| WR-01 rebuild-during-turn check | `e8a01314e` | `7fb8409d4` | `1efd9093e` |
+| Round 5 report | `c83bc355a` | `064ef85eb` | `4597173e2` |
+| Verified head (before the transition) | `ba3707356` | `8fa8c7c2a` | `940b2b5bf` |
+| Phase 17 transition | `aaa514d46` | `5a8719af6` | `66886d6be` |
+| Run 6 refresh of this report | — | `0022865db` | `5188192a3` |
 
 **Verifier checks (read-only):**
 
-- **Same source.** `git diff 814fb819d b5eca09d1` changes one line, in `17-REVIEW-FIX.md`, and no code or test
-  file. Both commits have the same parent (`443e74541`). The old ID `814fb819d` in the raw run evidence under
-  `/tmp/` (`.head` files, worktrees and logs) therefore names the same source as `b5eca09d1`.
-- **Remap is faithful.** Mapping every new ID back to its old ID, in each of the 10 files of `git diff aaa514d46
-  66886d6be`, reproduces `aaa514d46`'s content byte for byte, with 0 mismatches. No old ID from the 18 pairs
-  remains in `.planning/` at HEAD.
-- **Signatures and dates.** All 18 new commits are signed `G`, and their author and committer dates equal the
-  old ones.
+- **Same source.**
+  - `git diff 814fb819d b5eca09d1 -- . ':!.planning'` is empty. So is the same diff for `9cc6eb059` →
+    `b5eca09d1`, and for each fix commit against its current ID.
+  - Between `814fb819d` and `b5eca09d1`, only `.planning` text differs: 4 files, the doc line rewrite 1 removed,
+    and the remapped IDs.
+  - The old ID `814fb819d` in the raw run evidence under `/tmp/` (`.head` files, worktrees and logs) therefore
+    names the same code and tests as `b5eca09d1`.
+- **Rewrite 1** (checked in run 6): the remap was faithful, and all 18 commits are `G` with unchanged dates.
+- **Rewrite 2**, checked for all 23 pairs in `/tmp/ehp-rw/pairs2.txt`:
+  - The parents line up. Each new commit's parent is the remapped old parent, and the first one keeps `52df81fa3`.
+  - Every commit is signed `G`, with author and committer dates equal to the old ones.
+  - Commit messages map back to the old ones exactly.
+  - No commit changes anything outside `.planning`.
+  - HEAD is the last new commit, and the second backup branch points at the last old one.
+- **Rewrite 2 docs.** Mapping the current IDs back to the old ones in the 14 files that differ from
+  the second backup branch reproduces 13 of them exactly. The 14th, `17-FINAL-VALIDATION.md`, differs only in
+  its one line with the time phrases, now in UTC. The other replaced phrases had already left these files
+  before the rewrite, so the rewrite changed them only in history.
 - **After round 5.**
   - `940b2b5bf` changes only `.github/dependabot.yml` (schedule).
   - `66886d6be` marks Phase 17 complete. It touches PROJECT, REQUIREMENTS, ROADMAP, STATE and `state.json`, and
     removes the phase's `.continue-here.md`.
   - CAP-17-02, CAP-17-03 and CAP-17-05 stay unchecked and Pending in REQUIREMENTS.md, so truth 6 still holds.
-- **Fingerprint.** Recomputed over the same 160-file set. The digest changed only because the remapped IDs
-  changed the phase records.
+- **Fingerprint.** Recomputed over the same 160-file set. The digest changed only because the phase records'
+  text changed (remapped IDs and the UTC phrases).
 
 ### Round 5 (after the WR-01 rebuild-during-turn check): what changed
 
@@ -547,5 +568,5 @@ IN-02/IN-03 and the `Scripts/visual/README.md` rewrite are in the Phase 18 roadm
 
 ---
 
-_Verified: 2026-11-05T03:12:12Z, refreshed 2026-11-05T04:06:59Z after the history rewrite of owner msg 1749 (fourth re-verification, round 5; earlier reports `fba61bc61` at 2026-11-05T01:18:44Z, `7f7467d47` at 2026-11-04T17:14:33Z, `2b792bfdb` at 2026-11-04T16:52:31Z and `8c5dc3af2` at 2026-11-04T16:10:00Z)_
+_Verified: 2026-11-05T03:12:12Z, refreshed 2026-11-05T04:06:59Z and 2026-11-05T04:15:55Z after the history rewrites of owner msgs 1749 and 1773 (fourth re-verification, round 5; earlier reports `fba61bc61` at 2026-11-05T01:18:44Z, `7f7467d47` at 2026-11-04T17:14:33Z, `2b792bfdb` at 2026-11-04T16:52:31Z and `8c5dc3af2` at 2026-11-04T16:10:00Z)_
 _Verifier: Claude (gsd-verifier, inline; effort: high, resolved from .planning/config.json; model inherited)_
