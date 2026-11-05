@@ -27,7 +27,49 @@ public nonisolated extension LocalizedStringResource {
 
         public static var actions: LocalizedStringResource { .actions }
 
+        public static var ageWallTitle: LocalizedStringResource { .ageWallTitle }
+
+        public static var ageWallBody: LocalizedStringResource { .ageWallBody }
+
+        public static var ageWallDeclaration: LocalizedStringResource { .ageWallDeclaration }
+
+        public static var ageWallContinue: LocalizedStringResource { .ageWallContinue }
+
+        public static var ageWallContinueHint: LocalizedStringResource { .ageWallContinueHint }
+
+        public static var ageWallFootnote: LocalizedStringResource { .ageWallFootnote }
+
+        public static var blockedUsers: LocalizedStringResource { .blockedUsers }
+
+        public static var blockedUsersFooter: LocalizedStringResource { .blockedUsersFooter }
+
+        public static var blockedUsersEmpty: LocalizedStringResource { .blockedUsersEmpty }
+
+        public static var blockedUsersUnblock: LocalizedStringResource { .blockedUsersUnblock }
+
         public static var clear: LocalizedStringResource { .clear }
+
+        public static var consentTitle: LocalizedStringResource { .consentTitle }
+
+        public static var consentBody: LocalizedStringResource { .consentBody }
+
+        public static var consentFooter: LocalizedStringResource { .consentFooter }
+
+        public static var consentLevelMinimal: LocalizedStringResource { .consentLevelMinimal }
+
+        public static var consentLevelMinimalDescription: LocalizedStringResource { .consentLevelMinimalDescription }
+
+        public static var consentLevelBasic: LocalizedStringResource { .consentLevelBasic }
+
+        public static var consentLevelBasicDescription: LocalizedStringResource { .consentLevelBasicDescription }
+
+        public static var consentLevelRecommended: LocalizedStringResource { .consentLevelRecommended }
+
+        public static var consentLevelFull: LocalizedStringResource { .consentLevelFull }
+
+        public static var consentLevelFullDescription: LocalizedStringResource { .consentLevelFullDescription }
+
+        public static var consentPrivacyLink: LocalizedStringResource { .consentPrivacyLink }
 
         /// The continued-download card's subtitle: three counts, no wording of its own.
         ///
@@ -148,6 +190,8 @@ public nonisolated extension LocalizedStringResource {
     }
 
     enum RConstant {
+        public static var contactPrivacyPolicy: LocalizedStringResource { Constant.contactPrivacyPolicy }
+
         public static var responseGalleryUnavailable: LocalizedStringResource { Constant.responseGalleryUnavailable }
     }
 }
