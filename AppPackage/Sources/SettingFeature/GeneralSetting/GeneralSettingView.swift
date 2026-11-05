@@ -154,16 +154,98 @@ struct GeneralSettingView: View {
                     $store.scope(\.$clearCacheDialog, action: \.clearCacheDialog)
                 )
             }
-            // The level picker returns in 18-10.
+            analyticsSection
         }
         .animation(rowAnimation, value: tagTranslatorHasCustomTranslations)
         .animation(rowAnimation, value: setting.enableTagsExtension)
         .animation(rowAnimation, value: tagTranslatorEmpty)
+        .animation(rowAnimation, value: store.analyticsLevel)
         .onChange(of: setting.enableTagsExtension) { _, _ in
             store.send(.delegate(.enableTagsExtensionChanged))
         }
         .scrollEdgeEffectStyle(.soft, for: .top)
         .navigationTitle(.general)
+    }
+
+    /// The analytics level, the privacy page and, as the footer, what the selected level shares (UI-SPEC C-9, D-07).
+    /// A pick goes to the reducer, which stores and applies it at once with no confirmation (DD-09a); this view never
+    /// calls the analytics client. With no level chosen yet, the picker shows no selection and there is no footer.
+    private var analyticsSection: some View {
+        Section {
+            analyticsLevelPicker
+            privacyPolicyRow
+        } header: {
+            Text(.analytics)
+        } footer: {
+            if let level = store.analyticsLevel {
+                Text(level.levelDescription)
+            }
+        }
+    }
+
+    /// A menu picker like Appearance's Theme. At accessibility sizes it follows the Language row above: the label on
+    /// its own line, the picker trailing below it.
+    @ViewBuilder private var analyticsLevelPicker: some View {
+        if dynamicTypeSize.isAccessibilitySize {
+            VStack {
+                Text(.shareAnalyticsData)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .accessibilityHidden(true)
+
+                levelPicker
+                    .labelsHidden()
+                    .frame(maxWidth: .infinity, alignment: .trailing)
+            }
+        } else {
+            levelPicker
+        }
+    }
+
+    private var levelPicker: some View {
+        Picker(.shareAnalyticsData, selection: $store.analyticsLevel.sending(\.analyticsLevelPicked)) {
+            ForEach(AnalyticsLevel.allCases, id: \.self) { level in
+                Text(level.name)
+                    .tag(Optional(level))
+            }
+        }
+        .pickerStyle(.menu)
+        .accessibilityIdentifier("setting_analytics_level")
+    }
+
+    /// Opens the website's privacy page in the default browser, like every other external link in the app.
+    @ViewBuilder private var privacyPolicyRow: some View {
+        if let url = URL(string: String(localized: .RConstant.contactPrivacyPolicy)) {
+            Link(destination: url) {
+                HStack {
+                    Text(.RLocalizable.consentPrivacyLink)
+                    Spacer()
+                    Image(systemSymbol: .arrowUpRight)
+                        .imageScale(.small)
+                        .foregroundStyle(.secondary)
+                        .accessibilityHidden(true)
+                }
+            }
+            .foregroundStyle(.primary)
+            .accessibilityIdentifier("setting_privacy_policy")
+        }
+    }
+}
+
+private extension AnalyticsLevel {
+    var name: LocalizedStringResource {
+        switch self {
+        case .minimal: .RLocalizable.consentLevelMinimal
+        case .basic: .RLocalizable.consentLevelBasic
+        case .full: .RLocalizable.consentLevelFull
+        }
+    }
+
+    var levelDescription: LocalizedStringResource {
+        switch self {
+        case .minimal: .RLocalizable.consentLevelMinimalDescription
+        case .basic: .RLocalizable.consentLevelBasicDescription
+        case .full: .RLocalizable.consentLevelFullDescription
+        }
     }
 }
 

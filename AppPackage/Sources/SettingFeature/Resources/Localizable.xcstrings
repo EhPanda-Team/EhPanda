@@ -5294,47 +5294,6 @@
         }
       }
     },
-    "shareAnalyticsDataFooter" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Zeigt den Entwicklern von EhPanda, welche Funktionen wichtig sind. Bei Suchanfragen werden nur Länge und Format übertragen, nie der Text. Galerietitel, Links und Kennungen werden nie gesendet. Ist diese Option aus, werden keine Ereignisse mehr gesendet, deine Installation wird aber weiterhin gezählt."
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Helps EhPanda’s maintainers see which features matter. For searches, only the length and format are sent, never the text, and no gallery title, link, or identifier is ever included. Turning this off stops these events, but your installation is still counted."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "どの機能が重要かをEhPandaの開発者が把握するのに役立ちます。検索は語句ではなく長さと形式のみが送信され、ギャラリーのタイトル、リンク、識別子が含まれることはありません。オフにするとこれらの送信は停止しますが、インストール数は引き続き集計されます。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "어떤 기능이 중요한지 EhPanda 개발자가 파악하는 데 도움이 됩니다. 검색어는 내용 없이 길이와 형식만 전송되며, 갤러리 제목·링크·식별자는 절대 포함되지 않습니다. 이 설정을 끄면 이러한 전송이 중단되지만 설치 수는 계속 집계됩니다."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "帮助 EhPanda 维护者了解哪些功能重要。搜索只会发送长度和格式，不含搜索文字，也不含任何画廊标题、链接或标识符。关闭后会停止发送这些事件，但你的安装仍会计入统计。"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "協助 EhPanda 維護者了解哪些功能重要。搜尋只會傳送長度與格式，不含搜尋文字，也不含任何畫廊標題、連結或識別碼。關閉後會停止傳送這些事件，但你的安裝仍會計入統計。"
-          }
-        }
-      }
-    },
     "show_filtered_removal_count" : {
       "extractionState" : "manual",
       "localizations" : {
