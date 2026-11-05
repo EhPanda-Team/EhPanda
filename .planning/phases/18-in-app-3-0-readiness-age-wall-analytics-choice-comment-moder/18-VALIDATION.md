@@ -58,7 +58,7 @@ created: "2026-11-05"
 | 18-05-01 | 05 | 2 | UGC-18-01 | T-18-13 | warning before send, text kept, edits and Detail too | unit | `-only-testing:DetailFeatureTests/CommentModerationReducerTests` | ❌ | ⬜ pending |
 | 18-05-02 | 05 | 2 | UGC-18-01 | T-18-12 | report confirm presents the report sheet; block/unblock/show-once; no analytics | unit | same | ❌ | ⬜ pending |
 | 18-06-01 | 06 | 1 | AGE-18-01, CONSENT-18-01, UGC-18-01 | T-18-14 | copy check self-test | script | `python3 .planning/phases/18-in-app-3-0-readiness-age-wall-analytics-choice-comment-moder/18-copy-check.py --self-test` | ❌ | ⬜ pending |
-| 18-06-02 | 06 | 1 | AGE-18-01, CONSENT-18-01, UGC-18-01 | T-18-14 | every key six locales, verbatim; retired text absent | script | `python3 .planning/phases/18-in-app-3-0-readiness-age-wall-analytics-choice-comment-moder/18-copy-check.py` | ❌ | ⬜ pending |
+| 18-06-02 | 06 | 1 | AGE-18-01, CONSENT-18-01, UGC-18-01 | T-18-14 | every key six locales, verbatim (Basic description from Revision 3, D-06d); retired text absent, incl. the first-launch Basic description | script | `python3 .planning/phases/18-in-app-3-0-readiness-age-wall-analytics-choice-comment-moder/18-copy-check.py` | ❌ | ⬜ pending |
 | 18-07-01 | 07 | 1 | reader | T-18-15 | `ReaderPosition` rules; ported suites | unit | `-only-testing:ReadingFeatureTests` | ❌ W0 | ⬜ pending |
 | 18-07-02 | 07 | 1 | reader | T-18-15 | view wired to one source; existing UI suites green | UI | `-only-testing:EhPandaUITests/ReaderPageSyncUITests -only-testing:EhPandaUITests/ReadingOrientationUITests` | ✅ | ⬜ pending |
 | 18-08-01 | 08 | 2 | AGE-18-01, UGC-18-01 | T-18-16 | DEBUG launch keys, request log | unit | `-only-testing:AppFeatureTests/UITestStubTests` | ✅ extend | ⬜ pending |

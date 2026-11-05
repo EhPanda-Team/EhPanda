@@ -18,6 +18,9 @@ the three technical questions the designer asked (§5.6). Sections 4, 5, 8, 9, 1
 **Revised again the same day** for D-06c (owner msgs 1812, 1818): the install signal carries the install source,
 produced by a new `InstallSourceClient` (§4.6); the Minimal description is Revision 2 of `18-COPY-MINIMAL.md`, and
 the UI-SPEC refreshes (msg 1820; msg 1826 adds the title line-break rule, C-3) are committed.
+**Revised a third time the same day** for D-06d (owner msgs 1830, 1839): Basic's description is Revision 3 of
+`18-COPY-MINIMAL.md` ("Everything in Minimal, plus ..."), superseding the first-launch Basic description; what Basic
+sends is unchanged. The UI-SPEC and mockups refresh for it (msg 1843) is committed. Only User Constraints, §8, Validation Architecture and Sources change.
 
 <user_constraints>
 ## User Constraints (from 18-CONTEXT.md)
@@ -39,7 +42,8 @@ the UI-SPEC refreshes (msg 1820; msg 1826 adds the title line-break rule, C-3) a
   Basic and Full (D-06b). Settings gets a
   picker (row label `shareAnalyticsData`), a footer with the selected level's description, a Privacy Policy row;
   `shareAnalyticsDataFooter`, `consent.level.none` and its description are retired. ANALYTICS-01's vocabulary rules
-  stay. Strings verbatim from `18-COPY-FIRST-LAUNCH.md` as superseded in part by `18-COPY-MINIMAL.md`.
+  stay. Strings verbatim from `18-COPY-FIRST-LAUNCH.md` as superseded in part by `18-COPY-MINIMAL.md` (its
+  Revision 2 for Minimal's description, its Revision 3 for Basic's, D-06d).
 - **D-10..D-16:** "Report on {site}" on every comment → confirmation → the gallery's report page on E-Hentai/ExHentai;
   no email or contact fallback. No in-app contact option. The filter warns (Edit default, Post Anyway), never names
   the word, applies to edits. Blocking collapses the comment into "Comment from a user you've blocked" with Show and
@@ -530,10 +534,15 @@ The key is absent today. Add `<key>MKSellsDigitalGoods</key><false/>`. Verify on
 - **Minimal (D-06a, `18-COPY-MINIMAL.md`, owner msg 1805):** the catalog gets `consentLevelMinimal`,
   `consentLevelMinimalDescription` and `consentBody` with the Minimal file's text (the description from its
   Revision 2, owner msg 1818, D-06c; the first-table description is superseded); the first-launch file's
-  `consent.level.none`, `consent.level.none.description` and old `consent.body` are never added. The copy check reads
-  the Minimal file for those three keys and the first-launch file for the rest, and fails if any retired text
-  (`None`/`Nothing is sent.` rows, old `consent.body`, the superseded first-table Minimal description) appears in a
-  catalog.
+  `consent.level.none`, `consent.level.none.description` and old `consent.body` are never added.
+- **Basic (D-06d, owner msgs 1830, 1839):** `consentLevelBasicDescription` takes Revision 3 of the Minimal file
+  ("Everything in Minimal, plus how often the app is used, technical details such as device model and app version, and
+  which kinds of errors occur." and its five translations); the first-launch file's Basic description is retired.
+  The Basic name stays the first-launch file's.
+- Copy precedence: the Minimal file's Revision 3 (Basic description) and Revision 2 (Minimal description) > its first
+  table > the first-launch file. The copy check reads the Minimal file for those four keys and the first-launch file
+  for the rest, and fails if any retired text (`None`/`Nothing is sent.` rows, old `consent.body`, the superseded
+  first-table Minimal description, the first-launch Basic description) appears in a catalog.
 - `shareAnalyticsDataFooter` (and the old toggle's use of `shareAnalyticsData` as a toggle label) is removed in the
   same plan that removes its last use (the Settings UI plan, 18-10), or the module stops compiling.
 - READMEs: `README.md` "## Analytics" (`:34-43`) and the five files in `READMEs/` describe on-by-default and "your
@@ -659,7 +668,7 @@ upgraded. `T-18-SC` is carried in every plan as not applicable.
 | UGC-18-01 | warning flow for post and edit keeps text; block/unblock/show-once; report confirm presents the report sheet | unit | `DetailFeatureTests/CommentModerationReducerTests` | ❌ (18-05) |
 | UGC-18-01 | Account → Blocked Users push, list, unblock, empty state | unit + UI | `SettingFeatureTests/BlockedUsersReducerTests`, `EhPandaUITests/SettingsModerationUITests` | ❌ (18-10) |
 | UGC-18-01 | `…` menu, long-press, a11y actions, alerts, collapsed rows and cards, Detail strip menu after `drawingGroup` removal | UI | `EhPandaUITests/CommentModerationUITests` | ❌ (18-11) |
-| copy | every new key in six locales, verbatim (Minimal file for the three superseded keys, its Revision 2 for the Minimal description); retired text absent | script | `.planning/phases/18-…/18-copy-check.py` run by plan 18-06 | ❌ (18-06) |
+| copy | every new key in six locales, verbatim (Minimal file for the superseded keys: its Revision 2 for the Minimal description, its Revision 3 for the Basic description, D-06d); retired text absent, incl. the first-launch Basic description | script | `.planning/phases/18-…/18-copy-check.py` run by plan 18-06 | ❌ (18-06) |
 | reader | one source of truth; ported rules | unit | `ReadingFeatureTests/ReaderPositionTests` + ported suites | ❌ W0 (18-07) |
 | reader G1/G2 | rebuild then turn; direction change in Auto-Play; LTR/RTL | UI | `EhPandaUITests/ReaderRebuildUITests` | ❌ (18-08) |
 | IN-02 | scanner catches `captureSystemOverlay` | python | `Scripts/visual/test_release.py` | extend (18-01) |
@@ -680,8 +689,8 @@ adds the failing tests. No framework install is needed.
 ## Sources
 
 - Code at `43333aae0` (files cited inline); TelemetryDeck SwiftSDK 2.14.2 resolved checkout.
-- `18-CONTEXT.md` (incl. amendments D-06a, D-06b, D-06c, DD-09a, D-14a, D-17a), `18-COPY-FIRST-LAUNCH.md`,
-  `18-COPY-MINIMAL.md` (with Revision 2, msg 1818), `18-COPY-COMMENTS.md`, `18-UI-SPEC.md` (final, msg 1826), `18-DISCUSSION-PREP.md`,
+- `18-CONTEXT.md` (incl. amendments D-06a, D-06b, D-06c, D-06d, DD-09a, D-14a, D-17a), `18-COPY-FIRST-LAUNCH.md`,
+  `18-COPY-MINIMAL.md` (with Revision 2, msg 1818, and Revision 3, msg 1839), `18-COPY-COMMENTS.md`, `18-UI-SPEC.md` (final, msg 1826; Basic line refreshed, msg 1843), `18-DISCUSSION-PREP.md`,
   `18-DISCUSSION-LOG.md`.
 - iOS 27.2 SDK `MarketplaceKit.framework` Swift interface (`AppDistributor`).
 - TelemetryDeck SwiftSDK 2.14.2 at `AppPackage/.build/checkouts/SwiftSDK`: `TelemetryDeck.swift`,

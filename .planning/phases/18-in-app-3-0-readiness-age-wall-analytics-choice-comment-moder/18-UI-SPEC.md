@@ -177,7 +177,7 @@ the catalog may rename them, never the text. Nothing on any screen below may say
 | Continue hint while dimmed (VoiceOver) | `age_wall.continue_hint` (age wall only — see C-2) |
 | Age wall footnote (always visible) | `age_wall.footnote` |
 | Analytics title / body | `consent.title` / `consent.body` |
-| Level names / descriptions | `consent.level.{minimal,basic,full}` / `…description`. Minimal replaces None (owner msg 1795); its name and description and the new `consent.body` are Camo's wording: name and `consent.body` from msg 1797 (approved msg 1805), Minimal's description from Revision 2 in msg 1815 (**approved msg 1818**, replaces the 1805 line), as shown in the mockups |
+| Level names / descriptions | `consent.level.{minimal,basic,full}` / `…description`. Minimal replaces None (owner msg 1795); its name and description and the new `consent.body` are Camo's wording: name and `consent.body` from msg 1797 (approved msg 1805), Minimal's description from Revision 2 in msg 1815 (**approved msg 1818**, replaces the 1805 line), Basic's description from Revision 3 in msg 1832 (**approved msg 1839**), as shown in the mockups |
 | Analytics footer | `consent.footer` |
 | Privacy link (both places) | `consent.privacy_link` |
 | Settings analytics row | `shareAnalyticsData` (existing key, now a picker); section header `analytics` (existing) |
