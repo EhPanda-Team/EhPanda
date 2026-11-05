@@ -4,16 +4,16 @@ milestone: v3.0.0
 current_phase: 18
 current_phase_name: "In-App 3.0 Readiness: Age Wall, Analytics Choice, Comment Moderation & Reader Rework"
 status: executing
-stopped_at: Completed 18-02-PLAN.md
-last_updated: "2026-11-05T07:25:41.518Z"
+stopped_at: Completed 18-04-PLAN.md
+last_updated: "2026-11-05T07:48:14.532Z"
 last_activity: 2026-11-05
 last_activity_desc: Phase 18 planned (12 plans, 4 waves) against the final UI-SPEC (msg 1826)
-state_head: a9c347138244866f3a916c82932b9034e153580e
+state_head: fb26b0e3c752627c9628123294820ffbfbe07121
 progress:
   total_phases: 20
   completed_phases: 16
   total_plans: 299
-  completed_plans: 290
+  completed_plans: 291
   percent: 80
 milestone_name: Dependency Reduction & Modernization
 source_head: b5eca09d1
@@ -992,6 +992,7 @@ Phase 17 has 13/13 in-scope plans complete. Phase 18 has 12 plans, none executed
 | Phase 18 P07 | about 2h | 2 tasks | 25 files |
 | Phase 18 P01 | 4 min | 2 tasks | 4 files |
 | Phase 18 P02 | about 30 min | 3 tasks | 20 files |
+| Phase 18 P04 | 14 min | 2 tasks | 14 files |
 
 ## Accumulated Context
 
@@ -1556,6 +1557,7 @@ Recent decisions affecting current work:
 - [Phase 16]: 16-24: gate runtimes iPhone 17 iOS 26.5 + iPad (A16) iPadOS 26.5 (owner 2026-09-15); iPadOS 27 beta excluded, its Gallery Detail stall deferred
 - [Phase 18]: 18-01: DIST-18-01 stays Pending in REQUIREMENTS.md after MKSellsDigitalGoods landed; its marketplace build flavor is Phase 20 work. IN-02/IN-03 are closed (429ca7512, 319934300) and have no REQUIREMENTS.md entry. — A shared requirement reads Complete only when every phase that owns a part has finished it.
 - [Phase 18]: 18-02: the deferred launch (liveness observation, loadUserSettings, the withheld scene-phase report) runs once, after both the age confirmation and the launch's cookie maintenance (new internal action launchPreparationFinished). Only a phase withheld while locked is replayed; a link queued while locked routes once the settings load. The hosted visual-test preset lives in configureVisualTestHost, because the prepared dependencies and the store each get their own in-memory suite. — The settings load must never precede the cookie maintenance, and an unlocked launch must keep its old order with no extra download-client call. AGE-18-01 and CONSENT-18-01 stay Pending: 18-03, 18-06 and 18-09 share them.
+- [Phase 18]: 18-04: the comment report URL is rebuilt as https://<host>/g/<gid>/<token>/?report=select only for an exact GalleryHost host and a gallery path (nil otherwise); the bundled filter list is stored in natural form and normalised on load, every language group applies to every comment; block helpers are labelled author: and ignore empty names; sessionCookies(for:) reuses the cookiesForURL seam and drops expired cookies. UGC-18-01 stays Pending: 18-05, 18-10, 18-11 and later plans share it. — Pure, tested moderation core for the reducers and UI (18-05, 18-10, 18-11) to build on; T-18-09 and T-18-11 are enforced at the lowest layer.
 
 ### Phase 16 transition decisions (2026-09-23)
 
@@ -1671,8 +1673,8 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-11-05T07:25:39.846Z
-Stopped at: Completed 18-02-PLAN.md
+Last session: 2026-11-05T07:48:12.774Z
+Stopped at: Completed 18-04-PLAN.md
 Resume file: None
 
 Earlier stop (2026-10-13T10:50:00Z, historical): 17-06 revision re-shot, 16/16 captured (`.capture/17-06-t-native-*`); superseded by the owner's 2026-11-02 approval of the 192-image website set.
