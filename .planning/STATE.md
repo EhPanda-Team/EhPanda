@@ -4,16 +4,16 @@ milestone: v3.0.0
 current_phase: 18
 current_phase_name: "In-App 3.0 Readiness: Age Wall, Analytics Choice, Comment Moderation & Reader Rework"
 status: executing
-stopped_at: Completed 18-06-PLAN.md
-last_updated: "2026-11-05T07:54:36.354Z"
+stopped_at: Completed 18-03-PLAN.md
+last_updated: "2026-11-05T08:27:00.000Z"
 last_activity: 2026-11-05
 last_activity_desc: Phase 18 planned (12 plans, 4 waves) against the final UI-SPEC (msg 1826)
-state_head: 599f6eceb54f8a28b70a73680f9e733cae5e6d81
+state_head: 2b793e01476a692ed69ea24bd03b5272d95a6da0
 progress:
   total_phases: 20
   completed_phases: 16
   total_plans: 299
-  completed_plans: 292
+  completed_plans: 293
   percent: 80
 milestone_name: Dependency Reduction & Modernization
 source_head: 891103afa
@@ -689,9 +689,11 @@ Round-1 state: closed and signed. 38 findings — 32 `re-verified`, 6 `accepted`
 
 D-01 amendment 2 authorizes agent-written fixes; the original owner-only implementation restriction is superseded. All five Dynamic Type lint rules (`no_dynamic_type_size_modifier`, `no_geometry_reader`, `no_fixed_system_font_size`, `accessibility_hardcoded_string`, `no_minimum_scale_factor`) are live at error severity with the tree at 0 for each. A11Y-01 is complete; A11Y-02 (round 2) is open; the phase is not complete. Do not push without the owner.
 
-Progress: [███████████████████░] 287/299 plans (96%), excluding the 11 superseded Phase 17 plans. GSD counts
-16 of 20 phases complete (80%): Phase 6 is recorded as "Delivered (rescoped)" and Phases 18 to 20 have not started.
-Phase 17 has 13/13 in-scope plans complete. Phase 18 has 12 plans, none executed; Phases 19 and 20 have no plans yet. They keep the milestone open.
+Progress: [███████████████████░] 293/299 plans (98%), excluding the 11 superseded Phase 17 plans. GSD counts
+16 of 20 phases complete (80%): Phase 6 is recorded as "Delivered (rescoped)", Phase 18 is in progress and Phases 19
+and 20 have not started.
+Phase 17 has 13/13 in-scope plans complete. Phase 18 has 6 of 12 plans executed (18-01, 18-02, 18-03, 18-04, 18-06,
+18-07); Phases 19 and 20 have no plans yet. They keep the milestone open.
 
 ## Performance Metrics
 
@@ -994,6 +996,7 @@ Phase 17 has 13/13 in-scope plans complete. Phase 18 has 12 plans, none executed
 | Phase 18 P02 | about 30 min | 3 tasks | 20 files |
 | Phase 18 P04 | 14 min | 2 tasks | 14 files |
 | Phase 18 P06 | 3 min | 2 tasks | 5 files |
+| Phase 18 P03 | about 30 min | 4 tasks | 19 files |
 
 ## Accumulated Context
 
@@ -1560,6 +1563,7 @@ Recent decisions affecting current work:
 - [Phase 18]: 18-02: the deferred launch (liveness observation, loadUserSettings, the withheld scene-phase report) runs once, after both the age confirmation and the launch's cookie maintenance (new internal action launchPreparationFinished). Only a phase withheld while locked is replayed; a link queued while locked routes once the settings load. The hosted visual-test preset lives in configureVisualTestHost, because the prepared dependencies and the store each get their own in-memory suite. — The settings load must never precede the cookie maintenance, and an unlocked launch must keep its old order with no extra download-client call. AGE-18-01 and CONSENT-18-01 stay Pending: 18-03, 18-06 and 18-09 share them.
 - [Phase 18]: 18-04: the comment report URL is rebuilt as https://<host>/g/<gid>/<token>/?report=select only for an exact GalleryHost host and a gallery path (nil otherwise); the bundled filter list is stored in natural form and normalised on load, every language group applies to every comment; block helpers are labelled author: and ignore empty names; sessionCookies(for:) reuses the cookiesForURL seam and drops expired cookies. UGC-18-01 stays Pending: 18-05, 18-10, 18-11 and later plans share it. — Pure, tested moderation core for the reducers and UI (18-05, 18-10, 18-11) to build on; T-18-09 and T-18-11 are enforced at the lowest layer.
 - [Phase 18]: 18-06: the 38 approved Phase 18 keys are in the Resources, Resources Constant and DetailFeature catalogs verbatim in six languages, with RLocalizable/RConstant forwarders; 18-copy-check.py derives the expected values and the 48 retired texts from the copy files (Revision 6, 5, 2 > first table > first-launch file) and matches the retired level name only as a consent.* value. shareAnalyticsData/shareAnalyticsDataFooter stay in SettingFeature's catalog for 18-10. AGE-18-01, CONSENT-18-01 and UGC-18-01 stay Pending: later plans share them. — One script is the gate for copy drift (T-18-14), re-run in 18-12; nothing in a catalog is retyped by hand.
+- [Phase 18]: 18-03: AnalyticsClient.start is now apply(level). No level does nothing; Minimal sends only the own InstallSignalSender's App.installed request (seven fields, payload App.installSource only, settled once per install) and never initialises the SDK, terminating it if running; Basic and Full initialise it once. send reads the stored level live; minimumLevel puts the 10 screen, feature and error signals at Basic and the 3 reading and download signals at Full; the five App.* parameters ride at Full only. TelemetryDeck is imported only by TelemetrySDK.swift and MarketplaceKit only by InstallSourceClient.swift. AppReducer applies the stored level in the deferred launch and the chosen level on levelChosen once that has run. CONSENT-18-01 stays Pending: 18-09 and 18-10 share it. Phase 20 carries OI-4 (newInstallDetected vs App.installed) and ANALYTICS-02 (reuse InstallSourceClient, verify on the marketplace build and a device, add the source to Basic/Full). — Minimal's description promises only an install signal, so the SDK's device payload must never leave under it (D-06b, D-06c, D-06f).
 
 ### Phase 16 transition decisions (2026-09-23)
 
