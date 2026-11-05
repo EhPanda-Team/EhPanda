@@ -112,6 +112,16 @@ extension SharedKey where Self == AppStorageKey<[String]>.Default {
     }
 }
 
+// MARK: Analytics
+
+extension SharedKey where Self == AppStorageKey<InstallSignalState>.Default {
+    /// Whether the one install signal has settled (D-06b). Kept apart from `Setting` on purpose, so a
+    /// settings reset never sends the signal again.
+    public static var installSignal: Self {
+        Self[.appStorage("installSignal"), default: InstallSignalState()]
+    }
+}
+
 // MARK: Comment moderation
 
 extension SharedKey where Self == AppStorageKey<[String]>.Default {

@@ -370,7 +370,8 @@ let targets: [PackageDescription.Target] = [
     // `.cookieClient` edge exists because the per-signal login-state snapshot reads
     // `@SharedReader(.didLogin)`, whose key is declared there. The `.deviceClient` edge exists
     // because the orientation enricher reads the window scene through it rather than reaching for
-    // UIKit from this module.
+    // UIKit from this module. The `.installSourceClient` edge feeds the one install signal its
+    // source (D-06c), and `.osLogExt` logs that signal's dropped or failed sends.
     .target(
         module: .analyticsClient,
         dependencies: [
@@ -378,6 +379,7 @@ let targets: [PackageDescription.Target] = [
             .module(.cookieClient),
             .module(.deviceClient),
             .module(.installSourceClient),
+            .module(.osLogExt),
             .targetDependency(.composableArchitecture),
             .targetDependency(.sharing),
             .targetDependency(.telemetryDeck)
