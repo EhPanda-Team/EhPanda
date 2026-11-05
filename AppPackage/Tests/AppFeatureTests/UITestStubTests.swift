@@ -38,7 +38,8 @@ struct UITestStubTests {
     @Test(arguments: [
         ["EHPANDA_UITEST_STUB_NETWORK": "1"],
         ["EHPANDA_VISUAL_TEST_HOST": "1"],
-        ["EHPANDA_UITEST_STUB_NETWORK": "1", "EHPANDA_UITEST_FIRST_LAUNCH": "analytics"],
+        ["EHPANDA_UITEST_STUB_NETWORK": "1", "EHPANDA_UITEST_FIRST_LAUNCH": "Analytics"],
+        ["EHPANDA_UITEST_STUB_NETWORK": "1", "EHPANDA_UITEST_FIRST_LAUNCH": "nope"],
         ["EHPANDA_UITEST_STUB_NETWORK": "1", "EHPANDA_UITEST_FIRST_LAUNCH": ""]
     ])
     func anAutomatedLaunchIsPresetPastTheFirstLaunch(environment: [String: String]) throws {
@@ -57,6 +58,17 @@ struct UITestStubTests {
             )
         )
         #expect(configuration.firstLaunchPreset == .cleared)
+    }
+
+    @Test(arguments: ["analytics", " analytics\n"])
+    func analyticsOpensTheLaunchOnTheAnalyticsChoice(value: String) throws {
+        let configuration = try #require(
+            try UITestAutomation.resolve(
+                environment: ["EHPANDA_UITEST_STUB_NETWORK": "1", "EHPANDA_UITEST_FIRST_LAUNCH": value],
+                now: .now
+            )
+        )
+        #expect(configuration.firstLaunchPreset == .ageConfirmed)
     }
 
     // A launch that only overrides a client runs the real app on the user's data, answers included.
@@ -101,9 +113,168 @@ struct UITestStubTests {
             #expect(setting.analyticsLevel == nil)
 
             $setting.withLock({ $0.analyticsLevel = .full })
+            UITestAutomation.applyFirstLaunchPreset(.ageConfirmed)
+            #expect(setting.ageDeclarationVersion == AgeDeclaration.currentVersion)
+            #expect(setting.analyticsLevel == nil)
+
+            $setting.withLock({ $0.analyticsLevel = .full })
             UITestAutomation.applyFirstLaunchPreset(nil)
             #expect(setting.analyticsLevel == .full)
         }
+    }
+
+    // MARK: Stubbed-launch storage, request log and reader keys
+
+    @Test(arguments: [
+        BlockListCase(value: #"["A","B"]"#, expected: ["A", "B"]),
+        BlockListCase(value: nil, expected: []),
+        BlockListCase(value: "not json", expected: []),
+        BlockListCase(value: #"{"A": "B"}"#, expected: []),
+        BlockListCase(value: #"["A", 1]"#, expected: []),
+        BlockListCase(value: #"["A", "", "A"]"#, expected: ["A"])
+    ])
+    func everyStubbedLaunchStartsFromTheBlockListItNames(_ blockList: BlockListCase) throws {
+        var environment = ["EHPANDA_UITEST_STUB_NETWORK": "1"]
+        environment["EHPANDA_UITEST_BLOCKED_AUTHORS"] = blockList.value
+        let configuration = try #require(try UITestAutomation.resolve(environment: environment, now: .now))
+        expectNoDifference(configuration.storagePreset?.blockedCommentAuthors, blockList.expected)
+    }
+
+    @Test
+    func theDisplayNameKeyNamesTheSignedInUser() throws {
+        let named = try #require(
+            try UITestAutomation.resolve(
+                environment: ["EHPANDA_UITEST_STUB_NETWORK": "1", "EHPANDA_UITEST_DISPLAY_NAME": " X "],
+                now: .now
+            )
+        )
+        #expect(named.storagePreset?.displayName == "X")
+
+        let unnamed = try #require(
+            try UITestAutomation.resolve(environment: ["EHPANDA_UITEST_STUB_NETWORK": "1"], now: .now)
+        )
+        #expect(unnamed.storagePreset == UITestAutomation.StoragePreset(blockedCommentAuthors: [], displayName: nil))
+    }
+
+    @Test
+    func theStoragePresetReplacesTheBlockListAndTheDisplayName() {
+        withDependencies {
+            $0.defaultAppStorage = .inMemory
+        } operation: {
+            @Shared(.blockedCommentAuthors) var blockedAuthors
+            @Shared(.user) var user
+            $blockedAuthors.withLock({ $0 = ["Earlier"] })
+            $user.withLock({ $0.displayName = "Earlier" })
+
+            UITestAutomation.StoragePreset(blockedCommentAuthors: ["A", "B"], displayName: "X").apply()
+            expectNoDifference(blockedAuthors, ["A", "B"])
+            expectNoDifference(user.displayName, "X")
+
+            UITestAutomation.StoragePreset(blockedCommentAuthors: [], displayName: nil).apply()
+            expectNoDifference(blockedAuthors, [])
+            expectNoDifference(user.displayName, nil)
+        }
+    }
+
+    @Test
+    func theRequestLogKeyNamesTheFile() throws {
+        let configuration = try #require(
+            try UITestAutomation.resolve(
+                environment: [
+                    "EHPANDA_UITEST_STUB_NETWORK": "1",
+                    "EHPANDA_UITEST_REQUEST_LOG": " /tmp/EhPanda UI Test/requests.log "
+                ],
+                now: .now
+            )
+        )
+        expectNoDifference(
+            configuration.requestLogURL?.path(percentEncoded: false),
+            "/tmp/EhPanda UI Test/requests.log"
+        )
+    }
+
+    @Test
+    func aRequestThroughTheStubAppendsOneLine() async throws {
+        let log = FileManager.default.temporaryDirectory.appending(path: "\(UUID().uuidString).log")
+        // The log is process-wide, so a parallel test's requests can land in it too; this test's own requests go
+        // to a host no other test uses, and only its lines are counted.
+        let host = "request-log-\(UUID().uuidString.lowercased()).invalid"
+        UITestStubURLProtocol.configure(requestLog: log)
+        defer {
+            UITestStubURLProtocol.configure(requestLog: nil)
+            do {
+                try FileManager.default.removeItem(at: log)
+            } catch {
+                Issue.record(error)
+            }
+        }
+        let configuration = URLSessionConfiguration.ephemeral
+        configuration.protocolClasses = [UITestStubURLProtocol.self]
+        let session = URLSession(configuration: configuration)
+        defer { session.invalidateAndCancel() }
+
+        _ = try await session.data(from: try #require(URL(string: "https://\(host)/g/1/token/?p=2")))
+        var request = URLRequest(url: try #require(URL(string: "https://\(host)/api.php")))
+        request.httpMethod = "POST"
+        request.httpBody = Data("{}".utf8)
+        _ = try await session.data(for: request)
+
+        let lines = try String(contentsOf: log, encoding: .utf8)
+            .split(separator: "\n")
+            .filter({ $0.contains(host) })
+        expectNoDifference(lines, ["GET \(host) /g/1/token/", "POST \(host) /api.php"])
+    }
+
+    @Test(arguments: [
+        DropIdleCase(value: "1", expected: true),
+        DropIdleCase(value: " 1 ", expected: true),
+        DropIdleCase(value: "0", expected: false),
+        DropIdleCase(value: nil, expected: false)
+    ])
+    func dropInitialIdleAsksTheReaderToDropItsFirstIdleReport(_ dropIdle: DropIdleCase) throws {
+        var environment = ["EHPANDA_UITEST_STUB_NETWORK": "1"]
+        environment["EHPANDA_UITEST_DROP_INITIAL_IDLE"] = dropIdle.value
+        let configuration = try #require(try UITestAutomation.resolve(environment: environment, now: .now))
+        #expect(configuration.dropsReaderInitialIdleReport == dropIdle.expected)
+    }
+
+    /// The keys change only a stubbed launch: alone they opt nothing in, and beside a key that overrides a client
+    /// only, the real app runs on the user's data with nothing written and nothing logged.
+    @Test
+    func thePhaseLaunchKeysNeedAStubbedLaunch() throws {
+        let keys = [
+            "EHPANDA_UITEST_FIRST_LAUNCH": "analytics",
+            "EHPANDA_UITEST_REQUEST_LOG": "/tmp/requests.log",
+            "EHPANDA_UITEST_BLOCKED_AUTHORS": #"["A"]"#,
+            "EHPANDA_UITEST_DISPLAY_NAME": "X",
+            "EHPANDA_UITEST_DROP_INITIAL_IDLE": "1"
+        ]
+        #expect(try UITestAutomation.resolve(environment: keys, now: .now) == nil)
+
+        let clientOnly = try #require(
+            try UITestAutomation.resolve(
+                environment: keys.merging(["EHPANDA_UITEST_FORCE_PAUSE_REFUSAL": "notFound"], uniquingKeysWith: { $1 }),
+                now: .now
+            )
+        )
+        #expect(clientOnly.firstLaunchPreset == nil)
+        #expect(clientOnly.storagePreset == nil)
+        #expect(clientOnly.requestLogURL == nil)
+        #expect(!clientOnly.dropsReaderInitialIdleReport)
+    }
+
+    /// A hosted visual test renders into storage of its own, made fresh for each store, so its block list is
+    /// already empty and no stored name carries over; the storage preset is for the simulator's shared storage.
+    @Test
+    func aVisualHostWritesNoStoragePreset() throws {
+        let configuration = try #require(
+            try UITestAutomation.resolve(
+                environment: ["EHPANDA_VISUAL_TEST_HOST": "1", "EHPANDA_UITEST_BLOCKED_AUTHORS": #"["A"]"#],
+                now: .now,
+                isTesting: true
+            )
+        )
+        #expect(configuration.storagePreset == nil)
     }
 
     @MainActor
@@ -359,6 +530,20 @@ struct UITestStubTests {
         #expect(UITestAutomation.PauseRefusal.notFound.error == .notFound)
         #expect(UITestAutomation.PauseRefusal.unknown.error == .unknown)
     }
+}
+
+struct BlockListCase: Sendable, CustomTestStringConvertible {
+    let value: String?
+    let expected: [String]
+
+    var testDescription: String { value ?? "absent" }
+}
+
+struct DropIdleCase: Sendable, CustomTestStringConvertible {
+    let value: String?
+    let expected: Bool
+
+    var testDescription: String { value.map({ "\"\($0)\"" }) ?? "absent" }
 }
 
 private struct Fixture: Sendable {
