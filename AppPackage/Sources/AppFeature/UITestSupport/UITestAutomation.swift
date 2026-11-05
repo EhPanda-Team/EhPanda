@@ -106,30 +106,30 @@ public enum UITestAutomation {
     /// The stored state every stubbed-network launch starts from, so what a UI test finds stored never
     /// depends on the test that ran before it: a stubbed launch keeps the simulator's storage.
     ///
-    /// `EHPANDA_UITEST_BLOCKED_AUTHORS` names the comment block list as a JSON array of author names;
-    /// absent or malformed, the list is empty. `EHPANDA_UITEST_DISPLAY_NAME` names the signed-in user
-    /// for the own-comment tests; absent, no name is stored. Both keys are read only here, inside
-    /// `#if DEBUG` (P-9).
+    /// `EHPANDA_UITEST_BLOCKED_USERS` holds the comment block list as a JSON array of
+    /// `{"memberID": …, "name": …}` objects; absent or malformed, the list is empty.
+    /// `EHPANDA_UITEST_DISPLAY_NAME` names the signed-in user for the own-comment tests; absent, no name is stored.
+    /// Both keys are read only here, inside `#if DEBUG` (P-9).
     struct StoragePreset: Equatable, Sendable {
-        static let blockedAuthorsEnvironmentKey = "EHPANDA_UITEST_BLOCKED_AUTHORS"
+        static let blockedUsersEnvironmentKey = "EHPANDA_UITEST_BLOCKED_USERS"
         static let displayNameEnvironmentKey = "EHPANDA_UITEST_DISPLAY_NAME"
 
-        /// Built through `block(author:)`, so each name is held once and an empty one is dropped.
-        let blockedCommentAuthors: [String]
+        /// Built through `block(memberID:name:)`, so each member ID is held once and an empty one is dropped.
+        let blockedCommentUsers: [BlockedCommentUser]
         let displayName: String?
 
-        init(blockedCommentAuthors: [String], displayName: String?) {
-            self.blockedCommentAuthors = blockedCommentAuthors.reduce(into: []) { list, author in
-                list.block(author: author)
+        init(blockedCommentUsers: [BlockedCommentUser], displayName: String?) {
+            self.blockedCommentUsers = blockedCommentUsers.reduce(into: []) { list, user in
+                list.block(memberID: user.memberID, name: user.name)
             }
             self.displayName = displayName
         }
 
         /// Replaces the stored block list and the user's display name in the current app storage.
         func apply() {
-            @Shared(.blockedCommentAuthors) var blockedAuthors
+            @Shared(.blockedCommentUsers) var blockedUsers
             @Shared(.user) var user
-            $blockedAuthors.withLock({ $0 = blockedCommentAuthors })
+            $blockedUsers.withLock({ $0 = blockedCommentUsers })
             $user.withLock({ $0.displayName = displayName })
         }
     }
@@ -255,18 +255,26 @@ public enum UITestAutomation {
     /// The stored state `environment` asks a stubbed-network launch to start from.
     static func storagePreset(environment: [String: String]) -> StoragePreset {
         StoragePreset(
-            blockedCommentAuthors: blockedAuthors(
-                trimmedValue(environment: environment, key: StoragePreset.blockedAuthorsEnvironmentKey)
+            blockedCommentUsers: blockedUsers(
+                trimmedValue(environment: environment, key: StoragePreset.blockedUsersEnvironmentKey)
             ),
             displayName: trimmedValue(environment: environment, key: StoragePreset.displayNameEnvironmentKey)
         )
     }
 
-    /// The names a JSON array of strings holds; empty for no value or anything else.
-    private static func blockedAuthors(_ value: String?) -> [String] {
+    /// One entry of `EHPANDA_UITEST_BLOCKED_USERS`, without the stored model's schema version.
+    private struct PresetUser: Decodable {
+        let memberID: String
+        let name: String
+    }
+
+    /// The users a JSON array of `{"memberID": …, "name": …}` objects holds; empty for no value or anything else.
+    private static func blockedUsers(_ value: String?) -> [BlockedCommentUser] {
         guard let value else { return [] }
         do {
-            return try JSONDecoder().decode([String].self, from: Data(value.utf8))
+            return try JSONDecoder().decode([PresetUser].self, from: Data(value.utf8)).map { user in
+                BlockedCommentUser(memberID: user.memberID, name: user.name)
+            }
         } catch {
             // A malformed list starts the launch from no blocks, the same as an absent one: a test
             // that misspells it sees its blocked comments shown, never another test's list.

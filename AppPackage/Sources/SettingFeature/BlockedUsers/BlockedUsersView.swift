@@ -1,4 +1,5 @@
 import AppComponents
+import AppModels
 import ComposableArchitecture
 import Resources
 import SFSafeSymbols
@@ -25,8 +26,8 @@ struct BlockedUsersView: View {
         List {
             if !store.isEmpty {
                 Section {
-                    ForEach(store.authors, id: \.self) { author in
-                        row(author)
+                    ForEach(store.users) { user in
+                        row(user)
                     }
                 } footer: {
                     Text(.RLocalizable.blockedUsersFooter)
@@ -53,23 +54,23 @@ struct BlockedUsersView: View {
         .navigationTitle(.RLocalizable.blockedUsers)
     }
 
-    /// A name as the site prints it, wrapping when long; nothing truncates.
-    private func row(_ author: String) -> some View {
-        Text(author)
+    /// The name the user was last seen under, as the site prints it, wrapping when long; nothing truncates.
+    private func row(_ user: BlockedCommentUser) -> some View {
+        Text(user.name)
             .foregroundStyle(.primary)
             .frame(maxWidth: .infinity, alignment: .leading)
             .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                 Button(role: .destructive) {
-                    store.send(.unblockTapped(author: author))
+                    store.send(.unblockTapped(memberID: user.memberID))
                 } label: {
                     Text(.RLocalizable.blockedUsersUnblock)
                 }
             }
             .contextMenu {
                 Button {
-                    store.send(.unblockTapped(author: author))
+                    store.send(.unblockTapped(memberID: user.memberID))
                 } label: {
-                    Label(.commentUnblock(author), systemSymbol: .handRaisedSlash)
+                    Label(.commentUnblock(user.name), systemSymbol: .handRaisedSlash)
                 }
             }
     }

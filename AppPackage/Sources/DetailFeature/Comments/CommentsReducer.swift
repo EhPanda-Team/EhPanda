@@ -153,8 +153,8 @@ public struct CommentsReducer: Sendable {
                 state.destination = .reportPage(url)
                 return .none
 
-            case .moderation(.delegate(.didBlock(let author))):
-                state.moderation.collapseComments(by: author, in: state.comments)
+            case .moderation(.delegate(.didBlock(let memberID))):
+                state.moderation.collapseComments(by: memberID, in: state.comments)
                 return .none
 
             case .moderation:

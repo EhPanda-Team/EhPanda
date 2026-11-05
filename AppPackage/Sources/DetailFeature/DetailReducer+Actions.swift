@@ -77,8 +77,8 @@ extension DetailReducer {
                 state.destination = .reportPage(url)
                 return .none
 
-            case .moderation(.delegate(.didBlock(let author))):
-                state.moderation.collapseComments(by: author, in: state.galleryComments)
+            case .moderation(.delegate(.didBlock(let memberID))):
+                state.moderation.collapseComments(by: memberID, in: state.galleryComments)
                 return .none
 
             case .presentNewDawn(let greeting):

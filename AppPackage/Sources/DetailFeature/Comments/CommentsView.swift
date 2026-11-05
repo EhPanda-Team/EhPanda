@@ -54,8 +54,8 @@ struct CommentsView: View {
             }
             .accessibilityIdentifier("comments_view")
             // Blocking or unblocking collapses or expands every comment of the author at once (C-4, C-6).
-            .animation(reduceMotion ? nil : .default, value: store.moderation.blockedAuthors)
-            .onChange(of: store.moderation.blockedAuthors) {
+            .animation(reduceMotion ? nil : .default, value: store.moderation.blockedMemberIDs)
+            .onChange(of: store.moderation.blockedMemberIDs) {
                 // After a Block, VoiceOver continues on the collapsed row of the comment acted on (C-4).
                 if let moderationTargetID,
                    let comment = comments.first(where: { $0.commentID == moderationTargetID }),
@@ -110,7 +110,11 @@ struct CommentsView: View {
             BlockedCommentRow(
                 commentID: comment.commentID,
                 showAction: { store.send(.moderation(.show(commentID: comment.commentID))) },
-                unblockAction: { store.send(.moderation(.unblock(author: comment.author))) }
+                unblockAction: {
+                    if let memberID = comment.authorMemberID {
+                        store.send(.moderation(.unblock(memberID: memberID)))
+                    }
+                }
             )
             .accessibilityFocused($focusedCommentID, equals: comment.commentID)
         } else {
@@ -182,7 +186,9 @@ struct CommentsView: View {
                 moderationTargetID = comment.commentID
                 store.send(.moderation(.blockTapped(comment)))
             case .unblock:
-                store.send(.moderation(.unblock(author: comment.author)))
+                if let memberID = comment.authorMemberID {
+                    store.send(.moderation(.unblock(memberID: memberID)))
+                }
             case .hide:
                 store.send(.moderation(.hide(commentID: comment.commentID)))
             }

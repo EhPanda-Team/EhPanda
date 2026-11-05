@@ -273,7 +273,7 @@ extension CommentModerationReducerTests {
     func blockCollapsesEveryCommentByTheAuthorOnce() async {
         let store = makeModerationCommentsStore()
 
-        await block(Self.author, from: Self.first, in: store)
+        await block(Self.first, in: store)
         #expect(store.state.moderation.isCollapsed(Self.first))
         #expect(store.state.moderation.isCollapsed(Self.second))
         #expect(!store.state.moderation.isCollapsed(Self.other))
@@ -281,11 +281,11 @@ extension CommentModerationReducerTests {
         await store.send(.moderation(.blockTapped(Self.second))) {
             $0.moderation.alert = Self.blockAlert(author: Self.author)
         }
-        await store.send(.moderation(.alert(.presented(.confirmBlock(author: Self.author))))) {
+        await store.send(.moderation(.alert(.presented(.confirmBlock(memberID: Self.memberID, name: Self.author))))) {
             $0.moderation.alert = nil
         }
-        await store.receive(\.moderation.delegate.didBlock, Self.author)
-        #expect(store.state.moderation.blockedAuthors == [Self.author])
+        await store.receive(\.moderation.delegate.didBlock, Self.memberID)
+        #expect(store.state.moderation.blockedUsers == [Self.blockedUser])
     }
 
     @MainActor
@@ -299,7 +299,7 @@ extension CommentModerationReducerTests {
         await store.send(.moderation(.alert(.dismiss))) {
             $0.moderation.alert = nil
         }
-        #expect(store.state.moderation.blockedAuthors.isEmpty)
+        #expect(store.state.moderation.blockedUsers.isEmpty)
     }
 
     // Unblock takes effect at once, with no alert.
@@ -307,10 +307,10 @@ extension CommentModerationReducerTests {
     @Test
     func unblockIsImmediate() async {
         let store = makeModerationCommentsStore()
-        await block(Self.author, from: Self.first, in: store)
+        await block(Self.first, in: store)
 
-        await store.send(.moderation(.unblock(author: Self.author))) {
-            $0.moderation.$blockedAuthors.withLock({ $0 = [] })
+        await store.send(.moderation(.unblock(memberID: Self.memberID))) {
+            $0.moderation.$blockedUsers.withLock({ $0 = [] })
         }
         #expect(!store.state.moderation.isCollapsed(Self.first))
         #expect(!store.state.moderation.isCollapsed(Self.second))
@@ -322,7 +322,7 @@ extension CommentModerationReducerTests {
     @Test
     func showRevealsOneCommentAndHideCollapsesIt() async {
         let store = makeModerationCommentsStore()
-        await block(Self.author, from: Self.first, in: store)
+        await block(Self.first, in: store)
 
         await store.send(.moderation(.show(commentID: Self.first.commentID))) {
             $0.moderation.revealedCommentIDs = [Self.first.commentID]
@@ -343,7 +343,7 @@ extension CommentModerationReducerTests {
     func aRevealDoesNotOutliveTheScreen() async {
         let storage = UserDefaults.inMemory
         let store = makeModerationCommentsStore(storage: storage)
-        await block(Self.author, from: Self.first, in: store)
+        await block(Self.first, in: store)
         await store.send(.moderation(.show(commentID: Self.first.commentID))) {
             $0.moderation.revealedCommentIDs = [Self.first.commentID]
         }
@@ -363,22 +363,22 @@ extension CommentModerationReducerTests {
     @Test
     func blockingAgainCollapsesARevealedComment() async {
         let store = makeModerationCommentsStore()
-        await block(Self.author, from: Self.first, in: store)
+        await block(Self.first, in: store)
         await store.send(.moderation(.show(commentID: Self.first.commentID))) {
             $0.moderation.revealedCommentIDs = [Self.first.commentID]
         }
-        await store.send(.moderation(.unblock(author: Self.author))) {
-            $0.moderation.$blockedAuthors.withLock({ $0 = [] })
+        await store.send(.moderation(.unblock(memberID: Self.memberID))) {
+            $0.moderation.$blockedUsers.withLock({ $0 = [] })
         }
 
         await store.send(.moderation(.blockTapped(Self.first))) {
             $0.moderation.alert = Self.blockAlert(author: Self.author)
         }
-        await store.send(.moderation(.alert(.presented(.confirmBlock(author: Self.author))))) {
+        await store.send(.moderation(.alert(.presented(.confirmBlock(memberID: Self.memberID, name: Self.author))))) {
             $0.moderation.alert = nil
-            $0.moderation.$blockedAuthors.withLock({ $0 = [Self.author] })
+            $0.moderation.$blockedUsers.withLock({ $0 = [Self.blockedUser] })
         }
-        await store.receive(\.moderation.delegate.didBlock, Self.author) {
+        await store.receive(\.moderation.delegate.didBlock, Self.memberID) {
             $0.moderation.revealedCommentIDs = []
         }
         #expect(store.state.moderation.isCollapsed(Self.first))
@@ -392,12 +392,105 @@ extension CommentModerationReducerTests {
         await store.send(.moderation(.blockTapped(Self.first))) {
             $0.moderation.alert = Self.blockAlert(author: Self.author)
         }
-        await store.send(.moderation(.alert(.presented(.confirmBlock(author: Self.author))))) {
+        await store.send(.moderation(.alert(.presented(.confirmBlock(memberID: Self.memberID, name: Self.author))))) {
             $0.moderation.alert = nil
-            $0.moderation.$blockedAuthors.withLock({ $0 = [Self.author] })
+            $0.moderation.$blockedUsers.withLock({ $0 = [Self.blockedUser] })
         }
-        await store.receive(\.moderation.delegate.didBlock, Self.author)
+        await store.receive(\.moderation.delegate.didBlock, Self.memberID)
         #expect(store.state.galleryComments.filter(store.state.moderation.isCollapsed).map(\.commentID) == ["1", "2"])
+    }
+}
+
+// MARK: Matching by member ID (owner msg 1918)
+
+extension CommentModerationReducerTests {
+    // A blocked poster who changed their name stays blocked: the comment matches by member ID.
+    @MainActor
+    @Test
+    func aBlockedIDUnderANewNameStaysBlocked() async {
+        let store = makeModerationCommentsStore()
+        await block(Self.first, in: store)
+
+        let renamed = Self.comment(id: "9", author: "Renamed", memberID: Self.memberID)
+        #expect(store.state.moderation.isBlocked(renamed))
+        #expect(store.state.moderation.isCollapsed(renamed))
+    }
+
+    // Another poster who happens to use a blocked poster's name is not blocked.
+    @MainActor
+    @Test
+    func anotherIDUnderABlockedNameIsNotBlocked() async {
+        let store = makeModerationCommentsStore()
+        await block(Self.first, in: store)
+
+        let namesake = Self.comment(id: "9", author: Self.author, memberID: "555")
+        #expect(!store.state.moderation.isBlocked(namesake))
+        #expect(!store.state.moderation.isCollapsed(namesake))
+    }
+
+    // A comment with no member ID cannot be blocked: Block asks nothing and stores nothing, and a blocked name does not
+    // collapse it.
+    @MainActor
+    @Test
+    func aCommentWithNoMemberIDIsNeverBlocked() async {
+        let store = makeModerationCommentsStore()
+        let anonymous = Self.comment(id: "9", author: Self.author, memberID: nil)
+
+        await store.send(.moderation(.blockTapped(anonymous)))
+        #expect(store.state.moderation.blockedUsers.isEmpty)
+
+        await block(Self.first, in: store)
+        #expect(!store.state.moderation.isBlocked(anonymous))
+        #expect(!store.state.moderation.isCollapsed(anonymous))
+    }
+
+    // Blocking collapses again the revealed comments of the same ID, whatever name they show.
+    @MainActor
+    @Test
+    func blockingCollapsesTheIDsRevealedCommentsUnderAnyName() {
+        var state = withDependencies {
+            $0.defaultAppStorage = .inMemory
+        } operation: {
+            CommentModerationFeature.State(galleryURL: Self.galleryURL)
+        }
+        let renamed = Self.comment(id: "9", author: "Renamed", memberID: Self.memberID)
+        state.revealedCommentIDs = [Self.first.commentID, renamed.commentID, Self.other.commentID]
+
+        state.collapseComments(by: Self.memberID, in: Self.comments + [renamed])
+
+        #expect(state.revealedCommentIDs == [Self.other.commentID])
+    }
+
+    // A blocked poster seen under a new name keeps the block and the stored name follows; names already current and
+    // posters not blocked change nothing.
+    @Test
+    func refreshingStoresTheNewNameOfABlockedID() {
+        let storage = UserDefaults.inMemory
+        withDependencies {
+            $0.defaultAppStorage = storage
+        } operation: {
+            var state = CommentModerationFeature.State(galleryURL: Self.galleryURL)
+            state.$blockedUsers.withLock({
+                $0 = [.init(memberID: Self.memberID, name: "Roobubba-old"), .init(memberID: "4764920", name: "Pokom")]
+            })
+            let comments = [
+                Self.comment(id: "1", author: "Roobubba", memberID: Self.memberID),
+                Self.comment(id: "2", author: "Pokom", memberID: "4764920"),
+                Self.comment(id: "3", author: "Roobubba-old", memberID: "555")
+            ]
+
+            state.refreshBlockedNames(from: comments)
+
+            @Shared(.blockedCommentUsers) var stored
+            #expect(stored.map(\.memberID) == [Self.memberID, "4764920"])
+            #expect(stored.map(\.name) == ["Roobubba", "Pokom"])
+            #expect(state.blockedMemberIDs == [Self.memberID, "4764920"])
+            #expect(state.isBlocked(comments[0]))
+            #expect(!state.isBlocked(comments[2]))
+
+            state.refreshBlockedNames(from: comments)
+            #expect(stored.map(\.name) == ["Roobubba", "Pokom"])
+        }
     }
 }
 
@@ -423,7 +516,7 @@ extension CommentModerationReducerTests {
             await store.send(.moderation(.reportTapped(comment)))
             await store.send(.moderation(.blockTapped(comment)))
         }
-        #expect(store.state.moderation.blockedAuthors.isEmpty)
+        #expect(store.state.moderation.blockedUsers.isEmpty)
     }
 
     // No moderation action sends an analytics signal, so no author name or comment text can reach one.
@@ -439,10 +532,10 @@ extension CommentModerationReducerTests {
         await store.send(.moderation(.reportTapped(Self.first)))
         await store.send(.moderation(.alert(.presented(.confirmReport(Self.reportURL)))))
         await store.send(.moderation(.blockTapped(Self.first)))
-        await store.send(.moderation(.alert(.presented(.confirmBlock(author: Self.author)))))
+        await store.send(.moderation(.alert(.presented(.confirmBlock(memberID: Self.memberID, name: Self.author)))))
         await store.send(.moderation(.show(commentID: Self.first.commentID)))
         await store.send(.moderation(.hide(commentID: Self.first.commentID)))
-        await store.send(.moderation(.unblock(author: Self.author)))
+        await store.send(.moderation(.unblock(memberID: Self.memberID)))
         await store.send(.presentPostComment(commentID: ""))
         await store.send(.binding(.set(\.commentContent, Self.matchingText)))
         await store.send(.postTapped)
@@ -458,18 +551,23 @@ extension CommentModerationReducerTests {
 
 extension CommentModerationReducerTests {
     static let author = "SENTINEL_AUTHOR"
+    static let memberID = "990213"
+    static let blockedUser = BlockedCommentUser(memberID: memberID, name: author)
     static let ownName = "SignedInUser"
     static let galleryURL = URL(string: "https://e-hentai.org/g/42/abc123/")!
     static let reportURL = URL(string: "https://e-hentai.org/g/42/abc123/?report=select")!
-    static let first = comment(id: "1", author: author)
-    static let second = comment(id: "2", author: author)
-    static let other = comment(id: "3", author: "someone else")
+    static let first = comment(id: "1", author: author, memberID: memberID)
+    static let second = comment(id: "2", author: author, memberID: memberID)
+    static let other = comment(id: "3", author: "someone else", memberID: "4764920")
     static let comments = [first, second, other]
 
-    static func comment(id: String, author: String, editable: Bool = false) -> GalleryComment {
+    static func comment(
+        id: String, author: String, memberID: String? = "12", editable: Bool = false
+    ) -> GalleryComment {
         GalleryComment(
             votedUp: false, votedDown: false, votable: !editable, editable: editable,
-            author: author, contents: [], commentID: id, commentDate: Date(timeIntervalSince1970: 0)
+            author: author, authorMemberID: memberID, contents: [], commentID: id,
+            commentDate: Date(timeIntervalSince1970: 0)
         )
     }
 
@@ -488,14 +586,16 @@ extension CommentModerationReducerTests {
         }
     }
 
-    static func blockAlert(author: String) -> AppAlertState<CommentModerationFeature.Alert> {
+    static func blockAlert(
+        author: String, memberID: String = Self.memberID
+    ) -> AppAlertState<CommentModerationFeature.Alert> {
         AppAlertState {
             TextState(localized: .commentBlockConfirmTitle(author))
         } actions: {
             ButtonState(role: .cancel) {
                 TextState(localized: .RLocalizable.cancel)
             }
-            ButtonState(role: .destructive, action: .confirmBlock(author: author)) {
+            ButtonState(role: .destructive, action: .confirmBlock(memberID: memberID, name: author)) {
                 TextState(localized: .commentBlockConfirm)
             }
         } message: {
@@ -503,17 +603,20 @@ extension CommentModerationReducerTests {
         }
     }
 
-    /// Blocks `author` through the menu and the confirmation.
+    /// Blocks `comment`'s poster, by the member ID it carries, through the menu and the confirmation; the list
+    /// starts empty.
     @MainActor
-    func block(_ author: String, from comment: GalleryComment, in store: TestStoreOf<CommentsReducer>) async {
+    func block(_ comment: GalleryComment, in store: TestStoreOf<CommentsReducer>) async {
+        let memberID = comment.authorMemberID ?? ""
+        let user = BlockedCommentUser(memberID: memberID, name: comment.author)
         await store.send(.moderation(.blockTapped(comment))) {
-            $0.moderation.alert = Self.blockAlert(author: author)
+            $0.moderation.alert = Self.blockAlert(author: comment.author, memberID: memberID)
         }
-        await store.send(.moderation(.alert(.presented(.confirmBlock(author: author))))) {
+        await store.send(.moderation(.alert(.presented(.confirmBlock(memberID: memberID, name: comment.author))))) {
             $0.moderation.alert = nil
-            $0.moderation.$blockedAuthors.withLock({ $0 = [author] })
+            $0.moderation.$blockedUsers.withLock({ $0 = [user] })
         }
-        await store.receive(\.moderation.delegate.didBlock, author)
+        await store.receive(\.moderation.delegate.didBlock, memberID)
     }
 
     @MainActor

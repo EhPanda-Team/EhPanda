@@ -44,6 +44,8 @@ extension DetailReducer {
                     state.galleryTags = response.galleryState.tags
                     state.galleryPreviewURLs = response.galleryState.previewURLs
                     state.galleryComments = response.galleryState.comments
+                    // A blocked poster seen under a new name keeps the block, and the list shows the new name.
+                    state.moderation.refreshBlockedNames(from: response.galleryState.comments)
                     if let config = response.galleryState.previewConfig {
                         state.previewConfig = config
                     }

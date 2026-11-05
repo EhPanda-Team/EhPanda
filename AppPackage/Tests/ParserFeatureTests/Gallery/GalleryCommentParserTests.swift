@@ -4,8 +4,9 @@ import Kanna
 @testable import ParserFeature
 import SwiftUI
 import Testing
+import TestingSupport
 
-struct GalleryCommentParserTests {
+struct GalleryCommentParserTests: TestHelper {
     @Test
     func quoteMarkersAndApostrophesReadAsTyped() throws {
         let runs = try parseRuns("&gt; one<br />&gt; two<br />It&#039;s &quot;three&quot;")
@@ -266,6 +267,44 @@ struct GalleryCommentParserTests {
         let contact = #"&nbsp; &nbsp; <a href="https://forums.e-hentai.org/index.php?showuser=1"><img alt="PM" /></a>"#
         let comment = try #require(Parser.parseComments(doc: document(body: "text", afterAuthor: contact)).first)
         #expect(comment.author == "author")
+    }
+
+    /// The contact link carries the poster's member ID, which comment blocking matches on (owner msg 1918).
+    @Test
+    func theMemberIDComesFromTheContactLink() throws {
+        let link = "https://forums.e-hentai.org/index.php?showuser=4764920"
+        let contact = #"&nbsp; &nbsp; <a href=""# + link + #""><img alt="PM" /></a>"#
+        let comment = try #require(Parser.parseComments(doc: document(body: "text", afterAuthor: contact)).first)
+        #expect(comment.authorMemberID == "4764920")
+        #expect(comment.author == "author")
+    }
+
+    /// No contact link, or one whose `showuser` is not a number, gives no member ID; nor does a link in the text.
+    @Test(arguments: [
+        "",
+        #"&nbsp; &nbsp; <a href="https://forums.e-hentai.org/index.php?showuser=abc">PM</a>"#,
+        #"&nbsp; &nbsp; <a href="https://forums.e-hentai.org/index.php?showuser=">PM</a>"#,
+        #"&nbsp; &nbsp; <a href="https://example.com/index.php?showuser=12">PM</a>"#
+    ])
+    func aCommentWithoutAContactLinkHasNoMemberID(afterAuthor: String) throws {
+        let body = #"see <a href="https://forums.e-hentai.org/index.php?showuser=99">this</a>"#
+        let comment = try #require(Parser.parseComments(doc: document(body: body, afterAuthor: afterAuthor)).first)
+        #expect(comment.authorMemberID == nil)
+    }
+
+    /// Each comment of a saved gallery page gets its own poster's ID.
+    @Test
+    func everyCommentOfAPageHasItsPostersID() throws {
+        let document = try htmlDocument(filename: .galleryDetail)
+        let comments = Parser.parseComments(doc: document)
+        #expect(comments.count == 10)
+        #expect(comments.allSatisfy({ $0.authorMemberID != nil }))
+        let first = try #require(comments.first)
+        #expect(first.author == "Pokom")
+        #expect(first.authorMemberID == "4764920")
+        let roobubba = try #require(comments.first(where: { $0.author == "Roobubba" }))
+        #expect(roobubba.authorMemberID == "990213")
+        #expect(Set(comments.compactMap(\.authorMemberID)).count == 10)
     }
 }
 

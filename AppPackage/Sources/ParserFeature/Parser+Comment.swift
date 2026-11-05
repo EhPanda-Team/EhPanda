@@ -10,7 +10,8 @@ extension Parser {
         var comments = [GalleryComment]()
         for link in doc.xpath("//div [@id='cdiv']") {
             for c1Link in link.xpath("//div [@class='c1']") {
-                guard let c3Node = c1Link.at_xpath("//div [@class='c3']")?.text,
+                guard let c3Element = c1Link.at_xpath("//div [@class='c3']"),
+                      let c3Node = c3Element.text,
                       let c6Node = c1Link.at_xpath("//div [@class='c6']"),
                       let commentID = c6Node["id"]?
                     .replacing("comment_", with: ""),
@@ -25,6 +26,7 @@ extension Parser {
                 // The site follows the name with `&nbsp; &nbsp;` and a contact link, which are not part of it.
                 let author = String(c3Node[rangeB.upperBound...]).trimmingCharacters(in: .whitespacesAndNewlines)
                 let commentTime = String(c3Node[rangeA.upperBound..<rangeB.lowerBound])
+                let authorMemberID = parseMemberID(c3Node: c3Element)
 
                 var votedUp = false
                 var votedDown = false
@@ -68,6 +70,7 @@ extension Parser {
                         editable: editable,
                         score: score,
                         author: author,
+                        authorMemberID: authorMemberID,
                         contents: parseCommentContent(node: c6Node),
                         commentID: commentID,
                         commentDate: commentDate
@@ -81,6 +84,20 @@ extension Parser {
 
 // MARK: Helpers
 private extension Parser {
+    /// The poster's member ID: the digits of the forum contact link the site prints after the name,
+    /// `https://forums.e-hentai.org/index.php?showuser=<digits>`. `nil` when the comment has no such link.
+    static func parseMemberID(c3Node: any XMLElement) -> String? {
+        for link in c3Node.xpath(".//a") {
+            guard let href = link["href"], let components = URLComponents(string: href),
+                  components.host?.hasSuffix("e-hentai.org") == true,
+                  let value = components.queryItems?.first(where: { $0.name == "showuser" })?.value,
+                  !value.isEmpty, value.allSatisfy({ $0.isASCII && $0.isNumber })
+            else { continue }
+            return value
+        }
+        return nil
+    }
+
     static func parseCommentContent(node: any XMLElement) -> [CommentContent] {
         var builder = CommentContentBuilder()
         builder.appendChildren(of: node)
