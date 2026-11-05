@@ -1,3 +1,4 @@
+import AnalyticsClient
 import AppComponents
 import ApplicationClient
 public import AppModels
@@ -5,6 +6,7 @@ public import ComposableArchitecture
 import LibraryClient
 public import OSLogExt
 import Resources
+public import Sharing
 
 private let logger = Logger(category: .init(describing: GeneralSettingReducer.self))
 
@@ -31,6 +33,7 @@ public struct GeneralSettingReducer: Sendable {
 
     @ObservableState
     public struct State: Equatable, Sendable {
+        @Shared(.setting) public var setting: Setting
         // Drives the native `.fileImporter` presentation for importing custom tag translations.
         @Presents public var destination: Destination.State?
         // Two separate dialogs so each anchors to its own trigger button on iPad (the clear-cache
@@ -40,6 +43,10 @@ public struct GeneralSettingReducer: Sendable {
 
         public var loadingState: LoadingState = .idle
         public var diskImageCacheSize = "0 KB"
+
+        /// The level the analytics picker shows; `nil` until the user has chosen one, when the picker shows no
+        /// selection (no level is ever a default, D-06a).
+        public var analyticsLevel: AnalyticsLevel? { setting.analyticsLevel }
 
         public init() {}
     }
@@ -54,6 +61,9 @@ public struct GeneralSettingReducer: Sendable {
         case onTranslationsFilePicked(URL)
         case removeCustomTranslationsButtonTapped
         case onRemoveCustomTranslations
+        /// The analytics picker's selection (UI-SPEC C-9). Optional only because the picker binds the optional
+        /// stored level; `nil` is never offered and changes nothing.
+        case analyticsLevelPicked(AnalyticsLevel?)
 
         case clearImageCacheButtonTapped
         case clearWebImageCache
@@ -62,6 +72,7 @@ public struct GeneralSettingReducer: Sendable {
         case calculateWebImageDiskCacheDone(UInt?)
     }
 
+    @Dependency(\.analyticsClient) private var analyticsClient
     @Dependency(\.applicationClient) private var applicationClient
     @Dependency(\.libraryClient) private var libraryClient
 
@@ -129,6 +140,14 @@ public struct GeneralSettingReducer: Sendable {
 
             case .onRemoveCustomTranslations:
                 return .none
+
+            // Takes effect at once, with no confirmation either way (UI-SPEC C-9, DD-09a): the level is stored,
+            // then applied, so lowering to Minimal terminates the SDK now and `send` already reads the new level.
+            // This and `AppReducer` are the only callers of `apply`; the view never calls the client (D-08).
+            case .analyticsLevelPicked(let level):
+                guard let level, level != state.setting.analyticsLevel else { return .none }
+                state.$setting.withLock({ $0.analyticsLevel = level })
+                return .run { _ in analyticsClient.apply(level) }
 
             case .clearWebImageCache:
                 return .run { send in
