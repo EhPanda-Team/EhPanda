@@ -230,6 +230,116 @@ struct FirstLaunchGateTests {
         #expect(spy.phaseReports.value == [true])
     }
 
+    // MARK: The analytics level
+
+    @MainActor
+    @Test(arguments: AnalyticsLevel.allCases)
+    func anUnlockedLaunchWithAStoredLevelAppliesItOnce(level: AnalyticsLevel) async {
+        let analytics = AnalyticsClientSpy()
+        let store = Self.makeAppStore(
+            ageDeclarationVersion: AgeDeclaration.currentVersion,
+            analyticsLevel: level,
+            dependencies: { $0.analyticsClient = analytics.client }
+        )
+
+        await store.send(.appDelegate(.onLaunchFinish)) {
+            $0.didRunDeferredLaunch = true
+        }
+        store.exhaustivity = .off(showSkippedAssertions: false)
+        await store.receive(\.setting.loadUserSettings)
+        await store.send(.firstLaunch(.delegate(.ageConfirmed)))
+        await store.send(.appLogsPump(.pausePump))
+        await store.skipReceivedActions(strict: false)
+        await store.finish()
+
+        #expect(analytics.appliedLevels.value == [level])
+    }
+
+    @MainActor
+    @Test(arguments: AnalyticsLevel.allCases)
+    func anUnlockedLaunchWithNoLevelAppliesNothingUntilTheChoice(level: AnalyticsLevel) async {
+        let analytics = AnalyticsClientSpy()
+        let store = Self.makeAppStore(
+            ageDeclarationVersion: AgeDeclaration.currentVersion,
+            dependencies: { $0.analyticsClient = analytics.client }
+        )
+
+        await store.send(.appDelegate(.onLaunchFinish)) {
+            $0.didRunDeferredLaunch = true
+        }
+        store.exhaustivity = .off(showSkippedAssertions: false)
+        await store.receive(\.setting.loadUserSettings)
+        await store.skipReceivedActions(strict: false)
+        #expect(analytics.appliedLevels.value.isEmpty)
+
+        await store.send(.firstLaunch(.analyticsContinue(level)))
+        await store.receive(\.firstLaunch.delegate.levelChosen, level)
+        await store.send(.appLogsPump(.pausePump))
+        await store.skipReceivedActions(strict: false)
+        await store.finish()
+
+        #expect(analytics.appliedLevels.value == [level])
+    }
+
+    // The age wall and the choice in one first launch: confirming the age with no level applies
+    // nothing, and the choice applies the level once.
+    @MainActor
+    @Test
+    func aFirstLaunchAppliesTheLevelOnlyWhenItIsChosen() async {
+        let analytics = AnalyticsClientSpy()
+        let store = Self.makeAppStore(ageDeclarationVersion: nil, dependencies: {
+            $0.analyticsClient = analytics.client
+        })
+
+        await store.send(.launchPreparationFinished) {
+            $0.didFinishLaunchPreparation = true
+        }
+        await store.send(.firstLaunch(.binding(.set(\.isDeclarationTicked, true)))) {
+            $0.firstLaunch.isDeclarationTicked = true
+        }
+        await store.send(.firstLaunch(.ageWallContinue)) {
+            $0.firstLaunch.$setting.withLock({ $0.ageDeclarationVersion = AgeDeclaration.currentVersion })
+        }
+        store.exhaustivity = .off(showSkippedAssertions: false)
+        await store.receive(\.firstLaunch.delegate.ageConfirmed)
+        await store.receive(\.setting.loadUserSettings)
+        await store.skipReceivedActions(strict: false)
+        #expect(analytics.appliedLevels.value.isEmpty)
+
+        await store.send(.firstLaunch(.analyticsContinue(.minimal)))
+        await store.receive(\.firstLaunch.delegate.levelChosen, .minimal)
+        await store.skipReceivedActions(strict: false)
+        await store.finish()
+
+        #expect(analytics.appliedLevels.value == [.minimal])
+    }
+
+    // A choice reported before the deferred launch has run is applied by it, from storage, once.
+    @MainActor
+    @Test
+    func aChoiceBeforeTheDeferredLaunchIsAppliedByItOnce() async {
+        let analytics = AnalyticsClientSpy()
+        let store = Self.makeAppStore(
+            ageDeclarationVersion: AgeDeclaration.currentVersion,
+            analyticsLevel: .basic,
+            dependencies: { $0.analyticsClient = analytics.client }
+        )
+
+        await store.send(.firstLaunch(.delegate(.levelChosen(.basic))))
+        #expect(analytics.appliedLevels.value.isEmpty)
+
+        await store.send(.launchPreparationFinished) {
+            $0.didFinishLaunchPreparation = true
+            $0.didRunDeferredLaunch = true
+        }
+        store.exhaustivity = .off(showSkippedAssertions: false)
+        await store.receive(\.setting.loadUserSettings)
+        await store.skipReceivedActions(strict: false)
+        await store.finish()
+
+        #expect(analytics.appliedLevels.value == [.basic])
+    }
+
     // MARK: Links opened while locked
 
     @MainActor
@@ -411,11 +521,12 @@ struct FirstLaunchGateTests {
 
 // MARK: Helpers
 private extension FirstLaunchGateTests {
-    /// An `AppReducer` store over fresh storage, with the age answer stored as given. Every client the
+    /// An `AppReducer` store over fresh storage, with the age and analytics answers stored as given. Every client the
     /// tested paths reach is a no-op unless `dependencies` replaces it; `state` edits the initial state.
     @MainActor
     static func makeAppStore(
         ageDeclarationVersion: Int?,
+        analyticsLevel: AnalyticsLevel? = nil,
         state configure: (inout AppReducer.State) -> Void = { _ in },
         dependencies: @escaping (inout DependencyValues) -> Void = { _ in }
     ) -> TestStoreOf<AppReducer> {
@@ -434,6 +545,7 @@ private extension FirstLaunchGateTests {
                 // No mask intensity, so an inactive phase leaves the blur where it starts.
                 $0 = Setting(privacyMaskIntensity: 0)
                 $0.ageDeclarationVersion = ageDeclarationVersion
+                $0.analyticsLevel = analyticsLevel
             }
             initialState.$privacyMaskBlur.withLock({ $0 = 0 })
             initialState.appLogsPumpState.$currentRun.withLock {
@@ -520,6 +632,19 @@ private struct DownloadClientSpy {
         }
         client.setIsInBackground = { [phaseReports] isInBackground in
             phaseReports.withValue({ $0.append(isInBackground) })
+        }
+        return client
+    }
+}
+
+/// Records every level the analytics client is asked to apply; `send` stays a no-op.
+private struct AnalyticsClientSpy {
+    let appliedLevels = LockIsolated<[AnalyticsLevel?]>([])
+
+    var client: AnalyticsClient {
+        var client = AnalyticsClient.noop
+        client.apply = { [appliedLevels] level in
+            appliedLevels.withValue({ $0.append(level) })
         }
         return client
     }
