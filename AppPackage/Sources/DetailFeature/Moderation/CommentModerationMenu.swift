@@ -143,6 +143,10 @@ struct CommentModerationButtons: View {
 
 /// The comments list's `…` button (C-4): an `ellipsis` in a 44pt hit area that overhangs the row padding, so the row
 /// does not grow. It is hidden from accessibility; the same items are the cell's accessibility actions.
+///
+/// The glyph is `.secondary` gray (UI-SPEC "Muted"), so the button takes the plain style: the borderless style draws
+/// the label in the app's accent and overrides its foreground style. Any style but the automatic one also keeps a tap
+/// on the rest of the list row from opening the menu.
 struct CommentModerationMenuButton: View {
     let actions: CommentModerationActions
 
@@ -158,7 +162,7 @@ struct CommentModerationMenuButton: View {
                 .hoverEffect()
         }
         .menuStyle(.button)
-        .buttonStyle(.borderless)
+        .buttonStyle(.plain)
         .padding(.vertical, -12)
         .padding(.trailing, -12)
         .accessibilityHidden(true)
