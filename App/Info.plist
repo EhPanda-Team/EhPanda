@@ -129,6 +129,8 @@
 	<true/>
 	<key>LSSupportsOpeningDocumentsInPlace</key>
 	<true/>
+	<key>MKSellsDigitalGoods</key>
+	<false/>
 	<key>NSPhotoLibraryAddUsageDescription</key>
 	<string>We need this permission to save images to your photo library.</string>
 	<key>TelemetryDeckAppID</key>
