@@ -44,6 +44,10 @@ struct AccountSettingView: View {
                     }
                 )
             }
+            // Shown signed in and signed out: blocking is local to the device and needs no account (UI-SPEC C-10).
+            Section {
+                BlockedUsersRow(action: { store.send(.delegate(.pushBlockedUsers)) })
+            }
             CookieSection(
                 ehCookiesState: $store.ehCookiesState,
                 exCookiesState: $store.exCookiesState,
@@ -121,6 +125,37 @@ private struct AccountSection: View {
             }
             .foregroundStyle(.primary)
         }
+    }
+}
+
+// MARK: BlockedUsersRow
+/// The row that opens the Blocked Users list, with how many names it holds before the chevron, 0 included (C-10).
+///
+/// It is one element: the visible title is its label, so Voice Control can name it, and the count is its value, so
+/// VoiceOver reads "Blocked Users, 2" as a title and a number rather than two texts.
+private struct BlockedUsersRow: View {
+    @SharedReader(.blockedCommentAuthors) private var blockedAuthors: [String]
+    private let action: () -> Void
+
+    init(action: @escaping () -> Void) {
+        self.action = action
+    }
+
+    var body: some View {
+        Button(action: action) {
+            HStack {
+                Text(.RLocalizable.blockedUsers)
+                Spacer()
+                Text(blockedAuthors.count, format: .number)
+                    .foregroundStyle(.secondary)
+                    .monospacedDigit()
+            }
+        }
+        .foregroundStyle(.primary)
+        .accessibilityLabel(.RLocalizable.blockedUsers)
+        .accessibilityValue(blockedAuthors.count.formatted(.number))
+        .accessibilityIdentifier("setting_blocked_users")
+        .withArrow()
     }
 }
 

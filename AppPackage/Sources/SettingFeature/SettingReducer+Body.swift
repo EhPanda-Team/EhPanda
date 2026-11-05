@@ -32,6 +32,9 @@ extension SettingReducer {
             case .path(.element(id: _, action: .account(.delegate(.pushEhSetting)))):
                 return present(&state, .ehSetting(.init()))
 
+            case .path(.element(id: _, action: .account(.delegate(.pushBlockedUsers)))):
+                return present(&state, .blockedUsers(.init()))
+
             case .path(.element(id: _, action: .general(.delegate(.pushAppActivityLogs)))):
                 return present(&state, .appActivityLogs(.init()))
 

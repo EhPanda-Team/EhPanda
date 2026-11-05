@@ -103,6 +103,34 @@ struct SettingReducerNavigationTests {
         await store.finish()
     }
 
+    @MainActor
+    @Test
+    func accountDelegatePushBlockedUsersAppendsBlockedUsers() async throws {
+        let store = TestStore(initialState: .init(), reducer: SettingReducer.init) {
+            $0.analyticsClient = .noop
+            $0.cookieClient = .noop
+            $0.defaultAppStorage = UserDefaults.inMemory
+        }
+        store.exhaustivity = .off
+
+        await store.send(.settingRowTapped(.account))
+        let id = try #require(store.state.path.ids.last)
+        await store.send(.path(.element(id: id, action: .account(.delegate(.pushBlockedUsers)))))
+
+        #expect(store.state.path.count == 2)
+        guard case .blockedUsers = store.state.path.last else {
+            Issue.record("Expected .blockedUsers on top of the Setting stack")
+            return
+        }
+
+        // A second delegate while the list is on top is deduped like every Setting push.
+        let listID = try #require(store.state.path.ids.last)
+        await store.send(.path(.element(id: id, action: .account(.delegate(.pushBlockedUsers)))))
+        #expect(store.state.path.ids.last == listID)
+        #expect(store.state.path.count == 2)
+        await store.finish()
+    }
+
     // `.ehSetting`'s push is asserted at the mapping level in `SettingPresentationTests`, not here:
     // presenting it now starts `fetchEhSetting`, and `EhSettingRequest` takes its `URLSession` as an
     // `init` default the reducer never overrides, so a store-level push would issue a real request.
