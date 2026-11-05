@@ -7,8 +7,7 @@ import SwiftUI
 /// a checkbox card, Continue dimmed until it is ticked, and the footnote, always visible.
 ///
 /// It is a statement by the user, never a check: there is no "No", no exit, no date picker, no age and no "18+".
-/// The title is plain `Text` that wraps freely, with no line break, scaling, line limit or fixed width (UI-SPEC C-3
-/// line breaks, owner msg 1822).
+/// The title is a `FirstLaunchTitle`, which wraps freely and keeps a single word off its last line (UI-SPEC C-3).
 struct AgeWallView: View {
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
@@ -27,9 +26,7 @@ struct AgeWallView: View {
         FirstLaunchPage(identifier: "first_launch_age_wall", compactTop: 48, regularTop: 96) {
             VStack(spacing: 0) {
                 appIcon
-                Text(.RLocalizable.ageWallTitle)
-                    .font(.title.bold())
-                    .multilineTextAlignment(.center)
+                FirstLaunchTitle(.RLocalizable.ageWallTitle)
                     .accessibilityAddTraits(.isHeader)
                     .accessibilityFocused(titleFocus, equals: .ageWall)
                     .accessibilityIdentifier("first_launch_age_wall_title")

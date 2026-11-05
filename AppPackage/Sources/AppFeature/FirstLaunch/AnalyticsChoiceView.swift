@@ -12,8 +12,8 @@ import SwiftUI
 ///
 /// The intro is `consent.body` and `consent.footer` as one paragraph in one `Text` (D-06g, owner msg 1898); both
 /// strings stay as approved and only the separator between them depends on the language. Basic carries the
-/// "Recommended" label but is not pre-selected (D-06f). Nothing sits under the cards. The title is plain `Text` that
-/// wraps freely, with no line break, scaling, line limit or fixed width (owner msg 1822).
+/// "Recommended" label but is not pre-selected (D-06f). Nothing sits under the cards. The title is a
+/// `FirstLaunchTitle`, which wraps freely and keeps a single word off its last line (UI-SPEC C-3).
 struct AnalyticsChoiceView: View {
     @Bindable private var store: StoreOf<FirstLaunchReducer>
     private let titleFocus: AccessibilityFocusState<FirstLaunchReducer.Step?>.Binding
@@ -34,9 +34,7 @@ struct AnalyticsChoiceView: View {
                     .imageScale(.large)
                     .foregroundStyle(.secondary)
                     .accessibilityHidden(true)
-                Text(.RLocalizable.consentTitle)
-                    .font(.title.bold())
-                    .multilineTextAlignment(.center)
+                FirstLaunchTitle(.RLocalizable.consentTitle)
                     .accessibilityAddTraits(.isHeader)
                     .accessibilityFocused(titleFocus, equals: .analyticsChoice)
                     .accessibilityIdentifier("first_launch_analytics_title")
@@ -112,13 +110,7 @@ struct AnalyticsChoiceView: View {
     private static var intro: String {
         let body = String(localized: .RLocalizable.consentBody)
         let footer = String(localized: .RLocalizable.consentFooter)
-        return body + introSeparator(languageCode: appLanguageCode) + footer
-    }
-
-    /// The language the app's strings resolved to, such as `en` or `zh` (for zh-Hans and zh-Hant).
-    private static var appLanguageCode: String? {
-        Bundle.main.preferredLocalizations.first
-            .flatMap({ Locale(identifier: $0).language.languageCode?.identifier })
+        return body + introSeparator(languageCode: FirstLaunchLanguage.code) + footer
     }
 
     /// What joins the intro's two sentences (D-06g): one space in en, de and ko; nothing in ja, zh-Hans and zh-Hant,
