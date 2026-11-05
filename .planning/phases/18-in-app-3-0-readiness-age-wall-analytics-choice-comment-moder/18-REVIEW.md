@@ -147,6 +147,11 @@ findings:
   info: 3
   total: 3
 status: issues_found
+resolution:
+  IN-01: "fixed in c3ef39ac9 (2026-11-05 UTC)"
+  IN-02: "accepted exception (lead's decision): screens inside an existing *Reducer tree keep the Reducer suffix"
+  IN-03: "accepted by the lead: nothing is shown and no analytics is sent before the choice; D-04 and DD-07 allow the content fetch after the age confirmation"
+open: 0
 scope: phase-18-all-plans-18-01..18-12
 execution: inline-reviewer (code-reviewer, code-fixer and verifier roles ran in one agent, in sequence)
 ---
@@ -213,6 +218,16 @@ No Critical or Warning finding. Nothing was fixed, so there is no 18-REVIEW-FIX.
 **Fix:** Match the host exactly (`== "forums.e-hentai.org"`), or as a domain (`host == "e-hentai.org" ||
 host.hasSuffix(".e-hentai.org")`), and add a parser case with a look-alike host.
 
+**Status: fixed in `c3ef39ac9`** (the lead's call). `parseMemberID` now accepts only the exact contact link
+`Defaults.URL.forum`: scheme `https`, host `forums.e-hentai.org` (both compared without case), path `/index.php`,
+no user, password or port, and a `showuser` of ASCII digits only. Every fixture under `EhPandaUITests/Fixtures` and
+the TestingSupport parser resources uses that one host over `https`, so no other host or scheme is allowed.
+`GalleryCommentParserTests.aLookAlikeContactLinkHasNoMemberID` covers `fake-e-hentai.org`, `note-hentai.org`,
+`forums.e-hentai.org.evil.com`, `e-hentai.org`, a subdomain, user parts, a port, `http`, another path and a
+relative link (all `nil`); `theContactLinkHostMatchesWhateverItsCase` keeps the capitalised link. Runs at
+`c3ef39ac9`: ParserFeatureTests + DetailFeatureTests 199/199 on the phone and 199/199 on the pad;
+`CommentModerationUITests` 7/7 on each; 0 Repetition nodes; strict lint 0 violations on the two files.
+
 ### IN-02: Two new reducers use the `Reducer` suffix, not AGENTS.md's `Feature` suffix
 
 **File:** `AppPackage/Sources/AppFeature/FirstLaunch/FirstLaunchReducer.swift:13`,
@@ -226,6 +241,10 @@ no behavior impact.
 **Fix:** Rename both to `FirstLaunchFeature` and `BlockedUsersFeature` in a later cleanup, together with their
 tests and `SettingPath` case, or record the exception for screens inside an existing `*Reducer` tree.
 
+**Status: accepted exception** (the lead's decision, 2026-11-05). A screen inside an existing `*Reducer` tree
+keeps the `Reducer` suffix of its neighbours (`AppReducer`/`AppDelegateReducer` for `FirstLaunchReducer`,
+`SettingReducer`/`GeneralSettingReducer` for `BlockedUsersReducer`). Not renamed.
+
 ### IN-03: A link opened during the analytics choice routes at once, under the gate
 
 **File:** `AppPackage/Sources/AppFeature/DataFlow/AppReducer.swift:249-257`, `AppPackage/Sources/AppFeature/RootView.swift:40-46`
@@ -238,6 +257,10 @@ is shown before the choice. Recorded so the behavior is known, not as a defect.
 
 **Fix:** None needed under the current decisions. If the product wants links held until both screens are answered,
 gate `openURL` on `firstLaunch.step == .complete` instead of `isUnlocked`.
+
+**Status: accepted by the lead** (2026-11-05). There is no user-visible difference: nothing is shown and no
+analytics is sent before the analytics choice, and the content fetch after the age confirmation is allowed by D-04
+and DD-07. No change.
 
 ---
 
