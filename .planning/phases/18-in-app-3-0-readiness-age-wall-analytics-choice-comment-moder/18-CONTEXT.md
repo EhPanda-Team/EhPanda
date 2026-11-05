@@ -4,7 +4,7 @@
 **Status:** Ready for planning. UI execution waits for the UI-SPEC (D-17).
 **Amended:** 2026-11-05, during planning: D-06a, D-06b, DD-09a (owner msgs 1795, 1796, 1805; analytics "Minimal"),
 D-06c (owner msgs 1812, 1818; the install signal carries the install source), D-06d (owner msgs 1830, 1839; Basic's
-description builds on Minimal), D-14a (owner msg 1795; Blocked Users in Account settings), D-17a (UI-SPEC delivered, msgs 1791, 1803, 1807, 1820, 1826, 1843). The
+description builds on Minimal), D-06e (owner msgs 1844, 1854, 1864; the short analytics intro), D-14a (owner msg 1795; Blocked Users in Account settings), D-17a (UI-SPEC delivered, msgs 1791, 1803, 1807, 1820, 1826, 1843). The
 original decisions are kept as written; where an amendment differs, the amendment wins.
 **Sources:** the discussion prep [18-DISCUSSION-PREP.md](18-DISCUSSION-PREP.md) (locked decisions L1 to L46, gray areas GA-1 to GA-8, developer defaults, outside blockers, split proposal); the owner's answers to card msg 1748 (owner msg 1753) and card msg 1759 (owner msg 1765); the owner's copy approvals (msgs 1767, 1780). Where the owner answered, the answer overrides the prep. All dates are UTC.
 
@@ -94,7 +94,7 @@ Owner decisions are binding. "Prep L*n*" and "GA-*n*" refer to [18-DISCUSSION-PR
   "sends nothing" or that "None means no SDK" is withdrawn (D-06's first bullet, prep L14's "never starts under
   None", DD-09's "above None"). Before the choice nothing starts and nothing is sent, as before (D-04). The approved
   strings are in [18-COPY-MINIMAL.md](18-COPY-MINIMAL.md) (owner msg 1805): `consent.level.minimal`,
-  `consent.level.minimal.description` and a new `consent.body`; `consent.level.none` and
+  `consent.level.minimal.description` and a new `consent.body` (itself superseded by D-06e); `consent.level.none` and
   `consent.level.none.description` are retired, and `shareAnalyticsDataFooter` stays retired (D-07). The Settings
   footer keeps its rule (the selected level's description). This also amends D-02 for one signal: the install signal
   of D-06b is new in this phase; every other new signal still waits for ANALYTICS-02.
@@ -154,7 +154,7 @@ Owner decisions are binding. "Prep L*n*" and "GA-*n*" refer to [18-DISCUSSION-PR
   - **Copy:** the Minimal description is now "Sends only a signal that EhPanda is installed, and where you installed
     the app from." (Revision 2 in [18-COPY-MINIMAL.md](18-COPY-MINIMAL.md), owner msg 1818). `consent.body` and the
     level name are unchanged. Copy precedence: Revision 3 of the same file (owner msg 1839, D-06d) supersedes the
-    first-launch Basic description.
+    first-launch Basic description; Revision 5 (owner msg 1864, D-06e) supersedes `consent.body`.
 - **D-06d (amends the Basic copy only; owner msgs 1830, 1839):** the owner noted that Basic's description repeated
   Minimal's install line (msg 1830). Basic's description now builds on Minimal the way Full builds on Basic:
   "Everything in Minimal, plus how often the app is used, technical details such as device model and app version, and
@@ -163,8 +163,26 @@ Owner decisions are binding. "Prep L*n*" and "GA-*n*" refer to [18-DISCUSSION-PR
   [18-COPY-FIRST-LAUNCH.md](18-COPY-FIRST-LAUNCH.md); that file's Basic line is retired and must not appear in any
   catalog or README. **What Basic sends does not change** (D-06's Basic bullet, D-06b, D-06c): the install signal
   and its source come through "Everything in Minimal". Minimal (Revision 2), Full, `consent.title` and
-  `consent.body` are unchanged. The Settings footer rule is unchanged, so at Basic it now starts "Everything in
-  Minimal".
+  `consent.body` are unchanged (`consent.body` later changes under D-06e). The Settings footer rule is unchanged, so
+  at Basic it now starts "Everything in Minimal".
+- **D-06e (amends the analytics intro only; owner msgs 1844, 1854, 1864):** the owner found the intro under the
+  analytics title too verbose (msg 1844) and asked for something like "what you have searched or viewed are never
+  sent" (msg 1854). `consent.body` is now one short line: "Anonymous analytics. Your searches and the galleries you
+  view are never sent." (Revision 5, version B, in [18-COPY-MINIMAL.md](18-COPY-MINIMAL.md), approved in owner msg
+  1864, six languages). It supersedes the msg-1805 `consent.body` in that file's first table and, with it, the
+  original first-launch `consent.body`; both are retired and must not appear in any catalog. Revision 4 (msg 1847)
+  was not approved and is not used.
+  - **Why it is true (developer check, msg 1858):** at no level does any gallery ID, title, link, tag name or search
+    text go out. Full sends a gallery's category and per-namespace tag counts when one is opened; a search sends only
+    word count, length, a tag-syntax flag and a result-count bucket. If a later signal sends a search's text or which
+    gallery was viewed, this line must change first, with a new owner approval.
+  - **Purpose and TelemetryDeck's name move to the Privacy Policy**, which the same screen links
+    (`consent.privacy_link`). The intro no longer says why analytics are collected or who receives them, so the
+    website's privacy page must say both when it is rewritten for 3.0 (website, Phase 20; see the knock-on note
+    under Specifics).
+  - **Layout:** about 77 characters in en, two lines on iPhone at default size (designer msgs 1846, 1850); German may
+    wrap to three lines on the smallest iPhones, which is acceptable. `consent.title`, the level names and
+    descriptions, `consent.footer` and the Settings footer rule are unchanged.
 - **D-07:** Settings follows the copy file's "Settings (replaces today's toggle)" section:
   - The row label `shareAnalyticsData` stays, now as a picker with the three level labels.
   - The footer shows the selected level's description.
@@ -331,7 +349,10 @@ layout, test structure and the bundled filter list's contents.
   the approved Minimal level name and description and the new `consent.body`, six languages (owner msg 1805). It
   supersedes the None strings and `consent.body` in the first-launch copy file. Its Revision 2 (owner msg 1818,
   **D-06c**) supersedes the Minimal description in its own first table. Its Revision 3 (owner msg 1839, **D-06d**)
-  supersedes the Basic description in the first-launch copy file.
+  supersedes the Basic description in the first-launch copy file. Its Revision 5 (owner msg 1864, **D-06e**)
+  supersedes `consent.body` in its own first table (msg 1805) and in the first-launch copy file. Precedence: Revision
+  5 (`consent.body`), Revision 3 (Basic description), Revision 2 (Minimal description) > its first table > the
+  first-launch copy file. Revision 4 (msg 1847) was not approved.
 - `.planning/phases/18-in-app-3-0-readiness-age-wall-analytics-choice-comment-moder/18-COPY-COMMENTS.md`: report,
   posting warning, blocking and Blocked Users strings in six languages (owner msg 1780).
 - Age-wall sentence source: owner msgs 1454 and 1457 (the website's adult-mode sentence). Its text is
@@ -426,7 +447,10 @@ These notes come from the approved copy files and keep their intent:
   (Withdrawn with None itself: D-06a, 18-COPY-MINIMAL.md.)
 - **Blocking terms:** zh-Hans uses 屏蔽 for blocking, matching "Excluded Uploaders"; zh-Hant uses 封鎖.
 - **The website's privacy page:** it says sharing is on by default and that a switch turns it off. It must be
-  rewritten for the three levels when 3.0 ships, not before (website, Phase 20).
+  rewritten for the three levels when 3.0 ships, not before (website, Phase 20). Knock-on of D-06e (owner msg
+  1864): the in-app intro no longer names TelemetryDeck or says why analytics are collected, so the rewritten page,
+  linked from the analytics screen, must name TelemetryDeck as the recipient and state the purpose (seeing which
+  features matter).
 
 </specifics>
 

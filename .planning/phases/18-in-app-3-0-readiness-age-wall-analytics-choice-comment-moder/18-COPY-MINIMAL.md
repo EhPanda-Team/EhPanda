@@ -8,10 +8,12 @@ Developer confirmation (msg 1798): under Minimal the analytics SDK never starts;
 
 **Revision 3 APPROVED by the owner, msg 1839 (2026-11-05):** owner msg 1830 notes that the Basic description repeated Minimal's install line (the copywriter's draft is msg 1832). Basic's description now builds on Minimal ("Everything in Minimal, plus ..."); what Basic sends does not change (D-06d). Revision 3 at the end of this file supersedes the Basic description (`consent.level.basic.description`) in 18-COPY-FIRST-LAUNCH.md, in all six languages. Minimal (Revision 2), Full, `consent.title` and `consent.body` are unchanged.
 
+**Revision 5 APPROVED by the owner, msg 1864 (2026-11-05):** owner msgs 1844 and 1854 ask for a much shorter intro under the analytics title; version B of Revision 5 is approved (developer check msg 1858; D-06e). Revision 5 at the end of this file supersedes `consent.body` in this file's first table (msg 1805), and with it the original `consent.body` in 18-COPY-FIRST-LAUNCH.md, in all six languages. The purpose ("which features matter") and TelemetryDeck's name move to the Privacy Policy (website, Phase 20). Revision 4 (msg 1847) was not approved and is not used. Everything else stays as approved.
+
 ## What changes
 
 1. The level name and its description (key renamed `consent.level.none` -> `consent.level.minimal`).
-2. `consent.body`: "can send" becomes "sends", plus a short line saying the user picks how much. "Can send" implied a level that sends nothing, which no longer exists.
+2. `consent.body` (superseded by Revision 5, msg 1864): "can send" becomes "sends", plus a short line saying the user picks how much. "Can send" implied a level that sends nothing, which no longer exists.
 3. Order stays: Minimal, Basic, Full. Still none pre-selected.
 4. Settings footer: unchanged rule (shows the selected level's description), so it picks up the new Minimal line automatically.
 5. Drop the note "In ko, ja and zh, None reads as Don't share". It no longer applies.
@@ -37,6 +39,7 @@ Unchanged and still correct: `consent.title` ("Choose what EhPanda shares"), the
 ## Knock-on for the website (Leto, at 3.0 ship, not before)
 
 The privacy page rewrite for the three levels now uses Minimal / Basic / Full and these descriptions. There is no level that sends nothing, so the page must not say sharing can be turned off completely.
+Since Revision 5 (msg 1864) the in-app intro no longer names TelemetryDeck or says why analytics are collected; the privacy page, linked from the same screen, must carry both (D-06e).
 
 ## Revision 2 (owner msg 1812; APPROVED owner msg 1818)
 
@@ -60,3 +63,16 @@ Only `consent.level.basic.description` changes. Basic now builds on Minimal the 
 
 Unchanged: Minimal (Revision 2, msg 1818), Full, the title and the intro.
 Side effect: in Settings the footer for Basic now starts "Everything in Minimal", which reads fine beside the picker that lists Minimal.
+
+## Revision 5 (owner msg 1854: "too much details. can we go with something like, what you have searched or viewed are never sent"; version B APPROVED owner msg 1864)
+
+Only `consent.body` changes. Revision 4 (msg 1847) was not approved. The owner chose version B over A ("Anonymous analytics. What you search for or view is never sent.") because Full sends the category of a gallery that is opened, but never which gallery; B promises exactly that.
+
+| Key | en | de | ko | ja | zh-Hans | zh-Hant |
+|---|---|---|---|---|---|---|
+| consent.body | Anonymous analytics. Your searches and the galleries you view are never sent. | Anonyme Analysedaten. Deine Suchen und die Galerien, die du ansiehst, werden nie gesendet. | 익명 분석 데이터입니다. 검색어와 본 갤러리는 절대 보내지 않습니다. | 匿名の分析データです。検索語や閲覧したギャラリーは送信されません。 | 匿名分析数据。你的搜索内容和浏览的画廊永远不会发送。 | 匿名分析資料。你的搜尋內容和瀏覽的畫廊永遠不會傳送。 |
+
+Notes:
+- Developer check (msg 1858): at no level does any gallery ID, title, link, tag name or search text go out. Full sends a gallery's category and per-namespace tag counts on open; a search sends only word count, length, tag-syntax flag and a result-count bucket.
+- 77 characters in English, two lines on iPhone at default size (designer msg 1846/1850).
+- The purpose ("which features matter") and TelemetryDeck's name move to the Privacy Policy, linked on the same screen (website, Phase 20).

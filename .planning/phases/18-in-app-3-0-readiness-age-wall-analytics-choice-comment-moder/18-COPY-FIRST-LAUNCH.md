@@ -2,6 +2,8 @@
 > (owner msgs 1795, 1805).
 > `consent.level.basic.description` is superseded by Revision 3 in [18-COPY-MINIMAL.md](18-COPY-MINIMAL.md)
 > (owner msgs 1830, 1839; CONTEXT D-06d). The Basic description in the table below is the retired text.
+> `consent.body` is superseded by Revision 5 in [18-COPY-MINIMAL.md](18-COPY-MINIMAL.md) (owner msg 1864; CONTEXT D-06e).
+> The `consent.body` row in the table below is the retired text.
 
 # EhPanda 3.0: first-launch copy (age wall + analytics choice)
 
@@ -50,6 +52,7 @@ Notes:
 Three options, all equally prominent, none pre-selected (Pluso's recommendation in the prep file; Colo decides the layout). If the design uses a separate Continue button, it stays dimmed until an option is picked and reuses `age_wall.continue`. If tapping an option saves and continues directly, no button is needed.
 
 Note (owner msg 1839): the `consent.level.basic.description` row below is retired; use Revision 3 in [18-COPY-MINIMAL.md](18-COPY-MINIMAL.md) (D-06d).
+Note (owner msg 1864): the `consent.body` row below is retired; use Revision 5 in [18-COPY-MINIMAL.md](18-COPY-MINIMAL.md) (D-06e).
 
 The SDK doesn't start before this choice (L14), so "None" really means nothing is sent. The level descriptions follow Pluso's GA-2 option A; if the developer changes what a level sends, the description has to change with it.
 
