@@ -1,12 +1,16 @@
 ---
 phase: "17"
 slug: localized-screenshot-capture-harness
-status: signed-off-reduced-scope
+status: validated
 nyquist_compliant: false
-wave_0_complete: false
+wave_0_complete: true
 created: "2026-10-02"
 signed_off: "2026-11-04"
 signed_off_source: "891103afa"
+validated: "2026-11-05"
+validated_head: "458a16d5b"
+validation_effort: "low (resolved from .planning/config.json)"
+validation_result: "partial: kept scope automated except the WR-01 rebuild wiring, which is escalated to manual-only (Phase 18 Step 4b)"
 ---
 
 # Phase17 validation strategy
@@ -15,7 +19,9 @@ signed_off_source: "891103afa"
 > at `97b31b063`, repeated at `891103afa` after the code review). Only
 > the plans Phase 17 kept were executed. The map below is the original plan; rows for moved plans are
 > moved to Phase 18 and are not evidence. See "Reduced-scope sign-off" at the end and
-> 17-FINAL-VALIDATION.md. `nyquist_compliant` stays `false` until `/gsd-validate-phase 17`.
+> 17-FINAL-VALIDATION.md. `/gsd-validate-phase 17` ran on 2026-11-05 at `458a16d5b` (see "Nyquist audit" at the
+> end): `status: validated`, `nyquist_compliant: false` (PARTIAL), because the WR-01 rebuild wiring has no
+> committed automated test.
 
 Exact producer/task map below is planned, not executed. Set implementation compliance flags only after runtime evidence. Every plan task has an automated command and immediately adjacent observable fails_when; checkpoints additionally require explicit human evidence.
 
@@ -205,3 +211,102 @@ section 8; the verifier concurred and the owner accepted it (owner msg 1640). Th
 prohibitions stay flagged-unverified per 17-SOURCE-AUDIT.md: the first with the owner-approved synthetic
 comment (exception accepted, owner msg 1640), the other two moved to Phase 18. UAT
 (`/gsd-verify-work 17`) and the remaining close steps are ahead.
+
+## Nyquist audit (`/gsd-validate-phase 17`, 2026-11-05)
+
+**Effort:** low (resolved from .planning/config.json). **HEAD:** `458a16d5b` (UAT complete). **Tested
+source:** `891103afa` (nothing outside `.planning/` changed since). **Input state:** A (this file existed).
+**Method:** static audit only. No build, test run or simulator; no test code was written. Evidence is the
+13 kept-plan summaries, 17-FINAL-VALIDATION.md (FV) sections 1, 6, 8 and 9, 17-VERIFICATION.md and
+17-UAT.md (31/31). Moved plans (17-07 to 17-13, 17-14 T1/T3, 17-15, 17-20 to 17-22) are Phase 18 work and
+are not counted as gaps here.
+
+### Test infrastructure
+
+| Property | Value |
+|---|---|
+| Framework | Swift Testing / XCTest (AppPackage targets in `AppPackage/Tests/FeatureTests.xctestplan`), XCUITest (`EhPandaUITests`, `UITests.xctestplan`), Python `unittest` (`Scripts/visual/test_*.py`) |
+| Full suite | `xcodebuild test -project EhPanda.xcodeproj -scheme EhPanda -testPlan FeatureTests -destination 'platform=iOS Simulator,id=<UDID>'`, then the same with `-testPlan UITests`, phone then tablet, one invocation at a time |
+| Quick | `python3 -B -m unittest discover -s Scripts/visual -p 'test_*.py'` |
+| Not in the default plans | `VisualSnapshotTests/GeometryTests` (skipped in FeatureTests, opt-in measurement); `MarketingCaptureUITests`, `CaptureIsolationUITests`, `AppshotCaptureUITests` (skipped in UITests; run only through `Scripts/visual/capture-native.py`, `run-single-pass.py` or `verify-release.py`) |
+| Final gate at `891103afa` | FeatureTests 1541 cases, 0 failed (10 expected failures), both devices; UITests 88 cases, 0 failed (phone 20 skipped, tablet 17 skipped), 0 Repetition nodes; strict no-cache lint 0 violations in 759 files; Release scan 0 findings, `test_release.py` 19 OK; ReaderPageSyncUITests ×5 on each device, 40/40, 0 retries (owner-accepted, msg 1640) |
+
+### Audited per-task map (kept scope)
+
+The planned map above names some suites that were never created, because 17-16 to 17-19 verified a layout
+migration that had already landed (CAP-17-07 amendment). This table records the tests that actually cover
+each kept task. Status: ✅ green · ⚠️ green with caveat · 🖐 manual-only · ➡ moved.
+
+| Task | Requirement (Phase 17 part) | Actual automated command / suite | File exists | Status |
+|---|---|---|---|---|
+| 17-01-T1/T2 | foundation (CAP-17-02/03 moved) | FeatureTests `VisualSnapshotTests` (`VisualTracerTests`, `FullContentFeasibilityTests` incl. `testExportPublicFixtures`, `HostedHierarchyTests`, `RenderServerCaptureTests`, `RenderSettlementTests`, `RenderedContentInspectionTests`) | ✅ | ✅ final gate |
+| 17-24-T1/T2 | foundation (moved) | `python3 -B -m unittest discover -s Scripts/visual -p test_environment.py`; `GeometryTests` opt-in | ✅ | ⚠️ green at 17-24's gate, not re-run at `891103afa` (scripts unchanged since 17-14); GeometryTests outside FeatureTests |
+| 17-02-T1/T2 | foundation (moved) | `python3 -B -m unittest discover -s Scripts/visual -p test_contracts.py`; 576-coordinate tracer run | ✅ | ⚠️ green at 17-02's gate, not re-run at `891103afa` |
+| 17-03-T1/T2 | CAP-17-01 (fixture part) | `test_fixtures.py`, `test_selection_review.py` (`python3 -B -W error -m unittest discover -s Scripts/visual -p …`) | ✅ | ⚠️ green at 17-03's gate, not re-run at `891103afa`; fixture validator re-run read-only by the verifier on all 11 versions |
+| 17-04-T1/T2 | CAP-17-01, CAP-17-04 | build; FeatureTests `AppFeatureTests/CaptureSceneTests`, `CaptureFixtureTests`, `UITestStubTests`, `CaptureScreenDiagnosticsTests` | ✅ | ✅ final gate |
+| 17-05-T1/T2 | CAP-17-04 (capture foundation) | `run-single-pass.py --only-testing EhPandaUITests/MarketingCaptureUITests/testCaptureCoordinate`; `test_capture_native.py` | ✅ | ⚠️ green at 17-05's gate and in the 2026-11-04 recapture; `MarketingCaptureUITests` is skipped in UITests.xctestplan, so the final UITests runs did not execute it (the sign-off table's "capture suites pass in the final … UITests runs" holds for FeatureTests only) |
+| 17-06-T1/T2 | CAP-17-01, CAP-17-04 | FeatureTests `ReadingFeatureTests/CaptureLiveTextTests`, `AppFeatureTests/CaptureLiveTextRecordTests`, `CaptureDownloadTests`, `DownloadCoordinatorCaptureTests` | ✅ | ✅ final gate |
+| 17-14-T2 | CAP-17-07 (Release isolation) | `python3 -B -m unittest discover -s Scripts/visual -p test_release.py`; `verify-release.py` on a Release build (+ launch probe) | ✅ | ✅ at `891103afa` (19 OK, 0 findings); Debug negative control last at `97b31b063` |
+| 17-16-T1/T2 | CAP-17-06, CAP-17-07 | build; FeatureTests `HomeFeatureTests`, `SearchFeatureTests` (planned `LayoutTraitTests` does not exist; snapshot measurement ➡ VIS-18-01) | ✅ | ✅ final gate |
+| 17-17-T1/T2 | CAP-17-06, CAP-17-07 | FeatureTests `AppFeatureTests/GalleryDetailRoutingTests`, `CaptureRouteTests` (planned `Home/FavoritesLayoutNavigationTests` do not exist) | ✅ | ✅ final gate |
+| 17-18-T1–T3 | CAP-17-06, CAP-17-07 | FeatureTests `DownloadsFeatureTests/AppDownloadDetailRoutingTests`, `DownloadAutomationTests`, `DetailFeatureTests/GalleryNavigationTests` (planned `Search/DownloadsLayoutNavigationTests` do not exist) | ✅ | ✅ final gate (GalleryNavigationTests holds one case, per 17-18) |
+| 17-19-T1/T2 | CAP-17-06, CAP-17-07 | FeatureTests `AppFeatureTests/TabBarSettingPresentationTests`; census grep; owner keep decisions | ✅ | ✅ tests; 🖐 census decisions |
+| 17-23-T1/T2 | all kept parts | final gate above (planned `run-regression.py --mode compare` and website `validate-handoff.py` ➡ Phase 18) | ✅ | ✅ |
+| WR-01 / IN-01 (code-review fixes) | CAP-17-06 (reader behavior) | FeatureTests `ReadingFeatureTests/PagerTurnGateTests` (16, incl. four `aPagerBuiltAnew…`), `PagerSeedTests` (3); UITests `ReaderPageSyncUITests` ×5 | ✅ gate logic only | ⚠️ gate logic green; **SwiftUI rebuild wiring has no committed test** (gap G1) |
+| All other planned rows | moved | — | — | ➡ Phase 18 |
+
+### Requirement → test map (kept scope)
+
+| Requirement | Automated coverage | Manual-only remainder | Classification |
+|---|---|---|---|
+| CAP-17-01, fixture part | `test_fixtures.py`, `test_selection_review.py`, `CaptureSceneTests`, `CaptureFixtureTests`, `CaptureLiveTextRecordTests`, `CaptureDownloadTests` | owner approval of the website fixture versions | COVERED (Python part last sampled at its plan gate) |
+| CAP-17-04, amended (192 approved images) | capture foundation: `MarketingCaptureUITests/testCaptureCoordinate` (driver-run), `test_capture_native.py`, FeatureTests capture suites | the image set itself is accepted by owner approval (msgs 1581, 1640) | COVERED for the producer; acceptance manual-only by nature |
+| CAP-17-06, bounded part | FeatureTests and UITests (behavior suites), `PagerTurnGateTests`, `PagerSeedTests`, `ReaderPageSyncUITests` | standard/AX1/AX3/AX5 title/search/top-edge checks (quick 260921-f5u); WR-01 rebuild wiring (G1); RTL page sync and iPad two-page spread (G2) | PARTIAL |
+| CAP-17-07, amended | `test_release.py`, `verify-release.py` scan + launch probe, routing/layout reducer tests | one simulator layout pass, census keep decisions (msg 1409), unclassified-edge classification (msg 1640) | COVERED for automated parts; owner decisions manual-only by nature |
+| CAP-17-02, -03, -05 and moved parts of -01/-04/-06 | — | — | MOVED to Phase 18 (VIS-18-01, MKT-18-01, DIST-18-02); not gaps here |
+
+### Gaps and disposition
+
+The owner's instruction for this run: no new test code, no builds or simulators. Gaps that would need a new
+test are therefore escalated to manual-only instead of being filled (auditor return: ESCALATE for G1 and G2,
+0 debug iterations, no test written, no test failed).
+
+| # | Gap | Type | Disposition |
+|---|---|---|---|
+| G1 | WR-01: the reader's rebuild wiring (`.onChange(of: store.forceRefreshID)` outside the `.id` identity, and the `readingDirection` observer calling `ReadingView.pagerRebuilt()`) | MISSING (no committed UI test; `PagerTurnGateTests` cover only `PagerTurnGate.pagerRebuilt()`) | **Escalated → manual-only.** UAT tests 1 to 3 passed through an agent-run, throwaway XCUITest at `891103afa` on both simulators; that test was **not committed**, so it is not automated coverage in the repository. Phase 18 ROADMAP Step 4b plans the real UI tests (Reload all images then a turn, a direction change during Auto-Play, an LTR/RTL switch). |
+| G2 | Page sync in right-to-left reading, and the iPad landscape two-page spread | MISSING (`ReaderPageSyncUITests` covers vertical and LTR only; `ReaderPageProbe` cannot read a spread) | **Escalated → manual-only.** RTL was exercised only by the same throwaway UAT test (test 3). The LTR/RTL switch test is in Phase 18 Step 4b; the two-page spread probe limit stays a known limit with no planned test. |
+| G3 | Planned suites `LayoutTraitTests`, `HomeLayoutNavigationTests`, `FavoritesLayoutNavigationTests`, `SearchLayoutNavigationTests`, `DownloadsLayoutNavigationTests` do not exist | no_automated_command (planned name) | **Resolved by map update.** The kept behavior is covered by the existing suites in the audited map, green on both devices at `891103afa`; the snapshot-measured part is moved to VIS-18-01. |
+| G4 | Reduced page-sync stress (×5 instead of ×20 on both devices at `891103afa`) | WARNING (test green; sample too small to exclude a ~1-in-20 desync) | Owner-accepted known limit (msg 1640). Not a test failure. |
+| G5 | Python suites and `MarketingCaptureUITests` were last run at their own plan gates, not at the final source | WARNING (stale sample) | Recorded. `Scripts/visual/*.py` is unchanged since 17-14; the capture UI test is driver-run by design. |
+| G6 | Owner and visual judgements: 192-image approval, census keep decisions, one simulator layout pass, AX title/search/top-edge checks, the "MUST NOT invent gallery content" exception, the CAP-17-07 unclassified edge | manual-only by nature | Manual-only; each has recorded owner evidence (msgs 1409, 1581, 1640; quick 260921-f5u). The other two descriptor-less prohibitions are moved to Phase 18. |
+
+### Manual-only verifications
+
+| Behavior | Requirement | Why manual | Test instructions / evidence |
+|---|---|---|---|
+| Reader page-turn gate restarts after Reload all images and after a vertical→LTR direction change (WR-01) | CAP-17-06 | No committed UI test; the UAT throwaway XCUITest was not committed; Phase 18 Step 4b adds the real tests | 17-UAT.md tests 1 and 2 (passed, agent-run, both devices) |
+| LTR→RTL switch keeps turning, reversed order, indicator matches | CAP-17-06 | `ReaderPageSyncUITests` does not cover RTL | 17-UAT.md test 3 (passed, agent-run) |
+| iPad landscape two-page spread page sync | CAP-17-06 | `ReaderPageProbe` cannot read a spread | Known limit, FV section 8; no planned test |
+| The 192 website images are the approved set | CAP-17-04 | Owner acceptance | FV section 3; owner msgs 1581, 1640; 17-UAT.md test 8 |
+| Idiom census keep decisions and the one simulator layout pass | CAP-17-07 | Owner decisions and a visual pass | 17-LAYOUT-AUDIT.md; owner msg 1409; 17-UAT.md test 6 |
+| Standard/AX1/AX3/AX5 title, search and top-edge behavior | CAP-17-06 | Recorded visual checks; snapshot measurement moved to VIS-18-01 | quick 260921-f5u, 260921-f5u-VERIFICATION.md |
+| Synthetic comment exception to "MUST NOT invent gallery content"; CAP-17-07 unclassified edge | CAP-17-04, CAP-17-07 | Descriptor-less, owner-classified | FV section 8; owner msg 1640 |
+
+### Sign-off checklist
+
+- [x] Every kept task has an automated command, or its remainder is listed as manual-only
+- [x] Sampling continuity: no three consecutive kept tasks without automated verification
+- [x] Wave 0 for the kept scope (17-01, 17-24) complete; moved producers belong to Phase 18
+- [x] No watch-mode flags
+- [ ] `nyquist_compliant: true`: **not set**. G1 (and G2) need committed UI tests, planned in Phase 18 Step 4b
+
+**Verdict:** PARTIAL, not Nyquist-compliant. Kept scope is automated except the WR-01 rebuild wiring and
+RTL page sync, which are escalated to manual-only with UAT evidence that is not a committed test.
+
+## Validation Audit 2026-11-05
+
+| Metric | Count |
+|---|---|
+| Gaps found | 6 |
+| Resolved | 1 |
+| Escalated | 2 |
