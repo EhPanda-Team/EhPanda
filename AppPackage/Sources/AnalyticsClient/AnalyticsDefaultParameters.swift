@@ -15,17 +15,18 @@ import Sharing
 // process-global storage. `live` is a three-line adapter that reads the live shared state inside its
 // own body and forwards to `snapshot`.
 enum AnalyticsDefaultParameters {
-    /// The six default parameters for a given settings state, as a flat dot-namespaced dictionary.
+    /// The five default parameters for a given settings state at Full, and none at any other level, as
+    /// a flat dot-namespaced dictionary.
     ///
     /// Pure and total: no shared state, no I/O. The two `Int`-raw enums render through their stable
     /// analytics spelling rather than their persisted ordinal, so no value is ever a bare integer
     /// that an upstream case insertion could silently re-number. No key collides with the SDK's flat
     /// reserved set — every key carries a dot.
     static func snapshot(setting: Setting, didLogin: Bool) -> [String: String] {
-        // App-authored telemetry rather than SDK enrichment: without a level that shares them, the
-        // user's host, login state and reading preferences must not ride along on any signal.
-        // Replaced by the level gate in 18-03.
-        guard [.basic, .full].contains(setting.analyticsLevel) else { return [:] }
+        // App-authored telemetry rather than SDK enrichment: "your main settings" are promised only
+        // by Full's description (D-06f), so below Full the user's host, login state and reading
+        // preferences must not ride along on any signal, the SDK's own included.
+        guard setting.analyticsLevel == .full else { return [:] }
 
         return [
             "App.host": setting.galleryHost.rawValue,

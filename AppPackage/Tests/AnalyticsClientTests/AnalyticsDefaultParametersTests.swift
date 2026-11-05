@@ -127,11 +127,11 @@ struct AnalyticsDefaultParametersTests {
 
     // MARK: The level gate
 
-    // The bridge until 18-03's level gate: only a level that shares the parameters gets any. Asserting
-    // emptiness rather than a smaller key set is deliberate: a future parameter added to `snapshot`
-    // above the guard would leak onto a signal the user did not agree to, and this fails the moment
-    // it does.
-    @Test(arguments: [nil, .minimal] as [AnalyticsLevel?])
+    // Only Full promises "your main settings" (D-06f), so every other level, and no level, gets none.
+    // Asserting emptiness rather than a smaller key set is deliberate: a future parameter added to
+    // `snapshot` above the guard would leak onto a signal the user did not agree to, and this fails
+    // the moment it does.
+    @Test(arguments: [nil, .minimal, .basic] as [AnalyticsLevel?])
     func snapshotIsEmptyWithoutALevelThatSharesIt(level: AnalyticsLevel?) {
         var setting = Self.baseSetting()
         setting.analyticsLevel = level
@@ -142,21 +142,21 @@ struct AnalyticsDefaultParametersTests {
 
     // The gate must not depend on any other field's value, or a particular combination of
     // preferences could leak parameters before the user chose a level that shares them.
-    @Test
-    func noLevelEmptiesTheSnapshotUnderEveryOtherSetting() {
+    @Test(arguments: [nil, .minimal, .basic] as [AnalyticsLevel?])
+    func aLevelBelowFullEmptiesTheSnapshotUnderEveryOtherSetting(level: AnalyticsLevel?) {
         for host in GalleryHost.allCases {
             for direction in ReadingDirection.allCases {
                 for didLogin in [true, false] {
                     var setting = Self.baseSetting()
                     setting.galleryHost = host
                     setting.readingDirection = direction
-                    setting.analyticsLevel = nil
+                    setting.analyticsLevel = level
 
                     let parameters = AnalyticsDefaultParameters.snapshot(
                         setting: setting, didLogin: didLogin
                     )
 
-                    #expect(parameters.isEmpty, "leaked \(parameters.keys.sorted()) with no level chosen")
+                    #expect(parameters.isEmpty, "leaked \(parameters.keys.sorted()) at \(String(describing: level))")
                 }
             }
         }
@@ -169,10 +169,10 @@ struct AnalyticsDefaultParametersTests {
         #expect(AnalyticsDefaultParameters.snapshot(setting: Setting(), didLogin: false).isEmpty)
     }
 
-    @Test(arguments: [.basic, .full] as [AnalyticsLevel])
-    func aSharingLevelCarriesAllFiveParameters(level: AnalyticsLevel) {
+    @Test
+    func fullCarriesAllFiveParameters() {
         var setting = Self.baseSetting()
-        setting.analyticsLevel = level
+        setting.analyticsLevel = .full
 
         #expect(Set(AnalyticsDefaultParameters.snapshot(setting: setting, didLogin: false).keys) == Self.keys)
     }
