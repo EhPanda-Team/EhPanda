@@ -36,6 +36,8 @@ public struct DetailReducer: Sendable {
         @ReducerCaseIgnored case postComment(EquatableVoid)
         @ReducerCaseIgnored case newDawn(Greeting)
         @ReducerCaseIgnored case tagDetail(TagDetail)
+        /// The gallery's report page, opened from a comment's Report (D-10, A-5).
+        @ReducerCaseIgnored case reportPage(URL)
     }
 
     public enum Alert: Equatable, Sendable {
@@ -64,7 +66,7 @@ public struct DetailReducer: Sendable {
         @SharedReader(.setting) public var setting: Setting
         @Presents public var destination: Destination.State?
         @Presents public var alert: AppAlertState<Alert>?
-        public var moderation = CommentModerationFeature.State()
+        public var moderation: CommentModerationFeature.State
         public var commentContent = ""
         public var postCommentFocused = false
         public var showsUserRating = false
@@ -159,6 +161,7 @@ public struct DetailReducer: Sendable {
             self.gid = gallery.id
             self.gallery = gallery
             self.pendingDeepLink = pendingDeepLink
+            moderation = CommentModerationFeature.State(galleryURL: gallery.galleryURL)
         }
 
         mutating func updateRating(value: DragGesture.Value) {
