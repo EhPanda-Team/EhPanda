@@ -4,16 +4,16 @@ milestone: v3.0.0
 current_phase: 18
 current_phase_name: "In-App 3.0 Readiness: Age Wall, Analytics Choice, Comment Moderation & Reader Rework"
 status: executing
-stopped_at: Completed 18-07-PLAN.md
-last_updated: "2026-11-05T06:48:12.370Z"
+stopped_at: Completed 18-01-PLAN.md
+last_updated: "2026-11-05T06:53:39.727Z"
 last_activity: 2026-11-05
 last_activity_desc: Phase 18 planned (12 plans, 4 waves) against the final UI-SPEC (msg 1826)
-state_head: c54548075464dd2fbf4256e267d1dc33fd92aa59
+state_head: 3199343006c73983dbda639568ad0755514fc66c
 progress:
   total_phases: 20
   completed_phases: 16
   total_plans: 299
-  completed_plans: 288
+  completed_plans: 289
   percent: 80
 milestone_name: Dependency Reduction & Modernization
 source_head: b5eca09d1
@@ -990,6 +990,7 @@ Phase 17 has 13/13 in-scope plans complete. Phase 18 has 12 plans, none executed
 | Phase 17 P01 | multi-session | 2 tasks | 27 files |
 | Phase 17 P24 | 16min | 2 tasks | 5 files |
 | Phase 18 P07 | about 2h | 2 tasks | 25 files |
+| Phase 18 P01 | 4 min | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -1552,6 +1553,7 @@ Recent decisions affecting current work:
 - [Phase 16]: 16-24: audit runs one call per stable type (.hitRegion, .sufficientElementDescription, .trait); .contrast/.dynamicType/.textClipped/.elementDetection removed by owner (2026-09-14)
 - [Phase 16]: 16-24: allow-lists are ContentUnavailableView.symbol (system-owned) and E-1.hidden-content (E-1=approve, 2026-09-13); E-2..E-9 and O-2 retired
 - [Phase 16]: 16-24: gate runtimes iPhone 17 iOS 26.5 + iPad (A16) iPadOS 26.5 (owner 2026-09-15); iPadOS 27 beta excluded, its Gallery Detail stall deferred
+- [Phase 18]: 18-01: DIST-18-01 stays Pending in REQUIREMENTS.md after MKSellsDigitalGoods landed; its marketplace build flavor is Phase 20 work. IN-02/IN-03 are closed (429ca7512, 319934300) and have no REQUIREMENTS.md entry. — A shared requirement reads Complete only when every phase that owns a part has finished it.
 
 ### Phase 16 transition decisions (2026-09-23)
 
@@ -1667,8 +1669,8 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-11-05T06:48:10.701Z
-Stopped at: Completed 18-07-PLAN.md
+Last session: 2026-11-05T06:53:25.421Z
+Stopped at: Completed 18-01-PLAN.md
 Resume file: None
 
 Earlier stop (2026-10-13T10:50:00Z, historical): 17-06 revision re-shot, 16/16 captured (`.capture/17-06-t-native-*`); superseded by the owner's 2026-11-02 approval of the 192-image website set.
