@@ -140,7 +140,7 @@ struct CaptureScreenDiagnosticsTests {
         let scene = try makeScene(try MarketingFixtureBuilder.standard())
         let gallery = try await flowGallery(scene)
         var reading = ReadingReducer.State(gallery: gallery)
-        reading.pendingReadingProgress = 4
+        reading.readingProgress = 4
         var detail = try loadedDetail(gallery)
         var state = AppReducer.State()
 
@@ -394,7 +394,7 @@ private func diagnostics(
 private func shownReader(_ scene: CaptureScene, page: Int) async throws -> AppReducer.State {
     let gallery = try await flowGallery(scene)
     var reading = ReadingReducer.State(gallery: gallery)
-    reading.pendingReadingProgress = page
+    reading.readingProgress = page
     reading.webImageLoadSuccessIndices = [page]
     var detail = try loadedDetail(gallery)
     detail.destination = .reading(reading)

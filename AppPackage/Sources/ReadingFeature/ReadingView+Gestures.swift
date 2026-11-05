@@ -13,7 +13,7 @@ extension ReadingView {
                     setPageIndexOffsetAction: {
                         // The offset sign arrives RTL-corrected from GestureHandler
                         // (`onSingleTapGestureEnded`) — no re-inversion here.
-                        jump(toPagerIndex: pageModel.index + $0)
+                        turnPage(by: $0)
                     },
                     toggleShowsPanelAction: { store.send(.toggleShowsPanel) }
                 )

@@ -55,10 +55,12 @@ public struct ReadingReducer: Sendable {
         public var layoutIsLandscape: Bool?
         public var supportsAutomaticLayout = false
 
-        public var readingProgress: Int = .zero
-        // The latest page awaiting a debounced persist to `@Shared(.galleryHistory)`; kept separate
-        // from `readingProgress` (which seeds the slider) so tracking it never feeds back into the pager.
-        public var pendingReadingProgress: Int = .zero
+        /// The reader's page and the one turn under way (D-18, DD-11). The title, the slider outside a drag, the saved
+        /// progress and the pager's position all derive from it; no other copy of the page is stored.
+        var position = ReaderPosition(page: 1)
+        /// The slider's value while the reader drags it, shown by the title and the slider until the drag ends and
+        /// turns to it (DD-01). `nil` outside a drag.
+        var sliderScrub: Float?
         public var forceRefreshID: UUID = .init()
 
         // Transient per-session analytics tracking, reset with the reducer state on every present.
@@ -116,11 +118,38 @@ public struct ReadingReducer: Sendable {
                 ReadingReducer().applyLocalSource(state: &self, download: download, manifest: manifest)
             }
             // Seed the resume page synchronously from the persisted browsing history so the pager is
-            // built at the right page from the start (no post-render jump). `pendingReadingProgress`
-            // mirrors it so a flush before the first page turn rewrites that position, not a stale zero.
+            // built at the right page from the start (no post-render jump), and a flush before the first
+            // page turn rewrites that position. No history opens on the first page.
             @Shared(.galleryHistory) var galleryHistory
-            readingProgress = galleryHistory.readingProgress(gid: self.gallery.id)
-            pendingReadingProgress = readingProgress
+            position = ReaderPosition(page: galleryHistory.readingProgress(gid: self.gallery.id))
+        }
+
+        /// The committed page, which is what the reader saves as its progress. Setting it commits a page without
+        /// moving the pager, as the resume page and the saved progress do.
+        public var readingProgress: Int {
+            get { position.page }
+            set { position.commit(page: newValue) }
+        }
+
+        /// The slider's value: the drag's while the reader drags it (DD-01), the page the reader names otherwise. A
+        /// value set outside a drag, such as an accessibility adjustment, turns to it at once.
+        public var sliderValue: Float {
+            get { sliderScrub ?? Float(position.displayedPage) }
+            set { sliderScrub = newValue }
+        }
+
+        /// The page a turn to `page` lands on in the layout last measured: the page that names the position it lies
+        /// in, which is what the pager reports once it shows that position.
+        func landingPage(of page: Int) -> Int {
+            PageHandler().landingPage(
+                of: page, pageCount: gallery.pageCount, setting: setting, isLandscape: layoutIsLandscape ?? false
+            )
+        }
+
+        /// Builds the pages anew, which starts a new pager generation placed on the page the reader names.
+        mutating func refreshPages() {
+            forceRefreshID = .init()
+            _ = position.pagerRebuilt()
         }
 
         var isOffline: Bool { contentSource != .remote }
@@ -231,6 +260,15 @@ public struct ReadingReducer: Sendable {
 
         case syncReadingProgress(Int)
         case flushReadingProgress
+
+        /// Turns to a reading page: the slider, tap-to-turn, auto-play and the accessibility page actions.
+        case turn(toPage: Int)
+        /// The pager of `generation` changed how it moves.
+        case pagerPhaseChanged(PagerMotion, generation: Int)
+        /// The pager of `generation`, at rest, shows the page `shown`, or no single page.
+        case pagerSettled(shown: Int?, generation: Int)
+        /// The view built a new pager, for a change of direction or of the positions it lays out.
+        case pagerRebuilt
 
         case observeDownloads(String)
         case observeDownloadsDone([DownloadedGallery])

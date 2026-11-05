@@ -43,6 +43,7 @@ extension ReadingReducer {
             lifecycleReducer
             layoutReducer
             sessionReducer
+            positionReducer
             imageFetchReducer
         }
         .haptics(
@@ -167,7 +168,7 @@ extension ReadingReducer {
                 state.mpvKey = nil
                 state.mpvImageKeys = .init()
                 state.mpvSkipServerIdentifiers = .init()
-                state.forceRefreshID = .init()
+                state.refreshPages()
                 // URL maps live only in reducer state now; clearing them above is the whole reset.
                 return .none
 

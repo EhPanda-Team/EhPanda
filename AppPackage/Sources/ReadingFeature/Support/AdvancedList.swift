@@ -15,13 +15,13 @@ where PageView: View, G: Gesture {
     /// top, no page above the target is on screen, and `AboveScreenHeightLock` covers the pages built above it off
     /// screen.
     ///
-    /// The page model follows the page the position names whenever no scroll is under way: when a scroll comes to
-    /// rest, and when the position changes outside a scroll. The status bar's scroll to the top is such a change: the
-    /// position follows the page under the center, while SwiftUI reports no scroll phase for that scroll (measured
-    /// 2026-10-11 on iOS 27), so the indicator and the slider follow it page by page. A programmatic position names its
-    /// own page from the moment it is set: `scrollTo` raises no scroll phase, and the position keeps the requested page
-    /// until the user scrolls (measured 2026-10-09 on iOS 27), so following the position after a jump names the jump's
-    /// own page.
+    /// The list reports the page the position names as the page it shows at rest whenever no scroll is under way:
+    /// when a scroll comes to rest, and when the position changes outside a scroll. The status bar's scroll to the top
+    /// is such a change: the position follows the page under the center, while SwiftUI reports no scroll phase for that
+    /// scroll (measured 2026-10-11 on iOS 27), so the indicator and the slider follow it page by page. A programmatic
+    /// position names its own page from the moment it is set: `scrollTo` raises no scroll phase, and the position keeps
+    /// the requested page until the user scrolls (measured 2026-10-09 on iOS 27), so the report after a turn names the
+    /// turn's own page.
     ///
     /// A change of the list's width lays every page out at new heights. SwiftUI keeps the page on screen where it was
     /// by its own resolution, which left the scroll view's offset 464 pt past the positioned page's top after the iPad
@@ -55,26 +55,40 @@ where PageView: View, G: Gesture {
     /// the center with its top still above the screen, keeps its height until its top shows.
     @State private var positionedID: Int?
 
-    private let pagerModel: PageModel
+    /// The latest command for the pager (`ReaderPosition.issued`). The list carries out each command once, and only a
+    /// command for its own generation.
+    private let command: IssuedPagerCommand?
+    /// The generation the list was built in, stamped on every report so a report of a list since replaced is stale.
+    private let generation: Int
     private let data: [Element]
     private let id: KeyPath<Element, Int>
     private let spacing: CGFloat
     private let gesture: G
+    /// Reports how the list's scroll moves.
+    private let phaseChangeAction: (PagerMotion, Int) -> Void
+    /// Reports the page the list shows at rest, with the generation.
+    private let settleAction: (Int?, Int) -> Void
     private let content: (Element) -> PageView
 
+    /// Builds the list on `placement`'s page, which is the page whose id the element has.
     init<Data: RandomAccessCollection>(
-        page: PageModel, data: Data,
+        placement: PagerCommand, command: IssuedPagerCommand?, data: Data,
         id: KeyPath<Element, Int>, spacing: CGFloat, gesture: G,
+        phaseChangeAction: @escaping (PagerMotion, Int) -> Void,
+        settleAction: @escaping (Int?, Int) -> Void,
         @ContentBuilder content: @escaping (Element) -> PageView
     ) where Data.Index == Int, Data.Element == Element {
-        self.pagerModel = page
+        self.command = command
+        self.generation = placement.generation
         self.data = .init(data)
         self.id = id
         self.spacing = spacing
         self.gesture = gesture
+        self.phaseChangeAction = phaseChangeAction
+        self.settleAction = settleAction
         self.content = content
-        _position = State(initialValue: ScrollPosition(id: page.index + 1, anchor: .top))
-        _positionedID = State(initialValue: page.index + 1)
+        _position = State(initialValue: ScrollPosition(id: placement.page, anchor: .top))
+        _positionedID = State(initialValue: placement.page)
     }
 
     var body: some View {
@@ -94,8 +108,9 @@ where PageView: View, G: Gesture {
         .scrollPosition($position, anchor: .center)
         .onScrollPhaseChange { _, newValue in
             scrollPhase = newValue
+            phaseChangeAction(PagerMotion(newValue), generation)
             if newValue == .idle {
-                followPosition(to: position.viewID(type: Int.self))
+                reportPosition(position.viewID(type: Int.self))
             }
         }
         .onChange(of: position.viewID(type: Int.self)) { _, newValue in
@@ -103,11 +118,12 @@ where PageView: View, G: Gesture {
                 positionedID = nil
             }
             if scrollPhase == .idle {
-                followPosition(to: newValue)
+                reportPosition(newValue)
             }
         }
-        .onChange(of: pagerModel.index) { _, newValue in
-            tryScrollTo(id: newValue + 1)
+        .onChange(of: command) { _, command in
+            guard let command = command?.command, command.generation == generation else { return }
+            tryScrollTo(id: command.page)
         }
         .onScrollGeometryChange(for: CGFloat.self, of: \.containerSize.width) { oldValue, newValue in
             guard oldValue != newValue, let positionedID else { return }
@@ -115,31 +131,33 @@ where PageView: View, G: Gesture {
         }
     }
 
-    /// Writes the page the position names to the page model, unless the model already names it.
+    /// Reports the page the position names as the page the list shows at rest.
     ///
     /// A scroll coming to rest and a position change outside a scroll both call this, in either order within one
-    /// update, and so does the position change that the list's own `scrollTo` makes. The check leaves every call but
-    /// the first without a write, as `ReadingView.jump(toPagerIndex:)` drops a jump to the page the model names.
-    private func followPosition(to id: Int?) {
-        guard let id, pagerModel.index != id - 1 else { return }
-        pagerModel.update(.new(index: id - 1))
+    /// update, and so does the position change that the list's own `scrollTo` makes. A report of the page the reader
+    /// already names changes nothing (`ReaderPosition.pagerSettled(shown:generation:)`).
+    private func reportPosition(_ id: Int?) {
+        guard let id else { return }
+        settleAction(id, generation)
     }
 
-    /// Positions the page the model names at the top of the screen, and records it as the page the list positioned,
-    /// unless the position already names it.
+    /// Positions the page a command names at the top of the screen, and records it as the page the list positioned,
+    /// unless the position already names it, in which case the list reports it as shown.
     ///
-    /// After a write that followed the position, the position names the page already, and positioning it again would
+    /// After a report that followed the position, the position names the page already, and positioning it again would
     /// align the page under the center to the top of the screen, moving the screen the user left. The check compares
-    /// the page alone, so the list never re-aligns a page its position names. No writer asks it to:
-    /// `ReadingView.jump(toPagerIndex:)` drops a jump to the page the model names, and `followPosition(to:)` a write
-    /// of it.
+    /// the page alone, so the list never re-aligns a page its position names. No command asks it to:
+    /// `ReaderPosition.turn(to:pageCount:)` sends nothing for the page the reader names.
     ///
     /// No test pins the skip. An app-hosted test cannot drive a scroll the position follows, and a UI test cannot
     /// tell a page re-aligned to the top from one left where the finger stopped on both the iPhone and the iPad
     /// (measured 2026-10-11), so a change here needs a real drag that comes to rest on a new page, checked for a
-    /// `scrollTo` after the write.
+    /// `scrollTo` after the report.
     private func tryScrollTo(id: Int) {
-        guard position.viewID(type: Int.self) != id else { return }
+        guard position.viewID(type: Int.self) != id else {
+            reportPosition(id)
+            return
+        }
         positionedID = id
         position.scrollTo(id: id, anchor: .top)
     }

@@ -9,7 +9,8 @@ import UIKit
 import XCTest
 
 /// Where the vertical reader's list puts the page it positions. Resuming, the slider, tap-to-turn, autoplay and
-/// the accessibility page actions all reach `AdvancedList` as a page-model write, so the tests drive that write.
+/// the accessibility page actions all reach `AdvancedList` as a turn of the reader's page (`ReaderPosition`), so the
+/// tests drive that turn (`ListPageModel`).
 ///
 /// The rows size as the reader's image containers do: an unloaded page of no known size is the reader's own
 /// `UnloadedPage` in the strip, a loaded one takes the strip frame of its image's size. The test loads pages in orders
@@ -642,6 +643,63 @@ private final class CoverPresenter {
     var isPresented = false
 }
 
+/// Stands in for the reducer: holds the reader's page (`ReaderPosition`), turns it as `ReadingReducer` does for
+/// `.turn(toPage:)`, and takes the list's reports as it takes `.pagerPhaseChanged` and `.pagerSettled`.
+@MainActor
+@Observable
+final class ListPageModel {
+    enum Update {
+        case new(index: Int)
+    }
+
+    private(set) var position: ReaderPosition
+    private let pageCount: Int
+
+    init(page: Int, pageCount: Int) {
+        position = ReaderPosition(page: page)
+        self.pageCount = pageCount
+    }
+
+    /// The 0-based index of the page the reader names.
+    var index: Int {
+        position.displayedPage - 1
+    }
+
+    /// Turns to the page at `index`, counted from 0.
+    func update(_ update: Update) {
+        switch update {
+        case .new(let index):
+            _ = position.turn(to: index + 1, pageCount: pageCount)
+        }
+    }
+
+    func phaseChanged(to motion: PagerMotion, generation: Int) {
+        _ = position.pagerPhaseChanged(to: motion, generation: generation)
+    }
+
+    func settled(shown: Int?, generation: Int) {
+        _ = position.pagerSettled(shown: shown, generation: generation)
+    }
+}
+
+/// The reader's list as `ReadingView` builds it from the reader's page: placed on it, carrying out its commands.
+private struct ModelDrivenList: View {
+    let model: ListPageModel
+    let pageCount: Int
+    let spacing: CGFloat
+    let loads: PageLoads
+
+    var body: some View {
+        AdvancedList(
+            placement: model.position.placement, command: model.position.issued, data: Array(1...pageCount),
+            id: \.self, spacing: spacing, gesture: TapGesture(),
+            phaseChangeAction: model.phaseChanged, settleAction: model.settled
+        ) { page in
+            PageRow(page: page, loads: loads)
+        }
+    }
+}
+
 /// Presents `reader` the way the gallery detail presents the reader.
 private struct PresentedReader<Reader: View>: View {
     let presenter: CoverPresenter
@@ -704,7 +762,7 @@ private final class ReaderListHost {
 
     let pageCount: Int
     let loads: PageLoads
-    let model: PageModel
+    let model: ListPageModel
     let window: UIWindow
     private let screenAbove: ScreenAbove
     private let previousKeyWindow: UIWindow?
@@ -718,7 +776,7 @@ private final class ReaderListHost {
         let scene = try Self.activeScene()
         let portraitPage = try XCTUnwrap(PagePixelSize(width: 1280, height: 1791))
         let loads = PageLoads(loadedFrame: loadedFrame ?? .image(portraitPage))
-        let model = PageModel(index: resumePage - 1)
+        let model = ListPageModel(page: resumePage, pageCount: pageCount)
         let screen = scene.screen.bounds
         let screenAbove = ScreenAbove(height: presentation == .buildingScreenAbove ? screen.height : 0)
         self.pageCount = pageCount
@@ -727,11 +785,7 @@ private final class ReaderListHost {
         self.screenAbove = screenAbove
         previousKeyWindow = scene.windows.first(where: \.isKeyWindow)
         window = UIWindow(windowScene: scene)
-        let list = AdvancedList(
-            page: model, data: Array(1...pageCount), id: \.self, spacing: spacing, gesture: TapGesture()
-        ) { page in
-            PageRow(page: page, loads: loads)
-        }
+        let list = ModelDrivenList(model: model, pageCount: pageCount, spacing: spacing, loads: loads)
         let presenter = CoverPresenter()
         window.rootViewController = switch presentation {
         case .root:

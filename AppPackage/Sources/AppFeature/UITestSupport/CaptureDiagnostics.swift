@@ -558,7 +558,7 @@ private struct ScreenInspector {
     /// that page's Live Text. Live Text the reader asked for on another gallery, on a page other
     /// than the one it shows, or a recognition that found no text fails.
     private func readingReport(_ reading: ReadingReducer.State) -> ScreenReport {
-        let page = reading.pendingReadingProgress
+        let page = reading.readingProgress
         var report = ScreenReport(galleryIDs: [reading.gallery.gid], page: page, showsPanel: reading.showsPanel)
         if let loadingState = reading.imageURLLoadingStates[page], Self.isFailure(loadingState) {
             report.failures.append("The image of page \(page) failed to load")

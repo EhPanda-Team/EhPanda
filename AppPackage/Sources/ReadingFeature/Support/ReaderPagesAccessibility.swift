@@ -13,9 +13,11 @@ import SwiftUI
 /// loading updates the element and not the whole reader.
 struct ReaderPagesAccessibility: ViewModifier {
     let store: StoreOf<ReadingReducer>
-    let pageModel: PageModel
+    /// The page the reader names (`ReaderPosition.displayedPage`).
+    let page: Int
     let isLandscape: Bool
-    /// Turns the page by the given number of positions, forward when positive.
+    /// Turns the page by the given number of positions, forward when positive. The reader sends the turn as
+    /// `ReadingReducer.Action.turn(toPage:)`, the one turn intent tap-to-turn and auto-play send as well.
     let turnPage: (Int) -> Void
 
     func body(content: Content) -> some View {
@@ -57,11 +59,17 @@ struct ReaderPagesAccessibility: ViewModifier {
 
     /// The pages shown at the current position, in page order: one, or two in a spread.
     private var shownPages: [Int] {
-        let dataSource = store.state.containerDataSource(setting: store.setting, isLandscape: isLandscape)
-        guard dataSource.indices.contains(pageModel.index) else { return [] }
-        let config = store.state.imageContainerConfigs(
-            index: dataSource[pageModel.index],
-            setting: store.setting,
+        Self.shownPages(at: page, state: store.state, isLandscape: isLandscape)
+    }
+
+    /// The pages the position `page` lies in shows, in page order: one, or two in a spread.
+    static func shownPages(at page: Int, state: ReadingReducer.State, isLandscape: Bool) -> [Int] {
+        let dataSource = state.containerDataSource(setting: state.setting, isLandscape: isLandscape)
+        let pagerIndex = PageHandler().mapToPager(index: page, setting: state.setting, isLandscape: isLandscape)
+        guard dataSource.indices.contains(pagerIndex) else { return [] }
+        let config = state.imageContainerConfigs(
+            index: dataSource[pagerIndex],
+            setting: state.setting,
             isLandscape: isLandscape
         )
         return [

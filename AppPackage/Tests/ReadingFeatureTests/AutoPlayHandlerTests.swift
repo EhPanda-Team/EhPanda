@@ -1,6 +1,10 @@
+import AppModels
 import Clocks
+import ComposableArchitecture
 import Dependencies
+import Foundation
 @testable import ReadingFeature
+import Sharing
 import Testing
 
 // Auto-play is one of the ways the reader's page changes without the user touching it. The handler
@@ -85,5 +89,38 @@ struct AutoPlayHandlerTests {
 
         #expect(whileHeld == 1)
         #expect(released == nil)
+    }
+
+    // Each tick turns one position on, and the tick that reaches the last position stops auto-play.
+    @Test
+    func aTickTurnsOnePositionAndStopsAtTheLast() {
+        let ticks = [3, 7, 8, 9].map({ AutoPlayHandler.tick(from: $0, count: 10) })
+
+        #expect(ticks.map(\.target) == [4, 8, 9, 9])
+        #expect(ticks.map(\.stops) == [false, false, true, true])
+    }
+
+    // The reader sends a tick's position as its one turn intent, which sends the pager to its page.
+    @Test
+    func aTickIsSentAsTheOneTurnIntent() async {
+        var gallery = Gallery.preview
+        gallery.pageCount = 10
+        var state = withDependencies {
+            $0.defaultAppStorage = UserDefaults.inMemory
+        } operation: {
+            ReadingReducer.State(gallery: gallery)
+        }
+        state.readingProgress = 3
+        let store = TestStore(initialState: state, reducer: ReadingReducer.init)
+        let handler = PageHandler()
+        let position = handler.mapToPager(index: 3, setting: state.setting, isLandscape: false)
+        let tick = AutoPlayHandler.tick(from: position, count: 10)
+        let page = handler.mapFromPager(index: tick.target, pageCount: 10, setting: state.setting, isLandscape: false)
+
+        await store.send(.turn(toPage: page)) {
+            _ = $0.position.turn(to: 4, pageCount: 10)
+        }
+        #expect(store.state.position.issued?.command == .drive(page: 4, generation: 0))
+        await store.finish()
     }
 }

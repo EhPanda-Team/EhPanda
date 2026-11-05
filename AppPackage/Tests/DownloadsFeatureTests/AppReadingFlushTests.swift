@@ -50,7 +50,7 @@ struct AppReadingFlushTests: DownloadFeatureTestCase {
         let gallery = sampleGallery()
 
         var reader = ReadingReducer.State(gallery: gallery, contentSource: .remote)
-        reader.pendingReadingProgress = 7
+        reader.readingProgress = 7
 
         var initialState = AppReducer.State()
         initialState.settingState.hasLoadedInitialSetting = true
@@ -82,7 +82,7 @@ struct AppReadingFlushTests: DownloadFeatureTestCase {
         let defaults = UserDefaults.inMemory
         let gallery = sampleGallery()
         var reader = ReadingReducer.State(gallery: gallery, contentSource: .remote)
-        reader.pendingReadingProgress = 9
+        reader.readingProgress = 9
         var detail = DetailReducer.State(gallery: gallery)
         detail.destination = .reading(reader)
         let gallerySheet = GallerySheetFeature.State(detail: detail)

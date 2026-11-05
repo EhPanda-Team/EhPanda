@@ -72,7 +72,8 @@ struct DownloadObserverReadingTests: DownloadFeatureTestCase {
             1: folderURL.appending(path: "123_token_1.jpg"),
             2: folderURL.appending(path: "123_token_2.jpg")
         ])
-        #expect(store.state.readingProgress == 0)
+        // No saved progress opens on the first page (the reader's page counts from 1 since 18-07).
+        #expect(store.state.readingProgress == 1)
         await store.finish()
     }
 

@@ -34,27 +34,15 @@ public struct ReadingView: View {
     @State private var liveTextHandler = LiveTextHandler()
     @State private var autoPlayHandler = AutoPlayHandler()
     @State var gestureHandler = GestureHandler()
-    @State private var pageHandler: PageHandler
-    @State var pageModel = PageModel()
-    @State private var scrollPositionID: Int?
-    @State private var pagerTurnGate = PagerTurnGate()
-    /// The position that alone fills the pager, read from the screen rather than from the position binding.
-    @State private var shownPagerPosition: Int?
-    @State private var performingChanges = false
     @State private var deviceState: WindowDevice?
     @State private var pagerSeed = PagerSeed()
     @State private var lowerPanelHeight: CGFloat = 0
+    private let pageHandler = PageHandler()
 
+    // The reader opens on the resume page the reducer computed in `State.init`: the first pager is
+    // built placed on `store.position`, once the reading area is measured (`PagerSeed`).
     public init(store: StoreOf<ReadingReducer>) {
         self.store = store
-        // Seed the slider from the resume page the reducer computed in `State.init`, so the reader
-        // opens on the saved page. Seeding replaced a `.restoreSession` action that mutated
-        // `readingProgress` after the view had subscribed; with no post-subscribe change event, the
-        // resume page must be in place at construction or every session would open at page 1. The
-        // pager's own position is derived from it later, in `seedPager()`.
-        let handler = PageHandler()
-        handler.sliderValue = Float(max(store.state.readingProgress, 1))
-        _pageHandler = State(wrappedValue: handler)
     }
 
     private var backgroundColor: Color {
@@ -163,7 +151,7 @@ public struct ReadingView: View {
             setting: Binding($setting),
             enablesLiveText: $bindableLiveTextHandler.enablesLiveText,
             autoPlayHandler: autoPlayHandler,
-            title: "\(max(Int(pageHandler.sliderValue), 1)) / \(store.gallery.pageCount)",
+            title: "\(max(Int(store.sliderValue), 1)) / \(store.gallery.pageCount)",
             isLandscape: isLandscape,
             dismissAction: { store.send(.onPerformDismiss) },
             navigateSettingAction: { store.send(.presentReadingSetting) },
@@ -174,14 +162,10 @@ public struct ReadingView: View {
 
     @ContentBuilder
     var content: some View {
-        @Bindable var bindablePageHandler = pageHandler
-
         VStack {
-            // The pager is built only once it has been seeded, so its first layout already sits on
-            // the slot `seedPager()` picked for the measured aspect ratio. Its page observers come
-            // with it: created after the seed, they start from the seeded index instead of
-            // reporting the seed as a page turn.
-            if !pagerSeed.isSeeded {
+            // The pager is built only once the reading area is measured, so its first layout already
+            // sits on the position its placement maps to for the measured aspect ratio.
+            if !pagerSeed.isMeasured {
                 Color.clear
             } else {
                 changeTriggers(content: { pages })
@@ -198,29 +182,26 @@ public struct ReadingView: View {
         .modifier(
             ReaderPagesAccessibility(
                 store: store,
-                pageModel: pageModel,
+                page: store.position.displayedPage,
                 isLandscape: isLandscape,
-                turnPage: { jump(toPagerIndex: pageModel.index + $0) }
+                turnPage: turnPage(by:)
             )
         )
         // Assistive alternatives to the edge taps and the pinch (VoiceOver criterion 5, Voice
-        // Control criterion 2). Both page actions reach `jump(toPagerIndex:)`, the one write path
-        // the tap zones' offset closure already lands on. "Next" is +1 in the data source, which
-        // stays forward under every reading direction — RTL flips only the paging axis, never the
-        // index order — so no direction is derived here and no second page-turn path exists.
+        // Control criterion 2). Both page actions reach `turnPage(by:)`, the one turn path the tap
+        // zones' offset closure already lands on. "Next" is +1 in the data source, which stays
+        // forward under every reading direction — RTL flips only the paging axis, never the index
+        // order — so no direction is derived here and no second page-turn path exists.
         .accessibilityAction(named: .accessibilityNextPage) {
-            jump(toPagerIndex: pageModel.index + 1)
+            turnPage(by: 1)
         }
         .accessibilityAction(named: .accessibilityPreviousPage) {
-            jump(toPagerIndex: pageModel.index - 1)
+            turnPage(by: -1)
         }
         .accessibilityZoomAction(performAccessibilityZoom)
         .ignoresSafeArea()
+        // A forced refresh builds the pages anew; the reducer starts a new pager generation with it.
         .id(store.forceRefreshID)
-        // Outside the identity it changes, so it sees the change: a forced refresh builds the pager anew.
-        .onChange(of: store.forceRefreshID) {
-            pagerRebuilt()
-        }
         .background {
             backgroundColor
                 .ignoresSafeArea()
@@ -253,7 +234,7 @@ public struct ReadingView: View {
             ControlPanel(
                 showsPanel: $store.showsPanel,
                 showsSliderPreview: $store.showsSliderPreview,
-                sliderValue: $bindablePageHandler.sliderValue,
+                sliderValue: $store.sliderValue,
                 isReversed: setting.readingDirection == .rightToLeft,
                 containerSize: gestureHandler.containerSize,
                 usesHalfWidth: usesHalfWidth,
@@ -278,92 +259,63 @@ public struct ReadingView: View {
         store.send(.layoutChanged(
             isLandscape: isLandscape, supportsAutomaticLayout: deviceState.supportsAutomaticLayout
         ))
-        if pagerSeed.seeds() { seedPager() }
+        _ = pagerSeed.measures()
     }
 
+    /// The pager of the current generation: built anew, on the page the reader names, whenever the generation
+    /// changes (`ReaderPosition.pagerRebuilt()`).
     @ContentBuilder
     private var pages: some View {
-        switch store.setting.readingDirection {
-        case .vertical:
-            AdvancedList(
-                page: pageModel,
-                data: store.state.containerDataSource(
-                    setting: store.setting,
-                    isLandscape: isLandscape
-                ),
-                id: \.self,
-                spacing: store.setting.contentDividerHeight,
-                gesture: SimultaneousGesture(magnificationGesture, tapGesture),
-                content: imageStack
-            )
-            .scrollDisabled(gestureHandler.scale != 1)
+        let placement = store.position.placement
+        Group {
+            switch store.setting.readingDirection {
+            case .vertical:
+                AdvancedList(
+                    placement: placement,
+                    command: store.position.issued,
+                    data: store.state.containerDataSource(
+                        setting: store.setting,
+                        isLandscape: isLandscape
+                    ),
+                    id: \.self,
+                    spacing: store.setting.contentDividerHeight,
+                    gesture: SimultaneousGesture(magnificationGesture, tapGesture),
+                    phaseChangeAction: reportPhaseChange,
+                    settleAction: reportSettle,
+                    content: imageStack
+                )
+                .scrollDisabled(gestureHandler.scale != 1)
 
-        case .leftToRight, .rightToLeft:
-            horizontalPagingList
+            case .leftToRight, .rightToLeft:
+                horizontalPagingList(placement: placement)
+            }
         }
+        .id(placement.generation)
     }
 
     // D-04/D-05: the non-vertical reader pages through a stock horizontal paging ScrollView.
-    // The `.scrollPosition(id:)` ids are the 0-based POSITIONS in `containerDataSource` — the
-    // same index space as `pageModel.index` and `PageHandler.mapToPager` (in dual-page mode the
-    // element values are non-uniform reading pages, so positions, not elements, are the ids).
-    private var horizontalPagingList: some View {
-        let dataSource = store.state.containerDataSource(
-            setting: store.setting,
-            isLandscape: isLandscape
+    // The `.scrollPosition(id:)` ids are the 0-based POSITIONS in `containerDataSource`, the
+    // index space of `PageHandler.mapToPager` (in dual-page mode the element values are
+    // non-uniform reading pages, so positions, not elements, are the ids).
+    private func horizontalPagingList(placement: PagerCommand) -> some View {
+        let setting = store.setting
+        let pageCount = store.gallery.pageCount
+        let isLandscape = isLandscape
+        let pageHandler = pageHandler
+        return HorizontalPager(
+            placement: placement,
+            command: store.position.issued,
+            positions: store.state.containerDataSource(setting: setting, isLandscape: isLandscape),
+            positionOfPage: { pageHandler.mapToPager(index: $0, setting: setting, isLandscape: isLandscape) },
+            pageAtPosition: {
+                pageHandler.mapFromPager(index: $0, pageCount: pageCount, setting: setting, isLandscape: isLandscape)
+            },
+            isReversed: setting.readingDirection == .rightToLeft,
+            phaseChangeAction: reportPhaseChange,
+            settleAction: reportSettle,
+            content: imageStack
         )
-        return ScrollView(.horizontal) {
-            LazyHStack(spacing: 0) {
-                // `enumerated()` rather than indexing by position: `\.offset` is the identical
-                // 0-based position id the `indices` form produced, so the scroll ids are unchanged,
-                // and the page is read as an element instead of through an unguarded subscript.
-                ForEach(dataSource.enumerated(), id: \.offset) { _, page in
-                    imageStack(index: page)
-                        .containerRelativeFrame(.horizontal)
-                        // Pages re-normalize to LTR: `imageContainerConfigs` already swaps the
-                        // spread order for RTL, so the environment flip on the ScrollView may
-                        // only reverse the paging axis, never the in-page order (no double-flip).
-                        .environment(\.layoutDirection, .leftToRight)
-                }
-            }
-            .scrollTargetLayout()
-        }
-        .scrollIndicators(.hidden)
-        .scrollTargetBehavior(.paging)
-        .scrollEdgeEffectStyle(.soft, for: [.top, .bottom])
-        .scrollPosition(id: $scrollPositionID)
-        .onScrollTargetVisibilityChange(idType: Int.self, threshold: 0.5) { positions in
-            shownPagerPosition = positions.count == 1 ? positions.first : nil
-        }
         .scrollDisabled(gestureHandler.scale != 1)
-        // RTL flips only the paging axis; the data source stays forward so every index keeps
-        // its logical meaning (PageHandler stays direction-agnostic).
-        .environment(
-            \.layoutDirection,
-            store.setting.readingDirection == .rightToLeft ? .rightToLeft : .leftToRight
-        )
-        .onScrollPhaseChange { _, newValue in
-            // A turn held while the pager animated has already moved the index; only the pager is left to follow.
-            if pagerTurnGate.phaseChanged(to: newValue) {
-                scrollPager(to: pageModel.index)
-                return
-            }
-            if newValue == .idle, let position = scrollPositionID {
-                performingChanges = true
-                pageModel.update(.new(index: position))
-                DispatchQueue.main.asyncAfter(deadline: .now() + PageModel.echoGuardDuration) {
-                    performingChanges = false
-                }
-                // The binding can name a page the pager stopped short of; check the screen once it has caught up.
-                DispatchQueue.main.async { correctPager() }
-            }
-        }
-        // `initial: true` re-applies the seed at appearance, which is what the former `.onAppear`
-        // did. It is belt-and-braces: `scrollPositionID` is already seeded in `init`, so the resume
-        // page survives even if this initial fire lands late.
-        .onChange(of: pageModel.index, initial: true) { _, newValue in
-            tryScrollTo(id: newValue)
-        }
     }
 
     @ContentBuilder
@@ -378,7 +330,8 @@ public struct ReadingView: View {
                     newValue.forEach(analyzeImageForLiveText)
                 }
             }
-            .onChange(of: pageHandler.sliderValue, initial: true) { _, newValue in
+            // A one-way hint for the translator, which nothing in the reader reads back.
+            .onChange(of: store.sliderValue, initial: true) { _, newValue in
                 liveTextHandler.translator.readingPage = Int(newValue)
             }
             .onChange(of: liveTextHandler.translator.failure) {
@@ -391,35 +344,16 @@ public struct ReadingView: View {
     @ContentBuilder
     private func pageAndAutoPlayTriggers<Content: View>(@ContentBuilder content: () -> Content) -> some View {
         content()
-            // Page
+            // Page: a change of direction or of the positions laid out builds a new pager.
             .onChange(
-                of: store.state.containerDataSource(
-                    setting: store.setting,
-                    isLandscape: isLandscape
+                of: PagerLayout(
+                    direction: store.setting.readingDirection,
+                    positions: store.state.containerDataSource(setting: store.setting, isLandscape: isLandscape)
                 )
-            ) { _, _ in
-                setPageIndex(sliderValue: pageHandler.sliderValue)
+            ) {
+                store.send(.pagerRebuilt)
             }
-            .onChange(of: pageModel.index) { _, newValue in
-                let newValue = pageHandler.mapFromPager(
-                    index: newValue,
-                    pageCount: store.gallery.pageCount,
-                    setting: store.setting,
-                    isLandscape: isLandscape
-                )
-                pageHandler.sliderValue = .init(newValue)
-                store.send(.syncReadingProgress(.init(newValue)))
-            }
-            .onChange(of: pageHandler.sliderValue) { _, newValue in
-                if !store.showsSliderPreview {
-                    setPageIndex(sliderValue: newValue)
-                }
-            }
-            .onChange(of: store.setting.readingDirection) {
-                pagerRebuilt()
-            }
-            .onChange(of: store.showsSliderPreview) { _, newValue in
-                if !newValue { setPageIndex(sliderValue: pageHandler.sliderValue) }
+            .onChange(of: store.showsSliderPreview) {
                 autoPlayHandler.policy = .off
             }
             // AutoPlay
@@ -429,14 +363,16 @@ public struct ReadingView: View {
                 }
             }
             .onChange(of: autoPlayHandler.tickCount) {
-                let dataSource = store.state.containerDataSource(
-                    setting: store.setting, isLandscape: isLandscape
+                let setting = store.setting
+                let dataSource = store.state.containerDataSource(setting: setting, isLandscape: isLandscape)
+                let position = pageHandler.mapToPager(
+                    index: store.position.displayedPage, setting: setting, isLandscape: isLandscape
                 )
-                let target = pageModel.index + 1
-                jump(toPagerIndex: target)
-                // The tick that reaches the final page stops autoplay, rather than ticking uselessly
-                // against the clamp for the rest of the interval.
-                if target >= dataSource.count - 1 {
+                let tick = AutoPlayHandler.tick(from: position, count: dataSource.count)
+                store.send(.turn(toPage: pageHandler.mapFromPager(
+                    index: tick.target, pageCount: store.gallery.pageCount, setting: setting, isLandscape: isLandscape
+                )))
+                if tick.stops {
                     autoPlayHandler.policy = .off
                 }
             }
@@ -453,7 +389,10 @@ public struct ReadingView: View {
             ? .strip
             : .pager(isDualPage: setting.enableDualPageMode && isLandscape)
         let dataSource = store.state.containerDataSource(setting: setting, isLandscape: isLandscape)
-        let activeStackIndex = dataSource.indices.contains(pageModel.index) ? dataSource[pageModel.index] : nil
+        let activePosition = pageHandler.mapToPager(
+            index: store.position.displayedPage, setting: setting, isLandscape: isLandscape
+        )
+        let activeStackIndex = dataSource.indices.contains(activePosition) ? dataSource[activePosition] : nil
         HorizontalImageStack(
             index: index,
             slot: slot,
@@ -483,100 +422,19 @@ public struct ReadingView: View {
 
 // MARK: Handler methods
 extension ReadingView {
-    // The single programmatic write path (D-07): autoplay, the slider seek, and tap-to-turn all
-    // land here, so every write is clamped to the data source's bounds and guarded against the
-    // scroll-read feedback loop before it reaches the shared index. Clamping also covers vertical
-    // autoplay, which was effectively unclamped under SwiftUIPager (`totalPages` was only set by
-    // a rendered `Pager`) — a deliberate small improvement, not drift.
-    func jump(toPagerIndex target: Int) {
-        let dataSource = store.state.containerDataSource(
-            setting: store.setting,
-            isLandscape: isLandscape
-        )
-        guard !dataSource.isEmpty else { return }
-        let clampedIndex = min(max(target, 0), dataSource.count - 1)
-        guard pageModel.index != clampedIndex else { return }
-        performingChanges = true
-        pageModel.update(.new(index: clampedIndex))
-        // A jump slides the pager across every page in between; under Reduce Motion it lands
-        // instantly. The echo guard around it is independent of the animation: it covers the
-        // observer round-trip of the index write, not the scroll's travel, so its window stays
-        // `echoGuardDuration` in both modes (D-29). A turn that arrives while the pager still animates to the last one
-        // is held, and sent once the pager is at rest (`PagerTurnGate`).
-        if pagerTurnGate.admitsTurn() {
-            scrollPager(to: clampedIndex)
-        }
-        DispatchQueue.main.asyncAfter(deadline: .now() + PageModel.echoGuardDuration) {
-            performingChanges = false
-        }
+    /// Turns the page by `offset` positions, forward when positive: tap-to-turn and the accessibility page actions.
+    /// Every turn reaches the reducer as `.turn(toPage:)`, which clamps it to the gallery and sends the pager there.
+    func turnPage(by offset: Int) {
+        store.send(.turn(toPage: pageHandler.page(
+            turningFrom: store.position.displayedPage, by: offset, pageCount: store.gallery.pageCount,
+            setting: store.setting, isLandscape: isLandscape
+        )))
     }
-    private func scrollPager(to position: Int) {
-        withAnimation(reduceMotion ? nil : .default) {
-            scrollPositionID = position
-        }
-        // A turn that lands as the pager comes to rest can be lost without a scroll starting, so nothing reports a rest
-        // to check at. By this delay a scroll that did start is under way, and its own rest is checked instead.
-        DispatchQueue.main.asyncAfter(deadline: .now() + PageModel.echoGuardDuration) {
-            correctPager()
-        }
+    private func reportPhaseChange(_ motion: PagerMotion, generation: Int) {
+        store.send(.pagerPhaseChanged(motion, generation: generation))
     }
-    /// Starts the pager's state in this view over for a pager built anew, after a forced refresh or a change of
-    /// direction. The new pager reports its own page; the last one's is no page to check against. And it is placed on
-    /// the index directly: its own placement on the index is skipped inside the echo guard of a turn just made.
-    private func pagerRebuilt() {
-        pagerTurnGate.pagerRebuilt()
-        shownPagerPosition = nil
-        scrollPositionID = pageModel.index
-    }
-    /// Brings the pager and the index back in step when the pager is at rest on another page (`PagerTurnGate`).
-    private func correctPager() {
-        guard store.setting.readingDirection != .vertical,
-              let correction = pagerTurnGate.correction(shown: shownPagerPosition, index: pageModel.index),
-              let shownPagerPosition
-        else { return }
-        // The binding still names the page that was lost; pointing it at the page on screen moves nothing, and lets
-        // a turn to the index register as a change again.
-        scrollPositionID = shownPagerPosition
-        switch correction {
-        case .sendAgain:
-            DispatchQueue.main.async { scrollPager(to: pageModel.index) }
-
-        case .followScreen:
-            // The pager does not reach the index; the index, and the indicator with it, follow the page on screen.
-            performingChanges = true
-            pageModel.update(.new(index: shownPagerPosition))
-            DispatchQueue.main.asyncAfter(deadline: .now() + PageModel.echoGuardDuration) {
-                performingChanges = false
-            }
-        }
-    }
-    /// Positions the pager on the slider's page for the reading area it is about to lay out in.
-    ///
-    /// Runs before the pager exists, because the slot depends on that area: a landscape container
-    /// holds two pages per slot in dual-page mode. Neither the interface orientation nor the device
-    /// can stand in for the measurement, since a landscape interface can still be taller than wide,
-    /// as in a narrow Split View column or on a foldable's inner display.
-    private func seedPager() {
-        let pagerIndex = pageHandler.mapToPager(
-            index: .init(pageHandler.sliderValue),
-            setting: store.setting,
-            isLandscape: isLandscape
-        )
-        pageModel.update(.new(index: pagerIndex))
-        scrollPositionID = pagerIndex
-    }
-    func setPageIndex(sliderValue: Float) {
-        let newValue = pageHandler.mapToPager(
-            index: .init(sliderValue),
-            setting: store.setting,
-            isLandscape: isLandscape
-        )
-        jump(toPagerIndex: newValue)
-    }
-    private func tryScrollTo(id: Int) {
-        if !performingChanges {
-            scrollPositionID = id
-        }
+    private func reportSettle(_ shown: Int?, generation: Int) {
+        store.send(.pagerSettled(shown: shown, generation: generation))
     }
     func analyzeImageForLiveText(page: Int) {
         guard liveTextHandler.needsAnalysis(page: page) else {
@@ -655,6 +513,150 @@ extension ReadingView {
         )
     }
 }
+
+/// What the pager lays out: a change builds a new pager (`ReadingReducer.Action.pagerRebuilt`), placed on the page the
+/// reader names for the new layout, rather than moving the old one to it.
+private struct PagerLayout: Equatable {
+    let direction: ReadingDirection
+    let positions: [Int]
+}
+
+/// The horizontal pager of one generation, which carries out the reducer's commands and reports what it shows.
+///
+/// It writes its scroll position only for a command of its own generation, and it reports its scroll phase and, at
+/// rest, the page alone on screen, stamped with that generation. A pager built anew starts at its placement, the page
+/// the reader names, and its state with it, so nothing of a pager torn down mid-turn is left to reconcile.
+private struct HorizontalPager<PageView: View>: View {
+    /// How long after a turn is sent the page on screen is checked. A turn that lands as the pager comes to rest can
+    /// be lost without a scroll starting, so nothing reports a rest; by this delay a scroll that did start is under
+    /// way, and its own rest is reported instead (timing verified by device UAT in Phase 17).
+    static var landingCheckDelay: Double { 0.2 }
+
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    #if DEBUG
+    @Environment(\.dropsReaderInitialIdleReport) private var dropsInitialIdleReport
+    @State private var hasDroppedInitialIdleReport = false
+    #endif
+
+    private let generation: Int
+    private let command: IssuedPagerCommand?
+    private let positions: [Int]
+    private let positionOfPage: (Int) -> Int
+    private let pageAtPosition: (Int) -> Int
+    private let isReversed: Bool
+    private let phaseChangeAction: (PagerMotion, Int) -> Void
+    private let settleAction: (Int?, Int) -> Void
+    private let content: (Int) -> PageView
+    @State private var scrollPositionID: Int?
+    /// The position that alone fills the pager, read from the screen rather than from the position binding: the
+    /// binding can name a page the pager stopped short of.
+    @State private var shownPosition: Int?
+
+    init(
+        placement: PagerCommand, command: IssuedPagerCommand?, positions: [Int],
+        positionOfPage: @escaping (Int) -> Int, pageAtPosition: @escaping (Int) -> Int, isReversed: Bool,
+        phaseChangeAction: @escaping (PagerMotion, Int) -> Void, settleAction: @escaping (Int?, Int) -> Void,
+        @ContentBuilder content: @escaping (Int) -> PageView
+    ) {
+        generation = placement.generation
+        self.command = command
+        self.positions = positions
+        self.positionOfPage = positionOfPage
+        self.pageAtPosition = pageAtPosition
+        self.isReversed = isReversed
+        self.phaseChangeAction = phaseChangeAction
+        self.settleAction = settleAction
+        self.content = content
+        _scrollPositionID = State(initialValue: positionOfPage(placement.page))
+    }
+
+    var body: some View {
+        ScrollView(.horizontal) {
+            LazyHStack(spacing: 0) {
+                // `enumerated()` rather than indexing by position: `\.offset` is the identical
+                // 0-based position id the `indices` form produced, so the scroll ids are unchanged,
+                // and the page is read as an element instead of through an unguarded subscript.
+                ForEach(positions.enumerated(), id: \.offset) { _, page in
+                    content(page)
+                        .containerRelativeFrame(.horizontal)
+                        // Pages re-normalize to LTR: `imageContainerConfigs` already swaps the
+                        // spread order for RTL, so the environment flip on the ScrollView may
+                        // only reverse the paging axis, never the in-page order (no double-flip).
+                        .environment(\.layoutDirection, .leftToRight)
+                }
+            }
+            .scrollTargetLayout()
+        }
+        .scrollIndicators(.hidden)
+        .scrollTargetBehavior(.paging)
+        .scrollEdgeEffectStyle(.soft, for: [.top, .bottom])
+        .scrollPosition(id: $scrollPositionID)
+        .onScrollTargetVisibilityChange(idType: Int.self, threshold: 0.5) { positions in
+            shownPosition = positions.count == 1 ? positions.first : nil
+        }
+        // RTL flips only the paging axis; the data source stays forward so every index keeps
+        // its logical meaning (PageHandler stays direction-agnostic).
+        .environment(\.layoutDirection, isReversed ? .rightToLeft : .leftToRight)
+        .onScrollPhaseChange { _, newValue in
+            #if DEBUG
+            if dropsInitialIdleReport, newValue == .idle, !hasDroppedInitialIdleReport {
+                hasDroppedInitialIdleReport = true
+                return
+            }
+            #endif
+            phaseChangeAction(PagerMotion(newValue), generation)
+            if newValue == .idle {
+                // The screen's report can trail the rest; read it once it has caught up.
+                DispatchQueue.main.async { reportShown() }
+            }
+        }
+        .onChange(of: command) { _, command in
+            carryOut(command?.command)
+        }
+    }
+
+    private func reportShown() {
+        settleAction(shownPosition.map(pageAtPosition), generation)
+    }
+
+    private func carryOut(_ command: PagerCommand?) {
+        guard let command, command.generation == generation else { return }
+        let target = positionOfPage(command.page)
+        switch command {
+        case .place:
+            scrollPositionID = target
+
+        case .drive:
+            guard scrollPositionID == target, let shownPosition, shownPosition != target else {
+                scroll(to: target)
+                return
+            }
+            // The binding still names a page the pager stopped short of. Pointing it at the page on screen moves
+            // nothing, and lets the turn register as a change again.
+            scrollPositionID = shownPosition
+            DispatchQueue.main.async { scroll(to: target) }
+        }
+    }
+
+    /// Slides the pager across every page in between; under Reduce Motion it lands instantly (D-29).
+    private func scroll(to target: Int) {
+        withAnimation(reduceMotion ? nil : .default) {
+            scrollPositionID = target
+        }
+        DispatchQueue.main.asyncAfter(deadline: .now() + Self.landingCheckDelay) {
+            reportShown()
+        }
+    }
+}
+
+#if DEBUG
+public extension EnvironmentValues {
+    /// Drops the first `.idle` report of each horizontal pager the reader builds, so a UI test can show that a new
+    /// pager's turns and its page do not depend on that report (17-VERIFICATION.md R5-1). Ordinary launches leave it
+    /// false; no launch key is read in this module.
+    @Entry var dropsReaderInitialIdleReport = false
+}
+#endif
 
 #Preview("Loaded") {
     NavigationStack {

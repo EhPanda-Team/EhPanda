@@ -1,3 +1,4 @@
+import CoreGraphics
 import SwiftUI
 
 /// The reader's page: the one value the indicator, the slider, the saved progress and the pager all follow
@@ -167,7 +168,7 @@ struct IssuedPagerCommand: Equatable, Sendable {
 }
 
 /// How the pager moves, as its scroll phase reports it.
-enum PagerMotion: Equatable, Sendable {
+public enum PagerMotion: Equatable, Sendable {
     /// At rest.
     case idle
     /// A programmatic scroll: a turn the view sent.
@@ -186,5 +187,25 @@ enum PagerMotion: Equatable, Sendable {
         default:
             self = .scrolling
         }
+    }
+}
+
+/// Records whether the reader has measured an area it can lay pages out in, so the first pager is built only then.
+///
+/// The first measurement can be degenerate. With a full-width bar inset at the bottom of the reader, the iPad reader
+/// first measured 0 by 1 pt, then 834 by 1052 pt (measured 2026-11-04 on iOS 27.2). A pager built at the first
+/// measurement, rather than at the first reading area, opened on page 1 while the indicator kept the resume page.
+struct PagerSeed {
+    private(set) var isMeasured = false
+
+    /// Whether `size` is an area the pager can lay pages out in.
+    static func isReadingArea(_ size: CGSize) -> Bool {
+        size.width.isFinite && size.height.isFinite && size.width > 0 && size.height > 0
+    }
+
+    /// Records a measurement of a reading area. Returns `true` once, the first time.
+    mutating func measures() -> Bool {
+        defer { isMeasured = true }
+        return !isMeasured
     }
 }
