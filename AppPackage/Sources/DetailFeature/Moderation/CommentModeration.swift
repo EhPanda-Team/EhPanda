@@ -1,11 +1,16 @@
 public import AppComponents
+public import AppModels
 public import ComposableArchitecture
+import CookieClient
+public import Foundation
+import Resources
+public import Sharing
 
-/// Comment moderation for one screen (UGC-18-01): the posting warning (D-12). `CommentsReducer` and
-/// `DetailReducer` each scope one in, so posting behaves the same in the comments list and in Detail; the views
-/// only send these actions and read this state.
+/// Comment moderation for one screen (UGC-18-01): the posting warning, Report, Block, Unblock and Show (D-10,
+/// D-12, D-13). `CommentsReducer` and `DetailReducer` each scope one in, so a comment behaves the same in the
+/// comments list and in the Detail strip; the views only send these actions and read this state.
 ///
-/// Nothing here sends an analytics signal (D-02): no comment text leaves the device this way.
+/// Nothing here sends an analytics signal (D-02): no author name or comment text leaves the device this way.
 @Reducer
 public struct CommentModerationFeature: Sendable {
     /// The buttons of the screen's moderation alerts.
@@ -15,6 +20,10 @@ public struct CommentModerationFeature: Sendable {
         case edit
         /// Posting warning: send the comment anyway.
         case postAnyway
+        /// Report confirmation: open the gallery's report page.
+        case confirmReport(URL)
+        /// Block confirmation.
+        case confirmBlock(author: String)
     }
 
     /// What the host screen does with a moderation decision; it owns the editor and the sheets.
@@ -24,13 +33,34 @@ public struct CommentModerationFeature: Sendable {
         case post
         /// Give the editor its focus back; the editor and its text stay as they are.
         case resumeEditing
+        /// Present the report page in the screen's in-app sheet.
+        case openReportPage(URL)
+        /// `author` was blocked, so every comment of theirs on the screen collapses, revealed ones included.
+        case didBlock(author: String)
     }
 
     @ObservableState
     public struct State: Equatable {
         @Presents public var alert: AppAlertState<Alert>?
+        @Shared(.blockedCommentAuthors) public var blockedAuthors: [String]
+        /// Comments shown once despite a blocked author (C-7). Per screen and never stored: it goes with the screen.
+        public var revealedCommentIDs = Set<String>()
+        /// The gallery the screen's comments belong to; where Report goes (D-10).
+        public var galleryURL: URL?
 
-        public init() {}
+        public init(galleryURL: URL?) {
+            self.galleryURL = galleryURL
+        }
+
+        /// Whether `comment` shows as the collapsed row (C-6, C-8): its author is blocked and it isn't revealed.
+        public func isCollapsed(_ comment: GalleryComment) -> Bool {
+            isBlocked(comment) && !revealedCommentIDs.contains(comment.commentID)
+        }
+
+        /// Whether `comment`'s author is blocked, revealed or not; the menu offers Unblock instead of Block (C-4).
+        public func isBlocked(_ comment: GalleryComment) -> Bool {
+            blockedAuthors.isBlocked(author: comment.author)
+        }
 
         /// The posting warning (C-5); the screen presents it instead of sending when the filter matches.
         mutating func presentPostingWarning() {
@@ -52,12 +82,19 @@ public struct CommentModerationFeature: Sendable {
     public enum Action: Equatable, Sendable {
         case alert(PresentationAction<Alert>)
         case delegate(Delegate)
+        case reportTapped(GalleryComment)
+        case blockTapped(GalleryComment)
+        case unblock(author: String)
+        case show(commentID: String)
+        case hide(commentID: String)
     }
+
+    @Dependency(\.cookieClient) private var cookieClient
 
     public init() {}
 
     public var body: some Reducer<State, Action> {
-        Reduce { _, action in
+        Reduce { state, action in
             switch action {
             case .alert(.presented(.edit)):
                 return .send(.delegate(.resumeEditing))
@@ -65,11 +102,84 @@ public struct CommentModerationFeature: Sendable {
             case .alert(.presented(.postAnyway)):
                 return .send(.delegate(.post))
 
+            case .alert(.presented(.confirmReport(let url))):
+                return .send(.delegate(.openReportPage(url)))
+
+            case .alert(.presented(.confirmBlock(let author))):
+                state.$blockedAuthors.withLock({ $0.block(author: author) })
+                return .send(.delegate(.didBlock(author: author)))
+
             case .alert, .delegate:
+                return .none
+
+            case .reportTapped(let comment):
+                // A gallery with no report page gets no alert either: Open would have nowhere to go (A-5).
+                guard !isOwn(comment), let galleryURL = state.galleryURL,
+                      let url = CommentReportTarget.reportURL(for: galleryURL),
+                      let site = CommentReportTarget.siteName(for: galleryURL)
+                else { return .none }
+                state.alert = AppAlertState {
+                    TextState(localized: .commentReportConfirmTitle)
+                } actions: {
+                    ButtonState(role: .cancel) {
+                        TextState(localized: .RLocalizable.cancel)
+                    }
+                    ButtonState(action: .confirmReport(url)) {
+                        TextState(localized: .commentReportOpen)
+                    }
+                } message: {
+                    TextState(localized: .commentReportConfirmBody(site, comment.author))
+                }
+                return .none
+
+            case .blockTapped(let comment):
+                guard !isOwn(comment), !comment.author.isEmpty else { return .none }
+                state.alert = AppAlertState {
+                    TextState(localized: .commentBlockConfirmTitle(comment.author))
+                } actions: {
+                    ButtonState(role: .cancel) {
+                        TextState(localized: .RLocalizable.cancel)
+                    }
+                    ButtonState(role: .destructive, action: .confirmBlock(author: comment.author)) {
+                        TextState(localized: .commentBlockConfirm)
+                    }
+                } message: {
+                    TextState(localized: .commentBlockConfirmBody)
+                }
+                return .none
+
+            case .unblock(let author):
+                // No confirmation: blocking again is one menu away (C-6).
+                state.$blockedAuthors.withLock({ $0.unblock(author: author) })
+                return .none
+
+            case .show(let commentID):
+                state.revealedCommentIDs.insert(commentID)
+                return .none
+
+            case .hide(let commentID):
+                state.revealedCommentIDs.remove(commentID)
                 return .none
             }
         }
         .ifLet(\.$alert, action: \.alert)
+    }
+
+    /// The signed-in user's own comments get no Report or Block (A-10).
+    private func isOwn(_ comment: GalleryComment) -> Bool {
+        if comment.editable {
+            return true
+        }
+        @SharedReader(.user) var user
+        return CommentOwnership.isOwn(comment, didLogin: cookieClient.didLogin, displayName: user.displayName)
+    }
+}
+
+extension CommentModerationFeature.State {
+    /// Collapses `author`'s comments among `comments` again, revealed ones included, after a block (C-4).
+    mutating func collapseComments(by author: String, in comments: [GalleryComment]) {
+        let ids = comments.filter({ $0.author == author }).map(\.commentID)
+        revealedCommentIDs.subtract(ids)
     }
 }
 

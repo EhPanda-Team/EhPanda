@@ -73,6 +73,14 @@ extension DetailReducer {
                     await send(.setPostCommentFocused(true))
                 }
 
+            case .moderation(.delegate(.openReportPage(let url))):
+                state.destination = .reportPage(url)
+                return .none
+
+            case .moderation(.delegate(.didBlock(let author))):
+                state.moderation.collapseComments(by: author, in: state.galleryComments)
+                return .none
+
             case .presentNewDawn(let greeting):
                 state.destination = .newDawn(greeting)
                 return .none

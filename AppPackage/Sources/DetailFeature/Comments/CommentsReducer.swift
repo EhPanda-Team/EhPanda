@@ -16,6 +16,9 @@ public struct CommentsReducer: Sendable {
     public enum Destination {
         @ReducerCaseIgnored
         case postComment(String)
+        /// The gallery's report page, opened from a comment's Report (D-10, A-5).
+        @ReducerCaseIgnored
+        case reportPage(URL)
     }
 
     public enum Delegate: Equatable, Sendable {
@@ -34,7 +37,7 @@ public struct CommentsReducer: Sendable {
         @SharedReader(.setting) public var setting: Setting
         @Presents public var toast: AppAlertState<Never>?
         @Presents public var destination: Destination.State?
-        public var moderation = CommentModerationFeature.State()
+        public var moderation: CommentModerationFeature.State
         public var commentContent = ""
         public var postCommentFocused = false
         public var scrollCommentID: String?
@@ -57,6 +60,7 @@ public struct CommentsReducer: Sendable {
             self.galleryURL = galleryURL
             self.comments = comments
             self.scrollCommentID = scrollCommentID
+            moderation = CommentModerationFeature.State(galleryURL: galleryURL)
         }
     }
 
@@ -143,6 +147,14 @@ public struct CommentsReducer: Sendable {
 
             case .moderation(.delegate(.resumeEditing)):
                 state.postCommentFocused = true
+                return .none
+
+            case .moderation(.delegate(.openReportPage(let url))):
+                state.destination = .reportPage(url)
+                return .none
+
+            case .moderation(.delegate(.didBlock(let author))):
+                state.moderation.collapseComments(by: author, in: state.comments)
                 return .none
 
             case .moderation:
