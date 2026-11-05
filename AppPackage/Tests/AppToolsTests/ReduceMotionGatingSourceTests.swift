@@ -39,6 +39,11 @@ import Testing
 /// The first launch (Phase 18 UI-SPEC C-1) is the other: its step change slides and its handover to the
 /// app crossfades, and under Reduce Motion the spec turns the slide into a dissolve and shortens both
 /// crossfades from 0.35s and 0.3s to 0.2s. The crossfades still run; only their length reads the value.
+///
+/// Comment moderation (Phase 18 UI-SPEC C-4, C-6, C-8) animates a Block or Unblock with `.default` and with none
+/// under Reduce Motion: in the comments list every row of the author collapses or expands, a height change D-29
+/// gates anyway; in the Detail strip a card turns into its collapsed card of the same size, gated because the
+/// spec gives the strip the list's rule.
 @Suite
 struct ReduceMotionGatingSourceTests {
     private struct ScannedFile {
@@ -84,6 +89,8 @@ struct ReduceMotionGatingSourceTests {
         "AppFeature/RootView.swift": 1,
         "DetailFeature/Comments/CommentsView.swift": 1,
         "DetailFeature/DetailView+HeaderSection.swift": 1,
+        // The comments strip's Block and Show animations (UI-SPEC C-8).
+        "DetailFeature/DetailView+Subviews.swift": 1,
         "DetailFeature/DetailView.swift": 1,
         "DetailFeature/FolderManager/FolderManagerView.swift": 1,
         "DetailFeature/Torrents/TorrentsView.swift": 1,
@@ -100,7 +107,7 @@ struct ReduceMotionGatingSourceTests {
         "SettingFeature/GeneralSetting/GeneralSettingView.swift": 1,
         "SystemNotification/View+Toast.swift": 1
     ]
-    private static let expectedEnvironmentReadTotal = 22
+    private static let expectedEnvironmentReadTotal = 23
 
     /// Executable lines carrying the ternary predicate, per file.
     private static let expectedTernaryPredicates: [String: Int] = [
@@ -108,7 +115,8 @@ struct ReduceMotionGatingSourceTests {
         "AppComponents/ChoiceCard.swift": 1,
         "AppFeature/FirstLaunch/FirstLaunchGateView.swift": 2,
         "AppFeature/RootView.swift": 1,
-        "DetailFeature/Comments/CommentsView.swift": 1,
+        "DetailFeature/Comments/CommentsView.swift": 2,
+        "DetailFeature/DetailView+Subviews.swift": 2,
         "DetailFeature/DetailView.swift": 3,
         "DetailFeature/FolderManager/FolderManagerView.swift": 1,
         "DetailFeature/Torrents/TorrentsView.swift": 1,
@@ -123,7 +131,7 @@ struct ReduceMotionGatingSourceTests {
         "SettingFeature/GeneralSetting/GeneralSettingView.swift": 1,
         "SystemNotification/View+Toast.swift": 1
     ]
-    private static let expectedTernaryPredicateTotal = 30
+    private static let expectedTernaryPredicateTotal = 33
 
     /// The deep-linked comment scroll and the reader's page jump.
     private static let expectedWithAnimationGateTotal = 2
@@ -136,8 +144,9 @@ struct ReduceMotionGatingSourceTests {
         "AppComponents/ViewModifiers.swift": 2,
         "AppFeature/FirstLaunch/FirstLaunchGateView.swift": 3,
         "AppFeature/RootView.swift": 2,
-        "DetailFeature/Comments/CommentsView.swift": 2,
+        "DetailFeature/Comments/CommentsView.swift": 3,
         "DetailFeature/DetailView+HeaderSection.swift": 3,
+        "DetailFeature/DetailView+Subviews.swift": 3,
         "DetailFeature/DetailView.swift": 4,
         "DetailFeature/FolderManager/FolderManagerView.swift": 2,
         "DetailFeature/Torrents/TorrentsView.swift": 2,
@@ -152,7 +161,7 @@ struct ReduceMotionGatingSourceTests {
         "SettingFeature/GeneralSetting/GeneralSettingView.swift": 2,
         "SystemNotification/View+Toast.swift": 3
     ]
-    private static let expectedGateMentionTotal = 66
+    private static let expectedGateMentionTotal = 70
 
     /// `.contentTransition(.numericText…)` sites across the tree; every one stays ungated (D-29).
     private static let expectedNumericTextTotal = 11
