@@ -6,7 +6,7 @@ status: verified
 threats_open: 0
 open_total: 0
 below_threshold_open: 0
-accepted: 0
+accepted: 1
 asvs_level: 1
 block_on: high
 register_authored_at_plan_time: true
@@ -130,7 +130,7 @@ No security weight.
 
 | ID | Severity | Where | Finding | Status |
 |---|---|---|---|---|
-| F-17-FX-01 | low | Private fixture repository `ehpanda-fixture`, `data/objects/` (original acquisition archive) | 160 saved image-page responses keep their static-link (`/r/`) and `/fullimg/` path access tokens unzeroed. These tokens are in neither `fixtures/versions/` (0 nonzero of 680) nor `overrides/`. In the same archive, `apikey`, `showkey` and `keystamp` are all zeroed, and every page has `apiuid = -1`. So the tokens were issued to an anonymous visitor and are not account credentials. This contradicts the fixture repo's own `AGENTS.md` ("transient access values scrubbed") and the 17-03 `SECRETS` list. The tokens have been in `6d5c308` since 2026-11-01, and that commit is already on the private remote. | open — non-blocking (unregistered, below threshold); owner decision requested |
+| F-17-FX-01 | low | Private fixture repository `ehpanda-fixture`, `data/objects/` (original acquisition archive) | 160 saved image-page responses keep their static-link (`/r/`) and `/fullimg/` path access tokens unzeroed. These tokens are in neither `fixtures/versions/` (0 nonzero of 680) nor `overrides/`. In the same archive, `apikey`, `showkey` and `keystamp` are all zeroed, and every page has `apiuid = -1`. So the tokens were issued to an anonymous visitor and are not account credentials. This contradicts the fixture repo's own `AGENTS.md` ("transient access values scrubbed") and the 17-03 `SECRETS` list. The tokens have been in `6d5c308` since 2026-11-01, and that commit is already on the private remote. | accepted — owner, 2026-11-05 (msg 1667); see Accepted Risks Log |
 | F-17-DOC-01 | informational | `17-REVIEW-FIX.md:108` | A tracked phase record contains the absolute local checkout path, including the macOS user name. It is not a credential, LAN address or simulator ID. | noted |
 
 ---
@@ -156,8 +156,11 @@ The scan covered `8ee4fc2`, every commit in `git rev-list --all` (5 commits), an
 
 ## Accepted Risks Log
 
-No accepted risks. No threat in this register needed acceptance. F-17-FX-01 awaits the owner's
-decision and is not accepted here.
+No threat in the register needed acceptance. One unregistered finding is accepted:
+
+| ID | Severity | Risk | Rationale | Accepted By | Date |
+|----|----------|------|-----------|-------------|------|
+| F-17-FX-01 | low | 160 original acquisition responses in the private fixture repo's `data/objects/` keep anonymous `/r/` and `/fullimg/` image access tokens | Issued to an anonymous visitor (`apiuid = -1`), not account credentials; each is tied to one public image the repo already holds; the copies the app reads (`fixtures/versions/`) are zeroed; the tokens are already in pushed history (`6d5c308`), so scrubbing now would not remove them without a history rewrite. | owner, msg 1667, card 1666 | 2026-11-05 |
 
 ---
 
@@ -172,8 +175,8 @@ decision and is not accepted here.
 ## Sign-Off
 
 - [x] All threats have a disposition (mitigate / accept / transfer)
-- [x] Accepted risks documented in Accepted Risks Log (none)
+- [x] Accepted risks documented in Accepted Risks Log (1 unregistered finding, F-17-FX-01, owner-accepted)
 - [x] `threats_open: 0` confirmed
 - [x] `status: verified` set in frontmatter
 
-**Approval:** verified 2026-11-05 (threat register). The F-17-FX-01 disposition is the owner's.
+**Approval:** verified 2026-11-05 (threat register). F-17-FX-01 accepted by the owner (msg 1667).
