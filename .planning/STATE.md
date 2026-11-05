@@ -1,25 +1,58 @@
 ---
 gsd_state_version: "1.0"
 milestone: v3.0.0
-current_phase: 17
-current_phase_name: Screenshot Automation, Visual Regression & OS 27 Modernization
-status: executing
-stopped_at: Phase 17 verified (human_needed, 7900db15e); records corrected per owner msg 1640; next the verifier's update, then UAT, secure-phase and validate-phase
-last_updated: "2026-11-04T17:10:19.000Z"
+current_phase: 18
+current_phase_name: "3.0 Release Readiness: Age Wall, Consent, Marketplace Distribution & Visual Regression"
+status: planning
+stopped_at: Phase 17 complete, ready to plan Phase 18
+last_updated: "2026-11-05T03:48:31.844Z"
 last_activity: 2026-11-05
-last_activity_desc: Live Text fixtures retained (msg 1645); fixture repository reduced to the current set (msg 1647)
-state_head: dab8bb8c23e50c0adbc996dd921127675b13a235
+last_activity_desc: Phase 17 complete, transitioned to Phase 18
+state_head: 143ca6fa0ffcbcbad0dd6528acce2724a0af4a7d
 progress:
   total_phases: 18
-  completed_phases: 15
+  completed_phases: 16
   total_plans: 287
   completed_plans: 287
-  percent: 83
-milestone_name: )
-source_head: af00e0da93
+  percent: 89
+milestone_name: Dependency Reduction & Modernization
+source_head: 891103afa
 ---
 
 # Project State
+
+## Phase 17 complete — 2026-11-05
+
+Phase 17 (Screenshot Automation, Visual Regression & OS 27 Modernization) is complete at its reduced
+scope (owner msg 1305): 13/13 in-scope plans have summaries; the 11 moved plans keep `status: superseded`.
+The GSD close steps are done:
+
+- **Verification:** 17-VERIFICATION.md `passed`, 8/8 truths (round 5, `7566b1001`; tested source `891103afa`).
+- **UAT:** 17-UAT.md complete, 31/31 passed, 0 issues (`458a16d5b`).
+- **Security:** 17-SECURITY.md `verified`, 39/39 threats closed, `threats_open: 0` (F-17-FX-01 accepted, owner msg 1667).
+- **Validation:** 17-VALIDATION.md `validated`, `nyquist_compliant: false`: gaps G1 and G2 are open on purpose
+  (the WR-01 and RTL runtime checks used throwaway harnesses).
+
+Requirements: CAP-17-04 (amended) and CAP-17-07 (amended) are complete, as are the Phase 17 parts of CAP-17-01
+and CAP-17-06. CAP-17-02, CAP-17-03, CAP-17-05 and the moved parts of CAP-17-01/04/06 are in Phase 18. They
+were moved, not satisfied.
+
+**Moved to Phase 18** (ROADMAP Phase 18; 17-VERIFICATION.md `deferred`):
+
+- **Step 4b:** the reader page-tracking rework (owner msg 1630, product lead msg 1631), plus committed reader UI
+  tests for G1/G2: the WR-01 rebuild paths (Reload All Images, then a page turn; a reading-direction change during
+  Auto-Play) and RTL page sync.
+- **Steps 2 and 3:** the first-launch age wall (AGE-18-01) and analytics consent (CONSENT-18-01). Both are
+  standards for every build (Deferred Items below).
+- **Steps 5 to 9:** visual regression (VIS-18-01) and the marketing/AltStore work (MKT-18-01, DIST-18-02).
+- **Step 7:** review items IN-02 and IN-03.
+- **Context item 8:** the `Scripts/visual/README.md` rewrite.
+
+Carried risk: the fixture repository's current layout (`8ee4fc2`, `f71d108`) is not pushed (R4-3). Pushing is
+the owner's decision.
+
+Next: Phase 18 has no CONTEXT.md and no plans. The workflow routes to `/gsd-discuss-phase 18`, which has not
+been started.
 
 ## Live Text fixtures retained; fixture repository holds only the current set — 2026-11-05
 
@@ -541,19 +574,22 @@ The review iPad has the final app; Phase 17 remains unchanged. See
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-09-23)
+See: .planning/PROJECT.md (updated 2026-11-05)
 
 **Core value:** The load-bearing paths — fetch, parse, read, download galleries — keep working; every task is a foundation change held to behavior/appearance parity.
-**Current focus:** Phase 17 — Screenshot Automation, Visual Regression & OS 27 Modernization (reduced 2026-11-03); Phase 18 — 3.0 Release Readiness follows
+**Current focus:** Phase 18 — 3.0 Release Readiness: Age Wall, Consent, Marketplace Distribution & Visual Regression (Phase 17 complete 2026-11-05)
 
 ## Current Position
 
-Phase: 17 of 18 (Screenshot Automation, Visual Regression & OS 27 Modernization)
-Plan: 7 of 13 in-scope plans complete (17-01 to 17-06, 17-24); 11 plans moved to Phase 18 with `status: superseded` (owner msg 1305, 2026-11-03); next 17-16 (wave 8)
-Status: executing (remaining order 17-16, 17-17, 17-18, 17-19 with owner checkpoint, 17-14 T2, 17-23; then the GSD close steps; the phase is not complete and 17-VERIFICATION.md does not exist yet)
-Last activity: 2026-11-03 — Owner msg 1305 reduces Phase 17 and adds Phase 18 for 3.0 release readiness; planning documents only.
+Phase: 18 of 18 (3.0 Release Readiness: Age Wall, Consent, Marketplace Distribution & Visual Regression)
+Plan: Not started
+Status: Ready to plan
+Last activity: 2026-11-05 — Phase 17 complete, transitioned to Phase 18
 
-**2026-11-03 scope reduction:** see the top section. The 17-06 owner review is superseded by the owner's 2026-11-02 approval of the complete 192-image website set. The older Phase 17 gate notes below are historical; their "6/24" counts and "next" pointers are superseded.
+Phase 17 closed with 13/13 in-scope plans, verification passed 8/8, UAT 31/31, security verified and validation
+validated (see the top section). Phase 18 has no CONTEXT.md and no plans yet.
+
+**2026-11-03 scope reduction (historical):** see the section "Phase 17 reduced, Phase 18 added" above. The 17-06 owner review is superseded by the owner's 2026-11-02 approval of the complete 192-image website set. The older Phase 17 gate notes below are historical; their "6/24" counts and "next" pointers are superseded.
 
 **Previous activity (2026-10-28, historical):** Quick task 261028-hi0 restores Release `-O` after the owner requests dropping the size-optimization commit. Preview cleanup remains; the earlier 12.35% saving describes the withdrawn experiment, and current size is unmeasured. Approved bottom edges and Archives safeAreaBar are implemented, with the final persistent Library title menu and custom circular arrow. The implemented gallery contains 18 comparison pairs and 18 additional captures. Serialization lint policy, normal parallel test plans and fixture repairs are verified; the owner deferred the device-bound runner exception discussion. Quick task incomplete; Phase 17 unchanged.
 
@@ -616,13 +652,15 @@ Round-1 state: closed and signed. 38 findings — 32 `re-verified`, 6 `accepted`
 
 D-01 amendment 2 authorizes agent-written fixes; the original owner-only implementation restriction is superseded. All five Dynamic Type lint rules (`no_dynamic_type_size_modifier`, `no_geometry_reader`, `no_fixed_system_font_size`, `accessibility_hardcoded_string`, `no_minimum_scale_factor`) are live at error severity with the tree at 0 for each. A11Y-01 is complete; A11Y-02 (round 2) is open; the phase is not complete. Do not push without the owner.
 
-Progress: 281/287 in-scope plans complete (the 11 superseded Phase 17 plans are excluded); GSD-recorded phase progress: [████████░░] 83%; Phase 17 has 7/13 in-scope plans complete; Phase 18 has no plans yet; the remaining Phase 17 plans and Phase 18 keep the milestone open.
+Progress: [████████████████████] 287/287 plans (100%), excluding the 11 superseded Phase 17 plans. GSD counts
+16 of 18 phases complete (89%): Phase 6 is recorded as "Delivered (rescoped)" and Phase 18 has not started.
+Phase 17 has 13/13 in-scope plans complete. Phase 18 has no plans yet and keeps the milestone open.
 
 ## Performance Metrics
 
 **Velocity:**
 
-- Total plans completed: 244
+- Total plans completed: 257
 - Average duration: — min
 - Total execution time: 0.0 hours
 
@@ -643,6 +681,7 @@ Progress: 281/287 in-scope plans complete (the 11 superseded Phase 17 plans are 
 | 14 | 18 | - | - |
 | 15 | 77 | - | - |
 | 16 | 26 | - | - |
+| 17 | 13 | - | - |
 
 **Recent Trend:**
 
@@ -1482,6 +1521,14 @@ Recent decisions affecting current work:
 - Native iOS 27 title/search policy and reader index logic remain; W-38 is accepted on the mock VoiceOver 1-to-41 recording.
 - Preserve accepted/deferred/unmeasured limits and historical evidence-retention warnings in `phases/16-dynamic-type-accessibility/16-VERIFICATION.md` and `16-CLOSEOUT-NOTES.md`.
 
+### Phase 17 transition decisions (2026-11-05)
+
+- Phase 17 closes at its reduced scope (owner msg 1305). The moved work (CAP-17-02, CAP-17-03, CAP-17-05 and the moved parts of CAP-17-01/04/06) is recorded as moved to Phase 18, never as satisfied.
+- CAP-17-04 is met by the current website image set: the 2026-11-04 recapture, 118 files serving the 192 coordinates (owner msgs 1581 and 1640). The iPad axis and the 384 export are moved to Phase 18.
+- The size-class layout migration landed before snapshot coverage existed. It is accepted on reducer tests, one simulator pass and the idiom census, and the owner kept all five remaining idiom reads (msg 1409).
+- Known limit accepted: at `891103afa` the reader page-sync stress ran ×5 on phone and iPad (owner msg 1640). The reader page-tracking rework and committed G1/G2 UI tests are Phase 18 Step 4b.
+- Review: WR-01 and IN-01 are fixed, WR-02 is not a gap (owner msg 1627), and IN-02/IN-03 are deferred to Phase 18 Step 7. Full log: PROJECT.md Key Decisions.
+
 ### Pending Todos
 
 [From .planning/todos/pending/ — ideas captured during sessions]
@@ -1501,6 +1548,9 @@ None yet.
 - DownloadContinuedSessionTests.swift sits at 999 of 1000 lines (file_length is error severity); the next added line fails the build. Sanctioned remedy recorded in 15-22-SUMMARY.md: relocate testEmptySchedulableSetStillPushesAPositiveTotal into the ledger suite.
 - Phase 16 accepted coverage limit: Tag Detail sheet (#21) is unreachable in the English fixture because translated descriptions are empty; six historical matrix rows remain unavailable. This is not an open Phase 16 sign-off blocker.
 - Phase 16 evidence limits: fifteen unreached sites, spoken Voice Control, nonreader native double-tap, W-21 and W-24 retain their owner-approved dispositions. Historical reference warnings are listed in `phases/16-dynamic-type-accessibility/16-CLOSEOUT-NOTES.md`.
+- [Phase 17] Nyquist gaps G1 and G2 stay open (`nyquist_compliant: false`): the WR-01 rebuild-during-turn and RTL page-sync checks used throwaway harnesses (17-WR01-MIDTURN.md). Committed UI tests are Phase 18 Step 4b; 17-VERIFICATION.md R5-1 suggests their scope.
+- [Phase 17] The fixture repository commits behind the current website set (`8ee4fc2`, `f71d108`) are local only and not pushed (R4-3). Pushing is the owner's decision.
+- [Phase 17] No Debug negative-control Release scan ran at `891103afa`; the last one is at `97b31b063` (17-FINAL-VALIDATION.md section 9). Phase 18 Step 7 repeats the Release scan on the final 3.0 build.
 
 ### Quick Tasks In Progress
 
@@ -1576,9 +1626,9 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-11-02T16:45:00Z
-Stopped at: Phase 17 reduced and Phase 18 added (planning documents only); next `/gsd-execute-phase 17` for 17-16, 17-17, 17-18, 17-19 (owner checkpoint), 17-14 T2 and 17-23, then the Phase 17 close steps
-Resume file: .planning/phases/17-localized-screenshot-capture-harness/.continue-here.md
+Last session: 2026-11-05T03:48:31Z
+Stopped at: Phase 17 complete, ready to plan Phase 18
+Resume file: None (the stale Phase 17 `.continue-here.md` handoff was deleted at the transition)
 
 Earlier stop (2026-10-13T10:50:00Z, historical): 17-06 revision re-shot, 16/16 captured (`.capture/17-06-t-native-*`); superseded by the owner's 2026-11-02 approval of the 192-image website set.
 

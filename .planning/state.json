@@ -86,7 +86,7 @@
     {
       "number": "17",
       "name": "Screenshot Automation, Visual Regression & OS 27 Modernization",
-      "status": "in_progress"
+      "status": "complete"
     },
     {
       "number": "18",
@@ -96,8 +96,8 @@
   ],
   "next": {
     "command": "/gsd-progress --next",
-    "label": "Advance to the next step",
-    "reason": "Phase 17 of 18 · 83% · executing"
+    "label": "Advance to the next step (plan phase 18)",
+    "reason": "Phase 18 of 18 — needs a plan"
   },
-  "updated_at": "2026-11-02T16:43:58.724Z"
+  "updated_at": "2026-11-05T03:48:31.882Z"
 }

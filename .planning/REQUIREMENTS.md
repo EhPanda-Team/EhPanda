@@ -97,7 +97,7 @@ The current Phase 17 context supersedes older roadmap wording. The OS 27 moderni
 
 *Reduced 2026-11-03 (owner, msg 1305):* Phase 17 closes small. CAP-17-04 and CAP-17-07 are amended below. CAP-17-02, CAP-17-03, CAP-17-05 and the moved parts of CAP-17-01 and CAP-17-06 move to Phase 18 with their plans (17-07 to 17-13, 17-14 T1/T3, 17-15, 17-20 to 17-22); they are moved, not satisfied.
 
-- [ ] **CAP-17-01**: Acquire and refresh versioned real-gallery fixtures explicitly, with provenance and asset checksums; replay capture runs offline without a real account, private library or credentials in artifacts.
+- [x] **CAP-17-01**: Acquire and refresh versioned real-gallery fixtures explicitly, with provenance and asset checksums; replay capture runs offline without a real account, private library or credentials in artifacts.
   - Track provisional versus final selections. The agent may choose provisional real marketing content; final owner identifiers, set assignments, ordering and reader pages must replace it before closure, followed by capture regeneration and revalidation. Test data may be public synthetic, real or mixed independently of marketing content. Preserve manifest SSOT and the same-run download-folder deletion invariant.
   - *Split 2026-11-03 (owner, msg 1305):* the fixture acquisition, provenance and offline replay delivered by 17-03, 17-04 and 17-06, and the website fixture versions (16 owner-approved on 2026-11-02, `quick/261101-website-review/APPROVAL-20261102.md`, last held at fixture commit `134cbf3`; since `8ee4fc2` the repository keeps the 11 that the 2026-11-04 set uses) stay with Phase 17. Public regression test-data dispatch (17-11) and the final 384 reacquisition (17-21) move to Phase 18 (VIS-18-01, MKT-18-01).
 - [ ] **CAP-17-02**: Implement SnapshotTesting coverage for an explicit current screen/state inventory across six locales, all twelve Dynamic Type sizes, portrait/landscape, iPhone/iPad and light/dark.
@@ -106,17 +106,17 @@ The current Phase 17 context supersedes older roadmap wording. The OS 27 moderni
 - [ ] **CAP-17-03**: Commit reviewed public-distributable snapshot baselines alongside tests and run the complete matrix on every PR and release.
   - Routine comparisons never record or replace missing references. Explicit candidates receive complete agent visual review and final owner approval before promotion. Provide a screen-grouped, filterable baseline/actual/diff report and actionable failures; prove controlled-regression failure and clean restoration. Document any measured comparison tolerance.
   - *Moved 2026-11-03 (owner, msg 1305):* to Phase 18 under VIS-18-01, with 17-12, 17-13 and 17-14 T1/T3. 17-20's separate post-layout approval is folded into Phase 18's single baseline approval because the layout migration already landed.
-- [ ] **CAP-17-04**: Produce a separate actual-app local website export covering all 384 locked screen/locale/theme/device/content-set coordinates.
+- [x] **CAP-17-04**: Produce a separate actual-app local website export covering all 384 locked screen/locale/theme/device/content-set coordinates.
   - Use the eight states from D-15, portrait iPhone Air and iPad Pro 11-inch (M5), pinned text size/runtime, normal device dimensions, 9:41 status bar and verified capsule removal. Verify state and settled content before capture and byte-identical cold reruns. Deliver images, complete inventory including failures/missing outcomes, provenance, dimensions/hashes, instructions and results; keep canonical locale casing in metadata and lowercase Chinese filename tokens. No duplicate visible gallery within one screen. Final owner selections gate final delivery.
   - *Amended 2026-11-03 (owner approval, msg 1305):* met by the 192 owner-approved website images of 2026-11-02 (`quick/261101-website-review/APPROVAL-20261102.md`): iPhone Air portrait, eight screens × six locales × two themes × two content sets, with fixed 9:41 status bars and verified artifact and browser checks. The communicated website contract drops the iPad axis (`quick/261101-website-review/PLAN.md`), so the 192 images replace the 384-coordinate count for this requirement. The 384 export tooling, its handoff validator and the 384 regeneration (17-07, 17-21) move to Phase 18 under MKT-18-01.
   - *Clarified 2026-11-05 (owner msg 1640):* the requirement means the current website image set, the 2026-11-04 recapture (quick task `261104-website-recapture`: 17 recaptures and 101 status-bar edits, 118 files serving the same 192 coordinates), approved by the owner in msg 1581 and recorded in the website repository's 2026-11-04 screenshot provenance record (`develop`, commit `d4393bd`) alongside the 2026-11-02 approval (17-FINAL-VALIDATION.md section 3).
 - [ ] **CAP-17-05**: Assign AltStore promotional composition to a separate designer agent and validate its local consumer handoff.
   - Deliberately designed App Store-style images are required; raw captures alone do not satisfy delivery. The designer chooses its own screen list, matrix, composition/copy/dimensions and additional source needs; the capture pipeline supplies source material and metadata. Validate intended AltStore references without public publishing or inventing the design in capture planning.
   - *Moved 2026-11-03 (owner, msg 1305):* to Phase 18 under MKT-18-01 and DIST-18-02, with 17-22.
-- [ ] **CAP-17-06**: Preserve the implemented iOS/iPadOS 27, Swift 6.4 and native navigation/search/toolbar/top-edge behavior.
+- [x] **CAP-17-06**: Preserve the implemented iOS/iPadOS 27, Swift 6.4 and native navigation/search/toolbar/top-edge behavior.
   - Verify native root and sheet titles, search focus/query/orientation, cold entry and live size changes at standard/AX1/AX3/AX5 on both families; native overflow/Picker/Toggle behavior and stable action-source anchors; soft top edges at effective hosts and independent presentation roots. Preserve current Phase 16 owner dispositions and evidence bounds. Research Xcode 27 agent preview tools and verify returned destination before using their images as development/review evidence.
   - *Split 2026-11-03 (owner, msg 1305):* Phase 17 signs off with bounded evidence (existing behavioral tests and the recorded standard/AX1/AX3/AX5 title, search and top-edge checks). The snapshot-measured parts (17-09-T2 native visual policy tests, 17-15 preview review) move to Phase 18 under VIS-18-01.
-- [ ] **CAP-17-07**: Isolate capture controls/fixtures/dependencies from Release and replace device-idiom layout decisions only after snapshot coverage is implemented.
+- [x] **CAP-17-07**: Isolate capture controls/fixtures/dependencies from Release and replace device-idiom layout decisions only after snapshot coverage is implemented.
   - Inspect Release payload and dependency graph; no capture/test assets or activation path ships. Audit direct and client-mediated idiom reads and derived layout flags, replace actual layout decisions with size classes/container fitting, and preserve non-layout capabilities. Verify changes through completed snapshots plus behavioral/accessibility checks; no lint or warning suppression.
   - *Amended 2026-11-03 (owner approval, msg 1305):* the idiom → size-class layout migration landed through quick task `261015-duo-session-record` (`605b4e4749`, `e03456839a`, `30ef583d21`, `7cf9ff16ef`) **before** snapshot coverage existed, not after it. It is verified through the existing reducer tests, one simulator pass (iPad full width, a narrow iPad window, iPhone landscape) and a census of the remaining idiom reads with owner keep/change decisions (17-16 to 17-19). Release isolation is proven by 17-14 T2. Snapshot measurement of the layout moves to Phase 18 (VIS-18-01).
 
@@ -194,13 +194,13 @@ None. Deferred work is captured under Out of Scope (future milestone), not stage
 | ANALYTICS-01 | Phase 14 | Complete |
 | A11Y-01 | Phase 16 | Complete |
 | A11Y-02 | Phase 16 | Complete |
-| CAP-17-01 | Phase 17 (moved parts: Phase 18) | Pending |
+| CAP-17-01 | Phase 17 (moved parts: Phase 18) | Complete (Phase 17 part; moved parts under VIS-18-01, MKT-18-01) |
 | CAP-17-02 | Phase 18 (moved 2026-11-03) | Pending |
 | CAP-17-03 | Phase 18 (moved 2026-11-03) | Pending |
-| CAP-17-04 | Phase 17 (amended 2026-11-03) | Pending |
+| CAP-17-04 | Phase 17 (amended 2026-11-03) | Complete |
 | CAP-17-05 | Phase 18 (moved 2026-11-03) | Pending |
-| CAP-17-06 | Phase 17 (moved parts: Phase 18) | Pending |
-| CAP-17-07 | Phase 17 (amended 2026-11-03) | Pending |
+| CAP-17-06 | Phase 17 (moved parts: Phase 18) | Complete (Phase 17 part; moved parts under VIS-18-01) |
+| CAP-17-07 | Phase 17 (amended 2026-11-03) | Complete |
 | REL-18-01 | Phase 18 | Pending |
 | DIST-18-01 | Phase 18 | Pending |
 | AGE-18-01 | Phase 18 | Pending |
@@ -221,7 +221,8 @@ None. Deferred work is captured under Out of Scope (future milestone), not stage
 
 ---
 *Requirements defined: 2026-07-09*
-*Last updated: 2026-11-03 — Phase 17 reduced (owner, msg 1305): CAP-17-04 and CAP-17-07 amended; CAP-17-02, CAP-17-03, CAP-17-05 and the moved parts of CAP-17-01/06 mapped to Phase 18; eleven Phase 18 requirements added (msgs 1287, 1289, 1294, 1299, 1305 and the 2026-11-02 age-wall and consent standards); 44/44 mapped. 2026-11-05: CAP-17-04's referent clarified as the current website image set (owner msg 1640).*
+*Last updated: 2026-11-05 — Phase 17 complete: CAP-17-04 and CAP-17-07 (amended) complete; CAP-17-01 and CAP-17-06 complete for their Phase 17 parts, moved parts under VIS-18-01 and MKT-18-01; CAP-17-02, CAP-17-03 and CAP-17-05 stay pending in Phase 18 (moved, not satisfied). Marked by hand at the transition because `phase.complete` could not parse the Phase 17 **Requirements** line and marked nothing.*
+*Previously updated: 2026-11-03 — Phase 17 reduced (owner, msg 1305): CAP-17-04 and CAP-17-07 amended; CAP-17-02, CAP-17-03, CAP-17-05 and the moved parts of CAP-17-01/06 mapped to Phase 18; eleven Phase 18 requirements added (msgs 1287, 1289, 1294, 1299, 1305 and the 2026-11-02 age-wall and consent standards); 44/44 mapped. 2026-11-05: CAP-17-04's referent clarified as the current website image set (owner msg 1640).*
 *Previously updated: 2026-10-02 — Phase 17 capture requirements assigned; provisional selections authorized, final owner identifiers required before closure.*
 *Previously updated: 2026-09-23 — A11Y-01/A11Y-02 complete under the signed best-effort scope; see Phase 16 verification and its explicit overrides.*
 *Previously updated: 2026-07-26 — ANALYTICS-01 restated after the 14-18 owner checks: D-01 reversed for a runtime opt-out, and D-13 amended so the deploy workflows inject credentials while clones, forks and the test workflow stay silent; 23/23 mapped*
