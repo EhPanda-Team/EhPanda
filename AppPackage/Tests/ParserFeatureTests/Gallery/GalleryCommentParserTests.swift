@@ -279,17 +279,50 @@ struct GalleryCommentParserTests: TestHelper {
         #expect(comment.author == "author")
     }
 
+    /// The host compares without case, as DNS does, so the same contact link in capitals still names the poster.
+    @Test
+    func theContactLinkHostMatchesWhateverItsCase() throws {
+        let link = "HTTPS://Forums.E-Hentai.org/index.php?showuser=4764920"
+        let contact = #"&nbsp; &nbsp; <a href=""# + link + #""><img alt="PM" /></a>"#
+        let comment = try #require(Parser.parseComments(doc: document(body: "text", afterAuthor: contact)).first)
+        #expect(comment.authorMemberID == "4764920")
+    }
+
     /// No contact link, or one whose `showuser` is not a number, gives no member ID; nor does a link in the text.
     @Test(arguments: [
         "",
         #"&nbsp; &nbsp; <a href="https://forums.e-hentai.org/index.php?showuser=abc">PM</a>"#,
         #"&nbsp; &nbsp; <a href="https://forums.e-hentai.org/index.php?showuser=">PM</a>"#,
+        #"&nbsp; &nbsp; <a href="https://forums.e-hentai.org/index.php?showuser=12a">PM</a>"#,
         #"&nbsp; &nbsp; <a href="https://example.com/index.php?showuser=12">PM</a>"#
     ])
     func aCommentWithoutAContactLinkHasNoMemberID(afterAuthor: String) throws {
         let body = #"see <a href="https://forums.e-hentai.org/index.php?showuser=99">this</a>"#
         let comment = try #require(Parser.parseComments(doc: document(body: body, afterAuthor: afterAuthor)).first)
         #expect(comment.authorMemberID == nil)
+    }
+
+    /// Only the site's exact contact link carries a member ID: a look-alike host, another scheme, path or port, or a
+    /// user part gives none (18-REVIEW IN-01).
+    @Test(arguments: [
+        "https://fake-e-hentai.org/index.php?showuser=12",
+        "https://note-hentai.org/index.php?showuser=12",
+        "https://forums.e-hentai.org.evil.com/index.php?showuser=12",
+        "https://e-hentai.org/index.php?showuser=12",
+        "https://evil.forums.e-hentai.org/index.php?showuser=12",
+        "https://forums.e-hentai.org@evil.com/index.php?showuser=12",
+        "https://evil.com@forums.e-hentai.org/index.php?showuser=12",
+        "https://forums.e-hentai.org:8443/index.php?showuser=12",
+        "http://forums.e-hentai.org/index.php?showuser=12",
+        "https://forums.e-hentai.org/other.php?showuser=12",
+        "https://forums.e-hentai.org/index.php/x?showuser=12",
+        "forums.e-hentai.org/index.php?showuser=12"
+    ])
+    func aLookAlikeContactLinkHasNoMemberID(link: String) throws {
+        let contact = #"&nbsp; &nbsp; <a href=""# + link + #""><img alt="PM" /></a>"#
+        let comment = try #require(Parser.parseComments(doc: document(body: "text", afterAuthor: contact)).first)
+        #expect(comment.authorMemberID == nil)
+        #expect(comment.author == "author")
     }
 
     /// Each comment of a saved gallery page gets its own poster's ID.

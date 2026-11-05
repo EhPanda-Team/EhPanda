@@ -86,16 +86,30 @@ extension Parser {
 private extension Parser {
     /// The poster's member ID: the digits of the forum contact link the site prints after the name,
     /// `https://forums.e-hentai.org/index.php?showuser=<digits>`. `nil` when the comment has no such link.
+    ///
+    /// Only that exact link counts: the scheme, host and path of `Defaults.URL.forum`, with no user, password or
+    /// port. A look-alike host such as `fake-e-hentai.org` or `forums.e-hentai.org.evil.com` gives no ID.
     static func parseMemberID(c3Node: any XMLElement) -> String? {
+        let key = Defaults.URL.Component.Key.showUser.rawValue
         for link in c3Node.xpath(".//a") {
             guard let href = link["href"], let components = URLComponents(string: href),
-                  components.host?.hasSuffix("e-hentai.org") == true,
-                  let value = components.queryItems?.first(where: { $0.name == "showuser" })?.value,
+                  isForumContactLink(components),
+                  let value = components.queryItems?.first(where: { $0.name == key })?.value,
                   !value.isEmpty, value.allSatisfy({ $0.isASCII && $0.isNumber })
             else { continue }
             return value
         }
         return nil
+    }
+
+    /// Whether a link is the site's forum contact link: exactly the scheme, host and path of `Defaults.URL.forum`.
+    /// The scheme and host compare without case, as URLs and DNS do; the path compares exactly.
+    static func isForumContactLink(_ components: URLComponents) -> Bool {
+        let forum = Defaults.URL.forum
+        return components.scheme?.lowercased() == forum.scheme
+            && components.host?.lowercased() == forum.host(percentEncoded: false)
+            && components.path == forum.path(percentEncoded: false)
+            && components.user == nil && components.password == nil && components.port == nil
     }
 
     static func parseCommentContent(node: any XMLElement) -> [CommentContent] {
