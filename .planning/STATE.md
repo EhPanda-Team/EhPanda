@@ -4,8 +4,8 @@ milestone: v3.0.0
 current_phase: 18
 current_phase_name: "In-App 3.0 Readiness: Age Wall, Analytics Choice, Comment Moderation & Reader Rework"
 status: executing
-stopped_at: 18-12-PLAN.md Task 3 checkpoint (owner live report-page check)
-last_updated: "2026-11-05T17:50:00.000Z"
+stopped_at: Completed 18-12-PLAN.md (all 12 Phase 18 plans executed; phase verification not yet run)
+last_updated: "2026-11-05T17:55:00.000Z"
 last_activity: 2026-11-05
 last_activity_desc: Phase 18 planned (12 plans, 4 waves) against the final UI-SPEC (msg 1826)
 state_head: 0f5140338
@@ -13,7 +13,7 @@ progress:
   total_phases: 20
   completed_phases: 16
   total_plans: 299
-  completed_plans: 298
+  completed_plans: 299
   percent: 80
 milestone_name: Dependency Reduction & Modernization
 source_head: b5eca09d1
@@ -689,13 +689,13 @@ Round-1 state: closed and signed. 38 findings — 32 `re-verified`, 6 `accepted`
 
 D-01 amendment 2 authorizes agent-written fixes; the original owner-only implementation restriction is superseded. All five Dynamic Type lint rules (`no_dynamic_type_size_modifier`, `no_geometry_reader`, `no_fixed_system_font_size`, `accessibility_hardcoded_string`, `no_minimum_scale_factor`) are live at error severity with the tree at 0 for each. A11Y-01 is complete; A11Y-02 (round 2) is open; the phase is not complete. Do not push without the owner.
 
-Progress: [███████████████████░] 298/299 plans ([████████░░] 80%), excluding the 11 superseded Phase 17 plans. GSD counts
+Progress: [████████████████████] 299/299 plans ([████████░░] 80%), excluding the 11 superseded Phase 17 plans. GSD counts
 16 of 20 phases complete (80%): Phase 6 is recorded as "Delivered (rescoped)", Phase 18 is in progress and Phases 19
 and 20 have not started.
-Phase 17 has 13/13 in-scope plans complete. Phase 18 has 11 of 12 plans executed (18-01, 18-02, 18-03, 18-04, 18-05,
-18-06, 18-07, 18-08, 18-09, 18-10, 18-11); Phases 19 and 20 have no plans yet. They keep the milestone open.
-18-12 has Tasks 1 and 2 done and its gate passed on `f08a6a781`; it waits on Task 3, the owner's live report-page
-check (steps in `18-12-SUMMARY.md`).
+Phase 17 has 13/13 in-scope plans complete. Phase 18 has 12 of 12 plans executed (18-01 to 18-12); Phases 19 and
+20 have no plans yet. They keep the milestone open. 18-12's gate passed on `f08a6a781`, and its Task 3 live
+report-page check passed on 2026-11-05 17:51Z, verified by an agent per owner rule msg 1652 (`18-12-SUMMARY.md`).
+Phase 18 is ready for `/gsd-verify-work`, which has not been run.
 
 ## Performance Metrics
 

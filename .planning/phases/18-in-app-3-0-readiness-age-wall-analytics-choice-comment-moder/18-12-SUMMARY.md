@@ -73,7 +73,7 @@ key-decisions:
 patterns-established:
   - "Moderation UI tests preset the block list with `EHPANDA_UITEST_BLOCKED_USERS`, a JSON array of `{\"memberID\": …, \"name\": …}` objects; a malformed list, including the old array of names, starts the launch with no blocks"
 
-requirements-completed: []
+requirements-completed: [AGE-18-01, CONSENT-18-01, UGC-18-01]
 
 coverage:
   - id: T1
@@ -94,23 +94,24 @@ coverage:
         status: pass
     human_judgment: false
   - id: T3
-    description: "Live report page (owner checkpoint)"
+    description: "Live report page (checkpoint, verified by an agent per owner rule msg 1652)"
     verification:
-      - kind: manual
-        ref: "Owner signs in on the phone and opens Report on a live comment"
-        status: open
-    human_judgment: true
+      - kind: manual_agent
+        ref: "Debug build on the phone, signed in through the app's login: Report → Open Report Page loads the signed-in report form; after Log Out the same sheet loads the site's guest page (deviation 9). Nothing selected or submitted"
+        status: pass
+    human_judgment: false
 
-duration: about 3h over several sessions (2026-11-05 14:40Z to 17:45Z), with the gate run twice
-completed: null
-status: checkpoint
+duration: about 3h over several sessions (2026-11-05 14:40Z to 17:45Z), with the gate run twice, plus the live report-page check at 17:51Z
+completed: 2026-11-05
+status: complete
 ---
 
 # Phase 18 Plan 12: README Analytics, phase gate and member-ID blocking Summary
 
 **The six README Analytics sections now describe the three analytics levels as the app offers and sends them. Comment
 blocking now matches the poster's E-Hentai member ID instead of the display name (owner msg 1918). Phase 18 passes
-its full gate on both devices and in Release. The live report-page check is waiting for the owner.**
+its full gate on both devices and in Release. The live report-page check passed, verified by an agent per owner rule
+msg 1652.**
 
 ## Accomplishments
 
@@ -218,26 +219,48 @@ It also found the stale Reduce Motion inventory (`3be402c1e`) and the strip-drag
    `verify-release.py`'s probe ran on `$PHONE` itself: it installs over `app.ehpanda.personal`, which keeps that
    app's data container. Its preferences file was not modified.
 
-## Checkpoint: live report page (Task 3), OPEN
+9. **[Checkpoint, lead decision] Signed-out report page: the site's guest page, not a sign-in prompt.** The plan's
+   Task 3 step 4 expected the sheet to show the site's sign-in prompt after Log Out. The site has no sign-in prompt
+   at this point: signed out, the sheet loads the same report form in the site's guest version. Evidence:
+   - an ad banner sits under the site menu, and the signed-in page had none;
+   - the "Multi-Page Viewer" link is gone; the signed-in page showed it (the site shows it only to signed-in
+     accounts with that perk);
+   - the app had dropped its session: all four cookie fields in Account read "None", and Post Comment was disabled;
+   - a cookie-free `curl` GET of another gallery's `?report=select` page returns the same form ("Report Type",
+     "[Select a complaint type...]") with no "Multi-Page Viewer" link and no sign-in prompt; its only login reference
+     is a script variable pointing at the site's login bounce page.
 
-Waiting for the owner. Steps on the phone (`FFE7E686`), in a Debug build:
+   What the check protects holds: the private report web view (18-11) does not keep the session after the app signs
+   out. The lead accepted this result in place of the plan's expected text.
 
-1. Sign in in the app.
-2. Open any gallery's comments.
-3. On a comment by someone else, tap `…`, then Report, then Open Report Page.
-4. Confirm the site's report page loads and shows the signed-in report form.
-5. Close the sheet. **Do not submit a report.**
-6. Optionally: sign out in the app and repeat steps 2 to 5. The sheet should show the site's sign-in prompt.
+## Checkpoint: live report page (Task 3), PASSED
 
-Keep any screenshot local; do not commit it. Reply "approved", or describe what was wrong.
+Verified by an agent per owner rule msg 1652 (agents test what they can themselves), 2026-11-05 17:51Z. No account
+details are recorded here or in any screenshot.
 
-Until then, 18-12 stays open: AGE-18-01, CONSENT-18-01 and UGC-18-01 stay Pending, and VALIDATION's 18-12-03 row
-stays ⬜.
+Setup: a Debug build of `0c753baf8` (planning docs only since the gated `f08a6a781`), installed as
+`app.ehpanda.personal` on the phone (`FFE7E686`). The app started signed out.
+
+1. **Sign in: pass.** The agent signed in through the app's own Log In screen with the team test account (entered
+   from the team's password store without printing it). No Cloudflare challenge. The iOS offer to save the password
+   was declined.
+2. **Report page signed in: pass.** Gallery → Comments → Show All → `…` on another poster's comment → Report on
+   E-Hentai → "Report this comment?" → Open Report Page. The sheet loaded the gallery's report page with the site
+   menu, the gallery header and the "Report Type" form ("[Select a complaint type...]"). The signed-in signs: no ad
+   banner and the "Multi-Page Viewer" link present. Nothing was selected and nothing was submitted. The sheet closed
+   with Close.
+3. **Signed out: pass (deviation 9).** Account → Log Out → confirm; every cookie field read "None". The same steps
+   loaded the site's guest version of the page: an ad banner, no "Multi-Page Viewer" link, no session. Nothing was
+   selected or submitted. The sheet closed with Close.
+
+The app was left signed out, no simulator setting was changed, and the phone was shut down afterwards. The two
+screenshots (signed in, signed out) stay local and show no account name; they are not committed.
 
 ## Self-Check
 
 - Commits on the branch: `cf18b952b`, `3be402c1e`, `0062fa2e1`, `f08a6a781` (this plan); `b4bd67dc0`, `1f83cb12b`
   (18-11 fixes). Each one is signed (`G`) and dated `+08:00`.
 - Every file in `key-files` exists; `BlockedCommentAuthors.swift` and its tests are gone.
-- `18-VALIDATION.md`: 32 rows green, 18-12-03 pending, `nyquist_compliant: true`, `wave_0_complete: true`.
-- STATE, ROADMAP and REQUIREMENTS leave 18-12 open until the checkpoint.
+- `18-VALIDATION.md`: 33 rows green, including 18-12-03; `nyquist_compliant: true`, `wave_0_complete: true`.
+- STATE, ROADMAP and REQUIREMENTS mark 18-12 complete; AGE-18-01, CONSENT-18-01 and UGC-18-01 are Complete. Phase
+  18's verification (`/gsd-verify-work`) has not been run.

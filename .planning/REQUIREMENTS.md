@@ -132,13 +132,13 @@ Owner decisions 2026-11-02 and 2026-11-03 (msgs 1287, 1289, 1294, 1299, 1305). E
 - [ ] **DIST-18-01**: Prepare the app for marketplace distribution.
   - `App/Info.plist` declares `MKSellsDigitalGoods` = `NO`. A marketplace build flavor uses its own bundle ID (through the existing bundle-ID suffix setting, not the canonical `app.ehpanda`) for the app and share extension, without changing the existing unsigned IPA build or private local signing settings.
   - *Split 2026-11-05 (owner msg 1753):* `MKSellsDigitalGoods` (app code, every build) is Phase 18; the marketplace build flavor is Phase 20. The marketplace build has the same features as the GitHub IPA, and something is hidden only if Apple objects.
-- [ ] **AGE-18-01**: Add a first-launch age wall.
+- [x] **AGE-18-01**: Add a first-launch age wall.
   - On first launch, before any content is shown or any network request is made, the user must confirm they are an adult, and legally allowed to view explicit content under every law that applies to them, wherever it comes from (for example where they are, where they live, or their citizenship). Not just "18 or older", and not only the law of the place they live; e.g. an American citizen living abroad. Until they do, nothing else in the app works, and there is no skip. Answering no keeps them on that screen. The answer is stored on the device. The website's adult-mode declaration uses the same wording (website dependency).
   - *Clarified 2026-11-05 (owner msg 1753):* Phase 18. Two first-launch screens, shown once to everyone, upgraders included: the age wall, then the analytics choice. The on-screen declaration is the owner-approved website sentence (msgs 1454, 1457), word for word, with no list of examples; the examples above describe the intent. The screen has no "No" button: Continue stays dimmed until the declaration is ticked. Copy approved in owner msg 1767 (`18-COPY-FIRST-LAUNCH.md`).
-- [ ] **CONSENT-18-01**: Collect no analytics until the user chooses.
+- [x] **CONSENT-18-01**: Collect no analytics until the user chooses.
   - A first-launch screen offers a few levels of sharing, including none. The analytics SDK is not started before consent. The choice can be changed later in Settings. This replaces Phase 14's "on by default, switch off in Settings" (ANALYTICS-01's opt-out). Guideline 5.1.1: consent is needed even for anonymous usage data.
   - *Clarified 2026-11-05 (owner msg 1753):* Phase 18. Three levels, None / Basic / Full, none pre-selected; a Settings picker replaces the toggle. Copy approved in owner msg 1767 (`18-COPY-FIRST-LAUNCH.md`).
-- [ ] **UGC-18-01**: Moderate comments for App Review Guideline 1.2, in every build.
+- [x] **UGC-18-01**: Moderate comments for App Review Guideline 1.2, in every build.
   - Every comment offers a report action: it links to E-Hentai's own report option where the site provides one, otherwise to the support contact. Blocking a user hides their comments locally on this device. Contact details appear on the support page and in Settings. Comment posting passes a filter for objectionable content. Ships to all users in every build, not only the marketplace build.
   - *Amended 2026-11-05 (owner msgs 1753, 1765, 1780):* Phase 18, except the contact part. Reporting goes to E-Hentai only (the gallery's report page), with no support-contact fallback. The filter warns and lets the user post anyway, for edits too. Blocking collapses the comment into "Comment from a user you've blocked" (Show / Unblock, name not shown) instead of hiding it, and Settings has a Blocked Users list. No in-app contact option is added now (msg 1774); the contact part becomes a published contact link (GitHub Issues on the website), needed before the AltStore build goes to Apple: Phase 20. Copy approved in owner msg 1780 (`18-COPY-COMMENTS.md`).
   - *Amended 2026-11-05 (owner msg 1918):* blocking matches the poster's E-Hentai member ID (from the forum link after the name), never the display name. A blocked poster stays blocked under a new name, another poster with the same name is not blocked, and a comment without a member ID cannot be blocked. The Blocked Users list shows the name the poster was last seen under.
@@ -217,9 +217,9 @@ None. Deferred work is captured under Out of Scope (future milestone), not stage
 | CAP-17-07 | Phase 17 (amended 2026-11-03) | Complete |
 | REL-18-01 | Phase 20 | Pending |
 | DIST-18-01 | Phase 18 (`MKSellsDigitalGoods`), Phase 20 (marketplace build flavor) | Pending |
-| AGE-18-01 | Phase 18 | Pending |
-| CONSENT-18-01 | Phase 18 | Pending |
-| UGC-18-01 | Phase 18 (published contact link: Phase 20) | Pending |
+| AGE-18-01 | Phase 18 | Complete |
+| CONSENT-18-01 | Phase 18 | Complete |
+| UGC-18-01 | Phase 18 (published contact link: Phase 20) | Complete (Phase 18 part; published contact link pending in Phase 20) |
 | VIS-18-01 | Phase 19 | Pending |
 | MKT-18-01 | Phase 19 (promotional images: Phase 20) | Pending |
 | DIST-18-02 | Phase 20 | Pending |
@@ -235,7 +235,8 @@ None. Deferred work is captured under Out of Scope (future milestone), not stage
 
 ---
 *Requirements defined: 2026-07-09*
-*Last updated: 2026-11-05 — Phase 18 split into Phases 18 to 20 (owner msg 1753): AGE-18-01 and CONSENT-18-01 in 18; VIS-18-01 and the moved CAP-17-02/03 and CAP-17-01/06 parts in 19; REL-18-01, DIST-18-02, DIST-18-03, DEV-18-01, ANALYTICS-02 and CAP-17-05 in 20; DIST-18-01, UGC-18-01 and MKT-18-01 split across two phases. Owner decisions of 2026-11-05 (msgs 1753, 1765, 1767, 1780) recorded as amendments; 44/44 mapped.*
+*Last updated: 2026-11-05 — Plan 18-12 complete (its live report-page check verified by an agent per owner rule msg 1652): AGE-18-01, CONSENT-18-01 and UGC-18-01 Complete. Marked by hand.*
+*Previously updated: 2026-11-05 — Phase 18 split into Phases 18 to 20 (owner msg 1753): AGE-18-01 and CONSENT-18-01 in 18; VIS-18-01 and the moved CAP-17-02/03 and CAP-17-01/06 parts in 19; REL-18-01, DIST-18-02, DIST-18-03, DEV-18-01, ANALYTICS-02 and CAP-17-05 in 20; DIST-18-01, UGC-18-01 and MKT-18-01 split across two phases. Owner decisions of 2026-11-05 (msgs 1753, 1765, 1767, 1780) recorded as amendments; 44/44 mapped.*
 *Previously updated: 2026-11-05 — Phase 17 complete: CAP-17-04 and CAP-17-07 (amended) complete; CAP-17-01 and CAP-17-06 complete for their Phase 17 parts, moved parts under VIS-18-01 and MKT-18-01; CAP-17-02, CAP-17-03 and CAP-17-05 stay pending in Phase 18 (moved, not satisfied). Marked by hand at the transition because `phase.complete` could not parse the Phase 17 **Requirements** line and marked nothing.*
 *Previously updated: 2026-11-03 — Phase 17 reduced (owner, msg 1305): CAP-17-04 and CAP-17-07 amended; CAP-17-02, CAP-17-03, CAP-17-05 and the moved parts of CAP-17-01/06 mapped to Phase 18; eleven Phase 18 requirements added (msgs 1287, 1289, 1294, 1299, 1305 and the 2026-11-02 age-wall and consent standards); 44/44 mapped. 2026-11-05: CAP-17-04's referent clarified as the current website image set (owner msg 1640).*
 *Previously updated: 2026-10-02 — Phase 17 capture requirements assigned; provisional selections authorized, final owner identifiers required before closure.*
