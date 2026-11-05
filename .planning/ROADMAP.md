@@ -12,9 +12,12 @@ de-globalized clients) with their folded-in security/test/correctness concerns, 
 structured error surface and a lint capstone. Refactor-gated lint rules land with the refactors that
 enable them; the mechanical rules sweep last. Later phases restore login, harden deep links, add
 analytics, continued downloads and accessibility, and capture the screenshot foundation. Phase 17
-closes a reduced screenshot and layout scope; Phase 18 is the remaining 3.0 phase: the first-launch
-age wall, analytics consent, comment moderation, marketplace distribution (AltStore PAL and others),
-release fixes, real-device checks and the visual-regression and marketing work moved from Phase 17.
+closes a reduced screenshot and layout scope. The remaining 3.0 work is split into three phases (owner
+msg 1753, 2026-11-05): Phase 18 does the in-app work (first-launch age wall, analytics choice, comment
+moderation, the reader page-tracking rework and the other in-app carries); Phase 19 the visual-regression
+and marketing-export work moved from Phase 17, covering the new screens; Phase 20 distribution (the
+AltStore PAL marketplace build, notarization, listing, release mechanics, real-device checks) and, last,
+the analytics revision with install-source tracking.
 
 ## Phases
 
@@ -41,8 +44,10 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 14: Analytics Instrumentation (TelemetryDeck)** - Add privacy-first analytics via the TelemetryDeck SDK — on by default with a runtime opt-out in General Settings (D-01 reversed) — instrumenting key user flows (completed 2026-07-27)
 - [x] **Phase 15: Continued Background Downloads** - Adopt `BGContinuedProcessingTask` so a user-started gallery download keeps running after backgrounding, with the system-provided progress UI (completed 2026-08-19)
 - [x] **Phase 16: Accessibility (Dynamic Type + Assistive Technology)** - Two rounds against the settled UI: full-range Dynamic Type (AX1–AX5, human-implemented, agent verify-only), then a VoiceOver / Voice Control / Reduced Motion / Contrast / Differentiate-Without-Color pass (agent-implemented), held to the App Store Accessibility Nutrition Label bar (completed 2026-09-23)
-- [x] **Phase 17: Screenshot Automation, Visual Regression & OS 27 Modernization** - Reduced 2026-11-03: capture foundation and the approved 192-image website set, verification of the landed size-class layout, the remaining idiom census and the Release isolation check; regression, marketing export and AltStore work moved to Phase 18 (completed 2026-11-05)
-- [ ] **Phase 18: 3.0 Release Readiness: Age Wall, Consent, Marketplace Distribution & Visual Regression** - First-launch age wall, analytics consent, comment moderation, AltStore PAL/marketplace build and notarization pipeline, release fixes, real-device checks, the moved regression/marketing work, and a final analytics revision with install-source tracking
+- [x] **Phase 17: Screenshot Automation, Visual Regression & OS 27 Modernization** - Reduced 2026-11-03: capture foundation and the approved 192-image website set, verification of the landed size-class layout, the remaining idiom census and the Release isolation check; regression, marketing export and AltStore work moved to Phase 18 (now split: regression and marketing export → Phase 19, AltStore work → Phase 20) (completed 2026-11-05)
+- [ ] **Phase 18: In-App 3.0 Readiness: Age Wall, Analytics Choice, Comment Moderation & Reader Rework** - Two first-launch screens for everyone (age wall, then None/Basic/Full analytics choice, SDK off until chosen), E-Hentai comment report, posting warning, collapsed blocking and a Blocked Users list, the reader page-tracking rework with G1/G2 UI tests, IN-02/IN-03 and `MKSellsDigitalGoods`
+- [ ] **Phase 19: Visual Regression & Marketing Export** - The snapshot matrix, one owner-approved baseline, the full-matrix CI gate, preview review, the 384 export with its final selection and six-per-period Toplists fixtures, and the `Scripts/visual/README.md` rewrite, moved from Phase 17 and covering the Phase 18 screens
+- [ ] **Phase 20: 3.0 Distribution: Marketplace Build, Notarization, Listing & Release Checks** - AltStore PAL marketplace build (same features), notarization pipeline, PAL source and listing with decorated store screenshots, website privacy/support/contact links, release mechanics, real-device checks, the repeated Release isolation scan and, last, the analytics revision with install source
 
 ## Phase Details
 
@@ -678,7 +683,7 @@ Plans:
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 → 9 → 10 → 11 → 12 → 13 → 14 → 15 → 16 → 17 → 18
+Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 → 9 → 10 → 11 → 12 → 13 → 14 → 15 → 16 → 17 → 18 → 19 → 20
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
@@ -699,7 +704,9 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 15. Continued Background Downloads | 77/77 | Complete    | 2026-08-19 |
 | 16. Dynamic Type Accessibility | 26/26 | Complete    | 2026-09-23 |
 | 17. Screenshot Automation, Visual Regression & OS 27 Modernization | 13/13 | Complete    | 2026-11-05 |
-| 18. 3.0 Release Readiness: Age Wall, Consent, Marketplace Distribution & Visual Regression | 0/TBD | Not started|  |
+| 18. In-App 3.0 Readiness: Age Wall, Analytics Choice, Comment Moderation & Reader Rework | 0/TBD | Not started|  |
+| 19. Visual Regression & Marketing Export | 0/TBD | Not started|  |
+| 20. 3.0 Distribution: Marketplace Build, Notarization, Listing & Release Checks | 0/TBD | Not started|  |
 
 ### Phase 12: Cloudflare Login Restoration
 
@@ -1321,69 +1328,152 @@ Plans:
 
 **Moved to Phase 18** *(owner decision 2026-11-03, msg 1305; plan files kept in place with `status: superseded`)*:
 
-- 17-07-PLAN.md — Produce all 384 marketing outputs and a complete local handoff
-- 17-08-PLAN.md — Expand regression coverage for browsing and gallery content
-- 17-09-PLAN.md — Cover reader modes and overlays across complete regression axes
-- 17-10-PLAN.md — Cover settings, utilities and remaining presentation states
-- 17-11-PLAN.md — Establish public native dispatch before scenario expansion
-- 17-12-PLAN.md — Compare native and hosted images strictly and build the review report
-- 17-13-PLAN.md — Review and approve the initial complete snapshot baseline
-- 17-14 T1/T3 — Full-matrix PR/release snapshot gate and clean-checkout acceptance
-- 17-15-PLAN.md — Document and validate reusable Xcode agent preview review
-- 17-20-PLAN.md — Review and approve post-audit snapshot changes (no longer needed separately: the layout migration already landed, so Phase 18's single baseline approval covers it)
-- 17-21-PLAN.md — Replace provisional galleries with final owner selections
-- 17-22-PLAN.md — Hand off sources to the designer and validate promotional delivery
+- 17-07-PLAN.md — Produce all 384 marketing outputs and a complete local handoff (now Phase 19)
+- 17-08-PLAN.md — Expand regression coverage for browsing and gallery content (now Phase 19)
+- 17-09-PLAN.md — Cover reader modes and overlays across complete regression axes (now Phase 19)
+- 17-10-PLAN.md — Cover settings, utilities and remaining presentation states (now Phase 19)
+- 17-11-PLAN.md — Establish public native dispatch before scenario expansion (now Phase 19)
+- 17-12-PLAN.md — Compare native and hosted images strictly and build the review report (now Phase 19)
+- 17-13-PLAN.md — Review and approve the initial complete snapshot baseline (now Phase 19)
+- 17-14 T1/T3 — Full-matrix PR/release snapshot gate and clean-checkout acceptance (now Phase 19)
+- 17-15-PLAN.md — Document and validate reusable Xcode agent preview review (now Phase 19)
+- 17-20-PLAN.md — Review and approve post-audit snapshot changes (no longer needed separately: the layout migration already landed, so Phase 18's single baseline approval covers it; now Phase 19)
+- 17-21-PLAN.md — Replace provisional galleries with final owner selections (now Phase 19)
+- 17-22-PLAN.md — Hand off sources to the designer and validate promotional delivery (now Phase 20)
 
 Phase 17 is complete (2026-11-05) at the reduced scope above. The moved plans are not executed or approved; Phase 18 owns them.
 
-### Phase 18: 3.0 Release Readiness: Age Wall, Consent, Marketplace Distribution & Visual Regression
+*Note (2026-11-05, owner msg 1753):* after Phase 17 closed, Phase 18 was split into Phases 18, 19 and 20. Where this section says "Phase 18", read: snapshot tests, the CI gate, preview review, the 384 export and the six-per-period Toplists fixtures → Phase 19; AltStore promotional images (17-22, CAP-17-05) and the repeated Release isolation scan → Phase 20; the reader rework with the G1/G2 UI tests and IN-02/IN-03 stay in Phase 18. The record above is otherwise unchanged; the split map is at the end of the Phase 18 section.
 
-**Goal**: Make 3.0 releasable through the existing GitHub/AltStore Classic channel and through AltStore PAL and other potential marketplaces. Every build gains a first-launch age wall, analytics consent and comment moderation (App Review Guideline 1.2, part of the notarization subset). Add the marketplace build, listing and notarization pipeline, fix the release mechanics, run the two outstanding real-device checks, and complete the visual-regression and marketing work moved from Phase 17, covering the new screens too. The last plan revises analytics for everything this phase changes, including the install source.
-**Depends on**: Phase 17
-**Requirements**: REL-18-01, DIST-18-01, AGE-18-01, CONSENT-18-01, UGC-18-01, VIS-18-01, MKT-18-01, DIST-18-02, DIST-18-03, DEV-18-01, ANALYTICS-02; moved from Phase 17: CAP-17-02, CAP-17-03, CAP-17-05 and the moved parts of CAP-17-01 and CAP-17-06.
+### Phase 18: In-App 3.0 Readiness: Age Wall, Analytics Choice, Comment Moderation & Reader Rework
 
-**Scope and owner decisions**:
+**Goal**: Finish every in-app change 3.0 needs, in every build, before the visual baseline and distribution work start. Every user, upgraders included, sees two first-launch screens once: an age wall, then an analytics choice (None / Basic / Full, nothing pre-selected); no content, network request or analytics SDK start happens before them. Comments gain an E-Hentai report action, a posting warning and local blocking with a Blocked Users list in Settings (App Review Guideline 1.2). The reader gets one source of truth for its current page, with committed UI tests for Phase 17's gaps G1/G2. The other in-app carries from Phase 17 (IN-02, IN-03) and the app-code release fix (`MKSellsDigitalGoods`) land here too.
+**Depends on**: Phase 17. UI tasks also wait for the UI-SPEC from the designer (Colo, msg 1757), or for `/gsd-ui-phase 18`.
+**Requirements**: AGE-18-01, CONSENT-18-01, UGC-18-01 (report, posting warning, blocking; the contact part maps to Phase 20), DIST-18-01 (`MKSellsDigitalGoods` only; the marketplace build flavor maps to Phase 20). Carried from Phase 17's close without an ID: the reader page-tracking rework with the G1/G2 UI tests, and IN-02/IN-03.
 
-1. Owner msg 1305 (2026-11-03): Phase 18 is the remaining 3.0 phase. Snapshot tests (17-08 to 17-13, 17-14 T1/T3, 17-15, 17-20), the 384 marketing export (17-07, 17-21) and AltStore promotional images (17-22) are not deferred past 3.0; they move here.
-2. Owner msg 1287: Phase 18 takes all implementation needed for AltStore PAL and other potential marketplaces. Owner msg 1289: analytics also tracks the marketplace/install source; the analytics revision for that and the other Phase 18 changes is the last plan.
-3. Owner msg 1294 and research msg 1299: comment report, block user, contact details and a posting filter ship to all users in every build.
-4. The age wall and analytics consent are standards for every build (2026-11-02 deferred items, wording kept in STATE.md and REQUIREMENTS.md).
-5. Apple-service actions (App IDs, the app record, distribution certificates, API keys, marketplace registration, trader status) happen in the collaborator's App Store Connect account, by the collaborator or with the owner's explicit authorization at that time; agents never create them on their own.
-6. External dependencies: the privacy policy and support pages are website work owned by another team member; the website's adult-mode declaration uses the age-wall wording. This phase records the URLs it needs and waits for them.
-7. Carried from Phase 17's close (added 2026-11-05): the reader page-tracking rework to one source of truth (owner msg 1630, product lead msg 1631; Step 4b), and the code-review info items IN-02 and IN-03, deferred by the owner (msg 1627; Step 7).
-8. Carried from Phase 17's close (added 2026-11-05): rewrite `Scripts/visual/README.md` so it matches the reduced Phase 17 harness and the Phase 18 producers. It still names `website-capture-20261102.json` as the fixture repository's index (now `website-capture-20261104.json`, 11 fixture versions) and says 17-02, 17-05 and 17-07 own the regression and marketing runners, which moved to Phase 18.
+**Scope and owner decisions** (context: [18-CONTEXT.md](phases/18-in-app-3-0-readiness-age-wall-analytics-choice-comment-moder/18-CONTEXT.md)):
+
+1. Split (owner msg 1753, 2026-11-05): the original Phase 18 becomes three phases. This phase is the in-app work; Phase 19 takes visual regression and the marketing export, Phase 20 distribution. The split map is at the end of this section.
+2. First launch (owner msg 1753): two screens, everyone once: the age wall, then the analytics choice. Upgraders from 2.x and the 3.0.0 pre-release see both too. The age-wall checkbox sentence is the owner-approved website sentence (msgs 1454, 1457), unchanged and with no list of examples.
+3. Analytics (owner msg 1753): levels None / Basic / Full, none pre-selected. The SDK does not start before the choice, and never with None. A Settings picker replaces today's toggle.
+4. Comments (owner msgs 1753, 1765, 1780): reporting goes to E-Hentai only (the gallery's report page; no email). No in-app contact option now (Ampo msg 1774); the published contact link is Phase 20 work. A comment that trips the filter gets a warning and can be posted anyway, edits included. A blocked user's comments collapse into "Comment from a user you've blocked" (Show / Unblock, name not shown). Settings gets a Blocked Users list.
+5. Copy (owner msgs 1767, 1780): the approved six-language strings in [18-COPY-FIRST-LAUNCH.md](phases/18-in-app-3-0-readiness-age-wall-analytics-choice-comment-moder/18-COPY-FIRST-LAUNCH.md) and [18-COPY-COMMENTS.md](phases/18-in-app-3-0-readiness-age-wall-analytics-choice-comment-moder/18-COPY-COMMENTS.md) are canonical and used verbatim.
+6. Design (msg 1757): Colo owns the layout spec and mockups for the age wall, the analytics choice, the comment report/block UI and the Blocked Users list. Plans leave a UI-SPEC input for him; UI execution waits for it.
+7. Carried from Phase 17's close: the reader page-tracking rework to one source of truth (owner msg 1630, product lead msg 1631; was Step 4b) with committed UI tests for G1/G2, and the code-review items IN-02 and IN-03 (owner msg 1627; was part of Step 7), closed before Phase 20's final Release scan.
+8. App-code release fix: `MKSellsDigitalGoods` = `NO` in `App/Info.plist`, for every build (DIST-18-01; was part of Step 1).
 
 **Success Criteria** (what must be TRUE):
 
-  1. A 3.0 release run produces a GitHub release whose tag matches the AltStore download URL, with a build number above 158, `MKSellsDigitalGoods` set to `NO`, and an AltStore Classic listing that keeps the version history and shows non-explicit screenshots.
-  2. On first launch, before any content is shown or any network request is made, the age wall blocks the app until the user confirms the recorded wording; there is no skip.
-  3. No analytics are sent and the analytics SDK is not started until the user chooses a level; the levels include none and can be changed in Settings.
-  4. Every comment can be reported (E-Hentai's own report option where it exists, otherwise the support contact), every comment author can be blocked on this device, contact details appear on the support page and in Settings, and comment posting passes a filter, in every build.
-  5. The snapshot regression matrix covers every screen including the age wall, consent and comment-moderation UI, with strict never-record comparison, one owner-approved baseline and a full CI gate on PRs and releases.
-  6. The marketing export, final owner gallery selection, 384 regeneration and designer-made AltStore promotional images are delivered and owner-approved.
-  7. A marketplace build with its own bundle ID, a PAL source JSON (`marketplaceID`, `nsfw: true`, ADP download URLs), all-ages icon and listing screenshots, in-app and listing privacy policy, a support URL, and no "Apple-approved" wording exist.
-  8. A CI job submits for notarization, waits for the ADP and publishes it; whether an App Manager API key can submit is tested and recorded.
-  9. The iPad Gallery Detail stall is checked on a Release build and continued background downloads are checked on an iPhone, on owner hardware.
-  10. Analytics record the install source and the Phase 18 flows under the consent levels, as the final plan.
+  1. On the first 3.0 launch, for fresh installs and upgraders alike, the age wall appears before any content is shown or any network request is made. Continue stays dimmed until the approved declaration is ticked; there is no skip and nothing else in the app works until then. The answer is stored on the device.
+  2. The analytics choice follows the age wall: None, Basic and Full, equally prominent and none pre-selected. Tests prove no analytics SDK call before the choice and none at all under None; each level sends only what its approved description says.
+  3. Settings has an analytics picker with the three levels in place of the toggle, a footer showing the selected level's description and a Privacy Policy row; the old "installation is still counted" footer is gone.
+  4. Every comment has "Report on {site}", which confirms and then opens the gallery's report page on E-Hentai or ExHentai; there is no email or other contact path.
+  5. Posting or editing a comment that matches the filter shows the posting warning (Edit by default, Post Anyway), never names the matched word, and keeps the typed text.
+  6. Blocking a user collapses their comments, in the comments list and the Detail preview, into "Comment from a user you've blocked" with Show and Unblock, without the name. The block is stored on this device only. Settings lists blocked users, with an empty state and a swipe to unblock.
+  7. All new strings come verbatim from the two approved copy files, every `.xcstrings` key is filled for all six locales, and the six READMEs' Analytics sections describe the three levels.
+  8. The reader keeps one source of truth for the page shown and the number displayed, at visible parity. Committed UI tests cover Reload All Images then a page turn, a reading-direction change during Auto-Play, and a left-to-right/right-to-left switch (G1/G2), and pass.
+  9. IN-02 (`captureSystemOverlay` in `verify-release.py`'s `FORBIDDEN_CONTENT`, with a `test_release.py` case) and IN-03 (RootView's `import AppComponents` inside its `#if DEBUG` block) are closed, and `MKSellsDigitalGoods` is `NO`.
+  10. The UI matches the UI-SPEC, and FeatureTests and UITests pass on phone then tablet with 0 failures and 0 Repetition, with strict no-cache lint.
 
 **Plans**: 0 plans (outline only; PLAN files come from `/gsd-plan-phase 18`, which may split or renumber these steps).
 
-Ordered plan outline:
+Ordered plan outline (old step numbers are the original Phase 18's):
 
-- **Step 1:** Release mechanics and marketplace plumbing (REL-18-01, DIST-18-01): match the tag and the AltStore `downloadURL` in both release workflows; raise the build number above 158; keep AltStore.json version history instead of overwriting; add `MKSellsDigitalGoods=NO`; marketplace build flavor with its own bundle ID through the existing bundle-ID suffix setting. **Checkpoint (owner):** remove or rename the existing `3.0.0` tag, approved at that time.
-- **Step 2:** Age wall (AGE-18-01).
-- **Step 3:** Analytics consent (CONSENT-18-01), replacing Phase 14's on-by-default opt-out.
-- **Step 4:** Comment report, block, contact details and posting filter (UGC-18-01).
-- **Step 4b:** Reader page tracking rework (from Phase 17; owner msg 1630, product lead msg 1631): replace the reader's separate copies of "the current page" (page-model index, pager scroll position, shown pager position, displayed slider value, saved reading progress and the vertical list's position, reconciled today by timing-dependent rules) with one source of truth for the page shown and the number displayed, as one task, not more patches. Add the UI tests Phase 17 lacks: Reload all images then a page turn, a reading-direction change during Auto-Play, and a left-to-right/right-to-left switch (the WR-01 rebuild paths). Sources: STATE.md, 17-FINAL-VALIDATION.md section 9, and the root-cause analysis [`17-READER-ROOT-CAUSE.md`](phases/17-localized-screenshot-capture-harness/17-READER-ROOT-CAUSE.md).
-- **Step 5:** Snapshot test scenarios, real-app public dispatch and strict compare/report covering all screens, including the new age-wall, consent and comment UI (VIS-18-01; from 17-08 to 17-12). Fixtures carry at least six galleries per Toplists period so the regular-width two-by-three grid is full (`Scripts/visual/selection-review.py` and `Scripts/visual/README.md` currently require three).
-- **Step 6:** **Checkpoint (owner):** one baseline approval of the complete snapshot set (VIS-18-01; from 17-13). The post-layout re-approval 17-20 is not needed separately because the layout migration already landed before the baseline.
-- **Step 7:** CI snapshot gate on every PR and release plus preview review docs (VIS-18-01; from 17-14 T1/T3 and 17-15); the release gate repeats the Release isolation scan on the final 3.0 build. Before that scan, close the two Phase 17 review items the owner deferred (msg 1627; 17-REVIEW.md, 17-REVIEW-DISPOSITION.md): IN-02, add a `captureSystemOverlay` token to `verify-release.py`'s `FORBIDDEN_CONTENT` with a `test_release.py` case; IN-03, move RootView's `import AppComponents` into its `#if DEBUG` import block.
-- **Step 8:** Marketing export tooling, final gallery selection and 384 regeneration (MKT-18-01; from 17-07 and 17-21). **Checkpoint (owner):** final gallery selection.
-- **Step 9:** AltStore/PAL listing assets: all-ages icon and screenshots, designer promotional images, PAL source JSON, privacy and support URLs, wording check (DIST-18-02, MKT-18-01; from 17-22). **Checkpoint (owner):** promotional images and listing assets. Depends on the website's privacy and support pages.
-- **Step 10:** Notarization pipeline: signed archive, notarization submission through the collaborator's account, ADP wait and publish; test whether an App Manager API key can submit (DIST-18-03). **Checkpoint (collaborator and owner):** account setup, keys and the first submission.
-- **Step 11:** Real-device checks: iPad Gallery Detail stall on a Release build, continued background downloads on an iPhone (DEV-18-01). **Checkpoint (owner hardware).**
-- **Step 12:** **Last:** analytics revision, including marketplace/install-source tracking and the signals for every Phase 18 change, under the consent levels (ANALYTICS-02).
+- **Launch gate and age wall** (was Step 2; AGE-18-01). The gate logic can go first; the screen waits for the UI-SPEC.
+- **Analytics choice** (was Step 3; CONSENT-18-01): first-launch screen, Settings picker, SDK lifecycle by level. This replaces Phase 14's on-by-default opt-out.
+- **Comment report, posting warning, blocking and the Blocked Users list** (was Step 4; UGC-18-01 without its contact part).
+- **Reader page-tracking rework** (was Step 4b): replace the reader's separate copies of "the current page" (page-model index, pager scroll position, shown pager position, displayed slider value, saved reading progress and the vertical list's position, reconciled today by timing-dependent rules) with one source of truth, as one task, not more patches, and add the G1/G2 UI tests. Sources: STATE.md, 17-FINAL-VALIDATION.md section 9, [`17-READER-ROOT-CAUSE.md`](phases/17-localized-screenshot-capture-harness/17-READER-ROOT-CAUSE.md), 17-VERIFICATION.md R5-1.
+- **In-app carries and release fix** (from Steps 1 and 7): IN-02, IN-03 (17-REVIEW.md, 17-REVIEW-DISPOSITION.md) and `MKSellsDigitalGoods`.
+
+**Split of the original Phase 18** (owner msg 1753, 2026-11-05). The original Phase 18, "3.0 Release Readiness: Age Wall, Consent, Marketplace Distribution & Visual Regression" (added 2026-11-03), is split as follows; every item lands in exactly one phase:
+
+- Requirements: AGE-18-01 and CONSENT-18-01 → 18. UGC-18-01 → 18 (report, posting warning, blocking) and 20 (published contact link). DIST-18-01 → 18 (`MKSellsDigitalGoods`) and 20 (marketplace build flavor). VIS-18-01 → 19. MKT-18-01 → 19 (384 export tooling, final selection, regeneration) and 20 (promotional images and store screenshots). DIST-18-02, DIST-18-03, DEV-18-01, REL-18-01 and ANALYTICS-02 → 20. From Phase 17: CAP-17-02, CAP-17-03 and the moved parts of CAP-17-01 and CAP-17-06 → 19; CAP-17-05 → 20; CAP-17-04's moved 384 export → 19 (under MKT-18-01).
+- Outline steps: 1 → 18 (`MKSellsDigitalGoods`) and 20 (workflows, build number, AltStore.json history, marketplace flavor; the `3.0.0` tag checkpoint is dropped, owner msg 1753). 2, 3, 4 and 4b → 18. 5, 6 and 8 → 19. 7 → 19 (CI gate, preview docs), 18 (IN-02/IN-03) and 20 (final Release scan). 9, 10, 11 and 12 → 20.
+- Scope items: 1 → 19 (snapshot tests, 384 export) and 20 (promotional images). 2 → 20 (the analytics revision is the last plan of Phase 20). 3 → 18 (contact details → 20). 4 → 18. 5 and 6 → 20. 7 → 18. 8 → 19.
+- Success criteria: 1 → 20 (its `MKSellsDigitalGoods` part → 18; tag wording replaced, owner msg 1753). 2, 3 and 4 → 18 (criterion 4's contact part → 20; its support-contact fallback dropped, owner msg 1753). 5 → 19. 6 → 19 (export, selection, 384) and 20 (promotional images). 7, 8, 9 and 10 → 20.
 
 Plans:
 
 - [ ] TBD (run /gsd-plan-phase 18 to break down)
+
+### Phase 19: Visual Regression & Marketing Export
+
+**Goal**: Complete the visual-regression and marketing-export work moved from Phase 17, against the settled 3.0 UI and including every Phase 18 screen: the snapshot scenario matrix, public real-app dispatch, strict never-record comparison and the review report, one owner-approved baseline, the full-matrix CI gate on every PR and release, preview review documentation, the 384-coordinate export tooling and handoff validator, the final gallery selection and 384 regeneration with at least six Toplists galleries per period, and the `Scripts/visual/README.md` rewrite.
+**Depends on**: Phase 18 (every UI change lands before the one baseline approval).
+**Requirements**: VIS-18-01, MKT-18-01 (384 export tooling, final gallery selection and regeneration; the promotional images map to Phase 20); moved from Phase 17: CAP-17-02, CAP-17-03, the moved parts of CAP-17-01 (17-11, 17-21) and CAP-17-06 (17-09-T2, 17-15), and CAP-17-04's moved 384 export (under MKT-18-01).
+
+**Scope and owner decisions** (context: [19-CONTEXT.md](phases/19-visual-regression-marketing-export/19-CONTEXT.md); discussion not yet run):
+
+1. Owner msg 1305: the snapshot tests (17-08 to 17-13, 17-14 T1/T3, 17-15, 17-20) and the 384 export (17-07, 17-21) are moved, not deferred past 3.0. 17-20's separate re-approval folds into the one baseline approval.
+2. Owner msg 1753: three phases; this one runs after the in-app work so the baseline is approved once, against final UI.
+3. Coverage includes the Phase 18 screens: age wall, analytics choice, the Settings analytics picker, the comment report confirmation, the posting warning, the collapsed blocked-comment row and the Blocked Users list with its empty state.
+4. Fixtures carry at least six galleries per Toplists period so the regular-width two-by-three grid is full (Phase 17 scope 6); `Scripts/visual/selection-review.py` and `Scripts/visual/README.md` currently require three.
+5. Rewrite `Scripts/visual/README.md` (was scope item 8): the fixture index is now `website-capture-20261104.json` (11 fixture versions), not `website-capture-20261102.json`, and this phase, not 17-02, 17-05 or 17-07, owns the regression and marketing runners.
+6. Phase 17's decisions for the moved plans carry unchanged (17-CONTEXT.md D-02, D-04, D-05, D-07, D-12 to D-14). Pushing the fixture repository commits (R4-3) stays the owner's decision.
+
+**Success Criteria** (what must be TRUE):
+
+  1. The snapshot matrix covers every screen and state, the Phase 18 UI included, across six locales, all 12 Dynamic Type sizes, portrait and landscape, iPhone and iPad, and light and dark; each coordinate is captured, failed or justified not applicable.
+  2. Comparison is strict and never records; the screen-grouped baseline/actual/diff report is filterable, and a controlled regression proves detection.
+  3. One owner-approved baseline covers the complete set, including the landed layout (17-20 folded in).
+  4. The complete matrix gates every PR and release in CI, with its runtime reported; the native visual policy tests (17-09-T2) run in it.
+  5. Preview review is documented and validated (17-15).
+  6. The 384-coordinate export tooling and handoff validator exist; the owner approves the final gallery selection and the regenerated 384 set; Toplists fixtures hold at least six galleries per period.
+  7. `Scripts/visual/README.md` matches the reduced Phase 17 harness and this phase's producers.
+  8. Release builds still contain no capture code, fixtures, test assets or SnapshotTesting linkage.
+
+**Plans**: 0 plans (outline only; PLAN files come from `/gsd-plan-phase 19`).
+
+Ordered plan outline (old step numbers are the original Phase 18's):
+
+- **Scenarios, dispatch and compare/report** (was Step 5; from 17-08 to 17-12), including the Phase 18 screens and the six-per-period Toplists fixtures.
+- **Checkpoint (owner): one baseline approval** (was Step 6; from 17-13).
+- **CI snapshot gate, preview review docs and the README rewrite** (was Step 7 without IN-02/IN-03 and the final Release scan; from 17-14 T1/T3 and 17-15).
+- **Marketing export tooling, final gallery selection and 384 regeneration** (was Step 8; from 17-07 and 17-21). **Checkpoint (owner):** final gallery selection.
+
+Plans:
+
+- [ ] TBD (run /gsd-plan-phase 19 to break down)
+
+### Phase 20: 3.0 Distribution: Marketplace Build, Notarization, Listing & Release Checks
+
+**Goal**: Make 3.0 distributable on the GitHub/AltStore Classic channel and on AltStore PAL: the marketplace build (same features as the GitHub IPA), the PAL source and listing with store screenshots decorated by the designer, the notarization pipeline through the collaborator's App Store Connect account, the website dependencies (privacy policy, support page and a published contact link), the fixed release mechanics and the two real-device checks. The last plan revises analytics for every 3.0 change, including the install source; the closing gate repeats the Release isolation scan on that final build. Tag creation and release order are not planned (owner msg 1753).
+**Depends on**: Phase 19 (store screenshots and the Classic listing build on its approved captures, and its CI gate guards the release), and through it Phase 18.
+**Requirements**: DIST-18-01 (marketplace build flavor), DIST-18-02, DIST-18-03, DEV-18-01, REL-18-01, MKT-18-01 (promotional images and store screenshots), UGC-18-01 (published contact link), ANALYTICS-02 (last plan); moved from Phase 17: CAP-17-05.
+
+**Scope and owner decisions** (context: [20-CONTEXT.md](phases/20-3-0-distribution-marketplace-build-notarization-listing-rele/20-CONTEXT.md); discussion not yet run):
+
+1. Marketplace build (owner msgs 1287, 1753): same features as the GitHub IPA, listed on AltStore PAL only; something is hidden only if Apple objects. Its own bundle ID comes through the existing `BUNDLE_ID_SUFFIX` setting, for the app and the share extension.
+2. Apple-service actions (App IDs, the app record, certificates, API keys, marketplace registration, trader status) happen in the collaborator's App Store Connect account, by the collaborator or with the owner's explicit OK at that time; agents never create them on their own.
+3. Store screenshots (owner msg 1753; msgs 1751, 1757): the website screenshots plus extra decorations by the designer Colo, who starts when this phase starts. The AltStore listing uses only non-adult pictures (guideline 2.3.8). This covers the AltStore promotional images moved from Phase 17 (17-22). No "Apple-approved" wording anywhere.
+4. Website dependencies (website owner Leto): the privacy policy and support URLs, and a published contact link (GitHub Issues on the website), needed before the AltStore build goes to Apple (Ampo msg 1774). The website privacy page is rewritten for the three analytics levels when 3.0 ships, not before.
+5. Release mechanics (REL-18-01): build number above 158; `AltStore.json` keeps its version history and shows non-explicit screenshots; the AltStore download URL resolves to the release's actual asset. Owner msg 1753, "Tagging is not your business": no tag-style decision, no plan to remove or rename the `3.0.0` tag, no tag creation and no release order in the plans.
+6. Real-device checks on owner hardware (DEV-18-01): the iPad Gallery Detail stall on a Release build, continued background downloads on an iPhone.
+7. Analytics revision last (ANALYTICS-02; owner msgs 1289, 1753): it sits at the end of this phase because the install source needs the marketplace build and PAL distribution, which first exist here.
+8. Closing gate: the Release isolation scan runs again on the final build, which includes the analytics revision (IN-02/IN-03 closed in Phase 18).
+
+**Success Criteria** (what must be TRUE):
+
+  1. A marketplace build flavor exists with its own bundle ID for the app and the share extension and the same features as the GitHub IPA; the unsigned IPA build and private local signing are unchanged.
+  2. A PAL source JSON (`marketplaceID`, `nsfw: true`, ADP download URLs, version history) exists; the Classic `AltStore.json` stays for unsigned IPAs.
+  3. The listing has an all-ages icon and owner-approved store screenshots built from the website screenshots with the designer's decorations, non-adult pictures only on the AltStore listing; the privacy policy is reachable in the app and on the listing, with a support URL, and no "Apple-approved" wording exists.
+  4. The website's published contact link (GitHub Issues) is live before the AltStore build goes to Apple.
+  5. A CI job submits for notarization, waits for the ADP and publishes it to the PAL source; whether an App Manager API key can create the version and submit is tested and recorded.
+  6. The release workflows produce a build number above 158, keep the Classic `AltStore.json` version history with non-explicit screenshots, and point the AltStore download URL at the release's actual asset; no plan creates, removes or renames a tag or sets the release order.
+  7. The iPad Gallery Detail stall is checked on a Release build and continued background downloads on an iPhone, on owner hardware.
+  8. As the last plan, analytics record the install source and every 3.0 flow under the consent levels, within ANALYTICS-01's rules; nothing is sent under None.
+  9. The final 3.0 Release build, including the analytics revision, passes the Release isolation scan with 0 findings.
+
+**Plans**: 0 plans (outline only; PLAN files come from `/gsd-plan-phase 20`).
+
+Ordered plan outline (old step numbers are the original Phase 18's):
+
+- **Release mechanics and marketplace plumbing** (was Step 1 without `MKSellsDigitalGoods` and without the tag checkpoint; REL-18-01, DIST-18-01).
+- **Listing assets** (was Step 9; DIST-18-02, MKT-18-01 promotional part, from 17-22): PAL source JSON, all-ages icon, store screenshots with the designer's decorations, privacy, support and contact URLs, wording check. **Checkpoint (owner):** store screenshots and listing assets. Depends on the website pages.
+- **Notarization pipeline** (was Step 10; DIST-18-03). **Checkpoint (collaborator and owner):** account setup, keys and the first submission.
+- **Real-device checks** (was Step 11; DEV-18-01). **Checkpoint (owner hardware).**
+- **Last: analytics revision** (was Step 12; ANALYTICS-02), then the closing gate's Release isolation scan on the final build (from Step 7).
+
+Plans:
+
+- [ ] TBD (run /gsd-plan-phase 20 to break down)
