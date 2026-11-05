@@ -136,7 +136,7 @@ and no UI.**
   - `groups: [String: [String]]`, with matchers built once per list.
   - `bundled` is loaded once from `CommentFilterTerms.json`. If the load fails, it logs and matches nothing. The test
     suite loads the same resource with the throwing `load(from:)`, so a broken list fails the tests (T-18-10).
-- **`CommentFilterTerms.json`:** de 30, en 43, ja 25, ko 22, zh-Hans 23 and zh-Hant 23 entries. They cover slurs
+- **`CommentFilterTerms.json`:** de 30, en 43, ja 24, ko 19, zh-Hans 23 and zh-Hant 23 entries (after the lead's review below). They cover slurs
   (racial, ethnic, homophobic, transphobic, ableist), hate speech (Nazi slogans), threats ("I will kill you", "kill
   yourself") and harassment and doxxing phrases. There is no sexual vocabulary (DD-04).
 - **`CommentReportTarget`:**
@@ -248,3 +248,11 @@ the block store. 18-11's report sheet seeds its web view from `sessionCookies(fo
   - The off-site-nil test is present and passes.
   - The five-case ownership truth table passes.
   - The `sessionCookies` host-scoping test passes.
+
+## Follow-up: lead review of the term list (2026-11-05 UTC)
+
+Kana and Hangul terms match as substrings, so four entries also caught everyday words and were removed: ja `ガイジ`
+(inside `ガイジン`), ko `죽어라` (the idiom for "with all one's might"), ko `뒤져라` ("search it") and ko `자살해`
+(plot talk such as "the hero took his own life"; the imperative `자살해라` stays). `theBundledListLeavesOrdinaryCommentsAlone`
+gained these four sentences. CommentFilterTests pass on the phone simulator. The rest of the list was read and kept:
+the filter only warns (owner msg 1765), so a rare remaining false positive costs one extra tap.
