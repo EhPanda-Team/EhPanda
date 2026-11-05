@@ -611,13 +611,19 @@ struct CommentsSection: View {
     @AccessibilityFocusState private var focusedCommentID: String?
 
     let comments: [GalleryComment]
-    let moderation: CommentModerationFeature.State
+    /// The screen's moderation, as a store: a copy of its state would go stale, as a Show or Hide changes the
+    /// moderation state without the Detail screen observing that change.
+    let moderationStore: StoreOf<CommentModerationFeature>
     let moderationAlert: CommentModerationAlertItem
-    let moderationAction: (CommentModerationFeature.Action) -> Void
     let navigateCommentAction: () -> Void
     let navigatePostCommentAction: () -> Void
 
     private var backgroundColor: Color { Color(uiColor: .systemGray5) }
+    private var moderation: CommentModerationFeature.State { moderationStore.state }
+
+    private func moderationAction(_ action: CommentModerationFeature.Action) {
+        moderationStore.send(action)
+    }
 
     // The strip is not composited as one drawing group: that flattens the cards into one bitmap, which would take the
     // context menus, the collapsed cards' buttons and their hover effects with it (C-8, research §5.6 a).
@@ -724,9 +730,8 @@ private func previewComment(
                     text: "Agreed. The later pages look excellent."
                 )
             ],
-            moderation: .init(galleryURL: nil),
+            moderationStore: Store(initialState: .init(galleryURL: nil), reducer: CommentModerationFeature.init),
             moderationAlert: { _ in .constant(nil) },
-            moderationAction: { _ in },
             navigateCommentAction: {},
             navigatePostCommentAction: {}
         )
@@ -739,9 +744,8 @@ private func previewComment(
     } operation: {
         CommentsSection(
             comments: [],
-            moderation: .init(galleryURL: nil),
+            moderationStore: Store(initialState: .init(galleryURL: nil), reducer: CommentModerationFeature.init),
             moderationAlert: { _ in .constant(nil) },
-            moderationAction: { _ in },
             navigateCommentAction: {},
             navigatePostCommentAction: {}
         )
