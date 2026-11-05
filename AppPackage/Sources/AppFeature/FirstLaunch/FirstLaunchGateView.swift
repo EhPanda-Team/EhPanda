@@ -49,13 +49,12 @@ struct FirstLaunchGateView: View {
 }
 
 /// One first-launch screen's frame (UI-SPEC C-1): a scrolling column capped at 560pt with 24pt margins, and the
-/// screen's Continue (with anything under it) in a bar pinned to the bottom.
+/// screen's Continue (with anything under it) in a bar pinned to the bottom at every text size (D-17b, owner msg
+/// 1903), so Continue is one tap away without scrolling. The last scroll item ends 24pt above the bar.
 ///
-/// At accessibility sizes a pinned bar would cover half the screen, so the bar goes away and the same bottom content
-/// becomes the end of the scroll content, 24pt under the last item with 48pt after it. The top padding reads only
-/// the horizontal size class, never the device. `identifier` names the scroll view, for UI tests.
+/// The top padding reads only the horizontal size class, never the device. `identifier` names the scroll view, for
+/// UI tests.
 struct FirstLaunchPage<Content: View, Bottom: View>: View {
-    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
 
     private let identifier: String
@@ -82,24 +81,18 @@ struct FirstLaunchPage<Content: View, Bottom: View>: View {
         ScrollView {
             VStack(spacing: 0) {
                 content
-                if dynamicTypeSize.isAccessibilitySize {
-                    bottom
-                        .padding(.top, 24)
-                        .padding(.bottom, 48)
-                }
             }
             .padding(.top, horizontalSizeClass == .regular ? regularTop : compactTop)
+            .padding(.bottom, 24)
             .column()
         }
         .accessibilityIdentifier(identifier)
         .scrollEdgeEffectStyle(.soft, for: [.top, .bottom])
         .safeAreaBar(edge: .bottom) {
-            if !dynamicTypeSize.isAccessibilitySize {
-                bottom
-                    .padding(.top, 8)
-                    .padding(.bottom, 16)
-                    .column()
-            }
+            bottom
+                .padding(.top, 8)
+                .padding(.bottom, 16)
+                .column()
         }
         .background(Color(.systemGroupedBackground))
     }
