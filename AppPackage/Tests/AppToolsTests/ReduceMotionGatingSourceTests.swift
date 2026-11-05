@@ -83,13 +83,15 @@ struct ReduceMotionGatingSourceTests {
         "HomeFeature/GalleryCardCell.swift": 1,
         "HomeFeature/HomeNavigationView.swift": 1,
         "QuickSearchFeature/QuickSearchView.swift": 1,
-        "ReadingFeature/ReadingView.swift": 1,
+        // The reader view gates its zoom and drag; its horizontal pager, a separate view since 18-07, reads the
+        // value itself to gate the page slide (the same gate the reader's jump carried before).
+        "ReadingFeature/ReadingView.swift": 2,
         "ReadingFeature/Support/ControlPanel.swift": 1,
         "SearchFeature/SearchRootView.swift": 1,
         "SettingFeature/GeneralSetting/GeneralSettingView.swift": 1,
         "SystemNotification/View+Toast.swift": 1
     ]
-    private static let expectedEnvironmentReadTotal = 17
+    private static let expectedEnvironmentReadTotal = 18
 
     /// Executable lines carrying the ternary predicate, per file.
     private static let expectedTernaryPredicates: [String: Int] = [
@@ -127,13 +129,13 @@ struct ReduceMotionGatingSourceTests {
         "HomeFeature/GalleryCardCell.swift": 12,
         "HomeFeature/HomeNavigationView.swift": 2,
         "QuickSearchFeature/QuickSearchView.swift": 2,
-        "ReadingFeature/ReadingView.swift": 4,
+        "ReadingFeature/ReadingView.swift": 5,
         "ReadingFeature/Support/ControlPanel.swift": 4,
         "SearchFeature/SearchRootView.swift": 2,
         "SettingFeature/GeneralSetting/GeneralSettingView.swift": 2,
         "SystemNotification/View+Toast.swift": 3
     ]
-    private static let expectedGateMentionTotal = 56
+    private static let expectedGateMentionTotal = 57
 
     /// `.contentTransition(.numericText…)` sites across the tree; every one stays ungated (D-29).
     private static let expectedNumericTextTotal = 11
