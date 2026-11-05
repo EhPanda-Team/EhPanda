@@ -3,10 +3,10 @@ updates:
   - package-ecosystem: 'github-actions'
     directory: '/'
     schedule:
-      time: '09:00'
+      time: '00:00'
       day: 'monday'
       interval: 'weekly'
-      timezone: 'Asia/Tokyo'
+      timezone: 'UTC'
     target-branch: 'main'
     groups:
       all-updates:
