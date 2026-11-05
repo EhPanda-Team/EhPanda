@@ -16,6 +16,7 @@ import SettingFeature
 import Sharing
 import SwiftUI
 import Testing
+import UIKit
 import UserDefaultsClient
 
 // The first-launch gate (D-03, D-04, DD-06, DD-07): until the current age declaration is confirmed the
@@ -661,7 +662,8 @@ private struct AnalyticsClientSpy {
     }
 }
 
-/// The first-launch titles' widow guard (UI-SPEC C-3, lead msg 1900).
+/// The title widow guard shared by the first-launch titles and the Blocked Users empty state (UI-SPEC C-3, lead msg
+/// 1900).
 struct TitleWidowGuardTests {
     private let noBreakSpace = String(TitleWidowGuard.noBreakSpace)
 
@@ -699,6 +701,25 @@ struct TitleWidowGuardTests {
         }
         #expect(guarded == title)
         #expect(!measured.value)
+    }
+
+    @Test
+    func aTitleNotYetLaidOutIsLeftAsWritten() {
+        let font = TitleWidowGuard.boldFont(.title3, at: .large)
+        let title = "You haven't blocked anyone."
+        #expect(TitleWidowGuard.guarded(title, width: 0, font: font) == title)
+    }
+
+    @Test
+    func aWidthMeasuresThePairInTheGivenFont() {
+        let font = TitleWidowGuard.boldFont(.title3, at: .large)
+        let pairWidth = ceil(("blocked\(noBreakSpace)anyone." as NSString).size(withAttributes: [.font: font]).width)
+        let title = "You haven't blocked anyone."
+        let joined = TitleWidowGuard.guarded(title, width: pairWidth, font: font)
+        let left = TitleWidowGuard.guarded(title, width: pairWidth - 1, font: font)
+        // The suite runs in English, so the language check lets the pair through.
+        #expect(joined == "You haven't blocked\(noBreakSpace)anyone.")
+        #expect(left == title)
     }
 
     @Test

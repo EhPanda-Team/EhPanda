@@ -1,3 +1,4 @@
+import AppComponents
 import ComposableArchitecture
 import Resources
 import SFSafeSymbols
@@ -34,12 +35,20 @@ struct BlockedUsersView: View {
         }
         .overlay {
             if store.isEmpty {
-                // The title wraps freely: no line break, scaling, line limit or fixed width (UI-SPEC C-3, C-12).
                 ContentUnavailableView {
-                    Label(.RLocalizable.blockedUsersEmpty, systemSymbol: .handRaised)
+                    Label {
+                        BlockedUsersEmptyTitle()
+                    } icon: {
+                        Image(systemSymbol: .handRaised)
+                    }
                 }
             }
         }
+        // An empty `List` draws no grouped background of its own, so the empty state would sit on white while the
+        // filled list sits on the grouped grey. Drawing the grouped background behind the list keeps the screen the
+        // same colour when the last name goes (C-12 switches in place).
+        .scrollContentBackground(.hidden)
+        .background(Color(uiColor: .systemGroupedBackground))
         .scrollEdgeEffectStyle(.soft, for: .top)
         .navigationTitle(.RLocalizable.blockedUsers)
     }
@@ -63,6 +72,36 @@ struct BlockedUsersView: View {
                     Label(.commentUnblock(author), systemSymbol: .handRaisedSlash)
                 }
             }
+    }
+}
+
+/// The empty state's title (C-12): `blocked_users.empty` in the `ContentUnavailableView` label's own font, wrapping
+/// freely, with no line break, scaling, line limit or fixed width (UI-SPEC C-3, owner msg 1822).
+///
+/// It carries `TitleWidowGuard` like the first-launch titles: the last two words are joined with a no-break space when
+/// they fit on one line at the current width and text size, so German at AX5 on iPad reads "Du hast / niemanden
+/// blockiert." When the pair is wider than the line, as in English and German at AX5 on iPhone, the title is left as
+/// written (the owner msg 1903 exception). The label keeps the font `ContentUnavailableView` gives it, bold `.title3`,
+/// and is measured in that font.
+private struct BlockedUsersEmptyTitle: View {
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+    @State private var availableWidth: CGFloat = 0
+
+    private let title = String(localized: .RLocalizable.blockedUsersEmpty)
+
+    var body: some View {
+        Text(verbatim: guardedTitle)
+            .frame(maxWidth: .infinity)
+            .onGeometryChange(for: CGFloat.self, of: \.size.width) { width in
+                availableWidth = width
+            }
+            .accessibilityLabel(title)
+    }
+
+    private var guardedTitle: String {
+        TitleWidowGuard.guarded(
+            title, width: availableWidth, font: TitleWidowGuard.boldFont(.title3, at: dynamicTypeSize)
+        )
     }
 }
 

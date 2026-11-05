@@ -2,7 +2,6 @@ import AppComponents
 import ComposableArchitecture
 import Foundation
 import SwiftUI
-import UIKit
 
 /// The first launch (UI-SPEC C-1, DD-06): the age wall, then the analytics choice. `RootView` renders it instead of
 /// the app until both are answered, so nothing of the app exists behind it. It has no navigation bar, back, close or
@@ -136,47 +135,8 @@ struct FirstLaunchTitle: View {
     }
 
     private var guardedTitle: String {
-        let width = availableWidth
-        guard width > 0 else { return title }
-        let font = Self.font(at: dynamicTypeSize)
-        return TitleWidowGuard.guarded(title, languageCode: FirstLaunchLanguage.code) { unit in
-            ceil((unit as NSString).size(withAttributes: [.font: font]).width) <= width
-        }
-    }
-
-    /// The UIKit twin of `.title.bold()` at `size`, for measuring.
-    private static func font(at size: DynamicTypeSize) -> UIFont {
-        let traits = UITraitCollection(preferredContentSizeCategory: UIContentSizeCategory(size))
-        let font = UIFont.preferredFont(forTextStyle: .title1, compatibleWith: traits)
-        guard let bold = font.fontDescriptor.withSymbolicTraits(.traitBold) else { return font }
-        return UIFont(descriptor: bold, size: 0)
-    }
-}
-
-/// Keeps a title's last line from holding a single word (UI-SPEC C-3, lead msg 1900).
-enum TitleWidowGuard {
-    static let noBreakSpace: Character = "\u{00A0}"
-
-    /// `title` with its last two words joined by a no-break space when `fits` says the joined pair fits on one line;
-    /// otherwise `title` unchanged, so a pair wider than the line is never broken mid-word. Titles of one word, and
-    /// titles in Japanese and Chinese, whose lines break between characters, are returned unchanged.
-    static func guarded(_ title: String, languageCode: String?, fits: (String) -> Bool) -> String {
-        guard !["ja", "zh"].contains(languageCode),
-              let lastSpace = title.lastIndex(of: " ")
-        else { return title }
-        let pairStart = title[..<lastSpace].lastIndex(of: " ").map(title.index(after:)) ?? title.startIndex
-        var pair = String(title[pairStart...])
-        guard let pairSpace = pair.lastIndex(of: " ") else { return title }
-        pair.replaceSubrange(pairSpace...pairSpace, with: String(noBreakSpace))
-        guard fits(pair) else { return title }
-        return String(title[..<pairStart]) + pair
-    }
-}
-
-/// The language the app's strings resolved to, such as `en` or `zh` (for zh-Hans and zh-Hant).
-enum FirstLaunchLanguage {
-    static var code: String? {
-        Bundle.main.preferredLocalizations.first
-            .flatMap({ Locale(identifier: $0).language.languageCode?.identifier })
+        TitleWidowGuard.guarded(
+            title, width: availableWidth, font: TitleWidowGuard.boldFont(.title1, at: dynamicTypeSize)
+        )
     }
 }
