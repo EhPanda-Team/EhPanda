@@ -2,7 +2,9 @@
 
 APPROVED by the owner, msg 1805 (2026-11-05), all six languages. Author: Camo. Delivered in msg 1797. Written for owner msg 1795: "None" becomes "Minimal", which sends only the installation.
 Everything not listed here in 18-COPY-FIRST-LAUNCH.md stays as approved (msg 1767).
-Developer confirmation (msg 1798): under Minimal the analytics SDK never starts; the app sends one signal with no details, once per install (D-06b), so "Sends only a signal that EhPanda is installed" is literally true.
+Developer confirmation (msg 1798): under Minimal the analytics SDK never starts; the app sends one signal, once per install (D-06b).
+
+**Revision 2 APPROVED by the owner, msg 1818 (2026-11-05):** owner msg 1812 adds the install channel to the Minimal signal (D-06c, developer msg 1814). The Minimal description in the table below is SUPERSEDED by Revision 2 at the end of this file; everything else stays as approved in msg 1805.
 
 ## What changes
 
@@ -33,3 +35,15 @@ Unchanged and still correct: `consent.title` ("Choose what EhPanda shares"), the
 ## Knock-on for the website (Leto, at 3.0 ship, not before)
 
 The privacy page rewrite for the three levels now uses Minimal / Basic / Full and these descriptions. There is no level that sends nothing, so the page must not say sharing can be turned off completely.
+
+## Revision 2 (owner msg 1812; APPROVED owner msg 1818)
+
+Only `consent.level.minimal.description` changes. The name "Minimal", `consent.body` and everything else stay as approved in msg 1805.
+
+| Key | en | de | ko | ja | zh-Hans | zh-Hant |
+|---|---|---|---|---|---|---|
+| consent.level.minimal.description | Sends only a signal that EhPanda is installed, and where you installed the app from. | Sendet nur, dass EhPanda installiert ist, und woher du die App installiert hast. | EhPanda가 설치되어 있다는 사실과 앱을 설치한 곳만 보냅니다. | EhPanda がインストールされていることと、アプリの入手元だけを送信します。 | 仅发送 EhPanda 已安装的信息，以及应用的安装来源。 | 僅傳送 EhPanda 已安裝的資訊，以及 App 的安裝來源。 |
+
+Notes:
+- "Where you installed the app from" is word for word the phrase already approved in Basic's description, in every language, so the two levels name the install channel the same way. No new term ("marketplace", "channel", "install source") reaches the user.
+- Still true only if the signal carries nothing beyond the install and its source, once per install (D-06b/D-06c).
