@@ -88,6 +88,9 @@ public struct SettingView: View {
 
         case .appIcon(let appIconStore):
             AppIconView(store: appIconStore)
+
+        case .blockedUsers(let blockedUsersStore):
+            BlockedUsersView(store: blockedUsersStore)
         }
     }
 }

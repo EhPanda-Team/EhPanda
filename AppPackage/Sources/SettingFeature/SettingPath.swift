@@ -20,6 +20,7 @@ public enum SettingPath {
     case laboratory(LaboratorySettingReducer)
     case about(StaticSettingScreenReducer)
     case appIcon(AppIconReducer)
+    case blockedUsers(BlockedUsersReducer)
 }
 
 extension SettingPath.State: Equatable, Sendable {}
@@ -55,6 +56,7 @@ extension SettingPath.State {
         case .laboratory: return "laboratory"
         case .about: return "about"
         case .appIcon: return "appIcon"
+        case .blockedUsers: return "blockedUsers"
         }
     }
 }
@@ -73,7 +75,7 @@ extension SettingPath.State {
             return .ehSetting(.fetchEhSetting)
         case .appActivityLogs:
             return .appActivityLogs(.refreshAvailableRuns)
-        case .appearance, .login, .download, .reading, .laboratory, .about, .appIcon:
+        case .appearance, .login, .download, .reading, .laboratory, .about, .appIcon, .blockedUsers:
             return nil
         }
     }

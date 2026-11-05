@@ -25,6 +25,7 @@ public struct AccountSettingReducer: Sendable {
     public enum Delegate: Equatable, Sendable {
         case pushLogin
         case pushEhSetting
+        case pushBlockedUsers
     }
 
     private enum CancelID { case observeCookies }
