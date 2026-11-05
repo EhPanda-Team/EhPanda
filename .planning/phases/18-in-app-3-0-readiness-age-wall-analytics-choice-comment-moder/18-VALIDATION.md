@@ -2,10 +2,12 @@
 phase: "18"
 slug: "in-app-3-0-readiness-age-wall-analytics-choice-comment-moder"
 # status lifecycle: draft (seeded by plan-phase) → validated (set by validate-phase §6)
-status: draft
+status: validated
 nyquist_compliant: true
 wave_0_complete: true
 created: "2026-11-05"
+validated: "2026-11-05"
+validated_source: c3ef39ac9
 ---
 
 # Phase 18 — Validation Strategy
@@ -76,6 +78,7 @@ created: "2026-11-05"
 | 18-12-01 | 12 | 4 | CONSENT-18-01 | T-18-22 | READMEs quote the three levels verbatim (Revision 6 Basic/Full); no off-completely claim | script | `python3 .planning/phases/18-in-app-3-0-readiness-age-wall-analytics-choice-comment-moder/18-copy-check.py --readmes` | ❌ | ✅ green |
 | 18-12-02 | 12 | 4 | all | T-18-23 | full gate on both devices; Release scan | all | see plan | ✅ | ✅ green |
 | 18-12-03 | 12 | 4 | UGC-18-01 | — | live report page loads signed in; after Log Out the site's guest page (verified by an agent per owner rule msg 1652, 2026-11-05 17:51Z) | manual | checkpoint | — | ✅ green |
+| 18-12-04 | 12 | 4 | UGC-18-01 (SC6 as amended, owner msg 1918) | T-18-20, F-18-01 | blocking matches the poster's member ID from the site's exact contact link (`https://forums.e-hentai.org/index.php?showuser=<digits>`), never the name; look-alike hosts, other schemes, ports and paths give no ID; no ID offers no Block and never collapses; a blocked ID under a new name stays blocked and the new name is stored | unit + UI | `-only-testing:ParserFeatureTests/GalleryCommentParserTests -only-testing:AppModelsTests/BlockedCommentUserTests -only-testing:DetailFeatureTests/CommentModerationReducerTests -only-testing:DetailFeatureTests/BlockedCommentPresentationTests`, `-only-testing:EhPandaUITests/CommentModerationUITests` | ✅ | ✅ green |
 
 *Status: ⬜ pending · ✅ green · ❌ red · ⚠️ flaky*
 
@@ -114,4 +117,18 @@ Test-first tasks inside their plans (no separate Wave 0 plan; no framework insta
 - [x] Feedback latency < 300 s for module runs
 - [x] `nyquist_compliant: true` set in frontmatter (set by 18-12 after the gate)
 
-**Approval:** pending
+**Approval:** validated 2026-11-05 (validate-phase audit at `c3ef39ac9`). One gap was found and resolved: the
+member-ID blocking added by 18-12 (owner msg 1918) had no row in the map. It is now row 18-12-04, covered by existing
+tests plus the IN-01 look-alike-host cases from `c3ef39ac9`. Evidence at `c3ef39ac9`: ParserFeatureTests and
+DetailFeatureTests 199/199 on `$PHONE` and 199/199 on `$PAD`, and `CommentModerationUITests` 7/7 on each, with 0
+Repetition nodes. `AppModelsTests/BlockedCommentUserTests` last ran in the 18-12 gate at `e3c95a3bf`; `c3ef39ac9` does
+not touch AppModels. Every other row's evidence is the 18-12 gate at `e3c95a3bf` (18-REGRESSION-GATE.md). Nothing was
+escalated to manual-only.
+
+## Validation Audit 2026-11-05
+
+| Metric | Count |
+|---|---|
+| Gaps found | 1 |
+| Resolved | 1 |
+| Escalated | 0 |
