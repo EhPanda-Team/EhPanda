@@ -269,6 +269,12 @@ your mind, and a shared Continue keeps both first-launch screens one pattern.
 1. Symbol `chart.bar.xaxis`, `.font(.largeTitle)` + `.imageScale(.large)` (≈ 48pt at default), `.secondary` (neutral — not accent, so nothing nudges), `.accessibilityHidden(true)`.
    32pt from top (72pt regular width).
 2. 16pt · Title `consent.title`, `.title.bold()`, centred, `.isHeader`.
+   **Line breaks (owner msg 1822):** the title must never end on a single word. At default size on iPhone, en
+   reads "Choose what / EhPanda shares", not "Choose what EhPanda / shares". SwiftUI `Text` does this by default
+   (it pulls the previous word down when the last line would hold one word), so: plain `Text`, no `\n` in any
+   locale's string, no `.minimumScaleFactor`, no `.lineLimit`, no fixed width on the title. Acceptance: in every
+   locale and every text size, the title's last line holds at least two words (zh/ja/ko: at least two characters).
+   Same rule for the age wall title (C-2) and the Blocked Users empty-state title.
 3. 8pt · Body `consent.body`, `.body`, `.secondary`, centred.
 4. 24pt · **Three `ChoiceCard`s**, order Minimal, Basic, Full (owner's order; Minimal replaces None, owner msg 1795), 12pt apart, all identical in size rules,
    type and colour while unselected — no badge, no "recommended", no different weight.
