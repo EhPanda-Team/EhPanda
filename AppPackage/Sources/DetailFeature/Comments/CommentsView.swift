@@ -343,6 +343,10 @@ extension CommentsView {
         /// The `…` moderation button ends the row in both candidates: after the metadata on one line,
         /// and on the author's line, top-trailing, once the pair stacks (C-4). Its hit area overhangs
         /// the row's padding, so it adds no height.
+        ///
+        /// On one line the vote glyph keeps its slot while there is no vote, so voting does not move the
+        /// score and date. Stacked, the metadata starts the line under the author, where an empty slot
+        /// would only indent it, so the glyph is left out until there is a vote to show.
         private var authorAndMetadata: some View {
             ViewThatFits(in: .horizontal) {
                 HStack {
@@ -350,7 +354,7 @@ extension CommentsView {
 
                     Spacer(minLength: 0)
 
-                    metadata
+                    metadata(keepsVoteSlot: true)
                     moderationMenu
                 }
                 .lineLimit(1)
@@ -363,7 +367,7 @@ extension CommentsView {
 
                         moderationMenu
                     }
-                    metadata
+                    metadata(keepsVoteSlot: false)
                 }
             }
         }
@@ -379,11 +383,15 @@ extension CommentsView {
                 .font(.subheadline.bold())
         }
 
-        private var metadata: some View {
-            HStack {
-                Image(systemSymbol: comment.votedUp ? .handThumbsupFill : .handThumbsdownFill)
-                    .visible(comment.votedUp || comment.votedDown)
-                    .accessibilityHidden(true)
+        /// - Parameter keepsVoteSlot: Whether the vote glyph holds its place, invisible, while there is no vote.
+        private func metadata(keepsVoteSlot: Bool) -> some View {
+            let hasVote = comment.votedUp || comment.votedDown
+            return HStack {
+                if keepsVoteSlot || hasVote {
+                    Image(systemSymbol: comment.votedUp ? .handThumbsupFill : .handThumbsdownFill)
+                        .visible(hasVote)
+                        .accessibilityHidden(true)
+                }
 
                 comment.score.map(Text.init)
                 Text(comment.formattedDateString)
