@@ -10,8 +10,8 @@ accepted: 0
 asvs_level: 1
 block_on: high
 register_authored_at_plan_time: true
-created: "2026-11-06"
-audited: "2026-11-06"
+created: "2026-11-05"
+audited: "2026-11-05"
 audited_source: 8b30b8c55
 ---
 
@@ -138,7 +138,7 @@ not logged here.
 
 | Audit Date | Threats Total | Closed | Open | Run By |
 |------------|---------------|--------|------|--------|
-| 2026-11-06 | 24 | 23 | 1 (T-18-SC, low, below the high threshold; needs owner acceptance) | gsd-security-auditor (inline in /gsd-secure-phase 18, no subagents; ASVS L1, block_on high; the effort setting could not be set, so the audit was run as thoroughly as possible) |
+| 2026-11-05 | 24 | 23 | 1 (T-18-SC, low, below the high threshold; needs owner acceptance) | gsd-security-auditor (inline in /gsd-secure-phase 18, no subagents; ASVS L1, block_on high; the effort setting could not be set, so the audit was run as thoroughly as possible) |
 
 ---
 
@@ -149,5 +149,5 @@ not logged here.
 - [x] `threats_open: 0` confirmed (no open threat at or above high)
 - [x] `status: verified` set in frontmatter
 
-**Approval:** verified 2026-11-06 (threat register). T-18-SC is still open, below the threshold: it needs owner
+**Approval:** verified 2026-11-05 (threat register). T-18-SC is still open, below the threshold: it needs owner
 acceptance.
