@@ -11,14 +11,15 @@ extension ReadingReducer {
         Reduce { state, action in
             switch action {
             case .syncReadingProgress(let progress):
-                // Debounce the persist: the page index is the hottest interaction in the app (swipe,
-                // slider scrub, auto-play) and each write re-encodes the whole history array. Keep the
-                // pending page in state and flush it at most once per second — plus immediately on
-                // teardown/background (`.flushReadingProgress`) so a force-quit loses under a second.
-                state.pendingReadingProgress = progress
+                // Debounce the persist: the page is the hottest interaction in the app (swipe, slider,
+                // auto-play) and each write re-encodes the whole history array. The committed page is
+                // flushed at most once per second — plus immediately on teardown/background
+                // (`.flushReadingProgress`) so a force-quit loses under a second. A settled pager sends
+                // this for each page it commits.
+                state.readingProgress = progress
                 // One set insertion, deliberately nothing more — no effect, no send, no allocation.
                 // This is the hottest action in the app; the session signal is emitted at dismissal.
-                state.visitedPages.insert(progress)
+                state.visitedPages.insert(state.readingProgress)
                 return .run { send in
                     try await clock.sleep(for: .seconds(1))
                     await send(.flushReadingProgress)
@@ -50,7 +51,50 @@ extension ReadingReducer {
         }
     }
 
-    /// Persists the latest pending page into the shared browsing history. Called from the debounced
+    /// Drives the reader's one page (`ReaderPosition`). Turns and the pager's observations come in; the commands
+    /// the view carries out go out through `position.issued`. A page the pager commits is saved through
+    /// `.syncReadingProgress`.
+    var positionReducer: some ReducerOf<Self> {
+        Reduce { state, action in
+            switch action {
+            case .turn(let page):
+                turn(state: &state, to: page)
+                return .none
+
+            case let .pagerPhaseChanged(motion, generation):
+                _ = state.position.pagerPhaseChanged(to: motion, generation: generation)
+                return .none
+
+            case let .pagerSettled(shown, generation):
+                let committedPage = state.position.page
+                _ = state.position.pagerSettled(shown: shown, generation: generation)
+                guard state.position.page != committedPage else { return .none }
+                return .send(.syncReadingProgress(state.position.page))
+
+            case .pagerRebuilt:
+                _ = state.position.pagerRebuilt()
+                return .none
+
+            // The slider turns when its drag ends, or at once for a value set outside a drag (DD-01).
+            case .binding(\.sliderValue), .binding(\.showsSliderPreview):
+                guard !state.showsSliderPreview, let scrub = state.sliderScrub else { return .none }
+                state.sliderScrub = nil
+                turn(state: &state, to: Int(scrub))
+                return .none
+
+            default:
+                return .none
+            }
+        }
+    }
+
+    private func turn(state: inout State, to page: Int) {
+        let pageCount = state.gallery.pageCount
+        let page = pageCount > 0 ? min(max(page, 1), pageCount) : page
+        _ = state.position.turn(to: state.landingPage(of: page), pageCount: pageCount)
+    }
+
+    /// Persists the committed page into the shared browsing history. Called from the debounced
     /// `.flushReadingProgress` and — crucially — synchronously on reader dismissal (`.onPerformDismiss`),
     /// which runs in this child reducer before the parent nils the presentation and cancels the pending
     /// debounce. A deferred `.send` at that point would be dropped once the destination is gone.
@@ -62,7 +106,7 @@ extension ReadingReducer {
         $galleryHistory.withLock {
             $0.updateReadingProgress(
                 gid: state.gallery.id, token: state.gallery.token,
-                progress: state.pendingReadingProgress, date: date.now
+                progress: state.readingProgress, date: date.now
             )
         }
     }
@@ -115,7 +159,7 @@ extension ReadingReducer {
             state.thumbnailURLs = .init()
             state.imageURLs = .init()
             state.originalImageURLs = .init()
-            state.forceRefreshID = .init()
+            state.refreshPages()
         }
         state.localPageURLs = localPageURLs
         localPageURLs.keys.forEach {

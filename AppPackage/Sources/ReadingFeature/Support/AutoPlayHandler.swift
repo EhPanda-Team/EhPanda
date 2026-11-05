@@ -26,6 +26,15 @@ final class AutoPlayHandler {
     @ObservationIgnored
     private var ticking: Task<Void, Never>?
 
+    /// The pager position one tick turns to from `position`, among `count` positions, and whether auto-play stops
+    /// there. The tick that reaches the last position stops it, rather than ticking against the end for the rest of the
+    /// interval. The reader sends the turn as `ReadingReducer.Action.turn(toPage:)`, its one turn intent.
+    static func tick(from position: Int, count: Int) -> (target: Int, stops: Bool) {
+        let last = max(count - 1, 0)
+        let target = min(max(position + 1, 0), last)
+        return (target: target, stops: target >= last)
+    }
+
     isolated deinit {
         ticking?.cancel()
     }

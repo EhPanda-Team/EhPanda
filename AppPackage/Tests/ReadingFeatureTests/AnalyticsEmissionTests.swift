@@ -24,6 +24,9 @@ import Testing
 //     a visited-page set from a naive counter — the difference between measuring reading and
 //     measuring fidgeting.
 //
+// Pages are read the way the reader reads them since 18-07: a turn, then the pager settling on the
+// page, which commits it to the reader's one page (`ReaderPosition`) and from there to the session.
+//
 // @MainActor sits on members, never on this type: TCA's `TestStore.init` and `.state` are
 // main-actor-isolated, so every store-driving case needs it. Annotating the type instead would
 // make the suite's protocol conformances main-actor-isolated too (see 11-22-SUMMARY.md).
@@ -60,6 +63,27 @@ struct AnalyticsEmissionTests {
 
     // MARK: The session signal
 
+    // The page the pager settles on is the page the session counts, whatever turn was asked for: a turn
+    // the pager does not reach counts the page it shows (DD-02), and a turn still under way counts
+    // nothing yet.
+    @MainActor
+    @Test
+    func theSessionCountsThePagesThePagerSettledOn() async {
+        let recorded = LockIsolated<[AnalyticsSignal]>([])
+        let store = makeReadingStore(recorded: recorded, now: LockIsolated(Self.origin))
+
+        await store.send(.onPresented)
+        await store.send(.turn(toPage: 9))
+        #expect(store.state.visitedPages == [1])
+        for _ in 0...ReaderPosition.retryLimit {
+            await store.send(.pagerSettled(shown: 2, generation: 0))
+        }
+        await store.skipReceivedActions(strict: false)
+
+        #expect(store.state.readingProgress == 2)
+        #expect(store.state.visitedPages == [1, 2])
+    }
+
     @MainActor
     @Test
     func dismissingAfterReadingRecordsOneSessionSignal() async {
@@ -68,8 +92,8 @@ struct AnalyticsEmissionTests {
         let store = makeReadingStore(recorded: recorded, now: now)
 
         await store.send(.onPresented)
-        // Pages 1, 2, 3 joining the seeded opening page 0 — four distinct pages.
-        for page in 1...3 { await store.send(.syncReadingProgress(page)) }
+        // Pages 2, 3, 4 joining the seeded opening page 1 — four distinct pages.
+        for page in 2...4 { await Self.read(page, in: store) }
         now.setValue(Self.origin.addingTimeInterval(90))
         await store.send(.onPerformDismiss)
         await store.skipInFlightEffects(strict: false)
@@ -85,8 +109,8 @@ struct AnalyticsEmissionTests {
     @MainActor
     @Test
     func scrubbingBackAndForthDoesNotInflateThePageCount() async {
-        let straightThrough = await Self.recordedSession(pages: [1, 2, 3], elapsed: 90)
-        let scrubbed = await Self.recordedSession(pages: [1, 2, 3, 2, 1], elapsed: 90)
+        let straightThrough = await Self.recordedSession(pages: [2, 3, 4], elapsed: 90)
+        let scrubbed = await Self.recordedSession(pages: [2, 3, 4, 3, 2], elapsed: 90)
 
         expectNoDifference(scrubbed, straightThrough)
         expectNoDifference(
@@ -112,7 +136,7 @@ struct AnalyticsEmissionTests {
         elapsed: TimeInterval,
         expected: DurationBucket
     ) async {
-        let recorded = await Self.recordedSession(pages: [1], elapsed: elapsed)
+        let recorded = await Self.recordedSession(pages: [2], elapsed: elapsed)
 
         expectNoDifference(recorded, [.readingSessionEnded(pagesRead: .twoToFive, duration: expected)])
     }
@@ -136,6 +160,21 @@ private extension AnalyticsClient {
 private extension AnalyticsEmissionTests {
     static let origin = Date(timeIntervalSince1970: 0)
 
+    /// A gallery with pages enough to turn through.
+    static var gallery: Gallery {
+        var gallery = Gallery.preview
+        gallery.pageCount = 12
+        return gallery
+    }
+
+    /// Reads `page` as the reader does: a turn to it, and the pager of the first generation settling on it.
+    @MainActor
+    static func read(_ page: Int, in store: TestStoreOf<ReadingReducer>) async {
+        await store.send(.turn(toPage: page))
+        await store.send(.pagerSettled(shown: page, generation: 0))
+        await store.skipReceivedActions(strict: false)
+    }
+
     // Drive one full session — present, visit `pages`, advance the clock by `elapsed`, dismiss — and
     // return the recorded signals. Shared so the scrub and boundary cases compare like with like.
     @MainActor
@@ -145,7 +184,7 @@ private extension AnalyticsEmissionTests {
         let store = AnalyticsEmissionTests().makeReadingStore(recorded: recorded, now: now)
 
         await store.send(.onPresented)
-        for page in pages { await store.send(.syncReadingProgress(page)) }
+        for page in pages { await read(page, in: store) }
         now.setValue(origin.addingTimeInterval(elapsed))
         await store.send(.onPerformDismiss)
         await store.skipInFlightEffects(strict: false)
@@ -168,7 +207,7 @@ private extension AnalyticsEmissionTests {
             $0.defaultInMemoryStorage = inMemoryStorage
         } operation: {
             let store = TestStore(
-                initialState: ReadingReducer.State(gallery: .preview),
+                initialState: ReadingReducer.State(gallery: Self.gallery),
                 reducer: ReadingReducer.init,
                 withDependencies: {
                     $0.analyticsClient = .recording(into: recorded)

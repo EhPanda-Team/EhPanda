@@ -7,10 +7,9 @@ import Testing
 // before the reader is re-seamed from the SwiftUIPager `Page` onto a plain index (D-07).
 // `PageHandler` survives the swap byte-for-byte; only its caller changes, so any drift caught here
 // is a re-seam bug. Every call passes `isLandscape:` explicitly so the suite never reads the
-// `DeviceUtil.isLandscape` process global and stays deterministic off-device.
-// @MainActor sits on members, never on this type: `PageHandler` is a @MainActor type, so every
-// case that constructs or calls one needs it. Annotating the type would isolate its
-// conformances too (see 11-22-SUMMARY.md).
+// `DeviceUtil.isLandscape` process global and stays deterministic off-device. Since the reader's
+// page moved into `ReaderPosition` (18-07), `PageHandler` is a plain value holding only these maps,
+// which derive the pager's position from the page, so no case needs the main actor.
 @Suite
 struct PageHandlerTests {
     private struct AspectRatioCase {
@@ -33,7 +32,6 @@ struct PageHandlerTests {
 
     // Single-page mode applies when the device is portrait OR dual-page is off: the maps are a
     // plain ±1 offset between the 0-based pager index and the 1-based reading page.
-    @MainActor
     @Test(arguments: 0..<10)
     func singlePageModeIsPlusMinusOne(pagerIndex: Int) {
         let handler = PageHandler()
@@ -57,7 +55,6 @@ struct PageHandlerTests {
 
     // Dual-page landscape without the cover exception: stack i shows pages {2i+1, 2i+2}, so the
     // stack's first reading page is 2i+1; stack 0 is guarded to page 1.
-    @MainActor
     @Test(arguments: zip([0, 1, 2, 3, 10], [1, 3, 5, 7, 21]))
     func dualPageMapsStackToOddFirstPage(pagerIndex: Int, readingPage: Int) {
         let handler = PageHandler()
@@ -70,7 +67,6 @@ struct PageHandlerTests {
 
     // Both pages of a dual stack map back to the same stack index: pages {2i+1, 2i+2} → i,
     // with pages 0/1 guarded to stack 0.
-    @MainActor
     @Test(arguments: zip([0, 1, 2, 3, 4, 5, 21, 22], [0, 0, 0, 1, 1, 2, 10, 10]))
     func dualPageMapsReadingPageToStack(readingPage: Int, pagerIndex: Int) {
         let handler = PageHandler()
@@ -78,7 +74,6 @@ struct PageHandlerTests {
         #expect(handler.mapToPager(index: readingPage, setting: setting, isLandscape: true) == pagerIndex)
     }
 
-    @MainActor
     @Test
     func landscapeResumePageMapsToExpectedDualPageStack() {
         let handler = PageHandler()
@@ -88,7 +83,6 @@ struct PageHandlerTests {
 
     // Cover exception: the cover stands alone, so stack i (>0) shows pages {2i, 2i+1} and its
     // first reading page is 2i; stack 0 is the cover (page 1).
-    @MainActor
     @Test(arguments: zip([0, 1, 2, 3, 10], [1, 2, 4, 6, 20]))
     func coverExceptionMapsStackToEvenFirstPage(pagerIndex: Int, readingPage: Int) {
         let handler = PageHandler()
@@ -100,7 +94,6 @@ struct PageHandlerTests {
     }
 
     // Cover exception reverse map: pages {2i, 2i+1} → i, with the cover pages 0/1 guarded to stack 0.
-    @MainActor
     @Test(arguments: zip([0, 1, 2, 3, 4, 5, 20, 21], [0, 0, 1, 1, 2, 2, 10, 10]))
     func coverExceptionMapsReadingPageToStack(readingPage: Int, pagerIndex: Int) {
         let handler = PageHandler()
@@ -111,7 +104,6 @@ struct PageHandlerTests {
     // The last-page clamp: when a stack's first page is the second-to-last page
     // (result + 1 == pageCount), the map lands on the final page itself — and that clamped page
     // still maps back to the same stack.
-    @MainActor
     @Test
     func lastPageCoverExceptionClampsToPageCount() {
         let handler = PageHandler()
@@ -128,7 +120,6 @@ struct PageHandlerTests {
 
     // mapToPager(mapFromPager(i)) == i in every mode — the identity the re-seamed reader relies on
     // when it round-trips the shared index through reading-page space (slider, resume-seed).
-    @MainActor
     @Test(arguments: 0..<12)
     func roundTripIdentityHoldsInEveryMode(pagerIndex: Int) {
         let handler = PageHandler()
@@ -150,7 +141,6 @@ struct PageHandlerTests {
 
     // RTL stays logical: the data source is forward and only the view's layoutDirection flips, so
     // the mapping must not vary with readingDirection (only `.vertical` gates dual-page off).
-    @MainActor
     @Test(arguments: 0..<10)
     func mappingIsDirectionAgnostic(pagerIndex: Int) {
         let handler = PageHandler()
@@ -175,7 +165,6 @@ struct PageHandlerTests {
     // D-04 derives the required flag from the current reader container. These cases prove the
     // aspect-ratio result reaches both maps unchanged and preserves the frozen portrait/landscape
     // behavior after removing PageHandler's DeviceUtil-backed default.
-    @MainActor
     @Test
     func aspectRatioFlagControlsDualPageEligibility() {
         let handler = PageHandler()
@@ -205,5 +194,39 @@ struct PageHandlerTests {
                     == expectedPagerIndex
             )
         }
+    }
+
+    // A turn lands on the page that names the position it lies in: the page itself in single-page
+    // mode, the spread's first page (or the clamped last page) in dual-page mode.
+    @Test
+    func aTurnLandsOnThePageNamingItsPosition() {
+        let handler = PageHandler()
+        let single = makeSetting()
+        let dual = makeSetting(enableDualPageMode: true)
+        let cover = makeSetting(enableDualPageMode: true, exceptCover: true)
+        #expect(handler.landingPage(of: 4, pageCount: 10, setting: single, isLandscape: true) == 4)
+        #expect(handler.landingPage(of: 4, pageCount: 10, setting: dual, isLandscape: false) == 4)
+        #expect(handler.landingPage(of: 4, pageCount: 10, setting: dual, isLandscape: true) == 3)
+        #expect(handler.landingPage(of: 5, pageCount: 10, setting: cover, isLandscape: true) == 4)
+        #expect(handler.landingPage(of: 6, pageCount: 6, setting: dual, isLandscape: true) == 6)
+    }
+
+    // Tap-to-turn, auto-play and the accessibility actions turn by positions from the page the
+    // reader names, kept within the gallery's positions.
+    @Test
+    func turningByPositionsStaysWithinTheGallery() {
+        let handler = PageHandler()
+        let single = makeSetting()
+        let dual = makeSetting(enableDualPageMode: true)
+        #expect(handler.page(turningFrom: 4, by: 1, pageCount: 10, setting: single, isLandscape: false) == 5)
+        #expect(handler.page(turningFrom: 4, by: -1, pageCount: 10, setting: single, isLandscape: false) == 3)
+        #expect(handler.page(turningFrom: 10, by: 1, pageCount: 10, setting: single, isLandscape: false) == 10)
+        #expect(handler.page(turningFrom: 1, by: -1, pageCount: 10, setting: single, isLandscape: false) == 1)
+        // Dual-page: page 4 lies in the spread {3, 4}; the next spread starts on page 5.
+        #expect(handler.page(turningFrom: 4, by: 1, pageCount: 10, setting: dual, isLandscape: true) == 5)
+        #expect(handler.page(turningFrom: 4, by: -1, pageCount: 10, setting: dual, isLandscape: true) == 1)
+        // The last spread {9, 10} is named by the last page (the clamp above).
+        #expect(handler.page(turningFrom: 9, by: 1, pageCount: 10, setting: dual, isLandscape: true) == 10)
+        #expect(handler.page(turningFrom: 1, by: 1, pageCount: 0, setting: single, isLandscape: false) == 1)
     }
 }

@@ -133,17 +133,57 @@ struct ReadingOrientationTests {
         await store.finish()
     }
 
+    // A rotation into two pages changes the positions the pager lays out, so the view builds a new
+    // pager: a new generation, placed on the page the reader names, and the page's position derived
+    // anew for the new layout. Turns then land on the spreads of that layout.
+    @MainActor
+    @Test
+    func aRotationIntoTwoPagesBuildsANewPagerOnThePageNamed() async {
+        let setting = Setting(readingDirection: .leftToRight, enableDualPageMode: true)
+        let store = makeStore(setting: setting, isLandscape: false, pageCount: 20, page: 6)
+        store.dependencies.continuousClock = ImmediateClock()
+        await store.send(.layoutChanged(isLandscape: true, supportsAutomaticLayout: false)) {
+            $0.layoutIsLandscape = true
+        }
+        await store.send(.pagerRebuilt) {
+            _ = $0.position.pagerRebuilt()
+        }
+        #expect(store.state.position.generation == 1)
+        #expect(store.state.position.issued?.command == .place(page: 6, generation: 1))
+        #expect(PageHandler().mapToPager(index: 6, setting: setting, isLandscape: true) == 2)
+
+        // Page 8 lies in the spread {7, 8}, which the pager reports as page 7.
+        await store.send(.turn(toPage: 8)) {
+            _ = $0.position.turn(to: 7, pageCount: 20)
+        }
+        // An observation of the pager the rotation replaced changes nothing.
+        await store.send(.pagerSettled(shown: 3, generation: 0))
+        await store.send(.pagerSettled(shown: 7, generation: 1)) {
+            _ = $0.position.pagerSettled(shown: 7, generation: 1)
+        }
+        await store.receive(\.syncReadingProgress) {
+            $0.visitedPages = [7]
+        }
+        await store.receive(\.flushReadingProgress)
+        #expect(store.state.readingProgress == 7)
+        await store.finish()
+    }
+
     @MainActor
     private func makeStore(
-        setting: Setting = .init(), isLandscape: Bool? = nil, supportsAutomaticLayout: Bool = false
+        setting: Setting = .init(), isLandscape: Bool? = nil, supportsAutomaticLayout: Bool = false,
+        pageCount: Int = 1, page: Int = 1
     ) -> TestStoreOf<ReadingReducer> {
         withDependencies {
             $0.defaultAppStorage = UserDefaults.inMemory
         } operation: {
-            var state = ReadingReducer.State(gallery: .preview)
+            var gallery = Gallery.preview
+            gallery.pageCount = pageCount
+            var state = ReadingReducer.State(gallery: gallery)
             state.$setting.withLock({ $0 = setting })
             state.layoutIsLandscape = isLandscape
             state.supportsAutomaticLayout = supportsAutomaticLayout
+            state.readingProgress = page
             return TestStore(initialState: state, reducer: ReadingReducer.init)
         }
     }

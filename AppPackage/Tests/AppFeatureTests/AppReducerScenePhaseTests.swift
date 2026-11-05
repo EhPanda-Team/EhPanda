@@ -36,7 +36,7 @@ struct AppReducerScenePhaseTests {
         } operation: {
             ReadingReducer.State(gallery: gallery)
         }
-        reading.pendingReadingProgress = 7
+        reading.readingProgress = 7
         let store = makeStore(
             detectLinksFromClipboard: false, privacyMaskIntensity: 0,
             favoritesReading: reading, appStorage: appStorage
