@@ -17,6 +17,8 @@ enum UITestConstants {
     static let fixtureDirectoryEnvironmentKey = "EHPANDA_UITEST_FIXTURE_DIR"
     static let clipboardURLEnvironmentKey = "EHPANDA_UITEST_CLIPBOARD_URL"
     static let launchGalleryURLEnvironmentKey = "EHPANDA_AUTOMATION_GALLERY_URL"
+    /// `show` launches into the real first launch; absent, a stubbed launch is preset past it.
+    static let firstLaunchEnvironmentKey = "EHPANDA_UITEST_FIRST_LAUNCH"
 
     /// UIKit names a toolbar's More button itself, and the name depends on the bar holding it:
     /// iOS 27 calls a navigation bar's `TopOverflowBarButtonItem`.

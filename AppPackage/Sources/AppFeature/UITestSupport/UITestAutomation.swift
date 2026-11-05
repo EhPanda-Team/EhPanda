@@ -65,6 +65,36 @@ public enum UITestAutomation {
         }
     }
 
+    /// The first-launch answers an automated launch starts from (D-03, A-8).
+    ///
+    /// Every UI test, capture and hosted visual-test launch would otherwise stop at the age wall, so
+    /// each is preset past both screens unless `EHPANDA_UITEST_FIRST_LAUNCH=show` asks for the real
+    /// first launch, which the first-launch UI tests use. Any other value of the key is ignored, and
+    /// the key is read only here, inside `#if DEBUG` (P-9).
+    enum FirstLaunchPreset: Equatable, Sendable {
+        /// The current age declaration confirmed and the Minimal level chosen. Test hosts carry no
+        /// analytics app ID, so even Minimal's install signal is a no-op there.
+        case answered
+        /// Both answers cleared, so the launch meets the age wall, then the analytics choice.
+        case cleared
+
+        static let environmentKey = "EHPANDA_UITEST_FIRST_LAUNCH"
+
+        /// Writes this preset's answers into `setting`.
+        func apply(to setting: inout Setting) {
+            switch self {
+            case .answered:
+                setting.ageDeclarationVersion = AgeDeclaration.currentVersion
+                setting.analyticsLevel = .minimal
+            case .cleared:
+                // Cleared rather than left alone: a stubbed launch keeps the simulator's storage, so
+                // a preset an earlier launch wrote would otherwise skip the screens under test.
+                setting.ageDeclarationVersion = nil
+                setting.analyticsLevel = nil
+            }
+        }
+    }
+
     struct Configuration: Sendable {
         let fixtureDirectory: URL?
         let clipboardClient: ClipboardClient?
@@ -74,6 +104,9 @@ public enum UITestAutomation {
         /// A capture launch's validated scene. A capture takes no other UI-test key, so every
         /// other field is inert when this is set.
         let captureScene: CaptureScene?
+        /// `nil` for a launch that only overrides a client (the clipboard, a pause refusal): it runs
+        /// the real app on the user's data, answers included.
+        let firstLaunchPreset: FirstLaunchPreset?
         #if DEBUG && canImport(Appshot) && canImport(AppshotProtocol)
         var appshotScene: AppshotProtocol.CaptureScene?
         #endif
@@ -95,6 +128,8 @@ public enum UITestAutomation {
             #endif
             if let captureScene = resolved?.captureScene {
                 try CaptureScenePreparation.install(captureScene)
+                // After the install, so it lands in the capture's isolated storage.
+                applyFirstLaunchPreset(resolved?.firstLaunchPreset)
             }
         } catch {
             // A capture launch never degrades to live data or a partial scene: it ends here, before
@@ -132,7 +167,7 @@ public enum UITestAutomation {
                 if configuration.shouldUseVisualTestHost {
                     // The hosted test process renders the app before XCTest enters any test case.
                     // Prepare explicit inert clients before the first Store or shared key is built.
-                    configureVisualTestHost(&$0)
+                    configureVisualTestHost(&$0, firstLaunch: configuration.firstLaunchPreset)
                 }
                 if let clipboardClient = configuration.clipboardClient {
                     $0.clipboardClient = clipboardClient
@@ -142,12 +177,46 @@ public enum UITestAutomation {
                 }
             }
         }
+        // A visual host's preset went into its own storage above; a stubbed launch keeps the app's.
+        if !configuration.shouldUseVisualTestHost {
+            applyFirstLaunchPreset(configuration.firstLaunchPreset)
+        }
         return configuration
+    }
+
+    /// Whether `environment` presets an automated launch's first-launch answers, and how.
+    ///
+    /// `isAutomatedLaunch` is a capture, a stubbed-network or a hosted visual-test launch; any other
+    /// launch gets no preset whatever the key says.
+    static func firstLaunchPreset(
+        environment: [String: String],
+        isAutomatedLaunch: Bool
+    ) -> FirstLaunchPreset? {
+        guard isAutomatedLaunch else { return nil }
+        return trimmedValue(environment: environment, key: FirstLaunchPreset.environmentKey) == "show"
+            ? .cleared
+            : .answered
+    }
+
+    /// Writes `preset` into the shared setting of the current app storage, before the store reads it.
+    static func applyFirstLaunchPreset(_ preset: FirstLaunchPreset?) {
+        guard let preset else { return }
+        @Shared(.setting) var setting
+        $setting.withLock({ preset.apply(to: &$0) })
     }
 
     /// Install isolated fixtures both for hosted rendering and explicitly on the app's Store.
     /// Global preparation alone cannot bind the host Store to fixtures when XCTest changes scopes.
     static func configureVisualTestHost(_ dependencies: inout DependencyValues) {
+        configureVisualTestHost(&dependencies, firstLaunch: .answered)
+    }
+
+    /// `configureVisualTestHost(_:)` with the first-launch answers `firstLaunch` asks for, written
+    /// into the host's fresh storage; `nil` leaves that storage's never-answered defaults.
+    static func configureVisualTestHost(
+        _ dependencies: inout DependencyValues,
+        firstLaunch: FirstLaunchPreset?
+    ) {
         dependencies.analyticsClient = .noop
         dependencies.appLaunchAutomationClient = .none
         dependencies.applicationClient = .noop
@@ -158,10 +227,17 @@ public enum UITestAutomation {
         dependencies.hapticsClient = .noop
         dependencies.libraryClient = .noop
         dependencies.userDefaultsClient = .noop
-        dependencies.defaultAppStorage = UserDefaults.inMemory
+        // One suite, held: each `UserDefaults.inMemory` access makes a new one.
+        let appStorage = UserDefaults.inMemory
+        dependencies.defaultAppStorage = appStorage
         dependencies.defaultInMemoryStorage = InMemoryStorage()
         dependencies.date.now = fixedDate
         dependencies.uuid = .incrementing
+        withDependencies {
+            $0.defaultAppStorage = appStorage
+        } operation: {
+            applyFirstLaunchPreset(firstLaunch)
+        }
     }
 
     /// The configuration `environment` requests, or `nil` when it requests none.
@@ -200,7 +276,8 @@ public enum UITestAutomation {
                 shouldStubNetwork: false,
                 shouldUseVisualTestHost: false,
                 pauseRefusal: nil,
-                captureScene: captureScene
+                captureScene: captureScene,
+                firstLaunchPreset: firstLaunchPreset(environment: environment, isAutomatedLaunch: true)
             )
             #if DEBUG && canImport(Appshot) && canImport(AppshotProtocol)
             configuration.appshotScene = appshot
@@ -264,7 +341,8 @@ public enum UITestAutomation {
             shouldStubNetwork: shouldStubNetwork,
             shouldUseVisualTestHost: shouldUseVisualTestHost,
             pauseRefusal: pauseRefusal,
-            captureScene: nil
+            captureScene: nil,
+            firstLaunchPreset: firstLaunchPreset(environment: environment, isAutomatedLaunch: shouldStubNetwork)
         )
         #if DEBUG && canImport(Appshot) && canImport(AppshotProtocol)
         configuration.appshotScene = appshot
