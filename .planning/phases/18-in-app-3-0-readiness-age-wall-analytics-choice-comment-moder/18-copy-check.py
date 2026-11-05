@@ -3,8 +3,9 @@
 
 Usage:
     18-copy-check.py               check the repository's catalogs (exit 0 clean, 1 with findings)
-    18-copy-check.py --self-test   run the built-in cases on temporary catalogs
-    18-copy-check.py --root DIR    check the catalogs of another checkout (DIR holds AppPackage/)
+    18-copy-check.py --readmes     check the Analytics sections of README.md and the five READMEs/ translations
+    18-copy-check.py --self-test   run the built-in cases on temporary catalogs and READMEs
+    18-copy-check.py --root DIR    check the catalogs (or, with --readmes, the READMEs) of another checkout
 
 Sources (CONTEXT D-06a to D-06f, D-09, D-22; Research section 8):
 - 18-COPY-FIRST-LAUNCH.md (owner msg 1767): age wall and analytics choice.
@@ -17,6 +18,13 @@ Precedence: Minimal file Revision 6 (`consent.level.basic.description`, `consent
 `consent.level.recommended`), Revision 5 (`consent.body`) and Revision 2 (`consent.level.minimal.description`) >
 its first table > the first-launch file. Every row a later source replaces is retired text, as are the
 `consent.level.none*` rows and Revision 3's Basic description. Glossary tables ("One term per concept") are skipped.
+
+README mode (DD-12, 18-12): each file's Analytics section must hold the three level names and descriptions of its
+language verbatim, as approved for the catalogs, Minimal before Basic before Full, each name before its description.
+It must hold none of the retired level descriptions (any language), no retired level name used as a level, none of
+the English opt-out phrases and none of the file's own pre-3.0 opt-out sentences. The READMEs do not quote
+`consent.body` or `consent.level.recommended`, so neither is checked there, and the retired `consent.body` texts are
+not README findings: a README may still name TelemetryDeck and say why analytics are collected.
 
 Only placeholders are transformed: `{site}` -> `%1$@` and the author `%@` -> `%2$@` in
 `comment.report.confirm_body`; `{site}` -> `%@` in `comment.report`. Nothing else is rewritten.
@@ -60,6 +68,60 @@ MINIMAL_ACTIVE_REVISIONS = ("Revision 2", "Revision 5", "Revision 6")
 MINIMAL_RETIRED_REVISIONS = ("Revision 3",)
 
 LINE_BREAKS = ("\n", "\r", "\u2028", "\u2029")
+
+# README mode: each language's file and the heading of its Analytics section.
+README_FILES = {
+    "en": ("README.md", "## Analytics"),
+    "de": ("READMEs/README.de.md", "## Analyse"),
+    "ko": ("READMEs/README.ko.md", "## 분석"),
+    "ja": ("READMEs/README.jpn.md", "## 分析"),
+    "zh-Hans": ("READMEs/README.chs.md", "## 分析"),
+    "zh-Hant": ("READMEs/README.cht.md", "## 分析"),
+}
+
+# The three levels in their required order, as (name key, description key).
+README_LEVELS = (
+    ("consent.level.minimal", "consent.level.minimal.description"),
+    ("consent.level.basic", "consent.level.basic.description"),
+    ("consent.level.full", "consent.level.full.description"),
+)
+
+# English claims no README may make (18-COPY-MINIMAL.md knock-on note): there is no level that sends nothing.
+README_RETIRED_PHRASES_EN = ("on by default", "turn it off", "Turning off")
+
+# Each file's pre-3.0 opt-out sentences, recorded from the files before the 18-12 rewrite. Matched anywhere in the
+# file's Analytics section.
+README_RETIRED_SENTENCES = {
+    "en": (
+        "This is on by default.",
+        "You can turn it off at any time in Settings → General → Analytics.",
+        "Turning it off greatly reduces what the app sends, but does not stop it entirely.",
+    ),
+    "de": (
+        "Das ist standardmäßig aktiviert.",
+        "Du kannst es jederzeit unter Einstellungen → Allgemein → Analyse abschalten.",
+        "Abgeschaltet sendet die App deutlich weniger, aber nicht gar nichts.",
+    ),
+    "ko": (
+        "기본적으로 켜져 있으며, 설정 → 일반 → 분석에서 언제든지 끌 수 있습니다.",
+        "이 설정을 끄면 전송되는 정보가 크게 줄어들지만, 전송이 완전히 멈추는 것은 아닙니다.",
+    ),
+    "ja": (
+        "初期状態では有効です。",
+        "設定 → 一般 → 分析 からいつでも無効にできます。",
+        "オフにすると送信される情報は大幅に減りますが、送信が完全に止まるわけではありません。",
+    ),
+    "zh-Hans": (
+        "此功能默认开启。",
+        "你可以随时在“设置 → 通用 → 分析”中关闭。",
+        "关闭后发送的信息会大幅减少，但不会完全停止。",
+    ),
+    "zh-Hant": (
+        "此功能預設開啟。",
+        "你可以隨時在「設定 → 一般 → 分析」中關閉。",
+        "關閉後傳送的資訊會大幅減少，但不會完全停止。",
+    ),
+}
 
 
 # --------------------------------------------------------------------------------------------------------------------
@@ -255,6 +317,91 @@ def check(root: Path = REPO_ROOT, phase_dir: Path = PHASE_DIR) -> list[str]:
 
 
 # --------------------------------------------------------------------------------------------------------------------
+# README checks
+
+
+def analytics_section(text: str, heading: str) -> str | None:
+    """The lines from `heading` up to the next `## ` heading, with CRLF read as LF; `None` when there is none."""
+    lines = text.replace("\r\n", "\n").split("\n")
+    for start, line in enumerate(lines):
+        if line.strip() == heading:
+            end = next((i for i in range(start + 1, len(lines)) if lines[i].startswith("## ")), len(lines))
+            return "\n".join(lines[start:end])
+    return None
+
+
+def readme_retired_descriptions(retired) -> list[tuple[str, str, str]]:
+    """Every retired level description, in every language, as (label, locale, text); `consent.body` texts excluded."""
+    return [
+        (label, locale, text)
+        for label, locale, text, label_only in retired
+        if not label_only and label.startswith("consent.level.") and ".description " in label
+    ]
+
+
+def readme_retired_level_names(retired) -> list[tuple[str, str]]:
+    """The retired `consent.level.none` names, as (locale, name)."""
+    return [(locale, text) for label, locale, text, label_only in retired if label_only]
+
+
+def check_readmes(root: Path = REPO_ROOT, phase_dir: Path = PHASE_DIR) -> list[str]:
+    expected, retired = build_expectations(phase_dir)
+    retired_descriptions = readme_retired_descriptions(retired)
+    retired_names = readme_retired_level_names(retired)
+    findings: list[str] = []
+    for locale, (relative, heading) in README_FILES.items():
+        path = root / relative
+        if not path.exists():
+            findings.append(f"missing README: {relative}")
+            continue
+        section = analytics_section(path.read_text(encoding="utf-8"), heading)
+        if section is None:
+            findings.append(f"no section: {relative} has no '{heading}'")
+            continue
+
+        # The three levels, verbatim and in order: Minimal's name, its description, Basic's name, ...
+        cursor = 0
+        for name_key, description_key in README_LEVELS:
+            name = expected[name_key][1][locale]
+            description = expected[description_key][1][locale]
+            at = section.find(description)
+            if at < 0:
+                findings.append(f"missing description: {relative} lacks {description_key} [{locale}]: {description!r}")
+                continue
+            if at < cursor:
+                findings.append(f"order: {relative} has {description_key} [{locale}] before the level above it")
+            name_at = section.rfind(name, cursor, at)
+            if name_at < 0:
+                findings.append(f"missing name: {relative} lacks {name_key} [{locale}] {name!r} before its description")
+            cursor = at + len(description)
+
+        for label, retired_locale, text in retired_descriptions:
+            if text in section:
+                findings.append(f"retired text: {relative} holds {label} [{retired_locale}]: {text!r}")
+        for retired_locale, name in retired_names:
+            as_level = re.compile(rf"(\*\*{re.escape(name)}\*\*|^\s*[-*]\s+{re.escape(name)}\b)", re.MULTILINE)
+            if as_level.search(section):
+                findings.append(f"retired level: {relative} names {name!r} [{retired_locale}] as a level")
+        if locale == "en":
+            for phrase in README_RETIRED_PHRASES_EN:
+                if phrase.lower() in section.lower():
+                    findings.append(f"retired claim: {relative} says {phrase!r}")
+        for sentence in README_RETIRED_SENTENCES[locale]:
+            if sentence in section:
+                findings.append(f"retired opt-out: {relative} holds {sentence!r}")
+    return findings
+
+
+def correct_readme_section(expected, locale: str) -> str:
+    """A minimal Analytics section that passes: the heading, a line of prose and the three levels."""
+    heading = README_FILES[locale][1]
+    lines = [heading, "EhPanda sends anonymous analytics data to TelemetryDeck.", ""]
+    for name_key, description_key in README_LEVELS:
+        lines.append(f"- **{expected[name_key][1][locale]}**: {expected[description_key][1][locale]}")
+    return "\n".join(lines) + "\n"
+
+
+# --------------------------------------------------------------------------------------------------------------------
 # Self-test
 
 
@@ -396,8 +543,88 @@ def self_test() -> int:
         if not ok:
             for finding in findings or ["(no findings)"]:
                 print(f"        {finding}")
-    print(f"self-test: {len(cases) - failures}/{len(cases)} cases passed")
-    return 1 if failures else 0
+    readme_failures = self_test_readmes(expected, retired)
+    total = len(cases) + len(README_CASES)
+    passed = total - failures - readme_failures
+    print(f"self-test: {passed}/{total} cases passed")
+    return 1 if failures or readme_failures else 0
+
+
+def readme_retired_en(retired, key: str, source: str) -> str:
+    return next(
+        text
+        for label, locale, text in readme_retired_descriptions(retired)
+        if label == f"{key} ({source})" and locale == "en"
+    )
+
+
+README_CASES = (
+    ("correct README sections pass", None, None),
+    ("the msg-1805 Minimal description in README.md fails", "old_minimal", "missing description:"),
+    ("the old opt-out sentence in README.md fails", "old_opt_out", "retired opt-out:"),
+    ("the old opt-out sentence in README.de.md fails", "old_opt_out_de", "retired opt-out:"),
+    ("the first-launch Basic description in README.md fails", "first_launch_basic", "retired text:"),
+    ("the first-launch Full description in README.md fails", "first_launch_full", "retired text:"),
+    ("the Revision 3 Basic description in README.md fails", "revision3_basic", "retired text:"),
+    ("Full before Basic in README.md fails", "order", "order:"),
+    ("None as a level in README.md fails", "none_level", "retired level:"),
+    ("'on by default' in README.md fails", "on_by_default", "retired claim:"),
+)
+
+
+def self_test_readmes(expected, retired) -> int:
+    def value(key, locale="en"):
+        return expected[key][1][locale]
+
+    def mutate(name: str, files: dict[str, str]) -> None:
+        en = files["en"]
+        if name == "old_minimal":
+            files["en"] = en.replace(
+                value("consent.level.minimal.description"),
+                readme_retired_en(retired, "consent.level.minimal.description", f"{MINIMAL} first table"),
+            )
+        elif name == "old_opt_out":
+            files["en"] = en + "\n" + README_RETIRED_SENTENCES["en"][0] + "\n"
+        elif name == "old_opt_out_de":
+            files["de"] = files["de"] + "\n" + README_RETIRED_SENTENCES["de"][1] + "\n"
+        elif name == "first_launch_basic":
+            files["en"] = en + "\n" + readme_retired_en(retired, "consent.level.basic.description", FIRST_LAUNCH)
+        elif name == "first_launch_full":
+            files["en"] = en + "\n" + readme_retired_en(retired, "consent.level.full.description", FIRST_LAUNCH)
+        elif name == "revision3_basic":
+            files["en"] = en + "\n" + readme_retired_en(
+                retired, "consent.level.basic.description", f"{MINIMAL} Revision 3"
+            )
+        elif name == "order":
+            lines = en.rstrip("\n").split("\n")
+            lines[-2], lines[-1] = lines[-1], lines[-2]
+            files["en"] = "\n".join(lines) + "\n"
+        elif name == "none_level":
+            files["en"] = en + "- **None**: Nothing is sent.\n"
+        elif name == "on_by_default":
+            files["en"] = en + "Sharing is on by default.\n"
+
+    failures = 0
+    for number, (name, mutation, needle) in enumerate(README_CASES, start=1):
+        files = {locale: correct_readme_section(expected, locale) for locale in README_FILES}
+        if mutation is not None:
+            mutate(mutation, files)
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            for locale, text in files.items():
+                path = root / README_FILES[locale][0]
+                path.parent.mkdir(parents=True, exist_ok=True)
+                # Before and after the section, as in the real files; CRLF, as most of them use.
+                body = ("# EhPanda\n\n## Disclaimer\nText.\n\n" + text + "\n## Next\n").replace("\n", "\r\n")
+                path.write_bytes(body.encode("utf-8"))
+            findings = check_readmes(root)
+        ok = not findings if needle is None else any(finding.startswith(needle) for finding in findings)
+        failures += not ok
+        print(f"{'PASS' if ok else 'FAIL'}  R{number:d}. {name}")
+        if not ok:
+            for finding in findings or ["(no findings)"]:
+                print(f"        {finding}")
+    return failures
 
 
 def main(argv: list[str]) -> int:
@@ -406,6 +633,15 @@ def main(argv: list[str]) -> int:
     root = REPO_ROOT
     if "--root" in argv:
         root = Path(argv[argv.index("--root") + 1]).resolve()
+    if "--readmes" in argv:
+        findings = check_readmes(root)
+        for finding in findings:
+            print(finding)
+        if findings:
+            print(f"README check: {len(findings)} finding(s)")
+            return 1
+        print(f"README check: {len(README_FILES)} Analytics sections hold the three levels verbatim; no retired text")
+        return 0
     findings = check(root)
     for finding in findings:
         print(finding)
