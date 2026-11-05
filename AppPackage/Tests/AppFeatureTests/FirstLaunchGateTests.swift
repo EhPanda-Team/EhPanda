@@ -660,3 +660,50 @@ private struct AnalyticsClientSpy {
         return client
     }
 }
+
+/// The first-launch titles' widow guard (UI-SPEC C-3, lead msg 1900).
+struct TitleWidowGuardTests {
+    private let noBreakSpace = String(TitleWidowGuard.noBreakSpace)
+
+    @Test
+    func joinsTheLastTwoWordsWhenTheyFit() {
+        let measured = LockIsolated<[String]>([])
+        let guarded = TitleWidowGuard.guarded("EhPanda ist nur für Erwachsene", languageCode: "de") { unit in
+            measured.withValue({ $0.append(unit) })
+            return true
+        }
+        #expect(guarded == "EhPanda ist nur für\(noBreakSpace)Erwachsene")
+        #expect(measured.value == ["für\(noBreakSpace)Erwachsene"])
+        #expect(guarded.replacingOccurrences(of: noBreakSpace, with: " ") == "EhPanda ist nur für Erwachsene")
+    }
+
+    @Test
+    func joinsATwoWordTitle() {
+        let guarded = TitleWidowGuard.guarded("Hello world", languageCode: "en") { _ in true }
+        #expect(guarded == "Hello\(noBreakSpace)world")
+    }
+
+    @Test
+    func leavesTheTitleWhenThePairDoesNotFit() {
+        let title = "Choose what EhPanda shares"
+        #expect(TitleWidowGuard.guarded(title, languageCode: "en") { _ in false } == title)
+    }
+
+    @Test(arguments: ["EhPanda", "", "EhPanda は成人向けです", "选择 EhPanda 分享的内容"])
+    func leavesSingleWordEmptyAndCJKTitles(_ title: String) {
+        let languageCode = title.contains("は") ? "ja" : title.contains("选") ? "zh" : "en"
+        let measured = LockIsolated(false)
+        let guarded = TitleWidowGuard.guarded(title, languageCode: languageCode) { _ in
+            measured.setValue(true)
+            return true
+        }
+        #expect(guarded == title)
+        #expect(!measured.value)
+    }
+
+    @Test
+    func joinsAKoreanTitle() {
+        let guarded = TitleWidowGuard.guarded("EhPanda는 성인용입니다", languageCode: "ko") { _ in true }
+        #expect(guarded == "EhPanda는\(noBreakSpace)성인용입니다")
+    }
+}
