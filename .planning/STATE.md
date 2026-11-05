@@ -1,20 +1,20 @@
 ---
 gsd_state_version: "1.0"
 milestone: v3.0.0
-current_phase: 18
-current_phase_name: "In-App 3.0 Readiness: Age Wall, Analytics Choice, Comment Moderation & Reader Rework"
-status: executing
-stopped_at: Completed 18-12-PLAN.md (all 12 Phase 18 plans executed; phase verification not yet run)
-last_updated: "2026-11-05T17:55:00.000Z"
-last_activity: 2026-11-05
-last_activity_desc: Phase 18 planned (12 plans, 4 waves) against the final UI-SPEC (msg 1826)
-state_head: 733a20acb
+current_phase: 19
+current_phase_name: Visual Regression & Marketing Export
+status: planning
+stopped_at: Phase 18 complete, ready to plan Phase 19
+last_updated: "2026-11-05T18:22:50.210Z"
+last_activity: 2026-11-06
+last_activity_desc: Phase 18 complete, transitioned to Phase 19
+state_head: a1f96cb88b05ab956e77c1c30aefabf9794448a0
 progress:
   total_phases: 20
-  completed_phases: 16
+  completed_phases: 17
   total_plans: 299
   completed_plans: 299
-  percent: 80
+  percent: 85
 milestone_name: Dependency Reduction & Modernization
 source_head: 891103afa
 ---
@@ -617,14 +617,15 @@ See: .planning/PROJECT.md (updated 2026-11-05)
 
 ## Current Position
 
-Phase: 18 (In-App 3.0 Readiness: Age Wall, Analytics Choice, Comment Moderation & Reader Rework) — READY TO EXECUTE
+Phase: 19 — Visual Regression & Marketing Export
 Plan: Not started
-Status: Ready to execute
-Last activity: 2026-11-05 — Phase 18 planned: 12 plans in 4 waves, against the final UI-SPEC (msg 1826)
+Status: Ready to plan
+Last activity: 2026-11-06 — Phase 18 complete, transitioned to Phase 19
 
 Phase 17 closed with 13/13 in-scope plans, verification passed 8/8, UAT 31/31, security verified and validation
-validated. Phase 18 has its CONTEXT.md (2026-11-05) and no plans yet; Phases 19 and 20 have owner-decision CONTEXT
-files but no discussion or plans (see the top section).
+validated. Phase 18 closed with 12/12 plans and verification passed 10/10 (`18-VERIFICATION.md`); its security audit
+and nyquist validation have not been run. Phases 19 and 20 have owner-decision CONTEXT files but no discussion or plans
+(see the top section).
 
 **2026-11-03 scope reduction (historical):** see the section "Phase 17 reduced, Phase 18 added" above. The 17-06 owner review is superseded by the owner's 2026-11-02 approval of the complete 192-image website set. The older Phase 17 gate notes below are historical; their "6/24" counts and "next" pointers are superseded.
 
@@ -689,19 +690,19 @@ Round-1 state: closed and signed. 38 findings — 32 `re-verified`, 6 `accepted`
 
 D-01 amendment 2 authorizes agent-written fixes; the original owner-only implementation restriction is superseded. All five Dynamic Type lint rules (`no_dynamic_type_size_modifier`, `no_geometry_reader`, `no_fixed_system_font_size`, `accessibility_hardcoded_string`, `no_minimum_scale_factor`) are live at error severity with the tree at 0 for each. A11Y-01 is complete; A11Y-02 (round 2) is open; the phase is not complete. Do not push without the owner.
 
-Progress: [████████████████████] 299/299 plans ([████████░░] 80%), excluding the 11 superseded Phase 17 plans. GSD counts
-16 of 20 phases complete (80%): Phase 6 is recorded as "Delivered (rescoped)", Phase 18 is in progress and Phases 19
-and 20 have not started.
-Phase 17 has 13/13 in-scope plans complete. Phase 18 has 12 of 12 plans executed (18-01 to 18-12); Phases 19 and
+Progress: [████████████████████] 299/299 plans ([█████████░] 85%), excluding the 11 superseded Phase 17 plans. GSD counts
+17 of 20 phases complete (85%): Phase 6 is recorded as "Delivered (rescoped)", and Phases 19 and 20 have not
+started.
+Phase 17 has 13/13 in-scope plans complete. Phase 18 has 12 of 12 plans complete (18-01 to 18-12); Phases 19 and
 20 have no plans yet. They keep the milestone open. 18-12's gate passed on `e3c95a3bf`, and its Task 3 live
 report-page check passed on 2026-11-05 17:51Z, verified by an agent per owner rule msg 1652 (`18-12-SUMMARY.md`).
-Phase 18 is ready for `/gsd-verify-work`, which has not been run.
+Phase 18 verification passed 10/10 on 2026-11-05 at `a1f96cb88` (tested source `e3c95a3bf`; `18-VERIFICATION.md`).
 
 ## Performance Metrics
 
 **Velocity:**
 
-- Total plans completed: 257
+- Total plans completed: 269
 - Average duration: — min
 - Total execution time: 0.0 hours
 
@@ -723,6 +724,7 @@ Phase 18 is ready for `/gsd-verify-work`, which has not been run.
 | 15 | 77 | - | - |
 | 16 | 26 | - | - |
 | 17 | 13 | - | - |
+| 18 | 12 | - | - |
 
 **Recent Trend:**
 
@@ -1693,7 +1695,7 @@ Items acknowledged and carried forward from previous milestone close:
 ## Session Continuity
 
 Last session: 2026-11-05T17:50:00.000Z
-Stopped at: 18-12-PLAN.md Task 3 checkpoint (owner live report-page check)
+Stopped at: Phase 18 complete, ready to plan Phase 19
 Resume file: None
 
 Earlier stop (2026-10-13T10:50:00Z, historical): 17-06 revision re-shot, 16/16 captured (`.capture/17-06-t-native-*`); superseded by the owner's 2026-11-02 approval of the 192-image website set.

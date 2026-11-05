@@ -91,7 +91,7 @@
     {
       "number": "18",
       "name": "In-App 3.0 Readiness: Age Wall, Analytics Choice, Comment Moderation & Reader Rework",
-      "status": "pending"
+      "status": "complete"
     },
     {
       "number": "19",
@@ -106,8 +106,8 @@
   ],
   "next": {
     "command": "/gsd-progress --next",
-    "label": "Advance to the next step",
-    "reason": "Phase 18 of 20 · 80% · executing"
+    "label": "Advance to the next step (plan phase 19)",
+    "reason": "Phase 19 of 20 — needs a plan"
   },
-  "updated_at": "2026-11-05T05:31:23.380Z"
+  "updated_at": "2026-11-05T18:22:50.249Z"
 }
