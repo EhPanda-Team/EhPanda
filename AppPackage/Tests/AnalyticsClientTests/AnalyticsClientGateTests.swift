@@ -1,4 +1,5 @@
 import AnalyticsClient
+import AppModels
 import ComposableArchitecture
 import Testing
 
@@ -12,23 +13,25 @@ import Testing
 // `unimplemented` default and the `.noop`-derived spy — so those plans build on a known-good pattern.
 @Suite
 struct AnalyticsClientGateTests {
-    // Every signal fixture drives the live client and `start`, under the test host where no app ID is
+    // Every signal fixture drives the live client and `apply` at every level, under the test host where no app ID is
     // present. If the gate were wrong and the SDK were reached, its uninitialized-manager assertion
     // would fire here; a green run is the proof that a nil app ID makes the whole client inert.
     @Test
     func theLiveClientIsInertUnderTheTestHost() {
-        AnalyticsClient.live.start()
+        for level in [nil] + AnalyticsLevel.allCases.map(Optional.some) {
+            AnalyticsClient.live.apply(level)
+        }
 
         for fixture in AnalyticsSignalRenderingTests.fixtures {
             AnalyticsClient.live.send(fixture.signal)
         }
     }
 
-    // The explicit no-op accepts every fixture case and `start` without effect — the shape a nil app
+    // The explicit no-op accepts every fixture case and `apply` without effect — the shape a nil app
     // ID resolves `live` to.
     @Test
     func theNoopClientAcceptsEverySignalWithoutEffect() {
-        AnalyticsClient.noop.start()
+        AnalyticsClient.noop.apply(.full)
 
         for fixture in AnalyticsSignalRenderingTests.fixtures {
             AnalyticsClient.noop.send(fixture.signal)
@@ -46,9 +49,9 @@ struct AnalyticsClientGateTests {
     }
 
     @Test
-    func theUnimplementedClientReportsAnIssueWhenStartIsCalled() {
+    func theUnimplementedClientReportsAnIssueWhenApplyIsCalled() {
         withKnownIssue {
-            AnalyticsClient.unimplemented.start()
+            AnalyticsClient.unimplemented.apply(.minimal)
         }
     }
 

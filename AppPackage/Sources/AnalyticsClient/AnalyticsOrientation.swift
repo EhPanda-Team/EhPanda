@@ -2,7 +2,6 @@ import DeviceClient
 import Dispatch
 import Foundation
 import Synchronization
-import TelemetryDeck
 
 /// Supplies `TelemetryDeck.Device.orientation`, which the SDK itself reports as `"Unknown"` on
 /// every signal this app sends.
@@ -26,7 +25,10 @@ import TelemetryDeck
 /// `applying` lets the argument win, so an enricher overrides a built-in. `Config.defaultParameters`
 /// would not: it is screened for the reserved `TelemetryDeck.` prefix and logs an error for any key
 /// carrying it.
-final class OrientationEnricher: SignalEnricher {
+///
+/// The class is declared without the SDK; its `SignalEnricher` conformance is in `TelemetrySDK.swift`,
+/// the one file importing it.
+final class OrientationEnricher: Sendable {
     /// The vendor's own spellings, matched exactly.
     ///
     /// Not this module's usual "raw value equals case name" convention, because these values are
