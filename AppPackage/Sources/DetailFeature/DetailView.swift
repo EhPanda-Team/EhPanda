@@ -223,15 +223,16 @@ private extension DetailView {
                     title: .postComment,
                     content: $store.commentContent,
                     isFocused: $store.postCommentFocused,
-                    postAction: {
-                        if let galleryURL = store.gallery.galleryURL {
-                            store.send(.postComment(galleryURL))
-                        }
-                        store.send(.destination(.dismiss))
-                    },
+                    // Over the editor, which stays open beneath it (C-5).
+                    postingWarning: $store.scope(\.moderation.$alert, action: \.moderation.alert),
+                    // The reducer posts and closes the editor, or holds both for the posting warning (D-12, P-8).
+                    postAction: { store.send(.postTapped) },
                     cancelAction: { store.send(.destination(.dismiss)) }
                 )
                 .privacyMask()
+            }
+            .sheet(item: $store.destination.reportPage, id: \.self) { url in
+                ReportPageSheet(url: url.wrappedValue)
             }
             .sheet(item: $store.destination.newDawn) { greeting in
                 NewDawnView(greeting: greeting.wrappedValue)

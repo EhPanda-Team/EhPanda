@@ -107,17 +107,16 @@ struct CommentsView: View {
                 title: hasCommentID ? .editComment : .postComment,
                 content: $store.commentContent,
                 isFocused: $store.postCommentFocused,
-                postAction: {
-                    if hasCommentID {
-                        store.send(.postComment(galleryURL: galleryURL, commentID: commentID.wrappedValue))
-                    } else {
-                        store.send(.postComment(galleryURL: galleryURL))
-                    }
-                    store.send(.destination(.dismiss))
-                },
+                // Over the editor, which stays open beneath it (C-5).
+                postingWarning: $store.scope(\.moderation.$alert, action: \.moderation.alert),
+                // The reducer posts and closes the editor, or holds both for the posting warning (D-12, P-8).
+                postAction: { store.send(.postTapped) },
                 cancelAction: { store.send(.destination(.dismiss)) }
             )
             .privacyMask()
+        }
+        .sheet(item: $store.destination.reportPage, id: \.self) { url in
+            ReportPageSheet(url: url.wrappedValue)
         }
         .scrollEdgeEffectStyle(.soft, for: .top)
         .toast($store.scope(\.$toast, action: \.toast))
