@@ -5,7 +5,7 @@
 **Amended:** 2026-11-05, during planning: D-06a, D-06b, DD-09a (owner msgs 1795, 1796, 1805; analytics "Minimal"),
 D-06c (owner msgs 1812, 1818; the install signal carries the install source), D-06d (owner msgs 1830, 1839; Basic's
 description builds on Minimal), D-06e (owner msgs 1844, 1854, 1864; the short analytics intro), D-06f (owner msgs 1869, 1880, 1882; screens and
-features move to Basic, Basic marked Recommended), D-14a (owner msg 1795; Blocked Users in Account settings), D-17a (UI-SPEC delivered, msgs 1791, 1803, 1807, 1820, 1826, 1843, 1866). The
+features move to Basic, Basic marked Recommended), D-14a (owner msg 1795; Blocked Users in Account settings), D-17a (UI-SPEC delivered, msgs 1791, 1803, 1807, 1820, 1826, 1843, 1866, 1886). The
 original decisions are kept as written; where an amendment differs, the amendment wins.
 **Sources:** the discussion prep [18-DISCUSSION-PREP.md](18-DISCUSSION-PREP.md) (locked decisions L1 to L46, gray areas GA-1 to GA-8, developer defaults, outside blockers, split proposal); the owner's answers to card msg 1748 (owner msg 1753) and card msg 1759 (owner msg 1765); the owner's copy approvals (msgs 1767, 1780). Where the owner answered, the answer overrides the prep. All dates are UTC.
 
@@ -280,7 +280,9 @@ Owner decisions are binding. "Prep L*n*" and "GA-*n*" refer to [18-DISCUSSION-PR
   in msg 1820, added the title line-break rule (owner msg 1822; C-3: a title's last line is never a single
   word, or for zh/ja/ko never a single character, in any locale or text size) in msg 1826, and took the Revision 3
   Basic line (D-06d, owner msg 1839) into the spec and refreshed mockups 03, 04, 12 and 21 in msg 1843, and took
-  the short intro (D-06e, owner msg 1864) into the spec and refreshed mockups 03, 04 and 21 in msg 1866: [18-UI-SPEC.md](18-UI-SPEC.md) with 24 mockups in `mockups/`. It is the
+  the short intro (D-06e, owner msg 1864) into the spec and refreshed mockups 03, 04 and 21 in msg 1866, and added Basic's Recommended label and the Revision 6
+  lines (D-06f, owner msgs 1880, 1882; order stays Minimal, Basic, Full) and refreshed mockups 03, 04, 12, 18 and 21
+  in msg 1886: [18-UI-SPEC.md](18-UI-SPEC.md) with 24 mockups in `mockups/`. It is the
   design contract for every UI task; `/gsd-ui-phase` is not run. His layout calls: a separate Continue on the
   analytics choice, dimmed until a level is picked; a `…` menu on each comment in the list with the same items on
   long-press and as VoiceOver actions, long-press only on the Detail strip; Report, Block and the posting warning are
