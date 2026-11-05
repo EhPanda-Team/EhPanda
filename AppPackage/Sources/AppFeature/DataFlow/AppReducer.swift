@@ -262,9 +262,9 @@ struct AppReducer {
 
             case .appDelegate(.onLaunchFinish):
                 // The local half always runs: the log pump and cookie maintenance touch no network.
-                // The deferred half (liveness observation, settings load, the withheld phase report)
-                // runs here only when the age is already confirmed; otherwise the age wall's
-                // confirmation runs it once this preparation has finished.
+                // The deferred half (liveness observation, settings load, the withheld phase report,
+                // the stored analytics level) runs here only when the age is already confirmed;
+                // otherwise the age wall's confirmation runs it once this preparation has finished.
                 let loginCookies = appLaunchAutomationClient.current()?.loginCookies
                 let runsDeferredLaunch = state.isUnlocked && !state.didRunDeferredLaunch
                 if runsDeferredLaunch {
@@ -274,6 +274,7 @@ struct AppReducer {
                 if runsDeferredLaunch {
                     effects.append(continuedSessionLivenessEffect())
                     effects.append(contentsOf: recordedPhaseEffects(state: &state))
+                    effects.append(contentsOf: storedAnalyticsLevelEffects(state: state))
                 }
                 // Finish cookie maintenance before importing automation credentials or loading settings.
                 effects.append(
@@ -448,9 +449,11 @@ struct AppReducer {
                 guard state.didFinishLaunchPreparation else { return .none }
                 return deferredLaunchEffect(state: &state)
 
-            case .firstLaunch(.delegate(.levelChosen)):
-                // The level is applied to the analytics client in 18-03.
-                return .none
+            case .firstLaunch(.delegate(.levelChosen(let level))):
+                // Before the deferred launch has run, it applies the stored level itself, so the
+                // client hears the choice once.
+                guard state.didRunDeferredLaunch else { return .none }
+                return analyticsLevelEffect(level)
 
             case .firstLaunch:
                 return .none
@@ -475,13 +478,28 @@ struct AppReducer {
 private extension AppReducer {
     /// The launch work held behind the age wall, run once per process after both the unlock and the
     /// launch preparation: the liveness observation and the first download-client access, the
-    /// settings load that starts the network, and the phase report withheld while locked.
+    /// settings load that starts the network, the phase report withheld while locked, and the stored
+    /// analytics level, if one was chosen, applied to the analytics client.
     func deferredLaunchEffect(state: inout State) -> Effect<Action> {
         guard state.isUnlocked, !state.didRunDeferredLaunch else { return .none }
         state.didRunDeferredLaunch = true
         var effects = [continuedSessionLivenessEffect(), .send(.setting(.loadUserSettings))]
         effects.append(contentsOf: recordedPhaseEffects(state: &state))
+        effects.append(contentsOf: storedAnalyticsLevelEffects(state: state))
         return .merge(effects)
+    }
+
+    /// Applies the stored analytics level, as part of the deferred launch. No level yet applies
+    /// nothing; the choice applies it then (D-04, D-06a).
+    func storedAnalyticsLevelEffects(state: State) -> [Effect<Action>] {
+        guard let level = state.settingState.setting.analyticsLevel else { return [] }
+        return [analyticsLevelEffect(level)]
+    }
+
+    /// Makes the analytics client match the chosen level. This and the Settings reducer (18-10) are
+    /// the only callers of `apply` (D-08).
+    func analyticsLevelEffect(_ level: AnalyticsLevel) -> Effect<Action> {
+        .run { _ in analyticsClient.apply(level) }
     }
 
     /// Long-lived: the coordinator yields the current liveness on subscribe and every transition

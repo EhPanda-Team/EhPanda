@@ -7,8 +7,8 @@ import Sharing
 /// The step is derived from the stored answers, never kept separately, so a relaunch in the middle
 /// resumes at the screen still unanswered and an upgrader with neither answer starts at the wall.
 /// Answers are written to `@Shared(.setting)` and reported to `AppReducer` through `Delegate`:
-/// `AppReducer` runs the deferred launch work when the age is confirmed (D-04, DD-06). This reducer
-/// calls no client itself; the analytics level is applied by `AppReducer` (18-03).
+/// `AppReducer` runs the deferred launch work when the age is confirmed (D-04, DD-06) and applies the
+/// chosen analytics level to the analytics client. This reducer calls no client itself.
 @Reducer
 struct FirstLaunchReducer {
     enum Step: Equatable {
