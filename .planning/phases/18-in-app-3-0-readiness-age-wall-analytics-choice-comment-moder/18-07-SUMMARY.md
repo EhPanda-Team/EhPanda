@@ -211,3 +211,16 @@ That is 27 test functions in total (at least 20 were required).
 ## Next
 
 18-08 adds the committed UI tests for the G1/G2 gaps. It can wire a launch key to `dropsReaderInitialIdleReport`.
+
+## Follow-up (after 18-02)
+
+The full FeatureTests run had 2 failures in `AppToolsTests/ReduceMotionGatingSourceTests`
+(`environmentReadsMatchTheRecordedInventory`, `gateMentionsMatchTheRecordedInventory`). The reader rework moved the
+page slide into the new `HorizontalPager` struct, so `ReadingView.swift` now holds two views that read
+`accessibilityReduceMotion`, not one. The outer `ReadingView` reads it for the zoom and drag animations. The pager reads
+it for its own gated `withAnimation(reduceMotion ? nil : .default)` slide, which replaces the deleted `jump`'s
+`scrollPager` gate. The motion is the same and its D-29 judgement is the same: position motion is gated, and the
+crossfades (`liveText`, `showsPanel`) stay ungated. The ternary predicates (3) and the `withAnimation` gate (1) are
+unchanged. No gate was missing, so no code changed. The inventory was re-derived: `ReadingView.swift` has 2 reads and
+5 mentions (the totals are now 18 and 57). The commit is `fix(18-07): re-derive the reduce-motion inventory after the
+reader rework`. AppToolsTests on the phone: 41 passed, 0 failed.
