@@ -6,9 +6,11 @@ Developer confirmation (msg 1798): under Minimal the analytics SDK never starts;
 
 **Revision 2 APPROVED by the owner, msg 1818 (2026-11-05):** owner msg 1812 adds the install channel to the Minimal signal (D-06c, developer msg 1814). The Minimal description in the table below is SUPERSEDED by Revision 2 at the end of this file; everything else stays as approved in msg 1805.
 
-**Revision 3 APPROVED by the owner, msg 1839 (2026-11-05):** owner msg 1830 notes that the Basic description repeated Minimal's install line (the copywriter's draft is msg 1832). Basic's description now builds on Minimal ("Everything in Minimal, plus ..."); what Basic sends does not change (D-06d). Revision 3 at the end of this file supersedes the Basic description (`consent.level.basic.description`) in 18-COPY-FIRST-LAUNCH.md, in all six languages. Minimal (Revision 2), Full, `consent.title` and `consent.body` are unchanged.
+**Revision 3 APPROVED by the owner, msg 1839 (2026-11-05):** owner msg 1830 notes that the Basic description repeated Minimal's install line (the copywriter's draft is msg 1832). Basic's description now builds on Minimal ("Everything in Minimal, plus ..."); what Basic sends does not change (D-06d). Revision 3 at the end of this file supersedes the Basic description (`consent.level.basic.description`) in 18-COPY-FIRST-LAUNCH.md, in all six languages. Minimal (Revision 2), Full, `consent.title` and `consent.body` are unchanged. (Basic's description is superseded again by Revision 6, msg 1880.)
 
 **Revision 5 APPROVED by the owner, msg 1864 (2026-11-05):** owner msgs 1844 and 1854 ask for a much shorter intro under the analytics title; version B of Revision 5 is approved (developer check msg 1858; D-06e). Revision 5 at the end of this file supersedes `consent.body` in this file's first table (msg 1805), and with it the original `consent.body` in 18-COPY-FIRST-LAUNCH.md, in all six languages. The purpose ("which features matter") and TelemetryDeck's name move to the Privacy Policy (website, Phase 20). Revision 4 (msg 1847) was not approved and is not used. Everything else stays as approved.
+
+**Revision 6 APPROVED by the owner, msg 1880 (2026-11-05):** owner msg 1869 moves the screens and features from Full to Basic (developer mapping msg 1878; D-06f). Revision 6 at the end of this file supersedes the Basic description of Revision 3 (msg 1839) and the Full description (`consent.level.full.description`) in 18-COPY-FIRST-LAUNCH.md (msg 1767), in all six languages; both are retired. Its `consent.level.recommended` table is approved as well: the owner chose "Basic marked Recommended" (owner msg 1882, card 1873, options in msgs 1872 and 1874). Nothing is pre-selected; Basic only carries the label. The pre-selected variant (msg 1871) was not chosen, so the section heading's "Basic is the default" (the owner's ask in msg 1869) means recommended, not pre-selected. Minimal (Revision 2), `consent.title`, `consent.body` (Revision 5) and the level names are unchanged.
 
 ## What changes
 
@@ -28,7 +30,7 @@ Developer confirmation (msg 1798): under Minimal the analytics SDK never starts;
 
 Retired: `consent.level.none` ("None"), `consent.level.none.description` ("Nothing is sent.").
 
-Unchanged and still correct: `consent.title` ("Choose what EhPanda shares"), the Basic and Full names and descriptions (Basic's description later superseded by Revision 3, msg 1839), `consent.footer` ("You can change this anytime in Settings."), `consent.privacy_link`, `shareAnalyticsData`.
+Unchanged and still correct: `consent.title` ("Choose what EhPanda shares"), the Basic and Full names and descriptions (Basic's description later superseded by Revision 3, msg 1839, then Basic's and Full's by Revision 6, msg 1880), `consent.footer` ("You can change this anytime in Settings."), `consent.privacy_link`, `shareAnalyticsData`.
 
 ## Notes
 
@@ -76,3 +78,20 @@ Notes:
 - Developer check (msg 1858): at no level does any gallery ID, title, link, tag name or search text go out. Full sends a gallery's category and per-namespace tag counts on open; a search sends only word count, length, tag-syntax flag and a result-count bucket.
 - 77 characters in English, two lines on iPhone at default size (designer msg 1846/1850).
 - The purpose ("which features matter") and TelemetryDeck's name move to the Privacy Policy, linked on the same screen (website, Phase 20).
+
+## Revision 6 (owner msg 1869: screens and features move from Full to Basic; Basic is the default)
+
+Only the Basic and Full descriptions change. The ladder stays.
+
+| Key | en | de | ko | ja | zh-Hans | zh-Hant |
+|---|---|---|---|---|---|---|
+| consent.level.basic.description | Everything in Minimal, plus how often the app is used, which screens and features you use, technical details such as device model and app version, and which kinds of errors occur. | Alles aus „Minimal“, dazu wie oft die App genutzt wird, welche Bildschirme und Funktionen du nutzt, technische Angaben wie Gerätemodell und App-Version und welche Arten von Fehlern auftreten. | 최소 항목에 더해 앱 사용 빈도, 사용하는 화면과 기능, 기기 모델과 앱 버전 같은 기술 정보, 발생한 오류의 종류를 보냅니다. | 「最小限」の内容に加え、アプリの利用頻度、使用している画面や機能、デバイスのモデルやアプリのバージョンなどの技術情報、発生したエラーの種類を送信します。 | 在“最少”的基础上，还会发送应用的使用频率、你使用的页面和功能、设备型号和应用版本等技术信息，以及出现的错误类型。 | 在「最少」之外，還會傳送 App 的使用頻率、你使用的頁面和功能、裝置型號和 App 版本等技術資訊，以及發生的錯誤類型。 |
+| consent.level.full.description | Everything in Basic, plus your reading and download activity and your main settings. | Alles aus „Basis“, dazu deine Lese- und Downloadaktivität und deine wichtigsten Einstellungen. | 기본 항목에 더해 읽기 및 다운로드 활동과 주요 설정을 보냅니다. | 「基本」の内容に加え、閲覧とダウンロードの状況、主な設定を送信します。 | 在“基本”的基础上，还会发送你的阅读和下载情况，以及主要设置。 | 在「基本」之外，還會傳送你的閱讀和下載情況，以及主要設定。 |
+
+The screens-and-features phrase is the one already approved in Full, moved word for word in every language.
+
+Only if the owner takes the "Recommended" label option (msg 1872):
+
+| Key | en | de | ko | ja | zh-Hans | zh-Hant |
+|---|---|---|---|---|---|---|
+| consent.level.recommended | Recommended | Empfohlen | 권장 | おすすめ | 推荐 | 推薦 |
