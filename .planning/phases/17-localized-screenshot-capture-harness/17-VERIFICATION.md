@@ -1,43 +1,42 @@
 ---
 phase: 17-localized-screenshot-capture-harness
-verified: 2026-11-04T17:14:33Z
+verified: 2026-11-05T01:18:44Z
 status: human_needed
-score: 6/8 must-haves verified
+score: 7/8 must-haves verified
 verification_scope: "Reduced scope (owner decision 2026-11-03, msg 1305). Executed plans 17-01 to 17-06, 17-24, 17-14 (T2), 17-16 to 17-19, 17-23. Plans 17-07 to 17-13, 17-15, 17-20 to 17-22 and 17-14 T1/T3 are moved to Phase 18 and are not verified here."
-verified_head: 041cdf5dd
+verified_head: e805a6e65
 tested_source: 891103afa
 effort: "high (resolved from .planning/config.json)"
-covered_files: [".gitignore", ".planning/REQUIREMENTS.md", ".planning/ROADMAP.md", ".planning/phases/17-localized-screenshot-capture-harness/17-01-PLAN.md", ".planning/phases/17-localized-screenshot-capture-harness/17-01-SUMMARY.md", ".planning/phases/17-localized-screenshot-capture-harness/17-02-PLAN.md", ".planning/phases/17-localized-screenshot-capture-harness/17-02-SUMMARY.md", ".planning/phases/17-localized-screenshot-capture-harness/17-03-PLAN.md", ".planning/phases/17-localized-screenshot-capture-harness/17-03-SUMMARY.md", ".planning/phases/17-localized-screenshot-capture-harness/17-04-PLAN.md", ".planning/phases/17-localized-screenshot-capture-harness/17-04-SUMMARY.md", ".planning/phases/17-localized-screenshot-capture-harness/17-05-PLAN.md", ".planning/phases/17-localized-screenshot-capture-harness/17-05-SUMMARY.md", ".planning/phases/17-localized-screenshot-capture-harness/17-06-PLAN.md", ".planning/phases/17-localized-screenshot-capture-harness/17-06-SUMMARY.md", ".planning/phases/17-localized-screenshot-capture-harness/17-07-PLAN.md", ".planning/phases/17-localized-screenshot-capture-harness/17-08-PLAN.md", ".planning/phases/17-localized-screenshot-capture-harness/17-09-PLAN.md", ".planning/phases/17-localized-screenshot-capture-harness/17-10-PLAN.md", ".planning/phases/17-localized-screenshot-capture-harness/17-11-PLAN.md", ".planning/phases/17-localized-screenshot-capture-harness/17-12-PLAN.md", ".planning/phases/17-localized-screenshot-capture-harness/17-13-PLAN.md", ".planning/phases/17-localized-screenshot-capture-harness/17-14-PLAN.md", ".planning/phases/17-localized-screenshot-capture-harness/17-14-SUMMARY.md", ".planning/phases/17-localized-screenshot-capture-harness/17-15-PLAN.md", ".planning/phases/17-localized-screenshot-capture-harness/17-16-PLAN.md", ".planning/phases/17-localized-screenshot-capture-harness/17-16-SUMMARY.md", ".planning/phases/17-localized-screenshot-capture-harness/17-17-PLAN.md", ".planning/phases/17-localized-screenshot-capture-harness/17-17-SUMMARY.md", ".planning/phases/17-localized-screenshot-capture-harness/17-18-PLAN.md", ".planning/phases/17-localized-screenshot-capture-harness/17-18-SUMMARY.md", ".planning/phases/17-localized-screenshot-capture-harness/17-19-PLAN.md", ".planning/phases/17-localized-screenshot-capture-harness/17-19-SUMMARY.md", ".planning/phases/17-localized-screenshot-capture-harness/17-20-PLAN.md", ".planning/phases/17-localized-screenshot-capture-harness/17-21-PLAN.md", ".planning/phases/17-localized-screenshot-capture-harness/17-22-PLAN.md", ".planning/phases/17-localized-screenshot-capture-harness/17-23-PLAN.md", ".planning/phases/17-localized-screenshot-capture-harness/17-23-SUMMARY.md", ".planning/phases/17-localized-screenshot-capture-harness/17-24-PLAN.md", ".planning/phases/17-localized-screenshot-capture-harness/17-24-SUMMARY.md", ".planning/phases/17-localized-screenshot-capture-harness/17-CONTEXT.md", ".planning/phases/17-localized-screenshot-capture-harness/17-FINAL-VALIDATION.md", ".planning/phases/17-localized-screenshot-capture-harness/17-LAYOUT-AUDIT.md", ".planning/phases/17-localized-screenshot-capture-harness/17-READER-ROOT-CAUSE.md", ".planning/phases/17-localized-screenshot-capture-harness/17-RELEASE-ISOLATION.md", ".planning/phases/17-localized-screenshot-capture-harness/17-RESEARCH.md", ".planning/phases/17-localized-screenshot-capture-harness/17-REVIEW-DISPOSITION.md", ".planning/phases/17-localized-screenshot-capture-harness/17-REVIEW-FIX.md", ".planning/phases/17-localized-screenshot-capture-harness/17-REVIEW.md", ".planning/phases/17-localized-screenshot-capture-harness/17-SOURCE-AUDIT.md", ".planning/phases/17-localized-screenshot-capture-harness/17-VALIDATION.md", ".planning/quick/261101-website-review/APPROVAL-20261102.md", ".planning/quick/261101-website-review/PLAN.md", ".swiftlint.yml", "AppPackage/Package.swift", "AppPackage/Sources/AppComponents/CaptureSystemOverlays.swift", "AppPackage/Sources/AppComponents/ErrorInfoView.swift", "AppPackage/Sources/AppComponents/GalleryCover.swift", "AppPackage/Sources/AppComponents/GalleryCoverMetrics.swift", "AppPackage/Sources/AppComponents/GalleryCoverStyle.swift", "AppPackage/Sources/AppComponents/GalleryViewport.swift", "AppPackage/Sources/AppComponents/WindowDevice.swift", "AppPackage/Sources/AppComponents/WindowDeviceObservation.swift", "AppPackage/Sources/AppFeature/DataFlow/AppReducer.swift", "AppPackage/Sources/AppFeature/DataFlow/WindowSizeClasses.swift", "AppPackage/Sources/AppFeature/RootView.swift", "AppPackage/Sources/AppFeature/UITestSupport/AppshotCapture.swift", "AppPackage/Sources/AppFeature/UITestSupport/CaptureDiagnostics.swift", "AppPackage/Sources/AppFeature/UITestSupport/CaptureFixtureManifest.swift", "AppPackage/Sources/AppFeature/UITestSupport/CaptureLiveText.swift", "AppPackage/Sources/AppFeature/UITestSupport/CaptureSceneConfiguration.swift", "AppPackage/Sources/AppFeature/UITestSupport/CaptureScenePreparation.swift", "AppPackage/Sources/AppFeature/UITestSupport/CaptureTagTranslation.swift", "AppPackage/Sources/AppFeature/UITestSupport/UITestAutomation.swift", "AppPackage/Sources/AppFeature/UITestSupport/UITestStubURLProtocol.swift", "AppPackage/Sources/AppFeature/View/Library/LibraryFeature.swift", "AppPackage/Sources/AppFeature/View/TabBar/TabBarView.swift", "AppPackage/Sources/AppLaunchAutomationClient/AppLaunchAutomation.swift", "AppPackage/Sources/AppTools/DataCache.swift", "AppPackage/Sources/DetailFeature/DetailReducer+Download.swift", "AppPackage/Sources/DetailFeature/GalleryNavigation.swift", "AppPackage/Sources/FiltersFeature/FiltersView.swift", "AppPackage/Sources/GalleryListComponents/GalleryList.swift", "AppPackage/Sources/HomeFeature/GalleryCardCell.swift", "AppPackage/Sources/HomeFeature/HomeClient.swift", "AppPackage/Sources/HomeFeature/HomeNavigationView.swift", "AppPackage/Sources/HomeFeature/HomeReducer+Body.swift", "AppPackage/Sources/HomeFeature/HomeReducer.swift", "AppPackage/Sources/HomeFeature/HomeView+Sections.swift", "AppPackage/Sources/HomeFeature/HomeView.swift", "AppPackage/Sources/ImageColors/ImageColors.swift", "AppPackage/Sources/LibraryClient/LibraryClient.swift", "AppPackage/Sources/ReadingFeature/ReadingView.swift", "AppPackage/Sources/ReadingFeature/Support/AdvancedList.swift", "AppPackage/Sources/ReadingFeature/Support/ControlPanel.swift", "AppPackage/Sources/ReadingFeature/Support/LiveTextCapture.swift", "AppPackage/Sources/ReadingFeature/Support/LiveTextHandler.swift", "AppPackage/Sources/ReadingFeature/Support/PageModel.swift", "AppPackage/Sources/VisualSnapshotSupport/FullContentHost.swift", "AppPackage/Sources/VisualSnapshotSupport/PublicVisualFixtures.swift", "AppPackage/Sources/VisualSnapshotSupport/RenderServerCapture.swift", "AppPackage/Sources/VisualSnapshotSupport/RenderSettlement.swift", "AppPackage/Sources/VisualSnapshotSupport/RenderedContentInspection.swift", "AppPackage/Tests/AppFeatureTests/CaptureDownloadTests.swift", "AppPackage/Tests/AppFeatureTests/CaptureFixtureTests.swift", "AppPackage/Tests/AppFeatureTests/CaptureLiveTextRecordTests.swift", "AppPackage/Tests/AppFeatureTests/CaptureRouteTests.swift", "AppPackage/Tests/AppFeatureTests/CaptureSceneTests.swift", "AppPackage/Tests/AppFeatureTests/CaptureScreenDiagnosticsTests.swift", "AppPackage/Tests/AppFeatureTests/GalleryDetailRoutingTests.swift", "AppPackage/Tests/AppFeatureTests/LibraryClientReaderCacheTests.swift", "AppPackage/Tests/AppFeatureTests/TabBarSettingPresentationTests.swift", "AppPackage/Tests/AppFeatureTests/UITestStubTests.swift", "AppPackage/Tests/DetailFeatureTests/DetailCaptureRouteTests.swift", "AppPackage/Tests/DetailFeatureTests/GalleryNavigationTests.swift", "AppPackage/Tests/DownloadsFeatureTests/DownloadAutomationTests.swift", "AppPackage/Tests/FeatureTests.xctestplan", "AppPackage/Tests/HomeFeatureTests/HomeClientTests.swift", "AppPackage/Tests/ReadingFeatureTests/CaptureLiveTextTests.swift", "AppPackage/Tests/ReadingFeatureTests/PagerSeedTests.swift", "AppPackage/Tests/ReadingFeatureTests/PagerTurnGateTests.swift", "AppPackage/Tests/VisualSnapshotTests/FixtureArtwork.swift", "AppPackage/Tests/VisualSnapshotTests/FixtureArtworkTests.swift", "AppPackage/Tests/VisualSnapshotTests/FullContentFeasibilityTests.swift", "AppPackage/Tests/VisualSnapshotTests/GeometryTests.swift", "AppPackage/Tests/VisualSnapshotTests/HostedHierarchyTests.swift", "AppPackage/Tests/VisualSnapshotTests/RenderServerCaptureTests.swift", "AppPackage/Tests/VisualSnapshotTests/RenderSettlementTests.swift", "AppPackage/Tests/VisualSnapshotTests/RenderedContentInspectionTests.swift", "AppPackage/Tests/VisualSnapshotTests/Resources/scenarios.json", "AppPackage/Tests/VisualSnapshotTests/VisualMatrixTests.swift", "EhPanda.xcodeproj/project.pbxproj", "EhPandaUITests/CaptureIsolationUITests.swift", "EhPandaUITests/MarketingCaptureUITests.swift", "EhPandaUITests/ReaderPageSyncUITests.swift", "EhPandaUITests/Support/CaptureLauncher.swift", "Scripts/check-cookie-logging.sh", "Scripts/verify-full-content-capture.py", "Scripts/visual/README.md", "Scripts/visual/acquire-fixtures.py", "Scripts/visual/capture-native.py", "Scripts/visual/contracts.py", "Scripts/visual/environment.py", "Scripts/visual/fixtures.py", "Scripts/visual/record-live-text.py", "Scripts/visual/regression-environment.json", "Scripts/visual/run-regression.py", "Scripts/visual/selection-review.py", "Scripts/visual/test_capture_native.py", "Scripts/visual/test_contracts.py", "Scripts/visual/test_environment.py", "Scripts/visual/test_fixtures.py", "Scripts/visual/test_record_live_text.py", "Scripts/visual/test_release.py", "Scripts/visual/test_selection_review.py", "Scripts/visual/verify-release.py", "UITests.xctestplan"]
-covered_digest: "v4:sha256:7a7303f1b287ea64d69f499685e967ca98f520d51211c2ee6429abe66e7818ab"
+covered_files: [".gitignore", ".planning/REQUIREMENTS.md", ".planning/ROADMAP.md", ".planning/phases/17-localized-screenshot-capture-harness/17-01-PLAN.md", ".planning/phases/17-localized-screenshot-capture-harness/17-01-SUMMARY.md", ".planning/phases/17-localized-screenshot-capture-harness/17-02-PLAN.md", ".planning/phases/17-localized-screenshot-capture-harness/17-02-SUMMARY.md", ".planning/phases/17-localized-screenshot-capture-harness/17-03-PLAN.md", ".planning/phases/17-localized-screenshot-capture-harness/17-03-SUMMARY.md", ".planning/phases/17-localized-screenshot-capture-harness/17-04-PLAN.md", ".planning/phases/17-localized-screenshot-capture-harness/17-04-SUMMARY.md", ".planning/phases/17-localized-screenshot-capture-harness/17-05-PLAN.md", ".planning/phases/17-localized-screenshot-capture-harness/17-05-SUMMARY.md", ".planning/phases/17-localized-screenshot-capture-harness/17-06-PLAN.md", ".planning/phases/17-localized-screenshot-capture-harness/17-06-SUMMARY.md", ".planning/phases/17-localized-screenshot-capture-harness/17-07-PLAN.md", ".planning/phases/17-localized-screenshot-capture-harness/17-08-PLAN.md", ".planning/phases/17-localized-screenshot-capture-harness/17-09-PLAN.md", ".planning/phases/17-localized-screenshot-capture-harness/17-10-PLAN.md", ".planning/phases/17-localized-screenshot-capture-harness/17-11-PLAN.md", ".planning/phases/17-localized-screenshot-capture-harness/17-12-PLAN.md", ".planning/phases/17-localized-screenshot-capture-harness/17-13-PLAN.md", ".planning/phases/17-localized-screenshot-capture-harness/17-14-PLAN.md", ".planning/phases/17-localized-screenshot-capture-harness/17-14-SUMMARY.md", ".planning/phases/17-localized-screenshot-capture-harness/17-15-PLAN.md", ".planning/phases/17-localized-screenshot-capture-harness/17-16-PLAN.md", ".planning/phases/17-localized-screenshot-capture-harness/17-16-SUMMARY.md", ".planning/phases/17-localized-screenshot-capture-harness/17-17-PLAN.md", ".planning/phases/17-localized-screenshot-capture-harness/17-17-SUMMARY.md", ".planning/phases/17-localized-screenshot-capture-harness/17-18-PLAN.md", ".planning/phases/17-localized-screenshot-capture-harness/17-18-SUMMARY.md", ".planning/phases/17-localized-screenshot-capture-harness/17-19-PLAN.md", ".planning/phases/17-localized-screenshot-capture-harness/17-19-SUMMARY.md", ".planning/phases/17-localized-screenshot-capture-harness/17-20-PLAN.md", ".planning/phases/17-localized-screenshot-capture-harness/17-21-PLAN.md", ".planning/phases/17-localized-screenshot-capture-harness/17-22-PLAN.md", ".planning/phases/17-localized-screenshot-capture-harness/17-23-PLAN.md", ".planning/phases/17-localized-screenshot-capture-harness/17-23-SUMMARY.md", ".planning/phases/17-localized-screenshot-capture-harness/17-24-PLAN.md", ".planning/phases/17-localized-screenshot-capture-harness/17-24-SUMMARY.md", ".planning/phases/17-localized-screenshot-capture-harness/17-CONTEXT.md", ".planning/phases/17-localized-screenshot-capture-harness/17-FINAL-VALIDATION.md", ".planning/phases/17-localized-screenshot-capture-harness/17-LAYOUT-AUDIT.md", ".planning/phases/17-localized-screenshot-capture-harness/17-READER-ROOT-CAUSE.md", ".planning/phases/17-localized-screenshot-capture-harness/17-RELEASE-ISOLATION.md", ".planning/phases/17-localized-screenshot-capture-harness/17-RESEARCH.md", ".planning/phases/17-localized-screenshot-capture-harness/17-REVIEW-DISPOSITION.md", ".planning/phases/17-localized-screenshot-capture-harness/17-REVIEW-FIX.md", ".planning/phases/17-localized-screenshot-capture-harness/17-REVIEW.md", ".planning/phases/17-localized-screenshot-capture-harness/17-SECURITY.md", ".planning/phases/17-localized-screenshot-capture-harness/17-SOURCE-AUDIT.md", ".planning/phases/17-localized-screenshot-capture-harness/17-UAT.md", ".planning/phases/17-localized-screenshot-capture-harness/17-VALIDATION.md", ".planning/quick/261101-website-review/APPROVAL-20261102.md", ".planning/quick/261101-website-review/PLAN.md", ".swiftlint.yml", "AppPackage/Package.swift", "AppPackage/Sources/AppComponents/CaptureSystemOverlays.swift", "AppPackage/Sources/AppComponents/ErrorInfoView.swift", "AppPackage/Sources/AppComponents/GalleryCover.swift", "AppPackage/Sources/AppComponents/GalleryCoverMetrics.swift", "AppPackage/Sources/AppComponents/GalleryCoverStyle.swift", "AppPackage/Sources/AppComponents/GalleryViewport.swift", "AppPackage/Sources/AppComponents/WindowDevice.swift", "AppPackage/Sources/AppComponents/WindowDeviceObservation.swift", "AppPackage/Sources/AppFeature/DataFlow/AppReducer.swift", "AppPackage/Sources/AppFeature/DataFlow/WindowSizeClasses.swift", "AppPackage/Sources/AppFeature/RootView.swift", "AppPackage/Sources/AppFeature/UITestSupport/AppshotCapture.swift", "AppPackage/Sources/AppFeature/UITestSupport/CaptureDiagnostics.swift", "AppPackage/Sources/AppFeature/UITestSupport/CaptureFixtureManifest.swift", "AppPackage/Sources/AppFeature/UITestSupport/CaptureLiveText.swift", "AppPackage/Sources/AppFeature/UITestSupport/CaptureSceneConfiguration.swift", "AppPackage/Sources/AppFeature/UITestSupport/CaptureScenePreparation.swift", "AppPackage/Sources/AppFeature/UITestSupport/CaptureTagTranslation.swift", "AppPackage/Sources/AppFeature/UITestSupport/UITestAutomation.swift", "AppPackage/Sources/AppFeature/UITestSupport/UITestStubURLProtocol.swift", "AppPackage/Sources/AppFeature/View/Library/LibraryFeature.swift", "AppPackage/Sources/AppFeature/View/TabBar/TabBarView.swift", "AppPackage/Sources/AppLaunchAutomationClient/AppLaunchAutomation.swift", "AppPackage/Sources/AppTools/DataCache.swift", "AppPackage/Sources/DetailFeature/DetailReducer+Download.swift", "AppPackage/Sources/DetailFeature/GalleryNavigation.swift", "AppPackage/Sources/FiltersFeature/FiltersView.swift", "AppPackage/Sources/GalleryListComponents/GalleryList.swift", "AppPackage/Sources/HomeFeature/GalleryCardCell.swift", "AppPackage/Sources/HomeFeature/HomeClient.swift", "AppPackage/Sources/HomeFeature/HomeNavigationView.swift", "AppPackage/Sources/HomeFeature/HomeReducer+Body.swift", "AppPackage/Sources/HomeFeature/HomeReducer.swift", "AppPackage/Sources/HomeFeature/HomeView+Sections.swift", "AppPackage/Sources/HomeFeature/HomeView.swift", "AppPackage/Sources/ImageColors/ImageColors.swift", "AppPackage/Sources/LibraryClient/LibraryClient.swift", "AppPackage/Sources/ReadingFeature/ReadingView.swift", "AppPackage/Sources/ReadingFeature/Support/AdvancedList.swift", "AppPackage/Sources/ReadingFeature/Support/ControlPanel.swift", "AppPackage/Sources/ReadingFeature/Support/LiveTextCapture.swift", "AppPackage/Sources/ReadingFeature/Support/LiveTextHandler.swift", "AppPackage/Sources/ReadingFeature/Support/PageModel.swift", "AppPackage/Sources/VisualSnapshotSupport/FullContentHost.swift", "AppPackage/Sources/VisualSnapshotSupport/PublicVisualFixtures.swift", "AppPackage/Sources/VisualSnapshotSupport/RenderServerCapture.swift", "AppPackage/Sources/VisualSnapshotSupport/RenderSettlement.swift", "AppPackage/Sources/VisualSnapshotSupport/RenderedContentInspection.swift", "AppPackage/Tests/AppFeatureTests/CaptureDownloadTests.swift", "AppPackage/Tests/AppFeatureTests/CaptureFixtureTests.swift", "AppPackage/Tests/AppFeatureTests/CaptureLiveTextRecordTests.swift", "AppPackage/Tests/AppFeatureTests/CaptureRouteTests.swift", "AppPackage/Tests/AppFeatureTests/CaptureSceneTests.swift", "AppPackage/Tests/AppFeatureTests/CaptureScreenDiagnosticsTests.swift", "AppPackage/Tests/AppFeatureTests/GalleryDetailRoutingTests.swift", "AppPackage/Tests/AppFeatureTests/LibraryClientReaderCacheTests.swift", "AppPackage/Tests/AppFeatureTests/TabBarSettingPresentationTests.swift", "AppPackage/Tests/AppFeatureTests/UITestStubTests.swift", "AppPackage/Tests/DetailFeatureTests/DetailCaptureRouteTests.swift", "AppPackage/Tests/DetailFeatureTests/GalleryNavigationTests.swift", "AppPackage/Tests/DownloadsFeatureTests/DownloadAutomationTests.swift", "AppPackage/Tests/FeatureTests.xctestplan", "AppPackage/Tests/HomeFeatureTests/HomeClientTests.swift", "AppPackage/Tests/ReadingFeatureTests/CaptureLiveTextTests.swift", "AppPackage/Tests/ReadingFeatureTests/PagerSeedTests.swift", "AppPackage/Tests/ReadingFeatureTests/PagerTurnGateTests.swift", "AppPackage/Tests/VisualSnapshotTests/FixtureArtwork.swift", "AppPackage/Tests/VisualSnapshotTests/FixtureArtworkTests.swift", "AppPackage/Tests/VisualSnapshotTests/FullContentFeasibilityTests.swift", "AppPackage/Tests/VisualSnapshotTests/GeometryTests.swift", "AppPackage/Tests/VisualSnapshotTests/HostedHierarchyTests.swift", "AppPackage/Tests/VisualSnapshotTests/RenderServerCaptureTests.swift", "AppPackage/Tests/VisualSnapshotTests/RenderSettlementTests.swift", "AppPackage/Tests/VisualSnapshotTests/RenderedContentInspectionTests.swift", "AppPackage/Tests/VisualSnapshotTests/Resources/scenarios.json", "AppPackage/Tests/VisualSnapshotTests/VisualMatrixTests.swift", "EhPanda.xcodeproj/project.pbxproj", "EhPandaUITests/CaptureIsolationUITests.swift", "EhPandaUITests/MarketingCaptureUITests.swift", "EhPandaUITests/ReaderPageSyncUITests.swift", "EhPandaUITests/Support/CaptureLauncher.swift", "Scripts/check-cookie-logging.sh", "Scripts/verify-full-content-capture.py", "Scripts/visual/README.md", "Scripts/visual/acquire-fixtures.py", "Scripts/visual/capture-native.py", "Scripts/visual/contracts.py", "Scripts/visual/environment.py", "Scripts/visual/fixtures.py", "Scripts/visual/record-live-text.py", "Scripts/visual/regression-environment.json", "Scripts/visual/run-regression.py", "Scripts/visual/selection-review.py", "Scripts/visual/test_capture_native.py", "Scripts/visual/test_contracts.py", "Scripts/visual/test_environment.py", "Scripts/visual/test_fixtures.py", "Scripts/visual/test_record_live_text.py", "Scripts/visual/test_release.py", "Scripts/visual/test_selection_review.py", "Scripts/visual/verify-release.py", "UITests.xctestplan"]
+covered_digest: "v4:sha256:d3062a610ae59c5e54f20402b7d44c424cdb83cdb763190adbae45cca20a43ef"
 behavior_unverified: 1
 overrides_applied: 0
 re_verification:
   previous_status: human_needed
-  previous_score: 5/8
-  previous_report: dab8bb8c2
-  trigger: "Owner msg 1645 (keep the six Live Text fixture versions) and msg 1647 (the fixture repository keeps only what the current website screenshots use); ehpanda-fixture 8ee4fc2 (signed G); EhPanda 9f8319ef6 and 041cdf5dd (.planning only, signed G)"
+  previous_score: 6/8
+  previous_report: dcba2df1f
+  trigger: "Close steps after the third report: 17-UAT.md complete 31/31 (458a16d5b; owner msg 1663), 17-VALIDATION.md Nyquist audit (504fa50ac; nyquist_compliant false, G1/G2 escalated to manual-only), 17-SECURITY.md 39/39 closed with F-17-FX-01 owner-accepted (4009b741a, e805a6e65; msg 1667), docs fixes for R3-1/R3-2 (594a0a2b6); all .planning only, signed G"
   gaps_closed:
-    - "Truth 2: the six Live Text fixture versions and their translation records are retained in ehpanda-fixture 8ee4fc2; the repository holds exactly the 11 versions the d4393bd set uses, all 11 pass Scripts/visual/fixtures.py validate_fixtures, and website-capture-20261104.json maps 118 files to 192 coordinates, matching the d4393bd provenance entry by entry"
-    - "Human item 3 of dab8bb8c2 (Live Text fixture retention): decided by the owner (msgs 1645, 1647) and carried out"
-    - "dab8bb8c2 observations 2 and 3: ROADMAP criterion 2 now cites the 2026-11-04 approval; the reader root-cause analysis is committed as 17-READER-ROOT-CAUSE.md and Phase 18 Step 4b links it"
-    - "dab8bb8c2 observation 4: STATE.md state_head updated (dab8bb8c2)"
+    - "Truth 7: verify-work (17-UAT.md status complete, 31 passed, 0 issues, test 9 owner acceptance of the reduced scope, msg 1663), secure-phase (17-SECURITY.md status verified, threats_open 0, 39/39 closed) and validate-phase (17-VALIDATION.md status validated, audit recorded, nyquist_compliant false with gaps G1 to G6 dispositioned) have all run"
+    - "Human item 2 of dcba2df1f (secure-phase and validate-phase): done"
+    - "R3-1: FV section 6 CAP-17-01 row, REQUIREMENTS.md:102 and 17-SOURCE-AUDIT.md:201 now date the 16 versions to 2026-11-02 and name the 11 kept since 8ee4fc2 (594a0a2b6)"
+    - "R3-2: Phase 18 ROADMAP context item 8 carries the Scripts/visual/README.md rewrite (594a0a2b6)"
+    - "R3-3: ehpanda-fixture f71d108 (signed G) corrects the README to 101 edited plus 7 replaced"
   gaps_remaining: []
   regressions: []
   earlier_rounds:
     - "7900db15e: initial, human_needed 5/8"
     - "dab8bb8c2: after 4a9a36d06 (owner msg 1640), human_needed 5/8; truth 6 closed, truth 2 reopened on fixture retention"
+    - "dcba2df1f: after owner msgs 1645 and 1647, human_needed 6/8; truth 2 re-closed"
 behavior_unverified_items:
-  - truth: "WR-01: the reader's page-turn gate starts over whenever the pager is rebuilt (Reload all images, local-to-remote fallback, vertical-to-horizontal direction change)"
-    test: "During UAT, in the reader on phone and iPad: start a programmatic page turn (tap zone or slider) and immediately trigger Reload all images; then turn pages by tap, slider and Auto-Play. Repeat after switching the reading direction vertical to horizontal mid-scroll, and after switching left-to-right to right-to-left."
-    expected: "After each rebuild, turns move the pager and the page indicator always names the page shown; a left-to-right/right-to-left switch keeps working turns."
-    why_human: "PagerTurnGate.pagerRebuilt() is unit-tested (4 PagerTurnGateTests pass at 891103afa), but the SwiftUI wiring (.onChange(of: store.forceRefreshID) outside the .id identity, and the readingDirection observer) is not exercised by any UI test. Phase 18 Step 4b now plans those UI tests; until then this is a manual check."
+  - truth: "WR-01: the reader's page-turn gate starts over whenever the pager is rebuilt while a programmatic turn is still animating (Reload all images, local-to-remote fallback, a reading-direction change)"
+    test: "Rebuild the pager inside the turn animation (SwiftUI .default, about 0.35 s): for example change the reading direction while Auto-Play is turning pages, or let the local-to-remote fallback fire during a turn. Then turn by edge tap, slider and Auto-Play."
+    expected: "After each rebuild, turns move the pager and the page indicator names the page shown."
+    why_human: "PagerTurnGate.pagerRebuilt() is unit-tested (PagerTurnGateTests 16/16 at 891103afa), but no committed test drives the SwiftUI wiring (.onChange(of: store.forceRefreshID) after .id, and the readingDirection observer). UAT tests 1 to 3 passed the user flows, but their logs show the rebuild came seconds after the turn had settled (Reload All Images tapped +4.76 s on iPhone and +5.02 s on iPad after the edge tap; direction changes made from the settings sheet with no turn in flight), so WR-01's precondition (rebuild while isAnimating) never occurred. Phase 18 Step 4b plans the UI tests, including a direction change during Auto-Play."
 human_verification:
-  - test: "Run UAT through /gsd-verify-work 17 with the owner, including the WR-01 manual reader test in behavior_unverified_items."
-    expected: "The owner accepts the reduced-scope delivery: the current 192-coordinate website set (2026-11-04), the landed size-class layout and the five keep decisions, the Release isolation result, the moved list and the known limits. The reader indicator follows the page shown after Reload all images, a vertical-to-horizontal change and an LTR/RTL switch."
-    why_human: "Roadmap success criterion 7 requires verify-work (UAT). The WR-01 rebuild wiring has no runtime test."
-  - test: "Then run /gsd-secure-phase 17 and /gsd-validate-phase 17."
-    expected: "17-SECURITY.md exists with no open threats (security enforcement is on); 17-VALIDATION.md becomes nyquist_compliant, or its gaps are recorded."
-    why_human: "Close steps owned by other workflows; static verification cannot run them."
+  - test: "Owner decision on truth 8 (WR-01 rebuild wiring): either run the mid-animation rebuild check in behavior_unverified_items, or record an override that accepts the runtime proof moving to Phase 18 Step 4b."
+    expected: "Either the indicator follows the page shown after a rebuild during a turn, or an overrides entry (must_have, reason, accepted_by, accepted_at) names the owner's acceptance. Test 9's acceptance (msg 1663) moves 'the reader page-tracking rework with its UI tests' but does not name this truth or the WR-01 precondition, so the verifier does not infer an override from it."
+    why_human: "The gate logic is unit-tested and the user flows pass, but no test or UAT run has exercised a rebuild while a turn animates. Static verification cannot."
 deferred:
   - truth: "CAP-17-02: SnapshotTesting coverage at 576 coordinates per scenario"
     addressed_in: "Phase 18"
@@ -62,10 +61,13 @@ deferred:
     evidence: "Phase 18 ROADMAP Step 7; the release gate repeats the Release isolation scan on the final 3.0 build (REL-18-01)"
   - truth: "Reader page tracking rework to one source of truth, plus UI tests for the WR-01 rebuild paths"
     addressed_in: "Phase 18"
-    evidence: "Phase 18 ROADMAP context item 7 and Step 4b (owner msg 1630, product lead msg 1631), added in 4a9a36d06; Step 4b links the committed analysis 17-READER-ROOT-CAUSE.md (9f8319ef6)"
+    evidence: "Phase 18 ROADMAP context item 7 and Step 4b (owner msg 1630, product lead msg 1631), added in 4a9a36d06; Step 4b links the committed analysis 17-READER-ROOT-CAUSE.md (9f8319ef6); moved with owner acceptance in 17-UAT.md test 9 (msg 1663)"
   - truth: "Code-review info items IN-02 (verify-release.py captureSystemOverlay token) and IN-03 (RootView import under #if DEBUG)"
     addressed_in: "Phase 18"
     evidence: "Phase 18 ROADMAP Step 7 'Before that scan, close the two Phase 17 review items the owner deferred (msg 1627)', added in 4a9a36d06"
+  - truth: "Scripts/visual/README.md rewrite for the reduced harness and the current fixture index"
+    addressed_in: "Phase 18"
+    evidence: "Phase 18 ROADMAP context item 8 (594a0a2b6)"
 ---
 
 # Phase 17: Screenshot Automation, Visual Regression & OS 27 Modernization: verification report
@@ -78,15 +80,15 @@ census with the owner. Prove once that Release ships no capture or test code. Ve
 visual-regression matrix, baselines, CI snapshot gate, preview tooling, 384-image marketing export, final
 gallery selection and AltStore promotional images move to Phase 18; they are moved, not satisfied.
 
-**Verified:** 2026-11-04T17:14:33Z (2026-11-05 01:14 +08:00)
+**Verified:** 2026-11-05T01:18:44Z (2026-11-05 09:18 +08:00)
 **Status:** human_needed
-**Re-verification:** Yes, the second re-verification. It follows owner msgs 1645 and 1647 (Live Text fixture
-retention; the fixture repository keeps only what the current set uses), fixture repository commit `8ee4fc2`, and
-EhPanda `9f8319ef6` and `041cdf5dd`. The earlier reports are `7900db15e` (initial, 5/8) and `dab8bb8c2`
-(after msg 1640, 5/8). The "Round 2" and "Round 3" sections below keep each round.
+**Re-verification:** Yes, the third re-verification (round 4). It follows the close steps: UAT (`458a16d5b`),
+the Nyquist audit (`504fa50ac`), the security audit (`4009b741a`, `e805a6e65`) and the docs fixes in
+`594a0a2b6`. The earlier reports are `7900db15e` (initial, 5/8), `dab8bb8c2` (after msg 1640, 5/8) and
+`dcba2df1f` (after msgs 1645 and 1647, 6/8). The "Round 2", "Round 3" and "Round 4" sections below keep each round.
 **Effort:** high (resolved from .planning/config.json)
-**Source:** HEAD `041cdf5dd` (signed, `G`). The tested source is still `891103afa`. `git diff --stat 891103afa
-041cdf5dd -- . ':!.planning'` is empty, so nothing outside `.planning/` changed and the final run results still
+**Source:** HEAD `e805a6e65` (signed, `G`). The tested source is still `891103afa`. `git diff --stat 891103afa
+e805a6e65 -- . ':!.planning'` is empty, so nothing outside `.planning/` changed and the final run results still
 apply.
 
 **Method.** Static verification only. No build, test or simulator run. Evidence is the codebase at HEAD, the
@@ -108,6 +110,12 @@ files was captured from, using the 2026-11-02 index at `134cbf3` for the 101 edi
 for the 17 recaptures, and compared that against the new index, the directory listing and the `d4393bd`
 provenance.
 
+The third re-verification (round 4) read the five commits `dcba2df1f..e805a6e65` (8 `.planning` files, all
+signed `G`): 17-UAT.md, the 17-VALIDATION.md audit, 17-SECURITY.md and the `594a0a2b6` wording fixes. It
+checked the UAT reader evidence against the raw logs of the agent-run UAT test (`/tmp/ehp-uat17/`, runs B and D),
+hashed the 118 website files at `ehpanda-website` `c17d230` against the `d4393bd` provenance, and read the
+fixture repository's new commit `f71d108`. It ran no build, test or simulator.
+
 ## Goal Achievement
 
 ### Observable truths
@@ -123,12 +131,12 @@ per-plan must-have truths roll up into these and are listed after the table.
 | 4 | The 3.0-candidate Release build contains no capture code, fixtures, test assets or SnapshotTesting linkage, and no environment flag activates capture | ✓ VERIFIED | `/tmp/ehp-17gate/f23d-scan/release-isolation.json` at worktree HEAD `891103afa` (dirty=0): `passed: true`, `findings: []`, 377 payload files, link maps arm64 187 objects / 291 141 symbols and x86_64 187 / 279 629, `UITestAutomation` inert shell (11 symbols) accepted. Activation: Release `alive: true` with all six capture/automation keys set; Debug control `alive: false`. Scanner tests: `Ran 19 tests … OK` (`f23d-scanner.log`). Code: every `UITestSupport/*.swift` and `CaptureSystemOverlays.swift` opens with `#if DEBUG`; `AppLaunchAutomation.resolve` is `#if DEBUG`; `VisualSnapshotSupport` (the only `SnapshotTesting` consumer, `Package.swift:1104-1108`) is linked only into the `VisualSnapshotTests` target (`project.pbxproj:10,152`). The overlay key is an `@Entry` that exists only in DEBUG, so a Release reference would not compile (this mitigates IN-02's scanner blind spot). |
 | 5 | FeatureTests and UITests pass on phone then tablet, one invocation at a time, with strict no-cache lint | ✓ VERIFIED | Raw results match FV section 9 exactly. Each `.head` shows `891103afa dirty=0`, and the runs are sequential (13:57 to 14:32 UTC). FeatureTests phone: 1541 cases, 1531 passed, 0 failed, 10 expected failures. UITests phone: 88 cases, 68 passed, 20 skipped. FeatureTests tablet: 1541, 1531, 0, 10. UITests tablet: 88, 71, 17 skipped. A node walk finds 0 Repetition nodes in all four. The 10 expected failures are the known issue-reporting set: Download series, ownership and unimplemented-client guards, Analytics unimplemented client ×2, `SettingPresentationTests.pushingAccountLoadsCookies`, and `SettingReducerTests.defaultProfileCreation…`. Lint: `Found 0 violations, 0 serious in 759 files.` (`f23d-lint.log`). The `--strict --no-cache` flags come from the recorded command, because the log does not echo flags. |
 | 6 | CAP-17-02, CAP-17-03, CAP-17-05 and the moved parts of CAP-17-01/06 are listed as moved to Phase 18, never as satisfied | ✓ VERIFIED (gap closed) | Canonical records: REQUIREMENTS.md (all CAP-17 unchecked; traceability "Phase 18 (moved 2026-11-03)"), the ROADMAP Phase 17 and 18 sections, FV section 6 "Moved to Phase 18", and the 17-SOURCE-AUDIT.md close status. Summaries: `4a9a36d06` set `requirements-completed: []` in `17-01-SUMMARY.md:50`, `17-02-SUMMARY.md:66` and `17-24-SUMMARY.md:36`, each with a dated "Record correction (2026-11-05)" note. Grepping all 13 summaries finds only CAP-17-01/04/06/07 claimed (17-03, 17-16 to 17-19, 17-23), and none claims CAP-17-02, -03 or -05. CAP-17-06 is now claimed only for its bounded part (17-16 to 17-19, 17-23). |
-| 7 | Phase 17 closes only through the GSD close steps: execute-phase gates (code review, regression gate, gsd-verifier writing 17-VERIFICATION.md), then verify-work (UAT), secure-phase and validate-phase | ? UNCERTAIN (in progress) | Code review: 17-REVIEW.md has 0 critical, 2 warnings and 3 info; 17-REVIEW-DISPOSITION.md has `open: 0` (WR-01 and IN-01 fixed in `92181ccd2`/`18ec91b86`, WR-02 skipped by owner msg 1627, IN-02/IN-03 deferred). Regression gate: covered (below). Verifier: this report. UAT, `/gsd-secure-phase 17` (no 17-SECURITY.md; security enforcement is on) and `/gsd-validate-phase 17` are still ahead. The phase is not marked complete: ROADMAP `- [ ] **Phase 17`, STATE `status: executing`. |
-| 8 | WR-01: the reader's page-turn gate starts over whenever the pager is rebuilt | ⚠️ PRESENT_BEHAVIOR_UNVERIFIED | Present and wired: `PagerTurnGate.pagerRebuilt()` resets all state (`PageModel.swift`, `self = Self()`); `ReadingView.pagerRebuilt()` (:526-530) resets the gate, clears `shownPagerPosition` and places `scrollPositionID = pageModel.index`; it is called from `.onChange(of: store.forceRefreshID)` placed after `.id(store.forceRefreshID)` (:219-223) and from the `readingDirection` observer (:418-420). The four `aPagerBuiltAnew…` tests and the IN-01 tests pass on both devices at `891103afa` (PagerTurnGateTests 16/16, PagerSeedTests 3/3). No UI test exercises the SwiftUI rebuild path (FV section 9 "Not verified at runtime"). |
+| 7 | Phase 17 closes only through the GSD close steps: execute-phase gates (code review, regression gate, gsd-verifier writing 17-VERIFICATION.md), then verify-work (UAT), secure-phase and validate-phase | ✓ VERIFIED (round 4) | Code review: 17-REVIEW.md has 0 critical, 2 warnings and 3 info; 17-REVIEW-DISPOSITION.md has `open: 0` (WR-01 and IN-01 fixed in `92181ccd2`/`18ec91b86`, WR-02 skipped by owner msg 1627, IN-02/IN-03 deferred). Regression gate: covered (below). Verifier: this report. **UAT:** 17-UAT.md `status: complete`, 31 total, 31 passed, 0 issues, 0 pending, skipped or blocked (`458a16d5b`). Tests 1 to 8 are agent-run (owner rule msg 1652). The home-indicator clause of test 5 and the late-tint clause of test 7 are owner-accepted as code-checked (msg 1663); both code paths match (`ReadingView.swift:68-74,92`, `.hidden` while the panel is hidden; `GalleryCardCell.swift:221-229`, transition speed 0 under Reduce Motion). Test 9 is the owner's acceptance of the reduced scope, the moved list and the known limits (msg 1663). Tests 10 to 31 are automated. **Secure-phase:** 17-SECURITY.md `status: verified`, `threats_open: 0`, 39/39 closed, F-17-FX-01 owner-accepted (msg 1667). **Validate-phase:** 17-VALIDATION.md `status: validated`, audit recorded, `nyquist_compliant: false` (PARTIAL), with G1 and G2 escalated to manual-only and planned in Phase 18 Step 4b. The workflow allows a recorded partial result; it is not a failed step. Not yet marked complete (ROADMAP `- [ ] **Phase 17`, STATE `status: executing`). That is the step after this report, and this truth does not require it. |
+| 8 | WR-01: the reader's page-turn gate starts over whenever the pager is rebuilt | ⚠️ PRESENT_BEHAVIOR_UNVERIFIED | Present and wired: `PagerTurnGate.pagerRebuilt()` resets all state (`PageModel.swift`, `self = Self()`); `ReadingView.pagerRebuilt()` (:526-530) resets the gate, clears `shownPagerPosition` and places `scrollPositionID = pageModel.index`; it is called from `.onChange(of: store.forceRefreshID)` placed after `.id(store.forceRefreshID)` (:219-223) and from the `readingDirection` observer (:418-420). The four `aPagerBuiltAnew…` tests and the IN-01 tests pass on both devices at `891103afa` (PagerTurnGateTests 16/16, PagerSeedTests 3/3). No committed UI test exercises the SwiftUI rebuild path (FV section 9 "Not verified at runtime"; 17-VALIDATION G1). **Round 4:** UAT tests 1 to 3 pass the user flows (reload, Vertical→LTR, LTR→RTL), but they do not reach WR-01's precondition. WR-01 needs a rebuild while `isAnimating == true`, that is, within the `.default` turn animation (`ReadingView.swift:514`). The raw logs show the edge tap done at +0.91 s and Reload All Images tapped at +4.76 s on iPhone (run D), and +0.65 s and +5.02 s on iPad (run B). The direction changes were made in the settings sheet with no turn in flight. The gate was therefore already open at each rebuild, and code without the fix would pass these runs too. The UAT evidence says so itself ("XCUITest idles between taps"). |
 
-**Score:** 6/8 truths verified (1 present but behavior-unverified: truth 8; 1 uncertain: truth 7, pending the
-close steps). History: 5/8 at `7900db15e`. Still 5/8 at `dab8bb8c2`, where truth 6 closed but truth 2 reopened on
-fixture retention. 6/8 now that truth 2 is re-closed.
+**Score:** 7/8 truths verified (1 present but behavior-unverified: truth 8). History: 5/8 at `7900db15e`.
+Still 5/8 at `dab8bb8c2`, where truth 6 closed but truth 2 reopened on fixture retention. 6/8 at `dcba2df1f`, once
+truth 2 was re-closed. 7/8 now that the close steps have run (truth 7).
 
 ### Plan must-have truths (supporting, roll up into the criteria above)
 
@@ -159,6 +167,7 @@ fixture retention. 6/8 now that truth 2 is re-closed.
 
 | 8 | Reader page tracking rework to one source of truth, with UI tests for the WR-01 rebuild paths | Phase 18 | Context item 7 and Step 4b (added in `4a9a36d06`) |
 | 9 | IN-02 (`captureSystemOverlay` token in `verify-release.py`'s `FORBIDDEN_CONTENT`) and IN-03 (RootView's `import AppComponents` under `#if DEBUG`) | Phase 18 | Context item 7 and Step 7, before the final Release scan (added in `4a9a36d06`) |
+| 10 | `Scripts/visual/README.md` rewrite (stale fixture index and runner owners) | Phase 18 | Context item 8 (added in `594a0a2b6`) |
 
 Rows 8 and 9 were only in STATE.md at the initial verification. `4a9a36d06` added them to the Phase 18 roadmap,
 and both target names exist: `FORBIDDEN_CONTENT` is at `verify-release.py:19`, and RootView has an
@@ -234,6 +243,11 @@ Info: 17-03, 17-05 and 17-24 plans spell `scripts/visual/…` in lowercase, whil
 | Round 3: Live Text records and local copies | `recordSHA256` vs file; `filecmp` of the 6 retained versions vs `.capture/` | 6/6 hashes match; 6/6 versions byte-identical (234 files each) | ✓ PASS |
 | Round 3: data/ and overrides/ kept | `git show --name-only 8ee4fc2 -- data overrides` | 0 paths | ✓ PASS |
 | Round 2: no summary claims moved IDs | `grep -n '^requirements-completed' 17-*-SUMMARY.md` | Only CAP-17-01/04/06/07 appear | ✓ PASS |
+| Round 4: source unchanged since the runs | `git diff --stat 891103afa e805a6e65 -- . ':!.planning'` | empty; `dcba2df1f..e805a6e65` touches 8 `.planning` files, 5 commits all `G` | ✓ PASS |
+| Round 4: UAT summary | count `result:` in 17-UAT.md | 31 pass (8 agent, 1 owner, 22 automated); summary 31/31/0 | ✓ PASS |
+| Round 4: UAT reader timing vs WR-01 window | `/tmp/ehp-uat17/D-iphone/…T1-log.txt`, `runs/B-ipad.log` | Reload tapped +4.76 s (iPhone) and +5.02 s (iPad) after the edge tap; `.default` turn animation | ⚠️ precondition not reached (truth 8) |
+| Round 4: website files at the deployed commit | SHA-256 of `c17d230:public/image/…` vs `d4393bd` provenance `files[].sha256` | 118 match, 0 differ, 0 missing | ✓ PASS |
+| Round 4: security register | count rows in 17-SECURITY.md | 39 threats (13 plans × T/I/R), 39 closed, 0 open; 1 accepted unregistered finding | ✓ PASS |
 
 ### Probe execution
 
@@ -257,7 +271,7 @@ REQUIREMENTS.md maps no other ID to Phase 17.
 
 | Requirement | Source plans | Description (Phase 17 part) | Status | Evidence |
 |---|---|---|---|---|
-| CAP-17-01 (fixture part) | 17-03, 17-04, 17-06, 17-23 | Explicit acquisition and refresh, provenance, checksums, offline replay without account or credentials | ✓ SATISFIED (Phase 17 part) | Capture fixture and scene suites pass at `891103afa`. The fixtures behind the current website set are retained and validated: 11 versions at `ehpanda-fixture` `8ee4fc2` (truth 2). The download suites pass; the same-run deletion invariant is not separately re-proved (FV section 6 says so). Record note: FV section 6's CAP-17-01 row and REQUIREMENTS.md:102 still cite "the 16 owner-approved website fixture versions" (observation R3-1) |
+| CAP-17-01 (fixture part) | 17-03, 17-04, 17-06, 17-23 | Explicit acquisition and refresh, provenance, checksums, offline replay without account or credentials | ✓ SATISFIED (Phase 17 part) | Capture fixture and scene suites pass at `891103afa`. The fixtures behind the current website set are retained and validated: 11 versions at `ehpanda-fixture` `8ee4fc2` (truth 2). The download suites pass; the same-run deletion invariant is not separately re-proved (FV section 6 says so). Record note: R3-1 (FV section 6 and REQUIREMENTS.md:102 citing the 16 versions as current) is fixed in `594a0a2b6` |
 | CAP-17-04 (amended 2026-11-03, clarified 2026-11-05) | 17-03 to 17-06, 17-23 | Met by the current website set: the 2026-11-04 recapture, 118 files serving the 192 coordinates of the 2026-11-02 approval | ✓ SATISFIED | Truth 2; owner msgs 1581, 1640, 1645, 1647; `ehpanda-website` `d4393bd`; `ehpanda-fixture` `8ee4fc2` |
 | CAP-17-06 (bounded part) | 17-01, 17-05, 17-16 to 17-19, 17-23 | Preserve iOS/iPadOS 27, Swift 6.4, native navigation/search/toolbar/top-edge behavior | ✓ SATISFIED within bounds | Deployment target 27.0 in all 10 pbxproj configurations; `swift-tools-version: 6.4`, `platforms: [.iOS(.v27)]`; AccessibilityAuditUITests, DetailNavigationTitleUITests and LibraryPresentationUITests pass on both devices; AX checks recorded in 260921-f5u (not re-run). Note: app targets use `SWIFT_VERSION = 6.0` (language mode), unchanged by this phase |
 | CAP-17-07 (amended 2026-11-03) | 17-04, 17-06, 17-14, 17-16 to 17-19, 17-23 | Release isolation; landed size-class migration verified; census with owner decisions; no lint/warning suppression | ✓ SATISFIED (the unclassified edge was accepted by the owner, msg 1640) | Truths 3 and 4; no new `swiftlint:disable` in phase files (the three present predate the phase: `a4273c7ba`, `bdf477561`, `25c313400`) |
@@ -275,20 +289,59 @@ REQUIREMENTS.md maps no other ID to Phase 17.
 
 ### Human verification required
 
-#### 1. UAT, including the WR-01 manual reader test
-**Test:** `/gsd-verify-work 17` with the owner. As part of it, in the reader on phone and iPad: trigger Reload
-all images (also during a turn), a vertical-to-horizontal switch and an LTR/RTL switch, then turn pages by
-tap, slider and Auto-Play.
-**Expected:** The owner accepts the reduced delivery (the current website set, the landed layout with the
-five keep decisions, the Release isolation result, the moved list and the known limits). The indicator always
-names the page shown, and turns keep working after every rebuild.
-**Why human:** Roadmap success criterion 7. The WR-01 gate is unit-tested, but no UI test drives the SwiftUI
-rebuild observers (truth 8; Phase 18 Step 4b adds those tests).
+#### 1. Truth 8: WR-01 rebuild during a turn, or an owner override
+**Test:** Rebuild the reader's pager while a programmatic turn is still animating, for example by changing
+the reading direction while Auto-Play is turning pages, or by letting the local-to-remote fallback fire
+during a turn. Then turn pages by edge tap, slider and Auto-Play. Alternatively, the owner records that this
+runtime proof moves to Phase 18 Step 4b.
+**Expected:** The indicator always names the page shown and turns keep working. If the owner decides to
+defer instead, add this to the frontmatter:
 
-#### 2. Secure-phase and validate-phase
-**Test:** `/gsd-secure-phase 17`, then `/gsd-validate-phase 17`.
-**Expected:** 17-SECURITY.md with no open threats; 17-VALIDATION.md `nyquist_compliant` resolved.
-**Why human:** Close steps owned by other workflows. Security enforcement is on and no 17-SECURITY.md exists.
+```yaml
+overrides:
+  - must_have: "WR-01: the reader's page-turn gate starts over whenever the pager is rebuilt"
+    reason: "Gate logic unit-tested (PagerTurnGateTests); the UI tests for the rebuild paths, including a direction change during Auto-Play, are Phase 18 Step 4b"
+    accepted_by: "{owner}"
+    accepted_at: "{ISO timestamp}"
+```
+
+**Why human:** No committed test drives the SwiftUI rebuild observers, and the UAT runs rebuilt the pager
+only after the turn had settled (truth 8). Test 9 (msg 1663) moved "the reader page-tracking rework with its
+UI tests" but does not name this truth. The verifier does not turn that into an override on its own.
+
+The previous report's item 1 (UAT) and item 2 (secure-phase and validate-phase) are done (truth 7).
+
+### Round 4 (after the close steps): what changed
+
+| `dcba2df1f` item | Action | Verifier check | Verdict |
+|---|---|---|---|
+| Human item 1: UAT, including the WR-01 manual test | `458a16d5b`: 17-UAT.md complete, 31/31 | Summary block matches the 31 results. Test 8 was re-checked: all 118 files at `ehpanda-website` `c17d230` (`public/img` renamed to `public/image`; `d4393bd` is an ancestor) hash equal to the `d4393bd` provenance (118/0/0). Test 6's correction (the narrow iPad Library collapses the split view) matches 17-LAYOUT-AUDIT row 2. The code-checked clauses of tests 5 and 7 match the code | **Closed** for UAT. The WR-01 part is not closed: see truth 8 and R4-1 |
+| Human item 2: secure-phase and validate-phase | `4009b741a`/`e805a6e65`: 17-SECURITY.md `verified`, 39/39 closed, `threats_open: 0`, F-17-FX-01 accepted (msg 1667). `504fa50ac`: 17-VALIDATION.md `validated`, `nyquist_compliant: false` | Each kept plan has three threats (13 × 3 = 39), all `mitigate`. The cited code anchors were spot-checked for the reader and overlay paths. The Nyquist map lists every kept task, and the moved plans are not counted as gaps | **Closed** (truth 7) |
+| R3-1: three lines cite the 16 versions as current | `594a0a2b6` dates them to 2026-11-02 and names the 11 kept since `8ee4fc2` | FV section 6 CAP-17-01 row, REQUIREMENTS.md:102, 17-SOURCE-AUDIT.md:201: all three are fixed. The remaining "16" mentions are in 17-23-PLAN.md, which is historical | **Fixed** |
+| R3-2: README rewrite carried only in STATE | `594a0a2b6`: Phase 18 ROADMAP context item 8 | Names the stale index and the moved runner owners | **Fixed** |
+| R3-3: fixture README "108 files made from" | `ehpanda-fixture` `f71d108` (signed `G`) | Now says 101 edited plus 7 replaced | **Fixed** |
+
+**Round 4 observations (reported, not edited):**
+
+- **R4-1 (warning, docs).** 17-VALIDATION.md cites UAT tests 1 and 2 as evidence that the WR-01 gate restarts
+  after a rebuild. This appears in the G1 disposition and in the first row of "Manual-only verifications". The
+  UAT logs show the rebuilds came about 4 s after the turn had settled (truth 8), so those tests do not exercise
+  WR-01's precondition. G1's own conclusion (no committed test, planned in Step 4b) is right. Suggested wording:
+  "user flows pass (UAT 1 to 3); a rebuild during a turn was not exercised".
+- **R4-2 (info).** 17-SECURITY.md was audited before `594a0a2b6`, and two of its statements are now stale:
+  - F-17-DOC-01 still says `17-REVIEW-FIX.md:108` holds the absolute local path. That line now reads
+    `~/Fork/EhPanda`, and no `/Users/` path is left in the Phase 17 records.
+  - The fixture spot-check heading says "HEAD `8ee4fc2`, 1 commit ahead of origin". The repository is now at
+    `f71d108`, 2 ahead.
+
+  Neither changes a threat status.
+- **R4-3 (info, risk).** `ehpanda-fixture` `8ee4fc2` and `f71d108` are not pushed (`main...origin/main
+  [ahead 2]`). The six retained Live Text versions and `website-capture-20261104.json`, which truth 2 relies on,
+  exist only in this local clone, and origin still holds the 2026-11-02 layout at `134cbf3`. Pushing is the
+  owner's call. This verifier did not push.
+- **R4-4 (info).** The STATE.md frontmatter has not changed since `041cdf5dd`. It still reads `stopped_at: …
+  next the verifier's update, then UAT, secure-phase and validate-phase` and `state_head: dab8bb8c2…`. This is
+  expected to be refreshed when the phase is marked complete.
 
 ### Round 3 (after owner msgs 1645 and 1647): what changed
 
@@ -303,7 +356,7 @@ rebuild observers (truth 8; Phase 18 Step 4b adds those tests).
 | ROADMAP scope item 1; FV section 5 explicit-set row; FV section 6 CAP-17-04 row (`041cdf5dd`) | Now say the 16 versions were the 2026-11-02 selection, and that since `8ee4fc2` the repository keeps the 11 the current set uses | Correct | **Verified** |
 | STATE: `Scripts/visual/README.md` "Approved website fixtures" section carried to Phase 18 (`041cdf5dd`) | Docs-only; left so the tested tree stays `891103afa` | `git grep` for `websiteCaptureIndex`, `website-capture-`, `readerByLocale` and `active-fixtures` in Scripts, AppPackage, EhPandaUITests, App and ShareExtension finds only `Scripts/visual/README.md:798-802`. No code reads it | **Verified** (see R3-2) |
 
-### Round 3 observations (reported, not edited)
+### Round 3 observations (reported, not edited; all three fixed in round 4)
 
 - **R3-1 (warning, docs).** Three planning lines still present the 16 versions as current Phase 17 evidence:
   - `17-FINAL-VALIDATION.md` section 6, CAP-17-01 row, ends "The 16 owner-approved website fixture versions
@@ -401,27 +454,34 @@ record, the fixture repository and the raw results holds.
 
 No blocking gap and no failed truth.
 
-- **Round 3.** Owner msgs 1645 and 1647 and `8ee4fc2`/`9f8319ef6`/`041cdf5dd` re-closed truth 2. The fixture
-  repository holds exactly the 11 validated versions the approved 2026-11-04 set was captured from, and an index
-  maps its 118 files to the 192 coordinates, matching the `d4393bd` provenance entry by entry.
+- **Round 4.** The close steps ran, which closes truth 7:
+  - UAT: 31/31, with the owner's acceptance of the reduced scope (msg 1663).
+  - Security: 39/39 closed, `threats_open: 0`, F-17-FX-01 accepted (msg 1667).
+  - Nyquist audit: validated and recorded, PARTIAL.
+
+  R3-1, R3-2 and R3-3 are fixed.
+- **Round 3.** Owner msgs 1645 and 1647 and `8ee4fc2`/`9f8319ef6`/`041cdf5dd` re-closed truth 2.
 - **Round 2.** Truth 6 and five of the seven initial human items closed, and all nine initial record errors are
   fixed.
-- **Verified at `891103afa`** (nothing outside `.planning` has changed through `041cdf5dd`): truths 1, 2, 3, 4,
-  5 and 6, and the regression gate.
+- **Verified at `891103afa`** (nothing outside `.planning` has changed through `e805a6e65`): truths 1 to 7 and
+  the regression gate.
 
 Remaining:
 
-- **Truth 7.** UAT (`/gsd-verify-work 17`), then `/gsd-secure-phase 17` and `/gsd-validate-phase 17`.
-- **Truth 8.** The WR-01 rebuild wiring has no runtime test and is checked manually during UAT.
-- **R3-1 (docs, non-blocking).** Three planning lines still cite the 16 versions as current CAP-17-01 evidence.
+- **Truth 8 (the only human item).** The WR-01 rebuild wiring has no committed runtime test. The UAT reader runs
+  did not rebuild during a turn, so they do not prove it. To close it, either run the mid-animation check or have
+  the owner record the override above. The Phase 18 Step 4b UI tests are the planned proof.
+- **R4-1 (docs, non-blocking).** 17-VALIDATION.md overstates what UAT tests 1 and 2 show for WR-01.
+- **R4-3 (risk, non-blocking).** The fixture repository's current layout is not pushed.
 
-Status: `human_needed`.
+Status: `human_needed` (Step 9 rule 2: one human item, truth 8). It becomes `passed` once that item is resolved,
+either by a runtime check or by a recorded owner override.
 
 The moved work (CAP-17-02, CAP-17-03, CAP-17-05 and the moved parts of CAP-17-01/04/06) is listed as moved
-to Phase 18 and is not verified here. The reader page-tracking rework (with its committed root-cause analysis)
-and IN-02/IN-03 are in the Phase 18 roadmap.
+to Phase 18 and is not verified here. The reader page-tracking rework (with its committed root-cause analysis),
+IN-02/IN-03 and the `Scripts/visual/README.md` rewrite are in the Phase 18 roadmap.
 
 ---
 
-_Verified: 2026-11-04T17:14:33Z (second re-verification; earlier reports `dab8bb8c2` at 2026-11-04T16:52:31Z and `7900db15e` at 2026-11-04T16:10:00Z)_
-_Verifier: Claude (gsd-verifier, inline; effort: high, resolved from .planning/config.json)_
+_Verified: 2026-11-05T01:18:44Z (third re-verification, round 4; earlier reports `dcba2df1f` at 2026-11-04T17:14:33Z, `dab8bb8c2` at 2026-11-04T16:52:31Z and `7900db15e` at 2026-11-04T16:10:00Z)_
+_Verifier: Claude (gsd-verifier, inline; effort: high, resolved from .planning/config.json; model inherited)_
