@@ -31,6 +31,8 @@ struct DownloadAutomationTests: DownloadFeatureTestCase {
         let reconcileCount = LockedBox(0)
         var initialState = AppReducer.State()
         initialState.settingState.hasLoadedInitialSetting = true
+        // Past the age wall, so every phase reaches the download client (18-02's gate).
+        initialState.settingState.$setting.withLock({ $0.ageDeclarationVersion = AgeDeclaration.currentVersion })
 
         let store = TestStore(
             initialState: initialState,
@@ -229,8 +231,12 @@ struct DownloadAutomationTests: DownloadFeatureTestCase {
             galleryURL: nil
         )
 
+        // Past the age wall, so the launch loads the settings itself (18-02's gate).
+        let initialState = AppReducer.State()
+        initialState.settingState.$setting.withLock({ $0.ageDeclarationVersion = AgeDeclaration.currentVersion })
+
         let store = TestStore(
-            initialState: AppReducer.State(),
+            initialState: initialState,
             reducer: AppReducer.init,
             withDependencies: {
                 $0.analyticsClient = .noop

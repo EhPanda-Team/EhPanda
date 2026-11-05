@@ -823,6 +823,8 @@ let targets: [PackageDescription.Target] = [
             .module(.analyticsClient),
             .module(.appComponents),
             .module(.appFeature),
+            .module(.applicationClient),
+            .module(.dfClient),
             .module(.homeFeature),
             .module(.parserFeature),
             .module(.testingSupport),

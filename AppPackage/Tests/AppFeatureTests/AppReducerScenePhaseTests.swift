@@ -195,6 +195,9 @@ private extension AppReducerScenePhaseTests {
                     detectLinksFromClipboard: detectLinksFromClipboard,
                     privacyMaskIntensity: privacyMaskIntensity
                 )
+                // Past the age wall, so the scene phase reaches the download client (P-2); the
+                // locked behavior is pinned in `FirstLaunchGateTests`.
+                $0.ageDeclarationVersion = AgeDeclaration.currentVersion
             }
             initialState.$privacyMaskBlur.withLock({ $0 = 0 })
             initialState.appLogsPumpState.$currentRun.withLock {
