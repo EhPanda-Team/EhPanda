@@ -704,7 +704,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 15. Continued Background Downloads | 77/77 | Complete    | 2026-08-19 |
 | 16. Dynamic Type Accessibility | 26/26 | Complete    | 2026-09-23 |
 | 17. Screenshot Automation, Visual Regression & OS 27 Modernization | 13/13 | Complete    | 2026-11-05 |
-| 18. In-App 3.0 Readiness: Age Wall, Analytics Choice, Comment Moderation & Reader Rework | 8/12 | In Progress |  |
+| 18. In-App 3.0 Readiness: Age Wall, Analytics Choice, Comment Moderation & Reader Rework | 9/12 | In Progress |  |
 | 19. Visual Regression & Marketing Export | 0/TBD | Not started|  |
 | 20. 3.0 Distribution: Marketplace Build, Notarization, Listing & Release Checks | 0/TBD | Not started|  |
 
@@ -1375,7 +1375,7 @@ Phase 17 is complete (2026-11-05) at the reduced scope above. The moved plans ar
   9. IN-02 (`captureSystemOverlay` in `verify-release.py`'s `FORBIDDEN_CONTENT`, with a `test_release.py` case) and IN-03 (RootView's `import AppComponents` inside its `#if DEBUG` block) are closed, and `MKSellsDigitalGoods` is `NO`.
   10. The UI matches the UI-SPEC, and FeatureTests and UITests pass on phone then tablet with 0 failures and 0 Repetition, with strict no-cache lint.
 
-**Plans**: 8/12 plans executed in 4 waves (planned 2026-11-05; list below). *Amended 2026-11-05 (owner msgs 1805, 1818; CONTEXT D-06a to D-06c):* the level None is now Minimal, which sends only one install signal with its install source; the SDK never starts under Minimal, so no level sends nothing. *Amended again (owner msgs 1830, 1839; CONTEXT D-06d):* Basic's description now builds on Minimal ("Everything in Minimal, plus ...", Revision 3 of `18-COPY-MINIMAL.md`); what Basic sends is unchanged. *Amended again (owner msgs 1844, 1854, 1864; CONTEXT D-06e):* the analytics intro (`consent.body`) is now one short line, "Anonymous analytics. Your searches and the galleries you view are never sent." (Revision 5); the purpose and TelemetryDeck's name move to the website's Privacy Policy (Phase 20). *Amended again (owner msgs 1869, 1880, 1882; CONTEXT D-06f):* the screen and feature signals move from Full to Basic (Full keeps reading and download activity and the main settings), with new Basic and Full descriptions (Revision 6); Basic is marked "Recommended" on the first-launch choice, and nothing is pre-selected.
+**Plans**: 9/12 plans executed in 4 waves (planned 2026-11-05; list below). *Amended 2026-11-05 (owner msgs 1805, 1818; CONTEXT D-06a to D-06c):* the level None is now Minimal, which sends only one install signal with its install source; the SDK never starts under Minimal, so no level sends nothing. *Amended again (owner msgs 1830, 1839; CONTEXT D-06d):* Basic's description now builds on Minimal ("Everything in Minimal, plus ...", Revision 3 of `18-COPY-MINIMAL.md`); what Basic sends is unchanged. *Amended again (owner msgs 1844, 1854, 1864; CONTEXT D-06e):* the analytics intro (`consent.body`) is now one short line, "Anonymous analytics. Your searches and the galleries you view are never sent." (Revision 5); the purpose and TelemetryDeck's name move to the website's Privacy Policy (Phase 20). *Amended again (owner msgs 1869, 1880, 1882; CONTEXT D-06f):* the screen and feature signals move from Full to Basic (Full keeps reading and download activity and the main settings), with new Basic and Full descriptions (Revision 6); Basic is marked "Recommended" on the first-launch choice, and nothing is pre-selected.
 
 Ordered plan outline (old step numbers are the original Phase 18's):
 
@@ -1407,7 +1407,7 @@ Plans:
 - [x] 18-08-PLAN.md — DEBUG launch keys and the G1/G2 reader UI tests
 
 **Wave 3** *(blocked on Wave 2 completion; UI tasks follow the committed UI-SPEC)*
-- [ ] 18-09-PLAN.md — age wall and analytics choice screens at the root, with the title line-break check
+- [x] 18-09-PLAN.md — age wall and analytics choice screens at the root, with the title line-break check
 - [ ] 18-10-PLAN.md — Settings analytics picker and Blocked Users
 - [ ] 18-11-PLAN.md — comment moderation UI, report sheet with the app's sign-in
 
