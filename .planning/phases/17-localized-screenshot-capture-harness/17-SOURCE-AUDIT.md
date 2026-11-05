@@ -198,7 +198,7 @@ the plan summaries. "Moved" means moved to Phase 18, not satisfied.
 | Plan | Status | Evidence or destination |
 |---|---|---|
 | 17-01, 17-24, 17-02 | Executed | Their summaries |
-| 17-03, 17-04, 17-05, 17-06 | Executed | Their summaries; FV section 3 (192 approved website images, 16 fixture versions) |
+| 17-03, 17-04, 17-05, 17-06 | Executed | Their summaries; FV section 3 (192 approved website images; 16 fixture versions approved 2026-11-02, of which fixture commit `8ee4fc2` keeps the 11 the 2026-11-04 set uses) |
 | 17-16, 17-17, 17-18, 17-19 | Executed (landed migration verified; owner kept all five idiom reads) | Their summaries; 17-LAYOUT-AUDIT.md; FV section 4 |
 | 17-14 | T2 executed; T1/T3 moved | 17-RELEASE-ISOLATION.md at `1829841d8`; repeated at `97b31b063` (FV section 1). T1/T3 → VIS-18-01 |
 | 17-23 | Executed | FV; 17-23-SUMMARY.md |

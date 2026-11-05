@@ -1351,6 +1351,7 @@ Planning artifacts do not claim executed implementation, completed approvals or 
 5. Apple-service actions (App IDs, the app record, distribution certificates, API keys, marketplace registration, trader status) happen in the collaborator's App Store Connect account, by the collaborator or with the owner's explicit authorization at that time; agents never create them on their own.
 6. External dependencies: the privacy policy and support pages are website work owned by another team member; the website's adult-mode declaration uses the age-wall wording. This phase records the URLs it needs and waits for them.
 7. Carried from Phase 17's close (added 2026-11-05): the reader page-tracking rework to one source of truth (owner msg 1630, product lead msg 1631; Step 4b), and the code-review info items IN-02 and IN-03, deferred by the owner (msg 1627; Step 7).
+8. Carried from Phase 17's close (added 2026-11-05): rewrite `Scripts/visual/README.md` so it matches the reduced Phase 17 harness and the Phase 18 producers. It still names `website-capture-20261102.json` as the fixture repository's index (now `website-capture-20261104.json`, 11 fixture versions) and says 17-02, 17-05 and 17-07 own the regression and marketing runners, which moved to Phase 18.
 
 **Success Criteria** (what must be TRUE):
 
