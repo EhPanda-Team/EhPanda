@@ -12,7 +12,8 @@ author: Colo (design)
 
 > Visual and interaction contract for the Phase 18 screens: the age wall, the analytics choice, the comment
 > report and block UI (menu items, confirmations, posting warning, collapsed row) and the Settings changes
-> (analytics picker, Privacy Policy row, Blocked Users list). Written by Colo for D-17.
+> (analytics picker and Privacy Policy row in General; Blocked Users row and list in Account). Written by Colo for
+> D-17. Revised after owner msg 1795: None → Minimal, Blocked Users moved to Account.
 >
 > **Contract nature: new screens inside a shipped design language.** Nothing here restyles an existing screen.
 > New screens reuse the app's system typography, its existing AccentColor, its 15pt card radius and its existing
@@ -21,7 +22,7 @@ author: Colo (design)
 >
 > Sources: 18-CONTEXT.md D-03…D-17 and DD-06…DD-10, the two approved copy files, and the current code
 > (`CommentsView.swift`, `DetailView+CommentCells.swift`, `DetailView+Subviews.swift` CommentsSection,
-> `PostCommentView.swift`, `GeneralSettingView.swift`, `AppearanceSettingView.swift`, `AppComponents/*`,
+> `PostCommentView.swift`, `GeneralSettingView.swift`, `AccountSettingView.swift`, `AppearanceSettingView.swift`, `AppComponents/*`,
 > `App/Assets.xcassets/AccentColor.colorset`). Deployment target iOS 27 (`Package.swift`).
 >
 > Mockups: 22 frames in `mockups/` beside this file (PNG, 2x), also published as an artifact. Frames are
@@ -56,7 +57,7 @@ Non-exhaustive for SwiftUI itself; the executor may use any SwiftUI API that mee
 
 | Component | Import path | Use in this phase |
 |-----------|-------------|-------------------|
-| `View.withArrow()` | AppComponents/ViewModifiers.swift | Blocked Users row in General Settings (chevron, AX-hidden) |
+| `View.withArrow()` | AppComponents/ViewModifiers.swift | Blocked Users row in Account settings (chevron, AX-hidden) |
 | `AdaptiveStack` / explicit `ViewThatFits(in: .horizontal)` | AppComponents/AdaptiveStack.swift | Collapsed-row layout switch (explicit `ViewThatFits`, because the label has its own line limit — see that file's rule) |
 | `SheetCloseToolbar` | AppComponents/SheetCloseToolbar.swift | Close button of the in-app report web sheet, if that route is used (see C-4) |
 | `AppAlertState` / `.appAlert` or TCA `AlertState` | AppComponents/AppAlertState.swift | Report, Block and posting-warning alerts |
@@ -157,8 +158,8 @@ system menu-picker look, exactly like the existing Theme picker.
   These glyphs always sit on the card colour, never directly on the grouped background (#669D34 on #F2F2F7 is 2.9:1).
 - Disabled Continue: system dimming of `.glassProminent` with `.disabled(true)`; disabled controls are exempt, and
   the state is also announced ("dimmed") and hinted (`age_wall.continue_hint`).
-- Increase Contrast: no custom handling needed; all colours are semantic or the asset (add a high-contrast variant to
-  nothing). Smart Invert: the app icon on the age wall gets `.accessibilityIgnoresInvertColors()`.
+- Increase Contrast: no custom handling needed; all colours are semantic or the asset (no high-contrast
+  variants needed). Smart Invert: the app icon on the age wall gets `.accessibilityIgnoresInvertColors()`.
 
 ---
 
@@ -176,7 +177,7 @@ the catalog may rename them, never the text. Nothing on any screen below may say
 | Continue hint while dimmed (VoiceOver) | `age_wall.continue_hint` (age wall only — see C-2) |
 | Age wall footnote (always visible) | `age_wall.footnote` |
 | Analytics title / body | `consent.title` / `consent.body` |
-| Level names / descriptions | `consent.level.{none,basic,full}` / `…description` |
+| Level names / descriptions | `consent.level.{minimal,basic,full}` / `…description`. **Minimal's name and description, the Settings footer that reuses it and `consent.body` are being redrafted by Camo for owner approval (owner msg 1795, Ato msg 1796).** Mockups show Camo's draft (msg 1797, not yet approved); use the approved text when it lands. Layout does not change with it |
 | Analytics footer | `consent.footer` |
 | Privacy link (both places) | `consent.privacy_link` |
 | Settings analytics row | `shareAnalyticsData` (existing key, now a picker); section header `analytics` (existing) |
@@ -269,7 +270,7 @@ your mind, and a shared Continue keeps both first-launch screens one pattern.
    32pt from top (72pt regular width).
 2. 16pt · Title `consent.title`, `.title.bold()`, centred, `.isHeader`.
 3. 8pt · Body `consent.body`, `.body`, `.secondary`, centred.
-4. 24pt · **Three `ChoiceCard`s**, order None, Basic, Full (owner's order), 12pt apart, all identical in size rules,
+4. 24pt · **Three `ChoiceCard`s**, order Minimal, Basic, Full (owner's order; Minimal replaces None, owner msg 1795), 12pt apart, all identical in size rules,
    type and colour while unselected — no badge, no "recommended", no different weight.
    - Card: `secondarySystemGroupedBackground`, radius 15, padding 16, full width, whole card tappable,
      `.hoverEffect(.highlight)` as C-2.
@@ -321,7 +322,7 @@ Existing swipe actions (vote up/down, edit) are unchanged.
 ({site} + %@ filled). Buttons: `cancel` (role `.cancel`), `comment.report.open` (no role). On Open: open the
 gallery's report page (`?report=select`). Route is the developer's call:
 in-app sheet that carries the app's sign-in (large detent, `SheetCloseToolbar`, no title) is preferred because the
-site's form needs the session; the default browser is acceptable. The copy fits both.
+site's form needs the session — `AccountSettingView` already presents `WebView(url:)` in a sheet this way; the default browser is acceptable. The copy fits both.
 
 **Block confirmation** [07]: alert. Title `comment.block.confirm_title`, message `comment.block.confirm_body`.
 Buttons: `cancel` (`.cancel`), `comment.block.confirm` (`.destructive`). Alerts (not confirmation dialogs) for both
@@ -399,9 +400,13 @@ The existing Analytics section, rebuilt:
 
 Changing the level takes effect immediately (DD-09). No confirmation when lowering or raising.
 
-### C-10 · Settings → General: Blocked Users row [12, 13]
+### C-10 · Settings → Account: Blocked Users row [23, 24]
 
-- New section directly **below** the Analytics section, no header, no footer.
+- Lives in **Account** settings (owner msg 1795), not General. New `Section` placed after the account section
+  (website picker, log in/out, host settings…) and before the cookie section, no header, no footer. Shown
+  **signed in and signed out** — blocking is local and works without an account.
+- Push goes through `SettingPath` like the other Account pushes (a `.delegate(.pushBlockedUsers)` beside
+  `.pushEhSetting`).
 - `Button(blocked_users) { push }` `.foregroundStyle(.primary)` `.withArrow()` with a trailing count before the
   chevron: `Text(count, format: .number)` `.foregroundStyle(.secondary)` `.monospacedDigit()`. Count is shown at 0 too.
 - Accessibility: one element, label `blocked_users`, value = the count.
@@ -478,10 +483,11 @@ Applicable state considerations resolved: 21 covered, 3 backstop, 0 unresolved.
 
 01 age wall light, unticked · 02 age wall dark, ticked · 03 analytics light, nothing picked · 04 analytics dark,
 Basic · 05 comment menu · 06 report confirmation · 07 block confirmation dark · 08 collapsed row · 09 revealed row +
-Unblock menu, dark · 10 posting warning · 11 Detail strip collapsed card · 12 Settings light · 13 Settings dark, None,
-0 blocked · 14 Blocked Users with swipe · 15 Blocked Users empty, dark · 16/17 age wall AX5 top/bottom · 18 analytics
+Unblock menu, dark · 10 posting warning · 11 Detail strip collapsed card · 12 General settings light (analytics) · 13 General settings dark,
+Minimal · 14 Blocked Users with swipe · 15 Blocked Users empty, dark · 16/17 age wall AX5 top/bottom · 18 analytics
 AX5 · 19 collapsed row AX5 · 20 iPad age wall landscape · 21 iPad analytics portrait dark · 22 iPad comments with a
-pointer (hover on `…`, menu open, collapsed row on one line).
+pointer (hover on `…`, menu open, collapsed row on one line) · 23 Account settings light, signed in, Blocked
+Users row · 24 Account settings dark, signed out, nobody blocked.
 
 ---
 
