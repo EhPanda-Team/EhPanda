@@ -72,6 +72,9 @@ struct ReduceMotionGatingSourceTests {
 
     /// Files reading `\.accessibilityReduceMotion`, with how many views in each read it.
     private static let expectedEnvironmentReads: [String: Int] = [
+        // The first-launch checkbox and choice cards drop their glyph's replace effect (UI-SPEC C-2, C-3).
+        "AppComponents/CheckboxToggleStyle.swift": 1,
+        "AppComponents/ChoiceCard.swift": 1,
         "AppComponents/ViewModifiers.swift": 1,
         "DetailFeature/Comments/CommentsView.swift": 1,
         "DetailFeature/DetailView+HeaderSection.swift": 1,
@@ -91,10 +94,12 @@ struct ReduceMotionGatingSourceTests {
         "SettingFeature/GeneralSetting/GeneralSettingView.swift": 1,
         "SystemNotification/View+Toast.swift": 1
     ]
-    private static let expectedEnvironmentReadTotal = 18
+    private static let expectedEnvironmentReadTotal = 20
 
     /// Executable lines carrying the ternary predicate, per file.
     private static let expectedTernaryPredicates: [String: Int] = [
+        "AppComponents/CheckboxToggleStyle.swift": 1,
+        "AppComponents/ChoiceCard.swift": 1,
         "DetailFeature/Comments/CommentsView.swift": 1,
         "DetailFeature/DetailView.swift": 3,
         "DetailFeature/FolderManager/FolderManagerView.swift": 1,
@@ -110,7 +115,7 @@ struct ReduceMotionGatingSourceTests {
         "SettingFeature/GeneralSetting/GeneralSettingView.swift": 1,
         "SystemNotification/View+Toast.swift": 1
     ]
-    private static let expectedTernaryPredicateTotal = 25
+    private static let expectedTernaryPredicateTotal = 27
 
     /// The deep-linked comment scroll and the reader's page jump.
     private static let expectedWithAnimationGateTotal = 2
@@ -118,6 +123,8 @@ struct ReduceMotionGatingSourceTests {
     /// Executable lines mentioning the gate value at all — reads, predicates, compositions, and the
     /// parameter plumbing that hands it to a child — per file.
     private static let expectedGateMentions: [String: Int] = [
+        "AppComponents/CheckboxToggleStyle.swift": 2,
+        "AppComponents/ChoiceCard.swift": 2,
         "AppComponents/ViewModifiers.swift": 2,
         "DetailFeature/Comments/CommentsView.swift": 2,
         "DetailFeature/DetailView+HeaderSection.swift": 3,
@@ -135,7 +142,7 @@ struct ReduceMotionGatingSourceTests {
         "SettingFeature/GeneralSetting/GeneralSettingView.swift": 2,
         "SystemNotification/View+Toast.swift": 3
     ]
-    private static let expectedGateMentionTotal = 57
+    private static let expectedGateMentionTotal = 61
 
     /// `.contentTransition(.numericText…)` sites across the tree; every one stays ungated (D-29).
     private static let expectedNumericTextTotal = 11
