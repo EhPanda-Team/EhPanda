@@ -100,10 +100,15 @@ struct BlockedCommentPresentationTests {
     @Test
     func theCollapsedRowHoldsNoAuthorOrText() {
         let row = BlockedCommentRow(commentID: "6894060", showAction: {}, unblockAction: {})
+        let card = BlockedCommentCard(
+            commentID: "6894060", backgroundColor: .gray, showAction: {}, unblockAction: {}
+        )
 
         let rowFields = Mirror(reflecting: row).children.compactMap(\.label)
+        let cardFields = Mirror(reflecting: card).children.compactMap(\.label).filter { !$0.hasPrefix("_") }
 
         #expect(rowFields == ["commentID", "showAction", "unblockAction"])
+        #expect(cardFields == ["commentID", "backgroundColor", "showAction", "unblockAction"])
     }
 
     @Test
