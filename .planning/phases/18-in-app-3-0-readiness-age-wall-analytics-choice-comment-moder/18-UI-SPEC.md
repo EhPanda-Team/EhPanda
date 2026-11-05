@@ -91,7 +91,7 @@ Points, multiples of 4. Values marked "existing" are the app's own and are not c
 | Token | Value | Usage |
 |-------|-------|-------|
 | xs | 4pt | Level name → level description; text → inline symbol |
-| sm | 8pt | Title → body; Continue bar top inset; between Show and Unblock; footnote → Privacy Policy link |
+| sm | 8pt | Title → body; body → Privacy Policy link (analytics); Continue bar top inset; between Show and Unblock |
 | md-12 | 12pt | Symbol → text inside cards; between level cards; Continue → footnote |
 | md | 16pt | Card inner padding; bottom bar bottom inset (above the safe area); list row padding (system) |
 | lg | 24pt | Screen side margins on the first-launch screens; icon → title; body → cards (analytics) |
@@ -123,7 +123,7 @@ the system scales between.
 | Button | `.headline` | 17pt | 53pt | semibold | Continue |
 | Collapsed-row label | `.subheadline` | 15pt | 49pt | regular, `.secondary` | "Comment from a user you've blocked" |
 | Small pill buttons | `.subheadline` | 15pt | 49pt | semibold | Show, Unblock, Hide (`.controlSize(.small)` bordered) |
-| Footnote | `.footnote` | 13pt | 44pt | regular, `.secondary` | Age-wall footnote, `consent.footer`, Settings footers |
+| Footnote | `.footnote` | 13pt | 44pt | regular, `.secondary` | Age-wall footnote, Settings footers (`consent.footer` now joins the analytics body, C-3) |
 | Link | `.footnote` | 13pt | 44pt | semibold, `.primary` | Privacy Policy on the analytics screen |
 | Empty state title | `ContentUnavailableView` default | — | — | system | Blocked Users empty |
 
@@ -276,8 +276,15 @@ your mind, and a shared Continue keeps both first-launch screens one pattern.
    locale's string, no `.minimumScaleFactor`, no `.lineLimit`, no fixed width on the title. Acceptance: in every
    locale and every text size, the title's last line holds at least two words (zh/ja/ko: at least two characters).
    Same rule for the age wall title (C-2) and the Blocked Users empty-state title.
-3. 8pt · Body `consent.body`, `.body`, `.secondary`, centred.
-4. 24pt · **Three `ChoiceCard`s**, order Minimal, Basic, Full (owner's order; Minimal replaces None, owner msg 1795), 12pt apart, all identical in size rules,
+3. 8pt · Body: **`consent.body` and `consent.footer` in one `Text`**, as one paragraph (owner msg 1898: the footer sat
+   below the cards, off screen on most phones). Join with one space in en/de/ko, no space in ja/zh-Hans/zh-Hant
+   (both strings end in full-width punctuation there). `.body`, `.secondary`, centred. Both strings stay as
+   approved; nothing is reworded. iPhone default size: 3 lines in en.
+4. 8pt · Privacy Policy link, moved up from below the cards: `Link(consent.privacy_link, destination: privacyURL)` with a trailing `arrow.up.right` (`.imageScale(.small)`,
+   AX-hidden) — `.footnote.weight(.semibold)`, `.primary`, centred, 44pt min hit height. Opens in the default browser
+   (same as every other external link in the app). Allowed here: the age wall is already confirmed.
+   VoiceOver reads it right after the body, before the cards.
+5. 16pt · **Three `ChoiceCard`s**, order Minimal, Basic, Full (owner's order; Minimal replaces None, owner msg 1795), 12pt apart, all identical in size rules,
    type and colour while unselected — the only difference is Basic's Recommended label below; no different weight or colour.
    - Card: `secondarySystemGroupedBackground`, radius 15, padding 16, full width, whole card tappable,
      `.hoverEffect(.highlight)` as C-2.
@@ -298,11 +305,7 @@ your mind, and a shared Continue keeps both first-launch screens one pattern.
    - **Order stays Minimal, Basic, Full** (layout call, Ato msg 1883). Reason: the descriptions are a ladder
      ("Everything in Minimal, plus…", "Everything in Basic, plus…") that only reads top-down in that order, and the
      label is what makes Basic stand out, not its position.
-5. 16pt · `consent.footer`, `.footnote`, `.secondary`, centred.
-6. 8pt · `Link(consent.privacy_link, destination: privacyURL)` with a trailing `arrow.up.right` (`.imageScale(.small)`,
-   AX-hidden) — `.footnote.weight(.semibold)`, `.primary`, centred, 44pt min hit height. Opens in the default browser
-   (same as every other external link in the app). Allowed here: the age wall is already confirmed.
-7. Continue in the bar (C-1) — `.disabled(selection == nil)`. No hint string is approved for this screen, so none.
+6. Continue in the bar (C-1) — `.disabled(selection == nil)`. No hint string is approved for this screen, so none.
 
 On Continue: store the level, start the SDK only if Basic/Full (DD-09), crossfade to the app.
 

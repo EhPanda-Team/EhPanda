@@ -5,7 +5,7 @@
 **Amended:** 2026-11-05, during planning: D-06a, D-06b, DD-09a (owner msgs 1795, 1796, 1805; analytics "Minimal"),
 D-06c (owner msgs 1812, 1818; the install signal carries the install source), D-06d (owner msgs 1830, 1839; Basic's
 description builds on Minimal), D-06e (owner msgs 1844, 1854, 1864; the short analytics intro), D-06f (owner msgs 1869, 1880, 1882; screens and
-features move to Basic, Basic marked Recommended), D-14a (owner msg 1795; Blocked Users in Account settings), D-17a (UI-SPEC delivered, msgs 1791, 1803, 1807, 1820, 1826, 1843, 1866, 1886). The
+features move to Basic, Basic marked Recommended), D-06g (owner msg 1898; the analytics footer joins the intro), D-14a (owner msg 1795; Blocked Users in Account settings), D-17a (UI-SPEC delivered, msgs 1791, 1803, 1807, 1820, 1826, 1843, 1866, 1886, 1899). The
 original decisions are kept as written; where an amendment differs, the amendment wins.
 **Sources:** the discussion prep [18-DISCUSSION-PREP.md](18-DISCUSSION-PREP.md) (locked decisions L1 to L46, gray areas GA-1 to GA-8, developer defaults, outside blockers, split proposal); the owner's answers to card msg 1748 (owner msg 1753) and card msg 1759 (owner msg 1765); the owner's copy approvals (msgs 1767, 1780). Where the owner answered, the answer overrides the prep. All dates are UTC.
 
@@ -215,6 +215,12 @@ Owner decisions are binding. "Prep L*n*" and "GA-*n*" refer to [18-DISCUSSION-PR
     selected) and the same whether Basic is selected or not; it drops under the name at accessibility sizes; VoiceOver
     reads it as part of the card ("Basic, Recommended, ..."). The Settings picker is unchanged (UI-SPEC C-9: the three
     names only, no label); its footer shows the Revision 6 descriptions.
+- **D-06g (layout only; owner msg 1898; designer msg 1899):** on the analytics choice `consent.footer` ("You can
+  change this anytime in Settings.") sat under the cards, off screen on most phones. It now follows `consent.body` in
+  the same `Text`, as one paragraph: joined by one space in en, de and ko and with no space in ja, zh-Hans and
+  zh-Hant. The Privacy Policy link moves up under that paragraph (8pt), and the cards follow 16pt below the link;
+  nothing sits under the cards. No string changes. The en intro is now expected to wrap to three lines on iPhone at
+  default size. UI-SPEC C-3 items 3 to 6 are the contract.
 - **D-07:** Settings follows the copy file's "Settings (replaces today's toggle)" section:
   - The row label `shareAnalyticsData` stays, now as a picker with the three level labels.
   - The footer shows the selected level's description.
@@ -282,7 +288,8 @@ Owner decisions are binding. "Prep L*n*" and "GA-*n*" refer to [18-DISCUSSION-PR
   Basic line (D-06d, owner msg 1839) into the spec and refreshed mockups 03, 04, 12 and 21 in msg 1843, and took
   the short intro (D-06e, owner msg 1864) into the spec and refreshed mockups 03, 04 and 21 in msg 1866, and added Basic's Recommended label and the Revision 6
   lines (D-06f, owner msgs 1880, 1882; order stays Minimal, Basic, Full) and refreshed mockups 03, 04, 12, 18 and 21
-  in msg 1886: [18-UI-SPEC.md](18-UI-SPEC.md) with 24 mockups in `mockups/`. It is the
+  in msg 1886, and joined `consent.footer` to the intro with the Privacy Policy link under it, above the cards
+  (D-06g, owner msg 1898), refreshing mockups 03, 04, 18 and 21 in msg 1899: [18-UI-SPEC.md](18-UI-SPEC.md) with 24 mockups in `mockups/`. It is the
   design contract for every UI task; `/gsd-ui-phase` is not run. His layout calls: a separate Continue on the
   analytics choice, dimmed until a level is picked; a `…` menu on each comment in the list with the same items on
   long-press and as VoiceOver actions, long-press only on the Detail strip; Report, Block and the posting warning are
