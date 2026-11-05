@@ -90,14 +90,24 @@
     },
     {
       "number": "18",
-      "name": "3.0 Release Readiness: Age Wall, Consent, Marketplace Distribution & Visual Regression",
+      "name": "In-App 3.0 Readiness: Age Wall, Analytics Choice, Comment Moderation & Reader Rework",
+      "status": "pending"
+    },
+    {
+      "number": "19",
+      "name": "Visual Regression & Marketing Export",
+      "status": "pending"
+    },
+    {
+      "number": "20",
+      "name": "3.0 Distribution: Marketplace Build, Notarization, Listing & Release Checks",
       "status": "pending"
     }
   ],
   "next": {
     "command": "/gsd-progress --next",
     "label": "Advance to the next step (plan phase 18)",
-    "reason": "Phase 18 of 18 — needs a plan"
+    "reason": "Phase 18 of 20 — needs a plan"
   },
-  "updated_at": "2026-11-05T03:48:31.882Z"
+  "updated_at": "2026-11-05T04:33:44.737Z"
 }

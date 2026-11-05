@@ -95,7 +95,7 @@
 
 The current Phase 17 context supersedes older roadmap wording. The OS 27 modernization has already landed; this phase preserves it. The owner authorized provisional marketing selections on 2026-10-02 and will supply final identifiers before phase closure.
 
-*Reduced 2026-11-03 (owner, msg 1305):* Phase 17 closes small. CAP-17-04 and CAP-17-07 are amended below. CAP-17-02, CAP-17-03, CAP-17-05 and the moved parts of CAP-17-01 and CAP-17-06 move to Phase 18 with their plans (17-07 to 17-13, 17-14 T1/T3, 17-15, 17-20 to 17-22); they are moved, not satisfied.
+*Reduced 2026-11-03 (owner, msg 1305):* Phase 17 closes small. CAP-17-04 and CAP-17-07 are amended below. CAP-17-02, CAP-17-03, CAP-17-05 and the moved parts of CAP-17-01 and CAP-17-06 move to Phase 18 with their plans (17-07 to 17-13, 17-14 T1/T3, 17-15, 17-20 to 17-22); they are moved, not satisfied. *Split 2026-11-05 (owner msg 1753):* when Phase 18 became Phases 18 to 20, these moved items went to Phase 19, except CAP-17-05 (17-22), which went to Phase 20.
 
 - [x] **CAP-17-01**: Acquire and refresh versioned real-gallery fixtures explicitly, with provenance and asset checksums; replay capture runs offline without a real account, private library or credentials in artifacts.
   - Track provisional versus final selections. The agent may choose provisional real marketing content; final owner identifiers, set assignments, ordering and reader pages must replace it before closure, followed by capture regeneration and revalidation. Test data may be public synthetic, real or mixed independently of marketing content. Preserve manifest SSOT and the same-run download-folder deletion invariant.
@@ -120,32 +120,45 @@ The current Phase 17 context supersedes older roadmap wording. The OS 27 moderni
   - Inspect Release payload and dependency graph; no capture/test assets or activation path ships. Audit direct and client-mediated idiom reads and derived layout flags, replace actual layout decisions with size classes/container fitting, and preserve non-layout capabilities. Verify changes through completed snapshots plus behavioral/accessibility checks; no lint or warning suppression.
   - *Amended 2026-11-03 (owner approval, msg 1305):* the idiom → size-class layout migration landed through quick task `261015-duo-session-record` (`8fb2374536`, `e89e896634`, `0a42b7fbb4`, `7015d62cd3`) **before** snapshot coverage existed, not after it. It is verified through the existing reducer tests, one simulator pass (iPad full width, a narrow iPad window, iPhone landscape) and a census of the remaining idiom reads with owner keep/change decisions (17-16 to 17-19). Release isolation is proven by 17-14 T2. Snapshot measurement of the layout moves to Phase 18 (VIS-18-01).
 
-### Phase 18 — 3.0 release readiness
+### Phases 18 to 20 — 3.0 release readiness
 
 Owner decisions 2026-11-02 and 2026-11-03 (msgs 1287, 1289, 1294, 1299, 1305). Every requirement here applies to every build unless it names the marketplace build.
 
+*Split 2026-11-05 (owner msg 1753):* the original Phase 18 is now three phases: 18 (in-app work), 19 (visual regression and marketing export) and 20 (distribution). The requirement IDs keep their `-18-` names. Each requirement below names its phase; the 2026-11-05 owner decisions (msgs 1753, 1765, 1767, 1780) are recorded as amendments.
+
 - [ ] **REL-18-01**: Fix the 3.0 release mechanics.
   - The release and pre-release workflows use one tag style for the GitHub release and the AltStore `downloadURL` (today the tag is `3.0.0` while the link uses `v3.0.0`). The existing `3.0.0` tag is removed or renamed only with the owner's OK at that time. The build number is above 158. The AltStore Classic listing (`AltStore.json`) shows new non-explicit screenshots and keeps its version history instead of overwriting the previous entry. The final 3.0 Release build passes the Release isolation scan again.
+  - *Amended 2026-11-05 (owner msg 1753, "Tagging is not your business"):* the tag-style choice and the removal or renaming of the existing `3.0.0` tag are dropped from the plans; no plan creates a tag or sets the release order. The AltStore download URL must still resolve to the release's actual asset. Phase 20.
 - [ ] **DIST-18-01**: Prepare the app for marketplace distribution.
   - `App/Info.plist` declares `MKSellsDigitalGoods` = `NO`. A marketplace build flavor uses its own bundle ID (through the existing bundle-ID suffix setting, not the canonical `app.ehpanda`) for the app and share extension, without changing the existing unsigned IPA build or private local signing settings.
+  - *Split 2026-11-05 (owner msg 1753):* `MKSellsDigitalGoods` (app code, every build) is Phase 18; the marketplace build flavor is Phase 20. The marketplace build has the same features as the GitHub IPA, and something is hidden only if Apple objects.
 - [ ] **AGE-18-01**: Add a first-launch age wall.
   - On first launch, before any content is shown or any network request is made, the user must confirm they are an adult, and legally allowed to view explicit content under every law that applies to them, wherever it comes from (for example where they are, where they live, or their citizenship). Not just "18 or older", and not only the law of the place they live; e.g. an American citizen living abroad. Until they do, nothing else in the app works, and there is no skip. Answering no keeps them on that screen. The answer is stored on the device. The website's adult-mode declaration uses the same wording (website dependency).
+  - *Clarified 2026-11-05 (owner msg 1753):* Phase 18. Two first-launch screens, shown once to everyone, upgraders included: the age wall, then the analytics choice. The on-screen declaration is the owner-approved website sentence (msgs 1454, 1457), word for word, with no list of examples; the examples above describe the intent. The screen has no "No" button: Continue stays dimmed until the declaration is ticked. Copy approved in owner msg 1767 (`18-COPY-FIRST-LAUNCH.md`).
 - [ ] **CONSENT-18-01**: Collect no analytics until the user chooses.
   - A first-launch screen offers a few levels of sharing, including none. The analytics SDK is not started before consent. The choice can be changed later in Settings. This replaces Phase 14's "on by default, switch off in Settings" (ANALYTICS-01's opt-out). Guideline 5.1.1: consent is needed even for anonymous usage data.
+  - *Clarified 2026-11-05 (owner msg 1753):* Phase 18. Three levels, None / Basic / Full, none pre-selected; a Settings picker replaces the toggle. Copy approved in owner msg 1767 (`18-COPY-FIRST-LAUNCH.md`).
 - [ ] **UGC-18-01**: Moderate comments for App Review Guideline 1.2, in every build.
   - Every comment offers a report action: it links to E-Hentai's own report option where the site provides one, otherwise to the support contact. Blocking a user hides their comments locally on this device. Contact details appear on the support page and in Settings. Comment posting passes a filter for objectionable content. Ships to all users in every build, not only the marketplace build.
+  - *Amended 2026-11-05 (owner msgs 1753, 1765, 1780):* Phase 18, except the contact part. Reporting goes to E-Hentai only (the gallery's report page), with no support-contact fallback. The filter warns and lets the user post anyway, for edits too. Blocking collapses the comment into "Comment from a user you've blocked" (Show / Unblock, name not shown) instead of hiding it, and Settings has a Blocked Users list. No in-app contact option is added now (msg 1774); the contact part becomes a published contact link (GitHub Issues on the website), needed before the AltStore build goes to Apple: Phase 20. Copy approved in owner msg 1780 (`18-COPY-COMMENTS.md`).
 - [ ] **VIS-18-01**: Complete snapshot regression, moved from Phase 17 (CAP-17-02, CAP-17-03, moved parts of CAP-17-01/06).
   - Scenarios, public real-app dispatch, strict never-record comparison and the review report (from 17-08 to 17-12) cover every screen, including the age wall, consent and comment-moderation UI. One owner baseline approval (from 17-13) covers the landed layout too, so 17-20's separate post-layout approval is not needed. The complete matrix gates every PR and release (from 17-14 T1/T3), and preview review is documented (from 17-15).
+  - *Phase 19 (split 2026-11-05, owner msg 1753).* The new screens include the Phase 18 Settings analytics picker and the Blocked Users list. Fixtures carry at least six galleries per Toplists period.
 - [ ] **MKT-18-01**: Complete the marketing export and AltStore promotional images, moved from Phase 17 (CAP-17-05, moved parts of CAP-17-01/04).
   - The 384-coordinate export tooling and handoff validator (from 17-07), the final owner gallery selection and 384 regeneration (from 17-21), and designer-made AltStore promotional images with a validated local handoff (from 17-22), each with its owner checkpoint.
+  - *Split 2026-11-05 (owner msg 1753):* the export tooling, final selection and 384 regeneration are Phase 19. The promotional images are Phase 20, as store screenshots: the website screenshots plus the designer's decorations, with only non-adult pictures on the AltStore listing (msgs 1751, 1757).
 - [ ] **DIST-18-02**: Prepare the marketplace listing.
   - A separate AltStore PAL source JSON with `marketplaceID`, `nsfw: true` and ADP download URLs, keeping version history; the Classic `AltStore.json` stays for unsigned IPAs. All-ages (4+) icon and listing screenshots. The privacy policy is reachable in the app and on the listing, with a support URL (the pages are website work owned by another team member; this requirement records the dependency). No "Apple-approved" wording anywhere.
+  - *Phase 20 (split 2026-11-05).* AltStore PAL is the only marketplace listing for 3.0 (owner msg 1753).
 - [ ] **DIST-18-03**: Automate notarization and publishing.
   - Submission for notarization runs through the collaborator's App Store Connect account. Test and record whether an App Manager API key can create the version and submit. A CI job submits for notarization, waits for the ADP and publishes it to the PAL source. Account setup, keys and the first submission are a collaborator and owner checkpoint; agents never create Apple-service records on their own.
+  - *Phase 20 (split 2026-11-05).*
 - [ ] **DEV-18-01**: Run the two outstanding real-device checks on owner hardware.
   - The iPad Gallery Detail stall (deferred in Phase 16) on a Release build, and continued background downloads (Phase 15) on an iPhone.
+  - *Phase 20 (split 2026-11-05).*
 - [ ] **ANALYTICS-02**: Revise analytics for Phase 18, as the last plan.
   - Track which marketplace or install source the app came from, and update the signal vocabulary for every other Phase 18 change (age wall, consent, comment moderation, marketplace build), within the consent levels and ANALYTICS-01's type-closed, privacy-redacted rules.
+  - *Placed 2026-11-05 (owner msg 1753):* the last plan of Phase 20, because the install source needs the marketplace build, which first exists there. It covers the changes of Phases 18 to 20.
 
 ## v2 Requirements
 
@@ -194,24 +207,24 @@ None. Deferred work is captured under Out of Scope (future milestone), not stage
 | ANALYTICS-01 | Phase 14 | Complete |
 | A11Y-01 | Phase 16 | Complete |
 | A11Y-02 | Phase 16 | Complete |
-| CAP-17-01 | Phase 17 (moved parts: Phase 18) | Complete (Phase 17 part; moved parts under VIS-18-01, MKT-18-01) |
-| CAP-17-02 | Phase 18 (moved 2026-11-03) | Pending |
-| CAP-17-03 | Phase 18 (moved 2026-11-03) | Pending |
+| CAP-17-01 | Phase 17 (moved parts: Phase 19) | Complete (Phase 17 part; moved parts under VIS-18-01, MKT-18-01) |
+| CAP-17-02 | Phase 19 (moved 2026-11-03; split 2026-11-05) | Pending |
+| CAP-17-03 | Phase 19 (moved 2026-11-03; split 2026-11-05) | Pending |
 | CAP-17-04 | Phase 17 (amended 2026-11-03) | Complete |
-| CAP-17-05 | Phase 18 (moved 2026-11-03) | Pending |
-| CAP-17-06 | Phase 17 (moved parts: Phase 18) | Complete (Phase 17 part; moved parts under VIS-18-01) |
+| CAP-17-05 | Phase 20 (moved 2026-11-03; split 2026-11-05) | Pending |
+| CAP-17-06 | Phase 17 (moved parts: Phase 19) | Complete (Phase 17 part; moved parts under VIS-18-01) |
 | CAP-17-07 | Phase 17 (amended 2026-11-03) | Complete |
-| REL-18-01 | Phase 18 | Pending |
-| DIST-18-01 | Phase 18 | Pending |
+| REL-18-01 | Phase 20 | Pending |
+| DIST-18-01 | Phase 18 (`MKSellsDigitalGoods`), Phase 20 (marketplace build flavor) | Pending |
 | AGE-18-01 | Phase 18 | Pending |
 | CONSENT-18-01 | Phase 18 | Pending |
-| UGC-18-01 | Phase 18 | Pending |
-| VIS-18-01 | Phase 18 | Pending |
-| MKT-18-01 | Phase 18 | Pending |
-| DIST-18-02 | Phase 18 | Pending |
-| DIST-18-03 | Phase 18 | Pending |
-| DEV-18-01 | Phase 18 | Pending |
-| ANALYTICS-02 | Phase 18 | Pending |
+| UGC-18-01 | Phase 18 (published contact link: Phase 20) | Pending |
+| VIS-18-01 | Phase 19 | Pending |
+| MKT-18-01 | Phase 19 (promotional images: Phase 20) | Pending |
+| DIST-18-02 | Phase 20 | Pending |
+| DIST-18-03 | Phase 20 | Pending |
+| DEV-18-01 | Phase 20 | Pending |
+| ANALYTICS-02 | Phase 20 (last plan) | Pending |
 
 **Coverage:**
 
@@ -221,7 +234,8 @@ None. Deferred work is captured under Out of Scope (future milestone), not stage
 
 ---
 *Requirements defined: 2026-07-09*
-*Last updated: 2026-11-05 — Phase 17 complete: CAP-17-04 and CAP-17-07 (amended) complete; CAP-17-01 and CAP-17-06 complete for their Phase 17 parts, moved parts under VIS-18-01 and MKT-18-01; CAP-17-02, CAP-17-03 and CAP-17-05 stay pending in Phase 18 (moved, not satisfied). Marked by hand at the transition because `phase.complete` could not parse the Phase 17 **Requirements** line and marked nothing.*
+*Last updated: 2026-11-05 — Phase 18 split into Phases 18 to 20 (owner msg 1753): AGE-18-01 and CONSENT-18-01 in 18; VIS-18-01 and the moved CAP-17-02/03 and CAP-17-01/06 parts in 19; REL-18-01, DIST-18-02, DIST-18-03, DEV-18-01, ANALYTICS-02 and CAP-17-05 in 20; DIST-18-01, UGC-18-01 and MKT-18-01 split across two phases. Owner decisions of 2026-11-05 (msgs 1753, 1765, 1767, 1780) recorded as amendments; 44/44 mapped.*
+*Previously updated: 2026-11-05 — Phase 17 complete: CAP-17-04 and CAP-17-07 (amended) complete; CAP-17-01 and CAP-17-06 complete for their Phase 17 parts, moved parts under VIS-18-01 and MKT-18-01; CAP-17-02, CAP-17-03 and CAP-17-05 stay pending in Phase 18 (moved, not satisfied). Marked by hand at the transition because `phase.complete` could not parse the Phase 17 **Requirements** line and marked nothing.*
 *Previously updated: 2026-11-03 — Phase 17 reduced (owner, msg 1305): CAP-17-04 and CAP-17-07 amended; CAP-17-02, CAP-17-03, CAP-17-05 and the moved parts of CAP-17-01/06 mapped to Phase 18; eleven Phase 18 requirements added (msgs 1287, 1289, 1294, 1299, 1305 and the 2026-11-02 age-wall and consent standards); 44/44 mapped. 2026-11-05: CAP-17-04's referent clarified as the current website image set (owner msg 1640).*
 *Previously updated: 2026-10-02 — Phase 17 capture requirements assigned; provisional selections authorized, final owner identifiers required before closure.*
 *Previously updated: 2026-09-23 — A11Y-01/A11Y-02 complete under the signed best-effort scope; see Phase 16 verification and its explicit overrides.*

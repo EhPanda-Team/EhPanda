@@ -2,7 +2,7 @@
 
 ## What This Is
 
-EhPanda is an open-source iOS / iPadOS client for E-Hentai / ExHentai — browsing, searching, favorites, gallery detail, reading, and downloading — built in SwiftUI on The Composable Architecture, modularized into a thin app shell (`App/`) plus a local Swift package (`AppPackage/`). This milestone is a **dependency-reduction & modernization** pass ahead of the unreleased **v3.0.0**: shrink the third-party surface to a minimal, justified set; move networking to async/await and TCA toward 2.0; retire legacy UI/architecture patterns (screen-metric math, global helpers, parameter drilling); and ratchet up lint — all with **behavior parity**, no user-facing regressions. The milestone closes with **3.0 release readiness** (Phase 18). That phase adds the only planned user-facing features: a first-launch age wall, analytics consent and comment moderation. It also adds marketplace distribution (AltStore PAL and others), the visual-regression and marketing work moved from Phase 17, and the reader page-tracking rework.
+EhPanda is an open-source iOS / iPadOS client for E-Hentai / ExHentai — browsing, searching, favorites, gallery detail, reading, and downloading — built in SwiftUI on The Composable Architecture, modularized into a thin app shell (`App/`) plus a local Swift package (`AppPackage/`). This milestone is a **dependency-reduction & modernization** pass ahead of the unreleased **v3.0.0**: shrink the third-party surface to a minimal, justified set; move networking to async/await and TCA toward 2.0; retire legacy UI/architecture patterns (screen-metric math, global helpers, parameter drilling); and ratchet up lint — all with **behavior parity**, no user-facing regressions. The milestone closes with **3.0 release readiness**, split on 2026-11-05 (owner msg 1753) into Phases 18 to 20. Phase 18 adds the only planned user-facing features (a first-launch age wall, an analytics choice and comment moderation) and the reader page-tracking rework; Phase 19 the visual-regression and marketing work moved from Phase 17; Phase 20 marketplace distribution (AltStore PAL), release mechanics and the final analytics revision.
 
 ## Core Value
 
@@ -41,7 +41,7 @@ The load-bearing paths must keep working: reliably **fetch, parse, read, and dow
 - ✓ Deep-link hardening — every entry path (custom scheme, clipboard, in-comment link, ShareExtension, iPad tab modal) routes through one `GalleryURLParser` that normalizes and rejects spoofed input; `URLClient` deleted; unsupported links get a distinct non-retryable error whose context drops access-bearing URL components; modal replacement awaits real sheet dismissal instead of a fixed 1s delay, and the routing path no longer sleeps 500ms before swapping a loading toast for an error toast. Backed by a new UI-test target on a non-default retrying `UITests` plan with hermetic fixtures — 9 UI tests covering cold and warm lifecycles on iPhone plus the iPad class — Phase 13
 
 - ✓ Dynamic Type and assistive-technology accessibility (A11Y-01/A11Y-02) — 26 plans, owner-signed sampled visual/runtime evidence, retained semantics and motion gates, and current iOS 27 regression gates; best-effort scope with explicit accepted/deferred/unmeasured limits — Phase 16
-- ✓ Screenshot capture foundation, website screenshots, Release isolation and the landed size-class layout (CAP-17-01 fixture part, CAP-17-04 amended, CAP-17-06 bounded part, CAP-17-07 amended): checksummed offline real-gallery fixtures, the owner-approved website image set (192 coordinates, 2026-11-04 recapture), a Release build with no capture code, and the size-class migration verified with the owner's idiom census. Reduced scope; moved parts go to Phase 18 — Phase 17
+- ✓ Screenshot capture foundation, website screenshots, Release isolation and the landed size-class layout (CAP-17-01 fixture part, CAP-17-04 amended, CAP-17-06 bounded part, CAP-17-07 amended): checksummed offline real-gallery fixtures, the owner-approved website image set (192 coordinates, 2026-11-04 recapture), a Release build with no capture code, and the size-class migration verified with the owner's idiom census. Reduced scope; moved parts go to Phase 18 (now Phases 19 and 20) — Phase 17
 
 ### Active
 
@@ -62,13 +62,13 @@ The load-bearing paths must keep working: reliably **fetch, parse, read, and dow
 
 <!-- item 9 (Lint hardening, LINT-01) shipped in Phase 11 → Validated -->
 
-**G · 3.0 release readiness (Phase 18; emerged during Phase 17, owner msgs 1287, 1289, 1294, 1305 and the 2026-11-02 standards)**
-- [ ] First-launch age wall and analytics consent in every build (AGE-18-01, CONSENT-18-01)
-- [ ] Comment report/block/contact and posting filter in every build (UGC-18-01)
-- [ ] Release mechanics, marketplace build, listing and notarization pipeline (REL-18-01, DIST-18-01..03)
-- [ ] Snapshot regression, marketing export and AltStore promotional images, moved from Phase 17 (VIS-18-01, MKT-18-01; CAP-17-02, CAP-17-03, CAP-17-05 and the moved parts of CAP-17-01/04/06)
-- [ ] Reader page tracking on one source of truth, with committed UI tests for the WR-01 rebuild paths and RTL page sync (Phase 18 Step 4b)
-- [ ] Real-device checks and the final analytics revision with install source (DEV-18-01, ANALYTICS-02)
+**G · 3.0 release readiness (Phases 18 to 20, split 2026-11-05 by owner msg 1753; emerged during Phase 17, owner msgs 1287, 1289, 1294, 1305 and the 2026-11-02 standards)**
+- [ ] First-launch age wall and analytics choice in every build (AGE-18-01, CONSENT-18-01) — Phase 18
+- [ ] Comment report, posting warning and blocking in every build (UGC-18-01) — Phase 18; the published contact link — Phase 20
+- [ ] Release mechanics, marketplace build, listing and notarization pipeline (REL-18-01, DIST-18-01..03) — Phase 20 (`MKSellsDigitalGoods` in Phase 18)
+- [ ] Snapshot regression and the marketing export, moved from Phase 17 (VIS-18-01, MKT-18-01; CAP-17-02, CAP-17-03 and the moved parts of CAP-17-01/04/06) — Phase 19; AltStore promotional images and store screenshots (CAP-17-05) — Phase 20
+- [ ] Reader page tracking on one source of truth, with committed UI tests for the WR-01 rebuild paths and RTL page sync — Phase 18
+- [ ] Real-device checks and the final analytics revision with install source (DEV-18-01, ANALYTICS-02) — Phase 20, analytics last
 
 
 ### Out of Scope
@@ -87,7 +87,7 @@ The load-bearing paths must keep working: reliably **fetch, parse, read, and dow
 
 ## Context
 
-- **v3.0.0 in flight, unreleased.** Phase 17 (Screenshot Automation, Visual Regression & OS 27 Modernization) is complete at its reduced scope (2026-11-05): verification passed 8/8, UAT 31/31, security verified, and validation validated with Nyquist gaps G1/G2 carried to Phase 18. Phase 18 (3.0 Release Readiness) is the remaining phase and is next for discussion and planning. Earlier phases retain their own roadmap statuses. The iOS 27/native-navigation/soft-top-edge migration landed in quick task `260921-f5u` and Phase 17 preserved it.
+- **v3.0.0 in flight, unreleased.** Phase 17 (Screenshot Automation, Visual Regression & OS 27 Modernization) is complete at its reduced scope (2026-11-05): verification passed 8/8, UAT 31/31, security verified, and validation validated with Nyquist gaps G1/G2 carried to Phase 18. The remaining 3.0 work is Phases 18 to 20 (split 2026-11-05, owner msg 1753); Phase 18 (In-App 3.0 Readiness) has its context and is next for planning. Earlier phases retain their own roadmap statuses. The iOS 27/native-navigation/soft-top-edge migration landed in quick task `260921-f5u` and Phase 17 preserved it.
 - **Codebase map** lives at `.planning/codebase/` (STACK, ARCHITECTURE, STRUCTURE, CONVENTIONS, TESTING, INTEGRATIONS, CONCERNS).
 - **Reference designs** for the structured error surface (#20) and the refactor-gated lint rules (#9) have been captured; the plan phase needs no external lookup.
 - **Two tasks carry parity risk** and are spiked first: SwiftUIPager→`TabView` (core reading UX) and WaterfallGrid→custom `Layout` (masonry column balancing).
@@ -122,10 +122,10 @@ The load-bearing paths must keep working: reliably **fetch, parse, read, and dow
 | Accessibility closes through bounded evidence and explicit owner dispositions | Unreached sites, speech activation and contrast limits cannot be converted into universal guarantees | ✓ Phase 16 signed off; 26/26 consolidated checks passed |
 | Keep native iOS 27 title/search behavior and existing reader index synchronization | Owner accepted focus limitations and the native VoiceOver mock page 1-to-41 evidence; withdrawn workarounds are not pending deliverables | ✓ Phase 16; retain page-agreement regressions |
 | Current closing gates require zero failures and zero test Repetition nodes | A retried green result does not establish a first-try pass | ✓ Phase 16 FeatureTests and full iPhone/iPad UI gates |
-| Reduce Phase 17 and move snapshot regression, the 384 export and AltStore images to Phase 18 (owner msg 1305) | 3.0 needed the capture foundation and website screenshots first; moved work is recorded as moved, never as satisfied | ✓ Phase 17 closed 2026-11-05; moved parts pending in Phase 18 |
+| Reduce Phase 17 and move snapshot regression, the 384 export and AltStore images to Phase 18 (owner msg 1305) | 3.0 needed the capture foundation and website screenshots first; moved work is recorded as moved, never as satisfied | ✓ Phase 17 closed 2026-11-05; moved parts pending in Phase 19 (AltStore images: Phase 20) since the 2026-11-05 split |
 | The website image set satisfies the screenshot-export requirement (CAP-17-04, amended) | The communicated website contract is iPhone-only: 192 coordinates, current set from the 2026-11-04 recapture (owner msgs 1581, 1640) | ✓ Phase 17 |
-| Accept the idiom → size-class migration that landed before snapshot coverage, verified by reducer tests, one simulator pass and an owner idiom census | The migration had already landed in quick task `261015-duo-session-record`; the owner kept all five remaining idiom reads (msg 1409) | ✓ Phase 17; snapshot measurement in Phase 18 |
-| Rework reader page tracking to one source of truth instead of more patches (owner msg 1630, product lead msg 1631) | Several copies of "the current page" reconciled by timing rules caused the WR-01 class of bugs | — Pending (Phase 18 Step 4b) |
+| Accept the idiom → size-class migration that landed before snapshot coverage, verified by reducer tests, one simulator pass and an owner idiom census | The migration had already landed in quick task `261015-duo-session-record`; the owner kept all five remaining idiom reads (msg 1409) | ✓ Phase 17; snapshot measurement in Phase 19 |
+| Rework reader page tracking to one source of truth instead of more patches (owner msg 1630, product lead msg 1631) | Several copies of "the current page" reconciled by timing rules caused the WR-01 class of bugs | — Pending (Phase 18) |
 
 ## Evolution
 
@@ -145,4 +145,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-11-05 after Phase 17*
+*Last updated: 2026-11-05 after the Phase 18 split (owner msg 1753)*
