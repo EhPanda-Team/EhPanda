@@ -5,7 +5,7 @@
 **Amended:** 2026-11-05, during planning: D-06a, D-06b, DD-09a (owner msgs 1795, 1796, 1805; analytics "Minimal"),
 D-06c (owner msgs 1812, 1818; the install signal carries the install source), D-06d (owner msgs 1830, 1839; Basic's
 description builds on Minimal), D-06e (owner msgs 1844, 1854, 1864; the short analytics intro), D-06f (owner msgs 1869, 1880, 1882; screens and
-features move to Basic, Basic marked Recommended), D-06g (owner msg 1898; the analytics footer joins the intro), D-14a (owner msg 1795; Blocked Users in Account settings), D-17a (UI-SPEC delivered, msgs 1791, 1803, 1807, 1820, 1826, 1843, 1866, 1886, 1899). The
+features move to Basic, Basic marked Recommended), D-06g (owner msg 1898; the analytics footer joins the intro), D-17b (owner msg 1903, designer msg 1905; Continue pinned at every size), D-14a (owner msg 1795; Blocked Users in Account settings), D-17a (UI-SPEC delivered, msgs 1791, 1803, 1807, 1820, 1826, 1843, 1866, 1886, 1899). The
 original decisions are kept as written; where an amendment differs, the amendment wins.
 **Sources:** the discussion prep [18-DISCUSSION-PREP.md](18-DISCUSSION-PREP.md) (locked decisions L1 to L46, gray areas GA-1 to GA-8, developer defaults, outside blockers, split proposal); the owner's answers to card msg 1748 (owner msg 1753) and card msg 1759 (owner msg 1765); the owner's copy approvals (msgs 1767, 1780). Where the owner answered, the answer overrides the prep. All dates are UTC.
 
@@ -221,6 +221,9 @@ Owner decisions are binding. "Prep L*n*" and "GA-*n*" refer to [18-DISCUSSION-PR
   zh-Hant. The Privacy Policy link moves up under that paragraph (8pt), and the cards follow 16pt below the link;
   nothing sits under the cards. No string changes. The en intro is now expected to wrap to three lines on iPhone at
   default size. UI-SPEC C-3 items 3 to 6 are the contract.
+- **D-17b (owner msg 1903, designer msg 1905):** Continue pinned at every size; at AX sizes the age-wall footnote is
+  the last scroll item (16pt under the checkbox card). UI-SPEC C-1 (Continue bar) and C-2 item 6 are the contract;
+  mockups 16, 17 and 18 refreshed.
 - **D-07:** Settings follows the copy file's "Settings (replaces today's toggle)" section:
   - The row label `shareAnalyticsData` stays, now as a picker with the three level labels.
   - The footer shows the selected level's description.
