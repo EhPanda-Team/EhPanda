@@ -1369,7 +1369,7 @@ Phase 17 is complete (2026-11-05) at the reduced scope above. The moved plans ar
   3. Settings has an analytics picker with the three levels in place of the toggle, a footer showing the selected level's description and a Privacy Policy row; the old "installation is still counted" footer is gone.
   4. Every comment has "Report on {site}", which confirms and then opens the gallery's report page on E-Hentai or ExHentai; there is no email or other contact path.
   5. Posting or editing a comment that matches the filter shows the posting warning (Edit by default, Post Anyway), never names the matched word, and keeps the typed text.
-  6. Blocking a user collapses their comments, in the comments list and the Detail preview, into "Comment from a user you've blocked" with Show and Unblock, without the name. The block is stored on this device only. Settings lists blocked users, with an empty state and a swipe to unblock.
+  6. Blocking a user collapses their comments, in the comments list and the Detail preview, into "Comment from a user you've blocked" with Show and Unblock, without the name. The block is stored on this device only. Settings lists blocked users, with an empty state and a swipe to unblock. *Amended 2026-11-05 (owner msg 1918):* a block matches the poster's E-Hentai member ID, not the display name; a comment without a member ID cannot be blocked.
   7. All new strings come verbatim from the two approved copy files, every `.xcstrings` key is filled for all six locales, and the six READMEs' Analytics sections describe the three levels.
   8. The reader keeps one source of truth for the page shown and the number displayed, at visible parity. Committed UI tests cover Reload All Images then a page turn, a reading-direction change during Auto-Play, and a left-to-right/right-to-left switch (G1/G2), and pass.
   9. IN-02 (`captureSystemOverlay` in `verify-release.py`'s `FORBIDDEN_CONTENT`, with a `test_release.py` case) and IN-03 (RootView's `import AppComponents` inside its `#if DEBUG` block) are closed, and `MKSellsDigitalGoods` is `NO`.
@@ -1412,7 +1412,7 @@ Plans:
 - [x] 18-11-PLAN.md — comment moderation UI, report sheet with the app's sign-in
 
 **Wave 4** *(blocked on Wave 3 completion)*
-- [ ] 18-12-PLAN.md — README Analytics sections, the phase gate, the owner's live report-page check
+- [ ] 18-12-PLAN.md — README Analytics sections, the phase gate, the owner's live report-page check *(Tasks 1 and 2 done; gate passed on `f08a6a781`; Task 3, the owner's live report-page check, open)*
 
 **Cross-cutting constraints:**
 - Every UI task here follows the committed `18-UI-SPEC.md` (the final spec, msg 1826, with the C-3 title rule) as the design contract; layout calls are the designer's and are not changed in execution (D-17, D-17a).
