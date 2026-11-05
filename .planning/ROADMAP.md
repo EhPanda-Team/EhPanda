@@ -41,7 +41,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 14: Analytics Instrumentation (TelemetryDeck)** - Add privacy-first analytics via the TelemetryDeck SDK — on by default with a runtime opt-out in General Settings (D-01 reversed) — instrumenting key user flows (completed 2026-07-27)
 - [x] **Phase 15: Continued Background Downloads** - Adopt `BGContinuedProcessingTask` so a user-started gallery download keeps running after backgrounding, with the system-provided progress UI (completed 2026-08-19)
 - [x] **Phase 16: Accessibility (Dynamic Type + Assistive Technology)** - Two rounds against the settled UI: full-range Dynamic Type (AX1–AX5, human-implemented, agent verify-only), then a VoiceOver / Voice Control / Reduced Motion / Contrast / Differentiate-Without-Color pass (agent-implemented), held to the App Store Accessibility Nutrition Label bar (completed 2026-09-23)
-- [ ] **Phase 17: Screenshot Automation, Visual Regression & OS 27 Modernization** - Reduced 2026-11-03: capture foundation and the approved 192-image website set, verification of the landed size-class layout, the remaining idiom census and the Release isolation check; regression, marketing export and AltStore work moved to Phase 18
+- [x] **Phase 17: Screenshot Automation, Visual Regression & OS 27 Modernization** - Reduced 2026-11-03: capture foundation and the approved 192-image website set, verification of the landed size-class layout, the remaining idiom census and the Release isolation check; regression, marketing export and AltStore work moved to Phase 18 (completed 2026-11-05)
 - [ ] **Phase 18: 3.0 Release Readiness: Age Wall, Consent, Marketplace Distribution & Visual Regression** - First-launch age wall, analytics consent, comment moderation, AltStore PAL/marketplace build and notarization pipeline, release fixes, real-device checks, the moved regression/marketing work, and a final analytics revision with install-source tracking
 
 ## Phase Details
@@ -698,7 +698,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 14. Analytics Instrumentation (TelemetryDeck) | 18/18 | Complete    | 2026-07-27 |
 | 15. Continued Background Downloads | 77/77 | Complete    | 2026-08-19 |
 | 16. Dynamic Type Accessibility | 26/26 | Complete    | 2026-09-23 |
-| 17. Screenshot Automation, Visual Regression & OS 27 Modernization | 13/13 | In Progress|  |
+| 17. Screenshot Automation, Visual Regression & OS 27 Modernization | 13/13 | Complete    | 2026-11-05 |
 | 18. 3.0 Release Readiness: Age Wall, Consent, Marketplace Distribution & Visual Regression | 0/TBD | Not started|  |
 
 ### Phase 12: Cloudflare Login Restoration
@@ -1264,7 +1264,7 @@ Plans:
   6. CAP-17-02, CAP-17-03, CAP-17-05 and the moved parts of CAP-17-01/06 are listed as moved to Phase 18, never as satisfied.
   7. Phase 17 closes only through the GSD close steps: the execute-phase gates (code review, regression gate, `gsd-verifier` writing `17-VERIFICATION.md`), then verify-work (UAT), secure-phase and validate-phase.
 
-**Plans**: 13/13 plans executed (11 plans moved to Phase 18 and marked `status: superseded`). Remaining: the GSD close steps. The phase code review's WR-01 and IN-01 are fixed (`fb1ea4b18`, `443e74541`) and the gate passes again at `b5eca09d1`. 17-23 is complete: at `52df81fa3` FeatureTests and UITests pass on phone and tablet with 0 failures and 0 Repetition, strict lint is clean and the repeated Release scan has 0 findings; the gate's reader page-sync fixes (`3708ac32c`, `4cc9925e1`, `a7627790a`, `b2c958838`, `3642b8cec`) and the reader's soft bottom edge (`bc67ddf14`) and home-indicator rule (`33dbf648b`) landed with it. Known limit: at `52df81fa3` the iPad page-sync stress ran 5 iterations, not 20 (owner, 2026-11-04); at the closing source `b5eca09d1` both phone and iPad ran ×5 (40/40 each; the ×20 phone run is at `33dbf648b`, before WR-01/IN-01), accepted by the owner as a known limit (owner msg 1640). 17-19 is complete: the owner kept all five remaining device-idiom places (2026-11-03, msg 1409). 17-14 (T2) is complete: at `50c794b53` the Release scan has 0 findings, strict lint is clean, and FeatureTests and UITests pass on phone and tablet with 0 failures and 0 Repetition. It took two app fixes (`e4e3ddd74` Library/gallery-list row restore, `1a21bc8d8` Auto-Play menu) and test fixes (see 17-14-SUMMARY.md).
+**Plans**: 13/13 plans complete (11 plans moved to Phase 18 and marked `status: superseded`). Phase complete 2026-11-05: the GSD close steps passed (17-VERIFICATION.md `passed` 8/8, 17-UAT.md 31/31, 17-SECURITY.md `verified` with 0 open threats, 17-VALIDATION.md `validated` with `nyquist_compliant: false`; gaps G1/G2 get committed UI tests in Phase 18 Step 4b). The phase code review's WR-01 and IN-01 are fixed (`fb1ea4b18`, `443e74541`) and the gate passes again at `b5eca09d1`. 17-23 is complete: at `52df81fa3` FeatureTests and UITests pass on phone and tablet with 0 failures and 0 Repetition, strict lint is clean and the repeated Release scan has 0 findings; the gate's reader page-sync fixes (`3708ac32c`, `4cc9925e1`, `a7627790a`, `b2c958838`, `3642b8cec`) and the reader's soft bottom edge (`bc67ddf14`) and home-indicator rule (`33dbf648b`) landed with it. Known limit: at `52df81fa3` the iPad page-sync stress ran 5 iterations, not 20 (owner, 2026-11-04); at the closing source `b5eca09d1` both phone and iPad ran ×5 (40/40 each; the ×20 phone run is at `33dbf648b`, before WR-01/IN-01), accepted by the owner as a known limit (owner msg 1640). 17-19 is complete: the owner kept all five remaining device-idiom places (2026-11-03, msg 1409). 17-14 (T2) is complete: at `50c794b53` the Release scan has 0 findings, strict lint is clean, and FeatureTests and UITests pass on phone and tablet with 0 failures and 0 Repetition. It took two app fixes (`e4e3ddd74` Library/gallery-list row restore, `1a21bc8d8` Auto-Play menu) and test fixes (see 17-14-SUMMARY.md).
 
 Plans:
 **Wave 1**
@@ -1334,7 +1334,7 @@ Plans:
 - 17-21-PLAN.md — Replace provisional galleries with final owner selections
 - 17-22-PLAN.md — Hand off sources to the designer and validate promotional delivery
 
-Planning artifacts do not claim executed implementation, completed approvals or phase completion. Current context, source audit and validation strategy govern execution.
+Phase 17 is complete (2026-11-05) at the reduced scope above. The moved plans are not executed or approved; Phase 18 owns them.
 
 ### Phase 18: 3.0 Release Readiness: Age Wall, Consent, Marketplace Distribution & Visual Regression
 
