@@ -4,16 +4,16 @@ milestone: v3.0.0
 current_phase: "18.1"
 current_phase_name: Native report form
 status: executing
-stopped_at: Completed 18.1-02-PLAN.md
-last_updated: "2026-11-06T02:12:00.000Z"
+stopped_at: Completed 18.1-03-PLAN.md
+last_updated: "2026-11-06T02:24:00.000Z"
 last_activity: 2026-11-06
-last_activity_desc: Plan 18.1-02 complete (22 approved report strings in six languages, with the copy check)
-state_head: b2b88090cf3ed387c232ef103ca36f119da39708
+last_activity_desc: Plan 18.1-03 complete (ReportFormFeature, its client and prefill; Report opens the form from both screens)
+state_head: f7a389135c08559adbc1c1c5164a8add1610aa65
 progress:
   total_phases: 21
   completed_phases: 17
   total_plans: 304
-  completed_plans: 301
+  completed_plans: 302
   percent: 81
 milestone_name: Dependency Reduction & Modernization
 source_head: 891103afa
@@ -1030,6 +1030,7 @@ Phase 18 verification passed 10/10 on 2026-11-05 at `a1f96cb88` (tested source `
 | Phase 18 P11 | about 1h20m (final session) | 4 tasks | 15 files |
 | Phase 18.1 P01 | 20 min | 2 tasks | 11 files |
 | Phase 18.1 P02 | 25 min | 1 tasks | 3 files |
+| Phase 18.1 P03 | 25 min | 2 tasks | 11 files |
 
 ## Accumulated Context
 
@@ -1605,6 +1606,7 @@ Recent decisions affecting current work:
 - [Phase 18]: 18-12 (owner msg 1918): comment blocking matches the poster's E-Hentai member ID, read from the `forums.e-hentai.org/index.php?showuser=<digits>` link on the author line (GalleryComment.authorMemberID), never the display name. The list is [BlockedCommentUser] (member ID + name last seen) under the new key blockedCommentUsers; blockedCommentAuthors is dropped without migration (it never shipped in a release tag). A comment without a member ID gets no Block and never collapses; Report stays. A blocked ID seen under a new name stays blocked and its stored name is refreshed by the Detail fetch. CommentModerationMenu takes CommentBlockStatus (.blocked, .notBlocked, .noMemberID). The decode is strict, so a malformed list resets to []. EHPANDA_UITEST_BLOCKED_AUTHORS became EHPANDA_UITEST_BLOCKED_USERS (JSON array of {memberID, name}). The 18-12 gate passed on e3c95a3bf (FeatureTests and UITests on phone and pad, lint 0, copy checks, Release scan PASS, no network before Continue). AGE-18-01, CONSENT-18-01 and UGC-18-01 stay Pending until the owner's report-page check. — Phase 19/20 screenshots and fixtures use member IDs for blocked comments.
 - [Phase 18.1]: 18.1-01: the report POST is sent once (attempts: 1) to the gallery's ?report=<type> URL, never the page's form action; a reply is sent only when it is not a site error page and no longer shows #reportform. The form GET keeps the default retries. — Research F-1 and DD-02/DD-03: a retried POST can file duplicate reports, a page's action could point elsewhere, and an error page has no #reportform.
 - [Phase 18.1]: 18.1-02: 22 report.* keys ship in DetailFeature's catalog in six languages, verbatim from 18.1-COPY-REPORT-FORM.md; report.reason.choose does not ship (lead, msgs 1980/1983: C-13 has no picker). 18.1-copy-check.py fails on a missing, reworded, empty or unapproved report.* key and on any of the six gallery-only keys or report.reason.choose. — 18.1-04 uses the generated symbols and retires comment.report.confirm_title/_body.
+- [Phase 18.1]: 18.1-03: Report on a foreign comment sends CommentModerationFeature.delegate(.openReportForm(ReportFormFeature.State)) and Comments/Detail present destination .reportForm; the confirm alert is gone. ReportFormFeature.State has a failable init (nil without a report target); phases loading/ready/sending/sent/unavailable, a failed send returns to ready with Retry / Open Report Page / Cancel; canSend needs a reason, a trimmed non-empty email and Details beyond the prefill; DD-05 email check on Send; isDismissLocked while sending or edited (not once sent); the email lives only in state. — 18.1-04 renders the form, presents .reportForm in both views, removes reportPage(URL) and the retired confirm keys, and updates CommentModerationUITests (its report case expects the old alert until then).
 
 ### Phase 16 transition decisions (2026-09-23)
 
@@ -1721,8 +1723,8 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-11-06T02:12:00.000Z
-Stopped at: Completed 18.1-02-PLAN.md
+Last session: 2026-11-06T02:24:00.000Z
+Stopped at: Completed 18.1-03-PLAN.md
 Resume file: None
 
 Earlier stop (2026-10-13T10:50:00Z, historical): 17-06 revision re-shot, 16/16 captured (`.capture/17-06-t-native-*`); superseded by the owner's 2026-11-02 approval of the 192-image website set.
