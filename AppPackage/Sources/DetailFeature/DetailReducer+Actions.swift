@@ -75,7 +75,8 @@ extension DetailReducer {
 
             case .moderation(.delegate(.openReportForm(let form))):
                 state.destination = .reportForm(form)
-                return .none
+                // Presenting the form is what reads the site's form, replacing a view lifecycle hook.
+                return .send(.destination(.presented(.reportForm(.task))))
 
             case .moderation(.delegate(.didBlock(let memberID))):
                 state.moderation.collapseComments(by: memberID, in: state.galleryComments)

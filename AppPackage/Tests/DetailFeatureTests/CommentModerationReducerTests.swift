@@ -218,6 +218,11 @@ extension CommentModerationReducerTests {
         await store.receive(\.moderation.delegate.openReportForm, form) {
             $0.destination = .reportForm(form)
         }
+        // Presenting the form is what reads the site's form (no view lifecycle hook).
+        await store.receive(\.destination.presented.reportForm.task)
+        await store.receive(\.destination.presented.reportForm.loaded, Self.reportForm) {
+            $0.destination?.modify(\.reportForm) { $0.phase = .ready }
+        }
         #expect(store.state.moderation.alert == nil)
         #expect(form.comment == ReportFormFeature.Comment(
             author: Self.author, date: Self.first.commentDate, text: Self.first.plainTextContent
@@ -237,6 +242,11 @@ extension CommentModerationReducerTests {
         await store.send(.moderation(.reportTapped(Self.first)))
         await store.receive(\.moderation.delegate.openReportForm, form) {
             $0.destination = .reportForm(form)
+        }
+        // Presenting the form is what reads the site's form (no view lifecycle hook).
+        await store.receive(\.destination.presented.reportForm.task)
+        await store.receive(\.destination.presented.reportForm.loaded, Self.reportForm) {
+            $0.destination?.modify(\.reportForm) { $0.phase = .ready }
         }
         await store.send(.destination(.presented(.reportForm(.closeTapped))))
         await store.receive(\.destination.dismiss) {
@@ -264,6 +274,11 @@ extension CommentModerationReducerTests {
         await store.send(.moderation(.reportTapped(Self.first)))
         await store.receive(\.moderation.delegate.openReportForm, form) {
             $0.destination = .reportForm(form)
+        }
+        // Presenting the form is what reads the site's form (no view lifecycle hook).
+        await store.receive(\.destination.presented.reportForm.task)
+        await store.receive(\.destination.presented.reportForm.loaded, Self.reportForm) {
+            $0.destination?.modify(\.reportForm) { $0.phase = .ready }
         }
         #expect(store.state.moderation.alert == nil)
         await store.send(.destination(.presented(.reportForm(.closeTapped))))
@@ -630,6 +645,8 @@ extension CommentModerationReducerTests {
             $0.cookieClient = cookieClient
             $0.hapticsClient = .noop
             $0.commentFilterTerms = Self.terms
+            $0.reportFormClient.load = { _ in Self.reportForm }
+            $0.continuousClock = TestClock()
         }
     }
 
@@ -647,6 +664,11 @@ extension CommentModerationReducerTests {
             $0.analyticsClient = .noop
             $0.cookieClient = .noop
             $0.hapticsClient = .noop
+            $0.reportFormClient.load = { _ in Self.reportForm }
+            $0.continuousClock = TestClock()
         }
     }
+
+    /// The site's form as the Report form reads it when presented: both comment reasons and the details field.
+    static let reportForm = ReportForm(types: [.child, .other], email: "", hasDetails: true)
 }
