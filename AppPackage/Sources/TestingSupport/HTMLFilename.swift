@@ -42,4 +42,9 @@ public enum HTMLFilename: String, Sendable {
     case exLoginRequired = "ExLoginRequired"
     case ehSetting = "EhSetting"
     case galleryDetailWithGreeting = "GalleryDetailWithGreeting"
+
+    // Report (the site's gallery report pages, saved as a guest on 2026-11-06)
+    case reportSelect = "ReportSelect"
+    case reportChild = "ReportChild"
+    case reportOther = "ReportOther"
 }
