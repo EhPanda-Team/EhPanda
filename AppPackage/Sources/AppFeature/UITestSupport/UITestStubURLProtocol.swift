@@ -67,7 +67,8 @@ final class UITestStubURLProtocol: URLProtocol {
         /// The form takes 6 s to load, so the spinner stays long enough for a UI test to read it after the
         /// form opens.
         case slowLoad
-        /// A report takes 3 s to be answered, so the sending state shows.
+        /// A report takes 10 s to be answered, so the sending state lasts long enough for a UI test to check it
+        /// and swipe at the sheet, even on a busy simulator.
         case holdSend
         /// A report gets a 503, so the failed alert shows.
         case failSend
@@ -196,7 +197,7 @@ final class UITestStubURLProtocol: URLProtocol {
             case .failSend:
                 return ReportAnswer(fixtureName: nil, statusCode: 503, delay: .zero)
             case .holdSend:
-                return ReportAnswer(fixtureName: "ReportSentStub.html", statusCode: 200, delay: .seconds(3))
+                return ReportAnswer(fixtureName: "ReportSentStub.html", statusCode: 200, delay: .seconds(10))
             case .ready, .slowLoad, .unavailable:
                 return ReportAnswer(fixtureName: "ReportSentStub.html", statusCode: 200, delay: .zero)
             }
