@@ -1,25 +1,46 @@
 ---
 gsd_state_version: "1.0"
 milestone: v3.0.0
-current_phase: 19
-current_phase_name: Visual Regression & Marketing Export
-status: planning
-stopped_at: Phase 18 complete, ready to plan Phase 19
-last_updated: "2026-11-05T18:22:50.210Z"
+current_phase: "18.1"
+current_phase_name: Native report form
+status: executing
+stopped_at: "Phase 18.1 planned (5 plans, 4 waves; copy approved, owner msg 1975); next: /gsd-execute-phase 18.1"
+last_updated: "2026-11-06T01:40:05.000Z"
 last_activity: 2026-11-06
-last_activity_desc: Phase 18 complete, transitioned to Phase 19
-state_head: c2619c7a3171f235ac485d1bb40aa216055a8972
+last_activity_desc: Phase 18.1 inserted and planned
+state_head: 8ccc76060c8a7f8caccac4d24f4127df32a0a1f8
 progress:
-  total_phases: 20
+  total_phases: 21
   completed_phases: 17
-  total_plans: 299
+  total_plans: 304
   completed_plans: 299
-  percent: 85
+  percent: 81
 milestone_name: Dependency Reduction & Modernization
 source_head: b5eca09d1
 ---
 
 # Project State
+
+## Phase 18.1 inserted and planned: Native report form — 2026-11-06
+
+The owner chose EhPanda's own report form over the site's page as the first route (owner msg 1931, card 1929,
+"Our own form"). Phase 18.1 was inserted after Phase 18 and planned; Phase 18 stays complete (verified 10/10) and its
+plans are unchanged. Only its UI-SPEC (Colo's final spec, msg 1978, with C-13 and C-1 "No bar background") and its
+mockups (01–04, 16–18 and 20 re-rendered; 25–31, 33 and 34 added; 32 withdrawn) were refreshed.
+
+- **Decisions:** comment reasons are child and other illegal content only (owner msg 1950); the pinned bar has no
+  background (owner msgs 1955, 1965); Camo's copy is approved (owner msg 1975, final file msg 1977) and its six
+  gallery-only strings do not ship; there are no gallery reports, now or later, unless distribution is blocked
+  without them (owner msg 1975); the live test runs on the real site with Proxyman blocking the report (owner msg
+  1933), run by an agent (owner msg 1652).
+- **Plans:** Wave 1: 18.1-01 (parser, report URL, requests), 18.1-02 (23 strings, copy check). Wave 2: 18.1-03
+  (reducer, routing). Wave 3: 18.1-04 (view, stubs, a UI test per C-13 state). Wave 4: 18.1-05 (gate, then the
+  agent-run Proxyman live check, the phase's only checkpoint).
+- **Open, non-blocking:** what the site returns after a real report (Research OQ-1, default DD-03); frame 26 shows a
+  leftover "Spam:" in Details (for Colo through the lead); `report.reason.choose` is approved but unused by C-13 (for
+  the lead).
+
+Next: `/gsd-execute-phase 18.1`.
 
 ## Phase 18 split into three phases; Phase 18 context gathered — 2026-11-05
 
@@ -690,11 +711,12 @@ Round-1 state: closed and signed. 38 findings — 32 `re-verified`, 6 `accepted`
 
 D-01 amendment 2 authorizes agent-written fixes; the original owner-only implementation restriction is superseded. All five Dynamic Type lint rules (`no_dynamic_type_size_modifier`, `no_geometry_reader`, `no_fixed_system_font_size`, `accessibility_hardcoded_string`, `no_minimum_scale_factor`) are live at error severity with the tree at 0 for each. A11Y-01 is complete; A11Y-02 (round 2) is open; the phase is not complete. Do not push without the owner.
 
-Progress: [████████████████████] 299/299 plans ([█████████░] 85%), excluding the 11 superseded Phase 17 plans. GSD counts
-17 of 20 phases complete (85%): Phase 6 is recorded as "Delivered (rescoped)", and Phases 19 and 20 have not
-started.
-Phase 17 has 13/13 in-scope plans complete. Phase 18 has 12 of 12 plans complete (18-01 to 18-12); Phases 19 and
-20 have no plans yet. They keep the milestone open. 18-12's gate passed on `f08a6a781`, and its Task 3 live
+Progress: [███████████████████░] 299/304 plans ([████████░░] 81%), excluding the 11 superseded Phase 17 plans. GSD
+counts 17 of 21 phases complete (81%): Phase 6 is recorded as "Delivered (rescoped)", and Phases 18.1, 19 and 20
+have not started.
+Phase 17 has 13/13 in-scope plans complete. Phase 18 has 12 of 12 plans complete (18-01 to 18-12). Phase 18.1 has
+0 of 5 plans complete (planned 2026-11-06); Phases 19 and 20 have no plans yet. They keep the milestone open.
+18-12's gate passed on `f08a6a781`, and its Task 3 live
 report-page check passed on 2026-11-05 17:51Z, verified by an agent per owner rule msg 1652 (`18-12-SUMMARY.md`).
 Phase 18 verification passed 10/10 on 2026-11-05 at `c2619c7a3` (tested source `f08a6a781`; `18-VERIFICATION.md`).
 
@@ -1678,6 +1700,7 @@ None yet.
 - Phase 18 edited: 2026-11-05 (owner msg 1753): split into three phases. Phase 18 renamed In-App 3.0 Readiness: Age Wall, Analytics Choice, Comment Moderation & Reader Rework (directory renamed); its visual-regression and marketing-export work moved to Phase 19 and its distribution work to Phase 20
 - Phase 19 added: Visual Regression & Marketing Export: the snapshot, CI gate, preview and 384 work from the original Phase 18 (moved there from Phase 17)
 - Phase 20 added: 3.0 Distribution: Marketplace Build, Notarization, Listing & Release Checks: the original Phase 18's distribution, release-mechanics and device-check work, ending with the analytics revision (ANALYTICS-02)
+- Phase 18.1 inserted after Phase 18: Native report form: EhPanda's own report form for comments (owner msg 1931); the site's report page stays as the fallback. Planned 2026-11-06 (5 plans); no gallery reports (owner msg 1975)
 
 Continuation corrections (2026-09-16): W-13's earlier `pid=61210` crash/loading-error claim is withdrawn; lifecycle evidence identifies `pid=61450` as the explicit relaunch and the saved `w13-showall.png` as normal Detail. Its prior Reader return used VoiceOver off and is not a valid pass. W-22 v3 provenance is invalid because source was restored during execution; v3b completed with exit 0 in 39.433 seconds and restored five temporary files byte-exactly, with only the cold S2 AX5 second row confirmed so far. W-29 remains a read-only proposal targeting the first Frontpage gallery and profile Picker. W-35 has an approved, unimplemented title-focus probe; runtime and the W-8 idle check remain open.
 

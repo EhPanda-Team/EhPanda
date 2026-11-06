@@ -94,6 +94,11 @@
       "status": "complete"
     },
     {
+      "number": "18.1",
+      "name": "Native report form",
+      "status": "pending"
+    },
+    {
       "number": "19",
       "name": "Visual Regression & Marketing Export",
       "status": "pending"
@@ -105,9 +110,9 @@
     }
   ],
   "next": {
-    "command": "/gsd-progress --next",
-    "label": "Advance to the next step (plan phase 19)",
-    "reason": "Phase 19 of 20 — needs a plan"
+    "command": "/gsd-execute-phase 18.1",
+    "label": "Execute phase 18.1 (Native report form)",
+    "reason": "Phase 18.1 of 21 — planned, 5 plans in 4 waves"
   },
-  "updated_at": "2026-11-05T18:22:50.249Z"
+  "updated_at": "2026-11-06T01:40:05.000Z"
 }
