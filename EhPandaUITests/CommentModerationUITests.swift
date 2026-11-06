@@ -1,13 +1,13 @@
 import XCTest
 
-/// Comment moderation end to end (UI-SPEC C-4 to C-8): the comments list's `…` menu and context menu, the Report and
-/// Block alerts, the collapsed and revealed rows, the Detail strip's cards and the posting warning over the comment
-/// editor.
+/// Comment moderation end to end (UI-SPEC C-4 to C-8): the comments list's `…` menu and context menu, Report opening
+/// the Report form (C-13, whose states `ReportFormUITests` covers), the Block alert, the collapsed and revealed rows,
+/// the Detail strip's cards and the posting warning over the comment editor.
 ///
 /// XCUITest does not read accessibility custom actions, so the cell's and the card's named moderation actions are
 /// read from the rendered accessibility tree in `BlockedCommentPresentationTests` instead.
 ///
-/// Every launch is stubbed: the gallery and its comments come from the bundled fixtures, the report sheet never loads
+/// Every launch is stubbed: the gallery and its comments come from the bundled fixtures, the Report form never loads
 /// the live site, and sign-in uses the launch automation's cookie keys with placeholder values. Each case presets its
 /// own block list through `EHPANDA_UITEST_BLOCKED_USERS`, so no case depends on another's storage. Blocks match the
 /// poster's E-Hentai member ID, never the name (owner msg 1918).
@@ -24,8 +24,7 @@ final class CommentModerationUITests: XCTestCase {
         static let stripAuthorStaleName = "Roobubba-old"
         static let stripCommentID = "5143504"
         static let reportOnSite = "Report on E-Hentai"
-        static let reportTitle = "Report this comment?"
-        static let openReportPage = "Open Report Page"
+        static let close = "Close"
         static let block = "Block"
         static let blockTitle = "Block \(author)?"
         static let blockedRow = "Comment from a user you've blocked"
@@ -44,7 +43,7 @@ final class CommentModerationUITests: XCTestCase {
     private enum Identifier {
         static let commentsView = "comments_view"
         static let detailView = "detail_view"
-        static let sessionWebView = "session_web_view"
+        static let reportForm = "report_form"
         static let commentCell = "comment_cell_" + UITestConstants.commentID
         static let blockedRow = "blocked_comment_" + UITestConstants.commentID
         static let stripCard = "comment_card_" + Copy.stripCommentID
@@ -67,7 +66,7 @@ final class CommentModerationUITests: XCTestCase {
 
     // MARK: Comments list
 
-    func testTheMenuOffersReportThenBlockAndReportOpensTheSignedInSheet() throws {
+    func testTheMenuOffersReportThenBlockAndReportOpensTheReportForm() throws {
         let app = try openComments(blockedUsers: [], signedIn: true)
         let cell = requireCell(in: app)
 
@@ -79,22 +78,17 @@ final class CommentModerationUITests: XCTestCase {
         XCTAssertLessThan(report.frame.minY, block.frame.minY, "Report does not come before Block.")
         keepScreenshot("comments-menu-open", app: app)
 
+        // Report opens the form directly (18.1 D-01): no confirmation comes first.
         report.tapWhenHittable("Report")
-        let alert = app.alerts[Copy.reportTitle]
-        XCTAssertTrue(alert.waitForExistence(timeout: 10), "Report raised no confirmation.")
-        keepScreenshot("comments-report-alert", app: app)
-        alert.buttons[Copy.openReportPage].tapWhenHittable("Open Report Page")
-
-        let sheet = app.webViews[Identifier.sessionWebView]
-        XCTAssertTrue(sheet.waitForExistence(timeout: 15), "The report sheet did not open.")
-        let value = try XCTUnwrap(sheet.value as? String, "The report sheet names no page.")
-        XCTAssertEqual(
-            value,
-            "https://e-hentai.org/g/\(UITestConstants.primaryGID)/\(UITestConstants.primaryToken)/?report=select",
-            "The sheet holds another page than the gallery's report page."
+        app.requireElement(Identifier.reportForm)
+        XCTAssertTrue(app.navigationBars[Copy.reportOnSite].exists, "The form is not titled \(Copy.reportOnSite).")
+        XCTAssertEqual(app.alerts.count, 0, "Report raised an alert before the form.")
+        keepScreenshot("comments-report-form", app: app)
+        app.navigationBars[Copy.reportOnSite].buttons[Copy.close].tapWhenHittable("Close the form")
+        XCTAssertTrue(
+            app.descendants(matching: .any)[Identifier.reportForm].waitForNonExistence(timeout: 10),
+            "The form did not close."
         )
-        app.buttons["Close"].firstMatch.tapWhenHittable("Close the report sheet")
-        XCTAssertTrue(sheet.waitForNonExistence(timeout: 10), "The report sheet did not close.")
         app.terminate()
     }
 
@@ -169,6 +163,23 @@ final class CommentModerationUITests: XCTestCase {
         XCTAssertTrue(block.exists, "The card's context menu holds no Block.")
         XCTAssertLessThan(report.frame.minY, block.frame.minY, "Report does not come before Block.")
         keepScreenshot("strip-card-menu", app: app)
+        app.terminate()
+    }
+
+    func testReportOnAStripCardOpensTheReportForm() throws {
+        let app = try openDetail(blockedUsers: [])
+        let card = try requireStripElement(Identifier.stripCard, in: app)
+
+        card.press(forDuration: 1.2)
+        app.buttons[Copy.reportOnSite].firstMatch.tapWhenHittable("Report in the card's menu")
+        app.requireElement(Identifier.reportForm)
+        XCTAssertEqual(app.alerts.count, 0, "Report raised an alert before the form.")
+        let details = app.textFields["report_details"].firstMatch
+        XCTAssertTrue(details.waitForExistence(timeout: 10), "The form has no Details.")
+        XCTAssertTrue(
+            (details.value as? String)?.contains(Copy.stripAuthor) == true, "Details does not name the card's author."
+        )
+        keepScreenshot("strip-report-form", app: app)
         app.terminate()
     }
 
