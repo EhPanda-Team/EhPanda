@@ -95,4 +95,33 @@ struct CommentsReducerTests {
         await store.receive(\.performCommentActionDone, timeout: .seconds(10))
         #expect(store.state.commentContent == "Thanks for the upload!")
     }
+
+    // The moderation delegate presents the Report form as the screen's destination (18.1 D-01), on ExHentai as on
+    // E-Hentai; the form's own dismiss (Done after sending) clears it.
+    @MainActor
+    @Test
+    func theReportFormIsTheScreensDestinationAndItsDismissClearsIt() async throws {
+        let galleryURL = try #require(URL(string: "https://exhentai.org/g/42/abc123/"))
+        let comment = GalleryComment(
+            votedUp: false, votedDown: false, votable: true, editable: false,
+            author: "someone", authorMemberID: "12", contents: [], commentID: "1",
+            commentDate: Date(timeIntervalSince1970: 0)
+        )
+        var form = try #require(ReportFormFeature.State(comment: comment, galleryURL: galleryURL))
+        form.phase = .sent
+        let initialState = CommentsReducer.State(galleryURL: galleryURL)
+        let store = TestStore(initialState: initialState, reducer: CommentsReducer.init) {
+            $0.analyticsClient = .noop
+            $0.hapticsClient = .noop
+        }
+
+        await store.send(.moderation(.delegate(.openReportForm(form)))) {
+            $0.destination = .reportForm(form)
+        }
+        #expect(form.site == "ExHentai")
+        await store.send(.destination(.presented(.reportForm(.primaryTapped))))
+        await store.receive(\.destination.dismiss) {
+            $0.destination = nil
+        }
+    }
 }
