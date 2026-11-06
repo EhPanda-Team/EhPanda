@@ -204,40 +204,47 @@ extension CommentModerationReducerTests {
     }
 }
 
-// MARK: Report (D-10, A-5)
+// MARK: Report (D-10, A-5; 18.1 D-01)
 
 extension CommentModerationReducerTests {
-    // Report asks first, naming the site and the author, then opens the gallery's report page in the screen's sheet.
+    // Report opens EhPanda's own form at once, with no alert: the form carries the comment, the site and the gallery.
     @MainActor
     @Test
-    func reportAsksThenOpensTheGallerysReportPage() async {
+    func reportOpensTheReportFormDirectly() async throws {
         let store = makeModerationCommentsStore()
+        let form = try #require(ReportFormFeature.State(comment: Self.first, galleryURL: Self.galleryURL))
 
-        await store.send(.moderation(.reportTapped(Self.first))) {
-            $0.moderation.alert = Self.reportAlert(site: "E-Hentai", author: Self.author)
+        await store.send(.moderation(.reportTapped(Self.first)))
+        await store.receive(\.moderation.delegate.openReportForm, form) {
+            $0.destination = .reportForm(form)
         }
-        await store.send(.moderation(.alert(.presented(.confirmReport(Self.reportURL))))) {
-            $0.moderation.alert = nil
+        #expect(store.state.moderation.alert == nil)
+        #expect(form.comment == ReportFormFeature.Comment(
+            author: Self.author, date: Self.first.commentDate, text: Self.first.plainTextContent
+        ))
+        #expect(form.site == "E-Hentai")
+        #expect(form.galleryURL == Self.galleryURL)
+        #expect(form.reportPageURL == Self.reportURL)
+    }
+
+    // Close in the form clears the screen's destination, so the next Report opens a fresh form.
+    @MainActor
+    @Test
+    func closingTheReportFormClearsTheDestination() async throws {
+        let store = makeModerationCommentsStore()
+        let form = try #require(ReportFormFeature.State(comment: Self.first, galleryURL: Self.galleryURL))
+
+        await store.send(.moderation(.reportTapped(Self.first)))
+        await store.receive(\.moderation.delegate.openReportForm, form) {
+            $0.destination = .reportForm(form)
         }
-        await store.receive(\.moderation.delegate.openReportPage, Self.reportURL) {
-            $0.destination = .reportPage(Self.reportURL)
+        await store.send(.destination(.presented(.reportForm(.closeTapped))))
+        await store.receive(\.destination.dismiss) {
+            $0.destination = nil
         }
     }
 
-    @MainActor
-    @Test
-    func cancellingTheReportOpensNothing() async {
-        let store = makeModerationCommentsStore()
-
-        await store.send(.moderation(.reportTapped(Self.first))) {
-            $0.moderation.alert = Self.reportAlert(site: "E-Hentai", author: Self.author)
-        }
-        await store.send(.moderation(.alert(.dismiss))) {
-            $0.moderation.alert = nil
-        }
-    }
-
-    // A gallery with no report target gets neither the alert nor the sheet.
+    // A gallery with no report target opens nothing: neither the form nor an alert.
     @MainActor
     @Test
     func aGalleryWithNoReportPagePresentsNothing() async throws {
@@ -247,19 +254,21 @@ extension CommentModerationReducerTests {
         await store.send(.moderation(.reportTapped(Self.first)))
     }
 
+    // The Detail strip's Report opens the same form, and its Close clears Detail's destination.
     @MainActor
     @Test
-    func detailReportOpensTheReportPageToo() async {
+    func detailReportOpensTheReportFormToo() async throws {
         let store = makeModerationDetailStore()
+        let form = try #require(ReportFormFeature.State(comment: Self.first, galleryURL: Self.galleryURL))
 
-        await store.send(.moderation(.reportTapped(Self.first))) {
-            $0.moderation.alert = Self.reportAlert(site: "E-Hentai", author: Self.author)
+        await store.send(.moderation(.reportTapped(Self.first)))
+        await store.receive(\.moderation.delegate.openReportForm, form) {
+            $0.destination = .reportForm(form)
         }
-        await store.send(.moderation(.alert(.presented(.confirmReport(Self.reportURL))))) {
-            $0.moderation.alert = nil
-        }
-        await store.receive(\.moderation.delegate.openReportPage, Self.reportURL) {
-            $0.destination = .reportPage(Self.reportURL)
+        #expect(store.state.moderation.alert == nil)
+        await store.send(.destination(.presented(.reportForm(.closeTapped))))
+        await store.receive(\.destination.dismiss) {
+            $0.destination = nil
         }
     }
 }
@@ -530,7 +539,6 @@ extension CommentModerationReducerTests {
         store.exhaustivity = .off(showSkippedAssertions: false)
 
         await store.send(.moderation(.reportTapped(Self.first)))
-        await store.send(.moderation(.alert(.presented(.confirmReport(Self.reportURL)))))
         await store.send(.moderation(.blockTapped(Self.first)))
         await store.send(.moderation(.alert(.presented(.confirmBlock(memberID: Self.memberID, name: Self.author)))))
         await store.send(.moderation(.show(commentID: Self.first.commentID)))
@@ -569,21 +577,6 @@ extension CommentModerationReducerTests {
             author: author, authorMemberID: memberID, contents: [], commentID: id,
             commentDate: Date(timeIntervalSince1970: 0)
         )
-    }
-
-    static func reportAlert(site: String, author: String) -> AppAlertState<CommentModerationFeature.Alert> {
-        AppAlertState {
-            TextState(localized: .commentReportConfirmTitle)
-        } actions: {
-            ButtonState(role: .cancel) {
-                TextState(localized: .RLocalizable.cancel)
-            }
-            ButtonState(action: .confirmReport(reportURL)) {
-                TextState(localized: .commentReportOpen)
-            }
-        } message: {
-            TextState(localized: .commentReportConfirmBody(site, author))
-        }
     }
 
     static func blockAlert(

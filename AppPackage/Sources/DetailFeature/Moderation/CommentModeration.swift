@@ -7,8 +7,9 @@ import Resources
 public import Sharing
 
 /// Comment moderation for one screen (UGC-18-01): the posting warning, Report, Block, Unblock and Show (D-10,
-/// D-12, D-13). `CommentsReducer` and `DetailReducer` each scope one in, so a comment behaves the same in the
-/// comments list and in the Detail strip; the views only send these actions and read this state.
+/// D-12, D-13). Report hands the screen a Report form to present (18.1 D-01). `CommentsReducer` and `DetailReducer`
+/// each scope one in, so a comment behaves the same in the comments list and in the Detail strip; the views only send
+/// these actions and read this state.
 ///
 /// Nothing here sends an analytics signal (D-02): no author name or comment text leaves the device this way.
 @Reducer
@@ -20,8 +21,6 @@ public struct CommentModerationFeature: Sendable {
         case edit
         /// Posting warning: send the comment anyway.
         case postAnyway
-        /// Report confirmation: open the gallery's report page.
-        case confirmReport(URL)
         /// Block confirmation: the poster's member ID, and the name the comment shows, which the list keeps.
         case confirmBlock(memberID: String, name: String)
     }
@@ -33,8 +32,8 @@ public struct CommentModerationFeature: Sendable {
         case post
         /// Give the editor its focus back; the editor and its text stay as they are.
         case resumeEditing
-        /// Present the report page in the screen's in-app sheet.
-        case openReportPage(URL)
+        /// Present EhPanda's Report form for one comment in the screen's sheet (18.1 D-01).
+        case openReportForm(ReportFormFeature.State)
         /// The poster with `memberID` was blocked, so every comment of theirs on the screen collapses, revealed ones
         /// included.
         case didBlock(memberID: String)
@@ -118,9 +117,6 @@ public struct CommentModerationFeature: Sendable {
             case .alert(.presented(.postAnyway)):
                 return .send(.delegate(.post))
 
-            case .alert(.presented(.confirmReport(let url))):
-                return .send(.delegate(.openReportPage(url)))
-
             case .alert(.presented(.confirmBlock(let memberID, let name))):
                 state.$blockedUsers.withLock({ $0.block(memberID: memberID, name: name) })
                 return .send(.delegate(.didBlock(memberID: memberID)))
@@ -129,24 +125,12 @@ public struct CommentModerationFeature: Sendable {
                 return .none
 
             case .reportTapped(let comment):
-                // A gallery with no report page gets no alert either: Open would have nowhere to go (A-5).
+                // No alert: Report opens the form at once (18.1 D-01). A gallery with no report target opens
+                // nothing, since the form would have nowhere to read or send (A-5).
                 guard !isOwn(comment), let galleryURL = state.galleryURL,
-                      let url = CommentReportTarget.reportURL(for: galleryURL),
-                      let site = CommentReportTarget.siteName(for: galleryURL)
+                      let form = ReportFormFeature.State(comment: comment, galleryURL: galleryURL)
                 else { return .none }
-                state.alert = AppAlertState {
-                    TextState(localized: .commentReportConfirmTitle)
-                } actions: {
-                    ButtonState(role: .cancel) {
-                        TextState(localized: .RLocalizable.cancel)
-                    }
-                    ButtonState(action: .confirmReport(url)) {
-                        TextState(localized: .commentReportOpen)
-                    }
-                } message: {
-                    TextState(localized: .commentReportConfirmBody(site, comment.author))
-                }
-                return .none
+                return .send(.delegate(.openReportForm(form)))
 
             case .blockTapped(let comment):
                 // A comment with no member ID cannot be blocked: there is nothing stable to match (owner msg 1918).

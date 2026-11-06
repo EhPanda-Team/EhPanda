@@ -16,9 +16,11 @@ public struct CommentsReducer: Sendable {
     public enum Destination {
         @ReducerCaseIgnored
         case postComment(String)
-        /// The gallery's report page, opened from a comment's Report (D-10, A-5).
+        /// The gallery's report page. Nothing opens it any more; 18.1-04 removes it with its view call site.
         @ReducerCaseIgnored
         case reportPage(URL)
+        /// EhPanda's Report form, opened from a comment's Report (18.1 D-01).
+        case reportForm(ReportFormFeature)
     }
 
     public enum Delegate: Equatable, Sendable {
@@ -149,8 +151,8 @@ public struct CommentsReducer: Sendable {
                 state.postCommentFocused = true
                 return .none
 
-            case .moderation(.delegate(.openReportPage(let url))):
-                state.destination = .reportPage(url)
+            case .moderation(.delegate(.openReportForm(let form))):
+                state.destination = .reportForm(form)
                 return .none
 
             case .moderation(.delegate(.didBlock(let memberID))):

@@ -73,8 +73,8 @@ extension DetailReducer {
                     await send(.setPostCommentFocused(true))
                 }
 
-            case .moderation(.delegate(.openReportPage(let url))):
-                state.destination = .reportPage(url)
+            case .moderation(.delegate(.openReportForm(let form))):
+                state.destination = .reportForm(form)
                 return .none
 
             case .moderation(.delegate(.didBlock(let memberID))):

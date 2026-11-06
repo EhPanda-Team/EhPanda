@@ -36,8 +36,10 @@ public struct DetailReducer: Sendable {
         @ReducerCaseIgnored case postComment(EquatableVoid)
         @ReducerCaseIgnored case newDawn(Greeting)
         @ReducerCaseIgnored case tagDetail(TagDetail)
-        /// The gallery's report page, opened from a comment's Report (D-10, A-5).
+        /// The gallery's report page. Nothing opens it any more; 18.1-04 removes it with its view call site.
         @ReducerCaseIgnored case reportPage(URL)
+        /// EhPanda's Report form, opened from a comment's Report in the strip (18.1 D-01).
+        case reportForm(ReportFormFeature)
     }
 
     public enum Alert: Equatable, Sendable {
