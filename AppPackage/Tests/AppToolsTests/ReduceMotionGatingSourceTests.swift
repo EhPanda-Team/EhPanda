@@ -93,6 +93,8 @@ struct ReduceMotionGatingSourceTests {
         "DetailFeature/DetailView+Subviews.swift": 1,
         "DetailFeature/DetailView.swift": 1,
         "DetailFeature/FolderManager/FolderManagerView.swift": 1,
+        // The Report form's sent checkmark bounce and its animated footers (UI-SPEC C-13).
+        "DetailFeature/Moderation/ReportFormView.swift": 1,
         "DetailFeature/Torrents/TorrentsView.swift": 1,
         "DownloadsFeature/DownloadsView+Subviews.swift": 2,
         "DownloadsFeature/DownloadsView.swift": 1,
@@ -107,7 +109,7 @@ struct ReduceMotionGatingSourceTests {
         "SettingFeature/GeneralSetting/GeneralSettingView.swift": 1,
         "SystemNotification/View+Toast.swift": 1
     ]
-    private static let expectedEnvironmentReadTotal = 23
+    private static let expectedEnvironmentReadTotal = 24
 
     /// Executable lines carrying the ternary predicate, per file.
     private static let expectedTernaryPredicates: [String: Int] = [
@@ -119,6 +121,7 @@ struct ReduceMotionGatingSourceTests {
         "DetailFeature/DetailView+Subviews.swift": 2,
         "DetailFeature/DetailView.swift": 3,
         "DetailFeature/FolderManager/FolderManagerView.swift": 1,
+        "DetailFeature/Moderation/ReportFormView.swift": 2,
         "DetailFeature/Torrents/TorrentsView.swift": 1,
         "DownloadsFeature/DownloadsView+Subviews.swift": 3,
         "DownloadsFeature/DownloadsView.swift": 1,
@@ -131,7 +134,7 @@ struct ReduceMotionGatingSourceTests {
         "SettingFeature/GeneralSetting/GeneralSettingView.swift": 1,
         "SystemNotification/View+Toast.swift": 1
     ]
-    private static let expectedTernaryPredicateTotal = 33
+    private static let expectedTernaryPredicateTotal = 35
 
     /// The deep-linked comment scroll and the reader's page jump.
     private static let expectedWithAnimationGateTotal = 2
@@ -149,6 +152,7 @@ struct ReduceMotionGatingSourceTests {
         "DetailFeature/DetailView+Subviews.swift": 3,
         "DetailFeature/DetailView.swift": 4,
         "DetailFeature/FolderManager/FolderManagerView.swift": 2,
+        "DetailFeature/Moderation/ReportFormView.swift": 4,
         "DetailFeature/Torrents/TorrentsView.swift": 2,
         "DownloadsFeature/DownloadsView+Subviews.swift": 8,
         "DownloadsFeature/DownloadsView.swift": 2,
@@ -161,7 +165,7 @@ struct ReduceMotionGatingSourceTests {
         "SettingFeature/GeneralSetting/GeneralSettingView.swift": 2,
         "SystemNotification/View+Toast.swift": 3
     ]
-    private static let expectedGateMentionTotal = 70
+    private static let expectedGateMentionTotal = 74
 
     /// `.contentTransition(.numericText…)` sites across the tree; every one stays ungated (D-29).
     private static let expectedNumericTextTotal = 11
