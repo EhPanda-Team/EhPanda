@@ -46,6 +46,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 16: Accessibility (Dynamic Type + Assistive Technology)** - Two rounds against the settled UI: full-range Dynamic Type (AX1–AX5, human-implemented, agent verify-only), then a VoiceOver / Voice Control / Reduced Motion / Contrast / Differentiate-Without-Color pass (agent-implemented), held to the App Store Accessibility Nutrition Label bar (completed 2026-09-23)
 - [x] **Phase 17: Screenshot Automation, Visual Regression & OS 27 Modernization** - Reduced 2026-11-03: capture foundation and the approved 192-image website set, verification of the landed size-class layout, the remaining idiom census and the Release isolation check; regression, marketing export and AltStore work moved to Phase 18 (now split: regression and marketing export → Phase 19, AltStore work → Phase 20) (completed 2026-11-05)
 - [x] **Phase 18: In-App 3.0 Readiness: Age Wall, Analytics Choice, Comment Moderation & Reader Rework** - Two first-launch screens for everyone (age wall, then Minimal/Basic/Full analytics choice, SDK off until chosen), E-Hentai comment report, posting warning, collapsed blocking and a Blocked Users list, the reader page-tracking rework with G1/G2 UI tests, IN-02/IN-03 and `MKSellsDigitalGoods` (completed 2026-11-06)
+- [ ] **Phase 18.1: Native report form (INSERTED)** - EhPanda's own report form for comments (owner msg 1931): two illegal-content reasons, required email never stored, English prefill, pinned Send Report; the site's page stays as the fallback; no gallery reports (owner msg 1975)
 - [ ] **Phase 19: Visual Regression & Marketing Export** - The snapshot matrix, one owner-approved baseline, the full-matrix CI gate, preview review, the 384 export with its final selection and six-per-period Toplists fixtures, and the `Scripts/visual/README.md` rewrite, moved from Phase 17 and covering the Phase 18 screens
 - [ ] **Phase 20: 3.0 Distribution: Marketplace Build, Notarization, Listing & Release Checks** - AltStore PAL marketplace build (same features), notarization pipeline, PAL source and listing with decorated store screenshots, website privacy/support/contact links, release mechanics, real-device checks, the repeated Release isolation scan and, last, the analytics revision with install source
 
@@ -705,6 +706,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 16. Dynamic Type Accessibility | 26/26 | Complete    | 2026-09-23 |
 | 17. Screenshot Automation, Visual Regression & OS 27 Modernization | 13/13 | Complete    | 2026-11-05 |
 | 18. In-App 3.0 Readiness: Age Wall, Analytics Choice, Comment Moderation & Reader Rework | 12/12 | Complete    | 2026-11-06 |
+| 18.1. Native report form (INSERTED) | 0/5 | Planned |  |
 | 19. Visual Regression & Marketing Export | 0/TBD | Not started|  |
 | 20. 3.0 Distribution: Marketplace Build, Notarization, Listing & Release Checks | 0/TBD | Not started|  |
 
@@ -1416,6 +1418,38 @@ Plans:
 
 **Cross-cutting constraints:**
 - Every UI task here follows the committed `18-UI-SPEC.md` (the final spec, msg 1826, with the C-3 title rule) as the design contract; layout calls are the designer's and are not changed in execution (D-17, D-17a).
+
+### Phase 18.1: Native report form (INSERTED)
+
+**Goal:** Replace Phase 18's report alert and web sheet with EhPanda's own native "Report on {site}" form for comments (owner msg 1931, "Our own form"): two reasons only, child pornography and other illegal content (owner msg 1950), a required email that is never stored, Details prefilled in English with the reported comment, and Send Report in a pinned bar with no background (owner msgs 1955, 1965). The form posts the site's own report fields to the gallery's site; the site's report page stays as the fallback. There are no gallery reports, now or later, unless distribution is blocked without them (owner msg 1975).
+**Requirements**: UGC-18-01 (native report route)
+**Depends on:** Phase 18
+**Context:** [`18.1-CONTEXT.md`](phases/18.1-native-report-form/18.1-CONTEXT.md); design contract UI-SPEC C-13 in the Phase 18 spec (Colo msg 1978, mockups 25–31, 33, 34); copy [`18.1-COPY-REPORT-FORM.md`](phases/18.1-native-report-form/18.1-COPY-REPORT-FORM.md) (approved, owner msg 1975).
+
+**Success Criteria** (what must be TRUE):
+  1. Report on a comment by someone else opens the native form directly, from the comments list and the Detail strip, with no alert; the retired confirm strings are gone.
+  2. The form reads the site's report form first and shows every C-13 state: loading, ready, sending, sent, failed (Retry / Open Report Page / Cancel) and unavailable (Open Report Page).
+  3. The request matches the site's own form (`report_type`, `r_email`, `r_details`, `sendreport`), goes only to the gallery's site, is never retried automatically, and the email is never stored or logged; no analytics.
+  4. All 23 approved strings ship verbatim in six languages; the six gallery-only strings do not ship.
+  5. FeatureTests and a UI test for each C-13 state pass on iPhone and iPad; lint is clean; the Release product carries no UI-test key.
+  6. An agent's live check on the real site, with Proxyman blocking the report POST, shows the form loaded and the request built correctly, with no report filed (owner msgs 1933, 1652).
+
+**Plans:** 5 plans
+
+Plans:
+
+**Wave 1**
+- [ ] 18.1-01-PLAN.md — fixtures, report form parser, per-type report URL and the one-attempt requests
+- [ ] 18.1-02-PLAN.md — the 23 approved report strings in six languages, with the copy check
+
+**Wave 2** *(blocked on Wave 1 completion)*
+- [ ] 18.1-03-PLAN.md — `ReportFormFeature` reducer, client and English prefill; Report routed to the form from both screens
+
+**Wave 3** *(blocked on Wave 2 completion; UI tasks follow the committed UI-SPEC C-13)*
+- [ ] 18.1-04-PLAN.md — `ReportFormView` per C-13, the retired confirm keys, UI-test stubs and a UI test for each state
+
+**Wave 4** *(blocked on Wave 3 completion)*
+- [ ] 18.1-05-PLAN.md — phase gate on both devices and in Release, then the agent-run Proxyman live check (the phase's only checkpoint)
 
 ### Phase 19: Visual Regression & Marketing Export
 
