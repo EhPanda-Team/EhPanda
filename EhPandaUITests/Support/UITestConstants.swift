@@ -29,6 +29,9 @@ enum UITestConstants {
     static let displayNameEnvironmentKey = "EHPANDA_UITEST_DISPLAY_NAME"
     /// `1` makes each horizontal pager the reader builds drop its first `.idle` report.
     static let dropInitialIdleEnvironmentKey = "EHPANDA_UITEST_DROP_INITIAL_IDLE"
+    /// How the stub answers the Report form: `ready` (absent or unknown), `slowLoad`, `holdSend`, `failSend` or
+    /// `unavailable`.
+    static let reportScenarioEnvironmentKey = "EHPANDA_UITEST_REPORT_SCENARIO"
 
     /// UIKit names a toolbar's More button itself, and the name depends on the bar holding it:
     /// iOS 27 calls a navigation bar's `TopOverflowBarButtonItem`.

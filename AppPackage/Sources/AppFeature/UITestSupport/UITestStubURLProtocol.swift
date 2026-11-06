@@ -50,15 +50,47 @@ final class CaptureReplay: Sendable {
 /// ``CaptureReplay`` instead, and every request it cannot answer fails. A stubbed launch can also name
 /// a request log (`EHPANDA_UITEST_REQUEST_LOG`), which gets one `METHOD host path` line for each
 /// request the protocol sees, so a UI test can prove which requests a screen made.
+///
+/// The Report form's requests (a gallery URL with a `report` query) are answered by the launch's
+/// ``ReportScenario`` (`EHPANDA_UITEST_REPORT_SCENARIO`), so a UI test can put the form in each C-13 state.
 final class UITestStubURLProtocol: URLProtocol {
     private enum Mode {
         case fixtureDirectory(URL?)
         case replay(CaptureReplay)
     }
 
+    /// How the stub answers the Report form's two requests (18.1-04). Comment reports only: there is no gallery
+    /// scenario, and any unknown value is `ready`.
+    enum ReportScenario: String, CaseIterable, Sendable {
+        /// The form loads at once and a report is sent.
+        case ready
+        /// The form takes 2 s to load, so the spinner shows.
+        case slowLoad
+        /// A report takes 3 s to be answered, so the sending state shows.
+        case holdSend
+        /// A report gets a 503, so the failed alert shows.
+        case failSend
+        /// The form's page is the site's first step, without the email and details fields.
+        case unavailable
+
+        init(launchValue: String?) {
+            self = launchValue.flatMap(Self.init(rawValue:)) ?? .ready
+        }
+    }
+
+    /// The stub's answer to a Report form request: a fixture (`nil`: an empty body), a status and a wait.
+    struct ReportAnswer: Equatable, Sendable {
+        let fixtureName: String?
+        let statusCode: Int
+        let delay: Duration
+    }
+
     private static let mode = Mutex(Mode.fixtureDirectory(nil))
     /// The request log's file. Each line is written while the lock is held, so lines never interleave.
     private static let requestLog = Mutex<URL?>(nil)
+    private static let reportScenario = Mutex(ReportScenario.ready)
+    /// Set once the loading system stops this request, so a delayed answer is not delivered after it.
+    private let isStopped = Mutex(false)
 
     override static func canInit(with request: URLRequest) -> Bool {
         guard let scheme = request.url?.scheme?.lowercased() else {
@@ -89,7 +121,9 @@ final class UITestStubURLProtocol: URLProtocol {
         }
     }
 
-    override func stopLoading() {}
+    override func stopLoading() {
+        isStopped.withLock({ $0 = true })
+    }
 
     static func configure(fixtureDirectory: URL?) {
         mode.withLock {
@@ -100,6 +134,13 @@ final class UITestStubURLProtocol: URLProtocol {
     static func configure(replay: CaptureReplay) {
         mode.withLock {
             $0 = .replay(replay)
+        }
+    }
+
+    /// Names how the Report form's requests are answered.
+    static func configure(reportScenario scenario: ReportScenario) {
+        reportScenario.withLock {
+            $0 = scenario
         }
     }
 
@@ -141,7 +182,40 @@ final class UITestStubURLProtocol: URLProtocol {
         try handle.write(contentsOf: Data(line.utf8))
     }
 
-    static func fixtureName(for url: URL) -> String? {
+    /// The answer to a Report form request under `scenario`, or `nil` when `url` is not one. The form is read with a
+    /// `GET` and a report is posted to the same kind of URL (`/g/{gid}/{token}/?report={type}`).
+    static func reportAnswer(for url: URL, method: String, scenario: ReportScenario) -> ReportAnswer? {
+        let hasReportQuery = URLComponents(url: url, resolvingAgainstBaseURL: false)?
+            .queryItems?.contains(where: { $0.name == "report" }) == true
+        guard url.path().hasPrefix("/g/"), hasReportQuery else {
+            return nil
+        }
+        if method == "POST" {
+            switch scenario {
+            case .failSend:
+                return ReportAnswer(fixtureName: nil, statusCode: 503, delay: .zero)
+            case .holdSend:
+                return ReportAnswer(fixtureName: "ReportSentStub.html", statusCode: 200, delay: .seconds(3))
+            case .ready, .slowLoad, .unavailable:
+                return ReportAnswer(fixtureName: "ReportSentStub.html", statusCode: 200, delay: .zero)
+            }
+        }
+        switch scenario {
+        case .unavailable:
+            return ReportAnswer(fixtureName: "ReportUnavailable.html", statusCode: 200, delay: .zero)
+        case .slowLoad:
+            return ReportAnswer(fixtureName: "ReportOther.html", statusCode: 200, delay: .seconds(2))
+        case .ready, .holdSend, .failSend:
+            return ReportAnswer(fixtureName: "ReportOther.html", statusCode: 200, delay: .zero)
+        }
+    }
+
+    /// The fixture answering `url`, or `nil` (a 404). Report form requests are routed before the gallery page
+    /// they share a path with.
+    static func fixtureName(for url: URL, method: String = "GET", scenario: ReportScenario = .ready) -> String? {
+        if let answer = reportAnswer(for: url, method: method, scenario: scenario) {
+            return answer.fixtureName
+        }
         let path = url.path()
         if path == "/archiver.php" {
             return "GalleryArchive.html"
@@ -184,6 +258,11 @@ final class UITestStubURLProtocol: URLProtocol {
             loadGalleryMetadata(url: url, fixtureDirectory: fixtureDirectory)
             return
         }
+        let scenario = Self.reportScenario.withLock({ $0 })
+        if let answer = Self.reportAnswer(for: url, method: request.httpMethod ?? "GET", scenario: scenario) {
+            loadReport(answer, url: url, fixtureDirectory: fixtureDirectory)
+            return
+        }
         guard let fixtureName = Self.fixtureName(for: url), let fixtureDirectory else {
             finish(statusCode: 404, data: Data(), url: url, mimeType: Self.htmlMIMEType)
             return
@@ -194,6 +273,31 @@ final class UITestStubURLProtocol: URLProtocol {
             finish(statusCode: 200, data: data, url: url, mimeType: Self.htmlMIMEType)
         } catch {
             finish(statusCode: 404, data: Data(), url: url, mimeType: Self.htmlMIMEType)
+        }
+    }
+
+    /// Answers a Report form request after its scenario's wait, unless the request was stopped meanwhile.
+    private func loadReport(_ answer: ReportAnswer, url: URL, fixtureDirectory: URL?) {
+        var data = Data()
+        if let fixtureName = answer.fixtureName {
+            do {
+                guard let fixtureDirectory else { throw URLError(.fileDoesNotExist) }
+                data = try Data(contentsOf: fixtureDirectory.appending(path: fixtureName))
+            } catch {
+                finish(statusCode: 404, data: Data(), url: url, mimeType: Self.htmlMIMEType)
+                return
+            }
+        }
+        guard answer.delay > .zero else {
+            finish(statusCode: answer.statusCode, data: data, url: url, mimeType: Self.htmlMIMEType)
+            return
+        }
+        // The loading system owns this instance and is thread-safe to call back; the wait only defers the answer.
+        nonisolated(unsafe) let stub = self
+        let seconds = Double(answer.delay.components.seconds)
+        DispatchQueue.global().asyncAfter(deadline: .now() + seconds) {
+            guard !stub.isStopped.withLock({ $0 }) else { return }
+            stub.finish(statusCode: answer.statusCode, data: data, url: url, mimeType: Self.htmlMIMEType)
         }
     }
 
