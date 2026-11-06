@@ -706,7 +706,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 16. Dynamic Type Accessibility | 26/26 | Complete    | 2026-09-23 |
 | 17. Screenshot Automation, Visual Regression & OS 27 Modernization | 13/13 | Complete    | 2026-11-05 |
 | 18. In-App 3.0 Readiness: Age Wall, Analytics Choice, Comment Moderation & Reader Rework | 12/12 | Complete    | 2026-11-06 |
-| 18.1. Native report form (INSERTED) | 1/5 | In Progress |  |
+| 18.1. Native report form (INSERTED) | 2/5 | In Progress |  |
 | 19. Visual Regression & Marketing Export | 0/TBD | Not started|  |
 | 20. 3.0 Distribution: Marketplace Build, Notarization, Listing & Release Checks | 0/TBD | Not started|  |
 
@@ -1434,13 +1434,13 @@ Plans:
   5. FeatureTests and a UI test for each C-13 state pass on iPhone and iPad; lint is clean; the Release product carries no UI-test key.
   6. An agent's live check on the real site, with Proxyman blocking the report POST, shows the form loaded and the request built correctly, with no report filed (owner msgs 1933, 1652).
 
-**Plans:** 1/5 plans executed
+**Plans:** 2/5 plans executed
 
 Plans:
 
 **Wave 1**
 - [x] 18.1-01-PLAN.md — fixtures, report form parser, per-type report URL and the one-attempt requests
-- [ ] 18.1-02-PLAN.md — the 23 approved report strings in six languages, with the copy check
+- [x] 18.1-02-PLAN.md — the 23 approved report strings in six languages, with the copy check *(22 ship: the lead dropped `report.reason.choose`, msgs 1980/1983)*
 
 **Wave 2** *(blocked on Wave 1 completion)*
 - [ ] 18.1-03-PLAN.md — `ReportFormFeature` reducer, client and English prefill; Report routed to the form from both screens
