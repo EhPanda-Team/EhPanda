@@ -93,6 +93,14 @@ final class UITestStubURLProtocol: URLProtocol {
     private static let reportScenario = Mutex(ReportScenario.ready)
     /// Set once the loading system stops this request, so a delayed answer is not delivered after it.
     private let isStopped = Mutex(false)
+    /// A Report form answer held for its scenario's wait.
+    private let pendingReport = Mutex<PendingReport?>(nil)
+
+    private struct PendingReport: Sendable {
+        let statusCode: Int
+        let data: Data
+        let url: URL
+    }
 
     override static func canInit(with request: URLRequest) -> Bool {
         guard let scheme = request.url?.scheme?.lowercased() else {
@@ -125,6 +133,7 @@ final class UITestStubURLProtocol: URLProtocol {
 
     override func stopLoading() {
         isStopped.withLock({ $0 = true })
+        NSObject.cancelPreviousPerformRequests(withTarget: self)
     }
 
     static func configure(fixtureDirectory: URL?) {
@@ -294,13 +303,25 @@ final class UITestStubURLProtocol: URLProtocol {
             finish(statusCode: answer.statusCode, data: data, url: url, mimeType: Self.htmlMIMEType)
             return
         }
-        // The loading system owns this instance and is thread-safe to call back; the wait only defers the answer.
-        nonisolated(unsafe) let stub = self
-        let seconds = Double(answer.delay.components.seconds)
-        DispatchQueue.global().asyncAfter(deadline: .now() + seconds) {
-            guard !stub.isStopped.withLock({ $0 }) else { return }
-            stub.finish(statusCode: answer.statusCode, data: data, url: url, mimeType: Self.htmlMIMEType)
+        // The answer waits on this request's own loading thread, whose run loop the loading system keeps
+        // running, so nothing crosses threads; `stopLoading` cancels it on the same thread.
+        pendingReport.withLock({ $0 = PendingReport(statusCode: answer.statusCode, data: data, url: url) })
+        var modes: [RunLoop.Mode] = [.default, .common]
+        if let currentMode = RunLoop.current.currentMode, !modes.contains(currentMode) {
+            modes.append(currentMode)
         }
+        perform(
+            #selector(deliverPendingReport),
+            with: nil,
+            afterDelay: Double(answer.delay.components.seconds),
+            inModes: modes
+        )
+    }
+
+    /// Delivers the held Report form answer, unless the request was stopped meanwhile.
+    @objc private func deliverPendingReport() {
+        guard !isStopped.withLock({ $0 }), let report = pendingReport.withLock({ $0 }) else { return }
+        finish(statusCode: report.statusCode, data: report.data, url: report.url, mimeType: Self.htmlMIMEType)
     }
 
     /// Answers a `gdata` metadata request from the fixture directory's saved API response. Any
