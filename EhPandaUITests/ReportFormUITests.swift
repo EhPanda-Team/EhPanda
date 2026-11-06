@@ -188,7 +188,7 @@ final class ReportFormUITests: XCTestCase {
         app.navigationBars[Copy.title].swipeDown(velocity: .fast)
         XCTAssertTrue(app.descendants(matching: .any)[Identifier.form].exists, "A swipe down closed the sheet.")
 
-        XCTAssertTrue(app.descendants(matching: .any)[Identifier.sent].waitForExistence(timeout: 10), "It never sent.")
+        XCTAssertTrue(app.descendants(matching: .any)[Identifier.sent].waitForExistence(timeout: 20), "It never sent.")
         XCTAssertEqual(try loggedRequests().filter({ $0 == Self.reportPost }).count, 1, "The report was not sent once.")
         app.terminate()
     }

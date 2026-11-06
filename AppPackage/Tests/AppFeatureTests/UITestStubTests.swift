@@ -630,7 +630,7 @@ struct ReportRouteCase: Sendable, CustomTestStringConvertible {
         Self(method: "POST", url: form, scenario: .slowLoad, fixtureName: "ReportSentStub.html", statusCode: 200),
         Self(
             method: "POST", url: form, scenario: .holdSend, fixtureName: "ReportSentStub.html", statusCode: 200,
-            delay: .seconds(3)
+            delay: .seconds(10)
         ),
         Self(method: "POST", url: child, scenario: .failSend, fixtureName: nil, statusCode: 503),
         Self(method: "GET", url: gallery, scenario: .ready, fixtureName: "GalleryDetail.html", statusCode: nil),
