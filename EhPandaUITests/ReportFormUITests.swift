@@ -315,14 +315,15 @@ final class ReportFormUITests: XCTestCase {
         XCTAssertLessThan(form.frame.width, window.width - 100, "The form fills the screen: \(form.frame).")
         keepScreenshot("report-34-ipad", app: app)
 
-        app.typeKey(.return, modifierFlags: .command)
+        // On the iPad simulator ⌘ with `XCUIKeyboardKey.return` ("\r") never reached the shortcut; ⌘ with "\n" does.
+        app.typeKey("\n", modifierFlags: .command)
         RunLoop.current.run(until: Date.now.addingTimeInterval(2))
         XCTAssertFalse(try loggedRequests().contains(Self.reportPost), "⌘↩ sent a form that is not ready.")
         XCTAssertTrue(form.exists, "⌘↩ on a form that is not ready changed the sheet.")
 
         try fillInTheForm(in: app)
         keepScreenshot("report-34-ipad-ready", app: app)
-        app.typeKey(.return, modifierFlags: .command)
+        app.typeKey("\n", modifierFlags: .command)
         XCTAssertTrue(
             app.descendants(matching: .any)[Identifier.sent].waitForExistence(timeout: 10), "⌘↩ did not send."
         )
