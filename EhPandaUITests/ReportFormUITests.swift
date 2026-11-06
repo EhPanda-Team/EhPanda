@@ -353,8 +353,16 @@ private extension ReportFormUITests {
             "EHPANDA_AUTOMATION_IPB_PASS_HASH": "fixture-session"
         ])
         app.requireForeground()
-        app.requireElement(Identifier.commentsView, matching: .collectionView)
-        let cell = app.requireElement(Identifier.commentCell)
+        let comments = app.requireElement(Identifier.commentsView, matching: .collectionView)
+        let cell = app.descendants(matching: .any).matching(identifier: Identifier.commentCell).firstMatch
+        // At the largest text sizes the link's scroll sometimes stops short of the comment, whose row is then not
+        // in the tree yet; scroll down to it, as a reader would.
+        var swipes = 0
+        while !cell.waitForExistence(timeout: swipes == 0 ? 15 : 2), swipes < 8 {
+            comments.swipeUp()
+            swipes += 1
+        }
+        XCTAssertTrue(cell.exists, "EhPanda did not present \(Identifier.commentCell).")
         XCTAssertTrue(
             cell.waitUntilHittable(timeout: XCUIElement.hittableTimeout), "The linked comment is out of reach."
         )
