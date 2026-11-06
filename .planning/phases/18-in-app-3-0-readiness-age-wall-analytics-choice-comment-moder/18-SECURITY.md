@@ -4,9 +4,9 @@ slug: "in-app-3-0-readiness-age-wall-analytics-choice-comment-moder"
 status: verified
 # threats_open = count of OPEN threats at or above workflow.security_block_on severity (the blocking gate)
 threats_open: 0
-open_total: 1
-below_threshold_open: 1
-accepted: 0
+open_total: 0
+below_threshold_open: 0
+accepted: 1
 asvs_level: 1
 block_on: high
 register_authored_at_plan_time: true
@@ -83,14 +83,14 @@ not rerun.
 | 18-11 | T-18-20 | Information disclosure | Collapsed row and card, menu labels | medium | mitigate | As T-18-12: the row and card take no author. Tests: `theCollapsedRowHoldsNoAuthorOrText`, `theCollapsedLabelIsTheCatalogString`. `CommentModerationUITests` asserts that no static text carries the author while collapsed (7/7 on each device at `8b30b8c55`). | closed |
 | 18-12 | T-18-22 | Repudiation / integrity | README Analytics sections overclaiming | medium | mitigate | `18-copy-check.py --readmes` checks the three level descriptions verbatim and the retired claims. It was rerun for this audit: exit 0, 6 sections. | closed |
 | 18-12 | T-18-23 | Elevation of privilege / information disclosure | DEBUG launch keys or capture code in the Release product | high | mitigate | `verify-release.py` checks the `EHPANDA_` and `captureSystemOverlay` tokens, linkage and the launch probe (`:19-36`; `test_release.py`). Release scan at `f08a6a781`: PASS, 0 findings. The only later code change (`8b30b8c55`, parser) adds no DEBUG or capture code. | closed |
-| 18-01 to 18-12 | T-18-SC | Tampering | Package installs | low | accept | The plans' disposition is `accept`: no plan installs a package. Checked: across the phase (`e2174dfd2~1..HEAD`), no `Package.resolved` changed, and `Package.swift` adds only the local `InstallSourceClient` target and local module edges. No third-party dependency was added or bumped. **Needs owner acceptance.** In plain words: the phase added no outside code, and the plans chose to accept the small leftover risk of package tampering rather than add a check; only the owner can sign that off. | open — below high threshold (non-blocking), needs owner acceptance |
+| 18-01 to 18-12 | T-18-SC | Tampering | Package installs | low | accept | The plans' disposition is `accept`: no plan installs a package. Checked: across the phase (`e2174dfd2~1..HEAD`), no `Package.resolved` changed, and `Package.swift` adds only the local `InstallSourceClient` target and local module edges. No third-party dependency was added or bumped. Accepted by the owner (msg 1925, card 1924): the phase added no outside code, and the small leftover risk of package tampering is accepted rather than adding a check. | closed — accepted (see Accepted Risks Log) |
 
 *Status: open · closed · open — below high threshold (non-blocking)*
 *Severity: critical > high > medium > low — only open threats at or above workflow.security_block_on (high) count toward threats_open*
 *Disposition: mitigate (implementation required) · accept (documented risk) · transfer (third-party)*
 
 There are 24 threat IDs: T-18-01 to T-18-23 and the shared T-18-SC. 23 have disposition `mitigate`, and all 23 are
-closed. T-18-SC (`accept`) stays open until the owner accepts it. The agent did not add it to the Accepted Risks Log.
+closed. T-18-SC (`accept`) was accepted by the owner (msg 1925) and is closed; see the Accepted Risks Log.
 
 ---
 
@@ -129,8 +129,9 @@ Other checks:
 
 ## Accepted Risks Log
 
-None. T-18-SC is planned as `accept`, but the owner has not accepted it, so it is open in the register above and is
-not logged here.
+| ID | Severity | Risk | Rationale | Accepted By | Date |
+|----|----------|------|-----------|-------------|------|
+| T-18-SC | low | Tampering through package installs | No plan installs a package: no `Package.resolved` changed in the phase, and `Package.swift` adds only the local `InstallSourceClient` target. No third-party dependency was added or bumped, so a separate check would guard nothing new. | owner, msg 1925, card 1924 | 2026-11-06 |
 
 ---
 
@@ -139,15 +140,16 @@ not logged here.
 | Audit Date | Threats Total | Closed | Open | Run By |
 |------------|---------------|--------|------|--------|
 | 2026-11-05 | 24 | 23 | 1 (T-18-SC, low, below the high threshold; needs owner acceptance) | gsd-security-auditor (inline in /gsd-secure-phase 18, no subagents; ASVS L1, block_on high; the effort setting could not be set, so the audit was run as thoroughly as possible) |
+| 2026-11-06 | 24 | 24 | 0 | lead: T-18-SC closed as accepted by the owner (msg 1925, card 1924); no code change |
 
 ---
 
 ## Sign-Off
 
 - [x] All threats have a disposition (mitigate / accept / transfer)
-- [ ] Accepted risks documented in Accepted Risks Log: T-18-SC is waiting for owner acceptance
+- [x] Accepted risks documented in Accepted Risks Log (T-18-SC, owner-accepted, msg 1925)
 - [x] `threats_open: 0` confirmed (no open threat at or above high)
 - [x] `status: verified` set in frontmatter
 
-**Approval:** verified 2026-11-05 (threat register). T-18-SC is still open, below the threshold: it needs owner
-acceptance.
+**Approval:** verified 2026-11-05 (threat register). T-18-SC accepted by the owner 2026-11-06 (msg 1925); all 24
+threat IDs closed.
