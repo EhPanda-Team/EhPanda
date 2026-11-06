@@ -4,16 +4,16 @@ milestone: v3.0.0
 current_phase: "18.1"
 current_phase_name: Native report form
 status: executing
-stopped_at: Completed 18.1-03-PLAN.md
-last_updated: "2026-11-06T02:24:00.000Z"
+stopped_at: Completed 18.1-04-PLAN.md
+last_updated: "2026-11-06T19:25:00.000Z"
 last_activity: 2026-11-06
-last_activity_desc: Plan 18.1-03 complete (ReportFormFeature, its client and prefill; Report opens the form from both screens)
-state_head: 461e4a37c0ac4019a354579651a569047e5ba95d
+last_activity_desc: Plan 18.1-04 complete (the Report form sheet per C-13, its UI-test stubs and a UI test per state on iPhone and iPad)
+state_head: cfff03df8bc225503f8bf8f7cc77aff49d211f8e
 progress:
   total_phases: 21
   completed_phases: 17
   total_plans: 304
-  completed_plans: 302
+  completed_plans: 303
   percent: 81
 milestone_name: Dependency Reduction & Modernization
 source_head: b5eca09d1
@@ -36,9 +36,9 @@ mockups (01–04, 16–18 and 20 re-rendered; 25–31, 33 and 34 added; 32 withd
 - **Plans:** Wave 1: 18.1-01 (parser, report URL, requests), 18.1-02 (23 strings, copy check). Wave 2: 18.1-03
   (reducer, routing). Wave 3: 18.1-04 (view, stubs, a UI test per C-13 state). Wave 4: 18.1-05 (gate, then the
   agent-run Proxyman live check, the phase's only checkpoint).
-- **Open, non-blocking:** what the site returns after a real report (Research OQ-1, default DD-03); frame 26 shows a
-  leftover "Spam:" in Details (for Colo through the lead); `report.reason.choose` is approved but unused by C-13 (for
-  the lead).
+- **Open, non-blocking:** what the site returns after a real report (Research OQ-1, default DD-03); frame 26 showed a
+  leftover "Spam:" in Details (resolved: the refreshed frames, committed with 18.1-04, use the illegal-content
+  wording); `report.reason.choose` is approved but unused by C-13 (for the lead).
 
 Next: `/gsd-execute-phase 18.1`.
 
@@ -1031,6 +1031,7 @@ Phase 18 verification passed 10/10 on 2026-11-05 at `c2619c7a3` (tested source `
 | Phase 18.1 P01 | 20 min | 2 tasks | 11 files |
 | Phase 18.1 P02 | 25 min | 1 tasks | 3 files |
 | Phase 18.1 P03 | 25 min | 2 tasks | 11 files |
+| Phase 18.1 P04 | several sessions | 3 tasks | 20 files |
 
 ## Accumulated Context
 
@@ -1607,6 +1608,7 @@ Recent decisions affecting current work:
 - [Phase 18.1]: 18.1-01: the report POST is sent once (attempts: 1) to the gallery's ?report=<type> URL, never the page's form action; a reply is sent only when it is not a site error page and no longer shows #reportform. The form GET keeps the default retries. — Research F-1 and DD-02/DD-03: a retried POST can file duplicate reports, a page's action could point elsewhere, and an error page has no #reportform.
 - [Phase 18.1]: 18.1-02: 22 report.* keys ship in DetailFeature's catalog in six languages, verbatim from 18.1-COPY-REPORT-FORM.md; report.reason.choose does not ship (lead, msgs 1980/1983: C-13 has no picker). 18.1-copy-check.py fails on a missing, reworded, empty or unapproved report.* key and on any of the six gallery-only keys or report.reason.choose. — 18.1-04 uses the generated symbols and retires comment.report.confirm_title/_body.
 - [Phase 18.1]: 18.1-03: Report on a foreign comment sends CommentModerationFeature.delegate(.openReportForm(ReportFormFeature.State)) and Comments/Detail present destination .reportForm; the confirm alert is gone. ReportFormFeature.State has a failable init (nil without a report target); phases loading/ready/sending/sent/unavailable, a failed send returns to ready with Retry / Open Report Page / Cancel; canSend needs a reason, a trimmed non-empty email and Details beyond the prefill; DD-05 email check on Send; isDismissLocked while sending or edited (not once sent); the email lives only in state. — 18.1-04 renders the form, presents .reportForm in both views, removes reportPage(URL) and the retired confirm keys, and updates CommentModerationUITests (its report case expects the old alert until then).
+- [Phase 18.1]: 18.1-04: ReportFormView renders every C-13 state in a NavigationStack sheet with only the leading Close, the inline "Report on {site}" title and a pinned .safeAreaBar .glassProminent button with no background (soft scroll edge top and bottom). Comments and Detail present .reportForm, and presenting sends the form's .task from the reducer. The failed alert is built in the view so Retry is the default, in the reducer's Retry / Open Report Page / Cancel order. Open Report Page presents ReportPageSheet over the kept form. reportPage(URL) and comment.report.confirm_title/_body are gone, and 18-copy-check.py lists the two keys as retired. EHPANDA_UITEST_REPORT_SCENARIO (ready, slowLoad 6 s, holdSend 10 s, failSend, unavailable) is DEBUG and stubbed-launch only. ReportFormUITests has one test per state (frames 25–31, 33, 34) and passes on both devices. — 18.1-05 runs the gate (whole UITests plan on both devices, Release scan for EHPANDA_), then the Proxyman live check. Open: at AX5 a comment link's scrollTo sometimes stops short of the comment (Phase 18 code; the tests now scroll to it).
 
 ### Phase 16 transition decisions (2026-09-23)
 
@@ -1723,8 +1725,8 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-11-06T02:24:00.000Z
-Stopped at: Completed 18.1-03-PLAN.md
+Last session: 2026-11-06T19:25:00.000Z
+Stopped at: Completed 18.1-04-PLAN.md
 Resume file: None
 
 Earlier stop (2026-10-13T10:50:00Z, historical): 17-06 revision re-shot, 16/16 captured (`.capture/17-06-t-native-*`); superseded by the owner's 2026-11-02 approval of the 192-image website set.
