@@ -15,7 +15,8 @@ analytics, continued downloads and accessibility, and capture the screenshot fou
 closes a reduced screenshot and layout scope. The remaining 3.0 work is split into three phases (owner
 msg 1753, 2026-11-05): Phase 18 does the in-app work (first-launch age wall, analytics choice, comment
 moderation, the reader page-tracking rework and the other in-app carries); Phase 19 the visual-regression
-and marketing-export work moved from Phase 17, covering the new screens; Phase 20 distribution (the
+(screenshot) check moved from Phase 17, covering the new screens, plus a daily live-parsing check (the
+marketing export was dropped, owner msg 1949); Phase 20 distribution (the
 AltStore PAL marketplace build, notarization, listing, release mechanics, real-device checks) and, last,
 the analytics revision with install-source tracking.
 
@@ -47,8 +48,15 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 17: Screenshot Automation, Visual Regression & OS 27 Modernization** - Reduced 2026-11-03: capture foundation and the approved 192-image website set, verification of the landed size-class layout, the remaining idiom census and the Release isolation check; regression, marketing export and AltStore work moved to Phase 18 (now split: regression and marketing export → Phase 19, AltStore work → Phase 20) (completed 2026-11-05)
 - [x] **Phase 18: In-App 3.0 Readiness: Age Wall, Analytics Choice, Comment Moderation & Reader Rework** - Two first-launch screens for everyone (age wall, then Minimal/Basic/Full analytics choice, SDK off until chosen), E-Hentai comment report, posting warning, collapsed blocking and a Blocked Users list, the reader page-tracking rework with G1/G2 UI tests, IN-02/IN-03 and `MKSellsDigitalGoods` (completed 2026-11-06)
 - [ ] **Phase 18.1: Native report form (INSERTED)** - EhPanda's own report form for comments (owner msg 1931): two illegal-content reasons, required email never stored, English prefill, pinned Send Report; the site's page stays as the fallback; no gallery reports (owner msg 1975)
-- [ ] **Phase 19: Visual Regression & Marketing Export** - The snapshot matrix, one owner-approved baseline, the full-matrix CI gate, preview review, the 384 export with its final selection and six-per-period Toplists fixtures, and the `Scripts/visual/README.md` rewrite, moved from Phase 17 and covering the Phase 18 screens
+- [ ] **Phase 19: Visual Regression & Daily Live-Parsing Check** - The screenshot check moved from Phase 17 (snapshot matrix, one owner-approved baseline, the full-matrix CI gate, preview review and the `Scripts/visual/README.md` rewrite), covering the Phase 18 and 18.1 screens, plus a daily CI check that runs the app's parsers on the live pages (owner msg 2006); the 384 export and final gallery selection are dropped (owner msg 1949)
 - [ ] **Phase 20: 3.0 Distribution: Marketplace Build, Notarization, Listing & Release Checks** - AltStore PAL marketplace build (same features), notarization pipeline, PAL source and listing with decorated store screenshots, website privacy/support/contact links, release mechanics, real-device checks, the repeated Release isolation scan and, last, the analytics revision with install source
+
+## Future milestones (after 3.0)
+
+Recorded 2026-11-06 (owner msg 2001; product lead msgs 2002, 2005). These items do not change the 3.0 scope and have no phase yet; they are TAG-01 and TAG-02 under v2 Requirements in REQUIREMENTS.md.
+
+- **Native tag management page**: EhPanda's own screen for watched and hidden tags, replacing the E-Hentai My Tags web page that Account settings opens today. This closes the last feature reachable only through the website; the remaining web pages (the sign-in and E-Hentai settings globe shortcuts, the Cloudflare check page, the report page fallback) are optional or required by the site.
+- **Tag context menu actions**: long-pressing a tag on a gallery page offers its actions in a menu; today voting is only through the buttons on the tag.
 
 ## Phase Details
 
@@ -707,7 +715,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 17. Screenshot Automation, Visual Regression & OS 27 Modernization | 13/13 | Complete    | 2026-11-05 |
 | 18. In-App 3.0 Readiness: Age Wall, Analytics Choice, Comment Moderation & Reader Rework | 12/12 | Complete    | 2026-11-06 |
 | 18.1. Native report form (INSERTED) | 3/5 | In Progress |  |
-| 19. Visual Regression & Marketing Export | 0/TBD | Not started|  |
+| 19. Visual Regression & Daily Live-Parsing Check | 0/TBD | Not started|  |
 | 20. 3.0 Distribution: Marketplace Build, Notarization, Listing & Release Checks | 0/TBD | Not started|  |
 
 ### Phase 12: Cloudflare Login Restoration
@@ -1330,7 +1338,7 @@ Plans:
 
 **Moved to Phase 18** *(owner decision 2026-11-03, msg 1305; plan files kept in place with `status: superseded`)*:
 
-- 17-07-PLAN.md — Produce all 384 marketing outputs and a complete local handoff (now Phase 19)
+- 17-07-PLAN.md — Produce all 384 marketing outputs and a complete local handoff (moved to Phase 19, then dropped 2026-11-06, owner msg 1949)
 - 17-08-PLAN.md — Expand regression coverage for browsing and gallery content (now Phase 19)
 - 17-09-PLAN.md — Cover reader modes and overlays across complete regression axes (now Phase 19)
 - 17-10-PLAN.md — Cover settings, utilities and remaining presentation states (now Phase 19)
@@ -1340,7 +1348,7 @@ Plans:
 - 17-14 T1/T3 — Full-matrix PR/release snapshot gate and clean-checkout acceptance (now Phase 19)
 - 17-15-PLAN.md — Document and validate reusable Xcode agent preview review (now Phase 19)
 - 17-20-PLAN.md — Review and approve post-audit snapshot changes (no longer needed separately: the layout migration already landed, so Phase 18's single baseline approval covers it; now Phase 19)
-- 17-21-PLAN.md — Replace provisional galleries with final owner selections (now Phase 19)
+- 17-21-PLAN.md — Replace provisional galleries with final owner selections (moved to Phase 19, then dropped 2026-11-06, owner msg 1949)
 - 17-22-PLAN.md — Hand off sources to the designer and validate promotional delivery (now Phase 20)
 
 Phase 17 is complete (2026-11-05) at the reduced scope above. The moved plans are not executed or approved; Phase 18 owns them.
@@ -1393,6 +1401,8 @@ Ordered plan outline (old step numbers are the original Phase 18's):
 - Outline steps: 1 → 18 (`MKSellsDigitalGoods`) and 20 (workflows, build number, AltStore.json history, marketplace flavor; the `3.0.0` tag checkpoint is dropped, owner msg 1753). 2, 3, 4 and 4b → 18. 5, 6 and 8 → 19. 7 → 19 (CI gate, preview docs), 18 (IN-02/IN-03) and 20 (final Release scan). 9, 10, 11 and 12 → 20.
 - Scope items: 1 → 19 (snapshot tests, 384 export) and 20 (promotional images). 2 → 20 (the analytics revision is the last plan of Phase 20). 3 → 18 (contact details → 20). 4 → 18. 5 and 6 → 20. 7 → 18. 8 → 19.
 - Success criteria: 1 → 20 (its `MKSellsDigitalGoods` part → 18; tag wording replaced, owner msg 1753). 2, 3 and 4 → 18 (criterion 4's contact part → 20; its support-contact fallback dropped, owner msg 1753). 5 → 19. 6 → 19 (export, selection, 384) and 20 (promotional images). 7, 8, 9 and 10 → 20.
+
+*Note (2026-11-06, owner msg 1949; lead msg 1952):* the parts of this map that send the 384 export, its tooling, the final gallery selection, the 384 regeneration and the six-per-period Toplists fixtures to Phase 19 no longer apply: they were dropped, not moved. Phase 19 is now the screenshot check plus a daily live-parsing check (owner msg 2006).
 
 Plans:
 
@@ -1451,40 +1461,43 @@ Plans:
 **Wave 4** *(blocked on Wave 3 completion)*
 - [ ] 18.1-05-PLAN.md — phase gate on both devices and in Release, then the agent-run Proxyman live check (the phase's only checkpoint)
 
-### Phase 19: Visual Regression & Marketing Export
+### Phase 19: Visual Regression & Daily Live-Parsing Check
 
-**Goal**: Complete the visual-regression and marketing-export work moved from Phase 17, against the settled 3.0 UI and including every Phase 18 screen: the snapshot scenario matrix, public real-app dispatch, strict never-record comparison and the review report, one owner-approved baseline, the full-matrix CI gate on every PR and release, preview review documentation, the 384-coordinate export tooling and handoff validator, the final gallery selection and 384 regeneration with at least six Toplists galleries per period, and the `Scripts/visual/README.md` rewrite.
-**Depends on**: Phase 18 (every UI change lands before the one baseline approval).
-**Requirements**: VIS-18-01, MKT-18-01 (384 export tooling, final gallery selection and regeneration; the promotional images map to Phase 20); moved from Phase 17: CAP-17-02, CAP-17-03, the moved parts of CAP-17-01 (17-11, 17-21) and CAP-17-06 (17-09-T2, 17-15), and CAP-17-04's moved 384 export (under MKT-18-01).
+**Goal**: Complete the visual-regression (screenshot) check moved from Phase 17, against the settled 3.0 UI and including every Phase 18 and Phase 18.1 screen: the snapshot scenario matrix, public real-app dispatch, strict never-record comparison and the review report, one owner-approved baseline, the full-matrix CI gate on every PR and release, preview review documentation and the `Scripts/visual/README.md` rewrite. Add a daily live-parsing check: a scheduled CI workflow that runs the app's own parsers on the live pages EhPanda reads and reports a break through one GitHub issue (owner msg 2006). No marketing pictures are produced here (owner msg 1949).
+**Depends on**: Phase 18 and Phase 18.1 (every UI change, the native Report form included, lands before the one baseline approval).
+**Requirements**: VIS-18-01, VIS-19-01 (daily live-parsing check); moved from Phase 17: CAP-17-02, CAP-17-03, and the moved parts of CAP-17-01 (17-11) and CAP-17-06 (17-09-T2, 17-15). MKT-18-01's 384 export tooling, final gallery selection and regeneration, CAP-17-04's moved 384 export and 17-21 were dropped (owner msg 1949); MKT-18-01's remaining part maps to Phase 20.
 
 **Scope and owner decisions** (context: [19-CONTEXT.md](phases/19-visual-regression-marketing-export/19-CONTEXT.md); discussion not yet run):
 
-1. Owner msg 1305: the snapshot tests (17-08 to 17-13, 17-14 T1/T3, 17-15, 17-20) and the 384 export (17-07, 17-21) are moved, not deferred past 3.0. 17-20's separate re-approval folds into the one baseline approval.
+1. Owner msg 1305: the snapshot tests (17-08 to 17-13, 17-14 T1/T3, 17-15, 17-20) are moved, not deferred past 3.0. 17-20's separate re-approval folds into the one baseline approval.
 2. Owner msg 1753: three phases; this one runs after the in-app work so the baseline is approved once, against final UI.
-3. Coverage includes the Phase 18 screens: age wall, analytics choice, the Settings analytics picker, the comment report confirmation, the posting warning, the collapsed blocked-comment row and the Blocked Users list with its empty state.
-4. Fixtures carry at least six galleries per Toplists period so the regular-width two-by-three grid is full (Phase 17 scope 6); `Scripts/visual/selection-review.py` and `Scripts/visual/README.md` currently require three.
-5. Rewrite `Scripts/visual/README.md` (was scope item 8): the fixture index is now `website-capture-20261104.json` (11 fixture versions), not `website-capture-20261102.json`, and this phase, not 17-02, 17-05 or 17-07, owns the regression and marketing runners.
-6. Phase 17's decisions for the moved plans carry unchanged (17-CONTEXT.md D-02, D-04, D-05, D-07, D-12 to D-14). Pushing the fixture repository commits (R4-3) stays the owner's decision.
+3. Coverage includes the Phase 18 and 18.1 screens: age wall, analytics choice, the Settings analytics picker, the native Report form (Phase 18.1), the posting warning, the collapsed blocked-comment row and the Blocked Users list with its empty state.
+4. Removed from this phase (owner msg 1949; lead msg 1952; restated by the product lead in msg 1993): no regenerated iPhone marketing pictures and no iPad marketing pictures are planned. The 384-coordinate export tooling and its handoff validator (17-07), the final gallery selection and the 384 regeneration (17-21) are dropped, not moved. The "at least six galleries per Toplists period" fixture requirement (Phase 17 scope 6) existed only for the regular-width grids of those pictures and is dropped with them; the fixtures keep three per period.
+5. Rewrite `Scripts/visual/README.md` (was scope item 8): the fixture index is now `website-capture-20261104.json` (11 fixture versions), not `website-capture-20261102.json`, and this phase, not 17-02, 17-05 or 17-07, owns the regression runner.
+6. Phase 17's decisions for the moved snapshot plans carry unchanged (17-CONTEXT.md D-07, D-12 to D-14). Pushing the fixture repository commits (R4-3) stays the owner's decision.
+7. Run limits (owner msg 1949): one full check may take up to 2 days before options go back to the owner; weekly dependency updates also wait for the full check; per-simulator serial capture is allowed for screenshot runs only, with several simulators running in parallel; the screenshot check goes first.
+8. Matrix size and storage (owner msg 1949): the owner questioned the image count and the 30–100 GB storage estimate ("I expected hundreds of reference pictures"; "swift-snapshot-testing snapshots won't take so much space"). Both are re-derived with swift-snapshot-testing during the discussion. A spike measured package-test snapshots at about 27, 80 and 124 KB per light image at 1x, 2x and 3x, but found that package tests cannot render Liquid Glass, materials, alerts or sheets, so the capture path (app-hosted or package tests) is decided in the discussion.
+9. Daily live-parsing check (owner msg 2006; product lead msg 2007): a scheduled GitHub Actions workflow runs once a day, fetches the live pages EhPanda parses (at least the Home front page, search, Popular, Toplists, a gallery with comments, the reader page and its image data, tag suggestions and the native Report form page) and runs the app's own parsers on them. It is read-only: it never sends a report, comment, vote, favorite or rating. On a failure it opens or updates one GitHub issue naming the page and what the parser expected, and closes that issue on the next clean run. Issues and logs carry no page content, images, gallery titles or account details, because the repository is public. Pages that need sign-in (Watched, Favorites, ExHentai) need a sign-in kept as a GitHub secret, which the owner supplies later; until then they are covered by saved fixtures only. Whether E-Hentai admits GitHub runner IPs is checked early; if it does not, options go back to the owner.
 
 **Success Criteria** (what must be TRUE):
 
-  1. The snapshot matrix covers every screen and state, the Phase 18 UI included, across six locales, all 12 Dynamic Type sizes, portrait and landscape, iPhone and iPad, and light and dark; each coordinate is captured, failed or justified not applicable.
+  1. The snapshot matrix covers every screen and state, the Phase 18 and 18.1 UI included, across six locales, all 12 Dynamic Type sizes, portrait and landscape, iPhone and iPad, and light and dark; each coordinate is captured, failed or justified not applicable. The matrix size and storage are re-derived in the discussion (scope item 8).
   2. Comparison is strict and never records; the screen-grouped baseline/actual/diff report is filterable, and a controlled regression proves detection.
   3. One owner-approved baseline covers the complete set, including the landed layout (17-20 folded in).
   4. The complete matrix gates every PR and release in CI, with its runtime reported; the native visual policy tests (17-09-T2) run in it.
   5. Preview review is documented and validated (17-15).
-  6. The 384-coordinate export tooling and handoff validator exist; the owner approves the final gallery selection and the regenerated 384 set; Toplists fixtures hold at least six galleries per period.
-  7. `Scripts/visual/README.md` matches the reduced Phase 17 harness and this phase's producers.
+  6. A scheduled workflow runs the app's own parsers once a day on the live pages listed in scope item 9, sends nothing to the site beyond page reads, opens or updates one GitHub issue per failure naming the page and the expected structure, closes it on the next clean run, and leaves no page content, images, gallery titles or account details in issues or logs. Sign-in pages are covered by saved fixtures until the owner supplies the sign-in secret, and the runner-IP result is recorded.
+  7. `Scripts/visual/README.md` matches the reduced Phase 17 harness and this phase's regression runner.
   8. Release builds still contain no capture code, fixtures, test assets or SnapshotTesting linkage.
 
 **Plans**: 0 plans (outline only; PLAN files come from `/gsd-plan-phase 19`).
 
-Ordered plan outline (old step numbers are the original Phase 18's):
+Ordered plan outline (old step numbers are the original Phase 18's; the old Step 8, the marketing export, final gallery selection and 384 regeneration from 17-07 and 17-21, is dropped, owner msg 1949):
 
-- **Scenarios, dispatch and compare/report** (was Step 5; from 17-08 to 17-12), including the Phase 18 screens and the six-per-period Toplists fixtures.
+- **Scenarios, dispatch and compare/report** (was Step 5; from 17-08 to 17-12), including the Phase 18 and 18.1 screens.
 - **Checkpoint (owner): one baseline approval** (was Step 6; from 17-13).
 - **CI snapshot gate, preview review docs and the README rewrite** (was Step 7 without IN-02/IN-03 and the final Release scan; from 17-14 T1/T3 and 17-15).
-- **Marketing export tooling, final gallery selection and 384 regeneration** (was Step 8; from 17-07 and 17-21). **Checkpoint (owner):** final gallery selection.
+- **Daily live-parsing check** (VIS-19-01; owner msg 2006): the scheduled workflow, the parser runs on the live pages, the single-issue open/update/close logic and content-free logs; sign-in pages on saved fixtures until the owner's secret exists. Its first task, whether E-Hentai admits GitHub runner IPs, runs early in the phase; if it does not, options go back to the owner.
 
 Plans:
 
