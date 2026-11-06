@@ -26,8 +26,11 @@ the English opt-out phrases and none of the file's own pre-3.0 opt-out sentences
 `consent.body` or `consent.level.recommended`, so neither is checked there, and the retired `consent.body` texts are
 not README findings: a README may still name TelemetryDeck and say why analytics are collected.
 
-Only placeholders are transformed: `{site}` -> `%1$@` and the author `%@` -> `%2$@` in
-`comment.report.confirm_body`; `{site}` -> `%@` in `comment.report`. Nothing else is rewritten.
+Only placeholders are transformed: `{site}` -> `%@` in `comment.report`. Nothing else is rewritten.
+
+`comment.report.confirm_title` and `comment.report.confirm_body` are retired (18.1-04): Report opens EhPanda's own
+Report form directly, so the confirmation alert is gone. Like the `consent.level.none*` keys, they must be absent from
+every catalog and their approved texts must not appear under another key.
 
 Standard library only.
 """
@@ -59,8 +62,13 @@ CATALOG_GLOB = "AppPackage/Sources/**/*.xcstrings"
 PRIVACY_KEY = "contact.privacy_policy"
 PRIVACY_URL = "https://ehpanda.app/privacy"
 
-# Retired keys: never present in any catalog (D-06a).
-RETIRED_KEYS = ("consent.level.none", "consent.level.none.description")
+# Retired keys: never present in any catalog (D-06a; the report confirmation, 18.1-04 / Research F-5).
+RETIRED_KEYS = (
+    "consent.level.none",
+    "consent.level.none.description",
+    "comment.report.confirm_title",
+    "comment.report.confirm_body",
+)
 
 # Section headings of the Minimal file whose tables are read, by role.
 MINIMAL_FIRST_TABLE = "New strings"
@@ -163,9 +171,7 @@ def parse_tables(path: Path) -> list[tuple[str, str, dict[str, str]]]:
 
 
 def transform(key: str, value: str) -> str:
-    """The only rewrite: the placeholders of the two report keys."""
-    if key == "comment.report.confirm_body":
-        return value.replace("{site}", "%1$@").replace("%@", "%2$@")
+    """The only rewrite: the placeholder of `comment.report`."""
     if key == "comment.report":
         return value.replace("{site}", "%@")
     return value
@@ -493,6 +499,15 @@ def self_test() -> int:
             },
         }
 
+    def report_confirm_key(catalogs):
+        catalogs[DETAIL_CATALOG]["comment.report.confirm_title"] = {
+            "extractionState": "manual",
+            "localizations": {
+                locale: {"stringUnit": {"state": "translated", "value": "Report this comment?"}}
+                for locale in LOCALES
+            },
+        }
+
     cases = [
         ("correct catalogs pass", None, None),
         ("a curly apostrophe in age_wall.footnote fails", apostrophe, "differs: age_wall.footnote [en]"),
@@ -505,6 +520,8 @@ def self_test() -> int:
         ("a missing consent.level.recommended fails", missing_recommended, "missing key: consent.level.recommended"),
         ("a consent.title with a line break fails", title_line_break, "line break: consent.title [en]"),
         ("a consent.level.none key fails", none_key, "retired key: consent.level.none"),
+        ("a retired comment.report.confirm_title key fails", report_confirm_key,
+         "retired key: comment.report.confirm_title"),
     ]
 
     # The retired list must hold every superseded row in all six languages.

@@ -16,9 +16,6 @@ public struct CommentsReducer: Sendable {
     public enum Destination {
         @ReducerCaseIgnored
         case postComment(String)
-        /// The gallery's report page. Nothing opens it any more; 18.1-04 removes it with its view call site.
-        @ReducerCaseIgnored
-        case reportPage(URL)
         /// EhPanda's Report form, opened from a comment's Report (18.1 D-01).
         case reportForm(ReportFormFeature)
     }
@@ -153,7 +150,8 @@ public struct CommentsReducer: Sendable {
 
             case .moderation(.delegate(.openReportForm(let form))):
                 state.destination = .reportForm(form)
-                return .none
+                // Presenting the form is what reads the site's form, replacing a view lifecycle hook.
+                return .send(.destination(.presented(.reportForm(.task))))
 
             case .moderation(.delegate(.didBlock(let memberID))):
                 state.moderation.collapseComments(by: memberID, in: state.comments)

@@ -118,6 +118,8 @@ struct CommentsReducerTests {
         await store.send(.moderation(.delegate(.openReportForm(form)))) {
             $0.destination = .reportForm(form)
         }
+        // Presenting asks the form to load; a form that is already sent reads nothing.
+        await store.receive(\.destination.presented.reportForm.task)
         #expect(form.site == "ExHentai")
         await store.send(.destination(.presented(.reportForm(.primaryTapped))))
         await store.receive(\.destination.dismiss) {

@@ -93,8 +93,10 @@ struct CommentsView: View {
             )
             .privacyMask()
         }
-        .sheet(item: $store.destination.reportPage, id: \.self) { url in
-            ReportPageSheet(url: url.wrappedValue)
+        // EhPanda's Report form; it presents the site's page itself when asked (18.1 D-01, P-7).
+        .sheet(item: $store.scope(\.$destination, action: \.destination).reportForm) { store in
+            ReportFormView(store: store)
+                .privacyMask()
         }
         .scrollEdgeEffectStyle(.soft, for: .top)
         .toast($store.scope(\.$toast, action: \.toast))
