@@ -316,6 +316,27 @@ final class AccessibilityAuditUITests: XCTestCase {
         try audit(app, surface: "Detail › Comments")
     }
 
+    /// The Report form, ready, opened from the linked comment's `…` menu (18.1-04, UI-SPEC C-13 [25]).
+    func testReportFormAudit() throws {
+        let app = XCUIApplication()
+        let commentURL = try XCTUnwrap(UITestConstants.commentURL(scheme: "ehpanda"))
+        try app.openCold(commentURL, extraEnvironment: [UITestConstants.reportScenarioEnvironmentKey: "ready"])
+        app.requireForeground()
+        app.requireElement("comments_view", matching: .collectionView)
+        let linkedComment = app.requireElement("comment_cell_" + UITestConstants.commentID)
+        settle(app, for: 2.5)
+        // The `…` button never reads as hittable inside the cell's combined element, so it is tapped where it sits.
+        let menu = linkedComment.images["ellipsis"].firstMatch
+        XCTAssertTrue(menu.waitForExistence(timeout: 10), "The comment has no … button.")
+        menu.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
+        app.buttons["Report on E-Hentai"].firstMatch.tapWhenHittable("Report in the menu")
+        app.requireElement("report_form")
+        XCTAssertTrue(
+            app.buttons["report_reason_child"].waitForExistence(timeout: 15), "The Report form shows no reasons."
+        )
+        try audit(app, surface: "Report form")
+    }
+
     // MARK: Reading
 
     func testReadingPageAudit() throws {
