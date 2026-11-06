@@ -64,7 +64,8 @@ final class UITestStubURLProtocol: URLProtocol {
     enum ReportScenario: String, CaseIterable, Sendable {
         /// The form loads at once and a report is sent.
         case ready
-        /// The form takes 2 s to load, so the spinner shows.
+        /// The form takes 6 s to load, so the spinner stays long enough for a UI test to read it after the
+        /// form opens.
         case slowLoad
         /// A report takes 3 s to be answered, so the sending state shows.
         case holdSend
@@ -204,7 +205,7 @@ final class UITestStubURLProtocol: URLProtocol {
         case .unavailable:
             return ReportAnswer(fixtureName: "ReportUnavailable.html", statusCode: 200, delay: .zero)
         case .slowLoad:
-            return ReportAnswer(fixtureName: "ReportOther.html", statusCode: 200, delay: .seconds(2))
+            return ReportAnswer(fixtureName: "ReportOther.html", statusCode: 200, delay: .seconds(6))
         case .ready, .holdSend, .failSend:
             return ReportAnswer(fixtureName: "ReportOther.html", statusCode: 200, delay: .zero)
         }
