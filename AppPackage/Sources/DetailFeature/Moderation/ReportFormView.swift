@@ -109,7 +109,7 @@ struct ReportFormView: View {
                     .containerRelativeFrame(.vertical) { length, _ in length }
             }
             .scrollBounceBehavior(.basedOnSize)
-            .scrollEdgeEffectStyle(.soft, for: .bottom)
+            .scrollEdgeEffectStyle(.soft, for: [.top, .bottom])
         }
     }
 
@@ -121,9 +121,11 @@ struct ReportFormView: View {
                 ForEach(store.reasons, id: \.self, content: reasonRow)
             } header: {
                 VStack(alignment: .leading, spacing: 4) {
+                    // `Color.secondary`, not `.secondary`: the header already draws in its secondary style, and a
+                    // hierarchical `.secondary` inside it would fade the intro one level further.
                     Text(.reportIntro(store.site))
                         .font(.subheadline)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(Color.secondary)
                         .textCase(nil)
                     Text(.reportReason)
                 }
@@ -170,7 +172,7 @@ struct ReportFormView: View {
         }
         .formStyle(.grouped)
         .disabled(store.phase == .sending)
-        .scrollEdgeEffectStyle(.soft, for: .bottom)
+        .scrollEdgeEffectStyle(.soft, for: [.top, .bottom])
         .animation(reduceMotion ? nil : .default, value: store.reason != nil)
         .animation(reduceMotion ? nil : .default, value: store.emailInvalid)
         .onChange(of: store.emailInvalid) { _, isInvalid in
@@ -187,9 +189,11 @@ struct ReportFormView: View {
             store.send(.reasonTapped(reason))
         } label: {
             HStack {
+                // `Color.primary`: a button in a form row draws its label in the tint, and a hierarchical
+                // `.primary` would resolve against it; the row's title is primary text (C-13 Form).
                 Text(title(for: reason))
                     .font(.body)
-                    .foregroundStyle(.primary)
+                    .foregroundStyle(Color.primary)
                 Spacer(minLength: 8)
                 if isSelected {
                     Image(systemSymbol: .checkmark)
@@ -267,7 +271,7 @@ struct ReportFormView: View {
         }
         .disabled(!isPrimaryEnabled)
         // The failed alert belongs to the button that sent the report (AGENTS.md alert placement).
-        .appAlert($store.scope(\.$alert, action: \.alert))
+        .modifier(ReportFailedAlert(item: $store.scope(\.$alert, action: \.alert)))
     }
 
     private var isPrimaryEnabled: Bool {
@@ -312,7 +316,9 @@ private struct ReportPrimaryButton: View {
             Text(.reportSend)
         case .sending:
             HStack(spacing: 8) {
+                // The regular spinner sits on the label's line; the bar's large control size would draw it large.
                 ProgressView()
+                    .controlSize(.regular)
                     .tint(isEnabled ? Self.onAccentLabel : Color.secondary)
                 Text(.reportSending)
             }
@@ -324,6 +330,37 @@ private struct ReportPrimaryButton: View {
     }
 
     private static let onAccentLabel = Color(uiColor: UIColor { $0.userInterfaceStyle == .dark ? .black : .white })
+}
+
+/// The failed alert (C-13 Failed), drawn like `appAlert` but with Retry as the alert's default button: it is the
+/// first button, and the one Return chooses. The buttons keep the reducer's order: Retry, Open Report Page, Cancel.
+private struct ReportFailedAlert: ViewModifier {
+    @Binding var item: Store<AppAlertState<ReportFormFeature.Alert>, ReportFormFeature.Alert>?
+
+    func body(content: Content) -> some View {
+        content.alert(
+            item.map({ Text($0.title) }) ?? Text(verbatim: ""),
+            isPresented: Binding($item),
+            presenting: item,
+            actions: { store in
+                ForEach(store.buttons) { button in
+                    Button(role: button.role.map(ButtonRole.init)) {
+                        button.withAction { action in
+                            if let action { store.send(action) }
+                        }
+                    } label: {
+                        Text(button.label)
+                    }
+                    .keyboardShortcut(button.action.action == .retry ? .defaultAction : nil)
+                }
+            },
+            message: { store in
+                if let message = store.message {
+                    Text(message)
+                }
+            }
+        )
+    }
 }
 
 /// The form's only toolbar item: the leading system Close, icon only (Colo msg 1974), which the reducer can refuse
