@@ -256,7 +256,8 @@ struct UITestStubTests {
             "EHPANDA_UITEST_REQUEST_LOG": "/tmp/requests.log",
             "EHPANDA_UITEST_BLOCKED_USERS": #"[{"memberID":"1","name":"A"}]"#,
             "EHPANDA_UITEST_DISPLAY_NAME": "X",
-            "EHPANDA_UITEST_DROP_INITIAL_IDLE": "1"
+            "EHPANDA_UITEST_DROP_INITIAL_IDLE": "1",
+            "EHPANDA_UITEST_REPORT_SCENARIO": "failSend"
         ]
         #expect(try UITestAutomation.resolve(environment: keys, now: .now) == nil)
 
@@ -270,6 +271,7 @@ struct UITestStubTests {
         #expect(clientOnly.storagePreset == nil)
         #expect(clientOnly.requestLogURL == nil)
         #expect(!clientOnly.dropsReaderInitialIdleReport)
+        #expect(clientOnly.reportScenario == .ready)
     }
 
     /// A hosted visual test renders into storage of its own, made fresh for each store, so its block list is
@@ -542,6 +544,99 @@ struct UITestStubTests {
         #expect(UITestAutomation.PauseRefusal.notFound.error == .notFound)
         #expect(UITestAutomation.PauseRefusal.unknown.error == .unknown)
     }
+}
+
+// MARK: Report form scenarios (18.1-04)
+
+extension UITestStubTests {
+    /// The Report form's requests go to the gallery URL with a `report` query, so they are routed before the
+    /// gallery page; each scenario picks the answer, its status and how long it waits.
+    @Test(arguments: ReportRouteCase.all)
+    func reportQueriesRouteBeforeTheGalleryPage(_ route: ReportRouteCase) throws {
+        let url = try #require(URL(string: route.url))
+        let fixtureName = UITestStubURLProtocol.fixtureName(for: url, method: route.method, scenario: route.scenario)
+        expectNoDifference(fixtureName, route.fixtureName)
+        let answer = UITestStubURLProtocol.reportAnswer(for: url, method: route.method, scenario: route.scenario)
+        if let statusCode = route.statusCode {
+            expectNoDifference(
+                answer,
+                UITestStubURLProtocol.ReportAnswer(
+                    fixtureName: route.fixtureName, statusCode: statusCode, delay: route.delay
+                )
+            )
+        } else {
+            #expect(answer == nil)
+        }
+    }
+
+    @Test
+    func theGalleryPageRouteIsUnchanged() throws {
+        let url = try #require(URL(string: "https://e-hentai.org/g/3103480/0000000000/"))
+        #expect(UITestStubURLProtocol.fixtureName(for: url) == "GalleryDetail.html")
+        let alternate = try #require(URL(string: "https://e-hentai.org/g/2930572/daf4b9880d/?p=1"))
+        #expect(UITestStubURLProtocol.fixtureName(for: alternate) == "GalleryDetailAlt.html")
+    }
+
+    @Test(arguments: [
+        ReportScenarioCase(value: "slowLoad", expected: .slowLoad),
+        ReportScenarioCase(value: " holdSend\n", expected: .holdSend),
+        ReportScenarioCase(value: "failSend", expected: .failSend),
+        ReportScenarioCase(value: "unavailable", expected: .unavailable),
+        ReportScenarioCase(value: "ready", expected: .ready),
+        ReportScenarioCase(value: "gallery", expected: .ready),
+        ReportScenarioCase(value: "copyright", expected: .ready),
+        ReportScenarioCase(value: nil, expected: .ready)
+    ])
+    func aStubbedLaunchNamesItsReportScenario(_ scenario: ReportScenarioCase) throws {
+        var environment = ["EHPANDA_UITEST_STUB_NETWORK": "1"]
+        environment["EHPANDA_UITEST_REPORT_SCENARIO"] = scenario.value
+        let configuration = try #require(try UITestAutomation.resolve(environment: environment, now: .now))
+        #expect(configuration.reportScenario == scenario.expected)
+    }
+}
+
+struct ReportScenarioCase: Sendable, CustomTestStringConvertible {
+    let value: String?
+    let expected: UITestStubURLProtocol.ReportScenario
+
+    var testDescription: String { value.map({ "\"\($0)\"" }) ?? "absent" }
+}
+
+struct ReportRouteCase: Sendable, CustomTestStringConvertible {
+    let method: String
+    let url: String
+    let scenario: UITestStubURLProtocol.ReportScenario
+    let fixtureName: String?
+    /// `nil` when the request is not a report request.
+    let statusCode: Int?
+    var delay: Duration = .zero
+
+    var testDescription: String { "\(method) \(url) [\(scenario)]" }
+
+    static let form = "https://e-hentai.org/g/3103480/0000000000/?report=other"
+    static let child = "https://e-hentai.org/g/3103480/0000000000/?report=child"
+    static let gallery = "https://e-hentai.org/g/3103480/0000000000/"
+
+    static let all: [Self] = [
+        Self(method: "GET", url: form, scenario: .ready, fixtureName: "ReportOther.html", statusCode: 200),
+        Self(
+            method: "GET", url: form, scenario: .slowLoad, fixtureName: "ReportOther.html", statusCode: 200,
+            delay: .seconds(2)
+        ),
+        Self(method: "GET", url: form, scenario: .holdSend, fixtureName: "ReportOther.html", statusCode: 200),
+        Self(method: "GET", url: form, scenario: .failSend, fixtureName: "ReportOther.html", statusCode: 200),
+        Self(method: "GET", url: form, scenario: .unavailable, fixtureName: "ReportUnavailable.html", statusCode: 200),
+        Self(method: "POST", url: child, scenario: .ready, fixtureName: "ReportSentStub.html", statusCode: 200),
+        Self(method: "POST", url: form, scenario: .slowLoad, fixtureName: "ReportSentStub.html", statusCode: 200),
+        Self(
+            method: "POST", url: form, scenario: .holdSend, fixtureName: "ReportSentStub.html", statusCode: 200,
+            delay: .seconds(3)
+        ),
+        Self(method: "POST", url: child, scenario: .failSend, fixtureName: nil, statusCode: 503),
+        Self(method: "GET", url: gallery, scenario: .ready, fixtureName: "GalleryDetail.html", statusCode: nil),
+        Self(method: "GET", url: gallery, scenario: .unavailable, fixtureName: "GalleryDetail.html", statusCode: nil),
+        Self(method: "GET", url: gallery, scenario: .slowLoad, fixtureName: "GalleryDetail.html", statusCode: nil)
+    ]
 }
 
 struct BlockListCase: Sendable, CustomTestStringConvertible {

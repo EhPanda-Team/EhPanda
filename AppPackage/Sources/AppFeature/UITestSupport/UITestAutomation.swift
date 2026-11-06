@@ -155,6 +155,9 @@ public enum UITestAutomation {
         /// `EHPANDA_UITEST_DROP_INITIAL_IDLE=1`: each horizontal pager the reader builds drops its
         /// first `.idle` report (17-VERIFICATION.md R5-1). Only a stubbed-network launch sets it.
         var dropsReaderInitialIdleReport = false
+        /// `EHPANDA_UITEST_REPORT_SCENARIO`: how the stub answers the Report form (18.1-04). Only a stubbed-network
+        /// launch reads it; every other launch, and any unknown value, is `ready`.
+        var reportScenario = UITestStubURLProtocol.ReportScenario.ready
         #if DEBUG && canImport(Appshot) && canImport(AppshotProtocol)
         var appshotScene: AppshotProtocol.CaptureScene?
         #endif
@@ -191,6 +194,7 @@ public enum UITestAutomation {
         if configuration.shouldStubNetwork {
             UITestStubURLProtocol.configure(fixtureDirectory: configuration.fixtureDirectory)
             UITestStubURLProtocol.configure(requestLog: configuration.requestLogURL)
+            UITestStubURLProtocol.configure(reportScenario: configuration.reportScenario)
             URLProtocol.registerClass(UITestStubURLProtocol.self)
             // Set before the first reader is built; the reader reads it as its environment default.
             ReaderUITestOptions.dropsInitialIdleReport = configuration.dropsReaderInitialIdleReport
@@ -434,7 +438,12 @@ public enum UITestAutomation {
                 ? trimmedValue(environment: environment, key: "EHPANDA_UITEST_REQUEST_LOG").map({ URL(filePath: $0) })
                 : nil,
             dropsReaderInitialIdleReport: shouldStubNetwork
-                && trimmedValue(environment: environment, key: "EHPANDA_UITEST_DROP_INITIAL_IDLE") == "1"
+                && trimmedValue(environment: environment, key: "EHPANDA_UITEST_DROP_INITIAL_IDLE") == "1",
+            reportScenario: UITestStubURLProtocol.ReportScenario(
+                launchValue: shouldStubNetwork
+                    ? trimmedValue(environment: environment, key: "EHPANDA_UITEST_REPORT_SCENARIO")
+                    : nil
+            )
         )
         #if DEBUG && canImport(Appshot) && canImport(AppshotProtocol)
         configuration.appshotScene = appshot
