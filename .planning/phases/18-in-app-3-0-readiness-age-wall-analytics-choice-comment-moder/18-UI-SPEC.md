@@ -59,7 +59,9 @@ Non-exhaustive for SwiftUI itself; the executor may use any SwiftUI API that mee
 |-----------|-------------|-------------------|
 | `View.withArrow()` | AppComponents/ViewModifiers.swift | Blocked Users row in Account settings (chevron, AX-hidden) |
 | `AdaptiveStack` / explicit `ViewThatFits(in: .horizontal)` | AppComponents/AdaptiveStack.swift | Collapsed-row layout switch (explicit `ViewThatFits`, because the label has its own line limit — see that file's rule) |
-| `SheetCloseToolbar` | AppComponents/SheetCloseToolbar.swift | Close button of the in-app report web sheet, if that route is used (see C-4) |
+| `SheetCloseToolbar` | AppComponents/SheetCloseToolbar.swift | Close button of the site's report page sheet (C-13 fallback route) |
+| `PostCommentView` toolbar pattern | DetailFeature | Report form sheet: `Button(role: .close)` leading, inline title; no trailing item (C-13) |
+| `.safeAreaBar(edge: .bottom)` + `.glassProminent` | SwiftUI / C-1 | Report form's pinned action button (Send Report / Done / Open Report Page), same build as the first-launch Continue (C-13, owner msg 1955) |
 | `AppAlertState` / `.appAlert` or TCA `AlertState` | AppComponents/AppAlertState.swift | Report, Block and posting-warning alerts |
 | `ContentUnavailableView` | SwiftUI | Blocked Users empty state (same as `LibraryView`, `StateViews`) |
 | `Picker` `.pickerStyle(.menu)` | SwiftUI | Analytics level in Settings (same as Theme picker in `AppearanceSettingView`) |
@@ -81,6 +83,7 @@ Non-exhaustive for SwiftUI itself; the executor may use any SwiftUI API that mee
 | `BlockedCommentRow` | DetailFeature/Comments | Collapsed row in the comments list |
 | `BlockedCommentCard` | DetailFeature | Collapsed card in the Detail comment strip |
 | `BlockedUsersView` | SettingFeature | The Blocked Users list |
+| `ReportFormView` | DetailFeature/Moderation | EhPanda's own Report form sheet and its states (C-13) |
 
 ---
 
@@ -184,7 +187,7 @@ the catalog may rename them, never the text. Nothing on any screen below may say
 | Settings analytics row | `shareAnalyticsData` (existing key, now a picker); section header `analytics` (existing) |
 | Settings analytics footer | the selected level's `consent.level.*.description`; `shareAnalyticsDataFooter` retired |
 | Comment menu | `comment.report` ("Report on {site}"), `comment.block` ("Block %@"), `comment.unblock` ("Unblock %@") |
-| Report confirmation | `comment.report.confirm_title`, `comment.report.confirm_body`, buttons `comment.report.open` + existing `cancel` |
+| Report form (C-13) | `report.*` keys from Camo's `report-form-copy.md` (msg 1960, **approved by the owner, msg 1975**; never reword). Sheet title = `comment.report`; site-page button = `comment.report.open`; `retry`, `cancel` existing. `comment.report.confirm_title` / `_body` are retired with the old alert |
 | Destructive confirmation | Block: `comment.block.confirm_title` / `comment.block.confirm_body`, buttons `comment.block.confirm` (destructive) + `cancel` |
 | Posting warning | `comment.filter.title` / `comment.filter.body`, buttons `comment.filter.edit` (default) + `comment.filter.post_anyway` |
 | Collapsed row | `comment.blocked_row`, buttons `comment.blocked_row.show`, `blocked_users.unblock` ("Unblock", no name — the row never shows the name) |
@@ -214,11 +217,16 @@ Numbers C-1…C-12 are referenced from UI Considerations. Mockup frame numbers i
   is not a sheet or a cover over the app: nothing of the app is rendered behind it.
 - Background `systemGroupedBackground`, edge to edge. No navigation bar, no back, no close, no skip.
 - Content: `ScrollView` → `VStack(spacing: 0)` capped at 560pt, centred, side margins 24pt.
-- **Continue bar:** `.safeAreaBar(edge: .bottom)` (soft scroll-edge effect under it) holding `FirstLaunchContinueButton`
+- **Continue bar:** `.safeAreaBar(edge: .bottom)` holding `FirstLaunchContinueButton`
   full column width, 8pt top, 16pt bottom above the safe area. **Pinned at every text size** (owner msg 1903),
   including accessibility sizes: the button alone is ≈ 18% of an iPhone screen at AX5, which keeps Continue one tap
   away without scrolling. The bar holds only the button; the age-wall footnote's place depends on size (C-2 item 6).
   The last scroll item ends 24pt above the bar (the bar's safe-area inset handles the rest) [16, 17, 18].
+- **No bar background (owner msg 1965).** Don't give the bar or its `HStack`/`VStack` any `.background`, material or
+  `Color` fill, and no divider. The only thing behind the button is the system scroll-edge effect: the content scrolls
+  under the bar and blurs/fades there. Set it explicitly on the scroll view: `.scrollEdgeEffectStyle(.soft, for: .bottom)`
+  (iOS 26+ SDK). At rest the top of the bar is invisible; with content behind it you see blurred text, never a band.
+  This applies to every pinned bottom bar in Phase 18: Continue (C-1/C-2) and the Report form's action bar (C-13).
 - `FirstLaunchContinueButton`: `Button { } label: { Text(age_wall.continue).frame(maxWidth: .infinity) }`,
   `.buttonStyle(.glassProminent)`, `.controlSize(.large)`, `.tint(.accentColor)`, label colour per Color (on-accent),
   `.keyboardShortcut(.defaultAction)`. `.disabled(...)` per screen.
@@ -317,6 +325,8 @@ selected, label = name + description; for Basic, name + "Recommended" + descript
 
 ### C-4 · Comment menu (comments list and Detail strip) [05, 09, 22]
 
+Report now opens the Report form (C-13) directly; the report alert is gone.
+
 Items, in this order:
 
 | Comment state | Item 1 | Item 2 |
@@ -340,11 +350,7 @@ Entry points (all three show the same `CommentModerationMenu` content):
 
 Existing swipe actions (vote up/down, edit) are unchanged.
 
-**Report confirmation** [06]: alert. Title `comment.report.confirm_title`, message `comment.report.confirm_body`
-({site} + %@ filled). Buttons: `cancel` (role `.cancel`), `comment.report.open` (no role). On Open: open the
-gallery's report page (`?report=select`). Route is the developer's call:
-in-app sheet that carries the app's sign-in (large detent, `SheetCloseToolbar`, no title) is preferred because the
-site's form needs the session — `AccountSettingView` already presents `WebView(url:)` in a sheet this way; the default browser is acceptable. The copy fits both.
+**Report** (owner msg 1931): no alert any more. Report opens EhPanda's own form sheet directly — see C-13.
 
 **Block confirmation** [07]: alert. Title `comment.block.confirm_title`, message `comment.block.confirm_body`.
 Buttons: `cancel` (`.cancel`), `comment.block.confirm` (`.destructive`). Alerts (not confirmation dialogs) for both
@@ -450,6 +456,97 @@ Changing the level takes effect immediately (DD-09). No confirmation when loweri
 - `ContentUnavailableView { Label(blocked_users.empty, systemSymbol: .handRaised) }` — no description, no action.
   The section footer is not shown when empty (it says "these users").
 
+
+### C-13 · Report form (owner msg 1931: "Our own form") [25–34]
+
+Replaces the report alert and the web sheet as the first route. The site's report page stays as the fallback.
+Copy: Camo's `report-form-copy.md` (msg 1960), approved by the owner (msg 1975). Reports are from comments only:
+the owner ruled out a gallery-level Report, now and later, unless App Review requires it (msg 1975).
+
+**Presentation.** `.sheet` from the comments list or the Detail strip. iPhone: `.presentationDetents([.large])`;
+iPad and wide windows: the standard form sheet (system size, centred). `NavigationStack` inside, toolbar: leading
+`Button(role: .close)` only, `.navigationTitle(comment.report)` ("Report on {site}"), `.toolbarTitleDisplayMode(.inline)`.
+No trailing toolbar button. `.interactiveDismissDisabled(true)` while the form has any user edits (reason picked or
+anything typed beyond the prefill) and while sending — Close is the deliberate exit. No discard alert (nothing new
+approved; the form is short).
+
+**Pinned action bar (owner msg 1955: "safeAreaBar here too").** The sheet's one action lives in
+`.safeAreaBar(edge: .bottom)`, built exactly like the first-launch Continue (C-1): full-width `Button`
+`.buttonStyle(.glassProminent)` `.controlSize(.large)`, label `.headline`, white label light / black label dark,
+16pt side insets, 8pt top inset, 16pt above the safe area (the home indicator; the sheet's bottom on iPad). The
+form scrolls under it with the soft scroll-edge effect and nothing else behind the button: no background fill (see
+C-1 "No bar background"). With the keyboard up, the bar rides on top of the keyboard
+(the safe area does this by itself; no `.toolbar(.keyboard)`) with 8pt above the keyboard — frame 26. Label wraps at
+large sizes, the button grows (min 50pt) [33]. One button per state:
+- Ready / loading: `report.send` ("Send Report" — Camo msg 1960). Disabled (system dim) until enabled, rule below.
+- Sending: same button, disabled, label becomes `ProgressView()` + `report.sending` in an `HStack(spacing: 8)` [27].
+- Sent: `report.sent.done` [28]. Unavailable: `comment.report.open` [30].
+- Failed: the bar keeps Send Report live under the alert (the alert owns the choice) [29].
+Swap labels without animation (Reduce Motion or not) so the bar never jumps; the bar height follows the label.
+
+**Form** (`Form`, inset grouped, the Settings look) [25, 26]:
+1. Intro, no section chrome: `report.intro`, `.subheadline` `.secondary`, as the first section's header with
+   `.textCase(nil)` (or a `Text` row with `.listRowBackground(Color.clear)`; developer's call — it must read as
+   plain text above the first card, 4pt above the Reason header).
+2. Section header `report.reason`. One row per reason, `.body` primary, whole row is a button, selection shown by a
+   trailing `checkmark` (`.body` semibold, accent) — the same single-choice list the system uses in Settings.
+   `.accessibilityAddTraits(.isSelected)` on the picked row. Nothing picked when the sheet opens.
+   **Opened from a comment (owner msg 1950, "Illegal content only"):** exactly two rows, `report.reason.child`
+   then `report.reason.illegal`. No Copyright, no technical reasons, no spam reason — spam is handled by Block.
+   Section footer, only when one of the two illegal-content reasons is picked: `report.help.illegal_warning`
+   (`.footnote` `.secondary` — the system footer style; not red: it's information, and red stays reserved for
+   destructive actions).
+3. Section header `report.email`. One `TextField` (placeholder `report.email.placeholder`), `.keyboardType(.emailAddress)`,
+   `.textContentType(.emailAddress)`, `.textInputAutocapitalization(.never)`, `.autocorrectionDisabled()`,
+   `.submitLabel(.next)` → focuses Details. Footer: `report.email.footer`.
+   Invalid email: validate on Send only (not while typing). If invalid, focus the field and replace the footer
+   with `report.email.invalid` in `.red` footnote plus `exclamationmark.circle` before it; VoiceOver announces it
+   (`AccessibilityNotification.Announcement`). It returns to the normal footer on the next edit.
+   Signed-in users: prefill the email the site remembers for the account, if the loaded form carries one; never
+   store it in EhPanda.
+4. Section header `report.details`. `TextField(axis: .vertical)` with `.lineLimit(5...)` (grows; min ~5 lines),
+   `.body`. Opened from a comment it starts with the English prefill block (Camo's file), cursor placed after the
+   blank line, and gets focus once a reason is picked (not on open — the keyboard would hide the reasons).
+   Footer: when an illegal-content reason is picked, `report.help.illegal` first, then a blank line, then
+   `report.comment_footer`; otherwise only `report.comment_footer`.
+5. Send Report is enabled when: a reason is picked, the email field is non-empty, and Details contains text beyond
+   the prefill. Disabled = the system's dimmed `.glassProminent` button (same as Continue).
+
+**No gallery reports (owner msg 1975).** There is no gallery-level Report entry point, now or later, unless App
+Review requires one. Don't ship `report.reason.updates/.restore/.copyright` or `report.help.updates/.restore/.copyright`.
+Frame 32 is withdrawn.
+
+**States**
+- Loading [31] (fetching the site's form): the sheet opens at once with the toolbar and the pinned Send Report
+  (dimmed) and, centred,
+  a `ProgressView()` above `report.loading` (`.body` `.secondary`, 12pt gap). No skeleton. Shows only if the fetch
+  takes > 0.3s (avoid a flash).
+- Ready [25, 26]: the form.
+- Sending [27]: the pinned button shows the spinner + `report.sending` (above); the form gets `.disabled(true)`
+  (system dims it), Close is disabled, the sheet can't be swiped away. No overlay.
+- Sent [28]: the sheet's content is replaced in place by a centred block: `checkmark.circle.fill` 64pt accent
+  (`.symbolEffect(.bounce)` once, off with Reduce Motion), `report.sent.title` `.title3` bold, `report.sent.body`
+  `.body` `.secondary`. Toolbar Close and title are removed; the pinned button becomes `report.sent.done`.
+  Success haptic (`.sensoryFeedback(.success)`). VoiceOver focus moves to the title. Done dismisses; swiping down
+  also dismisses. No auto-dismiss.
+- Failed [29] (network error or the site answers with an error): alert over the kept form. Title
+  `report.failed.title`, message `report.failed.body`, buttons in this order: `retry` (default), `comment.report.open`,
+  `cancel` (role `.cancel`). Everything typed stays. Retry sends again; Open Report Page opens the site's page in
+  the web sheet over the form.
+- Unavailable [30] (the site's form couldn't be read — page changed or no network on open):
+  `ContentUnavailableView { Label(report.unavailable.title, systemSymbol: .exclamationmarkTriangle) } description:
+  { Text(report.unavailable.body) }` with no actions inside it; the pinned button becomes `comment.report.open`.
+  Toolbar keeps Close.
+
+**Largest text** [33]: everything wraps, the form scrolls under the pinned bar; reason rows grow in height; the
+pinned button grows with its label (never truncates); Close keeps the system size. **iPad** [34]: form sheet, same
+content, pinned bar at the sheet's bottom; keyboard Return in Email moves to Details; ⌘↩ triggers the pinned button
+when it is enabled (`.keyboardShortcut(.return, modifiers: .command)`).
+
+**Accessibility:** reason rows are buttons with `.isSelected`; the pinned button's name is its visible label; while
+disabled it reads as dimmed (no extra hint — the form's footers say what's needed); VoiceOver order: Close, title,
+form, then the pinned button; the warning footer is read after the reasons; the prefill is ordinary editable text.
+
 ---
 
 ## UI Considerations
@@ -463,8 +560,12 @@ Applicable state considerations resolved: 21 covered, 3 backstop, 0 unresolved.
 | empty | Blocked Users list | ✅ covered | `ContentUnavailableView` with `blocked_users.empty`, footer hidden |
 | empty | Blocked Users row, nobody blocked | ✅ covered | Row shows count "0" and still pushes the list |
 | loading | First-launch screens, Settings, Blocked Users | ✅ covered | No loading state: everything is local and instant |
-| loading | Report page | ✅ covered | Handled by the web sheet / browser; the app shows no spinner of its own |
-| error | Report page fails to load | ✅ covered | Shown by the web view / browser; no app error copy (none approved, none needed) |
+| loading | Report form | ✅ covered | Spinner + `report.loading` after 0.3s (C-13, frame 31) |
+| loading | Sending a report | ✅ covered | Pinned button spinner + Sending…, form disabled, sheet locked (frame 27) |
+| success | Report sent | ✅ covered | In-sheet confirmation, pinned button becomes Done (frame 28) |
+| error | Report form can't be read | ✅ covered | Unavailable view with Open Report Page (frame 30) |
+| error | Report send fails | ✅ covered | Alert: Retry / Open Report Page / Cancel, form kept (frame 29) |
+| error | Invalid email | ✅ covered | Checked on Send; red footer `report.email.invalid`, field focused |
 | error | Privacy page offline | ✅ covered | Opens in the browser, which shows its own error |
 | success | Block | ✅ covered | Comment collapses in place; no toast; VoiceOver focus moves to the collapsed row |
 | success | Unblock (row, menu, list) | ✅ covered | Comments expand / row removes; no toast |
@@ -498,18 +599,19 @@ Applicable state considerations resolved: 21 covered, 3 backstop, 0 unresolved.
 ### SF Symbols used
 
 `square`, `checkmark.square.fill`, `circle`, `checkmark.circle.fill`, `chart.bar.xaxis`, `arrow.up.right`,
-`ellipsis`, `exclamationmark.bubble`, `hand.raised`, `hand.raised.slash`, `eye.slash`, `chevron.right` (existing via
+`ellipsis`, `exclamationmark.bubble`, `exclamationmark.triangle`, `exclamationmark.circle`, `checkmark`, `hand.raised`, `hand.raised.slash`, `eye.slash`, `chevron.right` (existing via
 `withArrow`). All available on iOS 27 through SFSafeSymbols.
 
 ### Mockup index (`mockups/`)
 
 01 age wall light, unticked · 02 age wall dark, ticked · 03 analytics light, as it opens (nothing picked, Basic recommended) · 04 analytics dark,
-Basic picked · 05 comment menu · 06 report confirmation · 07 block confirmation dark · 08 collapsed row · 09 revealed row +
+Basic picked · 05 comment menu · (06 retired: report alert removed) · 07 block confirmation dark · 08 collapsed row · 09 revealed row +
 Unblock menu, dark · 10 posting warning · 11 Detail strip collapsed card · 12 General settings light (analytics) · 13 General settings dark,
 Minimal · 14 Blocked Users with swipe · 15 Blocked Users empty, dark · 16/17 age wall AX5 top/bottom · 18 analytics
 AX5 · 19 collapsed row AX5 · 20 iPad age wall landscape · 21 iPad analytics portrait dark · 22 iPad comments with a
 pointer (hover on `…`, menu open, collapsed row on one line) · 23 Account settings light, signed in, Blocked
-Users row · 24 Account settings dark, signed out, nobody blocked.
+Users row · 24 Account settings dark, signed out, nobody blocked · 25 Report form as it opens · 26 Report form dark, typing,
+Send Report above the keyboard · 27 sending · 28 sent · 29 send failed alert, dark · 30 form unavailable, dark · 31 loading · (32 withdrawn) · 33 Report form at largest text · 34 iPad Report form sheet.
 
 ---
 
