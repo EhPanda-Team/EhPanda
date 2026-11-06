@@ -99,6 +99,31 @@ None beyond the open questions above.
 
 </deferred>
 
+## Scope changes 2026-11-06
+
+These supersede the matching parts above. ROADMAP.md Phase 19 is renamed "Visual Regression & Daily Live-Parsing
+Check"; the directory name is unchanged.
+
+- **Marketing export removed** (owner msg 1949; lead msg 1952; restated by the product lead in msg 1993): no
+  regenerated iPhone marketing pictures and no iPad marketing pictures are planned. The 384-coordinate export
+  tooling and handoff validator (17-07), the final gallery selection and the 384 regeneration (17-21) are dropped,
+  with MKT-18-01's Phase 19 part and CAP-17-04's moved 384 export. D-05 and the GA-8 Q2 question no longer apply.
+  D-04's six-galleries-per-Toplists-period rule existed only for the marketing grids and is dropped too.
+- **Coverage:** D-02's comment report confirmation was removed in Phase 18.1; the native Report form takes its place.
+- **Run limits** (owner msg 1949): one full check may take up to 2 days before options go back to the owner; weekly
+  dependency updates also wait for the full check; per-simulator serial capture is allowed for screenshot runs only,
+  with several simulators in parallel; the screenshot check goes first.
+- **Matrix size and storage** (owner msg 1949): the owner questioned the image count and the 30–100 GB estimate ("I
+  expected hundreds of reference pictures"; "swift-snapshot-testing snapshots won't take so much space"). Both are
+  re-derived with swift-snapshot-testing in the discussion. A spike measured package-test snapshots at about 27, 80
+  and 124 KB per light image at 1x, 2x and 3x, but package tests cannot render Liquid Glass, materials, alerts or
+  sheets, so the capture path (app-hosted or package tests) is decided in the discussion.
+- **Daily live-parsing check added** (owner msg 2006; product lead msg 2007; VIS-19-01): a scheduled GitHub Actions
+  workflow runs the app's own parsers once a day on the live pages EhPanda reads, read-only, and keeps one GitHub
+  issue open while a page fails, with no page content, images, gallery titles or account details in issues or logs.
+  Sign-in pages use saved fixtures until the owner supplies a sign-in secret. Whether E-Hentai admits GitHub runner
+  IPs is checked early; if not, options go back to the owner. Full wording: ROADMAP.md Phase 19, scope item 9.
+
 ---
 
 *Phase: 19-visual-regression-marketing-export*
