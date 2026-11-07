@@ -163,7 +163,7 @@ def execute(args):
     for source in [REFERENCES, args.fixtures.resolve(), args.environment.resolve(), SCENARIOS]:
         if source.is_relative_to(args.output) or args.output.is_relative_to(source):
             raise ValueError('Output must be separate from fixtures, source catalog, pin and references')
-    scenarios = json.loads(SCENARIOS.read_text())
+    scenarios = contracts.legacy_scenarios(json.loads(SCENARIOS.read_text()))
     all_rows = contracts.enumerate_coordinates(scenarios)
     requested = contracts.select_coordinates(all_rows, args.filter) if args.filter is not None else all_rows
     args.output.mkdir(parents=True, exist_ok=False)
