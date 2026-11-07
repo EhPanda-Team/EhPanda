@@ -1481,7 +1481,7 @@ Plans:
 
 **Success Criteria** (what must be TRUE):
 
-  1. The snapshot matrix covers every screen and state, the Phase 18 and 18.1 UI included, across six locales, all 12 Dynamic Type sizes, portrait and landscape, iPhone and iPad, and light and dark; each coordinate is captured, failed or justified not applicable. The matrix size and storage are re-derived in the discussion (scope item 8).
+  1. The snapshot matrix covers every screen and state, the Phase 18 and 18.1 UI included, across six locales, three Dynamic Type sizes (xSmall, Large and AX5; owner msgs 2247, 2249), portrait and landscape, iPhone and iPad, and light and dark; each coordinate is captured, failed or justified not applicable. The matrix size and storage are re-derived in the discussion (scope item 8).
   2. Comparison is strict and never records; the screen-grouped baseline/actual/diff report is filterable, and a controlled regression proves detection.
   3. One owner-approved baseline covers the complete set, including the landed layout (17-20 folded in).
   4. The complete matrix gates every PR and release in CI, with its runtime reported; the native visual policy tests (17-09-T2) run in it.
