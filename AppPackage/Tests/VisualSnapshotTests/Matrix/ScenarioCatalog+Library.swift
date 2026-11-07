@@ -38,10 +38,16 @@ extension ScenarioCatalog {
                 make: { Page.searchRoot(history: true, suggestions: true) }, prepare: artwork,
                 interact: { try await Page.type(LibraryFixtures.typedTag, in: $0) }
             ),
-            "search-results-list": .init(make: { Page.searchResults(.loaded(.row)) }, prepare: artwork),
-            "search-results-grid": .init(make: { Page.searchResults(.loaded(.grid)) }, prepare: artwork),
-            "search-results-empty": .init(make: { Page.searchResults(.failed(.notFound)) }),
-            "search-results-error": .init(make: { Page.searchResults(.failed(.networkingFailed)) })
+            "search-results-list": ScenarioFactory(
+                make: { Page.searchResults(.loaded(.row)) }, prepare: artwork
+            ).restingAtTop(),
+            "search-results-grid": ScenarioFactory(
+                make: { Page.searchResults(.loaded(.grid)) }, prepare: artwork
+            ).restingAtTop(),
+            "search-results-empty": ScenarioFactory(make: { Page.searchResults(.failed(.notFound)) }).restingAtTop(),
+            "search-results-error": ScenarioFactory(
+                make: { Page.searchResults(.failed(.networkingFailed)) }
+            ).restingAtTop()
         ]
     }
 
@@ -63,7 +69,7 @@ extension ScenarioCatalog {
     private static var favorites: [String: ScenarioFactory] {
         typealias Page = LibraryScenarios
         let artwork = TracerScenarios.cacheHomeArtwork
-        return [
+        let factories: [String: ScenarioFactory] = [
             "favorites-list": .init(make: { Page.favorites(.loaded(.row)) }, prepare: artwork),
             "favorites-grid": .init(make: { Page.favorites(.loaded(.grid)) }, prepare: artwork),
             "favorites-empty": .init(make: { Page.favorites(.failed(.notFound)) }),
@@ -73,12 +79,14 @@ extension ScenarioCatalog {
                 interact: Page.openCategoryMenu
             )
         ]
+        return factories.mapValues({ $0.restingAtTop() })
     }
+
     private static var downloads: [String: ScenarioFactory] {
         typealias Page = LibraryScenarios
         let artwork = Page.cacheDownloadArtwork
         let completed = LibraryFixtures.completedDownloads
-        return [
+        let factories: [String: ScenarioFactory] = [
             "downloads-list": .init(make: { Page.downloads(completed, mode: .row) }, prepare: artwork),
             "downloads-grid": .init(make: { Page.downloads(completed, mode: .grid) }, prepare: artwork),
             "downloads-empty": .init(make: { Page.downloads([], mode: .row) }),
@@ -99,6 +107,7 @@ extension ScenarioCatalog {
                 prepare: artwork
             )
         ]
+        return factories.mapValues({ $0.restingAtTop() })
     }
 
     private static var galleryDetail: [String: ScenarioFactory] {
@@ -254,11 +263,46 @@ enum LibraryScenarios {
     /// The overflow menu's accessibility label, which holds the Favorites category picker.
     static let moreLabel = "More"
 
-    /// Opens the overflow menu. Its category list is taller than the menu, so the menu flashes its scroll
-    /// indicator as it opens; the menu is captured once that flash has faded, as a user sees it at rest.
+    /// Brings the hosted page's list to rest at its top with the search field fully revealed, as a user sees the
+    /// page when it opens.
+    ///
+    /// A list hosted in a process's first seconds sometimes attaches its navigation bar part-way through the
+    /// search field's hide-on-scroll collapse, and stays there: the field 2 points short in portrait, hidden in
+    /// landscape (seen on the first Favorites and Downloads captures of a process). Pulling the list past its top
+    /// reveals the whole field, as a user's pull does; the list then rests at its new top. A page already at rest is
+    /// unchanged. Both moves happen in one main-thread turn, before the page presents a dialog from its initial
+    /// state, so the dialog is placed over the list at rest.
+    static func restAtTop(_ window: UIWindow) throws {
+        let root = try XCTUnwrap(window.rootViewController?.view)
+        guard let list = scrollViews(in: root).first else { return }
+        list.setContentOffset(CGPoint(x: 0, y: -list.adjustedContentInset.top - 120), animated: false)
+        root.layoutIfNeeded()
+        list.setContentOffset(CGPoint(x: 0, y: -list.adjustedContentInset.top), animated: false)
+        root.layoutIfNeeded()
+    }
+
+    /// Opens the overflow menu once the page beneath it has settled. The category list is taller than the menu, so
+    /// the menu flashes its scroll indicator as it opens, for about a second; the menu is captured as it rests after
+    /// that flash, with the indicator hidden rather than waited out.
     static func openCategoryMenu(_ window: UIWindow) async throws {
+        _ = await HostedWindowCapture.settle(window)
+        let root = try XCTUnwrap(window.rootViewController?.view)
         try await BrowsingScenarios.activate(moreLabel, in: window)
-        try await ContinuousClock().sleep(for: .seconds(2))
+        let clock = ContinuousClock()
+        let deadline = clock.now.advanced(by: .seconds(3))
+        while true {
+            let menuLists = scrollViews(in: window).filter({ !$0.isDescendant(of: root) })
+            if !menuLists.isEmpty {
+                menuLists.forEach({ $0.showsVerticalScrollIndicator = false })
+                return
+            }
+            guard clock.now < deadline else { throw AccessibilityActionDriver.Failure.notFound("menu") }
+            try await clock.sleep(for: .milliseconds(100))
+        }
+    }
+
+    private static func scrollViews(in view: UIView) -> [UIScrollView] {
+        ((view as? UIScrollView).map({ [$0] }) ?? []) + view.subviews.flatMap(scrollViews(in:))
     }
 
     /// Favorites in the Library, as the Library shows it on each device.
@@ -522,5 +566,17 @@ enum LibraryScenarios {
     static func holdCaret(_ window: UIWindow) async throws {
         try await ContinuousClock().sleep(for: .milliseconds(800))
         try await BrowsingScenarios.freezeIndicators(window)
+    }
+}
+
+extension ScenarioFactory {
+    /// This scenario with its list brought to rest at its top (``LibraryScenarios/restAtTop(_:)``) before its own
+    /// user step: the pages whose navigation bar hides a search field on scroll.
+    func restingAtTop() -> ScenarioFactory {
+        let step = interact
+        return ScenarioFactory(signedIn: signedIn, make: make, prepare: prepare) { window in
+            try LibraryScenarios.restAtTop(window)
+            try await step?(window)
+        }
     }
 }
