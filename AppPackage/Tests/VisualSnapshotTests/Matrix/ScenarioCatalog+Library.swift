@@ -260,24 +260,34 @@ enum LibraryScenarios {
 
     // MARK: Favorites
 
-    /// The overflow menu's accessibility label, which holds the Favorites category picker.
-    static let moreLabel = "More"
+    /// How far past its top ``restAtTop(_:)`` pulls a list: more than the tallest title and search field, which
+    /// accessibility5 text makes 134 points.
+    static let pull: CGFloat = 400
 
-    /// Brings the hosted page's list to rest at its top with the search field fully revealed, as a user sees the
-    /// page when it opens.
+    /// Brings the hosted page's list to rest at its top with its title and search field fully shown, as a user's
+    /// pull down to the top leaves it.
     ///
-    /// A list hosted in a process's first seconds sometimes attaches its navigation bar part-way through the
-    /// search field's hide-on-scroll collapse, and stays there: the field 2 points short in portrait, hidden in
-    /// landscape (seen on the first Favorites and Downloads captures of a process). Pulling the list past its top
-    /// reveals the whole field, as a user's pull does; the list then rests at its new top. A page already at rest is
-    /// unchanged. Both moves happen in one main-thread turn, before the page presents a dialog from its initial
-    /// state, so the dialog is placed over the list at rest.
+    /// A list hosted early in a test process sometimes attaches its navigation bar part-way through the title and
+    /// search field's hide-on-scroll collapse, and stays there: the field 2 points short or hidden, and at
+    /// accessibility5 the large title too (seen on the first Favorites and Downloads captures of a process, and on
+    /// the search results in ja-accessibility5). Pulling the list past its top reveals the whole bar, as a user's
+    /// pull does; the list then rests at its new top. A page already fully shown is unchanged. Both moves happen in
+    /// one main-thread turn, before the page presents a dialog from its initial state, so the dialog is placed over
+    /// the list at rest.
     static func restAtTop(_ window: UIWindow) throws {
         let root = try XCTUnwrap(window.rootViewController?.view)
-        guard let list = scrollViews(in: root).first else { return }
-        list.setContentOffset(CGPoint(x: 0, y: -list.adjustedContentInset.top - 120), animated: false)
+        // The bar may follow either of the list's scroll views (the collection view or SwiftUI's hosting scroll
+        // view), so every scroll view of the page is pulled and returned.
+        let lists = scrollViews(in: root)
+        for list in lists {
+            list.setContentOffset(
+                CGPoint(x: list.contentOffset.x, y: -list.adjustedContentInset.top - pull), animated: false
+            )
+        }
         root.layoutIfNeeded()
-        list.setContentOffset(CGPoint(x: 0, y: -list.adjustedContentInset.top), animated: false)
+        for list in lists {
+            list.setContentOffset(CGPoint(x: list.contentOffset.x, y: -list.adjustedContentInset.top), animated: false)
+        }
         root.layoutIfNeeded()
     }
 
@@ -287,7 +297,7 @@ enum LibraryScenarios {
     static func openCategoryMenu(_ window: UIWindow) async throws {
         _ = await HostedWindowCapture.settle(window)
         let root = try XCTUnwrap(window.rootViewController?.view)
-        try await BrowsingScenarios.activate(moreLabel, in: window)
+        try openOverflowMenu(in: root)
         let clock = ContinuousClock()
         let deadline = clock.now.advanced(by: .seconds(3))
         while true {
@@ -298,6 +308,26 @@ enum LibraryScenarios {
             }
             guard clock.now < deadline else { throw AccessibilityActionDriver.Failure.notFound("menu") }
             try await clock.sleep(for: .milliseconds(100))
+        }
+    }
+
+    /// Opens the navigation bar's overflow menu, which holds the Favorites category picker, as VoiceOver's
+    /// activation of it does. The system labels that button in the process's language ("More" in English), so it is
+    /// found as the trailing-most control of the page's navigation bars, outside the search field.
+    static func openOverflowMenu(in root: UIView) throws {
+        func controls(in view: UIView) -> [UIControl] {
+            if view is UISearchBar || view.isHidden { return [] }
+            return ((view as? UIControl).map({ [$0] }) ?? []) + view.subviews.flatMap(controls(in:))
+        }
+        func bars(in view: UIView) -> [UINavigationBar] {
+            ((view as? UINavigationBar).map({ [$0] }) ?? []) + view.subviews.flatMap(bars(in:))
+        }
+        let trailing = bars(in: root).flatMap(controls(in:))
+            .map({ ($0, $0.convert($0.bounds, to: nil).maxX) })
+            .max(by: { $0.1 < $1.1 })?.0
+        let control = try XCTUnwrap(trailing, "The page has no navigation bar control")
+        if !control.accessibilityActivate() {
+            control.performPrimaryAction()
         }
     }
 
