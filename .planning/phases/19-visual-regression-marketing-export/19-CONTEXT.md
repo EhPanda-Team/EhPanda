@@ -1,130 +1,352 @@
-# Phase 19: Visual Regression & Marketing Export - Context
+# Phase 19: Visual Regression & Daily Live-Parsing Check - Context
 
-**Gathered:** 2026-11-05 (owner decisions recorded during the Phase 18 discussion)
-**Status:** Discussion not yet run; owner decisions recorded. Run `/gsd-discuss-phase 19` before planning.
+**Gathered:** 2026-11-07 (owner decisions from the Phase 18 discussion and owner msgs 1949, 1961, 1964, 2006; the
+capture spike; the runner-IP desk check). Replaces the 2026-11-05 context and its 2026-11-06 scope-change notes, and
+absorbs the uncommitted 2026-11-06 discussion prep, which predated the scope change.
+**Status:** Ready for planning once the owner answers the open questions at the end of `<decisions>` (OQ-1 and OQ-2
+block the baseline; OQ-3 to OQ-5 do not block the first plans). The directory name is unchanged.
+**Sources:** ROADMAP.md Phase 19 (scope items 1 to 9); REQUIREMENTS.md VIS-18-01, VIS-19-01; the owner decisions
+recorded during the Phase 18 discussion (owner msg 1753); owner msgs 1949, 1961, 1964, 2006; lead msgs 1952, 2007,
+2008; the snapshot spike (worktree `.airbuild/worktree/snap-spike`, branch `spike/snapshot-testing`, uncommitted).
 
 <domain>
 ## Phase Boundary
 
-This phase does the visual-regression and marketing-export work moved from Phase 17 (owner msg 1305), against the
-settled 3.0 UI:
+This phase delivers two checks against the settled 3.0 UI:
 
-- the snapshot scenario matrix, public real-app dispatch, strict never-record comparison and the review report
-  (17-08 to 17-12);
-- one owner-approved baseline (17-13; 17-20 folded in);
-- the full-matrix CI gate on every PR and release (17-14 T1/T3), with the native visual policy tests (17-09-T2);
-- preview review documentation (17-15);
-- the 384-coordinate export tooling and handoff validator (17-07);
-- the final gallery selection and 384 regeneration (17-21);
-- the `Scripts/visual/README.md` rewrite.
+1. **The screenshot check (VIS-18-01)**, moved from Phase 17: the scenario matrix built from the app's real screens
+   and states, Phase 18 and 18.1 included; real-app scenario dispatch (17-11); strict never-record comparison and a
+   filterable review report (17-08 to 17-12); one owner-approved baseline (17-13, with 17-20 folded in); the
+   full-matrix CI gate on every PR and release (17-14 T1/T3) with the native visual policy tests (17-09-T2); preview
+   review documentation (17-15); and the `Scripts/visual/README.md` rewrite.
+2. **The daily live-parsing check (VIS-19-01)**: a scheduled GitHub Actions workflow that runs the app's own parsers
+   on the live pages EhPanda reads, read-only, and reports a break through a GitHub issue that closes itself on the
+   next clean run.
 
-Requirements: VIS-18-01, MKT-18-01 (export, selection, regeneration), CAP-17-02, CAP-17-03, and the moved parts of
-CAP-17-01, CAP-17-04 and CAP-17-06.
+Requirements: VIS-18-01, VIS-19-01; moved from Phase 17: CAP-17-02, CAP-17-03 and the moved parts of CAP-17-01
+(17-11) and CAP-17-06 (17-09-T2, 17-15).
 
-**Not here:** the AltStore promotional images and store screenshots (17-22, CAP-17-05) and the final Release isolation
-scan are Phase 20; the in-app UI is Phase 18.
+**Not in this phase:**
+
+- **Dropped (owner msg 1949; lead msg 1952; restated by the product lead in msg 1993):** all marketing pictures. No
+  regenerated iPhone marketing set, no iPad marketing set, no 384-coordinate export tooling or handoff validator
+  (17-07), no final gallery selection and no 384 regeneration (17-21). MKT-18-01's Phase 19 part and CAP-17-04's
+  moved 384 export go with them. The "six galleries per Toplists period" fixture rule existed only for those pictures
+  and is dropped; the fixtures keep three per period.
+- **Phase 20:** the AltStore promotional images and store screenshots (17-22, CAP-17-05; non-adult pictures only on
+  the AltStore listing, guideline 2.3.8; store screenshots are the website screenshots plus the designer's
+  decorations, owner msg 1753) and the final Release isolation scan.
+- **No phase:** tagging and release order (owner msg 1753).
 
 </domain>
 
 <decisions>
-## Owner decisions that apply (recorded 2026-11-05)
+## Implementation Decisions
 
-- **D-01:** Three phases (owner msg 1753). This one runs after the in-app work, so the baseline is approved once,
-  against final UI. The visual work must not start its baseline while Phase 18 UI is still changing.
-- **D-02:** The coverage includes every new Phase 18 screen and state:
-  - the age wall, with Continue dimmed and enabled;
-  - the analytics choice, with nothing selected and with each level selected;
-  - the Settings analytics picker and its Privacy Policy row;
-  - the comment report confirmation and the posting warning;
-  - the collapsed blocked-comment row, collapsed and shown;
-  - the Blocked Users list, filled and empty.
+### Phase organisation and order
 
-  All six languages use the approved copy (Phase 18's 18-COPY-FIRST-LAUNCH.md and 18-COPY-COMMENTS.md).
-- **D-03:** The coverage, comparison and approval rules from Phase 17 carry unchanged (prep L30 to L33; 17-CONTEXT
-  D-07, D-12 to D-14):
-  - every screen and state × six locales × all 12 Dynamic Type sizes × portrait and landscape × iPhone and iPad ×
-    light and dark;
-  - each coordinate is captured, failed or justified not applicable;
-  - strict never-record comparison;
-  - one owner baseline approval;
-  - the full matrix on every PR and release;
-  - a filterable report, and a controlled regression that proves detection.
-- **D-04:** Toplists fixtures carry at least six galleries per period, so the regular-width two-by-three grid is full
-  (Phase 17 scope 6; prep L34).
-- **D-05:** Marketing content rules carry (prep L36, L37; 17-CONTEXT D-02, D-04, D-05): content is real, and no
-  gallery appears twice on one screen. The final selection comes from owner identifiers, then everything is
-  regenerated. The 384 tooling, validator and regeneration are in 3.0 scope.
-- **D-06:** Rewrite `Scripts/visual/README.md` (prep L42). The index is now `website-capture-20261104.json`
-  (11 fixture versions), and this phase, not 17-02, 17-05 or 17-07, owns the regression and marketing runners.
-- **D-07:** For later use in Phase 20: an AltStore listing can use only non-adult pictures (Ampo msg 1751, guideline
-  2.3.8). Store screenshots are the website screenshots plus the designer's decorations (owner msg 1753; Colo msg
-  1757). This phase supplies captures; it does not design them.
-- **D-08:** Tagging and release order are not this project's business (owner msg 1753).
+- **D-01:** This phase runs after all in-app work, so the baseline is approved once, against final UI (owner msg
+  1753). No baseline is recorded while any Phase 18 or 18.1 UI is still changing.
+- **D-02:** The screenshot check goes first; the daily live-parsing check follows, except its runner-IP probe (D-25),
+  which runs early because its answer may need an owner decision (owner msg 1949; ROADMAP scope item 9).
 
-## Open questions for this phase's discussion
+### Coverage
 
-- **GA-8 Q2, the final 384 selection:** reuse the approved website selections (msg 1581) for the iPhone half, and
-  have the owner pick only the iPad half's extra galleries? The prep recommended this; the owner has not answered.
-- **Pushing the fixture repository commits** (`8ee4fc2`, `f71d108`; R4-3): needed if the 384 regeneration runs
-  anywhere but the capture machine. The owner decides.
+- **D-03:** Every screen and state of the app is covered, including every Phase 18 and 18.1 screen: the age wall
+  (Continue dimmed and enabled); the analytics choice (nothing selected, then Minimal, Basic and Full); the Settings
+  analytics picker with its Privacy Policy row; the native Report form (Phase 18.1, which replaced the report
+  confirmation); the posting warning; the blocked-comment row, collapsed and shown; Blocked Users, filled and empty.
+  All six languages use the approved copy (18-COPY-FIRST-LAUNCH.md, 18-COPY-MINIMAL.md, 18-COPY-COMMENTS.md).
+  Blocked comments in fixtures use member IDs (18-12, owner msg 1918).
+- **D-04:** The axes are the ones Phase 17 decided (17-CONTEXT D-07): six languages, all 12 text sizes, portrait and
+  landscape, iPhone and iPad, light and dark. How many of the crossings are captured is open (OQ-1); the full
+  crossing stays the default until the owner answers. Every requested coordinate ends as captured, failed, or not
+  applicable with a written reason in the manifest.
+- **D-05:** States the snapshot library cannot render are skipped and recorded as not applicable with that reason;
+  there is no simulator-screenshot fallback (owner msg 1964). Known members: the keyboard (a separate system window;
+  search-focus states are captured without it), live web content (sign-in web page, the Cloudflare check page, site
+  pages opened in a web view), the system share sheet, and the system file importer.
+- **D-06:** Regression content is the public, synthetic fixture set (`PublicVisualFixtures`, `FixtureArtwork`): no
+  real gallery covers or titles, so every baseline picture can be published (CAP-17-03).
 
-## Developer defaults (changeable)
+### Capture method (owner msgs 1961, 1964; spike; lead's call)
 
-- **Snapshot CI:** shard the 576-coordinate matrix across simulators on the self-hosted `xcode-27` runner and report
-  the runtime per PR. The gate is a new workflow, since the old manual "Visual capture" workflow was removed in quick
-  task 261027-ci-cleanup (prep section 3).
+- **D-07:** Tool: swift-snapshot-testing, in process, already a dependency through `VisualSnapshotSupport` (pinned
+  exactly at 1.19.6) (owner msg 1961). No XCUITest screenshot path for the matrix.
+- **D-08 (lead's call after the spike, "Path B"):** each scenario's real view, with its real reducer and preview
+  dependencies, is hosted in the app-hosted test's real key window; the test waits until the window has settled
+  (unchanged for at least 500 ms), draws it with `window.drawHierarchy(afterScreenUpdates: true)`, and compares the
+  image with the library's `.image` strategy under `record: .never`. Recording happens only in an explicit candidate
+  run (D-17). This replaces the 17-11 XCUITest dispatcher for the matrix; "real-app dispatch" now means real
+  feature views and stores in the real app process.
+- **D-09: spike findings** (25 cases × 3 scales, one record and three compare runs, iPhone Air simulator):
+  - Path B renders Liquid Glass (`.glass`, `.glassProminent`), materials, menus, alerts, sheets, confirmation
+    dialogs and the soft scroll edge, which package-only tests could not. The glass backdrop blur is weaker than on
+    a device but identical between runs.
+  - The library's own `drawHierarchyInKeyWindow` strategy ("Path A") flaked on glass and scrolled-edge cases across
+    runs; it is not used.
+  - Path B at 1x: 0 mismatches in 75 compares at exact precision. At 3x one glass case flaked; precision 0.9999 with
+    perceptual precision 1 absorbs it and still fails a deliberate 1-point layout shift.
+  - Cost: about 1.2 s per image including the settle wait (median 1.18 s at 1x).
+  - Size at 1x on iPhone Air (420 × 912 px): median about 120 KB, mean about 147 KB; real app screens 46 to 374 KB;
+    AX5 about 2.5× the default size. iPad sizes were not measured.
+- **D-10:** Baselines are 1x (lead's recommendation from the spike; smallest files, and the 1-point shift is still
+  caught). Comparison: precision 0.9999, perceptual precision 1, applied uniformly; any other tolerance needs a
+  measured justification recorded in the manifest.
+- **D-11:** Capture is serial within each simulator, with several simulators in parallel; this is allowed for the
+  screenshot runs only (owner msg 1949). The approval is documented above each narrow
+  `// swiftlint:disable:next no_serialized_test`, as AGENTS.md requires. All other tests stay parallel. Locally,
+  `xcodebuild` invocations never overlap (`.planning/codebase/TESTING.md`).
+
+### Matrix size, run time and storage (re-derived; owner msg 1949)
+
+- **D-12: scenario inventory.** From the views, presentations and states in `AppPackage/Sources` and the scroll-edge
+  page inventory, the matrix has about **136 scenarios** (plan 1 confirms the exact list in `scenarios.json`;
+  expected range 130 to 150):
+
+  | Group | Scenarios (states) | Count |
+  |---|---|---|
+  | First launch (Phase 18) | age wall unticked, ticked; analytics choice none selected, Minimal, Basic, Full | 6 |
+  | Shell | Library title menu open; Library sidebar with empty detail (regular width) | 2 |
+  | Home | populated, loading, error | 3 |
+  | Front Page | list, grid, loading, empty, error, search with query | 6 |
+  | Popular | list, grid, loading, error | 4 |
+  | Watched | list, grid, signed out, empty, error | 5 |
+  | Toplists | list, grid, period menu open, error | 4 |
+  | History | list, grid, empty, clear confirmation | 4 |
+  | Search | root with history, root empty, typing with tag suggestions, clear confirmation; results list, grid, empty, error | 8 |
+  | Quick Search, Filters, Date Seek | list, empty, word editor, delete confirmation; Filters form, reset confirmation; Date Seek | 7 |
+  | Favorites | list, grid, signed out, empty, category menu | 5 |
+  | Downloads | list, grid, empty, active and failed items, delete confirmation, retry confirmation; inspector details, error | 8 |
+  | Gallery detail | loaded, loading, error, downloading, delete-download confirmation, retry confirmation, rating; iPad gallery sheet | 8 |
+  | Detail pages | Previews loaded, loading; Gallery Info; Detail Search list, grid; Archives, Archives insufficient funds; Torrents, empty; Tag Detail; New Dawn; Folder Manager, delete confirmation | 13 |
+  | Comments (Phase 18) | list, comment menu, block confirmation, blocked row collapsed, blocked row shown; post empty, post filled, posting warning | 8 |
+  | Report form (Phase 18.1) | loading, ready, reason chosen and filled, sending, sent, unavailable, error alert | 7 |
+  | Reader | horizontal, vertical, two-page spread, controls shown, slider scrub, page failed, loading, Live Text; reader settings sheet | 9 |
+  | Settings | root; Account signed in, signed out, logout confirmation; Blocked Users filled, empty; Login empty, filled, error | 9 |
+  | Settings pages | General with Minimal, Basic, Full footers, cache confirmation; Activity Logs list, empty, run picker; Appearance, app icon picker; Reading; Download; Laboratory; About; Site settings loaded, loading/error, confirmation | 16 |
+  | App-wide | Error Info sheet; success and failure toasts; app alert | 4 |
+  | **Total** | | **136** |
+
+  Not applicable by design, with reasons in the manifest: the two-page spread outside landscape/iPad, compact-only
+  and regular-only shell states on the other size class, and the D-05 skips.
+- **D-13: size options** (the owner chooses, OQ-1). Per scenario there are 4 device × orientation slots. Times use
+  the spike's 1.2 s per image (this machine) up to 2.4 s (an assumed 2× slowdown on GitHub's macOS runners, not yet
+  measured) and five parallel CI machines (D-15). Storage uses about 0.2 to 0.35 MB per 1x image (iPhone measured,
+  iPad assumed about 2.5× its area):
+
+  | Option | What is crossed | Images | Machine time | Wall clock, 5 machines | Baseline at 1x |
+  |---|---|---|---|---|---|
+  | Core | English: Large and AX5, light and dark; other five languages: Large, light | 136 × 4 × 9 = **4,896** | 1.6–3.3 h | about 0.5–1 h | about 1–1.7 GB |
+  | Recommended | English: all 12 sizes, light and dark; other five languages: Large, AX1, AX3, AX5, light | 136 × 4 × 44 = **23,936** | 8–16 h | about 2–3.5 h | about 5–8 GB |
+  | Full (D-04 as decided) | everything × everything | 136 × 576 = **78,336** | 26–52 h | about 6–11 h | about 16–27 GB |
+
+  Wall clock adds about 30 minutes per run for the shared build. Every option fits the 2-day limit (D-16). The
+  earlier 92,000 to 120,000 images and 30 to 100 GB came from one `xcodebuild` per picture (24 s each), 3x PNGs and
+  the dropped marketing set.
+- **D-14:** Each run's actual images are kept only for that run's report; failures upload their baseline, actual and
+  diff. Storage beyond the baseline is per-run and temporary.
+
+### CI gate
+
+- **D-15: correction found during this context pass.** The `xcode-27` label used by every workflow is a
+  GitHub-hosted runner (job records show runner group "GitHub Actions"), not a self-hosted Mac as the 2026-11-05
+  developer default and the discussion prep assumed. Consequences, all Claude's calls:
+  - GitHub-hosted jobs stop at 6 hours, so the matrix is split into shards that each finish well inside that, run
+    in parallel up to the account's macOS job limit (five on the free plan); one build-for-testing job feeds them.
+  - The runners keep nothing between runs, so each shard downloads its slice of the baseline (where from is OQ-2).
+  - Baselines are recorded and compared on the same runner image and simulator pins; local runs are advisory. Plan 1
+    measures the per-image time and run-to-run identity on the hosted runner before the matrix is scaled up.
+  - Standard hosted runners are free for public repositories; plan 1 confirms `xcode-27` is a standard one.
+- **D-16: run limits (owner msg 1949).** One full check may take up to 2 days before options go back to the owner.
+  The full check runs on every PR and every release (17-CONTEXT D-13); weekly dependency-update PRs wait for it too.
+  Superseded runs of the same PR are cancelled.
+- **D-17: approval.** Candidates are recorded only by an explicit candidate run; agents review every picture and
+  record their findings; the owner approves the whole set once (how he reviews is OQ-4). Approval is tied to the
+  manifest's fingerprint (hash per image, committed with the code).
+- **D-18:** The report is a static, offline HTML page (no remote scripts or fonts), grouped by screen, with
+  baseline/actual/diff and filters for language, text size, device, orientation and appearance. A controlled
+  regression (a one-point change to one token) is proven red, then restored green; both runs are kept (17-CONTEXT
+  D-14).
+- **D-19:** The native visual policy tests (17-09-T2: cold entry and live text-size changes, rotation, title and
+  search behaviour at standard, AX1, AX3, AX5) stay XCUITests and run in the gate as their own job; they test
+  transitions, which snapshots do not.
+
+### Daily live-parsing check (VIS-19-01; owner msg 2006; lead msg 2008)
+
+- **D-20:** A scheduled GitHub Actions workflow runs once a day (plus manual dispatch). It fetches, as a guest, the
+  pages EhPanda reads and runs the app's own parsers on them through the app's own request types: Home front page,
+  search results, Popular, Toplists, a gallery page with comments, the reader page and its image data, the tag
+  suggestion data, and the native Report form page.
+- **D-21: read-only.** It never sends a report, comment, vote, favourite, rating, setting change or sign-in. Claude's
+  call: read queries that the site's API takes as JSON POST (`gdata` metadata, and `imagedispatch` where the reader
+  path needs it) count as reads and are allowed; an allowlist of request types enforces this, and a test fails if a
+  state-changing request type is reachable from the check.
+- **D-22: reporting.** On a failure it opens or updates one GitHub issue per page, naming the page and what the
+  parser expected; the next clean run closes it. Issues and logs never carry page content, images, gallery titles,
+  gallery IDs, cookies or account details, because the repository is public. Claude's call: one issue per page with a
+  stable title and a label; logs print only page name, HTTP status and the failed expectation.
+- **D-23:** A Cloudflare challenge, an E-Hentai IP ban page, a timeout or a 5xx is "could not reach the page", never a
+  parser failure, so a block never opens a false "parser broken" issue. Claude's call: after three such days in a row
+  the check opens one "live check cannot reach the site" issue, which closes on the next reached run.
+- **D-24:** Signed-in pages (Watched, Favorites, ExHentai) are covered by saved fixtures until the owner supplies a
+  sign-in kept as a GitHub secret; the workflow skips them while the secret is absent (which account, OQ-5).
+- **D-25: runner-IP probe, first task.** A one-off manually dispatched job on the hosted runner fetches the front
+  page, Popular and one gallery page (three GETs, normal delays) and records only status codes, whether Cloudflare
+  challenged (`cf-mitigated`), and whether the parser succeeded. It needs a push, so it waits for the owner's OK to
+  push. If GitHub's machines are blocked, OQ-3's answer applies.
+- **D-26: desk check (2026-11-07), recorded for the probe.**
+  - `e-hentai.org` (guest gallery pages) and `exhentai.org` now resolve to Cloudflare addresses and answer with
+    `server: cloudflare`; Phase 12 had seen only the forum host behind Cloudflare. `api.e-hentai.org` (the JSON API)
+    and the thumbnail and image hosts are not behind Cloudflare.
+  - Three guest GETs from the development machine (front page with an app-like `CFNetwork` user agent, Popular,
+    front page with curl's user agent) all returned 200 listing pages with no challenge, so the site does not filter
+    by user agent today.
+  - The app sends no custom user agent: every request uses URLSession's default (`EhPanda/<build> CFNetwork/…
+    Darwin/…`); only the sign-in replay sends the challenge web view's agent (Phase 12). Running the real request
+    types in the check gives it the app's own identity.
+  - Whether Cloudflare challenges cloud-datacenter addresses is a per-site setting that only a probe from the runner
+    reveals. Public bug reports from other open-source E-Hentai clients (2023 to 2026) show Cloudflare 403
+    challenges on the forum sign-in and on ExHentai, ExHentai requiring a "clean" address, and E-Hentai's own
+    temporary IP bans after heavy use; none found was about GitHub runners and guest pages. Risk: medium.
+
+### Carried project rules
+
+- **D-27:** SwiftLint as error, no suppressions without permission; every `.xcstrings` key filled for six locales;
+  tests parallel by default (AGENTS.md); agent-run UAT where no hardware or owner judgement is needed; closing gates
+  need zero failures and zero Repetition nodes. Release builds contain no capture code, fixtures, test assets or
+  SnapshotTesting linkage (success criterion 8; 17-14 T2's scan stays green).
+- **D-28:** Rewrite `Scripts/visual/README.md`: drop the removed "Visual capture" workflow and the per-coordinate
+  `run-regression.py` flow, describe this phase's in-process runner, sharded CI gate and report, and point at the
+  current fixture index `website-capture-20261104.json` (11 fixture versions). The fixture repository's commits
+  `8ee4fc2` and `f71d108` were pushed on 2026-11-05, so R4-3 is resolved; with the marketing export dropped, nothing
+  in this phase needs it.
+
+### Claude's Discretion
+
+Within the decisions above: scenario file layout and naming; how a scenario declares its state; shard boundaries;
+whether orientation, text size and appearance change in process or per test configuration (language changes per
+process); the iPad model (pinned with the iPhone Air, runtime and Xcode build in the manifest; drift fails the run);
+the manifest and report formats; the live check's schedule time, request pacing and issue wording within D-22.
+
+### Open questions for the owner (not yet answered)
+
+Plain-language versions with options are in the owner handoff. In order of importance:
+
+- **OQ-1, matrix size:** Core, Recommended or Full (D-13). Recommendation: Recommended. Blocks the baseline.
+- **OQ-2, where the approved pictures are kept** so each CI run can download them: a separate public repository for
+  baselines, large-file storage in this repository, or a paid cloud bucket. Recommendation: a separate repository.
+  Blocks the baseline; amends CAP-17-03's "committed with the test source" to "fingerprints committed, images in the
+  chosen store".
+- **OQ-3, if E-Hentai blocks GitHub's machines:** run the daily check on the owner's Mac on a timer, register that
+  Mac as a GitHub runner, or keep only saved fixtures. Recommendation: the Mac timer. Needed only if D-25 fails.
+- **OQ-4, how the owner reviews the one baseline:** a short packet (each screen once plus everything agents
+  flagged), the full report, or the designer first. Recommendation: the short packet.
+- **OQ-5, which account the later sign-in secret uses:** a separate account made for the check, the owner's own
+  account, or none. Recommendation: a separate account.
 
 </decisions>
 
 <canonical_refs>
 ## Canonical References
 
-- `.planning/ROADMAP.md`, Phase 19, and the split map at the end of the Phase 18 section.
-- `.planning/REQUIREMENTS.md`: VIS-18-01, MKT-18-01, CAP-17-01 to CAP-17-06.
-- `.planning/phases/18-in-app-3-0-readiness-age-wall-analytics-choice-comment-moder/18-DISCUSSION-PREP.md`: L30 to
-  L37, L42, GA-8.
-- `.planning/phases/18-in-app-3-0-readiness-age-wall-analytics-choice-comment-moder/18-CONTEXT.md`: the Phase 18
-  screens to cover.
-- The Phase 18 copy files `18-COPY-FIRST-LAUNCH.md` and `18-COPY-COMMENTS.md` (same directory).
-- `.planning/phases/17-localized-screenshot-capture-harness/17-CONTEXT.md` and the superseded plans 17-07 to 17-15,
-  17-20 and 17-21.
-- `Scripts/visual/README.md`, `Scripts/visual/selection-review.py`.
+**Downstream agents MUST read these before planning or implementing.**
+
+### Scope and requirements
+
+- `.planning/ROADMAP.md`: Phase 19 (scope items 1 to 9, success criteria 1 to 8, plan outline) and the split map at
+  the end of the Phase 18 section.
+- `.planning/REQUIREMENTS.md`: VIS-18-01 (with its 2026-11-06 amendment), VIS-19-01, CAP-17-01 to CAP-17-06,
+  MKT-18-01 (what was dropped).
+
+### Screens to cover and their copy
+
+- `.planning/phases/18-in-app-3-0-readiness-age-wall-analytics-choice-comment-moder/18-CONTEXT.md` and `18-UI-SPEC.md`
+  (frames 01 to 22).
+- `18-COPY-FIRST-LAUNCH.md`, `18-COPY-MINIMAL.md` (its revision precedence), `18-COPY-COMMENTS.md` in the same
+  directory.
+- `.planning/phases/18.1-native-report-form/`: the native Report form and its states.
+- `.planning/quick/260921-f5u-migrate-to-ios-27-and-ipados-27-with-mod/SCROLL-EDGE-INVENTORY.md`: the page inventory
+  the scenario list is checked against.
+
+### Phase 17 decisions and moved plans
+
+- `.planning/phases/17-localized-screenshot-capture-harness/17-CONTEXT.md` (D-07, D-11 to D-14), `17-RESEARCH.md`
+  ("Complete Coverage Inventory"), and the superseded plans 17-08 to 17-15 and 17-20.
+
+### Rules
+
+- `AGENTS.md`: test parallelism, simulators, accessibility navigation and search, scroll-edge policy, dialog
+  placement.
+- `.planning/codebase/TESTING.md`: no overlapping `xcodebuild` on one host.
+
+### Code and tooling
+
+- `AppPackage/Sources/VisualSnapshotSupport/`, `AppPackage/Tests/VisualSnapshotTests/` (`scenarios.json` holds only
+  the `home-populated` tracer today), `AppPackage/Tests/VisualTests.xctestplan`.
+- The spike: `AppPackage/Tests/VisualSnapshotTests/HostedSnapshotSpikeTests.swift` in the `snap-spike` worktree
+  (throwaway; its host-window, settle and capture helpers are the reference for D-08); data in
+  `/tmp/ehp19-snapspike/hosted/` while it lasts.
+- `AppPackage/Sources/NetworkingFeature/` (request types, `isCloudflareChallenge`), `AppPackage/Sources/ParserFeature/`.
+- `.github/workflows/test.yml`, `deploy.yml`, `deploy-pre-release.yml`, `dependencies.yml`, `.github/dependabot.yml`.
+- `Scripts/visual/README.md`, `Scripts/visual/verify-release.py`.
 
 </canonical_refs>
+
+<code_context>
+## Existing Code Insights
+
+### Reusable Assets
+
+- `VisualSnapshotSupport`: `PublicVisualFixtures` (synthetic galleries, fixed date `1_735_689_600`, fixture IDs
+  `home-finite`, `comments-finite`, `downloads-finite`, `reader-vertical-finite`), `RenderSettlement`,
+  `FullContentHost`, `RenderedContentInspection`.
+- The spike's `withDependencies` setup (`context = .preview`, `cookieClient = .previewLoggedIn`, fixed date,
+  incrementing UUIDs) and its host/settle/capture helpers.
+- `GalleryLayoutPicker` (`GalleryListDisplayMode.row` / `.grid` per scope): one setting gives every list page its
+  list and grid scenarios.
+- `AppError` cases (`networkingFailed`, `parseFailed`, `notFound`, `loginRequired`, `ipBanned`, …) drive the error
+  scenarios and the live check's "could not reach" classification (D-23), with `isCloudflareChallenge`.
+- Request types for the live check: `FrontPageGalleriesRequest`, `SearchGalleriesRequest`, `PopularGalleriesRequest`,
+  `ToplistsGalleriesRequest`, `GalleryDetailRequest`, `GalleryPreviewURLsRequest`, `ThumbnailURLsRequest`,
+  `GalleryNormalImageURLsRequest`, `GalleriesMetadataRequest`, `TagTranslatorRequest`, `ReportFormRequest`.
+
+### Established Patterns
+
+- The package is iOS 27 only, so the parsers run in an iOS simulator on a macOS runner, like `test.yml`.
+- `test.yml` installs the iOS platform with retries, pins `iPhone Air` on iOS 27.0, and uploads the result bundle.
+- Persisted settings are `@Shared` v1 models edited in place; scenarios set them through dependencies, not
+  migrations.
+
+### Integration Points
+
+- New workflows: the sharded screenshot gate (PRs and releases) and the scheduled live check; both separate from
+  `test.yml`.
+- `scenarios.json` grows from one tracer to the D-12 inventory, with not-applicable reasons per coordinate.
+
+</code_context>
+
+<specifics>
+## Specific Ideas
+
+- The owner expected "hundreds of reference pictures" and said "swift-snapshot-testing snapshots won't take so much
+  space" (msg 1949): the size options are given in pictures and gigabytes so he can pick against that.
+- The public issue must be useful without content: "Toplists: expected a gallery table with at least one row, found
+  none" is the shape; never a title or link to a gallery.
+
+</specifics>
 
 <deferred>
 ## Deferred Ideas
 
-None beyond the open questions above.
+- The 384 marketing export, the final gallery selection, the iPad marketing set and the six-per-period Toplists
+  fixtures (dropped, owner msg 1949).
+- The live check for signed-in pages, until the owner supplies the secret (D-24).
+- Native tag management and tag context menus are future milestones (TAG-01, TAG-02), not covered until they exist.
 
 </deferred>
-
-## Scope changes 2026-11-06
-
-These supersede the matching parts above. ROADMAP.md Phase 19 is renamed "Visual Regression & Daily Live-Parsing
-Check"; the directory name is unchanged.
-
-- **Marketing export removed** (owner msg 1949; lead msg 1952; restated by the product lead in msg 1993): no
-  regenerated iPhone marketing pictures and no iPad marketing pictures are planned. The 384-coordinate export
-  tooling and handoff validator (17-07), the final gallery selection and the 384 regeneration (17-21) are dropped,
-  with MKT-18-01's Phase 19 part and CAP-17-04's moved 384 export. D-05 and the GA-8 Q2 question no longer apply.
-  D-04's six-galleries-per-Toplists-period rule existed only for the marketing grids and is dropped too.
-- **Coverage:** D-02's comment report confirmation was removed in Phase 18.1; the native Report form takes its place.
-- **Run limits** (owner msg 1949): one full check may take up to 2 days before options go back to the owner; weekly
-  dependency updates also wait for the full check; per-simulator serial capture is allowed for screenshot runs only,
-  with several simulators in parallel; the screenshot check goes first.
-- **Matrix size and storage** (owner msg 1949): the owner questioned the image count and the 30–100 GB estimate ("I
-  expected hundreds of reference pictures"; "swift-snapshot-testing snapshots won't take so much space"). Both are
-  re-derived with swift-snapshot-testing in the discussion. A spike measured package-test snapshots at about 27, 80
-  and 124 KB per light image at 1x, 2x and 3x, but package tests cannot render Liquid Glass, materials, alerts or
-  sheets, so the capture path (app-hosted or package tests) is decided in the discussion.
-- **Daily live-parsing check added** (owner msg 2006; product lead msg 2007; VIS-19-01): a scheduled GitHub Actions
-  workflow runs the app's own parsers once a day on the live pages EhPanda reads, read-only, and keeps one GitHub
-  issue open while a page fails, with no page content, images, gallery titles or account details in issues or logs.
-  Sign-in pages use saved fixtures until the owner supplies a sign-in secret. Whether E-Hentai admits GitHub runner
-  IPs is checked early; if not, options go back to the owner. Full wording: ROADMAP.md Phase 19, scope item 9.
 
 ---
 
 *Phase: 19-visual-regression-marketing-export*
-*Owner decisions recorded: 2026-11-05; discussion not yet run*
+*Context gathered: 2026-11-07; owner questions OQ-1 to OQ-5 open*
