@@ -146,6 +146,33 @@ final class CommentModerationUITests: XCTestCase {
         app.terminate()
     }
 
+    /// At the largest text size a revealed comment's header lays out as it did before the block: the date wraps
+    /// under the author rather than ending in "…" (18-UAT, UI review top fix 1). Measured on the date's own text.
+    func testARevealedCommentsDateWrapsAsBeforeTheBlockAtTheLargestTextSize() throws {
+        let app = try openComments(blockedUsers: [], signedIn: false, contentSizeCategory: Copy.largestTextSize)
+        let cell = requireCell(in: app)
+        let before = try dateText(of: cell).frame
+
+        openMenu(of: cell, in: app)
+        app.buttons[Copy.blockAuthor(Copy.author)].firstMatch.tapWhenHittable("Block in the menu")
+        app.alerts[Copy.blockTitle].buttons[Copy.block].tapWhenHittable("Block in the alert")
+        let row = app.descendants(matching: .any)[Identifier.blockedRow]
+        XCTAssertTrue(row.waitForExistence(timeout: 10), "The comment did not collapse.")
+        row.buttons[Copy.show].tapWhenHittable("Show")
+        let revealed = app.staticTexts.matching(identifier: Identifier.commentCell)
+            .matching(NSPredicate(format: "label BEGINSWITH %@", Copy.author)).firstMatch
+        XCTAssertTrue(revealed.waitForExistence(timeout: 10), "Show did not reveal the comment.")
+        Thread.sleep(forTimeInterval: 1)
+        let after = try dateText(of: revealed).frame
+        keepScreenshot("comments-revealed-row-ax5", app: app)
+
+        XCTAssertGreaterThanOrEqual(
+            after.height, before.height - 1,
+            "The revealed date is \(after.size), against \(before.size) before the block: it lost a line."
+        )
+        app.terminate()
+    }
+
     func testTheCellOffersReportAndBlockInItsContextMenu() throws {
         let app = try openComments(blockedUsers: [], signedIn: false)
         let cell = requireCell(in: app)
@@ -377,6 +404,15 @@ private extension CommentModerationUITests {
         XCTAssertTrue(element.waitUntilHittable(timeout: XCUIElement.hittableTimeout), "\(identifier) is out of reach.")
         XCTAssertTrue(visible.contains(element.frame), "\(identifier) is not wholly in view: \(element.frame).")
         return element
+    }
+
+    /// The comment's date: one of the texts XCUITest lists under the comment's combined element, the one written as a
+    /// short numeric date.
+    func dateText(of comment: XCUIElement) throws -> XCUIElement {
+        let date = comment.staticTexts.matching(NSPredicate(format: "label MATCHES %@", #"\d{1,2}/\d{1,2}/\d{2}, .*"#))
+            .firstMatch
+        XCTAssertTrue(date.waitForExistence(timeout: 10), "The comment shows no date.")
+        return date
     }
 
     /// The cell's `…` button. VoiceOver does not reach it (its items are the cell's named actions), but XCUITest lists
