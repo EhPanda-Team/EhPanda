@@ -11,7 +11,8 @@ import VisualSnapshotSupport
 import XCTest
 
 // The three-scenario tracer of 19-01: one class per scenario, so simulator clones can share them. The gate never
-// runs classes whose name starts with `Tracer` (19-10); the scenarios themselves are part of the inventory.
+// runs classes whose name starts with `Tracer` (19-10); the scenarios themselves are part of the inventory, and
+// their factories are registered in their group files (`ScenarioCatalog+Browsing.swift`, `+Gallery.swift`).
 
 final class TracerSnapshotTests: SnapshotMatrixCase {
     @MainActor
@@ -31,18 +32,6 @@ final class TracerCommentsSnapshotTests: SnapshotMatrixCase {
     @MainActor
     func testCommentsBlockConfirmation() async throws {
         try await capture(scenario: "comments-block-confirmation")
-    }
-}
-
-extension ScenarioCatalog {
-    static var tracer: [String: ScenarioFactory] {
-        [
-            "home-populated": .init(make: { TracerScenarios.home() }, prepare: TracerScenarios.cacheHomeArtwork),
-            "agewall-unticked": .init(make: { TracerScenarios.ageWall() }),
-            "comments-block-confirmation": .init(
-                make: { try TracerScenarios.comments() }, interact: TracerScenarios.chooseBlock
-            )
-        ]
     }
 }
 

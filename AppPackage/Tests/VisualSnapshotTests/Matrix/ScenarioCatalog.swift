@@ -23,10 +23,31 @@ struct ScenarioFactory {
     }
 }
 
-/// Scenario ID → factory. Every registered ID must be in `scenarios.json` (`ScenarioInventoryTests`).
+/// One group file's registrations and the plan that fills it (19-02): `ScenarioCatalog+Browsing.swift` (19-05),
+/// `+Library.swift` (19-06), `+Gallery.swift` (19-07) and `+Settings.swift` (19-08), so those plans never edit the
+/// same file.
+struct ScenarioGroup {
+    let plan: String
+    let factories: [String: ScenarioFactory]
+}
+
+/// Scenario ID → factory. Every registered ID must be in `scenarios.json` under the plan of its group file
+/// (`ScenarioInventoryTests`).
 enum ScenarioCatalog {
+    static var groups: [ScenarioGroup] {
+        [
+            ScenarioGroup(plan: "19-05", factories: browsing),
+            ScenarioGroup(plan: "19-06", factories: library),
+            ScenarioGroup(plan: "19-07", factories: gallery),
+            ScenarioGroup(plan: "19-08", factories: settings)
+        ]
+    }
+
+    /// Every group's factories. An ID registered twice keeps its first factory; `ScenarioInventoryTests` fails.
     static var factories: [String: ScenarioFactory] {
-        tracer
+        groups.reduce(into: [:]) { result, group in
+            result.merge(group.factories) { first, _ in first }
+        }
     }
 
     static var registeredIDs: Set<String> {
