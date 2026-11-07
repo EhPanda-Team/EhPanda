@@ -35,6 +35,7 @@ final class CommentModerationUITests: XCTestCase {
         static let filterTitle = "Post this comment?"
         static let edit = "Edit"
         static let postAnyway = "Post Anyway"
+        static let largestTextSize = "UICTContentSizeCategoryAccessibilityXXXL"
 
         static func blockAuthor(_ author: String) -> String { "Block \(author)" }
         static func unblockAuthor(_ author: String) -> String { "Unblock \(author)" }
@@ -120,6 +121,28 @@ final class CommentModerationUITests: XCTestCase {
         row.buttons[Copy.unblock].tapWhenHittable("Unblock")
         XCTAssertTrue(row.waitForNonExistence(timeout: 10), "Unblock did not expand the comment.")
         XCTAssertTrue(app.staticTexts[Copy.author].exists, "The unblocked comment does not name its author.")
+        app.terminate()
+    }
+
+    /// A comment link opened at the largest text size lands on the linked comment, with no scrolling by the reader
+    /// (18-UAT). The comment is the gallery's last, so the list ends before it can reach the top: its top edge must be
+    /// in the upper part of the list, under the navigation bar, and its author in reach.
+    func testACommentLinkAtTheLargestTextSizeLandsOnTheComment() throws {
+        let app = try openComments(blockedUsers: [], signedIn: false, contentSizeCategory: Copy.largestTextSize)
+        let list = app.collectionViews[Identifier.commentsView]
+        let cell = app.descendants(matching: .any)[Identifier.commentCell]
+        // The link's scroll starts 0.75 s after the list appears and the row fades for two seconds after that.
+        Thread.sleep(forTimeInterval: 4)
+        keepScreenshot("comments-link-landed-ax5", app: app)
+
+        let navigationBar = app.navigationBars.firstMatch.frame
+        XCTAssertTrue(cell.exists, "The linked comment's row was never built: the scroll stopped well short.")
+        let top = cell.frame.minY
+        XCTAssertTrue(
+            top >= navigationBar.maxY - 1 && top < list.frame.midY,
+            "The linked comment starts at \(top), outside \(navigationBar.maxY)..<\(list.frame.midY)."
+        )
+        XCTAssertTrue(app.staticTexts[Copy.author].isHittable, "The linked comment's author is out of reach.")
         app.terminate()
     }
 
@@ -277,9 +300,12 @@ private extension CommentModerationUITests {
 
     /// Opens the fixture's comment link cold, which lands on the comments list scrolled to comment 6894060.
     func openComments(
-        blockedUsers: [BlockedUser], signedIn: Bool, displayName: String? = nil
+        blockedUsers: [BlockedUser], signedIn: Bool, displayName: String? = nil, contentSizeCategory: String? = nil
     ) throws -> XCUIApplication {
         let app = XCUIApplication()
+        if let contentSizeCategory {
+            app.launchArguments += ["-UIPreferredContentSizeCategoryName", contentSizeCategory]
+        }
         let url = try XCTUnwrap(UITestConstants.commentURL(scheme: "ehpanda"))
         try app.openCold(url, extraEnvironment: environment(
             blockedUsers: blockedUsers, signedIn: signedIn, displayName: displayName
