@@ -225,7 +225,7 @@ extension CommentModerationReducerTests {
         }
         #expect(store.state.moderation.alert == nil)
         #expect(form.comment == ReportFormFeature.Comment(
-            author: Self.author, date: Self.first.commentDate, text: Self.first.plainTextContent
+            author: Self.author, date: Self.first.commentDate, text: ReportPrefill.commentText(of: Self.first)
         ))
         #expect(form.site == "E-Hentai")
         #expect(form.galleryURL == Self.galleryURL)

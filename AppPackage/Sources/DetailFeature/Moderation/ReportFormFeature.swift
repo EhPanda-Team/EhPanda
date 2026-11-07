@@ -135,7 +135,9 @@ public struct ReportFormFeature: Sendable {
         /// The form for `comment` on the gallery at `galleryURL`, or `nil` when the gallery has no report target.
         public init?(comment: GalleryComment, galleryURL: URL) {
             self.init(
-                comment: Comment(author: comment.author, date: comment.commentDate, text: comment.plainTextContent),
+                comment: Comment(
+                    author: comment.author, date: comment.commentDate, text: ReportPrefill.commentText(of: comment)
+                ),
                 galleryURL: galleryURL
             )
         }

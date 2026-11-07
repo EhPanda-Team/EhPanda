@@ -1,3 +1,4 @@
+import AppModels
 import Foundation
 
 /// The block a comment report's Details starts with (18.1 D-07): which comment the report is about, because the site's
@@ -12,6 +13,22 @@ enum ReportPrefill {
     static func text(author: String, date: Date, comment: String) -> String {
         let text = comment.trimmingCharacters(in: .whitespacesAndNewlines)
         return "Reporting a comment by \(author) (\(format(date))):\n\"\(text)\"\n\n"
+    }
+
+    /// The comment's text as it shows: each text, link or URL run on its own line, images left out.
+    static func commentText(of comment: GalleryComment) -> String {
+        comment.contents
+            .compactMap { content in
+                switch content.type {
+                case .plainText, .linkedText:
+                    content.text.map({ String($0.characters) })
+                case .singleLink:
+                    content.link?.absoluteString
+                case .singleImg, .doubleImg, .linkedImg, .doubleLinkedImg:
+                    nil
+                }
+            }
+            .joined(separator: "\n")
     }
 
     private static func format(_ date: Date) -> String {
