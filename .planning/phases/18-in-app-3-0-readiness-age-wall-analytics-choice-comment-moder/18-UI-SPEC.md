@@ -147,7 +147,7 @@ All values are semantic system colours unless they are the accent. Light / dark.
 | On-accent label | `.white` light / `.black` dark | Continue label (contrast below) |
 | Destructive | `.red` — #FF3B30 / #FF453A | Block menu item, Block alert button, Unblock swipe action |
 | Muted | `.secondary` (secondaryLabel) | Unticked checkbox, unselected radio, collapsed label, descriptions, footnotes, `…` glyph, eye.slash glyph |
-| Pill fill | `.bordered` + `.tint(.primary)` (gray fill) in the list; `secondarySystemGroupedBackground` capsule on the Detail strip card | Show / Unblock / Hide |
+| Pill fill | `.bordered` + `.tint(.primary)` (gray fill) in the list; on the Detail strip card: light #FFFFFF capsule, dark `systemGray3` #48484A capsule + 1pt `systemGray` #8E8E93 stroke (see C-8) | Show / Unblock / Hide |
 | Detail strip card | `systemGray5` (existing) | Collapsed card keeps the existing card colour |
 
 **Accent reserved for:** (1) Continue fill when enabled; (2) the ticked checkbox glyph; (3) the selected level's
@@ -408,7 +408,15 @@ Replaces the whole `CommentCell` content for a blocked author. Same `List` row, 
 - Content centred: `VStack(spacing: 10)` { label (as C-6, centred, up to 2 lines at default); HStack { Show; Unblock } }.
   Pills here can't use the gray bordered fill (it disappears on gray5): same size and type as C-6, but
   `.buttonStyle(.plain)`, `.padding(.horizontal, 14)`, `.frame(minHeight: 30)`,
-  `.background(Color(.secondarySystemGroupedBackground), in: .capsule)`, primary text, `.hoverEffect(.highlight)`.
+  `.background(pillFill, in: .capsule)`, `.overlay(Capsule().strokeBorder(pillStroke, lineWidth: 1))`, primary text,
+  `.hoverEffect(.highlight)`. (rev 1.1, screen review: the old `secondarySystemGroupedBackground` fill was #1C1C1E on
+  the #2C2C2E card in dark — 1.2:1, nearly invisible.)
+  - `pillFill = Color(uiColor: UIColor { $0.userInterfaceStyle == .dark ? .systemGray3 : .white })` — light #FFFFFF
+    on #E5E5EA (unchanged look); dark #48484A on #2C2C2E.
+  - `pillStroke = Color(uiColor: UIColor { $0.userInterfaceStyle == .dark ? .systemGray : .clear })` — dark only,
+    #8E8E93 on #2C2C2E = 4.3:1, meets the 3:1 non-text contrast for the pill edge. Light has no stroke.
+  - Label: primary (white in dark) on #48484A = 9.1:1. Increase Contrast: the system colours above already
+    get their high-contrast variants; nothing extra.
 - Show reveals the comment in the card (normal card content). Hide is reachable from the card's context menu
   (`comment.blocked_row.hide` as a third item for a revealed card) — the card has no room for a Hide pill.
 - **Developer check:** the strip is `.drawingGroup()`. Confirm buttons and `.contextMenu` work inside it; if they
@@ -441,7 +449,10 @@ Changing the level takes effect immediately (DD-09). No confirmation when loweri
 
 ### C-11 · Blocked Users list [14]
 
-- Pushed screen, `.navigationTitle(blocked_users)`, large title like other Settings sub-screens.
+- Pushed screen, `.navigationTitle(blocked_users)`, large title like other Settings sub-screens — except at
+  accessibility text sizes: `.toolbarTitleDisplayMode(dynamicTypeSize.isAccessibilitySize ? .inline : .large)`
+  (read `@Environment(\.dynamicTypeSize)`). The inline title is capped by the system and fits; the large title
+  truncated at AX5 (rev 1.1, screen review). The words stay as they are. The empty state (C-12) follows the same rule.
 - `List` (inset grouped, the Settings default) — one section of author names, `.body`, primary, sorted with
   `localizedStandardCompare`; long names wrap.
 - Footer: `blocked_users.footer`.
