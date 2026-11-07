@@ -715,7 +715,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 17. Screenshot Automation, Visual Regression & OS 27 Modernization | 13/13 | Complete    | 2026-11-05 |
 | 18. In-App 3.0 Readiness: Age Wall, Analytics Choice, Comment Moderation & Reader Rework | 12/12 | Complete    | 2026-11-06 |
 | 18.1. Native report form (INSERTED) | 5/5 | Complete    | 2026-11-07 |
-| 19. Visual Regression & Daily Live-Parsing Check | 0/TBD | Not started|  |
+| 19. Visual Regression & Daily Live-Parsing Check | 0/17 | Planned    |  |
 | 20. 3.0 Distribution: Marketplace Build, Notarization, Listing & Release Checks | 0/TBD | Not started|  |
 
 ### Phase 12: Cloudflare Login Restoration
@@ -1467,7 +1467,7 @@ Plans:
 **Depends on**: Phase 18 and Phase 18.1 (every UI change, the native Report form included, lands before the one baseline approval).
 **Requirements**: VIS-18-01, VIS-19-01 (daily live-parsing check); moved from Phase 17: CAP-17-02, CAP-17-03, and the moved parts of CAP-17-01 (17-11) and CAP-17-06 (17-09-T2, 17-15). MKT-18-01's 384 export tooling, final gallery selection and regeneration, CAP-17-04's moved 384 export and 17-21 were dropped (owner msg 1949); MKT-18-01's remaining part maps to Phase 20.
 
-**Scope and owner decisions** (context: [19-CONTEXT.md](phases/19-visual-regression-marketing-export/19-CONTEXT.md); discussion not yet run):
+**Scope and owner decisions** (context: [19-CONTEXT.md](phases/19-visual-regression-marketing-export/19-CONTEXT.md); discussed, decisions D-01 to D-28):
 
 1. Owner msg 1305: the snapshot tests (17-08 to 17-13, 17-14 T1/T3, 17-15, 17-20) are moved, not deferred past 3.0. 17-20's separate re-approval folds into the one baseline approval.
 2. Owner msg 1753: three phases; this one runs after the in-app work so the baseline is approved once, against final UI.
@@ -1490,18 +1490,56 @@ Plans:
   7. `Scripts/visual/README.md` matches the reduced Phase 17 harness and this phase's regression runner.
   8. Release builds still contain no capture code, fixtures, test assets or SnapshotTesting linkage.
 
-**Plans**: 0 plans (outline only; PLAN files come from `/gsd-plan-phase 19`).
-
-Ordered plan outline (old step numbers are the original Phase 18's; the old Step 8, the marketing export, final gallery selection and 384 regeneration from 17-07 and 17-21, is dropped, owner msg 1949):
-
-- **Scenarios, dispatch and compare/report** (was Step 5; from 17-08 to 17-12), including the Phase 18 and 18.1 screens.
-- **Checkpoint (owner): one baseline approval** (was Step 6; from 17-13).
-- **CI snapshot gate, preview review docs and the README rewrite** (was Step 7 without IN-02/IN-03 and the final Release scan; from 17-14 T1/T3 and 17-15).
-- **Daily live-parsing check** (VIS-19-01; owner msg 2006): the scheduled workflow, the parser runs on the live pages, the single-issue open/update/close logic and content-free logs; sign-in pages on saved fixtures until the owner's secret exists. Its first task, whether E-Hentai admits GitHub runner IPs, runs early in the phase; if it does not, options go back to the owner.
+**Plans**: 17 plans (planned 2026-11-07; research: [19-RESEARCH.md](phases/19-visual-regression-marketing-export/19-RESEARCH.md), validation: [19-VALIDATION.md](phases/19-visual-regression-marketing-export/19-VALIDATION.md))
 
 Plans:
 
-- [ ] TBD (run /gsd-plan-phase 19 to break down)
+**Wave 1**
+
+- [ ] 19-01-PLAN.md — app-hosted capture core, the 18-configuration test plan and a three-scenario tracer on both devices; local clone measurement
+- [ ] 19-11-PLAN.md — native visual policy XCUITests the matrix cannot cover (17-09-T2)
+
+**Wave 2** *(blocked on 19-01)*
+
+- [ ] 19-02-PLAN.md — the schema-2 scenario inventory with reasoned not-applicable rules, the local runner and the deterministic 20-shard plan
+- [ ] 19-03-PLAN.md — the guard-free live-check test target and the runner-IP probe on GitHub's hosted Mac *(checkpoint: owner go-ahead before the push, OQ-6)*
+
+**Wave 3** *(blocked on Wave 2)*
+
+- [ ] 19-05-PLAN.md — scenarios: first launch (age wall, analytics choice), the shell and the browsing pages
+- [ ] 19-06-PLAN.md — scenarios: search, quick search, filters, date seek, Favorites, Downloads and gallery detail
+- [ ] 19-07-PLAN.md — scenarios: detail pages, comments (posting warning, collapsed blocking), the Report form and the reader
+- [ ] 19-08-PLAN.md — scenarios: Settings and its pages (analytics picker, Blocked Users) and the app-wide presentations
+- [ ] 19-09-PLAN.md — the aggregate logic (a missing result never passes) and the screen-grouped, filterable review report
+- [ ] 19-14-PLAN.md — the live check's pages, block-versus-break classification and enum-only results
+
+**Wave 4**
+
+- [ ] 19-04-PLAN.md — hosted measurement of picture cost, clone count and run-to-run identity; the measured shard plan *(checkpoint: owner go-ahead and billing, R-1)*
+- [ ] 19-15-PLAN.md — the live check's runner choice, single-issue reporting, entry script, workflow and timer template *(checkpoint: owner picks the runner)*
+
+**Wave 5**
+
+- [ ] 19-10-PLAN.md — inventory closed; the CI gate: 20 shards with retries, triage, aggregate and the native policy job *(checkpoint: owner go-ahead for the hosted proof on a `ci/` branch)*
+- [ ] 19-16-PLAN.md — deploy the daily live check on the chosen runner and prove one real run *(checkpoint: owner go-ahead)*
+
+**Wave 6**
+
+- [ ] 19-12-PLAN.md — the full hosted candidate set and the public snapshot repository *(checkpoints: owner go-ahead for the run and for creating the repository)*
+
+**Wave 7**
+
+- [ ] 19-13-PLAN.md — agent pre-check of every picture, the owner's one approval, the push and the pinned baseline *(checkpoints: the approval, D-17, then the push go-ahead)*
+
+**Wave 8**
+
+- [ ] 19-17-PLAN.md — the README rewrite, preview review docs, the controlled regression (red then green) and the phase gate *(checkpoints: the hosted regression and the owner's required-check choice)*
+
+Cross-cutting constraints:
+
+- Scenario plans 19-05 to 19-08 pass candidate then two compares in `en-large` on both devices with 0 `changed`, `timeout` or `error`, and `ja-accessibility5` and `de-xSmall` on the phone (D-09, D-10).
+- Scenario plans never edit `scenarios.json`; a state that cannot be rendered is proposed as a not-applicable rule with its reason, and 19-10 applies it (D-05).
+- Only one `xcodebuild` runs at a time on a host (TESTING.md); nothing is pushed and no hosted run starts without the owner's go-ahead.
 
 ### Phase 20: 3.0 Distribution: Marketplace Build, Notarization, Listing & Release Checks
 

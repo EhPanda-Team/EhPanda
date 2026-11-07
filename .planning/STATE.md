@@ -1,18 +1,18 @@
 ---
 gsd_state_version: "1.0"
 milestone: v3.0.0
-current_phase: "18.1"
-current_phase_name: Native report form
-status: complete
-stopped_at: Phase 18.1 complete (verification passed 6/6, UAT 10/10); Phase 18 closing checks next; Phase 19 not started
-last_updated: "2026-11-07T02:10:00.000Z"
+current_phase: "19"
+current_phase_name: Visual Regression & Daily Live-Parsing Check
+status: planned
+stopped_at: Phase 19 planned (17 plans, 8 waves, plan-check passed); execution not started; Phase 18 closing checks still open
+last_updated: "2026-11-07T07:45:00.000Z"
 last_activity: 2026-11-07
-last_activity_desc: Phase 18.1 verified and complete (6/6, UAT 10/10); GalleryCardUITests Settings-tab fix 99a2436a5
-state_head: 531c8991c68e940b21a29544d47b915b156ebfeb
+last_activity_desc: Phase 19 planned (research, 17 plans, validation strategy; plan-check passed)
+state_head: 01ba3088cc49e14e4ada87e66c9387f0c5954d72
 progress:
   total_phases: 21
   completed_phases: 18
-  total_plans: 304
+  total_plans: 321
   completed_plans: 304
   percent: 86
 milestone_name: Dependency Reduction & Modernization
@@ -20,6 +20,23 @@ source_head: 891103afa
 ---
 
 # Project State
+
+## Phase 19 planned: Visual Regression & Daily Live-Parsing Check — 2026-11-07
+
+`/gsd-plan-phase 19`: research (`19-RESEARCH.md`), 17 plans in 8 waves and the validation strategy
+(`19-VALIDATION.md`). Plan-check passed: plan structure valid for all 17, failure directions ok, all 28 CONTEXT
+decisions covered, no duplicate threat IDs, every requirement (VIS-18-01, VIS-19-01, CAP-17-01/02/03/06) mapped.
+
+- **Waves:** 1: 19-01, 19-11 · 2: 19-02, 19-03 · 3: 19-05 to 19-09, 19-14 · 4: 19-04, 19-15 · 5: 19-10, 19-16 ·
+  6: 19-12 · 7: 19-13 · 8: 19-17.
+- **Owner checkpoints:** 19-03 (hosted probe push), 19-04 (hosted measurement, billing), 19-10 (hosted proof on a
+  `ci/` branch), 19-12 (candidate run; creating the public snapshot repository), 19-13 (the one approval; the push),
+  19-15 (live-check runner), 19-16 (first real run), 19-17 (hosted controlled regression; required check on `main`).
+- **Open risks:** E-Hentai may refuse GitHub runner IPs (19-03 decides); hosted cost and the 5-job concurrency limit
+  (19-04); candidate artifacts expire after 7 days, so approval must follow 19-12 within that window; storage above
+  5 GB returns options to the owner before the repository is created.
+
+Next: `/gsd-execute-phase 19` (wave 1). Phase 18 closing checks (UI review, UAT) remain open.
 
 ## Phase 18.1 complete: Native report form — 2026-11-07
 
@@ -658,10 +675,10 @@ See: .planning/PROJECT.md (updated 2026-11-05)
 
 ## Current Position
 
-Phase: 18.1 — Native report form — COMPLETE
-Plan: 5/5
-Status: Phase complete; Phase 18 closing checks next, Phase 19 not started
-Last activity: 2026-11-07 — Phase 18.1 verified (6/6) and UAT 10/10
+Phase: 19 (Visual Regression & Daily Live-Parsing Check) — READY TO EXECUTE
+Plan: 0/17
+Status: Ready to execute; Phase 18 closing checks still open
+Last activity: 2026-11-07 — Phase 19 planned (17 plans, 8 waves)
 
 Phase 17 closed with 13/13 in-scope plans, verification passed 8/8, UAT 31/31, security verified and validation
 validated. Phase 18 closed with 12/12 plans and verification passed 10/10 (`18-VERIFICATION.md`); its security audit
@@ -731,7 +748,7 @@ Round-1 state: closed and signed. 38 findings — 32 `re-verified`, 6 `accepted`
 
 D-01 amendment 2 authorizes agent-written fixes; the original owner-only implementation restriction is superseded. All five Dynamic Type lint rules (`no_dynamic_type_size_modifier`, `no_geometry_reader`, `no_fixed_system_font_size`, `accessibility_hardcoded_string`, `no_minimum_scale_factor`) are live at error severity with the tree at 0 for each. A11Y-01 is complete; A11Y-02 (round 2) is open; the phase is not complete. Do not push without the owner.
 
-Progress: [███████████████████░] 299/304 plans ([████████░░] 81%), excluding the 11 superseded Phase 17 plans. GSD
+Progress: [███████████████████░] 299/321 plans ([████████░░] 81%), excluding the 11 superseded Phase 17 plans. GSD
 counts 17 of 21 phases complete (81%): Phase 6 is recorded as "Delivered (rescoped)", and Phases 18.1, 19 and 20
 have not started.
 Phase 17 has 13/13 in-scope plans complete. Phase 18 has 12 of 12 plans complete (18-01 to 18-12). Phase 18.1 has

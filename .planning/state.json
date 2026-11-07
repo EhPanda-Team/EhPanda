@@ -95,13 +95,13 @@
     },
     {
       "number": "18.1",
-      "name": "Native report form",
+      "name": "Native report form (INSERTED)",
       "status": "complete"
     },
     {
       "number": "19",
-      "name": "Visual Regression & Marketing Export",
-      "status": "pending"
+      "name": "Visual Regression & Daily Live-Parsing Check",
+      "status": "in_progress"
     },
     {
       "number": "20",
@@ -110,9 +110,9 @@
     }
   ],
   "next": {
-    "command": "/gsd-ui-review 18",
-    "label": "Close Phase 18 (UI review, UAT)",
-    "reason": "Phase 18.1 complete (verification passed 6/6, UAT 10/10); Phase 18 closing checks before Phase 19"
+    "command": "/gsd-execute-phase 19",
+    "label": "Execute Phase 19 (wave 1: 19-01, 19-11)",
+    "reason": "Phase 19 planned: 17 plans in 8 waves, plan-check passed; Phase 18 closing checks (UI review, UAT) still open"
   },
-  "updated_at": "2026-11-07T02:10:00.000Z"
+  "updated_at": "2026-11-07T07:45:00.000Z"
 }
