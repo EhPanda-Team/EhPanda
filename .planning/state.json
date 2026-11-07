@@ -96,7 +96,7 @@
     {
       "number": "18.1",
       "name": "Native report form",
-      "status": "pending"
+      "status": "complete"
     },
     {
       "number": "19",
@@ -110,9 +110,9 @@
     }
   ],
   "next": {
-    "command": "/gsd-execute-phase 18.1",
-    "label": "Execute phase 18.1 (Native report form)",
-    "reason": "Phase 18.1 of 21 — planned, 5 plans in 4 waves"
+    "command": "/gsd-ui-review 18",
+    "label": "Close Phase 18 (UI review, UAT)",
+    "reason": "Phase 18.1 complete (verification passed 6/6, UAT 10/10); Phase 18 closing checks before Phase 19"
   },
-  "updated_at": "2026-11-06T01:40:05.000Z"
+  "updated_at": "2026-11-07T02:10:00.000Z"
 }

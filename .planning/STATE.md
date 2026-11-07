@@ -3,23 +3,39 @@ gsd_state_version: "1.0"
 milestone: v3.0.0
 current_phase: "18.1"
 current_phase_name: Native report form
-status: verifying
-stopped_at: Completed 18.1-05-PLAN.md
-last_updated: "2026-11-07T00:45:00.000Z"
+status: complete
+stopped_at: Phase 18.1 complete (verification passed 6/6, UAT 10/10); Phase 18 closing checks next; Phase 19 not started
+last_updated: "2026-11-07T02:10:00.000Z"
 last_activity: 2026-11-07
-last_activity_desc: Plan 18.1-05 complete (the phase gate on both devices and in Release; the agent-run live check passed under a local mitmdump, one POST answered locally, nothing forwarded)
+last_activity_desc: Phase 18.1 verified and complete (6/6, UAT 10/10); GalleryCardUITests Settings-tab fix 7b81e242a
 state_head: f6665e04f11e2834d3635b65eb29a23874f1acf7
 progress:
   total_phases: 21
-  completed_phases: 17
+  completed_phases: 18
   total_plans: 304
   completed_plans: 304
-  percent: 81
+  percent: 86
 milestone_name: Dependency Reduction & Modernization
 source_head: b5eca09d1
 ---
 
 # Project State
+
+## Phase 18.1 complete: Native report form — 2026-11-07
+
+`/gsd-verify-work 18.1`, agent-run (owner rule msg 1652): verification passed 6/6 (`18.1-VERIFICATION.md`) and UAT
+10/10, all auto-covered and rerun on both simulators (`18.1-UAT.md`).
+
+- **Rerun:** FeatureTests phone 1806 (1796 passed, 10 expected failures, 0 failed), pad 1806 (1797 passed, 9
+  expected failures, 0 failed), 0 Repetition nodes. Every 18.1 UI suite passed on both devices; copy checks and the
+  cookie-logging audit pass.
+- **Fixed:** `GalleryCardUITests` tapped the Settings tab by a glyph identifier the tab bar no longer lists; it now
+  taps the tab by its label (`7b81e242a`, test only).
+- **Gaps outside 18.1 (for the lead):** the pad's `DeepLinkSchemeUITests` page-link cases fail in the full plan after
+  a landscape test on the same clone (pass alone 8/8); the pad FeatureTests run held live TCP 443 connections to
+  e-hentai.org from four test bundles. Unverified: OQ-2 (signed-in email prefill), OQ-1 (the site's reply).
+
+Next: Phase 18 closing checks (UI review, UAT). Phase 19 is not started.
 
 ## Phase 18.1 inserted and planned: Native report form — 2026-11-06
 
@@ -642,10 +658,10 @@ See: .planning/PROJECT.md (updated 2026-11-05)
 
 ## Current Position
 
-Phase: 19 — Visual Regression & Marketing Export
-Plan: Not started
-Status: Ready to plan
-Last activity: 2026-11-06 — Phase 18 complete, transitioned to Phase 19
+Phase: 18.1 — Native report form — COMPLETE
+Plan: 5/5
+Status: Phase complete; Phase 18 closing checks next, Phase 19 not started
+Last activity: 2026-11-07 — Phase 18.1 verified (6/6) and UAT 10/10
 
 Phase 17 closed with 13/13 in-scope plans, verification passed 8/8, UAT 31/31, security verified and validation
 validated. Phase 18 closed with 12/12 plans and verification passed 10/10 (`18-VERIFICATION.md`); its security audit

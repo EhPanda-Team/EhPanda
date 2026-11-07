@@ -47,7 +47,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 16: Accessibility (Dynamic Type + Assistive Technology)** - Two rounds against the settled UI: full-range Dynamic Type (AX1–AX5, human-implemented, agent verify-only), then a VoiceOver / Voice Control / Reduced Motion / Contrast / Differentiate-Without-Color pass (agent-implemented), held to the App Store Accessibility Nutrition Label bar (completed 2026-09-23)
 - [x] **Phase 17: Screenshot Automation, Visual Regression & OS 27 Modernization** - Reduced 2026-11-03: capture foundation and the approved 192-image website set, verification of the landed size-class layout, the remaining idiom census and the Release isolation check; regression, marketing export and AltStore work moved to Phase 18 (now split: regression and marketing export → Phase 19, AltStore work → Phase 20) (completed 2026-11-05)
 - [x] **Phase 18: In-App 3.0 Readiness: Age Wall, Analytics Choice, Comment Moderation & Reader Rework** - Two first-launch screens for everyone (age wall, then Minimal/Basic/Full analytics choice, SDK off until chosen), E-Hentai comment report, posting warning, collapsed blocking and a Blocked Users list, the reader page-tracking rework with G1/G2 UI tests, IN-02/IN-03 and `MKSellsDigitalGoods` (completed 2026-11-06)
-- [ ] **Phase 18.1: Native report form (INSERTED)** - EhPanda's own report form for comments (owner msg 1931): two illegal-content reasons, required email never stored, English prefill, pinned Send Report; the site's page stays as the fallback; no gallery reports (owner msg 1975)
+- [x] **Phase 18.1: Native report form (INSERTED)** - EhPanda's own report form for comments (owner msg 1931): two illegal-content reasons, required email never stored, English prefill, pinned Send Report; the site's page stays as the fallback; no gallery reports (owner msg 1975) (completed 2026-11-07)
 - [ ] **Phase 19: Visual Regression & Daily Live-Parsing Check** - The screenshot check moved from Phase 17 (snapshot matrix, one owner-approved baseline, the full-matrix CI gate, preview review and the `Scripts/visual/README.md` rewrite), covering the Phase 18 and 18.1 screens, plus a daily CI check that runs the app's parsers on the live pages (owner msg 2006); the 384 export and final gallery selection are dropped (owner msg 1949)
 - [ ] **Phase 20: 3.0 Distribution: Marketplace Build, Notarization, Listing & Release Checks** - AltStore PAL marketplace build (same features), notarization pipeline, PAL source and listing with decorated store screenshots, website privacy/support/contact links, release mechanics, real-device checks, the repeated Release isolation scan and, last, the analytics revision with install source
 
@@ -714,7 +714,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 16. Dynamic Type Accessibility | 26/26 | Complete    | 2026-09-23 |
 | 17. Screenshot Automation, Visual Regression & OS 27 Modernization | 13/13 | Complete    | 2026-11-05 |
 | 18. In-App 3.0 Readiness: Age Wall, Analytics Choice, Comment Moderation & Reader Rework | 12/12 | Complete    | 2026-11-06 |
-| 18.1. Native report form (INSERTED) | 5/5 | In Progress |  |
+| 18.1. Native report form (INSERTED) | 5/5 | Complete    | 2026-11-07 |
 | 19. Visual Regression & Daily Live-Parsing Check | 0/TBD | Not started|  |
 | 20. 3.0 Distribution: Marketplace Build, Notarization, Listing & Release Checks | 0/TBD | Not started|  |
 
