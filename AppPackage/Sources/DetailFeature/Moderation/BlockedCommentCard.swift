@@ -20,9 +20,14 @@ struct BlockedCommentCard: View {
         VStack(spacing: 10) {
             BlockedCommentLabel()
                 .multilineTextAlignment(.center)
-            HStack(spacing: 8) {
-                BlockedCommentCardPill(title: .commentBlockedRowShow, action: showAction)
-                BlockedCommentCardPill(title: .RLocalizable.blockedUsersUnblock, action: unblockAction)
+            // Side by side where both fit, else one above the other, as on the collapsed row (C-6).
+            ViewThatFits(in: .horizontal) {
+                HStack(spacing: 8) {
+                    pills
+                }
+                VStack(spacing: 8) {
+                    pills
+                }
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -35,6 +40,11 @@ struct BlockedCommentCard: View {
         .clipShape(.rect(cornerRadius: CommentCardMetrics.cornerRadius))
         .accessibilityElement(children: .contain)
         .accessibilityIdentifier("blocked_comment_card_" + commentID)
+    }
+
+    @ViewBuilder private var pills: some View {
+        BlockedCommentCardPill(title: .commentBlockedRowShow, action: showAction)
+        BlockedCommentCardPill(title: .RLocalizable.blockedUsersUnblock, action: unblockAction)
     }
 }
 
