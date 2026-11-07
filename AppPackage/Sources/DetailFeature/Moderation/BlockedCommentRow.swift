@@ -65,21 +65,40 @@ struct BlockedCommentLabel: View {
 }
 
 /// The line above a revealed comment's header in the list (C-7): the collapsed label and a Hide pill.
+///
+/// The label sits on one line beside Hide where both fit, else above it, as in the collapsed row (C-6). In one row at
+/// the largest sizes the label and the pill shared the width with the spacer and broke inside words.
 struct RevealedCommentLine: View {
     let hideAction: () -> Void
 
     var body: some View {
-        HStack(spacing: 8) {
+        ViewThatFits(in: .horizontal) {
+            HStack(spacing: 8) {
+                label
+                    .lineLimit(1)
+                Spacer(minLength: 0)
+                hide
+            }
+
+            VStack(alignment: .leading, spacing: 8) {
+                label
+                hide
+            }
+        }
+    }
+
+    private var label: some View {
+        HStack(alignment: .firstTextBaseline, spacing: 8) {
             Image(systemSymbol: .eyeSlash)
-                .font(.footnote)
-                .foregroundStyle(.secondary)
                 .accessibilityHidden(true)
             Text(BlockedCommentLabel.text)
-                .font(.footnote)
-                .foregroundStyle(.secondary)
-            Spacer(minLength: 0)
-            BlockedCommentPill(title: .commentBlockedRowHide, action: hideAction)
         }
+        .font(.footnote)
+        .foregroundStyle(.secondary)
+    }
+
+    private var hide: some View {
+        BlockedCommentPill(title: .commentBlockedRowHide, action: hideAction)
     }
 }
 
