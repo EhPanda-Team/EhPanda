@@ -69,6 +69,22 @@ struct CommentFilterTests {
         #expect(CommentFilter.matches("금지가", terms: Self.synthetic) == false)
     }
 
+    // MARK: Kana: dakuten kept, width folded
+
+    private static let kana = CommentFilterTerms(groups: ["ja": ["ゲゴ語", "パピ語"]])
+
+    /// A dakuten or handakuten tells two words apart (a slur and a manga title differ by one), so neither is folded.
+    @Test(arguments: ["ケコ語", "ゲコ語", "ケゴ語", "げご語", "ハヒ語", "バビ語"])
+    func aKanaTermDoesNotMatchWithoutItsDakuten(text: String) {
+        #expect(CommentFilter.matches(text, terms: Self.kana) == false)
+    }
+
+    /// Half-width kana write a dakuten as a separate mark after the base; it folds onto the base like a combining one.
+    @Test(arguments: ["ゲゴ語", "ｹﾞｺﾞ語", "ケ\u{3099}コ\u{3099}語", "パピ語", "ﾊﾟﾋﾟ語", "これはｹﾞｺﾞ語だ"])
+    func aKanaTermMatchesInFullOrHalfWidthWithItsDakuten(text: String) {
+        #expect(CommentFilter.matches(text, terms: Self.kana))
+    }
+
     // MARK: Exception words
 
     /// An ordinary word that holds a term is listed as the term's exception: inside it the term does not count, but the
@@ -119,7 +135,7 @@ struct CommentFilterTests {
 
     // MARK: Normalisation
 
-    @Test(arguments: ["Slür", "ｓｌｕｒ", "  GO \n AWAY  ", "禁止語", "금지어", "ガイジ", "ﾃｽﾄ", "I’ll"])
+    @Test(arguments: ["Slür", "ｓｌｕｒ", "  GO \n AWAY  ", "禁止語", "금지어", "ガイジ", "ﾃｽﾄ", "ｶﾞｲｼﾞ", "I’ll"])
     func normalisationIsIdempotent(text: String) {
         let once = CommentFilter.normalized(text)
         #expect(CommentFilter.normalized(once) == once)
@@ -199,14 +215,21 @@ struct CommentFilterTests {
             "感谢上传，翻译得很好。",
             "感謝上傳，翻譯得很好。",
             // Everyday words that contain a shorter insult; the list keeps only the longer, unambiguous forms, or names
-            // the everyday word as the term's exception ("foreigner" holds the katakana slur).
+            // the everyday word as the term's exception ("foreigner" holds the slur, in katakana and in hiragana).
             "ガイジンの主人公が好き。",
+            "がいじんの友達ができた。",
+            // A title one dakuten away from the slur, in katakana and in hiragana: kana keep their dakuten.
+            "カイジ",
+            "カイジの映画が好き。",
+            "かいじ",
             "주인공이 죽어라 노력하는 장면이 좋아요.",
             "가방을 뒤져라, 열쇠가 있을 거야.",
             "주인공이 자살해서 너무 슬펐어요.",
-            // Ordinary words around a two-character term (18-UAT test 11, per the language review): "the past death
-            // toll" in both scripts and "died in the past" in Japanese, and the neutral Japanese words for a disabled
-            // child, a child victim and a child offender.
+            // Ordinary words around a two-character term (18-UAT test 11, per the language review): "I never believed
+            // it before" and "the past death toll" in both scripts, "died in the past" in Japanese, and the neutral
+            // Japanese words for a disabled child, a child victim and a child offender.
+            "我过去死活不信。",
+            "我過去死活不信。",
             "过去死亡人数在下降。",
             "過去死亡人數在下降。",
             "過去死んだキャラが復活した。",
@@ -220,8 +243,11 @@ struct CommentFilterTests {
     }
 
     /// The language review's cases that must still raise the warning (18-UAT test 11): 去死 after 过 when no ordinary
-    /// word follows it, as in "go over there and die", in both scripts; 害児 on its own; and ガイジ.
-    @Test(arguments: ["你过去死吧", "滚过去死", "你過去死吧", "滾過去死", "害児", "ガイジ", "お前ガイジかよ"])
+    /// word follows it, as in "go over there and die", in both scripts; 害児 on its own; and ガイジ in katakana, in
+    /// half-width katakana and in hiragana.
+    @Test(arguments: [
+        "你过去死吧", "滚过去死", "你過去死吧", "滾過去死", "害児", "ガイジ", "お前ガイジかよ", "ｶﾞｲｼﾞ", "がいじ", "お前がいじかよ"
+    ])
     func theBundledListMatchesATermThatNoOrdinaryWordHolds(text: String) {
         #expect(CommentFilter.matches(text, terms: .bundled), "Missed: \(text)")
     }
