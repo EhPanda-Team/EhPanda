@@ -50,6 +50,9 @@
             reference = "container:AppPackage/Tests/VisualTests.xctestplan">
          </TestPlanReference>
          <TestPlanReference
+            reference = "container:AppPackage/Tests/SnapshotMatrix.xctestplan">
+         </TestPlanReference>
+         <TestPlanReference
             reference = "container:UITests.xctestplan">
          </TestPlanReference>
          <TestPlanReference reference = "container:AppshotCapture.xctestplan">
