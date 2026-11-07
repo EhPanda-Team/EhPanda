@@ -2,8 +2,8 @@
 
 **Audited:** 2026-11-07 (UTC 01:55–03:55), at `1120de8dd`; fixes re-captured at `199d3e4d2` and `07667eca1`
 **Updated:** 2026-11-07 (UTC 06:20), after the 18-UAT gap fixes: top fix 1, the dark card pills and the AX5
-comment-link scroll are fixed (`1fe7c5c91`, `87022538b`, `99d6b6a81`); the Blocked Users title at AX5 stays open
-(see Pillar 4). The scores below are the audit's.
+comment-link scroll are fixed (`1fe7c5c91`, `87022538b`, `99d6b6a81`); the Blocked Users title at AX5 is closed as
+accepted by design (UI-SPEC rev 1.2, see Pillar 4). The scores below are the audit's.
 **Baseline:** `18-UI-SPEC.md` (C-1 to C-13) and the mockups in `mockups/`
 **Screenshots:** captured in the Simulator, not with Playwright (native app, no dev server). An uncommitted
 capture-only UI test (`Phase18UIReviewCaptureUITests`, kept outside the repo with the shots in
@@ -64,7 +64,7 @@ at the default size.
    phone's.
 
 Further warnings: the dark collapsed-card pills (Color; fixed, `87022538b`), the AX5 comment-link scroll
-(Experience Design; fixed, `99d6b6a81`) and the Blocked Users large title at AX5 (Typography; open).
+(Experience Design; fixed, `99d6b6a81`) and the Blocked Users large title at AX5 (Typography; accepted, UI-SPEC rev 1.2).
 
 ---
 
@@ -129,13 +129,15 @@ Further warnings: the dark collapsed-card pills (Color; fixed, `87022538b`), the
   semibold for Recommended) and scales to AX5 without clipping on the first-launch screens, Settings and the
   Report form.
 - **Fixed — revealed comment's date truncates at AX5** (Top fix 1, `1fe7c5c91`).
-- **Warning — Blocked Users large title at AX5 (open):** "Blocked Use…" in the navigation bar on the list, swipe and
+- **Warning — Blocked Users large title at AX5 (accepted, UI-SPEC rev 1.2):** "Blocked Use…" in the navigation bar on the list, swipe and
   empty screens. C-11 asks for a system large title, and the navigation bar truncates one that does not fit; the
   empty-state heading under it wraps in full. UI-SPEC rev 1.1 now asks for
   `.toolbarTitleDisplayMode(dynamicTypeSize.isAccessibilitySize ? .inline : .large)` on C-11 and C-12, but
   AGENTS.md's accessibility navigation policy forbids dynamic-type branches and text-size-dependent title
   fallbacks, and no owner exception covers this screen (the only one is the compact Library title menu). Not
-  implemented: it needs the owner's exception or a spec that keeps one title mode at every size.
+  implemented: it needs the owner's exception or a spec that keeps one title mode at every size. Design then
+  issued UI-SPEC rev 1.2: C-11 and C-12 keep the plain large title at every size, with no branch, and the system's
+  truncation at AX5 is accepted (back button, list and swipe actions stay usable). No code change.
 
 ### Pillar 5: Spacing (4/4)
 

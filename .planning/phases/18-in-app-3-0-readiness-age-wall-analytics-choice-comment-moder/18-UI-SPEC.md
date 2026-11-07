@@ -449,10 +449,10 @@ Changing the level takes effect immediately (DD-09). No confirmation when loweri
 
 ### C-11 · Blocked Users list [14]
 
-- Pushed screen, `.navigationTitle(blocked_users)`, large title like other Settings sub-screens — except at
-  accessibility text sizes: `.toolbarTitleDisplayMode(dynamicTypeSize.isAccessibilitySize ? .inline : .large)`
-  (read `@Environment(\.dynamicTypeSize)`). The inline title is capped by the system and fits; the large title
-  truncated at AX5 (rev 1.1, screen review). The words stay as they are. The empty state (C-12) follows the same rule.
+- Pushed screen, `.navigationTitle(blocked_users)`, large title like other Settings sub-screens, at every text size.
+  No text-size branch and no title fallback (owner's standing rule for this app; only exception is the Library title
+  menu). At AX5 the system truncates the large title; that is accepted system behaviour (rev 1.2, replaces rev 1.1's
+  inline-at-AX rule). The empty state (C-12) is the same.
 - `List` (inset grouped, the Settings default) — one section of author names, `.body`, primary, sorted with
   `localizedStandardCompare`; long names wrap.
 - Footer: `blocked_users.footer`.
