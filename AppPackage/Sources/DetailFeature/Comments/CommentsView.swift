@@ -268,16 +268,23 @@ extension CommentsView {
         /// Unblock; UI-SPEC C-4) follow the link actions as named actions of their own, and the `…`
         /// button that also holds them is hidden from accessibility. A revealed comment's C-7 line sits
         /// above the element, outside it, so its Hide stays an ordinary button.
+        ///
+        /// The line and the comment each take the height they ask for. Offered the cell's own height, as a list row
+        /// offers it, a `VStack` hands it out in equal shares, not by each child's ideal, so the comment would get
+        /// less than it needs while the line kept its slack, and its header, the one part that gives way, would lose
+        /// the date's second line to an ellipsis at accessibility sizes.
         var body: some View {
             VStack(alignment: .leading, spacing: 0) {
                 if let hideAction {
                     RevealedCommentLine(hideAction: hideAction)
                         .padding([.horizontal, .top])
+                        .fixedSize(horizontal: false, vertical: true)
                 }
                 commentContent
                     .padding([.horizontal, .bottom])
                     // 4pt under the C-7 line; the cell's usual top padding otherwise.
                     .padding(.top, hideAction == nil ? nil : 4)
+                    .fixedSize(horizontal: false, vertical: true)
             }
         }
 
