@@ -3,7 +3,7 @@ status: complete
 phase: 18-in-app-3-0-readiness-age-wall-analytics-choice-comment-moder
 source: 18-01-SUMMARY.md, 18-02-SUMMARY.md, 18-03-SUMMARY.md, 18-04-SUMMARY.md, 18-05-SUMMARY.md, 18-06-SUMMARY.md, 18-07-SUMMARY.md, 18-08-SUMMARY.md, 18-09-SUMMARY.md, 18-10-SUMMARY.md, 18-11-SUMMARY.md, 18-12-SUMMARY.md
 started: 2026-11-07T02:37:49Z
-updated: 2026-11-07T06:25:00Z
+updated: 2026-11-07T06:38:00Z
 ---
 
 ## Current Test
@@ -82,13 +82,76 @@ usually nothing is left to skip.
 expected: On a fresh install or an upgrade, the first screen is the age wall, before any content or network request. Continue stays dimmed until the statement is ticked; there is no skip; the answer is kept on the device.
 result: pass
 source: automated
-evidence: "FirstLaunchUITests.testAFreshLaunchShowsOnlyTheAgeWallAndMakesNoRequest, testTickingTheStatementGatesContinue, testContinueStaysPinnedAtTheLargestTextSize, testAnUpgraderWithTheAgeAnsweredOpensOnTheAnalyticsChoice and testALinkOpenedAtTheGateOpensItsGalleryAfterBothAnswers passed on both devices; FirstLaunchGateTests in FeatureTests. The UI review saw the wall unticked, ticked and at AX5 in light and dark (18-UI-REVIEW.md). The live network side (nothing reaches TelemetryDeck before the analytics choice) is the separate check 2c, planned and not run."
+evidence: "FirstLaunchUITests.testAFreshLaunchShowsOnlyTheAgeWallAndMakesNoRequest, testTickingTheStatementGatesContinue, testContinueStaysPinnedAtTheLargestTextSize, testAnUpgraderWithTheAgeAnsweredOpensOnTheAnalyticsChoice and testALinkOpenedAtTheGateOpensItsGalleryAfterBothAnswers passed on both devices; FirstLaunchGateTests in FeatureTests. The UI review saw the wall unticked, ticked and at AX5 in light and dark (18-UI-REVIEW.md). The live network side passed in check 2c: on a fresh install the app opened no network connection at all while the age wall was up."
 
 ### 2. The analytics choice: three levels, none picked, each sends only what it says
 expected: After the age wall, Minimal, Basic and Full are equally prominent, nothing is picked, Basic carries "Recommended"; Continue stays dimmed until a level is picked. No SDK call before the choice, none under Minimal beyond the one install signal, and each level sends only what its description says.
 result: pass
 source: automated
-evidence: "FirstLaunchUITests.testTheAnalyticsChoiceStartsEmptyAndRecommendsBasicOnly on both devices; AnalyticsLevelGateTests, AnalyticsClientGateTests, InstallSignalSenderTests and the per-feature AnalyticsEmissionTests in FeatureTests, 0 failed on the phone. Not verified against the live endpoint: see the 2c plan."
+evidence: "FirstLaunchUITests.testTheAnalyticsChoiceStartsEmptyAndRecommendsBasicOnly on both devices; AnalyticsLevelGateTests, AnalyticsClientGateTests, InstallSignalSenderTests and the per-feature AnalyticsEmissionTests in FeatureTests, 0 failed on the phone. Checked against the live endpoint for no level and for Minimal in 2c; Basic and Full were not run live."
+
+### 2c. Live: nothing reaches TelemetryDeck before the choice, and Minimal sends one install signal
+expected: On a fresh install the app opens no connection to TelemetryDeck's ingest host on the age wall, on the analytics choice, or after a relaunch with no level picked. Picking Minimal sends exactly one install signal (`App.installed` with `App.installSource`). Once it is accepted it is not retried, and a relaunch sends nothing more.
+result: pass
+source: automated (live endpoint)
+evidence: "Fresh install, real app ID, 2026-11-07 06:26:49Z to 06:32:58Z. No socket to the ingest address from any process, and no connection to nom.telemetrydeck.com in the app's log, on the age wall, on the analytics choice or after a relaunch with no level picked. After Minimal: one connection carrying one POST to /v2/, answered 200. No second request came in the next 90 s or after a relaunch. The persisted install signal is settled. Details below."
+
+Method (evidence in `$TMPDIR/v18td/`; the app ID and the user hash appear nowhere in it):
+
+- **Build.** A Debug build of the working tree with the real app ID, which `Config/Analytics.xcconfig` takes from the
+  gitignored `Config/Analytics.local.xcconfig` through `#include?`. The built Info.plist's app ID and salt were
+  checked against the local file; neither is recorded here. While the check ran, other work committed on top of
+  `2acd4a4c9` (up to `bae7585ca` when this was recorded). Those commits change only the comment filter, its tests and
+  docs, so the analytics, install-signal and first-launch code under test is the same as at `bae7585ca`.
+- **Device.** A new simulator, "EhPanda iPhone Air TD" (iOS 27.2), deleted afterwards. A temporary XCUITest that was
+  not committed drove the UI: a plain `XCUIApplication().launch()` with no launch environment, so the network was
+  live and no first-launch preset applied. It wrote a UTC marker and a screenshot at each step.
+- **What was observed.** Only the app's own sockets and logs. No proxy, certificate or network setting was touched.
+  Three loops ran with a 0.25 s nominal interval: `lsof -nP -i -a -c EhPanda` with loopback removed;
+  `lsof -nP -i -a -c nsurlsessiond`; and `lsof -nP -i` across every process, filtered to the ingest address. Each
+  took 3.2 to 3.4 samples a second, and the longest gap was 1.5 s, at app launches. The ingest host comes from the
+  SDK source and `InstallSignalSender.endpoint`. `nom.telemetrydeck.com` resolved to 77.42.8.200 with no AAAA
+  record, and resolving it again every 15 s gave the same address. The app's log was streamed at debug level
+  (`simctl spawn … log stream --predicate 'process == "EhPanda"'`). In it, the network framework names each
+  connection's host (`create connection to <host>:443`), and CFNetwork writes a summary for each request.
+
+| Step (UTC) | Sockets to 77.42.8.200, any process | Connections to nom.telemetrydeck.com in the app's log | The app's other remote sockets |
+|-----|-----|-----|-----|
+| 1. Fresh launch, age wall, 60 s (06:26:49 to 06:27:56) | 0 lines (216 app samples, 205 all-process samples) | 0 | none |
+| 2. Ticked, Continue, analytics choice, 60 s (06:27:56 to 06:28:59) | 0 (209, 208) | 0 | e-hentai.org |
+| 3. Killed and relaunched, choice shown again, 60 s (06:28:59 to 06:30:05) | 0 (216, 214) | 0 | e-hentai.org |
+| 4. Minimal, Continue at 06:30:07.3, then 90 s (to 06:31:44) | 164 lines, all one EhPanda socket: SYN_SENT at 06:30:07.393, ESTABLISHED until 06:30:58.286 | 1 connection, 1 request | e-hentai.org, ehgt.org |
+| 5. Killed and relaunched, Home, 60 s (06:31:44 to 06:32:58) | 0 (246, 241) | 0 | e-hentai.org, ehgt.org |
+
+In step 4, a single URLSession task posted to `https://nom.telemetrydeck.com/v2/` over HTTP/2. It resumed at
+06:30:07.309 with a 306-byte body, and the 200 response came at 06:30:08.254. CFNetwork's summary for it reads
+`response_status=200, request_bytes=449, response_bytes=94`. The connection then sat idle until the session closed
+it at 06:30:58.6, and nothing else used it. No other connection to the host, and no other request, came in the
+90 s that cover the 10, 20 and 40 s retries, or after the relaunch. `InstallSignalSender` logged no failed or
+rejected request (its subsystem is in the stream), so the first attempt was the only one. After the run, the app's
+preferences held `analyticsLevel` Minimal, `ageDeclarationVersion` 1, and `installSignal` with `settled` true and
+`clientUser` cleared. 306 bytes is exactly the size of the seven-field body with `App.installSource` set to
+`unknown`, the value expected on a simulator install. That fits the one-key payload but does not prove it. On the
+Mac, nsurlsessiond made no connection to the ingest address; it reached only Apple addresses. The screenshots show
+each screen as expected: the age wall, the choice before and after the relaunch, Minimal picked, then Home.
+
+What this check found about the app's other traffic: the app opened no remote socket at all while the age wall was up.
+After the age wall's Continue, Home started loading from e-hentai.org and ehgt.org while the analytics choice was
+still on screen. The choice gates analytics, not content.
+
+Limits:
+
+- **No decrypted HTTPS.** There was no proxy and no CA, by constraint, so no HTTPS body was read. "One signal,
+  `App.installed` with `App.installSource`" rests on: one connection, one request in the CFNetwork log, a body length
+  that matches the format, the code path (under Minimal the SDK is never started, so `InstallSignalSender` is the
+  only sender), and the settled state the app saved.
+- **Debug build only.** The Debug build marks the signal `isTestMode: "true"`, so it went to TelemetryDeck's test
+  data. A Release build was not checked.
+- **Sampling gaps.** A connection shorter than the gaps between socket samples (up to 1.5 s) could fall between them.
+  The app's log, however, records every connection's host on its own, and it shows none outside step 4.
+- **Persisted state.** The state sampler that ran during the check read the wrong preferences domain, so only the
+  final state was recorded.
+- **Not covered.** Basic and Full were not run against the live endpoint, and a real device was not used.
 
 ### 3. Settings analytics picker
 expected: Settings → General has a Share Analytics Data picker with Minimal, Basic and Full, a Privacy Policy row, and a footer showing the selected level's description; the old "installation is still counted" footer is gone.
@@ -161,8 +224,8 @@ evidence: "18-UI-REVIEW.md: default size matches. The revealed line (C-7) was fi
 
 ## Summary
 
-total: 13
-passed: 11
+total: 14
+passed: 12
 issues: 2
 pending: 0
 skipped: 0
