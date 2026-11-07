@@ -1,3 +1,4 @@
+import AppModels
 @testable import DetailFeature
 import Foundation
 import Testing
@@ -34,5 +35,27 @@ struct ReportPrefillTests {
         let text = ReportPrefill.text(author: "Bob", date: Self.date, comment: "\n  spam\nlink  \n")
 
         #expect(text == "Reporting a comment by Bob (2026-11-05 13:04 UTC):\n\"spam\nlink\"\n\n")
+    }
+
+    // A comment's runs (the text before a line break, a link, a bare URL) each show on their own line, so the quote
+    // keeps them on their own lines: joined with nothing, "text" and a link after it ran into "textlink". Images
+    // have no text and stay out.
+    @Test
+    func theQuoteKeepsEachRunOfTheCommentOnItsOwnLine() throws {
+        let comment = GalleryComment(
+            votedUp: false, votedDown: false, votable: true, editable: false, author: "Carol",
+            contents: [
+                .init(type: .plainText, text: "Cyber library"),
+                .init(type: .linkedText, text: "Another gallery", link: URL(string: "https://e-hentai.org/g/1/a/")),
+                .init(type: .singleImg, imgURL: URL(string: "https://example.com/i.jpg")),
+                .init(type: .singleLink, link: URL(string: "https://example.com/a"))
+            ],
+            commentID: "7", commentDate: Self.date
+        )
+        let galleryURL = try #require(URL(string: "https://e-hentai.org/g/42/abc123/"))
+
+        let form = try #require(ReportFormFeature.State(comment: comment, galleryURL: galleryURL))
+
+        #expect(form.comment.text == "Cyber library\nAnother gallery\nhttps://example.com/a")
     }
 }
