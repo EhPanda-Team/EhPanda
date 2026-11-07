@@ -70,11 +70,7 @@ struct CommentsView: View {
             .onChange(of: store.scrollCommentID, initial: true) {
                 if let scrollCommentID = store.scrollCommentID {
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.75) {
-                        // The deep-linked comment lands at the same anchor either way; only the
-                        // travel there is motion, so Reduce Motion drops the animation, not the jump.
-                        withAnimation(reduceMotion ? nil : .default) {
-                            proxy.scrollTo(scrollCommentID, anchor: .top)
-                        }
+                        scroll(to: scrollCommentID, with: proxy)
                     }
                 }
             }
@@ -103,6 +99,33 @@ struct CommentsView: View {
         .animation(.default, value: store.scrollRowOpacity)
         .toolbar(content: toolbar)
         .navigationTitle(.comments)
+    }
+
+    /// Brings the deep-linked comment to the top of the list.
+    ///
+    /// The list aims a scroll at rows it has not built yet by their estimated heights, which at the largest text sizes
+    /// fall far short of the real ones, so the travel can stop a row or more short of the comment. Once it ends, the
+    /// rows around the comment are built at their real heights, and the scroll is made again without animation, on
+    /// successive turns of the main queue while the list settles, so that it lands on the comment.
+    ///
+    /// The comment lands at the same anchor either way; only the travel there is motion, so Reduce Motion drops the
+    /// animation, not the jump.
+    private func scroll(to commentID: String, with proxy: ScrollViewProxy) {
+        withAnimation(reduceMotion ? nil : .default) {
+            proxy.scrollTo(commentID, anchor: .top)
+        } completion: {
+            land(on: commentID, with: proxy, passes: Self.landingPasses)
+        }
+    }
+
+    private static let landingPasses = 3
+
+    private func land(on commentID: String, with proxy: ScrollViewProxy, passes: Int) {
+        guard passes > 0 else { return }
+        proxy.scrollTo(commentID, anchor: .top)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            land(on: commentID, with: proxy, passes: passes - 1)
+        }
     }
 
     /// A comment's row: the collapsed row for a blocked author (C-6), else the comment, with the C-7 line above it
