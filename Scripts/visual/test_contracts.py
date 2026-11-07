@@ -12,12 +12,14 @@ from unittest.mock import patch
 import environment
 
 ROOT = Path(__file__).resolve().parents[2]
+SCENARIO_INVENTORY = ROOT / 'AppPackage/Tests/VisualSnapshotTests/Resources/scenarios.json'
 
 
 def make_contract_fixtures(directory):
     """Small deterministic data for manifest validation; native tests verify the real image export."""
     directory.mkdir()
-    catalog = json.loads((ROOT / 'AppPackage/Tests/VisualSnapshotTests/Resources/scenarios.json').read_text())
+    contracts = importlib.import_module('contracts')
+    catalog = contracts.legacy_scenarios(json.loads(SCENARIO_INVENTORY.read_text()))
     payload = b'fixture integrity test'
     asset = directory / 'assets/home/0.png'
     asset.parent.mkdir(parents=True)
@@ -49,6 +51,18 @@ class ContractsTests(unittest.TestCase):
         self.assertEqual(len({row.key for row in rows}), 576)
         for axis, count in [('locale', 6), ('size', 12), ('orientation', 2), ('family', 2), ('theme', 2)]:
             self.assertEqual(len({getattr(row, axis) for row in rows}), count)
+
+    def test_schema_two_inventory_keeps_the_phase_17_scenario(self):
+        document = json.loads(SCENARIO_INVENTORY.read_text())
+        self.assertEqual(document['schema'], 2)
+        self.assertIn('home-populated', {row['id'] for row in self.contracts.load_scenarios(document)})
+        self.assertEqual([(row['id'], row['fixtureID']) for row in self.contracts.legacy_scenarios(document)],
+                         [('home-populated', 'home-finite')])
+        self.assertEqual(len(self.contracts.enumerate_coordinates(self.contracts.legacy_scenarios(document))), 576)
+
+    def test_schema_one_inventory_rejected(self):
+        with self.assertRaises(ValueError):
+            self.contracts.load_scenarios([{'id': 'home-populated', 'fixtureID': 'home-finite', 'state': 'populated'}])
 
     def test_empty_scenarios_rejected(self):
         with self.assertRaises(ValueError):
@@ -489,7 +503,7 @@ class RunnerPreflightTests(unittest.TestCase):
 
     def test_empty_catalog_fails_before_native_preflight(self):
         catalog = self.directory / 'empty-catalog.json'
-        catalog.write_text('[]')
+        catalog.write_text('{"schema": 2, "scenarios": []}')
         with patch.object(self.runner, 'SCENARIOS', catalog), \
                 patch.object(environment, 'validate_environment') as preflight:
             with self.assertRaisesRegex(ValueError, 'named executable scenario'):
@@ -617,8 +631,8 @@ class RunnerPreflightTests(unittest.TestCase):
         self.assertEqual(report['counts']['captured'], 1)
 
     def test_valid_replacement_fixture_during_capture_fails_the_run(self):
-        manifest = self.runner.contracts.validate_fixtures(self.args.fixtures, json.loads(
-            self.runner.SCENARIOS.read_text()))
+        manifest = self.runner.contracts.validate_fixtures(self.args.fixtures, self.runner.contracts.legacy_scenarios(
+            json.loads(self.runner.SCENARIOS.read_text())))
         replacement = dict(manifest, aggregateDigest='replacement-valid-fixture-digest')
         def dispatch(args, requested, report, publish):
             for row in requested:

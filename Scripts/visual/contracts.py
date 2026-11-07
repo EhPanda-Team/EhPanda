@@ -29,6 +29,24 @@ class Coordinate:
         return '__'.join(vars(self).values())
 
 
+def load_scenarios(document):
+    """The scenarios of a schema-2 inventory (`{schema: 2, scenarios: [...]}`, 19-02)."""
+    if not isinstance(document, dict) or document.get('schema') != 2 or not isinstance(document.get('scenarios'), list):
+        raise ValueError('Expected a schema-2 scenario inventory')
+    return document['scenarios']
+
+
+def legacy_scenarios(document):
+    """The Phase 17 view of a schema-2 inventory: the scenarios with a public fixture, as `{id, fixtureID, state}`."""
+    return [{'id': row['id'], 'fixtureID': row['fixtureID'], 'state': row['state']}
+            for row in load_scenarios(document) if 'fixtureID' in row]
+
+
+def fixture_catalog(value):
+    """An exported fixture catalog's rows: a bare list, or the rows under `scenarios`."""
+    return value['scenarios'] if isinstance(value, dict) else value
+
+
 def enumerate_coordinates(scenarios):
     if not isinstance(scenarios, list) or not scenarios:
         raise ValueError('At least one named executable scenario is required')
@@ -123,7 +141,7 @@ def validate_fixtures(directory, scenarios):
         if hashlib.sha256(contained(ROOT, source).read_bytes()).hexdigest() != digest:
             raise ValueError(f'Fixture generator changed: {source}')
     catalog = json.loads((directory / 'scenarios.json').read_text())
-    fixture_ids = {row['fixtureID'] for row in catalog}
+    fixture_ids = {row['fixtureID'] for row in fixture_catalog(catalog)}
     for scenario in scenarios:
         if scenario['fixtureID'] not in fixture_ids or scenario['fixtureID'] not in manifest['fixtureIDs']:
             raise ValueError(f'Missing upstream fixture: {scenario["fixtureID"]}')
