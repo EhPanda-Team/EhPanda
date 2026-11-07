@@ -66,8 +66,9 @@ struct BlockedCommentLabel: View {
 
 /// The line above a revealed comment's header in the list (C-7): the collapsed label and a Hide pill.
 ///
-/// Hide sits beside the label, which wraps as it needs to (mockup 09). At accessibility sizes Hide goes under the
-/// label, as the glyphs do on the first-launch cards (C-2): beside it, the label and the pill broke inside words.
+/// Hide sits beside the label and keeps its one line, while the label wraps as it needs to (mockup 09). At
+/// accessibility sizes Hide goes under the label, as the glyphs do on the first-launch cards (C-2): beside it, the
+/// label and the pill broke inside words.
 struct RevealedCommentLine: View {
     let hideAction: () -> Void
 
@@ -84,7 +85,9 @@ struct RevealedCommentLine: View {
                 label
                     .layoutPriority(1)
                 Spacer(minLength: 0)
+                // Hide keeps its one line; the label wraps around it.
                 hide
+                    .fixedSize()
             }
         }
     }
