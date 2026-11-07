@@ -3,17 +3,17 @@ gsd_state_version: "1.0"
 milestone: v3.0.0
 current_phase: "18.1"
 current_phase_name: Native report form
-status: executing
-stopped_at: Completed 18.1-04-PLAN.md
-last_updated: "2026-11-06T19:25:00.000Z"
-last_activity: 2026-11-06
-last_activity_desc: Plan 18.1-04 complete (the Report form sheet per C-13, its UI-test stubs and a UI test per state on iPhone and iPad)
-state_head: cfff03df8bc225503f8bf8f7cc77aff49d211f8e
+status: verifying
+stopped_at: Completed 18.1-05-PLAN.md
+last_updated: "2026-11-07T00:45:00.000Z"
+last_activity: 2026-11-07
+last_activity_desc: Plan 18.1-05 complete (the phase gate on both devices and in Release; the agent-run live check passed under a local mitmdump, one POST answered locally, nothing forwarded)
+state_head: f6665e04f11e2834d3635b65eb29a23874f1acf7
 progress:
   total_phases: 21
   completed_phases: 17
   total_plans: 304
-  completed_plans: 303
+  completed_plans: 304
   percent: 81
 milestone_name: Dependency Reduction & Modernization
 source_head: b5eca09d1
@@ -35,12 +35,16 @@ mockups (01–04, 16–18 and 20 re-rendered; 25–31, 33 and 34 added; 32 withd
   1933), run by an agent (owner msg 1652).
 - **Plans:** Wave 1: 18.1-01 (parser, report URL, requests), 18.1-02 (23 strings, copy check). Wave 2: 18.1-03
   (reducer, routing). Wave 3: 18.1-04 (view, stubs, a UI test per C-13 state). Wave 4: 18.1-05 (gate, then the
-  agent-run Proxyman live check, the phase's only checkpoint).
+  agent-run live check, the phase's only checkpoint).
+- **Done (2026-11-07):** all five plans. 18.1-05's gate is green on both devices and in Release, and its live check
+  passed: under owner msg 2066 and the tool change (mitmproxy, Pluso's technical call), one tap on Send made exactly
+  one POST to gallery 4308676's `?report=other` URL, built as the site's form and answered locally; nothing was
+  forwarded and no report was filed. OQ-2 (signed-in email prefill) is unverified.
 - **Open, non-blocking:** what the site returns after a real report (Research OQ-1, default DD-03); frame 26 showed a
   leftover "Spam:" in Details (resolved: the refreshed frames, committed with 18.1-04, use the illegal-content
   wording); `report.reason.choose` is approved but unused by C-13 (for the lead).
 
-Next: `/gsd-execute-phase 18.1`.
+Next: `/gsd-verify-work 18.1`.
 
 ## Phase 18 split into three phases; Phase 18 context gathered — 2026-11-05
 
@@ -1032,6 +1036,7 @@ Phase 18 verification passed 10/10 on 2026-11-05 at `c2619c7a3` (tested source `
 | Phase 18.1 P02 | 25 min | 1 tasks | 3 files |
 | Phase 18.1 P03 | 25 min | 2 tasks | 11 files |
 | Phase 18.1 P04 | several sessions | 3 tasks | 20 files |
+| Phase 18.1 P05 | about 5h 25m (four live-check runs) | 2 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -1609,6 +1614,7 @@ Recent decisions affecting current work:
 - [Phase 18.1]: 18.1-02: 22 report.* keys ship in DetailFeature's catalog in six languages, verbatim from 18.1-COPY-REPORT-FORM.md; report.reason.choose does not ship (lead, msgs 1980/1983: C-13 has no picker). 18.1-copy-check.py fails on a missing, reworded, empty or unapproved report.* key and on any of the six gallery-only keys or report.reason.choose. — 18.1-04 uses the generated symbols and retires comment.report.confirm_title/_body.
 - [Phase 18.1]: 18.1-03: Report on a foreign comment sends CommentModerationFeature.delegate(.openReportForm(ReportFormFeature.State)) and Comments/Detail present destination .reportForm; the confirm alert is gone. ReportFormFeature.State has a failable init (nil without a report target); phases loading/ready/sending/sent/unavailable, a failed send returns to ready with Retry / Open Report Page / Cancel; canSend needs a reason, a trimmed non-empty email and Details beyond the prefill; DD-05 email check on Send; isDismissLocked while sending or edited (not once sent); the email lives only in state. — 18.1-04 renders the form, presents .reportForm in both views, removes reportPage(URL) and the retired confirm keys, and updates CommentModerationUITests (its report case expects the old alert until then).
 - [Phase 18.1]: 18.1-04: ReportFormView renders every C-13 state in a NavigationStack sheet with only the leading Close, the inline "Report on {site}" title and a pinned .safeAreaBar .glassProminent button with no background (soft scroll edge top and bottom). Comments and Detail present .reportForm, and presenting sends the form's .task from the reducer. The failed alert is built in the view so Retry is the default, in the reducer's Retry / Open Report Page / Cancel order. Open Report Page presents ReportPageSheet over the kept form. reportPage(URL) and comment.report.confirm_title/_body are gone, and 18-copy-check.py lists the two keys as retired. EHPANDA_UITEST_REPORT_SCENARIO (ready, slowLoad 6 s, holdSend 10 s, failSend, unavailable) is DEBUG and stubbed-launch only. ReportFormUITests has one test per state (frames 25–31, 33, 34) and passes on both devices. — 18.1-05 runs the gate (whole UITests plan on both devices, Release scan for EHPANDA_), then the Proxyman live check. Open: at AX5 a comment link's scrollTo sometimes stops short of the comment (Phase 18 code; the tests now scroll to it).
+- [Phase 18.1]: 18.1-05: the gate is green at ad3f46392 after two fixes to 18.1-04 test code (the report stubs' held answer without nonisolated(unsafe); ReportFormView in the Reduce Motion inventory). The live check runs behind a local mitmdump (owner msg 2066; tool change, Pluso's technical call, because Proxyman connects upstream on each HTTPS CONNECT and the owner declined handshake-only connections in card 2065): connection_strategy=lazy, upstream_cert=false, every flow answered in the request hook (three saved GET pages, a local 403 for the rest), upstream connections refused, sockets of mitmdump and the app sampled; the Mac's Wi-Fi proxy is on only for each app run. Send made exactly one POST to /g/4308676/<token>/?report=other with report_type=other, r_email, r_details and sendreport, answered locally; 693 flows, 0 upstream attempts, 0 non-loopback sockets. — The pattern for any later check that must touch the real site without sending anything; mitmproxy 12.3.1 stays installed on the Mac.
 
 ### Phase 16 transition decisions (2026-09-23)
 
@@ -1725,8 +1731,8 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-11-06T19:25:00.000Z
-Stopped at: Completed 18.1-04-PLAN.md
+Last session: 2026-11-07T00:45:00.000Z
+Stopped at: Completed 18.1-05-PLAN.md
 Resume file: None
 
 Earlier stop (2026-10-13T10:50:00Z, historical): 17-06 revision re-shot, 16/16 captured (`.capture/17-06-t-native-*`); superseded by the owner's 2026-11-02 approval of the 192-image website set.
