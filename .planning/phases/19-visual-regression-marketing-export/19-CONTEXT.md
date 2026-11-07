@@ -1,24 +1,30 @@
 # Phase 19: Visual Regression & Daily Live-Parsing Check - Context
 
-**Gathered:** 2026-11-07 (owner decisions from the Phase 18 discussion and owner msgs 1949, 1961, 1964, 2006; the
-capture spike; the runner-IP desk check). Replaces the 2026-11-05 context and its 2026-11-06 scope-change notes, and
-absorbs the uncommitted 2026-11-06 discussion prep, which predated the scope change.
-**Status:** Ready for planning once the owner answers the open questions at the end of `<decisions>` (OQ-1 and OQ-2
-block the baseline; OQ-3 to OQ-5 do not block the first plans). The directory name is unchanged.
+**Gathered:** 2026-11-07 (owner decisions from the Phase 18 discussion and owner msgs 1949, 1961, 1964, 2006, 2243;
+the capture spike; the runner-IP desk check). Replaces the 2026-11-05 context and its 2026-11-06 scope-change notes,
+and absorbs the uncommitted 2026-11-06 discussion prep, which predated the scope change.
+**Amended:** 2026-11-07, twice the same day. First, one picture per screen and state on one setup (owner msg 2243;
+lead msg 2244; team msg 2245). Then, superseding that, the matrix in D-04 (owner msgs 2247, 2249; product lead msgs
+2248, 2250; team msg 2251). This resolves OQ-1 (matrix size); D-04 and D-11 to D-18 are rewritten for it. OQ-2
+(where the baseline is kept) is open again; OQ-4 (review format) stays open at low priority.
+**Status:** Ready for planning. Open: OQ-2 blocks the baseline recording, not the first plans; the runner-IP probe's
+go-ahead (OQ-6, card pending, msg 2246); OQ-4 low priority; OQ-3 only if the probe shows a block; OQ-5 later. The
+directory name is unchanged.
 **Sources:** ROADMAP.md Phase 19 (scope items 1 to 9); REQUIREMENTS.md VIS-18-01, VIS-19-01; the owner decisions
-recorded during the Phase 18 discussion (owner msg 1753); owner msgs 1949, 1961, 1964, 2006; lead msgs 1952, 2007,
-2008; the snapshot spike (worktree `.airbuild/worktree/snap-spike`, branch `spike/snapshot-testing`, uncommitted).
+recorded during the Phase 18 discussion (owner msg 1753); owner msgs 1949, 1961, 1964, 2006, 2243, 2247, 2249; lead
+msgs 1952, 2007, 2008, 2244, 2248, 2250; team msgs 2245, 2251; the snapshot spike (worktree
+`.airbuild/worktree/snap-spike`, branch `spike/snapshot-testing`, uncommitted).
 
 <domain>
 ## Phase Boundary
 
 This phase delivers two checks against the settled 3.0 UI:
 
-1. **The screenshot check (VIS-18-01)**, moved from Phase 17: the scenario matrix built from the app's real screens
-   and states, Phase 18 and 18.1 included; real-app scenario dispatch (17-11); strict never-record comparison and a
-   filterable review report (17-08 to 17-12); one owner-approved baseline (17-13, with 17-20 folded in); the
-   full-matrix CI gate on every PR and release (17-14 T1/T3) with the native visual policy tests (17-09-T2); preview
-   review documentation (17-15); and the `Scripts/visual/README.md` rewrite.
+1. **The screenshot check (VIS-18-01)**, moved from Phase 17: one picture of every real screen and state, Phase 18
+   and 18.1 included, across the D-04 matrix; real-app scenario dispatch (17-11); strict never-record comparison and a
+   review report (17-08 to 17-12); one owner-approved baseline (17-13, with 17-20 folded in); the CI gate on every PR
+   and release (17-14 T1/T3) with the native visual policy tests (17-09-T2); preview review documentation (17-15);
+   and the `Scripts/visual/README.md` rewrite.
 2. **The daily live-parsing check (VIS-19-01)**: a scheduled GitHub Actions workflow that runs the app's own parsers
    on the live pages EhPanda reads, read-only, and reports a break through a GitHub issue that closes itself on the
    next clean run.
@@ -58,10 +64,13 @@ Requirements: VIS-18-01, VIS-19-01; moved from Phase 17: CAP-17-02, CAP-17-03 an
   confirmation); the posting warning; the blocked-comment row, collapsed and shown; Blocked Users, filled and empty.
   All six languages use the approved copy (18-COPY-FIRST-LAUNCH.md, 18-COPY-MINIMAL.md, 18-COPY-COMMENTS.md).
   Blocked comments in fixtures use member IDs (18-12, owner msg 1918).
-- **D-04:** The axes are the ones Phase 17 decided (17-CONTEXT D-07): six languages, all 12 text sizes, portrait and
-  landscape, iPhone and iPad, light and dark. How many of the crossings are captured is open (OQ-1); the full
-  crossing stays the default until the owner answers. Every requested coordinate ends as captured, failed, or not
-  applicable with a written reason in the manifest.
+- **D-04 (owner msgs 2247, 2249; lead msgs 2248, 2250; team msg 2251):** every scenario is captured across **six
+  languages × iPhone and iPad × portrait and landscape × light and dark × three text sizes: the smallest (xSmall),
+  the default (Large) and the largest accessibility size (AX5)**, which is 144 pictures per scenario. This supersedes
+  both Phase 17's axes (17-CONTEXT D-07, all 12 text sizes) and the one-setup reading of owner msg 2243. ROADMAP
+  success criterion 1 and VIS-18-01's wording still say "all 12 Dynamic Type sizes" and are amended at planning.
+  Other sizes were offered (about 4,900, 23,900 and 78,300 pictures) and not chosen. Every coordinate ends as
+  captured, failed, or not applicable with a written reason in the manifest.
 - **D-05:** States the snapshot library cannot render are skipped and recorded as not applicable with that reason;
   there is no simulator-screenshot fallback (owner msg 1964). Known members: the keyboard (a separate system window;
   search-focus states are captured without it), live web content (sign-in web page, the Cloudflare check page, site
@@ -93,16 +102,17 @@ Requirements: VIS-18-01, VIS-19-01; moved from Phase 17: CAP-17-02, CAP-17-03 an
 - **D-10:** Baselines are 1x (lead's recommendation from the spike; smallest files, and the 1-point shift is still
   caught). Comparison: precision 0.9999, perceptual precision 1, applied uniformly; any other tolerance needs a
   measured justification recorded in the manifest.
-- **D-11:** Capture is serial within each simulator, with several simulators in parallel; this is allowed for the
-  screenshot runs only (owner msg 1949). The approval is documented above each narrow
+- **D-11:** Capture is serial within each simulator, with one simulator per CI job and several jobs in parallel; this
+  is allowed for the screenshot runs only (owner msg 1949). The approval is documented above each narrow
   `// swiftlint:disable:next no_serialized_test`, as AGENTS.md requires. All other tests stay parallel. Locally,
   `xcodebuild` invocations never overlap (`.planning/codebase/TESTING.md`).
 
-### Matrix size, run time and storage (re-derived; owner msg 1949)
+### Matrix, run time and storage (owner msgs 1949, 2247, 2249)
 
-- **D-12: scenario inventory.** From the views, presentations and states in `AppPackage/Sources` and the scroll-edge
-  page inventory, the matrix has about **136 scenarios** (plan 1 confirms the exact list in `scenarios.json`;
-  expected range 130 to 150):
+- **D-12: scenario inventory and matrix.** From the views, presentations and states in `AppPackage/Sources` and the
+  scroll-edge page inventory, the check has about **136 scenarios** (plan 1 confirms the exact list in
+  `scenarios.json`; expected range 130 to 150). With D-04's 144 coordinates each, that is **136 × 144 = 19,584
+  pictures** before not-applicable reductions:
 
   | Group | Scenarios (states) | Count |
   |---|---|---|
@@ -128,42 +138,41 @@ Requirements: VIS-18-01, VIS-19-01; moved from Phase 17: CAP-17-02, CAP-17-03 an
   | App-wide | Error Info sheet; success and failure toasts; app alert | 4 |
   | **Total** | | **136** |
 
-  Not applicable by design, with reasons in the manifest: the two-page spread outside landscape/iPad, compact-only
-  and regular-only shell states on the other size class, and the D-05 skips.
-- **D-13: size options** (the owner chooses, OQ-1). Per scenario there are 4 device × orientation slots. Times use
-  the spike's 1.2 s per image (this machine) up to 2.4 s (an assumed 2× slowdown on GitHub's macOS runners, not yet
-  measured) and five parallel CI machines (D-15). Storage uses about 0.2 to 0.35 MB per 1x image (iPhone measured,
-  iPad assumed about 2.5× its area):
-
-  | Option | What is crossed | Images | Machine time | Wall clock, 5 machines | Baseline at 1x |
-  |---|---|---|---|---|---|
-  | Core | English: Large and AX5, light and dark; other five languages: Large, light | 136 × 4 × 9 = **4,896** | 1.6–3.3 h | about 0.5–1 h | about 1–1.7 GB |
-  | Recommended | English: all 12 sizes, light and dark; other five languages: Large, AX1, AX3, AX5, light | 136 × 4 × 44 = **23,936** | 8–16 h | about 2–3.5 h | about 5–8 GB |
-  | Full (D-04 as decided) | everything × everything | 136 × 576 = **78,336** | 26–52 h | about 6–11 h | about 16–27 GB |
-
-  Wall clock adds about 30 minutes per run for the shared build. Every option fits the 2-day limit (D-16). The
-  earlier 92,000 to 120,000 images and 30 to 100 GB came from one `xcodebuild` per picture (24 s each), 3x PNGs and
-  the dropped marketing set.
-- **D-14:** Each run's actual images are kept only for that run's report; failures upload their baseline, actual and
-  diff. Storage beyond the baseline is per-run and temporary.
+  Not applicable by design, with reasons in the manifest (Claude's call): the Library sidebar and the iPad gallery
+  sheet where the width is compact, the compact-only Library title menu where it is regular, the two-page spread
+  outside landscape or iPad, and the D-05 skips. These remove a few hundred coordinates at most.
+- **D-13: run time (Claude's call, from the spike).** At 1.2 s per picture (spike, this machine) up to 2.4 s (an
+  assumed 2× slowdown on GitHub's runners, not yet measured), the pictures take about 6.5 to 13 machine-hours; over
+  five parallel GitHub-hosted Macs that is about **1.5 to 2.5 hours**, plus about 30 minutes for the shared build:
+  **about 2 to 3 hours per PR**, inside the 2-day limit (D-16).
+- **D-14: storage.** At 1x the spike measured 46 to 374 KB for real app screens on the iPhone Air (median about
+  120 KB) and AX5 at about 2.5× the default; iPad pictures are assumed about 2.5× the iPhone's area. The baseline is
+  therefore about **5 to 10 GB**, too large for the app repository (GitHub advises keeping a repository well under
+  5 GB, and every clone and CI checkout would carry it). **Where it is kept is open (OQ-2)**; until answered, plans
+  treat the baseline store as a download step fetched by each shard for its own slice. The approved set's
+  fingerprints (one hash per picture) and the manifest are committed with the test source either way, which is how
+  CAP-17-03's "committed with the test source" is met. Each run's actual images are kept only for that run's report;
+  failures upload their baseline, actual and diff as a run artifact.
 
 ### CI gate
 
 - **D-15: correction found during this context pass.** The `xcode-27` label used by every workflow is a
   GitHub-hosted runner (job records show runner group "GitHub Actions"), not a self-hosted Mac as the 2026-11-05
   developer default and the discussion prep assumed. Consequences, all Claude's calls:
-  - GitHub-hosted jobs stop at 6 hours, so the matrix is split into shards that each finish well inside that, run
-    in parallel up to the account's macOS job limit (five on the free plan); one build-for-testing job feeds them.
-  - The runners keep nothing between runs, so each shard downloads its slice of the baseline (where from is OQ-2).
-  - Baselines are recorded and compared on the same runner image and simulator pins; local runs are advisory. Plan 1
-    measures the per-image time and run-to-run identity on the hosted runner before the matrix is scaled up.
+  - GitHub-hosted jobs stop at 6 hours, so the matrix is split into shards (by device and language, for example)
+    that each finish well inside that, five at a time (the free plan's macOS job limit); one build-for-testing job
+    feeds them.
+  - The runners keep nothing between runs, so each shard downloads its slice of the baseline from the OQ-2 store.
+  - Baselines are recorded and compared on the same runner image and simulator pins (iPhone Air and the pinned iPad
+    model, iOS 27.0, the Xcode build in the manifest; drift fails the run); local runs are advisory. Plan 1 measures
+    the per-picture time and run-to-run identity on the hosted runner before the full matrix is recorded.
   - Standard hosted runners are free for public repositories; plan 1 confirms `xcode-27` is a standard one.
 - **D-16: run limits (owner msg 1949).** One full check may take up to 2 days before options go back to the owner.
-  The full check runs on every PR and every release (17-CONTEXT D-13); weekly dependency-update PRs wait for it too.
+  The check runs on every PR and every release (17-CONTEXT D-13); weekly dependency-update PRs wait for it too.
   Superseded runs of the same PR are cancelled.
-- **D-17: approval.** Candidates are recorded only by an explicit candidate run; agents review every picture and
-  record their findings; the owner approves the whole set once (how he reviews is OQ-4). Approval is tied to the
-  manifest's fingerprint (hash per image, committed with the code).
+- **D-17: approval.** Candidates are recorded only by an explicit candidate run. Agents pre-check every picture first
+  and record their findings; the owner then reviews and approves the whole set once. How he reviews about 19,600
+  pictures is OQ-4 (low priority; recommendation: a short packet). Approval is tied to the committed fingerprints.
 - **D-18:** The report is a static, offline HTML page (no remote scripts or fonts), grouped by screen, with
   baseline/actual/diff and filters for language, text size, device, orientation and appearance. A controlled
   regression (a one-point change to one token) is proven red, then restored green; both runs are kept (17-CONTEXT
@@ -194,7 +203,7 @@ Requirements: VIS-18-01, VIS-19-01; moved from Phase 17: CAP-17-02, CAP-17-03 an
 - **D-25: runner-IP probe, first task.** A one-off manually dispatched job on the hosted runner fetches the front
   page, Popular and one gallery page (three GETs, normal delays) and records only status codes, whether Cloudflare
   challenged (`cf-mitigated`), and whether the parser succeeded. It needs a push, so it waits for the owner's OK to
-  push. If GitHub's machines are blocked, OQ-3's answer applies.
+  push (OQ-6). If GitHub's machines are blocked, OQ-3 is asked.
 - **D-26: desk check (2026-11-07), recorded for the probe.**
   - `e-hentai.org` (guest gallery pages) and `exhentai.org` now resolve to Cloudflare addresses and answer with
     `server: cloudflare`; Phase 12 had seen only the forum host behind Cloudflare. `api.e-hentai.org` (the JSON API)
@@ -229,21 +238,24 @@ whether orientation, text size and appearance change in process or per test conf
 process); the iPad model (pinned with the iPhone Air, runtime and Xcode build in the manifest; drift fails the run);
 the manifest and report formats; the live check's schedule time, request pacing and issue wording within D-22.
 
-### Open questions for the owner (not yet answered)
+### Open questions for the owner
 
-Plain-language versions with options are in the owner handoff. In order of importance:
+Plain-language versions with options are in the owner handoff.
 
-- **OQ-1, matrix size:** Core, Recommended or Full (D-13). Recommendation: Recommended. Blocks the baseline.
-- **OQ-2, where the approved pictures are kept** so each CI run can download them: a separate public repository for
-  baselines, large-file storage in this repository, or a paid cloud bucket. Recommendation: a separate repository.
-  Blocks the baseline; amends CAP-17-03's "committed with the test source" to "fingerprints committed, images in the
-  chosen store".
-- **OQ-3, if E-Hentai blocks GitHub's machines:** run the daily check on the owner's Mac on a timer, register that
-  Mac as a GitHub runner, or keep only saved fixtures. Recommendation: the Mac timer. Needed only if D-25 fails.
-- **OQ-4, how the owner reviews the one baseline:** a short packet (each screen once plus everything agents
-  flagged), the full report, or the designer first. Recommendation: the short packet.
-- **OQ-5, which account the later sign-in secret uses:** a separate account made for the check, the owner's own
-  account, or none. Recommendation: a separate account.
+- **OQ-1, matrix size: resolved** (D-04; owner msgs 2247, 2249).
+- **OQ-2, where the approved pictures are kept** so each CI shard can download them (D-14): a separate public
+  repository for baselines in the organisation, large-file storage in this repository, or a paid cloud bucket.
+  Recommendation: a separate repository (free; the pictures use only synthetic fixtures). Blocks recording the
+  baseline, not the first plans.
+- **OQ-6, the runner-IP probe's go-ahead** (D-25): asked; the owner's card is pending (msg 2246).
+- **OQ-4, how the owner reviews about 19,600 pictures** (low priority): a short packet (each screen and state once,
+  plus everything agents flagged and the not-applicable list), the full report, or the designer first.
+  Recommendation: the short packet.
+- **OQ-3, if E-Hentai blocks GitHub's machines** (asked only if the probe shows a block): run the daily check on the
+  owner's Mac on a timer, register that Mac as a GitHub runner, or keep only saved fixtures. Recommendation: the Mac
+  timer.
+- **OQ-5, which account the later sign-in secret uses** (later): a separate account made for the check, the owner's
+  own account, or none. Recommendation: a separate account.
 
 </decisions>
 
@@ -349,4 +361,5 @@ Plain-language versions with options are in the owner handoff. In order of impor
 ---
 
 *Phase: 19-visual-regression-marketing-export*
-*Context gathered: 2026-11-07; owner questions OQ-1 to OQ-5 open*
+*Context gathered: 2026-11-07; matrix decided (owner msgs 2247, 2249); OQ-2, OQ-6, OQ-4 open; OQ-3 conditional; OQ-5
+later*
