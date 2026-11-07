@@ -45,6 +45,38 @@ struct RevealedCommentLineLayoutTests {
     }
 }
 
+/// The Detail strip's collapsed card (UI-SPEC C-8): Show and Unblock keep whole words, side by side where they fit.
+@MainActor
+struct BlockedCommentCardLayoutTests {
+    @Test
+    func atAX5ThePillsKeepWholeWords() throws {
+        let pills = try Self.pills(at: .accessibility5)
+
+        #expect(
+            pills.unblock.height <= pills.show.height + 0.5,
+            "Unblock wraps: \(pills.unblock.height)pt against Show's \(pills.show.height)pt."
+        )
+    }
+
+    @Test
+    func atTheDefaultSizeThePillsShareALine() throws {
+        let pills = try Self.pills(at: .large)
+
+        #expect(pills.unblock.minX > pills.show.maxX, "Unblock is not beside Show.")
+        #expect(abs(pills.unblock.midY - pills.show.midY) < 1, "Unblock is not on Show's line.")
+    }
+
+    private static func pills(at size: DynamicTypeSize) throws -> (show: CGRect, unblock: CGRect) {
+        let card = LaidOutElements(
+            of: BlockedCommentCard(
+                commentID: "6894060", backgroundColor: Color(uiColor: .systemGray5), showAction: {}, unblockAction: {}
+            ),
+            width: 400, size: size
+        )
+        return try (#require(card.frame(labelled: "Show")), #require(card.frame(labelled: "Unblock")))
+    }
+}
+
 /// The accessibility elements of a SwiftUI view laid out at `width` and a Dynamic Type size, with their frames.
 @MainActor
 private struct LaidOutElements {
