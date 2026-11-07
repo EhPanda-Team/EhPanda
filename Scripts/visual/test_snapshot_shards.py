@@ -19,9 +19,32 @@ class SnapshotShardsTests(unittest.TestCase):
         self.pictures = snapshot_shards.unit_pictures(self.document, self.env)
         self.costs_by_unit = snapshot_shards.unit_costs(self.pictures, self.costs)
 
-    def test_there_are_36_units(self):
-        self.assertEqual(len(self.costs_by_unit), 36)
-        self.assertEqual({unit[0] for unit in self.costs_by_unit}, {'iphone', 'ipad'})
+    def test_there_are_54_units_one_per_process(self):
+        self.assertEqual(len(self.costs_by_unit), 54)
+        iphone = [unit for unit in self.costs_by_unit if unit[0] == 'iphone']
+        ipad = [unit for unit in self.costs_by_unit if unit[0] == 'ipad']
+        self.assertEqual(len(iphone), 18)
+        self.assertEqual({unit[2] for unit in iphone}, {('portrait', 'landscape')})
+        self.assertEqual(len(ipad), 36)
+        self.assertEqual({unit[2] for unit in ipad}, {('portrait',), ('landscape',)})
+
+    def test_units_hold_every_expected_picture(self):
+        totals = snapshot_matrix.totals(self.document, self.env)
+        self.assertEqual(sum(self.pictures.values()), totals['expected'])
+
+    def test_runs_name_each_process_once_in_configuration_order(self):
+        plan = json.loads(snapshot_shards.compute())
+        order = snapshot_matrix.configurations()
+        seen = []
+        for shard in plan['shards']:
+            runs = [(run['configuration'], tuple(run['orientations'])) for run in shard['runs']]
+            self.assertEqual(runs, sorted(runs, key=lambda run: (order.index(run[0]),
+                                                                 snapshot_matrix.ORIENTATIONS.index(run[1][0]))))
+            self.assertEqual(shard['configurations'], sorted({run[0] for run in runs}, key=order.index))
+            if shard['family'] == 'ipad':
+                self.assertTrue(all(len(run[1]) == 1 for run in runs))
+            seen += [(shard['family'],) + run for run in runs]
+        self.assertEqual(sorted(seen), sorted(self.costs_by_unit))
 
     def test_every_unit_is_in_exactly_one_shard_of_its_own_device(self):
         shards = snapshot_shards.assign(self.costs_by_unit)
