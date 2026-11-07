@@ -162,13 +162,17 @@ public enum HostedWindowCapture {
 
     /// Reads the window at 1x every ``sampleInterval`` until the reads stay identical across at least
     /// ``stableSpan``, or gives up after ``maximumSamples`` reads.
+    ///
+    /// A read is the picture as the comparison sees it (``comparedBytes(_:)``), not the 16-bit capture: Liquid
+    /// Glass moves the capture's low bits below what the comparison reads, so a byte-exact read of the capture
+    /// could keep a window that is still for the comparison from settling.
     public static func settle(_ window: UIWindow) async -> SettleResult {
         let clock = ContinuousClock()
         let start = clock.now
         var runStart = clock.now
-        var previous: Data?
+        var previous: [UInt8]?
         for sample in 1...maximumSamples {
-            let data = capture(window).pngData()
+            let data = comparedBytes(capture(window))
             if let data, data == previous {
                 if runStart.duration(to: clock.now) >= stableSpan {
                     return .settled(samples: sample, seconds: seconds(start.duration(to: clock.now)))
@@ -185,6 +189,22 @@ public enum HostedWindowCapture {
             }
         }
         return .timeout(samples: maximumSamples, seconds: seconds(start.duration(to: clock.now)))
+    }
+
+    /// The image's pixels as the library's image comparison reads them: 8-bit sRGB, premultiplied RGBA.
+    public static func comparedBytes(_ image: UIImage) -> [UInt8]? {
+        guard let cgImage = image.cgImage, let space = CGColorSpace(name: CGColorSpace.sRGB) else { return nil }
+        let bytesPerRow = cgImage.width * 4
+        var bytes = [UInt8](repeating: 0, count: bytesPerRow * cgImage.height)
+        let drawn = bytes.withUnsafeMutableBytes { buffer -> Bool in
+            guard let context = CGContext(
+                data: buffer.baseAddress, width: cgImage.width, height: cgImage.height, bitsPerComponent: 8,
+                bytesPerRow: bytesPerRow, space: space, bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue
+            ) else { return false }
+            context.draw(cgImage, in: CGRect(x: 0, y: 0, width: cgImage.width, height: cgImage.height))
+            return true
+        }
+        return drawn ? bytes : nil
     }
 
     /// Draws the window's hierarchy into an opaque image at scale 1, so its pixel size is the window's point size.
