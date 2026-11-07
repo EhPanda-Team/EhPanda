@@ -15,8 +15,10 @@ import Foundation
 /// A term may list exception words, the ordinary words that hold it (``CommentFilterTerms``): an occurrence inside one
 /// of them does not match, so a short CJK term stays in the list without flagging the everyday word around it.
 ///
-/// `.diacriticInsensitive` also strips Japanese dakuten (が → か, Pitfall P-6). Folding both sides the same way keeps
-/// every listed term matching, and the few extra matches it causes only show a warning that can be dismissed.
+/// `.diacriticInsensitive` folds Latin accents (ü → u) but keeps kana dakuten and handakuten (ガ stays ガ, unlike the
+/// research's Pitfall P-6), and the filter relies on that: a dakuten can tell a slur from an ordinary word, as ガイジ
+/// and the title カイジ. Width is folded first, so a half-width ｶﾞ, a base with a separate voiced mark, is one ガ by
+/// the time diacritics are folded.
 enum CommentFilter {
     /// Whether `text` contains any term of `terms`.
     static func matches(_ text: String, terms: CommentFilterTerms) -> Bool {
@@ -28,10 +30,13 @@ enum CommentFilter {
     /// Folds case, width and diacritics, unifies apostrophes and collapses every run of whitespace to one space.
     ///
     /// Idempotent: normalising a normalised string changes nothing, so the bundled list can be stored normalised and
-    /// checked for it. Hangul is recomposed after folding, so a syllable never matches part of another.
+    /// checked for it. Hangul is recomposed after folding, so a syllable never matches part of another. Width is folded
+    /// and recomposed before diacritics: folded in one pass, a half-width ｶﾞ is left as カ and a stray voiced mark.
     static func normalized(_ text: String) -> String {
         let folded = text
-            .folding(options: [.caseInsensitive, .widthInsensitive, .diacriticInsensitive], locale: nil)
+            .folding(options: [.caseInsensitive, .widthInsensitive], locale: nil)
+            .precomposedStringWithCanonicalMapping
+            .folding(options: .diacriticInsensitive, locale: nil)
             .precomposedStringWithCanonicalMapping
         var result = ""
         var pendingSpace = false
