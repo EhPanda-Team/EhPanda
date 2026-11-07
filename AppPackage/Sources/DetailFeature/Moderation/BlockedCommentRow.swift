@@ -66,22 +66,24 @@ struct BlockedCommentLabel: View {
 
 /// The line above a revealed comment's header in the list (C-7): the collapsed label and a Hide pill.
 ///
-/// The label sits on one line beside Hide where both fit, else above it, as in the collapsed row (C-6). In one row at
-/// the largest sizes the label and the pill shared the width with the spacer and broke inside words.
+/// Hide sits beside the label, which wraps as it needs to (mockup 09). At accessibility sizes Hide goes under the
+/// label, as the glyphs do on the first-launch cards (C-2): beside it, the label and the pill broke inside words.
 struct RevealedCommentLine: View {
     let hideAction: () -> Void
 
-    var body: some View {
-        ViewThatFits(in: .horizontal) {
-            HStack(spacing: 8) {
-                label
-                    .lineLimit(1)
-                Spacer(minLength: 0)
-                hide
-            }
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
+    var body: some View {
+        if dynamicTypeSize.isAccessibilitySize {
             VStack(alignment: .leading, spacing: 8) {
                 label
+                hide
+            }
+        } else {
+            HStack(spacing: 8) {
+                label
+                    .layoutPriority(1)
+                Spacer(minLength: 0)
                 hide
             }
         }

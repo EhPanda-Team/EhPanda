@@ -9,12 +9,13 @@ import UIKit
 /// Show pill gives the height a pill has on one line.
 @MainActor
 struct RevealedCommentLineLayoutTests {
-    /// The comments list's row width on the narrowest supported phone, inside the row's padding.
-    private static let width: CGFloat = 343
+    /// The width a comment row's content gets on a 375pt-wide phone: the comments sheet's card and the row's padding
+    /// take 118pt (284pt of a 402pt-wide iPhone 17 Pro, measured in the Phase 18 UI review).
+    private static let width: CGFloat = 257
     private static let label = "Comment from a user you've blocked"
 
     @Test
-    func atAX5TheHidePillStaysOnOneLineAndTheLabelKeepsTheWidth() throws {
+    func atAX5TheHidePillStaysOnOneLineUnderTheLabel() throws {
         let line = LaidOutElements(
             of: RevealedCommentLine(hideAction: {}), width: Self.width, size: .accessibility5
         )
@@ -28,9 +29,10 @@ struct RevealedCommentLineLayoutTests {
         let show = try #require(row.frame(labelled: "Show"))
 
         #expect(hide.height <= show.height + 0.5, "Hide wraps: \(hide.height)pt against Show's \(show.height)pt.")
-        #expect(label.width >= Self.width * 0.6, "The label is squeezed to \(label.width)pt.")
+        #expect(hide.minY >= label.maxY, "Hide is beside the label, which it squeezes to \(label.width)pt.")
     }
 
+    /// As the designer's mockup 09 has it: the label wraps beside Hide rather than Hide dropping below it.
     @Test
     func atTheDefaultSizeHideSitsBesideTheLabel() throws {
         let line = LaidOutElements(of: RevealedCommentLine(hideAction: {}), width: Self.width, size: .large)
