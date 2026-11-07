@@ -27,6 +27,10 @@
           {
             "key": "EHPANDA_SNAPSHOT_CONFIGURATION",
             "value": "en-xSmall"
+          },
+          {
+            "key": "SWIFT_DETERMINISTIC_HASHING",
+            "value": "1"
           }
         ]
       }
@@ -58,6 +62,10 @@
           {
             "key": "EHPANDA_SNAPSHOT_CONFIGURATION",
             "value": "en-large"
+          },
+          {
+            "key": "SWIFT_DETERMINISTIC_HASHING",
+            "value": "1"
           }
         ]
       }
@@ -89,6 +97,10 @@
           {
             "key": "EHPANDA_SNAPSHOT_CONFIGURATION",
             "value": "en-accessibility5"
+          },
+          {
+            "key": "SWIFT_DETERMINISTIC_HASHING",
+            "value": "1"
           }
         ]
       }
@@ -120,6 +132,10 @@
           {
             "key": "EHPANDA_SNAPSHOT_CONFIGURATION",
             "value": "de-xSmall"
+          },
+          {
+            "key": "SWIFT_DETERMINISTIC_HASHING",
+            "value": "1"
           }
         ]
       }
@@ -151,6 +167,10 @@
           {
             "key": "EHPANDA_SNAPSHOT_CONFIGURATION",
             "value": "de-large"
+          },
+          {
+            "key": "SWIFT_DETERMINISTIC_HASHING",
+            "value": "1"
           }
         ]
       }
@@ -182,6 +202,10 @@
           {
             "key": "EHPANDA_SNAPSHOT_CONFIGURATION",
             "value": "de-accessibility5"
+          },
+          {
+            "key": "SWIFT_DETERMINISTIC_HASHING",
+            "value": "1"
           }
         ]
       }
@@ -213,6 +237,10 @@
           {
             "key": "EHPANDA_SNAPSHOT_CONFIGURATION",
             "value": "ja-xSmall"
+          },
+          {
+            "key": "SWIFT_DETERMINISTIC_HASHING",
+            "value": "1"
           }
         ]
       }
@@ -244,6 +272,10 @@
           {
             "key": "EHPANDA_SNAPSHOT_CONFIGURATION",
             "value": "ja-large"
+          },
+          {
+            "key": "SWIFT_DETERMINISTIC_HASHING",
+            "value": "1"
           }
         ]
       }
@@ -275,6 +307,10 @@
           {
             "key": "EHPANDA_SNAPSHOT_CONFIGURATION",
             "value": "ja-accessibility5"
+          },
+          {
+            "key": "SWIFT_DETERMINISTIC_HASHING",
+            "value": "1"
           }
         ]
       }
@@ -306,6 +342,10 @@
           {
             "key": "EHPANDA_SNAPSHOT_CONFIGURATION",
             "value": "ko-xSmall"
+          },
+          {
+            "key": "SWIFT_DETERMINISTIC_HASHING",
+            "value": "1"
           }
         ]
       }
@@ -337,6 +377,10 @@
           {
             "key": "EHPANDA_SNAPSHOT_CONFIGURATION",
             "value": "ko-large"
+          },
+          {
+            "key": "SWIFT_DETERMINISTIC_HASHING",
+            "value": "1"
           }
         ]
       }
@@ -368,6 +412,10 @@
           {
             "key": "EHPANDA_SNAPSHOT_CONFIGURATION",
             "value": "ko-accessibility5"
+          },
+          {
+            "key": "SWIFT_DETERMINISTIC_HASHING",
+            "value": "1"
           }
         ]
       }
@@ -399,6 +447,10 @@
           {
             "key": "EHPANDA_SNAPSHOT_CONFIGURATION",
             "value": "zh-Hans-xSmall"
+          },
+          {
+            "key": "SWIFT_DETERMINISTIC_HASHING",
+            "value": "1"
           }
         ]
       }
@@ -430,6 +482,10 @@
           {
             "key": "EHPANDA_SNAPSHOT_CONFIGURATION",
             "value": "zh-Hans-large"
+          },
+          {
+            "key": "SWIFT_DETERMINISTIC_HASHING",
+            "value": "1"
           }
         ]
       }
@@ -461,6 +517,10 @@
           {
             "key": "EHPANDA_SNAPSHOT_CONFIGURATION",
             "value": "zh-Hans-accessibility5"
+          },
+          {
+            "key": "SWIFT_DETERMINISTIC_HASHING",
+            "value": "1"
           }
         ]
       }
@@ -492,6 +552,10 @@
           {
             "key": "EHPANDA_SNAPSHOT_CONFIGURATION",
             "value": "zh-Hant-xSmall"
+          },
+          {
+            "key": "SWIFT_DETERMINISTIC_HASHING",
+            "value": "1"
           }
         ]
       }
@@ -523,6 +587,10 @@
           {
             "key": "EHPANDA_SNAPSHOT_CONFIGURATION",
             "value": "zh-Hant-large"
+          },
+          {
+            "key": "SWIFT_DETERMINISTIC_HASHING",
+            "value": "1"
           }
         ]
       }
@@ -554,6 +622,10 @@
           {
             "key": "EHPANDA_SNAPSHOT_CONFIGURATION",
             "value": "zh-Hant-accessibility5"
+          },
+          {
+            "key": "SWIFT_DETERMINISTIC_HASHING",
+            "value": "1"
           }
         ]
       }
@@ -567,6 +639,10 @@
       },
       {
         "key": "EHPANDA_VISUAL_TEST_HOST",
+        "value": "1"
+      },
+      {
+        "key": "SWIFT_DETERMINISTIC_HASHING",
         "value": "1"
       }
     ],
