@@ -49,8 +49,12 @@ struct BlockedCommentCard: View {
 }
 
 /// Show or Unblock on the card. The list's grey bordered fill would vanish on the card's `systemGray5`, so these are
-/// plain buttons on a `secondarySystemGroupedBackground` capsule, the same size and type as the list's pills (C-8).
+/// plain buttons on their own capsule, the same size and type as the list's pills (C-8, rev 1.1): white in light, and
+/// in dark `systemGray3` with a 1pt `systemGray` edge, which meets 3:1 against the card.
 private struct BlockedCommentCardPill: View {
+    private static let fill = Color(uiColor: UIColor { $0.userInterfaceStyle == .dark ? .systemGray3 : .white })
+    private static let stroke = Color(uiColor: UIColor { $0.userInterfaceStyle == .dark ? .systemGray : .clear })
+
     let title: LocalizedStringResource
     let action: () -> Void
 
@@ -61,7 +65,8 @@ private struct BlockedCommentCardPill: View {
                 .foregroundStyle(.primary)
                 .padding(.horizontal, 14)
                 .frame(minHeight: 30)
-                .background(Color(uiColor: .secondarySystemGroupedBackground), in: .capsule)
+                .background(Self.fill, in: .capsule)
+                .overlay(Capsule().strokeBorder(Self.stroke, lineWidth: 1))
                 .contentShape(.hoverEffect, .capsule)
                 .hoverEffect(.highlight)
         }
