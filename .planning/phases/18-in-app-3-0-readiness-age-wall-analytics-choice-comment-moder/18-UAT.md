@@ -3,7 +3,7 @@ status: complete
 phase: 18-in-app-3-0-readiness-age-wall-analytics-choice-comment-moder
 source: 18-01-SUMMARY.md, 18-02-SUMMARY.md, 18-03-SUMMARY.md, 18-04-SUMMARY.md, 18-05-SUMMARY.md, 18-06-SUMMARY.md, 18-07-SUMMARY.md, 18-08-SUMMARY.md, 18-09-SUMMARY.md, 18-10-SUMMARY.md, 18-11-SUMMARY.md, 18-12-SUMMARY.md
 started: 2026-11-07T02:37:49Z
-updated: 2026-11-07T05:05:00Z
+updated: 2026-11-07T06:25:00Z
 ---
 
 ## Current Test
@@ -48,6 +48,33 @@ What the earlier runs found:
 - **FeatureTests at `87a02f2dd` and `d8e82f4a7`**: otherwise the same counts as above, 0 Repetition nodes. **UITests
   at `87a02f2dd`**: 0 failed on both devices (a first pad run was cut off by the agent harness's 30-minute task
   limit, not by a test, and was run again in full).
+
+**Gap fixes** (`$TMPDIR/v18g/`, after this UAT at `4674bf703`): the four gaps below are resolved, and with them
+two of the UI review's warnings. Each fix landed test first; the code ends at `18e85bd92`.
+
+| Gap | Test | Fix |
+|-----|------|-----|
+| FeatureTests reach e-hentai.org live (major, test 10) | `78a52bf19` | `175baa4f2` |
+| Comment filter: short CJK terms inside ordinary words (test 11) | `7744f3916` | `2f11d7e29` |
+| AX5 comment-link scroll stops short (test 6) | `bc18ca733` | `b48e5d0ec` |
+| A revealed comment's date truncates at AX5 (test 6) | `77a5e6e8a` | `18e85bd92` |
+| UI review warning: dark collapsed-card pills (C-8 rev 1.1) | `1aaddb87e` | `75ed2912e` |
+
+UI-SPEC rev 1.1 from design is `2bb5352ed`. The other UI review warning, the Blocked Users large title at AX5, is
+**not** resolved: rev 1.1 asks for an inline title at accessibility sizes on C-11 and C-12, but AGENTS.md forbids
+text-size-dependent title modes and no owner exception covers the screen (18-UI-REVIEW.md, Pillar 4).
+
+| Run at `18e85bd92` | Phone | Pad |
+|-----|-------|-----|
+| FeatureTests | 1819 tests: 1810 passed, 9 expected failures, **0 failed**, 0 Repetition nodes (`final-ft-phone`) | 1819 tests: 1810 passed, 9 expected failures, **0 failed**, 0 Repetition nodes (`final-ft-pad`) |
+| `CommentModerationUITests` + `AccessibilityAuditUITests` | 40 tests: 39 passed, 1 skipped (device-specific), **0 failed**, 0 Repetition nodes: 10/10 and 29 + 1 skip (`final-ui-phone`) | 40 tests: 40 passed, **0 failed**, 0 Repetition nodes: 10/10 and 30/30 (`final-ui-pad`) |
+| Sockets to 172.66.132.196, 172.66.140.62 or 2606:4700:3034::6815:38ca | 0 lines: every process (`lsof -nP -i`, nsurlsessiond included) sampled every 0.25s from 05:55:08Z to 06:19:04Z, across all four runs; the EhPanda and xctest sampler also 0 | |
+| SwiftLint 0.65.1 `--strict --no-cache` (App, AppPackage/Sources, AppPackage/Tests, EhPandaUITests) | 0 violations in 819 files | |
+
+The new tests account for the 8 extra FeatureTests. The tenth expected failure,
+`SettingReducerTests.defaultProfileCreationUsesOriginatingHostAfterSharedHostChanges`, was the live
+`EhProfileRequest` still in flight at `skipInFlightEffects(strict: false)`; the guard now fails it at once, so
+usually nothing is left to skip.
 
 ### 1. The age wall comes first and gates the app
 expected: On a fresh install or an upgrade, the first screen is the age wall, before any content or network request. Continue stays dimmed until the statement is ticked; there is no skip; the answer is kept on the device.
@@ -142,30 +169,38 @@ blocked: 0
 ## Gaps
 
 - truth: "A revealed comment's header wraps at AX5, as it does before the author is blocked"
-  status: failed
+  status: resolved
   reason: "UI review: at AX5 the revealed row shows '+7 10/27/24, 3…' (truncated) where the same comment's date wraps to two lines before the block. Seen on the phone, light and dark, at 7bdb55c3f and 38bae2250."
   severity: minor
   test: 6
   artifacts: [AppPackage/Sources/DetailFeature/Comments/CommentsView.swift]
   missing: ["a reproduction outside the List, and the row re-measuring after Show"]
+  resolved_by: [77a5e6e8a, 18e85bd92]
+  resolution: "The row did re-measure (863pt, with 52pt to spare). The revealed cell's VStack, offered its own height, shared it out equally between the C-7 line and the comment, so the comment's header gave up the date's second line. Each now takes its ideal height. RevealedCommentCellLayoutTests reproduces it outside the List (52pt short at AX5, 40pt at AX3, at phone widths); CommentModerationUITests.testARevealedCommentsDateWrapsAsBeforeTheBlockAtTheLargestTextSize compares the date's frame before the block and after Show at AX5 (190x105pt before, 243x53pt after, until the fix). Passes on both devices."
 - truth: "Opening a comment link at AX5 scrolls the linked comment to the top"
-  status: failed
+  status: resolved
   reason: "Known since 18.1-04 (deviation 8): CommentsView's proxy.scrollTo(…, anchor: .top) after 0.75s sometimes stops short at AX5; the UI tests swipe to work around it (a1afdc81c)."
   severity: minor
   test: 6
   artifacts: [AppPackage/Sources/DetailFeature/Comments/CommentsView.swift]
   missing: ["a scroll that lands at AX5"]
+  resolved_by: [bc18ca733, b48e5d0ec]
+  resolution: "The list aimed the animated scroll at unbuilt rows by their estimated heights, far below the real ones at AX5, and stopped a row and a half short (1 of 3 cold launches on the iPhone Air, the same offset each time). After the travel the scroll is made again without animation on three turns of the main queue, 0.1s apart. CommentModerationUITests.testACommentLinkAtTheLargestTextSizeLandsOnTheComment, with no swipes: 6/6 cold launches on the phone, then passed on both devices in the final runs. ReportFormUITests keeps its swipe fallback; it no longer has to swipe."
 - truth: "The comment filter's CJK terms do not flag ordinary words"
-  status: failed
+  status: resolved
   reason: "Agent review (test 11): 去死 and 害児 match inside ordinary or neutral words."
   severity: minor
   test: 11
   artifacts: [AppPackage/Sources/DetailFeature/Resources/CommentFilterTerms.json]
   missing: ["an owner or native-speaker decision on the CJK terms (DD-04 is a content call)"]
+  resolved_by: [7744f3916, 2f11d7e29]
+  resolution: "No term was removed or weakened. CommentFilterTerms.json can now list, for a term, the ordinary words that hold it; an occurrence inside one of them does not match, and the term anywhere else in the same text still does. 去死 lists 过去死/過去死; 害児 lists 障害児/被害児/加害児. CommentFilterTests cover the four ordinary sentences (both scripts; 障害児, 被害児童) as non-matches, and 去死 and 害児 on their own and beside an exception word as matches; 47/47 with CommentModerationReducerTests. The five exception words are content too: they still want the owner's or a native speaker's look (DD-04)."
 - truth: "FeatureTests make no live network connection"
-  status: failed
+  status: resolved
   reason: "Seen again at 87a02f2dd, now on both devices: the phone run's DownloadsFeature, AppFeature and SettingFeature test processes held TCP 443 connections to e-hentai.org (172.66.132.196) from 02:38:37Z to 02:38:46Z; the pad run's test processes to the same address and a Cloudflare IPv6 address from 02:57:19Z to 02:57:29Z. Carried from 18.1. Seen again at 57c809770: the phone run's test processes to 172.66.132.196, 172.66.140.62 and 2606:4700:3034::6815:38ca, port 443, from 04:01:14Z to 04:01:24Z; the pad run's to the same addresses from 03:57:27Z to 03:57:40Z."
   severity: major
   test: 10
   artifacts: []
   missing: ["the test that reaches a live dependency"]
+  resolved_by: [78a52bf19, 175baa4f2]
+  resolution: "The request types default to URLSession.shared and the reducers build them inline, so effects a test started without a stub went out live: the Home front page, popular and toplist fetches, the gallery detail fetch, the settings sign-in cascade (profile, igneous, user info, favourite categories; SettingReducerTests' default-profile case among them), and a download coordinator on the shared session fetching the latest gallery page. Before the fix, the SettingFeature, AppFeature, HomeFeature and DownloadsFeature test targets alone opened 12, 6, 1 and 61 sampled sockets to 172.66.132.196 and 2606:4700:3034::6815:38ca. A TestNetworkGuard target, linked into every test target and never the app, installs a URL protocol at bundle load for the shared session and every default and ephemeral configuration, and fails any request no test stubbed with a not-connected error (a test's own stub is asked first; loopback is left alone). TestNetworkGuardTests is the regression guard. Final runs: 0 sockets to the three addresses from any process, nsurlsessiond included, on both devices."
