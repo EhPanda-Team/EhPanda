@@ -4,16 +4,16 @@ milestone: v3.0.0
 current_phase: 19
 current_phase_name: Visual Regression & Daily Live-Parsing Check
 status: executing
-stopped_at: Completed 19-05-PLAN.md
-last_updated: "2026-11-07T15:15:44.959Z"
-last_activity: 2026-11-07
-last_activity_desc: 19-05 complete (34 browsing scenarios, green on both devices and in three configurations)
-state_head: 4b31b5efa42f02883baf39353e1d027d83d50c21
+stopped_at: Completed 19-06-PLAN.md
+last_updated: "2026-11-07T21:34:42.000Z"
+last_activity: 2026-11-08
+last_activity_desc: 19-06 complete (36 search, Favorites, Downloads and gallery scenarios, green on both devices and in three configurations)
+state_head: 26ac092fece168cd9f334ea1883507a7d1d19f36
 progress:
   total_phases: 21
   completed_phases: 18
   total_plans: 321
-  completed_plans: 308
+  completed_plans: 309
   percent: 86
 milestone_name: Dependency Reduction & Modernization
 source_head: b5eca09d1
@@ -47,6 +47,14 @@ source_head: b5eca09d1
   one each in ja-accessibility5 and de-xSmall on the phone; 0 changed, timeout, error or flaky. About 1.5 s per
   picture on the phone and 1.7 s on the iPad. Toolbar menus open through the bar button's primary action. No
   proposed not-applicable rules. VIS-18-01 and CAP-17-01 stay Pending.
+- **19-06 complete** (`97967f85b`, `6602f79a5`, `34dc087a5`, `614667a7e`, `44ba5eaa2`; `19-06-SUMMARY.md`): all 36
+  search, Quick Search, Filters, Date Seek, Favorites, Downloads and gallery scenarios on real views and reducers, five
+  matrix classes. Two compares green on both devices in en-large (phone 140, iPad portrait 72) and one each in
+  ja-accessibility5 and de-xSmall on the phone; 0 changed, timeout or error, 1 flaky (`search-root-empty` landscape
+  light, an early settle; risk noted for 19-12). Lists rest at their top before capture; bar menus open through the
+  trailing-most bar control. Deviation: the settle now compares reads in the comparison's 8-bit form
+  (`HostedWindowCapture`, a 19-01 file). Proposed for 19-10: `favorites-category-menu` not applicable on iPad.
+  VIS-18-01 and CAP-17-01 stay Pending.
 
 ## Phase 19 planned: Visual Regression & Daily Live-Parsing Check — 2026-11-07
 
