@@ -4,16 +4,16 @@ milestone: v3.0.0
 current_phase: 19
 current_phase_name: Visual Regression & Daily Live-Parsing Check
 status: executing
-stopped_at: Completed 19-02-PLAN.md
-last_updated: "2026-11-07T13:45:02.817Z"
+stopped_at: Completed 19-05-PLAN.md
+last_updated: "2026-11-07T15:15:44.959Z"
 last_activity: 2026-11-07
-last_activity_desc: 19-02 complete (137-scenario inventory, 54-unit 20-shard plan, group catalogs, local runner)
-state_head: 7c116f30bb3d84f44002b29e4e91c1bb69895861
+last_activity_desc: 19-05 complete (34 browsing scenarios, green on both devices and in three configurations)
+state_head: 4b31b5efa42f02883baf39353e1d027d83d50c21
 progress:
   total_phases: 21
   completed_phases: 18
   total_plans: 321
-  completed_plans: 307
+  completed_plans: 308
   percent: 86
 milestone_name: Dependency Reduction & Modernization
 source_head: b5eca09d1
@@ -39,6 +39,14 @@ source_head: b5eca09d1
   `run-shard.sh` should loop over. Group catalog files for 19-05 to 19-08, `ScenarioInventoryTests` (134 IDs without
   a factory yet), `run-snapshot-local.sh`. `VisualMatrixTests.testSelectedCoordinate` needs
   `EHPANDA_VISUAL_COORDINATE` (fails at the base too). VIS-18-01 and CAP-17-01 stay Pending (later plans share them).
+- **19-03 paused at its push checkpoint** (`e62bd2456`, `c8b28e3fd`): the guard-free `LiveCheckTests` target, the
+  probe workflow and the local probe record are committed; the probe push waits for the owner's go-ahead (OQ-6,
+  owner card msg 2246).
+- **19-05 complete** (`827c0ef7e`, `92e62f838`; `19-05-SUMMARY.md`): all 34 browsing scenarios on real views and
+  reducers, eight matrix classes. Two compares green on both devices in en-large (phone 132, iPad portrait 66) and
+  one each in ja-accessibility5 and de-xSmall on the phone; 0 changed, timeout, error or flaky. About 1.5 s per
+  picture on the phone and 1.7 s on the iPad. Toolbar menus open through the bar button's primary action. No
+  proposed not-applicable rules. VIS-18-01 and CAP-17-01 stay Pending.
 
 ## Phase 19 planned: Visual Regression & Daily Live-Parsing Check — 2026-11-07
 
@@ -1788,8 +1796,8 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-11-07T13:45:00.341Z
-Stopped at: Completed 19-02-PLAN.md
+Last session: 2026-11-07T15:15:42.539Z
+Stopped at: Completed 19-05-PLAN.md
 Resume file: None
 
 Earlier stop (2026-10-13T10:50:00Z, historical): 17-06 revision re-shot, 16/16 captured (`.capture/17-06-t-native-*`); superseded by the owner's 2026-11-02 approval of the 192-image website set.
