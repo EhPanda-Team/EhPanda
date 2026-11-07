@@ -68,6 +68,31 @@ struct CommentFilterTests {
         #expect(CommentFilter.matches("금지가", terms: Self.synthetic) == false)
     }
 
+    // MARK: Exception words
+
+    /// An ordinary word that holds a term is listed as the term's exception: inside it the term does not count, but the
+    /// term anywhere else in the same text still does.
+    private static let withExceptions = CommentFilterTerms(
+        groups: ["ja": ["禁止語"], "en": ["slur"]],
+        exceptions: ["禁止語": ["非禁止語"], "slur": ["slur-free"]]
+    )
+
+    @Test(arguments: ["非禁止語です", "これは非禁止語", "非禁止語、非禁止語", "a slur-free comment"])
+    func aTermInsideOneOfItsExceptionWordsDoesNotMatch(text: String) {
+        #expect(CommentFilter.matches(text, terms: Self.withExceptions) == false)
+    }
+
+    @Test(arguments: ["禁止語です", "非禁止語と禁止語", "禁止語の非禁止語", "slur-free, but a slur"])
+    func aTermOutsideItsExceptionWordsStillMatches(text: String) {
+        #expect(CommentFilter.matches(text, terms: Self.withExceptions))
+    }
+
+    @Test
+    func anExceptionWordOfAnotherTermExcusesNothing() {
+        let terms = CommentFilterTerms(groups: ["ja": ["禁止語", "別語"]], exceptions: ["別語": ["非禁止語"]])
+        #expect(CommentFilter.matches("非禁止語です", terms: terms))
+    }
+
     // MARK: Text that never matches
 
     @Test(arguments: ["", " ", "\n\t  \n", "\u{3000}"])
@@ -140,6 +165,24 @@ struct CommentFilterTests {
         for entries in terms.groups.values {
             for entry in entries {
                 #expect(CommentFilter.matches("» \(entry) «", terms: terms), "No match for its own entry: \(entry)")
+            }
+        }
+    }
+
+    /// The bundled exceptions only narrow listed terms: each word holds its term, which is in the list, and the term on
+    /// its own, or beside the word, still matches.
+    @Test
+    func everyBundledExceptionHoldsAListedTermThatStillMatchesOutsideIt() throws {
+        let terms = try CommentFilterTerms.load(from: CommentFilterTerms.bundle)
+        let entries = Set(terms.groups.values.joined().map(CommentFilter.normalized))
+
+        #expect(terms.exceptions.isEmpty == false)
+        for (term, words) in terms.exceptions {
+            #expect(entries.contains(CommentFilter.normalized(term)), "The exception's term is not listed: \(term)")
+            for word in words {
+                #expect(word.contains(term) && word != term, "\(word) does not hold \(term).")
+                #expect(CommentFilter.matches(word, terms: terms) == false, "\(word) still matches.")
+                #expect(CommentFilter.matches("\(word)，\(term)", terms: terms), "\(term) beside \(word) is missed.")
             }
         }
     }

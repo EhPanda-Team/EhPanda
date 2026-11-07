@@ -12,6 +12,9 @@ import Foundation
 /// - Any other term matches only as whole words, so a term inside a longer innocent word does not match. A plural
 ///   or an inflected form is therefore its own entry in the list.
 ///
+/// A term may list exception words, the ordinary words that hold it (``CommentFilterTerms``): an occurrence inside one
+/// of them does not match, so a short CJK term stays in the list without flagging the everyday word around it.
+///
 /// `.diacriticInsensitive` also strips Japanese dakuten (が → か, Pitfall P-6). Folding both sides the same way keeps
 /// every listed term matching, and the few extra matches it causes only show a warning that can be dismissed.
 enum CommentFilter {
@@ -50,35 +53,49 @@ enum CommentFilter {
     private static let apostrophes: Set<Character> = ["\u{2019}", "\u{2018}", "\u{02BC}", "\u{FF07}"]
 }
 
-/// One normalised term with the matching rule its script calls for.
+/// One normalised term with the matching rule its script calls for, and the ordinary words it does not count inside.
 struct CommentFilterMatcher: Equatable, Sendable {
     let term: String
     let isSubstring: Bool
+    /// Normalised words that hold the term, inside which an occurrence of it does not match.
+    let exceptions: [String]
 
     /// `nil` for a term that normalises to nothing, which would otherwise match every text.
-    init?(term: String) {
+    ///
+    /// - Parameter exceptions: Exception words by normalised term; only the words that hold this term are kept.
+    init?(term: String, exceptions: [String: [String]] = [:]) {
         let term = CommentFilter.normalized(term)
         guard !term.isEmpty else { return nil }
         self.term = term
         isSubstring = term.unicodeScalars.contains(where: CommentFilterScript.isUnspaced)
+        self.exceptions = (exceptions[term] ?? []).filter({ $0 != term && $0.contains(term) })
     }
 
     func matches(in text: String) -> Bool {
-        if isSubstring {
-            return text.contains(term)
+        let excused = exceptions.flatMap({ Self.ranges(of: $0, in: text) })
+        return Self.ranges(of: term, in: text).contains { range in
+            guard isSubstring || isWholeWord(range, in: text) else { return false }
+            return !excused.contains(where: { $0.lowerBound <= range.lowerBound && range.upperBound <= $0.upperBound })
         }
+    }
+
+    private func isWholeWord(_ range: Range<String.Index>, in text: String) -> Bool {
+        let startsWord = range.lowerBound == text.startIndex
+            || !CommentFilterScript.isWordCharacter(text[text.index(before: range.lowerBound)])
+        let endsWord = range.upperBound == text.endIndex
+            || !CommentFilterScript.isWordCharacter(text[range.upperBound])
+        return startsWord && endsWord
+    }
+
+    /// Every occurrence of `word` in `text`, overlapping ones included.
+    private static func ranges(of word: String, in text: String) -> [Range<String.Index>] {
+        var ranges = [Range<String.Index>]()
         var searchRange = text.startIndex..<text.endIndex
-        while let range = text.range(of: term, range: searchRange) {
-            let startsWord = range.lowerBound == text.startIndex
-                || !CommentFilterScript.isWordCharacter(text[text.index(before: range.lowerBound)])
-            let endsWord = range.upperBound == text.endIndex
-                || !CommentFilterScript.isWordCharacter(text[range.upperBound])
-            if startsWord && endsWord {
-                return true
-            }
+        while let range = text.range(of: word, range: searchRange) {
+            ranges.append(range)
             searchRange = text.index(after: range.lowerBound)..<text.endIndex
         }
-        return false
+        return ranges
     }
 }
 
