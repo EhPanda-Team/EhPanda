@@ -4,8 +4,11 @@ import XCTest
 final class DeepLinkSchemeUITests: XCTestCase {
     private let pageCount = 156
 
+    /// The page link's reader is checked in portrait: in landscape the iPad shows a two-page spread whose indicator
+    /// reads the spread's first page. A test that ran earlier on the same clone can leave the device in landscape.
     override func setUpWithError() throws {
         continueAfterFailure = false
+        XCUIDevice.shared.orientation = .portrait
     }
 
     func testGalleryLinkColdLaunchLandsOnDetail() throws {
