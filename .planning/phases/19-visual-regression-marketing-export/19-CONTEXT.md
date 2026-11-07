@@ -6,7 +6,9 @@ and absorbs the uncommitted 2026-11-06 discussion prep, which predated the scope
 **Amended:** 2026-11-07, three times the same day. First, one picture per screen and state on one setup (owner msg
 2243; lead msg 2244; team msg 2245). Then, superseding that, the matrix in D-04 (owner msgs 2247, 2249; product lead
 msgs 2248, 2250; team msg 2251), which resolves OQ-1. Then the baseline store and parallel runs (owner msg 2252),
-which resolve OQ-2 (D-13 to D-15). OQ-4 (review format) stays open at low priority.
+which resolve OQ-2 (D-13 to D-15). OQ-4 (review format) stays open at low priority. A fourth amendment the same
+day, at planning: 20 smaller shards with retries and error handling (owner msg 2263, D-15), and planning notes on
+D-14 (push size), D-21 (GET only) and OQ-4 (the planning default).
 **Status:** Ready for planning. Next open item: the runner-IP probe's go-ahead (OQ-6, card pending, msg 2246); OQ-4
 low priority; OQ-3 only if the probe shows a block; OQ-5 later. None blocks the first screenshot plans. The
 directory name is unchanged.
@@ -160,6 +162,12 @@ Requirements: VIS-18-01, VIS-19-01; moved from Phase 17: CAP-17-02, CAP-17-03 an
   - Claude's calls: the pictures are laid out by device and language so each shard fetches only its slice with a
     shallow, sparse checkout; each owner approval is one commit there; if its history nears 5 GB, a cleanup is
     proposed to the owner rather than done silently.
+  - *Planning note (2026-11-07, Claude's call):* GitHub refuses a single push above 2 GB, so one approval is
+    pushed as a short series of commits, one per device and language slice, each under 2 GB, ending with an
+    approval commit and tag that names the whole set. The owner's go-ahead covers the whole series of that one
+    approval. The measured candidate size is shown to him before the first push; GitHub recommends keeping a
+    repository under 5 GB, so if the first set already exceeds that, the developer proposes the storage choice
+    to him then (19-RESEARCH §6).
   - The approved set's fingerprints (one hash per picture), the snapshot repository commit they came from, and the
     manifest are committed with the test source in the app repository, which is how CAP-17-03's "committed with
     the test source" is met. A run fails if the fetched pictures do not match the committed fingerprints.
@@ -185,6 +193,26 @@ Requirements: VIS-18-01, VIS-19-01; moved from Phase 17: CAP-17-02, CAP-17-03 an
     model, iOS 27.0, the Xcode build in the manifest; drift fails the run); local runs are advisory. Plan 1 measures
     the per-picture time and run-to-run identity on the hosted runner before the full matrix is recorded.
   - Standard hosted runners are free for public repositories; plan 1 confirms `xcode-27` is a standard one.
+  - **Amended 2026-11-07 (owner msg 2263: "We can make it 10 or 20 Macs, just consider retrying and error
+    handling").** GitHub's standard hosted runners on the Free, Pro and Team plans run at most 5 macOS jobs at once
+    (Enterprise 50); further jobs queue. Claude's calls under that message:
+    - The matrix is split into **20 smaller shards**: 5 run at once and the rest queue automatically, so one
+      failure costs little. Running more than 5 at once needs GitHub Enterprise or a limit increase through
+      GitHub support; the capture time estimate in D-13 is therefore unchanged by the extra shards, which add
+      only their own boot and fetch time.
+    - **Per-picture retry:** a picture that differs or times out is captured and compared once more before it
+      counts as failed; every retry goes into a flake log that the report shows.
+    - **Per-shard retry:** a shard that crashes, times out or loses its runner is re-run automatically once, then
+      reported. Only such infrastructure errors trigger the re-run; picture changes are counted by the aggregate
+      job, so they never do. *Planning note (Claude's call):* the re-run is a retry job in the same workflow run
+      that repeats only the shards with an infrastructure error, not GitHub's "re-run failed jobs", whose
+      `workflow_run` trigger works only from the default branch and so could not be proven before merge.
+    - **Fail-fast off:** one shard can never cancel the others.
+    - **Aggregate job:** a final job merges the per-shard results, separates real picture changes from
+      infrastructure errors (and environment drift) in the report, and fails with a clear summary of each.
+    - **Timeouts:** each shard has its own timeout well under GitHub's 6-hour cap, set from the measured cost.
+    - **Assignment:** shards are assigned deterministically and balanced by measured cost, so the same commit
+      always gives the same shards.
 - **D-16: run limits (owner msg 1949).** One full check may take up to 2 days before options go back to the owner.
   The check runs on every PR and every release (17-CONTEXT D-13); weekly dependency-update PRs wait for it too.
   Superseded runs of the same PR are cancelled.
@@ -209,6 +237,9 @@ Requirements: VIS-18-01, VIS-19-01; moved from Phase 17: CAP-17-02, CAP-17-03 an
   call: read queries that the site's API takes as JSON POST (`gdata` metadata, and `imagedispatch` where the reader
   path needs it) count as reads and are allowed; an allowlist of request types enforces this, and a test fails if a
   state-changing request type is reachable from the check.
+  *Narrowed at planning (2026-11-07, within Claude's call):* the check sends **GET requests only** and never a POST.
+  None of the D-20 pages needs `gdata` or `imagedispatch` (the guest reader path reads each page's image URL by
+  GET), so the allowlist admits GET request types only and the test fails if any POST is reachable.
 - **D-22: reporting.** On a failure it opens or updates one GitHub issue per page, naming the page and what the
   parser expected; the next clean run closes it. Issues and logs never carry page content, images, gallery titles,
   gallery IDs, cookies or account details, because the repository is public. Claude's call: one issue per page with a
@@ -264,7 +295,8 @@ Plain-language versions with options are in the owner handoff.
 - **OQ-2, where the approved pictures are kept: resolved** (D-14; owner msg 2252): a separate public repository,
   `EhPanda-Team/ehpanda-snapshot`.
 - **OQ-6, the runner-IP probe's go-ahead** (D-25): next open item; asked, the owner's card is pending (msg 2246).
-- **OQ-4, how the owner reviews about 19,600 pictures** (low priority): a short packet (each screen and state once,
+- **OQ-4, how the owner reviews about 19,600 pictures** (low priority; *planning default, 2026-11-07:* the short
+  packet below, which the owner may change at the approval checkpoint): a short packet (each screen and state once,
   plus everything agents flagged and the not-applicable list), the full report, or the designer first.
   Recommendation: the short packet.
 - **OQ-3, if E-Hentai blocks GitHub's machines** (asked only if the probe shows a block): run the daily check on the

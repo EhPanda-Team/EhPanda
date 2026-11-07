@@ -1,0 +1,125 @@
+---
+phase: "19"
+slug: "visual-regression-marketing-export"
+# status lifecycle: draft (seeded by plan-phase) → validated (set by validate-phase §6)
+status: draft
+nyquist_compliant: false
+wave_0_complete: false
+created: "2026-11-07"
+---
+
+# Phase 19 — Validation Strategy
+
+> Per-phase validation contract for feedback sampling during execution. Source: 19-RESEARCH.md §11 "Validation
+> Architecture". `nyquist_compliant` is set by plan 19-17 Task 5 once every automated row is green.
+
+---
+
+## Test Infrastructure
+
+| Property | Value |
+|----------|-------|
+| **Framework** | XCTest (`VisualSnapshotTests` app-hosted, `LiveCheckTests`, `EhPandaUITests`), Swift Testing (FeatureTests), Python `unittest` (`Scripts/visual`, `Scripts/live-check`) |
+| **Config file** | `AppPackage/Tests/SnapshotMatrix.xctestplan` (new, 19-01), `AppPackage/Tests/LiveCheck.xctestplan` (new, 19-03), `AppPackage/Tests/VisualTests.xctestplan`, `UITests.xctestplan`, `AppPackage/Tests/FeatureTests.xctestplan`, `.swiftlint.yml` |
+| **Devices** | `EhPanda iPhone Air` (`$PHONE`) then `EhPanda iPad Pro 11-inch (M5)` (`$PAD`), resolved by name: `PHONE=$(xcrun simctl list devices \| grep "EhPanda iPhone Air (" \| grep -Eo '[0-9A-F-]{36}' \| head -1)`; `PAD=$(xcrun simctl list devices \| grep "EhPanda iPad Pro 11-inch (M5) (" \| grep -Eo '[0-9A-F-]{36}' \| head -1)` |
+| **Quick run command** | `Scripts/visual/run-snapshot-local.sh --device phone --config en-large --classes <Classes> --mode compare --refs DIR --out DIR` (from 19-02); `python3 -m unittest discover -s Scripts/visual -p 'test_snapshot*.py'`; `python3 -m unittest discover -s Scripts/live-check -p 'test_*.py'` |
+| **Full suite command** | FeatureTests and UITests on `$PHONE` then `$PAD`; the hosted gate (20 shards, triage, retry, native-policy, aggregate) in compare mode; one live-check run; one `xcodebuild` at a time per host |
+| **Lint** | `swiftlint lint --strict --no-cache --config .swiftlint.yml` → `Found 0 violations` |
+| **Estimated runtime** | Python suites < 60 s; a group's snapshot classes in one configuration 2 to 6 min per device; FeatureTests ~26 min per device; the hosted gate about 2 to 3 h (19-04 measures) |
+
+---
+
+## Sampling Rate
+
+- **After every task commit:** the touched Python tests, or the touched snapshot classes on `$PHONE` in `en-large`
+  (candidate then compare), and strict lint of the touched paths.
+- **After every plan:** the plan's classes on `$PHONE` and `$PAD`; for workflow plans, the workflow tests and
+  actionlint.
+- **Before `/gsd-verify-work`:** plan 19-17's gate: FeatureTests and UITests on both devices, 0 failures, 0
+  Repetition nodes, lint 0, every Python suite, the Release scan; the hosted compare run green; the controlled
+  regression red then green.
+- **Max feedback latency:** 360 s for a local snapshot class run; 60 s for Python.
+
+---
+
+## Per-Task Verification Map
+
+| Task ID | Plan | Wave | Requirement | Threat Ref | Secure Behavior | Test Type | Automated Command | File Exists | Status |
+|---------|------|------|-------------|------------|-----------------|-----------|-------------------|-------------|--------|
+| 19-01-01 | 01 | 1 | VIS-18-01, CAP-17-02 | T-19-01 | a compare run leaves the reference directory byte-identical | unit (app-hosted) | `-testPlan VisualTests -only-testing:VisualSnapshotTests/HostedWindowCaptureTests` | ❌ W0 | ⬜ pending |
+| 19-01-02 | 01 | 1 | VIS-18-01, CAP-17-01 | — | per-process language and size, in-process orientation and appearance, pins asserted | snapshot | tracer candidate + two compares, `-testPlan SnapshotMatrix -only-test-configuration en-large` | ❌ W0 | ⬜ pending |
+| 19-01-03 | 01 | 1 | VIS-18-01 | — | a 1-point shift is `changed`; clone counts measured | snapshot + record | `grep` of `19-01-MEASURE.md` rows | ❌ W0 | ⬜ pending |
+| 19-02-01 | 02 | 2 | VIS-18-01 | T-19-03 | every not-applicable rule has a reason | script | inventory assertion + `test_contracts.py` | ❌ W0 | ⬜ pending |
+| 19-02-02 | 02 | 2 | VIS-18-01 | T-19-04 | shard plan deterministic and balanced | unit | `test_snapshot_*.py`; `snapshot_shards.py --check` | ❌ W0 | ⬜ pending |
+| 19-02-03 | 02 | 2 | VIS-18-01 | — | no unknown factory ID | unit (app-hosted) | `-only-testing:VisualSnapshotTests/ScenarioInventoryTests` | ❌ W0 | ⬜ pending |
+| 19-03-01 | 03 | 2 | VIS-19-01 | T-19-05, T-19-06 | guard on every other target; inert without opt-in | unit | `test_network_guard.py`; LiveCheck plan without opt-in | ❌ W0 | ⬜ pending |
+| 19-03-02 | 03 | 2 | VIS-19-01 | T-19-05 | probe output has four fields only | live (local) | probe JSON assertion | ❌ W0 | ⬜ pending |
+| 19-03-03 | 03 | 2 | VIS-19-01 | T-19-08 | push only after the owner's go-ahead | checkpoint | `grep "Verdict:"` in `19-03-PROBE.md` | ❌ W0 | ⬜ pending |
+| 19-04-01 | 04 | 4 | VIS-18-01 | — | worker choice by the stated rule | unit | `test_snapshot_measure.py` | ❌ W0 | ⬜ pending |
+| 19-04-02 | 04 | 4 | VIS-18-01 | — | no `.xcresult` or reference upload | workflow | YAML assertion | ❌ W0 | ⬜ pending |
+| 19-04-03 | 04 | 4 | VIS-18-01 | T-19-09 | billing checked before more hosted runs | checkpoint | `source: measured`; `--check` | ❌ W0 | ⬜ pending |
+| 19-05-01..03 | 05 | 3 | VIS-18-01, CAP-17-01 | T-19-11 | synthetic content only; real views and reducers | snapshot | `run-snapshot-local.sh` both devices, two compares | ❌ W0 | ⬜ pending |
+| 19-06-01..03 | 06 | 3 | VIS-18-01, CAP-17-01 | T-19-13 | synthetic content only | snapshot | `run-snapshot-local.sh` both devices, two compares | ❌ W0 | ⬜ pending |
+| 19-07-01..03 | 07 | 3 | VIS-18-01, CAP-17-01 | T-19-14, T-19-15 | member IDs only; no Send dispatched | snapshot | `run-snapshot-local.sh` both devices, two compares | ❌ W0 | ⬜ pending |
+| 19-08-01..03 | 08 | 3 | VIS-18-01, CAP-17-01 | T-19-16 | no account details | snapshot | `run-snapshot-local.sh` both devices, two compares | ❌ W0 | ⬜ pending |
+| 19-09-01 | 09 | 3 | VIS-18-01 | T-19-17 | a missing result is never a pass; picture changes never retried | unit | `test_snapshot_aggregate.py` | ❌ W0 | ⬜ pending |
+| 19-09-02 | 09 | 3 | CAP-17-02 | T-19-18 | report loads nothing remote | unit | `test_snapshot_report.py` | ❌ W0 | ⬜ pending |
+| 19-10-01 | 10 | 5 | VIS-18-01 | — | every inventory ID has a factory | unit (app-hosted) | `ScenarioInventoryTests`; `--check` | ✅ (19-02) | ⬜ pending |
+| 19-10-02 | 10 | 5 | VIS-18-01 | T-19-20 | altered, missing or extra baseline file fails | unit | `test_snapshot_fetch.py`; `bash -n run-shard.sh` | ❌ W0 | ⬜ pending |
+| 19-10-03 | 10 | 5 | VIS-18-01 | T-19-19 | fail-fast off, continue-on-error, minimal permissions | workflow | `test_snapshot_gate.py`; actionlint | ❌ W0 | ⬜ pending |
+| 19-10-04 | 10 | 5 | VIS-18-01 | T-19-22 | retries proven; fault commits never on the phase branch | checkpoint (hosted) | `19-10-PROOF.md` greps; `git log` grep | ❌ W0 | ⬜ pending |
+| 19-11-01..02 | 11 | 1 | CAP-17-06 | T-19-23 | text size reset after tests | UI | `-testPlan UITests -only-testing:EhPandaUITests/NativeVisualPolicyUITests` both devices | ❌ W0 | ⬜ pending |
+| 19-12-01 | 12 | 6 | CAP-17-03 | — | publisher never pushes by itself | unit | `test_snapshot_publish.py` | ❌ W0 | ⬜ pending |
+| 19-12-02..03 | 12 | 6 | VIS-18-01, CAP-17-03 | T-19-24 | candidate run and repository creation only after the owner's go-ahead | checkpoint | `19-12-CANDIDATE.md` greps; `gh api` visibility and commit count | ❌ W0 | ⬜ pending |
+| 19-13-01 | 13 | 7 | VIS-18-01 | T-19-26 | every picture pre-checked; every flag decided | unit + agent review | `test_snapshot_precheck.py`; verdict grep | ❌ W0 | ⬜ pending |
+| 19-13-02..03 | 13 | 7 | CAP-17-03 | T-19-27, T-19-28 | approval explicit; pushes after go-ahead; fingerprints pinned; hosted compare green | checkpoint | approval greps; fingerprints assertion; tag via `gh api` | ❌ W0 | ⬜ pending |
+| 19-13-04 | 13 | 7 | CAP-17-03 | — | manifest complete, tolerances as D-10 | script | manifest assertion | ❌ W0 | ⬜ pending |
+| 19-14-01..02 | 14 | 3 | VIS-19-01 | T-19-29, T-19-30 | GET only; enum-only results; block vs break told apart offline | unit | `test_*.py` in `Scripts/live-check`; `-only-testing:LiveCheckTests/LiveCheckOfflineTests` | ❌ W0 | ⬜ pending |
+| 19-14-03 | 14 | 3 | VIS-19-01 | T-19-29 | live results have four fields per page | live (local) | results JSON assertion | ❌ W0 | ⬜ pending |
+| 19-15-01 | 15 | 4 | VIS-19-01 | — | runner chosen by the owner after the probe | checkpoint | `Choice:` grep | ❌ W0 | ⬜ pending |
+| 19-15-02 | 15 | 4 | VIS-19-01 | T-19-32, T-19-33 | no input text reaches gh; unreachable never opens a parser issue | unit | `test_report_issues.py` | ❌ W0 | ⬜ pending |
+| 19-15-03..04 | 15 | 4 | VIS-19-01 | T-19-34 | minimal permissions; no `.xcresult`; placeholders only | script | `bash -n`, `plutil -lint`, YAML assertion; dry-run record | ❌ W0 | ⬜ pending |
+| 19-16-01..02 | 16 | 5 | VIS-19-01 | T-19-35, T-19-36 | first real log checked for content | checkpoint | `19-16-DEPLOY.md` greps | ❌ W0 | ⬜ pending |
+| 19-17-01..02 | 17 | 8 | VIS-18-01, CAP-17-06 | T-19-39 | README without personal details | script + unit | README greps; `test_preview.py` | ❌ W0 | ⬜ pending |
+| 19-17-03 | 17 | 8 | CAP-17-02 | T-19-38 | controlled regression red then green on the hosted gate | checkpoint (hosted) | `19-17-REGRESSION.md` greps | ❌ W0 | ⬜ pending |
+| 19-17-04 | 17 | 8 | VIS-18-01 | — | required-check choice is the owner's | checkpoint | `Required check:` grep | — | ⬜ pending |
+| 19-17-05 | 17 | 8 | all | T-19-37 | Release build free of capture code, fixtures and SnapshotTesting | suite | FeatureTests and UITests both devices; lint; Python suites; `verify-release.py` | ✅ | ⬜ pending |
+
+*Status: ⬜ pending · ✅ green · ❌ red · ⚠️ flaky*
+
+---
+
+## Wave 0 Requirements
+
+- [ ] Each plan writes the test files it names before the code they test (TDD tasks); no framework install is
+  needed: XCTest, Swift Testing and Python `unittest` are already used.
+- [ ] `Scripts/visual/run-snapshot-local.sh` (19-02) exists before the scenario plans 19-05 to 19-08 run.
+
+---
+
+## Manual-Only Verifications
+
+| Behavior | Requirement | Why Manual | Test Instructions |
+|----------|-------------|------------|-------------------|
+| Runner-IP answer on GitHub's hosted Mac | VIS-19-01 | needs a push, which needs the owner's go-ahead (OQ-6) | 19-03 Task 3 |
+| Hosted cost, worker count and billing | VIS-18-01 | needs a push and reading the run's billing (R-1) | 19-04 Task 3 |
+| Retries and error handling on GitHub | VIS-18-01 | needs pushes with fault commits on a `ci/` branch | 19-10 Task 4 |
+| Agent visual pre-check of every picture | VIS-18-01 | visual judgement on contact sheets | 19-13 Task 1 |
+| The owner's one approval | VIS-18-01, CAP-17-03 | owner judgement (D-17) | 19-13 Task 2 |
+| Runner choice for the live check | VIS-19-01 | owner decision after the probe (OQ-3) | 19-15 Task 1 |
+| Required status check on `main` | VIS-18-01 | repository setting only the owner changes | 19-17 Task 4 |
+| First scheduled live-check run from `main` (hosted) or the timer's first unattended day (Mac) | VIS-19-01 | schedules run only from the default branch, after merge | 19-16 "Pending after merge" |
+| Scheduled workflows disabled after 60 days without repository activity | VIS-19-01 | GitHub behaviour over time | README note; re-enable if disabled |
+
+---
+
+## Validation Sign-Off
+
+- [x] All tasks have `<automated>` verify or Wave 0 dependencies
+- [x] Sampling continuity: no 3 consecutive tasks without automated verify
+- [ ] Wave 0 covers all MISSING references
+- [x] No watch-mode flags
+- [ ] Feedback latency < 360 s
+- [ ] `nyquist_compliant: true` set in frontmatter
+
+**Approval:** pending
