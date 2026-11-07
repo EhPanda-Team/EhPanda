@@ -1,6 +1,9 @@
 # Phase 18 — UI Review
 
 **Audited:** 2026-11-07 (UTC 01:55–03:55), at `1120de8dd`; fixes re-captured at `199d3e4d2` and `07667eca1`
+**Updated:** 2026-11-07 (UTC 06:20), after the 18-UAT gap fixes: top fix 1, the dark card pills and the AX5
+comment-link scroll are fixed (`1fe7c5c91`, `87022538b`, `99d6b6a81`); the Blocked Users title at AX5 stays open
+(see Pillar 4). The scores below are the audit's.
 **Baseline:** `18-UI-SPEC.md` (C-1 to C-13) and the mockups in `mockups/`
 **Screenshots:** captured in the Simulator, not with Playwright (native app, no dev server). An uncommitted
 capture-only UI test (`Phase18UIReviewCaptureUITests`, kept outside the repo with the shots in
@@ -40,11 +43,15 @@ at the default size.
 
 ## Top 3 Priority Fixes
 
-1. **A revealed comment's date truncates at AX5** (open) — "+7 10/27/24, 3…" in the revealed row, while the same
-   comment's date wraps ("+7 10/27/24, / 3:24 PM") before it is blocked. Breaks the spec rule "nothing truncates at
-   any size" on the one row a user has chosen to read. Likely the `List` row not re-measuring after Show (the
-   header's `ViewThatFits` is unchanged between the two states); reproduce at AX5 and size the row from its content
-   again after Show.
+1. **A revealed comment's date truncates at AX5** (fixed, `1fe7c5c91`; tests `7294f581f`) — "+7 10/27/24, 3…" in
+   the revealed row, while the same comment's date wraps ("+7 10/27/24, / 3:24 PM") before it is blocked. Breaks the
+   spec rule "nothing truncates at any size" on the one row a user has chosen to read. The row did re-measure: it was
+   863pt tall, with the cell centred in it and 52pt to spare. The revealed cell stacks the C-7 line over the
+   comment, and a `VStack` offered its own height hands it out in equal shares rather than by each child's ideal,
+   so the comment got less than it needed and its header, the one part that gives way, lost the date's second line.
+   The line and the comment now each take their ideal height. `RevealedCommentCellLayoutTests` reproduces it outside
+   the list (52pt short at AX5, 40pt at AX3); the UI test compares the date's frame before the block and after Show
+   at AX5 (190×105pt before, 243×53pt after, until the fix).
 2. **The Detail strip's collapsed card broke "Un-block" at AX5** (fixed, `199d3e4d2`) — the two C-8 pills shared one
    line in a 380pt card. They now stack where they don't fit, as C-6's row does.
 3. **The revealed comment's C-7 line** (fixed in three steps: `e01a88c73`, `34d544b31`, `07667eca1`) — at AX5 the
@@ -56,8 +63,8 @@ at the default size.
    under the label at accessibility sizes. The layout test runs at the measured iPhone Air row width and a 375pt
    phone's.
 
-Further open warnings: the dark collapsed-card pills (Color), the Blocked Users large title at AX5 (Typography),
-and the AX5 comment-link scroll (Experience Design).
+Further warnings: the dark collapsed-card pills (Color; fixed, `87022538b`), the AX5 comment-link scroll
+(Experience Design; fixed, `99d6b6a81`) and the Blocked Users large title at AX5 (Typography; open).
 
 ---
 
@@ -96,8 +103,8 @@ and the AX5 comment-link scroll (Experience Design).
   `199d3e4d2` had shown the default-size "Hi/d/e" that `07667eca1` fixes.
 - **Fixed — collapsed Detail card at AX5 (C-8):** see Top fix 2. Re-captured at `199d3e4d2` (iPhone Air light
   default, light and dark AX5): Show and Unblock stack and keep whole words at AX5 and share one line at the
-  default size. The dark pills' faint fill is the open Color warning above.
-- **Open — revealed comment's date at AX5:** see Top fix 1.
+  default size. The dark pills' faint fill was the Color warning, fixed in `87022538b`.
+- **Fixed — revealed comment's date at AX5:** see Top fix 1 (`1fe7c5c91`).
 - Not a defect: the system alert at AX5 hyphenates the Block body ("com-ments"); this is the system alert's own
   layout and the spec chose alerts on purpose (C-4).
 
@@ -109,21 +116,26 @@ and the AX5 comment-link scroll (Experience Design).
   `.tint(.primary)` (`BlockedCommentRow`). No hard-coded colour. Matches "Accent reserved for".
 - Continue: white on the light accent, black on the dark accent, as specified; the dimmed state uses the system's
   disabled glass.
-- **Warning — dark collapsed card pills (C-8):** in dark mode the Show and Unblock capsules
-  (`secondarySystemGroupedBackground`, #1C1C1E) on the card's `systemGray5` (#2C2C2E) are hard to see as buttons;
-  the labels read, the capsule shapes barely do. This is what C-8 specifies, so it is the designer's call; a
-  `tertiarySystemFill` or `systemGray3` capsule in dark would show the shape.
+- **Fixed — dark collapsed card pills (C-8)** (`87022538b`; test `be07ff3b5`): in dark mode the Show and Unblock
+  capsules (`secondarySystemGroupedBackground`, #1C1C1E) on the card's `systemGray5` (#2C2C2E) were hard to see as
+  buttons; the labels read, the capsule shapes barely did. UI-SPEC rev 1.1 (`1ffe1dd73`) changed C-8: in dark the
+  pills are `systemGray3` (#48484A) with a 1pt `systemGray` edge (#8E8E93, 4.3:1 against the card); light keeps the
+  white capsule with no edge. `BlockedCommentCardPillColorTests` renders the card in each appearance and counts the
+  pixels of each colour.
 
 ### Pillar 4: Typography (3/4)
 
 - New text uses text styles only (`.title.bold()`, `.body`, `.headline`, `.subheadline`, `.footnote`, `.caption`
   semibold for Recommended) and scales to AX5 without clipping on the first-launch screens, Settings and the
   Report form.
-- **Open — revealed comment's date truncates at AX5** (Top fix 1).
-- **Warning — Blocked Users large title at AX5:** "Blocked Use…" in the navigation bar on the list, swipe and empty
-  screens. C-11 asks for a system large title, and the navigation bar truncates one that does not fit; the
-  empty-state heading under it wraps in full. Not changed: an inline title at accessibility sizes would be a layout
-  change for the designer.
+- **Fixed — revealed comment's date truncates at AX5** (Top fix 1, `1fe7c5c91`).
+- **Warning — Blocked Users large title at AX5 (open):** "Blocked Use…" in the navigation bar on the list, swipe and
+  empty screens. C-11 asks for a system large title, and the navigation bar truncates one that does not fit; the
+  empty-state heading under it wraps in full. UI-SPEC rev 1.1 now asks for
+  `.toolbarTitleDisplayMode(dynamicTypeSize.isAccessibilitySize ? .inline : .large)` on C-11 and C-12, but
+  AGENTS.md's accessibility navigation policy forbids dynamic-type branches and text-size-dependent title
+  fallbacks, and no owner exception covers this screen (the only one is the compact Library title menu). Not
+  implemented: it needs the owner's exception or a spec that keeps one title mode at every size.
 
 ### Pillar 5: Spacing (4/4)
 
@@ -144,9 +156,13 @@ and the AX5 comment-link scroll (Experience Design).
   the menu.
 - Report form states (loading, sending, sent, failed, unavailable) were not re-captured here; `ReportFormUITests`
   covers them on both devices (see `18-UAT.md`).
-- **Open — AX5 comment-link scroll:** `CommentsView.swift:76` calls `proxy.scrollTo(scrollCommentID, anchor: .top)`
-  after 0.75s; at AX5 it sometimes stops short of the linked comment (recorded in 18.1-04, deviation 8; the UI
-  tests swipe to work around it, `cfff03df8`). A user opening a comment link at AX5 may land above the comment.
+- **Fixed — AX5 comment-link scroll** (`99d6b6a81`; test `10eb312c8`): `CommentsView` called
+  `proxy.scrollTo(scrollCommentID, anchor: .top)` once, animated, after 0.75s; at AX5 it sometimes stopped short of
+  the linked comment (recorded in 18.1-04, deviation 8; the UI tests swipe to work around it, `cfff03df8`). The list
+  aims at rows it has not built by their estimated heights, far below the real ones at AX5, so the travel stopped
+  a row and a half short (1 of 3 cold launches on the iPhone Air, the same offset each time). After the travel, the
+  scroll is now made again without animation on three turns of the main queue, 0.1s apart, once the rows around the
+  comment have their real heights: 6/6 cold launches land.
 
 ---
 
