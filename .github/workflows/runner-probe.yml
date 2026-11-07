@@ -1,0 +1,76 @@
+name: Runner probe
+# One-off runner-IP probe (19-03; 19-CONTEXT D-25): can GitHub's hosted Mac read the site as a guest? It makes three
+# guest GETs (front page, Popular, one gallery) and keeps only, per page, the status, whether Cloudflare challenged
+# and whether the app's parser succeeded. It runs only on a push to ci/runner-probe, which needs the owner's go-ahead
+# (OQ-6). The probe commit's message carries `[skip test]`, so test.yml does not also run.
+on:
+  push:
+    branches: [ci/runner-probe]
+permissions:
+  contents: read
+  # Read-only: the job reads its own runner group from the Actions API for 19-04's runner check.
+  actions: read
+env:
+  SCHEME_NAME: 'EhPanda'
+jobs:
+  Probe:
+    runs-on: xcode-27
+    timeout-minutes: 90
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+      - name: Record the runner
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          group=$(gh api "repos/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID/attempts/$GITHUB_RUN_ATTEMPT/jobs" \
+            --jq ".jobs[] | select(.runner_name == \"$RUNNER_NAME\") | .runner_group_name" 2>/dev/null || true)
+          {
+            echo '### Runner'
+            echo "- Runner name: $RUNNER_NAME"
+            echo "- Image: ${ImageOS:-unknown} ${ImageVersion:-unknown}"
+            echo "- Runner group: ${group:-unknown}"
+          } >> "$GITHUB_STEP_SUMMARY"
+      - name: Install iOS 27 Platform
+        uses: nick-fields/retry@v4
+        with:
+          retry_on: error
+          max_attempts: 10
+          timeout_minutes: 999
+          command: xcodebuild -downloadPlatform iOS
+      - name: Show Xcode version
+        run: xcodebuild -version
+      - name: Run the probe
+        env:
+          TEST_RUNNER_EHPANDA_LIVE_CHECK: '1'
+          TEST_RUNNER_EHPANDA_LIVE_CHECK_MODE: hosted
+          TEST_RUNNER_EHPANDA_LIVE_CHECK_OUTPUT: ${{ runner.temp }}/probe
+        # The full log stays on the runner: the URL loading system logs a failed request with its URL, and this
+        # repository's logs are public (D-22). Only the test counts, the verdict and error lines are printed.
+        run: |
+          status=0
+          xcodebuild test \
+            -skipMacroValidation \
+            -skipPackagePluginValidation \
+            -scheme "$SCHEME_NAME" \
+            -testPlan LiveCheck \
+            -destination 'platform=iOS Simulator,name=iPhone Air,OS=27.0' \
+            -onlyUsePackageVersionsFromResolvedFile >"$RUNNER_TEMP/probe-xcodebuild.log" 2>&1 || status=$?
+          grep -E 'Executed [0-9]+ test|\*\* (TEST|BUILD) (SUCCEEDED|FAILED)|: error:' \
+            "$RUNNER_TEMP/probe-xcodebuild.log" | grep -v 'https\?://' | sort -u || true
+          exit "$status"
+      - name: Show the probe result
+        if: always()
+        run: |
+          if [ -f '${{ runner.temp }}/probe/probe.json' ]; then
+            { echo '### Probe'; echo '```json'; cat '${{ runner.temp }}/probe/probe.json'; echo '```'; } \
+              >> "$GITHUB_STEP_SUMMARY"
+          fi
+      - name: Upload the probe result
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: runner-probe
+          path: ${{ runner.temp }}/probe/probe.json
+          if-no-files-found: error
+          retention-days: 30
