@@ -62,7 +62,9 @@ two of the UI review's warnings. Each fix landed test first; the code ends at `1
 
 UI-SPEC rev 1.1 from design is `2bb5352ed`. The other UI review warning, the Blocked Users large title at AX5, is
 **not** resolved: rev 1.1 asks for an inline title at accessibility sizes on C-11 and C-12, but AGENTS.md forbids
-text-size-dependent title modes and no owner exception covers the screen (18-UI-REVIEW.md, Pillar 4).
+text-size-dependent title modes and no owner exception covers the screen (18-UI-REVIEW.md, Pillar 4). UI-SPEC
+rev 1.2 from design then kept the plain large title at every size and accepted the system's AX5 truncation, so
+the warning is closed as accepted by design, with no code change.
 
 | Run at `18e85bd92` | Phone | Pad |
 |-----|-------|-----|
