@@ -91,7 +91,8 @@ final class GalleryCardUITests: XCTestCase {
         app.terminate()
         app.launch()
         XCTAssertTrue(app.staticTexts[shortTitle].firstMatch.waitForExistence(timeout: 15))
-        app.descendants(matching: .any)["gearshape.circle"].firstMatch.tapWhenHittable("Setting tab")
+        // The tab by its label: the tab bar does not always list its glyph's `gearshape.circle` identifier.
+        app.buttons["Settings"].firstMatch.tapWhenHittable("Setting tab")
         app.buttons["Appearance"].tapWhenHittable("Appearance settings")
         XCTAssertTrue(app.navigationBars["Appearance"].waitForExistence(timeout: 5))
         XCTAssertFalse(app.switches["simplified-gallery-titles"].exists)
