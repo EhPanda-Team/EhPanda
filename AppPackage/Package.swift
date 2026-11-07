@@ -145,6 +145,7 @@ enum Module: String {
     case analyticsClientTests = "AnalyticsClientTests"
     case searchFeatureTests = "SearchFeatureTests"
     case favoritesFeatureTests = "FavoritesFeatureTests"
+    case liveCheckTests = "LiveCheckTests"
 }
 
 extension Module {
@@ -228,6 +229,24 @@ extension PackageDescription.Target {
             swiftSettings: swiftSettings,
             // Xcode extracts App Intents metadata for test bundles, including those whose
             // dependencies do not already link the framework through SwiftUI.
+            linkerSettings: [.linkedFramework("AppIntents")],
+            plugins: plugins
+        )
+    }
+
+    /// The live check's test target, the only test target without the test network guard: its tests read the live
+    /// site as a guest (19-CONTEXT D-20, D-21). Each test skips unless `EHPANDA_LIVE_CHECK=1`, so a package-wide or
+    /// FeatureTests run still never reaches the network. `Scripts/live-check/test_network_guard.py` fails if this
+    /// target gains the guard or any other test target loses it.
+    static func liveCheckTestTarget(
+        dependencies: [Module.Dependency],
+        swiftSettings: [PackageDescription.SwiftSetting]? = sharedSwiftSettings,
+        plugins: [PackageDescription.Target.PluginUsage] = swiftLintPlugins
+    ) -> PackageDescription.Target {
+        testTarget(
+            name: Module.liveCheckTests.rawValue,
+            dependencies: dependencies.map(\.targetDependency),
+            swiftSettings: swiftSettings,
             linkerSettings: [.linkedFramework("AppIntents")],
             plugins: plugins
         )
@@ -1123,6 +1142,14 @@ let targets: [PackageDescription.Target] = [
             .module(.cookieClient),
             .module(.downloadClient),
             .module(.hapticsClient)
+        ]
+    ),
+    .liveCheckTestTarget(
+        dependencies: [
+            .module(.appModels),
+            .module(.networkingFeature),
+            .module(.parserFeature),
+            .targetDependency(.kanna)
         ]
     ),
     .target(

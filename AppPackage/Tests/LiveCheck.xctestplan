@@ -1,0 +1,22 @@
+{
+  "configurations": [
+    {
+      "id": "FF571CCB-99B2-412C-B0BA-F80199D06ADC",
+      "name": "Configuration 1",
+      "options": {}
+    }
+  ],
+  "defaultOptions": {
+    "testTimeoutsEnabled": true
+  },
+  "testTargets": [
+    {
+      "target": {
+        "containerPath": "container:AppPackage",
+        "identifier": "LiveCheckTests",
+        "name": "LiveCheckTests"
+      }
+    }
+  ],
+  "version": 1
+}
