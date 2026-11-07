@@ -22,9 +22,13 @@ final class ReaderListPositionTests: XCTestCase {
     /// The list needs no app state, but it runs inside the host app, whose scene phase changes reach its download
     /// client at any time. Re-preparing the inert host clients for every test keeps such a change from resolving an
     /// unimplemented test dependency and failing whichever test happens to be running.
+    ///
+    /// The host app's scene can still be activating when the first test starts: on the iPad, in the full FeatureTests
+    /// plan, the first test found no active scene after 0.18s and 0.47s (Phase 18 UAT). Each test waits for it.
     override func setUp() {
         super.setUp()
         UITestAutomation.prepareIfNeeded()
+        MainActor.assumeIsolated { ReaderListHost.waitForActiveScene() }
     }
 
     @MainActor
@@ -802,11 +806,21 @@ private final class ReaderListHost {
 
     /// The host app's foreground scene, which the window is shown in.
     static func activeScene() throws -> UIWindowScene {
-        try XCTUnwrap(
-            UIApplication.shared.connectedScenes
-                .compactMap({ $0 as? UIWindowScene })
-                .first(where: { $0.activationState == .foregroundActive })
-        )
+        try XCTUnwrap(activeSceneIfAny())
+    }
+
+    /// Runs the main run loop until the host app has a foreground scene, for at most `timeout` seconds.
+    static func waitForActiveScene(timeout: TimeInterval = 10) {
+        let deadline = Date(timeIntervalSinceNow: timeout)
+        while activeSceneIfAny() == nil, Date() < deadline {
+            RunLoop.main.run(until: Date(timeIntervalSinceNow: 0.05))
+        }
+    }
+
+    private static func activeSceneIfAny() -> UIWindowScene? {
+        UIApplication.shared.connectedScenes
+            .compactMap({ $0 as? UIWindowScene })
+            .first(where: { $0.activationState == .foregroundActive })
     }
 
     /// The pixel row `points` falls on at the window's display scale, half a pixel between two rows going to the row
