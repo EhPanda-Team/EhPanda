@@ -4,8 +4,9 @@ import Testing
 
 /// The posting filter's matching rules (DD-04, research §5.3) over a synthetic list, and the bundled list's shape.
 ///
-/// The rules are proved on invented terms so no test spells out a real slur; the bundled list is checked only for
-/// what it must be (six non-empty language groups, nothing else, every entry stable under normalisation).
+/// The rules are proved on invented terms; the bundled list is checked for what it must be (six non-empty language
+/// groups, nothing else, every entry stable under normalisation) and, for the short CJK terms with exception words,
+/// against the ordinary and the insulting sentences the language review named.
 struct CommentFilterTests {
     private static let synthetic = CommentFilterTerms(groups: [
         "en": ["Slur", "go away now"],
@@ -202,15 +203,25 @@ struct CommentFilterTests {
             "주인공이 죽어라 노력하는 장면이 좋아요.",
             "가방을 뒤져라, 열쇠가 있을 거야.",
             "주인공이 자살해서 너무 슬펐어요.",
-            // Ordinary words around a two-character term (18-UAT test 11): "I never believed it before", in both
-            // scripts, and the neutral Japanese words for a disabled child and for a child victim.
-            "我过去死活不信。",
-            "我過去死活不信。",
+            // Ordinary words around a two-character term (18-UAT test 11, per the language review): "the past death
+            // toll" in both scripts and "died in the past" in Japanese, and the neutral Japanese words for a disabled
+            // child, a child victim and a child offender.
+            "过去死亡人数在下降。",
+            "過去死亡人數在下降。",
+            "過去死んだキャラが復活した。",
             "障害児の支援についての話です。",
-            "被害児童を守る話。"
+            "被害児童を守る話。",
+            "加害児童の心理描写が深い。"
         ]
         for comment in comments {
             #expect(CommentFilter.matches(comment, terms: .bundled) == false, "False positive: \(comment)")
         }
+    }
+
+    /// The language review's cases that must still raise the warning (18-UAT test 11): 去死 after 过 when no ordinary
+    /// word follows it, as in "go over there and die", in both scripts; 害児 on its own; and ガイジ.
+    @Test(arguments: ["你过去死吧", "滚过去死", "你過去死吧", "滾過去死", "害児", "ガイジ", "お前ガイジかよ"])
+    func theBundledListMatchesATermThatNoOrdinaryWordHolds(text: String) {
+        #expect(CommentFilter.matches(text, terms: .bundled), "Missed: \(text)")
     }
 }
