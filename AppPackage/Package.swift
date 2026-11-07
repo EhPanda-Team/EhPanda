@@ -119,6 +119,7 @@ enum Module: String {
 
     // Test support
     case testingSupport = "TestingSupport"
+    case testNetworkGuard = "TestNetworkGuard"
     case visualSnapshotSupport = "VisualSnapshotSupport"
 
     // Test targets
@@ -220,7 +221,9 @@ extension PackageDescription.Target {
     ) -> PackageDescription.Target {
         testTarget(
             name: module.rawValue,
-            dependencies: dependencies.map(\.targetDependency),
+            // Every test process links the test network guard, which fails any request no test stubbed, offline,
+            // before it can reach the network (see `Sources/TestNetworkGuard`).
+            dependencies: (dependencies + [.module(.testNetworkGuard)]).map(\.targetDependency),
             resources: resources?.map(\.value),
             swiftSettings: swiftSettings,
             // Xcode extracts App Intents metadata for test bundles, including those whose
@@ -829,6 +832,10 @@ let targets: [PackageDescription.Target] = [
         resources: [.process(.resources)]
     ),
 
+    // Objective-C for `+load`, so it is installed when a test bundle loads, before its first test. Linked into every
+    // test target by `testTarget(module:)`, never into the app.
+    .target(name: Module.testNetworkGuard.rawValue),
+
     // MARK: Tests
     .testTarget(
         module: .appFeatureTests,
@@ -1135,6 +1142,7 @@ let package = Package(
         .filter({
             !$0.isTest
                 && $0.name != Module.testingSupport.rawValue
+                && $0.name != Module.testNetworkGuard.rawValue
                 && $0.name != Module.legacyCFReadStream.rawValue
         })
         .map(\.name)
