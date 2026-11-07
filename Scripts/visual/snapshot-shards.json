@@ -1,0 +1,244 @@
+{
+  "schema": 1,
+  "costTable": "9255db41b923262ec6245a756b39c42ff345f1d2588dfd4680920d36d7acfbea",
+  "costSource": "model",
+  "workers": 2,
+  "shards": [
+    {
+      "id": "s01",
+      "family": "iphone",
+      "configurations": [
+        "de-accessibility5",
+        "ja-large"
+      ],
+      "pictures": 1076,
+      "costSeconds": 2969.8,
+      "estimatedMinutes": 39.1,
+      "timeoutMinutes": 79
+    },
+    {
+      "id": "s02",
+      "family": "iphone",
+      "configurations": [
+        "en-accessibility5",
+        "ja-xSmall"
+      ],
+      "pictures": 1076,
+      "costSeconds": 2969.8,
+      "estimatedMinutes": 39.1,
+      "timeoutMinutes": 79
+    },
+    {
+      "id": "s03",
+      "family": "iphone",
+      "configurations": [
+        "ja-accessibility5",
+        "ko-large"
+      ],
+      "pictures": 1076,
+      "costSeconds": 2969.8,
+      "estimatedMinutes": 39.1,
+      "timeoutMinutes": 79
+    },
+    {
+      "id": "s04",
+      "family": "iphone",
+      "configurations": [
+        "ko-xSmall",
+        "ko-accessibility5"
+      ],
+      "pictures": 1076,
+      "costSeconds": 2969.8,
+      "estimatedMinutes": 39.1,
+      "timeoutMinutes": 79
+    },
+    {
+      "id": "s05",
+      "family": "iphone",
+      "configurations": [
+        "zh-Hans-large",
+        "zh-Hans-accessibility5"
+      ],
+      "pictures": 1076,
+      "costSeconds": 2969.8,
+      "estimatedMinutes": 39.1,
+      "timeoutMinutes": 79
+    },
+    {
+      "id": "s06",
+      "family": "iphone",
+      "configurations": [
+        "zh-Hans-xSmall",
+        "zh-Hant-accessibility5"
+      ],
+      "pictures": 1076,
+      "costSeconds": 2969.8,
+      "estimatedMinutes": 39.1,
+      "timeoutMinutes": 79
+    },
+    {
+      "id": "s07",
+      "family": "iphone",
+      "configurations": [
+        "en-large",
+        "de-large",
+        "zh-Hant-large"
+      ],
+      "pictures": 1614,
+      "costSeconds": 3873.6,
+      "estimatedMinutes": 48.0,
+      "timeoutMinutes": 96
+    },
+    {
+      "id": "s08",
+      "family": "iphone",
+      "configurations": [
+        "en-xSmall",
+        "de-xSmall",
+        "zh-Hant-xSmall"
+      ],
+      "pictures": 1614,
+      "costSeconds": 3873.6,
+      "estimatedMinutes": 48.0,
+      "timeoutMinutes": 96
+    },
+    {
+      "id": "s09",
+      "family": "ipad",
+      "configurations": [
+        "de-accessibility5"
+      ],
+      "pictures": 542,
+      "costSeconds": 2705.7,
+      "estimatedMinutes": 36.5,
+      "timeoutMinutes": 73
+    },
+    {
+      "id": "s10",
+      "family": "ipad",
+      "configurations": [
+        "en-accessibility5"
+      ],
+      "pictures": 542,
+      "costSeconds": 2705.7,
+      "estimatedMinutes": 36.5,
+      "timeoutMinutes": 73
+    },
+    {
+      "id": "s11",
+      "family": "ipad",
+      "configurations": [
+        "ja-accessibility5"
+      ],
+      "pictures": 542,
+      "costSeconds": 2705.7,
+      "estimatedMinutes": 36.5,
+      "timeoutMinutes": 73
+    },
+    {
+      "id": "s12",
+      "family": "ipad",
+      "configurations": [
+        "ko-accessibility5"
+      ],
+      "pictures": 542,
+      "costSeconds": 2705.7,
+      "estimatedMinutes": 36.5,
+      "timeoutMinutes": 73
+    },
+    {
+      "id": "s13",
+      "family": "ipad",
+      "configurations": [
+        "zh-Hans-accessibility5"
+      ],
+      "pictures": 542,
+      "costSeconds": 2705.7,
+      "estimatedMinutes": 36.5,
+      "timeoutMinutes": 73
+    },
+    {
+      "id": "s14",
+      "family": "ipad",
+      "configurations": [
+        "zh-Hant-accessibility5"
+      ],
+      "pictures": 542,
+      "costSeconds": 2705.7,
+      "estimatedMinutes": 36.5,
+      "timeoutMinutes": 73
+    },
+    {
+      "id": "s15",
+      "family": "ipad",
+      "configurations": [
+        "de-large",
+        "ko-large"
+      ],
+      "pictures": 1084,
+      "costSeconds": 4162.6,
+      "estimatedMinutes": 50.8,
+      "timeoutMinutes": 102
+    },
+    {
+      "id": "s16",
+      "family": "ipad",
+      "configurations": [
+        "de-xSmall",
+        "ko-xSmall"
+      ],
+      "pictures": 1084,
+      "costSeconds": 4162.6,
+      "estimatedMinutes": 50.8,
+      "timeoutMinutes": 102
+    },
+    {
+      "id": "s17",
+      "family": "ipad",
+      "configurations": [
+        "en-large",
+        "zh-Hans-large"
+      ],
+      "pictures": 1084,
+      "costSeconds": 4162.6,
+      "estimatedMinutes": 50.8,
+      "timeoutMinutes": 102
+    },
+    {
+      "id": "s18",
+      "family": "ipad",
+      "configurations": [
+        "en-xSmall",
+        "zh-Hans-xSmall"
+      ],
+      "pictures": 1084,
+      "costSeconds": 4162.6,
+      "estimatedMinutes": 50.8,
+      "timeoutMinutes": 102
+    },
+    {
+      "id": "s19",
+      "family": "ipad",
+      "configurations": [
+        "ja-large",
+        "zh-Hant-large"
+      ],
+      "pictures": 1084,
+      "costSeconds": 4162.6,
+      "estimatedMinutes": 50.8,
+      "timeoutMinutes": 102
+    },
+    {
+      "id": "s20",
+      "family": "ipad",
+      "configurations": [
+        "ja-xSmall",
+        "zh-Hant-xSmall"
+      ],
+      "pictures": 1084,
+      "costSeconds": 4162.6,
+      "estimatedMinutes": 50.8,
+      "timeoutMinutes": 102
+    }
+  ]
+}
