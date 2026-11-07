@@ -215,13 +215,19 @@ struct CommentFilterTests {
             "感谢上传，翻译得很好。",
             "感謝上傳，翻譯得很好。",
             // Everyday words that contain a shorter insult; the list keeps only the longer, unambiguous forms, or names
-            // the everyday word as the term's exception ("foreigner" holds the slur, in katakana and in hiragana).
+            // the everyday word as the term's exception ("foreigner" holds the katakana slur).
             "ガイジンの主人公が好き。",
-            "がいじんの友達ができた。",
             // A title one dakuten away from the slur, in katakana and in hiragana: kana keep their dakuten.
             "カイジ",
             "カイジの映画が好き。",
             "かいじ",
+            // The slur is listed in katakana only (language review): its hiragana spelling also runs across the
+            // subject particle が, as in "the hero gets bullied" and "it's not wrong".
+            "がいじんの友達ができた。",
+            "がいじ",
+            "お前がいじかよ",
+            "主人公がいじめられる。",
+            "まちがいじゃない。",
             "주인공이 죽어라 노력하는 장면이 좋아요.",
             "가방을 뒤져라, 열쇠가 있을 거야.",
             "주인공이 자살해서 너무 슬펐어요.",
@@ -243,11 +249,9 @@ struct CommentFilterTests {
     }
 
     /// The language review's cases that must still raise the warning (18-UAT test 11): 去死 after 过 when no ordinary
-    /// word follows it, as in "go over there and die", in both scripts; 害児 on its own; and ガイジ in katakana, in
-    /// half-width katakana and in hiragana.
-    @Test(arguments: [
-        "你过去死吧", "滚过去死", "你過去死吧", "滾過去死", "害児", "ガイジ", "お前ガイジかよ", "ｶﾞｲｼﾞ", "がいじ", "お前がいじかよ"
-    ])
+    /// word follows it, as in "go over there and die", in both scripts; 害児 on its own; and ガイジ in full-width and
+    /// half-width katakana.
+    @Test(arguments: ["你过去死吧", "滚过去死", "你過去死吧", "滾過去死", "害児", "ガイジ", "お前ガイジかよ", "ｶﾞｲｼﾞ"])
     func theBundledListMatchesATermThatNoOrdinaryWordHolds(text: String) {
         #expect(CommentFilter.matches(text, terms: .bundled), "Missed: \(text)")
     }
