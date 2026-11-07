@@ -198,7 +198,8 @@ struct CommentFilterTests {
             "업로드 감사합니다. 번역 최고예요.",
             "感谢上传，翻译得很好。",
             "感謝上傳，翻譯得很好。",
-            // Everyday words that contain a shorter insult; the list keeps only the longer, unambiguous forms.
+            // Everyday words that contain a shorter insult; the list keeps only the longer, unambiguous forms, or names
+            // the everyday word as the term's exception ("foreigner" holds the katakana slur).
             "ガイジンの主人公が好き。",
             "주인공이 죽어라 노력하는 장면이 좋아요.",
             "가방을 뒤져라, 열쇠가 있을 거야.",
