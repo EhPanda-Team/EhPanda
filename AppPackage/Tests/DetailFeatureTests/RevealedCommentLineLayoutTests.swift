@@ -10,8 +10,8 @@ import UIKit
 @MainActor
 struct RevealedCommentLineLayoutTests {
     /// The width a comment row's content gets on a 375pt-wide phone: the comments sheet's card and the row's padding
-    /// take 118pt (284pt of a 402pt-wide iPhone 17 Pro, measured in the Phase 18 UI review).
-    private static let width: CGFloat = 257
+    /// take 113pt (307pt of the 420pt-wide iPhone Air, measured in the Phase 18 UI review).
+    private static let width: CGFloat = 262
     private static let label = "Comment from a user you've blocked"
 
     @Test
@@ -32,14 +32,22 @@ struct RevealedCommentLineLayoutTests {
         #expect(hide.minY >= label.maxY, "Hide is beside the label, which it squeezes to \(label.width)pt.")
     }
 
-    /// As the designer's mockup 09 has it: the label wraps beside Hide rather than Hide dropping below it.
-    @Test
-    func atTheDefaultSizeHideSitsBesideTheLabel() throws {
-        let line = LaidOutElements(of: RevealedCommentLine(hideAction: {}), width: Self.width, size: .large)
+    /// As the designer's mockup 09 has it: the label wraps beside Hide rather than Hide dropping below it, and Hide
+    /// keeps its one line: on a 375pt-wide phone (``width``) and on the iPhone Air (307pt), where the label just fits
+    /// on one line and left too little for Hide.
+    @Test(arguments: [262, 307] as [CGFloat])
+    func atTheDefaultSizeHideSitsBesideTheLabel(width: CGFloat) throws {
+        let line = LaidOutElements(of: RevealedCommentLine(hideAction: {}), width: width, size: .large)
+        let row = LaidOutElements(
+            of: BlockedCommentRow(commentID: "6894060", showAction: {}, unblockAction: {}),
+            width: width, size: .large
+        )
 
         let hide = try #require(line.frame(labelled: "Hide"))
         let label = try #require(line.frame(labelled: Self.label))
+        let show = try #require(row.frame(labelled: "Show"))
 
+        #expect(hide.height <= show.height + 0.5, "Hide wraps: \(hide.height)pt against Show's \(show.height)pt.")
         #expect(hide.minX > label.maxX, "Hide is not beside the label.")
         #expect(abs(hide.midY - label.midY) < 1, "Hide is not on the label's line.")
     }
