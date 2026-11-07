@@ -158,7 +158,13 @@ struct CommentFilterTests {
             "ガイジンの主人公が好き。",
             "주인공이 죽어라 노력하는 장면이 좋아요.",
             "가방을 뒤져라, 열쇠가 있을 거야.",
-            "주인공이 자살해서 너무 슬펐어요."
+            "주인공이 자살해서 너무 슬펐어요.",
+            // Ordinary words around a two-character term (18-UAT test 11): "I never believed it before", in both
+            // scripts, and the neutral Japanese words for a disabled child and for a child victim.
+            "我过去死活不信。",
+            "我過去死活不信。",
+            "障害児の支援についての話です。",
+            "被害児童を守る話。"
         ]
         for comment in comments {
             #expect(CommentFilter.matches(comment, terms: .bundled) == false, "False positive: \(comment)")
