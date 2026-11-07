@@ -714,7 +714,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 16. Dynamic Type Accessibility | 26/26 | Complete    | 2026-09-23 |
 | 17. Screenshot Automation, Visual Regression & OS 27 Modernization | 13/13 | Complete    | 2026-11-05 |
 | 18. In-App 3.0 Readiness: Age Wall, Analytics Choice, Comment Moderation & Reader Rework | 12/12 | Complete    | 2026-11-06 |
-| 18.1. Native report form (INSERTED) | 4/5 | In Progress |  |
+| 18.1. Native report form (INSERTED) | 5/5 | In Progress |  |
 | 19. Visual Regression & Daily Live-Parsing Check | 0/TBD | Not started|  |
 | 20. 3.0 Distribution: Marketplace Build, Notarization, Listing & Release Checks | 0/TBD | Not started|  |
 
@@ -1444,7 +1444,7 @@ Plans:
   5. FeatureTests and a UI test for each C-13 state pass on iPhone and iPad; lint is clean; the Release product carries no UI-test key.
   6. An agent's live check on the real site, with Proxyman blocking the report POST, shows the form loaded and the request built correctly, with no report filed (owner msgs 1933, 1652).
 
-**Plans:** 4/5 plans executed
+**Plans:** 5/5 plans executed
 
 Plans:
 
@@ -1459,7 +1459,7 @@ Plans:
 - [x] 18.1-04-PLAN.md — `ReportFormView` per C-13, the retired confirm keys, UI-test stubs and a UI test for each state
 
 **Wave 4** *(blocked on Wave 3 completion)*
-- [ ] 18.1-05-PLAN.md — phase gate on both devices and in Release, then the agent-run Proxyman live check (the phase's only checkpoint)
+- [x] 18.1-05-PLAN.md — phase gate on both devices and in Release, then the agent-run live check (the phase's only checkpoint) *(gate green at `270d7c3d4`; the live check passed under a local mitmdump, owner msg 2066 and the tool change, 2026-11-07)*
 
 ### Phase 19: Visual Regression & Daily Live-Parsing Check
 
