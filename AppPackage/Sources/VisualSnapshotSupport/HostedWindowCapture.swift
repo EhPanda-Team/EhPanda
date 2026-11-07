@@ -85,6 +85,22 @@ public final class HostedRoot {
         self.previousStyle = previousStyle
     }
 
+    /// Dismisses anything the root presented, waits until the dismissal finishes, then restores the window.
+    ///
+    /// Restoring the root while a presentation (an alert) is still being torn down leaves its transition view in the
+    /// window in place of the restored root, which then refuses every orientation but the current one.
+    public func disposeAfterDismissal() async {
+        guard !isDisposed else { return }
+        if controller.presentedViewController != nil {
+            await withCheckedContinuation { continuation in
+                controller.dismiss(animated: false) {
+                    continuation.resume()
+                }
+            }
+        }
+        dispose()
+    }
+
     /// Dismisses anything the root presented and restores the window's previous root and appearance.
     public func dispose() {
         guard !isDisposed else { return }
@@ -272,7 +288,12 @@ public enum HostedWindowCapture {
             return Attempt(status: .error, settleSamples: 0, png: nil, difference: nil, reason: "factory")
         }
         let hosted = host(root, in: window, style: request.style)
-        defer { hosted.dispose() }
+        let attempt = await attemptHosted(window: window, request: request)
+        await hosted.disposeAfterDismissal()
+        return attempt
+    }
+
+    private static func attemptHosted(window: UIWindow, request: Request) async -> Attempt {
         if let interact = request.interact {
             do {
                 try await interact(window)
