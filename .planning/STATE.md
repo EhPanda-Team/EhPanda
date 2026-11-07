@@ -4,16 +4,16 @@ milestone: v3.0.0
 current_phase: 19
 current_phase_name: Visual Regression & Daily Live-Parsing Check
 status: executing
-stopped_at: Completed 19-01-PLAN.md
-last_updated: "2026-11-07T08:57:34.365Z"
+stopped_at: Completed 19-11-PLAN.md
+last_updated: "2026-11-07T13:18:20.384Z"
 last_activity: 2026-11-07
-last_activity_desc: 19-01 complete (hosted-window capture, 18-configuration plan, tracer)
-state_head: 6f0156272d810af5b951914436f75c50dbb41074
+last_activity_desc: 19-11 complete (native visual policy UI tests, 9/9 on both devices)
+state_head: c24bfcd5fc492612980a05f4298614625b028840
 progress:
   total_phases: 21
   completed_phases: 18
   total_plans: 321
-  completed_plans: 305
+  completed_plans: 306
   percent: 86
 milestone_name: Dependency Reduction & Modernization
 source_head: 891103afa
@@ -27,6 +27,11 @@ source_head: 891103afa
   capture with settle and one retry, `SnapshotMatrix.xctestplan` (18 configurations), tracer green twice on both
   devices, the 1-point shift caught. iPad captures one orientation per process (iPadOS refuses in-process
   rotation), so 19-02 has 54 shard units.
+- **19-11 complete** (`99470c25c`, `fd9d4baa2`; `19-11-SUMMARY.md`): `NativeVisualPolicyUITests` 9/9 with 0
+  Repetition nodes on both devices (cold entry at four sizes, live size through the Settings app, turns, reader
+  toolbar priority, dialog and menu anchors). On iPad the floating tab bar stands for the title. The class takes
+  13 to 15 minutes per device, which 19-10's `native-policy` job must budget for. CAP-17-06 stays Pending (19-17
+  shares it).
 
 ## Phase 19 planned: Visual Regression & Daily Live-Parsing Check — 2026-11-07
 
@@ -1079,6 +1084,7 @@ Phase 18 verification passed 10/10 on 2026-11-05 at `a1f96cb88` (tested source `
 | Phase 18.1 P04 | several sessions | 3 tasks | 20 files |
 | Phase 18.1 P05 | about 5h 25m (four live-check runs) | 2 tasks | 6 files |
 | Phase 19 P01 | multi-session | 3 tasks | 11 files |
+| Phase 19 P11 | multi-session | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -1774,8 +1780,8 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-11-07T08:57:20.160Z
-Stopped at: Completed 19-01-PLAN.md
+Last session: 2026-11-07T13:18:18.228Z
+Stopped at: Completed 19-11-PLAN.md
 Resume file: None
 
 Earlier stop (2026-10-13T10:50:00Z, historical): 17-06 revision re-shot, 16/16 captured (`.capture/17-06-t-native-*`); superseded by the owner's 2026-11-02 approval of the 192-image website set.

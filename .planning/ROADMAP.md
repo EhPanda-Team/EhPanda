@@ -715,7 +715,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 17. Screenshot Automation, Visual Regression & OS 27 Modernization | 13/13 | Complete    | 2026-11-05 |
 | 18. In-App 3.0 Readiness: Age Wall, Analytics Choice, Comment Moderation & Reader Rework | 12/12 | Complete    | 2026-11-06 |
 | 18.1. Native report form (INSERTED) | 5/5 | Complete    | 2026-11-07 |
-| 19. Visual Regression & Daily Live-Parsing Check | 1/17 | In Progress |  |
+| 19. Visual Regression & Daily Live-Parsing Check | 2/17 | In Progress |  |
 | 20. 3.0 Distribution: Marketplace Build, Notarization, Listing & Release Checks | 0/TBD | Not started|  |
 
 ### Phase 12: Cloudflare Login Restoration
@@ -1490,14 +1490,14 @@ Plans:
   7. `Scripts/visual/README.md` matches the reduced Phase 17 harness and this phase's regression runner.
   8. Release builds still contain no capture code, fixtures, test assets or SnapshotTesting linkage.
 
-**Plans**: 1/17 plans executed (planned 2026-11-07; research: [19-RESEARCH.md](phases/19-visual-regression-marketing-export/19-RESEARCH.md), validation: [19-VALIDATION.md](phases/19-visual-regression-marketing-export/19-VALIDATION.md))
+**Plans**: 2/17 plans executed (planned 2026-11-07; research: [19-RESEARCH.md](phases/19-visual-regression-marketing-export/19-RESEARCH.md), validation: [19-VALIDATION.md](phases/19-visual-regression-marketing-export/19-VALIDATION.md))
 
 Plans:
 
 **Wave 1**
 
 - [x] 19-01-PLAN.md — app-hosted capture core, the 18-configuration test plan and a three-scenario tracer on both devices; local clone measurement
-- [ ] 19-11-PLAN.md — native visual policy XCUITests the matrix cannot cover (17-09-T2)
+- [x] 19-11-PLAN.md — native visual policy XCUITests the matrix cannot cover (17-09-T2)
 
 **Wave 2** *(blocked on 19-01)*
 
