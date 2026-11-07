@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
 """The deterministic 20-shard plan the CI gate reads (19-CONTEXT D-15, owner msg 2263; 19-RESEARCH §5, §9).
 
-A unit is one device family in one `<locale>-<size>` configuration (36 units). Its cost is the sum, over the
-pictures it captures, of the per-picture seconds in `snapshot-cost.json`. Each device gets a share of the shards in
+A unit is one test process: an iPhone `<locale>-<size>` configuration with both orientations, or an iPad
+configuration in one orientation, since an iPad process captures only the orientation the device was turned to
+before launch (19-01-MEASURE.md). That gives 18 iPhone and 36 iPad units, 54 in all. A unit's cost is the sum, over
+the pictures it captures, of the per-picture seconds in `snapshot-cost.json`. Each device gets a share of the shards in
 proportion to its total cost; within a device, units go longest first to the least loaded shard, ties by unit key
 and then by shard order, so the same inventory and cost table always give the same file.
 """
@@ -24,16 +26,25 @@ TIMEOUT_CAP_MINUTES = 120
 
 
 def unit_key(unit):
-    return f'{unit[0]}/{unit[1]}'
+    return f'{unit[0]}/{unit[1]}/{"+".join(unit[2])}'
+
+
+def process_orientations(family):
+    """The orientation groups one process of the family captures: both on iPhone, one at a time on iPad."""
+    if family == 'ipad':
+        return [(orientation,) for orientation in snapshot_matrix.ORIENTATIONS]
+    return [snapshot_matrix.ORIENTATIONS]
 
 
 def unit_pictures(document, env):
-    """`{(family, configuration): pictures}` for the 36 units, from the inventory's expected captures."""
-    counts = {(family, configuration): 0
-              for family in snapshot_matrix.FAMILIES for configuration in snapshot_matrix.configurations()}
+    """`{(family, configuration, orientations): pictures}` for the 54 units, from the expected captures."""
+    counts = {(family, configuration, orientations): 0
+              for family in snapshot_matrix.FAMILIES for configuration in snapshot_matrix.configurations()
+              for orientations in process_orientations(family)}
     for row, reason in snapshot_matrix.coordinates(document, env):
         if reason is None:
-            counts[(row.family, row.configuration)] += 1
+            orientations = next(group for group in process_orientations(row.family) if row.orientation in group)
+            counts[(row.family, row.configuration, orientations)] += 1
     return counts
 
 
@@ -68,6 +79,11 @@ def assign(costs_by_unit, shards=SHARD_COUNT):
     return result
 
 
+def run_order(unit):
+    """Runs go by configuration order, then portrait before landscape, so an iPad shard turns as little as it can."""
+    return snapshot_matrix.configurations().index(unit[1]), snapshot_matrix.ORIENTATIONS.index(unit[2][0])
+
+
 def plan(document, env, costs, cost_digest):
     pictures = unit_pictures(document, env)
     costs_by_unit = unit_costs(pictures, costs)
@@ -77,7 +93,9 @@ def plan(document, env, costs, cost_digest):
         estimated = round(costs['bootFetchMinutes'] + cost / (costs['cloneSpeedup'] * 60), 1)
         shards.append({
             'id': f's{index:02d}', 'family': family,
-            'configurations': sorted((unit[1] for unit in units), key=order.index),
+            'configurations': sorted({unit[1] for unit in units}, key=order.index),
+            'runs': [{'configuration': unit[1], 'orientations': list(unit[2])}
+                     for unit in sorted(units, key=run_order)],
             'pictures': sum(pictures[unit] for unit in units),
             'costSeconds': round(cost, 1),
             'estimatedMinutes': estimated,
