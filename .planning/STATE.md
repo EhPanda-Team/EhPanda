@@ -4,16 +4,16 @@ milestone: v3.0.0
 current_phase: 19
 current_phase_name: Visual Regression & Daily Live-Parsing Check
 status: executing
-stopped_at: Completed 19-11-PLAN.md
-last_updated: "2026-11-07T13:18:20.384Z"
+stopped_at: Completed 19-02-PLAN.md
+last_updated: "2026-11-07T13:45:02.817Z"
 last_activity: 2026-11-07
-last_activity_desc: 19-11 complete (native visual policy UI tests, 9/9 on both devices)
-state_head: 9a35dc63fd9dc9e08c105c76a96cc89309d7ed4f
+last_activity_desc: 19-02 complete (137-scenario inventory, 54-unit 20-shard plan, group catalogs, local runner)
+state_head: 7c116f30bb3d84f44002b29e4e91c1bb69895861
 progress:
   total_phases: 21
   completed_phases: 18
   total_plans: 321
-  completed_plans: 306
+  completed_plans: 307
   percent: 86
 milestone_name: Dependency Reduction & Modernization
 source_head: b5eca09d1
@@ -32,6 +32,13 @@ source_head: b5eca09d1
   toolbar priority, dialog and menu anchors). On iPad the floating tab bar stands for the title. The class takes
   13 to 15 minutes per device, which 19-10's `native-policy` job must budget for. CAP-17-06 stays Pending (19-17
   shares it).
+- **19-02 complete** (`5257fbddf`, `8b528282f`, `399962605`, `52713a64c`; `19-02-SUMMARY.md`): schema-2
+  `scenarios.json` with 137 scenarios, 19,440 expected coordinates and 288 not applicable under four by-design
+  rules; D-05 surfaces under `notCaptured`. `snapshot-shards.json` has 20 shards over 54 per-process units (iPad
+  split by orientation), largest 1.16 x the mean on the model cost table, with a `runs` list that 19-10's
+  `run-shard.sh` should loop over. Group catalog files for 19-05 to 19-08, `ScenarioInventoryTests` (134 IDs without
+  a factory yet), `run-snapshot-local.sh`. `VisualMatrixTests.testSelectedCoordinate` needs
+  `EHPANDA_VISUAL_COORDINATE` (fails at the base too). VIS-18-01 and CAP-17-01 stay Pending (later plans share them).
 
 ## Phase 19 planned: Visual Regression & Daily Live-Parsing Check — 2026-11-07
 
@@ -1085,6 +1092,7 @@ Phase 18 verification passed 10/10 on 2026-11-05 at `c2619c7a3` (tested source `
 | Phase 18.1 P05 | about 5h 25m (four live-check runs) | 2 tasks | 6 files |
 | Phase 19 P01 | multi-session | 3 tasks | 11 files |
 | Phase 19 P11 | multi-session | 2 tasks | 2 files |
+| Phase 19 P02 | one session | 3 tasks | 19 files |
 
 ## Accumulated Context
 
@@ -1780,8 +1788,8 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-11-07T13:18:18.228Z
-Stopped at: Completed 19-11-PLAN.md
+Last session: 2026-11-07T13:45:00.341Z
+Stopped at: Completed 19-02-PLAN.md
 Resume file: None
 
 Earlier stop (2026-10-13T10:50:00Z, historical): 17-06 revision re-shot, 16/16 captured (`.capture/17-06-t-native-*`); superseded by the owner's 2026-11-02 approval of the 192-image website set.
