@@ -33,3 +33,39 @@ public struct TagTranslationFixture: Sendable {
     public let key: String
     public let value: String
 }
+
+/// Synthetic download records over the `downloads-finite` galleries (19-06). Progress is a still: each record
+/// holds a fixed number of landed pages out of the gallery's eight.
+public struct DownloadRecordFixture: Sendable {
+    public enum Status: Sendable {
+        case completed, active, error, inactive
+    }
+
+    public let status: Status
+    public let completedPages: Int
+}
+
+extension LibraryFixtures {
+    /// The download folders, the first holding every record.
+    public static let downloadFolders = ["Visual Folder A", "Visual Folder B", "Visual Folder C"]
+
+    /// Six finished downloads, for the list and grid.
+    public static let completedDownloads = Array(
+        repeating: DownloadRecordFixture(status: .completed, completedPages: 8), count: 6
+    )
+
+    /// An active download five pages in and one that failed after three, above four finished ones.
+    public static let activeFailedDownloads = [
+        DownloadRecordFixture(status: .active, completedPages: 5),
+        DownloadRecordFixture(status: .error, completedPages: 3)
+    ] + completedDownloads.prefix(4)
+
+    /// The detail page's download in progress: twelve of its pages landed.
+    public static let detailDownloadPages = 12
+
+    /// The detail page's tags: namespace and tag words, all invented.
+    public static let detailTags: [(namespace: String, words: [String])] = [
+        ("other", ["visual fixture", "public sample", "neutral words"]),
+        ("language", ["english"])
+    ]
+}

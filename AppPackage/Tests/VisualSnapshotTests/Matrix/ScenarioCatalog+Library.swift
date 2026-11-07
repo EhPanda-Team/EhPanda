@@ -2,10 +2,12 @@
 import AppModels
 import ComposableArchitecture
 import DateSeekFeature
+import DetailFeature
 import DownloadsFeature
 import FavoritesFeature
 import FiltersFeature
 import Foundation
+import Kingfisher
 import QuickSearchFeature
 import Resources
 @testable import SearchFeature
@@ -17,7 +19,7 @@ import XCTest
 // Search, Quick Search, Filters, Date Seek, Favorites, Downloads and Gallery detail (19-06).
 extension ScenarioCatalog {
     static var library: [String: ScenarioFactory] {
-        [search, quickSearch, favorites].reduce(into: [:]) { result, group in
+        [search, quickSearch, favorites, downloads, galleryDetail].reduce(into: [:]) { result, group in
             result.merge(group) { first, _ in first }
         }
     }
@@ -70,6 +72,53 @@ extension ScenarioCatalog {
                 make: { Page.favorites(.loaded(.row)) }, prepare: artwork,
                 interact: Page.openCategoryMenu
             )
+        ]
+    }
+    private static var downloads: [String: ScenarioFactory] {
+        typealias Page = LibraryScenarios
+        let artwork = Page.cacheDownloadArtwork
+        let completed = LibraryFixtures.completedDownloads
+        return [
+            "downloads-list": .init(make: { Page.downloads(completed, mode: .row) }, prepare: artwork),
+            "downloads-grid": .init(make: { Page.downloads(completed, mode: .grid) }, prepare: artwork),
+            "downloads-empty": .init(make: { Page.downloads([], mode: .row) }),
+            "downloads-active-failed": .init(
+                make: { Page.downloads(LibraryFixtures.activeFailedDownloads, mode: .row) }, prepare: artwork
+            ),
+            "downloads-delete-confirmation": .init(
+                make: { Page.downloads(completed, mode: .row, confirming: .delete) }, prepare: artwork
+            ),
+            "downloads-move-confirmation": .init(
+                make: { Page.downloads(completed, mode: .row, confirming: .move) }, prepare: artwork
+            ),
+            "downloads-inspector": .init(
+                make: { Page.downloads(completed, mode: .row, inspecting: 0) }, prepare: artwork
+            ),
+            "downloads-inspector-error": .init(
+                make: { Page.downloads(LibraryFixtures.activeFailedDownloads, mode: .row, inspecting: 1) },
+                prepare: artwork
+            )
+        ]
+    }
+
+    private static var galleryDetail: [String: ScenarioFactory] {
+        typealias Page = LibraryScenarios
+        let artwork = TracerScenarios.cacheHomeArtwork
+        return [
+            "gallery-detail-loaded": .init(make: { try Page.detail(.loaded) }, prepare: artwork),
+            "gallery-detail-loading": .init(
+                make: { try Page.detail(.loading) }, prepare: artwork, interact: BrowsingScenarios.freezeIndicators
+            ),
+            "gallery-detail-error": .init(make: { try Page.detail(.error) }, prepare: artwork),
+            "gallery-detail-rating": .init(make: { try Page.detail(.rating) }, prepare: artwork),
+            "gallery-detail-downloading": .init(make: { try Page.detail(.downloading) }, prepare: artwork),
+            "gallery-detail-delete-download-confirmation": .init(
+                make: { try Page.detail(.deleteDownloadConfirmation) }, prepare: artwork
+            ),
+            "gallery-detail-retry-confirmation": .init(
+                make: { try Page.detail(.retryConfirmation) }, prepare: artwork
+            ),
+            "gallery-detail-sheet": .init(make: { try Page.gallerySheet() }, prepare: artwork)
         ]
     }
 }
@@ -225,6 +274,216 @@ enum LibraryScenarios {
             favoritesStore: Store(initialState: favorites, reducer: FavoritesReducer.init),
             downloadsStore: Store(initialState: DownloadsReducer.State(), reducer: DownloadsReducer.init)
         ))
+    }
+
+    // MARK: Downloads
+
+    enum DownloadConfirmation {
+        case delete, move
+    }
+
+    /// Kingfisher cache keys for the `downloads-finite` covers, which the records use as their local covers.
+    static func downloadCoverURL(_ index: Int) -> URL? {
+        URL(string: "https://visual-fixture.invalid/downloads/\(index).png")
+    }
+
+    /// Fills the image cache with the `downloads-finite` covers, so no cover loads while the window settles.
+    static func cacheDownloadArtwork() async throws {
+        for (index, fixture) in PublicVisualFixtures.downloadGalleries.enumerated() {
+            guard let url = downloadCoverURL(index) else { continue }
+            let image = PublicVisualFixtures.artwork(marker: fixture.gid, colorIndex: fixture.colorIndex)
+            try await ImageCache.default.store(image, forKey: url.absoluteString, toDisk: false)
+        }
+    }
+
+    /// A download record of `gallery` with `completedPages` of its pages landed, in the first synthetic folder.
+    static func download(
+        _ gallery: Gallery, coverURL: URL?, status: DownloadDisplayStatus, completedPages: Int
+    ) -> DownloadedGallery {
+        let pages = Dictionary(uniqueKeysWithValues: (1...gallery.pageCount).map { page in
+            (page, page <= completedPages ? "public-page-hash-\(page)" : "")
+        })
+        let manifest = DownloadManifest(
+            gid: gallery.gid, host: .ehentai, token: gallery.token, title: gallery.title, jpnTitle: nil,
+            category: gallery.category, language: .english, remoteCoverURL: coverURL,
+            uploader: gallery.uploader, tags: gallery.tags, postedDate: gallery.postedDate, rating: gallery.rating,
+            pages: pages
+        )
+        let folder = LibraryFixtures.downloadFolders.first ?? ""
+        return DownloadedGallery(
+            manifest: manifest, folderURL: URL(filePath: "/visual-fixture/\(folder)/\(gallery.gid)"),
+            folderName: folder, localCoverURL: coverURL, localPageURLs: [:],
+            modificationDate: PublicVisualFixtures.fixedDate, displayStatus: status,
+            lastError: status == .error
+                ? DownloadFailure(code: .networkingFailed, message: AppError.networkingFailed.alertText) : nil
+        )
+    }
+
+    static func downloadStatus(_ status: DownloadRecordFixture.Status) -> DownloadDisplayStatus {
+        switch status {
+        case .completed: .completed
+        case .active: .active
+        case .error: .error
+        case .inactive: .inactive
+        }
+    }
+
+    /// The records over the `downloads-finite` galleries.
+    static func downloadRecords(_ records: [DownloadRecordFixture]) -> [DownloadedGallery] {
+        zip(PublicVisualFixtures.downloadGalleries.enumerated(), records).map { entry, record in
+            let (index, fixture) = entry
+            let gallery = Gallery(
+                gid: fixture.gid, token: fixture.token, title: fixture.title, rating: 4.5, tags: [],
+                category: .doujinshi, uploader: "Visual Fixture", pageCount: fixture.pageCount,
+                postedDate: PublicVisualFixtures.fixedDate, coverURL: downloadCoverURL(index), galleryURL: nil
+            )
+            return download(
+                gallery, coverURL: downloadCoverURL(index), status: downloadStatus(record.status),
+                completedPages: record.completedPages
+            )
+        }
+    }
+
+    /// The inspection of `download`: its landed pages downloaded, the rest failed if it failed, pending otherwise.
+    static func inspection(_ download: DownloadedGallery) -> DownloadInspection {
+        let failed = download.displayStatus == .error
+        return DownloadInspection(
+            download: download, coverURL: download.coverURL,
+            pages: (1...download.pageCount).map { page in
+                if page <= download.completedPageCount {
+                    return DownloadPageInspection(index: page, status: .downloaded)
+                }
+                return DownloadPageInspection(
+                    index: page, status: failed ? .failed : .pending, failure: failed ? download.lastError : nil
+                )
+            }
+        )
+    }
+
+    /// Downloads in the Library, in the first synthetic folder, as the Library shows it on each device. A
+    /// confirmation is the first row's own dialog; an inspector is the sheet the list presents for a record.
+    static func downloads(
+        _ records: [DownloadRecordFixture], mode: GalleryListDisplayMode,
+        confirming confirmation: DownloadConfirmation? = nil, inspecting inspected: Int? = nil
+    ) -> AnyView {
+        ListContent.loaded(mode).storeDisplayMode(.downloads)
+        let folder = LibraryFixtures.downloadFolders.first ?? ""
+        var state = DownloadsReducer.State()
+        state.folders = LibraryFixtures.downloadFolders
+        state.folderFilter = .folder(folder)
+        state.downloads = downloadRecords(records)
+        state.loadingState = .idle
+        state.hasLoadedInitialDownloads = true
+        if let inspected, let download = state.downloads.dropFirst(inspected).first {
+            var inspector = DownloadInspectorReducer.State(gid: download.gid)
+            inspector.inspection = inspection(download)
+            inspector.stableInspection = inspector.inspection
+            inspector.loadingState = .idle
+            state.destination = .inspector(inspector)
+        }
+        let store = Store(initialState: state, reducer: DownloadsReducer.init)
+        if let confirmation, let first = state.downloads.first {
+            let destinations = LibraryFixtures.downloadFolders.filter({ $0 != first.folderName })
+            store.send(.rows(.element(
+                id: first.id,
+                action: confirmation == .delete ? .deleteButtonTapped : .moveButtonTapped(destinations: destinations)
+            )))
+        }
+        return AnyView(LibraryView(
+            store: Store(
+                initialState: LibraryFeature.State(selection: .downloads(.folder(folder))),
+                reducer: LibraryFeature.init
+            ),
+            favoritesStore: Store(initialState: FavoritesReducer.State(), reducer: FavoritesReducer.init),
+            downloadsStore: store
+        ))
+    }
+
+    // MARK: Gallery detail
+
+    enum DetailState {
+        case loaded, loading, error, rating, downloading, deleteDownloadConfirmation, retryConfirmation
+    }
+
+    /// The synthetic gallery's detail, with invented counts.
+    static func galleryDetail(_ gallery: Gallery) -> GalleryDetail {
+        GalleryDetail(
+            gid: gallery.gid, title: gallery.title, isFavorited: false, visibility: .yes, rating: gallery.rating,
+            userRating: 0, ratingCount: 120, category: gallery.category, language: .english,
+            uploader: gallery.uploader ?? "", postedDate: gallery.postedDate, coverURL: gallery.coverURL,
+            favoritedCount: 42, pageCount: gallery.pageCount, sizeCount: 12.5, sizeType: "MB", torrentCount: 0
+        )
+    }
+
+    static var detailTags: [GalleryTag] {
+        LibraryFixtures.detailTags.map { entry in
+            GalleryTag(rawNamespace: entry.namespace, contents: entry.words.map { word in
+                GalleryTag.Content(rawNamespace: entry.namespace, text: word, isVotedUp: false, isVotedDown: false)
+            })
+        }
+    }
+
+    /// The detail reducer's state for the first synthetic gallery: seeded from its download record when the
+    /// state has one, as the Downloads tab seeds it, and loaded unless the state is the load itself.
+    static func detailState(_ kind: DetailState) throws -> DetailReducer.State {
+        let gallery = try XCTUnwrap(TracerScenarios.homeGalleries().first)
+        var state: DetailReducer.State
+        switch kind {
+        case .downloading, .deleteDownloadConfirmation, .retryConfirmation:
+            let status: DownloadDisplayStatus = switch kind {
+            case .downloading: .active
+            case .retryConfirmation: .error
+            default: .completed
+            }
+            let pages = kind == .downloading ? LibraryFixtures.detailDownloadPages : gallery.pageCount
+            state = DetailReducer.State(seededFrom: download(
+                gallery, coverURL: gallery.coverURL, status: status,
+                completedPages: kind == .retryConfirmation ? pages / 2 : pages
+            ))
+        default:
+            state = DetailReducer.State(gallery: gallery)
+        }
+        state.downloadFolders = LibraryFixtures.downloadFolders
+        state.hasLoadedDownloadBadge = true
+        switch kind {
+        case .loading:
+            state.loadingState = .loading
+        case .error:
+            state.loadingState = .failed(.networkingFailed)
+        default:
+            state.galleryDetail = galleryDetail(gallery)
+            state.galleryTags = detailTags
+        }
+        if kind == .rating {
+            state.showsUserRating = true
+            state.userRating = 7
+        }
+        return state
+    }
+
+    /// The gallery page pushed onto a stack, as an iPhone shows it; a confirmation is the reducer's own alert.
+    static func detail(_ kind: DetailState) throws -> AnyView {
+        let state = try detailState(kind)
+        let store = Store(initialState: state, reducer: DetailReducer.init)
+        switch kind {
+        case .deleteDownloadConfirmation:
+            store.send(.deleteDownloadButtonTapped)
+        case .retryConfirmation:
+            store.send(.retryDownloadButtonTapped(.redownload))
+        default:
+            break
+        }
+        return AnyView(NavigationStack {
+            DetailView(store: store, gid: state.gid)
+        })
+    }
+
+    /// The gallery as the sheet the app presents over a tab where the window is regular in both dimensions.
+    static func gallerySheet() throws -> AnyView {
+        var app = AppReducer.State()
+        app.tabBarState.tabBarItemType = .search
+        app.presentationState.gallery = GallerySheetFeature.State(detail: try detailState(.loaded))
+        return AnyView(TabBarView(store: Store(initialState: app, reducer: AppReducer.init)))
     }
 
     // MARK: User steps
