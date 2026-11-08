@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  The daily live check as a launchd agent on a Mac (19-15; 19-CONTEXT OQ-3). A template: it is installed only if
+  the owner chooses the Mac (19-16). To install, replace $REPO_DIR with the checkout's path and $HOME with the home
+  directory, save it as $HOME/Library/LaunchAgents/ehpanda.live-check.plist and load it with
+  `launchctl bootstrap gui/$(id -u) <that file>`. launchd runs it once a day at the given hour of the Mac's own
+  clock; a day missed while the Mac sleeps runs once on wake. The script waits for any other xcodebuild, keeps its
+  result files under "$HOME/Library/Application Support/EhPanda live check" and reports through the Mac's gh sign-in.
+-->
+<plist version="1.0">
+<dict>
+	<key>Label</key>
+	<string>ehpanda.live-check</string>
+	<key>ProgramArguments</key>
+	<array>
+		<string>/bin/bash</string>
+		<string>$REPO_DIR/Scripts/live-check/run-live-check.sh</string>
+		<string>--mode</string>
+		<string>local</string>
+	</array>
+	<key>WorkingDirectory</key>
+	<string>$REPO_DIR</string>
+	<key>EnvironmentVariables</key>
+	<dict>
+		<key>PATH</key>
+		<string>/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin</string>
+	</dict>
+	<key>StartCalendarInterval</key>
+	<dict>
+		<key>Hour</key>
+		<integer>4</integer>
+		<key>Minute</key>
+		<integer>17</integer>
+	</dict>
+	<key>RunAtLoad</key>
+	<false/>
+	<key>ProcessType</key>
+	<string>Background</string>
+	<key>StandardOutPath</key>
+	<string>$HOME/Library/Logs/EhPanda live check.log</string>
+	<key>StandardErrorPath</key>
+	<string>$HOME/Library/Logs/EhPanda live check.log</string>
+</dict>
+</plist>
