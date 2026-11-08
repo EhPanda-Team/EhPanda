@@ -154,8 +154,13 @@ def table(facts):
     head = ('Device', 'Configuration', 'Workers', 'Pictures', 'Median s', 'x at 2', 'Wall s', 'Speed-up', 'Memory',
             'Changed')
     rows = ['| ' + ' | '.join(head) + ' |', '|' + '---|' * len(head)]
-    order = snapshot_matrix.FAMILIES
-    for key in sorted(facts, key=lambda key: (order.index(key[0]), key[1], key[2])):
+    families, configurations = snapshot_matrix.FAMILIES, snapshot_matrix.configurations()
+
+    def order(key):
+        position = configurations.index(key[1]) if key[1] in configurations else len(configurations)
+        return families.index(key[0]), position, key[1], key[2]
+
+    for key in sorted(facts, key=order):
         family, configuration, workers = key
         fact = facts[key]
         base = by_size.get((family, size_of(configuration), BASE))
@@ -237,7 +242,11 @@ def main(argv=None):
     if chosen is None:
         return 1
     if args.write:
-        costs = cost_table(facts, chosen, args.run_id, boot_fetch_minutes(boot, args.boot_fetch_minutes))
+        try:
+            costs = cost_table(facts, chosen, args.run_id, boot_fetch_minutes(boot, args.boot_fetch_minutes))
+        except ValueError as error:
+            print(error, file=sys.stderr)
+            return 2
         args.write.write_text(render(costs))
     return 0
 

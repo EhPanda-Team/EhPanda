@@ -1,0 +1,182 @@
+name: Snapshot measurement
+# One-off measurement of the screenshot check on GitHub's hosted Mac (19-04; 19-CONTEXT D-13, D-15). One build feeds
+# one job per device. Each job records the 19-05 classes once as the candidate, then compares them against it at 2, 3
+# and 4 simulator clones in en-xSmall, en-large and en-accessibility5, one xcodebuild at a time, while it samples the
+# system's memory pressure. Scripts/visual/snapshot_measure.py turns the uploaded results into the cost table and the
+# worker count. The pictures are synthetic; the references stay on the runner, and only a changed picture's actual
+# and difference images are uploaded, with each run's results.jsonl and shard.json. It runs only on a push to
+# ci/snapshot-measure, which needs the owner's go-ahead; that commit's message carries `[skip test]`.
+on:
+  push:
+    branches: [ci/snapshot-measure]
+permissions:
+  contents: read
+env:
+  SCHEME_NAME: 'EhPanda'
+jobs:
+  build:
+    runs-on: xcode-27
+    timeout-minutes: 90
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+      - name: Install iOS 27 Platform
+        uses: nick-fields/retry@v4
+        with:
+          retry_on: error
+          max_attempts: 10
+          timeout_minutes: 999
+          command: xcodebuild -downloadPlatform iOS
+      - name: Show Xcode version
+        run: xcodebuild -version
+      - name: Build for testing
+        run: |
+          xcodebuild build-for-testing \
+            -skipMacroValidation \
+            -skipPackagePluginValidation \
+            -scheme "$SCHEME_NAME" \
+            -testPlan SnapshotMatrix \
+            -destination 'generic/platform=iOS Simulator' \
+            -onlyUsePackageVersionsFromResolvedFile \
+            -derivedDataPath "$RUNNER_TEMP/DerivedData" >"$RUNNER_TEMP/build.log" 2>&1 || {
+              grep -E ': error:|\*\* (BUILD|TEST BUILD) FAILED' "$RUNNER_TEMP/build.log" | sort -u
+              exit 1
+            }
+          tar -C "$RUNNER_TEMP/DerivedData/Build" -cf "$RUNNER_TEMP/products.tar" Products
+      - name: Upload the test products
+        uses: actions/upload-artifact@v7
+        with:
+          name: snapshot-measure-products
+          path: ${{ runner.temp }}/products.tar
+          if-no-files-found: error
+          retention-days: 1
+
+  measure:
+    needs: build
+    runs-on: xcode-27
+    timeout-minutes: 170
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - family: iphone
+            device: com.apple.CoreSimulator.SimDeviceType.iPhone-Air
+            orientations: ''
+          # An iPad process captures only the orientation the device is in; a new iPad starts in portrait.
+          - family: ipad
+            device: com.apple.CoreSimulator.SimDeviceType.iPad-Pro-11-inch-M5-12GB
+            orientations: portrait
+    env:
+      CLASSES: >-
+        FirstLaunchSnapshotTests ShellSnapshotTests HomeSnapshotTests FrontPageSnapshotTests PopularSnapshotTests
+        WatchedSnapshotTests ToplistsSnapshotTests HistorySnapshotTests
+      CONFIGURATIONS: en-xSmall en-large en-accessibility5
+      WORKER_COUNTS: 2 3 4
+      OUT: ${{ runner.temp }}/measure/${{ matrix.family }}
+    steps:
+      - name: Note the job start
+        run: echo "JOB_START=$(date +%s)" >> "$GITHUB_ENV"
+      # The tests read the scenario inventory and the rendering pin from the checkout, at the path they were
+      # built at, which is the same on every hosted runner.
+      - name: Checkout
+        uses: actions/checkout@v7
+      - name: Install iOS 27 Platform
+        uses: nick-fields/retry@v4
+        with:
+          retry_on: error
+          max_attempts: 10
+          timeout_minutes: 999
+          command: xcodebuild -downloadPlatform iOS
+      - name: Download the test products
+        uses: actions/download-artifact@v7
+        with:
+          name: snapshot-measure-products
+          path: ${{ runner.temp }}
+      - name: Create the pinned simulator
+        run: |
+          tar -C "$RUNNER_TEMP" -xf "$RUNNER_TEMP/products.tar"
+          udid=$(xcrun simctl create 'EhPanda measure' '${{ matrix.device }}' \
+            com.apple.CoreSimulator.SimRuntime.iOS-27-0)
+          xcrun simctl boot "$udid"
+          xcrun simctl bootstatus "$udid" >/dev/null
+          # Before any clone is made, so every clone inherits them (19-01-MEASURE.md).
+          xcrun simctl spawn "$udid" defaults write com.apple.Accessibility ReduceMotionEnabled -bool true
+          xcrun simctl spawn "$udid" defaults write com.apple.Accessibility ApplicationAccessibilityEnabled -bool true
+          echo "UDID=$udid" >> "$GITHUB_ENV"
+          echo "XCTESTRUN=$(ls "$RUNNER_TEMP"/Products/*SnapshotMatrix*.xctestrun | head -1)" >> "$GITHUB_ENV"
+          mkdir -p "$OUT"
+          python3 -c 'import json, sys, time; json.dump({"bootFetchSeconds": round(time.time() - int(sys.argv[1]))},
+            open(sys.argv[2], "w"))' "$JOB_START" "$OUT/timing.json"
+      # The pressure level is read, never applied (`memory_pressure -l` would apply it): 1 normal, 2 warn,
+      # 4 critical, every 5 s.
+      - name: Start sampling memory pressure
+        run: |
+          nohup bash -c 'while :; do
+            case $(sysctl -n kern.memorystatus_vm_pressure_level) in
+              1) level=normal ;; 2) level=warn ;; 4) level=critical ;; *) level=unknown ;;
+            esac
+            echo "$(date -u +%Y-%m-%dT%H:%M:%SZ) $level" >> "$OUT/memory.log"
+            sleep 5
+          done' >/dev/null 2>&1 &
+      - name: Record the candidate and compare at 2, 3 and 4 workers
+        run: |
+          only=()
+          for class in $CLASSES; do only+=("-only-testing:VisualSnapshotTests/$class"); done
+          xcode_build=$(xcodebuild -version | tail -1)
+          run() { # <configuration> <workers> <mode> <output> [references]
+            local variables=(TEST_RUNNER_EHPANDA_SNAPSHOT_MODE="$3" TEST_RUNNER_EHPANDA_SNAPSHOT_OUTPUT="$4")
+            [ -n "${5:-}" ] && variables+=(TEST_RUNNER_EHPANDA_SNAPSHOT_REFERENCES="$5")
+            [ -n '${{ matrix.orientations }}' ] &&
+              variables+=(TEST_RUNNER_EHPANDA_SNAPSHOT_ORIENTATIONS='${{ matrix.orientations }}')
+            mkdir -p "$4"
+            local started status=0
+            started=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+            env "${variables[@]}" xcodebuild test-without-building \
+              -xctestrun "$XCTESTRUN" \
+              -destination "platform=iOS Simulator,id=$UDID" \
+              -parallel-testing-enabled YES \
+              -parallel-testing-worker-count "$2" \
+              -only-test-configuration "$1" \
+              "${only[@]}" >"$RUNNER_TEMP/xcodebuild-$1-$3-w$2.log" 2>&1 || status=$?
+            python3 -c 'import json, sys
+          shard, unit, workers, build, model, image, started, finished, path = sys.argv[1:]
+          json.dump({"shard": shard, "units": [unit], "workers": int(workers), "xcodeBuild": build,
+                     "runtime": "iOS 27.0", "model": model, "runnerImage": image, "started": started,
+                     "finished": finished, "infra": None}, open(path, "w"), indent=2)' \
+              "measure-${{ matrix.family }}" "$1" "$2" "$xcode_build" '${{ matrix.family }}' \
+              "${ImageOS:-unknown} ${ImageVersion:-unknown}" "$started" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+              "$4/shard.json"
+            echo "$1 $3 at $2 workers: exit $status, $(python3 -c 'import collections, json, sys
+          try:
+              statuses = collections.Counter(json.loads(line)["status"] for line in open(sys.argv[1]))
+          except FileNotFoundError:
+              statuses = collections.Counter()
+          names = ("passed", "recorded", "changed", "timeout", "error")
+          print(" ".join(f"{name}={statuses[name]}" for name in names))' \
+              "$4/results.jsonl")"
+          }
+          # One xcodebuild at a time: each configuration's candidate, then its three comparisons.
+          for configuration in $CONFIGURATIONS; do
+            references="$RUNNER_TEMP/references/$configuration"
+            run "$configuration" 2 candidate "$references"
+            for workers in $WORKER_COUNTS; do
+              run "$configuration" "$workers" compare "$OUT/$configuration/w$workers" "$references"
+            done
+          done
+      - name: Record the runner
+        if: always()
+        run: |
+          {
+            echo '### Runner (${{ matrix.family }})'
+            echo "- Runner name: $RUNNER_NAME"
+            echo "- Image: ${ImageOS:-unknown} ${ImageVersion:-unknown}"
+            echo '- Runner environment: ${{ runner.environment }}'
+          } >> "$GITHUB_STEP_SUMMARY"
+      - name: Upload the measurements
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: snapshot-measure-${{ matrix.family }}
+          path: ${{ runner.temp }}/measure
+          if-no-files-found: error
+          retention-days: 30
