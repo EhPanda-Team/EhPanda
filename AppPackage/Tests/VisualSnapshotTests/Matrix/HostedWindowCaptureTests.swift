@@ -22,9 +22,12 @@ final class HostedWindowCaptureTests: XCTestCase {
         guard case .settled(let samples, let seconds) = result else {
             return XCTFail("A still view did not settle")
         }
-        // The first read opens the run; four more, each 100 ms plus a draw apart, are the fewest that span 500 ms.
-        XCTAssertGreaterThanOrEqual(samples, 5)
-        XCTAssertGreaterThanOrEqual(seconds, 0.5)
+        // Settling is timed, not counted: the identical reads must span the stable span. How many reads that takes
+        // depends on the host, since each gap is the sample interval plus a capture: a loaded runner settled on read 4
+        // (run 42490998810), a local one on read 5, a starved one on read 3. The floor is two: one read opens the run,
+        // and one that matches it at least the stable span later closes it.
+        XCTAssertGreaterThanOrEqual(samples, 2)
+        XCTAssertGreaterThanOrEqual(seconds, HostedWindowCapture.stableSpan / .seconds(1))
     }
 
     @MainActor
@@ -241,13 +244,34 @@ private enum CaptureTestError: Error {
     case unsettled
 }
 
-/// Redraws every 50 ms with a new value, so consecutive reads never match.
-private struct ChangingView: View {
-    var body: some View {
-        TimelineView(.periodic(from: .now, by: 0.05)) { context in
-            Text(verbatim: "\(context.date.timeIntervalSinceReferenceDate)")
-                .font(.largeTitle.monospacedDigit())
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
+/// Paints how many times it has been drawn and asks to be drawn again after every draw, so consecutive reads never
+/// match on any host. The redraw request from the draw a read shows is queued on the main queue before the settle
+/// loop's sleep starts, so it runs ahead of the loop's next read, which resumes on the same serial queue; that read
+/// then shows a later draw (from a commit in between, or from the capture's own `afterScreenUpdates` commit). A
+/// timer-driven view does not hold on a starved host: one that redrew every 50 ms went 500 ms without a redraw
+/// when the app ran at background priority, and settled.
+private struct ChangingView: UIViewRepresentable {
+    func makeUIView(context: Context) -> CountingView { CountingView() }
+    func updateUIView(_ uiView: CountingView, context: Context) {}
+
+    final class CountingView: UIView {
+        private var draws = 0
+
+        override init(frame: CGRect) {
+            super.init(frame: frame)
+            backgroundColor = .white
+        }
+
+        @available(*, unavailable)
+        required init?(coder: NSCoder) { nil }
+
+        override func draw(_ rect: CGRect) {
+            draws += 1
+            let text = "\(draws)" as NSString
+            text.draw(at: CGPoint(x: 20, y: bounds.midY - 40), withAttributes: [
+                .font: UIFont.monospacedDigitSystemFont(ofSize: 64, weight: .bold), .foregroundColor: UIColor.black
+            ])
+            DispatchQueue.main.async { [weak self] in self?.setNeedsDisplay() }
         }
     }
 }
