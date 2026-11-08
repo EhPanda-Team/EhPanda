@@ -20,7 +20,7 @@
     "zh-Hant": "EhPanda 的測試版，用於在正式發布前試用新版本。測試版可能有 Bug，功能在正式發布前也可能改變。\n測試版通常需要比正式版更新的 iOS。遇到問題請在 GitHub 上回報。\n測試版會作為獨立的 App，安裝在正式版 EhPanda 旁邊。它一開始是空的，不與正式版共用下載、瀏覽紀錄或設定。使用免費 Apple ID 時，AltStore 最多只能同時保留 3 個 App，包括 AltStore 本身。\n注意：EhPanda 與 E-Hentai 無關，也未獲得 E-Hentai 的認可。"
   },
   "iconURL": "https://raw.githubusercontent.com/EhPanda-Team/EhPanda/main/docs/altstore/appicon-512.png",
-  "website": "https://github.com/EhPanda-Team/EhPanda",
+  "website": "https://ehpanda.app",
   "tintColor": "#557F72",
   "nsfw": true,
   "featuredApps": [
