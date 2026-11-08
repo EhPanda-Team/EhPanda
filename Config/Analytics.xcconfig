@@ -11,7 +11,7 @@
 //   * Local development — `Config/Analytics.local.xcconfig`, gitignored and optionally included
 //     at the bottom of this file. Order matters — a later assignment wins, so the empty defaults
 //     must come first and the optional include last.
-//   * Release CI — `.github/workflows/deploy.yml` and `deploy-pre-release.yml` pass both values
+//   * Release CI — `.github/workflows/deploy.yml` and `deploy-beta.yml` pass both values
 //     to `xcodebuild archive` as command-line build settings, sourced from repository secrets.
 //     Command-line settings outrank an xcconfig, so they win over the empty defaults below
 //     without any local file existing. Each workflow then reads the archived Info.plist back and

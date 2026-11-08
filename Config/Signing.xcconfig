@@ -13,7 +13,7 @@
 //     must come first and the optional include last. A personal team needs its own bundle
 //     identifiers, hence the suffix knob: set it and both targets shift together, which keeps a
 //     personal build installable alongside a release copy of the app.
-//   * Release CI — `.github/workflows/deploy.yml` and `deploy-pre-release.yml` archive with
+//   * Release CI — `.github/workflows/deploy.yml` and `deploy-beta.yml` archive with
 //     `CODE_SIGNING_ALLOWED=NO`, so no team is involved at all and the identifiers stay at the
 //     upstream defaults this file declares.
 //

@@ -1,4 +1,4 @@
-// Beta flavor — COMMITTED, used only by `.github/workflows/deploy-pre-release.yml`:
+// Beta flavor — COMMITTED, used only by `.github/workflows/deploy-beta.yml`:
 //
 //     xcodebuild archive -xcconfig Config/Beta.xcconfig ...
 //
