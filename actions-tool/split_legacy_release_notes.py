@@ -11,18 +11,21 @@ between items (owner msg 2561). AltStore 2.2+ picks a version's notes from `loca
 by language code and falls back to the plain `localizedDescription`; SideStore reads only the plain
 field. So a version whose notes mix languages gets:
 
-- `localizedDescription`: the English items only, numbered as before, one per line;
+- `localizedDescription`: the English items only, one per line;
 - `localizedDescriptions`: one text per language actually present, English included, so a device
   that prefers English over a language listed further down its preferences still gets English.
 
-A translated line takes its item's number, and the item's credit (`(credit @user)` and the like) when
-the line has none. An item with no line in some language keeps its English line in that language's
-text, so every language lists every item. Nothing is translated: a language that a version never had
-is left out and falls back to English.
+Every item is one line without its number (owner msg 2591): the numbers only ever counted from 1,
+and the notes show without them. A translated line takes its item's credit (`(credit @user)` and the
+like) when the line has none. An item with no line in some language keeps its English line in that
+language's text, so every language lists every item. Nothing is translated: a language that a
+version never had is left out and falls back to English.
 
-A version whose notes are already English only is left as it is. A version that does not follow the
-layout (a translation before any item, two lines of one language for one item, an item line that is
-not English, an unnumbered English line) is reported and left unchanged, to be fixed by hand.
+A version whose notes are English only keeps them, without the numbers. A version already split by
+an earlier run only loses its numbers. A version that does not follow the layout (a translation
+before any item, two lines of one language for one item, an item line that is not English, an
+unnumbered English line, numbers that do not count from 1) is reported and left unchanged, to be
+fixed by hand.
 """
 
 import json
@@ -87,7 +90,15 @@ def parse(text):
         if language in translations:
             raise SplitError(f"item {items[-1][0]} has two {language} lines")
         translations[language] = line
+    numbers = [number for number, _, _ in items]
+    if numbers != [str(index) for index in range(1, len(items) + 1)]:
+        raise SplitError(f"the items are numbered {numbers}, not counting from 1")
     return items
+
+
+def strip_numbers(text):
+    """`text` with the leading item number ("1. ", "10. ") removed from every line."""
+    return "\n".join(ITEM.sub(r"\2", line) for line in text.split("\n"))
 
 
 def credit_of(english):
@@ -104,7 +115,7 @@ def split(text):
     texts = {}
     for language in [code for code in LANGUAGES if code == "en" or code in present]:
         lines = []
-        for number, english, translations in items:
+        for _, english, translations in items:
             line = translations.get(language)
             if line is None:
                 line = english
@@ -112,36 +123,34 @@ def split(text):
                 credit = credit_of(english)
                 if credit and "@" not in line:
                     line = f"{line} {credit}"
-            lines.append(f"{number}. {line}")
+            lines.append(line)
         texts[language] = "\n".join(lines)
     return texts
 
 
 def source_lines(text):
-    """The non-blank lines of one version's original notes, stripped."""
-    return [line.strip() for line in text.split("\n") if line.strip()]
+    """The non-blank lines of one version's original notes, stripped, without the item numbers."""
+    return [strip_numbers(line.strip()) for line in text.split("\n") if line.strip()]
 
 
 def unsplit(texts):
     """The non-blank lines of the notes that `split` turned into `texts`, in their original order.
 
     Each item's English line, then each of its translations: a language's line where it differs from
-    the English one, without the number and without a credit that `split` added. Comparing this with
-    `source_lines` of the original shows that no line was lost, changed or duplicated."""
+    the English one, without a credit that `split` added. Comparing this with `source_lines` of the
+    original shows that no line was lost, changed or duplicated."""
     english_lines = texts["en"].split("\n")
     lines = []
-    for index, english_line in enumerate(english_lines):
-        lines.append(english_line)
-        number, english = ITEM.match(english_line).groups()
+    for index, english in enumerate(english_lines):
+        lines.append(english)
         credit = credit_of(english)
         for language in [code for code in LANGUAGES if code != "en" and code in texts]:
             line = texts[language].split("\n")[index]
-            if line == english_line:
+            if line == english:
                 continue
-            body = line[len(f"{number}. "):]
-            if credit and body.endswith(f" {credit}") and "@" not in body[: -len(credit) - 1]:
-                body = body[: -len(credit) - 1]
-            lines.append(body)
+            if credit and line.endswith(f" {credit}") and "@" not in line[: -len(credit) - 1]:
+                line = line[: -len(credit) - 1]
+            lines.append(line)
     return lines
 
 
@@ -161,6 +170,11 @@ def main(argv):
         for version in app.get("versions", []):
             label = f"{version.get('version')} ({version.get('buildVersion')})"
             if "localizedDescriptions" in version:
+                # Split by an earlier run: only the numbers go.
+                version["localizedDescription"] = strip_numbers(version["localizedDescription"])
+                version["localizedDescriptions"] = {
+                    code: strip_numbers(text) for code, text in version["localizedDescriptions"].items()
+                }
                 continue
             try:
                 texts = split(version.get("localizedDescription", ""))
@@ -168,6 +182,7 @@ def main(argv):
                 failures.append(f"{label}: {error}")
                 continue
             if texts is None:
+                version["localizedDescription"] = strip_numbers(version.get("localizedDescription", ""))
                 continue
             if any(len(lines.split("\n")) != len(texts["en"].split("\n")) for lines in texts.values()) or (
                 unsplit(texts) != source_lines(version["localizedDescription"])

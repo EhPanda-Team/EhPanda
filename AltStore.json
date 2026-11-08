@@ -58,7 +58,7 @@
           "buildVersion": "158",
           "marketingVersion": "2.8.1",
           "date": "2026-07-20T12:11:49Z",
-          "localizedDescription": "1. feat: Adapt to the new Liquid Glass design.\n2. fix: Gesture issue in the reading page.\n3. fix: Crash issue in eh setting page.\n4. fix: A minor issue in search page.",
+          "localizedDescription": "feat: Adapt to the new Liquid Glass design.\nfix: Gesture issue in the reading page.\nfix: Crash issue in eh setting page.\nfix: A minor issue in search page.",
           "downloadURL": "https://github.com/EhPanda-Team/EhPanda/releases/download/v2.8.1/EhPanda.ipa",
           "size": 7352364,
           "sha256": "2f389e36270414a8d9f3537e330f5c2bbff80887109c56ff9b4ba68ed377d62b",
@@ -69,7 +69,7 @@
           "buildVersion": "156",
           "marketingVersion": "2.7.10",
           "date": "2024-12-21T03:22:53Z",
-          "localizedDescription": "1. Fixed reading page scroll functionality.",
+          "localizedDescription": "Fixed reading page scroll functionality.",
           "downloadURL": "https://github.com/EhPanda-Team/EhPanda/releases/download/v2.7.10/EhPanda.ipa",
           "size": 7231227,
           "sha256": "91980fdc3efb8a5aceb9fcaacc6ef4f19e1637793f8e4e717afe415fd2678c67",
@@ -80,11 +80,11 @@
           "buildVersion": "155",
           "marketingVersion": "2.7.9",
           "date": "2024-12-15T05:32:14Z",
-          "localizedDescription": "1. Fixed reading page gestures not responding issue when scale is greater than 1.\n2. Improved Taiwanese Mandarin & Traditional Chinese (HK) localizations. (credit @NeKoOuO)",
+          "localizedDescription": "Fixed reading page gestures not responding issue when scale is greater than 1.\nImproved Taiwanese Mandarin & Traditional Chinese (HK) localizations. (credit @NeKoOuO)",
           "localizedDescriptions": {
-            "en": "1. Fixed reading page gestures not responding issue when scale is greater than 1.\n2. Improved Taiwanese Mandarin & Traditional Chinese (HK) localizations. (credit @NeKoOuO)",
-            "ja": "1. 閲覧ページでスケール係数が 1 より大きい場合にジェスチャーが動作しなくなる不具合を修正しました。\n2. 台湾華語と中国語繁体字（香港）の翻訳を改善しました。 (credit @NeKoOuO)",
-            "zh-Hant": "1. 修正了閱讀頁面中縮放比例大於 1 時出現的手勢失效問題。\n2. 改善了台灣華語和繁體中文（香港）翻譯。 (credit @NeKoOuO)"
+            "en": "Fixed reading page gestures not responding issue when scale is greater than 1.\nImproved Taiwanese Mandarin & Traditional Chinese (HK) localizations. (credit @NeKoOuO)",
+            "ja": "閲覧ページでスケール係数が 1 より大きい場合にジェスチャーが動作しなくなる不具合を修正しました。\n台湾華語と中国語繁体字（香港）の翻訳を改善しました。 (credit @NeKoOuO)",
+            "zh-Hant": "修正了閱讀頁面中縮放比例大於 1 時出現的手勢失效問題。\n改善了台灣華語和繁體中文（香港）翻譯。 (credit @NeKoOuO)"
           },
           "downloadURL": "https://github.com/EhPanda-Team/EhPanda/releases/download/v2.7.9/EhPanda.ipa",
           "size": 7231285,
@@ -96,7 +96,7 @@
           "buildVersion": "154",
           "marketingVersion": "2.7.8",
           "date": "2024-11-11T05:44:32Z",
-          "localizedDescription": "1. fix: Gallery preview parsing issue, again.",
+          "localizedDescription": "fix: Gallery preview parsing issue, again.",
           "downloadURL": "https://github.com/EhPanda-Team/EhPanda/releases/download/v2.7.8/EhPanda.ipa",
           "size": 7193274,
           "sha256": "2c9699736e319c7c852b849d62cd7a90e066804a313c7ab4f5858083f0ccee3b",
@@ -107,11 +107,11 @@
           "buildVersion": "153",
           "marketingVersion": "2.7.7",
           "date": "2024-10-28T16:28:28Z",
-          "localizedDescription": "1. fix: Gallery page parsing issue when thumbnail size is set to small or auto. (credit @vvbbnn00)\n2. fix: Gallery preview infinite loading issue. (credit @vvbbnn00)\n3. fix: A crash when closing the keyboard. (credit @vvbbnn00)",
+          "localizedDescription": "fix: Gallery page parsing issue when thumbnail size is set to small or auto. (credit @vvbbnn00)\nfix: Gallery preview infinite loading issue. (credit @vvbbnn00)\nfix: A crash when closing the keyboard. (credit @vvbbnn00)",
           "localizedDescriptions": {
-            "en": "1. fix: Gallery page parsing issue when thumbnail size is set to small or auto. (credit @vvbbnn00)\n2. fix: Gallery preview infinite loading issue. (credit @vvbbnn00)\n3. fix: A crash when closing the keyboard. (credit @vvbbnn00)",
-            "ja": "1. ギャラリー画面のサムネイルサイズが「小さめ」・「自動」に設定された場合に解析エラーになる不具合を修正。 (credit @vvbbnn00)\n2. ギャラリープレビューの読み込みが終わらない不具合を修正。 (credit @vvbbnn00)\n3. キーボードを閉じる時にクラッシュする不具合を修正。 (credit @vvbbnn00)",
-            "zh-Hant": "1. 修正了當縮圖被設定為「小型」或「自動」時的畫廊頁面的解析問題。 (credit @vvbbnn00)\n2. 修正了畫廊預覽永遠在載入的問題。 (credit @vvbbnn00)\n3. 修正了關閉鍵盤時當機的問題。 (credit @vvbbnn00)"
+            "en": "fix: Gallery page parsing issue when thumbnail size is set to small or auto. (credit @vvbbnn00)\nfix: Gallery preview infinite loading issue. (credit @vvbbnn00)\nfix: A crash when closing the keyboard. (credit @vvbbnn00)",
+            "ja": "ギャラリー画面のサムネイルサイズが「小さめ」・「自動」に設定された場合に解析エラーになる不具合を修正。 (credit @vvbbnn00)\nギャラリープレビューの読み込みが終わらない不具合を修正。 (credit @vvbbnn00)\nキーボードを閉じる時にクラッシュする不具合を修正。 (credit @vvbbnn00)",
+            "zh-Hant": "修正了當縮圖被設定為「小型」或「自動」時的畫廊頁面的解析問題。 (credit @vvbbnn00)\n修正了畫廊預覽永遠在載入的問題。 (credit @vvbbnn00)\n修正了關閉鍵盤時當機的問題。 (credit @vvbbnn00)"
           },
           "downloadURL": "https://github.com/EhPanda-Team/EhPanda/releases/download/v2.7.7/EhPanda.ipa",
           "size": 6870884,
@@ -123,11 +123,11 @@
           "buildVersion": "152",
           "marketingVersion": "2.7.6",
           "date": "2024-10-27T15:32:51Z",
-          "localizedDescription": "1. fix: Gallery and account configuration pages parsing issue. (credit @vvbbnn00)\n2. fix: Gallery page header layout issue.",
+          "localizedDescription": "fix: Gallery and account configuration pages parsing issue. (credit @vvbbnn00)\nfix: Gallery page header layout issue.",
           "localizedDescriptions": {
-            "en": "1. fix: Gallery and account configuration pages parsing issue. (credit @vvbbnn00)\n2. fix: Gallery page header layout issue.",
-            "ja": "1. ギャラリーとアカウント設定画面の解析エラーを修正。 (credit @vvbbnn00)\n2. ギャラリー画面上部のレイアウト不具合を修正。",
-            "zh-Hant": "1. 修正了畫廊和帳號設定頁面的解析問題。 (credit @vvbbnn00)\n2. 修正了畫廊頁面的 header 佈局錯誤。"
+            "en": "fix: Gallery and account configuration pages parsing issue. (credit @vvbbnn00)\nfix: Gallery page header layout issue.",
+            "ja": "ギャラリーとアカウント設定画面の解析エラーを修正。 (credit @vvbbnn00)\nギャラリー画面上部のレイアウト不具合を修正。",
+            "zh-Hant": "修正了畫廊和帳號設定頁面的解析問題。 (credit @vvbbnn00)\n修正了畫廊頁面的 header 佈局錯誤。"
           },
           "downloadURL": "https://github.com/EhPanda-Team/EhPanda/releases/download/v2.7.6/EhPanda.ipa",
           "size": 6878436,
@@ -139,7 +139,7 @@
           "buildVersion": "151",
           "marketingVersion": "2.7.5",
           "date": "2024-07-10T13:28:20Z",
-          "localizedDescription": "1. Migrate to TCA 1.0. credit @Jimmy-Prime",
+          "localizedDescription": "Migrate to TCA 1.0. credit @Jimmy-Prime",
           "downloadURL": "https://github.com/EhPanda-Team/EhPanda/releases/download/v2.7.5/EhPanda.ipa",
           "size": 6590738,
           "sha256": "0a30d6fd89327925ebdaa4c83529ccc0c62c5553ccd0e5fd043da020aa68bb09",
@@ -150,11 +150,11 @@
           "buildVersion": "150",
           "marketingVersion": "2.7.4",
           "date": "2023-11-02T14:11:51Z",
-          "localizedDescription": "1. fix: Previews parsing.",
+          "localizedDescription": "fix: Previews parsing.",
           "localizedDescriptions": {
-            "en": "1. fix: Previews parsing.",
-            "ja": "1. プレビューの解析エラーを修正。",
-            "zh-Hant": "1. 修正了縮圖的解析錯誤。"
+            "en": "fix: Previews parsing.",
+            "ja": "プレビューの解析エラーを修正。",
+            "zh-Hant": "修正了縮圖的解析錯誤。"
           },
           "downloadURL": "https://github.com/EhPanda-Team/EhPanda/releases/download/v2.7.4/EhPanda.ipa",
           "size": 6685295,
@@ -166,11 +166,11 @@
           "buildVersion": "149",
           "marketingVersion": "2.7.3",
           "date": "2023-11-02T12:06:10Z",
-          "localizedDescription": "1. fix: Multiple page viewer mode.",
+          "localizedDescription": "fix: Multiple page viewer mode.",
           "localizedDescriptions": {
-            "en": "1. fix: Multiple page viewer mode.",
-            "ja": "1. マルチページビューアモードを修正。",
-            "zh-Hant": "1. 修正了多頁瀏覽模式。"
+            "en": "fix: Multiple page viewer mode.",
+            "ja": "マルチページビューアモードを修正。",
+            "zh-Hant": "修正了多頁瀏覽模式。"
           },
           "downloadURL": "https://github.com/EhPanda-Team/EhPanda/releases/download/v2.7.3/EhPanda.ipa",
           "size": 6684864,
@@ -182,11 +182,11 @@
           "buildVersion": "148",
           "marketingVersion": "2.7.2",
           "date": "2023-09-08T05:20:21Z",
-          "localizedDescription": "1. fix: A parsing error occurring when attempting to access the gallery detail page.\n2. fix: Page range filter mistakenly requires both minimum and maximum values, rather than either.",
+          "localizedDescription": "fix: A parsing error occurring when attempting to access the gallery detail page.\nfix: Page range filter mistakenly requires both minimum and maximum values, rather than either.",
           "localizedDescriptions": {
-            "en": "1. fix: A parsing error occurring when attempting to access the gallery detail page.\n2. fix: Page range filter mistakenly requires both minimum and maximum values, rather than either.",
-            "ja": "1. ギャラリー詳細画面にアクセスしようとした際に発生した解析エラーを修正。\n2. ページ範囲の上下限を同時に指定しないとそのフィルターが予期通りに動作しない不具合を修正。",
-            "zh-Hant": "1. 修正了在嘗試存取畫廊詳細頁面時出現的解析錯誤。\n2. 修正了頁數篩選器僅在同時指定了頁數的上下限時才正常運作的問題。"
+            "en": "fix: A parsing error occurring when attempting to access the gallery detail page.\nfix: Page range filter mistakenly requires both minimum and maximum values, rather than either.",
+            "ja": "ギャラリー詳細画面にアクセスしようとした際に発生した解析エラーを修正。\nページ範囲の上下限を同時に指定しないとそのフィルターが予期通りに動作しない不具合を修正。",
+            "zh-Hant": "修正了在嘗試存取畫廊詳細頁面時出現的解析錯誤。\n修正了頁數篩選器僅在同時指定了頁數的上下限時才正常運作的問題。"
           },
           "downloadURL": "https://github.com/EhPanda-Team/EhPanda/releases/download/v2.7.2/EhPanda.ipa",
           "size": 6725554,
@@ -198,11 +198,11 @@
           "buildVersion": "147",
           "marketingVersion": "2.7.1",
           "date": "2023-06-03T11:12:12Z",
-          "localizedDescription": "1. fix: App not responding when accessing a gallery recursively.\n2. fix: App lock gets bypassed under some circumstances.",
+          "localizedDescription": "fix: App not responding when accessing a gallery recursively.\nfix: App lock gets bypassed under some circumstances.",
           "localizedDescriptions": {
-            "en": "1. fix: App not responding when accessing a gallery recursively.\n2. fix: App lock gets bypassed under some circumstances.",
-            "ja": "1. ギャラリーを再帰的にアクセスするとアプリが反応しなくなる不具合を修正。\n2. アプリロックがある状況下でバイパスされる不具合を修正。",
-            "zh-Hant": "1. 修正了在遞迴存取畫廊時 App 失去回應的問題。\n2. 修正了 App 鎖定功能在某些情況下被繞過的問題。"
+            "en": "fix: App not responding when accessing a gallery recursively.\nfix: App lock gets bypassed under some circumstances.",
+            "ja": "ギャラリーを再帰的にアクセスするとアプリが反応しなくなる不具合を修正。\nアプリロックがある状況下でバイパスされる不具合を修正。",
+            "zh-Hant": "修正了在遞迴存取畫廊時 App 失去回應的問題。\n修正了 App 鎖定功能在某些情況下被繞過的問題。"
           },
           "downloadURL": "https://github.com/EhPanda-Team/EhPanda/releases/download/v2.7.1/EhPanda.ipa",
           "size": 6581486,
@@ -214,11 +214,11 @@
           "buildVersion": "146",
           "marketingVersion": "2.7.0",
           "date": "2023-05-27T16:15:25Z",
-          "localizedDescription": "1. fix: Unable to load thumbnails issue in ex gallery host.\n2. fix: Multiple page viewer mode.\n3. fix: Tag suggestion feature.\n4. refactor: TCA reducers.\n5. refactor: CI",
+          "localizedDescription": "fix: Unable to load thumbnails issue in ex gallery host.\nfix: Multiple page viewer mode.\nfix: Tag suggestion feature.\nrefactor: TCA reducers.\nrefactor: CI",
           "localizedDescriptions": {
-            "en": "1. fix: Unable to load thumbnails issue in ex gallery host.\n2. fix: Multiple page viewer mode.\n3. fix: Tag suggestion feature.\n4. refactor: TCA reducers.\n5. refactor: CI",
-            "ja": "1. ex ギャラリーホストでのサムネイルが表示されない不具合を修正。\n2. マルチページビューアモードを修正。\n3. タグの検索提案機能を修正。\n4. refactor: TCA reducers.\n5. refactor: CI",
-            "zh-Hant": "1. 修正了在 ex 畫廊內縮圖無法正常顯示的問題。\n2. 修正了多頁瀏覽模式。\n3. 修正了標籤搜尋建議功能。\n4. refactor: TCA reducers.\n5. refactor: CI"
+            "en": "fix: Unable to load thumbnails issue in ex gallery host.\nfix: Multiple page viewer mode.\nfix: Tag suggestion feature.\nrefactor: TCA reducers.\nrefactor: CI",
+            "ja": "ex ギャラリーホストでのサムネイルが表示されない不具合を修正。\nマルチページビューアモードを修正。\nタグの検索提案機能を修正。\nrefactor: TCA reducers.\nrefactor: CI",
+            "zh-Hant": "修正了在 ex 畫廊內縮圖無法正常顯示的問題。\n修正了多頁瀏覽模式。\n修正了標籤搜尋建議功能。\nrefactor: TCA reducers.\nrefactor: CI"
           },
           "downloadURL": "https://github.com/EhPanda-Team/EhPanda/releases/download/v2.7.0/EhPanda.ipa",
           "size": 6583082,
@@ -230,7 +230,7 @@
           "buildVersion": "145",
           "marketingVersion": "2.6.1",
           "date": "2022-12-12T16:44:38Z",
-          "localizedDescription": "1. fix: A minor fix to the app strings.",
+          "localizedDescription": "fix: A minor fix to the app strings.",
           "downloadURL": "https://github.com/EhPanda-Team/EhPanda/releases/download/v2.6.1/EhPanda.ipa",
           "size": 6150382,
           "sha256": "d9b2248c3aee788e53a26a3b3a42d2b449dab6650a7108f074cc9b16b0df440f",
@@ -241,11 +241,11 @@
           "buildVersion": "144",
           "marketingVersion": "2.6.0",
           "date": "2022-12-12T16:15:51Z",
-          "localizedDescription": "1. feat: Add Traditional Chinese (Taiwan) translation. @Nebulosa-Cat\n2. refactor: R.swift -> SwiftGen\n3. refactor: CI",
+          "localizedDescription": "feat: Add Traditional Chinese (Taiwan) translation. @Nebulosa-Cat\nrefactor: R.swift -> SwiftGen\nrefactor: CI",
           "localizedDescriptions": {
-            "en": "1. feat: Add Traditional Chinese (Taiwan) translation. @Nebulosa-Cat\n2. refactor: R.swift -> SwiftGen\n3. refactor: CI",
-            "ja": "1. 中国語繁体字（台湾）翻訳を追加。 @Nebulosa-Cat\n2. refactor: R.swift -> SwiftGen\n3. refactor: CI",
-            "zh-Hant": "1. 新增了台灣正體中文翻譯。 @Nebulosa-Cat\n2. refactor: R.swift -> SwiftGen\n3. refactor: CI"
+            "en": "feat: Add Traditional Chinese (Taiwan) translation. @Nebulosa-Cat\nrefactor: R.swift -> SwiftGen\nrefactor: CI",
+            "ja": "中国語繁体字（台湾）翻訳を追加。 @Nebulosa-Cat\nrefactor: R.swift -> SwiftGen\nrefactor: CI",
+            "zh-Hant": "新增了台灣正體中文翻譯。 @Nebulosa-Cat\nrefactor: R.swift -> SwiftGen\nrefactor: CI"
           },
           "downloadURL": "https://github.com/EhPanda-Team/EhPanda/releases/download/v2.6.0/EhPanda.ipa",
           "size": 6150411,
@@ -257,11 +257,11 @@
           "buildVersion": "143",
           "marketingVersion": "2.5.1",
           "date": "2022-11-21T17:11:32Z",
-          "localizedDescription": "1. fix: Pagination issue in eh gallery host.\n2. fix: App icon Developer layout issue.",
+          "localizedDescription": "fix: Pagination issue in eh gallery host.\nfix: App icon Developer layout issue.",
           "localizedDescriptions": {
-            "en": "1. fix: Pagination issue in eh gallery host.\n2. fix: App icon Developer layout issue.",
-            "ja": "1. eh ギャラリーホストでのページング不具合を修正。\n2. アプリアイコン「デベロッパ」のレイアウト不具合を修正。",
-            "zh-Hant": "1. 修正了 eh 畫廊下的翻頁問題。\n2. 修正了應用圖示「開發者」的佈局顯示問題。"
+            "en": "fix: Pagination issue in eh gallery host.\nfix: App icon Developer layout issue.",
+            "ja": "eh ギャラリーホストでのページング不具合を修正。\nアプリアイコン「デベロッパ」のレイアウト不具合を修正。",
+            "zh-Hant": "修正了 eh 畫廊下的翻頁問題。\n修正了應用圖示「開發者」的佈局顯示問題。"
           },
           "downloadURL": "https://github.com/EhPanda-Team/EhPanda/releases/download/v2.5.1/EhPanda.ipa",
           "size": 6108661,
@@ -273,11 +273,11 @@
           "buildVersion": "142",
           "marketingVersion": "2.5.0",
           "date": "2022-11-17T06:07:05Z",
-          "localizedDescription": "1. feat: New app icon NotMyPresident.\n2. feat: Filtered removal count setting.\n3. fix: Pagination issue in ex gallery host.",
+          "localizedDescription": "feat: New app icon NotMyPresident.\nfeat: Filtered removal count setting.\nfix: Pagination issue in ex gallery host.",
           "localizedDescriptions": {
-            "en": "1. feat: New app icon NotMyPresident.\n2. feat: Filtered removal count setting.\n3. fix: Pagination issue in ex gallery host.",
-            "ja": "1. アプリアイコン「私の大統領ではない」を追加。\n2. フィルター除去数表示設定を追加。\n3. ex ギャラリーホストでのページング不具合を修正。",
-            "zh-Hant": "1. 新增 App 圖示「不是我的總統」。\n2. 新增篩選器移除數顯示設定。\n3. 修正了 ex 畫廊下的翻頁問題。"
+            "en": "feat: New app icon NotMyPresident.\nfeat: Filtered removal count setting.\nfix: Pagination issue in ex gallery host.",
+            "ja": "アプリアイコン「私の大統領ではない」を追加。\nフィルター除去数表示設定を追加。\nex ギャラリーホストでのページング不具合を修正。",
+            "zh-Hant": "新增 App 圖示「不是我的總統」。\n新增篩選器移除數顯示設定。\n修正了 ex 畫廊下的翻頁問題。"
           },
           "downloadURL": "https://github.com/EhPanda-Team/EhPanda/releases/download/v2.5.0/EhPanda.ipa",
           "size": 6090146,
@@ -289,11 +289,11 @@
           "buildVersion": "141",
           "marketingVersion": "2.4.5",
           "date": "2022-11-04T13:26:25Z",
-          "localizedDescription": "1. fix: Unexpected behaviors when accessing ex gallery host in any display modes but Compact.\n2. refactor: Conditions to show the Create New button in EhSetting page.",
+          "localizedDescription": "fix: Unexpected behaviors when accessing ex gallery host in any display modes but Compact.\nrefactor: Conditions to show the Create New button in EhSetting page.",
           "localizedDescriptions": {
-            "en": "1. fix: Unexpected behaviors when accessing ex gallery host in any display modes but Compact.\n2. refactor: Conditions to show the Create New button in EhSetting page.",
-            "ja": "1. 「コンパクト」以外の表示モードで ex ギャラリーホストにアクセスすると発生する予期せぬ動作を修正。\n2. EhSetting 画面での「新規作成」ボタンの表示条件をリファクタリング。",
-            "zh-Hant": "1. 修正了以「緊湊」顯示模式外存取 ex 畫廊出現的非預期行為。\n2. 重構了 EhSetting 頁面的「新增」按鈕的顯示條件。"
+            "en": "fix: Unexpected behaviors when accessing ex gallery host in any display modes but Compact.\nrefactor: Conditions to show the Create New button in EhSetting page.",
+            "ja": "「コンパクト」以外の表示モードで ex ギャラリーホストにアクセスすると発生する予期せぬ動作を修正。\nEhSetting 画面での「新規作成」ボタンの表示条件をリファクタリング。",
+            "zh-Hant": "修正了以「緊湊」顯示模式外存取 ex 畫廊出現的非預期行為。\n重構了 EhSetting 頁面的「新增」按鈕的顯示條件。"
           },
           "downloadURL": "https://github.com/EhPanda-Team/EhPanda/releases/download/v2.4.5/EhPanda.ipa",
           "size": 5968083,
@@ -305,11 +305,11 @@
           "buildVersion": "140",
           "marketingVersion": "2.4.4",
           "date": "2022-11-04T02:31:28Z",
-          "localizedDescription": "1. Fix an issue that causes previews not loading after the first batch.",
+          "localizedDescription": "Fix an issue that causes previews not loading after the first batch.",
           "localizedDescriptions": {
-            "en": "1. Fix an issue that causes previews not loading after the first batch.",
-            "ja": "1. プレビューの最初の一組しか読み込まない不具合を修正。",
-            "zh-Hant": "1. 修正了預覽在第一組圖像之後不載入的問題。"
+            "en": "Fix an issue that causes previews not loading after the first batch.",
+            "ja": "プレビューの最初の一組しか読み込まない不具合を修正。",
+            "zh-Hant": "修正了預覽在第一組圖像之後不載入的問題。"
           },
           "downloadURL": "https://github.com/EhPanda-Team/EhPanda/releases/download/v2.4.4/EhPanda.ipa",
           "size": 5968506,
@@ -321,11 +321,11 @@
           "buildVersion": "139",
           "marketingVersion": "2.4.3",
           "date": "2022-11-03T05:59:45Z",
-          "localizedDescription": "1. fix: Unexpected behaviors when the gallery host set to ex.",
+          "localizedDescription": "fix: Unexpected behaviors when the gallery host set to ex.",
           "localizedDescriptions": {
-            "en": "1. fix: Unexpected behaviors when the gallery host set to ex.",
-            "ja": "1. ex ギャラリーホストでの予期せぬ動作を修正。",
-            "zh-Hant": "1. 修正了 ex 畫廊下出現的非預期行為。"
+            "en": "fix: Unexpected behaviors when the gallery host set to ex.",
+            "ja": "ex ギャラリーホストでの予期せぬ動作を修正。",
+            "zh-Hant": "修正了 ex 畫廊下出現的非預期行為。"
           },
           "downloadURL": "https://github.com/EhPanda-Team/EhPanda/releases/download/v2.4.3/EhPanda.ipa",
           "size": 5968509,
@@ -337,11 +337,11 @@
           "buildVersion": "138",
           "marketingVersion": "2.4.2",
           "date": "2022-10-03T18:15:16Z",
-          "localizedDescription": "1. fix: Unexpected behaviors on iOS or iPadOS 16 devices.\n2. fix: Will not start loading automatically when navigating to PreviewsView issue.\n3. refactor: Reduce the file size of releases.",
+          "localizedDescription": "fix: Unexpected behaviors on iOS or iPadOS 16 devices.\nfix: Will not start loading automatically when navigating to PreviewsView issue.\nrefactor: Reduce the file size of releases.",
           "localizedDescriptions": {
-            "en": "1. fix: Unexpected behaviors on iOS or iPadOS 16 devices.\n2. fix: Will not start loading automatically when navigating to PreviewsView issue.\n3. refactor: Reduce the file size of releases.",
-            "ja": "1. iOS・iPadOS 16 デバイスでの予期せぬ動作を修正。\n2. プレビュー画面へ遷移する際、読み込みが自動的に始まらない不具合を修正。\n3. リリースのファイルサイズを減らす。",
-            "zh-Hant": "1. 修正了 iOS、iPadOS 16 裝置上的非預期行為。\n2. 修正進入預覽頁面時不自動開始載入的問題。\n3. 減小發佈的檔案大小。"
+            "en": "fix: Unexpected behaviors on iOS or iPadOS 16 devices.\nfix: Will not start loading automatically when navigating to PreviewsView issue.\nrefactor: Reduce the file size of releases.",
+            "ja": "iOS・iPadOS 16 デバイスでの予期せぬ動作を修正。\nプレビュー画面へ遷移する際、読み込みが自動的に始まらない不具合を修正。\nリリースのファイルサイズを減らす。",
+            "zh-Hant": "修正了 iOS、iPadOS 16 裝置上的非預期行為。\n修正進入預覽頁面時不自動開始載入的問題。\n減小發佈的檔案大小。"
           },
           "downloadURL": "https://github.com/EhPanda-Team/EhPanda/releases/download/v2.4.2/EhPanda.ipa",
           "size": 5963114,
@@ -353,7 +353,7 @@
           "buildVersion": "137",
           "marketingVersion": "2.4.1",
           "date": "2022-05-31T06:56:20Z",
-          "localizedDescription": "1. fix: The issue that the focus of TextField on login page and search page is abnormal and the keyboard cannot be evoked. resolved #241",
+          "localizedDescription": "fix: The issue that the focus of TextField on login page and search page is abnormal and the keyboard cannot be evoked. resolved #241",
           "downloadURL": "https://github.com/EhPanda-Team/EhPanda/releases/download/v2.4.1_b137/EhPanda.ipa",
           "size": 30341937,
           "sha256": "312270d442ef9c76235a407fd00a70481b99e80c2af947ab73fff6f78b070623",
@@ -364,7 +364,7 @@
           "buildVersion": "136",
           "marketingVersion": "2.4.0",
           "date": "2022-04-09T12:44:56Z",
-          "localizedDescription": "1. Fixed some bugs.\n2. Added a new icon.",
+          "localizedDescription": "Fixed some bugs.\nAdded a new icon.",
           "downloadURL": "https://github.com/EhPanda-Team/EhPanda/releases/download/v2.4.0_b136/EhPanda.ipa",
           "size": 10076520,
           "sha256": "b8001f682335cef6618fde758ea0c70ca5cc22da6365644da9f9c632c3ca8ddf",
@@ -375,7 +375,7 @@
           "buildVersion": "135",
           "marketingVersion": "2.3.1",
           "date": "2022-02-26T11:06:58Z",
-          "localizedDescription": "1. fix: Tags translation causes extremely low performance.\n2. refactor: Tags search suggestion. @xioxin\n3. Added Displays Japanese title setting.",
+          "localizedDescription": "fix: Tags translation causes extremely low performance.\nrefactor: Tags search suggestion. @xioxin\nAdded Displays Japanese title setting.",
           "downloadURL": "https://github.com/EhPanda-Team/EhPanda/releases/download/v2.3.1_b135/EhPanda.ipa",
           "size": 9977414,
           "sha256": "baeb6611aa63ea8882a4a86c161cd4493185db2243a23b2c0991e74fd6cf68c0",
@@ -386,7 +386,7 @@
           "buildVersion": "134",
           "marketingVersion": "2.3.0",
           "date": "2022-02-23T15:35:14Z",
-          "localizedDescription": "1. fix: Unexpected behaviors when swiping back in previews page.\n2. fix: Did not handle clipboard detection on launch.\n3. fix: App lock not working.\n4. feat: Tags search suggestion. @xioxin\n5. feat: Tag voting.\n6. feat: Tag detail.",
+          "localizedDescription": "fix: Unexpected behaviors when swiping back in previews page.\nfix: Did not handle clipboard detection on launch.\nfix: App lock not working.\nfeat: Tags search suggestion. @xioxin\nfeat: Tag voting.\nfeat: Tag detail.",
           "downloadURL": "https://github.com/EhPanda-Team/EhPanda/releases/download/v2.3.0_b134/EhPanda.ipa",
           "size": 9957522,
           "sha256": "03fb4b3d67aca9dfbfd9116b38def508277f76712ea1a0ca0934a577c54fa64e",
@@ -397,7 +397,7 @@
           "buildVersion": "133",
           "marketingVersion": "2.2.2",
           "date": "2022-02-16T13:30:36Z",
-          "localizedDescription": "1. refactor: Live Text.\n2. refactor: App icon.",
+          "localizedDescription": "refactor: Live Text.\nrefactor: App icon.",
           "downloadURL": "https://github.com/EhPanda-Team/EhPanda/releases/download/v2.2.2_b133/EhPanda.ipa",
           "size": 9404049,
           "sha256": "c483b3fa52077461a2e99eb5a5ae759249f2b04a65738c2283771d4705b3f560",
@@ -408,7 +408,7 @@
           "buildVersion": "132",
           "marketingVersion": "2.2.1",
           "date": "2022-02-14T16:58:13Z",
-          "localizedDescription": "1. fix: Copy, save, share animated images not working.\n2. fix: Some images not getting analyzed unexpectedly in Live Text.\n3. fix: iPad alternative icon warning and one missing new icon as promised.",
+          "localizedDescription": "fix: Copy, save, share animated images not working.\nfix: Some images not getting analyzed unexpectedly in Live Text.\nfix: iPad alternative icon warning and one missing new icon as promised.",
           "downloadURL": "https://github.com/EhPanda-Team/EhPanda/releases/download/v2.2.1_b132/EhPanda.ipa",
           "size": 9424780,
           "sha256": "bb9d78e25da7e8914a375b76466ae4c7733589e5185b361e4aeeac0d6eceac71",
@@ -419,7 +419,7 @@
           "buildVersion": "131",
           "marketingVersion": "2.2.0",
           "date": "2022-02-13T15:54:09Z",
-          "localizedDescription": "1. fix: Unexpected behaviors when setting global & watched filters.\n2. feature: Support for all display modes.\n3. feature: Live Text. @xioxin #220",
+          "localizedDescription": "fix: Unexpected behaviors when setting global & watched filters.\nfeature: Support for all display modes.\nfeature: Live Text. @xioxin #220",
           "downloadURL": "https://github.com/EhPanda-Team/EhPanda/releases/download/v2.2.0_b131/EhPanda.ipa",
           "size": 9101445,
           "sha256": "b3e3057fe8b611c2f9f6a59a659417accdbd21fd6f6dbb2ae261c4866761690b",
@@ -430,7 +430,7 @@
           "buildVersion": "130",
           "marketingVersion": "2.1.3",
           "date": "2022-02-11T14:23:51Z",
-          "localizedDescription": "1. fix: Multiple images load failed after their caches expired.\n2. fix: Unexpected behaviors when app lock with zero blur radius.\n3. fix: Unexpected behaviors when navigating to login view on iPad.",
+          "localizedDescription": "fix: Multiple images load failed after their caches expired.\nfix: Unexpected behaviors when app lock with zero blur radius.\nfix: Unexpected behaviors when navigating to login view on iPad.",
           "downloadURL": "https://github.com/EhPanda-Team/EhPanda/releases/download/v2.1.3_b130/EhPanda.ipa",
           "size": 8969266,
           "sha256": "1c24d782ea6725e1fb4075d9081b3cc8ecfbf07f0961b5aa2890606b65041222",
@@ -441,7 +441,7 @@
           "buildVersion": "129",
           "marketingVersion": "2.1.2",
           "date": "2022-02-11T04:04:19Z",
-          "localizedDescription": "1. fix: Blank screen when receiving empty galleries array.\n2. fix: The confirmation dialog presents twice sometimes.\n3. fix: Some events not getting handled when the app becomes active.\n4. fix: The username text field prevent using the Chinese keyboard. @EthanChinCN\n5. refactor: Tweak the the detail list cell a little bit.\n6. refactor: Hide the keyboard after tapping login button.\n7. refactor: Replace literal browsing country with localized version.",
+          "localizedDescription": "fix: Blank screen when receiving empty galleries array.\nfix: The confirmation dialog presents twice sometimes.\nfix: Some events not getting handled when the app becomes active.\nfix: The username text field prevent using the Chinese keyboard. @EthanChinCN\nrefactor: Tweak the the detail list cell a little bit.\nrefactor: Hide the keyboard after tapping login button.\nrefactor: Replace literal browsing country with localized version.",
           "downloadURL": "https://github.com/EhPanda-Team/EhPanda/releases/download/v2.1.2_b129/EhPanda.ipa",
           "size": 8964935,
           "sha256": "48b86d0c867a9c8c87db1754db18614eb7abb6fb7a35808b008f69951b70fd23",
@@ -452,7 +452,7 @@
           "buildVersion": "128",
           "marketingVersion": "2.1.1",
           "date": "2022-02-09T10:52:18Z",
-          "localizedDescription": "1. Fixed performance issues in reading page.\n2. Fixed unexpected behaviors when setting minimum ratting filter.\n3. Fixed unexpected behaviors when navigating to detail page on iPad.\n4. Replaced pull-to-dismiss on the control panel of reading page with a button.",
+          "localizedDescription": "Fixed performance issues in reading page.\nFixed unexpected behaviors when setting minimum ratting filter.\nFixed unexpected behaviors when navigating to detail page on iPad.\nReplaced pull-to-dismiss on the control panel of reading page with a button.",
           "downloadURL": "https://github.com/EhPanda-Team/EhPanda/releases/download/v2.1.1_b128/EhPanda.ipa",
           "size": 8927507,
           "sha256": "8c64966ab5969f50bbe8a2f3592c70d2954ce408512ec6e27917eac535efea03",
@@ -463,7 +463,7 @@
           "buildVersion": "127",
           "marketingVersion": "2.1.0",
           "date": "2022-02-07T16:00:15Z",
-          "localizedDescription": "1. Fixed translates tags not working issue.\n2. Fixed bypasses SNI filtering not working issue.\n3. Fixed double-tap on tab item trigger unexpected reload issue.\n4. Added pull-to-dismiss feature in reading page.\n5. Added retry all failed images feature.\n6. Added reload all images feature.",
+          "localizedDescription": "Fixed translates tags not working issue.\nFixed bypasses SNI filtering not working issue.\nFixed double-tap on tab item trigger unexpected reload issue.\nAdded pull-to-dismiss feature in reading page.\nAdded retry all failed images feature.\nAdded reload all images feature.",
           "downloadURL": "https://github.com/EhPanda-Team/EhPanda/releases/download/v2.1.0_b127/EhPanda.ipa",
           "size": 8897720,
           "sha256": "492c8a4606a0bb0991190d0c74f73c0d692b47b96b80125f846d044508e4832e",
@@ -474,11 +474,11 @@
           "buildVersion": "126",
           "marketingVersion": "2.0.0",
           "date": "2022-02-07T11:30:31Z",
-          "localizedDescription": "1. Brand new UI and architecture.\n2. Added Ukiyo-e app icon.\n3. Added import custom translations feature.\n4. Added database corruption alert.\n5. Fixed E-Hentai settings parsing issue.",
+          "localizedDescription": "Brand new UI and architecture.\nAdded Ukiyo-e app icon.\nAdded import custom translations feature.\nAdded database corruption alert.\nFixed E-Hentai settings parsing issue.",
           "localizedDescriptions": {
-            "en": "1. Brand new UI and architecture.\n2. Added Ukiyo-e app icon.\n3. Added import custom translations feature.\n4. Added database corruption alert.\n5. Fixed E-Hentai settings parsing issue.",
-            "ja": "1. まっさらな新 UI とアーキテクチャー。\n2. 「浮世絵」アプリアイコンを追加。\n3. カスタム翻訳を取り込む機能を追加。\n4. データベース破損アラートを追加。\n5. E-Hentai サイト設定の解析不具合を修正。",
-            "zh-Hant": "1. 全新的 UI 和架構。\n2. 增加了「浮世繪」應用圖示。\n3. 增加了導入自訂翻譯功能。\n4. 增加了資料庫損毀提示。\n5. 修正了 E-Hentai 網站設定的解析問題。"
+            "en": "Brand new UI and architecture.\nAdded Ukiyo-e app icon.\nAdded import custom translations feature.\nAdded database corruption alert.\nFixed E-Hentai settings parsing issue.",
+            "ja": "まっさらな新 UI とアーキテクチャー。\n「浮世絵」アプリアイコンを追加。\nカスタム翻訳を取り込む機能を追加。\nデータベース破損アラートを追加。\nE-Hentai サイト設定の解析不具合を修正。",
+            "zh-Hant": "全新的 UI 和架構。\n增加了「浮世繪」應用圖示。\n增加了導入自訂翻譯功能。\n增加了資料庫損毀提示。\n修正了 E-Hentai 網站設定的解析問題。"
           },
           "downloadURL": "https://github.com/EhPanda-Team/EhPanda/releases/download/v2.0.0_b126/EhPanda.ipa",
           "size": 8887249,
@@ -490,7 +490,7 @@
           "buildVersion": "125",
           "marketingVersion": "1.5.4",
           "date": "2022-01-11T11:45:54Z",
-          "localizedDescription": "1. Fixed a bug that failed the tags translation database fetching process.\n2. Added support for the Private category.",
+          "localizedDescription": "Fixed a bug that failed the tags translation database fetching process.\nAdded support for the Private category.",
           "downloadURL": "https://github.com/EhPanda-Team/EhPanda/releases/download/v1.5.4_b125/EhPanda.ipa",
           "size": 6138087,
           "sha256": "1ed6b9dbdd0da1ace81ecc35290a7e97f9db6976ae23ee1f09b1f6a0ad49a83e",
@@ -501,11 +501,11 @@
           "buildVersion": "124",
           "marketingVersion": "1.5.3",
           "date": "2021-12-05T02:29:17Z",
-          "localizedDescription": "1. Fixed an issue of deleting profiles feature.",
+          "localizedDescription": "Fixed an issue of deleting profiles feature.",
           "localizedDescriptions": {
-            "en": "1. Fixed an issue of deleting profiles feature.",
-            "ja": "1. プロフィール削除機能の一つの不具合を修正。",
-            "zh-Hant": "1. 修正了一個刪除檔案功能的問題。"
+            "en": "Fixed an issue of deleting profiles feature.",
+            "ja": "プロフィール削除機能の一つの不具合を修正。",
+            "zh-Hant": "修正了一個刪除檔案功能的問題。"
           },
           "downloadURL": "https://github.com/EhPanda-Team/EhPanda/releases/download/v1.5.3_b124/EhPanda.ipa",
           "size": 6133813,
@@ -517,7 +517,7 @@
           "buildVersion": "123",
           "marketingVersion": "1.5.2",
           "date": "2021-12-03T15:20:36Z",
-          "localizedDescription": "1. Fixed a parsing issue.\n2. Fixed an authorization issue.",
+          "localizedDescription": "Fixed a parsing issue.\nFixed an authorization issue.",
           "downloadURL": "https://github.com/EhPanda-Team/EhPanda/releases/download/v1.5.2_b123/EhPanda.ipa",
           "size": 6138467,
           "sha256": "69dcbbd0b60e4ef6fc88bf929d6a50172c1acad41290c3f96998e6f30fd26fce",
@@ -528,11 +528,11 @@
           "buildVersion": "122",
           "marketingVersion": "1.5.1",
           "date": "2021-11-28T09:20:46Z",
-          "localizedDescription": "1. Fixed the slide menu cannot be swiped out issue.",
+          "localizedDescription": "Fixed the slide menu cannot be swiped out issue.",
           "localizedDescriptions": {
-            "en": "1. Fixed the slide menu cannot be swiped out issue.",
-            "ja": "1. スライドメニューがスワイプで呼び出せない問題を修正。",
-            "zh-Hant": "1. 修正了側邊選單無法透過滑動呼出的問題。"
+            "en": "Fixed the slide menu cannot be swiped out issue.",
+            "ja": "スライドメニューがスワイプで呼び出せない問題を修正。",
+            "zh-Hant": "修正了側邊選單無法透過滑動呼出的問題。"
           },
           "downloadURL": "https://github.com/EhPanda-Team/EhPanda/releases/download/v1.5.1_b122/EhPanda.ipa",
           "size": 6137519,
@@ -544,11 +544,11 @@
           "buildVersion": "121",
           "marketingVersion": "1.5.0",
           "date": "2021-11-28T08:36:40Z",
-          "localizedDescription": "1. Added the global filters feature.\n2. Added the Quick Search alias feature.\n3. Added the save original image feature.\n4. Added the tap to next / previous page feature.\n5. Added the favorites sort order configuration feature.\n6. Optimized the swipe-back gesture.\n7. Optimized the image loaded effect.",
+          "localizedDescription": "Added the global filters feature.\nAdded the Quick Search alias feature.\nAdded the save original image feature.\nAdded the tap to next / previous page feature.\nAdded the favorites sort order configuration feature.\nOptimized the swipe-back gesture.\nOptimized the image loaded effect.",
           "localizedDescriptions": {
-            "en": "1. Added the global filters feature.\n2. Added the Quick Search alias feature.\n3. Added the save original image feature.\n4. Added the tap to next / previous page feature.\n5. Added the favorites sort order configuration feature.\n6. Optimized the swipe-back gesture.\n7. Optimized the image loaded effect.",
-            "ja": "1. グローバルフィルター機能を追加。\n2. クイック検索エイリアス機能を追加。\n3. オリジナルを保存機能を追加。\n4. タップ操作でページをめくる機能を追加。\n5. お気に入りの並び替えを調整する機能を追加。\n6. スワイプで戻るジェスチャーを最適化。\n7. 画像読み込み完了時のエフェクトを最適化。",
-            "zh-Hant": "1. 增加了全局篩選器功能。\n2. 增加了快速檢索別稱功能。\n3. 增加了保存原圖功能。\n4. 增加了點擊前後翻頁功能。\n5. 增加了收藏的排列順序邏輯調節功能。\n6. 最佳化了滑動返回手勢。\n7. 最佳化了圖片載入完成時的效果。"
+            "en": "Added the global filters feature.\nAdded the Quick Search alias feature.\nAdded the save original image feature.\nAdded the tap to next / previous page feature.\nAdded the favorites sort order configuration feature.\nOptimized the swipe-back gesture.\nOptimized the image loaded effect.",
+            "ja": "グローバルフィルター機能を追加。\nクイック検索エイリアス機能を追加。\nオリジナルを保存機能を追加。\nタップ操作でページをめくる機能を追加。\nお気に入りの並び替えを調整する機能を追加。\nスワイプで戻るジェスチャーを最適化。\n画像読み込み完了時のエフェクトを最適化。",
+            "zh-Hant": "增加了全局篩選器功能。\n增加了快速檢索別稱功能。\n增加了保存原圖功能。\n增加了點擊前後翻頁功能。\n增加了收藏的排列順序邏輯調節功能。\n最佳化了滑動返回手勢。\n最佳化了圖片載入完成時的效果。"
           },
           "downloadURL": "https://github.com/EhPanda-Team/EhPanda/releases/download/v1.5.0_b121/EhPanda.ipa",
           "size": 6136819,
@@ -560,11 +560,11 @@
           "buildVersion": "120",
           "marketingVersion": "1.4.0",
           "date": "2021-11-23T14:07:30Z",
-          "localizedDescription": "1. Fixed a parsing issue.\n2. Fixed the wrong results issue in similar gallery.\n3. Fixed the creating multiple `EhPanda` profiles issue.\n4. Fixed the detail page unexpected leading space issue.\n5. Fixed the webtoon cover issue in thumbnail list mode.\n6. Added the blur level configuration feature.\n7. Added the clearing search & gallery history feature.\n8. Clearing image caches also clears the database caches now.\n9. Switching the gallery host also clears the home information now.",
+          "localizedDescription": "Fixed a parsing issue.\nFixed the wrong results issue in similar gallery.\nFixed the creating multiple `EhPanda` profiles issue.\nFixed the detail page unexpected leading space issue.\nFixed the webtoon cover issue in thumbnail list mode.\nAdded the blur level configuration feature.\nAdded the clearing search & gallery history feature.\nClearing image caches also clears the database caches now.\nSwitching the gallery host also clears the home information now.",
           "localizedDescriptions": {
-            "en": "1. Fixed a parsing issue.\n2. Fixed the wrong results issue in similar gallery.\n3. Fixed the creating multiple `EhPanda` profiles issue.\n4. Fixed the detail page unexpected leading space issue.\n5. Fixed the webtoon cover issue in thumbnail list mode.\n6. Added the blur level configuration feature.\n7. Added the clearing search & gallery history feature.\n8. Clearing image caches also clears the database caches now.\n9. Switching the gallery host also clears the home information now.",
-            "ja": "1. 一つの解析問題を修正。\n2. 類似ギャラリーで間違えた検索結果が出る問題を修正。\n3. 多数の `EhPanda` プロフィールを作成する問題を修正。\n4. 詳細ページで予期しない左スペースの問題を修正。\n5. サムネイルリストモードでのウェブトゥーンのカバー不具合を修正。\n6. ぼかしのレベルを調整する機能を追加。\n7. 検索と閲覧履歴の削除機能を追加。\n8. 画像キャッシュ削除機能がデータベースのキャッシュも削除するようになりました。\n9. ギャラリーホストの切り替え機能がアプリのホームページ情報も削除するようになりました。",
-            "zh-Hant": "1. 修正了一個解析問題。\n2. 修正了在相似畫廊出現錯誤檢索結果的問題。\n3. 修正了創建多個 `EhPanda` 檔案的問題。\n4. 修正了在詳情頁左側出現非預期空白區域的問題。\n5. 修正了 webtoon 封面在縮略圖列表模式下的問題。\n6. 增加了模糊等級調節功能。\n7. 增加了檢索和畫廊歷史的刪除功能。\n8. 清空圖像快取功能現在會同時清空資料庫中的快取。\n9. 切換畫廊站點現在會同時清空 App 的主頁資料。"
+            "en": "Fixed a parsing issue.\nFixed the wrong results issue in similar gallery.\nFixed the creating multiple `EhPanda` profiles issue.\nFixed the detail page unexpected leading space issue.\nFixed the webtoon cover issue in thumbnail list mode.\nAdded the blur level configuration feature.\nAdded the clearing search & gallery history feature.\nClearing image caches also clears the database caches now.\nSwitching the gallery host also clears the home information now.",
+            "ja": "一つの解析問題を修正。\n類似ギャラリーで間違えた検索結果が出る問題を修正。\n多数の `EhPanda` プロフィールを作成する問題を修正。\n詳細ページで予期しない左スペースの問題を修正。\nサムネイルリストモードでのウェブトゥーンのカバー不具合を修正。\nぼかしのレベルを調整する機能を追加。\n検索と閲覧履歴の削除機能を追加。\n画像キャッシュ削除機能がデータベースのキャッシュも削除するようになりました。\nギャラリーホストの切り替え機能がアプリのホームページ情報も削除するようになりました。",
+            "zh-Hant": "修正了一個解析問題。\n修正了在相似畫廊出現錯誤檢索結果的問題。\n修正了創建多個 `EhPanda` 檔案的問題。\n修正了在詳情頁左側出現非預期空白區域的問題。\n修正了 webtoon 封面在縮略圖列表模式下的問題。\n增加了模糊等級調節功能。\n增加了檢索和畫廊歷史的刪除功能。\n清空圖像快取功能現在會同時清空資料庫中的快取。\n切換畫廊站點現在會同時清空 App 的主頁資料。"
           },
           "downloadURL": "https://github.com/EhPanda-Team/EhPanda/releases/download/v1.4.0_b120/EhPanda.ipa",
           "size": 6092771,
@@ -576,7 +576,7 @@
           "buildVersion": "119",
           "marketingVersion": "1.3.8",
           "date": "2021-11-04T12:11:00Z",
-          "localizedDescription": "1. Fixed a parsing issue.\n2. Fixed an unexpected behavior when switching home view sheet.",
+          "localizedDescription": "Fixed a parsing issue.\nFixed an unexpected behavior when switching home view sheet.",
           "downloadURL": "https://github.com/EhPanda-Team/EhPanda/releases/download/v1.3.8_b119/EhPanda.ipa",
           "size": 6070533,
           "sha256": "ed48bfbe799716ceee80508836ffca2aecf60939d39562e9b6ee7478af82755d",
@@ -587,11 +587,11 @@
           "buildVersion": "118",
           "marketingVersion": "1.3.7",
           "date": "2021-10-04T02:40:26Z",
-          "localizedDescription": "1. Fixed the QuickSearch wrong results issue.\n2. Tweaked the search feature a little bit.",
+          "localizedDescription": "Fixed the QuickSearch wrong results issue.\nTweaked the search feature a little bit.",
           "localizedDescriptions": {
-            "en": "1. Fixed the QuickSearch wrong results issue.\n2. Tweaked the search feature a little bit.",
-            "ja": "1. クイック検索の結果が間違っている問題を修正。\n2. 検索機能をちょっぴりいじった。",
-            "zh-Hant": "1. 修復了快速搜尋的結果不正確的問題。\n2. 稍微調整了搜尋功能。"
+            "en": "Fixed the QuickSearch wrong results issue.\nTweaked the search feature a little bit.",
+            "ja": "クイック検索の結果が間違っている問題を修正。\n検索機能をちょっぴりいじった。",
+            "zh-Hant": "修復了快速搜尋的結果不正確的問題。\n稍微調整了搜尋功能。"
           },
           "downloadURL": "https://github.com/EhPanda-Team/EhPanda/releases/download/v1.3.7_b118/EhPanda.ipa",
           "size": 6071793,
@@ -603,11 +603,11 @@
           "buildVersion": "117",
           "marketingVersion": "1.3.6",
           "date": "2021-09-27T02:23:52Z",
-          "localizedDescription": "1. Tweaked UI a little bit.",
+          "localizedDescription": "Tweaked UI a little bit.",
           "localizedDescriptions": {
-            "en": "1. Tweaked UI a little bit.",
-            "ja": "1. UI をちょっぴりいじった。",
-            "zh-Hant": "1. 稍微調整了 UI。"
+            "en": "Tweaked UI a little bit.",
+            "ja": "UI をちょっぴりいじった。",
+            "zh-Hant": "稍微調整了 UI。"
           },
           "downloadURL": "https://github.com/EhPanda-Team/EhPanda/releases/download/v1.3.6_b117/EhPanda.ipa",
           "size": 6070523,
@@ -619,11 +619,11 @@
           "buildVersion": "115",
           "marketingVersion": "1.3.4",
           "date": "2021-09-26T15:23:10Z",
-          "localizedDescription": "1. Fixed a UI issue.",
+          "localizedDescription": "Fixed a UI issue.",
           "localizedDescriptions": {
-            "en": "1. Fixed a UI issue.",
-            "ja": "1. 一つの UI 問題を修正。",
-            "zh-Hant": "1. 修復了一個 UI 問題。"
+            "en": "Fixed a UI issue.",
+            "ja": "一つの UI 問題を修正。",
+            "zh-Hant": "修復了一個 UI 問題。"
           },
           "downloadURL": "https://github.com/EhPanda-Team/EhPanda/releases/download/v1.3.4_b115/EhPanda.ipa",
           "size": 6069690,
@@ -635,11 +635,11 @@
           "buildVersion": "113",
           "marketingVersion": "1.3.2",
           "date": "2021-09-26T04:30:01Z",
-          "localizedDescription": "1. Enabled full range of refresh rates.",
+          "localizedDescription": "Enabled full range of refresh rates.",
           "localizedDescriptions": {
-            "en": "1. Enabled full range of refresh rates.",
-            "ja": "1. 完全なリフレッシュレート範囲を有効化。",
-            "zh-Hant": "1. 啟用完整的更新率範圍。"
+            "en": "Enabled full range of refresh rates.",
+            "ja": "完全なリフレッシュレート範囲を有効化。",
+            "zh-Hant": "啟用完整的更新率範圍。"
           },
           "downloadURL": "https://github.com/EhPanda-Team/EhPanda/releases/download/v1.3.2_b113/EhPanda.ipa",
           "size": 6067021,
@@ -651,11 +651,11 @@
           "buildVersion": "112",
           "marketingVersion": "1.3.1",
           "date": "2021-09-26T02:23:38Z",
-          "localizedDescription": "1. Fixed a transition animation issue.\n2. Fixed a pagination issue.",
+          "localizedDescription": "Fixed a transition animation issue.\nFixed a pagination issue.",
           "localizedDescriptions": {
-            "en": "1. Fixed a transition animation issue.\n2. Fixed a pagination issue.",
-            "ja": "1. 一つのトランジションアニメーション問題を修正。\n2. 一つのページネーション問題を修正。",
-            "zh-Hant": "1. 修復了一個過場動畫問題。\n2. 修復了一個換頁問題。"
+            "en": "Fixed a transition animation issue.\nFixed a pagination issue.",
+            "ja": "一つのトランジションアニメーション問題を修正。\n一つのページネーション問題を修正。",
+            "zh-Hant": "修復了一個過場動畫問題。\n修復了一個換頁問題。"
           },
           "downloadURL": "https://github.com/EhPanda-Team/EhPanda/releases/download/v1.3.1_b112/EhPanda.ipa",
           "size": 6067001,
@@ -667,11 +667,11 @@
           "buildVersion": "111",
           "marketingVersion": "1.3.0",
           "date": "2021-09-25T17:54:06Z",
-          "localizedDescription": "1. Modified the homepage UI slightly so the position of Filters entry will no longer be confusing.\n2. Made the AutoLock function-able even after exiting the app.\n3. Added AutoPlay feature.\n4. Added quick search feature.\n5. Added page jump feature.",
+          "localizedDescription": "Modified the homepage UI slightly so the position of Filters entry will no longer be confusing.\nMade the AutoLock function-able even after exiting the app.\nAdded AutoPlay feature.\nAdded quick search feature.\nAdded page jump feature.",
           "localizedDescriptions": {
-            "en": "1. Modified the homepage UI slightly so the position of Filters entry will no longer be confusing.\n2. Made the AutoLock function-able even after exiting the app.\n3. Added AutoPlay feature.\n4. Added quick search feature.\n5. Added page jump feature.",
-            "ja": "1. フィルターの入口の位置が分かりやすいように、ホームページの UI をちょっぴり調整。\n2. 自動ロックをアプリが終了された後も機能するようにしました。\n3. 自動再生機能を追加。\n4. クイック検索機能を追加。\n5. ページジャンプ機能を追加。",
-            "zh-Hant": "1. 稍微調整了主頁 UI，讓篩選器的入口位置更直觀。\n2. 讓自動鎖定在退出應用程式後也能運作了。\n3. 增加了自動播放功能。\n4. 增加了快速搜尋功能。\n5. 增加了頁面跳轉功能。"
+            "en": "Modified the homepage UI slightly so the position of Filters entry will no longer be confusing.\nMade the AutoLock function-able even after exiting the app.\nAdded AutoPlay feature.\nAdded quick search feature.\nAdded page jump feature.",
+            "ja": "フィルターの入口の位置が分かりやすいように、ホームページの UI をちょっぴり調整。\n自動ロックをアプリが終了された後も機能するようにしました。\n自動再生機能を追加。\nクイック検索機能を追加。\nページジャンプ機能を追加。",
+            "zh-Hant": "稍微調整了主頁 UI，讓篩選器的入口位置更直觀。\n讓自動鎖定在退出應用程式後也能運作了。\n增加了自動播放功能。\n增加了快速搜尋功能。\n增加了頁面跳轉功能。"
           },
           "downloadURL": "https://github.com/EhPanda-Team/EhPanda/releases/download/v1.3.0_b111/EhPanda.ipa",
           "size": 6066378,
@@ -683,11 +683,11 @@
           "buildVersion": "110",
           "marketingVersion": "1.2.2",
           "date": "2021-09-24T14:11:01Z",
-          "localizedDescription": "1. Updated Korean translations.\n2. Fixed several layout issues on the new iPad mini.\n3. Fixed the thumbnail display mode layout issue.\n4. Fixed pagination issues when browsing the \"Watched\" or \"Favorites\" list.",
+          "localizedDescription": "Updated Korean translations.\nFixed several layout issues on the new iPad mini.\nFixed the thumbnail display mode layout issue.\nFixed pagination issues when browsing the \"Watched\" or \"Favorites\" list.",
           "localizedDescriptions": {
-            "en": "1. Updated Korean translations.\n2. Fixed several layout issues on the new iPad mini.\n3. Fixed the thumbnail display mode layout issue.\n4. Fixed pagination issues when browsing the \"Watched\" or \"Favorites\" list.",
-            "ja": "1. 韓国語翻訳を更新。\n2. 新型 iPad mini でのいくつかのレイアウト問題を修正。\n3. サムネイル表示モードのレイアウト問題を修正。\n4. 「タグの購読」・「お気に入り」リスト閲覧時のページネーション問題を修正。",
-            "zh-Hant": "1. 更新了韓文翻譯。\n2. 修復了新 iPad mini 上一些介面佈局問題。\n3. 修復了縮略圖顯示模式下的介面佈局問題。\n4. 修復了瀏覽 “標籤” 或 “收藏” 列表時的換頁問題。"
+            "en": "Updated Korean translations.\nFixed several layout issues on the new iPad mini.\nFixed the thumbnail display mode layout issue.\nFixed pagination issues when browsing the \"Watched\" or \"Favorites\" list.",
+            "ja": "韓国語翻訳を更新。\n新型 iPad mini でのいくつかのレイアウト問題を修正。\nサムネイル表示モードのレイアウト問題を修正。\n「タグの購読」・「お気に入り」リスト閲覧時のページネーション問題を修正。",
+            "zh-Hant": "更新了韓文翻譯。\n修復了新 iPad mini 上一些介面佈局問題。\n修復了縮略圖顯示模式下的介面佈局問題。\n修復了瀏覽 “標籤” 或 “收藏” 列表時的換頁問題。"
           },
           "downloadURL": "https://github.com/EhPanda-Team/EhPanda/releases/download/v1.2.2_b110/EhPanda.ipa",
           "size": 5912006,
@@ -699,11 +699,11 @@
           "buildVersion": "109",
           "marketingVersion": "1.2.1",
           "date": "2021-09-19T10:03:40Z",
-          "localizedDescription": "1. Fixed a IP address ban expire time parsing issue.",
+          "localizedDescription": "Fixed a IP address ban expire time parsing issue.",
           "localizedDescriptions": {
-            "en": "1. Fixed a IP address ban expire time parsing issue.",
-            "ja": "1. IP アドレスブロック解除時間の解析問題を修正。",
-            "zh-Hant": "1. 修復了 IP 位址封禁解除時間的解析問題。"
+            "en": "Fixed a IP address ban expire time parsing issue.",
+            "ja": "IP アドレスブロック解除時間の解析問題を修正。",
+            "zh-Hant": "修復了 IP 位址封禁解除時間的解析問題。"
           },
           "downloadURL": "https://github.com/EhPanda-Team/EhPanda/releases/download/v1.2.1_b109/EhPanda.ipa",
           "size": 5912746,
@@ -715,11 +715,11 @@
           "buildVersion": "107",
           "marketingVersion": "1.2.0",
           "date": "2021-09-19T06:05:01Z",
-          "localizedDescription": "1. Added IP address banned alert feature.\n2. Optimized gallery navigation feature.\n3. Fixed a gallery parsing issue.",
+          "localizedDescription": "Added IP address banned alert feature.\nOptimized gallery navigation feature.\nFixed a gallery parsing issue.",
           "localizedDescriptions": {
-            "en": "1. Added IP address banned alert feature.\n2. Optimized gallery navigation feature.\n3. Fixed a gallery parsing issue.",
-            "ja": "1. IP アドレスブロック警告機能を追加。\n2. ギャラリーナビ機能を最適化。\n3. 一つのギャラリーの解析問題を修正。",
-            "zh-Hant": "1. 增加了 IP 位址封禁提示功能。\n2. 優化了畫廊導航功能。\n3. 修復了一個畫廊解析問題。"
+            "en": "Added IP address banned alert feature.\nOptimized gallery navigation feature.\nFixed a gallery parsing issue.",
+            "ja": "IP アドレスブロック警告機能を追加。\nギャラリーナビ機能を最適化。\n一つのギャラリーの解析問題を修正。",
+            "zh-Hant": "增加了 IP 位址封禁提示功能。\n優化了畫廊導航功能。\n修復了一個畫廊解析問題。"
           },
           "downloadURL": "https://github.com/EhPanda-Team/EhPanda/releases/download/v1.2.0_b107/EhPanda.ipa",
           "size": 5913704,
@@ -731,11 +731,11 @@
           "buildVersion": "106",
           "marketingVersion": "1.1.2",
           "date": "2021-09-14T15:43:57Z",
-          "localizedDescription": "1. Fixed the Japanese title parsing issue.",
+          "localizedDescription": "Fixed the Japanese title parsing issue.",
           "localizedDescriptions": {
-            "en": "1. Fixed the Japanese title parsing issue.",
-            "ja": "1. 日本語タイトルの解析問題を修正。",
-            "zh-Hant": "1. 修復了日文標題的解析問題。"
+            "en": "Fixed the Japanese title parsing issue.",
+            "ja": "日本語タイトルの解析問題を修正。",
+            "zh-Hant": "修復了日文標題的解析問題。"
           },
           "downloadURL": "https://github.com/EhPanda-Team/EhPanda/releases/download/v1.1.2_b106/EhPanda.ipa",
           "size": 5873835,
@@ -747,11 +747,11 @@
           "buildVersion": "101",
           "marketingVersion": "1.1.1",
           "date": "2021-09-11T02:17:55Z",
-          "localizedDescription": "1. Fixed a pagination issue.",
+          "localizedDescription": "Fixed a pagination issue.",
           "localizedDescriptions": {
-            "en": "1. Fixed a pagination issue.",
-            "ja": "1. ページネーション問題を修正。",
-            "zh-Hant": "1. 修復了翻頁頁碼問題。"
+            "en": "Fixed a pagination issue.",
+            "ja": "ページネーション問題を修正。",
+            "zh-Hant": "修復了翻頁頁碼問題。"
           },
           "downloadURL": "https://github.com/EhPanda-Team/EhPanda/releases/download/v1.1.1_b101/EhPanda.ipa",
           "size": 5873984,
@@ -763,11 +763,11 @@
           "buildVersion": "100",
           "marketingVersion": "1.1.0",
           "date": "2021-09-10T14:10:51Z",
-          "localizedDescription": "1. Zooming images from the touch point now.",
+          "localizedDescription": "Zooming images from the touch point now.",
           "localizedDescriptions": {
-            "en": "1. Zooming images from the touch point now.",
-            "ja": "1. タッチポイントからズームできるようになりました。",
-            "zh-Hant": "1. 圖片現在支持從觸碰點縮放了。"
+            "en": "Zooming images from the touch point now.",
+            "ja": "タッチポイントからズームできるようになりました。",
+            "zh-Hant": "圖片現在支持從觸碰點縮放了。"
           },
           "downloadURL": "https://github.com/EhPanda-Team/EhPanda/releases/download/v1.1.0_b100/EhPanda.ipa",
           "size": 5873932,
@@ -779,11 +779,11 @@
           "buildVersion": "99",
           "marketingVersion": "1.0.6",
           "date": "2021-09-10T04:28:25Z",
-          "localizedDescription": "1. Fixed UI transition issue when HUD shows up too soon after the app launched.\n2. Fixed detects link from clipboard feature loading takes forever issue.",
+          "localizedDescription": "Fixed UI transition issue when HUD shows up too soon after the app launched.\nFixed detects link from clipboard feature loading takes forever issue.",
           "localizedDescriptions": {
-            "en": "1. Fixed UI transition issue when HUD shows up too soon after the app launched.\n2. Fixed detects link from clipboard feature loading takes forever issue.",
-            "ja": "1. アプリ起動直後にHUDが現れるとトランジションアニメーションが壊れる問題を修正。\n2. クリップボードからリンク探知機能の読み込みが終わらない問題を修正。",
-            "zh-Hant": "1. 修復了App啓動後HUD太快出現時發生的transition動畫異常問題。\n2. 修復了從剪切板檢測鏈接功能的無限加載問題。"
+            "en": "Fixed UI transition issue when HUD shows up too soon after the app launched.\nFixed detects link from clipboard feature loading takes forever issue.",
+            "ja": "アプリ起動直後にHUDが現れるとトランジションアニメーションが壊れる問題を修正。\nクリップボードからリンク探知機能の読み込みが終わらない問題を修正。",
+            "zh-Hant": "修復了App啓動後HUD太快出現時發生的transition動畫異常問題。\n修復了從剪切板檢測鏈接功能的無限加載問題。"
           },
           "downloadURL": "https://github.com/EhPanda-Team/EhPanda/releases/download/v1.0.6_b99/EhPanda.ipa",
           "size": 5870289,
@@ -795,11 +795,11 @@
           "buildVersion": "98",
           "marketingVersion": "1.0.5",
           "date": "2021-09-10T02:19:31Z",
-          "localizedDescription": "1. Loading a gallery page can trigger a new dawn greeting now.",
+          "localizedDescription": "Loading a gallery page can trigger a new dawn greeting now.",
           "localizedDescriptions": {
-            "en": "1. Loading a gallery page can trigger a new dawn greeting now.",
-            "ja": "1. ギャラリーページの読み込みで夜明けの挨拶をトリガーできるようになりました。",
-            "zh-Hant": "1. 現在加載畫廊頁面可以觸發黎明問候了。"
+            "en": "Loading a gallery page can trigger a new dawn greeting now.",
+            "ja": "ギャラリーページの読み込みで夜明けの挨拶をトリガーできるようになりました。",
+            "zh-Hant": "現在加載畫廊頁面可以觸發黎明問候了。"
           },
           "downloadURL": "https://github.com/EhPanda-Team/EhPanda/releases/download/v1.0.5_b98/EhPanda.ipa",
           "size": 5867840,
@@ -811,11 +811,11 @@
           "buildVersion": "90",
           "marketingVersion": "1.0.4 (90)",
           "date": "2021-08-30T16:47:47Z",
-          "localizedDescription": "1. Added reload, copy, save & share image features.",
+          "localizedDescription": "Added reload, copy, save & share image features.",
           "localizedDescriptions": {
-            "en": "1. Added reload, copy, save & share image features.",
-            "ja": "1. 画像の再読み込み、コピー、保存及び共有機能を追加。",
-            "zh-Hant": "1. 增加了圖像的重新加載、複製、保存和共享功能。"
+            "en": "Added reload, copy, save & share image features.",
+            "ja": "画像の再読み込み、コピー、保存及び共有機能を追加。",
+            "zh-Hant": "增加了圖像的重新加載、複製、保存和共享功能。"
           },
           "downloadURL": "https://github.com/EhPanda-Team/EhPanda/releases/download/v1.0.4_b90/EhPanda.ipa",
           "size": 3752139,
@@ -827,11 +827,11 @@
           "buildVersion": "87",
           "marketingVersion": "1.0.4 (87)",
           "date": "2021-08-29T15:33:47Z",
-          "localizedDescription": "1. Allows landscape orientation in reading page for iPhone now.",
+          "localizedDescription": "Allows landscape orientation in reading page for iPhone now.",
           "localizedDescriptions": {
-            "en": "1. Allows landscape orientation in reading page for iPhone now.",
-            "ja": "1. 閲覧ページでiPhoneデバイスを横向きに設定できるようになりました。",
-            "zh-Hant": "1. 可以設定iPhone在閱讀頁橫屏了。"
+            "en": "Allows landscape orientation in reading page for iPhone now.",
+            "ja": "閲覧ページでiPhoneデバイスを横向きに設定できるようになりました。",
+            "zh-Hant": "可以設定iPhone在閱讀頁橫屏了。"
           },
           "downloadURL": "https://github.com/EhPanda-Team/EhPanda/releases/download/v1.0.4_b87/EhPanda.ipa",
           "size": 3733168,
@@ -843,11 +843,11 @@
           "buildVersion": "84",
           "marketingVersion": "1.0.4 (84)",
           "date": "2021-08-29T12:09:27Z",
-          "localizedDescription": "1. Shows more accurate error messages now.\n2. Added image reload feature in reading page.",
+          "localizedDescription": "Shows more accurate error messages now.\nAdded image reload feature in reading page.",
           "localizedDescriptions": {
-            "en": "1. Shows more accurate error messages now.\n2. Added image reload feature in reading page.",
-            "ja": "1. より正確なエラー情報を表示できるようになりました。\n2. 閲覧ページで画像の再読み込み機能を追加。",
-            "zh-Hant": "1. 能夠展示更精確的錯誤訊息。\n2. 在閱讀頁增加了圖片重新加載功能。"
+            "en": "Shows more accurate error messages now.\nAdded image reload feature in reading page.",
+            "ja": "より正確なエラー情報を表示できるようになりました。\n閲覧ページで画像の再読み込み機能を追加。",
+            "zh-Hant": "能夠展示更精確的錯誤訊息。\n在閱讀頁增加了圖片重新加載功能。"
           },
           "downloadURL": "https://github.com/EhPanda-Team/EhPanda/releases/download/v1.0.4_b84/EhPanda.ipa",
           "size": 3728045,
@@ -859,11 +859,11 @@
           "buildVersion": "82",
           "marketingVersion": "1.0.4 (82)",
           "date": "2021-08-23T18:10:05Z",
-          "localizedDescription": "1. Optimized gallery navigation feature.",
+          "localizedDescription": "Optimized gallery navigation feature.",
           "localizedDescriptions": {
-            "en": "1. Optimized gallery navigation feature.",
-            "ja": "1. ギャラリーナビゲーション機能を最適化。",
-            "zh-Hant": "1. 優化了畫廊跳轉功能。"
+            "en": "Optimized gallery navigation feature.",
+            "ja": "ギャラリーナビゲーション機能を最適化。",
+            "zh-Hant": "優化了畫廊跳轉功能。"
           },
           "downloadURL": "https://github.com/EhPanda-Team/EhPanda/releases/download/v1.0.4_b82/EhPanda.ipa",
           "size": 3688974,
@@ -875,11 +875,11 @@
           "buildVersion": "81",
           "marketingVersion": "1.0.4 (81)",
           "date": "2021-08-22T13:06:21Z",
-          "localizedDescription": "1. Added toplists feature.\n2. Fixed several bugs.",
+          "localizedDescription": "Added toplists feature.\nFixed several bugs.",
           "localizedDescriptions": {
-            "en": "1. Added toplists feature.\n2. Fixed several bugs.",
-            "ja": "1. ランキング機能を追加。\n2. いくつかの不具合を修正。",
-            "zh-Hant": "1. 增加了排行功能。\n2. 修復了一些問題。"
+            "en": "Added toplists feature.\nFixed several bugs.",
+            "ja": "ランキング機能を追加。\nいくつかの不具合を修正。",
+            "zh-Hant": "增加了排行功能。\n修復了一些問題。"
           },
           "downloadURL": "https://github.com/EhPanda-Team/EhPanda/releases/download/v1.0.4_b81/EhPanda.ipa",
           "size": 3676623,
@@ -891,11 +891,11 @@
           "buildVersion": "80",
           "marketingVersion": "1.0.4 (80)",
           "date": "2021-08-19T09:10:30Z",
-          "localizedDescription": "1. Supported full E-Hentai website settings.",
+          "localizedDescription": "Supported full E-Hentai website settings.",
           "localizedDescriptions": {
-            "en": "1. Supported full E-Hentai website settings.",
-            "ja": "1. すべてのE-Hentaiサイト設定を対応。",
-            "zh-Hant": "1. 支援完整的E-Hentai網站設定。"
+            "en": "Supported full E-Hentai website settings.",
+            "ja": "すべてのE-Hentaiサイト設定を対応。",
+            "zh-Hant": "支援完整的E-Hentai網站設定。"
           },
           "downloadURL": "https://github.com/EhPanda-Team/EhPanda/releases/download/v1.0.4_b80/EhPanda.ipa",
           "size": 3653129,
@@ -907,7 +907,7 @@
           "buildVersion": "78",
           "marketingVersion": "1.0.4 (78)",
           "date": "2021-08-15T19:04:37Z",
-          "localizedDescription": "1. Shows page count in list now.\n2. Added gallery infos feature.\n3. Several bug fixes.",
+          "localizedDescription": "Shows page count in list now.\nAdded gallery infos feature.\nSeveral bug fixes.",
           "downloadURL": "https://github.com/EhPanda-Team/EhPanda/releases/download/v1.0.4_b78/EhPanda.ipa",
           "size": 3629391,
           "sha256": "39cba0d9377fbcaf66dbaba92b21f134d6a72d1ef95ceedb27417d62bda58fbc",

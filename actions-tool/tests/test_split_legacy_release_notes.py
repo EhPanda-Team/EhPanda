@@ -49,12 +49,11 @@ class LegacyNotesTests(unittest.TestCase):
                     self.assertTrue(all(split_notes.language_of(line) == "en" for line in split_notes.source_lines(notes)))
                     continue
                 mixed += 1
-                self.assertEqual(texts["en"].split("\n")[0][:3], "1. ")
-                # Every text lists every item, in order, under its own number.
+                # Every text lists every item, one per line, in order, with no number (owner msg 2591).
                 count = len(split_notes.parse(notes))
                 for language, text in texts.items():
-                    numbers = [line.split(". ", 1)[0] for line in text.split("\n")]
-                    self.assertEqual(numbers, [str(index) for index in range(1, count + 1)], language)
+                    self.assertEqual(len(text.split("\n")), count, language)
+                    self.assertFalse(any(split_notes.ITEM.match(line) for line in text.split("\n")), language)
                 # No line lost, changed or duplicated.
                 self.assertEqual(split_notes.unsplit(texts), split_notes.source_lines(notes))
                 # Each translated line is in its own language's text, and only there.
@@ -73,13 +72,19 @@ class LegacyNotesTests(unittest.TestCase):
     def test_a_credit_follows_its_item_into_each_language(self):
         version = next(item for item in LEGACY if item["version"] == "2.7.9")
         texts = split_notes.split(version["localizedDescription"])
-        self.assertEqual(texts["ja"].split("\n")[1], "2. 台湾華語と中国語繁体字（香港）の翻訳を改善しました。 (credit @NeKoOuO)")
-        self.assertEqual(texts["zh-Hant"].split("\n")[1], "2. 改善了台灣華語和繁體中文（香港）翻譯。 (credit @NeKoOuO)")
+        self.assertEqual(texts["en"].split("\n")[1],
+                         "Improved Taiwanese Mandarin & Traditional Chinese (HK) localizations. (credit @NeKoOuO)")
+        self.assertEqual(texts["ja"].split("\n")[1], "台湾華語と中国語繁体字（香港）の翻訳を改善しました。 (credit @NeKoOuO)")
+        self.assertEqual(texts["zh-Hant"].split("\n")[1], "改善了台灣華語和繁體中文（香港）翻譯。 (credit @NeKoOuO)")
 
     def test_an_untranslated_item_keeps_its_english_line(self):
         version = next(item for item in LEGACY if item["version"] == "2.7.0")
         texts = split_notes.split(version["localizedDescription"])
-        self.assertEqual(texts["ja"].split("\n")[3:], ["4. refactor: TCA reducers.", "5. refactor: CI"])
+        self.assertEqual(texts["ja"].split("\n")[3:], ["refactor: TCA reducers.", "refactor: CI"])
+
+    def test_numbers_are_stripped_from_every_line(self):
+        self.assertEqual(split_notes.strip_numbers("1. One.\n10. Ten. (credit @a)\n2.0 stays"),
+                         "One.\nTen. (credit @a)\n2.0 stays")
 
     def test_notes_off_the_layout_are_refused(self):
         for notes in [
@@ -87,6 +92,8 @@ class LegacyNotesTests(unittest.TestCase):
             "1. Fixed the reading page.\n閲覧ページの不具合を修正。\n閲覧ページを修正。",
             "1. 閲覧ページの不具合を修正。",
             "1. Fixed the reading page.\nAnd something else.",
+            "1. Fixed the reading page.\n3. Fixed the search page.",
+            "2. Fixed the reading page.",
         ]:
             with self.subTest(notes=notes):
                 with self.assertRaises(split_notes.SplitError):
@@ -103,11 +110,14 @@ class AltStoreJsonTests(unittest.TestCase):
                 version = listed[label(legacy)]
                 texts = split_notes.split(legacy["localizedDescription"])
                 if texts is None:
-                    self.assertEqual(version["localizedDescription"], legacy["localizedDescription"])
+                    self.assertEqual(version["localizedDescription"], split_notes.strip_numbers(legacy["localizedDescription"]))
                     self.assertNotIn("localizedDescriptions", version)
                 else:
                     self.assertEqual(version["localizedDescription"], texts["en"])
                     self.assertEqual(version["localizedDescriptions"], texts)
+                # No line of any version's notes starts with a number (owner msg 2591).
+                for text in [version["localizedDescription"], *version.get("localizedDescriptions", {}).values()]:
+                    self.assertFalse(any(split_notes.ITEM.match(line) for line in text.split("\n")), text)
 
 
 if __name__ == "__main__":
