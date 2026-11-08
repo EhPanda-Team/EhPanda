@@ -8,7 +8,7 @@
 #   <channel>  github, altstore, sidestore, altstorePAL or beta
 #   <ipa>      the IPA to write, e.g. EhPanda-GitHub.ipa
 #
-# The app reads the channel from `EHPDistributionChannel` in its Info.plist and reports it as the
+# The app reads the channel from `EhPandaDistributionChannel` in its Info.plist and reports it as the
 # install source when MarketplaceKit cannot name a store (DistributionChannel in
 # AppPackage/Sources/InstallSourceClient). The committed value is `source`, for builds that no
 # workflow made; this script overwrites it in the copy. One build can so be packaged once per
@@ -22,7 +22,7 @@ set -euo pipefail
 app="${1:-}"
 channel="${2:-}"
 ipa="${3:-}"
-key='EHPDistributionChannel'
+key='EhPandaDistributionChannel'
 
 case "$channel" in
   github | altstore | sidestore | altstorePAL | beta) ;;

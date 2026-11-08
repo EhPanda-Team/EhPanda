@@ -125,7 +125,7 @@
 	</array>
 	<key>CFBundleVersion</key>
 	<string>$(CURRENT_PROJECT_VERSION)</string>
-	<key>EHPDistributionChannel</key>
+	<key>EhPandaDistributionChannel</key>
 	<string>source</string>
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>

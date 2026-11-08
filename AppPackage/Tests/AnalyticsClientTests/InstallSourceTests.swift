@@ -107,7 +107,7 @@ struct InstallSourceTests {
         #expect(DistributionChannel.allCases.map(\.rawValue) == [
             "github", "altstore", "sidestore", "altstorePAL", "beta", "source"
         ])
-        #expect(DistributionChannel.infoPlistKey == "EHPDistributionChannel")
+        #expect(DistributionChannel.infoPlistKey == "EhPandaDistributionChannel")
     }
 
     // Exact comparison: no case folding, trimming or prefixes, and no install source spelled as a stamp.
@@ -125,7 +125,7 @@ struct InstallSourceTests {
         #expect(DistributionChannel(stampedValue: true) == nil)
         #expect(DistributionChannel(stampedValue: 1) == nil)
         #expect(DistributionChannel(stampedValue: ["beta"]) == nil)
-        #expect(DistributionChannel(stampedValue: ["EHPDistributionChannel": "beta"]) == nil)
+        #expect(DistributionChannel(stampedValue: ["EhPandaDistributionChannel": "beta"]) == nil)
         #expect(DistributionChannel(stampedValue: Data("beta".utf8)) == nil)
     }
 
@@ -205,7 +205,7 @@ struct InstallSourceTests {
             reads.append(key)
             return "github"
         })
-        #expect(reads == ["EHPDistributionChannel"])
+        #expect(reads == ["EhPandaDistributionChannel"])
     }
 
     /// Calls the device source as the live client does, with what MarketplaceKit reported (mapped, or

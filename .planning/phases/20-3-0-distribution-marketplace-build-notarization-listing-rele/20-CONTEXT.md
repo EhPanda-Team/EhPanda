@@ -65,7 +65,7 @@ order are in no phase.
   than the latest regular release, and always at least the newest beta. Each beta needs a build number above every
   build in both sources; the workflow fails otherwise.
 - **D-12:** **One file per channel** (owner msgs 2533, 2537; the channel in each file name, website owner msg 2538).
-  - **The stamp.** The app's Info.plist key `EHPDistributionChannel` names the channel, from a closed allow-list:
+  - **The stamp.** The app's Info.plist key `EhPandaDistributionChannel` names the channel, from a closed allow-list:
     `github`, `altstore`, `sidestore`, `altstorePAL`, `beta`, `source`. The committed `App/Info.plist` says `source`,
     so any build no release workflow made says so. The workflows build once, unsigned, and
     `actions-tool/package-channel.sh` copies the app once per channel and overwrites the value in each copy, so the
