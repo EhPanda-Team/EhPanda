@@ -4,16 +4,16 @@ milestone: v3.0.0
 current_phase: 19
 current_phase_name: Visual Regression & Daily Live-Parsing Check
 status: executing
-stopped_at: Completed 19-09-PLAN.md
-last_updated: "2026-11-08T01:35:00.000Z"
+stopped_at: Completed 19-08-PLAN.md
+last_updated: "2026-11-08T02:55:00.000Z"
 last_activity: 2026-11-08
-last_activity_desc: 19-09 complete (snapshot aggregate with four failure classes and triage; offline review report and short packet)
-state_head: 3def4606c1a6acf962aad2fa0b2fd1e388c35def
+last_activity_desc: 19-08 complete (27 of 30 Settings, Settings page and app-wide scenarios, green on both devices and in three configurations; Login proposed for 19-10)
+state_head: 3c7c84279ccb15cf917f59e8ad5cff618b52a159
 progress:
   total_phases: 21
   completed_phases: 18
   total_plans: 321
-  completed_plans: 312
+  completed_plans: 313
   percent: 86
 milestone_name: Dependency Reduction & Modernization
 source_head: 891103afa
@@ -71,6 +71,14 @@ source_head: 891103afa
   lists only infrastructure failures and missing artifacts, never a retry again; flake log with seconds and attempts.
   `snapshot_report.py` writes the offline report (grouped by screen, five filters, failure triplets, n/a reasons,
   flake log) and `--packet`. 11 + 6 Python tests. VIS-18-01 and CAP-17-02 stay Pending.
+- **19-08 complete** (`a3b0cc980`, `db0188b7d`, `0f2031305`; `19-08-SUMMARY.md`): factories for all 30 Settings,
+  Settings page and app-wide scenarios on SettingView, SettingReducer and the pages' reducers; 27 captured in four
+  classes. Two compares green on both devices in en-large (phone 108, iPad portrait 54) and one each in
+  ja-accessibility5 and de-xSmall on the phone; 0 changed, timeout or error, 1 flaky (`app-wide-app-alert` ja
+  portrait light). Fixes: Laboratory waits for its glass shadow; the Runs menu holds every list's indicator hidden.
+  Proposed for 19-10: the three Login scenarios not applicable (wall-clock wave backdrop) or an app Reduce Motion
+  change. Issues for 19-12/19-13: the site-settings error page is blank (ErrorView over an empty ZStack, likely an
+  app bug); Account signed in shows the preview cookies marked invalid. VIS-18-01 and CAP-17-01 stay Pending.
 
 ## Phase 19 planned: Visual Regression & Daily Live-Parsing Check — 2026-11-07
 
