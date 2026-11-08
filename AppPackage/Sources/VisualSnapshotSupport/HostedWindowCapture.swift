@@ -66,6 +66,9 @@ public struct CaptureOutcome: Sendable {
     public let difference: Data?
     /// A fixed reason code for a non-passing outcome, never page text.
     public let reason: String?
+    /// The first attempt's picture and difference when that attempt differed or timed out, so a flaky picture can
+    /// be read afterwards.
+    public var firstAttempt: (png: Data?, difference: Data?)?
 }
 
 /// A SwiftUI root installed as the root view controller of a real window.
@@ -160,19 +163,32 @@ public enum HostedWindowCapture {
         )
     }
 
+    /// The last motion the latest ``settle(_:)`` read (a view or layer class and animation key, never page text),
+    /// for a timeout's reason.
+    public private(set) static var lastMotion: String?
+
     /// Reads the window at 1x every ``sampleInterval`` until the reads stay identical across at least
-    /// ``stableSpan``, or gives up after ``maximumSamples`` reads.
+    /// ``stableSpan`` while the window is at rest (``motion(in:)`` is `nil`), or gives up after ``maximumSamples``
+    /// reads.
     ///
     /// A read is the picture as the comparison sees it (``comparedBytes(_:)``), not the 16-bit capture: Liquid
     /// Glass moves the capture's low bits below what the comparison reads, so a byte-exact read of the capture
     /// could keep a window that is still for the comparison from settling.
+    ///
+    /// Identical reads alone are not rest: a scroll indicator that a scroll view flashes when it appears holds still
+    /// for longer than ``stableSpan`` before it fades, and a list can hold an offset between two steps of an
+    /// animation. On a loaded host either could be read as settled in one run and not in the next (run
+    /// 42455556948), so reads count only once nothing in the window moves.
     public static func settle(_ window: UIWindow) async -> SettleResult {
         let clock = ContinuousClock()
         let start = clock.now
         var runStart = clock.now
         var previous: [UInt8]?
+        lastMotion = nil
         for sample in 1...maximumSamples {
-            let data = comparedBytes(capture(window))
+            let moving = motion(in: window)
+            lastMotion = moving ?? lastMotion
+            let data = moving == nil ? comparedBytes(capture(window)) : nil
             if let data, data == previous {
                 if runStart.duration(to: clock.now) >= stableSpan {
                     return .settled(samples: sample, seconds: seconds(start.duration(to: clock.now)))
@@ -189,6 +205,59 @@ public enum HostedWindowCapture {
             }
         }
         return .timeout(samples: maximumSamples, seconds: seconds(start.duration(to: clock.now)))
+    }
+
+    /// What still moves in `window`, or `nil` when it is at rest: a scroll view that is tracked, dragged or
+    /// decelerating, a scroll indicator that is showing, or a finite layer animation that has not ended.
+    ///
+    /// A layer whose `speed` is 0 is frozen on purpose (a scenario that holds an indeterminate indicator or a caret
+    /// still), so it and its sublayers are not read. An animation that repeats forever (an
+    /// indicator's spin, a caret's blink) never ends and is the scenario's own state, not motion.
+    public static func motion(in window: UIWindow) -> String? {
+        if let view = movingView(in: window) { return view }
+        return runningAnimation(in: window.layer, now: CACurrentMediaTime())
+    }
+
+    private static func movingView(in view: UIView) -> String? {
+        if view.isHidden || view.alpha < 0.01 { return nil }
+        if let scrollView = view as? UIScrollView,
+           scrollView.isTracking || scrollView.isDragging || scrollView.isDecelerating {
+            return "scrolling:\(String(describing: type(of: scrollView)))"
+        }
+        // UIKit's scroll indicators are private subviews of their scroll view; a visible one fades out on a timer.
+        if view.superview is UIScrollView, String(describing: type(of: view)).contains("ScrollIndicator") {
+            return "scroll-indicator"
+        }
+        for subview in view.subviews {
+            if let moving = movingView(in: subview) { return moving }
+        }
+        return nil
+    }
+
+    /// An animation longer than this repeats for as long as its view shows.
+    private static let forever: CFTimeInterval = 3600
+
+    private static func runningAnimation(in layer: CALayer, now: CFTimeInterval) -> String? {
+        if layer.speed == 0 { return nil }
+        // A caret blinks on a timer of its own for as long as its field is focused.
+        if let delegate = layer.delegate, String(describing: type(of: delegate)).contains("Cursor") { return nil }
+        let local = layer.convertTime(now, from: nil)
+        let owner = layer.delegate.map({ String(describing: type(of: $0)) }) ?? String(describing: type(of: layer))
+        for key in layer.animationKeys() ?? [] {
+            guard let animation = layer.animation(forKey: key) else { continue }
+            // Not yet committed: it starts at the next commit.
+            if animation.beginTime == 0 { return "animation:\(owner):\(key)" }
+            let cycles = Double(max(animation.repeatCount, 1)) * (animation.autoreverses ? 2 : 1)
+            let rate = Double(max(animation.speed, 0.0001))
+            let length = max(animation.repeatDuration, animation.duration * cycles) / rate
+            // UIKit writes "forever" as a huge finite count (an animated image view repeats 2^31 times).
+            if !length.isFinite || length > forever { continue }
+            if animation.beginTime + length > local { return "animation:\(owner):\(key)" }
+        }
+        for sublayer in layer.sublayers ?? [] {
+            if let running = runningAnimation(in: sublayer, now: now) { return running }
+        }
+        return nil
     }
 
     /// The image's pixels as the library's image comparison reads them: 8-bit sRGB, premultiplied RGBA.
@@ -228,12 +297,38 @@ public enum HostedWindowCapture {
         // The library's `fromData` force-unwraps, so a damaged reference is rejected here first.
         guard UIImage(data: data) != nil else { return .unreadableBaseline }
         let diffing = Self.diffing
-        guard let (_, attachments) = diffing.diffV2(diffing.fromData(data), image) else { return .passed }
-        let difference = attachments.lazy.compactMap { attachment -> Data? in
-            if case .data(let bytes, let name) = attachment, name == "difference.png" { return bytes }
-            return nil
-        }.first
-        return .changed(difference: difference)
+        let referenceImage = diffing.fromData(data)
+        guard diffing.diffV2(referenceImage, image) != nil else { return .passed }
+        return .changed(difference: differencePNG(referenceImage, image))
+    }
+
+    /// A difference picture read the way the comparison reads both pictures (``comparedBytes(_:)``): a pixel that
+    /// differs is white, brighter the larger its largest channel difference; an equal pixel is the actual picture at
+    /// an eighth of its brightness, for orientation. `nil` when the sizes differ.
+    ///
+    /// The library's own difference picture is not used: it reads the raw bytes of both images as 8-bit RGBA, but a
+    /// capture is 16-bit RGB (48 bits a pixel), so its picture is the first two thirds of the bytes laid out at the
+    /// wrong stride, and nothing in the bottom third of a picture ever shows in it (run 42455556948).
+    public static func differencePNG(_ reference: UIImage, _ actual: UIImage) -> Data? {
+        guard let old = comparedBytes(reference), let new = comparedBytes(actual), old.count == new.count,
+              let width = actual.cgImage?.width, let height = actual.cgImage?.height,
+              old.count == width * height * 4 else { return nil }
+        var out: [UInt8] = []
+        out.reserveCapacity(old.count)
+        for start in stride(from: 0, to: old.count, by: 4) {
+            let channels = start..<(start + 3)
+            let largest = channels.map({ abs(Int(old[$0]) - Int(new[$0])) }).max() ?? 0
+            out += channels.map({ largest == 0 ? new[$0] / 8 : UInt8(min(255, 128 + largest * 4)) })
+            out.append(255)
+        }
+        guard let space = CGColorSpace(name: CGColorSpace.sRGB) else { return nil }
+        let cgImage = out.withUnsafeMutableBytes { buffer -> CGImage? in
+            CGContext(
+                data: buffer.baseAddress, width: width, height: height, bitsPerComponent: 8,
+                bytesPerRow: width * 4, space: space, bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue
+            )?.makeImage()
+        }
+        return cgImage.flatMap({ UIImage(cgImage: $0, scale: 1, orientation: .up).pngData() })
     }
 
     /// The PNG bytes the library would store for `image`.
@@ -263,12 +358,13 @@ public enum HostedWindowCapture {
                 request: .init(style: style, reference: reference, mode: mode, interact: interact)
             )
             let elapsed = seconds(start.duration(to: clock.now))
-            let outcome = CaptureOutcome(
+            var outcome = CaptureOutcome(
                 status: result.status, attempts: attempt,
                 flaky: firstFailed && (result.status == .passed || result.status == .recorded),
                 seconds: elapsed, settleSamples: result.settleSamples, png: result.png,
                 difference: result.difference, reason: result.reason
             )
+            if attempt == 2, let first = last { outcome.firstAttempt = (first.png, first.difference) }
             switch result.status {
             case .changed, .timeout:
                 firstFailed = true
@@ -326,7 +422,7 @@ public enum HostedWindowCapture {
         let png = pngData(image)
         if case .timeout = settled {
             return Attempt(status: .timeout, settleSamples: settled.samples, png: png, difference: nil,
-                           reason: "settle-timeout")
+                           reason: lastMotion.map({ "settle-timeout:\($0)" }) ?? "settle-timeout")
         }
         switch request.mode {
         case .candidate:

@@ -33,11 +33,14 @@ extension ScenarioCatalog {
     private static var shell: [String: ScenarioFactory] {
         [
             "shell-library-sidebar": .init(make: { BrowsingScenarios.library(selection: nil) }),
-            "shell-library-title-menu": .init(
+            // Favorites under the menu hides its search field on scroll, so the list is brought to rest at its top
+            // first, as the Favorites scenarios are: hosted early in a process it kept the field 2 points short
+            // (run 42455556948, every text size but xSmall).
+            "shell-library-title-menu": ScenarioFactory(
                 make: { BrowsingScenarios.library(selection: .favorites(-1)) },
                 prepare: TracerScenarios.cacheHomeArtwork,
                 interact: { try await BrowsingScenarios.activate(String(localized: .RLocalizable.library), in: $0) }
-            )
+            ).restingAtTop()
         ]
     }
 
@@ -60,10 +63,10 @@ extension ScenarioCatalog {
             "front-page-loading": .init(make: { Page.frontPage(.loading) }, interact: Page.freezeIndicators),
             "front-page-error": .init(make: { Page.frontPage(.failed(.networkingFailed)) }),
             "front-page-empty": .init(make: { Page.frontPage(.failed(.notFound)) }),
-            "front-page-search": .init(
+            "front-page-search": ScenarioFactory(
                 make: { Page.frontPage(.loaded(.row), keyword: Page.searchKeyword) }, prepare: artwork,
                 interact: Page.focusSearchField
-            )
+            ).restingAtTop()
         ]
     }
 
@@ -292,6 +295,10 @@ enum BrowsingScenarios {
 
     /// Focuses the page's search field, as a tap on it would, then holds the caret's blink still once the search
     /// bar has finished activating. The keyboard is a separate window and is not drawn.
+    ///
+    /// The freeze waits until the window is at rest (``HostedWindowCapture/motion(in:)``), not a fixed time: the
+    /// search bar's activation moves the list and scrolls the field's text to the caret, and a freeze in the middle
+    /// of either holds a different list offset or text offset on a loaded host (run 42455556948).
     static func focusSearchField(_ window: UIWindow) async throws {
         let root = try XCTUnwrap(window.rootViewController?.view)
         let clock = ContinuousClock()
@@ -299,10 +306,30 @@ enum BrowsingScenarios {
         while true {
             if let field = firstView(of: UISearchTextField.self, in: root), field.becomeFirstResponder() {
                 try await clock.sleep(for: .milliseconds(800))
+                try await waitForRest(window)
                 try await freezeIndicators(window)
                 return
             }
             guard clock.now < deadline else { throw AccessibilityActionDriver.Failure.notFound("search field") }
+            try await clock.sleep(for: .milliseconds(100))
+        }
+    }
+
+    /// A user step's window that never came to rest; the motion it last read.
+    struct StillMoving: Error {
+        let motion: String
+    }
+
+    /// Waits until ``HostedWindowCapture/motion(in:)`` reads nothing three times in a row, 100 ms apart, for at most
+    /// 10 s; a window still moving by then fails the step.
+    static func waitForRest(_ window: UIWindow) async throws {
+        let clock = ContinuousClock()
+        let deadline = clock.now.advanced(by: .seconds(10))
+        var quiet = 0
+        while quiet < 3 {
+            let motion = HostedWindowCapture.motion(in: window)
+            quiet = motion == nil ? quiet + 1 : 0
+            if let motion, clock.now >= deadline { throw StillMoving(motion: motion) }
             try await clock.sleep(for: .milliseconds(100))
         }
     }

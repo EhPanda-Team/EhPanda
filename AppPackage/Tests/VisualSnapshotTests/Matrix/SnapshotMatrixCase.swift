@@ -145,6 +145,15 @@ class SnapshotMatrixCase: XCTestCase {
             seconds: outcome.seconds, settleSamples: outcome.settleSamples, bytes: outcome.png?.count ?? 0,
             sha256: digest, reason: outcome.reason
         ))
+        // A first attempt that differed or timed out, kept beside the result so a flaky picture can be read.
+        if let first = outcome.firstAttempt {
+            if let png = first.png {
+                try writer.writePicture(png, kind: "first-actual", relativePath: coordinate.baselinePath)
+            }
+            if let difference = first.difference {
+                try writer.writePicture(difference, kind: "first-difference", relativePath: coordinate.baselinePath)
+            }
+        }
         switch outcome.status {
         case .recorded:
             if let png = outcome.png {
@@ -195,9 +204,23 @@ class SnapshotMatrixCase: XCTestCase {
     /// The scene's refusal of the last orientation request, for the geometry failure message.
     @MainActor static var lastGeometryError: String?
 
-    /// Requests `orientation` and waits up to 5 s until the window matches `pin` (points, safe area, size classes).
+    /// How long one orientation request may take to reach the pinned geometry. A loaded host (several simulator
+    /// clones, a hosted runner) took longer than the first fixed 5 s wait (run 42455556948), so the wait polls until
+    /// the window matches and only gives up after this long.
+    static let rotationWait: Duration = .seconds(20)
+
+    /// Requests `orientation` and waits until the window matches `pin` (points, safe area, size classes), polling up
+    /// to ``rotationWait``; a request that has not arrived by then is made once more, with the same wait.
     @MainActor
     static func rotate(
+        scene: UIWindowScene, window: UIWindow, to orientation: String, pin: SnapshotPins.Geometry?
+    ) async -> Bool {
+        if await requestOrientation(scene: scene, window: window, to: orientation, pin: pin) { return true }
+        return await requestOrientation(scene: scene, window: window, to: orientation, pin: pin)
+    }
+
+    @MainActor
+    private static func requestOrientation(
         scene: UIWindowScene, window: UIWindow, to orientation: String, pin: SnapshotPins.Geometry?
     ) async -> Bool {
         let landscape = orientation == "landscape"
@@ -209,7 +232,7 @@ class SnapshotMatrixCase: XCTestCase {
             Task { @MainActor in lastGeometryError = String(describing: error) }
         }
         let clock = ContinuousClock()
-        let deadline = clock.now.advanced(by: .seconds(5))
+        let deadline = clock.now.advanced(by: rotationWait)
         var stable = 0
         while clock.now < deadline {
             window.layoutIfNeeded()
