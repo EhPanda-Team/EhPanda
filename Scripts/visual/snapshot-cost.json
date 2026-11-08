@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "source": "model",
-  "note": "Modelled from D-09 and D-13 until 19-04 measures the hosted runner: 2.4 s per picture on iPhone at Large, iPad x 1.6, AX5 x 1.3, xSmall x 1.0. invocationMinutes is the fixed cost per xcodebuild invocation, 7 to 10 minutes on the hosted runner (19-04-MEASURE.md, run 42455556948).",
+  "note": "Modelled from D-09 and D-13 until 19-04 measures the hosted runner: 2.4 s per picture on iPhone at Large, iPad x 1.6, AX5 x 1.3, xSmall x 1.0. invocationMinutes is the fixed cost per xcodebuild invocation, 7 to 10 minutes on the hosted runner (19-04-MEASURE.md, run 42455556948). workers is 2, the interim count until a hosted run passes D-15's rule (19-04-MEASURE.md, decision after run 42475531683).",
   "secondsPerPicture": {
     "iphone": {"xSmall": 2.4, "large": 2.4, "accessibility5": 3.12},
     "ipad": {"xSmall": 3.84, "large": 3.84, "accessibility5": 4.992}

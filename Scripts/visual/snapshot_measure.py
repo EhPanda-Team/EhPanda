@@ -11,6 +11,9 @@ candidate run that records the references has no `w<N>` directory and is not rea
 The worker count is the largest of 2, 3 and 4 that passes every rule:
 - `incomplete`: every configuration measured at any count has a run at this count, with as many result lines as
   that configuration's fullest run;
+- `infra`: no run at this count failed on the simulator twice (its `shard.json` names the failure in `infra`; the
+  workflow retries such a run once, Scripts/visual/snapshot_infra.py). Such a run is not a measurement, so it is
+  reported as `infra` instead of `incomplete`;
 - `changed`: no picture at this count is `changed` against the candidate;
 - `memory`: no `critical` memory pressure was sampled while a run at this count ran. `warn` is recorded and reported
   but does not exclude: the hosted runner sat at `warn` under two clones already, in every run at every count (lead's
@@ -123,7 +126,7 @@ def run_facts(run, samples):
         'pictures': len(timed), 'median': median, 'wall': wall,
         'speedup': len(timed) * median / wall if timed and wall > 0 else None,
         'changed': sum(line['status'] == 'changed' for line in run['lines']), 'memory': worst,
-        'lines': len(run['lines']),
+        'lines': len(run['lines']), 'infra': run['record'].get('infra'),
     }
 
 
@@ -142,7 +145,8 @@ def medians(facts):
 
 
 def exclusions(facts):
-    """`{workers: [rules that exclude it]}` for 2, 3 and 4: incomplete, changed, memory, slowdown, in that order."""
+    """`{workers: [rules that exclude it]}` for 2, 3 and 4: incomplete, infra, changed, memory, slowdown, in that
+    order."""
     configurations = {(family, configuration) for family, configuration, _ in facts}
     by_size = medians(facts)
     result = {}
@@ -152,9 +156,12 @@ def exclusions(facts):
               if count == workers}
         fullest = {key: max(fact['lines'] for (family, configuration, _), fact in facts.items()
                             if (family, configuration) == key) for key in configurations}
+        measured = {key: fact for key, fact in at.items() if not fact['infra']}
         if set(at) != configurations or any(fact['median'] is None or fact['lines'] < fullest[key]
-                                            for key, fact in at.items()):
+                                            for key, fact in measured.items()):
             rules.append('incomplete')
+        if len(measured) < len(at):
+            rules.append('infra')
         if any(fact['changed'] for fact in at.values()):
             rules.append('changed')
         if any(fact['memory'] in PRESSURE for fact in at.values()):
