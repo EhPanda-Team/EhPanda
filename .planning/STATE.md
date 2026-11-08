@@ -4,16 +4,16 @@ milestone: v3.0.0
 current_phase: 19
 current_phase_name: Visual Regression & Daily Live-Parsing Check
 status: executing
-stopped_at: Completed 19-15-PLAN.md
-last_updated: "2026-11-08T03:30:00.000Z"
+stopped_at: Completed 19-16-PLAN.md
+last_updated: "2026-11-08T03:58:00.000Z"
 last_activity: 2026-11-08
-last_activity_desc: 19-15 complete (runner hosted, owner msg 2441; self-closing live-check issues from fixed templates; one entry script for both runners; local dry run all ok, no issue touched)
-state_head: d2c50d0037b723cee6bae04e13dd539418a3e72f
+last_activity_desc: 19-16 complete (owner msg 2456; hosted live check run 42443815779 success, nine guest pages ok, three skipped, no issue, log checked no content, not billable; ci/live-check deleted)
+state_head: 7b3bf8ec5589c912f22851b2dc1f563618209855
 progress:
   total_phases: 21
   completed_phases: 18
   total_plans: 321
-  completed_plans: 315
+  completed_plans: 316
   percent: 86
 milestone_name: Dependency Reduction & Modernization
 source_head: 891103afa
@@ -95,6 +95,14 @@ source_head: 891103afa
   `ci/live-check`; contents read, issues write, actions read), the `launchd` template (not installed). Local dry
   run: nine guest pages ok, the fake `gh` got only `issue list`. Nothing pushed; `ci/live-check` is 19-16's, with
   the owner's go-ahead. VIS-19-01 stays Pending.
+- **19-16 complete** (`b8dd155ee`, `98bf8a407`; `19-16-SUMMARY.md`, `19-16-DEPLOY.md`): owner msg 2456 allowed one
+  push of `ci/live-check` (empty signed `[skip test]` commit `3d58637e6` built in a worktree; `test.yml` skipped).
+  Hosted run 42443815779 (`xcode-27-arm64` `20261104.0337.1`, 12 min 34 s) succeeded: nine guest pages 200 `ok`,
+  Watched, Favorites and ExHentai `skipped`. The reporter found no previous run and took no action, so no issue or
+  label was created. The log and `results.json` hold no URL, title, gallery ID, header or body ("log checked: no
+  content"); billable minutes `{}` (public repository). The remote branch, the worktree and the local branch are
+  removed. Pending after merge (for 19-17's validation): the first scheduled run from `main`, the previous-results
+  path, the 60-day inactivity rule, and the first label and issue. VIS-19-01 stays Pending.
 
 ## Phase 19 planned: Visual Regression & Daily Live-Parsing Check — 2026-11-07
 
