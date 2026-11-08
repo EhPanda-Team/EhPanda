@@ -96,7 +96,6 @@ enum Module: String {
     case homeFeature = "HomeFeature"
     case imageClient = "ImageClient"
     case imageColors = "ImageColors"
-    case installSourceClient = "InstallSourceClient"
     case legacyCFReadStream = "LegacyCFReadStream"
     case libraryClient = "LibraryClient"
     case liveTextTranslation = "LiveTextTranslation"
@@ -394,28 +393,18 @@ let targets: [PackageDescription.Target] = [
     // `.cookieClient` edge exists because the per-signal login-state snapshot reads
     // `@SharedReader(.didLogin)`, whose key is declared there. The `.deviceClient` edge exists
     // because the orientation enricher reads the window scene through it rather than reaching for
-    // UIKit from this module. The `.installSourceClient` edge feeds the one install signal its
-    // source (D-06c), and `.osLogExt` logs that signal's dropped or failed sends.
+    // UIKit from this module. `.osLogExt` logs the install signal's dropped or failed sends; the
+    // signal's one parameter, the distribution channel (D-06c), comes from `.appModels`.
     .target(
         module: .analyticsClient,
         dependencies: [
             .module(.appModels),
             .module(.cookieClient),
             .module(.deviceClient),
-            .module(.installSourceClient),
             .module(.osLogExt),
             .targetDependency(.composableArchitecture),
             .targetDependency(.sharing),
             .targetDependency(.telemetryDeck)
-        ]
-    ),
-    // Where the app was installed from (D-06c). The only module importing MarketplaceKit, so the
-    // mapping from `AppDistributor` to the fixed `InstallSource` enum lives in one place. The one
-    // install signal uses it now; Phase 20's ANALYTICS-02 reuses it for the Basic/Full signals.
-    .target(
-        module: .installSourceClient,
-        dependencies: [
-            .targetDependency(.composableArchitecture)
         ]
     ),
     .target(
@@ -1110,7 +1099,6 @@ let targets: [PackageDescription.Target] = [
             .module(.analyticsClient),
             .module(.appModels),
             .module(.cookieClient),
-            .module(.installSourceClient),
             .targetDependency(.composableArchitecture),
             .targetDependency(.sharing),
             .module(.deviceClient)
