@@ -144,6 +144,10 @@ Owner decisions are binding. "Prep L*n*" and "GA-*n*" refer to [18-DISCUSSION-PR
     `marketplace(<the marketplace bundle ID as reported>)`, `web`, `other`, `unknown`. On the wire the values are the
     strings `appStore`, `testFlight`, `marketplace:<id>`, `web`, `other`, `unknown`. No other field is added; every
     other part of D-06b's request is unchanged.
+  - **Amended by Phase 20 D-12** (owner msgs 2513, 2518, 2525, 2537): five more values, `github`, `altstore`,
+    `sidestore`, `beta` and `source`, named by the distribution channel stamped into the app's Info.plist when
+    MarketplaceKit reports `other` or throws. A DEBUG build on a device now asks MarketplaceKit too, and the live
+    client no longer reports `other`; the value stays on the wire. The simulator still reports `unknown`.
   - **`InstallSourceClient` (`@Dependency`)** produces it from MarketplaceKit's `AppDistributor.current` (`async
     throws`). The deployment target is iOS 27, above the API's iOS 17.4 (and `.web`'s 17.5), so no availability guard
     is needed. A thrown error, a case added in a later SDK (`@unknown default`) and a marketplace ID that is not a

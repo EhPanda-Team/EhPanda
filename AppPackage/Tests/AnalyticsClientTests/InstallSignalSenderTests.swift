@@ -24,7 +24,8 @@ struct InstallSignalSenderTests {
     // MARK: The request
 
     @Test(arguments: [
-        InstallSource.appStore, .marketplace("com.example.store"), .unknown
+        InstallSource.appStore, .marketplace("com.example.store"), .github, .altstore, .sidestore, .beta, .source,
+        .unknown
     ])
     func theFirstSendIsOneRequestInTheSDKWireFormat(source: InstallSource) async throws {
         let harness = Harness(responses: [.status(200)], source: source)
