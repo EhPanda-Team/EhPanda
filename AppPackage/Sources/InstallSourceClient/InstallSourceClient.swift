@@ -100,7 +100,7 @@ public enum DistributionChannel: String, CaseIterable, Sendable {
     case source
 
     /// The Info.plist key the workflows stamp.
-    public static let infoPlistKey = "EHPDistributionChannel"
+    public static let infoPlistKey = "EhPandaDistributionChannel"
 
     /// The channel stamped as `value`, or nil when the value is absent, not a string, or not on the
     /// allow-list.

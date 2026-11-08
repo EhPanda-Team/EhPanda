@@ -6,7 +6,7 @@
 // install differs: the bundle identifiers (`app.ehpanda.beta` and `app.ehpanda.beta.shareExtension`,
 // through the suffix knob in `Signing.xcconfig`), the Home Screen name and the URL scheme. The icon
 // is the regular one. Nothing here tells the code which build it is: the workflow stamps the
-// `EHPDistributionChannel` key into the built app's Info.plist after the archive, and the install
+// `EhPandaDistributionChannel` key into the built app's Info.plist after the archive, and the install
 // source reads that.
 //
 // Settings passed with `-xcconfig` apply to every target, Swift packages included, above the
