@@ -11,8 +11,10 @@ env:
   ALTSTORE_JSON_PATH: './AltStore.json'
   BUILDS_PATH: '/tmp/action-builds'
   PAYLOAD_PATH: '/tmp/action-builds/Payload'
-  FILTER_SWIFT_PATH: './actions-tool/ReleaseNotesFilter.swift'
-  FILTER_PATH: '/tmp/action-builds/ReleaseNotesFilter'
+  # The notes come from ReleaseNotes/<version>.md, never the PR description (ReleaseNotes/README.md).
+  RELEASE_NOTES_TOOL_PATH: './actions-tool/release_notes.py'
+  RELEASE_NOTES_DIR: './ReleaseNotes'
+  GITHUB_RELEASE_BODY_PATH: '/tmp/action-builds/release-body.md'
   THIN_PAYLOAD_SCRIPT_PATH: './actions-tool/thin-payload.sh'
   ARCHIVE_PATH: '/tmp/action-builds/EhPanda.xcarchive'
   IPA_OUTPUT_PATH: '/tmp/action-builds/EhPanda.ipa'
@@ -29,6 +31,8 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+      - name: Check release notes
+        run: python3 "$RELEASE_NOTES_TOOL_PATH" check
       - name: Install iOS 26 Platform
         uses: nick-fields/retry@v4
         with:
@@ -70,18 +74,17 @@ jobs:
           popd
       - name: Retrieve data
         id: retrieve-data
-        env:
-          RELEASE_NOTES_SOURCE: ${{ github.event.pull_request.body }}
         run: |
-          swiftc -o "$FILTER_PATH" "$FILTER_SWIFT_PATH"
-          chmod +x "$FILTER_PATH"
+          set -euo pipefail
           app_info_plist="$PAYLOAD_PATH/$SCHEME_NAME.app/Info.plist"
           version="$(plutil -extract CFBundleShortVersionString raw -o - "$app_info_plist")"
           build_version="$(plutil -extract CFBundleVersion raw -o - "$app_info_plist")"
           min_os_version="$(plutil -extract MinimumOSVersion raw -o - "$app_info_plist")"
           size="$(stat -f%z "$IPA_OUTPUT_PATH")"
           sha256="$(shasum -a 256 "$IPA_OUTPUT_PATH" | awk '{ print $1 }')"
-          notes="$($FILTER_PATH "$RELEASE_NOTES_SOURCE")"
+          notes_path="$RELEASE_NOTES_DIR/$version.md"
+          python3 "$RELEASE_NOTES_TOOL_PATH" check "$notes_path"
+          python3 "$RELEASE_NOTES_TOOL_PATH" github "$notes_path" > "$GITHUB_RELEASE_BODY_PATH"
           privacy="$(
             find "$PAYLOAD_PATH/$SCHEME_NAME.app" -name Info.plist -print0 |
             while IFS= read -r -d '' plist; do
@@ -107,17 +110,14 @@ jobs:
             echo "min_os_version=$min_os_version"
             echo "version_date=$(date -u +'%Y-%m-%dT%H:%M:%SZ')"
             echo "privacy=$privacy"
-            echo "notes<<__ALTSTORE_NOTES__"
-            echo "$notes"
-            echo "__ALTSTORE_NOTES__"
+            echo "notes_path=$notes_path"
           } >> "$GITHUB_OUTPUT"
       - name: Validate data
         env:
-          PR_BODY: ${{ github.event.pull_request.body }}
           PR_TITLE: ${{ github.event.pull_request.title }}
           RELEASE_SIZE: ${{ steps.retrieve-data.outputs.size }}
           RELEASE_SHA256: ${{ steps.retrieve-data.outputs.sha256 }}
-          RELEASE_NOTES: ${{ steps.retrieve-data.outputs.notes }}
+          RELEASE_NOTES_PATH: ${{ steps.retrieve-data.outputs.notes_path }}
           RELEASE_VERSION: ${{ steps.retrieve-data.outputs.version }}
           RELEASE_BUILD_VERSION: ${{ steps.retrieve-data.outputs.build_version }}
           RELEASE_MARKETING_VERSION: ${{ steps.retrieve-data.outputs.marketing_version }}
@@ -125,11 +125,11 @@ jobs:
           RELEASE_DATE: ${{ steps.retrieve-data.outputs.version_date }}
           RELEASE_PRIVACY: ${{ steps.retrieve-data.outputs.privacy }}
         run: |
-          [[ ! -z "$PR_BODY" ]] || exit 1
           [[ ! -z "$PR_TITLE" ]] || exit 1
           [[ ! -z "$RELEASE_SIZE" ]] || exit 1
           [[ ! -z "$RELEASE_SHA256" ]] || exit 1
-          [[ ! -z "$RELEASE_NOTES" ]] || exit 1
+          [[ -f "$RELEASE_NOTES_PATH" ]] || exit 1
+          [[ -s "$GITHUB_RELEASE_BODY_PATH" ]] || exit 1
           [[ ! -z "$RELEASE_VERSION" ]] || exit 1
           [[ ! -z "$RELEASE_BUILD_VERSION" ]] || exit 1
           [[ ! -z "$RELEASE_MARKETING_VERSION" ]] || exit 1
@@ -143,7 +143,7 @@ jobs:
          fail_on_unmatched_files: true
          files: ${{ env.IPA_OUTPUT_PATH }}
          token: ${{ secrets.GITHUB_TOKEN }}
-         body: ${{ github.event.pull_request.body }}
+         body_path: ${{ env.GITHUB_RELEASE_BODY_PATH }}
          name: ${{ github.event.pull_request.title }}
          tag_name: 'v${{ steps.retrieve-data.outputs.version }}'
       - name: Commit bump version
@@ -162,7 +162,7 @@ jobs:
           RELEASE_MARKETING_VERSION: ${{ steps.retrieve-data.outputs.marketing_version }}
           RELEASE_MIN_OS_VERSION: ${{ steps.retrieve-data.outputs.min_os_version }}
           RELEASE_DATE: ${{ steps.retrieve-data.outputs.version_date }}
-          RELEASE_NOTES: ${{ steps.retrieve-data.outputs.notes }}
+          RELEASE_NOTES_PATH: ${{ steps.retrieve-data.outputs.notes_path }}
           RELEASE_PRIVACY: ${{ steps.retrieve-data.outputs.privacy }}
         run: |
           set -euo pipefail
@@ -171,8 +171,10 @@ jobs:
           [[ -n "$bundle_id" ]] || exit 1
           [[ -n "$download_url" ]] || exit 1
           curl -sSfIL -o /dev/null "$download_url"
-          # ReleaseNotesFilter joins lines with a literal "\n"; AltStore shows text as is, so use real line breaks.
-          notes="${RELEASE_NOTES//\\n/$'\n'}"
+          # English is the plain field, which AltStore shows when no language matches; every language,
+          # English included, goes into localizedDescriptions.
+          notes="$(python3 "$RELEASE_NOTES_TOOL_PATH" english "$RELEASE_NOTES_PATH")"
+          localized_notes="$(python3 "$RELEASE_NOTES_TOOL_PATH" altstore "$RELEASE_NOTES_PATH")"
 
           tmp="$(mktemp)"
           jq \
@@ -182,6 +184,7 @@ jobs:
             --arg marketingVersion "$RELEASE_MARKETING_VERSION" \
             --arg date "$RELEASE_DATE" \
             --arg localizedDescription "$notes" \
+            --argjson localizedDescriptions "$localized_notes" \
             --arg downloadURL "$download_url" \
             --arg sha256 "$RELEASE_SHA256" \
             --arg minOSVersion "$RELEASE_MIN_OS_VERSION" \
@@ -197,10 +200,23 @@ jobs:
           git commit -m "Update AltStore.json"
           git push origin HEAD
       - name: Post release notes
+        env:
+          RELEASE_NOTES_PATH: ${{ steps.retrieve-data.outputs.notes_path }}
+          RELEASE_URL: ${{ steps.release.outputs.url }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHANNEL_ID: ${{ secrets.TELEGRAM_CHANNEL_ID }}
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
         run: |
-         curl https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage \
-         -d parse_mode=markdown -d chat_id=${{ secrets.TELEGRAM_CHANNEL_ID }} \
-         -d text='*v${{ steps.retrieve-data.outputs.version }} Release Notes:*%0A${{ github.event.pull_request.body }}'
+          set -euo pipefail
+          # Telegram: English, then 繁體中文, then the link, as plain text. Discord: English, then the link.
+          telegram_text="$BUILDS_PATH/telegram.txt"
+          python3 "$RELEASE_NOTES_TOOL_PATH" telegram "$RELEASE_NOTES_PATH" "$RELEASE_URL" > "$telegram_text"
+          curl -sS --fail-with-body "https://api.telegram.org/bot$TELEGRAM_BOT_TOKEN/sendMessage" \
+            --data-urlencode "chat_id=$TELEGRAM_CHANNEL_ID" \
+            --data-urlencode "text@$telegram_text"
 
-         curl ${{ secrets.DISCORD_WEBHOOK }} \
-         -F 'payload_json={"content": "**v${{ steps.retrieve-data.outputs.version }} Release Notes:**\n${{ steps.retrieve-data.outputs.notes }}"}'
+          discord_payload="$BUILDS_PATH/discord.json"
+          python3 "$RELEASE_NOTES_TOOL_PATH" discord "$RELEASE_NOTES_PATH" "$RELEASE_URL" | jq -Rs '{content: .}' > "$discord_payload"
+          curl -sS --fail-with-body "$DISCORD_WEBHOOK" \
+            -H 'Content-Type: application/json' \
+            --data-binary "@$discord_payload"
