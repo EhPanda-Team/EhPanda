@@ -1,12 +1,13 @@
 # 19-04 hosted measurement: picture cost, clone count and run-to-run identity
 
-**Status: measured, no worker count chosen.** Under D-15's rule, no count of 2, 3 or 4 passes on the hosted runner.
-The cost table (`Scripts/visual/snapshot-cost.json`, `source: model`) and `snapshot-shards.json` are therefore
-unchanged. The decision is open; see "What this means".
+**Status: measured twice, no worker count chosen.** Run 42455556948 chose no count of 2, 3 or 4 under D-15's rule.
+The memory rule, the hosted identity, invocation length and log keeping were then addressed (see "Follow-up: the four
+options") and `ci/snapshot-measure` was pushed once more. Run 42475531683 chose no count either. Its main finding is
+that the hosted simulator itself failed in 5 of 8 jobs; see "Run after the follow-up". `snapshot-cost.json` stays
+`source: model`.
 
 - **Authority:** owner msg 2438 allowed pushing `ci/snapshot-measure`. The second push (one job per device and text
-  size) was the lead's technical call within that go-ahead. The remote branch was deleted afterwards under the same
-  go-ahead.
+  size) and the third (after the follow-up) were the lead's technical calls within that go-ahead.
 - **Sample:** the 19-05 classes (8 classes, 34 browsing scenarios) in `en-xSmall`, `en-large` and
   `en-accessibility5`. Per process that is 132 iPhone coordinates (both orientations) and 66 iPad coordinates
   (portrait). Each job records the candidate once at 2 workers, then compares at 2, 3 and 4, one `xcodebuild` at a
@@ -19,6 +20,7 @@ unchanged. The decision is open; see "What this means".
 | 42442284401 | `d8890c560` | one job per device | workflow error: a job `env` cannot read the `runner` context (fixed in `dfaf8c25a`) |
 | 42442366372 | `f2e9b438b` (`[skip test]`) | one job per device | no usable data: every iPad picture `error` `geometry` (Windowed Apps gives a 20 pt bottom inset; the pin is Full Screen Apps, 25 pt); the iPhone job hit its 170-minute limit and its upload was cut off |
 | 42455556948 | `5dfb3d13e` (`[skip test]`, tree of `ab5b71a57`) | one job per device and text size, 5 at a time | 5 jobs succeeded; `iphone en-xSmall` stopped at the 140-minute step limit after its candidate and the compare at 2 |
+| 42475531683 | `06bc94362` (`[skip test]`, tree of `35173299f`) | after the follow-up: as above plus one all-sizes job per device, logs kept | 5 jobs succeeded, 3 cancelled (two hung creating the simulator, one never launched the app); see "Run after the follow-up" |
 
 `ab5b71a57` sets Full Screen Apps on the iPad and reboots before Reduce Motion is set. It also splits the matrix and
 adds the step limit so partial measurements still upload. With it, every iPad picture reached the pinned geometry.
@@ -117,19 +119,175 @@ D-13 estimated **about 1½ to 2¼ hours per PR** (1.2 to 2.4 s per picture, 2 cl
 - **Concurrency:** more than 5 parallel shards needs GitHub Enterprise (50 macOS jobs) or a limit increase through
   GitHub support. The standard plans run at most 5 macOS jobs at once, and further jobs queue (D-15 amendment).
 
-## What this means (decision needed)
+## What this means
 
-The plan's rule cannot choose a count, so the next step needs a decision. These are options, none taken:
+The plan's rule could not choose a count from run 42455556948. These were the options:
 
 1. **Accept `warn`:** count only `critical` as memory pressure, since `warn` is the runner's resting state under
    simulators. 3 workers then still fails `changed` and `incomplete`, so this alone does not choose a count.
 2. **Fix the hosted identity first:** stabilise `shell-library-title-menu`, `front-page-search` (list rest) and the
    other menu scenarios on a loaded host, and lengthen or retry the landscape rotation wait (5 s). Then measure again.
-   This is scenario work in the 19-05 and 19-01 code, not in this plan's scripts.
 3. **Fewer, longer invocations:** with 7 to 10 minutes of fixed cost per `xcodebuild`, clones pay off only when one
-   invocation captures far more pictures. Each process holds one configuration, so the lever is fewer runs per
-   shard (fewer, larger shards), which changes the estimate more than the worker count does.
-4. **Keep `xcodebuild` logs as artifacts** in the next measurement (they hold only synthetic fixtures), so a stall like
-   the 2-hour candidate can be diagnosed.
+   invocation captures far more pictures.
+4. **Keep `xcodebuild` logs as artifacts** in the next measurement, so a stall like the 2-hour candidate can be
+   diagnosed.
 
-Until then `snapshot-cost.json` stays `source: model` and the gate's shard plan is the 19-02 model plan.
+The lead took all four as a technical call within owner msg 2438's go-ahead, followed by one more measurement.
+
+## Follow-up: the four options
+
+### 1. Memory rule
+
+`snapshot_measure.py` excludes a count only for a `critical` sample during its run; `warn` is still counted and shown
+in the table. 19-CONTEXT D-15 and the 19-04 plan's truth carry the amendment and its source.
+
+### 2. Hosted identity: root causes and fixes
+
+Two facts about the evidence came first:
+
+- **The difference images were wrong.** The snapshot library builds its difference picture by reading both images'
+  bytes as 8-bit RGBA, but a capture is 16-bit RGB (48 bits a pixel). Its picture is the first two thirds of the
+  bytes at the wrong stride, and nothing in the bottom third of a picture ever shows in it. Reconstructing the real
+  differences from run 42455556948's actual pictures showed where each change was. `HostedWindowCapture` now draws
+  its own difference picture from the same 8-bit sRGB bytes the comparison reads (a changed pixel white, brighter the
+  larger the change; an equal pixel the actual picture at an eighth of its brightness). The comparison and its
+  tolerances are unchanged.
+- **Settled did not mean at rest.** The settle loop took a picture once the window's reads stayed identical for
+  `stableSpan`. On a loaded host a scroll indicator that a scroll view flashes when it appears holds still for longer
+  than that before it fades, and a list can hold one offset between two steps of an animation. One run captured the
+  indicator or the intermediate offset and the next did not.
+
+| Scenario | Changed in run 42455556948 | Root cause | Fix |
+|---|---|---|---|
+| `shell-library-title-menu` | 12, every coordinate in `en-large` at 2 and `en-accessibility5` | Favorites under the menu hides its search field on scroll. Hosted early in a process, the list had not come to rest at its top, so the field was 2 pt short. | The scenario first brings its list to rest at the top (`restingAtTop()`), as the Favorites scenarios already do. The menu indicator stays hidden as before. |
+| `front-page-search` | 4 | Activating the search bar moves the list and scrolls the field's text to the caret. The caret freeze came after a fixed 800 ms, so on a loaded host it could freeze either one mid-way. | The step waits until the window is at rest before freezing the caret, and the list is brought to rest at its top first. |
+| `toplists-period-menu` landscape | 2 | The difference is the flashed vertical scroll indicator at the trailing edge, captured in one run and not in the other. | Settle counts identical reads only while nothing moves: no scroll view tracked, dragged or decelerating, no scroll indicator showing, no finite layer animation still running. Repeating animations (an indicator's spin, a caret's blink) and layers frozen at `speed` 0 do not count as motion. |
+| `agewall-ticked` landscape, `analytics-choice-none` landscape | 1 each | The library's picture shows no difference, so the change is in the bottom third. Both are landscape pages whose text scrolls under a pinned button, so the scroll view flashes its indicator when it appears. This is the same class as above, inferred from the layout because the run kept no usable difference. | Same settle fix. |
+| Landscape rotation (42 `geometry` errors) | — | On a loaded host the rotation took longer than the fixed 5 s wait. | The wait polls until the window matches the pin, for up to 20 s, then makes the request once more with the same wait. The geometry pin itself is unchanged. |
+
+A settle timeout now names the last motion it read (a view or layer class and animation key, never page text), and
+a picture that passes only on its second attempt (`flaky`) keeps its first attempt's picture and difference beside it
+(`first-actual/`, `first-difference/`), so the next hosted run shows what moved.
+
+**Local proof** (Xcode 27.2, iOS 27.2 runtime, iPhone Air, the 19-05 classes, 3 workers, each compare beside 8
+`yes` loops to load the host):
+
+| Configuration | Candidate | Compare 1 | Compare 2 | Compare 3 | Compares identical |
+|---|---|---|---|---|---|
+| `en-large` | 132 recorded | 132 passed (1 flaky, built before the first-attempt artifacts) | 132 passed, 0 flaky | 132 passed, 0 flaky | compares 2 and 3: 132 of 132 SHA-256 equal |
+| `en-accessibility5` | 132 recorded | 132 passed, 0 flaky | 132 passed, 0 flaky | — | 132 of 132 SHA-256 equal |
+| `en-xSmall` | 132 recorded | 132 passed, 0 flaky | 132 passed, 0 flaky | — | 131 of 132 SHA-256 equal |
+
+All 4 `notApplicable` coordinates are the same in every run, and no picture was `changed`, `timeout` or `error`. The
+only byte differences are in loading scenarios, whose indicator the scenario holds still at whatever angle it
+reached: `front-page-loading` landscape light (`en-large`, the candidate against its compares) and `popular-loading`
+portrait light (`en-xSmall`, one compare against the other). Both pass the comparison.
+
+### 3. Fewer, longer invocations
+
+A shard runs its units as few `xcodebuild` invocations as it can: one per orientation group, holding every
+configuration of that group (`-only-test-configuration` once per configuration). The simulator clones are created
+once per invocation and reused across its configurations. Locally, en-xSmall alone took 208 s of testing at 3
+workers, and en-xSmall with en-large in one invocation took 284 s, so the second configuration added 76 s and the
+same three clones ran both.
+
+- `snapshot_shards.py` writes each shard's `invocations` (an iPhone shard 1, an iPad shard 2: portrait and
+  landscape) and counts the cost table's `invocationMinutes` once per invocation in the estimate.
+- `snapshot-cost.json` (still `source: model`) gains `invocationMinutes: 8.5`, the middle of the 7 to 10 minutes from
+  run 42455556948. The model plan now estimates 47.6 to 60.7 minutes a shard.
+- The measurement adds an `all` job per device that records all three text sizes in one invocation at 2 workers.
+  With F as the fixed cost of an invocation, each single-size candidate takes F + C_i and the `all` candidate takes
+  F + sum(C_i), so `snapshot_measure.py` derives F = (sum of the single walls - the `all` wall) / 2 and writes the
+  larger device's F as `invocationMinutes`.
+
+### 4. Logs
+
+Every invocation's `xcodebuild` log is uploaded under `logs/` in the job's artifact (they hold only synthetic
+fixtures), and `run-snapshot-local.sh` takes `--workers` and several configurations so the hosted shape can be run
+locally.
+
+## Run after the follow-up (run 42475531683)
+
+Commit `06bc94362` on `ci/snapshot-measure` (`[skip test]`, tree of `35173299f`), 8 measure jobs, 5 at a time. Run
+duration 3 h 40 min. R-1: `{"billable":{}}`; every job ran in runner group `GitHub Actions` with label `xcode-27`
+(runners 1000000641 to 649), image `xcode-27-arm64` `20261104.0337.1`, so it is still a standard, unbilled runner.
+
+| Job | Outcome |
+|---|---|
+| ipad all | candidate of all three sizes in one invocation: 198 recorded in 13.5 min |
+| iphone all | candidate of all three sizes in one invocation: 396 recorded in 34.3 min; exit 65 because the runner process of one clone ended during `ToplistsSnapshotTests.testGrid()` after its pictures were written |
+| ipad en-xSmall | candidate 10.0 min, compares at 2 / 3 / 4: 66 passed each; at 4 a clone failed to boot within 60 s and the run took 35 min |
+| ipad en-large | candidate 11.0 min, compares at 2 / 3 / 4: 66 passed each |
+| iphone en-accessibility5 | candidate 132 recorded. The compares at 2 and 3 produced no pictures: the test runner could not launch, because a clone was still "Shutting Down" from the previous invocation, and then the connection to it was lost. The compare at 4: 129 passed, 3 changed, 1 flaky |
+| iphone en-large | the candidate started no test in 46 min (the app launch on the clones never returned); the job was then cancelled by the runner at 51 min, before its step limit |
+| iphone en-xSmall, ipad en-accessibility5 | "Create the pinned simulator" (`simctl create`, `boot`, `bootstatus`) hung until the 170-minute job limit; no artifact |
+
+`snapshot_measure.py --runs <artifacts> --run-id 42475531683`:
+
+| Device | Configuration | Workers | Pictures | Median s | x at 2 | Wall s | Speed-up | Memory | Changed |
+|---|---|---|---|---|---|---|---|---|---|
+| iphone | en-accessibility5 | 2 | 0 | - | - | 53 | - | normal | 0 |
+| iphone | en-accessibility5 | 3 | 0 | - | - | 147 | - | normal | 0 |
+| iphone | en-accessibility5 | 4 | 132 | 2.09 | - | 996 | 0.28 | warn | 3 |
+| ipad | en-xSmall | 2 | 66 | 2.27 | 1.00 | 418 | 0.36 | warn | 0 |
+| ipad | en-xSmall | 3 | 66 | 2.48 | 1.09 | 698 | 0.23 | warn | 0 |
+| ipad | en-xSmall | 4 | 66 | 3.15 | 1.39 | 2079 | 0.10 | warn | 0 |
+| ipad | en-large | 2 | 66 | 2.87 | 1.00 | 481 | 0.39 | warn | 0 |
+| ipad | en-large | 3 | 66 | 3.46 | 1.21 | 769 | 0.30 | warn | 0 |
+| ipad | en-large | 4 | 66 | 2.50 | 0.87 | 769 | 0.21 | warn | 0 |
+
+- 2 workers: incomplete
+- 3 workers: incomplete
+- 4 workers: changed, slowdown
+- Chosen: none (2 workers is excluded)
+- Fixed cost per invocation: not measured (no device has all three single-size candidates)
+
+`critical` was never sampled; `warn` was sampled as before and no longer excludes.
+
+### What the run showed
+
+- **Identity, iPad:** 0 changed and 0 flaky at every count, as before.
+- **Identity, iPhone** (only `en-accessibility5` at 4 workers ran): 3 changed, against 6 at the same configuration
+  and count in run 42455556948. The kept first attempts and the new difference pictures show each cause:
+  - `front-page-search` portrait light and dark, on both attempts: the search field shows no caret and its text is
+    not scrolled to the end, so the field was not focused when the picture was taken. `becomeFirstResponder()`
+    returned true, so the focus was taken back during the search bar's activation on a loaded host. This is a new
+    root cause, distinct from the text-offset race fixed above; the step must check that the field is still first
+    responder after rest and focus it again if not.
+  - `home-loading` portrait light: the indicator and the loading card's glass edge around it differ.
+    `freezeIndicators` stops the indicator's layer at whatever angle it has reached when the step runs, so the angle
+    depends on timing; locally the same shows as byte differences that stay within the comparison
+    (`front-page-loading`, `popular-loading` above), and on the loaded hosted runner it exceeded it. The freeze must
+    stop the indicator at a fixed point of its animation, not at the current time.
+  - `analytics-choice-none` landscape light (flaky, passed on its second attempt): the first attempt differed only
+    in fine noise over the glass button and the scroll edge at the bottom, the material sampling the content behind
+    it before that content was at rest.
+  - The rotation wait: 0 `geometry` errors in every run of this measurement (42 in run 42455556948).
+- **Hosted simulator reliability is now the blocker.** Of 8 measure jobs, 2 hung in `simctl` for 2 h 50 min, 1 never
+  launched the app on its clones, and 3 invocations failed or slowed on clone boot, shutdown or launch. None of these
+  is a picture difference, and `xcodebuild` reports them only as `Failed to install or launch the test runner`,
+  `Timed out trying to boot simulator` or a lost connection. The kept logs show that the stalls of run 42455556948
+  (iPhone candidates of 1 to 2 hours) were most likely the same: no test case starts in the log.
+- **Fixed cost per invocation:** iPad single sizes took 10.0 min (`en-xSmall`) and 11.0 min (`en-large`) and all three
+  sizes in one invocation 13.5 min. With a single-size cost of about F + C and the three together F + 3C, that gives C
+  of about 1.5 min and F of about 9 min, which agrees with the 7 to 10 minutes and the `invocationMinutes: 8.5` of the
+  model. On the iPhone, all three sizes took 34.3 min in one invocation (396 pictures); no iPhone single size
+  finished in this run to compare it against.
+
+### What this means (decision needed)
+
+D-15's rule still cannot choose a count, now mainly because the hosted simulator fails runs, not because pictures
+change. The options, none taken:
+
+1. **Harden the hosted simulator steps:** a step limit on "Create the pinned simulator" with one retry, wait for the
+   previous invocation's clones to be deleted before the next `xcodebuild`, and count an invocation that fails to
+   launch or boot as `infra` (retried once) rather than as an incomplete count. Then measure again.
+2. **Fix the two remaining iPhone identity causes:** re-focus the search field after rest when it lost focus, and
+   freeze loading indicators at a fixed point of their animation. Prove it locally as before.
+3. **Decide on the iPad data alone:** iPad passed identity at 2, 3 and 4 in both runs; 3 workers was 1.09 and 1.21
+   times the time at 2 here and 0.78 to 1.01 in run 42455556948. That is not D-15's rule (which needs every device and
+   text size), so it needs the owner.
+4. **Stay at 2 workers on the model** for the gate until a hosted run completes, with the shard plan's
+   `invocationMinutes` estimate (47.6 to 60.7 minutes a shard).
+
+Until then `snapshot-cost.json` stays `source: model`.
