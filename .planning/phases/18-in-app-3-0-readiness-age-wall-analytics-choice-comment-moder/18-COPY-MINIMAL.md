@@ -12,6 +12,8 @@ Developer confirmation (msg 1798): under Minimal the analytics SDK never starts;
 
 **Revision 6 APPROVED by the owner, msg 1880 (2026-11-05):** owner msg 1869 moves the screens and features from Full to Basic (developer mapping msg 1878; D-06f). Revision 6 at the end of this file supersedes the Basic description of Revision 3 (msg 1839) and the Full description (`consent.level.full.description`) in 18-COPY-FIRST-LAUNCH.md (msg 1767), in all six languages; both are retired. Its `consent.level.recommended` table is approved as well: the owner chose "Basic marked Recommended" (owner msg 1882, card 1873, options in msgs 1872 and 1874). Nothing is pre-selected; Basic only carries the label. The pre-selected variant (msg 1871) was not chosen, so the section heading's "Basic is the default" (the owner's ask in msg 1869) means recommended, not pre-selected. Minimal (Revision 2), `consent.title`, `consent.body` (Revision 5) and the level names are unchanged.
 
+**Revision 7 (2026-11-08):** owner msg 2552 drops the install-source lookup; the app now knows only which download it is (its distribution channel), not how it was installed. The copywriter's wording (msg 2559) replaces "where you installed the app from" with "where you got the app from"; the owner was told in developer msg 2560 and did not object. Revision 7 at the end of this file supersedes Revision 2's `consent.level.minimal.description` in de, en, ko, zh-Hans and zh-Hant; ja already said 入手元 and is unchanged. Nothing else changes.
+
 ## What changes
 
 1. The level name and its description (key renamed `consent.level.none` -> `consent.level.minimal`).
@@ -95,3 +97,15 @@ Only if the owner takes the "Recommended" label option (msg 1872):
 | Key | en | de | ko | ja | zh-Hans | zh-Hant |
 |---|---|---|---|---|---|---|
 | consent.level.recommended | Recommended | Empfohlen | 권장 | おすすめ | 推荐 | 推薦 |
+
+## Revision 7 (owner msg 2552: report the distribution channel only; copywriter msg 2559)
+
+Only `consent.level.minimal.description` changes.
+
+| Key | en | de | ko | ja | zh-Hans | zh-Hant |
+|---|---|---|---|---|---|---|
+| consent.level.minimal.description | Sends only a signal that EhPanda is installed, and where you got the app from. | Sendet nur, dass EhPanda installiert ist, und woher du die App hast. | EhPanda가 설치되어 있다는 사실과 앱을 받은 곳만 보냅니다. | EhPanda がインストールされていることと、アプリの入手元だけを送信します。 | 仅发送 EhPanda 已安装的信息，以及应用的获取来源。 | 僅傳送 EhPanda 已安裝的資訊，以及 App 的取得來源。 |
+
+Notes:
+- The signal carries only the channel the download was published for (GitHub, AltStore, SideStore, AltStore PAL, EhPanda Beta, or `source`), so "got the app from" is what the app knows; "installed from" claimed more.
+- The READMEs' Analytics sections use the same line (copywriter msg 2586).
