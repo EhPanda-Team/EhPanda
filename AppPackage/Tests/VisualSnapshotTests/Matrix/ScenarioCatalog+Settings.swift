@@ -60,7 +60,9 @@ extension ScenarioCatalog {
             "settings-pages-app-icon": .init(make: { Page.settings([.appearance(.init()), .appIcon(.init())]) }),
             "settings-pages-download": .init(make: { Page.settings([.download(.init())]) }),
             "settings-pages-reading": .init(make: { Page.settings([.reading(.init())]) }),
-            "settings-pages-laboratory": .init(make: { Page.settings([.laboratory(.init())]) }),
+            "settings-pages-laboratory": .init(
+                make: { Page.settings([.laboratory(.init())]) }, interact: Page.waitForGlassShadow
+            ),
             "settings-pages-about": .init(make: { Page.settings([.about(.init())]) }),
             "settings-pages-site-settings": .init(make: { Page.siteSettings(.loaded) }),
             "settings-pages-site-settings-confirmation": .init(make: { Page.siteSettings(.deleteConfirmation) }),
@@ -184,6 +186,14 @@ enum SettingsScenarios {
         root.layoutIfNeeded()
     }
 
+    /// Laboratory's cell is interactive glass. On the phone in landscape its shadow can still step after the window
+    /// has looked still for the settle's 500 ms, so a first capture sometimes holds the earlier shadow. The page
+    /// settles once, rests a second, and the capture's own settle then reads the final shadow.
+    static func waitForGlassShadow(_ window: UIWindow) async throws {
+        _ = await HostedWindowCapture.settle(window)
+        try await Task.sleep(for: .seconds(1))
+    }
+
     private static func scrollViews(in view: UIView) -> [UIScrollView] {
         guard !view.isHidden else { return [] }
         return ((view as? UIScrollView).map({ [$0] }) ?? []) + view.subviews.flatMap(scrollViews(in:))
@@ -231,20 +241,28 @@ enum SettingsScenarios {
     }
 
     /// Opens the Runs menu in the bar once the page has settled, as VoiceOver's activation of it does, and holds the
-    /// menu's scroll indicator hidden.
+    /// menu's scroll indicator hidden. A menu too tall for the screen (ja-accessibility5 in landscape) builds its
+    /// lists over its opening animation and flashes the indicator of a later one, so every menu list is held hidden
+    /// for a second after the first appears.
     static func openRunsMenu(_ window: UIWindow) async throws {
         _ = await HostedWindowCapture.settle(window)
         let root = try XCTUnwrap(window.rootViewController?.view)
         try await BrowsingScenarios.activate(String(localized: .appActivityLogsViewRuns), in: window)
         let clock = ContinuousClock()
         let deadline = clock.now.advanced(by: .seconds(3))
+        var holdUntil: ContinuousClock.Instant?
         while true {
             let menuLists = scrollViews(in: window).filter({ !$0.isDescendant(of: root) })
-            if !menuLists.isEmpty {
-                menuLists.forEach({ $0.showsVerticalScrollIndicator = false })
+            menuLists.forEach({ $0.showsVerticalScrollIndicator = false })
+            if !menuLists.isEmpty, holdUntil == nil {
+                holdUntil = clock.now.advanced(by: .seconds(1))
+            }
+            if let holdUntil, clock.now >= holdUntil {
                 return
             }
-            guard clock.now < deadline else { throw AccessibilityActionDriver.Failure.notFound("menu") }
+            guard holdUntil != nil || clock.now < deadline else {
+                throw AccessibilityActionDriver.Failure.notFound("menu")
+            }
             try await clock.sleep(for: .milliseconds(100))
         }
     }
