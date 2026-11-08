@@ -1,0 +1,83 @@
+#!/usr/bin/env python3
+"""A recording stand-in for `gh` (19-15). It never reaches the network.
+
+Each call appends its arguments as one JSON line to `$FAKE_GH_LOG` (when set). Issues live in `$FAKE_GH_STATE`, a
+JSON file `{"issues": [{"number", "title", "state"}]}` created on first write; without it, `issue list` answers `[]`
+and writes are only recorded. Supported: `issue list|create|comment|close`, `label create`, `run list` (answers
+`$FAKE_GH_RUNS`, a JSON file, or `[]`), `run download` and `auth status`; anything else exits 2.
+"""
+import json
+import os
+import sys
+
+
+def option(arguments, name, default=None):
+    return arguments[arguments.index(name) + 1] if name in arguments else default
+
+
+def load_state(path):
+    if path and os.path.exists(path):
+        with open(path) as handle:
+            return json.load(handle)
+    return {'issues': []}
+
+
+def save_state(path, state):
+    if path:
+        with open(path, 'w') as handle:
+            json.dump(state, handle, indent=2)
+
+
+def find_open(state, number):
+    for issue in state['issues']:
+        if str(issue['number']) == number and issue['state'] == 'open':
+            return issue
+    return None
+
+
+def main(arguments):
+    log = os.environ.get('FAKE_GH_LOG')
+    if log:
+        with open(log, 'a') as handle:
+            handle.write(json.dumps(arguments) + '\n')
+    state_path = os.environ.get('FAKE_GH_STATE')
+    command = arguments[:2]
+
+    if command == ['issue', 'list']:
+        state = load_state(state_path)
+        print(json.dumps([{'number': issue['number'], 'title': issue['title']}
+                          for issue in state['issues'] if issue['state'] == 'open']))
+        return 0
+    if command == ['issue', 'create']:
+        state = load_state(state_path)
+        number = len(state['issues']) + 1
+        state['issues'].append({'number': number, 'title': option(arguments, '--title', ''), 'state': 'open'})
+        save_state(state_path, state)
+        print('fake gh: created issue ' + str(number))
+        return 0
+    if command in (['issue', 'comment'], ['issue', 'close']):
+        state = load_state(state_path)
+        issue = find_open(state, arguments[2] if len(arguments) > 2 else '')
+        if state_path and issue is None:
+            print('fake gh: no such open issue', file=sys.stderr)
+            return 1
+        if issue is not None and command[1] == 'close':
+            issue['state'] = 'closed'
+            save_state(state_path, state)
+        return 0
+    if command == ['label', 'create'] or command == ['run', 'download'] or command == ['auth', 'status']:
+        return 0
+    if command == ['run', 'list']:
+        runs = os.environ.get('FAKE_GH_RUNS')
+        if runs and os.path.exists(runs):
+            with open(runs) as handle:
+                print(handle.read())
+        else:
+            print('[]')
+        return 0
+    print('fake gh: unsupported command', file=sys.stderr)
+    return 2
+
+
+if __name__ == '__main__':
+    sys.exit(main(sys.argv[1:]))
