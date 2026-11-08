@@ -1,0 +1,30 @@
+{
+  "name": "EhPanda Beta",
+  "identifier": "app.ehpanda.altstore.beta",
+  "subtitle": "Try new versions of EhPanda before they're released.",
+  "description": "Beta builds of EhPanda, for trying new versions before they're released. Betas may have bugs, and features can still change before release.\nBetas often need a newer iOS than the regular version. Please report problems on GitHub.\nThe beta installs as a separate app next to regular EhPanda. It starts empty and doesn't share downloads, history or settings with it. With a free Apple ID, AltStore can keep only 3 apps at once, including AltStore itself.\nNote: EhPanda is not affiliated with or endorsed by E-Hentai.",
+  "iconURL": "https://raw.githubusercontent.com/EhPanda-Team/EhPanda/main/docs/altstore/appicon-512.png",
+  "website": "https://github.com/EhPanda-Team/EhPanda",
+  "tintColor": "#289979",
+  "nsfw": true,
+  "featuredApps": [
+    "app.ehpanda.beta"
+  ],
+  "apps": [
+    {
+      "name": "EhPanda Beta",
+      "bundleIdentifier": "app.ehpanda.beta",
+      "developerName": "EhPanda Team",
+      "subtitle": "Beta builds. Try new versions before they're released.",
+      "localizedDescription": "This is a beta build of EhPanda. It may have bugs, and features can still change before release.\nThe beta installs as a separate app next to regular EhPanda. It starts empty and doesn't share downloads, history or settings with it. With a free Apple ID, AltStore can keep only 3 apps at once, including AltStore itself.\nEhPanda is an unofficial app for iOS and iPadOS that allows users to access and explore adult manga and doujinshi from E-Hentai.\nWith a user-friendly interface, powerful search features, and a vast collection of content, it offers a personalized library and an immersive reading experience.\nNote: EhPanda is not affiliated with or endorsed by E-Hentai.",
+      "iconURL": "https://raw.githubusercontent.com/EhPanda-Team/EhPanda/main/docs/altstore/appicon-512.png",
+      "tintColor": "#289979",
+      "category": "entertainment",
+      "beta": true,
+      "appPermissions": {
+        "entitlements": [],
+        "privacy": {}
+      }
+    }
+  ]
+}
