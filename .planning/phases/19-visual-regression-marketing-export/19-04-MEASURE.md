@@ -1,10 +1,11 @@
 # 19-04 hosted measurement: picture cost, clone count and run-to-run identity
 
-**Status: measured twice, no worker count chosen.** Run 42455556948 chose no count of 2, 3 or 4 under D-15's rule.
-The memory rule, the hosted identity, invocation length and log keeping were then addressed (see "Follow-up: the four
-options") and `ci/snapshot-measure` was pushed once more. Run 42475531683 chose no count either. Its main finding is
-that the hosted simulator itself failed in 5 of 8 jobs; see "Run after the follow-up". `snapshot-cost.json` stays
-`source: model`.
+**Status: measured twice, no worker count chosen; interim 2 workers.** Run 42455556948 chose no count of 2, 3 or 4
+under D-15's rule. The memory rule, the hosted identity, invocation length and log keeping were then addressed (see
+"Follow-up: the four options") and `ci/snapshot-measure` was pushed once more. Run 42475531683 chose no count
+either; its main finding is that the hosted simulator itself failed in 5 of 8 jobs. The developer then decided on
+robust simulator steps, the two remaining iPhone identity fixes, and 2 workers as the interim count (see "Decision
+after run 42475531683"). `snapshot-cost.json` stays `source: model`.
 
 - **Authority:** owner msg 2438 allowed pushing `ci/snapshot-measure`. The second push (one job per device and text
   size) and the third (after the follow-up) were the lead's technical calls within that go-ahead.
@@ -274,10 +275,10 @@ duration 3 h 40 min. R-1: `{"billable":{}}`; every job ran in runner group `GitH
   model. On the iPhone, all three sizes took 34.3 min in one invocation (396 pictures); no iPhone single size
   finished in this run to compare it against.
 
-### What this means (decision needed)
+### What this means
 
 D-15's rule still cannot choose a count, now mainly because the hosted simulator fails runs, not because pictures
-change. The options, none taken:
+change. The options were:
 
 1. **Harden the hosted simulator steps:** a step limit on "Create the pinned simulator" with one retry, wait for the
    previous invocation's clones to be deleted before the next `xcodebuild`, and count an invocation that fails to
@@ -290,4 +291,104 @@ change. The options, none taken:
 4. **Stay at 2 workers on the model** for the gate until a hosted run completes, with the shard plan's
    `invocationMinutes` estimate (47.6 to 60.7 minutes a shard).
 
-Until then `snapshot-cost.json` stays `source: model`.
+## Decision after run 42475531683
+
+The developer took options 1 and 2, and option 4 as the interim setting; not option 3. The remote `ci/snapshot-measure`
+was deleted afterwards (owner msg 2637). Another hosted measurement needs a fresh go-ahead from the owner.
+
+### Interim worker count: 2
+
+Until a hosted run passes D-15's rule, the plan runs **2 workers** (`snapshot-cost.json` `workers: 2`, still
+`source: model`; `snapshot-shards.json` is generated from it). The reasons:
+
+- 2 is the rule's base count, so it is the one count D-15 never excludes for slowdown, and every candidate of both
+  hosted runs recorded at 2.
+- Neither hosted run showed 3 or 4 workers shortening the wall time: the clone speed-up stayed between 0.10 and 0.39
+  at every count, because the fixed cost per invocation (about 9 minutes) dominates the capture (the tables above).
+- More clones mean more clones to boot, launch and shut down, which is where run 42475531683 failed.
+- Deciding on the iPad data alone (option 3) was declined: D-15's rule needs every device and text size.
+
+### Option 2: the two remaining iPhone identity causes
+
+| Scenario | Root cause | Fix |
+|---|---|---|
+| `front-page-search` | `becomeFirstResponder()` returned true, but on the loaded hosted runner the search bar's activation took the focus back; both attempts captured an unfocused field with its text scrolled to the start and no caret. | The step focuses the field again until it is still first responder after the window has come to rest twice in a row (at most 15 s), then freezes. |
+| `home-loading` (and every scenario that uses `freezeIndicators`) | Stopping the hosted view's layer clock right after hosting held the indicator wherever its animation happened to be: an animation committed before the stop showed its model value, one committed after it its first frame, and the appearing loading card could be held part-way in. Which one a run got depended on load; locally `home-loading`, `front-page-loading` and `popular-loading` each had two byte-different states across runs. | `freezeIndicators` waits until the window is at rest (every commit and finite transition done), stops the clock, and restarts every animation that repeats for as long as its view shows at its first frame, so an indicator is always held at the same point. |
+
+Local proof under load (Xcode 27.2, iOS 27.2, `EhPanda iPhone Air`, the eight iPhone classes, 3 workers; per size a
+candidate, then two compares against it, each compare beside 8 busy `yes` loops):
+
+| Size | Candidate | Compare 1 | Compare 2 | `front-page-search` + `home-loading` (8 pictures) | All pictures byte-identical across the compares |
+|---|---|---|---|---|---|
+| en-large | 132 recorded, 192 s | 132 passed, 0 changed, 0 flaky, 202 s | 132 passed, 0 changed, 0 flaky, 207 s | 8 of 8 identical | 132 of 132 |
+| en-accessibility5 | 132 recorded, 215 s | 132 passed, 0 changed, 0 flaky, 216 s | 132 passed, 0 changed, 0 flaky, 196 s | 8 of 8 identical | 132 of 132 |
+| en-xSmall | 132 recorded, 196 s | 132 passed, 0 changed, 0 flaky, 222 s | 132 passed, 0 changed, 0 flaky, 226 s | 8 of 8 identical | 131 of 132 |
+
+Each size also has 4 not-applicable coordinates. The one en-xSmall picture that differed, `watched-signed-out`
+portrait light, passed at the first attempt in both compares; its bytes differed only below the comparison's
+precision (the capture's low bits, which the comparison ignores), and compare 2 matched the candidate's bytes.
+Before the fix, the loading scenarios had two byte-different states across local runs.
+
+### Option 1: robust hosted simulator steps
+
+- **Simulator setup** (`Scripts/visual/hosted-simulator.sh create`): every `simctl` call has its own limit (create
+  2 min, boot 3 min, boot status 5 min, settings 1 min). A failed or overrun attempt is deleted, the simulator
+  service is restarted, and the setup is made once more. The step has a 45-minute limit over both attempts; the
+  job's limit went from 170 to 200 minutes so the upload still runs after it.
+- **Clones between invocations** (`hosted-simulator.sh clear-clones`): before every `xcodebuild`, the previous
+  invocation's clones ("Clone N of EhPanda measure", in the parallel-testing device set) are shut down and deleted,
+  waiting up to 10 minutes, so no invocation reaches a clone that is still shutting down.
+- **Startup watchdog:** an invocation with no test case begun after 20 minutes is stopped (the stalls of 46 minutes
+  and 1 to 2 hours never began a test).
+- **Infra, retried once** (`Scripts/visual/snapshot_infra.py`): an invocation that exits non-zero with a simulator
+  failure in its log (clone shutting down, boot timeout, device not prepared, lost runner connection, simulator
+  service died, runner not launched) or stopped by the startup watchdog is infra. It is made once more after the
+  clones are cleared; the failed attempt's log and result lines are kept beside it (`-infra`). A run that fails that
+  way twice records the reason in `shard.json` `infra`, and `snapshot_measure.py` reports its count as `infra`
+  instead of `incomplete`. A failed, hung or crashed test is never infra.
+
+### Unit test failure in run 42490998810
+
+The Test workflow's run 42490998810 failed only `HostedWindowCaptureTests.testStaticViewSettlesAfterTheStableSpan()`:
+`XCTAssertGreaterThanOrEqual failed: ("4") is less than ("5")` at line 26 (the xcresult; the failed log does not
+carry the message). The test assumed host speed. Settling is timed: identical reads must span 500 ms, and each gap is
+the 100 ms sample interval plus a capture, so a slower host closes the span in fewer reads. Locally a still view
+settled on read 5 in every iteration, beside 8 or 32 busy loops (0.63 to 0.66 s; a gap of about 127 ms, just over the
+125 ms that makes it 4). With the app clamped to background priority it settled on read 3. The floor is now two
+reads; the assertion that the reads span the stable span, which is the contract, stays.
+
+The clamp also showed `testChangingViewTimesOutAfterTheSampleCap()` settling once in 20 iterations (35 reads, not
+40): its 50 ms `TimelineView` went 500 ms without a redraw. The changing view now paints its draw count and asks to be
+redrawn after every draw on the main queue, ahead of the settle loop's next read, so consecutive reads always differ.
+How the fix was checked (`HostedWindowCaptureTests`, FeatureTests plan, 20 iterations each):
+
+- Beside 8 busy loops, all 9 tests passed 20 of 20.
+- Clamped, the old changing view failed 1 of 20 and the new one passed 20 of 20.
+- Clamped, the static test passed every iteration that ran (18), where the old floor failed every one.
+
+The "did not return a process handle" launch error at 15:10:48Z in that run was on clone 2, not clone 1, and did
+not fail the run: xcodebuild launched the app again, and the result bundle has 1 failure, 1822 passed and no test that
+did not run. On the measurement workflow, the same error is infra and is retried once (option 1).
+
+## Final hosted run (needs the owner's go-ahead)
+
+`snapshot-measure.yml` as committed: one build job (90-minute limit; 8 minutes in run 42475531683), then 8 measurement
+jobs, iPhone and iPad at en-xSmall, en-large, en-accessibility5 and `all`. The `xcode-27` runners took 5 of them at a
+time. Each job does the following:
+
+- Creates the pinned simulator (45-minute limit, one retry).
+- Records the candidate at 2 workers, then compares it at 2, 3 and 4 workers. Every invocation clears the previous
+  clones first, has the 20-minute startup watchdog, and gets one infra retry. The step's limit is 140 minutes.
+- Uploads the shard (job limit 200 minutes).
+
+What it measures: per job and worker count, the wall time of each `xcodebuild`, and its passed, changed, flaky,
+timeout and infra counts. It also measures the memory pressure, and the identity of every compare picture against the
+candidate. D-15's rule then decides the count from memory pressure, changed pictures and per-clone slowdown against
+2 workers, across every device and text size.
+
+Expected wall time: in run 42475531683 the jobs that did not stall took 24.5 to 75 minutes (the first five started
+together, the other three as slots freed), and the run took 3 h 40 min only because two jobs stalled to the old
+170-minute limit. Without stalls, the run should take about 1.5 to 2.5 hours: the build, then two waves of jobs of
+about 25 to 75 minutes each. Now a stalled start costs at most the 20-minute watchdog plus one retry, not the job's
+limit. The ceiling is the limits: 90 minutes of build, then two waves of 200-minute jobs, about 8.2 hours.
+If the run passes the rule, its count replaces the interim 2 (`source: hosted`); until then the plan stays at 2.
