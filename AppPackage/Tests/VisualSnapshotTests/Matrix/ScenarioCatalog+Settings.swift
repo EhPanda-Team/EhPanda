@@ -1,6 +1,11 @@
+import AppComponents
+@testable import AppFeature
 import AppModels
 import ComposableArchitecture
 import Foundation
+@testable import HomeFeature
+import OSLog
+import ReadingSettingFeature
 @testable import SettingFeature
 import SwiftUI
 import UIKit
@@ -10,7 +15,7 @@ import XCTest
 // Settings, the Settings pages and the app-wide presentations (19-08).
 extension ScenarioCatalog {
     static var settings: [String: ScenarioFactory] {
-        [settingsRoot].reduce(into: [:]) { result, group in
+        [settingsRoot, settingsPages, appWide].reduce(into: [:]) { result, group in
             result.merge(group) { first, _ in first }
         }
     }
@@ -29,6 +34,50 @@ extension ScenarioCatalog {
                 signedIn: false, make: { Page.login(.filled) }, interact: LibraryScenarios.holdCaret
             ),
             "settings-login-error": .init(signedIn: false, make: { Page.login(.error) })
+        ]
+    }
+
+    private static var settingsPages: [String: ScenarioFactory] {
+        typealias Page = SettingsScenarios
+        return [
+            "settings-pages-general-minimal": .init(
+                make: { Page.general(level: .minimal) }, interact: Page.scrollToBottom
+            ),
+            "settings-pages-general-basic": .init(make: { Page.general(level: .basic) }, interact: Page.scrollToBottom),
+            "settings-pages-general-full": .init(make: { Page.general(level: .full) }, interact: Page.scrollToBottom),
+            "settings-pages-general-cache-confirmation": .init(
+                make: { Page.general(level: nil, action: .clearImageCacheButtonTapped) }
+            ),
+            "settings-pages-general-translations-confirmation": .init(
+                make: { Page.general(level: nil, action: .removeCustomTranslationsButtonTapped) }
+            ),
+            "settings-pages-activity-logs": .init(make: { Page.activityLogs(filled: true) }),
+            "settings-pages-activity-logs-empty": .init(make: { Page.activityLogs(filled: false) }),
+            "settings-pages-activity-logs-run-picker": .init(
+                make: { Page.activityLogs(filled: true) }, interact: Page.openRunsMenu
+            ),
+            "settings-pages-appearance": .init(make: { Page.settings([.appearance(.init())]) }),
+            "settings-pages-app-icon": .init(make: { Page.settings([.appearance(.init()), .appIcon(.init())]) }),
+            "settings-pages-download": .init(make: { Page.settings([.download(.init())]) }),
+            "settings-pages-reading": .init(make: { Page.settings([.reading(.init())]) }),
+            "settings-pages-laboratory": .init(make: { Page.settings([.laboratory(.init())]) }),
+            "settings-pages-about": .init(make: { Page.settings([.about(.init())]) }),
+            "settings-pages-site-settings": .init(make: { Page.siteSettings(.loaded) }),
+            "settings-pages-site-settings-confirmation": .init(make: { Page.siteSettings(.deleteConfirmation) }),
+            "settings-pages-site-settings-error": .init(make: { Page.siteSettings(.failed) })
+        ]
+    }
+
+    private static var appWide: [String: ScenarioFactory] {
+        typealias Page = SettingsScenarios
+        return [
+            "app-wide-app-alert": .init(
+                make: { Page.jumpPageAlert() }, prepare: TracerScenarios.cacheHomeArtwork,
+                interact: Page.holdAlertCaret
+            ),
+            "app-wide-error-info": .init(make: { Page.app(.errorInfo) }),
+            "app-wide-toast-success": .init(make: { Page.app(.successToast) }),
+            "app-wide-toast-failure": .init(make: { Page.app(.failureToast) })
         ]
     }
 }
@@ -99,5 +148,197 @@ enum SettingsScenarios {
             actions.append((1, .login(.loginDone(.failure(.loginRejected(nil))))))
         }
         return settings([.account(.init()), .login(login)], actions: actions)
+    }
+
+    // MARK: Settings pages
+
+    /// General, with the analytics level chosen (or none). `action`, if any, is the user's tap on the page. The
+    /// cache size is the one the preview library client reports; removing translations needs a custom table, which
+    /// the synthetic translations stand in for.
+    static func general(level: AnalyticsLevel?, action: GeneralSettingReducer.Action? = nil) -> AnyView {
+        @Shared(.setting) var setting
+        $setting.withLock({ $0.analyticsLevel = level })
+        if action == .removeCustomTranslationsButtonTapped {
+            $setting.withLock({ $0.enableTagsExtension = true })
+            @Shared(.tagTranslator) var tagTranslator
+            $tagTranslator.withLock {
+                $0 = TagTranslator(hasCustomTranslations: true, translations: LibraryScenarios.translator.translations)
+            }
+        }
+        var actions: [(Int, SettingPath.Action)] = [(0, .general(.calculateWebImageDiskCache))]
+        if let action {
+            actions.append((0, .general(action)))
+        }
+        return settings([.general(.init())], actions: actions)
+    }
+
+    /// Brings the page's form to rest at its bottom, where General's analytics section and its footer are.
+    static func scrollToBottom(_ window: UIWindow) async throws {
+        _ = await HostedWindowCapture.settle(window)
+        let root = try XCTUnwrap(window.rootViewController?.view)
+        for list in scrollViews(in: root) {
+            let bottom = list.contentSize.height - list.bounds.height + list.adjustedContentInset.bottom
+            guard bottom > list.contentOffset.y else { continue }
+            list.setContentOffset(CGPoint(x: list.contentOffset.x, y: bottom), animated: false)
+        }
+        root.layoutIfNeeded()
+    }
+
+    private static func scrollViews(in view: UIView) -> [UIScrollView] {
+        guard !view.isHidden else { return [] }
+        return ((view as? UIScrollView).map({ [$0] }) ?? []) + view.subviews.flatMap(scrollViews(in:))
+    }
+
+    /// Activity Logs over General: the current run's synthetic entries and four earlier runs, or a run with nothing
+    /// logged and no earlier runs. No log file is read.
+    static func activityLogs(filled: Bool) -> AnyView {
+        let now = PublicVisualFixtures.fixedDate
+        @Shared(.inMemory("appActivityLogs.currentRun")) var currentRun: RunLogFile?
+        $currentRun.withLock({ $0 = runFile(date: now, runCount: SettingsFixtures.currentRunCount) })
+        var logs = AppActivityLogsReducer.State()
+        if filled {
+            @Shared(.inMemory("appActivityLogs.currentRunLogs")) var entries: [AppActivityLog] = []
+            $entries.withLock {
+                $0 = SettingsFixtures.logEntries.map { entry in
+                    AppActivityLog(
+                        date: now.addingTimeInterval(entry.offset), category: entry.category,
+                        level: level(entry.level), message: entry.message
+                    )
+                }
+            }
+            logs.previousRuns = SettingsFixtures.previousRuns.map { run in
+                runFile(date: now.addingTimeInterval(-3600 * Double(run.hoursBefore)), runCount: run.runCount)
+            }
+        }
+        return settings([.general(.init()), .appActivityLogs(logs)])
+    }
+
+    private static func runFile(date: Date, runCount: Int) -> RunLogFile {
+        RunLogFile(
+            url: URL(filePath: "/visual-fixture/run-\(Int(date.timeIntervalSince1970))-\(runCount).jsonl"),
+            date: date, runCount: runCount
+        )
+    }
+
+    private static func level(_ level: LogEntryFixture.Level) -> OSLogEntryLog.Level {
+        switch level {
+        case .debug: .debug
+        case .info: .info
+        case .notice: .notice
+        case .error: .error
+        case .fault: .fault
+        }
+    }
+
+    /// Opens the Runs menu in the bar once the page has settled, as VoiceOver's activation of it does, and holds the
+    /// menu's scroll indicator hidden.
+    static func openRunsMenu(_ window: UIWindow) async throws {
+        _ = await HostedWindowCapture.settle(window)
+        let root = try XCTUnwrap(window.rootViewController?.view)
+        try await BrowsingScenarios.activate(String(localized: .appActivityLogsViewRuns), in: window)
+        let clock = ContinuousClock()
+        let deadline = clock.now.advanced(by: .seconds(3))
+        while true {
+            let menuLists = scrollViews(in: window).filter({ !$0.isDescendant(of: root) })
+            if !menuLists.isEmpty {
+                menuLists.forEach({ $0.showsVerticalScrollIndicator = false })
+                return
+            }
+            guard clock.now < deadline else { throw AccessibilityActionDriver.Failure.notFound("menu") }
+            try await clock.sleep(for: .milliseconds(100))
+        }
+    }
+
+    enum SiteSettingsState {
+        case loaded, deleteConfirmation, failed
+    }
+
+    /// The site settings over Account, as the site answered them: two profiles with the app's own selected, and
+    /// synthetic favorite names. Failed is the page's answer to a request that failed. Nothing is fetched.
+    static func siteSettings(_ kind: SiteSettingsState) -> AnyView {
+        var site = EhSettingReducer.State()
+        if kind == .failed {
+            site.loadingState = .failed(.networkingFailed)
+        } else {
+            var ehSetting = EhSetting.empty(ehProfiles: SettingsFixtures.profiles.map { profile in
+                EhProfile(
+                    value: profile.value, name: profile.name,
+                    isSelected: profile.value == SettingsFixtures.selectedProfile
+                )
+            })
+            ehSetting.favoriteCategories = SettingsFixtures.favoriteCategories
+            site.setEhSetting(ehSetting)
+        }
+        let actions: [(Int, SettingPath.Action)] = kind == .deleteConfirmation
+            ? [(1, .ehSetting(.deleteProfileButtonTapped))] : []
+        return settings([.account(.init()), .ehSetting(site)], actions: actions)
+    }
+
+    // MARK: App-wide
+
+    /// Toplists with its jump-page alert open, its page field focused. The keyboard is a separate window and is not
+    /// drawn.
+    static func jumpPageAlert() -> AnyView {
+        let content = BrowsingScenarios.ListContent.loaded(.row)
+        content.storeDisplayMode(.toplists)
+        var state = ToplistsReducer.State()
+        state.rawGalleries[state.type] = content.galleries(3)
+        state.rawLoadingState[state.type] = content.loadingState
+        state.rawPageNumber[state.type] = PageNumber(current: 0, maximum: SettingsFixtures.toplistsLastPage)
+        let store = Store(initialState: state, reducer: ToplistsReducer.init)
+        store.send(.presentJumpPageAlert)
+        return AnyView(NavigationStack {
+            ToplistsView(store: store)
+        })
+    }
+
+    /// Lets the alert's page field take focus and the alert finish moving, then holds the field's caret still. The
+    /// alert is presented over the hosted root, outside the root view, so the presented view's layers are held.
+    static func holdAlertCaret(_ window: UIWindow) async throws {
+        let clock = ContinuousClock()
+        let deadline = clock.now.advanced(by: .seconds(5))
+        var presented = window.rootViewController
+        while true {
+            while let next = presented?.presentedViewController {
+                presented = next
+            }
+            if let view = presented?.view, view !== window.rootViewController?.view,
+               textFields(in: view).contains(where: \.isFirstResponder) {
+                try await clock.sleep(for: .milliseconds(1500))
+                view.layer.speed = 0
+                view.layer.timeOffset = 0
+                return
+            }
+            guard clock.now < deadline else { throw AccessibilityActionDriver.Failure.notFound("alert field") }
+            try await clock.sleep(for: .milliseconds(100))
+        }
+    }
+
+    private static func textFields(in view: UIView) -> [UITextField] {
+        ((view as? UITextField).map({ [$0] }) ?? []) + view.subviews.flatMap(textFields(in:))
+    }
+
+    enum AppPresentation {
+        case errorInfo, successToast, failureToast
+    }
+
+    /// The app's own presentations over the Search tab: the Error Info sheet for a failed request, or a toast. The
+    /// success toast is the app's Copied toast held by its state (no hide timer); the failure toast carries its
+    /// error, so it stays until tapped.
+    static func app(_ presentation: AppPresentation) -> AnyView {
+        var app = AppReducer.State()
+        app.tabBarState.tabBarItemType = .search
+        let error = ErrorInfo(error: .networkingFailed)
+        switch presentation {
+        case .errorInfo:
+            app.presentationState.destination = .errorInfo(error)
+        case .successToast:
+            var toast = AppAlertState<Never>.copiedToClipboardSucceeded
+            toast.style = .toast(icon: .success, autoHide: false)
+            app.presentationState.toast = toast
+        case .failureToast:
+            app.presentationState.toast = .error(error)
+        }
+        return AnyView(TabBarView(store: Store(initialState: app, reducer: AppReducer.init)))
     }
 }
