@@ -82,3 +82,23 @@ log checked: no content
 - The run's billing timing (`gh api .../actions/runs/42443815779/timing`) reports `"billable": {}`, so no billable
   minutes on any runner type, with `run_duration_ms` 757000.
 - GitHub-hosted runners are free for public repositories. The run made no charge.
+
+## Clean-up (Task 2)
+
+- **Remote branch:** `ci/live-check` was deleted under owner msg 2456, after the run was recorded.
+  `git ls-remote --heads origin 'ci/*'` now lists only another plan's branch, and no `ci/live-check`.
+- **Worktree:** `.airbuild/worktree/live-check` was removed with `git worktree remove`, and its local
+  `ci/live-check` branch was deleted. Commit `3d58637e6` is on no branch now.
+- **Not kept:** the owner did not ask to keep the branch. The next branch run needs a new go-ahead.
+
+## Pending after merge
+
+19-17 carries these items into `19-VALIDATION.md`'s manual section. Each one can only be proven once
+`live-check.yml` is on `main`.
+
+| Item | Why it is pending | Who or what confirms it | When |
+|------|-------------------|-------------------------|------|
+| The first scheduled run from `main` | GitHub runs `schedule` triggers only from the default branch. This run came from a `push` to `ci/live-check`. | The developer, from `gh run list --workflow live-check.yml --event schedule`: one run with conclusion `success`, its log checked again for content in the same way, and its reporter lines recorded. | The first 04:17 UTC after the merge to `main` (GitHub may start it late under load). |
+| The previous-results path | The reporter reads the last two successful runs' `live-check-results` artifacts. This first run found none (`0 previous run(s) found`). | The developer, from the second scheduled run's log: `2 previous run(s) found` or `1 previous run(s) found`, and no rejected files reported. | The second and third days after the merge. |
+| The 60-day inactivity rule | GitHub turns off a public repository's scheduled workflows after 60 days without repository activity. The check would then stop without telling anyone. | The owner or a maintainer: GitHub emails a notice before it turns the schedule off. The schedule is turned back on from the Actions page (Live check, "Enable workflow") or by any push to the repository. | Whenever 60 days pass without a commit to the repository. |
+| The `live-check` label and the first real issue | No page broke, so the label was not created and no issue was opened. Its first use comes when a page really breaks. | The reporter creates the label (`gh label create --force`) just before it opens the first issue. The developer checks that issue's title and body against the fixed templates. | The first scheduled run with a `parser` page. |
