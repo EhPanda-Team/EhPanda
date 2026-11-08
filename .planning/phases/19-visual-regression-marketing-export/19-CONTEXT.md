@@ -187,7 +187,9 @@ Requirements: VIS-18-01, VIS-19-01; moved from Phase 17: CAP-17-02, CAP-17-03 an
     host. Scenarios are split across enough test classes for the clones to share the work. Plan 1 picks the worker
     count: the largest (starting at 2, trying 3 and 4) that the runner sustains without slowing each clone by more
     than about a quarter, without memory pressure, and without changing any picture between runs. The chosen
-    number and its measurement go in the manifest.
+    number and its measurement go in the manifest. Memory pressure means the `critical` level; `warn` is recorded
+    but does not exclude a count (lead's technical call after run 42455556948, where every hosted run sat at `warn`
+    under two clones already).
   - The runners keep nothing between runs, so each shard fetches its slice from `ehpanda-snapshot` (D-14).
   - Baselines are recorded and compared on the same runner image and simulator pins (iPhone Air and the pinned iPad
     model, iOS 27.0, the Xcode build in the manifest; drift fails the run); local runs are advisory. Plan 1 measures

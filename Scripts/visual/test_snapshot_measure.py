@@ -94,12 +94,26 @@ class SnapshotMeasureTests(unittest.TestCase):
         self.assertEqual(excluded[4], ['slowdown'])
         self.assertEqual(chosen, 3)
 
-    def test_memory_pressure_during_a_run_excludes_its_count(self):
+    def test_critical_memory_pressure_during_a_run_excludes_its_count(self):
         started = self.runs.windows[('iphone', 'en-large', 4)]
-        self.runs.memory(('iphone', started + timedelta(seconds=5), 'warn'))
+        self.runs.memory(('iphone', started + timedelta(seconds=5), 'critical'))
         excluded, chosen = self.verdict()
         self.assertEqual(excluded[4], ['memory'])
         self.assertEqual(chosen, 3)
+
+    def test_warn_memory_pressure_is_reported_but_excludes_nothing(self):
+        started = self.runs.windows[('iphone', 'en-large', 4)]
+        self.runs.memory(('iphone', started + timedelta(seconds=5), 'warn'))
+        self.assertEqual(self.verdict(), ({2: [], 3: [], 4: []}, 4))
+        _, memory, _ = snapshot_measure.load(self.runs.root)
+        facts = snapshot_measure.measure(snapshot_measure.load(self.runs.root)[0], memory)
+        self.assertEqual(facts[('iphone', 'en-large', 4)]['memory'], 'warn')
+
+    def test_a_run_with_fewer_result_lines_is_incomplete(self):
+        self.runs.run('iphone', 'en-xSmall', 3, seconds=2.0, statuses=['passed'] * 20)
+        excluded, chosen = self.verdict()
+        self.assertEqual(excluded[3], ['incomplete'])
+        self.assertEqual(chosen, 4)
 
     def test_memory_pressure_between_runs_excludes_nothing(self):
         started = self.runs.windows[('iphone', 'en-large', 4)]
@@ -114,7 +128,7 @@ class SnapshotMeasureTests(unittest.TestCase):
         (other / 'timing.json').write_text(json.dumps({'bootFetchSeconds': 600}))
         self.assertEqual(self.verdict(), ({2: [], 3: [], 4: []}, 4))
         (self.runs.root / 'iphone' / 'en-large' / 'memory.log').write_text(
-            f'{stamp(started + timedelta(seconds=5))} warn\n')
+            f'{stamp(started + timedelta(seconds=5))} critical\n')
         excluded, chosen = self.verdict()
         self.assertEqual(excluded[4], ['memory'])
         self.assertEqual(chosen, 3)
@@ -177,6 +191,31 @@ class SnapshotMeasureTests(unittest.TestCase):
         self.assertEqual(costs['bootFetchMinutes'], 9.1)
         plan = json.loads(snapshot_shards.compute(cost_path=target))
         self.assertEqual((plan['costSource'], plan['workers'], len(plan['shards'])), ('measured', 3, 20))
+
+    def candidate(self, family, configuration, minutes):
+        directory = self.runs.root / family / configuration / 'candidate'
+        directory.mkdir(parents=True, exist_ok=True)
+        (directory / 'shard.json').write_text(json.dumps({
+            'started': stamp(START), 'finished': stamp(START + timedelta(minutes=minutes))}))
+
+    def test_fixed_cost_per_invocation_comes_from_the_all_candidate(self):
+        # F + C_i per single size and F + sum(C_i) together: iPhone F = (12 + 14 + 16 - 26) / 2 = 8, iPad 9.
+        for family, singles, together in (('iphone', (12, 14, 16), 26), ('ipad', (15, 17, 19), 33)):
+            for configuration, minutes in zip(CONFIGURATIONS, singles):
+                self.candidate(family, configuration, minutes)
+            self.candidate(family, 'all', together)
+        walls = snapshot_measure.candidate_walls(self.runs.root)
+        self.assertEqual(snapshot_measure.invocation_minutes(walls, None), 9.0)
+        self.assertEqual(snapshot_measure.invocation_minutes(walls, 5.5), 5.5)
+        target = self.runs.root / 'cost.json'
+        with contextlib.redirect_stdout(io.StringIO()) as output:
+            snapshot_measure.main(['--runs', str(self.runs.root), '--run-id', '9', '--write', str(target)])
+        self.assertIn('- Fixed cost per invocation: 9.0 min', output.getvalue())
+        self.assertEqual(json.loads(target.read_text())['invocationMinutes'], 9.0)
+
+    def test_fixed_cost_is_not_measured_without_an_all_candidate(self):
+        self.candidate('iphone', 'en-large', 12)
+        self.assertIsNone(snapshot_measure.invocation_minutes(snapshot_measure.candidate_walls(self.runs.root), None))
 
     def test_rendered_table_keeps_the_committed_layout(self):
         costs = json.loads(snapshot_shards.COSTS.read_text())

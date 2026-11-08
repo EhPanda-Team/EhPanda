@@ -7,6 +7,13 @@ before launch (19-01-MEASURE.md). That gives 18 iPhone and 36 iPad units, 54 in 
 the pictures it captures, of the per-picture seconds in `snapshot-cost.json`. Each device gets a share of the shards in
 proportion to its total cost; within a device, units go longest first to the least loaded shard, ties by unit key
 and then by shard order, so the same inventory and cost table always give the same file.
+
+A shard runs its units as few `xcodebuild` invocations as it can: one per orientation group, each with every
+configuration of that group (`-only-test-configuration` once per configuration). The simulator clones are created
+once per invocation and kept across its configurations, and each invocation has a fixed cost (clone creation,
+installing, launching) that the hosted measurement put at 7 to 10 minutes (19-04-MEASURE.md, run 42455556948);
+locally a second configuration in the same invocation added 76 s to the first's 208 s. The estimate counts the cost
+table's `invocationMinutes` once per invocation.
 """
 
 import argparse
@@ -84,18 +91,32 @@ def run_order(unit):
     return snapshot_matrix.configurations().index(unit[1]), snapshot_matrix.ORIENTATIONS.index(unit[2][0])
 
 
+def invocations(units):
+    """`[{'configurations', 'orientations'}]`: one invocation per orientation group of the shard's units."""
+    order = snapshot_matrix.configurations()
+    groups = {}
+    for unit in sorted(units, key=run_order):
+        groups.setdefault(unit[2], []).append(unit[1])
+    return [{'configurations': sorted(configurations, key=order.index), 'orientations': list(orientations)}
+            for orientations, configurations in sorted(groups.items(),
+                                                       key=lambda item: snapshot_matrix.ORIENTATIONS.index(item[0][0]))]
+
+
 def plan(document, env, costs, cost_digest):
     pictures = unit_pictures(document, env)
     costs_by_unit = unit_costs(pictures, costs)
     order = snapshot_matrix.configurations()
     shards = []
     for index, (family, units, cost) in enumerate(assign(costs_by_unit), start=1):
-        estimated = round(costs['bootFetchMinutes'] + cost / (costs['cloneSpeedup'] * 60), 1)
+        calls = invocations(units)
+        estimated = round(costs['bootFetchMinutes'] + len(calls) * costs.get('invocationMinutes', 0)
+                          + cost / (costs['cloneSpeedup'] * 60), 1)
         shards.append({
             'id': f's{index:02d}', 'family': family,
             'configurations': sorted({unit[1] for unit in units}, key=order.index),
             'runs': [{'configuration': unit[1], 'orientations': list(unit[2])}
                      for unit in sorted(units, key=run_order)],
+            'invocations': calls,
             'pictures': sum(pictures[unit] for unit in units),
             'costSeconds': round(cost, 1),
             'estimatedMinutes': estimated,

@@ -2,13 +2,15 @@
 # Runs chosen snapshot matrix classes on the local iPhone or iPad simulator in one configuration and mode, and
 # fails on a failed or empty run or on any changed, missing (compare mode), timeout or error picture (19-02).
 #
-# usage: Scripts/visual/run-snapshot-local.sh --device phone|pad --config <locale>-<size> --classes A,B
-#            --mode candidate|compare [--refs DIR] [--orientation portrait|landscape] --out DIR
+# usage: Scripts/visual/run-snapshot-local.sh --device phone|pad --config <locale>-<size>[,...] --classes A,B
+#            --mode candidate|compare [--refs DIR] [--orientation portrait|landscape] [--workers N] --out DIR
 #
 # Only one xcodebuild runs on this host at a time (.planning/codebase/TESTING.md): the script waits for any other
 # run to finish first. The simulator settings follow 19-01-MEASURE.md: Reduce Motion and the app accessibility
 # runtime on before every run. An iPad process captures one orientation (iPadOS refuses in-process rotation), so
 # on iPad the device is turned first with VisualCaptureOrientationUITests; the iPhone captures both in process.
+# Several configurations run in one invocation, one after another. --workers N runs the classes on N simulator clones,
+# as the hosted check does; without it the run is not parallel.
 set -euo pipefail
 
 usage() {
@@ -16,7 +18,7 @@ usage() {
     exit 2
 }
 
-DEVICE='' CONFIG='' CLASSES='' MODE='' REFS='' OUT='' ORIENTATION=''
+DEVICE='' CONFIG='' CLASSES='' MODE='' REFS='' OUT='' ORIENTATION='' WORKERS=''
 while [ $# -gt 0 ]; do
     case "$1" in
         --device) DEVICE=${2:-}; shift 2 ;;
@@ -26,6 +28,7 @@ while [ $# -gt 0 ]; do
         --refs) REFS=${2:-}; shift 2 ;;
         --out) OUT=${2:-}; shift 2 ;;
         --orientation) ORIENTATION=${2:-}; shift 2 ;;
+        --workers) WORKERS=${2:-}; shift 2 ;;
         *) usage ;;
     esac
 done
@@ -36,6 +39,7 @@ case "$DEVICE" in
 esac
 case "$MODE" in candidate | compare) ;; *) usage ;; esac
 case "$ORIENTATION" in '' | portrait | landscape) ;; *) usage ;; esac
+case "$WORKERS" in '' | [1-9]) ;; *) usage ;; esac
 [ -n "$CONFIG" ] && [ -n "$CLASSES" ] && [ -n "$OUT" ] || usage
 if [ "$MODE" = compare ] && [ -z "$REFS" ]; then
     echo 'Compare mode needs --refs.' >&2
@@ -85,6 +89,16 @@ for CLASS in "${NAMES[@]}"; do
     ONLY+=(-only-testing:"VisualSnapshotTests/$CLASS")
 done
 
+CONFIGURATIONS=()
+IFS=',' read -r -a NAMES <<<"$CONFIG"
+for NAME_ in "${NAMES[@]}"; do
+    CONFIGURATIONS+=(-only-test-configuration "$NAME_")
+done
+PARALLEL=()
+if [ -n "$WORKERS" ]; then
+    PARALLEL=(-parallel-testing-enabled YES -parallel-testing-worker-count "$WORKERS")
+fi
+
 wait_for_host
 prepare_simulator
 VARIABLES=(TEST_RUNNER_EHPANDA_SNAPSHOT_MODE="$MODE" TEST_RUNNER_EHPANDA_SNAPSHOT_OUTPUT="$OUT")
@@ -96,8 +110,8 @@ if [ -n "$ORIENTATION" ]; then
 fi
 STATUS=0
 env "${VARIABLES[@]}" xcodebuild test -project EhPanda.xcodeproj -scheme EhPanda -testPlan SnapshotMatrix \
-    -only-test-configuration "$CONFIG" -destination "platform=iOS Simulator,id=$UDID" \
-    -resultBundlePath "$OUT/run.xcresult" "${ONLY[@]}" >"$LOG" 2>&1 || STATUS=$?
+    "${CONFIGURATIONS[@]}" -destination "platform=iOS Simulator,id=$UDID" \
+    -resultBundlePath "$OUT/run.xcresult" ${PARALLEL[@]+"${PARALLEL[@]}"} "${ONLY[@]}" >"$LOG" 2>&1 || STATUS=$?
 
 grep -E 'Executed [0-9]+ test|TEST (SUCCEEDED|FAILED)' "$LOG" | sort -u || true
 python3 - "$RESULTS" "$MODE" <<'PY' || STATUS=1
