@@ -32,7 +32,7 @@ class ShareViewController: UIViewController {
                 }
                 return
             }
-            components.scheme = "ehpanda"
+            components.scheme = Self.hostURLScheme
             guard let replacedURL = components.url else {
                 Task { @MainActor in
                     self?.extensionContext?.completeRequest(returningItems: nil)
@@ -44,6 +44,12 @@ class ShareViewController: UIViewController {
             }
         }
     }
+
+    /// The URL scheme of the app this extension ships in, from `EhPandaURLScheme` in the extension's
+    /// Info.plist (`EHPANDA_URL_SCHEME`, see `Config/Flavor.xcconfig`). The regular app and the beta
+    /// register different schemes, so a link shared from one never opens the other.
+    private nonisolated static let hostURLScheme =
+        Bundle.main.object(forInfoDictionaryKey: "EhPandaURLScheme") as? String ?? "ehpanda"
 
     @MainActor
     private func openMainApp(url: URL) {

@@ -13,7 +13,7 @@
 //     must come first and the optional include last. A personal team needs its own bundle
 //     identifiers, hence the suffix knob: set it and both targets shift together, which keeps a
 //     personal build installable alongside a release copy of the app.
-//   * Release CI — `.github/workflows/deploy.yml` and `deploy-pre-release.yml` archive with
+//   * Release CI — `.github/workflows/deploy.yml` and `deploy-beta.yml` archive with
 //     `CODE_SIGNING_ALLOWED=NO`, so no team is involved at all and the identifiers stay at the
 //     upstream defaults this file declares.
 //
@@ -28,6 +28,9 @@ DEVELOPMENT_TEAM =
 // before any target-specific segment, so the extension stays nested under the app as code
 // signing requires. Include the leading dot (`.personal`, not `personal`).
 BUNDLE_ID_SUFFIX =
+
+// The flavor defaults (display name, URL scheme). Before the local override, so it can change them.
+#include "Flavor.xcconfig"
 
 // Optional include — the trailing `?` makes an absent file a silent no-op rather than an error,
 // which is what lets a clean clone build without a configuration-file warning.

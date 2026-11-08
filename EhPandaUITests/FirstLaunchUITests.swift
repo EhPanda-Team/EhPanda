@@ -18,7 +18,7 @@ final class FirstLaunchUITests: XCTestCase {
         static let consentFooter = "You can change this anytime in Settings."
         static let recommended = "Recommended"
         static let minimalDescription =
-            "Sends only a signal that EhPanda is installed, and where you installed the app from."
+            "Sends only a signal that EhPanda is installed, and where you got the app from."
         static let basicDescription = "Everything in Minimal, plus how often the app is used, which screens and "
             + "features you use, technical details such as device model and app version, and which kinds of errors "
             + "occur."

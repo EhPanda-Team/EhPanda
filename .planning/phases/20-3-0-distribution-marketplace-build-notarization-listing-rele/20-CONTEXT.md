@@ -56,6 +56,44 @@ order are in no phase.
   revision (prep L41). IN-02 and IN-03 are closed in Phase 18 first.
 - **D-10:** The website privacy page is rewritten for the three analytics levels when 3.0 ships, not before (Phase 18
   copy file, "Knock-on for the website").
+- **D-11:** **The beta is a separate install** (owner msgs 2513, 2518, 2525). Pre-releases are built as a beta flavor
+  with its own bundle IDs, `app.ehpanda.beta` and `app.ehpanda.beta.shareExtension` (`BUNDLE_ID_SUFFIX = .beta`), the
+  Home Screen name "EhPanda Beta", the regular icon and its own URL scheme `ehpanda-beta`, all from
+  `Config/Beta.xcconfig`, which only `deploy-beta.yml` passes to `xcodebuild`. The workflow publishes one file,
+  `EhPanda-Beta.ipa`, stamped `beta` (D-12). The beta's AltStore Classic source is `altstore-beta.json` on `main`,
+  created by that workflow from `actions-tool/altstore-beta.template.json` on its first run. It lists only betas newer
+  than the latest regular release, and always at least the newest beta. Each beta needs a build number above every
+  build in both sources; the workflow fails otherwise.
+- **D-12:** **One file per channel** (owner msgs 2533, 2537; the channel in each file name, website owner msg 2538).
+  - **The stamp.** The app's Info.plist key `EhPandaDistributionChannel` names the channel, from a closed allow-list:
+    `github`, `altstore`, `sidestore`, `altstorePAL`, `beta`, `source`. The committed `App/Info.plist` says `source`,
+    so any build no release workflow made says so. The workflows build once, unsigned, and
+    `actions-tool/package-channel.sh` copies the app once per channel and overwrites the value in each copy, so the
+    copies differ only in the stamp and no channel needs its own build. Only the app is stamped; the share extension
+    sends nothing.
+  - **The files.** `deploy.yml` publishes `EhPanda-GitHub.ipa`, `EhPanda-AltStore.ipa` and `EhPanda-SideStore.ipa` on
+    the GitHub release. `AltStore.json` (repo root, where ehpanda.app/AltStore.json redirects) points at
+    `EhPanda-AltStore.ipa`, and the new `SideStore.json` (repo root) at `EhPanda-SideStore.ipa`, each with that
+    file's own size and SHA-256. Both are updated by the same filter, `actions-tool/altstore-add-version.jq`, newest
+    first with history kept. `SideStore.json` is created by the first 3.0 release from
+    `actions-tool/sidestore.template.json` (the same wording, structure and `nsfw: true` as `AltStore.json`, its own
+    `identifier`), so it is never written with zero versions. `deploy-beta.yml` publishes `EhPanda-Beta.ipa`
+    (D-11).
+  - **AltStore PAL** is not built yet. The PAL job, when it is, stamps `altstorePAL` with the same script.
+  - **Distribution channel** (owner msg 2552; replaces the install source). The install signal reports the stamp as
+    is under the payload key `App.distributionChannel`: `github`, `altstore`, `sidestore`, `altstorePAL`, `beta` or
+    `source`. A missing stamp, a value that is not a string, or a string not on the list (compared exactly) reports
+    `source`. MarketplaceKit is not used, so `appStore`, `testFlight`, `marketplace:<id>`, `web`, `other` and
+    `unknown` are no longer sent; the enum is `DistributionChannel` in AppModels, and the `InstallSourceClient`
+    module is gone. Raw values are dashboard values: a channel may be added, never respelled.
+  - **SideStore source format.** SideStore reads AltStore sources ("SideStore is fully compatible with AltStore
+    Sources", docs.sidestore.io/docs/advanced/app-sources). Checked against the SideStore source at 4f3d18d (Nov 2026):
+    an app with `marketplaceID` is rejected as notarized (`SourceError.marketplaceNotSupported`), so none is set;
+    `identifier` is read as a group ID and the source's identity is its normalized URL; `marketingVersion` is not read;
+    a source with no versions is rejected (`MergeError.noVersions`); a download is checked against the listed bundle
+    ID, `size`, `sha256`, `version` and `buildVersion` (`VerifyAppOperation`), and every entitlement and usage
+    description in the app must be declared in `appPermissions`; an update is offered when the listed version is
+    semantically newer (`InstalledApp.hasUpdate`), where AltStore Classic only compares for equality.
 
 ## Open questions for this phase's discussion
 
@@ -74,8 +112,8 @@ These were not put to the owner (prep section 3):
   `BUNDLE_ID_SUFFIX`. — **Reversibility:** one-way — it becomes a permanent App ID in the collaborator's account.
 - **Marketplace flavor:** `Config/Marketplace.xcconfig` (or a build configuration) with a compilation condition. The
   unsigned IPA build and private local signing stay unchanged.
-- **Install source:** a closed enum from MarketplaceKit `AppDistributor.current`, cross-checked with the build-flavor
-  flag. No free-form marketplace strings.
+- **Distribution channel:** a closed enum read from the build's `EhPandaDistributionChannel` stamp (D-12; owner msg
+  2552). No MarketplaceKit and no free-form strings.
 - **PAL source:** a separate JSON in the repo with the same version-history logic, written by the notarization job.
   The hosting URL is agreed with Leto.
 - **Notarization CI:** a separate `workflow_dispatch` job behind a protected GitHub environment with a required
@@ -96,7 +134,7 @@ These were not put to the owner (prep section 3):
   level descriptions that ANALYTICS-02 must keep true, and the website knock-on.
 - `.planning/phases/14-analytics-instrumentation-with-telemetrydeck-add-privacy-fir/14-CONTEXT.md`: D-04 and D-06 to
   D-14.
-- `.github/workflows/deploy.yml`, `.github/workflows/deploy-pre-release.yml`, `AltStore.json`,
+- `.github/workflows/deploy.yml`, `.github/workflows/deploy-beta.yml`, `AltStore.json`,
   `Scripts/bump-version.sh`, `Config/Signing.xcconfig`, `Scripts/visual/verify-release.py`.
 
 </canonical_refs>
