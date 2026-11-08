@@ -4,16 +4,16 @@ milestone: v3.0.0
 current_phase: 19
 current_phase_name: Visual Regression & Daily Live-Parsing Check
 status: executing
-stopped_at: Completed 19-06-PLAN.md
-last_updated: "2026-11-07T21:34:42.000Z"
+stopped_at: Completed 19-07-PLAN.md
+last_updated: "2026-11-08T03:00:00.000Z"
 last_activity: 2026-11-08
-last_activity_desc: 19-06 complete (36 search, Favorites, Downloads and gallery scenarios, green on both devices and in three configurations)
-state_head: 26ac092fece168cd9f334ea1883507a7d1d19f36
+last_activity_desc: 19-07 complete (37 Comments, Report form, detail page and reader scenarios, green on both devices and in three configurations)
+state_head: 51fd99cc4a1ae83bcdcf327bcf47070e8f9df4c7
 progress:
   total_phases: 21
   completed_phases: 18
   total_plans: 321
-  completed_plans: 309
+  completed_plans: 310
   percent: 86
 milestone_name: Dependency Reduction & Modernization
 source_head: 891103afa
@@ -55,6 +55,13 @@ source_head: 891103afa
   trailing-most bar control. Deviation: the settle now compares reads in the comparison's 8-bit form
   (`HostedWindowCapture`, a 19-01 file). Proposed for 19-10: `favorites-category-menu` not applicable on iPad.
   VIS-18-01 and CAP-17-01 stay Pending.
+- **19-07 complete** (`eda416fde`, `5c8417e7f`, `dac4956af`; `19-07-SUMMARY.md`): all 37 Comments, Report form,
+  detail page and reader scenarios on real views and reducers, five matrix classes. Two compares green on both devices
+  in en-large (phone 146, iPad portrait 72) and one each in ja-accessibility5 and de-xSmall on the phone; 0 changed,
+  timeout or error, 2 flaky (`report-form-unavailable` ja landscape light, `reader-slider-scrub` de portrait light).
+  Deviation: `SnapshotMatrix.xctestplan` (a 19-01 file) sets SWIFT_DETERMINISTIC_HASHING=1, because Gallery Info's
+  Torrent URL query order followed the per-process hash seed. App follow-up: build that query in a fixed order. No
+  proposed not-applicable rules. VIS-18-01 and CAP-17-01 stay Pending.
 
 ## Phase 19 planned: Visual Regression & Daily Live-Parsing Check — 2026-11-07
 
