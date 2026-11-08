@@ -13,33 +13,34 @@ One section per language, all six, in this order, with exactly these headings:
 ```markdown
 ## English
 
-1. Fixed reading page gestures not responding when scale is greater than 1.
-2. Improved the search page. (credit @someone)
+Fixed reading page gestures not responding when scale is greater than 1.
+Improved the search page. (credit @someone)
 
 ## Deutsch
 
-1. …
+…
 
 ## 日本語
 
-1. …
+…
 
 ## 한국어
 
-1. …
+…
 
 ## 简体中文
 
-1. …
+…
 
 ## 繁體中文
 
-1. …
+…
 ```
 
 - No text before `## English`, no other headings (`#`, `###`, …), and no empty section.
-- Write plain text: AltStore and SideStore show the notes as they are. Number the items and keep
-  each item on one line.
+- Write plain text: AltStore and SideStore show the notes as they are. Put each item on its own
+  line, without a number or a bullet (`1.`, `-`, `*`); the check refuses both. The GitHub release
+  shows the lines as they are written.
 - English and 繁體中文 together must fit in one Telegram message (4,096 characters), and English
   alone in one Discord message (2,000 characters).
 

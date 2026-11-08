@@ -48,6 +48,8 @@ DISCORD_LIMIT = 2000
 # Room kept for the release link, which is only known once the release exists.
 LINK_ALLOWANCE = 200
 VERSION = re.compile(r"^\d+\.\d+\.\d+$")
+# AltStore and SideStore show the notes as they are, so items are plain lines (owner msg 2591).
+LIST_MARKER = re.compile(r"^\s*(\d+[.)]|[-*+•])\s")
 
 
 class NotesError(ValueError):
@@ -78,6 +80,8 @@ def parse(text):
             if line.strip():
                 raise NotesError(f"line {number}: text before the first heading (## English)")
         else:
+            if LIST_MARKER.match(line):
+                raise NotesError(f"line {number}: write each item as a plain line, without a number or bullet: {line!r}")
             sections[current].append(line)
 
     notes = {}
