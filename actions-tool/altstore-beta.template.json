@@ -2,7 +2,23 @@
   "name": "EhPanda Beta",
   "identifier": "app.ehpanda.altstore.beta",
   "subtitle": "Try new versions of EhPanda before they're released.",
+  "localizedSubtitles": {
+    "en": "Try new versions of EhPanda before they're released.",
+    "de": "Probiere neue Versionen von EhPanda vor ihrer Veröffentlichung aus.",
+    "ja": "EhPanda の新しいバージョンを、リリース前に試せます。",
+    "ko": "EhPanda의 새 버전을 출시 전에 먼저 사용해 볼 수 있습니다.",
+    "zh-Hans": "在正式发布前抢先试用 EhPanda 的新版本。",
+    "zh-Hant": "在正式發布前搶先試用 EhPanda 的新版本。"
+  },
   "description": "Beta builds of EhPanda, for trying new versions before they're released. Betas may have bugs, and features can still change before release.\nBetas often need a newer iOS than the regular version. Please report problems on GitHub.\nThe beta installs as a separate app next to regular EhPanda. It starts empty and doesn't share downloads, history or settings with it. With a free Apple ID, AltStore can keep only 3 apps at once, including AltStore itself.\nNote: EhPanda is not affiliated with or endorsed by E-Hentai.",
+  "localizedDescriptions": {
+    "en": "Beta builds of EhPanda, for trying new versions before they're released. Betas may have bugs, and features can still change before release.\nBetas often need a newer iOS than the regular version. Please report problems on GitHub.\nThe beta installs as a separate app next to regular EhPanda. It starts empty and doesn't share downloads, history or settings with it. With a free Apple ID, AltStore can keep only 3 apps at once, including AltStore itself.\nNote: EhPanda is not affiliated with or endorsed by E-Hentai.",
+    "de": "Beta-Versionen von EhPanda, um neue Versionen vor ihrer Veröffentlichung auszuprobieren. Betas können Fehler enthalten, und Funktionen können sich bis zur Veröffentlichung noch ändern.\nBetas brauchen oft eine neuere iOS-Version als die reguläre Version. Bitte melde Probleme auf GitHub.\nDie Beta wird als eigene App neben der regulären EhPanda-App installiert. Sie startet leer und teilt keine Downloads, keinen Verlauf und keine Einstellungen mit ihr. Mit einer kostenlosen Apple-ID kann AltStore nur 3 Apps gleichzeitig behalten, AltStore selbst mitgezählt.\nHinweis: EhPanda steht in keiner Verbindung zu E-Hentai und wird nicht von E-Hentai unterstützt.",
+    "ja": "リリース前の新しいバージョンを試すための、EhPanda のベータ版です。ベータ版には不具合があるかもしれません。また、機能はリリースまでに変わることがあります。\nベータ版では、通常版より新しい iOS が必要になることがよくあります。問題は GitHub で報告してください。\nベータ版は、通常の EhPanda とは別のアプリとして並べてインストールされます。最初は空の状態で、ダウンロード、閲覧履歴、設定は通常版と共有されません。無料の Apple ID では、AltStore でインストールしておけるアプリは AltStore 自体を含めて同時に 3 つまでです。\n注：EhPanda は E-Hentai と提携しておらず、E-Hentai の承認も受けていません。",
+    "ko": "출시 전의 새 버전을 사용해 볼 수 있는 EhPanda 베타 버전입니다. 베타 버전에는 버그가 있을 수 있으며, 기능은 출시 전에 바뀔 수 있습니다.\n베타 버전은 일반 버전보다 최신 iOS가 필요한 경우가 많습니다. 문제가 있으면 GitHub에 알려 주세요.\n베타 버전은 일반 EhPanda와 별개의 앱으로 나란히 설치됩니다. 처음에는 비어 있으며, 다운로드, 최근 본 갤러리, 설정을 일반 버전과 공유하지 않습니다. 무료 Apple ID로는 AltStore가 AltStore 자체를 포함해 앱을 동시에 3개까지만 유지할 수 있습니다.\n참고: EhPanda는 E-Hentai와 제휴 관계가 없으며 E-Hentai의 승인을 받지 않았습니다.",
+    "zh-Hans": "EhPanda 的测试版，用于在正式发布前试用新版本。测试版可能有 Bug，功能在正式发布前也可能改变。\n测试版通常需要比正式版更新的 iOS。遇到问题请在 GitHub 上反馈。\n测试版会作为独立的应用，安装在正式版 EhPanda 旁边。它初始为空，不与正式版共享下载、浏览记录或设置。使用免费 Apple ID 时，AltStore 最多只能同时保留 3 个应用，包括 AltStore 本身。\n注意：EhPanda 与 E-Hentai 无关，也未获得 E-Hentai 的认可。",
+    "zh-Hant": "EhPanda 的測試版，用於在正式發布前試用新版本。測試版可能有 Bug，功能在正式發布前也可能改變。\n測試版通常需要比正式版更新的 iOS。遇到問題請在 GitHub 上回報。\n測試版會作為獨立的 App，安裝在正式版 EhPanda 旁邊。它一開始是空的，不與正式版共用下載、瀏覽紀錄或設定。使用免費 Apple ID 時，AltStore 最多只能同時保留 3 個 App，包括 AltStore 本身。\n注意：EhPanda 與 E-Hentai 無關，也未獲得 E-Hentai 的認可。"
+  },
   "iconURL": "https://raw.githubusercontent.com/EhPanda-Team/EhPanda/main/docs/altstore/appicon-512.png",
   "website": "https://github.com/EhPanda-Team/EhPanda",
   "tintColor": "#289979",
@@ -16,7 +32,23 @@
       "bundleIdentifier": "app.ehpanda.beta",
       "developerName": "EhPanda Team",
       "subtitle": "Beta builds. Try new versions before they're released.",
+      "localizedSubtitles": {
+        "en": "Beta builds. Try new versions before they're released.",
+        "de": "Beta-Versionen: Neues vor der Veröffentlichung ausprobieren.",
+        "ja": "ベータ版です。新しいバージョンをリリース前に試せます。",
+        "ko": "베타 버전입니다. 새 버전을 출시 전에 사용해 볼 수 있습니다.",
+        "zh-Hans": "测试版。在正式发布前试用新版本。",
+        "zh-Hant": "測試版。在正式發布前試用新版本。"
+      },
       "localizedDescription": "This is a beta build of EhPanda. It may have bugs, and features can still change before release.\nThe beta installs as a separate app next to regular EhPanda. It starts empty and doesn't share downloads, history or settings with it. With a free Apple ID, AltStore can keep only 3 apps at once, including AltStore itself.\nEhPanda is an unofficial app for iOS and iPadOS that allows users to access and explore adult manga and doujinshi from E-Hentai.\nWith a user-friendly interface, powerful search features, and a vast collection of content, it offers a personalized library and an immersive reading experience.\nNote: EhPanda is not affiliated with or endorsed by E-Hentai.",
+      "localizedDescriptions": {
+        "en": "This is a beta build of EhPanda. It may have bugs, and features can still change before release.\nThe beta installs as a separate app next to regular EhPanda. It starts empty and doesn't share downloads, history or settings with it. With a free Apple ID, AltStore can keep only 3 apps at once, including AltStore itself.\nEhPanda is an unofficial app for iOS and iPadOS that allows users to access and explore adult manga and doujinshi from E-Hentai.\nWith a user-friendly interface, powerful search features, and a vast collection of content, it offers a personalized library and an immersive reading experience.\nNote: EhPanda is not affiliated with or endorsed by E-Hentai.",
+        "de": "Dies ist eine Beta-Version von EhPanda. Sie kann Fehler enthalten, und Funktionen können sich bis zur Veröffentlichung noch ändern.\nDie Beta wird als eigene App neben der regulären EhPanda-App installiert. Sie startet leer und teilt keine Downloads, keinen Verlauf und keine Einstellungen mit ihr. Mit einer kostenlosen Apple-ID kann AltStore nur 3 Apps gleichzeitig behalten, AltStore selbst mitgezählt.\nEhPanda ist eine inoffizielle App für iOS und iPadOS, mit der du Manga und Doujinshi für Erwachsene von E-Hentai aufrufen und entdecken kannst.\nMit einer einfach zu bedienenden Oberfläche, einer leistungsstarken Suche und einer riesigen Auswahl an Inhalten bietet sie eine persönliche Bibliothek und ein fesselndes Leseerlebnis.\nHinweis: EhPanda steht in keiner Verbindung zu E-Hentai und wird nicht von E-Hentai unterstützt.",
+        "ja": "これは EhPanda のベータ版です。不具合があるかもしれません。また、機能はリリースまでに変わることがあります。\nベータ版は、通常の EhPanda とは別のアプリとして並べてインストールされます。最初は空の状態で、ダウンロード、閲覧履歴、設定は通常版と共有されません。無料の Apple ID では、AltStore でインストールしておけるアプリは AltStore 自体を含めて同時に 3 つまでです。\nEhPanda は、E-Hentai の成人向け漫画や同人誌を閲覧したり探したりできる、iOS と iPadOS 向けの非公式アプリです。\n使いやすい画面、強力な検索機能、豊富なコンテンツで、自分だけのライブラリと没入感のある読書体験を提供します。\n注：EhPanda は E-Hentai と提携しておらず、E-Hentai の承認も受けていません。",
+        "ko": "EhPanda 베타 버전입니다. 버그가 있을 수 있으며, 기능은 출시 전에 바뀔 수 있습니다.\n베타 버전은 일반 EhPanda와 별개의 앱으로 나란히 설치됩니다. 처음에는 비어 있으며, 다운로드, 최근 본 갤러리, 설정을 일반 버전과 공유하지 않습니다. 무료 Apple ID로는 AltStore가 AltStore 자체를 포함해 앱을 동시에 3개까지만 유지할 수 있습니다.\nEhPanda는 E-Hentai의 성인 만화와 동인지를 보고 찾아볼 수 있는 iOS 및 iPadOS용 비공식 앱입니다.\n사용하기 쉬운 화면, 강력한 검색 기능, 방대한 콘텐츠로 나만의 보관함과 몰입감 있는 읽기 경험을 제공합니다.\n참고: EhPanda는 E-Hentai와 제휴 관계가 없으며 E-Hentai의 승인을 받지 않았습니다.",
+        "zh-Hans": "这是 EhPanda 的测试版，可能有 Bug，功能在正式发布前也可能改变。\n测试版会作为独立的应用，安装在正式版 EhPanda 旁边。它初始为空，不与正式版共享下载、浏览记录或设置。使用免费 Apple ID 时，AltStore 最多只能同时保留 3 个应用，包括 AltStore 本身。\nEhPanda 是一款适用于 iOS 和 iPadOS 的非官方应用，可以浏览和探索 E-Hentai 上的成人漫画和同人志。\n界面简单易用，搜索功能强大，内容丰富，为你提供个性化的内容库和沉浸式的阅读体验。\n注意：EhPanda 与 E-Hentai 无关，也未获得 E-Hentai 的认可。",
+        "zh-Hant": "這是 EhPanda 的測試版，可能有 Bug，功能在正式發布前也可能改變。\n測試版會作為獨立的 App，安裝在正式版 EhPanda 旁邊。它一開始是空的，不與正式版共用下載、瀏覽紀錄或設定。使用免費 Apple ID 時，AltStore 最多只能同時保留 3 個 App，包括 AltStore 本身。\nEhPanda 是一款適用於 iOS 和 iPadOS 的非官方 App，可以瀏覽和探索 E-Hentai 上的成人漫畫和同人誌。\n介面簡單易用，搜尋功能強大，內容豐富，為你提供個人化的內容庫和沉浸式的閱讀體驗。\n注意：EhPanda 與 E-Hentai 無關，也未獲得 E-Hentai 的認可。"
+      },
       "iconURL": "https://raw.githubusercontent.com/EhPanda-Team/EhPanda/main/docs/altstore/appicon-512.png",
       "tintColor": "#289979",
       "category": "entertainment",
