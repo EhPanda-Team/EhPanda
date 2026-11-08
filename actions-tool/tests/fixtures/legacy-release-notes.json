@@ -1,0 +1,302 @@
+[
+  {
+    "version": "2.8.1",
+    "buildVersion": "158",
+    "localizedDescription": "1. feat: Adapt to the new Liquid Glass design.\n2. fix: Gesture issue in the reading page.\n3. fix: Crash issue in eh setting page.\n4. fix: A minor issue in search page."
+  },
+  {
+    "version": "2.7.10",
+    "buildVersion": "156",
+    "localizedDescription": "1. Fixed reading page scroll functionality."
+  },
+  {
+    "version": "2.7.9",
+    "buildVersion": "155",
+    "localizedDescription": "1. Fixed reading page gestures not responding issue when scale is greater than 1.\n閲覧ページでスケール係数が 1 より大きい場合にジェスチャーが動作しなくなる不具合を修正しました。\n修正了閱讀頁面中縮放比例大於 1 時出現的手勢失效問題。\n\n2. Improved Taiwanese Mandarin & Traditional Chinese (HK) localizations. (credit @NeKoOuO)\n台湾華語と中国語繁体字（香港）の翻訳を改善しました。\n改善了台灣華語和繁體中文（香港）翻譯。"
+  },
+  {
+    "version": "2.7.8",
+    "buildVersion": "154",
+    "localizedDescription": "1. fix: Gallery preview parsing issue, again."
+  },
+  {
+    "version": "2.7.7",
+    "buildVersion": "153",
+    "localizedDescription": "1. fix: Gallery page parsing issue when thumbnail size is set to small or auto. (credit @vvbbnn00)\nギャラリー画面のサムネイルサイズが「小さめ」・「自動」に設定された場合に解析エラーになる不具合を修正。\n修正了當縮圖被設定為「小型」或「自動」時的畫廊頁面的解析問題。\n\n2. fix: Gallery preview infinite loading issue. (credit @vvbbnn00)\nギャラリープレビューの読み込みが終わらない不具合を修正。\n修正了畫廊預覽永遠在載入的問題。\n\n3. fix: A crash when closing the keyboard. (credit @vvbbnn00)\nキーボードを閉じる時にクラッシュする不具合を修正。\n修正了關閉鍵盤時當機的問題。"
+  },
+  {
+    "version": "2.7.6",
+    "buildVersion": "152",
+    "localizedDescription": "1. fix: Gallery and account configuration pages parsing issue. (credit @vvbbnn00)\nギャラリーとアカウント設定画面の解析エラーを修正。\n修正了畫廊和帳號設定頁面的解析問題。\n\n2. fix: Gallery page header layout issue.\nギャラリー画面上部のレイアウト不具合を修正。\n修正了畫廊頁面的 header 佈局錯誤。"
+  },
+  {
+    "version": "2.7.5",
+    "buildVersion": "151",
+    "localizedDescription": "1. Migrate to TCA 1.0. credit @Jimmy-Prime"
+  },
+  {
+    "version": "2.7.4",
+    "buildVersion": "150",
+    "localizedDescription": "1. fix: Previews parsing.\nプレビューの解析エラーを修正。\n修正了縮圖的解析錯誤。"
+  },
+  {
+    "version": "2.7.3",
+    "buildVersion": "149",
+    "localizedDescription": "1. fix: Multiple page viewer mode.\nマルチページビューアモードを修正。\n修正了多頁瀏覽模式。"
+  },
+  {
+    "version": "2.7.2",
+    "buildVersion": "148",
+    "localizedDescription": "1. fix: A parsing error occurring when attempting to access the gallery detail page.\nギャラリー詳細画面にアクセスしようとした際に発生した解析エラーを修正。\n修正了在嘗試存取畫廊詳細頁面時出現的解析錯誤。\n\n2. fix: Page range filter mistakenly requires both minimum and maximum values, rather than either.\nページ範囲の上下限を同時に指定しないとそのフィルターが予期通りに動作しない不具合を修正。\n修正了頁數篩選器僅在同時指定了頁數的上下限時才正常運作的問題。"
+  },
+  {
+    "version": "2.7.1",
+    "buildVersion": "147",
+    "localizedDescription": "1. fix: App not responding when accessing a gallery recursively.\nギャラリーを再帰的にアクセスするとアプリが反応しなくなる不具合を修正。\n修正了在遞迴存取畫廊時 App 失去回應的問題。\n\n2. fix: App lock gets bypassed under some circumstances.\nアプリロックがある状況下でバイパスされる不具合を修正。\n修正了 App 鎖定功能在某些情況下被繞過的問題。"
+  },
+  {
+    "version": "2.7.0",
+    "buildVersion": "146",
+    "localizedDescription": "1. fix: Unable to load thumbnails issue in ex gallery host.\nex ギャラリーホストでのサムネイルが表示されない不具合を修正。\n修正了在 ex 畫廊內縮圖無法正常顯示的問題。\n\n2. fix: Multiple page viewer mode.\nマルチページビューアモードを修正。\n修正了多頁瀏覽模式。\n\n3. fix: Tag suggestion feature.\nタグの検索提案機能を修正。\n修正了標籤搜尋建議功能。\n\n4. refactor: TCA reducers.\n\n5. refactor: CI"
+  },
+  {
+    "version": "2.6.1",
+    "buildVersion": "145",
+    "localizedDescription": "1. fix: A minor fix to the app strings."
+  },
+  {
+    "version": "2.6.0",
+    "buildVersion": "144",
+    "localizedDescription": "1. feat: Add Traditional Chinese (Taiwan) translation. @Nebulosa-Cat\n中国語繁体字（台湾）翻訳を追加。\n新增了台灣正體中文翻譯。\n\n2. refactor: R.swift -> SwiftGen\n\n3. refactor: CI"
+  },
+  {
+    "version": "2.5.1",
+    "buildVersion": "143",
+    "localizedDescription": "1. fix: Pagination issue in eh gallery host.\neh ギャラリーホストでのページング不具合を修正。\n修正了 eh 畫廊下的翻頁問題。\n\n2. fix: App icon Developer layout issue.\nアプリアイコン「デベロッパ」のレイアウト不具合を修正。\n修正了應用圖示「開發者」的佈局顯示問題。"
+  },
+  {
+    "version": "2.5.0",
+    "buildVersion": "142",
+    "localizedDescription": "1. feat: New app icon NotMyPresident.\nアプリアイコン「私の大統領ではない」を追加。\n新增 App 圖示「不是我的總統」。\n\n2. feat: Filtered removal count setting.\nフィルター除去数表示設定を追加。\n新增篩選器移除數顯示設定。\n\n3. fix: Pagination issue in ex gallery host.\nex ギャラリーホストでのページング不具合を修正。\n修正了 ex 畫廊下的翻頁問題。"
+  },
+  {
+    "version": "2.4.5",
+    "buildVersion": "141",
+    "localizedDescription": "1. fix: Unexpected behaviors when accessing ex gallery host in any display modes but Compact.\n「コンパクト」以外の表示モードで ex ギャラリーホストにアクセスすると発生する予期せぬ動作を修正。\n修正了以「緊湊」顯示模式外存取 ex 畫廊出現的非預期行為。\n\n2. refactor: Conditions to show the Create New button in EhSetting page.\nEhSetting 画面での「新規作成」ボタンの表示条件をリファクタリング。\n重構了 EhSetting 頁面的「新增」按鈕的顯示條件。"
+  },
+  {
+    "version": "2.4.4",
+    "buildVersion": "140",
+    "localizedDescription": "1. Fix an issue that causes previews not loading after the first batch.\nプレビューの最初の一組しか読み込まない不具合を修正。\n修正了預覽在第一組圖像之後不載入的問題。"
+  },
+  {
+    "version": "2.4.3",
+    "buildVersion": "139",
+    "localizedDescription": "1. fix: Unexpected behaviors when the gallery host set to ex.\nex ギャラリーホストでの予期せぬ動作を修正。\n修正了 ex 畫廊下出現的非預期行為。"
+  },
+  {
+    "version": "2.4.2",
+    "buildVersion": "138",
+    "localizedDescription": "1. fix: Unexpected behaviors on iOS or iPadOS 16 devices.\niOS・iPadOS 16 デバイスでの予期せぬ動作を修正。\n修正了 iOS、iPadOS 16 裝置上的非預期行為。\n\n2. fix: Will not start loading automatically when navigating to PreviewsView issue.\nプレビュー画面へ遷移する際、読み込みが自動的に始まらない不具合を修正。\n修正進入預覽頁面時不自動開始載入的問題。\n\n3. refactor: Reduce the file size of releases.\nリリースのファイルサイズを減らす。\n減小發佈的檔案大小。"
+  },
+  {
+    "version": "2.4.1",
+    "buildVersion": "137",
+    "localizedDescription": "1. fix: The issue that the focus of TextField on login page and search page is abnormal and the keyboard cannot be evoked. resolved #241"
+  },
+  {
+    "version": "2.4.0",
+    "buildVersion": "136",
+    "localizedDescription": "1. Fixed some bugs.\n2. Added a new icon."
+  },
+  {
+    "version": "2.3.1",
+    "buildVersion": "135",
+    "localizedDescription": "1. fix: Tags translation causes extremely low performance.\n2. refactor: Tags search suggestion. @xioxin\n3. Added Displays Japanese title setting."
+  },
+  {
+    "version": "2.3.0",
+    "buildVersion": "134",
+    "localizedDescription": "1. fix: Unexpected behaviors when swiping back in previews page.\n2. fix: Did not handle clipboard detection on launch.\n3. fix: App lock not working.\n4. feat: Tags search suggestion. @xioxin\n5. feat: Tag voting.\n6. feat: Tag detail."
+  },
+  {
+    "version": "2.2.2",
+    "buildVersion": "133",
+    "localizedDescription": "1. refactor: Live Text.\n2. refactor: App icon."
+  },
+  {
+    "version": "2.2.1",
+    "buildVersion": "132",
+    "localizedDescription": "1. fix: Copy, save, share animated images not working.\n2. fix: Some images not getting analyzed unexpectedly in Live Text.\n3. fix: iPad alternative icon warning and one missing new icon as promised."
+  },
+  {
+    "version": "2.2.0",
+    "buildVersion": "131",
+    "localizedDescription": "1. fix: Unexpected behaviors when setting global & watched filters.\n2. feature: Support for all display modes.\n3. feature: Live Text. @xioxin #220"
+  },
+  {
+    "version": "2.1.3",
+    "buildVersion": "130",
+    "localizedDescription": "1. fix: Multiple images load failed after their caches expired.\n2. fix: Unexpected behaviors when app lock with zero blur radius.\n3. fix: Unexpected behaviors when navigating to login view on iPad."
+  },
+  {
+    "version": "2.1.2",
+    "buildVersion": "129",
+    "localizedDescription": "1. fix: Blank screen when receiving empty galleries array.\n2. fix: The confirmation dialog presents twice sometimes.\n3. fix: Some events not getting handled when the app becomes active.\n4. fix: The username text field prevent using the Chinese keyboard. @EthanChinCN\n5. refactor: Tweak the the detail list cell a little bit.\n6. refactor: Hide the keyboard after tapping login button.\n7. refactor: Replace literal browsing country with localized version."
+  },
+  {
+    "version": "2.1.1",
+    "buildVersion": "128",
+    "localizedDescription": "1. Fixed performance issues in reading page.\n2. Fixed unexpected behaviors when setting minimum ratting filter.\n3. Fixed unexpected behaviors when navigating to detail page on iPad.\n4. Replaced pull-to-dismiss on the control panel of reading page with a button."
+  },
+  {
+    "version": "2.1.0",
+    "buildVersion": "127",
+    "localizedDescription": "1. Fixed translates tags not working issue.\n2. Fixed bypasses SNI filtering not working issue.\n3. Fixed double-tap on tab item trigger unexpected reload issue.\n4. Added pull-to-dismiss feature in reading page.\n5. Added retry all failed images feature.\n6. Added reload all images feature."
+  },
+  {
+    "version": "2.0.0",
+    "buildVersion": "126",
+    "localizedDescription": "1. Brand new UI and architecture.\nまっさらな新 UI とアーキテクチャー。\n全新的 UI 和架構。\n\n2. Added Ukiyo-e app icon.\n「浮世絵」アプリアイコンを追加。\n增加了「浮世繪」應用圖示。\n\n3. Added import custom translations feature.\nカスタム翻訳を取り込む機能を追加。\n增加了導入自訂翻譯功能。\n\n4. Added database corruption alert.\nデータベース破損アラートを追加。\n增加了資料庫損毀提示。\n\n5. Fixed E-Hentai settings parsing issue.\nE-Hentai サイト設定の解析不具合を修正。\n修正了 E-Hentai 網站設定的解析問題。"
+  },
+  {
+    "version": "1.5.4",
+    "buildVersion": "125",
+    "localizedDescription": "1. Fixed a bug that failed the tags translation database fetching process.\n2. Added support for the Private category."
+  },
+  {
+    "version": "1.5.3",
+    "buildVersion": "124",
+    "localizedDescription": "1. Fixed an issue of deleting profiles feature.\nプロフィール削除機能の一つの不具合を修正。\n修正了一個刪除檔案功能的問題。"
+  },
+  {
+    "version": "1.5.2",
+    "buildVersion": "123",
+    "localizedDescription": "1. Fixed a parsing issue.\n2. Fixed an authorization issue."
+  },
+  {
+    "version": "1.5.1",
+    "buildVersion": "122",
+    "localizedDescription": "1. Fixed the slide menu cannot be swiped out issue.\nスライドメニューがスワイプで呼び出せない問題を修正。\n修正了側邊選單無法透過滑動呼出的問題。"
+  },
+  {
+    "version": "1.5.0",
+    "buildVersion": "121",
+    "localizedDescription": "1. Added the global filters feature.\nグローバルフィルター機能を追加。\n增加了全局篩選器功能。\n\n2. Added the Quick Search alias feature.\nクイック検索エイリアス機能を追加。\n增加了快速檢索別稱功能。\n\n3. Added the save original image feature.\nオリジナルを保存機能を追加。\n增加了保存原圖功能。\n\n4. Added the tap to next / previous page feature.\nタップ操作でページをめくる機能を追加。\n增加了點擊前後翻頁功能。\n\n5. Added the favorites sort order configuration feature.\nお気に入りの並び替えを調整する機能を追加。\n增加了收藏的排列順序邏輯調節功能。\n\n6. Optimized the swipe-back gesture.\nスワイプで戻るジェスチャーを最適化。\n最佳化了滑動返回手勢。\n\n7. Optimized the image loaded effect.\n画像読み込み完了時のエフェクトを最適化。\n最佳化了圖片載入完成時的效果。"
+  },
+  {
+    "version": "1.4.0",
+    "buildVersion": "120",
+    "localizedDescription": "1. Fixed a parsing issue.\n一つの解析問題を修正。\n修正了一個解析問題。\n\n2. Fixed the wrong results issue in similar gallery.\n類似ギャラリーで間違えた検索結果が出る問題を修正。\n修正了在相似畫廊出現錯誤檢索結果的問題。\n\n3. Fixed the creating multiple `EhPanda` profiles issue.\n多数の `EhPanda` プロフィールを作成する問題を修正。\n修正了創建多個 `EhPanda` 檔案的問題。\n\n4. Fixed the detail page unexpected leading space issue.\n詳細ページで予期しない左スペースの問題を修正。\n修正了在詳情頁左側出現非預期空白區域的問題。\n\n5. Fixed the webtoon cover issue in thumbnail list mode.\nサムネイルリストモードでのウェブトゥーンのカバー不具合を修正。\n修正了 webtoon 封面在縮略圖列表模式下的問題。\n\n6. Added the blur level configuration feature.\nぼかしのレベルを調整する機能を追加。\n增加了模糊等級調節功能。\n\n7. Added the clearing search & gallery history feature.\n検索と閲覧履歴の削除機能を追加。\n增加了檢索和畫廊歷史的刪除功能。\n\n8. Clearing image caches also clears the database caches now.\n画像キャッシュ削除機能がデータベースのキャッシュも削除するようになりました。\n清空圖像快取功能現在會同時清空資料庫中的快取。\n\n9. Switching the gallery host also clears the home information now.\nギャラリーホストの切り替え機能がアプリのホームページ情報も削除するようになりました。\n切換畫廊站點現在會同時清空 App 的主頁資料。"
+  },
+  {
+    "version": "1.3.8",
+    "buildVersion": "119",
+    "localizedDescription": "1. Fixed a parsing issue.\n2. Fixed an unexpected behavior when switching home view sheet."
+  },
+  {
+    "version": "1.3.7",
+    "buildVersion": "118",
+    "localizedDescription": "1. Fixed the QuickSearch wrong results issue.\nクイック検索の結果が間違っている問題を修正。\n修復了快速搜尋的結果不正確的問題。\n\n2. Tweaked the search feature a little bit.\n検索機能をちょっぴりいじった。\n稍微調整了搜尋功能。"
+  },
+  {
+    "version": "1.3.6",
+    "buildVersion": "117",
+    "localizedDescription": "1. Tweaked UI a little bit.\nUI をちょっぴりいじった。\n稍微調整了 UI。"
+  },
+  {
+    "version": "1.3.4",
+    "buildVersion": "115",
+    "localizedDescription": "1. Fixed a UI issue.\n一つの UI 問題を修正。\n修復了一個 UI 問題。"
+  },
+  {
+    "version": "1.3.2",
+    "buildVersion": "113",
+    "localizedDescription": "1. Enabled full range of refresh rates.\n完全なリフレッシュレート範囲を有効化。\n啟用完整的更新率範圍。"
+  },
+  {
+    "version": "1.3.1",
+    "buildVersion": "112",
+    "localizedDescription": "1. Fixed a transition animation issue.\n一つのトランジションアニメーション問題を修正。\n修復了一個過場動畫問題。\n\n2. Fixed a pagination issue.\n一つのページネーション問題を修正。\n修復了一個換頁問題。"
+  },
+  {
+    "version": "1.3.0",
+    "buildVersion": "111",
+    "localizedDescription": "1. Modified the homepage UI slightly so the position of Filters entry will no longer be confusing.\nフィルターの入口の位置が分かりやすいように、ホームページの UI をちょっぴり調整。\n稍微調整了主頁 UI，讓篩選器的入口位置更直觀。\n\n2. Made the AutoLock function-able even after exiting the app.\n自動ロックをアプリが終了された後も機能するようにしました。\n讓自動鎖定在退出應用程式後也能運作了。\n\n3. Added AutoPlay feature.\n自動再生機能を追加。\n增加了自動播放功能。\n\n4. Added quick search feature.\nクイック検索機能を追加。\n增加了快速搜尋功能。\n\n5. Added page jump feature.\nページジャンプ機能を追加。\n增加了頁面跳轉功能。"
+  },
+  {
+    "version": "1.2.2",
+    "buildVersion": "110",
+    "localizedDescription": "1. Updated Korean translations.\n韓国語翻訳を更新。\n更新了韓文翻譯。\n\n2. Fixed several layout issues on the new iPad mini.\n新型 iPad mini でのいくつかのレイアウト問題を修正。\n修復了新 iPad mini 上一些介面佈局問題。\n\n3. Fixed the thumbnail display mode layout issue.\nサムネイル表示モードのレイアウト問題を修正。\n修復了縮略圖顯示模式下的介面佈局問題。\n\n4. Fixed pagination issues when browsing the \"Watched\" or \"Favorites\" list.\n「タグの購読」・「お気に入り」リスト閲覧時のページネーション問題を修正。\n修復了瀏覽 “標籤” 或 “收藏” 列表時的換頁問題。"
+  },
+  {
+    "version": "1.2.1",
+    "buildVersion": "109",
+    "localizedDescription": "1. Fixed a IP address ban expire time parsing issue.\nIP アドレスブロック解除時間の解析問題を修正。\n修復了 IP 位址封禁解除時間的解析問題。"
+  },
+  {
+    "version": "1.2.0",
+    "buildVersion": "107",
+    "localizedDescription": "1. Added IP address banned alert feature.\nIP アドレスブロック警告機能を追加。\n增加了 IP 位址封禁提示功能。\n\n2. Optimized gallery navigation feature.\nギャラリーナビ機能を最適化。\n優化了畫廊導航功能。\n\n3. Fixed a gallery parsing issue.\n一つのギャラリーの解析問題を修正。\n修復了一個畫廊解析問題。"
+  },
+  {
+    "version": "1.1.2",
+    "buildVersion": "106",
+    "localizedDescription": "1. Fixed the Japanese title parsing issue.\n日本語タイトルの解析問題を修正。\n修復了日文標題的解析問題。"
+  },
+  {
+    "version": "1.1.1",
+    "buildVersion": "101",
+    "localizedDescription": "1. Fixed a pagination issue.\nページネーション問題を修正。\n修復了翻頁頁碼問題。"
+  },
+  {
+    "version": "1.1.0",
+    "buildVersion": "100",
+    "localizedDescription": "1. Zooming images from the touch point now.\nタッチポイントからズームできるようになりました。\n圖片現在支持從觸碰點縮放了。"
+  },
+  {
+    "version": "1.0.6",
+    "buildVersion": "99",
+    "localizedDescription": "1. Fixed UI transition issue when HUD shows up too soon after the app launched.\nアプリ起動直後にHUDが現れるとトランジションアニメーションが壊れる問題を修正。\n修復了App啓動後HUD太快出現時發生的transition動畫異常問題。\n\n2. Fixed detects link from clipboard feature loading takes forever issue.\nクリップボードからリンク探知機能の読み込みが終わらない問題を修正。\n修復了從剪切板檢測鏈接功能的無限加載問題。"
+  },
+  {
+    "version": "1.0.5",
+    "buildVersion": "98",
+    "localizedDescription": "1. Loading a gallery page can trigger a new dawn greeting now.\nギャラリーページの読み込みで夜明けの挨拶をトリガーできるようになりました。\n現在加載畫廊頁面可以觸發黎明問候了。"
+  },
+  {
+    "version": "1.0.4",
+    "buildVersion": "90",
+    "localizedDescription": "1. Added reload, copy, save & share image features.\n画像の再読み込み、コピー、保存及び共有機能を追加。\n增加了圖像的重新加載、複製、保存和共享功能。"
+  },
+  {
+    "version": "1.0.4",
+    "buildVersion": "87",
+    "localizedDescription": "1. Allows landscape orientation in reading page for iPhone now.\n閲覧ページでiPhoneデバイスを横向きに設定できるようになりました。\n可以設定iPhone在閱讀頁橫屏了。"
+  },
+  {
+    "version": "1.0.4",
+    "buildVersion": "84",
+    "localizedDescription": "1. Shows more accurate error messages now.\nより正確なエラー情報を表示できるようになりました。\n能夠展示更精確的錯誤訊息。\n\n2. Added image reload feature in reading page.\n閲覧ページで画像の再読み込み機能を追加。\n在閱讀頁增加了圖片重新加載功能。"
+  },
+  {
+    "version": "1.0.4",
+    "buildVersion": "82",
+    "localizedDescription": "1. Optimized gallery navigation feature.\nギャラリーナビゲーション機能を最適化。\n優化了畫廊跳轉功能。"
+  },
+  {
+    "version": "1.0.4",
+    "buildVersion": "81",
+    "localizedDescription": "1. Added toplists feature.\nランキング機能を追加。\n增加了排行功能。\n\n2. Fixed several bugs.\nいくつかの不具合を修正。\n修復了一些問題。"
+  },
+  {
+    "version": "1.0.4",
+    "buildVersion": "80",
+    "localizedDescription": "1. Supported full E-Hentai website settings.\nすべてのE-Hentaiサイト設定を対応。\n支援完整的E-Hentai網站設定。"
+  },
+  {
+    "version": "1.0.4",
+    "buildVersion": "78",
+    "localizedDescription": "1. Shows page count in list now.\n2. Added gallery infos feature.\n3. Several bug fixes."
+  }
+]
