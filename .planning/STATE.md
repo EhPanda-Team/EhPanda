@@ -4,16 +4,16 @@ milestone: v3.0.0
 current_phase: 19
 current_phase_name: Visual Regression & Daily Live-Parsing Check
 status: executing
-stopped_at: Completed 19-03-PLAN.md
-last_updated: "2026-11-08T01:25:00.000Z"
+stopped_at: Completed 19-09-PLAN.md
+last_updated: "2026-11-08T01:35:00.000Z"
 last_activity: 2026-11-08
-last_activity_desc: 19-03 complete (guard-free live check target; hosted runner probe reachable, owner msg 2397)
-state_head: b5f14ae8eb832e448ebc870e628196f8ba6737c9
+last_activity_desc: 19-09 complete (snapshot aggregate with four failure classes and triage; offline review report and short packet)
+state_head: 3def4606c1a6acf962aad2fa0b2fd1e388c35def
 progress:
   total_phases: 21
   completed_phases: 18
   total_plans: 321
-  completed_plans: 311
+  completed_plans: 312
   percent: 86
 milestone_name: Dependency Reduction & Modernization
 source_head: b5eca09d1
@@ -65,6 +65,12 @@ source_head: b5eca09d1
   Deviation: `SnapshotMatrix.xctestplan` (a 19-01 file) sets SWIFT_DETERMINISTIC_HASHING=1, because Gallery Info's
   Torrent URL query order followed the per-process hash seed. App follow-up: build that query in a fixed order. No
   proposed not-applicable rules. VIS-18-01 and CAP-17-01 stay Pending.
+- **19-09 complete** (`0fe8d3c62`, `58c9c092b`; `19-09-SUMMARY.md`): `snapshot_aggregate.py` merges shard results with
+  retries, requires one line per expected coordinate (`missing-result` otherwise), fails on any of four classes
+  (picture changes, infrastructure errors, drift, baseline mismatches) counted first in fixed order, and `--triage`
+  lists only infrastructure failures and missing artifacts, never a retry again; flake log with seconds and attempts.
+  `snapshot_report.py` writes the offline report (grouped by screen, five filters, failure triplets, n/a reasons,
+  flake log) and `--packet`. 11 + 6 Python tests. VIS-18-01 and CAP-17-02 stay Pending.
 
 ## Phase 19 planned: Visual Regression & Daily Live-Parsing Check — 2026-11-07
 
