@@ -137,6 +137,7 @@ jobs:
           [[ ! -z "$RELEASE_DATE" ]] || exit 1
           printf '%s' "$RELEASE_PRIVACY" | jq -e 'type == "object"' >/dev/null
       - name: Release to GitHub
+        id: release
         uses: softprops/action-gh-release@v3
         with:
          fail_on_unmatched_files: true
@@ -152,6 +153,8 @@ jobs:
           git push origin HEAD
       - name: Update AltStore.json
         env:
+          ALTSTORE_FILTER_PATH: './actions-tool/altstore-add-version.jq'
+          RELEASE_ASSETS: ${{ steps.release.outputs.assets }}
           RELEASE_SIZE: ${{ steps.retrieve-data.outputs.size }}
           RELEASE_SHA256: ${{ steps.retrieve-data.outputs.sha256 }}
           RELEASE_VERSION: ${{ steps.retrieve-data.outputs.version }}
@@ -162,36 +165,30 @@ jobs:
           RELEASE_NOTES: ${{ steps.retrieve-data.outputs.notes }}
           RELEASE_PRIVACY: ${{ steps.retrieve-data.outputs.privacy }}
         run: |
+          set -euo pipefail
+          bundle_id="$(plutil -extract CFBundleIdentifier raw -o - "$PAYLOAD_PATH/$SCHEME_NAME.app/Info.plist")"
+          download_url="$(printf '%s' "$RELEASE_ASSETS" | jq -r '[.[] | select(.name == "EhPanda.ipa") | .browser_download_url][0] // empty')"
+          [[ -n "$bundle_id" ]] || exit 1
+          [[ -n "$download_url" ]] || exit 1
+          curl -sSfIL -o /dev/null "$download_url"
+          # ReleaseNotesFilter joins lines with a literal "\n"; AltStore shows text as is, so use real line breaks.
+          notes="${RELEASE_NOTES//\\n/$'\n'}"
+
           tmp="$(mktemp)"
           jq \
+            --arg bundleIdentifier "$bundle_id" \
             --arg version "$RELEASE_VERSION" \
             --arg buildVersion "$RELEASE_BUILD_VERSION" \
             --arg marketingVersion "$RELEASE_MARKETING_VERSION" \
             --arg date "$RELEASE_DATE" \
-            --arg localizedDescription "$RELEASE_NOTES" \
-            --arg downloadURL "https://github.com/EhPanda-Team/EhPanda/releases/download/v$RELEASE_VERSION/EhPanda.ipa" \
+            --arg localizedDescription "$notes" \
+            --arg downloadURL "$download_url" \
             --arg sha256 "$RELEASE_SHA256" \
             --arg minOSVersion "$RELEASE_MIN_OS_VERSION" \
             --argjson size "$RELEASE_SIZE" \
             --argjson privacy "$RELEASE_PRIVACY" \
-            '
-            .apps[0].category = "entertainment" |
-            .apps[0].versions[0] = {
-              version: $version,
-              buildVersion: $buildVersion,
-              marketingVersion: $marketingVersion,
-              date: $date,
-              localizedDescription: $localizedDescription,
-              downloadURL: $downloadURL,
-              size: $size,
-              sha256: $sha256,
-              minOSVersion: $minOSVersion
-            } |
-            .apps[0].appPermissions = {
-              entitlements: [],
-              privacy: $privacy
-            }
-            ' "$ALTSTORE_JSON_PATH" > "$tmp"
+            --argjson releaseVersions null \
+            -f "$ALTSTORE_FILTER_PATH" "$ALTSTORE_JSON_PATH" > "$tmp"
           jq empty "$tmp"
           mv "$tmp" "$ALTSTORE_JSON_PATH"
       - name: Commit update AltStore.json
