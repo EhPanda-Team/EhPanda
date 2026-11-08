@@ -21,7 +21,7 @@
   },
   "iconURL": "https://github.com/EhPanda-Team/ehpanda-website/raw/main/public/img/appicon/appicon-512.png",
   "website": "https://ehpanda.app",
-  "tintColor": "#289979",
+  "tintColor": "#557F72",
   "featuredApps": [
     "app.ehpanda"
   ],
@@ -49,7 +49,7 @@
         "zh-Hant": "免費、開放原始碼的 E-Hentai 用戶端，適用於 iPhone 與 iPad。\n\n瀏覽\n打開畫廊即可查看標籤、評分與預覽，還能找到類似的畫廊。加入討論：發表、編輯留言，或為留言投票。選擇類別、評分下限或頁數範圍，瀏覽和搜尋時都會自動套用。\n\n閱讀\n可以向下捲動，也能向左或向右翻頁。還能放大、自動播放，或用滑桿直接跳到任何一頁。打開原況文字，頁面上的文字就會翻譯成你的語言，直接顯示在原文上。把畫廊存下來離線閱讀。下載可以在背景繼續進行，畫廊有更新時，也能更新下載內容。\n\n網路被封鎖？交給我們\n成年人喜歡什麼，本來就該自由享受。就算網路封鎖了 E-Hentai，只要打開一個開關，剩下的交給 EhPanda 就好。\n\n還有更多\n排行榜 · 收藏 · 關注標籤 · 標籤翻譯 · 雙頁模式 · Hath 存檔 · 種子 · 隱私遮罩\n\n注意：EhPanda 與 E-Hentai 無關，也未獲得 E-Hentai 的認可。"
       },
       "iconURL": "https://github.com/EhPanda-Team/ehpanda-website/raw/main/public/img/appicon/appicon-512.png",
-      "tintColor": "#289979",
+      "tintColor": "#557F72",
       "category": "entertainment",
       "screenshots": [
         "https://github.com/EhPanda-Team/ehpanda-website/raw/main/public/img/screenshot/Home_EN_Light.png",
@@ -90,7 +90,7 @@
       "title": "EhPanda Now Available!",
       "identifier": "ehpanda-now-available",
       "caption": "An unofficial E-Hentai App for iOS & iPadOS.",
-      "tintColor": "#289979",
+      "tintColor": "#557F72",
       "appID": "app.ehpanda",
       "date": "2021-08-19",
       "notify": false
