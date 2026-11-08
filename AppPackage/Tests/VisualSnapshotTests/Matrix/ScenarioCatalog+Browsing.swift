@@ -299,20 +299,32 @@ enum BrowsingScenarios {
     /// The freeze waits until the window is at rest (``HostedWindowCapture/motion(in:)``), not a fixed time: the
     /// search bar's activation moves the list and scrolls the field's text to the caret, and a freeze in the middle
     /// of either holds a different list offset or text offset on a loaded host (run 42455556948).
+    ///
+    /// `becomeFirstResponder()` returning true is not enough either: on the loaded hosted runner the activation took
+    /// the focus back, and both attempts captured an unfocused field with its text scrolled to the start and no
+    /// caret (run 42475531683). The field is focused again until it is still first responder after the window has
+    /// come to rest twice in a row.
     static func focusSearchField(_ window: UIWindow) async throws {
         let root = try XCTUnwrap(window.rootViewController?.view)
         let clock = ContinuousClock()
-        let deadline = clock.now.advanced(by: .seconds(3))
-        while true {
-            if let field = firstView(of: UISearchTextField.self, in: root), field.becomeFirstResponder() {
-                try await clock.sleep(for: .milliseconds(800))
-                try await waitForRest(window)
-                try await freezeIndicators(window)
-                return
+        let deadline = clock.now.advanced(by: .seconds(15))
+        var held = 0
+        while held < 2 {
+            guard clock.now < deadline else { throw AccessibilityActionDriver.Failure.notFound("focused search field") }
+            guard let field = firstView(of: UISearchTextField.self, in: root) else {
+                try await clock.sleep(for: .milliseconds(100))
+                continue
             }
-            guard clock.now < deadline else { throw AccessibilityActionDriver.Failure.notFound("search field") }
-            try await clock.sleep(for: .milliseconds(100))
+            if field.isFirstResponder {
+                held += 1
+            } else {
+                held = 0
+                _ = field.becomeFirstResponder()
+            }
+            try await clock.sleep(for: .milliseconds(held == 0 ? 800 : 300))
+            try await waitForRest(window)
         }
+        try await freezeIndicators(window)
     }
 
     /// A user step's window that never came to rest; the motion it last read.
@@ -342,12 +354,37 @@ enum BrowsingScenarios {
         return nil
     }
 
-    /// Stops the hosted view's layer clock, so an indeterminate progress indicator holds one frame and the window
-    /// settles. The hosted controller is replaced for every attempt, so the clock never stays stopped.
+    /// Holds the hosted view at a fixed point: once the window is at rest, the hosted view's layer clock is stopped
+    /// and every animation that repeats for as long as its view shows (an indeterminate indicator's spin, a caret's
+    /// blink) is restarted at its first frame. The hosted controller is replaced for every attempt, so the clock
+    /// never stays stopped.
+    ///
+    /// Stopping the clock alone held the indicator wherever its animation happened to be: an animation committed
+    /// before the stop showed its model value, one committed after it its first frame, and an appearing loading card
+    /// could be held part-way in. Which one a run got depended on the host's load (`home-loading` changed on the
+    /// hosted runner in run 42475531683; locally `home-loading`, `front-page-loading` and `popular-loading` each
+    /// had two byte-different states). The rest wait lets every commit and finite transition finish first.
     static func freezeIndicators(_ window: UIWindow) async throws {
+        try await waitForRest(window)
         let layer = try XCTUnwrap(window.rootViewController?.view.layer)
         layer.speed = 0
         layer.timeOffset = 0
+        restartRepeatingAnimations(in: layer)
+    }
+
+    private static func restartRepeatingAnimations(in layer: CALayer) {
+        let now = layer.convertTime(CACurrentMediaTime(), from: nil)
+        for key in layer.animationKeys() ?? [] {
+            guard let animation = layer.animation(forKey: key), HostedWindowCapture.repeatsForever(animation),
+                  let restarted = animation.copy() as? CAAnimation else { continue }
+            restarted.beginTime = now
+            restarted.timeOffset = 0
+            restarted.fillMode = .both
+            layer.add(restarted, forKey: key)
+        }
+        for sublayer in layer.sublayers ?? [] {
+            restartRepeatingAnimations(in: sublayer)
+        }
     }
 
     private static func element(labelled label: String, in element: NSObject, depth: Int = 0) -> NSObject? {

@@ -237,6 +237,20 @@ public enum HostedWindowCapture {
     /// An animation longer than this repeats for as long as its view shows.
     private static let forever: CFTimeInterval = 3600
 
+    /// Whether `animation` repeats for as long as its view shows (an indicator's spin, a caret's blink): the
+    /// scenario's own state, not motion that ends.
+    public static func repeatsForever(_ animation: CAAnimation) -> Bool {
+        let length = length(of: animation)
+        // UIKit writes "forever" as a huge finite count (an animated image view repeats 2^31 times).
+        return !length.isFinite || length > forever
+    }
+
+    private static func length(of animation: CAAnimation) -> CFTimeInterval {
+        let cycles = Double(max(animation.repeatCount, 1)) * (animation.autoreverses ? 2 : 1)
+        let rate = Double(max(animation.speed, 0.0001))
+        return max(animation.repeatDuration, animation.duration * cycles) / rate
+    }
+
     private static func runningAnimation(in layer: CALayer, now: CFTimeInterval) -> String? {
         if layer.speed == 0 { return nil }
         // A caret blinks on a timer of its own for as long as its field is focused.
@@ -247,12 +261,8 @@ public enum HostedWindowCapture {
             guard let animation = layer.animation(forKey: key) else { continue }
             // Not yet committed: it starts at the next commit.
             if animation.beginTime == 0 { return "animation:\(owner):\(key)" }
-            let cycles = Double(max(animation.repeatCount, 1)) * (animation.autoreverses ? 2 : 1)
-            let rate = Double(max(animation.speed, 0.0001))
-            let length = max(animation.repeatDuration, animation.duration * cycles) / rate
-            // UIKit writes "forever" as a huge finite count (an animated image view repeats 2^31 times).
-            if !length.isFinite || length > forever { continue }
-            if animation.beginTime + length > local { return "animation:\(owner):\(key)" }
+            if repeatsForever(animation) { continue }
+            if animation.beginTime + length(of: animation) > local { return "animation:\(owner):\(key)" }
         }
         for sublayer in layer.sublayers ?? [] {
             if let running = runningAnimation(in: sublayer, now: now) { return running }
