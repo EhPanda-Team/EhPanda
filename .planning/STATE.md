@@ -4,16 +4,16 @@ milestone: v3.0.0
 current_phase: 19
 current_phase_name: Visual Regression & Daily Live-Parsing Check
 status: executing
-stopped_at: Completed 19-08-PLAN.md
-last_updated: "2026-11-08T02:55:00.000Z"
+stopped_at: Completed 19-14-PLAN.md
+last_updated: "2026-11-08T03:09:00.000Z"
 last_activity: 2026-11-08
-last_activity_desc: 19-08 complete (27 of 30 Settings, Settings page and app-wide scenarios, green on both devices and in three configurations; Login proposed for 19-10)
-state_head: bc141d83b771b216b779bfb6491d6b5e2f5a531e
+last_activity_desc: 19-14 complete (the daily live check reads nine guest pages GET-only and classifies ok, unreachable or parser; one local run all ok)
+state_head: 4371fad13eef10bd58966181bdef70f6d6e510ff
 progress:
   total_phases: 21
   completed_phases: 18
   total_plans: 321
-  completed_plans: 313
+  completed_plans: 314
   percent: 86
 milestone_name: Dependency Reduction & Modernization
 source_head: b5eca09d1
@@ -79,6 +79,13 @@ source_head: b5eca09d1
   Proposed for 19-10: the three Login scenarios not applicable (wall-clock wave backdrop) or an app Reduce Motion
   change. Issues for 19-12/19-13: the site-settings error page is blank (ErrorView over an empty ZStack, likely an
   app bug); Account signed in shows the preview cookies marked invalid. VIS-18-01 and CAP-17-01 stay Pending.
+- **19-14 complete** (`ae782749c`, `6d07e02d2`, `b8c7c3c6c`; `19-14-SUMMARY.md`): the daily live check reads front
+  page, search, Popular, Toplists, a gallery, its reader page and first image, tag suggestions and the Report form
+  page as a guest, GET only, 5 s apart; Watched, Favorites and ExHentai are skipped. Pure classification (`ok`,
+  `unreachable` for a block, `parser` with a fixed expectation ID for a break); `results.json` schema 1 with enum-only
+  page fields. 11 offline tests on saved pages and 11 Python tests (allowlist, no POST). One local run: nine pages
+  200 ok. Deviations: the list pages use the app's list URLs and parser over a plain GET (their request types also
+  POST); 19-03's `PageObservation` now reads each task's final response. VIS-19-01 stays Pending.
 
 ## Phase 19 planned: Visual Regression & Daily Live-Parsing Check — 2026-11-07
 
