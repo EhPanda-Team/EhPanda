@@ -7,6 +7,10 @@
 #   --argjson privacy           {"NS...UsageDescription": "..."} read from the build
 #   --argjson releaseVersions   null for a regular release; for a beta, the `versions`
 #                               array of AltStore.json (the regular releases)
+#   --argjson localizedDescriptions   optional: {"en": ..., "de": ..., ...}, the notes per
+#                               language (actions-tool/release_notes.py altstore). Its "en" must
+#                               equal $localizedDescription. Left out, or null, for a source
+#                               that shows English only (SideStore).
 #
 # The new version is prepended (newest first). An older entry with the same
 # version + buildVersion, or with the same downloadURL (a re-uploaded asset), is
@@ -23,17 +27,28 @@ if (.apps | type) != "array" or (.apps | length) == 0 then
 elif .apps[0].bundleIdentifier != $bundleIdentifier then
   error("bundle identifier mismatch: source has \(.apps[0].bundleIdentifier), build has \($bundleIdentifier)")
 else . end
-| {
+| ($ARGS.named.localizedDescriptions // null) as $localizedDescriptions
+| if $localizedDescriptions == null then .
+  elif ($localizedDescriptions | type) != "object"
+       or ($localizedDescriptions | [.[] | type == "string" and length > 0] | all | not) then
+    error("localizedDescriptions must be an object of non-empty strings")
+  elif $localizedDescriptions.en != $localizedDescription then
+    error("localizedDescriptions.en differs from localizedDescription")
+  else . end
+| ({
     version: $version,
     buildVersion: $buildVersion,
     marketingVersion: $marketingVersion,
     date: $date,
-    localizedDescription: $localizedDescription,
+    localizedDescription: $localizedDescription
+  }
+  + (if $localizedDescriptions == null then {} else {localizedDescriptions: $localizedDescriptions} end)
+  + {
     downloadURL: $downloadURL,
     size: $size,
     sha256: $sha256,
     minOSVersion: $minOSVersion
-  } as $entry
+  }) as $entry
 | .apps[0].versions = (
     [$entry]
     + ((.apps[0].versions // [])
