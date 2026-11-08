@@ -36,7 +36,7 @@ class Runs:
                     slot += 1
                     self.run(family, configuration, workers, seconds=2.0)
 
-    def run(self, family, configuration, workers, seconds, statuses=None, pictures=24, wall=None):
+    def run(self, family, configuration, workers, seconds, statuses=None, pictures=24, wall=None, infra=None):
         directory = self.root / family / configuration / f'w{workers}'
         directory.mkdir(parents=True, exist_ok=True)
         statuses = statuses or ['passed'] * pictures
@@ -51,7 +51,7 @@ class Runs:
         (directory / 'shard.json').write_text(json.dumps({
             'shard': 'measure', 'units': [configuration], 'workers': workers, 'xcodeBuild': '27A1',
             'runtime': 'iOS 27.0', 'model': family, 'runnerImage': 'macos-26', 'started': stamp(started),
-            'finished': stamp(started + timedelta(seconds=wall)), 'infra': None,
+            'finished': stamp(started + timedelta(seconds=wall)), 'infra': infra,
         }))
 
     def memory(self, *samples):
@@ -143,6 +143,13 @@ class SnapshotMeasureTests(unittest.TestCase):
         facts = self.runs.facts()
         self.assertEqual(facts[('iphone', 'en-xSmall', 3)]['changed'], 1)
         self.assertIn('| iphone | en-xSmall | 3 | 24 | 2.00 | 1.00 |', snapshot_measure.table(facts))
+
+    def test_a_run_that_failed_on_the_simulator_twice_is_infra_not_incomplete(self):
+        self.runs.run('iphone', 'en-large', 3, seconds=2.0, statuses=[], infra='clone-shutting-down')
+        excluded, chosen = self.verdict()
+        self.assertEqual(excluded[3], ['infra'])
+        self.assertEqual(excluded[4], [])
+        self.assertEqual(chosen, 4)
 
     def test_a_missing_run_excludes_its_count(self):
         directory = self.runs.root / 'ipad' / 'en-xSmall' / 'w4'

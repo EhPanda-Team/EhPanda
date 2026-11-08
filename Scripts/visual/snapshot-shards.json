@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "costTable": "d177f9d458931ae73e696085b98b3caff8072ba9e85cceff8b76402781286ee4",
+  "costTable": "2b5c71b1b4c2e1e0bffabd4fcc3db65fcc047f74444659f8c8156b3b42857ef9",
   "costSource": "model",
   "workers": 2,
   "shards": [
