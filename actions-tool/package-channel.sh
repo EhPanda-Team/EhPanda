@@ -8,14 +8,14 @@
 #   <channel>  github, altstore, sidestore, altstorePAL or beta
 #   <ipa>      the IPA to write, e.g. EhPanda-GitHub.ipa
 #
-# The app reads the channel from `EhPandaDistributionChannel` in its Info.plist and reports it as the
-# install source when MarketplaceKit cannot name a store (DistributionChannel in
-# AppPackage/Sources/InstallSourceClient). The committed value is `source`, for builds that no
-# workflow made; this script overwrites it in the copy. One build can so be packaged once per
-# channel without rebuilding. Only the app is stamped: the share extension never reports a source.
+# The app reads the channel from `EhPandaDistributionChannel` in its Info.plist and reports it as is
+# in its install signal (DistributionChannel in AppPackage/Sources/AppModels/Utilities). The
+# committed value is `source`, for builds that no workflow made; this script overwrites it in the
+# copy. One build can so be packaged once per channel without rebuilding. Only the app is stamped:
+# the share extension sends nothing.
 #
-# The channels are a closed list, the same as the app's. The app ignores any other value, so a typo
-# here would silently report `unknown`; failing is better.
+# The channels are a closed list, the same as the app's. The app reads any other value as `source`,
+# so a typo here would silently report `source`; failing is better.
 
 set -euo pipefail
 

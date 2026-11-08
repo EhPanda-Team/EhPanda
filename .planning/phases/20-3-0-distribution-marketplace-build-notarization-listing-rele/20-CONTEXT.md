@@ -70,7 +70,7 @@ order are in no phase.
     so any build no release workflow made says so. The workflows build once, unsigned, and
     `actions-tool/package-channel.sh` copies the app once per channel and overwrites the value in each copy, so the
     copies differ only in the stamp and no channel needs its own build. Only the app is stamped; the share extension
-    never reports an install source.
+    sends nothing.
   - **The files.** `deploy.yml` publishes `EhPanda-GitHub.ipa`, `EhPanda-AltStore.ipa` and `EhPanda-SideStore.ipa` on
     the GitHub release. `AltStore.json` (repo root, where ehpanda.app/AltStore.json redirects) points at
     `EhPanda-AltStore.ipa`, and the new `SideStore.json` (repo root) at `EhPanda-SideStore.ipa`, each with that
@@ -80,15 +80,12 @@ order are in no phase.
     `identifier`), so it is never written with zero versions. `deploy-beta.yml` publishes `EhPanda-Beta.ipa`
     (D-11).
   - **AltStore PAL** is not built yet. The PAL job, when it is, stamps `altstorePAL` with the same script.
-  - **Install source:** `InstallSource` gains `github`, `altstore`, `sidestore`, `beta` and `source` (wire values the
-    same; dashboard values are added to, never respelled). The simulator reports `unknown` without asking
-    MarketplaceKit. Every other build, DEBUG included, asks MarketplaceKit first, and Apple wins: `appStore`,
-    `testFlight`, `marketplace:<id>` (PAL among them) and `web` are reported whatever the stamp says; the
-    `altstorePAL` stamp is only a cross-check and never overrides it. When MarketplaceKit reports `other` (a
-    sideloaded install, such as AltStore Classic's) or throws, the stamp is mapped: `github`, `altstore`,
-    `sidestore`, `beta`, `source` report themselves; `altstorePAL` reports `unknown`, since only MarketplaceKit can
-    confirm a PAL install; a missing or unknown stamp reports `unknown`. The live client so no longer reports
-    `other`; the value stays on the wire.
+  - **Distribution channel** (owner msg 2552; replaces the install source). The install signal reports the stamp as
+    is under the payload key `App.distributionChannel`: `github`, `altstore`, `sidestore`, `altstorePAL`, `beta` or
+    `source`. A missing stamp, a value that is not a string, or a string not on the list (compared exactly) reports
+    `source`. MarketplaceKit is not used, so `appStore`, `testFlight`, `marketplace:<id>`, `web`, `other` and
+    `unknown` are no longer sent; the enum is `DistributionChannel` in AppModels, and the `InstallSourceClient`
+    module is gone. Raw values are dashboard values: a channel may be added, never respelled.
   - **SideStore source format.** SideStore reads AltStore sources ("SideStore is fully compatible with AltStore
     Sources", docs.sidestore.io/docs/advanced/app-sources). Checked against the SideStore source at 4f3d18d (Nov 2026):
     an app with `marketplaceID` is rejected as notarized (`SourceError.marketplaceNotSupported`), so none is set;
@@ -115,8 +112,8 @@ These were not put to the owner (prep section 3):
   `BUNDLE_ID_SUFFIX`. — **Reversibility:** one-way — it becomes a permanent App ID in the collaborator's account.
 - **Marketplace flavor:** `Config/Marketplace.xcconfig` (or a build configuration) with a compilation condition. The
   unsigned IPA build and private local signing stay unchanged.
-- **Install source:** a closed enum from MarketplaceKit `AppDistributor.current`, cross-checked with the build-flavor
-  flag. No free-form marketplace strings.
+- **Distribution channel:** a closed enum read from the build's `EhPandaDistributionChannel` stamp (D-12; owner msg
+  2552). No MarketplaceKit and no free-form strings.
 - **PAL source:** a separate JSON in the repo with the same version-history logic, written by the notarization job.
   The hosting URL is agreed with Leto.
 - **Notarization CI:** a separate `workflow_dispatch` job behind a protected GitHub environment with a required

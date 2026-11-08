@@ -1,7 +1,6 @@
 import AppModels
 import CryptoKit
 import Foundation
-import InstallSourceClient
 import OSLogExt
 import Sharing
 
@@ -12,7 +11,7 @@ private let logger = Logger(moduleName: "AnalyticsClient", category: "InstallSig
 /// The TelemetryDeck SDK cannot send it: every SDK signal carries the SDK's default payload (device,
 /// OS, locale, region, time zone, screen, app version), and under Minimal the SDK is never
 /// initialised. So this actor builds the one request itself, in the SDK's wire format, with seven
-/// fields and a payload of exactly one key, `App.installSource`. Nothing about the device is in it.
+/// fields and a payload of exactly one key, `App.distributionChannel`. Nothing about the device is in it.
 ///
 /// The format and the response handling are copied from TelemetryDeck SwiftSDK 2.14.2
 /// (`Signals/SignalManager.swift` `send`, `getServiceUrl` and `ResponseDisposition`;
@@ -30,7 +29,7 @@ actor InstallSignalSender {
     /// The ingest endpoint the SDK posts to when no namespace is configured.
     static let endpoint = URL(string: "https://nom.telemetrydeck.com/v2/")
     static let signalType = "App.installed"
-    static let installSourceKey = "App.installSource"
+    static let distributionChannelKey = "App.distributionChannel"
     /// The waits before the second, third and fourth attempt.
     static let retryDelays: [Duration] = [.seconds(10), .seconds(20), .seconds(40)]
 
@@ -40,7 +39,7 @@ actor InstallSignalSender {
     private let now: @Sendable () -> Date
     private let uuid: @Sendable () -> UUID
     private let sleep: @Sendable (Duration) async throws -> Void
-    private let installSource: @Sendable () async -> InstallSource
+    private let distributionChannel: @Sendable () -> DistributionChannel
     private var isSending = false
 
     /// A nil `appID` makes a sender that never calls `transport` (Phase 14 D-13); a nil `salt` hashes
@@ -52,7 +51,7 @@ actor InstallSignalSender {
         now: @escaping @Sendable () -> Date,
         uuid: @escaping @Sendable () -> UUID,
         sleep: @escaping @Sendable (Duration) async throws -> Void,
-        installSource: @escaping @Sendable () async -> InstallSource
+        distributionChannel: @escaping @Sendable () -> DistributionChannel
     ) {
         self.appID = appID
         self.salt = salt ?? ""
@@ -60,7 +59,7 @@ actor InstallSignalSender {
         self.now = now
         self.uuid = uuid
         self.sleep = sleep
-        self.installSource = installSource
+        self.distributionChannel = distributionChannel
     }
 
     /// Sends the install signal unless it has settled or a send is already running.
@@ -79,8 +78,8 @@ actor InstallSignalSender {
         if state.clientUser == nil {
             $state.withLock({ $0.clientUser = clientUser })
         }
-        // Asked once per call; this call's retries reuse the answer.
-        let source = await installSource()
+        // Read once per call; this call's retries reuse it.
+        let channel = distributionChannel()
 
         let body: Data
         do {
@@ -90,7 +89,7 @@ actor InstallSignalSender {
                 clientUser: clientUser,
                 sessionID: uuid().uuidString,
                 type: Self.signalType,
-                payload: [Self.installSourceKey: source.wireValue],
+                payload: [Self.distributionChannelKey: channel.rawValue],
                 isTestMode: Self.isTestMode
             ))
         } catch {
