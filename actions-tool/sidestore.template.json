@@ -52,6 +52,45 @@
       "iconURL": "https://raw.githubusercontent.com/EhPanda-Team/EhPanda/main/docs/altstore/appicon-512.png",
       "tintColor": "#557F72",
       "category": "entertainment",
+      "screenshots": {
+        "iphone": [
+          {
+            "imageURL": "https://raw.githubusercontent.com/EhPanda-Team/ehpanda-assets/main/altstore/iphone/01-home.png",
+            "width": 1260,
+            "height": 2736
+          },
+          {
+            "imageURL": "https://raw.githubusercontent.com/EhPanda-Team/ehpanda-assets/main/altstore/iphone/02-detail.png",
+            "width": 1260,
+            "height": 2736
+          },
+          {
+            "imageURL": "https://raw.githubusercontent.com/EhPanda-Team/ehpanda-assets/main/altstore/iphone/03-reading.png",
+            "width": 1260,
+            "height": 2736
+          },
+          {
+            "imageURL": "https://raw.githubusercontent.com/EhPanda-Team/ehpanda-assets/main/altstore/iphone/04-comments.png",
+            "width": 1260,
+            "height": 2736
+          },
+          {
+            "imageURL": "https://raw.githubusercontent.com/EhPanda-Team/ehpanda-assets/main/altstore/iphone/05-downloads.png",
+            "width": 1260,
+            "height": 2736
+          },
+          {
+            "imageURL": "https://raw.githubusercontent.com/EhPanda-Team/ehpanda-assets/main/altstore/iphone/06-filters.png",
+            "width": 1260,
+            "height": 2736
+          },
+          {
+            "imageURL": "https://raw.githubusercontent.com/EhPanda-Team/ehpanda-assets/main/altstore/iphone/07-more.png",
+            "width": 1260,
+            "height": 2736
+          }
+        ]
+      },
       "appPermissions": {
         "entitlements": [
           "beta-reports-active",
