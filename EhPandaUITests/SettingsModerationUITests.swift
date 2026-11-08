@@ -17,7 +17,7 @@ final class SettingsModerationUITests: XCTestCase {
         static let full = "Full"
         static let privacyPolicy = "Privacy Policy"
         static let minimalDescription =
-            "Sends only a signal that EhPanda is installed, and where you installed the app from."
+            "Sends only a signal that EhPanda is installed, and where you got the app from."
         static let fullDescription =
             "Everything in Basic, plus your reading and download activity and your main settings."
         static let empty = "You haven't blocked anyone."

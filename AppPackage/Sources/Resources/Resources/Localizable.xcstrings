@@ -2940,13 +2940,13 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Sendet nur, dass EhPanda installiert ist, und woher du die App installiert hast."
+            "value" : "Sendet nur, dass EhPanda installiert ist, und woher du die App hast."
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Sends only a signal that EhPanda is installed, and where you installed the app from."
+            "value" : "Sends only a signal that EhPanda is installed, and where you got the app from."
           }
         },
         "ja" : {
@@ -2958,19 +2958,19 @@
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "EhPanda가 설치되어 있다는 사실과 앱을 설치한 곳만 보냅니다."
+            "value" : "EhPanda가 설치되어 있다는 사실과 앱을 받은 곳만 보냅니다."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "仅发送 EhPanda 已安装的信息，以及应用的安装来源。"
+            "value" : "仅发送 EhPanda 已安装的信息，以及应用的获取来源。"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "僅傳送 EhPanda 已安裝的資訊，以及 App 的安裝來源。"
+            "value" : "僅傳送 EhPanda 已安裝的資訊，以及 App 的取得來源。"
           }
         }
       }

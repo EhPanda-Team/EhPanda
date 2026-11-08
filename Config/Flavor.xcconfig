@@ -1,0 +1,13 @@
+// Build flavor defaults — COMMITTED. These describe the regular EhPanda build.
+//
+// The beta flavor replaces them with `Config/Beta.xcconfig`, which only
+// `.github/workflows/deploy-beta.yml` passes to `xcodebuild -xcconfig`. Every other build, local
+// or CI, gets the values below. Included from `Signing.xcconfig`, the project-level base configuration,
+// so they reach the app and the share extension alike.
+
+// The name under the icon on the Home Screen (`CFBundleDisplayName`).
+EHPANDA_DISPLAY_NAME = EhPanda
+
+// The URL scheme the app registers and the share extension hands links over with. Each flavor needs
+// its own, or a link shared from one flavor could open the other when both are installed.
+EHPANDA_URL_SCHEME = ehpanda

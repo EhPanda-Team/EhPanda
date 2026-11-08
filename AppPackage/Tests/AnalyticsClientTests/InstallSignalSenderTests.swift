@@ -3,7 +3,6 @@ import AppModels
 import ComposableArchitecture
 import CryptoKit
 import Foundation
-import InstallSourceClient
 import Sharing
 import Testing
 
@@ -23,11 +22,9 @@ struct InstallSignalSenderTests {
 
     // MARK: The request
 
-    @Test(arguments: [
-        InstallSource.appStore, .marketplace("com.example.store"), .unknown
-    ])
-    func theFirstSendIsOneRequestInTheSDKWireFormat(source: InstallSource) async throws {
-        let harness = Harness(responses: [.status(200)], source: source)
+    @Test(arguments: DistributionChannel.allCases)
+    func theFirstSendIsOneRequestInTheSDKWireFormat(channel: DistributionChannel) async throws {
+        let harness = Harness(responses: [.status(200)], channel: channel)
 
         await harness.ensureSent()
 
@@ -45,8 +42,8 @@ struct InstallSignalSenderTests {
         #expect(object["isTestMode"] as? String == "true")
 
         let payload = try #require(object["payload"] as? [String: Any])
-        #expect(Set(payload.keys) == ["App.installSource"])
-        #expect(payload["App.installSource"] as? String == source.wireValue)
+        #expect(Set(payload.keys) == ["App.distributionChannel"])
+        #expect(payload["App.distributionChannel"] as? String == channel.rawValue)
 
         // The SDK's hash: lowercase SHA-256 hex of the identifier followed by the salt. The first
         // generated UUID is the user identifier, the second the session.
@@ -294,7 +291,7 @@ struct Harness {
 
     init(
         responses: [CannedResponse],
-        source: InstallSource = .unknown,
+        channel: DistributionChannel = .source,
         appID: String? = "TEST-APP-ID",
         yieldsInTransport: Bool = false,
         defaults: UserDefaults = .inMemory
@@ -316,7 +313,7 @@ struct Harness {
                 }
             },
             sleep: { duration in sleeps.withValue({ $0.append(duration) }) },
-            installSource: { source }
+            distributionChannel: { channel }
         )
     }
 

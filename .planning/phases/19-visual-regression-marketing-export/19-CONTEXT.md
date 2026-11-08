@@ -350,7 +350,7 @@ Plain-language versions with options are in the owner handoff.
   (throwaway; its host-window, settle and capture helpers are the reference for D-08); data in
   `/tmp/ehp19-snapspike/hosted/` while it lasts.
 - `AppPackage/Sources/NetworkingFeature/` (request types, `isCloudflareChallenge`), `AppPackage/Sources/ParserFeature/`.
-- `.github/workflows/test.yml`, `deploy.yml`, `deploy-pre-release.yml`, `dependencies.yml`, `.github/dependabot.yml`.
+- `.github/workflows/test.yml`, `deploy.yml`, `deploy-beta.yml`, `dependencies.yml`, `.github/dependabot.yml`.
 - `Scripts/visual/README.md`, `Scripts/visual/verify-release.py`.
 
 </canonical_refs>

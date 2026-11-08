@@ -1,7 +1,6 @@
 public import AppModels
 public import ComposableArchitecture
 import Foundation
-import InstallSourceClient
 import Sharing
 import Synchronization
 
@@ -14,8 +13,8 @@ import Synchronization
 // What leaves the app is decided by the analytics level the user chose (D-06a, D-06b, D-06f, DD-09a):
 //
 // - No level yet: nothing. `apply(nil)` does nothing and every signal is dropped (D-04).
-// - Minimal: only the one install signal, sent by `InstallSignalSender` with the install source as its
-//   one parameter. The TelemetryDeck SDK is never initialised under Minimal: every SDK signal carries
+// - Minimal: only the one install signal, sent by `InstallSignalSender` with the distribution channel
+//   as its one parameter. The TelemetryDeck SDK is never initialised under Minimal: every SDK signal carries
 //   the SDK's device, OS, locale, region, time-zone, screen and app-version payload, so starting it
 //   would make Minimal's "Sends only a signal that EhPanda is installed" false. This reverses Phase
 //   14's premise that the SDK stays alive when analytics are off "so installs are still counted";
@@ -58,12 +57,7 @@ extension AnalyticsClient {
             now: { Date() },
             uuid: { UUID() },
             sleep: { try await Task.sleep(for: $0) },
-            // Declared inside the closure, never captured here: this value is a `static let`, so a
-            // dependency resolved at its scope would ignore every later override.
-            installSource: {
-                @Dependency(\.installSourceClient) var installSourceClient
-                return await installSourceClient.current()
-            }
+            distributionChannel: { DistributionChannel.current }
         )
         return live(appID: appID, salt: salt, sdk: .live, installSignal: .live(sender))
     }()

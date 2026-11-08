@@ -10,12 +10,12 @@ Usage:
 Sources (CONTEXT D-06a to D-06f, D-09, D-22; Research section 8):
 - 18-COPY-FIRST-LAUNCH.md (owner msg 1767): age wall and analytics choice.
 - 18-COPY-MINIMAL.md: its first table (msg 1805), Revision 2 (msg 1818), Revision 3 (msg 1839, read only as retired
-  text), Revision 5 (msg 1864) and both tables of Revision 6 (msgs 1880, 1882). Revision 4 was not approved and has
-  no table.
+  text), Revision 5 (msg 1864), both tables of Revision 6 (msgs 1880, 1882) and Revision 7 (msg 2559). Revision 4 was
+  not approved and has no table.
 - 18-COPY-COMMENTS.md (owner msg 1780): comment report, posting warning, blocking, Blocked Users.
 
 Precedence: Minimal file Revision 6 (`consent.level.basic.description`, `consent.level.full.description`,
-`consent.level.recommended`), Revision 5 (`consent.body`) and Revision 2 (`consent.level.minimal.description`) >
+`consent.level.recommended`), Revision 5 (`consent.body`) and Revision 7, then 2 (`consent.level.minimal.description`) >
 its first table > the first-launch file. Every row a later source replaces is retired text, as are the
 `consent.level.none*` rows and Revision 3's Basic description. Glossary tables ("One term per concept") are skipped.
 
@@ -72,7 +72,7 @@ RETIRED_KEYS = (
 
 # Section headings of the Minimal file whose tables are read, by role.
 MINIMAL_FIRST_TABLE = "New strings"
-MINIMAL_ACTIVE_REVISIONS = ("Revision 2", "Revision 5", "Revision 6")
+MINIMAL_ACTIVE_REVISIONS = ("Revision 2", "Revision 5", "Revision 6", "Revision 7")
 MINIMAL_RETIRED_REVISIONS = ("Revision 3",)
 
 LINE_BREAKS = ("\n", "\r", "\u2028", "\u2029")
@@ -203,7 +203,7 @@ def build_expectations(phase_dir: Path = PHASE_DIR):
     for _, key, values in parse_tables(phase_dir / FIRST_LAUNCH):
         apply(f"{FIRST_LAUNCH}", key, values)
 
-    # 2. The Minimal file: first table, then Revisions 2, 5 and 6; Revision 3 is retired text only.
+    # 2. The Minimal file: first table, then Revisions 2, 5, 6 and 7; Revision 3 is retired text only.
     minimal_rows = parse_tables(phase_dir / MINIMAL)
     sections = {section for section, _, _ in minimal_rows}
     if MINIMAL_FIRST_TABLE not in sections:

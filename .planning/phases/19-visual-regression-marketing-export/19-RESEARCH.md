@@ -73,7 +73,7 @@ local script) before it ever reaches `main`.
 | Network guard | `AppPackage/Sources/TestNetworkGuard/TestNetworkGuard.m`, linked into every package test target by `testTarget(module:)` in `Package.swift` | fails every non-loopback request offline; the live check must not link it |
 | Request types (live check) | `NetworkingFeature/Request+Gallery.swift` (`FrontPageGalleriesRequest`, `SearchGalleriesRequest`, `PopularGalleriesRequest`, `ToplistsGalleriesRequest`), `Request+Detail.swift` (`GalleryDetailRequest`, `GalleryPreviewURLsRequest`), `Request+Image.swift` (`ThumbnailURLsRequest`, `GalleryNormalImageURLsRequest`, `DataRequest`), `Request.swift` (`TagTranslatorRequest`), `Request+Report.swift` (`ReportFormRequest`) | all take a `urlSession`; all GET. POST types: `Request+GData.swift` (gdata), `GalleryMPVImageURLRequest` (imagedispatch), every `Request+Account.swift` write, `SendReportRequest` |
 | Reachability signals | `isCloudflareChallenge(_:)` (`Request.swift`: 403 + `cf-mitigated: challenge`), `AppError.ipBanned`, `.networkingFailed`, `.parseFailed` | the request types return parsed values, not responses: status and headers come from a session delegate (§7) |
-| Workflows | `.github/workflows/test.yml` (on push, `runs-on: xcode-27`, `[skip test]` opt-out, FeatureTests on iPhone Air ~26 min), `deploy.yml` (on PR to `main` closed+merged), `deploy-pre-release.yml`, `dependencies.yml` (weekly, PR via `peter-evans/create-pull-request` with the default token), `.github/dependabot.yml` (actions, weekly, to `main`) | the repository is public; default branch `main` |
+| Workflows | `.github/workflows/test.yml` (on push, `runs-on: xcode-27`, `[skip test]` opt-out, FeatureTests on iPhone Air ~26 min), `deploy.yml` (on PR to `main` closed+merged), `deploy-beta.yml`, `dependencies.yml` (weekly, PR via `peter-evans/create-pull-request` with the default token), `.github/dependabot.yml` (actions, weekly, to `main`) | the repository is public; default branch `main` |
 | Native policy UI tests | none yet (`NativeVisualPolicyUITests` was planned in 17-09-T2, never written); `EhPandaUITests/Support/LocalizedLaunch.swift` passes `-UIPreferredContentSizeCategoryName` | UITests plan: `UITests.xctestplan` |
 
 ## 3. Capture core (Path B, from the spike)
@@ -180,7 +180,7 @@ local script) before it ever reaches `main`.
   `actions: write`). **Trap:** `workflow_dispatch` and `workflow_run` work only for workflow files on the default
   branch; until the phase reaches `main`, runs are started by pushing a dedicated branch (`on: push` with a
   `branches` filter) with the owner's go-ahead.
-- **Release:** `deploy.yml` and `deploy-pre-release.yml` gain a first job that calls the gate (`workflow_call`) in
+- **Release:** `deploy.yml` and `deploy-beta.yml` gain a first job that calls the gate (`workflow_call`) in
   compare mode and `needs` it, so no release builds without a green full matrix.
 
 ## 6. Baseline store (D-14)
