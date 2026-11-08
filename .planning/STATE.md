@@ -4,16 +4,16 @@ milestone: v3.0.0
 current_phase: 19
 current_phase_name: Visual Regression & Daily Live-Parsing Check
 status: executing
-stopped_at: Completed 19-14-PLAN.md
-last_updated: "2026-11-08T03:09:00.000Z"
+stopped_at: Completed 19-15-PLAN.md
+last_updated: "2026-11-08T03:30:00.000Z"
 last_activity: 2026-11-08
-last_activity_desc: 19-14 complete (the daily live check reads nine guest pages GET-only and classifies ok, unreachable or parser; one local run all ok)
-state_head: 4371fad13eef10bd58966181bdef70f6d6e510ff
+last_activity_desc: 19-15 complete (runner hosted, owner msg 2441; self-closing live-check issues from fixed templates; one entry script for both runners; local dry run all ok, no issue touched)
+state_head: 4bff869f37cbca3a4e688e6754b6d6423364c516
 progress:
   total_phases: 21
   completed_phases: 18
   total_plans: 321
-  completed_plans: 314
+  completed_plans: 315
   percent: 86
 milestone_name: Dependency Reduction & Modernization
 source_head: b5eca09d1
@@ -86,6 +86,15 @@ source_head: b5eca09d1
   page fields. 11 offline tests on saved pages and 11 Python tests (allowlist, no POST). One local run: nine pages
   200 ok. Deviations: the list pages use the app's list URLs and parser over a plain GET (their request types also
   POST); 19-03's `PageObservation` now reads each task's final response. VIS-19-01 stays Pending.
+- **19-15 complete** (`be36f43e2`, `d7a5daaa5`, `e51ccd6d7`, `1458bf5bb`; `19-15-SUMMARY.md`): runner GitHub's
+  hosted runner (owner msg 2441; probe reachable). `report_issues.py` opens one `Live check: <Page> parser` issue
+  per broken page, comments while it stays broken, closes it on the next `ok`; a block never opens one, and three
+  unreachable runs in a row open `Live check: cannot reach the site`, closed on the next fully reached run. Strict
+  validation before any `gh` call; text only from module templates; 16 Python tests against the recording
+  `fake-gh/gh`. `run-live-check.sh --mode hosted|local`, `live-check.yml` (daily 04:17 UTC, dispatch, push to
+  `ci/live-check`; contents read, issues write, actions read), the `launchd` template (not installed). Local dry
+  run: nine guest pages ok, the fake `gh` got only `issue list`. Nothing pushed; `ci/live-check` is 19-16's, with
+  the owner's go-ahead. VIS-19-01 stays Pending.
 
 ## Phase 19 planned: Visual Regression & Daily Live-Parsing Check — 2026-11-07
 
