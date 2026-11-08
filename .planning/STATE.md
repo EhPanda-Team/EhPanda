@@ -4,16 +4,16 @@ milestone: v3.0.0
 current_phase: 19
 current_phase_name: Visual Regression & Daily Live-Parsing Check
 status: executing
-stopped_at: Completed 19-07-PLAN.md
-last_updated: "2026-11-08T03:00:00.000Z"
+stopped_at: Completed 19-03-PLAN.md
+last_updated: "2026-11-08T01:25:00.000Z"
 last_activity: 2026-11-08
-last_activity_desc: 19-07 complete (37 Comments, Report form, detail page and reader scenarios, green on both devices and in three configurations)
-state_head: 51fd99cc4a1ae83bcdcf327bcf47070e8f9df4c7
+last_activity_desc: 19-03 complete (guard-free live check target; hosted runner probe reachable, owner msg 2397)
+state_head: b5f14ae8eb832e448ebc870e628196f8ba6737c9
 progress:
   total_phases: 21
   completed_phases: 18
   total_plans: 321
-  completed_plans: 310
+  completed_plans: 311
   percent: 86
 milestone_name: Dependency Reduction & Modernization
 source_head: 891103afa
@@ -39,9 +39,12 @@ source_head: 891103afa
   `run-shard.sh` should loop over. Group catalog files for 19-05 to 19-08, `ScenarioInventoryTests` (134 IDs without
   a factory yet), `run-snapshot-local.sh`. `VisualMatrixTests.testSelectedCoordinate` needs
   `EHPANDA_VISUAL_COORDINATE` (fails at the base too). VIS-18-01 and CAP-17-01 stay Pending (later plans share them).
-- **19-03 paused at its push checkpoint** (`f042a3d78`, `5714c1cc4`): the guard-free `LiveCheckTests` target, the
-  probe workflow and the local probe record are committed; the probe push waits for the owner's go-ahead (OQ-6,
-  owner card msg 2246).
+- **19-03 complete** (`f042a3d78`, `5714c1cc4`, `8dbf5d0c2`; `19-03-SUMMARY.md`, `19-03-PROBE.md`): the guard-free
+  `LiveCheckTests` target (skips unless `EHPANDA_LIVE_CHECK=1`; `test_network_guard.py` checks both directions),
+  `runner-probe.yml` and the probe. Owner msg 2397 allowed the push; hosted run 42433098473 on `xcode-27-arm64`
+  `20261104.0337.1`: front page, Popular and one gallery 200, no `cf-mitigated`, parsed. Verdict: reachable, so OQ-3
+  is not needed and 19-15 can choose the hosted runner. `ci/runner-probe` deleted. The list pages use the app's URL
+  builders and parser over a plain GET (their request types POST the gdata title query). VIS-19-01 stays Pending.
 - **19-05 complete** (`a9e760cdd`, `a0c12d299`; `19-05-SUMMARY.md`): all 34 browsing scenarios on real views and
   reducers, eight matrix classes. Two compares green on both devices in en-large (phone 132, iPad portrait 66) and
   one each in ja-accessibility5 and de-xSmall on the phone; 0 changed, timeout, error or flaky. About 1.5 s per
