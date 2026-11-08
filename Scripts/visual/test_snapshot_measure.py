@@ -139,6 +139,12 @@ class SnapshotMeasureTests(unittest.TestCase):
         self.assertEqual(excluded[4], ['incomplete'])
         self.assertEqual(chosen, 3)
 
+    def test_a_run_cut_off_before_its_record_counts_as_missing(self):
+        (self.runs.root / 'iphone' / 'en-large' / 'w4' / 'shard.json').unlink()
+        excluded, chosen = self.verdict()
+        self.assertEqual(excluded[4], ['incomplete'])
+        self.assertEqual(chosen, 3)
+
     def test_nothing_is_chosen_or_written_when_two_is_excluded(self):
         started = self.runs.windows[('ipad', 'en-large', 2)]
         self.runs.memory(('ipad', started + timedelta(seconds=1), 'critical'))
