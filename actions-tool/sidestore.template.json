@@ -2,7 +2,23 @@
   "name": "EhPanda",
   "identifier": "app.ehpanda.sidestore",
   "subtitle": "Unleash your passion for E-Hentai with EhPanda.",
+  "localizedSubtitles": {
+    "en": "Unleash your passion for E-Hentai with EhPanda.",
+    "de": "Lebe deine Leidenschaft für E-Hentai mit EhPanda aus.",
+    "ja": "EhPanda で E-Hentai をもっと楽しみましょう。",
+    "ko": "EhPanda로 E-Hentai를 마음껏 즐기세요.",
+    "zh-Hans": "用 EhPanda 尽情享受 E-Hentai。",
+    "zh-Hant": "用 EhPanda 盡情享受 E-Hentai。"
+  },
   "description": "EhPanda is an unofficial app for iOS and iPadOS that allows users to access and explore adult manga and doujinshi from E-Hentai.\nWith a user-friendly interface, powerful search features, and a vast collection of content, it offers a personalized library and an immersive reading experience.\nNote: EhPanda is not affiliated with or endorsed by E-Hentai.",
+  "localizedDescriptions": {
+    "en": "EhPanda is an unofficial app for iOS and iPadOS that allows users to access and explore adult manga and doujinshi from E-Hentai.\nWith a user-friendly interface, powerful search features, and a vast collection of content, it offers a personalized library and an immersive reading experience.\nNote: EhPanda is not affiliated with or endorsed by E-Hentai.",
+    "de": "EhPanda ist eine inoffizielle App für iOS und iPadOS, mit der du Manga und Doujinshi für Erwachsene von E-Hentai aufrufen und entdecken kannst.\nMit einer einfach zu bedienenden Oberfläche, einer leistungsstarken Suche und einer riesigen Auswahl an Inhalten bietet sie eine persönliche Bibliothek und ein fesselndes Leseerlebnis.\nHinweis: EhPanda steht in keiner Verbindung zu E-Hentai und wird nicht von E-Hentai unterstützt.",
+    "ja": "EhPanda は、E-Hentai の成人向け漫画や同人誌を閲覧したり探したりできる、iOS と iPadOS 向けの非公式アプリです。\n使いやすい画面、強力な検索機能、豊富なコンテンツで、自分だけのライブラリと没入感のある読書体験を提供します。\n注：EhPanda は E-Hentai と提携しておらず、E-Hentai の承認も受けていません。",
+    "ko": "EhPanda는 E-Hentai의 성인 만화와 동인지를 보고 찾아볼 수 있는 iOS 및 iPadOS용 비공식 앱입니다.\n사용하기 쉬운 화면, 강력한 검색 기능, 방대한 콘텐츠로 나만의 보관함과 몰입감 있는 읽기 경험을 제공합니다.\n참고: EhPanda는 E-Hentai와 제휴 관계가 없으며 E-Hentai의 승인을 받지 않았습니다.",
+    "zh-Hans": "EhPanda 是一款适用于 iOS 和 iPadOS 的非官方应用，可以浏览和探索 E-Hentai 上的成人漫画和同人志。\n界面简单易用，搜索功能强大，内容丰富，为你提供个性化的内容库和沉浸式的阅读体验。\n注意：EhPanda 与 E-Hentai 无关，也未获得 E-Hentai 的认可。",
+    "zh-Hant": "EhPanda 是一款適用於 iOS 和 iPadOS 的非官方 App，可以瀏覽和探索 E-Hentai 上的成人漫畫和同人誌。\n介面簡單易用，搜尋功能強大，內容豐富，為你提供個人化的內容庫和沉浸式的閱讀體驗。\n注意：EhPanda 與 E-Hentai 無關，也未獲得 E-Hentai 的認可。"
+  },
   "iconURL": "https://raw.githubusercontent.com/EhPanda-Team/EhPanda/main/docs/altstore/appicon-512.png",
   "website": "https://github.com/EhPanda-Team/EhPanda",
   "tintColor": "#289979",
@@ -16,7 +32,23 @@
       "bundleIdentifier": "app.ehpanda",
       "developerName": "EhPanda Team",
       "subtitle": "Unleash your passion for E-Hentai with EhPanda.",
+      "localizedSubtitles": {
+        "en": "Unleash your passion for E-Hentai with EhPanda.",
+        "de": "Lebe deine Leidenschaft für E-Hentai mit EhPanda aus.",
+        "ja": "EhPanda で E-Hentai をもっと楽しみましょう。",
+        "ko": "EhPanda로 E-Hentai를 마음껏 즐기세요.",
+        "zh-Hans": "用 EhPanda 尽情享受 E-Hentai。",
+        "zh-Hant": "用 EhPanda 盡情享受 E-Hentai。"
+      },
       "localizedDescription": "EhPanda is an unofficial app for iOS and iPadOS that allows users to access and explore adult manga and doujinshi from E-Hentai.\nWith a user-friendly interface, powerful search features, and a vast collection of content, it offers a personalized library and an immersive reading experience.\nNote: EhPanda is not affiliated with or endorsed by E-Hentai.",
+      "localizedDescriptions": {
+        "en": "EhPanda is an unofficial app for iOS and iPadOS that allows users to access and explore adult manga and doujinshi from E-Hentai.\nWith a user-friendly interface, powerful search features, and a vast collection of content, it offers a personalized library and an immersive reading experience.\nNote: EhPanda is not affiliated with or endorsed by E-Hentai.",
+        "de": "EhPanda ist eine inoffizielle App für iOS und iPadOS, mit der du Manga und Doujinshi für Erwachsene von E-Hentai aufrufen und entdecken kannst.\nMit einer einfach zu bedienenden Oberfläche, einer leistungsstarken Suche und einer riesigen Auswahl an Inhalten bietet sie eine persönliche Bibliothek und ein fesselndes Leseerlebnis.\nHinweis: EhPanda steht in keiner Verbindung zu E-Hentai und wird nicht von E-Hentai unterstützt.",
+        "ja": "EhPanda は、E-Hentai の成人向け漫画や同人誌を閲覧したり探したりできる、iOS と iPadOS 向けの非公式アプリです。\n使いやすい画面、強力な検索機能、豊富なコンテンツで、自分だけのライブラリと没入感のある読書体験を提供します。\n注：EhPanda は E-Hentai と提携しておらず、E-Hentai の承認も受けていません。",
+        "ko": "EhPanda는 E-Hentai의 성인 만화와 동인지를 보고 찾아볼 수 있는 iOS 및 iPadOS용 비공식 앱입니다.\n사용하기 쉬운 화면, 강력한 검색 기능, 방대한 콘텐츠로 나만의 보관함과 몰입감 있는 읽기 경험을 제공합니다.\n참고: EhPanda는 E-Hentai와 제휴 관계가 없으며 E-Hentai의 승인을 받지 않았습니다.",
+        "zh-Hans": "EhPanda 是一款适用于 iOS 和 iPadOS 的非官方应用，可以浏览和探索 E-Hentai 上的成人漫画和同人志。\n界面简单易用，搜索功能强大，内容丰富，为你提供个性化的内容库和沉浸式的阅读体验。\n注意：EhPanda 与 E-Hentai 无关，也未获得 E-Hentai 的认可。",
+        "zh-Hant": "EhPanda 是一款適用於 iOS 和 iPadOS 的非官方 App，可以瀏覽和探索 E-Hentai 上的成人漫畫和同人誌。\n介面簡單易用，搜尋功能強大，內容豐富，為你提供個人化的內容庫和沉浸式的閱讀體驗。\n注意：EhPanda 與 E-Hentai 無關，也未獲得 E-Hentai 的認可。"
+      },
       "iconURL": "https://raw.githubusercontent.com/EhPanda-Team/EhPanda/main/docs/altstore/appicon-512.png",
       "tintColor": "#289979",
       "category": "entertainment",
