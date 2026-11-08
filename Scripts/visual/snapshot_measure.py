@@ -2,9 +2,11 @@
 """Turns the hosted measurement runs into the cost table and the worker count (19-04; 19-CONTEXT D-13, D-15).
 
 The runs directory holds one directory per comparison run, `<family>/<configuration>/w<N>/`, with the run's
-`results.jsonl` (19-01's writer) and `shard.json` (`workers`, `started`, `finished`), and per family a `memory.log`
-(lines `<UTC ISO 8601 time> normal|warn|critical`) and a `timing.json` (`{"bootFetchSeconds": s}`). The candidate
-run that records the references has no `w<N>` directory and is not read.
+`results.jsonl` (19-01's writer) and `shard.json` (`workers`, `started`, `finished`), and per job a `memory.log`
+(lines `<UTC ISO 8601 time> normal|warn|critical`) and a `timing.json` (`{"bootFetchSeconds": s}`). A job that
+measures one configuration keeps them in `<family>/<configuration>/`, where they apply to that configuration's runs
+only, since its samples come from its own host; a job that measures a whole device keeps them in `<family>/`. The
+candidate run that records the references has no `w<N>` directory and is not read.
 
 The worker count is the largest of 2, 3 and 4 that passes every rule:
 - `incomplete`: every configuration measured at any count has a run at this count;
@@ -59,19 +61,30 @@ def read_memory(path):
     return samples
 
 
+def read_job(directory, key, memory, boot):
+    """Adds the `memory.log` and `timing.json` of the job that wrote `directory`, if it holds them, under `key`."""
+    if (directory / 'memory.log').exists():
+        memory[key] = read_memory(directory / 'memory.log')
+    timing = directory / 'timing.json'
+    if timing.exists():
+        boot[key] = json.loads(timing.read_text())['bootFetchSeconds']
+
+
 def load(root):
-    """`(runs, memory, boot_seconds)`; `runs` maps `(family, configuration, workers)` to its lines and record."""
+    """`(runs, memory, boot_seconds)`; `runs` maps `(family, configuration, workers)` to its lines and record.
+
+    `memory` and `boot_seconds` are keyed by family for a per-device job and by `(family, configuration)` for a
+    per-configuration job.
+    """
     root = Path(root)
     runs, memory, boot = {}, {}, {}
     for family in snapshot_matrix.FAMILIES:
         family_dir = root / family
         if not family_dir.is_dir():
             continue
-        memory[family] = read_memory(family_dir / 'memory.log')
-        timing = family_dir / 'timing.json'
-        if timing.exists():
-            boot[family] = json.loads(timing.read_text())['bootFetchSeconds']
+        read_job(family_dir, family, memory, boot)
         for config_dir in sorted(path for path in family_dir.iterdir() if path.is_dir()):
+            read_job(config_dir, (family, config_dir.name), memory, boot)
             for run_dir in sorted(path for path in config_dir.iterdir() if path.is_dir()):
                 match = re.fullmatch(r'w(\d+)', run_dir.name)
                 if not match:
@@ -103,8 +116,8 @@ def run_facts(run, samples):
 
 
 def measure(runs, memory):
-    """`{(family, configuration, workers): facts}` for every run."""
-    return {key: run_facts(run, memory.get(key[0], [])) for key, run in runs.items()}
+    """`{(family, configuration, workers): facts}` for every run, against the samples of the host that ran it."""
+    return {key: run_facts(run, memory.get(key[:2], memory.get(key[0], []))) for key, run in runs.items()}
 
 
 def medians(facts):

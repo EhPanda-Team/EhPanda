@@ -1,8 +1,9 @@
 name: Snapshot measurement
 # One-off measurement of the screenshot check on GitHub's hosted Mac (19-04; 19-CONTEXT D-13, D-15). One build feeds
-# one job per device. Each job records the 19-05 classes once as the candidate, then compares them against it at 2, 3
-# and 4 simulator clones in en-xSmall, en-large and en-accessibility5, one xcodebuild at a time, while it samples the
-# system's memory pressure. Scripts/visual/snapshot_measure.py turns the uploaded results into the cost table and the
+# one job per device and text size (en-xSmall, en-large, en-accessibility5). Each job records the 19-05 classes once as
+# the candidate, then compares them against it at 2, 3 and 4 simulator clones, one xcodebuild at a time, while it
+# samples its host's memory pressure. One job per device ran out of its 170 minutes on the iPhone (run 42442366372:
+# about 14 minutes per xcodebuild), so each text size has its own job and host; six jobs, five at a time. Scripts/visual/snapshot_measure.py turns the uploaded results into the cost table and the
 # worker count. The pictures are synthetic; the references stay on the runner, and only a changed picture's actual
 # and difference images are uploaded, with each run's results.jsonl and shard.json. It runs only on a push to
 # ci/snapshot-measure, which needs the owner's go-ahead; that commit's message carries `[skip test]`.
@@ -58,6 +59,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
+        family: [iphone, ipad]
+        configuration: [en-xSmall, en-large, en-accessibility5]
         include:
           - family: iphone
             device: com.apple.CoreSimulator.SimDeviceType.iPhone-Air
@@ -70,14 +73,14 @@ jobs:
       CLASSES: >-
         FirstLaunchSnapshotTests ShellSnapshotTests HomeSnapshotTests FrontPageSnapshotTests PopularSnapshotTests
         WatchedSnapshotTests ToplistsSnapshotTests HistorySnapshotTests
-      CONFIGURATIONS: en-xSmall en-large en-accessibility5
+      CONFIGURATION: ${{ matrix.configuration }}
       WORKER_COUNTS: 2 3 4
     steps:
       # The runner context is not available in a job's env, so OUT is set here.
       - name: Note the job start
         run: |
           echo "JOB_START=$(date +%s)" >> "$GITHUB_ENV"
-          echo "OUT=$RUNNER_TEMP/measure/${{ matrix.family }}" >> "$GITHUB_ENV"
+          echo "OUT=$RUNNER_TEMP/measure/${{ matrix.family }}/$CONFIGURATION" >> "$GITHUB_ENV"
       # The tests read the scenario inventory and the rendering pin from the checkout, at the path they were
       # built at, which is the same on every hosted runner.
       - name: Checkout
@@ -101,9 +104,19 @@ jobs:
             com.apple.CoreSimulator.SimRuntime.iOS-27-0)
           xcrun simctl boot "$udid"
           xcrun simctl bootstatus "$udid" >/dev/null
-          # Before any clone is made, so every clone inherits them (19-01-MEASURE.md).
+          # The iPad pin's 25 pt bottom inset is Full Screen Apps; a new iPad has Windowed Apps (20 pt), which failed
+          # every iPad picture on geometry in run 42442366372. The setting takes effect after a reboot.
+          if [ '${{ matrix.family }}' = ipad ]; then
+            xcrun simctl spawn "$udid" defaults write com.apple.springboard SBMedusaMultitaskingEnabled -bool NO
+            xcrun simctl shutdown "$udid"
+            xcrun simctl boot "$udid"
+            xcrun simctl bootstatus "$udid" >/dev/null
+          fi
+          # Before any clone is made, so every clone inherits them (19-01-MEASURE.md), and after the last boot,
+          # which can reset Reduce Motion (Scripts/visual/README.md).
           xcrun simctl spawn "$udid" defaults write com.apple.Accessibility ReduceMotionEnabled -bool true
           xcrun simctl spawn "$udid" defaults write com.apple.Accessibility ApplicationAccessibilityEnabled -bool true
+          [ "$(xcrun simctl spawn "$udid" defaults read com.apple.Accessibility ReduceMotionEnabled)" = 1 ]
           echo "UDID=$udid" >> "$GITHUB_ENV"
           echo "XCTESTRUN=$(ls "$RUNNER_TEMP"/Products/*SnapshotMatrix*.xctestrun | head -1)" >> "$GITHUB_ENV"
           mkdir -p "$OUT"
@@ -120,7 +133,9 @@ jobs:
             echo "$(date -u +%Y-%m-%dT%H:%M:%SZ) $level" >> "$OUT/memory.log"
             sleep 5
           done' >/dev/null 2>&1 &
+      # Under the job's limit, so the measurements finished by then are still uploaded.
       - name: Record the candidate and compare at 2, 3 and 4 workers
+        timeout-minutes: 140
         run: |
           only=()
           for class in $CLASSES; do only+=("-only-testing:VisualSnapshotTests/$class"); done
@@ -140,6 +155,10 @@ jobs:
               -parallel-testing-worker-count "$2" \
               -only-test-configuration "$1" \
               "${only[@]}" >"$RUNNER_TEMP/xcodebuild-$1-$3-w$2.log" 2>&1 || status=$?
+            # The failure messages of the synthetic pictures (geometry, configuration checks), at most five kinds.
+            [ "$status" = 0 ] || grep -E 'error: ' "$RUNNER_TEMP/xcodebuild-$1-$3-w$2.log" |
+              sed -E 's/^.*error: //; s/^-\[[^]]*\] : //' |
+              sort | uniq -c | sort -rn | head -5 || true
             python3 -c 'import json, sys
           shard, unit, workers, build, model, image, started, finished, path = sys.argv[1:]
           json.dump({"shard": shard, "units": [unit], "workers": int(workers), "xcodeBuild": build,
@@ -157,19 +176,17 @@ jobs:
           print(" ".join(f"{name}={statuses[name]}" for name in names))' \
               "$4/results.jsonl")"
           }
-          # One xcodebuild at a time: each configuration's candidate, then its three comparisons.
-          for configuration in $CONFIGURATIONS; do
-            references="$RUNNER_TEMP/references/$configuration"
-            run "$configuration" 2 candidate "$references"
-            for workers in $WORKER_COUNTS; do
-              run "$configuration" "$workers" compare "$OUT/$configuration/w$workers" "$references"
-            done
+          # One xcodebuild at a time: the candidate, then its three comparisons.
+          references="$RUNNER_TEMP/references/$CONFIGURATION"
+          run "$CONFIGURATION" 2 candidate "$references"
+          for workers in $WORKER_COUNTS; do
+            run "$CONFIGURATION" "$workers" compare "$OUT/w$workers" "$references"
           done
       - name: Record the runner
         if: always()
         run: |
           {
-            echo '### Runner (${{ matrix.family }})'
+            echo '### Runner (${{ matrix.family }}, ${{ matrix.configuration }})'
             echo "- Runner name: $RUNNER_NAME"
             echo "- Image: ${ImageOS:-unknown} ${ImageVersion:-unknown}"
             echo '- Runner environment: ${{ runner.environment }}'
@@ -178,7 +195,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v7
         with:
-          name: snapshot-measure-${{ matrix.family }}
+          name: snapshot-measure-${{ matrix.family }}-${{ matrix.configuration }}
           path: ${{ runner.temp }}/measure
           if-no-files-found: error
           retention-days: 30

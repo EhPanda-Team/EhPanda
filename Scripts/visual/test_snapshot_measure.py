@@ -107,6 +107,20 @@ class SnapshotMeasureTests(unittest.TestCase):
                          ('iphone', started + timedelta(seconds=5), 'normal'))
         self.assertEqual(self.verdict(), ({2: [], 3: [], 4: []}, 4))
 
+    def test_a_per_configuration_job_reads_only_its_own_host_samples(self):
+        started = self.runs.windows[('iphone', 'en-large', 4)]
+        other = self.runs.root / 'iphone' / 'en-xSmall'
+        (other / 'memory.log').write_text(f'{stamp(started + timedelta(seconds=5))} critical\n')
+        (other / 'timing.json').write_text(json.dumps({'bootFetchSeconds': 600}))
+        self.assertEqual(self.verdict(), ({2: [], 3: [], 4: []}, 4))
+        (self.runs.root / 'iphone' / 'en-large' / 'memory.log').write_text(
+            f'{stamp(started + timedelta(seconds=5))} warn\n')
+        excluded, chosen = self.verdict()
+        self.assertEqual(excluded[4], ['memory'])
+        self.assertEqual(chosen, 3)
+        _, _, boot = snapshot_measure.load(self.runs.root)
+        self.assertEqual(snapshot_measure.boot_fetch_minutes(boot, None), 10.0)
+
     def test_a_changed_picture_excludes_its_count_and_is_reported(self):
         self.runs.run('iphone', 'en-xSmall', 3, seconds=2.0, statuses=['passed'] * 23 + ['changed'])
         excluded, chosen = self.verdict()
