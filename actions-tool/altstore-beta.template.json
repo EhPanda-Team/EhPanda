@@ -21,7 +21,7 @@
   },
   "iconURL": "https://raw.githubusercontent.com/EhPanda-Team/EhPanda/main/docs/altstore/appicon-512.png",
   "website": "https://github.com/EhPanda-Team/EhPanda",
-  "tintColor": "#289979",
+  "tintColor": "#557F72",
   "nsfw": true,
   "featuredApps": [
     "app.ehpanda.beta"
@@ -50,7 +50,7 @@
         "zh-Hant": "這是 EhPanda 的測試版，可能有 Bug，功能在正式發布前也可能改變。\n測試版會作為獨立的 App，安裝在正式版 EhPanda 旁邊。它一開始是空的，不與正式版共用下載、瀏覽紀錄或設定。使用免費 Apple ID 時，AltStore 最多只能同時保留 3 個 App，包括 AltStore 本身。\nEhPanda 是一款適用於 iOS 和 iPadOS 的非官方 App，可以瀏覽和探索 E-Hentai 上的成人漫畫和同人誌。\n介面簡單易用，搜尋功能強大，內容豐富，為你提供個人化的內容庫和沉浸式的閱讀體驗。\n注意：EhPanda 與 E-Hentai 無關，也未獲得 E-Hentai 的認可。"
       },
       "iconURL": "https://raw.githubusercontent.com/EhPanda-Team/EhPanda/main/docs/altstore/appicon-512.png",
-      "tintColor": "#289979",
+      "tintColor": "#557F72",
       "category": "entertainment",
       "beta": true,
       "appPermissions": {
