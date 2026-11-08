@@ -72,10 +72,12 @@ jobs:
         WatchedSnapshotTests ToplistsSnapshotTests HistorySnapshotTests
       CONFIGURATIONS: en-xSmall en-large en-accessibility5
       WORKER_COUNTS: 2 3 4
-      OUT: ${{ runner.temp }}/measure/${{ matrix.family }}
     steps:
+      # The runner context is not available in a job's env, so OUT is set here.
       - name: Note the job start
-        run: echo "JOB_START=$(date +%s)" >> "$GITHUB_ENV"
+        run: |
+          echo "JOB_START=$(date +%s)" >> "$GITHUB_ENV"
+          echo "OUT=$RUNNER_TEMP/measure/${{ matrix.family }}" >> "$GITHUB_ENV"
       # The tests read the scenario inventory and the rendering pin from the checkout, at the path they were
       # built at, which is the same on every hosted runner.
       - name: Checkout
