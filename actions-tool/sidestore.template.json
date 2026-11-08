@@ -20,7 +20,7 @@
     "zh-Hant": "EhPanda 是一款適用於 iOS 和 iPadOS 的非官方 App，可以瀏覽和探索 E-Hentai 上的成人漫畫和同人誌。\n介面簡單易用，搜尋功能強大，內容豐富，為你提供個人化的內容庫和沉浸式的閱讀體驗。\n注意：EhPanda 與 E-Hentai 無關，也未獲得 E-Hentai 的認可。"
   },
   "iconURL": "https://raw.githubusercontent.com/EhPanda-Team/EhPanda/main/docs/altstore/appicon-512.png",
-  "website": "https://github.com/EhPanda-Team/EhPanda",
+  "website": "https://ehpanda.app",
   "tintColor": "#557F72",
   "nsfw": true,
   "featuredApps": [
