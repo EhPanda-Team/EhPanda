@@ -7,13 +7,20 @@ on:
 env:
   SCHEME_NAME: 'EhPanda'
   ALTSTORE_JSON_PATH: './AltStore.json'
+  SIDESTORE_JSON_PATH: './SideStore.json'
+  SIDESTORE_TEMPLATE_PATH: './actions-tool/sidestore.template.json'
+  SOURCE_FILTER_PATH: './actions-tool/altstore-add-version.jq'
+  PACKAGE_CHANNEL_SCRIPT_PATH: './actions-tool/package-channel.sh'
   BUILDS_PATH: '/tmp/action-builds'
   PAYLOAD_PATH: '/tmp/action-builds/Payload'
   FILTER_SWIFT_PATH: './actions-tool/ReleaseNotesFilter.swift'
   FILTER_PATH: '/tmp/action-builds/ReleaseNotesFilter'
   THIN_PAYLOAD_SCRIPT_PATH: './actions-tool/thin-payload.sh'
   ARCHIVE_PATH: '/tmp/action-builds/EhPanda.xcarchive'
-  IPA_OUTPUT_PATH: '/tmp/action-builds/EhPanda.ipa'
+  # One build, one copy per channel, each stamped with its channel (actions-tool/package-channel.sh).
+  GITHUB_IPA_PATH: '/tmp/action-builds/EhPanda-GitHub.ipa'
+  ALTSTORE_IPA_PATH: '/tmp/action-builds/EhPanda-AltStore.ipa'
+  SIDESTORE_IPA_PATH: '/tmp/action-builds/EhPanda-SideStore.ipa'
 
 jobs:
   Deploy:
@@ -68,14 +75,16 @@ jobs:
           salt="$(plutil -extract TelemetryDeckSalt raw -o - "$app_info_plist")"
           [[ ! -z "$app_id" ]] || exit 1
           [[ ! -z "$salt" ]] || exit 1
-      - name: Export .ipa file
+      - name: Export .ipa files
         run: |
+          set -euo pipefail
           mkdir -p ${{ env.PAYLOAD_PATH }}
           mv ${{ env.ARCHIVE_PATH }}/Products/Applications/${{ env.SCHEME_NAME }}.app ${{ env.PAYLOAD_PATH }}/${{ env.SCHEME_NAME }}.app
           sh ${{ env.THIN_PAYLOAD_SCRIPT_PATH }} ${{ env.PAYLOAD_PATH }}/${{ env.SCHEME_NAME }}.app
-          pushd ${{ env.BUILDS_PATH }}
-          zip -r ${{ env.IPA_OUTPUT_PATH }} ./Payload
-          popd
+          app_path="$PAYLOAD_PATH/$SCHEME_NAME.app"
+          bash "$PACKAGE_CHANNEL_SCRIPT_PATH" "$app_path" github "$GITHUB_IPA_PATH"
+          bash "$PACKAGE_CHANNEL_SCRIPT_PATH" "$app_path" altstore "$ALTSTORE_IPA_PATH"
+          bash "$PACKAGE_CHANNEL_SCRIPT_PATH" "$app_path" sidestore "$SIDESTORE_IPA_PATH"
       - name: Retrieve data
         id: retrieve-data
         env:
@@ -87,8 +96,6 @@ jobs:
           version="$(plutil -extract CFBundleShortVersionString raw -o - "$app_info_plist")"
           build_version="$(plutil -extract CFBundleVersion raw -o - "$app_info_plist")"
           min_os_version="$(plutil -extract MinimumOSVersion raw -o - "$app_info_plist")"
-          size="$(stat -f%z "$IPA_OUTPUT_PATH")"
-          sha256="$(shasum -a 256 "$IPA_OUTPUT_PATH" | awk '{ print $1 }')"
           notes="$($FILTER_PATH "$RELEASE_NOTES_SOURCE")"
           privacy="$(
             find "$PAYLOAD_PATH/$SCHEME_NAME.app" -name Info.plist -print0 |
@@ -102,13 +109,9 @@ jobs:
           [[ ! -z "$version" ]] || exit 1
           [[ ! -z "$build_version" ]] || exit 1
           [[ ! -z "$min_os_version" ]] || exit 1
-          [[ ! -z "$size" ]] || exit 1
-          [[ ! -z "$sha256" ]] || exit 1
           [[ ! -z "$privacy" ]] || exit 1
 
           {
-            echo "size=$size"
-            echo "sha256=$sha256"
             echo "version=$version"
             echo "build_version=$build_version"
             echo "marketing_version=$version"
@@ -123,8 +126,6 @@ jobs:
         env:
           PR_BODY: ${{ github.event.pull_request.body }}
           PR_TITLE: ${{ github.event.pull_request.title }}
-          RELEASE_SIZE: ${{ steps.retrieve-data.outputs.size }}
-          RELEASE_SHA256: ${{ steps.retrieve-data.outputs.sha256 }}
           RELEASE_NOTES: ${{ steps.retrieve-data.outputs.notes }}
           RELEASE_VERSION: ${{ steps.retrieve-data.outputs.version }}
           RELEASE_BUILD_VERSION: ${{ steps.retrieve-data.outputs.build_version }}
@@ -135,8 +136,6 @@ jobs:
         run: |
           [[ ! -z "$PR_BODY" ]] || exit 1
           [[ ! -z "$PR_TITLE" ]] || exit 1
-          [[ ! -z "$RELEASE_SIZE" ]] || exit 1
-          [[ ! -z "$RELEASE_SHA256" ]] || exit 1
           [[ ! -z "$RELEASE_NOTES" ]] || exit 1
           [[ ! -z "$RELEASE_VERSION" ]] || exit 1
           [[ ! -z "$RELEASE_BUILD_VERSION" ]] || exit 1
@@ -145,18 +144,21 @@ jobs:
           [[ ! -z "$RELEASE_DATE" ]] || exit 1
           printf '%s' "$RELEASE_PRIVACY" | jq -e 'type == "object"' >/dev/null
       - name: Release to GitHub
+        id: release
         uses: softprops/action-gh-release@v3
         with:
          fail_on_unmatched_files: true
-         files: ${{ env.IPA_OUTPUT_PATH }}
+         files: |
+           ${{ env.GITHUB_IPA_PATH }}
+           ${{ env.ALTSTORE_IPA_PATH }}
+           ${{ env.SIDESTORE_IPA_PATH }}
          token: ${{ secrets.GITHUB_TOKEN }}
          body: ${{ github.event.pull_request.body }}
          name: ${{ github.event.pull_request.title }}
          tag_name: ${{ steps.retrieve-data.outputs.version }}
-      - name: Update AltStore.json
+      - name: Update AltStore.json and SideStore.json
         env:
-          RELEASE_SIZE: ${{ steps.retrieve-data.outputs.size }}
-          RELEASE_SHA256: ${{ steps.retrieve-data.outputs.sha256 }}
+          RELEASE_ASSETS: ${{ steps.release.outputs.assets }}
           RELEASE_VERSION: ${{ steps.retrieve-data.outputs.version }}
           RELEASE_BUILD_VERSION: ${{ steps.retrieve-data.outputs.build_version }}
           RELEASE_MARKETING_VERSION: ${{ steps.retrieve-data.outputs.marketing_version }}
@@ -165,42 +167,57 @@ jobs:
           RELEASE_NOTES: ${{ steps.retrieve-data.outputs.notes }}
           RELEASE_PRIVACY: ${{ steps.retrieve-data.outputs.privacy }}
         run: |
-          tmp="$(mktemp)"
-          jq \
-            --arg version "$RELEASE_VERSION" \
-            --arg buildVersion "$RELEASE_BUILD_VERSION" \
-            --arg marketingVersion "$RELEASE_MARKETING_VERSION" \
-            --arg date "$RELEASE_DATE" \
-            --arg localizedDescription "$RELEASE_NOTES" \
-            --arg downloadURL "https://github.com/EhPanda-Team/EhPanda/releases/download/v$RELEASE_VERSION/EhPanda.ipa" \
-            --arg sha256 "$RELEASE_SHA256" \
-            --arg minOSVersion "$RELEASE_MIN_OS_VERSION" \
-            --argjson size "$RELEASE_SIZE" \
-            --argjson privacy "$RELEASE_PRIVACY" \
-            '
-            .apps[0].category = "entertainment" |
-            .apps[0].versions[0] = {
-              version: $version,
-              buildVersion: $buildVersion,
-              marketingVersion: $marketingVersion,
-              date: $date,
-              localizedDescription: $localizedDescription,
-              downloadURL: $downloadURL,
-              size: $size,
-              sha256: $sha256,
-              minOSVersion: $minOSVersion
-            } |
-            .apps[0].appPermissions = {
-              entitlements: [],
-              privacy: $privacy
-            }
-            ' "$ALTSTORE_JSON_PATH" > "$tmp"
-          jq empty "$tmp"
-          mv "$tmp" "$ALTSTORE_JSON_PATH"
-      - name: Commit update AltStore.json
+          set -euo pipefail
+          bundle_id="$(plutil -extract CFBundleIdentifier raw -o - "$PAYLOAD_PATH/$SCHEME_NAME.app/Info.plist")"
+          [[ -n "$bundle_id" ]] || exit 1
+          # ReleaseNotesFilter joins lines with a literal "\n"; AltStore shows text as is, so use real line breaks.
+          notes="${RELEASE_NOTES//\\n/$'\n'}"
+
+          # Adds this release to a source, pointing at one channel's IPA with that file's own size and
+          # checksum: SideStore and AltStore check both against the download.
+          add_version() {
+            local source_json="$1" output_json="$2" ipa_path="$3"
+            local ipa_name download_url size sha256 tmp
+            ipa_name="$(basename "$ipa_path")"
+            download_url="$(printf '%s' "$RELEASE_ASSETS" | jq -r --arg name "$ipa_name" '[.[] | select(.name == $name) | .browser_download_url][0] // empty')"
+            size="$(stat -f%z "$ipa_path")"
+            sha256="$(shasum -a 256 "$ipa_path" | awk '{ print $1 }')"
+            [[ -n "$download_url" ]] || { echo "::error::The release has no $ipa_name."; exit 1; }
+            [[ -n "$size" ]] || exit 1
+            [[ -n "$sha256" ]] || exit 1
+            curl -sSfIL -o /dev/null "$download_url"
+
+            tmp="$(mktemp)"
+            jq \
+              --arg bundleIdentifier "$bundle_id" \
+              --arg version "$RELEASE_VERSION" \
+              --arg buildVersion "$RELEASE_BUILD_VERSION" \
+              --arg marketingVersion "$RELEASE_MARKETING_VERSION" \
+              --arg date "$RELEASE_DATE" \
+              --arg localizedDescription "$notes" \
+              --arg downloadURL "$download_url" \
+              --arg sha256 "$sha256" \
+              --arg minOSVersion "$RELEASE_MIN_OS_VERSION" \
+              --argjson size "$size" \
+              --argjson privacy "$RELEASE_PRIVACY" \
+              --argjson releaseVersions null \
+              -f "$SOURCE_FILTER_PATH" "$source_json" > "$tmp"
+            jq -e '(.apps[0].versions | length) >= 1' "$tmp" >/dev/null
+            mv "$tmp" "$output_json"
+          }
+
+          add_version "$ALTSTORE_JSON_PATH" "$ALTSTORE_JSON_PATH" "$ALTSTORE_IPA_PATH"
+          # The first release creates SideStore.json. The template has no versions, and SideStore rejects
+          # a source with none, so it is only ever written with this release added.
+          sidestore_source="$SIDESTORE_JSON_PATH"
+          if [[ ! -f "$sidestore_source" ]]; then
+            sidestore_source="$SIDESTORE_TEMPLATE_PATH"
+          fi
+          add_version "$sidestore_source" "$SIDESTORE_JSON_PATH" "$SIDESTORE_IPA_PATH"
+      - name: Commit update AltStore.json and SideStore.json
         run: |
-          git add "$ALTSTORE_JSON_PATH"
-          git commit -m "Update AltStore.json"
+          git add "$ALTSTORE_JSON_PATH" "$SIDESTORE_JSON_PATH"
+          git commit -m "Update AltStore.json and SideStore.json"
           git push origin HEAD
       - name: Post release notes
         env:
