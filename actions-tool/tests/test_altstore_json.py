@@ -41,7 +41,8 @@ class AltStoreJsonTests(unittest.TestCase):
     def test_a_language_ehpanda_does_not_have_falls_back_to_english(self):
         # AltStore finds no key, so it reads the plain field, which is English.
         self.assertIsNone(languages.localized_value(APP["localizedDescriptions"], ["fr-FR"]))
-        self.assertTrue(APP["localizedDescription"].startswith("EhPanda is an unofficial app"))
+        # Checked against the English entry, not a fixed text, so the copy can change (msg 2606).
+        self.assertEqual(APP["localizedDescription"], APP["localizedDescriptions"]["en"])
 
     def test_the_source_and_the_app_share_their_copy(self):
         self.assertEqual(ALTSTORE["localizedSubtitles"], APP["localizedSubtitles"])
