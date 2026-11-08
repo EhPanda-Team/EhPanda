@@ -1,0 +1,28 @@
+name: Release Notes
+# A release pull request must carry its notes file, ReleaseNotes/<version>.md (ReleaseNotes/README.md).
+# deploy.yml releases every merged pull request opened by the same author, so the file is required
+# for exactly those pull requests. The release tooling's own tests run on every pull request.
+on:
+  pull_request:
+    branches:
+      - main
+    types: [opened, synchronize, reopened, edited]
+
+permissions:
+  contents: read
+
+jobs:
+  Check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+      - name: Test the release tooling
+        run: python3 -m unittest discover -s actions-tool/tests -v
+      - name: Check this release's notes
+        if: github.event.pull_request.user.login == 'chihchy'
+        run: |
+          set -euo pipefail
+          version="$(python3 actions-tool/release_notes.py version)"
+          echo "This pull request releases $version."
+          python3 actions-tool/release_notes.py check "ReleaseNotes/$version.md"
