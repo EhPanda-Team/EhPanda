@@ -46,10 +46,10 @@ final class ProbeReportTests: XCTestCase {
         let session = observer.makeSession()
         defer { session.invalidateAndCancel() }
         var request = URLRequest(url: URL(string: "https://example.invalid/api.php")!)
-        request.httpMethod = "POST"
+        request.httpMethod = "PUT"
         do {
             _ = try await session.data(for: request)
-            XCTFail("A POST left a live check session.")
+            XCTFail("A request other than GET left a live check session.")
         } catch {
             XCTAssertEqual((error as? URLError)?.code, .unsupportedURL)
         }
