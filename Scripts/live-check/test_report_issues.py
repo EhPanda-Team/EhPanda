@@ -194,6 +194,12 @@ class CannotReachIssueTests(ReporterHarness):
         self.assertEqual(len(self.writes('comment')), 2, self.calls())
         self.assertEqual(self.writes('close'), [])
 
+    def test_the_current_run_found_among_previous_results_counts_once(self):
+        self.assert_ok(self.run_reporter(results(1, popular=BLOCKED)))
+        (self.history / 'results-copy.json').write_text(json.dumps(results(2, popular=BLOCKED)))
+        self.assert_ok(self.run_reporter(results(2, popular=BLOCKED)))
+        self.assertEqual(self.writes(), [], 'the current run was counted twice')
+
     def test_skipped_signed_in_pages_do_not_count_as_unreachable(self):
         for day in range(1, 5):
             self.assert_ok(self.run_reporter(results(day)))
