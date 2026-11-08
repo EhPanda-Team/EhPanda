@@ -94,7 +94,7 @@ public enum DistributionChannel: String, CaseIterable, Sendable {
     /// The AltStore PAL build (Phase 20). MarketplaceKit names a PAL install itself, as
     /// `marketplace:<id>`; the stamp is only a cross-check and never overrides it.
     case altstorePAL
-    /// `EhPanda-Beta.ipa`, listed on `altstore-beta.json` (`deploy-pre-release.yml`).
+    /// `EhPanda-Beta.ipa`, listed on `altstore-beta.json` (`deploy-beta.yml`).
     case beta
     /// The committed value: any build that no release workflow stamped.
     case source

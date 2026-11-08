@@ -1,4 +1,4 @@
-name: Deploy Pre-release
+name: Deploy Beta
 on:
   workflow_dispatch:
     inputs:

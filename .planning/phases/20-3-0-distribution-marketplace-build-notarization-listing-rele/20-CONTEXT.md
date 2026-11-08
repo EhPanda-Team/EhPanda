@@ -59,7 +59,7 @@ order are in no phase.
 - **D-11:** **The beta is a separate install** (owner msgs 2513, 2518, 2525). Pre-releases are built as a beta flavor
   with its own bundle IDs, `app.ehpanda.beta` and `app.ehpanda.beta.shareExtension` (`BUNDLE_ID_SUFFIX = .beta`), the
   Home Screen name "EhPanda Beta", the regular icon and its own URL scheme `ehpanda-beta`, all from
-  `Config/Beta.xcconfig`, which only `deploy-pre-release.yml` passes to `xcodebuild`. The workflow publishes one file,
+  `Config/Beta.xcconfig`, which only `deploy-beta.yml` passes to `xcodebuild`. The workflow publishes one file,
   `EhPanda-Beta.ipa`, stamped `beta` (D-12). The beta's AltStore Classic source is `altstore-beta.json` on `main`,
   created by that workflow from `actions-tool/altstore-beta.template.json` on its first run. It lists only betas newer
   than the latest regular release, and always at least the newest beta. Each beta needs a build number above every
@@ -77,7 +77,7 @@ order are in no phase.
     file's own size and SHA-256. Both are updated by the same filter, `actions-tool/altstore-add-version.jq`, newest
     first with history kept. `SideStore.json` is created by the first 3.0 release from
     `actions-tool/sidestore.template.json` (the same wording, structure and `nsfw: true` as `AltStore.json`, its own
-    `identifier`), so it is never written with zero versions. `deploy-pre-release.yml` publishes `EhPanda-Beta.ipa`
+    `identifier`), so it is never written with zero versions. `deploy-beta.yml` publishes `EhPanda-Beta.ipa`
     (D-11).
   - **AltStore PAL** is not built yet. The PAL job, when it is, stamps `altstorePAL` with the same script.
   - **Install source:** `InstallSource` gains `github`, `altstore`, `sidestore`, `beta` and `source` (wire values the
@@ -137,7 +137,7 @@ These were not put to the owner (prep section 3):
   level descriptions that ANALYTICS-02 must keep true, and the website knock-on.
 - `.planning/phases/14-analytics-instrumentation-with-telemetrydeck-add-privacy-fir/14-CONTEXT.md`: D-04 and D-06 to
   D-14.
-- `.github/workflows/deploy.yml`, `.github/workflows/deploy-pre-release.yml`, `AltStore.json`,
+- `.github/workflows/deploy.yml`, `.github/workflows/deploy-beta.yml`, `AltStore.json`,
   `Scripts/bump-version.sh`, `Config/Signing.xcconfig`, `Scripts/visual/verify-release.py`.
 
 </canonical_refs>
