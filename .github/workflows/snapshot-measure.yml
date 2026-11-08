@@ -3,10 +3,14 @@ name: Snapshot measurement
 # one job per device and text size (en-xSmall, en-large, en-accessibility5). Each job records the 19-05 classes once as
 # the candidate, then compares them against it at 2, 3 and 4 simulator clones, one xcodebuild at a time, while it
 # samples its host's memory pressure. One job per device ran out of its 170 minutes on the iPhone (run 42442366372:
-# about 14 minutes per xcodebuild), so each text size has its own job and host; six jobs, five at a time. Scripts/visual/snapshot_measure.py turns the uploaded results into the cost table and the
-# worker count. The pictures are synthetic; the references stay on the runner, and only a changed picture's actual
-# and difference images are uploaded, with each run's results.jsonl and shard.json. It runs only on a push to
-# ci/snapshot-measure, which needs the owner's go-ahead; that commit's message carries `[skip test]`.
+# about 14 minutes per xcodebuild), so each text size has its own job and host. A seventh and eighth job (`all`)
+# record the three text sizes in one invocation per device, to time the fixed cost per xcodebuild against the
+# single-size candidates; eight jobs, five at a time. Scripts/visual/snapshot_measure.py turns the uploaded results
+# into the cost table and the worker count. The pictures are synthetic; the references stay on the runner. Uploaded
+# are each run's results.jsonl, shard.json and xcodebuild log, the candidate's results.jsonl and shard.json, and for a
+# changed picture (and a flaky one's first attempt) its actual, difference and reference images. Every xcodebuild
+# has XCTest's per-test time allowance and a watchdog. It runs only on a push to ci/snapshot-measure, which needs the
+# owner's go-ahead; that commit's message carries `[skip test]`.
 on:
   push:
     branches: [ci/snapshot-measure]
@@ -60,7 +64,7 @@ jobs:
       fail-fast: false
       matrix:
         family: [iphone, ipad]
-        configuration: [en-xSmall, en-large, en-accessibility5]
+        configuration: [en-xSmall, en-large, en-accessibility5, all]
         include:
           - family: iphone
             device: com.apple.CoreSimulator.SimDeviceType.iPhone-Air
@@ -75,6 +79,8 @@ jobs:
         WatchedSnapshotTests ToplistsSnapshotTests HistorySnapshotTests
       CONFIGURATION: ${{ matrix.configuration }}
       WORKER_COUNTS: 2 3 4
+      ALL_CONFIGURATIONS: en-xSmall en-large en-accessibility5
+      WATCHDOG_MINUTES: 45
     steps:
       # The runner context is not available in a job's env, so OUT is set here.
       - name: Note the job start
@@ -140,33 +146,62 @@ jobs:
           only=()
           for class in $CLASSES; do only+=("-only-testing:VisualSnapshotTests/$class"); done
           xcode_build=$(xcodebuild -version | tail -1)
-          run() { # <configuration> <workers> <mode> <output> [references]
+          mkdir -p "$OUT/logs"
+          run() { # <configurations> <workers> <mode> <output> [references]
             local variables=(TEST_RUNNER_EHPANDA_SNAPSHOT_MODE="$3" TEST_RUNNER_EHPANDA_SNAPSHOT_OUTPUT="$4")
             [ -n "${5:-}" ] && variables+=(TEST_RUNNER_EHPANDA_SNAPSHOT_REFERENCES="$5")
             [ -n '${{ matrix.orientations }}' ] &&
               variables+=(TEST_RUNNER_EHPANDA_SNAPSHOT_ORIENTATIONS='${{ matrix.orientations }}')
+            local configurations=() configuration
+            for configuration in $1; do configurations+=(-only-test-configuration "$configuration"); done
             mkdir -p "$4"
-            local started status=0
+            local started status=0 label log
+            label="$CONFIGURATION-$3-w$2"
+            log="$OUT/logs/xcodebuild-$label.log"
             started=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+            # A test that hangs is stopped by XCTest's own allowance (a scenario method captures four coordinates
+            # in well under 5 minutes); an invocation that hangs outside a test is stopped by the watchdog.
             env "${variables[@]}" xcodebuild test-without-building \
               -xctestrun "$XCTESTRUN" \
               -destination "platform=iOS Simulator,id=$UDID" \
               -parallel-testing-enabled YES \
               -parallel-testing-worker-count "$2" \
-              -only-test-configuration "$1" \
-              "${only[@]}" >"$RUNNER_TEMP/xcodebuild-$1-$3-w$2.log" 2>&1 || status=$?
+              -test-timeouts-enabled YES \
+              -default-test-execution-time-allowance 300 \
+              -maximum-test-execution-time-allowance 600 \
+              "${configurations[@]}" \
+              "${only[@]}" >"$log" 2>&1 &
+            local pid=$! minutes=$WATCHDOG_MINUTES
+            # One invocation of all three text sizes may take three times as long, within the step's limit.
+            [ "$CONFIGURATION" = all ] && minutes=130
+            ( sleep $((minutes * 60)) && kill -TERM "$pid" 2>/dev/null &&
+              echo "watchdog: stopped $label after $minutes minutes" >>"$log" ) >/dev/null 2>&1 &
+            local watchdog=$!
+            wait "$pid" || status=$?
+            pkill -P "$watchdog" 2>/dev/null || true
+            kill "$watchdog" 2>/dev/null || true
             # The failure messages of the synthetic pictures (geometry, configuration checks), at most five kinds.
-            [ "$status" = 0 ] || grep -E 'error: ' "$RUNNER_TEMP/xcodebuild-$1-$3-w$2.log" |
+            [ "$status" = 0 ] || grep -E 'error: |watchdog: ' "$log" |
               sed -E 's/^.*error: //; s/^-\[[^]]*\] : //' |
               sort | uniq -c | sort -rn | head -5 || true
             python3 -c 'import json, sys
-          shard, unit, workers, build, model, image, started, finished, path = sys.argv[1:]
-          json.dump({"shard": shard, "units": [unit], "workers": int(workers), "xcodeBuild": build,
+          shard, units, workers, build, model, image, started, finished, path = sys.argv[1:]
+          json.dump({"shard": shard, "units": units.split(), "workers": int(workers), "xcodeBuild": build,
                      "runtime": "iOS 27.0", "model": model, "runnerImage": image, "started": started,
                      "finished": finished, "infra": None}, open(path, "w"), indent=2)' \
               "measure-${{ matrix.family }}" "$1" "$2" "$xcode_build" '${{ matrix.family }}' \
               "${ImageOS:-unknown} ${ImageVersion:-unknown}" "$started" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
               "$4/shard.json"
+            # The reference of a changed picture, and of a flaky one's first attempt, beside its actual and
+            # difference, so the change can be read later.
+            local kind
+            for kind in actual first-actual; do
+              [ -n "${5:-}" ] && [ -d "$4/$kind" ] || continue
+              (cd "$4/$kind" && find . -name '*.png') | while read -r picture; do
+                mkdir -p "$(dirname "$4/reference/$picture")"
+                cp "$5/$picture" "$4/reference/$picture" 2>/dev/null || true
+              done
+            done
             echo "$1 $3 at $2 workers: exit $status, $(python3 -c 'import collections, json, sys
           try:
               statuses = collections.Counter(json.loads(line)["status"] for line in open(sys.argv[1]))
@@ -176,9 +211,22 @@ jobs:
           print(" ".join(f"{name}={statuses[name]}" for name in names))' \
               "$4/results.jsonl")"
           }
-          # One xcodebuild at a time: the candidate, then its three comparisons.
+          # The candidate's record and result lines (not its pictures) are kept beside the comparisons.
+          keep_candidate() {
+            mkdir -p "$OUT/candidate"
+            cp "$1/shard.json" "$1/results.jsonl" "$OUT/candidate/" 2>/dev/null || true
+          }
           references="$RUNNER_TEMP/references/$CONFIGURATION"
+          if [ "$CONFIGURATION" = all ]; then
+            # Option 3 of 19-04-MEASURE.md: the three text sizes in one invocation, timed against the three
+            # single-size candidates of the other jobs.
+            run "$ALL_CONFIGURATIONS" 2 candidate "$references"
+            keep_candidate "$references"
+            exit 0
+          fi
+          # One xcodebuild at a time: the candidate, then its three comparisons.
           run "$CONFIGURATION" 2 candidate "$references"
+          keep_candidate "$references"
           for workers in $WORKER_COUNTS; do
             run "$CONFIGURATION" "$workers" compare "$OUT/w$workers" "$references"
           done

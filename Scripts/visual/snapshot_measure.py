@@ -9,13 +9,22 @@ only, since its samples come from its own host; a job that measures a whole devi
 candidate run that records the references has no `w<N>` directory and is not read.
 
 The worker count is the largest of 2, 3 and 4 that passes every rule:
-- `incomplete`: every configuration measured at any count has a run at this count;
+- `incomplete`: every configuration measured at any count has a run at this count, with as many result lines as
+  that configuration's fullest run;
 - `changed`: no picture at this count is `changed` against the candidate;
-- `memory`: no `warn` or `critical` memory pressure was sampled while a run at this count ran;
+- `memory`: no `critical` memory pressure was sampled while a run at this count ran. `warn` is recorded and reported
+  but does not exclude: the hosted runner sat at `warn` under two clones already, in every run at every count (lead's
+  technical call after run 42455556948, amending D-15's wording);
 - `slowdown`: for every device and text size, the median seconds per picture is at most 1.25 x the median at 2.
 
-`--write` stores the medians at the chosen count, its smallest clone speed-up (picture count x median / wall) and
-the boot-and-fetch minutes in the 19-02 cost table schema, with `source: measured` and the run ID.
+`--write` stores the medians at the chosen count, its smallest clone speed-up (picture count x median / wall), the
+boot-and-fetch minutes and the fixed minutes per invocation in the 19-02 cost table schema, with `source: measured`
+and the run ID.
+
+The fixed cost per invocation comes from the candidates, whose `shard.json` and `results.jsonl` each job keeps in
+`<family>/<configuration>/candidate/`: an `all` job records every text size in one invocation, so with a fixed cost
+F per invocation the single-size candidates take F + C_i each and the `all` candidate F + sum(C_i), and
+F = (sum of the single walls - the `all` wall) / (sizes - 1). The larger of the two devices' F is used.
 """
 
 import argparse
@@ -33,7 +42,8 @@ WORKER_COUNTS = (2, 3, 4)
 BASE = 2
 SLOWDOWN = 1.25
 TIMED = ('passed', 'changed', 'recorded')
-PRESSURE = ('warn', 'critical')
+LEVELS = ('warn', 'critical')
+PRESSURE = ('critical',)
 SIZES = ('xSmall', 'large', 'accessibility5')
 
 
@@ -108,11 +118,12 @@ def run_facts(run, samples):
     wall = (finished - started).total_seconds()
     median = statistics.median(timed) if timed else None
     levels = {level for time, level in samples if started <= time <= finished}
-    worst = next((level for level in reversed(PRESSURE) if level in levels), 'normal')
+    worst = next((level for level in reversed(LEVELS) if level in levels), 'normal')
     return {
         'pictures': len(timed), 'median': median, 'wall': wall,
         'speedup': len(timed) * median / wall if timed and wall > 0 else None,
         'changed': sum(line['status'] == 'changed' for line in run['lines']), 'memory': worst,
+        'lines': len(run['lines']),
     }
 
 
@@ -139,7 +150,10 @@ def exclusions(facts):
         rules = []
         at = {(family, configuration): fact for (family, configuration, count), fact in facts.items()
               if count == workers}
-        if set(at) != configurations or any(fact['median'] is None for fact in at.values()):
+        fullest = {key: max(fact['lines'] for (family, configuration, _), fact in facts.items()
+                            if (family, configuration) == key) for key in configurations}
+        if set(at) != configurations or any(fact['median'] is None or fact['lines'] < fullest[key]
+                                            for key, fact in at.items()):
             rules.append('incomplete')
         if any(fact['changed'] for fact in at.values()):
             rules.append('changed')
@@ -193,7 +207,7 @@ def verdict(excluded, chosen):
     return '\n'.join(lines)
 
 
-def cost_table(facts, chosen, run_id, boot_minutes):
+def cost_table(facts, chosen, run_id, boot_minutes, fixed_minutes=None):
     by_size = medians(facts)
     seconds = {}
     for family in snapshot_matrix.FAMILIES:
@@ -208,7 +222,7 @@ def cost_table(facts, chosen, run_id, boot_minutes):
         'note': (f'Measured on the hosted runner in run {run_id}: median seconds per picture per clone at {chosen} '
                  'workers over the 19-05 classes in en; the clone speed-up is the smallest of its runs.'),
         'secondsPerPicture': seconds, 'workers': chosen, 'cloneSpeedup': round(min(speedups), 2),
-        'bootFetchMinutes': boot_minutes,
+        'bootFetchMinutes': boot_minutes, 'invocationMinutes': fixed_minutes,
     }
 
 
@@ -223,9 +237,33 @@ def render(costs):
         lines.append(f'    {json.dumps(family)}: {{{inner}}}' + (',' if index < len(families) - 1 else ''))
     lines.append('  },')
     tail = [f'  {json.dumps(key)}: {json.dumps(costs[key])}'
-            for key in ('workers', 'cloneSpeedup', 'bootFetchMinutes')]
+            for key in ('workers', 'cloneSpeedup', 'bootFetchMinutes', 'invocationMinutes')
+            if costs.get(key) is not None]
     lines += [line + ',' for line in tail[:-1]] + [tail[-1], '}']
     return '\n'.join(lines) + '\n'
+
+
+def candidate_walls(root):
+    """`{(family, configuration): wall seconds}` of every candidate that kept its `shard.json`."""
+    walls = {}
+    for record in sorted(Path(root).glob('*/*/candidate/shard.json')):
+        data = json.loads(record.read_text())
+        family, configuration = record.parts[-4], record.parts[-3]
+        walls[(family, configuration)] = (parse_time(data['finished']) - parse_time(data['started'])).total_seconds()
+    return walls
+
+
+def invocation_minutes(walls, override):
+    """The fixed minutes per invocation (see the module note), or `override`; `None` when nothing measures it."""
+    if override is not None:
+        return override
+    fixed = []
+    for family in snapshot_matrix.FAMILIES:
+        singles = [walls.get((family, f'en-{size}')) for size in SIZES]
+        together = walls.get((family, 'all'))
+        if together is not None and None not in singles:
+            fixed.append((sum(singles) - together) / (len(SIZES) - 1))
+    return round(max(fixed) / 60, 1) if fixed else None
 
 
 def boot_fetch_minutes(boot, override):
@@ -242,6 +280,7 @@ def main(argv=None):
     parser.add_argument('--run-id', required=True)
     parser.add_argument('--write', type=Path, help='the cost table to write when a count is chosen')
     parser.add_argument('--boot-fetch-minutes', type=float)
+    parser.add_argument('--invocation-minutes', type=float, help='the fixed minutes per invocation, if not measured')
     args = parser.parse_args(argv)
     runs, memory, boot = load(args.runs)
     if not runs:
@@ -253,11 +292,14 @@ def main(argv=None):
     print(table(facts))
     print()
     print(verdict(excluded, chosen))
+    fixed = invocation_minutes(candidate_walls(args.runs), None)
+    print(f'- Fixed cost per invocation: {"not measured" if fixed is None else f"{fixed} min"}')
     if chosen is None:
         return 1
     if args.write:
         try:
-            costs = cost_table(facts, chosen, args.run_id, boot_fetch_minutes(boot, args.boot_fetch_minutes))
+            costs = cost_table(facts, chosen, args.run_id, boot_fetch_minutes(boot, args.boot_fetch_minutes),
+                               invocation_minutes(candidate_walls(args.runs), args.invocation_minutes))
         except ValueError as error:
             print(error, file=sys.stderr)
             return 2

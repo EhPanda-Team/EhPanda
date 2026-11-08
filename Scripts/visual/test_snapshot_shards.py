@@ -46,6 +46,26 @@ class SnapshotShardsTests(unittest.TestCase):
             seen += [(shard['family'],) + run for run in runs]
         self.assertEqual(sorted(seen), sorted(self.costs_by_unit))
 
+    def test_a_shard_runs_one_invocation_per_orientation_group(self):
+        plan = json.loads(snapshot_shards.compute())
+        for shard in plan['shards']:
+            groups = {}
+            for run in shard['runs']:
+                groups.setdefault(tuple(run['orientations']), []).append(run['configuration'])
+            self.assertEqual([(tuple(call['orientations']), call['configurations']) for call in shard['invocations']],
+                             sorted(groups.items(), key=lambda item: snapshot_matrix.ORIENTATIONS.index(item[0][0])))
+
+    def test_the_estimate_counts_the_fixed_cost_once_per_invocation(self):
+        plan = json.loads(snapshot_shards.compute())
+        without = dict(self.costs, invocationMinutes=0)
+        with tempfile.NamedTemporaryFile('w', suffix='.json') as handle:
+            json.dump(without, handle)
+            handle.flush()
+            bare = json.loads(snapshot_shards.compute(cost_path=Path(handle.name)))
+        for shard, other in zip(plan['shards'], bare['shards']):
+            self.assertAlmostEqual(shard['estimatedMinutes'] - other['estimatedMinutes'],
+                                   len(shard['invocations']) * self.costs['invocationMinutes'], delta=0.11)
+
     def test_every_unit_is_in_exactly_one_shard_of_its_own_device(self):
         shards = snapshot_shards.assign(self.costs_by_unit)
         self.assertEqual(len(shards), 20)
