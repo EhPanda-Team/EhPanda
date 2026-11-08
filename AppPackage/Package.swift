@@ -240,12 +240,14 @@ extension PackageDescription.Target {
     /// target gains the guard or any other test target loses it.
     static func liveCheckTestTarget(
         dependencies: [Module.Dependency],
+        resources: [PackageDescription.Resource]? = nil,
         swiftSettings: [PackageDescription.SwiftSetting]? = sharedSwiftSettings,
         plugins: [PackageDescription.Target.PluginUsage] = swiftLintPlugins
     ) -> PackageDescription.Target {
         testTarget(
             name: Module.liveCheckTests.rawValue,
             dependencies: dependencies.map(\.targetDependency),
+            resources: resources,
             swiftSettings: swiftSettings,
             linkerSettings: [.linkedFramework("AppIntents")],
             plugins: plugins
@@ -1150,7 +1152,9 @@ let targets: [PackageDescription.Target] = [
             .module(.networkingFeature),
             .module(.parserFeature),
             .targetDependency(.kanna)
-        ]
+        ],
+        // Saved pages for the offline classification tests: trimmed, with synthetic titles and IDs (19-14).
+        resources: [.copy("Fixtures")]
     ),
     .target(
         module: .visualSnapshotSupport,
