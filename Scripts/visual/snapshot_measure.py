@@ -87,7 +87,8 @@ def load(root):
             read_job(config_dir, (family, config_dir.name), memory, boot)
             for run_dir in sorted(path for path in config_dir.iterdir() if path.is_dir()):
                 match = re.fullmatch(r'w(\d+)', run_dir.name)
-                if not match:
+                # A run cut off by the step's time limit has no shard.json; it counts as missing.
+                if not match or not (run_dir / 'shard.json').exists():
                     continue
                 record = json.loads((run_dir / 'shard.json').read_text())
                 runs[(family, config_dir.name, int(match.group(1)))] = {
