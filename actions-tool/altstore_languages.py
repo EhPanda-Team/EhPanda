@@ -5,6 +5,12 @@ as the app's string catalog. Each entry's plain field (`subtitle`, `description`
 `localizedDescription`) holds the English text: it is what AltStore shows when no key matches the
 device's languages, and the only text SideStore and AltStore before 2.2 read.
 
+`check_source` also checks the screenshots (owner msg 2628). AltStore and SideStore read
+`screenshots` as a list (iPhone) or as an object with `iphone` and `ipad` lists, each item a URL or an
+`{imageURL, width, height}` object; they decode `width` and `height` as Int16, so a fraction or a
+value over 32767 breaks the source (AltStoreCore/Model/AppScreenshot.swift). EhPanda writes only the
+object form, with the size in pixels.
+
 `localized_value` is a copy of AltStore's `KeyedDecodingContainer.decodeLocalizedValue`
 (AltStoreCore/Extensions/KeyedDecodingContainer+LocalizedValues.swift): the keys are lowercased; for
 each of the device's preferred languages in order, the first exact match wins, and otherwise the
@@ -46,6 +52,11 @@ def localized_value(values, preferred_languages):
 SOURCE_FIELDS = ["name", "identifier", "subtitle", "description", "iconURL"]
 APP_FIELDS = ["name", "bundleIdentifier", "developerName", "subtitle", "localizedDescription", "iconURL"]
 VERSION_FIELDS = ["version", "buildVersion", "date", "localizedDescription", "downloadURL", "size", "sha256"]
+# Screenshots that EhPanda serves from its assets repository: the path after this prefix is the file's
+# path in a checkout of that repository.
+ASSETS_URL = "https://raw.githubusercontent.com/EhPanda-Team/ehpanda-assets/main/"
+SCREENSHOT_DEVICES = ["iphone", "ipad"]
+INT16_MAX = 32767
 # The localized object for each plain field, and whether it must list every language.
 LOCALIZED = {"subtitle": "localizedSubtitles", "description": "localizedDescriptions",
              "localizedDescription": "localizedDescriptions"}
@@ -78,8 +89,52 @@ def check_localized(where, entry, plain, every_language):
     return problems
 
 
-def check_source(source, every_language=True, versions_required=True):
-    """Problems that would keep AltStore or SideStore from reading `source` as EhPanda intends."""
+def check_screenshots(where, app, assets_dir=None):
+    """Problems with `app`'s screenshots. When `assets_dir`, a checkout of the assets repository, is
+    given, each screenshot served from it must be a file there."""
+    if "screenshots" not in app:
+        return []
+    screenshots = app["screenshots"]
+    if not isinstance(screenshots, dict) or not screenshots:
+        return [f"{where}: screenshots is not an object with {SCREENSHOT_DEVICES} lists"]
+    problems = []
+    unknown = [device for device in screenshots if device not in SCREENSHOT_DEVICES]
+    if unknown:
+        problems.append(f"{where}: screenshots has unknown devices {unknown}")
+    for device, items in screenshots.items():
+        if not isinstance(items, list) or not items:
+            problems.append(f"{where}: screenshots.{device} is not a non-empty list")
+            continue
+        urls = []
+        for index, item in enumerate(items):
+            item_where = f"{where}: screenshots.{device}[{index}]"
+            if not isinstance(item, dict) or set(item) != {"imageURL", "width", "height"}:
+                problems.append(f"{item_where} is not an object with exactly imageURL, width and height")
+                continue
+            url = item["imageURL"]
+            if not isinstance(url, str) or not url.startswith("https://") or len(url) <= len("https://"):
+                problems.append(f"{item_where}: imageURL {url!r} is not an https URL")
+                continue
+            urls.append(url)
+            for dimension in ["width", "height"]:
+                value = item[dimension]
+                # bool is an int in Python, and a float such as 19.5 is not an Int16.
+                if isinstance(value, bool) or not isinstance(value, int) or not 0 < value <= INT16_MAX:
+                    problems.append(f"{item_where}: {dimension} {value!r} is not a whole number from 1 to {INT16_MAX}")
+            if assets_dir is not None and url.startswith(ASSETS_URL):
+                path = url[len(ASSETS_URL):]
+                if not (assets_dir / path).is_file():
+                    problems.append(f"{item_where}: {path} is not in the assets repository")
+        if len(set(urls)) != len(urls):
+            problems.append(f"{where}: screenshots.{device} lists an image twice")
+    return problems
+
+
+def check_source(source, every_language=True, versions_required=True, assets_dir=None):
+    """Problems that would keep AltStore or SideStore from reading `source` as EhPanda intends.
+
+    `assets_dir` is a checkout of the assets repository (a `pathlib.Path`), or None to not look for
+    the screenshot files."""
     problems = []
 
     def require(where, entry, fields):
@@ -101,6 +156,7 @@ def check_source(source, every_language=True, versions_required=True):
             problems.append(f"{where}: has a marketplaceID, which SideStore refuses")
         for plain in ["subtitle", "localizedDescription"]:
             problems += check_localized(where, app, plain, every_language)
+        problems += check_screenshots(where, app, assets_dir)
         versions = app.get("versions", [])
         if versions_required and not versions:
             problems.append(f"{where}: no versions, which SideStore refuses")
