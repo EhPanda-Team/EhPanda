@@ -715,7 +715,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 17. Screenshot Automation, Visual Regression & OS 27 Modernization | 13/13 | Complete    | 2026-11-05 |
 | 18. In-App 3.0 Readiness: Age Wall, Analytics Choice, Comment Moderation & Reader Rework | 12/12 | Complete    | 2026-11-06 |
 | 18.1. Native report form (INSERTED) | 5/5 | Complete    | 2026-11-07 |
-| 19. Visual Regression & Daily Live-Parsing Check | 6/17 | In Progress |  |
+| 19. Visual Regression & Daily Live-Parsing Check | 7/17 | In Progress |  |
 | 20. 3.0 Distribution: Marketplace Build, Notarization, Listing & Release Checks | 0/TBD | Not started|  |
 
 ### Phase 12: Cloudflare Login Restoration
@@ -1490,7 +1490,7 @@ Plans:
   7. `Scripts/visual/README.md` matches the reduced Phase 17 harness and this phase's regression runner.
   8. Release builds still contain no capture code, fixtures, test assets or SnapshotTesting linkage.
 
-**Plans**: 6/17 plans executed (planned 2026-11-07; research: [19-RESEARCH.md](phases/19-visual-regression-marketing-export/19-RESEARCH.md), validation: [19-VALIDATION.md](phases/19-visual-regression-marketing-export/19-VALIDATION.md))
+**Plans**: 7/17 plans executed (planned 2026-11-07; research: [19-RESEARCH.md](phases/19-visual-regression-marketing-export/19-RESEARCH.md), validation: [19-VALIDATION.md](phases/19-visual-regression-marketing-export/19-VALIDATION.md))
 
 Plans:
 
@@ -1502,7 +1502,7 @@ Plans:
 **Wave 2** *(blocked on 19-01)*
 
 - [x] 19-02-PLAN.md — the schema-2 scenario inventory with reasoned not-applicable rules, the local runner and the deterministic 20-shard plan
-- [ ] 19-03-PLAN.md — the guard-free live-check test target and the runner-IP probe on GitHub's hosted Mac *(checkpoint: owner go-ahead before the push, OQ-6)*
+- [x] 19-03-PLAN.md — the guard-free live-check test target and the runner-IP probe on GitHub's hosted Mac *(checkpoint: owner go-ahead before the push, OQ-6)*
 
 **Wave 3** *(blocked on Wave 2)*
 
