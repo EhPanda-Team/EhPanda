@@ -30,7 +30,7 @@ SOURCE = {
         "iconURL": "https://example.com/icon.png",
         "versions": [{
             "version": "9.9.8", "buildVersion": "998", "date": "2026-01-01T00:00:00Z",
-            "localizedDescription": "1. Older.", "downloadURL": "https://example.com/old.ipa",
+            "localizedDescription": "Older.", "downloadURL": "https://example.com/old.ipa",
             "size": 1, "sha256": "00", "minOSVersion": "17.0",
         }],
     }],

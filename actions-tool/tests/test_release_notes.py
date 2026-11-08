@@ -28,10 +28,10 @@ class ParseTests(unittest.TestCase):
     def test_the_fixture_has_every_language(self):
         notes = release_notes.parse(TEXT)
         self.assertEqual(list(notes), ["en", "de", "ja", "ko", "zh-Hans", "zh-Hant"])
-        self.assertEqual(notes["en"], "1. Fixed reading page gestures not responding when scale is greater than 1.\n"
-                                      "2. Improved the search page. (credit @someone)")
-        self.assertTrue(notes["zh-Hant"].startswith("1. 修正了閱讀頁面"))
-        self.assertTrue(notes["zh-Hans"].startswith("1. 修复了阅读页面"))
+        self.assertEqual(notes["en"], "Fixed reading page gestures not responding when scale is greater than 1.\n"
+                                      "Improved the search page. (credit @someone)")
+        self.assertTrue(notes["zh-Hant"].startswith("修正了閱讀頁面"))
+        self.assertTrue(notes["zh-Hans"].startswith("修复了阅读页面"))
 
     def test_the_headings_are_the_six_language_names(self):
         self.assertEqual(list(release_notes.HEADINGS), HEADINGS)
@@ -43,8 +43,8 @@ class ParseTests(unittest.TestCase):
                     release_notes.parse(without_section(TEXT, heading))
 
     def test_an_empty_section_fails(self):
-        text = TEXT.replace("## 한국어\n\n1. 배율이 1보다 클 때 읽기 화면의 제스처가 반응하지 않는 문제를 수정했습니다.\n"
-                            "2. 검색 화면을 개선했습니다. (credit @someone)\n", "## 한국어\n   \n")
+        text = TEXT.replace("## 한국어\n\n배율이 1보다 클 때 읽기 화면의 제스처가 반응하지 않는 문제를 수정했습니다.\n"
+                            "검색 화면을 개선했습니다. (credit @someone)\n", "## 한국어\n   \n")
         with self.assertRaisesRegex(release_notes.NotesError, "the 한국어 section is empty"):
             release_notes.parse(text)
 
@@ -56,7 +56,7 @@ class ParseTests(unittest.TestCase):
             TEXT.replace("## 简体中文", "## 中文"): "is not a language heading",
             TEXT.replace("## English", "# English"): "only `## <language>` headings",
             TEXT.replace("## Deutsch\n", "## Deutsch\n### Fixes\n"): "only `## <language>` headings",
-            TEXT + "\n## English\n\n1. Again.\n": "the English section appears twice",
+            TEXT + "\n## English\n\nAgain.\n": "the English section appears twice",
             TEXT.replace("\n", "\r\n"): "Windows line endings",
         }
         for text, message in cases.items():
@@ -69,18 +69,25 @@ class ParseTests(unittest.TestCase):
         with self.assertRaisesRegex(release_notes.NotesError, "not in order"):
             release_notes.parse("## Deutsch" + rest + "\n" + english)
 
+    def test_a_numbered_or_bulleted_item_fails(self):
+        # AltStore shows the lines as they are, so items carry no number or bullet (owner msg 2591).
+        for line in ["1. Fixed it.", "10. Fixed it.", "1) Fixed it.", "- Fixed it.", "* Fixed it.", "• Fixed it."]:
+            with self.subTest(line=line):
+                with self.assertRaisesRegex(release_notes.NotesError, "without a number or bullet"):
+                    release_notes.parse(TEXT.replace("Improved the search page. (credit @someone)", line))
+
     def test_an_issue_number_at_the_start_of_a_line_is_text(self):
-        text = TEXT.replace("2. Improved the search page. (credit @someone)", "2. Improved the search page.\n#241")
+        text = TEXT.replace("Improved the search page. (credit @someone)", "Improved the search page.\n#241")
         self.assertTrue(release_notes.parse(text)["en"].endswith("\n#241"))
 
     def test_notes_too_long_for_telegram_or_discord_fail(self):
-        long_line = "1. " + "x" * 1900
+        long_line = "x" * 1900
         with self.assertRaisesRegex(release_notes.NotesError, "too long for Discord"):
-            release_notes.parse(TEXT.replace("1. Fixed reading page gestures not responding when scale is greater than 1.",
+            release_notes.parse(TEXT.replace("Fixed reading page gestures not responding when scale is greater than 1.",
                                              long_line))
-        long_line = "1. " + "修" * 3900
+        long_line = "修" * 3900
         with self.assertRaisesRegex(release_notes.NotesError, "too long for Telegram"):
-            release_notes.parse(TEXT.replace("1. 修正了閱讀頁面中縮放比例大於 1 時出現的手勢失效問題。", long_line))
+            release_notes.parse(TEXT.replace("修正了閱讀頁面中縮放比例大於 1 時出現的手勢失效問題。", long_line))
 
 
 class DestinationTests(unittest.TestCase):
@@ -101,6 +108,14 @@ class DestinationTests(unittest.TestCase):
         self.assertEqual(message, f"{self.notes['en']}\n\n{self.notes['zh-Hant']}\n\n{URL}\n")
         for heading in HEADINGS:
             self.assertNotIn(heading, message)
+
+    def test_no_destination_numbers_the_items(self):
+        # Owner msg 2591: the lines go out as written, never numbered or bulleted.
+        outputs = [release_notes.github(self.notes), release_notes.telegram(self.notes, URL),
+                   release_notes.discord(self.notes, URL), *self.notes.values()]
+        for output in outputs:
+            for line in output.split("\n"):
+                self.assertIsNone(release_notes.LIST_MARKER.match(line), line)
 
     def test_discord_is_english_then_the_link(self):
         self.assertEqual(release_notes.discord(self.notes, URL), f"{self.notes['en']}\n\n{URL}\n")
