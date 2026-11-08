@@ -92,9 +92,11 @@ public enum GalleryURLParser {
             }
     }()
 
+    /// The share extension's hand-off schemes: `ehpanda` for the regular app, `ehpanda-beta` for the
+    /// beta (`EHPANDA_URL_SCHEME`, `Config/Flavor.xcconfig` and `Config/Beta.xcconfig`).
     private static func normalizedURL(from url: URL) -> URL? {
         switch url.scheme?.lowercased() {
-        case "ehpanda":
+        case "ehpanda", "ehpanda-beta":
             return url.replaceScheme(to: "https")
 
         case "https":
