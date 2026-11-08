@@ -715,7 +715,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 17. Screenshot Automation, Visual Regression & OS 27 Modernization | 13/13 | Complete    | 2026-11-05 |
 | 18. In-App 3.0 Readiness: Age Wall, Analytics Choice, Comment Moderation & Reader Rework | 12/12 | Complete    | 2026-11-06 |
 | 18.1. Native report form (INSERTED) | 5/5 | Complete    | 2026-11-07 |
-| 19. Visual Regression & Daily Live-Parsing Check | 8/17 | In Progress |  |
+| 19. Visual Regression & Daily Live-Parsing Check | 9/17 | In Progress |  |
 | 20. 3.0 Distribution: Marketplace Build, Notarization, Listing & Release Checks | 0/TBD | Not started|  |
 
 ### Phase 12: Cloudflare Login Restoration
@@ -1490,7 +1490,7 @@ Plans:
   7. `Scripts/visual/README.md` matches the reduced Phase 17 harness and this phase's regression runner.
   8. Release builds still contain no capture code, fixtures, test assets or SnapshotTesting linkage.
 
-**Plans**: 8/17 plans executed (planned 2026-11-07; research: [19-RESEARCH.md](phases/19-visual-regression-marketing-export/19-RESEARCH.md), validation: [19-VALIDATION.md](phases/19-visual-regression-marketing-export/19-VALIDATION.md))
+**Plans**: 9/17 plans executed (planned 2026-11-07; research: [19-RESEARCH.md](phases/19-visual-regression-marketing-export/19-RESEARCH.md), validation: [19-VALIDATION.md](phases/19-visual-regression-marketing-export/19-VALIDATION.md))
 
 Plans:
 
@@ -1509,7 +1509,7 @@ Plans:
 - [x] 19-05-PLAN.md — scenarios: first launch (age wall, analytics choice), the shell and the browsing pages
 - [x] 19-06-PLAN.md — scenarios: search, quick search, filters, date seek, Favorites, Downloads and gallery detail
 - [x] 19-07-PLAN.md — scenarios: detail pages, comments (posting warning, collapsed blocking), the Report form and the reader
-- [ ] 19-08-PLAN.md — scenarios: Settings and its pages (analytics picker, Blocked Users) and the app-wide presentations
+- [x] 19-08-PLAN.md — scenarios: Settings and its pages (analytics picker, Blocked Users) and the app-wide presentations
 - [x] 19-09-PLAN.md — the aggregate logic (a missing result never passes) and the screen-grouped, filterable review report
 - [ ] 19-14-PLAN.md — the live check's pages, block-versus-break classification and enum-only results
 
