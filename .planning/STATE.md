@@ -21,7 +21,7 @@ source_head: 891103afa
 
 # Project State
 
-**Phase 20 in discussion** (2026-11-09) on `feature/gsd-phase-20`, in parallel with Phase 19 (owner msg 2770; product lead msg 2771): `20-CONTEXT.md` written; OQ-1 resolved by D-22 (product lead msg 2775: the current icon is kept).
+**Phase 20 planned** (2026-11-09) on `feature/gsd-phase-20`, in parallel with Phase 19 (owner msg 2770; product lead msg 2771): `20-CONTEXT.md`, `20-RESEARCH.md`, 14 plans in 11 waves following the fixed order (D-14), and `20-VALIDATION.md`; OQ-1 resolved by D-22 (product lead msg 2775: the current icon is kept). Not executed. Open before or during execution: OQ-A to OQ-G (20-RESEARCH.md).
 
 ## Phase 19 executing — 2026-11-07
 
