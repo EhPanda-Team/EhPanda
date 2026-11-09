@@ -49,6 +49,11 @@ def step_index(workflow, name):
     return names.index(name)
 
 
+def code(run):
+    """The shell lines of a step's `run`, without comment lines, so a comment naming a file is not a use."""
+    return "\n".join(line for line in run.splitlines() if not line.strip().startswith("#"))
+
+
 def expand(text, env):
     """`text` with the workflow-level `env` values put in for `$NAME`, `${NAME}` and `${{ env.NAME }}`."""
     text = re.sub(r"\$\{\{\s*env\.(\w+)\s*\}\}", lambda m: env.get(m.group(1), m.group(0)), text)
@@ -64,7 +69,7 @@ class DeployWorkflowTests(unittest.TestCase):
         cls.env = cls.deploy.get("env", {})
 
     def run_text(self, name):
-        return expand(step_named(self.deploy, name).get("run", ""), self.env)
+        return expand(code(step_named(self.deploy, name).get("run", "")), self.env)
 
     def test_the_build_number_is_checked_before_the_tests(self):
         self.assertLess(step_index(self.deploy, "Check build number"), step_index(self.deploy, "Run tests"))
@@ -124,7 +129,7 @@ class TagOperationTests(unittest.TestCase):
         self.assertTrue(paths)
         for path in paths:
             for index, step in enumerate(steps(load(path))):
-                run = step.get("run", "")
+                run = code(step.get("run", ""))
                 for pattern in FORBIDDEN:
                     with self.subTest(workflow=path.name, step=step.get("name", index), pattern=pattern):
                         self.assertIsNone(re.search(pattern, run))
