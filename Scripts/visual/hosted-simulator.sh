@@ -4,7 +4,7 @@
 # usage: Scripts/visual/hosted-simulator.sh create <name> <device type> <runtime> <family>
 #            Creates and boots the pinned simulator, sets it up for capture and prints its UDID. An attempt that
 #            fails or overruns a limit is deleted, the simulator service is restarted, and the whole setup is made
-#            once more.
+#            again, up to three attempts while the setup is under 25 minutes.
 #        Scripts/visual/hosted-simulator.sh settings <udid>
 #            Boots the device if it is shut down and sets Reduce Motion and the app accessibility runtime again. A UI
 #            test run (the iPad turn) leaves the runtime off, and a parallel run shuts the device down to clone it
@@ -22,6 +22,11 @@
 # writes stopped at 60 s, `bootstatus` at 300 s, the iPad's reboot shutdown at 180 s, and three writes that found the
 # device "not booted" right after `bootstatus` had returned. The limits below are longer, and a write that finds the
 # device not booted waits, boots it again and is made once more.
+#
+# Run 42577585956 still lost 7 of 27 setups, both attempts, on the first `defaults write` after `bootstatus` hanging
+# until its 180 s limit (the iPad's Full Screen Apps switch, or Reduce Motion) or on `bootstatus` itself hanging for
+# 600 s. Now every boot is waited for with `bootstatus -b` and given a short settle before the first write, a write
+# the limit stopped is asked again like one that found the device not booted, and a third attempt is made.
 set -euo pipefail
 
 CREATE_LIMIT=120
@@ -30,6 +35,11 @@ BOOTSTATUS_LIMIT=600
 SETTING_LIMIT=180
 SHUTDOWN_LIMIT=360
 NOT_BOOTED_WAIT=${HOSTED_SIMULATOR_NOT_BOOTED_WAIT:-15}
+# After `bootstatus` returns, before the first write (run 42577585956).
+SETTLE_WAIT=${HOSTED_SIMULATOR_SETTLE_WAIT:-20}
+ATTEMPTS=3
+# No attempt starts after this many seconds of setup: it would leave the shard too little of its budget.
+ATTEMPT_DEADLINE=1500
 # `simctl --set testing` is this directory; xcodebuild makes it with its first clones.
 TESTING_SET=${HOSTED_SIMULATOR_TESTING_SET:-$HOME/Library/Developer/XCTestDevices}
 
@@ -57,7 +67,8 @@ limit() {
 
 # spawn <udid> <command...>: runs the command on the device under its limit and prints its output. A device found
 # not booted (CoreSimulator's `Process spawn via launchd failed because device is not booted`, right after
-# `bootstatus` returned in run 42533872440) is given a moment, booted again if it needs it, and asked twice more.
+# `bootstatus` returned in run 42533872440), or a command its limit stopped (run 42577585956), is given a moment,
+# booted again if it needs it, and asked twice more.
 spawn() {
     local udid=$1 errors status try
     shift
@@ -70,8 +81,14 @@ spawn() {
             return 0
         fi
         cat "$errors" >&2
-        grep -qE 'device is not booted|Bad or unknown session' "$errors" && [ "$try" -lt 3 ] || break
-        echo "hosted-simulator: '$udid' was not booted for '$*'; booting it again" >&2
+        [ "$try" -lt 3 ] || break
+        if [ "$status" = 143 ]; then
+            echo "hosted-simulator: '$*' on '$udid' was stopped at its limit; asking again" >&2
+        elif grep -qE 'device is not booted|Bad or unknown session' "$errors"; then
+            echo "hosted-simulator: '$udid' was not booted for '$*'; booting it again" >&2
+        else
+            break
+        fi
         sleep "$NOT_BOOTED_WAIT"
         limit "$BOOTSTATUS_LIMIT" xcrun simctl bootstatus "$udid" -b >/dev/null || break
     done
@@ -85,19 +102,25 @@ create_once() {
     udid=$(limit "$CREATE_LIMIT" xcrun simctl create "$name" "$device" "$runtime") || return 1
     echo "$udid" >"$ATTEMPT"
     limit "$BOOT_LIMIT" xcrun simctl boot "$udid" || return 1
-    limit "$BOOTSTATUS_LIMIT" xcrun simctl bootstatus "$udid" >/dev/null || return 1
+    booted "$udid" || return 1
     # The iPad pin's 25 pt bottom inset is Full Screen Apps; a new iPad has Windowed Apps (20 pt), which failed every
     # iPad picture on geometry in run 42442366372. The setting takes effect after a reboot.
     if [ "$family" = ipad ]; then
         spawn "$udid" defaults write com.apple.springboard SBMedusaMultitaskingEnabled -bool NO || return 1
         limit "$SHUTDOWN_LIMIT" xcrun simctl shutdown "$udid" || return 1
         limit "$BOOT_LIMIT" xcrun simctl boot "$udid" || return 1
-        limit "$BOOTSTATUS_LIMIT" xcrun simctl bootstatus "$udid" >/dev/null || return 1
+        booted "$udid" || return 1
     fi
     # Before any clone is made, so every clone inherits them (19-01-MEASURE.md), and after the last boot, which can
     # reset Reduce Motion (Scripts/visual/README.md).
     capture_settings "$udid" || return 1
     echo "$udid"
+}
+
+# booted <udid>: waits until the device has booted (booting it if it went down) and lets it settle.
+booted() {
+    limit "$BOOTSTATUS_LIMIT" xcrun simctl bootstatus "$1" -b >/dev/null || return 1
+    sleep "$SETTLE_WAIT"
 }
 
 # capture_settings <udid>: both switches on, each read back.
@@ -133,14 +156,18 @@ create() {
     [ $# -eq 4 ] || usage
     ATTEMPT=$(mktemp)
     local attempt udid
-    for attempt in 1 2; do
+    for attempt in $(seq "$ATTEMPTS"); do
         : >"$ATTEMPT"
         if udid=$(create_once "$@"); then
             echo "$udid"
             return 0
         fi
-        echo "hosted-simulator: creating '$1' failed on attempt $attempt" >&2
+        echo "hosted-simulator: creating '$1' failed on attempt $attempt after $SECONDS s" >&2
         reset_simulators
+        if [ "$SECONDS" -ge "$ATTEMPT_DEADLINE" ]; then
+            echo "hosted-simulator: no attempt starts after $ATTEMPT_DEADLINE s of setup" >&2
+            break
+        fi
     done
     return 1
 }
