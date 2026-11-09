@@ -13,7 +13,7 @@
 # 2. Compare mode: the shard's baseline slices are fetched and checked against Baseline/fingerprints.json
 #    (Scripts/visual/snapshot_fetch.py). A mismatch, or no fingerprints.json ("no approved baseline yet"), records
 #    `infra: baseline-mismatch` and captures nothing.
-# 3. The pinned simulator, made by Scripts/visual/hosted-simulator.sh with its limits and its one retry; every
+# 3. The pinned simulator, made by Scripts/visual/hosted-simulator.sh with its limits and its retries; every
 #    xcodebuild starts after the previous one's clones are gone (`clear-clones`).
 # 4. Each invocation runs the SnapshotMatrixCase classes (not the Tracer ones) on the measured worker count of
 #    clones, with XCTest's per-test allowance, a budget watchdog and a startup watchdog (no test begun after 20

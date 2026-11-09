@@ -41,6 +41,12 @@ command = args[0]
 if command == 'create':
     print('FAKE-UDID')
 elif command == 'spawn':
+    hang = state / 'hang'
+    hangs = int(hang.read_text()) if hang.exists() else 0
+    if hangs > 0:
+        # As if the limit had stopped it (run 42577585956): the status of a process ended by SIGTERM.
+        hang.write_text(str(hangs - 1))
+        sys.exit(143)
     not_booted = state / 'not-booted'
     left = int(not_booted.read_text()) if not_booted.exists() else 0
     if left > 0:
@@ -54,9 +60,10 @@ sys.exit(0)
 '''
 # The service restart of a failed attempt is recorded, never done.
 FAKE_KILLALL = '#!/bin/sh\necho "killall $*" >> "$FAKE_SIMCTL/calls"\n'
-# The script's own waits (the not-booted wait, the restart's 10 s, the clone poll's 5 s) pass at once; the limits'
-# watchdogs (60 s and more) still sleep, so a command is never stopped early.
-FAKE_SLEEP = '#!/bin/sh\n[ "$1" -le 15 ] 2>/dev/null && exit 0\nexec /bin/sleep "$@"\n'
+# The script's own waits (the settle and not-booted waits, the restart's 10 s, the clone poll's 5 s) pass at once and
+# are recorded; the limits' watchdogs (60 s and more) still sleep, so a command is never stopped early.
+FAKE_SLEEP = ('#!/bin/sh\nif [ "$1" -le 30 ] 2>/dev/null; then echo "sleep $1" >> "$FAKE_SIMCTL/calls"; exit 0; fi\n'
+              'exec /bin/sleep "$@"\n')
 
 
 class HostedSimulatorTests(unittest.TestCase):
@@ -91,7 +98,23 @@ class HostedSimulatorTests(unittest.TestCase):
         result = self.create()
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertEqual(result.stdout, 'FAKE-UDID\n')
-        self.assertEqual(sum(call.startswith('simctl create') for call in self.calls()), 1)
+        calls = self.calls()
+        self.assertEqual(sum(call.startswith('simctl create') for call in calls), 1)
+        # 19-10: the first write waits for `bootstatus -b` and a short settle (run 42577585956).
+        first_write = next(index for index, call in enumerate(calls) if call.startswith('simctl spawn'))
+        self.assertEqual(calls[first_write - 2:first_write], ['simctl bootstatus FAKE-UDID -b', 'sleep 20'])
+
+    def test_a_write_that_its_limit_stopped_is_asked_again(self):
+        # Run 42577585956: the iPad's first write after `bootstatus` hung until its 180 s limit on both attempts.
+        (self.state / 'hang').write_text('2')
+        result = self.create(family='ipad')
+        self.assertEqual(result.returncode, 0, result.stderr)
+        calls = self.calls()
+        self.assertEqual(sum(call.startswith('simctl create') for call in calls), 1)
+        self.assertEqual(sum(call.startswith('simctl spawn FAKE-UDID defaults write com.apple.springboard')
+                             for call in calls), 3)
+        self.assertIn('was stopped at its limit', result.stderr)
+        self.assertNotIn('killall', ' '.join(calls))
 
     def test_a_write_that_finds_the_device_not_booted_boots_it_again(self):
         (self.state / 'not-booted').write_text('2')
@@ -100,7 +123,8 @@ class HostedSimulatorTests(unittest.TestCase):
         self.assertEqual(result.stdout, 'FAKE-UDID\n')
         calls = self.calls()
         self.assertEqual(sum(call.startswith('simctl create') for call in calls), 1)
-        self.assertEqual(calls.count('simctl bootstatus FAKE-UDID -b'), 2)
+        # Two boots, each waited for, and the two writes that found the device not booted.
+        self.assertEqual(calls.count('simctl bootstatus FAKE-UDID -b'), 4)
         self.assertNotIn('killall', ' '.join(calls))
         self.assertIn('was not booted', result.stderr)
 
@@ -109,10 +133,11 @@ class HostedSimulatorTests(unittest.TestCase):
         result = self.create()
         self.assertEqual(result.returncode, 1)
         calls = self.calls()
-        # Three tries per write, then the attempt is deleted, the service restarted and the setup made once more.
-        self.assertEqual(sum(call.startswith('simctl create') for call in calls), 2)
-        self.assertEqual(sum(call.startswith('killall') for call in calls), 2)
-        self.assertEqual(calls.count('simctl bootstatus FAKE-UDID -b'), 4)
+        # Three tries per write, then the attempt is deleted, the service restarted and the setup made again, three
+        # attempts in all (run 42577585956 lost 7 setups on both of two).
+        self.assertEqual(sum(call.startswith('simctl create') for call in calls), 3)
+        self.assertEqual(sum(call.startswith('killall') for call in calls), 3)
+        self.assertEqual(calls.count('simctl bootstatus FAKE-UDID -b'), 9)
 
     def test_settings_boots_a_shut_down_device_and_sets_both_switches_again(self):
         # 19-10: a UI test run (the iPad turn) leaves the app accessibility runtime off, and a parallel run shuts the
