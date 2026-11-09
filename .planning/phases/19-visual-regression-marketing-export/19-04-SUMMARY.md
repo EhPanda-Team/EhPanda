@@ -130,6 +130,19 @@ runner.**
     - The startup watchdog killed two invocations that were writing pictures but had printed no `Test case` line.
     - A completed compare was counted as infra because of a recovered `server died` line.
 
+## Fixed after the final run
+
+The lead kept 2 workers on the model with no new measurement, and the run's faults were fixed for 19-10 and 19-12
+(`19-04-MEASURE.md` § Fixed after the final run). All fixes were proven locally or by unit tests, with no hosted run:
+
+- **Simulator setup:** longer per-call limits: settings writes 180 s, `bootstatus` 600 s, shutdown 360 s. A write that
+  finds the device not booted waits, boots it again and is made once more. The step limit is now 60 minutes.
+- **`clear-clones`:** no testing device set means no clones.
+- **Startup watchdog:** `results.jsonl` growth counts as a test begun, and its note is no longer overwritten.
+- **Infra check:** a recovered `server died` is not infra when xcodebuild reported every test.
+- **First-launch glass pictures:** they settle on at least 6 identical reads.
+- **`front-page-search`:** the focus step has 40 s and outlasts a window that is still moving after one rest wait.
+
 ## Task Commits
 
 1. **Task 1: Measurement reducer:** `f75c1aced` (test)
@@ -148,10 +161,12 @@ runner.**
 
 - **19-10** runs the gate on the model at 2 workers: 47.6 to 60.7 minutes per shard (`invocationMinutes: 8.5`), and
   about 3½ to 4 hours per PR if nothing stalls (`19-04-MEASURE.md` § Per-PR estimate).
-- Simulator setup on the hosted runner failed in 7 of 8 jobs in the last run. 19-10 and 19-12 will meet the same
-  setup, so the per-call limits and the three step faults above apply to them too.
+- Simulator setup on the hosted runner failed in 7 of 8 jobs in the last run. The longer limits and the step fixes
+  (§ Fixed after the final run) are proven only locally. 19-10's first hosted run is their first test on a runner.
 
 ## Owner decision
 
 Measure again after fixing the setup limits, `clear-clones`, the startup watchdog, the infra classifier and the two
 identity causes (one more `ci/snapshot-measure` push), or accept 2 workers on the model as the gate's setting.
+
+The lead's call: no new measurement; 2 workers on the model is the gate's setting. The fixes above were made anyway.
