@@ -14,8 +14,12 @@
 //     identifiers, hence the suffix knob: set it and both targets shift together, which keeps a
 //     personal build installable alongside a release copy of the app.
 //   * Release CI — `.github/workflows/deploy.yml` and `deploy-beta.yml` archive with
-//     `CODE_SIGNING_ALLOWED=NO`, so no team is involved at all and the identifiers stay at the
-//     upstream defaults this file declares.
+//     `CODE_SIGNING_ALLOWED=NO`, so no team is involved at all. A flavor build passes its own
+//     xcconfig with `-xcconfig`, which outranks every file here: `deploy.yml` passes none, so its
+//     identifiers stay at the upstream defaults this file declares, while `deploy-beta.yml` passes
+//     `Config/Beta.xcconfig`, whose suffix gives the `.beta` identifiers. The marketplace flavor
+//     (`Config/Marketplace.xcconfig`) is the one signed build. Its team and signing identity come
+//     from its own workflow's secrets when it archives, never from a tracked file.
 //
 // This file is the project-level base configuration, which is the lowest-priority layer, so it
 // reaches every target — including ShareExtension, which carries no xcconfig of its own — while
