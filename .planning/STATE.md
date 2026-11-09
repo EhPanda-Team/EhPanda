@@ -4,16 +4,16 @@ milestone: v3.0.0
 current_phase: 19
 current_phase_name: Visual Regression & Daily Live-Parsing Check
 status: executing
-stopped_at: Completed 19-16-PLAN.md
-last_updated: "2026-11-08T03:58:00.000Z"
-last_activity: 2026-11-08
-last_activity_desc: 19-16 complete (owner msg 2456; hosted live check run 42443815779 success, nine guest pages ok, three skipped, no issue, log checked no content, not billable; ci/live-check deleted)
+stopped_at: Completed 19-04-PLAN.md
+last_updated: "2026-11-09T02:30:00.000Z"
+last_activity: 2026-11-09
+last_activity_desc: "19-04 complete on the interim 2 workers (owner msg 2743; final hosted run 42533872440 chose no count: 7 of 8 jobs failed simulator setup, iphone en-xSmall 2 changed; billable {}; ci/snapshot-measure deleted)"
 state_head: e618e40cbb803098c79170a6f3524064002e313d
 progress:
   total_phases: 21
   completed_phases: 18
   total_plans: 321
-  completed_plans: 316
+  completed_plans: 317
   percent: 86
 milestone_name: Dependency Reduction & Modernization
 source_head: b5eca09d1
@@ -103,6 +103,22 @@ source_head: b5eca09d1
   content"); billable minutes `{}` (public repository). The remote branch, the worktree and the local branch are
   removed. Pending after merge (for 19-17's validation): the first scheduled run from `main`, the previous-results
   path, the 60-day inactivity rule, and the first label and issue. VIS-19-01 stays Pending.
+- **19-04 complete, on the interim count** (`1c6ed5e46` to `e2c6acb5b`, closing docs; `19-04-SUMMARY.md`,
+  `19-04-MEASURE.md`): no hosted run chose a worker count under D-15's rule, so the gate stays at **2 workers on the
+  model** (`snapshot-cost.json` `source: model`, `invocationMinutes: 8.5`; shard plan current).
+  - **Final run 42533872440** (owner msg 2743, 2 h 40 min, billable `{}`, standard `xcode-27` runner):
+    - 7 of 8 jobs failed "Create the pinned simulator" in both attempts: settings writes over 60 s, `bootstatus`
+      over 300 s, "device is not booted".
+    - `iphone en-xSmall` measured 2.06 s per picture at 2 workers and 2.19 s at 3, then hit its 140-minute step
+      limit at 4.
+    - `agewall-unticked` was changed twice: a candidate glass button that settled early, by at most 1/255.
+    - `front-page-search`'s 15 s focus deadline ran out in 3 of 5 compare attempts.
+    - `home-loading` was identical, so the indicator freeze holds on the hosted runner.
+    - About 68 minutes went to three step faults: `clear-clones` with no device set, a startup watchdog keyed to
+      the log, and a recovered `server died` counted as infra.
+  - `ci/snapshot-measure` deleted.
+  - **Owner decision open:** fix these and measure once more, or accept 2 workers on the model.
+  - VIS-18-01 stays Pending.
 
 ## Phase 19 planned: Visual Regression & Daily Live-Parsing Check — 2026-11-07
 

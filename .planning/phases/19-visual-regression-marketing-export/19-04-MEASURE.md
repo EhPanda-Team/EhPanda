@@ -1,11 +1,13 @@
 # 19-04 hosted measurement: picture cost, clone count and run-to-run identity
 
-**Status: measured twice, no worker count chosen; interim 2 workers.** Run 42455556948 chose no count of 2, 3 or 4
-under D-15's rule. The memory rule, the hosted identity, invocation length and log keeping were then addressed (see
-"Follow-up: the four options") and `ci/snapshot-measure` was pushed once more. Run 42475531683 chose no count
-either; its main finding is that the hosted simulator itself failed in 5 of 8 jobs. The developer then decided on
-robust simulator steps, the two remaining iPhone identity fixes, and 2 workers as the interim count (see "Decision
-after run 42475531683"). `snapshot-cost.json` stays `source: model`.
+**Status: closed on the interim count of 2 workers; no hosted run chose a count.** Run 42455556948 chose no count
+of 2, 3 or 4 under D-15's rule. The memory rule, the hosted identity, invocation length and log keeping were then
+addressed (see "Follow-up: the four options") and `ci/snapshot-measure` was pushed once more. Run 42475531683 chose
+no count either; its main finding is that the hosted simulator itself failed in 5 of 8 jobs. The developer then
+decided on robust simulator steps, the two remaining iPhone identity fixes, and 2 workers as the interim count (see
+"Decision after run 42475531683"). The final run 42533872440 (owner msg 2743) chose no count either: 7 of 8 jobs
+failed creating the simulator, and the one that measured had 2 changed pictures (see "Final hosted run (run
+42533872440)"). `snapshot-cost.json` stays `workers: 2`, `source: model`.
 
 - **Authority:** owner msg 2438 allowed pushing `ci/snapshot-measure`. The second push (one job per device and text
   size) and the third (after the follow-up) were the lead's technical calls within that go-ahead.
@@ -22,6 +24,7 @@ after run 42475531683"). `snapshot-cost.json` stays `source: model`.
 | 42442366372 | `f2e9b438b` (`[skip test]`) | one job per device | no usable data: every iPad picture `error` `geometry` (Windowed Apps gives a 20 pt bottom inset; the pin is Full Screen Apps, 25 pt); the iPhone job hit its 170-minute limit and its upload was cut off |
 | 42455556948 | `5dfb3d13e` (`[skip test]`, tree of `ab5b71a57`) | one job per device and text size, 5 at a time | 5 jobs succeeded; `iphone en-xSmall` stopped at the 140-minute step limit after its candidate and the compare at 2 |
 | 42475531683 | `06bc94362` (`[skip test]`, tree of `35173299f`) | after the follow-up: as above plus one all-sizes job per device, logs kept | 5 jobs succeeded, 3 cancelled (two hung creating the simulator, one never launched the app); see "Run after the follow-up" |
+| 42533872440 | `e1335b511` (`[skip test]`, tree of `e2c6acb5b`) | as above, with the robust simulator steps and the two identity fixes | all 8 failed: 7 could not create the simulator in two attempts; `iphone en-xSmall` reached its 140-minute step limit during the compare at 4; see "Final hosted run (run 42533872440)" |
 
 `ab5b71a57` sets Full Screen Apps on the iPad and reboots before Reduce Motion is set. It also splits the matrix and
 adds the step limit so partial measurements still upload. With it, every iPad picture reached the pinned geometry.
@@ -99,6 +102,8 @@ the runners, so the stalled test is not known.
 |---|---|---|
 | 42442366372 | `{"billable":{},"run_duration_ms":11330000}` | `GitHub Actions`, `[xcode-27]` (runners 1000000630 to 632) |
 | 42455556948 | `{"billable":{},"run_duration_ms":9699000}` | `GitHub Actions`, `[xcode-27]` (runners 1000000634 to 640) |
+| 42475531683 | `{"billable":{}}` | `GitHub Actions`, `[xcode-27]` (runners 1000000641 to 649) |
+| 42533872440 | `{"billable":{},"run_duration_ms":9645000}` | `GitHub Actions`, `[xcode-27]` (runners 1000000654 to 662) |
 
 The billable object is empty, so no billable minutes were reported. The runner group is GitHub's own group, not a
 larger-runner group, so `xcode-27` is a standard GitHub-hosted runner. Image: `xcode-27-arm64` `20261104.0337.1`
@@ -370,7 +375,7 @@ The "did not return a process handle" launch error at 15:10:48Z in that run was 
 not fail the run: xcodebuild launched the app again, and the result bundle has 1 failure, 1822 passed and no test that
 did not run. On the measurement workflow, the same error is infra and is retried once (option 1).
 
-## Final hosted run (needs the owner's go-ahead)
+## Final hosted run: the plan (owner msg 2743 allowed it)
 
 `snapshot-measure.yml` as committed: one build job (90-minute limit; 8 minutes in run 42475531683), then 8 measurement
 jobs, iPhone and iPad at en-xSmall, en-large, en-accessibility5 and `all`. The `xcode-27` runners took 5 of them at a
@@ -392,3 +397,126 @@ together, the other three as slots freed), and the run took 3 h 40 min only beca
 about 25 to 75 minutes each. Now a stalled start costs at most the 20-minute watchdog plus one retry, not the job's
 limit. The ceiling is the limits: 90 minutes of build, then two waves of 200-minute jobs, about 8.2 hours.
 If the run passes the rule, its count replaces the interim 2 (`source: hosted`); until then the plan stays at 2.
+
+## Final hosted run (run 42533872440)
+
+Commit `e1335b511` on `ci/snapshot-measure` (`[skip test]`, tree of `e2c6acb5b`), pushed once under owner msg 2743.
+The run took 2 h 40 min (23:10 to 01:51 UTC, 8 to 9 November). R-1: `{"billable":{},"run_duration_ms":9645000}`.
+Every job ran in runner group `GitHub Actions` with label `xcode-27` (runners 1000000654 to 662), image `macos27`
+`20261104.0337.1`, Xcode build `27A9275`, so it was still a standard, unbilled runner.
+
+| Job | Wall time | Outcome |
+|---|---|---|
+| build | 8.7 min | success |
+| iphone en-xSmall | 151.9 min | the measure step reached its 140-minute limit during the compare at 4; the shard uploaded (candidate, compares at 2 and 3, the cut-off compare at 4, all logs) |
+| iphone en-large | 13.6 min | "Create the pinned simulator" failed twice; no artifact |
+| iphone all | 9.4 min | the same |
+| ipad en-large | 12.2 min | the same |
+| ipad en-accessibility5 | 6.7 min | the same |
+| ipad en-xSmall | 8.2 min | the same |
+| iphone en-accessibility5 | 5.1 min | the same |
+| ipad all | 9.9 min | the same |
+
+### Simulator setup: 14 failed attempts in 7 jobs
+
+The setup failed in both attempts in each of the 7 jobs, within 5 to 13 minutes, so the 45-minute step limit was
+never reached:
+
+- **7 attempts:** a settings write was stopped at its 60 s limit. These were `simctl spawn … defaults write`
+  `ReduceMotionEnabled`, `ApplicationAccessibilityEnabled` or the iPad's `SBMedusaMultitaskingEnabled`.
+- **3 attempts:** `simctl bootstatus` was stopped at 300 s.
+- **3 attempts:** the first settings write failed right after `bootstatus` had returned, with `Process spawn via
+  launchd failed because device is not booted` (`SimError` 405, `Bad or unknown session`).
+- **1 attempt:** the iPad's reboot `simctl shutdown` was stopped at 180 s.
+
+The service restart between the two attempts did not help any job. In run 42475531683, 2 of 8 jobs hung creating the
+simulator and 6 created it. The steps now fail instead of hanging, but 7 of 8 failed. The one job that created its
+simulator took 3.3 minutes for it (`bootFetchSeconds` 199).
+
+### The one measuring job: iphone en-xSmall
+
+| Invocation | Attempt | UTC | Minutes | Result |
+|---|---|---|---|---|
+| clearing clones, first time | | 23:22:37 to 23:32:40 | 10.0 | Waited its whole 10 minutes. The parallel-testing device set did not exist yet, so the listing could not be read and the loop took that as clones still present |
+| candidate at 2 | 1 | 23:32:40 to 23:52:46 | 20.1 | 117 recorded, 2 `timeout` (`toplists-list` landscape: an image view's `contents` animation). There was no `Test case` line in the log. It ended at the startup watchdog's 20 minutes with `(ipc/mig) server died` (counted as infra `simulator-service`, retried) |
+| candidate at 2 | 2 | 23:52:48 to 00:06:57 | 14.2 | 132 recorded, exit 0 |
+| compare at 2 | 1 | 00:06:59 to 00:23:10 | 16.2 | 129 passed, 2 changed, 1 flaky (`toplists-period-menu` landscape light). `watched-signed-out` landscape dark is missing: the test process on clone 1 ended in `WatchedSnapshotTests.testSignedOut()` (0.000 s) and XCTest went on in a new process. Exit 65 |
+| compare at 3 | 1 | 00:23:12 to 00:45:36 | 22.4 | 124 passed, 2 changed, 2 `error` `interaction` (`front-page-search` portrait light and landscape light). Exit 65. One `(ipc/mig) server died` line in the log, so it was counted as infra and retried |
+| compare at 3 | 2 | 00:45:39 to 01:03:58 | 18.3 | 130 passed, 2 changed, 1 flaky (`front-page-search` landscape dark). Exit 65. Two `server died` lines again, so `shard.json` records `infra: simulator-service` |
+| compare at 4 | 1 | 01:03:58 to 01:24:16 | 20.3 | 75 passed, 2 changed, 1 `error` `interaction` (`front-page-search` portrait light) were written. There was no `Test case` line, and it ended at the startup watchdog's 20 minutes with `server died` (infra, retried) |
+| compare at 4 | 2 | 01:24 to 01:44:27 | 20.2 | stopped by the step's 140-minute limit after 130 of 136 lines: 123 passed, 2 changed, 1 `error` `interaction` (`front-page-search` portrait light), 1 flaky (`front-page-search` landscape light); no `shard.json` |
+
+`snapshot_measure.py --runs <artifact> --run-id 42533872440`:
+
+| Device | Configuration | Workers | Pictures | Median s | x at 2 | Wall s | Speed-up | Memory | Changed |
+|---|---|---|---|---|---|---|---|---|---|
+| iphone | en-xSmall | 2 | 131 | 2.06 | 1.00 | 971 | 0.28 | warn | 2 |
+| iphone | en-xSmall | 3 | 132 | 2.19 | 1.06 | 1099 | 0.26 | warn | 2 |
+
+- 2 workers: incomplete, changed
+- 3 workers: infra, changed
+- 4 workers: incomplete
+- Chosen: none (2 workers is excluded)
+- Fixed cost per invocation: not measured (no device has all three single-size candidates)
+
+`critical` was never sampled (827 samples: 726 `normal`, 101 `warn`).
+
+### What the run showed
+
+- **Identity, `agewall-unticked`** (portrait light, landscape dark), changed at every count. The compare pictures
+  differ from the candidate only in the glass Continue button and its edge: 890 and 2,355 pixels in the 16-bit
+  capture, at most 1 step in 8 bits in 158 and 223 pixels. The compares agree with each other byte for byte
+  (attempts 1 and 2, at 2 and at 3), so the outlier is the candidate. Its two pictures are 2 of the 3 candidate
+  pictures that settled on the 2-read floor; the third, `analytics-choice-minimal` landscape dark, passed, and every
+  other candidate picture took 3 to 8 reads. The likely cause is that the
+  glass material was still converging when two reads 500 ms apart happened to agree. That is the
+  `analytics-choice-none` pattern of run 42475531683, now in a candidate instead of a compare. The fix to try is a
+  higher read floor, or waiting for the glass to rest, on the first-launch pictures.
+- **Identity, `front-page-search`:** the re-focus step (`focusSearchField`, 15 s deadline) ran out in 4 pictures
+  over 3 of the 5 compare attempts on the hosted runner, which records `error` `interaction`. Where it completed,
+  every picture was byte-identical to the candidate. Locally under load it never ran out (the R4 proof above), so the
+  hosted runner needs a longer deadline or another way to keep the focus.
+- **Identity, `home-loading`:** all 4 coordinates were byte-identical to the candidate at 2 and at 3, so the
+  indicator freeze holds on the hosted runner.
+- **The time went to the new steps.** Of the step's 140 minutes, about 68 were lost to three faults in the robust
+  steps, not to captures:
+  - **`clear-clones` before the first invocation (10 min):** it waits its full 10 minutes when the testing device set
+    does not exist yet, which is always the case before the first invocation.
+  - **The startup watchdog (about 40 min):** it killed two invocations at 20 minutes that had written 123 and 78
+    result lines but had printed no `Test case` line. Here xcodebuild printed none while the clones were writing
+    pictures, so the log is the wrong signal; `results.jsonl` growing is a better one. Whether the
+    simulator service dying caused the silence or followed the kill cannot be told from the logs. The watchdog's
+    note is missing, likely because it was appended to a file that xcodebuild had opened with `>` and kept writing.
+  - **The infra classifier (18 min):** the compare at 3 ran to the end (exit 65 for its changed pictures), but a
+    recovered `(ipc/mig) server died` line in its log made it infra, so it was made again. A run whose tests all
+    reported should not be infra.
+
+  Without these, the job would have finished in about 80 minutes. Infra still dominates, even before counting the
+  7 jobs that never started.
+
+### Decision
+
+D-15's rule chooses no count from this run. Only one device and text size measured, and there 2 and 3 workers both
+had changed pictures (2 was also incomplete, 3 infra) and 4 did not finish. So **2 workers stays**, as decided after
+run 42475531683, with `snapshot-cost.json` `source: model` (`workers: 2`, `invocationMinutes: 8.5`;
+`snapshot_shards.py --check` is clean). The reasons in "Interim worker count: 2" still hold. This run adds one more:
+the per-picture median at 3 was 1.06 times that at 2, with no shorter wall time (1,099 s against 971 s).
+
+19-04 is closed on this interim count. The measured cost table (`source: measured`) is not delivered. 19-10's gate
+runs on the model at 2 workers until a hosted run passes the rule. The remote `ci/snapshot-measure` was deleted after
+the artifact and the 8 job logs were saved.
+
+### For the owner
+
+1. **Measure again, or accept 2 workers?** Another run would first need these fixes, each provable locally or with
+   unit tests:
+   - The setup's per-call limits: the 60 s settings write and the 300 s `bootstatus` were too short on this run's
+     runners.
+   - `clear-clones` with no testing device set.
+   - The startup watchdog keyed to `results.jsonl`.
+   - The infra classifier ignoring a recovered `server died` when every test reported.
+   - The two identity causes above.
+
+   Then one more push of `ci/snapshot-measure`. Without that, 2 workers on the model is the gate's setting. That was
+   the developer's interim call; it would become the plan's.
+2. **Billing (R-1)** is unchanged: `{}`, standard runner. No action is needed.
