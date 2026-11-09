@@ -72,7 +72,7 @@ class ShardTests(unittest.TestCase):
 
     def run_main(self, *args):
         out = io.StringIO()
-        with contextlib.redirect_stdout(out):
+        with contextlib.redirect_stdout(out), contextlib.redirect_stderr(io.StringIO()):
             status = snapshot_shard.main([*args, '--shards', str(self.root / 'shards.json'),
                                           '--inventory', str(self.root / 'scenarios.json')])
         return status, out.getvalue()
@@ -92,11 +92,16 @@ class ShardTests(unittest.TestCase):
         self.assertEqual(list(classes), ['HomeSnapshotTests', 'ShellSnapshotTests'])
         self.assertEqual(classes['HomeSnapshotTests'], ['home-populated', 'home-loading'])
 
-    def test_the_real_matrix_has_classes_for_every_scenario(self):
+    def test_the_real_matrix_classes_cover_the_inventory_but_the_login_gap(self):
         classes = snapshot_shard.classes()
         document, _ = snapshot_matrix.load()
         covered = {scenario for scenarios in classes.values() for scenario in scenarios}
-        self.assertEqual(covered, {scenario['id'] for scenario in document['scenarios']})
+        inventory = {scenario['id'] for scenario in document['scenarios']}
+        self.assertLessEqual(covered, inventory)
+        # 19-10 gap: the Login page's backdrop animates from the wall clock and never settles, so the three Login
+        # scenarios have factories but no matrix method (19-08's proposed rule meets neither D-05 nor D-12).
+        self.assertEqual(inventory - covered,
+                         {'settings-login-empty', 'settings-login-filled', 'settings-login-error'})
         self.assertFalse([name for name in classes if name.startswith('Tracer')])
 
     def test_slices_name_each_configuration_of_the_shard_once(self):

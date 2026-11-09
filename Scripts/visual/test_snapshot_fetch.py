@@ -98,7 +98,7 @@ class FetchTests(unittest.TestCase):
         # The approved picture, not the later tip's.
         first = self.dest / picture_path(KEYS[0])
         self.assertEqual(hashlib.sha256(first.read_bytes()).hexdigest(), self.pictures[KEYS[0]])
-        self.assertIn('4 pictures', output)
+        self.assertIn('5 pictures', output)
 
     def test_one_altered_byte_fails_with_baseline_mismatch_and_the_key(self):
         pictures = dict(self.pictures)
