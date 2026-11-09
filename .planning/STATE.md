@@ -4,16 +4,16 @@ milestone: v3.0.0
 current_phase: 19
 current_phase_name: Visual Regression & Daily Live-Parsing Check
 status: executing
-stopped_at: Completed 20-01-PLAN.md
-last_updated: "2026-11-09T01:23:00.000Z"
+stopped_at: Completed 20-02-PLAN.md
+last_updated: "2026-11-09T01:32:00.000Z"
 last_activity: 2026-11-09
-last_activity_desc: 20-01 complete on feature/gsd-phase-20 (marketplace flavor, channel stamp setting, ehpanda-marketplace scheme, privacy manifest)
+last_activity_desc: 20-02 complete on feature/gsd-phase-20 (build-number check in deploy.yml, workflow tests, build 3.0.0 (159), ehpanda-assets public with owner msgs 2787 and 2794)
 state_head: 7b3bf8ec5589c912f22851b2dc1f563618209855
 progress:
   total_phases: 21
   completed_phases: 18
   total_plans: 321
-  completed_plans: 317
+  completed_plans: 318
   percent: 86
 milestone_name: Dependency Reduction & Modernization
 source_head: 891103afa
@@ -32,6 +32,13 @@ source_head: 891103afa
   scheme; `App/PrivacyInfo.xcprivacy` (UserDefaults CA92.1, FileTimestamp C617.1, three unlinked analytics data
   types) ships in the app of every build, the extension has none. Both unsigned archives checked. DIST-18-01 stays
   Pending (20-14 shares it). Next: 20-02.
+- **20-02 complete** (`0c79b66d2`, `aab86b0d4`, `9800e1813`, `08a101b1b`, `88e842112`; `20-02-SUMMARY.md`,
+  `baacdba5b`): `deploy.yml` checks the build number before the tests, against main's AltStore.json, SideStore.json
+  and altstore-beta.json (not the PAL source); `test_workflows.py` guards that step, the asset URLs, the
+  history-keeping filter call and the notes checks, and forbids tag commands. The build is 3.0.0 (159), one above
+  main's 158; `bump-version.sh` now leaves the UI and snapshot test targets at 1. `EhPanda-Team/ehpanda-assets` is
+  public at `d69b30a` (owner msgs 2787, 2794; created by the orchestrator) and the seven screenshot URLs return 200.
+  REL-18-01 stays Pending. `ReleaseNotes/3.0.0.md` (owner content) is still needed before the release PR.
 
 ## Phase 19 executing — 2026-11-07
 
@@ -1170,6 +1177,7 @@ Phase 18 verification passed 10/10 on 2026-11-05 at `a1f96cb88` (tested source `
 | Phase 19 P11 | multi-session | 2 tasks | 2 files |
 | Phase 19 P02 | one session | 3 tasks | 19 files |
 | Phase 20 P01 | 17 min | 3 tasks | 9 files |
+| Phase 20 P02 | 6 min | 3 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -1749,6 +1757,7 @@ Recent decisions affecting current work:
 - [Phase 18.1]: 18.1-04: ReportFormView renders every C-13 state in a NavigationStack sheet with only the leading Close, the inline "Report on {site}" title and a pinned .safeAreaBar .glassProminent button with no background (soft scroll edge top and bottom). Comments and Detail present .reportForm, and presenting sends the form's .task from the reducer. The failed alert is built in the view so Retry is the default, in the reducer's Retry / Open Report Page / Cancel order. Open Report Page presents ReportPageSheet over the kept form. reportPage(URL) and comment.report.confirm_title/_body are gone, and 18-copy-check.py lists the two keys as retired. EHPANDA_UITEST_REPORT_SCENARIO (ready, slowLoad 6 s, holdSend 10 s, failSend, unavailable) is DEBUG and stubbed-launch only. ReportFormUITests has one test per state (frames 25–31, 33, 34) and passes on both devices. — 18.1-05 runs the gate (whole UITests plan on both devices, Release scan for EHPANDA_), then the Proxyman live check. Open: at AX5 a comment link's scrollTo sometimes stops short of the comment (Phase 18 code; the tests now scroll to it).
 - [Phase 18.1]: 18.1-05: the gate is green at 270d7c3d4 after two fixes to 18.1-04 test code (the report stubs' held answer without nonisolated(unsafe); ReportFormView in the Reduce Motion inventory). The live check runs behind a local mitmdump (owner msg 2066; tool change, Pluso's technical call, because Proxyman connects upstream on each HTTPS CONNECT and the owner declined handshake-only connections in card 2065): connection_strategy=lazy, upstream_cert=false, every flow answered in the request hook (three saved GET pages, a local 403 for the rest), upstream connections refused, sockets of mitmdump and the app sampled; the Mac's Wi-Fi proxy is on only for each app run. Send made exactly one POST to /g/4308676/<token>/?report=other with report_type=other, r_email, r_details and sendreport, answered locally; 693 flows, 0 upstream attempts, 0 non-loopback sockets. — The pattern for any later check that must touch the real site without sending anything; mitmproxy 12.3.1 stays installed on the Mac.
 - [Phase 20]: 20-01: the channel stamp is the build setting EHPANDA_DISTRIBUTION_CHANNEL, `source` in Flavor.xcconfig and `altstorePAL` only in Marketplace.xcconfig; Beta.xcconfig keeps no stamp line. The privacy manifest declares UserDefaults CA92.1 and FileTimestamp C617.1 and three data types (ProductInteraction, DeviceID, OtherDiagnosticData; unlinked, untracked, Analytics); test_privacy_manifest.py fails on any undeclared required-reason use in the shipped sources. — The PAL build is signed before upload, so it cannot be stamped afterwards (D-12 amended); App Store Connect requires the declarations (D-18).
+- [Phase 20]: 20-02: deploy.yml's build-number check reads main's three Classic-side sources and not AltStorePAL.json; build 159 = main's highest (158) + 1. bump-version.sh treats a configuration with TEST_HOST or TEST_TARGET_NAME as a test one (the old app.ehpanda.tests bundle ID matches no target). — Research §3, pitfall 4; REL-18-01.
 - [Phase 19]: 19-01: iPadOS 27 refuses in-process orientation changes (UISceneErrorDomain 101), so an iPad matrix process captures the one orientation its device was turned to before launch (EHPANDA_SNAPSHOT_ORIENTATIONS); iPhone turns in process. iPad units double to 36, shard units become 54. The block confirmation is reached through the row's own accessibility action, which needs the app accessibility runtime on; iPad pins need Full Screen Apps. — Research section 3 leaves the rotation mechanism to the developer; XCUIDevice is not authorized in an app-hosted test.
 
 ### Phase 16 transition decisions (2026-09-23)
@@ -1866,8 +1875,8 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-11-09T01:23:00.000Z
-Stopped at: Completed 20-01-PLAN.md
+Last session: 2026-11-09T01:32:00.000Z
+Stopped at: Completed 20-02-PLAN.md
 Resume file: None
 
 Earlier stop (2026-10-13T10:50:00Z, historical): 17-06 revision re-shot, 16/16 captured (`.capture/17-06-t-native-*`); superseded by the owner's 2026-11-02 approval of the 192-image website set.
