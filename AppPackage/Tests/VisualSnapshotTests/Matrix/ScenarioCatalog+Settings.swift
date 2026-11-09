@@ -133,9 +133,8 @@ enum SettingsScenarios {
     /// Login over Account, signed out. Filled: the synthetic name and password, with the name field focused. Error:
     /// the same form after the site refused it, as the reducer answers a refused sign-in (its error toast).
     ///
-    /// Not captured by a matrix method: the page's backdrop is two waves drawn in `TimelineView(.animation)` from the
-    /// wall clock, so it never stands still and the settle times out (frozen layers do not stop it). The factories
-    /// stay registered for the inventory; 19-10 decides between a not-applicable rule and an app change.
+    /// The page's backdrop is two waves drawn in `TimelineView(.animation)` from the wall clock; the matrix runs with
+    /// Reduce Motion on, under which `WaveForm` pauses its timeline at a fixed phase (19-10), so the page settles.
     static func login(_ kind: LoginState) -> AnyView {
         var login = LoginReducer.State()
         if kind != .empty {

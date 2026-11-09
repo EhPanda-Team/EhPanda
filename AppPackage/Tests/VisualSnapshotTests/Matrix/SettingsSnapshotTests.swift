@@ -2,8 +2,8 @@ import VisualSnapshotSupport
 import XCTest
 
 // The 19-08 scenarios: one class per group, one method per scenario, so simulator clones share the work. The
-// Settings pages are split over two classes. The three Login scenarios have no method: their backdrop animates from
-// the wall clock and never settles (see `SettingsScenarios.login(_:)`).
+// Settings pages are split over two classes. The Login backdrop stands still under Reduce Motion (19-10), so its three
+// scenarios settle like the rest.
 
 final class SettingsSnapshotTests: SnapshotMatrixCase {
     @MainActor func testRoot() async throws { try await capture(scenario: "settings-root") }
@@ -14,6 +14,9 @@ final class SettingsSnapshotTests: SnapshotMatrixCase {
     }
     @MainActor func testBlockedUsersFilled() async throws { try await capture(scenario: "blocked-users-filled") }
     @MainActor func testBlockedUsersEmpty() async throws { try await capture(scenario: "blocked-users-empty") }
+    @MainActor func testLoginEmpty() async throws { try await capture(scenario: "settings-login-empty") }
+    @MainActor func testLoginFilled() async throws { try await capture(scenario: "settings-login-filled") }
+    @MainActor func testLoginError() async throws { try await capture(scenario: "settings-login-error") }
 }
 
 final class SettingsPagesSnapshotTests: SnapshotMatrixCase {
