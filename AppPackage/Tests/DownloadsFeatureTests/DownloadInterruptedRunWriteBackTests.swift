@@ -173,10 +173,10 @@ struct DownloadInterruptedRunWriteBackTests: DownloadFeatureTestCase {
         try await expectThePausedRecordReads(landedPages: [], of: gallery, manager: manager)
     }
 
-    /// The residual Option A leaves: a repair stopped before its measurement was announced (K0-b,
-    /// the payload-fetch window) has no scan of its own to corroborate anything, so the exit does
-    /// not act and the record keeps its pre-repair claim. One fresh scan alone is never authority
-    /// to blank a whole gallery (G-15-2G).
+    /// A repair stopped before its measurement was announced (K0-b, the payload-fetch window) has no
+    /// scan of its own to corroborate anything, so WITHOUT Verify's evidence the record keeps its
+    /// pre-repair claim. One fresh scan alone is never authority to blank a whole gallery (G-15-2G).
+    /// With Verify's evidence the stop corroborates it instead: `DownloadWholesaleAbsenceTests`.
     @Test
     func testARepairPausedBeforeItsAnnouncementKeepsItsRecord() async throws {
         let gallery = SessionGallery(

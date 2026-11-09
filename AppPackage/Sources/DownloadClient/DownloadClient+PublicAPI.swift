@@ -216,6 +216,7 @@ extension DownloadCoordinator {
 
     public func delete(gid: String) async -> Result<Void, AppError> {
         let taskToCancel: Task<Void, Never>?
+        wholesaleAbsenceEvidence[gid] = nil
         blockScheduling(gid: gid)
         if activeGalleryID == gid {
             taskToCancel = activeTask

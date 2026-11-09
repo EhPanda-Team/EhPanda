@@ -103,6 +103,8 @@ struct DownloadLogPrivacyInvariantTests {
     /// stopped run whose record could not be lowered to its on-disk progress keeps reading its old
     /// claim, and that line is the only trail of why. Its error is `private` because the message can
     /// embed the gallery's folder path.
+    /// The `+WholesaleAbsenceEvidence.swift` site is the same failure line for B1's stop-time
+    /// write-back (`writeBackCorroboratedWholesaleAbsence`), with the same `private` error.
     /// The heartbeat summary and the environment lines carry no gallery value at all and appear
     /// here not at all.
     private static let expectedHashMaskedCounts = [
@@ -112,6 +114,7 @@ struct DownloadLogPrivacyInvariantTests {
         "DownloadClient+PersistenceNormalize.swift": 1,
         "DownloadClient+PublicAPI.swift": 2,
         "DownloadClient+Scheduling.swift": 3,
+        "DownloadClient+WholesaleAbsenceEvidence.swift": 1,
         "DownloadClient+WorkingManifestReconciliation.swift": 1
     ]
 
@@ -119,7 +122,7 @@ struct DownloadLogPrivacyInvariantTests {
     ///
     /// The table is keyed by file name, so two same-named files anywhere under the module would
     /// collapse into one entry and hide a site. The joined count cannot collapse.
-    private static let expectedHashMaskedTotal = 14
+    private static let expectedHashMaskedTotal = 15
 
     @Test
     func testNoDownloadLogPublishesGalleryIdentity() throws {

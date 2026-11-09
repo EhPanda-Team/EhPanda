@@ -247,6 +247,8 @@ extension DownloadCoordinator {
     }
 
     public func settleCompletedDownload(gid: String) async {
+        // A completed gallery claims pages that are on disk again (B1).
+        wholesaleAbsenceEvidence[gid] = nil
         clearDownloadSessionState(gid: gid, includeUpdateFlag: true)
         await queueStore.remove(gid)
         await backgroundTaskStore.removeAll(for: gid)
