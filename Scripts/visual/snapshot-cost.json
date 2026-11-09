@@ -1,13 +1,14 @@
 {
   "schema": 1,
-  "source": "model",
-  "note": "Modelled from D-09 and D-13 until 19-04 measures the hosted runner: 2.4 s per picture on iPhone at Large, iPad x 1.6, AX5 x 1.3, xSmall x 1.0. invocationMinutes is the fixed cost per xcodebuild invocation, 7 to 10 minutes on the hosted runner (19-04-MEASURE.md, run 42455556948). workers is 2, the interim count until a hosted run passes D-15's rule (19-04-MEASURE.md, decision after run 42475531683).",
+  "source": "measured",
+  "runId": "42577585956",
+  "note": "Measured on the hosted runners of gate run 42577585956 (2 workers, Xcode 27.1). iPad: 3.2 s per picture on the turned device alone (median of 15 landscape invocations, 2.5 to 4.3) and 3.9 s per picture of wall time with 2 clones (median of 12 portrait invocations, 2.4 to 11.8), so the clone speed-up is 3.2 / 3.9 = 0.82: clones gave no gain. iPhone: 6.9 s of wall time per picture with 2 clones, the median of its 7 attempts (4.0 for the one that finished, up to 8.6; pictures from passed tests x 3.32 pictures per test, crashes and re-runs included), stored as 6.9 x 0.82. No text size measured slower than another (iPad landscape medians: xSmall 3.4, large 3.5, AX5 3.1), so one figure per device. bootFetchMinutes is the median job time outside the invocations (5 to 25); invocationMinutes the median setup of a later invocation or pass (0.7 to 4.7).",
   "secondsPerPicture": {
-    "iphone": {"xSmall": 2.4, "large": 2.4, "accessibility5": 3.12},
-    "ipad": {"xSmall": 3.84, "large": 3.84, "accessibility5": 4.992}
+    "iphone": {"xSmall": 5.66, "large": 5.66, "accessibility5": 5.66},
+    "ipad": {"xSmall": 3.2, "large": 3.2, "accessibility5": 3.2}
   },
   "workers": 2,
-  "cloneSpeedup": 1.7,
-  "bootFetchMinutes": 10,
-  "invocationMinutes": 8.5
+  "cloneSpeedup": 0.82,
+  "bootFetchMinutes": 9.0,
+  "invocationMinutes": 2.3
 }

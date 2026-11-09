@@ -1,12 +1,14 @@
 #!/usr/bin/env python3
-"""The deterministic 20-shard plan the CI gate reads (19-CONTEXT D-15, owner msg 2263; 19-RESEARCH §5, §9).
+"""The deterministic shard plan the CI gate reads (19-CONTEXT D-15, owner msg 2263; 19-RESEARCH §5, §9).
 
 A unit is one test process: an iPhone `<locale>-<size>` configuration with both orientations, or an iPad
 configuration in one orientation, since an iPad process captures only the orientation the device was turned to
 before launch (19-01-MEASURE.md). That gives 18 iPhone and 36 iPad units, 54 in all. A unit's cost is the sum, over
-the pictures it captures, of the per-picture seconds in `snapshot-cost.json`. Each device gets a share of the shards in
-proportion to its total cost; within a device, units go longest first to the least loaded shard, ties by unit key
-and then by shard order, so the same inventory and cost table always give the same file.
+the pictures it captures, of the per-picture seconds in `snapshot-cost.json`. Each device gets the fewest shards whose
+estimates all stay within 70% of the 120-minute shard limit (at most one shard per unit); within a device, units go
+longest first to the least loaded shard, ties by unit key and then by shard order, so the same inventory and cost
+table always give the same file. Run 42577585956 planned 20 shards on a modelled table: its iPhone shards were
+estimated at 60 minutes and needed 113 to 115 or more, so five of six ran out of time.
 
 A shard runs its units as few `xcodebuild` invocations as it can: one per orientation group, each with every
 configuration of that group (`-only-test-configuration` once per configuration). The simulator clones are created
@@ -32,8 +34,9 @@ import snapshot_matrix
 ROOT = Path(__file__).resolve().parents[2]
 COSTS = ROOT / 'Scripts/visual/snapshot-cost.json'
 SHARDS = ROOT / 'Scripts/visual/snapshot-shards.json'
-SHARD_COUNT = 20
 TIMEOUT_CAP_MINUTES = 120
+# The share of the limit a shard's estimate may take: the rest is headroom for a slow runner or simulator setup.
+TARGET_SHARE = 0.7
 
 
 def unit_key(unit):
@@ -75,28 +78,45 @@ def unit_seconds(costs_by_unit, costs):
     return {unit: cost / clone_speedup(unit, costs) for unit, cost in costs_by_unit.items()}
 
 
-def split(costs_by_unit, shards=SHARD_COUNT):
-    """Shards per device, in proportion to each device's total cost, at least one each."""
-    totals = {family: sum(cost for unit, cost in costs_by_unit.items() if unit[0] == family)
-              for family in snapshot_matrix.FAMILIES}
-    units = {family: sum(unit[0] == family for unit in costs_by_unit) for family in snapshot_matrix.FAMILIES}
-    ipad = round(shards * totals['ipad'] / sum(totals.values()))
-    ipad = max(1, min(units['ipad'], shards - 1, ipad))
-    return {'iphone': shards - ipad, 'ipad': ipad}
+def balance(costs_by_unit, family, count):
+    """`[(units, cost)]`: the family's units over `count` shards, longest first to the least loaded."""
+    loads = [[0.0, []] for _ in range(count)]
+    family_units = sorted((unit for unit in costs_by_unit if unit[0] == family),
+                          key=lambda unit: (-costs_by_unit[unit], unit_key(unit)))
+    for unit in family_units:
+        target = min(range(count), key=lambda index: (loads[index][0], index))
+        loads[target][0] += costs_by_unit[unit]
+        loads[target][1].append(unit)
+    return [(units, cost) for cost, units in loads]
 
 
-def assign(costs_by_unit, shards=SHARD_COUNT):
+def estimate(units, wall, costs):
+    """Minutes: boot and fetch once, the fixed cost once per invocation, then the wall seconds."""
+    return costs['bootFetchMinutes'] + len(invocations(units)) * costs.get('invocationMinutes', 0) + wall / 60
+
+
+def split(costs_by_unit, costs=None):
+    """Shards per device: the fewest whose estimates all fit `TARGET_SHARE` of the limit, at most one per unit.
+
+    `costs_by_unit` is in wall seconds. Without a cost table only the wall seconds count (no fixed minutes)."""
+    costs = costs or {'bootFetchMinutes': 0, 'invocationMinutes': 0}
+    target = TARGET_SHARE * TIMEOUT_CAP_MINUTES
+    result = {}
+    for family in snapshot_matrix.FAMILIES:
+        units = sum(unit[0] == family for unit in costs_by_unit)
+        count = 1
+        while count < units and any(estimate(group, wall, costs) > target
+                                    for group, wall in balance(costs_by_unit, family, count)):
+            count += 1
+        result[family] = count
+    return result
+
+
+def assign(costs_by_unit, costs=None):
     """`[(family, [units], cost)]` in shard order: iPhone shards first, then iPad, each by longest-first."""
     result = []
-    for family, count in split(costs_by_unit, shards).items():
-        loads = [[0.0, []] for _ in range(count)]
-        family_units = sorted((unit for unit in costs_by_unit if unit[0] == family),
-                              key=lambda unit: (-costs_by_unit[unit], unit_key(unit)))
-        for unit in family_units:
-            target = min(range(count), key=lambda index: (loads[index][0], index))
-            loads[target][0] += costs_by_unit[unit]
-            loads[target][1].append(unit)
-        result += [(family, units, cost) for cost, units in loads]
+    for family, count in split(costs_by_unit, costs).items():
+        result += [(family, units, cost) for units, cost in balance(costs_by_unit, family, count)]
     return result
 
 
@@ -121,10 +141,10 @@ def plan(document, env, costs, cost_digest):
     costs_by_unit = unit_costs(pictures, costs)
     order = snapshot_matrix.configurations()
     shards = []
-    for index, (family, units, wall) in enumerate(assign(unit_seconds(costs_by_unit, costs)), start=1):
+    for index, (family, units, wall) in enumerate(assign(unit_seconds(costs_by_unit, costs), costs), start=1):
         calls = invocations(units)
         cost = sum(costs_by_unit[unit] for unit in units)
-        estimated = round(costs['bootFetchMinutes'] + len(calls) * costs.get('invocationMinutes', 0) + wall / 60, 1)
+        estimated = round(estimate(units, wall, costs), 1)
         shards.append({
             'id': f's{index:02d}', 'family': family,
             'configurations': sorted({unit[1] for unit in units}, key=order.index),
@@ -137,7 +157,7 @@ def plan(document, env, costs, cost_digest):
             'timeoutMinutes': min(TIMEOUT_CAP_MINUTES, math.ceil(2 * estimated)),
         })
     return {'schema': 1, 'costTable': cost_digest, 'costSource': costs['source'], 'workers': costs['workers'],
-            'shards': shards}
+            'targetMinutes': round(TARGET_SHARE * TIMEOUT_CAP_MINUTES, 1), 'shards': shards}
 
 
 def render(shard_plan):

@@ -1,4 +1,4 @@
-"""The deterministic, cost-balanced 20-shard plan (19-02; 19-RESEARCH §5)."""
+"""The deterministic, cost-balanced shard plan (19-02; 19-RESEARCH §5; sized by the measured costs since 19-10)."""
 import json
 import math
 from pathlib import Path
@@ -76,7 +76,7 @@ class SnapshotShardsTests(unittest.TestCase):
     def test_shards_are_balanced_and_estimated_on_wall_seconds(self):
         plan = json.loads(snapshot_shards.compute())
         seconds = snapshot_shards.unit_seconds(self.costs_by_unit, self.costs)
-        assigned = snapshot_shards.assign(seconds)
+        assigned = snapshot_shards.assign(seconds, self.costs)
         for shard, (family, units, wall) in zip(plan['shards'], assigned):
             self.assertEqual(shard['family'], family)
             self.assertEqual(sorted((run['configuration'], tuple(run['orientations'])) for run in shard['runs']),
@@ -89,17 +89,34 @@ class SnapshotShardsTests(unittest.TestCase):
 
     def test_every_unit_is_in_exactly_one_shard_of_its_own_device(self):
         shards = snapshot_shards.assign(self.costs_by_unit)
-        self.assertEqual(len(shards), 20)
+        self.assertEqual(len(shards), sum(snapshot_shards.split(self.costs_by_unit).values()))
         placed = [unit for _, units, _ in shards for unit in units]
         self.assertEqual(sorted(placed), sorted(self.costs_by_unit))
         for family, units, _ in shards:
             self.assertTrue(units)
             self.assertEqual({unit[0] for unit in units}, {family})
 
-    def test_the_ipad_gets_more_shards(self):
-        split = snapshot_shards.split(self.costs_by_unit)
-        self.assertEqual(sum(split.values()), 20)
-        self.assertGreater(split['ipad'], split['iphone'])
+    def test_each_device_gets_the_fewest_shards_that_fit_the_target(self):
+        # Run 42577585956: shards estimated at 60 minutes needed 113 or more. Every estimate now keeps 30% of the
+        # limit as headroom, with as few shards (and simulator setups) as that allows.
+        plan = json.loads(snapshot_shards.compute())
+        target = snapshot_shards.TARGET_SHARE * snapshot_shards.TIMEOUT_CAP_MINUTES
+        self.assertEqual(plan['targetMinutes'], target)
+        seconds = snapshot_shards.unit_seconds(self.costs_by_unit, self.costs)
+        split = snapshot_shards.split(seconds, self.costs)
+        for family, count in split.items():
+            shards = [shard for shard in plan['shards'] if shard['family'] == family]
+            self.assertEqual(len(shards), count)
+            self.assertTrue(all(shard['estimatedMinutes'] <= target for shard in shards), family)
+            if count > 1:
+                fewer = snapshot_shards.balance(seconds, family, count - 1)
+                self.assertTrue(any(snapshot_shards.estimate(units, wall, self.costs) > target
+                                    for units, wall in fewer), family)
+
+    def test_a_device_never_gets_more_shards_than_units(self):
+        costs = dict(self.costs, bootFetchMinutes=500)
+        seconds = snapshot_shards.unit_seconds(self.costs_by_unit, costs)
+        self.assertEqual(snapshot_shards.split(seconds, costs), {'iphone': 18, 'ipad': 36})
 
     def test_assignment_ignores_input_order(self):
         expected = snapshot_shards.assign(self.costs_by_unit)
@@ -108,9 +125,11 @@ class SnapshotShardsTests(unittest.TestCase):
             random.Random(seed).shuffle(items)
             self.assertEqual(snapshot_shards.assign(dict(items)), expected)
 
-    def test_largest_shard_is_within_a_quarter_of_the_mean(self):
-        costs = [cost for _, _, cost in snapshot_shards.assign(self.costs_by_unit)]
-        self.assertLessEqual(max(costs), 1.25 * sum(costs) / len(costs))
+    def test_largest_shard_of_a_device_is_within_a_quarter_of_its_mean(self):
+        shards = snapshot_shards.assign(self.costs_by_unit)
+        for family in snapshot_matrix.FAMILIES:
+            costs = [cost for name, _, cost in shards if name == family]
+            self.assertLessEqual(max(costs), 1.25 * sum(costs) / len(costs), family)
 
     def test_timeouts_are_twice_the_estimate_and_capped(self):
         plan = json.loads(snapshot_shards.compute())
@@ -120,10 +139,16 @@ class SnapshotShardsTests(unittest.TestCase):
 
     def test_plan_names_s01_to_s20_and_the_cost_table(self):
         plan = json.loads(snapshot_shards.compute())
-        self.assertEqual([shard['id'] for shard in plan['shards']], [f's{index:02d}' for index in range(1, 21)])
+        self.assertEqual([shard['id'] for shard in plan['shards']],
+                         [f's{index:02d}' for index in range(1, len(plan['shards']) + 1)])
         self.assertEqual(plan['costSource'], self.costs['source'])
         self.assertEqual(len(plan['costTable']), 64)
         self.assertEqual(plan['workers'], self.costs['workers'])
+
+    def test_the_cost_table_is_measured_on_the_gate(self):
+        self.assertEqual(self.costs['source'], 'measured')
+        self.assertEqual(self.costs['runId'], '42577585956')
+        self.assertEqual(self.costs['workers'], 2)
 
     def test_two_runs_are_byte_identical(self):
         self.assertEqual(snapshot_shards.compute(), snapshot_shards.compute())

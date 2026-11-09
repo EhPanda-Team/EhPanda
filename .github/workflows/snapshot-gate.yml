@@ -1,7 +1,7 @@
 name: Snapshot gate
 # The full screenshot check (19-10; 19-CONTEXT D-15 and owner msg 2263's amendment, D-16, D-19; 19-RESEARCH §5).
 #
-# One build feeds 20 shards (Scripts/visual/snapshot-shards.json, one device and one to three configurations each),
+# One build feeds 27 shards (Scripts/visual/snapshot-shards.json, one device and one or two configurations each),
 # which GitHub runs as many at a time as the account allows (5 macOS jobs on the free plan, shared with test.yml and
 # the deploy workflows: a gate run holds them for hours, Pitfall 9). Each shard is Scripts/visual/run-shard.sh: the
 # rendering pins, the baseline slice fetch in compare mode, the pinned simulator (Scripts/visual/hosted-simulator.sh),
