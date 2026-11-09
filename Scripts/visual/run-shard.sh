@@ -18,10 +18,12 @@
 # 4. Each invocation runs the SnapshotMatrixCase classes (not the Tracer ones) on the measured worker count of
 #    clones, with XCTest's per-test allowance, a budget watchdog and a startup watchdog (no test begun after 20
 #    minutes, Scripts/visual/snapshot_infra.py --started). An iPad process captures the orientation the device is
-#    in, so the device is turned first with VisualCaptureOrientationUITests (the UITests products), and the capture
-#    settings are made again after the turn, whose UI test run leaves the app accessibility runtime off. Clones boot
-#    in portrait whatever the turned device shows (19-10-PROOF.md), so an iPad landscape invocation runs on the
-#    turned device itself, without clones; the shard plan's estimate counts it without the clone speedup.
+#    in, so the device is turned first with VisualCaptureOrientationUITests (the UITests products). The settings step
+#    (hosted-simulator.sh settings) comes before the turn, so a device a parallel run shut down is booted and settled
+#    first (one the turn's own xcodebuild booted was back in portrait by the capture), and after it, because its UI
+#    test run leaves the app accessibility runtime off. Clones boot in portrait whatever the turned device shows
+#    (19-10-PROOF.md), so an iPad landscape invocation runs on the turned device itself, without clones; the shard
+#    plan's estimate counts it without the clone speedup.
 # 5. An invocation that crashed or was stopped leaves classes without results (results.jsonl says which are done):
 #    once all invocations have run, each such invocation runs once more for those classes only, after their partial
 #    lines are dropped. Classes still unfinished after that record `infra: crash`, or `timeout` when the budget
@@ -220,6 +222,7 @@ turn() {
     [ "$orientation" = landscape ] && method=testRotateToLandscape
     TEST_ENV=()
     KILL_AFTER=''
+    "$SIMULATOR" settings "$UDID" >>"$OUT/logs/turn-$orientation.log" 2>&1 || return 1
     run_tests "$UI_RUN" "$OUT/logs/turn-$orientation.log" "$(remaining "$BUDGET")" \
         -parallel-testing-enabled NO \
         -only-testing:"EhPandaUITests/VisualCaptureOrientationUITests/$method" || return 1
