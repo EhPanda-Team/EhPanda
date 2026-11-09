@@ -18,7 +18,10 @@
 # 4. Each invocation runs the SnapshotMatrixCase classes (not the Tracer ones) on the measured worker count of
 #    clones, with XCTest's per-test allowance, a budget watchdog and a startup watchdog (no test begun after 20
 #    minutes, Scripts/visual/snapshot_infra.py --started). An iPad process captures the orientation the device is
-#    in, so the device is turned first with VisualCaptureOrientationUITests (the UITests products).
+#    in, so the device is turned first with VisualCaptureOrientationUITests (the UITests products), and the capture
+#    settings are made again after the turn, whose UI test run leaves the app accessibility runtime off. Clones boot
+#    in portrait whatever the turned device shows (19-10-PROOF.md), so an iPad landscape invocation runs on the
+#    turned device itself, without clones; the shard plan's estimate counts it without the clone speedup.
 # 5. An invocation that crashed or was stopped leaves classes without results (results.jsonl says which are done):
 #    once all invocations have run, each such invocation runs once more for those classes only, after their partial
 #    lines are dropped. Classes still unfinished after that record `infra: crash`, or `timeout` when the budget
@@ -220,6 +223,7 @@ turn() {
     run_tests "$UI_RUN" "$OUT/logs/turn-$orientation.log" "$(remaining "$BUDGET")" \
         -parallel-testing-enabled NO \
         -only-testing:"EhPandaUITests/VisualCaptureOrientationUITests/$method" || return 1
+    "$SIMULATOR" settings "$UDID" >>"$OUT/logs/turn-$orientation.log" 2>&1 || return 1
     CURRENT=$orientation
 }
 
@@ -244,8 +248,10 @@ capture() {
         echo "turn: the iPad could not be turned to $orientations ($OUT/logs/turn-$orientations.log)" >>"$log"
         return 1
     fi
-    local arguments=(-parallel-testing-enabled YES -parallel-testing-worker-count "$WORKERS"
-        -test-timeouts-enabled YES -default-test-execution-time-allowance 300
+    local arguments=(-parallel-testing-enabled YES -parallel-testing-worker-count "$WORKERS")
+    # A clone would boot in portrait: the iPad's landscape is captured on the turned device itself.
+    [ "$FAMILY" != ipad ] || [ "$orientations" != landscape ] || arguments=(-parallel-testing-enabled NO)
+    arguments+=(-test-timeouts-enabled YES -default-test-execution-time-allowance 300
         -maximum-test-execution-time-allowance 600)
     IFS=',' read -r -a NAMES <<<"${INVOCATION_CONFIGURATIONS[$index]}"
     for configuration in "${NAMES[@]}"; do
