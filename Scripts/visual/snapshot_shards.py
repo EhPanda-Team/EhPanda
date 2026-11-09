@@ -14,6 +14,10 @@ once per invocation and kept across its configurations, and each invocation has 
 installing, launching) that the hosted measurement put at 7 to 10 minutes (19-04-MEASURE.md, run 42455556948);
 locally a second configuration in the same invocation added 76 s to the first's 208 s. The estimate counts the cost
 table's `invocationMinutes` once per invocation.
+
+A unit's wall time is its cost divided by the cost table's `cloneSpeedup`, except an iPad landscape unit: clones boot
+in portrait whatever the turned device shows, so that process runs on the turned device alone, without clones
+(19-10-PROOF.md). Shards are balanced and estimated on wall time.
 """
 
 import argparse
@@ -59,6 +63,16 @@ def unit_costs(pictures, costs):
     """Seconds per unit: its pictures times the per-picture seconds of its device and text size."""
     seconds = costs['secondsPerPicture']
     return {unit: count * seconds[unit[0]][unit[1].rsplit('-', 1)[1]] for unit, count in pictures.items()}
+
+
+def clone_speedup(unit, costs):
+    """The unit's speedup from simulator clones: none for an iPad landscape process, which runs unparallelled."""
+    return 1 if unit[0] == 'ipad' and unit[2] == ('landscape',) else costs['cloneSpeedup']
+
+
+def unit_seconds(costs_by_unit, costs):
+    """Wall seconds per unit: its cost over the speedup its process gets from clones."""
+    return {unit: cost / clone_speedup(unit, costs) for unit, cost in costs_by_unit.items()}
 
 
 def split(costs_by_unit, shards=SHARD_COUNT):
@@ -107,10 +121,10 @@ def plan(document, env, costs, cost_digest):
     costs_by_unit = unit_costs(pictures, costs)
     order = snapshot_matrix.configurations()
     shards = []
-    for index, (family, units, cost) in enumerate(assign(costs_by_unit), start=1):
+    for index, (family, units, wall) in enumerate(assign(unit_seconds(costs_by_unit, costs)), start=1):
         calls = invocations(units)
-        estimated = round(costs['bootFetchMinutes'] + len(calls) * costs.get('invocationMinutes', 0)
-                          + cost / (costs['cloneSpeedup'] * 60), 1)
+        cost = sum(costs_by_unit[unit] for unit in units)
+        estimated = round(costs['bootFetchMinutes'] + len(calls) * costs.get('invocationMinutes', 0) + wall / 60, 1)
         shards.append({
             'id': f's{index:02d}', 'family': family,
             'configurations': sorted({unit[1] for unit in units}, key=order.index),

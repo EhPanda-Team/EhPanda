@@ -5,6 +5,10 @@
 #            Creates and boots the pinned simulator, sets it up for capture and prints its UDID. An attempt that
 #            fails or overruns a limit is deleted, the simulator service is restarted, and the whole setup is made
 #            once more.
+#        Scripts/visual/hosted-simulator.sh settings <udid>
+#            Boots the device if it is shut down and sets Reduce Motion and the app accessibility runtime again. A UI
+#            test run (the iPad turn) leaves the runtime off, and a parallel run shuts the device down to clone it
+#            (19-10-PROOF.md); the next capture needs both on.
 #        Scripts/visual/hosted-simulator.sh clear-clones <name>
 #            Waits until the parallel-testing clones of <name> ("Clone N of <name>") are shut down and deleted, so
 #            the next xcodebuild makes fresh clones instead of reaching one still shutting down. No testing device
@@ -30,7 +34,7 @@ NOT_BOOTED_WAIT=${HOSTED_SIMULATOR_NOT_BOOTED_WAIT:-15}
 TESTING_SET=${HOSTED_SIMULATOR_TESTING_SET:-$HOME/Library/Developer/XCTestDevices}
 
 usage() {
-    sed -n '3,11p' "$0" >&2
+    sed -n '3,15p' "$0" >&2
     exit 2
 }
 
@@ -92,10 +96,24 @@ create_once() {
     fi
     # Before any clone is made, so every clone inherits them (19-01-MEASURE.md), and after the last boot, which can
     # reset Reduce Motion (Scripts/visual/README.md).
-    spawn "$udid" defaults write com.apple.Accessibility ReduceMotionEnabled -bool true || return 1
-    spawn "$udid" defaults write com.apple.Accessibility ApplicationAccessibilityEnabled -bool true || return 1
-    [ "$(spawn "$udid" defaults read com.apple.Accessibility ReduceMotionEnabled)" = 1 ] || return 1
+    capture_settings "$udid" || return 1
     echo "$udid"
+}
+
+# capture_settings <udid>: both switches on, each read back.
+capture_settings() {
+    local udid=$1 key
+    for key in ReduceMotionEnabled ApplicationAccessibilityEnabled; do
+        spawn "$udid" defaults write com.apple.Accessibility "$key" -bool true || return 1
+        [ "$(spawn "$udid" defaults read com.apple.Accessibility "$key")" = 1 ] || return 1
+    done
+}
+
+settings() {
+    [ $# -eq 1 ] || usage
+    # `-b` boots the device first when a parallel run left it shut down.
+    limit "$BOOTSTATUS_LIMIT" xcrun simctl bootstatus "$1" -b >/dev/null || return 1
+    capture_settings "$1"
 }
 
 # After a failed attempt: its device is deleted and the simulator service restarted (it is started again on the
@@ -170,6 +188,7 @@ command=$1
 shift
 case "$command" in
     create) create "$@" ;;
+    settings) settings "$@" ;;
     clear-clones) clear_clones "$@" ;;
     *) usage ;;
 esac
