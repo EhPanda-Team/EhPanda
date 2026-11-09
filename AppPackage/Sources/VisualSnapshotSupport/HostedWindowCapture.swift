@@ -169,6 +169,11 @@ public enum HostedWindowCapture {
     /// for a timeout's reason.
     public private(set) static var lastMotion: String?
 
+    /// Where the latest ``settle(_:)`` last saw two consecutive reads differ while nothing moved, as
+    /// `pixels:<x>,<y>,<width>x<height>` in points, for a timeout's reason. Run 42577585956's iPad landscape
+    /// first-launch timeouts read no motion at all, so their reason said nothing about what kept changing.
+    public private(set) static var lastChange: String?
+
     /// Reads the window at 1x every ``sampleInterval`` until at least `minimumReads` consecutive reads are identical
     /// and span at least ``stableSpan`` while the window is at rest (``motion(in:)`` is `nil`), or gives up after
     /// ``maximumSamples`` reads.
@@ -191,11 +196,17 @@ public enum HostedWindowCapture {
         var runStart = clock.now
         var runReads = 0
         var previous: [UInt8]?
+        var changed: ReadPair?
         lastMotion = nil
+        lastChange = nil
         for sample in 1...maximumSamples {
             let moving = motion(in: window)
             lastMotion = moving ?? lastMotion
-            let data = moving == nil ? comparedBytes(capture(window)) : nil
+            let image = moving == nil ? capture(window) : nil
+            let data = image.flatMap(comparedBytes)
+            if let data, let previous, data != previous, let width = image?.cgImage?.width {
+                changed = ReadPair(old: previous, new: data, width: width)
+            }
             if let data, data == previous {
                 runReads += 1
                 if runReads >= minimumReads, runStart.duration(to: clock.now) >= stableSpan {
@@ -210,9 +221,11 @@ public enum HostedWindowCapture {
                 try await clock.sleep(for: sampleInterval)
             } catch {
                 // Cancellation ends the wait; the reads so far did not settle.
+                lastChange = changed.flatMap({ changedRegion($0.old, $0.new, width: $0.width) })
                 return .timeout(samples: sample, seconds: seconds(start.duration(to: clock.now)))
             }
         }
+        lastChange = changed.flatMap({ changedRegion($0.old, $0.new, width: $0.width) })
         return .timeout(samples: maximumSamples, seconds: seconds(start.duration(to: clock.now)))
     }
 
@@ -277,6 +290,21 @@ public enum HostedWindowCapture {
             if let running = runningAnimation(in: sublayer, now: now) { return running }
         }
         return nil
+    }
+
+    /// The bounding box of the pixels that differ between two reads of the same size, `pixels:<x>,<y>,<w>x<h>`.
+    public static func changedRegion(_ old: [UInt8], _ new: [UInt8], width: Int) -> String? {
+        guard old.count == new.count, width > 0 else { return nil }
+        var minX = Int.max, minY = Int.max, maxX = -1, maxY = -1
+        for (byte, pair) in zip(old, new).enumerated() where pair.0 != pair.1 {
+            let (row, column) = (byte / 4).quotientAndRemainder(dividingBy: width)
+            minX = min(minX, column)
+            maxX = max(maxX, column)
+            minY = min(minY, row)
+            maxY = max(maxY, row)
+        }
+        guard maxX >= 0 else { return nil }
+        return "pixels:\(minX),\(minY),\(maxX - minX + 1)x\(maxY - minY + 1)"
     }
 
     /// The image's pixels as the library's image comparison reads them: 8-bit sRGB, premultiplied RGBA.
@@ -355,10 +383,13 @@ public enum HostedWindowCapture {
         diffing.toData(image)
     }
 
-    /// Hosts, settles, captures and compares (or records) one picture, retrying a difference or a timeout once.
+    /// Hosts, settles, captures and compares (or records) one picture, retrying a difference, a timeout or a failed
+    /// user step once.
     ///
     /// The retry re-hosts a fresh root from `make`, settles and captures again (owner msg 2263): a second pass that
-    /// passes is `passed` with `flaky`; otherwise the second pass decides (`changed` or `timeout`). In candidate
+    /// passes is `passed` with `flaky`; otherwise the second pass decides (`changed`, `timeout` or `error`). A failed
+    /// user step (`interaction`) is retried like a timeout since run 42577585956, where iPad front-page-search
+    /// failed it once in four of 90 runs; its reason names the step's failure (``CaptureStepFailure``). In candidate
     /// mode the picture is returned for the caller to write into the run's output; `reference` is never touched.
     ///
     /// `interact`, when given, runs after hosting and before the settle wait: the user step that brings a scenario
@@ -393,6 +424,10 @@ public enum HostedWindowCapture {
                 firstFailed = true
                 last = outcome
                 continue
+            case .error where result.reason?.hasPrefix(interactionReason) == true:
+                firstFailed = true
+                last = outcome
+                continue
             default:
                 return outcome
             }
@@ -402,6 +437,30 @@ public enum HostedWindowCapture {
             status: .error, attempts: 2, flaky: false, seconds: seconds(start.duration(to: clock.now)),
             settleSamples: 0, png: nil, difference: nil, reason: "no-attempt"
         )
+    }
+
+    /// The reason prefix of a failed user step.
+    static let interactionReason = "interaction"
+
+    /// A failed user step's reason: its own when it names one, never page text.
+    static func stepFailure(_ error: any Error) -> String {
+        switch error {
+        case let failure as any CaptureStepFailure:
+            failure.reason
+        case AccessibilityActionDriver.Failure.notFound:
+            "not-found"
+        case AccessibilityActionDriver.Failure.refused:
+            "refused"
+        default:
+            String(describing: type(of: error))
+        }
+    }
+
+    /// Two consecutive reads that differed, and the width in pixels they were read at.
+    private struct ReadPair {
+        let old: [UInt8]
+        let new: [UInt8]
+        let width: Int
     }
 
     private struct Request {
@@ -438,7 +497,8 @@ public enum HostedWindowCapture {
             do {
                 try await interact(window)
             } catch {
-                return Attempt(status: .error, settleSamples: 0, png: nil, difference: nil, reason: "interaction")
+                return Attempt(status: .error, settleSamples: 0, png: nil, difference: nil,
+                               reason: "\(interactionReason):\(stepFailure(error))")
             }
         }
         let settled = await settle(window, minimumReads: request.minimumReads)
@@ -446,7 +506,7 @@ public enum HostedWindowCapture {
         let png = pngData(image)
         if case .timeout = settled {
             return Attempt(status: .timeout, settleSamples: settled.samples, png: png, difference: nil,
-                           reason: lastMotion.map({ "settle-timeout:\($0)" }) ?? "settle-timeout")
+                           reason: (lastMotion ?? lastChange).map({ "settle-timeout:\($0)" }) ?? "settle-timeout")
         }
         switch request.mode {
         case .candidate:
@@ -476,4 +536,9 @@ public enum HostedWindowCapture {
     static func seconds(_ duration: Duration) -> Double {
         Double(duration.components.seconds) + Double(duration.components.attoseconds) / 1e18
     }
+}
+
+/// A user step's failure that names its own reason for the result line (`interaction:<reason>`), never page text.
+public protocol CaptureStepFailure: Error {
+    var reason: String { get }
 }

@@ -140,6 +140,49 @@ final class HostedWindowCaptureTests: XCTestCase {
         XCTAssertFalse(steady.flaky)
     }
 
+    /// Run 42577585956: a failed user step was final on its first attempt and its reason said only `interaction`.
+    @MainActor
+    func testAFailedUserStepIsRetriedOnceAndNamesItsFailure() async throws {
+        let window = try XCTUnwrap(HostedWindowCapture.keyWindow())
+        var steps = 0
+        let recovered = await HostedWindowCapture.captureAndCompare(
+            make: { AnyView(Self.sample(offset: 0)) }, window: window, style: .light, reference: nil,
+            mode: .candidate,
+            interact: { _ in
+                steps += 1
+                if steps == 1 { throw AccessibilityActionDriver.Failure.notFound("menu") }
+            }
+        )
+        XCTAssertEqual(steps, 2)
+        XCTAssertEqual(recovered.status, .recorded)
+        XCTAssertEqual(recovered.attempts, 2)
+        XCTAssertTrue(recovered.flaky)
+        let failing = await HostedWindowCapture.captureAndCompare(
+            make: { AnyView(Self.sample(offset: 0)) }, window: window, style: .light, reference: nil,
+            mode: .candidate, interact: { _ in throw StepError() }
+        )
+        XCTAssertEqual(failing.status, .error)
+        XCTAssertEqual(failing.attempts, 2)
+        XCTAssertEqual(failing.reason, "interaction:step-error")
+    }
+
+    /// Run 42577585956: a timeout with nothing moving said only `settle-timeout`.
+    @MainActor
+    func testATimeoutWithNothingMovingNamesWhereThePixelsChanged() async throws {
+        let window = try XCTUnwrap(HostedWindowCapture.keyWindow())
+        let hosted = HostedWindowCapture.host(ChangingView(), in: window, style: .light)
+        defer { hosted.dispose() }
+        guard case .timeout = await HostedWindowCapture.settle(window) else {
+            return XCTFail("A view that keeps changing settled")
+        }
+        XCTAssertNil(HostedWindowCapture.lastMotion)
+        let change = try XCTUnwrap(HostedWindowCapture.lastChange)
+        XCTAssertTrue(change.hasPrefix("pixels:"), change)
+        XCTAssertEqual(HostedWindowCapture.changedRegion([0, 0, 0, 255, 9, 9, 9, 255], [0, 0, 0, 255, 1, 9, 9, 255],
+                                                         width: 2), "pixels:1,0,1x1")
+        XCTAssertNil(HostedWindowCapture.changedRegion([1, 2, 3, 4], [1, 2, 3, 4], width: 1))
+    }
+
     @MainActor
     func testCandidateModeRecordsWithoutAReference() async throws {
         let window = try XCTUnwrap(HostedWindowCapture.keyWindow())
@@ -271,6 +314,10 @@ final class HostedWindowCaptureTests: XCTestCase {
 
 private enum CaptureTestError: Error {
     case unsettled
+}
+
+private struct StepError: CaptureStepFailure {
+    var reason: String { "step-error" }
 }
 
 /// Paints how many times it has been drawn and asks to be drawn again after every draw, so consecutive reads never

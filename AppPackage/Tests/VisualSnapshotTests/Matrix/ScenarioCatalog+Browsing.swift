@@ -335,12 +335,17 @@ enum BrowsingScenarios {
         let clock = ContinuousClock()
         let deadline = clock.now.advanced(by: span)
         var held = 0
+        var found = false
         while held < 2 {
-            guard clock.now < deadline else { throw AccessibilityActionDriver.Failure.notFound("focused search field") }
+            // Run 42577585956 failed this step on iPad in 4 of 90 runs with no word of why; the reason now says.
+            guard clock.now < deadline else {
+                throw StepFailure(reason: found ? "search-focus-not-held" : "no-search-field")
+            }
             guard let field = firstView(of: UISearchTextField.self, in: root) else {
                 try await clock.sleep(for: .milliseconds(100))
                 continue
             }
+            found = true
             if field.isFirstResponder {
                 held += 1
             } else {
@@ -360,8 +365,15 @@ enum BrowsingScenarios {
     }
 
     /// A user step's window that never came to rest; the motion it last read.
-    struct StillMoving: Error {
+    struct StillMoving: CaptureStepFailure {
         let motion: String
+
+        var reason: String { "still-moving:\(motion)" }
+    }
+
+    /// A user step that did not reach its state by its deadline, and how far it got.
+    struct StepFailure: CaptureStepFailure {
+        let reason: String
     }
 
     /// Waits until ``HostedWindowCapture/motion(in:)`` reads nothing three times in a row, 100 ms apart, for at most
