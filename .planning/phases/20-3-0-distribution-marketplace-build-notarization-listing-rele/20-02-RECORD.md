@@ -24,3 +24,27 @@ published build (highest: 158)."
 
 Still needed before the 3.0.0 release PR passes its notes check: `ReleaseNotes/3.0.0.md`. That is owner content
 and not part of this phase (D-03).
+
+## Screenshots repository (Task 3)
+
+- Consent: owner msg 2787 (yes to creating and pushing the repository), and owner msg 2794 (use his own GitHub
+  sign-in).
+- Done by the orchestrator with that sign-in. The public repository was created through the GitHub API, then the
+  local assets checkout's `main` was pushed with its history unchanged.
+- Repository: https://github.com/EhPanda-Team/ehpanda-assets
+- Pushed commit: `d69b30a065b2813c787b58f997a0ae4d318a2847` ("Add the AltStore and SideStore iPhone
+  screenshots"). `git ls-remote` shows `HEAD` and `refs/heads/main` at this commit.
+
+`curl -sSfIL` on each `imageURL` in `AltStore.json`, 2026-11-09:
+
+```
+200 https://raw.githubusercontent.com/EhPanda-Team/ehpanda-assets/main/altstore/iphone/01-home.png
+200 https://raw.githubusercontent.com/EhPanda-Team/ehpanda-assets/main/altstore/iphone/02-detail.png
+200 https://raw.githubusercontent.com/EhPanda-Team/ehpanda-assets/main/altstore/iphone/03-reading.png
+200 https://raw.githubusercontent.com/EhPanda-Team/ehpanda-assets/main/altstore/iphone/04-comments.png
+200 https://raw.githubusercontent.com/EhPanda-Team/ehpanda-assets/main/altstore/iphone/05-downloads.png
+200 https://raw.githubusercontent.com/EhPanda-Team/ehpanda-assets/main/altstore/iphone/06-filters.png
+200 https://raw.githubusercontent.com/EhPanda-Team/ehpanda-assets/main/altstore/iphone/07-more.png
+```
+
+The SideStore and beta templates list the same seven URLs, and all seven return 200 there too (D-17).
