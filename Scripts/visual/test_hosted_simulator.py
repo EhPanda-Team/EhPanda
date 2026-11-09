@@ -114,6 +114,27 @@ class HostedSimulatorTests(unittest.TestCase):
         self.assertEqual(sum(call.startswith('killall') for call in calls), 2)
         self.assertEqual(calls.count('simctl bootstatus FAKE-UDID -b'), 4)
 
+    def test_settings_boots_a_shut_down_device_and_sets_both_switches_again(self):
+        # 19-10: a UI test run (the iPad turn) leaves the app accessibility runtime off, and a parallel run shuts the
+        # device down to clone it; the next capture needs both switches on and the device booted.
+        result = self.run_script('settings', 'FAKE-UDID')
+        self.assertEqual(result.returncode, 0, result.stderr)
+        calls = self.calls()
+        self.assertEqual(calls[0], 'simctl bootstatus FAKE-UDID -b')
+        self.assertIn('simctl spawn FAKE-UDID defaults write com.apple.Accessibility ReduceMotionEnabled -bool true',
+                      calls)
+        self.assertIn('simctl spawn FAKE-UDID defaults write com.apple.Accessibility ApplicationAccessibilityEnabled '
+                      '-bool true', calls)
+        self.assertIn('simctl spawn FAKE-UDID defaults read com.apple.Accessibility ApplicationAccessibilityEnabled',
+                      calls)
+        self.assertFalse([call for call in calls if call.startswith(('simctl create', 'killall'))])
+
+    def test_settings_fails_when_a_switch_does_not_read_back_on(self):
+        (self.state / 'not-booted').write_text('99')
+        result = self.run_script('settings', 'FAKE-UDID')
+        self.assertEqual(result.returncode, 1)
+        self.assertNotIn('killall', ' '.join(self.calls()))
+
     def test_the_limits_are_longer_than_the_ones_run_42533872440_overran(self):
         text = SCRIPT.read_text()
         limits = {name: int(value) for name, value in re.findall(r'^([A-Z_]+_LIMIT)=(\d+)$', text, re.MULTILINE)}

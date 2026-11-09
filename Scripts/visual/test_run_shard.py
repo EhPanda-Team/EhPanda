@@ -81,6 +81,7 @@ else:
 '''
 FAKE_SIMULATOR = '''#!/bin/sh
 echo "$*" >> "$FAKE/simulator"
+printf '{"kind": "simulator", "args": "%s"}\\n' "$*" >> "$FAKE/calls"
 [ "$1" = create ] && echo FAKE-UDID
 exit 0
 '''
@@ -163,7 +164,7 @@ class RunShardTests(unittest.TestCase):
         self.assertIsNone(record['infra'], record)
         self.assertEqual(record['rerunClasses'], [])
         self.assertEqual(sorted(self.keys()), self.expected('s01'))
-        [call] = self.calls()
+        [call] = self.calls('snapshot')
         args = call['args']
         self.assertEqual(self.values(args, '-only-test-configuration'), ['de-accessibility5', 'zh-Hans-large'])
         self.assertEqual(self.values(args, '-parallel-testing-worker-count'), ['2'])
@@ -179,6 +180,9 @@ class RunShardTests(unittest.TestCase):
         self.assertIn('clear-clones EhPanda gate', simulator)
 
     def test_a_crash_reruns_only_the_unfinished_classes_and_the_ipad_turns_for_each_orientation(self):
+        # 19-10, checked on iOS 27.2: parallel-testing clones boot in portrait whatever the turned device shows, and the
+        # turn's UI test run leaves the app accessibility runtime off. So every turn is followed by the settings again,
+        # and a landscape invocation runs on the turned device itself, without clones.
         # ko-large portrait: HomeSnapshotTests writes 4 lines, then the run crashes before ShellSnapshotTests.
         (self.fake / 'crash-after').write_text('4')
         result = self.run_shard('s09')
@@ -189,19 +193,31 @@ class RunShardTests(unittest.TestCase):
         keys = self.keys()
         self.assertEqual(len(keys), len(set(keys)))
         self.assertEqual(sorted(keys), self.expected('s09'))
-        steps = [(row['kind'], row['orientations'] if row['kind'] == 'snapshot'
-                  else [arg for arg in row['args'] if arg.startswith('-only-testing:')][0].rsplit('/', 1)[1],
-                  [arg.split('/')[1] for arg in row['args'] if arg.startswith('-only-testing:VisualSnapshotTests/')])
-                 for row in self.calls()]
+        steps = []
+        for row in self.calls():
+            if row['kind'] == 'simulator':
+                if row['args'].startswith('settings'):
+                    steps.append(('simulator', row['args'], []))
+                continue
+            steps.append((row['kind'], row['orientations'] if row['kind'] == 'snapshot'
+                          else [arg for arg in row['args'] if arg.startswith('-only-testing:')][0].rsplit('/', 1)[1],
+                          [arg.split('/')[1] for arg in row['args']
+                           if arg.startswith('-only-testing:VisualSnapshotTests/')]))
         self.assertEqual(steps, [
             ('snapshot', 'portrait', ['HomeSnapshotTests', 'ShellSnapshotTests']),
             ('ui', 'testRotateToLandscape', []),
+            ('simulator', 'settings FAKE-UDID', []),
             ('snapshot', 'landscape', ['HomeSnapshotTests', 'ShellSnapshotTests']),
             ('ui', 'testRotateToPortrait', []),
+            ('simulator', 'settings FAKE-UDID', []),
             ('snapshot', 'portrait', ['ShellSnapshotTests']),
         ])
         turn = self.calls('ui')[0]['args']
         self.assertEqual(self.values(turn, '-parallel-testing-enabled'), ['NO'])
+        parallel = [(row['orientations'], self.values(row['args'], '-parallel-testing-enabled'),
+                     self.values(row['args'], '-parallel-testing-worker-count')) for row in self.calls('snapshot')]
+        self.assertEqual(parallel, [('portrait', ['YES'], ['2']), ('landscape', ['NO'], []),
+                                    ('portrait', ['YES'], ['2'])])
 
     def test_the_crash_fault_crashes_both_runs_of_the_first_attempt_only(self):
         variables = {'EHPANDA_SNAPSHOT_FAULT': 's01=crash,s09=no-artifact', 'EHPANDA_SNAPSHOT_FAULT_SECONDS': '1',

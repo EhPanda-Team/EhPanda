@@ -66,6 +66,27 @@ class SnapshotShardsTests(unittest.TestCase):
             self.assertAlmostEqual(shard['estimatedMinutes'] - other['estimatedMinutes'],
                                    len(shard['invocations']) * self.costs['invocationMinutes'], delta=0.11)
 
+    def test_an_ipad_landscape_process_gets_no_clone_speedup(self):
+        # 19-10: clones boot in portrait, so an iPad landscape process runs on the turned device alone.
+        seconds = snapshot_shards.unit_seconds(self.costs_by_unit, self.costs)
+        for unit, cost in self.costs_by_unit.items():
+            speedup = 1 if unit[0] == 'ipad' and unit[2] == ('landscape',) else self.costs['cloneSpeedup']
+            self.assertAlmostEqual(seconds[unit], cost / speedup)
+
+    def test_shards_are_balanced_and_estimated_on_wall_seconds(self):
+        plan = json.loads(snapshot_shards.compute())
+        seconds = snapshot_shards.unit_seconds(self.costs_by_unit, self.costs)
+        assigned = snapshot_shards.assign(seconds)
+        for shard, (family, units, wall) in zip(plan['shards'], assigned):
+            self.assertEqual(shard['family'], family)
+            self.assertEqual(sorted((run['configuration'], tuple(run['orientations'])) for run in shard['runs']),
+                             sorted(unit[1:] for unit in units))
+            self.assertAlmostEqual(shard['costSeconds'], sum(self.costs_by_unit[unit] for unit in units), delta=0.11)
+            self.assertAlmostEqual(shard['estimatedMinutes'],
+                                   self.costs['bootFetchMinutes']
+                                   + len(shard['invocations']) * self.costs['invocationMinutes'] + wall / 60,
+                                   delta=0.06)
+
     def test_every_unit_is_in_exactly_one_shard_of_its_own_device(self):
         shards = snapshot_shards.assign(self.costs_by_unit)
         self.assertEqual(len(shards), 20)
