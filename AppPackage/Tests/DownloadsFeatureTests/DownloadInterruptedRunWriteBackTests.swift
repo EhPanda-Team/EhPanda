@@ -54,7 +54,7 @@ struct DownloadInterruptedRunWriteBackTests: DownloadFeatureTestCase {
             await manager.testingHasActiveTask() == false
         }
 
-        try await expectThePausedRecordReadsThreeOfSix(gallery: gallery, manager: manager)
+        try await expectThePausedRecordReads(landedPages: [1, 2, 3], of: gallery, manager: manager)
     }
 
     /// The same defect through the continued-processing card's cancel, which the system reports as
@@ -92,19 +92,21 @@ struct DownloadInterruptedRunWriteBackTests: DownloadFeatureTestCase {
             await manager.testingHasActiveTask() == false
         }
 
-        try await expectThePausedRecordReadsThreeOfSix(gallery: gallery, manager: manager)
+        try await expectThePausedRecordReads(landedPages: [1, 2, 3], of: gallery, manager: manager)
     }
 
-    /// The decided residual, pinned so it stays a decision: a repair stopped before ANY page landed
-    /// keeps the record it started with.
+    /// K0-a: a repair stopped after its measurement was announced but before ANY page landed reads
+    /// Paused 0 of N with Resume, not the whole-gallery claim it started from (product lead, EhPanda
+    /// msg 2901).
     ///
-    /// The write-back runs the preparation's own reconciliation, unweakened, and with nothing on disk
-    /// every claimed page is a positive absence, so the all-or-nothing guard refuses exactly as it
-    /// refused at the preparation (G-15-2G): one scan is never authority to blank a whole gallery.
-    /// The record therefore reads what it read before the repair was started, which is the state
-    /// `resumeMode` already resolves to `.repair` through `storage.verify`.
+    /// With nothing on disk every claimed page is a positive absence, so the all-or-nothing guard
+    /// alone would refuse here exactly as it refused at the preparation. What licenses the blanking is
+    /// the corroboration: the run's own preparation scan already found every one of these pages
+    /// positively absent (it owes them and inherits none of them), and the exit's fresh scan agrees.
+    /// Two successful scans are not the single transient scan G-15-2G guards against, and the
+    /// validation and preparation callers are untouched.
     @Test
-    func testARepairPausedBeforeAnyPageLandedKeepsItsRecord() async throws {
+    func testARepairPausedBeforeAnyPageLandedReadsZeroOfN() async throws {
         let gallery = SessionGallery(
             gid: "200901-c",
             title: "Unstarted Repair",
@@ -126,6 +128,82 @@ struct DownloadInterruptedRunWriteBackTests: DownloadFeatureTestCase {
         }
         let manager = fixture.manager
         try await startRepairAndLandPages([], of: gallery, in: fixture, control: control)
+
+        try await manager.pause(gid: gallery.gid).get()
+        try await waitUntil {
+            await manager.testingHasActiveTask() == false
+        }
+
+        try await expectThePausedRecordReads(landedPages: [], of: gallery, manager: manager)
+    }
+
+    /// K0-a through the card's cancel: the expiration's bulk pause reaches the same exit.
+    @Test
+    func testAnExpirationPausedRepairBeforeAnyPageLandedReadsZeroOfN() async throws {
+        let gallery = SessionGallery(
+            gid: "200901-d",
+            title: "Unstarted Expired Repair",
+            pageCount: 6,
+            completedPageCount: 6
+        )
+        let spy = BackgroundProcessingClientSpy()
+        let control = BlockingRunnerControl()
+        let stubSessionID = makeOfflineStub()
+        defer { SharedSessionStubURLProtocol.removeHandler(for: stubSessionID) }
+        let fixture = try await makeParkedRepairFixture(
+            gallery: gallery,
+            client: spy.client,
+            control: control,
+            stubSessionID: stubSessionID
+        )
+        defer {
+            control.release()
+            removeTemporaryItem(at: fixture.rootURL)
+        }
+        let manager = fixture.manager
+        try await startRepairAndLandPages([], of: gallery, in: fixture, control: control)
+        await manager.testingEnsureContinuedSession()
+        let sessionID = try #require(await manager.testingContinuedSessionID())
+
+        await manager.testingPauseAllSchedulable(expiring: sessionID)
+        try await waitUntil {
+            await manager.testingHasActiveTask() == false
+        }
+
+        try await expectThePausedRecordReads(landedPages: [], of: gallery, manager: manager)
+    }
+
+    /// The residual Option A leaves: a repair stopped before its measurement was announced (K0-b,
+    /// the payload-fetch window) has no scan of its own to corroborate anything, so the exit does
+    /// not act and the record keeps its pre-repair claim. One fresh scan alone is never authority
+    /// to blank a whole gallery (G-15-2G).
+    @Test
+    func testARepairPausedBeforeItsAnnouncementKeepsItsRecord() async throws {
+        let gallery = SessionGallery(
+            gid: "200901-e",
+            title: "Unannounced Repair",
+            pageCount: 6,
+            completedPageCount: 6
+        )
+        let control = BlockingRunnerControl()
+        let stubSessionID = makeOfflineStub()
+        defer { SharedSessionStubURLProtocol.removeHandler(for: stubSessionID) }
+        let fixture = try await makeParkedRepairFixture(
+            gallery: gallery,
+            client: .noop,
+            control: control,
+            stubSessionID: stubSessionID
+        )
+        defer {
+            control.release()
+            removeTemporaryItem(at: fixture.rootURL)
+        }
+        let manager = fixture.manager
+        let staged = try #require(await manager.fetchDownload(gid: gallery.gid))
+        #expect(await manager.resumeMode(for: staged) == .repair)
+        await manager.scheduleNextIfNeeded()
+        await control.started()
+        #expect(await manager.testingActiveGalleryID() == gallery.gid)
 
         try await manager.pause(gid: gallery.gid).get()
         try await waitUntil {
@@ -228,31 +306,34 @@ private extension DownloadInterruptedRunWriteBackTests {
         #expect(midRun.completedPageCount == 6)
     }
 
-    /// What a stopped repair with pages 1-3 on disk must read, live and after a reload from disk.
-    func expectThePausedRecordReadsThreeOfSix(
-        gallery: SessionGallery,
+    /// What a stopped repair of a six-page gallery with `landedPages` on disk must read, live and
+    /// after a reload from disk: Paused k of 6 with Resume.
+    func expectThePausedRecordReads(
+        landedPages: [Int],
+        of gallery: SessionGallery,
         manager: DownloadCoordinator
     ) async throws {
+        let landedCount = landedPages.count
         let paused = try #require(await manager.fetchDownload(gid: gallery.gid))
         #expect(paused.runProgress == nil)
-        #expect(paused.completedPageCount == 3)
+        #expect(paused.completedPageCount == landedCount)
         #expect(paused.isIncomplete)
         #expect(paused.displayStatus == .inactive)
         #expect(paused.canTogglePause)
         #expect(
             paused.badge == DownloadBadge(
                 status: .inactive,
-                progress: .init(completedPageCount: 3, pageCount: 6)
+                progress: .init(completedPageCount: landedCount, pageCount: 6)
             )
         )
         #expect(await manager.resumeMode(for: paused) == .repair)
-        // Only the absences were blanked: the three landed pages keep their recorded hashes.
-        #expect(paused.manifest.pages.filter({ !$0.value.isEmpty }).keys.sorted() == [1, 2, 3])
+        // Only the absences were blanked: the landed pages keep their recorded hashes.
+        #expect(paused.manifest.pages.filter({ !$0.value.isEmpty }).keys.sorted() == landedPages)
 
         // Persisted rather than held in memory: a cold reload reads the same record off disk.
         await manager.reloadDownloadIndex()
         let reloaded = try #require(await manager.fetchDownload(gid: gallery.gid))
-        #expect(reloaded.completedPageCount == 3)
+        #expect(reloaded.completedPageCount == landedCount)
         #expect(reloaded.isIncomplete)
         #expect(reloaded.displayStatus == .inactive)
     }
