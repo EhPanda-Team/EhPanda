@@ -126,7 +126,7 @@
 	<key>CFBundleVersion</key>
 	<string>$(CURRENT_PROJECT_VERSION)</string>
 	<key>EhPandaDistributionChannel</key>
-	<string>source</string>
+	<string>$(EHPANDA_DISTRIBUTION_CHANNEL)</string>
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
 	<key>LSRequiresIPhoneOS</key>

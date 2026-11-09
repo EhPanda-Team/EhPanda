@@ -29,7 +29,8 @@ DEVELOPMENT_TEAM =
 // signing requires. Include the leading dot (`.personal`, not `personal`).
 BUNDLE_ID_SUFFIX =
 
-// The flavor defaults (display name, URL scheme). Before the local override, so it can change them.
+// The flavor defaults (display name, URL scheme, distribution channel). Before the local override, so
+// it can change them.
 #include "Flavor.xcconfig"
 
 // Optional include — the trailing `?` makes an absent file a silent no-op rather than an error,
