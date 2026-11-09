@@ -2,7 +2,8 @@
 
 **Gathered:** 2026-11-09 (discussion refresh; owner decisions first recorded 2026-11-05 during the Phase 18 discussion)
 **Status:** Discussion done. No owner question is open: OQ-1 (the marketplace build's primary icon) was resolved
-on 2026-11-09 by product lead msg 2775 (D-22).
+on 2026-11-09 by product lead msg 2775 (D-22). Research questions OQ-C, OQ-D and OQ-G were answered by product lead
+msg 2783 (D-23 to D-25).
 **Branch:** `feature/gsd-phase-20`, from `e7f373b31` (the `feature/gsd-phase-19` tip), in parallel with Phase 19
 (D-13).
 
@@ -230,6 +231,19 @@ does not redo them.
   does not set `ASSETCATALOG_COMPILER_APPICON_NAME`. No icon task is planned. It changes only if Apple's review
   objects: if the notarization review rejects the icon under 2.3.8, step (c) pauses and the owner asks the designer
   Colo for an all-ages variant; the flavor then points at it and the build is submitted again.
+- **D-23:** **The website check, the device checks and the analytics proposal may start now** (product lead msg
+  2783, 2026-11-09; OQ-G answered yes). 20-07 (step (d)), 20-09 (step (e)) and 20-12 (step (g), the vocabulary
+  proposal) run in wave 1, in parallel with the build steps, instead of waiting for 20-08 and the steps before it;
+  none of them needs code from an earlier step. Everything that depends on them keeps its place: 20-08 still waits
+  for 20-07 (the contact link is live before the first submission, D-05), 20-10, 20-11 and 20-14 for 20-09, and
+  20-13 for 20-12's sign-off. 20-09 checks the branch head as it is when it runs; the final build is still checked
+  by the closing scan (D-09).
+- **D-24:** **The PAL source's `developerName` is "EhPanda Team"**, the same as the Classic source (product lead msg
+  2783, 2026-11-09; OQ-C).
+- **D-25:** **The PAL listing gets its own subtitle and description** (product lead msg 2783, 2026-11-09; OQ-D). The
+  copywriter writes them from the website's neutral line, for guideline 2.3.8 (the listing suits all audiences).
+  The owner approves them at the listing step (step (f), 20-10). The "adult comics" caption on the first decorated
+  screenshot is checked in that same approval (D-04).
 
 ### Resolved owner question
 
@@ -252,6 +266,9 @@ does not redo them.
   - **Answer: A** (D-22). Option B is not planned; it returns only if Apple's review rejects the icon.
 
 ### Plan order (D-14; product lead msg 2771)
+
+*Amended 2026-11-09 (D-23, product lead msg 2783):* (d), (e) and the vocabulary proposal of (g) may start now, in
+parallel with (a) to (c); the order below still holds for everything else.
 
 - **(a) Marketplace build flavor and release mechanics fixes** (DIST-18-01 flavor part, REL-18-01).
   - The `Config/Marketplace.xcconfig` flavor with the channel stamp set at build time (D-12 amended).

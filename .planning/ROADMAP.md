@@ -1570,7 +1570,7 @@ Cross-cutting constraints:
   8. As the last plan, analytics record the install source and every 3.0 flow under the consent levels, within ANALYTICS-01's rules; nothing is sent under None.
   9. The final 3.0 Release build, including the analytics revision, passes the Release isolation scan with 0 findings.
 
-**Plans**: 14 plans in 11 waves (the waves follow the fixed order below; OQ-G asks whether 20-07, 20-09 and 20-12 may start in wave 1).
+**Plans**: 14 plans in 8 waves (the waves follow the fixed order below, except that 20-07, 20-09 and 20-12 start in wave 1: CONTEXT D-23, product lead msg 2783 answering OQ-G).
 
 Ordered plan outline (CONTEXT D-14; product lead msg 2771; old step numbers are the original Phase 18's):
 
@@ -1585,12 +1585,15 @@ Ordered plan outline (CONTEXT D-14; product lead msg 2771; old step numbers are 
 
 Plans:
 
-**Wave 1** — (a)
+**Wave 1** — (a); and (d), (e) and (g) part 1, which may start now (D-23)
 
 - [x] 20-01-PLAN.md — the marketplace flavor (`Config/Marketplace.xcconfig`, channel stamp as a build setting), its hand-off scheme, and `PrivacyInfo.xcprivacy`
 - [ ] 20-02-PLAN.md — the build-number check in `deploy.yml`, the bump above 158, history and URL tests *(checkpoint: owner OK to create and push `EhPanda-Team/ehpanda-assets`)*
+- [ ] 20-07-PLAN.md — the "Apple-approved" wording guard and the website check *(checkpoint: Leto, four URLs live)*
+- [ ] 20-09-PLAN.md — real-device checks *(checkpoints: owner hardware — iPad Release stall, iPhone background downloads)*
+- [ ] 20-12-PLAN.md — the analytics vocabulary proposal *(checkpoint: product lead and owner sign-off, OQ-E)*
 
-**Wave 2** *(blocked on Wave 1)* — (b)
+**Wave 2** *(blocked on 20-01 and 20-02)* — (b)
 
 - [ ] 20-03-PLAN.md — the PAL source template, the filter's `assetURLs` support and the PAL checks, with no live ADP
 
@@ -1603,31 +1606,19 @@ Plans:
 - [ ] 20-05-PLAN.md — offline-tested publish side: ADP, AltStore processing, release assets, PAL source update
 - [ ] 20-06-PLAN.md — the collaborator's account setup and the GitHub environment *(checkpoints: App IDs, certificate, profiles, API key; agreements, marketplace, trader status, ratings, privacy answers, countries; environment and secrets; D-07)*
 
-**Wave 5** *(blocked on Wave 4)* — (d)
-
-- [ ] 20-07-PLAN.md — the "Apple-approved" wording guard and the website check *(checkpoint: Leto, four URLs live)*
-
-**Wave 6** *(blocked on 20-07)* — (c), first submission
+**Wave 5** *(blocked on Wave 4 and 20-07)* — (c), first submission
 
 - [ ] 20-08-PLAN.md — the first live submission, the App Manager key test, Apple's verdict and a dry-run publish *(checkpoints: OQ-A/OQ-B decision; owner OK per dispatch; real ADP layout; pauses for Colo if the icon is rejected under 2.3.8, D-22)*
 
-**Wave 7** *(blocked on 20-08)* — (e)
-
-- [ ] 20-09-PLAN.md — real-device checks *(checkpoints: owner hardware — iPad Release stall, iPhone background downloads)*
-
-**Wave 8** *(blocked on 20-09 and Phase 19)* — (f)
+**Wave 6** *(blocked on 20-08, 20-09 and Phase 19)* — (f)
 
 - [ ] 20-10-PLAN.md — store screenshots from Phase 19's approved references *(checkpoints: owner's screens, decoration and wording; owner approval, push and upload)*
 - [ ] 20-11-PLAN.md — the release and the PAL submission require the screenshot check's verdict *(checkpoint: OQ-F, how Phase 19's gate reaches this branch)*
 
-**Wave 9** *(blocked on Wave 8)* — (g)
-
-- [ ] 20-12-PLAN.md — the analytics vocabulary proposal *(checkpoint: product lead and owner sign-off, OQ-E)*
-
-**Wave 10** *(blocked on 20-12)* — (g)
+**Wave 7** *(blocked on Wave 6 and 20-12)* — (g)
 
 - [ ] 20-13-PLAN.md — the signed-off signals, call sites, tests, and README in six languages
 
-**Wave 11** *(blocked on 20-13)* — (h)
+**Wave 8** *(blocked on 20-09 and 20-13)* — (h)
 
 - [ ] 20-14-PLAN.md — the Release isolation scan in both flavors and the phase gate
