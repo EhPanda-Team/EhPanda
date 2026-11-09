@@ -1,6 +1,12 @@
 public import SwiftUI
 
+/// The Login page's backdrop: a wave that slides sideways, one cycle every 4 seconds, from the wall clock.
+///
+/// The slide is position motion, so under Reduce Motion the wave stands still at phase 0 and the timeline is paused
+/// (D-29, 19-10); that also lets the page settle for the snapshot matrix.
 public struct WaveForm: View {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
     private let color: Color
     private let amplify: CGFloat
     private let isReversed: Bool
@@ -12,10 +18,9 @@ public struct WaveForm: View {
     }
 
     public var body: some View {
-        TimelineView(.animation) { timeLine in
+        TimelineView(.animation(paused: reduceMotion)) { timeLine in
             Canvas { context, size in
-                let timeNow = timeLine.date.timeIntervalSinceReferenceDate
-                let angle = timeNow.remainder(dividingBy: 4)
+                let angle = Self.phase(at: timeLine.date, reduceMotion: reduceMotion)
                 let offset = angle * size.width / 4
 
                 context.translateBy(x: isReversed ? -offset : offset, y: 0)
@@ -26,6 +31,11 @@ public struct WaveForm: View {
                 context.fill(getPath(size: size), with: .color(color))
             }
         }
+    }
+
+    /// Where in its 4-second cycle the wave is at `date`, in seconds from -2 to 2; always 0 under Reduce Motion.
+    static func phase(at date: Date, reduceMotion: Bool) -> Double {
+        reduceMotion ? 0 : date.timeIntervalSinceReferenceDate.remainder(dividingBy: 4)
     }
 
     func getPath(size: CGSize) -> Path {
