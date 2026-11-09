@@ -4,16 +4,16 @@ milestone: v3.0.0
 current_phase: 19
 current_phase_name: Visual Regression & Daily Live-Parsing Check
 status: executing
-stopped_at: Completed 20-03-PLAN.md
-last_updated: "2026-11-09T02:00:00.000Z"
+stopped_at: Completed 20-04-PLAN.md
+last_updated: "2026-11-09T02:15:00.000Z"
 last_activity: 2026-11-09
-last_activity_desc: 20-03 complete on feature/gsd-phase-20 (PAL source template, the filter's PAL mode with golden Classic/SideStore/beta output, check_source(pal=True))
+last_activity_desc: 20-04 complete on feature/gsd-phase-20 (asc.py App Store Connect client, marketplace signing helper, dispatch-only deploy-pal.yml submit job; all offline)
 state_head: e618e40cbb803098c79170a6f3524064002e313d
 progress:
   total_phases: 21
   completed_phases: 18
   total_plans: 321
-  completed_plans: 319
+  completed_plans: 320
   percent: 86
 milestone_name: Dependency Reduction & Modernization
 source_head: b5eca09d1
@@ -48,6 +48,16 @@ source_head: b5eca09d1
   `AltStorePAL.json` is not created. The public address will be https://ehpanda.app/AltStorePAL.json (owner msg
   2822). Open items: the template still has the Classic copy, which 20-10 replaces with the PAL copy (D-25); 20-10's
   `pal/` screenshot paths are stale (`app-marketplace/`). DIST-18-02 stays Pending.
+- **20-04 complete** (`4c61f5b80`, `dd15e0df9`, `ca17b8502`, `86bf6e313`, `1a2829de6`; `20-04-SUMMARY.md`):
+  `actions-tool/asc.py` (stdlib + openssl ES256; `check-build`, `wait-build`, `ensure-version` with
+  NOTARIZATION/MANUAL, `attach-build`, `submit`, `adp-id`; method-scoped allow-list with no record-making path;
+  call record with key ID and role only), `actions-tool/marketplace-signing.sh` (temporary keychain, profiles,
+  generated xcconfig selecting `$(EHPANDA_PROFILE_$(TARGET_NAME))`, always-safe teardown),
+  `ExportOptions-marketplace.plist`, and `.github/workflows/deploy-pal.yml`: `workflow_dispatch` only, `submit` job in
+  environment `pal-notarization` (D-26: first live run is 20-08). Secret and variable names fixed in the workflow
+  header for 20-06. Nothing contacted Apple; the workflow was not dispatched. Open items: upload without
+  `-allowProvisioningUpdates` and manual release before AltStore can fetch the ADP are first seen at 20-08; the PAL
+  template still has the Classic copy, which 20-10 replaces and updates its test (D-25). DIST-18-03 stays Pending.
 
 ## Phase 19 executing — 2026-11-07
 
@@ -1769,6 +1779,7 @@ Recent decisions affecting current work:
 - [Phase 20]: 20-01: the channel stamp is the build setting EHPANDA_DISTRIBUTION_CHANNEL, `source` in Flavor.xcconfig and `altstorePAL` only in Marketplace.xcconfig; Beta.xcconfig keeps no stamp line. The privacy manifest declares UserDefaults CA92.1 and FileTimestamp C617.1 and three data types (ProductInteraction, DeviceID, OtherDiagnosticData; unlinked, untracked, Analytics); test_privacy_manifest.py fails on any undeclared required-reason use in the shipped sources. — The PAL build is signed before upload, so it cannot be stamped afterwards (D-12 amended); App Store Connect requires the declarations (D-18).
 - [Phase 20]: 20-02: deploy.yml's build-number check reads main's three Classic-side sources and not AltStorePAL.json; build 159 = main's highest (158) + 1. bump-version.sh treats a configuration with TEST_HOST or TEST_TARGET_NAME as a test one (the old app.ehpanda.tests bundle ID matches no target). — Research §3, pitfall 4; REL-18-01.
 - [Phase 20]: 20-03: the PAL entry is the filter's Classic entry with `assetURLs` after `downloadURL` and no `sha256`. The filter reads `sha256` through `$ARGS.named` (required without `assetURLs`) and drops `application-identifier` and the team identifier from a given `entitlements` list. The PAL source's public address is https://ehpanda.app/AltStorePAL.json (owner msg 2822); it is not written into the JSON. — Research §4; DIST-18-02.
+- [Phase 20]: 20-04: deploy-pal.yml is workflow_dispatch only; the submit job runs in environment pal-notarization with contents: read. asc.py allows only builds/preReleaseVersions/appStoreVersions/reviewSubmissions(Items)/ADP-read paths plus GET /v1/apps/{id}/appStoreVersions (no top-level version list in OpenAPI 4.6); POST /v1/alternativeDistributionPackages is refused. Secrets: ASC_KEY_ID, ASC_ISSUER_ID, ASC_KEY_P8, DIST_CERT_P12, DIST_CERT_PASSWORD, PROFILE_APP, PROFILE_SHARE_EXTENSION, TEAM_ID; variables PAL_MARKETPLACE_ID (also the --app ID), ASC_KEY_ROLE. — Research §5, §6; D-07, D-21, D-26.
 - [Phase 19]: 19-01: iPadOS 27 refuses in-process orientation changes (UISceneErrorDomain 101), so an iPad matrix process captures the one orientation its device was turned to before launch (EHPANDA_SNAPSHOT_ORIENTATIONS); iPhone turns in process. iPad units double to 36, shard units become 54. The block confirmation is reached through the row's own accessibility action, which needs the app accessibility runtime on; iPad pins need Full Screen Apps. — Research section 3 leaves the rotation mechanism to the developer; XCUIDevice is not authorized in an app-hosted test.
 
 ### Phase 16 transition decisions (2026-09-23)
@@ -1886,8 +1897,8 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-11-09T02:00:00.000Z
-Stopped at: Completed 20-03-PLAN.md
+Last session: 2026-11-09T02:15:00.000Z
+Stopped at: Completed 20-04-PLAN.md
 Resume file: None
 
 Earlier stop (2026-10-13T10:50:00Z, historical): 17-06 revision re-shot, 16/16 captured (`.capture/17-06-t-native-*`); superseded by the owner's 2026-11-02 approval of the 192-image website set.

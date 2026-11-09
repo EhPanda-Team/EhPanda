@@ -716,7 +716,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 18. In-App 3.0 Readiness: Age Wall, Analytics Choice, Comment Moderation & Reader Rework | 12/12 | Complete    | 2026-11-06 |
 | 18.1. Native report form (INSERTED) | 5/5 | Complete    | 2026-11-07 |
 | 19. Visual Regression & Daily Live-Parsing Check | 12/17 | In Progress |  |
-| 20. 3.0 Distribution: Marketplace Build, Notarization, Listing & Release Checks | 3/14 | In Progress |  |
+| 20. 3.0 Distribution: Marketplace Build, Notarization, Listing & Release Checks | 4/14 | In Progress |  |
 
 ### Phase 12: Cloudflare Login Restoration
 
@@ -1599,7 +1599,7 @@ Plans:
 
 **Wave 3** *(blocked on 20-03)* — (c)
 
-- [ ] 20-04-PLAN.md — offline-tested submit side: App Store Connect client, signing helper, dispatch-only submit job
+- [x] 20-04-PLAN.md — offline-tested submit side: App Store Connect client, signing helper, dispatch-only submit job
 
 **Wave 4** *(blocked on 20-04)* — (c)
 
