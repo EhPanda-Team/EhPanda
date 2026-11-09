@@ -62,8 +62,9 @@ struct DownloadWholesaleAbsenceTests: DownloadFeatureTestCase {
         try await expectPausedZeroOfSix(gallery: gallery, manager: manager)
     }
 
-    /// K0-c: the repair is queued behind another gallery's run and paused there. No run exits, so
-    /// only `commitPause` can act.
+    /// K0-c: the repair is queued behind another gallery's run and paused there through `pause(gid:)`,
+    /// the route the card's cancel and the system's expiry take for every schedulable gallery. No run
+    /// exits, so only `commitPause` can act.
     @Test
     func testARepairPausedWhileQueuedBehindAnotherGalleryReadsZeroOfN() async throws {
         let other = SessionGallery(gid: "200902-c-other", title: "Running Ahead", pageCount: 6)
@@ -86,6 +87,32 @@ struct DownloadWholesaleAbsenceTests: DownloadFeatureTestCase {
         try await expectPausedZeroOfSix(gallery: gallery, manager: manager)
         // The gallery ahead is untouched by the queued gallery's pause.
         #expect(await manager.testingActiveGalleryID() == other.gid)
+    }
+
+    /// K0-c through the in-app Pause, which is `togglePause`. A queued repair does not reach
+    /// `commitPause` from there: its queued work item is cancelled (`cancelQueuedWorkItem`), and the
+    /// gallery falls back to its record. The owner's test iPhone read "Downloaded 112 of 112" on
+    /// exactly this route while the `pause(gid:)` case above was green.
+    @Test
+    func testARepairPausedInAppWhileQueuedBehindAnotherGalleryReadsZeroOfN() async throws {
+        let other = SessionGallery(gid: "200902-c2-other", title: "Running Ahead", pageCount: 6)
+        let gallery = SessionGallery(gid: "200902-c2", title: "Queued Toggle", pageCount: 6, completedPageCount: 6)
+        let harness = try await makeHarness(galleries: [other, gallery])
+        defer { tearDown(harness) }
+        let manager = harness.fixture.manager
+
+        try await verifyFindsEveryPageMissingWithoutBlanking(gallery: gallery, manager: manager)
+        await manager.testingSetQueuedGalleryIDs([other.gid])
+        await manager.scheduleNextIfNeeded()
+        await harness.control.started()
+        try await manager.retryPages(gid: gallery.gid, pageIndices: Array(1...6)).get()
+        #expect(await manager.fetchDownload(gid: gallery.gid)?.displayStatus == .queued)
+
+        try await manager.togglePause(gid: gallery.gid).get()
+
+        try await expectPausedZeroOfSix(gallery: gallery, manager: manager)
+        #expect(await manager.testingActiveGalleryID() == other.gid)
+        #expect(await manager.testingHasWholesaleAbsenceEvidence(gid: gallery.gid) == false)
     }
 
     /// Validation alone never blanks: Verify Images over a gallery with every page gone keeps the
