@@ -7,13 +7,14 @@ tags: [device, ipad, iphone, release-build, gallery-detail, continued-processing
 requires: []
 provides:
   - "`20-09-DEVICE.md`: the iPad Release cold-launch Gallery Detail check (10 of 10, no stall) and the iPhone repeat of Phase 15 SC2 (as designed), on owner hardware (DEV-18-01, SC7)"
-  - "G-20-09-1, found here and then fixed (`ba23bb5c4` test, `6d209450e` fix): a whole-gallery repair stopped after landing k pages now reads Paused k of N with Resume, by every stop route; with k = 0 it still reads Downloaded N of N until Verify Images (G-15-2G kept)"
+  - "G-20-09-1, found here and then fixed (`ba23bb5c4` test, `6d209450e` fix): a whole-gallery repair stopped after landing k pages now reads Paused k of N with Resume, by every stop route"
+  - "The k = 0 residual, closed on direction (EhPanda msgs 2901 and 2903): K0-a (`a19e8597f`, `1fe0989f5`), B1 (`c095a0233`, `a478910e1`) and K0-c by the in-app Pause (`740dbe80c`, `52c5c7184`). A repair stopped before any page lands now reads Paused 0 of N with Resume, immediately or while queued, across a cold launch. G-15-2G kept: a record drops whole only when two independent fresh scans both find every claimed page absent"
 affects: []
 
 actuals:
   tokens: 160000
   tasks: 2
-  commits: 6
+  commits: 13
 
 tech-stack:
   added: []
@@ -23,10 +24,18 @@ key-files:
   created:
     - .planning/phases/20-3-0-distribution-marketplace-build-notarization-listing-rele/20-09-DEVICE.md
     - AppPackage/Tests/DownloadsFeatureTests/DownloadInterruptedRunWriteBackTests.swift
+    - AppPackage/Tests/DownloadsFeatureTests/DownloadWholesaleAbsenceTests.swift
+    - AppPackage/Sources/DownloadClient/DownloadClient+WholesaleAbsenceEvidence.swift
   modified:
     - AppPackage/Sources/DownloadClient/DownloadClient+Execution.swift
     - AppPackage/Sources/DownloadClient/DownloadClient+ExecutionSupport.swift
+    - AppPackage/Sources/DownloadClient/DownloadClient+Folders.swift
     - AppPackage/Sources/DownloadClient/DownloadClient+Manager.swift
+    - AppPackage/Sources/DownloadClient/DownloadClient+PersistenceNormalize.swift
+    - AppPackage/Sources/DownloadClient/DownloadClient+PublicAPI.swift
+    - AppPackage/Sources/DownloadClient/DownloadClient+RetryHelpers.swift
+    - AppPackage/Sources/DownloadClient/DownloadClient+Scheduling.swift
+    - AppPackage/Sources/DownloadClient/DownloadClient+Testing.swift
     - AppPackage/Sources/DownloadClient/DownloadClient+WorkingManifestReconciliation.swift
     - AppPackage/Tests/DownloadsFeatureTests/DownloadContinuedSessionRunProofTests.swift
     - AppPackage/Tests/DownloadsFeatureTests/DownloadLogPrivacyInvariantTests.swift
@@ -35,7 +44,7 @@ key-files:
 key-decisions:
   - "Both device checks were run entirely by the agent through the Device MCP app, with the owner's consent (owner msgs 2885 and 2887 for the iPad, owner msg 2893 for the iPhone). The owner tapped nothing."
   - "Only the owner's iPad mini and his test iPhone 11 were used. The build used his local signing, copied in for the build and removed afterwards, so no tracked file changed."
-  - "G-20-09-1 was first filed, because this plan changes no code. It is not an SC2 failure: the card cancel and an in-app pause leave the same state. It was then fixed on direction, test first, by writing the run's on-disk progress back to the record at the run's exit. G-15-2G was not weakened, so a repair stopped before any page landed keeps its pre-repair claim."
+  - "G-20-09-1 was first filed, because this plan changes no code. It is not an SC2 failure: the card cancel and an in-app pause leave the same state. It was then fixed on direction, test first, by writing the run's on-disk progress back to the record at the run's exit. G-15-2G was not weakened, so a repair stopped before any page landed kept its pre-repair claim. That k = 0 residual was then closed on the product lead's direction (EhPanda msgs 2901 and 2903): the record drops whole only when two independent fresh scans both find every claimed page positively absent, which a single transient scan can never satisfy."
 
 patterns-established:
   - "On a device under test, bring the app forward with `xcrun devicectl device process launch`. Device MCP's `launch_app` relaunches a running app, and that ends a continued-processing session."
@@ -74,9 +83,11 @@ status: complete
   system card, repairs, and the card's cancel compared with pausing by hand.
 - **One new observation, G-20-09-1, was found and then fixed.** A paused whole-gallery repair read "Downloaded N
   of N" until it was verified again. After the fix, a repair stopped after landing k pages reads "Paused k of N"
-  with Resume. The one exception is a repair stopped before any page lands (k = 0), which is a decided residual.
+  with Resume. The k = 0 case was first left as a decided residual, then closed on the product lead's direction:
+  a repair stopped before any page lands now reads "Paused 0 of N" with Resume too.
 - The plan itself changed no code. The G-20-09-1 fix came afterwards, on direction: `ba23bb5c4` (test) and
-  `6d209450e` (fix).
+  `6d209450e` (fix). The k = 0 closure is three test-then-fix pairs: K0-a (`a19e8597f`, `1fe0989f5`), B1
+  (`c095a0233`, `a478910e1`) and K0-c by the in-app Pause (`740dbe80c`, `52c5c7184`).
 
 ## Performance
 
@@ -123,8 +134,25 @@ status: complete
     After a card cancel it read Paused 26 / 112, with Resume both times.
   - **App termination:** there is no hook. The record keeps its stale claim until the next launch. Then the
     queue resumes the run, and its preparation reconciles the folder (Downloading 22 / 112).
-  - **The residual (k = 0):** a repair paused before any page lands still reads Downloaded 112 of 112 until
-    Verify Images, because G-15-2G was kept as it was.
+  - **The residual (k = 0):** a repair paused before any page landed still read Downloaded 112 of 112 until
+    Verify Images, because G-15-2G was kept as it was. It was closed afterwards, below.
+- **The k = 0 residual (closed, EhPanda msgs 2901 and 2903).**
+  - **K0-a:** a repair stopped after its run announced its measurement but before any page landed. The run-exit
+    write-back passes the run's own positive absences as corroboration, so the whole-gallery guard stands aside
+    only where the preparation's scan and the exit's fresh scan agree page by page.
+  - **B1:** the stops with no run evidence, during the payload fetch (K0-b) and while queued (K0-c). Verify
+    Images' full scan keeps "every claimed page positively absent" as in-memory evidence only. A stop consumes it
+    once, and blanks only if the folder and claimed hashes are unchanged and its own fresh scan agrees. Delete,
+    redownload or update, folder move, completion, a later Verify and relaunch drop the evidence, and a
+    reappearing file makes the stop decline. Each drop has a test.
+  - **Found on the device:** the in-app Pause of a queued repair cancels the queued work item instead of pausing
+    it, so it never reached `commitPause` and still read Downloaded 112 of 112. `740dbe80c` pins it and
+    `52c5c7184` runs the same write-back there.
+  - **Tests:** `DownloadWholesaleAbsenceTests` 12 of 12. `DownloadsFeatureTests` ran 515: 509 passed, 6 were
+    expected failures, and none failed.
+  - **On the device (`52c5c7184`):** Pause straight after Retry Pages, and Pause while queued behind Ix's
+    repair, each read Paused 0 of 112 with Resume. Both survived a cold launch, and Resume finished M at
+    112 / 112. Ix, the gallery ahead, ended at 144 / 144 rather than its August Paused 11 / 144.
 
 ## Task Commits
 
@@ -133,7 +161,14 @@ status: complete
 3. **Plan metadata** — `13919f375` (docs)
 4. **G-20-09-1 failing test** — `ba23bb5c4` (test)
 5. **G-20-09-1 fix** — `6d209450e` (fix)
-6. **G-20-09-1 device check** — this record update (docs)
+6. **G-20-09-1 device check** — `9f66a7521` (docs)
+7. **K0-a failing test** — `a19e8597f` (test)
+8. **K0-a fix** — `1fe0989f5` (fix)
+9. **B1 failing tests** — `c095a0233` (test)
+10. **B1 fix** — `a478910e1` (fix)
+11. **K0-c in-app Pause failing test** — `740dbe80c` (test)
+12. **K0-c in-app Pause fix** — `52c5c7184` (fix)
+13. **k = 0 device check** — this record update (docs)
 
 ## Files Created/Modified
 
@@ -165,9 +200,18 @@ status: complete
   `xcrun devicectl device process launch`.
 - **Effect:** Round A's card and repair observations stand.
 
+**3. [Found on device] The in-app Pause of a queued repair took a route the B1 tests did not drive.**
+- **What happened:** the K0-c case paused through `pause(gid:)`, the card and expiry route. The in-app Pause is
+  `togglePause`, which cancels a queued repair's work item through `cancelQueuedWorkItem` and never reaches
+  `commitPause`. On the iPhone, that read Downloaded 112 of 112 with no Resume.
+- **What was done:** a failing test through `togglePause` (`740dbe80c`), then the same write-back in that exit
+  (`52c5c7184`), then the device steps again on the new build.
+- **Effect:** none left. Step 2 passed on `52c5c7184`.
+
 ---
 
-**Total deviations:** 2. Both were method changes, and neither affected a verdict.
+**Total deviations:** 3. Two were method changes, and neither affected a verdict. The third was a missed route,
+fixed test first and checked again on the device.
 
 ## Issues Encountered
 
@@ -180,8 +224,9 @@ status: complete
 ## Next Phase Readiness
 
 - SC7 (both device checks on owner hardware) is met.
-- **G-20-09-1 is fixed.** The k = 0 residual is the one left, and it is decided: G-15-2G stays, and Verify Images
-  recovers that case.
+- **G-20-09-1 is fixed, and its k = 0 residual is closed.** G-15-2G stays: Verify Images alone still never blanks
+  a whole gallery, and a whole record drops only when Verify's scan and a stop's fresh scan both find every
+  claimed page absent.
 - The local evidence stays in `$HOME/Movies/Device MCP/ehp20-09/`: recordings, screenshots, logs and drivers.
   It is not committed, because it shows adult content and the device names.
 
@@ -190,4 +235,5 @@ status: complete
 - `20-09-DEVICE.md` exists, with ten launch rows. `grep -cE "^\| *[0-9]+ *\| *[0-9.]+ s"` gives 10.
 - It has two outcome lines. `grep -ciE "outcome: (as designed|gap)"` gives 2.
 - `git diff --stat ac03a2ca6 13919f375 -- AppPackage App` is empty: the plan itself changed no code. The
-  G-20-09-1 fix is in `ba23bb5c4` and `6d209450e`.
+  G-20-09-1 fix is in `ba23bb5c4` and `6d209450e`, and the k = 0 closure is in `a19e8597f`, `1fe0989f5`,
+  `c095a0233`, `a478910e1`, `740dbe80c` and `52c5c7184`.

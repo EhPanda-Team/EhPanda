@@ -213,9 +213,10 @@ when a whole-gallery repair starts. Either one is a code change, outside this pl
 
 ### G-20-09-1 fix and its device check (07:30 to 07:50)
 
-**Outcome: fixed, with one decided residual.** The first option was taken. When a repair stops after landing
-k pages, it now writes its true on-disk progress back to the record. The row reads "Paused k of N" with Resume,
-never "Downloaded N of N". G-15-2G is unchanged: validation alone still never blanks a whole gallery.
+**Outcome: fixed, with one decided residual** (closed afterwards, see the next section). The first option was
+taken. When a repair stops after landing k pages, it now writes its true on-disk progress back to the record. The
+row reads "Paused k of N" with Resume, never "Downloaded N of N". G-15-2G is unchanged: validation alone still
+never blanks a whole gallery.
 
 **The change:** the failing test came first in `ba23bb5c4`, and the fix is `6d209450e`.
 
@@ -257,6 +258,49 @@ never "Downloaded N of N". G-15-2G is unchanged: validation alone still never bl
 Device MCP's `list_crashes` listed no EhPanda crash, spin or hang report after these runs. The local evidence
 is the sheet and row screenshots, the copied manifests and the app logs, all kept on this Mac.
 
+### The k = 0 residual closed: K0-a and B1, and their device check (08:28 to 09:10)
+
+**Outcome: closed.** The product lead asked for the k = 0 case to read "Paused 0 of N" with Resume, never
+"Downloaded N of N" (EhPanda msgs 2901 and 2903). On the iPhone, an immediate pause and a pause while queued
+both now read **Paused 0 of 112** with Resume, keep it across a cold launch, and Resume finishes at 112 / 112.
+G-15-2G is unchanged: one scan alone still never blanks a whole gallery.
+
+**The changes, each test first:**
+
+| Commits | What |
+|---|---|
+| `a19e8597f` test, `1fe0989f5` fix | **K0-a.** A repair stopped after its run announced its measurement, but before any page landed. The run-exit write-back passes the run's own positive absences as corroboration, so the whole-gallery guard stands aside only where the preparation's scan and the exit's fresh scan agree page by page. |
+| `c095a0233` test, `a478910e1` fix | **B1.** The stops with no run evidence: a pause during the payload fetch (K0-b), and a pause or card cancel while queued behind another gallery (K0-c). When Verify Images' full scan finds every claimed page positively absent, G-15-2G still refuses, and the finding is kept in memory as evidence only. A stop then consumes it once. It blanks only if the gallery is in the same folder with the same claimed hashes, AND a fresh scan taken at the stop also finds every claimed page absent. The evidence is dropped on delete, redownload or update, folder move, completion, a later Verify that does not find it again, and relaunch. A file that reappears makes the stop's scan decline. Each drop has a test. |
+| `740dbe80c` test, `52c5c7184` fix | **K0-c by the in-app Pause.** Found on the device, below. For a queued repair, `togglePause` cancels the queued work item (`cancelQueuedWorkItem`) and never reaches `commitPause`. That exit now runs the same write-back under the same rule. |
+
+**Tests (simulator, iPhone, iOS 27.2):**
+
+- Before each fix, its new cases failed. Before B1, 10 of the 11 cases failed; the control case passed. Before
+  `52c5c7184`, the in-app queued case failed with the record still claiming 6 of 6.
+- After `52c5c7184`, `DownloadWholesaleAbsenceTests` passed 12 of 12. `DownloadsFeatureTests` ran 515 tests:
+  509 passed, 6 were expected failures, and none failed.
+- The bracket census went from 7 to 8 and the hash-masked log census from 14 to 15.
+- SwiftLint reported nothing on the changed files.
+
+**Device:** the owner's test iPhone 11, iOS 27.2, with the same consent (owner msg 2893). The owner tapped
+nothing. Release builds of `a478910e1` and then `52c5c7184`, 3.0.0 (159), were made with the Task 1 build line
+and signing handling, and installed over the copy on the device. No tracked file changed. Each fixture was M with
+all 113 image files deleted in Files.app and `manifest.json` kept. Verify Images then read "Needs Attention 112
+of 112".
+
+| Step | Build | Observation |
+|---|---|---|
+| 1. Pause straight after Retry Pages (08:32) | `a478910e1` | The sheet read **"Paused 0 of 112"**, with Downloaded (0), Pending (112) and **Resume**. The log showed `blanked page count: 112`, then `Download paused`. The copied `manifest.json` claimed 0 of 112 pages. After a cold launch, the row and sheet still read Paused 0 of 112 with Resume. Resume finished M at 112 / 112. |
+| 2. Pause while queued (08:40) | `a478910e1` | **Failed.** Ix was resumed from its Paused 11 / 144 and was downloading. M's Retry Pages read "Queued 112 of 112". After Pause, M read **"Downloaded 112 of 112"**, with Pause disabled and no Resume. The log had no line for M. This is how `740dbe80c` and `52c5c7184` were found. Ix was paused again at 54 / 144. |
+| 2. Pause while queued (08:54) | `52c5c7184` | The first try was void: a slow driver call let Ix finish and M start, so M was left to finish. In the counted try, Ix was given the same fixture (145 files deleted, Verify, Retry Pages) so it was downloading (6 / 144). M's Retry Pages read **"Queued 112 of 112"**. Pause then read **"Paused 0 of 112"**, with Downloaded (0), Pending (112) and **Resume**. The log showed `blanked page count: 112` for M. Ix carried on to 144 / 144, and M stayed paused. |
+| 3. Cold launch (08:58) | `52c5c7184` | The row and sheet still read Paused 0 of 112 with Resume. The copied `manifest.json` claimed 0 of 112 pages. |
+| 4. Resume (08:58 to 09:00) | `52c5c7184` | M finished at 112 / 112. |
+| 1, repeated (09:06) | `52c5c7184` | One try was void: the Pause tap landed before the button was enabled, so the run was paused later at Paused 5 of 112 (the G-20-09-1 route) and resumed to 112 / 112. In the counted try, Pause 0.4 s after Retry Pages read **"Paused 0 of 112"** with Resume. The log showed `blanked page count: 112`, then `Download paused`. A cold launch kept Paused 0 of 112 with Resume, and Resume finished M at 112 / 112. |
+
+The gallery was left as found: M at 112 / 112 with 113 image files. **Ix was not left as found.** It had been
+Paused 11 / 144 since August, and it is now Downloaded 144 / 144, because it was the gallery ahead in step 2.
+Device MCP's `list_crashes` listed no EhPanda crash, spin or hang report after these runs.
+
 ### Evidence (local to this Mac, not committed)
 
 This evidence is kept out of the repository because it shows adult content and the device's name. It is all in
@@ -270,6 +314,9 @@ This evidence is kept out of the repository because it shows adult content and t
 - Card read log and its reader: `card.log` and `monitor.py`.
 - The app's activity logs: `app-log-run2.jsonl` and `app-log-run3.jsonl`.
 - iPhone build log: `build-iphone.log`.
+- The k = 0 check, in `k0-b1/`: the sheet screenshots of each step (`b1-step*.jpg`, including the failed
+  queued pause on `a478910e1`), the copied manifests (`manifest-step1.json` and `manifest-step2.json`), the app's
+  activity logs (`app-log-b1-*.jsonl`) and the `52c5c7184` build log.
 
 After the run, Device MCP's `list_crashes` (kind `all`) listed no EhPanda crash, spin or hang report on the
 iPhone.
