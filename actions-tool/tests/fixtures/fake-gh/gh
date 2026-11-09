@@ -1,0 +1,83 @@
+#!/usr/bin/env python3
+"""A recording stand-in for `gh` in the AltStore PAL publish tests (20-05). It never reaches the network.
+
+Each call is appended as one JSON line to `$FAKE_GH_LOG`. Releases live in `$FAKE_GH_STATE`, a directory with
+`releases.json` ({tag: {"tag_name", "draft", "published_at", "assets": [{"name", "size", "browser_download_url"}]}})
+and the uploaded files under `assets/<tag>/`. `$FAKE_GH_CORRUPT` names an asset whose stored copy gets one byte
+changed on upload, as if the upload altered it.
+
+Supported: `api repos/<repo>/releases/tags/<tag>`, `release upload <tag> <file>... --repo <repo>` and
+`release download <tag> --repo <repo> --pattern <name> --dir <dir>`. Anything else exits 2, so a `release
+create`, `edit` or `delete` can never pass silently.
+"""
+import json
+import os
+import pathlib
+import shutil
+import sys
+
+
+def option(arguments, name):
+    return arguments[arguments.index(name) + 1] if name in arguments else None
+
+
+def state():
+    root = pathlib.Path(os.environ["FAKE_GH_STATE"])
+    path = root / "releases.json"
+    return root, path, (json.loads(path.read_text()) if path.exists() else {})
+
+
+def main(arguments):
+    log = os.environ.get("FAKE_GH_LOG")
+    if log:
+        with open(log, "a") as handle:
+            handle.write(json.dumps(arguments) + "\n")
+    root, path, releases = state()
+
+    if arguments[:1] == ["api"] and len(arguments) == 2 and "/releases/tags/" in arguments[1]:
+        tag = arguments[1].rsplit("/", 1)[1]
+        if tag not in releases:
+            print("gh: Not Found (HTTP 404)", file=sys.stderr)
+            return 1
+        print(json.dumps(releases[tag]))
+        return 0
+
+    if arguments[:2] == ["release", "upload"]:
+        tag, repo = arguments[2], option(arguments, "--repo")
+        files = [a for a in arguments[3:] if not a.startswith("--") and a != repo]
+        if tag not in releases:
+            print(f"release not found: {tag}", file=sys.stderr)
+            return 1
+        release = releases[tag]
+        store = root / "assets" / tag
+        store.mkdir(parents=True, exist_ok=True)
+        for file in files:
+            name = pathlib.Path(file).name
+            if any(asset["name"] == name for asset in release["assets"]):
+                print(f"asset under the same name already exists: {name}", file=sys.stderr)
+                return 1
+            data = bytearray(pathlib.Path(file).read_bytes())
+            if os.environ.get("FAKE_GH_CORRUPT") == name and data:
+                data[len(data) // 2] ^= 0x01
+            (store / name).write_bytes(bytes(data))
+            release["assets"].append({"name": name, "size": len(data),
+                                      "browser_download_url": f"https://github.com/{repo}/releases/download/{tag}/{name}"})
+        path.write_text(json.dumps(releases, indent=2))
+        return 0
+
+    if arguments[:2] == ["release", "download"]:
+        tag, name, directory = arguments[2], option(arguments, "--pattern"), option(arguments, "--dir")
+        source = root / "assets" / tag / name
+        if not source.exists():
+            print(f"no assets match the file pattern: {name}", file=sys.stderr)
+            return 1
+        pathlib.Path(directory).mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(source, pathlib.Path(directory) / name)
+        return 0
+
+    print("fake gh: unsupported command", file=sys.stderr)
+    return 2
+
+
+if __name__ == "__main__":
+    sys.exit(main(sys.argv[1:]))
