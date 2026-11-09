@@ -29,7 +29,16 @@ env:
   BETA_IPA_PATH: '/tmp/action-builds/EhPanda-Beta.ipa'
 
 jobs:
+  # No beta builds without a green full screenshot matrix in compare mode (19-10; D-16).
+  snapshot-gate:
+    if: github.event_name == 'workflow_dispatch'
+    permissions:
+      contents: read
+    uses: ./.github/workflows/snapshot-gate.yml
+    with:
+      mode: compare
   Deploy:
+    needs: snapshot-gate
     runs-on: xcode-27
     if: github.event_name == 'workflow_dispatch'
     steps:
