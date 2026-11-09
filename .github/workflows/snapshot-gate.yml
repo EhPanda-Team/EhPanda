@@ -107,10 +107,11 @@ jobs:
     timeout-minutes: 90
     permissions:
       contents: read
-    # The pinned Xcode (regression-environment.json), not the image's default: the default moved to 27.1 and every
-    # shard of run 42562780142 recorded drift. The image keeps 27.0 under this path.
+    # The pinned Xcode (regression-environment.json), named rather than the image's default: run 42562780142 met a
+    # default that had moved from the pin, and every shard recorded drift. The pin is 27.1, the oldest Xcode whose
+    # SDK declares the iOS 27.1 API the app uses; the runtime stays iOS 27.0 (24A434).
     env:
-      DEVELOPER_DIR: /Applications/Xcode_27.0.app/Contents/Developer
+      DEVELOPER_DIR: /Applications/Xcode_27.1.app/Contents/Developer
     outputs:
       shards: ${{ steps.shards.outputs.shards }}
     steps:
@@ -172,7 +173,7 @@ jobs:
         shard: ${{ fromJSON(needs.build.outputs.shards) }}
     env:
       MODE: ${{ needs.checks.outputs.mode }}
-      DEVELOPER_DIR: /Applications/Xcode_27.0.app/Contents/Developer
+      DEVELOPER_DIR: /Applications/Xcode_27.1.app/Contents/Developer
     steps:
       # The tests read the scenario inventory and the rendering pin from the checkout, at the path they were built
       # at, which is the same on every hosted runner.
@@ -298,7 +299,7 @@ jobs:
         shard: ${{ fromJSON(needs.triage.outputs.shards) }}
     env:
       MODE: ${{ needs.checks.outputs.mode }}
-      DEVELOPER_DIR: /Applications/Xcode_27.0.app/Contents/Developer
+      DEVELOPER_DIR: /Applications/Xcode_27.1.app/Contents/Developer
     steps:
       - name: Checkout
         uses: actions/checkout@v7
@@ -388,7 +389,7 @@ jobs:
           - family: iphone
           - family: ipad
     env:
-      DEVELOPER_DIR: /Applications/Xcode_27.0.app/Contents/Developer
+      DEVELOPER_DIR: /Applications/Xcode_27.1.app/Contents/Developer
     steps:
       - name: Checkout
         uses: actions/checkout@v7
