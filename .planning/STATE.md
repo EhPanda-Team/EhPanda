@@ -21,7 +21,7 @@ source_head: 891103afa
 
 # Project State
 
-**Phase 20 planned** (2026-11-09) on `feature/gsd-phase-20`, in parallel with Phase 19 (owner msg 2770; product lead msg 2771): `20-CONTEXT.md`, `20-RESEARCH.md`, 14 plans following the fixed order (D-14), and `20-VALIDATION.md`; OQ-1 resolved by D-22 (product lead msg 2775: the current icon is kept). Product lead msg 2783 answered OQ-G, OQ-C and OQ-D (D-23 to D-25): 20-07, 20-09 and 20-12 start in wave 1, so the phase runs in 8 waves; the PAL `developerName` is "EhPanda Team"; the copywriter writes a PAL-specific subtitle and description, approved by the owner at the listing step with the first screenshot's caption. Open before or during execution: OQ-A, OQ-B, OQ-E and OQ-F (20-RESEARCH.md).
+**Phase 20 planned** (2026-11-09) on `feature/gsd-phase-20`, in parallel with Phase 19 (owner msg 2770; product lead msg 2771): `20-CONTEXT.md`, `20-RESEARCH.md`, 14 plans following the fixed order (D-14), and `20-VALIDATION.md`; OQ-1 resolved by D-22 (product lead msg 2775: the current icon is kept). Product lead msg 2783 answered OQ-G, OQ-C and OQ-D (D-23 to D-25): 20-07, 20-09 and 20-12 start in wave 1, so the phase runs in 8 waves; the PAL `developerName` is "EhPanda Team"; the copywriter writes a PAL-specific subtitle and description, approved by the owner at the listing step with the first screenshot's caption. Owner msg 2802 (D-26): 3.0 ships on GitHub and AltStore Classic first, with ehpanda.app going live at that release, and the AltStore PAL submission follows. So 20-08 moves to wave 8 after 20-14, OQ-A is answered (20-10's set) and OQ-B is moot. Open before or during execution: OQ-E and OQ-F (20-RESEARCH.md).
 
 ## Phase 20 executing — 2026-11-09
 
