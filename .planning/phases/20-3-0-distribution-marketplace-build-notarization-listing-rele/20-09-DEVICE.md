@@ -97,6 +97,133 @@ did **not** reproduce on real hardware with a Release build of this branch, in t
 device size (iPad mini, portrait) and one OS (iPadOS 27.2). Larger iPads and landscape were not covered here.
 Nothing reproduced, so this check raises no gap for a closure plan.
 
-## Task 2: iPhone continued background downloads
+## Task 2: iPhone continued background downloads (Phase 15 SC2)
 
-Not run yet (Task 1 only in this pass).
+**Outcome: as designed.** The SC2 procedure was repeated on the 3.0 build, with three continued-processing
+sessions across two queues, each with a repair. On every frame read, the system card showed real progress
+that never went backward, and it kept "· 2 galleries" up to the moment of the cancel. Both repairs climbed
+from their announce. In both card cancels, every gallery in the queue was paused. To compare a repair, the
+same repair was then paused by hand in the app, and it ended in the same state. One observation from that
+comparison is filed for the owner as **G-20-09-1** below. It is not an SC2 failure, because both routes behave
+the same way.
+
+All times below are UTC on 2026-11-09.
+
+### Consent and setup
+
+- Consent: owner msg 2893, answering card 2892. The agent ran the whole procedure through the Device MCP app.
+  The owner tapped nothing, and no passcode or Face ID prompt came up.
+- Device: the owner's test iPhone 11 (iPhone12,1), iOS 27.2 (24B120), on Wi-Fi with airplane mode on, and
+  charging. While the app was in the background, the app's log reported the thermal state as `serious`. Nothing
+  slowed because of it: pages kept arriving at 1 to 2 s each.
+- Build: the same Release build as Task 1, 3.0.0 (159). The branch head was `d7825a89e`, which differs from Task
+  1's `8fa2809cb` only by this file. It was built with the same `xcodebuild ... -configuration Release ...
+  -allowProvisioningUpdates build` line, with the iPhone as the destination. The build succeeded. The signing
+  handling and the missing analytics app ID were the same as in Task 1, and no tracked file changed.
+- Install: `xcrun devicectl device install app` over the copy already on the iPhone. The app's data from the
+  Phase 15 rounds in August was kept, so their galleries were available.
+- Setup the agent did on the device: it trusted the development certificate in Settings, and at the first launch
+  it ticked the age declaration and chose **Minimal** analytics.
+- How the agent observed:
+  - The system card: Device MCP's accessibility tree of the Lock Screen, read every 11 to 12 s, plus screenshots.
+  - The app: its own activity log, copied off the device with `xcrun devicectl device copy from`.
+  - The queue: the Downloads rows and each gallery's Download Status sheet.
+  - The whole session was screen-recorded (31.7 min).
+- Repair fixture: built as in Phase 15 round 6. The agent opened the gallery's folder in Files.app, deleted every
+  image file from outside EhPanda, and left only `manifest.json`. The record still claimed every page while no
+  page was on disk. In the app, Verify Images then marked the gallery Needs Attention, and Retry Pages
+  started the repair.
+
+### Round A: repair and second gallery, card watched (06:16 to 06:20)
+
+| Step | Observation |
+|---|---|
+| Repair fixture | Onna no Battle (27 pages): all image files deleted in Files.app. Verify Images, then Retry Pages. |
+| Start in foreground | Session granted at 06:16:06. Heartbeats `6 / 27`, `13 / 27`, `19 / 27`, `1 galleries`: **the repair climbed from its announce**, not from the record's stale 27. |
+| Second gallery | Berserk guidebook (194 pages, about 56 already on disk) resumed at 06:16:45. The basis became `83 / 221`, `2 galleries`. The repair completed at 06:16:49 with all 27 pages and the cover written again. |
+| Background | 06:16:55. |
+| System card | 15 Lock Screen reads from 06:17:18 to 06:20:14, all "Downloading Galleries · N / 221 pages · 2 galleries": 98, 102, 109, 116, 119, 119, 119, 122, 127, 130, 134, 135, 144, 147, 153. One more read at 06:19:39 got no accessibility tree (OCR only) and is not counted. The count **never went backward**. The three reads at 119 are a page transfer that got no bytes for 13 s. The app logged it as starved and nudged its progress (nudge 2 to 4 of 30, far below one page). The card held its value and did not fall. |
+| Cancel | **Not reached in this round.** At 06:20:33 the agent's driver used Device MCP's `launch_app` to bring the app forward. That relaunched the app, ending the process, and with it the session, at `153 / 221`. iOS then left a "Downloading Galleries · Task failed" card under Background Activities. This was a driver error, not the procedure. Every later foreground used `xcrun devicectl device process launch`, which brings the running process forward (same process id afterwards). |
+
+### Round B: two galleries, cancel from the card (06:22 to 06:24)
+
+| Step | Observation |
+|---|---|
+| Start in foreground | After the relaunch, Berserk carried on in the foreground from page 131 with no session, reaching 149 / 194 by 06:21:46. Ix (144 pages, paused in the app at 11 since August) was resumed in the app at 06:22:00. The session was granted at once with a basis of `338` = 194 + 144, `2 galleries`. |
+| Background | 06:22:10. Heartbeats `177`, `184`, `192`, `198`, `204` `/ 338 pages, 2 galleries`. |
+| System card | Photographed at 06:22:54: "Downloading Galleries · 205 / 338 pages · 2 galleries", stop button live. Round A's "Task failed" card was still listed above it. |
+| Cancel from the card | The agent pressed the card's stop button at 06:22:54. Berserk had completed one second before (194 pages, 06:22:53). The log shows: `Continued-processing session expired, pausing schedulable downloads.` and then `Download paused` for Ix. That expired line follows a real cancel press here. The card disappeared. |
+| Foreground and compare | 06:24:33. Berserk: Downloaded 194 / 194. Ix: **Paused 11 / 144**, resumable. That is the state Ix had from pausing it by hand in the app, so nothing was lost and nothing was left running. |
+
+### Round C: repair plus a paused gallery, cancel from the card mid-repair (06:27 to 06:33)
+
+| Step | Observation |
+|---|---|
+| Repair fixture | Gallery M (gid 4127369, 112 pages): all 113 image files deleted in Files.app, `manifest.json` kept. Verify Images, then Retry Pages. |
+| Start in foreground | Session granted at 06:27:55. Heartbeats `8 / 112`, `15 / 112`, `1 galleries`: **the repair climbed from its announce**. Ix was resumed at 06:28:24, and the basis became `36 / 256` (112 + 144), `2 galleries`. |
+| Background | 06:28:35. The card on the Lock Screen at 06:28:39 read "42 / 256 pages · 2 galleries". |
+| System card | 8 reads from 06:28:43 to 06:30:04, all "N / 256 pages · 2 galleries": 42, 47, 56, 66, 73, 81, 90, 97. The count only went up. The log continued to `114 / 256` at 06:30:28. Ix stayed at 11 the whole time because the queue downloads one gallery at a time. |
+| Cancel from the card | The agent pressed the stop button. The log at 06:30:36 shows: `session expired, pausing schedulable downloads`, `Download paused` for M (page 110 had just started), and `Download paused` for Ix. The card disappeared from the Lock Screen (screenshot at 06:30:45). |
+| Foreground and compare | 06:32:47, the same process brought forward. Ix: **Paused 11 / 144**. M: the row and its Download Status sheet read **"Downloaded 112 of 112"**, with Downloaded (112), Pending (0), Pause disabled, and no Resume. On disk there were 110 pages and the cover. Verify Images (06:33:53, `Working manifest reconciled, blanked page count: 2`) changed it to Paused 110 / 112, Pending 111 to 112, with Resume. Resume finished M at 06:35:33 (112 pages). |
+
+### In-app pause baseline for the repair (06:36 to 06:39)
+
+Before this check, the record had only been seen being paused from the card in the middle of a repair. To
+compare, the same fixture was rebuilt on M and paused by hand:
+
+1. All 113 image files were deleted in Files.app, with `manifest.json` (112 of 112 hashes) kept. The row then
+   read "Downloaded 112 of 112". After Verify Images it read "Needs Attention 112 of 112".
+2. Retry Pages at 06:37:39 started the repair. Heartbeat `8 / 112`. The sheet read "Downloading 10 of 112",
+   Pending 11 to 112, so the repair climbed from its announce again.
+3. The sheet's **Pause** button at 06:37:55. Logged: `session drained, terminal progress pushed`, then
+   `Download paused`. The row and sheet then read **"Downloaded 112 of 112"**, with Pending (0) and Pause
+   disabled. This is exactly the state the card cancel left in Round C.
+4. Verify Images (06:38:09, `blanked page count: 99`) changed it to Paused 13 / 112. Resume brought M back to
+   Downloaded 112 / 112, with 112 pages, the cover and the manifest on disk.
+
+So the card cancel and an in-app pause end in the same state for a repair as well as for an ordinary download.
+This matches the design: the expiry path pauses each gallery through the same primitive as the app's Pause
+button (`DownloadClient+ContinuedSession.swift`, `pauseAllSchedulable`).
+
+### SC2 clauses
+
+| Clause (15-UAT test 2) | Verdict |
+|---|---|
+| One neutral card, "Downloading Galleries" | Pass. Each live session showed one card with the app icon, the title, and a stop button. |
+| The counts advance with real work and never go backward within a reporting regime | Pass. 23 card reads in Rounds A and C, all non-decreasing. The plateau in Round A was a starved transfer, held by the bounded nudge. The basis changed only when a gallery joined (27 to 221, 112 to 256), and the count went up across each change. |
+| The subtitle keeps the gallery count on every frame, including the last | Pass for every frame read. Each of them, including the last frame before both cancels, showed "· 2 galleries". This round had no drain-to-completion frame while the app was in the background. Rounds B and C ended by cancel, and the restore runs finished in the foreground. |
+| A repair climbs from its announce | Pass, three times: 6 / 27, then 8 / 112, then 8 / 112 again in the baseline. None started at the record's stale claim. |
+| Card-cancel state matches the in-app per-gallery pause baseline | Pass. Ix was Paused 11 / 144 after both cancels, the same as its hand-paused state. For M, the repair paused from the card and the repair paused by hand both read "Downloaded 112 of 112" until verified. |
+
+### G-20-09-1 (for the owner to decide; not an SC2 failure)
+
+**Observed:** when a repair is paused, whether from the card or by hand, the gallery reads "Downloaded N of N"
+while pages are still missing on disk. Pause is then disabled and there is no Resume. Only Verify Images brings
+back the true count and the Resume button. A reader opening it would meet the missing pages.
+
+**Cause:** Phase 15's design. The record claimed N of N when every file was deleted, and validation refuses
+to blank a whole gallery (closed as no defect in G-15-2G). While the repair is running, the row reads the run's
+progress (G-15-2F). Once the run stops, the row goes back to the record, and the record still claims every page.
+
+**Scope:** this needs a whole gallery deleted from outside the app and then a pause before the repair ends.
+Phase 15 never paused a repair, so this is new information, not a regression.
+
+**Options:** for example, write the run's progress to the record when a repair is paused, or blank the record
+when a whole-gallery repair starts. Either one is a code change, outside this plan.
+
+### Evidence (local to this Mac, not committed)
+
+This evidence is kept out of the repository because it shows adult content and the device's name. It is all in
+`$HOME/Movies/Device MCP/ehp20-09/`:
+
+- Screen recording: `ehp20-09-iphone-sc2.mov` (1903 s).
+- Card screenshots: `card-live-before-cancel.png`, `card-after-cancel.png`, `r2-card-1.png` and
+  `r2-card-after-cancel.png`.
+- Row and sheet screenshots: `card-state-1525.png`, `r2-mina-status.png` and
+  `baseline-repair-paused-sheet.png`.
+- Card read log and its reader: `card.log` and `monitor.py`.
+- The app's activity logs: `app-log-run2.jsonl` and `app-log-run3.jsonl`.
+- iPhone build log: `build-iphone.log`.
+
+After the run, Device MCP's `list_crashes` (kind `all`) listed no EhPanda crash, spin or hang report on the
+iPhone.
