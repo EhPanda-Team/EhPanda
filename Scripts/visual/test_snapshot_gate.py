@@ -224,10 +224,25 @@ class GateWorkflowTests(unittest.TestCase):
         pinned = json.loads(ENVIRONMENT.read_text())['toolchain']['xcode']
         version = re.fullmatch(r'Xcode (\S+)\nBuild version \S+', pinned.strip()).group(1)
         expected = f'/Applications/Xcode_{version}.app/Contents/Developer'
+        self.assertEqual(json.loads(ENVIRONMENT.read_text())['toolchain']['sdkVersion'], version)
         macos = [name for name, job in self.jobs.items() if job['runs-on'] != 'ubuntu-latest']
         self.assertEqual(sorted(macos), ['build', 'native-policy', 'retry', 'shard'])
         for name in macos:
             self.assertEqual(self.jobs[name].get('env', {}).get('DEVELOPER_DIR'), expected, name)
+
+
+    def test_the_pinned_sdk_declares_every_api_the_app_checks_for(self):
+        # An `#available(iOS 27.1, *)` branch calls API that only the 27.1 SDK declares (UIHingeInteraction,
+        # `toolbarVerticalCompressionBehavior`, `axisBehavior`), so an older pinned Xcode cannot build the gate's app.
+        sdk = json.loads(ENVIRONMENT.read_text())['toolchain']['sdkVersion']
+        checks = []
+        for folder in ('AppPackage/Sources', 'EhPanda', 'EhPandaUITests'):
+            for path in sorted((ROOT / folder).rglob('*.swift')):
+                for match in re.finditer(r'[#@]available\(iOS (\d+(?:\.\d+)*)', path.read_text()):
+                    checks.append((tuple(int(part) for part in match.group(1).split('.')), path.name))
+        newest, where = max(checks)
+        self.assertGreaterEqual(tuple(int(part) for part in sdk.split('.')), newest,
+                                f"{where} checks for iOS {'.'.join(map(str, newest))}; the pinned SDK is {sdk}")
 
 
 def expand(text, temp, shard):
