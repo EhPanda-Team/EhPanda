@@ -243,7 +243,7 @@ class RunShardTests(unittest.TestCase):
         self.assertEqual(self.calls(), [])
 
     def test_a_run_past_the_budget_is_stopped_rerun_once_and_recorded_as_a_timeout(self):
-        result = self.run_shard('s01', EHPANDA_SHARD_BUDGET_SECONDS='8', FAKE_CLASS_SECONDS='20')
+        result = self.run_shard('s01', EHPANDA_SHARD_BUDGET_SECONDS='12', FAKE_CLASS_SECONDS='20')
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
         record = self.record()
         self.assertEqual(record['infra'], 'timeout', record)
