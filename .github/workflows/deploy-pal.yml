@@ -2,7 +2,9 @@
 #
 # Dispatched by hand only, never by a push, tag or merge. The `submit` mode signs the marketplace build, uploads
 # it to App Store Connect, creates (or reuses) the version with review type Notarization and submits it. The
-# `publish` mode, added by 20-05, publishes the accepted package to AltStore PAL and can be re-dispatched.
+# `publish` mode (20-05) reads the accepted version's alternative distribution package (ADP) ID, has AltStore process
+# and serve the ADP, attaches it unchanged to the version's existing GitHub release and adds the version to
+# AltStorePAL.json on main. It can be re-dispatched; `dry_run` (default true) stops it before any upload or commit.
 #
 # Every live run touches the collaborator's App Store Connect account, so each one needs the owner's OK at the
 # time (D-07). The first live run is 20-08: after 3.0 has shipped on GitHub Releases and AltStore Classic, with
@@ -42,6 +44,11 @@ on:
           - submit
           - publish
         default: submit
+      dry_run:
+        description: 'publish only: check everything and print the plan, but upload and commit nothing'
+        required: false
+        type: boolean
+        default: true
 concurrency:
   group: deploy-pal
   cancel-in-progress: false
@@ -51,6 +58,8 @@ env:
   CHECK_BUILD_NUMBER_SCRIPT_PATH: './actions-tool/check-build-number.sh'
   ASC_TOOL_PATH: './actions-tool/asc.py'
   SIGNING_SCRIPT_PATH: './actions-tool/marketplace-signing.sh'
+  PAL_PUBLISH_TOOL_PATH: './actions-tool/pal_publish.py'
+  RELEASE_NOTES_TOOL_PATH: './actions-tool/release_notes.py'
   # The marketplace flavor (Config/Marketplace.xcconfig, included by the generated signing xcconfig).
   MARKETPLACE_BUNDLE_ID: 'app.ehpanda.marketplace'
   MARKETPLACE_URL_SCHEME: 'ehpanda-marketplace'
@@ -271,5 +280,97 @@ jobs:
           path: ${{ runner.temp }}/asc-calls.jsonl
           if-no-files-found: ignore
       - name: Tear down signing
+        if: always()
+        run: bash "$SIGNING_SCRIPT_PATH" teardown
+
+  publish:
+    runs-on: xcode-27
+    if: inputs.mode == 'publish'
+    environment: pal-notarization
+    permissions:
+      contents: write
+    timeout-minutes: 120
+    env:
+      VERSION: ${{ inputs.version }}
+      ASC_APP_ID: ${{ vars.PAL_MARKETPLACE_ID }}
+      ASC_KEY_ROLE: ${{ vars.ASC_KEY_ROLE }}
+    steps:
+      # The checkout's credentials push AltStorePAL.json to main, as deploy-beta.yml's do.
+      - name: Checkout
+        uses: actions/checkout@v7
+      - name: Modify git config
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+      - name: Check version
+        run: |
+          set -euo pipefail
+          [[ "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || { echo "::error::'$VERSION' is not a version like 3.0.0."; exit 1; }
+          [[ "$ASC_APP_ID" =~ ^[0-9]+$ ]] || { echo "::error::The PAL_MARKETPLACE_ID variable is not set to the app's Apple ID."; exit 1; }
+          # The PAL entry carries the release's notes in every language.
+          python3 "$RELEASE_NOTES_TOOL_PATH" check "ReleaseNotes/$VERSION.md"
+      - name: Write App Store Connect key
+        env:
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_KEY_P8: ${{ secrets.ASC_KEY_P8 }}
+        run: |
+          set -euo pipefail
+          bash "$SIGNING_SCRIPT_PATH" api-key
+          # D-21: every App Store Connect call of this run is appended here and uploaded at the end.
+          echo "ASC_CALL_RECORD=$RUNNER_TEMP/asc-calls.jsonl" >> "$GITHUB_ENV"
+      - name: Read the ADP ID
+        id: adp
+        env:
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+        run: |
+          set -euo pipefail
+          # Apple makes the package when the notarized version is accepted; this only reads its ID.
+          adp_id="$(python3 "$ASC_TOOL_PATH" adp-id --app "$ASC_APP_ID" --version "$VERSION")"
+          echo "adp_id=$adp_id" >> "$GITHUB_OUTPUT"
+      - name: Ask AltStore to process the ADP
+        env:
+          ADP_ID: ${{ steps.adp.outputs.adp_id }}
+        run: python3 "$PAL_PUBLISH_TOOL_PATH" process --adp-id "$ADP_ID"
+      - name: Fetch the ADP
+        env:
+          ADP_ID: ${{ steps.adp.outputs.adp_id }}
+        run: python3 "$PAL_PUBLISH_TOOL_PATH" fetch --adp-id "$ADP_ID" --out "$RUNNER_TEMP/adp" --interval 30 --timeout 3600
+      - name: Publish to AltStore PAL
+        env:
+          GH_TOKEN: ${{ github.token }}
+          DRY_RUN: ${{ inputs.dry_run }}
+        run: |
+          set -euo pipefail
+          dry_run=()
+          if [[ "$DRY_RUN" != "false" ]]; then
+            dry_run=(--dry-run)
+          fi
+          # The release must exist already: the tool finds it by the version's tag and never creates one (D-19).
+          python3 "$PAL_PUBLISH_TOOL_PATH" publish \
+            --version "$VERSION" \
+            --adp "$RUNNER_TEMP/adp" \
+            --repo "$GITHUB_REPOSITORY" \
+            --notes "ReleaseNotes/$VERSION.md" \
+            --marketplace-id "$ASC_APP_ID" \
+            --work "$RUNNER_TEMP/pal-publish" \
+            "${dry_run[@]}"
+          {
+            if [[ "$DRY_RUN" != "false" ]]; then
+              echo "### AltStore PAL $VERSION: dry run"
+              echo ""
+              echo "Nothing was uploaded or committed. Dispatch publish again with dry_run off to publish."
+            else
+              echo "### AltStore PAL $VERSION published"
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
+      - name: Upload the call record
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: asc-call-record-${{ inputs.version }}-publish
+          path: ${{ runner.temp }}/asc-calls.jsonl
+          if-no-files-found: ignore
+      - name: Remove the API key
         if: always()
         run: bash "$SIGNING_SCRIPT_PATH" teardown
