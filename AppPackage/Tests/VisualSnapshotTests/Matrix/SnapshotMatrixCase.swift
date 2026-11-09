@@ -55,6 +55,19 @@ class SnapshotMatrixCase: XCTestCase {
         }
         let coordinates = Self.coordinates(scenario: id, family: family, configuration: configuration)
             .filter({ run.orientations.contains($0.orientation) })
+        // A shard's re-run (Scripts/visual/run-shard.sh) runs a class again in every configuration of the
+        // invocation; a scenario that already wrote every line of this configuration keeps them (run 42577585956
+        // re-captured, then dropped, whole configurations a crash had left finished).
+        // Captured coordinates count, as in Scripts/visual/snapshot_shard.py's `pending`; a scenario with none
+        // counts its not-applicable lines.
+        if run.keepCaptured {
+            let recorded = try writer.recordedKeys()
+            let captured = coordinates.filter({ inventory.notApplicableReason(for: $0, pins: pins) == nil })
+            let needed = captured.isEmpty ? coordinates : captured
+            if !needed.isEmpty, needed.allSatisfy({ recorded.contains($0.key) }) {
+                throw XCTSkip("Captured before this re-run (EHPANDA_SNAPSHOT_KEEP_CAPTURED)")
+            }
+        }
         if let failure = configuration.failedCheck() {
             for coordinate in coordinates {
                 try writer.append(.failure(coordinate.key, reason: "configuration-\(failure)"))
@@ -292,6 +305,8 @@ struct SnapshotRunEnvironment {
     /// iPadOS refuses programmatic orientation changes, so an iPad process captures the orientation its device was
     /// turned to before launch.
     let orientations: [String]
+    /// The shard's re-run: a scenario whose lines of this configuration are all written already is skipped.
+    var keepCaptured = false
 
     static var current: Self {
         let environment = ProcessInfo.processInfo.environment
@@ -308,7 +323,8 @@ struct SnapshotRunEnvironment {
             orientations: value("EHPANDA_SNAPSHOT_ORIENTATIONS").map { names in
                 let wanted = Set(names.split(separator: ",").map(String.init))
                 return SnapshotCoordinate.orientations.filter(wanted.contains)
-            } ?? SnapshotCoordinate.orientations
+            } ?? SnapshotCoordinate.orientations,
+            keepCaptured: value("EHPANDA_SNAPSHOT_KEEP_CAPTURED") == "1"
         )
     }
 }

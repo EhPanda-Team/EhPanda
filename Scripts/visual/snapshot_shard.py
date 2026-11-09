@@ -9,7 +9,8 @@
 - `classes`: the `SnapshotMatrixCase` subclasses, read from the test sources, without the `Tracer*` classes (19-01's
   tracer is not part of the matrix).
 - `pending`: the classes of one invocation that still lack a result line for a coordinate they capture; `--prune`
-  first drops those classes' lines of that invocation, so their re-run writes each coordinate once.
+  first drops their unfinished scenarios' lines of that invocation (per configuration), so their re-run, which skips
+  every scenario already captured in a configuration, writes each coordinate once.
 - `drift`: whether this runner's Xcode build, runtime and device type match the rendering pin; prints each mismatch.
 - `fault`: the proof's injected fault for this shard and attempt, from `EHPANDA_SNAPSHOT_FAULT`
   (`<shard>=crash|no-artifact[@every-attempt],…`; by default the first attempt only).
@@ -97,9 +98,18 @@ def pending(shard, index, results, matrix_classes, document, env):
 
 
 def prune(shard, index, results, names, matrix_classes, document, env):
-    """Drops the result lines of `names` for this invocation's coordinates; every other line stays as it was."""
+    """Drops this invocation's lines of each scenario of `names` in each configuration where it lacks a captured
+    line, so its re-run writes each coordinate once; every other line stays as it was.
+
+    A scenario that has all its lines in a configuration keeps them: the re-run skips it there
+    (`EHPANDA_SNAPSHOT_KEEP_CAPTURED`, SnapshotMatrixCase). Run 42577585956 dropped every configuration's lines of a
+    re-run class and kept 186 to 378 of 1614 pictures in the shards a crash had hit.
+    """
     scenarios = {scenario for name in names for scenario in matrix_classes[name]}
-    dropped = {row.key for row, _ in invocation_rows(shard, index, document, env) if row.scenario in scenarios}
+    rows = [(row, reason) for row, reason in invocation_rows(shard, index, document, env) if row.scenario in scenarios]
+    done = read_keys(results)
+    unfinished = {(row.scenario, row.configuration) for row, reason in rows if reason is None and row.key not in done}
+    dropped = {row.key for row, _ in rows if (row.scenario, row.configuration) in unfinished}
     path = Path(results)
     if not path.is_file():
         return

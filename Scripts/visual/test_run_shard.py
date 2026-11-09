@@ -30,7 +30,8 @@ with open(fake / 'calls', 'a') as calls:
     calls.write(json.dumps({'kind': 'ui' if 'UITests' in xctestrun else 'snapshot', 'args': args,
                             'orientations': os.environ.get('TEST_RUNNER_EHPANDA_SNAPSHOT_ORIENTATIONS'),
                             'mode': os.environ.get('TEST_RUNNER_EHPANDA_SNAPSHOT_MODE'),
-                            'references': os.environ.get('TEST_RUNNER_EHPANDA_SNAPSHOT_REFERENCES')}) + '\n')
+                            'references': os.environ.get('TEST_RUNNER_EHPANDA_SNAPSHOT_REFERENCES'),
+                            'keep': os.environ.get('TEST_RUNNER_EHPANDA_SNAPSHOT_KEEP_CAPTURED')}) + '\n')
 if 'UITests' in xctestrun:
     print("Test case 'VisualCaptureOrientationUITests.turn()' passed")
     sys.exit(0)
@@ -44,12 +45,21 @@ crash = fake / 'crash-after'
 left = int(crash.read_text()) if crash.exists() else -1
 delay = float(os.environ.get('FAKE_CLASS_SECONDS', '0'))
 output.mkdir(parents=True, exist_ok=True)
+keep = os.environ.get('TEST_RUNNER_EHPANDA_SNAPSHOT_KEEP_CAPTURED') == '1'
+results = output / 'results.jsonl'
 for configuration in configurations:
     locale, size = configuration.rsplit('-', 1)
     for name in only:
         time.sleep(delay)
         print(f"Test case '{name}.test()' started")
         for scenario in classes[name]:
+            # SnapshotMatrixCase skips a scenario this configuration already captured when the re-run asks it to.
+            text = results.read_text() if results.exists() else ''
+            written = {json.loads(line)['key'] for line in text.splitlines()}
+            wanted = {'__'.join((scenario, locale, size, orientation, family, theme))
+                      for orientation in orientations for theme in ('light', 'dark')}
+            if keep and wanted <= written:
+                continue
             for orientation in orientations:
                 for theme in ('light', 'dark'):
                     if left == 0:
@@ -222,6 +232,26 @@ class RunShardTests(unittest.TestCase):
                      self.values(row['args'], '-parallel-testing-worker-count')) for row in self.calls('snapshot')]
         self.assertEqual(parallel, [('portrait', ['YES'], ['2']), ('landscape', ['NO'], []),
                                     ('portrait', ['YES'], ['2'])])
+
+    def test_a_rerun_keeps_the_configurations_a_class_finished_before_the_crash(self):
+        # Run 42577585956: the re-run of a class dropped and captured again every configuration of the invocation, and
+        # its budget ran out on the ones it had finished. de-accessibility5 finishes, zh-Hans-large crashes mid-class.
+        (self.fake / 'crash-after').write_text('15')
+        result = self.run_shard('s01')
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        record = self.record()
+        self.assertIsNone(record['infra'], record)
+        self.assertEqual(record['rerunClasses'], ['HomeSnapshotTests', 'ShellSnapshotTests'])
+        keys = self.keys()
+        self.assertEqual(len(keys), len(set(keys)))
+        self.assertEqual(sorted(keys), self.expected('s01'))
+        first, rerun = self.calls('snapshot')
+        self.assertIsNone(first['keep'])
+        self.assertEqual(rerun['keep'], '1')
+        # The finished configuration's lines are the first run's, in their place, and the re-run added none.
+        finished = [key for key in keys if '__de__accessibility5__' in key]
+        self.assertEqual(len(finished), 12)
+        self.assertEqual(keys[:12], finished)
 
     def test_the_crash_fault_crashes_both_runs_of_the_first_attempt_only(self):
         variables = {'EHPANDA_SNAPSHOT_FAULT': 's01=crash,s09=no-artifact', 'EHPANDA_SNAPSHOT_FAULT_SECONDS': '1',
