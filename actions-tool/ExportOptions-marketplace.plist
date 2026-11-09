@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  Export options for the AltStore PAL notarization upload (deploy-pal.yml, Phase 20 plan 20-04).
+  A template: actions-tool/marketplace-signing.sh copies it for each run and fills teamID and
+  provisioningProfiles (bundle ID to profile name) from the run's secrets, so neither is committed.
+  The build number stays the project's (manageAppVersionAndBuildNumber false): the PAL upload carries
+  the Classic release's version and build number (D-26).
+-->
+<plist version="1.0">
+<dict>
+	<key>destination</key>
+	<string>upload</string>
+	<key>manageAppVersionAndBuildNumber</key>
+	<false/>
+	<key>method</key>
+	<string>app-store-connect</string>
+	<key>provisioningProfiles</key>
+	<dict/>
+	<key>signingCertificate</key>
+	<string>Apple Distribution</string>
+	<key>signingStyle</key>
+	<string>manual</string>
+	<key>teamID</key>
+	<string></string>
+	<key>uploadSymbols</key>
+	<true/>
+</dict>
+</plist>
