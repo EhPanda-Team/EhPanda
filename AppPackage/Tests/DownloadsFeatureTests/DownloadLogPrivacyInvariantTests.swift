@@ -99,10 +99,14 @@ struct DownloadLogPrivacyInvariantTests {
     /// one reports a starved transfer, each carrying a single masked gid. The starved helper is
     /// shared by BOTH of its detectors — the heartbeat's sweep and the transfer's own exit — so
     /// adding the second detector added no masked site, which is what the count of two records.
+    /// The fourth `+Execution.swift` site is the run-exit write-back's failure line (G-20-09-1): a
+    /// stopped run whose record could not be lowered to its on-disk progress keeps reading its old
+    /// claim, and that line is the only trail of why. Its error is `private` because the message can
+    /// embed the gallery's folder path.
     /// The heartbeat summary and the environment lines carry no gallery value at all and appear
     /// here not at all.
     private static let expectedHashMaskedCounts = [
-        "DownloadClient+Execution.swift": 3,
+        "DownloadClient+Execution.swift": 4,
         "DownloadClient+Manager.swift": 1,
         "DownloadClient+PageTransferProgress.swift": 2,
         "DownloadClient+PersistenceNormalize.swift": 1,
@@ -115,7 +119,7 @@ struct DownloadLogPrivacyInvariantTests {
     ///
     /// The table is keyed by file name, so two same-named files anywhere under the module would
     /// collapse into one entry and hide a site. The joined count cannot collapse.
-    private static let expectedHashMaskedTotal = 13
+    private static let expectedHashMaskedTotal = 14
 
     @Test
     func testNoDownloadLogPublishesGalleryIdentity() throws {

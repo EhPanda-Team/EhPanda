@@ -328,16 +328,19 @@ extension DownloadCoordinator {
     /// report carries no gallery identity, exactly as the scheduling-balance one does not.
     ///
     /// The freedom from nesting at THIS head is an inspection result rather than a property: every
-    /// caller is either an `async` function whose body opens no other bracket, or the advance, whose
-    /// four callers were each re-derived against this rule. `DownloadSourceInventoryTests`' bracket
-    /// census owns the caller list, and the module's one deliberate nesting call site is the probe
-    /// in `DownloadClient+Testing.swift`, which exists to keep this detector proved.
+    /// caller is either an `async` function whose body opens no other bracket, the advance, whose
+    /// four callers were each re-derived against this rule, or the run-exit write-back, which opens
+    /// from `processDownload`'s `defer` after every other bracket of the run has closed.
+    /// `DownloadSourceInventoryTests`' bracket census owns the caller list, and the module's one
+    /// deliberate nesting call site is the probe in `DownloadClient+Testing.swift`, which exists to
+    /// keep this detector proved.
     ///
     /// Module-internal rather than file-private because most call sites live outside this file —
-    /// `DownloadClient+PublicAPI.swift`, `DownloadClient+PersistenceNormalize.swift` and
-    /// `DownloadClient+Manager.swift`. One implementation is what stops the withdrawal rule from
-    /// forking between the run route, the enqueue route, the verify route and the queue-intent
-    /// stamp — and it is also what gives the depth counter a single place to live.
+    /// `DownloadClient+PublicAPI.swift`, `DownloadClient+PersistenceNormalize.swift`,
+    /// `DownloadClient+Execution.swift` and `DownloadClient+Manager.swift`. One implementation is
+    /// what stops the withdrawal rule from forking between the run route, the run-exit write-back,
+    /// the enqueue route, the verify route and the queue-intent stamp — and it is also what gives
+    /// the depth counter a single place to live.
     func withdrawingCountedBasisMovement<T>(
         gid: String,
         _ movement: () throws -> T

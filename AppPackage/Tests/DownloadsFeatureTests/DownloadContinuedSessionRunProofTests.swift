@@ -381,10 +381,20 @@ extension DownloadContinuedSessionLedgerTests {
             force: true
         )
         #expect(spy.progressUpdates.isEmpty)
+        // The two landed files are then lost before the exit, so the run's exit write-back
+        // (G-20-09-1) finds every claimed page positively absent and its wholesale guard refuses:
+        // the record stays complete. Without this step the write-back honestly lowers the record to
+        // the two pages on disk, D-G4-01 counts an incomplete record raw, and the redo would open
+        // at two whether or not the proof was retired — the record and a leaked proof would agree,
+        // and the case would go vacuous for a third reason.
+        for page in [1, 2] {
+            try FileManager.default.removeItem(at: pageFileURL(for: redone, in: fixture, index: page))
+        }
 
         // The run's own exit, taken through production: the detail fetch fails offline and
         // `processDownload` unwinds through its general failure catch and its `defer`.
         await manager.processDownload(gid: redone.gid)
+        #expect(await manager.fetchDownload(gid: redone.gid)?.completedPageCount == 6)
         #expect(await manager.fetchDownload(gid: redone.gid)?.lastError != nil)
         try await waitUntil {
             await manager.testingHasActiveTask() == false
@@ -825,6 +835,16 @@ extension DownloadContinuedSessionLedgerTests {
             force: true
         )
         #expect(spy.progressUpdates.map(\.completedUnitCount).contains(2))
+        // The landed files are lost before the exit, for the reason the redo case above states:
+        // with them on disk the run's exit write-back (G-20-09-1) lowers the record to two, the
+        // record then reads incomplete and is counted raw, and a retired basis and a leaked one
+        // would credit the same two. Gone, the write-back's wholesale guard refuses and the record
+        // stays complete, which is the regime this case is about.
+        for page in [1, 2] {
+            try FileManager.default.removeItem(
+                at: pageFileURL(for: abandoned, in: fixture, index: page)
+            )
+        }
 
         // The run's own exit, taken through production.
         await manager.processDownload(gid: abandoned.gid)

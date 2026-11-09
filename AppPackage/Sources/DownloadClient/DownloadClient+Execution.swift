@@ -11,6 +11,9 @@ extension DownloadCoordinator {
         generation: Int? = nil
     ) async {
         defer {
+            // Ahead of the retirement on purpose: the write-back is gated on the run's measurement
+            // still standing with page debt outstanding, which the retirement is about to remove.
+            writeBackInterruptedRunProgress(gid: gid, generation: generation)
             // Ahead of the ownership clear on purpose: `retireRunProgressBasis` asks whether a
             // DIFFERENT live run owns this gallery's slot, and `finishActiveTaskIfOwned` nils both
             // halves of that ownership, so reading it afterwards would make every owning run look
@@ -343,6 +346,77 @@ extension DownloadCoordinator {
         // transfer of a superseded predecessor must not keep crediting the live successor's pages.
         retireInFlightPageTransfers(gid: gid)
         return withdrewMeasurement
+    }
+
+    /// Writes an interrupted run's true on-disk progress back to the gallery's record (G-20-09-1).
+    ///
+    /// **The defect.** A record that claims every page while its files are gone — the
+    /// wholesale-refusal family — keeps claiming them for the entire repair, because the
+    /// preparation's reconciliation refuses to blank a whole manifest on one scan (G-15-2G) and the
+    /// flush path only ever ASSIGNS hashes. While the run stands its own measurement is what the row
+    /// shows (D-SSOT-10), so nothing looked wrong until the run stopped part-way: the retirement
+    /// handed the row back to a record still reading N-of-N, and a repair paused with three of six
+    /// pages on disk read "Downloaded 6 of 6", `.completed`, with Pause/Resume disabled. In-app
+    /// Pause, the continued-processing card's cancel and the system's expiration all left the same
+    /// row, because all three reach this run's exit through `commitPause`.
+    ///
+    /// **The rule is D-G5-01's, applied at the run's exit as well as at its start: a working manifest
+    /// never claims a page whose file is not in the working folder.** The write-back takes a FRESH
+    /// scan of the gallery's folder and runs the preparation's own
+    /// `reconcileWorkingManifestAgainstPageFiles` over the manifest read back out of that folder,
+    /// unmodified. Every refusal line is therefore inherited rather than restated: a failed
+    /// enumeration, an unprobed page or a surviving refutation blanks nothing, and the
+    /// all-or-nothing guard still refuses an act that would account for every claimed page.
+    ///
+    /// **Why the exit, and why this gate.** `processDownload`'s `defer` is the one point all five
+    /// run exits pass (`retireRunProgressBasis` lists them), and a pause, a delete and a folder
+    /// operation each await the cancelled run before acting, so the write-back lands before any of
+    /// them proceeds. It acts only while the run's measurement still stands with page debt
+    /// outstanding: a run that announced nothing has no evidence to add, a completed run owes
+    /// nothing, and a run superseded by a live successor leaves the folder to that successor, whose
+    /// own preparation reconciles it — the same supersession disposition the retirement takes.
+    ///
+    /// **The decided residual.** A run stopped before ANY page landed finds every claimed page
+    /// positively absent, so the guard refuses exactly as it refused at the preparation and the
+    /// record reads what it read before the repair began. G-15-2G is not weakened to close that: the
+    /// pre-repair state is what `resumeMode` already resolves to `.repair` through `storage.verify`.
+    ///
+    /// **The bracket.** The blanking lowers the record's counted basis, so it runs inside a D-G7-01
+    /// `withdrawingCountedBasisMovement` bracket like every other caller of the loop. While the
+    /// measurement stands the gallery's credit is the measurement's and does not read the record,
+    /// so the bracket withdraws zero here by construction; it is opened anyway because the rule
+    /// belongs to the movement, not to an argument about its current value. Nothing inside it
+    /// deletes and no other bracket is open at a run's exit, so the sibling and no-deletion rules
+    /// both hold.
+    ///
+    /// The whole stretch is synchronous on the actor, so no push can interleave between the record
+    /// moving and the measurement's retirement that follows it in the same `defer`.
+    private func writeBackInterruptedRunProgress(gid: String, generation: Int?) {
+        guard !isSupersededByALiveRun(gid: gid, generation: generation),
+              liveRunProgressBasis(gid: gid)?.outstandingPages.isEmpty == false,
+              let folderURL = downloadIndex[gid]?.folderURL,
+              let manifest = storage.probeManifest(folderURL: folderURL),
+              manifest.gid == gid
+        else { return }
+        let pageFileScan = storage.pageFileScan(folderURL: folderURL, manifest: manifest)
+        do {
+            _ = try withdrawingCountedBasisMovement(gid: gid) {
+                try reconcileWorkingManifestAgainstPageFiles(
+                    manifest: manifest,
+                    pageFileScan: pageFileScan,
+                    folderURL: folderURL
+                )
+            }
+        } catch {
+            // The record stays as it was, which is the pre-fix behaviour rather than a new harm; the
+            // error is private because its message can embed the gallery's folder path.
+            logger.error(
+                """
+                Interrupted run write-back failed, gid: \(gid, privacy: .private(mask: .hash)), \
+                error: \(error.localizedDescription, privacy: .private)
+                """
+            )
+        }
     }
 
     /// Whether a DIFFERENT live run holds this gallery's active slot, so this run's exit must
