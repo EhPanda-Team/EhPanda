@@ -5,6 +5,7 @@ PyYAML is not installed on this host, so the workflows are read through Ruby's P
 reads the `on` key as `true`, as YAML 1.1 does.
 """
 import json
+import os
 from pathlib import Path
 import re
 import subprocess
@@ -202,6 +203,10 @@ class GateWorkflowTests(unittest.TestCase):
 
     def test_no_result_bundles_and_no_fault_switch(self):
         self.assertNotIn('xcresult', self.text)
+        # The proof's fault switch lives only on the proof commit of ci/snapshot-gate (19-10 Task 4), where this
+        # test runs in the gate's own `checks` job; everywhere else it must be absent (T-19-22).
+        if os.environ.get('GITHUB_REF') == 'refs/heads/ci/snapshot-gate':
+            self.skipTest('the proof branch carries the fault switch')
         for path in WORKFLOWS.glob('*.yml'):
             self.assertNotIn('EHPANDA_SNAPSHOT_FAULT', path.read_text(), path.name)
 
