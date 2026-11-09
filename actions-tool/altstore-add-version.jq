@@ -1,8 +1,11 @@
-# Adds a build to an AltStore source (AltStore.json or altstore-beta.json).
+# Adds a build to an AltStore source (AltStore.json, SideStore.json, altstore-beta.json or
+# AltStorePAL.json).
 #
 # Arguments (all --arg unless noted):
 #   $bundleIdentifier, $version, $buildVersion, $marketingVersion, $date,
-#   $localizedDescription, $downloadURL, $sha256, $minOSVersion
+#   $localizedDescription, $downloadURL, $minOSVersion
+#   $sha256                     the IPA's SHA-256. Required, except with assetURLs, where it is
+#                               left out or empty: an ADP has no single IPA to hash.
 #   --argjson size              IPA size in bytes
 #   --argjson privacy           {"NS...UsageDescription": "..."} read from the build
 #   --argjson releaseVersions   null for a regular release; for a beta, the `versions`
@@ -11,6 +14,17 @@
 #                               language (actions-tool/release_notes.py altstore). Its "en" must
 #                               equal $localizedDescription. Left out, or null, for a source
 #                               that shows English only (SideStore).
+#
+# AltStore PAL only (Research §4); a call that passes none of these writes what it always did:
+#   --argjson assetURLs         {"manifest": url, "signature": url, "<variant>": url}: each ADP file
+#                               name without its extension, to its GitHub release asset. Every value is
+#                               an https URL and "manifest" must equal $downloadURL. The entry then
+#                               carries assetURLs and no sha256.
+#   --argjson entitlements      the signed build's entitlement keys. They replace the source's list,
+#                               without application-identifier and com.apple.developer.team-identifier,
+#                               which AltStore does not want listed. Left out, the list is kept.
+#   --arg marketplaceID         the App Store Connect app's Apple ID (digits). Set when the source's is
+#                               empty; an equal one passes; a different one is an error.
 #
 # The new version is prepended (newest first). An older entry with the same
 # version + buildVersion, or with the same downloadURL (a re-uploaded asset), is
@@ -28,6 +42,35 @@ elif .apps[0].bundleIdentifier != $bundleIdentifier then
   error("bundle identifier mismatch: source has \(.apps[0].bundleIdentifier), build has \($bundleIdentifier)")
 else . end
 | ($ARGS.named.localizedDescriptions // null) as $localizedDescriptions
+| ($ARGS.named.assetURLs // null) as $assetURLs
+| ($ARGS.named.entitlements // null) as $entitlements
+| ($ARGS.named.marketplaceID // null) as $marketplaceID
+| ($ARGS.named.sha256 // null) as $sha256
+| if $assetURLs == null then
+    if ($sha256 | type) != "string" or $sha256 == "" then error("sha256 is required without assetURLs")
+    else . end
+  elif ($assetURLs | type) != "object" then
+    error("assetURLs must be an object of https URLs")
+  elif ($assetURLs | [.[] | type == "string" and startswith("https://") and length > 8] | all | not) then
+    error("assetURLs must be an object of https URLs")
+  elif ($assetURLs | has("manifest") | not) then
+    error("assetURLs must have a manifest")
+  elif $assetURLs.manifest != $downloadURL then
+    error("assetURLs.manifest differs from downloadURL")
+  elif $sha256 != null and $sha256 != "" then
+    error("an ADP entry has no sha256: leave sha256 out with assetURLs")
+  else . end
+| if $entitlements == null then .
+  elif ($entitlements | type) != "array" or ($entitlements | [.[] | type == "string"] | all | not) then
+    error("entitlements must be a list of strings")
+  else . end
+| if $marketplaceID == null then .
+  elif ($marketplaceID | type) != "string" or ($marketplaceID | test("^[0-9]+$") | not) then
+    error("marketplaceID must be the app's Apple ID, digits only")
+  elif (.apps[0].marketplaceID // "") == "" then .apps[0].marketplaceID = $marketplaceID
+  elif .apps[0].marketplaceID != $marketplaceID then
+    error("marketplaceID mismatch: source has \(.apps[0].marketplaceID), given \($marketplaceID)")
+  else . end
 | if $localizedDescriptions == null then .
   elif ($localizedDescriptions | type) != "object"
        or ($localizedDescriptions | [.[] | type == "string" and length > 0] | all | not) then
@@ -43,12 +86,17 @@ else . end
     localizedDescription: $localizedDescription
   }
   + (if $localizedDescriptions == null then {} else {localizedDescriptions: $localizedDescriptions} end)
-  + {
+  + (if $assetURLs == null then {
     downloadURL: $downloadURL,
     size: $size,
     sha256: $sha256,
     minOSVersion: $minOSVersion
-  }) as $entry
+  } else {
+    downloadURL: $downloadURL,
+    assetURLs: $assetURLs,
+    size: $size,
+    minOSVersion: $minOSVersion
+  } end)) as $entry
 | .apps[0].versions = (
     [$entry]
     + ((.apps[0].versions // [])
@@ -69,6 +117,10 @@ else . end
       )
   end
 | .apps[0].appPermissions = {
-    entitlements: (.apps[0].appPermissions.entitlements // []),
+    entitlements: (if $entitlements == null then (.apps[0].appPermissions.entitlements // [])
+                   else $entitlements
+                        | map(select(. != "application-identifier"
+                                     and . != "com.apple.developer.team-identifier"))
+                   end),
     privacy: ((.apps[0].appPermissions.privacy // {}) + $privacy)
   }

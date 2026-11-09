@@ -168,7 +168,9 @@ class PALEntryTests(unittest.TestCase):
 
     def add(self, source=PAL_SOURCE, asset_urls=None, download_url=None, entitlements=ENTITLEMENTS,
             marketplace_id="6740000001", sha256=None, version="3.0.0", build="159", extra=()):
-        asset_urls = pal_asset_urls() if asset_urls is None else asset_urls
+        if asset_urls is None:
+            # Each release has its own tag in the asset URLs.
+            asset_urls = {key: url.replace("/3.0.0/", f"/{version}/") for key, url in pal_asset_urls().items()}
         download_url = asset_urls.get("manifest") if download_url is None else download_url
         args = ["--arg", "bundleIdentifier", "app.ehpanda.marketplace", "--arg", "version", version,
                 "--arg", "buildVersion", build, "--arg", "marketingVersion", version,
