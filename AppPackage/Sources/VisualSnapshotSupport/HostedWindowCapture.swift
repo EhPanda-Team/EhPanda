@@ -128,6 +128,8 @@ public enum HostedWindowCapture {
     public static let stableSpan: Duration = .milliseconds(500)
     public static let sampleInterval: Duration = .milliseconds(100)
     public static let maximumSamples = 40
+    /// The fewest identical consecutive reads that count as settled, unless a scenario asks for more.
+    public nonisolated static let minimumReads = 2
     public static let precision: Float = 0.9999
     public static let perceptualPrecision: Float = 1
 
@@ -167,9 +169,13 @@ public enum HostedWindowCapture {
     /// for a timeout's reason.
     public private(set) static var lastMotion: String?
 
-    /// Reads the window at 1x every ``sampleInterval`` until the reads stay identical across at least
-    /// ``stableSpan`` while the window is at rest (``motion(in:)`` is `nil`), or gives up after ``maximumSamples``
-    /// reads.
+    /// Reads the window at 1x every ``sampleInterval`` until at least `minimumReads` consecutive reads are identical
+    /// and span at least ``stableSpan`` while the window is at rest (``motion(in:)`` is `nil`), or gives up after
+    /// ``maximumSamples`` reads.
+    ///
+    /// On a starved host one capture can take most of the stable span, so two reads can settle. That is too few for
+    /// Liquid Glass on a page hosted early: the first-launch candidates of run 42533872440 settled on two reads and
+    /// held a glass button 1/255 off the reference. Such a scenario asks for more reads.
     ///
     /// A read is the picture as the comparison sees it (``comparedBytes(_:)``), not the 16-bit capture: Liquid
     /// Glass moves the capture's low bits below what the comparison reads, so a byte-exact read of the capture
@@ -179,10 +185,11 @@ public enum HostedWindowCapture {
     /// for longer than ``stableSpan`` before it fades, and a list can hold an offset between two steps of an
     /// animation. On a loaded host either could be read as settled in one run and not in the next (run
     /// 42455556948), so reads count only once nothing in the window moves.
-    public static func settle(_ window: UIWindow) async -> SettleResult {
+    public static func settle(_ window: UIWindow, minimumReads: Int = minimumReads) async -> SettleResult {
         let clock = ContinuousClock()
         let start = clock.now
         var runStart = clock.now
+        var runReads = 0
         var previous: [UInt8]?
         lastMotion = nil
         for sample in 1...maximumSamples {
@@ -190,11 +197,13 @@ public enum HostedWindowCapture {
             lastMotion = moving ?? lastMotion
             let data = moving == nil ? comparedBytes(capture(window)) : nil
             if let data, data == previous {
-                if runStart.duration(to: clock.now) >= stableSpan {
+                runReads += 1
+                if runReads >= minimumReads, runStart.duration(to: clock.now) >= stableSpan {
                     return .settled(samples: sample, seconds: seconds(start.duration(to: clock.now)))
                 }
             } else {
                 runStart = clock.now
+                runReads = data == nil ? 0 : 1
             }
             previous = data
             do {
@@ -354,9 +363,11 @@ public enum HostedWindowCapture {
     ///
     /// `interact`, when given, runs after hosting and before the settle wait: the user step that brings a scenario
     /// to its state where no store state can (a moderation alert that its row presents after the row's own action).
+    /// `minimumReads` is passed to ``settle(_:minimumReads:)``.
     public static func captureAndCompare(
         make: () throws -> AnyView, window: UIWindow, style: UIUserInterfaceStyle, reference: URL?,
-        mode: SnapshotMode, interact: (@MainActor (UIWindow) async throws -> Void)? = nil
+        mode: SnapshotMode, interact: (@MainActor (UIWindow) async throws -> Void)? = nil,
+        minimumReads: Int = minimumReads
     ) async -> CaptureOutcome {
         let clock = ContinuousClock()
         let start = clock.now
@@ -365,7 +376,9 @@ public enum HostedWindowCapture {
         for attempt in 1...2 {
             let result = await attemptOnce(
                 make: make, window: window,
-                request: .init(style: style, reference: reference, mode: mode, interact: interact)
+                request: .init(
+                    style: style, reference: reference, mode: mode, interact: interact, minimumReads: minimumReads
+                )
             )
             let elapsed = seconds(start.duration(to: clock.now))
             var outcome = CaptureOutcome(
@@ -396,6 +409,7 @@ public enum HostedWindowCapture {
         let reference: URL?
         let mode: SnapshotMode
         let interact: (@MainActor (UIWindow) async throws -> Void)?
+        let minimumReads: Int
     }
 
     private struct Attempt {
@@ -427,7 +441,7 @@ public enum HostedWindowCapture {
                 return Attempt(status: .error, settleSamples: 0, png: nil, difference: nil, reason: "interaction")
             }
         }
-        let settled = await settle(window)
+        let settled = await settle(window, minimumReads: request.minimumReads)
         let image = capture(window)
         let png = pngData(image)
         if case .timeout = settled {

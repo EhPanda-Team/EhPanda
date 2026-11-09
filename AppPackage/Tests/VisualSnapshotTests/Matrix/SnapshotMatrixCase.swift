@@ -136,7 +136,8 @@ class SnapshotMatrixCase: XCTestCase {
                     // The controlled 1-point shift of 19-01 Task 3; read only by the tracer's own variable.
                     return shift ? AnyView(view.padding(.top, 1)) : view
                 },
-                window: window, style: style, reference: reference, mode: mode, interact: factory.interact
+                window: window, style: style, reference: reference, mode: mode, interact: factory.interact,
+                minimumReads: factory.minimumReads
             )
         }
         let digest = outcome.png.map({ SHA256.hash(data: $0).map({ String(format: "%02x", $0) }).joined() })

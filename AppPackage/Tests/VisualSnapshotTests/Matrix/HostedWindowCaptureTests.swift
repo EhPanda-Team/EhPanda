@@ -30,6 +30,21 @@ final class HostedWindowCaptureTests: XCTestCase {
         XCTAssertGreaterThanOrEqual(seconds, HostedWindowCapture.stableSpan / .seconds(1))
     }
 
+    /// A scenario that asks for more reads settles on no fewer, even on a host that would settle a still view on
+    /// two (run 42533872440's first-launch candidates).
+    @MainActor
+    func testAStillViewSettlesOnNoFewerThanTheMinimumReads() async throws {
+        let window = try XCTUnwrap(HostedWindowCapture.keyWindow())
+        let hosted = HostedWindowCapture.host(Self.sample(offset: 0), in: window, style: .light)
+        defer { hosted.dispose() }
+        for reads in [2, 6, 9] {
+            guard case .settled(let samples, _) = await HostedWindowCapture.settle(window, minimumReads: reads) else {
+                return XCTFail("A still view did not settle on \(reads) reads")
+            }
+            XCTAssertGreaterThanOrEqual(samples, reads)
+        }
+    }
+
     @MainActor
     func testChangingViewTimesOutAfterTheSampleCap() async throws {
         let window = try XCTUnwrap(HostedWindowCapture.keyWindow())
