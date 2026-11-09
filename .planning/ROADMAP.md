@@ -716,7 +716,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 18. In-App 3.0 Readiness: Age Wall, Analytics Choice, Comment Moderation & Reader Rework | 12/12 | Complete    | 2026-11-06 |
 | 18.1. Native report form (INSERTED) | 5/5 | Complete    | 2026-11-07 |
 | 19. Visual Regression & Daily Live-Parsing Check | 12/17 | In Progress |  |
-| 20. 3.0 Distribution: Marketplace Build, Notarization, Listing & Release Checks | 0/14 | Planned |  |
+| 20. 3.0 Distribution: Marketplace Build, Notarization, Listing & Release Checks | 1/14 | In Progress |  |
 
 ### Phase 12: Cloudflare Login Restoration
 
@@ -1587,7 +1587,7 @@ Plans:
 
 **Wave 1** — (a)
 
-- [ ] 20-01-PLAN.md — the marketplace flavor (`Config/Marketplace.xcconfig`, channel stamp as a build setting), its hand-off scheme, and `PrivacyInfo.xcprivacy`
+- [x] 20-01-PLAN.md — the marketplace flavor (`Config/Marketplace.xcconfig`, channel stamp as a build setting), its hand-off scheme, and `PrivacyInfo.xcprivacy`
 - [ ] 20-02-PLAN.md — the build-number check in `deploy.yml`, the bump above 158, history and URL tests *(checkpoint: owner OK to create and push `EhPanda-Team/ehpanda-assets`)*
 
 **Wave 2** *(blocked on Wave 1)* — (b)
