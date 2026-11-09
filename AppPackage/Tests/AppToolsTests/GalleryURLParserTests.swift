@@ -41,6 +41,11 @@ struct GalleryURLParserTests {
             gid: "3103480"
         ),
         GalleryRouteFixture(
+            url: "ehpanda-marketplace://e-hentai.org/g/3103480/0000000000/",
+            expectedURL: "https://e-hentai.org/g/3103480/0000000000/",
+            gid: "3103480"
+        ),
+        GalleryRouteFixture(
             url: "https://e-hentai.org/s/abc123/3103480-2",
             expectedURL: "https://e-hentai.org/s/abc123/3103480-2",
             gid: "3103480",
@@ -92,7 +97,8 @@ struct GalleryURLParserTests {
         "https://e-hentai.org/g//token",
         "https://e-hentai.org/g/abc/token",
         "https://e-hentai.org/",
-        "/g/3103480/0000000000/"
+        "/g/3103480/0000000000/",
+        "ehpanda-other://e-hentai.org/g/3103480/0000000000/"
     ])
     func rejectsInvalidGalleryRoute(urlString: String) throws {
         let url = try #require(URL(string: urlString))
