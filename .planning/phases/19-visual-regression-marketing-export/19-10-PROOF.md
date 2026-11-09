@@ -216,9 +216,60 @@ run. There is no `fingerprints.json`, so a push runs in **candidate** mode.
   should be checked at the same time. Then both proof runs can be made again (owner msg 2876 approved two runs;
   one has been used).
 
-### Still to record (after the gate bugs are fixed)
+### Task 4: hosted run 2 (run 42577585956)
 
-- A run whose shards really capture: each shard's minutes against its limit, and the total wall time against
-  D-13's estimate.
-- `s03=crash` and `s11=no-artifact` both in triage and in the retry, passing there, with all four classes at 0.
-- Run 2: the aggregate fails with "infrastructure errors" naming only `s03`.
+- **Commit:** `3140c6665` on `ci/snapshot-gate`, from the phase branch with Bugs 1 and 2 fixed (Xcode 27.1 pinned,
+  artifacts merged). It injected `s03=crash,s11=no-artifact` again: proof commit 1, not `@every-attempt`.
+- **Run:** 07:10Z to 16:57Z (**9 h 47 min**), failed. 20 shards and 16 retries.
+- **Proven:** the Xcode pin (no drift anywhere); the merged artifact layout (17 shard and 16 retry artifacts read);
+  `s11=no-artifact` (triage listed it, its retry captured 806 of 806); `s03=crash` (killed after 180 s twice,
+  `crash` recorded); native policy on iPad (38 min, passed).
+- **Not proven:** triage listed 16 shards, not `["s03","s11"]`, and the aggregate named 12 shards and the native
+  policy. Causes, by class:
+  - **Hosted runner (b):** two runners lost contact (s02, s04); `bootstatus` stopped at 600 s or the first
+    `defaults write` at 180 s on both create attempts (s15, s17, s19, s20; retries s02, s07, s15); the iPhone
+    native-policy runner never bootstrapped (0 tests).
+  - **Plan (d):** iPhone shards were estimated at 60 min on the modelled table and needed 113 to 115+ (s01, s06 and
+    their retries hit the 115-minute budget); a class re-run threw away every configuration the class had done.
+  - **Aggregate (d):** a lost retry replaced a good first attempt (s07: 547 recorded became `runner-lost`); one
+    picture's error sent a whole shard to retry; XCTest's re-run of a class after a runner crash wrote keys twice
+    (`duplicate-result`); the 200-item cap hid 11 of the 12 failing shards.
+  - **App or snapshot (c):** 14 of 96 iPad landscape `agewall-unticked` / `analytics-choice-none` attempts timed
+    out in settle (40 samples, no motion read); iPad `front-page-search` failed its focus step 4 times
+    (`interaction`, 44 to 88 s against the 40-second deadline).
+
+### Run-3 fixes (phase branch, after run 2)
+
+1. `5fbfcd108` aggregate: a retry without `shard.json` keeps the first attempt (`retry-lost`); a folder without
+   `shard.json` is "runner-lost — no shard.json (runner unusable)"; agreeing duplicate lines merge, disagreeing
+   ones stay `duplicate-result`. (Also fixes 5 and 6 below.)
+2. `21298ee1a` native policy: one more run when the runner never bootstrapped; both logs uploaded.
+3. `a7edfdf0c` re-plan: `snapshot-cost.json` is measured from run 42577585956 (iPhone 6.9 s wall per picture, the
+   median of 7 attempts); 18 iPhone shards (one configuration each, 73.2 min) and 9 iPad shards (77.3 min), every
+   estimate within 70% of the 120-minute limit. `9278b9ba4`: a class re-run keeps the configurations it finished
+   (`EHPANDA_SNAPSHOT_KEEP_CAPTURED`, pruned per configuration).
+4. `b740f3f09` `hosted-simulator.sh`: `bootstatus -b` and a settle before the first write, a stopped write asked
+   again, a third create attempt.
+5. `5fbfcd108` triage: only shard-level errors (crash, timeout, lost runner, missing results) retry a shard; a
+   picture's `timeout` or `error` is reported, not retried.
+6. `5fbfcd108` summary: one line per shard (attempt, class, results, infrastructure errors) before the item list.
+7. `3ef062ee9` capture: a failed user step is retried once like a timeout, and its reason names the failure
+   (`interaction:no-search-field`, `search-focus-not-held`, `still-moving:…`); a settle timeout with no motion
+   names the changed pixels (`settle-timeout:pixels:<x>,<y>,<w>x<h>`). This is diagnosis and resilience, not a
+   root-cause fix: on this Mac (iOS 27.2 runtime only) the iPad repro stops at the geometry check, so the
+   first-launch timeout could not be reproduced.
+
+**Fault shards under the 27-shard plan.** `s03` (de-xSmall) and `s11` (ko-large) are now both iPhone shards, so
+proof commit 1 no longer puts a fault on an iPad shard. The faults themselves do not depend on the device; if the
+iPad path should be covered too, `s03=crash,s20=no-artifact` does it (s19 to s27 are iPad).
+
+**Expected time.** 2,013 shard-minutes (18 x 73.2 + 9 x 77.3). With the build (about 30 min), the two
+native-policy jobs and 5 macOS jobs at a time: run 3 about **9 h** (two retries of a full shard after triage), run 4
+about **8.7 h** (s03's retry crashes after 180 s twice). Run 2 took 9 h 47 min with most shards cut short.
+
+### Still to record (after the run-3 fixes)
+
+- Run 3 (`s03=crash,s11=no-artifact`): `triage` lists exactly `["s03","s11"]`, both retries pass, the aggregate
+  is green with all four classes at 0, and each shard's minutes against its limit.
+- Run 4 (`s03=crash@every-attempt`): the aggregate fails with "infrastructure errors" naming only `s03`.
+- The `settle-timeout:pixels:…` and `interaction:…` reasons, if the iPad first-launch or search errors come back.
