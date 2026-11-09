@@ -171,7 +171,7 @@ class TokenTests(unittest.TestCase):
         # r with a sign-padding zero byte, s shorter than 32 bytes.
         r = b"\x80" + b"\x11" * 31
         s = b"\x22" * 30
-        der = b"\x30\x41" + b"\x02\x21\x00" + r + b"\x02\x1e" + s
+        der = b"\x30\x43" + b"\x02\x21\x00" + r + b"\x02\x1e" + s
         self.assertEqual(asc.der_to_raw(der), r + b"\x00\x00" + s)
 
     def test_a_malformed_signature_is_refused(self):
