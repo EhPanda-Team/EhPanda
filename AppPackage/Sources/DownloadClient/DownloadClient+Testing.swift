@@ -59,6 +59,11 @@ extension DownloadCoordinator {
         activeGalleryID
     }
 
+    /// Whether Verify's whole-gallery absence evidence is held for `gid` (B1).
+    public func testingHasWholesaleAbsenceEvidence(gid: String) -> Bool {
+        wholesaleAbsenceEvidence[gid] != nil
+    }
+
     public func testingHasContinuedSession() -> Bool {
         hasLiveContinuedSession
     }
