@@ -57,6 +57,62 @@ final class HostedWindowCaptureTests: XCTestCase {
         }
     }
 
+    /// Run 42577585956: on the iPad turned to landscape, every read that rendered the window again drew the
+    /// first-launch page's dimmed Liquid Glass Continue a step different from the read before (1/255 in a few to a few
+    /// hundred pixels, cycling through two or three states), so a still page read as changing until the sample cap.
+    /// Reading a window that has settled must not change it: a second settle matches from its first read.
+    @MainActor
+    func testReadingASettledGlassPageDoesNotChangeIt() async throws {
+        let window = try XCTUnwrap(HostedWindowCapture.keyWindow())
+        let reads = ScenarioCatalog.firstLaunchMinimumReads
+        for style in [UIUserInterfaceStyle.light, .dark] {
+            let hosted = HostedWindowCapture.host(BrowsingScenarios.analyticsChoice(nil), in: window, style: style)
+            defer { hosted.dispose() }
+            guard case .settled = await HostedWindowCapture.settle(window, minimumReads: reads) else {
+                return XCTFail("The still first-launch page did not settle (style \(style.rawValue))")
+            }
+            let again = await HostedWindowCapture.settle(window, minimumReads: reads)
+            XCTAssertEqual(again.samples, reads, "Reading the settled page changed it (style \(style.rawValue))")
+        }
+    }
+
+    /// Two reads match when no byte moved more than one step and the bytes that moved stay within half the
+    /// comparison's byte budget, so a picture taken within that of the settled read stays within the budget of a
+    /// reference recorded the same way.
+    func testReadsMatchWithinOneStepAndHalfTheComparisonBudget() {
+        let count = 400_000
+        let half = Int((1 - HostedWindowCapture.precision) * Float(count)) / 2
+        XCTAssertEqual(half, 20)
+        let still = [UInt8](repeating: 128, count: count)
+        XCTAssertTrue(HostedWindowCapture.readsMatch(still, still))
+        let stepped = Self.read(still, setting: [4: 129, 9: 127, count - 1: 129])
+        XCTAssertTrue(HostedWindowCapture.readsMatch(still, stepped))
+        let jumped = Self.read(still, setting: [4: 130])
+        XCTAssertFalse(HostedWindowCapture.readsMatch(still, jumped), "Two steps in one byte is a change")
+        let spread = Self.read(still, setting: Dictionary(uniqueKeysWithValues: (0..<half).map({ ($0 * 7, 129) })))
+        XCTAssertTrue(HostedWindowCapture.readsMatch(still, spread))
+        let wider = Self.read(spread, setting: [count - 2: 127])
+        XCTAssertFalse(HostedWindowCapture.readsMatch(still, wider), "More bytes than half the budget is a change")
+        XCTAssertFalse(HostedWindowCapture.readsMatch(still, Array(still.dropLast(4))))
+    }
+
+    /// `bytes` with the bytes at the given offsets replaced.
+    private static func read(_ bytes: [UInt8], setting changes: [Int: UInt8]) -> [UInt8] {
+        bytes.enumerated().map({ changes[$0.offset] ?? $0.element })
+    }
+
+    /// A view that moves one step a read never settles: every read is compared with the first read of its run, not
+    /// with the read before, so steps of one cannot add up to a match.
+    @MainActor
+    func testAViewThatDriftsOneStepEachReadDoesNotSettle() async throws {
+        let window = try XCTUnwrap(HostedWindowCapture.keyWindow())
+        let hosted = HostedWindowCapture.host(DriftingView(), in: window, style: .light)
+        defer { hosted.dispose() }
+        guard case .timeout = await HostedWindowCapture.settle(window) else {
+            return XCTFail("A view that drifts one step a read settled")
+        }
+    }
+
     @MainActor
     func testCaptureIsTheWindowPointSizeAtScaleOne() throws {
         let window = try XCTUnwrap(HostedWindowCapture.keyWindow())
@@ -326,6 +382,43 @@ private struct StepError: CaptureStepFailure {
 /// then shows a later draw (from a commit in between, or from the capture's own `afterScreenUpdates` commit). A
 /// timer-driven view does not hold on a starved host: one that redrew every 50 ms went 500 ms without a redraw
 /// when the app ran at background priority, and settled.
+/// A 4-point grey square on white that grows one step (1/255) darker every 200 ms: few enough bytes for any read to
+/// match the one before, but two steps from a read 500 ms earlier.
+private struct DriftingView: UIViewRepresentable {
+    func makeUIView(context: Context) -> DriftView { DriftView() }
+    func updateUIView(_ uiView: DriftView, context: Context) {}
+
+    final class DriftView: UIView {
+        private let square = UIView(frame: CGRect(x: 40, y: 200, width: 4, height: 4))
+        private var level = 200
+        private var timer: Timer?
+
+        override init(frame: CGRect) {
+            super.init(frame: frame)
+            backgroundColor = .white
+            addSubview(square)
+            step()
+        }
+
+        @available(*, unavailable)
+        required init?(coder: NSCoder) { nil }
+
+        override func didMoveToWindow() {
+            super.didMoveToWindow()
+            timer?.invalidate()
+            guard window != nil else { return }
+            timer = Timer.scheduledTimer(withTimeInterval: 0.2, repeats: true) { [weak self] _ in
+                MainActor.assumeIsolated { self?.step() }
+            }
+        }
+
+        private func step() {
+            level = level > 60 ? level - 1 : 200
+            square.backgroundColor = UIColor(white: CGFloat(level) / 255, alpha: 1)
+        }
+    }
+}
+
 private struct ChangingView: UIViewRepresentable {
     func makeUIView(context: Context) -> CountingView { CountingView() }
     func updateUIView(_ uiView: CountingView, context: Context) {}

@@ -13,9 +13,10 @@ public enum SnapshotMode: String, Sendable {
 
 /// The outcome of waiting for a hosted window to stop changing.
 public enum SettleResult: Equatable, Sendable {
-    /// Consecutive 1x reads stayed identical across at least ``HostedWindowCapture/stableSpan``.
+    /// Consecutive 1x reads matched (``HostedWindowCapture/readsMatch(_:_:)``) across at least
+    /// ``HostedWindowCapture/stableSpan``.
     case settled(samples: Int, seconds: Double)
-    /// ``HostedWindowCapture/maximumSamples`` reads never stayed identical for long enough.
+    /// ``HostedWindowCapture/maximumSamples`` reads never matched for long enough.
     case timeout(samples: Int, seconds: Double)
 
     public var samples: Int {
@@ -124,13 +125,13 @@ public final class HostedRoot {
 /// 0.9999 and perceptual precision 1 everywhere (D-10); a deliberate 1-point layout shift still fails it.
 @MainActor
 public enum HostedWindowCapture {
-    /// The shortest span of identical consecutive reads that counts as settled.
+    /// The shortest span of matching consecutive reads that counts as settled.
     public static let stableSpan: Duration = .milliseconds(500)
     public static let sampleInterval: Duration = .milliseconds(100)
     public static let maximumSamples = 40
-    /// The fewest identical consecutive reads that count as settled, unless a scenario asks for more.
+    /// The fewest matching consecutive reads that count as settled, unless a scenario asks for more.
     public nonisolated static let minimumReads = 2
-    public static let precision: Float = 0.9999
+    public nonisolated static let precision: Float = 0.9999
     public static let perceptualPrecision: Float = 1
 
     /// The library's image diffing at the matrix tolerance; references are stored at scale 1.
@@ -169,14 +170,14 @@ public enum HostedWindowCapture {
     /// for a timeout's reason.
     public private(set) static var lastMotion: String?
 
-    /// Where the latest ``settle(_:)`` last saw two consecutive reads differ while nothing moved, as
+    /// Where the latest ``settle(_:)`` last saw a read stop matching its run while nothing moved, as
     /// `pixels:<x>,<y>,<width>x<height>` in points, for a timeout's reason. Run 42577585956's iPad landscape
     /// first-launch timeouts read no motion at all, so their reason said nothing about what kept changing.
     public private(set) static var lastChange: String?
 
-    /// Reads the window at 1x every ``sampleInterval`` until at least `minimumReads` consecutive reads are identical
-    /// and span at least ``stableSpan`` while the window is at rest (``motion(in:)`` is `nil`), or gives up after
-    /// ``maximumSamples`` reads.
+    /// Reads the window at 1x every ``sampleInterval`` until at least `minimumReads` consecutive reads match the first
+    /// of them and span at least ``stableSpan`` while the window is at rest (``motion(in:)`` is `nil`), or gives up
+    /// after ``maximumSamples`` reads.
     ///
     /// On a starved host one capture can take most of the stable span, so two reads can settle. That is too few for
     /// Liquid Glass on a page hosted early: the first-launch candidates of run 42533872440 settled on two reads and
@@ -186,7 +187,14 @@ public enum HostedWindowCapture {
     /// Glass moves the capture's low bits below what the comparison reads, so a byte-exact read of the capture
     /// could keep a window that is still for the comparison from settling.
     ///
-    /// Identical reads alone are not rest: a scroll indicator that a scroll view flashes when it appears holds still
+    /// Reads that match (``readsMatch(_:_:)``) need not be identical. Every read renders the window again, and on the
+    /// iPad turned to landscape each render drew Liquid Glass one step (1/255) different from the one before, in a few
+    /// to a few hundred bytes, cycling while nothing on the screen changed: run 42577585956's first-launch pages,
+    /// whose dimmed Continue is glass, read as changing until the sample cap on both attempts in 28 of 192 landscape
+    /// results, and on the first in 44 more. Each read is compared with the first read of its run, not with the read
+    /// before, so steps cannot add up.
+    ///
+    /// Matching reads alone are not rest: a scroll indicator that a scroll view flashes when it appears holds still
     /// for longer than ``stableSpan`` before it fades, and a list can hold an offset between two steps of an
     /// animation. On a loaded host either could be read as settled in one run and not in the next (run
     /// 42455556948), so reads count only once nothing in the window moves.
@@ -195,7 +203,7 @@ public enum HostedWindowCapture {
         let start = clock.now
         var runStart = clock.now
         var runReads = 0
-        var previous: [UInt8]?
+        var anchor: [UInt8]?
         var changed: ReadPair?
         lastMotion = nil
         lastChange = nil
@@ -204,10 +212,11 @@ public enum HostedWindowCapture {
             lastMotion = moving ?? lastMotion
             let image = moving == nil ? capture(window) : nil
             let data = image.flatMap(comparedBytes)
-            if let data, let previous, data != previous, let width = image?.cgImage?.width {
-                changed = ReadPair(old: previous, new: data, width: width)
+            let matches = data.flatMap({ data in anchor.map({ readsMatch($0, data) }) }) ?? false
+            if let data, let anchor, !matches, let width = image?.cgImage?.width {
+                changed = ReadPair(old: anchor, new: data, width: width)
             }
-            if let data, data == previous {
+            if matches {
                 runReads += 1
                 if runReads >= minimumReads, runStart.duration(to: clock.now) >= stableSpan {
                     return .settled(samples: sample, seconds: seconds(start.duration(to: clock.now)))
@@ -215,8 +224,8 @@ public enum HostedWindowCapture {
             } else {
                 runStart = clock.now
                 runReads = data == nil ? 0 : 1
+                anchor = data
             }
-            previous = data
             do {
                 try await clock.sleep(for: sampleInterval)
             } catch {
@@ -290,6 +299,40 @@ public enum HostedWindowCapture {
             if let running = runningAnimation(in: sublayer, now: now) { return running }
         }
         return nil
+    }
+
+    /// Whether two reads (``comparedBytes(_:)``) show the same still window: of the same size, no byte more than one
+    /// step apart, and no more bytes apart than half the comparison's byte budget (`1 - precision` of the bytes).
+    ///
+    /// Half, so that a picture within that of the read a scenario settled on stays within the whole budget of a
+    /// reference that was itself within half of it. The steady cycles of run 42577585956's landscape glass reached 170
+    /// bytes, once 325, of a 403-byte budget; a change that moves one step everywhere, or two steps anywhere, is a
+    /// change.
+    public nonisolated static func readsMatch(_ old: [UInt8], _ new: [UInt8]) -> Bool {
+        guard old.count == new.count else { return false }
+        if old == new { return true }
+        // The library's own arithmetic for its threshold (`SnapshotTesting` `compare`), halved.
+        let allowed = Int((1 - precision) * Float(old.count)) / 2
+        var apart = 0
+        // The test build is unoptimised and a read is millions of bytes, so whole blocks are compared first and only a
+        // block that differs is read byte by byte.
+        let block = 256
+        return old.withUnsafeBytes { oldBytes in
+            new.withUnsafeBytes { newBytes in
+                for start in stride(from: 0, to: oldBytes.count, by: block) {
+                    let range = start..<min(start + block, oldBytes.count)
+                    let oldBlock = UnsafeRawBufferPointer(rebasing: oldBytes[range])
+                    let newBlock = UnsafeRawBufferPointer(rebasing: newBytes[range])
+                    if memcmp(oldBlock.baseAddress, newBlock.baseAddress, range.count) == 0 { continue }
+                    for (oldByte, newByte) in zip(oldBlock, newBlock) where oldByte != newByte {
+                        guard abs(Int(oldByte) - Int(newByte)) == 1 else { return false }
+                        apart += 1
+                        if apart > allowed { return false }
+                    }
+                }
+                return true
+            }
+        }
     }
 
     /// The bounding box of the pixels that differ between two reads of the same size, `pixels:<x>,<y>,<w>x<h>`.
