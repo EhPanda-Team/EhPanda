@@ -181,8 +181,10 @@ class RunShardTests(unittest.TestCase):
 
     def test_a_crash_reruns_only_the_unfinished_classes_and_the_ipad_turns_for_each_orientation(self):
         # 19-10, checked on iOS 27.2: parallel-testing clones boot in portrait whatever the turned device shows, and the
-        # turn's UI test run leaves the app accessibility runtime off. So every turn is followed by the settings again,
-        # and a landscape invocation runs on the turned device itself, without clones.
+        # turn's UI test run leaves the app accessibility runtime off. A device the turn's own xcodebuild booted (a
+        # parallel run had shut it down) was back in portrait before the capture began; booted and waited for first,
+        # it stayed turned. So every turn has the settings step before it and after it, and a landscape invocation
+        # runs on the turned device itself, without clones.
         # ko-large portrait: HomeSnapshotTests writes 4 lines, then the run crashes before ShellSnapshotTests.
         (self.fake / 'crash-after').write_text('4')
         result = self.run_shard('s09')
@@ -205,9 +207,11 @@ class RunShardTests(unittest.TestCase):
                            if arg.startswith('-only-testing:VisualSnapshotTests/')]))
         self.assertEqual(steps, [
             ('snapshot', 'portrait', ['HomeSnapshotTests', 'ShellSnapshotTests']),
+            ('simulator', 'settings FAKE-UDID', []),
             ('ui', 'testRotateToLandscape', []),
             ('simulator', 'settings FAKE-UDID', []),
             ('snapshot', 'landscape', ['HomeSnapshotTests', 'ShellSnapshotTests']),
+            ('simulator', 'settings FAKE-UDID', []),
             ('ui', 'testRotateToPortrait', []),
             ('simulator', 'settings FAKE-UDID', []),
             ('snapshot', 'portrait', ['ShellSnapshotTests']),
