@@ -347,6 +347,11 @@ extension DownloadCoordinator {
 
         clearDownloadQueueIntent(gid: download.gid)
         await queueStore.remove(download.gid)
+        // The in-app Pause of a queued repair lands here rather than in `commitPause`, so this is
+        // K0-c's second stop. Off the queue now, the gallery falls back to its record; B1's write-back
+        // corrects that record only under the same two-scan rule (a no-op without Verify's evidence,
+        // which a redownload or an update already dropped at enqueue).
+        writeBackCorroboratedWholesaleAbsence(gid: download.gid)
         await notifyObservers()
         // This removal can take the last schedulable item out of the queue, and only the
         // convergence point's tail can then complete a live session. The `.initial` branch above

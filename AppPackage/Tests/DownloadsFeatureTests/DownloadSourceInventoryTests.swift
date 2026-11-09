@@ -209,7 +209,7 @@ struct DownloadSourceInventoryTests {
     ///
     /// The run-exit and B1 stop-time write-backs are dispositioned like the verify-time caller: each
     /// deletes nothing inside the bracket (it only blanks hashes, through the same loop), and opens
-    /// where no other bracket is open (`processDownload`'s `defer`; between `commitPause`'s awaits).
+    /// where no other bracket is open (`processDownload`'s `defer`; between its stop callers' awaits).
     ///
     /// The probe is the module's ONE deliberate NESTING caller, and it is counted rather than
     /// excluded so the population stays whole. It writes a synchronous advance inside a bracket body

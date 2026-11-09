@@ -48,13 +48,16 @@ extension DownloadCoordinator {
     /// Drops the record's whole claim at a stop, when Verify's scan and this stop's fresh scan BOTH
     /// found every claimed page positively absent (B1, product lead's EhPanda msg 2903).
     ///
-    /// **Why at `commitPause`.** The two stops this closes have no run evidence of their own: a
-    /// pause during the payload fetch, before the run announced its measurement (K0-b), and a
-    /// pause of a repair still queued behind another gallery (K0-c), which no run exit ever sees.
-    /// `commitPause` is the one point the in-app Pause and the card's cancel or expiry both pass,
-    /// and it runs this after the cancelled run has fully exited, so the run's own write-back
-    /// (K0-a) has already acted where it could; a record that write-back moved no longer carries
-    /// the hashes the evidence was taken over, and the entry declines.
+    /// **Why at `commitPause`, and at `cancelQueuedWorkItem`.** The two stops this closes have no
+    /// run evidence of their own: a pause during the payload fetch, before the run announced its
+    /// measurement (K0-b), and a pause of a repair still queued behind another gallery (K0-c), which
+    /// no run exit ever sees. `commitPause` is the one point the in-app Pause of a running gallery
+    /// and the card's cancel or expiry (queued galleries included) all pass, and it runs this after
+    /// the cancelled run has fully exited, so the run's own write-back (K0-a) has already acted
+    /// where it could; a record that write-back moved no longer carries the hashes the evidence was
+    /// taken over, and the entry declines. The in-app Pause of a QUEUED repair is `togglePause`
+    /// cancelling its work item instead, which never reaches `commitPause`, so that exit calls this
+    /// too, once the gallery is off the queue.
     ///
     /// **The safety rule.** The entry is consumed whatever happens next, so it can license at most
     /// one act. It declines unless the gallery still lives in the folder Verify scanned and its
@@ -64,7 +67,7 @@ extension DownloadCoordinator {
     /// still decide page by page and no single scan can blank a whole gallery.
     ///
     /// The blanking lowers the counted basis, so it runs in a D-G7-01 bracket like every other
-    /// caller of the loop. It is synchronous on the actor between `commitPause`'s awaits, so no
+    /// caller of the loop. It is synchronous on the actor between its callers' awaits, so no
     /// other bracket is open and nothing inside it deletes: a sibling.
     func writeBackCorroboratedWholesaleAbsence(gid: String) {
         guard let evidence = wholesaleAbsenceEvidence.removeValue(forKey: gid),
