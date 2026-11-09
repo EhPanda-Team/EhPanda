@@ -1,9 +1,11 @@
 # 19-10 hosted proof of the snapshot gate
 
-## Status (2026-11-09): Tasks 1 to 3 done, Task 4 waiting for the owner
+## Status (2026-11-09): Tasks 1 to 3 done and the review's gaps closed; Task 4 waiting for the owner
 
-Nothing has been pushed. No `ci/snapshot-gate` branch exists yet and no hosted run has started. The gate has been
-checked only locally: unit tests against fake tools, and `actionlint`.
+The orchestrator pushed the phase branch through `6942882eb`. The commits from the review follow-up are not pushed
+yet. No `ci/snapshot-gate` branch exists yet and no hosted run has started. The gate has been checked only locally:
+unit tests against fake tools, `actionlint`, and one `run-shard.sh` iPad check on this Mac with the drift pin set
+aside (see 2 below).
 
 ### Built (phase branch `feature/gsd-phase-19`)
 
@@ -22,29 +24,91 @@ Local checks:
 - `actionlint .github/workflows/*.yml`: clean.
 - `run-shard.sh --shard s09` on this Mac: records `drift`, because this Mac has Xcode 27.2 (27B52) and no iOS 27.0 runtime, so it captures nothing.
 
-### Open before the proof (owner or orchestrator decision)
+### Gaps closed after the first review (2026-11-09, orchestrator's calls)
 
-1. **Login gap: blocks a meaningful proof.** The three Login scenarios have factories but no matrix method. The
-   page's `WaveForm` backdrop is drawn in `TimelineView(.animation)` from the wall clock, so it never settles (19-08).
-   19-08 proposed a not-applicable rule for them. That rule meets neither D-05 nor D-12, so Task 1 did not apply it.
-   - Effect: all 648 Login coordinates are expected, and none gets a result line. Every shard therefore has
-     `missing-result` infrastructure errors.
-   - `triage` then lists all 20 shards, `retry` runs all 20 again, and the aggregate fails on infrastructure errors.
-   - The proof would show that path, not the two injected faults alone.
-   - Fix options:
-     - (a) An app change: `WaveForm` draws a fixed phase when `accessibilityReduceMotion` is on (the capture
-       simulator has Reduce Motion on), plus three `testLogin…` methods in `SettingsSnapshotTests`.
-     - (b) The owner accepts the not-applicable rule as a by-design exception.
-2. **iPad landscape is unverified on clones.** `run-shard.sh` turns the base iPad with
-   `VisualCaptureOrientationUITests` before each landscape invocation. Nobody has checked whether the parallel
-   clones start in that orientation. If they do not, the iPad landscape coordinates fail geometry (`error`). The
-   proof run will show which.
-3. **Pins.** `regression-environment.json` pins Xcode 27.0 (27A266a) and runtime iOS 27.0 (24A434). A runner image
-   that has moved on records `drift` in every shard. This is correct behaviour, but it would make the proof
-   uninformative.
-4. **Expected time.** The shard plan sums to 1,124 shard-minutes. At 5 jobs at a time that is about 3 h 45 min, plus
-   the build (about 30 to 40 min), the retries and the native-policy jobs, which share the 5 slots. D-13 and
-   Research §5 estimated 2 to 3 hours.
+| Commit | What |
+|---|---|
+| `1e1d02cec` | Failing tests: `WaveFormReduceMotionTests`, the D-29 inventory gains the wave's gate, and the shard test expects the matrix classes to cover the whole inventory |
+| `30bed51c9` | `WaveForm` pauses its timeline and draws phase 0 under Reduce Motion |
+| `9d2eb3c04` | `testLoginEmpty`, `testLoginFilled` and `testLoginError` in `SettingsSnapshotTests` |
+| `d49e47b76` | Failing tests: `hosted-simulator.sh settings`, the settings after each turn, iPad landscape without clones, the plan on wall seconds |
+| `910ddf4d7` | Those changes, and the shard plan regenerated |
+| `bc5ecf91e`, `80b1b3b20` | `run-snapshot-local.sh` refuses `--workers` for an iPad landscape run |
+| `ee1d06da3`, `5b7fe6a0c` | The settings step before each turn as well (failing test, then the fix) |
+
+1. **Login: closed with option (a).** Under Reduce Motion, `WaveForm` pauses its `TimelineView` and draws the wave at
+   phase 0. That is the D-29 rule for continuous position motion, not a capture-only path. Without Reduce Motion
+   the waves slide as before.
+   - `WaveFormReduceMotionTests` renders the public view twice, 250 ms apart. Under Reduce Motion the two renders
+     are identical; without it they differ. A mutant that ignored the value failed the first test.
+   - `ReduceMotionGatingSourceTests` now counts `SettingFeature/WaveForm.swift`: 1 read, 1 ternary, 6 mentions.
+   - Local stills (iPhone Air, iOS 27.2, `en-large`, candidate): all 12 Login coordinates were recorded, taking 1.3
+     to 2.2 s each with 5 to 9 settle samples. On the iPad in landscape, the 6 Login coordinates were also
+     recorded. I looked at the stills:
+     - The two grey waves show in the lower part of the page in light and dark, portrait and landscape. The
+       backdrop is not blank.
+     - In the error still, the toast sits over the sign-in button.
+     - The password field is empty in the filled and error stills. The secure field's dots are not in the capture.
+       19-13 should judge this when it reviews the baseline.
+   - The shard plan did not change for this, because it already counted the 648 Login coordinates.
+2. **iPad landscape with clones: the clones do not inherit the turn. Fixed.** I checked this on this Mac's iOS 27.2
+   runtime with my own iPad Pro 11-inch (M5) simulator (Full Screen Apps), the drift pin set aside, `en-large`, four
+   Settings classes, candidate mode:
+   - **Clones.** I turned the device to landscape with `VisualCaptureOrientationUITests`, then started a 2-worker
+     run. xcodebuild shut the device down to clone it, and both clones booted in portrait. All 60 coordinates
+     failed `geometry`: the window was 834×1210, and the scene refused the turn ("The current windowing mode does
+     not allow for programmatic changes to interface orientation").
+   - **Same run without clones**, on the turned device: 60 of 60 recorded.
+   - **Accessibility runtime.** The turn's UI test run left `ApplicationAccessibilityEnabled` at 0. Every coordinate
+     after a turn would therefore have failed `configuration-accessibility-runtime`. `run-shard.sh` never set it
+     again.
+   - **A turned device can lose the turn.** In a `run-shard.sh` check with a stub that stood in my simulator for
+     `create`, the portrait invocation's clones had shut the device down, and the turn's own xcodebuild booted it
+     again. The device was back in portrait by the time the capture started, so all 60 landscape coordinates
+     failed `geometry`, even without clones. Shut down and turned the same way: 2 of 2 failed. With
+     `hosted-simulator.sh settings` (boot, wait, settings) before the turn: 2 of 2 recorded.
+   - **The fix:**
+     - `hosted-simulator.sh settings <udid>`: `bootstatus -b`, then both switches set and read back. `run-shard.sh`
+       runs it before and after every turn.
+     - An iPad landscape invocation runs with `-parallel-testing-enabled NO`.
+     - `snapshot_shards.py` gives an iPad landscape process no clone speedup, and it balances and estimates shards
+       on wall seconds.
+     - `run-snapshot-local.sh` refuses `--workers` for an iPad landscape run.
+   - **Checked end to end.** I ran `run-shard.sh` with the fix on a one-shard plan: iPad, `en-large` portrait then
+     landscape, four classes. The portrait invocation ran on 2 clones (20 and 9 tests). Then came the settings,
+     the turn, the settings again, and landscape on the device itself. Result: 120 of 120 recorded, `infra` null,
+     no re-run, 4 minutes.
+   - **New plan:** 14 iPad shards and 6 iPhone shards, where it was 12 and 8. iPad shards run 53 to 70 minutes and
+     iPhone shards 60 minutes. Every limit is 107 or 120 minutes. `s03` is still an iPhone shard and `s11` an iPad
+     shard, so the proof commits below stand.
+3. **Red until a baseline exists: accepted by design.** With no `Baseline/fingerprints.json`, every compare run fails
+   at once with "no approved baseline yet": pull requests, the release gate in `deploy.yml` and `deploy-beta.yml`,
+   and dependency updates. That is intended. Phase 19 merges to `main` only after 19-13 approves the baseline, so
+   `main` never carries a gate that cannot pass. Until then, the proof on `ci/snapshot-gate` runs in candidate mode.
+   The rule is also in `Scripts/visual/README.md` ("Snapshot gate").
+4. **Pins (unchanged).** `regression-environment.json` pins Xcode 27.0 (27A266a) and runtime iOS 27.0 (24A434). A
+   runner image that has moved on records `drift` in every shard. That is correct behaviour, but it would make the
+   proof uninformative. This Mac has Xcode 27.2 (27B52) and only iOS 27.2, so it cannot run an unmodified shard.
+5. **Expected time (for the owner).** The plan now sums to 1,247.8 shard-minutes, up from 1,124 because the iPad
+   landscape processes lost the clone speedup. At 5 jobs at a time, that is about **4 h 10 min**, up from the
+   3 h 45 min estimated before.
+   - On top of that come the build (about 30 to 40 min) and any retries.
+   - The native-policy jobs share the 5 slots.
+   - D-13 and Research §5 estimated 2 to 3 hours.
+   - The estimate rests on the modelled cost table (`snapshot-cost.json`, `source: model`), not on a measured one.
+     The proof run will be the first measurement.
+6. **T-19-21 (all 5 macOS slots held for hours): accepted, written down.** `Scripts/visual/README.md` now has a
+   "Snapshot gate" section that covers:
+   - the cost;
+   - the queueing of `test.yml`, the deploys and other gate runs;
+   - the cancellation of superseded pull-request runs;
+   - red until a baseline exists;
+   - the iPad orientation steps;
+   - local use.
+
+Local checks after these commits:
+- `python3 -m unittest discover -p 'test_*.py'` in `Scripts/visual`: 356 tests, OK.
+- `WaveFormReduceMotionTests` and `ReduceMotionGatingSourceTests` (FeatureTests plan, iOS 27.2): all passed.
 
 ### The proof commits (Task 4, only after the owner's explicit yes)
 
@@ -58,7 +122,7 @@ run. There is no `fingerprints.json`, so a push runs in **candidate** mode.
     killed after 180 s, so `shard.json` records `crash`.
   - `s11` is an iPad shard. On attempt 1 it leaves no output, so no artifact is uploaded and the aggregate reads it
     as `runner-lost`.
-  - Expected: `triage` lists exactly `["s03","s11"]` (if the Login gap is closed first). `retry` runs both with
+  - Expected: `triage` lists exactly `["s03","s11"]` (the Login gap is closed). `retry` runs both with
     `--attempt 2`, where the fault is off. The aggregate passes with 0 in each class.
 - **Proof commit 2:** the same line becomes `EHPANDA_SNAPSHOT_FAULT: 's03=crash@every-attempt'`.
   - Expected: `s03` crashes on its retry as well. The aggregate fails with "infrastructure errors" naming `s03` (its
