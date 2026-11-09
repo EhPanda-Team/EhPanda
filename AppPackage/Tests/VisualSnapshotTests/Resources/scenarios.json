@@ -34,7 +34,7 @@
     {"id": "downloads-inspector-error", "group": "downloads", "plan": "19-06", "state": "Download inspector showing a failed download", "signedIn": true, "notApplicable": []},
     {"id": "downloads-list", "group": "downloads", "plan": "19-06", "state": "Downloads as a list", "signedIn": true, "notApplicable": []},
     {"id": "downloads-move-confirmation", "group": "downloads", "plan": "19-06", "state": "Downloads asking which folder to move an item to", "signedIn": true, "notApplicable": []},
-    {"id": "favorites-category-menu", "group": "favorites", "plan": "19-06", "state": "Favorites with its category menu open", "signedIn": true, "notApplicable": []},
+    {"id": "favorites-category-menu", "group": "favorites", "plan": "19-06", "state": "Favorites with its category menu open", "signedIn": true, "notApplicable": [{"when": {"family": "ipad"}, "reason": "An iPad shows the favorites categories in the Library sidebar; the category picker in the bar's menu exists only on iPhone."}]},
     {"id": "favorites-empty", "group": "favorites", "plan": "19-06", "state": "Favorites with no galleries", "signedIn": true, "notApplicable": []},
     {"id": "favorites-grid", "group": "favorites", "plan": "19-06", "state": "Favorites as a grid", "signedIn": true, "notApplicable": []},
     {"id": "favorites-list", "group": "favorites", "plan": "19-06", "state": "Favorites as a list", "signedIn": true, "notApplicable": []},
