@@ -1,0 +1,500 @@
+name: Snapshot gate
+# The full screenshot check (19-10; 19-CONTEXT D-15 and owner msg 2263's amendment, D-16, D-19; 19-RESEARCH §5).
+#
+# One build feeds 20 shards (Scripts/visual/snapshot-shards.json, one device and one to three configurations each),
+# which GitHub runs as many at a time as the account allows (5 macOS jobs on the free plan, shared with test.yml and
+# the deploy workflows: a gate run holds them for hours, Pitfall 9). Each shard is Scripts/visual/run-shard.sh: the
+# rendering pins, the baseline slice fetch in compare mode, the pinned simulator (Scripts/visual/hosted-simulator.sh),
+# the shard's invocations and one in-job re-run of the classes a crash or the budget left without results. A shard
+# never decides the run and never cancels another (fail-fast off, continue-on-error). `triage` lists the shards with
+# an infrastructure error or no artifact; `retry` runs exactly those once more in this run; `aggregate` takes each
+# shard's latest attempt, names the four failure classes (picture changes, infrastructure errors, drift, baseline
+# mismatches) in the run summary, writes the offline report and is the run's verdict, together with the native visual
+# policy tests on both devices (19-11). Retry failures are reported, never retried again.
+#
+# Timing: a shard's run step has the shard file's limit (twice its estimate, at most 120 minutes) and covers the
+# simulator setup as well as the capture; run-shard.sh keeps its own budget 5 minutes under it, so a slow setup costs
+# capture time and ends as a recorded timeout (then retried) rather than a lost job. The job limit is 150 minutes.
+#
+# Modes: compare against the approved baseline (AppPackage/Tests/VisualSnapshotTests/Baseline/fingerprints.json), or
+# candidate (record every picture, nothing compared). Pull requests compare; a dispatch or a call picks the mode
+# (compare by default); a push to ci/snapshot-gate, for runs before this file reaches the default branch (dispatch
+# works only from there), records a candidate while there is no fingerprints.json and compares once there is. Compare
+# without fingerprints.json fails at once: no approved baseline yet. Nothing is published; candidate pictures stay in
+# the run's `pictures-*` artifacts for 7 days. No result bundle is uploaded (D-14).
+on:
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: 'compare against the approved baseline, or record a candidate'
+        type: choice
+        options: [compare, candidate]
+        default: compare
+  workflow_call:
+    inputs:
+      mode:
+        description: 'compare or candidate'
+        type: string
+        default: compare
+  push:
+    branches: [ci/snapshot-gate]
+permissions: {}
+# A newer push to a pull request cancels its running check. Every other run (candidate, dispatch, a release's call,
+# whose event may also be `pull_request` but which passes a mode) has a group of its own, so nothing cancels it.
+concurrency:
+  group: >-
+    ${{ github.event_name == 'pull_request' && !inputs.mode
+    && format('snapshot-gate-pr-{0}', github.event.pull_request.number)
+    || format('snapshot-gate-run-{0}', github.run_id) }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' && !inputs.mode }}
+env:
+  SCHEME_NAME: 'EhPanda'
+  FINGERPRINTS: 'AppPackage/Tests/VisualSnapshotTests/Baseline/fingerprints.json'
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+    outputs:
+      mode: ${{ steps.mode.outputs.mode }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+      # The gate's own tooling; the rest of Scripts/visual needs macOS tools (plutil, simctl) and runs locally.
+      - name: Test the gate's scripts
+        run: |
+          python3 -m unittest discover -s Scripts/visual -p 'test_snapshot_*.py'
+          python3 -m unittest discover -s Scripts/visual -p 'test_run_shard.py'
+      - name: Check the shard plan is current
+        run: python3 Scripts/visual/snapshot_shards.py --check
+      - name: Inventory totals
+        run: |
+          python3 Scripts/visual/snapshot_matrix.py --totals | tee "$RUNNER_TEMP/totals.json"
+          python3 - "$RUNNER_TEMP/totals.json" >> "$GITHUB_STEP_SUMMARY" <<'PY'
+          import json, sys
+          totals = json.load(open(sys.argv[1]))
+          print('### Inventory: {scenarios} scenarios, {expected} expected pictures, {notApplicable} not applicable'
+                .format(**totals))
+          PY
+      - name: Decide the mode
+        id: mode
+        env:
+          EVENT: ${{ github.event_name }}
+          INPUT_MODE: ${{ inputs.mode }}
+        run: |
+          mode=$INPUT_MODE
+          if [ -z "$mode" ]; then
+            mode=compare
+            [ "$EVENT" = push ] && [ ! -f "$FINGERPRINTS" ] && mode=candidate
+          fi
+          case $mode in
+            compare | candidate) ;;
+            *) echo "::error::Unknown mode '$mode'."; exit 1 ;;
+          esac
+          if [ "$mode" = compare ] && [ ! -f "$FINGERPRINTS" ]; then
+            echo "::error::no approved baseline yet: $FINGERPRINTS does not exist, so there is nothing to compare against."
+            echo '### Snapshot gate: no approved baseline yet' >> "$GITHUB_STEP_SUMMARY"
+            exit 1
+          fi
+          echo "mode=$mode" >> "$GITHUB_OUTPUT"
+          echo "### Snapshot gate: $mode mode" >> "$GITHUB_STEP_SUMMARY"
+
+  build:
+    needs: checks
+    runs-on: xcode-27
+    timeout-minutes: 90
+    permissions:
+      contents: read
+    outputs:
+      shards: ${{ steps.shards.outputs.shards }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+      # The matrix the shard jobs run: each shard's ID, device and run-step limit from the committed plan.
+      - name: Read the shard plan
+        id: shards
+        run: |
+          shards=$(python3 -c 'import json
+          plan = json.load(open("Scripts/visual/snapshot-shards.json"))
+          print(json.dumps([{"id": s["id"], "family": s["family"], "timeoutMinutes": s["timeoutMinutes"]}
+                            for s in plan["shards"]]))')
+          echo "shards=$shards" >> "$GITHUB_OUTPUT"
+      - name: Install iOS 27 Platform
+        uses: nick-fields/retry@v4
+        with:
+          retry_on: error
+          max_attempts: 10
+          timeout_minutes: 999
+          command: xcodebuild -downloadPlatform iOS
+      - name: Show Xcode version
+        run: xcodebuild -version
+      # The matrix, and the UI tests that turn the iPad and check the native visual policy (19-11).
+      - name: Build for testing
+        run: |
+          failed() {
+            grep -E ': error:|\*\* (BUILD|TEST BUILD) FAILED' "$1" | sort -u
+            exit 1
+          }
+          xcodebuild build-for-testing -skipMacroValidation -skipPackagePluginValidation -scheme "$SCHEME_NAME" \
+            -testPlan SnapshotMatrix -destination 'generic/platform=iOS Simulator' \
+            -onlyUsePackageVersionsFromResolvedFile -derivedDataPath "$RUNNER_TEMP/DerivedData" \
+            >"$RUNNER_TEMP/build-matrix.log" 2>&1 || failed "$RUNNER_TEMP/build-matrix.log"
+          xcodebuild build-for-testing -skipMacroValidation -skipPackagePluginValidation -scheme "$SCHEME_NAME" \
+            -testPlan UITests -destination 'generic/platform=iOS Simulator' \
+            -onlyUsePackageVersionsFromResolvedFile -derivedDataPath "$RUNNER_TEMP/DerivedData" \
+            >"$RUNNER_TEMP/build-ui.log" 2>&1 || failed "$RUNNER_TEMP/build-ui.log"
+          tar -C "$RUNNER_TEMP/DerivedData/Build" -cf "$RUNNER_TEMP/products.tar" Products
+      - name: Upload the test products
+        uses: actions/upload-artifact@v7
+        with:
+          name: snapshot-gate-products
+          path: ${{ runner.temp }}/products.tar
+          if-no-files-found: error
+          retention-days: 1
+
+  shard:
+    name: shard ${{ matrix.shard.id }} (${{ matrix.shard.family }})
+    needs: [checks, build]
+    runs-on: xcode-27
+    timeout-minutes: 150
+    continue-on-error: true
+    permissions:
+      contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: ${{ fromJSON(needs.build.outputs.shards) }}
+    env:
+      MODE: ${{ needs.checks.outputs.mode }}
+    steps:
+      # The tests read the scenario inventory and the rendering pin from the checkout, at the path they were built
+      # at, which is the same on every hosted runner.
+      - name: Checkout
+        uses: actions/checkout@v7
+      - name: Install iOS 27 Platform
+        uses: nick-fields/retry@v4
+        with:
+          retry_on: error
+          max_attempts: 10
+          timeout_minutes: 999
+          command: xcodebuild -downloadPlatform iOS
+      - name: Download the test products
+        uses: actions/download-artifact@v7
+        with:
+          name: snapshot-gate-products
+          path: ${{ runner.temp }}
+      - name: Unpack the test products
+        run: tar -C "$RUNNER_TEMP" -xf "$RUNNER_TEMP/products.tar"
+      - name: Run the shard
+        timeout-minutes: ${{ matrix.shard.timeoutMinutes }}
+        run: >-
+          Scripts/visual/run-shard.sh --shard "${{ matrix.shard.id }}" --mode "$MODE" --attempt 1
+          --products "$RUNNER_TEMP/Products" --out "$RUNNER_TEMP/shard/${{ matrix.shard.id }}"
+      - name: Record the runner
+        if: always()
+        run: |
+          {
+            echo '### Shard ${{ matrix.shard.id }}, attempt 1'
+            echo "- Runner: $RUNNER_NAME, image ${ImageOS:-unknown} ${ImageVersion:-unknown}"
+            python3 - "$RUNNER_TEMP/shard/${{ matrix.shard.id }}/shard.json" <<'PY'
+          import json, sys
+          try:
+              record = json.load(open(sys.argv[1]))
+          except (OSError, ValueError):
+              print('- No shard.json')
+          else:
+              print('- Class: {}; results: {}'.format(record['infra'] or 'no infrastructure error',
+                                                      record['statusCounts']))
+              print('- Re-run in the job: {}'.format(' '.join(record['rerunClasses']) or 'none'))
+          PY
+          } >> "$GITHUB_STEP_SUMMARY"
+      - name: Upload the results
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: shard-${{ matrix.shard.id }}
+          path: |
+            ${{ runner.temp }}/shard/${{ matrix.shard.id }}/results.jsonl
+            ${{ runner.temp }}/shard/${{ matrix.shard.id }}/shard.json
+            ${{ runner.temp }}/shard/${{ matrix.shard.id }}/logs
+            ${{ runner.temp }}/shard/${{ matrix.shard.id }}/actual
+            ${{ runner.temp }}/shard/${{ matrix.shard.id }}/difference
+            ${{ runner.temp }}/shard/${{ matrix.shard.id }}/reference
+            ${{ runner.temp }}/shard/${{ matrix.shard.id }}/first-actual
+            ${{ runner.temp }}/shard/${{ matrix.shard.id }}/first-difference
+          if-no-files-found: ignore
+          retention-days: 7
+      - name: Upload the candidate pictures
+        if: always() && env.MODE == 'candidate'
+        uses: actions/upload-artifact@v7
+        with:
+          name: pictures-shard-${{ matrix.shard.id }}
+          path: |
+            ${{ runner.temp }}/shard/${{ matrix.shard.id }}/results.jsonl
+            ${{ runner.temp }}/shard/${{ matrix.shard.id }}/${{ matrix.shard.family }}
+          if-no-files-found: ignore
+          retention-days: 7
+
+  triage:
+    needs: [build, shard]
+    if: always() && needs.build.result == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    outputs:
+      shards: ${{ steps.triage.outputs.shards }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+      # No artifact at all is a result here (every shard lost), not a failure of this job.
+      - name: Download the shard results
+        continue-on-error: true
+        uses: actions/download-artifact@v7
+        with:
+          pattern: shard-*
+          path: ${{ runner.temp }}/results
+      - name: List the shards to retry
+        id: triage
+        run: |
+          mkdir -p "$RUNNER_TEMP/results"
+          for directory in "$RUNNER_TEMP"/results/shard-*; do
+            [ -d "$directory" ] && mv "$directory" "$RUNNER_TEMP/results/${directory##*/shard-}"
+          done
+          ids=$(python3 Scripts/visual/snapshot_aggregate.py --results "$RUNNER_TEMP/results" --triage)
+          shards=$(python3 -c 'import json, sys
+          ids = json.loads(sys.argv[1])
+          plan = json.load(open("Scripts/visual/snapshot-shards.json"))
+          print(json.dumps([{"id": s["id"], "family": s["family"], "timeoutMinutes": s["timeoutMinutes"]}
+                            for s in plan["shards"] if s["id"] in ids]))' "$ids")
+          echo "shards=$shards" >> "$GITHUB_OUTPUT"
+          echo "### Triage: retry $ids" >> "$GITHUB_STEP_SUMMARY"
+
+  retry:
+    name: retry ${{ matrix.shard.id }} (${{ matrix.shard.family }})
+    needs: [checks, build, triage]
+    # Not after a cancellation (a newer push to the pull request): `triage` still runs then and lists every shard.
+    if: "!cancelled() && needs.triage.result == 'success' && needs.triage.outputs.shards != '[]'"
+    runs-on: xcode-27
+    timeout-minutes: 150
+    continue-on-error: true
+    permissions:
+      contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: ${{ fromJSON(needs.triage.outputs.shards) }}
+    env:
+      MODE: ${{ needs.checks.outputs.mode }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+      - name: Install iOS 27 Platform
+        uses: nick-fields/retry@v4
+        with:
+          retry_on: error
+          max_attempts: 10
+          timeout_minutes: 999
+          command: xcodebuild -downloadPlatform iOS
+      - name: Download the test products
+        uses: actions/download-artifact@v7
+        with:
+          name: snapshot-gate-products
+          path: ${{ runner.temp }}
+      - name: Unpack the test products
+        run: tar -C "$RUNNER_TEMP" -xf "$RUNNER_TEMP/products.tar"
+      - name: Run the shard again
+        timeout-minutes: ${{ matrix.shard.timeoutMinutes }}
+        run: >-
+          Scripts/visual/run-shard.sh --shard "${{ matrix.shard.id }}" --mode "$MODE" --attempt 2
+          --products "$RUNNER_TEMP/Products" --out "$RUNNER_TEMP/shard/${{ matrix.shard.id }}"
+      - name: Record the runner
+        if: always()
+        run: |
+          {
+            echo '### Shard ${{ matrix.shard.id }}, attempt 2 (retry)'
+            echo "- Runner: $RUNNER_NAME, image ${ImageOS:-unknown} ${ImageVersion:-unknown}"
+            python3 - "$RUNNER_TEMP/shard/${{ matrix.shard.id }}/shard.json" <<'PY'
+          import json, sys
+          try:
+              record = json.load(open(sys.argv[1]))
+          except (OSError, ValueError):
+              print('- No shard.json')
+          else:
+              print('- Class: {}; results: {}'.format(record['infra'] or 'no infrastructure error',
+                                                      record['statusCounts']))
+              print('- Re-run in the job: {}'.format(' '.join(record['rerunClasses']) or 'none'))
+          PY
+          } >> "$GITHUB_STEP_SUMMARY"
+      - name: Upload the results
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: retry-${{ matrix.shard.id }}
+          path: |
+            ${{ runner.temp }}/shard/${{ matrix.shard.id }}/results.jsonl
+            ${{ runner.temp }}/shard/${{ matrix.shard.id }}/shard.json
+            ${{ runner.temp }}/shard/${{ matrix.shard.id }}/logs
+            ${{ runner.temp }}/shard/${{ matrix.shard.id }}/actual
+            ${{ runner.temp }}/shard/${{ matrix.shard.id }}/difference
+            ${{ runner.temp }}/shard/${{ matrix.shard.id }}/reference
+            ${{ runner.temp }}/shard/${{ matrix.shard.id }}/first-actual
+            ${{ runner.temp }}/shard/${{ matrix.shard.id }}/first-difference
+          if-no-files-found: ignore
+          retention-days: 7
+      - name: Upload the candidate pictures
+        if: always() && env.MODE == 'candidate'
+        uses: actions/upload-artifact@v7
+        with:
+          name: pictures-retry-${{ matrix.shard.id }}
+          path: |
+            ${{ runner.temp }}/shard/${{ matrix.shard.id }}/results.jsonl
+            ${{ runner.temp }}/shard/${{ matrix.shard.id }}/${{ matrix.shard.family }}
+          if-no-files-found: ignore
+          retention-days: 7
+
+  # 19-11's transitions (cold entry and live text sizes, turns, toolbar priority, anchoring) on both pinned devices,
+  # one test at a time: they change the device's text size and orientation.
+  native-policy:
+    name: native policy (${{ matrix.family }})
+    needs: [checks, build]
+    runs-on: xcode-27
+    timeout-minutes: 150
+    permissions:
+      contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - family: iphone
+          - family: ipad
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+      - name: Install iOS 27 Platform
+        uses: nick-fields/retry@v4
+        with:
+          retry_on: error
+          max_attempts: 10
+          timeout_minutes: 999
+          command: xcodebuild -downloadPlatform iOS
+      - name: Download the test products
+        uses: actions/download-artifact@v7
+        with:
+          name: snapshot-gate-products
+          path: ${{ runner.temp }}
+      # The same limits and retry as the shards (Scripts/visual/hosted-simulator.sh).
+      - name: Create the pinned simulator
+        timeout-minutes: 60
+        env:
+          FAMILY: ${{ matrix.family }}
+        run: |
+          tar -C "$RUNNER_TEMP" -xf "$RUNNER_TEMP/products.tar"
+          read -r device runtime <<<"$(python3 -c 'import json, sys
+          env = json.load(open("Scripts/visual/regression-environment.json"))
+          print(env["devices"][sys.argv[1]]["deviceTypeIdentifier"], env["runtime"]["identifier"])' "$FAMILY")"
+          udid=$(Scripts/visual/hosted-simulator.sh create 'EhPanda policy' "$device" "$runtime" "$FAMILY")
+          echo "UDID=$udid" >> "$GITHUB_ENV"
+          echo "XCTESTRUN=$(ls "$RUNNER_TEMP"/Products/*UITests*.xctestrun | head -1)" >> "$GITHUB_ENV"
+      - name: Run the native visual policy tests
+        timeout-minutes: 80
+        run: |
+          mkdir -p "$RUNNER_TEMP/policy"
+          status=0
+          xcodebuild test-without-building \
+            -xctestrun "$XCTESTRUN" \
+            -destination "platform=iOS Simulator,id=$UDID" \
+            -parallel-testing-enabled NO \
+            -only-testing:EhPandaUITests/NativeVisualPolicyUITests >"$RUNNER_TEMP/policy/xcodebuild.log" 2>&1 ||
+            status=$?
+          grep -E "Test case .* (passed|failed)|Executed [0-9]+ test|TEST EXECUTE (SUCCEEDED|FAILED)" \
+            "$RUNNER_TEMP/policy/xcodebuild.log" | sort -u || true
+          exit "$status"
+      - name: Upload the log
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: native-policy-${{ matrix.family }}
+          path: ${{ runner.temp }}/policy/xcodebuild.log
+          if-no-files-found: ignore
+          retention-days: 7
+
+  aggregate:
+    needs: [checks, build, shard, triage, retry, native-policy]
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+    env:
+      MODE: ${{ needs.checks.outputs.mode }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+      - name: Check the gate reached its shards
+        env:
+          CHECKS: ${{ needs.checks.result }}
+          BUILD: ${{ needs.build.result }}
+        run: |
+          if [ "$CHECKS" != success ] || [ "$BUILD" != success ]; then
+            echo "## Snapshot gate: failed before any shard ran (checks: $CHECKS, build: $BUILD)" >> "$GITHUB_STEP_SUMMARY"
+            exit 1
+          fi
+      - name: Download the shard results
+        continue-on-error: true
+        uses: actions/download-artifact@v7
+        with:
+          pattern: shard-*
+          path: ${{ runner.temp }}/results
+      - name: Download the retried shard results
+        continue-on-error: true
+        uses: actions/download-artifact@v7
+        with:
+          pattern: retry-*
+          path: ${{ runner.temp }}/retry
+      - name: Merge the shards
+        id: aggregate
+        run: |
+          for kind in results retry; do
+            mkdir -p "$RUNNER_TEMP/$kind"
+            for directory in "$RUNNER_TEMP/$kind"/shard-* "$RUNNER_TEMP/$kind"/retry-*; do
+              [ -d "$directory" ] && mv "$directory" "$RUNNER_TEMP/$kind/${directory##*/*-}"
+            done
+          done
+          status=0
+          python3 Scripts/visual/snapshot_aggregate.py --results "$RUNNER_TEMP/results" --retry "$RUNNER_TEMP/retry" \
+            --out "$RUNNER_TEMP/gate" --summary "$GITHUB_STEP_SUMMARY" || status=$?
+          echo "status=$status" >> "$GITHUB_OUTPUT"
+      # Compare runs: every failing coordinate with its baseline, actual and difference. Candidate runs: the short
+      # packet; its pictures are in the pictures-* artifacts, which this Linux job does not download (5 to 10 GB).
+      - name: Build the report
+        if: always() && steps.aggregate.outcome == 'success'
+        run: |
+          mkdir -p "$RUNNER_TEMP/pictures"
+          for reference in "$RUNNER_TEMP"/results/*/reference "$RUNNER_TEMP"/retry/*/reference; do
+            [ -d "$reference" ] && cp -R "$reference"/. "$RUNNER_TEMP/pictures/"
+          done
+          packet=()
+          [ "$MODE" = candidate ] && packet=(--packet)
+          python3 Scripts/visual/snapshot_report.py --aggregate "$RUNNER_TEMP/gate/aggregate.json" \
+            --pictures "$RUNNER_TEMP/pictures" --out "$RUNNER_TEMP/gate/report" ${packet[@]+"${packet[@]}"}
+      - name: Upload the report
+        if: always() && steps.aggregate.outcome == 'success'
+        uses: actions/upload-artifact@v7
+        with:
+          name: snapshot-report
+          path: ${{ runner.temp }}/gate
+          if-no-files-found: error
+          retention-days: 7
+      - name: Decide the run
+        env:
+          AGGREGATE: ${{ steps.aggregate.outputs.status }}
+          POLICY: ${{ needs.native-policy.result }}
+        run: |
+          echo "- Native visual policy: $POLICY" >> "$GITHUB_STEP_SUMMARY"
+          if [ "$AGGREGATE" != 0 ] || [ "$POLICY" != success ]; then
+            echo "Snapshot gate failed: aggregate exit ${AGGREGATE:-none}, native policy $POLICY."
+            exit 1
+          fi

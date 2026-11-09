@@ -70,7 +70,9 @@ class GateWorkflowTests(unittest.TestCase):
 
     def test_the_mode_is_candidate_only_on_the_proof_branch_without_fingerprints(self):
         checks = runs(self.jobs['checks'])
-        self.assertIn('Baseline/fingerprints.json', checks)
+        self.assertEqual(self.gate['env']['FINGERPRINTS'],
+                         'AppPackage/Tests/VisualSnapshotTests/Baseline/fingerprints.json')
+        self.assertIn('$FINGERPRINTS', checks)
         self.assertIn('candidate', checks)
         self.assertIn('no approved baseline yet', checks)
         self.assertIn('mode', self.jobs['checks']['outputs'])
@@ -112,22 +114,40 @@ class GateWorkflowTests(unittest.TestCase):
         [step] = [step for step in job['steps'] if 'run-shard.sh' in step.get('run', '')]
         self.assertEqual(step['timeout-minutes'], '${{ matrix.shard.timeoutMinutes }}', name)
         self.assertIn('--shard "${{ matrix.shard.id }}"', step['run'])
-        [upload] = step_using(job, 'actions/upload-artifact')
-        self.assertEqual(upload['if'], 'always()', name)
-        self.assertEqual(upload['with']['retention-days'], 7, name)
-        return job, step, upload
+        # The results, the record, the logs and the failure triplets, small enough for the Linux jobs to read;
+        # a candidate run's pictures go to their own artifact, which no later job downloads.
+        uploads = {upload['with']['name']: upload for upload in step_using(job, 'actions/upload-artifact')}
+        prefix = 'shard' if name == 'shard' else 'retry'
+        results = uploads[f'{prefix}-${{{{ matrix.shard.id }}}}']
+        pictures = uploads[f'pictures-{prefix}-${{{{ matrix.shard.id }}}}']
+        self.assertEqual(set(uploads), {f'{prefix}-${{{{ matrix.shard.id }}}}',
+                                        f'pictures-{prefix}-${{{{ matrix.shard.id }}}}'})
+        self.assertEqual(results['if'], 'always()', name)
+        self.assertNotIn('matrix.shard.family', results['with']['path'], name)
+        self.assertIn('matrix.shard.family', pictures['with']['path'], name)
+        for kind in ('results.jsonl', 'shard.json', 'logs', 'actual', 'difference', 'reference'):
+            self.assertIn(kind, results['with']['path'], name)
+        self.assertIn("candidate", pictures['if'], name)
+        for upload in uploads.values():
+            self.assertEqual(upload['with']['retention-days'], 7, name)
+            self.assertEqual(upload['with']['if-no-files-found'], 'ignore', name)
+        return job, step
 
     def test_the_shard_matrix_never_cancels_or_decides_by_itself(self):
-        job, step, upload = self.assert_shard_matrix('shard', 'needs.build.outputs.shards')
+        job, step = self.assert_shard_matrix('shard', 'needs.build.outputs.shards')
         self.assertIn('--attempt 1', step['run'])
-        self.assertEqual(upload['with']['name'], 'shard-${{ matrix.shard.id }}')
 
     def test_the_retry_runs_the_triage_list_once_and_is_skipped_when_it_is_empty(self):
-        job, step, upload = self.assert_shard_matrix('retry', 'needs.triage.outputs.shards')
+        job, step = self.assert_shard_matrix('retry', 'needs.triage.outputs.shards')
         self.assertIn('--attempt 2', step['run'])
-        self.assertEqual(upload['with']['name'], 'retry-${{ matrix.shard.id }}')
         self.assertIn("needs.triage.outputs.shards != '[]'", job['if'])
         self.assertIn('triage', job['needs'])
+
+    def test_the_linux_jobs_download_only_the_small_shard_artifacts(self):
+        for name in ('triage', 'aggregate'):
+            patterns = [step['with'].get('pattern') for step in step_using(self.jobs[name], 'actions/download-artifact')]
+            self.assertIn('shard-*', patterns, name)
+            self.assertFalse([pattern for pattern in patterns if pattern and pattern.startswith('pictures')], name)
 
     def test_shard_timeouts_from_the_file_stay_within_the_limits(self):
         for shard in self.plan['shards']:
