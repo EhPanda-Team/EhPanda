@@ -1,11 +1,11 @@
 # 19-10 hosted proof of the snapshot gate
 
-## Status (2026-11-09): Tasks 1 to 3 done and the review's gaps closed; Task 4 waiting for the owner
+## Status (2026-11-09): Task 4 stopped after hosted run 1; two gate bugs found, run 2 not started
 
-The orchestrator pushed the phase branch through `7749f8e7f`. The commits from the review follow-up are not pushed
-yet. No `ci/snapshot-gate` branch exists yet and no hosted run has started. The gate has been checked only locally:
-unit tests against fake tools, `actionlint`, and one `run-shard.sh` iPad check on this Mac with the drift pin set
-aside (see 2 below).
+The owner said yes in owner msg 2876. Run 1 found two gate bugs that have nothing to do with the injected faults,
+plus a native-policy failure on the hosted Macs (see "Task 4: hosted run 1" below). Following the rule for this step,
+I stopped there: no second proof commit, and no fix. The remote branch `ci/snapshot-gate` is deleted. The proof
+commit was never on the phase branch.
 
 ### Built (phase branch `feature/gsd-phase-19`)
 
@@ -131,13 +131,94 @@ run. There is no `fingerprints.json`, so a push runs in **candidate** mode.
   job does not stop the proof.
 - After both runs are recorded here, the remote branch is deleted unless the owner says otherwise.
 
-### To record after the runs
+### Task 4: hosted run 1 (owner msg 2876)
 
-- Owner message number.
-- Run IDs.
-- How many shards ran at once.
-- Each shard's minutes against its limit.
-- Triage and retry evidence.
-- The aggregate's four class counts.
-- That no shard was cancelled.
-- Total wall time against D-13's estimate.
+- **Go-ahead:** owner msg 2876, the answer to the question in Task 4 step 1.
+- **Branch and commit:** `ci/snapshot-gate`, made in its own worktree from `813ac0f43`. One proof commit,
+  `6460a82e7` ("… [skip test]"), added `EHPANDA_SNAPSHOT_FAULT: 's03=crash,s11=no-artifact'` to the workflow
+  `env:`. `test.yml` ran and was skipped, as intended.
+- **Run:** [Snapshot gate run 42562780142](https://github.com/EhPanda-Team/EhPanda/actions/runs/42562780142),
+  push, candidate mode. It started at 04:36:37Z, ended at 06:08:56Z (**92.3 min**), and failed.
+- **Runner image:** `xcode-27-arm64` 20261104.0337.1. Its default is **Xcode 27.1 (27A9275)**. The image also has
+  Xcode 27.0 (27A266a) at `/Applications/Xcode_27.0.app` and 27.2, and the pinned runtime iOS 27.0 (24A434) is
+  installed. No workflow here selects an Xcode, so the gate ran on 27.1.
+
+| Job | Result | Job minutes | Run step / limit |
+|---|---|---|---|
+| checks | success | 0.5 | |
+| build | success | 15.5 | (job limit 90) |
+| shard s01 to s20 | success (all 20) | 0.4 to 0.8 each | 0.0 to 0.1 min each; limits 120 (s13 to s16: 107) |
+| triage | success | 0.1 | retried `["s11"]` |
+| retry s11 | success | 0.7 | under 0.1 min / 120 |
+| native policy (iphone) | **failure** | 40.8 | 33.5 / 80 (the simulator took 6.4 min to make) |
+| native policy (ipad) | **failure** | 76.0 | 63.6 / 80 (the simulator took 11.4 min to make) |
+| aggregate | failure | 0.1 | |
+
+- **Shards:**
+  - All 20 checked the pin, recorded `drift` ("Xcode is Xcode 27.1 / Build version 27A9275, pinned Xcode 27.0 /
+    Build version 27A266a") and captured nothing. They took under a minute each, against the plan's 53 to 70 min.
+  - No shard was cancelled. At most 4 macOS jobs ran at once, of the 5 slots: the 2 native-policy jobs and 2 or 3
+    shards.
+  - The run says nothing about the time per shard or D-13's estimate (2 to 3 h, 4 h 10 min under the current plan),
+    and `snapshot-cost.json` stays `source: model`.
+- **Faults:**
+  - `s11=no-artifact` worked. s11 left no output ("fault: s11 leaves no artifact on attempt 1"), so `triage`
+    listed exactly `["s11"]`, and `retry s11` ran with `--attempt 2` and the fault off. The retry then recorded
+    `drift` like every other shard.
+  - `s03=crash` was never exercised. The drift check comes before any capture, so s03 recorded `drift` and was
+    correctly not retried, since drift is not a class that is retried.
+- **Aggregate summary:** 0 picture changes, **1 infrastructure error** (s11: `runner-lost`, "no artifact; 806
+  coordinates missing"), **19 drift**, 0 baseline mismatches. "Shards: 20; retried: none." Native visual policy:
+  failure.
+
+**Bug 1 (gate): the aggregate never sees a single retried shard.**
+- `actions/download-artifact@v7` with `pattern: retry-*` matched one artifact (`retry-s11`). It extracted that
+  artifact straight into `$RUNNER_TEMP/retry` ("Starting download of artifact to: /home/runner/work/_temp/retry"),
+  not into `retry/retry-s11`. With several matches, each goes into its own folder, as `results/shard-s20` did.
+- The rename loop therefore found no `retry-*` folder, and `snapshot_aggregate.py` read no retry. That is why s11
+  was reported `runner-lost` and the summary said "retried: none", although the retry ran and uploaded its result.
+- The same layout would hit `triage` and `aggregate` for `shard-*` if exactly one shard artifact existed.
+- Run 2 (`s03=crash@every-attempt`, one retry) would have hit the same bug. Its verdict would have looked right
+  for the wrong reason.
+- Possible fix (not made): keep the shard ID folder inside each artifact and download with `merge-multiple: true`,
+  or treat a `shard.json` at the top of the download folder as the only match. Either way, with a test for the
+  one-artifact layout.
+
+**Bug 2 (gate): nothing selects the pinned Xcode.**
+- The macOS jobs (`build`, `shard`, `retry`, `native-policy`) use the image's default Xcode. That default has
+  moved to 27.1, so every shard records `drift` and the gate can never pass on this image.
+- The pinned Xcode 27.0 (27A266a) and runtime 24A434 are both on the image.
+- Possible fix (not made): set `DEVELOPER_DIR` to `/Applications/Xcode_27.0.app/Contents/Developer` for those
+  jobs (or `xcode-select` from the pin), with a gate test that every macOS job selects it. The other alternative
+  is to re-pin to 27.1, which needs a new environment record.
+
+**Native policy failed on both devices (Xcode 27.1, runtime iOS 27.0).**
+- **iPhone:** 7 of 8 tests passed. `testSettingMarksAndTitleSurviveSizesAndTurns` failed: "Settings never opened
+  Larger Text" (line 98), after the Settings app was slow to reach Display & Text Size. It then exceeded XCTest's
+  10-minute allowance, and the restart executed 0 tests.
+- **iPad:**
+  - `testColdEntryAtAX3` failed 3 of 3 attempts and `testColdEntryAtAX5` 3 of 3. One of them was "Failed to get
+    matching snapshots: Timed out while evaluating UI query"; the rest were `library-title-menu` not found within
+    5 s (line 208).
+  - `testColdEntryAtLarge` passed on its 3rd attempt.
+  - `testSearchKeepsQueryFocusAndTabThroughSizesAndTurns` failed at line 70, then exceeded the 10-minute
+    allowance.
+  - `testSettingMarksAndTitleSurviveSizesAndTurns` exceeded the 10-minute allowance.
+  - The other 3 passed.
+- **Unclear:** whether this comes from the slower hosted simulators, from Xcode 27.1, or from the tests themselves.
+  The job has no drift check of its own, so it ran on the drifted Xcode. It should be judged again after Bug 2 is
+  fixed. The step took 33.5 and 63.6 min, against the 13 to 15 min measured in 19-11.
+
+**Not done, and why:** these are gate bugs, not the injected faults, so I stopped as this step's rules require.
+- Proof commit 2 was not made, and no fix was made.
+- The remote branch `ci/snapshot-gate` was deleted after this record, and its worktree removed.
+- A new hosted proof needs Bugs 1 and 2 fixed on the phase branch first. Whether the native-policy failures remain
+  should be checked at the same time. Then both proof runs can be made again (owner msg 2876 approved two runs;
+  one has been used).
+
+### Still to record (after the gate bugs are fixed)
+
+- A run whose shards really capture: each shard's minutes against its limit, and the total wall time against
+  D-13's estimate.
+- `s03=crash` and `s11=no-artifact` both in triage and in the retry, passing there, with all four classes at 0.
+- Run 2: the aggregate fails with "infrastructure errors" naming only `s03`.
