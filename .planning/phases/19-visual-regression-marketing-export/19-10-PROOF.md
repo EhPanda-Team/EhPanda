@@ -259,6 +259,41 @@ run. There is no `fingerprints.json`, so a push runs in **candidate** mode.
    root-cause fix: on this Mac (iOS 27.2 runtime only) the iPad repro stops at the geometry check, so the
    first-launch timeout could not be reproduced.
 
+### iPad root cause on the iOS 27.0 runtime (after the run-3 fixes)
+
+The hosted runner's runtime, iOS 27.0 (24A434), was installed locally (gate iPad simulator, Xcode 27.2), and both
+run-2 iPad errors were reproduced through `run-shard.sh`'s path: the orientation turn, then the matrix invocation.
+
+- **First-launch settle timeout: root cause found, harness fix `1ac0720e4`.** Each settle read renders the window
+  again (`drawHierarchy(afterScreenUpdates: true)`). On the iPad turned to landscape, every render draws the dimmed
+  Liquid Glass Continue one step (1/255) different from the render before. That is a few to 325 bytes, cycling
+  through two or three states, while nothing on the screen moves; one transient frame reached 2,480 bytes, still
+  one step. Byte-exact reads rarely held for 500 ms. With the old reads, the first-launch pages settled after up to
+  36 of the 40 samples, and one `analytics-choice-none` (ja-xSmall, dark) timed out and passed only on its retry.
+  Settle reads drawn without the extra render (`afterScreenUpdates: false`) settled in 7 or 8 samples, which
+  confirmed the cause. That was not kept: the picture would then differ from the existing references by up to 266
+  pixels in the Continue button. The fix keeps the picture as it is and changes only when reads match. Two reads match
+  if no byte is more than one step apart and the bytes that differ stay within half the comparison's byte budget
+  (201 of 403 bytes on the iPad in landscape). Each read is compared with the first read of its run, so steps
+  cannot add up. Unit tests: `readsMatch` (identical, ±1, ±2, over half the budget, size); a 4-point square that
+  drifts one step every 200 ms never settles; a settled first-launch page settles again on its minimum reads. The
+  fix is in the harness, not the app.
+- **Proof (iOS 27.0, iPad landscape, `FirstLaunchSnapshotTests`, de/en/ja/ko/zh-Hans/zh-Hant at xSmall and
+  large):** three runs in a row. Runs 1 and 2 recorded 144/144 each; run 3 compared with run 1 and passed 144/144.
+  All were first attempts, with 0 timeouts and 0 flaky; samples had a median of 6 and a maximum of 9 (minimum
+  reads 6). The pictures of runs 1 and 2 differ by at most 4 bytes (budget 403). The whole landscape en-large suite
+  in compare mode against pictures taken with the old reads: 269 passed and 1 `changed`.
+  That one is `downloads-inspector` dark: noise in the dimmed sidebar, up to 9/255. The old reads gave the
+  same picture byte for byte on the same simulator session, so it comes from the session, not this fix.
+- **iPad `front-page-search` `interaction`: not reproduced.** Portrait `FrontPageSnapshotTests` was run with 2
+  workers (clones), as the gate runs it, for ja, ko and zh-Hans at xSmall, large and accessibility5: 108 recorded,
+  then 108 passed in compare mode. That includes 36 `front-page-search` pictures, each 3.6 to 4.2 s, all first
+  attempts. The full en-large portrait suite with 2 workers was also clean (268 recorded). On run 2 the step failed
+  after 44 to 88 s; locally the focus holds within about 4 s. No root cause found; fix 7's retry and its
+  `interaction:<reason>` stay, so run 3 will name the failure if it comes back.
+- **Also found:** `BrowsingStepTests.testFocusFailsTheStepAtItsDeadline` still expected the error that fix 7 replaced
+  and failed. `629f27294` fixes the test.
+
 **Fault shards under the 27-shard plan.** `s03` (de-xSmall) and `s11` (ko-large) are now both iPhone shards, so
 proof commit 1 no longer puts a fault on an iPad shard. The faults themselves do not depend on the device; if the
 iPad path should be covered too, `s03=crash,s20=no-artifact` does it (s19 to s27 are iPad).
@@ -272,4 +307,5 @@ about **8.7 h** (s03's retry crashes after 180 s twice). Run 2 took 9 h 47 min w
 - Run 3 (`s03=crash,s11=no-artifact`): `triage` lists exactly `["s03","s11"]`, both retries pass, the aggregate
   is green with all four classes at 0, and each shard's minutes against its limit.
 - Run 4 (`s03=crash@every-attempt`): the aggregate fails with "infrastructure errors" naming only `s03`.
-- The `settle-timeout:pixels:…` and `interaction:…` reasons, if the iPad first-launch or search errors come back.
+- iPad landscape `agewall-unticked` / `analytics-choice-none`: 0 timeouts after `1ac0720e4`.
+- The `interaction:…` reason, if the iPad search error comes back.
