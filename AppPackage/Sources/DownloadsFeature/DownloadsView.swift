@@ -166,7 +166,9 @@ private extension DownloadsView {
     @ContentBuilder private var emptyStateView: some View {
         if store.downloads.isEmpty {
             ContentUnavailableView {
-                Label(.emptyDownloads, systemSymbol: .squareAndArrowDown)
+                Label(.downloadsEmptyTitle, systemSymbol: .squareAndArrowDown)
+            } description: {
+                Text(.downloadsEmptyDescription)
             }
         } else {
             ContentUnavailableView {

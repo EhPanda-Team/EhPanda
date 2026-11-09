@@ -72,7 +72,7 @@ extension ScenarioCatalog {
         let factories: [String: ScenarioFactory] = [
             "favorites-list": .init(make: { Page.favorites(.loaded(.row)) }, prepare: artwork),
             "favorites-grid": .init(make: { Page.favorites(.loaded(.grid)) }, prepare: artwork),
-            "favorites-empty": .init(make: { Page.favorites(.failed(.notFound)) }),
+            "favorites-empty": .init(make: { Page.emptyFavorites() }),
             "favorites-signed-out": .init(signedIn: false, make: { Page.favorites(.loaded(.row)) }),
             "favorites-category-menu": .init(
                 make: { Page.favorites(.loaded(.row)) }, prepare: artwork,
@@ -341,7 +341,21 @@ enum LibraryScenarios {
         var favorites = FavoritesReducer.State()
         favorites.rawGalleries[-1] = content.galleries()
         favorites.rawLoadingState[-1] = content.loadingState
-        return AnyView(LibraryView(
+        return favoritesLibrary(favorites)
+    }
+
+    /// Favorites in the Library with nothing saved: the load succeeded with no galleries, which Favorites shows as
+    /// its own empty state rather than the not-found error.
+    static func emptyFavorites() -> AnyView {
+        var favorites = FavoritesReducer.State()
+        favorites.rawGalleries[-1] = []
+        favorites.rawLoadingState[-1] = .idle
+        favorites.emptyFavoritesIndices = [-1]
+        return favoritesLibrary(favorites)
+    }
+
+    private static func favoritesLibrary(_ favorites: FavoritesReducer.State) -> AnyView {
+        AnyView(LibraryView(
             store: Store(
                 initialState: LibraryFeature.State(selection: .favorites(-1)), reducer: LibraryFeature.init
             ),
