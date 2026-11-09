@@ -1,0 +1,25 @@
+// Marketplace flavor — COMMITTED, used only by the AltStore PAL notarization workflow
+// (`.github/workflows/deploy-pal.yml`, Phase 20 plan 20-04):
+//
+//     xcodebuild archive -xcconfig Config/Marketplace.xcconfig ...
+//
+// The marketplace build installs as its own app, so everything that identifies an install differs:
+// the bundle identifiers (`app.ehpanda.marketplace` and `app.ehpanda.marketplace.shareExtension`,
+// through the suffix knob in `Signing.xcconfig`) and the URL scheme. The scheme differs for the same
+// reason the beta's does: with two flavors installed, a link shared from one flavor's extension must
+// never open the other. The Home Screen name stays "EhPanda" and the icon is the regular one. The
+// features are the same as every other build's; nothing here is a compilation condition.
+//
+// Unlike the other channels, this build sets its distribution channel stamp here, at build time.
+// The other workflows build unsigned and `actions-tool/package-channel.sh` stamps each copy after the
+// archive, but the marketplace build is signed before it is uploaded to Apple, and editing its
+// Info.plist after signing would break the signature. So the stamp is a build setting that
+// `App/Info.plist` reads, `source` by default (`Flavor.xcconfig`) and `altstorePAL` here.
+//
+// Settings passed with `-xcconfig` apply to every target, Swift packages included, above the
+// project's own files and below any `NAME=value` given on the command line.
+
+BUNDLE_ID_SUFFIX = .marketplace
+EHPANDA_DISPLAY_NAME = EhPanda
+EHPANDA_URL_SCHEME = ehpanda-marketplace
+EHPANDA_DISTRIBUTION_CHANNEL = altstorePAL
