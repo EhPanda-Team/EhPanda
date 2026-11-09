@@ -7,8 +7,9 @@ name: Snapshot gate
 # rendering pins, the baseline slice fetch in compare mode, the pinned simulator (Scripts/visual/hosted-simulator.sh),
 # the shard's invocations and one in-job re-run of the classes a crash or the budget left without results. A shard
 # never decides the run and never cancels another (fail-fast off, continue-on-error). `triage` lists the shards with
-# an infrastructure error or no artifact; `retry` runs exactly those once more in this run; `aggregate` takes each
-# shard's latest attempt, names the four failure classes (picture changes, infrastructure errors, drift, baseline
+# a shard-level infrastructure error (crash, timeout, lost runner, missing results; one picture's error is reported,
+# not retried); `retry` runs exactly those once more in this run; `aggregate` takes each shard's latest attempt (a
+# retry without shard.json keeps the first attempt and is reported as retry-lost), names the four failure classes (picture changes, infrastructure errors, drift, baseline
 # mismatches) in the run summary, writes the offline report and is the run's verdict, together with the native visual
 # policy tests on both devices (19-11). Retry failures are reported, never retried again.
 #

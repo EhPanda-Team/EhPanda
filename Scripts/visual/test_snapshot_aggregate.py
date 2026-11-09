@@ -164,13 +164,92 @@ class AggregateTests(unittest.TestCase):
         self.assertIn(f'`{missing}`: missing-result', out)
         self.assertEqual(self.triage(), ['s11'])
 
-    def test_duplicate_line_is_an_error_naming_the_key(self):
+    def test_duplicate_lines_that_disagree_are_an_error_naming_the_key(self):
         duplicate = self.keys('s03')[0]
-        line = {'key': duplicate, 'status': 'passed', 'attempts': 1, 'flaky': False, 'seconds': 1.0}
+        line = {'key': duplicate, 'status': 'changed', 'attempts': 1, 'flaky': False, 'seconds': 1.0}
         self.write_all(s03={'extra': [line]})
         code, out = self.run_cli()
         self.assertEqual(code, 1)
         self.assertIn(f'`{duplicate}`: duplicate-result (s03)', out)
+
+    def test_duplicate_lines_that_agree_are_merged_once(self):
+        # Run 42577585956 (s06, s17, s18): XCTest runs a class again after its test runner crashed, so a picture
+        # taken twice with the same result is written twice. That is one result, not an infrastructure error.
+        duplicate = self.keys('s03')[0]
+        line = {'key': duplicate, 'status': 'passed', 'attempts': 1, 'flaky': False, 'seconds': 4.0}
+        self.write_all(s03={'extra': [line]})
+        code, out = self.run_cli()
+        self.assertEqual(code, 0, out)
+        rows = [row for row in self.aggregate()['results'] if row['key'] == duplicate]
+        self.assertEqual(len(rows), 1)
+        self.assertEqual(rows[0]['seconds'], 1.5)
+
+    def test_retry_without_shard_json_keeps_the_first_attempt_and_is_reported(self):
+        # Run 42577585956: s07's retry could not make its simulator and left only its logs, and the merge took that
+        # empty retry over a first attempt with 547 pictures. The first attempt stays; the lost retry is named.
+        erring = self.keys('s07')[0]
+        self.write_all(s07={'infra': 'crash', 'skip': [erring]})
+        (self.retry / 's07' / 'logs').mkdir(parents=True)
+        code, out = self.run_cli('--retry', str(self.retry))
+        self.assertEqual(code, 1)
+        document = self.aggregate()
+        self.assertEqual(document['shards']['s07']['attempt'], 1)
+        self.assertTrue(document['shards']['s07']['retryLost'])
+        kinds = sorted(item['kind'] for item in document['items']['infrastructureErrors'])
+        self.assertEqual(kinds, ['crash', 'missing-result', 'retry-lost'])
+        self.assertIn('- s07: retry-lost (s07) — the retry left no shard.json', out)
+        self.assertIn('| s07 | 1 (retry lost) | crash |', out)
+        self.assertNotIn('runner-lost', out)
+        self.assertEqual(self.triage('--retry', str(self.retry)), [])
+
+    def test_retry_without_shard_json_after_a_lost_first_attempt_is_runner_lost(self):
+        self.write(self.results, 's03')
+        self.write(self.results, 's11')
+        (self.retry / 's07' / 'logs').mkdir(parents=True)
+        code, out = self.run_cli('--retry', str(self.retry))
+        self.assertEqual(code, 1)
+        document = self.aggregate()
+        self.assertEqual(document['shards']['s07'], {'attempt': 2, 'infra': 'runner-lost',
+                                                     'directory': str(self.retry / 's07')})
+        self.assertIn('s07: runner-lost (s07) — no shard.json (runner unusable, see s07/logs)', out)
+
+    def test_shard_directory_without_shard_json_is_named_unusable_not_missing(self):
+        self.write(self.results, 's03')
+        self.write(self.results, 's07')
+        (self.results / 's11' / 'logs').mkdir(parents=True)
+        code, out = self.run_cli()
+        self.assertEqual(code, 1)
+        self.assertIn('s11: runner-lost (s11) — no shard.json (runner unusable, see s11/logs)', out)
+        self.assertNotIn('no artifact', out)
+        self.assertEqual(self.triage(), ['s11'])
+
+    def test_a_coordinate_error_is_reported_but_never_retries_the_shard(self):
+        # Run 42577585956: one picture's `interaction` error sent s07's 547 good pictures to a whole-shard retry.
+        # Only a shard-level error (crash, timeout, lost runner, missing or malformed results) retries a shard.
+        erring, slow = self.keys('s07')[:2]
+        self.write_all(s07={'overrides': {erring: {'status': 'error', 'reason': 'interaction'},
+                                          slow: {'status': 'timeout', 'reason': 'settle-timeout'}}})
+        code, out = self.run_cli()
+        self.assertEqual(code, 1)
+        self.assertEqual(self.aggregate()['counts']['infrastructureErrors'], 2)
+        self.assertIn(f'`{erring}`: error (s07) — interaction', out)
+        self.assertEqual(self.triage(), [])
+
+    def test_the_summary_has_one_line_per_shard_before_the_items(self):
+        # Run 42577585956's summary spent its 200 items on one shard's missing results and never named the others.
+        self.write_all(s03={'infra': 'timeout', 'skip': self.keys('s03')[1:]},
+                       s07={'overrides': {self.keys('s07')[0]: {'status': 'error', 'reason': 'interaction'}}})
+        code, out = self.run_cli()
+        self.assertEqual(code, 1)
+        lines = out.splitlines()
+        table = lines.index('| Shard | Attempt | Shard class | Results | Infrastructure errors |')
+        self.assertLess(table, lines.index(next(line for line in lines if line.startswith('### Infrastructure'))))
+        missing = len(self.keys('s03')) - 1
+        self.assertIn(f'| s03 | 1 | timeout | passed 1, notApplicable {len(self.keys("s03", captured=False))} '
+                      f'| missing-result {missing}, timeout 1 |', lines)
+        self.assertIn('| s11 | 1 | none | passed 4 | none |', lines)
+        self.assertTrue(any(line.startswith('| s07 | 1 | none |') and line.endswith('| error 1 |')
+                            for line in lines), out)
 
     def test_coordinate_timeout_and_malformed_line_are_infrastructure_errors(self):
         timed_out = self.keys('s03')[0]

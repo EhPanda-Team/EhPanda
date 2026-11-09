@@ -2,14 +2,21 @@
 """Merge the snapshot shards' results, decide the gate run and list the shards to retry (19-CONTEXT D-15 amendment).
 
 Each shard uploads `<results>/<shard-id>/` with `results.jsonl` and `shard.json` (19-RESEARCH §9). A retry of a shard
-uploads the same layout under `<retry>/<shard-id>/`, and the merge keeps each shard's latest attempt. Every expected
-coordinate of the shard plan must have exactly one line: a coordinate without one is an infrastructure error, so a
-missing or malformed file never reads as a pass.
+uploads the same layout under `<retry>/<shard-id>/`, and the merge keeps each shard's latest attempt, except that a
+retry without `shard.json` never replaces a first attempt that has one: the first attempt is merged and the lost retry
+is reported as `retry-lost` (run 42577585956, s07). Every expected coordinate of the shard plan must have a line: a
+coordinate without one is an infrastructure error, so a missing or malformed file never reads as a pass. A coordinate
+written twice with the same status (XCTest runs a class again after its runner crashed) counts once; lines that
+disagree are a `duplicate-result` error.
 
 Failures fall into four classes, each named in the summary: picture changes, infrastructure errors, environment drift
 and baseline mismatches. Any non-empty class fails the run. `--triage` prints the shards to retry: those with an
-infrastructure error or no artifact, never those with only picture changes, drift or a baseline mismatch, and never a
-shard whose latest attempt already was its retry.
+shard-level infrastructure error (crash, timeout, lost runner, missing or malformed results), never those with only
+coordinate errors (one picture's `timeout` or `error` is reported, not retried: rerunning a whole shard for it costs an
+hour and repeats the same picture), picture changes, drift or a baseline mismatch, and never a shard that already ran
+its retry.
+
+The summary names every shard on one line with its counts before the item lists, which are capped.
 """
 
 import argparse
@@ -71,6 +78,14 @@ def latest(shard_id, results, retry):
     return 1, results / shard_id
 
 
+def lost_detail(directory, expected):
+    """Why an attempt has no `shard.json`: no artifact at all, or an artifact from a runner that could not run it."""
+    missing = sum(reason is None for reason in expected.values())
+    if directory.is_dir():
+        return f'no shard.json (runner unusable, see {directory.name}/logs); {missing} coordinates missing'
+    return f'no artifact; {missing} coordinates missing'
+
+
 def aggregate(results, retry, document, env, shard_plan):
     """The merged verdict as the `aggregate.json` document."""
     rows = snapshot_matrix.coordinates(document, env)
@@ -81,15 +96,25 @@ def aggregate(results, retry, document, env, shard_plan):
         attempt, directory = latest(shard_id, results, retry)
         expected = shard_coordinates(shard, rows)
         read = read_attempt(directory)
+        retry_lost = False
+        if read is None and attempt == 2:
+            first = read_attempt(results / shard_id)
+            if first is not None:
+                retry_lost = True
+                items['infrastructureErrors'].append({
+                    'shard': shard_id, 'kind': 'retry-lost',
+                    'detail': f'the retry left no shard.json (see {directory}/logs); the first attempt is merged'})
+                attempt, directory, read = 1, results / shard_id, first
         if read is None:
             shards[shard_id] = {'attempt': attempt, 'infra': 'runner-lost', 'directory': str(directory)}
-            items['infrastructureErrors'].append({
-                'shard': shard_id, 'kind': 'runner-lost',
-                'detail': f'no artifact; {sum(reason is None for reason in expected.values())} coordinates missing'})
+            items['infrastructureErrors'].append({'shard': shard_id, 'kind': 'runner-lost',
+                                                  'detail': lost_detail(directory, expected)})
             continue
         record, lines, problems = read
         infra = record.get('infra')
         shards[shard_id] = {'attempt': attempt, 'infra': infra, 'directory': str(directory)}
+        if retry_lost:
+            shards[shard_id]['retryLost'] = True
         items['infrastructureErrors'] += [{'shard': shard_id, **problem} for problem in problems]
         if infra in SHARD_CLASSES:
             items[SHARD_CLASSES[infra]].append({'shard': shard_id, 'kind': infra,
@@ -99,16 +124,18 @@ def aggregate(results, retry, document, env, shard_plan):
         elif infra is not None:
             items['infrastructureErrors'].append({'shard': shard_id, 'kind': 'malformed-shard',
                                                   'detail': f'unknown infra {infra!r}'})
-        seen = set()
+        seen = {}
         for line in lines:
             key, status = line['key'], line['status']
             if key not in expected:
                 items['infrastructureErrors'].append({'shard': shard_id, 'kind': 'unexpected-result', 'key': key})
                 continue
             if key in seen:
-                items['infrastructureErrors'].append({'shard': shard_id, 'kind': 'duplicate-result', 'key': key})
+                if seen[key] != status:
+                    items['infrastructureErrors'].append({'shard': shard_id, 'kind': 'duplicate-result', 'key': key,
+                                                          'detail': f'{seen[key]}, then {status}'})
                 continue
-            seen.add(key)
+            seen[key] = status
             entry = {'key': key, 'status': status, 'shard': shard_id, 'attempts': line.get('attempts', 1),
                      'flaky': bool(line.get('flaky')), 'seconds': line.get('seconds', 0)}
             if line.get('reason'):
@@ -147,10 +174,16 @@ def failed(document):
     return any(document['counts'].values())
 
 
+def shard_level(item):
+    """Whether an infrastructure error is the shard's (retry it) rather than one coordinate's (report it)."""
+    return not (item['kind'] in COORDINATE_ERRORS and item.get('key'))
+
+
 def triage(document):
-    """Shard IDs to run once more: an infrastructure error on a first attempt."""
-    erring = {item['shard'] for item in document['items']['infrastructureErrors']}
-    return sorted(shard for shard in erring if document['shards'][shard]['attempt'] == 1)
+    """Shard IDs to run once more: a shard-level infrastructure error on a first attempt that had no retry yet."""
+    erring = {item['shard'] for item in document['items']['infrastructureErrors'] if shard_level(item)}
+    return sorted(shard for shard in erring
+                  if document['shards'][shard]['attempt'] == 1 and not document['shards'][shard].get('retryLost'))
 
 
 def describe(item):
@@ -159,13 +192,36 @@ def describe(item):
     return f"- {subject}: {item['kind']} ({item['shard']}){detail}"
 
 
+def counted(counter, order=None):
+    keys = sorted(counter, key=lambda key: (order.index(key) if order and key in order else len(order or ()), key))
+    return ', '.join(f'{key} {counter[key]}' for key in keys) or 'none'
+
+
+def shard_table(document):
+    """One row per shard: its attempt, shard class, result counts and infrastructure error counts."""
+    statuses = {shard: Counter() for shard in document['shards']}
+    for row in document['results']:
+        statuses[row['shard']][row['status']] += 1
+    errors = {shard: Counter() for shard in document['shards']}
+    for item in document['items']['infrastructureErrors']:
+        errors[item['shard']][item['kind']] += 1
+    lines = ['| Shard | Attempt | Shard class | Results | Infrastructure errors |', '|---|---|---|---|---|']
+    for shard, row in sorted(document['shards'].items()):
+        attempt = f"{row['attempt']} (retry lost)" if row.get('retryLost') else str(row['attempt'])
+        lines.append(f"| {shard} | {attempt} | {row.get('infra') or 'none'} | {counted(statuses[shard], STATUSES)} "
+                     f"| {counted(errors[shard])} |")
+    return lines
+
+
 def summary(document):
-    """Markdown: the four class counts first, in a fixed order, then the verdict and the details."""
+    """Markdown: the four class counts first, in a fixed order, then the verdict, one line per shard and the details."""
     lines = [f"- {document['counts'][name]} {label}" for name, label in CLASSES]
     retried = sorted(shard for shard, row in document['shards'].items() if row['attempt'] == 2)
     statuses = ', '.join(f'{status} {count}' for status, count in document['statusCounts'].items()) or 'none'
     lines += ['', f"## Snapshot gate: {'failed' if failed(document) else 'passed'}", '',
-              f"Shards: {len(document['shards'])}; retried: {', '.join(retried) or 'none'}. Results: {statuses}."]
+              f"Shards: {len(document['shards'])}; retried: {', '.join(retried) or 'none'}. Results: {statuses}.",
+              '']
+    lines += shard_table(document)
     for name, label in CLASSES:
         entries = document['items'][name]
         if entries:
