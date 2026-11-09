@@ -1,9 +1,8 @@
 # Phase 20: 3.0 Distribution: Marketplace Build, Notarization, Listing & Release Checks - Context
 
 **Gathered:** 2026-11-09 (discussion refresh; owner decisions first recorded 2026-11-05 during the Phase 18 discussion)
-**Status:** Discussion done, with one owner question open (OQ-1, the marketplace build's primary icon). Planning can
-start: OQ-1 changes one asset at most, and its recommended answer needs no work. The planner makes OQ-1 a checkpoint
-before the first marketplace build goes to Apple.
+**Status:** Discussion done. No owner question is open: OQ-1 (the marketplace build's primary icon) was resolved
+on 2026-11-09 by product lead msg 2775 (D-22).
 **Branch:** `feature/gsd-phase-20`, from `e7f373b31` (the `feature/gsd-phase-19` tip), in parallel with Phase 19
 (D-13).
 
@@ -63,7 +62,7 @@ does not redo them.
       1260 x 2736 set is an accepted "Dynamic Island (large display)" size. Whether it alone satisfies the iPhone
       requirement through scaling is confirmed at the first upload. No iPad set exists. The PAL source itself can
       list iPhone screenshots only; any iPad screenshot there needs an explicit width and height.
-    - **The all-ages icon:** OQ-1.
+    - **The all-ages icon:** resolved by D-22: the current icon is kept.
     - **The PAL listing screenshot set:** built from Phase 19's approved reference set (D-14). Who decorates it and
       which screens it shows are decided at step (f)'s owner checkpoint. Notarization data, screenshots included,
       feeds iOS's install sheet, so App Store Connect's screenshots must also be all-ages. The current Classic
@@ -225,9 +224,17 @@ does not redo them.
   - **Recorded at the test.** The test records which key type and role made each call, and whether creating the
     version, attaching the build and submitting worked with an App Manager key alone.
 
-### Remaining owner question (product lead relays it to the owner)
+- **D-22:** **The marketplace build keeps the current primary icon** (product lead msg 2775, 2026-11-09; OQ-1
+  option A). The panda holding a rose (`App/EhPanda.icon`, and `docs/altstore/appicon-512.png` for the listing) is
+  judged to meet guideline 2.3.8's 4+ rule, so every build and every listing uses it, and the marketplace flavor
+  does not set `ASSETCATALOG_COMPILER_APPICON_NAME`. No icon task is planned. It changes only if Apple's review
+  objects: if the notarization review rejects the icon under 2.3.8, step (c) pauses and the owner asks the designer
+  Colo for an all-ages variant; the flavor then points at it and the build is submitted again.
 
-- **OQ-1 (GA-6 Q3):** Must the marketplace build's own primary icon be all-ages, or only the listing icon?
+### Resolved owner question
+
+- **OQ-1 (GA-6 Q3): RESOLVED 2026-11-09 by D-22 (product lead msg 2775: option A).** Must the marketplace build's
+  own primary icon be all-ages, or only the listing icon? The research and options are kept below as the record.
   - **What the research found.** Guideline 2.3.8 is in the notarization subset: "make sure your app and in-app
     purchase icons, screenshots, and previews adhere to a 4+ age rating even if your app is rated higher". Apple
     takes the app's store icon from the build's asset catalog, and notarization data feeds the install sheet. So the
@@ -241,8 +248,8 @@ does not redo them.
     - B. Have a designer make an all-ages primary icon for the marketplace build only, set by the marketplace
       flavor. Safest if the owner has doubts, but it is a second icon to keep in sync.
   - **Recommendation: A.** The icon shows a cartoon panda and a flower and nothing adult, and one icon everywhere
-    needs no flavor-specific asset. If the owner chooses B, the asset is a step (f) item and the flavor points
-    `ASSETCATALOG_COMPILER_APPICON_NAME` at it.
+    needs no flavor-specific asset.
+  - **Answer: A** (D-22). Option B is not planned; it returns only if Apple's review rejects the icon.
 
 ### Plan order (D-14; product lead msg 2771)
 
@@ -265,7 +272,8 @@ does not redo them.
     - the age-rating answers and the App Privacy answers;
     - the countries or regions the app is offered in (AltStore PAL serves the EU, Japan and Brazil);
     - the GitHub environment secrets;
-    - the first submission, including the App Manager key test (D-21).
+    - the first submission, including the App Manager key test (D-21). If the review rejects the icon under
+      guideline 2.3.8, this step pauses for a design request to Colo (D-22).
 - **(d) Website dependencies check** (Leto):
   - the privacy policy URL;
   - the support URL;
@@ -275,7 +283,7 @@ does not redo them.
 - **(e) Real-device checks** (DEV-18-01). **Checkpoint (owner hardware).**
 - **(f) The parts that need Phase 19** (D-14):
   1. the PAL listing assets and store screenshots from Phase 19's approved reference set: sizes, iPad 13-inch,
-     OQ-1's icon, all-ages content (D-04 amended);
+     all-ages content (D-04 amended); the icon is the current one (D-22);
   2. the release relying on Phase 19's screenshot check.
   - **Checkpoint (owner):** the screenshots and listing assets.
 - **(g) Analytics revision** (ANALYTICS-02; D-06 amended).
@@ -291,8 +299,8 @@ These were not put to the owner (prep section 3).
   collaborator's account cannot be deleted, and moving PAL users to another ID means a reinstall and lost data.
 - **Marketplace flavor:** `Config/Marketplace.xcconfig`, passed with `-xcconfig` by the notarization job only, like
   `Config/Beta.xcconfig`.
-  - **What it sets:** `BUNDLE_ID_SUFFIX = .marketplace`, the Home Screen name "EhPanda", the regular icon (unless
-    OQ-1 says B) and its own URL scheme, so its share extension never hands a link to another installed flavor
+  - **What it sets:** `BUNDLE_ID_SUFFIX = .marketplace`, the Home Screen name "EhPanda", the regular icon (D-22)
+    and its own URL scheme, so its share extension never hands a link to another installed flavor
     (D-11's reason). The planner checks that nothing public links with the `ehpanda://` scheme; if something does,
     the flavor registers both schemes.
   - **The stamp:** a build setting, for example `EHPANDA_DISTRIBUTION_CHANNEL`, defaulting to `source` in
