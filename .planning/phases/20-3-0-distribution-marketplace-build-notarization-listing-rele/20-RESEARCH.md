@@ -6,7 +6,7 @@ AltStore PAL sources and ADPs, TelemetryDeck signal vocabulary
 **Confidence:** HIGH for the repository facts and AltStore's documented source format; MEDIUM for the App Store
 Connect API call sequence (documented, never run against this account); LOW for the ADP archive's exact on-disk
 layout and for whether an accepted notarization version can take a new build (both confirmed at the first live
-submission, 20-07).
+submission, 20-08).
 
 <user_constraints>
 ## User Constraints (from CONTEXT.md)
@@ -72,19 +72,22 @@ build-number check that only the beta workflow runs. Five findings change the pl
    (App Store Connect Help, "Required, localizable, and editable properties for Notarization": each is marked
    *Required*). Screenshots are not marked *Editable*, so they change only with a new submission. EhPanda is universal,
    so an iPad 13-inch set is needed too, and none exists. **The first submission therefore cannot happen before some
-   all-ages iPhone and iPad screenshots exist.** Phase 19's approved set is (f)'s, so 20-07 opens with a decision:
+   all-ages iPhone and iPad screenshots exist.** Phase 19's approved set is (f)'s, so 20-08 opens with a decision:
    wait for (f), or submit first with an interim, undecorated all-ages set from the public synthetic fixtures (OQ-A).
 4. **D-05 orders (d) before the first submission.** The contact link must be live "before the AltStore build goes to
-   Apple", and the support URL is a required property. So (c) is split: the pipeline (20-04) and account setup
-   (20-05) come before the website check (20-06); the first live submission (20-07) depends on all three. The
-   product lead's order is otherwise unchanged.
+   Apple", and the support URL is a required property. So (c) is split into the pipeline (20-04 submit, 20-05
+   publish), account setup (20-06) and the first live submission (20-08), which also depends on the website check
+   (20-07). The product lead's order is otherwise unchanged.
 5. **An early submission may consume a version.** App Store Connect builds must have a new build number per upload,
    and an accepted version cannot normally take another build. D-20's early verdict is still possible if the version's
    release is set to manual and the version is developer-rejected before the final build, which is confirmed at the
-   first submission; otherwise the final PAL build needs a new version number (OQ-B, owner decision at 20-07).
+   first submission; otherwise the final PAL build needs a new version number (OQ-B, owner decision at 20-08).
 
-**Primary recommendation:** 13 plans in the fixed order, with (c) split into pipeline, account setup and first
-submission, and (g) split into vocabulary sign-off and implementation.
+**Primary recommendation:** 14 plans in the fixed order, with (c) split into the submit pipeline, the publish
+pipeline, account setup and the first submission, and (g) split into vocabulary sign-off and implementation.
+The waves follow the fixed order (D-14), so the phase runs as 11 waves. 20-07 (website check), 20-09 (device checks)
+and 20-12 (vocabulary sign-off) need no code from earlier steps and could run in wave 1 if the product lead allows
+(OQ-G); the plans do not assume it.
 </research_summary>
 
 <architectural_responsibility_map>
@@ -127,7 +130,7 @@ submission, and (g) split into vocabulary sign-off and implementation.
 | openssl-signed JWT | `pip install pyjwt[crypto]` | a network dependency in a release job with signing secrets; rejected |
 | `-exportArchive` upload | `xcrun altool --upload-app` | still works for iOS but is Apple's legacy path; rejected |
 | Automatic signing with `-allowProvisioningUpdates` | — | can create certificates and profiles in the collaborator's account on its own: violates D-07; rejected |
-| Running Phase 19's gate inside `deploy.yml` | require the gate's `aggregate` check to have passed on the PR head | the gate takes 2 to 3 hours; reading its verdict is the reliance (20-10) |
+| Running Phase 19's gate inside `deploy.yml` | require the gate's `aggregate` check to have passed on the PR head | the gate takes 2 to 3 hours; reading its verdict is the reliance (20-11) |
 </standard_stack>
 
 <architecture_patterns>
@@ -172,7 +175,7 @@ NSPrivacyCollectedDataTypes (Linked false, Tracking false, Purposes [Analytics])
   `ShareExtension`). The share extension uses no required-reason API, so it gets no manifest.
 - Verification: Xcode's privacy report needs an archive (Organizer → Generate Privacy Report). Without a signed
   archive, 20-01 checks the file is in the built `.app`, lints it with `plutil -lint`, and a unit test parses it
-  and compares its categories against the grep result. The App Store Connect upload (20-07) is the real check.
+  and compares its categories against the grep result. The App Store Connect upload (20-08) is the real check.
 
 ### §3 Release mechanics (REL-18-01)
 
@@ -255,8 +258,8 @@ workflow_dispatch(version) ── environment: pal-notarization (required review
 - **AltStore processing.** If marketplace notifications are on, AltStore processes the ADP itself; `POST /adps` is
   harmless when it already has. Poll `GET /adps/<id>` with a bounded wait and a clear timeout message.
 - **ADP layout is unverified.** Apple's ADP is a package with `manifest.json`, `signature` and per-variant IPAs.
-  Whether AltStore's `downloadURL` serves a zip or a folder listing is first seen at 20-07. `pal_publish.py` accepts
-  a zip or a directory, maps files by name without extension, and refuses anything else; 20-07 records the real
+  Whether AltStore's `downloadURL` serves a zip or a folder listing is first seen at 20-08. `pal_publish.py` accepts
+  a zip or a directory, maps files by name without extension, and refuses anything else; 20-08 records the real
   layout and adjusts the fixture if it differs.
 - **Never reformat `manifest.json`**: hashes of the downloaded and uploaded bytes are compared, and the uploaded
   asset is re-downloaded and compared once more.
@@ -296,7 +299,7 @@ workflow_dispatch(version) ── environment: pal-notarization (required review
 <common_pitfalls>
 ## Common Pitfalls
 
-1. **Required notarization metadata** (§ summary 3): no screenshots or support URL, no submission. 20-07 starts by
+1. **Required notarization metadata** (§ summary 3): no screenshots or support URL, no submission. 20-08 starts by
    confirming every required property is filled.
 2. **Build numbers are single-use in App Store Connect.** The early upload consumes one; the final upload needs a
    higher one, and the Classic release of the same commit carries it too. The submit job checks App Store Connect's
@@ -305,13 +308,16 @@ workflow_dispatch(version) ── environment: pal-notarization (required review
    and confirm at the first acceptance whether "Developer Reject" is offered for a notarized version.
 4. **`AltStorePAL.json` and the Classic check.** Do not add the PAL source to `deploy.yml`'s check (§3).
 5. **Snapshot gate not on this branch.** `snapshot-gate.yml` is Phase 19's (19-10), on `feature/gsd-phase-19`.
-   20-10 needs Phase 19 merged into this branch or into `main` first; this branch never touches the Phase 19 branch.
+   20-11 needs Phase 19 merged into this branch or into `main` first; this branch never touches the Phase 19 branch.
 6. **The beta's scheme list.** Adding the marketplace scheme to `GalleryURLParser` without a test lets a later edit
    drop it silently.
 7. **Interim screenshot wording.** The current decorated set's first picture says "Over a million adult comics and
    doujinshi" (D-04 amended); it is not a safe interim set for Apple's 4+ rule on screenshots.
 8. **ROADMAP SC8 is outdated.** "Nothing is sent under None": there is no None level since Phase 18; nothing is sent
-   before a level is chosen. Flagged for the product lead at 20-11; the plans test the current rule.
+   before a level is chosen. Flagged for the product lead at 20-12; the plans test the current rule.
+9. **Phase 19's approved references are 1x** (Phase 19 D-10), far below App Store Connect's sizes. Store pictures
+   are rendered from the same approved scenarios at native scale, and the same run's 1x render must equal the
+   approved reference, which ties each store picture to the approved state (20-10).
 </common_pitfalls>
 
 <code_examples>
@@ -354,9 +360,9 @@ PAL version entry the filter writes:
 - Needed from Leto: the privacy policy URL (same), a support URL, the published contact link (GitHub Issues), and a
   public URL for `AltStorePAL.json` (an `ehpanda.app` redirect to `raw.githubusercontent.com/.../main/AltStorePAL.json`,
   like `AltStore.json`'s).
-- `ehpanda.app` did not resolve from this machine during research (curl exit 6); 20-06 checks from the executing
+- `ehpanda.app` did not resolve from this machine during research (curl exit 6); 20-07 checks from the executing
   machine and, if DNS fails there too, from a GitHub-hosted run or the owner's browser.
-- "Apple-approved" wording: 20-06 greps the repository and the website pages it fetches.
+- "Apple-approved" wording: 20-07 greps the repository and the website pages it fetches.
 
 ### §8 Real-device checks (DEV-18-01)
 
@@ -367,7 +373,7 @@ PAL version entry the filter writes:
   repair, start in the foreground, background the app, watch the system card, cancel from the card, foreground and
   compare. Phase 15 passed on device on 2026-08-19; this re-checks on the 3.0 build.
 - Both need the owner's hardware and his signing (`Config/LocalSigning.xcconfig`), so the plan is a checkpoint.
-  Anything that reproduces becomes a gap-closure plan, not a fix inside 20-08.
+  Anything that reproduces becomes a gap-closure plan, not a fix inside 20-09.
 
 ### §9 PAL listing (MKT-18-01, CAP-17-05)
 
@@ -386,7 +392,7 @@ Current vocabulary (`AnalyticsSignal`): navigation, search, reading, downloads, 
 `AnalyticsSignal+Level.swift` with an exhaustive switch; one name-minting file (`+Rendering`); the install signal
 already carries `App.distributionChannel` at every level (D-06 amended).
 
-Candidate additions, for sign-off (20-11), all Basic ("which screens and features you use"), with closed-enum values
+Candidate additions, for sign-off (20-12), all Basic ("which screens and features you use"), with closed-enum values
 only:
 
 | Flow | Candidate signal | Parameters |
@@ -401,6 +407,16 @@ only:
 All fit the approved Basic description; none needs the copy to change. README's Basic list names examples, so the
 new flows are added there and in the five `READMEs/` translations (`18-copy-check.py --readmes` checks them).
 
+**Carried from Phase 18 (18-03-SUMMARY, 18-RESEARCH OI-4):** at Basic and Full, one install arrives twice: the SDK's
+own `TelemetryDeck.Acquisition.newInstallDetected` (SwiftSDK `SessionManager.startNewSession`, on the first session)
+and EhPanda's `App.installed`. 18-RESEARCH recommends counting `App.installed` on the dashboard. Options for the
+sign-off: A (recommended) keep both and document in COVERAGE.md and the README that `App.installed` is the install
+count, because it is the only one sent at every level; B suppress the SDK's signal, which the SDK offers no
+configuration for, so it would need filtering in `TelemetrySDK.swift` and a test. The other carried item, "verify the
+install source on the marketplace build", now means the channel stamp: 20-01 checks it in the built plist, and the
+installed PAL build's dashboard value can only be seen after a live PAL install, which is release order (20-14
+lists it).
+
 ### §11 Closing scan (D-09)
 
 `Scripts/visual/README.md` "Release isolation": Release simulator build with `CODE_SIGN_IDENTITY=-
@@ -411,22 +427,24 @@ since the PAL build is a distinct build.
 <open_questions>
 ## Open Questions
 
-- **OQ-A (product lead/owner, at 20-07):** Screenshots for the first notarization submission. A: wait for step (f)'s
+- **OQ-A (product lead/owner, at 20-08):** Screenshots for the first notarization submission. A: wait for step (f)'s
   set (the first verdict comes after Phase 19). B (recommended): an interim, undecorated, all-ages set captured from
   the public synthetic fixtures on an iPhone 6.9" and an iPad 13" simulator, replaced by (f)'s set in the final
   submission.
-- **OQ-B (owner, at 20-07):** If a notarized version cannot be developer-rejected after acceptance, does the early
+- **OQ-B (owner, at 20-08):** If a notarized version cannot be developer-rejected after acceptance, does the early
   submission use 3.0.0 (and the final PAL build a later version), or does the first submission wait for the final
   build? Recommended: set manual release, and ask only if App Store Connect does not offer Developer Reject.
-- **OQ-C (product lead, at 20-03 or 20-05):** The PAL source's `developerName`. "EhPanda Team" today; the install
+- **OQ-C (product lead, at 20-03 or 20-06):** The PAL source's `developerName`. "EhPanda Team" today; the install
   sheet shows the collaborator's account name. AltStore guideline 2 and Apple 5.6.2 require accuracy. Recommended:
   ask the collaborator how the account's developer name reads and use it, or "EhPanda Team" if the account's name
   is EhPanda's.
-- **OQ-D (product lead, at 20-09):** PAL subtitle and ASC description wording for an all-ages listing.
-- **OQ-E (product lead/owner, at 20-11):** the signal vocabulary in §10, and whether the channel becomes a default
+- **OQ-D (product lead, at 20-10):** PAL subtitle and ASC description wording for an all-ages listing.
+- **OQ-E (product lead/owner, at 20-12):** the signal vocabulary in §10, and whether the channel becomes a default
   parameter on Basic and Full events; and the ROADMAP SC8 wording.
-- **OQ-F (owner, at 20-10):** how Phase 19's `snapshot-gate.yml` reaches this branch (merge Phase 19 into `main`
+- **OQ-F (owner, at 20-11):** how Phase 19's `snapshot-gate.yml` reaches this branch (merge Phase 19 into `main`
   first, or merge `feature/gsd-phase-19` into this branch with his OK).
+- **OQ-G (product lead, before execution):** may 20-07, 20-09 and 20-12 start in wave 1, ahead of the fixed order?
+  Recommended: yes, since none needs code from an earlier step; the plans keep the fixed order until told.
 </open_questions>
 
 ## Validation Architecture
