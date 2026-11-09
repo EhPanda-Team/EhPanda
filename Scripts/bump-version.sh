@@ -83,6 +83,8 @@ if [ ! -f "$PBXPROJ" ]; then
   exit 1
 fi
 
+# A test target's configurations are left alone: those with this bundle ID, or with TEST_HOST (unit
+# tests) or TEST_TARGET_NAME (UI tests).
 TEST_BUNDLE_ID="app.ehpanda.tests"
 
 if [ -z "$BUILD" ]; then
@@ -91,7 +93,7 @@ if [ -z "$BUILD" ]; then
     function flush(   i, is_test, m) {
       is_test = 0
       for (i = 1; i <= n; i++) {
-        if (block[i] ~ ("PRODUCT_BUNDLE_IDENTIFIER = " test_id ";")) { is_test = 1; break }
+        if (block[i] ~ ("PRODUCT_BUNDLE_IDENTIFIER = " test_id ";") || block[i] ~ /^[[:space:]]*(TEST_HOST|TEST_TARGET_NAME) = /) { is_test = 1; break }
       }
       if (!is_test) {
         for (i = 1; i <= n; i++) {
@@ -129,7 +131,7 @@ awk -v v="$VERSION" -v b="$BUILD" -v test_id="$TEST_BUNDLE_ID" '
 function flush_block(   i, is_test, line) {
   is_test = 0
   for (i = 1; i <= n; i++) {
-    if (block[i] ~ ("PRODUCT_BUNDLE_IDENTIFIER = " test_id ";")) {
+    if (block[i] ~ ("PRODUCT_BUNDLE_IDENTIFIER = " test_id ";") || block[i] ~ /^[[:space:]]*(TEST_HOST|TEST_TARGET_NAME) = /) {
       is_test = 1
       break
     }
