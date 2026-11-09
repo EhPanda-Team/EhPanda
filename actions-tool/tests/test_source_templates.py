@@ -30,7 +30,7 @@ def assets_checkout():
     except (OSError, subprocess.CalledProcessError):
         return None
     candidate = pathlib.Path(common).parent.parent / "ehpanda-assets"
-    return candidate if (candidate / "altstore").is_dir() else None
+    return candidate if (candidate / "app-marketplace").is_dir() else None
 DEVICES = {("en-US",): "en", ("de-DE",): "de", ("ja-JP",): "ja", ("ko-KR",): "ko",
            ("zh-Hans-CN",): "zh-Hans", ("zh-Hant-TW",): "zh-Hant", ("zh-Hant-HK",): "zh-Hant"}
 
@@ -67,7 +67,7 @@ class SourceTemplateTests(unittest.TestCase):
 
     def test_every_app_shows_the_seven_iphone_screenshots(self):
         # Owner msg 2628: the same screenshots, in this order, for the regular and the beta app.
-        expected = [{"imageURL": f"{languages.ASSETS_URL}altstore/iphone/{name}.png", "width": 1260, "height": 2736}
+        expected = [{"imageURL": f"{languages.ASSETS_URL}app-marketplace/iphone/{name}.png", "width": 1260, "height": 2736}
                     for name in SCREENSHOT_NAMES]
         for source in [ALTSTORE, SIDESTORE, BETA]:
             with self.subTest(source=source["identifier"]):
@@ -83,7 +83,7 @@ class SourceTemplateTests(unittest.TestCase):
                 self.assertEqual([problem for problem in problems if "screenshots" in problem], [])
 
     def test_screenshots_altstore_cannot_read_are_reported(self):
-        good = {"imageURL": f"{languages.ASSETS_URL}altstore/iphone/01-home.png", "width": 1260, "height": 2736}
+        good = {"imageURL": f"{languages.ASSETS_URL}app-marketplace/iphone/01-home.png", "width": 1260, "height": 2736}
         cases = {
             "not an object": [good],
             "unknown devices": {"iphone": [good], "watch": [good]},

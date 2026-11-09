@@ -35,16 +35,20 @@ and not part of this phase (D-03).
 - Pushed commit: `d69b30a065b2813c787b58f997a0ae4d318a2847` ("Add the AltStore and SideStore iPhone
   screenshots"). `git ls-remote` shows `HEAD` and `refs/heads/main` at this commit.
 
-`curl -sSfIL` on each `imageURL` in `AltStore.json`, 2026-11-09:
+Owner msg 2804: the folder `altstore/` was renamed `app-marketplace/` (pushed as `87f6f15`), and the old
+`altstore/...` URLs now return 404. The three sources and the tests point at the new folder. The first check, on
+`d69b30a`'s `altstore/` paths, also returned seven 200s.
+
+`curl -sSfIL` on each `imageURL` in `AltStore.json`, after the rename, 2026-11-09:
 
 ```
-200 https://raw.githubusercontent.com/EhPanda-Team/ehpanda-assets/main/altstore/iphone/01-home.png
-200 https://raw.githubusercontent.com/EhPanda-Team/ehpanda-assets/main/altstore/iphone/02-detail.png
-200 https://raw.githubusercontent.com/EhPanda-Team/ehpanda-assets/main/altstore/iphone/03-reading.png
-200 https://raw.githubusercontent.com/EhPanda-Team/ehpanda-assets/main/altstore/iphone/04-comments.png
-200 https://raw.githubusercontent.com/EhPanda-Team/ehpanda-assets/main/altstore/iphone/05-downloads.png
-200 https://raw.githubusercontent.com/EhPanda-Team/ehpanda-assets/main/altstore/iphone/06-filters.png
-200 https://raw.githubusercontent.com/EhPanda-Team/ehpanda-assets/main/altstore/iphone/07-more.png
+200 https://raw.githubusercontent.com/EhPanda-Team/ehpanda-assets/main/app-marketplace/iphone/01-home.png
+200 https://raw.githubusercontent.com/EhPanda-Team/ehpanda-assets/main/app-marketplace/iphone/02-detail.png
+200 https://raw.githubusercontent.com/EhPanda-Team/ehpanda-assets/main/app-marketplace/iphone/03-reading.png
+200 https://raw.githubusercontent.com/EhPanda-Team/ehpanda-assets/main/app-marketplace/iphone/04-comments.png
+200 https://raw.githubusercontent.com/EhPanda-Team/ehpanda-assets/main/app-marketplace/iphone/05-downloads.png
+200 https://raw.githubusercontent.com/EhPanda-Team/ehpanda-assets/main/app-marketplace/iphone/06-filters.png
+200 https://raw.githubusercontent.com/EhPanda-Team/ehpanda-assets/main/app-marketplace/iphone/07-more.png
 ```
 
 The SideStore and beta templates list the same seven URLs, and all seven return 200 there too (D-17).
