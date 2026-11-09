@@ -4,10 +4,10 @@ milestone: v3.0.0
 current_phase: 19
 current_phase_name: Visual Regression & Daily Live-Parsing Check
 status: executing
-stopped_at: Completed 19-04-PLAN.md
-last_updated: "2026-11-09T02:30:00.000Z"
+stopped_at: "19-10 Task 4 checkpoint (owner go-ahead for ci/snapshot-gate)"
+last_updated: "2026-11-09T03:15:00.000Z"
 last_activity: 2026-11-09
-last_activity_desc: "19-04 complete on the interim 2 workers (owner msg 2743; final hosted run 42533872440 chose no count: 7 of 8 jobs failed simulator setup, iphone en-xSmall 2 changed; billable {}; ci/snapshot-measure deleted)"
+last_activity_desc: "19-10 Tasks 1-3 done (inventory closed, run-shard.sh, snapshot_fetch.py, snapshot-gate.yml and release/dependency wiring); Task 4 hosted proof waits for the owner; Login gap open"
 state_head: 7b3bf8ec5589c912f22851b2dc1f563618209855
 progress:
   total_phases: 21
@@ -118,6 +118,22 @@ source_head: 891103afa
       the log, and a recovered `server died` counted as infra.
   - `ci/snapshot-measure` deleted.
   - **Owner decision open:** fix these and measure once more, or accept 2 workers on the model.
+  - VIS-18-01 stays Pending.
+- **19-10 Tasks 1 to 3 done, Task 4 waiting for the owner** (`4f61f2af1` to `bac068b98`; `19-10-PROOF.md`):
+  - Inventory closed: `favorites-category-menu` is not applicable on iPad (D-12), and a missing factory fails
+    `ScenarioInventoryTests`. Totals: 19,368 expected, 360 not applicable.
+  - `run-shard.sh` checks the pins (drift), fetches the baseline (compare), sets up the simulator through
+    `hosted-simulator.sh`, runs the shard's invocations (iPad turned per orientation), re-runs once only the classes
+    left without results, and writes `shard.json`. `snapshot_fetch.py` does a sparse, blobless fetch at the pinned
+    commit and checks every SHA-256. `snapshot_shard.py` does the bookkeeping.
+  - `snapshot-gate.yml` has seven jobs. `deploy.yml` and `deploy-beta.yml` need it in compare mode;
+    `dependencies.yml` dispatches it.
+  - 351 Python tests pass and `actionlint` is clean. Nothing has been pushed.
+  - **Gap (blocks a clean proof):** the three Login scenarios have factories but no matrix method (the wall-clock
+    `WaveForm`). 19-08's not-applicable rule meets neither D-05 nor D-12, so every shard reports `missing-result`
+    and all 20 would be retried. Options: `WaveForm` honours Reduce Motion plus three methods, or the owner accepts
+    the rule.
+  - Unverified: whether iPad clones inherit the landscape turn.
   - VIS-18-01 stays Pending.
 
 ## Phase 19 planned: Visual Regression & Daily Live-Parsing Check — 2026-11-07
