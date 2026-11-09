@@ -203,17 +203,29 @@ extension DownloadCoordinator {
     /// gallery's folder and an enclosing bracket — when a run stops with page debt outstanding, so a
     /// paused or failed repair's record reads the pages actually on disk rather than the claim it
     /// started from. It reuses these refusal lines unchanged, which is why a repair stopped before
-    /// any page landed still keeps its whole-gallery claim: line 3 refuses it here exactly as it did
-    /// at the preparation.
+    /// any page landed would keep its whole-gallery claim if this caller supplied nothing more:
+    /// line 3 refuses it here exactly as it did at the preparation.
+    ///
+    /// **Corroborated absences (K0-a, product lead's EhPanda msg 2901).** What that caller does supply
+    /// is `corroboratedAbsentPages`: the pages an EARLIER successful scan already found positively
+    /// absent. For the run's exit those are the pages its preparation owed and did not inherit, which
+    /// the measurement's own evidence rule admits only on a successful listing that yielded no
+    /// usable file. Line 3 stands aside only when EVERY page this pass would blank is in that set, so
+    /// the act rests on two successful scans agreeing page by page, never on one. Lines 1, 2 and 2b
+    /// are not consulted any differently: a failed listing, an unprobed page or a surviving
+    /// refutation still blanks nothing. The default is empty, and with it the loop is byte for byte
+    /// what it was, so the preparation and `verifyImages` keep G-15-2G exactly.
     func reconcileWorkingManifestAgainstPageFiles(
         manifest: DownloadManifest,
         pageFileScan: PageFileScan,
-        folderURL: URL
+        folderURL: URL,
+        corroboratedAbsentPages: Set<Int> = []
     ) throws -> DownloadManifest {
         guard pageFileScan.scanSucceeded else { return manifest }
 
         var pages = manifest.pages
         var blankedPageCount = 0
+        var blankedPages = Set<Int>()
         var refutedSurvivingPageCount = 0
         for page in manifest.pages.keys.sorted() {
             // A non-answer is neither blanked nor counted, at either granularity: it explains
@@ -233,9 +245,12 @@ extension DownloadCoordinator {
             guard pageFileScan.pages[page] == nil else { continue }
             pages[page] = ""
             blankedPageCount += 1
+            blankedPages.insert(page)
         }
         guard blankedPageCount > 0 else { return manifest }
-        guard blankedPageCount + refutedSurvivingPageCount < manifest.completedPageCount else {
+        guard blankedPageCount + refutedSurvivingPageCount < manifest.completedPageCount
+                || blankedPages.isSubset(of: corroboratedAbsentPages)
+        else {
             return manifest
         }
 

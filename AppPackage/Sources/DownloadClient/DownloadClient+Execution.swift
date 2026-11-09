@@ -376,10 +376,13 @@ extension DownloadCoordinator {
     /// nothing, and a run superseded by a live successor leaves the folder to that successor, whose
     /// own preparation reconciles it — the same supersession disposition the retirement takes.
     ///
-    /// **The decided residual.** A run stopped before ANY page landed finds every claimed page
-    /// positively absent, so the guard refuses exactly as it refused at the preparation and the
-    /// record reads what it read before the repair began. G-15-2G is not weakened to close that: the
-    /// pre-repair state is what `resumeMode` already resolves to `.repair` through `storage.verify`.
+    /// **A run stopped before ANY page landed (K0-a).** Its fresh scan finds every claimed page
+    /// positively absent, which on its own the guard refuses exactly as it refused at the
+    /// preparation. The run hands over its preparation's positive absences as corroboration, so the
+    /// record drops to 0 of N only where two successful scans agree page by page, and reads Paused
+    /// with Resume. G-15-2G is not weakened: no single scan blanks a whole gallery, and the
+    /// preparation and `verifyImages` pass no corroboration. A run stopped before its announcement
+    /// has no measurement and so no corroboration of its own; the gate below returns for it.
     ///
     /// **The bracket.** The blanking lowers the record's counted basis, so it runs inside a D-G7-01
     /// `withdrawingCountedBasisMovement` bracket like every other caller of the loop. While the
@@ -393,7 +396,8 @@ extension DownloadCoordinator {
     /// moving and the measurement's retirement that follows it in the same `defer`.
     private func writeBackInterruptedRunProgress(gid: String, generation: Int?) {
         guard !isSupersededByALiveRun(gid: gid, generation: generation),
-              liveRunProgressBasis(gid: gid)?.outstandingPages.isEmpty == false,
+              let basis = liveRunProgressBasis(gid: gid),
+              !basis.outstandingPages.isEmpty,
               let folderURL = downloadIndex[gid]?.folderURL,
               let manifest = storage.probeManifest(folderURL: folderURL),
               manifest.gid == gid
@@ -404,7 +408,11 @@ extension DownloadCoordinator {
                 try reconcileWorkingManifestAgainstPageFiles(
                     manifest: manifest,
                     pageFileScan: pageFileScan,
-                    folderURL: folderURL
+                    folderURL: folderURL,
+                    // The preparation's own positive absences: owed, not landed, and not inherited,
+                    // which the measurement admits only on a successful listing that yielded no
+                    // usable file (K0-a).
+                    corroboratedAbsentPages: basis.outstandingPages.subtracting(basis.inheritedPages)
                 )
             }
         } catch {
