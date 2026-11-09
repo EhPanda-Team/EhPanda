@@ -205,6 +205,20 @@ final class HostedWindowCaptureTests: XCTestCase {
         XCTAssertTrue(text.contains("\"status\":\"passed\""))
     }
 
+    func testRecordedKeysPassOverALineCutShort() throws {
+        let writer = SnapshotResultWriter(output: try Self.temporaryDirectory())
+        XCTAssertEqual(try writer.recordedKeys(), [])
+        try writer.append(SnapshotResultLine(
+            key: "a__en__large__portrait__iphone__light", status: .passed, attempts: 1, flaky: false, seconds: 1.2,
+            settleSamples: 7, bytes: 10, sha256: "00", reason: nil
+        ))
+        let handle = try FileHandle(forWritingTo: writer.resultsURL)
+        try handle.seekToEnd()
+        try handle.write(contentsOf: Data("{\"key\":\"b__en".utf8))
+        try handle.close()
+        XCTAssertEqual(try writer.recordedKeys(), ["a__en__large__portrait__iphone__light"])
+    }
+
     // MARK: Helpers
 
     @MainActor

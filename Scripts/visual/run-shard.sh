@@ -25,9 +25,10 @@
 #    (19-10-PROOF.md), so an iPad landscape invocation runs on the turned device itself, without clones; the shard
 #    plan's estimate counts it without the clone speedup.
 # 5. An invocation that crashed or was stopped leaves classes without results (results.jsonl says which are done):
-#    once all invocations have run, each such invocation runs once more for those classes only, after their partial
-#    lines are dropped. Classes still unfinished after that record `infra: crash`, or `timeout` when the budget
-#    stopped them; picture changes are results, never a re-run.
+#    once all invocations have run, each such invocation runs once more for those classes only, after the lines of
+#    their unfinished scenarios are dropped; a scenario a configuration already captured is skipped there and keeps
+#    its lines (EHPANDA_SNAPSHOT_KEEP_CAPTURED). Classes still unfinished after that record `infra: crash`, or
+#    `timeout` when the budget stopped them; picture changes are results, never a re-run.
 #
 # shard.json is written first as `timeout`, so a step stopped by its limit still reads as an infrastructure error, and
 # rewritten at the end. The script exits 0 whatever the pictures or the class are; it exits 1 only when the runner is
@@ -266,6 +267,9 @@ capture() {
     TEST_ENV=(TEST_RUNNER_EHPANDA_SNAPSHOT_MODE="$MODE" TEST_RUNNER_EHPANDA_SNAPSHOT_OUTPUT="$OUT")
     [ -z "$REFERENCES" ] || TEST_ENV+=(TEST_RUNNER_EHPANDA_SNAPSHOT_REFERENCES="$REFERENCES")
     [ "$FAMILY" = iphone ] || TEST_ENV+=(TEST_RUNNER_EHPANDA_SNAPSHOT_ORIENTATIONS="$orientations")
+    # The re-run skips every scenario a configuration already captured (SnapshotMatrixCase), so the configurations a
+    # class finished before the crash keep their lines (snapshot_shard.py pending --prune drops only the others).
+    [ "$pass" = 1 ] || TEST_ENV+=(TEST_RUNNER_EHPANDA_SNAPSHOT_KEEP_CAPTURED=1)
     KILL_AFTER=''
     [ "$FAULT" != crash ] || KILL_AFTER=$FAULT_SECONDS
     local status=0

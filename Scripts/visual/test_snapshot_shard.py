@@ -150,6 +150,21 @@ class ShardTests(unittest.TestCase):
         kept = [json.loads(line)['key'] for line in self.results.read_text().splitlines()]
         self.assertEqual(kept, done + other)
 
+    def test_prune_keeps_the_configurations_a_pending_class_finished(self):
+        # Run 42577585956: a class re-run after a crash lost its lines in every configuration of the invocation; the
+        # re-run skips a scenario already captured in a configuration (EHPANDA_SNAPSHOT_KEEP_CAPTURED), so they stay.
+        finished = self.keys('iphone', ['de-accessibility5'], ['portrait', 'landscape'],
+                             ['home-populated', 'home-loading'])
+        partial = self.keys('iphone', ['zh-Hans-large'], ['portrait', 'landscape'], ['home-populated'])
+        loading = self.keys('iphone', ['zh-Hans-large'], ['portrait', 'landscape'], ['home-loading'])[:2]
+        self.write(finished + partial + loading)
+        status, output = self.run_main('pending', '--shard', 's01', '--invocation', '0', '--results',
+                                       str(self.results), '--sources', str(self.root), '--prune')
+        self.assertEqual(status, 0)
+        self.assertEqual(output.split(), ['HomeSnapshotTests', 'ShellSnapshotTests'])
+        kept = [json.loads(line)['key'] for line in self.results.read_text().splitlines()]
+        self.assertEqual(kept, finished + partial)
+
     def test_pins_match_or_name_each_drift(self):
         xcode = self.env['toolchain']['xcode']
         runtime = self.env['runtime']
