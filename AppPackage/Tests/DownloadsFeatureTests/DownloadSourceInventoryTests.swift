@@ -195,7 +195,8 @@ struct DownloadSourceInventoryTests {
     /// Derived from source rather than copied: `prepareWorkingSeed` and
     /// `prepareWorkingSeedAnnouncingProgress` (`+ExecutionSupport.swift`), `writeInitialManifest`
     /// (`+PublicAPI.swift`), the verify-time `blankingPass` (`+PersistenceNormalize.swift`),
-    /// `advanceQueueIntentGeneration` (`+Manager.swift`) and the nesting probe
+    /// `advanceQueueIntentGeneration` (`+Manager.swift`), the run-exit write-back
+    /// `writeBackInterruptedRunProgress` (`+Execution.swift`, G-20-09-1) and the nesting probe
     /// (`+Testing.swift`). The generic declaration carries `<T>` between the name and its
     /// parenthesis, so it does not match this token at all and needs no exclusion; doc-comment
     /// mentions are dropped with every other census here, because the count is of calls.
@@ -205,6 +206,10 @@ struct DownloadSourceInventoryTests {
     /// advance wraps the movement itself, so its four entrances are enclosed without appearing here
     /// at all (CR-01). A round that adds a fifth queue-mobilizing entrance therefore moves the queue
     /// entrance census below, not this one — which is the property that fix was chosen for.
+    ///
+    /// The run-exit write-back is dispositioned like the verify-time caller: it deletes nothing
+    /// inside the bracket (it only blanks hashes, through the same loop), and it opens from
+    /// `processDownload`'s synchronous `defer`, where no other bracket is open, so it is a sibling.
     ///
     /// The probe is the module's ONE deliberate NESTING caller, and it is counted rather than
     /// excluded so the population stays whole. It writes a synchronous advance inside a bracket body
@@ -218,6 +223,7 @@ struct DownloadSourceInventoryTests {
     /// still be dispositioned here, because a production caller answering that detector is a defect
     /// and only the probe may answer it deliberately.
     private static let expectedBracketCallSites = [
+        "DownloadClient+Execution.swift": 1,
         "DownloadClient+ExecutionSupport.swift": 2,
         "DownloadClient+Manager.swift": 1,
         "DownloadClient+PersistenceNormalize.swift": 1,
@@ -226,7 +232,7 @@ struct DownloadSourceInventoryTests {
     ]
 
     /// The bracket table's sum, asserted the same way and for the same reason.
-    private static let expectedBracketCallTotal = 6
+    private static let expectedBracketCallTotal = 7
 
     /// Every entrance to the queue store, named per file.
     ///

@@ -620,12 +620,13 @@ public actor DownloadCoordinator {
     /// 4. The re-latch at the end of every accepted `pushContinuedSessionProgress`.
     /// 5. The **D-G7-01** withdrawal inside `withdrawingCountedBasisMovement`, which gives back
     ///    exactly the portion of a deliberate basis movement the numerator was actually counting.
-    ///    That bracket has five production call sites — `prepareWorkingSeed`'s whole preparation
+    ///    That bracket has six production call sites — `prepareWorkingSeed`'s whole preparation
     ///    and the basis announcement in `prepareWorkingSeedAnnouncingProgress`, both in
     ///    `DownloadClient+ExecutionSupport.swift`, `writeInitialManifest`'s body in
     ///    `DownloadClient+PublicAPI.swift`, the verify-time `blankingPass` in
-    ///    `DownloadClient+PersistenceNormalize.swift`, and `advanceQueueIntentGeneration`'s own
-    ///    increment in this file — plus the deliberately-nesting probe in
+    ///    `DownloadClient+PersistenceNormalize.swift`, the run-exit write-back
+    ///    `writeBackInterruptedRunProgress` in `DownloadClient+Execution.swift`, and
+    ///    `advanceQueueIntentGeneration`'s own increment in this file — plus the deliberately-nesting probe in
     ///    `DownloadClient+Testing.swift`, but one implementation, so this writer is
     ///    one rule rather than a list of mechanisms. The count is owned by
     ///    `DownloadSourceInventoryTests`' bracket census rather than by this sentence, because the

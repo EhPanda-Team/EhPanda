@@ -197,6 +197,14 @@ extension DownloadCoordinator {
     /// bracket, since this function still does no basis accounting of its own. Module-internal rather
     /// than file-private for exactly that caller: one implementation is what stops the blanking
     /// evidence rule from forking between repair-preparation time and verify time.
+    ///
+    /// **Third caller: a run's exit (G-20-09-1).** `writeBackInterruptedRunProgress`
+    /// (`DownloadClient+Execution.swift`) supplies the same two things — a fresh scan of the
+    /// gallery's folder and an enclosing bracket — when a run stops with page debt outstanding, so a
+    /// paused or failed repair's record reads the pages actually on disk rather than the claim it
+    /// started from. It reuses these refusal lines unchanged, which is why a repair stopped before
+    /// any page landed still keeps its whole-gallery claim: line 3 refuses it here exactly as it did
+    /// at the preparation.
     func reconcileWorkingManifestAgainstPageFiles(
         manifest: DownloadManifest,
         pageFileScan: PageFileScan,
