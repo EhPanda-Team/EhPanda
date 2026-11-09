@@ -260,6 +260,9 @@ extension DownloadCoordinator {
             releaseScheduling(gid: gid)
             return .superseded
         }
+        // After the cancelled run has fully exited, so its own write-back (K0-a) has acted first,
+        // and for a queued gallery too, which no run exit ever sees (B1).
+        writeBackCorroboratedWholesaleAbsence(gid: gid)
         await writeSettledPauseRecord(gid: gid)
         releaseScheduling(gid: gid)
         await notifyObservers()

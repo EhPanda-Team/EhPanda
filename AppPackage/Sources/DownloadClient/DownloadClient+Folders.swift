@@ -303,6 +303,8 @@ extension DownloadCoordinator {
             await scheduleNextIfNeeded()
             return .failure(.fileOperationFailed(error.localizedDescription))
         }
+        // Verify scanned the folder the gallery has just left (B1).
+        wholesaleAbsenceEvidence[gid] = nil
         await reloadDownloadRecord(gid: download.gid, token: download.token)
         releaseScheduling(gid: gid)
         await notifyObservers()

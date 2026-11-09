@@ -35,6 +35,11 @@ extension DownloadCoordinator {
             for: download, requestedMode: mode
         )
         clearDownloadSessionState(gid: gid)
+        if resolvedMode != .repair {
+            // A redownload or an update replaces the folder's record, so Verify's scan no longer
+            // describes anything this gallery will hold (B1).
+            wholesaleAbsenceEvidence[gid] = nil
+        }
         advanceQueueIntentGeneration(for: gid)
         queuedModes[gid] = resolvedMode
         queuedPageSelections[gid] = nil

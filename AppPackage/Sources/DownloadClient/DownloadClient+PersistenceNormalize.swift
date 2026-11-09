@@ -129,6 +129,9 @@ extension DownloadCoordinator {
         guard let download = await fetchDownload(gid: gid),
               download.canVerifyImages
         else { return nil }
+        // Every Verify answers the B1 question afresh: only a pass whose own full scan finds every
+        // claimed page positively absent re-records the evidence, below.
+        wholesaleAbsenceEvidence[download.gid] = nil
         let verification = storage.verify(
             download: download,
             verifiesContentHashes: true
@@ -289,7 +292,17 @@ extension DownloadCoordinator {
             presenceScan: presenceScan,
             refutedPages: refutedPages
         )
-        guard prospectiveBlankPages.count < manifest.completedPageCount else { return false }
+        guard prospectiveBlankPages.count < manifest.completedPageCount else {
+            // G-15-2G refuses the act. What this full fresh scan found is kept as evidence only, for
+            // a later stop's own fresh scan to corroborate (B1); it blanks nothing here.
+            recordWholesaleAbsenceEvidence(
+                gid: download.gid,
+                manifest: manifest,
+                pageFileScan: presenceScan,
+                folderURL: folderURL
+            )
+            return false
+        }
 
         // AUTHORIZED. Everything above reads; everything below acts.
         let unremovedPages = storage.removeRefutedPageFiles(

@@ -215,6 +215,11 @@ extension DownloadCoordinator {
     /// are not consulted any differently: a failed listing, an unprobed page or a surviving
     /// refutation still blanks nothing. The default is empty, and with it the loop is byte for byte
     /// what it was, so the preparation and `verifyImages` keep G-15-2G exactly.
+    ///
+    /// **Fourth caller: a stop with Verify's evidence (B1).** `writeBackCorroboratedWholesaleAbsence`
+    /// (`DownloadClient+WholesaleAbsenceEvidence.swift`) passes every claimed page as corroboration,
+    /// but only after Verify's full fresh scan AND its own fresh scan have each found every claimed
+    /// page positively absent, over the same folder and the same claimed hashes.
     func reconcileWorkingManifestAgainstPageFiles(
         manifest: DownloadManifest,
         pageFileScan: PageFileScan,
