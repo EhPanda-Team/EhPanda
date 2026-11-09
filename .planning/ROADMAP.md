@@ -716,7 +716,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 18. In-App 3.0 Readiness: Age Wall, Analytics Choice, Comment Moderation & Reader Rework | 12/12 | Complete    | 2026-11-06 |
 | 18.1. Native report form (INSERTED) | 5/5 | Complete    | 2026-11-07 |
 | 19. Visual Regression & Daily Live-Parsing Check | 12/17 | In Progress |  |
-| 20. 3.0 Distribution: Marketplace Build, Notarization, Listing & Release Checks | 5/14 | In Progress |  |
+| 20. 3.0 Distribution: Marketplace Build, Notarization, Listing & Release Checks | 6/14 | In Progress |  |
 
 ### Phase 12: Cloudflare Login Restoration
 
@@ -1567,7 +1567,7 @@ Cross-cutting constraints:
   5. A CI job submits for notarization, waits for the ADP and publishes it to the PAL source; whether an App Manager API key can create the version and submit is tested and recorded.
   6. The release workflows produce a build number above 158, keep the Classic `AltStore.json` version history with non-explicit screenshots, and point the AltStore download URL at the release's actual asset; no plan creates, removes or renames a tag or sets the release order.
   7. The iPad Gallery Detail stall is checked on a Release build and continued background downloads on an iPhone, on owner hardware.
-  8. As the last plan, analytics record the install source and every 3.0 flow under the consent levels, within ANALYTICS-01's rules; nothing is sent under None.
+  8. As the last plan, analytics record every 3.0 flow under the consent levels, within ANALYTICS-01's rules: the install signal carries the distribution channel at every level, Minimal sends nothing else, and nothing is sent before a level is chosen. *(Wording revised at 20-12, OQ-E: there is no level called None since Phase 18.)*
   9. The final 3.0 Release build, including the analytics revision, passes the Release isolation scan with 0 findings.
 
 **Plans**: 14 plans in 8 waves (the waves follow the fixed order below, with two exceptions: 20-07, 20-09 and 20-12 start in wave 1 (CONTEXT D-23, product lead msg 2783 answering OQ-G), and 20-08, the PAL submission, comes last, after the Classic release (CONTEXT D-26, owner msg 2802)).
@@ -1591,7 +1591,7 @@ Plans:
 - [x] 20-02-PLAN.md — the build-number check in `deploy.yml`, the bump above 158, history and URL tests *(checkpoint: owner OK to create and push `EhPanda-Team/ehpanda-assets`)*
 - [ ] 20-07-PLAN.md — the "Apple-approved" wording guard and the website check *(checkpoint: Leto, four URLs live)*
 - [ ] 20-09-PLAN.md — real-device checks *(checkpoints: owner hardware — iPad Release stall, iPhone background downloads)*
-- [ ] 20-12-PLAN.md — the analytics vocabulary proposal *(checkpoint: product lead and owner sign-off, OQ-E)*
+- [x] 20-12-PLAN.md — the analytics vocabulary proposal *(checkpoint: product lead and owner sign-off, OQ-E)*
 
 **Wave 2** *(blocked on 20-01 and 20-02)* — (b)
 

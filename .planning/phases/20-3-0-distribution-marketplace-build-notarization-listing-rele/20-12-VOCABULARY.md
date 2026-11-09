@@ -1,7 +1,10 @@
-# 20-12: Analytics vocabulary for the 3.0 flows (proposal)
+# 20-12: Analytics vocabulary for the 3.0 flows
 
-**Status: PROPOSAL, awaiting sign-off (OQ-E).** The product lead and the owner approve it at 20-12 Task 2. Nothing is
-implemented before their message numbers are recorded here. 20-13 implements the signed-off version.
+**Status: SIGNED OFF (OQ-E), 2026-11-09.** The product lead approved the §2 list (product lead msg 2829). The owner
+dropped the report reason (owner msg 2837, option 3-i) and chose the channel on every signal (owner msg 2842, §3
+option 1). OI-4 (§5, answer A) and the SC8 wording (§6) were technical calls by the developer. The sign-off table
+at the end has the details. 20-13 implements this version: §2 as amended by §4, with §3 option 1. Text kept from
+the proposal is marked where a decision changed it.
 
 Sources: Research §10, refined against the code at `feature/gsd-phase-20`. Rules: ANALYTICS-01 and Phase 14 D-06 to
 D-14. Level contract: `18-COPY-MINIMAL.md` Revision 7 (Minimal) and Revision 6 (Basic, Full); the header rule in
@@ -34,7 +37,7 @@ file's rule 1 requires.
 |---|------|------------------------|------|-------------------------------|--------------------------|
 | 1 | First launch (age wall + analytics choice) | `firstLaunchCompleted(level: AnalyticsLevel)` | `FirstLaunch.completed` | `Analytics.level`: `basic` / `full` | `AppFeature/DataFlow/AppReducer.swift`, `.firstLaunch(.delegate(.levelChosen(level)))`, after `analyticsClient.apply(level)` in the same effect (see note a) |
 | 2 | Analytics choice in Settings | `analyticsLevelChanged(from: AnalyticsLevel, to: AnalyticsLevel)` | `Analytics.levelChanged` | `Analytics.from`: `minimal` / `basic` / `full`; `Analytics.to`: `basic` / `full` | `SettingFeature/GeneralSetting/GeneralSettingReducer.swift`, `.analyticsLevelPicked(level)`, after `apply(level)` in the existing `.run` |
-| 3 | Report form | `commentReportOutcome(reason: ReportReason, outcome: ReportOutcome)` | `Moderation.reportOutcome` | `Moderation.reportReason`: `child` / `illegal` / `none`; `Moderation.reportOutcome`: `sent` / `failed` / `unavailable` / `reportPageOpened` | `DetailFeature/Moderation/ReportFormFeature.swift`: `.sendResponse` (`sent`, or `failed` per failed attempt), `.loaded(nil)` (`unavailable`), `.primaryTapped` when `primaryKind == .openReportPage` and `.alert(.presented(.openReportPage))` (`reportPageOpened`) |
+| 3 | Report form | `commentReportOutcome(ReportOutcome)` *(signed off without the reason, §4 (3-i); proposed as `commentReportOutcome(reason: ReportReason, outcome: ReportOutcome)`)* | `Moderation.reportOutcome` | `Moderation.reportOutcome`: `sent` / `failed` / `unavailable` / `reportPageOpened`. *(`Moderation.reportReason`, `child` / `illegal` / `none`, is dropped, owner msg 2837.)* | `DetailFeature/Moderation/ReportFormFeature.swift`: `.sendResponse` (`sent`, or `failed` per failed attempt), `.loaded(nil)` (`unavailable`), `.primaryTapped` when `primaryKind == .openReportPage` and `.alert(.presented(.openReportPage))` (`reportPageOpened`) |
 | 4a | Block | `commentPosterBlocked` | `Moderation.posterBlocked` | none | `DetailFeature/Moderation/CommentModeration.swift`, `.alert(.presented(.confirmBlock))` |
 | 4b | Block (unblock) | `commentPosterUnblocked(from: UnblockSurface)` | `Moderation.posterUnblocked` | `Moderation.unblockSurface`: `comment` / `blockedUsers` | `CommentModeration.swift` `.unblock` (`comment`); `SettingFeature/BlockedUsers/BlockedUsersReducer.swift` `.unblockTapped`, after its guard (`blockedUsers`) |
 | 4c | Block (show a collapsed comment) | `blockedCommentShown` | `Moderation.blockedCommentShown` | none | `CommentModeration.swift`, `.show(commentID:)` |
@@ -60,9 +63,9 @@ Notes:
   stops and Minimal promises only the install signal. So `Analytics.to` never reads `minimal`, and the dashboard
   shows downgrades to Minimal only as a missing session.
 - **e. Report outcomes are the ones the reducer sees.** A swipe-down dismissal is not an action, so "closed without
-  sending" is not counted. Counting it with an `onDisappear` hook would undercount in other ways. `none` is the
-  reason when the form ended before a reason was picked (`unavailable`, or `reportPageOpened` from the unavailable
-  state). `illegal` is the form's own case name; the site's `report_type` for it is `other`.
+  sending" is not counted. Counting it with an `onDisappear` hook would undercount in other ways. *(The proposal's
+  reason values, `none` for a form that ended before a reason was picked and `illegal` for the site's `other`, are
+  gone with the reason, owner msg 2837.)*
 - **f. The unblock surface** comes from which reducer handles it, so no moderation state has to learn where it is
   scoped. A comparable surface on Block or Show would need such a field. Not proposed.
 
@@ -73,9 +76,16 @@ rather than as text":
 
 > ; finishing the first-launch screens and the level you chose there; changing the level in Settings (the old and
 > new level); and comment moderation: blocking, unblocking and showing a hidden comment, your answer to the posting
-> warning, and how a report ended (sent, failed, unavailable or opened on the site) with its reason
+> warning, and how a report ended (sent, failed, unavailable or opened on the site)
 
-No other README line changes, unless §3 option 1 is chosen; that option adds one line.
+*(Signed off without the proposal's closing words "with its reason", owner msg 2837.)*
+
+§3 option 1 was chosen (owner msg 2842), so the Basic section also gains one line, its own bullet after the one
+above:
+
+> every event also carries where you got the app from
+
+No other README line changes.
 
 ## 3. Decision: the distribution channel as a default parameter at Basic and Full
 
@@ -101,9 +111,10 @@ outside the Full-only guard).
 - Pros: no change; the smallest payload.
 - Cons: no per-channel view of anything but installs.
 
-**Recommendation: option 1.** It is the 18-03-SUMMARY carry ("add the install source to the Basic and Full
-signals"), and the approved copy already covers it. 20-13 would add a `snapshot` case for Basic with exactly one key,
-and a test that Basic carries no `App.*` key other than `App.distributionChannel`.
+**Decision: option 1** (owner msg 2842, "Yes, on every signal"), as recommended. It is the 18-03-SUMMARY carry
+("add the install source to the Basic and Full signals"), and the approved copy already covers it. 20-13 adds a
+`snapshot` case for Basic with exactly one key, and a test that Basic carries no `App.*` key other than
+`App.distributionChannel`.
 
 ## 4. Rules check (ANALYTICS-01, Phase 14 D-06 to D-14; threat T-20-31)
 
@@ -118,7 +129,7 @@ For every signal in §2:
 | No comment text, report details or email | yes | yes | yes: `email`, `details` and the prefill are never read by the send site | yes | yes | yes | yes |
 | Nothing before a level is chosen | yes: sent only after the level is stored and applied | yes | yes, by the `send` gate | yes | yes | yes | yes |
 | Nothing under Minimal | yes: `isSent(at: .minimal)` is false for Basic signals, and the SDK is not running | yes | yes | yes | yes | yes | yes |
-| Fits the approved Basic description without change | yes | yes | **borderline, see below** | yes | yes | yes | yes |
+| Fits the approved Basic description without change | yes | yes | yes, without the reason (decided below; proposed: borderline) | yes | yes | yes | yes |
 
 **Borderline: the report reason.** "Which screens and features you use" plainly covers that the Report form was
 used and how it ended. Whether it also covers *why* (`child` or `illegal`) is a reading the approvers should make
@@ -130,6 +141,10 @@ explicitly. If they decide it does not, there are two ways to go:
 
 **Recommendation: (3-i)** unless the reason split is needed for a decision. The outcome alone shows whether the
 native form works.
+
+**Decision: (3-i)** (owner msg 2837, "No, only how it ended"). `Moderation.reportReason` is dropped, so the report
+signal carries its outcome only and no level description changes. The table above
+records signal 3 as fitting.
 
 ## 5. OI-4 (carried from Phase 18): the install arrives twice at Basic and Full
 
@@ -148,8 +163,9 @@ They carry different user hashes, so the dashboard cannot de-duplicate them per 
   `TelemetrySDK.swift`, a test, and a re-read on every SDK upgrade (Pitfall P-12). It also drops a signal that the
   SDK's built-in acquisition insights rely on.
 
-**Proposed answer: A.** Under §3 option 1, `newInstallDetected` would also carry the channel at Basic and Full.
-That does not change the answer: the install count stays `App.installed`.
+**Answer: A**, a technical call by the developer at sign-off (2026-11-09). Under §3 option 1, `newInstallDetected`
+also carries the channel at Basic and Full. That does not change the answer: the install count stays
+`App.installed`.
 
 ## 6. SC8 wording (ROADMAP Phase 20, success criterion 8)
 
@@ -162,20 +178,30 @@ There is no level called None any more (D-06a), and Minimal sends one signal. Pr
 > install signal carries the distribution channel at every level, Minimal sends nothing else, and nothing is sent
 > before a level is chosen.
 
+**Adopted** as a technical call by the developer at sign-off (2026-11-09), and applied to ROADMAP Phase 20 success
+criterion 8. It holds under §3 option 1, which adds the channel to Basic and Full signals and sends nothing new
+under Minimal.
+
 ## 7. For 20-13 once signed off
 
-- 20-13 adds the cases, renderings, levels and enums (`ReportReason`, `ReportOutcome`, `UnblockSurface`,
-  `PostingWarningChoice`), plus `AnalyticsVocabularyTests` spellings, rendering tests and reducer tests per send
+- 20-13 adds the cases, renderings, levels and enums (`ReportOutcome`, `UnblockSurface`, `PostingWarningChoice`;
+  no `ReportReason`, §4), plus `AnalyticsVocabularyTests` spellings, rendering tests and reducer tests per send
   site. Both orders of note a get a test.
+- It adds the Basic `snapshot` case with exactly one key, `App.distributionChannel`, and a test that Basic carries no
+  other `App.*` key (§3 option 1).
 - It rewrites the two "no analytics" headers (§1), and updates `COVERAGE.md` (OI-4 answer) and the README in all
   six languages.
-- No level description changes unless the approvers choose (3-ii).
+- No level description changes: the approvers chose (3-i).
 
 ## Sign-off
 
-| Item | Product lead | Owner |
-|------|--------------|-------|
-| §2 signals (with or without the report reason, §4) | pending | pending |
-| §3 channel default parameter | pending | pending |
-| §5 OI-4 answer | pending | pending |
-| §6 SC8 wording | pending | pending |
+| Item | Decision | Approved by |
+|------|----------|-------------|
+| §2 signals | the list as proposed: 1, 2, 3, 4a, 4b, 4c, 5 (6: nothing new) | product lead msg 2829 |
+| §4 report reason | (3-i): drop `Moderation.reportReason`; the report signal carries the outcome only, and the README line loses "with its reason" | owner msg 2837 ("No, only how it ended") |
+| §3 channel default parameter | option 1: `App.distributionChannel` on every signal at Basic and Full; one README line in the Basic section | owner msg 2842 ("Yes, on every signal") |
+| §5 OI-4 | answer A: keep both install signals; `App.installed` is the install count | technical call by the developer at sign-off |
+| §6 SC8 wording | as proposed, applied to ROADMAP Phase 20 SC8 | technical call by the developer at sign-off |
+
+No level description changes, so no copy approval is needed (`AnalyticsSignal+Level.swift` header rule). Nothing was
+implemented before these approvals. 20-13 implements this record.

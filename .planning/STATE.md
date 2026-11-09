@@ -4,16 +4,16 @@ milestone: v3.0.0
 current_phase: 19
 current_phase_name: Visual Regression & Daily Live-Parsing Check
 status: executing
-stopped_at: Completed 20-05-PLAN.md
-last_updated: "2026-11-09T02:41:00.000Z"
+stopped_at: Completed 20-12-PLAN.md
+last_updated: "2026-11-09T02:45:00.000Z"
 last_activity: 2026-11-09
-last_activity_desc: 20-05 complete on feature/gsd-phase-20 (pal_publish.py ADP fetch, release assets and PAL source update; dispatch-only deploy-pal.yml publish job with dry_run default true; all offline)
+last_activity_desc: 20-12 complete on feature/gsd-phase-20 (analytics vocabulary signed off, OQ-E; SC8 wording applied); 20-05 complete before it (PAL publish side, offline)
 state_head: 7b3bf8ec5589c912f22851b2dc1f563618209855
 progress:
   total_phases: 21
   completed_phases: 18
   total_plans: 321
-  completed_plans: 321
+  completed_plans: 322
   percent: 86
 milestone_name: Dependency Reduction & Modernization
 source_head: 891103afa
@@ -21,7 +21,7 @@ source_head: 891103afa
 
 # Project State
 
-**Phase 20 planned** (2026-11-09) on `feature/gsd-phase-20`, in parallel with Phase 19 (owner msg 2770; product lead msg 2771): `20-CONTEXT.md`, `20-RESEARCH.md`, 14 plans following the fixed order (D-14), and `20-VALIDATION.md`; OQ-1 resolved by D-22 (product lead msg 2775: the current icon is kept). Product lead msg 2783 answered OQ-G, OQ-C and OQ-D (D-23 to D-25): 20-07, 20-09 and 20-12 start in wave 1, so the phase runs in 8 waves; the PAL `developerName` is "EhPanda Team"; the copywriter writes a PAL-specific subtitle and description, approved by the owner at the listing step with the first screenshot's caption. Owner msg 2802 (D-26): 3.0 ships on GitHub and AltStore Classic first, with ehpanda.app going live at that release, and the AltStore PAL submission follows. So 20-08 moves to wave 8 after 20-14, OQ-A is answered (20-10's set) and OQ-B is moot. Open before or during execution: OQ-E and OQ-F (20-RESEARCH.md).
+**Phase 20 planned** (2026-11-09) on `feature/gsd-phase-20`, in parallel with Phase 19 (owner msg 2770; product lead msg 2771): `20-CONTEXT.md`, `20-RESEARCH.md`, 14 plans following the fixed order (D-14), and `20-VALIDATION.md`; OQ-1 resolved by D-22 (product lead msg 2775: the current icon is kept). Product lead msg 2783 answered OQ-G, OQ-C and OQ-D (D-23 to D-25): 20-07, 20-09 and 20-12 start in wave 1, so the phase runs in 8 waves; the PAL `developerName` is "EhPanda Team"; the copywriter writes a PAL-specific subtitle and description, approved by the owner at the listing step with the first screenshot's caption. Owner msg 2802 (D-26): 3.0 ships on GitHub and AltStore Classic first, with ehpanda.app going live at that release, and the AltStore PAL submission follows. So 20-08 moves to wave 8 after 20-14, OQ-A is answered (20-10's set) and OQ-B is moot. Open before or during execution: OQ-E and OQ-F (20-RESEARCH.md). OQ-E answered at 20-12 (product lead msg 2829; owner msgs 2837, 2842).
 
 ## Phase 20 executing — 2026-11-09
 
@@ -69,6 +69,13 @@ source_head: 891103afa
   and in Pending Developer Release, so MANUAL does not block the package; whether AltStore PAL distributes a
   version still pending release is undocumented, an open item for the owner at 20-08 (no release call was added).
   Nothing contacted AltStore, Apple or GitHub. DIST-18-02 and DIST-18-03 stay Pending.
+- **20-12 complete** (`02b242cfc` proposal; sign-off in the 20-12 docs commit; `20-12-SUMMARY.md`):
+  `20-12-VOCABULARY.md` is signed off (OQ-E). Product lead msg 2829 approves the §2 signals (seven, all Basic).
+  Owner msg 2837 drops `Moderation.reportReason` (3-i): the report signal carries the outcome only and the README
+  line loses "with its reason". Owner msg 2842 puts `App.distributionChannel` on every signal at Basic and Full (§3
+  option 1), with one README Basic line. OI-4 answer A and the SC8 wording are developer calls; ROADMAP SC8 now
+  reads "nothing is sent before a level is chosen". No level description changes; no code changed. 20-13
+  implements it.
 
 ## Phase 19 executing — 2026-11-07
 
@@ -1792,6 +1799,7 @@ Recent decisions affecting current work:
 - [Phase 20]: 20-03: the PAL entry is the filter's Classic entry with `assetURLs` after `downloadURL` and no `sha256`. The filter reads `sha256` through `$ARGS.named` (required without `assetURLs`) and drops `application-identifier` and the team identifier from a given `entitlements` list. The PAL source's public address is https://ehpanda.app/AltStorePAL.json (owner msg 2822); it is not written into the JSON. — Research §4; DIST-18-02.
 - [Phase 20]: 20-04: deploy-pal.yml is workflow_dispatch only; the submit job runs in environment pal-notarization with contents: read. asc.py allows only builds/preReleaseVersions/appStoreVersions/reviewSubmissions(Items)/ADP-read paths plus GET /v1/apps/{id}/appStoreVersions (no top-level version list in OpenAPI 4.6); POST /v1/alternativeDistributionPackages is refused. Secrets: ASC_KEY_ID, ASC_ISSUER_ID, ASC_KEY_P8, DIST_CERT_P12, DIST_CERT_PASSWORD, PROFILE_APP, PROFILE_SHARE_EXTENSION, TEAM_ID; variables PAL_MARKETPLACE_ID (also the --app ID), ASC_KEY_ROLE. — Research §5, §6; D-07, D-21, D-26.
 - [Phase 20]: 20-05: the publish job (`inputs.mode == 'publish'`, environment pal-notarization, contents: write) reads the ADP ID, has AltStore process it, fetches it and runs pal_publish.py publish; dry_run defaults to true. ADP files map by name (manifest.json → manifest, signature, <uuid>.ipa → <uuid>); any other file, a duplicate name, a symlink or an escaping zip entry fails. Assets are never replaced (same bytes are reused, other bytes fail); a build older than the source's newest entry is refused. — Research §4, §5; D-07, D-19.
+- [Phase 20]: 20-12: the 3.0 analytics vocabulary is signed off (OQ-E): FirstLaunch.completed, Analytics.levelChanged, Moderation.reportOutcome (outcome only, no reason), Moderation.posterBlocked, Moderation.posterUnblocked, Moderation.blockedCommentShown, Moderation.postingWarningAnswered, all at Basic; App.distributionChannel is a default parameter at Basic and Full; App.installed is the install count (OI-4 A); SC8 reads "nothing is sent before a level is chosen". — product lead msg 2829; owner msgs 2837, 2842; Research §10.
 - [Phase 19]: 19-01: iPadOS 27 refuses in-process orientation changes (UISceneErrorDomain 101), so an iPad matrix process captures the one orientation its device was turned to before launch (EHPANDA_SNAPSHOT_ORIENTATIONS); iPhone turns in process. iPad units double to 36, shard units become 54. The block confirmation is reached through the row's own accessibility action, which needs the app accessibility runtime on; iPad pins need Full Screen Apps. — Research section 3 leaves the rotation mechanism to the developer; XCUIDevice is not authorized in an app-hosted test.
 
 ### Phase 16 transition decisions (2026-09-23)
@@ -1909,8 +1917,8 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-11-09T02:41:00.000Z
-Stopped at: Completed 20-05-PLAN.md
+Last session: 2026-11-09T02:45:00.000Z
+Stopped at: Completed 20-12-PLAN.md
 Resume file: None
 
 Earlier stop (2026-10-13T10:50:00Z, historical): 17-06 revision re-shot, 16/16 captured (`.capture/17-06-t-native-*`); superseded by the owner's 2026-11-02 approval of the 192-image website set.
