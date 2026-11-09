@@ -520,3 +520,41 @@ the artifact and the 8 job logs were saved.
    Then one more push of `ci/snapshot-measure`. Without that, 2 workers on the model is the gate's setting. That was
    the developer's interim call; it would become the plan's.
 2. **Billing (R-1)** is unchanged: `{}`, standard runner. No action is needed.
+
+## Fixed after the final run
+
+The lead's call after run 42533872440: no new measurement, so 19-04 stays on 2 workers on the model. The setup and
+step faults are fixed now, because 19-10 and 19-12 use the same steps. Each fix is proven locally or by unit tests.
+Nothing was pushed or run on a hosted runner.
+
+| Fault in run 42533872440 | Fix | Proof |
+|---|---|---|
+| Settings writes stopped at 60 s, `bootstatus` at 300 s, the iPad shutdown at 180 s | `hosted-simulator.sh`: settings writes 180 s, `bootstatus` 600 s, shutdown 360 s (create 120 s and boot 180 s unchanged). The step limit is 60 minutes (was 45), and the job limit 215 (was 200) | `test_hosted_simulator.py` |
+| A write right after `bootstatus` failed with "device is not booted" | `spawn` waits 15 s, runs `bootstatus -b` (boots the device if needed) and makes the write again, at most 3 times in all | `test_hosted_simulator.py`, with a fake `xcrun` that answers "not booted" |
+| `clear-clones` waited 10 minutes with no testing device set | No `~/Library/Developer/XCTestDevices` means no clones; done at once | `test_hosted_simulator.py` |
+| The startup watchdog stopped invocations that had written 123 and 78 result lines | A test has begun when the log has a `Test case` line or `results.jsonl` has more lines than at the start (`snapshot_infra.py --started`). The log is truncated once and xcodebuild appends to it, so the watchdog's note stays | `test_snapshot_infra.py`; the workflow's `invoke` run locally with a fake xcodebuild (below) |
+| A compare that reported every test was infra for a recovered `(ipc/mig) server died` | `simulator-service` is not infra when the log ends in `** TEST EXECUTE FAILED/SUCCEEDED **` with no `Testing failed:` section. Other signatures stay infra | `test_snapshot_infra.py` |
+| Two `agewall-unticked` candidates settled on 2 reads, with the glass button 1/255 off | `HostedWindowCapture.settle(_:minimumReads:)`. The six first-launch scenarios ask for 6 identical reads (`firstLaunchMinimumReads`); others keep 2 | `HostedWindowCaptureTests`, `BrowsingStepTests` |
+| `front-page-search` focus ran out at 15 s in 3 of 5 compares | `focusDeadline` is 40 s, and a window still moving after one 10 s rest wait is waited for again until the deadline instead of failing the step | `BrowsingStepTests` |
+
+Local results:
+
+- `python3 -m unittest discover -p 'test_*.py'` in `Scripts/visual`: 304 tests pass.
+- Negative controls with the tests against HEAD's scripts:
+  - `test_hosted_simulator.py` (6 tests): 4 fail. The other 2 cover behaviour that was already right.
+  - `test_snapshot_infra.py`: 3 of the 4 new tests fail. The fourth checks that other failures stay infra.
+- The workflow's `invoke` with `STARTUP_MINUTES=1` and a fake xcodebuild that runs 100 s and prints no `Test case`:
+  - With result lines growing, it ran to the end (exit 0, 20 lines).
+  - With none, it was stopped at 60 s. The log kept `watchdog: no test started after 1 minutes`, and
+    `snapshot_infra.py` classed it as `no-test-started`.
+- `xcodebuild test` (FeatureTests plan, `HostedWindowCaptureTests`, `BrowsingStepTests`, `ScenarioInventoryTests`)
+  on the local iPhone Air simulator: 20 tests pass.
+- `testFocusOutlastsAWindowThatMovesLongerThanOneRestWait` uses a 12 s layer animation. With the old step put back
+  (a still-moving window fails the step), it failed after 11.6 s.
+
+- `run-snapshot-local.sh`, candidate at 2 workers, `en-xSmall`, `FirstLaunchSnapshotTests` and
+  `FrontPageSnapshotTests` (48 pictures): all `recorded`. The first-launch pictures settled on 6 to 11 reads (this
+  idle host reaches 9 or more on its own; the floor matters on a loaded one). `front-page-search` took at most 4.0 s.
+
+The worst case of one setup attempt is now longer than before. A step that keeps hanging still ends at the 60-minute
+step limit, and run 42533872440's failed attempts took 5 to 13 minutes each.
