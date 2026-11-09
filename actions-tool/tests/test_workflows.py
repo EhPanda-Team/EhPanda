@@ -343,7 +343,8 @@ class PalPublishWorkflowTests(unittest.TestCase):
         cls.job = cls.pal["jobs"]["publish"]
 
     def run_text(self, name):
-        return expand(code(step_named(self.job, name).get("run", "")), {**self.env, **self.job.get("env", {})})
+        # The workflow's paths are put in; the job's $VERSION and $ASC_APP_ID are kept, as the shell sees them.
+        return expand(code(step_named(self.job, name).get("run", "")), self.env)
 
     def test_the_publish_job_runs_in_the_protected_environment(self):
         environment = self.job["environment"]
