@@ -419,26 +419,43 @@ jobs:
           udid=$(Scripts/visual/hosted-simulator.sh create 'EhPanda policy' "$device" "$runtime" "$FAMILY")
           echo "UDID=$udid" >> "$GITHUB_ENV"
           echo "XCTESTRUN=$(ls "$RUNNER_TEMP"/Products/*UITests*.xctestrun | head -1)" >> "$GITHUB_ENV"
+      # Run 42577585956: the iPhone's test runner never finished bootstrapping and no test ran (3 minutes). A run the
+      # simulator lost that way (Scripts/visual/snapshot_infra.py) is made once more on the same device; a run whose
+      # tests failed is not. Both logs are uploaded.
       - name: Run the native visual policy tests
+        id: policy
         timeout-minutes: 80
         run: |
           mkdir -p "$RUNNER_TEMP/policy"
+          policy() { # <attempt>
+            local status=0 log="$RUNNER_TEMP/policy/xcodebuild-$1.log"
+            xcodebuild test-without-building \
+              -xctestrun "$XCTESTRUN" \
+              -destination "platform=iOS Simulator,id=$UDID" \
+              -parallel-testing-enabled NO \
+              -only-testing:EhPandaUITests/NativeVisualPolicyUITests >"$log" 2>&1 || status=$?
+            grep -E "Test case .* (passed|failed)|Executed [0-9]+ test|TEST EXECUTE (SUCCEEDED|FAILED)" "$log" |
+              sort -u || true
+            return "$status"
+          }
           status=0
-          xcodebuild test-without-building \
-            -xctestrun "$XCTESTRUN" \
-            -destination "platform=iOS Simulator,id=$UDID" \
-            -parallel-testing-enabled NO \
-            -only-testing:EhPandaUITests/NativeVisualPolicyUITests >"$RUNNER_TEMP/policy/xcodebuild.log" 2>&1 ||
-            status=$?
-          grep -E "Test case .* (passed|failed)|Executed [0-9]+ test|TEST EXECUTE (SUCCEEDED|FAILED)" \
-            "$RUNNER_TEMP/policy/xcodebuild.log" | sort -u || true
+          policy 1 || status=$?
+          if [ "$status" != 0 ] &&
+            reason=$(python3 Scripts/visual/snapshot_infra.py --status "$status" "$RUNNER_TEMP/policy/xcodebuild-1.log")
+          then
+            echo "::warning::native policy (${{ matrix.family }}): attempt 1 lost to the simulator ($reason); once more"
+            echo "retried=true" >> "$GITHUB_OUTPUT"
+            Scripts/visual/hosted-simulator.sh settings "$UDID" || true
+            status=0
+            policy 2 || status=$?
+          fi
           exit "$status"
-      - name: Upload the log
-        if: failure()
+      - name: Upload the logs
+        if: failure() || steps.policy.outputs.retried == 'true'
         uses: actions/upload-artifact@v7
         with:
           name: native-policy-${{ matrix.family }}
-          path: ${{ runner.temp }}/policy/xcodebuild.log
+          path: ${{ runner.temp }}/policy/xcodebuild-*.log
           if-no-files-found: ignore
           retention-days: 7
 
