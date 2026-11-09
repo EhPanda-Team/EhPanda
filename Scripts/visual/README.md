@@ -12,6 +12,37 @@ on failure. Its runner needs the pinned Xcode installation and dedicated simulat
 below; it fails on drift instead of replacing the pin. This gate is distinct from the full
 locale/theme/Dynamic Type regression matrix driven by `run-regression.py`.
 
+# Snapshot gate
+
+`.github/workflows/snapshot-gate.yml` is the full screenshot check (19-10). One build feeds the 20 shards in
+`snapshot-shards.json`. Each shard is `run-shard.sh` on its own macOS job: the rendering pin, the baseline slices
+(compare mode), the pinned simulator from `hosted-simulator.sh`, and the shard's invocations. `triage` and `retry`
+run the shards with an infrastructure error once more; `aggregate` gives the verdict. It runs on pull requests, before
+each release (`deploy.yml`, `deploy-beta.yml`) and on dependency updates (`dependencies.yml`).
+
+**Cost (T-19-21, accepted).** A run holds every macOS job the account has (5 on the free plan) for hours: the
+plan sums to about 1,250 shard-minutes, so about 4 h 10 min at 5 at a time, plus the build and any retries.
+`test.yml`, the deploys and other gate runs queue behind it meanwhile (19-RESEARCH Pitfall 9). A newer push to the
+same pull request cancels the superseded run; a release or dependency run is never cancelled.
+
+**Red until a baseline exists.** Compare mode needs
+`AppPackage/Tests/VisualSnapshotTests/Baseline/fingerprints.json`. Until 19-13 approves the first baseline, every
+compare run fails at once with "no approved baseline yet". That includes pull requests, releases and dependency
+updates. This is by design: phase 19 merges to `main` only after the baseline is approved.
+
+**iPad orientation.** iPadOS refuses an in-process turn, so `run-shard.sh` turns the device with
+`VisualCaptureOrientationUITests`. The `hosted-simulator.sh settings` step runs before the turn and again after it:
+- Before: it boots the device and waits for it to settle. A turn on a device that its own xcodebuild had just booted
+  was lost before the capture.
+- After: it sets the app accessibility runtime again, because the UI test run turns it off.
+
+Parallel-testing clones always boot in portrait, so an iPad landscape invocation runs on the turned device itself,
+without clones.
+
+**Locally.** `run-shard.sh` records `drift` and captures nothing unless this Mac matches the pin in
+`regression-environment.json`. For local work, use `run-snapshot-local.sh`. The fault switch
+`EHPANDA_SNAPSHOT_FAULT` is for the hosted proof on `ci/snapshot-gate` only.
+
 # Selected UITests without retries
 
 Use the same native Gate for individual Phase 17 validation selections:
