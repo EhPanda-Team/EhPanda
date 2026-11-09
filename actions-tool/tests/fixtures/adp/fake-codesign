@@ -1,0 +1,12 @@
+#!/usr/bin/env python3
+"""A stand-in for `codesign -d --entitlements - --xml <bundle>` (20-05 tests). It prints the bundle's
+`fake-entitlements.plist`, or fails like codesign does on an unsigned bundle. It never signs anything."""
+import pathlib
+import sys
+
+bundle = pathlib.Path(sys.argv[-1])
+entitlements = bundle / "fake-entitlements.plist"
+if "-d" not in sys.argv or not entitlements.is_file():
+    print(f"{bundle}: code object is not signed at all", file=sys.stderr)
+    sys.exit(1)
+sys.stdout.buffer.write(entitlements.read_bytes())

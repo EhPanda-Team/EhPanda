@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CFBundleDisplayName</key>
+	<string>EhPanda</string>
+	<key>CFBundleIdentifier</key>
+	<string>app.ehpanda.marketplace</string>
+	<key>CFBundleShortVersionString</key>
+	<string>3.0.0</string>
+	<key>CFBundleVersion</key>
+	<string>159</string>
+	<key>EhPandaDistributionChannel</key>
+	<string>altstorePAL</string>
+	<key>MinimumOSVersion</key>
+	<string>27.0</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>We need this permission to save images to your photo library.</string>
+</dict>
+</plist>
