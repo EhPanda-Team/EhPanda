@@ -21,6 +21,8 @@ source_head: b5eca09d1
 
 # Project State
 
+**Phase 20 in discussion** (2026-11-09) on `feature/gsd-phase-20`, in parallel with Phase 19 (owner msg 2770; product lead msg 2771): `20-CONTEXT.md` written, one owner question open (OQ-1).
+
 ## Phase 19 executing — 2026-11-07
 
 - **19-01 complete** (`3ed2d5f5c`, `7876a08a1`, `56261d13b`; `19-01-SUMMARY.md`, `19-01-MEASURE.md`): hosted-window

@@ -1544,10 +1544,10 @@ Cross-cutting constraints:
 ### Phase 20: 3.0 Distribution: Marketplace Build, Notarization, Listing & Release Checks
 
 **Goal**: Make 3.0 distributable on the GitHub/AltStore Classic channel and on AltStore PAL: the marketplace build (same features as the GitHub IPA), the PAL source and listing with store screenshots decorated by the designer, the notarization pipeline through the collaborator's App Store Connect account, the website dependencies (privacy policy, support page and a published contact link), the fixed release mechanics and the two real-device checks. The last plan revises analytics for every 3.0 change, including the install source; the closing gate repeats the Release isolation scan on that final build. Tag creation and release order are not planned (owner msg 1753).
-**Depends on**: Phase 19 (store screenshots and the Classic listing build on its approved captures, and its CI gate guards the release), and through it Phase 18.
+**Depends on**: Phase 19, relaxed by owner msg 2770: only store screenshots from the approved reference set and the release's reliance on the screenshot check wait for it (product lead msg 2771; CONTEXT D-13, D-14). Phases 18 and 18.1 are complete.
 **Requirements**: DIST-18-01 (marketplace build flavor), DIST-18-02, DIST-18-03, DEV-18-01, REL-18-01, MKT-18-01 (promotional images and store screenshots), UGC-18-01 (published contact link), ANALYTICS-02 (last plan); moved from Phase 17: CAP-17-05.
 
-**Scope and owner decisions** (context: [20-CONTEXT.md](phases/20-3-0-distribution-marketplace-build-notarization-listing-rele/20-CONTEXT.md); discussion not yet run):
+**Scope and owner decisions** (context: [20-CONTEXT.md](phases/20-3-0-distribution-marketplace-build-notarization-listing-rele/20-CONTEXT.md); discussed 2026-11-09, decisions D-01 to D-21, one owner question open (OQ-1, the marketplace build's primary icon); items 3 and 5 are amended there by D-04, D-17 and D-19):
 
 1. Marketplace build (owner msgs 1287, 1753): same features as the GitHub IPA, listed on AltStore PAL only; something is hidden only if Apple objects. Its own bundle ID comes through the existing `BUNDLE_ID_SUFFIX` setting, for the app and the share extension.
 2. Apple-service actions (App IDs, the app record, certificates, API keys, marketplace registration, trader status) happen in the collaborator's App Store Connect account, by the collaborator or with the owner's explicit OK at that time; agents never create them on their own.
@@ -1572,13 +1572,16 @@ Cross-cutting constraints:
 
 **Plans**: 0 plans (outline only; PLAN files come from `/gsd-plan-phase 20`).
 
-Ordered plan outline (old step numbers are the original Phase 18's):
+Ordered plan outline (CONTEXT D-14; product lead msg 2771; old step numbers are the original Phase 18's):
 
-- **Release mechanics and marketplace plumbing** (was Step 1 without `MKSellsDigitalGoods` and without the tag checkpoint; REL-18-01, DIST-18-01).
-- **Listing assets** (was Step 9; DIST-18-02, MKT-18-01 promotional part, from 17-22): PAL source JSON, all-ages icon, store screenshots with the designer's decorations, privacy, support and contact URLs, wording check. **Checkpoint (owner):** store screenshots and listing assets. Depends on the website pages.
-- **Notarization pipeline** (was Step 10; DIST-18-03). **Checkpoint (collaborator and owner):** account setup, keys and the first submission.
-- **Real-device checks** (was Step 11; DEV-18-01). **Checkpoint (owner hardware).**
-- **Last: analytics revision** (was Step 12; ANALYTICS-02), then the closing gate's Release isolation scan on the final build (from Step 7).
+- **(a) Marketplace build flavor and release mechanics fixes** (was Step 1 without `MKSellsDigitalGoods` and without the tag checkpoint; REL-18-01, DIST-18-01): `Config/Marketplace.xcconfig` with the channel stamp set at build time, `PrivacyInfo.xcprivacy` (D-18), the build-number check in `deploy.yml` and the bump above 158. **Checkpoint (owner):** creating `EhPanda-Team/ehpanda-assets` on GitHub (D-17).
+- **(b) PAL source JSON** (was part of Step 9; DIST-18-02): template, `assetURLs` support in the version filter, checks.
+- **(c) Notarization CI job** (was Step 10; DIST-18-03). **Checkpoints (collaborator and owner, at the time):** Apple-account setup, keys, secrets and the first submission with the App Manager key test (D-07, D-21).
+- **(d) Website dependencies check** (Leto): privacy policy, support page, published contact link, the PAL source URL.
+- **(e) Real-device checks** (was Step 11; DEV-18-01). **Checkpoint (owner hardware).**
+- **(f) Needs Phase 19** (D-14): PAL listing assets and store screenshots from the approved reference set (MKT-18-01 remaining part, from 17-22; all-ages icon per OQ-1), and the release's reliance on the screenshot check. **Checkpoint (owner):** store screenshots and listing assets.
+- **(g) Analytics revision** (was Step 12; ANALYTICS-02; the distribution channel is already in the install signal, D-06).
+- **(h) Closing gate:** the Release isolation scan on the final build (from Step 7).
 
 Plans:
 
