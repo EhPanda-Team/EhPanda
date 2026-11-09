@@ -191,6 +191,19 @@ class GateWorkflowTests(unittest.TestCase):
         self.assertIn('hosted-simulator.sh create', runs(job))
         self.assertLessEqual(job['timeout-minutes'], JOB_LIMIT)
 
+    def test_the_native_policy_runs_once_more_when_the_simulator_lost_it_and_keeps_both_logs(self):
+        # Run 42577585956: the iPhone's test runner never finished bootstrapping and the policy failed with no test.
+        job = self.jobs['native-policy']
+        step = next(step for step in job['steps'] if step.get('id') == 'policy')
+        self.assertIn('snapshot_infra.py --status "$status" "$RUNNER_TEMP/policy/xcodebuild-1.log"', step['run'])
+        self.assertIn('policy 2', step['run'])
+        self.assertEqual(step['run'].count('xcodebuild test-without-building'), 1)
+        upload = next(step for step in job['steps'] if step.get('uses', '').startswith('actions/upload-artifact'))
+        self.assertEqual(upload['if'], "failure() || steps.policy.outputs.retried == 'true'")
+        self.assertEqual(upload['with']['path'], '${{ runner.temp }}/policy/xcodebuild-*.log')
+        create = next(step for step in job['steps'] if 'hosted-simulator.sh create' in step.get('run', ''))
+        self.assertLessEqual(create['timeout-minutes'] + step['timeout-minutes'], JOB_LIMIT - 10)
+
     def test_fail_fast_is_off_on_every_matrix(self):
         self.assertGreaterEqual(self.text.count('fail-fast: false'), 3)
 
