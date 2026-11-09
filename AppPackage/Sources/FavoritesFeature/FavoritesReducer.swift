@@ -57,6 +57,10 @@ public struct FavoritesReducer: Sendable {
         public var rawLoadingState = [Int: LoadingState]()
         public var rawFooterLoadingState = [Int: LoadingState]()
         public var downloadBadges = [String: DownloadBadge]()
+        /// The categories whose last load succeeded with nothing in them: nothing saved there yet, which
+        /// Favorites shows as its own empty state. A keyword search or a date-seek with no hits is "no
+        /// results" instead and stays `.failed(.notFound)` (owner msg 2896).
+        public var emptyFavoritesIndices = Set<Int>()
 
         var galleries: [Gallery]? {
             rawGalleries[favoritesIndex]
@@ -72,6 +76,10 @@ public struct FavoritesReducer: Sendable {
         }
         var footerLoadingState: LoadingState? {
             rawFooterLoadingState[favoritesIndex]
+        }
+        /// Whether the current category is loaded and has nothing saved in it.
+        var isEmpty: Bool {
+            loadingState == .idle && emptyFavoritesIndices.contains(favoritesIndex)
         }
 
         public init() {}
@@ -104,7 +112,7 @@ public struct FavoritesReducer: Sendable {
         case onNotLoginViewButtonTapped
 
         case fetchGalleries(keyword: String? = nil, sortOrder: FavoritesSortOrder? = nil)
-        case fetchGalleriesDone(index: Int, result: Result<FavoritesGalleriesResult, AppError>)
+        case fetchGalleriesDone(index: Int, keyword: String, result: Result<FavoritesGalleriesResult, AppError>)
         case fetchMoreGalleries
         case fetchMoreGalleriesDone(index: Int, result: Result<FavoritesGalleriesResult, AppError>)
         case observeDownloads
@@ -245,19 +253,29 @@ public struct FavoritesReducer: Sendable {
                         )
                         .response()
                     }
-                    await send(.fetchGalleriesDone(index: index, result: result))
+                    await send(.fetchGalleriesDone(index: index, keyword: keyword, result: result))
                 }
 
-            case .fetchGalleriesDone(let targetFavIndex, let result):
+            case .fetchGalleriesDone(let targetFavIndex, let keyword, let result):
                 state.rawLoadingState[targetFavIndex] = .idle
+                state.emptyFavoritesIndices.remove(targetFavIndex)
                 switch result {
                 case .success(let fetchResult):
                     let pageNumber = fetchResult.pageNumber
                     let galleries = fetchResult.galleries
                     guard !galleries.isEmpty else {
-                        state.rawLoadingState[targetFavIndex] = .failed(.notFound)
-                        guard pageNumber.hasNextPage() else { return .none }
-                        return .send(.fetchMoreGalleries)
+                        // A keyword search with no hits is "no results": the shared not-found error.
+                        guard keyword.isEmpty else {
+                            state.rawLoadingState[targetFavIndex] = .failed(.notFound)
+                            guard pageNumber.hasNextPage() else { return .none }
+                            return .send(.fetchMoreGalleries)
+                        }
+                        // Nothing saved in this category: its own empty state, not an error.
+                        state.rawPageNumber[targetFavIndex] = pageNumber
+                        state.rawDateSeekNavigation[targetFavIndex] = fetchResult.dateSeekNavigation
+                        state.rawGalleries[targetFavIndex] = []
+                        state.emptyFavoritesIndices.insert(targetFavIndex)
+                        return .none
                     }
                     state.rawPageNumber[targetFavIndex] = pageNumber
                     state.rawDateSeekNavigation[targetFavIndex] = fetchResult.dateSeekNavigation
@@ -345,6 +363,7 @@ public struct FavoritesReducer: Sendable {
 
             case .performDateSeekDone(let targetFavIndex, let result):
                 state.rawLoadingState[targetFavIndex] = .idle
+                state.emptyFavoritesIndices.remove(targetFavIndex)
                 switch result {
                 case .success(let response):
                     let galleries = response.galleries

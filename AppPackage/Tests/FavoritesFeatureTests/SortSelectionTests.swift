@@ -33,7 +33,7 @@ struct SortSelectionTests {
         // A second selection cannot optimistically replace the server-confirmed order.
         await store.send(.selectSortOrder(.favoritedTime))
         await store.receive(\.fetchGalleries)
-        await store.send(.fetchGalleriesDone(index: -1, result: .failure(.unknown))) {
+        await store.send(.fetchGalleriesDone(index: -1, keyword: "", result: .failure(.unknown))) {
             $0.rawLoadingState[-1] = .failed(.unknown)
         }
         #expect(store.state.sortOrder == .lastUpdateTime)
