@@ -61,7 +61,8 @@ final class BrowsingStepTests: XCTestCase {
         do {
             try await BrowsingScenarios.focusSearchField(window, deadline: .seconds(3))
             XCTFail("A field that never takes the focus was focused")
-        } catch AccessibilityActionDriver.Failure.notFound(_) {
+        } catch let failure as BrowsingScenarios.StepFailure {
+            XCTAssertEqual(failure.reason, "search-focus-not-held")
             XCTAssertLessThan(start.duration(to: clock.now), .seconds(15))
         }
     }
