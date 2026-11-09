@@ -1547,7 +1547,7 @@ Cross-cutting constraints:
 **Depends on**: Phase 19, relaxed by owner msg 2770: only store screenshots from the approved reference set and the release's reliance on the screenshot check wait for it (product lead msg 2771; CONTEXT D-13, D-14). Phases 18 and 18.1 are complete.
 **Requirements**: DIST-18-01 (marketplace build flavor), DIST-18-02, DIST-18-03, DEV-18-01, REL-18-01, MKT-18-01 (promotional images and store screenshots), UGC-18-01 (published contact link), ANALYTICS-02 (last plan); moved from Phase 17: CAP-17-05.
 
-**Scope and owner decisions** (context: [20-CONTEXT.md](phases/20-3-0-distribution-marketplace-build-notarization-listing-rele/20-CONTEXT.md); discussed 2026-11-09, decisions D-01 to D-21, one owner question open (OQ-1, the marketplace build's primary icon); items 3 and 5 are amended there by D-04, D-17 and D-19):
+**Scope and owner decisions** (context: [20-CONTEXT.md](phases/20-3-0-distribution-marketplace-build-notarization-listing-rele/20-CONTEXT.md); discussed 2026-11-09, decisions D-01 to D-22; OQ-1, the marketplace build's primary icon, resolved by D-22 (product lead msg 2775: the current icon is kept); items 3 and 5 are amended there by D-04, D-17 and D-19):
 
 1. Marketplace build (owner msgs 1287, 1753): same features as the GitHub IPA, listed on AltStore PAL only; something is hidden only if Apple objects. Its own bundle ID comes through the existing `BUNDLE_ID_SUFFIX` setting, for the app and the share extension.
 2. Apple-service actions (App IDs, the app record, certificates, API keys, marketplace registration, trader status) happen in the collaborator's App Store Connect account, by the collaborator or with the owner's explicit OK at that time; agents never create them on their own.
@@ -1579,7 +1579,7 @@ Ordered plan outline (CONTEXT D-14; product lead msg 2771; old step numbers are 
 - **(c) Notarization CI job** (was Step 10; DIST-18-03). **Checkpoints (collaborator and owner, at the time):** Apple-account setup, keys, secrets and the first submission with the App Manager key test (D-07, D-21).
 - **(d) Website dependencies check** (Leto): privacy policy, support page, published contact link, the PAL source URL.
 - **(e) Real-device checks** (was Step 11; DEV-18-01). **Checkpoint (owner hardware).**
-- **(f) Needs Phase 19** (D-14): PAL listing assets and store screenshots from the approved reference set (MKT-18-01 remaining part, from 17-22; all-ages icon per OQ-1), and the release's reliance on the screenshot check. **Checkpoint (owner):** store screenshots and listing assets.
+- **(f) Needs Phase 19** (D-14): PAL listing assets and store screenshots from the approved reference set (MKT-18-01 remaining part, from 17-22; the current icon is kept, D-22), and the release's reliance on the screenshot check. **Checkpoint (owner):** store screenshots and listing assets.
 - **(g) Analytics revision** (was Step 12; ANALYTICS-02; the distribution channel is already in the install signal, D-06).
 - **(h) Closing gate:** the Release isolation scan on the final build (from Step 7).
 
