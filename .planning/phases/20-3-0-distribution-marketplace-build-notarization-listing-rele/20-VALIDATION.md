@@ -15,6 +15,10 @@ created: "2026-11-09"
 >
 > Waves amended 2026-11-09 (CONTEXT D-23, product lead msg 2783 answering OQ-G): 20-07, 20-09 and 20-12 start in
 > wave 1, so the phase runs in 8 waves; 20-08 is wave 5, 20-10 and 20-11 wave 6, 20-13 wave 7, 20-14 wave 8.
+>
+> Waves amended again 2026-11-09 (CONTEXT D-26, owner msg 2802): the PAL submission comes after the Classic release,
+> so 20-08 moves last (wave 8, after 20-10, 20-11 and 20-14). 20-10 and 20-11 are now wave 5, 20-13 wave 6 and
+> 20-14 wave 7.
 
 ---
 
@@ -64,25 +68,25 @@ created: "2026-11-09"
 | 20-06-03 | 06 | 4 | DIST-18-03 | T-20-18 | protected environment; secret names only | checkpoint | `gh api` environment and secret names | — | ⬜ pending |
 | 20-07-01 | 07 | 1 | DIST-18-02 | T-20-21 | no "Apple-approved" wording | unit | `test_no_apple_approved.py` | ❌ W0 | ⬜ pending |
 | 20-07-02 | 07 | 1 | UGC-18-01, DIST-18-02 | T-20-20 | four website URLs live | checkpoint | `grep` of `20-07-WEBSITE.md` status lines | — | ⬜ pending |
-| 20-08-01 | 08 | 5 | DIST-18-03 | T-20-23 | OQ-A, OQ-B decided first | checkpoint (decision) | — | — | ⬜ pending |
-| 20-08-02 | 08 | 5 | DIST-18-03 | — | interim screenshots at class sizes, or paused by decision | script | `sips` sizes; decision line | — | ⬜ pending |
-| 20-08-03 | 08 | 5 | DIST-18-03 | T-20-22 | owner OK per dispatch; D-21 answered; verdict | checkpoint | `grep` of `20-08-SUBMISSION.md` | — | ⬜ pending |
-| 20-08-04 | 08 | 5 | DIST-18-03 | T-20-24 | dry-run publish; real ADP layout | checkpoint | `grep`; actions-tool tests | — | ⬜ pending |
+| 20-08-01 | 08 | 8 | DIST-18-03 | T-20-23 | OQ-A, OQ-B as D-26 settles them | checkpoint (decision) | — | — | ⬜ pending |
+| 20-08-02 | 08 | 8 | DIST-18-03 | — | 20-10's set recorded (OQ-A: A1, D-26) | script | `sips` sizes; decision line | — | ⬜ pending |
+| 20-08-03 | 08 | 8 | DIST-18-03 | T-20-22 | owner OK per dispatch; D-21 answered; verdict | checkpoint | `grep` of `20-08-SUBMISSION.md` | — | ⬜ pending |
+| 20-08-04 | 08 | 8 | DIST-18-03 | T-20-24 | dry-run publish; real ADP layout | checkpoint | `grep`; actions-tool tests | — | ⬜ pending |
 | 20-09-01 | 09 | 1 | DEV-18-01 | T-20-26 | ten Release cold launches on iPad | checkpoint (device) | `grep` launch rows | — | ⬜ pending |
 | 20-09-02 | 09 | 1 | DEV-18-01 | T-20-25 | SC2 procedure on iPhone | checkpoint (device) | `grep` outcome lines | — | ⬜ pending |
-| 20-10-01 | 10 | 6 | MKT-18-01 | — | owner's screens, decoration, wording | checkpoint (decision) | — | — | ⬜ pending |
-| 20-10-02 | 10 | 6 | MKT-18-01, CAP-17-05 | T-20-27 | store renders tied to approved references; delivery check | unit + render | `test_store_screenshots.py`; `store_screenshots.py check` | ❌ W0 | ⬜ pending |
-| 20-10-03 | 10 | 6 | MKT-18-01, DIST-18-02 | T-20-28 | approved, pushed, listed, uploaded | checkpoint | `curl` URLs; actions-tool tests with assets | — | ⬜ pending |
-| 20-11-01 | 11 | 6 | REL-18-01 | — | OQ-F decided | checkpoint (decision) | — | — | ⬜ pending |
-| 20-11-02 | 11 | 6 | REL-18-01 | T-20-29, T-20-30 | release requires the gate's `success` on its commit | unit (fake gh) + workflow | `test_require_snapshot_gate.py`; `test_workflows.py`; actionlint | ❌ W0 | ⬜ pending |
-| 20-11-03 | 11 | 6 | REL-18-01 | — | live read of real verdicts | script | `grep` results | — | ⬜ pending |
+| 20-10-01 | 10 | 5 | MKT-18-01 | — | owner's screens, decoration, wording | checkpoint (decision) | — | — | ⬜ pending |
+| 20-10-02 | 10 | 5 | MKT-18-01, CAP-17-05 | T-20-27 | store renders tied to approved references; delivery check | unit + render | `test_store_screenshots.py`; `store_screenshots.py check` | ❌ W0 | ⬜ pending |
+| 20-10-03 | 10 | 5 | MKT-18-01, DIST-18-02 | T-20-28 | approved, pushed, listed, uploaded | checkpoint | `curl` URLs; actions-tool tests with assets | — | ⬜ pending |
+| 20-11-01 | 11 | 5 | REL-18-01 | — | OQ-F decided | checkpoint (decision) | — | — | ⬜ pending |
+| 20-11-02 | 11 | 5 | REL-18-01 | T-20-29, T-20-30 | release requires the gate's `success` on its commit | unit (fake gh) + workflow | `test_require_snapshot_gate.py`; `test_workflows.py`; actionlint | ❌ W0 | ⬜ pending |
+| 20-11-03 | 11 | 5 | REL-18-01 | — | live read of real verdicts | script | `grep` results | — | ⬜ pending |
 | 20-12-01 | 12 | 1 | ANALYTICS-02 | T-20-31 | rules check per proposed signal; no code | document | `grep` flows; no AppPackage diff | — | ⬜ pending |
 | 20-12-02 | 12 | 1 | ANALYTICS-02 | T-20-31 | sign-off before code | checkpoint (decision) | — | — | ⬜ pending |
-| 20-13-01 | 13 | 7 | ANALYTICS-02 | T-20-32, T-20-33 | type-closed, level-gated, no content | unit | `-only-testing:AnalyticsClientTests` | ✅ | ⬜ pending |
-| 20-13-02 | 13 | 7 | ANALYTICS-02 | T-20-33 | sent from approved actions only | unit (TestStore) | AppFeatureTests, SettingFeatureTests, DetailFeatureTests | ✅ | ⬜ pending |
-| 20-13-03 | 13 | 7 | ANALYTICS-02 | — | README in six languages; full suite | script + suite | `18-copy-check.py --readmes`; FeatureTests both devices | ✅ | ⬜ pending |
-| 20-14-01 | 14 | 8 | DIST-18-01 | T-20-34 | 0 findings, both flavors | scan | `verify-release.py` → `release-isolation.json` | ✅ | ⬜ pending |
-| 20-14-02 | 14 | 8 | all | — | phase gate | suite | Full suite command | ✅ | ⬜ pending |
+| 20-13-01 | 13 | 6 | ANALYTICS-02 | T-20-32, T-20-33 | type-closed, level-gated, no content | unit | `-only-testing:AnalyticsClientTests` | ✅ | ⬜ pending |
+| 20-13-02 | 13 | 6 | ANALYTICS-02 | T-20-33 | sent from approved actions only | unit (TestStore) | AppFeatureTests, SettingFeatureTests, DetailFeatureTests | ✅ | ⬜ pending |
+| 20-13-03 | 13 | 6 | ANALYTICS-02 | — | README in six languages; full suite | script + suite | `18-copy-check.py --readmes`; FeatureTests both devices | ✅ | ⬜ pending |
+| 20-14-01 | 14 | 7 | DIST-18-01 | T-20-34 | 0 findings, both flavors | scan | `verify-release.py` → `release-isolation.json` | ✅ | ⬜ pending |
+| 20-14-02 | 14 | 7 | all | — | phase gate | suite | Full suite command | ✅ | ⬜ pending |
 
 *Status: ⬜ pending · ✅ green · ❌ red · ⚠️ flaky*
 

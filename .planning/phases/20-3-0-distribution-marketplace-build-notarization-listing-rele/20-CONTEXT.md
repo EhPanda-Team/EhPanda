@@ -3,7 +3,8 @@
 **Gathered:** 2026-11-09 (discussion refresh; owner decisions first recorded 2026-11-05 during the Phase 18 discussion)
 **Status:** Discussion done. No owner question is open: OQ-1 (the marketplace build's primary icon) was resolved
 on 2026-11-09 by product lead msg 2775 (D-22). Research questions OQ-C, OQ-D and OQ-G were answered by product lead
-msg 2783 (D-23 to D-25).
+msg 2783 (D-23 to D-25). Owner msg 2802 set the channel order (D-26): GitHub and AltStore Classic first, then the
+AltStore PAL submission.
 **Branch:** `feature/gsd-phase-20`, from `e2c6acb5b` (the `feature/gsd-phase-19` tip), in parallel with Phase 19
 (D-13).
 
@@ -25,7 +26,7 @@ covers:
 - last, the Release isolation scan on the final build.
 
 **Not here:** in-app features (Phases 18 and 18.1) and the screenshot check itself (Phase 19). Tag creation and
-release order are in no phase (D-03).
+release order are in no phase (D-03), apart from the one ordering the owner has set: Classic before PAL (D-26).
 
 **Already landed before this discussion** (on `feature/gsd-phase-18`, merged in `fc8a075f7` and `ed9ba9a7d`, so on
 this branch): one IPA per channel with the `EhPandaDistributionChannel` stamp, the distribution channel in the install
@@ -211,6 +212,8 @@ does not redo them.
   - Every code change after a notarized build needs a new submission. So the build that becomes 3.0 on PAL is the
     final one: it contains (g) and passes (h).
   - When that final submission and the Classic release happen is release order, which no plan sets (D-03).
+  - *Amended by D-26 (owner msg 2802):* there is no early submission. The first live submission is the final 3.0
+    build, made after the Classic release, so Apple's first verdict comes then.
 - **D-21:** **App Manager API key: yes on paper; the live test stays a step (c) checkpoint** (DIST-18-03 asks to test
   and record it).
   - **The paper case.** Apple lists "Account Holder, Admin, or App Manager" as the roles that can submit for
@@ -244,6 +247,21 @@ does not redo them.
   copywriter writes them from the website's neutral line, for guideline 2.3.8 (the listing suits all audiences).
   The owner approves them at the listing step (step (f), 20-10). The "adult comics" caption on the first decorated
   screenshot is checked in that same approval (D-04).
+- **D-26:** **3.0 ships on GitHub Releases and AltStore Classic first, and ehpanda.app goes live with that release.
+  The AltStore PAL submission comes after it** (owner msg 2802, 2026-11-09). The consequences:
+  - **No early submission (D-20 amended).** The first live submission (20-08) is the final 3.0 build: it contains
+    (g), it passed (h), and it is made after the Classic release. So 20-08 moves to the last wave, after 20-10, 20-11
+    and 20-14, and 20-10 and 20-11 no longer wait for it.
+  - **OQ-A is answered:** the first submission uses (f)'s set (20-10). No interim set is made.
+  - **OQ-B is moot:** no early version uses up 3.0.0, so manual release and Developer Reject are not needed. The PAL
+    upload carries the Classic release's version and build number, which App Store Connect has not seen.
+  - **Website (D-05, 20-07 Task 2):** the site goes live with the Classic release, before the PAL build goes to
+    Apple, so the contact link is live in time. 20-07's live check runs when the site goes live.
+  - **D-17 holds by order:** the GitHub release for the version exists before the PAL job uploads to it. The job
+    still fails cleanly if it does not.
+  - **D-22:** an icon rejection now pauses only the PAL submission. The Classic 3.0 release is already out.
+  - **Unchanged:** no plan creates a tag or dispatches the Classic release (D-03). When the accepted PAL build is
+    published is still the owner's call.
 
 ### Resolved owner question
 
@@ -268,7 +286,8 @@ does not redo them.
 ### Plan order (D-14; product lead msg 2771)
 
 *Amended 2026-11-09 (D-23, product lead msg 2783):* (d), (e) and the vocabulary proposal of (g) may start now, in
-parallel with (a) to (c); the order below still holds for everything else.
+parallel with (a) to (c); the order below still holds for everything else. *Amended again (D-26, owner msg 2802):*
+(c)'s first submission (20-08) comes last, after (h) and the Classic release.
 
 - **(a) Marketplace build flavor and release mechanics fixes** (DIST-18-01 flavor part, REL-18-01).
   - The `Config/Marketplace.xcconfig` flavor with the channel stamp set at build time (D-12 amended).
@@ -289,10 +308,10 @@ parallel with (a) to (c); the order below still holds for everything else.
     - the age-rating answers and the App Privacy answers;
     - the countries or regions the app is offered in (AltStore PAL serves the EU, Japan and Brazil);
     - the GitHub environment secrets;
-    - the first submission, including the App Manager key test (D-21). If the review rejects the icon under
-      guideline 2.3.8, this step pauses for a design request to Colo (D-22).
+    - the first submission, including the App Manager key test (D-21), made after the Classic release (D-26). If
+      the review rejects the icon under guideline 2.3.8, this step pauses for a design request to Colo (D-22).
 - **(d) Website dependencies check** (Leto):
-  - the privacy policy URL;
+  - the privacy policy URL (each language's own page, `/<language>/privacy/`; owner msg 2818);
   - the support URL;
   - the published contact link (GitHub Issues), live before the build goes to Apple (D-05);
   - the PAL source's public URL.
