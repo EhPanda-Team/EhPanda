@@ -131,7 +131,9 @@ def pal_release(source, marketplace_id="6740000001", version="3.0.0", build="159
     for asset in PAL_ASSETS:
         if asset["name"].startswith(prefix):
             name = asset["name"][len(prefix):]
-            urls[name.rsplit(".", 1)[0] if "." in name else name] = asset["browser_download_url"]
+            # Each release has its own tag in the asset URLs.
+            urls[name.rsplit(".", 1)[0] if "." in name else name] = \
+                asset["browser_download_url"].replace("/3.0.0/", f"/{version}/")
     variant = next(a for a in PAL_ASSETS if a["name"].startswith(prefix) and a["name"].endswith(".ipa"))
     result = subprocess.run(
         ["jq", "--arg", "bundleIdentifier", "app.ehpanda.marketplace", "--arg", "version", version,

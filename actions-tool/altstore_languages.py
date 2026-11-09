@@ -52,6 +52,10 @@ def localized_value(values, preferred_languages):
 SOURCE_FIELDS = ["name", "identifier", "subtitle", "description", "iconURL"]
 APP_FIELDS = ["name", "bundleIdentifier", "developerName", "subtitle", "localizedDescription", "iconURL"]
 VERSION_FIELDS = ["version", "buildVersion", "date", "localizedDescription", "downloadURL", "size", "sha256"]
+# An AltStore PAL entry points at an ADP (AltStore, "Make a Source"): `downloadURL` is the manifest's URL,
+# `assetURLs` maps each ADP file name without its extension to its URL, `size` is one variant's, and there
+# is no single IPA to hash, so no `sha256`.
+PAL_VERSION_FIELDS = ["version", "buildVersion", "date", "localizedDescription", "downloadURL", "assetURLs", "size"]
 # Screenshots that EhPanda serves from its assets repository: the path after this prefix is the file's
 # path in a checkout of that repository.
 ASSETS_URL = "https://raw.githubusercontent.com/EhPanda-Team/ehpanda-assets/main/"
@@ -130,11 +134,39 @@ def check_screenshots(where, app, assets_dir=None):
     return problems
 
 
-def check_source(source, every_language=True, versions_required=True, assets_dir=None):
+def https_url(value):
+    return isinstance(value, str) and value.startswith("https://") and len(value) > len("https://")
+
+
+def check_pal_version(where, version):
+    """Problems with an AltStore PAL version entry (Research §4)."""
+    problems = []
+    if "sha256" in version:
+        problems.append(f"{where}: has a sha256, which an ADP entry does not")
+    size = version.get("size")
+    if size is not None and (isinstance(size, bool) or not isinstance(size, int) or size <= 0):
+        problems.append(f"{where}: size {size!r} is not a positive whole number")
+    asset_urls = version.get("assetURLs")
+    if asset_urls is None:
+        return problems
+    if not isinstance(asset_urls, dict) or not asset_urls:
+        return problems + [f"{where}: assetURLs is not a non-empty object"]
+    problems += [f"{where}: assetURLs.{key} is not an https URL" for key, url in asset_urls.items()
+                 if not https_url(url)]
+    if "manifest" not in asset_urls:
+        problems.append(f"{where}: assetURLs has no manifest")
+    elif version.get("downloadURL") is not None and version.get("downloadURL") != asset_urls["manifest"]:
+        problems.append(f"{where}: downloadURL is not assetURLs.manifest")
+    return problems
+
+
+def check_source(source, every_language=True, versions_required=True, assets_dir=None, pal=False):
     """Problems that would keep AltStore or SideStore from reading `source` as EhPanda intends.
 
     `assets_dir` is a checkout of the assets repository (a `pathlib.Path`), or None to not look for
-    the screenshot files."""
+    the screenshot files. With `pal`, `source` is the AltStore PAL source: its app needs a numeric
+    `marketplaceID` (SideStore refuses one, so only here), the source is marked `nsfw`, and each version
+    is an ADP entry (`check_pal_version`) instead of a single IPA."""
     problems = []
 
     def require(where, entry, fields):
@@ -144,6 +176,8 @@ def check_source(source, every_language=True, versions_required=True, assets_dir
                 problems.append(f"{where}: no {field}")
 
     require("source", source, SOURCE_FIELDS)
+    if pal and source.get("nsfw") is not True:
+        problems.append("source: nsfw is not true")
     for plain in ["subtitle", "description"]:
         problems += check_localized("source", source, plain, every_language)
     apps = source.get("apps")
@@ -152,7 +186,13 @@ def check_source(source, every_language=True, versions_required=True, assets_dir
     for app in apps:
         where = f"app {app.get('bundleIdentifier')}"
         require(where, app, APP_FIELDS)
-        if "marketplaceID" in app:
+        if pal:
+            if "marketplaceID" not in app:
+                problems.append(f"{where}: no marketplaceID")
+            elif not isinstance(app["marketplaceID"], str) or not app["marketplaceID"].isascii() \
+                    or not app["marketplaceID"].isdigit():
+                problems.append(f"{where}: marketplaceID {app['marketplaceID']!r} is not the app's Apple ID (digits)")
+        elif "marketplaceID" in app:
             problems.append(f"{where}: has a marketplaceID, which SideStore refuses")
         for plain in ["subtitle", "localizedDescription"]:
             problems += check_localized(where, app, plain, every_language)
@@ -162,6 +202,8 @@ def check_source(source, every_language=True, versions_required=True, assets_dir
             problems.append(f"{where}: no versions, which SideStore refuses")
         for version in versions:
             version_where = f"{where} {version.get('version')} ({version.get('buildVersion')})"
-            require(version_where, version, VERSION_FIELDS)
+            require(version_where, version, PAL_VERSION_FIELDS if pal else VERSION_FIELDS)
+            if pal:
+                problems += check_pal_version(version_where, version)
             problems += check_localized(version_where, version, "localizedDescription", False)
     return problems
