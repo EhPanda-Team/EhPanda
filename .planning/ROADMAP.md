@@ -715,7 +715,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 17. Screenshot Automation, Visual Regression & OS 27 Modernization | 13/13 | Complete    | 2026-11-05 |
 | 18. In-App 3.0 Readiness: Age Wall, Analytics Choice, Comment Moderation & Reader Rework | 12/12 | Complete    | 2026-11-06 |
 | 18.1. Native report form (INSERTED) | 5/5 | Complete    | 2026-11-07 |
-| 19. Visual Regression & Daily Live-Parsing Check | 12/17 | In Progress |  |
+| 19. Visual Regression & Daily Live-Parsing Check | 13/17 | In Progress |  |
 | 20. 3.0 Distribution: Marketplace Build, Notarization, Listing & Release Checks | 0/TBD | Not started|  |
 
 ### Phase 12: Cloudflare Login Restoration
@@ -1490,7 +1490,7 @@ Plans:
   7. `Scripts/visual/README.md` matches the reduced Phase 17 harness and this phase's regression runner.
   8. Release builds still contain no capture code, fixtures, test assets or SnapshotTesting linkage.
 
-**Plans**: 12/17 plans executed (planned 2026-11-07; research: [19-RESEARCH.md](phases/19-visual-regression-marketing-export/19-RESEARCH.md), validation: [19-VALIDATION.md](phases/19-visual-regression-marketing-export/19-VALIDATION.md))
+**Plans**: 13/17 plans executed (planned 2026-11-07; research: [19-RESEARCH.md](phases/19-visual-regression-marketing-export/19-RESEARCH.md), validation: [19-VALIDATION.md](phases/19-visual-regression-marketing-export/19-VALIDATION.md))
 
 Plans:
 
@@ -1515,7 +1515,7 @@ Plans:
 
 **Wave 4**
 
-- [ ] 19-04-PLAN.md — hosted measurement of picture cost, clone count and run-to-run identity; the measured shard plan *(checkpoint: owner go-ahead and billing, R-1)*
+- [x] 19-04-PLAN.md — hosted measurement of picture cost, clone count and run-to-run identity; the measured shard plan *(checkpoint: owner go-ahead and billing, R-1)* — closed on the interim 2 workers (`source: model`): runs 42455556948, 42475531683 and 42533872440 chose no count under D-15's rule; billing `{}` ([summary](phases/19-visual-regression-marketing-export/19-04-SUMMARY.md))
 - [x] 19-15-PLAN.md — the live check's runner choice, single-issue reporting, entry script, workflow and timer template *(checkpoint: owner picks the runner)*
 
 **Wave 5**
