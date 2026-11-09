@@ -757,6 +757,28 @@ public actor DownloadCoordinator {
     /// lifetime honest, which is what a comment asking to be believed could not do.
     var runProgressBases = [String: RunProgressBasis]()
 
+    /// What Verify Images' full fresh scan found when it refused to blank a whole gallery because
+    /// EVERY claimed page was positively absent (B1, product lead's EhPanda msg 2903).
+    ///
+    /// It is evidence, never an act: validation alone still blanks nothing wholesale (G-15-2G). A
+    /// later stop (`commitPause`, for a run before its announcement or a gallery still queued) may
+    /// drop the record only when its own fresh scan agrees page for page, so two independent
+    /// successful scans decide and no single one can.
+    ///
+    /// Held in memory only, so a relaunch drops it, and dropped by everything that makes it stale:
+    /// a delete, a redownload or update, a folder move, a completion, a later Verify that did not
+    /// refuse wholesale, and the stop that consumes it. The consumer also re-checks the folder and
+    /// the claimed hashes it was taken over, so a stale entry can only decline. Not session-scoped:
+    /// `clearDownloadSessionState` runs on every pause and every retry, which is exactly the window
+    /// the evidence has to cross.
+    var wholesaleAbsenceEvidence = [String: WholesaleAbsenceEvidence]()
+
+    /// The folder and the claimed hashes Verify's scan found every page of positively absent.
+    struct WholesaleAbsenceEvidence: Equatable, Sendable {
+        let folderURL: URL
+        let pages: [Int: String]
+    }
+
     public init(
         storage: DownloadStore,
         urlSession: URLSession,
