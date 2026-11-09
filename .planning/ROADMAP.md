@@ -716,7 +716,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 18. In-App 3.0 Readiness: Age Wall, Analytics Choice, Comment Moderation & Reader Rework | 12/12 | Complete    | 2026-11-06 |
 | 18.1. Native report form (INSERTED) | 5/5 | Complete    | 2026-11-07 |
 | 19. Visual Regression & Daily Live-Parsing Check | 12/17 | In Progress |  |
-| 20. 3.0 Distribution: Marketplace Build, Notarization, Listing & Release Checks | 4/14 | In Progress |  |
+| 20. 3.0 Distribution: Marketplace Build, Notarization, Listing & Release Checks | 5/14 | In Progress |  |
 
 ### Phase 12: Cloudflare Login Restoration
 
@@ -1603,7 +1603,7 @@ Plans:
 
 **Wave 4** *(blocked on 20-04)* — (c)
 
-- [ ] 20-05-PLAN.md — offline-tested publish side: ADP, AltStore processing, release assets, PAL source update
+- [x] 20-05-PLAN.md — offline-tested publish side: ADP, AltStore processing, release assets, PAL source update
 - [ ] 20-06-PLAN.md — the collaborator's account setup and the GitHub environment *(checkpoints: App IDs, certificate, profiles, API key; agreements, marketplace, trader status, ratings, privacy answers, countries; environment and secrets; D-07)*
 
 **Wave 5** *(blocked on 20-03, 20-05, 20-09 and Phase 19)* — (f)

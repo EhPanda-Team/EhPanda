@@ -4,16 +4,16 @@ milestone: v3.0.0
 current_phase: 19
 current_phase_name: Visual Regression & Daily Live-Parsing Check
 status: executing
-stopped_at: Completed 20-04-PLAN.md
-last_updated: "2026-11-09T02:15:00.000Z"
+stopped_at: Completed 20-05-PLAN.md
+last_updated: "2026-11-09T02:41:00.000Z"
 last_activity: 2026-11-09
-last_activity_desc: 20-04 complete on feature/gsd-phase-20 (asc.py App Store Connect client, marketplace signing helper, dispatch-only deploy-pal.yml submit job; all offline)
+last_activity_desc: 20-05 complete on feature/gsd-phase-20 (pal_publish.py ADP fetch, release assets and PAL source update; dispatch-only deploy-pal.yml publish job with dry_run default true; all offline)
 state_head: 7b3bf8ec5589c912f22851b2dc1f563618209855
 progress:
   total_phases: 21
   completed_phases: 18
   total_plans: 321
-  completed_plans: 320
+  completed_plans: 321
   percent: 86
 milestone_name: Dependency Reduction & Modernization
 source_head: 891103afa
@@ -58,6 +58,17 @@ source_head: 891103afa
   header for 20-06. Nothing contacted Apple; the workflow was not dispatched. Open items: upload without
   `-allowProvisioningUpdates` and manual release before AltStore can fetch the ADP are first seen at 20-08; the PAL
   template still has the Classic copy, which 20-10 replaces and updates its test (D-25). DIST-18-03 stays Pending.
+- **20-05 complete** (`3f21419ae`, `6a3dfb4b6`, `e9fc98685`, `2a2feec0d`, `98a54be69`; `20-05-SUMMARY.md`):
+  `.github/actionlint.yaml` declares the `xcode-27` label (actionlint clean on every workflow).
+  `actions-tool/pal_publish.py`: `process` (AltStore `POST /adps`), `fetch` (polls `GET /adps/<id>` for
+  `downloadURL`, or `--from` a zip or folder; byte copies with SHA-256 per file), `publish` (release by the version's
+  tag only, never created; `EhPanda-AltStorePAL-*` assets, re-downloaded and hash-compared; `assetURLs`,
+  entitlements and privacy from the signed variant; `AltStorePAL.json` on main with five push attempts;
+  `--dry-run`). `deploy-pal.yml` gains the `publish` job and the `dry_run` input (default true). Research: Apple
+  generates the ADP on acceptance when the app is already on a marketplace (no POST; the POST stays refused, D-07),
+  and in Pending Developer Release, so MANUAL does not block the package; whether AltStore PAL distributes a
+  version still pending release is undocumented, an open item for the owner at 20-08 (no release call was added).
+  Nothing contacted AltStore, Apple or GitHub. DIST-18-02 and DIST-18-03 stay Pending.
 
 ## Phase 19 executing — 2026-11-07
 
@@ -1780,6 +1791,7 @@ Recent decisions affecting current work:
 - [Phase 20]: 20-02: deploy.yml's build-number check reads main's three Classic-side sources and not AltStorePAL.json; build 159 = main's highest (158) + 1. bump-version.sh treats a configuration with TEST_HOST or TEST_TARGET_NAME as a test one (the old app.ehpanda.tests bundle ID matches no target). — Research §3, pitfall 4; REL-18-01.
 - [Phase 20]: 20-03: the PAL entry is the filter's Classic entry with `assetURLs` after `downloadURL` and no `sha256`. The filter reads `sha256` through `$ARGS.named` (required without `assetURLs`) and drops `application-identifier` and the team identifier from a given `entitlements` list. The PAL source's public address is https://ehpanda.app/AltStorePAL.json (owner msg 2822); it is not written into the JSON. — Research §4; DIST-18-02.
 - [Phase 20]: 20-04: deploy-pal.yml is workflow_dispatch only; the submit job runs in environment pal-notarization with contents: read. asc.py allows only builds/preReleaseVersions/appStoreVersions/reviewSubmissions(Items)/ADP-read paths plus GET /v1/apps/{id}/appStoreVersions (no top-level version list in OpenAPI 4.6); POST /v1/alternativeDistributionPackages is refused. Secrets: ASC_KEY_ID, ASC_ISSUER_ID, ASC_KEY_P8, DIST_CERT_P12, DIST_CERT_PASSWORD, PROFILE_APP, PROFILE_SHARE_EXTENSION, TEAM_ID; variables PAL_MARKETPLACE_ID (also the --app ID), ASC_KEY_ROLE. — Research §5, §6; D-07, D-21, D-26.
+- [Phase 20]: 20-05: the publish job (`inputs.mode == 'publish'`, environment pal-notarization, contents: write) reads the ADP ID, has AltStore process it, fetches it and runs pal_publish.py publish; dry_run defaults to true. ADP files map by name (manifest.json → manifest, signature, <uuid>.ipa → <uuid>); any other file, a duplicate name, a symlink or an escaping zip entry fails. Assets are never replaced (same bytes are reused, other bytes fail); a build older than the source's newest entry is refused. — Research §4, §5; D-07, D-19.
 - [Phase 19]: 19-01: iPadOS 27 refuses in-process orientation changes (UISceneErrorDomain 101), so an iPad matrix process captures the one orientation its device was turned to before launch (EHPANDA_SNAPSHOT_ORIENTATIONS); iPhone turns in process. iPad units double to 36, shard units become 54. The block confirmation is reached through the row's own accessibility action, which needs the app accessibility runtime on; iPad pins need Full Screen Apps. — Research section 3 leaves the rotation mechanism to the developer; XCUIDevice is not authorized in an app-hosted test.
 
 ### Phase 16 transition decisions (2026-09-23)
@@ -1897,8 +1909,8 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-11-09T02:15:00.000Z
-Stopped at: Completed 20-04-PLAN.md
+Last session: 2026-11-09T02:41:00.000Z
+Stopped at: Completed 20-05-PLAN.md
 Resume file: None
 
 Earlier stop (2026-10-13T10:50:00Z, historical): 17-06 revision re-shot, 16/16 captured (`.capture/17-06-t-native-*`); superseded by the owner's 2026-11-02 approval of the 192-image website set.
