@@ -7,13 +7,13 @@ tags: [device, ipad, iphone, release-build, gallery-detail, continued-processing
 requires: []
 provides:
   - "`20-09-DEVICE.md`: the iPad Release cold-launch Gallery Detail check (10 of 10, no stall) and the iPhone repeat of Phase 15 SC2 (as designed), on owner hardware (DEV-18-01, SC7)"
-  - "G-20-09-1, for the owner to decide: after a whole-gallery repair is paused, by either route, the row reads Downloaded N of N until Verify Images"
+  - "G-20-09-1, found here and then fixed (`94819b027` test, `4092bdddf` fix): a whole-gallery repair stopped after landing k pages now reads Paused k of N with Resume, by every stop route; with k = 0 it still reads Downloaded N of N until Verify Images (G-15-2G kept)"
 affects: []
 
 actuals:
   tokens: 160000
   tasks: 2
-  commits: 3
+  commits: 6
 
 tech-stack:
   added: []
@@ -22,12 +22,20 @@ tech-stack:
 key-files:
   created:
     - .planning/phases/20-3-0-distribution-marketplace-build-notarization-listing-rele/20-09-DEVICE.md
-  modified: []
+    - AppPackage/Tests/DownloadsFeatureTests/DownloadInterruptedRunWriteBackTests.swift
+  modified:
+    - AppPackage/Sources/DownloadClient/DownloadClient+Execution.swift
+    - AppPackage/Sources/DownloadClient/DownloadClient+ExecutionSupport.swift
+    - AppPackage/Sources/DownloadClient/DownloadClient+Manager.swift
+    - AppPackage/Sources/DownloadClient/DownloadClient+WorkingManifestReconciliation.swift
+    - AppPackage/Tests/DownloadsFeatureTests/DownloadContinuedSessionRunProofTests.swift
+    - AppPackage/Tests/DownloadsFeatureTests/DownloadLogPrivacyInvariantTests.swift
+    - AppPackage/Tests/DownloadsFeatureTests/DownloadSourceInventoryTests.swift
 
 key-decisions:
   - "Both device checks were run entirely by the agent through the Device MCP app, with the owner's consent (owner msgs 2885 and 2887 for the iPad, owner msg 2893 for the iPhone). The owner tapped nothing."
   - "Only the owner's iPad mini and his test iPhone 11 were used. The build used his local signing, copied in for the build and removed afterwards, so no tracked file changed."
-  - "G-20-09-1 is filed rather than fixed, because this plan changes no code. It is not an SC2 failure: the card cancel and an in-app pause leave the same state."
+  - "G-20-09-1 was first filed, because this plan changes no code. It is not an SC2 failure: the card cancel and an in-app pause leave the same state. It was then fixed on direction, test first, by writing the run's on-disk progress back to the record at the run's exit. G-15-2G was not weakened, so a repair stopped before any page landed keeps its pre-repair claim."
 
 patterns-established:
   - "On a device under test, bring the app forward with `xcrun devicectl device process launch`. Device MCP's `launch_app` relaunches a running app, and that ends a continued-processing session."
@@ -64,9 +72,11 @@ status: complete
 - **iPad:** the Phase 16 Gallery Detail stall did not come back in ten cold launches on an iPad mini (iPadOS 27.2).
 - **iPhone:** a test iPhone 11 (iOS 27.2) behaved as Phase 15 designed for continued background downloads: the
   system card, repairs, and the card's cancel compared with pausing by hand.
-- **One new observation, G-20-09-1, is filed for the owner.** A paused whole-gallery repair reads "Downloaded N of
-  N" until it is verified again.
-- No code changed.
+- **One new observation, G-20-09-1, was found and then fixed.** A paused whole-gallery repair read "Downloaded N
+  of N" until it was verified again. After the fix, a repair stopped after landing k pages reads "Paused k of N"
+  with Resume. The one exception is a repair stopped before any page lands (k = 0), which is a decided residual.
+- The plan itself changed no code. The G-20-09-1 fix came afterwards, on direction: `94819b027` (test) and
+  `4092bdddf` (fix).
 
 ## Performance
 
@@ -98,18 +108,32 @@ status: complete
   - **Repair baseline:** the same repair was then paused by hand in the app and ended in exactly the state the
     card cancel left.
   - **Crash check:** no EhPanda crash report.
-- **G-20-09-1 (owner decides).**
-  - **What happens:** once a whole-gallery repair is paused, the row falls back to the record, and the record
-    still claims every page. The row shows "Downloaded N of N" with no Resume, while pages are missing.
+- **G-20-09-1 (found, then fixed).**
+  - **What happened:** once a whole-gallery repair was paused, the row fell back to the record, and the record
+    still claimed every page. The row showed "Downloaded N of N" with no Resume, while pages were missing.
   - **The cause:** the G-15-2G whole-gallery guard combined with the G-15-2F run overlay.
-  - **To fix it:** two options are written in the device record, and either one is a code change.
   - **What it is not:** an SC2 failure, because both pause routes agree.
+  - **The fix:** when `processDownload` exits, it runs the preparation's own reconciliation over a fresh scan
+    of the folder. This happens only while the run still owes pages and owns the gallery, inside a D-G7-01
+    bracket. The failing test came first in `94819b027`, and the fix is `4092bdddf`.
+  - **Tests:** before the fix, two of the three cases in `DownloadInterruptedRunWriteBackTests` failed (in-app
+    pause and expiry). After it, `DownloadsFeatureTests` passed 562 of 562. Across the affected targets, 961
+    passed, 6 were expected failures, and none of the 967 failed.
+  - **On the device:** after an in-app Pause the row read Paused 14 / 112, and that survived a cold launch.
+    After a card cancel it read Paused 26 / 112, with Resume both times.
+  - **App termination:** there is no hook. The record keeps its stale claim until the next launch. Then the
+    queue resumes the run, and its preparation reconciles the folder (Downloading 22 / 112).
+  - **The residual (k = 0):** a repair paused before any page lands still reads Downloaded 112 of 112 until
+    Verify Images, because G-15-2G was kept as it was.
 
 ## Task Commits
 
 1. **Task 1: iPad Release cold launches** — `d7825a89e` (docs)
 2. **Task 2: iPhone SC2** — `0e0e23269` (docs)
-3. **Plan metadata** — this summary (docs)
+3. **Plan metadata** — `213d267cf` (docs)
+4. **G-20-09-1 failing test** — `94819b027` (test)
+5. **G-20-09-1 fix** — `4092bdddf` (fix)
+6. **G-20-09-1 device check** — this record update (docs)
 
 ## Files Created/Modified
 
@@ -156,8 +180,8 @@ status: complete
 ## Next Phase Readiness
 
 - SC7 (both device checks on owner hardware) is met.
-- **G-20-09-1 awaits the owner's decision:** fix it in a closure plan, or accept it as a known limitation for
-  3.0.
+- **G-20-09-1 is fixed.** The k = 0 residual is the one left, and it is decided: G-15-2G stays, and Verify Images
+  recovers that case.
 - The local evidence stays in `$HOME/Movies/Device MCP/ehp20-09/`: recordings, screenshots, logs and drivers.
   It is not committed, because it shows adult content and the device names.
 
@@ -165,4 +189,5 @@ status: complete
 
 - `20-09-DEVICE.md` exists, with ten launch rows. `grep -cE "^\| *[0-9]+ *\| *[0-9.]+ s"` gives 10.
 - It has two outcome lines. `grep -ciE "outcome: (as designed|gap)"` gives 2.
-- `git diff --stat -- AppPackage App` is empty for this plan.
+- `git diff --stat 8fa2809cb 213d267cf -- AppPackage App` is empty: the plan itself changed no code. The
+  G-20-09-1 fix is in `94819b027` and `4092bdddf`.

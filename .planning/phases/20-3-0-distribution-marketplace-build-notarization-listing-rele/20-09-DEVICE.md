@@ -195,7 +195,7 @@ button (`DownloadClient+ContinuedSession.swift`, `pauseAllSchedulable`).
 | A repair climbs from its announce | Pass, three times: 6 / 27, then 8 / 112, then 8 / 112 again in the baseline. None started at the record's stale claim. |
 | Card-cancel state matches the in-app per-gallery pause baseline | Pass. Ix was Paused 11 / 144 after both cancels, the same as its hand-paused state. For M, the repair paused from the card and the repair paused by hand both read "Downloaded 112 of 112" until verified. |
 
-### G-20-09-1 (for the owner to decide; not an SC2 failure)
+### G-20-09-1 (not an SC2 failure; fixed afterwards, see the next section)
 
 **Observed:** when a repair is paused, whether from the card or by hand, the gallery reads "Downloaded N of N"
 while pages are still missing on disk. Pause is then disabled and there is no Resume. Only Verify Images brings
@@ -210,6 +210,52 @@ Phase 15 never paused a repair, so this is new information, not a regression.
 
 **Options:** for example, write the run's progress to the record when a repair is paused, or blank the record
 when a whole-gallery repair starts. Either one is a code change, outside this plan.
+
+### G-20-09-1 fix and its device check (07:30 to 07:50)
+
+**Outcome: fixed, with one decided residual.** The first option was taken. When a repair stops after landing
+k pages, it now writes its true on-disk progress back to the record. The row reads "Paused k of N" with Resume,
+never "Downloaded N of N". G-15-2G is unchanged: validation alone still never blanks a whole gallery.
+
+**The change:** the failing test came first in `94819b027`, and the fix is `4092bdddf`.
+
+- When `processDownload` exits (`DownloadClient+Execution.swift`, `writeBackInterruptedRunProgress`), it
+  scans the gallery's folder again. It then runs the preparation's own `reconcileWorkingManifestAgainstPageFiles`
+  over the manifest on disk.
+- This happens only while the run's measurement still stands with pages owed. It is skipped when a newer live
+  run owns the gallery.
+- The in-app Pause, the card's cancel and the system's expiry all reach that exit through `commitPause`, so
+  one write-back covers all three.
+- Every refusal rule of the reconciliation is inherited, including the whole-gallery guard.
+- The blanking runs inside a D-G7-01 counted-basis bracket, like every other caller. The bracket census goes
+  from 6 to 7, and the hash-masked log census from 13 to 14.
+
+**Tests (simulator, iPhone, iOS 27.2):**
+
+- `DownloadInterruptedRunWriteBackTests` has three cases. Before the fix, the in-app pause case and the expiry
+  case failed: they read 6 of 6 and `.completed` with 3 of 6 pages on disk. The k = 0 case passed, which
+  documents the residual.
+- After the fix, `DownloadsFeatureTests` passed 562 of 562.
+- The affected targets (`DownloadsFeatureTests`, `AppFeatureTests`, `DetailFeatureTests` and
+  `ReadingFeatureTests`) ran 967 tests: 961 passed, 6 were expected failures, and none failed.
+- SwiftLint reported nothing on the changed files.
+
+**Device:** the owner's test iPhone 11, iOS 27.2, with the same consent (owner msg 2893).
+
+- The build was a Release build of `4092bdddf`, 3.0.0 (159), made with the Task 1 build line and signing
+  handling. It was installed over the copy already on the device, and no tracked file changed.
+- Each fixture was built as in Round C on M. All 113 image files were deleted in Files.app and
+  `manifest.json` was kept. The agent then ran Verify Images ("Needs Attention 112 of 112") and Retry Pages.
+
+| Stop route | Observation |
+|---|---|
+| In-app Pause (07:34) | Pause was pressed at "Downloading 13 of 112". The sheet then read **"Paused 14 of 112"**, with Downloaded (14), Pending (98) and **Resume** enabled. The log showed `Working manifest reconciled, blanked page count: 98`, then `Download paused`. The `manifest.json` copied off the device claimed 14 of 112 pages. After the app was terminated and launched cold, the Downloads row still read Paused 14 / 112, and its menu offered Resume. Resume finished M at 112 / 112. |
+| Card cancel (07:40) | The agent backgrounded the app and pressed the card's stop button at "25 / 112 pages · 1 gallery". The log showed `session expired, pausing schedulable downloads`, `blanked page count: 86` and `Download paused`. In the foreground, the sheet read **"Paused 26 of 112"**, with Pending (86) and **Resume**. Resume finished M. |
+| App terminated mid-repair (07:44) | There is no termination hook, so the exit write-back cannot run. The app was terminated at "Downloading 10 of 112". Afterwards `manifest.json` still claimed 112 of 112 with 12 pages on disk. At the next launch the queue resumed M by itself, and its preparation logged `blanked page count: 100`. The row read "Downloading 22 of 112" and finished at 112 / 112. The record's stale claim lasted only while the app was not running. |
+| Paused before any page landed, k = 0 (07:48) | Pause was pressed straight after Retry Pages. No page reached the disk. The sheet read **"Downloaded 112 of 112"** with Pause disabled. That is the decided residual: the whole-gallery guard refuses, and the record keeps its pre-repair claim. Verify Images restored "Needs Attention", and Retry Pages restored M to 112 / 112. |
+
+Device MCP's `list_crashes` listed no EhPanda crash, spin or hang report after these runs. The local evidence
+is the sheet and row screenshots, the copied manifests and the app logs, all kept on this Mac.
 
 ### Evidence (local to this Mac, not committed)
 
