@@ -1,9 +1,11 @@
-"""The SideStore and beta source templates, as AltStore and SideStore read the sources they seed
-(owner msg 2561; copy from Camo msg 2563)."""
+"""The SideStore, beta and AltStore PAL source templates, as AltStore and SideStore read the sources
+they seed (owner msg 2561; copy from Camo msg 2563; the PAL template from 20-03, Research §4)."""
 
+import copy
 import json
 import os
 import pathlib
+import shutil
 import subprocess
 import sys
 import unittest
@@ -15,6 +17,7 @@ import altstore_languages as languages  # noqa: E402
 
 SIDESTORE = json.loads((TOOLS / "sidestore.template.json").read_text(encoding="utf-8"))
 BETA = json.loads((TOOLS / "altstore-beta.template.json").read_text(encoding="utf-8"))
+PAL = json.loads((TOOLS / "altstore-pal.template.json").read_text(encoding="utf-8"))
 ALTSTORE = json.loads((TOOLS.parent / "AltStore.json").read_text(encoding="utf-8"))
 SCREENSHOT_NAMES = ["01-home", "02-detail", "03-reading", "04-comments", "05-downloads", "06-filters", "07-more"]
 
@@ -44,7 +47,7 @@ class SourceTemplateTests(unittest.TestCase):
                 self.assertEqual(template["apps"][0].get("versions", []), [])
 
     def test_each_device_gets_its_language(self):
-        for template in [SIDESTORE, BETA]:
+        for template in [SIDESTORE, BETA, PAL]:
             for entry in [template, template["apps"][0]]:
                 for key in ["localizedSubtitles", "localizedDescriptions"]:
                     for preferred, code in DEVICES.items():
@@ -109,6 +112,120 @@ class SourceTemplateTests(unittest.TestCase):
     def test_the_beta_names_are_not_translated(self):
         self.assertEqual(BETA["name"], "EhPanda Beta")
         self.assertEqual(BETA["apps"][0]["name"], "EhPanda Beta")
+
+
+
+# The fields the PAL template may not share with AltStore.json (CONTEXT developer defaults): its own
+# identity and featured app, the marketplace bundle ID and marketplaceID, no screenshots until 20-10, and
+# permissions read from the signed build.
+PAL_SOURCE_OWN = {"identifier", "featuredApps"}
+PAL_APP_OWN = {"bundleIdentifier", "marketplaceID", "screenshots", "appPermissions", "versions"}
+FILTER = TOOLS / "altstore-add-version.jq"
+PAL_ASSETS = json.loads((TOOLS / "tests" / "fixtures" / "pal-release-assets.json").read_text(encoding="utf-8"))
+
+
+def pal_release(source, marketplace_id="6740000001", version="3.0.0", build="159"):
+    """`source` with a release of the fixture ADP added by the filter, as 20-05's publish job will."""
+    prefix = "EhPanda-AltStorePAL-"
+    urls = {}
+    for asset in PAL_ASSETS:
+        if asset["name"].startswith(prefix):
+            name = asset["name"][len(prefix):]
+            urls[name.rsplit(".", 1)[0] if "." in name else name] = asset["browser_download_url"]
+    variant = next(a for a in PAL_ASSETS if a["name"].startswith(prefix) and a["name"].endswith(".ipa"))
+    result = subprocess.run(
+        ["jq", "--arg", "bundleIdentifier", "app.ehpanda.marketplace", "--arg", "version", version,
+         "--arg", "buildVersion", build, "--arg", "marketingVersion", version, "--arg", "date",
+         "2026-11-09T00:00:00Z", "--arg", "localizedDescription", "Notes.",
+         "--argjson", "localizedDescriptions", json.dumps({"en": "Notes.", "de": "Notizen."}),
+         "--arg", "downloadURL", urls["manifest"], "--arg", "minOSVersion", "27.0",
+         "--argjson", "size", str(variant["size"]), "--argjson", "privacy", "{}",
+         "--argjson", "releaseVersions", "null", "--argjson", "assetURLs", json.dumps(urls),
+         "--argjson", "entitlements", json.dumps(["application-identifier", "keychain-access-groups"]),
+         "--arg", "marketplaceID", marketplace_id, "-f", str(FILTER)],
+        input=json.dumps(source), capture_output=True, text=True, encoding="utf-8", check=True)
+    return json.loads(result.stdout)
+
+
+class PALTemplateTests(unittest.TestCase):
+    def test_the_pal_template_is_the_marketplace_app_with_no_versions(self):
+        app = PAL["apps"][0]
+        self.assertEqual(PAL["identifier"], "app.ehpanda.altstorepal")
+        self.assertIs(PAL["nsfw"], True)
+        self.assertEqual(PAL["featuredApps"], ["app.ehpanda.marketplace"])
+        self.assertEqual(app["bundleIdentifier"], "app.ehpanda.marketplace")
+        self.assertEqual(app["marketplaceID"], "")
+        self.assertEqual(app["developerName"], "EhPanda Team")  # D-24
+        self.assertNotIn("screenshots", app)  # 20-10 adds them
+        self.assertEqual(app["appPermissions"], {"entitlements": [], "privacy": {}})
+        self.assertEqual(app.get("versions", []), [])
+        self.assertFalse((TOOLS.parent / "AltStorePAL.json").exists(), "only the first PAL publish creates it")
+
+    def test_the_pal_template_has_the_classic_metadata(self):
+        # D-16: the website's copy, https://ehpanda.app and #557F72, as AltStore.json has them.
+        self.assertEqual({k: v for k, v in PAL.items() if k not in PAL_SOURCE_OWN | {"apps"}},
+                         {k: v for k, v in ALTSTORE.items() if k not in PAL_SOURCE_OWN | {"apps"}})
+        self.assertEqual({k: v for k, v in PAL["apps"][0].items() if k not in PAL_APP_OWN},
+                         {k: v for k, v in ALTSTORE["apps"][0].items() if k not in PAL_APP_OWN})
+
+    def test_the_pal_template_keeps_the_sidestore_field_order(self):
+        self.assertEqual([k for k in PAL if k != "apps"], [k for k in SIDESTORE if k != "apps"])
+        self.assertEqual([k for k in PAL["apps"][0] if k != "marketplaceID"],
+                         [k for k in SIDESTORE["apps"][0] if k != "screenshots"])
+
+    def test_the_template_alone_is_not_a_publishable_pal_source(self):
+        problems = languages.check_source(PAL, pal=True)
+        self.assertTrue(any("no versions" in problem for problem in problems), problems)
+        self.assertTrue(any("marketplaceID" in problem for problem in problems), problems)
+
+    @unittest.skipUnless(shutil.which("jq"), "jq is not installed")
+    def test_the_template_with_a_release_is_a_pal_source(self):
+        source = pal_release(PAL)
+        self.assertEqual(languages.check_source(source, pal=True), [])
+        self.assertEqual(source["apps"][0]["appPermissions"]["entitlements"], ["keychain-access-groups"])
+        # A second release keeps the first (history).
+        later = pal_release(source, version="3.0.1", build="160")
+        self.assertEqual(languages.check_source(later, pal=True), [])
+        self.assertEqual(len(later["apps"][0]["versions"]), 2)
+
+    @unittest.skipUnless(shutil.which("jq"), "jq is not installed")
+    def test_a_pal_source_that_altstore_pal_would_refuse_is_reported(self):
+        good = pal_release(PAL)
+
+        def mutated(change):
+            source = copy.deepcopy(good)
+            change(source, source["apps"][0], source["apps"][0]["versions"][0])
+            return languages.check_source(source, pal=True)
+
+        cases = {
+            "has a sha256": lambda s, a, v: v.update(sha256="ff"),
+            "no marketplaceID": lambda s, a, v: a.pop("marketplaceID"),
+            "marketplaceID '' is not": lambda s, a, v: a.update(marketplaceID=""),
+            "marketplaceID 'abc' is not": lambda s, a, v: a.update(marketplaceID="abc"),
+            "nsfw is not true": lambda s, a, v: s.update(nsfw=False),
+            "no assetURLs": lambda s, a, v: v.pop("assetURLs"),
+            "downloadURL is not assetURLs.manifest": lambda s, a, v: v.update(downloadURL=v["assetURLs"]["signature"]),
+            "assetURLs has no manifest": lambda s, a, v: v["assetURLs"].pop("manifest"),
+            "assetURLs.signature is not an https URL": lambda s, a, v: v["assetURLs"].update(signature="http://x/s"),
+            "size 0 is not": lambda s, a, v: v.update(size=0),
+            "size True is not": lambda s, a, v: v.update(size=True),
+            "no downloadURL": lambda s, a, v: v.pop("downloadURL"),
+        }
+        for message, change in cases.items():
+            with self.subTest(message=message):
+                problems = mutated(change)
+                self.assertTrue(any(message in problem for problem in problems), problems)
+
+    @unittest.skipUnless(shutil.which("jq"), "jq is not installed")
+    def test_without_pal_the_checks_are_unchanged(self):
+        # SideStore refuses a marketplaceID, and a Classic entry needs its sha256.
+        problems = languages.check_source(pal_release(PAL))
+        self.assertTrue(any("has a marketplaceID, which SideStore refuses" in problem for problem in problems))
+        self.assertTrue(any("no sha256" in problem for problem in problems), problems)
+        for template in [SIDESTORE, BETA]:
+            with self.subTest(source=template["identifier"]):
+                self.assertTrue(any("marketplaceID" in problem
+                                    for problem in languages.check_source(template, versions_required=False, pal=True)))
 
 
 if __name__ == "__main__":
