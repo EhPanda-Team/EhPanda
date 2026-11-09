@@ -4,17 +4,21 @@ amendment, D-16, D-19; 19-RESEARCH §5, §11).
 PyYAML is not installed on this host, so the workflows are read through Ruby's Psych (`ruby -ryaml -rjson`), which
 reads the `on` key as `true`, as YAML 1.1 does.
 """
+import fnmatch
 import json
 import os
 from pathlib import Path
 import re
 import subprocess
+import tempfile
 import unittest
 
 ROOT = Path(__file__).resolve().parents[2]
 WORKFLOWS = ROOT / '.github/workflows'
 GATE = WORKFLOWS / 'snapshot-gate.yml'
 SHARDS = ROOT / 'Scripts/visual/snapshot-shards.json'
+ENVIRONMENT = ROOT / 'Scripts/visual/regression-environment.json'
+INVENTORY = ROOT / 'AppPackage/Tests/VisualSnapshotTests/Resources/scenarios.json'
 READ = ('y = YAML.respond_to?(:unsafe_load) ? YAML.unsafe_load(STDIN.read) : YAML.load(STDIN.read); '
         'print JSON.generate(y)')
 # The majors already in use (19-RESEARCH §11); no new third-party action.
@@ -209,6 +213,195 @@ class GateWorkflowTests(unittest.TestCase):
             self.skipTest('the proof branch carries the fault switch')
         for path in WORKFLOWS.glob('*.yml'):
             self.assertNotIn('EHPANDA_SNAPSHOT_FAULT', path.read_text(), path.name)
+
+    def test_every_macos_job_selects_the_pinned_xcode(self):
+        # The image's default Xcode moved to 27.1 and every shard of run 42562780142 recorded drift; the image still
+        # carries the pinned Xcode, under /Applications/Xcode_<version>.app.
+        pinned = json.loads(ENVIRONMENT.read_text())['toolchain']['xcode']
+        version = re.fullmatch(r'Xcode (\S+)\nBuild version \S+', pinned.strip()).group(1)
+        expected = f'/Applications/Xcode_{version}.app/Contents/Developer'
+        macos = [name for name, job in self.jobs.items() if job['runs-on'] != 'ubuntu-latest']
+        self.assertEqual(sorted(macos), ['build', 'native-policy', 'retry', 'shard'])
+        for name in macos:
+            self.assertEqual(self.jobs[name].get('env', {}).get('DEVELOPER_DIR'), expected, name)
+
+
+def expand(text, temp, shard):
+    for expression, value in (('${{ runner.temp }}', str(temp)), ('${{ matrix.shard.id }}', shard['id']),
+                              ('${{ matrix.shard.family }}', shard['family'])):
+        text = text.replace(expression, value)
+    return text
+
+
+class ArtifactLayoutTests(unittest.TestCase):
+    """The shard results travel from the macOS jobs to `triage` and `aggregate` as artifacts. These tests play the
+    workflow's own steps around a model of the two artifact actions, with one artifact and with several.
+
+    - upload-artifact@v7: the artifact's root is the one directory given, the parent of the one file given, or the
+      least common ancestor of several paths.
+    - download-artifact@v7 with a pattern: each artifact goes into `<path>/<artifact name>`, except that every
+      artifact goes into `<path>` itself when `merge-multiple` is set or when only one artifact matches. Run
+      42562780142 unpacked its one retry, `retry-s11`, straight into `retry/`, and the aggregate never read it.
+    """
+
+    @classmethod
+    def setUpClass(cls):
+        cls.jobs = load(GATE)['jobs']
+        cls.plan = {shard['id']: shard for shard in json.loads(SHARDS.read_text())['shards']}
+
+    def setUp(self):
+        self.directory = tempfile.TemporaryDirectory()
+        self.addCleanup(self.directory.cleanup)
+        self.temp = Path(self.directory.name)
+        self.runners = 0
+
+    def runner(self):
+        self.runners += 1
+        temp = self.temp / f'runner-{self.runners}'
+        temp.mkdir()
+        return temp
+
+    def run_step(self, step, temp, shard=None):
+        env = {**os.environ, 'RUNNER_TEMP': str(temp), 'GITHUB_OUTPUT': str(temp / 'output'),
+               'GITHUB_STEP_SUMMARY': str(temp / 'summary'), 'RUNNER_NAME': 'model', 'MODE': 'candidate'}
+        env.pop('GITHUB_REF', None)
+        for key, value in (step.get('env') or {}).items():
+            env[key] = expand(str(value), temp, shard) if shard else str(value)
+        script = expand(step['run'], temp, shard) if shard else step['run']
+        subprocess.run(['bash', '-e', '-c', script], cwd=ROOT, env=env, check=True, capture_output=True, text=True)
+
+    def outputs(self, temp):
+        path = temp / 'output'
+        lines = path.read_text().splitlines() if path.is_file() else []
+        return dict(line.split('=', 1) for line in lines if '=' in line)
+
+    def shard_job(self, job_name, shard_id, attempt, infra):
+        """Plays one shard or retry job whose run step recorded `infra`, or left nothing when `infra` is None (a
+        lost runner, or the proof's `no-artifact`); returns `(artifact name, files)`, files `None` for no
+        artifact."""
+        job = self.jobs[job_name]
+        shard = self.plan[shard_id]
+        temp = self.runner()
+        out = temp / 'shard' / shard_id
+        if infra is not None:
+            (out / 'logs').mkdir(parents=True)
+            (out / 'logs' / 'fetch.log').write_text('model\n')
+            (temp / 'shard' / f'{shard_id}.work' / 'baseline').mkdir(parents=True)
+            (temp / 'shard' / f'{shard_id}.work' / 'baseline' / 'x.png').write_bytes(b'baseline')
+            subprocess.run(['python3', str(ROOT / 'Scripts/visual/snapshot_shard.py'), 'record', '--shards',
+                            str(SHARDS), '--inventory', str(INVENTORY), '--environment', str(ENVIRONMENT),
+                            '--shard', shard_id, '--out', str(out / 'shard.json'), '--mode', 'candidate',
+                            '--attempt', str(attempt), '--infra', infra, '--detail', 'model'],
+                           check=True, capture_output=True, text=True)
+        steps = job['steps']
+        start = next(index for index, step in enumerate(steps) if 'run-shard.sh' in step.get('run', ''))
+        upload = next(step for step in steps if step.get('uses', '').startswith('actions/upload-artifact')
+                      and not step['with']['name'].startswith('pictures'))
+        for step in steps[start + 1:steps.index(upload)]:
+            if 'run' in step:
+                self.run_step(step, temp, shard)
+        return expand(upload['with']['name'], temp, shard), self.upload(upload, temp, shard)
+
+    def upload(self, step, temp, shard):
+        lines = [expand(line.strip(), temp, shard) for line in step['with']['path'].splitlines() if line.strip()]
+        includes = [Path(line) for line in lines if not line.startswith('!')]
+        excludes = [line[1:] for line in lines if line.startswith('!')]
+        for path in includes:
+            self.assertFalse(set('*?[') & set(str(path)), f'the model takes no wildcard in an included path: {path}')
+        files = []
+        for path in includes:
+            if path.is_dir():
+                files += sorted(item for item in path.rglob('*') if item.is_file())
+            elif path.is_file():
+                files.append(path)
+        files = [item for item in files
+                 if not any(fnmatch.fnmatch(str(part), pattern) for pattern in excludes for part in (item, *item.parents))]
+        if not files:
+            return None
+        if len(includes) == 1:
+            root = includes[0] if includes[0].is_dir() else includes[0].parent
+        else:
+            root = Path(os.path.commonpath([str(path) for path in includes]))
+        return {str(item.relative_to(root)): item.read_bytes() for item in files}
+
+    def download(self, step, temp, artifacts):
+        options = step['with']
+        target = Path(options['path'].replace('${{ runner.temp }}', str(temp)))
+        merge = str(options.get('merge-multiple', False)).lower() == 'true'
+        matched = {name: files for name, files in artifacts.items()
+                   if files is not None and fnmatch.fnmatch(name, options['pattern'])}
+        for name, files in matched.items():
+            destination = target if merge or len(matched) == 1 else target / name
+            for relative, data in files.items():
+                (destination / relative).parent.mkdir(parents=True, exist_ok=True)
+                (destination / relative).write_bytes(data)
+
+    def linux_job(self, name, artifacts):
+        temp = self.runner()
+        for step in self.jobs[name]['steps']:
+            if step.get('uses', '').startswith('actions/download-artifact'):
+                self.download(step, temp, artifacts)
+            elif 'run' in step and step.get('id') == name:
+                self.run_step(step, temp)
+        return temp
+
+    def triage(self, artifacts):
+        temp = self.linux_job('triage', artifacts)
+        return [shard['id'] for shard in json.loads(self.outputs(temp)['shards'])]
+
+    def aggregate(self, artifacts):
+        temp = self.linux_job('aggregate', artifacts)
+        return json.loads((temp / 'gate' / 'aggregate.json').read_text())
+
+    def first_attempts(self, lost=(), only=None):
+        artifacts = {}
+        for shard_id in self.plan:
+            if only is not None and shard_id not in only:
+                continue
+            name, files = self.shard_job('shard', shard_id, 1, None if shard_id in lost else 'drift')
+            artifacts[name] = files
+        return artifacts
+
+    def test_one_shard_artifact_is_read_as_that_shard(self):
+        artifacts = self.first_attempts(only={'s05'})
+        self.assertEqual(sorted(artifacts), ['shard-s05'])
+        self.assertEqual(self.triage(artifacts), [shard for shard in self.plan if shard != 's05'])
+        document = self.aggregate(artifacts)
+        self.assertEqual(document['counts']['drift'], 1)
+        self.assertEqual(document['counts']['infrastructureErrors'], len(self.plan) - 1)
+
+    def test_several_shard_artifacts_are_read_as_their_shards(self):
+        artifacts = self.first_attempts(lost={'s11', 's12'})
+        self.assertEqual(self.triage(artifacts), ['s11', 's12'])
+        document = self.aggregate(artifacts)
+        self.assertEqual(document['counts']['drift'], len(self.plan) - 2)
+        self.assertEqual(document['counts']['infrastructureErrors'], 2)
+
+    def test_one_retry_artifact_is_read_as_that_shards_second_attempt(self):
+        artifacts = self.first_attempts(lost={'s11'})
+        self.assertEqual(self.triage(artifacts), ['s11'])
+        name, files = self.shard_job('retry', 's11', 2, 'drift')
+        artifacts[name] = files
+        document = self.aggregate(artifacts)
+        self.assertEqual(document['shards']['s11']['attempt'], 2)
+        self.assertEqual(document['counts']['drift'], len(self.plan))
+        self.assertEqual(document['counts']['infrastructureErrors'], 0)
+
+    def test_several_retry_artifacts_are_read_as_their_second_attempts(self):
+        artifacts = self.first_attempts(lost={'s03', 's11'})
+        self.assertEqual(self.triage(artifacts), ['s03', 's11'])
+        for shard_id in ('s03', 's11'):
+            name, files = self.shard_job('retry', shard_id, 2, 'drift')
+            artifacts[name] = files
+        document = self.aggregate(artifacts)
+        self.assertEqual([document['shards'][shard]['attempt'] for shard in ('s03', 's11')], [2, 2])
+        self.assertEqual(document['counts']['drift'], len(self.plan))
+        self.assertEqual(document['counts']['infrastructureErrors'], 0)
+
+    def test_the_uploaded_results_leave_out_the_fetched_baseline(self):
+        name, files = self.shard_job('shard', 's05', 1, 'drift')
+        self.assertTrue(any(path.endswith('shard.json') for path in files), files)
+        self.assertFalse([path for path in files if '.work' in path or 'baseline' in path], files)
 
 
 class WiringTests(unittest.TestCase):
