@@ -14,10 +14,12 @@ locale/theme/Dynamic Type regression matrix driven by `run-regression.py`.
 
 # Snapshot gate
 
-`.github/workflows/snapshot-gate.yml` is the full screenshot check (19-10). One build feeds the 20 shards in
-`snapshot-shards.json`. Each shard is `run-shard.sh` on its own macOS job: the rendering pin, the baseline slices
-(compare mode), the pinned simulator from `hosted-simulator.sh`, and the shard's invocations. `triage` and `retry`
-run the shards with an infrastructure error once more; `aggregate` gives the verdict. It runs on pull requests, before
+`.github/workflows/snapshot-gate.yml` is the full screenshot check (19-10). One build feeds the shards in
+`snapshot-shards.json` (27 since run 42577585956's measured costs: 18 iPhone shards of one configuration and 9 iPad
+shards of two, each estimated at most 84 minutes, 70% of the 120-minute limit). Each shard is `run-shard.sh` on its
+own macOS job: the rendering pin, the baseline slices (compare mode), the pinned simulator from `hosted-simulator.sh`,
+and the shard's invocations. `triage` and `retry` run the shards with a shard-level infrastructure error (crash,
+timeout, lost runner, missing results) once more; `aggregate` gives the verdict. It runs on pull requests, before
 each release (`deploy.yml`, `deploy-beta.yml`) and on dependency updates (`dependencies.yml`).
 
 **Cost (T-19-21, accepted).** A run holds every macOS job the account has (5 on the free plan) for hours: the

@@ -161,7 +161,9 @@ class GateWorkflowTests(unittest.TestCase):
     def test_shard_timeouts_from_the_file_stay_within_the_limits(self):
         for shard in self.plan['shards']:
             self.assertLessEqual(shard['timeoutMinutes'], STEP_LIMIT, shard['id'])
-        self.assertEqual(len(self.plan['shards']), 20)
+        self.assertEqual(len({shard['id'] for shard in self.plan['shards']}), len(self.plan['shards']))
+        self.assertLessEqual(max(shard['estimatedMinutes'] for shard in self.plan['shards']),
+                             self.plan['targetMinutes'])
         build = runs(self.jobs['build'])
         self.assertIn('timeoutMinutes', build)
 
