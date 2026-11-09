@@ -107,6 +107,10 @@ jobs:
     timeout-minutes: 90
     permissions:
       contents: read
+    # The pinned Xcode (regression-environment.json), not the image's default: the default moved to 27.1 and every
+    # shard of run 42562780142 recorded drift. The image keeps 27.0 under this path.
+    env:
+      DEVELOPER_DIR: /Applications/Xcode_27.0.app/Contents/Developer
     outputs:
       shards: ${{ steps.shards.outputs.shards }}
     steps:
@@ -168,6 +172,7 @@ jobs:
         shard: ${{ fromJSON(needs.build.outputs.shards) }}
     env:
       MODE: ${{ needs.checks.outputs.mode }}
+      DEVELOPER_DIR: /Applications/Xcode_27.0.app/Contents/Developer
     steps:
       # The tests read the scenario inventory and the rendering pin from the checkout, at the path they were built
       # at, which is the same on every hosted runner.
@@ -210,20 +215,26 @@ jobs:
               print('- Re-run in the job: {}'.format(' '.join(record['rerunClasses']) or 'none'))
           PY
           } >> "$GITHUB_STEP_SUMMARY"
+      # The artifact keeps the shard's folder, so `triage` and `aggregate` unpack every artifact into
+      # <path>/<shard>, one or many. Run 42562780142's only retry, unpacked without its folder, went unread.
+      - name: Pack the results
+        if: always()
+        env:
+          SHARD: ${{ matrix.shard.id }}
+        run: |
+          rm -rf "$RUNNER_TEMP/upload"
+          mkdir -p "$RUNNER_TEMP/upload/$SHARD"
+          for item in results.jsonl shard.json logs actual difference reference first-actual first-difference; do
+            if [ -e "$RUNNER_TEMP/shard/$SHARD/$item" ]; then
+              cp -R "$RUNNER_TEMP/shard/$SHARD/$item" "$RUNNER_TEMP/upload/$SHARD/"
+            fi
+          done
       - name: Upload the results
         if: always()
         uses: actions/upload-artifact@v7
         with:
           name: shard-${{ matrix.shard.id }}
-          path: |
-            ${{ runner.temp }}/shard/${{ matrix.shard.id }}/results.jsonl
-            ${{ runner.temp }}/shard/${{ matrix.shard.id }}/shard.json
-            ${{ runner.temp }}/shard/${{ matrix.shard.id }}/logs
-            ${{ runner.temp }}/shard/${{ matrix.shard.id }}/actual
-            ${{ runner.temp }}/shard/${{ matrix.shard.id }}/difference
-            ${{ runner.temp }}/shard/${{ matrix.shard.id }}/reference
-            ${{ runner.temp }}/shard/${{ matrix.shard.id }}/first-actual
-            ${{ runner.temp }}/shard/${{ matrix.shard.id }}/first-difference
+          path: ${{ runner.temp }}/upload
           if-no-files-found: ignore
           retention-days: 7
       - name: Upload the candidate pictures
@@ -249,20 +260,19 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v7
-      # No artifact at all is a result here (every shard lost), not a failure of this job.
+      # No artifact at all is a result here (every shard lost), not a failure of this job. Each artifact holds its
+      # shard's folder, so merged they make results/<shard>.
       - name: Download the shard results
         continue-on-error: true
         uses: actions/download-artifact@v7
         with:
           pattern: shard-*
           path: ${{ runner.temp }}/results
+          merge-multiple: true
       - name: List the shards to retry
         id: triage
         run: |
           mkdir -p "$RUNNER_TEMP/results"
-          for directory in "$RUNNER_TEMP"/results/shard-*; do
-            [ -d "$directory" ] && mv "$directory" "$RUNNER_TEMP/results/${directory##*/shard-}"
-          done
           ids=$(python3 Scripts/visual/snapshot_aggregate.py --results "$RUNNER_TEMP/results" --triage)
           shards=$(python3 -c 'import json, sys
           ids = json.loads(sys.argv[1])
@@ -288,6 +298,7 @@ jobs:
         shard: ${{ fromJSON(needs.triage.outputs.shards) }}
     env:
       MODE: ${{ needs.checks.outputs.mode }}
+      DEVELOPER_DIR: /Applications/Xcode_27.0.app/Contents/Developer
     steps:
       - name: Checkout
         uses: actions/checkout@v7
@@ -328,20 +339,26 @@ jobs:
               print('- Re-run in the job: {}'.format(' '.join(record['rerunClasses']) or 'none'))
           PY
           } >> "$GITHUB_STEP_SUMMARY"
+      # The artifact keeps the shard's folder, so `triage` and `aggregate` unpack every artifact into
+      # <path>/<shard>, one or many. Run 42562780142's only retry, unpacked without its folder, went unread.
+      - name: Pack the results
+        if: always()
+        env:
+          SHARD: ${{ matrix.shard.id }}
+        run: |
+          rm -rf "$RUNNER_TEMP/upload"
+          mkdir -p "$RUNNER_TEMP/upload/$SHARD"
+          for item in results.jsonl shard.json logs actual difference reference first-actual first-difference; do
+            if [ -e "$RUNNER_TEMP/shard/$SHARD/$item" ]; then
+              cp -R "$RUNNER_TEMP/shard/$SHARD/$item" "$RUNNER_TEMP/upload/$SHARD/"
+            fi
+          done
       - name: Upload the results
         if: always()
         uses: actions/upload-artifact@v7
         with:
           name: retry-${{ matrix.shard.id }}
-          path: |
-            ${{ runner.temp }}/shard/${{ matrix.shard.id }}/results.jsonl
-            ${{ runner.temp }}/shard/${{ matrix.shard.id }}/shard.json
-            ${{ runner.temp }}/shard/${{ matrix.shard.id }}/logs
-            ${{ runner.temp }}/shard/${{ matrix.shard.id }}/actual
-            ${{ runner.temp }}/shard/${{ matrix.shard.id }}/difference
-            ${{ runner.temp }}/shard/${{ matrix.shard.id }}/reference
-            ${{ runner.temp }}/shard/${{ matrix.shard.id }}/first-actual
-            ${{ runner.temp }}/shard/${{ matrix.shard.id }}/first-difference
+          path: ${{ runner.temp }}/upload
           if-no-files-found: ignore
           retention-days: 7
       - name: Upload the candidate pictures
@@ -370,6 +387,8 @@ jobs:
         include:
           - family: iphone
           - family: ipad
+    env:
+      DEVELOPER_DIR: /Applications/Xcode_27.0.app/Contents/Developer
     steps:
       - name: Checkout
         uses: actions/checkout@v7
@@ -448,21 +467,18 @@ jobs:
         with:
           pattern: shard-*
           path: ${{ runner.temp }}/results
+          merge-multiple: true
       - name: Download the retried shard results
         continue-on-error: true
         uses: actions/download-artifact@v7
         with:
           pattern: retry-*
           path: ${{ runner.temp }}/retry
+          merge-multiple: true
       - name: Merge the shards
         id: aggregate
         run: |
-          for kind in results retry; do
-            mkdir -p "$RUNNER_TEMP/$kind"
-            for directory in "$RUNNER_TEMP/$kind"/shard-* "$RUNNER_TEMP/$kind"/retry-*; do
-              [ -d "$directory" ] && mv "$directory" "$RUNNER_TEMP/$kind/${directory##*/*-}"
-            done
-          done
+          mkdir -p "$RUNNER_TEMP/results" "$RUNNER_TEMP/retry"
           status=0
           python3 Scripts/visual/snapshot_aggregate.py --results "$RUNNER_TEMP/results" --retry "$RUNNER_TEMP/retry" \
             --out "$RUNNER_TEMP/gate" --summary "$GITHUB_STEP_SUMMARY" || status=$?

@@ -130,8 +130,12 @@ class GateWorkflowTests(unittest.TestCase):
         self.assertEqual(results['if'], 'always()', name)
         self.assertNotIn('matrix.shard.family', results['with']['path'], name)
         self.assertIn('matrix.shard.family', pictures['with']['path'], name)
+        # The results artifact is the packed folder (ArtifactLayoutTests); the pack step lists what goes in.
+        [pack] = [step for step in job['steps'] if step.get('name') == 'Pack the results']
+        self.assertEqual(pack['if'], 'always()', name)
+        self.assertNotIn('matrix.shard.family', pack['run'], name)
         for kind in ('results.jsonl', 'shard.json', 'logs', 'actual', 'difference', 'reference'):
-            self.assertIn(kind, results['with']['path'], name)
+            self.assertIn(kind, pack['run'], name)
         self.assertIn("candidate", pictures['if'], name)
         for upload in uploads.values():
             self.assertEqual(upload['with']['retention-days'], 7, name)
