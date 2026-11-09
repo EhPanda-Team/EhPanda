@@ -58,9 +58,11 @@ RESOURCES_CONSTANT = "AppPackage/Sources/Resources/Resources/Constant.xcstrings"
 DETAIL_CATALOG = "AppPackage/Sources/DetailFeature/Resources/Localizable.xcstrings"
 CATALOG_GLOB = "AppPackage/Sources/**/*.xcstrings"
 
-# Research A-6: the privacy page URL, untranslated (`shouldTranslate: false`), the same in every locale.
+# Research A-6: the privacy page URL, untranslated (`shouldTranslate: false`). Each locale links its own page on the
+# website, `/<locale>/privacy/` with that exact case and the trailing slash; there is no page at `/privacy` (owner msg
+# 2818, addresses in website msg 2819).
 PRIVACY_KEY = "contact.privacy_policy"
-PRIVACY_URL = "https://ehpanda.app/privacy"
+PRIVACY_URL = "https://ehpanda.app/{locale}/privacy/"
 
 # Retired keys: never present in any catalog (D-06a; the report confirmation, 18.1-04 / Research F-5).
 RETIRED_KEYS = (
@@ -235,7 +237,7 @@ def build_expectations(phase_dir: Path = PHASE_DIR):
         key: (catalog_for(key), {locale: transform(key, value) for locale, value in values.items()})
         for key, values in expected.items()
     }
-    result[PRIVACY_KEY] = (RESOURCES_CONSTANT, {locale: PRIVACY_URL for locale in LOCALES})
+    result[PRIVACY_KEY] = (RESOURCES_CONSTANT, {locale: PRIVACY_URL.format(locale=locale) for locale in LOCALES})
 
     retired: list[tuple[str, str, str, bool]] = []
     active_values = {value for _, values in result.values() for value in values.values()}
@@ -508,6 +510,15 @@ def self_test() -> int:
             },
         }
 
+    def old_privacy_url(catalogs):
+        set_value(catalogs, PRIVACY_KEY, "de", "https://ehpanda.app/privacy")
+
+    def privacy_url_case(catalogs):
+        set_value(catalogs, PRIVACY_KEY, "zh-Hans", "https://ehpanda.app/zh-hans/privacy/")
+
+    def privacy_url_slash(catalogs):
+        set_value(catalogs, PRIVACY_KEY, "en", "https://ehpanda.app/en/privacy")
+
     cases = [
         ("correct catalogs pass", None, None),
         ("a curly apostrophe in age_wall.footnote fails", apostrophe, "differs: age_wall.footnote [en]"),
@@ -522,6 +533,9 @@ def self_test() -> int:
         ("a consent.level.none key fails", none_key, "retired key: consent.level.none"),
         ("a retired comment.report.confirm_title key fails", report_confirm_key,
          "retired key: comment.report.confirm_title"),
+        ("the old /privacy URL in de fails", old_privacy_url, "differs: contact.privacy_policy [de]"),
+        ("a lower-case zh-hans privacy URL fails", privacy_url_case, "differs: contact.privacy_policy [zh-Hans]"),
+        ("a privacy URL without its trailing slash fails", privacy_url_slash, "differs: contact.privacy_policy [en]"),
     ]
 
     # The retired list must hold every superseded row in all six languages.

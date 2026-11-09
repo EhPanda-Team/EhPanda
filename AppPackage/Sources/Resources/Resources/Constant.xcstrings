@@ -50,37 +50,37 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "https://ehpanda.app/privacy"
+            "value": "https://ehpanda.app/en/privacy/"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "https://ehpanda.app/privacy"
+            "value": "https://ehpanda.app/de/privacy/"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "https://ehpanda.app/privacy"
+            "value": "https://ehpanda.app/ja/privacy/"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "https://ehpanda.app/privacy"
+            "value": "https://ehpanda.app/ko/privacy/"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "https://ehpanda.app/privacy"
+            "value": "https://ehpanda.app/zh-Hans/privacy/"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "https://ehpanda.app/privacy"
+            "value": "https://ehpanda.app/zh-Hant/privacy/"
           }
         }
       }
