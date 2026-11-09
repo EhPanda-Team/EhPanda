@@ -1,0 +1,62 @@
+[
+  {
+    "id": 300000001,
+    "name": "EhPanda-GitHub.ipa",
+    "label": "",
+    "content_type": "application/octet-stream",
+    "state": "uploaded",
+    "size": 7400100,
+    "url": "https://api.github.com/repos/EhPanda-Team/EhPanda/releases/assets/300000001",
+    "browser_download_url": "https://github.com/EhPanda-Team/EhPanda/releases/download/3.0.0/EhPanda-GitHub.ipa"
+  },
+  {
+    "id": 300000002,
+    "name": "EhPanda-AltStore.ipa",
+    "label": "",
+    "content_type": "application/octet-stream",
+    "state": "uploaded",
+    "size": 7400100,
+    "url": "https://api.github.com/repos/EhPanda-Team/EhPanda/releases/assets/300000002",
+    "browser_download_url": "https://github.com/EhPanda-Team/EhPanda/releases/download/3.0.0/EhPanda-AltStore.ipa"
+  },
+  {
+    "id": 300000003,
+    "name": "EhPanda-SideStore.ipa",
+    "label": "",
+    "content_type": "application/octet-stream",
+    "state": "uploaded",
+    "size": 7400100,
+    "url": "https://api.github.com/repos/EhPanda-Team/EhPanda/releases/assets/300000003",
+    "browser_download_url": "https://github.com/EhPanda-Team/EhPanda/releases/download/3.0.0/EhPanda-SideStore.ipa"
+  },
+  {
+    "id": 300000004,
+    "name": "EhPanda-AltStorePAL-manifest.json",
+    "label": "",
+    "content_type": "application/json",
+    "state": "uploaded",
+    "size": 1834,
+    "url": "https://api.github.com/repos/EhPanda-Team/EhPanda/releases/assets/300000004",
+    "browser_download_url": "https://github.com/EhPanda-Team/EhPanda/releases/download/3.0.0/EhPanda-AltStorePAL-manifest.json"
+  },
+  {
+    "id": 300000005,
+    "name": "EhPanda-AltStorePAL-signature",
+    "label": "",
+    "content_type": "application/octet-stream",
+    "state": "uploaded",
+    "size": 4096,
+    "url": "https://api.github.com/repos/EhPanda-Team/EhPanda/releases/assets/300000005",
+    "browser_download_url": "https://github.com/EhPanda-Team/EhPanda/releases/download/3.0.0/EhPanda-AltStorePAL-signature"
+  },
+  {
+    "id": 300000006,
+    "name": "EhPanda-AltStorePAL-8F0C2C7E-4F5B-4C55-9C1B-3E2A6D1B9A70.ipa",
+    "label": "",
+    "content_type": "application/octet-stream",
+    "state": "uploaded",
+    "size": 7400000,
+    "url": "https://api.github.com/repos/EhPanda-Team/EhPanda/releases/assets/300000006",
+    "browser_download_url": "https://github.com/EhPanda-Team/EhPanda/releases/download/3.0.0/EhPanda-AltStorePAL-8F0C2C7E-4F5B-4C55-9C1B-3E2A6D1B9A70.ipa"
+  }
+]
