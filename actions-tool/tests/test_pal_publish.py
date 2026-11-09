@@ -324,10 +324,10 @@ class PublishTests(ToolTestCase):
         self.assertEqual(self.publish().returncode, 0, self.output)
         older = self.main_source()
         older["apps"][0]["versions"][0].update({"version": "2.9.0", "buildVersion": "150", "marketingVersion": "2.9.0"})
-        older["apps"][0]["versions"][0]["assetURLs"] = {
-            key: url.replace(f"/{VERSION}/", "/2.9.0/") for key, url in older["apps"][0]["versions"][0]["assetURLs"].items()}
+        urls = older["apps"][0]["versions"][0]["assetURLs"]
+        older["apps"][0]["versions"][0]["assetURLs"] = {key: url.replace(f"/{VERSION}/", "/2.9.0/")
+                                                        for key, url in urls.items()}
         older["apps"][0]["versions"][0]["downloadURL"] = older["apps"][0]["versions"][0]["assetURLs"]["manifest"]
-        (self.checkout / "AltStorePAL.json").write_text(json.dumps(older, indent=2, ensure_ascii=False) + "\n")
         self.git("-C", str(self.checkout), "pull", "-q", "--ff-only", "origin", "main")
         (self.checkout / "AltStorePAL.json").write_text(json.dumps(older, indent=2, ensure_ascii=False) + "\n")
         self.git("-C", str(self.checkout), "commit", "-q", "-am", "an older PAL release")
@@ -336,6 +336,25 @@ class PublishTests(ToolTestCase):
         self.assertEqual(self.publish().returncode, 0, self.output)
         versions = [(v["version"], v["buildVersion"]) for v in self.main_source()["apps"][0]["versions"]]
         self.assertEqual(versions, [(VERSION, "159"), ("2.9.0", "150")])
+
+    def test_an_older_build_is_not_put_above_a_newer_one(self):
+        # AltStore offers the first entry, so a stale ADP published late would read as a downgrade.
+        newer = json.loads((TOOLS / "altstore-pal.template.json").read_text(encoding="utf-8"))
+        base = f"https://github.com/{REPO}/releases/download/3.1.0/{PREFIX}"
+        newer["apps"][0]["marketplaceID"] = MARKETPLACE_ID
+        newer["apps"][0]["versions"] = [{
+            "version": "3.1.0", "buildVersion": "170", "marketingVersion": "3.1.0", "date": "2026-12-01T08:00:00Z",
+            "localizedDescription": "Newer.", "downloadURL": base + "manifest.json", "size": 1, "minOSVersion": "27.0",
+            "assetURLs": {"manifest": base + "manifest.json", "signature": base + "signature"}}]
+        self.git("-C", str(self.checkout), "pull", "-q", "--ff-only", "origin", "main")
+        (self.checkout / "AltStorePAL.json").write_text(json.dumps(newer, indent=2, ensure_ascii=False) + "\n")
+        self.git("-C", str(self.checkout), "add", "AltStorePAL.json")
+        self.git("-C", str(self.checkout), "commit", "-q", "-m", "a newer PAL release")
+        self.git("-C", str(self.checkout), "push", "-q", "origin", "HEAD:refs/heads/main")
+        result = self.publish()
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("3.1.0 (170)", self.output)
+        self.assertFalse([call for call in self.gh_calls() if call[:2] == ["release", "upload"]])
 
     def test_a_missing_release_fails_without_uploading_or_creating_anything(self):
         (self.gh_state / "releases.json").write_text("{}")
