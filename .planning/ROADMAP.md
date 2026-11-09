@@ -1520,7 +1520,7 @@ Plans:
 
 **Wave 5**
 
-- [ ] 19-10-PLAN.md — inventory closed; the CI gate: 20 shards with retries, triage, aggregate and the native policy job *(checkpoint: owner go-ahead for the hosted proof on a `ci/` branch)*
+- [ ] 19-10-PLAN.md — inventory closed; the CI gate: 20 shards with retries, triage, aggregate and the native policy job *(checkpoint: owner go-ahead for the hosted proof on a `ci/` branch)* — Tasks 1 to 3 done (`0b8af222e` to `51e36c8b7`); the hosted proof waits for the owner; the Login gap is open ([progress](phases/19-visual-regression-marketing-export/19-10-PROOF.md))
 - [x] 19-16-PLAN.md — deploy the daily live check on the chosen runner and prove one real run *(checkpoint: owner go-ahead)*
 
 **Wave 6**
