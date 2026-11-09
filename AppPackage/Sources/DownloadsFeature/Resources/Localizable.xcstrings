@@ -302,43 +302,84 @@
         }
       }
     },
-    "empty_downloads" : {
+    "downloads.empty.description" : {
       "extractionState" : "manual",
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Heruntergeladene Galerien erscheinen hier."
+            "value" : "Finde in Start oder Suche etwas, das dir gefällt, und lade es herunter, um es jederzeit zu lesen – auch offline."
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Downloaded galleries will appear here."
+            "value" : "Find something you enjoy on Home or in Search, then download it to read anytime, even offline."
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "ダウンロードしたギャラリーはここに表示されます。"
+            "value" : "「ホーム」や「検索」で気に入ったギャラリーを見つけてダウンロードすれば、オフラインでもいつでも読めます。"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "다운로드한 갤러리가 여기에 표시됩니다."
+            "value" : "홈이나 검색에서 마음에 드는 갤러리를 찾아 다운로드하면 오프라인에서도 언제든 볼 수 있습니다."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "已下载的画廊会显示在这里。"
+            "value" : "在“主页”或“搜索”中找到喜欢的画廊并下载，离线也能随时阅读。"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "已下載的畫廊會顯示在這裡。"
+            "value" : "在「主頁」或「搜尋」找到喜歡的畫廊並下載，離線也能隨時閱讀。"
+          }
+        }
+      }
+    },
+    "downloads.empty.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Noch keine Downloads"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No Downloads Yet"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ダウンロードはまだありません"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "아직 다운로드가 없습니다"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "还没有下载"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "還沒有下載"
           }
         }
       }

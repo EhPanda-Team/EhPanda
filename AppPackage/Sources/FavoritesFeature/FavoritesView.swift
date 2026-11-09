@@ -104,12 +104,29 @@ public struct FavoritesView: View {
                 scrollPositionID: $store.visibleGalleryID
             )
             .accessibilityIdentifier("favorites-gallery-list")
+            .overlay {
+                emptyView
+                    .animation(.default) {
+                        $0.visible(store.isEmpty)
+                    }
+            }
             .transition(.opacity)
         } else {
             NotLoginView(action: { store.send(.onNotLoginViewButtonTapped) })
                 .transition(.opacity)
                 .scrollEdgeEffectStyle(.soft, for: .top)
         }
+    }
+
+    /// Nothing saved in the current category (owner msg 2896). It has no button and lets touches through, so a
+    /// pull on the list beneath still reloads it.
+    private var emptyView: some View {
+        ContentUnavailableView {
+            Label(.favoritesEmptyTitle, systemSymbol: .heart)
+        } description: {
+            Text(.favoritesEmptyDescription)
+        }
+        .allowsHitTesting(false)
     }
 
     @ContentBuilder private func toolbar() -> some ToolbarContent {
