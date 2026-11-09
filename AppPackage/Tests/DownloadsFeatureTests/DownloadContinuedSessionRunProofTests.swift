@@ -767,12 +767,21 @@ extension DownloadContinuedSessionLedgerTests {
     /// this case is about would belong to a different session. `keeper` never runs — the injected
     /// runner answers `.skippedOperation` — so it holds exactly one thing steady: pending work.
     ///
-    /// **What the terminal numerator is, and why it is not zero.** The two pages this session really
-    /// fetched are held by the monotonic floor, which is what stops a numerator rewind from reading
-    /// to the scheduler as a task losing ground. The gallery's OWN contribution is what returns to
-    /// zero, and the denominator is what shows it back in the queue: a terminal pair of two over
+    /// **What the queued-window numerator is, and why it is not zero.** The two pages this session
+    /// really fetched are held by the monotonic floor, which is what stops a numerator rewind from
+    /// reading to the scheduler as a task losing ground. The gallery's OWN contribution is what
+    /// returns to zero, and the denominator is what shows it back in the queue: a pair of two over
     /// sixteen across two galleries is the session's real work beside the whole queue it still
     /// covers, while the record's untouched six is credited nowhere.
+    ///
+    /// **Why the keeper then lands three pages.** That floor makes the queued-window pair blind to
+    /// the defect this case exists for: a leaked basis credits exactly the two pages the floor
+    /// already holds, so a retirement left out read the same two over sixteen and the case passed
+    /// under that mutation. The keeper's honest work lifts the live sum above the floor, so the
+    /// abandoned gallery's contribution shows in the numerator: three over sixteen when it
+    /// contributes nothing, five when its finished run is still credited. The published row's
+    /// `runProgress` is pinned too, at the exit and back in the queue, because D-SSOT-10 reads the
+    /// same measurement there and a leak would show as a standing two-page overlay.
     ///
     /// **This case pins the basis retirement's whole point.** A run's measurement dies with the
     /// run, at `retireRunProgressBasis`, and nothing re-admits the gallery afterwards: the
@@ -781,7 +790,7 @@ extension DownloadContinuedSessionLedgerTests {
     /// retired and no observation, the credited-pages definition answers zero for a
     /// complete-reading record, so a failed refusal repair sitting in the queue contributes
     /// nothing. A retirement left out would instead leave the finished run's arithmetic standing
-    /// for a gallery doing nothing at all, and this terminal pair is where that would surface.
+    /// for a gallery doing nothing at all, and the keeper's pair is where that surfaces.
     @Test
     func testAFailedRefusalRepairsGalleryContributesNothingWhileMerelyQueued() async throws {
         let abandoned = SessionGallery(
@@ -848,7 +857,11 @@ extension DownloadContinuedSessionLedgerTests {
 
         // The run's own exit, taken through production.
         await manager.processDownload(gid: abandoned.gid)
-        #expect(await manager.fetchDownload(gid: abandoned.gid)?.lastError != nil)
+        let exited = try #require(await manager.fetchDownload(gid: abandoned.gid))
+        #expect(exited.lastError != nil)
+        // The measurement died with the run, read off the published row (D-SSOT-10): a retirement
+        // left out would keep the finished run's overlay standing here, crediting pages 1 and 2.
+        #expect(exited.runProgress == nil)
         // Waited on a production observation rather than on active-task quiescence: the exit's own
         // convergence reschedules the surviving gallery, so the active slot legitimately flickers
         // here and a quiescence poll can read it true and false in the same breath.
@@ -868,18 +881,44 @@ extension DownloadContinuedSessionLedgerTests {
         try await manager.retry(gid: abandoned.gid, mode: .repair).get()
         // The mirror crossing, and a barrier rather than a subject: the enqueue-side reconcile drops
         // the ledger entry and resumes counting the gallery live, restoring Y to 16. Fresh because
-        // the last update reads 12 when this wait begins. Without it the final pair below could be
+        // the last update reads 12 when this wait begins. Without it the queued pair below could be
         // read off the departure frame.
         try await waitUntil {
             spy.progressUpdates.last?.subtitle.contains("/ 16 pages") == true
         }
         #expect(spy.startCount == 1)
-        #expect(await manager.fetchDownload(gid: abandoned.gid)?.completedPageCount == 6)
+        let requeued = try #require(await manager.fetchDownload(gid: abandoned.gid))
+        #expect(requeued.completedPageCount == 6)
+        #expect(requeued.runProgress == nil)
+
+        let queuedPair = try lastPushedPair(spy.progressUpdates)
+        #expect(queuedPair.completedUnitCount == 2)
+        #expect(queuedPair.totalUnitCount == 16)
+        #expect(queuedPair.subtitle == "2 / 16 pages · 2 galleries")
+
+        // The queued-window pair above cannot tell a retired basis from a leaked one on its own:
+        // the floor holds the two fetched pages either way, and a leaked basis credits exactly those
+        // two. So the keeper does real work, through the production flush the page loop calls, to
+        // lift the live sum above the floor. Its record reads incomplete, so its three landed pages
+        // count raw. A retired basis leaves the abandoned gallery contributing zero beside them and
+        // the numerator reads three; a leaked one adds its run's two and reads five.
+        let keeperFolderURL = galleryFolderURL(for: keeper, in: fixture)
+        try writePageFiles(for: keeper, in: fixture, indices: [1, 2, 3])
+        var keeperPendingPages = pageResults(for: keeper, in: fixture, indices: [1, 2, 3])
+        var keeperLastFlushDate = Date.distantPast
+        try await manager.flushDownloadProgress(
+            context: .init(gid: keeper.gid, folderURL: keeperFolderURL),
+            pendingResolvedPages: &keeperPendingPages,
+            lastFlushDate: &keeperLastFlushDate,
+            force: true
+        )
+        #expect(await manager.fetchDownload(gid: keeper.gid)?.completedPageCount == 3)
 
         let finalPair = try lastPushedPair(spy.progressUpdates)
-        #expect(finalPair.completedUnitCount == 2)
+        #expect(finalPair.completedUnitCount == 3)
         #expect(finalPair.totalUnitCount == 16)
-        #expect(finalPair.subtitle == "2 / 16 pages · 2 galleries")
+        #expect(finalPair.subtitle == "3 / 16 pages · 2 galleries")
+        #expect(spy.startCount == 1)
         #expect(spy.rejectedProgressUpdates.isEmpty)
     }
 }
