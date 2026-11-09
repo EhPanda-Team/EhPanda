@@ -92,16 +92,14 @@ class ShardTests(unittest.TestCase):
         self.assertEqual(list(classes), ['HomeSnapshotTests', 'ShellSnapshotTests'])
         self.assertEqual(classes['HomeSnapshotTests'], ['home-populated', 'home-loading'])
 
-    def test_the_real_matrix_classes_cover_the_inventory_but_the_login_gap(self):
+    def test_the_real_matrix_classes_cover_the_whole_inventory(self):
         classes = snapshot_shard.classes()
         document, _ = snapshot_matrix.load()
-        covered = {scenario for scenarios in classes.values() for scenario in scenarios}
+        covered = [scenario for scenarios in classes.values() for scenario in scenarios]
         inventory = {scenario['id'] for scenario in document['scenarios']}
-        self.assertLessEqual(covered, inventory)
-        # 19-10 gap: the Login page's backdrop animates from the wall clock and never settles, so the three Login
-        # scenarios have factories but no matrix method (19-08's proposed rule meets neither D-05 nor D-12).
-        self.assertEqual(inventory - covered,
-                         {'settings-login-empty', 'settings-login-filled', 'settings-login-error'})
+        # Every scenario once, the three Login ones included since their backdrop stands still under Reduce Motion
+        # (19-10): a scenario without a method would leave its coordinates without results and fail its shard.
+        self.assertEqual(sorted(covered), sorted(inventory))
         self.assertFalse([name for name in classes if name.startswith('Tracer')])
 
     def test_slices_name_each_configuration_of_the_shard_once(self):
