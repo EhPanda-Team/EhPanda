@@ -8,6 +8,8 @@ env:
   SCHEME_NAME: 'EhPanda'
   ALTSTORE_JSON_PATH: './AltStore.json'
   SIDESTORE_JSON_PATH: './SideStore.json'
+  ALTSTORE_BETA_JSON_PATH: './altstore-beta.json'
+  CHECK_BUILD_NUMBER_SCRIPT_PATH: './actions-tool/check-build-number.sh'
   SIDESTORE_TEMPLATE_PATH: './actions-tool/sidestore.template.json'
   SOURCE_FILTER_PATH: './actions-tool/altstore-add-version.jq'
   PACKAGE_CHANNEL_SCRIPT_PATH: './actions-tool/package-channel.sh'
@@ -36,6 +38,23 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+      - name: Check build number
+        run: |
+          set -euo pipefail
+          # The sources as published on main: AltStore and SideStore compare against those. A beta's
+          # build counts too, because the beta source lists it. AltStorePAL.json is left out; the PAL
+          # build has its own check in its own workflow.
+          published_path="$RUNNER_TEMP/published"
+          mkdir -p "$published_path"
+          git fetch --no-tags --depth 1 origin main
+          for source in "$ALTSTORE_JSON_PATH" "$SIDESTORE_JSON_PATH" "$ALTSTORE_BETA_JSON_PATH"; do
+            if git cat-file -e "FETCH_HEAD:${source#./}" 2>/dev/null; then
+              git show "FETCH_HEAD:${source#./}" > "$published_path/$(basename "$source")"
+            fi
+          done
+          # Every app and extension target carries the same build number; test targets carry 1.
+          build_version="$(grep -Eo 'CURRENT_PROJECT_VERSION = [0-9]+;' EhPanda.xcodeproj/project.pbxproj | grep -Eo '[0-9]+' | sort -n | tail -1)"
+          bash "$CHECK_BUILD_NUMBER_SCRIPT_PATH" "$build_version" "$published_path"/*.json
       - name: Check release notes
         run: python3 "$RELEASE_NOTES_TOOL_PATH" check
       - name: Install iOS 27 Platform
