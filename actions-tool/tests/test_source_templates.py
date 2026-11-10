@@ -69,10 +69,11 @@ class SourceTemplateTests(unittest.TestCase):
                 self.assertEqual(beta[code].count("\n"), 2 + regular[code].count("\n"))
 
     def test_every_app_shows_the_seven_iphone_screenshots(self):
-        # Owner msg 2628: the same screenshots, in this order, for the regular and the beta app.
+        # Owner msg 2628: the same screenshots, in this order, for the regular, the beta and the PAL app
+        # (20-10, closed with this set). The set is iPhone only; there is no iPad set.
         expected = [{"imageURL": f"{languages.ASSETS_URL}app-marketplace/iphone/{name}.png", "width": 1260, "height": 2736}
                     for name in SCREENSHOT_NAMES]
-        for source in [ALTSTORE, SIDESTORE, BETA]:
+        for source in [ALTSTORE, SIDESTORE, BETA, PAL]:
             with self.subTest(source=source["identifier"]):
                 self.assertEqual(source["apps"][0]["screenshots"], {"iphone": expected})
 
@@ -80,7 +81,7 @@ class SourceTemplateTests(unittest.TestCase):
         assets = assets_checkout()
         if assets is None:
             self.skipTest("no checkout of the assets repository")
-        for source in [ALTSTORE, SIDESTORE, BETA]:
+        for source in [ALTSTORE, SIDESTORE, BETA, PAL]:
             with self.subTest(source=source["identifier"]):
                 problems = languages.check_source(source, versions_required=False, assets_dir=assets)
                 self.assertEqual([problem for problem in problems if "screenshots" in problem], [])
@@ -116,10 +117,10 @@ class SourceTemplateTests(unittest.TestCase):
 
 
 # The fields the PAL template may not share with AltStore.json (CONTEXT developer defaults): its own
-# identity and featured app, the marketplace bundle ID and marketplaceID, no screenshots until 20-10, and
-# permissions read from the signed build.
+# identity and featured app, the marketplace bundle ID and marketplaceID, and permissions read from the
+# signed build. The screenshots are shared: 20-10 closed with the owner's seven (msg 2628).
 PAL_SOURCE_OWN = {"identifier", "featuredApps"}
-PAL_APP_OWN = {"bundleIdentifier", "marketplaceID", "screenshots", "appPermissions", "versions"}
+PAL_APP_OWN = {"bundleIdentifier", "marketplaceID", "appPermissions", "versions"}
 FILTER = TOOLS / "altstore-add-version.jq"
 PAL_ASSETS = json.loads((TOOLS / "tests" / "fixtures" / "pal-release-assets.json").read_text(encoding="utf-8"))
 
@@ -158,7 +159,6 @@ class PALTemplateTests(unittest.TestCase):
         self.assertEqual(app["bundleIdentifier"], "app.ehpanda.marketplace")
         self.assertEqual(app["marketplaceID"], "")
         self.assertEqual(app["developerName"], "EhPanda Team")  # D-24
-        self.assertNotIn("screenshots", app)  # 20-10 adds them
         self.assertEqual(app["appPermissions"], {"entitlements": [], "privacy": {}})
         self.assertEqual(app.get("versions", []), [])
         self.assertFalse((TOOLS.parent / "AltStorePAL.json").exists(), "only the first PAL publish creates it")
@@ -173,7 +173,7 @@ class PALTemplateTests(unittest.TestCase):
     def test_the_pal_template_keeps_the_sidestore_field_order(self):
         self.assertEqual([k for k in PAL if k != "apps"], [k for k in SIDESTORE if k != "apps"])
         self.assertEqual([k for k in PAL["apps"][0] if k != "marketplaceID"],
-                         [k for k in SIDESTORE["apps"][0] if k != "screenshots"])
+                         list(SIDESTORE["apps"][0]))
 
     def test_the_template_alone_is_not_a_publishable_pal_source(self):
         problems = languages.check_source(PAL, pal=True)
