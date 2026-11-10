@@ -1608,7 +1608,7 @@ Plans:
 
 **Wave 5** *(blocked on 20-03, 20-05, 20-09 and Phase 19)* — (f)
 
-- [ ] 20-10-PLAN.md — store screenshots from Phase 19's approved references *(checkpoints: owner's screens, decoration and wording; owner approval, push and upload)*
+- [x] 20-10-PLAN.md — store screenshots from Phase 19's approved references *(checkpoints: owner's screens, decoration and wording; owner approval, push and upload)* — *closed 2026-11-10 by product lead msg 3168 (owner msg 3167) with the owner's seven decorated iPhone screenshots (owner msg 2628; assets `41f9a13`), now in the PAL template; no longer depends on Phase 19. The App Store Connect upload, the PAL copy approval and any iPad set move to 20-08 (`20-10-SUMMARY.md`).*
 - [ ] 20-11-PLAN.md — the release and the PAL submission require the screenshot check's verdict *(checkpoint: OQ-F, how Phase 19's gate reaches this branch)*
 
 **Wave 6** *(blocked on Wave 5 and 20-12)* — (g)
