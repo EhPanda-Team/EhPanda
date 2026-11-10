@@ -119,19 +119,15 @@ enum LiveTextSize {
     private static func openLargerText(file: StaticString, line: UInt) -> XCUIApplication {
         let settings = XCUIApplication(bundleIdentifier: settingsBundleIdentifier)
         let largerText = settings.navigationBars["Larger Text"]
-        // Settings left on Larger Text by an earlier change is used where it stands. Relaunched within about a
-        // minute of a change to AX5, Settings opens Accessibility but then takes no tap on Display & Text Size,
-        // so a test that changes the size more than once does not go through the rows again.
+        // Settings left on Larger Text by an earlier change is used where it stands.
         if settings.state == .runningBackground || settings.state == .runningForeground {
             settings.activate()
             _ = settings.wait(for: .runningForeground, timeout: 15)
         }
         if !largerText.waitForExistence(timeout: 2) {
-            for launch in 0..<maximumLaunches {
-                if launch > 0 {
-                    // The rows come back to life a while after the change; a fresh launch after a pause finds them.
-                    Thread.sleep(forTimeInterval: relaunchPause)
-                }
+            // A second launch gives a missed tap one more chance. More launches did not help: on the hosted
+            // iPhone five launches 160 to 570 seconds after a change to AX5 failed the same way (run 3).
+            for _ in 0..<maximumLaunches {
                 // A fresh launch starts at the root, wherever an earlier run left the app.
                 settings.terminate()
                 settings.activate()
@@ -166,9 +162,31 @@ enum LiveTextSize {
                 _ = page.waitForExistence(timeout: 5)
                 taps += 1
             }
-            if !page.exists { return false }
+            if !page.exists {
+                attachMissedTap(on: settings.descendants(matching: .any).matching(row.predicate).firstMatch,
+                                named: row.name, in: settings)
+                return false
+            }
         }
         return true
+    }
+
+    /// Keeps what a row that opened nothing left behind: the screen, the row's frame beside the window's, and
+    /// Settings' hierarchy, so a failure shows where the taps landed.
+    private static func attachMissedTap(on row: XCUIElement, named name: String, in settings: XCUIApplication) {
+        let window = settings.windows.firstMatch.frame
+        let frame = row.exists ? row.frame : .null
+        let summary = "\(name) opened nothing: row \(frame), window \(window), visible \(frame.intersection(window))"
+        XCTContext.runActivity(named: summary) { activity in
+            let screenshot = XCTAttachment(screenshot: XCUIScreen.main.screenshot())
+            screenshot.name = "\(name) missed"
+            screenshot.lifetime = .keepAlways
+            activity.add(screenshot)
+            let hierarchy = XCTAttachment(string: summary + "\n" + settings.debugDescription)
+            hierarchy.name = "\(name) missed hierarchy"
+            hierarchy.lifetime = .keepAlways
+            activity.add(hierarchy)
+        }
     }
 
     /// A Settings row, by the title of the page it opens and the predicate that finds it.
@@ -177,8 +195,7 @@ enum LiveTextSize {
         let predicate: NSPredicate
     }
 
-    private static let maximumLaunches = 4
-    private static let relaunchPause: TimeInterval = 20
+    private static let maximumLaunches = 2
 
     /// Scrolls the list holding the row `predicate` matches until the row can be tapped. At accessibility sizes
     /// Settings' own rows grow, and in landscape they start below the fold; a row far below is not in the

@@ -48,6 +48,33 @@ final class NativeVisualPolicyUITests: XCTestCase {
         }
     }
 
+    /// A change after Settings has quit at AX5 still reaches its size. On the hosted runners Settings is gone by the
+    /// next change (run 3: `Terminate com.apple.Preferences:0` on both devices), so it opens fresh at AX5. The
+    /// first row on the Settings tab grows with the text size, so its height shows the app took each change.
+    func testLiveTextSizeReachesLargeAfterSettingsQuitAtAX5() throws {
+        let app = XCUIApplication()
+        addTeardownBlock { @MainActor in
+            LiveTextSize.reset()
+        }
+        try app.launchStubbed(extraEnvironment: [Self.tabKey: "setting"])
+        app.requireForeground()
+        requireTitle("Settings", in: app)
+        let row = app.buttons["Account"].firstMatch
+        XCTAssertTrue(row.waitUntilHittable(timeout: XCUIElement.hittableTimeout), "Account is not on screen.")
+        let large = row.frame.height
+        LiveTextSize.set(.accessibility5, returningTo: app)
+        XCTAssertTrue(holds { row.frame.height > large }, "The app did not take AX5.")
+        XCUIApplication(bundleIdentifier: LiveTextSize.settingsBundleIdentifier).terminate()
+        LiveTextSize.set(.large, returningTo: app)
+        XCTAssertTrue(holds { abs(row.frame.height - large) < 1 }, "The app did not come back to Large.")
+    }
+
+    /// Whether `condition` comes to hold within 15 seconds, the time a size change takes to reach the layout.
+    private func holds(_ condition: @escaping () -> Bool) -> Bool {
+        let met = NSPredicate { _, _ in condition() }
+        return XCTWaiter.wait(for: [XCTNSPredicateExpectation(predicate: met, object: nil)], timeout: 15) == .completed
+    }
+
     // MARK: Preservation
 
     /// A typed, focused query on the Search tab keeps its text, focus, title and tab through live size changes
