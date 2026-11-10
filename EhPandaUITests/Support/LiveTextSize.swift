@@ -125,12 +125,14 @@ enum LiveTextSize {
             _ = settings.wait(for: .runningForeground, timeout: 15)
         }
         if !largerText.waitForExistence(timeout: 2) {
-            // A second launch gives a missed tap one more chance. More launches did not help: on the hosted
-            // iPhone five launches 160 to 570 seconds after a change to AX5 failed the same way (run 3).
+            // Settings launches laid out at Large, whatever the system size. At AX5 its rows outgrow an iPhone's
+            // screen, and after the swipes that bring Display & Text Size up, the row took no tap at all, on the
+            // hosted iPhone (run 3) and locally alike, though it stood whole in the window. The override sets only
+            // Settings' own layout; the slider still writes the system size.
+            settings.launchArguments = ["-UIPreferredContentSizeCategoryName", UIContentSizeCategory.large.rawValue]
             for _ in 0..<maximumLaunches {
                 // A fresh launch starts at the root, wherever an earlier run left the app.
-                settings.terminate()
-                settings.activate()
+                settings.launch()
                 XCTAssertTrue(settings.wait(for: .runningForeground, timeout: 15), "Settings did not open.",
                               file: file, line: line)
                 if openRows(in: settings, file: file, line: line) { break }
