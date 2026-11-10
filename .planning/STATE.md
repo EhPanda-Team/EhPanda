@@ -4,10 +4,10 @@ milestone: v3.0.0
 current_phase: 19
 current_phase_name: Visual Regression & Daily Live-Parsing Check
 status: executing
-stopped_at: Completed 20-12-PLAN.md
-last_updated: "2026-11-09T02:45:00.000Z"
-last_activity: 2026-11-09
-last_activity_desc: 20-12 complete on feature/gsd-phase-20 (analytics vocabulary signed off, OQ-E; SC8 wording applied); 20-05 complete before it (PAL publish side, offline)
+stopped_at: Completed 20-10-PLAN.md (closed by decision)
+last_updated: "2026-11-10T00:44:50.000Z"
+last_activity: 2026-11-10
+last_activity_desc: 20-10 closed on feature/gsd-phase-20 (owner's seven iPhone screenshots in the PAL template; product lead msg 3168)
 state_head: e618e40cbb803098c79170a6f3524064002e313d
 progress:
   total_phases: 21
@@ -76,6 +76,13 @@ source_head: b5eca09d1
   option 1), with one README Basic line. OI-4 answer A and the SC8 wording are developer calls; ROADMAP SC8 now
   reads "nothing is sent before a level is chosen". No level description changes; no code changed. 20-13
   implements it.
+- **20-10 closed (2026-11-10)** (`f91b36338` RED, `e6b40121f` GREEN; `20-10-SUMMARY.md`): by product lead
+  msg 3168, after owner msg 3167 ("Screenshots for PAL? Approved."), with the owner's seven decorated iPhone
+  screenshots (owner msg 2628; pushed, msg 2798, assets `41f9a13`). The PAL template lists them exactly as the
+  other sources do; the source-template tests hold it to that. No Phase 19 renders; 20-10 no longer depends on
+  Phase 19 (20-11 still does). Moved to 20-08: the collaborator's App Store Connect upload, the PAL copy
+  (copywriter msg 2785) and its owner approval, and the iPad 13-inch question (no iPad set exists). MKT-18-01,
+  DIST-18-02 and CAP-17-05 stay Pending.
 
 ## Phase 19 executing — 2026-11-07
 

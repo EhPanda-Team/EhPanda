@@ -239,8 +239,8 @@ Deferred to a future milestone after 3.0 (owner msg 2001; product lead msgs 2002
 | UGC-18-01 | Phase 18 (published contact link: Phase 20) | Complete (Phase 18 part; published contact link pending in Phase 20) |
 | VIS-18-01 | Phase 19 | Pending |
 | VIS-19-01 | Phase 19 | Pending |
-| MKT-18-01 | Phase 20 (promotional images and store screenshots; 384 export, selection and regeneration dropped 2026-11-06, owner msg 1949) | Pending |
-| DIST-18-02 | Phase 20 | Pending |
+| MKT-18-01 | Phase 20 (promotional images and store screenshots; 384 export, selection and regeneration dropped 2026-11-06, owner msg 1949) | Pending (the AltStore, SideStore, beta and PAL sources carry the owner's seven screenshots, 20-10 on 2026-11-10; the App Store Connect upload and any iPad set remain at 20-08) |
+| DIST-18-02 | Phase 20 | Pending (PAL source screenshots done at 20-10, 2026-11-10; PAL copy, `marketplaceID`, versions and listing URLs remain) |
 | DIST-18-03 | Phase 20 | Pending |
 | DEV-18-01 | Phase 20 | Pending |
 | ANALYTICS-02 | Phase 20 (last plan) | Pending |
@@ -253,7 +253,8 @@ Deferred to a future milestone after 3.0 (owner msg 2001; product lead msgs 2002
 
 ---
 *Requirements defined: 2026-07-09*
-*Last updated: 2026-11-07 — VIS-18-01 amended: three Dynamic Type sizes and a separate public baseline repository (owner msgs 2247, 2249, 2252). Previously 2026-11-06: Phase 19 is the screenshot check plus a daily live-parsing check: MKT-18-01's 384 export, final selection and regeneration dropped (owner msg 1949; lead msg 1952), its remaining part in Phase 20; CAP-17-01 and CAP-17-04 notes updated; VIS-18-01 amended; VIS-19-01 added in Phase 19 (owner msg 2006; product lead msg 2007); TAG-01 and TAG-02 added as v2 (owner msg 2001); 45/45 mapped.*
+*Last updated: 2026-11-10 — 20-10 closed with the owner's seven iPhone screenshots (product lead msg 3168): MKT-18-01 and DIST-18-02 rows note the progress and stay Pending; CAP-17-05 unchanged (not met as written).*
+*Previously updated: 2026-11-07 — VIS-18-01 amended: three Dynamic Type sizes and a separate public baseline repository (owner msgs 2247, 2249, 2252). Previously 2026-11-06: Phase 19 is the screenshot check plus a daily live-parsing check: MKT-18-01's 384 export, final selection and regeneration dropped (owner msg 1949; lead msg 1952), its remaining part in Phase 20; CAP-17-01 and CAP-17-04 notes updated; VIS-18-01 amended; VIS-19-01 added in Phase 19 (owner msg 2006; product lead msg 2007); TAG-01 and TAG-02 added as v2 (owner msg 2001); 45/45 mapped.*
 *Previously updated: 2026-11-05 — Plan 18-12 complete (its live report-page check verified by an agent per owner rule msg 1652): AGE-18-01, CONSENT-18-01 and UGC-18-01 Complete. Marked by hand.*
 *Previously updated: 2026-11-05 — Phase 18 split into Phases 18 to 20 (owner msg 1753): AGE-18-01 and CONSENT-18-01 in 18; VIS-18-01 and the moved CAP-17-02/03 and CAP-17-01/06 parts in 19; REL-18-01, DIST-18-02, DIST-18-03, DEV-18-01, ANALYTICS-02 and CAP-17-05 in 20; DIST-18-01, UGC-18-01 and MKT-18-01 split across two phases. Owner decisions of 2026-11-05 (msgs 1753, 1765, 1767, 1780) recorded as amendments; 44/44 mapped.*
 *Previously updated: 2026-11-05 — Phase 17 complete: CAP-17-04 and CAP-17-07 (amended) complete; CAP-17-01 and CAP-17-06 complete for their Phase 17 parts, moved parts under VIS-18-01 and MKT-18-01; CAP-17-02, CAP-17-03 and CAP-17-05 stay pending in Phase 18 (moved, not satisfied). Marked by hand at the transition because `phase.complete` could not parse the Phase 17 **Requirements** line and marked nothing.*
