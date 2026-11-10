@@ -126,9 +126,8 @@ the plan on that basis.
 ## Moved to 20-08
 
 - **(a) The App Store Connect upload.** The collaborator uploads the same seven pictures for the first
-  submission. Note: 20-08-PLAN.md Task 1's context and Task 2's A1 action still say the set was "already uploaded
-  by the collaborator" in 20-10 Task 3. It was not. 20-08 Task 3, step 1 (the collaborator enters "the
-  screenshots") is where the upload now happens.
+  submission. 20-08-PLAN.md Task 3, step 2 now carries it (updated after this summary; the earlier text said the
+  set was "already uploaded by the collaborator" in 20-10).
 - **(b) The PAL subtitle and description** (copywriter msg 2785) **and the owner's approval of them** (D-25).
   20-10 Task 1 carried both. They now come before the PAL submission, in 20-08. The template still has the
   Classic copy, and `test_the_pal_template_has_the_classic_metadata` still holds it to `AltStore.json`. When the
@@ -158,7 +157,8 @@ the plan on that basis.
   pictures are non-explicit (D-17), and owner msg 3167 approved the set for PAL as it is. D-25 put the caption
   check in the copy approval, which has moved to 20-08. Whether the notarization review accepts the caption under
   guideline 2.3.8 is first seen at 20-08.
-- **20-08-PLAN.md wording** (the upload "already" done in 20-10) should be updated when 20-08 is next planned.
+- **20-08-PLAN.md wording** was updated after this summary: Task 3, step 1 now has the owner's copy-and-caption
+  approval and the test change, and step 2 the upload.
 - **`AltStorePAL.json`** does not exist yet. The first PAL publish creates it from this template, screenshots
   included.
 
