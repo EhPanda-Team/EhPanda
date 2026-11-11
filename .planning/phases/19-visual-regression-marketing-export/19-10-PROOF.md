@@ -173,7 +173,7 @@ run. There is no `fingerprints.json`, so a push runs in **candidate** mode.
 
 **Bug 1 (gate): the aggregate never sees a single retried shard.**
 - `actions/download-artifact@v7` with `pattern: retry-*` matched one artifact (`retry-s11`). It extracted that
-  artifact straight into `$RUNNER_TEMP/retry` ("Starting download of artifact to: /home/runner/work/_temp/retry"),
+  artifact straight into `$RUNNER_TEMP/retry`,
   not into `retry/retry-s11`. With several matches, each goes into its own folder, as `results/shard-s20` did.
 - The rename loop therefore found no `retry-*` folder, and `snapshot_aggregate.py` read no retry. That is why s11
   was reported `runner-lost` and the summary said "retried: none", although the retry ran and uploaded its result.
@@ -309,3 +309,164 @@ about **8.7 h** (s03's retry crashes after 180 s twice). Run 2 took 9 h 47 min w
 - Run 4 (`s03=crash@every-attempt`): the aggregate fails with "infrastructure errors" naming only `s03`.
 - iPad landscape `agewall-unticked` / `analytics-choice-none`: 0 timeouts after `a52224a73`.
 - The `interaction:…` reason, if the iPad search error comes back.
+
+### Native-policy recovery (2026-11-10; local verification only)
+
+The interrupted work and `/tmp/np27` evidence were preserved. No hosted run or push was started during recovery.
+
+**Runtime attribution:** the supplied local iPhone (`FFE7E686-7377-4F16-BAB6-F5CB07999788`) and iPad
+(`B470DB46-9CA3-467A-8FF6-C6584A5C8A5D`) use **iOS 27.2 (24B8117)**, the expected local verification runtime.
+`simctl list -j devices`, their device records and the earlier RED/GREEN result-bundle summaries confirm this.
+The earlier local `red-phone` and `green-phone-ax5` observations belong to 27.2, not to the hosted pin, iOS 27.0
+(24A434). Their original bundles were subsequently lost in the scratch wipe; they are historical observations,
+not retained recovery RED/GREEN evidence. The installed 27.0 runtime had no devices at recovery's start.
+Neither original device was erased, recreated or silently reassigned. Normal local/runtime policy and the pinned
+workflow runtime are unchanged.
+
+**Probe correction:** the failed AX1 checks in `red3-phone`, `red5-phone` and `exp-scroll-phone` measured the
+Account row's 65-point frame, not the rendered font. The row's icon reserves 45 points plus vertical padding;
+Large and AX1 therefore share that height. SwiftUI also exposes this same frame for its StaticText child. The
+screens show visibly larger AX1 text despite the unchanged frame. This is an insensitive probe, not evidence
+that the slider failed to set AX1. The strengthened test calibrates the actual native row render independently
+at all four cold categories, requires distinguishable reference measurements, and compares each live change
+(including Large) against its own reference. It keeps screenshots of every reference and live read. No app
+probe, size override on the live app, title fallback or assertion removal is introduced.
+
+**Recovered test/workflow changes:** wait for either Library presentation before choosing its title assertion;
+resolve the iPad Home tab directly with the existing identifier instead of first querying a known-absent TabBar;
+keep its selected and hittable assertions. The native-policy allowance is 1,200 seconds. Each host-side policy
+attempt resets Large (a reset failure aborts the attempt), caps failed-test repetitions at two, disables the
+slow system diagnostics collector, and retains failed native-policy result bundles with its logs for seven
+days. Snapshot shards still upload no result bundle. This is the native-policy-only exception to the original
+D-14 workflow check, requested for recovering tap/wait evidence.
+
+For additional pinned-hosted-failure reproduction only, continuation authorized two **new** project-scoped
+27.0 devices (not replacements for normal local 27.2 verification):
+- iPhone Air: `71C9BBB0-705C-4842-A8A7-F25708C09D9F`.
+- iPad Pro 11-inch (M5): `60DBD1BB-3A1B-4184-8C45-89AB56C6C378`.
+
+Both use `com.apple.CoreSimulator.SimRuntime.iOS-27-0` (24A434). The original 27.2 devices remain intact.
+
+**Recovery checks so far (not a completed native-policy sign-off):**
+- Final workflow tests: `python3 -m unittest discover -s Scripts/visual -p 'test_snapshot_gate.py'`, **30/30**
+  passed in **416.664 s** under severe host contention.
+- Full visual Python suite: **375/376** passed; the 12-second fake shard timeout test recorded one snapshot call
+  instead of two. Its isolated rerun also failed (**52.452 s**, zero snapshot calls instead of two). This remaining
+  failure is not waived or changed.
+- The 27.2 render-probe trial failed because XCTest requested a screenshot of a transiently empty element frame.
+  Its surviving manager console records **exit 65 after 691 s** and the empty-frame error. This is a **probe
+  harness error, not a Settings-helper RED**. The probe now crops the app render and rejects empty measurements
+  rather than letting an element screenshot crash XCTest. The earlier calibration log was lost in the scratch
+  wipe, so no numerical calibration results or native-policy PASS are claimed from it.
+- The added 27.0 phone's second `bootstatus -b` reported **Data Migration Failed** (terminal status 3) even though
+  the command returned zero. A directly inspected screenshot shows SpringBoard with placeholder icons;
+  `simctl launch` did start Settings. The pinned-runtime test attempt is still needed before claiming
+  hosted-failure reproduction. No migration failure is counted as a test RED.
+- **Blocked prerequisite:** during the next build, recovery scratch files, `Build/Products` and `SourcePackages`
+  disappeared from the existing `/tmp/np27` tree. The build failed after **257.864 s** because SwiftLint plugin
+  output/plist files no longer existed; its saved-helper restore also failed because that backup had disappeared.
+  The recovered helper was immediately restored from the recorded diff and backed up outside that scratch tree.
+  The source changes remain preserved, but the safe crop probe is not yet build-verified. No runnable products
+  remain from that scratch tree for a pinned-runtime test attempt. The deleting process is unknown; no deletion
+  was requested by recovery. A fresh baseline build was then started in `/var/tmp/np27-recover/DD`, with a
+  1,790-second hard timeout and the recovered helper backed up outside `/tmp`. Surviving manager logs and the
+  working diff were also copied into `/var/tmp/np27-recover`.
+- Still pending: rebuild products, actual 27.0 hosted-failure RED/GREEN, full native-policy local verification on
+  the normal 27.2 iPhone/iPad, and repeated iPad AX3/AX1 cold checks. No new recovery commit or hosted run/push has
+  been made. The existing signed baseline commits remain unchanged.
+
+### Task 4: hosted run 3 (run 42727781967)
+
+Commit `c560ead1d` on `ci/snapshot-gate` (phase head `ad4d931f5` plus the fault `s03=crash,s20=no-artifact`),
+candidate mode, 2026-11-10T00:22:20Z to 07:21:12Z (6 h 59 min). 35 jobs: 31 success, 4 failure (native policy
+iPad and iPhone, retry s03, aggregate). The run **failed**; nothing in it is baseline approval.
+
+- **Faults and triage worked.** s03 attempt 1 was killed after 180 s by the fault (`infra=crash`); s20 attempt 1
+  left no artifact. `triage` selected exactly s03 and s20. s20's retry is a valid candidate capture: 1,096 keys
+  (1,076 recorded, 20 not applicable), no error or timeout, about 55 min.
+- **Aggregate: 0 picture changes, 0 drift, 0 baseline mismatches, 529 infrastructure errors.** s03: 525 (1
+  `retry-lost`, the first attempt's `crash`, 523 `missing-result`), because the retry could not make its
+  simulator. s07: 2 `error` (`comments-post-empty`, ja, accessibility5, iPhone landscape, light and dark;
+  `geometry`). s26: 2 `timeout` (`history-grid`, ja, large, iPad portrait, light and dark;
+  `settle-timeout:animation:UIImageView:contents`). Merged: 18,841 recorded, 350 not applicable.
+- **Native policy, iPhone:** eight cases passed; `testSettingMarksAndTitleSurviveSizesAndTurns` failed
+  ("Settings never opened Larger Text") and ran past the 10-minute allowance. Fixed after the run by `893517c89` /
+  `9c1de0fbc` (Settings launched laid out at Large; a row tapped after the AX5 swipes opened nothing).
+- **Native policy, iPad:** cold AX1 failed twice waiting for the Library title, passing on its third iteration;
+  cold AX3 failed all three (Library title, "Home's tab is off screen at AX3", a hierarchy query timeout); the
+  Settings test also ran past 10 minutes.
+
+### Run-4 fixes (root causes of run 3)
+
+1. `67b76839c` **s03 retry: the pinned runtime left the runner mid-setup.** The retry's `hosted-simulator.sh create`
+   made the device, then `defaults write` found it not booted ("Bad or unknown session"), the boot failed ("cannot
+   determine the runtime bundle"), and both further attempts were refused at once (`Invalid runtime:
+   com.apple.CoreSimulator.SimRuntime.iOS-27-0`). The script retried a device on a runtime that was gone. Why the
+   hosted image lost the runtime is not known. Fix: every create attempt first waits (up to 300 s) for the pinned
+   runtime to be listed as available; if it does not come back, the pinned build (`regression-environment.json`,
+   24A434) is downloaded again (`xcodebuild -downloadPlatform iOS -buildVersion`, 20 min limit) and waited for once
+   more. The pins are unchanged.
+2. `cede4bd90` **s26 `history-grid`: fixture covers expired during a host freeze.** The light picture took 1,668 s for
+   2 attempts of at most 40 reads each (100 ms apart), so the runner was frozen for about 27 minutes. The scenario's
+   synthetic covers are stored in Kingfisher's memory cache once, before its first coordinate, and Kingfisher expires
+   a memory entry 300 s after it is stored. After the freeze both pictures drew every cover as its loading
+   placeholder, whose spinner repeats forever: `settle-timeout:animation:UIImageView:contents` was a correct verdict
+   on a wrong picture. Fix: fixture artwork is stored with `.memoryCacheExpiration(.never)`
+   (`TracerScenarios.cacheArtwork`, used by every matrix scenario that stores artwork). A partial change found in the
+   tree, which skipped forever-repeating animations in `HostedWindowCapture`'s settle check, was not kept: it would
+   have let the placeholder picture settle and be recorded.
+3. `3226efb9f` **s07 `comments-post-empty` landscape: the rotation wait was counted on the wall clock.** The test took
+   78 s where its neighbours took 6 to 26; at the same time the other clone's `settings-pages-site-settings-error`
+   (light) took 49 s for 3 settle reads, against a shard median of 2.3 s per picture: the host froze.
+   `SnapshotMatrixCase.rotate` waited until a 20 s deadline; a freeze that used up the deadline ended the wait without
+   reading the window again, and so, by inference, did the one repeated request, so both pictures were `geometry` with
+   0 attempts. Fix: the wait is counted in reads (400 reads, 50 ms apart, the same 20 s when nothing freezes), as the
+   settle wait already is. The pin check and the two matching reads are unchanged.
+4. `4898e6309` **iPad native policy cold AX1/AX3.**
+   - Library: on the iPad sidebar the test required a selected `library-downloads-*` link, but cold Downloads
+     selects All Downloads (`.downloads(.all)`), which has no folder link (`LibraryView.swift`), so the wait could
+     only time out. Readiness for sidebar Downloads is now its content, `downloads-gallery-list`; Favorites still
+     needs its selected category, and the native title must be hittable in both. The presentation (sidebar or
+     title menu) is chosen anew on every sample, since the layout can change while the bar appears.
+   - Home tab: `tab(_:in:)` first queried a tab bar the iPad does not have; at AX3 that query took about 30 s
+     and used up the 10 s wait. The iPad's floating tabs are queried as the buttons they are, with the long
+     hittable wait; selected and hittable are still both required, and the message says which failed.
+   - Live text size (recovered work above): the two Settings-route tests match each live render of the Account row
+     with a cold render at the same size (height and ink), since the row is 65 points at Large and AX1 alike.
+   - The Settings route takes 760 to 860 s on the hosted iPad when nothing goes wrong, so the class's allowance
+     is 1,200 s. Each workflow attempt starts at Large, a failing test runs at most twice
+     (`-retry-tests-on-failure -test-iterations 2`), and the native-policy job keeps its result bundles on
+     failure (7 days); snapshot shards still upload none.
+5. `4898e6309` workflow: the native-policy step's test list now matches `Test Case` lines (it matched none).
+
+**Local checks (Xcode 27.2, iOS 27.2; not hosted proof):**
+- Python: `python3 -m unittest discover -p 'test_*.py'` in `Scripts/visual`, **376/376** passed (92.8 s). This
+  includes `test_snapshot_gate.py` and `test_hosted_simulator.py`; the fake shard timeout failure recorded
+  during the recovery above did not recur. SwiftLint (`--strict`) on the changed Swift files: 0 violations.
+- Snapshot coordinates through `run-snapshot-local.sh`, candidate mode: iPhone `CommentsSnapshotTests/testPostEmpty`
+  at ja-accessibility5, **4/4 recorded** (portrait and landscape, light and dark, 5 settle reads each, first
+  attempts); iPad `HistorySnapshotTests/testGrid` at ja-large portrait, **2/2 recorded**, every cover drawn. A
+  freeze cannot be made on purpose here, so these show only that the changes keep the pictures; run 4 is the proof.
+- Native policy on the 27.2 iPad: cold AX3 twice and cold AX1 twice, **4/4 passed** (54 to 68 s each); then the
+  whole class, **10/10 passed** (930 s; the Settings test 196 s).
+- Native policy on the 27.2 iPhone: the whole class, 8 of 10 passed before the local run was cut off by a
+  harness time limit during the ninth (no failure); the two it had not reached were then run on their own,
+  **2/2 passed** (search 106 s, Settings 165 s). Every run started at Large; each device was left Shutdown at
+  Large with its accessibility settings as found.
+- Not run: actionlint (not installed here; the workflow's YAML is parsed by `test_snapshot_gate.py`). No local
+  27.0 run: the hosted pins (Xcode 27.1 27A9275, iOS 27.0 24A434) are unchanged and only the hosted run proves them.
+
+**Run 4.** The fixes above, merged into `ci/snapshot-gate` with the same fault, `s03=crash,s20=no-artifact`, so
+that run 3's unmet expectations are tested again: `triage` lists exactly s03 and s20, both retries make their
+simulator and pass, both native-policy jobs pass, and the aggregate is green with all four classes at 0. A green
+run is candidate mode and is not baseline approval.
+
+### Open items for Phase 20 (release gate on the `aggregate` check)
+
+Phase 20's release workflows require a successful check run named `aggregate` (the job id in
+`snapshot-gate.yml`) on the shipped commit. That name stays as it is. Two gaps remain open:
+
+1. A candidate-mode run pushed to `ci/snapshot-gate` also ends in a passing `aggregate` check, without any
+   baseline comparison. On a commit that also has a compare run, the candidate run's check could shadow it.
+2. The gate runs on pull requests, so a squashed or rebased commit on main may have no run of its own, and so
+   no `aggregate` check.
