@@ -37,6 +37,7 @@ jobs:
   Deploy:
     needs: snapshot-gate
     runs-on: xcode-27
+    timeout-minutes: 120
     # One release at a time: the gate lets two merged release pull requests reach this job together, and the
     # second would publish its release and then fail the push of the catalogue commit. Queue, never cancel.
     # On the job, not the workflow: a pull request closed without merging also starts this workflow, and
