@@ -16,17 +16,24 @@ import Testing
 // "relaunch" is a new client over the same defaults and the same recorders.
 @Suite
 struct AnalyticsLevelGateTests {
-    /// Screens and features, and kinds of errors (D-06f).
+    /// Screens and features, and kinds of errors (D-06f), and the 3.0 flows (20-12, signed off): the
+    /// first-launch screens, the analytics choice and comment moderation, all under "which screens and
+    /// features you use".
     private static let basicCases: Set<String> = [
         "tabOpened", "homeSectionViewed", "filterPanelOpened", "quickSearchPanelOpened", "savedSearchUsed",
-        "tagTapped", "searchPerformed", "errorSurfaced", "loginFailed", "cloudflareChallengeEncountered"
+        "tagTapped", "searchPerformed", "errorSurfaced", "loginFailed", "cloudflareChallengeEncountered",
+        "firstLaunchCompleted", "analyticsLevelChanged", "commentReportOutcome", "commentPosterBlocked",
+        "commentPosterUnblocked", "blockedCommentShown", "commentPostingWarningAnswered"
     ]
     /// Reading and download activity (D-06f).
     private static let fullOnlyCases: Set<String> = [
         "galleryDetailOpened", "readingSessionEnded", "downloadStateChanged"
     ]
+    /// The one default parameter at Basic: where the app came from (20-12 §3, owner msg 2842).
+    private static let basicDefaultParameterKeys: Set<String> = ["App.distributionChannel"]
     private static let defaultParameterKeys: Set<String> = [
-        "App.host", "App.loggedIn", "App.readingDirection", "App.dualPageMode", "App.translateTags"
+        "App.host", "App.loggedIn", "App.readingDirection", "App.dualPageMode", "App.translateTags",
+        "App.distributionChannel"
     ]
 
     // MARK: Before the choice
@@ -99,7 +106,7 @@ struct AnalyticsLevelGateTests {
     }
 
     @Test
-    func basicSendsExactlyTheScreenFeatureAndErrorSignalsWithNoDefaultParameters() {
+    func basicSendsExactlyTheScreenFeatureAndErrorSignalsWithOnlyTheChannelAsADefaultParameter() {
         let harness = GateHarness(level: .basic)
         harness.client.apply(.basic)
 
@@ -107,21 +114,24 @@ struct AnalyticsLevelGateTests {
 
         #expect(Set(sent.keys) == Self.basicCases)
         for (name, defaultParameters) in sent {
-            #expect(defaultParameters.isEmpty, "\(name) carried \(defaultParameters.keys.sorted())")
+            #expect(
+                Set(defaultParameters.keys) == Self.basicDefaultParameterKeys,
+                "\(name) carried \(defaultParameters.keys.sorted())"
+            )
         }
     }
 
     // MARK: Full
 
     @Test
-    func fullSendsEverySignalWithTheFiveSettingsParameters() {
+    func fullSendsEverySignalWithTheFiveSettingsParametersAndTheChannel() {
         let harness = GateHarness(level: .full)
         harness.client.apply(.full)
 
         let sent = harness.sendEachFixtureRecordingWhatReachedTheSDK()
 
         #expect(Set(sent.keys) == Self.basicCases.union(Self.fullOnlyCases))
-        #expect(sent.count == 13)
+        #expect(sent.count == 20)
         for (name, defaultParameters) in sent {
             #expect(Set(defaultParameters.keys) == Self.defaultParameterKeys, "\(name)")
         }
@@ -217,7 +227,7 @@ struct AnalyticsLevelGateTests {
     func theClassificationCoversEveryCaseOnce() {
         let names = AnalyticsSignalRenderingTests.fixtures.map({ GateHarness.caseName(of: $0.signal) })
 
-        #expect(Set(names).count == 13)
+        #expect(Set(names).count == 20)
         #expect(Self.basicCases.isDisjoint(with: Self.fullOnlyCases))
         #expect(Set(names) == Self.basicCases.union(Self.fullOnlyCases))
     }

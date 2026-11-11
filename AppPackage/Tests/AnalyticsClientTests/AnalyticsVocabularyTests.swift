@@ -60,6 +60,26 @@ struct AnalyticsVocabularyTests {
         )
     }
 
+    // The 3.0 flows' values (20-12, signed off). The report outcome has four, as the record lists them;
+    // the reason is not one (owner msg 2837).
+    @Test
+    func reportOutcomeSpellsEveryCase() {
+        #expect(ReportOutcome.allCases.count == 4)
+        #expect(ReportOutcome.allCases.map(\.rawValue) == ["sent", "failed", "unavailable", "reportPageOpened"])
+    }
+
+    @Test
+    func unblockSurfaceSpellsEveryCase() {
+        #expect(UnblockSurface.allCases.count == 2)
+        #expect(UnblockSurface.allCases.map(\.rawValue) == ["comment", "blockedUsers"])
+    }
+
+    @Test
+    func postingWarningChoiceSpellsEveryCase() {
+        #expect(PostingWarningChoice.allCases.count == 2)
+        #expect(PostingWarningChoice.allCases.map(\.rawValue) == ["edit", "postAnyway"])
+    }
+
     @Test(arguments: [
         TabFixture(type: .home, tab: .home),
         TabFixture(type: .library, tab: .library),
@@ -116,5 +136,10 @@ struct AnalyticsVocabularyTests {
         #expect(Set(SearchSurface.allCases.map(\.rawValue)).count == SearchSurface.allCases.count)
         #expect(Set(DownloadOutcome.allCases.map(\.rawValue)).count == DownloadOutcome.allCases.count)
         #expect(Set(LoginFailureKind.allCases.map(\.rawValue)).count == LoginFailureKind.allCases.count)
+        #expect(Set(ReportOutcome.allCases.map(\.rawValue)).count == ReportOutcome.allCases.count)
+        #expect(Set(UnblockSurface.allCases.map(\.rawValue)).count == UnblockSurface.allCases.count)
+        #expect(
+            Set(PostingWarningChoice.allCases.map(\.rawValue)).count == PostingWarningChoice.allCases.count
+        )
     }
 }

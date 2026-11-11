@@ -21,3 +21,18 @@ extension Mirror {
         })
     }
 }
+
+/// Probe strings for the 3.0 moderation flows (20-12, 20-13): one per piece of content a comment, a
+/// report or a block touches, each distinctive enough that no signal name, key or value can contain
+/// it by chance. A flow's test places them in its state; a signal that carries any of them has leaked.
+enum ModerationLeakProbe {
+    static let commentText = "zqxprobecommenttext7731"
+    static let posterName = "zqxprobepostername7731"
+    static let memberID = "zqxprobememberid7731"
+    static let reportDetails = "zqxprobereportdetails7731"
+    static let email = "zqxprobe7731@example.invalid"
+    static let galleryTitle = "zqxprobegallerytitle7731"
+    static let url = "https://zqxprobe7731.example.invalid/g/7731/zqxprobetoken/"
+
+    static let all = [commentText, posterName, memberID, reportDetails, email, galleryTitle, url]
+}
