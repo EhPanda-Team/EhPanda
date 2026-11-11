@@ -431,6 +431,50 @@ struct UITestStubTests {
         #expect(try UITestStubURLProtocol.galleryMetadataResponse(requestBody: rating, fixture: fixture) == nil)
     }
 
+    /// A comment vote is answered as the site answers it, from the saved page's score: a vote adds to it, the same
+    /// direction again withdraws it, the other direction replaces it. A tag vote gets an empty answer, and any other
+    /// method has none.
+    @Test
+    func voteResponseFollowsTheSitesVoteRules() throws {
+        let directory = FileManager.default.temporaryDirectory
+            .appending(path: "UITestStubVotes-\(UUID().uuidString)")
+        try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+        defer {
+            do {
+                try FileManager.default.removeItem(at: directory)
+            } catch {
+                Issue.record(error)
+            }
+        }
+        try Data("""
+        <span id="comment_score_990001" style="opacity:1.0">+10</span>
+        """.utf8).write(to: directory.appending(path: "GalleryDetail.html"))
+
+        func vote(_ direction: Int) throws -> [String: Int] {
+            let body = try JSONSerialization.data(withJSONObject: [
+                "method": "votecomment", "comment_id": 990_001, "comment_vote": direction
+            ])
+            let data = try #require(
+                try UITestStubURLProtocol.voteResponse(requestBody: body, fixtureDirectory: directory)
+            )
+            return try #require(try JSONSerialization.jsonObject(with: data) as? [String: Int])
+        }
+
+        expectNoDifference(try vote(1), ["comment_id": 990_001, "comment_score": 11, "comment_vote": 1])
+        expectNoDifference(try vote(1), ["comment_id": 990_001, "comment_score": 10, "comment_vote": 0])
+        expectNoDifference(try vote(-1), ["comment_id": 990_001, "comment_score": 9, "comment_vote": -1])
+        expectNoDifference(try vote(1), ["comment_id": 990_001, "comment_score": 11, "comment_vote": 1])
+
+        let tag = try JSONSerialization.data(withJSONObject: ["method": "taggallery", "tags": "a:b", "vote": 1])
+        let tagAnswer = try #require(
+            try UITestStubURLProtocol.voteResponse(requestBody: tag, fixtureDirectory: directory)
+        )
+        #expect(String(decoding: tagAnswer, as: UTF8.self) == "{}")
+
+        let rating = try JSONSerialization.data(withJSONObject: ["method": "rategallery", "gid": 1])
+        #expect(try UITestStubURLProtocol.voteResponse(requestBody: rating, fixtureDirectory: directory) == nil)
+    }
+
     private func post(_ body: [String: Any], in session: URLSession) async throws -> (data: Data, statusCode: Int) {
         let url = try #require(URL(string: "https://e-hentai.org/api.php"))
         var request = URLRequest(url: url)
