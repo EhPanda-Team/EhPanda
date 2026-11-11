@@ -1614,7 +1614,7 @@ Plans:
 
 **Wave 6** *(blocked on Wave 5 and 20-12)* — (g)
 
-- [ ] 20-13-PLAN.md — the signed-off signals, call sites, tests, and README in six languages
+- [x] 20-13-PLAN.md — the signed-off signals, call sites, tests, and README in six languages *(done 2026-11-11, `20-13-SUMMARY.md`)*
 
 **Wave 7** *(blocked on 20-09 and 20-13)* — (h)
 
