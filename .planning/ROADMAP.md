@@ -716,7 +716,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 18. In-App 3.0 Readiness: Age Wall, Analytics Choice, Comment Moderation & Reader Rework | 12/12 | Complete    | 2026-11-06 |
 | 18.1. Native report form (INSERTED) | 5/5 | Complete    | 2026-11-07 |
 | 19. Visual Regression & Daily Live-Parsing Check | 15/17 | Complete with deferred items | 2026-11-11 |
-| 20. 3.0 Distribution: Marketplace Build, Notarization, Listing & Release Checks | 6/14 | In Progress |  |
+| 20. 3.0 Distribution: Marketplace Build, Notarization, Listing & Release Checks | 8/14 | In Progress |  |
 
 ### Phase 12: Cloudflare Login Restoration
 
@@ -1610,7 +1610,7 @@ Plans:
 **Wave 5** *(blocked on 20-03, 20-05, 20-09 and Phase 19)* — (f)
 
 - [x] 20-10-PLAN.md — store screenshots from Phase 19's approved references *(checkpoints: owner's screens, decoration and wording; owner approval, push and upload)* — *closed 2026-11-10 by product lead msg 3168 (owner msg 3167) with the owner's seven decorated iPhone screenshots (owner msg 2628; assets `41f9a13`), now in the PAL template; no longer depends on Phase 19. The App Store Connect upload, the PAL copy approval and any iPad set move to 20-08 (`20-10-SUMMARY.md`).*
-- [ ] 20-11-PLAN.md — the release and the PAL submission require the screenshot check's verdict *(checkpoint: OQ-F, how Phase 19's gate reaches this branch)*
+- [x] 20-11-PLAN.md — the release and the PAL submission require the screenshot check's verdict *(checkpoint: OQ-F, answered by owner msg 3346: main-first; `main` merged 2026-11-11; the live reads exit 1 because Phase 19's gate pass is deferred, `20-11-GATE.md`)*
 
 **Wave 6** *(blocked on Wave 5 and 20-12)* — (g)
 

@@ -4,16 +4,16 @@ milestone: v3.0.0
 current_phase: 20
 current_phase_name: "3.0 Distribution: Marketplace Build, Notarization, Listing & Release Checks"
 status: executing
-stopped_at: Completed 20-10-PLAN.md (closed by decision); main merged (Phase 19 complete with deferred items)
+stopped_at: Completed 20-11-PLAN.md; main merged (Phase 19 complete with deferred items)
 last_updated: "2026-11-11T12:00:00.000Z"
 last_activity: 2026-11-11
-last_activity_desc: "main (Phase 19 closed with deferred items, owner msgs 3425, 3428, 3573) merged into feature/gsd-phase-20 (OQ-F, owner msg 3346)"
+last_activity_desc: "20-11 closed: main (Phase 19 closed with deferred items, owner msgs 3425, 3428, 3573) merged into feature/gsd-phase-20 (OQ-F, owner msg 3346); the release gate reads the merged PR head and compare runs only"
 state_head: e618e40cbb803098c79170a6f3524064002e313d
 progress:
   total_phases: 21
   completed_phases: 19
   total_plans: 321
-  completed_plans: 326
+  completed_plans: 327
   percent: 90
 milestone_name: Dependency Reduction & Modernization
 source_head: b5eca09d1
@@ -83,17 +83,18 @@ source_head: b5eca09d1
   Phase 19 (20-11 still does). Moved to 20-08: the collaborator's App Store Connect upload, the PAL copy
   (copywriter msg 2785) and its owner approval, and the iPad 13-inch question (no iPad set exists). MKT-18-01,
   DIST-18-02 and CAP-17-05 stay Pending.
-- **20-11 Tasks 1 and 2 done (2026-11-11)** (RED `6d8e46499`; GREEN `ae7c691c6`; `20-11-GATE.md`): OQ-F
-  answered by owner msg 3346 ("wait for phase 19 closure. before that, we update the github actions workflow"):
-  Phase 19 reaches this branch through `main` after it closes; nothing is merged from or committed to
-  `feature/gsd-phase-19`. `actions-tool/require-snapshot-gate.sh <sha> <check name>` reads the commit's check runs and
-  passes only for a GitHub Actions run of that name that is completed with `success`. `deploy.yml` (on the PR head)
-  and `deploy-pal.yml`'s submit job (on `github.sha`) require it right after Checkout, with `checks: read`. The check
-  name is `aggregate` (read from `snapshot-gate.yml` on `feature/gsd-phase-19`, no `name:` on the job); the file is not
-  on this branch, so the tests hold both workflows to one shared name and compare it with the file once it is there
-  (skipped while absent). **Task 3 (the live read of a real verdict) waits for Phase 19's closure**; 20-11 stays open
-  and `20-11-SUMMARY.md` is not written. Open for Task 3: a PAL dispatch on a squash commit on `main` has no gate
-  verdict (`20-11-GATE.md`, point 1). REL-18-01 stays Pending.
+- **20-11 complete (2026-11-11)** (merge `31c19a12f`; RED `6d8e46499`, `50668dd74`, `687a8ccbe`; GREEN `ae7c691c6`,
+  `9cc65e33e`; `20-11-GATE.md`, `20-11-SUMMARY.md`): OQ-F answered by owner msg 3346 (main-first); this branch merged
+  `main` (Phase 19 closed with deferred items; conflicts in `deploy.yml`, `actionlint.yaml`, ROADMAP and STATE
+  resolved, both phases' work kept). `actions-tool/require-snapshot-gate.sh <sha> aggregate [--merged-pr]
+  [--compare-only]` passes only for a GitHub Actions run of that name that is `success`; `deploy.yml` (PR head,
+  `--compare-only`) and `deploy-pal.yml` (`--merged-pr --compare-only`) require it right after Checkout. The check name
+  `aggregate` is now read from the real `snapshot-gate.yml`. Two gaps found and fixed in `actions-tool`: a dispatch on
+  a squash or rebase commit on `main` has no check run (main is linear; the gate does not run on pushes to main), and a
+  candidate-mode run is also an `aggregate` check run (a spoof); `snapshot-gate.yml` is unchanged. Live reads against
+  EhPanda-Team/EhPanda are all exit 1 (PR 469's head: `aggregate` failure; the candidate branch head and a commit with
+  no run: no check run): honest, since the gate pass is deferred and no baseline is approved. `main`'s `deploy.yml`
+  also calls the gate itself in compare mode (`snapshot-gate / aggregate`); both are kept. REL-18-01 stays Pending.
 - **Decision (2026-11-11, owner msg 3501; product lead msg 3502):** the website gets no GitHub Issues link. The
   published contact link is out of the 3.0 plan (ROADMAP Phase 20 item 4 and SC4, D-05, 20-07, 20-08 amended), and
   UGC-18-01 is marked complete. The App Store Connect Support URL is the GitHub repository page,
@@ -2007,7 +2008,7 @@ Items acknowledged and carried forward from previous milestone close:
 ## Session Continuity
 
 Last session: 2026-11-11T12:00:00.000Z
-Stopped at: Completed 20-10-PLAN.md (closed by decision); main merged
+Stopped at: Completed 20-11-PLAN.md; main merged
 Resume file: None
 
 Earlier stop (2026-10-13T10:50:00Z, historical): 17-06 revision re-shot, 16/16 captured (`.capture/17-06-t-native-*`); superseded by the owner's 2026-11-02 approval of the 192-image website set.
