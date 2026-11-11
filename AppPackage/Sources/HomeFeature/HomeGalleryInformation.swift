@@ -134,16 +134,15 @@ struct HomeFrontPageWall: View {
     let maximumCoverHeight: CGFloat?
     let navigateAction: (Gallery) -> Void
 
+    /// The cells are laid out by `HomeCoverWallLayout` rather than a `Grid` so that each one is a direct
+    /// child of a scroll target layout. The 20pt side inset is the section's content margin, set where
+    /// the scroll view is, so the snapped column and the first column rest at the same inset.
     var body: some View {
-        Grid(alignment: .topLeading, horizontalSpacing: 20, verticalSpacing: 26) {
-            GridRow {
-                ForEach(columns.compactMap(\.first), content: galleryButton)
-            }
-            GridRow {
-                ForEach(columns.compactMap(\.last), content: galleryButton)
-            }
+        HomeCoverWallLayout(columnSpacing: 20, rowSpacing: 26) {
+            ForEach(columns.compactMap(\.first), content: galleryButton)
+            ForEach(columns.compactMap(\.last), content: galleryButton)
         }
-        .padding(.horizontal, 20)
+        .scrollTargetLayout()
     }
 
     private func galleryButton(gallery: Gallery) -> some View {
