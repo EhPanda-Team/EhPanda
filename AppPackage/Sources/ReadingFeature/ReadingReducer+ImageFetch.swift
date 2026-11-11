@@ -122,11 +122,15 @@ extension ReadingReducer {
                 fetchImageURLIndices.forEach {
                     effects.append(.send(.fetchImageURLs($0)))
                 }
-                effects.append(
-                    .run { [prefetchImageURLs] _ in
-                        imageClient.prefetchImages(prefetchImageURLs)
-                    }
-                )
+                // Nothing resolved yet in the window, as when the reader has just opened: there is
+                // nothing to hand the image client, so don't start an effect for it.
+                if !prefetchImageURLs.isEmpty {
+                    effects.append(
+                        .run { [prefetchImageURLs] _ in
+                            imageClient.prefetchImages(prefetchImageURLs)
+                        }
+                    )
+                }
                 return .merge(effects)
 
             case .fetchThumbnailURLs(let page):
@@ -294,8 +298,16 @@ extension ReadingReducer {
                         state.imageURLLoadingStates[$0] = .idle
                     }
                     state.updateMPVImageList(imageList)
+                    // The first pages, plus the page the reader shows when that lies outside them: the
+                    // keys arrive after the one fetch of the opening page, which could only resolve the
+                    // thumbnail batch, and a page that is already on screen never appears again to ask.
+                    var pages = Array(1...min(3, max(1, pageCount)))
+                    let displayedPage = min(state.position.displayedPage, max(1, pageCount))
+                    if !pages.contains(displayedPage) {
+                        pages.append(displayedPage)
+                    }
                     return .merge(
-                        Array(1...min(3, max(1, pageCount))).map {
+                        pages.map {
                             .send(.fetchMPVImageURL(index: $0, isRefresh: false))
                         }
                     )

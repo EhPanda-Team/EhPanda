@@ -141,6 +141,9 @@ struct HorizontalImageStack: View {
         // precisely to run ahead of visibility. This is the reader's hottest request path, so
         // rebuilding the laziness in the reducer would risk load-order and cancellation drift for
         // no behavioural gain.
+        // The page the reader opens on is the exception to "the cell asks": a programmatic non-zero
+        // initial position never makes its cell appear, so `.onPresented` fetches that page and its
+        // window itself. This ask then finds the batch loading (or the URL resolved) and is a no-op.
         // swiftlint:disable:next lifecycle_modifiers
         .onAppear {
             if imageURLs[page] == nil {

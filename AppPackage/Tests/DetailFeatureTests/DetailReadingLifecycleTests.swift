@@ -53,6 +53,8 @@ struct DetailReadingLifecycleTests {
         await store.receive(\.destination.presented.reading.onPresented)
         await store.receive(\.destination.presented.reading.observeDownloads)
         await store.receive(\.destination.presented.reading.loadLocalPageURLs)
+        // The reader starts its own first fetch: no page cell appears for a programmatic start page.
+        await store.receive(\.destination.presented.reading.fetchImageURLs)
 
         await store.finish()
     }
@@ -66,6 +68,8 @@ struct DetailReadingLifecycleTests {
         await store.receive(\.destination.presented.reading.onPresented)
         await store.receive(\.destination.presented.reading.observeDownloads)
         await store.receive(\.destination.presented.reading.loadLocalPageURLs)
+        // The reader starts its own first fetch: no page cell appears for a programmatic start page.
+        await store.receive(\.destination.presented.reading.fetchImageURLs)
 
         await store.finish()
     }

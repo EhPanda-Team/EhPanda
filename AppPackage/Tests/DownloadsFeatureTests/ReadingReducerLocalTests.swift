@@ -1,5 +1,6 @@
 import AnalyticsClient
 @testable import AppFeature
+import AppLaunchAutomationClient
 import AppModels
 import AppTools
 import ClipboardClient
@@ -155,4 +156,56 @@ struct ReadingReducerLocalTests: DownloadFeatureTestCase {
         #expect(store.state.imageURLs.isEmpty)
     }
 
+    // Presenting the reader starts the first fetch, and an offline reader has no network to fetch from: the page
+    // settles as idle from its local file and nothing is marked loading or requested.
+    @MainActor
+    @Test
+    func testPresentingALocalSourceReaderStartsNoNetworkFetch() async throws {
+        let gid = "778"
+        let title = "Offline Presented"
+        let folderURL = FileUtil.downloadsDirectoryURL
+            .appending(path: "[\(gid)_token] \(title)", directoryHint: .isDirectory)
+        let localPageURLs = [
+            1: folderURL.appending(path: "123_token_1.jpg"),
+            2: folderURL.appending(path: "123_token_2.jpg")
+        ]
+        let download = sampleDownload(
+            gid: gid, title: title, status: .completed, pageCount: 2, folderURL: folderURL,
+            localPageURLs: localPageURLs
+        )
+        let manifest = try sampleManifest(gid: download.gid, title: download.title)
+        _ = try prepareLocalDownloadFiles(download: download, manifest: manifest)
+        defer { removeTemporaryItem(at: folderURL) }
+
+        let store = TestStore(
+            initialState: ReadingReducer.State(
+                gallery: .preview, contentSource: .local(download: download, manifest: manifest)
+            )
+        ) {
+            ReadingReducer()
+        } withDependencies: {
+            $0.analyticsClient = .noop
+            $0.appLaunchAutomationClient = .none
+            $0.clipboardClient = .noop
+            $0.cookieClient = .noop
+            $0.date = .constant(Date(timeIntervalSince1970: 0))
+            $0.downloadClient = .noop
+            $0.downloadClient.loadLocalPageURLs = { _ in localPageURLs }
+            $0.hapticsClient = .noop
+            $0.imageClient = .noop
+        }
+        store.exhaustivity = .off
+
+        await store.send(.onPresented)
+        await store.receive(\.fetchImageURLs, 1) {
+            $0.imageURLLoadingStates[1] = .idle
+        }
+        await store.receive(\.prefetchImages)
+        await store.skipReceivedActions(strict: false)
+        await store.finish()
+
+        #expect(store.state.imageURLLoadingStates.values.allSatisfy({ $0 == .idle }))
+        #expect(store.state.thumbnailURLs.isEmpty)
+        #expect(store.state.imageURLs.isEmpty)
+    }
 }
