@@ -30,7 +30,7 @@ a malformed data row. Group boundaries, by row number:
 | `TelemetryDeck.initialize(config:)` | INTEGRATE | |
 | `TelemetryDeck.Config.init(appID:)` | INTEGRATE | |
 | `TelemetryDeck.Config.salt` | INTEGRATE | Set once from the gitignored local xcconfig; permanent commitment, owner-confirmed in plan `14-02`. |
-| `TelemetryDeck.Config.defaultParameters` | INTEGRATE | D-11 — the settings snapshot on every signal. Returns empty for an opted-out install, so no app-authored parameter rides on the session signal. |
+| `TelemetryDeck.Config.defaultParameters` | INTEGRATE | D-11 — the settings snapshot on every signal at Full. Phase 20 (20-12, owner msg 2842) adds `App.distributionChannel` on every signal at Basic and Full, and nothing else at Basic. Returns empty before a level is chosen and at Minimal (where the SDK is never started), so no app-authored parameter rides on the session signal. |
 | `TelemetryDeck.Config.sendNewSessionBeganSignal` | INTEGRATE | Kept at its `true` default; this *is* D-05 family 1 (launch / foreground). |
 | `TelemetryDeck.Config.sessionStatsEnabled` | INTEGRATE | Kept at its `true` default; feeds the vendor's built-in session insights. |
 | `TelemetryDeck.Config.testMode` | INTEGRATE | Kept at its auto-`DEBUG` default so debug builds are segregated server-side. |
@@ -101,3 +101,32 @@ Counts are the capability rows in the matrix above, recounted against the body o
 | OPT-OUT without a reason | 0 |
 
 Per section — Initialization & configuration 10/15, Signal emission 1/7, Duration signals 0/3, Error signals 2/3, Navigation signals 0/4, Purchase & preset APIs 0/9, Legacy & interop 1/4 (INTEGRATE/OPT-OUT).
+
+---
+
+## 3.0 signals (Phase 20, plan 20-13)
+
+The seven signals below were signed off in `20-12-VOCABULARY.md` (product lead msg 2829; owner msgs 2837 and 2842) and
+implemented in plan 20-13. They are `AnalyticsSignal` cases, each rendered once in `AnalyticsSignal+Rendering.swift`
+through `TelemetryDeck.signal(_:parameters:)` (an INTEGRATE row above), and every one needs Basic: "which screens and
+features you use". Every value is the raw value of a closed enum. None carries a comment, a poster, a member ID, a
+report field, a gallery or a URL. No level description changed.
+
+- `FirstLaunch.completed`: `Analytics.level` (`basic` or `full`). Sent once, after the level chosen on the first-launch
+  screens is applied.
+- `Analytics.levelChanged`: `Analytics.from` (`minimal`, `basic` or `full`) and `Analytics.to` (`basic` or `full`). Sent
+  after a change in Settings is applied. A change to Minimal sends nothing.
+- `Moderation.reportOutcome`: `Moderation.reportOutcome` (`sent`, `failed`, `unavailable` or `reportPageOpened`). It
+  carries how a report ended and not why (`Moderation.reportReason` was dropped, owner msg 2837).
+- `Moderation.posterBlocked`: no parameter.
+- `Moderation.posterUnblocked`: `Moderation.unblockSurface` (`comment` or `blockedUsers`).
+- `Moderation.blockedCommentShown`: no parameter.
+- `Moderation.postingWarningAnswered`: `Moderation.postingChoice` (`edit` or `postAnyway`).
+
+Nothing new is sent for the marketplace build: its channel, `altstorePAL`, is the value of `App.distributionChannel`.
+
+**The install is counted by `App.installed` (OI-4, answer A).** At Basic and Full one install can also produce the SDK's
+own `TelemetryDeck.Acquisition.newInstallDetected`. The two carry different anonymous hashes and cannot be matched per
+install, so the dashboard's install count is `App.installed`: it is sent at every level, once per install.
+`newInstallDetected` counts only Basic and Full installs, and an upgrade from 2.x, where the SDK ran by default, may
+already have its first-session state. Both signals are kept, and nothing in `TelemetrySDK.swift` filters either.
