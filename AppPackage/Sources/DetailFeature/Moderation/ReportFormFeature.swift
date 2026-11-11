@@ -307,10 +307,8 @@ public struct ReportFormFeature: Sendable {
 
             case .reasonTapped(let reason):
                 guard state.phase == .ready else { return .none }
-                // Details gets focus after the first pick, not on open: the keyboard would hide the reasons (P-3).
-                if state.reason == nil {
-                    state.focus = .details
-                }
+                // A pick only ticks the row. The keyboard opens when the person taps Details, never on a pick: it
+                // would cover the other reasons while they are still choosing (Ato 3909).
                 state.reason = reason
                 return .none
 
