@@ -44,7 +44,7 @@ public enum GalleryNavigation {
             switch delegate {
             case let .pushDetail(gallery, deepLink):
                 return .detail(.init(gallery: gallery, pendingDeepLink: deepLink))
-            case .performedCommentAction:
+            case .performedCommentAction, .commentVoted:
                 return nil
             }
 

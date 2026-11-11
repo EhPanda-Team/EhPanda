@@ -31,7 +31,8 @@ public struct GalleryComment: Identifiable, Equatable, Codable, Sendable {
     public let votable: Bool
     public let editable: Bool
 
-    public let score: String?
+    /// The score as the site prints it: signed, so `+113` or `-3`, and `0` at zero.
+    public var score: String?
     public let author: String
     /// The poster's E-Hentai member ID, from the forum contact link the site prints after the name; `nil` when the
     /// comment has none. Comment blocking matches on it, never on the name, which can change (owner msg 1918).
@@ -39,6 +40,19 @@ public struct GalleryComment: Identifiable, Equatable, Codable, Sendable {
     public let contents: [CommentContent]
     public let commentID: String
     public let commentDate: Date
+
+    /// The score text the site prints for `score`: a plus sign before a positive one, so it reads like the parsed one.
+    public static func scoreText(_ score: Int) -> String {
+        score > 0 ? "+\(score)" : String(score)
+    }
+
+    /// Applies a vote's outcome: `vote` is the site's own vote state for the signed-in user, `1` up, `-1` down, `0`
+    /// none, and `score` the comment's new score.
+    public mutating func applyVote(score: Int, vote: Int) {
+        self.score = Self.scoreText(score)
+        votedUp = vote > 0
+        votedDown = vote < 0
+    }
 
     public var plainTextContent: String {
         contents

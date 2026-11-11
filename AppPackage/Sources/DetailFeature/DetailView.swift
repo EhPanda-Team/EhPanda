@@ -192,7 +192,8 @@ private extension DetailView {
                             )))
                         }
                     },
-                    navigatePostCommentAction: { store.send(.postCommentButtonTapped) }
+                    navigatePostCommentAction: { store.send(.postCommentButtonTapped) },
+                    voteAction: { store.send(.voteComment(commentID: $0, vote: $1)) }
                 )
             }
             .padding(.bottom, 20)

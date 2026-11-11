@@ -166,6 +166,15 @@ public struct SearchRootReducer: Sendable {
                 state.appendHistoryKeywords([keyword])
                 return .none
 
+            // A vote's answer goes to the detail's own copy of the comment, with no fetch of the whole detail.
+            case let .path(.element(
+                id: _, action: .gallery(.comments(.delegate(.commentVoted(gid, commentID, score, vote))))
+            )):
+                guard let id = state.path.galleryDetailID(forGID: gid) else { return .none }
+                return .send(.path(.element(id: id, action: .gallery(.detail(
+                    .applyCommentVote(commentID: commentID, score: score, vote: vote)
+                )))))
+
             case let .path(.element(id: _, action: .gallery(.comments(.delegate(.performedCommentAction(gid)))))):
                 guard let id = state.path.galleryDetailID(forGID: gid) else { return .none }
                 return .send(.path(.element(id: id, action: .gallery(.detail(.fetchGalleryDetail)))))
