@@ -9,7 +9,8 @@ name: Snapshot measurement
 # into the cost table and the worker count. The pictures are synthetic; the references stay on the runner. Uploaded
 # are each run's results.jsonl, shard.json and xcodebuild log, the candidate's results.jsonl and shard.json, and for a
 # changed picture (and a flaky one's first attempt) its actual, difference and reference images. Every xcodebuild
-# has XCTest's per-test time allowance, a watchdog and a startup watchdog (no test begun after 20 minutes). The
+# has XCTest's per-test time allowance, a watchdog and a startup watchdog (no test begun after 20 minutes: no
+# `Test case` line and no new result line, Scripts/visual/snapshot_infra.py --started). The
 # simulator steps are time-limited and retried once (Scripts/visual/hosted-simulator.sh), the previous invocation's
 # clones are deleted before the next starts, and an invocation that fails on the simulator rather than in a test
 # (Scripts/visual/snapshot_infra.py) is made once more and recorded as `infra` if it fails that way again; run
@@ -63,8 +64,8 @@ jobs:
   measure:
     needs: build
     runs-on: xcode-27
-    # Room for the simulator step's 45 minutes and the measurement step's 140, so the upload still runs.
-    timeout-minutes: 200
+    # Room for the simulator step's 60 minutes and the measurement step's 140, so the upload still runs.
+    timeout-minutes: 215
     strategy:
       fail-fast: false
       matrix:
@@ -110,9 +111,10 @@ jobs:
           name: snapshot-measure-products
           path: ${{ runner.temp }}
       # Every simctl call has its own limit and a failed setup is made once more (Scripts/visual/hosted-simulator.sh):
-      # in run 42475531683 two jobs hung here until the job limit. The step limit covers both attempts.
+      # in run 42475531683 two jobs hung here until the job limit. The step limit covers both attempts, at the longer
+      # per-call limits that run 42533872440's runners needed.
       - name: Create the pinned simulator
-        timeout-minutes: 45
+        timeout-minutes: 60
         run: |
           tar -C "$RUNNER_TEMP" -xf "$RUNNER_TEMP/products.tar"
           udid=$(Scripts/visual/hosted-simulator.sh create 'EhPanda measure' '${{ matrix.device }}' \
@@ -147,9 +149,13 @@ jobs:
             [ -n "$6" ] && variables+=(TEST_RUNNER_EHPANDA_SNAPSHOT_REFERENCES="$6")
             [ -n '${{ matrix.orientations }}' ] &&
               variables+=(TEST_RUNNER_EHPANDA_SNAPSHOT_ORIENTATIONS='${{ matrix.orientations }}')
-            local configurations=() configuration
+            local configurations=() configuration baseline
             for configuration in $1; do configurations+=(-only-test-configuration "$configuration"); done
             mkdir -p "$4"
+            # The log is appended to, never truncated under xcodebuild: a watchdog's note written beside xcodebuild
+            # was overwritten by its later output in run 42533872440.
+            : >"$5"
+            baseline=$(grep -c . "$4/results.jsonl" 2>/dev/null || true)
             # A test that hangs is stopped by XCTest's own allowance (a scenario method captures four coordinates
             # in well under 5 minutes); an invocation that hangs outside a test is stopped by the watchdog.
             env "${variables[@]}" xcodebuild test-without-building \
@@ -161,7 +167,7 @@ jobs:
               -default-test-execution-time-allowance 300 \
               -maximum-test-execution-time-allowance 600 \
               "${configurations[@]}" \
-              "${only[@]}" >"$5" 2>&1 &
+              "${only[@]}" >>"$5" 2>&1 &
             local pid=$! minutes=$WATCHDOG_MINUTES status=0
             # One invocation of all three text sizes may take three times as long, within the step's limit.
             [ "$CONFIGURATION" = all ] && minutes=130
@@ -170,7 +176,12 @@ jobs:
             local watchdog=$!
             # A clone that never launches the test runner leaves the invocation waiting with no test begun: an
             # iPhone candidate waited 46 minutes in run 42475531683 and two waited 1 to 2 hours in run 42455556948.
-            ( sleep $((STARTUP_MINUTES * 60)) && ! grep -q "Test case '" "$5" && kill -TERM "$pid" 2>/dev/null &&
+            # A test has begun when the log says so or results.jsonl has grown: in run 42533872440 two invocations
+            # had written 123 and 78 result lines with no `Test case` line in the log, and were stopped.
+            ( sleep $((STARTUP_MINUTES * 60)) &&
+              ! python3 Scripts/visual/snapshot_infra.py --started "$5" "$4/results.jsonl" \
+                --baseline "${baseline:-0}" &&
+              kill -TERM "$pid" 2>/dev/null &&
               echo "watchdog: no test started after $STARTUP_MINUTES minutes" >>"$5" ) >/dev/null 2>&1 &
             local startup=$!
             wait "$pid" || status=$?

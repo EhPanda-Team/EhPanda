@@ -1,8 +1,9 @@
 import Foundation
 import XCTest
 
-/// The catalog against `scenarios.json` (19-02): every registered factory is an inventory scenario, registered once,
-/// in the group file of the plan the inventory names. Fast; captures nothing.
+/// The catalog against `scenarios.json` (19-02, closed in 19-10): every inventory scenario has a factory, and every
+/// registered factory is an inventory scenario, registered once, in the group file of the plan the inventory names.
+/// Fast; captures nothing.
 final class ScenarioInventoryTests: XCTestCase {
     func testEveryRegisteredIDIsInTheInventory() throws {
         let known = try Set(ScenarioInventory.load().scenarios.map(\.id))
@@ -28,15 +29,12 @@ final class ScenarioInventoryTests: XCTestCase {
         }
     }
 
-    /// Reports, without failing, the scenarios 19-05 to 19-08 have not reached yet; 19-10 makes this a failure.
-    func testReportsScenariosWithoutAFactory() throws {
+    /// The inventory is closed (19-10): every scenario in `scenarios.json` has a factory, so the inventory and the
+    /// catalog agree exactly. A state that cannot be captured is a not-applicable rule with its reason, never a
+    /// missing factory (D-04, D-05, D-12).
+    func testEveryInventoryIDHasAFactory() throws {
         let missing = try ScenarioInventory.load().scenarios.map(\.id).filter({ ScenarioCatalog.factories[$0] == nil })
-        let report = "\(missing.count) inventory scenarios have no factory yet."
-        print(report)
-        let attachment = XCTAttachment(string: ([report] + missing).joined(separator: "\n"))
-        attachment.name = "scenarios-without-factory"
-        attachment.lifetime = .keepAlways
-        add(attachment)
+        XCTAssertTrue(missing.isEmpty, "\(missing.count) inventory scenarios have no factory: \(missing.sorted())")
     }
 
     /// The fixture export takes only the inventory's scenarios with a public fixture (Phase 17's reader).

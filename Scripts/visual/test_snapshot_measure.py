@@ -197,7 +197,9 @@ class SnapshotMeasureTests(unittest.TestCase):
         self.assertEqual(costs['cloneSpeedup'], 2.4)
         self.assertEqual(costs['bootFetchMinutes'], 9.1)
         plan = json.loads(snapshot_shards.compute(cost_path=target))
-        self.assertEqual((plan['costSource'], plan['workers'], len(plan['shards'])), ('measured', 3, 20))
+        # A faster table needs fewer shards to keep every estimate within the target (19-10).
+        self.assertEqual((plan['costSource'], plan['workers']), ('measured', 3))
+        self.assertTrue(all(shard['estimatedMinutes'] <= plan['targetMinutes'] for shard in plan['shards']))
 
     def candidate(self, family, configuration, minutes):
         directory = self.runs.root / family / configuration / 'candidate'

@@ -1,16 +1,231 @@
+# Screenshot harness
+
+This directory holds the tooling for EhPanda's screenshots, in three parts:
+
+| Part | What it does | Where |
+|---|---|---|
+| Snapshot check (Phase 19) | Draws the app's own screens in process and compares them with one approved baseline, on every pull request and release | "Snapshot matrix", "Snapshot gate", "Baseline", "Report", "Candidates and approval" |
+| Rendering and capture harness (Phase 17) | The rendering pin, real marketing fixtures, capture launches and the Release isolation scan | "Selected UITests", "Release isolation", "Rendering environment" and the sections after it |
+| Daily live check (Phase 19) | Runs the app's parsers on the live pages once a day | "Daily live check" |
+
+Preview review by an agent is a separate aid and never an acceptance: see `preview-review.md`.
+
 # Test plans and CI
 
-`FeatureTests` runs package tests and app-hosted tests that need no capture coordinate. The
-`FullContentFeasibilityTests`, `GeometryTests`, and `VisualMatrixTests` classes run through
-`VisualTests` and the native scripts below, which supply their required text size, orientation,
-fixtures and coordinate. No assertions or capture cases are disabled in the visual plan.
+`FeatureTests` runs the package tests and the app-hosted tests that need no capture coordinate. `UITests` runs the
+UI tests; it skips the capture-only suites (`CaptureIsolationUITests`, `MarketingCaptureUITests`), whose inputs a
+plain run does not have. `VisualTests` holds the app-hosted `VisualSnapshotTests` target's feasibility and geometry
+probes (`FullContentFeasibilityTests`, `GeometryTests`), driven by the native scripts below. `SnapshotMatrix` is the
+snapshot matrix (next section). `LiveCheck` is the daily live check's test target. No assertion is disabled in any
+of them.
 
-The push workflow runs `FeatureTests` without command-line exclusions. The manually dispatched
-`Visual capture` workflow validates the existing rendering pin, then runs the native full-content
-gate (iPhone/iPad, portrait/landscape, Large/AX5). It uploads observations and result bundles even
-on failure. Its runner needs the pinned Xcode installation and dedicated simulators configured
-below; it fails on drift instead of replacing the pin. This gate is distinct from the full
-locale/theme/Dynamic Type regression matrix driven by `run-regression.py`.
+CI workflows:
+
+| Workflow | Runs | When |
+|---|---|---|
+| `test.yml` | `FeatureTests` without command-line exclusions | push, dispatch |
+| `snapshot-gate.yml` | the screenshot check, below | pull requests, before each release (`deploy.yml`, `deploy-beta.yml`) and on dependency updates (`dependencies.yml`) |
+| `live-check.yml` | the daily live check | daily, dispatch, push to `ci/live-check` |
+
+Phase 17's manually dispatched capture workflow and its per-coordinate regression flow are gone: the snapshot matrix
+and the gate replaced them.
+
+# Snapshot matrix
+
+The matrix draws each scenario's real view, with its real reducer and the app's preview dependencies, inside the
+app-hosted test's real key window (Path B, "in-process"). The test waits until the window has been unchanged for
+500 ms, draws it with `window.drawHierarchy(afterScreenUpdates: true)` and compares the image with
+swift-snapshot-testing's `.image` strategy. Content is the synthetic public fixture set (`PublicVisualFixtures`,
+`FixtureArtwork`): no real gallery, title or account detail.
+
+- **Inventory.** `AppPackage/Tests/VisualSnapshotTests/Resources/scenarios.json` (schema 2) lists every scenario and
+  its not-applicable rules, each with a reason. `python3 Scripts/visual/snapshot_matrix.py --totals` prints the
+  current totals: 137 scenarios, 19,728 coordinates, 360 not applicable (five by-design rules, 72 each), 19,368
+  expected pictures. `ScenarioInventoryTests` fails on any inventory ID without a factory.
+  What a process cannot draw is listed under `notCaptured`: the keyboard, live web content, the share sheet and the
+  file importer.
+- **Coordinates.** Six languages (`en`, `de`, `ja`, `ko`, `zh-Hans`, `zh-Hant`) times three text sizes (`xSmall`,
+  `large`, `accessibility5`) make the **18 configurations** of `AppPackage/Tests/SnapshotMatrix.xctestplan`, named
+  `<locale>-<size>`, for example `en-large`. A configuration carries the language and size for its process. Inside
+  the process each scenario is drawn in portrait and landscape and in light and dark, on iPhone Air and on iPad Pro
+  11-inch (M5): 144 pictures per scenario. iPadOS refuses an in-process turn, so an iPad process captures one
+  orientation, and the device is turned first with `VisualCaptureOrientationUITests`.
+- **Comparison.** Strict and never recording: pictures are 1x, precision 0.9999, perceptual precision 1, applied
+  everywhere (`HostedWindowCapture`). A picture that differs or times out is captured and compared once more
+  before it counts as failed; every such retry goes into the flake log. Recording happens only in an explicit
+  candidate run.
+- **Results.** Each run writes `results.jsonl`, one line per coordinate with its status (`passed`, `recorded`,
+  `changed`, `missing-baseline`, `timeout`, `error` or `notApplicable`), attempts, seconds and flake flag. The key
+  is `scenario__locale__size__orientation__family__theme`.
+- **Pins.** Rendering follows `regression-environment.json` (below). On a Mac or runner that does not match it the
+  run records `drift` and captures nothing.
+
+# Snapshot gate
+
+`.github/workflows/snapshot-gate.yml` is the full screenshot check. One build-for-testing job feeds the shards of
+`snapshot-shards.json`: planned as 20 shards (owner msg 2263) and re-planned from the hosted runs' measured costs
+(run 42577585956) to **27**, 18 iPhone shards of one configuration each and 9 iPad shards of two, each estimated at
+no more than 84 minutes (70% of the 120-minute limit). The shard plan is deterministic and balanced by cost:
+`python3 Scripts/visual/snapshot_shards.py --check` fails when it is stale.
+
+Each shard is `run-shard.sh` on its own macOS job. In order, it checks the rendering pin, fetches and verifies its
+baseline slices (compare mode), makes the pinned simulator with `hosted-simulator.sh`, runs the shard's invocations
+and re-runs once the classes a crash or the budget left without results. Jobs:
+
+- **`checks`** tests the gate's scripts, checks the shard plan and decides the mode.
+- **`build`** builds the `SnapshotMatrix` and `UITests` products once.
+- **shards** `s01` to `s27`, with `fail-fast` off and `continue-on-error`: one shard never cancels another.
+- **`triage`** lists the shards with a shard-level infrastructure error: a crash, a timeout, a lost runner or missing
+  results. One picture's `timeout` or `error` is reported, never retried at shard level, and a picture change never
+  triggers a retry.
+- **`retry`** runs exactly those shards once more in the same run. A retry that fails is reported, never retried.
+- **`native-policy`** runs `NativeVisualPolicyUITests` on both devices (cold entry and live text-size changes,
+  turns, toolbar priority, dialog and menu anchoring). These are transitions, which snapshots do not test.
+- **`aggregate`** takes each shard's latest attempt (a retry without `shard.json` keeps the first attempt and is
+  reported as `retry-lost`), requires a line for every expected coordinate (a missing one is an infrastructure
+  error, never a pass), names the four failure classes (picture changes, infrastructure errors, drift, baseline
+  mismatches) in the run summary, writes the report and is the run's verdict, together with `native-policy`.
+
+A newer push to the same pull request cancels the superseded run; a release, dispatch or dependency run is never
+cancelled. The gate's `aggregate` job is the check that Phase 20's release workflows require on the shipped commit.
+
+**Modes.** Compare checks every picture against the approved baseline. Candidate records every picture and compares
+nothing. Pull requests compare; a dispatch or a call chooses (compare by default); a push to `ci/snapshot-gate`
+records a candidate while there is no `fingerprints.json` and compares once there is.
+
+**Red until a baseline exists.** Compare mode needs
+`AppPackage/Tests/VisualSnapshotTests/Baseline/fingerprints.json`. Until the owner approves the first baseline,
+every compare run fails at once with "no approved baseline yet": pull requests, releases and dependency updates
+alike. This is by design.
+
+**Status.** The gate is built and its scripts are tested. A green hosted run, the candidate run, the approved
+baseline and the controlled regression (a one-point layout change that must turn the gate red on exactly the
+changed coordinates, then green again) are **not done yet**: they are deferred items (owner msgs 3425 and 3428; the
+planning records are `19-10-SUMMARY.md`, `19-12`, `19-13` and `19-17-SUMMARY.md` in the phase directory). Neither
+3.0 nor the AltStore PAL build can ship before a passing `aggregate` check exists.
+
+**Hosted runner limits and cost.** GitHub's standard hosted runners run at most **5 macOS jobs at once** on the
+Free, Pro and Team plans; more needs GitHub Enterprise (50) or a limit increase through GitHub support, and the
+rest of the jobs queue. The plan sums to about 2,013 shard-minutes, so a run is about 8.7 to 9 hours at 5 at a
+time, with the build, the native-policy jobs and any retries. It holds every macOS slot the account has for that
+time: `test.yml`, the deploys and other gate runs queue behind it. This is accepted and written down
+(19-RESEARCH Pitfall 9; T-19-21). Hosted runs of a public repository are not billed.
+
+**iPad orientation.** `run-shard.sh` turns the device with `VisualCaptureOrientationUITests`. The
+`hosted-simulator.sh settings` step runs before the turn and again after it:
+- Before: it boots the device and waits for it to settle. A turn on a device that its own xcodebuild had just booted
+  was lost before the capture.
+- After: it sets the app accessibility runtime again, because the UI test run turns it off.
+
+Parallel-testing clones always boot in portrait, so an iPad landscape invocation runs on the turned device itself,
+without clones.
+
+# Local runs
+
+`run-snapshot-local.sh` runs chosen matrix classes on the local simulator in one configuration and mode:
+
+```sh
+Scripts/visual/run-snapshot-local.sh --device phone --config en-large --classes <Classes> \
+  --mode candidate --out DIR
+Scripts/visual/run-snapshot-local.sh --device phone --config en-large --classes <Classes> \
+  --mode compare --refs DIR --out DIR2
+```
+
+`--device` is `phone` or `pad` (the `EhPanda iPhone Air` and `EhPanda iPad Pro 11-inch (M5)` simulators, found by
+name), `--orientation` selects one iPad orientation, and `--workers N` runs the classes on N clones as the hosted
+check does. It waits for any other `xcodebuild` first, and fails on a failed or empty run or on any changed, missing
+(compare), timeout or error picture. Local results are advisory: only the pinned hosted runner records and compares
+the baseline. `run-shard.sh` records `drift` and captures nothing unless the Mac matches the pin. The fault switch
+`EHPANDA_SNAPSHOT_FAULT` is for the hosted proof on `ci/snapshot-gate` only and exists nowhere else.
+
+# Baseline
+
+The approved pictures live in a separate public repository, `EhPanda-Team/ehpanda-snapshot`, laid out as
+`<family>/<locale>/<size>/<scenario>/<orientation>-<theme>.png`, one commit per device-and-language slice and an
+approval commit that adds `baseline.json` and the tag `baseline-<n>`. The app repository pins the approved set in two
+files under `AppPackage/Tests/VisualSnapshotTests/Baseline/`:
+
+- `fingerprints.json` (schema 1): `repository`, `commit`, `tag`, `count` and `pictures: {key: SHA-256}`.
+- `manifest.json`: the environment pins, tolerances (precision 0.9999, perceptual precision 1, scale 1), worker
+  count and its measurement, cost table and inventory digests, every not-applicable coordinate with its reason, and
+  the owner's approval record.
+
+Runners keep nothing between runs, so each shard fetches only its slices at the pinned commit with
+`snapshot_fetch.py` (a blobless, sparse, depth-1 clone), hashes every file and compares the set with the
+fingerprints. A picture whose hash differs, a missing one and an unlisted file all fail the shard as
+`baseline-mismatch`, naming the key; a baseline edited in the snapshot repository therefore never reaches a
+comparison. Exit status: 0 match, 3 mismatch, 4 no approved baseline yet, 1 the fetch itself failed.
+
+**Status.** Neither the repository nor the two files exist yet (deferred with the candidate run, owner msg 3428).
+`snapshot_publish.py`, which assembles a candidate run's pictures into this layout, fingerprints them and plans the
+slice commits, belongs to that deferred work and is not in this directory yet.
+
+# Report
+
+`snapshot_report.py` writes a static offline HTML page from the aggregate (`aggregate.json`): no stylesheet, script,
+font or image leaves the report directory. It shows every failing coordinate with its baseline, actual and difference
+side by side, grouped by the inventory's group and then by scenario, with filters for language, text size, device,
+orientation and appearance, the not-applicable rules with their reasons and the flake log. A compare run's report is
+the `snapshot-report` artifact (kept 7 days). `--packet` writes the owner's short review packet instead: one picture
+per scenario (the `en-large` iPhone portrait light coordinate) plus every flagged key.
+
+```sh
+python3 Scripts/visual/snapshot_aggregate.py --results RESULTS --retry RETRY --out OUT
+python3 Scripts/visual/snapshot_report.py --aggregate OUT/aggregate.json --pictures BASELINE_SLICE --out OUT/report
+```
+
+# Candidates and approval
+
+1. **Candidate run.** Pictures are recorded only by an explicit candidate run of the gate on the hosted runner (the
+   one that will compare later), started with the owner's go-ahead by pushing `ci/snapshot-gate` with no
+   `fingerprints.json`. Nothing is published; pictures stay as `pictures-*` artifacts for 7 days, so the approval
+   follows the run within that window.
+2. **Agent pre-check.** Machine checks on every picture (blank or near-uniform image, missing-image placeholder, size
+   outlier, identical hash between states that must differ, truncation or untranslated text, real-content marker)
+   and an agent visual pass over contact sheets. A real UI or scenario defect is fixed and the shards re-recorded
+   before approval, never waved through.
+3. **Owner approval.** The owner reviews and approves the whole set once, against the final UI, in the format he
+   chooses (the planning default is the short packet beside the full report). Silence, a partial answer or the
+   approval of a sample is not approval. The approval is recorded with its message number, the run ID and the
+   fingerprints' digest.
+4. **Push and pin.** After a separate go-ahead for the push series, the approved set is pushed to the snapshot
+   repository and pinned by `fingerprints.json` and `manifest.json`. A compare run on the hosted runner must then
+   pass with 0 picture changes, 0 infrastructure errors, 0 drift and 0 baseline mismatches.
+5. **Changing a picture later.** Any intended UI change makes the gate red on the affected coordinates; a new
+   candidate run, a new pre-check and a new owner approval replace those pictures. Nothing records automatically.
+
+# Daily live check
+
+`.github/workflows/live-check.yml` runs `Scripts/live-check/run-live-check.sh --mode hosted` once a day (04:17 UTC),
+on dispatch, and on a push to `ci/live-check`. `DailyLiveCheckTests` (the `LiveCheck` plan; its guard-free
+`LiveCheckTests` target skips unless `EHPANDA_LIVE_CHECK=1`) reads as a guest, with GET only and 5 seconds apart, the
+front page, search, Popular, Toplists, a gallery, its reader page and first image, tag suggestions and the Report
+form page, and runs the app's own parsers on them. Watched, Favorites and ExHentai are skipped until the owner
+supplies a sign-in secret. Each page is classified `ok`, `unreachable` (a Cloudflare challenge, an IP ban page, a
+timeout or a 5xx: never a parser failure) or `parser` (a fixed expectation ID). `results.json` (schema 1) holds
+fixed enums only.
+
+`report_issues.py` opens one `Live check: <Page> parser` issue per broken page, comments while it stays broken and
+closes it on the next `ok`; three unreachable runs in a row open `Live check: cannot reach the site`. The repository
+is public, so issues and logs carry page names, statuses and fixed sentences, never a URL, title, gallery ID, header
+or body. The runner is GitHub's hosted Mac (owner msg 2441; the probe found the site reachable). A `launchd` template
+for a Mac runner is `Scripts/live-check/live-check.plist.template` (not installed). Tests:
+
+```sh
+python3 -B -m unittest discover -s Scripts/live-check -p 'test_*.py'
+```
+
+GitHub runs scheduled workflows only from the default branch and turns a public repository's schedules off after 60
+days without repository activity: re-enable it from the Actions page ("Enable workflow") or with any push. The
+first scheduled run, the previous-results path and the first real issue can be confirmed only after the merge to
+`main` (`19-16-DEPLOY.md`, "Pending after merge").
+
+# Preview review
+
+An agent can look at an existing preview with Xcode's preview tools; the procedure, its limits and the validator
+(`validate-preview.py --response PATH --expected-environment PATH --output DIR`, tests in `test_preview.py`) are in
+`preview-review.md`. A preview render is evidence of nothing in the snapshot check: it never replaces snapshot
+acceptance.
 
 # Selected UITests without retries
 
@@ -101,8 +316,8 @@ exit is 1 on any finding.
 
 # Rendering environment
 
-`regression-environment.json` is the tracked, immutable rendering contract shared by
-regression, CI and marketing. It was authored from successful real measurements after
+`regression-environment.json` is the tracked, immutable rendering contract shared by the snapshot
+gate, CI and marketing. It was authored from successful real measurements after
 17-24 Task 1 committed its producer. Validation never regenerates or rewrites the pin.
 Run-local `environment.json` files are observations, not alternative pin inputs.
 
@@ -111,7 +326,7 @@ Run-local `environment.json` files are observations, not alternative pin inputs.
 From the repository root, select Xcode and run:
 
 ```sh
-export DEVELOPER_DIR=/Applications/Xcode-27.0.0.app/Contents/Developer
+export DEVELOPER_DIR="/Applications/<pinned Xcode>.app/Contents/Developer"  # the pin's toolchain.xcode
 python3 -B -m unittest discover -s Scripts/visual -p test_environment.py
 python3 -B Scripts/visual/environment.py measure --output .capture/environment-measurement
 ```
@@ -216,9 +431,9 @@ Measured native geometry at the initial pin:
 | iPad Pro 11-inch (M5) | Landscape | 1210×834 | 2420×1668 | 32/0/25/0 | regular/regular |
 
 These are measurements, not library presets or new window-size axes. The pin has no
-host-specific UDIDs or paths. Plan 17-02 owns regression-runner integration; 17-05 and
-17-07 consume the same unchanged `--environment` input for marketing. This directory's
-measurement tooling does not yet implement those runners or approve screenshot baselines.
+host-specific UDIDs or paths. The snapshot gate (`run-shard.sh`) and the marketing capture runners read this
+same unchanged pin. Its measurement tooling approves no screenshot baseline: only the owner's approval of a
+candidate run does (see "Candidates and approval").
 
 # Real marketing fixtures
 
@@ -793,14 +1008,16 @@ prepare a new output directory and build from that snapshot. The canonical manif
 never rewritten by snapshot generation. Capture inputs, generated projects and evidence remain local
 under ignored `.capture/` output.
 
-### Approved website fixtures and manual image comment (2026-11-02)
+### Approved website fixtures and manual image comment
 
-The private fixture repository's `active-fixtures.json` points to
-`website-capture-20261102.json` via `websiteCaptureIndex`. Use that index for the approved
-192-image matrix (two groups, six locales, two appearances, eight screens). Resolve its fixture
-paths against the private repository root: Comments uses each group's `comments` fixture;
-Reading and Live Text use `readerByLocale`; other screens use `default`. Validate the selected
-immutable fixture with this repository's fixture validator before capture.
+The private fixture repository's `active-fixtures.json` points to the current index,
+`website-capture-20261104.json`, via `websiteCaptureIndex` (owner-approved 2026-11-04, msg 1581). It supersedes
+`website-capture-20261102.json`, which was removed with the fixture versions the new set does not use
+(owner msg 1647). Use the index for the approved 192-image matrix (two groups, six locales, two appearances, eight
+screens), served by 118 files from **11 fixture versions**, all under `fixtures/versions/`. Resolve its fixture
+paths against the private repository root: `routing[set][screen]` names the fixture behind each served file, and
+Reading and Live Text name one per locale. Validate the selected immutable fixture with this repository's fixture
+validator before capture.
 
 **The third image comment is manually inserted screenshot data, not a comment posted on the
 website.** Both groups use gallery 2758456 with its 13 original comments plus this synthetic
@@ -823,12 +1040,12 @@ third image is fully visible and comment text, names and the image contain no Ch
 labels still follow the selected locale.
 
 Only these captures select Japanese titles for ja/ko/zh-Hant/zh-Hans; en/de use original titles.
-Reading and Live Text share the same source book: English for ja/de, Japanese for the other
-locales. Live Text replays recorded Apple Translation results into the app's renderer for the
+Reading and Live Text share the same source book: en and de use the Japanese gallery 4217037,
+the other locales the English gallery 4223235 (the index's `translationSource` names each locale's
+source language). Live Text replays recorded Apple Translation results into the app's renderer for the
 selected target locale; it is not evidence of an end-to-end live translation-button interaction.
-The index records all 192 approved image hashes; screenshot files and review sites remain local.
+The index records every approved image hash; screenshot files and review sites remain local.
 
 Capture tooling belongs in this app repository; static inputs, the original acquisition archive
 and the manual-comment override belong in the private fixture repository. Use an ignored local
-output directory for captures and review sites. The approved 2026-11-02 review is stored in the
-Codex visualization workspace.
+output directory for captures and review sites.

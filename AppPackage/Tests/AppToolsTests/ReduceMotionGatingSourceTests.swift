@@ -44,6 +44,9 @@ import Testing
 /// under Reduce Motion: in the comments list every row of the author collapses or expands, a height change D-29
 /// gates anyway; in the Detail strip a card turns into its collapsed card of the same size, gated because the
 /// spec gives the strip the list's rule.
+///
+/// The Login backdrop (19-10) is two waves that slide sideways from the wall clock for as long as the page is open, a
+/// position change D-29 gates: under Reduce Motion they stand still at a fixed phase.
 @Suite
 struct ReduceMotionGatingSourceTests {
     private struct ScannedFile {
@@ -107,9 +110,11 @@ struct ReduceMotionGatingSourceTests {
         "ReadingFeature/Support/ControlPanel.swift": 1,
         "SearchFeature/SearchRootView.swift": 1,
         "SettingFeature/GeneralSetting/GeneralSettingView.swift": 1,
+        // The Login backdrop's waves slide from the wall clock; under Reduce Motion they stand still (19-10).
+        "SettingFeature/WaveForm.swift": 1,
         "SystemNotification/View+Toast.swift": 1
     ]
-    private static let expectedEnvironmentReadTotal = 24
+    private static let expectedEnvironmentReadTotal = 25
 
     /// Executable lines carrying the ternary predicate, per file.
     private static let expectedTernaryPredicates: [String: Int] = [
@@ -132,9 +137,10 @@ struct ReduceMotionGatingSourceTests {
         "ReadingFeature/Support/ControlPanel.swift": 3,
         "SearchFeature/SearchRootView.swift": 1,
         "SettingFeature/GeneralSetting/GeneralSettingView.swift": 1,
+        "SettingFeature/WaveForm.swift": 1,
         "SystemNotification/View+Toast.swift": 1
     ]
-    private static let expectedTernaryPredicateTotal = 35
+    private static let expectedTernaryPredicateTotal = 36
 
     /// The deep-linked comment scroll and the reader's page jump.
     private static let expectedWithAnimationGateTotal = 2
@@ -163,9 +169,11 @@ struct ReduceMotionGatingSourceTests {
         "ReadingFeature/Support/ControlPanel.swift": 4,
         "SearchFeature/SearchRootView.swift": 2,
         "SettingFeature/GeneralSetting/GeneralSettingView.swift": 2,
+        // The read, the paused timeline, the phase call's argument and parameter, and its ternary.
+        "SettingFeature/WaveForm.swift": 6,
         "SystemNotification/View+Toast.swift": 3
     ]
-    private static let expectedGateMentionTotal = 74
+    private static let expectedGateMentionTotal = 80
 
     /// `.contentTransition(.numericText…)` sites across the tree; every one stays ungated (D-29).
     private static let expectedNumericTextTotal = 11

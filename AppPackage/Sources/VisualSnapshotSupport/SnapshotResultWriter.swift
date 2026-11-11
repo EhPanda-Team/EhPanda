@@ -135,6 +135,26 @@ public struct SnapshotResultWriter: Sendable {
         try encoder.encode(record).write(to: output.appending(path: "shard.json"), options: .atomic)
     }
 
+    /// The keys of every line written so far. A line that does not read as a result (a clone killed mid-write) is
+    /// passed over: the caller only asks whether a coordinate already has its line.
+    public func recordedKeys() throws -> Set<String> {
+        guard FileManager.default.fileExists(atPath: resultsURL.path(percentEncoded: false)) else { return [] }
+        let text = try String(contentsOf: resultsURL, encoding: .utf8)
+        var keys = Set<String>()
+        for line in text.split(separator: "\n") {
+            let object: Any
+            do {
+                object = try JSONSerialization.jsonObject(with: Data(line.utf8))
+            } catch {
+                continue
+            }
+            if let key = (object as? [String: Any])?["key"] as? String {
+                keys.insert(key)
+            }
+        }
+        return keys
+    }
+
     /// Reads every line written so far.
     public func lines() throws -> [SnapshotResultLine] {
         guard FileManager.default.fileExists(atPath: resultsURL.path(percentEncoded: false)) else { return [] }

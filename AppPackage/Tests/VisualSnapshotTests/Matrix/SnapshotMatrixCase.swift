@@ -55,6 +55,19 @@ class SnapshotMatrixCase: XCTestCase {
         }
         let coordinates = Self.coordinates(scenario: id, family: family, configuration: configuration)
             .filter({ run.orientations.contains($0.orientation) })
+        // A shard's re-run (Scripts/visual/run-shard.sh) runs a class again in every configuration of the
+        // invocation; a scenario that already wrote every line of this configuration keeps them (run 42577585956
+        // re-captured, then dropped, whole configurations a crash had left finished).
+        // Captured coordinates count, as in Scripts/visual/snapshot_shard.py's `pending`; a scenario with none
+        // counts its not-applicable lines.
+        if run.keepCaptured {
+            let recorded = try writer.recordedKeys()
+            let captured = coordinates.filter({ inventory.notApplicableReason(for: $0, pins: pins) == nil })
+            let needed = captured.isEmpty ? coordinates : captured
+            if !needed.isEmpty, needed.allSatisfy({ recorded.contains($0.key) }) {
+                throw XCTSkip("Captured before this re-run (EHPANDA_SNAPSHOT_KEEP_CAPTURED)")
+            }
+        }
         if let failure = configuration.failedCheck() {
             for coordinate in coordinates {
                 try writer.append(.failure(coordinate.key, reason: "configuration-\(failure)"))
@@ -136,7 +149,8 @@ class SnapshotMatrixCase: XCTestCase {
                     // The controlled 1-point shift of 19-01 Task 3; read only by the tracer's own variable.
                     return shift ? AnyView(view.padding(.top, 1)) : view
                 },
-                window: window, style: style, reference: reference, mode: mode, interact: factory.interact
+                window: window, style: style, reference: reference, mode: mode, interact: factory.interact,
+                minimumReads: factory.minimumReads
             )
         }
         let digest = outcome.png.map({ SHA256.hash(data: $0).map({ String(format: "%02x", $0) }).joined() })
@@ -208,9 +222,16 @@ class SnapshotMatrixCase: XCTestCase {
     /// clones, a hosted runner) took longer than the first fixed 5 s wait (run 42455556948), so the wait polls until
     /// the window matches and only gives up after this long.
     static let rotationWait: Duration = .seconds(20)
+    static let rotationPoll: Duration = .milliseconds(50)
 
     /// Requests `orientation` and waits until the window matches `pin` (points, safe area, size classes), polling up
     /// to ``rotationWait``; a request that has not arrived by then is made once more, with the same wait.
+    ///
+    /// The wait is counted in reads (``rotationWait`` / ``rotationPoll``), as the settle wait is, not on the wall
+    /// clock: a hosted runner freezes the whole simulator, this process and the turn alike, for a minute or more
+    /// (run 42727781967: a picture of 4 settle reads took 146 s). A wall-clock wait that a freeze used up ended
+    /// without reading the window again, and iPhone `comments-post-empty` (ja, accessibility5) failed `geometry` in
+    /// landscape.
     @MainActor
     static func rotate(
         scene: UIWindowScene, window: UIWindow, to orientation: String, pin: SnapshotPins.Geometry?
@@ -232,9 +253,8 @@ class SnapshotMatrixCase: XCTestCase {
             Task { @MainActor in lastGeometryError = String(describing: error) }
         }
         let clock = ContinuousClock()
-        let deadline = clock.now.advanced(by: rotationWait)
         var stable = 0
-        while clock.now < deadline {
+        for _ in 0..<Int(rotationWait / rotationPoll) {
             window.layoutIfNeeded()
             let matches = pin.map({ $0.matches(window) })
                 ?? (scene.effectiveGeometry.interfaceOrientation.isLandscape == landscape)
@@ -242,7 +262,7 @@ class SnapshotMatrixCase: XCTestCase {
             // Two matching reads 50 ms apart: the rotation has finished, not merely passed through the pin.
             if stable >= 2 { return true }
             do {
-                try await clock.sleep(for: .milliseconds(50))
+                try await clock.sleep(for: rotationPoll)
             } catch {
                 return false
             }
@@ -291,6 +311,8 @@ struct SnapshotRunEnvironment {
     /// iPadOS refuses programmatic orientation changes, so an iPad process captures the orientation its device was
     /// turned to before launch.
     let orientations: [String]
+    /// The shard's re-run: a scenario whose lines of this configuration are all written already is skipped.
+    var keepCaptured = false
 
     static var current: Self {
         let environment = ProcessInfo.processInfo.environment
@@ -307,7 +329,8 @@ struct SnapshotRunEnvironment {
             orientations: value("EHPANDA_SNAPSHOT_ORIENTATIONS").map { names in
                 let wanted = Set(names.split(separator: ",").map(String.init))
                 return SnapshotCoordinate.orientations.filter(wanted.contains)
-            } ?? SnapshotCoordinate.orientations
+            } ?? SnapshotCoordinate.orientations,
+            keepCaptured: value("EHPANDA_SNAPSHOT_KEEP_CAPTURED") == "1"
         )
     }
 }

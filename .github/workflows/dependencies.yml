@@ -6,13 +6,18 @@ on:
 permissions:
   contents: write
   pull-requests: write
+  # To start the screenshot check on the update branch (below).
+  actions: write
 jobs:
   dependencies:
     runs-on: xcode-27
+    timeout-minutes: 120
     steps:
       - uses: actions/checkout@v7
         with:
           ref: develop
+          # The job runs package manifests; the pull-request step below authenticates with its own token input.
+          persist-credentials: false
       - name: Update package dependencies and both lockfiles
         id: resolution
         run: |
@@ -28,10 +33,22 @@ jobs:
             echo 'dependenciesChanged=true' >> "$GITHUB_OUTPUT"
           fi
       - name: Create Pull Request
+        id: pull-request
         if: steps.resolution.outputs.dependenciesChanged == 'true'
-        uses: peter-evans/create-pull-request@v8
+        uses: peter-evans/create-pull-request@3ffccacd46053766916f087ce41d627c0b8cf2d1 # v8
         with:
+          token: ${{ github.token }}
           branch: 'update-dependencies'
           delete-branch: true
           commit-message: 'Update dependencies [skip test]'
           title: 'Updated Dependencies'
+      # A pull request opened with the default GITHUB_TOKEN starts no pull_request workflow; a dispatch is the
+      # documented exception, so the screenshot check is started on the update branch here (19-10; D-16).
+      - name: Run the screenshot check on the update branch
+        if: >-
+          steps.pull-request.outputs.pull-request-number != ''
+          && steps.pull-request.outputs.pull-request-operation != 'closed'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: gh workflow run snapshot-gate.yml --ref update-dependencies -f mode=compare

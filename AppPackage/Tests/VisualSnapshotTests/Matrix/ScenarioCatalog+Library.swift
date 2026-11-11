@@ -7,7 +7,6 @@ import DownloadsFeature
 import FavoritesFeature
 import FiltersFeature
 import Foundation
-import Kingfisher
 import QuickSearchFeature
 import Resources
 @testable import SearchFeature
@@ -380,7 +379,7 @@ enum LibraryScenarios {
         for (index, fixture) in PublicVisualFixtures.downloadGalleries.enumerated() {
             guard let url = downloadCoverURL(index) else { continue }
             let image = PublicVisualFixtures.artwork(marker: fixture.gid, colorIndex: fixture.colorIndex)
-            try await ImageCache.default.store(image, forKey: url.absoluteString, toDisk: false)
+            try await TracerScenarios.cacheArtwork(image, forKey: url.absoluteString)
         }
     }
 
@@ -618,9 +617,9 @@ extension ScenarioFactory {
     /// user step: the pages whose navigation bar hides a search field on scroll.
     func restingAtTop() -> ScenarioFactory {
         let step = interact
-        return ScenarioFactory(signedIn: signedIn, make: make, prepare: prepare) { window in
+        return ScenarioFactory(signedIn: signedIn, make: make, prepare: prepare, interact: { window in
             try LibraryScenarios.restAtTop(window)
             try await step?(window)
-        }
+        }, minimumReads: minimumReads)
     }
 }
