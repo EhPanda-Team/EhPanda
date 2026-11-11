@@ -1,6 +1,7 @@
 import AppComponents
 public import AppModels
 import AppTools
+import Sharing
 public import SwiftUI
 
 #if DEBUG
@@ -9,6 +10,7 @@ import PreviewSupport
 
 public struct GalleryHistoryCell: View {
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+    @SharedReader(.setting) private var setting: Setting
 
     private let gallery: Gallery
 
@@ -27,7 +29,8 @@ public struct GalleryHistoryCell: View {
             GalleryCover(url: gallery.coverURL, style: .compact)
 
             VStack(alignment: .leading) {
-                Text(gallery.trimmedTitle)
+                // The same title every other gallery list shows, so the Japanese titles setting applies here too.
+                Text(gallery.displayTitle(prefersJapanese: setting.displayJapaneseTitle))
                     .bold()
                     .lineLimit(3)
                     .fixedSize(horizontal: false, vertical: true)
