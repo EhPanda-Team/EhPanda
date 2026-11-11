@@ -124,8 +124,9 @@ final class ReportFormUITests: XCTestCase {
         app.terminate()
     }
 
-    /// [26] The warning follows the first pick, a switch keeps what was typed, Send checks the email before anything
-    /// is sent, and fixing it brings the usual footer back. Return in Email moves to Details.
+    /// [26] The warning follows the first pick and the keyboard does not, a switch keeps what was typed, Send checks
+    /// the email before anything is sent, and fixing it brings the usual footer back. Return in Email moves to
+    /// Details.
     func testTypingAndAnInvalidEmail() throws {
         let app = try openReportForm(scenario: "ready")
         let details = detailsField(in: app)
@@ -136,7 +137,9 @@ final class ReportFormUITests: XCTestCase {
             app.descendants(matching: .any)[Identifier.illegalWarning].waitForExistence(timeout: 5),
             "Picking a reason shows no warning."
         )
-        requireKeyboardFocus(details, "Details after the first pick")
+        XCTAssertFalse(app.keyboards.element.exists, "Picking a reason opened the keyboard.")
+        details.tapWhenHittable("Details")
+        requireKeyboardFocus(details, "Details after tapping it")
         details.typeText(Copy.typedDetails)
 
         app.buttons[Identifier.other].tapWhenHittable("Other illegal content")
@@ -382,15 +385,16 @@ private extension ReportFormUITests {
         return app
     }
 
-    /// Fills in a sendable form: the email first, then other illegal content, whose first pick moves to Details,
-    /// then a line of Details.
+    /// Fills in a sendable form: the email first, then other illegal content, then a tap on Details and a line
+    /// of text; picking a reason does not open the keyboard.
     func fillInTheForm(in app: XCUIApplication) throws {
         let email = app.textFields[Identifier.email]
         email.tapWhenHittable("Email")
         email.typeText(Copy.validEmail)
         app.buttons[Identifier.other].tapWhenHittable("Other illegal content")
         let details = detailsField(in: app)
-        requireKeyboardFocus(details, "Details after the first pick")
+        details.tapWhenHittable("Details")
+        requireKeyboardFocus(details, "Details after tapping it")
         details.typeText(Copy.typedDetails)
         XCTAssertTrue(primaryButton(in: app).waitForEnabled(), "Send Report stays dimmed on a filled-in form.")
     }

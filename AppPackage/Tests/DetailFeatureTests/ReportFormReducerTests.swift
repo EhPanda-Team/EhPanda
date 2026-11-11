@@ -352,7 +352,7 @@ struct ReportFormReducerTests {
 
     // MARK: Reasons (C-13 item 2)
 
-    // The first pick moves focus to Details; switching reasons keeps what was typed and does not move focus again.
+    // A pick only ticks the row and never moves focus; switching reasons keeps what was typed and the focus as it was.
     @MainActor
     @Test
     func switchingReasonsKeepsTheEmailAndDetails() async {
@@ -363,14 +363,15 @@ struct ReportFormReducerTests {
 
         await store.send(.reasonTapped(.child)) {
             $0.reason = .child
-            $0.focus = .details
         }
+        #expect(store.state.focus == nil)
         await store.send(.binding(.set(\.focus, .email))) {
             $0.focus = .email
         }
         await store.send(.reasonTapped(.illegal)) {
             $0.reason = .illegal
         }
+        #expect(store.state.focus == .email)
         #expect(store.state.email == "me@example.com")
         #expect(store.state.details == Self.filledDetails)
     }
