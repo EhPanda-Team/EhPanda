@@ -157,7 +157,7 @@ struct CommentsView: View {
             // The swipe buttons are the menu's vote row: a vote already cast reads Withdraw Vote with the slashed thumb
             // and is the same call again, and a vote that cannot be cast is disabled, never left out.
             .swipeActions(edge: .leading) {
-                voteSwipeButton(comment, direction: .down)
+                voteSwipeButton(comment, direction: .downVote)
             }
             .swipeActions(edge: .trailing) {
                 // Edit leads, being the one a full swipe performs: a comment that can be edited is the user's
@@ -172,7 +172,7 @@ struct CommentsView: View {
                             .labelStyle(.iconOnly)
                     }
                 }
-                voteSwipeButton(comment, direction: .up)
+                voteSwipeButton(comment, direction: .upVote)
             }
         }
     }
@@ -185,7 +185,7 @@ struct CommentsView: View {
             slot.label
                 .labelStyle(.iconOnly)
         }
-        .tint(direction == .up ? .accentColor : .red)
+        .tint(direction == .upVote ? .accentColor : .red)
         .disabled(!slot.isEnabled)
     }
 

@@ -7,15 +7,15 @@ import SwiftUI
 
 /// The two directions a comment can be voted in.
 enum CommentVoteDirection: Hashable, Sendable {
-    case up
-    case down
+    case upVote
+    case downVote
 
     /// What `comment_vote` is sent: a vote up is `1`, a vote down `-1`. Sent again for the direction already voted,
     /// the site withdraws the vote.
     var value: Int {
         switch self {
-        case .up: 1
-        case .down: -1
+        case .upVote: 1
+        case .downVote: -1
         }
     }
 }
@@ -31,13 +31,13 @@ struct CommentVoteSlot: Equatable, Sendable {
 
 /// The vote row of a comment's menu: always two slots, always both shown, `up` then `down`.
 struct CommentVoteMenuState: Equatable, Sendable {
-    let up: CommentVoteSlot
-    let down: CommentVoteSlot
+    let upSlot: CommentVoteSlot
+    let downSlot: CommentVoteSlot
 
-    var slots: [CommentVoteSlot] { [up, down] }
+    var slots: [CommentVoteSlot] { [upSlot, downSlot] }
 
     func slot(_ direction: CommentVoteDirection) -> CommentVoteSlot {
-        direction == .up ? up : down
+        direction == .upVote ? upSlot : downSlot
     }
 }
 
@@ -55,13 +55,13 @@ struct CommentVoteMenuState: Equatable, Sendable {
 func voteMenuState(for comment: GalleryComment, didLogin: Bool) -> CommentVoteMenuState {
     let canVote = didLogin && comment.votable && !comment.editable
     return CommentVoteMenuState(
-        up: CommentVoteSlot(
-            direction: .up,
+        upSlot: CommentVoteSlot(
+            direction: .upVote,
             isWithdraw: comment.votedUp,
             isEnabled: canVote && !comment.votedDown
         ),
-        down: CommentVoteSlot(
-            direction: .down,
+        downSlot: CommentVoteSlot(
+            direction: .downVote,
             isWithdraw: comment.votedDown,
             isEnabled: canVote && !comment.votedUp
         )
@@ -75,21 +75,21 @@ extension CommentVoteSlot {
     }
 
     var title: LocalizedStringResource {
-        isWithdraw ? .withdrawVote : direction == .up ? .voteUp : .voteDown
+        isWithdraw ? .withdrawVote : direction == .upVote ? .voteUp : .voteDown
     }
 
     /// The glyph of withdrawing the vote already cast: the slashed outline thumb of that vote's direction, for a
     /// comment's Withdraw Vote and a tag's alike.
     static func withdrawSymbol(isVotedUp: Bool) -> SFSymbol {
-        CommentVoteSlot(direction: isVotedUp ? .up : .down, isWithdraw: true, isEnabled: true).symbol
+        CommentVoteSlot(direction: isVotedUp ? .upVote : .downVote, isWithdraw: true, isEnabled: true).symbol
     }
 
     var symbol: SFSymbol {
         switch (direction, isWithdraw) {
-        case (.up, false): .handThumbsup
-        case (.up, true): .handThumbsupSlash
-        case (.down, false): .handThumbsdown
-        case (.down, true): .handThumbsdownSlash
+        case (.upVote, false): .handThumbsup
+        case (.upVote, true): .handThumbsupSlash
+        case (.downVote, false): .handThumbsdown
+        case (.downVote, true): .handThumbsdownSlash
         }
     }
 }
@@ -97,14 +97,10 @@ extension CommentVoteSlot {
 /// Sends a comment vote; one place for the comments screen and the Detail screen, which both vote.
 enum CommentVoteRequest {
     static func response(
-        host: GalleryHost, apiuid: Int, apiKey: String, gid: Int, token: String, commentID: Int, vote: Int
+        for request: VoteGalleryCommentRequest
     ) async -> Result<GalleryCommentVoteResponse, AppError> {
         await Result.Swift::init { () async throws(AppError) in
-            try await VoteGalleryCommentRequest(
-                host: host, apiuid: apiuid, apikey: apiKey, gid: gid, token: token,
-                commentID: commentID, commentVote: vote
-            )
-            .response()
+            try await request.response()
         }
     }
 }

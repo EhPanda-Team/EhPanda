@@ -11,24 +11,24 @@ struct CommentVoteMenuTests {
     func noVoteOffersBothDirections() {
         let state = voteMenuState(for: Self.comment(), didLogin: true)
 
-        #expect(state.up == .init(direction: .up, isWithdraw: false, isEnabled: true))
-        #expect(state.down == .init(direction: .down, isWithdraw: false, isEnabled: true))
+        #expect(state.upSlot == .init(direction: .upVote, isWithdraw: false, isEnabled: true))
+        #expect(state.downSlot == .init(direction: .downVote, isWithdraw: false, isEnabled: true))
     }
 
     @Test
     func votedUpWithdrawsInTheUpSlotAndDisablesDown() {
         let state = voteMenuState(for: Self.comment(votedUp: true), didLogin: true)
 
-        #expect(state.up == .init(direction: .up, isWithdraw: true, isEnabled: true))
-        #expect(state.down == .init(direction: .down, isWithdraw: false, isEnabled: false))
+        #expect(state.upSlot == .init(direction: .upVote, isWithdraw: true, isEnabled: true))
+        #expect(state.downSlot == .init(direction: .downVote, isWithdraw: false, isEnabled: false))
     }
 
     @Test
     func votedDownWithdrawsInTheDownSlotAndDisablesUp() {
         let state = voteMenuState(for: Self.comment(votedDown: true), didLogin: true)
 
-        #expect(state.up == .init(direction: .up, isWithdraw: false, isEnabled: false))
-        #expect(state.down == .init(direction: .down, isWithdraw: true, isEnabled: true))
+        #expect(state.upSlot == .init(direction: .upVote, isWithdraw: false, isEnabled: false))
+        #expect(state.downSlot == .init(direction: .downVote, isWithdraw: true, isEnabled: true))
     }
 
     @Test(arguments: [(false, false), (true, false), (false, true)])
@@ -37,7 +37,7 @@ struct CommentVoteMenuTests {
 
         #expect(state.slots.map(\.isEnabled) == [false, false])
         // The slots stay, in their places.
-        #expect(state.slots.map(\.direction) == [.up, .down])
+        #expect(state.slots.map(\.direction) == [.upVote, .downVote])
     }
 
     @Test(arguments: [(false, false), (true, false), (false, true)])
@@ -46,7 +46,7 @@ struct CommentVoteMenuTests {
         let state = voteMenuState(for: comment, didLogin: true)
 
         #expect(state.slots.map(\.isEnabled) == [false, false])
-        #expect(state.slots.map(\.direction) == [.up, .down])
+        #expect(state.slots.map(\.direction) == [.upVote, .downVote])
     }
 
     @Test
@@ -65,22 +65,22 @@ struct CommentVoteMenuTests {
 
         let votedUp = voteMenuState(for: Self.comment(votedUp: true), didLogin: true)
         let votedDown = voteMenuState(for: Self.comment(votedDown: true), didLogin: true)
-        #expect(votedUp.up.symbol.rawValue == "hand.thumbsup.slash")
-        #expect(votedDown.down.symbol.rawValue == "hand.thumbsdown.slash")
+        #expect(votedUp.upSlot.symbol.rawValue == "hand.thumbsup.slash")
+        #expect(votedDown.downSlot.symbol.rawValue == "hand.thumbsdown.slash")
     }
 
     @Test
     func aVoteStillToCastShowsThePlainThumb() {
         let state = voteMenuState(for: Self.comment(), didLogin: true)
 
-        #expect(state.up.symbol.rawValue == "hand.thumbsup")
-        #expect(state.down.symbol.rawValue == "hand.thumbsdown")
+        #expect(state.upSlot.symbol.rawValue == "hand.thumbsup")
+        #expect(state.downSlot.symbol.rawValue == "hand.thumbsdown")
     }
 
     @Test
     func theDirectionsSendTheirSigns() {
-        #expect(CommentVoteDirection.up.value == 1)
-        #expect(CommentVoteDirection.down.value == -1)
+        #expect(CommentVoteDirection.upVote.value == 1)
+        #expect(CommentVoteDirection.downVote.value == -1)
     }
 
     @Test
@@ -102,10 +102,10 @@ struct CommentVoteMenuTests {
         let actions = CommentModerationActions.none
             .voting(on: Self.comment(), didLogin: true) { chosen.append($0) }
 
-        actions.performVote(.up)
-        actions.performVote(.down)
+        actions.performVote(.upVote)
+        actions.performVote(.downVote)
 
-        #expect(chosen == [.up, .down])
+        #expect(chosen == [.upVote, .downVote])
     }
 
     private static func comment(
