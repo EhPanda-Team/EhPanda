@@ -1591,7 +1591,7 @@ Plans:
 - [x] 20-01-PLAN.md — the marketplace flavor (`Config/Marketplace.xcconfig`, channel stamp as a build setting), its hand-off scheme, and `PrivacyInfo.xcprivacy`
 - [x] 20-02-PLAN.md — the build-number check in `deploy.yml`, the bump above 158, history and URL tests *(checkpoint: owner OK to create and push `EhPanda-Team/ehpanda-assets`)*
 - [ ] 20-07-PLAN.md — the "Apple-approved" wording guard and the website check *(checkpoint: Leto, privacy and PAL source URLs live; amended 2026-11-11, owner msg 3501: no contact link, support URL is the GitHub repository page)*
-- [ ] 20-09-PLAN.md — real-device checks *(checkpoints: owner hardware — iPad Release stall, iPhone background downloads)*
+- [x] 20-09-PLAN.md — real-device checks *(checkpoints: owner hardware — iPad Release stall, iPhone background downloads; done 2026-11-09, `20-09-SUMMARY.md`)*
 - [x] 20-12-PLAN.md — the analytics vocabulary proposal *(checkpoint: product lead and owner sign-off, OQ-E)*
 
 **Wave 2** *(blocked on 20-01 and 20-02)* — (b)
