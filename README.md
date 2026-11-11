@@ -32,25 +32,6 @@ All content in this app comes from E-Hentai and is uploaded by its users.
 **You access E-Hentai content at your own risk.**
 
 ## Analytics
-EhPanda sends anonymous analytics data to [TelemetryDeck](https://telemetrydeck.com) so its maintainers can see how many people use the app and which features matter. **You choose how much is shared when you first open the app, and you can change your choice at any time in Settings → General → Analytics. Nothing is sent before you choose.** There are three levels:
+EhPanda sends anonymous usage data to [TelemetryDeck](https://telemetrydeck.com) so its maintainers can see how many people use the app and which features matter. **Nothing is sent until you choose how much to share when you first open the app, and you can change your choice at any time in Settings → General → Analytics.** Builds made from source, including forks, send nothing at all.
 
-- **Minimal**: Sends only a signal that EhPanda is installed, and where you got the app from.
-- **Basic**: Everything in Minimal, plus how often the app is used, which screens and features you use, technical details such as device model and app version, and which kinds of errors occur.
-- **Full**: Everything in Basic, plus your reading and download activity and your main settings.
-
-At every level, the data never includes gallery identifiers, tokens or titles, any gallery or page URL, search keyword text, tag values, usernames, cookies or any other credential, or file paths.
-
-At Minimal, EhPanda sends a single install signal, once per install. It carries where you got the app from (GitHub, AltStore, SideStore or AltStore PAL) and a random identifier created for this install, and nothing about your device. Each official download is marked with where it was published, so the signal tells which download you have, not how you installed it. The TelemetryDeck SDK is never started.
-
-At Basic, EhPanda sends the same install signal, starts the TelemetryDeck SDK, and adds:
-- how often the app is used: the SDK's own session signals and counts, such as the date you first opened the app, how many sessions there have been, how many separate days you have used it, and how long sessions last;
-- which screens and features you use: the tabs and home sections you open, the filter and quick-search panels, saved searches, tag taps (the tag's namespace, never its value), and searches as a shape (word count, whether tag syntax was used, keyword length, and roughly how many results came back) rather than as text; finishing the first-launch screens and the level you chose there; changing the level in Settings to Basic or Full (the old and new level); and comment moderation: blocking, unblocking and showing a hidden comment, your answer to the posting warning, and how a report ended (sent, failed, unavailable or opened on the site);
-- every event also carries where you got the app from;
-- which kinds of errors occur, including failed logins and Cloudflare challenges;
-- the standard technical details that the SDK attaches to every event on its own: the device model and architecture, screen size, scale and orientation, the operating system version, the app version and build number, whether it is a debug or simulator build, your language, region, text-layout direction and time zone, the date and time of day the event was sent, and your system appearance and accessibility settings (light or dark mode, text size, bold text, reduce motion, reduce transparency, invert colors, increase contrast, and differentiate without color).
-
-At Full, EhPanda adds the galleries you open (as a category and a count of tags per namespace, never the gallery itself), reading sessions as bucketed page counts and durations, download outcomes such as completed or failed, and the current values of five app settings on every event: gallery site, login state, reading direction, dual-page mode, and tag translation.
-
-At Basic and Full, events carry TelemetryDeck's built-in anonymous per-install identifier, hashed on the device before sending. The identifier is not tied to you, and it resets whenever iOS regenerates the device's vendor identifier, which happens when every app from the same developer is removed. TelemetryDeck retains no IP addresses. See the [TelemetryDeck privacy policy](https://telemetrydeck.com/privacy) for how the data is handled.
-
-Official releases are built with analytics credentials, which the release workflow supplies from repository secrets, so they send what the level you chose allows. A build made without those credentials sends nothing at all, whatever level is chosen: contributor builds from source and forks have analytics disabled because the credentials are absent.
+Read the [Privacy Policy](https://ehpanda.app/en/privacy/) for exactly what each level sends and what is never collected.
