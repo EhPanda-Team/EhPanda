@@ -40,6 +40,8 @@ if args[:2] == ['--set', 'testing']:
 command = args[0]
 if command == 'create':
     print('FAKE-UDID')
+elif args[:2] == ['list', 'runtimes']:
+    print(json.dumps({'runtimes': [{'identifier': 'iOS-27-0', 'isAvailable': True}]}))
 elif command == 'spawn':
     hang = state / 'hang'
     hangs = int(hang.read_text()) if hang.exists() else 0
