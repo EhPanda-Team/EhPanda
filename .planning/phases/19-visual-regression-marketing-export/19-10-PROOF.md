@@ -314,8 +314,8 @@ about **8.7 h** (s03's retry crashes after 180 s twice). Run 2 took 9 h 47 min w
 
 The interrupted work and `/tmp/np27` evidence were preserved. No hosted run or push was started during recovery.
 
-**Runtime attribution:** the supplied local iPhone (`FFE7E686-7377-4F16-BAB6-F5CB07999788`) and iPad
-(`B470DB46-9CA3-467A-8FF6-C6584A5C8A5D`) use **iOS 27.2 (24B8117)**, the expected local verification runtime.
+**Runtime attribution:** the supplied local iPhone simulator and iPad
+simulator use **iOS 27.2 (24B8117)**, the expected local verification runtime.
 `simctl list -j devices`, their device records and the earlier RED/GREEN result-bundle summaries confirm this.
 The earlier local `red-phone` and `green-phone-ax5` observations belong to 27.2, not to the hosted pin, iOS 27.0
 (24A434). Their original bundles were subsequently lost in the scratch wipe; they are historical observations,
@@ -342,8 +342,8 @@ D-14 workflow check, requested for recovering tap/wait evidence.
 
 For additional pinned-hosted-failure reproduction only, continuation authorized two **new** project-scoped
 27.0 devices (not replacements for normal local 27.2 verification):
-- iPhone Air: `71C9BBB0-705C-4842-A8A7-F25708C09D9F`.
-- iPad Pro 11-inch (M5): `60DBD1BB-3A1B-4184-8C45-89AB56C6C378`.
+- iPhone Air simulator.
+- iPad Pro 11-inch (M5) simulator.
 
 Both use `com.apple.CoreSimulator.SimRuntime.iOS-27-0` (24A434). The original 27.2 devices remain intact.
 
