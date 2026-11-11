@@ -22,6 +22,7 @@ env:
   ALTSTORE_BETA_TEMPLATE_PATH: './actions-tool/altstore-beta.template.json'
   ALTSTORE_FILTER_PATH: './actions-tool/altstore-add-version.jq'
   RELEASE_NOTES_TOOL_PATH: './actions-tool/release_notes.py'
+  IPA_ENTITLEMENTS_SCRIPT_PATH: './actions-tool/ipa-entitlements.sh'
   RELEASE_NOTES_DIR: './ReleaseNotes'
   CHECK_BUILD_NUMBER_SCRIPT_PATH: './actions-tool/check-build-number.sh'
   PACKAGE_CHANNEL_SCRIPT_PATH: './actions-tool/package-channel.sh'
@@ -219,6 +220,9 @@ jobs:
             done |
             jq -s -c 'from_entries'
           )"
+          # AltStore refuses an install whose IPA asks for a permission the source does not list, so the source
+          # gets what this IPA really carries: the usage descriptions above and the entitlements.
+          entitlements="$(bash "$IPA_ENTITLEMENTS_SCRIPT_PATH" "$app_path")"
           download_url="$(printf '%s' "$RELEASE_ASSETS" | jq -r '[.[] | select(.name == "EhPanda-Beta.ipa") | .browser_download_url][0] // empty')"
 
           [[ "$bundle_id" == "$BETA_BUNDLE_ID" ]] || exit 1
@@ -230,6 +234,7 @@ jobs:
           [[ -n "$notes" ]] || exit 1
           [[ -n "$download_url" ]] || exit 1
           printf '%s' "$privacy" | jq -e 'type == "object"' >/dev/null
+          printf '%s' "$entitlements" | jq -e 'type == "array"' >/dev/null
           curl -sSfIL -o /dev/null "$download_url"
 
           # The beta source lives alone on its own branch, never on main or a release branch, so its raw URL
@@ -286,6 +291,7 @@ jobs:
               --arg minOSVersion "$min_os_version" \
               --argjson size "$size" \
               --argjson privacy "$privacy" \
+              --argjson entitlements "$entitlements" \
               --argjson releaseVersions "$(jq -c '[.apps[0].versions[] | {version, buildVersion}]' "$release_json")" \
               -f "$filter_path" "$source_json" > "$tmp"
             jq -e '(.apps[0].versions | length) >= 1' "$tmp" >/dev/null

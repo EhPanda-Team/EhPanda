@@ -13,6 +13,7 @@ env:
   SIDESTORE_TEMPLATE_PATH: './actions-tool/sidestore.template.json'
   SOURCE_FILTER_PATH: './actions-tool/altstore-add-version.jq'
   PACKAGE_CHANNEL_SCRIPT_PATH: './actions-tool/package-channel.sh'
+  IPA_ENTITLEMENTS_SCRIPT_PATH: './actions-tool/ipa-entitlements.sh'
   BUILDS_PATH: '/tmp/action-builds'
   PAYLOAD_PATH: '/tmp/action-builds/Payload'
   # The notes come from ReleaseNotes/<version>.md, never the PR description (ReleaseNotes/README.md).
@@ -208,6 +209,10 @@ jobs:
           # AltStore.json also gets every language, English included, in localizedDescriptions.
           notes="$(python3 "$RELEASE_NOTES_TOOL_PATH" english "$RELEASE_NOTES_PATH")"
           localized_notes="$(python3 "$RELEASE_NOTES_TOOL_PATH" altstore "$RELEASE_NOTES_PATH")"
+          # AltStore refuses an install whose IPA asks for a permission the source does not list. So the sources
+          # get what the IPA really carries: the usage descriptions (RELEASE_PRIVACY) and the entitlements.
+          entitlements="$(bash "$IPA_ENTITLEMENTS_SCRIPT_PATH" "$PAYLOAD_PATH/$SCHEME_NAME.app")"
+          printf '%s' "$entitlements" | jq -e 'type == "array"' >/dev/null
 
           # Adds this release to a source, pointing at one channel's IPA with that file's own size and
           # checksum: SideStore and AltStore check both against the download. The fourth argument is the
@@ -238,6 +243,7 @@ jobs:
               --arg minOSVersion "$RELEASE_MIN_OS_VERSION" \
               --argjson size "$size" \
               --argjson privacy "$RELEASE_PRIVACY" \
+              --argjson entitlements "$entitlements" \
               --argjson releaseVersions null \
               -f "$SOURCE_FILTER_PATH" "$source_json" > "$tmp"
             jq -e '(.apps[0].versions | length) >= 1' "$tmp" >/dev/null
