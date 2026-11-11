@@ -4,7 +4,6 @@ import AppTools
 import ComposableArchitecture
 @testable import DetailFeature
 import Foundation
-import Kingfisher
 import ReadingFeature
 import SwiftUI
 import UIKit
@@ -268,8 +267,7 @@ extension GalleryScenarios {
         for page in 1...gallery.pageCount {
             guard let url = previewURL(page) else { continue }
             let image = PublicVisualFixtures.artwork(marker: "VP\(page)", colorIndex: (page - 1) % 6)
-            try await ImageCache.default.store(image, forKey: url.stableImageCacheKey ?? url.absoluteString,
-                                               toDisk: false)
+            try await TracerScenarios.cacheArtwork(image, forKey: url.stableImageCacheKey ?? url.absoluteString)
         }
     }
 
@@ -403,7 +401,7 @@ extension GalleryScenarios {
         for index in 0..<GalleryFixtures.tagImageCount {
             guard let url = tagImageURL(index) else { continue }
             let image = PublicVisualFixtures.artwork(marker: "VT\(index + 1)", colorIndex: index + 2)
-            try await ImageCache.default.store(image, forKey: url.absoluteString, toDisk: false)
+            try await TracerScenarios.cacheArtwork(image, forKey: url.absoluteString)
         }
     }
 

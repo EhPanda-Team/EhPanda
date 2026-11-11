@@ -10,6 +10,9 @@ import XCTest
 final class NativeVisualPolicyUITests: XCTestCase {
     override func setUpWithError() throws {
         continueAfterFailure = false
+        // A test that goes through Settings twice or more takes 760 to 860 seconds on the hosted iPad when nothing
+        // goes wrong (run 3), past the default 600.
+        executionTimeAllowance = 1200
     }
 
     // MARK: Cold entry
@@ -32,20 +35,157 @@ final class NativeVisualPolicyUITests: XCTestCase {
 
     // MARK: Live text size
 
-    /// The Settings route reaches every size the policy checks while the app runs, and the app comes back to the
-    /// page it showed.
+    /// The Settings route reaches every size while the app runs. Every live row render must match an independent
+    /// cold reference, not merely return to its initial layout. The fixed icon makes row height alone an invalid
+    /// probe for Large versus AX1 (both 65 points); ink in the rendered label and icon distinguishes them.
     func testLiveTextSizeRouteReachesEverySize() throws {
         let app = XCUIApplication()
         addTeardownBlock { @MainActor in
             LiveTextSize.reset()
         }
-        try app.launchStubbed(extraEnvironment: [Self.tabKey: "search"])
-        app.requireForeground()
-        requireTitle("Search", in: app)
-        for size in [LiveTextSize.Size.accessibility1, .accessibility3, .accessibility5, .large] {
-            LiveTextSize.set(size, returningTo: app)
-            requireTitle("Search", in: app, at: size.name)
+        var references: [String: RowProbe] = [:]
+        for size in LiveTextSize.Size.allCases {
+            app.launchArguments = ["-UIPreferredContentSizeCategoryName", size.category.rawValue]
+            try app.launchStubbed(extraEnvironment: [Self.tabKey: "setting"])
+            app.requireForeground()
+            references[size.name] = requireProbe("Cold \(size.name)", in: app)
+            app.terminate()
         }
+        let values = Array(references.values)
+        for first in values {
+            XCTAssertEqual(values.filter({ first.matches($0) }).count, 1,
+                           "The render probe must distinguish all four categories: \(values).")
+        }
+        app.launchArguments = []
+        try app.launchStubbed(extraEnvironment: [Self.tabKey: "setting"])
+        app.requireForeground()
+        let initial = try XCTUnwrap(references[LiveTextSize.Size.large.name])
+        requireProbe("Initial live Large", in: app, matching: initial)
+        for size in [LiveTextSize.Size.accessibility1, .accessibility3, .accessibility5, .large] {
+            let expected = try XCTUnwrap(references[size.name])
+            LiveTextSize.set(size, returningTo: app)
+            requireProbe("Live \(size.name)", in: app, matching: expected)
+            requireTitle("Settings", in: app, at: size.name)
+        }
+    }
+
+    /// A change after Settings has quit at AX5 still reaches Large. The hosted runners lose Settings before the
+    /// next change (run 3). Both live sizes must match independent native renders, not just a fixed row height.
+    func testLiveTextSizeReachesLargeAfterSettingsQuitAtAX5() throws {
+        let app = XCUIApplication()
+        addTeardownBlock { @MainActor in
+            LiveTextSize.reset()
+        }
+        app.launchArguments = [
+            "-UIPreferredContentSizeCategoryName", LiveTextSize.Size.accessibility5.category.rawValue
+        ]
+        try app.launchStubbed(extraEnvironment: [Self.tabKey: "setting"])
+        app.requireForeground()
+        let ax5 = requireProbe("Cold AX5 before Settings quit", in: app)
+        app.terminate()
+        app.launchArguments = []
+        try app.launchStubbed(extraEnvironment: [Self.tabKey: "setting"])
+        app.requireForeground()
+        requireTitle("Settings", in: app)
+        let large = requireProbe("Initial live Large before Settings quit", in: app)
+        XCTAssertFalse(large.matches(ax5), "The native render must distinguish Large from AX5.")
+        LiveTextSize.set(.accessibility5, returningTo: app)
+        requireProbe("Live AX5 before Settings quit", in: app, matching: ax5)
+        XCUIApplication(bundleIdentifier: LiveTextSize.settingsBundleIdentifier).terminate()
+        LiveTextSize.set(.large, returningTo: app)
+        requireProbe("Live Large after Settings quit", in: app, matching: large)
+    }
+
+    /// A row's native render, measured without app diagnostics or launch arguments on the live app. A half-percent
+    /// ink tolerance allows rasterization rounding, far below the differences between adjacent tested categories.
+    private struct RowProbe: CustomStringConvertible {
+        let height: CGFloat
+        let ink: Int
+        let image: UIImage?
+
+        var description: String { "height=\(height), ink=\(ink)" }
+
+        func matches(_ other: Self) -> Bool {
+            ink > 0 && other.ink > 0
+                && abs(height - other.height) < 1 && abs(ink - other.ink) <= max(2, other.ink / 200)
+        }
+    }
+
+    private func rowProbe(in app: XCUIApplication) -> RowProbe {
+        let row = app.buttons["Account"].firstMatch
+        // One sample only: the caller owns the bounded wait and the sole terminal assertion.
+        let unavailable = RowProbe(height: 0, ink: 0, image: nil)
+        guard row.exists, row.isHittable else { return unavailable }
+        let frame = row.frame
+        guard !frame.isEmpty, !frame.isInfinite, !frame.isNull else { return unavailable }
+        // Crop the app render rather than requesting an element screenshot: a layout transition can empty the
+        // element's frame between the query and screenshot request, which makes XCTest crash instead of retry.
+        let image = app.screenshot().image
+        let origin = app.frame.origin
+        let crop = CGRect(x: (frame.minX - origin.x) * image.scale, y: (frame.minY - origin.y) * image.scale,
+                          width: frame.width * image.scale, height: frame.height * image.scale)
+        guard let raster = image.cgImage,
+              CGRect(x: 0, y: 0, width: raster.width, height: raster.height).contains(crop),
+              let source = raster.cropping(to: crop), source.width >= 2, source.height > 0 else {
+            return unavailable
+        }
+        let width = source.width
+        let height = source.height
+        var pixels = [UInt8](repeating: 0, count: width * height * 4)
+        let ink = pixels.withUnsafeMutableBytes { bytes -> Int in
+            guard let context = CGContext(
+                data: bytes.baseAddress, width: width, height: height, bitsPerComponent: 8, bytesPerRow: width * 4,
+                space: CGColorSpaceCreateDeviceRGB(),
+                bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue | CGBitmapInfo.byteOrder32Big.rawValue
+            ) else {
+                return 0
+            }
+            context.draw(source, in: CGRect(x: 0, y: 0, width: width, height: height))
+            let rgba = bytes.bindMemory(to: UInt8.self)
+            // The row's far-right midpoint is background in both appearances; the label is leading aligned.
+            let background = (height / 2 * width + width - 2) * 4
+            var count = 0
+            for offset in stride(from: 0, to: rgba.count, by: 4) {
+                let red = abs(Int(rgba[offset]) - Int(rgba[background]))
+                let green = abs(Int(rgba[offset + 1]) - Int(rgba[background + 1]))
+                let blue = abs(Int(rgba[offset + 2]) - Int(rgba[background + 2]))
+                if max(red, green, blue) > 32 {
+                    count += 1
+                }
+            }
+            return count
+        }
+        return RowProbe(height: frame.height, ink: ink,
+                        image: UIImage(cgImage: source, scale: image.scale, orientation: .up))
+    }
+
+    private func recordProbe(_ name: String, sample: RowProbe) {
+        XCTContext.runActivity(named: "\(name): \(sample)") { activity in
+            if let image = sample.image {
+                let screenshot = XCTAttachment(image: image)
+                screenshot.lifetime = .keepAlways
+                activity.add(screenshot)
+            }
+        }
+    }
+
+    /// Poll for one valid cold render or a matching live render, retaining the exact measured crop for evidence.
+    @discardableResult
+    private func requireProbe(
+        _ name: String, in app: XCUIApplication, matching expected: RowProbe? = nil,
+        file: StaticString = #filePath, line: UInt = #line
+    ) -> RowProbe {
+        var sample = RowProbe(height: 0, ink: 0, image: nil)
+        let met = NSPredicate { _, _ in
+            sample = self.rowProbe(in: app)
+            return sample.ink > 0 && (expected.map({ sample.matches($0) }) ?? true)
+        }
+        let result = XCTWaiter.wait(for: [XCTNSPredicateExpectation(predicate: met, object: nil)], timeout: 15)
+        recordProbe(name, sample: sample)
+        XCTAssertEqual(result, .completed,
+                       "\(name): \(sample), expected \(expected.map({ $0.description }) ?? "a valid row render").",
+                       file: file, line: line)
+        return sample
     }
 
     // MARK: Preservation
@@ -226,10 +366,13 @@ final class NativeVisualPolicyUITests: XCTestCase {
         let heading = bar.staticTexts[title]
         if UIDevice.current.userInterfaceIdiom == .pad, !heading.waitForExistence(timeout: 2) {
             // An iPad tab bar sits at the top in the navigation bar's place, which then shows no title: the
-            // selected tab names the page.
+            // selected tab names the page. At AX3 a query of the tab bar took about 30 seconds on the hosted iPad
+            // (run 3), so the tab gets the long wait.
             let tab = Self.tab(title, in: app)
+            let isHittable = tab.waitUntilHittable(timeout: XCUIElement.hittableTimeout)
             XCTAssertTrue(
-                tab.waitUntilHittable(timeout: 10) && tab.isSelected, "\(title)'s tab is off screen at \(size).",
+                isHittable && tab.isSelected,
+                "\(title)'s tab is \(isHittable ? "not selected" : tab.exists ? "off screen" : "missing") at \(size).",
                 file: file, line: line
             )
         } else {
@@ -241,7 +384,14 @@ final class NativeVisualPolicyUITests: XCTestCase {
 
     /// The tab named `title`. A phone's tab bar is a tab bar; an iPad's floats at the top as plain buttons, ahead
     /// of the keyboard's in the hierarchy.
-    nonisolated static func tab(_ title: String, in app: XCUIApplication) -> XCUIElement {
+    static func tab(_ title: String, in app: XCUIApplication) -> XCUIElement {
+        // The iPad floating tabs are ordinary buttons, not a TabBar. Avoid an expensive, known-absent query
+        // before the Home button's own wait; the hosted AX3 snapshot previously exhausted that wait here.
+        if UIDevice.current.userInterfaceIdiom == .pad {
+            let identifier = title == "Home" ? "house.circle" : title
+            return app.buttons.matching(NSPredicate(format: "identifier == %@ OR label == %@", identifier, title))
+                .firstMatch
+        }
         let bar = app.tabBars.firstMatch
         let buttons = bar.exists ? bar.buttons : app.buttons
         return buttons.matching(NSPredicate(format: "label == %@", title)).firstMatch
@@ -256,6 +406,7 @@ final class NativeVisualPolicyUITests: XCTestCase {
     struct SearchState {
         let app: XCUIApplication
 
+        @MainActor
         func require(at step: String, file: StaticString = #filePath, line: UInt = #line) {
             XCTAssertTrue(app.navigationBars["Search"].waitForExistence(timeout: 10), "Search left at \(step).",
                           file: file, line: line)

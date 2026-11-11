@@ -31,11 +31,29 @@ env:
   SIDESTORE_IPA_PATH: '/tmp/action-builds/EhPanda-SideStore.ipa'
 
 jobs:
-  Deploy:
-    runs-on: xcode-27
+  # No release builds without a green full screenshot matrix in compare mode (19-10; D-16).
+  snapshot-gate:
     if: |
       github.event.pull_request.merged == true && github.event.pull_request.user.login == 'chihchy'
-    # contents: the push of the sources and the release; checks: the screenshot check's verdict.
+    permissions:
+      contents: read
+    uses: ./.github/workflows/snapshot-gate.yml
+    with:
+      mode: compare
+  Deploy:
+    needs: snapshot-gate
+    runs-on: xcode-27
+    timeout-minutes: 120
+    # One release at a time: the gate lets two merged release pull requests reach this job together, and the
+    # second would publish its release and then fail the push of the catalogue commit. Queue, never cancel.
+    # On the job, not the workflow: a pull request closed without merging also starts this workflow, and
+    # would take the queue's one pending place from a real release.
+    concurrency:
+      group: deploy-release
+      cancel-in-progress: false
+    if: |
+      github.event.pull_request.merged == true && github.event.pull_request.user.login == 'chihchy'
+    # contents: the release, its tag and the push of the sources; checks: the screenshot check's verdict.
     permissions:
       contents: write
       checks: read

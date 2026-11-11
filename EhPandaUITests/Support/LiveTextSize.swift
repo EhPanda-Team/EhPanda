@@ -89,9 +89,8 @@ enum LiveTextSize {
                         XCUIElement.ElementType.switch.rawValue),
             in: settings, named: "Larger Accessibility Sizes", file: file, line: line
         )
-        if size.isAccessibilitySize != isOn(largerSizes) {
-            // Turned off at an accessibility size, the switch leaves the largest standard size, which the slider
-            // then moves from: its seven standard steps are wider and easier to hit than the twelve.
+        let rangeChanged = size.isAccessibilitySize != isOn(largerSizes)
+        if rangeChanged {
             // The row's own switch, not its label.
             let control = largerSizes.switches.firstMatch
             (control.exists ? control : largerSizes)
@@ -100,7 +99,8 @@ enum LiveTextSize {
             let wait = XCTWaiter.wait(for: [XCTNSPredicateExpectation(predicate: flipped, object: nil)], timeout: 5)
             XCTAssertEqual(wait, .completed, "Larger Accessibility Sizes did not change.", file: file, line: line)
         }
-        adjustSlider(in: settings, to: size.step, file: file, line: line)
+        adjustSlider(in: settings, to: size.step, requiringWrite: rangeChanged && !size.isAccessibilitySize,
+                     file: file, line: line)
         if XCUIDevice.shared.orientation != orientation {
             XCUIDevice.shared.orientation = orientation
         }
@@ -118,23 +118,23 @@ enum LiveTextSize {
 
     private static func openLargerText(file: StaticString, line: UInt) -> XCUIApplication {
         let settings = XCUIApplication(bundleIdentifier: settingsBundleIdentifier)
-        let largerText = settings.navigationBars["Larger Text"]
-        // Settings left on Larger Text by an earlier change is used where it stands. Relaunched within about a
-        // minute of a change to AX5, Settings opens Accessibility but then takes no tap on Display & Text Size,
-        // so a test that changes the size more than once does not go through the rows again.
-        if settings.state == .runningBackground || settings.state == .runningForeground {
+        // Settings left on Larger Text by an earlier change is used where it stands, but only in the foreground.
+        let state = settings.state
+        if state == .runningBackground || state == .runningBackgroundSuspended || state == .runningForeground {
             settings.activate()
-            _ = settings.wait(for: .runningForeground, timeout: 15)
+            XCTAssertTrue(settings.wait(for: .runningForeground, timeout: 15), "Settings did not open.",
+                          file: file, line: line)
         }
-        if !largerText.waitForExistence(timeout: 2) {
-            for launch in 0..<maximumLaunches {
-                if launch > 0 {
-                    // The rows come back to life a while after the change; a fresh launch after a pause finds them.
-                    Thread.sleep(forTimeInterval: relaunchPause)
-                }
+        let largerText = settings.navigationBars["Larger Text"]
+        if settings.state != .runningForeground || !largerText.waitForExistence(timeout: 2) {
+            // Settings launches laid out at Large, whatever the system size. At AX5 its rows outgrow an iPhone's
+            // screen, and after the swipes that bring Display & Text Size up, the row took no tap at all, on the
+            // hosted iPhone (run 3) and locally alike, though it stood whole in the window. The override sets only
+            // Settings' own layout; the slider still writes the system size.
+            settings.launchArguments = ["-UIPreferredContentSizeCategoryName", UIContentSizeCategory.large.rawValue]
+            for _ in 0..<maximumLaunches {
                 // A fresh launch starts at the root, wherever an earlier run left the app.
-                settings.terminate()
-                settings.activate()
+                settings.launch()
                 XCTAssertTrue(settings.wait(for: .runningForeground, timeout: 15), "Settings did not open.",
                               file: file, line: line)
                 if openRows(in: settings, file: file, line: line) { break }
@@ -166,9 +166,31 @@ enum LiveTextSize {
                 _ = page.waitForExistence(timeout: 5)
                 taps += 1
             }
-            if !page.exists { return false }
+            if !page.exists {
+                attachMissedTap(on: settings.descendants(matching: .any).matching(row.predicate).firstMatch,
+                                named: row.name, in: settings)
+                return false
+            }
         }
         return true
+    }
+
+    /// Keeps what a row that opened nothing left behind: the screen, the row's frame beside the window's, and
+    /// Settings' hierarchy, so a failure shows where the taps landed.
+    private static func attachMissedTap(on row: XCUIElement, named name: String, in settings: XCUIApplication) {
+        let window = settings.windows.firstMatch.frame
+        let frame = row.exists ? row.frame : .null
+        let summary = "\(name) opened nothing: row \(frame), window \(window), visible \(frame.intersection(window))"
+        XCTContext.runActivity(named: summary) { activity in
+            let screenshot = XCTAttachment(screenshot: XCUIScreen.main.screenshot())
+            screenshot.name = "\(name) missed"
+            screenshot.lifetime = .keepAlways
+            activity.add(screenshot)
+            let hierarchy = XCTAttachment(string: summary + "\n" + settings.debugDescription)
+            hierarchy.name = "\(name) missed hierarchy"
+            hierarchy.lifetime = .keepAlways
+            activity.add(hierarchy)
+        }
     }
 
     /// A Settings row, by the title of the page it opens and the predicate that finds it.
@@ -177,8 +199,7 @@ enum LiveTextSize {
         let predicate: NSPredicate
     }
 
-    private static let maximumLaunches = 4
-    private static let relaunchPause: TimeInterval = 20
+    private static let maximumLaunches = 2
 
     /// Scrolls the list holding the row `predicate` matches until the row can be tapped. At accessibility sizes
     /// Settings' own rows grow, and in landscape they start below the fold; a row far below is not in the
@@ -236,7 +257,7 @@ enum LiveTextSize {
     )
 
     private static func adjustSlider(
-        in settings: XCUIApplication, to step: SliderStep, file: StaticString, line: UInt
+        in settings: XCUIApplication, to step: SliderStep, requiringWrite: Bool, file: StaticString, line: UInt
     ) {
         let slider = settings.sliders.firstMatch
         XCTAssertTrue(slider.waitForExistence(timeout: 10), "Larger Text has no slider.", file: file, line: line)
@@ -250,9 +271,26 @@ enum LiveTextSize {
         // therefore presses the thumb's middle, from the step the slider reads, and drags it to the target step.
         let track = slider.frame.width - sliderLeadingInset - sliderTrailingInset
         let position = { (index: Int) in sliderLeadingInset + CGFloat(index) / CGFloat(step.count - 1) * track }
+        var needsWrite = requiringWrite
         for _ in 0..<maximumSliderAttempts {
-            guard let reached = readStep(of: slider, count: step.count), reached != step.index else { break }
-            drag(slider, from: position(reached), to: position(step.index))
+            guard let reached = readStep(of: slider, count: step.count) else {
+                XCTFail("The slider's current step is unknown.", file: file, line: line)
+                return
+            }
+            if reached == step.index {
+                guard needsWrite else { break }
+                // After switching to the standard range, a displayed Large can precede a system size write.
+                // Move its known thumb one standard step away, then return within this same attempt budget.
+                let adjacent = step.index + 1
+                drag(slider, from: position(reached), to: position(adjacent))
+                guard readStep(of: slider, count: step.count) == adjacent else {
+                    XCTFail("The slider did not reach the adjacent standard step.", file: file, line: line)
+                    return
+                }
+            } else {
+                drag(slider, from: position(reached), to: position(step.index))
+                needsWrite = false
+            }
         }
         let reads = NSPredicate { _, _ in (slider.value as? String) == expected }
         let wait = XCTWaiter.wait(for: [XCTNSPredicateExpectation(predicate: reads, object: nil)], timeout: 5)

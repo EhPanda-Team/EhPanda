@@ -29,6 +29,9 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v7
+        with:
+          # The job reaches gh only through the run step's GH_TOKEN; do not leave a token in .git/config.
+          persist-credentials: false
       - name: Install iOS 27 Platform
         uses: nick-fields/retry@v4
         with:

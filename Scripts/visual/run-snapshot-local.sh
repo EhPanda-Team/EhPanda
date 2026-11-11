@@ -10,7 +10,8 @@
 # runtime on before every run. An iPad process captures one orientation (iPadOS refuses in-process rotation), so
 # on iPad the device is turned first with VisualCaptureOrientationUITests; the iPhone captures both in process.
 # Several configurations run in one invocation, one after another. --workers N runs the classes on N simulator clones,
-# as the hosted check does; without it the run is not parallel.
+# as the hosted check does; without it the run is not parallel. Clones boot in portrait whatever the turned iPad shows
+# (19-10-PROOF.md), so an iPad landscape run takes no --workers.
 set -euo pipefail
 
 usage() {
@@ -41,6 +42,10 @@ case "$MODE" in candidate | compare) ;; *) usage ;; esac
 case "$ORIENTATION" in '' | portrait | landscape) ;; *) usage ;; esac
 case "$WORKERS" in '' | [1-9]) ;; *) usage ;; esac
 [ -n "$CONFIG" ] && [ -n "$CLASSES" ] && [ -n "$OUT" ] || usage
+if [ "$DEVICE" = pad ] && [ "$ORIENTATION" = landscape ] && [ -n "$WORKERS" ]; then
+    echo 'An iPad landscape run takes no --workers: clones boot in portrait, not in the turned orientation.' >&2
+    exit 2
+fi
 if [ "$MODE" = compare ] && [ -z "$REFS" ]; then
     echo 'Compare mode needs --refs.' >&2
     exit 2

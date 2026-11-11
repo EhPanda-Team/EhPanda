@@ -19,14 +19,29 @@ extension ScenarioCatalog {
         }
     }
 
+    /// The fewest identical reads a first-launch picture settles on. These pages are hosted first in a process and
+    /// end in a Liquid Glass button; on run 42533872440 two candidates settled on two reads and held that button
+    /// 1/255 off the reference, so the glass is given longer to finish than other pages.
+    static let firstLaunchMinimumReads = 6
+
     private static var firstLaunch: [String: ScenarioFactory] {
-        [
-            "agewall-unticked": .init(signedIn: false, make: { BrowsingScenarios.ageWall(ticked: false) }),
-            "agewall-ticked": .init(signedIn: false, make: { BrowsingScenarios.ageWall(ticked: true) }),
-            "analytics-choice-none": .init(signedIn: false, make: { BrowsingScenarios.analyticsChoice(nil) }),
-            "analytics-choice-minimal": .init(signedIn: false, make: { BrowsingScenarios.analyticsChoice(.minimal) }),
-            "analytics-choice-basic": .init(signedIn: false, make: { BrowsingScenarios.analyticsChoice(.basic) }),
-            "analytics-choice-full": .init(signedIn: false, make: { BrowsingScenarios.analyticsChoice(.full) })
+        typealias Page = BrowsingScenarios
+        let reads = firstLaunchMinimumReads
+        return [
+            "agewall-unticked": .init(signedIn: false, make: { Page.ageWall(ticked: false) }, minimumReads: reads),
+            "agewall-ticked": .init(signedIn: false, make: { Page.ageWall(ticked: true) }, minimumReads: reads),
+            "analytics-choice-none": .init(
+                signedIn: false, make: { Page.analyticsChoice(nil) }, minimumReads: reads
+            ),
+            "analytics-choice-minimal": .init(
+                signedIn: false, make: { Page.analyticsChoice(.minimal) }, minimumReads: reads
+            ),
+            "analytics-choice-basic": .init(
+                signedIn: false, make: { Page.analyticsChoice(.basic) }, minimumReads: reads
+            ),
+            "analytics-choice-full": .init(
+                signedIn: false, make: { Page.analyticsChoice(.full) }, minimumReads: reads
+            )
         ]
     }
 
@@ -304,17 +319,33 @@ enum BrowsingScenarios {
     /// the focus back, and both attempts captured an unfocused field with its text scrolled to the start and no
     /// caret (run 42475531683). The field is focused again until it is still first responder after the window has
     /// come to rest twice in a row.
+    ///
+    /// On the loaded hosted runner the 15 s this step used to have ran out in 3 of 5 compare invocations of run
+    /// 42533872440. The step now has ``focusDeadline``, and a window that has not come to rest within one
+    /// ``waitForRest(_:)`` is waited for again until that deadline instead of failing the step at once.
     static func focusSearchField(_ window: UIWindow) async throws {
+        try await focusSearchField(window, deadline: focusDeadline)
+    }
+
+    /// How long ``focusSearchField(_:)`` may take before it fails the attempt with `interaction`.
+    static let focusDeadline: Duration = .seconds(40)
+
+    static func focusSearchField(_ window: UIWindow, deadline span: Duration) async throws {
         let root = try XCTUnwrap(window.rootViewController?.view)
         let clock = ContinuousClock()
-        let deadline = clock.now.advanced(by: .seconds(15))
+        let deadline = clock.now.advanced(by: span)
         var held = 0
+        var found = false
         while held < 2 {
-            guard clock.now < deadline else { throw AccessibilityActionDriver.Failure.notFound("focused search field") }
+            // Run 42577585956 failed this step on iPad in 4 of 90 runs with no word of why; the reason now says.
+            guard clock.now < deadline else {
+                throw StepFailure(reason: found ? "search-focus-not-held" : "no-search-field")
+            }
             guard let field = firstView(of: UISearchTextField.self, in: root) else {
                 try await clock.sleep(for: .milliseconds(100))
                 continue
             }
+            found = true
             if field.isFirstResponder {
                 held += 1
             } else {
@@ -322,14 +353,27 @@ enum BrowsingScenarios {
                 _ = field.becomeFirstResponder()
             }
             try await clock.sleep(for: .milliseconds(held == 0 ? 800 : 300))
-            try await waitForRest(window)
+            do {
+                try await waitForRest(window)
+            } catch let moving as StillMoving {
+                // Not yet at rest: the focus is not counted as held, and the loop reads again until the deadline.
+                guard clock.now < deadline else { throw moving }
+                held = 0
+            }
         }
         try await freezeIndicators(window)
     }
 
     /// A user step's window that never came to rest; the motion it last read.
-    struct StillMoving: Error {
+    struct StillMoving: CaptureStepFailure {
         let motion: String
+
+        var reason: String { "still-moving:\(motion)" }
+    }
+
+    /// A user step that did not reach its state by its deadline, and how far it got.
+    struct StepFailure: CaptureStepFailure {
+        let reason: String
     }
 
     /// Waits until ``HostedWindowCapture/motion(in:)`` reads nothing three times in a row, 100 ms apart, for at most

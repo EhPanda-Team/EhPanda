@@ -92,3 +92,14 @@ EhPanda is being modularized to match the App-shell + local-package layout:
 - `EhPanda.xcodeproj` — references `AppPackage` as a local Swift package (`XCLocalSwiftPackageReference`); the app target links the `AppFeature` product.
 
 All third-party dependencies are declared in `AppPackage/Package.swift`, not in the Xcode project.
+
+## GSD Subagent Models And Effort
+
+- Before spawning a GSD role, resolve its model and effort from the repository root:
+
+  ```sh
+  node ~/.claude/gsd-core/bin/gsd-tools.cjs query resolve-model gsd-<role> 2>/dev/null
+  ```
+
+- Pass the returned `model` exactly; omit it only when it is `inherit` or empty. Check the spawning tool's parameters at each dispatch: if it has an effort parameter, pass the returned `effort`; if not, the subagent runs at `inherit`.
+- Every time you dispatch a subagent, send one short message in the chat you work in: `<role> subagent (<model>) (<effort>) dispatched`. `<effort>` is the effort you actually passed, or `inherit` when you passed none.

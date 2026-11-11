@@ -1,5 +1,5 @@
-# actionlint configuration. The release and test workflows run on a self-hosted macOS runner labelled
-# `xcode-27`, which actionlint does not know, so it is declared here.
+# actionlint's configuration. `xcode-27` is the hosted macOS runner label every Xcode workflow here uses (19-04
+# confirmed its runner group from the job metadata); actionlint knows only GitHub's own labels.
 self-hosted-runner:
   labels:
     - xcode-27

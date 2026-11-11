@@ -27,6 +27,10 @@ struct LaboratorySettingView: View {
         }
         .scrollEdgeEffectStyle(.soft, for: .top)
         .navigationTitle(.laboratory)
+        // Pushed from the Setting root, whose designed mode is `inlineLarge`, an automatic title resolves to the
+        // inline one, and while a launch route builds the stack the mode is not settled yet, so it flips between
+        // captures. Laboratory is a short page whose title is its heading: it always shows the large title.
+        .toolbarTitleDisplayMode(.large)
         .onChange(of: setting.bypassSNIFiltering) { _, newValue in
             store.send(.bypassSNIFilteringChanged(newValue))
         }
