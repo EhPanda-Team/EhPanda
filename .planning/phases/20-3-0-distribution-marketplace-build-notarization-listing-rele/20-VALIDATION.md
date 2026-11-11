@@ -78,7 +78,7 @@ created: "2026-11-09"
 | 20-10-02 | 10 | 5 | MKT-18-01, CAP-17-05 | T-20-27 | store renders tied to approved references; delivery check | unit + render | `test_store_screenshots.py`; `store_screenshots.py check` | ❌ W0 | ➖ superseded |
 | 20-10-03 | 10 | 5 | MKT-18-01, DIST-18-02 | T-20-28 | approved, pushed, listed, uploaded | checkpoint | `curl` URLs; actions-tool tests with assets | — | ⬜ pending |
 | 20-11-01 | 11 | 5 | REL-18-01 | — | OQ-F decided | checkpoint (decision) | — | — | ✅ green |
-| 20-11-02 | 11 | 5 | REL-18-01 | T-20-29, T-20-30 | release requires the gate's `success` on its commit | unit (fake gh) + workflow | `test_require_snapshot_gate.py`; `test_workflows.py`; actionlint | ❌ W0 | ✅ green |
+| 20-11-02 | 11 | 5 | REL-18-01 | T-20-29, T-20-30 | release requires the gate's `success` on its commit (superseded: gate off for 3.0, owner msg 3757; `test_workflows.py` asserts it is off) | unit (fake gh) + workflow | `test_require_snapshot_gate.py`; `test_workflows.py`; actionlint | ❌ W0 | ➖ superseded |
 | 20-11-03 | 11 | 5 | REL-18-01 | — | live read of real verdicts | script | `grep` results | — | ⏸ deferred (owner msg 3742) |
 | 20-12-01 | 12 | 1 | ANALYTICS-02 | T-20-31 | rules check per proposed signal; no code | document | `grep` flows; no AppPackage diff | — | ✅ green |
 | 20-12-02 | 12 | 1 | ANALYTICS-02 | T-20-31 | sign-off before code | checkpoint (decision) | — | — | ✅ green |
@@ -101,7 +101,7 @@ Rows still not green, so `nyquist_compliant` stays false:
   `store_screenshots.py` and its tests were never written.
 - **20-10-03**: the upload and the PAL copy approval moved to 20-08.
 - **20-11-03** is deferred (accepted, owner msg 3742): every live read exits 1 until Phase 19's passing gate run exists
-  (`20-11-GATE.md`); it runs on the before-release-day list after that pass.
+  (`20-11-GATE.md`); it is no longer on the before-release-day list: the release workflows do not read the gate for 3.0 (owner msg 3757), so it stays deferred.
 - **20-06-xx, 20-07-02, 20-08-xx**: those plans are not executed; 20-08 is last (D-26).
 
 ---

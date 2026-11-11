@@ -457,25 +457,33 @@ class ArtifactLayoutTests(unittest.TestCase):
 
 
 class WiringTests(unittest.TestCase):
-    def assert_release_gate(self, path):
+    # Snapshot gate off for 3.0 (owner msg 3757): the release workflows neither call the gate nor wait for it.
+    # The gate itself is still run by pull requests, dispatches and dependency updates.
+    def assert_gate_off(self, path):
         workflow = load(path)
-        jobs = workflow['jobs']
-        first = next(iter(jobs))
-        gate = jobs[first]
-        self.assertEqual(gate['uses'], './.github/workflows/snapshot-gate.yml', path.name)
-        self.assertEqual(gate['with']['mode'], 'compare', path.name)
-        self.assertEqual(gate['permissions'], {'contents': 'read'}, path.name)
-        self.assertIn(first, [jobs['Deploy']['needs']] if isinstance(jobs['Deploy']['needs'], str)
-                      else jobs['Deploy']['needs'], path.name)
-        return gate, jobs['Deploy']
+        for name, job in workflow['jobs'].items():
+            self.assertNotIn('uses', job, f'{path.name}: {name}')
+            self.assertNotIn('needs', job, f'{path.name}: {name}')
+        text = path.read_text(encoding='utf-8')
+        body = '\n'.join(line for line in text.splitlines() if not line.strip().startswith('#'))
+        for needle in ('snapshot-gate.yml', 'require-snapshot-gate'):
+            self.assertNotIn(needle, body, path.name)
+        return workflow
 
-    def test_the_release_builds_only_after_the_gate(self):
-        gate, deploy = self.assert_release_gate(WORKFLOWS / 'deploy.yml')
-        # The gate runs only for the release the deploy job would make.
-        self.assertEqual(re.sub(r'\s+', ' ', gate['if']).strip(), re.sub(r'\s+', ' ', deploy['if']).strip())
+    def test_the_release_does_not_wait_for_the_gate(self):
+        workflow = self.assert_gate_off(WORKFLOWS / 'deploy.yml')
+        self.assertEqual(list(workflow['jobs']), ['Deploy'])
 
-    def test_the_beta_builds_only_after_the_gate(self):
-        self.assert_release_gate(WORKFLOWS / 'deploy-beta.yml')
+    def test_the_beta_does_not_wait_for_the_gate(self):
+        workflow = self.assert_gate_off(WORKFLOWS / 'deploy-beta.yml')
+        self.assertEqual(list(workflow['jobs']), ['Deploy'])
+
+    def test_the_pal_submission_does_not_wait_for_the_gate(self):
+        self.assert_gate_off(WORKFLOWS / 'deploy-pal.yml')
+
+    def test_the_gate_stays_callable_for_pull_requests_and_dispatches(self):
+        gate = load(WORKFLOWS / 'snapshot-gate.yml')
+        self.assertIn('aggregate', gate['jobs'])
 
     def test_dependency_updates_dispatch_the_gate_on_their_branch(self):
         workflow = load(WORKFLOWS / 'dependencies.yml')
