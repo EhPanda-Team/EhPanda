@@ -76,7 +76,8 @@ build-number check that only the beta workflow runs. Five findings change the pl
    so an iPad 13-inch set is needed too, and none exists. **The first submission therefore cannot happen before some
    all-ages iPhone and iPad screenshots exist.** Phase 19's approved set is (f)'s, so 20-08 opens with a decision:
    wait for (f), or submit first with an interim, undecorated all-ages set from the public synthetic fixtures (OQ-A).
-4. **D-05 orders (d) before the first submission.** The contact link must be live "before the AltStore build goes to
+4. **D-05 orders (d) before the first submission.** *(Amended 2026-11-11, owner msg 3501: no contact link is
+   required; the support URL is the GitHub repository page.)* The contact link must be live "before the AltStore build goes to
    Apple", and the support URL is a required property. So (c) is split into the pipeline (20-04 submit, 20-05
    publish), account setup (20-06) and the first live submission (20-08), which also depends on the website check
    (20-07). The product lead's order is otherwise unchanged.
@@ -363,6 +364,9 @@ PAL version entry the filter writes:
   General. Each language links its own page, `https://ehpanda.app/<language>/privacy/`, and English is the fallback.
   There is no page at `/privacy` (owner msg 2818, addresses in website msg 2819). It must resolve before the
   submission.
+- *Amended 2026-11-11 (owner msg 3501):* the published contact link is dropped and the support URL is the GitHub
+  repository page, https://github.com/EhPanda-Team/EhPanda; from Leto only the privacy policy URL and the PAL source
+  URL are needed. Guideline 1.5 is a Notarization guideline; 1.2 is not.
 - Needed from Leto: the privacy policy URL (same), a support URL, the published contact link (GitHub Issues), and a
   public URL for `AltStorePAL.json` (an `ehpanda.app` redirect to `raw.githubusercontent.com/.../main/AltStorePAL.json`,
   like `AltStore.json`'s).

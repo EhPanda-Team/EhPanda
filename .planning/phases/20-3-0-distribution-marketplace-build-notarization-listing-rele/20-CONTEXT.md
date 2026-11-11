@@ -17,7 +17,7 @@ covers:
 - the marketplace build flavor (DIST-18-01, flavor part) and the remaining release mechanics fixes (REL-18-01);
 - the PAL source JSON (DIST-18-02);
 - the notarization pipeline through the collaborator's App Store Connect account (DIST-18-03);
-- the website dependencies: privacy policy, support page, the published contact link (UGC-18-01, contact part) and
+- the website dependencies: privacy policy, support page, the published contact link (UGC-18-01, contact part; *the contact link and support page are dropped, 2026-11-11, owner msg 3501, see D-05*) and
   the PAL source's public URL;
 - the real-device checks (DEV-18-01);
 - the PAL listing assets and store screenshots built from Phase 19's approved reference set (MKT-18-01 remaining
@@ -73,6 +73,14 @@ does not redo them.
 - **D-05:** **Published contact link:** there is no in-app contact option for now (Ampo msg 1774, after the owner's
   question in msg 1760). A published contact link, GitHub Issues on the website, is needed before the AltStore build
   goes to Apple. The website owner is Leto. The privacy policy and support URLs are website work too (prep L7).
+  *Amended 2026-11-11 (owner msg 3501; product lead msg 3502):* The website gets no GitHub Issues link: its existing GitHub link is
+  enough, and installation questions are not answered (owner msg 3501; product lead msg 3502). The published contact link
+  is out of the 3.0 plan. The App Store Connect Support URL is the GitHub repository page,
+  https://github.com/EhPanda-Team/EhPanda; its Issues tab is the contact route, and no website change is needed for it.
+  Guideline 1.5 (Developer Information: "Make sure your app and its Support URL include an easy way to contact you") is
+  one of the Notarization Review Guidelines; guideline 1.2 (UGC, "published contact information") is not (checked
+  2026-11-11 at https://developer.apple.com/app-store/review/guidelines/). The earlier support URL, the website home page
+  (owner msg 2809), is replaced.
 - **D-06:** **The analytics revision is the last plan before the closing scan** (ANALYTICS-02; owner msgs 1289,
   1753). It adds the signals for every 3.0 flow under the consent levels, within ANALYTICS-01's rules.
   *Amended 2026-11-09:* the install-source part is done. Owner msg 2552 replaced the install source with the
@@ -238,7 +246,7 @@ does not redo them.
   2783, 2026-11-09; OQ-G answered yes). 20-07 (step (d)), 20-09 (step (e)) and 20-12 (step (g), the vocabulary
   proposal) run in wave 1, in parallel with the build steps, instead of waiting for 20-08 and the steps before it;
   none of them needs code from an earlier step. Everything that depends on them keeps its place: 20-08 still waits
-  for 20-07 (the contact link is live before the first submission, D-05), 20-10, 20-11 and 20-14 for 20-09, and
+  for 20-07 (the privacy pages and the support URL are live before the first submission, D-05 amended), 20-10, 20-11 and 20-14 for 20-09, and
   20-13 for 20-12's sign-off. 20-09 checks the branch head as it is when it runs; the final build is still checked
   by the closing scan (D-09).
 - **D-24:** **The PAL source's `developerName` is "EhPanda Team"**, the same as the Classic source (product lead msg
@@ -256,7 +264,8 @@ does not redo them.
   - **OQ-B is moot:** no early version uses up 3.0.0, so manual release and Developer Reject are not needed. The PAL
     upload carries the Classic release's version and build number, which App Store Connect has not seen.
   - **Website (D-05, 20-07 Task 2):** the site goes live with the Classic release, before the PAL build goes to
-    Apple, so the contact link is live in time. 20-07's live check runs when the site goes live.
+    Apple, so the privacy pages are live in time. 20-07's live check runs when the site goes live. *Amended 2026-11-11 (owner
+    msg 3501):* there is no contact link to be live (D-05).
   - **D-17 holds by order:** the GitHub release for the version exists before the PAL job uploads to it. The job
     still fails cleanly if it does not.
   - **D-22:** an icon rejection now pauses only the PAL submission. The Classic 3.0 release is already out.
@@ -312,8 +321,9 @@ parallel with (a) to (c); the order below still holds for everything else. *Amen
       the review rejects the icon under guideline 2.3.8, this step pauses for a design request to Colo (D-22).
 - **(d) Website dependencies check** (Leto):
   - the privacy policy URL (each language's own page, `/<language>/privacy/`; owner msg 2818);
-  - the support URL;
-  - the published contact link (GitHub Issues), live before the build goes to Apple (D-05);
+  - the support URL: the GitHub repository page, https://github.com/EhPanda-Team/EhPanda (D-05 amended, owner msg 3501);
+  - ~~the published contact link (GitHub Issues), live before the build goes to Apple (D-05)~~ dropped, owner msg 3501
+    (*amended 2026-11-11*);
   - the PAL source's public URL.
   The privacy page rewrite stays at 3.0 ship (D-10).
 - **(e) Real-device checks** (DEV-18-01). **Checkpoint (owner hardware).**
