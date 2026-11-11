@@ -48,6 +48,15 @@ public struct GallerySheetFeature {
                     embed: { .path(.element(id: $0, action: $1)) }
                 )
 
+            // A vote's answer goes to the detail's own copy of the comment, with no fetch of the whole detail.
+            case let .path(.element(id: _, action: .comments(.delegate(.commentVoted(gid, commentID, score, vote))))):
+                let action = DetailReducer.Action.applyCommentVote(commentID: commentID, score: score, vote: vote)
+                if state.detail.gid == gid {
+                    return .send(.detail(action))
+                }
+                guard let id = state.path.detailID(forGID: gid) else { return .none }
+                return .send(.path(.element(id: id, action: .detail(action))))
+
             case let .path(.element(id: _, action: .comments(.delegate(.performedCommentAction(gid))))):
                 if state.detail.gid == gid {
                     return .send(.detail(.fetchGalleryDetail))

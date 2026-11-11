@@ -191,6 +191,13 @@ public struct FavoritesReducer: Sendable {
             case .delegate:
                 return .none
 
+            // A vote's answer goes to the detail's own copy of the comment, with no fetch of the whole detail.
+            case let .path(.element(id: _, action: .comments(.delegate(.commentVoted(gid, commentID, score, vote))))):
+                guard let id = state.path.detailID(forGID: gid) else { return .none }
+                return .send(.path(.element(id: id, action: .detail(
+                    .applyCommentVote(commentID: commentID, score: score, vote: vote)
+                ))))
+
             case let .path(.element(id: _, action: .comments(.delegate(.performedCommentAction(gid))))):
                 guard let id = state.path.detailID(forGID: gid) else { return .none }
                 return .send(.path(.element(id: id, action: .detail(.fetchGalleryDetail))))

@@ -57,6 +57,7 @@ public struct DetailReducer: Sendable {
         case unfavorGallery(String)
         case postComment(String)
         case voteTag(String)
+        case voteComment(String)
     }
 
     @ObservableState
@@ -229,6 +230,11 @@ public struct DetailReducer: Sendable {
         case postTapped
         case moderation(CommentModerationFeature.Action)
         case voteTag(tag: String, weight: Int)
+        /// A vote cast from a comment card's menu; the same vote the comments screen sends.
+        case voteComment(commentID: String, vote: Int)
+        case voteCommentDone(commentID: String, result: Result<GalleryCommentVoteResponse, AppError>)
+        /// The site's answer to a vote cast on the comments screen, which the host forwards here so the card shows it.
+        case applyCommentVote(commentID: String, score: Int, vote: Int)
         case anyGalleryOpsDone(Result<Void, AppError>)
     }
 

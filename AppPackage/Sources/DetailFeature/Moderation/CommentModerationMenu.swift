@@ -36,7 +36,8 @@ enum CommentBlockStatus: Sendable {
 /// list, the `.contextMenu` of a list cell or a Detail strip card, and the `accessibilityActions` of the cell's
 /// combined element (C-4; a context menu alone is not a VoiceOver source here, research §5.5).
 enum CommentModerationMenu {
-    /// - The signed-in user's own comment has none (A-10).
+    /// - The signed-in user's own comment has none (A-10); the vote row, which `CommentModerationActions.voting` adds,
+    ///   is then the whole menu.
     /// - A collapsed comment (blocked, not revealed) has none: it shows only the collapsed row or card (C-6, C-8).
     /// - Otherwise Report then Block, or Report then Unblock when the author is blocked and the comment revealed.
     ///   Report is left out when the gallery has no report page, as there would be nowhere to go (lead decision).
@@ -76,9 +77,27 @@ struct CommentModerationActions {
     /// The commenter's name exactly as shown on the comment.
     let author: String
     let perform: (CommentModerationItem) -> Void
+    /// The vote row, first in the menu; `nil` where voting is not offered at all.
+    var vote: CommentVoteMenuState?
+    var performVote: (CommentVoteDirection) -> Void = { _ in }
 
     static var none: Self {
         Self(items: [], siteName: nil, author: "", perform: { _ in })
+    }
+
+    /// Whether there is nothing to show: no vote row and no moderation item, so no menu at all.
+    var isEmpty: Bool {
+        items.isEmpty && vote == nil
+    }
+
+    /// These actions with the vote row for `comment` in front, and `perform` as what a chosen vote does.
+    func voting(
+        on comment: GalleryComment, didLogin: Bool, perform: @escaping (CommentVoteDirection) -> Void
+    ) -> Self {
+        var actions = self
+        actions.vote = voteMenuState(for: comment, didLogin: didLogin)
+        actions.performVote = perform
+        return actions
     }
 }
 
@@ -126,43 +145,76 @@ extension Optional {
     }
 }
 
-/// The moderation buttons, the same content in a `Menu`, a `.contextMenu` and an `accessibilityActions` block. The
-/// names are the visible menu strings, so Voice Control and VoiceOver use what the screen shows.
+/// The menu's buttons, the same content in a `Menu`, a `.contextMenu` and an `accessibilityActions` block: the vote row
+/// first, then the moderation items. The names are the visible menu strings, so Voice Control and VoiceOver use
+/// what the screen shows.
 struct CommentModerationButtons: View {
     let actions: CommentModerationActions
-    /// Declares the items last first. An `accessibilityActions` block hands its actions to assistive technologies in
-    /// the reverse of their declaration order, so a block declares its items reversed to list them as the menu does.
+    /// Lays the buttons out as an `accessibilityActions` block's. Such a block hands its actions to assistive
+    /// technologies in the reverse of their declaration order, so it declares them last first to list them as the
+    /// menu does, and it carries only the votes that can be cast: a disabled one is no action to offer, where the menu
+    /// shows it so the row keeps its shape.
     var isReversed = false
 
     var body: some View {
-        ForEach(isReversed ? actions.items.reversed() : actions.items, id: \.self) { item in
-            switch item {
-            case .report:
-                if let siteName = actions.siteName {
-                    Button {
-                        actions.perform(.report)
-                    } label: {
-                        Label(.commentReport(siteName), systemSymbol: .exclamationmarkBubble)
-                    }
+        if isReversed {
+            ForEach(actions.items.reversed(), id: \.self) { item in
+                moderationButton(item)
+            }
+            if let vote = actions.vote {
+                ForEach(vote.slots.reversed().filter(\.isEnabled), id: \.direction) { slot in
+                    voteButton(slot)
                 }
-            case .block:
-                Button(role: .destructive) {
-                    actions.perform(.block)
-                } label: {
-                    Label(.commentBlock(actions.author), systemSymbol: .handRaised)
+            }
+        } else {
+            if let vote = actions.vote {
+                ControlGroup {
+                    voteButton(vote.up)
+                    voteButton(vote.down)
                 }
-            case .unblock:
+            }
+            ForEach(actions.items, id: \.self) { item in
+                moderationButton(item)
+            }
+        }
+    }
+
+    private func voteButton(_ slot: CommentVoteSlot) -> some View {
+        Button {
+            actions.performVote(slot.direction)
+        } label: {
+            slot.label
+        }
+        .disabled(!slot.isEnabled)
+    }
+
+    @ViewBuilder private func moderationButton(_ item: CommentModerationItem) -> some View {
+        switch item {
+        case .report:
+            if let siteName = actions.siteName {
                 Button {
-                    actions.perform(.unblock)
+                    actions.perform(.report)
                 } label: {
-                    Label(.commentUnblock(actions.author), systemSymbol: .handRaisedSlash)
+                    Label(.commentReport(siteName), systemSymbol: .exclamationmarkBubble)
                 }
-            case .hide:
-                Button {
-                    actions.perform(.hide)
-                } label: {
-                    Label(.commentBlockedRowHide, systemSymbol: .eyeSlash)
-                }
+            }
+        case .block:
+            Button(role: .destructive) {
+                actions.perform(.block)
+            } label: {
+                Label(.commentBlock(actions.author), systemSymbol: .handRaised)
+            }
+        case .unblock:
+            Button {
+                actions.perform(.unblock)
+            } label: {
+                Label(.commentUnblock(actions.author), systemSymbol: .handRaisedSlash)
+            }
+        case .hide:
+            Button {
+                actions.perform(.hide)
+            } label: {
+                Label(.commentBlockedRowHide, systemSymbol: .eyeSlash)
             }
         }
     }

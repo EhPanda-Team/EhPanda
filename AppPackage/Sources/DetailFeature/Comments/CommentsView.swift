@@ -129,7 +129,8 @@ struct CommentsView: View {
     }
 
     /// A comment's row: the collapsed row for a blocked author (C-6), else the comment, with the C-7 line above it
-    /// when it was revealed, its swipe actions and, unless it is the user's own, its moderation menu (C-4).
+    /// when it was revealed, its swipe actions and its menu: the vote row, then, unless it is the user's own, its
+    /// moderation items (C-4).
     @ViewBuilder private func row(_ comment: GalleryComment) -> some View {
         if store.moderation.isCollapsed(comment) {
             BlockedCommentRow(
@@ -153,31 +154,14 @@ struct CommentsView: View {
             // Here, not on the row: on the row it would replace the collapsed row's own identifier.
             .accessibilityIdentifier("comment_cell_" + comment.commentID)
             .moderationContextMenu(actions)
+            // The swipe buttons are the menu's vote row: a vote already cast reads Withdraw Vote with the slashed thumb
+            // and is the same call again, and a vote that cannot be cast is disabled, never left out.
             .swipeActions(edge: .leading) {
-                if comment.votable {
-                    Button {
-                        store.send(.voteComment(
-                            gid: gid, token: token, apiKey: apiKey, commentID: comment.commentID, vote: -1
-                        ))
-                    } label: {
-                        Label(.voteDown, systemSymbol: .handThumbsdown)
-                            .labelStyle(.iconOnly)
-                    }
-                    .tint(.red)
-                }
+                voteSwipeButton(comment, direction: .down)
             }
             .swipeActions(edge: .trailing) {
-                if comment.votable {
-                    Button {
-                        store.send(.voteComment(
-                            gid: gid, token: token, apiKey: apiKey, commentID: comment.commentID, vote: 1
-                        ))
-                    } label: {
-                        Label(.voteUp, systemSymbol: .handThumbsup)
-                            .labelStyle(.iconOnly)
-                    }
-                    .tint(.accentColor)
-                }
+                // Edit leads, being the one a full swipe performs: a comment that can be edited is the user's
+                // own, whose vote is disabled, which a full swipe could not perform.
                 if comment.editable {
                     Button {
                         store.send(
@@ -188,8 +172,27 @@ struct CommentsView: View {
                             .labelStyle(.iconOnly)
                     }
                 }
+                voteSwipeButton(comment, direction: .up)
             }
         }
+    }
+
+    private func voteSwipeButton(_ comment: GalleryComment, direction: CommentVoteDirection) -> some View {
+        let slot = voteMenuState(for: comment, didLogin: didLogin).slot(direction)
+        return Button {
+            sendVote(comment, direction)
+        } label: {
+            slot.label
+                .labelStyle(.iconOnly)
+        }
+        .tint(direction == .up ? .accentColor : .red)
+        .disabled(!slot.isEnabled)
+    }
+
+    private func sendVote(_ comment: GalleryComment, _ direction: CommentVoteDirection) {
+        store.send(.voteComment(
+            gid: gid, token: token, apiKey: apiKey, commentID: comment.commentID, vote: direction.value
+        ))
     }
 
     /// The moderation alert as `comment`'s row sees it: present only for the row it was chosen on, and never while the
@@ -200,7 +203,7 @@ struct CommentsView: View {
     }
 
     private func moderationActions(for comment: GalleryComment) -> CommentModerationActions {
-        store.moderation.actions(
+        let actions = store.moderation.actions(
             for: comment, on: .list, didLogin: didLogin, displayName: user.displayName
         ) { item in
             switch item {
@@ -218,6 +221,7 @@ struct CommentsView: View {
                 store.send(.moderation(.hide(commentID: comment.commentID)))
             }
         }
+        return actions.voting(on: comment, didLogin: didLogin) { sendVote(comment, $0) }
     }
 
     private func toolbar() -> some ToolbarContent {
@@ -264,8 +268,8 @@ extension CommentsView {
         /// on the text itself stay for sighted users. The swipe actions need nothing here: iOS
         /// surfaces them on the row's element already (`CONTEXTMENU=not-exposed` read, 16-CONTRAST-AUDIT).
         ///
-        /// The context menu is not surfaced that way, so the moderation items (Report, then Block or
-        /// Unblock; UI-SPEC C-4) follow the link actions as named actions of their own, and the `…`
+        /// The context menu is not surfaced that way, so its items (the votes that can be cast, then Report, then Block
+        /// or Unblock; UI-SPEC C-4) follow the link actions as named actions of their own, and the `…`
         /// button that also holds them is hidden from accessibility. A revealed comment's C-7 line sits
         /// above the element, outside it, so its Hide stays an ordinary button.
         ///
@@ -411,7 +415,7 @@ extension CommentsView {
         }
 
         @ViewBuilder private var moderationMenu: some View {
-            if !moderation.items.isEmpty {
+            if !moderation.isEmpty {
                 CommentModerationMenuButton(actions: moderation)
             }
         }
@@ -494,9 +498,10 @@ extension CommentsView {
 }
 
 private extension View {
-    /// The comment's moderation items as a context menu (C-4); the user's own comment has none, so no menu at all.
+    /// The comment's vote row and moderation items as a context menu (C-4). The user's own comment keeps the
+    /// vote row, disabled, as its whole menu.
     @ViewBuilder func moderationContextMenu(_ actions: CommentModerationActions) -> some View {
-        if actions.items.isEmpty {
+        if actions.isEmpty {
             self
         } else {
             contextMenu {

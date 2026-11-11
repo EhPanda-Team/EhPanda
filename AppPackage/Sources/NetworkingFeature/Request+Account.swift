@@ -650,7 +650,7 @@ public struct VoteGalleryCommentRequest: Request {
     public let commentVote: Int
     public let urlSession: URLSession
 
-    public func response() async throws(AppError) {
+    public func response() async throws(AppError) -> GalleryCommentVoteResponse {
         let params: [String: Any] = [
             "method": "votecomment",
             "apiuid": apiuid,
@@ -665,8 +665,48 @@ public struct VoteGalleryCommentRequest: Request {
         request.httpMethod = "POST"
         request.httpBody = try encodeJSONObject(params)
 
-        _ = try await fetch(request, in: urlSession)
+        let (data, _) = try await fetch(request, in: urlSession)
+        do {
+            return try parseResponse(data: data) {
+                guard let dictionary = try JSONSerialization.jsonObject(with: $0) as? [String: Any],
+                      dictionary["error"] == nil,
+                      let score = Self.integer(dictionary["comment_score"]),
+                      let vote = Self.integer(dictionary["comment_vote"]),
+                      (-1...1).contains(vote)
+                else { throw AppError.parseFailed }
+                return GalleryCommentVoteResponse(
+                    commentID: Self.integer(dictionary["comment_id"]) ?? commentID,
+                    score: score,
+                    vote: vote
+                )
+            }
+        } catch {
+            throw mapAppError(error: error)
+        }
     }
+
+    /// The API sends its numbers as JSON numbers, and tolerates them arriving as numeric strings.
+    private static func integer(_ value: Any?) -> Int? {
+        switch value {
+        case let number as Int: number
+        case let string as String: Int(string.trimmingCharacters(in: .whitespaces))
+        default: nil
+        }
+    }
+}
+
+/// What `comment_vote` answers: the comment's new score and the signed-in user's vote on it afterwards.
+public struct GalleryCommentVoteResponse: Equatable, Sendable {
+    public init(commentID: Int, score: Int, vote: Int) {
+        self.commentID = commentID
+        self.score = score
+        self.vote = vote
+    }
+    public let commentID: Int
+    /// The comment's new score.
+    public let score: Int
+    /// The user's vote after the call: `1` up, `-1` down, `0` none (a repeated vote withdraws it).
+    public let vote: Int
 }
 
 public struct VoteGalleryTagRequest: Request {

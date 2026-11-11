@@ -617,6 +617,8 @@ struct CommentsSection: View {
     let moderationAlert: CommentModerationAlertItem
     let navigateCommentAction: () -> Void
     let navigatePostCommentAction: () -> Void
+    /// Votes on the comment with the ID, `1` up or `-1` down; the same vote again withdraws it.
+    let voteAction: (_ commentID: String, _ vote: Int) -> Void
 
     private var backgroundColor: Color { Color(uiColor: .systemGray5) }
     private var moderation: CommentModerationFeature.State { moderationStore.state }
@@ -673,23 +675,19 @@ struct CommentsSection: View {
             )
             .accessibilityFocused($focusedCommentID, equals: comment.commentID)
         } else {
+            // The vote row leads the menu, and the user's own comment keeps it, disabled, as its whole menu.
             let actions = moderationActions(for: comment)
-            if actions.items.isEmpty {
-                DetailView.CommentCell(comment: comment, backgroundColor: backgroundColor)
-                    .accessibilityIdentifier("comment_card_" + comment.commentID)
-            } else {
-                DetailView.CommentCell(comment: comment, backgroundColor: backgroundColor, moderation: actions)
-                    .accessibilityIdentifier("comment_card_" + comment.commentID)
-                    .contentShape(.contextMenuPreview, .rect(cornerRadius: CommentCardMetrics.cornerRadius))
-                    .contextMenu {
-                        CommentModerationButtons(actions: actions)
-                    }
-            }
+            DetailView.CommentCell(comment: comment, backgroundColor: backgroundColor, moderation: actions)
+                .accessibilityIdentifier("comment_card_" + comment.commentID)
+                .contentShape(.contextMenuPreview, .rect(cornerRadius: CommentCardMetrics.cornerRadius))
+                .contextMenu {
+                    CommentModerationButtons(actions: actions)
+                }
         }
     }
 
     private func moderationActions(for comment: GalleryComment) -> CommentModerationActions {
-        moderation.actions(
+        let actions = moderation.actions(
             for: comment, on: .card, didLogin: didLogin, displayName: user.displayName
         ) { item in
             switch item {
@@ -707,6 +705,7 @@ struct CommentsSection: View {
                 moderationAction(.hide(commentID: comment.commentID))
             }
         }
+        return actions.voting(on: comment, didLogin: didLogin) { voteAction(comment.commentID, $0.value) }
     }
 }
 
@@ -739,7 +738,8 @@ private func previewComment(
             moderationStore: Store(initialState: .init(galleryURL: nil), reducer: CommentModerationFeature.init),
             moderationAlert: { _ in .constant(nil) },
             navigateCommentAction: {},
-            navigatePostCommentAction: {}
+            navigatePostCommentAction: {},
+            voteAction: { _, _ in }
         )
     }
 }
@@ -753,7 +753,8 @@ private func previewComment(
             moderationStore: Store(initialState: .init(galleryURL: nil), reducer: CommentModerationFeature.init),
             moderationAlert: { _ in .constant(nil) },
             navigateCommentAction: {},
-            navigatePostCommentAction: {}
+            navigatePostCommentAction: {},
+            voteAction: { _, _ in }
         )
     }
 }

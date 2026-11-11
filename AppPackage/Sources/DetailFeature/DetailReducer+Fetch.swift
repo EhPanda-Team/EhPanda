@@ -222,6 +222,37 @@ extension DetailReducer {
                 }
                 .cancellable(id: CancelID.voteTag(state.cancellationGalleryID))
 
+            case .voteComment(let commentID, let vote):
+                guard let apiuid = Int(cookieClient.apiuid(host: state.setting.galleryHost)),
+                      let gid = Int(state.gallery.id), let commentIDValue = Int(commentID)
+                else { return .none }
+                let host = state.setting.galleryHost
+                let apiKey = state.apiKey
+                let token = state.gallery.token
+                return .run { [host, apiKey, token] send in
+                    let result = await CommentVoteRequest.response(
+                        host: host, apiuid: apiuid, apiKey: apiKey, gid: gid, token: token,
+                        commentID: commentIDValue, vote: vote
+                    )
+                    await send(.voteCommentDone(commentID: commentID, result: result))
+                }
+                .cancellable(id: CancelID.voteComment(state.cancellationGalleryID))
+
+            // The site answers with the comment's new score and the user's vote, which the card shows at once; a
+            // failed vote changes nothing.
+            case .voteCommentDone(let commentID, let result):
+                switch result {
+                case .success(let response):
+                    state.galleryComments.applyVote(commentID: commentID, score: response.score, vote: response.vote)
+                    return .run(operation: { _ in await hapticsClient.generateNotificationFeedback(.success) })
+                case .failure:
+                    return .run(operation: { _ in await hapticsClient.generateNotificationFeedback(.error) })
+                }
+
+            case .applyCommentVote(let commentID, let score, let vote):
+                state.galleryComments.applyVote(commentID: commentID, score: score, vote: vote)
+                return .none
+
             case .anyGalleryOpsDone(let result):
                 if case .success = result {
                     return .merge(

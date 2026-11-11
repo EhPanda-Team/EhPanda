@@ -375,20 +375,22 @@ struct AccountRequestBaselineTests {
         )
     }
 
+    // `comment_vote` answers with the comment's new score and the user's vote on it, and the request returns both.
     @Test
-    func voteGalleryCommentRequestLocksJSONAssemblyAndVoidMapping() async throws {
+    func voteGalleryCommentRequestLocksJSONAssemblyAndResponseMapping() async throws {
         let host = GalleryHost.ehentai
         let url = Defaults.URL.api(host: host)
         let expected = [
             "method": "votecomment", "apiuid": "12", "apikey": "dummy-key",
             "gid": "808", "token": "token", "comment_id": "909", "comment_vote": "-1"
         ]
+        let body = Data(#"{"comment_id":909,"comment_score":-3,"comment_vote":-1}"#.utf8)
         let (session, handle) = makeStubbedSession(
-            script: StubScript([url: [.http(status: 200, data: Data())]])
+            script: StubScript([url: [.http(status: 200, data: body)]])
         )
         defer { cleanUp(session: session, handle: handle) }
 
-        _ = try await capture { () async throws(AppError) in
+        let response = try await capture { () async throws(AppError) -> GalleryCommentVoteResponse in
             try await VoteGalleryCommentRequest(
                 host: host,
                 apiuid: 12,
@@ -404,7 +406,72 @@ struct AccountRequestBaselineTests {
         .get()
         let request = try #require(handle.receivedRequests.first)
 
+        #expect(response == GalleryCommentVoteResponse(commentID: 909, score: -3, vote: -1))
         expectJSONRequest(request, url: url, fields: expected)
+    }
+
+    // A withdrawal answers vote 0; the numbers may arrive as strings.
+    @Test(arguments: [
+        (
+            #"{"comment_id":909,"comment_score":12,"comment_vote":0}"#,
+            GalleryCommentVoteResponse(commentID: 909, score: 12, vote: 0)
+        ),
+        (
+            #"{"comment_id":"909","comment_score":"+12","comment_vote":"1"}"#,
+            GalleryCommentVoteResponse(commentID: 909, score: 12, vote: 1)
+        ),
+        (
+            #"{"comment_score":7,"comment_vote":1}"#,
+            GalleryCommentVoteResponse(commentID: 909, score: 7, vote: 1)
+        )
+    ])
+    func voteGalleryCommentRequestReadsTheSitesAnswer(
+        body: String, expected: GalleryCommentVoteResponse
+    ) async throws {
+        let host = GalleryHost.ehentai
+        let url = Defaults.URL.api(host: host)
+        let (session, handle) = makeStubbedSession(
+            script: StubScript([url: [.http(status: 200, data: Data(body.utf8))]])
+        )
+        defer { cleanUp(session: session, handle: handle) }
+
+        let response = try await capture { () async throws(AppError) -> GalleryCommentVoteResponse in
+            try await VoteGalleryCommentRequest(
+                host: host, apiuid: 12, apikey: "k", gid: 808, token: "token", commentID: 909, commentVote: 1,
+                urlSession: session
+            )
+            .response()
+        }
+        .get()
+
+        #expect(response == expected)
+    }
+
+    // An answer that is an error, empty or out of range is a failure, so the comment is left as it was.
+    @Test(arguments: [
+        #"{"error":"You must be logged in to vote."}"#,
+        "",
+        "not json",
+        #"{"comment_id":909,"comment_score":1,"comment_vote":2}"#,
+        #"{"comment_id":909,"comment_vote":1}"#
+    ])
+    func voteGalleryCommentRequestFailsOnAnAnswerWithoutAVote(body: String) async {
+        let host = GalleryHost.ehentai
+        let url = Defaults.URL.api(host: host)
+        let (session, handle) = makeStubbedSession(
+            script: StubScript([url: [.http(status: 200, data: Data(body.utf8))]])
+        )
+        defer { cleanUp(session: session, handle: handle) }
+
+        let result = await capture { () async throws(AppError) -> GalleryCommentVoteResponse in
+            try await VoteGalleryCommentRequest(
+                host: host, apiuid: 12, apikey: "k", gid: 808, token: "token", commentID: 909, commentVote: 1,
+                urlSession: session
+            )
+            .response()
+        }
+
+        #expect(throws: AppError.self) { try result.get() }
     }
 
     @Test

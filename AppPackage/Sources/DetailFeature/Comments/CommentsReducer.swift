@@ -6,7 +6,7 @@ public import ComposableArchitecture
 import CookieClient
 public import Foundation
 import HapticsClient
-import NetworkingFeature
+public import NetworkingFeature
 public import Sharing
 import UIKit
 
@@ -25,6 +25,8 @@ public struct CommentsReducer: Sendable {
         case pushDetail(gallery: Gallery, deepLink: GalleryDeepLink?)
         // A comment was voted/edited; ask the host to refresh the detail with this gid so it stays in sync.
         case performedCommentAction(String)
+        // A comment was voted: the site's answer, for the host to apply to the detail's own copy of the comment.
+        case commentVoted(gid: String, commentID: String, score: Int, vote: Int)
     }
 
     private enum CancelID {
@@ -86,6 +88,7 @@ public struct CommentsReducer: Sendable {
 
         case postComment(galleryURL: URL, commentID: String? = nil)
         case voteComment(gid: String, token: String, apiKey: String, commentID: String, vote: Int)
+        case voteCommentDone(commentID: String, result: Result<GalleryCommentVoteResponse, AppError>)
         case performCommentActionDone(Result<Void, AppError>)
         case fetchGallery(url: URL, isGalleryImageURL: Bool)
         case fetchGalleryDone(url: URL, result: Result<Gallery, AppError>)
@@ -259,25 +262,34 @@ public struct CommentsReducer: Sendable {
                 }
 
             case .voteComment(let gid, let token, let apiKey, let commentID, let vote):
-                guard let gid = Int(gid), let commentID = Int(commentID),
+                guard let gidValue = Int(gid), let commentIDValue = Int(commentID),
                       let apiuid = Int(cookieClient.apiuid(host: state.setting.galleryHost))
                 else { return .none }
                 return .run { [host = state.setting.galleryHost] send in
-                    let result = await Result.Swift::init { () async throws(AppError) in
-                        try await VoteGalleryCommentRequest(
-                            host: host,
-                            apiuid: apiuid,
-                            apikey: apiKey,
-                            gid: gid,
-                            token: token,
-                            commentID: commentID,
-                            commentVote: vote
-                        )
-                        .response()
-                    }
-                    await send(.performCommentActionDone(result))
+                    let result = await CommentVoteRequest.response(
+                        host: host, apiuid: apiuid, apiKey: apiKey, gid: gidValue, token: token,
+                        commentID: commentIDValue, vote: vote
+                    )
+                    await send(.voteCommentDone(commentID: commentID, result: result))
                 }
                 .cancellable(id: CancelID.voteComment)
+
+            // The site answers a vote with the comment's new score and the user's vote on it, so the comment is
+            // updated from that, here and in the host's copy, rather than by fetching the whole detail again. A
+            // failed vote changes nothing.
+            case .voteCommentDone(let commentID, let result):
+                switch result {
+                case .success(let response):
+                    state.comments.applyVote(commentID: commentID, score: response.score, vote: response.vote)
+                    return .merge(
+                        .send(.delegate(.commentVoted(
+                            gid: state.gid, commentID: commentID, score: response.score, vote: response.vote
+                        ))),
+                        .run(operation: { _ in await hapticsClient.generateNotificationFeedback(.success) })
+                    )
+                case .failure:
+                    return .run(operation: { _ in await hapticsClient.generateNotificationFeedback(.error) })
+                }
 
             case .performCommentActionDone(let result):
                 switch result {
