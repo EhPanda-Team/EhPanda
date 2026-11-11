@@ -240,6 +240,9 @@ extension DetailReducer {
     /// Sends the editor's comment, then closes the editor; without a gallery URL there is nothing to send.
     private func postAndDismiss(state: State) -> Effect<Action> {
         guard let galleryURL = state.gallery.galleryURL else { return .send(.destination(.dismiss)) }
-        return .concatenate(.send(.postComment(galleryURL)), .send(.destination(.dismiss)))
+        return .run { send in
+            await send(.postComment(galleryURL))
+            await send(.destination(.dismiss))
+        }
     }
 }
