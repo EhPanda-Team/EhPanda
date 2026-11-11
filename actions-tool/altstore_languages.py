@@ -139,10 +139,21 @@ def check_screenshots(where, app, assets_dir=None):
                 # bool is an int in Python, and a float such as 19.5 is not an Int16.
                 if isinstance(value, bool) or not isinstance(value, int) or not 0 < value <= INT16_MAX:
                     problems.append(f"{item_where}: {dimension} {value!r} is not a whole number from 1 to {INT16_MAX}")
+            sizes = [item[dimension] for dimension in ["width", "height"]]
+            whole = all(isinstance(value, int) and not isinstance(value, bool) and value > 0 for value in sizes)
+            # AltStore rounds an iPhone screenshot's corners only when its width-to-height ratio is within 0.001 of
+            # 9:19.5 (AppScreenshotCollectionViewCell); any other shape gets square corners and an outline.
+            if device == "iphone" and whole and abs(sizes[0] / sizes[1] - 9 / 19.5) > 0.001:
+                problems.append(f"{item_where}: {sizes[0]} x {sizes[1]} is not 9:19.5, so AltStore shows square corners")
             if assets_dir is not None and url.startswith(ASSETS_URL):
                 path = url[len(ASSETS_URL):]
                 if not (assets_dir / path).is_file():
                     problems.append(f"{item_where}: {path} is not in the assets repository")
+                elif whole:
+                    head = (assets_dir / path).read_bytes()[:24]
+                    actual = [int.from_bytes(head[16:20], "big"), int.from_bytes(head[20:24], "big")]
+                    if head[:8] != b"\x89PNG\r\n\x1a\n" or actual != sizes:
+                        problems.append(f"{item_where}: {path} is not a {sizes[0]} x {sizes[1]} PNG")
         if len(set(urls)) != len(urls):
             problems.append(f"{where}: screenshots.{device} lists an image twice")
     return problems

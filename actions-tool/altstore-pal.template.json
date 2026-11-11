@@ -57,39 +57,39 @@
       "screenshots": {
         "iphone": [
           {
-            "imageURL": "https://raw.githubusercontent.com/EhPanda-Team/ehpanda-assets/main/app-marketplace/iphone/01-home.png",
+            "imageURL": "https://raw.githubusercontent.com/EhPanda-Team/ehpanda-assets/main/app-marketplace/iphone/01-home-1260x2730.png",
             "width": 1260,
-            "height": 2736
+            "height": 2730
           },
           {
-            "imageURL": "https://raw.githubusercontent.com/EhPanda-Team/ehpanda-assets/main/app-marketplace/iphone/02-detail.png",
+            "imageURL": "https://raw.githubusercontent.com/EhPanda-Team/ehpanda-assets/main/app-marketplace/iphone/02-detail-1260x2730.png",
             "width": 1260,
-            "height": 2736
+            "height": 2730
           },
           {
-            "imageURL": "https://raw.githubusercontent.com/EhPanda-Team/ehpanda-assets/main/app-marketplace/iphone/03-reading.png",
+            "imageURL": "https://raw.githubusercontent.com/EhPanda-Team/ehpanda-assets/main/app-marketplace/iphone/03-reading-1260x2730.png",
             "width": 1260,
-            "height": 2736
+            "height": 2730
           },
           {
-            "imageURL": "https://raw.githubusercontent.com/EhPanda-Team/ehpanda-assets/main/app-marketplace/iphone/04-comments.png",
+            "imageURL": "https://raw.githubusercontent.com/EhPanda-Team/ehpanda-assets/main/app-marketplace/iphone/04-comments-1260x2730.png",
             "width": 1260,
-            "height": 2736
+            "height": 2730
           },
           {
-            "imageURL": "https://raw.githubusercontent.com/EhPanda-Team/ehpanda-assets/main/app-marketplace/iphone/05-downloads.png",
+            "imageURL": "https://raw.githubusercontent.com/EhPanda-Team/ehpanda-assets/main/app-marketplace/iphone/05-downloads-1260x2730.png",
             "width": 1260,
-            "height": 2736
+            "height": 2730
           },
           {
-            "imageURL": "https://raw.githubusercontent.com/EhPanda-Team/ehpanda-assets/main/app-marketplace/iphone/06-filters.png",
+            "imageURL": "https://raw.githubusercontent.com/EhPanda-Team/ehpanda-assets/main/app-marketplace/iphone/06-filters-1260x2730.png",
             "width": 1260,
-            "height": 2736
+            "height": 2730
           },
           {
-            "imageURL": "https://raw.githubusercontent.com/EhPanda-Team/ehpanda-assets/main/app-marketplace/iphone/07-more.png",
+            "imageURL": "https://raw.githubusercontent.com/EhPanda-Team/ehpanda-assets/main/app-marketplace/iphone/07-more-1260x2730.png",
             "width": 1260,
-            "height": 2736
+            "height": 2730
           }
         ]
       },
