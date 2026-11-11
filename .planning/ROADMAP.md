@@ -48,7 +48,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 17: Screenshot Automation, Visual Regression & OS 27 Modernization** - Reduced 2026-11-03: capture foundation and the approved 192-image website set, verification of the landed size-class layout, the remaining idiom census and the Release isolation check; regression, marketing export and AltStore work moved to Phase 18 (now split: regression and marketing export → Phase 19, AltStore work → Phase 20) (completed 2026-11-05)
 - [x] **Phase 18: In-App 3.0 Readiness: Age Wall, Analytics Choice, Comment Moderation & Reader Rework** - Two first-launch screens for everyone (age wall, then Minimal/Basic/Full analytics choice, SDK off until chosen), E-Hentai comment report, posting warning, collapsed blocking and a Blocked Users list, the reader page-tracking rework with G1/G2 UI tests, IN-02/IN-03 and `MKSellsDigitalGoods` (completed 2026-11-06)
 - [x] **Phase 18.1: Native report form (INSERTED)** - EhPanda's own report form for comments (owner msg 1931): two illegal-content reasons, required email never stored, English prefill, pinned Send Report; the site's page stays as the fallback; no gallery reports (owner msg 1975) (completed 2026-11-07)
-- [ ] **Phase 19: Visual Regression & Daily Live-Parsing Check** - The screenshot check moved from Phase 17 (snapshot matrix, one owner-approved baseline, the full-matrix CI gate, preview review and the `Scripts/visual/README.md` rewrite), covering the Phase 18 and 18.1 screens, plus a daily CI check that runs the app's parsers on the live pages (owner msg 2006); the 384 export and final gallery selection are dropped (owner msg 1949)
+- [x] **Phase 19: Visual Regression & Daily Live-Parsing Check** - The screenshot check moved from Phase 17 (snapshot matrix, one owner-approved baseline, the full-matrix CI gate, preview review and the `Scripts/visual/README.md` rewrite), covering the Phase 18 and 18.1 screens, plus a daily CI check that runs the app's parsers on the live pages (owner msg 2006); the 384 export and final gallery selection are dropped (owner msg 1949) (completed 2026-11-11 with deferred items: the hosted gate pass, the candidate run and public snapshot repository, the owner-approved baseline and the hosted controlled regression, owner msgs 3425, 3428, 3573)
 - [ ] **Phase 20: 3.0 Distribution: Marketplace Build, Notarization, Listing & Release Checks** - AltStore PAL marketplace build (same features), notarization pipeline, PAL source and listing with decorated store screenshots, website privacy/support/contact links, release mechanics, real-device checks, the repeated Release isolation scan and, last, the analytics revision with install source
 
 ## Future milestones (after 3.0)
@@ -715,7 +715,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 17. Screenshot Automation, Visual Regression & OS 27 Modernization | 13/13 | Complete    | 2026-11-05 |
 | 18. In-App 3.0 Readiness: Age Wall, Analytics Choice, Comment Moderation & Reader Rework | 12/12 | Complete    | 2026-11-06 |
 | 18.1. Native report form (INSERTED) | 5/5 | Complete    | 2026-11-07 |
-| 19. Visual Regression & Daily Live-Parsing Check | 14/17 | In Progress |  |
+| 19. Visual Regression & Daily Live-Parsing Check | 15/17 | Complete with deferred items | 2026-11-11 |
 | 20. 3.0 Distribution: Marketplace Build, Notarization, Listing & Release Checks | 0/TBD | Not started|  |
 
 ### Phase 12: Cloudflare Login Restoration
@@ -1490,7 +1490,7 @@ Plans:
   7. `Scripts/visual/README.md` matches the reduced Phase 17 harness and this phase's regression runner.
   8. Release builds still contain no capture code, fixtures, test assets or SnapshotTesting linkage.
 
-**Plans**: 14/17 plans executed (planned 2026-11-07; research: [19-RESEARCH.md](phases/19-visual-regression-marketing-export/19-RESEARCH.md), validation: [19-VALIDATION.md](phases/19-visual-regression-marketing-export/19-VALIDATION.md))
+**Plans**: 15/17 plans executed; phase complete 2026-11-11 with deferred items: 19-12 and 19-13 are not executed, and the hosted parts of 19-10 (green gate run) and 19-17 (controlled regression) are owed (owner msgs 3425, 3428); security: four threats accepted-deferred (owner msg 3573); success criteria 2, 3 and 4 are not proven until those run, see `19-VERIFICATION.md` (planned 2026-11-07; research: [19-RESEARCH.md](phases/19-visual-regression-marketing-export/19-RESEARCH.md), validation: [19-VALIDATION.md](phases/19-visual-regression-marketing-export/19-VALIDATION.md))
 
 Plans:
 
@@ -1525,15 +1525,15 @@ Plans:
 
 **Wave 6**
 
-- [ ] 19-12-PLAN.md — the full hosted candidate set and the public snapshot repository *(checkpoints: owner go-ahead for the run and for creating the repository)*
+- [ ] 19-12-PLAN.md — the full hosted candidate set and the public snapshot repository *(checkpoints: owner go-ahead for the run and for creating the repository)* — deferred, not executed (owner msg 3428); owed before any baseline publication
 
 **Wave 7**
 
-- [ ] 19-13-PLAN.md — agent pre-check of every picture, the owner's one approval, the push and the pinned baseline *(checkpoints: the approval, D-17, then the push go-ahead)*
+- [ ] 19-13-PLAN.md — agent pre-check of every picture, the owner's one approval, the push and the pinned baseline *(checkpoints: the approval, D-17, then the push go-ahead)* — deferred, not executed (owner msg 3428); owed before release day
 
 **Wave 8**
 
-- [x] 19-17-PLAN.md — the README rewrite, preview review docs, the controlled regression (red then green) and the phase gate *(checkpoints: the hosted regression and the owner's required-check choice)* — done except the hosted controlled regression (deferred, owner msg 3428) and the real preview render; required check: not required for now (owner msg 3431); local gate green apart from 2 Repetition nodes per UITests device, so `nyquist_compliant` stays false ([summary](phases/19-visual-regression-marketing-export/19-17-SUMMARY.md))
+- [x] 19-17-PLAN.md — the README rewrite, preview review docs, the controlled regression (red then green) and the phase gate *(checkpoints: the hosted regression and the owner's required-check choice)* — done except the hosted controlled regression (deferred, owner msg 3428) and the real preview render; required check: not required (owner msg 3431), for now; local gate green with the UITests first-run flakes and iPad retries accepted (owner msgs 3539, 3554), so `nyquist_compliant` is true ([summary](phases/19-visual-regression-marketing-export/19-17-SUMMARY.md))
 
 Cross-cutting constraints:
 

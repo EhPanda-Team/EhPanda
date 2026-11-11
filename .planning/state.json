@@ -101,7 +101,7 @@
     {
       "number": "19",
       "name": "Visual Regression & Daily Live-Parsing Check",
-      "status": "in_progress"
+      "status": "complete"
     },
     {
       "number": "20",
@@ -110,9 +110,9 @@
     }
   ],
   "next": {
-    "command": "/gsd-execute-phase 19",
-    "label": "Execute Phase 19 (wave 1: 19-01, 19-11)",
-    "reason": "Phase 19 planned: 17 plans in 8 waves, plan-check passed; Phase 18 closing checks (UI review, UAT) still open"
+    "command": "/gsd-discuss-phase 20",
+    "label": "Discuss and plan Phase 20 (3.0 Distribution)",
+    "reason": "Phase 19 complete with deferred items (19-12, 19-13, the green hosted gate run and the hosted controlled regression; owner msgs 3425, 3428, 3573); Phase 20 has a CONTEXT file and no plans"
   },
-  "updated_at": "2026-11-07T07:45:00.000Z"
+  "updated_at": "2026-11-11T09:16:37.000Z"
 }

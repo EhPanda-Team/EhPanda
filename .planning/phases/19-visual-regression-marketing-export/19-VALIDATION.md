@@ -2,10 +2,11 @@
 phase: "19"
 slug: "visual-regression-marketing-export"
 # status lifecycle: draft (seeded by plan-phase) → validated (set by validate-phase §6)
-status: draft
+status: validated
 nyquist_compliant: true
-wave_0_complete: false
+wave_0_complete: true
 created: "2026-11-07"
+validated: "2026-11-11"
 ---
 
 # Phase 19 — Validation Strategy
@@ -144,15 +145,18 @@ Notes:
    `nyquist_compliant` is true. The hosted rows below stay deferred.
 
 Deferred rows (not green, not red): 19-10-04, 19-12-01..03, 19-13-01..04 and 19-17-03 need the hosted runner and its
-pushes (owner msgs 3425, 3428). Row 19-17-04 is answered: Required check: not required for now (owner msg 3431).
+pushes (owner msgs 3425, 3428). Row 19-17-04 is answered: Required check: not required (owner msg 3431), for now.
 
 ---
 
 ## Wave 0 Requirements
 
-- [ ] Each plan writes the test files it names before the code they test (TDD tasks); no framework install is
-  needed: XCTest, Swift Testing and Python `unittest` are already used.
-- [ ] `Scripts/visual/run-snapshot-local.sh` (19-02) exists before the scenario plans 19-05 to 19-08 run.
+- [x] Each plan writes the test files it names before the code they test (TDD tasks); no framework install is
+  needed: XCTest, Swift Testing and Python `unittest` are already used. Holds for the 15 executed plans. The files
+  marked ❌ W0 in the map (`test_snapshot_publish.py`, `test_snapshot_precheck.py`, the manifest assertion,
+  `19-12-CANDIDATE.md`, `19-13-APPROVAL.md`, `19-17-REGRESSION.md`, the 19-10 Task 4 proof greps) belong to the
+  deferred rows and are written with them (owner msgs 3425, 3428).
+- [x] `Scripts/visual/run-snapshot-local.sh` (19-02) exists before the scenario plans 19-05 to 19-08 run.
 
 ---
 
@@ -166,7 +170,7 @@ pushes (owner msgs 3425, 3428). Row 19-17-04 is answered: Required check: not re
 | Agent visual pre-check of every picture | VIS-18-01 | visual judgement on contact sheets | 19-13 Task 1 |
 | The owner's one approval | VIS-18-01, CAP-17-03 | owner judgement (D-17) | 19-13 Task 2 |
 | Runner choice for the live check | VIS-19-01 | owner decision after the probe (OQ-3) | 19-15 Task 1 |
-| Required status check on `main` | VIS-18-01 | repository setting only the owner changes | 19-17 Task 4. Required check: not required for now (owner msg 3431). The check runs on every PR but is not required to merge into `main`. |
+| Required status check on `main` | VIS-18-01 | repository setting only the owner changes | 19-17 Task 4. Required check: not required (owner msg 3431), for now. The check runs on every PR but is not required to merge into `main`. |
 | Controlled regression, red then green, on the hosted gate | CAP-17-02 | needs two pushes to a `ci/` branch and a green hosted gate | 19-17 Task 3. Deferred (owner msg 3428). |
 | Hosted runs of 19-10 Task 4, 19-12, 19-13 | VIS-18-01, CAP-17-03 | need the hosted runner and pushes | Deferred (owner msgs 3425, 3428); see STATE.md Deferred Items. |
 | First scheduled live-check run from `main` (hosted) or the timer's first unattended day (Mac) | VIS-19-01 | schedules run only from the default branch, after merge | 19-16 "Pending after merge" |
@@ -181,9 +185,19 @@ pushes (owner msgs 3425, 3428). Row 19-17-04 is answered: Required check: not re
 
 - [x] All tasks have `<automated>` verify or Wave 0 dependencies
 - [x] Sampling continuity: no 3 consecutive tasks without automated verify
-- [ ] Wave 0 covers all MISSING references
+- [x] Wave 0 covers all MISSING references (the executed rows; the seven deferred rows keep their ❌ W0 files, see Wave 0 Requirements)
 - [x] No watch-mode flags
-- [ ] Feedback latency < 360 s
-- [ ] `nyquist_compliant: true` set in frontmatter
+- [x] Feedback latency < 360 s (a phone class in `en-large` is 132 to 146 pictures at about 1.5 s each, 19-05 to 19-07; Python suites under 60 s)
+- [x] `nyquist_compliant: true` set in frontmatter (set by 19-17 Task 5 under the accepted rules: owner msgs 3539 and 3554 for the UITests first-run flakes and iPad retries, msgs 3425 and 3428 for the deferred hosted rows, msg 3431 for the required check)
 
-**Approval:** pending
+**Approval:** approved 2026-11-11 for the executed rows. Seven rows stay ⏸ deferred (19-10-04, 19-12-01..03, 19-13-01..04,
+19-17-03) and are not counted as green; they are owed before release day or before any baseline publication (STATE.md
+Deferred Items).
+
+## Validation Audit 2026-11-11
+
+| Metric | Count |
+|---|---|
+| Gaps found | 7 (the deferred hosted and owner-approval rows) |
+| Resolved | 0 |
+| Escalated | 0 (all seven recorded as deferred, owner msgs 3425, 3428) |
