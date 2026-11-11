@@ -132,6 +132,7 @@ private enum ControlPanelFocus: Hashable {
 private struct LowerPanel<G: Gesture>: View {
     @ScaledMetric(relativeTo: .title2) private var closeButtonSize: CGFloat = 44
     @GestureState private var isScrubbing = false
+    @State private var isEditingSlider = false
     @Binding private var sliderRowHeight: CGFloat
     private let fillsWidth: Bool
     private let controlFocus: AccessibilityFocusState<ControlPanelFocus?>.Binding
@@ -210,7 +211,9 @@ private struct LowerPanel<G: Gesture>: View {
                         .lineLimit(1)
                         .padding()
 
-                    Slider(value: $sliderValue, in: range)
+                    Slider(value: $sliderValue, in: range) { isEditing in
+                        isEditingSlider = isEditing
+                    }
                     .frame(maxWidth: containerSize.width * 0.6)
                     .rotationEffect(.init(degrees: isReversed ? 180 : 0))
                     // The slider's own value would be a percentage; the page it stands for is the
@@ -222,15 +225,18 @@ private struct LowerPanel<G: Gesture>: View {
                         .accessibilityPageOf(current: Int(sliderValue), total: Int(range.upperBound))
                     )
                     // A held track drag can emit multiple editing sessions before the finger lifts.
-                    // The preview follows the whole touch, including its stationary hold and cancellation.
+                    // The preview follows the whole touch, including its stationary hold and cancellation:
+                    // the drag gesture carries it across the editing sessions and through a cancellation, and
+                    // the slider's own editing report, which starts on touch-down on the thumb, shows it
+                    // without waiting for the gesture to begin.
                     .simultaneousGesture(
                         DragGesture(minimumDistance: 0)
                             .updating($isScrubbing) { _, isScrubbing, _ in
                                 isScrubbing = true
                             }
                     )
-                    .onChange(of: isScrubbing) { _, isScrubbing in
-                        showsSliderPreview = isScrubbing
+                    .onChange(of: isEditingSlider || isScrubbing) { _, isActive in
+                        showsSliderPreview = isActive
                     }
 
                     Text(isReversed ? Int(range.lowerBound) : Int(range.upperBound), format: .number)
