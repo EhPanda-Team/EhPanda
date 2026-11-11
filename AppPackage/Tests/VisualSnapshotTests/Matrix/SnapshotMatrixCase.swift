@@ -222,9 +222,16 @@ class SnapshotMatrixCase: XCTestCase {
     /// clones, a hosted runner) took longer than the first fixed 5 s wait (run 42455556948), so the wait polls until
     /// the window matches and only gives up after this long.
     static let rotationWait: Duration = .seconds(20)
+    static let rotationPoll: Duration = .milliseconds(50)
 
     /// Requests `orientation` and waits until the window matches `pin` (points, safe area, size classes), polling up
     /// to ``rotationWait``; a request that has not arrived by then is made once more, with the same wait.
+    ///
+    /// The wait is counted in reads (``rotationWait`` / ``rotationPoll``), as the settle wait is, not on the wall
+    /// clock: a hosted runner freezes the whole simulator, this process and the turn alike, for a minute or more
+    /// (run 42727781967: a picture of 4 settle reads took 146 s). A wall-clock wait that a freeze used up ended
+    /// without reading the window again, and iPhone `comments-post-empty` (ja, accessibility5) failed `geometry` in
+    /// landscape.
     @MainActor
     static func rotate(
         scene: UIWindowScene, window: UIWindow, to orientation: String, pin: SnapshotPins.Geometry?
@@ -246,9 +253,8 @@ class SnapshotMatrixCase: XCTestCase {
             Task { @MainActor in lastGeometryError = String(describing: error) }
         }
         let clock = ContinuousClock()
-        let deadline = clock.now.advanced(by: rotationWait)
         var stable = 0
-        while clock.now < deadline {
+        for _ in 0..<Int(rotationWait / rotationPoll) {
             window.layoutIfNeeded()
             let matches = pin.map({ $0.matches(window) })
                 ?? (scene.effectiveGeometry.interfaceOrientation.isLandscape == landscape)
@@ -256,7 +262,7 @@ class SnapshotMatrixCase: XCTestCase {
             // Two matching reads 50 ms apart: the rotation has finished, not merely passed through the pin.
             if stable >= 2 { return true }
             do {
-                try await clock.sleep(for: .milliseconds(50))
+                try await clock.sleep(for: rotationPoll)
             } catch {
                 return false
             }
