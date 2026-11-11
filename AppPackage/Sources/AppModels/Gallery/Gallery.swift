@@ -72,6 +72,12 @@ public struct Gallery: Identifiable, Codable, Equatable, Hashable, Sendable {
         return japanese
     }
 
+    /// Whether a list filter's keyword matches either title, so a Japanese keyword finds the Japanese title
+    /// the list may be showing.
+    public func titleMatches(_ keyword: String) -> Bool {
+        title.caseInsensitiveContains(keyword) || jpnTitle?.caseInsensitiveContains(keyword) == true
+    }
+
     public var trimmedTitle: String {
         var title = title
         if let range = title.range(of: "|") {

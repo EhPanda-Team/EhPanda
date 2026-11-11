@@ -26,4 +26,14 @@ struct GalleryTitleTests {
         #expect(gallery.jpnTitle == nil)
         #expect(gallery.displayTitle(prefersJapanese: true) == gallery.title)
     }
+
+    @Test
+    func listFilterMatchesTheJapaneseTitle() {
+        var gallery = Gallery.preview
+        gallery.title = "Original Title"
+        gallery.jpnTitle = "日本語の題名"
+        #expect(gallery.titleMatches("題名"))
+        #expect(gallery.titleMatches("original"))
+        #expect(!gallery.titleMatches("missing"))
+    }
 }
