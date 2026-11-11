@@ -91,7 +91,7 @@ struct DownloadInterruptedResumeTests: DownloadFeatureTestCase {
         await manager.testingSetQueuedGalleryIDs([gid])
         let activeTask = Task {
             do {
-                try await Task.sleep(for: .seconds(60))
+                try await ProgressDeadline.sleep(for: .seconds(60))
             } catch {}
         }
         await manager.testingInstallActiveTask(gid: gid, task: activeTask)

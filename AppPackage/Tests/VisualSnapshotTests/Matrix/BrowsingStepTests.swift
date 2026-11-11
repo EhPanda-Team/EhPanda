@@ -36,14 +36,26 @@ final class BrowsingStepTests: XCTestCase {
 
     /// The step outlasts a window that is still moving after one ``BrowsingScenarios/waitForRest(_:)`` (10 s): it
     /// used to fail the attempt there, as it did in 3 of 5 compare invocations of run 42533872440.
+    ///
+    /// What this proves is the step's loop and the window's motion read, so it needs neither the keyboard nor a
+    /// runner's speed. The field takes its focus without the keyboard (``SearchPage/Field``): on the hosted
+    /// FeatureTests runs, which put the app beside every other target's processes on a few cores, the step with a
+    /// real field ran to its deadline in three runs (42996343921, 43002788032, 43016480727: 41 to 45 s against 30 s,
+    /// the keyboard's session restarting in their logs), and locally it passes in 13 s. The real keyboard's focus is
+    /// the snapshot matrix's, whose front-page-search scenario goes through this same step. The deadline is the
+    /// step's own budget on top of the time the window moves, not a total that the motion eats into: 30 s had to
+    /// cover the 12 s of motion and left 18 s for the focus.
     @MainActor
     func testFocusOutlastsAWindowThatMovesLongerThanOneRestWait() async throws {
         let window = try XCTUnwrap(HostedWindowCapture.keyWindow())
-        let page = SearchPage(motion: 12)
+        let motion: CFTimeInterval = 12
+        let page = SearchPage(motion: motion)
         let hosted = HostedWindowCapture.host(page, in: window, style: .light)
         defer { hosted.dispose() }
         let field = try await page.field()
-        try await BrowsingScenarios.focusSearchField(window, deadline: .seconds(30))
+        try await BrowsingScenarios.focusSearchField(
+            window, deadline: .seconds(motion) + BrowsingScenarios.focusDeadline
+        )
         XCTAssertTrue(field.isFirstResponder)
         XCTAssertNil(HostedWindowCapture.motion(in: window))
         field.resignFirstResponder()
@@ -83,9 +95,23 @@ private struct SearchPage: UIViewRepresentable {
         var field: UISearchTextField?
     }
 
+    /// A search field that holds its focus itself: it never reaches the keyboard, so how fast the host serves the
+    /// keyboard's session cannot decide the step's outcome. One that `refuses` never takes the focus.
     final class Field: UISearchTextField {
         var refuses = false
+        private var holdsFocus = false
         override var canBecomeFirstResponder: Bool { !refuses && super.canBecomeFirstResponder }
+        override var isFirstResponder: Bool { holdsFocus }
+
+        override func becomeFirstResponder() -> Bool {
+            holdsFocus = canBecomeFirstResponder
+            return holdsFocus
+        }
+
+        override func resignFirstResponder() -> Bool {
+            holdsFocus = false
+            return true
+        }
     }
 
     func makeUIView(context: Context) -> UIView {

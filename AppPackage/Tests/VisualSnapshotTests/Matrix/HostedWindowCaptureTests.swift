@@ -376,49 +376,48 @@ private struct StepError: CaptureStepFailure {
     var reason: String { "step-error" }
 }
 
+/// A 4-point grey square on white that grows one step (1/255) darker every 200 ms: few enough bytes for any read to
+/// match the one before, but two steps from a read 500 ms earlier.
+///
+/// The level is the time that has passed when the view is drawn, and the view asks to be drawn again after every
+/// draw (as ``ChangingView`` does), so each read shows the level of its own moment. A level that a timer stepped
+/// did not: a timer the main queue could not serve for a while fires once when it comes back, and a read taken
+/// ahead of that fire shows the level of the read before, so two reads seconds apart on a starved host matched
+/// (this case failed that way in hosted runs 43002788032 and 43023945072).
+private struct DriftingView: UIViewRepresentable {
+    func makeUIView(context: Context) -> DriftView { DriftView() }
+    func updateUIView(_ uiView: DriftView, context: Context) {}
+
+    final class DriftView: UIView {
+        private static let stepSpan: CFTimeInterval = 0.2
+        private static let levels = 141
+
+        private let origin = CACurrentMediaTime()
+
+        override init(frame: CGRect) {
+            super.init(frame: frame)
+            backgroundColor = .white
+        }
+
+        @available(*, unavailable)
+        required init?(coder: NSCoder) { nil }
+
+        override func draw(_ rect: CGRect) {
+            let steps = Int((CACurrentMediaTime() - origin) / Self.stepSpan)
+            let level = 200 - steps % Self.levels
+            UIColor(white: CGFloat(level) / 255, alpha: 1).setFill()
+            UIRectFill(CGRect(x: 40, y: 200, width: 4, height: 4))
+            DispatchQueue.main.async { [weak self] in self?.setNeedsDisplay() }
+        }
+    }
+}
+
 /// Paints how many times it has been drawn and asks to be drawn again after every draw, so consecutive reads never
 /// match on any host. The redraw request from the draw a read shows is queued on the main queue before the settle
 /// loop's sleep starts, so it runs ahead of the loop's next read, which resumes on the same serial queue; that read
 /// then shows a later draw (from a commit in between, or from the capture's own `afterScreenUpdates` commit). A
 /// timer-driven view does not hold on a starved host: one that redrew every 50 ms went 500 ms without a redraw
 /// when the app ran at background priority, and settled.
-/// A 4-point grey square on white that grows one step (1/255) darker every 200 ms: few enough bytes for any read to
-/// match the one before, but two steps from a read 500 ms earlier.
-private struct DriftingView: UIViewRepresentable {
-    func makeUIView(context: Context) -> DriftView { DriftView() }
-    func updateUIView(_ uiView: DriftView, context: Context) {}
-
-    final class DriftView: UIView {
-        private let square = UIView(frame: CGRect(x: 40, y: 200, width: 4, height: 4))
-        private var level = 200
-        private var timer: Timer?
-
-        override init(frame: CGRect) {
-            super.init(frame: frame)
-            backgroundColor = .white
-            addSubview(square)
-            step()
-        }
-
-        @available(*, unavailable)
-        required init?(coder: NSCoder) { nil }
-
-        override func didMoveToWindow() {
-            super.didMoveToWindow()
-            timer?.invalidate()
-            guard window != nil else { return }
-            timer = Timer.scheduledTimer(withTimeInterval: 0.2, repeats: true) { [weak self] _ in
-                MainActor.assumeIsolated { self?.step() }
-            }
-        }
-
-        private func step() {
-            level = level > 60 ? level - 1 : 200
-            square.backgroundColor = UIColor(white: CGFloat(level) / 255, alpha: 1)
-        }
-    }
-}
-
 private struct ChangingView: UIViewRepresentable {
     func makeUIView(context: Context) -> CountingView { CountingView() }
     func updateUIView(_ uiView: CountingView, context: Context) {}
