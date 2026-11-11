@@ -28,11 +28,14 @@ FORBIDDEN = [
 ]
 
 
-# The check name of Phase 19's screenshot check: the `aggregate` job of snapshot-gate.yml (19-10), which no other job
-# of that workflow takes the place of. Read from `feature/gsd-phase-19` at 20-11 (the file reaches this branch
-# through main, owner msg 3346); GateCheckNameTests reads it from the file as soon as the file is here.
+# Phase 19's screenshot check is OFF in the release workflows for 3.0 (owner msg 3757): none of deploy.yml,
+# deploy-beta.yml and deploy-pal.yml calls snapshot-gate.yml or reads the `aggregate` check. The workflow and
+# actions-tool/require-snapshot-gate.sh stay in the repository (pull requests and manual dispatch still use them).
 GATE_CHECK = "aggregate"
 GATE_SCRIPT = "./actions-tool/require-snapshot-gate.sh"
+RELEASE_WORKFLOWS = ("deploy.yml", "deploy-beta.yml", "deploy-pal.yml")
+GATE_MENTIONS = ("snapshot-gate.yml", "require-snapshot-gate", "REQUIRE_SNAPSHOT_GATE", "SNAPSHOT_GATE_CHECK",
+                 "Require the screenshot check")
 
 
 def load(path):
@@ -85,26 +88,19 @@ class DeployWorkflowTests(unittest.TestCase):
     def test_the_build_number_is_checked_before_the_tests(self):
         self.assertLess(step_index(self.deploy, "Check build number"), step_index(self.deploy, "Run tests"))
 
-    def test_the_screenshot_check_is_required_before_anything_is_built(self):
-        names = [step.get("name") for step in self.deploy["jobs"]["Deploy"]["steps"]]
-        self.assertEqual(names[:2], ["Checkout", "Require the screenshot check"])
-        self.assertLess(step_index(self.deploy, "Require the screenshot check"),
-                        step_index(self.deploy, "Check release notes"))
-        gate = step_named(self.deploy, "Require the screenshot check")
-        self.assertEqual(gate["env"]["HEAD_SHA"], "${{ github.event.pull_request.head.sha }}")
-        self.assertEqual(gate["env"]["GH_TOKEN"], "${{ github.token }}")
-        self.assertEqual(self.env["SNAPSHOT_GATE_CHECK"], GATE_CHECK)
-        self.assertEqual(self.env["REQUIRE_SNAPSHOT_GATE_SCRIPT_PATH"], GATE_SCRIPT)
-        run = expand(code(gate["run"]), self.env)
-        self.assertIn(f'bash "{GATE_SCRIPT}" "$HEAD_SHA" "{GATE_CHECK}"', run)
-        # Only a compare run counts: a candidate run is also an `aggregate` check run (20-11, point 2).
-        self.assertRegex(run, r'"\$HEAD_SHA" "aggregate" --compare-only\s*$')
-        self.assertNotIn("--merged-pr", run)
-        permissions = self.deploy["jobs"]["Deploy"]["permissions"]
-        self.assertEqual(permissions.get("checks"), "read")
-        self.assertEqual(permissions.get("contents"), "write")
-        # `actions: read` lets the script read the workflow run behind the verdict (its event).
-        self.assertEqual(permissions.get("actions"), "read")
+    def test_the_screenshot_gate_is_off_for_3_0(self):
+        # Owner msg 3757: the release no longer waits for, or reads, the screenshot check.
+        self.assertEqual(list(self.deploy["jobs"]), ["Deploy"])
+        job = self.deploy["jobs"]["Deploy"]
+        self.assertNotIn("needs", job)
+        self.assertNotIn("uses", job)
+        self.assertEqual([step.get("name") for step in job["steps"]][0], "Checkout")
+        self.assertNotIn("Require the screenshot check", [step.get("name") for step in job["steps"]])
+        for name in ("SNAPSHOT_GATE_CHECK", "REQUIRE_SNAPSHOT_GATE_SCRIPT_PATH"):
+            self.assertNotIn(name, self.env)
+        # Only what the release itself needs: the verdict's `checks: read` and `actions: read` went with the read.
+        self.assertEqual(job["permissions"], {"contents": "write"})
+        self.assertLess(step_index(self.deploy, "Check build number"), step_index(self.deploy, "Check release notes"))
 
     def test_the_build_number_check_reads_mains_classic_side_sources(self):
         run = self.run_text("Check build number")
@@ -156,7 +152,6 @@ class BetaWorkflowTests(unittest.TestCase):
 
 PAL_STEPS = [
     "Checkout",
-    "Require the screenshot check",
     "Check version",
     "Write App Store Connect key",
     "Check build number",
@@ -218,26 +213,21 @@ class PalWorkflowTests(unittest.TestCase):
         name = environment["name"] if isinstance(environment, dict) else environment
         self.assertEqual(name, "pal-notarization")
         self.assertEqual(self.job["if"].replace(" ", ""), "inputs.mode=='submit'")
-        self.assertEqual(self.job["permissions"], {"contents": "read", "checks": "read", "actions": "read"})
+        self.assertEqual(self.job["permissions"], {"contents": "read"})
         self.assertIn("timeout-minutes", self.job)
 
     def test_the_steps_run_in_order(self):
         names = [step.get("name") for step in self.job["steps"]]
         self.assertEqual(names, PAL_STEPS)
 
-    def test_the_screenshot_check_is_required_on_the_dispatched_commit(self):
+    def test_the_screenshot_gate_is_off_for_3_0(self):
+        # Owner msg 3757: the submission no longer reads the screenshot check on the dispatched commit.
         names = [step.get("name") for step in self.job["steps"]]
-        self.assertEqual(names[:2], ["Checkout", "Require the screenshot check"])
-        gate = step_named(self.job, "Require the screenshot check")
-        self.assertEqual(gate["env"]["HEAD_SHA"], "${{ github.sha }}")
-        self.assertEqual(gate["env"]["GH_TOKEN"], "${{ github.token }}")
-        self.assertEqual(self.env["SNAPSHOT_GATE_CHECK"], GATE_CHECK)
-        self.assertEqual(self.env["REQUIRE_SNAPSHOT_GATE_SCRIPT_PATH"], GATE_SCRIPT)
-        run = expand(code(gate["run"]), self.env)
-        self.assertIn(f'bash "{GATE_SCRIPT}" "$HEAD_SHA" "{GATE_CHECK}"', run)
-        # The dispatched commit is the squash or rebase commit on main, which has no check run: the verdict is read
-        # on the merged pull request's head (20-11, point 1), and only a compare run counts (point 2).
-        self.assertRegex(run, r'"\$HEAD_SHA" "aggregate" --merged-pr --compare-only\s*$')
+        self.assertEqual(names[0], "Checkout")
+        self.assertNotIn("Require the screenshot check", names)
+        self.assertNotIn("needs", self.job)
+        for name in ("SNAPSHOT_GATE_CHECK", "REQUIRE_SNAPSHOT_GATE_SCRIPT_PATH"):
+            self.assertNotIn(name, self.env)
 
     def test_the_checkout_cannot_push(self):
         checkout = step_named(self.job, "Checkout")
@@ -474,23 +464,37 @@ class PalPublishWorkflowTests(unittest.TestCase):
 
 
 @unittest.skipUnless(RUBY, "ruby is not installed")
-class GateCheckNameTests(unittest.TestCase):
-    """Both release workflows name the check `aggregate`, the verdict job of Phase 19's snapshot-gate.yml (19-10)."""
+class GateOffTests(unittest.TestCase):
+    """Phase 19's screenshot check is off in every release workflow for 3.0 (owner msg 3757), and stays available."""
 
-    def test_both_workflows_use_one_check_name(self):
-        for workflow in ("deploy.yml", "deploy-pal.yml"):
-            with self.subTest(workflow):
-                self.assertEqual(load(WORKFLOWS / workflow)["env"]["SNAPSHOT_GATE_CHECK"], GATE_CHECK)
+    def test_no_release_workflow_calls_or_reads_the_gate(self):
+        for workflow in RELEASE_WORKFLOWS:
+            text = (WORKFLOWS / workflow).read_text(encoding="utf-8")
+            body = "\n".join(line for line in text.splitlines() if not line.strip().startswith("#"))
+            for needle in GATE_MENTIONS:
+                with self.subTest(workflow=workflow, needle=needle):
+                    self.assertNotIn(needle, body)
+            document = load(WORKFLOWS / workflow)
+            for name, job in document["jobs"].items():
+                with self.subTest(workflow=workflow, job=name):
+                    self.assertNotIn("uses", job)
+                    self.assertNotIn("needs", job)
+                    for step in job.get("steps", []):
+                        self.assertNotIn("require-snapshot-gate", step.get("run", ""))
 
-    @unittest.skipUnless((WORKFLOWS / "snapshot-gate.yml").exists(),
-                         "snapshot-gate.yml reaches this branch through main once Phase 19 closes (owner msg 3346)")
-    def test_the_name_is_the_aggregate_jobs_in_snapshot_gate_yml(self):
-        job = load(WORKFLOWS / "snapshot-gate.yml")["jobs"]["aggregate"]
-        # A job's check run is named by its `name`, or its ID when it has none.
-        self.assertEqual(job.get("name", "aggregate"), GATE_CHECK)
-        for workflow in ("deploy.yml", "deploy-pal.yml"):
-            self.assertEqual(load(WORKFLOWS / workflow)["env"]["SNAPSHOT_GATE_CHECK"],
-                             job.get("name", "aggregate"))
+    def test_each_removal_site_says_why(self):
+        for workflow in RELEASE_WORKFLOWS:
+            with self.subTest(workflow=workflow):
+                self.assertIn("Snapshot gate off for 3.0 (owner msg 3757)",
+                              (WORKFLOWS / workflow).read_text(encoding="utf-8"))
+
+    def test_the_gate_and_its_script_stay_for_pull_requests_and_manual_runs(self):
+        self.assertTrue((ROOT / GATE_SCRIPT).is_file())
+        gate = WORKFLOWS / "snapshot-gate.yml"
+        if gate.exists():
+            job = load(gate)["jobs"]["aggregate"]
+            # A job's check run is named by its `name`, or its ID when it has none.
+            self.assertEqual(job.get("name", "aggregate"), GATE_CHECK)
 
 
 @unittest.skipUnless(RUBY, "ruby is not installed")

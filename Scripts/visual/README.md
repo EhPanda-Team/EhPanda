@@ -24,7 +24,7 @@ CI workflows:
 | Workflow | Runs | When |
 |---|---|---|
 | `test.yml` | `FeatureTests` without command-line exclusions | push, dispatch |
-| `snapshot-gate.yml` | the screenshot check, below | pull requests, before each release (`deploy.yml`, `deploy-beta.yml`) and on dependency updates (`dependencies.yml`) |
+| `snapshot-gate.yml` | the screenshot check, below | pull requests, manual dispatches and dependency updates (`dependencies.yml`); the release workflows do not call it for 3.0 (owner msg 3757) |
 | `live-check.yml` | the daily live check | daily, dispatch, push to `ci/live-check` |
 
 Phase 17's manually dispatched capture workflow and its per-coordinate regression flow are gone: the snapshot matrix
@@ -87,7 +87,7 @@ and re-runs once the classes a crash or the budget left without results. Jobs:
   mismatches) in the run summary, writes the report and is the run's verdict, together with `native-policy`.
 
 A newer push to the same pull request cancels the superseded run; a release, dispatch or dependency run is never
-cancelled. The gate's `aggregate` job is the check that Phase 20's release workflows require on the shipped commit.
+cancelled. The release workflows (`deploy.yml`, `deploy-beta.yml`, `deploy-pal.yml`) do not call the gate or read its `aggregate` check for 3.0 (owner msg 3757); restore by re-adding the `snapshot-gate` job and the `require-snapshot-gate.sh` step (see git history).
 
 **Modes.** Compare checks every picture against the approved baseline. Candidate records every picture and compares
 nothing. Pull requests compare; a dispatch or a call chooses (compare by default); a push to `ci/snapshot-gate`
@@ -95,8 +95,8 @@ records a candidate while there is no `fingerprints.json` and compares once ther
 
 **Red until a baseline exists.** Compare mode needs
 `AppPackage/Tests/VisualSnapshotTests/Baseline/fingerprints.json`. Until the owner approves the first baseline,
-every compare run fails at once with "no approved baseline yet": pull requests, releases and dependency updates
-alike. This is by design.
+every compare run fails at once with "no approved baseline yet": pull requests, manual compare dispatches and dependency updates
+alike. This is by design; releases no longer depend on it (owner msg 3757).
 
 **Status.** The gate is built and its scripts are tested. A green hosted run, the candidate run, the approved
 baseline and the controlled regression (a one-point layout change that must turn the gate red on exactly the

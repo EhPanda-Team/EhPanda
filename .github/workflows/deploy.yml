@@ -10,10 +10,6 @@ env:
   SIDESTORE_JSON_PATH: './SideStore.json'
   ALTSTORE_BETA_JSON_PATH: './altstore-beta.json'
   CHECK_BUILD_NUMBER_SCRIPT_PATH: './actions-tool/check-build-number.sh'
-  # The release relies on Phase 19's screenshot check: the `aggregate` job of snapshot-gate.yml must have passed on
-  # the merged pull request's head commit. The release reads that verdict and never runs the gate.
-  REQUIRE_SNAPSHOT_GATE_SCRIPT_PATH: './actions-tool/require-snapshot-gate.sh'
-  SNAPSHOT_GATE_CHECK: 'aggregate'
   SIDESTORE_TEMPLATE_PATH: './actions-tool/sidestore.template.json'
   SOURCE_FILTER_PATH: './actions-tool/altstore-add-version.jq'
   PACKAGE_CHANNEL_SCRIPT_PATH: './actions-tool/package-channel.sh'
@@ -31,17 +27,9 @@ env:
   SIDESTORE_IPA_PATH: '/tmp/action-builds/EhPanda-SideStore.ipa'
 
 jobs:
-  # No release builds without a green full screenshot matrix in compare mode (19-10; D-16).
-  snapshot-gate:
-    if: |
-      github.event.pull_request.merged == true && github.event.pull_request.user.login == 'chihchy'
-    permissions:
-      contents: read
-    uses: ./.github/workflows/snapshot-gate.yml
-    with:
-      mode: compare
+  # Snapshot gate off for 3.0 (owner msg 3757); restore by re-adding the snapshot-gate job and the require step
+  # (see git history of this commit).
   Deploy:
-    needs: snapshot-gate
     runs-on: xcode-27
     timeout-minutes: 120
     # One release at a time: the gate lets two merged release pull requests reach this job together, and the
@@ -53,22 +41,14 @@ jobs:
       cancel-in-progress: false
     if: |
       github.event.pull_request.merged == true && github.event.pull_request.user.login == 'chihchy'
-    # contents: the release, its tag and the push of the sources; checks and actions: the screenshot check's verdict
-    # and the workflow run behind it (its event).
+    # contents: the release, its tag and the push of the sources.
     permissions:
       contents: write
-      checks: read
-      actions: read
     steps:
       - name: Checkout
         uses: actions/checkout@v7
-      - name: Require the screenshot check
-        env:
-          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
-          GH_TOKEN: ${{ github.token }}
-        # `--compare-only`: a candidate run (a push to ci/snapshot-gate, or a dispatch) is also an `aggregate`
-        # check run and passes without comparing anything; only a pull request's run is a compare run.
-        run: bash "$REQUIRE_SNAPSHOT_GATE_SCRIPT_PATH" "$HEAD_SHA" "$SNAPSHOT_GATE_CHECK" --compare-only
+      # Snapshot gate off for 3.0 (owner msg 3757); restore by re-adding the snapshot-gate job and the require step
+      # (see git history of this commit).
       - name: Modify git config
         run: |
           git config user.name "github-actions[bot]"
