@@ -127,10 +127,11 @@ run_check() {
     dest=$(destination)
     note "running DailyLiveCheckTests ($MODE)"
     rm -f "$OUTPUT/results.json"
+    # The issues token is for the reporter only: the build (macros, plugins) and the tests do not get it.
     TEST_RUNNER_EHPANDA_LIVE_CHECK=1 \
     TEST_RUNNER_EHPANDA_LIVE_CHECK_MODE="$MODE" \
     TEST_RUNNER_EHPANDA_LIVE_CHECK_OUTPUT="$OUTPUT" \
-        xcodebuild test \
+        env -u GH_TOKEN -u GITHUB_TOKEN xcodebuild test \
             -project "$ROOT/EhPanda.xcodeproj" \
             -scheme EhPanda \
             -testPlan LiveCheck \
