@@ -326,10 +326,12 @@ public struct CommentsReducer: Sendable {
 
     /// Sends the editor's comment (an edit when `commentID` isn't empty), then closes the editor.
     private func postAndDismiss(commentID: String, state: State) -> Effect<Action> {
-        .concatenate(
-            .send(.postComment(galleryURL: state.galleryURL, commentID: commentID.isEmpty ? nil : commentID)),
-            .send(.destination(.dismiss))
-        )
+        let galleryURL = state.galleryURL
+        let commentID = commentID.isEmpty ? nil : commentID
+        return .run { send in
+            await send(.postComment(galleryURL: galleryURL, commentID: commentID))
+            await send(.destination(.dismiss))
+        }
     }
 }
 
