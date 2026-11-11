@@ -3,13 +3,20 @@ import SFSafeSymbols
 public import SwiftUI
 
 /// The age wall's checkbox card (UI-SPEC C-2): a card the width of its column whose whole surface toggles, with an
-/// empty square that becomes the accent-filled `checkmark.square.fill` when ticked.
+/// empty circle that becomes the accent-filled `checkmark.circle.fill` when ticked, the same round glyph as the
+/// analytics choice's radio (owner msg 3897).
 ///
 /// The glyph sits on the card colour, never on the grouped background, so the accent keeps its 3:1 non-text
-/// contrast (UI-SPEC Color). At accessibility sizes the glyph moves above the sentence so the sentence keeps the
-/// card's full width. VoiceOver reads one element: the sentence as its label, with the toggle trait and the
-/// selected state carrying on and off. Ticking and unticking each play the selection haptic; the glyph's replace
-/// effect is dropped under Reduce Motion.
+/// contrast (UI-SPEC Color). Its centre sits on the middle of the capital letters of the sentence's first line,
+/// the body font's cap height at the current text size (UI-SPEC C-2, rev 1.4); the stack stays on the first text
+/// baseline and the glyph moves its own baseline guide. At accessibility sizes the glyph moves above the sentence
+/// so the sentence keeps the card's full width. VoiceOver reads one element: the sentence as its label, with the
+/// toggle trait and the selected state carrying on and off. Ticking and unticking each play the selection haptic.
+///
+/// The glyph is two fixed layers, the grey ring and the accent disc with its check, and a tick only changes their
+/// opacity. It is not one symbol that is swapped and recoloured: a replace effect keeps drawing the old symbol
+/// while the colour has already changed, so an untick showed the checked glyph in grey for a moment. The cross-fade
+/// is dropped under Reduce Motion.
 public struct CheckboxToggleStyle: ToggleStyle {
     public init() {}
 
@@ -51,18 +58,25 @@ private struct CheckboxCard: View {
         } else {
             HStack(alignment: .firstTextBaseline, spacing: 12) {
                 glyph
+                    .firstLineCapCentered(.body)
                 sentence
             }
         }
     }
 
     private var glyph: some View {
-        Image(systemSymbol: configuration.isOn ? .checkmarkSquareFill : .square)
-            .font(.title2)
-            .imageScale(.large)
-            .foregroundStyle(configuration.isOn ? Color.accentColor : Color.secondary)
-            .contentTransition(reduceMotion ? .identity : .symbolEffect(.replace))
-            .accessibilityHidden(true)
+        ZStack {
+            Image(systemSymbol: .circle)
+                .foregroundStyle(Color.secondary)
+                .opacity(configuration.isOn ? 0 : 1)
+            Image(systemSymbol: .checkmarkCircleFill)
+                .foregroundStyle(Color.accentColor)
+                .opacity(configuration.isOn ? 1 : 0)
+        }
+        .font(.title2)
+        .imageScale(.large)
+        .animation(reduceMotion ? nil : .easeInOut(duration: 0.15), value: configuration.isOn)
+        .accessibilityHidden(true)
     }
 
     private var sentence: some View {
