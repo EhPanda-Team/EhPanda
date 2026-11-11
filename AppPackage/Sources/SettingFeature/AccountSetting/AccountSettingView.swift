@@ -109,11 +109,6 @@ private struct AccountSection: View {
             )
             .confirmationDialog(logoutConfirmationDialog)
             Group {
-                Button(
-                    .hostSettings(galleryHost.rawValue),
-                    action: openHostSettingsAction
-                )
-                .withArrow()
                 if !bypassSNIFiltering {
                     Button(
                         .myTags,
@@ -121,6 +116,11 @@ private struct AccountSection: View {
                     )
                     .withArrow()
                 }
+                Button(
+                    .hostSettings(galleryHost.rawValue),
+                    action: openHostSettingsAction
+                )
+                .withArrow()
                 AppToggle(.showNewDawnGreeting, isOn: $showNewDawnGreeting)
             }
             .foregroundStyle(.primary)
