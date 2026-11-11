@@ -11,6 +11,7 @@ permissions:
 jobs:
   dependencies:
     runs-on: xcode-27
+    timeout-minutes: 120
     steps:
       - uses: actions/checkout@v7
         with:

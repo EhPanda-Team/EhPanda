@@ -40,6 +40,7 @@ jobs:
   Deploy:
     needs: snapshot-gate
     runs-on: xcode-27
+    timeout-minutes: 120
     # One beta at a time: two dispatches would otherwise gate in parallel and race on the catalogue commit.
     # Queue, never cancel.
     concurrency:
