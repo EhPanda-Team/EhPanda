@@ -254,6 +254,8 @@ struct FirstLaunchGateTests {
         await store.finish()
 
         #expect(analytics.appliedLevels.value == [level])
+        // A relaunch with a stored level is not a first launch: the stored level is applied and nothing is sent.
+        #expect(analytics.sentSignals.value.isEmpty)
     }
 
     @MainActor
@@ -313,6 +315,8 @@ struct FirstLaunchGateTests {
         await store.finish()
 
         #expect(analytics.appliedLevels.value == [.minimal])
+        // Minimal sends no app signal, so the choice of it sends none either, and the wall sent none before.
+        #expect(analytics.sentSignals.value.isEmpty)
     }
 
     // A choice reported before the deferred launch has run is applied by it, from storage, once.
@@ -326,12 +330,16 @@ struct FirstLaunchGateTests {
             dependencies: { $0.analyticsClient = analytics.client }
         )
 
-        await store.send(.firstLaunch(.delegate(.levelChosen(.basic))))
+        // The choice is remembered, so the deferred launch can report the first launch after it applies the level.
+        await store.send(.firstLaunch(.delegate(.levelChosen(.basic)))) {
+            $0.pendingFirstLaunchLevel = .basic
+        }
         #expect(analytics.appliedLevels.value.isEmpty)
 
         await store.send(.launchPreparationFinished) {
             $0.didFinishLaunchPreparation = true
             $0.didRunDeferredLaunch = true
+            $0.pendingFirstLaunchLevel = nil
         }
         store.exhaustivity = .off(showSkippedAssertions: false)
         await store.receive(\.setting.loadUserSettings)
@@ -339,6 +347,94 @@ struct FirstLaunchGateTests {
         await store.finish()
 
         #expect(analytics.appliedLevels.value == [.basic])
+    }
+
+    // MARK: First launch completed (20-12)
+
+    // Both orders of the choice and the deferred launch (20-12 note a): the signal is sent once, after the level is
+    // applied, and only for a level that sends it. Minimal sends nothing; its install signal is the client's.
+    @MainActor
+    @Test(arguments: AnalyticsLevel.allCases)
+    func aChoiceAfterTheDeferredLaunchSendsFirstLaunchCompletedAfterApplyingTheLevel(level: AnalyticsLevel) async {
+        let analytics = AnalyticsClientSpy()
+        let store = Self.makeAppStore(
+            ageDeclarationVersion: AgeDeclaration.currentVersion,
+            dependencies: { $0.analyticsClient = analytics.client }
+        )
+
+        await store.send(.appDelegate(.onLaunchFinish)) {
+            $0.didRunDeferredLaunch = true
+        }
+        store.exhaustivity = .off(showSkippedAssertions: false)
+        await store.receive(\.setting.loadUserSettings)
+        await store.skipReceivedActions(strict: false)
+        // The launch alone, with no level chosen yet, sent and applied nothing.
+        #expect(analytics.calls.value.isEmpty)
+
+        await store.send(.firstLaunch(.analyticsContinue(level)))
+        await store.receive(\.firstLaunch.delegate.levelChosen, level)
+        await store.send(.appLogsPump(.pausePump))
+        await store.skipReceivedActions(strict: false)
+        await store.finish()
+
+        let completed: [AnalyticsClientSpy.Call] = level == .minimal ? [] : [.send(.firstLaunchCompleted(level: level))]
+        #expect(analytics.calls.value == [.apply(level)] + completed)
+    }
+
+    @MainActor
+    @Test(arguments: AnalyticsLevel.allCases)
+    func aChoiceBeforeTheDeferredLaunchSendsFirstLaunchCompletedOnceAfterItsApply(level: AnalyticsLevel) async {
+        let analytics = AnalyticsClientSpy()
+        let store = Self.makeAppStore(
+            ageDeclarationVersion: AgeDeclaration.currentVersion,
+            analyticsLevel: level,
+            dependencies: { $0.analyticsClient = analytics.client }
+        )
+
+        await store.send(.firstLaunch(.delegate(.levelChosen(level)))) {
+            $0.pendingFirstLaunchLevel = level
+        }
+        #expect(analytics.calls.value.isEmpty)
+
+        await store.send(.launchPreparationFinished) {
+            $0.didFinishLaunchPreparation = true
+            $0.didRunDeferredLaunch = true
+            $0.pendingFirstLaunchLevel = nil
+        }
+        store.exhaustivity = .off(showSkippedAssertions: false)
+        await store.receive(\.setting.loadUserSettings)
+        await store.skipReceivedActions(strict: false)
+        await store.finish()
+
+        let completed: [AnalyticsClientSpy.Call] = level == .minimal ? [] : [.send(.firstLaunchCompleted(level: level))]
+        #expect(analytics.calls.value == [.apply(level)] + completed)
+    }
+
+    // The age wall comes first and sends nothing of its own: confirming the age, with no level chosen, sends nothing.
+    @MainActor
+    @Test
+    func confirmingTheAgeSendsNothing() async {
+        let analytics = AnalyticsClientSpy()
+        let store = Self.makeAppStore(ageDeclarationVersion: nil, dependencies: {
+            $0.analyticsClient = analytics.client
+        })
+
+        await store.send(.launchPreparationFinished) {
+            $0.didFinishLaunchPreparation = true
+        }
+        await store.send(.firstLaunch(.binding(.set(\.isDeclarationTicked, true)))) {
+            $0.firstLaunch.isDeclarationTicked = true
+        }
+        await store.send(.firstLaunch(.ageWallContinue)) {
+            $0.firstLaunch.$setting.withLock({ $0.ageDeclarationVersion = AgeDeclaration.currentVersion })
+        }
+        store.exhaustivity = .off(showSkippedAssertions: false)
+        await store.receive(\.firstLaunch.delegate.ageConfirmed)
+        await store.receive(\.setting.loadUserSettings)
+        await store.skipReceivedActions(strict: false)
+        await store.finish()
+
+        #expect(analytics.calls.value.isEmpty)
     }
 
     // MARK: Links opened while locked
@@ -649,14 +745,27 @@ private struct DownloadClientSpy {
     }
 }
 
-/// Records every level the analytics client is asked to apply; `send` stays a no-op.
+/// Records every level the analytics client is asked to apply and every signal it is asked to send, and the order
+/// the two came in.
 private struct AnalyticsClientSpy {
+    enum Call: Equatable {
+        case apply(AnalyticsLevel?)
+        case send(AnalyticsSignal)
+    }
+
     let appliedLevels = LockIsolated<[AnalyticsLevel?]>([])
+    let sentSignals = LockIsolated<[AnalyticsSignal]>([])
+    let calls = LockIsolated<[Call]>([])
 
     var client: AnalyticsClient {
         var client = AnalyticsClient.noop
-        client.apply = { [appliedLevels] level in
+        client.apply = { [appliedLevels, calls] level in
             appliedLevels.withValue({ $0.append(level) })
+            calls.withValue({ $0.append(.apply(level)) })
+        }
+        client.send = { [sentSignals, calls] signal in
+            sentSignals.withValue({ $0.append(signal) })
+            calls.withValue({ $0.append(.send(signal)) })
         }
         return client
     }

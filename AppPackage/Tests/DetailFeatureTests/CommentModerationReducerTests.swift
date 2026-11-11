@@ -174,19 +174,23 @@ extension CommentModerationReducerTests {
     static let offlineGalleryURL = URL(string: "ehpanda-test://e-hentai.org/g/42/abc123/")!
 
     @MainActor
-    func makeCommentsStore(commentID: String, content: String) -> TestStoreOf<CommentsReducer> {
+    func makeCommentsStore(
+        commentID: String,
+        content: String,
+        analyticsClient: AnalyticsClient = .noop
+    ) -> TestStoreOf<CommentsReducer> {
         var state = CommentsReducer.State(galleryURL: Self.offlineGalleryURL)
         state.destination = .postComment(commentID)
         state.commentContent = content
         return TestStore(initialState: state, reducer: CommentsReducer.init) {
-            $0.analyticsClient = .noop
+            $0.analyticsClient = analyticsClient
             $0.hapticsClient = .noop
             $0.commentFilterTerms = Self.terms
         }
     }
 
     @MainActor
-    func makeDetailStore(content: String) -> TestStoreOf<DetailReducer> {
+    func makeDetailStore(content: String, analyticsClient: AnalyticsClient = .noop) -> TestStoreOf<DetailReducer> {
         var state = DetailReducer.State(
             gallery: Gallery(
                 gid: "42", token: "abc123", title: "Seed", rating: 4.5, tags: [],
@@ -197,7 +201,7 @@ extension CommentModerationReducerTests {
         state.destination = .postComment(.init())
         state.commentContent = content
         return TestStore(initialState: state, reducer: DetailReducer.init) {
-            $0.analyticsClient = .noop
+            $0.analyticsClient = analyticsClient
             $0.hapticsClient = .noop
             $0.commentFilterTerms = Self.terms
         }
@@ -543,36 +547,126 @@ extension CommentModerationReducerTests {
         #expect(store.state.moderation.blockedUsers.isEmpty)
     }
 
-    // No moderation action sends an analytics signal, so no author name or comment text can reach one.
+    // The paths the record leaves out send nothing (20-12): opening the report form, asking to block, cancelling it,
+    // hiding a comment again, opening the editor, and a matching comment held for the warning until it is answered.
     @MainActor
     @Test
-    func moderationSendsNoAnalyticsSignal() async {
+    func theOtherModerationPathsSendNothing() async {
         let recorded = LockIsolated<[AnalyticsSignal]>([])
-        var analyticsClient = AnalyticsClient.noop
-        analyticsClient.send = { signal in recorded.withValue({ $0.append(signal) }) }
-        let store = makeModerationCommentsStore(analyticsClient: analyticsClient)
+        let store = makeModerationCommentsStore(analyticsClient: .recording(into: recorded))
         store.exhaustivity = .off(showSkippedAssertions: false)
 
         await store.send(.moderation(.reportTapped(Self.first)))
         await store.send(.moderation(.blockTapped(Self.first)))
-        await store.send(.moderation(.alert(.presented(.confirmBlock(memberID: Self.memberID, name: Self.author)))))
-        await store.send(.moderation(.show(commentID: Self.first.commentID)))
+        await store.send(.moderation(.alert(.dismiss)))
         await store.send(.moderation(.hide(commentID: Self.first.commentID)))
-        await store.send(.moderation(.unblock(memberID: Self.memberID)))
         await store.send(.presentPostComment(commentID: ""))
         await store.send(.binding(.set(\.commentContent, Self.matchingText)))
         await store.send(.postTapped)
-        await store.send(.moderation(.alert(.presented(.edit))))
         await store.skipReceivedActions()
         await store.skipInFlightEffects()
 
         #expect(recorded.value.isEmpty)
+    }
+
+    // Block, show and unblock each send their one signal. The poster's name and member ID are in the comments, the
+    // block list and the actions, and in no signal.
+    @MainActor
+    @Test
+    func blockShowAndUnblockEachSendTheirSignalAndNoContent() async {
+        let recorded = LockIsolated<[AnalyticsSignal]>([])
+        let store = makeModerationCommentsStore(analyticsClient: .recording(into: recorded))
+        store.exhaustivity = .off(showSkippedAssertions: false)
+
+        await store.send(.moderation(.blockTapped(Self.first)))
+        await store.send(.moderation(.alert(.presented(.confirmBlock(memberID: Self.memberID, name: Self.author)))))
+        await store.skipReceivedActions()
+        await store.finish()
+        #expect(recorded.value == [.commentPosterBlocked])
+
+        await store.send(.moderation(.show(commentID: Self.first.commentID)))
+        await store.finish()
+        #expect(recorded.value == [.commentPosterBlocked, .blockedCommentShown])
+
+        await store.send(.moderation(.unblock(memberID: Self.memberID)))
+        await store.finish()
+        #expect(recorded.value == [
+            .commentPosterBlocked, .blockedCommentShown, .commentPosterUnblocked(from: .comment)
+        ])
+
+        // Unblocking someone who is not blocked changes nothing, so it reports nothing.
+        await store.send(.moderation(.unblock(memberID: Self.memberID)))
+        await store.finish()
+        #expect(recorded.value.count == 3)
+
+        let leaves = Mirror(reflecting: recorded.value).leafRenderings
+        for probe in [Self.author, Self.memberID] {
+            #expect(leaves.contains(where: { $0.contains(probe) }) == false, "\(probe) reached a signal")
+        }
+    }
+
+    // The posting warning's answer is sent from the comments list and from the Detail strip alike, with the typed
+    // text (a probe) staying in the editor.
+    @MainActor
+    @Test(arguments: [PostingWarningChoice.edit, .postAnyway])
+    func theCommentsListSendsThePostingWarningAnswer(choice: PostingWarningChoice) async {
+        let recorded = LockIsolated<[AnalyticsSignal]>([])
+        let store = makeCommentsStore(
+            commentID: "",
+            content: "\(Self.matchingText) \(Self.probeCommentText)",
+            analyticsClient: .recording(into: recorded)
+        )
+        store.exhaustivity = .off(showSkippedAssertions: false)
+
+        await store.send(.postTapped)
+        await store.finish()
+        // Held for the warning: nothing is sent until it is answered.
+        #expect(recorded.value.isEmpty)
+
+        switch choice {
+        case .edit:
+            await store.send(.moderation(.alert(.presented(.edit))))
+
+        case .postAnyway:
+            await store.send(.moderation(.alert(.presented(.postAnyway))))
+        }
+        await store.skipReceivedActions()
+        await store.skipInFlightEffects()
+
+        #expect(recorded.value == [.commentPostingWarningAnswered(choice)])
+        let leaves = Mirror(reflecting: recorded.value).leafRenderings
+        #expect(leaves.contains(where: { $0.contains(Self.probeCommentText) }) == false)
+    }
+
+    @MainActor
+    @Test(arguments: [PostingWarningChoice.edit, .postAnyway])
+    func detailSendsThePostingWarningAnswer(choice: PostingWarningChoice) async {
+        let recorded = LockIsolated<[AnalyticsSignal]>([])
+        let store = makeDetailStore(content: Self.matchingText, analyticsClient: .recording(into: recorded))
+        store.exhaustivity = .off(showSkippedAssertions: false)
+
+        await store.send(.postTapped)
+        await store.finish()
+        #expect(recorded.value.isEmpty)
+
+        switch choice {
+        case .edit:
+            await store.send(.moderation(.alert(.presented(.edit))))
+
+        case .postAnyway:
+            await store.send(.moderation(.alert(.presented(.postAnyway))))
+        }
+        await store.skipReceivedActions()
+        await store.skipInFlightEffects()
+
+        #expect(recorded.value == [.commentPostingWarningAnswered(choice)])
     }
 }
 
 // MARK: Moderation fixtures
 
 extension CommentModerationReducerTests {
+    static let probeCommentText = "zqxprobecommenttext7731"
     static let author = "SENTINEL_AUTHOR"
     static let memberID = "990213"
     static let blockedUser = BlockedCommentUser(memberID: memberID, name: author)
@@ -671,4 +765,24 @@ extension CommentModerationReducerTests {
 
     /// The site's form as the Report form reads it when presented: both comment reasons and the details field.
     static let reportForm = ReportForm(types: [.child, .other], email: "", hasDetails: true)
+}
+
+private extension AnalyticsClient {
+    /// The `LockIsolated` capture idiom: the inert `.noop` client with its `send` replaced by a collector.
+    static func recording(into recorded: LockIsolated<[AnalyticsSignal]>) -> Self {
+        var client = AnalyticsClient.noop
+        client.send = { signal in recorded.withValue({ $0.append(signal) }) }
+        return client
+    }
+}
+
+// Reproduces `ContentLeakProbe`'s reflection walk, which lives in a target this one cannot import: every stored
+// leaf of a value, including ones the public API never exposes.
+private extension Mirror {
+    var leafRenderings: [String] {
+        children.flatMap({ child in
+            let nested = Mirror(reflecting: child.value).leafRenderings
+            return nested.isEmpty ? [String(describing: child.value)] : nested
+        })
+    }
 }

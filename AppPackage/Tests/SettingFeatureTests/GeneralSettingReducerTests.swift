@@ -44,17 +44,32 @@ struct GeneralSettingReducerTests {
     }
 }
 
+/// One call the analytics client received, in the order it came.
+private enum AnalyticsCall: Equatable {
+    case apply(AnalyticsLevel?)
+    case send(AnalyticsSignal)
+}
+
 // Covers the analytics level picker (UI-SPEC C-9, D-07, DD-09a): a pick writes the level and applies it to the
 // analytics client once, from the reducer, so lowering to Minimal stops the SDK at once (threat T-18-18).
 @Suite
 struct GeneralSettingAnalyticsLevelTests {
-    /// The levels `apply` was called with, in order.
+    /// The levels `apply` was called with and the signals `send` was called with, and the order of the two.
     private final class AppliedLevels: Sendable {
         let levels = LockIsolated<[AnalyticsLevel?]>([])
+        let signals = LockIsolated<[AnalyticsSignal]>([])
+        let calls = LockIsolated<[AnalyticsCall]>([])
 
         var client: AnalyticsClient {
             var client = AnalyticsClient.noop
-            client.apply = { [levels] level in levels.withValue({ $0.append(level) }) }
+            client.apply = { [levels, calls] level in
+                levels.withValue({ $0.append(level) })
+                calls.withValue({ $0.append(.apply(level)) })
+            }
+            client.send = { [signals, calls] signal in
+                signals.withValue({ $0.append(signal) })
+                calls.withValue({ $0.append(.send(signal)) })
+            }
             return client
         }
     }
@@ -91,6 +106,42 @@ struct GeneralSettingAnalyticsLevelTests {
         }
     }
 
+    // The change is reported after the new level is applied, as the old and the new level (20-12). A move to Minimal
+    // stops the SDK and Minimal promises only the install signal, so it reports nothing.
+    @MainActor
+    @Test(arguments: [
+        (stored: AnalyticsLevel.full, picked: AnalyticsLevel.minimal),
+        (stored: .basic, picked: .minimal),
+        (stored: .minimal, picked: .basic),
+        (stored: .minimal, picked: .full),
+        (stored: .full, picked: .basic),
+        (stored: .basic, picked: .full)
+    ])
+    func pickingALevelSendsTheChangeAfterApplyingIt(stored: AnalyticsLevel, picked: AnalyticsLevel) async {
+        let defaults = UserDefaults.inMemory
+        let applied = AppliedLevels()
+        await withDependencies {
+            $0.defaultAppStorage = defaults
+        } operation: {
+            let state = GeneralSettingReducer.State()
+            state.$setting.withLock({ $0.analyticsLevel = stored })
+            let store = TestStore(initialState: state, reducer: GeneralSettingReducer.init) {
+                $0.analyticsClient = applied.client
+                $0.defaultAppStorage = defaults
+            }
+
+            await store.send(.analyticsLevelPicked(picked)) {
+                $0.$setting.withLock({ $0.analyticsLevel = picked })
+            }
+            await store.finish()
+
+            let changed: [AnalyticsCall] = picked == .minimal
+                ? []
+                : [.send(.analyticsLevelChanged(from: stored, toLevel: picked))]
+            #expect(applied.calls.value == [.apply(picked)] + changed)
+        }
+    }
+
     @MainActor
     @Test(arguments: AnalyticsLevel.allCases)
     func pickingTheCurrentLevelAgainAppliesNothing(level: AnalyticsLevel) async {
@@ -110,6 +161,7 @@ struct GeneralSettingAnalyticsLevelTests {
             await store.finish()
 
             #expect(applied.levels.value.isEmpty)
+            #expect(applied.signals.value.isEmpty)
         }
     }
 
@@ -139,6 +191,7 @@ struct GeneralSettingAnalyticsLevelTests {
             await store.finish()
 
             #expect(applied.levels.value.isEmpty)
+            #expect(applied.signals.value.isEmpty)
         }
     }
 }
