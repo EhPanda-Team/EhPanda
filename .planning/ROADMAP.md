@@ -1618,7 +1618,7 @@ Plans:
 
 **Wave 7** *(blocked on 20-09 and 20-13)* — (h)
 
-- [ ] 20-14-PLAN.md — the Release isolation scan in both flavors and the phase gate
+- [x] 20-14-PLAN.md — the Release isolation scan in both flavors and the phase gate *(done 2026-11-11, `20-14-SUMMARY.md`; both scans 0 findings, gate green)*
 
 **Wave 8** *(blocked on Waves 4 to 7, 20-07, and the 3.0 GitHub and Classic release, D-26)* — (c), the PAL submission
 

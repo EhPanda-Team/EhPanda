@@ -4,10 +4,10 @@ milestone: v3.0.0
 current_phase: 20
 current_phase_name: "3.0 Distribution: Marketplace Build, Notarization, Listing & Release Checks"
 status: executing
-stopped_at: Completed 20-13-PLAN.md (analytics signals, call sites, README in six languages)
+stopped_at: Completed 20-14-PLAN.md (Release isolation scan, both flavors 0 findings; phase gate green)
 last_updated: "2026-11-11T12:00:00.000Z"
 last_activity: 2026-11-11
-last_activity_desc: "20-13 closed: the seven signed-off analytics signals, call sites and the README in six languages. Earlier, 20-11 closed: main (Phase 19 closed with deferred items, owner msgs 3425, 3428, 3573) merged into feature/gsd-phase-20 (OQ-F, owner msg 3346); the release gate reads the merged PR head and compare runs only"
+last_activity_desc: "20-14 closed: the Release isolation scan of the default and marketplace flavors (0 findings each) and the phase gate (all green; 20-VALIDATION.md rows updated, nyquist_compliant stays false). Earlier, 20-13 closed: the seven signed-off analytics signals, call sites and the README in six languages. Earlier, 20-11 closed: main (Phase 19 closed with deferred items, owner msgs 3425, 3428, 3573) merged into feature/gsd-phase-20 (OQ-F, owner msg 3346); the release gate reads the merged PR head and compare runs only"
 state_head: e618e40cbb803098c79170a6f3524064002e313d
 progress:
   total_phases: 21
@@ -104,6 +104,15 @@ source_head: b5eca09d1
   (`18-copy-check.py --readmes` passes). Full FeatureTests: iPad 0 failed; iPhone 5 failed, all in
   `VisualSnapshotTests` (no scene in the full run; they pass alone), none touched by this plan. ANALYTICS-02 stays
   Pending (20-14 shares it). Next: 20-14 when 20-09's open items allow.
+- **20-14 complete (2026-11-11)** (`911794dd5`; `20-14-SUMMARY.md`, `20-14-RELEASE-SCAN.md`): `verify-release.py` on the
+  branch build, default and `-xcconfig Config/Marketplace.xcconfig`: 0 findings each (379 payload files, 150 graph
+  targets, 4 link maps, one accepted inert shell; the Release probe launch survives, the Debug control ends). Gate:
+  `actions-tool` 201, `Scripts/visual` 384, FeatureTests iPhone and iPad 2034 tests each with 0 failed, strict lint
+  0 violations (867 files), actionlint clean (10 workflows). The TCA refactors changed no Comments, Detail or Settings
+  snapshot (before/after local runs: iPhone 248, iPad portrait 126, identical; iPad landscape cannot run locally; no
+  recorded references exist, none re-recorded). `20-VALIDATION.md` rows updated, `nyquist_compliant` stays false
+  (20-10-02 superseded, 20-11-03 live read exits 1, 20-08-02 not yet run). 20-09 ticked in the roadmap (`7198c2d4a`).
+  Left: 20-06, 20-07, 20-08 and the release order (Classic release, then the PAL submission, D-26).
 - **Decision (2026-11-11, owner msg 3501; product lead msg 3502):** the website gets no GitHub Issues link. The
   published contact link is out of the 3.0 plan (ROADMAP Phase 20 item 4 and SC4, D-05, 20-07, 20-08 amended), and
   UGC-18-01 is marked complete. The App Store Connect Support URL is the GitHub repository page,
