@@ -461,30 +461,177 @@ struct ReportFormReducerTests {
         #expect(!state.isDismissLocked)
     }
 
-    // MARK: Analytics (D-11)
+    // MARK: Analytics (20-12)
 
-    // The analytics client fails on any call, so a full flow passing proves no report action sends a signal.
+    // The report signal says how a report ended and nothing else (owner msg 2837): the comment's text and poster, the
+    // email, the details and the gallery's title and URL are probes here, and none may reach a signal.
     @MainActor
     @Test
-    func aFullReportFlowSendsNoAnalyticsSignal() async {
+    func aSentReportSendsItsOutcomeOnceAndNoContent() async throws {
+        let recorded = LockIsolated<[AnalyticsSignal]>([])
+        let store = makeStore(
+            state: try Self.probedState(),
+            client: ReportFormClient.stub(send: { _, _, _, _ in .sent }),
+            analyticsClient: .recording(into: recorded)
+        )
+
+        await store.send(.primaryTapped) {
+            $0.phase = .sending
+        }
+        await store.receive(\.sendResponse, .sent) {
+            $0.phase = .sent
+        }
+        await store.finish()
+        #expect(recorded.value == [.commentReportOutcome(.sent)])
+
+        // Done closes the sent form and sends nothing more.
+        await store.send(.primaryTapped)
+        await store.finish()
+        #expect(recorded.value == [.commentReportOutcome(.sent)])
+
+        let leaves = Mirror(reflecting: recorded.value).leafRenderings
+        for probe in Self.probes {
+            #expect(leaves.contains(where: { $0.contains(probe) }) == false, "\(probe) reached a signal")
+        }
+    }
+
+    // Each failed attempt is one `failed`; the retry that gets through is the `sent`.
+    @MainActor
+    @Test(arguments: [FailureKind.rejected, .thrown])
+    func eachFailedAttemptSendsFailedAndTheRetryThatSucceedsSendsSent(failure: FailureKind) async {
+        let recorded = LockIsolated<[AnalyticsSignal]>([])
+        let attempts = LockIsolated(0)
+        let store = makeStore(
+            state: Self.filledState(),
+            client: ReportFormClient.stub(send: { _, _, _, _ in
+                let attempt = attempts.withValue({ attempts in
+                    attempts += 1
+                    return attempts
+                })
+                guard attempt > 1 else {
+                    switch failure {
+                    case .rejected: return .rejected
+                    case .thrown: throw AppError.networkingFailed
+                    }
+                }
+                return .sent
+            }),
+            analyticsClient: .recording(into: recorded)
+        )
+
+        await store.send(.primaryTapped) {
+            $0.phase = .sending
+        }
+        await store.receive(\.sendResponse) {
+            $0.phase = .ready
+            $0.alert = Self.failedAlert
+        }
+        await store.finish()
+        #expect(recorded.value == [.commentReportOutcome(.failed)])
+
+        await store.send(.alert(.presented(.retry))) {
+            $0.alert = nil
+            $0.phase = .sending
+        }
+        await store.receive(\.sendResponse, .sent) {
+            $0.phase = .sent
+        }
+        await store.finish()
+        #expect(recorded.value == [.commentReportOutcome(.failed), .commentReportOutcome(.sent)])
+    }
+
+    // A form that cannot be read, or that lacks a reason, is the unavailable form.
+    @MainActor
+    @Test(arguments: [LoadKind.error, .missingType])
+    func anUnavailableFormSendsUnavailable(load: LoadKind) async {
+        let recorded = LockIsolated<[AnalyticsSignal]>([])
+        let store = makeStore(
+            client: ReportFormClient.stub(load: { _ in
+                switch load {
+                case .error: throw AppError.networkingFailed
+                case .missingType: Self.form(types: [.child])
+                }
+            }),
+            analyticsClient: .recording(into: recorded)
+        )
+
+        await store.send(.task)
+        await store.receive(\.loaded) {
+            $0.phase = .unavailable
+        }
+        await store.finish()
+
+        #expect(recorded.value == [.commentReportOutcome(.unavailable)])
+    }
+
+    // The site's page opens from the failed alert and from the unavailable form, and either is reported.
+    @MainActor
+    @Test
+    func openingTheSitesPageFromTheFailedAlertSendsReportPageOpened() async {
+        let recorded = LockIsolated<[AnalyticsSignal]>([])
+        var state = Self.filledState()
+        state.alert = Self.failedAlert
+        let store = makeStore(state: state, analyticsClient: .recording(into: recorded))
+
+        await store.send(.alert(.presented(.openReportPage))) {
+            $0.alert = nil
+            $0.destination = .reportPage(Self.pageURL)
+        }
+        await store.finish()
+
+        #expect(recorded.value == [.commentReportOutcome(.reportPageOpened)])
+    }
+
+    @MainActor
+    @Test
+    func openingTheSitesPageFromTheUnavailableFormSendsReportPageOpened() async {
+        let recorded = LockIsolated<[AnalyticsSignal]>([])
+        var state = Self.openState()
+        state.phase = .unavailable
+        let store = makeStore(state: state, analyticsClient: .recording(into: recorded))
+
+        await store.send(.primaryTapped) {
+            $0.destination = .reportPage(Self.pageURL)
+        }
+        await store.finish()
+
+        #expect(recorded.value == [.commentReportOutcome(.reportPageOpened)])
+    }
+
+    // The paths the record leaves out send nothing: a form that loads, picking a reason, typing, a malformed email,
+    // cancelling the failed alert, and closing the form.
+    @MainActor
+    @Test
+    func theOtherPathsOfTheFormSendNothing() async {
+        let recorded = LockIsolated<[AnalyticsSignal]>([])
         let store = makeStore(
             state: Self.openState(),
-            client: ReportFormClient.stub(load: { _ in Self.form() }, send: { _, _, _, _ in .sent }),
-            analyticsClient: .unimplemented
+            client: ReportFormClient.stub(load: { _ in Self.form() }),
+            analyticsClient: .recording(into: recorded)
         )
         store.exhaustivity = .off(showSkippedAssertions: false)
 
         await store.send(.task)
         await store.receive(\.loaded)
         await store.send(.reasonTapped(.illegal))
-        await store.send(.binding(.set(\.email, "me@example.com")))
+        await store.send(.binding(.set(\.email, "not an email")))
         await store.send(.binding(.set(\.details, Self.filledDetails)))
         await store.send(.primaryTapped)
-        await store.receive(\.sendResponse)
-        await store.send(.primaryTapped)
+        await store.send(.closeTapped)
         await store.finish()
 
-        #expect(store.state.phase == .sent)
+        #expect(store.state.emailInvalid)
+        #expect(recorded.value.isEmpty)
+
+        var failed = Self.filledState()
+        failed.alert = Self.failedAlert
+        let cancelled = makeStore(state: failed, analyticsClient: .recording(into: recorded))
+        await cancelled.send(.alert(.dismiss)) {
+            $0.alert = nil
+        }
+        await cancelled.finish()
+
+        #expect(recorded.value.isEmpty)
     }
 }
 
@@ -494,6 +641,32 @@ extension ReportFormReducerTests {
     enum FailureKind: Sendable {
         case rejected
         case thrown
+    }
+
+    enum LoadKind: Sendable {
+        case error
+        case missingType
+    }
+
+    static let probeCommentText = "zqxprobecommenttext7731"
+    static let probePosterName = "zqxprobepostername7731"
+    static let probeDetails = "zqxprobereportdetails7731"
+    static let probeEmail = "zqxprobe7731@example.invalid"
+    static let probeToken = "zqxprobetoken7731"
+    static let probes = [probeCommentText, probePosterName, probeDetails, probeEmail, probeToken]
+
+    /// A form ready to send, whose comment, details, email and gallery URL are all probes.
+    static func probedState() throws -> ReportFormFeature.State {
+        let galleryURL = try #require(URL(string: "https://e-hentai.org/g/7731/\(probeToken)/"))
+        var state = try #require(ReportFormFeature.State(
+            comment: ReportFormFeature.Comment(author: probePosterName, date: date, text: probeCommentText),
+            galleryURL: galleryURL
+        ))
+        state.phase = .ready
+        state.reason = .illegal
+        state.email = probeEmail
+        state.details += probeDetails
+        return state
     }
 
     struct SendCall: Equatable, Sendable {
@@ -570,7 +743,7 @@ extension ReportFormReducerTests {
         client: ReportFormClient = ReportFormClient(),
         clock: any Clock<Duration> = TestClock(),
         dismissed: LockIsolated<Int> = LockIsolated(0),
-        analyticsClient: AnalyticsClient = .unimplemented
+        analyticsClient: AnalyticsClient = .noop
     ) -> TestStoreOf<ReportFormFeature> {
         TestStore(initialState: state, reducer: ReportFormFeature.init) {
             $0.reportFormClient = client
@@ -595,5 +768,25 @@ extension ReportFormClient {
             client.send = send
         }
         return client
+    }
+}
+
+private extension AnalyticsClient {
+    /// The `LockIsolated` capture idiom: the inert `.noop` client with its `send` replaced by a collector.
+    static func recording(into recorded: LockIsolated<[AnalyticsSignal]>) -> Self {
+        var client = AnalyticsClient.noop
+        client.send = { signal in recorded.withValue({ $0.append(signal) }) }
+        return client
+    }
+}
+
+// Reproduces `ContentLeakProbe`'s reflection walk, which lives in a target this one cannot import: every stored
+// leaf of a value, including ones the public API never exposes.
+private extension Mirror {
+    var leafRenderings: [String] {
+        children.flatMap({ child in
+            let nested = Mirror(reflecting: child.value).leafRenderings
+            return nested.isEmpty ? [String(describing: child.value)] : nested
+        })
     }
 }
