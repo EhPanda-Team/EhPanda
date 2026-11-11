@@ -544,6 +544,13 @@ struct DownloadContinuedSessionLedgerTests: DownloadFeatureTestCase {
         try await waitUntil {
             await manager.testingHasActiveTask() == false
         }
+        // No task is active before the cancel either, so that wait can return ahead of the push that
+        // carries the survivors' pair: the session's consumer applies the cancel on its own schedule,
+        // and a hosted run whose process was not scheduled for minutes read the opening pair (14, two
+        // galleries) here. The wait is for the push to land; what it must say is asserted below.
+        await waitUntilSettled {
+            spy.progressUpdates.last?.totalUnitCount == 8
+        }
 
         // Asserted on the last update for the reason the pause case states: the cancel converges
         // through scheduling, and the surviving gallery's skipped scheduling converges again behind

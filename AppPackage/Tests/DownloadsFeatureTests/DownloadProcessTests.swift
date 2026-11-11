@@ -112,7 +112,7 @@ struct DownloadProcessTests: DownloadFeatureTestCase {
         await manager.processDownload(gid: gid)
 
         let timeout = Task {
-            await sleepIgnoringCancellation(for: .seconds(10))
+            await ProgressDeadline.waitIgnoringCancellation(for: .seconds(10))
             settledStatus.cancel()
         }
         let status = await settledStatus.value

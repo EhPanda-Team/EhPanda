@@ -64,7 +64,7 @@ struct DownloadFolderOperationTests: DownloadFeatureTestCase {
         let gid = "312"
         try writeGalleryFolder(storage: environment.storage, folderName: "Busy", gid: gid)
         _ = await environment.manager.reconcileDownloads()
-        let blockingTask = Task<Void, Never> { await sleepIgnoringCancellation(for: .seconds(60)) }
+        let blockingTask = Task<Void, Never> { await ProgressDeadline.waitIgnoringCancellation(for: .seconds(60)) }
         defer { blockingTask.cancel() }
         await environment.manager.testingInstallActiveTask(gid: gid, task: blockingTask)
 
@@ -246,7 +246,7 @@ struct DownloadFolderOperationTests: DownloadFeatureTestCase {
     ) async throws {
         let environment = try makeEscapeEnvironment()
         defer { removeTemporaryItem(at: environment.containerURL) }
-        let schedulerHold = Task<Void, Never> { await sleepIgnoringCancellation(for: .seconds(60)) }
+        let schedulerHold = Task<Void, Never> { await ProgressDeadline.waitIgnoringCancellation(for: .seconds(60)) }
         defer { schedulerHold.cancel() }
         let staging = try await stageDeleteEscapeVictims(
             environment: environment,
@@ -423,7 +423,7 @@ struct DownloadFolderOperationTests: DownloadFeatureTestCase {
         let gid = "317"
         let folderURL = try writeGalleryFolder(storage: environment.storage, folderName: "Working", gid: gid)
         _ = await environment.manager.reconcileDownloads()
-        let blockingTask = Task<Void, Never> { await sleepIgnoringCancellation(for: .seconds(60)) }
+        let blockingTask = Task<Void, Never> { await ProgressDeadline.waitIgnoringCancellation(for: .seconds(60)) }
         defer { blockingTask.cancel() }
         await environment.manager.testingInstallActiveTask(gid: gid, task: blockingTask)
 

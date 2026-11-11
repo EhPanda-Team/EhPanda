@@ -29,7 +29,7 @@ struct DownloadFolderAdmissionTests: DownloadFeatureTestCase {
     func testAListedNonNormalizedFolderDeletesWithRecordConvergence(
         listedName: ListedFolderName
     ) async throws {
-        let schedulerHold = Task<Void, Never> { await sleepIgnoringCancellation(for: .seconds(60)) }
+        let schedulerHold = Task<Void, Never> { await ProgressDeadline.waitIgnoringCancellation(for: .seconds(60)) }
         defer { schedulerHold.cancel() }
         let environment = try await stageListedFolder(
             named: listedName,
@@ -69,7 +69,7 @@ struct DownloadFolderAdmissionTests: DownloadFeatureTestCase {
     func testAListedNonNormalizedFolderRenamesAndRepointsItsDownloads(
         listedName: ListedFolderName
     ) async throws {
-        let schedulerHold = Task<Void, Never> { await sleepIgnoringCancellation(for: .seconds(60)) }
+        let schedulerHold = Task<Void, Never> { await ProgressDeadline.waitIgnoringCancellation(for: .seconds(60)) }
         defer { schedulerHold.cancel() }
         let environment = try await stageListedFolder(
             named: listedName,

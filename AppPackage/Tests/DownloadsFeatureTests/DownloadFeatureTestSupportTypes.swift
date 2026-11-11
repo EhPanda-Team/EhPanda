@@ -673,6 +673,76 @@ func removeTemporaryItem(at url: URL) {
     }
 }
 
+/// The deadline of a wait that only bounds a hang, counted in the time the process was running rather than
+/// in the time that passed.
+///
+/// A wait's deadline is there for the work that never completes. Measured on the wall clock it also fires for a
+/// process that was not given the CPU: the hosted runner runs every target's suites at once on a few cores, and
+/// one run's process went 150 to 270 seconds without scheduling any of its hundreds of cases, so cases that need
+/// milliseconds failed their 10 and 30 second bounds (and every earlier fix raised a bound, which measures the
+/// runner again). Here every look at the clock credits the time since the previous look, at most
+/// ``stallCap``: a gap longer than that is the process not running, not the work not finishing, and counts as
+/// ``stallCap``. A hang under a scheduler that runs still spends the whole budget in about that time.
+struct ProgressDeadline {
+    /// The most one gap between two looks can spend.
+    static let stallCap: Duration = .seconds(1)
+    /// How often ``sleep(for:)`` looks.
+    private static let tick: Duration = .milliseconds(100)
+
+    private let now: @Sendable () -> ContinuousClock.Instant
+    private var remaining: Duration
+    private var lastLook: ContinuousClock.Instant
+
+    /// `now` is the clock the looks read; a case that proves the accounting supplies its own.
+    init(_ budget: Duration, now: @escaping @Sendable () -> ContinuousClock.Instant = { ContinuousClock.now }) {
+        self.now = now
+        remaining = budget
+        lastLook = now()
+    }
+
+    /// Spends the time since the previous look and reports whether any budget is left.
+    mutating func hasTimeLeft() -> Bool {
+        let look = now()
+        remaining -= min(lastLook.duration(to: look), Self.stallCap)
+        lastLook = look
+        return remaining > .zero
+    }
+
+    /// Returns once `budget` of running time has been spent, or when the task is cancelled.
+    static func sleep(for budget: Duration) async throws {
+        var deadline = Self(budget)
+        while deadline.hasTimeLeft() {
+            try await Task.sleep(for: tick)
+        }
+    }
+
+    /// ``sleep(for:)`` for a task that has no way to rethrow: a cancelled one returns at once.
+    static func waitIgnoringCancellation(for budget: Duration) async {
+        var deadline = Self(budget)
+        while deadline.hasTimeLeft(), !Task.isCancelled {
+            await sleepIgnoringCancellation(for: tick)
+        }
+    }
+}
+
+/// Polls `condition` until it holds or `timeout` of running time (``ProgressDeadline``) is spent, and reports
+/// whether it holds.
+///
+/// For a case that must not hide its own assertions behind a wait: the caller states what it expects after the
+/// wait, so a state that never arrives still fails on that expectation, with its values, rather than on a bare
+/// timeout.
+@discardableResult
+func waitUntilSettled(
+    timeout: Duration = .seconds(30),
+    _ condition: @Sendable () async -> Bool
+) async -> Bool {
+    var deadline = ProgressDeadline(timeout)
+    while await !condition(), deadline.hasTimeLeft() {
+        await sleepIgnoringCancellation(for: .milliseconds(10))
+    }
+    return await condition()
+}
+
 /// Sleeps for `duration`, absorbing the cancellation error.
 ///
 /// Two call shapes rely on this. A blocker task occupies a coordinator slot until the case cancels

@@ -60,7 +60,7 @@ struct DownloadOwnershipConvergenceTests: DownloadFeatureTestCase {
         await fixture.manager.testingEnsureContinuedSession()
         #expect(await fixture.manager.testingHasContinuedSession())
         let activeTask = Task<Void, Never> {
-            await sleepIgnoringCancellation(for: .seconds(60))
+            await ProgressDeadline.waitIgnoringCancellation(for: .seconds(60))
         }
         defer { activeTask.cancel() }
         await fixture.manager.testingInstallActiveTask(

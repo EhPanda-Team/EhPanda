@@ -40,7 +40,7 @@ struct DownloadPauseAndReconcileTests: DownloadFeatureTestCase {
 
         let activeTask = Task { [manager] in
             do {
-                try await Task.sleep(for: .seconds(60))
+                try await ProgressDeadline.sleep(for: .seconds(60))
             } catch is CancellationError {
                 await manager.scheduleNextIfNeeded()
             } catch {}
@@ -149,7 +149,7 @@ struct DownloadPauseAndReconcileTests: DownloadFeatureTestCase {
 
         let activeTask = Task { [manager] in
             do {
-                try await Task.sleep(for: .seconds(60))
+                try await ProgressDeadline.sleep(for: .seconds(60))
             } catch is CancellationError {
                 await manager.scheduleNextIfNeeded()
             } catch {}

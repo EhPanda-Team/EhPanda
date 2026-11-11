@@ -37,7 +37,7 @@ struct DownloadRetryUpdateFallbackTests: DownloadFeatureTestCase {
         let queuedCandidate = await queueingManager.fetchDownload(gid: gid)
         #expect(queuedCandidate?.hasUpdate == true)
 
-        let blockerTask = Task<Void, Never> { await sleepIgnoringCancellation(for: .seconds(5)) }
+        let blockerTask = Task<Void, Never> { await ProgressDeadline.waitIgnoringCancellation(for: .seconds(5)) }
         await queueingManager.testingInstallActiveTask(gid: "blocker", task: blockerTask)
         defer { blockerTask.cancel() }
 
@@ -81,7 +81,7 @@ struct DownloadRetryUpdateFallbackTests: DownloadFeatureTestCase {
         await immediateManager.testingSetUpdatedGalleryIDs([gid])
 
         let immediateBlockerTask = Task<Void, Never> {
-            await sleepIgnoringCancellation(for: .seconds(5))
+            await ProgressDeadline.waitIgnoringCancellation(for: .seconds(5))
         }
         await immediateManager.testingInstallActiveTask(gid: gid, task: immediateBlockerTask)
         defer { immediateBlockerTask.cancel() }
@@ -262,7 +262,7 @@ private extension DownloadRetryUpdateFallbackTests {
             gid: gallery.gid
         )
         let blockerTask = Task<Void, Never> {
-            await sleepIgnoringCancellation(for: .seconds(60))
+            await ProgressDeadline.waitIgnoringCancellation(for: .seconds(60))
         }
         await session.manager.testingInstallActiveTask(
             gid: "update-boundary-blocker",

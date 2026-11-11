@@ -271,10 +271,9 @@ private extension DownloadProcessCacheTests {
         cachedKeys: Set<String>,
         isCached: @Sendable (String) -> Bool
     ) async throws {
-        let clock = ContinuousClock()
-        let deadline = clock.now.advanced(by: .seconds(1))
+        var deadline = ProgressDeadline(.seconds(1))
         while cachedKeys.contains(where: isCached),
-              clock.now < deadline {
+              deadline.hasTimeLeft() {
             await sleepIgnoringCancellation(for: .milliseconds(10))
         }
     }

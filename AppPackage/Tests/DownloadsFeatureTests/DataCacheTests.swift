@@ -9,7 +9,7 @@ struct DataCacheTests {
         let rootURL = makeRootURL()
         defer { removeTemporaryItem(at: rootURL) }
         let cache = DataCache(
-            configuration: .init(rootURL: rootURL, memoryCostLimit: 1, maxDiskAge: 60)
+            configuration: .init(rootURL: rootURL, memoryCostLimit: 1)
         )
         let key = "https://example.com/reader/1.webp"
         let data = Data([0x01, 0x02, 0x03])
@@ -65,9 +65,11 @@ struct DataCacheTests {
         let rootURL = makeRootURL()
         defer { removeTemporaryItem(at: rootURL) }
         let cache = DataCache(
+            // The age limit stays at its default: this case is about the size limit alone, and a
+            // short age would let a process that went a minute unscheduled between two stores (a
+            // hosted run's did) expire the oldest entry by age, leaving the sweep nothing to evict.
             configuration: .init(
                 rootURL: rootURL,
-                maxDiskAge: 60,
                 diskSizeLimit: 10
             )
         )

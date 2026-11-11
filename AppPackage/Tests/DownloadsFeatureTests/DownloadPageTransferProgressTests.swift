@@ -419,7 +419,7 @@ private extension DownloadPageTransferProgressTests {
     /// safety net: a case that fails to abandon fails rather than hangs.
     static var hangingPageDownloader: DownloadPageDownloader {
         DownloadPageDownloader { _, _, _ in
-            try await Task.sleep(for: .seconds(30))
+            try await ProgressDeadline.sleep(for: .seconds(30))
             throw AppError.unknown
         }
     }

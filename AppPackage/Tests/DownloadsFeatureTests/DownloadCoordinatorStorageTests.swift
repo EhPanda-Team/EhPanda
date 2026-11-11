@@ -402,7 +402,7 @@ struct DownloadCoordinatorStorageTests: DownloadFeatureTestCase {
         await manager.reloadDownloadIndex()
         let blockingTask = Task<Void, Never> {
             do {
-                try await Task.sleep(for: .seconds(60))
+                try await ProgressDeadline.sleep(for: .seconds(60))
             } catch {}
         }
         defer { blockingTask.cancel() }
@@ -458,7 +458,7 @@ struct DownloadCoordinatorStorageTests: DownloadFeatureTestCase {
         )
         let blockingTask = Task<Void, Never> {
             do {
-                try await Task.sleep(for: .seconds(60))
+                try await ProgressDeadline.sleep(for: .seconds(60))
             } catch {}
         }
         defer { blockingTask.cancel() }
@@ -607,7 +607,7 @@ struct DownloadCoordinatorStorageTests: DownloadFeatureTestCase {
         )
         let activeTask = Task {
             do {
-                try await Task.sleep(for: .seconds(60))
+                try await ProgressDeadline.sleep(for: .seconds(60))
             } catch {}
         }
         await manager.testingInstallActiveTask(gid: "820", task: activeTask)

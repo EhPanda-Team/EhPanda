@@ -111,7 +111,7 @@ extension DownloadFeatureTestCase {
                 await task.value
             }
             group.addTask {
-                try await Task.sleep(for: timeout)
+                try await ProgressDeadline.sleep(for: timeout)
                 task.cancel()
                 throw NSError(
                     domain: "DownloadFeatureReducerTests",
@@ -132,9 +132,8 @@ extension DownloadFeatureTestCase {
         timeout: Duration = .seconds(1),
         condition: @escaping @MainActor () -> Bool
     ) async {
-        let clock = ContinuousClock()
-        let deadline = clock.now.advanced(by: timeout)
-        while !condition() && clock.now < deadline {
+        var deadline = ProgressDeadline(timeout)
+        while !condition() && deadline.hasTimeLeft() {
             await store.skipReceivedActions(strict: false)
             await sleepIgnoringCancellation(for: .milliseconds(10))
         }
@@ -989,9 +988,8 @@ func waitUntil(
     timeout: Duration = .seconds(30),
     _ condition: @Sendable () async -> Bool
 ) async throws {
-    let clock = ContinuousClock()
-    let deadline = clock.now.advanced(by: timeout)
-    while await !condition(), clock.now < deadline {
+    var deadline = ProgressDeadline(timeout)
+    while await !condition(), deadline.hasTimeLeft() {
         await sleepIgnoringCancellation(for: .milliseconds(10))
     }
     try #require(await condition(), "Timed out waiting for condition.")

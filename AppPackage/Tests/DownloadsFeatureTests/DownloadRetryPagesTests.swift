@@ -34,7 +34,7 @@ struct DownloadRetryPagesTests: DownloadFeatureTestCase {
             gid: gid
         )
 
-        let blockingTask = Task<Void, Never> { await sleepIgnoringCancellation(for: .seconds(60)) }
+        let blockingTask = Task<Void, Never> { await ProgressDeadline.waitIgnoringCancellation(for: .seconds(60)) }
         defer { blockingTask.cancel() }
         await manager.testingInstallActiveTask(gid: "other-active-download", task: blockingTask)
 
@@ -523,7 +523,7 @@ private extension DownloadRetryPagesTests {
             gid: gallery.gid
         )
         let blockerTask = Task<Void, Never> {
-            await sleepIgnoringCancellation(for: .seconds(60))
+            await ProgressDeadline.waitIgnoringCancellation(for: .seconds(60))
         }
         await session.manager.testingInstallActiveTask(
             gid: "retry-boundary-blocker",
