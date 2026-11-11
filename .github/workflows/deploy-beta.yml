@@ -47,6 +47,9 @@ jobs:
       group: deploy-beta
       cancel-in-progress: false
     if: github.event_name == 'workflow_dispatch'
+    # The release, its tag and the catalogue push need contents: write; nothing else.
+    permissions:
+      contents: write
     steps:
       - name: Checkout
         uses: actions/checkout@v7
