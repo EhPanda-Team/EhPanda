@@ -169,8 +169,8 @@ struct CommentModerationButtons: View {
         } else {
             if let vote = actions.vote {
                 ControlGroup {
-                    voteButton(vote.up)
-                    voteButton(vote.down)
+                    voteButton(vote.upSlot)
+                    voteButton(vote.downSlot)
                 }
             }
             ForEach(actions.items, id: \.self) { item in

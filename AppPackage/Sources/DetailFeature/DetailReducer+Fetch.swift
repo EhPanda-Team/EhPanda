@@ -230,10 +230,10 @@ extension DetailReducer {
                 let apiKey = state.apiKey
                 let token = state.gallery.token
                 return .run { [host, apiKey, token] send in
-                    let result = await CommentVoteRequest.response(
-                        host: host, apiuid: apiuid, apiKey: apiKey, gid: gid, token: token,
-                        commentID: commentIDValue, vote: vote
-                    )
+                    let result = await CommentVoteRequest.response(for: VoteGalleryCommentRequest(
+                        host: host, apiuid: apiuid, apikey: apiKey, gid: gid, token: token,
+                        commentID: commentIDValue, commentVote: vote
+                    ))
                     await send(.voteCommentDone(commentID: commentID, result: result))
                 }
                 .cancellable(id: CancelID.voteComment(state.cancellationGalleryID))

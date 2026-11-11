@@ -266,10 +266,10 @@ public struct CommentsReducer: Sendable {
                       let apiuid = Int(cookieClient.apiuid(host: state.setting.galleryHost))
                 else { return .none }
                 return .run { [host = state.setting.galleryHost] send in
-                    let result = await CommentVoteRequest.response(
-                        host: host, apiuid: apiuid, apiKey: apiKey, gid: gidValue, token: token,
-                        commentID: commentIDValue, vote: vote
-                    )
+                    let result = await CommentVoteRequest.response(for: VoteGalleryCommentRequest(
+                        host: host, apiuid: apiuid, apikey: apiKey, gid: gidValue, token: token,
+                        commentID: commentIDValue, commentVote: vote
+                    ))
                     await send(.voteCommentDone(commentID: commentID, result: result))
                 }
                 .cancellable(id: CancelID.voteComment)
