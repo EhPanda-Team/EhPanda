@@ -120,7 +120,7 @@ struct ReportFormView: View {
             Section {
                 ForEach(store.reasons, id: \.self, content: reasonRow)
             } header: {
-                VStack(alignment: .leading, spacing: 4) {
+                VStack(alignment: .leading, spacing: 15) {
                     // `Color.secondary`, not `.secondary`: the header already draws in its secondary style, and a
                     // hierarchical `.secondary` inside it would fade the intro one level further.
                     Text(.reportIntro(store.site))
