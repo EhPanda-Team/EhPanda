@@ -96,29 +96,39 @@ class SourceTemplateTests(unittest.TestCase):
         expected = copy.deepcopy(ALTSTORE)
         expected["apps"][0].pop("versions")
         expected.update(name="EhPanda Beta", identifier="app.ehpanda.altstore.beta", featuredApps=["app.ehpanda.beta"])
-        expected["apps"][0].update(name="EhPanda Beta", bundleIdentifier="app.ehpanda.beta",
-                                   appPermissions=BETA["apps"][0]["appPermissions"])
+        expected["apps"][0].update(name="EhPanda Beta", bundleIdentifier="app.ehpanda.beta")
+        # `beta: true` is AltStore's isBeta, which shows its beta badge.
+        app = {}
+        for key, value in expected["apps"][0].items():
+            if key == "appPermissions":
+                app["beta"] = True
+            app[key] = value
+        expected["apps"][0] = app
         self.assertEqual(BETA, expected)
         # The same keys in the same order, so a diff of the two files shows only those values.
         self.assertEqual(list(BETA), list(ALTSTORE))
-        self.assertEqual(list(BETA["apps"][0]), [key for key in ALTSTORE["apps"][0] if key != "versions"])
-        # Nothing but those five values differs, whatever the template and AltStore.json hold.
+        self.assertEqual(list(BETA["apps"][0]), list(expected["apps"][0]))
+        # Nothing but these values differs, whatever the template and AltStore.json hold.
         self.assertEqual(
             {key for key in ALTSTORE if key != "apps" and ALTSTORE[key] != BETA[key]},
             {"name", "identifier", "featuredApps"})
         self.assertEqual(
-            {key for key in BETA["apps"][0] if ALTSTORE["apps"][0][key] != BETA["apps"][0][key]},
-            {"name", "bundleIdentifier", "appPermissions"})
+            {key for key in BETA["apps"][0] if ALTSTORE["apps"][0].get(key) != BETA["apps"][0][key]},
+            {"name", "bundleIdentifier", "beta"})
 
-    def test_the_beta_has_no_beta_flag(self):
-        # `beta: true` would only be read by AltStore; no tool of ours reads it.
-        self.assertNotIn("beta", BETA["apps"][0])
+    def test_only_the_beta_app_is_flagged_beta(self):
+        # AltStore reads `beta` as isBeta and shows its beta badge; the regular apps are not betas.
+        self.assertIs(BETA["apps"][0]["beta"], True)
+        for source in [ALTSTORE, SIDESTORE, PAL]:
+            with self.subTest(source=source["identifier"]):
+                self.assertNotIn("beta", source["apps"][0])
 
-    def test_the_beta_permissions_are_the_ones_of_the_build_it_installs(self):
-        # AltStore refuses an install whose permissions do not match the source's. The beta is built from this
-        # checkout, so they are this checkout's: the usage descriptions of its Info.plist files, and the keys of its
-        # entitlements file (the beta archive signs nothing and adds none). The regular source's list is of an
-        # older build and is not the beta's to copy.
+    def test_the_permissions_are_the_ones_of_the_ipa_the_source_installs(self):
+        # AltStore refuses an install whose permissions do not match the source's. The Classic, SideStore and beta
+        # IPAs are built from this checkout, unsigned and with an empty CODE_SIGN_ENTITLEMENTS (deploy.yml and
+        # deploy-beta.yml), so they carry this checkout's usage descriptions (App's and the extension's Info.plist)
+        # and the keys of its entitlements file, which is none. Verified on an unsigned archive made with the
+        # workflow's flags (codesign: "not signed at all"). The PAL build is signed and its release fills its list.
         privacy = {}
         for name in ["App/Info.plist", "ShareExtension/Info.plist"]:
             with (TOOLS.parent / name).open("rb") as handle:
@@ -126,7 +136,10 @@ class SourceTemplateTests(unittest.TestCase):
                                 if key.endswith("UsageDescription")})
         with (TOOLS.parent / "App" / "EhPanda.entitlements").open("rb") as handle:
             entitlements = sorted(plistlib.load(handle))
-        self.assertEqual(BETA["apps"][0]["appPermissions"], {"entitlements": entitlements, "privacy": privacy})
+        self.assertEqual(entitlements, [])
+        for source in [ALTSTORE, SIDESTORE, BETA]:
+            with self.subTest(source=source["identifier"]):
+                self.assertEqual(source["apps"][0]["appPermissions"], {"entitlements": entitlements, "privacy": privacy})
 
     def test_no_source_talks_about_apple_ids_or_how_many_apps_altstore_keeps(self):
         # Owner msg 3827: how many apps a free Apple ID can install is AltStore's business, not the source's.
