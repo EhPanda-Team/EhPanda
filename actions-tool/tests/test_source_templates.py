@@ -213,7 +213,7 @@ class SourceTemplateTests(unittest.TestCase):
     def test_every_app_shows_the_seven_iphone_screenshots(self):
         # Owner msg 2628: the same screenshots, in this order, for the regular, the beta and the PAL app
         # (20-10, closed with this set). The set is iPhone only; there is no iPad set.
-        expected = [{"imageURL": f"{languages.ASSETS_URL}app-marketplace/iphone/{name}.png", "width": 1260, "height": 2736}
+        expected = [{"imageURL": f"{languages.ASSETS_URL}app-marketplace/iphone/{name}-1260x2730.png", "width": 1260, "height": 2730}
                     for name in SCREENSHOT_NAMES]
         for source in [ALTSTORE, SIDESTORE, BETA, PAL]:
             with self.subTest(source=source["identifier"]):
@@ -256,7 +256,7 @@ class SourceTemplateTests(unittest.TestCase):
                                   if "screenshots" in problem or "iconURL" in problem or "headerURL" in problem], [])
 
     def test_screenshots_altstore_cannot_read_are_reported(self):
-        good = {"imageURL": f"{languages.ASSETS_URL}app-marketplace/iphone/01-home.png", "width": 1260, "height": 2736}
+        good = {"imageURL": f"{languages.ASSETS_URL}app-marketplace/iphone/01-home-1260x2730.png", "width": 1260, "height": 2730}
         cases = {
             "not an object": [good],
             "unknown devices": {"iphone": [good], "watch": [good]},
@@ -267,6 +267,8 @@ class SourceTemplateTests(unittest.TestCase):
             "height 40000 is not a whole number": {"iphone": [dict(good, height=40000)]},
             "width True is not a whole number": {"iphone": [dict(good, width=True)]},
             "lists an image twice": {"iphone": [good, good]},
+            # Owner msg 3882: AltStore rounds only a 9:19.5 iPhone screenshot; the shots as taken miss it by 0.00101.
+            "1260 x 2736 is not 9:19.5, so AltStore shows square corners": {"iphone": [dict(good, height=2736)]},
         }
         for message, screenshots in cases.items():
             with self.subTest(message=message):
@@ -284,6 +286,17 @@ class SourceTemplateTests(unittest.TestCase):
         # The source's banner.
         self.assertEqual(len([problem for problem in missing if "headerURL app-marketplace/header.png" in problem]), 1)
         self.assertEqual(len(missing), 10)
+
+    def test_a_screenshot_whose_file_is_not_its_listed_size_is_reported(self):
+        assets = assets_checkout()
+        if assets is None:
+            self.skipTest("no checkout of the assets repository")
+        shot = {"imageURL": f"{languages.ASSETS_URL}app-marketplace/iphone/01-home-1260x2730.png", "width": 630, "height": 1365}
+        app = dict(SIDESTORE["apps"][0], screenshots={"iphone": [shot]})
+        problems = languages.check_source(dict(SIDESTORE, apps=[app]), versions_required=False, assets_dir=assets)
+        self.assertEqual([problem for problem in problems if "screenshots" in problem],
+                         [next(problem for problem in problems if problem.endswith(
+                             "screenshots.iphone[0]: app-marketplace/iphone/01-home-1260x2730.png is not a 630 x 1365 PNG"))])
 
     def test_the_beta_names_are_not_translated(self):
         self.assertEqual(BETA["name"], "EhPanda Beta")
