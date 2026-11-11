@@ -56,8 +56,8 @@ VERSION_FIELDS = ["version", "buildVersion", "date", "localizedDescription", "do
 # `assetURLs` maps each ADP file name without its extension to its URL, `size` is one variant's, and there
 # is no single IPA to hash, so no `sha256`.
 PAL_VERSION_FIELDS = ["version", "buildVersion", "date", "localizedDescription", "downloadURL", "assetURLs", "size"]
-# Screenshots that EhPanda serves from its assets repository: the path after this prefix is the file's
-# path in a checkout of that repository.
+# The icon and the screenshots that EhPanda serves from its assets repository: the path after this prefix is
+# the file's path in a checkout of that repository.
 ASSETS_URL = "https://raw.githubusercontent.com/EhPanda-Team/ehpanda-assets/main/"
 SCREENSHOT_DEVICES = ["iphone", "ipad"]
 INT16_MAX = 32767
@@ -91,6 +91,18 @@ def check_localized(where, entry, plain, every_language):
     problems += [f"{where}: {key}.{code} is empty" for code, value in values.items()
                  if not isinstance(value, str) or not value.strip()]
     return problems
+
+
+def check_icon(where, entry, assets_dir=None):
+    """Problems with `entry`'s iconURL: when `assets_dir`, a checkout of the assets repository, is given, an
+    icon served from it must be a file there."""
+    url = entry.get("iconURL")
+    if assets_dir is None or not isinstance(url, str) or not url.startswith(ASSETS_URL):
+        return []
+    path = url[len(ASSETS_URL):]
+    if (assets_dir / path).is_file():
+        return []
+    return [f"{where}: iconURL {path} is not in the assets repository"]
 
 
 def check_screenshots(where, app, assets_dir=None):
@@ -163,10 +175,10 @@ def check_pal_version(where, version):
 def check_source(source, every_language=True, versions_required=True, assets_dir=None, pal=False):
     """Problems that would keep AltStore or SideStore from reading `source` as EhPanda intends.
 
-    `assets_dir` is a checkout of the assets repository (a `pathlib.Path`), or None to not look for
-    the screenshot files. With `pal`, `source` is the AltStore PAL source: its app needs a numeric
-    `marketplaceID` (SideStore refuses one, so only here), the source is marked `nsfw`, and each version
-    is an ADP entry (`check_pal_version`) instead of a single IPA."""
+    `assets_dir` is a checkout of the assets repository (a `pathlib.Path`), or None to not look for the
+    icon and the screenshots EhPanda serves from there. With `pal`, `source` is the AltStore PAL source: its
+    app needs a numeric `marketplaceID` (SideStore refuses one, so only here), the source is marked `nsfw`,
+    and each version is an ADP entry (`check_pal_version`) instead of a single IPA."""
     problems = []
 
     def require(where, entry, fields):
@@ -176,6 +188,7 @@ def check_source(source, every_language=True, versions_required=True, assets_dir
                 problems.append(f"{where}: no {field}")
 
     require("source", source, SOURCE_FIELDS)
+    problems += check_icon("source", source, assets_dir)
     if pal and source.get("nsfw") is not True:
         problems.append("source: nsfw is not true")
     for plain in ["subtitle", "description"]:
@@ -186,6 +199,7 @@ def check_source(source, every_language=True, versions_required=True, assets_dir
     for app in apps:
         where = f"app {app.get('bundleIdentifier')}"
         require(where, app, APP_FIELDS)
+        problems += check_icon(where, app, assets_dir)
         if pal:
             if "marketplaceID" not in app:
                 problems.append(f"{where}: no marketplaceID")

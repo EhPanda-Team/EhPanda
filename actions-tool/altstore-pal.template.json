@@ -19,7 +19,7 @@
     "zh-Hans": "免费开源的 E-Hentai 客户端，适用于 iPhone 和 iPad。\n\n浏览\n打开画廊即可查看标签、评分和预览，还能找到相似的画廊。参与讨论：发表和编辑评论，还能给评论投票。选择分类、评分下限或页数范围。浏览和搜索时，筛选条件会自动生效。\n\n阅读\n上下滚动，或左右翻页，方向随你选。还能放大、自动播放，或拖动滑块跳到任意一页。打开实况文本，页面上的文字就会翻译成你的语言，直接显示在原文上。把画廊保存下来离线阅读。切到后台也能继续下载，画廊有更新时，还可以更新已下载的版本。\n\n打不开？交给我们\n成年人喜欢什么，本就该自由享受。就算网络屏蔽了 E-Hentai，只要打开一个开关，剩下的交给 EhPanda 就好。\n\n还有更多\n排行榜 · 收藏 · 标签订阅 · 标签翻译 · 双页模式 · Hath 归档 · 种子 · 隐私遮罩\n\n注意：EhPanda 与 E-Hentai 无关，也未获得 E-Hentai 的认可。",
     "zh-Hant": "免費、開放原始碼的 E-Hentai 用戶端，適用於 iPhone 與 iPad。\n\n瀏覽\n打開畫廊即可查看標籤、評分與預覽，還能找到類似的畫廊。加入討論：發表、編輯留言，或為留言投票。選擇類別、評分下限或頁數範圍，瀏覽和搜尋時都會自動套用。\n\n閱讀\n可以向下捲動，也能向左或向右翻頁。還能放大、自動播放，或用滑桿直接跳到任何一頁。打開原況文字，頁面上的文字就會翻譯成你的語言，直接顯示在原文上。把畫廊存下來離線閱讀。下載可以在背景繼續進行，畫廊有更新時，也能更新下載內容。\n\n網路被封鎖？交給我們\n成年人喜歡什麼，本來就該自由享受。就算網路封鎖了 E-Hentai，只要打開一個開關，剩下的交給 EhPanda 就好。\n\n還有更多\n排行榜 · 收藏 · 關注標籤 · 標籤翻譯 · 雙頁模式 · Hath 存檔 · 種子 · 隱私遮罩\n\n注意：EhPanda 與 E-Hentai 無關，也未獲得 E-Hentai 的認可。"
   },
-  "iconURL": "https://raw.githubusercontent.com/EhPanda-Team/EhPanda/main/docs/altstore/appicon-512.png",
+  "iconURL": "https://raw.githubusercontent.com/EhPanda-Team/ehpanda-assets/main/app-marketplace/icon.png",
   "website": "https://ehpanda.app",
   "tintColor": "#557F72",
   "nsfw": true,
@@ -50,7 +50,7 @@
         "zh-Hans": "免费开源的 E-Hentai 客户端，适用于 iPhone 和 iPad。\n\n浏览\n打开画廊即可查看标签、评分和预览，还能找到相似的画廊。参与讨论：发表和编辑评论，还能给评论投票。选择分类、评分下限或页数范围。浏览和搜索时，筛选条件会自动生效。\n\n阅读\n上下滚动，或左右翻页，方向随你选。还能放大、自动播放，或拖动滑块跳到任意一页。打开实况文本，页面上的文字就会翻译成你的语言，直接显示在原文上。把画廊保存下来离线阅读。切到后台也能继续下载，画廊有更新时，还可以更新已下载的版本。\n\n打不开？交给我们\n成年人喜欢什么，本就该自由享受。就算网络屏蔽了 E-Hentai，只要打开一个开关，剩下的交给 EhPanda 就好。\n\n还有更多\n排行榜 · 收藏 · 标签订阅 · 标签翻译 · 双页模式 · Hath 归档 · 种子 · 隐私遮罩\n\n注意：EhPanda 与 E-Hentai 无关，也未获得 E-Hentai 的认可。",
         "zh-Hant": "免費、開放原始碼的 E-Hentai 用戶端，適用於 iPhone 與 iPad。\n\n瀏覽\n打開畫廊即可查看標籤、評分與預覽，還能找到類似的畫廊。加入討論：發表、編輯留言，或為留言投票。選擇類別、評分下限或頁數範圍，瀏覽和搜尋時都會自動套用。\n\n閱讀\n可以向下捲動，也能向左或向右翻頁。還能放大、自動播放，或用滑桿直接跳到任何一頁。打開原況文字，頁面上的文字就會翻譯成你的語言，直接顯示在原文上。把畫廊存下來離線閱讀。下載可以在背景繼續進行，畫廊有更新時，也能更新下載內容。\n\n網路被封鎖？交給我們\n成年人喜歡什麼，本來就該自由享受。就算網路封鎖了 E-Hentai，只要打開一個開關，剩下的交給 EhPanda 就好。\n\n還有更多\n排行榜 · 收藏 · 關注標籤 · 標籤翻譯 · 雙頁模式 · Hath 存檔 · 種子 · 隱私遮罩\n\n注意：EhPanda 與 E-Hentai 無關，也未獲得 E-Hentai 的認可。"
       },
-      "iconURL": "https://raw.githubusercontent.com/EhPanda-Team/EhPanda/main/docs/altstore/appicon-512.png",
+      "iconURL": "https://raw.githubusercontent.com/EhPanda-Team/ehpanda-assets/main/app-marketplace/icon.png",
       "tintColor": "#557F72",
       "category": "entertainment",
       "screenshots": {
