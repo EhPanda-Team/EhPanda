@@ -1,0 +1,276 @@
+# Temporary copy of deploy-beta.yml. GitHub only starts a workflow by hand when a file at the same path
+# is on main, and main (2.8.1) has deploy-pre-release.yml but not deploy-beta.yml. Dispatching this path on
+# this branch runs this copy. Remove it once deploy-beta.yml is on main.
+name: Deploy Beta
+on:
+  workflow_dispatch:
+    inputs:
+      releaseTitle:
+        description: 'Release title'
+        required: true
+        type: string
+      releaseDescription:
+        description: 'Release description'
+        required: false
+        type: string
+env:
+  SCHEME_NAME: 'EhPanda'
+  ALTSTORE_JSON_PATH: './AltStore.json'
+  ALTSTORE_BETA_JSON_PATH: './altstore-beta.json'
+  ALTSTORE_BETA_TEMPLATE_PATH: './actions-tool/altstore-beta.template.json'
+  ALTSTORE_FILTER_PATH: './actions-tool/altstore-add-version.jq'
+  CHECK_BUILD_NUMBER_SCRIPT_PATH: './actions-tool/check-build-number.sh'
+  PACKAGE_CHANNEL_SCRIPT_PATH: './actions-tool/package-channel.sh'
+  # The beta flavor: its own bundle ID, Home Screen name and URL scheme (see Config/Beta.xcconfig). The
+  # packaged app is stamped with the `beta` channel (actions-tool/package-channel.sh).
+  BETA_XCCONFIG_PATH: './Config/Beta.xcconfig'
+  BETA_BUNDLE_ID: 'app.ehpanda.beta'
+  BUILDS_PATH: '/tmp/action-builds'
+  PAYLOAD_PATH: '/tmp/action-builds/Payload'
+  THIN_PAYLOAD_SCRIPT_PATH: './actions-tool/thin-payload.sh'
+  ARCHIVE_PATH: '/tmp/action-builds/EhPanda.xcarchive'
+  BETA_IPA_PATH: '/tmp/action-builds/EhPanda-Beta.ipa'
+
+jobs:
+  # Snapshot gate off for 3.0 (owner msg 3757); restore by re-adding the snapshot-gate job and the require step
+  # (see git history of this commit).
+  Deploy:
+    runs-on: xcode-27
+    timeout-minutes: 120
+    # One beta at a time: two dispatches would otherwise gate in parallel and race on the catalogue commit.
+    # Queue, never cancel.
+    concurrency:
+      group: deploy-beta
+      cancel-in-progress: false
+    if: github.event_name == 'workflow_dispatch'
+    # The release, its tag and the catalogue push need contents: write; nothing else.
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+      - name: Modify git config
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+      - name: Check build number
+        run: |
+          set -euo pipefail
+          # The sources are published from main, whichever ref this run was dispatched on.
+          published_path="$RUNNER_TEMP/published"
+          mkdir -p "$published_path"
+          git fetch --no-tags --depth 1 origin main
+          for source in "$ALTSTORE_JSON_PATH" "$ALTSTORE_BETA_JSON_PATH"; do
+            if git cat-file -e "FETCH_HEAD:${source#./}" 2>/dev/null; then
+              git show "FETCH_HEAD:${source#./}" > "$published_path/$(basename "$source")"
+            fi
+          done
+          # Every app and extension target carries the same build number; test targets carry 1.
+          build_version="$(grep -Eo 'CURRENT_PROJECT_VERSION = [0-9]+;' EhPanda.xcodeproj/project.pbxproj | grep -Eo '[0-9]+' | sort -n | tail -1)"
+          bash "$CHECK_BUILD_NUMBER_SCRIPT_PATH" "$build_version" "$published_path"/*.json
+      - name: Install iOS 27 Platform
+        uses: nick-fields/retry@v4
+        with:
+          retry_on: error
+          max_attempts: 10
+          timeout_minutes: 999
+          command: xcodebuild -downloadPlatform iOS
+      - name: Show Xcode version
+        run: xcodebuild -version
+      - name: Run tests
+        run: xcodebuild clean test
+          -skipMacroValidation
+          -skipPackagePluginValidation
+          -scheme ${{ env.SCHEME_NAME }}
+          -testPlan FeatureTests
+          -destination 'platform=iOS Simulator,name=iPhone Air,OS=27.0'
+      - name: Xcode archive
+        env:
+          TELEMETRYDECK_APP_ID: ${{ secrets.TELEMETRYDECK_APP_ID }}
+          TELEMETRYDECK_SALT: ${{ secrets.TELEMETRYDECK_SALT }}
+        run: xcodebuild archive
+          -skipMacroValidation
+          -skipPackagePluginValidation
+          -scheme ${{ env.SCHEME_NAME }}
+          -destination 'generic/platform=iOS'
+          -archivePath ${{ env.ARCHIVE_PATH }}
+          -xcconfig ${{ env.BETA_XCCONFIG_PATH }}
+          CODE_SIGN_IDENTITY=
+          CODE_SIGN_ENTITLEMENTS=
+          CODE_SIGNING_ALLOWED=NO
+          CODE_SIGNING_REQUIRED=NO
+          GCC_OPTIMIZATION_LEVEL=s
+          SWIFT_OPTIMIZATION_LEVEL=-O
+          TELEMETRYDECK_APP_ID="$TELEMETRYDECK_APP_ID"
+          TELEMETRYDECK_SALT="$TELEMETRYDECK_SALT"
+      - name: Verify analytics credentials
+        run: |
+          app_info_plist="$ARCHIVE_PATH/Products/Applications/$SCHEME_NAME.app/Info.plist"
+          app_id="$(plutil -extract TelemetryDeckAppID raw -o - "$app_info_plist")"
+          salt="$(plutil -extract TelemetryDeckSalt raw -o - "$app_info_plist")"
+          [[ ! -z "$app_id" ]] || exit 1
+          [[ ! -z "$salt" ]] || exit 1
+      - name: Verify beta build
+        run: |
+          set -euo pipefail
+          app_path="$ARCHIVE_PATH/Products/Applications/$SCHEME_NAME.app"
+          app_info_plist="$app_path/Info.plist"
+          extension_info_plist="$app_path/PlugIns/ShareExtension.appex/Info.plist"
+          bundle_id="$(plutil -extract CFBundleIdentifier raw -o - "$app_info_plist")"
+          extension_bundle_id="$(plutil -extract CFBundleIdentifier raw -o - "$extension_info_plist")"
+          display_name="$(plutil -extract CFBundleDisplayName raw -o - "$app_info_plist")"
+          url_scheme="$(plutil -extract CFBundleURLTypes.0.CFBundleURLSchemes.0 raw -o - "$app_info_plist")"
+          extension_url_scheme="$(plutil -extract EhPandaURLScheme raw -o - "$extension_info_plist")"
+          build_version="$(plutil -extract CFBundleVersion raw -o - "$app_info_plist")"
+
+          [[ "$bundle_id" == "$BETA_BUNDLE_ID" ]] || { echo "::error::The app is $bundle_id, not $BETA_BUNDLE_ID."; exit 1; }
+          [[ "$extension_bundle_id" == "$BETA_BUNDLE_ID.ShareExtension" ]] || { echo "::error::The share extension is $extension_bundle_id."; exit 1; }
+          [[ "$display_name" == "EhPanda Beta" ]] || { echo "::error::The beta is named '$display_name', not 'EhPanda Beta'."; exit 1; }
+          [[ -n "$url_scheme" && "$url_scheme" != "ehpanda" ]] || { echo "::error::The beta registers the regular URL scheme."; exit 1; }
+          [[ "$extension_url_scheme" == "$url_scheme" ]] || { echo "::error::The share extension hands off to $extension_url_scheme, not $url_scheme."; exit 1; }
+          bash "$CHECK_BUILD_NUMBER_SCRIPT_PATH" "$build_version" "$RUNNER_TEMP/published"/*.json
+      - name: Export .ipa file
+        run: |
+          set -euo pipefail
+          mkdir -p ${{ env.PAYLOAD_PATH }}
+          mv ${{ env.ARCHIVE_PATH }}/Products/Applications/${{ env.SCHEME_NAME }}.app ${{ env.PAYLOAD_PATH }}/${{ env.SCHEME_NAME }}.app
+          sh ${{ env.THIN_PAYLOAD_SCRIPT_PATH }} ${{ env.PAYLOAD_PATH }}/${{ env.SCHEME_NAME }}.app
+          bash "$PACKAGE_CHANNEL_SCRIPT_PATH" "$PAYLOAD_PATH/$SCHEME_NAME.app" beta "$BETA_IPA_PATH"
+      - name: Retrieve data
+        id: retrieve-data
+        run: |
+          app_info_plist="$PAYLOAD_PATH/$SCHEME_NAME.app/Info.plist"
+          version="$(plutil -extract CFBundleShortVersionString raw -o - "$app_info_plist")"
+          size="$(stat -f%z "$BETA_IPA_PATH")"
+
+          [[ ! -z "$version" ]] || exit 1
+          [[ ! -z "$size" ]] || exit 1
+
+          {
+            echo "size=$size"
+            echo "version=$version"
+            echo "version_date=$(date -u +'%Y-%m-%dT%H:%M:%SZ')"
+          } >> "$GITHUB_OUTPUT"
+      - name: Validate data
+        env:
+          RELEASE_TITLE: ${{ inputs.releaseTitle }}
+          RELEASE_SIZE: ${{ steps.retrieve-data.outputs.size }}
+          RELEASE_VERSION: ${{ steps.retrieve-data.outputs.version }}
+          RELEASE_DATE: ${{ steps.retrieve-data.outputs.version_date }}
+        run: |
+          [[ ! -z "$RELEASE_TITLE" ]] || exit 1
+          [[ ! -z "$RELEASE_SIZE" ]] || exit 1
+          [[ ! -z "$RELEASE_VERSION" ]] || exit 1
+          [[ ! -z "$RELEASE_DATE" ]] || exit 1
+      - name: Release to GitHub
+        id: release
+        uses: softprops/action-gh-release@v3
+        with:
+         prerelease: true
+         fail_on_unmatched_files: true
+         files: ${{ env.BETA_IPA_PATH }}
+         token: ${{ secrets.GITHUB_TOKEN }}
+         name: ${{ inputs.releaseTitle }}
+         body: ${{ inputs.releaseDescription || '' }}
+         tag_name: ${{ steps.retrieve-data.outputs.version }}
+         # Tag the commit this run built. Without it GitHub tags the default branch (main), which is not
+         # what a beta dispatched on a feature branch was built from.
+         target_commitish: ${{ github.sha }}
+      - name: Update altstore-beta.json on main
+        env:
+          RELEASE_TITLE: ${{ inputs.releaseTitle }}
+          RELEASE_DESCRIPTION: ${{ inputs.releaseDescription }}
+          RELEASE_ASSETS: ${{ steps.release.outputs.assets }}
+        run: |
+          set -euo pipefail
+          app_path="$PAYLOAD_PATH/$SCHEME_NAME.app"
+          app_info_plist="$app_path/Info.plist"
+          bundle_id="$(plutil -extract CFBundleIdentifier raw -o - "$app_info_plist")"
+          version="$(plutil -extract CFBundleShortVersionString raw -o - "$app_info_plist")"
+          build_version="$(plutil -extract CFBundleVersion raw -o - "$app_info_plist")"
+          min_os_version="$(plutil -extract MinimumOSVersion raw -o - "$app_info_plist")"
+          size="$(stat -f%z "$BETA_IPA_PATH")"
+          sha256="$(shasum -a 256 "$BETA_IPA_PATH" | awk '{ print $1 }')"
+          version_date="$(date -u +'%Y-%m-%dT%H:%M:%SZ')"
+          notes="${RELEASE_DESCRIPTION:-$RELEASE_TITLE}"
+          notes="$(printf '%s' "$notes" | tr -d '\r')"
+          privacy="$(
+            find "$app_path" -name Info.plist -print0 |
+            while IFS= read -r -d '' plist; do
+              plutil -convert json -o - "$plist" |
+                jq 'to_entries[] | select(.key | endswith("UsageDescription")) | {key: .key, value: (.value | tostring)}'
+            done |
+            jq -s -c 'from_entries'
+          )"
+          download_url="$(printf '%s' "$RELEASE_ASSETS" | jq -r '[.[] | select(.name == "EhPanda-Beta.ipa") | .browser_download_url][0] // empty')"
+
+          [[ "$bundle_id" == "$BETA_BUNDLE_ID" ]] || exit 1
+          [[ -n "$version" ]] || exit 1
+          [[ -n "$build_version" ]] || exit 1
+          [[ -n "$min_os_version" ]] || exit 1
+          [[ -n "$size" ]] || exit 1
+          [[ -n "$sha256" ]] || exit 1
+          [[ -n "$notes" ]] || exit 1
+          [[ -n "$download_url" ]] || exit 1
+          printf '%s' "$privacy" | jq -e 'type == "object"' >/dev/null
+          curl -sSfIL -o /dev/null "$download_url"
+
+          # The source is served from main so its URL stays stable, whichever ref this run was dispatched on.
+          template_path="$PWD/$ALTSTORE_BETA_TEMPLATE_PATH"
+          filter_path="$PWD/$ALTSTORE_FILTER_PATH"
+          check_build_number_path="$PWD/$CHECK_BUILD_NUMBER_SCRIPT_PATH"
+          main_path="$RUNNER_TEMP/altstore-main"
+          for attempt in 1 2 3 4 5; do
+            git fetch --no-tags --depth 1 origin main
+            # FETCH_HEAD is per worktree, so resolve it here before switching the main worktree.
+            main_sha="$(git rev-parse FETCH_HEAD)"
+            if [[ -d "$main_path" ]]; then
+              git -C "$main_path" checkout --force --detach "$main_sha"
+              git -C "$main_path" clean -fdq
+            else
+              git worktree add --force --detach "$main_path" "$main_sha"
+            fi
+
+            beta_json="$main_path/$ALTSTORE_BETA_JSON_PATH"
+            release_json="$main_path/$ALTSTORE_JSON_PATH"
+            # Another run may have published a build since this one started.
+            bash "$check_build_number_path" "$build_version" "$release_json" "$beta_json"
+
+            # The first beta creates the source. The template has no versions, and AltStore rejects a
+            # source with none, so it is only ever written with this build added.
+            source_json="$beta_json"
+            if [[ ! -f "$beta_json" ]]; then
+              source_json="$template_path"
+            fi
+
+            tmp="$(mktemp)"
+            jq \
+              --arg bundleIdentifier "$bundle_id" \
+              --arg version "$version" \
+              --arg buildVersion "$build_version" \
+              --arg marketingVersion "$version" \
+              --arg date "$version_date" \
+              --arg localizedDescription "$notes" \
+              --arg downloadURL "$download_url" \
+              --arg sha256 "$sha256" \
+              --arg minOSVersion "$min_os_version" \
+              --argjson size "$size" \
+              --argjson privacy "$privacy" \
+              --argjson releaseVersions "$(jq -c '[.apps[0].versions[] | {version, buildVersion}]' "$release_json")" \
+              -f "$filter_path" "$source_json" > "$tmp"
+            jq -e '(.apps[0].versions | length) >= 1' "$tmp" >/dev/null
+            mv "$tmp" "$beta_json"
+
+            if [[ -z "$(git -C "$main_path" status --porcelain -- "$ALTSTORE_BETA_JSON_PATH")" ]]; then
+              echo "$ALTSTORE_BETA_JSON_PATH is already up to date."
+              exit 0
+            fi
+            git -C "$main_path" add -- "$ALTSTORE_BETA_JSON_PATH"
+            git -C "$main_path" commit -m "Update altstore-beta.json"
+            if git -C "$main_path" push origin HEAD:refs/heads/main; then
+              exit 0
+            fi
+            echo "Push to main was rejected (attempt $attempt); retrying with the latest main."
+            sleep $((attempt * 5))
+          done
+          exit 1
