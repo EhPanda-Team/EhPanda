@@ -124,7 +124,7 @@ struct AnalyticsSignalRenderingTests {
             rendered: .signal(name: "FirstLaunch.completed", parameters: ["Analytics.level": "basic"])
         ),
         SignalRenderingFixture(
-            signal: .analyticsLevelChanged(from: .minimal, to: .full),
+            signal: .analyticsLevelChanged(from: .minimal, toLevel: .full),
             rendered: .signal(name: "Analytics.levelChanged", parameters: [
                 "Analytics.from": "minimal",
                 "Analytics.to": "full"
@@ -250,7 +250,7 @@ struct AnalyticsSignalRenderingTests {
         var signals: [AnalyticsSignal] = [.commentPosterBlocked, .blockedCommentShown]
         signals += AnalyticsLevel.allCases.map({ .firstLaunchCompleted(level: $0) })
         for from in AnalyticsLevel.allCases {
-            signals += AnalyticsLevel.allCases.map({ .analyticsLevelChanged(from: from, to: $0) })
+            signals += AnalyticsLevel.allCases.map({ .analyticsLevelChanged(from: from, toLevel: $0) })
         }
         signals += ReportOutcome.allCases.map({ .commentReportOutcome($0) })
         signals += UnblockSurface.allCases.map({ .commentPosterUnblocked(from: $0) })

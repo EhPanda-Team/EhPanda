@@ -21,6 +21,11 @@ public import AppModels
 //    second time on one signal would duplicate a dashboard column for no analytical gain.
 // 3. Which settings are enabled in the field has no dedicated signal, for the same reason: D-11
 //    already covers it.
+//
+// The 3.0 flows are the last block below, exactly as signed off in `20-12-VOCABULARY.md` (product
+// lead msg 2829; owner msgs 2837, 2842). The report signal carries how a report ended and never
+// why (owner msg 2837), and no moderation case carries a comment, a poster, a member ID, a report
+// field, a gallery or a URL, so none of them can be put into a payload by a call site.
 
 public enum AnalyticsSignal: Equatable, Sendable {
     // MARK: Navigation
@@ -47,4 +52,19 @@ public enum AnalyticsSignal: Equatable, Sendable {
     case errorSurfaced(AppErrorKind)
     case loginFailed(LoginFailureKind)
     case cloudflareChallengeEncountered
+
+    // MARK: First launch, the analytics choice and comment moderation (20-12)
+
+    /// The first-launch screens are done and the level was chosen. Sent once, after the level is applied.
+    case firstLaunchCompleted(level: AnalyticsLevel)
+    /// The level was changed in Settings. Sent after the new level is applied, so `toLevel` (rendered as
+    /// `Analytics.to`) is never Minimal.
+    case analyticsLevelChanged(from: AnalyticsLevel, toLevel: AnalyticsLevel)
+    /// How a report of a comment ended.
+    case commentReportOutcome(ReportOutcome)
+    case commentPosterBlocked
+    case commentPosterUnblocked(from: UnblockSurface)
+    /// A collapsed comment of a blocked poster was shown.
+    case blockedCommentShown
+    case commentPostingWarningAnswered(PostingWarningChoice)
 }

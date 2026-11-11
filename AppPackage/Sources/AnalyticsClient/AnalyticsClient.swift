@@ -20,8 +20,8 @@ import Synchronization
 //   14's premise that the SDK stays alive when analytics are off "so installs are still counted";
 //   the own sender counts installs now. Do not restore that behaviour (Pitfall P-4).
 // - Basic: the install signal, the SDK (its session and acquisition signals), and the screen, feature
-//   and error signals, with no default parameters.
-// - Full: Basic plus reading and download activity and the five `App.*` default parameters.
+//   and error signals, with one default parameter, `App.distributionChannel` (20-12 §3).
+// - Full: Basic plus reading and download activity and the five `App.*` settings parameters.
 
 public struct AnalyticsClient: Sendable {
     // The closure properties are `var`, not `let` — a deliberate departure from the `HapticsClient`

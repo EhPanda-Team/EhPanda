@@ -121,6 +121,47 @@ extension AnalyticsSignal {
 
         case .cloudflareChallengeEncountered:
             .signal(name: SignalName.cloudflareChallengeEncountered, parameters: [:])
+
+        // MARK: First launch, the analytics choice and comment moderation
+
+        case .firstLaunchCompleted(let level):
+            .signal(
+                name: SignalName.firstLaunchCompleted,
+                parameters: [ParameterKey.analyticsLevel: level.rawValue]
+            )
+
+        case .analyticsLevelChanged(let from, let toLevel):
+            .signal(
+                name: SignalName.analyticsLevelChanged,
+                parameters: [
+                    ParameterKey.analyticsFrom: from.rawValue,
+                    ParameterKey.analyticsTo: toLevel.rawValue
+                ]
+            )
+
+        case .commentReportOutcome(let outcome):
+            .signal(
+                name: SignalName.moderationReportOutcome,
+                parameters: [ParameterKey.moderationReportOutcome: outcome.rawValue]
+            )
+
+        case .commentPosterBlocked:
+            .signal(name: SignalName.moderationPosterBlocked, parameters: [:])
+
+        case .commentPosterUnblocked(let surface):
+            .signal(
+                name: SignalName.moderationPosterUnblocked,
+                parameters: [ParameterKey.moderationUnblockSurface: surface.rawValue]
+            )
+
+        case .blockedCommentShown:
+            .signal(name: SignalName.moderationBlockedCommentShown, parameters: [:])
+
+        case .commentPostingWarningAnswered(let choice):
+            .signal(
+                name: SignalName.moderationPostingWarningAnswered,
+                parameters: [ParameterKey.moderationPostingChoice: choice.rawValue]
+            )
         }
     }
 }
@@ -188,6 +229,13 @@ private enum SignalName {
     static let downloadStateChanged = "Download.stateChanged"
     static let loginFailed = "Account.loginFailed"
     static let cloudflareChallengeEncountered = "Account.cloudflareChallengeEncountered"
+    static let firstLaunchCompleted = "FirstLaunch.completed"
+    static let analyticsLevelChanged = "Analytics.levelChanged"
+    static let moderationReportOutcome = "Moderation.reportOutcome"
+    static let moderationPosterBlocked = "Moderation.posterBlocked"
+    static let moderationPosterUnblocked = "Moderation.posterUnblocked"
+    static let moderationBlockedCommentShown = "Moderation.blockedCommentShown"
+    static let moderationPostingWarningAnswered = "Moderation.postingWarningAnswered"
 }
 
 /// Every parameter key, spelled once. Each carries a dot, which is what keeps the whole set clear
@@ -206,6 +254,12 @@ private enum ParameterKey {
     static let readingDuration = "Reading.duration"
     static let downloadOutcome = "Download.outcome"
     static let accountLoginFailureKind = "Account.loginFailureKind"
+    static let analyticsLevel = "Analytics.level"
+    static let analyticsFrom = "Analytics.from"
+    static let analyticsTo = "Analytics.to"
+    static let moderationReportOutcome = "Moderation.reportOutcome"
+    static let moderationUnblockSurface = "Moderation.unblockSurface"
+    static let moderationPostingChoice = "Moderation.postingChoice"
 
     /// One key per namespace present on an opened gallery, below the shared tag-namespace key.
     ///

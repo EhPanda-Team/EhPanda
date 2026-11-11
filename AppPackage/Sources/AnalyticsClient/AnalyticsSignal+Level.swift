@@ -26,6 +26,13 @@ extension AnalyticsSignal {
         case .errorSurfaced, .loginFailed, .cloudflareChallengeEncountered:
             .basic
 
+        // The 3.0 flows (20-12, signed off): finishing the first-launch screens, changing the level in
+        // Settings, and comment moderation. Each is covered by Basic's "which screens and features you
+        // use"; no level description changes (owner msg 2837 dropped the report reason for that).
+        case .firstLaunchCompleted, .analyticsLevelChanged, .commentReportOutcome, .commentPosterBlocked,
+             .commentPosterUnblocked, .blockedCommentShown, .commentPostingWarningAnswered:
+            .basic
+
         // Reading and download activity.
         case .galleryDetailOpened, .readingSessionEnded, .downloadStateChanged:
             .full
