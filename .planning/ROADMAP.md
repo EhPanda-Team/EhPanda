@@ -1533,7 +1533,7 @@ Plans:
 
 **Wave 8**
 
-- [ ] 19-17-PLAN.md — the README rewrite, preview review docs, the controlled regression (red then green) and the phase gate *(checkpoints: the hosted regression and the owner's required-check choice)*
+- [x] 19-17-PLAN.md — the README rewrite, preview review docs, the controlled regression (red then green) and the phase gate *(checkpoints: the hosted regression and the owner's required-check choice)* — done except the hosted controlled regression (deferred, owner msg 3428) and the real preview render; required check: not required for now (owner msg 3431); local gate green apart from 2 Repetition nodes per UITests device, so `nyquist_compliant` stays false ([summary](phases/19-visual-regression-marketing-export/19-17-SUMMARY.md))
 
 Cross-cutting constraints:
 

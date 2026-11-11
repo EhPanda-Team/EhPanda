@@ -131,6 +131,15 @@ source_head: b5eca09d1
   - **Deferred** (Deferred Items below): the green gate run, owed before release day, and the hosted runs of
     19-12, 19-13 and 19-17 (owner msg 3428).
   - VIS-18-01 stays Pending.
+- **19-17 done, with deferred parts** (`f62223a28`, `4879ea44f`, `b92a952bf`, closing docs; `19-17-SUMMARY.md`,
+  `19-VALIDATION.md`):
+  - README rewritten; preview review procedure and validator (8 tests) done; the real preview render is open (needs a
+    running Xcode with the preview tools).
+  - Controlled regression (Task 3) deferred (owner msg 3428). Required check: not required for now (owner msg 3431).
+  - Local gate: FeatureTests and UITests passed on both devices (0 failures); lint 0; Python suites 384 and 27 OK;
+    Release build and `verify-release.py` PASS. UITests had 2 Repetition nodes per device (flaky first runs of two
+    accessibility audits, passed on retry), so `nyquist_compliant` stays false.
+  - Phase 19 is not marked complete.
 
 ## Phase 19 planned: Visual Regression & Daily Live-Parsing Check — 2026-11-07
 
