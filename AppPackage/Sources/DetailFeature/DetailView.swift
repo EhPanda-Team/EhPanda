@@ -176,7 +176,7 @@ private extension DetailView {
                 }
                 CommentsSection(
                     comments: store.galleryComments,
-                    moderationStore: store.scope(state: \.moderation, action: \.moderation),
+                    moderationStore: store.scope(\.moderation, action: \.moderation),
                     // Never from a card while the editor is up: the posting warning is presented over the editor.
                     moderationAlert: { isPresented in
                         $store.scope(\.moderation.$alert, action: \.moderation.alert)[
