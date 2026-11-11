@@ -68,8 +68,11 @@ def classify(text, status):
 
 
 def started(text, results, baseline=0):
-    """Whether a test has begun: a `Test case` line in the log, or result lines past `baseline`."""
-    if "Test case '" in text:
+    """Whether a test has begun: a `Test case` line in the log, or result lines past `baseline`.
+
+    A parallel destination prints `Test case '...' started on 'Clone N ...'`, a serial one `Test Case '-[...]' started.`
+    """
+    if re.search(r"Test [Cc]ase '", text):
         return True
     return sum(1 for line in results.splitlines() if line.strip()) > baseline
 
