@@ -94,6 +94,10 @@ source_head: b5eca09d1
   (skipped while absent). **Task 3 (the live read of a real verdict) waits for Phase 19's closure**; 20-11 stays open
   and `20-11-SUMMARY.md` is not written. Open for Task 3: a PAL dispatch on a squash commit on `main` has no gate
   verdict (`20-11-GATE.md`, point 1). REL-18-01 stays Pending.
+- **Decision (2026-11-11, owner msg 3501; product lead msg 3502):** the website gets no GitHub Issues link. The
+  published contact link is out of the 3.0 plan (ROADMAP Phase 20 item 4 and SC4, D-05, 20-07, 20-08 amended), and
+  UGC-18-01 is marked complete. The App Store Connect Support URL is the GitHub repository page,
+  https://github.com/EhPanda-Team/EhPanda (guideline 1.5 is a Notarization guideline; 1.2 is not).
 
 ## Phase 19 executing — 2026-11-07
 

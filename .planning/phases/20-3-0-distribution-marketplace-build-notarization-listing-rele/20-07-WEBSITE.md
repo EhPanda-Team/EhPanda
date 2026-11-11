@@ -1,5 +1,12 @@
 # 20-07 Website URLs (DRAFT; live check pending)
 
+*Amended 2026-11-11 (owner msg 3501; product lead msg 3502):* the website gets no GitHub Issues link, so there is no
+contact URL to check, and the support URL is no longer the home page: it is the GitHub repository page,
+https://github.com/EhPanda-Team/EhPanda (its Issues tab is the contact route), which returns 200 and needs no website
+change. The rows and checks below for the contact link and the home-page support URL are history. The live check
+records `- privacy: <url> 200` lines for the privacy pages, `- support: https://github.com/EhPanda-Team/EhPanda 200`
+and the PAL source redirect.
+
 **Status: DRAFT.** Leto's answer (msg 2795) and the orchestrator's (msg 2797) give the four URLs; owner msg 2809
 makes the home page the support URL. The live check waits for the site, which is offline on purpose (no DNS) until it
 goes live with the 3.0 release (D-26, owner msg 2802). 20-07 Task 2 stays open until then. The privacy link now goes
