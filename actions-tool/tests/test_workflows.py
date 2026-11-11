@@ -96,7 +96,7 @@ class DeployWorkflowTests(unittest.TestCase):
         self.assertEqual(self.env["SNAPSHOT_GATE_CHECK"], GATE_CHECK)
         self.assertEqual(self.env["REQUIRE_SNAPSHOT_GATE_SCRIPT_PATH"], GATE_SCRIPT)
         run = expand(code(gate["run"]), self.env)
-        self.assertIn(f'bash {GATE_SCRIPT} "$HEAD_SHA" "{GATE_CHECK}"', run.replace("\n", " "))
+        self.assertIn(f'bash "{GATE_SCRIPT}" "$HEAD_SHA" "{GATE_CHECK}"', run)
         permissions = self.deploy["jobs"]["Deploy"]["permissions"]
         self.assertEqual(permissions.get("checks"), "read")
         self.assertEqual(permissions.get("contents"), "write")
@@ -229,7 +229,7 @@ class PalWorkflowTests(unittest.TestCase):
         self.assertEqual(self.env["SNAPSHOT_GATE_CHECK"], GATE_CHECK)
         self.assertEqual(self.env["REQUIRE_SNAPSHOT_GATE_SCRIPT_PATH"], GATE_SCRIPT)
         run = expand(code(gate["run"]), self.env)
-        self.assertIn(f'bash {GATE_SCRIPT} "$HEAD_SHA" "{GATE_CHECK}"', run.replace("\n", " "))
+        self.assertIn(f'bash "{GATE_SCRIPT}" "$HEAD_SHA" "{GATE_CHECK}"', run)
 
     def test_the_checkout_cannot_push(self):
         checkout = step_named(self.job, "Checkout")

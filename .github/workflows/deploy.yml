@@ -10,6 +10,10 @@ env:
   SIDESTORE_JSON_PATH: './SideStore.json'
   ALTSTORE_BETA_JSON_PATH: './altstore-beta.json'
   CHECK_BUILD_NUMBER_SCRIPT_PATH: './actions-tool/check-build-number.sh'
+  # The release relies on Phase 19's screenshot check: the `aggregate` job of snapshot-gate.yml must have passed on
+  # the merged pull request's head commit. The release reads that verdict and never runs the gate.
+  REQUIRE_SNAPSHOT_GATE_SCRIPT_PATH: './actions-tool/require-snapshot-gate.sh'
+  SNAPSHOT_GATE_CHECK: 'aggregate'
   SIDESTORE_TEMPLATE_PATH: './actions-tool/sidestore.template.json'
   SOURCE_FILTER_PATH: './actions-tool/altstore-add-version.jq'
   PACKAGE_CHANNEL_SCRIPT_PATH: './actions-tool/package-channel.sh'
@@ -31,9 +35,18 @@ jobs:
     runs-on: xcode-27
     if: |
       github.event.pull_request.merged == true && github.event.pull_request.user.login == 'chihchy'
+    # contents: the push of the sources and the release; checks: the screenshot check's verdict.
+    permissions:
+      contents: write
+      checks: read
     steps:
       - name: Checkout
         uses: actions/checkout@v7
+      - name: Require the screenshot check
+        env:
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          GH_TOKEN: ${{ github.token }}
+        run: bash "$REQUIRE_SNAPSHOT_GATE_SCRIPT_PATH" "$HEAD_SHA" "$SNAPSHOT_GATE_CHECK"
       - name: Modify git config
         run: |
           git config user.name "github-actions[bot]"
