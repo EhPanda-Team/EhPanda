@@ -48,7 +48,12 @@ NOT_FOR_A_SOURCE = {
     "an Apple ID": re.compile(r"Apple[ -]?ID", re.IGNORECASE),
     "a number of apps": re.compile(r"(?<![\d.])\d+\s*(?:apps?|つ|개|个|個)", re.IGNORECASE),
     "AltStore": re.compile(r"AltStore", re.IGNORECASE),
+    # Owner msg 3864: the sources name E-Hentai only.
+    "ExHentai": re.compile(r"Ex[ -]?Hentai", re.IGNORECASE),
 }
+# Owner msg 3867: no external links in a source's or its app's description, in any language.
+A_LINK = re.compile(r"https?://|www\.|[\w-]+\.(?:com|org|net|io|app|dev|me)\b|\b[\w-]+\.[a-z]{2,}/", re.IGNORECASE)
+DESCRIPTION_KEYS = {"description", "localizedDescriptions", "localizedDescription"}
 SOURCE_TEXT_KEYS = {"name", "subtitle", "description", "localizedSubtitles", "localizedDescriptions",
                     "localizedDescription", "tintColor", "website"}
 
@@ -88,7 +93,40 @@ class SourceTemplateTests(unittest.TestCase):
     def test_the_sidestore_source_and_app_share_the_regular_copy(self):
         app = SIDESTORE["apps"][0]
         self.assertEqual(SIDESTORE["localizedSubtitles"], app["localizedSubtitles"])
-        self.assertEqual(SIDESTORE["localizedDescriptions"], app["localizedDescriptions"])
+        self.assertEqual(SIDESTORE["localizedDescriptions"], ALTSTORE["localizedDescriptions"])
+        self.assertEqual(app["localizedDescriptions"], ALTSTORE["apps"][0]["localizedDescriptions"])
+
+    def test_every_source_has_the_same_about_and_the_same_app_description(self):
+        # Owner msgs 3851 and 3869 (copy from Camo msgs 3863 and 3868): the source's About says what the source is,
+        # the app's description says what EhPanda does, and every source shows the same two texts in every language.
+        about, description = ALTSTORE["localizedDescriptions"], ALTSTORE["apps"][0]["localizedDescriptions"]
+        self.assertNotEqual(about, description)
+        self.assertTrue(about["en"].startswith("The official source for EhPanda"))
+        self.assertTrue(description["en"].startswith("EhPanda is a free, open-source app for E-Hentai"))
+        for source in [ALTSTORE, SIDESTORE, BETA, PAL]:
+            with self.subTest(source=source["identifier"]):
+                self.assertEqual(source["description"], about["en"])
+                self.assertEqual(source["localizedDescriptions"], about)
+                self.assertEqual(source["apps"][0]["localizedDescription"], description["en"])
+                self.assertEqual(source["apps"][0]["localizedDescriptions"], description)
+
+    def test_no_description_has_a_link(self):
+        # Owner msg 3867: no external links in AltStore's description fields.
+        for source in [ALTSTORE, SIDESTORE, BETA, PAL]:
+            for where, text in source_texts(source):
+                if where.split(".")[-1] not in DESCRIPTION_KEYS and where.split(".")[-2:-1] != ["localizedDescriptions"]:
+                    continue
+                with self.subTest(source=source["identifier"], where=where):
+                    self.assertEqual(A_LINK.findall(text), [], text)
+
+    def test_the_link_needle_finds_the_line_the_about_draft_had(self):
+        for text in ["Questions or problems? Visit github.com/EhPanda-Team/EhPanda.",
+                     "ご質問や不具合は github.com/EhPanda-Team/EhPanda まで。", "See https://ehpanda.app", "www.example"]:
+            with self.subTest(text=text):
+                self.assertTrue(A_LINK.search(text))
+        for text in ["Live Text translation.", "E-Hentai", "EhPanda 3.0", "Hath archives and torrents."]:
+            with self.subTest(text=text):
+                self.assertIsNone(A_LINK.search(text))
 
     def test_the_beta_template_is_altstore_json_with_only_its_own_identity(self):
         # Owner msgs 3824 and 3827: the beta source mirrors the regular one, every source and app key and value,
@@ -163,8 +201,12 @@ class SourceTemplateTests(unittest.TestCase):
         for code, text in old.items():
             with self.subTest(code=code):
                 for name, needle in NOT_FOR_A_SOURCE.items():
-                    self.assertTrue(needle.search(text), f"{name} is not found in {text}")
-        clean = "EhPanda 3.0 is rebuilt for iOS 26 with 2 new modes. Toplists · Favorites · Hath Archives"
+                    if name != "ExHentai":
+                        self.assertTrue(needle.search(text), f"{name} is not found in {text}")
+        for text in ["for E-Hentai and ExHentai on iPhone", "ExHentai", "Ex-Hentai"]:
+            with self.subTest(text=text):
+                self.assertTrue(NOT_FOR_A_SOURCE["ExHentai"].search(text))
+        clean = "EhPanda 3.0 is rebuilt for iOS 26 with 2 new modes. Toplists · Favorites · E-Hentai · Hath Archives"
         for name, needle in NOT_FOR_A_SOURCE.items():
             self.assertIsNone(needle.search(clean), name)
 
