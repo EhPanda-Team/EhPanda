@@ -10,6 +10,7 @@ import pathlib
 import re
 import shutil
 import subprocess
+import tempfile
 import unittest
 
 ROOT = pathlib.Path(__file__).resolve().parents[2]
@@ -148,6 +149,70 @@ class BetaWorkflowTests(unittest.TestCase):
         self.assertLess(step_index(beta, "Check build number"), step_index(beta, "Run tests"))
         run = expand(step_named(beta, "Check build number")["run"], beta.get("env", {}))
         self.assertIn("actions-tool/check-build-number.sh", run)
+
+    @classmethod
+    def update_step(cls):
+        beta = load(WORKFLOWS / "deploy-beta.yml")
+        return step_named(beta, "Update altstore-beta.json on its own branch"), beta.get("env", {})
+
+    def test_the_versions_get_every_language_of_the_notes_like_the_regular_release(self):
+        # The regular release passes localizedDescriptions from release_notes.py (deploy.yml); a beta version
+        # used to carry English only.
+        step, env = self.update_step()
+        run = expand(step["run"], env)
+        self.assertEqual(env["RELEASE_NOTES_TOOL_PATH"], load(WORKFLOWS / "deploy.yml")["env"]["RELEASE_NOTES_TOOL_PATH"])
+        self.assertEqual(env["RELEASE_NOTES_DIR"], load(WORKFLOWS / "deploy.yml")["env"]["RELEASE_NOTES_DIR"])
+        self.assertIn('notes_path="./ReleaseNotes/$version.md"', run)
+        self.assertIn('python3 "./actions-tool/release_notes.py" check "$notes_path"', run)
+        self.assertIn('notes="$(python3 "./actions-tool/release_notes.py" english "$notes_path")"', run)
+        self.assertIn('localized_notes="$(python3 "./actions-tool/release_notes.py" altstore "$notes_path")"', run)
+        self.assertIn('--arg localizedDescription "$notes"', run)
+        self.assertIn('--argjson localizedDescriptions "$localized_notes"', run)
+        # Without a notes file the beta keeps the release description, in English only.
+        self.assertIn("localized_notes=null", run)
+        self.assertIn('"${RELEASE_DESCRIPTION:-$RELEASE_TITLE}"', run)
+
+    def test_every_beta_takes_its_metadata_from_the_template_and_only_keeps_the_published_versions(self):
+        step, env = self.update_step()
+        run = expand(step["run"], env)
+        self.assertIn('template_path="$PWD/./actions-tool/altstore-beta.template.json"', run)
+        # The template is the base of every run; the first beta has no published file to take versions from.
+        self.assertIn('source_json="$template_path"', run)
+        self.assertNotIn('source_json="$beta_json"', run)
+        self.assertEqual(len(re.findall(r'-f "\$filter_path" "\$source_json"', run)), 1)
+
+    @unittest.skipUnless(shutil.which("jq"), "jq is not installed")
+    def test_a_template_fix_reaches_the_live_source_and_the_published_versions_stay(self):
+        step, env = self.update_step()
+        run = expand(step["run"], env)
+        match = re.search(r"jq --slurpfile published \"\$beta_json\" \\\n\s*'([^']+)' \"\$template_path\"", run)
+        self.assertIsNotNone(match, "the step no longer carries the versions over with jq")
+        program = match.group(1)
+        template = json.loads((ROOT / "actions-tool" / "altstore-beta.template.json").read_text(encoding="utf-8"))
+        old_version = {"version": "3.0.0", "buildVersion": "159", "marketingVersion": "3.0.0",
+                       "date": "2026-11-11T14:08:57Z", "localizedDescription": "Old.", "downloadURL": "https://example.com/a.ipa",
+                       "size": 1, "sha256": "ff", "minOSVersion": "27.0"}
+        live = json.loads(json.dumps(template))
+        live["subtitle"] = "Stale subtitle"
+        live["iconURL"] = "https://example.com/old-icon.png"
+        live["apps"][0].update(beta=True, subtitle="Stale", appPermissions={"entitlements": [], "privacy": {}},
+                               versions=[old_version])
+        with tempfile.TemporaryDirectory() as folder:
+            live_path = pathlib.Path(folder) / "live.json"
+            template_path = pathlib.Path(folder) / "template.json"
+            live_path.write_text(json.dumps(live), encoding="utf-8")
+            template_path.write_text(json.dumps(template), encoding="utf-8")
+            base = json.loads(subprocess.run(["jq", "--slurpfile", "published", str(live_path), program, str(template_path)],
+                                             capture_output=True, text=True, check=True).stdout)
+        expected = json.loads(json.dumps(template))
+        expected["apps"][0]["versions"] = [old_version]
+        self.assertEqual(base, expected)
+
+    def test_the_temporary_pre_release_copy_is_the_beta_workflow(self):
+        beta = (WORKFLOWS / "deploy-beta.yml").read_text(encoding="utf-8")
+        copy_ = (WORKFLOWS / "deploy-pre-release.yml").read_text(encoding="utf-8")
+        self.assertTrue(copy_.endswith(beta), "deploy-pre-release.yml must stay deploy-beta.yml with its three header lines")
+        self.assertEqual(copy_[:-len(beta)].count("\n"), 3)
 
 
 PAL_STEPS = [
