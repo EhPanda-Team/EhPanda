@@ -79,7 +79,7 @@ created: "2026-11-09"
 | 20-10-03 | 10 | 5 | MKT-18-01, DIST-18-02 | T-20-28 | approved, pushed, listed, uploaded | checkpoint | `curl` URLs; actions-tool tests with assets | — | ⬜ pending |
 | 20-11-01 | 11 | 5 | REL-18-01 | — | OQ-F decided | checkpoint (decision) | — | — | ✅ green |
 | 20-11-02 | 11 | 5 | REL-18-01 | T-20-29, T-20-30 | release requires the gate's `success` on its commit | unit (fake gh) + workflow | `test_require_snapshot_gate.py`; `test_workflows.py`; actionlint | ❌ W0 | ✅ green |
-| 20-11-03 | 11 | 5 | REL-18-01 | — | live read of real verdicts | script | `grep` results | — | ⬜ pending |
+| 20-11-03 | 11 | 5 | REL-18-01 | — | live read of real verdicts | script | `grep` results | — | ⏸ deferred (owner msg 3742) |
 | 20-12-01 | 12 | 1 | ANALYTICS-02 | T-20-31 | rules check per proposed signal; no code | document | `grep` flows; no AppPackage diff | — | ✅ green |
 | 20-12-02 | 12 | 1 | ANALYTICS-02 | T-20-31 | sign-off before code | checkpoint (decision) | — | — | ✅ green |
 | 20-13-01 | 13 | 6 | ANALYTICS-02 | T-20-32, T-20-33 | type-closed, level-gated, no content | unit | `-only-testing:AnalyticsClientTests` | ✅ | ✅ green |
@@ -97,10 +97,11 @@ on 10 workflows, and `verify-release.py` 0 findings for the default and the mark
 
 Rows still not green, so `nyquist_compliant` stays false:
 
-- **20-10-02** is superseded: 20-10 closed on the owner's existing screenshot set (msgs 3167, 3168), so
+- **20-10-02** is superseded (accepted, owner msg 3742): 20-10 closed on the owner's existing screenshot set (msgs 3167, 3168), so
   `store_screenshots.py` and its tests were never written.
 - **20-10-03**: the upload and the PAL copy approval moved to 20-08.
-- **20-11-03**: every live read exits 1 until Phase 19's passing gate run exists (`20-11-GATE.md`).
+- **20-11-03** is deferred (accepted, owner msg 3742): every live read exits 1 until Phase 19's passing gate run exists
+  (`20-11-GATE.md`); it runs on the before-release-day list after that pass.
 - **20-06-xx, 20-07-02, 20-08-xx**: those plans are not executed; 20-08 is last (D-26).
 
 ---
@@ -141,4 +142,5 @@ Each is written first in its own task (TDD), so no separate Wave 0 plan is neede
 - [x] Feedback latency < 360 s
 - [ ] `nyquist_compliant: true` set in frontmatter (not yet: the rows above)
 
-**Approval:** pending (20-14 gate green on 2026-11-11; `nyquist_compliant` stays false until the rows above are green or the owner accepts them as superseded or deferred)
+**Approval:** pending (20-14 gate green on 2026-11-11; `nyquist_compliant` stays false until the rows above are green or the owner accepts them as superseded or deferred; owner msg 3742 accepted 20-10-02 as
+superseded and 20-11-03 as deferred, so `nyquist_compliant` can be set once 20-06, 20-07 and 20-08 are green)
