@@ -55,6 +55,9 @@ struct AppReducer {
         var didFinishLaunchPreparation = false
         /// The one-shot latch on the deferred launch work: it runs once per process.
         var didRunDeferredLaunch = false
+        /// The level chosen on the first-launch screens before the deferred launch has run. The deferred launch
+        /// applies the stored level instead, and reports the first launch as completed right after it (20-12).
+        var pendingFirstLaunchLevel: AnalyticsLevel?
         /// The download-client phase report withheld while locked, replayed by the deferred launch.
         var recordedScenePhase: ScenePhase?
         /// A link opened while locked: one slot, the latest wins, routed once settings have loaded.
@@ -274,7 +277,7 @@ struct AppReducer {
                 if runsDeferredLaunch {
                     effects.append(continuedSessionLivenessEffect())
                     effects.append(contentsOf: recordedPhaseEffects(state: &state))
-                    effects.append(contentsOf: storedAnalyticsLevelEffects(state: state))
+                    effects.append(contentsOf: storedAnalyticsLevelEffects(state: &state))
                 }
                 // Finish cookie maintenance before importing automation credentials or loading settings.
                 effects.append(
@@ -451,9 +454,12 @@ struct AppReducer {
 
             case .firstLaunch(.delegate(.levelChosen(let level))):
                 // Before the deferred launch has run, it applies the stored level itself, so the
-                // client hears the choice once.
-                guard state.didRunDeferredLaunch else { return .none }
-                return analyticsLevelEffect(level)
+                // client hears the choice once; the choice is kept for it to report as completed.
+                guard state.didRunDeferredLaunch else {
+                    state.pendingFirstLaunchLevel = level
+                    return .none
+                }
+                return analyticsLevelEffect(level, completesFirstLaunch: true)
 
             case .firstLaunch:
                 return .none
@@ -485,21 +491,34 @@ private extension AppReducer {
         state.didRunDeferredLaunch = true
         var effects = [continuedSessionLivenessEffect(), .send(.setting(.loadUserSettings))]
         effects.append(contentsOf: recordedPhaseEffects(state: &state))
-        effects.append(contentsOf: storedAnalyticsLevelEffects(state: state))
+        effects.append(contentsOf: storedAnalyticsLevelEffects(state: &state))
         return .merge(effects)
     }
 
     /// Applies the stored analytics level, as part of the deferred launch. No level yet applies
-    /// nothing; the choice applies it then (D-04, D-06a).
-    func storedAnalyticsLevelEffects(state: State) -> [Effect<Action>] {
+    /// nothing; the choice applies it then (D-04, D-06a). A choice made on the first-launch screens
+    /// before this ran is reported as the first launch completed, once, right after the apply.
+    func storedAnalyticsLevelEffects(state: inout State) -> [Effect<Action>] {
+        let completesFirstLaunch = state.pendingFirstLaunchLevel != nil
+        state.pendingFirstLaunchLevel = nil
         guard let level = state.settingState.setting.analyticsLevel else { return [] }
-        return [analyticsLevelEffect(level)]
+        return [analyticsLevelEffect(level, completesFirstLaunch: completesFirstLaunch)]
     }
 
     /// Makes the analytics client match the chosen level. This and the Settings reducer (18-10) are
     /// the only callers of `apply` (D-08).
-    func analyticsLevelEffect(_ level: AnalyticsLevel) -> Effect<Action> {
-        .run { _ in analyticsClient.apply(level) }
+    ///
+    /// `completesFirstLaunch` is true on the path that applies the level the user has just chosen on
+    /// the first-launch screens, whichever of the choice and the deferred launch came second. The
+    /// signal follows the apply in the same effect, so it is sent only once the level is in force, and
+    /// only for a level that sends it: Minimal sends no app signal, so none is offered (20-12).
+    func analyticsLevelEffect(_ level: AnalyticsLevel, completesFirstLaunch: Bool = false) -> Effect<Action> {
+        .run { _ in
+            analyticsClient.apply(level)
+            if completesFirstLaunch, level != .minimal {
+                analyticsClient.send(.firstLaunchCompleted(level: level))
+            }
+        }
     }
 
     /// Long-lived: the coordinator yields the current liveness on subscribe and every transition

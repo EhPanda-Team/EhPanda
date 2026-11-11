@@ -1,3 +1,4 @@
+import AnalyticsClient
 public import AppComponents
 public import AppModels
 public import ComposableArchitecture
@@ -11,8 +12,10 @@ import Resources
 /// other origin. It reads the site's form first (DD-01), offers exactly two reasons, child and other illegal content
 /// (D-06, owner msgs 1950, 1975), and posts one report to a URL rebuilt from the gallery URL (DD-02).
 ///
-/// The email lives in this state only: nothing here writes it to settings, defaults, the keychain or a log, and no
-/// report action sends an analytics signal (D-08, D-11).
+/// The email lives in this state only: nothing here writes it to settings, defaults, the keychain or a log. The form
+/// sends one analytics signal, `Moderation.reportOutcome` (20-12; product lead msg 2829), and it carries how a report
+/// ended (sent, failed, unavailable or the site's page opened) and nothing else: not the reason (owner msg 2837), the
+/// comment, its poster, the email, the details or the gallery.
 @Reducer
 public struct ReportFormFeature: Sendable {
     /// A reason the form offers, in the form's order (C-13 item 2).
@@ -242,6 +245,7 @@ public struct ReportFormFeature: Sendable {
         case load, spinner, send
     }
 
+    @Dependency(\.analyticsClient) private var analyticsClient
     @Dependency(\.reportFormClient) private var reportFormClient
     @Dependency(\.continuousClock) private var clock
     @Dependency(\.dismiss) private var dismiss
@@ -296,10 +300,10 @@ public struct ReportFormFeature: Sendable {
                         state.email = form.email
                         state.loadedEmail = form.email
                     }
-                } else {
-                    state.phase = .unavailable
+                    return .cancel(id: CancelID.spinner)
                 }
-                return .cancel(id: CancelID.spinner)
+                state.phase = .unavailable
+                return .merge(.cancel(id: CancelID.spinner), outcome(.unavailable))
 
             case .reasonTapped(let reason):
                 guard state.phase == .ready else { return .none }
@@ -320,7 +324,7 @@ public struct ReportFormFeature: Sendable {
                     return .run { _ in await dismiss() }
                 case .openReportPage:
                     state.destination = .reportPage(state.target.page)
-                    return .none
+                    return outcome(.reportPageOpened)
                 }
 
             case .sendResponse(let submission):
@@ -328,19 +332,19 @@ public struct ReportFormFeature: Sendable {
                 if submission == .sent {
                     state.phase = .sent
                     state.focus = nil
-                } else {
-                    // Everything typed stays; the alert owns the choice (C-13 Failed).
-                    state.phase = .ready
-                    state.presentFailedAlert()
+                    return outcome(.sent)
                 }
-                return .none
+                // Everything typed stays; the alert owns the choice (C-13 Failed). Each failed attempt is reported.
+                state.phase = .ready
+                state.presentFailedAlert()
+                return outcome(.failed)
 
             case .alert(.presented(.retry)):
                 return send(&state)
 
             case .alert(.presented(.openReportPage)):
                 state.destination = .reportPage(state.target.page)
-                return .none
+                return outcome(.reportPageOpened)
 
             case .closeTapped:
                 guard !state.isCloseDisabled else { return .none }
@@ -349,6 +353,11 @@ public struct ReportFormFeature: Sendable {
         }
         .ifLet(\.$alert, action: \.alert)
         .ifLet(\.$destination, action: \.destination)
+    }
+
+    /// Reports how a report ended (20-12). Only the closed outcome is passed.
+    private func outcome(_ result: ReportOutcome) -> Effect<Action> {
+        .run { _ in analyticsClient.send(.commentReportOutcome(result)) }
     }
 
     /// Sends the report with the form's fields, after the email check (DD-05). An invalid email focuses the field
