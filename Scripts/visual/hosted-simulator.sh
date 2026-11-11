@@ -147,8 +147,9 @@ settings() {
     capture_settings "$1"
 }
 
-# After a failed attempt: its device is deleted and the simulator service restarted (it is started again on the
-# next simctl call). Nothing else runs simulators on a hosted runner.
+# After a failed attempt: its device is deleted and, on a hosted runner (CI set), the simulator service restarted
+# (it is started again on the next simctl call). Nothing else runs simulators on a hosted runner; on any other Mac
+# the service is shared with other processes' simulators and UI-test sessions, so it is left alone.
 reset_simulators() {
     local udid
     udid=$(cat "$ATTEMPT" 2>/dev/null || true)
@@ -156,7 +157,11 @@ reset_simulators() {
         limit 120 xcrun simctl shutdown "$udid" >/dev/null 2>&1 || true
         limit 120 xcrun simctl delete "$udid" >/dev/null 2>&1 || true
     fi
-    killall -9 com.apple.CoreSimulator.CoreSimulatorService 2>/dev/null || true
+    if [ -n "${CI:-}" ]; then
+        killall -9 com.apple.CoreSimulator.CoreSimulatorService 2>/dev/null || true
+    else
+        echo "hosted-simulator: not restarting the simulator service outside CI" >&2
+    fi
     sleep 10
 }
 
