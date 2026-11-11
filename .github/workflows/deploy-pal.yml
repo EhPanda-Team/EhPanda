@@ -18,7 +18,7 @@
 #   DIST_CERT_P12             the Apple Distribution certificate and its private key, a base64 .p12
 #   DIST_CERT_PASSWORD        the .p12's password
 #   PROFILE_APP               the App Store Connect profile for app.ehpanda.marketplace, base64
-#   PROFILE_SHARE_EXTENSION   the App Store Connect profile for app.ehpanda.marketplace.shareExtension, base64
+#   PROFILE_SHARE_EXTENSION   the App Store Connect profile for app.ehpanda.marketplace.ShareExtension, base64
 #   TEAM_ID                   the team that owns the certificate and the profiles
 # Its variables:
 #   PAL_MARKETPLACE_ID        the app's Apple ID in App Store Connect (also the PAL source's marketplaceID)
@@ -194,7 +194,7 @@ jobs:
           build_version="$(plutil -extract CFBundleVersion raw -o - "$app_info_plist")"
 
           [[ "$bundle_id" == "$MARKETPLACE_BUNDLE_ID" ]] || { echo "::error::The app is $bundle_id, not $MARKETPLACE_BUNDLE_ID."; exit 1; }
-          [[ "$extension_bundle_id" == "$MARKETPLACE_BUNDLE_ID.shareExtension" ]] || { echo "::error::The share extension is $extension_bundle_id."; exit 1; }
+          [[ "$extension_bundle_id" == "$MARKETPLACE_BUNDLE_ID.ShareExtension" ]] || { echo "::error::The share extension is $extension_bundle_id."; exit 1; }
           [[ "$display_name" == "EhPanda" ]] || { echo "::error::The marketplace build is named '$display_name', not 'EhPanda'."; exit 1; }
           [[ "$url_scheme" == "$MARKETPLACE_URL_SCHEME" ]] || { echo "::error::The marketplace build registers '$url_scheme', not $MARKETPLACE_URL_SCHEME."; exit 1; }
           [[ "$extension_url_scheme" == "$url_scheme" ]] || { echo "::error::The share extension hands off to $extension_url_scheme, not $url_scheme."; exit 1; }

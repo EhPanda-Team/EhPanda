@@ -36,7 +36,7 @@ MARKETPLACE_XCCONFIG_PATH="$ROOT/Config/Marketplace.xcconfig"
 EXPORT_OPTIONS_TEMPLATE="$ROOT/actions-tool/ExportOptions-marketplace.plist"
 # The marketplace flavor's identifiers (`app.ehpanda` + Marketplace.xcconfig's BUNDLE_ID_SUFFIX).
 APP_BUNDLE_ID="app.ehpanda.marketplace"
-SHARE_BUNDLE_ID="app.ehpanda.marketplace.shareExtension"
+SHARE_BUNDLE_ID="app.ehpanda.marketplace.ShareExtension"
 # Xcode 16 and later read profiles from the first directory; earlier tools from the second.
 PROFILE_DIRS=(
   "$HOME/Library/Developer/Xcode/UserData/Provisioning Profiles"

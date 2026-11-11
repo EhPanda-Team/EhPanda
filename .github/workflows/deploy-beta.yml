@@ -110,7 +110,7 @@ jobs:
           build_version="$(plutil -extract CFBundleVersion raw -o - "$app_info_plist")"
 
           [[ "$bundle_id" == "$BETA_BUNDLE_ID" ]] || { echo "::error::The app is $bundle_id, not $BETA_BUNDLE_ID."; exit 1; }
-          [[ "$extension_bundle_id" == "$BETA_BUNDLE_ID.shareExtension" ]] || { echo "::error::The share extension is $extension_bundle_id."; exit 1; }
+          [[ "$extension_bundle_id" == "$BETA_BUNDLE_ID.ShareExtension" ]] || { echo "::error::The share extension is $extension_bundle_id."; exit 1; }
           [[ "$display_name" == "EhPanda Beta" ]] || { echo "::error::The beta is named '$display_name', not 'EhPanda Beta'."; exit 1; }
           [[ -n "$url_scheme" && "$url_scheme" != "ehpanda" ]] || { echo "::error::The beta registers the regular URL scheme."; exit 1; }
           [[ "$extension_url_scheme" == "$url_scheme" ]] || { echo "::error::The share extension hands off to $extension_url_scheme, not $url_scheme."; exit 1; }
