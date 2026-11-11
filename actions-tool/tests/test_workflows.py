@@ -98,7 +98,7 @@ class DeployWorkflowTests(unittest.TestCase):
         run = expand(code(gate["run"]), self.env)
         self.assertIn(f'bash "{GATE_SCRIPT}" "$HEAD_SHA" "{GATE_CHECK}"', run)
         # Only a compare run counts: a candidate run is also an `aggregate` check run (20-11, point 2).
-        self.assertRegex(run, r'"\$HEAD_SHA" "aggregate" --event pull_request\s*$')
+        self.assertRegex(run, r'"\$HEAD_SHA" "aggregate" --compare-only\s*$')
         self.assertNotIn("--merged-pr", run)
         permissions = self.deploy["jobs"]["Deploy"]["permissions"]
         self.assertEqual(permissions.get("checks"), "read")
@@ -237,7 +237,7 @@ class PalWorkflowTests(unittest.TestCase):
         self.assertIn(f'bash "{GATE_SCRIPT}" "$HEAD_SHA" "{GATE_CHECK}"', run)
         # The dispatched commit is the squash or rebase commit on main, which has no check run: the verdict is read
         # on the merged pull request's head (20-11, point 1), and only a compare run counts (point 2).
-        self.assertRegex(run, r'"\$HEAD_SHA" "aggregate" --merged-pr --event pull_request\s*$')
+        self.assertRegex(run, r'"\$HEAD_SHA" "aggregate" --merged-pr --compare-only\s*$')
 
     def test_the_checkout_cannot_push(self):
         checkout = step_named(self.job, "Checkout")

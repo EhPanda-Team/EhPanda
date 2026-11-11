@@ -56,8 +56,9 @@ env:
   SCHEME_NAME: 'EhPanda'
   ALTSTORE_PAL_JSON_PATH: './AltStorePAL.json'
   CHECK_BUILD_NUMBER_SCRIPT_PATH: './actions-tool/check-build-number.sh'
-  # The submission relies on Phase 19's screenshot check: the `aggregate` job of snapshot-gate.yml must have passed on
-  # the dispatched commit (20-11). The same name as deploy.yml's.
+  # The submission relies on Phase 19's screenshot check: the `aggregate` job of snapshot-gate.yml must have passed, in
+  # a pull request's run, on the head of the pull request that was merged as the dispatched commit (20-11). The same
+  # name as deploy.yml's.
   REQUIRE_SNAPSHOT_GATE_SCRIPT_PATH: './actions-tool/require-snapshot-gate.sh'
   SNAPSHOT_GATE_CHECK: 'aggregate'
   ASC_TOOL_PATH: './actions-tool/asc.py'
@@ -79,6 +80,7 @@ jobs:
     permissions:
       contents: read
       checks: read
+      actions: read
     timeout-minutes: 300
     env:
       VERSION: ${{ inputs.version }}
@@ -93,7 +95,10 @@ jobs:
         env:
           HEAD_SHA: ${{ github.sha }}
           GH_TOKEN: ${{ github.token }}
-        run: bash "$REQUIRE_SNAPSHOT_GATE_SCRIPT_PATH" "$HEAD_SHA" "$SNAPSHOT_GATE_CHECK"
+        # The dispatched commit is the one the release PR left on main (squash or rebase), which has no check run:
+        # `--merged-pr` reads the verdict on that pull request's head. `--compare-only`: only a compare run
+        # counts, not a candidate run (also an `aggregate` check run).
+        run: bash "$REQUIRE_SNAPSHOT_GATE_SCRIPT_PATH" "$HEAD_SHA" "$SNAPSHOT_GATE_CHECK" --merged-pr --compare-only
       - name: Check version
         run: |
           set -euo pipefail

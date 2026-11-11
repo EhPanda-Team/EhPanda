@@ -152,12 +152,12 @@ class RequireSnapshotGateTests(GateHarness):
 
 
 class RequireEventTests(GateHarness):
-    """`--event pull_request` (20-11, point 2): a candidate-mode run (a push to `ci/snapshot-gate`, or a dispatch)
-    is also an `aggregate` check run, and it passes without comparing anything. Only a run of a workflow started by a
-    pull request is a compare run (`snapshot-gate.yml` has no other way to mean compare for that event)."""
+    """`--compare-only` (20-11, point 2): a candidate-mode run (a push to `ci/snapshot-gate`, or a dispatch) is also
+    an `aggregate` check run, and it passes without comparing anything. Only a run of a workflow started by a pull
+    request is a compare run (`snapshot-gate.yml` has no other way to mean compare for that event)."""
 
-    def run_event(self, runs, workflow_runs, *, event="pull_request"):
-        return self.run_script([runs], SHA, CHECK, "--event", event, workflow_runs=workflow_runs)
+    def run_event(self, runs, workflow_runs):
+        return self.run_script([runs], SHA, CHECK, "--compare-only", workflow_runs=workflow_runs)
 
     def test_a_pull_request_run_passes_and_its_workflow_run_is_read(self):
         result = self.run_event([run_of(run_id=111)], {111: "pull_request"})
@@ -251,11 +251,11 @@ class RequireMergedPullRequestTests(GateHarness):
         self.assertIn(SHA, result.stdout + result.stderr)
         self.assertNotIn("check-runs", self.log.read_text())
 
-    def test_the_event_option_applies_to_the_pull_requests_head(self):
-        result = self.run_merged([[pull_of()]], [run_of(run_id=111)], "--event", "pull_request",
+    def test_the_compare_only_option_applies_to_the_pull_requests_head(self):
+        result = self.run_merged([[pull_of()]], [run_of(run_id=111)], "--compare-only",
                                  workflow_runs={111: "push"})
         self.assertEqual(result.returncode, 1)
-        result = self.run_merged([[pull_of()]], [run_of(run_id=111)], "--event", "pull_request",
+        result = self.run_merged([[pull_of()]], [run_of(run_id=111)], "--compare-only",
                                  workflow_runs={111: "pull_request"})
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
 
@@ -263,7 +263,7 @@ class RequireMergedPullRequestTests(GateHarness):
         result = self.run_script([[run_of()]], SHA, CHECK, "--merge-pr")
         self.assertEqual(result.returncode, 1)
         self.assertFalse(self.log.exists())
-        result = self.run_script([[run_of()]], SHA, CHECK, "--event")
+        result = self.run_script([[run_of()]], SHA, CHECK, "--event", "pull_request")
         self.assertEqual(result.returncode, 1)
         self.assertFalse(self.log.exists())
 

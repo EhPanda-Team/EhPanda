@@ -2,7 +2,7 @@
 #
 # Fails unless the screenshot check (Phase 19's snapshot-gate.yml) concluded `success` on <sha>.
 #
-# Usage: require-snapshot-gate.sh <sha> <check name>
+# Usage: require-snapshot-gate.sh <sha> <check name> [--merged-pr] [--compare-only]
 #
 # The check runs of the commit are read with `gh api repos/<repo>/commits/<sha>/check-runs`; the repository is
 # $GITHUB_REPOSITORY and `gh` needs $GH_TOKEN with `checks: read`. Only runs of GitHub Actions count, so a
@@ -12,12 +12,36 @@
 # Passes only when every such run is completed with the conclusion `success`. Anything else stops the release:
 # `neutral`, `skipped`, `cancelled`, `timed_out`, `failure`, `action_required` and `stale`, a run that has not
 # finished (`queued`, `in_progress`) and no run at all. The message names the commit and the state.
+#
+# --merged-pr: <sha> is the squash or rebase commit a merged pull request left on the default branch. The gate runs
+# on pull requests, not on pushes to main, so that commit has no check run; the verdict is read on the merged pull
+# request's head commit instead. The pull request is the one whose `merge_commit_sha` is <sha> and that is merged
+# (`gh api repos/<repo>/commits/<sha>/pulls`); none, or more than one, fails.
+#
+# --compare-only: every matching check run must belong to a workflow run started by a pull request. `aggregate` is
+# also the verdict of a candidate run (a push to ci/snapshot-gate, or a dispatch), which compares nothing and passes;
+# the workflow starts a compare run for a pull request when no mode is given and never a candidate one, so this
+# accepts compare verdicts only. The workflow run is the one in the check run's `details_url`.
 
 set -euo pipefail
 
 sha="${1:-}"
 check="${2:-}"
 repo="${GITHUB_REPOSITORY:-}"
+merged_pr=0
+compare_only=0
+shift $(( $# > 2 ? 2 : $# ))
+while (( $# > 0 )); do
+  case "$1" in
+    --merged-pr) merged_pr=1 ;;
+    --compare-only) compare_only=1 ;;
+    *)
+      echo "::error::Unknown option '$1'."
+      exit 1
+      ;;
+  esac
+  shift
+done
 
 if [[ ! "$sha" =~ ^[0-9a-f]{40}$ ]]; then
   echo "::error::'$sha' is not a full commit SHA."
@@ -32,8 +56,30 @@ if [[ -z "$repo" ]]; then
   exit 1
 fi
 
+if (( merged_pr )); then
+  if ! pulls="$(gh api --paginate "repos/$repo/commits/$sha/pulls?per_page=100")"; then
+    echo "::error::Could not read the pull requests of commit $sha, so the '$check' check cannot be confirmed."
+    exit 1
+  fi
+  # --paginate prints one JSON array per page, so they are read together.
+  if ! heads="$(jq -rs --arg sha "$sha" '
+    [.[][] | select(.merged_at != null and .merge_commit_sha == $sha) | .head.sha] | .[]' <<< "$pulls")"; then
+    echo "::error::Could not read the pull requests of commit $sha."
+    exit 1
+  fi
+  if [[ -z "$heads" || "$heads" == *$'\n'* ]]; then
+    echo "::error::Commit $sha is not the merge commit of exactly one merged pull request, so there is no pull request head to read the '$check' check on."
+    exit 1
+  fi
+  echo "Commit $sha is the merge commit of a pull request whose head is $heads."
+  subject="commit $heads (the head of the pull request merged as $sha)"
+  sha="$heads"
+else
+  subject="commit $sha"
+fi
+
 if ! runs="$(gh api --paginate "repos/$repo/commits/$sha/check-runs?per_page=100")"; then
-  echo "::error::Could not read the check runs of commit $sha, so the '$check' check cannot be confirmed."
+  echo "::error::Could not read the check runs of $subject, so the '$check' check cannot be confirmed."
   exit 1
 fi
 
@@ -45,22 +91,47 @@ if ! states="$(jq -rs --arg name "$check" '
                elif .conclusion == null then "completed with no conclusion"
                else .conclusion end
     end' <<< "$runs")"; then
-  echo "::error::Could not read the check runs of commit $sha."
+  echo "::error::Could not read the check runs of $subject."
   exit 1
 fi
 
 if [[ "$states" == "none" ]]; then
-  echo "::error::Commit $sha has no '$check' check run from GitHub Actions: the screenshot check did not run on it."
+  echo "::error::The $subject has no '$check' check run from GitHub Actions: the screenshot check did not run on it."
   exit 1
 fi
 
 failed=0
 while IFS= read -r state; do
   if [[ "$state" != "success" ]]; then
-    echo "::error::The '$check' check on commit $sha is '$state', not 'success'."
+    echo "::error::The '$check' check on $subject is '$state', not 'success'."
     failed=1
   fi
 done <<< "$states"
 (( failed == 0 )) || exit 1
 
-echo "The '$check' check passed on commit $sha."
+# Only a run started by a pull request is a compare run (see --compare-only above). The workflow run is named in each check run's
+# details_url (https://github.com/<repo>/actions/runs/<id>/job/<id>).
+if (( compare_only )); then
+  if ! urls="$(jq -rs --arg name "$check" '
+    .[].check_runs[]? | select(.name == $name and .app.slug == "github-actions") | .details_url // ""' <<< "$runs")"; then
+    echo "::error::Could not read the check runs of $subject."
+    exit 1
+  fi
+  while IFS= read -r url; do
+    if [[ ! "$url" =~ /actions/runs/([0-9]+)(/|$) ]]; then
+      echo "::error::The '$check' check on $subject names no workflow run ('$url'), so its event cannot be confirmed."
+      exit 1
+    fi
+    run_id="${BASH_REMATCH[1]}"
+    if ! run_json="$(gh api "repos/$repo/actions/runs/$run_id")" || ! run_event="$(jq -r '.event // ""' <<< "$run_json")"; then
+      echo "::error::Could not read workflow run $run_id, so the event of the '$check' check on $subject cannot be confirmed."
+      exit 1
+    fi
+    if [[ "$run_event" != "pull_request" ]]; then
+      echo "::error::The '$check' check on $subject is from workflow run $run_id, started by '$run_event', not by a pull request: not a compare run."
+      exit 1
+    fi
+  done <<< "$urls"
+fi
+
+echo "The '$check' check passed on $subject."
