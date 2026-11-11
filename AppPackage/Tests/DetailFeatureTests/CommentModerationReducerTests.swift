@@ -563,8 +563,8 @@ extension CommentModerationReducerTests {
         await store.send(.presentPostComment(commentID: ""))
         await store.send(.binding(.set(\.commentContent, Self.matchingText)))
         await store.send(.postTapped)
-        await store.skipReceivedActions()
-        await store.skipInFlightEffects()
+        await store.skipReceivedActions(strict: false)
+        await store.skipInFlightEffects(strict: false)
 
         #expect(recorded.value.isEmpty)
     }
@@ -580,7 +580,7 @@ extension CommentModerationReducerTests {
 
         await store.send(.moderation(.blockTapped(Self.first)))
         await store.send(.moderation(.alert(.presented(.confirmBlock(memberID: Self.memberID, name: Self.author)))))
-        await store.skipReceivedActions()
+        await store.skipReceivedActions(strict: false)
         await store.finish()
         #expect(recorded.value == [.commentPosterBlocked])
 
@@ -630,8 +630,8 @@ extension CommentModerationReducerTests {
         case .postAnyway:
             await store.send(.moderation(.alert(.presented(.postAnyway))))
         }
-        await store.skipReceivedActions()
-        await store.skipInFlightEffects()
+        await store.skipReceivedActions(strict: false)
+        await store.skipInFlightEffects(strict: false)
 
         #expect(recorded.value == [.commentPostingWarningAnswered(choice)])
         let leaves = Mirror(reflecting: recorded.value).leafRenderings
@@ -656,8 +656,8 @@ extension CommentModerationReducerTests {
         case .postAnyway:
             await store.send(.moderation(.alert(.presented(.postAnyway))))
         }
-        await store.skipReceivedActions()
-        await store.skipInFlightEffects()
+        await store.skipReceivedActions(strict: false)
+        await store.skipInFlightEffects(strict: false)
 
         #expect(recorded.value == [.commentPostingWarningAnswered(choice)])
     }

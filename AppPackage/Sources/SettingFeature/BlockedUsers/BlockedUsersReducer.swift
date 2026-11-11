@@ -1,3 +1,4 @@
+import AnalyticsClient
 public import AppModels
 public import ComposableArchitecture
 import Foundation
@@ -10,6 +11,9 @@ public import Sharing
 /// never disagrees with the list. Each row shows the name the user was last seen under; Unblock removes by member ID
 /// (owner msg 1918). Blocking is local to the device and needs no account, so nothing here depends on
 /// signing in.
+///
+/// Unblocking reports only that it happened and where (`Moderation.posterUnblocked`, 20-12): the name and the member
+/// ID stay on the device.
 @Reducer
 public struct BlockedUsersReducer: Sendable {
     @ObservableState
@@ -43,6 +47,8 @@ public struct BlockedUsersReducer: Sendable {
         case unblockTapped(memberID: String)
     }
 
+    @Dependency(\.analyticsClient) private var analyticsClient
+
     public init() {}
 
     public var body: some Reducer<State, Action> {
@@ -51,7 +57,8 @@ public struct BlockedUsersReducer: Sendable {
             case .unblockTapped(let memberID):
                 guard state.blockedUsers.isBlocked(memberID: memberID) else { return .none }
                 state.$blockedUsers.withLock({ $0.unblock(memberID: memberID) })
-                return .none
+                // Which list the poster was unblocked in is all that is reported, never who (20-12).
+                return .run { _ in analyticsClient.send(.commentPosterUnblocked(from: .blockedUsers)) }
             }
         }
     }

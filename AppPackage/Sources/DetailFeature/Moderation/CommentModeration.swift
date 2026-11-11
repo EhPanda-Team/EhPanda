@@ -1,3 +1,4 @@
+import AnalyticsClient
 public import AppComponents
 public import AppModels
 public import ComposableArchitecture
@@ -11,7 +12,10 @@ public import Sharing
 /// each scope one in, so a comment behaves the same in the comments list and in the Detail strip; the views only send
 /// these actions and read this state.
 ///
-/// Nothing here sends an analytics signal (D-02): no author name or comment text leaves the device this way.
+/// Five actions send an analytics signal, the ones signed off in `20-12-VOCABULARY.md` (product lead msg 2829): the
+/// answer to the posting warning, a confirmed block, an unblock, and showing a collapsed comment. Each carries a closed
+/// value (the choice, or the surface) and nothing else, so no author name, member ID or comment text leaves the device
+/// this way. Reporting is the Report form's signal, not this reducer's.
 @Reducer
 public struct CommentModerationFeature: Sendable {
     /// The buttons of the screen's moderation alerts.
@@ -104,6 +108,7 @@ public struct CommentModerationFeature: Sendable {
         case hide(commentID: String)
     }
 
+    @Dependency(\.analyticsClient) private var analyticsClient
     @Dependency(\.cookieClient) private var cookieClient
 
     public init() {}
@@ -112,14 +117,23 @@ public struct CommentModerationFeature: Sendable {
         Reduce { state, action in
             switch action {
             case .alert(.presented(.edit)):
-                return .send(.delegate(.resumeEditing))
+                return .merge(
+                    signal(.commentPostingWarningAnswered(.edit)),
+                    .send(.delegate(.resumeEditing))
+                )
 
             case .alert(.presented(.postAnyway)):
-                return .send(.delegate(.post))
+                return .merge(
+                    signal(.commentPostingWarningAnswered(.postAnyway)),
+                    .send(.delegate(.post))
+                )
 
             case .alert(.presented(.confirmBlock(let memberID, let name))):
                 state.$blockedUsers.withLock({ $0.block(memberID: memberID, name: name) })
-                return .send(.delegate(.didBlock(memberID: memberID)))
+                return .merge(
+                    signal(.commentPosterBlocked),
+                    .send(.delegate(.didBlock(memberID: memberID)))
+                )
 
             case .alert, .delegate:
                 return .none
@@ -150,13 +164,15 @@ public struct CommentModerationFeature: Sendable {
                 return .none
 
             case .unblock(let memberID):
-                // No confirmation: blocking again is one menu away (C-6).
+                // No confirmation: blocking again is one menu away (C-6). Someone who is not blocked is not
+                // unblocked, so that is not reported.
+                let wasBlocked = state.blockedUsers.isBlocked(memberID: memberID)
                 state.$blockedUsers.withLock({ $0.unblock(memberID: memberID) })
-                return .none
+                return wasBlocked ? signal(.commentPosterUnblocked(from: .comment)) : .none
 
             case .show(let commentID):
                 state.revealedCommentIDs.insert(commentID)
-                return .none
+                return signal(.blockedCommentShown)
 
             case .hide(let commentID):
                 state.revealedCommentIDs.remove(commentID)
@@ -164,6 +180,11 @@ public struct CommentModerationFeature: Sendable {
             }
         }
         .ifLet(\.$alert, action: \.alert)
+    }
+
+    /// Sends one signed-off signal (20-12). The signals carry closed values only, so nothing of the comment can follow.
+    private func signal(_ value: AnalyticsSignal) -> Effect<Action> {
+        .run { _ in analyticsClient.send(value) }
     }
 
     /// The signed-in user's own comments get no Report or Block (A-10).

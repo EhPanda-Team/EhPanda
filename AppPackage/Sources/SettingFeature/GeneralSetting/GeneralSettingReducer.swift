@@ -146,8 +146,16 @@ public struct GeneralSettingReducer: Sendable {
             // This and `AppReducer` are the only callers of `apply`; the view never calls the client (D-08).
             case .analyticsLevelPicked(let level):
                 guard let level, level != state.setting.analyticsLevel else { return .none }
+                let previous = state.setting.analyticsLevel
                 state.$setting.withLock({ $0.analyticsLevel = level })
-                return .run { _ in analyticsClient.apply(level) }
+                return .run { _ in
+                    analyticsClient.apply(level)
+                    // Reported once the new level is in force (20-12). A move to Minimal stops the SDK and
+                    // Minimal sends no app signal, so `Analytics.to` is only ever Basic or Full.
+                    if let previous, level != .minimal {
+                        analyticsClient.send(.analyticsLevelChanged(from: previous, toLevel: level))
+                    }
+                }
 
             case .clearWebImageCache:
                 return .run { send in
