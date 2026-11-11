@@ -46,8 +46,19 @@ public struct SettingView: View {
         } destination: { pathStore in
             destination(pathStore)
         }
-        .scrollEdgeEffectStyle(!isPresented && tabBarPlacement == .bottomBar ? .soft : .automatic, for: .bottom)
+        .scrollEdgeEffectStyle(softBottomEdge ? .soft : .automatic, for: .bottom)
+        .contentMargins(.bottom, softBottomEdge ? Self.softBottomEdgeClearance : 0, for: .scrollContent)
     }
+
+    /// Whether a bottom tab bar floats over the pages, so their scroll content fades into the soft bottom edge.
+    private var softBottomEdge: Bool {
+        !isPresented && tabBarPlacement == .bottomBar
+    }
+
+    /// Room under the end of every page's scroll content, pushed pages included (the margin reaches their scroll
+    /// views through the environment): the soft edge fades the last points above the tab bar, and a footer that ends
+    /// flush with the bar's top, like General's analytics footer, was left half under the fade.
+    private static let softBottomEdgeClearance: CGFloat = 16
 
     // MARK: Destinations
     @ContentBuilder
