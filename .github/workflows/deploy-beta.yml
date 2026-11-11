@@ -170,6 +170,9 @@ jobs:
          name: ${{ inputs.releaseTitle }}
          body: ${{ inputs.releaseDescription || '' }}
          tag_name: ${{ steps.retrieve-data.outputs.version }}
+         # Tag the commit this run built. Without it GitHub tags the default branch (main), which is not
+         # what a beta dispatched on a feature branch was built from.
+         target_commitish: ${{ github.sha }}
       - name: Update altstore-beta.json on main
         env:
           RELEASE_TITLE: ${{ inputs.releaseTitle }}
