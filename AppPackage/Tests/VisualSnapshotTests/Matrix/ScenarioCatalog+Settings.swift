@@ -95,7 +95,7 @@ enum SettingsScenarios {
         var state = SettingReducer.State()
         state.path = StackState(pages)
         let store = Store(initialState: state, reducer: SettingReducer.init)
-        let ids = Array(store.withState(\.path.ids))
+        let ids = Array(store.path.ids)
         for (index, action) in actions {
             guard let id = ids.dropFirst(index).first else { continue }
             store.send(.path(.element(id: id, action: action)))
