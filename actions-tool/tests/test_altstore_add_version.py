@@ -123,6 +123,39 @@ class GoldenOutputTests(unittest.TestCase):
                 self.assertEqual(result.returncode, 0, result.stderr)
                 self.assertEqual(result.stdout, (GOLDEN / f"{name}.output.json").read_text(encoding="utf-8"))
 
+    def test_the_build_s_permissions_replace_the_source_s_for_every_source(self):
+        # AltStore refuses an IPA that asks for a permission the source does not list, so each build's usage
+        # descriptions are the list: a key an older build had, and this one has not, must go. (It used to be merged.)
+        stale = {"NSFaceIDUsageDescription": "Face ID.", "NSCameraUsageDescription": "Camera."}
+        build = {"NSPhotoLibraryAddUsageDescription": "Photos."}
+        for name, args in golden_cases():
+            with self.subTest(source=name):
+                source = json.loads((GOLDEN / f"{name}.input.json").read_text(encoding="utf-8"))
+                source["apps"][0]["appPermissions"]["privacy"] = stale
+                args = [a if a != json.dumps({"NSFaceIDUsageDescription": "Face ID.", "NSCameraUsageDescription": "Camera."})
+                        else json.dumps(build) for a in args]
+                result = run_filter(args, json.dumps(source))
+                self.assertEqual(result.returncode, 0, result.stderr)
+                self.assertEqual(json.loads(result.stdout)["apps"][0]["appPermissions"]["privacy"], build)
+
+    def test_a_build_without_usage_descriptions_leaves_none_listed(self):
+        source = json.loads((GOLDEN / "classic.input.json").read_text(encoding="utf-8"))
+        source["apps"][0]["appPermissions"]["privacy"] = {"NSFaceIDUsageDescription": "Face ID."}
+        args = golden_cases()[0][1]
+        args = [a if not a.startswith('{"NSFaceID') else "{}" for a in args]
+        result = run_filter(args, json.dumps(source))
+        self.assertEqual(json.loads(result.stdout)["apps"][0]["appPermissions"]["privacy"], {})
+
+    def test_the_entitlements_of_the_ipa_replace_the_list_of_a_classic_source_too(self):
+        source = json.loads((GOLDEN / "classic.input.json").read_text(encoding="utf-8"))
+        source["apps"][0]["appPermissions"]["entitlements"] = ["beta-reports-active", "get-task-allow"]
+        for entitlements, expected in [([], []), (["keychain-access-groups", "application-identifier"], ["keychain-access-groups"])]:
+            with self.subTest(entitlements=entitlements):
+                result = run_filter([*golden_cases()[0][1], "--argjson", "entitlements", json.dumps(entitlements)],
+                                    json.dumps(source))
+                self.assertEqual(result.returncode, 0, result.stderr)
+                self.assertEqual(json.loads(result.stdout)["apps"][0]["appPermissions"]["entitlements"], expected)
+
     def test_the_beta_case_still_drops_betas_older_than_the_release(self):
         # Keeps the golden beta case meaningful: 3.0.0 (157) is newer than 2.8.1 and stays; 2.8.0 goes.
         versions = json.loads((GOLDEN / "beta.output.json").read_text(encoding="utf-8"))["apps"][0]["versions"]

@@ -7,7 +7,10 @@
 #   $sha256                     the IPA's SHA-256. Required, except with assetURLs, where it is
 #                               left out or empty: an ADP has no single IPA to hash.
 #   --argjson size              IPA size in bytes
-#   --argjson privacy           {"NS...UsageDescription": "..."} read from the build
+#   --argjson privacy           {"NS...UsageDescription": "..."} read from the build. It REPLACES the app's
+#                               appPermissions.privacy: AltStore refuses an install whose IPA asks for a permission
+#                               the source does not list, so the list is always the newest build's, never the
+#                               union with older builds' (a permission a release dropped must go too).
 #   --argjson releaseVersions   null for a regular release; for a beta, the `versions`
 #                               array of AltStore.json (the regular releases)
 #   --argjson localizedDescriptions   optional: {"en": ..., "de": ..., ...}, the notes per
@@ -25,6 +28,9 @@
 #                               which AltStore does not want listed. Left out, the list is kept.
 #   --arg marketplaceID         the App Store Connect app's Apple ID (digits). Set when the source's is
 #                               empty; an equal one passes; a different one is an error.
+#
+# The entitlements of a source whose call leaves --argjson entitlements out are kept as they are; the Classic
+# and beta workflows pass what the unsigned IPA carries (actions-tool/ipa-entitlements.sh), as the PAL one does.
 #
 # The new version is prepended (newest first). An older entry with the same
 # version + buildVersion, or with the same downloadURL (a re-uploaded asset), is
@@ -122,5 +128,5 @@ else . end
                         | map(select(. != "application-identifier"
                                      and . != "com.apple.developer.team-identifier"))
                    end),
-    privacy: ((.apps[0].appPermissions.privacy // {}) + $privacy)
+    privacy: $privacy
   }

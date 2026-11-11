@@ -128,6 +128,18 @@ class DeployWorkflowTests(unittest.TestCase):
         self.assertIn(".browser_download_url", run)
         self.assertIn('curl -sSfIL -o /dev/null "$download_url"', update["run"])
 
+    def test_the_sources_list_the_permissions_of_the_ipa(self):
+        # AltStore refuses an install whose IPA asks for permissions the source does not list: both lists come from
+        # the build (usage descriptions replace the old ones in the filter; entitlements are read from the app).
+        update = step_named(self.deploy, "Update AltStore.json and SideStore.json")
+        run = expand(update["run"], self.env)
+        self.assertIn('entitlements="$(bash "./actions-tool/ipa-entitlements.sh" "/tmp/action-builds/Payload/EhPanda.app")"', run)
+        self.assertIn('--argjson entitlements "$entitlements"', run)
+        self.assertIn('--argjson privacy "$RELEASE_PRIVACY"', run)
+        # The one call serves both sources.
+        self.assertEqual(run.count("--argjson entitlements"), 1)
+        self.assertIn("add_version", run)
+
     def test_the_sources_keep_their_history(self):
         update = step_named(self.deploy, "Update AltStore.json and SideStore.json")
         run = expand(update["run"], self.env)
@@ -207,6 +219,14 @@ class BetaWorkflowTests(unittest.TestCase):
         expected = json.loads(json.dumps(template))
         expected["apps"][0]["versions"] = [old_version]
         self.assertEqual(base, expected)
+
+    def test_the_beta_source_lists_the_permissions_of_the_beta_ipa(self):
+        step, env = self.update_step()
+        run = expand(step["run"], env)
+        self.assertIn('entitlements="$(bash "./actions-tool/ipa-entitlements.sh" "$app_path")"', run)
+        self.assertIn('--argjson entitlements "$entitlements"', run)
+        self.assertIn('--argjson privacy "$privacy"', run)
+        self.assertIn("jq -e 'type == \"array\"'", run.replace("\\\"", "\""))
 
     def test_the_temporary_pre_release_copy_is_the_beta_workflow(self):
         beta = (WORKFLOWS / "deploy-beta.yml").read_text(encoding="utf-8")

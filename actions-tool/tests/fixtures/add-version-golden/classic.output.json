@@ -142,7 +142,6 @@
         ],
         "privacy": {
           "NSFaceIDUsageDescription": "Face ID.",
-          "NSPhotoLibraryAddUsageDescription": "We need this permission to save images to your photo library.",
           "NSCameraUsageDescription": "Camera."
         }
       }
