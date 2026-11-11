@@ -22,6 +22,7 @@ BETA = json.loads((TOOLS / "altstore-beta.template.json").read_text(encoding="ut
 PAL = json.loads((TOOLS / "altstore-pal.template.json").read_text(encoding="utf-8"))
 ALTSTORE = json.loads((TOOLS.parent / "AltStore.json").read_text(encoding="utf-8"))
 ICON_URL = f"{languages.ASSETS_URL}app-marketplace/icon.png"
+HEADER_URL = f"{languages.ASSETS_URL}app-marketplace/header.png"
 SCREENSHOT_NAMES = ["01-home", "02-detail", "03-reading", "04-comments", "05-downloads", "06-filters", "07-more"]
 
 
@@ -184,16 +185,33 @@ class SourceTemplateTests(unittest.TestCase):
                 with self.subTest(source=source["identifier"]):
                     self.assertEqual(entry["iconURL"], ICON_URL)
 
+    def test_every_source_shows_the_same_banner_from_the_assets_repository(self):
+        # Owner msgs 3835 and 3848: one banner, AltStore's 3:2 source header, shared by every source.
+        for source in [ALTSTORE, SIDESTORE, BETA, PAL]:
+            with self.subTest(source=source["identifier"]):
+                self.assertEqual(source["headerURL"], HEADER_URL)
+                self.assertNotIn("headerURL", source["apps"][0])
+
+    def test_the_banner_is_3_by_2(self):
+        assets = assets_checkout()
+        if assets is None:
+            self.skipTest("no checkout of the assets repository")
+        header = (assets / "app-marketplace" / "header.png").read_bytes()
+        self.assertEqual(header[:8], b"\x89PNG\r\n\x1a\n")
+        width, height = int.from_bytes(header[16:20], "big"), int.from_bytes(header[20:24], "big")
+        self.assertEqual(width * 2, height * 3)
+
     def test_the_icon_and_the_screenshots_are_in_the_assets_repository(self):
         assets = assets_checkout()
         if assets is None:
             self.skipTest("no checkout of the assets repository")
         self.assertTrue((assets / "app-marketplace" / "icon.png").is_file())
+        self.assertTrue((assets / "app-marketplace" / "header.png").is_file())
         for source in [ALTSTORE, SIDESTORE, BETA, PAL]:
             with self.subTest(source=source["identifier"]):
                 problems = languages.check_source(source, versions_required=False, assets_dir=assets)
                 self.assertEqual([problem for problem in problems
-                                  if "screenshots" in problem or "iconURL" in problem], [])
+                                  if "screenshots" in problem or "iconURL" in problem or "headerURL" in problem], [])
 
     def test_screenshots_altstore_cannot_read_are_reported(self):
         good = {"imageURL": f"{languages.ASSETS_URL}app-marketplace/iphone/01-home.png", "width": 1260, "height": 2736}
@@ -221,7 +239,9 @@ class SourceTemplateTests(unittest.TestCase):
         self.assertEqual(len([problem for problem in missing if "screenshots" in problem]), 7)
         # The source's icon and the app's.
         self.assertEqual(len([problem for problem in missing if "iconURL app-marketplace/icon.png" in problem]), 2)
-        self.assertEqual(len(missing), 9)
+        # The source's banner.
+        self.assertEqual(len([problem for problem in missing if "headerURL app-marketplace/header.png" in problem]), 1)
+        self.assertEqual(len(missing), 10)
 
     def test_the_beta_names_are_not_translated(self):
         self.assertEqual(BETA["name"], "EhPanda Beta")

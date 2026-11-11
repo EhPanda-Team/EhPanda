@@ -94,15 +94,17 @@ def check_localized(where, entry, plain, every_language):
 
 
 def check_icon(where, entry, assets_dir=None):
-    """Problems with `entry`'s iconURL: when `assets_dir`, a checkout of the assets repository, is given, an
-    icon served from it must be a file there."""
-    url = entry.get("iconURL")
-    if assets_dir is None or not isinstance(url, str) or not url.startswith(ASSETS_URL):
-        return []
-    path = url[len(ASSETS_URL):]
-    if (assets_dir / path).is_file():
-        return []
-    return [f"{where}: iconURL {path} is not in the assets repository"]
+    """Problems with `entry`'s iconURL and, for a source, its headerURL (the banner on the source's page): when
+    `assets_dir`, a checkout of the assets repository, is given, an image served from it must be a file there."""
+    problems = []
+    for key in ["iconURL", "headerURL"]:
+        url = entry.get(key)
+        if assets_dir is None or not isinstance(url, str) or not url.startswith(ASSETS_URL):
+            continue
+        path = url[len(ASSETS_URL):]
+        if not (assets_dir / path).is_file():
+            problems.append(f"{where}: {key} {path} is not in the assets repository")
+    return problems
 
 
 def check_screenshots(where, app, assets_dir=None):
