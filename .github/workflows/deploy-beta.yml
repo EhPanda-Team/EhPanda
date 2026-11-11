@@ -40,6 +40,11 @@ jobs:
   Deploy:
     needs: snapshot-gate
     runs-on: xcode-27
+    # One beta at a time: two dispatches would otherwise gate in parallel and race on the catalogue commit.
+    # Queue, never cancel.
+    concurrency:
+      group: deploy-beta
+      cancel-in-progress: false
     if: github.event_name == 'workflow_dispatch'
     steps:
       - name: Checkout
