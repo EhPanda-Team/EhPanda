@@ -44,9 +44,15 @@ class AltStoreJsonTests(unittest.TestCase):
         # Checked against the English entry, not a fixed text, so the copy can change (msg 2606).
         self.assertEqual(APP["localizedDescription"], APP["localizedDescriptions"]["en"])
 
-    def test_the_source_and_the_app_share_their_copy(self):
+    def test_the_source_and_the_app_share_their_subtitle_and_each_has_its_own_description(self):
+        # Owner msgs 3851 and 3869: the source's About says what the source is, the app's description what EhPanda
+        # does (test_source_templates checks the texts). Both come in the same languages, English in the plain field.
         self.assertEqual(ALTSTORE["localizedSubtitles"], APP["localizedSubtitles"])
-        self.assertEqual(ALTSTORE["localizedDescriptions"], APP["localizedDescriptions"])
+        self.assertEqual(list(ALTSTORE["localizedDescriptions"]), list(APP["localizedDescriptions"]))
+        for code in APP["localizedDescriptions"]:
+            with self.subTest(code=code):
+                self.assertNotEqual(ALTSTORE["localizedDescriptions"][code], APP["localizedDescriptions"][code])
+        self.assertEqual(ALTSTORE["description"], ALTSTORE["localizedDescriptions"]["en"])
 
     def test_old_split_versions_fall_back_to_english_for_missing_languages(self):
         version = next(item for item in APP["versions"] if item["version"] == "2.7.9")
