@@ -4,10 +4,10 @@ milestone: v3.0.0
 current_phase: 20
 current_phase_name: "3.0 Distribution: Marketplace Build, Notarization, Listing & Release Checks"
 status: executing
-stopped_at: Completed 20-11-PLAN.md; main merged (Phase 19 complete with deferred items)
+stopped_at: Completed 20-13-PLAN.md (analytics signals, call sites, README in six languages)
 last_updated: "2026-11-11T12:00:00.000Z"
 last_activity: 2026-11-11
-last_activity_desc: "20-11 closed: main (Phase 19 closed with deferred items, owner msgs 3425, 3428, 3573) merged into feature/gsd-phase-20 (OQ-F, owner msg 3346); the release gate reads the merged PR head and compare runs only"
+last_activity_desc: "20-13 closed: the seven signed-off analytics signals, call sites and the README in six languages. Earlier, 20-11 closed: main (Phase 19 closed with deferred items, owner msgs 3425, 3428, 3573) merged into feature/gsd-phase-20 (OQ-F, owner msg 3346); the release gate reads the merged PR head and compare runs only"
 state_head: 7b3bf8ec5589c912f22851b2dc1f563618209855
 progress:
   total_phases: 21
@@ -95,6 +95,15 @@ source_head: 891103afa
   EhPanda-Team/EhPanda are all exit 1 (PR 469's head: `aggregate` failure; the candidate branch head and a commit with
   no run: no check run): honest, since the gate pass is deferred and no baseline is approved. `main`'s `deploy.yml`
   also calls the gate itself in compare mode (`snapshot-gate / aggregate`); both are kept. REL-18-01 stays Pending.
+- **20-13 complete (2026-11-11)** (RED `8b4ed0696`, `3bd7485fb`; GREEN `2762748b2`, `9f760ab76`; README and COVERAGE
+  `e593a4cbd`; `20-13-SUMMARY.md`): the seven signals of 20-12 (all Basic, closed values) are implemented and sent
+  from the first-launch (`AppReducer`, after the apply, on either order of the choice and the deferred launch),
+  Settings, Report form, comment moderation and Blocked Users flows; `App.distributionChannel` is the one default
+  parameter at Basic and rides with the five settings at Full. No level description changed. OI-4 answer A: no code,
+  COVERAGE.md names `App.installed` as the install count. README Analytics section updated in six languages
+  (`18-copy-check.py --readmes` passes). Full FeatureTests: iPad 0 failed; iPhone 5 failed, all in
+  `VisualSnapshotTests` (no scene in the full run; they pass alone), none touched by this plan. ANALYTICS-02 stays
+  Pending (20-14 shares it). Next: 20-14 when 20-09's open items allow.
 - **Decision (2026-11-11, owner msg 3501; product lead msg 3502):** the website gets no GitHub Issues link. The
   published contact link is out of the 3.0 plan (ROADMAP Phase 20 item 4 and SC4, D-05, 20-07, 20-08 amended), and
   UGC-18-01 is marked complete. The App Store Connect Support URL is the GitHub repository page,
