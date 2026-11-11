@@ -80,7 +80,9 @@ class HostedSimulatorTests(unittest.TestCase):
             path.chmod(path.stat().st_mode | stat.S_IEXEC)
         self.testing_set = self.state / 'XCTestDevices'
         self.env = dict(os.environ, PATH=f'{bin_directory}:{os.environ["PATH"]}', FAKE_SIMCTL=str(self.state),
-                        HOSTED_SIMULATOR_TESTING_SET=str(self.testing_set))
+                        HOSTED_SIMULATOR_TESTING_SET=str(self.testing_set),
+                        # The script stands in for a hosted runner here; the service reset runs only under CI.
+                        CI='true')
 
     def tearDown(self):
         self.directory.cleanup()
