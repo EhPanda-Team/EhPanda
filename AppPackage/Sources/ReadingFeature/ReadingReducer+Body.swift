@@ -116,9 +116,21 @@ extension ReadingReducer {
                 // reader opens on, which a resumed session makes non-zero.
                 state.sessionStartDate = date.now
                 state.visitedPages = [state.readingProgress]
+                // The reducer owns the first fetch. A page's own `.onAppear` is the only other
+                // trigger, and it never fires for the programmatic non-zero initial position of a
+                // reader opened on a preview or resumed: nothing loaded until the first drag or
+                // page flip. Opening at a page loads that page, and the window around it, at once.
+                // The later `.onAppear` of the same page is a no-op: the fetch marks its whole
+                // batch `.loading` (until its response), and `fetchImageURLs` / `fetchMPVImageURL`
+                // drop a page that is loading. Offline and local pages return early in
+                // `fetchImageURLs` and `prefetchImages`.
+                let page = state.position.displayedPage
+                let prefetchLimit = state.setting.prefetchLimit
                 return .merge(
                     .send(.observeDownloads(gid)),
                     .send(.loadLocalPageURLs(gid)),
+                    .send(.fetchImageURLs(page)),
+                    .send(.prefetchImages(fromIndex: page, prefetchLimit: prefetchLimit)),
                     captureRouteEffect(gid: gid)
                 )
 
