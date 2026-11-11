@@ -1,6 +1,7 @@
 import AppModels
 @testable import DetailFeature
 import Foundation
+import SFSafeSymbols
 import Testing
 
 /// The vote row of a comment's menu (UI-SPEC C-6): two slots, always both there, each enabled or not by the comment's
@@ -54,6 +55,26 @@ struct CommentVoteMenuTests {
         let state = voteMenuState(for: Self.comment(votable: true, editable: true), didLogin: true)
 
         #expect(state.slots.map(\.isEnabled) == [false, false])
+    }
+
+    // The owner's rule: cancelling a vote shows the slashed outline thumb, never the filled one, for comments and tags.
+    @Test
+    func aWithdrawShowsTheSlashedOutlineThumbOfTheVoteItUndoes() {
+        #expect(CommentVoteSlot.withdrawSymbol(isVotedUp: true).rawValue == "hand.thumbsup.slash")
+        #expect(CommentVoteSlot.withdrawSymbol(isVotedUp: false).rawValue == "hand.thumbsdown.slash")
+
+        let votedUp = voteMenuState(for: Self.comment(votedUp: true), didLogin: true)
+        let votedDown = voteMenuState(for: Self.comment(votedDown: true), didLogin: true)
+        #expect(votedUp.up.symbol.rawValue == "hand.thumbsup.slash")
+        #expect(votedDown.down.symbol.rawValue == "hand.thumbsdown.slash")
+    }
+
+    @Test
+    func aVoteStillToCastShowsThePlainThumb() {
+        let state = voteMenuState(for: Self.comment(), didLogin: true)
+
+        #expect(state.up.symbol.rawValue == "hand.thumbsup")
+        #expect(state.down.symbol.rawValue == "hand.thumbsdown")
     }
 
     @Test

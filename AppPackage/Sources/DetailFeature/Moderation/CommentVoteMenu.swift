@@ -78,6 +78,12 @@ extension CommentVoteSlot {
         isWithdraw ? .withdrawVote : direction == .up ? .voteUp : .voteDown
     }
 
+    /// The glyph of withdrawing the vote already cast: the slashed outline thumb of that vote's direction, for a
+    /// comment's Withdraw Vote and a tag's alike.
+    static func withdrawSymbol(isVotedUp: Bool) -> SFSymbol {
+        CommentVoteSlot(direction: isVotedUp ? .up : .down, isWithdraw: true, isEnabled: true).symbol
+    }
+
     var symbol: SFSymbol {
         switch (direction, isWithdraw) {
         case (.up, false): .handThumbsup
