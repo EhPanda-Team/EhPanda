@@ -324,10 +324,16 @@ final class UITestStubURLProtocol: URLProtocol {
         finish(statusCode: report.statusCode, data: report.data, url: report.url, mimeType: Self.htmlMIMEType)
     }
 
-    /// Answers a `gdata` metadata request from the fixture directory's saved API response. Any
-    /// other `api.php` method has no fixture and gets 404, as before.
+    /// Answers a `gdata` metadata request from the fixture directory's saved API response, a `votecomment` from the
+    /// saved gallery page's comment scores and a `taggallery` with an empty answer. Any other `api.php` method has no
+    /// fixture and gets 404, as before.
     private func loadGalleryMetadata(url: URL, fixtureDirectory: URL?) {
         do {
+            if let fixtureDirectory, let body = Self.body(of: request),
+               let data = try Self.voteResponse(requestBody: body, fixtureDirectory: fixtureDirectory) {
+                finish(statusCode: 200, data: data, url: url, mimeType: "application/json")
+                return
+            }
             guard let fixtureDirectory, let body = Self.body(of: request),
                   let data = try Self.galleryMetadataResponse(
                     requestBody: body,
@@ -370,6 +376,53 @@ final class UITestStubURLProtocol: URLProtocol {
             }
         }
         return try JSONSerialization.data(withJSONObject: ["gmetadata": metadata], options: [.sortedKeys])
+    }
+
+    /// The votes the stub has accepted in this launch, by comment ID: `1` up, `-1` down. A comment with no entry has
+    /// no vote, so a vote request is answered from what the stub has been sent, never from the live site.
+    private static let commentVotes = Mutex([Int: Int]())
+
+    /// The stub's answer to a `votecomment` or `taggallery` request, or `nil` for any other method. A comment vote
+    /// is answered as the site answers it: the same direction again withdraws the vote, another direction replaces
+    /// it, and the score is the saved page's score for the comment plus the vote now held.
+    static func voteResponse(requestBody: Data, fixtureDirectory: URL) throws -> Data? {
+        guard let request = try JSONSerialization.jsonObject(with: requestBody) as? [String: Any],
+              let method = request["method"] as? String
+        else { return nil }
+        switch method {
+        case "taggallery":
+            return Data("{}".utf8)
+        case "votecomment":
+            guard let commentID = request["comment_id"] as? Int,
+                  let direction = request["comment_vote"] as? Int
+            else { return nil }
+            let page = try String(
+                contentsOf: fixtureDirectory.appending(path: "GalleryDetail.html"),
+                encoding: .utf8
+            )
+            let vote = commentVotes.withLock { votes in
+                let held = votes[commentID] == direction ? 0 : direction
+                votes[commentID] = held == 0 ? nil : held
+                return held
+            }
+            let score = savedCommentScore(commentID: commentID, in: page) + vote
+            return try JSONSerialization.data(
+                withJSONObject: ["comment_id": commentID, "comment_score": score, "comment_vote": vote],
+                options: [.sortedKeys]
+            )
+        default:
+            return nil
+        }
+    }
+
+    /// The score the saved gallery page prints for a comment (`id="comment_score_<ID>"`), or 0.
+    private static func savedCommentScore(commentID: Int, in page: String) -> Int {
+        guard let marker = page.range(of: "id=\"comment_score_\(commentID)\""),
+              let open = page[marker.upperBound...].firstIndex(of: ">"),
+              let close = page[open...].firstIndex(of: "<")
+        else { return 0 }
+        let text = page[page.index(after: open)..<close].trimmingCharacters(in: .whitespaces)
+        return Int(text.replacing("+", with: "")) ?? 0
     }
 
     /// A URL session hands a protocol its POST body as a stream rather than as `httpBody`.
