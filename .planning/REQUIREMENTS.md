@@ -179,7 +179,7 @@ Deferred to a future milestone after 3.0 (owner msg 2001; product lead msgs 2002
 ### TAG — Tags
 
 - **TAG-01**: Add a native tag management page.
-  - EhPanda's own screen for watched and hidden tags, replacing the E-Hentai My Tags web page that Account settings opens today. This closes the last feature reachable only through the website; the remaining web pages (the sign-in and E-Hentai settings globe shortcuts, the Cloudflare check page, the report page fallback) are optional or required by the site.
+  - EhPanda's own screen for watched and hidden tags, replacing the E-Hentai My Tags web page that Account settings opens today. This closes the last feature reachable only through the website; the remaining web pages (the sign-in and E-Hentai settings globe shortcuts, the Cloudflare check page, the report page fallback) are optional or required by the site. Re-confirmed 2026-11-12 as deferred, never blocking 3.0 (owner msg 3942; product lead msg 3943).
 - **TAG-02**: Offer tag actions in a context menu.
   - Long-pressing a tag on a gallery page offers its actions in a menu; today voting is only through the buttons on the tag.
 - **LOAD-01**: Show a loading skeleton on every loading page.
