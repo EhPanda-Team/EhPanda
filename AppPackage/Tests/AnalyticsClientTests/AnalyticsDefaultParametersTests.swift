@@ -16,8 +16,10 @@ import Testing
 struct AnalyticsDefaultParametersTests {
     private static let keys: Set<String> = [
         "App.host", "App.loggedIn", "App.readingDirection",
-        "App.dualPageMode", "App.translateTags"
+        "App.dualPageMode", "App.translateTags", "App.distributionChannel"
     ]
+    /// Where the app came from is the one parameter below Full (20-12 §3, owner msg 2842).
+    private static let channelKey = "App.distributionChannel"
 
     private static func baseSetting() -> Setting {
         var setting = Setting()
@@ -32,13 +34,13 @@ struct AnalyticsDefaultParametersTests {
 
     // MARK: The pure snapshot
 
-    // The shape is fixed at five entries under every input, so a parameter added or dropped fails
+    // The shape is fixed at six entries at Full under every input, so a parameter added or dropped fails
     // here rather than silently changing the default-parameter set the whole dataset is segmented by.
     @Test
     func snapshotAlwaysCarriesExactlyTheSixExpectedKeys() {
         let parameters = AnalyticsDefaultParameters.snapshot(setting: Self.baseSetting(), didLogin: false)
 
-        #expect(parameters.count == 5)
+        #expect(parameters.count == 6)
         #expect(Set(parameters.keys) == Self.keys)
     }
 
@@ -127,11 +129,11 @@ struct AnalyticsDefaultParametersTests {
 
     // MARK: The level gate
 
-    // Only Full promises "your main settings" (D-06f), so every other level, and no level, gets none.
-    // Asserting emptiness rather than a smaller key set is deliberate: a future parameter added to
-    // `snapshot` above the guard would leak onto a signal the user did not agree to, and this fails
-    // the moment it does.
-    @Test(arguments: [nil, .minimal, .basic] as [AnalyticsLevel?])
+    // Only Full promises "your main settings" (D-06f), so Minimal, and no level, get none. Asserting
+    // emptiness rather than a smaller key set is deliberate: a future parameter added to `snapshot`
+    // above the guard would leak onto a signal the user did not agree to, and this fails the moment it
+    // does. Basic gets the channel and nothing else, which the next group pins.
+    @Test(arguments: [nil, .minimal] as [AnalyticsLevel?])
     func snapshotIsEmptyWithoutALevelThatSharesIt(level: AnalyticsLevel?) {
         var setting = Self.baseSetting()
         setting.analyticsLevel = level
@@ -142,8 +144,8 @@ struct AnalyticsDefaultParametersTests {
 
     // The gate must not depend on any other field's value, or a particular combination of
     // preferences could leak parameters before the user chose a level that shares them.
-    @Test(arguments: [nil, .minimal, .basic] as [AnalyticsLevel?])
-    func aLevelBelowFullEmptiesTheSnapshotUnderEveryOtherSetting(level: AnalyticsLevel?) {
+    @Test(arguments: [nil, .minimal] as [AnalyticsLevel?])
+    func aLevelBelowBasicEmptiesTheSnapshotUnderEveryOtherSetting(level: AnalyticsLevel?) {
         for host in GalleryHost.allCases {
             for direction in ReadingDirection.allCases {
                 for didLogin in [true, false] {
@@ -170,11 +172,47 @@ struct AnalyticsDefaultParametersTests {
     }
 
     @Test
-    func fullCarriesAllFiveParameters() {
+    func fullCarriesAllFiveSettingsParametersAndTheChannel() {
         var setting = Self.baseSetting()
         setting.analyticsLevel = .full
 
         #expect(Set(AnalyticsDefaultParameters.snapshot(setting: setting, didLogin: false).keys) == Self.keys)
+    }
+
+    // MARK: The channel at Basic (20-12 §3, owner msg 2842)
+
+    // Basic carries exactly one default parameter, and it is the channel: no `App.*` key other than
+    // `App.distributionChannel`, under every other setting, so the settings stay a Full-only promise.
+    @Test(arguments: DistributionChannel.allCases)
+    func basicCarriesTheChannelAndNoOtherAppKey(channel: DistributionChannel) {
+        for host in GalleryHost.allCases {
+            for direction in ReadingDirection.allCases {
+                for didLogin in [true, false] {
+                    var setting = Self.baseSetting()
+                    setting.galleryHost = host
+                    setting.readingDirection = direction
+                    setting.analyticsLevel = .basic
+
+                    let parameters = AnalyticsDefaultParameters.snapshot(
+                        setting: setting, didLogin: didLogin, distributionChannel: channel
+                    )
+
+                    #expect(parameters == [Self.channelKey: channel.rawValue])
+                }
+            }
+        }
+    }
+
+    @Test(arguments: DistributionChannel.allCases)
+    func fullCarriesTheChannelToo(channel: DistributionChannel) {
+        var setting = Self.baseSetting()
+        setting.analyticsLevel = .full
+
+        let parameters = AnalyticsDefaultParameters.snapshot(
+            setting: setting, didLogin: false, distributionChannel: channel
+        )
+
+        #expect(parameters[Self.channelKey] == channel.rawValue)
     }
 
     // MARK: The live closure

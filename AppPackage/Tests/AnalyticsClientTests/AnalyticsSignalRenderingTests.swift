@@ -116,15 +116,55 @@ struct AnalyticsSignalRenderingTests {
         SignalRenderingFixture(
             signal: .cloudflareChallengeEncountered,
             rendered: .signal(name: "Account.cloudflareChallengeEncountered", parameters: [:])
+        ),
+        // The 3.0 flows (20-12, signed off): first launch, the analytics choice, and comment moderation.
+        // Every value is a closed enum's spelling; the report signal carries its outcome only (owner msg 2837).
+        SignalRenderingFixture(
+            signal: .firstLaunchCompleted(level: .basic),
+            rendered: .signal(name: "FirstLaunch.completed", parameters: ["Analytics.level": "basic"])
+        ),
+        SignalRenderingFixture(
+            signal: .analyticsLevelChanged(from: .minimal, to: .full),
+            rendered: .signal(name: "Analytics.levelChanged", parameters: [
+                "Analytics.from": "minimal",
+                "Analytics.to": "full"
+            ])
+        ),
+        SignalRenderingFixture(
+            signal: .commentReportOutcome(.reportPageOpened),
+            rendered: .signal(name: "Moderation.reportOutcome", parameters: [
+                "Moderation.reportOutcome": "reportPageOpened"
+            ])
+        ),
+        SignalRenderingFixture(
+            signal: .commentPosterBlocked,
+            rendered: .signal(name: "Moderation.posterBlocked", parameters: [:])
+        ),
+        SignalRenderingFixture(
+            signal: .commentPosterUnblocked(from: .blockedUsers),
+            rendered: .signal(name: "Moderation.posterUnblocked", parameters: [
+                "Moderation.unblockSurface": "blockedUsers"
+            ])
+        ),
+        SignalRenderingFixture(
+            signal: .blockedCommentShown,
+            rendered: .signal(name: "Moderation.blockedCommentShown", parameters: [:])
+        ),
+        SignalRenderingFixture(
+            signal: .commentPostingWarningAnswered(.postAnyway),
+            rendered: .signal(name: "Moderation.postingWarningAnswered", parameters: [
+                "Moderation.postingChoice": "postAnyway"
+            ])
         )
     ]
 
-    // The whole analytics vocabulary a reducer can reach is thirteen signals wide. Pinning the
-    // number here is what makes the sweeps below exhaustive: a case added without a fixture fails
-    // this assertion rather than slipping through untested.
+    // The whole analytics vocabulary a reducer can reach is twenty signals wide: thirteen, and the
+    // seven the 3.0 flows added (20-12). Pinning the number here is what makes the sweeps below
+    // exhaustive: a case added without a fixture fails this assertion rather than slipping through
+    // untested.
     @Test
-    func theVocabularyIsThirteenSignalsWide() {
-        #expect(Self.fixtures.count == 13)
+    func theVocabularyIsTwentySignalsWide() {
+        #expect(Self.fixtures.count == 20)
     }
 
     // The whole dictionary is compared, not a key-by-key spot check. A spot check would let an
@@ -196,6 +236,37 @@ struct AnalyticsSignalRenderingTests {
                 #expect(
                     token.contains(Self.sentinel) == false,
                     "the sentinel survived into a rendered string: \(token)"
+                )
+            }
+        }
+    }
+
+    // The moderation flows work on a comment's text, its poster's name and member ID, a report's details
+    // and email, and a gallery's title and URL (20-12 §4). No new case can hold any of them, so this
+    // sweeps every value of every new signal, in the raw, rendered and reflected form, for the probes
+    // `ModerationLeakProbe` names. The flows' own reducer tests place the same probes in real state.
+    @Test
+    func noModerationProbeSurvivesIntoAnyNewSignal() {
+        var signals: [AnalyticsSignal] = [.commentPosterBlocked, .blockedCommentShown]
+        signals += AnalyticsLevel.allCases.map({ .firstLaunchCompleted(level: $0) })
+        for from in AnalyticsLevel.allCases {
+            signals += AnalyticsLevel.allCases.map({ .analyticsLevelChanged(from: from, to: $0) })
+        }
+        signals += ReportOutcome.allCases.map({ .commentReportOutcome($0) })
+        signals += UnblockSurface.allCases.map({ .commentPosterUnblocked(from: $0) })
+        signals += PostingWarningChoice.allCases.map({ .commentPostingWarningAnswered($0) })
+
+        // Guards against a vacuous pass: 2 + 3 + 9 + 4 + 2 + 2.
+        #expect(signals.count == 22)
+
+        for signal in signals {
+            let strings = [String(describing: signal)]
+                + Mirror(reflecting: signal).leafRenderings
+                + Self.allStrings(of: signal.rendered)
+            for probe in ModerationLeakProbe.all {
+                #expect(
+                    strings.contains(where: { $0.contains(probe) }) == false,
+                    "a moderation probe survived into \(signal)"
                 )
             }
         }
