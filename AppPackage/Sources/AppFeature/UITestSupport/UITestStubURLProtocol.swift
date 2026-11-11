@@ -1,6 +1,7 @@
 #if DEBUG
 import Foundation
 import Synchronization
+import UIKit
 
 /// A capture's exact replay: it answers only the URLs its validated fixture lists, with each
 /// file's recorded media type and verified bytes, and records every request it cannot answer, so
@@ -255,14 +256,63 @@ final class UITestStubURLProtocol: URLProtocol {
 
     private static let htmlMIMEType = "text/html; charset=utf-8"
 
+    /// The host of the images the stub serves itself: the library cover and the reader's numbered pages.
+    private static let fixtureHost = "fixtures.ehpanda.invalid"
+
+    /// How many pages the stub's multi-page viewer lists, as many as the saved gallery page says it has.
+    private static let stubPageCount = 156
+
+    /// The multi-page viewer's page: the key and the image list the reader reads its pages' keys from.
+    static func multiPageViewerPage() -> Data {
+        let images = (1...stubPageCount).map({ "{\"n\":\"\($0).png\",\"k\":\"stubkey\($0)\"}" })
+        let page = """
+        <html><body><script type="text/javascript">
+        var gid = 3103480;
+        var mpvkey = "stubmpvkey";
+        var imagelist = [\(images.joined(separator: ","))];
+        </script></body></html>
+        """
+        return Data(page.utf8)
+    }
+
+    /// A numbered page for the reader: a soft colour with the page number large on it, so a loaded page can be told
+    /// from a loading one and from any other page.
+    static func pageImage(number: Int) -> Data {
+        let size = CGSize(width: 600, height: 900)
+        let hue = CGFloat((number * 37) % 100) / 100
+        let attributes: [NSAttributedString.Key: Any] = [
+            .font: UIFont.systemFont(ofSize: 320, weight: .bold),
+            .foregroundColor: UIColor.black.withAlphaComponent(0.55)
+        ]
+        return UIGraphicsImageRenderer(size: size).pngData { context in
+            UIColor(hue: hue, saturation: 0.25, brightness: 0.95, alpha: 1).setFill()
+            context.fill(CGRect(origin: .zero, size: size))
+            let text = "\(number)" as NSString
+            let textSize = text.size(withAttributes: attributes)
+            text.draw(
+                at: CGPoint(x: (size.width - textSize.width) / 2, y: (size.height - textSize.height) / 2),
+                withAttributes: attributes
+            )
+        }
+    }
+
     private func loadFixture(url: URL, fixtureDirectory: URL?) {
-        if url.host() == "fixtures.ehpanda.invalid", url.path() == "/library-cover.png", let fixtureDirectory {
+        if url.host() == Self.fixtureHost, url.path() == "/library-cover.png", let fixtureDirectory {
             do {
                 let data = try Data(contentsOf: fixtureDirectory.appending(path: "LibraryCover.png"))
                 finish(statusCode: 200, data: data, url: url, mimeType: "image/png")
             } catch {
                 client?.urlProtocol(self, didFailWithError: error)
             }
+            return
+        }
+        if url.host() == Self.fixtureHost, url.path().hasPrefix("/page/") {
+            let number = Int(url.deletingPathExtension().lastPathComponent) ?? 0
+            finish(statusCode: 200, data: Self.pageImage(number: number), url: url, mimeType: "image/png")
+            return
+        }
+        if url.path().hasPrefix("/mpv/") {
+            finish(statusCode: 200, data: Self.multiPageViewerPage(), url: url, mimeType: Self.htmlMIMEType)
             return
         }
         if url.path() == "/api.php" {
@@ -330,7 +380,7 @@ final class UITestStubURLProtocol: URLProtocol {
     private func loadGalleryMetadata(url: URL, fixtureDirectory: URL?) {
         do {
             if let fixtureDirectory, let body = Self.body(of: request),
-               let data = try Self.voteResponse(requestBody: body, fixtureDirectory: fixtureDirectory) {
+               let data = try Self.apiAnswer(requestBody: body, fixtureDirectory: fixtureDirectory) {
                 finish(statusCode: 200, data: data, url: url, mimeType: "application/json")
                 return
             }
@@ -382,16 +432,23 @@ final class UITestStubURLProtocol: URLProtocol {
     /// no vote, so a vote request is answered from what the stub has been sent, never from the live site.
     private static let commentVotes = Mutex([Int: Int]())
 
-    /// The stub's answer to a `votecomment` or `taggallery` request, or `nil` for any other method. A comment vote
+    /// The stub's answer to a `votecomment`, `taggallery` or `imagedispatch` request, or `nil` for any other method.
+    /// An image dispatch names the numbered page image the stub serves itself. A comment vote
     /// is answered as the site answers it: the same direction again withdraws the vote, another direction replaces
     /// it, and the score is the saved page's score for the comment plus the vote now held.
-    static func voteResponse(requestBody: Data, fixtureDirectory: URL) throws -> Data? {
+    static func apiAnswer(requestBody: Data, fixtureDirectory: URL) throws -> Data? {
         guard let request = try JSONSerialization.jsonObject(with: requestBody) as? [String: Any],
               let method = request["method"] as? String
         else { return nil }
         switch method {
         case "taggallery":
             return Data("{}".utf8)
+        case "imagedispatch":
+            let page = request["page"] as? Int ?? 0
+            return try JSONSerialization.data(
+                withJSONObject: ["i": "https://\(fixtureHost)/page/\(page).png", "s": "1"],
+                options: [.sortedKeys]
+            )
         case "votecomment":
             guard let commentID = request["comment_id"] as? Int,
                   let direction = request["comment_vote"] as? Int

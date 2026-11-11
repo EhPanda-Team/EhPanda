@@ -405,6 +405,16 @@ struct UITestStubTests {
         ]]
     }
 
+    /// The multi-page viewer's page lists one key per page in the form the parser reads, and a numbered page image is
+    /// a PNG.
+    @Test
+    func multiPageViewerAndPageImagesAreWhatTheReaderParses() throws {
+        let page = String(decoding: UITestStubURLProtocol.multiPageViewerPage(), as: UTF8.self)
+        #expect(page.contains("mpvkey = \"stubmpvkey\";\nvar imagelist = [{"))
+        #expect(page.contains("{\"n\":\"156.png\",\"k\":\"stubkey156\"}]"))
+        #expect(UITestStubURLProtocol.pageImage(number: 5).starts(with: [0x89, 0x50, 0x4E, 0x47]))
+    }
+
     /// List pages enrich their rows through `gdata`, so the stub answers it as the site does: the
     /// saved entry for each matching gid and token, in request order, and the API's error entry for
     /// any other pair. Another `api.php` method still has no fixture.
@@ -432,10 +442,10 @@ struct UITestStubTests {
     }
 
     /// A comment vote is answered as the site answers it, from the saved page's score: a vote adds to it, the same
-    /// direction again withdraws it, the other direction replaces it. A tag vote gets an empty answer, and any other
-    /// method has none.
+    /// direction again withdraws it, the other direction replaces it. A tag vote gets an empty answer, an image
+    /// dispatch names a numbered page image, and any other method has none.
     @Test
-    func voteResponseFollowsTheSitesVoteRules() throws {
+    func apiAnswerFollowsTheSitesVoteRules() throws {
         let directory = FileManager.default.temporaryDirectory
             .appending(path: "UITestStubVotes-\(UUID().uuidString)")
         try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
@@ -455,7 +465,7 @@ struct UITestStubTests {
                 "method": "votecomment", "comment_id": 990_001, "comment_vote": direction
             ])
             let data = try #require(
-                try UITestStubURLProtocol.voteResponse(requestBody: body, fixtureDirectory: directory)
+                try UITestStubURLProtocol.apiAnswer(requestBody: body, fixtureDirectory: directory)
             )
             return try #require(try JSONSerialization.jsonObject(with: data) as? [String: Int])
         }
@@ -467,12 +477,19 @@ struct UITestStubTests {
 
         let tag = try JSONSerialization.data(withJSONObject: ["method": "taggallery", "tags": "a:b", "vote": 1])
         let tagAnswer = try #require(
-            try UITestStubURLProtocol.voteResponse(requestBody: tag, fixtureDirectory: directory)
+            try UITestStubURLProtocol.apiAnswer(requestBody: tag, fixtureDirectory: directory)
         )
         #expect(String(decoding: tagAnswer, as: UTF8.self) == "{}")
 
+        let dispatch = try JSONSerialization.data(withJSONObject: ["method": "imagedispatch", "gid": 1, "page": 7])
+        let dispatchAnswer = try #require(
+            try UITestStubURLProtocol.apiAnswer(requestBody: dispatch, fixtureDirectory: directory)
+        )
+        let dispatched = try #require(try JSONSerialization.jsonObject(with: dispatchAnswer) as? [String: String])
+        expectNoDifference(dispatched, ["i": "https://fixtures.ehpanda.invalid/page/7.png", "s": "1"])
+
         let rating = try JSONSerialization.data(withJSONObject: ["method": "rategallery", "gid": 1])
-        #expect(try UITestStubURLProtocol.voteResponse(requestBody: rating, fixtureDirectory: directory) == nil)
+        #expect(try UITestStubURLProtocol.apiAnswer(requestBody: rating, fixtureDirectory: directory) == nil)
     }
 
     private func post(_ body: [String: Any], in session: URLSession) async throws -> (data: Data, statusCode: Int) {
