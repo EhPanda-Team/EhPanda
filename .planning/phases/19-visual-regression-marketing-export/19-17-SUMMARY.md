@@ -31,7 +31,7 @@ key-files:
 key-decisions:
   - "Task 3 (controlled regression on the hosted runner) is deferred (owner msg 3428); it is in STATE.md Deferred Items."
   - "Task 4: Required check: not required for now (owner msg 3431). The gate runs on every PR but is not required to merge into `main`."
-  - "`nyquist_compliant` stays false: the UITests plan's retry shows 2 Repetition nodes per device (flaky first runs), and the plan's bar is 0. No test or assertion was changed."
+  - "UITests first runs had 2 Repetition nodes per device (flaky first runs). Root cause: the \"Show All\" tap reached the app at about 1/3 of the intended point, below the app and the test (simulator or XCTest touch injection). Owner msgs 3539 and 3554: environmental, gate on a clean rerun, accepted with the retries noted. `nyquist_compliant` is true under that rule. No code, test or plan change."
 
 requirements-completed: []
 status: complete-with-deferred-parts
@@ -40,7 +40,9 @@ status: complete-with-deferred-parts
 # Phase 19 Plan 17: README, preview review and the phase gate Summary
 
 **Tasks 1, 2 and 5 are done; Task 3 is deferred; Task 4 is answered. Every gate step passed except the "0 Repetition
-nodes" bar: two accessibility-audit UI tests (one per device) failed their first run and passed on retry.**
+nodes" bar on the first run: two accessibility-audit UI tests (one per device) failed their first run and passed on
+retry. The clean rerun (owner msg 3539) was phone 0 Repetition nodes, iPad 0 failures with 4 Repetition nodes from two
+other tests; accepted with the retries noted (owner msg 3554).**
 
 ## Accomplishments
 
@@ -60,7 +62,9 @@ nodes" bar: two accessibility-audit UI tests (one per device) failed their first
 | Step | Result |
 |------|--------|
 | FeatureTests phone / pad | succeeded; 1838 passed, 0 failed each |
-| UITests phone / pad | succeeded; 122 / 125 passed, 0 failed; **2 Repetition nodes each** (flaky first runs of `testFiltersSheetAudit` and `testPadSettingAndDetailModalsAudit`, passed on retry 1) |
+| UITests phone / pad, first run | succeeded; 122 / 125 passed, 0 failed; **2 Repetition nodes each** (flaky first runs of `testFiltersSheetAudit` and `testPadSettingAndDetailModalsAudit`, passed on retry 1) |
+| UITests phone, clean rerun | succeeded; 122 passed, 0 failed, **0 Repetition nodes** |
+| UITests pad, rerun | succeeded; 125 passed, 0 failed; 4 Repetition nodes: `GalleryCardUITests.testFrontPageGridKeepsRatings()` (the same dropped "Show All" tap) and `ShareSheetUITests.testShareSheetHandoffLandsOnDetail()` (the system share sheet never presented; extension embedded and found on the retry; simulator and slowness, not an app bug) |
 | SwiftLint strict no-cache | 0 violations in 862 tracked files |
 | Python suites | `Scripts/visual` 384 OK; `Scripts/live-check` 27 OK; shard plan current |
 | Release build + `verify-release.py` | build succeeded; PASS, 0 findings |
@@ -74,7 +78,11 @@ nodes" bar: two accessibility-audit UI tests (one per device) failed their first
 
 ## Open / for the orchestrator
 
-- The two UITests first-run failures are the reason `nyquist_compliant` is false. Decide whether to accept the
-  retry as green, or fix those two tests' Front Page wait (outside this plan's files).
+- The UITests first-run failures were traced to a misplaced tap below the app and the test (the app saw the touch at
+  about 1/3 of the intended point: (125, 131) against a target centred at (374.7, 395), a factor equal to the
+  phone's display scale; 3 failures in about 30 early tries, 0 in about 310 later ones). The share-sheet failure on
+  the iPad is the simulator's system flow, not the extension. Details and evidence: `19-VALIDATION.md` "Phase gate
+  results", notes 2 to 4. Owner msg 3539: environmental, gate on a clean rerun. Owner msg 3554: accepted with the
+  retries noted. `nyquist_compliant` is set to true on that rule; no code, test or plan was changed.
 - Deferred and owed: Task 3, the real preview render, and the hosted rows of 19-10, 19-12 and 19-13.
 - Phase 19 is not marked complete.
