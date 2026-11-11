@@ -4,16 +4,16 @@ milestone: v3.0.0
 current_phase: 19
 current_phase_name: Visual Regression & Daily Live-Parsing Check
 status: executing
-stopped_at: "19-10 Task 4 checkpoint (owner go-ahead for ci/snapshot-gate)"
-last_updated: "2026-11-09T03:15:00.000Z"
-last_activity: 2026-11-09
-last_activity_desc: "19-10 Tasks 1-3 done (inventory closed, run-shard.sh, snapshot_fetch.py, snapshot-gate.yml and release/dependency wiring); Task 4 hosted proof waits for the owner; Login gap open"
+stopped_at: "19-10 closed; its green hosted run is deferred (owner msg 3425)"
+last_updated: "2026-11-11T05:00:00.000Z"
+last_activity: 2026-11-11
+last_activity_desc: "19-10 closed without a passing hosted run (owner msg 3425, product lead msg 3426): Tasks 1-3 done, runs 1-3 failed and fixed, run 4 (42951290351) unread; the green run and 19-12, 19-13 and 19-17's hosted runs are deferred (owner msg 3428)"
 state_head: e618e40cbb803098c79170a6f3524064002e313d
 progress:
   total_phases: 21
   completed_phases: 18
   total_plans: 321
-  completed_plans: 317
+  completed_plans: 318
   percent: 86
 milestone_name: Dependency Reduction & Modernization
 source_head: b5eca09d1
@@ -119,21 +119,17 @@ source_head: b5eca09d1
   - `ci/snapshot-measure` deleted.
   - **Owner decision open:** fix these and measure once more, or accept 2 workers on the model.
   - VIS-18-01 stays Pending.
-- **19-10 Tasks 1 to 3 done, Task 4 waiting for the owner** (`0b8af222e` to `51e36c8b7`; `19-10-PROOF.md`):
-  - Inventory closed: `favorites-category-menu` is not applicable on iPad (D-12), and a missing factory fails
-    `ScenarioInventoryTests`. Totals: 19,368 expected, 360 not applicable.
-  - `run-shard.sh` checks the pins (drift), fetches the baseline (compare), sets up the simulator through
-    `hosted-simulator.sh`, runs the shard's invocations (iPad turned per orientation), re-runs once only the classes
-    left without results, and writes `shard.json`. `snapshot_fetch.py` does a sparse, blobless fetch at the pinned
-    commit and checks every SHA-256. `snapshot_shard.py` does the bookkeeping.
-  - `snapshot-gate.yml` has seven jobs. `deploy.yml` and `deploy-beta.yml` need it in compare mode;
-    `dependencies.yml` dispatches it.
-  - 351 Python tests pass and `actionlint` is clean. Nothing has been pushed.
-  - **Gap (blocks a clean proof):** the three Login scenarios have factories but no matrix method (the wall-clock
-    `WaveForm`). 19-08's not-applicable rule meets neither D-05 nor D-12, so every shard reports `missing-result`
-    and all 20 would be retried. Options: `WaveForm` honours Reduce Motion plus three methods, or the owner accepts
-    the rule.
-  - Unverified: whether iPad clones inherit the landscape turn.
+- **19-10 closed; its green hosted run is deferred** (owner msg 3425, product lead msg 3426; `19-10-SUMMARY.md`,
+  `19-10-PROOF.md`):
+  - Tasks 1 to 3 done (`0b8af222e` to `51e36c8b7`; the Login gap closed by `940ae2bf1`, `aa5fe657c`): the closed
+    inventory, `run-shard.sh`, `snapshot_fetch.py`, `hosted-simulator.sh`, `snapshot-gate.yml` (27 shards, triage,
+    retry, native policy, aggregate) wired into `deploy.yml`, `deploy-beta.yml` and `dependencies.yml`.
+  - Task 4: hosted runs 1 (42562780142), 2 (42577585956) and 3 (42727781967) failed; each cause was fixed. Run 3's
+    fixes: `67b76839c` (runtime wait), `cede4bd90` (fixture covers never expire), `3226efb9f` (rotation wait in
+    reads), `4898e6309` (iPad native policy). Run 4 (42951290351, `a100173b5` on `ci/snapshot-gate`) was still
+    running at handoff; its result is unread and it was not cancelled.
+  - **Deferred** (Deferred Items below): the green gate run, owed before release day, and the hosted runs of
+    19-12, 19-13 and 19-17 (owner msg 3428).
   - VIS-18-01 stays Pending.
 
 ## Phase 19 planned: Visual Regression & Daily Live-Parsing Check — 2026-11-07
@@ -1881,6 +1877,10 @@ Items acknowledged and carried forward from previous milestone close:
 | Comments | Keep a comment's styles and link targets when editing it. The edit form pre-fills `GalleryComment.plainTextContent`, plain text without BBCode, so saving an edit in the app removes them. Prefer the source text the site's own edit form uses; verifying a save needs a logged-in account. See `quick/261102-comment-parser/SUMMARY.md`. | Open | 2026-11-02 |
 | Compliance | **Age wall (standard for every build, not only AltStore).** On first launch, before any content is shown or any network request is made, the user must confirm they are an adult, and legally allowed to view explicit content under every law that applies to them, wherever it comes from (for example where they are, where they live, or their citizenship). Owner msgs 1235 and 1239: not just "18 or older", and not only the law of the place they live; e.g. an American citizen living abroad. Until they do, nothing else in the app works, and there is no skip. Answering no keeps them on that screen. The answer is stored on the device. Reference: Hot Tub's onboarding; notarization guideline on honest age rating and verified or declared age (Ampo msg 1211). Owner msgs 1231, 1235 and 1239, spec Ato msgs 1232, 1236 and 1240. The website's adult-mode declaration should use this same wording (Ato msg 1240), which today says only "declares they are an adult" (Ato msg 1236). | Planned: Phase 18 (AGE-18-01) | 2026-11-02 |
 | Privacy | **Analytics consent (standard for every build).** No analytics are collected until the user chooses. A first-launch screen offers a few levels of sharing, including none, as in Hot Tub. The choice can be changed later in Settings. This replaces today's "on by default, switch off in Settings". Guideline 5.1.1: consent is needed even for anonymous usage data (Ampo msg 1211). Owner msg 1231, spec Ato msg 1232. | Planned: Phase 18 (CONSENT-18-01) | 2026-11-02 |
+| CI / release gate | **19-10 Task 4: a green snapshot-gate run.** A hosted run of `snapshot-gate.yml` whose `aggregate` job passes and whose `triage` names only the injected shards (their retries pass); plan step 4's persistent-crash run is owed too. The release workflows refuse to ship without it: the `deploy.yml` / `deploy-pal.yml` gate from 20-11 needs a successful `aggregate` check on the shipped commit, so neither 3.0 nor the AltStore PAL build can ship. **Must be done before release day.** First read run 42951290351 (still running at handoff). Owner msg 3425, product lead msg 3426; `19-10-SUMMARY.md`. | Deferred | 2026-11-11 |
+| CI / visual regression | **19-12: the full hosted candidate run and the public snapshot repository.** Every shard in candidate mode on the hosted runner, and `EhPanda-Team/ehpanda-snapshot` created with its README. Needs the GitHub screenshot check. Not done; owner msg 3428. | Deferred | 2026-11-11 |
+| CI / visual regression | **19-13: the owner's approval, the pinned baseline and a green compare run.** The owner approves the candidate set once; the approved pictures are pushed and pinned (`fingerprints.json`, `manifest.json`); a hosted compare run is green. Needs the GitHub screenshot check. Not done; owner msg 3428. | Deferred | 2026-11-11 |
+| CI / visual regression | **19-17: the controlled regression on the hosted runner (D-18).** A one-point layout-token change on the proof branch fails the hosted gate with exactly the affected coordinates as picture changes; restoring it makes the next run green; both run IDs in `19-17-REGRESSION.md`. Needs the GitHub screenshot check with the approved baseline. 19-17's local parts are not deferred. Owner msg 3428. | Deferred | 2026-11-11 |
 
 ## Session Continuity
 

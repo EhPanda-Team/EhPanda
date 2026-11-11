@@ -715,7 +715,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 17. Screenshot Automation, Visual Regression & OS 27 Modernization | 13/13 | Complete    | 2026-11-05 |
 | 18. In-App 3.0 Readiness: Age Wall, Analytics Choice, Comment Moderation & Reader Rework | 12/12 | Complete    | 2026-11-06 |
 | 18.1. Native report form (INSERTED) | 5/5 | Complete    | 2026-11-07 |
-| 19. Visual Regression & Daily Live-Parsing Check | 13/17 | In Progress |  |
+| 19. Visual Regression & Daily Live-Parsing Check | 14/17 | In Progress |  |
 | 20. 3.0 Distribution: Marketplace Build, Notarization, Listing & Release Checks | 0/TBD | Not started|  |
 
 ### Phase 12: Cloudflare Login Restoration
@@ -1490,7 +1490,7 @@ Plans:
   7. `Scripts/visual/README.md` matches the reduced Phase 17 harness and this phase's regression runner.
   8. Release builds still contain no capture code, fixtures, test assets or SnapshotTesting linkage.
 
-**Plans**: 13/17 plans executed (planned 2026-11-07; research: [19-RESEARCH.md](phases/19-visual-regression-marketing-export/19-RESEARCH.md), validation: [19-VALIDATION.md](phases/19-visual-regression-marketing-export/19-VALIDATION.md))
+**Plans**: 14/17 plans executed (planned 2026-11-07; research: [19-RESEARCH.md](phases/19-visual-regression-marketing-export/19-RESEARCH.md), validation: [19-VALIDATION.md](phases/19-visual-regression-marketing-export/19-VALIDATION.md))
 
 Plans:
 
@@ -1520,7 +1520,7 @@ Plans:
 
 **Wave 5**
 
-- [ ] 19-10-PLAN.md — inventory closed; the CI gate: 20 shards with retries, triage, aggregate and the native policy job *(checkpoint: owner go-ahead for the hosted proof on a `ci/` branch)* — Tasks 1 to 3 done (`0b8af222e` to `51e36c8b7`); the hosted proof waits for the owner; the Login gap is open ([progress](phases/19-visual-regression-marketing-export/19-10-PROOF.md))
+- [x] 19-10-PLAN.md — inventory closed; the CI gate: 20 shards with retries, triage, aggregate and the native policy job *(checkpoint: owner go-ahead for the hosted proof on a `ci/` branch)* — closed without a passing hosted run (owner msg 3425): Tasks 1 to 3 done, hosted runs 1 to 3 failed and were fixed, run 42951290351 unread; the green run is deferred and owed before release day ([summary](phases/19-visual-regression-marketing-export/19-10-SUMMARY.md), [proof](phases/19-visual-regression-marketing-export/19-10-PROOF.md))
 - [x] 19-16-PLAN.md — deploy the daily live check on the chosen runner and prove one real run *(checkpoint: owner go-ahead)*
 
 **Wave 6**
