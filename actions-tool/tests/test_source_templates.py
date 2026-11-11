@@ -5,6 +5,8 @@ import copy
 import json
 import os
 import pathlib
+import plistlib
+import re
 import shutil
 import subprocess
 import sys
@@ -19,6 +21,7 @@ SIDESTORE = json.loads((TOOLS / "sidestore.template.json").read_text(encoding="u
 BETA = json.loads((TOOLS / "altstore-beta.template.json").read_text(encoding="utf-8"))
 PAL = json.loads((TOOLS / "altstore-pal.template.json").read_text(encoding="utf-8"))
 ALTSTORE = json.loads((TOOLS.parent / "AltStore.json").read_text(encoding="utf-8"))
+ICON_URL = f"{languages.ASSETS_URL}app-marketplace/icon.png"
 SCREENSHOT_NAMES = ["01-home", "02-detail", "03-reading", "04-comments", "05-downloads", "06-filters", "07-more"]
 
 
@@ -36,6 +39,33 @@ def assets_checkout():
     return candidate if (candidate / "app-marketplace").is_dir() else None
 DEVICES = {("en-US",): "en", ("de-DE",): "de", ("ja-JP",): "ja", ("ko-KR",): "ko",
            ("zh-Hans-CN",): "zh-Hans", ("zh-Hant-TW",): "zh-Hant", ("zh-Hant-HK",): "zh-Hant"}
+
+
+# What a source does not say (owner msg 3827): "Apple ID" in any spelling, a count of apps (3 apps, 3 Apps, 3 つ,
+# 3개, 3 个, 3 個) or AltStore's own name. It looks at the source's and its app's texts, not the release notes.
+NOT_FOR_A_SOURCE = {
+    "an Apple ID": re.compile(r"Apple[ -]?ID", re.IGNORECASE),
+    "a number of apps": re.compile(r"(?<![\d.])\d+\s*(?:apps?|つ|개|个|個)", re.IGNORECASE),
+    "AltStore": re.compile(r"AltStore", re.IGNORECASE),
+}
+SOURCE_TEXT_KEYS = {"name", "subtitle", "description", "localizedSubtitles", "localizedDescriptions",
+                    "localizedDescription", "tintColor", "website"}
+
+
+def source_texts(source):
+    """(where, text) for every text of `source` and of its apps that people read, versions left out."""
+    def walk(where, value):
+        if isinstance(value, str):
+            yield where, value
+        elif isinstance(value, dict):
+            for key, item in value.items():
+                yield from walk(f"{where}.{key}", item)
+
+    for key in SOURCE_TEXT_KEYS & set(source):
+        yield from walk(key, source[key])
+    for app in source["apps"]:
+        for key in SOURCE_TEXT_KEYS & set(app):
+            yield from walk(f"{app['bundleIdentifier']}.{key}", app[key])
 
 
 class SourceTemplateTests(unittest.TestCase):
@@ -59,14 +89,70 @@ class SourceTemplateTests(unittest.TestCase):
         self.assertEqual(SIDESTORE["localizedSubtitles"], app["localizedSubtitles"])
         self.assertEqual(SIDESTORE["localizedDescriptions"], app["localizedDescriptions"])
 
-    def test_the_beta_app_description_ends_with_the_regular_description(self):
-        regular = SIDESTORE["apps"][0]["localizedDescriptions"]
-        beta = BETA["apps"][0]["localizedDescriptions"]
-        for code in languages.CODES:
+    def test_the_beta_template_is_altstore_json_with_only_its_own_identity(self):
+        # Owner msgs 3824 and 3827: the beta source mirrors the regular one, every source and app key and value,
+        # except what makes it a different app to AltStore. `versions` is left out: the template has none, and the
+        # beta workflow adds the builds.
+        expected = copy.deepcopy(ALTSTORE)
+        expected["apps"][0].pop("versions")
+        expected.update(name="EhPanda Beta", identifier="app.ehpanda.altstore.beta", featuredApps=["app.ehpanda.beta"])
+        expected["apps"][0].update(name="EhPanda Beta", bundleIdentifier="app.ehpanda.beta",
+                                   appPermissions=BETA["apps"][0]["appPermissions"])
+        self.assertEqual(BETA, expected)
+        # The same keys in the same order, so a diff of the two files shows only those values.
+        self.assertEqual(list(BETA), list(ALTSTORE))
+        self.assertEqual(list(BETA["apps"][0]), [key for key in ALTSTORE["apps"][0] if key != "versions"])
+        # Nothing but those five values differs, whatever the template and AltStore.json hold.
+        self.assertEqual(
+            {key for key in ALTSTORE if key != "apps" and ALTSTORE[key] != BETA[key]},
+            {"name", "identifier", "featuredApps"})
+        self.assertEqual(
+            {key for key in BETA["apps"][0] if ALTSTORE["apps"][0][key] != BETA["apps"][0][key]},
+            {"name", "bundleIdentifier", "appPermissions"})
+
+    def test_the_beta_has_no_beta_flag(self):
+        # `beta: true` would only be read by AltStore; no tool of ours reads it.
+        self.assertNotIn("beta", BETA["apps"][0])
+
+    def test_the_beta_permissions_are_the_ones_of_the_build_it_installs(self):
+        # AltStore refuses an install whose permissions do not match the source's. The beta is built from this
+        # checkout, so they are this checkout's: the usage descriptions of its Info.plist files, and the keys of its
+        # entitlements file (the beta archive signs nothing and adds none). The regular source's list is of an
+        # older build and is not the beta's to copy.
+        privacy = {}
+        for name in ["App/Info.plist", "ShareExtension/Info.plist"]:
+            with (TOOLS.parent / name).open("rb") as handle:
+                privacy.update({key: value for key, value in plistlib.load(handle).items()
+                                if key.endswith("UsageDescription")})
+        with (TOOLS.parent / "App" / "EhPanda.entitlements").open("rb") as handle:
+            entitlements = sorted(plistlib.load(handle))
+        self.assertEqual(BETA["apps"][0]["appPermissions"], {"entitlements": entitlements, "privacy": privacy})
+
+    def test_no_source_talks_about_apple_ids_or_how_many_apps_altstore_keeps(self):
+        # Owner msg 3827: how many apps a free Apple ID can install is AltStore's business, not the source's.
+        for source in [ALTSTORE, SIDESTORE, BETA, PAL]:
+            for where, text in source_texts(source):
+                with self.subTest(source=source["identifier"], where=where):
+                    for name, needle in NOT_FOR_A_SOURCE.items():
+                        self.assertEqual(needle.findall(text), [], f"{name}: {text}")
+
+    def test_the_needles_find_the_sentences_the_beta_source_used_to_have(self):
+        # The old beta copy, in each language: the check above must not pass only because it looks for the wrong thing.
+        old = {
+            "en": "With a free Apple ID, AltStore can keep only 3 apps at once, including AltStore itself.",
+            "de": "Mit einer kostenlosen Apple-ID kann AltStore nur 3 Apps gleichzeitig behalten, AltStore selbst mitgezählt.",
+            "ja": "無料の Apple ID では、AltStore でインストールしておけるアプリは AltStore 自体を含めて同時に 3 つまでです。",
+            "ko": "무료 Apple ID로는 AltStore가 AltStore 자체를 포함해 앱을 동시에 3개까지만 유지할 수 있습니다.",
+            "zh-Hans": "使用免费 Apple ID 时，AltStore 最多只能同时保留 3 个应用，包括 AltStore 本身。",
+            "zh-Hant": "使用免費 Apple ID 時，AltStore 最多只能同時保留 3 個 App，包括 AltStore 本身。",
+        }
+        for code, text in old.items():
             with self.subTest(code=code):
-                self.assertTrue(beta[code].endswith("\n" + regular[code]))
-                # The two beta lines, then the regular description.
-                self.assertEqual(beta[code].count("\n"), 2 + regular[code].count("\n"))
+                for name, needle in NOT_FOR_A_SOURCE.items():
+                    self.assertTrue(needle.search(text), f"{name} is not found in {text}")
+        clean = "EhPanda 3.0 is rebuilt for iOS 26 with 2 new modes. Toplists · Favorites · Hath Archives"
+        for name, needle in NOT_FOR_A_SOURCE.items():
+            self.assertIsNone(needle.search(clean), name)
 
     def test_every_app_shows_the_seven_iphone_screenshots(self):
         # Owner msg 2628: the same screenshots, in this order, for the regular, the beta and the PAL app
@@ -77,14 +163,24 @@ class SourceTemplateTests(unittest.TestCase):
             with self.subTest(source=source["identifier"]):
                 self.assertEqual(source["apps"][0]["screenshots"], {"iphone": expected})
 
-    def test_the_screenshots_are_in_the_assets_repository(self):
+    def test_every_source_and_app_uses_the_icon_in_the_assets_repository(self):
+        # The icon is served from the assets repository (owner msg 3824): the app repository's main branch has no icon
+        # file to link to. Source and app have the same one.
+        for source in [ALTSTORE, SIDESTORE, BETA, PAL]:
+            for entry in [source, source["apps"][0]]:
+                with self.subTest(source=source["identifier"]):
+                    self.assertEqual(entry["iconURL"], ICON_URL)
+
+    def test_the_icon_and_the_screenshots_are_in_the_assets_repository(self):
         assets = assets_checkout()
         if assets is None:
             self.skipTest("no checkout of the assets repository")
+        self.assertTrue((assets / "app-marketplace" / "icon.png").is_file())
         for source in [ALTSTORE, SIDESTORE, BETA, PAL]:
             with self.subTest(source=source["identifier"]):
                 problems = languages.check_source(source, versions_required=False, assets_dir=assets)
-                self.assertEqual([problem for problem in problems if "screenshots" in problem], [])
+                self.assertEqual([problem for problem in problems
+                                  if "screenshots" in problem or "iconURL" in problem], [])
 
     def test_screenshots_altstore_cannot_read_are_reported(self):
         good = {"imageURL": f"{languages.ASSETS_URL}app-marketplace/iphone/01-home.png", "width": 1260, "height": 2736}
@@ -108,7 +204,11 @@ class SourceTemplateTests(unittest.TestCase):
     def test_a_screenshot_missing_from_the_assets_repository_is_reported(self):
         assets = pathlib.Path(self.id())  # a folder that does not exist
         problems = languages.check_source(SIDESTORE, versions_required=False, assets_dir=assets)
-        self.assertEqual(len([problem for problem in problems if "is not in the assets repository" in problem]), 7)
+        missing = [problem for problem in problems if "is not in the assets repository" in problem]
+        self.assertEqual(len([problem for problem in missing if "screenshots" in problem]), 7)
+        # The source's icon and the app's.
+        self.assertEqual(len([problem for problem in missing if "iconURL app-marketplace/icon.png" in problem]), 2)
+        self.assertEqual(len(missing), 9)
 
     def test_the_beta_names_are_not_translated(self):
         self.assertEqual(BETA["name"], "EhPanda Beta")
