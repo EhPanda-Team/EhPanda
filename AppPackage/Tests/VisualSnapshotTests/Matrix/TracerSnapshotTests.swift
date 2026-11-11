@@ -55,8 +55,20 @@ enum TracerScenarios {
         for (index, gallery) in homeGalleries().enumerated() {
             guard let url = gallery.coverURL else { continue }
             let image = PublicVisualFixtures.artwork(marker: gallery.gid, colorIndex: index)
-            try await ImageCache.default.store(image, forKey: url.absoluteString, toDisk: false)
+            try await cacheArtwork(image, forKey: url.absoluteString)
         }
+    }
+
+    /// Stores synthetic artwork in Kingfisher's memory cache for as long as the process runs.
+    ///
+    /// A scenario's artwork is stored once, before its first coordinate, and Kingfisher's own default lets a memory
+    /// entry expire 300 s after it is stored. A hosted runner can freeze for longer than that: in run 42727781967 the
+    /// iPad `history-grid` (ja, large, portrait) took 1,668 s over its light picture, every coordinate after the
+    /// freeze found its covers expired, drew each as its loading placeholder, and timed out on the placeholder's spin.
+    static func cacheArtwork(_ image: UIImage, forKey key: String) async throws {
+        try await ImageCache.default.store(
+            image, forKey: key, options: KingfisherParsedOptionsInfo([.memoryCacheExpiration(.never)]), toDisk: false
+        )
     }
 
     static func home() -> AnyView {

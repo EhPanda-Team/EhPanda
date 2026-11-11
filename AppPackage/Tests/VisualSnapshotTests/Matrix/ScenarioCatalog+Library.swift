@@ -7,7 +7,6 @@ import DownloadsFeature
 import FavoritesFeature
 import FiltersFeature
 import Foundation
-import Kingfisher
 import QuickSearchFeature
 import Resources
 @testable import SearchFeature
@@ -366,7 +365,7 @@ enum LibraryScenarios {
         for (index, fixture) in PublicVisualFixtures.downloadGalleries.enumerated() {
             guard let url = downloadCoverURL(index) else { continue }
             let image = PublicVisualFixtures.artwork(marker: fixture.gid, colorIndex: fixture.colorIndex)
-            try await ImageCache.default.store(image, forKey: url.absoluteString, toDisk: false)
+            try await TracerScenarios.cacheArtwork(image, forKey: url.absoluteString)
         }
     }
 
