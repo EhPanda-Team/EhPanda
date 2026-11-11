@@ -42,7 +42,7 @@ public struct HistoryReducer: Sendable {
 
         var filteredGalleries: [Gallery] {
             guard !keyword.isEmpty else { return galleries }
-            return galleries.filter({ $0.title.caseInsensitiveContains(keyword) })
+            return galleries.filter({ $0.titleMatches(keyword) })
         }
         public var galleries = [Gallery]()
         public var loadingState: LoadingState = .idle

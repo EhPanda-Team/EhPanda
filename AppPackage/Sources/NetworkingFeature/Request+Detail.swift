@@ -164,6 +164,7 @@ public struct GalleryReverseRequest: Request {
                 gid: identifiers.gid,
                 token: identifiers.token,
                 title: detail.title,
+                jpnTitle: detail.jpnTitle,
                 rating: detail.rating,
                 tags: [],
                 category: detail.category,
