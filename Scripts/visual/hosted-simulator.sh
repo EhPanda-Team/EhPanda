@@ -27,6 +27,10 @@
 # until its 180 s limit (the iPad's Full Screen Apps switch, or Reduce Motion) or on `bootstatus` itself hanging for
 # 600 s. Now every boot is waited for with `bootstatus -b` and given a short settle before the first write, a write
 # the limit stopped is asked again like one that found the device not booted, and a third attempt is made.
+#
+# Run 42727781967 lost a retry when the pinned runtime left mid-setup: the device's boot found no runtime bundle and
+# both further attempts were refused at once ("Invalid runtime"). Each attempt now waits until the runtime is
+# listed as available; if it does not come back, the pinned runtime build is downloaded and waited for again.
 set -euo pipefail
 
 CREATE_LIMIT=120
@@ -37,6 +41,10 @@ SHUTDOWN_LIMIT=360
 NOT_BOOTED_WAIT=${HOSTED_SIMULATOR_NOT_BOOTED_WAIT:-15}
 # After `bootstatus` returns, before the first write (run 42577585956).
 SETTLE_WAIT=${HOSTED_SIMULATOR_SETTLE_WAIT:-20}
+# How long an attempt waits for the pinned runtime to be listed as available, before and after downloading it.
+RUNTIME_WAIT=300
+DOWNLOAD_LIMIT=1200
+ENVIRONMENT=$(cd "$(dirname "$0")" && pwd)/regression-environment.json
 ATTEMPTS=3
 # No attempt starts after this many seconds of setup: it would leave the shard too little of its budget.
 ATTEMPT_DEADLINE=1500
@@ -152,13 +160,46 @@ reset_simulators() {
     sleep 10
 }
 
+# runtime_available <runtime>: whether simctl lists the runtime identifier as available.
+runtime_available() {
+    limit 60 xcrun simctl list runtimes -j 2>/dev/null | python3 -c '
+import json, sys
+runtimes = json.load(sys.stdin)["runtimes"]
+sys.exit(0 if any(r.get("identifier") == sys.argv[1] and r.get("isAvailable") for r in runtimes) else 1)' "$1"
+}
+
+# wait_for_runtime <runtime>: up to RUNTIME_WAIT seconds for the runtime to be listed as available.
+wait_for_runtime() {
+    local deadline=$((SECONDS + RUNTIME_WAIT))
+    until runtime_available "$1"; do
+        [ "$SECONDS" -lt "$deadline" ] || return 1
+        sleep 10
+    done
+}
+
+# ensure_runtime <runtime>: the runtime is available, waited for and, if it does not come back, downloaded again by its
+# pinned build (regression-environment.json).
+ensure_runtime() {
+    local build
+    wait_for_runtime "$1" && return 0
+    echo "hosted-simulator: '$1' is not available after $RUNTIME_WAIT s; downloading it again" >&2
+    build=$(python3 -c 'import json, sys
+runtime = json.load(open(sys.argv[1]))["runtime"]
+print(runtime["buildVersion"] if runtime["identifier"] == sys.argv[2] else "")' "$ENVIRONMENT" "$1") || return 1
+    [ -n "$build" ] || return 1
+    limit "$DOWNLOAD_LIMIT" xcodebuild -downloadPlatform iOS -buildVersion "$build" >&2 || return 1
+    wait_for_runtime "$1"
+}
+
 create() {
     [ $# -eq 4 ] || usage
     ATTEMPT=$(mktemp)
     local attempt udid
     for attempt in $(seq "$ATTEMPTS"); do
         : >"$ATTEMPT"
-        if udid=$(create_once "$@"); then
+        if ! ensure_runtime "$3"; then
+            echo "hosted-simulator: '$3' is not available on attempt $attempt after $SECONDS s" >&2
+        elif udid=$(create_once "$@"); then
             echo "$udid"
             return 0
         fi
