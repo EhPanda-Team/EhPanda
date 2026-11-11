@@ -102,7 +102,7 @@ public struct CommentsReducer: Sendable {
     public var body: some Reducer<State, Action> {
         BindingReducer()
 
-        Scope(state: \.moderation, action: \.moderation, child: CommentModerationFeature.init)
+        Scope(\.moderation, action: \.moderation, CommentModerationFeature.init)
 
         Reduce { state, action in
             switch action {

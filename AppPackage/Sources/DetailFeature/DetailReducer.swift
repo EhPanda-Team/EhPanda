@@ -254,7 +254,7 @@ extension DetailReducer {
     @ReducerBuilder<State, Action>
     var detailBody: some Reducer<State, Action> {
         BindingReducer()
-        Scope(state: \.moderation, action: \.moderation, child: CommentModerationFeature.init)
+        Scope(\.moderation, action: \.moderation, CommentModerationFeature.init)
         navigationReducer
         uiReducer
         syncReducer
