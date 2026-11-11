@@ -40,7 +40,7 @@ EhPanda 會向 [TelemetryDeck](https://telemetrydeck.com) 傳送匿名分析資�
 
 無論哪個層級，資料中都絕不包含畫廊的識別碼、權杖或標題，任何畫廊或頁面連結，搜尋關鍵字文字，標籤的值，使用者名稱，Cookie 或任何其他憑證，以及檔案路徑。
 
-在「最少」層級下，EhPanda 每次安裝只傳送一次安裝訊號。其中只包含 App 的取得來源（GitHub、AltStore、SideStore、AltStore PAL 或 EhPanda Beta；非 EhPanda 發布的版本為「source」）和為本次安裝產生的隨機識別碼，不包含任何裝置資訊。每個官方下載檔案都標有它的發布位置，因此這個訊號反映的是你使用的下載檔案，而不是你的安裝方式。TelemetryDeck SDK 永遠不會啟動。
+在「最少」層級下，EhPanda 每次安裝只傳送一次安裝訊號。其中只包含 App 的取得來源（GitHub、AltStore、SideStore 或 AltStore PAL）和為本次安裝產生的隨機識別碼，不包含任何裝置資訊。每個官方下載檔案都標有它的發布位置，因此這個訊號反映的是你使用的下載檔案，而不是你的安裝方式。TelemetryDeck SDK 永遠不會啟動。
 
 在「基本」層級下，EhPanda 傳送同樣的安裝訊號，啟動 TelemetryDeck SDK，並額外傳送：
 - App 的使用頻率：SDK 本身的工作階段訊號與統計數字，例如首次開啟的日期、工作階段次數、使用過的天數與工作階段的長度；

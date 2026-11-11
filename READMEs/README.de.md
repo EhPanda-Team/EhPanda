@@ -40,7 +40,7 @@ EhPanda sendet anonyme Analysedaten an [TelemetryDeck](https://telemetrydeck.com
 
 Auf keiner Stufe enthalten die Daten Galerie-Bezeichner, Token oder Titel, Links zu Galerien oder Seiten, den Text von Suchbegriffen, Tag-Werte, Benutzernamen, Cookies oder andere Zugangsdaten sowie Dateipfade.
 
-Bei „Minimal“ sendet EhPanda ein einziges Installationssignal, einmal pro Installation. Es enthält, woher du die App hast (GitHub, AltStore, SideStore, AltStore PAL oder EhPanda Beta, oder „source“ für jeden Build, den EhPanda nicht veröffentlicht hat), und eine zufällige Kennung, die für diese Installation erzeugt wird, aber nichts über dein Gerät. Jeder offizielle Download ist mit dem Ort gekennzeichnet, an dem er veröffentlicht wurde. Das Signal zeigt also, welchen Download du hast, nicht, wie du ihn installiert hast. Das TelemetryDeck-SDK wird nie gestartet.
+Bei „Minimal“ sendet EhPanda ein einziges Installationssignal, einmal pro Installation. Es enthält, woher du die App hast (GitHub, AltStore, SideStore oder AltStore PAL), und eine zufällige Kennung, die für diese Installation erzeugt wird, aber nichts über dein Gerät. Jeder offizielle Download ist mit dem Ort gekennzeichnet, an dem er veröffentlicht wurde. Das Signal zeigt also, welchen Download du hast, nicht, wie du ihn installiert hast. Das TelemetryDeck-SDK wird nie gestartet.
 
 Bei „Basis“ sendet EhPanda dasselbe Installationssignal, startet das TelemetryDeck-SDK und sendet zusätzlich:
 - wie oft die App genutzt wird: die eigenen Sitzungssignale und Kennzahlen des SDK, etwa das Datum der ersten Nutzung, die Anzahl der Sitzungen, an wie vielen einzelnen Tagen du die App geöffnet hast und wie lange Sitzungen dauern;
