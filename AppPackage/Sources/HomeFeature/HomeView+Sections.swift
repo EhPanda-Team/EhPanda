@@ -353,10 +353,18 @@ struct CoverWallSection: View {
                         ForEach(dataSource, id: \.first) {
                             VerticalCoverStack(galleries: $0, navigateAction: navigateAction)
                         }
-                        .withHorizontalSpacing(width: 0)
                     }
+                    // The zero-width spacers that used to carry the 20pt edge inset were flexible in
+                    // height, so the row filled the section's fixed height and centred its stacks in
+                    // it. Without them the row would hug its stacks and sit at the top, 5pt higher.
+                    .frame(maxHeight: .infinity)
+                    .scrollTargetLayout()
                 }
             }
+            // A release coasts as before and then settles with the nearest column's leading edge on
+            // the content margin, which is the inset the first column already rests at.
+            .scrollTargetBehavior(.viewAligned(limitBehavior: .never))
+            .contentMargins(.horizontal, 20, for: .scrollContent)
             .scrollIndicators(.hidden)
             .frame(height: showsRichInformation ? nil : coverSize.height * 2 + 30)
         }
@@ -467,7 +475,13 @@ struct ToplistsSection: View {
             HStack(alignment: .top) {
                 ForEach(ToplistsType.allCases, content: verticalStacks)
             }
+            .scrollTargetLayout()
         }
+        // One list per swipe: a gentle swipe moves to the next list and a hard flick cannot skip
+        // past it, which suits four lists that are each most of a screen wide. The side inset is
+        // padding on each column rather than a content margin, because the columns size themselves
+        // against the scroll view's container and a margin would shrink that (see `verticalStacks`).
+        .scrollTargetBehavior(.viewAligned(limitBehavior: .alwaysByOne))
         .scrollIndicators(.hidden)
     }
 
@@ -491,6 +505,10 @@ struct ToplistsSection: View {
                 )
             }
         }
+        // The column is the snap target, so its own 20pt side padding is part of the target and the
+        // content of a snapped column rests at the same inset as the first one. This stays padding:
+        // `containerRelativeFrame` in the column measures the scroll view less any content margin,
+        // so a margin here would narrow every column.
         .padding(.horizontal, 20).padding(.vertical, 5)
     }
 
@@ -607,16 +625,21 @@ struct MiscGridSection: View {
         SubSection(title: .more, showAll: false) {
             ScrollView(.horizontal) {
                 if showsRichInformation {
-                    HStack(spacing: 20) {
+                    HStack(spacing: 0) {
                         ForEach(HomeMiscGridType.allCases) { type in
                             Button {
                                 navigateAction(type)
                             } label: {
                                 HomeDestinationCard(type: type)
                             }
+                            // The card is sized against the scroll view's container, which a content
+                            // margin would shrink, so its 20pt inset is padding that belongs to the
+                            // snap target: a snapped card rests at the inset the first one does.
+                            .padding(.leading, 20)
                         }
                     }
-                    .padding(.horizontal, 20)
+                    .scrollTargetLayout()
+                    .padding(.trailing, 20)
                 } else {
                     HStack {
                         let types = HomeMiscGridType.allCases
@@ -628,10 +651,15 @@ struct MiscGridSection: View {
                             }
                             .padding(.trailing, type == types.last ? 0 : 10)
                         }
-                        .withHorizontalSpacing()
                     }
+                    .scrollTargetLayout()
                 }
             }
+            // Many small items, so a hard flick may carry on past several before it settles.
+            .scrollTargetBehavior(.viewAligned(limitBehavior: .never))
+            // The compact row's 16pt edge inset: the 8pt spacers it used to have plus the stack's 8pt
+            // spacing beside them.
+            .contentMargins(.horizontal, showsRichInformation ? 0 : 16, for: .scrollContent)
             .scrollIndicators(.hidden)
         }
     }

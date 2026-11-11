@@ -310,10 +310,15 @@ private struct HistoryGalleriesSection: View {
                             }
                             .frame(maxHeight: .infinity, alignment: .top)
                         }
-                        .withHorizontalSpacing()
                     }
                     .fixedSize(horizontal: false, vertical: true)
+                    .scrollTargetLayout()
                 }
+                // Coasts as before, then settles with the nearest card's leading edge on the content
+                // margin: the 16pt inset the first card already rests at (8pt spacer plus the 8pt
+                // stack spacing it used to have).
+                .scrollTargetBehavior(.viewAligned(limitBehavior: .never))
+                .contentMargins(.horizontal, 16, for: .scrollContent)
                 .scrollIndicators(.hidden)
             }
         } header: {
