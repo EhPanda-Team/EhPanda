@@ -18,6 +18,8 @@ env:
   BETA_SOURCE_BRANCH: 'altstore-beta'
   ALTSTORE_BETA_TEMPLATE_PATH: './actions-tool/altstore-beta.template.json'
   ALTSTORE_FILTER_PATH: './actions-tool/altstore-add-version.jq'
+  RELEASE_NOTES_TOOL_PATH: './actions-tool/release_notes.py'
+  RELEASE_NOTES_DIR: './ReleaseNotes'
   CHECK_BUILD_NUMBER_SCRIPT_PATH: './actions-tool/check-build-number.sh'
   PACKAGE_CHANNEL_SCRIPT_PATH: './actions-tool/package-channel.sh'
   # The beta flavor: its own bundle ID, Home Screen name and URL scheme (see Config/Beta.xcconfig). The
@@ -193,8 +195,19 @@ jobs:
           size="$(stat -f%z "$BETA_IPA_PATH")"
           sha256="$(shasum -a 256 "$BETA_IPA_PATH" | awk '{ print $1 }')"
           version_date="$(date -u +'%Y-%m-%dT%H:%M:%SZ')"
-          notes="${RELEASE_DESCRIPTION:-$RELEASE_TITLE}"
-          notes="$(printf '%s' "$notes" | tr -d '\r')"
+          # The notes are the version's notes file, as for a regular release: English is the plain field, and
+          # AltStore also gets every language, English included, in localizedDescriptions. A beta of a version
+          # that has no notes file yet shows the release description, in English only.
+          notes_path="$RELEASE_NOTES_DIR/$version.md"
+          if [[ -f "$notes_path" ]]; then
+            python3 "$RELEASE_NOTES_TOOL_PATH" check "$notes_path"
+            notes="$(python3 "$RELEASE_NOTES_TOOL_PATH" english "$notes_path")"
+            localized_notes="$(python3 "$RELEASE_NOTES_TOOL_PATH" altstore "$notes_path")"
+          else
+            notes="${RELEASE_DESCRIPTION:-$RELEASE_TITLE}"
+            notes="$(printf '%s' "$notes" | tr -d '\r')"
+            localized_notes=null
+          fi
           privacy="$(
             find "$app_path" -name Info.plist -print0 |
             while IFS= read -r -d '' plist; do
@@ -245,11 +258,15 @@ jobs:
               bash "$check_build_number_path" "$build_version" "$release_json"
             fi
 
-            # The first beta creates the source. The template has no versions, and AltStore rejects a
-            # source with none, so it is only ever written with this build added.
-            source_json="$beta_json"
-            if [[ ! -f "$beta_json" ]]; then
-              source_json="$template_path"
+            # Every run takes all the metadata from the template, so a fix to it reaches the live source with
+            # the next beta. Only the versions already published are carried over from the branch. The
+            # template has no versions, and AltStore rejects a source with none, so the source is only ever
+            # written with this build added.
+            source_json="$template_path"
+            if [[ -f "$beta_json" ]]; then
+              source_json="$RUNNER_TEMP/altstore-beta-base.json"
+              jq --slurpfile published "$beta_json" \
+                '.apps[0].versions = ($published[0].apps[0].versions // [])' "$template_path" > "$source_json"
             fi
 
             tmp="$(mktemp)"
@@ -260,6 +277,7 @@ jobs:
               --arg marketingVersion "$version" \
               --arg date "$version_date" \
               --arg localizedDescription "$notes" \
+              --argjson localizedDescriptions "$localized_notes" \
               --arg downloadURL "$download_url" \
               --arg sha256 "$sha256" \
               --arg minOSVersion "$min_os_version" \
