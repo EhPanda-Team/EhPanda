@@ -503,8 +503,11 @@ extension TagsSection {
                 Button {
                     voteTagAction(content.voteKeyword(tag: tag), content.isVotedUp ? -1 : 1)
                 } label: {
-                    Label(.withdrawVote, systemSymbol: content.isVotedUp ? .handThumbsup : .handThumbsdown)
-                        .symbolVariant(.fill)
+                    // The slashed outline thumb of the vote it undoes, as a comment's Withdraw Vote has.
+                    Label(
+                        .withdrawVote,
+                        systemSymbol: CommentVoteSlot.withdrawSymbol(isVotedUp: content.isVotedUp)
+                    )
                 }
             } else {
                 Button {
