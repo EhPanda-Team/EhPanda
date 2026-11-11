@@ -3,7 +3,7 @@ phase: "19"
 slug: "visual-regression-marketing-export"
 # status lifecycle: draft (seeded by plan-phase) → validated (set by validate-phase §6)
 status: draft
-nyquist_compliant: false
+nyquist_compliant: true
 wave_0_complete: false
 created: "2026-11-07"
 ---
@@ -83,7 +83,7 @@ created: "2026-11-07"
 | 19-17-01..02 | 17 | 8 | VIS-18-01, CAP-17-06 | T-19-39 | README without personal details | script + unit | README greps; `test_preview.py` | ✅ | ✅ green (the real preview render stays open, see Manual-Only) |
 | 19-17-03 | 17 | 8 | CAP-17-02 | T-19-38 | controlled regression red then green on the hosted gate | checkpoint (hosted) | `19-17-REGRESSION.md` greps | ❌ W0 | ⏸ deferred (owner msg 3428) |
 | 19-17-04 | 17 | 8 | VIS-18-01 | — | required-check choice is the owner's | checkpoint | `Required check:` grep | ✅ | ✅ green (answer below) |
-| 19-17-05 | 17 | 8 | all | T-19-37 | Release build free of capture code, fixtures and SnapshotTesting | suite | FeatureTests and UITests both devices; lint; Python suites; `verify-release.py` | ✅ | ⚠️ flaky (see Phase gate results; `nyquist_compliant` stays false) |
+| 19-17-05 | 17 | 8 | all | T-19-37 | Release build free of capture code, fixtures and SnapshotTesting | suite | FeatureTests and UITests both devices; lint; Python suites; `verify-release.py` | ✅ | ✅ green under the accepted rule (clean rerun; first-run flakes and iPad retries noted, owner msgs 3539 and 3554; see Phase gate results) |
 
 *Status: ⬜ pending · ✅ green · ❌ red · ⚠️ flaky*
 
@@ -95,8 +95,10 @@ created: "2026-11-07"
 |------|--------|
 | FeatureTests `$PHONE` | `** TEST SUCCEEDED **`; 1838 passed, 0 failed, 140 skipped, 9 expected failures. 2 Repetition nodes, both passed (see note 1). |
 | FeatureTests `$PAD` | `** TEST SUCCEEDED **`; same counts. 2 Repetition nodes, both passed (note 1). |
-| UITests `$PHONE` | `** TEST SUCCEEDED **`; 122 passed, 0 failed, 21 skipped. **2 Repetition nodes**: `AccessibilityAuditUITests.testFiltersSheetAudit()` failed its first run ("The Front Page navigation title did not appear") and passed on retry 1 (note 2). |
-| UITests `$PAD` | `** TEST SUCCEEDED **`; 125 passed, 0 failed, 18 skipped. **2 Repetition nodes**: `AccessibilityAuditUITests.testPadSettingAndDetailModalsAudit()` failed its first run ("Front Page did not render a gallery row") and passed on retry 1 (note 2). |
+| UITests `$PHONE`, first run | `** TEST SUCCEEDED **`; 122 passed, 0 failed, 21 skipped. 2 Repetition nodes: `AccessibilityAuditUITests.testFiltersSheetAudit()` failed its first run ("The Front Page navigation title did not appear") and passed on retry 1 (note 2). |
+| UITests `$PAD`, first run | `** TEST SUCCEEDED **`; 125 passed, 0 failed, 18 skipped. 2 Repetition nodes: `AccessibilityAuditUITests.testPadSettingAndDetailModalsAudit()` failed its first run ("Front Page did not render a gallery row") and passed on retry 1 (note 2). |
+| UITests `$PHONE`, clean rerun (owner msg 3539) | `** TEST SUCCEEDED **`; 122 passed, 0 failed, 21 skipped; **0 Repetition nodes**; 143 test cases. |
+| UITests `$PAD`, rerun (owner msgs 3539, 3554) | `** TEST SUCCEEDED **`; 125 passed, 0 failed, 18 skipped; 143 test cases; **4 Repetition nodes** from two other tests, each failed run 1 and passed retry 1 (note 3). The two audit tests that failed in the first run passed their first run here. |
 | Strict no-cache SwiftLint | `Found 0 violations, 0 serious in 862 files` (SwiftLint 0.65.1, the pinned plugin binary, all tracked `*.swift` files; the bare repository root also picks up untracked worktrees and package checkouts, which are not project files). |
 | `Scripts/visual` Python suite | 384 tests, OK. `snapshot_shards.py --check`: current. `test_preview.py` is part of it. |
 | `Scripts/live-check` Python suite | 27 tests, OK. |
@@ -109,10 +111,37 @@ Notes:
    `CommentFilterTests.aKanaTermMatchesInFullOrHalfWidthWithItsDakuten(text:)`, whose argument list holds two inputs
    that print the same (`"ゲゴ語"` precomposed and with combining marks). Both ran once and passed; the FeatureTests plan
    has no retry setting, so this is a display artefact of the result bundle, not a retry.
-2. The two UITests Repetition nodes are real retries of a flaky first run (`UITests.xctestplan` retries on failure,
-   up to 3 runs). Both are accessibility-audit tests that wait for the stubbed Front Page. They are not in this
-   phase's files. The plan's bar is 0 failures **and** 0 Repetition nodes, so the gate is not met and
-   `nyquist_compliant` is not set. No test was changed and no assertion weakened.
+2. The two first-run UITests Repetition nodes were real retries of a flaky first run (`UITests.xctestplan` retries on
+   failure, up to 3 runs). Both tests tap Home's "Show All" and wait for the Front Page. Root cause, from the
+   evidence kept with the run: the tap was delivered but the app saw it at about 1/3 of the intended point. In an
+   instrumented phone failure the app received one touch at window point (125, 131) while "Show All" is centred at
+   (374.7, 395), a factor of 3, the phone's display scale; the app received no `sectionTapped` action and no push.
+   The synthesized event recorded in the original gate failure was correct (374.67, 395, window 420 x 912), so the
+   misplacement is below both the test and the app (simulator or XCTest touch injection). Home was fully loaded and
+   settled at the time (hierarchy and screen recording), the launch automation never pops the pushed path, and the
+   "Show All" frame was stable in all 30 sampled iterations. Frequency: 3 failures in about 30 early tries of the
+   single test, 0 in about 310 later iterations (including 60 with a second simulator booting and shutting down) and
+   0 in the clean phone rerun; the Mac was shared with other agents (load average 70 to 127). No app, test or plan
+   change was made, no retry helper added, no assertion weakened.
+3. The iPad rerun's four Repetition nodes are two other tests:
+   - `GalleryCardUITests.testFrontPageGridKeepsRatings()` failed its first run ("Front Page layout never became
+     hittable", 30 s wait). The failure screenshot shows Home still on screen with "Show All" visible, so it is the
+     same dropped "Show All" tap as note 2.
+   - `ShareSheetUITests.testShareSheetHandoffLandsOnDetail()` failed its first run ("The activity view did not expose
+     the EhPanda extension", 431 s). Verdict: simulator and slowness, not the app. In the failing run Safari's link
+     menu was open and the tap on "Share..." closed it, but no activity view, popover or sheet was presented at all
+     (screen recording and the failure hierarchy), so the extension list was never shown. The extension is embedded
+     (`PlugIns/ShareExtension.appex`) and its activation rule (`NSExtensionActivationSupportsWebURLWithMaxCount` = 1)
+     is the one the passing retry uses: on the same simulator a few minutes later the "EhPanda" share cell appeared
+     and the hand-off reached Detail, and `testDetailOverflowDisabledActionsAndSharePresentation` passed in the same
+     session. The time went to Safari never reporting idle: each action waits the full 60 s quiescence timeout (five
+     times in the failing run, three in the retry), the first run also had the link preview to hide, and the menu
+     stayed open about four minutes before the "Share..." tap, then about 125 s of failure triage. No crash or
+     extension fault was found. Safari remembers "Hide preview", which is why the retry skipped it.
+4. Acceptance: the plan's bar is 0 failures and 0 Repetition nodes. Owner msg 3539: record as environmental and gate
+   on a clean rerun. Owner msg 3554: accept, with the retries noted. The phone rerun is clean; the iPad rerun has
+   0 failures and 4 Repetition nodes, noted here. Under that accepted rule the local rows are green and
+   `nyquist_compliant` is true. The hosted rows below stay deferred.
 
 Deferred rows (not green, not red): 19-10-04, 19-12-01..03, 19-13-01..04 and 19-17-03 need the hosted runner and its
 pushes (owner msgs 3425, 3428). Row 19-17-04 is answered: Required check: not required for now (owner msg 3431).
