@@ -40,7 +40,7 @@ EhPanda 会向 [TelemetryDeck](https://telemetrydeck.com) 发送匿名分析数�
 
 无论哪个级别，数据中都绝不包含画廊的标识符、令牌或标题，任何画廊或页面链接，搜索关键词文本，标签的值，用户名，Cookie 或任何其他凭据，以及文件路径。
 
-在“最少”级别下，EhPanda 每次安装只发送一次安装信号。其中只包含应用的获取来源（GitHub、AltStore、SideStore、AltStore PAL 或 EhPanda Beta；非 EhPanda 发布的版本为“source”）和为本次安装生成的随机标识符，不包含任何设备信息。每个官方下载文件都标有它的发布位置，因此这个信号反映的是你使用的下载文件，而不是你的安装方式。TelemetryDeck SDK 永远不会启动。
+在“最少”级别下，EhPanda 每次安装只发送一次安装信号。其中只包含应用的获取来源（GitHub、AltStore、SideStore 或 AltStore PAL）和为本次安装生成的随机标识符，不包含任何设备信息。每个官方下载文件都标有它的发布位置，因此这个信号反映的是你使用的下载文件，而不是你的安装方式。TelemetryDeck SDK 永远不会启动。
 
 在“基本”级别下，EhPanda 发送同样的安装信号，启动 TelemetryDeck SDK，并额外发送：
 - 应用的使用频率：SDK 自身的会话信号和统计数字，例如首次打开的日期、会话次数、使用过的天数和会话的时长；
