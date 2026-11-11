@@ -56,6 +56,10 @@ env:
   SCHEME_NAME: 'EhPanda'
   ALTSTORE_PAL_JSON_PATH: './AltStorePAL.json'
   CHECK_BUILD_NUMBER_SCRIPT_PATH: './actions-tool/check-build-number.sh'
+  # The submission relies on Phase 19's screenshot check: the `aggregate` job of snapshot-gate.yml must have passed on
+  # the dispatched commit (20-11). The same name as deploy.yml's.
+  REQUIRE_SNAPSHOT_GATE_SCRIPT_PATH: './actions-tool/require-snapshot-gate.sh'
+  SNAPSHOT_GATE_CHECK: 'aggregate'
   ASC_TOOL_PATH: './actions-tool/asc.py'
   SIGNING_SCRIPT_PATH: './actions-tool/marketplace-signing.sh'
   PAL_PUBLISH_TOOL_PATH: './actions-tool/pal_publish.py'
@@ -74,6 +78,7 @@ jobs:
     environment: pal-notarization
     permissions:
       contents: read
+      checks: read
     timeout-minutes: 300
     env:
       VERSION: ${{ inputs.version }}
@@ -84,6 +89,11 @@ jobs:
         uses: actions/checkout@v7
         with:
           persist-credentials: false
+      - name: Require the screenshot check
+        env:
+          HEAD_SHA: ${{ github.sha }}
+          GH_TOKEN: ${{ github.token }}
+        run: bash "$REQUIRE_SNAPSHOT_GATE_SCRIPT_PATH" "$HEAD_SHA" "$SNAPSHOT_GATE_CHECK"
       - name: Check version
         run: |
           set -euo pipefail
