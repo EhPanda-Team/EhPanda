@@ -22,7 +22,8 @@ name: Snapshot gate
 # (compare by default); a push to ci/snapshot-gate, for runs before this file reaches the default branch (dispatch
 # works only from there), records a candidate while there is no fingerprints.json and compares once there is. Compare
 # without fingerprints.json fails at once: no approved baseline yet. Nothing is published; candidate pictures stay in
-# the run's `pictures-*` artifacts for 7 days. No result bundle is uploaded (D-14).
+# the run's `pictures-*` artifacts for 7 days. No shard uploads a result bundle (D-14); the native policy job keeps its
+# own when it fails, for 7 days, since its failures are taps and waits only the bundle's screens show.
 on:
   pull_request:
   workflow_dispatch:
@@ -421,7 +422,9 @@ jobs:
           echo "XCTESTRUN=$(ls "$RUNNER_TEMP"/Products/*UITests*.xctestrun | head -1)" >> "$GITHUB_ENV"
       # Run 42577585956: the iPhone's test runner never finished bootstrapping and no test ran (3 minutes). A run the
       # simulator lost that way (Scripts/visual/snapshot_infra.py) is made once more on the same device; a run whose
-      # tests failed is not. Both logs are uploaded.
+      # tests failed is not. Each attempt starts at Large, whatever text size an earlier one left behind, and a
+      # failing test runs at most twice: the plan's three iterations, at up to 20 minutes each, would outrun the
+      # step. The logs and result bundles are uploaded.
       - name: Run the native visual policy tests
         id: policy
         timeout-minutes: 80
@@ -429,12 +432,16 @@ jobs:
           mkdir -p "$RUNNER_TEMP/policy"
           policy() { # <attempt>
             local status=0 log="$RUNNER_TEMP/policy/xcodebuild-$1.log"
+            xcrun simctl ui "$UDID" content_size large || return $?
             xcodebuild test-without-building \
               -xctestrun "$XCTESTRUN" \
               -destination "platform=iOS Simulator,id=$UDID" \
               -parallel-testing-enabled NO \
+              -retry-tests-on-failure -test-iterations 2 \
+              -collect-test-diagnostics never \
+              -resultBundlePath "$RUNNER_TEMP/policy/attempt-$1.xcresult" \
               -only-testing:EhPandaUITests/NativeVisualPolicyUITests >"$log" 2>&1 || status=$?
-            grep -E "Test case .* (passed|failed)|Executed [0-9]+ test|TEST EXECUTE (SUCCEEDED|FAILED)" "$log" |
+            grep -E "Test [Cc]ase .* (passed|failed)|Executed [0-9]+ test|TEST EXECUTE (SUCCEEDED|FAILED)" "$log" |
               sort -u || true
             return "$status"
           }
@@ -450,12 +457,14 @@ jobs:
             policy 2 || status=$?
           fi
           exit "$status"
-      - name: Upload the logs
+      - name: Upload native policy diagnostics
         if: failure() || steps.policy.outputs.retried == 'true'
         uses: actions/upload-artifact@v7
         with:
           name: native-policy-${{ matrix.family }}
-          path: ${{ runner.temp }}/policy/xcodebuild-*.log
+          path: |
+            ${{ runner.temp }}/policy/xcodebuild-*.log
+            ${{ runner.temp }}/policy/attempt-*.xcresult
           if-no-files-found: ignore
           retention-days: 7
 

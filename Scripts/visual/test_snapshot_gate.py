@@ -202,9 +202,23 @@ class GateWorkflowTests(unittest.TestCase):
         self.assertEqual(step['run'].count('xcodebuild test-without-building'), 1)
         upload = next(step for step in job['steps'] if step.get('uses', '').startswith('actions/upload-artifact'))
         self.assertEqual(upload['if'], "failure() || steps.policy.outputs.retried == 'true'")
-        self.assertEqual(upload['with']['path'], '${{ runner.temp }}/policy/xcodebuild-*.log')
+        self.assertEqual(
+            upload['with']['path'].splitlines(),
+            ['${{ runner.temp }}/policy/xcodebuild-*.log', '${{ runner.temp }}/policy/attempt-*.xcresult'],
+        )
+        self.assertIn('-resultBundlePath "$RUNNER_TEMP/policy/attempt-$1.xcresult"', step['run'])
         create = next(step for step in job['steps'] if 'hosted-simulator.sh create' in step.get('run', ''))
         self.assertLessEqual(create['timeout-minutes'] + step['timeout-minutes'], JOB_LIMIT - 10)
+
+    def test_each_native_policy_attempt_starts_at_large_and_retries_a_failing_test_once(self):
+        # Hosted run 3: a test that failed at AX5 left the simulator there for the next, and the plan's three
+        # iterations of a 20-minute test outran the step.
+        step = next(step for step in self.jobs['native-policy']['steps'] if step.get('id') == 'policy')
+        policy = step['run'].split('policy() {', 1)[1].split('\n}', 1)[0]
+        self.assertLess(policy.index('content_size large'), policy.index('xcodebuild test-without-building'))
+        self.assertIn('xcrun simctl ui "$UDID" content_size large || return $?', policy)
+        self.assertIn('-retry-tests-on-failure -test-iterations 2', policy)
+        self.assertIn('-collect-test-diagnostics never', policy)
 
     def test_fail_fast_is_off_on_every_matrix(self):
         self.assertGreaterEqual(self.text.count('fail-fast: false'), 3)
@@ -224,8 +238,12 @@ class GateWorkflowTests(unittest.TestCase):
             self.assertIn('Scripts/visual/run-shard.sh', runs(self.jobs[name]), name)
         self.assertNotIn('simctl create', self.text)
 
-    def test_no_result_bundles_and_no_fault_switch(self):
-        self.assertNotIn('xcresult', self.text)
+    def test_result_bundles_only_for_native_policy_and_no_fault_switch(self):
+        # The native policy job alone keeps its result bundles, on failure: its failures are taps and waits that only
+        # the bundle's screens and hierarchies show (hosted run 3).
+        for name, job in self.jobs.items():
+            if name != 'native-policy':
+                self.assertNotIn('xcresult', json.dumps(job), name)
         # The proof's fault switch lives only on the proof commit of ci/snapshot-gate (19-10 Task 4), where this
         # test runs in the gate's own `checks` job; everywhere else it must be absent (T-19-22).
         if os.environ.get('GITHUB_REF') == 'refs/heads/ci/snapshot-gate':

@@ -7,17 +7,42 @@ extension XCUIApplication {
     func requireLibraryNavigationTitle(
         _ source: String, file: StaticString = #filePath, line: UInt = #line
     ) -> XCUIElement {
-        let hasSidebar = descendants(matching: .any)["library-categories"].firstMatch.exists
-        let navigation = navigationBars[hasSidebar ? source : "Library"]
-        XCTAssertTrue(navigation.waitForExistence(timeout: 15), file: file, line: line)
-        if hasSidebar {
-            XCTAssertTrue(navigation.staticTexts[source].isHittable, file: file, line: line)
-        } else {
-            let menu = descendants(matching: .any)["library-title-menu"].firstMatch
-            XCTAssertTrue(menu.waitForExistence(timeout: 5), file: file, line: line)
-            XCTAssertTrue(menu.isHittable, file: file, line: line)
-            XCTAssertTrue(navigation.staticTexts[source].isHittable, file: file, line: line)
+        let sidebar = descendants(matching: .any)["library-categories"].firstMatch
+        let menu = descendants(matching: .any)["library-title-menu"].firstMatch
+        var readyNavigation: XCUIElement?
+        var usesSidebar = false
+        // Layout can change while the native bar appears. Choose the presentation anew on every sample, and
+        // only retain it once its matching native title and controls are actually ready.
+        let ready = NSPredicate { _, _ in
+            let hasSidebar = sidebar.exists
+            let navigation = self.navigationBars[hasSidebar ? source : "Library"]
+            guard navigation.exists, navigation.staticTexts[source].isHittable else { return false }
+            if hasSidebar, source == "Downloads" {
+                // All Downloads has no selected folder link; its content identifies the selected source.
+                guard self.descendants(matching: .any)["downloads-gallery-list"].firstMatch.exists else { return false }
+            } else if hasSidebar {
+                let categories = sidebar.descendants(matching: .any)
+                    .matching(NSPredicate(format: "identifier BEGINSWITH %@", "library-favorites-"))
+                guard categories.allElementsBoundByIndex.contains(where: { $0.isSelected && $0.isHittable }) else {
+                    return false
+                }
+            } else {
+                guard menu.exists, menu.isHittable else { return false }
+            }
+            usesSidebar = hasSidebar
+            readyNavigation = navigation
+            return true
         }
+        let wait = XCTWaiter.wait(for: [XCTNSPredicateExpectation(predicate: ready, object: nil)], timeout: 15)
+        XCTAssertEqual(wait, .completed, "Library's native title and selected source did not become ready.",
+                       file: file, line: line)
+        let navigation = readyNavigation ?? navigationBars[sidebar.exists ? source : "Library"]
+        XCTAssertTrue(navigation.exists, file: file, line: line)
+        if !usesSidebar {
+            XCTAssertTrue(menu.exists, file: file, line: line)
+            XCTAssertTrue(menu.isHittable, file: file, line: line)
+        }
+        XCTAssertTrue(navigation.staticTexts[source].isHittable, file: file, line: line)
         return navigation
     }
 
