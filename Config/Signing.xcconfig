@@ -2,7 +2,7 @@
 //
 // Both values below are empty on purpose. A contributor clone and a fork build with no
 // development team and the upstream bundle identifiers (`app.ehpanda`, and
-// `app.ehpanda.shareExtension` for the extension), so nothing here ties the checked-in project
+// `app.ehpanda.ShareExtension` for the extension), so nothing here ties the checked-in project
 // to one developer's account. Signing identities are per-machine, so they never belong in a
 // tracked file.
 //
