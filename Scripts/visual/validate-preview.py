@@ -4,7 +4,7 @@
 usage: validate-preview.py --response PATH --expected-environment PATH --output DIR
 
 `--response` is the parsed result of one RenderPreview call (see preview-review.md): `previewSnapshotPath`,
-`renderedDestination`, `displayName`, `sourceLineNumber`, `errors`, optionally the `locale` and `variant` it rendered,
+`renderedDestination`, `displayName`, `sourceLineNumber`, `errors`, the `locale` and `variant` it rendered,
 and the reviewer's `review` note (`liveContent`, `note`). `--expected-environment` is what was asked for and what the
 tool said it supports: `destination`, `locale`, `variant`, `supportedLocales`, `supportedVariants`.
 
@@ -13,6 +13,8 @@ The response is rejected, and nothing is written, when:
 - `errors` is not an empty list;
 - the snapshot path is missing, or names no non-empty file;
 - the requested locale or variant is not one the tool supports, or the render is in another one than requested;
+- the response omits the `locale` or `variant` it rendered, or the reviewer's `review` (a render whose locale,
+  variant or review is unknown is no evidence);
 - the reviewer recorded a live date, spinner or other live content (never evidence).
 
 An accepted response writes `preview-metadata.json` and a copy of the snapshot into `--output`, which must not exist
@@ -86,15 +88,16 @@ def check_response(response, expected, base, problems):
         problems.append(f'response: errors is not empty ({len(errors)}): {errors}')
     for field in ('locale', 'variant'):
         requested, rendered = expected.get(field), response.get(field)
-        if requested is not None and rendered is not None and rendered != requested:
+        if not check_text(rendered, f'response {field} (the {field} the tool rendered)', problems):
+            continue
+        if requested is not None and rendered != requested:
             problems.append(f'{field} mismatch: requested {requested!r}, the tool rendered {rendered!r}')
     review = response.get('review')
-    if review is not None:
-        if not isinstance(review, dict) or not isinstance(review.get('liveContent'), bool):
-            problems.append('response: review.liveContent must be true or false')
-        elif review['liveContent']:
-            problems.append('live content (a date, spinner or progress ring) is never evidence; '
-                            f'review note: {review.get("note", "")!r}')
+    if not isinstance(review, dict) or not isinstance(review.get('liveContent'), bool):
+        problems.append('response: review.liveContent must be true or false (the review note is required)')
+    elif review['liveContent']:
+        problems.append('live content (a date, spinner or progress ring) is never evidence; '
+                        f'review note: {review.get("note", "")!r}')
     path = response.get('previewSnapshotPath')
     if not isinstance(path, str) or not path.strip():
         problems.append('snapshot: previewSnapshotPath is missing')
