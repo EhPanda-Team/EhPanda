@@ -83,6 +83,17 @@ source_head: 891103afa
   Phase 19 (20-11 still does). Moved to 20-08: the collaborator's App Store Connect upload, the PAL copy
   (copywriter msg 2785) and its owner approval, and the iPad 13-inch question (no iPad set exists). MKT-18-01,
   DIST-18-02 and CAP-17-05 stay Pending.
+- **20-11 Tasks 1 and 2 done (2026-11-11)** (RED `ad510b18b`; GREEN `7f994d323`; `20-11-GATE.md`): OQ-F
+  answered by owner msg 3346 ("wait for phase 19 closure. before that, we update the github actions workflow"):
+  Phase 19 reaches this branch through `main` after it closes; nothing is merged from or committed to
+  `feature/gsd-phase-19`. `actions-tool/require-snapshot-gate.sh <sha> <check name>` reads the commit's check runs and
+  passes only for a GitHub Actions run of that name that is completed with `success`. `deploy.yml` (on the PR head)
+  and `deploy-pal.yml`'s submit job (on `github.sha`) require it right after Checkout, with `checks: read`. The check
+  name is `aggregate` (read from `snapshot-gate.yml` on `feature/gsd-phase-19`, no `name:` on the job); the file is not
+  on this branch, so the tests hold both workflows to one shared name and compare it with the file once it is there
+  (skipped while absent). **Task 3 (the live read of a real verdict) waits for Phase 19's closure**; 20-11 stays open
+  and `20-11-SUMMARY.md` is not written. Open for Task 3: a PAL dispatch on a squash commit on `main` has no gate
+  verdict (`20-11-GATE.md`, point 1). REL-18-01 stays Pending.
 
 ## Phase 19 executing — 2026-11-07
 
