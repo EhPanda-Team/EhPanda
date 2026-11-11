@@ -103,6 +103,34 @@ public enum LoginFailureKind: String, CaseIterable, Equatable, Sendable {
     case other
 }
 
+/// How a report of a comment ended, as the Report form saw it (20-12).
+///
+/// There is no reason beside it: the owner chose that the signal says only how the report ended
+/// (owner msg 2837), so the Basic description needs no change. A form closed without a result is not
+/// a case, because closing is not an action the reducer sees.
+public enum ReportOutcome: String, CaseIterable, Equatable, Sendable {
+    /// The site accepted the report.
+    case sent
+    /// A send attempt failed; one per failed attempt.
+    case failed
+    /// The native form could not be used, so the form offers the site's report page instead.
+    case unavailable
+    /// The site's report page was opened, from the failed alert or the unavailable form.
+    case reportPageOpened
+}
+
+/// Where a poster was unblocked (20-12): in the comments themselves, or in the Blocked Users list.
+public enum UnblockSurface: String, CaseIterable, Equatable, Sendable {
+    case comment
+    case blockedUsers
+}
+
+/// The answer to the posting warning (20-12).
+public enum PostingWarningChoice: String, CaseIterable, Equatable, Sendable {
+    case edit
+    case postAnyway
+}
+
 // MARK: Stable spellings for the Int-raw domain enums
 
 // `ReadingDirection` is `Int`-raw because its raw values are persisted

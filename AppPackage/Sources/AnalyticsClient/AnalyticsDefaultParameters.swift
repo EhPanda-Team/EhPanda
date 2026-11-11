@@ -15,26 +15,43 @@ import Sharing
 // process-global storage. `live` is a three-line adapter that reads the live shared state inside its
 // own body and forwards to `snapshot`.
 enum AnalyticsDefaultParameters {
-    /// The five default parameters for a given settings state at Full, and none at any other level, as
-    /// a flat dot-namespaced dictionary.
+    /// The default parameters for a given settings state, as a flat dot-namespaced dictionary: none
+    /// before a level is chosen or at Minimal, the channel alone at Basic, and the channel plus the
+    /// five settings at Full.
     ///
     /// Pure and total: no shared state, no I/O. The two `Int`-raw enums render through their stable
     /// analytics spelling rather than their persisted ordinal, so no value is ever a bare integer
     /// that an upstream case insertion could silently re-number. No key collides with the SDK's flat
     /// reserved set — every key carries a dot.
-    static func snapshot(setting: Setting, didLogin: Bool) -> [String: String] {
+    static func snapshot(
+        setting: Setting,
+        didLogin: Bool,
+        distributionChannel: DistributionChannel = .current
+    ) -> [String: String] {
+        // The channel rides on every SDK signal at Basic and Full (20-12 §3, owner msg 2842). Minimal's
+        // description already says where the app came from, and Basic begins "Everything in Minimal", so
+        // no description changes. Minimal itself never starts the SDK, so nothing is added there.
+        let channel = ["App.distributionChannel": distributionChannel.rawValue]
+
+        switch setting.analyticsLevel {
+        case nil, .minimal:
+            return [:]
+
+        case .basic:
+            return channel
+
         // App-authored telemetry rather than SDK enrichment: "your main settings" are promised only
         // by Full's description (D-06f), so below Full the user's host, login state and reading
         // preferences must not ride along on any signal, the SDK's own included.
-        guard setting.analyticsLevel == .full else { return [:] }
-
-        return [
-            "App.host": setting.galleryHost.rawValue,
-            "App.loggedIn": String(didLogin),
-            "App.readingDirection": setting.readingDirection.analyticsName,
-            "App.dualPageMode": String(setting.enableDualPageMode),
-            "App.translateTags": String(setting.translateTags)
-        ]
+        case .full:
+            return channel.merging([
+                "App.host": setting.galleryHost.rawValue,
+                "App.loggedIn": String(didLogin),
+                "App.readingDirection": setting.readingDirection.analyticsName,
+                "App.dualPageMode": String(setting.enableDualPageMode),
+                "App.translateTags": String(setting.translateTags)
+            ]) { channel, _ in channel }
+        }
     }
 
     /// The default-parameters closure handed to the SDK configuration.
@@ -45,6 +62,6 @@ enum AnalyticsDefaultParameters {
     static let live: @Sendable () -> [String: String] = {
         @Shared(.setting) var setting
         @SharedReader(.didLogin) var didLogin
-        return snapshot(setting: setting, didLogin: didLogin)
+        return snapshot(setting: setting, didLogin: didLogin, distributionChannel: .current)
     }
 }
