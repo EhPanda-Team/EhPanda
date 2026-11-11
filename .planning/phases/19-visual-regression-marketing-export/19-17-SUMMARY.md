@@ -30,7 +30,7 @@ key-files:
 
 key-decisions:
   - "Task 3 (controlled regression on the hosted runner) is deferred (owner msg 3428); it is in STATE.md Deferred Items."
-  - "Task 4: Required check: not required for now (owner msg 3431). The gate runs on every PR but is not required to merge into `main`."
+  - "Task 4: Required check: not required (owner msg 3431), for now. The gate runs on every PR but is not required to merge into `main`."
   - "UITests first runs had 2 Repetition nodes per device (flaky first runs). Root cause: the \"Show All\" tap reached the app at about 1/3 of the intended point, below the app and the test (simulator or XCTest touch injection). Owner msgs 3539 and 3554: environmental, gate on a clean rerun, accepted with the retries noted. `nyquist_compliant` is true under that rule. No code, test or plan change."
 
 requirements-completed: []
@@ -56,7 +56,8 @@ other tests; accepted with the retries noted (owner msg 3554).**
   locales needs a running Xcode with the preview tools enabled; Xcode was not opened (brief). It is listed in
   `19-VALIDATION.md` Manual-Only.
 - **Task 3:** deferred, owner msg 3428. `19-17-REGRESSION.md` is not written.
-- **Task 4:** Required check: not required for now (owner msg 3431).
+- **Task 4:** Required check: not required (owner msg 3431), for now. The line is worded to match the task's verify
+  regex, which is unchanged.
 - **Task 5:** results in `19-VALIDATION.md` "Phase gate results". Summary:
 
 | Step | Result |
@@ -85,4 +86,5 @@ other tests; accepted with the retries noted (owner msg 3554).**
   results", notes 2 to 4. Owner msg 3539: environmental, gate on a clean rerun. Owner msg 3554: accepted with the
   retries noted. `nyquist_compliant` is set to true on that rule; no code, test or plan was changed.
 - Deferred and owed: Task 3, the real preview render, and the hosted rows of 19-10, 19-12 and 19-13.
-- Phase 19 is not marked complete.
+- Phase 19 was not marked complete at the end of this plan. It is marked complete, with the deferred items above, in the
+  close-out records (ROADMAP.md, STATE.md; security accepted-deferred by owner msg 3573).

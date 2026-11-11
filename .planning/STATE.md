@@ -1,25 +1,49 @@
 ---
 gsd_state_version: "1.0"
 milestone: v3.0.0
-current_phase: 19
-current_phase_name: Visual Regression & Daily Live-Parsing Check
-status: executing
-stopped_at: "19-10 closed; its green hosted run is deferred (owner msg 3425)"
-last_updated: "2026-11-11T05:00:00.000Z"
+current_phase: 20
+current_phase_name: "3.0 Distribution: Marketplace Build, Notarization, Listing & Release Checks"
+status: planning
+stopped_at: "Phase 19 complete with deferred items (owner msgs 3425, 3428, 3573); Phase 20 has no plans yet"
+last_updated: "2026-11-11T09:16:28.000Z"
 last_activity: 2026-11-11
-last_activity_desc: "19-10 closed without a passing hosted run (owner msg 3425, product lead msg 3426): Tasks 1-3 done, runs 1-3 failed and fixed, run 4 (42951290351) unread; the green run and 19-12, 19-13 and 19-17's hosted runs are deferred (owner msg 3428)"
-state_head: 7b3bf8ec5589c912f22851b2dc1f563618209855
+last_activity_desc: "Phase 19 closed with deferred items: 15/17 plans executed, 19-12 and 19-13 not executed, the green hosted gate run and the hosted controlled regression owed; security verified with four threats accepted-deferred (owner msg 3573)"
+state_head: 8f1c24e2a
 progress:
   total_phases: 21
-  completed_phases: 18
+  completed_phases: 19
   total_plans: 321
-  completed_plans: 318
-  percent: 86
+  completed_plans: 319
+  percent: 90
 milestone_name: Dependency Reduction & Modernization
 source_head: 891103afa
 ---
 
 # Project State
+
+## Phase 19 complete, with deferred items — 2026-11-11
+
+Phase 19 (Visual Regression & Daily Live-Parsing Check) is complete at 15/17 plans executed. It is closed the way
+Phase 17 was: the executed work is verified and the rest is recorded as deferred, never as satisfied.
+
+- **Executed:** 19-01 to 19-11 and 19-14 to 19-17. 19-10 and 19-17 closed without their hosted parts.
+- **Not executed:** 19-12 and 19-13 (owner msg 3428). Their checkboxes stay unchecked in ROADMAP.md.
+- **Verification:** `19-VERIFICATION.md` is `human_needed`, 5/8 truths verified. Success criteria 2, 3 and 4 are not
+  proven until the deferred hosted runs and the owner's approval happen.
+- **Security:** `19-SECURITY.md` is `verified`, `threats_open: 0`: 36 of 40 threats closed, and T-19-24, T-19-25,
+  T-19-26 and T-19-27 are accepted-deferred by the owner (msg 3573). Condition: carried with the deferred
+  19-12/19-13 screenshot publishing; must be closed before any baseline publication. UF-3 stays open (low): delete
+  `origin/ci/snapshot-gate` after run 42951290351 ends.
+- **Validation:** `19-VALIDATION.md` is `validated`, `nyquist_compliant: true` under the accepted rules (owner msgs
+  3539, 3554 for the UITests first-run flakes and iPad retries; 3425, 3428 for the deferred hosted rows; 3431 for the
+  required check). Seven rows stay deferred.
+- **Requirements:** VIS-18-01, VIS-19-01, CAP-17-02 and CAP-17-03 stay Pending in REQUIREMENTS.md: the hosted gate
+  proof, the baseline and the post-merge live-check runs are still owed.
+- **Deferred Items** (below): the green gate run (before release day), 19-12, 19-13, 19-17's hosted regression, and the
+  four accepted-deferred threats. The release workflows `deploy.yml` and `deploy-beta.yml` refuse to ship until a
+  green `aggregate` check exists on the shipped commit.
+
+Next: Phase 20 (`/gsd-discuss-phase 20`, then plan). It has a CONTEXT file and no plans.
 
 ## Phase 19 executing — 2026-11-07
 
@@ -135,11 +159,11 @@ source_head: 891103afa
   `19-VALIDATION.md`):
   - README rewritten; preview review procedure and validator (8 tests) done; the real preview render is open (needs a
     running Xcode with the preview tools).
-  - Controlled regression (Task 3) deferred (owner msg 3428). Required check: not required for now (owner msg 3431).
+  - Controlled regression (Task 3) deferred (owner msg 3428). Required check: not required (owner msg 3431), for now.
   - Local gate: FeatureTests and UITests passed on both devices (0 failures); lint 0; Python suites 384 and 27 OK;
     Release build and `verify-release.py` PASS. UITests had 2 Repetition nodes per device (flaky first runs of two
-    accessibility audits, passed on retry), so `nyquist_compliant` stays false.
-  - Phase 19 is not marked complete.
+    accessibility audits, passed on retry), accepted with the retries noted (owner msgs 3539, 3554), so `nyquist_compliant` is true.
+  - Phase 19 was closed afterwards with deferred items (section above).
 
 ## Phase 19 planned: Visual Regression & Daily Live-Parsing Check — 2026-11-07
 
@@ -791,19 +815,20 @@ The review iPad has the final app; Phase 17 remains unchanged. See
 See: .planning/PROJECT.md (updated 2026-11-05)
 
 **Core value:** The load-bearing paths — fetch, parse, read, download galleries — keep working; every task is a foundation change held to behavior/appearance parity.
-**Current focus:** Phase 18 — In-App 3.0 Readiness: Age Wall, Analytics Choice, Comment Moderation & Reader Rework (Phase 17 complete 2026-11-05; Phases 19 and 20 follow)
+**Current focus:** Phase 20 — 3.0 Distribution: Marketplace Build, Notarization, Listing & Release Checks (Phases 17, 18, 18.1 and 19 complete; Phase 19 with deferred items)
 
 ## Current Position
 
-Phase: 19 (Visual Regression & Daily Live-Parsing Check) — READY TO EXECUTE
-Plan: 0/17
-Status: Ready to execute; Phase 18 closing checks still open
-Last activity: 2026-11-07 — Phase 19 planned (17 plans, 8 waves)
+Phase: 20 — 3.0 Distribution: Marketplace Build, Notarization, Listing & Release Checks
+Plan: Not started (no plans yet)
+Status: Ready to discuss and plan; Phase 19 complete with deferred items
+Last activity: 2026-11-11 — Phase 19 closed (15/17 plans; deferred items recorded)
 
 Phase 17 closed with 13/13 in-scope plans, verification passed 8/8, UAT 31/31, security verified and validation
-validated. Phase 18 closed with 12/12 plans and verification passed 10/10 (`18-VERIFICATION.md`); its security audit
-and nyquist validation have not been run. Phases 19 and 20 have owner-decision CONTEXT files but no discussion or plans
-(see the top section).
+validated. Phase 18 closed with 12/12 plans and verification passed 10/10 (`18-VERIFICATION.md`); Phase 18.1 closed
+5/5. Phase 19 closed 15/17 with deferred items (`19-VERIFICATION.md` `human_needed`, `19-SECURITY.md` `verified` with
+four threats accepted-deferred, `19-VALIDATION.md` `validated`). Phase 20 has an owner-decision CONTEXT file and no
+plans.
 
 **2026-11-03 scope reduction (historical):** see the section "Phase 17 reduced, Phase 18 added" above. The 17-06 owner review is superseded by the owner's 2026-11-02 approval of the complete 192-image website set. The older Phase 17 gate notes below are historical; their "6/24" counts and "next" pointers are superseded.
 
@@ -868,12 +893,12 @@ Round-1 state: closed and signed. 38 findings — 32 `re-verified`, 6 `accepted`
 
 D-01 amendment 2 authorizes agent-written fixes; the original owner-only implementation restriction is superseded. All five Dynamic Type lint rules (`no_dynamic_type_size_modifier`, `no_geometry_reader`, `no_fixed_system_font_size`, `accessibility_hardcoded_string`, `no_minimum_scale_factor`) are live at error severity with the tree at 0 for each. A11Y-01 is complete; A11Y-02 (round 2) is open; the phase is not complete. Do not push without the owner.
 
-Progress: [███████████████████░] 305/321 plans ([█████████░] 86%), excluding the 11 superseded Phase 17 plans. GSD
-counts 18 of 21 phases complete: Phase 6 is recorded as "Delivered (rescoped)"; Phase 19 is executing and Phase 20
-has not started.
+Progress: [███████████████████░] 319/321 plans ([█████████░] 90%), excluding the 11 superseded Phase 17 plans. GSD
+counts 19 of 21 phases complete: Phase 6 is recorded as "Delivered (rescoped)"; Phase 19 is complete with deferred
+items and Phase 20 has not started.
 Phase 17 has 13/13 in-scope plans complete. Phase 18 has 12 of 12 plans complete (18-01 to 18-12). Phase 18.1 has
-5 of 5 plans complete. Phase 19 has 1 of 17 plans complete (19-01); Phase 20 has no plans yet. They keep the
-milestone open.
+5 of 5 plans complete. Phase 19 has 15 of 17 plans executed (19-12 and 19-13 are deferred, owner msg 3428); Phase 20
+has no plans yet. They keep the milestone open.
 18-12's gate passed on `e3c95a3bf`, and its Task 3 live
 report-page check passed on 2026-11-05 17:51Z, verified by an agent per owner rule msg 1652 (`18-12-SUMMARY.md`).
 Phase 18 verification passed 10/10 on 2026-11-05 at `a1f96cb88` (tested source `e3c95a3bf`; `18-VERIFICATION.md`).
@@ -1886,15 +1911,16 @@ Items acknowledged and carried forward from previous milestone close:
 | Comments | Keep a comment's styles and link targets when editing it. The edit form pre-fills `GalleryComment.plainTextContent`, plain text without BBCode, so saving an edit in the app removes them. Prefer the source text the site's own edit form uses; verifying a save needs a logged-in account. See `quick/261102-comment-parser/SUMMARY.md`. | Open | 2026-11-02 |
 | Compliance | **Age wall (standard for every build, not only AltStore).** On first launch, before any content is shown or any network request is made, the user must confirm they are an adult, and legally allowed to view explicit content under every law that applies to them, wherever it comes from (for example where they are, where they live, or their citizenship). Owner msgs 1235 and 1239: not just "18 or older", and not only the law of the place they live; e.g. an American citizen living abroad. Until they do, nothing else in the app works, and there is no skip. Answering no keeps them on that screen. The answer is stored on the device. Reference: Hot Tub's onboarding; notarization guideline on honest age rating and verified or declared age (Ampo msg 1211). Owner msgs 1231, 1235 and 1239, spec Ato msgs 1232, 1236 and 1240. The website's adult-mode declaration should use this same wording (Ato msg 1240), which today says only "declares they are an adult" (Ato msg 1236). | Planned: Phase 18 (AGE-18-01) | 2026-11-02 |
 | Privacy | **Analytics consent (standard for every build).** No analytics are collected until the user chooses. A first-launch screen offers a few levels of sharing, including none, as in Hot Tub. The choice can be changed later in Settings. This replaces today's "on by default, switch off in Settings". Guideline 5.1.1: consent is needed even for anonymous usage data (Ampo msg 1211). Owner msg 1231, spec Ato msg 1232. | Planned: Phase 18 (CONSENT-18-01) | 2026-11-02 |
-| CI / release gate | **19-10 Task 4: a green snapshot-gate run.** A hosted run of `snapshot-gate.yml` whose `aggregate` job passes and whose `triage` names only the injected shards (their retries pass); plan step 4's persistent-crash run is owed too. The release workflows refuse to ship without it: the `deploy.yml` / `deploy-pal.yml` gate from 20-11 needs a successful `aggregate` check on the shipped commit, so neither 3.0 nor the AltStore PAL build can ship. **Must be done before release day.** First read run 42951290351 (still running at handoff). Owner msg 3425, product lead msg 3426; `19-10-SUMMARY.md`. | Deferred | 2026-11-11 |
-| CI / visual regression | **19-12: the full hosted candidate run and the public snapshot repository.** Every shard in candidate mode on the hosted runner, and `EhPanda-Team/ehpanda-snapshot` created with its README. Needs the GitHub screenshot check. Not done; owner msg 3428. | Deferred | 2026-11-11 |
-| CI / visual regression | **19-13: the owner's approval, the pinned baseline and a green compare run.** The owner approves the candidate set once; the approved pictures are pushed and pinned (`fingerprints.json`, `manifest.json`); a hosted compare run is green. Needs the GitHub screenshot check. Not done; owner msg 3428. | Deferred | 2026-11-11 |
+| CI / release gate | **19-10 Task 4: a green snapshot-gate run.** A hosted run of `snapshot-gate.yml` whose `aggregate` job passes and whose `triage` names only the injected shards (their retries pass); plan step 4's persistent-crash run is owed too. The release workflows refuse to ship without it: `deploy.yml` and `deploy-beta.yml` already run the gate in compare mode and need a successful `aggregate` check on the shipped commit, so 3.0 cannot ship; `deploy-pal.yml` does not exist yet and arrives in Phase 20, which gives it the same gate. **Must be done before release day.** First read run 42951290351 (still running at handoff). Owner msg 3425, product lead msg 3426; `19-10-SUMMARY.md`. | Deferred | 2026-11-11 |
+| CI / visual regression | **19-12: the full hosted candidate run and the public snapshot repository.** Every shard in candidate mode on the hosted runner, and `EhPanda-Team/ehpanda-snapshot` created with its README. Needs the GitHub screenshot check. Not done; owner msg 3428. Carries T-19-24 (repository created without consent) and T-19-25 (personal data in the repository), accepted-deferred (owner msg 3573). | Deferred | 2026-11-11 |
+| CI / visual regression | **19-13: the owner's approval, the pinned baseline and a green compare run.** The owner approves the candidate set once; the approved pictures are pushed and pinned (`fingerprints.json`, `manifest.json`); a hosted compare run is green. Needs the GitHub screenshot check. Not done; owner msg 3428. Carries T-19-26 (real content in a public picture) and T-19-27 (inferred approval), accepted-deferred (owner msg 3573). | Deferred | 2026-11-11 |
+| Security (Phase 19) | **T-19-24, T-19-25, T-19-26, T-19-27, accepted-deferred:** carried with the deferred 19-12/19-13 screenshot publishing; must be closed before any baseline publication (owner msg 3573). Each closes with its evidence when 19-12 or 19-13 runs (`19-SECURITY.md`, Accepted-deferred threats). UF-3 stays open (low): delete `origin/ci/snapshot-gate` after run 42951290351 ends. | Accepted-deferred | 2026-11-11 |
 | CI / visual regression | **19-17: the controlled regression on the hosted runner (D-18).** A one-point layout-token change on the proof branch fails the hosted gate with exactly the affected coordinates as picture changes; restoring it makes the next run green; both run IDs in `19-17-REGRESSION.md`. Needs the GitHub screenshot check with the approved baseline. 19-17's local parts are not deferred. Owner msg 3428. | Deferred | 2026-11-11 |
 
 ## Session Continuity
 
-Last session: 2026-11-07T15:15:42.539Z
-Stopped at: Completed 19-05-PLAN.md
+Last session: 2026-11-11T09:16:28.000Z
+Stopped at: Phase 19 complete with deferred items; Phase 20 has no plans yet
 Resume file: None
 
 Earlier stop (2026-10-13T10:50:00Z, historical): 17-06 revision re-shot, 16/16 captured (`.capture/17-06-t-native-*`); superseded by the owner's 2026-11-02 approval of the 192-image website set.

@@ -151,6 +151,21 @@ Review fixes checked in code: WR-01 job-level `concurrency` (`deploy-release`, `
 - 19-17 Task 4's verify regex (`Required check: (required|not required) (owner msg N)`) does not match the recorded wording "not required for now (owner msg 3431)"; the decision itself is recorded.
 - The report frontmatter carries no `covered_files` or `covered_digest`: `node` is not installed on this host, so the fingerprint command could not run and the values were not hand-written. The `verification.status` self-check was skipped for the same reason; status was set by the Step 9 decision tree.
 
+### Documentation drift: resolved at close (2026-11-11)
+
+The drift items above were reconciled in the close-out records; the findings text above is kept as verified.
+
+- ROADMAP Phase 19 now reads 15/17 plans executed (19-12 and 19-13 deferred, unchecked); STATE progress counts match.
+- `19-VALIDATION.md`: `status: validated`, `wave_0_complete: true` (executed rows), sign-off checked, seven deferred rows
+  kept as deferred.
+- The STATE.md Deferred Items row and `19-10-SUMMARY.md` now say `deploy-pal.yml` arrives in Phase 20.
+- The required-check answer is worded "Required check: not required (owner msg 3431), for now", which the 19-17 Task 4
+  verify regex matches; the regex is unchanged.
+- The security audit's four open threats are accepted-deferred by the owner (msg 3573), see `19-SECURITY.md`.
+- `covered_files` and `covered_digest` are still absent (no `node` on the host).
+- Phase 19 is marked complete with deferred items in ROADMAP.md and STATE.md; this report's `status: human_needed` is
+  unchanged, and human items 1 to 3 stay owed (STATE.md Deferred Items).
+
 ### Human Verification Required
 
 1. **Green hosted gate** (19-10 Task 4): run `snapshot-gate.yml` on the hosted runner; expect `aggregate` green, retries only on injected shards. Owed before release day (owner msgs 3425, 3428).

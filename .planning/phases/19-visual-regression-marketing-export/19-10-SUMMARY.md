@@ -106,9 +106,9 @@ both run-3 coordinates recorded through `run-snapshot-local.sh` (4/4 and 2/2); n
 **Task 4's pass proof: a green snapshot-gate run is still owed.** It needs a hosted run in which the `aggregate`
 job passes and `triage` names only the injected shards (the faulty shards' retries pass). Plan step 4, the run
 with a crash that persists on retry (the aggregate fails naming only that shard), is still owed too. The release
-workflows refuse to ship without a passing check: the `deploy.yml` / `deploy-pal.yml` gate from 20-11 requires a
-successful `aggregate` check on the shipped commit, so neither 3.0 nor the AltStore PAL build can ship until
-this is done. **It must be done before release day.** First read run 42951290351's result: if it passed, it may
+workflows refuse to ship without a passing check: `deploy.yml` and `deploy-beta.yml` already run the gate in compare
+mode and `needs` it, so a 3.0 release cannot ship until a successful `aggregate` check exists on the shipped commit.
+`deploy-pal.yml` does not exist yet; it arrives in Phase 20 and takes the same gate. **It must be done before release day.** First read run 42951290351's result: if it passed, it may
 serve as the pass proof; if not, triage it as runs 1 to 3 were. A candidate-mode pass is not baseline approval
 (19-12, 19-13). Two more open items for Phase 20 are in `19-10-PROOF.md` ("Open items for Phase 20"): a
 candidate run's `aggregate` check could shadow a compare run on the same commit, and a squashed or rebased
