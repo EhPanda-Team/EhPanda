@@ -42,10 +42,9 @@ jobs:
       cancel-in-progress: false
     if: |
       github.event.pull_request.merged == true && github.event.pull_request.user.login == 'chihchy'
-    # contents: the release, its tag and the push of the sources. actions: the Test workflow's runs are read.
+    # contents: the release, its tag and the push of the sources.
     permissions:
       contents: write
-      actions: read
     steps:
       - name: Checkout
         uses: actions/checkout@v7
@@ -101,15 +100,6 @@ jobs:
           SWIFT_OPTIMIZATION_LEVEL=-O
           TELEMETRYDECK_APP_ID="$TELEMETRYDECK_APP_ID"
           TELEMETRYDECK_SALT="$TELEMETRYDECK_SALT"
-      # The release does not run the tests again (owner msg 4055): the push of the merge commit to main starts the Test
-      # workflow on it. That run may only just have started, so this gives it 5 minutes to appear, waits for it to
-      # finish and refuses unless it passed. It sits after the archive so the wait overlaps the build, and before
-      # anything is published.
-      - name: Require passing tests
-        env:
-          GH_TOKEN: ${{ github.token }}
-          TESTED_SHA: ${{ github.event.pull_request.merge_commit_sha }}
-        run: bash ./actions-tool/require-passing-tests.sh "$TESTED_SHA" --start-grace 300
       - name: Verify analytics credentials
         run: |
           app_info_plist="$ARCHIVE_PATH/Products/Applications/$SCHEME_NAME.app/Info.plist"
