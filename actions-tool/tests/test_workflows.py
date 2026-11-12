@@ -117,6 +117,16 @@ class DeployWorkflowTests(unittest.TestCase):
         # The PAL build is versioned by App Store Connect's own rules and checked in its own job.
         self.assertNotIn("AltStorePAL", self.run_text("Check build number"))
 
+    def test_the_release_posts_end_with_the_website_link_not_the_release_url(self):
+        # Owner msg 4425: Telegram and Discord end with https://ehpanda.app, not the GitHub release URL.
+        self.assertEqual(self.env["WEBSITE_URL"], "https://ehpanda.app")
+        step = step_named(self.deploy, "Post release notes")
+        self.assertNotIn("RELEASE_URL", step.get("env", {}))
+        run = code(step["run"])
+        self.assertNotIn("RELEASE_URL", run)
+        self.assertIn('telegram "$RELEASE_NOTES_PATH" "$WEBSITE_URL"', run)
+        self.assertIn('discord "$RELEASE_NOTES_PATH" "$WEBSITE_URL"', run)
+
     def test_the_release_notes_are_checked(self):
         self.assertIn("actions-tool/release_notes.py\" check", self.run_text("Check release notes"))
         self.assertIn("release_notes.py\" check", self.run_text("Retrieve data"))
