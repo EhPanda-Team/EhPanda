@@ -209,10 +209,35 @@ class DestinationTests(unittest.TestCase):
     def test_a_trailing_link_stays_its_own_paragraph_after_the_list(self):
         notes = {code: f"Lead.\n\nOne.\n\nTwo.\n\n{self.SITE}" for code in self.notes}
         self.assertEqual(release_notes.discord(notes, URL), f"Lead.\n\n- One.\n- Two.\n\n{self.SITE}\n\n{URL}\n")
-        self.assertIn(f"<summary>日本語</summary>\n\nLead.\n\n- One.\n- Two.\n\n{self.SITE}\n\n</details>",
-                      release_notes.github(notes))
+        # Only the English section ends with the link on GitHub; the collapsed sections end with their last bullet.
+        self.assertIn("<summary>日本語</summary>\n\nLead.\n\n- One.\n- Two.\n\n</details>", release_notes.github(notes))
+        self.assertEqual(release_notes.github(notes).count(self.SITE), 1)
         self.assertTrue(release_notes.github(notes).startswith(f"Lead.\n\n- One.\n- Two.\n\n{self.SITE}\n\n<details>"))
         self.assertNotIn(f"- {self.SITE}", release_notes.github(notes))
+
+    def test_the_collapsed_sections_never_show_the_link(self):
+        notes = {code: f"{text}\n\n{self.SITE}" for code, text in self.notes.items()}
+        body = release_notes.github(notes)
+        for code, name in [("de", "Deutsch"), ("ja", "日本語"), ("ko", "한국어"), ("zh-Hans", "简体中文"), ("zh-Hant", "繁體中文")]:
+            self.assertIn(f"<summary>{name}</summary>\n\n{listed(self.notes, code, '-')}\n\n</details>", body)
+        self.assertEqual(body.count(self.SITE), 1)
+        self.assertTrue(body.startswith(f"{listed(self.notes, 'en', '-')}\n\n{self.SITE}\n\n<details>"))
+
+    def test_a_link_only_in_english_is_posted_once_at_the_end_of_the_english_block(self):
+        # 3.0.0.md as it will be: https://ehpanda.app ends the English section only.
+        notes = dict(self.notes, en=f"{self.notes['en']}\n\n{self.SITE}")
+        self.assertEqual(release_notes.telegram(notes, URL),
+                         f"{listed(self.notes, 'en', '•')}\n\n{self.SITE}\n\n{listed(self.notes, 'zh-Hant', '•')}\n\n{URL}\n")
+        self.assertEqual(release_notes.telegram(notes, URL).count(self.SITE), 1)
+        self.assertEqual(release_notes.discord(notes, URL), f"{listed(self.notes, 'en', '-')}\n\n{self.SITE}\n\n{URL}\n")
+
+    def test_the_committed_3_0_0_notes_end_only_english_with_the_link(self):
+        path = TOOLS.parent / "ReleaseNotes" / "3.0.0.md"
+        notes = release_notes.read(path)
+        self.assertTrue(notes["en"].endswith(f"\n\n{self.SITE}"))
+        for code in ["de", "ja", "ko", "zh-Hans", "zh-Hant"]:
+            self.assertNotIn(self.SITE, notes[code])
+        self.assertEqual(release_notes.read(path, lambda text: release_notes.telegram(release_notes.parse(text), URL)).count(self.SITE), 1)
 
     def test_a_lead_with_only_a_link_after_it_has_no_list(self):
         notes = {code: f"Lead.\n\n{self.SITE}" for code in self.notes}

@@ -47,8 +47,8 @@ Improved the search page. (credit @someone)
 - Write plain text, one item per line, without a number or a bullet (`1.`, `-`, `*`); the check
   refuses both. The first line of each section is the lead sentence. GitHub, Telegram and Discord show
   it as its own paragraph and turn each following line into a bullet (blank lines between the lines
-  make no difference). A link on its own paragraph at the end stays below the list. AltStore and
-  SideStore show the lines as written.
+  make no difference). Only the English section ends with the website link, in a paragraph of its own
+  below the list; the other languages do not repeat it. AltStore and SideStore show the lines as written.
 - English and 繁體中文 together must fit in one Telegram message (4,096 characters), and English
   alone in one Discord message (2,000 characters).
 

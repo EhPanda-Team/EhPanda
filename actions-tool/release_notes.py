@@ -22,13 +22,16 @@ Usage:
   release_notes.py altstore <file>               {"en": ..., "de": ..., ...} for AltStore's
                                                  localizedDescriptions
   release_notes.py github <file>                 the GitHub release body: English, then each other
-                                                 language in a collapsed section; bulleted
+                                                 language in a collapsed section; bulleted; only
+                                                 English ends with the link
   release_notes.py telegram <file> <url>         English, a blank line, 繁體中文, then the link; bulleted
   release_notes.py discord <file> <url>          English, then the link; bulleted
 
 Within a language's section the first line is the lead sentence. GitHub, Telegram and Discord show it as
 its own paragraph, with each following line as a bullet (`- ` on GitHub and Discord, `• ` on Telegram,
-which is sent as plain text); a bare link that ends the section stays its own paragraph after the list.
+which is sent as plain text); a bare link that ends the section stays its own paragraph after the list,
+except in the GitHub release's collapsed sections, which end with their last bullet (only English ends
+with the link).
 AltStore and SideStore show the lines as written. The file itself has no bullets.
 
 The PR description is not read. Every command prints to stdout and fails with a message on stderr.
@@ -154,13 +157,14 @@ def read(path, part=None):
         raise NotesError(f"{path}: {error}") from error
 
 
-def bulleted(text, marker):
+def bulleted(text, marker, keep_link=True):
     """A section as GitHub, Telegram and Discord show it: the first line as the lead sentence, a blank line,
     then every other line as an item starting with `marker`. A bare link ending the section stays its own
-    paragraph after the list. Blank lines between the section's lines make no difference."""
+    paragraph after the list, unless `keep_link` is false. Blank lines between the section's lines make no difference."""
     link = last_link(text)
     if link:
         text = without_link(text, link)
+        link = link if keep_link else None
     lead, *items = [line for line in text.split("\n") if line.strip()]
     parts = [lead]
     if items:
@@ -174,7 +178,7 @@ def github(notes):
     parts = [bulleted(notes["en"], MARKDOWN_BULLET)]
     for code, name in LANGUAGES:
         if code != "en":
-            parts.append(f"<details>\n<summary>{name}</summary>\n\n{bulleted(notes[code], MARKDOWN_BULLET)}\n\n</details>")
+            parts.append(f"<details>\n<summary>{name}</summary>\n\n{bulleted(notes[code], MARKDOWN_BULLET, keep_link=False)}\n\n</details>")
     return "\n\n".join(parts) + "\n"
 
 
