@@ -184,9 +184,8 @@ jobs:
          body_path: ${{ env.GITHUB_RELEASE_BODY_PATH }}
          name: ${{ github.event.pull_request.title }}
          tag_name: ${{ steps.retrieve-data.outputs.version }}
-         # A version's betas share its release (deploy-pre-release.yml marks it a pre-release); the version itself
-         # turns that release into the normal, latest one. The tag's commit is left as it is: moving it with this
-         # token is refused (403), so it is moved to the merge by hand.
+         # The version's release is published as a normal, latest release (a beta of the same version may have
+         # made it a pre-release). The tag is created on the merge commit, main's HEAD.
          prerelease: false
          make_latest: 'true'
       - name: Update AltStore.json and SideStore.json

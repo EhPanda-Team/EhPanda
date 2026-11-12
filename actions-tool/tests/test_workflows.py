@@ -162,11 +162,65 @@ class BetaWorkflowTests(unittest.TestCase):
         self.assertEqual(beta["jobs"]["Deploy"]["permissions"], {"contents": "write"})
         run = expand(step_named(beta, "Check build number")["run"], beta.get("env", {}))
         self.assertIn("actions-tool/check-build-number.sh", run)
+        # The beta's own source is the checkout's ./altstore-beta.json, next to main's AltStore.json.
+        self.assertRegex(run, r"git fetch --no-tags --depth 1 origin main")
+        self.assertIn("./AltStore.json", run)
+        self.assertIn('cp "./altstore-beta.json"', run)
+        self.assertNotIn("altstore-beta branch", run)
+        self.assertNotIn("ls-remote", run)
+
+    def test_the_beta_workflow_has_no_orphan_branch_left(self):
+        text = (WORKFLOWS / "deploy-beta.yml").read_text(encoding="utf-8")
+        for gone in ("BETA_SOURCE_BRANCH", "git worktree", "switch --orphan", "ls-remote", "altstore-beta/altstore-beta.json"):
+            with self.subTest(gone):
+                self.assertNotIn(gone, text)
+        self.assertIn("EhPanda/main/altstore-beta.json", text)
+
+    def test_a_beta_dispatched_on_main_fails_before_it_builds_anything(self):
+        beta = load(WORKFLOWS / "deploy-beta.yml")
+        guard = step_named(beta, "Refuse to run on main")
+        self.assertEqual(step_index(beta, "Refuse to run on main"), 0)
+        self.assertLess(step_index(beta, "Refuse to run on main"), step_index(beta, "Checkout"))
+        self.assertEqual(guard["env"], {"REF_TYPE": "${{ github.ref_type }}", "REF_NAME": "${{ github.ref_name }}"})
+        run = guard["run"]
+        self.assertIn('"$REF_TYPE" != "branch"', run)
+        self.assertIn('"$REF_NAME" == "main"', run)
+        self.assertEqual(run.count("::error::"), 2)
+        self.assertEqual(run.count("exit 1"), 2)
+
+    def test_the_beta_source_goes_to_the_dispatched_branch_never_to_main(self):
+        step, env = self.update_step()
+        self.assertEqual(step["env"]["BETA_BRANCH"], "${{ github.ref_name }}")
+        run = expand(step["run"], env)
+        self.assertIn('git push origin "HEAD:refs/heads/$BETA_BRANCH"', run)
+        self.assertIn('git commit -m "Update altstore-beta.json"', run)
+        self.assertIn('git add -- "./altstore-beta.json"', run.replace("${ALTSTORE_BETA_JSON_PATH#./}", "./altstore-beta.json"))
+        # The only push goes to the dispatched branch, never forced, and nothing pushes main.
+        pushes = re.findall(r"git push[^\n]*", run)
+        self.assertEqual(len(pushes), 1)
+        self.assertNotIn("--force", run)
+        self.assertNotIn("refs/heads/main", run)
+        # The branch may have moved during the build: every attempt starts from its latest tip, re-derives the
+        # source from the tip's file, and the build number is checked against main's AltStore.json and that file.
+        self.assertIn("for attempt in", run)
+        self.assertIn('git fetch --no-tags --depth 1 origin "refs/heads/$BETA_BRANCH"', run)
+        self.assertIn("git reset --quiet --mixed FETCH_HEAD", run)
+        self.assertIn('bash "$check_build_number_path" "$build_version" "$release_json" "$beta_json"', run)
+        self.assertLess(run.index("git reset --quiet --mixed FETCH_HEAD"), run.index('-f "$filter_path" "$source_json"'))
+        self.assertLess(run.index('-f "$filter_path" "$source_json"'), run.index("git push"))
+
+    def test_the_branch_is_checked_out_as_a_branch_and_may_push(self):
+        beta = load(WORKFLOWS / "deploy-beta.yml")
+        checkout = step_named(beta, "Checkout")
+        self.assertTrue(checkout["uses"].startswith("actions/checkout@"))
+        # No `ref:` override: a branch ref is checked out as that branch at the commit the run was dispatched for.
+        self.assertNotIn("ref", checkout.get("with", {}))
+        self.assertEqual(beta["jobs"]["Deploy"]["permissions"], {"contents": "write"})
 
     @classmethod
     def update_step(cls):
         beta = load(WORKFLOWS / "deploy-beta.yml")
-        return step_named(beta, "Update altstore-beta.json on its own branch"), beta.get("env", {})
+        return step_named(beta, "Update altstore-beta.json on the dispatched branch"), beta.get("env", {})
 
     def test_the_versions_get_every_language_of_the_notes_like_the_regular_release(self):
         # The regular release passes localizedDescriptions from release_notes.py (deploy.yml); a beta version
@@ -189,6 +243,7 @@ class BetaWorkflowTests(unittest.TestCase):
         step, env = self.update_step()
         run = expand(step["run"], env)
         self.assertIn('template_path="$PWD/./actions-tool/altstore-beta.template.json"', run)
+        self.assertIn('beta_json="$PWD/./altstore-beta.json"', run)
         # The template is the base of every run; the first beta has no published file to take versions from.
         self.assertIn('source_json="$template_path"', run)
         self.assertNotIn('source_json="$beta_json"', run)
