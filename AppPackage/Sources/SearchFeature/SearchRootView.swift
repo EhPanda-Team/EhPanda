@@ -275,6 +275,7 @@ private struct HistoryKeywordsSection: View {
 
 // MARK: HistoryGalleriesSection
 private struct HistoryGalleriesSection: View {
+    @State private var lastCardWidth: CGFloat = 0
     private let galleries: [Gallery]
     private let hasHistory: Bool
     private let navigationAction: (Gallery) -> Void
@@ -309,16 +310,21 @@ private struct HistoryGalleriesSection: View {
                                     .tint(.primary).multilineTextAlignment(.leading)
                             }
                             .frame(maxHeight: .infinity, alignment: .top)
+                            .onWidthChange { width in
+                                let isLast = gallery.id == galleries.last?.id
+                                if isLast { lastCardWidth = width }
+                            }
                         }
                     }
                     .fixedSize(horizontal: false, vertical: true)
                     .scrollTargetLayout()
+                    // The last page rests on the last card, like the pages before it.
+                    .rowEndRoom(lastItemWidth: lastCardWidth)
                 }
                 // Coasts as before, then settles with the nearest card's leading edge on the content
-                // margin: the 16pt inset the first card already rests at (8pt spacer plus the 8pt
-                // stack spacing it used to have).
+                // margin, which is the heading's inset: the first card rests there too.
                 .scrollTargetBehavior(.viewAligned(limitBehavior: .never))
-                .contentMargins(.horizontal, 16, for: .scrollContent)
+                .contentMargins(.horizontal, SectionInset.horizontal, for: .scrollContent)
                 .scrollIndicators(.hidden)
             }
         } header: {
@@ -355,7 +361,7 @@ private struct SearchSuggestionSection: View {
                     .font(.subheadline)
                     .multilineTextAlignment(.leading)
             }
-            .padding(.horizontal)
+            .padding(.horizontal, SectionInset.horizontal)
 
             section.content
         }

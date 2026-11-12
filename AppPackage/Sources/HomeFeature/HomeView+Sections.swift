@@ -297,6 +297,7 @@ struct CardSlideSection: View, Equatable {
 
 // MARK: CoverWallSection
 struct CoverWallSection: View {
+    @State private var lastStackWidth: CGFloat = 0
     @GalleryCoverMetrics(.standard) private var coverSize
     private let maximumCoverHeight: CGFloat?
     private let showsRichInformation: Bool
@@ -349,9 +350,14 @@ struct CoverWallSection: View {
                         columns: dataSource, maximumCoverHeight: maximumCoverHeight, navigateAction: navigateAction
                     )
                 } else {
+                    let stacks = dataSource
                     HStack(spacing: 20) {
-                        ForEach(dataSource, id: \.first) {
-                            VerticalCoverStack(galleries: $0, navigateAction: navigateAction)
+                        ForEach(stacks, id: \.first) { galleries in
+                            VerticalCoverStack(galleries: galleries, navigateAction: navigateAction)
+                                .onWidthChange { width in
+                                    let isLast = galleries.first?.id == stacks.last?.first?.id
+                                    if isLast { lastStackWidth = width }
+                                }
                         }
                     }
                     // The zero-width spacers that used to carry the 20pt edge inset were flexible in
@@ -359,12 +365,14 @@ struct CoverWallSection: View {
                     // it. Without them the row would hug its stacks and sit at the top, 5pt higher.
                     .frame(maxHeight: .infinity)
                     .scrollTargetLayout()
+                    // The last page rests on the last column, like the pages before it.
+                    .rowEndRoom(lastItemWidth: lastStackWidth)
                 }
             }
             // A release coasts as before and then settles with the nearest column's leading edge on
-            // the content margin, which is the inset the first column already rests at.
+            // the content margin, which is the heading's inset: the first column rests there too.
             .scrollTargetBehavior(.viewAligned(limitBehavior: .never))
-            .contentMargins(.horizontal, 20, for: .scrollContent)
+            .contentMargins(.horizontal, SectionInset.horizontal, for: .scrollContent)
             .scrollIndicators(.hidden)
             .frame(height: showsRichInformation ? nil : coverSize.height * 2 + 30)
         }
@@ -403,6 +411,7 @@ struct VerticalCoverStack: View {
 // MARK: ToplistsSection
 struct ToplistsSection: View {
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+    @State private var lastListWidth: CGFloat = 0
 
     private let showsRichInformation: Bool
     private let galleries: [Int: [Gallery]]
@@ -472,16 +481,20 @@ struct ToplistsSection: View {
 
     private var rankings: some View {
         ScrollView(.horizontal) {
-            HStack(alignment: .top) {
+            // 48pt keeps the gap the lists had when each carried 20pt of padding beside the stack's 8pt.
+            HStack(alignment: .top, spacing: 48) {
                 ForEach(ToplistsType.allCases, content: verticalStacks)
             }
             .scrollTargetLayout()
+            // The last page rests on the last list, like the pages before it.
+            .rowEndRoom(lastItemWidth: lastListWidth)
         }
         // One list per swipe: a gentle swipe moves to the next list and a hard flick cannot skip
-        // past it, which suits four lists that are each most of a screen wide. The side inset is
-        // padding on each column rather than a content margin, because the columns size themselves
-        // against the scroll view's container and a margin would shrink that (see `verticalStacks`).
+        // past it, which suits four lists that are each most of a screen wide. The side inset is the
+        // scroll view's content margin, which is where a snapped list's leading edge rests, so the
+        // first list and every list after a swipe sit on the heading's leading edge.
         .scrollTargetBehavior(.viewAligned(limitBehavior: .alwaysByOne))
+        .contentMargins(.horizontal, SectionInset.horizontal, for: .scrollContent)
         .scrollIndicators(.hidden)
     }
 
@@ -505,11 +518,11 @@ struct ToplistsSection: View {
                 )
             }
         }
-        // The column is the snap target, so its own 20pt side padding is part of the target and the
-        // content of a snapped column rests at the same inset as the first one. This stays padding:
-        // `containerRelativeFrame` in the column measures the scroll view less any content margin,
-        // so a margin here would narrow every column.
-        .padding(.horizontal, 20).padding(.vertical, 5)
+        .padding(.vertical, 5)
+        .onWidthChange { width in
+            let isLast = type == ToplistsType.allCases.last
+            if isLast { lastListWidth = width }
+        }
     }
 
     private func regularWidthGrid(type: ToplistsType) -> some View {
@@ -541,7 +554,9 @@ struct ToplistsSection: View {
                 }
             }
         }
-        .containerRelativeFrame(.horizontal) { width, _ in width * 0.8 }
+        .containerRelativeFrame(.horizontal) { width, _ in
+            (width + 2 * SectionInset.horizontal) * 0.8
+        }
     }
 
     private func regularWidthCell(
@@ -605,14 +620,17 @@ struct VerticalToplistsStack: View {
                 }
             }
         }
+        // The container is the scroll view less its content margins, so they are added back: a list is
+        // a fraction of the scroll view's own width, as it was before the margins carried the inset.
         .containerRelativeFrame(.horizontal) { width, _ in
-            width * (widthFraction ?? (horizontalSizeClass == .regular ? 0.4 : 0.7))
+            (width + 2 * SectionInset.horizontal) * (widthFraction ?? (horizontalSizeClass == .regular ? 0.4 : 0.7))
         }
     }
 }
 
 // MARK: MiscGridSection
 struct MiscGridSection: View {
+    @State private var lastItemWidth: CGFloat = 0
     private let showsRichInformation: Bool
     private let navigateAction: (HomeMiscGridType) -> Void
 
@@ -625,21 +643,22 @@ struct MiscGridSection: View {
         SubSection(title: .more, showAll: false) {
             ScrollView(.horizontal) {
                 if showsRichInformation {
-                    HStack(spacing: 0) {
+                    HStack(spacing: 20) {
                         ForEach(HomeMiscGridType.allCases) { type in
                             Button {
                                 navigateAction(type)
                             } label: {
                                 HomeDestinationCard(type: type)
                             }
-                            // The card is sized against the scroll view's container, which a content
-                            // margin would shrink, so its 20pt inset is padding that belongs to the
-                            // snap target: a snapped card rests at the inset the first one does.
-                            .padding(.leading, 20)
+                            .onWidthChange { width in
+                                let isLast = type == HomeMiscGridType.allCases.last
+                                if isLast { lastItemWidth = width }
+                            }
                         }
                     }
                     .scrollTargetLayout()
-                    .padding(.trailing, 20)
+                    // The last page rests on the last card, like the pages before it.
+                    .rowEndRoom(lastItemWidth: lastItemWidth)
                 } else {
                     HStack {
                         let types = HomeMiscGridType.allCases
@@ -650,16 +669,21 @@ struct MiscGridSection: View {
                                 MiscGridItem(title: type.title, symbol: type.symbol).tint(.primary)
                             }
                             .padding(.trailing, type == types.last ? 0 : 10)
+                            .onWidthChange { width in
+                                let isLast = type == types.last
+                                if isLast { lastItemWidth = width }
+                            }
                         }
                     }
                     .scrollTargetLayout()
+                    // The last page rests on the last item, like the pages before it.
+                    .rowEndRoom(lastItemWidth: lastItemWidth)
                 }
             }
             // Many small items, so a hard flick may carry on past several before it settles.
             .scrollTargetBehavior(.viewAligned(limitBehavior: .never))
-            // The compact row's 16pt edge inset: the 8pt spacers it used to have plus the stack's 8pt
-            // spacing beside them.
-            .contentMargins(.horizontal, showsRichInformation ? 0 : 16, for: .scrollContent)
+            // The heading's inset, which is where a snapped item rests as well as the first.
+            .contentMargins(.horizontal, SectionInset.horizontal, for: .scrollContent)
             .scrollIndicators(.hidden)
         }
     }
