@@ -749,5 +749,17 @@ class TagOperationTests(unittest.TestCase):
         self.assertFalse(any(re.search(pattern, "git push origin HEAD") for pattern in FORBIDDEN))
 
 
+class ActionPinTests(unittest.TestCase):
+    """Owner msg 4659: every action is pinned to its major version tag (`@v8`), never a commit hash."""
+
+    def test_every_action_is_pinned_to_a_major_version(self):
+        for path in sorted(WORKFLOWS.glob("*.y*ml")):
+            for ref in re.findall(r"(?m)^\s*-?\s*uses:\s*(\S+)", path.read_text(encoding="utf-8")):
+                if ref.startswith("./"):
+                    continue
+                with self.subTest(workflow=path.name, uses=ref):
+                    self.assertRegex(ref, r"^[\w.-]+/[\w./-]+@v\d+$")
+
+
 if __name__ == "__main__":
     unittest.main()
