@@ -135,8 +135,8 @@ struct HomeFrontPageWall: View {
     let navigateAction: (Gallery) -> Void
 
     /// The cells are laid out by `HomeCoverWallLayout` rather than a `Grid` so that each one is a direct
-    /// child of a scroll target layout. The side inset is the section's content margin, set where the
-    /// scroll view is, so the snapped column and the first column rest at the heading's inset.
+    /// child of a scroll target layout. The 20pt side inset is the section's content margin, set where
+    /// the scroll view is, so the snapped column and the first column rest at the same inset.
     var body: some View {
         HomeCoverWallLayout(columnSpacing: 20, rowSpacing: 26) {
             ForEach(columns.compactMap(\.first), content: galleryButton)
@@ -192,11 +192,8 @@ struct HomeDestinationCard: View {
         .frame(maxWidth: .infinity, minHeight: 138, alignment: .topLeading)
         .padding(24)
         .background(Color(uiColor: .secondarySystemBackground), in: .rect(cornerRadius: 15))
-        // The container is the scroll view less its content margins, which are added back so the card is
-        // a fraction of the scroll view's own width.
-        .containerRelativeFrame(.horizontal) { container, _ in
-            let width = container + 2 * SectionInset.horizontal
-            return width >= 744 ? (width - 80) / 3 : width * 0.7
+        .containerRelativeFrame(.horizontal) { width, _ in
+            width >= 744 ? (width - 80) / 3 : width * 0.7
         }
         .tint(.primary)
         .multilineTextAlignment(.leading)

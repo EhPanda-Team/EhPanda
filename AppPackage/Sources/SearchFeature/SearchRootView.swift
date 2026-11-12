@@ -315,9 +315,10 @@ private struct HistoryGalleriesSection: View {
                     .scrollTargetLayout()
                 }
                 // Coasts as before, then settles with the nearest card's leading edge on the content
-                // margin, which is the heading's inset: the first card rests there too.
+                // margin: the 16pt inset the first card already rests at (8pt spacer plus the 8pt
+                // stack spacing it used to have).
                 .scrollTargetBehavior(.viewAligned(limitBehavior: .never))
-                .contentMargins(.horizontal, SectionInset.horizontal, for: .scrollContent)
+                .contentMargins(.horizontal, 16, for: .scrollContent)
                 .scrollIndicators(.hidden)
             }
         } header: {
@@ -354,7 +355,7 @@ private struct SearchSuggestionSection: View {
                     .font(.subheadline)
                     .multilineTextAlignment(.leading)
             }
-            .padding(.horizontal, SectionInset.horizontal)
+            .padding(.horizontal)
 
             section.content
         }

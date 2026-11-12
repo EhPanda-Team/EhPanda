@@ -4,12 +4,6 @@ import HapticsClient
 import Resources
 public import SwiftUI
 
-/// The side inset of a section's heading. A horizontal row under the heading takes the same value as its
-/// scroll view's content margin, so the first item and every snapped item rest on the heading's leading edge.
-public enum SectionInset {
-    public static let horizontal: CGFloat = 16
-}
-
 public struct SubSection<Content: View>: View {
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @Dependency(\.hapticsClient) private var hapticsClient
@@ -37,7 +31,7 @@ public struct SubSection<Content: View>: View {
 
     public var body: some View {
         VStack(alignment: .leading) {
-            heading.padding(.horizontal, SectionInset.horizontal)
+            heading.padding(.horizontal)
 
             content
         }
