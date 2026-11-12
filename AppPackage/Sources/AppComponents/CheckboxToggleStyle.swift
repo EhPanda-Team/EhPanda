@@ -7,9 +7,10 @@ public import SwiftUI
 /// analytics choice's radio (owner msg 3897).
 ///
 /// The glyph sits on the card colour, never on the grouped background, so the accent keeps its 3:1 non-text
-/// contrast (UI-SPEC Color). Its centre sits on the middle of the capital letters of the sentence's first line,
-/// the body font's cap height at the current text size (UI-SPEC C-2, rev 1.4); the stack stays on the first text
-/// baseline and the glyph moves its own baseline guide. At accessibility sizes the glyph moves above the sentence
+/// contrast (UI-SPEC Color). Its drawn top edge is level with the top of the capital letters of the sentence's
+/// first line, the body font's cap height at the current text size, less the empty padding the symbol leaves above
+/// the circle (UI-SPEC C-2, rev 1.8); the stack stays on the first text baseline and the glyph moves its own
+/// baseline guide. At accessibility sizes the glyph moves above the sentence
 /// so the sentence keeps the card's full width. VoiceOver reads one element: the sentence as its label, with the
 /// toggle trait and the selected state carrying on and off. Ticking and unticking each play the selection haptic.
 ///
@@ -30,6 +31,9 @@ private struct CheckboxCard: View {
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
     let configuration: ToggleStyleConfiguration
+
+    /// The two symbols the round glyph draws, which the cap-top alignment measures the padding of.
+    private static let symbols = [SFSymbol.circle, .checkmarkCircleFill]
 
     var body: some View {
         Button {
@@ -58,7 +62,7 @@ private struct CheckboxCard: View {
         } else {
             HStack(alignment: .firstTextBaseline, spacing: 12) {
                 glyph
-                    .firstLineCapCentered(.body)
+                    .firstLineCapTopAligned(.body, symbols: Self.symbols)
                 sentence
             }
         }
