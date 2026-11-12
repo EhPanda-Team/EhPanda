@@ -115,7 +115,11 @@ final class NativeVisualPolicyUITests: XCTestCase {
         let row = app.buttons["Account"].firstMatch
         // One sample only: the caller owns the bounded wait and the sole terminal assertion.
         let unavailable = RowProbe(height: 0, ink: 0, image: nil)
-        guard row.exists, row.isHittable else { return unavailable }
+        // No `isHittable` here: for a row whose layout is still moving XCTest does not answer false, it records a
+        // failure ("Activation point invalid and no suggested hit points", hosted runs 3 and 4) that ends the test
+        // at once. Whether the row is whole on screen is read from its frame instead, by the crop below, and what
+        // it shows by its ink, which a row covered or still moving would not match.
+        guard row.exists else { return unavailable }
         let frame = row.frame
         guard !frame.isEmpty, !frame.isInfinite, !frame.isNull else { return unavailable }
         // Crop the app render rather than requesting an element screenshot: a layout transition can empty the
@@ -170,21 +174,27 @@ final class NativeVisualPolicyUITests: XCTestCase {
     }
 
     /// Poll for one valid cold render or a matching live render, retaining the exact measured crop for evidence.
+    /// A cold render is taken when two samples in a row agree, so a row still laying out is not a reference; a live
+    /// render must match its cold reference, which is the same condition with the reference given.
     @discardableResult
     private func requireProbe(
         _ name: String, in app: XCUIApplication, matching expected: RowProbe? = nil,
         file: StaticString = #filePath, line: UInt = #line
     ) -> RowProbe {
         var sample = RowProbe(height: 0, ink: 0, image: nil)
-        let met = NSPredicate { _, _ in
+        var previous: RowProbe?
+        let met = Polling.wait {
+            previous = sample
             sample = self.rowProbe(in: app)
-            return sample.ink > 0 && (expected.map({ sample.matches($0) }) ?? true)
+            guard sample.ink > 0 else { return false }
+            if let expected {
+                return sample.matches(expected)
+            }
+            return previous?.matches(sample) == true
         }
-        let result = XCTWaiter.wait(for: [XCTNSPredicateExpectation(predicate: met, object: nil)], timeout: 15)
         recordProbe(name, sample: sample)
-        XCTAssertEqual(result, .completed,
-                       "\(name): \(sample), expected \(expected.map({ $0.description }) ?? "a valid row render").",
-                       file: file, line: line)
+        XCTAssertTrue(met, "\(name): \(sample), expected \(expected.map({ $0.description }) ?? "a valid row render").",
+                      file: file, line: line)
         return sample
     }
 
@@ -377,7 +387,8 @@ final class NativeVisualPolicyUITests: XCTestCase {
             )
         } else {
             XCTAssertTrue(
-                heading.waitUntilHittable(timeout: 10), "\(title) is off screen at \(size).", file: file, line: line
+                heading.waitUntilHittable(timeout: XCUIElement.hittableTimeout), "\(title) is off screen at \(size).",
+                file: file, line: line
             )
         }
     }

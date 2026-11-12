@@ -91,13 +91,7 @@ enum LiveTextSize {
         )
         let rangeChanged = size.isAccessibilitySize != isOn(largerSizes)
         if rangeChanged {
-            // The row's own switch, not its label.
-            let control = largerSizes.switches.firstMatch
-            (control.exists ? control : largerSizes)
-                .tapWhenHittable("Larger Accessibility Sizes", file: file, line: line)
-            let flipped = NSPredicate { _, _ in isOn(largerSizes) == size.isAccessibilitySize }
-            let wait = XCTWaiter.wait(for: [XCTNSPredicateExpectation(predicate: flipped, object: nil)], timeout: 5)
-            XCTAssertEqual(wait, .completed, "Larger Accessibility Sizes did not change.", file: file, line: line)
+            flipLargerSizes(largerSizes, to: size.isAccessibilitySize, file: file, line: line)
         }
         adjustSlider(in: settings, to: size.step, requiringWrite: rangeChanged && !size.isAccessibilitySize,
                      file: file, line: line)
@@ -116,29 +110,40 @@ enum LiveTextSize {
         settings.terminate()
     }
 
+    /// Taps the Larger Accessibility Sizes switch until it reads `isOn`. A tap on the hosted iPad's Settings once
+    /// changed nothing (run 4: the switch read on for the whole 5-second wait), so a switch that has not moved in
+    /// `flipTimeout` is tapped again. The state is read before every tap, so a late change is never undone by one.
+    private static func flipLargerSizes(
+        _ row: XCUIElement, to isOn: Bool, file: StaticString, line: UInt
+    ) {
+        for _ in 0..<maximumTaps where Self.isOn(row) != isOn {
+            // The row's own switch, not its label.
+            let control = row.switches.firstMatch
+            (control.exists ? control : row).tapWhenHittable("Larger Accessibility Sizes", file: file, line: line)
+            let flipped = NSPredicate { _, _ in Self.isOn(row) == isOn }
+            _ = XCTWaiter.wait(for: [XCTNSPredicateExpectation(predicate: flipped, object: nil)], timeout: flipTimeout)
+        }
+        XCTAssertEqual(Self.isOn(row), isOn, "Larger Accessibility Sizes did not change.", file: file, line: line)
+    }
+
+    private static let flipTimeout: TimeInterval = 10
+
     private static func openLargerText(file: StaticString, line: UInt) -> XCUIApplication {
         let settings = XCUIApplication(bundleIdentifier: settingsBundleIdentifier)
-        // Settings left on Larger Text by an earlier change is used where it stands, but only in the foreground.
-        let state = settings.state
-        if state == .runningBackground || state == .runningBackgroundSuspended || state == .runningForeground {
-            settings.activate()
+        let largerText = settings.navigationBars["Larger Text"]
+        // Settings launches laid out at Large, whatever the system size. At AX5 its rows outgrow an iPhone's
+        // screen, and after the swipes that bring Display & Text Size up, the row took no tap at all, on the
+        // hosted iPhone (run 3) and locally alike, though it stood whole in the window. The override sets only
+        // Settings' own layout; the slider still writes the system size.
+        settings.launchArguments = ["-UIPreferredContentSizeCategoryName", UIContentSizeCategory.large.rawValue]
+        for _ in 0..<maximumLaunches {
+            // A fresh launch starts at the root, wherever an earlier run left the app. Settings is never activated
+            // from the background: the hosted iPad lost it there, and XCTest failed the test for activating an app
+            // that was no longer running, after 60 seconds (run 4). A launch ends a running instance and starts anew.
+            settings.launch()
             XCTAssertTrue(settings.wait(for: .runningForeground, timeout: 15), "Settings did not open.",
                           file: file, line: line)
-        }
-        let largerText = settings.navigationBars["Larger Text"]
-        if settings.state != .runningForeground || !largerText.waitForExistence(timeout: 2) {
-            // Settings launches laid out at Large, whatever the system size. At AX5 its rows outgrow an iPhone's
-            // screen, and after the swipes that bring Display & Text Size up, the row took no tap at all, on the
-            // hosted iPhone (run 3) and locally alike, though it stood whole in the window. The override sets only
-            // Settings' own layout; the slider still writes the system size.
-            settings.launchArguments = ["-UIPreferredContentSizeCategoryName", UIContentSizeCategory.large.rawValue]
-            for _ in 0..<maximumLaunches {
-                // A fresh launch starts at the root, wherever an earlier run left the app.
-                settings.launch()
-                XCTAssertTrue(settings.wait(for: .runningForeground, timeout: 15), "Settings did not open.",
-                              file: file, line: line)
-                if openRows(in: settings, file: file, line: line) { break }
-            }
+            if openRows(in: settings, file: file, line: line) { break }
         }
         XCTAssertTrue(largerText.exists, "Settings never opened Larger Text.", file: file, line: line)
         reveal(NSPredicate(format: "identifier == %@", Identifier.slider), in: settings, named: "The slider",
