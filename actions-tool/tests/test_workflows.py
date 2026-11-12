@@ -89,13 +89,48 @@ class DeployWorkflowTests(unittest.TestCase):
     def test_the_build_number_is_checked_before_the_build(self):
         self.assertLess(step_index(self.deploy, "Check build number"), step_index(self.deploy, "Xcode archive"))
 
+    def test_it_is_only_ever_started_by_hand(self):
+        # Owner msg 4611: merging a pull request or pushing to main never releases; the release
+        # is started by hand on main, and its title is typed in then.
+        triggers = self.deploy.get("on", self.deploy.get("true"))
+        self.assertEqual(list(triggers), ["workflow_dispatch"])
+        inputs = triggers["workflow_dispatch"]["inputs"]
+        self.assertEqual(set(inputs), {"releaseTitle"})
+        self.assertTrue(inputs["releaseTitle"]["required"])
+        self.assertEqual(inputs["releaseTitle"]["type"], "string")
+        text = code((WORKFLOWS / "deploy.yml").read_text(encoding="utf-8"))
+        for word in ("push", "pull_request", "schedule", "release", "workflow_run"):
+            with self.subTest(trigger=word):
+                self.assertNotRegex(text, rf"(?m)^\s*{word}:")
+        for word in ("pull_request", "github.event."):
+            with self.subTest(word=word):
+                self.assertNotIn(word, text)
+        self.assertEqual(self.deploy["jobs"]["Deploy"]["if"], "github.event_name == 'workflow_dispatch'")
+
+    def test_a_release_dispatched_off_main_fails_before_it_builds_anything(self):
+        guard = step_named(self.deploy, "Refuse to run off main")
+        self.assertEqual(step_index(self.deploy, "Refuse to run off main"), 0)
+        self.assertEqual(guard["env"], {"REF_TYPE": "${{ github.ref_type }}", "REF_NAME": "${{ github.ref_name }}"})
+        run = guard["run"]
+        self.assertIn('"$REF_TYPE" != "branch"', run)
+        self.assertIn('"$REF_NAME" != "main"', run)
+        self.assertEqual(run.count("::error::"), 2)
+        self.assertEqual(run.count("exit 1"), 2)
+
+    def test_the_release_is_named_by_the_typed_title(self):
+        release = step_named(self.deploy, "Release to GitHub")
+        self.assertEqual(release["with"]["name"], "${{ inputs.releaseTitle }}")
+        validate = step_named(self.deploy, "Validate data")
+        self.assertEqual(validate["env"]["RELEASE_TITLE"], "${{ inputs.releaseTitle }}")
+        self.assertIn('[[ ! -z "$RELEASE_TITLE" ]] || exit 1', validate["run"])
+
     def test_the_screenshot_gate_is_off_for_3_0(self):
         # Owner msg 3757: the release no longer waits for, or reads, the screenshot check.
         self.assertEqual(list(self.deploy["jobs"]), ["Deploy"])
         job = self.deploy["jobs"]["Deploy"]
         self.assertNotIn("needs", job)
         self.assertNotIn("uses", job)
-        self.assertEqual([step.get("name") for step in job["steps"]][0], "Checkout")
+        self.assertEqual([step.get("name") for step in job["steps"]][:2], ["Refuse to run off main", "Checkout"])
         self.assertNotIn("Require the screenshot check", [step.get("name") for step in job["steps"]])
         for name in ("SNAPSHOT_GATE_CHECK", "REQUIRE_SNAPSHOT_GATE_SCRIPT_PATH"):
             self.assertNotIn(name, self.env)

@@ -1,7 +1,7 @@
 name: Release Notes
 # A release pull request must carry its notes file, ReleaseNotes/<version>.md (ReleaseNotes/README.md).
-# deploy.yml releases every merged pull request opened by the same author, so the file is required
-# for exactly those pull requests. The release tooling's own tests run on every pull request.
+# Release pull requests are the ones opened by the same author; deploy.yml then releases main when
+# started by hand. The release tooling's own tests run on every pull request.
 on:
   pull_request:
     branches:

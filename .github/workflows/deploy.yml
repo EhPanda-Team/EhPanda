@@ -1,9 +1,14 @@
 name: Deploy
+# Started by hand on main only, after the release pull request is merged (owner msg 4611). Merging or
+# pushing to main never releases. The notes come from ReleaseNotes/<version>.md, so nothing is read from
+# a pull request.
 on:
-  pull_request:
-    branches:
-      - main
-    types: [closed]
+  workflow_dispatch:
+    inputs:
+      releaseTitle:
+        description: 'Release title'
+        required: true
+        type: string
 env:
   SCHEME_NAME: 'EhPanda'
   ALTSTORE_JSON_PATH: './AltStore.json'
@@ -33,19 +38,30 @@ jobs:
   Deploy:
     runs-on: xcode-27
     timeout-minutes: 120
-    # One release at a time: the gate lets two merged release pull requests reach this job together, and the
-    # second would publish its release and then fail the push of the catalogue commit. Queue, never cancel.
-    # On the job, not the workflow: a pull request closed without merging also starts this workflow, and
-    # would take the queue's one pending place from a real release.
+    # One release at a time: a second start would publish its release and then fail the push of the
+    # catalogue commit. Queue, never cancel.
     concurrency:
       group: deploy-release
       cancel-in-progress: false
-    if: |
-      github.event.pull_request.merged == true && github.event.pull_request.user.login == 'chihchy'
+    if: github.event_name == 'workflow_dispatch'
     # contents: the release, its tag and the push of the sources.
     permissions:
       contents: write
     steps:
+      # The release is main's HEAD: its tag, sources and catalogue commit all belong to main.
+      - name: Refuse to run off main
+        env:
+          REF_TYPE: ${{ github.ref_type }}
+          REF_NAME: ${{ github.ref_name }}
+        run: |
+          if [[ "$REF_TYPE" != "branch" ]]; then
+            echo "::error::Deploy runs on the main branch only, not on a tag."
+            exit 1
+          fi
+          if [[ "$REF_NAME" != "main" ]]; then
+            echo "::error::Deploy runs on main only. Merge the release pull request, then start Deploy on main."
+            exit 1
+          fi
       - name: Checkout
         uses: actions/checkout@v7
       # Snapshot gate off for 3.0 (owner msg 3757); restore by re-adding the snapshot-gate job and the require step
@@ -153,7 +169,7 @@ jobs:
           } >> "$GITHUB_OUTPUT"
       - name: Validate data
         env:
-          PR_TITLE: ${{ github.event.pull_request.title }}
+          RELEASE_TITLE: ${{ inputs.releaseTitle }}
           RELEASE_NOTES_PATH: ${{ steps.retrieve-data.outputs.notes_path }}
           RELEASE_VERSION: ${{ steps.retrieve-data.outputs.version }}
           RELEASE_BUILD_VERSION: ${{ steps.retrieve-data.outputs.build_version }}
@@ -162,7 +178,7 @@ jobs:
           RELEASE_DATE: ${{ steps.retrieve-data.outputs.version_date }}
           RELEASE_PRIVACY: ${{ steps.retrieve-data.outputs.privacy }}
         run: |
-          [[ ! -z "$PR_TITLE" ]] || exit 1
+          [[ ! -z "$RELEASE_TITLE" ]] || exit 1
           [[ -f "$RELEASE_NOTES_PATH" ]] || exit 1
           [[ -s "$GITHUB_RELEASE_BODY_PATH" ]] || exit 1
           [[ ! -z "$RELEASE_VERSION" ]] || exit 1
@@ -182,10 +198,10 @@ jobs:
            ${{ env.SIDESTORE_IPA_PATH }}
          token: ${{ secrets.GITHUB_TOKEN }}
          body_path: ${{ env.GITHUB_RELEASE_BODY_PATH }}
-         name: ${{ github.event.pull_request.title }}
+         name: ${{ inputs.releaseTitle }}
          tag_name: ${{ steps.retrieve-data.outputs.version }}
          # The version's release is published as a normal, latest release (a beta of the same version may have
-         # made it a pre-release). The tag is created on the merge commit, main's HEAD.
+         # made it a pre-release). The tag is created on main's HEAD.
          prerelease: false
          make_latest: 'true'
       - name: Update AltStore.json and SideStore.json

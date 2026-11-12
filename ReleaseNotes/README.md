@@ -2,7 +2,8 @@
 
 Every release has one notes file here, `ReleaseNotes/<version>.md`, named after the version the
 release is tagged with, for example `ReleaseNotes/2.8.2.md`. Add it in the release pull request.
-The pull request's description is not used for the notes.
+The pull request's description is not used for the notes. Merging the release pull request does not
+release anything: start Deploy by hand on main afterwards and type the release title there.
 
 `python3 actions-tool/release_notes.py version` prints the version the next release gets.
 
