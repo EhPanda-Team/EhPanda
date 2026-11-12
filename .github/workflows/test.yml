@@ -1,5 +1,10 @@
 name: Test
-on: [push, workflow_dispatch]
+# Pushes to branches only, never a tag: moving a release's tag is a push too, and a run on refs/tags/* would be
+# taken by the releases' "Require passing tests" step for the newest run of that commit.
+on:
+  push:
+    branches: ['**']
+  workflow_dispatch:
 env:
    SCHEME_NAME: 'EhPanda'
 jobs:
