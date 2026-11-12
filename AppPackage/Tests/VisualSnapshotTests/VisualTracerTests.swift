@@ -274,6 +274,13 @@ private extension VisualTracerTests {
             .environment(\.colorScheme, .light)
             .environment(\.locale, Locale(identifier: "en_US"))
             .environment(\.dynamicTypeSize, .large)
+            // Both tracers compare one picture with another read seconds later, so the page must hold one
+            // picture. The focused card's gradient does not unless Reduce Motion is on: it blooms from its
+            // seed to its palette over about two seconds, ending in steps of 1/255 across the card, so a read
+            // taken before the bloom ends and one taken after differ (run 43157759498: the viewport and its
+            // frozen read differed by a step over the card, `visibleViewportFreezeChangedPixels`). The snapshot
+            // matrix runs with Reduce Motion for the same reason.
+            .environment(\._accessibilityReduceMotion, true)
             .transaction {
                 $0.animation = nil
                 $0.disablesAnimations = true
