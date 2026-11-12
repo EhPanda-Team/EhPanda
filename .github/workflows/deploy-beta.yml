@@ -13,9 +13,9 @@ on:
 env:
   SCHEME_NAME: 'EhPanda'
   ALTSTORE_JSON_PATH: './AltStore.json'
+  # The beta source, read by AltStore from main: https://raw.githubusercontent.com/EhPanda-Team/EhPanda/main/altstore-beta.json
+  # A beta commits it to the branch it was dispatched on, never to main; the update reaches main when that branch is merged.
   ALTSTORE_BETA_JSON_PATH: './altstore-beta.json'
-  # The beta source's own branch: https://raw.githubusercontent.com/EhPanda-Team/EhPanda/altstore-beta/altstore-beta.json
-  BETA_SOURCE_BRANCH: 'altstore-beta'
   ALTSTORE_BETA_TEMPLATE_PATH: './actions-tool/altstore-beta.template.json'
   ALTSTORE_FILTER_PATH: './actions-tool/altstore-add-version.jq'
   RELEASE_NOTES_TOOL_PATH: './actions-tool/release_notes.py'
@@ -45,10 +45,27 @@ jobs:
       group: deploy-beta
       cancel-in-progress: false
     if: github.event_name == 'workflow_dispatch'
-    # The release and its tag need contents: write; nothing else. A beta never touches main: its source goes to its own branch.
+    # The release and its tag need contents: write, and so does the push of ./altstore-beta.json to the dispatched branch;
+    # nothing else. A beta never touches main.
     permissions:
       contents: write
     steps:
+      # Betas never write to main, so a run dispatched on main (or on a tag) stops before it builds anything.
+      - name: Refuse to run on main
+        env:
+          REF_TYPE: ${{ github.ref_type }}
+          REF_NAME: ${{ github.ref_name }}
+        run: |
+          if [[ "$REF_TYPE" != "branch" ]]; then
+            echo "::error::A beta is dispatched on a branch, not on the $REF_TYPE '$REF_NAME'."
+            exit 1
+          fi
+          if [[ "$REF_NAME" == "main" ]]; then
+            echo "::error::A beta never writes to main. Dispatch it on the branch to beta; its altstore-beta.json update reaches main when that branch is merged."
+            exit 1
+          fi
+      # On a branch ref this checks out the dispatched branch itself, at the commit the run was dispatched for,
+      # not a detached sha. The push of altstore-beta.json later only needs that commit's parent on the remote.
       - name: Checkout
         uses: actions/checkout@v7
       - name: Modify git config
@@ -58,16 +75,16 @@ jobs:
       - name: Check build number
         run: |
           set -euo pipefail
-          # Releases are published from main and betas from their own branch, whichever ref this run was dispatched on.
+          # The regular releases are published from main; the beta source is ./altstore-beta.json of the branch
+          # this run was dispatched on, which is the checkout.
           published_path="$RUNNER_TEMP/published"
           mkdir -p "$published_path"
           git fetch --no-tags --depth 1 origin main
           if git cat-file -e "FETCH_HEAD:${ALTSTORE_JSON_PATH#./}" 2>/dev/null; then
             git show "FETCH_HEAD:${ALTSTORE_JSON_PATH#./}" > "$published_path/$(basename "$ALTSTORE_JSON_PATH")"
           fi
-          if git ls-remote --exit-code --heads origin "$BETA_SOURCE_BRANCH" >/dev/null; then
-            git fetch --no-tags --depth 1 origin "$BETA_SOURCE_BRANCH"
-            git show "FETCH_HEAD:${ALTSTORE_BETA_JSON_PATH#./}" > "$published_path/$(basename "$ALTSTORE_BETA_JSON_PATH")"
+          if [[ -f "$ALTSTORE_BETA_JSON_PATH" ]]; then
+            cp "$ALTSTORE_BETA_JSON_PATH" "$published_path/$(basename "$ALTSTORE_BETA_JSON_PATH")"
           fi
           # Every app and extension target carries the same build number; test targets carry 1.
           build_version="$(grep -Eo 'CURRENT_PROJECT_VERSION = [0-9]+;' EhPanda.xcodeproj/project.pbxproj | grep -Eo '[0-9]+' | sort -n | tail -1)"
@@ -173,8 +190,9 @@ jobs:
          # Tag the commit this run built. Without it GitHub tags the default branch (main), which is not
          # what a beta dispatched on a feature branch was built from.
          target_commitish: ${{ github.sha }}
-      - name: Update altstore-beta.json on its own branch
+      - name: Update altstore-beta.json on the dispatched branch
         env:
+          BETA_BRANCH: ${{ github.ref_name }}
           RELEASE_TITLE: ${{ inputs.releaseTitle }}
           RELEASE_DESCRIPTION: ${{ inputs.releaseDescription }}
           RELEASE_ASSETS: ${{ steps.release.outputs.assets }}
@@ -227,28 +245,29 @@ jobs:
           printf '%s' "$entitlements" | jq -e 'type == "array"' >/dev/null
           curl -sSfIL -o /dev/null "$download_url"
 
-          # The beta source lives alone on its own branch, never on main or a release branch, so its raw URL
-          # stays stable whichever ref this run was dispatched on. The regular releases are read from main.
+          # The beta source is ./altstore-beta.json, which AltStore reads from main. A beta never writes to main:
+          # the updated file is committed to the branch this run was dispatched on ($BETA_BRANCH) and reaches main
+          # when that branch is merged. The regular releases are read from main.
           template_path="$PWD/$ALTSTORE_BETA_TEMPLATE_PATH"
           filter_path="$PWD/$ALTSTORE_FILTER_PATH"
           check_build_number_path="$PWD/$CHECK_BUILD_NUMBER_SCRIPT_PATH"
-          source_path="$RUNNER_TEMP/altstore-beta-source"
+          beta_json="$PWD/$ALTSTORE_BETA_JSON_PATH"
           release_json="$RUNNER_TEMP/AltStore.main.json"
           for attempt in 1 2 3 4 5; do
             git fetch --no-tags --depth 1 origin main
             git show "FETCH_HEAD:${ALTSTORE_JSON_PATH#./}" > "$release_json"
-            rm -rf "$source_path"
-            git worktree prune
-            if git ls-remote --exit-code --heads origin "$BETA_SOURCE_BRANCH" >/dev/null; then
-              git fetch --no-tags --depth 1 origin "$BETA_SOURCE_BRANCH"
-              git worktree add --force --detach "$source_path" FETCH_HEAD
+            # The branch may have moved while the build ran. Put this run's commit on top of its latest tip and
+            # derive the source again from the tip's file, so there is never a rebase conflict in the source. A
+            # mixed reset moves the branch and the index but leaves the files this run built from, and only
+            # altstore-beta.json is staged below.
+            git fetch --no-tags --depth 1 origin "refs/heads/$BETA_BRANCH"
+            git reset --quiet --mixed FETCH_HEAD
+            if git cat-file -e "FETCH_HEAD:${ALTSTORE_BETA_JSON_PATH#./}" 2>/dev/null; then
+              git checkout --quiet -- "${ALTSTORE_BETA_JSON_PATH#./}"
             else
-              # The first beta starts the branch with nothing but the source file.
-              git worktree add --force --detach "$source_path" HEAD
-              git -C "$source_path" switch --orphan "beta-source-$attempt"
+              rm -f "$beta_json"
             fi
 
-            beta_json="$source_path/$ALTSTORE_BETA_JSON_PATH"
             # Another run may have published a build since this one started.
             if [[ -f "$beta_json" ]]; then
               bash "$check_build_number_path" "$build_version" "$release_json" "$beta_json"
@@ -257,7 +276,7 @@ jobs:
             fi
 
             # Every run takes all the metadata from the template, so a fix to it reaches the live source with
-            # the next beta. Only the versions already published are carried over from the branch. The
+            # the next beta. Only the versions already published are carried over from the branch's file. The
             # template has no versions, and AltStore rejects a source with none, so the source is only ever
             # written with this build added.
             source_json="$template_path"
@@ -287,16 +306,16 @@ jobs:
             jq -e '(.apps[0].versions | length) >= 1' "$tmp" >/dev/null
             mv "$tmp" "$beta_json"
 
-            if [[ -z "$(git -C "$source_path" status --porcelain -- "$ALTSTORE_BETA_JSON_PATH")" ]]; then
+            if [[ -z "$(git status --porcelain -- "${ALTSTORE_BETA_JSON_PATH#./}")" ]]; then
               echo "$ALTSTORE_BETA_JSON_PATH is already up to date."
               exit 0
             fi
-            git -C "$source_path" add -- "$ALTSTORE_BETA_JSON_PATH"
-            git -C "$source_path" commit -m "Update altstore-beta.json"
-            if git -C "$source_path" push origin "HEAD:refs/heads/$BETA_SOURCE_BRANCH"; then
+            git add -- "${ALTSTORE_BETA_JSON_PATH#./}"
+            git commit -m "Update altstore-beta.json"
+            if git push origin "HEAD:refs/heads/$BETA_BRANCH"; then
               exit 0
             fi
-            echo "Push to $BETA_SOURCE_BRANCH was rejected (attempt $attempt); retrying with the latest branch."
+            echo "Push to $BETA_BRANCH was rejected (attempt $attempt); retrying on the latest branch."
             sleep $((attempt * 5))
           done
           exit 1
