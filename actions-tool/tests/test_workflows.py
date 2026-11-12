@@ -544,7 +544,7 @@ class PalWorkflowTests(unittest.TestCase):
 
     def test_the_marketplace_build_is_verified_before_upload(self):
         run = self.run_text("Verify marketplace build")
-        for needle in ("app.ehpanda.marketplace", ".ShareExtension", "CFBundleDisplayName", "EhPanda",
+        for needle in ("app.ehpanda.store", ".ShareExtension", "CFBundleDisplayName", "EhPanda",
                        "ehpanda-marketplace", "EhPandaURLScheme", "EhPandaDistributionChannel", "altstorePAL",
                        "PrivacyInfo.xcprivacy", "codesign --verify --deep --strict", "Authority=Apple Distribution: ",
                        "CFBundleShortVersionString", "get-task-allow", "check-build-number.sh"):

@@ -5,7 +5,7 @@
 	<key>CFBundleDisplayName</key>
 	<string>EhPanda</string>
 	<key>CFBundleIdentifier</key>
-	<string>app.ehpanda.marketplace</string>
+	<string>app.ehpanda.store</string>
 	<key>CFBundleShortVersionString</key>
 	<string>3.0.0</string>
 	<key>CFBundleVersion</key>

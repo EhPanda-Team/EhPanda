@@ -327,7 +327,7 @@ def pal_release(source, marketplace_id="6740000001", version="3.0.0", build="159
                 asset["browser_download_url"].replace("/3.0.0/", f"/{version}/")
     variant = next(a for a in PAL_ASSETS if a["name"].startswith(prefix) and a["name"].endswith(".ipa"))
     result = subprocess.run(
-        ["jq", "--arg", "bundleIdentifier", "app.ehpanda.marketplace", "--arg", "version", version,
+        ["jq", "--arg", "bundleIdentifier", "app.ehpanda.store", "--arg", "version", version,
          "--arg", "buildVersion", build, "--arg", "marketingVersion", version, "--arg", "date",
          "2026-11-09T00:00:00Z", "--arg", "localizedDescription", "Notes.",
          "--argjson", "localizedDescriptions", json.dumps({"en": "Notes.", "de": "Notizen."}),
@@ -345,8 +345,8 @@ class PALTemplateTests(unittest.TestCase):
         app = PAL["apps"][0]
         self.assertEqual(PAL["identifier"], "app.ehpanda.altstorepal")
         self.assertIs(PAL["nsfw"], True)
-        self.assertEqual(PAL["featuredApps"], ["app.ehpanda.marketplace"])
-        self.assertEqual(app["bundleIdentifier"], "app.ehpanda.marketplace")
+        self.assertEqual(PAL["featuredApps"], ["app.ehpanda.store"])
+        self.assertEqual(app["bundleIdentifier"], "app.ehpanda.store")
         self.assertEqual(app["marketplaceID"], "")
         self.assertEqual(app["developerName"], "EhPanda Team")  # D-24
         self.assertEqual(app["appPermissions"], {"entitlements": [], "privacy": {}})

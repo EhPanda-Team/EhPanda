@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
 	<key>application-identifier</key>
-	<string>TEAMID0000.app.ehpanda.marketplace</string>
+	<string>TEAMID0000.app.ehpanda.store</string>
 	<key>beta-reports-active</key>
 	<true/>
 	<key>com.apple.developer.team-identifier</key>

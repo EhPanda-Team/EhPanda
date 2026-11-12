@@ -17,8 +17,8 @@
 #   ASC_KEY_P8                the key's .p8 file, as text
 #   DIST_CERT_P12             the Apple Distribution certificate and its private key, a base64 .p12
 #   DIST_CERT_PASSWORD        the .p12's password
-#   PROFILE_APP               the App Store Connect profile for app.ehpanda.marketplace, base64
-#   PROFILE_SHARE_EXTENSION   the App Store Connect profile for app.ehpanda.marketplace.ShareExtension, base64
+#   PROFILE_APP               the App Store Connect profile for app.ehpanda.store, base64
+#   PROFILE_SHARE_EXTENSION   the App Store Connect profile for app.ehpanda.store.ShareExtension, base64
 #   TEAM_ID                   the team that owns the certificate and the profiles
 # Its variables:
 #   PAL_MARKETPLACE_ID        the app's Apple ID in App Store Connect (also the PAL source's marketplaceID)
@@ -61,7 +61,7 @@ env:
   PAL_PUBLISH_TOOL_PATH: './actions-tool/pal_publish.py'
   RELEASE_NOTES_TOOL_PATH: './actions-tool/release_notes.py'
   # The marketplace flavor (Config/Marketplace.xcconfig, included by the generated signing xcconfig).
-  MARKETPLACE_BUNDLE_ID: 'app.ehpanda.marketplace'
+  MARKETPLACE_BUNDLE_ID: 'app.ehpanda.store'
   MARKETPLACE_URL_SCHEME: 'ehpanda-marketplace'
   BUILDS_PATH: '/tmp/action-builds'
   ARCHIVE_PATH: '/tmp/action-builds/EhPanda-AltStorePAL.xcarchive'

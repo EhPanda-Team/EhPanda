@@ -4,7 +4,7 @@
 //     xcodebuild archive -xcconfig Config/Marketplace.xcconfig ...
 //
 // The marketplace build installs as its own app, so everything that identifies an install differs:
-// the bundle identifiers (`app.ehpanda.marketplace` and `app.ehpanda.marketplace.ShareExtension`,
+// the bundle identifiers (`app.ehpanda.store` and `app.ehpanda.store.ShareExtension`,
 // through the suffix knob in `Signing.xcconfig`) and the URL scheme. The scheme differs for the same
 // reason the beta's does: with two flavors installed, a link shared from one flavor's extension must
 // never open the other. The Home Screen name stays "EhPanda" and the icon is the regular one. The
@@ -19,7 +19,7 @@
 // Settings passed with `-xcconfig` apply to every target, Swift packages included, above the
 // project's own files and below any `NAME=value` given on the command line.
 
-BUNDLE_ID_SUFFIX = .marketplace
+BUNDLE_ID_SUFFIX = .store
 EHPANDA_DISPLAY_NAME = EhPanda
 EHPANDA_URL_SCHEME = ehpanda-marketplace
 EHPANDA_DISTRIBUTION_CHANNEL = altstorePAL

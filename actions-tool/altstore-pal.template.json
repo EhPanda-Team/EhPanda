@@ -25,12 +25,12 @@
   "tintColor": "#557F72",
   "nsfw": true,
   "featuredApps": [
-    "app.ehpanda.marketplace"
+    "app.ehpanda.store"
   ],
   "apps": [
     {
       "name": "EhPanda",
-      "bundleIdentifier": "app.ehpanda.marketplace",
+      "bundleIdentifier": "app.ehpanda.store",
       "marketplaceID": "",
       "developerName": "EhPanda Team",
       "subtitle": "The E-Hentai app crafted exclusively for iPhone and iPad.",

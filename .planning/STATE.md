@@ -48,6 +48,7 @@ source_head: b5eca09d1
   `AltStorePAL.json` is not created. The public address will be https://ehpanda.app/AltStorePAL.json (owner msg
   2822). Open items: the template still has the Classic copy, which 20-10 replaces with the PAL copy (D-25); 20-10's
   `pal/` screenshot paths are stale (`app-marketplace/`). DIST-18-02 stays Pending.
+  **Identifier changed (owner decision, 2026-11-13):** the marketplace flavor's bundle ID is now `app.ehpanda.store` (`BUNDLE_ID_SUFFIX = .store`) and its extension `app.ehpanda.store.ShareExtension`; the flavor's names, scheme `ehpanda-marketplace` and `MARKETPLACE_*` variables are unchanged. The `.marketplace` / `app.ehpanda.marketplace` mentions in the 20-01 and 20-03 records above are history.
 - **20-04 complete** (`4c61f5b80`, `dd15e0df9`, `ca17b8502`, `86bf6e313`, `1a2829de6`; `20-04-SUMMARY.md`):
   `actions-tool/asc.py` (stdlib + openssl ES256; `check-build`, `wait-build`, `ensure-version` with
   NOTARIZATION/MANUAL, `attach-build`, `submit`, `adp-id`; method-scoped allow-list with no record-making path;

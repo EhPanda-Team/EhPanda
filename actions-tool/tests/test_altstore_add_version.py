@@ -173,7 +173,7 @@ PAL_SOURCE = {
     "nsfw": True,
     "apps": [{
         "name": "EhPanda",
-        "bundleIdentifier": "app.ehpanda.marketplace",
+        "bundleIdentifier": "app.ehpanda.store",
         "marketplaceID": "",
         "developerName": "EhPanda Team",
         "subtitle": "Subtitle.",
@@ -205,7 +205,7 @@ class PALEntryTests(unittest.TestCase):
             # Each release has its own tag in the asset URLs.
             asset_urls = {key: url.replace("/3.0.0/", f"/{version}/") for key, url in pal_asset_urls().items()}
         download_url = asset_urls.get("manifest") if download_url is None else download_url
-        args = ["--arg", "bundleIdentifier", "app.ehpanda.marketplace", "--arg", "version", version,
+        args = ["--arg", "bundleIdentifier", "app.ehpanda.store", "--arg", "version", version,
                 "--arg", "buildVersion", build, "--arg", "marketingVersion", version,
                 "--arg", "date", "2026-11-09T00:00:00Z", "--arg", "localizedDescription", NOTES["en"],
                 "--argjson", "localizedDescriptions", json.dumps(NOTES, ensure_ascii=False),
