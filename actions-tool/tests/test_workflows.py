@@ -39,14 +39,6 @@ GATE_MENTIONS = ("snapshot-gate.yml", "require-snapshot-gate", "REQUIRE_SNAPSHOT
                  "Require the screenshot check")
 
 
-# Owner msg 4055: a release does not run the test suite again. It requires that the push-triggered Test workflow
-# (test.yml) passed on exactly the commit it builds, waiting for that run when it is still going
-# (actions-tool/require-passing-tests.sh). The step comes right after the archive, so the wait overlaps the build, and
-# before anything is published.
-TESTS_STEP = "Require passing tests"
-TESTS_SCRIPT = "./actions-tool/require-passing-tests.sh"
-
-
 def load(path):
     result = subprocess.run([RUBY, "-ryaml", "-rjson", "-e", "puts JSON.dump(YAML.load_file(ARGV[0]))", str(path)],
                             capture_output=True, text=True, check=True)
@@ -94,8 +86,8 @@ class DeployWorkflowTests(unittest.TestCase):
     def run_text(self, name):
         return expand(code(step_named(self.deploy, name).get("run", "")), self.env)
 
-    def test_the_build_number_is_checked_before_the_tests_are_required(self):
-        self.assertLess(step_index(self.deploy, "Check build number"), step_index(self.deploy, TESTS_STEP))
+    def test_the_build_number_is_checked_before_the_build(self):
+        self.assertLess(step_index(self.deploy, "Check build number"), step_index(self.deploy, "Xcode archive"))
 
     def test_the_screenshot_gate_is_off_for_3_0(self):
         # Owner msg 3757: the release no longer waits for, or reads, the screenshot check.
@@ -107,8 +99,8 @@ class DeployWorkflowTests(unittest.TestCase):
         self.assertNotIn("Require the screenshot check", [step.get("name") for step in job["steps"]])
         for name in ("SNAPSHOT_GATE_CHECK", "REQUIRE_SNAPSHOT_GATE_SCRIPT_PATH"):
             self.assertNotIn(name, self.env)
-        # Only what the release itself needs, and `actions: read` to read the Test workflow's runs.
-        self.assertEqual(job["permissions"], {"contents": "write", "actions": "read"})
+        # Only what the release itself needs.
+        self.assertEqual(job["permissions"], {"contents": "write"})
         self.assertLess(step_index(self.deploy, "Check build number"), step_index(self.deploy, "Check release notes"))
 
     def test_the_build_number_check_reads_mains_classic_side_sources(self):
@@ -164,10 +156,10 @@ class DeployWorkflowTests(unittest.TestCase):
 
 @unittest.skipUnless(RUBY, "ruby is not installed")
 class BetaWorkflowTests(unittest.TestCase):
-    def test_the_beta_still_checks_its_build_number_before_the_tests_are_required(self):
+    def test_the_beta_still_checks_its_build_number_before_the_build(self):
         beta = load(WORKFLOWS / "deploy-beta.yml")
-        self.assertLess(step_index(beta, "Check build number"), step_index(beta, TESTS_STEP))
-        self.assertEqual(beta["jobs"]["Deploy"]["permissions"], {"contents": "write", "actions": "read"})
+        self.assertLess(step_index(beta, "Check build number"), step_index(beta, "Xcode archive"))
+        self.assertEqual(beta["jobs"]["Deploy"]["permissions"], {"contents": "write"})
         run = expand(step_named(beta, "Check build number")["run"], beta.get("env", {}))
         self.assertIn("actions-tool/check-build-number.sh", run)
 
@@ -245,81 +237,46 @@ class BetaWorkflowTests(unittest.TestCase):
 
 
 @unittest.skipUnless(RUBY, "ruby is not installed")
-class RequirePassingTestsStepTests(unittest.TestCase):
-    """No release runs the test suite; each requires the Test workflow's pass on exactly the commit it builds."""
+class ReleasesDoNotTestTests(unittest.TestCase):
+    """Owner msg 4070: a release neither runs the test suite nor waits for the Test workflow. Tests are test.yml's
+    job, on every branch push; a release is built from a commit the owner has already seen pass."""
 
-    # workflow file -> (job, the first step that publishes or uploads, the expression of the commit it builds,
-    #                   the arguments after it)
-    RELEASES = {
-        "deploy.yml": ("Deploy", "Release to GitHub", "${{ github.event.pull_request.merge_commit_sha }}",
-                       "--start-grace 300"),
-        "deploy-beta.yml": ("Deploy", "Release to GitHub", "${{ github.sha }}", ""),
-        "deploy-pre-release.yml": ("Deploy", "Release to GitHub", "${{ github.sha }}", ""),
-        "deploy-pal.yml": ("submit", "Export and upload", "${{ github.sha }}", ""),
-    }
+    # workflow file -> its release job
+    RELEASES = {"deploy.yml": "Deploy", "deploy-beta.yml": "Deploy", "deploy-pre-release.yml": "Deploy",
+                "deploy-pal.yml": "submit"}
+    PERMISSIONS = {"deploy.yml": {"contents": "write"}, "deploy-beta.yml": {"contents": "write"},
+                   "deploy-pre-release.yml": {"contents": "write"}, "deploy-pal.yml": {"contents": "read"}}
 
-    def each(self):
-        for name, (job_name, publish, commit, extra) in self.RELEASES.items():
-            workflow = load(WORKFLOWS / name)
-            with self.subTest(workflow=name):
-                yield workflow, workflow["jobs"][job_name], publish, commit, extra
-
-    def test_no_release_runs_the_tests(self):
+    def test_no_release_runs_tests_or_waits_on_them(self):
         for name in self.RELEASES:
             with self.subTest(workflow=name):
                 text = (WORKFLOWS / name).read_text(encoding="utf-8")
-                workflow = load(WORKFLOWS / name)
-                self.assertNotIn("Run tests", [step.get("name") for step in steps(workflow)])
-                self.assertNotRegex(code(text), r"xcodebuild\s+(clean\s+)?test\b")
-                self.assertNotIn("-testPlan", code(text))
+                body = code(text)
+                names = [step.get("name") for step in steps(load(WORKFLOWS / name))]
+                for step in ("Run tests", "Require passing tests"):
+                    self.assertNotIn(step, names)
+                self.assertNotRegex(body, r"xcodebuild\s+(clean\s+)?(build-for-)?test\b")
+                self.assertNotIn("-testPlan", body)
+                self.assertNotIn("FeatureTests", body)
+                for needle in ("require-passing-tests", "test.yml", "workflow_run", "actions/workflows", "TESTED_SHA"):
+                    self.assertNotIn(needle, body)
+        self.assertFalse((ROOT / "actions-tool" / "require-passing-tests.sh").exists())
 
-    def test_the_step_requires_the_test_workflow_on_the_commit_the_release_builds(self):
-        for workflow, job, _, commit, extra in self.each():
-            step = step_named(job, TESTS_STEP)
-            self.assertEqual(step["env"]["GH_TOKEN"], "${{ github.token }}")
-            self.assertEqual(step["env"].get("GITHUB_REPOSITORY", "${{ github.repository }}"), "${{ github.repository }}")
-            run = " ".join(code(step["run"]).split())
-            self.assertEqual(step["env"]["TESTED_SHA"], commit)
-            self.assertEqual(run, f'bash {TESTS_SCRIPT} "$TESTED_SHA" {extra}'.rstrip())
-            self.assertNotIn("secrets.", json.dumps(step))
-
-    def test_the_step_runs_after_the_archive_and_before_anything_is_published(self):
-        for _, job, publish, _, _ in self.each():
-            names = [step.get("name") for step in job["steps"]]
-            self.assertLess(names.index("Xcode archive"), names.index(TESTS_STEP))
-            self.assertLess(names.index(TESTS_STEP), names.index(publish))
-            self.assertLess(names.index("Check build number"), names.index(TESTS_STEP))
-
-    def test_the_job_may_read_workflow_runs_and_has_nothing_else_added(self):
-        expected = {"deploy.yml": {"contents": "write", "actions": "read"},
-                    "deploy-beta.yml": {"contents": "write", "actions": "read"},
-                    "deploy-pre-release.yml": {"contents": "write", "actions": "read"},
-                    "deploy-pal.yml": {"contents": "read", "actions": "read"}}
-        for name, permissions in expected.items():
+    def test_no_release_job_may_read_workflow_runs(self):
+        for name, job_name in self.RELEASES.items():
             with self.subTest(workflow=name):
-                job_name = self.RELEASES[name][0]
-                self.assertEqual(load(WORKFLOWS / name)["jobs"][job_name]["permissions"], permissions)
+                self.assertEqual(load(WORKFLOWS / name)["jobs"][job_name]["permissions"], self.PERMISSIONS[name])
 
-    def test_the_job_outlasts_the_longest_wait_and_the_build(self):
-        # 90 minutes of polling (the script's default) plus the archive and the rest of the release.
-        for _, job, _, _, _ in self.each():
-            self.assertGreaterEqual(job["timeout-minutes"], 120)
-
-    def test_the_test_workflow_is_what_the_script_reads_and_it_runs_the_old_step_s_tests(self):
-        # The old step: `xcodebuild clean test -testPlan FeatureTests` on iPhone Air, iOS 27.0. test.yml runs that,
-        # on every branch push, unless the message says [skip test] (the script then finds no run and refuses).
-        text = (WORKFLOWS / "test.yml").read_text(encoding="utf-8")
-        run = " ".join(code(step_named(load(WORKFLOWS / "test.yml"), "Run tests")["run"]).split())
+    def test_the_test_workflow_runs_the_feature_tests_on_every_branch_push(self):
+        # `xcodebuild clean test -testPlan FeatureTests` on iPhone Air, iOS 27.0, on every push to a branch.
+        document = load(WORKFLOWS / "test.yml")
+        run = " ".join(code(step_named(document, "Run tests")["run"]).split())
         self.assertIn("xcodebuild clean test", run)
         self.assertIn("-testPlan FeatureTests", run)
         self.assertIn("-destination 'platform=iOS Simulator,name=iPhone Air,OS=27.0'", run)
-        document = load(WORKFLOWS / "test.yml")
-        # Every push to a branch has a run, with no paths filter. A tag push has none: moving a release's tag (the
-        # tag is pushed by hand when a release is re-targeted) must not start a run of the test suite on refs/tags/*,
-        # which the release's require step would then take for the newest run.
-        triggers = document.get("on", document.get("true"))
-        self.assertEqual(triggers, {"push": {"branches": ["**"]}, "workflow_dispatch": None})
-        self.assertIn("[skip test]", text)
+        # No paths filter. A tag push has no run: moving a release's tag is a push too, and must not start the suite.
+        self.assertEqual(document.get("on", document.get("true")),
+                         {"push": {"branches": ["**"]}, "workflow_dispatch": None})
 
 
 PAL_STEPS = [
@@ -331,7 +288,6 @@ PAL_STEPS = [
     "Show Xcode version",
     "Set up signing",
     "Xcode archive",
-    "Require passing tests",
     "Verify analytics credentials",
     "Verify marketplace build",
     "Export and upload",
@@ -385,7 +341,7 @@ class PalWorkflowTests(unittest.TestCase):
         name = environment["name"] if isinstance(environment, dict) else environment
         self.assertEqual(name, "pal-notarization")
         self.assertEqual(self.job["if"].replace(" ", ""), "inputs.mode=='submit'")
-        self.assertEqual(self.job["permissions"], {"contents": "read", "actions": "read"})
+        self.assertEqual(self.job["permissions"], {"contents": "read"})
         self.assertIn("timeout-minutes", self.job)
 
     def test_the_steps_run_in_order(self):
@@ -425,14 +381,8 @@ class PalWorkflowTests(unittest.TestCase):
             with self.subTest(source=source):
                 self.assertNotIn(source, run)
 
-    def test_the_build_number_is_checked_before_the_tests_are_required(self):
-        self.assertLess(step_index(self.job, "Check build number"), step_index(self.job, TESTS_STEP))
-
-    def test_the_tests_are_required_not_run(self):
-        run = self.run_text(TESTS_STEP)
-        self.assertEqual(step_named(self.job, TESTS_STEP)["env"]["TESTED_SHA"], "${{ github.sha }}")
-        self.assertIn('require-passing-tests.sh "$TESTED_SHA"', run)
-        self.assertNotIn("-testPlan", self.text)
+    def test_the_build_number_is_checked_before_the_build(self):
+        self.assertLess(step_index(self.job, "Check build number"), step_index(self.job, "Xcode archive"))
 
     def test_the_archive_is_signed_with_the_generated_xcconfig(self):
         run = self.run_text("Xcode archive")
@@ -506,7 +456,7 @@ class PalWorkflowTests(unittest.TestCase):
         self.assertNotIn("secrets.", json.dumps(self.job.get("env", {})))
 
     def test_the_tests_and_checks_see_no_signing_secret(self):
-        for name in ("Check version", TESTS_STEP, "Install iOS 27 Platform", "Verify analytics credentials"):
+        for name in ("Check version", "Install iOS 27 Platform", "Verify analytics credentials"):
             with self.subTest(step=name):
                 self.assertNotIn("secrets.", json.dumps(step_named(self.job, name).get("env", {})))
 
