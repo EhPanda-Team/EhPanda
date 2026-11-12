@@ -189,7 +189,7 @@ jobs:
           timeout_minutes: 999
           command: xcodebuild -downloadPlatform iOS
       - name: Download the test products
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v8
         with:
           name: snapshot-gate-products
           path: ${{ runner.temp }}
@@ -267,7 +267,7 @@ jobs:
       # shard's folder, so merged they make results/<shard>.
       - name: Download the shard results
         continue-on-error: true
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v8
         with:
           pattern: shard-*
           path: ${{ runner.temp }}/results
@@ -313,7 +313,7 @@ jobs:
           timeout_minutes: 999
           command: xcodebuild -downloadPlatform iOS
       - name: Download the test products
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v8
         with:
           name: snapshot-gate-products
           path: ${{ runner.temp }}
@@ -403,7 +403,7 @@ jobs:
           timeout_minutes: 999
           command: xcodebuild -downloadPlatform iOS
       - name: Download the test products
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v8
         with:
           name: snapshot-gate-products
           path: ${{ runner.temp }}
@@ -491,14 +491,14 @@ jobs:
           fi
       - name: Download the shard results
         continue-on-error: true
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v8
         with:
           pattern: shard-*
           path: ${{ runner.temp }}/results
           merge-multiple: true
       - name: Download the retried shard results
         continue-on-error: true
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v8
         with:
           pattern: retry-*
           path: ${{ runner.temp }}/retry
