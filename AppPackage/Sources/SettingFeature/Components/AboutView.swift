@@ -180,10 +180,6 @@ struct AboutView: View {
             text: .Constant.acknowledgementEhTagTranslationDatabase
         ),
         .init(
-            urlString: String(localized: .Constant.acknowledgementEhPandaTagDatabaseLink),
-            text: .Constant.acknowledgementEhPandaTagDatabase
-        ),
-        .init(
             urlString: String(localized: .Constant.acknowledgementTcaLink),
             text: .Constant.acknowledgementTca
         )
