@@ -7,11 +7,12 @@ public import SwiftUI
 ///
 /// Every card has the same size rules, type and colour; the accent appears only on the selected card, as the filled
 /// radio and a 2pt stroke, and the glyph always sits on the card colour so the accent keeps its contrast. The radio's
-/// centre sits on the middle of the capital letters of the name's first line, the headline font's cap height at the
-/// current text size (UI-SPEC C-3, rev 1.4); the row stays on the first text baseline and the radio moves its own
-/// baseline guide. The radio is two fixed layers, the grey ring and the accent disc with its check, and a pick
-/// only changes their opacity; it is not one symbol swapped and recoloured, which drew the old symbol in the new
-/// colour for the length of a replace effect.
+/// drawn top edge is level with the top of the capital letters of the name's first line, the headline font's cap
+/// height at the current text size, less the empty padding the symbol leaves above the circle (UI-SPEC C-3,
+/// rev 1.8); the row stays on the first text baseline and the radio moves its own baseline guide. The radio is two
+/// fixed layers, the grey ring and the accent disc with its check, and a pick only changes their opacity; it is not
+/// one symbol swapped and recoloured, which drew the old symbol in the new colour for the length of a replace
+/// effect.
 ///
 /// An optional `label` (the analytics choice's "Recommended" on Basic, D-06f) is a neutral grey capsule after the
 /// name, which drops under the name once the two no longer fit one line; it never takes the accent and looks the
@@ -27,6 +28,9 @@ public struct ChoiceCard: View {
     private let label: LocalizedStringResource?
     private let isSelected: Bool
     private let action: () -> Void
+
+    /// The two symbols the round glyph draws, which the cap-top alignment measures the padding of.
+    private static let symbols = [SFSymbol.circle, .checkmarkCircleFill]
 
     public init(
         _ name: LocalizedStringResource,
@@ -73,7 +77,7 @@ public struct ChoiceCard: View {
         } else {
             HStack(alignment: .firstTextBaseline, spacing: 12) {
                 radio
-                    .firstLineCapCentered(.headline)
+                    .firstLineCapTopAligned(.headline, symbols: Self.symbols)
                 text
             }
         }
