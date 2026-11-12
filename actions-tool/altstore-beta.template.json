@@ -1,14 +1,14 @@
 {
   "name": "EhPanda Beta",
   "identifier": "app.ehpanda.altstore.beta",
-  "subtitle": "Over a million adult comics and doujinshi, free on iPhone and iPad.",
+  "subtitle": "Over a million adult comics and doujinshi.",
   "localizedSubtitles": {
-    "en": "Over a million adult comics and doujinshi, free on iPhone and iPad.",
-    "de": "Über eine Million Comics und Doujinshi für Erwachsene, kostenlos auf iPhone und iPad.",
-    "ja": "100万冊以上のエロマンガや同人誌が、iPhone と iPad で無料で読み放題。",
-    "ko": "100만 편이 넘는 성인 만화와 동인지, iPhone과 iPad에서 무료로.",
-    "zh-Hans": "逾百万部色情漫画与同人作品，在 iPhone 和 iPad 上免费阅读。",
-    "zh-Hant": "逾百萬部色情漫畫與同人作品，在 iPhone 與 iPad 上免費閱讀。"
+    "en": "Over a million adult comics and doujinshi.",
+    "de": "Über eine Million Comics und Doujinshi für Erwachsene.",
+    "ja": "100万冊以上のエロマンガや同人誌。",
+    "ko": "100만 편이 넘는 성인 만화와 동인지.",
+    "zh-Hans": "逾百万部色情漫画与同人作品。",
+    "zh-Hant": "逾百萬部色情漫畫與同人作品。"
   },
   "description": "The official source for EhPanda, from the EhPanda team.\n\nAdd it once and EhPanda stays up to date. Every new version appears here with its notes in your language.\n\nEhPanda is a free, open-source app for reading E-Hentai galleries on iPhone and iPad.",
   "localizedDescriptions": {
@@ -32,14 +32,14 @@
       "name": "EhPanda Beta",
       "bundleIdentifier": "app.ehpanda.beta",
       "developerName": "EhPanda Team",
-      "subtitle": "Over a million adult comics and doujinshi, free on iPhone and iPad.",
+      "subtitle": "Over a million adult comics and doujinshi.",
       "localizedSubtitles": {
-        "en": "Over a million adult comics and doujinshi, free on iPhone and iPad.",
-        "de": "Über eine Million Comics und Doujinshi für Erwachsene, kostenlos auf iPhone und iPad.",
-        "ja": "100万冊以上のエロマンガや同人誌が、iPhone と iPad で無料で読み放題。",
-        "ko": "100만 편이 넘는 성인 만화와 동인지, iPhone과 iPad에서 무료로.",
-        "zh-Hans": "逾百万部色情漫画与同人作品，在 iPhone 和 iPad 上免费阅读。",
-        "zh-Hant": "逾百萬部色情漫畫與同人作品，在 iPhone 與 iPad 上免費閱讀。"
+        "en": "Over a million adult comics and doujinshi.",
+        "de": "Über eine Million Comics und Doujinshi für Erwachsene.",
+        "ja": "100万冊以上のエロマンガや同人誌。",
+        "ko": "100만 편이 넘는 성인 만화와 동인지.",
+        "zh-Hans": "逾百万部色情漫画与同人作品。",
+        "zh-Hant": "逾百萬部色情漫畫與同人作品。"
       },
       "localizedDescription": "EhPanda is a free, open-source app for E-Hentai on iPhone and iPad.\n\nSearch by category, rating, tag or page count, and save the searches you use often. Open a gallery to see its tags, rating, previews and comments, and find similar ones.\n\nRead by scrolling or turning pages, one or two pages at a time, with zoom, auto-play and Live Text translation. Download galleries to read offline, even in the background.\n\nSign in to use your favorites and watched tags. Toplists, tag translation, Hath archives and torrents are there too. If your network blocks E-Hentai, one switch in Settings gets you through.\n\nEhPanda is not affiliated with or endorsed by E-Hentai.",
       "localizedDescriptions": {
