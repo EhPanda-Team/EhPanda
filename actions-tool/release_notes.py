@@ -3,8 +3,8 @@
 
 Each release has one committed file, `ReleaseNotes/<version>.md`, where <version> is the version
 the release is tagged with (owner msgs 2564, 2567, 2569). The format is described in
-`ReleaseNotes/README.md`: one `## ` section per language, all six, in this order and with exactly
-these headings:
+`ReleaseNotes/README.md`: the first line is `# <release title>`, the GitHub release's title (owner
+msg 4620), then one `## ` section per language, all six, in this order and with exactly these headings:
 
     ## English
     ## Deutsch
@@ -17,6 +17,7 @@ Usage:
   release_notes.py version                       the version the next release is tagged with
   release_notes.py check [<file>]                fails unless the file (default: the next
                                                  release's) has every section, non-empty
+  release_notes.py title <file>                  the release title, the file's first line
   release_notes.py english <file>                the English notes (SideStore, plain AltStore field)
   release_notes.py altstore <file>               {"en": ..., "de": ..., ...} for AltStore's
                                                  localizedDescriptions
@@ -47,6 +48,8 @@ TELEGRAM_LIMIT = 4096
 DISCORD_LIMIT = 2000
 # Room kept for the release link, which is only known once the release exists.
 LINK_ALLOWANCE = 200
+# The GitHub release's title is one short line.
+TITLE_LIMIT = 100
 VERSION = re.compile(r"^\d+\.\d+\.\d+$")
 # AltStore and SideStore show the notes as they are, so items are plain lines (owner msg 2591).
 LIST_MARKER = re.compile(r"^\s*(\d+[.)]|[-*+•])\s")
@@ -56,13 +59,33 @@ class NotesError(ValueError):
     pass
 
 
-def parse(text):
-    """{code: notes} for the text of a notes file, in the file's order."""
+def split_title(text):
+    """(title, the lines after it) for the text of a notes file."""
     if "\r" in text:
         raise NotesError("the file has Windows line endings; save it with \\n line endings")
+    first, _, rest = text.partition("\n")
+    if not re.match(r"^#(\s|$)", first):
+        raise NotesError("line 1: the file must start with `# <release title>`")
+    title = first[1:].strip()
+    if not title:
+        raise NotesError("line 1: the title is empty")
+    if len(title) > TITLE_LIMIT:
+        raise NotesError(f"line 1: the title is longer than {TITLE_LIMIT} characters")
+    return title, rest
+
+
+def title(text):
+    """The release title, the file's first line without its `# `."""
+    parse(text)
+    return split_title(text)[0]
+
+
+def parse(text):
+    """{code: notes} for the text of a notes file, in the file's order."""
+    _, text = split_title(text)
     sections = {}
     current = None
-    for number, line in enumerate(text.split("\n"), start=1):
+    for number, line in enumerate(text.split("\n"), start=2):
         if re.match(r"^#{1,6}(\s|$)", line):
             match = re.match(r"^## (\S.*?)\s*$", line)
             if not match:
@@ -108,7 +131,8 @@ def length(text):
     return len(text.encode("utf-16-le")) // 2
 
 
-def read(path):
+def read(path, part=None):
+    part = part or parse
     path = pathlib.Path(path)
     if not path.is_file():
         raise NotesError(f"{path} does not exist; every release needs its notes file (see ReleaseNotes/README.md)")
@@ -117,7 +141,7 @@ def read(path):
     except UnicodeDecodeError as error:
         raise NotesError(f"{path} is not UTF-8: {error}") from error
     try:
-        return parse(text)
+        return part(text)
     except NotesError as error:
         raise NotesError(f"{path}: {error}") from error
 
@@ -198,7 +222,9 @@ def main(argv):
         elif command == "check" and len(args) <= 1:
             path = args[0] if args else os.path.relpath(notes_path(release_version()))
             read(path)
-            print(f"{path}: every section is there.", file=sys.stderr)
+            print(f"{path}: the title and every section are there.", file=sys.stderr)
+        elif command == "title" and len(args) == 1:
+            print(read(args[0], title))
         elif command == "english" and len(args) == 1:
             print(read(args[0])["en"])
         elif command == "altstore" and len(args) == 1:

@@ -3,15 +3,18 @@
 Every release has one notes file here, `ReleaseNotes/<version>.md`, named after the version the
 release is tagged with, for example `ReleaseNotes/2.8.2.md`. Add it in the release pull request.
 The pull request's description is not used for the notes. Merging the release pull request does not
-release anything: start Deploy by hand on main afterwards and type the release title there.
+release anything: start Deploy by hand on main afterwards. Its title and notes all come from this file.
 
 `python3 actions-tool/release_notes.py version` prints the version the next release gets.
 
 ## Format
 
-One section per language, all six, in this order, with exactly these headings:
+The release title on the first line, then one section per language, all six, in this order, with
+exactly these headings:
 
 ```markdown
+# Bugfixes & search improvements
+
 ## English
 
 Fixed reading page gestures not responding when scale is greater than 1.
@@ -38,7 +41,8 @@ Improved the search page. (credit @someone)
 …
 ```
 
-- No text before `## English`, no other headings (`#`, `###`, …), and no empty section.
+- The first line is `# <release title>`, the GitHub release's title: one line, at most 100 characters.
+- No text between the title and `## English`, no other headings (`#`, `###`, …), and no empty section.
 - Write plain text: AltStore and SideStore show the notes as they are. Put each item on its own
   line, without a number or a bullet (`1.`, `-`, `*`); the check refuses both. The GitHub release
   shows the lines as they are written.

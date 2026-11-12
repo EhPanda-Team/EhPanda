@@ -1,14 +1,9 @@
 name: Deploy
 # Started by hand on main only, after the release pull request is merged (owner msg 4611). Merging or
-# pushing to main never releases. The notes come from ReleaseNotes/<version>.md, so nothing is read from
-# a pull request.
+# pushing to main never releases. The title and notes come from ReleaseNotes/<version>.md (owner msg
+# 4620), so nothing is typed in or read from a pull request.
 on:
   workflow_dispatch:
-    inputs:
-      releaseTitle:
-        description: 'Release title'
-        required: true
-        type: string
 env:
   SCHEME_NAME: 'EhPanda'
   ALTSTORE_JSON_PATH: './AltStore.json'
@@ -144,6 +139,7 @@ jobs:
           notes_path="$RELEASE_NOTES_DIR/$version.md"
           python3 "$RELEASE_NOTES_TOOL_PATH" check "$notes_path"
           python3 "$RELEASE_NOTES_TOOL_PATH" github "$notes_path" > "$GITHUB_RELEASE_BODY_PATH"
+          title="$(python3 "$RELEASE_NOTES_TOOL_PATH" title "$notes_path")"
           privacy="$(
             find "$PAYLOAD_PATH/$SCHEME_NAME.app" -name Info.plist -print0 |
             while IFS= read -r -d '' plist; do
@@ -166,10 +162,11 @@ jobs:
             echo "version_date=$(date -u +'%Y-%m-%dT%H:%M:%SZ')"
             echo "privacy=$privacy"
             echo "notes_path=$notes_path"
+            echo "title=$title"
           } >> "$GITHUB_OUTPUT"
       - name: Validate data
         env:
-          RELEASE_TITLE: ${{ inputs.releaseTitle }}
+          RELEASE_TITLE: ${{ steps.retrieve-data.outputs.title }}
           RELEASE_NOTES_PATH: ${{ steps.retrieve-data.outputs.notes_path }}
           RELEASE_VERSION: ${{ steps.retrieve-data.outputs.version }}
           RELEASE_BUILD_VERSION: ${{ steps.retrieve-data.outputs.build_version }}
@@ -198,7 +195,7 @@ jobs:
            ${{ env.SIDESTORE_IPA_PATH }}
          token: ${{ secrets.GITHUB_TOKEN }}
          body_path: ${{ env.GITHUB_RELEASE_BODY_PATH }}
-         name: ${{ inputs.releaseTitle }}
+         name: ${{ steps.retrieve-data.outputs.title }}
          tag_name: ${{ steps.retrieve-data.outputs.version }}
          # The version's release is published as a normal, latest release (a beta of the same version may have
          # made it a pre-release). The tag is created on main's HEAD.

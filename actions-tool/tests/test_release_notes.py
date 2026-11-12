@@ -50,7 +50,8 @@ class ParseTests(unittest.TestCase):
 
     def test_format_errors_fail(self):
         cases = {
-            "Notes for 9.9.9\n\n" + TEXT: "text before the first heading",
+            TEXT.replace("## English", "Notes for 9.9.9\n\n## English"): "text before the first heading",
+            "Notes for 9.9.9\n\n" + TEXT: "must start with `# <release title>`",
             TEXT.replace("## 繁體中文", "## 台灣華語"): "is not a language heading",
             TEXT.replace("## 繁體中文", "## Traditional Chinese"): "is not a language heading",
             TEXT.replace("## 简体中文", "## 中文"): "is not a language heading",
@@ -65,9 +66,43 @@ class ParseTests(unittest.TestCase):
                     release_notes.parse(text)
 
     def test_sections_out_of_order_fail(self):
-        english, rest = TEXT.split("## Deutsch", 1)
+        title, body = TEXT.split("## English", 1)
+        english, rest = body.split("## Deutsch", 1)
         with self.assertRaisesRegex(release_notes.NotesError, "not in order"):
-            release_notes.parse("## Deutsch" + rest + "\n" + english)
+            release_notes.parse(title + "## Deutsch" + rest + "\n## English" + english)
+
+    def test_the_title_is_the_first_line(self):
+        # Owner msg 4620: the GitHub release takes everything from the notes file, its title too.
+        self.assertEqual(release_notes.title(TEXT), "Bugfixes & search improvements")
+
+    def test_the_title_is_not_part_of_any_language(self):
+        for code, notes in release_notes.parse(TEXT).items():
+            with self.subTest(code=code):
+                self.assertNotIn("Bugfixes & search", notes)
+
+    def test_a_missing_or_empty_title_fails(self):
+        body = TEXT.split("\n", 2)[2]
+        self.assertTrue(body.startswith("## English"))
+        cases = {
+            body: "must start with `# <release title>`",
+            "\n" + TEXT: "must start with `# <release title>`",
+            "#\n\n" + body: "the title is empty",
+            "#   \n\n" + body: "the title is empty",
+            "# Two\n# Titles\n\n" + body: "only `## <language>` headings",
+            TEXT.replace("## Deutsch\n", "# Deutsch\n"): "only `## <language>` headings",
+        }
+        for text, message in cases.items():
+            with self.subTest(message=message):
+                with self.assertRaisesRegex(release_notes.NotesError, message):
+                    release_notes.parse(text)
+                with self.assertRaisesRegex(release_notes.NotesError, message):
+                    release_notes.title(text)
+
+    def test_a_title_too_long_for_one_line_fails(self):
+        body = TEXT.split("\n", 2)[2]
+        with self.assertRaisesRegex(release_notes.NotesError, "the title is longer than 100 characters"):
+            release_notes.parse("# " + "x" * 101 + "\n\n" + body)
+        release_notes.parse("# " + "x" * 100 + "\n\n" + body)
 
     def test_a_numbered_or_bulleted_item_fails(self):
         # AltStore shows the lines as they are, so items carry no number or bullet (owner msg 2591).
@@ -187,6 +222,11 @@ class CommandLineTests(unittest.TestCase):
     def test_english_prints_the_english_notes(self):
         result = self.run_tool("english", str(FIXTURE))
         self.assertEqual(result.stdout, release_notes.parse(TEXT)["en"] + "\n")
+
+    def test_title_prints_the_title(self):
+        result = self.run_tool("title", str(FIXTURE))
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(result.stdout, "Bugfixes & search improvements\n")
 
     def test_a_wrong_command_fails(self):
         self.assertEqual(self.run_tool("telegram", str(FIXTURE)).returncode, 2)
