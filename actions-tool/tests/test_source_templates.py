@@ -23,9 +23,9 @@ PAL = json.loads((TOOLS / "altstore-pal.template.json").read_text(encoding="utf-
 ALTSTORE = json.loads((TOOLS.parent / "AltStore.json").read_text(encoding="utf-8"))
 ICON_URL = f"{languages.ASSETS_URL}app-marketplace/icon.png"
 HEADER_URL = f"{languages.ASSETS_URL}app-marketplace/header.png"
-# Owner msgs 4236 and 4238: 01-home-v2 is the home screen with the new slogan, in English for everyone, since AltStore
-# has no per-language screenshots. A new name, because AltStore keeps images by URL.
-SCREENSHOT_NAMES = ["01-home-v2", "02-detail", "03-reading", "04-comments", "05-downloads", "06-filters", "07-more"]
+# Owner msgs 4236 and 4238: 01-home is the home screen with the new slogan, in English for everyone, since AltStore
+# has no per-language screenshots. Owner msgs 4331-4343: plain names, with no version and no size.
+SCREENSHOT_NAMES = ["01-home", "02-detail", "03-reading", "04-comments", "05-downloads", "06-filters", "07-more"]
 
 
 def assets_checkout():
@@ -215,7 +215,7 @@ class SourceTemplateTests(unittest.TestCase):
     def test_every_app_shows_the_seven_iphone_screenshots(self):
         # Owner msg 2628: the same screenshots, in this order, for the regular, the beta and the PAL app
         # (20-10, closed with this set). The set is iPhone only; there is no iPad set.
-        expected = [{"imageURL": f"{languages.ASSETS_URL}app-marketplace/iphone/{name}-1260x2730.png", "width": 1260, "height": 2730}
+        expected = [{"imageURL": f"{languages.ASSETS_URL}app-marketplace/iphone/{name}.png", "width": 1260, "height": 2730}
                     for name in SCREENSHOT_NAMES]
         for source in [ALTSTORE, SIDESTORE, BETA, PAL]:
             with self.subTest(source=source["identifier"]):
@@ -258,7 +258,7 @@ class SourceTemplateTests(unittest.TestCase):
                                   if "screenshots" in problem or "iconURL" in problem or "headerURL" in problem], [])
 
     def test_screenshots_altstore_cannot_read_are_reported(self):
-        good = {"imageURL": f"{languages.ASSETS_URL}app-marketplace/iphone/01-home-v2-1260x2730.png", "width": 1260, "height": 2730}
+        good = {"imageURL": f"{languages.ASSETS_URL}app-marketplace/iphone/01-home.png", "width": 1260, "height": 2730}
         cases = {
             "not an object": [good],
             "unknown devices": {"iphone": [good], "watch": [good]},
@@ -293,12 +293,12 @@ class SourceTemplateTests(unittest.TestCase):
         assets = assets_checkout()
         if assets is None:
             self.skipTest("no checkout of the assets repository")
-        shot = {"imageURL": f"{languages.ASSETS_URL}app-marketplace/iphone/01-home-v2-1260x2730.png", "width": 630, "height": 1365}
+        shot = {"imageURL": f"{languages.ASSETS_URL}app-marketplace/iphone/01-home.png", "width": 630, "height": 1365}
         app = dict(SIDESTORE["apps"][0], screenshots={"iphone": [shot]})
         problems = languages.check_source(dict(SIDESTORE, apps=[app]), versions_required=False, assets_dir=assets)
         self.assertEqual([problem for problem in problems if "screenshots" in problem],
                          [next(problem for problem in problems if problem.endswith(
-                             "screenshots.iphone[0]: app-marketplace/iphone/01-home-v2-1260x2730.png is not a 630 x 1365 PNG"))])
+                             "screenshots.iphone[0]: app-marketplace/iphone/01-home.png is not a 630 x 1365 PNG"))])
 
     def test_the_beta_names_are_not_translated(self):
         self.assertEqual(BETA["name"], "EhPanda Beta")
