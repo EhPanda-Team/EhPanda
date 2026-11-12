@@ -22,7 +22,7 @@ INVENTORY = ROOT / 'AppPackage/Tests/VisualSnapshotTests/Resources/scenarios.jso
 READ = ('y = YAML.respond_to?(:unsafe_load) ? YAML.unsafe_load(STDIN.read) : YAML.load(STDIN.read); '
         'print JSON.generate(y)')
 # The majors already in use (19-RESEARCH §11); no new third-party action.
-ALLOWED_ACTIONS = ('actions/checkout@v7', 'actions/upload-artifact@v7', 'actions/download-artifact@v7',
+ALLOWED_ACTIONS = ('actions/checkout@v7', 'actions/upload-artifact@v7', 'actions/download-artifact@v8',
                    'nick-fields/retry@v4')
 JOBS = ('checks', 'build', 'shard', 'triage', 'retry', 'native-policy', 'aggregate')
 JOB_LIMIT = 150
@@ -291,7 +291,7 @@ class ArtifactLayoutTests(unittest.TestCase):
 
     - upload-artifact@v7: the artifact's root is the one directory given, the parent of the one file given, or the
       least common ancestor of several paths.
-    - download-artifact@v7 with a pattern: each artifact goes into `<path>/<artifact name>`, except that every
+    - download-artifact@v8 with a pattern: each artifact goes into `<path>/<artifact name>`, except that every
       artifact goes into `<path>` itself when `merge-multiple` is set or when only one artifact matches. Run
       42562780142 unpacked its one retry, `retry-s11`, straight into `retry/`, and the aggregate never read it.
     """
