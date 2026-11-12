@@ -581,9 +581,15 @@ struct PreviewsSection: View {
                         // The thumbnail is the button's only content; the page it opens is its name.
                         .accessibilityLabel(.accessibilityPreviewPage(page: index))
                     }
-                    .withHorizontalSpacing(height: height)
+                    // The 8pt spacers that framed the row now are its content margin below.
                 }
+                .scrollTargetLayout()
             }
+            // The Home rows' snapping: a release coasts as before, then settles with the nearest thumbnail's
+            // leading edge on the content margin, the 16pt inset the first thumbnail already rests at (an 8pt
+            // spacer plus the 8pt stack spacing it had). Many small items, so a hard flick may pass several.
+            .scrollTargetBehavior(.viewAligned(limitBehavior: .never))
+            .contentMargins(.horizontal, 16, for: .scrollContent)
             .scrollIndicators(.hidden)
         }
     }
@@ -643,9 +649,13 @@ struct CommentsSection: View {
                         card(comment)
                             .appAlert(moderationAlert(moderationTargetID == comment.commentID))
                     }
-                    .withHorizontalSpacing()
                 }
+                .scrollTargetLayout()
             }
+            // The Home rows' snapping, as for the previews: the nearest card's leading edge settles on the
+            // 16pt content margin the first card rests at (an 8pt spacer plus the 8pt stack spacing it had).
+            .scrollTargetBehavior(.viewAligned(limitBehavior: .never))
+            .contentMargins(.horizontal, 16, for: .scrollContent)
             .scrollIndicators(.hidden)
             .animation(reduceMotion ? nil : .default, value: moderation.blockedMemberIDs)
             .animation(reduceMotion ? nil : .default, value: moderation.revealedCommentIDs)
