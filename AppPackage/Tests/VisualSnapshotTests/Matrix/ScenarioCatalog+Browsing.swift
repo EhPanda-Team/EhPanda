@@ -330,7 +330,9 @@ enum BrowsingScenarios {
     /// How long ``focusSearchField(_:)`` may take before it fails the attempt with `interaction`.
     static let focusDeadline: Duration = .seconds(40)
 
-    static func focusSearchField(_ window: UIWindow, deadline span: Duration) async throws {
+    static func focusSearchField(
+        _ window: UIWindow, deadline span: Duration, restWait: Duration = defaultRestWait
+    ) async throws {
         let root = try XCTUnwrap(window.rootViewController?.view)
         let clock = ContinuousClock()
         let deadline = clock.now.advanced(by: span)
@@ -354,7 +356,7 @@ enum BrowsingScenarios {
             }
             try await clock.sleep(for: .milliseconds(held == 0 ? 800 : 300))
             do {
-                try await waitForRest(window)
+                try await waitForRest(window, within: restWait)
             } catch let moving as StillMoving {
                 // Not yet at rest: the focus is not counted as held, and the loop reads again until the deadline.
                 guard clock.now < deadline else { throw moving }
@@ -376,11 +378,14 @@ enum BrowsingScenarios {
         let reason: String
     }
 
+    /// How long ``waitForRest(_:within:)`` waits for a window to come to rest.
+    static let defaultRestWait: Duration = .seconds(10)
+
     /// Waits until ``HostedWindowCapture/motion(in:)`` reads nothing three times in a row, 100 ms apart, for at most
-    /// 10 s; a window still moving by then fails the step.
-    static func waitForRest(_ window: UIWindow) async throws {
+    /// `span` (``defaultRestWait``); a window still moving by then fails the step.
+    static func waitForRest(_ window: UIWindow, within span: Duration = defaultRestWait) async throws {
         let clock = ContinuousClock()
-        let deadline = clock.now.advanced(by: .seconds(10))
+        let deadline = clock.now.advanced(by: span)
         var quiet = 0
         while quiet < 3 {
             let motion = HostedWindowCapture.motion(in: window)
