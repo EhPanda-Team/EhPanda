@@ -279,6 +279,19 @@ private struct HistoryGalleriesSection: View {
     private let hasHistory: Bool
     private let navigationAction: (Gallery) -> Void
     private let removeAllAction: () -> Void
+    @State private var position = ScrollPosition(idType: Gallery.ID.self)
+    @State private var tracker = RowTracker()
+
+    /// The gap between two cards, and the inset the row rests at.
+    private static let spacing: CGFloat = 8
+    private static let inset: CGFloat = 16
+
+    /// What the row last measured. It is read when the galleries change and never drawn, so it is a plain object:
+    /// an offset kept in `@State` would redraw the row on every frame of a scroll.
+    @MainActor private final class RowTracker {
+        var offset: CGFloat = 0
+        var cardWidth: CGFloat = 0
+    }
 
     init(
         galleries: [Gallery], hasHistory: Bool, navigationAction: @escaping (Gallery) -> Void,
@@ -288,6 +301,17 @@ private struct HistoryGalleriesSection: View {
         self.hasHistory = hasHistory
         self.navigationAction = navigationAction
         self.removeAllAction = removeAllAction
+    }
+
+    /// A gallery that is viewed lands at the front of the row. Left alone, the row keeps its offset and every card on
+    /// screen moves a place to the right; the offset moves on by the cards that came in before the one at the
+    /// leading edge, so the cards on screen stay where they are and the new one waits off screen before them.
+    private func keepLeadingGallery(from old: [Gallery.ID], to new: [Gallery.ID]) {
+        guard tracker.cardWidth > 0, !old.isEmpty else { return }
+        let step = tracker.cardWidth + Self.spacing
+        let leading = min(max(Int(((tracker.offset + Self.inset) / step).rounded()), 0), old.count - 1)
+        guard let moved = new.firstIndex(of: old[leading]), moved != leading else { return }
+        position.scrollTo(x: tracker.offset + CGFloat(moved - leading) * step)
     }
 
     var body: some View {
@@ -300,7 +324,7 @@ private struct HistoryGalleriesSection: View {
                     .padding(.horizontal)
             } else {
                 ScrollView(.horizontal) {
-                    HStack {
+                    HStack(spacing: Self.spacing) {
                         ForEach(galleries) { gallery in
                             Button {
                                 navigationAction(gallery)
@@ -309,6 +333,7 @@ private struct HistoryGalleriesSection: View {
                                     .tint(.primary).multilineTextAlignment(.leading)
                             }
                             .frame(maxHeight: .infinity, alignment: .top)
+                            .onGeometryChange(for: CGFloat.self, of: \.size.width) { tracker.cardWidth = $0 }
                         }
                     }
                     .fixedSize(horizontal: false, vertical: true)
@@ -318,7 +343,14 @@ private struct HistoryGalleriesSection: View {
                 // margin: the 16pt inset the first card already rests at (8pt spacer plus the 8pt
                 // stack spacing it used to have).
                 .scrollTargetBehavior(.viewAligned(limitBehavior: .never))
-                .contentMargins(.horizontal, 16, for: .scrollContent)
+                .scrollPosition($position)
+                .onScrollGeometryChange(for: CGFloat.self, of: { $0.contentOffset.x }) { _, offset in
+                    tracker.offset = offset
+                }
+                .onChange(of: galleries.map(\.id)) { old, new in
+                    keepLeadingGallery(from: old, to: new)
+                }
+                .contentMargins(.horizontal, Self.inset, for: .scrollContent)
                 .scrollIndicators(.hidden)
             }
         } header: {
