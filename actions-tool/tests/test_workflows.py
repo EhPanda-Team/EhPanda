@@ -5,6 +5,7 @@ YAML is read through Ruby's standard library (`ruby -ryaml -rjson`), because PyY
 machines that run these tests. YAML 1.1 reads the `on:` key as `true`; only the PAL tests read triggers.
 """
 
+import ast
 import json
 import pathlib
 import re
@@ -806,6 +807,31 @@ class ActionPinTests(unittest.TestCase):
                     continue
                 with self.subTest(workflow=path.name, uses=ref):
                     self.assertRegex(ref, r"^[\w.-]+/[\w./-]+@v\d+$")
+
+    def test_the_snapshot_gate_allows_the_versions_the_workflows_use(self):
+        """A version bump that misses the snapshot gate's own allow-list stops the gate before it records anything
+        (run 43284991580: download-artifact went to v8 in the workflows while the list still named v7)."""
+        gate_tests = ROOT / "Scripts/visual/test_snapshot_gate.py"
+        allowed = next(
+            ast.literal_eval(node.value)
+            for node in ast.parse(gate_tests.read_text(encoding="utf-8")).body
+            if isinstance(node, ast.Assign) and any(getattr(t, "id", None) == "ALLOWED_ACTIONS" for t in node.targets)
+        )
+        used = set()
+        for path in sorted(WORKFLOWS.glob("*.y*ml")):
+            used.update(
+                ref for ref in re.findall(r"(?m)^\s*-?\s*uses:\s*(\S+)", path.read_text(encoding="utf-8"))
+                if not ref.startswith("./")
+            )
+        used_majors = {}
+        for ref in used:
+            name, _, major = ref.partition("@")
+            used_majors.setdefault(name, set()).add(major)
+        for entry in allowed:
+            name, _, major = entry.partition("@")
+            with self.subTest(allowed=entry):
+                self.assertIn(name, used_majors, "allowed but used by no workflow")
+                self.assertEqual(used_majors[name], {major}, "the workflows use another version")
 
 
 if __name__ == "__main__":
