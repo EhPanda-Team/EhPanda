@@ -130,13 +130,21 @@ def github(notes):
     return "\n\n".join(parts) + "\n"
 
 
+def without_link(text, url):
+    """The notes without a last line that is the link itself, so a post that ends with it shows it once."""
+    if url and text.endswith(f"\n\n{url}"):
+        return text[: -len(url)].rstrip("\n")
+    return text
+
+
 def telegram(notes, url):
     # No language is named (owner msg 2582).
-    return f"{notes['en']}\n\n{notes['zh-Hant']}\n\n{url}".rstrip("\n") + "\n"
+    english, chinese = without_link(notes["en"], url), without_link(notes["zh-Hant"], url)
+    return f"{english}\n\n{chinese}\n\n{url}".rstrip("\n") + "\n"
 
 
 def discord(notes, url):
-    return f"{notes['en']}\n\n{url}".rstrip("\n") + "\n"
+    return f"{without_link(notes['en'], url)}\n\n{url}".rstrip("\n") + "\n"
 
 
 def release_version(workflow=WORKFLOW, project=PROJECT):

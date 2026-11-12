@@ -120,6 +120,15 @@ class DestinationTests(unittest.TestCase):
     def test_discord_is_english_then_the_link(self):
         self.assertEqual(release_notes.discord(self.notes, URL), f"{self.notes['en']}\n\n{URL}\n")
 
+    def test_a_link_the_notes_already_end_with_is_posted_once(self):
+        # Owner msg 4453: the 3.0.0 notes themselves end with the website link, which the posts also end with.
+        site = "https://ehpanda.app"
+        notes = {code: f"{text}\n\n{site}" for code, text in self.notes.items()}
+        self.assertEqual(release_notes.telegram(notes, site),
+                         f"{self.notes['en']}\n\n{self.notes['zh-Hant']}\n\n{site}\n")
+        self.assertEqual(release_notes.discord(notes, site), f"{self.notes['en']}\n\n{site}\n")
+        self.assertEqual(release_notes.telegram(notes, URL).count(site), 2)
+
 
 class VersionTests(unittest.TestCase):
     def write(self, directory, name, text):
