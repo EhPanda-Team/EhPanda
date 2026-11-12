@@ -34,28 +34,47 @@ final class BrowsingStepTests: XCTestCase {
         XCTAssertEqual(factory.minimumReads, 7)
     }
 
-    /// The step outlasts a window that is still moving after one ``BrowsingScenarios/waitForRest(_:)`` (10 s): it
+    /// The step outlasts a window that is still moving after one ``BrowsingScenarios/waitForRest(_:within:)``: it
     /// used to fail the attempt there, as it did in 3 of 5 compare invocations of run 42533872440.
     ///
     /// What this proves is the step's loop and the window's motion read, so it needs neither the keyboard nor a
     /// runner's speed. The field takes its focus without the keyboard (``SearchPage/Field``): on the hosted
     /// FeatureTests runs, which put the app beside every other target's processes on a few cores, the step with a
     /// real field ran to its deadline in three runs (42996343921, 43002788032, 43016480727: 41 to 45 s against 30 s,
-    /// the keyboard's session restarting in their logs), and locally it passes in 13 s. The real keyboard's focus is
-    /// the snapshot matrix's, whose front-page-search scenario goes through this same step. The deadline is the
-    /// step's own budget on top of the time the window moves, not a total that the motion eats into: 30 s had to
-    /// cover the 12 s of motion and left 18 s for the focus.
+    /// the keyboard's session restarting in their logs). The real keyboard's focus is the snapshot matrix's, whose
+    /// front-page-search scenario goes through this same step.
+    ///
+    /// The window's motion ends when the test ends it, not when an animation's own clock runs out. With a 12 s
+    /// animation the step still read the window as moving at its deadline, 52 s in (`StillMoving`,
+    /// `animation:UIView:fade`), on the hosted runner in run 43157759498, while it passed in 13 s in every local run
+    /// (iOS 27.0 and 27.2, up to 24 busy processes). What the host's render clock says of a finished animation is
+    /// not the step's to depend on, and is not what this proves. The rest wait is shortened to match, so the motion
+    /// outlasts it twice over.
     @MainActor
     func testFocusOutlastsAWindowThatMovesLongerThanOneRestWait() async throws {
         let window = try XCTUnwrap(HostedWindowCapture.keyWindow())
-        let motion: CFTimeInterval = 12
-        let page = SearchPage(motion: motion)
+        let restWait: Duration = .seconds(1)
+        let page = SearchPage(moves: true)
         let hosted = HostedWindowCapture.host(page, in: window, style: .light)
         defer { hosted.dispose() }
         let field = try await page.field()
+        XCTAssertNotNil(HostedWindowCapture.motion(in: window))
+        let clock = ContinuousClock()
+        let start = clock.now
+        let stop = Task { @MainActor in
+            do {
+                try await clock.sleep(for: restWait * 2.5)
+                page.stopMoving()
+            } catch {
+                // Cancelled with the test: the window is disposed of, and there is nothing left to stop.
+            }
+        }
+        defer { stop.cancel() }
         try await BrowsingScenarios.focusSearchField(
-            window, deadline: .seconds(motion) + BrowsingScenarios.focusDeadline
+            window, deadline: .seconds(30), restWait: restWait
         )
+        await stop.value
+        XCTAssertGreaterThan(start.duration(to: clock.now), restWait * 2)
         XCTAssertTrue(field.isFirstResponder)
         XCTAssertNil(HostedWindowCapture.motion(in: window))
         field.resignFirstResponder()
@@ -64,7 +83,7 @@ final class BrowsingStepTests: XCTestCase {
     @MainActor
     func testFocusFailsTheStepAtItsDeadline() async throws {
         let window = try XCTUnwrap(HostedWindowCapture.keyWindow())
-        let page = SearchPage(motion: 0, refusesFocus: true)
+        let page = SearchPage(moves: false, refusesFocus: true)
         let hosted = HostedWindowCapture.host(page, in: window, style: .light)
         defer { hosted.dispose() }
         _ = try await page.field()
@@ -85,14 +104,15 @@ final class BrowsingStepTests: XCTestCase {
     }
 }
 
-/// A search field, and a layer that moves for `motion` seconds once the page is shown.
+/// A search field, and a layer that moves until ``stopMoving()``.
 private struct SearchPage: UIViewRepresentable {
-    let motion: CFTimeInterval
+    let moves: Bool
     var refusesFocus = false
     let box = Box()
 
     final class Box {
         var field: UISearchTextField?
+        var mover: UIView?
     }
 
     /// A search field that holds its focus itself: it never reaches the keyboard, so how fast the host serves the
@@ -122,21 +142,30 @@ private struct SearchPage: UIViewRepresentable {
         field.text = "keyword"
         view.addSubview(field)
         box.field = field
-        if motion > 0 {
+        if moves {
             let mover = UIView(frame: CGRect(x: 20, y: 200, width: 40, height: 40))
             mover.backgroundColor = .systemOrange
             view.addSubview(mover)
+            // Long enough to still be moving whenever the test ends it, and short of the length that reads as
+            // repeating for ever (``HostedWindowCapture/repeatsForever(_:)``).
             let animation = CABasicAnimation(keyPath: "opacity")
             animation.fromValue = 1
             animation.toValue = 0.5
-            animation.duration = motion
-            animation.beginTime = CACurrentMediaTime()
+            animation.duration = 600
+            animation.beginTime = mover.layer.convertTime(CACurrentMediaTime(), from: nil)
             mover.layer.add(animation, forKey: "fade")
+            box.mover = mover
         }
         return view
     }
 
     func updateUIView(_ uiView: UIView, context: Context) {}
+
+    /// Ends the motion at once: the animation is taken off its layer.
+    @MainActor
+    func stopMoving() {
+        box.mover?.layer.removeAnimation(forKey: "fade")
+    }
 
     @MainActor
     func field() async throws -> UISearchTextField {
