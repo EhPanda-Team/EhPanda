@@ -127,7 +127,14 @@ class DestinationTests(unittest.TestCase):
         self.assertEqual(release_notes.telegram(notes, site),
                          f"{self.notes['en']}\n\n{self.notes['zh-Hant']}\n\n{site}\n")
         self.assertEqual(release_notes.discord(notes, site), f"{self.notes['en']}\n\n{site}\n")
-        self.assertEqual(release_notes.telegram(notes, URL).count(site), 2)
+
+    def test_a_link_both_telegram_languages_end_with_is_posted_once_before_the_release_url(self):
+        # Owner msg 4453 and 4459: the 3.0.0 notes end with https://ehpanda.app; the post ends with the release URL.
+        site = "https://ehpanda.app"
+        notes = {code: f"{text}\n\n{site}" for code, text in self.notes.items()}
+        self.assertEqual(release_notes.telegram(notes, URL),
+                         f"{self.notes['en']}\n\n{self.notes['zh-Hant']}\n\n{site}\n\n{URL}\n")
+        self.assertEqual(release_notes.discord(notes, URL), f"{self.notes['en']}\n\n{site}\n\n{URL}\n")
 
 
 class VersionTests(unittest.TestCase):

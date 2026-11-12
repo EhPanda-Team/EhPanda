@@ -6,8 +6,6 @@ on:
     types: [closed]
 env:
   SCHEME_NAME: 'EhPanda'
-  # The link that ends the Telegram and Discord release posts (owner msg 4425), instead of the GitHub release URL.
-  WEBSITE_URL: 'https://ehpanda.app'
   ALTSTORE_JSON_PATH: './AltStore.json'
   SIDESTORE_JSON_PATH: './SideStore.json'
   ALTSTORE_BETA_JSON_PATH: './altstore-beta.json'
@@ -265,20 +263,21 @@ jobs:
       - name: Post release notes
         env:
           RELEASE_NOTES_PATH: ${{ steps.retrieve-data.outputs.notes_path }}
+          RELEASE_URL: ${{ steps.release.outputs.url }}
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHANNEL_ID: ${{ secrets.TELEGRAM_CHANNEL_ID }}
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
         run: |
           set -euo pipefail
-          # Telegram: English, then 繁體中文, then the website link, as plain text. Discord: English, then the website link.
+          # Telegram: English, then 繁體中文, then the link, as plain text. Discord: English, then the link.
           telegram_text="$BUILDS_PATH/telegram.txt"
-          python3 "$RELEASE_NOTES_TOOL_PATH" telegram "$RELEASE_NOTES_PATH" "$WEBSITE_URL" > "$telegram_text"
+          python3 "$RELEASE_NOTES_TOOL_PATH" telegram "$RELEASE_NOTES_PATH" "$RELEASE_URL" > "$telegram_text"
           curl -sS --fail-with-body "https://api.telegram.org/bot$TELEGRAM_BOT_TOKEN/sendMessage" \
             --data-urlencode "chat_id=$TELEGRAM_CHANNEL_ID" \
             --data-urlencode "text@$telegram_text"
 
           discord_payload="$BUILDS_PATH/discord.json"
-          python3 "$RELEASE_NOTES_TOOL_PATH" discord "$RELEASE_NOTES_PATH" "$WEBSITE_URL" | jq -Rs '{content: .}' > "$discord_payload"
+          python3 "$RELEASE_NOTES_TOOL_PATH" discord "$RELEASE_NOTES_PATH" "$RELEASE_URL" | jq -Rs '{content: .}' > "$discord_payload"
           curl -sS --fail-with-body "$DISCORD_WEBHOOK" \
             -H 'Content-Type: application/json' \
             --data-binary "@$discord_payload"

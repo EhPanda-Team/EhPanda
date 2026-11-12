@@ -137,9 +137,18 @@ def without_link(text, url):
     return text
 
 
+def last_link(text):
+    """The notes' last paragraph when it is a bare link, else None."""
+    last = text.rsplit("\n\n", 1)[-1]
+    return last if "\n\n" in text and re.fullmatch(r"https?://\S+", last) else None
+
+
 def telegram(notes, url):
-    # No language is named (owner msg 2582).
+    # No language is named (owner msg 2582). A link both languages end with is shown once, after 繁體中文.
     english, chinese = without_link(notes["en"], url), without_link(notes["zh-Hant"], url)
+    shared = last_link(english)
+    if shared and shared == last_link(chinese):
+        english = without_link(english, shared)
     return f"{english}\n\n{chinese}\n\n{url}".rstrip("\n") + "\n"
 
 
