@@ -1,14 +1,14 @@
 {
   "name": "EhPanda",
   "identifier": "app.ehpanda.sidestore",
-  "subtitle": "Over a million adult comics and doujinshi, free on iPhone and iPad.",
+  "subtitle": "Over a million adult comics and doujinshi.",
   "localizedSubtitles": {
-    "en": "Over a million adult comics and doujinshi, free on iPhone and iPad.",
-    "de": "Über eine Million Comics und Doujinshi für Erwachsene, kostenlos auf iPhone und iPad.",
-    "ja": "100万冊以上のエロマンガや同人誌が、iPhone と iPad で無料で読み放題。",
-    "ko": "100만 편이 넘는 성인 만화와 동인지, iPhone과 iPad에서 무료로.",
-    "zh-Hans": "逾百万部色情漫画与同人作品，在 iPhone 和 iPad 上免费阅读。",
-    "zh-Hant": "逾百萬部色情漫畫與同人作品，在 iPhone 與 iPad 上免費閱讀。"
+    "en": "Over a million adult comics and doujinshi.",
+    "de": "Über eine Million Comics und Doujinshi für Erwachsene.",
+    "ja": "100万冊以上のエロマンガや同人誌。",
+    "ko": "100만 편이 넘는 성인 만화와 동인지.",
+    "zh-Hans": "逾百万部色情漫画与同人作品。",
+    "zh-Hant": "逾百萬部色情漫畫與同人作品。"
   },
   "description": "A free, open-source E-Hentai app for iPhone and iPad.\n\nBrowse\nOpen a gallery to see its tags, rating, and previews, then find similar ones. Join the discussion: post, edit, and vote on comments. Pick categories, a minimum rating, or a page range. Filters apply automatically as you browse and search.\n\nRead\nScroll down or turn pages in either direction. Zoom in, let pages auto-play, or jump anywhere with the slider. Turn on Live Text and pages are translated into your language, right over the original lettering. Save galleries to read offline. Downloads can keep going in the background, and you can update them when a gallery changes.\n\nBlocked network? We’ve got you.\nWe believe every adult should be free to enjoy what they love. If your network blocks E-Hentai, flip one switch and EhPanda handles the rest.\n\nAnd a lot more.\nToplists · Favorites · Watched Tags · Tag Translation · Dual-Page Mode · Hath Archives · Torrents · Privacy Mask\n\nNote: EhPanda is not affiliated with or endorsed by E-Hentai.",
   "localizedDescriptions": {
@@ -31,14 +31,14 @@
       "name": "EhPanda",
       "bundleIdentifier": "app.ehpanda",
       "developerName": "EhPanda Team",
-      "subtitle": "Over a million adult comics and doujinshi, free on iPhone and iPad.",
+      "subtitle": "Over a million adult comics and doujinshi.",
       "localizedSubtitles": {
-        "en": "Over a million adult comics and doujinshi, free on iPhone and iPad.",
-        "de": "Über eine Million Comics und Doujinshi für Erwachsene, kostenlos auf iPhone und iPad.",
-        "ja": "100万冊以上のエロマンガや同人誌が、iPhone と iPad で無料で読み放題。",
-        "ko": "100만 편이 넘는 성인 만화와 동인지, iPhone과 iPad에서 무료로.",
-        "zh-Hans": "逾百万部色情漫画与同人作品，在 iPhone 和 iPad 上免费阅读。",
-        "zh-Hant": "逾百萬部色情漫畫與同人作品，在 iPhone 與 iPad 上免費閱讀。"
+        "en": "Over a million adult comics and doujinshi.",
+        "de": "Über eine Million Comics und Doujinshi für Erwachsene.",
+        "ja": "100万冊以上のエロマンガや同人誌。",
+        "ko": "100만 편이 넘는 성인 만화와 동인지.",
+        "zh-Hans": "逾百万部色情漫画与同人作品。",
+        "zh-Hant": "逾百萬部色情漫畫與同人作品。"
       },
       "localizedDescription": "A free, open-source E-Hentai app for iPhone and iPad.\n\nBrowse\nOpen a gallery to see its tags, rating, and previews, then find similar ones. Join the discussion: post, edit, and vote on comments. Pick categories, a minimum rating, or a page range. Filters apply automatically as you browse and search.\n\nRead\nScroll down or turn pages in either direction. Zoom in, let pages auto-play, or jump anywhere with the slider. Turn on Live Text and pages are translated into your language, right over the original lettering. Save galleries to read offline. Downloads can keep going in the background, and you can update them when a gallery changes.\n\nBlocked network? We’ve got you.\nWe believe every adult should be free to enjoy what they love. If your network blocks E-Hentai, flip one switch and EhPanda handles the rest.\n\nAnd a lot more.\nToplists · Favorites · Watched Tags · Tag Translation · Dual-Page Mode · Hath Archives · Torrents · Privacy Mask\n\nNote: EhPanda is not affiliated with or endorsed by E-Hentai.",
       "localizedDescriptions": {
