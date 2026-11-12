@@ -130,7 +130,6 @@ struct HomeFrontPageCell: View {
 /// A shared row height keeps both cover rows aligned when metadata wraps differently.
 struct HomeFrontPageWall: View {
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
-    @State private var lastColumnWidth: CGFloat = 0
     let columns: [[Gallery]]
     let maximumCoverHeight: CGFloat?
     let navigateAction: (Gallery) -> Void
@@ -144,8 +143,6 @@ struct HomeFrontPageWall: View {
             ForEach(columns.compactMap(\.last), content: galleryButton)
         }
         .scrollTargetLayout()
-        // The last page rests on the last column, like the pages before it.
-        .rowEndRoom(lastItemWidth: lastColumnWidth)
     }
 
     private func galleryButton(gallery: Gallery) -> some View {
@@ -157,10 +154,6 @@ struct HomeFrontPageWall: View {
                 coverStyle: horizontalSizeClass == .regular ? .homeFrontPage : .homeCompact,
                 maximumCoverHeight: maximumCoverHeight
             )
-        }
-        .onWidthChange { width in
-            let isLast = gallery.id == columns.last?.first?.id
-            if isLast { lastColumnWidth = width }
         }
         .tint(.primary)
         .multilineTextAlignment(.leading)

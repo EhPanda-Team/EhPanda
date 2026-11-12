@@ -297,7 +297,6 @@ struct CardSlideSection: View, Equatable {
 
 // MARK: CoverWallSection
 struct CoverWallSection: View {
-    @State private var lastStackWidth: CGFloat = 0
     @GalleryCoverMetrics(.standard) private var coverSize
     private let maximumCoverHeight: CGFloat?
     private let showsRichInformation: Bool
@@ -350,14 +349,9 @@ struct CoverWallSection: View {
                         columns: dataSource, maximumCoverHeight: maximumCoverHeight, navigateAction: navigateAction
                     )
                 } else {
-                    let stacks = dataSource
                     HStack(spacing: 20) {
-                        ForEach(stacks, id: \.first) { galleries in
-                            VerticalCoverStack(galleries: galleries, navigateAction: navigateAction)
-                                .onWidthChange { width in
-                                    let isLast = galleries.first?.id == stacks.last?.first?.id
-                                    if isLast { lastStackWidth = width }
-                                }
+                        ForEach(dataSource, id: \.first) {
+                            VerticalCoverStack(galleries: $0, navigateAction: navigateAction)
                         }
                     }
                     // The zero-width spacers that used to carry the 20pt edge inset were flexible in
@@ -365,8 +359,6 @@ struct CoverWallSection: View {
                     // it. Without them the row would hug its stacks and sit at the top, 5pt higher.
                     .frame(maxHeight: .infinity)
                     .scrollTargetLayout()
-                    // The last page rests on the last column, like the pages before it.
-                    .rowEndRoom(lastItemWidth: lastStackWidth)
                 }
             }
             // A release coasts as before and then settles with the nearest column's leading edge on
@@ -411,7 +403,6 @@ struct VerticalCoverStack: View {
 // MARK: ToplistsSection
 struct ToplistsSection: View {
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
-    @State private var lastListWidth: CGFloat = 0
 
     private let showsRichInformation: Bool
     private let galleries: [Int: [Gallery]]
@@ -486,8 +477,6 @@ struct ToplistsSection: View {
                 ForEach(ToplistsType.allCases, content: verticalStacks)
             }
             .scrollTargetLayout()
-            // The last page rests on the last list, like the pages before it.
-            .rowEndRoom(lastItemWidth: lastListWidth)
         }
         // One list per swipe: a gentle swipe moves to the next list and a hard flick cannot skip
         // past it, which suits four lists that are each most of a screen wide. The side inset is the
@@ -519,10 +508,6 @@ struct ToplistsSection: View {
             }
         }
         .padding(.vertical, 5)
-        .onWidthChange { width in
-            let isLast = type == ToplistsType.allCases.last
-            if isLast { lastListWidth = width }
-        }
     }
 
     private func regularWidthGrid(type: ToplistsType) -> some View {
@@ -630,7 +615,6 @@ struct VerticalToplistsStack: View {
 
 // MARK: MiscGridSection
 struct MiscGridSection: View {
-    @State private var lastItemWidth: CGFloat = 0
     private let showsRichInformation: Bool
     private let navigateAction: (HomeMiscGridType) -> Void
 
@@ -650,15 +634,9 @@ struct MiscGridSection: View {
                             } label: {
                                 HomeDestinationCard(type: type)
                             }
-                            .onWidthChange { width in
-                                let isLast = type == HomeMiscGridType.allCases.last
-                                if isLast { lastItemWidth = width }
-                            }
                         }
                     }
                     .scrollTargetLayout()
-                    // The last page rests on the last card, like the pages before it.
-                    .rowEndRoom(lastItemWidth: lastItemWidth)
                 } else {
                     HStack {
                         let types = HomeMiscGridType.allCases
@@ -669,15 +647,9 @@ struct MiscGridSection: View {
                                 MiscGridItem(title: type.title, symbol: type.symbol).tint(.primary)
                             }
                             .padding(.trailing, type == types.last ? 0 : 10)
-                            .onWidthChange { width in
-                                let isLast = type == types.last
-                                if isLast { lastItemWidth = width }
-                            }
                         }
                     }
                     .scrollTargetLayout()
-                    // The last page rests on the last item, like the pages before it.
-                    .rowEndRoom(lastItemWidth: lastItemWidth)
                 }
             }
             // Many small items, so a hard flick may carry on past several before it settles.

@@ -275,7 +275,6 @@ private struct HistoryKeywordsSection: View {
 
 // MARK: HistoryGalleriesSection
 private struct HistoryGalleriesSection: View {
-    @State private var lastCardWidth: CGFloat = 0
     private let galleries: [Gallery]
     private let hasHistory: Bool
     private let navigationAction: (Gallery) -> Void
@@ -310,16 +309,10 @@ private struct HistoryGalleriesSection: View {
                                     .tint(.primary).multilineTextAlignment(.leading)
                             }
                             .frame(maxHeight: .infinity, alignment: .top)
-                            .onWidthChange { width in
-                                let isLast = gallery.id == galleries.last?.id
-                                if isLast { lastCardWidth = width }
-                            }
                         }
                     }
                     .fixedSize(horizontal: false, vertical: true)
                     .scrollTargetLayout()
-                    // The last page rests on the last card, like the pages before it.
-                    .rowEndRoom(lastItemWidth: lastCardWidth)
                 }
                 // Coasts as before, then settles with the nearest card's leading edge on the content
                 // margin, which is the heading's inset: the first card rests there too.
