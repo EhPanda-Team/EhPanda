@@ -131,8 +131,9 @@ private enum ControlPanelFocus: Hashable {
 // MARK: LowerPanel
 private struct LowerPanel<G: Gesture>: View {
     @ScaledMetric(relativeTo: .title2) private var closeButtonSize: CGFloat = 44
-    @GestureState private var isScrubbing = false
-    @State private var isEditingSlider = false
+    /// Whether the touch in progress began on the slider's thumb; nil before the touch is read.
+    @GestureState private var touchBeganOnThumb: Bool?
+    @State private var sliderWidth: CGFloat = 0
     @Binding private var sliderRowHeight: CGFloat
     private let fillsWidth: Bool
     private let controlFocus: AccessibilityFocusState<ControlPanelFocus?>.Binding
@@ -211,9 +212,7 @@ private struct LowerPanel<G: Gesture>: View {
                         .lineLimit(1)
                         .padding()
 
-                    Slider(value: $sliderValue, in: range) { isEditing in
-                        isEditingSlider = isEditing
-                    }
+                    Slider(value: $sliderValue, in: range)
                     .frame(maxWidth: containerSize.width * 0.6)
                     .rotationEffect(.init(degrees: isReversed ? 180 : 0))
                     // The slider's own value would be a percentage; the page it stands for is the
@@ -224,19 +223,28 @@ private struct LowerPanel<G: Gesture>: View {
                     .accessibilityValue(
                         .accessibilityPageOf(current: Int(sliderValue), total: Int(range.upperBound))
                     )
-                    // A held track drag can emit multiple editing sessions before the finger lifts.
-                    // The preview follows the whole touch, including its stationary hold and cancellation:
-                    // the drag gesture carries it across the editing sessions and through a cancellation, and
-                    // the slider's own editing report, which starts on touch-down on the thumb, shows it
-                    // without waiting for the gesture to begin.
+                    .onGeometryChange(for: CGFloat.self, of: { $0.size.width }, action: { sliderWidth = $0 })
+                    // The preview follows a touch that began on the thumb, from touch-down to lift. The slider's
+                    // editing report cannot carry it: iOS 27 gives it no touch-down (a hold that never moves
+                    // reports nothing) and splits a drag into editing sessions of a few milliseconds each.
+                    // `DragGesture` is no better: its first update for a hold that does not move arrives about
+                    // 0.75 s after the touch on an iPhone 11, where `SpatialEventGesture` reports the touch at
+                    // once. A touch that begins on the track away from the thumb is the system slider's own
+                    // and opens nothing. The gesture state resets when the touch ends or is cancelled.
                     .simultaneousGesture(
-                        DragGesture(minimumDistance: 0)
-                            .updating($isScrubbing) { _, isScrubbing, _ in
-                                isScrubbing = true
+                        SpatialEventGesture()
+                            .updating($touchBeganOnThumb) { events, beganOnThumb, _ in
+                                guard beganOnThumb == nil, let touch = events.first(where: { $0.phase == .active })
+                                else { return }
+                                beganOnThumb = SliderThumb.contains(
+                                    touch.location.x,
+                                    value: sliderValue, range: range,
+                                    trackWidth: sliderWidth, isReversed: isReversed
+                                )
                             }
                     )
-                    .onChange(of: isEditingSlider || isScrubbing) { _, isActive in
-                        showsSliderPreview = isActive
+                    .onChange(of: touchBeganOnThumb == true) { _, isHoldingThumb in
+                        showsSliderPreview = isHoldingThumb
                     }
 
                     Text(isReversed ? Int(range.lowerBound) : Int(range.upperBound), format: .number)
@@ -256,6 +264,28 @@ private struct LowerPanel<G: Gesture>: View {
         }
         .accessibilityElement(children: .contain)
         .accessibilityIdentifier("reading_lower_panel")
+    }
+}
+
+// MARK: SliderThumb
+/// Where the slider's thumb is, so that a touch can be told to be on it. The thumb is a pill, 37 pt wide, which
+/// travels a track as wide as the slider less its own width: its centre sits half a thumb in from either end at the
+/// ends of the range. A touch within a few points of the pill counts, as it does for the slider itself.
+enum SliderThumb {
+    static let radius: CGFloat = 18.5
+    static let slop: CGFloat = 8
+
+    /// Whether `position`, measured from the slider's leading edge as drawn, is on the thumb of `value` in `range`.
+    /// A reversed slider is drawn turned half a turn, so its thumb stands on the mirrored side.
+    static func contains(
+        _ position: CGFloat, value: Float, range: ClosedRange<Float>, trackWidth: CGFloat, isReversed: Bool
+    ) -> Bool {
+        let span = range.upperBound - range.lowerBound
+        guard span > 0, trackWidth > 2 * radius else { return false }
+        let progress = CGFloat(min(max((value - range.lowerBound) / span, 0), 1))
+        let travel = trackWidth - 2 * radius
+        let centre = radius + (isReversed ? 1 - progress : progress) * travel
+        return abs(position - centre) <= radius + slop
     }
 }
 
@@ -318,6 +348,8 @@ private struct SliderPreivew: View {
                 fetchPreviewURLsAction(page)
             }
         }
+        .accessibilityElement(children: .contain)
+        .accessibilityIdentifier("reading_slider_preview")
         .visible(showsSliderPreview)
         .padding(.vertical, verticalPadding)
         .padding(.horizontal, horizontalPadding)
