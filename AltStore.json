@@ -94,6 +94,25 @@
       },
       "versions": [
         {
+          "version": "3.0.0",
+          "buildVersion": "163",
+          "marketingVersion": "3.0.0",
+          "date": "2026-11-12T18:13:07Z",
+          "localizedDescription": "EhPanda 3.0 is rebuilt with a new look.\n\nDownload galleries to read offline, sort them into folders, and keep downloading in the background.\n\nJump to galleries around any date with Seek to Date.\n\nLog in with your username and password again, even behind a Cloudflare check.\n\nReport comments, see a warning before posting, and block users.\n\nLarger text, VoiceOver and Voice Control now work across the app.\n\nEvery screen rotates with your device, so the Enables landscape setting is gone.\n\nThe Auto-Lock setting is gone. To lock EhPanda, touch and hold its icon, then choose Require Face ID or Require Touch ID.\n\nOn first launch, you confirm you're an adult and choose how much anonymous usage data to share.\n\nPlus WebP images and many fixes.\n\nhttps://ehpanda.app",
+          "localizedDescriptions": {
+            "en": "EhPanda 3.0 is rebuilt with a new look.\n\nDownload galleries to read offline, sort them into folders, and keep downloading in the background.\n\nJump to galleries around any date with Seek to Date.\n\nLog in with your username and password again, even behind a Cloudflare check.\n\nReport comments, see a warning before posting, and block users.\n\nLarger text, VoiceOver and Voice Control now work across the app.\n\nEvery screen rotates with your device, so the Enables landscape setting is gone.\n\nThe Auto-Lock setting is gone. To lock EhPanda, touch and hold its icon, then choose Require Face ID or Require Touch ID.\n\nOn first launch, you confirm you're an adult and choose how much anonymous usage data to share.\n\nPlus WebP images and many fixes.\n\nhttps://ehpanda.app",
+            "de": "EhPanda 3.0 ist neu gebaut, mit neuem Design.\n\nLade Galerien zum Offline-Lesen herunter, sortiere sie in Ordner und lade im Hintergrund weiter.\n\nMit „Zu Datum springen“ gelangst du zu Galerien rund um ein beliebiges Datum.\n\nMelde dich wieder mit Benutzername und Passwort an, auch hinter einer Cloudflare-Prüfung.\n\nDu kannst Kommentare melden, vor dem Posten einen Hinweis sehen und Personen blockieren.\n\nGrößere Schrift, VoiceOver und Sprachsteuerung funktionieren jetzt in der ganzen App.\n\nJeder Bildschirm dreht sich mit deinem Gerät, daher entfällt die Einstellung „Enables landscape“.\n\nDie Einstellung „Auto-Lock“ entfällt. Um EhPanda zu sperren, halte das Symbol gedrückt und wähle „Face ID anfordern“ oder „Touch ID anfordern“.\n\nBeim ersten Start bestätigst du, dass du erwachsen bist, und wählst, wie viele anonyme Nutzungsdaten du teilst.\n\nAußerdem WebP-Bilder und viele Fehlerbehebungen.\n\nhttps://ehpanda.app",
+            "ja": "EhPanda 3.0 は新しいデザインで生まれ変わりました。\n\nギャラリーをダウンロードしてオフラインで読めます。フォルダで整理でき、バックグラウンドでもダウンロードが続きます。\n\n「日付へ移動」で、指定した日付前後のギャラリーに移動できます。\n\nCloudflare の確認がある場合でも、ユーザー名とパスワードで再びログインできるようになりました。\n\nコメントの通報、投稿前の注意表示、ユーザーのブロックに対応しました。\n\n大きな文字サイズ、VoiceOver、音声コントロールがアプリ全体で使えるようになりました。\n\nすべての画面がデバイスの向きに合わせて回転するため、「横向きを有効」の設定は廃止しました。\n\n「自動ロック」の設定は廃止しました。EhPanda をロックするには、アイコンを長押しして「Face IDを必要にする」または「Touch IDを必要にする」を選んでください。\n\n初回起動時に、成人であることの確認と、匿名の利用データをどこまで共有するかの選択を行います。\n\nほかにも WebP 画像への対応や多数の修正を行いました。\n\nhttps://ehpanda.app",
+            "ko": "EhPanda 3.0이 새로운 디자인으로 다시 만들어졌습니다.\n\n갤러리를 다운로드해 오프라인으로 읽고, 폴더로 정리하고, 백그라운드에서도 계속 다운로드할 수 있습니다.\n\n'날짜로 이동'으로 원하는 날짜 전후의 갤러리로 이동할 수 있습니다.\n\nCloudflare 확인이 있어도 다시 사용자 이름과 비밀번호로 로그인할 수 있습니다.\n\n댓글 신고, 게시 전 경고, 사용자 차단을 지원합니다.\n\n더 큰 텍스트, VoiceOver, 음성 제어를 이제 앱 전체에서 사용할 수 있습니다.\n\n모든 화면이 기기 방향에 맞춰 회전하므로 'Enables landscape' 설정이 제거되었습니다.\n\n'앱 자동 잠금' 설정이 제거되었습니다. EhPanda를 잠그려면 아이콘을 길게 터치한 다음 'Face ID 요구' 또는 'Touch ID 요구'를 선택하세요.\n\n처음 실행할 때 성인인지 확인하고, 익명 사용 데이터를 얼마나 공유할지 선택합니다.\n\n이 밖에 WebP 이미지 지원과 여러 문제 수정이 포함되어 있습니다.\n\nhttps://ehpanda.app",
+            "zh-Hans": "EhPanda 3.0 全新打造，焕然一新。\n\n下载画廊离线阅读，整理到文件夹，切到后台也能继续下载。\n\n使用“跳转到日期”，前往任意日期前后的画廊。\n\n即使遇到 Cloudflare 验证，也能再次使用用户名和密码登录。\n\n可以举报评论，发布前会看到提醒，还可以屏蔽用户。\n\n更大字体、旁白和语音控制现已适用于整个应用。\n\n所有页面都会随设备旋转，因此移除了“启用横屏”设置。\n\n“自动锁定”设置已移除。如需锁定 EhPanda，请按住图标，然后选择“需要面容 ID”或“需要触控 ID”。\n\n首次启动时，需确认你已成年，并选择分享多少匿名使用数据。\n\n此外还支持 WebP 图片，并修复了许多问题。\n\nhttps://ehpanda.app",
+            "zh-Hant": "EhPanda 3.0 全新打造，煥然一新。\n\n下載畫廊離線閱讀、整理到資料夾，切到背景也能繼續下載。\n\n使用「前往日期」，前往任何日期前後的畫廊。\n\n即使遇到 Cloudflare 驗證，也能再次使用使用者名稱和密碼登入。\n\n可以檢舉留言，發布前會看到提醒，也可以封鎖使用者。\n\n更大的文字、旁白和語音控制現在適用於整個 App。\n\n所有畫面都會隨裝置旋轉，因此移除了「啟用橫向顯示」設定。\n\n「自動鎖定」設定已移除。如需鎖定 EhPanda，請按住圖像，然後選擇「需要 Face ID」或「需要 Touch ID」。\n\n首次啟動時，需要確認你已成年，並選擇要分享多少匿名使用資料。\n\n此外還支援 WebP 圖片，並修正了許多問題。\n\nhttps://ehpanda.app"
+          },
+          "downloadURL": "https://github.com/EhPanda-Team/EhPanda/releases/download/3.0.0/EhPanda-AltStore.ipa",
+          "size": 18858405,
+          "sha256": "e608764292ae550f6d73819e9b6822209e0205f9ddbb97300cef613fa3b2d490",
+          "minOSVersion": "27.0"
+        },
+        {
           "version": "2.8.1",
           "buildVersion": "158",
           "marketingVersion": "2.8.1",
