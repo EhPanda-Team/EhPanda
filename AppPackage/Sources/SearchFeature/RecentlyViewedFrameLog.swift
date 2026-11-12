@@ -32,7 +32,7 @@ public enum RecentlyViewedUITestOptions {
     static func record(id: String, edge: Double) {
         guard let path = frameLogURL?.path(percentEncoded: false) else { return }
         countTurns()
-        let line = "\(ProcessInfo.processInfo.systemUptime) \(turnValue.withLock({ $0 })) \(id) \(edge)\n"
+        let line = "\(Date().timeIntervalSinceReferenceDate) \(turnValue.withLock({ $0 })) \(id) \(edge)\n"
         guard let data = line.data(using: .utf8) else { return }
         if let handle = FileHandle(forWritingAtPath: path) {
             handle.seekToEndOfFile()
