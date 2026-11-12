@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="zh-Hant">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>EhPanda 寬螢幕提案</title>
+<style>
+:root{color-scheme:light dark;font-family:system-ui,-apple-system,sans-serif;line-height:1.65;color:#222;background:#fafaf8}
+*{box-sizing:border-box}body{max-width:1480px;margin:0 auto;padding:32px}h1{font-size:28px;line-height:1.3;margin:0 0 12px}h2{font-size:21px;margin:0 0 10px}p{margin:10px 0}.intro{max-width:900px;color:#555}a{color:#386521}nav{display:flex;gap:18px;flex-wrap:wrap;margin:26px 0 20px;padding:18px 0;border-block:1px solid #d5d8d0}label{display:grid;gap:5px;font-size:14px;font-weight:600}select{font:inherit;font-size:16px;min-height:44px;min-width:170px;border:1px solid #aeb5a7;border-radius:8px;background:#fff;color:#222;padding:7px 32px 7px 12px}select:focus-visible,a:focus-visible{outline:3px solid #47782d;outline-offset:3px}.body{display:grid;grid-template-columns:minmax(0,1fr) 290px;gap:28px;align-items:start}figure{margin:0}img{display:block;width:100%;height:auto;border:1px solid #ddd;border-radius:10px;background:white}figcaption{font-size:13px;color:#62665d;margin-top:10px}aside{padding-top:3px}dt{font-weight:650;margin-top:18px}dd{margin:5px 0 0;color:#50564b}.note{margin-top:24px;padding-top:18px;border-top:1px solid #d5d8d0;color:#555;font-size:14px}.status{font-size:13px;color:#687060}footer{margin-top:32px;color:#555;font-size:14px}code{font-size:.93em}.principles{max-width:1000px}li{margin:8px 0}@media(max-width:1050px){.body{grid-template-columns:1fr}aside{max-width:850px}body{padding:20px}}@media(prefers-color-scheme:dark){:root{background:#181b16;color:#edf1e8}.intro,.note,footer,figcaption,dd,.status{color:#b9c1b3}select{background:#252b20;color:#edf1e8;border-color:#66715d}a{color:#b6d498}img{border-color:#52594b}nav,.note{border-color:#46503e}}
+</style>
+<body>
+<header><h1>Favorites、Search、Downloads 寬螢幕提案</h1>
+<p class="intro">以 <strong>app-resizability</strong> 與 <strong>iphone-duo</strong> 為依據，優先比較原生導航與呈現方式。以下是獨立 SwiftUI 原型的模擬器截圖，使用示例資料；正式 App 尚未套用。</p></header>
+<nav aria-label="選擇要比較的截圖">
+<label>頁面<select id="page"><option value="favorites">Favorites</option><option value="search">Search</option><option value="downloads">Downloads</option></select></label>
+<label>裝置<select id="device"><option value="ipad">iPad 橫向</option><option value="duo">iPhone Duo 半折內螢幕</option></select></label>
+<label>方案<select id="variant"><option value="recommended">A · 建議方案</option><option value="alternative">B · 替代方案</option></select></label>
+</nav>
+<main>
+<div class="body">
+<figure><p>歷史圖片已依要求從儲存庫移除；此頁保留提案文字，視覺比較需要重新擷取。</p><figcaption id="caption"></figcaption></figure>
+<aside aria-live="polite"><h2 id="title"></h2><p id="summary"></p><dl><dt>適合</dt><dd id="benefit"></dd><dt>代價</dt><dd id="tradeoff"></dd><dt>原生承載</dt><dd id="native"></dd></dl><p class="note" id="deviceNote"></p><p class="status">共 9 張截圖：iPad A／B 各 3 張，Duo A 3 張。點圖可開啟原尺寸。</p></aside>
+</div>
+<div class="note principles"><strong>落地原則</strong><ul>
+<li>根據目前視圖的可用寬度與 size class 調整；狹窄 iPad 視窗或 Duo 外螢幕退回單欄，保留查詢、選取與導航狀態。</li>
+<li>常駐欄位、inspector 與 sheet 分開設計；反側 sheet 仍須追蹤觸發側並設定 presentationPlacement。</li>
+<li>沿 hinge 分半需要獨立驗證。原生容器會適應摺疊，但欄寬偏好與 inspector 不代表所有姿態都保證 50／50。</li>
+<li>ArrangementView 適合相關內容區的排列；導航容器在它外面。不能把它當成導航或反側呈現的替代品。</li>
+</ul></div>
+</main><footer>2026-10-15 · <a href="PROPOSAL.md">完整調查、取捨與驗收項目</a> · 靜態佈局已擷取；真實資料流、連續 resize、鍵盤與輔助使用仍需正式整合驗證。</footer>
+<script>
+const data={
+ favorites:{recommended:{title:'收藏清單＋畫廊詳情',summary:'選取左欄的畫廊，在右欄查看資訊、標籤與預覽，再決定閱讀。',benefit:'逐本挑選與比較，減少進入詳情後再返回的次數。',tradeoff:'可同時掃到的封面較少；未選取時應顯示提示，不自動載入任意一本。',native:'NavigationSplitView；保留既有 detail／thumbnail 顯示設定。'},alternative:{title:'收藏分類＋畫廊網格',summary:'把目前選單中的收藏分類展開成側欄，主要空間留給畫廊。',benefit:'常切換分類、以封面為主大量瀏覽。',tradeoff:'查看畫廊詳情需再呈現；不適合強迫分類側欄占 Duo 半個螢幕。',native:'NavigationSplitView 的 sidebar／detail；詳情另依來源側呈現。'}},
+ search:{recommended:{title:'搜尋條件＋結果',summary:'左側保留搜尋條件與 Quick Search，右側直接更新結果。',benefit:'反覆調整條件時不必來回開關篩選頁。',tradeoff:'結果可用寬度縮小；選取結果後的詳情需要反側呈現。',native:'NavigationSplitView＋原生 searchable；按 Search 才送出請求。'},alternative:{title:'結果清單＋畫廊詳情',summary:'搜尋條件仍透過 sheet 調整，右欄用來檢視所選結果。',benefit:'搜尋條件穩定，主要工作是逐本查看預覽。',tradeoff:'改篩選條件仍有一次呈現操作；搜尋歷史與條件不常駐。',native:'NavigationSplitView；Filters／Quick Search 仍用原生 sheet。'}},
+ downloads:{recommended:{title:'下載清單＋可收合 inspector',summary:'點擊列維持直接閱讀，點資訊按鈕才選取右側狀態欄。',benefit:'同時觀察隊列與單本頁面進度，能暫停、繼續及檢查失敗。',tradeoff:'inspector 是輔助欄，不保證永遠沿 hinge 分成相等兩半。',native:'原生 .inspector，重用現有 DownloadInspectorView；關閉後釋放空間。'},alternative:{title:'資料夾側欄＋下載清單',summary:'把資料夾篩選展開到左側，下載內容留在右側。',benefit:'以離線收藏整理、頻繁切換資料夾為主。',tradeoff:'列表仍然很寬，檢查下載頁面狀態仍需另外開啟。',native:'NavigationSplitView；狀態 inspector 可維持現有 sheet 流程。'}}
+};
+const page=document.querySelector('#page'),device=document.querySelector('#device'),variant=document.querySelector('#variant');
+function update(){
+ const isDuo=device.value==='duo';variant.options[1].disabled=isDuo;if(isDuo)variant.value='recommended';
+ const item=data[page.value][variant.value];for(const key of ['title','summary','benefit','tradeoff','native'])document.getElementById(key).textContent=item[key];
+ const title=`${device.options[device.selectedIndex].text} · ${page.options[page.selectedIndex].text} · ${item.title}`;
+ document.getElementById('caption').textContent=title+'。歷史示例圖片已移除。';
+ document.getElementById('deviceNote').textContent=isDuo?'Duo 保留原生側邊 tab bar。split view 的摺線取自系統 division region；Downloads 此圖展示原生 inspector，尚未加上精準分半的產品規則。':'iPad 保留原生上方 tab bar。split view 使用普通分隔線；Downloads inspector 由系統配置輔助欄。';
+}
+for(const el of [page,device,variant])el.addEventListener('change',update);update();
+</script>
+</body></html>

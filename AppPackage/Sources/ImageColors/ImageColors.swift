@@ -1,0 +1,337 @@
+public import CoreGraphics
+public import SwiftUI
+
+/// The dominant colors extracted from an image: a `background` plus three accent
+/// slots (`primary`, `secondary`, `detail`) chosen for contrast and distinctness.
+///
+/// App-owned, clean-room reimplementation of the narrow surface of the former
+/// `jathu/UIImageColors` package that EhPanda consumes (DEP-02, D-01/D-04/D-16).
+/// The color-selection algorithm is preserved verbatim so the returned components
+/// stay identical, with one exception: equally common colors rank by their packed
+/// value, where the original left them in hash order, so the same image always yields
+/// the same colors (see `ColorCounter.ranksBefore`). Only the I/O is modernized: a
+/// `CGImage` goes in and non-optional SwiftUI `Color`s come out, with no `UIKit`
+/// dependency and no force unwraps. Final subjective judgment stays with user
+/// verification (D-19).
+public struct Colors: Sendable {
+    public let background: Color
+    public let primary: Color
+    public let secondary: Color
+    public let detail: Color
+}
+
+/// Namespace for dominant-color extraction from a `CGImage`.
+public enum ImageColors {
+    /// Sampling resolution for `ImageColors.colors(from:quality:)`.
+    ///
+    /// The raw value is the target edge size, in **pixels**, the image is scaled down
+    /// to before its pixels are analyzed; a smaller value trades color accuracy for
+    /// speed. `.highest` skips scaling and analyzes the image at its native size.
+    public enum Quality: CGFloat, Sendable {
+        case lowest = 50
+        case low = 100
+        case high = 250
+        case highest = 0
+    }
+
+    /// Extracts the dominant `background`/`primary`/`secondary`/`detail` colors from `cgImage`.
+    ///
+    /// The image is scaled down per `quality`, its pixels are counted, the most common
+    /// edge color becomes the background, and up to three contrasting, mutually distinct
+    /// accent colors are chosen; empty accent slots fall back to black text on a light
+    /// background or white text on a dark background. Returns `nil` if the image is empty
+    /// or a bitmap context cannot be created. Pure and `Sendable`, so it is safe to call
+    /// off the main actor.
+    public static func colors(from cgImage: CGImage, quality: Quality = .high) -> Colors? {
+        let scaled = scaledPixelSize(width: cgImage.width, height: cgImage.height, quality: quality)
+        let width = scaled.width
+        let height = scaled.height
+        guard width > 0, height > 0, let pixels = sampledPixels(from: cgImage, width: width, height: height) else {
+            return nil
+        }
+
+        let threshold = Int(Double(height) * 0.01)
+        var proposed = ProposedColors()
+
+        // Walks the buffer four bytes at a time instead of computing a pixel offset from a
+        // row/column pair, so no index arithmetic can run off the end. The original walked the
+        // same pixels in column-major order; a tally is order-independent, and the resulting
+        // dictionary is identical.
+        var colorCounts: [Double: Int] = .init()
+        var channels = pixels.makeIterator()
+        while let blue = channels.next(), let green = channels.next(),
+            let red = channels.next(), let alpha = channels.next() {
+            guard alpha >= 127 else { continue }
+            let color = (Double(red) * 1_000_000) + (Double(green) * 1_000) + Double(blue)
+            colorCounts[color, default: 0] += 1
+        }
+
+        proposed.background = edgeColor(from: colorCounts, threshold: threshold)
+        proposed = accentColors(from: colorCounts, proposed: proposed)
+
+        let fallback: Double = proposed.background.isDarkColor ? 255_255_255 : 0
+        if proposed.primary == ProposedColors.unset { proposed.primary = fallback }
+        if proposed.secondary == ProposedColors.unset { proposed.secondary = fallback }
+        if proposed.detail == ProposedColors.unset { proposed.detail = fallback }
+
+        return Colors(
+            background: proposed.background.color,
+            primary: proposed.primary.color,
+            secondary: proposed.secondary.color,
+            detail: proposed.detail.color
+        )
+    }
+
+    /// Picks the background color: the most common color that clears `threshold`,
+    /// skipping a black/white edge in favor of a sufficiently common colored one.
+    private static func edgeColor(from colorCounts: [Double: Int], threshold: Int) -> Double {
+        let sortedColors = colorCounts
+            .filter({ $0.value > threshold })
+            .map({ ColorCounter(color: $0.key, count: $0.value) })
+            .sorted(by: ColorCounter.ranksBefore)
+
+        var proposedEdgeColor = sortedColors.first ?? ColorCounter(color: 0, count: 1)
+        if proposedEdgeColor.color.isBlackOrWhite {
+            for next in sortedColors.dropFirst() {
+                guard Double(next.count) / Double(proposedEdgeColor.count) > 0.3 else { break }
+                if !next.color.isBlackOrWhite {
+                    proposedEdgeColor = next
+                    break
+                }
+            }
+        }
+        return proposedEdgeColor.color
+    }
+
+    /// Fills the `primary`/`secondary`/`detail` slots of `proposed` with contrasting,
+    /// mutually distinct colors drawn from the counted colors.
+    private static func accentColors(
+        from colorCounts: [Double: Int],
+        proposed: ProposedColors
+    ) -> ProposedColors {
+        var proposed = proposed
+        let findDarkTextColor = !proposed.background.isDarkColor
+
+        let candidates = colorCounts.keys
+            .map({ $0.with(minSaturation: 0.15) })
+            .filter({ $0.isDarkColor == findDarkTextColor })
+            .map({ ColorCounter(color: $0, count: colorCounts[$0] ?? 0) })
+            .sorted(by: ColorCounter.ranksBefore)
+
+        for candidate in candidates {
+            let color = candidate.color
+            if proposed.primary == ProposedColors.unset {
+                if color.isContrasting(proposed.background) {
+                    proposed.primary = color
+                }
+            } else if proposed.secondary == ProposedColors.unset {
+                guard color.isContrasting(proposed.background),
+                    proposed.primary.isDistinct(color) else { continue }
+                proposed.secondary = color
+            } else if proposed.detail == ProposedColors.unset {
+                guard color.isContrasting(proposed.background),
+                    proposed.secondary.isDistinct(color),
+                    proposed.primary.isDistinct(color) else { continue }
+                proposed.detail = color
+                break
+            }
+        }
+        return proposed
+    }
+
+    /// Computes the analysis pixel dimensions for `quality`, scaling the longer edge down
+    /// to `quality.rawValue` pixels (preserving aspect ratio); `.highest` keeps native size.
+    private static func scaledPixelSize(width: Int, height: Int, quality: Quality) -> (width: Int, height: Int) {
+        guard quality != .highest else { return (width, height) }
+        let target = quality.rawValue
+        if width < height {
+            let ratio = CGFloat(height) / CGFloat(width)
+            return (Int((target / ratio).rounded()), Int(target.rounded()))
+        } else {
+            let ratio = CGFloat(width) / CGFloat(height)
+            return (Int(target.rounded()), Int((target / ratio).rounded()))
+        }
+    }
+
+    /// Downsamples `cgImage` into an sRGB, premultiplied-first, little-endian buffer sized
+    /// `width`×`height`, returning bytes laid out blue, green, red, alpha per pixel — the order
+    /// the four-byte walk in `colors(from:)` consumes them, and the layout the packing math in
+    /// the `Double` extension expects.
+    /// A single `CGContext.draw` performs the scale, so the module needs no `UIKit` rasterizer
+    /// and stays callable off the main actor.
+    private static func sampledPixels(from cgImage: CGImage, width: Int, height: Int) -> [UInt8]? {
+        let bytesPerPixel = 4
+        guard let colorSpace = CGColorSpace(name: CGColorSpace.sRGB) else { return nil }
+        let bitmapInfo = CGBitmapInfo(alpha: .premultipliedFirst, byteOrder: .order32Little)
+        var pixels = [UInt8](repeating: 0, count: width * height * bytesPerPixel)
+        let didDraw = pixels.withUnsafeMutableBytes { buffer in
+            guard let context = CGContext(
+                data: buffer.baseAddress,
+                width: width,
+                height: height,
+                bitsPerComponent: 8,
+                bytesPerRow: width * bytesPerPixel,
+                space: colorSpace,
+                bitmapInfo: bitmapInfo
+            ) else { return false }
+            context.interpolationQuality = .high
+            context.draw(cgImage, in: CGRect(x: 0, y: 0, width: width, height: height))
+            return true
+        }
+        return didDraw ? pixels : nil
+    }
+}
+
+/// The four color slots the algorithm fills, as packed `Double`s, before they become `Color`s.
+///
+/// The original algorithm carried these as a four-element `[Double]` addressed by literal
+/// position — background, primary, secondary, detail. Naming the slots removes the positional
+/// indexing without touching a single value: each field holds exactly what its array element
+/// held, and `unset` is the same sentinel the array was seeded with. It also removes the
+/// defect class the array invited, where a slot could be read or written at the wrong position
+/// and silently produce a plausible-looking color.
+private struct ProposedColors {
+    /// Marks a slot the candidate scan has not filled; distinct from every packed color,
+    /// which is non-negative.
+    static let unset: Double = -1
+
+    var background = Self.unset
+    var primary = Self.unset
+    var secondary = Self.unset
+    var detail = Self.unset
+}
+
+/// One sampled color (encoded as a packed `Double`, see the `Double` extension below)
+/// paired with how many pixels carried it.
+private struct ColorCounter {
+    let color: Double
+    let count: Int
+
+    /// Ranks more common colors first, and equally common colors by their packed value, lowest
+    /// first. The counts come from a dictionary, whose order changes with every process; ranking
+    /// by count alone left ties in that order, so the same image yielded different colors from one
+    /// launch to the next.
+    static func ranksBefore(_ lhs: Self, _ rhs: Self) -> Bool {
+        guard lhs.count == rhs.count else {
+            return lhs.count > rhs.count
+        }
+        return lhs.color < rhs.color
+    }
+}
+
+/// Colors are packed into a single `Double` as `r * 1_000_000 + g * 1_000 + b`,
+/// where each channel is a 0...255 value. This replays the exact packed-color math
+/// the historical `UIImageColors` package used so selection output stays identical
+/// (DEP-02, D-16). It is intentionally file-private: the packing scheme is meaningless
+/// outside dominant-color extraction.
+private extension Double {
+    var red: Double { fmod(floor(self / 1_000_000), 1_000_000) }
+    var green: Double { fmod(floor(self / 1_000), 1_000) }
+    var blue: Double { fmod(self, 1_000) }
+
+    var isDarkColor: Bool {
+        (red * 0.2126) + (green * 0.7152) + (blue * 0.0722) < 127.5
+    }
+
+    var isBlackOrWhite: Bool {
+        (red > 232 && green > 232 && blue > 232) || (red < 23 && green < 23 && blue < 23)
+    }
+
+    /// The unpacked color as a non-optional sRGB SwiftUI `Color`. Channel values are the
+    /// same 0...255 components the algorithm computes, normalized to the 0...1 sRGB range.
+    var color: Color {
+        Color(.sRGB, red: red / 255, green: green / 255, blue: blue / 255, opacity: 1)
+    }
+
+    func isDistinct(_ other: Double) -> Bool {
+        let selfRed = red, selfGreen = green, selfBlue = blue
+        let otherRed = other.red, otherGreen = other.green, otherBlue = other.blue
+        let farApart = fabs(selfRed - otherRed) > 63.75
+            || fabs(selfGreen - otherGreen) > 63.75
+            || fabs(selfBlue - otherBlue) > 63.75
+        let bothNearGray = fabs(selfRed - selfGreen) < 7.65
+            && fabs(selfRed - selfBlue) < 7.65
+            && fabs(otherRed - otherGreen) < 7.65
+            && fabs(otherRed - otherBlue) < 7.65
+        return farApart && !bothNearGray
+    }
+
+    func isContrasting(_ other: Double) -> Bool {
+        let backgroundLuminance = (0.2126 * red) + (0.7152 * green) + (0.0722 * blue) + 12.75
+        let foregroundLuminance = (0.2126 * other.red) + (0.7152 * other.green) + (0.0722 * other.blue) + 12.75
+        if backgroundLuminance > foregroundLuminance {
+            return 1.6 < backgroundLuminance / foregroundLuminance
+        }
+        return 1.6 < foregroundLuminance / backgroundLuminance
+    }
+
+    /// Returns the same color pushed up to `minSaturation` if it is less saturated,
+    /// via an HSV round-trip. Used to give near-gray accent candidates enough color
+    /// to be visually usable, matching the original algorithm.
+    func with(minSaturation: Double) -> Double {
+        let redUnit = red / 255, greenUnit = green / 255, blueUnit = blue / 255
+        let maxValue = fmax(redUnit, fmax(greenUnit, blueUnit))
+        var chroma = maxValue - fmin(redUnit, fmin(greenUnit, blueUnit))
+        let value = maxValue
+        let saturation = value == 0 ? 0 : chroma / value
+
+        if minSaturation <= saturation {
+            return self
+        }
+
+        var hue: Double
+        if chroma == 0 {
+            hue = 0
+        } else if redUnit == maxValue {
+            hue = fmod((greenUnit - blueUnit) / chroma, 6)
+        } else if greenUnit == maxValue {
+            hue = 2 + ((blueUnit - redUnit) / chroma)
+        } else {
+            hue = 4 + ((redUnit - greenUnit) / chroma)
+        }
+        if hue < 0 {
+            hue += 6
+        }
+
+        chroma = value * minSaturation
+        let secondary = chroma * (1 - fabs(fmod(hue, 2) - 1))
+        var outR: Double
+        var outG: Double
+        var outB: Double
+        switch hue {
+        case 0...1:
+            outR = chroma
+            outG = secondary
+            outB = 0
+        case 1...2:
+            outR = secondary
+            outG = chroma
+            outB = 0
+        case 2...3:
+            outR = 0
+            outG = chroma
+            outB = secondary
+        case 3...4:
+            outR = 0
+            outG = secondary
+            outB = chroma
+        case 4...5:
+            outR = secondary
+            outG = 0
+            outB = chroma
+        case 5..<6:
+            outR = chroma
+            outG = 0
+            outB = secondary
+        default:
+            outR = 0
+            outG = 0
+            outB = 0
+        }
+
+        let match = value - chroma
+        return (floor((outR + match) * 255) * 1_000_000)
+            + (floor((outG + match) * 255) * 1_000)
+            + floor((outB + match) * 255)
+    }
+}

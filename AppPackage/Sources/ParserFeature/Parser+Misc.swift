@@ -1,0 +1,78 @@
+public import AppModels
+import Foundation
+public import Kanna
+
+extension Parser {
+    public static func parseSkipServerIdentifier(doc: any HTMLDocument) throws -> String {
+        guard let text = doc.at_xpath("//div [@id='i6']")?.at_xpath("//a [@id='loadfail']")?["onclick"],
+              let rangeA = text.range(of: "nl('"), let rangeB = text.range(of: "')")
+        else { throw AppError.parseFailed }
+        return .init(text[rangeA.upperBound..<rangeB.lowerBound])
+    }
+
+    public static func parseAPIKey(doc: any HTMLDocument) throws -> String {
+        var tmpKey: String?
+
+        for link in doc.xpath("//script [@type='text/javascript']") {
+            guard let script = link.text, script.contains("apikey"),
+                  let rangeA = script.range(of: ";\nvar apikey = \""),
+                  let rangeB = script.range(of: "\";\nvar average_rating")
+            else { continue }
+
+            tmpKey = String(script[rangeA.upperBound..<rangeB.lowerBound])
+        }
+
+        guard let apikey = tmpKey
+        else { throw AppError.parseFailed }
+
+        return apikey
+    }
+
+    /// Parses the gallery-list pager.
+    public static func parsePageNum(doc: any HTMLDocument) -> PageNumber {
+        var current = 0
+        var maximum = 0
+
+        guard let link = doc.at_xpath("//table [@class='ptt']"),
+              let currentStr = link.at_xpath("//td [@class='ptds']")?.text
+        else {
+            if let link = doc.at_xpath("//div [@class='searchnav']") {
+                var timestamp: String?
+                var isEnabled = false
+
+                for aLink in link.xpath("//a") where aLink.text?.contains("Next") == true {
+                    timestamp = aLink["href"]
+                        .map(URLComponents.init)??
+                        .queryItems?
+                        .first(where: { $0.name == "next" })?
+                        .value?
+                        .split(separator: "-")
+                        .last
+                        .map(String.init)
+
+                    isEnabled = true
+                    break
+                }
+
+                return PageNumber(
+                    lastItemTimestamp: timestamp,
+                    isNextButtonEnabled: isEnabled
+                )
+            } else {
+                return PageNumber(isNextButtonEnabled: false)
+            }
+        }
+
+        if let range = currentStr.range(of: "-") {
+            current = (Int(currentStr[range.upperBound...]) ?? 1) - 1
+        } else {
+            current = (Int(currentStr) ?? 1) - 1
+        }
+        for aLink in link.xpath("//a") {
+            if let num = Int(aLink.text ?? "") {
+                maximum = num - 1
+            }
+        }
+        return PageNumber(current: current, maximum: maximum)
+    }
+}

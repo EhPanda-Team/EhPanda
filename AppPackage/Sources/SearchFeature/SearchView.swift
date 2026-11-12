@@ -1,0 +1,105 @@
+import AppComponents
+import AppModels
+import AppTools
+import ComposableArchitecture
+import DateSeekFeature
+import FiltersFeature
+import GalleryListComponents
+import QuickSearchFeature
+import SwiftUI
+import TagTranslationFeature
+
+struct SearchView: View {
+    @Bindable private var store: StoreOf<SearchReducer>
+
+    init(store: StoreOf<SearchReducer>) {
+        self.store = store
+    }
+
+    var body: some View {
+        GalleryList(
+            displayMode: store.setting.galleryListPresentation[.search],
+            galleries: store.galleries,
+            pageNumber: store.pageNumber,
+            loadingState: store.loadingState,
+            footerLoadingState: store.footerLoadingState,
+            fetchAction: { store.send(.fetchGalleries()) },
+            fetchMoreAction: { store.send(.fetchMoreGalleries) },
+            navigateAction: { store.send(.delegate(.pushDetail($0))) },
+            translateAction: {
+                store.tagTranslator.lookup(word: $0, returnOriginal: !store.setting.translateTags)
+            },
+            downloadBadges: store.downloadBadges
+        )
+        .sheet(
+            item: $store.scope(\.$destination, action: \.destination).quickSearch
+        ) { store in
+            QuickSearchView(store: store) { keyword in
+                self.store.send(.destination(.dismiss))
+                self.store.send(.fetchGalleries(keyword))
+            }
+            .privacyMask()
+        }
+        .sheet(
+            item: $store.scope(\.$destination, action: \.destination).filters
+        ) { store in
+            FiltersView(store: store)
+                .privacyMask()
+        }
+        .sheet(
+            item: $store.scope(\.$destination, action: \.destination).dateSeek
+        ) { store in
+            @Bindable var store = store
+            DateSeekPickerView(
+                selectedDate: $store.date,
+                navigation: store.navigation,
+                seekAction: { store.send(.performSeek($0)) }
+            )
+            .privacyMask()
+        }
+        .searchable(text: $store.keyword, placement: .navigationBarDrawer)
+        .searchSuggestions {
+            TagSuggestionView(
+                keyword: $store.keyword, translations: store.tagTranslator.translations,
+                showsImages: store.setting.showImagesInTags, isEnabled: store.setting.showTagsSearchSuggestion
+            )
+        }
+        .onSubmit(of: .search) {
+            store.send(.fetchGalleries())
+        }
+        .toolbar(content: toolbar)
+        .navigationTitle(store.lastKeyword)
+    }
+
+    @ContentBuilder private func toolbar() -> some ToolbarContent {
+        ToolbarItem(placement: .topBarTrailing) {
+            GalleryLayoutPicker(scope: .search)
+        }
+        ToolbarItem(placement: .topBarTrailing) {
+            FiltersButton {
+                store.send(.filtersButtonTapped)
+            }
+        }
+        ToolbarOverflowMenu {
+            DateSeekButton(navigation: store.dateSeekNavigation) { navigation in
+                store.send(.dateSeekButtonTapped(navigation))
+            }
+            QuickSearchButton {
+                store.send(.quickSearchButtonTapped)
+            }
+        }
+    }
+}
+
+#Preview("Initial") {
+    SearchView(
+        store: .init(
+            initialState: {
+                var state = SearchReducer.State()
+                state.galleries = Gallery.previews(count: 10)
+                return state
+            }(),
+            reducer: SearchReducer.init
+        )
+    )
+}

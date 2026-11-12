@@ -1,0 +1,180 @@
+@testable import AppFeature
+import AppModels
+import AppTools
+import ComposableArchitecture
+import DownloadClient
+import Foundation
+import Testing
+import UIKit
+
+struct DownloadCoordinatorCaptureTests: DownloadFeatureTestCase {
+    @Test
+    func testDownloadCoordinatorCaptureCachedPageRestoresFinalPage() async throws {
+        let gid = String(Int(Date().timeIntervalSince1970 * 1000) + 27)
+        let rootURL = FileManager.default.temporaryDirectory
+            .appending(path: UUID().uuidString, directoryHint: .isDirectory)
+        defer { removeTemporaryItem(at: rootURL) }
+
+        let storage = DownloadStore(rootURL: rootURL, fileManager: .default)
+        let manager = DownloadCoordinator(
+            storage: storage,
+            urlSession: .shared
+        )
+
+        let completedFolderURL = rootURL.appending(path: "Folder/\(gid) - Capture", directoryHint: .isDirectory)
+        try FileManager.default.createDirectory(
+            at: completedFolderURL,
+            withIntermediateDirectories: true
+        )
+        try storage.writeManifest(
+            sampleManifest(
+                gid: gid,
+                title: "Capture",
+                pageCount: 2
+            ),
+            folderURL: completedFolderURL
+        )
+        await manager.reloadDownloadIndex()
+
+        let imageURL = try #require(URL(string: "https://ehgt.org/ab/cd/0001-\(gid).jpg"))
+        let image = UIGraphicsImageRenderer(size: .init(width: 1, height: 1)).image { context in
+            UIColor.systemBlue.setFill()
+            context.fill(.init(x: 0, y: 0, width: 1, height: 1))
+        }
+        let imageData = try #require(image.jpegData(compressionQuality: 1))
+        let cacheKeys = imageURL.imageCacheKeys
+        let dataCache = DataCache(
+            configuration: .init(
+                rootURL: rootURL.appending(path: "DataCache", directoryHint: .isDirectory)
+            )
+        )
+        try await withDependencies {
+            $0.dataCache = dataCache
+        } operation: {
+            try await dataCache.store(imageData, forKeys: cacheKeys)
+
+            await manager.captureCachedPage(
+                gid: gid,
+                index: 1,
+                imageURL: imageURL
+            )
+
+            let pageURLs = try await manager.loadLocalPageURLs(gid: gid).get()
+            #expect(
+                pageURLs[1] == completedFolderURL.appending(path:
+                    storage.makePageRelativePath(
+                        gid: gid,
+                        token: "token",
+                        index: 1,
+                        fileExtension: "jpg"
+                    )
+                )
+            )
+            try await dataCache.removeData(forKeys: cacheKeys)
+        }
+    }
+
+    @Test
+    func testDownloadCoordinatorCaptureCachedPageRepairsCompletedDownloadWithLatestRemoteImage() async throws {
+        let gid = String(Int(Date().timeIntervalSince1970 * 1000) + 28)
+        let rootURL = FileManager.default.temporaryDirectory
+            .appending(path: UUID().uuidString, directoryHint: .isDirectory)
+        defer { removeTemporaryItem(at: rootURL) }
+
+        let storage = DownloadStore(rootURL: rootURL, fileManager: .default)
+        let manager = DownloadCoordinator(storage: storage, urlSession: .shared)
+        let completedFolderURL = try setupCaptureMissingFilesFolder(
+            rootURL: rootURL, gid: gid
+        )
+        await manager.reloadDownloadIndex()
+        let dataCache = DataCache(
+            configuration: .init(
+                rootURL: rootURL.appending(path: "DataCache", directoryHint: .isDirectory)
+            )
+        )
+        try await withDependencies {
+            $0.dataCache = dataCache
+        } operation: {
+            let (imageURL, cacheKeys) = try await setupCaptureCachedImage(
+                gid: gid,
+                dataCache: dataCache
+            )
+
+            await manager.captureCachedPage(gid: gid, index: 1, imageURL: imageURL)
+
+            let stored = await manager.fetchDownload(gid: gid)
+            let pageURLs = try await manager.loadLocalPageURLs(gid: gid).get()
+
+            #expect(stored?.displayStatus == .completed)
+            #expect(stored?.completedPageCount == 2)
+            #expect(stored?.lastError == nil)
+            let pageRelativePath = storage.makePageRelativePath(
+                gid: gid,
+                token: "token",
+                index: 1,
+                fileExtension: "jpg"
+            )
+            #expect(pageURLs[1] == completedFolderURL.appending(path: pageRelativePath))
+            try await dataCache.removeData(forKeys: cacheKeys)
+        }
+    }
+
+}
+
+// MARK: - Setup Helpers
+
+private extension DownloadCoordinatorCaptureTests {
+    func setupCaptureMissingFilesFolder(rootURL: URL, gid: String) throws -> URL {
+        let completedFolderURL = rootURL.appending(path: "Folder/\(gid) - Pause Race", directoryHint: .isDirectory)
+        try FileManager.default.createDirectory(
+            at: completedFolderURL,
+            withIntermediateDirectories: true
+        )
+        try Data([0x00]).write(
+            to: completedFolderURL.appending(path: "123_token_cover.jpg"), options: .atomic
+        )
+        let page2RelativePath = "\(gid)_token_2.jpg"
+        let page2URL = completedFolderURL.appending(path: page2RelativePath)
+        try Data([0x02]).write(
+            to: page2URL, options: .atomic
+        )
+        let manifest = DownloadManifest(
+            gid: gid,
+            host: .ehentai,
+            token: "token",
+            title: "Pause Race",
+            jpnTitle: nil,
+            category: .doujinshi,
+            language: .japanese,
+            remoteCoverURL: URL(string: "https://example.com/cover.jpg"),
+            uploader: "Uploader",
+            tags: [],
+            postedDate: .now,
+            rating: 4,
+            pages: [
+                1: "sha256:missing",
+                2: try DownloadStore().fileHash(at: page2URL)
+            ]
+        )
+        try JSONEncoder().encode(manifest).write(
+            to: completedFolderURL.appending(path: Defaults.FilePath.downloadManifest),
+            options: .atomic
+        )
+        return completedFolderURL
+    }
+
+    func setupCaptureCachedImage(
+        gid: String,
+        dataCache: DataCache
+    ) async throws -> (folderURL: URL, pageNames: [String]) {
+        let imageURL = try #require(URL(string: "https://ehgt.org/ab/cd/0001-\(gid).jpg"))
+        let image = UIGraphicsImageRenderer(size: .init(width: 1, height: 1)).image { context in
+            UIColor.systemOrange.setFill()
+            context.fill(.init(x: 0, y: 0, width: 1, height: 1))
+        }
+        let imageData = try #require(image.jpegData(compressionQuality: 1))
+        let cacheKeys = imageURL.imageCacheKeys
+        try await dataCache.store(imageData, forKeys: cacheKeys)
+        return (imageURL, cacheKeys)
+    }
+}

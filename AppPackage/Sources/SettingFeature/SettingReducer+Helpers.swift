@@ -1,0 +1,158 @@
+import AppModels
+import AppTools
+import ComposableArchitecture
+import CookieClient
+import DFClient
+import FileClient
+import Foundation
+import NetworkingFeature
+import OSLogExt
+import Sharing
+
+private let logger = Logger(category: .init(describing: SettingReducer.self))
+
+extension SettingReducer.State {
+    /// What the tag database update check compares against: the loaded table, not the persisted metadata.
+    ///
+    /// When the system purged the cache, the launch rebuild leaves no table while the metadata still
+    /// names the old download. Comparing the metadata would report no updates and keep the table empty.
+    var loadedTagDatabaseDigest: String? {
+        tagTranslator.digest
+    }
+}
+
+extension SettingReducer {
+    /// Gallery host lives only in `@Shared(.setting)` and resets to `.ehentai` if that blob is lost.
+    func handleLoadUserSettings(_ state: inout State) -> Effect<Action> {
+        // `setting` and `user` are both `@Shared` and auto-load from persisted storage — there is no
+        // working copy to prime here. `tagTranslator` is in-memory and rebuilt from its cache below.
+        var effects: [Effect<Action>] = [
+            .send(.syncAppIconType),
+            .send(.loadUserSettingsDone),
+            .send(.syncUserInterfaceStyle),
+            .run { [bypassSNIFiltering = state.setting.bypassSNIFiltering] _ in
+                dfClient.setActive(bypassSNIFiltering)
+            }
+        ]
+        if cookieClient.shouldFetchIgneous {
+            effects.append(.send(.fetchIgneous))
+        }
+        if cookieClient.didLogin {
+            effects.append(contentsOf: [
+                .send(.fetchUserInfo),
+                .send(.fetchGreeting),
+                .send(.fetchFavoriteCategories),
+                .send(.fetchEhProfileIndex)
+            ])
+        }
+        if state.setting.enableTagsExtension {
+            // Rebuild the table from cache first (offline, immediate); `.rebuildTagTranslator` then
+            // sequences the remote update check so a slow fetch can't be clobbered by a stale rebuild.
+            effects.append(.send(.rebuildTagTranslator))
+        }
+        return .merge(effects)
+    }
+
+    func handleFetchGreeting(_ state: inout State) -> Effect<Action> {
+        func verifyDate(with updateTime: Date?) -> Bool {
+            guard let updateTime = updateTime else { return true }
+
+            let currentTime = Date()
+            let formatter = DateFormatter()
+            formatter.locale = Locale.current
+            formatter.timeZone = TimeZone(secondsFromGMT: 0)
+            formatter.dateFormat = Defaults.DateFormat.greeting
+
+            let currentTimeString = formatter.string(from: currentTime)
+            if let currentDay = formatter.date(from: currentTimeString) {
+                return currentTime > currentDay && updateTime < currentDay
+            }
+
+            return false
+        }
+
+        guard cookieClient.didLogin,
+              state.setting.showNewDawnGreeting
+        else { return .none }
+        let requestEffect = Effect.run { send in
+            let result = await Result.Swift::init { () async throws(AppError) in
+                try await GreetingRequest().response()
+            }
+            await send(Action.fetchGreetingDone(result))
+        }
+        if let greeting = state.greeting {
+            if verifyDate(with: greeting.updateTime) {
+                return requestEffect
+            }
+        } else {
+            return requestEffect
+        }
+        return .none
+    }
+
+    func handleFetchTagTranslator(_ state: inout State) -> Effect<Action> {
+        guard state.tagTranslatorLoadingState != .loading,
+              !state.tagTranslatorInfo.hasCustomTranslations,
+              let language = TranslatableLanguage.current
+        else { return .none }
+        state.tagTranslatorLoadingState = .loading
+
+        // A language switch resets the in-memory table and its persisted metadata; the request then
+        // downloads the new language's data from scratch.
+        if state.tagTranslatorInfo.language != language {
+            state.$tagTranslator.withLock({ $0 = TagTranslator(language: language) })
+            state.$tagTranslatorInfo.withLock({ $0 = TagTranslatorInfo(language: language) })
+        }
+        let currentDigest = state.loadedTagDatabaseDigest
+        return .run { send in
+            // Download the raw JSON, then let `FileClient` decode/cache it into a translator.
+            do throws(AppError) {
+                let payload = try await TagTranslatorRequest(
+                    language: language,
+                    currentDigest: currentDigest
+                )
+                .response()
+                let tagTranslator = try fileClient.cacheAndBuildRemoteTagTranslator(
+                    payload.data, language, payload.digest
+                )
+                await send(.fetchTagTranslatorDone(.success(tagTranslator)))
+            } catch {
+                await send(.fetchTagTranslatorDone(.failure(error)))
+            }
+        }
+    }
+
+    func handleFetchEhProfileIndexDone(
+        _ state: inout State,
+        _ host: GalleryHost,
+        _ result: Result<VerifyEhProfileResponse, AppError>
+    ) -> Effect<Action> {
+        var effects = [Effect<Action>]()
+
+        if case .success(let response) = result {
+            if let profileValue = response.profileValue {
+                let hostURL = host.url
+                let profileValueString = String(profileValue)
+                let selectedProfileKey = Defaults.Cookie.selectedProfile
+
+                let cookieValue = cookieClient.getCookie(hostURL, selectedProfileKey)
+                if cookieValue.rawValue != profileValueString {
+                    effects.append(
+                        .run { _ in
+                            cookieClient.setOrEditCookie(
+                                for: hostURL, key: selectedProfileKey, value: profileValueString
+                            )
+                        }
+                    )
+                }
+            } else if response.isProfileNotFound {
+                effects.append(.send(.createDefaultEhProfile(host)))
+            } else {
+                effects.append(.run { _ in
+                    logger.error("Found profile but failed in parsing value.")
+                })
+            }
+        }
+        return effects.isEmpty ? .none : .merge(effects)
+    }
+}

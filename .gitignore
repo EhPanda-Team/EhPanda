@@ -1,3 +1,24 @@
+build
+.build
 .DS_Store
+.xcode-home
 EhPanda.xcodeproj/xcuserdata
 EhPanda.xcodeproj/project.xcworkspace/xcuserdata
+Config/LocalSigning.xcconfig
+Config/Analytics.local.xcconfig
+
+# AppPackage (local Swift package)
+AppPackage/.build
+AppPackage/.swiftpm/xcode/xcuserdata
+AppPackage/.swiftpm/xcode/package.xcworkspace/xcuserdata
+
+# GSD research tooling's content cache: hash-named fetch results, not planning artifacts
+.planning/research/.cache
+.planning/config.json
+
+# Real marketing fixtures: local, licensed-for-capture gallery content; never committed or promoted to baselines
+.capture/marketing/
+
+# Local capture output and verification evidence
+/.capture/
+/AIRBUILD.md

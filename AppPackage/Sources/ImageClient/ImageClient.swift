@@ -1,0 +1,226 @@
+import AnimatedImageFeature
+import AppModels
+public import AppTools
+import ComposableArchitecture
+public import Dependencies
+public import Photos
+public import SwiftUI
+
+public struct ImageClient: Sendable {
+    public struct ImageAsset: Sendable {
+        public let image: UIImage
+        public let data: Data
+
+        /// Render / export routing for this asset: `true` → SDWebImage (animated),
+        /// `false` → Kingfisher / `UIImage` (still). Decided from the actual bytes, not the
+        /// request URL. See `Data.isAnimatedImageData`.
+        public var isAnimated: Bool {
+            data.isAnimatedImageData || image.hasAnimatedFrames
+        }
+    }
+
+    public let prefetchImages: @Sendable ([URL]) -> Void
+    public let saveImageDataToPhotoLibrary: @Sendable (Data) async -> Bool
+    public var dataCache: DataCache
+    public var urlSession: URLSession = .shared
+}
+
+extension ImageClient {
+    public static var live: Self {
+        @Dependency(\.dataCache) var injectedDataCache
+        let dataCache = injectedDataCache
+        return .init(
+            prefetchImages: { urls in
+                Task {
+                    await withTaskGroup(of: Void.self) { group in
+                        for url in urls {
+                            group.addTask {
+                                do {
+                                    _ = try await ImageClient.readerImageData(
+                                        url: url, dataCache: dataCache, urlSession: .shared
+                                    )
+                                } catch {
+                                    // Prefetch failures are intentionally ignored: the foreground load retries.
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            saveImageDataToPhotoLibrary: { data in
+                await Self.saveImageDataToPhotoLibrary(data)
+            },
+            dataCache: dataCache
+        )
+    }
+
+    public static func saveImageDataToPhotoLibrary(_ data: Data) async -> Bool {
+        do {
+            try await PHPhotoLibrary.shared().performChanges {
+                let request = PHAssetCreationRequest.forAsset()
+                request.addResource(with: .photo, data: data, options: nil)
+            }
+            return true
+        } catch {
+            // The caller presents the existing save-failed notification.
+            return false
+        }
+    }
+
+    // Exports read the same owned bytes the reader display caches, so save/share/copy
+    // route by image content (DES-1) instead of the request URL's extension.
+    public func fetchImageAsset(url: URL) async -> Result<ImageAsset, any Error> {
+        await Result.Swift::init {
+            let data = try await Self.readerImageData(
+                url: url, dataCache: dataCache, urlSession: urlSession
+            )
+            guard let image = data.decodedImage else {
+                throw AppError.parseFailed
+            }
+            return ImageAsset(image: image, data: data)
+        }
+    }
+
+    public func fetchReaderImageAsset(
+        url: URL,
+        onProgress: (@MainActor @Sendable (Double) -> Void)? = nil
+    ) async -> ImageAsset? {
+        do {
+            let data = try await Self.readerImageData(
+                url: url, dataCache: dataCache, urlSession: urlSession, onProgress: onProgress
+            )
+            guard let image = data.decodedImage else { return nil }
+            return .init(image: image, data: data)
+        } catch {
+            // This optional reader API intentionally maps fetch or decode failure to no image asset.
+            return nil
+        }
+    }
+
+    public static func readerImageData(
+        url: URL,
+        dataCache: DataCache,
+        urlSession: URLSession,
+        onProgress: (@MainActor @Sendable (Double) -> Void)? = nil
+    ) async throws -> Data {
+        if url.isFileURL {
+            return try Data(contentsOf: url)
+        }
+        let cacheKeys = url.imageCacheKeys
+        if let data = await dataCache.data(forKeys: cacheKeys) {
+            // A known placeholder (limit/login wall) that was cached before this
+            // guard existed must not be re-served; purge it and re-fetch so a
+            // since-lifted limit recovers on its own.
+            if ImagePlaceholderFingerprint.match(data) == nil {
+                return data
+            }
+            do {
+                try await dataCache.removeData(forKeys: cacheKeys)
+            } catch {
+                // Removing a stale placeholder is best-effort; the network refetch still proceeds.
+            }
+        }
+        let data = try await downloadReaderData(
+            url: url, urlSession: urlSession, onProgress: onProgress
+        )
+        // E-H serves limit/login placeholders as valid 200 images; reject them as the
+        // errors they are (matching the download pipeline) so they're never cached,
+        // displayed, or exported as the real page.
+        if let placeholder = ImagePlaceholderFingerprint.match(data) {
+            throw placeholder.error
+        }
+        // Only cache decodable image bytes so a 200 carrying an HTML/error body
+        // (e.g. an unexpected notice page) can't poison the key until expiry.
+        guard data.decodedImage != nil else {
+            throw AppError.parseFailed
+        }
+        // Store under the primary key only. Reads check the stable alias first and
+        // it's non-nil for ~all page URLs, so also writing the absolute-URL alias
+        // doubled disk + memory for an entry that retrieval never reaches.
+        if let primaryKey = cacheKeys.first {
+            do {
+                try await dataCache.store(data, forKey: primaryKey)
+            } catch {
+                // Cache population is best-effort and must not turn a successful fetch into an error.
+            }
+        }
+        return data
+    }
+
+    // Streams the body via `bytes(for:)` to drive per-image progress when a
+    // handler is supplied; otherwise the single-shot `data(for:)` keeps the
+    // progress-less prefetch path fast.
+    private static func downloadReaderData(
+        url: URL,
+        urlSession: URLSession,
+        onProgress: (@MainActor @Sendable (Double) -> Void)?
+    ) async throws -> Data {
+        guard let onProgress else {
+            let (data, response) = try await urlSession.data(for: URLRequest(url: url))
+            try validateReaderResponse(response)
+            return data
+        }
+        let (bytes, response) = try await urlSession.bytes(for: URLRequest(url: url))
+        try validateReaderResponse(response)
+        let expectedLength = response.expectedContentLength
+        var data = Data()
+        if expectedLength > 0 {
+            data.reserveCapacity(Int(expectedLength))
+        }
+        var lastReportedFraction = 0.0
+        for try await byte in bytes {
+            data.append(byte)
+            guard expectedLength > 0 else { continue }
+            let fraction = min(Double(data.count) / Double(expectedLength), 1)
+            if fraction - lastReportedFraction >= 0.01 {
+                lastReportedFraction = fraction
+                await onProgress(fraction)
+            }
+        }
+        return data
+    }
+
+    private static func validateReaderResponse(_ response: URLResponse) throws {
+        guard let httpResponse = response as? HTTPURLResponse,
+              (200..<300).contains(httpResponse.statusCode) else {
+            throw AppError.networkingFailed
+        }
+    }
+}
+
+// MARK: API
+public enum ImageClientKey: DependencyKey {
+    public static let liveValue = ImageClient.live
+    public static let previewValue = ImageClient.noop
+    public static let testValue = ImageClient.unimplemented
+}
+
+extension DependencyValues {
+    public var imageClient: ImageClient {
+        get { self[ImageClientKey.self] }
+        set { self[ImageClientKey.self] = newValue }
+    }
+}
+
+// MARK: Test
+extension ImageClient {
+    public static var noop: Self {
+        @Dependency(\.dataCache) var dataCache
+        return .init(
+            prefetchImages: { _ in },
+            saveImageDataToPhotoLibrary: { _ in false },
+            dataCache: dataCache
+        )
+    }
+
+    public static func placeholder<Result>() -> Result { fatalError() }
+
+    public static var unimplemented: Self {
+        @Dependency(\.dataCache) var dataCache
+        return .init(
+            prefetchImages: IssueReporting.unimplemented(placeholder: placeholder()),
+            saveImageDataToPhotoLibrary: IssueReporting.unimplemented(placeholder: placeholder()),
+            dataCache: dataCache
+        )
+    }
+}

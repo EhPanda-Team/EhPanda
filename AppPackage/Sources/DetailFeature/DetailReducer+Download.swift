@@ -1,0 +1,411 @@
+import AnalyticsClient
+import AppComponents
+import AppLaunchAutomationClient
+import AppModels
+import AppTools
+import ComposableArchitecture
+import DownloadClient
+import Foundation
+import HapticsClient
+import ReadingFeature
+import Resources
+import UIKit
+
+// MARK: - Download Action Handlers
+extension DetailReducer {
+    var downloadReducer: some ReducerOf<Self> {
+        Reduce { state, action in
+            switch action {
+            case .deleteDownloadButtonTapped:
+                state.alert = AppAlertState {
+                    TextState(localized: .RLocalizable.deleteDownload)
+                } actions: {
+                    ButtonState(role: .destructive, action: .confirmDeleteDownload) {
+                        TextState(localized: .RLocalizable.delete)
+                    }
+                    ButtonState(role: .cancel) {
+                        TextState(localized: .RLocalizable.cancel)
+                    }
+                } message: {
+                    TextState(localized: .RLocalizable.deleteDownloadedGallery)
+                }
+                return .none
+
+            case .retryDownloadButtonTapped(let mode):
+                state.alert = AppAlertState {
+                    TextState(localized: Self.retryDownloadTitle(for: mode))
+                } actions: {
+                    ButtonState(action: .confirmRetryDownload(mode)) {
+                        TextState(localized: Self.retryDownloadConfirmTitle(for: mode))
+                    }
+                    ButtonState(role: .cancel) {
+                        TextState(localized: .RLocalizable.cancel)
+                    }
+                } message: {
+                    TextState(localized: Self.retryDownloadMessage(for: mode))
+                }
+                return .none
+
+            case .alert(.presented(.confirmDeleteDownload)):
+                return .send(.deleteDownload)
+
+            case .alert(.presented(.confirmRetryDownload(let mode))):
+                return .send(.retryDownload(mode))
+
+            case .alert:
+                return .none
+
+            case .fetchDownloadBadge:
+                guard state.gid.isValidGID else { return .none }
+                return .run { [galleryID = state.gid] send in
+                    let download = await downloadClient.fetchDownload(galleryID)
+                    await send(.fetchDownloadBadgeDone(download))
+                }
+                .cancellable(id: CancelID.fetchDownloadBadge(state.cancellationGalleryID), cancelInFlight: true)
+
+            case .fetchDownloadBadgeDone(let download):
+                _ = applyDownload(download, state: &state)
+                var effects: [Effect<Action>] = [.send(.loadLocalPreviewURLs)]
+                if shouldRequestVersionMetadata(state: state) {
+                    effects.append(.send(.fetchVersionMetadataIfNeeded))
+                }
+                return .merge(effects)
+
+            case .fetchDownloadFolders:
+                let cancellationID = CancelID.fetchDownloadFolders(state.cancellationGalleryID)
+                return .run { send in
+                    await send(.fetchDownloadFoldersDone(await downloadClient.fetchFolders()))
+                }
+                .cancellable(id: cancellationID, cancelInFlight: true)
+
+            case .fetchDownloadFoldersDone(let folders):
+                state.downloadFolders = folders
+                return .none
+
+            case .createDefaultFolder:
+                return .run { send in
+                    try await downloadClient.createFolder(Defaults.FilePath.defaultDownloadFolder)
+                    await send(.createDefaultFolderDone(.success(())))
+                } catch: { error, send in
+                    await send(.createDefaultFolderDone(.failure(AppError(error))))
+                }
+
+            case .createDefaultFolderDone(let result):
+                if case .success = result {
+                    return .merge(
+                        .run(operation: { _ in await hapticsClient.generateNotificationFeedback(.success) }),
+                        .send(.fetchDownloadFolders)
+                    )
+                }
+                return .run(operation: { _ in await hapticsClient.generateNotificationFeedback(.error) })
+
+            case .destination(.presented(.folderManager(.createFolderDone))),
+                 .destination(.presented(.folderManager(.renameFolderDone))),
+                 .destination(.presented(.folderManager(.deleteFolderDone))):
+                return .send(.fetchDownloadFolders)
+
+            case .observeDownload:
+                guard state.gid.isValidGID else { return .none }
+                return .run { [galleryID = state.gid] send in
+                    for await downloads in downloadClient.observeDownloads() {
+                        let download = downloads.first(where: { $0.gid == galleryID })
+                        await send(.observeDownloadDone(download))
+                    }
+                }
+                .cancellable(id: CancelID.observeDownload(state.cancellationGalleryID), cancelInFlight: true)
+
+            case .observeDownloadDone(let download):
+                let didChangeBadge = applyDownload(download, state: &state)
+                guard didChangeBadge else { return .none }
+                var effects: [Effect<Action>] = [.send(.loadLocalPreviewURLs)]
+                if shouldRequestVersionMetadata(state: state) {
+                    effects.append(.send(.fetchVersionMetadataIfNeeded))
+                }
+                return .merge(effects)
+
+            case .loadLocalPreviewURLs:
+                guard state.gid.isValidGID else {
+                    state.localPreviewRequestID = UUID()
+                    state.localPreviewURLs = .init()
+                    return .none
+                }
+                let requestID = UUID()
+                state.localPreviewRequestID = requestID
+                return .run { [galleryID = state.gid] send in
+                    let localPreviewURLs = await downloadClient.loadLocalPageURLs(galleryID) ?? [:]
+                    await send(.loadLocalPreviewURLsDone(requestID: requestID, urls: localPreviewURLs))
+                }
+                .cancellable(id: CancelID.loadLocalPreviewURLs(state.cancellationGalleryID), cancelInFlight: true)
+
+            case .loadLocalPreviewURLsDone(let requestID, let localPreviewURLs):
+                guard state.localPreviewRequestID == requestID else { return .none }
+                guard state.localPreviewURLs != localPreviewURLs else { return .none }
+                state.localPreviewURLs = localPreviewURLs
+                return .none
+
+            case .openReading:
+                return .run { [galleryID = state.gallery.id] send in
+                    guard galleryID.isValidGID else {
+                        await send(.openReadingDone(.failure(.notFound)))
+                        return
+                    }
+                    await send(.openReadingDone(.success(try await downloadClient.loadManifest(galleryID))))
+                } catch: { error, send in
+                    await send(.openReadingDone(.failure(AppError(error))))
+                }
+
+            case .openReadingDone(let result):
+                var readingState: ReadingReducer.State
+                if case .success(let (download, manifest)) = result {
+                    readingState = .init(
+                        gallery: state.gallery, contentSource: .local(download: download, manifest: manifest),
+                        previewConfig: state.previewConfig, language: state.galleryDetail?.language
+                    )
+                } else {
+                    readingState = .init(
+                        gallery: state.gallery, contentSource: .remote,
+                        previewConfig: state.previewConfig, language: state.galleryDetail?.language
+                    )
+                    readingState.localPageURLs = state.localPreviewURLs
+                }
+                state.destination = .reading(readingState)
+                return .send(.destination(.presented(.reading(.onPresented))))
+
+            case .runLaunchAutomationIfNeeded:
+                guard !state.didRunLaunchAutomation,
+                      let automation = appLaunchAutomationClient.current(),
+                      state.galleryDetail != nil
+                else { return .none }
+                if let captureRoute = automation.captureRoute {
+                    return captureRouteEffect(captureRoute, state: &state)
+                }
+                guard automation.autoDownloadGID == state.gallery.id,
+                      state.hasLoadedDownloadBadge
+                else { return .none }
+                state.didRunLaunchAutomation = true
+                guard state.downloadBadge == nil else { return .none }
+                return .send(
+                    .startDownload(automation.downloadFolderName ?? Defaults.FilePath.automationDownloadFolder)
+                )
+
+            case .startDownload(let folderName):
+                guard !state.isPreparingDownload else { return .none }
+                state.didRunLaunchAutomation = true
+                guard let detail = state.galleryDetail else { return .none }
+                state.isPreparingDownload = true
+                let payload = DownloadRequestPayload(
+                    gallery: state.gallery,
+                    galleryDetail: detail,
+                    previewURLs: state.galleryPreviewURLs,
+                    previewConfig: state.previewConfig,
+                    host: state.setting.galleryHost,
+                    folderName: folderName,
+                    versionMetadata: state.galleryVersionMetadata,
+                    mode: .initial
+                )
+                return .run { send in
+                    try await downloadClient.enqueue(payload)
+                    await send(.startDownloadDone(.success(())))
+                } catch: { error, send in
+                    await send(.startDownloadDone(.failure(AppError(error))))
+                }
+
+            case .startDownloadDone(let result):
+                state.isPreparingDownload = false
+                if case .success = result {
+                    state.downloadBadge = DownloadBadge(
+                        status: .queued,
+                        progress: DownloadProgress(
+                            completedPageCount: 0,
+                            pageCount: state.galleryDetail?.pageCount ?? 0
+                        )
+                    )
+                    state.downloadFailureCode = nil
+                    state.hasLoadedDownloadBadge = true
+                    return .merge(
+                        .run(operation: { _ in await hapticsClient.generateNotificationFeedback(.success) }),
+                        .run(operation: { _ in analyticsClient.send(.downloadStateChanged(.started)) }),
+                        .send(.fetchDownloadBadge)
+                    )
+                }
+                // No emission on the failure arm, here or in the sibling retry/delete cases below:
+                // a download that fails during transfer is observed by the downloads-list transition
+                // diff, which owns the `failed` outcome. Emitting start-time failures here too would
+                // count two different things under one name.
+                return .run(operation: { _ in await hapticsClient.generateNotificationFeedback(.error) })
+
+            case .toggleDownloadPause:
+                guard !state.isPreparingDownload else { return .none }
+                state.isPreparingDownload = true
+                return .run { [galleryID = state.gallery.id] send in
+                    try await downloadClient.togglePause(galleryID)
+                    await send(.toggleDownloadPauseDone(.success(())))
+                } catch: { error, send in
+                    await send(.toggleDownloadPauseDone(.failure(AppError(error))))
+                }
+
+            case .toggleDownloadPauseDone(let result):
+                state.isPreparingDownload = false
+                if case .success = result {
+                    // Read before the mutation below, which is what distinguishes the two directions
+                    // of a single toggle action: `.active` was running and is being paused,
+                    // `.inactive` was paused and is being resumed (D-20).
+                    let pauseOutcome: DownloadOutcome? = switch state.downloadBadge?.status {
+                    case .active: .paused
+                    case .inactive: .resumed
+                    default: nil
+                    }
+                    switch state.downloadBadge?.status {
+                    case .active:
+                        if let badge = state.downloadBadge {
+                            state.downloadBadge = DownloadBadge(status: .inactive, progress: badge.progress)
+                        }
+                    case .inactive:
+                        if let badge = state.downloadBadge {
+                            state.downloadBadge = DownloadBadge(status: .queued, progress: badge.progress)
+                        }
+                    default:
+                        break
+                    }
+                    state.hasLoadedDownloadBadge = state.downloadBadge != nil
+                    var effects: [Effect<Action>] = [
+                        .run(operation: { _ in await hapticsClient.generateNotificationFeedback(.success) }),
+                        .send(.fetchDownloadBadge)
+                    ]
+                    // A toggle from any other badge status is not a user-meaningful pause or resume,
+                    // so it stays silent rather than guessing a direction.
+                    if let pauseOutcome {
+                        effects.append(.run(operation: { _ in
+                            analyticsClient.send(.downloadStateChanged(pauseOutcome))
+                        }))
+                    }
+                    return .merge(effects)
+                }
+                return .run(operation: { _ in await hapticsClient.generateNotificationFeedback(.error) })
+
+            case .retryDownload(let mode):
+                guard !state.isPreparingDownload else { return .none }
+                state.isPreparingDownload = true
+                return .run { [galleryID = state.gallery.id] send in
+                    try await downloadClient.retry(galleryID, mode)
+                    await send(.retryDownloadDone(.success(())))
+                } catch: { error, send in
+                    await send(.retryDownloadDone(.failure(AppError(error))))
+                }
+
+            case .retryDownloadDone(let result):
+                state.isPreparingDownload = false
+                if case .success = result {
+                    // Read before the badge is overwritten below: the retry button serves two
+                    // intents, and the pre-mutation status is what tells them apart. A gallery
+                    // flagged `.updateAvailable` is being *updated*, and reporting that as
+                    // `.retried` would put one user intent under two names depending on which
+                    // screen initiated it — the downloads list emits `.updated` for the same
+                    // action (D-21). Genuine error-retries keep `.retried`.
+                    let outcome: DownloadOutcome =
+                        state.downloadBadge?.status == .updateAvailable ? .updated : .retried
+                    state.downloadBadge = DownloadBadge(
+                        status: .queued,
+                        progress: state.downloadBadge?.progress ?? DownloadProgress(
+                            completedPageCount: 0,
+                            pageCount: state.galleryDetail?.pageCount ?? 0
+                        )
+                    )
+                    state.downloadFailureCode = nil
+                    state.hasLoadedDownloadBadge = true
+                    return .merge(
+                        .run(operation: { _ in await hapticsClient.generateNotificationFeedback(.success) }),
+                        .run(operation: { _ in analyticsClient.send(.downloadStateChanged(outcome)) }),
+                        .send(.fetchDownloadBadge)
+                    )
+                }
+                return .run(operation: { _ in await hapticsClient.generateNotificationFeedback(.error) })
+
+            case .deleteDownload:
+                return .run { [galleryID = state.gallery.id] send in
+                    try await downloadClient.delete(galleryID)
+                    await send(.deleteDownloadDone(.success(())))
+                } catch: { error, send in
+                    await send(.deleteDownloadDone(.failure(AppError(error))))
+                }
+
+            case .deleteDownloadDone(let result):
+                if case .success = result {
+                    state.galleryVersionMetadata = nil
+                    state.didRequestVersionMetadata = false
+                    state.shouldCheckForRemoteUpdates = false
+                    return .merge(
+                        .run(operation: { _ in await hapticsClient.generateNotificationFeedback(.success) }),
+                        .run(operation: { _ in analyticsClient.send(.downloadStateChanged(.deleted)) }),
+                        .send(.fetchDownloadBadge)
+                    )
+                }
+                return .run(operation: { _ in await hapticsClient.generateNotificationFeedback(.error) })
+
+            default:
+                return .none
+            }
+        }
+    }
+
+    private static func retryDownloadTitle(for mode: DownloadStartMode) -> LocalizedStringResource {
+        switch mode {
+        case .repair:
+            return .repairDownload
+        case .update:
+            return .updateDownload
+        case .initial, .redownload:
+            return .redownloadGallery
+        }
+    }
+
+    private static func retryDownloadMessage(for mode: DownloadStartMode) -> LocalizedStringResource {
+        switch mode {
+        case .repair:
+            return .repairDownloadDescription
+        case .update:
+            return .updateDownloadDescription
+        case .initial, .redownload:
+            return .redownloadGalleryDescription
+        }
+    }
+
+    private static func retryDownloadConfirmTitle(for mode: DownloadStartMode) -> LocalizedStringResource {
+        switch mode {
+        case .repair:
+            return .repair
+        case .update:
+            return .RLocalizable.update
+        case .initial, .redownload:
+            return .redownload
+        }
+    }
+
+    /// Continues a capture route to a screen inside this gallery once the detail has loaded, with
+    /// the action that screen's control sends: the comments section's Show All, which opens the
+    /// comments with none highlighted, or a preview tap, which opens the reader on its page. Only a
+    /// capture launch has a route, and only in DEBUG builds.
+    private func captureRouteEffect(
+        _ route: AppLaunchAutomation.CaptureRoute,
+        state: inout State
+    ) -> Effect<Action> {
+        switch route {
+        case .comments(let gallery) where gallery.id == state.gallery.id:
+            state.didRunLaunchAutomation = true
+            guard let galleryURL = state.gallery.galleryURL else { return .none }
+            return .send(.delegate(.pushComments(
+                gid: state.gallery.id, token: state.gallery.token, apiKey: state.apiKey,
+                galleryURL: galleryURL, comments: state.galleryComments, scrollCommentID: nil
+            )))
+        case .reading(let gallery, let page) where gallery.id == state.gallery.id,
+             .readingLiveText(let gallery, let page) where gallery.id == state.gallery.id:
+            state.didRunLaunchAutomation = true
+            return .run { send in
+                await send(.updateReadingProgress(page))
+                await send(.openReading)
+            }
+        case .home, .detail, .comments, .filters, .reading, .readingLiveText, .downloads, .laboratory:
+            return .none
+        }
+    }
+}

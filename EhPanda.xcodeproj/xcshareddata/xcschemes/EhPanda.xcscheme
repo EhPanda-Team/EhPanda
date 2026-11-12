@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Scheme
-   LastUpgradeVersion = "1430"
-   version = "1.3">
+   LastUpgradeVersion = "2660"
+   version = "1.7">
    <BuildAction
       parallelizeBuildables = "YES"
       buildImplicitDependencies = "YES">
@@ -20,35 +20,47 @@
                ReferencedContainer = "container:EhPanda.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "NO"
+            buildForProfiling = "NO"
+            buildForArchiving = "NO"
+            buildForAnalyzing = "NO">
+               <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "A17000000000000000000006"
+               BuildableName = "VisualSnapshotTests.xctest"
+               BlueprintName = "VisualSnapshotTests"
+               ReferencedContainer = "container:EhPanda.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
       </BuildActionEntries>
    </BuildAction>
    <TestAction
       buildConfiguration = "Debug"
       selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
-      shouldUseLaunchSchemeArgsEnv = "YES"
-      onlyGenerateCoverageForSpecifiedTargets = "YES">
-      <CodeCoverageTargets>
-         <BuildableReference
-            BuildableIdentifier = "primary"
-            BlueprintIdentifier = "ABC3C7532593696C00E0C11B"
-            BuildableName = "EhPanda.app"
-            BlueprintName = "EhPanda"
-            ReferencedContainer = "container:EhPanda.xcodeproj">
-         </BuildableReference>
-      </CodeCoverageTargets>
-      <Testables>
-         <TestableReference
-            skipped = "NO">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "ABF294CB26D20F82004DD03A"
-               BuildableName = "EhPandaTests.xctest"
-               BlueprintName = "EhPandaTests"
-               ReferencedContainer = "container:EhPanda.xcodeproj">
-            </BuildableReference>
-         </TestableReference>
-      </Testables>
+      shouldUseLaunchSchemeArgsEnv = "YES">
+      <TestPlans>
+         <TestPlanReference
+            reference = "container:AppPackage/Tests/FeatureTests.xctestplan"
+            default = "YES">
+         </TestPlanReference>
+         <TestPlanReference
+            reference = "container:AppPackage/Tests/VisualTests.xctestplan">
+         </TestPlanReference>
+         <TestPlanReference
+            reference = "container:AppPackage/Tests/SnapshotMatrix.xctestplan">
+         </TestPlanReference>
+         <TestPlanReference
+            reference = "container:AppPackage/Tests/LiveCheck.xctestplan">
+         </TestPlanReference>
+         <TestPlanReference
+            reference = "container:UITests.xctestplan">
+         </TestPlanReference>
+         <TestPlanReference reference = "container:AppshotCapture.xctestplan">
+         </TestPlanReference>
+      </TestPlans>
    </TestAction>
    <LaunchAction
       buildConfiguration = "Debug"
@@ -62,7 +74,7 @@
       allowLocationSimulation = "YES">
       <BuildableProductRunnable
          runnableDebuggingMode = "0">
-         <BuildableReference
+            <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "ABC3C7532593696C00E0C11B"
             BuildableName = "EhPanda.app"
@@ -70,20 +82,6 @@
             ReferencedContainer = "container:EhPanda.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
-      <CommandLineArguments>
-         <CommandLineArgument
-            argument = "-com.apple.CoreData.ConcurrencyDebug 1"
-            isEnabled = "NO">
-         </CommandLineArgument>
-         <CommandLineArgument
-            argument = "-com.apple.CoreData.MigrationDebug 1"
-            isEnabled = "NO">
-         </CommandLineArgument>
-         <CommandLineArgument
-            argument = "-com.apple.CoreData.SQLDebug 1"
-            isEnabled = "NO">
-         </CommandLineArgument>
-      </CommandLineArguments>
    </LaunchAction>
    <ProfileAction
       buildConfiguration = "Release"
@@ -93,7 +91,7 @@
       debugDocumentVersioning = "YES">
       <BuildableProductRunnable
          runnableDebuggingMode = "0">
-         <BuildableReference
+            <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "ABC3C7532593696C00E0C11B"
             BuildableName = "EhPanda.app"

@@ -1,8 +1,4 @@
-//
-//  ShareViewController.swift
-//  ShareExtension
-//
-
+import AppIntents
 import UIKit
 
 class ShareViewController: UIViewController {
@@ -12,7 +8,7 @@ class ShareViewController: UIViewController {
         guard let extensionItem = extensionContext?
                 .inputItems.first as? NSExtensionItem,
               let itemProvider = extensionItem.attachments?.first,
-              itemProvider.hasItemConformingToTypeIdentifier("public.url")
+              itemProvider.canLoadObject(ofClass: URL.self)
         else {
             extensionContext?.completeRequest(
                 returningItems: nil,
@@ -21,36 +17,82 @@ class ShareViewController: UIViewController {
             return
         }
 
-        itemProvider.loadItem(forTypeIdentifier: "public.url") { (item, _) in
-            if let shareURL = item as? URL, let scheme = shareURL.scheme,
-               let replacedURL = URL(string: shareURL.absoluteString
-                .replacingOccurrences(of: scheme, with: "ehpanda"))
-            {
-                self.openMainApp(url: replacedURL)
+        _ = itemProvider.loadObject(ofClass: URL.self) { [weak self] (shareURL, error) in
+            if let error {
+                Task { @MainActor in
+                    self?.extensionContext?.cancelRequest(withError: error)
+                }
+                return
+            }
+            guard let shareURL,
+                  var components = URLComponents(url: shareURL, resolvingAgainstBaseURL: false)
+            else {
+                Task { @MainActor in
+                    self?.extensionContext?.completeRequest(returningItems: nil)
+                }
+                return
+            }
+            components.scheme = Self.hostURLScheme
+            guard let replacedURL = components.url else {
+                Task { @MainActor in
+                    self?.extensionContext?.completeRequest(returningItems: nil)
+                }
+                return
+            }
+            Task { @MainActor in
+                self?.openMainApp(url: replacedURL)
             }
         }
     }
 
+    /// The URL scheme of the app this extension ships in, from `EhPandaURLScheme` in the extension's
+    /// Info.plist (`EHPANDA_URL_SCHEME`, see `Config/Flavor.xcconfig`). The regular app and the beta
+    /// register different schemes, so a link shared from one never opens the other.
+    private nonisolated static let hostURLScheme =
+        Bundle.main.object(forInfoDictionaryKey: "EhPandaURLScheme") as? String ?? "ehpanda"
+
+    @MainActor
     private func openMainApp(url: URL) {
-        extensionContext?.completeRequest(
-            returningItems: nil,
-            completionHandler: { [weak self] _ in
-                self?.openURL(url)
-            }
-        )
+        // Order matters: completing the request tears the extension down, so the
+        // hand-off has to have been made before the request completes.
+        openInHostApplication(url)
+        extensionContext?.completeRequest(returningItems: nil)
     }
 
+    /// Asks the system to open `url`, which routes it to the containing app.
+    ///
+    /// No sanctioned route exists, and all three public candidates were measured
+    /// as dead on iOS 26.5: `NSExtensionContext.open(_:)` is honoured only for the
+    /// Today and iMessage extension points; UIKit force-fails the deprecated
+    /// `openURL:` reached through the responder chain ("BUG IN CLIENT OF UIKIT
+    /// ... Force returning false"); and the `_UIHostedWindowScene` that terminates
+    /// an extension's responder chain accepts `openURL:options:completionHandler:`
+    /// but never invokes the completion or opens anything.
+    ///
+    /// `LSApplicationWorkspace` is private API, used deliberately — this build does
+    /// not ship to the App Store. `ShareSheetUITests` drives the real share sheet
+    /// end to end, so it turns red the moment this route stops working.
+    @MainActor
     @discardableResult
-    @objc private func openURL(_ url: URL) -> Bool {
-        var responder: UIResponder? = self
-        while responder != nil {
-            if let application = responder as? UIApplication {
-                return application.perform(
-                    #selector(openURL(_:)), with: url
-                ) != nil
-            }
-            responder = responder?.next
+    private func openInHostApplication(_ url: URL) -> Bool {
+        let defaultWorkspaceSelector = NSSelectorFromString("defaultWorkspace")
+        guard let workspaceClass = NSClassFromString("LSApplicationWorkspace") as? NSObject.Type,
+              workspaceClass.responds(to: defaultWorkspaceSelector),
+              let workspace = workspaceClass
+                .perform(defaultWorkspaceSelector)?
+                .takeUnretainedValue() as? NSObject
+        else {
+            return false
         }
-        return false
+
+        let openSelector = NSSelectorFromString("openURL:")
+        guard workspace.responds(to: openSelector) else { return false }
+
+        typealias OpenURL = @convention(c) (NSObject, Selector, NSURL) -> Bool
+        let openImplementation = unsafeBitCast(
+            workspace.method(for: openSelector),
+            to: OpenURL.self
+        )
+        return openImplementation(workspace, openSelector, url as NSURL)
     }
 }

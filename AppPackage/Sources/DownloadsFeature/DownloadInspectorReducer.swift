@@ -1,0 +1,337 @@
+import AnalyticsClient
+public import AppComponents
+public import AppModels
+public import ComposableArchitecture
+public import DownloadClient
+public import Foundation
+import Resources
+
+/// The per-gallery page inspector.
+///
+/// **Failure-reporting policy: every action this screen can fail at reports why (WR-04, WR-05).**
+/// The inspector is one gallery's whole screen and owns a toast surface, so a refused tap is
+/// reported here rather than left to the user to infer from a screen that did not move. The
+/// enumeration below is the complete set of outcome-carrying actions and is meant to be checked
+/// against `Action` when one is added — a new outcome-carrying action with no disposition
+/// contradicts this doc:
+///
+/// - `loadInspectionDone` — **reports**: the failure arm sets `loadingState = .failed(error)`,
+///   which the view renders as its error state.
+/// - `retryPagesDone` — **reports**: failure sets `toast` through the shared action-failure
+///   mapping; success is silent because the observe stream renders the queued work.
+/// - `toggleDownloadPauseDone` — **reports**: failure sets `toast` through the same mapping;
+///   success is silent for the same reason as retry.
+/// - `verifyImagesDone` — **reports both outcomes**: verification is a question the user asked,
+///   so its answer is a toast whether or not the pages turned out valid.
+///
+/// `observeDownloadsDone` carries no outcome — it is a stream of records, with no failure channel
+/// to report — so it is outside this policy rather than an exception to it.
+@Reducer
+public struct DownloadInspectorReducer: Sendable {
+    private enum CancelID {
+        case observeDownloads
+        case loadInspection
+    }
+
+    @ObservableState
+    public struct State: Equatable, Sendable {
+        @SharedReader(.tagTranslator) public var tagTranslator: TagTranslator
+        @SharedReader(.setting) public var setting: Setting
+        @Presents public var toast: AppAlertState<Never>?
+        public var gid = ""
+        public var inspection: DownloadInspection?
+        public var stableInspection: DownloadInspection?
+        public var loadingState: LoadingState = .loading
+        public var inspectionRequestID = UUID()
+        public var retryingPageIndices = Set<Int>()
+        public var isVerifyingImages = false
+
+        public init(gid: String = "") {
+            self.gid = gid
+            loadingState = gid.isEmpty ? .idle : .loading
+        }
+    }
+
+    public enum Action: BindableAction {
+        case binding(BindingAction<State>)
+        case toast(PresentationAction<Never>)
+        case onPresented
+        case loadInspection
+        case loadInspectionDone(UUID, Result<DownloadInspection, AppError>)
+        case observeDownloads
+        case observeDownloadsDone([DownloadedGallery])
+        case retryPages([Int])
+        case retryPagesDone(Result<Void, AppError>)
+        case toggleDownloadPause
+        case toggleDownloadPauseDone(Result<Void, AppError>)
+        case verifyImages
+        case verifyImagesDone(DownloadVerificationState?)
+    }
+
+    @Dependency(\.analyticsClient) private var analyticsClient
+    @Dependency(\.downloadClient) private var downloadClient
+
+    public init() {}
+
+    public var body: some Reducer<State, Action> {
+        BindingReducer()
+
+        Reduce { state, action in
+            switch action {
+            case .binding:
+                return .none
+
+            case .toast:
+                return .none
+
+            case .onPresented:
+                guard !state.gid.isEmpty else { return .none }
+                return .merge(
+                    .send(.loadInspection),
+                    .send(.observeDownloads)
+                )
+
+            case .loadInspection:
+                guard !state.gid.isEmpty else { return .none }
+                if state.inspection == nil {
+                    state.loadingState = .loading
+                }
+                let requestID = UUID()
+                state.inspectionRequestID = requestID
+                return .run { [gid = state.gid] send in
+                    await send(.loadInspectionDone(requestID, .success(try await downloadClient.loadInspection(gid))))
+                } catch: { error, send in
+                    await send(.loadInspectionDone(requestID, .failure(AppError(error))))
+                }
+                .cancellable(id: CancelID.loadInspection, cancelInFlight: true)
+
+            case .loadInspectionDone(let requestID, let result):
+                guard state.inspectionRequestID == requestID else { return .none }
+                switch result {
+                case .success(let inspection):
+                    state.stableInspection = inspection
+                    let inspection = state.overlayRetryingPages(in: inspection)
+                    state.inspection = inspection
+                    state.loadingState = .idle
+                    state.retryingPageIndices = state.reconciledRetryingPageIndices(
+                        for: inspection
+                    )
+                case .failure(let error):
+                    state.retryingPageIndices = .init()
+                    if let stableInspection = state.stableInspection {
+                        state.inspection = stableInspection
+                    }
+                    state.loadingState = .failed(error)
+                }
+                return .none
+
+            case .observeDownloads:
+                guard !state.gid.isEmpty else { return .none }
+                return .run { [gid = state.gid] send in
+                    var hadRelevantDownloads = false
+                    for await downloads in downloadClient.observeDownloads() {
+                        let relevantDownloads = downloads.filter({ $0.gid == gid })
+                        let hasRelevantDownloads = !relevantDownloads.isEmpty
+                        guard hasRelevantDownloads || hadRelevantDownloads else { continue }
+                        hadRelevantDownloads = hasRelevantDownloads
+                        await send(.observeDownloadsDone(relevantDownloads))
+                    }
+                }
+                .cancellable(id: CancelID.observeDownloads, cancelInFlight: true)
+
+            case .observeDownloadsDone(let downloads):
+                guard !downloads.isEmpty else {
+                    state.inspection = nil
+                    state.stableInspection = nil
+                    state.retryingPageIndices = .init()
+                    state.loadingState = .idle
+                    return .none
+                }
+                guard let latestDownload = downloads.first else { return .none }
+                let previousDownload = state.inspection?.download
+                if let inspection = state.inspection,
+                   state.retryingPageIndices.isEmpty || state.shouldKeepRetryPending(for: latestDownload) {
+                    state.inspection = state.overlayRetryingPages(in: .init(
+                        download: latestDownload,
+                        coverURL: inspection.coverURL,
+                        pages: inspection.pages
+                    ))
+                }
+                guard previousDownload != latestDownload else { return .none }
+                return .send(.loadInspection)
+
+            case .retryPages(let indices):
+                let retryingPageIndices = Set(indices)
+                let pageIndices = retryingPageIndices.sorted()
+                guard !state.gid.isEmpty, !pageIndices.isEmpty else { return .none }
+                state.inspectionRequestID = UUID()
+                state.retryingPageIndices.formUnion(retryingPageIndices)
+                state.stableInspection = state.inspection ?? state.stableInspection
+                if let inspection = state.inspection {
+                    state.inspection = .init(
+                        download: inspection.download,
+                        coverURL: inspection.coverURL,
+                        // The `.downloaded` guard is the same one the durable overlay carries, and
+                        // it became load-bearing here when D-SSOT-08 widened the selection: over a
+                        // file-shaped failure on the error surface the retry basis is the WHOLE page
+                        // set, and a wholesale-refusal record claims every one of those pages. An
+                        // unguarded rewrite would therefore flip the list to "N pending, 0
+                        // downloaded" and drop every thumbnail while the badge in the same screen
+                        // still read N of N — two bases disagreeing, in exactly the family this
+                        // round exists to give one basis. `retryPagesDone(.success)` returns `.none`,
+                        // so nothing would correct it until the next observe round trip.
+                        pages: inspection.pages.map { page in
+                            guard retryingPageIndices.contains(page.index),
+                                  page.status != .downloaded
+                            else {
+                                return page
+                            }
+                            return .init(
+                                index: page.index,
+                                status: .pending,
+                                relativePath: page.relativePath,
+                                fileURL: nil,
+                                failure: nil
+                            )
+                        }
+                    )
+                }
+                return .merge(
+                    .cancel(id: CancelID.loadInspection),
+                    .run { [gid = state.gid] send in
+                        try await downloadClient.retryPages(gid, pageIndices)
+                        await send(.retryPagesDone(.success(())))
+                    } catch: { error, send in
+                        await send(.retryPagesDone(.failure(AppError(error))))
+                    }
+                )
+
+            case .retryPagesDone(let result):
+                if case .failure(let error) = result {
+                    // WR-04: without this the tap is a visible no-op — the rows flash to `.pending`
+                    // from the optimistic rewrite above and silently revert, with nothing telling
+                    // the user why. The reload below resettles the list; it does not report.
+                    state.toast = error.actionFailureToast
+                    state.retryingPageIndices = .init()
+                    return .send(.loadInspection)
+                }
+                return .none
+
+            case .toggleDownloadPause:
+                guard let download = state.inspection?.download,
+                      download.canTogglePause
+                else { return .none }
+                // Direction from the inspected download's current status, read at request time —
+                // the same shape as the downloads list's site (D-20).
+                let pauseOutcome: DownloadOutcome? = switch download.displayStatus {
+                case .active: .paused
+                case .inactive: .resumed
+                default: nil
+                }
+                return .run { send in
+                    try await downloadClient.togglePause(download.gid)
+                    if let pauseOutcome {
+                        analyticsClient.send(.downloadStateChanged(pauseOutcome))
+                    }
+                    await send(.toggleDownloadPauseDone(.success(())))
+                } catch: { error, send in
+                    await send(.toggleDownloadPauseDone(.failure(AppError(error))))
+                }
+
+            case .toggleDownloadPauseDone(let result):
+                if case .failure(let error) = result {
+                    // WR-05: the sibling of the retry defect above, and silent for the same reason
+                    // it was. `canTogglePause` is evaluated against the snapshot the control was
+                    // drawn from, so the boundary still refuses two ways — `.notFound` for a record
+                    // deleted underneath the inspector, `.unknown` for a status that left the
+                    // toggleable set between the render and the tap. Neither moves anything on
+                    // screen, so without this the tap is indistinguishable from one that never
+                    // registered. The reload below resettles the screen; it does not report.
+                    state.toast = error.actionFailureToast
+                    return .send(.loadInspection)
+                }
+                // The accepted side stays quiet deliberately: the queue took the change and the
+                // observe stream renders it, so a success toast would be noise to dismiss.
+                return .none
+
+            case .verifyImages:
+                guard !state.gid.isEmpty,
+                      state.inspection?.canVerifyImages == true,
+                      !state.isVerifyingImages
+                else { return .none }
+                state.isVerifyingImages = true
+                return .run { [gid = state.gid] send in
+                    await send(.verifyImagesDone(await downloadClient.verifyImages(gid)))
+                }
+
+            case .verifyImagesDone(let verification):
+                state.isVerifyingImages = false
+                state.toast = verification.toastConfig
+                return .send(.loadInspection)
+            }
+        }
+        .ifLet(\.$toast, action: \.toast)
+    }
+}
+
+private extension Optional where Wrapped == DownloadVerificationState {
+    var toastConfig: AppAlertState<Never> {
+        switch self {
+        case .some(.valid):
+            return .success(caption: .imagesVerified)
+
+        case .some(.missingFiles(let message)):
+            return .error(caption: message)
+
+        case nil:
+            return .error(caption: .imageVerificationUnavailable)
+        }
+    }
+}
+
+extension DownloadInspectorReducer.State {
+    func shouldKeepRetryPending(for download: DownloadedGallery) -> Bool {
+        download.canPauseOrResume
+            || download.isQueuedWorkItem
+            || (
+                [.inactive, .error].contains(download.displayStatus)
+                    && download.isIncomplete
+                    && download.lastError == nil
+            )
+    }
+
+    func overlayRetryingPages(in inspection: DownloadInspection) -> DownloadInspection {
+        guard !retryingPageIndices.isEmpty else { return inspection }
+
+        guard shouldKeepRetryPending(for: inspection.download) else { return inspection }
+
+        return .init(
+            download: inspection.download,
+            coverURL: inspection.coverURL,
+            pages: inspection.pages.map { page in
+                guard retryingPageIndices.contains(page.index),
+                      page.status != .downloaded
+                else {
+                    return page
+                }
+                return .init(
+                    index: page.index,
+                    status: .pending,
+                    relativePath: page.relativePath,
+                    fileURL: page.fileURL,
+                    failure: nil
+                )
+            }
+        )
+    }
+
+    func reconciledRetryingPageIndices(for inspection: DownloadInspection) -> Set<Int> {
+        guard !retryingPageIndices.isEmpty else { return .init() }
+
+        guard shouldKeepRetryPending(for: inspection.download) else { return .init() }
+
+        return retryingPageIndices.filter { index in
+            inspection.pages.first(where: { $0.index == index })?.status != .downloaded
+        }
+    }
+}

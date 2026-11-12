@@ -1,0 +1,61 @@
+public import ComposableArchitecture
+public import SwiftUI
+
+// Builds the view for a single gallery stack element. Shared by every gallery host (and reused by the
+// nested `.gallery` case of Home's and SearchRoot's paths) so the screen wiring lives in one place.
+@MainActor
+@ContentBuilder
+public func galleryDestination(
+    _ store: StoreOf<GalleryPath>
+) -> some View {
+    switch store.case {
+    case .detail(let detailStore):
+        DetailView(
+            store: detailStore, gid: detailStore.gid
+        )
+    case .previews(let previewsStore):
+        PreviewsView(store: previewsStore)
+    case .comments(let commentsStore):
+        CommentsView(
+            store: commentsStore, gid: commentsStore.gid, token: commentsStore.token,
+            apiKey: commentsStore.apiKey, galleryURL: commentsStore.galleryURL,
+            comments: commentsStore.comments
+        )
+    case .detailSearch(let searchStore):
+        DetailSearchView(store: searchStore)
+    case .galleryInfo(let infoStore):
+        GalleryInfoView(
+            store: infoStore, gallery: infoStore.gallery, galleryDetail: infoStore.galleryDetail
+        )
+    }
+}
+
+// A `NavigationStack` whose drill-down is the shared `GalleryPath`. Hosts that stack only gallery
+// screens (Favorites, Downloads, deep-link detail) build their root list here; the iPhone/iPad
+// navigation container decision is centralized in this one type.
+public struct GalleryNavigationContainer<HostState: ObservableState, HostAction, Root: View>: View {
+    @Bindable private var store: Store<HostState, HostAction>
+    private let statePath: KeyPath<HostState, StackState<GalleryPath.State>>
+    private let actionPath: CaseKeyPath<HostAction, StackActionOf<GalleryPath>>
+    private let root: Root
+
+    public init(
+        store: Store<HostState, HostAction>,
+        state statePath: KeyPath<HostState, StackState<GalleryPath.State>>,
+        action actionPath: CaseKeyPath<HostAction, StackActionOf<GalleryPath>>,
+        @ContentBuilder root: () -> Root
+    ) {
+        self.store = store
+        self.statePath = statePath
+        self.actionPath = actionPath
+        self.root = root()
+    }
+
+    public var body: some View {
+        NavigationStack(path: $store.scope( statePath, action: actionPath)) {
+            root
+        } destination: { elementStore in
+            galleryDestination(elementStore)
+        }
+    }
+}

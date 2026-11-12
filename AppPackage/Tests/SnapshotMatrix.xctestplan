@@ -1,0 +1,662 @@
+{
+  "configurations": [
+    {
+      "id": "C0DEC0DE-FEED-4A19-BEEF-A19000000001",
+      "name": "en-xSmall",
+      "options": {
+        "commandLineArgumentEntries": [
+          {
+            "argument": "-AppleLanguages (en)"
+          },
+          {
+            "argument": "-AppleLocale en_US"
+          },
+          {
+            "argument": "-UIPreferredContentSizeCategoryName UICTContentSizeCategoryXS"
+          }
+        ],
+        "environmentVariableEntries": [
+          {
+            "key": "EHPANDA_UITEST_STUB_NETWORK",
+            "value": "1"
+          },
+          {
+            "key": "EHPANDA_VISUAL_TEST_HOST",
+            "value": "1"
+          },
+          {
+            "key": "EHPANDA_SNAPSHOT_CONFIGURATION",
+            "value": "en-xSmall"
+          },
+          {
+            "key": "SWIFT_DETERMINISTIC_HASHING",
+            "value": "1"
+          }
+        ]
+      }
+    },
+    {
+      "id": "C0DEC0DE-FEED-4A19-BEEF-A19000000002",
+      "name": "en-large",
+      "options": {
+        "commandLineArgumentEntries": [
+          {
+            "argument": "-AppleLanguages (en)"
+          },
+          {
+            "argument": "-AppleLocale en_US"
+          },
+          {
+            "argument": "-UIPreferredContentSizeCategoryName UICTContentSizeCategoryL"
+          }
+        ],
+        "environmentVariableEntries": [
+          {
+            "key": "EHPANDA_UITEST_STUB_NETWORK",
+            "value": "1"
+          },
+          {
+            "key": "EHPANDA_VISUAL_TEST_HOST",
+            "value": "1"
+          },
+          {
+            "key": "EHPANDA_SNAPSHOT_CONFIGURATION",
+            "value": "en-large"
+          },
+          {
+            "key": "SWIFT_DETERMINISTIC_HASHING",
+            "value": "1"
+          }
+        ]
+      }
+    },
+    {
+      "id": "C0DEC0DE-FEED-4A19-BEEF-A19000000003",
+      "name": "en-accessibility5",
+      "options": {
+        "commandLineArgumentEntries": [
+          {
+            "argument": "-AppleLanguages (en)"
+          },
+          {
+            "argument": "-AppleLocale en_US"
+          },
+          {
+            "argument": "-UIPreferredContentSizeCategoryName UICTContentSizeCategoryAccessibilityXXXL"
+          }
+        ],
+        "environmentVariableEntries": [
+          {
+            "key": "EHPANDA_UITEST_STUB_NETWORK",
+            "value": "1"
+          },
+          {
+            "key": "EHPANDA_VISUAL_TEST_HOST",
+            "value": "1"
+          },
+          {
+            "key": "EHPANDA_SNAPSHOT_CONFIGURATION",
+            "value": "en-accessibility5"
+          },
+          {
+            "key": "SWIFT_DETERMINISTIC_HASHING",
+            "value": "1"
+          }
+        ]
+      }
+    },
+    {
+      "id": "C0DEC0DE-FEED-4A19-BEEF-A19000000004",
+      "name": "de-xSmall",
+      "options": {
+        "commandLineArgumentEntries": [
+          {
+            "argument": "-AppleLanguages (de)"
+          },
+          {
+            "argument": "-AppleLocale de_DE"
+          },
+          {
+            "argument": "-UIPreferredContentSizeCategoryName UICTContentSizeCategoryXS"
+          }
+        ],
+        "environmentVariableEntries": [
+          {
+            "key": "EHPANDA_UITEST_STUB_NETWORK",
+            "value": "1"
+          },
+          {
+            "key": "EHPANDA_VISUAL_TEST_HOST",
+            "value": "1"
+          },
+          {
+            "key": "EHPANDA_SNAPSHOT_CONFIGURATION",
+            "value": "de-xSmall"
+          },
+          {
+            "key": "SWIFT_DETERMINISTIC_HASHING",
+            "value": "1"
+          }
+        ]
+      }
+    },
+    {
+      "id": "C0DEC0DE-FEED-4A19-BEEF-A19000000005",
+      "name": "de-large",
+      "options": {
+        "commandLineArgumentEntries": [
+          {
+            "argument": "-AppleLanguages (de)"
+          },
+          {
+            "argument": "-AppleLocale de_DE"
+          },
+          {
+            "argument": "-UIPreferredContentSizeCategoryName UICTContentSizeCategoryL"
+          }
+        ],
+        "environmentVariableEntries": [
+          {
+            "key": "EHPANDA_UITEST_STUB_NETWORK",
+            "value": "1"
+          },
+          {
+            "key": "EHPANDA_VISUAL_TEST_HOST",
+            "value": "1"
+          },
+          {
+            "key": "EHPANDA_SNAPSHOT_CONFIGURATION",
+            "value": "de-large"
+          },
+          {
+            "key": "SWIFT_DETERMINISTIC_HASHING",
+            "value": "1"
+          }
+        ]
+      }
+    },
+    {
+      "id": "C0DEC0DE-FEED-4A19-BEEF-A19000000006",
+      "name": "de-accessibility5",
+      "options": {
+        "commandLineArgumentEntries": [
+          {
+            "argument": "-AppleLanguages (de)"
+          },
+          {
+            "argument": "-AppleLocale de_DE"
+          },
+          {
+            "argument": "-UIPreferredContentSizeCategoryName UICTContentSizeCategoryAccessibilityXXXL"
+          }
+        ],
+        "environmentVariableEntries": [
+          {
+            "key": "EHPANDA_UITEST_STUB_NETWORK",
+            "value": "1"
+          },
+          {
+            "key": "EHPANDA_VISUAL_TEST_HOST",
+            "value": "1"
+          },
+          {
+            "key": "EHPANDA_SNAPSHOT_CONFIGURATION",
+            "value": "de-accessibility5"
+          },
+          {
+            "key": "SWIFT_DETERMINISTIC_HASHING",
+            "value": "1"
+          }
+        ]
+      }
+    },
+    {
+      "id": "C0DEC0DE-FEED-4A19-BEEF-A19000000007",
+      "name": "ja-xSmall",
+      "options": {
+        "commandLineArgumentEntries": [
+          {
+            "argument": "-AppleLanguages (ja)"
+          },
+          {
+            "argument": "-AppleLocale ja_JP"
+          },
+          {
+            "argument": "-UIPreferredContentSizeCategoryName UICTContentSizeCategoryXS"
+          }
+        ],
+        "environmentVariableEntries": [
+          {
+            "key": "EHPANDA_UITEST_STUB_NETWORK",
+            "value": "1"
+          },
+          {
+            "key": "EHPANDA_VISUAL_TEST_HOST",
+            "value": "1"
+          },
+          {
+            "key": "EHPANDA_SNAPSHOT_CONFIGURATION",
+            "value": "ja-xSmall"
+          },
+          {
+            "key": "SWIFT_DETERMINISTIC_HASHING",
+            "value": "1"
+          }
+        ]
+      }
+    },
+    {
+      "id": "C0DEC0DE-FEED-4A19-BEEF-A19000000008",
+      "name": "ja-large",
+      "options": {
+        "commandLineArgumentEntries": [
+          {
+            "argument": "-AppleLanguages (ja)"
+          },
+          {
+            "argument": "-AppleLocale ja_JP"
+          },
+          {
+            "argument": "-UIPreferredContentSizeCategoryName UICTContentSizeCategoryL"
+          }
+        ],
+        "environmentVariableEntries": [
+          {
+            "key": "EHPANDA_UITEST_STUB_NETWORK",
+            "value": "1"
+          },
+          {
+            "key": "EHPANDA_VISUAL_TEST_HOST",
+            "value": "1"
+          },
+          {
+            "key": "EHPANDA_SNAPSHOT_CONFIGURATION",
+            "value": "ja-large"
+          },
+          {
+            "key": "SWIFT_DETERMINISTIC_HASHING",
+            "value": "1"
+          }
+        ]
+      }
+    },
+    {
+      "id": "C0DEC0DE-FEED-4A19-BEEF-A19000000009",
+      "name": "ja-accessibility5",
+      "options": {
+        "commandLineArgumentEntries": [
+          {
+            "argument": "-AppleLanguages (ja)"
+          },
+          {
+            "argument": "-AppleLocale ja_JP"
+          },
+          {
+            "argument": "-UIPreferredContentSizeCategoryName UICTContentSizeCategoryAccessibilityXXXL"
+          }
+        ],
+        "environmentVariableEntries": [
+          {
+            "key": "EHPANDA_UITEST_STUB_NETWORK",
+            "value": "1"
+          },
+          {
+            "key": "EHPANDA_VISUAL_TEST_HOST",
+            "value": "1"
+          },
+          {
+            "key": "EHPANDA_SNAPSHOT_CONFIGURATION",
+            "value": "ja-accessibility5"
+          },
+          {
+            "key": "SWIFT_DETERMINISTIC_HASHING",
+            "value": "1"
+          }
+        ]
+      }
+    },
+    {
+      "id": "C0DEC0DE-FEED-4A19-BEEF-A19000000010",
+      "name": "ko-xSmall",
+      "options": {
+        "commandLineArgumentEntries": [
+          {
+            "argument": "-AppleLanguages (ko)"
+          },
+          {
+            "argument": "-AppleLocale ko_KR"
+          },
+          {
+            "argument": "-UIPreferredContentSizeCategoryName UICTContentSizeCategoryXS"
+          }
+        ],
+        "environmentVariableEntries": [
+          {
+            "key": "EHPANDA_UITEST_STUB_NETWORK",
+            "value": "1"
+          },
+          {
+            "key": "EHPANDA_VISUAL_TEST_HOST",
+            "value": "1"
+          },
+          {
+            "key": "EHPANDA_SNAPSHOT_CONFIGURATION",
+            "value": "ko-xSmall"
+          },
+          {
+            "key": "SWIFT_DETERMINISTIC_HASHING",
+            "value": "1"
+          }
+        ]
+      }
+    },
+    {
+      "id": "C0DEC0DE-FEED-4A19-BEEF-A19000000011",
+      "name": "ko-large",
+      "options": {
+        "commandLineArgumentEntries": [
+          {
+            "argument": "-AppleLanguages (ko)"
+          },
+          {
+            "argument": "-AppleLocale ko_KR"
+          },
+          {
+            "argument": "-UIPreferredContentSizeCategoryName UICTContentSizeCategoryL"
+          }
+        ],
+        "environmentVariableEntries": [
+          {
+            "key": "EHPANDA_UITEST_STUB_NETWORK",
+            "value": "1"
+          },
+          {
+            "key": "EHPANDA_VISUAL_TEST_HOST",
+            "value": "1"
+          },
+          {
+            "key": "EHPANDA_SNAPSHOT_CONFIGURATION",
+            "value": "ko-large"
+          },
+          {
+            "key": "SWIFT_DETERMINISTIC_HASHING",
+            "value": "1"
+          }
+        ]
+      }
+    },
+    {
+      "id": "C0DEC0DE-FEED-4A19-BEEF-A19000000012",
+      "name": "ko-accessibility5",
+      "options": {
+        "commandLineArgumentEntries": [
+          {
+            "argument": "-AppleLanguages (ko)"
+          },
+          {
+            "argument": "-AppleLocale ko_KR"
+          },
+          {
+            "argument": "-UIPreferredContentSizeCategoryName UICTContentSizeCategoryAccessibilityXXXL"
+          }
+        ],
+        "environmentVariableEntries": [
+          {
+            "key": "EHPANDA_UITEST_STUB_NETWORK",
+            "value": "1"
+          },
+          {
+            "key": "EHPANDA_VISUAL_TEST_HOST",
+            "value": "1"
+          },
+          {
+            "key": "EHPANDA_SNAPSHOT_CONFIGURATION",
+            "value": "ko-accessibility5"
+          },
+          {
+            "key": "SWIFT_DETERMINISTIC_HASHING",
+            "value": "1"
+          }
+        ]
+      }
+    },
+    {
+      "id": "C0DEC0DE-FEED-4A19-BEEF-A19000000013",
+      "name": "zh-Hans-xSmall",
+      "options": {
+        "commandLineArgumentEntries": [
+          {
+            "argument": "-AppleLanguages (zh-Hans)"
+          },
+          {
+            "argument": "-AppleLocale zh-Hans_CN"
+          },
+          {
+            "argument": "-UIPreferredContentSizeCategoryName UICTContentSizeCategoryXS"
+          }
+        ],
+        "environmentVariableEntries": [
+          {
+            "key": "EHPANDA_UITEST_STUB_NETWORK",
+            "value": "1"
+          },
+          {
+            "key": "EHPANDA_VISUAL_TEST_HOST",
+            "value": "1"
+          },
+          {
+            "key": "EHPANDA_SNAPSHOT_CONFIGURATION",
+            "value": "zh-Hans-xSmall"
+          },
+          {
+            "key": "SWIFT_DETERMINISTIC_HASHING",
+            "value": "1"
+          }
+        ]
+      }
+    },
+    {
+      "id": "C0DEC0DE-FEED-4A19-BEEF-A19000000014",
+      "name": "zh-Hans-large",
+      "options": {
+        "commandLineArgumentEntries": [
+          {
+            "argument": "-AppleLanguages (zh-Hans)"
+          },
+          {
+            "argument": "-AppleLocale zh-Hans_CN"
+          },
+          {
+            "argument": "-UIPreferredContentSizeCategoryName UICTContentSizeCategoryL"
+          }
+        ],
+        "environmentVariableEntries": [
+          {
+            "key": "EHPANDA_UITEST_STUB_NETWORK",
+            "value": "1"
+          },
+          {
+            "key": "EHPANDA_VISUAL_TEST_HOST",
+            "value": "1"
+          },
+          {
+            "key": "EHPANDA_SNAPSHOT_CONFIGURATION",
+            "value": "zh-Hans-large"
+          },
+          {
+            "key": "SWIFT_DETERMINISTIC_HASHING",
+            "value": "1"
+          }
+        ]
+      }
+    },
+    {
+      "id": "C0DEC0DE-FEED-4A19-BEEF-A19000000015",
+      "name": "zh-Hans-accessibility5",
+      "options": {
+        "commandLineArgumentEntries": [
+          {
+            "argument": "-AppleLanguages (zh-Hans)"
+          },
+          {
+            "argument": "-AppleLocale zh-Hans_CN"
+          },
+          {
+            "argument": "-UIPreferredContentSizeCategoryName UICTContentSizeCategoryAccessibilityXXXL"
+          }
+        ],
+        "environmentVariableEntries": [
+          {
+            "key": "EHPANDA_UITEST_STUB_NETWORK",
+            "value": "1"
+          },
+          {
+            "key": "EHPANDA_VISUAL_TEST_HOST",
+            "value": "1"
+          },
+          {
+            "key": "EHPANDA_SNAPSHOT_CONFIGURATION",
+            "value": "zh-Hans-accessibility5"
+          },
+          {
+            "key": "SWIFT_DETERMINISTIC_HASHING",
+            "value": "1"
+          }
+        ]
+      }
+    },
+    {
+      "id": "C0DEC0DE-FEED-4A19-BEEF-A19000000016",
+      "name": "zh-Hant-xSmall",
+      "options": {
+        "commandLineArgumentEntries": [
+          {
+            "argument": "-AppleLanguages (zh-Hant)"
+          },
+          {
+            "argument": "-AppleLocale zh-Hant_TW"
+          },
+          {
+            "argument": "-UIPreferredContentSizeCategoryName UICTContentSizeCategoryXS"
+          }
+        ],
+        "environmentVariableEntries": [
+          {
+            "key": "EHPANDA_UITEST_STUB_NETWORK",
+            "value": "1"
+          },
+          {
+            "key": "EHPANDA_VISUAL_TEST_HOST",
+            "value": "1"
+          },
+          {
+            "key": "EHPANDA_SNAPSHOT_CONFIGURATION",
+            "value": "zh-Hant-xSmall"
+          },
+          {
+            "key": "SWIFT_DETERMINISTIC_HASHING",
+            "value": "1"
+          }
+        ]
+      }
+    },
+    {
+      "id": "C0DEC0DE-FEED-4A19-BEEF-A19000000017",
+      "name": "zh-Hant-large",
+      "options": {
+        "commandLineArgumentEntries": [
+          {
+            "argument": "-AppleLanguages (zh-Hant)"
+          },
+          {
+            "argument": "-AppleLocale zh-Hant_TW"
+          },
+          {
+            "argument": "-UIPreferredContentSizeCategoryName UICTContentSizeCategoryL"
+          }
+        ],
+        "environmentVariableEntries": [
+          {
+            "key": "EHPANDA_UITEST_STUB_NETWORK",
+            "value": "1"
+          },
+          {
+            "key": "EHPANDA_VISUAL_TEST_HOST",
+            "value": "1"
+          },
+          {
+            "key": "EHPANDA_SNAPSHOT_CONFIGURATION",
+            "value": "zh-Hant-large"
+          },
+          {
+            "key": "SWIFT_DETERMINISTIC_HASHING",
+            "value": "1"
+          }
+        ]
+      }
+    },
+    {
+      "id": "C0DEC0DE-FEED-4A19-BEEF-A19000000018",
+      "name": "zh-Hant-accessibility5",
+      "options": {
+        "commandLineArgumentEntries": [
+          {
+            "argument": "-AppleLanguages (zh-Hant)"
+          },
+          {
+            "argument": "-AppleLocale zh-Hant_TW"
+          },
+          {
+            "argument": "-UIPreferredContentSizeCategoryName UICTContentSizeCategoryAccessibilityXXXL"
+          }
+        ],
+        "environmentVariableEntries": [
+          {
+            "key": "EHPANDA_UITEST_STUB_NETWORK",
+            "value": "1"
+          },
+          {
+            "key": "EHPANDA_VISUAL_TEST_HOST",
+            "value": "1"
+          },
+          {
+            "key": "EHPANDA_SNAPSHOT_CONFIGURATION",
+            "value": "zh-Hant-accessibility5"
+          },
+          {
+            "key": "SWIFT_DETERMINISTIC_HASHING",
+            "value": "1"
+          }
+        ]
+      }
+    }
+  ],
+  "defaultOptions": {
+    "environmentVariableEntries": [
+      {
+        "key": "EHPANDA_UITEST_STUB_NETWORK",
+        "value": "1"
+      },
+      {
+        "key": "EHPANDA_VISUAL_TEST_HOST",
+        "value": "1"
+      },
+      {
+        "key": "SWIFT_DETERMINISTIC_HASHING",
+        "value": "1"
+      }
+    ],
+    "testTimeoutsEnabled": true
+  },
+  "testTargets": [
+    {
+      "parallelizable": true,
+      "target": {
+        "containerPath": "container:EhPanda.xcodeproj",
+        "identifier": "A17000000000000000000006",
+        "name": "VisualSnapshotTests"
+      }
+    }
+  ],
+  "version": 1
+}

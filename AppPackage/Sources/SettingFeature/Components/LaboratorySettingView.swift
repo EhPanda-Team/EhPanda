@@ -1,0 +1,98 @@
+import AppComponents
+import AppModels
+import ComposableArchitecture
+import Resources
+import SFSafeSymbols
+import Sharing
+import SwiftUI
+
+struct LaboratorySettingView: View {
+    private let store: StoreOf<LaboratorySettingReducer>
+    @Shared(.setting) private var setting: Setting
+
+    init(store: StoreOf<LaboratorySettingReducer>) {
+        self.store = store
+    }
+
+    var body: some View {
+        ScrollView {
+            VStack {
+                LaboratoryCell(
+                    isOn: Binding($setting.bypassSNIFiltering),
+                    title: .bypassSniFiltering,
+                    symbol: .theatermasksFill, tintColor: .purple
+                )
+            }
+            .padding()
+        }
+        .scrollEdgeEffectStyle(.soft, for: .top)
+        .navigationTitle(.laboratory)
+        // Pushed from the Setting root, whose designed mode is `inlineLarge`, an automatic title resolves to the
+        // inline one, and while a launch route builds the stack the mode is not settled yet, so it flips between
+        // captures. Laboratory is a short page whose title is its heading: it always shows the large title.
+        .toolbarTitleDisplayMode(.large)
+        .onChange(of: setting.bypassSNIFiltering) { _, newValue in
+            store.send(.bypassSNIFilteringChanged(newValue))
+        }
+    }
+}
+
+struct LaboratoryCell: View {
+    @Binding private var isOn: Bool
+    private let title: LocalizedStringResource
+    private let symbol: SFSymbol
+    private let tintColor: Color
+
+    init(
+        isOn: Binding<Bool>, title: LocalizedStringResource,
+        symbol: SFSymbol, tintColor: Color
+    ) {
+        _isOn = isOn
+        self.title = title
+        self.symbol = symbol
+        self.tintColor = tintColor
+    }
+
+    private var bgColor: Color {
+        isOn ? tintColor.opacity(0.2) : Color(uiColor: .systemGray5)
+    }
+    private var contentColor: Color {
+        isOn ? tintColor : .secondary
+    }
+
+    /// The cell reads its state to sighted users through tint (on) versus gray (off); assistive
+    /// technologies get the same state as a system `Toggle` carrying the cell's own title, so the
+    /// label, the on/off value, the toggle trait and the Voice Control name all come from one
+    /// representation while the tinted rendering and its animated colour change stay untouched.
+    var body: some View {
+        Label {
+            Text(title)
+                .bold()
+        } icon: {
+            Image(systemSymbol: symbol)
+        }
+        .foregroundStyle(contentColor)
+        .font(.title2)
+        .frame(maxWidth: .infinity)
+        .contentShape(.rect)
+        .onTapGesture(perform: { isOn.toggle() })
+        .padding(.vertical, 20)
+        .background(bgColor)
+        .clipShape(.rect(cornerRadius: 15))
+        .animation(.default, value: isOn)
+        .glassEffect(.regular.interactive(), in: .rect(cornerRadius: 15))
+        .accessibilityRepresentation {
+            Toggle(isOn: $isOn) {
+                Text(title)
+            }
+        }
+    }
+}
+
+#Preview("Initial") {
+    NavigationStack {
+        LaboratorySettingView(
+            store: .init(initialState: .init(), reducer: LaboratorySettingReducer.init)
+        )
+    }
+}

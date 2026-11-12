@@ -1,0 +1,46 @@
+public import AppModels
+import AppTools
+import Foundation
+
+extension TagSuggestion {
+    public var displayKey: String {
+        var namespace = tag.namespace.rawValue
+        let leftSideString = leftSideString(of: keyRange, string: tag.key)
+        var middleString = middleString(of: keyRange, string: tag.key)
+        let rightSideString = rightSideString(of: keyRange, string: tag.key)
+        middleString = middleString.isEmpty ? middleString : middleString.linkStyled
+        namespace = matchesNamespace ? namespace.linkStyled : namespace
+        return [namespace, ":", leftSideString, middleString, rightSideString].joined()
+    }
+    public var displayValue: String {
+        let text = tag.displayValue
+        // A range into raw Markdown cannot be reused after rendering or falling back to the key.
+        let range: Range<String.Index>?
+        if let valueRange {
+            range = text.range(of: String(tag.value[valueRange]), options: .caseInsensitive)
+        } else {
+            range = nil
+        }
+        let leftSideString = leftSideString(of: range, string: text)
+        var middleString = middleString(of: range, string: text)
+        let rightSideString = rightSideString(of: range, string: text)
+        middleString = middleString.isEmpty ? middleString : middleString.linkStyled
+        return [leftSideString, middleString, rightSideString].joined()
+    }
+
+    private func leftSideString(of range: Range<String.Index>?, string: String) -> String {
+        guard let range = range, string.endIndex >= range.lowerBound else { return string }
+        return .init(string[string.startIndex..<range.lowerBound])
+    }
+    private func middleString(of range: Range<String.Index>?, string: String) -> String {
+        guard let range = range,
+              range.upperBound <= string.endIndex,
+              range.lowerBound >= string.startIndex
+        else { return .init() }
+        return .init(string[range])
+    }
+    private func rightSideString(of range: Range<String.Index>?, string: String) -> String {
+        guard let range = range, range.upperBound < string.endIndex else { return .init() }
+        return .init(string[range.upperBound..<string.endIndex])
+    }
+}

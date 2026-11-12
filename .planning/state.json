@@ -1,0 +1,118 @@
+{
+  "contract": "1.0.0",
+  "flavor": "core",
+  "milestone": "v3.0.0",
+  "phases": [
+    {
+      "number": "1",
+      "name": "Isolated Dependency Modernization",
+      "status": "complete"
+    },
+    {
+      "number": "2",
+      "name": "Native Masonry Grid Swap",
+      "status": "complete"
+    },
+    {
+      "number": "3",
+      "name": "Native Reader Paging Swap",
+      "status": "complete"
+    },
+    {
+      "number": "4",
+      "name": "Concurrency & Framework Migration",
+      "status": "complete"
+    },
+    {
+      "number": "5",
+      "name": "Adaptive Layout & Universal Orientation",
+      "status": "complete"
+    },
+    {
+      "number": "6",
+      "name": "GalleryList Rename",
+      "status": "pending"
+    },
+    {
+      "number": "7",
+      "name": "Root Privacy Mask & Auto-Lock Removal",
+      "status": "complete"
+    },
+    {
+      "number": "8",
+      "name": "Architecture Hygiene & Client Seams",
+      "status": "complete"
+    },
+    {
+      "number": "9",
+      "name": "Correctness & Structured Error Handling",
+      "status": "complete"
+    },
+    {
+      "number": "10",
+      "name": "UI Polish",
+      "status": "complete"
+    },
+    {
+      "number": "11",
+      "name": "Infra Refactor & Lint Capstone",
+      "status": "complete"
+    },
+    {
+      "number": "12",
+      "name": "Cloudflare Login Restoration",
+      "status": "complete"
+    },
+    {
+      "number": "13",
+      "name": "Deep Link Hardening",
+      "status": "complete"
+    },
+    {
+      "number": "14",
+      "name": "Analytics Instrumentation (TelemetryDeck)",
+      "status": "complete"
+    },
+    {
+      "number": "15",
+      "name": "Continued Background Downloads",
+      "status": "complete"
+    },
+    {
+      "number": "16",
+      "name": "Dynamic Type Accessibility",
+      "status": "complete"
+    },
+    {
+      "number": "17",
+      "name": "Screenshot Automation, Visual Regression & OS 27 Modernization",
+      "status": "complete"
+    },
+    {
+      "number": "18",
+      "name": "In-App 3.0 Readiness: Age Wall, Analytics Choice, Comment Moderation & Reader Rework",
+      "status": "complete"
+    },
+    {
+      "number": "18.1",
+      "name": "Native report form (INSERTED)",
+      "status": "complete"
+    },
+    {
+      "number": "19",
+      "name": "Visual Regression & Daily Live-Parsing Check",
+      "status": "complete"
+    },
+    {
+      "number": "20",
+      "name": "3.0 Distribution: Marketplace Build, Notarization, Listing & Release Checks",
+      "status": "pending"
+    }
+  ],
+  "next": {
+    "command": "/gsd-discuss-phase 20",
+    "label": "Discuss and plan Phase 20 (3.0 Distribution)",
+    "reason": "Phase 19 complete with deferred items (19-12, 19-13, the green hosted gate run and the hosted controlled regression; owner msgs 3425, 3428, 3573); Phase 20 has a CONTEXT file and no plans"
+  },
+  "updated_at": "2026-11-11T09:16:37.000Z"
+}

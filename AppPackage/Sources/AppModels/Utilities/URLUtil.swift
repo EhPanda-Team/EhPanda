@@ -1,0 +1,254 @@
+import AppTools
+public import Foundation
+
+public struct URLUtil {
+    // Fetch
+    public static func searchList(host: GalleryHost, keyword: String, filter: Filter) -> URL {
+        host.url.appending(queryItems: [.fSearch: keyword]).applyingFilter(filter)
+    }
+
+    public static func moreSearchList(
+        host: GalleryHost,
+        keyword: String,
+        filter: Filter,
+        lastID: String
+    ) -> URL {
+        host.url.appending(queryItems: [.fSearch: keyword, .next: lastID]).applyingFilter(filter)
+    }
+
+    public static func frontPageList(host: GalleryHost, filter: Filter) -> URL {
+        host.url.applyingFilter(filter)
+    }
+
+    public static func moreFrontPageList(
+        host: GalleryHost,
+        filter: Filter,
+        lastID: String
+    ) -> URL {
+        host.url.appending(queryItems: [.next: lastID]).applyingFilter(filter)
+    }
+
+    public static func popularList(host: GalleryHost, filter: Filter) -> URL {
+        Defaults.URL.popular(host: host).applyingFilter(filter)
+    }
+
+    public static func watchedList(
+        host: GalleryHost,
+        filter: Filter,
+        keyword: String = ""
+    ) -> URL {
+        var url = Defaults.URL.watched(host: host)
+        if !keyword.isEmpty {
+            url.append(queryItems: [.fSearch: keyword])
+        }
+        return url.applyingFilter(filter)
+    }
+
+    public static func moreWatchedList(
+        host: GalleryHost,
+        filter: Filter,
+        lastID: String,
+        keyword: String = ""
+    ) -> URL {
+        var url = Defaults.URL.watched(host: host).appending(queryItems: [.next: lastID])
+        if !keyword.isEmpty {
+            url.append(queryItems: [.fSearch: keyword])
+        }
+        return url.applyingFilter(filter)
+    }
+
+    public static func favoritesList(
+        host: GalleryHost,
+        favIndex: Int,
+        keyword: String = "",
+        sortOrder: FavoritesSortOrder? = nil
+    ) -> URL {
+        var url = Defaults.URL.favorites(host: host)
+        if favIndex != -1 {
+            url.append(queryItems: [.favcat: String(favIndex)])
+        } else {
+            url.append(queryItems: [.favcat: .all])
+        }
+        if !keyword.isEmpty {
+            url.append(queryItems: [.fSearch: keyword])
+            url.append(queryItems: [.sn: .filterOn, .st: .filterOn, .sf: .filterOn])
+        }
+        if let sortOrder = sortOrder {
+            url.append(queryItems: [
+                .inlineSet: sortOrder == .favoritedTime
+                    ? .sortOrderByFavoritedTime : .sortOrderByUpdateTime
+            ])
+        }
+        return url
+    }
+
+    public static func moreFavoritesList(
+        host: GalleryHost,
+        favIndex: Int,
+        lastID: String,
+        lastTimestamp: String,
+        keyword: String = ""
+    ) -> URL {
+        var url = Defaults.URL.favorites(host: host)
+            .appending(queryItems: [.next: [lastID, lastTimestamp].joined(separator: "-")])
+        if favIndex != -1 {
+            url.append(queryItems: [.favcat: String(favIndex)])
+        } else {
+            url.append(queryItems: [.favcat: .all])
+        }
+        if !keyword.isEmpty {
+            url.append(queryItems: [.fSearch: keyword])
+            url.append(queryItems: [.sn: .filterOn, .st: .filterOn, .sf: .filterOn])
+        }
+        return url
+    }
+
+    public static func toplistsList(
+        host: GalleryHost,
+        catIndex: Int,
+        pageNum: Int? = nil
+    ) -> URL {
+        var url = Defaults.URL.toplist(host: host).appending(queryItems: [.topcat: String(catIndex)])
+        if let pageNum = pageNum {
+            url.append(queryItems: [.letterP: String(pageNum)])
+        }
+        return url
+    }
+
+    public static func moreToplistsList(
+        host: GalleryHost,
+        catIndex: Int,
+        pageNum: Int
+    ) -> URL {
+        Defaults.URL.toplist(host: host)
+            .appending(queryItems: [.topcat: String(catIndex), .letterP: String(pageNum)])
+    }
+
+    public static func galleryDetail(url: URL) -> URL {
+        url.appending(queryItems: [.showComments: .one])
+    }
+
+    public static func galleryTorrents(
+        host: GalleryHost,
+        gid: String,
+        token: String
+    ) -> URL {
+        Defaults.URL.galleryTorrents(host: host).appending(queryItems: [.gid: gid, .token: token])
+    }
+
+    // Account Associated Operations
+    public static func addFavorite(
+        host: GalleryHost,
+        gid: String,
+        token: String
+    ) -> URL {
+        Defaults.URL.galleryPopups(host: host)
+            .appending(queryItems: [.gid: gid, .token: token])
+            .appending(queryItems: [.act: .addFavAct])
+    }
+
+    public static func userInfo(uid: String) -> URL {
+        Defaults.URL.forum.appending(queryItems: [.showUser: uid])
+    }
+
+    // Misc
+    public static func detailPage(url: URL, pageNum: Int) -> URL {
+        url.appending(queryItems: [.letterP: String(pageNum)])
+    }
+
+    public static func combinedPreviewURL(plainURL: URL, width: String, height: String, offset: String) -> URL {
+        plainURL
+            .appending(queryItems: [.ehpandaWidth: width])
+            .appending(queryItems: [.ehpandaHeight: height])
+            .appending(queryItems: [.ehpandaOffset: offset])
+    }
+
+    // GitHub
+    public static func githubAPI(repoName: String) -> URL {
+        Defaults.URL.githubAPI.appending(path: "\(repoName)/releases/latest")
+    }
+}
+
+// MARK: Combining (Filter)
+private extension URL {
+    func applyingFilter(_ filter: Filter) -> URL {
+        var queryItems1 = [Defaults.URL.Component.Key: String]()
+        var queryItems2 = [Defaults.URL.Component.Key: Defaults.URL.Component.Value]()
+
+        applyingCategoryFilter(filter, queryItems1: &queryItems1)
+
+        if !filter.advanced { return appending(queryItems: queryItems1).appending(queryItems: queryItems2) }
+        queryItems2[.advSearch] = .one
+
+        applyingBasicAdvancedFilter(filter, queryItems2: &queryItems2)
+        applyingMinRatingFilter(filter, queryItems1: &queryItems1)
+        applyingPageRangeFilter(filter, queryItems1: &queryItems1)
+        applyingDisableFilter(filter, queryItems2: &queryItems2)
+
+        return appending(queryItems: queryItems1).appending(queryItems: queryItems2)
+    }
+
+    func applyingCategoryFilter(
+        _ filter: Filter,
+        queryItems1: inout [Defaults.URL.Component.Key: String]
+    ) {
+        var categoryValue = 0
+        categoryValue += filter.doujinshi ? AppModels.Category.doujinshi.filterValue : 0
+        categoryValue += filter.manga ? AppModels.Category.manga.filterValue : 0
+        categoryValue += filter.artistCG ? AppModels.Category.artistCG.filterValue : 0
+        categoryValue += filter.gameCG ? AppModels.Category.gameCG.filterValue : 0
+        categoryValue += filter.western ? AppModels.Category.western.filterValue : 0
+        categoryValue += filter.nonH ? AppModels.Category.nonH.filterValue : 0
+        categoryValue += filter.imageSet ? AppModels.Category.imageSet.filterValue : 0
+        categoryValue += filter.cosplay ? AppModels.Category.cosplay.filterValue : 0
+        categoryValue += filter.asianPorn ? AppModels.Category.asianPorn.filterValue : 0
+        categoryValue += filter.misc ? AppModels.Category.misc.filterValue : 0
+        if ![0, 1023].contains(categoryValue) {
+            queryItems1[.fCats] = String(categoryValue)
+        }
+    }
+
+    func applyingBasicAdvancedFilter(
+        _ filter: Filter,
+        queryItems2: inout [Defaults.URL.Component.Key: Defaults.URL.Component.Value]
+    ) {
+        if filter.onlyWithTorrents { queryItems2[.fSto] = .filterOn }
+        if filter.expungedGalleries { queryItems2[.fSh] = .filterOn }
+    }
+
+    func applyingMinRatingFilter(
+        _ filter: Filter,
+        queryItems1: inout [Defaults.URL.Component.Key: String]
+    ) {
+        if filter.minRatingActivated, [2, 3, 4, 5].contains(filter.minRating) {
+            queryItems1[.fSrdd] = String(filter.minRating)
+        }
+    }
+
+    func applyingPageRangeFilter(
+        _ filter: Filter,
+        queryItems1: inout [Defaults.URL.Component.Key: String]
+    ) {
+        guard filter.pageRangeActivated else { return }
+        let minPages = Int(filter.pageLowerBound)
+        let maxPages = Int(filter.pageUpperBound)
+        if let minPages, let maxPages {
+            guard minPages > 0, maxPages > 0, minPages <= maxPages else { return }
+            queryItems1[.fSpf] = String(minPages)
+            queryItems1[.fSpt] = String(maxPages)
+        } else if let minPages, minPages > 0 {
+            queryItems1[.fSpf] = String(minPages)
+        } else if let maxPages, maxPages > 0 {
+            queryItems1[.fSpt] = String(maxPages)
+        }
+    }
+
+    func applyingDisableFilter(
+        _ filter: Filter,
+        queryItems2: inout [Defaults.URL.Component.Key: Defaults.URL.Component.Value]
+    ) {
+        if filter.disableLanguage { queryItems2[.fSfl] = .filterOn }
+        if filter.disableUploader { queryItems2[.fSfu] = .filterOn }
+        if filter.disableTags { queryItems2[.fSft] = .filterOn }
+    }
+}

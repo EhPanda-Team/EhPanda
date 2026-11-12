@@ -1,0 +1,684 @@
+import AppModels
+import AppTools
+import Foundation
+@testable import NetworkingFeature
+import Testing
+
+// Wave 0 request-layer lock for CONC-01 (D-05/D-06). Every request runs through a
+// token-isolated URLProtocol session, so these characterization tests never open a socket.
+@Suite
+struct AccountRequestBaselineTests {
+    @Test
+    func loginRequestLocksFormAssemblyAndHTTPResponse() async throws {
+        let (session, handle) = makeStubbedSession(
+            script: StubScript([Defaults.URL.login: [.http(status: 204, data: Data())]])
+        )
+        defer { cleanUp(session: session, handle: handle) }
+
+        let response = try await capture { () async throws(AppError) -> HTTPURLResponse? in
+            try await LoginRequest(
+                username: "baseline-user",
+                password: "dummy-password",
+                urlSession: session
+            )
+            .response()
+        }
+        .get()
+        let request = try #require(handle.receivedRequests.first)
+
+        #expect(request.cachePolicy == .reloadIgnoringLocalCacheData)
+        #expect(response?.statusCode == 204)
+        #expect(response?.url == Defaults.URL.login)
+        expectFormRequest(
+            request,
+            url: Defaults.URL.login,
+            fields: [
+                "b": "d",
+                "bt": "1-1",
+                "CookieDate": "1",
+                "UserName": "baseline-user",
+                "PassWord": "dummy-password",
+                "ipb_login_submit": "Login!"
+            ]
+        )
+    }
+
+    /// A password built entirely from the characters that carry structure in a form body.
+    ///
+    /// All of them used to reach the wire raw: the joined `key=value` string was encoded in one pass
+    /// with `.urlQueryAllowed`, which *permits* `&`, `=` and `+`. The POST then truncated the password
+    /// at the first `&` and injected a stray parameter, and the user was told the credentials were
+    /// wrong. The assertion reads the raw body rather than decoded fields on purpose: a decoder splits
+    /// a pair at its first `=` and leaves `+` untouched, so it reports a corrupted body as intact.
+    @Test
+    func loginRequestPercentEncodesStructuralCharactersInCredentials() async throws {
+        let password = "p&w=d+q x%y"
+        let (session, handle) = makeStubbedSession(
+            script: StubScript([Defaults.URL.login: [.http(status: 204, data: Data())]])
+        )
+        defer { cleanUp(session: session, handle: handle) }
+
+        _ = try await capture { () async throws(AppError) -> HTTPURLResponse? in
+            try await LoginRequest(
+                username: "baseline-user",
+                password: password,
+                urlSession: session
+            )
+            .response()
+        }
+        .get()
+        let request = try #require(handle.receivedRequests.first)
+        let bodyData = try #require(request.httpBody)
+        let body = try #require(String(data: bodyData, encoding: .utf8))
+
+        #expect(body.contains("PassWord=p%26w%3Dd%2Bq%20x%25y"))
+        // The pair separators are the only bare `&`s left, so the field count is the structural check.
+        let fields = formFields(from: request)
+        #expect(fields.count == 6)
+        #expect(fields["PassWord"] == password)
+    }
+
+    @Test
+    func igneousRequestLocksEmptyPublisherMapping() async {
+        let configuration = URLSessionConfiguration.ephemeral
+        configuration.protocolClasses = [NonHTTPResponseProtocol.self]
+        let session = URLSession(configuration: configuration)
+        defer { session.invalidateAndCancel() }
+
+        let result = await capture { () async throws(AppError) -> HTTPURLResponse in
+            try await IgneousRequest(urlSession: session).response()
+        }
+
+        #expect(result == .failure(.unknown))
+    }
+
+    @Test
+    func verifyEhProfileRequestLocksGETAssemblyAndParsing() async throws {
+        let host = GalleryHost.ehentai
+        let url = Defaults.URL.uConfig(host: host)
+        let data = Data(
+            "<html><select name='profile_set'><option value='2'>EhPanda</option></select></html>".utf8
+        )
+        let (session, handle) = makeStubbedSession(
+            script: StubScript([url: [.http(status: 200, data: data)]])
+        )
+        defer { cleanUp(session: session, handle: handle) }
+
+        let response = try await capture {
+            () async throws(AppError) -> VerifyEhProfileResponse in
+            try await VerifyEhProfileRequest(host: host, urlSession: session).response()
+        }
+        .get()
+        let request = try #require(handle.receivedRequests.first)
+
+        #expect(response == VerifyEhProfileResponse(profileValue: 2, isProfileNotFound: false))
+        expectGETRequest(request, url: url)
+    }
+
+    @Test
+    func ehProfileRequestLocksFormAssemblyAndParsing() async throws {
+        let host = GalleryHost.ehentai
+        let url = Defaults.URL.uConfig(host: host)
+        let data = makeEhSettingFixture()
+        let (session, handle) = makeStubbedSession(
+            script: StubScript([url: [.http(status: 200, data: data)]])
+        )
+        defer { cleanUp(session: session, handle: handle) }
+
+        let setting = try await capture { () async throws(AppError) -> EhSetting in
+            try await EhProfileRequest(
+                host: host,
+                action: .rename,
+                name: "Baseline Profile",
+                set: 2,
+                urlSession: session
+            )
+            .response()
+        }
+        .get()
+        let request = try #require(handle.receivedRequests.first)
+
+        #expect(setting.ehProfiles.first?.name == "EhPanda")
+        expectFormRequest(
+            request,
+            url: url,
+            fields: [
+                "profile_action": "rename",
+                "profile_name": "Baseline Profile",
+                "profile_set": "2"
+            ]
+        )
+    }
+
+    @Test
+    func ehSettingRequestLocksGETAssemblyAndParsing() async throws {
+        let host = GalleryHost.ehentai
+        let url = Defaults.URL.uConfig(host: host)
+        let (session, handle) = makeStubbedSession(
+            script: StubScript([
+                url: [.http(status: 200, data: makeEhSettingFixture())]
+            ])
+        )
+        defer { cleanUp(session: session, handle: handle) }
+
+        let setting = try await capture { () async throws(AppError) -> EhSetting in
+            try await EhSettingRequest(host: host, urlSession: session).response()
+        }
+        .get()
+        let request = try #require(handle.receivedRequests.first)
+
+        #expect(setting.ehProfiles.first?.value == 1)
+        #expect(setting.favoriteCategories == Array(repeating: "", count: 10))
+        expectGETRequest(request, url: url)
+    }
+
+    @Test
+    func submitEhSettingChangesRequestLocksCompleteFormAndParsing() async throws {
+        let host = GalleryHost.ehentai
+        let url = Defaults.URL.uConfig(host: host)
+        let (session, handle) = makeStubbedSession(
+            script: StubScript([
+                url: [.http(status: 200, data: makeEhSettingFixture())]
+            ])
+        )
+        defer { cleanUp(session: session, handle: handle) }
+
+        let setting = try await capture { () async throws(AppError) -> EhSetting in
+            try await SubmitEhSettingChangesRequest(
+                host: host,
+                ehSetting: .empty,
+                urlSession: session
+            )
+            .response()
+        }
+        .get()
+        let request = try #require(handle.receivedRequests.first)
+        var expectedFields = [
+            "uh": "0", "co": "", "xr": "0", "rx": "0", "ry": "0", "tl": "0",
+            "ar": "3", "dm": "0", "pp": "0", "fs": "1", "ru": "", "ft": "0",
+            "wt": "0", "tf": "0", "xu": "", "rc": "1", "lt": "1", "tr": "1",
+            "tp": "0", "vp": "0", "cs": "1", "sc": "1", "tb": "0", "pn": "0",
+            "apply": "Apply", "ts": "1"
+        ]
+        for name in EhSetting.categoryNames {
+            expectedFields["ct_\(name)"] = "0"
+        }
+        for index in 0...9 {
+            expectedFields["favorite_\(index)"] = ""
+        }
+
+        #expect(setting.ehProfiles.first?.name == "EhPanda")
+        expectFormRequest(request, url: url, fields: expectedFields)
+    }
+
+    @Test
+    func favorGalleryRequestLocksFormAssemblyAndVoidMapping() async throws {
+        let host = GalleryHost.ehentai
+        let url = URLUtil.addFavorite(host: host, gid: "101", token: "token")
+        let (session, handle) = makeStubbedSession(
+            script: StubScript([url: [.http(status: 200, data: Data())]])
+        )
+        defer { cleanUp(session: session, handle: handle) }
+
+        _ = try await capture { () async throws(AppError) in
+            try await FavorGalleryRequest(
+                host: host,
+                gid: "101",
+                token: "token",
+                favIndex: 4,
+                urlSession: session
+            )
+            .response()
+        }
+        .get()
+        let request = try #require(handle.receivedRequests.first)
+
+        expectFormRequest(
+            request,
+            url: url,
+            fields: ["favcat": "4", "favnote": "", "apply": "Add to Favorites", "update": "1"]
+        )
+    }
+
+    @Test
+    func unfavorGalleryRequestLocksFormAssemblyAndVoidMapping() async throws {
+        let host = GalleryHost.ehentai
+        let url = Defaults.URL.favorites(host: host)
+        let (session, handle) = makeStubbedSession(
+            script: StubScript([url: [.http(status: 200, data: Data())]])
+        )
+        defer { cleanUp(session: session, handle: handle) }
+
+        _ = try await capture { () async throws(AppError) in
+            try await UnfavorGalleryRequest(host: host, gid: "202", urlSession: session).response()
+        }
+        .get()
+        let request = try #require(handle.receivedRequests.first)
+
+        expectFormRequest(
+            request,
+            url: url,
+            fields: ["ddact": "delete", "modifygids[]": "202", "apply": "Apply"]
+        )
+    }
+
+    @Test
+    func sendDownloadCommandRequestLocksFormAssemblyAndParsing() async throws {
+        let url = try #require(URL(string: "https://e-hentai.org/archiver.php?gid=303"))
+        let data = Data(
+            """
+            <html><div id='db'><p>
+            A Original resolution archive was requested for client Baseline Downloads
+            </p></div></html>
+            """.utf8
+        )
+        let (session, handle) = makeStubbedSession(
+            script: StubScript([url: [.http(status: 200, data: data)]])
+        )
+        defer { cleanUp(session: session, handle: handle) }
+
+        let response = try await capture { () async throws(AppError) -> String in
+            try await SendDownloadCommandRequest(
+                archiveURL: url,
+                resolution: "org",
+                urlSession: session
+            )
+            .response()
+        }
+        .get()
+        let request = try #require(handle.receivedRequests.first)
+
+        #expect(response == "Original -> Baseline")
+        expectFormRequest(request, url: url, fields: ["hathdl_xres": "org"])
+    }
+
+    @Test
+    func rateGalleryRequestLocksJSONAssemblyAndVoidMapping() async throws {
+        let host = GalleryHost.ehentai
+        let url = Defaults.URL.api(host: host)
+        let expected = [
+            "method": "rategallery", "apiuid": "11", "apikey": "dummy-key",
+            "gid": "404", "token": "token", "rating": "9"
+        ]
+        let (session, handle) = makeStubbedSession(
+            script: StubScript([url: [.http(status: 200, data: Data())]])
+        )
+        defer { cleanUp(session: session, handle: handle) }
+
+        _ = try await capture { () async throws(AppError) in
+            try await RateGalleryRequest(
+                host: host,
+                apiuid: 11,
+                apikey: "dummy-key",
+                gid: 404,
+                token: "token",
+                rating: 9,
+                urlSession: session
+            )
+            .response()
+        }
+        .get()
+        let request = try #require(handle.receivedRequests.first)
+
+        expectJSONRequest(request, url: url, fields: expected)
+    }
+
+    @Test
+    func commentGalleryRequestLocksFormAssemblyAndVoidMapping() async throws {
+        let url = try #require(URL(string: "https://e-hentai.org/g/505/token/"))
+        let (session, handle) = makeStubbedSession(
+            script: StubScript([url: [.http(status: 200, data: Data())]])
+        )
+        defer { cleanUp(session: session, handle: handle) }
+
+        _ = try await capture { () async throws(AppError) in
+            try await CommentGalleryRequest(
+                content: "first\nsecond",
+                galleryURL: url,
+                urlSession: session
+            )
+            .response()
+        }
+        .get()
+        let request = try #require(handle.receivedRequests.first)
+
+        // The newline arrives as a newline. It used to be hand-escaped to `%0A` before a second,
+        // whole-body encoding pass turned it into `%250A`, so the posted comment carried the literal
+        // characters "%0A" instead of a line break.
+        expectFormRequest(request, url: url, fields: ["commenttext_new": "first\nsecond"])
+    }
+
+    @Test
+    func editGalleryCommentRequestLocksFormAssemblyAndVoidMapping() async throws {
+        let url = try #require(URL(string: "https://e-hentai.org/g/606/token/"))
+        let (session, handle) = makeStubbedSession(
+            script: StubScript([url: [.http(status: 200, data: Data())]])
+        )
+        defer { cleanUp(session: session, handle: handle) }
+
+        _ = try await capture { () async throws(AppError) in
+            try await EditGalleryCommentRequest(
+                commentID: "707",
+                content: "edited\ntext",
+                galleryURL: url,
+                urlSession: session
+            )
+            .response()
+        }
+        .get()
+        let request = try #require(handle.receivedRequests.first)
+
+        expectFormRequest(
+            request,
+            url: url,
+            fields: ["edit_comment": "707", "commenttext_edit": "edited\ntext"]
+        )
+    }
+
+    // `comment_vote` answers with the comment's new score and the user's vote on it, and the request returns both.
+    @Test
+    func voteGalleryCommentRequestLocksJSONAssemblyAndResponseMapping() async throws {
+        let host = GalleryHost.ehentai
+        let url = Defaults.URL.api(host: host)
+        let expected = [
+            "method": "votecomment", "apiuid": "12", "apikey": "dummy-key",
+            "gid": "808", "token": "token", "comment_id": "909", "comment_vote": "-1"
+        ]
+        let body = Data(#"{"comment_id":909,"comment_score":-3,"comment_vote":-1}"#.utf8)
+        let (session, handle) = makeStubbedSession(
+            script: StubScript([url: [.http(status: 200, data: body)]])
+        )
+        defer { cleanUp(session: session, handle: handle) }
+
+        let response = try await capture { () async throws(AppError) -> GalleryCommentVoteResponse in
+            try await VoteGalleryCommentRequest(
+                host: host,
+                apiuid: 12,
+                apikey: "dummy-key",
+                gid: 808,
+                token: "token",
+                commentID: 909,
+                commentVote: -1,
+                urlSession: session
+            )
+            .response()
+        }
+        .get()
+        let request = try #require(handle.receivedRequests.first)
+
+        #expect(response == GalleryCommentVoteResponse(commentID: 909, score: -3, vote: -1))
+        expectJSONRequest(request, url: url, fields: expected)
+    }
+
+    // A withdrawal answers vote 0; the numbers may arrive as strings.
+    @Test(arguments: [
+        (
+            #"{"comment_id":909,"comment_score":12,"comment_vote":0}"#,
+            GalleryCommentVoteResponse(commentID: 909, score: 12, vote: 0)
+        ),
+        (
+            #"{"comment_id":"909","comment_score":"+12","comment_vote":"1"}"#,
+            GalleryCommentVoteResponse(commentID: 909, score: 12, vote: 1)
+        ),
+        (
+            #"{"comment_score":7,"comment_vote":1}"#,
+            GalleryCommentVoteResponse(commentID: 909, score: 7, vote: 1)
+        )
+    ])
+    func voteGalleryCommentRequestReadsTheSitesAnswer(
+        body: String, expected: GalleryCommentVoteResponse
+    ) async throws {
+        let host = GalleryHost.ehentai
+        let url = Defaults.URL.api(host: host)
+        let (session, handle) = makeStubbedSession(
+            script: StubScript([url: [.http(status: 200, data: Data(body.utf8))]])
+        )
+        defer { cleanUp(session: session, handle: handle) }
+
+        let response = try await capture { () async throws(AppError) -> GalleryCommentVoteResponse in
+            try await VoteGalleryCommentRequest(
+                host: host, apiuid: 12, apikey: "k", gid: 808, token: "token", commentID: 909, commentVote: 1,
+                urlSession: session
+            )
+            .response()
+        }
+        .get()
+
+        #expect(response == expected)
+    }
+
+    // An answer that is an error, empty or out of range is a failure, so the comment is left as it was.
+    @Test(arguments: [
+        #"{"error":"You must be logged in to vote."}"#,
+        "",
+        "not json",
+        #"{"comment_id":909,"comment_score":1,"comment_vote":2}"#,
+        #"{"comment_id":909,"comment_vote":1}"#
+    ])
+    func voteGalleryCommentRequestFailsOnAnAnswerWithoutAVote(body: String) async {
+        let host = GalleryHost.ehentai
+        let url = Defaults.URL.api(host: host)
+        let (session, handle) = makeStubbedSession(
+            script: StubScript([url: [.http(status: 200, data: Data(body.utf8))]])
+        )
+        defer { cleanUp(session: session, handle: handle) }
+
+        let result = await capture { () async throws(AppError) -> GalleryCommentVoteResponse in
+            try await VoteGalleryCommentRequest(
+                host: host, apiuid: 12, apikey: "k", gid: 808, token: "token", commentID: 909, commentVote: 1,
+                urlSession: session
+            )
+            .response()
+        }
+
+        #expect(throws: AppError.self) { try result.get() }
+    }
+
+    @Test
+    func voteGalleryTagRequestLocksJSONAssemblyAndVoidMapping() async throws {
+        let host = GalleryHost.ehentai
+        let url = Defaults.URL.api(host: host)
+        let expected = [
+            "method": "taggallery", "apiuid": "13", "apikey": "dummy-key",
+            "gid": "1001", "token": "token", "tags": "artist:baseline", "vote": "1"
+        ]
+        let (session, handle) = makeStubbedSession(
+            script: StubScript([url: [.http(status: 200, data: Data())]])
+        )
+        defer { cleanUp(session: session, handle: handle) }
+
+        _ = try await capture { () async throws(AppError) in
+            try await VoteGalleryTagRequest(
+                host: host,
+                apiuid: 13,
+                apikey: "dummy-key",
+                gid: 1001,
+                token: "token",
+                tag: "artist:baseline",
+                vote: 1,
+                urlSession: session
+            )
+            .response()
+        }
+        .get()
+        let request = try #require(handle.receivedRequests.first)
+
+        expectJSONRequest(request, url: url, fields: expected)
+    }
+
+    // The four-attempt transport policy is the account layer's default, and this pins it. It is
+    // deliberately no longer read through `LoginRequest`: replaying a credential POST spends the
+    // forum's own login-attempt budget, so that one request asks for a single attempt and
+    // `aLostLoginResponseIsNotRetriedIntoTheForumsAttemptLockout` pins the exception.
+    @Test
+    func accountPOSTPersistentTransportFailureRetriesFourTimes() async {
+        let host = GalleryHost.ehentai
+        let url = Defaults.URL.api(host: host)
+        let (session, handle) = makeStubbedSession(
+            script: StubScript([url: [.transportFailure(.timedOut)]])
+        )
+        defer { cleanUp(session: session, handle: handle) }
+
+        let result = await capture { () async throws(AppError) in
+            try await VoteGalleryTagRequest(
+                host: host,
+                apiuid: 13,
+                apikey: "dummy-key",
+                gid: 1001,
+                token: "token",
+                tag: "artist:baseline",
+                vote: 1,
+                urlSession: session
+            )
+            .response()
+        }
+
+        // `Result<Void, _>` is not Equatable, so the failure is read back through the throw.
+        #expect(throws: AppError.networkingFailed) {
+            try result.get()
+        }
+        #expect(handle.attempts(for: url) == 4)
+    }
+}
+
+private func cleanUp(session: URLSession, handle: StubHandle) {
+    session.invalidateAndCancel()
+    handle.tearDown()
+}
+
+private func expectGETRequest(
+    _ request: URLRequest,
+    url: URL,
+    sourceLocation: SourceLocation = #_sourceLocation
+) {
+    expectEquivalentURL(request.url, url, sourceLocation: sourceLocation)
+    #expect(request.httpMethod == "GET", sourceLocation: sourceLocation)
+    #expect(request.httpBody == nil, sourceLocation: sourceLocation)
+}
+
+private func expectFormRequest(
+    _ request: URLRequest,
+    url: URL,
+    fields: [String: String],
+    sourceLocation: SourceLocation = #_sourceLocation
+) {
+    expectEquivalentURL(request.url, url, sourceLocation: sourceLocation)
+    #expect(request.httpMethod == "POST", sourceLocation: sourceLocation)
+    #expect(
+        request.value(forHTTPHeaderField: "Content-Type") == "application/x-www-form-urlencoded",
+        sourceLocation: sourceLocation
+    )
+    #expect(formFields(from: request) == fields, sourceLocation: sourceLocation)
+}
+
+private func expectJSONRequest(
+    _ request: URLRequest,
+    url: URL,
+    fields: [String: String],
+    sourceLocation: SourceLocation = #_sourceLocation
+) {
+    expectEquivalentURL(request.url, url, sourceLocation: sourceLocation)
+    #expect(request.httpMethod == "POST", sourceLocation: sourceLocation)
+    #expect(jsonFields(from: request) == fields, sourceLocation: sourceLocation)
+}
+
+private func formFields(from request: URLRequest) -> [String: String] {
+    guard
+        let body = request.httpBody,
+        let string = String(data: body, encoding: .utf8),
+        let items = URLComponents(string: "?\(string)")?.queryItems
+    else {
+        return [:]
+    }
+    return Dictionary(uniqueKeysWithValues: items.map { ($0.name, $0.value ?? "") })
+}
+
+private func jsonFields(from request: URLRequest) -> [String: String] {
+    guard let body = request.httpBody else { return [:] }
+    let decoded: Any
+    do {
+        decoded = try JSONSerialization.jsonObject(with: body)
+    } catch {
+        // A genuine probe: callers ask "is this a JSON-bodied request?" and a body that is absent
+        // or is not JSON is a legitimate answer, not a failure. Preserves the original semantics.
+        return [:]
+    }
+    guard let object = decoded as? [String: Any] else { return [:] }
+    return object.mapValues { String(describing: $0) }
+}
+
+private func makeEhSettingFixture() -> Data {
+    let categories = EhSetting.categoryNames.map { name in
+        "<input name='ct_\(name)' value='0'>"
+    }
+    .joined()
+    let favorites = (0...9).map { index in
+        "<input name='favorite_\(index)' value=''>"
+    }
+    .joined()
+    let languages = EhSetting.languageValues.map { value in
+        "<input name='xl_\(value)' type='checkbox'>"
+    }
+    .joined()
+    return Data(
+        """
+        <html><body>
+        <div id='profile_outer'>
+          <select name='profile_set'><option value='1' selected='selected'>EhPanda</option></select>
+          <input type='button' value='Create New'>
+        </div>
+        <form method='post'>
+          <div class='optouter'><input name='uh' value='0' checked='checked'></div>
+          <div class='optouter'><select name='co'><option value='' selected='selected'>Auto</option></select>
+            <p>You appear to be browsing the site from Japan or use a VPN or proxy in this country</p></div>
+          <div class='optouter'><input name='xr' value='0' checked='checked'></div>
+          <div class='optouter'><input name='rx' value='0'></div>
+          <div class='optouter'><input name='ry' value='0'></div>
+          <div class='optouter'><input name='tl' value='0' checked='checked'></div>
+          <div class='optouter'><input name='ar' value='3' checked='checked'></div>
+          <div class='optouter'><input name='dm' value='0' checked='checked'></div>
+          <div class='optouter'><input name='pp' value='0' checked='checked'></div>
+          <div class='optouter'><input name='xn_0' type='checkbox'></div>
+          <div class='optouter'><div id='catsel'>\(categories)</div></div>
+          <div class='optouter'><div id='favsel'>\(favorites)</div></div>
+          <div class='optouter'><input name='fs' value='1' checked='checked'></div>
+          <div class='optouter'><input name='ru' value=''></div>
+          <div class='optouter'><input name='ft' value='0'></div>
+          <div class='optouter'><input name='wt' value='0'></div>
+          <div class='optouter'><input name='tf' value='0' checked='checked'></div>
+          <div class='optouter'><div id='xlasel'>\(languages)</div></div>
+          <div class='optouter'><textarea name='xu'></textarea></div>
+          <div class='optouter'><input name='rc' value='1' checked='checked'></div>
+          <div class='optouter'><input name='lt' value='0' checked='checked'></div>
+          <div class='optouter'><input name='ts' value='1' checked='checked'></div>
+          <div class='optouter'><input name='tr' value='2' checked='checked'></div>
+          <div class='optouter'><input name='tp' value='0'></div>
+          <div class='optouter'><input name='vp' value='0'></div>
+          <div class='optouter'><input name='cs' value='1' checked='checked'></div>
+          <div class='optouter'><input name='sc' value='1' checked='checked'></div>
+          <div class='optouter'><input name='tb' value='0' checked='checked'></div>
+          <div class='optouter'><input name='pn' value='0' checked='checked'></div>
+        </form>
+        </body></html>
+        """.utf8
+    )
+}
+
+private final class NonHTTPResponseProtocol: URLProtocol {
+    override static func canInit(with request: URLRequest) -> Bool { true }
+
+    override static func canonicalRequest(for request: URLRequest) -> URLRequest { request }
+
+    override func startLoading() {
+        let response = URLResponse(
+            url: request.url ?? Defaults.URL.exhentai,
+            mimeType: nil,
+            expectedContentLength: 0,
+            textEncodingName: nil
+        )
+        client?.urlProtocol(self, didReceive: response, cacheStoragePolicy: .notAllowed)
+        client?.urlProtocolDidFinishLoading(self)
+    }
+
+    override func stopLoading() {}
+}

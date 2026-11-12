@@ -1,0 +1,490 @@
+import AppModels
+import Foundation
+import OSLogExt
+
+private let logger = Logger(category: .init(describing: DownloadCoordinator.self))
+
+// MARK: - Process Download
+extension DownloadCoordinator {
+    public func processDownload(
+        gid: String,
+        generation: Int? = nil
+    ) async {
+        defer {
+            // Ahead of the retirement on purpose: the write-back is gated on the run's measurement
+            // still standing with page debt outstanding, which the retirement is about to remove.
+            writeBackInterruptedRunProgress(gid: gid, generation: generation)
+            // Ahead of the ownership clear on purpose: `retireRunProgressBasis` asks whether a
+            // DIFFERENT live run owns this gallery's slot, and `finishActiveTaskIfOwned` nils both
+            // halves of that ownership, so reading it afterwards would make every owning run look
+            // superseded and retire nothing.
+            let withdrewMeasurement = retireRunProgressBasis(gid: gid, generation: generation)
+            let publishedOnExit = finishActiveTaskIfOwned(
+                gid: gid,
+                generation: generation,
+                schedulesNext: true
+            )
+            // The row's overlay is retired with the run (D-SSOT-10), so the record's own reading has
+            // to be published once it is gone. An OWNING exit already publishes, inside
+            // `finishActiveTaskIfOwned`'s task. A non-owning one does not — `pause`, `delete` and
+            // D-11's expiration sweep each null the active slot while the run they interrupt is
+            // still executing — so without this the paused row would keep the run's reading until
+            // some unrelated publish came along, which for the refusal family means a row showing
+            // k-of-N over a record that reads N-of-N.
+            if withdrewMeasurement && !publishedOnExit {
+                await notifyObservers()
+            }
+        }
+
+        guard let download = await fetchDownload(gid: gid) else {
+            return
+        }
+        let mode = queuedMode(for: download)
+        let options = await downloadOptionsProvider()
+
+        do {
+            clearDownloadFailureState(gid: gid, includePageFailures: false)
+            await notifyObservers()
+            try await fetchNormalizeAndDownload(
+                gid: gid,
+                download: download,
+                mode: mode,
+                options: options
+            )
+            guard !Task.isCancelled else { return }
+            await completeDownload(
+                gid: gid,
+                download: download
+            )
+        } catch is CancellationError {
+            return
+        } catch {
+            let context = FailureContext(
+                gid: gid,
+                originalDownload: download,
+                mode: mode
+            )
+            await handleProcessDownloadError(error: error, context: context)
+        }
+    }
+
+    private func completeDownload(
+        gid: String,
+        download: DownloadedGallery
+    ) async {
+        // Gallery identifiers stay correlatable without disclosure by using hash masking. Errors
+        // are private because gallery-folder paths embed titles; titles provide no operational value.
+        logger.notice(
+            """
+            Download completed, gid: \(gid, privacy: .private(mask: .hash)), \
+            pages: \(download.pageCount, privacy: .public).
+            """
+        )
+        await settleCompletedDownload(gid: gid)
+    }
+
+    /// Removes EVERY folder of one gallery, and is therefore reserved for the user's own
+    /// `delete(gid:)`.
+    ///
+    /// **The invariant this primitive is fenced by: the download client never deletes a gallery
+    /// folder it did not itself create in the same run.** The downloads directory is user-visible
+    /// and user-managed through the Files app, so a folder the app did not make in the run at hand
+    /// is the user's — renamed, copied or moved by them — and nothing the app does on its own may
+    /// remove one. A run's completion therefore removes nothing at all; the only folder a run may
+    /// wipe is the working folder it is about to fill, and only when the user's own start mode asks
+    /// for it (`setupWorkingFolder`).
+    ///
+    /// What "every folder" means here is `storage.galleryFolderURLs(gid:token:)`'s answer: a match
+    /// by the `[gid_token]` leaf prefix OR by the manifest's own gid/token, in any user folder. That
+    /// breadth is right for a delete — the user asked for the gallery to be gone — and wrong for
+    /// anything else, which is why there is no keep-one variant and no second caller.
+    ///
+    /// A completion sweep used to call it with one folder held back. On a stale-index rename it
+    /// deleted the user's renamed folder: Files-app rename, an index that still pointed at the old
+    /// name, then Repair/Resume recreating the folder at that old name and refetching, after which
+    /// the sweep removed the renamed original (G-15-2H, resolution 2026-08-19). The accepted
+    /// consequence of retiring it is that such a shape now leaves TWO folders standing and
+    /// `deduplicatedDownloadIndex` picks the newest by modification date.
+    public func removeGalleryFolders(gid: String, token: String) throws {
+        for galleryFolderURL in storage.galleryFolderURLs(gid: gid, token: token) {
+            try storage.removeFolder(at: galleryFolderURL)
+        }
+    }
+
+    private func handleProcessDownloadError(
+        error: any Error,
+        context: FailureContext
+    ) async {
+        if let appError = error as? AppError {
+            await handleProcessDownloadAppError(
+                error: appError,
+                context: context
+            )
+        } else if let partialError = error as? PartialDownloadError {
+            await handleProcessDownloadPartialError(
+                error: partialError,
+                context: context
+            )
+        } else if let incompleteError = error as? IncompleteDownloadError {
+            await handleProcessDownloadIncompleteError(
+                error: incompleteError,
+                context: context
+            )
+        } else {
+            await handleProcessDownloadGenericError(
+                error: error,
+                context: context
+            )
+        }
+    }
+
+    private func fetchNormalizeAndDownload(
+        gid: String,
+        download: DownloadedGallery,
+        mode: DownloadStartMode,
+        options: DownloadRequestOptions
+    ) async throws {
+        let rawPageSelection = queuedPageSelections[gid]
+        let fetchedPayload = try await fetchLatestPayload(
+            for: download,
+            mode: mode,
+            options: options,
+            pageSelection: rawPageSelection
+        )
+        // Throws when the fetched page count has emptied a selection that was admissible against
+        // the record's (WR-05). It propagates through this function's own `throws` to
+        // `processDownload`'s catch and settles as an ordinary AppError failure, carrying the
+        // reason — no new machinery, and no run work has happened yet.
+        let payload = try normalizeFetchedPayload(
+            fetchedPayload,
+            mode: mode,
+            rawPageSelection: rawPageSelection
+        )
+        let folderRelativePath = folderRelativePath(
+            for: payload,
+            parentFolderName: download.folderName
+        )
+        _ = try await performDownload(
+            payload: payload,
+            options: options,
+            folderRelativePath: folderRelativePath,
+            existingDownload: download
+        )
+    }
+
+    private func handleProcessDownloadAppError(
+        error: AppError,
+        context: FailureContext
+    ) async {
+        guard !isCancellationLikeAppError(error) else { return }
+        guard !shouldSuppressFailurePersistence(for: context.gid) else {
+            return
+        }
+        logger.error(
+            """
+            Download failed, gid: \(context.gid, privacy: .private(mask: .hash)), \
+            mode: \(context.mode.rawValue, privacy: .public), \
+            error: \(error.localizedDescription, privacy: .private)
+            """
+        )
+        await persistFailure(error: error, context: context)
+    }
+
+    private func handleProcessDownloadPartialError(
+        error: PartialDownloadError,
+        context: FailureContext
+    ) async {
+        let pageError =
+            error.failedPages.first?.error ?? .unknown
+        guard !isCancellationLikeAppError(pageError) else { return }
+        guard !shouldSuppressFailurePersistence(for: context.gid) else {
+            return
+        }
+        failedPageErrors[context.gid] = Dictionary(
+            uniqueKeysWithValues: error.failedPages.map({ ($0.index, $0) })
+        )
+        logger.error(
+            """
+            Download partially failed, gid: \(context.gid, privacy: .private(mask: .hash)), \
+            mode: \(context.mode.rawValue, privacy: .public), \
+            failedPages: \(String(describing: error.failedPages.map(\.index)), privacy: .public)
+            """
+        )
+        await persistFailure(error: pageError, context: context)
+    }
+
+    private func handleProcessDownloadIncompleteError(
+        error _: IncompleteDownloadError,
+        context: FailureContext
+    ) async {
+        guard !shouldSuppressFailurePersistence(for: context.gid) else {
+            return
+        }
+        clearDownloadQueueIntent(gid: context.gid)
+        await queueStore.remove(context.gid)
+        await reloadDownloadRecord(
+            gid: context.gid,
+            token: context.originalDownload.token
+        )
+    }
+
+    private func handleProcessDownloadGenericError(
+        error: any Error,
+        context: FailureContext
+    ) async {
+        let appError = AppError.fileOperationFailed(
+            error.localizedDescription
+        )
+        guard !isCancellationLikeAppError(appError) else { return }
+        guard !shouldSuppressFailurePersistence(for: context.gid) else {
+            return
+        }
+        logger.error("\(error, privacy: .private)")
+        await persistFailure(
+            error: appError,
+            context: context
+        )
+    }
+
+    public func settleCompletedDownload(gid: String) async {
+        // A completed gallery claims pages that are on disk again (B1).
+        wholesaleAbsenceEvidence[gid] = nil
+        clearDownloadSessionState(gid: gid, includeUpdateFlag: true)
+        await queueStore.remove(gid)
+        await backgroundTaskStore.removeAll(for: gid)
+    }
+
+    /// Clears the gallery's active slot when this exit owns it, and reports whether it did.
+    ///
+    /// The Bool is the contract already written below in prose — an owning exit publishes here — made
+    /// readable by the caller, so `processDownload`'s `defer` can tell whether the row still needs a
+    /// publication after retiring the run's measurement (D-SSOT-10) without duplicating one on the
+    /// owning path. It is discardable because the scheduler's collision-cleanup caller has no such
+    /// question to ask.
+    @discardableResult
+    public func finishActiveTaskIfOwned(
+        gid: String,
+        generation: Int?,
+        schedulesNext: Bool
+    ) -> Bool {
+        guard isActiveTaskOwner(gid: gid, generation: generation) else {
+            return false
+        }
+        activeTask = nil
+        activeGalleryID = nil
+        Task {
+            // Display statuses derive from `activeGalleryID`, so an emission from
+            // inside `processDownload` would still report this download as
+            // `.active`; every exit path notifies here instead, after ownership
+            // is cleared, so the settled status (completed/error) is what lands.
+            await self.notifyObservers()
+            guard schedulesNext else {
+                // The collision-cleanup branch: another owner is already driving the queue,
+                // so rescheduling here would double-schedule. It still has to reach the
+                // session, because the scheduling tail is what normally reconciles one and
+                // this download may have been the last in flight. This is the
+                // ACTIVE-OWNERSHIP CONVERGENCE disposition for a deliberately non-scheduling exit.
+                await self.reconcileContinuedSession()
+                return
+            }
+            await self.scheduleNextIfNeeded()
+        }
+        return true
+    }
+
+    /// Ends this run's own progress measurement.
+    ///
+    /// **Why it lives in `processDownload`'s `defer` and nowhere else.** The run has five exits — the
+    /// pre-fetch early return, the mid-run cancellation guard, the `CancellationError` catch, the
+    /// success path and the general failure catch — and the `defer` is the only point all five pass
+    /// through. Neither settle covers them: `settleCompletedDownload` is on the success path alone,
+    /// and `settleDownloadFailure` is reached from only some arms of the failure catch, since
+    /// `handleProcessDownloadAppError`, `handleProcessDownloadPartialError` and
+    /// `handleProcessDownloadGenericError` each return early for a cancellation-like error and for
+    /// suppressed persistence, while `handleProcessDownloadIncompleteError` reaches no settle at all.
+    /// `finishActiveTaskIfOwned` is not a candidate either: the `defer` reaches it on every exit, but
+    /// its own body is gated behind `isActiveTaskOwner`, so a non-owning exit would retire nothing.
+    ///
+    /// **A run that exits before ever announcing retires nothing of its own**, because it recorded
+    /// nothing and removing an absent member is a no-op. What it can still clear is a PREVIOUS
+    /// run's entry for the same gallery, which is correct: that run is over too.
+    ///
+    /// **The overlapping-run disposition.** `scheduleNextIfNeededCore` will not start a second run
+    /// while `activeTask` is live, but `pause`, `delete` and the folder operations each null
+    /// `activeTask` while the run they interrupt is still executing, so a following resume can
+    /// legitimately schedule a successor for the same gallery at a new `activeTaskGeneration`. An
+    /// ungated retirement in the predecessor's `defer` would then drop the SUCCESSOR's measurement,
+    /// which is the G-15-26 zero-progress card reintroduced by its own fix. So a run whose
+    /// gallery's active slot is held by a live run at a different generation retires nothing and
+    /// leaves the entry to its owner, which retires it at its own exit. The generation-LESS case is
+    /// a separate disposition and `isSupersededByALiveRun` states it; it is not repeated here. The
+    /// stale entry this tolerates is bounded — the successor's own announcement replaces it inside
+    /// a D-G7-01 bracket, which withdraws the credited gap exactly.
+    ///
+    /// **The freeze runs FIRST, while the measurement is still standing, because what it publishes
+    /// is the value the measurement produces.** `freezeSessionCreditForRetiringRun` carries the
+    /// derivation; the short version is that a departure can be detected on either side of this
+    /// `defer` and the frozen value is what makes both sides retire the same number.
+    ///
+    /// **The removal is deliberately NOT a D-G7-01 bracket.** For an honest record the handoff is
+    /// level — every landed page was flushed, so the record's raw count equals the final
+    /// measurement — and for the refusal family the credited count falls back to the queued-window
+    /// zero while the gallery merely sits in the queue. Withdrawing that drop from the floor would
+    /// hand the card a visible regression over work the run really did; leaving the floor holding
+    /// it is the chosen direction, a numerator that does not rise rather than one that falls, and
+    /// the gallery's own departure retires the frozen value regardless.
+    ///
+    /// **The Bool says whether a STANDING measurement was withdrawn**, which is what the published
+    /// row's overlay rides on (D-SSOT-10): the moment the measurement goes, the badge and the
+    /// inspector must go back to reading the record, and someone has to publish that. The owning
+    /// exit's own publication covers it; a non-owning exit has none, so the caller uses this to
+    /// issue one. A run that exits having announced nothing withdraws nothing and needs no publish,
+    /// which is the `false` this returns for the removal of an absent member.
+    private func retireRunProgressBasis(gid: String, generation: Int?) -> Bool {
+        guard !isSupersededByALiveRun(gid: gid, generation: generation) else { return false }
+        freezeSessionCreditForRetiringRun(gid: gid)
+        let withdrewMeasurement = runProgressBases.removeValue(forKey: gid) != nil
+        // The run's in-flight sub-page entries go with it, under this same supersession gate: a
+        // transfer of a superseded predecessor must not keep crediting the live successor's pages.
+        retireInFlightPageTransfers(gid: gid)
+        return withdrewMeasurement
+    }
+
+    /// Writes an interrupted run's true on-disk progress back to the gallery's record (G-20-09-1).
+    ///
+    /// **The defect.** A record that claims every page while its files are gone — the
+    /// wholesale-refusal family — keeps claiming them for the entire repair, because the
+    /// preparation's reconciliation refuses to blank a whole manifest on one scan (G-15-2G) and the
+    /// flush path only ever ASSIGNS hashes. While the run stands its own measurement is what the row
+    /// shows (D-SSOT-10), so nothing looked wrong until the run stopped part-way: the retirement
+    /// handed the row back to a record still reading N-of-N, and a repair paused with three of six
+    /// pages on disk read "Downloaded 6 of 6", `.completed`, with Pause/Resume disabled. In-app
+    /// Pause, the continued-processing card's cancel and the system's expiration all left the same
+    /// row, because all three reach this run's exit through `commitPause`.
+    ///
+    /// **The rule is D-G5-01's, applied at the run's exit as well as at its start: a working manifest
+    /// never claims a page whose file is not in the working folder.** The write-back takes a FRESH
+    /// scan of the gallery's folder and runs the preparation's own
+    /// `reconcileWorkingManifestAgainstPageFiles` over the manifest read back out of that folder,
+    /// unmodified. Every refusal line is therefore inherited rather than restated: a failed
+    /// enumeration, an unprobed page or a surviving refutation blanks nothing, and the
+    /// all-or-nothing guard still refuses an act that would account for every claimed page.
+    ///
+    /// **Why the exit, and why this gate.** `processDownload`'s `defer` is the one point all five
+    /// run exits pass (`retireRunProgressBasis` lists them), and a pause, a delete and a folder
+    /// operation each await the cancelled run before acting, so the write-back lands before any of
+    /// them proceeds. It acts only while the run's measurement still stands with page debt
+    /// outstanding: a run that announced nothing has no evidence to add, a completed run owes
+    /// nothing, and a run superseded by a live successor leaves the folder to that successor, whose
+    /// own preparation reconciles it — the same supersession disposition the retirement takes.
+    ///
+    /// **A run stopped before ANY page landed (K0-a).** Its fresh scan finds every claimed page
+    /// positively absent, which on its own the guard refuses exactly as it refused at the
+    /// preparation. The run hands over its preparation's positive absences as corroboration, so the
+    /// record drops to 0 of N only where two successful scans agree page by page, and reads Paused
+    /// with Resume. G-15-2G is not weakened: no single scan blanks a whole gallery, and the
+    /// preparation and `verifyImages` pass no corroboration. A run stopped before its announcement
+    /// has no measurement and so no corroboration of its own; the gate below returns for it.
+    ///
+    /// **The bracket.** The blanking lowers the record's counted basis, so it runs inside a D-G7-01
+    /// `withdrawingCountedBasisMovement` bracket like every other caller of the loop. While the
+    /// measurement stands the gallery's credit is the measurement's and does not read the record,
+    /// so the bracket withdraws zero here by construction; it is opened anyway because the rule
+    /// belongs to the movement, not to an argument about its current value. Nothing inside it
+    /// deletes and no other bracket is open at a run's exit, so the sibling and no-deletion rules
+    /// both hold.
+    ///
+    /// The whole stretch is synchronous on the actor, so no push can interleave between the record
+    /// moving and the measurement's retirement that follows it in the same `defer`.
+    private func writeBackInterruptedRunProgress(gid: String, generation: Int?) {
+        guard !isSupersededByALiveRun(gid: gid, generation: generation),
+              let basis = liveRunProgressBasis(gid: gid),
+              !basis.outstandingPages.isEmpty,
+              let folderURL = downloadIndex[gid]?.folderURL,
+              let manifest = storage.probeManifest(folderURL: folderURL),
+              manifest.gid == gid
+        else { return }
+        let pageFileScan = storage.pageFileScan(folderURL: folderURL, manifest: manifest)
+        do {
+            _ = try withdrawingCountedBasisMovement(gid: gid) {
+                try reconcileWorkingManifestAgainstPageFiles(
+                    manifest: manifest,
+                    pageFileScan: pageFileScan,
+                    folderURL: folderURL,
+                    // The preparation's own positive absences: owed, not landed, and not inherited,
+                    // which the measurement admits only on a successful listing that yielded no
+                    // usable file (K0-a).
+                    corroboratedAbsentPages: basis.outstandingPages.subtracting(basis.inheritedPages)
+                )
+            }
+        } catch {
+            // The record stays as it was, which is the pre-fix behaviour rather than a new harm; the
+            // error is private because its message can embed the gallery's folder path.
+            logger.error(
+                """
+                Interrupted run write-back failed, gid: \(gid, privacy: .private(mask: .hash)), \
+                error: \(error.localizedDescription, privacy: .private)
+                """
+            )
+        }
+    }
+
+    /// Whether a DIFFERENT live run holds this gallery's active slot, so this run's exit must
+    /// retire nothing.
+    ///
+    /// **The generation-less case is a policy, and this branch is where it is stated.**
+    /// `processDownload(gid:generation:)` is public and its `generation` defaults to `nil`, while
+    /// the only stamp ever issued is the scheduler's (`+Scheduling.swift`), so a run can reach this
+    /// gate carrying nothing to compare. Such a run cannot prove it owns this gallery's active slot,
+    /// and it is treated as superseded: it retires nothing and leaves the entry to whichever run
+    /// does own the slot.
+    ///
+    /// **The asymmetry is the reason, not the choice.** Leaving the entry to its owner costs one
+    /// stale proof, and costs it only until that owner reaches its own exit and retires it there.
+    /// Retiring on a live successor's behalf drops that successor's proof, which reproduces the
+    /// G-15-26 zero-progress card — an in-flight repair contributing nothing for the rest of its
+    /// re-download — through the very fix that exists to prevent it. A bounded overcount against an
+    /// unbounded stall is not a close call.
+    ///
+    /// The comparison below would already answer `true` for `nil` through optional promotion; the
+    /// branch changes no disposition. It is written so a reader can tell the case was decided rather
+    /// than inherited from the types, which is why the sibling predicate directly below spells its
+    /// own optional out too. `retireRunProgressBasis`'s doc owns the overlapping-run argument this
+    /// direction stays consistent with, and it is not restated here.
+    private func isSupersededByALiveRun(
+        gid: String,
+        generation: Int?
+    ) -> Bool {
+        guard activeTask != nil, activeGalleryID == gid else { return false }
+        guard let generation else { return true }
+        return generation != activeTaskGeneration
+    }
+
+    /// Whether this run may clear the gallery's active slot on its way out.
+    ///
+    /// **The generation-less arm, derived from the callers rather than asserted.** This predicate
+    /// has one caller, `finishActiveTaskIfOwned`, which has two of its own: the scheduler's
+    /// `processScheduledDownload`, which always passes the generation it stamped into
+    /// `activeTaskGeneration`, and `processDownload`'s `defer`, which forwards whatever its own
+    /// caller supplied — `nil` for anyone who took the public entry point's default. A
+    /// generation-less run is therefore by construction a run the scheduler never stamped, and it
+    /// has no identity to match.
+    ///
+    /// With no identity to check, ownership can only be inferred from the slot being IDLE, which is
+    /// what the two conditions below require. A live `activeTask` means some run holds the slot and
+    /// it is not this one; clearing it there would strand that run, because ACTIVE-OWNERSHIP
+    /// CONVERGENCE records that once ownership is cleared the real owner's deferred cleanup is
+    /// rejected, and the queue loses its last scheduling opportunity. An `activeGalleryID` claimed
+    /// by a different gallery is the same hazard read through the other half of the pair.
+    private func isActiveTaskOwner(
+        gid: String,
+        generation: Int?
+    ) -> Bool {
+        if let generation {
+            return activeGalleryID == gid
+                && activeTaskGeneration == generation
+        }
+        guard activeTask == nil else { return false }
+        return activeGalleryID == nil || activeGalleryID == gid
+    }
+}

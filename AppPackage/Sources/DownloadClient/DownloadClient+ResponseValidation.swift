@@ -1,0 +1,299 @@
+public import AppModels
+import AppTools
+public import Foundation
+import ImageIO
+import OSLogExt
+import ParserFeature
+
+private let logger = Logger(category: .init(describing: DownloadCoordinator.self))
+
+// MARK: - Response Error Detection
+extension DownloadCoordinator {
+    public func detectResponseError(
+        data: Data,
+        response: URLResponse,
+        requestURL: URL?,
+        expectsHTML: Bool = false
+    ) -> AppError? {
+        detectResponseError(
+            prefixData: Data(
+                data.prefix(Self.responseInspectionPrefixLength)
+            ),
+            fullData: data,
+            response: response,
+            requestURL: requestURL,
+            expectsHTML: expectsHTML
+        )
+    }
+
+    public func detectResponseError(
+        fileURL: URL,
+        response: URLResponse,
+        requestURL: URL?
+    ) -> AppError? {
+        // Prefix inspection is opportunistic; an unreadable prefix falls through to
+        // placeholder, status-code, and response-metadata validation below.
+        let prefixData: Data
+        do {
+            prefixData = try readResponsePrefixData(at: fileURL)
+        } catch {
+            logger.error("Download response prefix read failed: \(error, privacy: .private)")
+            prefixData = Data()
+        }
+        if let error = detectPlaceholderFileErrors(
+            response: response,
+            fileURL: fileURL,
+            requestURL: requestURL
+        ) {
+            return error
+        }
+        let mimeType = normalizedMimeType(response)
+        let shouldInspect = shouldInspectTextResponse(
+            mimeType: mimeType,
+            prefixData: prefixData
+        )
+        guard shouldInspect else {
+            if statusCode(for: response) == 404 {
+                return .notFound
+            }
+            return nil
+        }
+        return detectResponseError(
+            prefixData: prefixData,
+            fullData: resolveFileData(
+                fileURL: fileURL,
+                mimeType: mimeType,
+                prefixData: prefixData,
+                response: response
+            ),
+            response: response,
+            requestURL: requestURL,
+            expectsHTML: false
+        )
+    }
+
+    private func detectPlaceholderFileErrors(
+        response: URLResponse,
+        fileURL: URL,
+        requestURL: URL?
+    ) -> AppError? {
+        let placeholderData = loadPlaceholderDataIfNeeded(
+            response: response,
+            fileURL: fileURL
+        )
+        if let placeholderData {
+            if isLoginRequiredPlaceholderImageData(
+                placeholderData
+            ) {
+                return .loginRequired
+            }
+            if isImageLimitReachedAssetData(placeholderData) {
+                return .imageLimitReached
+            }
+        }
+        if isLoginRequiredPlaceholderResponse(
+            response: response,
+            requestURL: requestURL
+        ) {
+            return .loginRequired
+        }
+        if isImageLimitReachedResponse(
+            fullData: nil,
+            fileURL: fileURL,
+            response: response,
+            requestURL: requestURL
+        ) {
+            return .imageLimitReached
+        }
+        return nil
+    }
+
+    private func resolveFileData(
+        fileURL: URL,
+        mimeType: String?,
+        prefixData: Data,
+        response: URLResponse
+    ) -> Data? {
+        let looksLikeHTML = responseLooksLikeHTML(
+            mimeType: mimeType,
+            prefixData: prefixData,
+            expectsHTML: false
+        )
+        let placeholderData = loadPlaceholderDataIfNeeded(
+            response: response,
+            fileURL: fileURL
+        )
+        if looksLikeHTML {
+            // Full-file inspection is optional here; a read failure preserves the
+            // placeholder-only result and lets response metadata drive validation.
+            return placeholderData ?? probeFileData(at: fileURL)
+        }
+        return placeholderData
+    }
+
+    public func detectResponseError(
+        prefixData: Data,
+        fullData: Data?,
+        response: URLResponse,
+        requestURL: URL?,
+        expectsHTML: Bool
+    ) -> AppError? {
+        if let error = detectDataErrors(
+            fullData: fullData,
+            response: response,
+            requestURL: requestURL
+        ) {
+            return error
+        }
+
+        let mimeType = normalizedMimeType(response)
+        let shouldInspect = expectsHTML
+            || shouldInspectTextResponse(
+                mimeType: mimeType,
+                prefixData: prefixData
+            )
+        if shouldInspect {
+            let inspectedData = fullData ?? prefixData
+            if let error = detectTextualDownloadError(
+                data: inspectedData,
+                looksLikeHTML: responseLooksLikeHTML(
+                    mimeType: mimeType,
+                    prefixData: prefixData,
+                    expectsHTML: expectsHTML
+                )
+            ) {
+                return error
+            }
+        }
+        if isLoginRequiredResponse(
+            prefixData: prefixData,
+            fullData: fullData,
+            response: response,
+            requestURL: requestURL
+        ) {
+            return .loginRequired
+        }
+        guard shouldInspect else { return nil }
+
+        let htmlContext = HTMLResponseContext(
+            prefixData: prefixData, fullData: fullData,
+            response: response, requestURL: requestURL,
+            mimeType: mimeType
+        )
+        return detectHTMLResponseError(
+            context: htmlContext, expectsHTML: expectsHTML
+        )
+    }
+
+    private func detectDataErrors(
+        fullData: Data?,
+        response: URLResponse,
+        requestURL: URL?
+    ) -> AppError? {
+        if let fullData {
+            if isLoginRequiredPlaceholderImageData(
+                fullData
+            ) {
+                return .loginRequired
+            }
+            if isImageLimitReachedAssetData(fullData) {
+                return .imageLimitReached
+            }
+        }
+        if isLoginRequiredPlaceholderResponse(
+            response: response,
+            requestURL: requestURL
+        ) {
+            return .loginRequired
+        }
+        if isImageLimitReachedResponse(
+            fullData: fullData,
+            fileURL: nil,
+            response: response,
+            requestURL: requestURL
+        ) {
+            return .imageLimitReached
+        }
+        return nil
+    }
+
+    private func detectHTMLResponseError(
+        context: HTMLResponseContext,
+        expectsHTML: Bool
+    ) -> AppError? {
+        let prefixData = context.prefixData
+        let fullData = context.fullData
+        let response = context.response
+        let requestURL = context.requestURL
+        let mimeType = context.mimeType
+        let textPrefix = String(
+            bytes: prefixData,
+            encoding: .utf8
+        ) ?? ""
+
+        guard !prefixLooksLikeJSON(prefixData) else {
+            return nil
+        }
+
+        let looksLikeHTML = responseLooksLikeHTML(
+            mimeType: mimeType,
+            prefixData: prefixData,
+            expectsHTML: expectsHTML
+        )
+        guard looksLikeHTML else {
+            if statusCode(for: response) == 404 {
+                return .notFound
+            }
+            return nil
+        }
+
+        if let fullData,
+           // DOM parsing is a probe; malformed HTML intentionally falls back to
+           // status-code and unexpected-HTML classification below.
+           let document = probeHTMLDocument(
+            fullData.utf8InvalidCharactersRipped
+           ),
+           let error = Parser.parseResponseError(
+            doc: document
+           ) {
+            return error
+        }
+        if expectsHTML {
+            if statusCode(for: response) == 404 {
+                return .notFound
+            }
+            return nil
+        }
+        // A gallery request URL embeds the gallery path, so it is private, and the classification is
+        // written rather than left to the unified log's default for dynamic strings: an unwritten
+        // classification is invisible to the module's log-privacy invariant either way.
+        logger.error(
+            """
+            Download received unexpected HTML response, \
+            url: \(requestURL?.absoluteString ?? "", privacy: .private), \
+            snippet: \(String(textPrefix.prefix(240)), privacy: .private)
+            """
+        )
+        if statusCode(for: response) == 404 {
+            return .notFound
+        }
+        return .parseFailed
+    }
+
+    private func loadPlaceholderDataIfNeeded(
+        response: URLResponse,
+        fileURL: URL
+    ) -> Data? {
+        let byteCount = responseContentLength(response)
+            ?? fileSize(at: fileURL)
+        guard let byteCount,
+              byteCount == ImagePlaceholderFingerprint.loginRequiredByteCount
+                || byteCount == ImagePlaceholderFingerprint.imageLimitReachedByteCount
+        else {
+            return nil
+        }
+        // Placeholder bytes are an optional fingerprint probe; a read failure means
+        // the response cannot be identified as a known placeholder by content.
+        return probeFileData(at: fileURL)
+    }
+}

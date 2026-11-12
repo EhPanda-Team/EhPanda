@@ -1,0 +1,603 @@
+@testable import AppFeature
+import AppModels
+import DownloadClient
+import Foundation
+import Resources
+import Testing
+
+struct DownloadStoreTests {
+    @Test
+    func testWriteReadAndVerifyManifest() throws {
+        let (storage, rootURL) = makeStorage()
+        defer { removeTemporaryItem(at: rootURL) }
+
+        try storage.ensureRootDirectory()
+        let folderURL = storage.folderURL(relativePath: "123 - Sample")
+        let download = sampleDownload(folderURL: folderURL)
+        try FileManager.default.createDirectory(at: folderURL, withIntermediateDirectories: true)
+        try Data([0xFF, 0xD8, 0xFF]).write(
+            to: folderURL.appending(path: "123_token_cover.jpg"),
+            options: .atomic
+        )
+        try Data([0x01]).write(
+            to: folderURL.appending(path: "123_token_1.jpg"),
+            options: .atomic
+        )
+        try Data([0x02]).write(
+            to: folderURL.appending(path: "123_token_2.jpg"),
+            options: .atomic
+        )
+        let manifest = try storage.addingCurrentFileHashes(
+            to: sampleManifest(pageCount: 2),
+            folderURL: folderURL
+        )
+        try storage.writeManifest(manifest, folderURL: folderURL)
+
+        let loadedManifest = try storage.readManifest(folderURL: folderURL)
+
+        #expect(loadedManifest == manifest)
+        #expect(storage.verify(download: download, verifiesContentHashes: true) == .valid)
+    }
+
+    @Test
+    func testPurgeBackgroundTransferHoldingDirectoryRemovesOrphans() throws {
+        let (storage, rootURL) = makeStorage()
+        defer { removeTemporaryItem(at: rootURL) }
+
+        let holdingDirectory = storage.backgroundTransferHoldingDirectoryURL()
+        try FileManager.default.createDirectory(
+            at: holdingDirectory, withIntermediateDirectories: true
+        )
+        let orphan = holdingDirectory.appending(path: "orphan.tmp")
+        try Data([0x01]).write(to: orphan, options: .atomic)
+        #expect(FileManager.default.fileExists(atPath: orphan.path(percentEncoded: false)))
+
+        storage.purgeBackgroundTransferHoldingDirectory()
+
+        #expect(FileManager.default.fileExists(atPath: orphan.path(percentEncoded: false)) == false)
+        #expect(FileManager.default.fileExists(atPath: holdingDirectory.path(percentEncoded: false)) == false)
+    }
+
+    @Test
+    func testReadManifestRejectsEmptyPages() throws {
+        let (storage, rootURL) = makeStorage()
+        defer { removeTemporaryItem(at: rootURL) }
+
+        try storage.ensureRootDirectory()
+        let folderURL = storage.folderURL(relativePath: "123 - Empty")
+        try FileManager.default.createDirectory(at: folderURL, withIntermediateDirectories: true)
+        try storage.writeManifest(sampleManifest(pageCount: 0), folderURL: folderURL)
+
+        #expect(
+            throws: AppError.fileOperationFailed(
+                String(localized: .RLocalizable.downloadStoreManifestCorrupted)
+            )
+        ) {
+            try storage.readManifest(folderURL: folderURL)
+        }
+    }
+
+    @Test
+    func testReadManifestRejectsNonContiguousPages() throws {
+        let (storage, rootURL) = makeStorage()
+        defer { removeTemporaryItem(at: rootURL) }
+
+        try storage.ensureRootDirectory()
+        let folderURL = storage.folderURL(relativePath: "123 - Sparse")
+        try FileManager.default.createDirectory(at: folderURL, withIntermediateDirectories: true)
+        try storage.writeManifest(sampleManifest(pageHashes: [1: "", 3: ""]), folderURL: folderURL)
+
+        #expect(
+            throws: AppError.fileOperationFailed(
+                String(localized: .RLocalizable.downloadStoreManifestCorrupted)
+            )
+        ) {
+            try storage.readManifest(folderURL: folderURL)
+        }
+    }
+
+    @Test
+    func testEnsureRootDirectoryMarksDownloadsFolderExcludedFromBackup() throws {
+        let (storage, rootURL) = makeStorage()
+        defer { removeTemporaryItem(at: rootURL) }
+
+        try storage.ensureRootDirectory()
+
+        let resourceValues = try rootURL.resourceValues(forKeys: [.isExcludedFromBackupKey])
+        #expect(resourceValues.isExcludedFromBackup == true)
+    }
+
+    @Test
+    func testVerifyReportsMissingPageFiles() throws {
+        let (storage, rootURL) = makeStorage()
+        defer { removeTemporaryItem(at: rootURL) }
+
+        try storage.ensureRootDirectory()
+        let folderURL = storage.folderURL(relativePath: "123 - Sample")
+        let download = sampleDownload(folderURL: folderURL)
+        try FileManager.default.createDirectory(at: folderURL, withIntermediateDirectories: true)
+        try Data([0xFF, 0xD8, 0xFF]).write(
+            to: folderURL.appending(path: "123_token_cover.jpg"),
+            options: .atomic
+        )
+        let page1URL = folderURL.appending(path: "123_token_1.jpg")
+        try Data([0x01]).write(to: page1URL, options: .atomic)
+        try storage.writeManifest(
+            sampleManifest(pageHashes: [
+                1: try storage.fileHash(at: page1URL),
+                2: "sha256:missing"
+            ]),
+            folderURL: folderURL
+        )
+
+        #expect(
+            storage.verify(download: download, verifiesContentHashes: true)
+                == .missingFiles(.RLocalizable.downloadStorePageMissing(page: 2))
+        )
+    }
+
+    /// A zero-byte page is reported as missing content, and the report leaves it where it is.
+    ///
+    /// This case used to assert the opposite half — that `verify` DELETED the file — which is the
+    /// read-path mutation CR-03 removed, so the assertion is inverted rather than dropped. Keeping
+    /// the verdict assertion beside it is the load-bearing part: it shows the deletion was never
+    /// what produced the answer, so withholding it costs the caller nothing. Nothing on this route
+    /// writes the manifest, so a deletion here left the record claiming a page the report itself had
+    /// destroyed — the divergence AGENTS.md forbids, created by asking a question.
+    @Test
+    func testVerifyReportsAZeroBytePageWithoutRemovingIt() throws {
+        let (storage, rootURL) = makeStorage()
+        defer { removeTemporaryItem(at: rootURL) }
+
+        try storage.ensureRootDirectory()
+        let folderURL = storage.folderURL(relativePath: "123 - Sample")
+        let download = sampleDownload(folderURL: folderURL)
+        try FileManager.default.createDirectory(at: folderURL, withIntermediateDirectories: true)
+        try Data([0xFF, 0xD8, 0xFF]).write(
+            to: folderURL.appending(path: "123_token_cover.jpg"),
+            options: .atomic
+        )
+        try Data().write(
+            to: folderURL.appending(path: "123_token_1.jpg"),
+            options: .atomic
+        )
+        try Data([0x02]).write(
+            to: folderURL.appending(path: "123_token_2.jpg"),
+            options: .atomic
+        )
+        let page2URL = folderURL.appending(path: "123_token_2.jpg")
+        try storage.writeManifest(
+            sampleManifest(pageHashes: [
+                1: "sha256:missing",
+                2: try storage.fileHash(at: page2URL)
+            ]),
+            folderURL: folderURL
+        )
+
+        #expect(
+            storage.verify(download: download, verifiesContentHashes: true)
+                == .missingFiles(.RLocalizable.downloadStorePageMissing(page: 1))
+        )
+        #expect(
+            FileManager.default.fileExists(
+                atPath: folderURL.appending(path: "123_token_1.jpg").path(percentEncoded: false)
+            )
+        )
+        // The record side of the same claim: nothing was written, so a relaunch reads what it read
+        // before — the report is a report.
+        #expect(try storage.readManifest(folderURL: folderURL).pages[1] == "sha256:missing")
+    }
+
+    @Test
+    func testExistingPageRelativePathsDetectsFinalAssetFiles() throws {
+        let (storage, rootURL) = makeStorage()
+        defer { removeTemporaryItem(at: rootURL) }
+
+        try storage.ensureRootDirectory()
+        let folderURL = storage.folderURL(relativePath: "Folder/[123_token] Sample")
+        try FileManager.default.createDirectory(at: folderURL, withIntermediateDirectories: true)
+        try Data([0x01]).write(to: folderURL.appending(path: "123_token_1.webp"), options: .atomic)
+        try Data([0x02]).write(to: folderURL.appending(path: "123_token_2.jpg"), options: .atomic)
+        try Data([0x03]).write(to: folderURL.appending(path: "123_token_27.jpg"), options: .atomic)
+        try Data([0x04]).write(to: folderURL.appending(path: "123_token_cover.jpg"), options: .atomic)
+        let manifest = sampleManifest(pageCount: 2)
+
+        #expect(
+            storage.existingPageRelativePaths(folderURL: folderURL, manifest: manifest) == [
+                1: "123_token_1.webp",
+                2: "123_token_2.jpg"
+            ]
+        )
+    }
+
+    @Test
+    func testExistingPageRelativePathsMatchesExactUnpaddedPageIndices() throws {
+        let (storage, rootURL) = makeStorage()
+        defer { removeTemporaryItem(at: rootURL) }
+
+        try storage.ensureRootDirectory()
+        let folderURL = storage.folderURL(relativePath: "Folder/[123_token] Sample")
+        try FileManager.default.createDirectory(at: folderURL, withIntermediateDirectories: true)
+        try Data([0x01]).write(to: folderURL.appending(path: "123_token_1.webp"), options: .atomic)
+        try Data([0x02]).write(to: folderURL.appending(path: "123_token_10.jpg"), options: .atomic)
+        try Data([0x03]).write(to: folderURL.appending(path: "123_token_01.jpg"), options: .atomic)
+        try Data([0x04]).write(to: folderURL.appending(path: "123_token_11.jpg"), options: .atomic)
+        let manifest = sampleManifest(pageCount: 10)
+
+        #expect(
+            storage.existingPageRelativePaths(folderURL: folderURL, manifest: manifest) == [
+                1: "123_token_1.webp",
+                10: "123_token_10.jpg"
+            ]
+        )
+    }
+
+    @Test
+    func testExistingPageRelativePathsIgnoresLegacyPagesFolder() throws {
+        let (storage, rootURL) = makeStorage()
+        defer { removeTemporaryItem(at: rootURL) }
+
+        try storage.ensureRootDirectory()
+        let folderURL = storage.folderURL(relativePath: "Folder/[123_token] Sample")
+        let pagesFolderURL = folderURL.appending(path: "pages", directoryHint: .isDirectory)
+        try FileManager.default.createDirectory(at: pagesFolderURL, withIntermediateDirectories: true)
+        try Data([0x01]).write(to: pagesFolderURL.appending(path: "0001.jpg"), options: .atomic)
+        let manifest = sampleManifest(pageCount: 1)
+
+        #expect(storage.existingPageRelativePaths(folderURL: folderURL, manifest: manifest) == [:])
+        #expect(FileManager.default.fileExists(atPath: pagesFolderURL.path(percentEncoded: false)))
+    }
+
+    /// The probe's housekeeping deletion, under the flag a caller now has to write (CR-03).
+    ///
+    /// The argument is spelled out here because it is the thing under test. Since the default became
+    /// the non-mutating value, an unqualified call cannot reach this branch at all — which is the
+    /// point of the flip, and which makes this case the store-level pin that the OPT-IN still works
+    /// rather than the pin that the default does.
+    @Test
+    func testExistingPageRelativePathsRemovesZeroByteFinalAssetFilesWhenDiscarding() throws {
+        let (storage, rootURL) = makeStorage()
+        defer { removeTemporaryItem(at: rootURL) }
+
+        try storage.ensureRootDirectory()
+        let folderURL = storage.folderURL(relativePath: "Folder/[123_token] Sample")
+        try FileManager.default.createDirectory(at: folderURL, withIntermediateDirectories: true)
+        let emptyPageURL = folderURL.appending(path: "123_token_1.jpg")
+        try Data().write(to: emptyPageURL, options: .atomic)
+        try Data([0x02]).write(to: folderURL.appending(path: "123_token_2.png"), options: .atomic)
+        let manifest = sampleManifest(pageCount: 2)
+
+        #expect(
+            storage.existingPageRelativePaths(
+                folderURL: folderURL,
+                manifest: manifest,
+                discardingRejected: true
+            ) == [2: "123_token_2.png"]
+        )
+        #expect(FileManager.default.fileExists(atPath: emptyPageURL.path(percentEncoded: false)) == false)
+    }
+
+    /// The same probe on the DEFAULT: the CLASSIFICATION is identical and only the deletion is
+    /// withheld.
+    ///
+    /// Pinned at the store rather than only at its callers, because that equality is the whole
+    /// premise of the flag — a caller that only reads forgoes the housekeeping without forgoing the
+    /// answer. If the two ever diverged, a read would start reporting a different set of pages than
+    /// the acting paths see, which is a second basis by another name. Written without an argument
+    /// since CR-03, so the case fails if the destructive value is ever made the default again.
+    @Test
+    func testExistingPageRelativePathsKeepsZeroByteFilesByDefault() throws {
+        let (storage, rootURL) = makeStorage()
+        defer { removeTemporaryItem(at: rootURL) }
+
+        try storage.ensureRootDirectory()
+        let folderURL = storage.folderURL(relativePath: "Folder/[123_token] Sample")
+        try FileManager.default.createDirectory(at: folderURL, withIntermediateDirectories: true)
+        let emptyPageURL = folderURL.appending(path: "123_token_1.jpg")
+        try Data().write(to: emptyPageURL, options: .atomic)
+        try Data([0x02]).write(to: folderURL.appending(path: "123_token_2.png"), options: .atomic)
+        let manifest = sampleManifest(pageCount: 2)
+
+        #expect(
+            storage.existingPageRelativePaths(
+                folderURL: folderURL,
+                manifest: manifest
+            ) == [2: "123_token_2.png"]
+        )
+        #expect(FileManager.default.fileExists(atPath: emptyPageURL.path(percentEncoded: false)))
+    }
+
+    @Test
+    func testExistingPageRelativePathsIgnoresZeroByteLegacyFiles() throws {
+        let (storage, rootURL) = makeStorage()
+        defer { removeTemporaryItem(at: rootURL) }
+
+        try storage.ensureRootDirectory()
+        let folderURL = storage.folderURL(relativePath: "Folder/[123_token] Sample")
+        let pagesURL = folderURL.appending(path: "pages", directoryHint: .isDirectory)
+        try FileManager.default.createDirectory(at: pagesURL, withIntermediateDirectories: true)
+        let emptyPageURL = pagesURL.appending(path: "0001.jpg")
+        try Data().write(to: emptyPageURL, options: .atomic)
+        try Data([0x02]).write(to: pagesURL.appending(path: "0002.png"), options: .atomic)
+        let manifest = sampleManifest(pageCount: 2)
+
+        #expect(storage.existingPageRelativePaths(folderURL: folderURL, manifest: manifest) == [:])
+        #expect(FileManager.default.fileExists(atPath: emptyPageURL.path(percentEncoded: false)))
+    }
+
+    @Test
+    func testExistingCoverRelativePathDetectsFinalAssetFile() throws {
+        let (storage, rootURL) = makeStorage()
+        defer { removeTemporaryItem(at: rootURL) }
+
+        try storage.ensureRootDirectory()
+        let folderURL = storage.folderURL(relativePath: "Folder/[123_token] Sample")
+        try FileManager.default.createDirectory(at: folderURL, withIntermediateDirectories: true)
+        try Data([0x01]).write(to: folderURL.appending(path: "other_token_cover.jpg"), options: .atomic)
+        try Data([0x02]).write(to: folderURL.appending(path: "123_token_cover.jpg"), options: .atomic)
+        let manifest = sampleManifest(pageCount: 1)
+
+        #expect(
+            storage.existingCoverRelativePath(folderURL: folderURL, manifest: manifest)
+                == "123_token_cover.jpg"
+        )
+    }
+
+    @Test
+    func testSanitizeAssetFileIfNeededDoesNotDeleteFileWhenAttributesLookupFails() throws {
+        let rootURL = FileManager.default.temporaryDirectory
+            .appending(path: UUID().uuidString, directoryHint: .isDirectory)
+        defer { removeTemporaryItem(at: rootURL) }
+
+        try FileManager.default.createDirectory(at: rootURL, withIntermediateDirectories: true)
+        let fileURL = rootURL.appending(path: "123_token_cover.jpg")
+        try Data([0xFF, 0xD8, 0xFF]).write(to: fileURL, options: .atomic)
+        let storage = DownloadStore(
+            rootURL: rootURL,
+            fileManager: ThrowingAttributesFileManager(failingPath: fileURL.path(percentEncoded: false))
+        )
+
+        #expect(storage.sanitizeAssetFileIfNeeded(at: fileURL))
+        #expect(FileManager.default.fileExists(atPath: fileURL.path(percentEncoded: false)))
+    }
+
+    @Test
+    func testMakeFolderRelativePathSanitizesSeparatorsWhitespaceAndLength() throws {
+        let (storage, rootURL) = makeStorage()
+        defer { removeTemporaryItem(at: rootURL) }
+
+        let unsafeTitle = "  /Alpha\\\\Beta:\n\tGamma   Delta \(String(repeating: "X", count: 200)).  "
+        let relativePath = storage.makeFolderRelativePath(gid: "123", token: "token", title: unsafeTitle)
+
+        #expect(relativePath.hasPrefix("[123_token] "))
+        #expect(relativePath.contains("/") == false)
+        #expect(relativePath.contains("\\") == false)
+        #expect(relativePath.contains(":") == false)
+        #expect(relativePath.contains("\n") == false)
+        #expect(relativePath.hasSuffix(" ") == false)
+        #expect(relativePath.hasSuffix(".") == false)
+        #expect(relativePath.utf8.count <= 255)
+
+        let cjkRelativePath = storage.makeFolderRelativePath(
+            gid: "123",
+            token: "token",
+            title: String(repeating: "語", count: 120)
+        )
+        #expect(cjkRelativePath.utf8.count <= 255)
+        try FileManager.default.createDirectory(
+            at: storage.folderURL(relativePath: "Folder/\(cjkRelativePath)"),
+            withIntermediateDirectories: true
+        )
+    }
+
+    @Test
+    func testFinalFolderRelativePathUsesIdentityPrefixAndSanitizedTitle() {
+        let (storage, rootURL) = makeStorage()
+        defer { removeTemporaryItem(at: rootURL) }
+
+        let unsafeTitle = "  /Alpha\\\\Beta:\n\tGamma   Delta.  "
+        let relativePath = storage.makeFolderRelativePath(gid: "123", token: "tok/en", title: unsafeTitle)
+
+        #expect(relativePath == "[123_tok_en] Alpha Beta Gamma Delta")
+    }
+
+    @Test
+    func testFinalAssetRelativePathsUseIdentityAndUnpaddedPageIndex() {
+        let (storage, rootURL) = makeStorage()
+        defer { removeTemporaryItem(at: rootURL) }
+
+        #expect(
+            storage.makePageRelativePath(gid: "123", token: "token", index: 7, fileExtension: "JPG")
+                == "123_token_7.jpg"
+        )
+        #expect(
+            storage.makeCoverRelativePath(gid: "123", token: "token", fileExtension: "PNG")
+                == "123_token_cover.png"
+        )
+    }
+
+    @Test
+    func testScanDownloadFoldersReadsOnlyFoldersWithManifests() throws {
+        let (storage, rootURL) = makeStorage()
+        defer { removeTemporaryItem(at: rootURL) }
+
+        try storage.ensureRootDirectory()
+        let downloadFolderURL = storage.folderURL(relativePath: "Folder/[123_token] Sample")
+        let ignoredFolderURL = storage.folderURL(relativePath: "Folder/[456_token] Missing manifest")
+        let hiddenFolderURL = storage.folderURL(relativePath: "Folder/[789_token] Missing manifest")
+        try FileManager.default.createDirectory(at: downloadFolderURL, withIntermediateDirectories: true)
+        try FileManager.default.createDirectory(at: ignoredFolderURL, withIntermediateDirectories: true)
+        try FileManager.default.createDirectory(at: hiddenFolderURL, withIntermediateDirectories: true)
+        try storage.writeManifest(sampleManifest(pageCount: 2), folderURL: downloadFolderURL)
+
+        let records = try storage.scanDownloadFolders()
+
+        #expect(records.map(\.relativePath) == ["Folder/[123_token] Sample"])
+        #expect(records.first?.manifest.gid == "123")
+        #expect(records.first?.folderURL == downloadFolderURL)
+        #expect(records.first?.parentFolderName == "Folder")
+    }
+
+    @Test
+    func testScanDownloadsIgnoresRootGalleryFoldersAndListsEmptyUserFolders() throws {
+        let (storage, rootURL) = makeStorage()
+        defer { removeTemporaryItem(at: rootURL) }
+
+        try storage.ensureRootDirectory()
+        // A gallery folder dropped directly at the root stays invisible.
+        let rootGalleryURL = storage.folderURL(relativePath: "[123_token] Sample")
+        try FileManager.default.createDirectory(at: rootGalleryURL, withIntermediateDirectories: true)
+        try storage.writeManifest(sampleManifest(pageCount: 2), folderURL: rootGalleryURL)
+        // A broken gallery-like folder without a manifest is not a user folder.
+        let brokenGalleryURL = storage.folderURL(relativePath: "[456_token] Broken")
+        try FileManager.default.createDirectory(at: brokenGalleryURL, withIntermediateDirectories: true)
+        // User folders are listed even when empty.
+        let emptyFolderURL = storage.folderURL(relativePath: "Empty Folder")
+        try FileManager.default.createDirectory(at: emptyFolderURL, withIntermediateDirectories: true)
+        // A populated user folder yields records carrying its name.
+        let galleryFolderURL = storage.folderURL(relativePath: "Library/[789_token] Inside")
+        try FileManager.default.createDirectory(at: galleryFolderURL, withIntermediateDirectories: true)
+        try storage.writeManifest(
+            DownloadManifest(
+                gid: "789",
+                host: .ehentai,
+                token: "token",
+                title: "Inside",
+                jpnTitle: nil,
+                category: .doujinshi,
+                language: .japanese,
+                remoteCoverURL: nil,
+                uploader: "Uploader",
+                tags: [],
+                postedDate: .now,
+                rating: 4,
+                pages: [1: "", 2: ""]
+            ),
+            folderURL: galleryFolderURL
+        )
+
+        let scanResult = try storage.scanDownloads()
+
+        #expect(scanResult.userFolders == ["Empty Folder", "Library"])
+        #expect(scanResult.records.map(\.relativePath) == ["Library/[789_token] Inside"])
+        #expect(scanResult.records.first?.parentFolderName == "Library")
+    }
+
+    @Test
+    func testUserFolderNameNormalizationRejectsInvalidNames() throws {
+        let (storage, rootURL) = makeStorage()
+        defer { removeTemporaryItem(at: rootURL) }
+
+        #expect(storage.normalizedUserFolderName("  My Folder  ") == "My Folder")
+        #expect(storage.normalizedUserFolderName("a/b:c") == "a b c")
+        #expect(storage.normalizedUserFolderName("...") == nil)
+        #expect(storage.normalizedUserFolderName("   ") == nil)
+        #expect(storage.normalizedUserFolderName("") == nil)
+        #expect(storage.normalizedUserFolderName(".hidden") == "hidden")
+        #expect(storage.normalizedUserFolderName("[123_token] Sample") == nil)
+
+        let cjkName = try #require(
+            storage.normalizedUserFolderName(String(repeating: "語", count: 120))
+        )
+        #expect(cjkName.utf8.count <= 255)
+        try FileManager.default.createDirectory(
+            at: storage.folderURL(relativePath: cjkName),
+            withIntermediateDirectories: true
+        )
+    }
+
+    @Test
+    func testExistingFinalAssetFileURLsUseIdentityPrefix() throws {
+        let (storage, rootURL) = makeStorage()
+        defer { removeTemporaryItem(at: rootURL) }
+
+        try storage.ensureRootDirectory()
+        let folderURL = storage.folderURL(relativePath: "Folder/[123_token] Sample")
+        try FileManager.default.createDirectory(at: folderURL, withIntermediateDirectories: true)
+        let pageURL = folderURL.appending(path: "123_token_2.webp")
+        let coverURL = folderURL.appending(path: "123_token_cover.jpg")
+        try Data([0x01]).write(to: pageURL, options: .atomic)
+        try Data([0x02]).write(to: coverURL, options: .atomic)
+
+        #expect(storage.existingPageFileURL(folderURL: folderURL, gid: "123", token: "token", index: 2) == pageURL)
+        #expect(storage.existingCoverFileURL(folderURL: folderURL, gid: "123", token: "token") == coverURL)
+    }
+}
+
+private final class ThrowingAttributesFileManager: FileManager {
+    let failingPath: String
+
+    init(failingPath: String) {
+        self.failingPath = failingPath
+        super.init()
+    }
+
+    override func attributesOfItem(atPath path: String) throws -> [FileAttributeKey: Any] {
+        if path == failingPath {
+            throw NSError(domain: NSCocoaErrorDomain, code: NSFileReadUnknownError)
+        }
+        return try super.attributesOfItem(atPath: path)
+    }
+}
+
+private extension DownloadStoreTests {
+    func makeStorage() -> (store: DownloadStore, rootURL: URL) {
+        let rootURL = FileManager.default.temporaryDirectory
+            .appending(path: UUID().uuidString, directoryHint: .isDirectory)
+        return (
+            DownloadStore(rootURL: rootURL, fileManager: .default),
+            rootURL
+        )
+    }
+
+    func sampleDownload(
+        displayStatus: DownloadDisplayStatus = .completed,
+        folderURL: URL
+    ) -> DownloadedGallery {
+        DownloadedGallery(
+            gid: "123",
+            host: .ehentai,
+            token: "token",
+            title: "Sample",
+            jpnTitle: nil,
+            uploader: "Uploader",
+            category: .doujinshi,
+            tags: [],
+            pageCount: 2,
+            postedDate: .now,
+            rating: 4,
+            onlineCoverURL: URL(string: "https://example.com/cover.jpg"),
+            folderURL: folderURL,
+            displayStatus: displayStatus,
+            completedPageCount: displayStatus == .completed ? 2 : 0,
+            lastDownloadedDate: .now,
+            lastError: nil
+        )
+    }
+
+    func sampleManifest(pageCount: Int) -> DownloadManifest {
+        sampleManifest(
+            pageHashes: pageCount > 0
+                ? Dictionary(uniqueKeysWithValues: (1...pageCount).map { ($0, "") })
+                : [:]
+        )
+    }
+
+    func sampleManifest(pageHashes: [Int: String]) -> DownloadManifest {
+        DownloadManifest(
+            gid: "123",
+            host: .ehentai,
+            token: "token",
+            title: "Sample",
+            jpnTitle: nil,
+            category: .doujinshi,
+            language: .japanese,
+            remoteCoverURL: URL(string: "https://example.com/cover.jpg"),
+            uploader: "Uploader",
+            tags: [],
+            postedDate: .now,
+            rating: 4,
+            pages: pageHashes
+        )
+    }
+}

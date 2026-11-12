@@ -1,6 +1,6 @@
 <h1 align="center">EhPanda</h1>
 
-<h4 align="center">iOS 的非官方 E-Hentai 應用程式</h4>
+<h4 align="center">iOS 版非官方 E-Hentai App</h4>
 
 <p align="center">
 <img src="https://user-images.githubusercontent.com/31207151/105609404-0acbff00-5de4-11eb-9e88-f3c6e0ba9d44.png" width="400"></img>
@@ -15,31 +15,23 @@
   <a href="/READMEs/README.chs.md">简体中文</a>
 </p>
 
-## 📢 徵集翻譯 📢
-如果你想幫助翻譯這個應用程式，請提交一個 Pull Request。
-
-App Strings: [{lang}.lproj](/EhPanda/App)
-
-GitHub Readme: [README.{lang}.md](/READMEs)
-
-https://ehpanda.app: [main.js](https://github.com/EhPanda-Team/ehpanda-website/blob/main/src/main.js)
-
 ## 安裝步驟
-1. 在 [Releases](https://github.com/EhPanda-Team/EhPanda/releases) 取得 ipa 文件。
-2. 使用 [AltStore](https://altstore.io) 這類軟件將 ipa 文件安裝到你的裝置。
+1. 從 [Releases](https://github.com/EhPanda-Team/EhPanda/releases) 下載 IPA 檔案。
+2. 用 [AltStore](https://altstore.io) 這類工具安裝到你的裝置。
 
-## 系統需求
-須使用 iOS / iPadOS 26.0 或以上版本。
+<sub>需要 iOS / iPadOS 27.0 或以上版本。</sub>
 
-## 內容及其著作權
-本應用程式內的內容均來自 E-Hentai，而 E-Hentai 的內容均為用戶生成內容。
-
-**本應用程式的用戶需要自行承擔存取 E-Hentai 內容的責任。**
-
-## 提問、意見回饋
+## 社群
 [![Twitter](https://img.shields.io/badge/Twitter-2CA5E0?style=for-the-badge&logo=twitter&logoColor=white)](https://twitter.com/ehpandaapp)
 [![Discord](https://img.shields.io/badge/Discord-7289DA?style=for-the-badge&logo=discord&logoColor=white)](https://discord.gg/BSBE9FCBTq)
 [![Telegram](https://img.shields.io/badge/Telegram-858585?style=for-the-badge&logo=telegram&logoColor=white)](https://t.me/ehpanda)
 
-## 螢幕截圖
-https://ehpanda.app
+## 免責聲明
+App 內的內容都來自 E-Hentai，由該站的使用者上傳。
+
+**存取 E-Hentai 內容的風險由你自行承擔。**
+
+## 分析
+EhPanda 會向 [TelemetryDeck](https://telemetrydeck.com) 傳送匿名使用資料，讓維護者了解有多少人使用本 App 以及哪些功能重要。**在你首次開啟 App 並選擇分享多少之前，不會傳送任何內容；之後可以隨時在「設定 → 一般 → 分析」中更改。** 從原始碼自行建置的版本和分支版本不會傳送任何內容。
+
+各層級具體傳送哪些內容、哪些資訊絕不收集，請參閱[隱私權政策](https://ehpanda.app/zh-Hant/privacy/)。

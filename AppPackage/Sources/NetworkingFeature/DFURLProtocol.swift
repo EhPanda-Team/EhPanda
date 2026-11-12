@@ -1,0 +1,67 @@
+import AppModels
+import AppTools
+public import Foundation
+import OSLogExt
+
+private let logger = Logger(category: .init(describing: DFURLProtocol.self))
+
+public class DFURLProtocol: URLProtocol {
+    private var dfRequest: DFRequest?
+    public static let requestIdentifier = "DomainFrontingRequest"
+
+    public override class func canonicalRequest(
+        for request: URLRequest) -> URLRequest { request }
+    public override class func canInit(with request: URLRequest) -> Bool {
+        if property(forKey: requestIdentifier, in: request) != nil {
+            logger.error("URLRequest has been initialized.")
+            return false
+        }
+        if !["http", "https"].contains(request.url?.scheme) {
+            let scheme = request.url?.scheme ?? "nil"
+            logger.error("URL scheme \"\(scheme, privacy: .public)\" is not supported.")
+            return false
+        }
+        return true
+    }
+
+    public override func startLoading() {
+        dfRequest = DFRequest(request, delegate: self)
+        let request = request as? NSMutableURLRequest
+        DFURLProtocol.setProperty(
+            true, forKey: DFURLProtocol.requestIdentifier,
+            in: request.forceUnwrapped
+        )
+
+        dfRequest?.resume()
+    }
+
+    public override func stopLoading() {
+        dfRequest?.stop()
+        dfRequest = nil
+    }
+}
+
+// MARK: DFRequestDelegate
+extension DFURLProtocol: DFRequestDelegate {
+    public func dfRequestDidFinishLoading(_ request: DFRequest) {
+        client?.urlProtocolDidFinishLoading(self)
+    }
+    public func dfRequest(_ request: DFRequest, didLoad data: Data) {
+        client?.urlProtocol(self, didLoad: data)
+    }
+    public func dfRequest(_ request: URLRequest, didFailWithError error: any Error) {
+        client?.urlProtocol(self, didFailWithError: error)
+    }
+    public func dfRequest(
+        _ request: DFRequest, wasRedirectedTo urlRequest: URLRequest,
+        redirectResponse: URLResponse
+    ) {
+        client?.urlProtocol(self, wasRedirectedTo: urlRequest, redirectResponse: redirectResponse)
+    }
+    public func dfRequest(
+        _ request: DFRequest, didReceive response: URLResponse,
+        cacheStoragePolicy policy: URLCache.StoragePolicy
+    ) {
+        client?.urlProtocol(self, didReceive: response, cacheStoragePolicy: policy)
+    }
+}

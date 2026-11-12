@@ -1,0 +1,88 @@
+public import AppModels
+import AppTools
+import Foundation
+public import Kanna
+
+extension Parser {
+    // swiftlint:disable:next cyclomatic_complexity function_body_length
+    public static func parseGalleryTorrents(doc: any HTMLDocument) -> [GalleryTorrent] {
+        var torrents = [GalleryTorrent]()
+
+        for link in doc.xpath("//form") {
+            var tmpPostedTime: String?
+            var tmpFileSize: String?
+            var tmpSeedCount: Int?
+            var tmpPeerCount: Int?
+            var tmpDownloadCount: Int?
+            var tmpUploader: String?
+            var tmpFileName: String?
+            var tmpHash: String?
+            var tmpTorrentURL: URL?
+
+            for trLink in link.xpath("//tr") {
+                for tdLink in trLink.xpath("//td") {
+                    if let tdText = tdLink.text {
+                        if tdText.contains("Posted: ") {
+                            tmpPostedTime = tdText.replacing("Posted: ", with: "")
+                        }
+                        if tdText.contains("Size: ") {
+                            tmpFileSize = tdText.replacing("Size: ", with: "")
+                        }
+                        if tdText.contains("Seeds: ") {
+                            tmpSeedCount = Int(tdText.replacing("Seeds: ", with: ""))
+                        }
+                        if tdText.contains("Peers: ") {
+                            tmpPeerCount = Int(tdText.replacing("Peers: ", with: ""))
+                        }
+                        if tdText.contains("Downloads: ") {
+                            tmpDownloadCount = Int(tdText.replacing("Downloads: ", with: ""))
+                        }
+                        if tdText.contains("Uploader: ") {
+                            tmpUploader = tdText.replacing("Uploader: ", with: "")
+                        }
+                    }
+                    if let aLink = tdLink.at_xpath("//a"),
+                       let aHref = aLink["href"],
+                       let aText = aLink.text,
+                       let aURL = URL(string: aHref),
+                       let range = aURL.lastPathComponent.range(of: ".torrent") {
+                        tmpHash = String(aURL.lastPathComponent[..<range.lowerBound])
+                        tmpTorrentURL = aURL
+                        tmpFileName = aText
+                    }
+                }
+            }
+
+            guard let postedTime = tmpPostedTime,
+                  // An invalid date intentionally drops only this malformed torrent row.
+                  let postedDate = degrading("Torrent posted date", {
+                      try parseDate(time: postedTime, format: Defaults.DateFormat.torrent)
+                  }),
+                  let fileSize = tmpFileSize,
+                  let seedCount = tmpSeedCount,
+                  let peerCount = tmpPeerCount,
+                  let downloadCount = tmpDownloadCount,
+                  let uploader = tmpUploader,
+                  let fileName = tmpFileName,
+                  let hash = tmpHash,
+                  let torrentURL = tmpTorrentURL
+            else { continue }
+
+            torrents.append(
+                GalleryTorrent(
+                    postedDate: postedDate,
+                    fileSize: fileSize,
+                    seedCount: seedCount,
+                    peerCount: peerCount,
+                    downloadCount: downloadCount,
+                    uploader: uploader,
+                    fileName: fileName,
+                    hash: hash,
+                    torrentURL: torrentURL
+                )
+            )
+        }
+
+        return torrents
+    }
+}

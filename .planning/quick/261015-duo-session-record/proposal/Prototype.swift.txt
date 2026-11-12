@@ -1,0 +1,680 @@
+import SFSafeSymbols
+import SwiftUI
+
+// A standalone visual proposal. All gallery names, counts and covers are sample content.
+enum Screen: String, CaseIterable, Identifiable {
+    case home = "Home", favorites = "Favorites", search = "Search", downloads = "Downloads", setting = "Setting"
+    var id: String { rawValue }
+    var symbol: SFSymbol {
+        switch self {
+        case .home: .houseCircle
+        case .favorites: .heartCircle
+        case .search: .magnifyingglassCircle
+        case .downloads: .arrowDownCircle
+        case .setting: .gearshapeCircle
+        }
+    }
+}
+
+struct Gallery: Identifiable, Hashable {
+    let id: Int
+    let title: String
+    let creator: String
+    let category: String
+    let pages: Int
+    let tone: Int
+    var color: Color {
+        switch tone {
+        case 0: .teal
+        case 1: .orange
+        case 2: .indigo
+        case 3: .pink
+        default: .brown
+        }
+    }
+    static let samples: [Self] = [
+        .init(id: 1, title: "A Journey Through Summer",
+              creator: "Studio Aoi", category: "Artbook", pages: 48, tone: 0),
+        .init(id: 2, title: "City Lights — Illustration Collection",
+              creator: "Night Walk", category: "Artist CG", pages: 72, tone: 2),
+        .init(id: 3, title: "Sketchbook: Small Everyday Stories",
+              creator: "Mika", category: "Manga", pages: 32, tone: 1),
+        .init(id: 4, title: "The Garden Beyond the Window",
+              creator: "Leaf Studio", category: "Doujinshi", pages: 56, tone: 3),
+        .init(id: 5, title: "Cloud Atlas / Character Studies",
+              creator: "Paper Plane", category: "Artbook", pages: 96, tone: 0),
+        .init(id: 6, title: "Sunday Morning",
+              creator: "Little House", category: "Manga", pages: 24, tone: 4),
+        .init(id: 7, title: "Harbor Notes — Collected Drawings",
+              creator: "Seaside", category: "Artist CG", pages: 64, tone: 2),
+        .init(id: 8, title: "Seasons in Color",
+              creator: "Studio Aoi", category: "Artbook", pages: 40, tone: 1)
+    ]
+    static let featured = samples.first ?? .init(
+        id: 0, title: "Sample Gallery",
+              creator: "Sample Artist", category: "Artbook", pages: 48, tone: 0
+    )
+}
+
+@main
+struct ProposalApp: App {
+    var body: some Scene {
+        WindowGroup { ProposalRoot() }
+    }
+}
+
+struct ProposalRoot: View {
+    @State private var screen = Screen(rawValue: ProcessInfo.processInfo.environment["PROPOSAL_PAGE"] ?? "Favorites")
+        ?? .favorites
+    private let duo = ProcessInfo.processInfo.environment["PROPOSAL_DEVICE"] == "duo"
+    private let alternative = ProcessInfo.processInfo.environment["PROPOSAL_VARIANT"] == "alternative"
+    var body: some View {
+        TabView(selection: $screen) {
+            ForEach(Screen.allCases) { page in
+                Group {
+                    switch page {
+                    case .favorites: FavoritesProposal(duo: duo, alternative: alternative)
+                    case .search: SearchProposal(duo: duo, alternative: alternative)
+                    case .downloads: DownloadsProposal(duo: duo, alternative: alternative)
+                    default: NavigationStack { Text(page.rawValue).navigationTitle(page.rawValue) }
+                    }
+                }
+                .tabItem { Label(page.rawValue, systemSymbol: page.symbol) }
+                .tag(page)
+            }
+        }
+        .tint(Color(red: 0.38, green: 0.58, blue: 0.17))
+    }
+}
+
+struct SplitPanels<Leading: View, Trailing: View>: View {
+    let duo: Bool
+    let fraction: CGFloat
+    @Binding var keyword: String
+    @ViewBuilder var leading: () -> Leading
+    @ViewBuilder var trailing: () -> Trailing
+    @State private var width: CGFloat = 0
+    @State private var boundary: CGFloat = 0
+    @State private var divisionX: CGFloat?
+    @State private var visibility: NavigationSplitViewVisibility = .all
+    var body: some View {
+        NavigationSplitView(columnVisibility: $visibility) {
+            leading()
+                .navigationSplitViewColumnWidth(
+                    min: 280, ideal: max(280, width * fraction), max: max(280, width * 0.55)
+                )
+                .onGeometryChange(for: CGFloat.self) { proxy in
+                    proxy.frame(in: .named("proposalSplit")).maxX
+                } action: { boundary = $0 }
+        } detail: {
+            trailing()
+        }
+        .navigationSplitViewStyle(.balanced)
+        .coordinateSpace(name: "proposalSplit")
+        .searchable(text: $keyword, placement: .navigationBarDrawer(displayMode: .always))
+        .onGeometryChange(for: PanelSize.self) { proxy in
+            let middle: CGFloat?
+            if #available(iOS 27.1, *) {
+                middle = proxy.reservedRegions(kind: .division, options: .includeInactive).first?.frame.midX
+            } else {
+                middle = nil
+            }
+            return .init(width: proxy.size.width, middle: middle)
+        } action: { value in
+            width = value.width
+            divisionX = value.middle
+        }
+        .overlay(alignment: .leading) {
+            if duo, let divisionX {
+                LinearGradient(
+                    stops: [.init(color: .clear, location: 0),
+                            .init(color: .black.opacity(0.04), location: 0.2),
+                            .init(color: .black.opacity(0.22), location: 0.5),
+                            .init(color: .black.opacity(0.04), location: 0.8),
+                            .init(color: .clear, location: 1)],
+                    startPoint: .leading, endPoint: .trailing
+                )
+                .frame(width: 18)
+                .offset(x: divisionX - 9)
+                .ignoresSafeArea(.container, edges: .vertical)
+                .allowsHitTesting(false)
+                .accessibilityHidden(true)
+            } else if !duo {
+                Rectangle().fill(Color(.opaqueSeparator))
+                    .frame(width: 2)
+                    .offset(x: boundary - 1)
+                    .ignoresSafeArea(.container, edges: .bottom)
+                    .allowsHitTesting(false)
+                    .accessibilityHidden(true)
+            }
+        }
+    }
+}
+
+struct PanelSize: Equatable {
+    var width: CGFloat
+    var middle: CGFloat?
+}
+
+struct Cover: View {
+    let gallery: Gallery
+    var width: CGFloat = 62
+    var body: some View {
+        VStack(spacing: 9) {
+            Image(systemSymbol: .bookClosed)
+                .font(.largeTitle.weight(.light))
+            Text(gallery.category.uppercased())
+                .font(.caption2.weight(.semibold))
+        }
+        .foregroundStyle(gallery.color)
+        .frame(width: width, height: width * 1.4)
+        .background(gallery.color.opacity(0.13), in: .rect(cornerRadius: 7))
+        .accessibilityHidden(true)
+    }
+}
+
+struct GalleryRow: View {
+    let gallery: Gallery
+    var selected = false
+    var download = false
+    var body: some View {
+        HStack(alignment: .top, spacing: 14) {
+            Cover(gallery: gallery)
+            VStack(alignment: .leading, spacing: 6) {
+                Text(gallery.title)
+                .font(.headline)
+                .lineLimit(2)
+                Text(gallery.creator)
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+                HStack {
+                    Text(gallery.category)
+                    Text("·")
+                    Text(verbatim: "\(gallery.pages) pages")
+                }
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                if download {
+                    Text(
+                        gallery.id == 1 ? "Downloading · 36 / 48"
+                            : gallery.id == 2 ? "Paused · 25 / 72" : "Downloaded"
+                    )
+                        .font(.caption.weight(.medium))
+                        .foregroundStyle(gallery.id < 3 ? Color.accentColor : .secondary)
+                    if gallery.id == 1 { ProgressView(value: 0.75)
+                .tint(.accentColor) }
+                } else {
+                    Label("4.5", systemSymbol: .starFill)
+                .font(.caption)
+                .foregroundStyle(.orange)
+                }
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            if selected { Image(systemSymbol: .checkmarkCircleFill)
+                .foregroundStyle(Color.accentColor) }
+        }
+        .padding(.vertical, 7)
+        .contentShape(.rect)
+    }
+}
+
+struct FavoritesProposal: View {
+    let duo: Bool
+    let alternative: Bool
+    @State private var selected = Gallery.featured
+    @State private var keyword = ""
+    @State private var category = "All Favorites"
+    var body: some View {
+        if alternative {
+            SplitPanels(duo: duo, fraction: 0.24, keyword: $keyword) {
+
+                    List {
+                        Section("Library") {
+                            Label("All Favorites", systemSymbol: .heartFill)
+                                .listRowBackground(Color.accentColor.opacity(0.12))
+                        }
+                        Section("Collections") {
+                            Label("To Read", systemSymbol: .bookmark)
+                            Label("Artbooks", systemSymbol: .paintpalette)
+                            Label("Manga", systemSymbol: .bookClosed)
+                            Label("Illustrations", systemSymbol: .photo)
+                            Label("Favorites 4", systemSymbol: .folder)
+                            Label("Favorites 5", systemSymbol: .folder)
+                        }
+                    }
+                    .scrollEdgeEffectStyle(.soft, for: .top)
+                    .navigationTitle("Favorites")
+                .toolbarTitleDisplayMode(.inlineLarge)
+
+            } trailing: {
+
+                    GalleryGrid()
+                        .navigationTitle("All Favorites")
+                .toolbarTitleDisplayMode(.inlineLarge)
+                        .toolbar { Button {} label: { Label("Sort", systemSymbol: .arrowUpArrowDown) } }
+
+            }
+        } else {
+            SplitPanels(duo: duo, fraction: 0.43, keyword: $keyword) {
+
+                    List(Gallery.samples) { gallery in
+                        Button { selected = gallery } label: {
+                            GalleryRow(gallery: gallery, selected: gallery == selected)
+                        }
+                            .tint(.primary)
+                            .listRowBackground(
+                                gallery == selected ? Color.accentColor.opacity(0.1) : Color(.systemBackground)
+                            )
+                    }
+                    .listStyle(.plain)
+                    .scrollEdgeEffectStyle(.soft, for: .top)
+                    .safeAreaInset(edge: .top, spacing: 0) {
+                        HStack {
+                            Menu {
+                                Picker("Collection", selection: $category) {
+                                    ForEach(["All Favorites", "To Read", "Artbooks", "Manga"], id: \.self) { Text($0) }
+                                }
+                            } label: { Label(category, systemSymbol: .folder) }
+                            Spacer()
+                            Button {} label: { Label("Sort", systemSymbol: .arrowUpArrowDown) }
+                        }
+                        .font(.subheadline)
+                        .padding(.horizontal, 20)
+                        .padding(.vertical, 14)
+                        .background(.bar)
+                    }
+                    .navigationTitle("Favorites")
+                .toolbarTitleDisplayMode(.inlineLarge)
+
+            } trailing: {
+
+                    GalleryDetail(gallery: selected)
+                        .navigationTitle("Gallery")
+                .toolbarTitleDisplayMode(.inlineLarge)
+                        .toolbar {
+                            Button {} label: { Label("Favorite", systemSymbol: .heartFill) }
+                            Button {} label: { Label("Download", systemSymbol: .arrowDownCircle) }
+                        }
+
+            }
+        }
+    }
+}
+
+struct GalleryDetail: View {
+    let gallery: Gallery
+    var body: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 24) {
+                HStack(alignment: .top, spacing: 22) {
+                    Cover(gallery: gallery, width: 110)
+                    VStack(alignment: .leading, spacing: 12) {
+                        Text(gallery.title)
+                .font(.title2.bold())
+                        Text(gallery.creator)
+                .foregroundStyle(.secondary)
+                        Label("4.5 · 128 ratings", systemSymbol: .starFill)
+                .foregroundStyle(.orange)
+                .font(.subheadline)
+                        Text(verbatim: "\(gallery.category) · English · \(gallery.pages) pages")
+                            .font(.subheadline)
+                .foregroundStyle(.secondary)
+                    }
+                }
+                Button {} label: {
+                    Label("Read", systemSymbol: .book)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 6)
+                }
+                .buttonStyle(.glassProminent)
+                VStack(alignment: .leading, spacing: 12) {
+                    Text("Tags")
+                .font(.headline)
+                    HStack {
+                        ForEach(["full color", "artbook", "landscape"], id: \.self) { tag in
+                            Text(tag)
+                .font(.subheadline)
+                .padding(.horizontal, 10)
+                .padding(.vertical, 7)
+                                .background(.quaternary, in: .capsule)
+                        }
+                    }
+                }
+                Divider()
+                HStack {
+                    Text("Previews")
+                .font(.title3.bold())
+                    Spacer()
+                    Text(verbatim: "\(gallery.pages) pages")
+                .foregroundStyle(.secondary)
+                .font(.subheadline)
+                }
+                LazyVGrid(columns: [GridItem(.adaptive(minimum: 100))], spacing: 14) {
+                    ForEach(1...8, id: \.self) { page in
+                        ZStack(alignment: .bottomTrailing) {
+                            Rectangle().fill(Color(.secondarySystemBackground))
+                .aspectRatio(0.72, contentMode: .fit)
+                            Text(verbatim: "\(page)")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .padding(10)
+                        }
+                        .clipShape(.rect(cornerRadius: 6))
+                    }
+                }
+            }
+            .padding(24)
+        }
+        .scrollEdgeEffectStyle(.soft, for: .top)
+    }
+}
+
+struct GalleryGrid: View {
+    var subtitle: String?
+    var compact = false
+    var body: some View {
+        ScrollView {
+            if let subtitle {
+                Text(subtitle)
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.horizontal, 24)
+                    .padding(.top, 12)
+            }
+            LazyVGrid(
+                columns: [GridItem(.adaptive(minimum: compact ? 140 : 170), spacing: compact ? 16 : 24)],
+                alignment: .leading, spacing: 26
+            ) {
+                ForEach(Gallery.samples) { gallery in
+                    VStack(alignment: .leading, spacing: 10) {
+                        Cover(gallery: gallery, width: compact ? 130 : 155)
+                        Text(gallery.title)
+                .font(.headline)
+                .lineLimit(2)
+                        Text(gallery.creator)
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+                        Text(verbatim: "\(gallery.pages) pages")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                }
+            }
+            .padding(24)
+        }
+        .scrollEdgeEffectStyle(.soft, for: .top)
+    }
+}
+
+struct SearchProposal: View {
+    let duo: Bool
+    let alternative: Bool
+    @State private var keyword = "artbook"
+    @State private var selected = Gallery.featured
+    var body: some View {
+        SplitPanels(duo: duo, fraction: alternative ? 0.43 : 0.32, keyword: $keyword) {
+
+                if alternative {
+                    List(Gallery.samples) { gallery in
+                        Button { selected = gallery } label: {
+                            GalleryRow(gallery: gallery, selected: selected == gallery)
+                        }
+                            .tint(.primary)
+                            .listRowBackground(
+                                gallery == selected ? Color.accentColor.opacity(0.1) : Color(.systemBackground)
+                            )
+                    }
+                    .listStyle(.plain)
+                    .scrollEdgeEffectStyle(.soft, for: .top)
+                    .navigationTitle("Search")
+                .toolbarTitleDisplayMode(.inlineLarge)
+                    .toolbar { Button {} label: { Label("Filters", systemSymbol: .line3HorizontalDecreaseCircle) } }
+                } else {
+                    SearchControls()
+                        .navigationTitle("Search")
+                .toolbarTitleDisplayMode(.inlineLarge)
+                }
+
+        } trailing: {
+
+                if alternative {
+                    GalleryDetail(gallery: selected)
+                        .navigationTitle("Gallery")
+                .toolbarTitleDisplayMode(.inlineLarge)
+                        .toolbar { Button {} label: { Label("Download", systemSymbol: .arrowDownCircle) } }
+                } else {
+                    GalleryGrid(subtitle: "artbook · 240 results", compact: duo)
+                    .navigationTitle("Results")
+                .toolbarTitleDisplayMode(.inlineLarge)
+                    .toolbar { Button {} label: { Label("Display", systemSymbol: .squareGrid2x2) } }
+                }
+
+        }
+    }
+}
+
+struct SearchControls: View {
+    @State private var artbook = true
+    @State private var manga = false
+    @State private var minimum = false
+    var body: some View {
+        Form {
+            Section("Categories") {
+                Toggle("Artist CG", isOn: $artbook)
+                Toggle("Manga", isOn: $manga)
+                Button("More Categories…") {}
+            }
+            Section("Search Filters") {
+                Toggle("Minimum rating", isOn: $minimum)
+                LabeledContent("Page range", value: "Any")
+                Button("Advanced Filters…") {}
+            }
+            Section("Quick Search") {
+                Label("Illustration collections", systemSymbol: .bookmark)
+                Label("English manga", systemSymbol: .bookmark)
+            }
+            Section("Recently Searched") {
+                Label("artist:studio_aoi", systemSymbol: .clock)
+                Label("language:english", systemSymbol: .clock)
+            }
+        }
+        .scrollEdgeEffectStyle(.soft, for: .top)
+        .safeAreaBar(edge: .bottom) {
+            Button {} label: { Label("Search", systemSymbol: .magnifyingglass)
+                .frame(maxWidth: .infinity) }
+                .buttonStyle(.glassProminent)
+                .controlSize(.large)
+                .padding(.horizontal, 20)
+                .padding(.vertical, 10)
+        }
+    }
+}
+
+struct DownloadsProposal: View {
+    let duo: Bool
+    let alternative: Bool
+    @State private var keyword = ""
+    @State private var selected = Gallery.featured
+    @State private var showsInspector = true
+    var body: some View {
+        if !alternative {
+            NavigationStack {
+                DownloadRows(selected: $selected)
+                    .searchable(text: $keyword, placement: .navigationBarDrawer(displayMode: .always))
+                    .navigationTitle("Downloads")
+                    .toolbarTitleDisplayMode(.inlineLarge)
+                    .toolbar {
+                        Button {} label: { Label("Folders", systemSymbol: .folder) }
+                        Button { showsInspector.toggle() } label: {
+                            Label("Download Status", systemSymbol: .infoCircle)
+                        }
+                    }
+            }
+            .inspector(isPresented: $showsInspector) {
+                NavigationStack {
+                    DownloadStatus(gallery: selected)
+                        .navigationTitle("Download Status")
+                        .toolbarTitleDisplayMode(.inlineLarge)
+                        .toolbar {
+                            Button { showsInspector = false } label: { Label("Close", systemSymbol: .xmark) }
+                        }
+                }
+                .inspectorColumnWidth(min: 320, ideal: 400, max: 480)
+            }
+        } else {
+            folderLayout
+        }
+    }
+    private var folderLayout: some View {
+        SplitPanels(duo: duo, fraction: alternative ? 0.24 : 0.5, keyword: $keyword) {
+
+                if alternative {
+                    List {
+                        Section("Library") { Label("All Downloads", systemSymbol: .arrowDownCircle) }
+                        Section("Folders") {
+                            Label("Unfiled", systemSymbol: .tray)
+                            Label("To Read", systemSymbol: .folder)
+                            Label("Artbooks", systemSymbol: .folder)
+                            Label("Manga", systemSymbol: .folder)
+                        }
+                        Section { Label("Manage Folders", systemSymbol: .folderBadgeGearshape) }
+                    }
+                    .scrollEdgeEffectStyle(.soft, for: .top)
+                    .navigationTitle("Downloads")
+                .toolbarTitleDisplayMode(.inlineLarge)
+                } else {
+                    DownloadRows(selected: $selected)
+                        .safeAreaInset(edge: .top, spacing: 0) {
+                            HStack {
+                                Menu {
+                                    Button("All Downloads") {}
+                                    Button("Unfiled") {}
+                                    Button("To Read") {}
+                                    Button("Manage Folders…") {}
+                                } label: { Label("All Downloads", systemSymbol: .folder) }
+                                Spacer()
+                                Text("8 galleries").foregroundStyle(.secondary)
+                            }
+                            .font(.subheadline)
+                            .padding(.horizontal, 20)
+                            .padding(.vertical, 14)
+                            .background(.bar)
+                        }
+                        .navigationTitle("Downloads")
+                .toolbarTitleDisplayMode(.inlineLarge)
+                }
+
+        } trailing: {
+
+                if alternative {
+                    DownloadRows(selected: $selected)
+                        .navigationTitle("All Downloads")
+                .toolbarTitleDisplayMode(.inlineLarge)
+                } else {
+                    DownloadStatus(gallery: selected)
+                        .navigationTitle("Download Status")
+                .toolbarTitleDisplayMode(.inlineLarge)
+                        .toolbar { Button {} label: { Label("Close", systemSymbol: .xmark) } }
+                }
+
+        }
+    }
+}
+
+struct DownloadRows: View {
+    @Binding var selected: Gallery
+    var body: some View {
+        List {
+            ForEach(Gallery.samples) { gallery in
+                HStack(spacing: 12) {
+                    GalleryRow(gallery: gallery, download: true)
+                    Button { selected = gallery } label: {
+                        Image(systemSymbol: .infoCircle)
+                .font(.title3)
+                .frame(width: 44, height: 44)
+                    }
+                    .buttonStyle(.borderless)
+                }
+                .listRowBackground(selected == gallery ? Color.accentColor.opacity(0.1) : Color(.systemBackground))
+            }
+        }
+        .listStyle(.plain)
+        .scrollEdgeEffectStyle(.soft, for: .top)
+    }
+}
+
+struct DownloadStatus: View {
+    let gallery: Gallery
+    @State private var paused = false
+    var body: some View {
+        List {
+            Section {
+                HStack(spacing: 18) {
+                    Cover(gallery: gallery, width: 78)
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text(gallery.title)
+                .font(.title3.bold())
+                        Text(gallery.creator)
+                .foregroundStyle(.secondary)
+                        Text("36 / 48 pages")
+                .font(.subheadline)
+                .monospacedDigit()
+                        ProgressView(value: 0.75)
+                    }
+                }
+                .padding(.vertical, 8)
+            }
+            .listRowBackground(Color.clear)
+            Section("Pages") {
+                StatusRow(title: "Downloaded", detail: "Pages 1–36", count: "36",
+                          symbol: .checkmarkCircle, color: .accentColor)
+                StatusRow(title: "Pending", detail: "Pages 37–48", count: "12", symbol: .clock, color: .secondary)
+                StatusRow(title: "Failed", detail: "No failed pages", count: "0",
+                          symbol: .exclamationmarkCircle, color: .secondary)
+            }
+            Section("Actions") {
+                Button { paused.toggle() } label: {
+                    Label(paused ? "Resume" : "Pause", systemSymbol: paused ? .playFill : .pauseFill)
+                }
+                Button {} label: { Label("Retry Pages", systemSymbol: .arrowClockwise) }.disabled(true)
+                Button {} label: { Label("Validate Image Data", systemSymbol: .checkmarkShield) }.disabled(true)
+            }
+            Section {
+                Button {} label: { Label("Read Downloaded Pages", systemSymbol: .book) }
+                Button {} label: { Label("Gallery Details", systemSymbol: .infoCircle) }
+            }
+        }
+        .listStyle(.insetGrouped)
+        .scrollEdgeEffectStyle(.soft, for: .top)
+    }
+}
+
+struct StatusRow: View {
+    let title: String
+    let detail: String
+    let count: String
+    let symbol: SFSymbol
+    let color: Color
+    var body: some View {
+        HStack(spacing: 12) {
+            Image(systemSymbol: symbol)
+                .foregroundStyle(color)
+                .font(.title3)
+            VStack(alignment: .leading, spacing: 4) {
+                Text(title)
+                .font(.headline)
+                Text(detail)
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+            }
+            Spacer()
+            Text(count)
+                .font(.title3)
+                .monospacedDigit()
+                .foregroundStyle(color)
+        }
+        .padding(.vertical, 4)
+    }
+}

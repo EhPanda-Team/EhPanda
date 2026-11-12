@@ -1,16 +1,19 @@
 name: Test
-on: [push, workflow_dispatch]
+# Pushes to branches only, never a tag: moving a release's tag is a push too, and must not start the suite again.
+on:
+  push:
+    branches: ['**']
+  workflow_dispatch:
 env:
    SCHEME_NAME: 'EhPanda'
-   DEVELOPER_DIR: /Applications/Xcode_26.6.app
 jobs:
   Test:
-    runs-on: macos-26
+    runs-on: xcode-27
     if: ${{ !contains(github.event.head_commit.message, '[skip test]') }}
     steps:
       - name: Checkout
         uses: actions/checkout@v7
-      - name: Install iOS 26 Platform
+      - name: Install iOS 27 Platform
         uses: nick-fields/retry@v4
         with:
           retry_on: error
@@ -22,5 +25,16 @@ jobs:
       - name: Run tests
         run: xcodebuild clean test
           -skipMacroValidation
+          -skipPackagePluginValidation
           -scheme ${{ env.SCHEME_NAME }}
-          -destination 'platform=iOS Simulator,name=iPhone Air'
+          -testPlan FeatureTests
+          -destination 'platform=iOS Simulator,name=iPhone Air,OS=27.0'
+          -onlyUsePackageVersionsFromResolvedFile
+          -resultBundlePath '${{ runner.temp }}/FeatureTests.xcresult'
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: feature-test-results
+          path: ${{ runner.temp }}/FeatureTests.xcresult
+          if-no-files-found: ignore

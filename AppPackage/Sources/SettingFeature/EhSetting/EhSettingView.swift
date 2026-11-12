@@ -1,0 +1,138 @@
+import AppComponents
+import AppModels
+import AppTools
+import ComposableArchitecture
+import Resources
+import SFSafeSymbols
+import SFSafeSymbolsExt
+import Sharing
+import SwiftUI
+
+struct EhSettingView: View {
+    @AccessibilityFocusState private var profilePickerFocused: Bool
+    @Bindable private var store: StoreOf<EhSettingReducer>
+    @SharedReader(.setting) private var setting: Setting
+
+    private var galleryHost: GalleryHost { setting.galleryHost }
+
+    init(store: StoreOf<EhSettingReducer>) {
+        self.store = store
+    }
+
+    // MARK: EhSettingView
+    var body: some View {
+        // The `ZStack` is the transition container for the conditional form; a `Group` would be worth
+        // trying now that no lifecycle modifier needs a concrete view here, but that is a rendering
+        // change, not a lifecycle one.
+        ZStack {
+            if let ehSetting = Binding($store.ehSetting),
+               let ehProfile = Binding($store.ehProfile) {
+                form(ehSetting: ehSetting, ehProfile: ehProfile)
+                    .transition(.opacity.animation(.default))
+            }
+        }
+        .onChange(of: store.ehSetting != nil && store.ehProfile != nil) { _, isReady in
+            guard isReady else { return }
+            profilePickerFocused = true
+        }
+        .overlay {
+            LoadingView()
+                .animation(.default) {
+                    $0.visible(store.loadingState == .loading || store.submittingState == .loading)
+                }
+        }
+        .overlay {
+            ErrorView(error: store.loadingState.failed ?? .unknown, action: { store.send(.fetchEhSetting) })
+                .animation(.default) {
+                    $0.visible(store.loadingState.is(\.failed))
+                }
+        }
+        .sheet(item: $store.destination.webView, id: \.absoluteString) { url in
+            WebView(url: url.wrappedValue)
+                .ignoresSafeArea(edges: .bottom)
+                .scrollEdgeEffectStyle(.soft, for: .top)
+                .privacyMask()
+        }
+        .scrollEdgeEffectStyle(.soft, for: .top)
+        .toolbar(content: toolbar)
+        .navigationTitle(.hostSettings(galleryHost.rawValue))
+    }
+    // MARK: Form
+    private func form(ehSetting: Binding<EhSetting>, ehProfile: Binding<EhProfile>) -> some View {
+        Form {
+            Group {
+                EhProfileSection(
+                    ehSetting: ehSetting,
+                    ehProfile: ehProfile,
+                    profilePickerFocus: $profilePickerFocused,
+                    editingProfileName: $store.editingProfileName,
+                    deleteDialogAction: { store.send(.deleteProfileButtonTapped) },
+                    deleteConfirmationDialog: $store.scope(
+                        \.$confirmationDialog, action: \.confirmationDialog
+                    ),
+                    performEhProfileAction: { store.send(.performAction(action: $0, name: $1, set: $2)) }
+                )
+
+                ImageLoadSettingsSection(ehSetting: ehSetting)
+                ImageSizeSettingsSection(ehSetting: ehSetting)
+                GalleryNameDisplaySection(ehSetting: ehSetting)
+                ArchiverSettingsSection(ehSetting: ehSetting)
+                FrontPageSettingsSection(ehSetting: ehSetting)
+                OptionalUIElementsSection(ehSetting: ehSetting)
+                FavoritesSection(ehSetting: ehSetting)
+                SearchResultCountSection(ehSetting: ehSetting)
+                ThumbnailSettingsSection(ehSetting: ehSetting)
+            }
+            Group {
+                CoverScalingSection(ehSetting: ehSetting)
+                RatingsSection(ehSetting: ehSetting)
+                TagWatchingThresholdSection(ehSetting: ehSetting)
+                TagFilteringThresholdSection(ehSetting: ehSetting)
+                FilteredRemovalCountSection(ehSetting: ehSetting)
+                ExcludedLanguagesSection(ehSetting: ehSetting)
+                ExcludedUploadersSection(ehSetting: ehSetting)
+                ViewportOverrideSection(ehSetting: ehSetting)
+                GalleryCommentsSection(ehSetting: ehSetting)
+                GalleryTagsSection(ehSetting: ehSetting)
+            }
+            Group {
+                GalleryPageThumbnailLabelingSection(ehSetting: ehSetting)
+                MultiplePageViewerSection(ehSetting: ehSetting)
+            }
+        }
+        .scrollEdgeEffectStyle(.soft, for: .top)
+    }
+    // MARK: Toolbar
+    private func toolbar() -> some ToolbarContent {
+        Group {
+            ToolbarItem(placement: .topBarTrailing) {
+                Button {
+                    store.send(.presentWebView(Defaults.URL.uConfig(host: setting.galleryHost)))
+                } label: {
+                    Label(.website, systemSymbol: .globe)
+                }
+                .disabled(setting.bypassSNIFiltering)
+            }
+
+            ToolbarItem(placement: .confirmationAction) {
+                Button {
+                    store.send(.submitChanges)
+                } label: {
+                    Label(.save, systemSymbol: .icloudAndArrowUp)
+                }
+                .disabled(store.ehSetting == nil)
+            }
+        }
+    }
+}
+
+#Preview("Initial") {
+    NavigationStack {
+        EhSettingView(
+            store: .init(
+                initialState: .init(ehSetting: .empty, ehProfile: .empty, loadingState: .idle),
+                reducer: EhSettingReducer.init
+            )
+        )
+    }
+}

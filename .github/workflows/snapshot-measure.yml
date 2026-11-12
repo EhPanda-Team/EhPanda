@@ -1,0 +1,285 @@
+name: Snapshot measurement
+# One-off measurement of the screenshot check on GitHub's hosted Mac (19-04; 19-CONTEXT D-13, D-15). One build feeds
+# one job per device and text size (en-xSmall, en-large, en-accessibility5). Each job records the 19-05 classes once as
+# the candidate, then compares them against it at 2, 3 and 4 simulator clones, one xcodebuild at a time, while it
+# samples its host's memory pressure. One job per device ran out of its 170 minutes on the iPhone (run 42442366372:
+# about 14 minutes per xcodebuild), so each text size has its own job and host. A seventh and eighth job (`all`)
+# record the three text sizes in one invocation per device, to time the fixed cost per xcodebuild against the
+# single-size candidates; eight jobs, five at a time. Scripts/visual/snapshot_measure.py turns the uploaded results
+# into the cost table and the worker count. The pictures are synthetic; the references stay on the runner. Uploaded
+# are each run's results.jsonl, shard.json and xcodebuild log, the candidate's results.jsonl and shard.json, and for a
+# changed picture (and a flaky one's first attempt) its actual, difference and reference images. Every xcodebuild
+# has XCTest's per-test time allowance, a watchdog and a startup watchdog (no test begun after 20 minutes: no
+# `Test case` line and no new result line, Scripts/visual/snapshot_infra.py --started). The
+# simulator steps are time-limited and retried once (Scripts/visual/hosted-simulator.sh), the previous invocation's
+# clones are deleted before the next starts, and an invocation that fails on the simulator rather than in a test
+# (Scripts/visual/snapshot_infra.py) is made once more and recorded as `infra` if it fails that way again; run
+# 42475531683 lost 5 of 8 jobs to the simulator. It runs only on a push to ci/snapshot-measure, which needs the
+# owner's go-ahead; that commit's message carries `[skip test]`.
+on:
+  push:
+    branches: [ci/snapshot-measure]
+permissions:
+  contents: read
+env:
+  SCHEME_NAME: 'EhPanda'
+jobs:
+  build:
+    runs-on: xcode-27
+    timeout-minutes: 90
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+      - name: Install iOS 27 Platform
+        uses: nick-fields/retry@v4
+        with:
+          retry_on: error
+          max_attempts: 10
+          timeout_minutes: 999
+          command: xcodebuild -downloadPlatform iOS
+      - name: Show Xcode version
+        run: xcodebuild -version
+      - name: Build for testing
+        run: |
+          xcodebuild build-for-testing \
+            -skipMacroValidation \
+            -skipPackagePluginValidation \
+            -scheme "$SCHEME_NAME" \
+            -testPlan SnapshotMatrix \
+            -destination 'generic/platform=iOS Simulator' \
+            -onlyUsePackageVersionsFromResolvedFile \
+            -derivedDataPath "$RUNNER_TEMP/DerivedData" >"$RUNNER_TEMP/build.log" 2>&1 || {
+              grep -E ': error:|\*\* (BUILD|TEST BUILD) FAILED' "$RUNNER_TEMP/build.log" | sort -u
+              exit 1
+            }
+          tar -C "$RUNNER_TEMP/DerivedData/Build" -cf "$RUNNER_TEMP/products.tar" Products
+      - name: Upload the test products
+        uses: actions/upload-artifact@v7
+        with:
+          name: snapshot-measure-products
+          path: ${{ runner.temp }}/products.tar
+          if-no-files-found: error
+          retention-days: 1
+
+  measure:
+    needs: build
+    runs-on: xcode-27
+    # Room for the simulator step's 60 minutes and the measurement step's 140, so the upload still runs.
+    timeout-minutes: 215
+    strategy:
+      fail-fast: false
+      matrix:
+        family: [iphone, ipad]
+        configuration: [en-xSmall, en-large, en-accessibility5, all]
+        include:
+          - family: iphone
+            device: com.apple.CoreSimulator.SimDeviceType.iPhone-Air
+            orientations: ''
+          # An iPad process captures only the orientation the device is in; a new iPad starts in portrait.
+          - family: ipad
+            device: com.apple.CoreSimulator.SimDeviceType.iPad-Pro-11-inch-M5-12GB
+            orientations: portrait
+    env:
+      CLASSES: >-
+        FirstLaunchSnapshotTests ShellSnapshotTests HomeSnapshotTests FrontPageSnapshotTests PopularSnapshotTests
+        WatchedSnapshotTests ToplistsSnapshotTests HistorySnapshotTests
+      CONFIGURATION: ${{ matrix.configuration }}
+      WORKER_COUNTS: 2 3 4
+      ALL_CONFIGURATIONS: en-xSmall en-large en-accessibility5
+      WATCHDOG_MINUTES: 45
+      STARTUP_MINUTES: 20
+    steps:
+      # The runner context is not available in a job's env, so OUT is set here.
+      - name: Note the job start
+        run: |
+          echo "JOB_START=$(date +%s)" >> "$GITHUB_ENV"
+          echo "OUT=$RUNNER_TEMP/measure/${{ matrix.family }}/$CONFIGURATION" >> "$GITHUB_ENV"
+      # The tests read the scenario inventory and the rendering pin from the checkout, at the path they were
+      # built at, which is the same on every hosted runner.
+      - name: Checkout
+        uses: actions/checkout@v7
+      - name: Install iOS 27 Platform
+        uses: nick-fields/retry@v4
+        with:
+          retry_on: error
+          max_attempts: 10
+          timeout_minutes: 999
+          command: xcodebuild -downloadPlatform iOS
+      - name: Download the test products
+        uses: actions/download-artifact@v7
+        with:
+          name: snapshot-measure-products
+          path: ${{ runner.temp }}
+      # Every simctl call has its own limit and a failed setup is made once more (Scripts/visual/hosted-simulator.sh):
+      # in run 42475531683 two jobs hung here until the job limit. The step limit covers both attempts, at the longer
+      # per-call limits that run 42533872440's runners needed.
+      - name: Create the pinned simulator
+        timeout-minutes: 60
+        run: |
+          tar -C "$RUNNER_TEMP" -xf "$RUNNER_TEMP/products.tar"
+          udid=$(Scripts/visual/hosted-simulator.sh create 'EhPanda measure' '${{ matrix.device }}' \
+            com.apple.CoreSimulator.SimRuntime.iOS-27-0 '${{ matrix.family }}')
+          echo "UDID=$udid" >> "$GITHUB_ENV"
+          echo "XCTESTRUN=$(ls "$RUNNER_TEMP"/Products/*SnapshotMatrix*.xctestrun | head -1)" >> "$GITHUB_ENV"
+          mkdir -p "$OUT"
+          python3 -c 'import json, sys, time; json.dump({"bootFetchSeconds": round(time.time() - int(sys.argv[1]))},
+            open(sys.argv[2], "w"))' "$JOB_START" "$OUT/timing.json"
+      # The pressure level is read, never applied (`memory_pressure -l` would apply it): 1 normal, 2 warn,
+      # 4 critical, every 5 s.
+      - name: Start sampling memory pressure
+        run: |
+          nohup bash -c 'while :; do
+            case $(sysctl -n kern.memorystatus_vm_pressure_level) in
+              1) level=normal ;; 2) level=warn ;; 4) level=critical ;; *) level=unknown ;;
+            esac
+            echo "$(date -u +%Y-%m-%dT%H:%M:%SZ) $level" >> "$OUT/memory.log"
+            sleep 5
+          done' >/dev/null 2>&1 &
+      # Under the job's limit, so the measurements finished by then are still uploaded.
+      - name: Record the candidate and compare at 2, 3 and 4 workers
+        timeout-minutes: 140
+        run: |
+          only=()
+          for class in $CLASSES; do only+=("-only-testing:VisualSnapshotTests/$class"); done
+          xcode_build=$(xcodebuild -version | tail -1)
+          mkdir -p "$OUT/logs"
+          # One xcodebuild of the classes; returns its exit status.
+          invoke() { # <configurations> <workers> <mode> <output> <log> <references or "">
+            local variables=(TEST_RUNNER_EHPANDA_SNAPSHOT_MODE="$3" TEST_RUNNER_EHPANDA_SNAPSHOT_OUTPUT="$4")
+            [ -n "$6" ] && variables+=(TEST_RUNNER_EHPANDA_SNAPSHOT_REFERENCES="$6")
+            [ -n '${{ matrix.orientations }}' ] &&
+              variables+=(TEST_RUNNER_EHPANDA_SNAPSHOT_ORIENTATIONS='${{ matrix.orientations }}')
+            local configurations=() configuration baseline
+            for configuration in $1; do configurations+=(-only-test-configuration "$configuration"); done
+            mkdir -p "$4"
+            # The log is appended to, never truncated under xcodebuild: a watchdog's note written beside xcodebuild
+            # was overwritten by its later output in run 42533872440.
+            : >"$5"
+            baseline=$(grep -c . "$4/results.jsonl" 2>/dev/null || true)
+            # A test that hangs is stopped by XCTest's own allowance (a scenario method captures four coordinates
+            # in well under 5 minutes); an invocation that hangs outside a test is stopped by the watchdog.
+            env "${variables[@]}" xcodebuild test-without-building \
+              -xctestrun "$XCTESTRUN" \
+              -destination "platform=iOS Simulator,id=$UDID" \
+              -parallel-testing-enabled YES \
+              -parallel-testing-worker-count "$2" \
+              -test-timeouts-enabled YES \
+              -default-test-execution-time-allowance 300 \
+              -maximum-test-execution-time-allowance 600 \
+              "${configurations[@]}" \
+              "${only[@]}" >>"$5" 2>&1 &
+            local pid=$! minutes=$WATCHDOG_MINUTES status=0
+            # One invocation of all three text sizes may take three times as long, within the step's limit.
+            [ "$CONFIGURATION" = all ] && minutes=130
+            ( sleep $((minutes * 60)) && kill -TERM "$pid" 2>/dev/null &&
+              echo "watchdog: stopped after $minutes minutes" >>"$5" ) >/dev/null 2>&1 &
+            local watchdog=$!
+            # A clone that never launches the test runner leaves the invocation waiting with no test begun: an
+            # iPhone candidate waited 46 minutes in run 42475531683 and two waited 1 to 2 hours in run 42455556948.
+            # A test has begun when the log says so or results.jsonl has grown: in run 42533872440 two invocations
+            # had written 123 and 78 result lines with no `Test case` line in the log, and were stopped.
+            ( sleep $((STARTUP_MINUTES * 60)) &&
+              ! python3 Scripts/visual/snapshot_infra.py --started "$5" "$4/results.jsonl" \
+                --baseline "${baseline:-0}" &&
+              kill -TERM "$pid" 2>/dev/null &&
+              echo "watchdog: no test started after $STARTUP_MINUTES minutes" >>"$5" ) >/dev/null 2>&1 &
+            local startup=$!
+            wait "$pid" || status=$?
+            local stopper
+            for stopper in "$watchdog" "$startup"; do
+              pkill -P "$stopper" 2>/dev/null || true
+              kill "$stopper" 2>/dev/null || true
+            done
+            return "$status"
+          }
+          run() { # <configurations> <workers> <mode> <output> [references]
+            local label="$CONFIGURATION-$3-w$2" log started status=0 reason='' retried='' attempt
+            log="$OUT/logs/xcodebuild-$label.log"
+            for attempt in 1 2; do
+              # The previous invocation's clones are gone first: a clone still shutting down could not take the
+              # test runner in run 42475531683.
+              Scripts/visual/hosted-simulator.sh clear-clones 'EhPanda measure' || true
+              started=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+              status=0
+              invoke "$1" "$2" "$3" "$4" "$log" "${5:-}" || status=$?
+              # A simulator failure (Scripts/visual/snapshot_infra.py) is not a measurement: made once more.
+              reason=$(python3 Scripts/visual/snapshot_infra.py --status "$status" "$log") || reason=''
+              [ -n "$reason" ] || break
+              echo "$label: simulator failure ($reason) on attempt $attempt"
+              retried="$retried $reason"
+              [ "$attempt" = 2 ] && break
+              # The failed attempt's log and result lines are kept beside the retry; its pictures are not.
+              mv "$log" "$OUT/logs/xcodebuild-$label-infra.log"
+              cp "$4/results.jsonl" "$OUT/logs/results-$label-infra.jsonl" 2>/dev/null || true
+              rm -rf "$4"
+            done
+            # The failure messages of the synthetic pictures (geometry, configuration checks), at most five kinds.
+            [ "$status" = 0 ] || grep -E 'error: |watchdog: ' "$log" |
+              sed -E 's/^.*error: //; s/^-\[[^]]*\] : //' |
+              sort | uniq -c | sort -rn | head -5 || true
+            # `infra` names the simulator failure of a run that failed that way twice; `infraRetries` every retried one.
+            python3 -c 'import json, sys
+          shard, units, workers, build, model, image, started, finished, infra, retried, path = sys.argv[1:]
+          json.dump({"shard": shard, "units": units.split(), "workers": int(workers), "xcodeBuild": build,
+                     "runtime": "iOS 27.0", "model": model, "runnerImage": image, "started": started,
+                     "finished": finished, "infra": infra or None, "infraRetries": retried.split()},
+                    open(path, "w"), indent=2)' \
+              "measure-${{ matrix.family }}" "$1" "$2" "$xcode_build" '${{ matrix.family }}' \
+              "${ImageOS:-unknown} ${ImageVersion:-unknown}" "$started" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+              "$reason" "$retried" "$4/shard.json"
+            # The reference of a changed picture, and of a flaky one's first attempt, beside its actual and
+            # difference, so the change can be read later.
+            local kind
+            for kind in actual first-actual; do
+              [ -n "${5:-}" ] && [ -d "$4/$kind" ] || continue
+              (cd "$4/$kind" && find . -name '*.png') | while read -r picture; do
+                mkdir -p "$(dirname "$4/reference/$picture")"
+                cp "$5/$picture" "$4/reference/$picture" 2>/dev/null || true
+              done
+            done
+            local counts
+            counts=$(python3 -c 'import collections, json, sys
+          try:
+              statuses = collections.Counter(json.loads(line)["status"] for line in open(sys.argv[1]))
+          except FileNotFoundError:
+              statuses = collections.Counter()
+          names = ("passed", "recorded", "changed", "timeout", "error")
+          print(" ".join(f"{name}={statuses[name]}" for name in names))' "$4/results.jsonl")
+            echo "$1 $3 at $2 workers: exit $status${reason:+ (infra: $reason)}, $counts"
+          }
+          # The candidate's record and result lines (not its pictures) are kept beside the comparisons.
+          keep_candidate() {
+            mkdir -p "$OUT/candidate"
+            cp "$1/shard.json" "$1/results.jsonl" "$OUT/candidate/" 2>/dev/null || true
+          }
+          references="$RUNNER_TEMP/references/$CONFIGURATION"
+          if [ "$CONFIGURATION" = all ]; then
+            # Option 3 of 19-04-MEASURE.md: the three text sizes in one invocation, timed against the three
+            # single-size candidates of the other jobs.
+            run "$ALL_CONFIGURATIONS" 2 candidate "$references"
+            keep_candidate "$references"
+            exit 0
+          fi
+          # One xcodebuild at a time: the candidate, then its three comparisons.
+          run "$CONFIGURATION" 2 candidate "$references"
+          keep_candidate "$references"
+          for workers in $WORKER_COUNTS; do
+            run "$CONFIGURATION" "$workers" compare "$OUT/w$workers" "$references"
+          done
+      - name: Record the runner
+        if: always()
+        run: |
+          {
+            echo '### Runner (${{ matrix.family }}, ${{ matrix.configuration }})'
+            echo "- Runner name: $RUNNER_NAME"
+            echo "- Image: ${ImageOS:-unknown} ${ImageVersion:-unknown}"
+            echo '- Runner environment: ${{ runner.environment }}'
+          } >> "$GITHUB_STEP_SUMMARY"
+      - name: Upload the measurements
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: snapshot-measure-${{ matrix.family }}-${{ matrix.configuration }}
+          path: ${{ runner.temp }}/measure
+          if-no-files-found: error
+          retention-days: 30

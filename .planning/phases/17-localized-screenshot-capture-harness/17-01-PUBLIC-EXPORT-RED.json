@@ -1,0 +1,25 @@
+{
+  "command": "xcodebuild test-without-building -project EhPanda.xcodeproj -scheme EhPanda -testPlan FeatureTests -destination 'platform=iOS Simulator,id=35988D34-B4E9-44C6-82B5-CDA2CF391339' -parallel-testing-enabled NO -only-testing:VisualSnapshotTests/FullContentFeasibilityTests/testExportPublicFixtures -resultBundlePath /tmp/ehpanda-phase17-public-export-red.xcresult",
+  "exitCode": 65,
+  "targetTest": "FullContentFeasibilityTests/testExportPublicFixtures()",
+  "targetFile": "AppPackage/Tests/VisualSnapshotTests/FullContentFeasibilityTests.swift",
+  "expected": "Committed public fixture source exports complete deterministic bytes and identical manifest digests into two fresh empty directories.",
+  "actual": "Actual named test failed its export assertion because exportNotImplemented was thrown.",
+  "output": "not ok 1 - FullContentFeasibilityTests/testExportPublicFixtures()\n# tests 1\n# pass 0\n# fail 1\n",
+  "outputFormat": "TAP normalization of native xcresult facts; no Node test was run.",
+  "nativeFailure": [
+    {
+      "failureText": "failed - Committed fixtures must export complete repeatable bytes into empty directories: exportNotImplemented",
+      "targetName": "VisualSnapshotTests",
+      "testIdentifier": 1,
+      "testIdentifierString": "FullContentFeasibilityTests/testExportPublicFixtures()",
+      "testIdentifierURL": "test://com.apple.xcode/EhPanda/VisualSnapshotTests/FullContentFeasibilityTests/testExportPublicFixtures",
+      "testName": "testExportPublicFixtures()"
+    }
+  ],
+  "nativeResult": "/tmp/ehpanda-phase17-public-export-red.xcresult",
+  "nativeLog": "/tmp/ehpanda-phase17-public-export-red.log",
+  "totalTestCount": 1,
+  "failedTests": 1,
+  "repetitionCount": 0
+}

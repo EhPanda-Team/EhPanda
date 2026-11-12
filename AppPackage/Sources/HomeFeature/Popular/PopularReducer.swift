@@ -1,0 +1,129 @@
+import AnalyticsClient
+public import AppModels
+import AppTools
+public import ComposableArchitecture
+public import FiltersFeature
+import HapticsClient
+import NetworkingFeature
+public import Sharing
+
+@Reducer
+public struct PopularReducer: Sendable {
+    public enum Delegate: Equatable, Sendable {
+        case pushDetail(Gallery)
+    }
+
+    @Reducer
+    public enum Destination {
+        case filters(FiltersReducer)
+    }
+
+    private enum CancelID {
+        case fetchGalleries
+    }
+
+    @ObservableState
+    public struct State: Equatable {
+        @SharedReader(.globalFilter) public var globalFilter: Filter
+        @SharedReader(.tagTranslator) public var tagTranslator: TagTranslator
+        @SharedReader(.setting) public var setting: Setting
+        @Presents public var destination: Destination.State?
+        public var keyword = ""
+
+        var filteredGalleries: [Gallery] {
+            guard !keyword.isEmpty else { return galleries }
+            return galleries.filter({ $0.titleMatches(keyword) })
+        }
+        public var galleries = [Gallery]()
+        public var loadingState: LoadingState = .idle
+
+        public init() {}
+    }
+
+    public enum Action: BindableAction {
+        case binding(BindingAction<State>)
+        case onPresented
+        case delegate(Delegate)
+        case filtersButtonTapped
+        case destination(PresentationAction<Destination.Action>)
+
+        case fetchGalleries
+        case fetchGalleriesDone(Result<[Gallery], AppError>)
+    }
+
+    @Dependency(\.analyticsClient) private var analyticsClient
+    @Dependency(\.hapticsClient) private var hapticsClient
+
+    public init() {}
+
+    public var body: some Reducer<State, Action> {
+        BindingReducer()
+
+        Reduce { state, action in
+            switch action {
+            case .binding:
+                return .none
+
+            // Presentation-driven lifecycle: the presenting reducer sends this as part of the
+            // state transition that pushes this screen, replacing the former view `onAppear`.
+            // The empty guard keeps it idempotent — re-presenting a populated list refetches nothing.
+            case .onPresented:
+                guard state.galleries.isEmpty else { return .none }
+                return .send(.fetchGalleries)
+
+            case .delegate:
+                return .none
+
+            case .filtersButtonTapped:
+                state.destination = .filters(FiltersReducer.State())
+                // Presenting the sheet loads the persisted filters into it, replacing the form's
+                // former `onAppear`. Every screen that presents Filters must send this.
+                // Records that the filter panel was opened here (D-14). Applying a filter mutates a
+                // persisted shared value with no distinct reducer action, so only the open is counted.
+                return .merge(
+                    .send(.destination(.presented(.filters(.fetchFilters)))),
+                    .run(operation: { _ in analyticsClient.send(.filterPanelOpened(.popular)) })
+                )
+
+            case .destination:
+                return .none
+
+            case .fetchGalleries:
+                guard state.loadingState != .loading else { return .none }
+                state.loadingState = .loading
+                let filter = state.globalFilter
+                let host = state.setting.galleryHost
+                return .run { send in
+                    let result = await Result.Swift::init { () async throws(AppError) in
+                        try await PopularGalleriesRequest(host: host, filter: filter).response()
+                    }
+                    await send(.fetchGalleriesDone(result))
+                }
+                .cancellable(id: CancelID.fetchGalleries)
+
+            case .fetchGalleriesDone(let result):
+                state.loadingState = .idle
+                switch result {
+                case .success(let galleries):
+                    guard !galleries.isEmpty else {
+                        state.loadingState = .failed(.notFound)
+                        return .none
+                    }
+                    state.galleries = galleries
+                    return .none
+                case .failure(let error):
+                    state.loadingState = .failed(error)
+                }
+                return .none
+            }
+        }
+        .haptics(
+            unwrapping: \.destination,
+            case: \.filters,
+            hapticsClient: hapticsClient
+        )
+        .ifLet(\.$destination, action: \.destination)
+    }
+}
+
+extension PopularReducer.Destination.State: Equatable, Sendable {}

@@ -1,0 +1,122 @@
+import UIKit
+import XCTest
+
+@MainActor
+final class GalleryCardUITests: XCTestCase {
+    private let shortTitle = "[Studio] A Journey [English]"
+    private let longTitle = "[Artist] A Journey Through the City and Across the Mountains with Friends [English]"
+
+    override func setUpWithError() throws {
+        continueAfterFailure = false
+    }
+
+    func testGridAlignsDifferentTitleLengthsAtEveryTextSize() throws {
+        let originalOrientation = XCUIDevice.shared.orientation
+        addTeardownBlock { XCUIDevice.shared.orientation = originalOrientation }
+        XCUIDevice.shared.orientation = .landscapeLeft
+        let fixtures = try makeFixtures()
+        for size in [UIContentSizeCategory.large, .accessibilityMedium,
+                     .accessibilityExtraLarge, .accessibilityExtraExtraExtraLarge] {
+            let app = XCUIApplication()
+            addTeardownBlock { app.terminate() }
+            app.launchArguments = ["-UIPreferredContentSizeCategoryName", size.rawValue]
+            try launch(app, fixtures: fixtures)
+            app.buttons["gallery-layout-favorites"].tapWhenHittable("Layout")
+            app.buttons["Grid"].tapWhenHittable("Grid")
+            let first = app.buttons["gallery-list-item-1001"]
+            let second = app.buttons["gallery-list-item-1002"]
+            XCTAssertTrue(first.waitForExistence(timeout: 10))
+            let window = app.windows.firstMatch.frame
+            let hasRoomForSecondColumn = first.frame.maxX + first.frame.width <= window.maxX
+            if size == .large { XCTAssertTrue(hasRoomForSecondColumn) }
+            if hasRoomForSecondColumn {
+                XCTAssertTrue(second.waitForExistence(timeout: 10))
+                XCTAssertEqual(first.frame.minY, second.frame.minY, accuracy: 1)
+                XCTAssertEqual(first.frame.maxY, second.frame.maxY, accuracy: 1)
+                XCTAssertLessThanOrEqual(first.frame.maxX, second.frame.minX)
+            } else {
+                XCTAssertLessThanOrEqual(first.frame.maxX, window.maxX)
+                XCTAssertGreaterThan(first.frame.width, window.width / 2)
+            }
+            XCTAssertTrue(app.staticTexts[shortTitle].firstMatch.exists)
+            XCTAssertFalse(app.descendants(matching: .any)["gallery-grid-rating-1001"].firstMatch.exists)
+            let title = app.staticTexts["gallery-grid-title-1001"].firstMatch
+            XCTAssertEqual(title.frame.minX, first.frame.minX, accuracy: 1)
+            XCTAssertLessThanOrEqual(title.frame.maxX, first.frame.maxX)
+            if size == .large {
+                let language = first.staticTexts["English"].firstMatch
+                XCTAssertTrue(language.exists)
+                XCTAssertEqual(language.frame.maxX, first.frame.maxX, accuracy: 1)
+            }
+            let screenshot = XCTAttachment(screenshot: XCUIScreen.main.screenshot())
+            screenshot.name = "Grid aligned titles \(size.rawValue)"
+            screenshot.lifetime = .keepAlways
+            add(screenshot)
+            app.terminate()
+        }
+    }
+
+    func testFrontPageGridKeepsRatings() throws {
+        let originalOrientation = XCUIDevice.shared.orientation
+        addTeardownBlock { XCUIDevice.shared.orientation = originalOrientation }
+        XCUIDevice.shared.orientation = .portrait
+        let app = XCUIApplication()
+        addTeardownBlock { app.terminate() }
+        try app.launchStubbed(extraEnvironment: ["EHPANDA_AUTOMATION_TAB": "home"])
+        app.buttons["Show All"].firstMatch.tapWhenHittable("Front Page")
+        app.buttons["gallery-layout-frontpage"].tapWhenHittable("Front Page layout")
+        app.buttons["Grid"].tapWhenHittable("Front Page Grid")
+        let ratings = app.descendants(matching: .any).matching(NSPredicate(
+            format: "identifier BEGINSWITH %@", "gallery-grid-rating-"
+        ))
+        XCTAssertTrue(ratings.firstMatch.waitForExistence(timeout: 10))
+        let screenshot = XCTAttachment(screenshot: XCUIScreen.main.screenshot())
+        screenshot.name = "Front Page grid retains ratings"
+        screenshot.lifetime = .keepAlways
+        add(screenshot)
+    }
+
+    func testOriginalTitlesInBothLayoutsAndSettingRemoved() throws {
+        let fixtures = try makeFixtures()
+        let app = XCUIApplication()
+        addTeardownBlock { app.terminate() }
+        try launch(app, fixtures: fixtures)
+        for layout in ["List", "Grid"] {
+            app.buttons["gallery-layout-favorites"].tapWhenHittable("Layout")
+            app.buttons[layout].tapWhenHittable(layout)
+            for title in [shortTitle, longTitle] {
+                XCTAssertTrue(app.staticTexts[title].firstMatch.waitForExistence(timeout: 10))
+            }
+        }
+        app.terminate()
+        app.launch()
+        XCTAssertTrue(app.staticTexts[shortTitle].firstMatch.waitForExistence(timeout: 15))
+        // The tab by its label: the tab bar does not always list its glyph's `gearshape.circle` identifier.
+        app.buttons["Settings"].firstMatch.tapWhenHittable("Setting tab")
+        app.buttons["Appearance"].tapWhenHittable("Appearance settings")
+        XCTAssertTrue(app.navigationBars["Appearance"].waitForExistence(timeout: 5))
+        XCTAssertFalse(app.switches["simplified-gallery-titles"].exists)
+        let screenshot = XCTAttachment(screenshot: XCUIScreen.main.screenshot())
+        screenshot.name = "Appearance settings without title simplification"
+        screenshot.lifetime = .keepAlways
+        add(screenshot)
+    }
+
+    private func launch(_ app: XCUIApplication, fixtures: URL) throws {
+        try app.launchStubbed(extraEnvironment: [
+            "EHPANDA_AUTOMATION_TAB": "favorites",
+            "EHPANDA_AUTOMATION_IPB_MEMBER_ID": "fixture-member",
+            "EHPANDA_AUTOMATION_IPB_PASS_HASH": "fixture-session",
+            UITestConstants.fixtureDirectoryEnvironmentKey: fixtures.path()
+        ])
+        XCTAssertTrue(app.buttons["gallery-layout-favorites"].waitForExistence(timeout: 15))
+    }
+
+    private func makeFixtures() throws -> URL {
+        let fixtures = try StubFixtureCopy(for: self, named: "GalleryCardUITest")
+        try fixtures.retitle(listNamed: "LibraryGalleries.html") { _, current in
+            ["Library Study 01": shortTitle, "Library Study 02": longTitle][current]
+        }
+        return fixtures.root
+    }
+}

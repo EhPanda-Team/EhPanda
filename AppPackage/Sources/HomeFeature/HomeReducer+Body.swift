@@ -1,0 +1,353 @@
+import AnalyticsClient
+import AppModels
+import ComposableArchitecture
+import DetailFeature
+import DeviceClient
+import Kingfisher
+import LibraryClient
+import Sharing
+import SwiftUI
+
+extension HomeReducer {
+    @ReducerBuilder<State, Action>
+    var reducerBody: some Reducer<State, Action> {
+        BindingReducer()
+            .onChange(of: \.cardPageIndex) { _, state in
+                guard state.cardPageIndex < state.popularGalleries.count else { return .none }
+                state.currentCardID = state.popularGalleries[state.cardPageIndex].gid
+                state.allowsCardHitTesting = false
+                return .run { send in
+                    try await Task.sleep(for: .milliseconds(300))
+                    await send(.setAllowsCardHitTesting(true))
+                }
+            }
+
+        Reduce { state, action in
+            switch action {
+            case .binding:
+                return .none
+
+            case .deviceChanged(let device):
+                state.device = device
+                return .none
+
+            case .viewportChanged(let size):
+                state.viewportSize = size
+                return .none
+
+            // Presentation-driven lifecycle: Home is a tab root that outlives any single visit, so
+            // the app reducer sends this when the Home tab becomes the active one — replacing the
+            // former view `onAppear`. The empty guard keeps it idempotent across tab switches.
+            case .onPresented:
+                guard state.popularGalleries.isEmpty else { return .none }
+                return .send(.fetchAllGalleries)
+
+            case .galleryTapped(let gallery, let side):
+                guard state.usesSplitLayout else { return .send(.delegate(.openGalleryDetail(gallery))) }
+                return presentSheet(
+                    root: .gallery(.init(detail: .init(gallery: gallery))),
+                    on: side.opposite,
+                    state: &state
+                )
+
+            case let .path(.element(id: _, action: .frontPage(.delegate(.pushDetail(gallery))))),
+                 let .path(.element(id: _, action: .popular(.delegate(.pushDetail(gallery))))),
+                 let .path(.element(id: _, action: .toplists(.delegate(.pushDetail(gallery))))),
+                 let .path(.element(id: _, action: .watched(.delegate(.pushDetail(gallery))))),
+                 let .path(.element(id: _, action: .history(.delegate(.pushDetail(gallery))))):
+                // No analytics here: the app root answers with a push (`.pushGalleryDetail`, counted
+                // there) or a modal (counted by the app-root `presentGalleryDetail`); emitting at the
+                // tap would double-count one open across the two routes (T-14-13).
+                return .send(.delegate(.openGalleryDetail(gallery)))
+
+            case .pushGalleryDetail(let gallery):
+                let screen = GalleryPath.State.detail(.init(gallery: gallery))
+                return .merge(
+                    GalleryNavigation.presentationEffect(
+                        id: state.path.appendGuardingDuplicate(.gallery(screen)),
+                        screen: screen,
+                        embed: { .path(.element(id: $0, action: .gallery($1))) }
+                    ),
+                    // Same content-free derivation as the other four gallery-detail entry paths: a
+                    // closed `Category` plus exact per-namespace tag counts — no gid, token, title,
+                    // URL or tag text (D-06, D-09).
+                    .run(operation: { _ in
+                        analyticsClient.send(.galleryDetailOpened(
+                            category: gallery.category,
+                            tagNamespaces: TagNamespaceCounts(tags: gallery.tags)
+                        ))
+                    })
+                )
+
+            case .delegate:
+                return .none
+
+            case .sheet(.presented(.root(.watched(.onNotLoginViewButtonTapped)))):
+                state.opensAccountAfterSheetDismissal = true
+                state.sheet = nil
+                return .none
+
+            case .sheetDismissed:
+                guard state.opensAccountAfterSheetDismissal else { return .none }
+                state.opensAccountAfterSheetDismissal = false
+                return .send(.delegate(.openAccount))
+
+            case .sheet:
+                return .none
+
+            case .sectionTapped(let type):
+                let sectionViewed = Effect<Action>.run(operation: { _ in
+                    analyticsClient.send(.homeSectionViewed(homeSection(for: type)))
+                })
+                if state.usesSplitLayout {
+                    let root: HomeSheetFeature.RootFeature.State = switch type {
+                    case .frontPage: .frontPage(.init())
+                    case .toplists: .toplists(.init())
+                    }
+                    return .merge(
+                        presentSheet(root: root, on: type == .frontPage ? .right : .left, state: &state),
+                        sectionViewed
+                    )
+                }
+                switch type {
+                case .frontPage:
+                    return .merge(
+                        presentationEffect(
+                            id: state.path.appendGuardingDuplicate(.frontPage(.init())),
+                            action: .frontPage(.onPresented)
+                        ),
+                        sectionViewed
+                    )
+                case .toplists:
+                    return .merge(
+                        presentationEffect(
+                            id: state.path.appendGuardingDuplicate(.toplists(.init())),
+                            action: .toplists(.onPresented)
+                        ),
+                        sectionViewed
+                    )
+                }
+
+            case .miscTapped(let type):
+                let sectionViewed = Effect<Action>.run(operation: { _ in
+                    analyticsClient.send(.homeSectionViewed(homeSection(for: type)))
+                })
+                if state.usesSplitLayout {
+                    let root: HomeSheetFeature.RootFeature.State = switch type {
+                    case .popular: .popular(.init())
+                    case .watched: .watched(.init())
+                    case .history: .history(.init())
+                    }
+                    return .merge(presentSheet(root: root, on: .right, state: &state), sectionViewed)
+                }
+                switch type {
+                case .popular:
+                    return .merge(
+                        presentationEffect(
+                            id: state.path.appendGuardingDuplicate(.popular(.init())),
+                            action: .popular(.onPresented)
+                        ),
+                        sectionViewed
+                    )
+                case .watched:
+                    return .merge(
+                        presentationEffect(
+                            id: state.path.appendGuardingDuplicate(.watched(.init())),
+                            action: .watched(.onPresented)
+                        ),
+                        sectionViewed
+                    )
+                case .history:
+                    return .merge(
+                        presentationEffect(
+                            id: state.path.appendGuardingDuplicate(.history(.init())),
+                            action: .history(.onPresented)
+                        ),
+                        sectionViewed
+                    )
+                }
+
+            // A vote's answer goes to the detail's own copy of the comment, with no fetch of the whole detail.
+            case let .path(.element(
+                id: _, action: .gallery(.comments(.delegate(.commentVoted(gid, commentID, score, vote))))
+            )):
+                guard let id = state.path.galleryDetailID(forGID: gid) else { return .none }
+                return .send(.path(.element(id: id, action: .gallery(.detail(
+                    .applyCommentVote(commentID: commentID, score: score, vote: vote)
+                )))))
+
+            case let .path(.element(id: _, action: .gallery(.comments(.delegate(.performedCommentAction(gid)))))):
+                guard let id = state.path.galleryDetailID(forGID: gid) else { return .none }
+                return .send(.path(.element(id: id, action: .gallery(.detail(.fetchGalleryDetail)))))
+
+            case let .path(.element(id: _, action: .gallery(galleryAction))):
+                guard let next = GalleryNavigation.nextScreen(for: galleryAction) else { return .none }
+                return GalleryNavigation.presentationEffect(
+                    id: state.path.appendGuardingDuplicate(.gallery(next)),
+                    screen: next,
+                    embed: { .path(.element(id: $0, action: .gallery($1))) }
+                )
+
+            case .path:
+                return .none
+
+            case .setAllowsCardHitTesting(let isAllowed):
+                state.allowsCardHitTesting = isAllowed
+                return .none
+
+            case .fetchAllGalleries:
+                return .merge(
+                    .send(.fetchPopularGalleries),
+                    .send(.fetchFrontPageGalleries),
+                    .send(.fetchAllToplistsGalleries)
+                )
+
+            case .fetchAllToplistsGalleries:
+                return .merge(
+                    ToplistsType.allCases
+                        .map({ Action.fetchToplistsGalleries(index: $0.categoryIndex) })
+                        .map(Effect<Action>.send)
+                )
+
+            case .fetchPopularGalleries:
+                guard state.popularLoadingState != .loading else { return .none }
+                state.popularLoadingState = .loading
+                state.rawCardColors = [String: [Color]]()
+                let filter = state.globalFilter
+                let host = state.setting.galleryHost
+                return .run { send in
+                    let result = await Result.Swift::init { () async throws(AppError) in
+                        try await homeClient.fetchPopularGalleries(host, filter)
+                    }
+                    await send(.fetchPopularGalleriesDone(result))
+                }
+
+            case .fetchPopularGalleriesDone(let result):
+                state.popularLoadingState = .idle
+                switch result {
+                case .success(let galleries):
+                    guard !galleries.isEmpty else {
+                        state.popularLoadingState = .failed(.notFound)
+                        return .none
+                    }
+                    state.setPopularGalleries(galleries)
+                    return .none
+                case .failure(let error):
+                    state.popularLoadingState = .failed(error)
+                }
+                return .none
+
+            case .fetchFrontPageGalleries:
+                guard state.frontPageLoadingState != .loading else { return .none }
+                state.frontPageLoadingState = .loading
+                let filter = state.globalFilter
+                let host = state.setting.galleryHost
+                return .run { send in
+                    let result = await Result.Swift::init { () async throws(AppError) in
+                        try await homeClient.fetchFrontPageGalleries(host, filter)
+                    }
+                    await send(.fetchFrontPageGalleriesDone(result))
+                }
+
+            case .fetchFrontPageGalleriesDone(let result):
+                state.frontPageLoadingState = .idle
+                switch result {
+                case .success(let (_, galleries)):
+                    guard !galleries.isEmpty else {
+                        state.frontPageLoadingState = .failed(.notFound)
+                        return .none
+                    }
+                    state.setFrontPageGalleries(galleries)
+                    return .none
+                case .failure(let error):
+                    state.frontPageLoadingState = .failed(error)
+                }
+                return .none
+
+            case .fetchToplistsGalleries(let catIndex, let pageNum):
+                guard state.toplistsLoadingState[catIndex] != .loading else { return .none }
+                state.toplistsLoadingState[catIndex] = .loading
+                let host = state.setting.galleryHost
+                return .run { send in
+                    let result = await Result.Swift::init { () async throws(AppError) in
+                        try await homeClient.fetchToplistsGalleries(host, catIndex, pageNum)
+                    }
+                    await send(.fetchToplistsGalleriesDone(index: catIndex, result: result))
+                }
+
+            case .fetchToplistsGalleriesDone(let catIndex, let result):
+                state.toplistsLoadingState[catIndex] = .idle
+                switch result {
+                case .success(let (_, galleries)):
+                    guard !galleries.isEmpty else {
+                        state.toplistsLoadingState[catIndex] = .failed(.notFound)
+                        return .none
+                    }
+                    state.toplistsGalleries[catIndex] = galleries
+                    return .none
+                case .failure(let error):
+                    state.toplistsLoadingState[catIndex] = .failed(error)
+                }
+                return .none
+
+            case .analyzeImageColors(let gid, let result):
+                guard !state.rawCardColors.keys.contains(gid) else { return .none }
+                return .run { send in
+                    let colors = await libraryClient.analyzeImageColors(result.image)
+                    await send(.analyzeImageColorsDone(gid: gid, colors: colors))
+                }
+
+            case .analyzeImageColorsDone(let gid, let colors):
+                state.rawCardColors[gid] = colors
+                return .none
+            }
+        }
+        .forEach(\.path, action: \.path)
+        .ifLet(\.$sheet, action: \.sheet, destination: HomeSheetFeature.init)
+    }
+
+    private func presentSheet(
+        root: HomeSheetFeature.RootFeature.State,
+        on side: HomePane,
+        state: inout State
+    ) -> Effect<Action> {
+        guard state.sheet == nil else { return .none }
+        state.sheet = .init(root: root, side: side)
+        return .send(.sheet(.presented(.onPresented)))
+    }
+
+    /// Kicks off a freshly pushed screen's presentation action, the reducer-side replacement for the
+    /// screen's former view `onAppear`. A `nil` id means `appendGuardingDuplicate` deduped the push,
+    /// so no new screen was presented and nothing should start.
+    private func presentationEffect(id: StackElementID?, action: HomePath.Action) -> Effect<Action> {
+        guard let id else { return .none }
+        return .send(.path(.element(id: id, action: action)))
+    }
+
+    /// Folds the two Home source enums onto the analytics module's closed `HomeSection`.
+    ///
+    /// `HomeFeature` splits its five destinations across `HomeSectionType` (two list sections) and
+    /// `HomeMiscGridType` (three grids); both map here, in one place, so "all five sections are
+    /// covered" is checkable by reading a single helper. Each switch is exhaustive with no `default:`
+    /// arm, so a sixth Home destination is a compile error at exactly this mapping rather than a
+    /// screen that ships silently unmeasured (T-14-14).
+    private func homeSection(for type: HomeSectionType) -> HomeSection {
+        switch type {
+        case .frontPage:
+            return .frontPage
+        case .toplists:
+            return .toplists
+        }
+    }
+
+    private func homeSection(for type: HomeMiscGridType) -> HomeSection {
+        switch type {
+        case .popular:
+            return .popular
+        case .watched:
+            return .watched
+        case .history:
+            return .history
+        }
+    }
+}

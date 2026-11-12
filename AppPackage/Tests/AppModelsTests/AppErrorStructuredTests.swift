@@ -1,0 +1,231 @@
+@testable import AppModels
+import Foundation
+import Testing
+
+struct AppErrorStructuredTests {
+    struct Expectation: Sendable {
+        let error: AppError
+        let isRetryable: Bool
+        let localizedDescription: String
+        let alertText: String
+    }
+
+    @Test(arguments: [
+        Expectation(
+            error: .copyrightClaim("Alice"),
+            isRetryable: false,
+            localizedDescription: "Copyright Claim",
+            alertText: "This gallery is unavailable due to a copyright claim by Alice."
+        ),
+        Expectation(
+            error: .ipBanned(.hours(hours: 1, minutes: nil)),
+            isRetryable: false,
+            localizedDescription: "IP Banned",
+            alertText: "Your IP address is temporarily banned for excessive page loads, which suggests "
+                + "automated download software. The ban expires in 1 hour."
+        ),
+        Expectation(
+            error: .ipBanned(.hours(hours: 2, minutes: 30)),
+            isRetryable: false,
+            localizedDescription: "IP Banned",
+            alertText: "Your IP address is temporarily banned for excessive page loads, which suggests "
+                + "automated download software. The ban expires in 2 hours and 30 minutes."
+        ),
+        // An unparsed duration is the site's English text, so the body says nothing about when it ends.
+        Expectation(
+            error: .ipBanned(.unrecognized(content: "soon")),
+            isRetryable: false,
+            localizedDescription: "IP Banned",
+            alertText: "Your IP address is temporarily banned for excessive page loads, which suggests "
+                + "automated download software."
+        ),
+        Expectation(
+            error: .expunged("Removed by the uploader."),
+            isRetryable: false,
+            localizedDescription: "Gallery Expunged",
+            alertText: "Removed by the uploader."
+        ),
+        Expectation(
+            error: .networkingFailed,
+            isRetryable: true,
+            localizedDescription: "Network Error",
+            alertText: "A network error occurred."
+        ),
+        Expectation(
+            error: .webImageFailed,
+            isRetryable: true,
+            localizedDescription: "Couldn’t Load Image",
+            alertText: ""
+        ),
+        Expectation(
+            error: .parseFailed,
+            isRetryable: true,
+            localizedDescription: "Couldn’t Read Page",
+            alertText: "The site’s response couldn’t be read.\nTry again later."
+        ),
+        Expectation(
+            error: .imageLimitReached,
+            isRetryable: false,
+            localizedDescription: "Image Limit Reached",
+            alertText: "You’ve reached your image viewing limit."
+        ),
+        Expectation(
+            error: .loginRequired,
+            isRetryable: false,
+            localizedDescription: "Login Required",
+            alertText: "Log in to view this content."
+        ),
+        // The forum's own refusal wording is the alert text, verbatim — the point of the case.
+        Expectation(
+            error: .loginRejected("You must enter a password."),
+            isRetryable: true,
+            localizedDescription: "Login Rejected",
+            alertText: "You must enter a password."
+        ),
+        // A refusal the page gave no reason for is still a refusal, never an unknown error: the
+        // title is unchanged and the body says plainly that no reason was given. What to do about it
+        // lives in `solution`, asserted separately.
+        Expectation(
+            error: .loginRejected(nil),
+            isRetryable: true,
+            localizedDescription: "Login Rejected",
+            alertText: "The site refused the login without saying why."
+        ),
+        Expectation(
+            error: .fileOperationFailed("Disk full."),
+            isRetryable: true,
+            localizedDescription: "File Error",
+            alertText: "A file operation failed on this device.\nDisk full."
+        ),
+        Expectation(
+            error: .noUpdates,
+            isRetryable: true,
+            localizedDescription: "No Updates Available",
+            alertText: ""
+        ),
+        Expectation(
+            error: .notFound,
+            isRetryable: false,
+            localizedDescription: "Not Found",
+            alertText: "There seems to be nothing here."
+        ),
+        Expectation(
+            error: .unknown,
+            isRetryable: true,
+            localizedDescription: "Unknown Error",
+            alertText: "An unknown error occurred.\nTry again later."
+        )
+    ])
+    func existingErrorBehaviorRemainsStable(_ expectation: Expectation) throws {
+        #expect(expectation.error.isRetryable == expectation.isRetryable)
+        #expect(expectation.error.localizedDescription == expectation.localizedDescription)
+        #expect(expectation.error.alertText == expectation.alertText)
+    }
+
+    @Test
+    func actionableErrorsProvideRecoverySuggestions() throws {
+        #expect(AppError.networkingFailed.solution != nil)
+        #expect(AppError.loginRequired.solution != nil)
+        #expect(AppError.ipBanned(.minutes(minutes: 1, seconds: nil)).solution != nil)
+        #expect(AppError.imageLimitReached.solution != nil)
+        #expect(AppError.notFound.solution != nil)
+        // Both shapes of a refusal are actionable, and by the same route: re-check the credential,
+        // then fall back to the web-login button. A reasonless refusal needs it most, since its
+        // description has nothing else to offer.
+        #expect(AppError.loginRejected("Bad password.").solution != nil)
+        #expect(AppError.loginRejected(nil).solution != nil)
+        #expect(AppError.parseFailed.solution == nil)
+    }
+
+    // Every part of an error the detail surface renders must be non-empty and distinct, or the
+    // surface built to explain the failure repeats the title twice and explains nothing. This is the
+    // shape `ErrorInfoView` reads: title, detail, recovery.
+    @Test
+    func aRefusalIsFullyDescribedForTheDetailSurface() throws {
+        for error in [AppError.loginRejected("You must enter a username"), .loginRejected(nil)] {
+            let localizedError: any LocalizedError = error
+
+            #expect(!error.localizedDescription.isEmpty)
+            #expect(!error.alertText.isEmpty)
+            #expect(error.alertText != error.localizedDescription)
+            #expect(error.solution != nil)
+            #expect(localizedError.recoverySuggestion == error.solution)
+        }
+    }
+
+    @Test
+    func cloudflareChallengeFailureIsNotRetryable() throws {
+        #expect(AppError.cloudflareChallengeFailed.isRetryable == false)
+    }
+
+    @Test
+    func cloudflareChallengeFailureIsFullyDescribed() throws {
+        let error = AppError.cloudflareChallengeFailed
+        let localizedError: any LocalizedError = error
+
+        #expect(!error.localizedDescription.isEmpty)
+        #expect(!error.alertText.isEmpty)
+        #expect(error.solution != nil)
+        #expect(localizedError.recoverySuggestion == error.solution)
+    }
+
+    // A CAPTCHA-gated login form is not a credential problem and cannot be retried away, so it
+    // has to arrive as its own case rather than folded into the generic failure — otherwise the
+    // user is sent back to re-check a password that was never wrong.
+    @Test
+    func loginCaptchaRequirementIsNotRetryableAndFullyDescribed() throws {
+        let error = AppError.loginCaptchaRequired
+        let localizedError: any LocalizedError = error
+
+        #expect(error.isRetryable == false)
+        #expect(!error.localizedDescription.isEmpty)
+        #expect(!error.alertText.isEmpty)
+        #expect(error.solution != nil)
+        #expect(localizedError.recoverySuggestion == error.solution)
+    }
+
+    @Test
+    func loginCaptchaRequirementIsDistinctFromAnUnsolvedWall() throws {
+        // Both involve Cloudflare, and conflating them would point the user at the wrong recovery:
+        // one is cleared by the in-app challenge surface, the other never can be.
+        #expect(AppError.loginCaptchaRequired != AppError.cloudflareChallengeFailed)
+        #expect(AppError.loginCaptchaRequired.solution != AppError.cloudflareChallengeFailed.solution)
+    }
+
+    @Test
+    func everyErrorCaseCarriesADistinctIdentifier() throws {
+        let allCases: [AppError] = [
+            .copyrightClaim("Alice"),
+            .ipBanned(.hours(hours: 1, minutes: nil)),
+            .expunged("Removed by the uploader."),
+            .networkingFailed,
+            .webImageFailed,
+            .parseFailed,
+            .imageLimitReached,
+            .loginRequired,
+            .cloudflareChallengeFailed,
+            .loginCaptchaRequired,
+            .loginRejected("You must enter a password."),
+            .fileOperationFailed("Disk full."),
+            .noUpdates,
+            .notFound,
+            .unknown
+        ]
+
+        #expect(Set(allCases.map(\.id)).count == allCases.count)
+    }
+
+    @Test(arguments: [
+        AppError.networkingFailed,
+        .loginRequired,
+        .ipBanned(.minutes(minutes: 1, seconds: nil)),
+        .imageLimitReached,
+        .notFound
+    ])
+    func localizedErrorUsesTheExistingDescriptionAndSolution(_ error: AppError) throws {
+        let localizedError: any LocalizedError = error
+
+        #expect(localizedError.errorDescription == error.localizedDescription)
+        #expect(localizedError.recoverySuggestion == error.solution)
+    }
+}

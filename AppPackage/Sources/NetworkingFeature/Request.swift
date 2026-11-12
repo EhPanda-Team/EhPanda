@@ -1,0 +1,410 @@
+public import AppModels
+import AppTools
+public import Foundation
+public import Kanna
+import ParserFeature
+
+public protocol Request {
+    associatedtype Response: Sendable
+
+    func response() async throws(AppError) -> Response
+}
+
+private struct ResponseParsingError: Error {
+    let underlyingError: any Error
+    let responseError: AppError?
+}
+
+/// Re-parses UTF-8-repaired response bytes, or nil when the repair itself fails to parse.
+///
+/// Nil is the meaningful negative answer, not a swallowed error: the caller keeps the *original*
+/// parse failure and its response context, which is the diagnostic the user is shown. Surfacing
+/// the repair attempt's own error instead would replace that context with a strictly less useful
+/// one, so it is deliberately discarded here rather than logged.
+private func repairedHTMLDocument(from data: Data) -> any HTMLDocument? {
+    do {
+        return try Kanna.HTML(html: data.utf8InvalidCharactersRipped, encoding: .utf8)
+    } catch {
+        return nil
+    }
+}
+
+/// Reports whether a response is Cloudflare's interstitial challenge rather than the page asked for.
+///
+/// The contract is Cloudflare's own: a challenge page is served as `403` carrying `cf-mitigated:
+/// challenge`. Nothing else is consulted — not the host, not the path, not the response body, and no
+/// app setting. Page content is attacker-influenced and hosts move behind and out from behind the
+/// wall over time, so classification stays purely response-driven and any `(data, response)` call
+/// site can hand its response over unchanged.
+///
+/// A challenged `403` is a *successful* transport response, so `fetch(_:in:)` returns it on the
+/// first attempt instead of burning its four-attempt retry budget; call this afterwards on the
+/// returned response. This phase wires only the login flow to a UI reaction, but the helper is
+/// deliberately free-standing so any request layer can adopt it when the wall spreads.
+///
+/// - Parameter response: The response to classify; `nil` and non-HTTP responses are not challenges.
+public func isCloudflareChallenge(_ response: URLResponse?) -> Bool {
+    guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 403 else {
+        return false
+    }
+    // Header-name lookup is already case-insensitive; the value is compared the same way because
+    // the header is untrusted input whose casing Cloudflare does not guarantee.
+    let mitigation = httpResponse.value(forHTTPHeaderField: "cf-mitigated")
+    return mitigation?.caseInsensitiveCompare("challenge") == .orderedSame
+}
+
+extension Request {
+
+    /// Fetches a request with the four-attempt policy formerly supplied by `retry(3)`.
+    ///
+    /// Native async URLSession participates in structured cancellation, unlike the legacy
+    /// continuation bridge. Cancellation therefore stops the HTTP request immediately; TCA still
+    /// discards the cancelled effect's send, preserving user-visible behavior while saving work.
+    ///
+    /// - Parameter attempts: How many times the request may be put on the wire. The default suits
+    ///   the idempotent GETs that are nearly all of this layer's traffic, where a lost response
+    ///   costs nothing to ask for again. A request the server may have *acted on* before its
+    ///   response went missing must pass `1` instead: replaying it repeats the side effect, and for
+    ///   the credential POST that means up to four recorded login attempts for one tap, feeding the
+    ///   forum's own attempt lockout. Values below `1` are treated as `1`.
+    public func fetch(
+        _ request: URLRequest,
+        in session: URLSession = .shared,
+        attempts: Int = 4
+    ) async throws(AppError) -> (data: Data, response: URLResponse) {
+        var lastError: any Error = URLError(.unknown)
+        for _ in 0..<max(1, attempts) {
+            do {
+                return try await session.data(for: request)
+            } catch {
+                if (error as? URLError)?.code == .cancelled || Task.isCancelled {
+                    throw mapAppError(error: error)
+                }
+                lastError = error
+            }
+        }
+        throw mapAppError(error: lastError)
+    }
+
+    public func urlRequest(
+        url: URL,
+        allowsCellular: Bool
+    ) -> URLRequest {
+        var request = URLRequest(url: url)
+        request.allowsCellularAccess = allowsCellular
+        return request
+    }
+
+    public func htmlDocument(data: Data) throws -> any HTMLDocument {
+        do {
+            return try Kanna.HTML(html: data, encoding: .utf8)
+        } catch {
+            let content = String(
+                data: data.utf8InvalidCharactersRipped,
+                encoding: .utf8
+            )
+            throw ResponseParsingError(
+                underlyingError: error,
+                responseError: content.flatMap(
+                    Parser.parseResponseError(content:)
+                )
+            )
+        }
+    }
+
+    public func htmlDocumentWithUTF8Fallback(data: Data) throws -> any HTMLDocument {
+        do {
+            return try Kanna.HTML(html: data, encoding: .utf8)
+        } catch {
+            guard let parseError = error as? ParseError,
+                  parseError == .EncodingMismatch,
+                  let htmlDocument = repairedHTMLDocument(from: data)
+            else {
+                let content = String(
+                    data: data.utf8InvalidCharactersRipped,
+                    encoding: .utf8
+                )
+                throw ResponseParsingError(
+                    underlyingError: error,
+                    responseError: content.flatMap(
+                        Parser.parseResponseError(content:)
+                    )
+                )
+            }
+            return htmlDocument
+        }
+    }
+
+    public func parseResponse<T>(
+        doc: any HTMLDocument,
+        _ parser: (any HTMLDocument) throws -> T
+    ) throws -> T {
+        do {
+            return try parser(doc)
+        } catch {
+            throw ResponseParsingError(
+                underlyingError: error,
+                responseError: Parser.parseResponseError(doc: doc)
+            )
+        }
+    }
+
+    public func parseResponse<T>(
+        data: Data,
+        _ parser: (Data) throws -> T
+    ) throws -> T {
+        do {
+            return try parser(data)
+        } catch {
+            let content = String(
+                data: data.utf8InvalidCharactersRipped,
+                encoding: .utf8
+            )
+            throw ResponseParsingError(
+                underlyingError: error,
+                responseError: content.flatMap(
+                    Parser.parseResponseError(content:)
+                )
+            )
+        }
+    }
+
+    public func mapAppError(error: any Error) -> AppError {
+        if let responseParsingError = error as? ResponseParsingError {
+            if let responseError = parsedResponseError(
+                from: responseParsingError
+            ) {
+                return responseError
+            }
+            return mapAppError(
+                error: responseParsingError.underlyingError
+            )
+        }
+
+        switch error {
+        case is ParseError:
+            return .parseFailed
+
+        case is URLError:
+            return .networkingFailed
+
+        case is DecodingError:
+            return .parseFailed
+
+        default:
+            return error as? AppError ?? .unknown
+        }
+    }
+
+    func encodeJSONObject(_ object: Any) throws(AppError) -> Data {
+        do {
+            return try JSONSerialization.data(withJSONObject: object)
+        } catch {
+            throw .parseFailed
+        }
+    }
+
+    private func parsedResponseError(
+        from error: ResponseParsingError
+    ) -> AppError? {
+        error.responseError
+    }
+}
+
+extension URLRequest {
+    public mutating func setURLEncodedContentType() {
+        setValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
+    }
+}
+/// The characters an `application/x-www-form-urlencoded` key or value may carry unescaped.
+///
+/// Deliberately far narrower than `.urlQueryAllowed`, which *permits* `&`, `=` and `+` — the three
+/// characters that carry structure in a form body. Encoding the joined string with that set escapes
+/// none of them inside a value, so a password containing `&` truncates its field and injects a stray
+/// parameter, one containing `=` corrupts the pair, and a `+` is decoded server-side as a space. The
+/// user sees only an unexplained rejection. Restricting the set to the RFC 3986 unreserved characters
+/// leaves nothing structural unescaped, which is why each key and value must be encoded on its own,
+/// before the `=` and `&` that join them are added.
+private let formURLEncodedAllowedCharacters: CharacterSet = {
+    var allowed = CharacterSet.alphanumerics
+    allowed.insert(charactersIn: "-._~")
+    return allowed
+}()
+
+extension Dictionary where Key == String, Value == String {
+    /// Renders the pairs as an `application/x-www-form-urlencoded` body.
+    ///
+    /// Each key and value is percent-encoded individually; the result is ready for `httpBody` and
+    /// must not be encoded again, which would double-escape every `%` it already contains.
+    public func dictString() -> String {
+        let pairs = map { key, value in
+            // `addingPercentEncoding` is only Optional as a legacy of NSString and cannot fail for a
+            // set this narrow; the raw component is a best-effort fallback rather than a silent path.
+            let encodedKey = key.addingPercentEncoding(withAllowedCharacters: formURLEncodedAllowedCharacters)
+            let encodedValue = value.addingPercentEncoding(withAllowedCharacters: formURLEncodedAllowedCharacters)
+            return (encodedKey ?? key) + "=" + (encodedValue ?? value)
+        }
+        return pairs.joined(separator: "&")
+    }
+}
+
+// MARK: - Response Types
+
+public struct GalleriesResult: Sendable {
+    public init(
+        pageNumber: PageNumber,
+        dateSeekNavigation: DateSeekNavigation? = nil,
+        galleries: [Gallery]
+    ) {
+        self.pageNumber = pageNumber
+        self.dateSeekNavigation = dateSeekNavigation
+        self.galleries = galleries
+    }
+    public let pageNumber: PageNumber
+    public let dateSeekNavigation: DateSeekNavigation?
+    public let galleries: [Gallery]
+}
+
+public struct FavoritesGalleriesResult: Sendable {
+    public init(
+        pageNumber: PageNumber,
+        dateSeekNavigation: DateSeekNavigation? = nil,
+        sortOrder: FavoritesSortOrder? = nil,
+        galleries: [Gallery]
+    ) {
+        self.pageNumber = pageNumber
+        self.dateSeekNavigation = dateSeekNavigation
+        self.sortOrder = sortOrder
+        self.galleries = galleries
+    }
+    public let pageNumber: PageNumber
+    public let dateSeekNavigation: DateSeekNavigation?
+    public let sortOrder: FavoritesSortOrder?
+    public let galleries: [Gallery]
+}
+
+public struct GalleryArchiveResponse: Sendable {
+    public init(
+        archive: GalleryArchive,
+        galleryPoints: String? = nil,
+        credits: String? = nil
+    ) {
+        self.archive = archive
+        self.galleryPoints = galleryPoints
+        self.credits = credits
+    }
+    public let archive: GalleryArchive
+    public let galleryPoints: String?
+    public let credits: String?
+}
+
+// MARK: Routine
+public struct GreetingRequest: Request {
+    public init(
+        urlSession: URLSession = .shared
+    ) {
+        self.urlSession = urlSession
+    }
+    public let urlSession: URLSession
+
+    public func response() async throws(AppError) -> Greeting {
+        let (data, _) = try await fetch(URLRequest(url: Defaults.URL.news), in: urlSession)
+        do {
+            let document = try htmlDocument(data: data)
+            return try parseResponse(doc: document, Parser.parseGreeting)
+        } catch {
+            throw mapAppError(error: error)
+        }
+    }
+}
+
+public struct UserInfoRequest: Request {
+    public init(
+        uid: String,
+        urlSession: URLSession = .shared
+    ) {
+        self.uid = uid
+        self.urlSession = urlSession
+    }
+    public let uid: String
+    public let urlSession: URLSession
+
+    public func response() async throws(AppError) -> User {
+        let request = URLRequest(url: URLUtil.userInfo(uid: uid))
+        let (data, _) = try await fetch(request, in: urlSession)
+        do {
+            let document = try htmlDocument(data: data)
+            return try parseResponse(doc: document, Parser.parseUserInfo)
+        } catch {
+            throw mapAppError(error: error)
+        }
+    }
+}
+
+public struct FavoriteCategoriesRequest: Request {
+    public init(
+        host: GalleryHost,
+        urlSession: URLSession = .shared
+    ) {
+        self.host = host
+        self.urlSession = urlSession
+    }
+    public let host: GalleryHost
+    public let urlSession: URLSession
+
+    public func response() async throws(AppError) -> [Int: String] {
+        let (data, _) = try await fetch(URLRequest(url: Defaults.URL.uConfig(host: host)), in: urlSession)
+        do {
+            let document = try htmlDocument(data: data)
+            return try parseResponse(doc: document, Parser.parseFavoriteCategories)
+        } catch {
+            throw mapAppError(error: error)
+        }
+    }
+}
+
+public struct TagTranslatorRequest: Request {
+    public init(
+        language: TranslatableLanguage,
+        currentDigest: String?,
+        urlSession: URLSession = .shared
+    ) {
+        self.language = language
+        self.currentDigest = currentDigest
+        self.urlSession = urlSession
+    }
+    public let language: TranslatableLanguage
+    public let currentDigest: String?
+    public let urlSession: URLSession
+
+    // Returns the untouched DB JSON bytes plus the asset's published digest; decoding and caching are
+    // done downstream by `FileClient` so this layer stays purely network.
+
+    public func response() async throws(AppError) -> TagTranslatorPayload {
+        let metadataRequest = urlRequest(
+            url: URLUtil.githubAPI(repoName: TranslatableLanguage.repoName),
+            allowsCellular: true
+        )
+        let (metadata, _) = try await fetch(metadataRequest, in: urlSession)
+        let release: TagDatabaseRelease
+        do {
+            release = try JSONDecoder().decode(TagDatabaseRelease.self, from: metadata)
+        } catch {
+            throw AppError.parseFailed
+        }
+        guard let asset = release.asset(for: language), let digest = asset.digest else {
+            throw AppError.parseFailed
+        }
+        guard digest != currentDigest else {
+            throw AppError.noUpdates
+        }
+
+        do {
+            let downloadRequest = urlRequest(url: asset.downloadURL, allowsCellular: true)
+            let (data, _) = try await urlSession.data(for: downloadRequest)
+            return TagTranslatorPayload(data: data, digest: digest)
+        } catch {
+            throw mapAppError(error: error)
+        }
+    }
+}

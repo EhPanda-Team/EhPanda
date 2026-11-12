@@ -1,0 +1,156 @@
+{
+  "initial": {
+    "iphone": [
+      {
+        "name": "testChangingLayoutKeepsMiddleGalleryAndSearchSurvivesDetailReturn()",
+        "nodeIdentifier": "GalleryLayoutUITests/testChangingLayoutKeepsMiddleGalleryAndSearchSurvivesDetailReturn()",
+        "result": "Passed"
+      },
+      {
+        "name": "testGridLoadsNextPageFromTrailingVisibility()",
+        "nodeIdentifier": "GalleryLayoutUITests/testGridLoadsNextPageFromTrailingVisibility()",
+        "result": "Passed"
+      },
+      {
+        "name": "testNativeTitlesAndGridAtEveryTextSize()",
+        "nodeIdentifier": "GalleryLayoutUITests/testNativeTitlesAndGridAtEveryTextSize()",
+        "result": "Passed"
+      },
+      {
+        "name": "testCategoryNavigationReturnsAndSwitchesSources()",
+        "nodeIdentifier": "LibraryPresentationUITests/testCategoryNavigationReturnsAndSwitchesSources()",
+        "result": "Passed"
+      },
+      {
+        "name": "testFavoritesLayoutPersistsThroughLibrary()",
+        "nodeIdentifier": "LibraryPresentationUITests/testFavoritesLayoutPersistsThroughLibrary()",
+        "result": "Passed"
+      },
+      {
+        "name": "testDownloadsEmptyStateAudit()",
+        "nodeIdentifier": "AccessibilityAuditUITests/testDownloadsEmptyStateAudit()",
+        "result": "Passed"
+      },
+      {
+        "name": "testFavoritesLoginPlaceholderAudit()",
+        "nodeIdentifier": "AccessibilityAuditUITests/testFavoritesLoginPlaceholderAudit()",
+        "result": "Passed"
+      },
+      {
+        "name": "testHomeRootAudit()",
+        "nodeIdentifier": "AccessibilityAuditUITests/testHomeRootAudit()",
+        "result": "Passed"
+      },
+      {
+        "name": "testSearchRootAndQuickSearchRemainUsableAtAX5()",
+        "nodeIdentifier": "AccessibilityAuditUITests/testSearchRootAndQuickSearchRemainUsableAtAX5()",
+        "result": "Passed"
+      },
+      {
+        "name": "testSearchRootAudit()",
+        "nodeIdentifier": "AccessibilityAuditUITests/testSearchRootAudit()",
+        "result": "Failed"
+      },
+      {
+        "name": "testSettingRootAudit()",
+        "nodeIdentifier": "AccessibilityAuditUITests/testSettingRootAudit()",
+        "result": "Passed"
+      }
+    ],
+    "ipad": [
+      {
+        "name": "testChangingLayoutKeepsMiddleGalleryAndSearchSurvivesDetailReturn()",
+        "nodeIdentifier": "GalleryLayoutUITests/testChangingLayoutKeepsMiddleGalleryAndSearchSurvivesDetailReturn()",
+        "result": "Passed"
+      },
+      {
+        "name": "testGridLoadsNextPageFromTrailingVisibility()",
+        "nodeIdentifier": "GalleryLayoutUITests/testGridLoadsNextPageFromTrailingVisibility()",
+        "result": "Passed"
+      },
+      {
+        "name": "testNativeTitlesAndGridAtEveryTextSize()",
+        "nodeIdentifier": "GalleryLayoutUITests/testNativeTitlesAndGridAtEveryTextSize()",
+        "result": "Passed"
+      },
+      {
+        "name": "testCategoryNavigationReturnsAndSwitchesSources()",
+        "nodeIdentifier": "LibraryPresentationUITests/testCategoryNavigationReturnsAndSwitchesSources()",
+        "result": "Passed"
+      },
+      {
+        "name": "testFavoritesLayoutPersistsThroughLibrary()",
+        "nodeIdentifier": "LibraryPresentationUITests/testFavoritesLayoutPersistsThroughLibrary()",
+        "result": "Passed"
+      },
+      {
+        "name": "testDownloadsEmptyStateAudit()",
+        "nodeIdentifier": "AccessibilityAuditUITests/testDownloadsEmptyStateAudit()",
+        "result": "Passed"
+      },
+      {
+        "name": "testFavoritesLoginPlaceholderAudit()",
+        "nodeIdentifier": "AccessibilityAuditUITests/testFavoritesLoginPlaceholderAudit()",
+        "result": "Passed"
+      },
+      {
+        "name": "testHomeRootAudit()",
+        "nodeIdentifier": "AccessibilityAuditUITests/testHomeRootAudit()",
+        "result": "Passed"
+      },
+      {
+        "name": "testSearchRootAndQuickSearchRemainUsableAtAX5()",
+        "nodeIdentifier": "AccessibilityAuditUITests/testSearchRootAndQuickSearchRemainUsableAtAX5()",
+        "result": "Passed"
+      },
+      {
+        "name": "testSearchRootAudit()",
+        "nodeIdentifier": "AccessibilityAuditUITests/testSearchRootAudit()",
+        "result": "Failed"
+      },
+      {
+        "name": "testSettingRootAudit()",
+        "nodeIdentifier": "AccessibilityAuditUITests/testSettingRootAudit()",
+        "result": "Passed"
+      }
+    ]
+  },
+  "corrected": {
+    "iphone": [
+      {
+        "name": "testSearchRootAndQuickSearchRemainUsableAtAX5()",
+        "nodeIdentifier": "AccessibilityAuditUITests/testSearchRootAndQuickSearchRemainUsableAtAX5()",
+        "result": "Passed"
+      },
+      {
+        "name": "testSearchRootAudit()",
+        "nodeIdentifier": "AccessibilityAuditUITests/testSearchRootAudit()",
+        "result": "Passed"
+      },
+      {
+        "name": "testFavoritesLayoutPersistsThroughLibrary()",
+        "nodeIdentifier": "LibraryPresentationUITests/testFavoritesLayoutPersistsThroughLibrary()",
+        "result": "Passed"
+      }
+    ],
+    "ipad": [
+      {
+        "name": "testSearchRootAndQuickSearchRemainUsableAtAX5()",
+        "nodeIdentifier": "AccessibilityAuditUITests/testSearchRootAndQuickSearchRemainUsableAtAX5()",
+        "result": "Passed"
+      },
+      {
+        "name": "testSearchRootAudit()",
+        "nodeIdentifier": "AccessibilityAuditUITests/testSearchRootAudit()",
+        "result": "Passed"
+      },
+      {
+        "name": "testFavoritesLayoutPersistsThroughLibrary()",
+        "nodeIdentifier": "LibraryPresentationUITests/testFavoritesLayoutPersistsThroughLibrary()",
+        "result": "Passed"
+      }
+    ]
+  },
+  "iphoneRepetitionNodes": 0,
+  "ipadRepetitionNodes": 0
+}

@@ -1,0 +1,321 @@
+name: Deploy Beta
+on:
+  workflow_dispatch:
+    inputs:
+      releaseTitle:
+        description: 'Release title'
+        required: true
+        type: string
+      releaseDescription:
+        description: 'Release description'
+        required: false
+        type: string
+env:
+  SCHEME_NAME: 'EhPanda'
+  ALTSTORE_JSON_PATH: './AltStore.json'
+  # The beta source, read by AltStore from main: https://raw.githubusercontent.com/EhPanda-Team/EhPanda/main/altstore-beta.json
+  # A beta commits it to the branch it was dispatched on, never to main; the update reaches main when that branch is merged.
+  ALTSTORE_BETA_JSON_PATH: './altstore-beta.json'
+  ALTSTORE_BETA_TEMPLATE_PATH: './actions-tool/altstore-beta.template.json'
+  ALTSTORE_FILTER_PATH: './actions-tool/altstore-add-version.jq'
+  RELEASE_NOTES_TOOL_PATH: './actions-tool/release_notes.py'
+  IPA_ENTITLEMENTS_SCRIPT_PATH: './actions-tool/ipa-entitlements.sh'
+  RELEASE_NOTES_DIR: './ReleaseNotes'
+  CHECK_BUILD_NUMBER_SCRIPT_PATH: './actions-tool/check-build-number.sh'
+  PACKAGE_CHANNEL_SCRIPT_PATH: './actions-tool/package-channel.sh'
+  # The beta flavor: its own bundle ID, Home Screen name and URL scheme (see Config/Beta.xcconfig). The
+  # packaged app is stamped with the `beta` channel (actions-tool/package-channel.sh).
+  BETA_XCCONFIG_PATH: './Config/Beta.xcconfig'
+  BETA_BUNDLE_ID: 'app.ehpanda.beta'
+  BUILDS_PATH: '/tmp/action-builds'
+  PAYLOAD_PATH: '/tmp/action-builds/Payload'
+  THIN_PAYLOAD_SCRIPT_PATH: './actions-tool/thin-payload.sh'
+  ARCHIVE_PATH: '/tmp/action-builds/EhPanda.xcarchive'
+  BETA_IPA_PATH: '/tmp/action-builds/EhPanda-Beta.ipa'
+
+jobs:
+  # Snapshot gate off for 3.0 (owner msg 3757); restore by re-adding the snapshot-gate job and the require step
+  # (see git history of this commit).
+  Deploy:
+    runs-on: xcode-27
+    timeout-minutes: 120
+    # One beta at a time: two dispatches would otherwise race on the same release.
+    # Queue, never cancel.
+    concurrency:
+      group: deploy-beta
+      cancel-in-progress: false
+    if: github.event_name == 'workflow_dispatch'
+    # The release and its tag need contents: write, and so does the push of ./altstore-beta.json to the dispatched branch;
+    # nothing else. A beta never touches main.
+    permissions:
+      contents: write
+    steps:
+      # Betas never write to main, so a run dispatched on main (or on a tag) stops before it builds anything.
+      - name: Refuse to run on main
+        env:
+          REF_TYPE: ${{ github.ref_type }}
+          REF_NAME: ${{ github.ref_name }}
+        run: |
+          if [[ "$REF_TYPE" != "branch" ]]; then
+            echo "::error::A beta is dispatched on a branch, not on the $REF_TYPE '$REF_NAME'."
+            exit 1
+          fi
+          if [[ "$REF_NAME" == "main" ]]; then
+            echo "::error::A beta never writes to main. Dispatch it on the branch to beta; its altstore-beta.json update reaches main when that branch is merged."
+            exit 1
+          fi
+      # On a branch ref this checks out the dispatched branch itself, at the commit the run was dispatched for,
+      # not a detached sha. The push of altstore-beta.json later only needs that commit's parent on the remote.
+      - name: Checkout
+        uses: actions/checkout@v7
+      - name: Modify git config
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+      - name: Check build number
+        run: |
+          set -euo pipefail
+          # The regular releases are published from main; the beta source is ./altstore-beta.json of the branch
+          # this run was dispatched on, which is the checkout.
+          published_path="$RUNNER_TEMP/published"
+          mkdir -p "$published_path"
+          git fetch --no-tags --depth 1 origin main
+          if git cat-file -e "FETCH_HEAD:${ALTSTORE_JSON_PATH#./}" 2>/dev/null; then
+            git show "FETCH_HEAD:${ALTSTORE_JSON_PATH#./}" > "$published_path/$(basename "$ALTSTORE_JSON_PATH")"
+          fi
+          if [[ -f "$ALTSTORE_BETA_JSON_PATH" ]]; then
+            cp "$ALTSTORE_BETA_JSON_PATH" "$published_path/$(basename "$ALTSTORE_BETA_JSON_PATH")"
+          fi
+          # Every app and extension target carries the same build number; test targets carry 1.
+          build_version="$(grep -Eo 'CURRENT_PROJECT_VERSION = [0-9]+;' EhPanda.xcodeproj/project.pbxproj | grep -Eo '[0-9]+' | sort -n | tail -1)"
+          bash "$CHECK_BUILD_NUMBER_SCRIPT_PATH" "$build_version" "$published_path"/*.json
+      - name: Install iOS 27 Platform
+        uses: nick-fields/retry@v4
+        with:
+          retry_on: error
+          max_attempts: 10
+          timeout_minutes: 999
+          command: xcodebuild -downloadPlatform iOS
+      - name: Show Xcode version
+        run: xcodebuild -version
+      - name: Xcode archive
+        env:
+          TELEMETRYDECK_APP_ID: ${{ secrets.TELEMETRYDECK_APP_ID }}
+          TELEMETRYDECK_SALT: ${{ secrets.TELEMETRYDECK_SALT }}
+        run: xcodebuild archive
+          -skipMacroValidation
+          -skipPackagePluginValidation
+          -scheme ${{ env.SCHEME_NAME }}
+          -destination 'generic/platform=iOS'
+          -archivePath ${{ env.ARCHIVE_PATH }}
+          -xcconfig ${{ env.BETA_XCCONFIG_PATH }}
+          CODE_SIGN_IDENTITY=
+          CODE_SIGN_ENTITLEMENTS=
+          CODE_SIGNING_ALLOWED=NO
+          CODE_SIGNING_REQUIRED=NO
+          GCC_OPTIMIZATION_LEVEL=s
+          SWIFT_OPTIMIZATION_LEVEL=-O
+          TELEMETRYDECK_APP_ID="$TELEMETRYDECK_APP_ID"
+          TELEMETRYDECK_SALT="$TELEMETRYDECK_SALT"
+      - name: Verify analytics credentials
+        run: |
+          app_info_plist="$ARCHIVE_PATH/Products/Applications/$SCHEME_NAME.app/Info.plist"
+          app_id="$(plutil -extract TelemetryDeckAppID raw -o - "$app_info_plist")"
+          salt="$(plutil -extract TelemetryDeckSalt raw -o - "$app_info_plist")"
+          [[ ! -z "$app_id" ]] || exit 1
+          [[ ! -z "$salt" ]] || exit 1
+      - name: Verify beta build
+        run: |
+          set -euo pipefail
+          app_path="$ARCHIVE_PATH/Products/Applications/$SCHEME_NAME.app"
+          app_info_plist="$app_path/Info.plist"
+          extension_info_plist="$app_path/PlugIns/ShareExtension.appex/Info.plist"
+          bundle_id="$(plutil -extract CFBundleIdentifier raw -o - "$app_info_plist")"
+          extension_bundle_id="$(plutil -extract CFBundleIdentifier raw -o - "$extension_info_plist")"
+          display_name="$(plutil -extract CFBundleDisplayName raw -o - "$app_info_plist")"
+          url_scheme="$(plutil -extract CFBundleURLTypes.0.CFBundleURLSchemes.0 raw -o - "$app_info_plist")"
+          extension_url_scheme="$(plutil -extract EhPandaURLScheme raw -o - "$extension_info_plist")"
+          build_version="$(plutil -extract CFBundleVersion raw -o - "$app_info_plist")"
+
+          [[ "$bundle_id" == "$BETA_BUNDLE_ID" ]] || { echo "::error::The app is $bundle_id, not $BETA_BUNDLE_ID."; exit 1; }
+          [[ "$extension_bundle_id" == "$BETA_BUNDLE_ID.ShareExtension" ]] || { echo "::error::The share extension is $extension_bundle_id."; exit 1; }
+          [[ "$display_name" == "EhPanda Beta" ]] || { echo "::error::The beta is named '$display_name', not 'EhPanda Beta'."; exit 1; }
+          [[ -n "$url_scheme" && "$url_scheme" != "ehpanda" ]] || { echo "::error::The beta registers the regular URL scheme."; exit 1; }
+          [[ "$extension_url_scheme" == "$url_scheme" ]] || { echo "::error::The share extension hands off to $extension_url_scheme, not $url_scheme."; exit 1; }
+          bash "$CHECK_BUILD_NUMBER_SCRIPT_PATH" "$build_version" "$RUNNER_TEMP/published"/*.json
+      - name: Export .ipa file
+        run: |
+          set -euo pipefail
+          mkdir -p ${{ env.PAYLOAD_PATH }}
+          mv ${{ env.ARCHIVE_PATH }}/Products/Applications/${{ env.SCHEME_NAME }}.app ${{ env.PAYLOAD_PATH }}/${{ env.SCHEME_NAME }}.app
+          sh ${{ env.THIN_PAYLOAD_SCRIPT_PATH }} ${{ env.PAYLOAD_PATH }}/${{ env.SCHEME_NAME }}.app
+          bash "$PACKAGE_CHANNEL_SCRIPT_PATH" "$PAYLOAD_PATH/$SCHEME_NAME.app" beta "$BETA_IPA_PATH"
+      - name: Retrieve data
+        id: retrieve-data
+        run: |
+          app_info_plist="$PAYLOAD_PATH/$SCHEME_NAME.app/Info.plist"
+          version="$(plutil -extract CFBundleShortVersionString raw -o - "$app_info_plist")"
+          size="$(stat -f%z "$BETA_IPA_PATH")"
+
+          [[ ! -z "$version" ]] || exit 1
+          [[ ! -z "$size" ]] || exit 1
+
+          {
+            echo "size=$size"
+            echo "version=$version"
+            echo "version_date=$(date -u +'%Y-%m-%dT%H:%M:%SZ')"
+          } >> "$GITHUB_OUTPUT"
+      - name: Validate data
+        env:
+          RELEASE_TITLE: ${{ inputs.releaseTitle }}
+          RELEASE_SIZE: ${{ steps.retrieve-data.outputs.size }}
+          RELEASE_VERSION: ${{ steps.retrieve-data.outputs.version }}
+          RELEASE_DATE: ${{ steps.retrieve-data.outputs.version_date }}
+        run: |
+          [[ ! -z "$RELEASE_TITLE" ]] || exit 1
+          [[ ! -z "$RELEASE_SIZE" ]] || exit 1
+          [[ ! -z "$RELEASE_VERSION" ]] || exit 1
+          [[ ! -z "$RELEASE_DATE" ]] || exit 1
+      - name: Release to GitHub
+        id: release
+        uses: softprops/action-gh-release@v3
+        with:
+         prerelease: true
+         fail_on_unmatched_files: true
+         files: ${{ env.BETA_IPA_PATH }}
+         token: ${{ secrets.GITHUB_TOKEN }}
+         name: ${{ inputs.releaseTitle }}
+         body: ${{ inputs.releaseDescription || '' }}
+         tag_name: ${{ steps.retrieve-data.outputs.version }}
+         # Tag the commit this run built. Without it GitHub tags the default branch (main), which is not
+         # what a beta dispatched on a feature branch was built from.
+         target_commitish: ${{ github.sha }}
+      - name: Update altstore-beta.json on the dispatched branch
+        env:
+          BETA_BRANCH: ${{ github.ref_name }}
+          RELEASE_TITLE: ${{ inputs.releaseTitle }}
+          RELEASE_DESCRIPTION: ${{ inputs.releaseDescription }}
+          RELEASE_ASSETS: ${{ steps.release.outputs.assets }}
+        run: |
+          set -euo pipefail
+          app_path="$PAYLOAD_PATH/$SCHEME_NAME.app"
+          app_info_plist="$app_path/Info.plist"
+          bundle_id="$(plutil -extract CFBundleIdentifier raw -o - "$app_info_plist")"
+          version="$(plutil -extract CFBundleShortVersionString raw -o - "$app_info_plist")"
+          build_version="$(plutil -extract CFBundleVersion raw -o - "$app_info_plist")"
+          min_os_version="$(plutil -extract MinimumOSVersion raw -o - "$app_info_plist")"
+          size="$(stat -f%z "$BETA_IPA_PATH")"
+          sha256="$(shasum -a 256 "$BETA_IPA_PATH" | awk '{ print $1 }')"
+          version_date="$(date -u +'%Y-%m-%dT%H:%M:%SZ')"
+          # The notes are the version's notes file, as for a regular release: English is the plain field, and
+          # AltStore also gets every language, English included, in localizedDescriptions. A beta of a version
+          # that has no notes file yet shows the release description, in English only.
+          notes_path="$RELEASE_NOTES_DIR/$version.md"
+          if [[ -f "$notes_path" ]]; then
+            python3 "$RELEASE_NOTES_TOOL_PATH" check "$notes_path"
+            notes="$(python3 "$RELEASE_NOTES_TOOL_PATH" english "$notes_path")"
+            localized_notes="$(python3 "$RELEASE_NOTES_TOOL_PATH" altstore "$notes_path")"
+          else
+            notes="${RELEASE_DESCRIPTION:-$RELEASE_TITLE}"
+            notes="$(printf '%s' "$notes" | tr -d '\r')"
+            localized_notes=null
+          fi
+          privacy="$(
+            find "$app_path" -name Info.plist -print0 |
+            while IFS= read -r -d '' plist; do
+              plutil -convert json -o - "$plist" |
+                jq 'to_entries[] | select(.key | endswith("UsageDescription")) | {key: .key, value: (.value | tostring)}'
+            done |
+            jq -s -c 'from_entries'
+          )"
+          # AltStore refuses an install whose IPA asks for a permission the source does not list, so the source
+          # gets what this IPA really carries: the usage descriptions above and the entitlements.
+          entitlements="$(bash "$IPA_ENTITLEMENTS_SCRIPT_PATH" "$app_path")"
+          download_url="$(printf '%s' "$RELEASE_ASSETS" | jq -r '[.[] | select(.name == "EhPanda-Beta.ipa") | .browser_download_url][0] // empty')"
+
+          [[ "$bundle_id" == "$BETA_BUNDLE_ID" ]] || exit 1
+          [[ -n "$version" ]] || exit 1
+          [[ -n "$build_version" ]] || exit 1
+          [[ -n "$min_os_version" ]] || exit 1
+          [[ -n "$size" ]] || exit 1
+          [[ -n "$sha256" ]] || exit 1
+          [[ -n "$notes" ]] || exit 1
+          [[ -n "$download_url" ]] || exit 1
+          printf '%s' "$privacy" | jq -e 'type == "object"' >/dev/null
+          printf '%s' "$entitlements" | jq -e 'type == "array"' >/dev/null
+          curl -sSfIL -o /dev/null "$download_url"
+
+          # The beta source is ./altstore-beta.json, which AltStore reads from main. A beta never writes to main:
+          # the updated file is committed to the branch this run was dispatched on ($BETA_BRANCH) and reaches main
+          # when that branch is merged. The regular releases are read from main.
+          template_path="$PWD/$ALTSTORE_BETA_TEMPLATE_PATH"
+          filter_path="$PWD/$ALTSTORE_FILTER_PATH"
+          check_build_number_path="$PWD/$CHECK_BUILD_NUMBER_SCRIPT_PATH"
+          beta_json="$PWD/$ALTSTORE_BETA_JSON_PATH"
+          release_json="$RUNNER_TEMP/AltStore.main.json"
+          for attempt in 1 2 3 4 5; do
+            git fetch --no-tags --depth 1 origin main
+            git show "FETCH_HEAD:${ALTSTORE_JSON_PATH#./}" > "$release_json"
+            # The branch may have moved while the build ran. Put this run's commit on top of its latest tip and
+            # derive the source again from the tip's file, so there is never a rebase conflict in the source. A
+            # mixed reset moves the branch and the index but leaves the files this run built from, and only
+            # altstore-beta.json is staged below.
+            git fetch --no-tags --depth 1 origin "refs/heads/$BETA_BRANCH"
+            git reset --quiet --mixed FETCH_HEAD
+            if git cat-file -e "FETCH_HEAD:${ALTSTORE_BETA_JSON_PATH#./}" 2>/dev/null; then
+              git checkout --quiet -- "${ALTSTORE_BETA_JSON_PATH#./}"
+            else
+              rm -f "$beta_json"
+            fi
+
+            # Another run may have published a build since this one started.
+            if [[ -f "$beta_json" ]]; then
+              bash "$check_build_number_path" "$build_version" "$release_json" "$beta_json"
+            else
+              bash "$check_build_number_path" "$build_version" "$release_json"
+            fi
+
+            # Every run takes all the metadata from the template, so a fix to it reaches the live source with
+            # the next beta. Only the versions already published are carried over from the branch's file. The
+            # template has no versions, and AltStore rejects a source with none, so the source is only ever
+            # written with this build added.
+            source_json="$template_path"
+            if [[ -f "$beta_json" ]]; then
+              source_json="$RUNNER_TEMP/altstore-beta-base.json"
+              jq --slurpfile published "$beta_json" \
+                '.apps[0].versions = ($published[0].apps[0].versions // [])' "$template_path" > "$source_json"
+            fi
+
+            tmp="$(mktemp)"
+            jq \
+              --arg bundleIdentifier "$bundle_id" \
+              --arg version "$version" \
+              --arg buildVersion "$build_version" \
+              --arg marketingVersion "$version" \
+              --arg date "$version_date" \
+              --arg localizedDescription "$notes" \
+              --argjson localizedDescriptions "$localized_notes" \
+              --arg downloadURL "$download_url" \
+              --arg sha256 "$sha256" \
+              --arg minOSVersion "$min_os_version" \
+              --argjson size "$size" \
+              --argjson privacy "$privacy" \
+              --argjson entitlements "$entitlements" \
+              --argjson releaseVersions "$(jq -c '[.apps[0].versions[] | {version, buildVersion}]' "$release_json")" \
+              -f "$filter_path" "$source_json" > "$tmp"
+            jq -e '(.apps[0].versions | length) >= 1' "$tmp" >/dev/null
+            mv "$tmp" "$beta_json"
+
+            if [[ -z "$(git status --porcelain -- "${ALTSTORE_BETA_JSON_PATH#./}")" ]]; then
+              echo "$ALTSTORE_BETA_JSON_PATH is already up to date."
+              exit 0
+            fi
+            git add -- "${ALTSTORE_BETA_JSON_PATH#./}"
+            git commit -m "Update altstore-beta.json"
+            if git push origin "HEAD:refs/heads/$BETA_BRANCH"; then
+              exit 0
+            fi
+            echo "Push to $BETA_BRANCH was rejected (attempt $attempt); retrying on the latest branch."
+            sleep $((attempt * 5))
+          done
+          exit 1

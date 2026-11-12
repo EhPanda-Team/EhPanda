@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>application-identifier</key>
+	<string>TEAMID0000.app.ehpanda.marketplace</string>
+	<key>beta-reports-active</key>
+	<true/>
+	<key>com.apple.developer.team-identifier</key>
+	<string>TEAMID0000</string>
+	<key>keychain-access-groups</key>
+	<array>
+		<string>TEAMID0000.*</string>
+	</array>
+</dict>
+</plist>

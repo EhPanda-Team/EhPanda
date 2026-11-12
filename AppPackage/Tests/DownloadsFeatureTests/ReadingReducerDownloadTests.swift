@@ -1,0 +1,197 @@
+import AnalyticsClient
+@testable import AppFeature
+import AppModels
+import ClipboardClient
+import ComposableArchitecture
+import CookieClient
+@testable import DetailFeature
+import DownloadClient
+import Foundation
+import HapticsClient
+import ImageClient
+@testable import ReadingFeature
+import Testing
+
+// `@MainActor` here is compiler-required, not stylistic: every case below builds a TCA
+// `TestStore`, whose `init` and `state` accessor are main-actor-isolated. It is applied
+// per member rather than to the suite so the type's `DownloadFeatureTestCase` conformance
+// stays nonisolated — a main-actor conformance cannot be used from the `@Sendable`
+// dependency closures these stores install.
+struct ReadingReducerDownloadTests: DownloadFeatureTestCase {
+    @MainActor
+    @Test
+    func testDetailReducerDownloadedContextStoresVersionMetadataResult() async {
+        let download = sampleDownload(
+            gid: "889", title: "Offline Archive", status: .completed, pageCount: 2
+        )
+        let detail = sampleGalleryDetail(gid: download.gid, title: download.title)
+        var initialState = DetailReducer.State(gallery: download.gallery)
+        initialState.galleryDetail = detail
+        let metadata = DownloadVersionMetadata(
+            gid: detail.gid, token: download.token,
+            currentGID: "990", currentKey: "chain-key",
+            parentGID: download.gid, parentKey: download.token,
+            firstGID: download.gid, firstKey: download.token
+        )
+
+        let store = TestStore(initialState: initialState, reducer: DetailReducer.init) {
+            $0.analyticsClient = .noop
+        }
+        await store.send(.fetchVersionMetadataDone(.success(metadata))) {
+            $0.galleryVersionMetadata = metadata
+        }
+    }
+
+    @MainActor
+    @Test
+    func testReadingReducerRemoteSourceLoadsLocalPagesAndSkipsRemoteFetchForDownloadedPage() async throws {
+        let gallery = sampleGallery()
+        let localPageURL = URL(filePath: "/tmp/\(UUID().uuidString).jpg")
+        let remotePageURL = try #require(URL(string: "https://example.com/pages/0001.jpg"))
+        var initialState = ReadingReducer.State(gallery: gallery, contentSource: .remote)
+        initialState.imageURLs = [1: remotePageURL]
+
+        let store = makeLocalPageLoadStore(
+            initialState: initialState, gallery: gallery, localPageURL: localPageURL
+        )
+
+        await store.send(.loadLocalPageURLs(gallery.gid))
+        let requestID = store.state.localPageRequestID
+        await store.receive(\.loadLocalPageURLsDone) { $0.localPageURLs = [1: localPageURL] }
+        #expect(store.state.localPageRequestID == requestID)
+        #expect(store.state.localPageURLs[1] == localPageURL)
+
+        await store.send(.fetchImageURLs(1)) { $0.imageURLLoadingStates[1] = .idle }
+    }
+
+    @MainActor
+    @Test
+    func testReadingReducerLocalPageLoadClearsStaleRemoteImageFailure() async throws {
+        let gallery = sampleGallery()
+        let localPageURL = URL(filePath: "/tmp/\(UUID().uuidString).jpg")
+        var initialState = ReadingReducer.State(gallery: gallery, contentSource: .remote)
+        initialState.imageURLLoadingStates[1] = .failed(.webImageFailed)
+        initialState.previewLoadingStates[1] = .failed(.webImageFailed)
+
+        let store = makeLocalPageLoadStore(
+            initialState: initialState, gallery: gallery, localPageURL: localPageURL
+        )
+
+        await store.send(.loadLocalPageURLs(gallery.gid))
+        let requestID = store.state.localPageRequestID
+        await store.receive(\.loadLocalPageURLsDone) {
+            $0.localPageURLs = [1: localPageURL]
+            $0.imageURLLoadingStates[1] = .idle
+            $0.previewLoadingStates[1] = .idle
+        }
+        #expect(store.state.localPageRequestID == requestID)
+    }
+
+    @MainActor
+    @Test
+    func testReadingReducerOnWebImageSucceededCapturesCachedPageIntoDownloadProgress() async throws {
+        let capturedCalls = LockedBox([CapturedPageCall]())
+        let gallery = sampleGallery()
+        let remotePageURL = try #require(URL(string: "https://example.com/pages/0001.jpg"))
+        var initialState = ReadingReducer.State(gallery: gallery, contentSource: .remote)
+        initialState.imageURLs = [1: remotePageURL]
+
+        let store = makeCapturePageStore(
+            initialState: initialState, capturedCalls: capturedCalls
+        )
+
+        let pixelSize = try #require(PagePixelSize(width: 1280, height: 1791))
+        await store.send(.onWebImageSucceeded(1, pixelSize: pixelSize)) {
+            $0.imageURLLoadingStates[1] = .idle
+            $0.webImageLoadSuccessIndices.insert(1)
+            $0.pageSizes[1] = KnownPageSize(pixelSize: pixelSize, source: .decodedImage)
+        }
+        await store.receive(\.captureCachedPage)
+
+        #expect(capturedCalls.value.count == 1)
+        #expect(capturedCalls.value.first?.gid == gallery.gid)
+        #expect(capturedCalls.value.first?.index == 1)
+        #expect(capturedCalls.value.first?.imageURL == remotePageURL)
+    }
+
+}
+
+// MARK: - Captured Page Call
+
+private struct CapturedPageCall {
+    let gid: String
+    let index: Int
+    let imageURL: URL?
+}
+
+// MARK: - Store Factory Helpers
+
+private extension ReadingReducerDownloadTests {
+    @MainActor
+    func makeLocalPageLoadStore(
+        initialState: ReadingReducer.State,
+        gallery: Gallery,
+        localPageURL: URL
+    ) -> TestStoreOf<ReadingReducer> {
+        let store = TestStore(
+            initialState: initialState,
+            reducer: ReadingReducer.init,
+            withDependencies: {
+                $0.analyticsClient = .noop
+                $0.clipboardClient = .noop
+                $0.cookieClient = .noop
+                $0.downloadClient = DownloadClient()
+                $0.downloadClient.observeDownloads = { AsyncStream { $0.yield([]); $0.finish() } }
+                $0.downloadClient.fetchDownloads = { [] }
+                $0.downloadClient.fetchDownload = { _ in nil }
+                $0.downloadClient.refreshDownloads = {}
+                $0.downloadClient.enqueue = { _ in }
+                $0.downloadClient.togglePause = { _ in }
+                $0.downloadClient.retry = { _, _ in }
+                $0.downloadClient.delete = { _ in }
+                $0.downloadClient.loadManifest = { _ in throw AppError.notFound }
+                $0.downloadClient.loadLocalPageURLs = { gid in
+                    guard gid == gallery.gid else { return nil }
+                    return [1: localPageURL]
+                }
+                $0.hapticsClient = .noop
+                $0.imageClient = .noop
+            }
+        )
+        store.exhaustivity = .off
+        return store
+    }
+
+    @MainActor
+    func makeCapturePageStore(
+        initialState: ReadingReducer.State,
+        capturedCalls: LockedBox<[CapturedPageCall]>
+    ) -> TestStoreOf<ReadingReducer> {
+        let store = TestStore(
+            initialState: initialState,
+            reducer: ReadingReducer.init,
+            withDependencies: {
+                $0.analyticsClient = .noop
+                $0.clipboardClient = .noop
+                $0.cookieClient = .noop
+                $0.downloadClient = DownloadClient()
+                $0.downloadClient.observeDownloads = { AsyncStream { $0.finish() } }
+                $0.downloadClient.fetchDownloads = { [] }
+                $0.downloadClient.fetchDownload = { _ in nil }
+                $0.downloadClient.refreshDownloads = {}
+                $0.downloadClient.enqueue = { _ in }
+                $0.downloadClient.togglePause = { _ in }
+                $0.downloadClient.retry = { _, _ in }
+                $0.downloadClient.delete = { _ in }
+                $0.downloadClient.loadManifest = { _ in throw AppError.notFound }
+                $0.downloadClient.captureCachedPage = { gid, index, imageURL in
+                    capturedCalls.value.append(CapturedPageCall(gid: gid, index: index, imageURL: imageURL))
+                }
+                $0.hapticsClient = .noop
+                $0.imageClient = .noop
+            }
+        )
+        store.exhaustivity = .off
+        return store
+    }
+}

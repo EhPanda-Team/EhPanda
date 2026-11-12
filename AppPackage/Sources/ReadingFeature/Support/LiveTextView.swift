@@ -1,0 +1,194 @@
+import AppModels
+import LiveTextTranslation
+import SwiftUI
+
+struct LiveTextView: View {
+    private let liveTextGroups: [LiveTextGroup]
+    private let focusedLiveTextGroup: LiveTextGroup?
+    private let tapAction: (LiveTextGroup) -> Void
+    @State private var size: CGSize = .zero
+    @Environment(LiveTextTranslator.self) private var translator: LiveTextTranslator?
+
+    init(
+        liveTextGroups: [LiveTextGroup],
+        focusedLiveTextGroup: LiveTextGroup?,
+        tapAction: @escaping (LiveTextGroup) -> Void
+    ) {
+        self.liveTextGroups = liveTextGroups
+        self.focusedLiveTextGroup = focusedLiveTextGroup
+        self.tapAction = tapAction
+    }
+
+    var body: some View {
+        let translatedPage = translator?.translatedPage(of: liveTextGroups)
+        Canvas { context, canvasSize in
+            context.fill(
+                Path(CGRect(origin: .zero, size: canvasSize)),
+                with: .color(.black.opacity(0.1))
+            )
+            guard size != .zero else { return }
+
+            let tuples: [(UUID, Path)] = liveTextGroups
+                .flatMap { group in
+                    group.blocks.map { block in
+                        (group.id, block)
+                    }
+                }
+                .map { (id, block) in
+                    let expandingSize = 4.0
+                    let bounds = block.bounds
+                    let topLeft = bounds.topLeft * size
+                    let rect = CGRect(
+                        x: 0, y: 0,
+                        width: bounds.getWidth(size) + expandingSize * 2,
+                        height: bounds.getHeight(size) + expandingSize * 2)
+
+                    let path = Path(roundedRect: rect, cornerRadius: bounds.getHeight(size) / 5)
+                        .applying(CGAffineTransform(rotationAngle: block.bounds.getRadian(size)))
+                        .offsetBy(dx: topLeft.x - expandingSize, dy: topLeft.y - expandingSize)
+                    return (id, path)
+                }
+            context.withCGContext { cgContext in
+                tuples.forEach { (_, path) in
+                    cgContext.setFillColor(.init(red: 255, green: 255, blue: 255, alpha: 1))
+                    cgContext.setShadow(
+                        offset: .zero, blur: 15,
+                        color: .init(red: 0, green: 0, blue: 0, alpha: 0.3)
+                    )
+                    cgContext.addPath(path.cgPath)
+                    cgContext.drawPath(using: .fill)
+                }
+            }
+            context.blendMode = .destinationOut
+            tuples.forEach { (_, path) in
+                context.fill(path, with: .color(.red))
+                context.stroke(path, with: .color(.red))
+            }
+
+            if let focusedLiveTextGroup = focusedLiveTextGroup {
+                context.blendMode = .copy
+                tuples.forEach { (groupUUID, path) in
+                    if groupUUID == focusedLiveTextGroup.id {
+                        context.stroke(
+                            path, with: .color(.accentColor.opacity(0.6)),
+                            style: .init(lineWidth: 10)
+                        )
+                    }
+                }
+                context.blendMode = .destinationOut
+                tuples.forEach { (groupUUID, path) in
+                    if groupUUID == focusedLiveTextGroup.id {
+                        context.fill(path, with: .color(.accentColor))
+                    }
+                }
+            }
+        }
+        // A translated page covers its lettering with the translations instead of highlighting it;
+        // the tap targets stay, so a tap still opens the system's translation of the whole group.
+        .opacity(translatedPage == nil ? 1 : 0)
+        .overlay {
+            if let translatedPage {
+                Canvas { context, canvasSize in
+                    LiveTextTranslationRenderer.draw(
+                        translatedPage,
+                        focusedGroupID: focusedLiveTextGroup?.id,
+                        focusColor: .accentColor,
+                        in: context,
+                        size: canvasSize
+                    )
+                }
+                .transition(.opacity)
+            }
+        }
+        .overlay {
+            if size != .zero {
+                ForEach(liveTextGroups) { textGroup in
+                    HighlightView(text: textGroup.text) {
+                        tapAction(textGroup)
+                    }
+                    .frame(width: textGroup.width * size.width, height: textGroup.height * size.height)
+                    .position(
+                        x: (textGroup.minX + textGroup.width / 2) * size.width,
+                        y: (textGroup.minY + textGroup.height / 2) * size.height
+                    )
+                }
+            }
+        }
+        .onGeometryChange(for: CGSize.self, of: \.size) {
+            size = $0
+        }
+    }
+}
+
+// MARK: HighlightView
+private struct HighlightView: UIViewRepresentable {
+    final class Coordinator: NSObject {
+        var textView: UITextView?
+        var highLightView: HighlightView
+
+        init(_ highLightView: HighlightView) {
+            self.highLightView = highLightView
+        }
+
+        @MainActor
+        @objc func onTap(sender: UIView) {
+            guard let textView = textView else { return }
+
+            let height = textView.contentSize.height
+            textView.contentInset = .init(
+                top: textView.frame.height / 2 - height / 2,
+                left: textView.frame.width / 2,
+                bottom: 0, right: 0
+            )
+            highLightView.tapAction()
+            textView.selectAll(nil)
+            textView.perform(NSSelectorFromString("_translate:"), with: nil)
+        }
+    }
+
+    private let text: String
+    private let tapAction: () -> Void
+
+    init(text: String, tapAction: @escaping () -> Void) {
+        self.text = text
+        self.tapAction = tapAction
+    }
+
+    func makeCoordinator() -> Coordinator {
+        .init(self)
+    }
+
+    func makeUIView(context: Self.Context) -> UITextView {
+        let textView = UITextView()
+        context.coordinator.textView = textView
+        let text = text.unicodeScalars
+            .filter({ !$0.properties.isEmojiPresentation })
+            .reduce("") { $0 + String($1)}
+        textView.text = text
+        textView.isEditable = false
+        textView.tintColor = .clear
+        textView.textColor = .clear
+        textView.backgroundColor = .clear
+        textView.font = .systemFont(ofSize: 0)
+        textView.isSelectable = false
+        textView.autocapitalizationType = .sentences
+        textView.isSelectable = true
+        textView.isUserInteractionEnabled = true
+        let tap = UITapGestureRecognizer(
+            target: context.coordinator,
+            action: #selector(Coordinator.onTap(sender:))
+        )
+        textView.isUserInteractionEnabled = true
+        textView.addGestureRecognizer(tap)
+        return textView
+    }
+
+    func updateUIView(_ uiView: UITextView, context: Self.Context) {
+        uiView.text = text
+    }
+}
+
+// MARK: Definition
+private func * (lhs: CGPoint, rhs: CGSize) -> CGPoint {
+    .init(x: lhs.x * rhs.width, y: lhs.y * rhs.height)
+}

@@ -1,0 +1,30 @@
+from pathlib import Path
+import argparse
+import os
+import subprocess
+import time
+
+parser = argparse.ArgumentParser()
+parser.add_argument('device')
+parser.add_argument('kind', choices=['ipad', 'duo'])
+args = parser.parse_args()
+root = Path(__file__).resolve().parent
+bundle = 'app.ehpanda.layoutreview'
+subprocess.run(['xcrun', 'simctl', 'install', args.device, str(root / 'EhPandaLayoutReview.app')], check=True)
+running = False
+variants = ['recommended', 'alternative'] if args.kind == 'ipad' else ['recommended']
+for variant in variants:
+    for page in ['Favorites', 'Search', 'Downloads']:
+        if running:
+            subprocess.run(['xcrun', 'simctl', 'terminate', args.device, bundle], check=True)
+        env = dict(os.environ, SIMCTL_CHILD_PROPOSAL_PAGE=page,
+                   SIMCTL_CHILD_PROPOSAL_DEVICE=args.kind, SIMCTL_CHILD_PROPOSAL_VARIANT=variant)
+        subprocess.run(['xcrun', 'simctl', 'launch', args.device, bundle], env=env, check=True)
+        running = True
+        time.sleep(5)
+        output = root / f'{args.kind}-{page.lower()}-{variant}.png'
+        command = ['xcrun', 'simctl', 'io', args.device, 'screenshot']
+        if args.kind == 'duo':
+            command.append('--display=primary-1')
+        subprocess.run(command + [str(output)], check=True)
+        print(output.name, flush=True)

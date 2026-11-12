@@ -1,0 +1,350 @@
+public import AppComponents
+import ApplicationClient
+public import AppModels
+import AppTools
+public import ComposableArchitecture
+import CookieClient
+public import Foundation
+import HapticsClient
+public import NetworkingFeature
+public import Sharing
+import UIKit
+
+@Reducer
+public struct CommentsReducer: Sendable {
+    @Reducer
+    public enum Destination {
+        @ReducerCaseIgnored
+        case postComment(String)
+        /// EhPanda's Report form, opened from a comment's Report (18.1 D-01).
+        case reportForm(ReportFormFeature)
+    }
+
+    public enum Delegate: Equatable, Sendable {
+        // Open the linked gallery (optionally deep-linking to a page or comment) as a new stack element.
+        case pushDetail(gallery: Gallery, deepLink: GalleryDeepLink?)
+        // A comment was voted/edited; ask the host to refresh the detail with this gid so it stays in sync.
+        case performedCommentAction(String)
+        // A comment was voted: the site's answer, for the host to apply to the detail's own copy of the comment.
+        case commentVoted(gid: String, commentID: String, score: Int, vote: Int)
+    }
+
+    private enum CancelID {
+        case postComment, voteComment, fetchGallery
+    }
+
+    @ObservableState
+    public struct State: Equatable {
+        @SharedReader(.setting) public var setting: Setting
+        @Presents public var toast: AppAlertState<Never>?
+        @Presents public var destination: Destination.State?
+        public var moderation: CommentModerationFeature.State
+        public var commentContent = ""
+        public var postCommentFocused = false
+        public var scrollCommentID: String?
+        public var scrollRowOpacity: Double = 1
+
+        // Display data captured when this screen is pushed onto the host's gallery stack.
+        public var gid = ""
+        public var token = ""
+        public var apiKey = ""
+        public var galleryURL: URL
+        public var comments = [GalleryComment]()
+
+        public init(
+            gid: String = "", token: String = "", apiKey: String = "",
+            galleryURL: URL, comments: [GalleryComment] = [], scrollCommentID: String? = nil
+        ) {
+            self.gid = gid
+            self.token = token
+            self.apiKey = apiKey
+            self.galleryURL = galleryURL
+            self.comments = comments
+            self.scrollCommentID = scrollCommentID
+            moderation = CommentModerationFeature.State(galleryURL: galleryURL)
+        }
+    }
+
+    public enum Action: BindableAction {
+        case binding(BindingAction<State>)
+        case toast(PresentationAction<Never>)
+        case destination(PresentationAction<Destination.Action>)
+        case presentPostComment(commentID: String, content: String? = nil)
+        /// The editor's Post: sends the comment and closes the editor, or holds both for the posting warning.
+        case postTapped
+        case moderation(CommentModerationFeature.Action)
+        case clearScrollCommentID
+        case delegate(Delegate)
+
+        case setToast(AppAlertState<Never>)
+        case setPostCommentFocused(Bool)
+        case setScrollRowOpacity(Double)
+        case performScrollOpacityEffect
+        case handleCommentLink(URL)
+        case handleGalleryLink(url: URL, gallery: Gallery)
+        case onPresented
+
+        case updateReadingProgress(gid: String, token: String, progress: Int)
+
+        case postComment(galleryURL: URL, commentID: String? = nil)
+        case voteComment(gid: String, token: String, apiKey: String, commentID: String, vote: Int)
+        case voteCommentDone(commentID: String, result: Result<GalleryCommentVoteResponse, AppError>)
+        case performCommentActionDone(Result<Void, AppError>)
+        case fetchGallery(url: URL, isGalleryImageURL: Bool)
+        case fetchGalleryDone(url: URL, result: Result<Gallery, AppError>)
+    }
+
+    @Dependency(\.applicationClient) private var applicationClient
+    @Dependency(\.hapticsClient) private var hapticsClient
+    @Dependency(\.cookieClient) private var cookieClient
+    @Dependency(\.date) private var date
+    @Dependency(\.commentFilterTerms) private var commentFilterTerms
+
+    public init() {}
+
+    public var body: some Reducer<State, Action> {
+        BindingReducer()
+
+        Scope(\.moderation, action: \.moderation, CommentModerationFeature.init)
+
+        Reduce { state, action in
+            switch action {
+            case .binding:
+                return .none
+
+            case .toast:
+                return .none
+
+            case .destination:
+                return .none
+
+            case let .presentPostComment(commentID, content):
+                // Reset on present (not on dismiss): the sheet is a raw case binding, so an
+                // interactive swipe-down never sends `.destination(.dismiss)`. Editing passes the
+                // comment's text as `content`; the new-comment button passes nil to clear it.
+                state.commentContent = content ?? ""
+                state.postCommentFocused = false
+                state.destination = .postComment(commentID)
+                // Presenting the editor is what focuses it. The delay lets the sheet finish its
+                // presentation animation before the keyboard is raised, which is what the editor's
+                // former `onAppear` hook waited for.
+                return .run { send in
+                    try await Task.sleep(for: .milliseconds(750))
+                    await send(.setPostCommentFocused(true))
+                }
+
+            // The reducer, not the view, closes the editor: a matching comment keeps it open with the
+            // text as typed while the warning is up (D-12, P-8). Nothing is sent before the decision.
+            case .postTapped:
+                guard case .postComment(let commentID) = state.destination else { return .none }
+                if CommentFilter.matches(state.commentContent, terms: commentFilterTerms) {
+                    state.moderation.presentPostingWarning()
+                    return .none
+                }
+                return postAndDismiss(commentID: commentID, state: state)
+
+            case .moderation(.delegate(.post)):
+                guard case .postComment(let commentID) = state.destination else { return .none }
+                return postAndDismiss(commentID: commentID, state: state)
+
+            case .moderation(.delegate(.resumeEditing)):
+                state.postCommentFocused = true
+                return .none
+
+            case .moderation(.delegate(.openReportForm(let form))):
+                state.destination = .reportForm(form)
+                // Presenting the form is what reads the site's form, replacing a view lifecycle hook.
+                return .send(.destination(.presented(.reportForm(.task))))
+
+            case .moderation(.delegate(.didBlock(let memberID))):
+                state.moderation.collapseComments(by: memberID, in: state.comments)
+                return .none
+
+            case .moderation:
+                return .none
+
+            case .clearScrollCommentID:
+                state.scrollCommentID = nil
+                return .none
+
+            case .delegate:
+                return .none
+
+            case .setToast(let config):
+                state.toast = config
+                return .none
+
+            case .setPostCommentFocused(let isFocused):
+                state.postCommentFocused = isFocused
+                return .none
+
+            case .setScrollRowOpacity(let opacity):
+                state.scrollRowOpacity = opacity
+                return .none
+
+            case .performScrollOpacityEffect:
+                return .merge(
+                    .run { send in
+                        try await Task.sleep(for: .milliseconds(750))
+                        await send(.setScrollRowOpacity(0.25))
+                    },
+                    .run { send in
+                        try await Task.sleep(for: .milliseconds(1250))
+                        await send(.setScrollRowOpacity(1))
+                    },
+                    .run { send in
+                        try await Task.sleep(for: .milliseconds(2000))
+                        await send(.clearScrollCommentID)
+                    }
+                )
+
+            case .handleCommentLink(let url):
+                guard let route = GalleryURLParser.parse(url) else {
+                    return .run(operation: { _ in await applicationClient.openURL(url) })
+                }
+                // Always fetch the linked gallery so the pushed detail is seeded from it (no cache).
+                return .send(.fetchGallery(url: route.url, isGalleryImageURL: route.isGalleryImageURL))
+
+            case .handleGalleryLink(let url, let gallery):
+                let route = GalleryURLParser.parse(url)
+                let deepLink = GalleryDeepLink(pageIndex: route?.pageIndex, commentID: route?.commentID)
+                var effects = [Effect<Action>]()
+                if let pageIndex = route?.pageIndex {
+                    effects.append(.send(.updateReadingProgress(
+                        gid: gallery.id, token: gallery.token, progress: pageIndex
+                    )))
+                }
+                effects.append(.send(.delegate(.pushDetail(gallery: gallery, deepLink: deepLink))))
+                return .merge(effects)
+
+            // Presentation-driven lifecycle: the host sends this in the state transition that
+            // pushes this screen, replacing the former view `onAppear`.
+            case .onPresented:
+                return state.scrollCommentID != nil ? .send(.performScrollOpacityEffect) : .none
+
+            case let .updateReadingProgress(gid, token, progress):
+                // The linked gallery is in scope, so persist the real token — the entry resolves
+                // immediately rather than waiting for the detail screen to backfill it. Invalid
+                // gid/token records are rejected inside the shared mutator.
+                @Shared(.galleryHistory) var galleryHistory
+                $galleryHistory.withLock {
+                    $0.updateReadingProgress(gid: gid, token: token, progress: progress, date: date.now)
+                }
+                return .none
+
+            case .postComment(let galleryURL, let commentID):
+                guard !state.commentContent.isEmpty else { return .none }
+                if let commentID = commentID {
+                    return .run { [commentContent = state.commentContent] send in
+                        let result = await Result.Swift::init { () async throws(AppError) in
+                            try await EditGalleryCommentRequest(
+                                commentID: commentID,
+                                content: commentContent,
+                                galleryURL: galleryURL
+                            )
+                            .response()
+                        }
+                        await send(.performCommentActionDone(result))
+                    }
+                    .cancellable(id: CancelID.postComment)
+                } else {
+                    return .run { [commentContent = state.commentContent] send in
+                        let result = await Result.Swift::init { () async throws(AppError) in
+                            try await CommentGalleryRequest(
+                                content: commentContent,
+                                galleryURL: galleryURL
+                            )
+                            .response()
+                        }
+                        await send(.performCommentActionDone(result))
+                    }
+                    .cancellable(id: CancelID.postComment)
+                }
+
+            case .voteComment(let gid, let token, let apiKey, let commentID, let vote):
+                guard let gidValue = Int(gid), let commentIDValue = Int(commentID),
+                      let apiuid = Int(cookieClient.apiuid(host: state.setting.galleryHost))
+                else { return .none }
+                return .run { [host = state.setting.galleryHost] send in
+                    let result = await CommentVoteRequest.response(for: VoteGalleryCommentRequest(
+                        host: host, apiuid: apiuid, apikey: apiKey, gid: gidValue, token: token,
+                        commentID: commentIDValue, commentVote: vote
+                    ))
+                    await send(.voteCommentDone(commentID: commentID, result: result))
+                }
+                .cancellable(id: CancelID.voteComment)
+
+            // The site answers a vote with the comment's new score and the user's vote on it, so the comment is
+            // updated from that, here and in the host's copy, rather than by fetching the whole detail again. A
+            // failed vote changes nothing.
+            case .voteCommentDone(let commentID, let result):
+                switch result {
+                case .success(let response):
+                    state.comments.applyVote(commentID: commentID, score: response.score, vote: response.vote)
+                    return .merge(
+                        .send(.delegate(.commentVoted(
+                            gid: state.gid, commentID: commentID, score: response.score, vote: response.vote
+                        ))),
+                        .run(operation: { _ in await hapticsClient.generateNotificationFeedback(.success) })
+                    )
+                case .failure:
+                    return .run(operation: { _ in await hapticsClient.generateNotificationFeedback(.error) })
+                }
+
+            case .performCommentActionDone(let result):
+                switch result {
+                case .success:
+                    return .merge(
+                        .send(.delegate(.performedCommentAction(state.gid))),
+                        .run(operation: { _ in await hapticsClient.generateNotificationFeedback(.success) })
+                    )
+                case .failure:
+                    return .run(operation: { _ in await hapticsClient.generateNotificationFeedback(.error) })
+                }
+
+            case .fetchGallery(let url, let isGalleryImageURL):
+                state.toast = .loading()
+                return .run {  send in
+                    let result = await Result.Swift::init { () async throws(AppError) in
+                        try await GalleryReverseRequest(
+                            url: url,
+                            isGalleryImageURL: isGalleryImageURL
+                        )
+                        .response()
+                    }
+                    await send(.fetchGalleryDone(url: url, result: result))
+                }
+                .cancellable(id: CancelID.fetchGallery)
+
+            case .fetchGalleryDone(let url, let result):
+                switch result {
+                case .success(let gallery):
+                    state.toast = nil
+                    return .send(.handleGalleryLink(url: url, gallery: gallery))
+                case .failure:
+                    state.toast = .error()
+                    return .none
+                }
+            }
+        }
+        .haptics(
+            unwrapping: \.destination,
+            case: \.postComment,
+            hapticsClient: hapticsClient
+        )
+        .ifLet(\.$destination, action: \.destination)
+        .ifLet(\.$toast, action: \.toast)
+    }
+
+    /// Sends the editor's comment (an edit when `commentID` isn't empty), then closes the editor.
+    private func postAndDismiss(commentID: String, state: State) -> Effect<Action> {
+        let galleryURL = state.galleryURL
+        let commentID = commentID.isEmpty ? nil : commentID
+        return .run { send in
+            await send(.postComment(galleryURL: galleryURL, commentID: commentID))
+            await send(.destination(.dismiss))
+        }
+    }
+}
+
+extension CommentsReducer.Destination.State: Equatable, Sendable {}

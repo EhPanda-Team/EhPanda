@@ -1,0 +1,132 @@
+# API Coverage — TelemetryDeck Swift SDK
+
+> Full coverage by default. Opt-outs are explicit, reasoned decisions.
+
+**SDK:** `github.com/TelemetryDeck/SwiftSDK`, product `TelemetryDeck`, tag `2.14.1`
+**Surface enumerated from:** `Sources/TelemetryDeck/*.swift` at that tag (read 2026-07-24), not from memory.
+**Phase:** 14 — Analytics Instrumentation
+
+Decision keys reference the locked owner decisions in `14-CONTEXT.md` (`D-01` … `D-14`).
+
+---
+
+## Capability matrix
+
+The seven capability groups are laid out in row order inside one table rather
+than as seven separate tables: the matrix validator recognizes a single header
+row per file, so a repeated `| capability | decision | reason |` header reads as
+a malformed data row. Group boundaries, by row number:
+
+- Rows 1–25 — Initialization & configuration
+- Rows 26–33 — Signal emission
+- Rows 34–36 — Duration signals
+- Rows 37–41 — Error signals
+- Rows 42–45 — Navigation signals
+- Rows 46–54 — Purchase, subscription & "pirate metric" presets
+- Rows 55–59 — Legacy / interop surface
+
+| capability | decision | reason |
+|---|---|---|
+| `TelemetryDeck.initialize(config:)` | INTEGRATE | |
+| `TelemetryDeck.Config.init(appID:)` | INTEGRATE | |
+| `TelemetryDeck.Config.salt` | INTEGRATE | Set once from the gitignored local xcconfig; permanent commitment, owner-confirmed in plan `14-02`. |
+| `TelemetryDeck.Config.defaultParameters` | INTEGRATE | D-11 — the settings snapshot on every signal at Full. Phase 20 (20-12, owner msg 2842) adds `App.distributionChannel` on every signal at Basic and Full, and nothing else at Basic. Returns empty before a level is chosen and at Minimal (where the SDK is never started), so no app-authored parameter rides on the session signal. |
+| `TelemetryDeck.Config.sendNewSessionBeganSignal` | INTEGRATE | Kept at its `true` default; this *is* D-05 family 1 (launch / foreground). |
+| `TelemetryDeck.Config.sessionStatsEnabled` | INTEGRATE | Kept at its `true` default; feeds the vendor's built-in session insights. |
+| `TelemetryDeck.Config.testMode` | INTEGRATE | Kept at its auto-`DEBUG` default so debug builds are segregated server-side. |
+| `TelemetryDeck.Config.swiftUIPreviewMode` | INTEGRATE | Kept at its auto-detected default; belt-and-braces with `previewValue = .noop`. |
+| `TelemetryDeck.Config.reservedParameterWarningsEnabled` | INTEGRATE | Kept `true` so a reserved-key collision is logged rather than silent. |
+| `TelemetryDeck.Config.logHandler` | INTEGRATE | Kept at the default `.standard(.info)` — it is the only channel that surfaces reserved-key errors. |
+| `TelemetryDeck.Config.baseURL` / `apiBaseURL` | OPT-OUT | Not needed — the vendor endpoint is the target; no self-hosted ingestion. |
+| `TelemetryDeck.Config.namespace` | OPT-OUT | Not needed — one dataset; the app ID already scopes it, and the SDK docs advise against setting it. |
+| `TelemetryDeck.Config.defaultSignalPrefix` | OPT-OUT | Explicitly out of scope — dotted `Domain.event` names are chosen instead; a prefix adds a second place where names are assembled. |
+| `TelemetryDeck.Config.defaultParameterPrefix` | OPT-OUT | Explicitly out of scope — same reason; parameter keys are dotted at the rendering site. |
+| `TelemetryDeck.Config.defaultUser` | OPT-OUT | D-10 mandates the built-in anonymized identifier; no custom user ID. |
+| `TelemetryDeck.Config.sessionID` | OPT-OUT | Not needed — SDK-managed; the app has no custom session semantics. |
+| `TelemetryDeck.Config.urlSession` | OPT-OUT | Not needed — the default `URLSession.shared` matches the rest of the app's transport posture. |
+| `TelemetryDeck.Config.cacheLimit` | OPT-OUT | Not needed — the 10 000 default is correct; tuning transport is explicitly out of scope. |
+| `TelemetryDeck.Config.transmitInterval` | OPT-OUT | Not needed — the 10 s default is correct. |
+| `TelemetryDeck.Config.maxBackoffInterval` | OPT-OUT | Not needed — the 300 s default is correct. |
+| `TelemetryDeck.Config.analyticsDisabled` | OPT-OUT | Supersedes D-01 (owner reversed it 2026-07-26): a runtime opt-out now exists, but it gates `AnalyticsClient.send` so install counts survive. This flag would silence the session signal too. |
+| `TelemetryDeck.Config.metadataEnrichers` (`SignalEnricher`) | OPT-OUT | Explicitly out of scope — a second parameter-injection point would sit outside the D-09 type wall; `defaultParameters` covers the same need inside it. |
+| `TelemetryDeck.Config.sendSignalsInDebugConfiguration` | OPT-OUT | Deprecated in the SDK in favour of `testMode`; this project does not accept deprecation warnings. |
+| `TelemetryDeck.Config.showDebugLogs` | OPT-OUT | Deprecated in the SDK in favour of `logHandler`. |
+| `TelemetryDeck.Config.telemetryAllowDebugBuilds` | OPT-OUT | Deprecated alias of `sendSignalsInDebugConfiguration`. |
+| `TelemetryDeck.signal(_:parameters:)` | INTEGRATE | The single emission call behind `AnalyticsClient.send`. |
+| `TelemetryDeck.signal(_:floatValue:)` | OPT-OUT | Explicitly out of scope — `floatValue` is an exact `Double`; D-08 requires every numeric to be bucketed, so leaving it unused keeps the bucketing guarantee total. |
+| `TelemetryDeck.signal(_:customUserID:)` | OPT-OUT | D-10 — the built-in anonymized identifier is the only identity; a per-signal override would defeat it. |
+| `TelemetryDeck.updateDefaultUserID(to:)` | OPT-OUT | D-10 — no custom identifier, no rotation. |
+| `TelemetryManager.hashedDefaultUser` | OPT-OUT | D-10 — the app never reads or reasons about the identifier. |
+| `TelemetryDeck.generateNewSession()` | OPT-OUT | Not needed — the SDK's own session boundaries (cold launch, foreground after 5 min) are the intended semantics. |
+| `TelemetryDeck.requestImmediateSync()` | OPT-OUT | Not needed — the SDK's batching and backoff are correct; a manual flush has no trigger in this app. |
+| `TelemetryDeck.terminate()` | OPT-OUT | Not needed — there is no teardown point; the client lives for the process. |
+| `TelemetryDeck.startDurationSignal(_:parameters:)` | OPT-OUT | D-08 — the pair emits `TelemetryDeck.Signal.durationInSeconds` as an exact rounded value. Reader session length is computed in the reducer and bucketed instead. |
+| `TelemetryDeck.stopAndSendDurationSignal(_:parameters:)` | OPT-OUT | D-08 — same. |
+| `TelemetryDeck.cancelDurationSignal(_:)` | OPT-OUT | Unreachable — the start/stop pair it cancels is opted out. |
+| `TelemetryDeck.errorOccurred(id:category:)` | INTEGRATE | D-05 family 4 renders through it with `id` drawn from the closed `AppErrorKind` vocabulary, minted inside `AnalyticsClient`'s rendering layer. Unlocks the vendor's built-in error insights. |
+| `ErrorCategory` (`.thrownException` / `.userInput` / `.appState`) | INTEGRATE | Closed SDK enum; each `AppErrorKind` maps to one case. |
+| `TelemetryDeck.errorOccurred(id:category:message:)` | OPT-OUT | D-06 — `message` is free-form and the natural value would be an error description that can embed a title, path or URL. |
+| `TelemetryDeck.errorOccurred(identifiableError:...)` (both overloads) | OPT-OUT | D-06 — the overloads send `error.localizedDescription` as `message`; `AppError`'s string-carrying cases would leak through it. |
+| `IdentifiableError` / `AnyIdentifiableError` / `.with(id:)` | OPT-OUT | Unreachable — only used by the `identifiableError:` overloads, which are opted out. |
+| `TelemetryDeck.navigationPathChanged(from:to:)` | OPT-OUT | D-14 — screen views are sourced from reducer navigation actions, which the app already centralizes; the from/to form needs total screen coverage to produce correct graphs. |
+| `TelemetryDeck.navigationPathChanged(to:)` | OPT-OUT | D-14, and the single-argument form keeps hidden global previous-path state that fabricates transitions the user never made under partial instrumentation. |
+| `View.trackNavigation(path:)` / `TrackNavigationModifier` | OPT-OUT | D-14 forbids view-lifecycle emission, and the modifier trips this repository's error-severity `lifecycle_modifiers` lint rule. |
+| `TelemetryDeck.navigate(from:to:)` / `navigate(to:)` | OPT-OUT | Marked unavailable in the SDK — a hard compile error, not a warning. |
+| `TelemetryDeck.Purchase.purchaseCompleted(...)` | OPT-OUT | Not needed — the app sells nothing; there is no StoreKit surface. |
+| `TrialConversionTracker` | OPT-OUT | Not needed — no trials, no subscriptions. |
+| `TelemetryDeck.Revenue.paywallShown(...)` | OPT-OUT | Not needed — no paywall. |
+| `TelemetryDeck.Acquisition.acquiredUser(...)` | OPT-OUT | Not needed — no acquisition channels or campaign attribution to report. |
+| `TelemetryDeck.Acquisition.leadStarted(...)` / `leadConverted(...)` | OPT-OUT | Not needed — no lead funnel. |
+| `TelemetryDeck.Activation.onboardingCompleted(...)` | OPT-OUT | Not needed — the app has no onboarding flow. |
+| `TelemetryDeck.Activation.coreFeatureUsed(featureName:)` | OPT-OUT | Explicitly out of scope — it would duplicate the D-05 flow-family signals under a second name and split the same event across two dashboard insights. |
+| `TelemetryDeck.Referral.referralSent(...)` | OPT-OUT | Not needed — no referral mechanism. |
+| `TelemetryDeck.Referral.userRatingSubmitted(...)` | OPT-OUT | Not needed — no in-app rating prompt (and D-01 adds no UI this phase). |
+| `TelemetryClient` SPM product | OPT-OUT | Legacy alias retained for migration; it re-exports the deprecated manager API. |
+| `TelemetryManager.initialize(with:)` / `.send(...)` / `.updateDefaultUser(to:)` | OPT-OUT | Deprecated across the board; this project treats warning cleanliness as load-bearing. |
+| `TelemetryManager.shared` / `.isInitialized` | OPT-OUT | Internal accessor; reaching it is what trips the SDK's uninitialized `assertionFailure`. The D-13 gate keeps the app off this path entirely. |
+| `TelemetryClient+ObjC` (`TelemetryManagerObjC`) | OPT-OUT | Not needed — no Objective-C call sites in this project. |
+| SDK-bundled `PrivacyInfo.xcprivacy` (resource) | INTEGRATE | Ships with the SDK target automatically; does not conflict with D-04, which is about the *app* not adding one. |
+
+---
+
+## Coverage summary
+
+Counts are the capability rows in the matrix above, recounted against the body on 2026-07-24.
+
+| | count |
+|---|---|
+| Capabilities enumerated | 59 |
+| INTEGRATE | 14 |
+| OPT-OUT | 45 |
+| OPT-OUT without a reason | 0 |
+
+Per section — Initialization & configuration 10/15, Signal emission 1/7, Duration signals 0/3, Error signals 2/3, Navigation signals 0/4, Purchase & preset APIs 0/9, Legacy & interop 1/4 (INTEGRATE/OPT-OUT).
+
+---
+
+## 3.0 signals (Phase 20, plan 20-13)
+
+The seven signals below were signed off in `20-12-VOCABULARY.md` (product lead msg 2829; owner msgs 2837 and 2842) and
+implemented in plan 20-13. They are `AnalyticsSignal` cases, each rendered once in `AnalyticsSignal+Rendering.swift`
+through `TelemetryDeck.signal(_:parameters:)` (an INTEGRATE row above), and every one needs Basic: "which screens and
+features you use". Every value is the raw value of a closed enum. None carries a comment, a poster, a member ID, a
+report field, a gallery or a URL. No level description changed.
+
+- `FirstLaunch.completed`: `Analytics.level` (`basic` or `full`). Sent once, after the level chosen on the first-launch
+  screens is applied.
+- `Analytics.levelChanged`: `Analytics.from` (`minimal`, `basic` or `full`) and `Analytics.to` (`basic` or `full`). Sent
+  after a change in Settings is applied. A change to Minimal sends nothing.
+- `Moderation.reportOutcome`: `Moderation.reportOutcome` (`sent`, `failed`, `unavailable` or `reportPageOpened`). It
+  carries how a report ended and not why (`Moderation.reportReason` was dropped, owner msg 2837).
+- `Moderation.posterBlocked`: no parameter.
+- `Moderation.posterUnblocked`: `Moderation.unblockSurface` (`comment` or `blockedUsers`).
+- `Moderation.blockedCommentShown`: no parameter.
+- `Moderation.postingWarningAnswered`: `Moderation.postingChoice` (`edit` or `postAnyway`).
+
+Nothing new is sent for the marketplace build: its channel, `altstorePAL`, is the value of `App.distributionChannel`.
+
+**The install is counted by `App.installed` (OI-4, answer A).** At Basic and Full one install can also produce the SDK's
+own `TelemetryDeck.Acquisition.newInstallDetected`. The two carry different anonymous hashes and cannot be matched per
+install, so the dashboard's install count is `App.installed`: it is sent at every level, once per install.
+`newInstallDetected` counts only Basic and Full installs, and an upgrade from 2.x, where the SDK ran by default, may
+already have its first-session state. Both signals are kept, and nothing in `TelemetrySDK.swift` filters either.

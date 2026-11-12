@@ -1,0 +1,214 @@
+{
+  "configurations": [
+    {
+      "id": "C0DEC0DE-FEED-4A11-BEEF-FEA7011E5751",
+      "name": "Configuration 1",
+      "options": {}
+    }
+  ],
+  "defaultOptions": {
+    "environmentVariableEntries": [
+      {
+        "key": "EHPANDA_UITEST_STUB_NETWORK",
+        "value": "1"
+      },
+      {
+        "key": "EHPANDA_VISUAL_TEST_HOST",
+        "value": "1"
+      }
+    ],
+    "testTimeoutsEnabled": true
+  },
+  "testTargets": [
+    {
+      "target": {
+        "containerPath": "container:AppPackage",
+        "identifier": "AppFeatureTests",
+        "name": "AppFeatureTests"
+      },
+      "parallelizable": true
+    },
+    {
+      "target": {
+        "containerPath": "container:AppPackage",
+        "identifier": "AppModelsTests",
+        "name": "AppModelsTests"
+      },
+      "parallelizable": true
+    },
+    {
+      "target": {
+        "containerPath": "container:AppPackage",
+        "identifier": "AppToolsTests",
+        "name": "AppToolsTests"
+      },
+      "parallelizable": true
+    },
+    {
+      "target": {
+        "containerPath": "container:AppPackage",
+        "identifier": "DetailFeatureTests",
+        "name": "DetailFeatureTests"
+      },
+      "parallelizable": true
+    },
+    {
+      "target": {
+        "containerPath": "container:AppPackage",
+        "identifier": "DownloadsFeatureTests",
+        "name": "DownloadsFeatureTests"
+      },
+      "parallelizable": true
+    },
+    {
+      "target": {
+        "containerPath": "container:AppPackage",
+        "identifier": "FileClientTests",
+        "name": "FileClientTests"
+      },
+      "parallelizable": true
+    },
+    {
+      "target": {
+        "containerPath": "container:AppPackage",
+        "identifier": "HomeFeatureTests",
+        "name": "HomeFeatureTests"
+      },
+      "parallelizable": true
+    },
+    {
+      "target": {
+        "containerPath": "container:AppPackage",
+        "identifier": "MarkdownExtTests",
+        "name": "MarkdownExtTests"
+      },
+      "parallelizable": true
+    },
+    {
+      "target": {
+        "containerPath": "container:AppPackage",
+        "identifier": "NetworkingFeatureTests",
+        "name": "NetworkingFeatureTests"
+      },
+      "parallelizable": true
+    },
+    {
+      "target": {
+        "containerPath": "container:AppPackage",
+        "identifier": "ParserFeatureTests",
+        "name": "ParserFeatureTests"
+      },
+      "parallelizable": true
+    },
+    {
+      "target": {
+        "containerPath": "container:AppPackage",
+        "identifier": "SettingFeatureTests",
+        "name": "SettingFeatureTests"
+      },
+      "parallelizable": true
+    },
+    {
+      "target": {
+        "containerPath": "container:AppPackage",
+        "identifier": "SystemNotificationTests",
+        "name": "SystemNotificationTests"
+      },
+      "parallelizable": true
+    },
+    {
+      "target": {
+        "containerPath": "container:AppPackage",
+        "identifier": "TagTranslationFeatureTests",
+        "name": "TagTranslationFeatureTests"
+      },
+      "parallelizable": true
+    },
+    {
+      "target": {
+        "containerPath": "container:AppPackage",
+        "identifier": "ImageColorsTests",
+        "name": "ImageColorsTests"
+      },
+      "parallelizable": true
+    },
+    {
+      "target": {
+        "containerPath": "container:AppPackage",
+        "identifier": "LiveTextTranslationTests",
+        "name": "LiveTextTranslationTests"
+      },
+      "parallelizable": true
+    },
+    {
+      "target": {
+        "containerPath": "container:AppPackage",
+        "identifier": "GalleryListComponentsTests",
+        "name": "GalleryListComponentsTests"
+      },
+      "parallelizable": true
+    },
+    {
+      "target": {
+        "containerPath": "container:AppPackage",
+        "identifier": "CookieClientTests",
+        "name": "CookieClientTests"
+      },
+      "parallelizable": true
+    },
+    {
+      "target": {
+        "containerPath": "container:AppPackage",
+        "identifier": "ImageClientTests",
+        "name": "ImageClientTests"
+      },
+      "parallelizable": true
+    },
+    {
+      "target": {
+        "containerPath": "container:AppPackage",
+        "identifier": "ReadingFeatureTests",
+        "name": "ReadingFeatureTests"
+      },
+      "parallelizable": true
+    },
+    {
+      "target": {
+        "containerPath": "container:AppPackage",
+        "identifier": "AnalyticsClientTests",
+        "name": "AnalyticsClientTests"
+      },
+      "parallelizable": true
+    },
+    {
+      "target": {
+        "containerPath": "container:AppPackage",
+        "identifier": "SearchFeatureTests",
+        "name": "SearchFeatureTests"
+      },
+      "parallelizable": true
+    },
+    {
+      "target": {
+        "containerPath": "container:AppPackage",
+        "identifier": "FavoritesFeatureTests",
+        "name": "FavoritesFeatureTests"
+      },
+      "parallelizable": true
+    },
+    {
+      "target": {
+        "containerPath": "container:EhPanda.xcodeproj",
+        "identifier": "A17000000000000000000006",
+        "name": "VisualSnapshotTests"
+      },
+      "skippedTests": [
+        "FullContentFeasibilityTests",
+        "GeometryTests",
+        "VisualMatrixTests"
+      ],
+      "parallelizable": true
+    }
+  ],
+  "version": 1
+}

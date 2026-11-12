@@ -1,0 +1,489 @@
+@testable import AppFeature
+import AppModels
+import DownloadClient
+import Foundation
+import Testing
+
+struct DownloadProcessTests: DownloadFeatureTestCase {
+    @Test
+    func testFailurePersistenceCompletesBeforeRescheduling() async throws {
+        let sessionID = UUID().uuidString
+        let gid = "100010"
+        let rootURL = FileManager.default.temporaryDirectory
+            .appending(path: UUID().uuidString, directoryHint: .isDirectory)
+        defer { removeTemporaryItem(at: rootURL) }
+
+        let persistenceGate = FailurePersistenceGate()
+        let scheduledRecorder = ScheduledGalleryRecorder()
+        let taskRunner = DownloadTaskRunner(
+            recordScheduledGallery: { gid in
+                scheduledRecorder.record(gid)
+            },
+            beforeFailurePersistence: {
+                await persistenceGate.waitAtGate()
+            }
+        )
+        let (storage, manager) = makeStubbedDownloadCoordinator(
+            rootURL: rootURL,
+            sessionID: sessionID,
+            taskRunner: taskRunner
+        )
+        SharedSessionStubURLProtocol.setHandler(for: sessionID) { _ in
+            throw URLError(.notConnectedToInternet)
+        }
+        defer { SharedSessionStubURLProtocol.removeHandler(for: sessionID) }
+
+        try writeProcessManifestFolder(
+            storage: storage,
+            gid: gid,
+            title: "Queued Failure",
+            pageCount: 2
+        )
+        await manager.reloadDownloadIndex()
+        await manager.testingSetQueuedGalleryIDs([gid])
+
+        let completionProbe = ProcessCompletionProbe()
+        let processTask = Task {
+            await manager.processDownload(gid: gid)
+            await completionProbe.finish()
+        }
+
+        await persistenceGate.waitForArrival()
+        let completedBeforePersistence = await completionProbe
+            .isFinished()
+        let scheduledBeforePersistence = scheduledRecorder.snapshot()
+        #expect(completedBeforePersistence == false)
+        #expect(scheduledBeforePersistence.isEmpty)
+
+        await persistenceGate.release()
+        await processTask.value
+
+        let stored = await manager.fetchDownload(gid: gid)
+        #expect(stored?.displayStatus == .error)
+        #expect(stored?.lastError?.code == .networkingFailed)
+
+        await manager.scheduleNextIfNeeded()
+        let scheduledAfterFailure = scheduledRecorder.snapshot()
+        #expect(scheduledAfterFailure.isEmpty)
+    }
+
+    @Test
+    func testObserversReceiveSettledStatusAfterActiveDownloadFinishes() async throws {
+        let sessionID = UUID().uuidString
+        let gid = "100011"
+        let rootURL = FileManager.default.temporaryDirectory
+            .appending(path: UUID().uuidString, directoryHint: .isDirectory)
+        defer { removeTemporaryItem(at: rootURL) }
+
+        let (storage, manager) = makeStubbedDownloadCoordinator(
+            rootURL: rootURL, sessionID: sessionID
+        )
+        SharedSessionStubURLProtocol.setHandler(for: sessionID) { _ in
+            throw URLError(.notConnectedToInternet)
+        }
+        defer { SharedSessionStubURLProtocol.removeHandler(for: sessionID) }
+
+        try writeProcessManifestFolder(
+            storage: storage,
+            gid: gid,
+            title: "Settled Status",
+            pageCount: 2
+        )
+        await manager.reloadDownloadIndex()
+        await manager.testingSetActiveGalleryID(gid)
+
+        let stream = await manager.observeDownloads()
+        // Display statuses derive from the coordinator's active-gallery ownership,
+        // so emissions sent while the download still owns it report `.active`; the
+        // regression being guarded is that no notification ever followed the
+        // ownership handover, leaving observers stuck on that stale status.
+        let settledStatus = Task { () -> DownloadDisplayStatus? in
+            for await downloads in stream {
+                guard let status = downloads
+                    .first(where: { $0.gid == gid })?
+                    .displayStatus,
+                    status != .active
+                else { continue }
+                return status
+            }
+            return nil
+        }
+
+        await manager.processDownload(gid: gid)
+
+        let timeout = Task {
+            await ProgressDeadline.waitIgnoringCancellation(for: .seconds(10))
+            settledStatus.cancel()
+        }
+        let status = await settledStatus.value
+        timeout.cancel()
+        #expect(status == .error)
+    }
+
+    @Test
+    func testProcessDownloadClearsStalePageSelectionWhenLatestPayloadRevealsUpdate() async throws {
+        let sessionID = UUID().uuidString
+        let gid = String(Int(Date().timeIntervalSince1970 * 1000) + 401)
+        let pageIndex = 42
+        let rootURL = FileManager.default.temporaryDirectory
+            .appending(path: UUID().uuidString, directoryHint: .isDirectory)
+        defer { removeTemporaryItem(at: rootURL) }
+
+        let (storage, manager) = makeStubbedDownloadCoordinator(
+            rootURL: rootURL, sessionID: sessionID
+        )
+        defer { SharedSessionStubURLProtocol.removeHandler(for: sessionID) }
+
+        let updatedPageCount = try await fetchAndInstallStub(
+            manager: manager, sessionID: sessionID, gid: gid,
+            pageIndex: pageIndex
+        )
+        let oldPageCount = updatedPageCount - 5
+
+        let staleFolderURL = try prepareStaleExistingFolder(
+            storage: storage, gid: gid, pageIndex: pageIndex,
+            oldPageCount: oldPageCount
+        )
+        await manager.reloadDownloadIndex()
+        let beforeProcess = await manager.fetchDownload(gid: gid)
+        #expect(beforeProcess?.hasUpdate ?? true == false)
+
+        await manager.processDownload(gid: gid)
+
+        try await verifyCompletedProcess(
+            manager: manager, storage: storage,
+            context: ProcessVerificationContext(
+                gid: gid,
+                updatedPageCount: updatedPageCount,
+                staleFolderURL: staleFolderURL
+            )
+        )
+    }
+
+    /// D-1 end to end: a full `processDownload` leaves every OTHER folder of the same gallery
+    /// exactly as it found it.
+    ///
+    /// **The invariant: the download client never deletes a gallery folder it did not itself create
+    /// in the same run.** The second folder staged here lives in a DIFFERENT user folder and carries
+    /// no `[gid_token]` leaf prefix, so `galleryFolderURLs` can only find it by MANIFEST IDENTITY —
+    /// which is exactly the shape a Files-app copy or rename produces, and exactly the shape the
+    /// retired completion sweep destroyed: it walked `galleryFolderURLs` and removed every folder
+    /// but the one the run had just finished in.
+    ///
+    /// The case is written to be discriminating against that sweep rather than merely to pass. Run
+    /// against the pre-retirement completion handler the folder the run did not work in is gone by
+    /// the time the assertions read it, so the survival assertions fail; and they are survival of
+    /// the CONTENTS, not just of the directory entry, since a sweep that merely emptied a folder
+    /// would be no better.
+    ///
+    /// Which of the two folders the record points at is READ rather than presumed.
+    /// `deduplicatedDownloadIndex` arbitrates duplicates by modification date, and the property is
+    /// symmetric: whichever folder loses that arbitration is the one that must survive untouched.
+    @Test
+    func testAFullRunLeavesAnotherFolderOfTheSameGalleryUntouched() async throws {
+        let sessionID = UUID().uuidString
+        let gid = String(Int(Date().timeIntervalSince1970 * 1000) + 405)
+        let pageIndex = 42
+        let rootURL = FileManager.default.temporaryDirectory
+            .appending(path: UUID().uuidString, directoryHint: .isDirectory)
+        defer { removeTemporaryItem(at: rootURL) }
+
+        let (storage, manager) = makeStubbedDownloadCoordinator(
+            rootURL: rootURL, sessionID: sessionID
+        )
+        defer { SharedSessionStubURLProtocol.removeHandler(for: sessionID) }
+
+        let updatedPageCount = try await fetchAndInstallStub(
+            manager: manager, sessionID: sessionID, gid: gid,
+            pageIndex: pageIndex
+        )
+        let staleFolderURL = try prepareStaleExistingFolder(
+            storage: storage, gid: gid, pageIndex: pageIndex,
+            oldPageCount: updatedPageCount - 5
+        )
+        let duplicateFolderURL = try copyGalleryFolder(
+            at: staleFolderURL,
+            to: storage.folderURL(relativePath: "Copies/\(gid) - Pause Race")
+        )
+
+        await manager.reloadDownloadIndex()
+        let stagedFolders = Set(
+            [staleFolderURL, duplicateFolderURL].map(\.standardizedFileURL)
+        )
+        let recordFolder = try #require(await manager.fetchDownload(gid: gid))
+            .folderURL
+            .standardizedFileURL
+        #expect(stagedFolders.contains(recordFolder))
+        let otherFolder = try #require(stagedFolders.subtracting([recordFolder]).first)
+        let otherContents = try FileManager.default
+            .contentsOfDirectory(atPath: otherFolder.path(percentEncoded: false))
+            .sorted()
+        let otherManifest = try storage.readManifest(folderURL: otherFolder)
+
+        await manager.processDownload(gid: gid)
+
+        // The run completed, and it completed IN the record's own folder.
+        let completed = try #require(await manager.fetchDownload(gid: gid))
+        #expect(completed.displayStatus == .completed)
+        #expect(completed.folderURL.standardizedFileURL == recordFolder)
+
+        // The folder the run never addressed is still there, with the same entries and the same
+        // record it was staged with.
+        #expect(FileManager.default.fileExists(atPath: otherFolder.path(percentEncoded: false)))
+        #expect(
+            try FileManager.default
+                .contentsOfDirectory(atPath: otherFolder.path(percentEncoded: false))
+                .sorted() == otherContents
+        )
+        #expect(try storage.readManifest(folderURL: otherFolder) == otherManifest)
+        // Both folders are still discoverable as this gallery's: exactly two, neither removed.
+        #expect(
+            Set(storage.galleryFolderURLs(gid: gid, token: "token").map(\.standardizedFileURL))
+                == stagedFolders
+        )
+    }
+
+    @Test
+    func testProcessDownloadUsesLiveOptionsWhenQueuedDownloadStarts() async throws {
+        let sessionID = UUID().uuidString
+        let gid = String(Int(Date().timeIntervalSince1970 * 1000) + 403)
+        let latestOptions = DownloadRequestOptions(
+            threadLimit: 3,
+            allowCellular: false,
+            autoRetryFailedPages: false
+        )
+        let optionsBox = LockedBox(DownloadRequestOptions(allowCellular: true))
+        let detailAllowsCellular = LockedBox<Bool?>(nil)
+        let rootURL = FileManager.default.temporaryDirectory
+            .appending(path: UUID().uuidString, directoryHint: .isDirectory)
+        defer { removeTemporaryItem(at: rootURL) }
+
+        let (storage, manager) = makeStubbedDownloadCoordinator(
+            rootURL: rootURL,
+            sessionID: sessionID,
+            downloadOptionsProvider: { optionsBox.value }
+        )
+        defer { SharedSessionStubURLProtocol.removeHandler(for: sessionID) }
+
+        let detailHTML = try fixtureData(resource: "GalleryDetail", pathExtension: "html")
+        SharedSessionStubURLProtocol.setHandler(for: sessionID) { request in
+            guard let url = request.url else { throw URLError(.badURL) }
+            if url.path(percentEncoded: false).contains("/g/\(gid)/token") {
+                detailAllowsCellular.value = request.allowsCellularAccess
+                return (
+                    try #require(HTTPURLResponse(
+                        url: url,
+                        statusCode: 200,
+                        httpVersion: nil,
+                        headerFields: ["Content-Type": "text/html; charset=utf-8"]
+                    )),
+                    detailHTML
+                )
+            }
+            throw URLError(.notConnectedToInternet)
+        }
+
+        try writeProcessManifestFolder(
+            storage: storage,
+            gid: gid,
+            title: "Queued Options",
+            pageCount: 2
+        )
+        await manager.reloadDownloadIndex()
+        await manager.testingSetQueuedGalleryIDs([gid])
+
+        optionsBox.value = latestOptions
+        await manager.processDownload(gid: gid)
+
+        #expect(detailAllowsCellular.value == false)
+    }
+}
+
+private actor FailurePersistenceGate {
+    private var didArrive = false
+    private var arrivalContinuation: CheckedContinuation<Void, Never>?
+    private var releaseContinuation: CheckedContinuation<Void, Never>?
+
+    func waitAtGate() async {
+        didArrive = true
+        arrivalContinuation?.resume()
+        arrivalContinuation = nil
+        await withCheckedContinuation { continuation in
+            releaseContinuation = continuation
+        }
+    }
+
+    func waitForArrival() async {
+        guard !didArrive else { return }
+        await withCheckedContinuation { continuation in
+            arrivalContinuation = continuation
+        }
+    }
+
+    func release() {
+        releaseContinuation?.resume()
+        releaseContinuation = nil
+    }
+}
+
+private actor ProcessCompletionProbe {
+    private var finished = false
+
+    func finish() {
+        finished = true
+    }
+
+    func isFinished() -> Bool {
+        finished
+    }
+}
+
+private struct ProcessVerificationContext {
+    let gid: String
+    let updatedPageCount: Int
+    let staleFolderURL: URL
+}
+
+private extension DownloadProcessTests {
+    func writeProcessManifestFolder(
+        storage: DownloadStore,
+        gid: String,
+        title: String,
+        pageCount: Int
+    ) throws {
+        try storage.ensureRootDirectory()
+        let folderURL = storage.folderURL(relativePath: "Folder/[\(gid)_token] \(title)")
+        try FileManager.default.createDirectory(
+            at: folderURL,
+            withIntermediateDirectories: true
+        )
+        try storage.writeManifest(
+            sampleManifest(gid: gid, title: title, pageCount: pageCount),
+            folderURL: folderURL
+        )
+    }
+
+    func fetchAndInstallStub(
+        manager: DownloadCoordinator, sessionID: String, gid: String,
+        pageIndex: Int
+    ) async throws -> Int {
+        let stubContent = StubHandlerContent(
+            detailHTML: try fixtureData(resource: "GalleryDetail", pathExtension: "html"),
+            mpvHTML: try fixtureData(resource: "GalleryMPVKeys", pathExtension: "html"),
+            metadataResponse: try makeMetadataResponseData(gid: gid)
+        )
+        var allowedImageURLs = Set<String>()
+        installDownloadStubHandler(
+            sessionID: sessionID, gid: gid, pageIndex: pageIndex,
+            content: stubContent, allowedImageURLs: allowedImageURLs
+        )
+        let scaffoldDownload = sampleDownload(
+            gid: gid, title: "Pause Race", status: .partial,
+            pageCount: 156, completedPageCount: 155
+        )
+        let latestPayload = try await manager.fetchLatestPayload(
+            for: scaffoldDownload, mode: .redownload, options: .init(), pageSelection: [pageIndex]
+        )
+        if let coverURL = latestPayload.galleryDetail.coverURL ?? latestPayload.gallery.coverURL {
+            allowedImageURLs.insert(coverURL.absoluteString)
+            installDownloadStubHandler(
+                sessionID: sessionID, gid: gid, pageIndex: pageIndex,
+                content: stubContent, allowedImageURLs: allowedImageURLs
+            )
+        }
+        let updatedPageCount = latestPayload.galleryDetail.pageCount
+        #expect(updatedPageCount > pageIndex)
+        #expect(updatedPageCount > 5)
+        return updatedPageCount
+    }
+
+    func prepareStaleExistingFolder(
+        storage: DownloadStore, gid: String, pageIndex: Int,
+        oldPageCount: Int
+    ) throws -> URL {
+        let staleManifest = try sampleManifest(
+            gid: gid, title: "Pause Race",
+            pageCount: oldPageCount
+        )
+        let folderURL = storage.folderURL(relativePath: "Folder/\(gid) - Pause Race")
+        removeTemporaryItem(at: folderURL)
+        try FileManager.default.createDirectory(
+            at: folderURL,
+            withIntermediateDirectories: true
+        )
+        try storage.writeManifest(staleManifest, folderURL: folderURL)
+        try Data([0x00]).write(
+            to: folderURL.appending(path: "123_token_cover.jpg"),
+            options: .atomic
+        )
+        try Data([UInt8(pageIndex % 255)]).write(
+            to: folderURL.appending(path: "\(gid)_token_\(pageIndex).jpg"),
+            options: .atomic
+        )
+        return folderURL
+    }
+
+    /// Copies a staged gallery folder whole, so the duplicate carries the SAME manifest — the only
+    /// thing that can make it discoverable once its leaf lacks the `[gid_token]` prefix.
+    ///
+    /// The destination's parent user folder is created first: a copy the user made in the Files app
+    /// lands under some user folder, and `galleryFolderURLs` only walks one level below the root.
+    func copyGalleryFolder(at sourceURL: URL, to destinationURL: URL) throws -> URL {
+        try FileManager.default.createDirectory(
+            at: destinationURL.deletingLastPathComponent(),
+            withIntermediateDirectories: true
+        )
+        try FileManager.default.copyItem(at: sourceURL, to: destinationURL)
+        return destinationURL
+    }
+
+    func verifyCompletedProcess(
+        manager: DownloadCoordinator,
+        storage: DownloadStore,
+        context: ProcessVerificationContext
+    ) async throws {
+        let completedDownload = await manager.fetchDownload(gid: context.gid)
+        let unwrapped = try #require(completedDownload)
+        #expect(unwrapped.displayStatus == .completed)
+        #expect(unwrapped.pageCount == context.updatedPageCount)
+        #expect(unwrapped.completedPageCount == context.updatedPageCount)
+
+        let completedFolderURL = unwrapped.folderURL
+        let manifest = try storage.readManifest(folderURL: completedFolderURL)
+        #expect(manifest.pageCount == context.updatedPageCount)
+        #expect(manifest.pages.count == context.updatedPageCount)
+        #expect(
+            FileManager.default.fileExists(
+                atPath: completedFolderURL.appending(path: "\(context.gid)_token_1.jpg").path(percentEncoded: false)
+            )
+        )
+        #expect(
+            FileManager.default.fileExists(
+                atPath: completedFolderURL.appending(path: "123_token_1.jpg").path(percentEncoded: false)
+            ) == false
+        )
+
+        // The run finishes IN the folder the record already pointed at, under that folder's own
+        // name, and this staging has only ever held one folder for the gallery, so one is what is
+        // left (G-15-2H). It is a statement about the freeze, not about any removal: the run removes
+        // no gallery folder at all, which
+        // `testAFullRunLeavesAnotherFolderOfTheSameGalleryUntouched` pins over a staging that has
+        // a second one.
+        //
+        // This assertion used to read the other way — the staged folder GONE — which was the
+        // rename the freeze removed: the stale folder is named `<gid> - Pause Race`, so a leaf
+        // recomputed from the fetched payload addressed a `[gid_token] Title` folder that did not
+        // exist, the run built its result there, and the completion sweep deleted the folder the
+        // user could see. The frozen leaf is the whole production arc's version of the unit pins in
+        // `DownloadFolderLeafFreezeTests`: a folder the user (or an older naming scheme) gave a name
+        // keeps it across a full `processDownload`.
+        #expect(
+            completedFolderURL.standardizedFileURL == context.staleFolderURL.standardizedFileURL
+        )
+        #expect(FileManager.default.fileExists(atPath: completedFolderURL.path(percentEncoded: false)))
+        #expect(
+            storage.galleryFolderURLs(gid: context.gid, token: "token")
+                .map(\.standardizedFileURL) == [completedFolderURL.standardizedFileURL]
+        )
+    }
+}

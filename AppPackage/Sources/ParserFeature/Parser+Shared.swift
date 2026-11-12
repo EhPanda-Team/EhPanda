@@ -1,0 +1,231 @@
+public import AppModels
+import AppTools
+public import Foundation
+public import Kanna
+import OSLogExt
+import RegexBuilder
+
+private let logger = Logger(category: .init(describing: Parser.self))
+
+extension Parser {
+    /// Runs a throwing parse and degrades a failure to `nil`, logging it first.
+    ///
+    /// The parser deliberately tolerates malformed markup: a bad row is dropped and a bad optional
+    /// field falls back to its default rather than failing the whole page parse. `try?` expressed
+    /// that degradation silently; this preserves the identical behavior while leaving the swallowed
+    /// error observable in the log. A `do`/`catch` cannot be inlined at most of these sites — they
+    /// sit inside `guard let` chains and call arguments, where hoisting the parse into a preceding
+    /// statement would change evaluation order and defeat the chain's short-circuiting.
+    ///
+    /// `description` must stay a fixed literal: never interpolate document content, URLs, or
+    /// cookie-bearing values into it.
+    static func degrading<Value>(_ description: String, _ parse: () throws -> Value) -> Value? {
+        do {
+            return try parse()
+        } catch {
+            logger.error("\(description, privacy: .public) failed to parse: \(error, privacy: .private)")
+            return nil
+        }
+    }
+
+    static func parseGTX00IndexFromTitle(from title: String) -> Int? {
+        // The probable format of page title is "Page [Number]: filename"
+        (
+            title
+                .components(separatedBy: ":")
+                .first?
+                .replacing("Page ", with: "")
+                .trimmingCharacters(in: .whitespaces)
+        )
+        .flatMap(Int.init)
+    }
+
+    static func parseDate(time: String, format: String) throws -> Date {
+        let formatter = DateFormatter()
+        formatter.dateFormat = format
+        formatter.timeZone = TimeZone(secondsFromGMT: 0)
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+
+        guard let date = formatter.date(from: time)
+        else { throw AppError.parseFailed }
+
+        return date
+    }
+
+    /// Matches `var <name> = "<value>";` in any of the document's inline scripts.
+    ///
+    /// Built with `RegexBuilder` rather than a runtime-compiled `NSRegularExpression`: the regex is
+    /// validated at compile time, so there is no construction failure to swallow, and `name` is
+    /// matched as a literal without hand-rolled pattern escaping.
+    static func parseScriptVariable(name: String, doc: any HTMLDocument) -> String? {
+        let quote = CharacterClass.anyOf("\"'")
+        let regex = Regex {
+            "var"
+            OneOrMore(.whitespace)
+            name
+            ZeroOrMore(.whitespace)
+            "="
+            ZeroOrMore(.whitespace)
+            quote
+            Capture { ZeroOrMore(quote.inverted) }
+            quote
+            ZeroOrMore(.whitespace)
+            ";"
+        }
+
+        for script in doc.xpath("//script") {
+            guard let text = script.text, let match = text.firstMatch(of: regex) else { continue }
+            return String(match.1)
+        }
+        return nil
+    }
+
+    static func parseScriptURL(name: String, doc: any HTMLDocument, host: URL) -> URL? {
+        guard var value = parseScriptVariable(name: name, doc: doc)?.trimmingCharacters(in: .whitespacesAndNewlines),
+              !value.isEmpty
+        else { return nil }
+        value = value
+            .replacing("&amp;", with: "&")
+            .replacing("\\u0026", with: "&")
+
+        let baseURL = host
+        let parsedURL: URL?
+        if let url = URL(string: value), url.scheme != nil {
+            parsedURL = url
+        } else {
+            parsedURL = URL(string: value, relativeTo: baseURL)?.absoluteURL
+        }
+
+        guard let parsedURL else { return nil }
+        guard var components = URLComponents(url: parsedURL, resolvingAgainstBaseURL: false) else {
+            return parsedURL
+        }
+
+        let knownGalleryHosts = [
+            Defaults.URL.ehentai.host(percentEncoded: false),
+            Defaults.URL.exhentai.host(percentEncoded: false),
+            Defaults.URL.sexhentai.host(percentEncoded: false)
+        ]
+        .compactMap({ $0?.lowercased() })
+
+        if let host = components.host?.lowercased(),
+           knownGalleryHosts.contains(host),
+           let baseComponents = URLComponents(url: baseURL, resolvingAgainstBaseURL: false)
+        {
+            components.scheme = baseComponents.scheme
+            components.host = baseComponents.host
+        }
+        return components.url
+    }
+
+    static func parseScriptDate(name: String, doc: any HTMLDocument) -> Date? {
+        guard let value = parseScriptVariable(name: name, doc: doc), !value.isEmpty else { return nil }
+        // An invalid optional script date intentionally degrades to nil.
+        return degrading("Script date", { try parseDate(time: value, format: "yyyy-MM-dd") })
+    }
+
+    public static func parseDateSeekNavigation(doc: any HTMLDocument, host: URL) -> DateSeekNavigation? {
+        guard let minimumDate = parseScriptDate(name: "mindate", doc: doc),
+              let maximumDate = parseScriptDate(name: "maxdate", doc: doc),
+              let directions = DateSeekNavigation.Directions(
+                newer: parseScriptURL(name: "prevurl", doc: doc, host: host),
+                older: parseScriptURL(name: "nexturl", doc: doc, host: host)
+              )
+        else { return nil }
+        return DateSeekNavigation(directions: directions, minimumDate: minimumDate, maximumDate: maximumDate)
+    }
+
+    // swiftlint:disable cyclomatic_complexity
+    /// Returns ratings parsed from stars image / text and if the return contains a userRating .
+    static func parseRating(node: any XMLElement) throws -> RatingResult {
+        func parseTextRating(node: any XMLElement) throws -> Float {
+            guard let ratingString = node
+              .at_xpath("//td [@id='rating_label']")?.text?
+              .replacing("Average: ", with: "")
+              .replacing("Not Yet Rated", with: "0"),
+                  let rating = Float(ratingString)
+            else { throw AppError.parseFailed }
+
+            return rating
+        }
+
+        var tmpRatingString: String?
+        var containsUserRating = false
+
+        for link in node.xpath("//div") where
+            link.className?.contains("ir") == true
+            && link["style"]?.isEmpty == false {
+            if tmpRatingString != nil { break }
+            tmpRatingString = link["style"]
+            containsUserRating = link.className != "ir"
+        }
+
+        guard let ratingString = tmpRatingString
+        else { throw AppError.parseFailed }
+
+        var tmpRating: Float?
+        if ratingString.contains("0px") { tmpRating = 5.0 }
+        if ratingString.contains("-16px") { tmpRating = 4.0 }
+        if ratingString.contains("-32px") { tmpRating = 3.0 }
+        if ratingString.contains("-48px") { tmpRating = 2.0 }
+        if ratingString.contains("-64px") { tmpRating = 1.0 }
+        if ratingString.contains("-80px") { tmpRating = 0.0 }
+
+        guard var rating = tmpRating
+        else { throw AppError.parseFailed }
+
+        if ratingString.contains("-21px") { rating -= 0.5 }
+        return RatingResult(
+            imgRating: rating,
+            // Missing optional text-rating metadata intentionally degrades to nil.
+            textRating: degrading("Text rating", { try parseTextRating(node: node) }),
+            containsUserRating: containsUserRating
+        )
+    }
+    // swiftlint:enable cyclomatic_complexity
+
+    public static func parseBanInterval(doc: any HTMLDocument) -> BanInterval? {
+        guard let text = doc.body?.text, let range = text.range(of: "The ban expires in ")
+        else { return nil }
+
+        let expireDescription = String(text[range.upperBound...])
+
+        if let daysRange = expireDescription.range(of: "days"),
+           let days = Int(expireDescription[..<daysRange.lowerBound]
+            .trimmingCharacters(in: .whitespaces)) {
+            if let andRange = expireDescription.range(of: "and"),
+               let hoursRange = expireDescription.range(of: "hours"),
+               let hours = Int(expireDescription[andRange.upperBound..<hoursRange.lowerBound]
+                .trimmingCharacters(in: .whitespaces)) {
+                return .days(days: days, hours: hours)
+            } else {
+                return .days(days: days, hours: nil)
+            }
+        } else if let hoursRange = expireDescription.range(of: "hours"),
+                  let hours = Int(expireDescription[..<hoursRange.lowerBound]
+                    .trimmingCharacters(in: .whitespaces)) {
+            if let andRange = expireDescription.range(of: "and"),
+               let minutesRange = expireDescription.range(of: "minutes"),
+               let minutes = Int(expireDescription[andRange.upperBound..<minutesRange.lowerBound]
+                .trimmingCharacters(in: .whitespaces)) {
+                return .hours(hours: hours, minutes: minutes)
+            } else {
+                return .hours(hours: hours, minutes: nil)
+            }
+        } else if let minutesRange = expireDescription.range(of: "minutes"),
+                  let minutes = Int(expireDescription[..<minutesRange.lowerBound]
+                    .trimmingCharacters(in: .whitespaces)) {
+            if let andRange = expireDescription.range(of: "and"),
+               let secondsRange = expireDescription.range(of: "seconds"),
+               let seconds = Int(expireDescription[andRange.upperBound..<secondsRange.lowerBound]
+                .trimmingCharacters(in: .whitespaces)) {
+                return .minutes(minutes: minutes, seconds: seconds)
+            } else {
+                return .minutes(minutes: minutes, seconds: nil)
+            }
+        } else {
+            logger.error("Unrecognized BanInterval format: \(expireDescription, privacy: .public)")
+            return .unrecognized(content: expireDescription)
+        }
+    }
+}

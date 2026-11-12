@@ -1,0 +1,699 @@
+import AppComponents
+import AppModels
+import AppTools
+import Kingfisher
+import Resources
+import SFSafeSymbols
+import SwiftUI
+
+// Sliding-window sizing for the carousel's infinite loop: `bufferedCards` exposes
+// `windowBlocks` concatenated copies of the gallery list, and every settle rebases the
+// window so the settled card sits back in `middleBlock`. Rebasing is only safe at
+// `.idle` — while a scroll is in flight the content offset is pinned, so any mid-flight
+// window shift makes `scrollPosition` re-derive its id by the same shift and the
+// rebase re-triggers itself, endlessly (sim-measured). The width therefore carries the
+// whole burst budget: chained flicks that never let the scroll settle consume headroom
+// that only an `.idle` can restore. With `limitBehavior: .always` capping each gesture
+// at one card, seven blocks of headroom per side means only a 40+-flick chain with zero
+// pauses could ever reach the window edge — and a single natural pause resets it all.
+private let windowBlocks = 15
+private let middleBlock = windowBlocks / 2
+
+// MARK: CardSlideSection
+struct CardSlideSection: View, Equatable {
+    @Environment(\.layoutDirection) private var layoutDirection
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+    @GalleryCoverMetrics(.homeCompact) private var compactCoverSize
+    @GalleryCoverMetrics(.hero) private var heroCoverSize
+    @State private var position: ScrollPosition
+    // Origin of the sliding id window (see `bufferedCards`). Only ever shifted by whole
+    // blocks (multiples of `galleries.count`), so a card's logical index is invariant
+    // under rebase whether derived from its id or from its layout slot.
+    @State private var windowBase = 0
+    @Binding private var pageIndex: Int
+
+    private let galleries: [Gallery]
+    private let currentID: String
+    private let colors: [Color]
+    private let showsRichInformation: Bool
+    private let carouselSize: CGSize
+    private let maximumCardHeight: CGFloat
+    private let navigateAction: (Gallery) -> Void
+    private let webImageSuccessAction: (String, RetrieveImageResult) -> Void
+
+    init(
+        galleries: [Gallery], pageIndex: Binding<Int>, currentID: String,
+        colors: [Color], carouselSize: CGSize, showsRichInformation: Bool = false, maximumCardHeight: CGFloat,
+        navigateAction: @escaping (Gallery) -> Void,
+        webImageSuccessAction: @escaping (String, RetrieveImageResult) -> Void
+    ) {
+        self.galleries = galleries
+        _pageIndex = pageIndex
+        self.currentID = currentID
+        self.colors = colors
+        self.showsRichInformation = showsRichInformation
+        self.carouselSize = carouselSize
+        self.maximumCardHeight = maximumCardHeight
+        self.navigateAction = navigateAction
+        self.webImageSuccessAction = webImageSuccessAction
+        // Seed the initial position to the MIDDLE block's entry for the inbound page index
+        // (`Page.withIndex` parity: `cardPageIndex` defaults to 1, so the carousel must not open
+        // on the first card), giving the loop headroom on both sides from the first frame.
+        let seedIndex = min(max(pageIndex.wrappedValue, 0), galleries.count - 1)
+        // The id must be a plain `Int`: an `Int?` id is a different identity that matches no card.
+        _position = State(initialValue: galleries.isEmpty
+            ? ScrollPosition(idType: Int.self)
+            : ScrollPosition(id: galleries.count * middleBlock + seedIndex, anchor: .center)
+        )
+    }
+
+    static func == (lhs: CardSlideSection, rhs: CardSlideSection) -> Bool {
+        lhs.galleries == rhs.galleries
+            && lhs.currentID == rhs.currentID
+            && lhs.colors == rhs.colors
+            && lhs.showsRichInformation == rhs.showsRichInformation
+            && lhs.carouselSize == rhs.carouselSize
+            && lhs.maximumCardHeight == rhs.maximumCardHeight
+    }
+
+    // A sliding window over an unbounded integer id space replaces `.loopPages()`: the window
+    // shows `windowBlocks` concatenated copies of `galleries`, with `id % count` picking the
+    // gallery. When a scroll settles outside the middle block, the window REBASES: `windowBase`
+    // shifts by whole blocks so the settled id is back in the middle. Only the ForEach data
+    // changes — `scrollPosition` keeps the settled view pinned across the content diff and
+    // `position` is never written during scrolling — so the focused card's view identity
+    // (and its gradient playback) survives every wrap, and no programmatic scroll can cancel an
+    // in-flight gesture. A gallery-count change invalidates the id space and reseeds the anchor.
+    // Native gesture settling owns the selected id and geometry only observes it, so a layout
+    // change can repeat that id (see `onChange(of: centeringMargin)`) but never chooses another.
+    private struct BufferedCard: Identifiable, Equatable {
+        let id: Int
+        let gallery: Gallery
+    }
+
+    private var bufferedCards: [BufferedCard] {
+        let count = galleries.count
+        guard count > 0 else { return [] }
+        return (windowBase..<windowBase + count * windowBlocks).map { id in
+            BufferedCard(id: id, gallery: galleries[logicalIndex(of: id)])
+        }
+    }
+
+    // The ids of the block the rebase keeps the settled card in. Empty while there are no
+    // galleries, which is also when `bufferedCards` is empty, so nothing is ever tested against it.
+    private var middleBlockIDs: Range<Int> {
+        let count = galleries.count
+        return windowBase + count * middleBlock..<windowBase + count * (middleBlock + 1)
+    }
+
+    // Positive modulo: window ids run below zero after enough backward loops.
+    private func logicalIndex(of id: Int) -> Int {
+        let count = galleries.count
+        return ((id % count) + count) % count
+    }
+
+    var body: some View {
+        // Home measures the visible viewport once and supplies both width and height budget in
+        // the same update. The section spans that viewport with no horizontal padding. A separate
+        // local width measurement can still hold a provisional ideal width when the height becomes
+        // ready, seeding the lazy stack against the wrong geometry and leaving its card off-center.
+        // Keep readiness and card geometry on the same measurement before resolving the seed.
+        if carouselSize.width > 0 && maximumCardHeight > 0 {
+            carousel
+        } else {
+            Color.clear
+        }
+    }
+
+    private var carousel: some View {
+        ScrollView(.horizontal) {
+            LazyHStack(spacing: HomeSlideshowSizing.cardSpacing) {
+                ForEach(bufferedCards) { item in
+                    card(for: item.gallery, id: item.id)
+                        // One pass of the galleries for assistive technologies. The window carries
+                        // `windowBlocks` copies of the list, and every copy the lazy stack builds is
+                        // an accessibility element, so linear VoiceOver navigation reads the same
+                        // galleries over and over and never leaves the carousel for the Front Page
+                        // heading. Exposing only the middle block leaves one pass, and the `.idle`
+                        // rebase already keeps the centred card in that block, so whatever is on
+                        // screen is always among the six. This is the same form `visible(_:)` uses
+                        // (`AppComponents/ViewModifiers.swift`): the value is applied through
+                        // `isEnabled:` rather than as `accessibilityHidden(false)`, because an
+                        // explicit `false` is an *un*-hide that would re-expose whatever a
+                        // descendant had hidden, not an absence of opinion (Phase 16 VO-2).
+                        .accessibilityHidden(true, isEnabled: !middleBlockIDs.contains(item.id))
+                }
+            }
+            .fixedSize(horizontal: false, vertical: true)
+            .scrollTargetLayout()
+        }
+        .scrollIndicators(.hidden)
+        // `limitBehavior: .always` caps a gesture at one card — SwiftUIPager parity (the old
+        // `Pager` had no `.multiplePagination()`, so it paged one card per swipe) AND the cap
+        // that makes the sliding window's edge unreachable: without it, a violent flick's
+        // deceleration alone traverses several cards and chained flicks ran 40+ cards past
+        // every settle (sim-measured), clamping at the window edge before any `.idle` rebase.
+        .scrollTargetBehavior(.viewAligned(limitBehavior: .always))
+        .fixedSize(horizontal: false, vertical: true)
+        .scrollPosition($position, anchor: .center)
+        .contentMargins(.horizontal, centeringMargin + viewportOverhang, for: .scrollContent)
+        .scrollClipDisabled()
+        // Widens the scroll view past the available width for VoiceOver's sake (see
+        // `HomeSlideshowSizing.minimumNeighborExposure`). No card moves on screen, because the margin
+        // above grows by the same amount, and the section still reports the available width.
+        .padding(.horizontal, -viewportOverhang)
+        .accessibilityIdentifier("home_carousel")
+        .onChange(of: galleries.count) { _, newCount in
+            guard newCount > 0 else { return }
+            windowBase = 0
+            position.scrollTo(id: newCount * middleBlock + min(max(pageIndex, 0), newCount - 1), anchor: .center)
+        }
+        // The margin moves whenever the card width or the available width does. At a new width the
+        // lazy stack places the selected card from its estimates for the unbuilt cards before it, and
+        // the first layout can miss by more than half a card (measured on iPhone Air, 2026-11-02, on
+        // the first portrait-to-landscape rotation). `.viewAligned` then snaps to the neighbor while
+        // `viewID` keeps the selected id and no phase fires, so nothing else corrects the offset.
+        // Repeating the id resolves it against the new layout. A drag or deceleration never moves the
+        // margin, and neither does a height-only change, so neither one reaches this.
+        .onChange(of: centeringMargin) {
+            guard let selectedID = position.viewID(type: Int.self) else { return }
+            position.scrollTo(id: selectedID, anchor: .center)
+        }
+        // Native snapping has settled by `.idle`; this handler only reconciles the selected
+        // buffered ID and rebases the sliding window without changing the settled gesture.
+        .onScrollPhaseChange { _, newPhase in
+            guard newPhase == .idle, let settledID = position.viewID(type: Int.self), !galleries.isEmpty else {
+                return
+            }
+            let count = galleries.count
+            let logical = logicalIndex(of: settledID)
+            // Outward-only `.synchronize` parity: the reducer only observes `cardPageIndex`,
+            // it never writes it back, so no inward re-seam exists by design.
+            if pageIndex != logical {
+                pageIndex = logical
+            }
+            // Window rebase: shift `windowBase` so the settled card sits in the middle block.
+            // This is a pure data change — the settled id keeps existing, `scrollPosition`
+            // holds that view's offset across the diff, and `position` is untouched, so
+            // the rebase is invisible, resets no view identity, and can't cancel a gesture.
+            let slot = min(max(settledID - windowBase, 0), count * windowBlocks - 1)
+            let block = slot / count
+            guard block != middleBlock else { return }
+            windowBase += (block - middleBlock) * count
+        }
+    }
+
+    private var usesCompactInformation: Bool {
+        !GalleryViewport(size: carouselSize, isRegularWidth: horizontalSizeClass == .regular).isLarge
+    }
+
+    private var cardWidth: CGFloat {
+        let minimumHeight: CGFloat
+        if showsRichInformation {
+            minimumHeight = usesCompactInformation
+                ? compactCoverSize.height + 2 * HomeSlideshowSizing.compactPadding
+                : HomeSlideshowSizing.regularMinimumContentHeight + 2 * HomeSlideshowSizing.regularPadding
+        } else {
+            minimumHeight = min(heroCoverSize.height + 2 * HomeSlideshowSizing.compactPadding, maximumCardHeight)
+        }
+        // Cap the width against the shortest rendered card. Text may grow taller at larger sizes,
+        // but no card becomes flatter than the owner's reference, even in a short, wide window.
+        return HomeSlideshowSizing.cardWidth(
+            availableWidth: carouselSize.width, minimumHeight: minimumHeight,
+            showsRichInformation: showsRichInformation
+        )
+    }
+
+    // Center the snapped card: bare `.viewAligned` aligns the card's leading edge to the
+    // content edge, dumping all the peek on the trailing side, while SwiftUIPager centered
+    // the focused card. Symmetric margins of the leftover width restore the centered peek.
+    private var centeringMargin: CGFloat {
+        (carouselSize.width - cardWidth) / 2
+    }
+
+    private var viewportOverhang: CGFloat {
+        HomeSlideshowSizing.viewportOverhang(availableWidth: carouselSize.width, cardWidth: cardWidth)
+    }
+
+    private func card(for gallery: Gallery, id: Int) -> some View {
+        Button {
+            navigateAction(gallery)
+        } label: {
+            GalleryCardCell(
+                gallery: gallery,
+                currentID: currentID,
+                colors: colors,
+                maximumHeight: maximumCardHeight,
+                showsRichInformation: showsRichInformation,
+                usesCompactInformation: usesCompactInformation,
+                webImageSuccessAction: {
+                    webImageSuccessAction(gallery.gid, $0)
+                }
+            )
+            .tint(.primary)
+            .multilineTextAlignment(.leading)
+        }
+        .frame(width: cardWidth)
+        // Nearest-center handoff: `.viewAligned` settles on the nearest alignment, so the card
+        // whose actual bounds cross the viewport midpoint is the card the scroll will land on.
+        // Measuring those bounds relative to the horizontal scroll viewport avoids deriving a
+        // slot from the lazy stack's estimated content origin, which can remain translated after
+        // rotation. Each card's observer flips `pageIndex` (→ `currentCardID` → the focused-card
+        // gradient) when that card becomes nearest, instead of waiting ~0.5s for `.idle`.
+        //
+        // Geometry observation updates only the semantic page index, preserving the gradient's
+        // nearest-card timing. It cannot distinguish a resize from VoiceOver navigation, so it
+        // never writes `position`; native gesture settling owns the selected id.
+        .onGeometryChange(for: Bool.self) { [layoutDirection] proxy in
+            guard let viewport = proxy.bounds(of: .scrollView(axis: .horizontal)), proxy.size.width > 0 else {
+                return false
+            }
+            let relativeMidpoint = viewport.midX - proxy.size.width / 2
+            let halfInterval = (proxy.size.width + HomeSlideshowSizing.cardSpacing) / 2
+            let isNearest: Bool
+            switch layoutDirection {
+            case .leftToRight:
+                isNearest = relativeMidpoint >= -halfInterval && relativeMidpoint < halfInterval
+            case .rightToLeft:
+                isNearest = relativeMidpoint > -halfInterval && relativeMidpoint <= halfInterval
+            @unknown default:
+                isNearest = relativeMidpoint >= -halfInterval && relativeMidpoint < halfInterval
+            }
+            return isNearest
+        } action: { _, isNearest in
+            guard isNearest, !galleries.isEmpty else { return }
+            let logical = logicalIndex(of: id)
+            guard pageIndex != logical else { return }
+            pageIndex = logical
+        }
+        // Peek dimming, owner-tuned: SwiftUIPager parity was `interactive(opacity: 0.2)`, but at
+        // this card size the peek slivers are thin, and 0.2 over the dark background rendered
+        // them practically invisible. 0.6 keeps the neighbors clearly readable yet de-emphasized.
+        .scrollTransition { content, phase in
+            content.opacity(phase.isIdentity ? 1 : 0.6)
+        }
+    }
+}
+
+// MARK: CoverWallSection
+struct CoverWallSection: View {
+    @GalleryCoverMetrics(.standard) private var coverSize
+    private let maximumCoverHeight: CGFloat?
+    private let showsRichInformation: Bool
+    private let galleries: [Gallery]
+    private let isLoading: Bool
+    private let navigateAction: (Gallery) -> Void
+    private let showAllAction: () -> Void
+    private let reloadAction: () -> Void
+
+    init(
+        galleries: [Gallery], isLoading: Bool, showsRichInformation: Bool = false,
+        maximumCoverHeight: CGFloat? = nil,
+        navigateAction: @escaping (Gallery) -> Void,
+        showAllAction: @escaping () -> Void,
+        reloadAction: @escaping () -> Void
+    ) {
+        self.maximumCoverHeight = maximumCoverHeight
+        self.showsRichInformation = showsRichInformation
+        self.galleries = galleries
+        self.isLoading = isLoading
+        self.navigateAction = navigateAction
+        self.showAllAction = showAllAction
+        self.reloadAction = reloadAction
+    }
+
+    private var dataSource: [[Gallery]] {
+        var galleries = galleries
+        if galleries.isEmpty {
+            galleries = Gallery.mockGalleries(count: 25)
+        }
+        // Pairs in data order, dropping an odd trailing gallery: each stack shows two covers.
+        var remaining = galleries[...]
+        var pairs: [[Gallery]] = []
+        while let upper = remaining.popFirst(), let lower = remaining.popFirst() {
+            pairs.append([upper, lower])
+        }
+        return pairs
+    }
+
+    var body: some View {
+        SubSection(
+            title: .frontPage,
+            isLoading: isLoading,
+            reloadAction: reloadAction,
+            showAllAction: showAllAction
+        ) {
+            ScrollView(.horizontal) {
+                if showsRichInformation {
+                    HomeFrontPageWall(
+                        columns: dataSource, maximumCoverHeight: maximumCoverHeight, navigateAction: navigateAction
+                    )
+                } else {
+                    HStack(spacing: 20) {
+                        ForEach(dataSource, id: \.first) {
+                            VerticalCoverStack(galleries: $0, navigateAction: navigateAction)
+                        }
+                    }
+                    // The zero-width spacers that used to carry the 20pt edge inset were flexible in
+                    // height, so the row filled the section's fixed height and centred its stacks in
+                    // it. Without them the row would hug its stacks and sit at the top, 5pt higher.
+                    .frame(maxHeight: .infinity)
+                    .scrollTargetLayout()
+                }
+            }
+            // A release coasts as before and then settles with the nearest column's leading edge on
+            // the content margin, which is the inset the first column already rests at.
+            .scrollTargetBehavior(.viewAligned(limitBehavior: .never))
+            .contentMargins(.horizontal, 20, for: .scrollContent)
+            .scrollIndicators(.hidden)
+            .frame(height: showsRichInformation ? nil : coverSize.height * 2 + 30)
+        }
+    }
+}
+
+struct VerticalCoverStack: View {
+    private let galleries: [Gallery]
+    private let navigateAction: (Gallery) -> Void
+
+    init(galleries: [Gallery], navigateAction: @escaping (Gallery) -> Void) {
+        self.galleries = galleries
+        self.navigateAction = navigateAction
+    }
+
+    /// The cover is the button's only content, so without a label VoiceOver and Voice Control got
+    /// an unnamed button (eight of them on Home, the Phase 16 automated audit's "element has no
+    /// description"); the gallery's title is what the cover stands for.
+    private func imageContainer(gallery: Gallery) -> some View {
+        Button {
+            navigateAction(gallery)
+        } label: {
+            HomeFrontPageCell(gallery: gallery, showsRichInformation: false)
+        }
+        .tint(.primary)
+        .multilineTextAlignment(.leading)
+    }
+
+    var body: some View {
+        VStack(spacing: 20) {
+            ForEach(galleries, content: imageContainer)
+        }
+    }
+}
+
+// MARK: ToplistsSection
+struct ToplistsSection: View {
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+
+    private let showsRichInformation: Bool
+    private let galleries: [Int: [Gallery]]
+    private let isLoading: Bool
+    private let stacksSixGalleries: Bool
+    private let showsHeading: Bool
+    private let navigateAction: (Gallery) -> Void
+    private let showAllAction: () -> Void
+    private let reloadAction: () -> Void
+
+    init(
+        galleries: [Int: [Gallery]], isLoading: Bool, stacksSixGalleries: Bool = false,
+        showsRichInformation: Bool = false, showsHeading: Bool = true,
+        navigateAction: @escaping (Gallery) -> Void,
+        showAllAction: @escaping () -> Void,
+        reloadAction: @escaping () -> Void
+    ) {
+        self.showsRichInformation = showsRichInformation
+        self.galleries = galleries
+        self.isLoading = isLoading
+        self.stacksSixGalleries = stacksSixGalleries
+        self.showsHeading = showsHeading
+        self.navigateAction = navigateAction
+        self.showAllAction = showAllAction
+        self.reloadAction = reloadAction
+    }
+
+    private var dataSource: [Int: [Gallery]] {
+        guard !galleries.isEmpty else {
+            var dictionary = [Int: [Gallery]]()
+            // Blank skeleton galleries have no cover, so the loading rows show the cover's own
+            // placeholder and request nothing, like the Front Page skeleton.
+            let galleries = Gallery.mockGalleries(count: 6, randomID: false).map { blank in
+                var gallery = blank
+                gallery.title = "......"
+                gallery.uploader = "......"
+                return gallery
+            }
+
+            ToplistsType.allCases.forEach { type in
+                dictionary[type.categoryIndex] = galleries
+            }
+            return dictionary
+        }
+        return galleries
+    }
+    private func galleries(type: ToplistsType, range: ClosedRange<Int>) -> [Gallery] {
+        let galleries = dataSource[type.categoryIndex] ?? []
+        guard galleries.count > range.upperBound else { return [] }
+        return Array(galleries[range])
+    }
+
+    var body: some View {
+        if showsHeading {
+            SubSection(
+                title: .toplists,
+                isLoading: isLoading,
+                reloadAction: reloadAction,
+                showAllAction: showAllAction
+            ) {
+                rankings
+            }
+        } else {
+            rankings
+        }
+    }
+
+    private var rankings: some View {
+        ScrollView(.horizontal) {
+            HStack(alignment: .top) {
+                ForEach(ToplistsType.allCases, content: verticalStacks)
+            }
+            .scrollTargetLayout()
+        }
+        // One list per swipe: a gentle swipe moves to the next list and a hard flick cannot skip
+        // past it, which suits four lists that are each most of a screen wide. The side inset is
+        // padding on each column rather than a content margin, because the columns size themselves
+        // against the scroll view's container and a margin would shrink that (see `verticalStacks`).
+        .scrollTargetBehavior(.viewAligned(limitBehavior: .alwaysByOne))
+        .scrollIndicators(.hidden)
+    }
+
+    private func verticalStacks(type: ToplistsType) -> some View {
+        VStack(alignment: .leading) {
+            Text(type.value).font(.subheadline.bold())
+            if stacksSixGalleries {
+                VerticalToplistsStack(
+                    galleries: Array((dataSource[type.categoryIndex] ?? []).prefix(6)),
+                    startRanking: 1, showsRichInformation: showsRichInformation,
+                    widthFraction: 0.9,
+                    navigateAction: navigateAction
+                )
+            } else if horizontalSizeClass == .regular {
+                regularWidthGrid(type: type)
+            } else {
+                VerticalToplistsStack(
+                    galleries: galleries(type: type, range: 0...2), startRanking: 1,
+                    showsRichInformation: showsRichInformation,
+                    navigateAction: navigateAction
+                )
+            }
+        }
+        // The column is the snap target, so its own 20pt side padding is part of the target and the
+        // content of a snapped column rests at the same inset as the first one. This stays padding:
+        // `containerRelativeFrame` in the column measures the scroll view less any content margin,
+        // so a margin here would narrow every column.
+        .padding(.horizontal, 20).padding(.vertical, 5)
+    }
+
+    private func regularWidthGrid(type: ToplistsType) -> some View {
+        let sectionGalleries = dataSource[type.categoryIndex] ?? []
+        let rowCount = min(3, sectionGalleries.count)
+
+        return Grid(horizontalSpacing: 8, verticalSpacing: 10) {
+            ForEach(0..<rowCount, id: \.self) { offset in
+                GridRow {
+                    if let leadingGallery = sectionGalleries.dropFirst(offset).first {
+                        regularWidthCell(
+                            gallery: leadingGallery,
+                            ranking: offset + 1,
+                            showsDivider: offset < rowCount - 1
+                        )
+                    }
+
+                    let trailingIndex = offset + 3
+                    if trailingIndex < sectionGalleries.count,
+                       let trailingGallery = sectionGalleries.dropFirst(trailingIndex).first {
+                        regularWidthCell(
+                            gallery: trailingGallery,
+                            ranking: offset + 4,
+                            showsDivider: trailingIndex < sectionGalleries.count - 1
+                        )
+                    } else {
+                        Color.clear.accessibilityHidden(true)
+                    }
+                }
+            }
+        }
+        .containerRelativeFrame(.horizontal) { width, _ in width * 0.8 }
+    }
+
+    private func regularWidthCell(
+        gallery: Gallery,
+        ranking: Int,
+        showsDivider: Bool
+    ) -> some View {
+        VStack(spacing: 10) {
+            Button {
+                navigateAction(gallery)
+            } label: {
+                GalleryRankingCell(
+                    gallery: gallery, ranking: ranking, showsRichInformation: showsRichInformation
+                )
+                    .tint(.primary)
+                    .multilineTextAlignment(.leading)
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+            Divider().opacity(showsDivider ? 1 : 0)
+        }
+        .frame(maxHeight: .infinity, alignment: .top)
+    }
+}
+
+struct VerticalToplistsStack: View {
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+
+    private let showsRichInformation: Bool
+    private let galleries: [Gallery]
+    private let startRanking: Int
+    private let widthFraction: CGFloat?
+    private let navigateAction: (Gallery) -> Void
+
+    init(
+        galleries: [Gallery],
+        startRanking: Int, showsRichInformation: Bool = false,
+        widthFraction: CGFloat? = nil,
+        navigateAction: @escaping (Gallery) -> Void
+    ) {
+        self.showsRichInformation = showsRichInformation
+        self.galleries = galleries
+        self.startRanking = startRanking
+        self.widthFraction = widthFraction
+        self.navigateAction = navigateAction
+    }
+
+    var body: some View {
+        VStack(spacing: 10) {
+            ForEach(galleries.enumerated(), id: \.offset) { offset, gallery in
+                VStack(spacing: 10) {
+                    Button {
+                        navigateAction(gallery)
+                    } label: {
+                        GalleryRankingCell(
+                            gallery: gallery, ranking: startRanking + offset,
+                            showsRichInformation: showsRichInformation
+                        )
+                            .tint(.primary).multilineTextAlignment(.leading)
+                    }
+                    Divider().opacity(offset == galleries.count - 1 ? 0 : 1)
+                }
+            }
+        }
+        .containerRelativeFrame(.horizontal) { width, _ in
+            width * (widthFraction ?? (horizontalSizeClass == .regular ? 0.4 : 0.7))
+        }
+    }
+}
+
+// MARK: MiscGridSection
+struct MiscGridSection: View {
+    private let showsRichInformation: Bool
+    private let navigateAction: (HomeMiscGridType) -> Void
+
+    init(showsRichInformation: Bool = false, navigateAction: @escaping (HomeMiscGridType) -> Void) {
+        self.showsRichInformation = showsRichInformation
+        self.navigateAction = navigateAction
+    }
+
+    var body: some View {
+        SubSection(title: .more, showAll: false) {
+            ScrollView(.horizontal) {
+                if showsRichInformation {
+                    HStack(spacing: 0) {
+                        ForEach(HomeMiscGridType.allCases) { type in
+                            Button {
+                                navigateAction(type)
+                            } label: {
+                                HomeDestinationCard(type: type)
+                            }
+                            // The card is sized against the scroll view's container, which a content
+                            // margin would shrink, so its 20pt inset is padding that belongs to the
+                            // snap target: a snapped card rests at the inset the first one does.
+                            .padding(.leading, 20)
+                        }
+                    }
+                    .scrollTargetLayout()
+                    .padding(.trailing, 20)
+                } else {
+                    HStack {
+                        let types = HomeMiscGridType.allCases
+                        ForEach(types) { type in
+                            Button {
+                                navigateAction(type)
+                            } label: {
+                                MiscGridItem(title: type.title, symbol: type.symbol).tint(.primary)
+                            }
+                            .padding(.trailing, type == types.last ? 0 : 10)
+                        }
+                    }
+                    .scrollTargetLayout()
+                }
+            }
+            // Many small items, so a hard flick may carry on past several before it settles.
+            .scrollTargetBehavior(.viewAligned(limitBehavior: .never))
+            // The compact row's 16pt edge inset: the 8pt spacers it used to have plus the stack's 8pt
+            // spacing beside them.
+            .contentMargins(.horizontal, showsRichInformation ? 0 : 16, for: .scrollContent)
+            .scrollIndicators(.hidden)
+        }
+    }
+}
+
+struct MiscGridItem: View {
+    private let title: LocalizedStringResource
+    private let subTitle: LocalizedStringResource?
+    private let symbol: SFSymbol
+
+    init(title: LocalizedStringResource, subTitle: LocalizedStringResource? = nil, symbol: SFSymbol) {
+        self.title = title
+        self.subTitle = subTitle
+        self.symbol = symbol
+    }
+
+    // 50pt at default (.large); scales with Dynamic Type relative to the nearest text style (.largeTitle, 34pt).
+    @ScaledMetric(relativeTo: .largeTitle) private var symbolSize: CGFloat = 50
+
+    var body: some View {
+        HStack {
+            VStack(alignment: .leading) {
+                Text(title).font(.title2.bold()).frame(minWidth: 100)
+                if let subTitle = subTitle {
+                    Text(subTitle).font(.subheadline).foregroundStyle(.secondary).lineLimit(2)
+                }
+            }
+            Image(systemSymbol: symbol)
+                .font(.system(size: symbolSize, weight: .light, design: .default))
+                .foregroundStyle(.secondary)
+                .imageScale(.large)
+                .offset(x: 20, y: 20)
+        }
+        .padding(30)
+        .glassEffect(.clear.tint(.init(.systemGray6)), in: .rect(cornerRadius: 15))
+    }
+}

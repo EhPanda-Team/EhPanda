@@ -1,0 +1,102 @@
+{
+  "name": "EhPanda",
+  "identifier": "app.ehpanda.altstorepal",
+  "subtitle": "The E-Hentai app crafted exclusively for iPhone and iPad.",
+  "localizedSubtitles": {
+    "en": "The E-Hentai app crafted exclusively for iPhone and iPad.",
+    "de": "Die E-Hentai-App, exklusiv für iPhone und iPad gebaut.",
+    "ja": "iPhone と iPad のためだけにつくり込んだ、E-Hentai アプリ。",
+    "ko": "iPhone과 iPad만을 위해 공들여 만든 E-Hentai 앱.",
+    "zh-Hans": "一款专为 iPhone 和 iPad 匠心打造的 E-Hentai App。",
+    "zh-Hant": "一款專為 iPhone 與 iPad 匠心打造的 E-Hentai App。"
+  },
+  "description": "The official source for EhPanda, from the EhPanda team.\n\nAdd it once and EhPanda stays up to date. Every new version appears here with its notes in your language.\n\nEhPanda is a free, open-source app for reading E-Hentai galleries on iPhone and iPad.",
+  "localizedDescriptions": {
+    "en": "The official source for EhPanda, from the EhPanda team.\n\nAdd it once and EhPanda stays up to date. Every new version appears here with its notes in your language.\n\nEhPanda is a free, open-source app for reading E-Hentai galleries on iPhone and iPad.",
+    "de": "Die offizielle Quelle für EhPanda, vom EhPanda-Team.\n\nEinmal hinzugefügt, bleibt EhPanda immer aktuell. Jede neue Version erscheint hier mit ihren Hinweisen in deiner Sprache.\n\nEhPanda ist eine kostenlose Open-Source-App zum Lesen von E-Hentai-Galerien auf iPhone und iPad.",
+    "ja": "EhPanda チームによる、EhPanda の公式ソースです。\n\n一度追加すれば、EhPanda は常に最新の状態に保たれます。新しいバージョンは、お使いの言語のリリースノートとともにここに表示されます。\n\nEhPanda は、iPhone と iPad で E-Hentai のギャラリーを読める、無料のオープンソースアプリです。",
+    "ko": "EhPanda 팀이 운영하는 EhPanda 공식 소스입니다.\n\n한 번만 추가하면 EhPanda를 항상 최신 상태로 유지할 수 있습니다. 새 버전은 사용하는 언어로 된 업데이트 내용과 함께 이곳에 표시됩니다.\n\nEhPanda는 iPhone과 iPad에서 E-Hentai 갤러리를 읽을 수 있는 무료 오픈 소스 앱입니다.",
+    "zh-Hans": "由 EhPanda 团队提供的 EhPanda 官方源。\n\n只需添加一次，EhPanda 就会保持最新。每个新版本都会显示在这里，并附上你所用语言的更新说明。\n\nEhPanda 是一款免费的开源应用，可在 iPhone 和 iPad 上阅读 E-Hentai 画廊。",
+    "zh-Hant": "由 EhPanda 團隊提供的 EhPanda 官方來源。\n\n只要加入一次，EhPanda 就會保持最新。每個新版本都會顯示在這裡，並附上你所用語言的更新說明。\n\nEhPanda 是一款免費的開源 App，可在 iPhone 和 iPad 上閱讀 E-Hentai 畫廊。"
+  },
+  "iconURL": "https://raw.githubusercontent.com/EhPanda-Team/ehpanda-assets/main/app-marketplace/icon.png",
+  "headerURL": "https://raw.githubusercontent.com/EhPanda-Team/ehpanda-assets/main/app-marketplace/header.png",
+  "website": "https://ehpanda.app",
+  "tintColor": "#557F72",
+  "nsfw": true,
+  "featuredApps": [
+    "app.ehpanda.marketplace"
+  ],
+  "apps": [
+    {
+      "name": "EhPanda",
+      "bundleIdentifier": "app.ehpanda.marketplace",
+      "marketplaceID": "",
+      "developerName": "EhPanda Team",
+      "subtitle": "The E-Hentai app crafted exclusively for iPhone and iPad.",
+      "localizedSubtitles": {
+        "en": "The E-Hentai app crafted exclusively for iPhone and iPad.",
+        "de": "Die E-Hentai-App, exklusiv für iPhone und iPad gebaut.",
+        "ja": "iPhone と iPad のためだけにつくり込んだ、E-Hentai アプリ。",
+        "ko": "iPhone과 iPad만을 위해 공들여 만든 E-Hentai 앱.",
+        "zh-Hans": "一款专为 iPhone 和 iPad 匠心打造的 E-Hentai App。",
+        "zh-Hant": "一款專為 iPhone 與 iPad 匠心打造的 E-Hentai App。"
+      },
+      "localizedDescription": "EhPanda is a free, open-source app for E-Hentai on iPhone and iPad.\n\nSearch by category, rating, tag or page count, and save the searches you use often. Open a gallery to see its tags, rating, previews and comments, and find similar ones.\n\nRead by scrolling or turning pages, one or two pages at a time, with zoom, auto-play and Live Text translation. Download galleries to read offline, even in the background.\n\nSign in to use your favorites and watched tags. Toplists, tag translation, Hath archives and torrents are there too. If your network blocks E-Hentai, one switch in Settings gets you through.\n\nEhPanda is not affiliated with or endorsed by E-Hentai.",
+      "localizedDescriptions": {
+        "en": "EhPanda is a free, open-source app for E-Hentai on iPhone and iPad.\n\nSearch by category, rating, tag or page count, and save the searches you use often. Open a gallery to see its tags, rating, previews and comments, and find similar ones.\n\nRead by scrolling or turning pages, one or two pages at a time, with zoom, auto-play and Live Text translation. Download galleries to read offline, even in the background.\n\nSign in to use your favorites and watched tags. Toplists, tag translation, Hath archives and torrents are there too. If your network blocks E-Hentai, one switch in Settings gets you through.\n\nEhPanda is not affiliated with or endorsed by E-Hentai.",
+        "de": "EhPanda ist eine kostenlose Open-Source-App für E-Hentai auf iPhone und iPad.\n\nSuche nach Kategorie, Bewertung, Tag oder Seitenzahl und speichere Suchen, die du oft nutzt. Öffne eine Galerie, um Tags, Bewertung, Vorschauen und Kommentare zu sehen und ähnliche Galerien zu finden.\n\nLies durch Scrollen oder Blättern, eine oder zwei Seiten auf einmal, mit Zoom, automatischem Blättern und Übersetzung per Live Text. Lade Galerien zum Offline-Lesen herunter, auch im Hintergrund.\n\nMelde dich an, um deine Favoriten und beobachteten Tags zu nutzen. Toplisten, Tag-Übersetzung, Hath-Archive und Torrents sind ebenfalls dabei. Wenn dein Netzwerk E-Hentai blockiert, hilft ein Schalter in den Einstellungen.\n\nEhPanda steht in keiner Verbindung zu E-Hentai und wird nicht von E-Hentai unterstützt.",
+        "ja": "EhPanda は、iPhone と iPad で E-Hentai を楽しめる、無料のオープンソースアプリです。\n\nカテゴリ、評価、タグ、ページ数で検索でき、よく使う検索は保存しておけます。ギャラリーを開くと、タグ、評価、プレビュー、コメントを確認でき、似たギャラリーも探せます。\n\nスクロールでもページめくりでも読め、1 ページずつでも見開きでも表示できます。拡大、自動再生、テキスト認識表示による翻訳にも対応。ギャラリーをダウンロードしてオフラインで読め、ダウンロードはバックグラウンドでも続きます。\n\nログインすると、お気に入りやフォロー中のタグを使えます。ランキング、タグ翻訳、Hath アーカイブ、トレントにも対応。ネットワークで E-Hentai がブロックされていても、設定のスイッチをひとつオンにするだけです。\n\nEhPanda は E-Hentai と提携しておらず、E-Hentai の承認も受けていません。",
+        "ko": "EhPanda는 iPhone과 iPad에서 E-Hentai를 이용할 수 있는 무료 오픈 소스 앱입니다.\n\n카테고리, 평점, 태그, 페이지 수로 검색하고, 자주 쓰는 검색은 저장해 둘 수 있습니다. 갤러리를 열면 태그, 평점, 미리보기, 댓글을 확인하고 비슷한 갤러리도 찾을 수 있습니다.\n\n스크롤하거나 페이지를 넘기며 읽을 수 있고, 한 페이지씩 또는 두 페이지씩 볼 수 있습니다. 확대, 자동 넘기기, 라이브 텍스트 번역도 지원합니다. 갤러리를 다운로드해 오프라인으로 읽을 수 있으며, 다운로드는 백그라운드에서도 계속됩니다.\n\n로그인하면 즐겨찾기와 관심 태그를 사용할 수 있습니다. 상위 목록, 태그 번역, Hath 아카이브, 토렌트도 지원합니다. 네트워크에서 E-Hentai가 차단되어 있어도 설정의 스위치 하나면 됩니다.\n\nEhPanda는 E-Hentai와 제휴 관계가 없으며 E-Hentai의 승인을 받지 않았습니다.",
+        "zh-Hans": "EhPanda 是一款免费的开源应用，让你在 iPhone 和 iPad 上浏览 E-Hentai。\n\n可按分类、评分、标签或页数搜索，常用的搜索可以保存下来。打开画廊即可查看标签、评分、预览和评论，还能找到相似的画廊。\n\n可以滚动阅读或翻页阅读，单页或双页显示，支持缩放、自动翻页和实况文本翻译。下载画廊即可离线阅读，切到后台也能继续下载。\n\n登录后即可使用收藏和关注的标签。排行榜、标签翻译、Hath 归档和种子也都支持。即使网络屏蔽了 E-Hentai，在设置中打开一个开关就能访问。\n\nEhPanda 与 E-Hentai 无关，也未获得 E-Hentai 的认可。",
+        "zh-Hant": "EhPanda 是一款免費的開源 App，讓你在 iPhone 和 iPad 上瀏覽 E-Hentai。\n\n可依分類、評分、標籤或頁數搜尋，常用的搜尋可以儲存下來。打開畫廊即可查看標籤、評分、預覽和留言，還能找到相似的畫廊。\n\n可以捲動閱讀或翻頁閱讀，單頁或雙頁顯示，支援縮放、自動翻頁和原況文字翻譯。下載畫廊即可離線閱讀，切到背景也能繼續下載。\n\n登入後即可使用收藏和追蹤中的標籤。排行榜、標籤翻譯、Hath 存檔和種子也都支援。即使網路封鎖了 E-Hentai，在設定中打開一個開關就能連線。\n\nEhPanda 與 E-Hentai 無關，也未獲得 E-Hentai 的認可。"
+      },
+      "iconURL": "https://raw.githubusercontent.com/EhPanda-Team/ehpanda-assets/main/app-marketplace/icon.png",
+      "tintColor": "#557F72",
+      "category": "entertainment",
+      "screenshots": {
+        "iphone": [
+          {
+            "imageURL": "https://raw.githubusercontent.com/EhPanda-Team/ehpanda-assets/main/app-marketplace/iphone/01-home.png",
+            "width": 1260,
+            "height": 2730
+          },
+          {
+            "imageURL": "https://raw.githubusercontent.com/EhPanda-Team/ehpanda-assets/main/app-marketplace/iphone/02-detail.png",
+            "width": 1260,
+            "height": 2730
+          },
+          {
+            "imageURL": "https://raw.githubusercontent.com/EhPanda-Team/ehpanda-assets/main/app-marketplace/iphone/03-reading.png",
+            "width": 1260,
+            "height": 2730
+          },
+          {
+            "imageURL": "https://raw.githubusercontent.com/EhPanda-Team/ehpanda-assets/main/app-marketplace/iphone/04-comments.png",
+            "width": 1260,
+            "height": 2730
+          },
+          {
+            "imageURL": "https://raw.githubusercontent.com/EhPanda-Team/ehpanda-assets/main/app-marketplace/iphone/05-downloads.png",
+            "width": 1260,
+            "height": 2730
+          },
+          {
+            "imageURL": "https://raw.githubusercontent.com/EhPanda-Team/ehpanda-assets/main/app-marketplace/iphone/06-filters.png",
+            "width": 1260,
+            "height": 2730
+          },
+          {
+            "imageURL": "https://raw.githubusercontent.com/EhPanda-Team/ehpanda-assets/main/app-marketplace/iphone/07-more.png",
+            "width": 1260,
+            "height": 2730
+          }
+        ]
+      },
+      "appPermissions": {
+        "entitlements": [],
+        "privacy": {}
+      }
+    }
+  ]
+}

@@ -1,0 +1,131 @@
+{
+  "name": "EhPanda",
+  "identifier": "app.ehpanda.altstore",
+  "subtitle": "The E-Hentai app crafted exclusively for iPhone and iPad.",
+  "localizedSubtitles": {
+    "en": "The E-Hentai app crafted exclusively for iPhone and iPad.",
+    "de": "Die E-Hentai-App, exklusiv für iPhone und iPad gebaut.",
+    "ja": "iPhone と iPad のためだけにつくり込んだ、E-Hentai アプリ。",
+    "ko": "iPhone과 iPad만을 위해 공들여 만든 E-Hentai 앱.",
+    "zh-Hans": "一款专为 iPhone 和 iPad 匠心打造的 E-Hentai App。",
+    "zh-Hant": "一款專為 iPhone 與 iPad 匠心打造的 E-Hentai App。"
+  },
+  "description": "A free, open-source E-Hentai app for iPhone and iPad.\n\nBrowse\nOpen a gallery to see its tags, rating, and previews, then find similar ones. Join the discussion: post, edit, and vote on comments. Pick categories, a minimum rating, or a page range. Filters apply automatically as you browse and search.\n\nRead\nScroll down or turn pages in either direction. Zoom in, let pages auto-play, or jump anywhere with the slider. Turn on Live Text and pages are translated into your language, right over the original lettering. Save galleries to read offline. Downloads can keep going in the background, and you can update them when a gallery changes.\n\nBlocked network? We’ve got you.\nWe believe every adult should be free to enjoy what they love. If your network blocks E-Hentai, flip one switch and EhPanda handles the rest.\n\nAnd a lot more.\nToplists · Favorites · Watched Tags · Tag Translation · Dual-Page Mode · Hath Archives · Torrents · Privacy Mask\n\nNote: EhPanda is not affiliated with or endorsed by E-Hentai.",
+  "localizedDescriptions": {
+    "en": "A free, open-source E-Hentai app for iPhone and iPad.\n\nBrowse\nOpen a gallery to see its tags, rating, and previews, then find similar ones. Join the discussion: post, edit, and vote on comments. Pick categories, a minimum rating, or a page range. Filters apply automatically as you browse and search.\n\nRead\nScroll down or turn pages in either direction. Zoom in, let pages auto-play, or jump anywhere with the slider. Turn on Live Text and pages are translated into your language, right over the original lettering. Save galleries to read offline. Downloads can keep going in the background, and you can update them when a gallery changes.\n\nBlocked network? We’ve got you.\nWe believe every adult should be free to enjoy what they love. If your network blocks E-Hentai, flip one switch and EhPanda handles the rest.\n\nAnd a lot more.\nToplists · Favorites · Watched Tags · Tag Translation · Dual-Page Mode · Hath Archives · Torrents · Privacy Mask\n\nNote: EhPanda is not affiliated with or endorsed by E-Hentai.",
+    "de": "Ein kostenloser Open-Source-Client für E-Hentai auf iPhone und iPad.\n\nStöbern\nIn jeder Galerie siehst du Tags, Bewertung und Vorschau und findest ähnliche Galerien. Diskutiere mit: Schreibe, bearbeite und bewerte Kommentare. Wähle Kategorien, eine Mindestbewertung oder einen Seitenbereich. Filter greifen automatisch beim Stöbern und Suchen.\n\nLesen\nScrolle nach unten oder blättere in beide Richtungen. Zoome hinein, lass die Seiten automatisch weiterblättern oder springe mit dem Schieberegler an jede Stelle. Schalte Live-Text ein, und Seiten werden in deine Sprache übersetzt, direkt über dem Originaltext. Speichere Galerien, um sie offline zu lesen. Downloads können im Hintergrund weiterlaufen, und du kannst sie aktualisieren, wenn sich eine Galerie ändert.\n\nE-Hentai gesperrt? Wir helfen dir.\nErwachsene entscheiden selbst, was ihnen gefällt. Sperrt dein Netz E-Hentai, genügt ein Schalter, und EhPanda erledigt den Rest.\n\nUnd noch viel mehr.\nToplisten · Favoriten · Meine Tags · Tag-Übersetzung · Doppelseitenmodus · Hath-Archive · Torrents · Datenschutzmaske\n\nHinweis: EhPanda steht in keiner Verbindung zu E-Hentai und wird nicht von E-Hentai unterstützt.",
+    "ja": "iPhone と iPad で使える、無料でオープンソースの E-Hentai アプリ。\n\n探す\nギャラリーを開くと、タグや評価、プレビューを確認できます。類似ギャラリーも探せます。コメントの投稿や編集、投票をして、会話に参加できます。カテゴリーや評価の下限、ページ数範囲で絞り込めます。フィルターは閲覧中も検索中も自動で適用されます。\n\n読む\n縦読み、右開き、左開きから好きな読み方を選べます。拡大や自動再生、スライダーでのページ移動にも対応しています。テキスト認識表示をオンにすると、ページの文字が元の文字に重ねて、お使いの言語に翻訳されます。ギャラリーを保存して、オフラインで読めます。ダウンロードはバックグラウンドでも進み、ギャラリーが更新されたときは保存したものも更新できます。\n\nつながらない？おまかせを。\n好きなものを自由に楽しむのは、大人として当然の権利です。E-Hentai がブロックされている環境でも、スイッチをひとつオンにすれば、あとは EhPanda におまかせ。\n\nほかにもたくさん\nランキング · お気に入り · タグの購読 · タグ翻訳 · デュアルページモード · Hath アーカイブ · トレント · プライバシーマスク\n\n注：EhPanda は E-Hentai と提携しておらず、E-Hentai の承認も受けていません。",
+    "ko": "iPhone과 iPad용 무료 오픈 소스 E-Hentai 클라이언트입니다.\n\n탐색\n갤러리를 열어 태그와 별점, 미리보기를 확인하고 비슷한 갤러리도 찾아보세요. 함께 이야기를 나눠 보세요. 댓글을 쓰고, 수정하고, 투표할 수 있습니다. 카테고리, 최소 별점, 페이지 범위를 정할 수 있습니다. 둘러보거나 검색할 때 필터가 자동으로 적용됩니다.\n\n읽기\n세로로 스크롤하거나 좌우 어느 쪽으로든 페이지를 넘겨 보세요. 확대하거나, 자동으로 넘기거나, 슬라이더로 원하는 곳에 바로 이동할 수도 있습니다. 라이브 텍스트를 켜면 페이지의 글자가 원래 글자 위에 바로 선호하는 언어로 번역되어 표시됩니다. 갤러리를 저장해 오프라인에서 읽으세요. 백그라운드에서도 다운로드를 계속할 수 있고, 갤러리가 바뀌면 최신 버전으로 업데이트할 수 있습니다.\n\n접속이 막혔나요? 걱정 마세요.\n성인이라면 좋아하는 것을 마음껏 즐길 자유가 있습니다. E-Hentai가 차단된 곳에서도 스위치 하나만 켜면, 나머지는 EhPanda가 알아서 해결합니다.\n\n이 밖에도 다양한 기능.\n상위 목록 · 즐겨찾기 · 주시 태그 · 태그 번역 · 두 장을 한 화면으로 보기 · Hath 아카이브 · 토렌트 · 개인정보 보호 마스크\n\n참고: EhPanda는 E-Hentai와 제휴 관계가 없으며 E-Hentai의 승인을 받지 않았습니다.",
+    "zh-Hans": "免费开源的 E-Hentai 客户端，适用于 iPhone 和 iPad。\n\n浏览\n打开画廊即可查看标签、评分和预览，还能找到相似的画廊。参与讨论：发表和编辑评论，还能给评论投票。选择分类、评分下限或页数范围。浏览和搜索时，筛选条件会自动生效。\n\n阅读\n上下滚动，或左右翻页，方向随你选。还能放大、自动播放，或拖动滑块跳到任意一页。打开实况文本，页面上的文字就会翻译成你的语言，直接显示在原文上。把画廊保存下来离线阅读。切到后台也能继续下载，画廊有更新时，还可以更新已下载的版本。\n\n打不开？交给我们\n成年人喜欢什么，本就该自由享受。就算网络屏蔽了 E-Hentai，只要打开一个开关，剩下的交给 EhPanda 就好。\n\n还有更多\n排行榜 · 收藏 · 标签订阅 · 标签翻译 · 双页模式 · Hath 归档 · 种子 · 隐私遮罩\n\n注意：EhPanda 与 E-Hentai 无关，也未获得 E-Hentai 的认可。",
+    "zh-Hant": "免費、開放原始碼的 E-Hentai 用戶端，適用於 iPhone 與 iPad。\n\n瀏覽\n打開畫廊即可查看標籤、評分與預覽，還能找到類似的畫廊。加入討論：發表、編輯留言，或為留言投票。選擇類別、評分下限或頁數範圍，瀏覽和搜尋時都會自動套用。\n\n閱讀\n可以向下捲動，也能向左或向右翻頁。還能放大、自動播放，或用滑桿直接跳到任何一頁。打開原況文字，頁面上的文字就會翻譯成你的語言，直接顯示在原文上。把畫廊存下來離線閱讀。下載可以在背景繼續進行，畫廊有更新時，也能更新下載內容。\n\n網路被封鎖？交給我們\n成年人喜歡什麼，本來就該自由享受。就算網路封鎖了 E-Hentai，只要打開一個開關，剩下的交給 EhPanda 就好。\n\n還有更多\n排行榜 · 收藏 · 關注標籤 · 標籤翻譯 · 雙頁模式 · Hath 存檔 · 種子 · 隱私遮罩\n\n注意：EhPanda 與 E-Hentai 無關，也未獲得 E-Hentai 的認可。"
+  },
+  "iconURL": "https://raw.githubusercontent.com/EhPanda-Team/EhPanda/main/docs/altstore/appicon-512.png",
+  "website": "https://ehpanda.app",
+  "tintColor": "#557F72",
+  "nsfw": true,
+  "featuredApps": [
+    "app.ehpanda"
+  ],
+  "apps": [
+    {
+      "name": "EhPanda",
+      "bundleIdentifier": "app.ehpanda",
+      "developerName": "EhPanda Team",
+      "subtitle": "The E-Hentai app crafted exclusively for iPhone and iPad.",
+      "localizedSubtitles": {
+        "en": "The E-Hentai app crafted exclusively for iPhone and iPad.",
+        "de": "Die E-Hentai-App, exklusiv für iPhone und iPad gebaut.",
+        "ja": "iPhone と iPad のためだけにつくり込んだ、E-Hentai アプリ。",
+        "ko": "iPhone과 iPad만을 위해 공들여 만든 E-Hentai 앱.",
+        "zh-Hans": "一款专为 iPhone 和 iPad 匠心打造的 E-Hentai App。",
+        "zh-Hant": "一款專為 iPhone 與 iPad 匠心打造的 E-Hentai App。"
+      },
+      "localizedDescription": "A free, open-source E-Hentai app for iPhone and iPad.\n\nBrowse\nOpen a gallery to see its tags, rating, and previews, then find similar ones. Join the discussion: post, edit, and vote on comments. Pick categories, a minimum rating, or a page range. Filters apply automatically as you browse and search.\n\nRead\nScroll down or turn pages in either direction. Zoom in, let pages auto-play, or jump anywhere with the slider. Turn on Live Text and pages are translated into your language, right over the original lettering. Save galleries to read offline. Downloads can keep going in the background, and you can update them when a gallery changes.\n\nBlocked network? We’ve got you.\nWe believe every adult should be free to enjoy what they love. If your network blocks E-Hentai, flip one switch and EhPanda handles the rest.\n\nAnd a lot more.\nToplists · Favorites · Watched Tags · Tag Translation · Dual-Page Mode · Hath Archives · Torrents · Privacy Mask\n\nNote: EhPanda is not affiliated with or endorsed by E-Hentai.",
+      "localizedDescriptions": {
+        "en": "A free, open-source E-Hentai app for iPhone and iPad.\n\nBrowse\nOpen a gallery to see its tags, rating, and previews, then find similar ones. Join the discussion: post, edit, and vote on comments. Pick categories, a minimum rating, or a page range. Filters apply automatically as you browse and search.\n\nRead\nScroll down or turn pages in either direction. Zoom in, let pages auto-play, or jump anywhere with the slider. Turn on Live Text and pages are translated into your language, right over the original lettering. Save galleries to read offline. Downloads can keep going in the background, and you can update them when a gallery changes.\n\nBlocked network? We’ve got you.\nWe believe every adult should be free to enjoy what they love. If your network blocks E-Hentai, flip one switch and EhPanda handles the rest.\n\nAnd a lot more.\nToplists · Favorites · Watched Tags · Tag Translation · Dual-Page Mode · Hath Archives · Torrents · Privacy Mask\n\nNote: EhPanda is not affiliated with or endorsed by E-Hentai.",
+        "de": "Ein kostenloser Open-Source-Client für E-Hentai auf iPhone und iPad.\n\nStöbern\nIn jeder Galerie siehst du Tags, Bewertung und Vorschau und findest ähnliche Galerien. Diskutiere mit: Schreibe, bearbeite und bewerte Kommentare. Wähle Kategorien, eine Mindestbewertung oder einen Seitenbereich. Filter greifen automatisch beim Stöbern und Suchen.\n\nLesen\nScrolle nach unten oder blättere in beide Richtungen. Zoome hinein, lass die Seiten automatisch weiterblättern oder springe mit dem Schieberegler an jede Stelle. Schalte Live-Text ein, und Seiten werden in deine Sprache übersetzt, direkt über dem Originaltext. Speichere Galerien, um sie offline zu lesen. Downloads können im Hintergrund weiterlaufen, und du kannst sie aktualisieren, wenn sich eine Galerie ändert.\n\nE-Hentai gesperrt? Wir helfen dir.\nErwachsene entscheiden selbst, was ihnen gefällt. Sperrt dein Netz E-Hentai, genügt ein Schalter, und EhPanda erledigt den Rest.\n\nUnd noch viel mehr.\nToplisten · Favoriten · Meine Tags · Tag-Übersetzung · Doppelseitenmodus · Hath-Archive · Torrents · Datenschutzmaske\n\nHinweis: EhPanda steht in keiner Verbindung zu E-Hentai und wird nicht von E-Hentai unterstützt.",
+        "ja": "iPhone と iPad で使える、無料でオープンソースの E-Hentai アプリ。\n\n探す\nギャラリーを開くと、タグや評価、プレビューを確認できます。類似ギャラリーも探せます。コメントの投稿や編集、投票をして、会話に参加できます。カテゴリーや評価の下限、ページ数範囲で絞り込めます。フィルターは閲覧中も検索中も自動で適用されます。\n\n読む\n縦読み、右開き、左開きから好きな読み方を選べます。拡大や自動再生、スライダーでのページ移動にも対応しています。テキスト認識表示をオンにすると、ページの文字が元の文字に重ねて、お使いの言語に翻訳されます。ギャラリーを保存して、オフラインで読めます。ダウンロードはバックグラウンドでも進み、ギャラリーが更新されたときは保存したものも更新できます。\n\nつながらない？おまかせを。\n好きなものを自由に楽しむのは、大人として当然の権利です。E-Hentai がブロックされている環境でも、スイッチをひとつオンにすれば、あとは EhPanda におまかせ。\n\nほかにもたくさん\nランキング · お気に入り · タグの購読 · タグ翻訳 · デュアルページモード · Hath アーカイブ · トレント · プライバシーマスク\n\n注：EhPanda は E-Hentai と提携しておらず、E-Hentai の承認も受けていません。",
+        "ko": "iPhone과 iPad용 무료 오픈 소스 E-Hentai 클라이언트입니다.\n\n탐색\n갤러리를 열어 태그와 별점, 미리보기를 확인하고 비슷한 갤러리도 찾아보세요. 함께 이야기를 나눠 보세요. 댓글을 쓰고, 수정하고, 투표할 수 있습니다. 카테고리, 최소 별점, 페이지 범위를 정할 수 있습니다. 둘러보거나 검색할 때 필터가 자동으로 적용됩니다.\n\n읽기\n세로로 스크롤하거나 좌우 어느 쪽으로든 페이지를 넘겨 보세요. 확대하거나, 자동으로 넘기거나, 슬라이더로 원하는 곳에 바로 이동할 수도 있습니다. 라이브 텍스트를 켜면 페이지의 글자가 원래 글자 위에 바로 선호하는 언어로 번역되어 표시됩니다. 갤러리를 저장해 오프라인에서 읽으세요. 백그라운드에서도 다운로드를 계속할 수 있고, 갤러리가 바뀌면 최신 버전으로 업데이트할 수 있습니다.\n\n접속이 막혔나요? 걱정 마세요.\n성인이라면 좋아하는 것을 마음껏 즐길 자유가 있습니다. E-Hentai가 차단된 곳에서도 스위치 하나만 켜면, 나머지는 EhPanda가 알아서 해결합니다.\n\n이 밖에도 다양한 기능.\n상위 목록 · 즐겨찾기 · 주시 태그 · 태그 번역 · 두 장을 한 화면으로 보기 · Hath 아카이브 · 토렌트 · 개인정보 보호 마스크\n\n참고: EhPanda는 E-Hentai와 제휴 관계가 없으며 E-Hentai의 승인을 받지 않았습니다.",
+        "zh-Hans": "免费开源的 E-Hentai 客户端，适用于 iPhone 和 iPad。\n\n浏览\n打开画廊即可查看标签、评分和预览，还能找到相似的画廊。参与讨论：发表和编辑评论，还能给评论投票。选择分类、评分下限或页数范围。浏览和搜索时，筛选条件会自动生效。\n\n阅读\n上下滚动，或左右翻页，方向随你选。还能放大、自动播放，或拖动滑块跳到任意一页。打开实况文本，页面上的文字就会翻译成你的语言，直接显示在原文上。把画廊保存下来离线阅读。切到后台也能继续下载，画廊有更新时，还可以更新已下载的版本。\n\n打不开？交给我们\n成年人喜欢什么，本就该自由享受。就算网络屏蔽了 E-Hentai，只要打开一个开关，剩下的交给 EhPanda 就好。\n\n还有更多\n排行榜 · 收藏 · 标签订阅 · 标签翻译 · 双页模式 · Hath 归档 · 种子 · 隐私遮罩\n\n注意：EhPanda 与 E-Hentai 无关，也未获得 E-Hentai 的认可。",
+        "zh-Hant": "免費、開放原始碼的 E-Hentai 用戶端，適用於 iPhone 與 iPad。\n\n瀏覽\n打開畫廊即可查看標籤、評分與預覽，還能找到類似的畫廊。加入討論：發表、編輯留言，或為留言投票。選擇類別、評分下限或頁數範圍，瀏覽和搜尋時都會自動套用。\n\n閱讀\n可以向下捲動，也能向左或向右翻頁。還能放大、自動播放，或用滑桿直接跳到任何一頁。打開原況文字，頁面上的文字就會翻譯成你的語言，直接顯示在原文上。把畫廊存下來離線閱讀。下載可以在背景繼續進行，畫廊有更新時，也能更新下載內容。\n\n網路被封鎖？交給我們\n成年人喜歡什麼，本來就該自由享受。就算網路封鎖了 E-Hentai，只要打開一個開關，剩下的交給 EhPanda 就好。\n\n還有更多\n排行榜 · 收藏 · 關注標籤 · 標籤翻譯 · 雙頁模式 · Hath 存檔 · 種子 · 隱私遮罩\n\n注意：EhPanda 與 E-Hentai 無關，也未獲得 E-Hentai 的認可。"
+      },
+      "iconURL": "https://raw.githubusercontent.com/EhPanda-Team/EhPanda/main/docs/altstore/appicon-512.png",
+      "tintColor": "#557F72",
+      "category": "entertainment",
+      "screenshots": {
+        "iphone": [
+          {
+            "imageURL": "https://raw.githubusercontent.com/EhPanda-Team/ehpanda-assets/main/app-marketplace/iphone/01-home.png",
+            "width": 1260,
+            "height": 2736
+          },
+          {
+            "imageURL": "https://raw.githubusercontent.com/EhPanda-Team/ehpanda-assets/main/app-marketplace/iphone/02-detail.png",
+            "width": 1260,
+            "height": 2736
+          },
+          {
+            "imageURL": "https://raw.githubusercontent.com/EhPanda-Team/ehpanda-assets/main/app-marketplace/iphone/03-reading.png",
+            "width": 1260,
+            "height": 2736
+          },
+          {
+            "imageURL": "https://raw.githubusercontent.com/EhPanda-Team/ehpanda-assets/main/app-marketplace/iphone/04-comments.png",
+            "width": 1260,
+            "height": 2736
+          },
+          {
+            "imageURL": "https://raw.githubusercontent.com/EhPanda-Team/ehpanda-assets/main/app-marketplace/iphone/05-downloads.png",
+            "width": 1260,
+            "height": 2736
+          },
+          {
+            "imageURL": "https://raw.githubusercontent.com/EhPanda-Team/ehpanda-assets/main/app-marketplace/iphone/06-filters.png",
+            "width": 1260,
+            "height": 2736
+          },
+          {
+            "imageURL": "https://raw.githubusercontent.com/EhPanda-Team/ehpanda-assets/main/app-marketplace/iphone/07-more.png",
+            "width": 1260,
+            "height": 2736
+          }
+        ]
+      },
+      "versions": [
+        {
+          "version": "2.8.1",
+          "buildVersion": "158",
+          "marketingVersion": "2.8.1",
+          "date": "2026-07-20T12:11:49Z",
+          "localizedDescription": "feat: Adapt to the new Liquid Glass design.\nfix: Gesture issue in the reading page.\nfix: Crash issue in eh setting page.\nfix: A minor issue in search page.",
+          "downloadURL": "https://github.com/EhPanda-Team/EhPanda/releases/download/v2.8.1/EhPanda.ipa",
+          "size": 7352364,
+          "sha256": "2f389e36270414a8d9f3537e330f5c2bbff80887109c56ff9b4ba68ed377d62b",
+          "minOSVersion": "26.0"
+        },
+        {
+          "version": "2.7.10",
+          "buildVersion": "156",
+          "marketingVersion": "2.7.10",
+          "date": "2024-12-21T03:22:53Z",
+          "localizedDescription": "Fixed reading page scroll functionality.",
+          "downloadURL": "https://github.com/EhPanda-Team/EhPanda/releases/download/v2.7.10/EhPanda.ipa",
+          "size": 7231227,
+          "sha256": "91980fdc3efb8a5aceb9fcaacc6ef4f19e1637793f8e4e717afe415fd2678c67",
+          "minOSVersion": "17.0"
+        }
+      ],
+      "appPermissions": {
+        "entitlements": [
+          "beta-reports-active",
+          "get-task-allow",
+          "keychain-access-groups"
+        ],
+        "privacy": {
+          "NSFaceIDUsageDescription": "We need this permission to provide Face ID option while unlocking the App.",
+          "NSPhotoLibraryAddUsageDescription": "We need this permission to save images to your photo library."
+        }
+      }
+    }
+  ]
+}

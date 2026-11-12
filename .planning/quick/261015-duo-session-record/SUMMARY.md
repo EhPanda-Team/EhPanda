@@ -1,0 +1,673 @@
+---
+type: retrospective-summary
+recorded: 2026-10-15
+historical_duo_implementation_commits: 21
+library_implementation_commits: 41
+decision_records: 145
+---
+
+# Delivery and commit ledger
+
+> **Image evidence availability:** Image files were removed from this repository history at the owner's request. Screenshot descriptions, filenames and earlier visual checks below are historical records, not currently available image evidence. Written findings, measurements and source artifacts remain; visual review requires fresh captures.
+
+Current title policy: D119 retires the simplified-title setting and transformation from lists and
+Home. Earlier D80/D100 entries below remain historical; existing line limits/layouts are retained.
+
+This session extends measured/window-based routing with Duo Home panes, native opposite-side
+presentations, independent title behavior, persistent reader controls and configurable orientation
+automation. Later owner choices initially extend landscape panes to fully open Duo and eligible
+iPad, with distinct separators and movable reader controls. D91 restores iPad Home to one pane;
+the independent iPad reader controls remain active. The app-wide Library follow-up combines
+Favorites/Downloads around management, with the owner-selected shared category navigation and
+separate groups. Quick task `261015-tx1` implements independently remembered row/grid choices and
+a regular grid. D120 retains the current Search design and closes the earlier A/B choice; old
+prototypes remain comparison material.
+
+The first four commits were inherited from the supplied handoff; the remaining seventeen were
+created during this session. Implementation references below point to the replayed commits. MIGRATION.md retains the explicit
+old→new mapping. Historical test results belong to original source trees, not these integrated trees.
+
+| Commit | Responsibility | Decisions |
+|---|---|---|
+| `7015d62cd3` | Seed reader pager from measured container | D03 |
+| `8fb2374536` | Route host Detail and Setting by both size classes | D01–D02 |
+| `e89e896634` | Local size-class layout and native search suggestion placement | D01 |
+| `e8736e940c` | Horizontal safe areas for prose | D04 |
+| `0b0061bfe1` | Scoped native toolbar probes and persistent reader indicator | D06, D24, D45 |
+| `628b8b7152` | Split Home, six rankings, opposite-side lists/details, native tab compression | D15–D17, D21 |
+| `97b2dbfc7f` | Independent pane navigation preserves left title during right scroll | D18 |
+| `3a6b817a99` | Owner-selected soft crease B | D19 |
+| `fd75e0746a` | Landscape-only Home splitting; initial toolbar policy later corrected | D20, D22 |
+| `a765486959` | Configurable automatic reader orientation and all-device landscape dual-page menu | D25–D27 |
+| `5c72028f68` | Preview lifetime follows the complete slider touch | D29 |
+| `22423a3296` | Cover-display orientation driver and actual page-pixel assertions | D44–D45 |
+| `0a42b7fbb4` | Owner-selected 50% sun in wide NewDawn sheet | D28 |
+| `9a5595c8ed` | Restore side tabs and retain full host for pushed pages | D22 |
+| `d58ef18476` | Whole-Home refresh in side toolbar | D23 |
+| `81f3b5cb58` | Right-half reader controls and no duplicate Duo landscape Close | D30 |
+| `d25bd91135` | Fully open Duo/iPad landscape panes and movable half controls | D31–D34 |
+| `b47eeac6ed` | Opposite move button, animation, iPad Close above slider | D35–D37 |
+| `412285ee9a` | Plain iPad divider; crease only on Duo | D38 |
+| `d7820e618e` | Top-boundary divider treatment and narrower iPad Toplists cells | D39–D40 |
+| `c274f0eac7` | Final 2 pt iPad divider | D41 |
+
+## Final implementation boundaries
+
+- Ordinary navigation still follows window size classes. Home's special opposite-side presentation
+  policy applies to eligible split Home and its nested lists/details; there is no all-tab sheet rewrite.
+- Split Home is landscape-only, root-only, and preserves a full navigation host for pushed pages.
+  D91 restores iPad Home to a single pane; Duo cover remains single-pane. The iPad reader still
+  supports movable half-width controls independently of Home.
+- Physical placement accounts for asymmetric safe areas and stays physical left/right in RTL.
+  A native presentation owner handles the nested sheet composition that failed in the SwiftUI experiment.
+- Reader auto-orientation is a persistent, default-enabled capability policy for iPad/Duo, including
+  first entry. Ordinary iPhones gain the manual landscape control, not automatic direction changes.
+- The final production layouts use shared measured geometry. Arrangement feasibility does not mean
+  the app switched to a 27.1-only arrangement implementation; deployment remains compatible with 27.0.
+- The divider, controls and proposal prototypes do not change the download manifest authority.
+
+## Documentation recovery
+
+The missing record is supplied as CONTEXT, DISCUSSION-LOG, SUMMARY, VERIFICATION and LEARNINGS,
+with historical evidence reports and the final screenshot proposal. Original reports are retained
+as historical snapshots with their obsolete statements clearly subordinate to the final decision log.
+This is not a claim that all historical tests were rerun during documentation recovery.
+
+Tracked neutral screenshots make the approved visual choices and pending proposal review durable.
+Raw live-content screenshots, simulator logs and build products remain local. Migration preserved
+the useful ignored evidence and existing preview, then removed the old checkout and branch.
+
+## Phase 17 integration follow-up
+
+`197b643b74` aligns 17 files with Phase 17's explicit/public-import requirements and synchronizes
+one Reduce Motion source-inventory test with the approved Home extraction and slider animation.
+No production behavior was added in this follow-up. Fresh build/lint/test evidence, D55's simulator
+isolation authorization and exact migration state are in [Migration](MIGRATION.md).
+
+## App-wide design follow-up
+
+D56–D58 expand the discussion beyond Duo and propose merging Favorites/Downloads into Library.
+[Library direction](LIBRARY-DIRECTION.md) distinguishes the owner's rationale from the assistant's
+engineering choices and the D64-selected shared navigation with separate groups. The earlier
+A/B screenshots are comparison material, not an approved merged-Library design.
+
+D59–D61 replace the global detail/thumbnail direction with independent row/grid choices for six
+named lists. Grid is the proposal's regular aligned grid, replacing waterfall. This is an accepted
+design clarification, now implemented with rendering, independent persistence and versioned migration.
+Engineering defaults and validation are recorded in quick task `261015-tx1`.
+
+## Workspace rebuild
+
+D62 rebuilds this session on `agent/app-design` from the latest `feature/gsd-phase-17` base
+`720cd47b8d`. The Library/per-list design record was carried forward as `956beb3da2`; earlier Duo
+implementation and rewritten SHA references come directly from the new base. See
+[Workspace rebuild](WORKSPACE-REBUILD.md) for preservation and cleanup evidence.
+
+## Library implementation and current evidence
+
+| Commit | Responsibility |
+|---|---|
+| `e60ea41788` | Shared Library navigation, source routing and independently persisted row/grid scopes |
+| `7948058ad2` | Native layout menu, aligned grid and offline native tracer |
+| `8efc2074eb` | Downloads row/grid management with stable per-gallery confirmation ownership |
+| `51102939a5` | Native category links, surviving scroll anchor, visible-row restoration and pagination |
+| `030027e44c` | Current UI regression suites and exact-identity validation runner |
+
+Current evidence: 959 FeatureTests identities (949 pass and 10 named existing expected diagnostics),
+6/6 UI tests on each of iPhone, iPad and Duo, zero build warnings/errors, strict lint clean in 53
+changed Swift files. Native checks include live text sizes, iPad window resizing with query/status,
+selected VoiceOver actions and Duo folds/rotation with a retained query/status sheet. All dedicated
+devices were restored and normal launch checked. See the [quick summary](../261015-tx1-implement-library-with-shared-favorites-/261015-tx1-SUMMARY.md)
+and [validation limits and screenshots](../261015-tx1-implement-library-with-shared-favorites-/VALIDATION.md).
+
+This completes the selected Library implementation, not Phase 17 or a whole-app accessibility audit.
+The historical proposal preview was subsequently stopped under D65; its saved artifacts remain.
+
+## Sidebar background follow-up — 2026-10-16
+
+D67 is implemented in `0e9cffb810`: opaque adaptive Library sidebar background, preserving the
+same-toolchain baseline title/search geometry. Native extension and container probes, light/dark
+and compact screenshots, build/lint results and exact scope limits are recorded in
+`../261015-tx1-implement-library-with-shared-favorites-/SIDEBAR-BACKGROUND.md`.
+The iPad app stays open for owner review; the previous proposal preview is stopped under D65.
+
+## Native sidebar scroll-edge follow-up — 2026-10-16
+
+D68 supersedes D67 after the owner's upward-scroll capture exposed the remaining blur boundary.
+`f179b90c99` extends Library's completed native NavigationSplitView through the top container safe
+area and removes the opaque List fallback. Actual scrolled light/dark captures establish continuity
+behind the status bar, while native titles/search retain safe clearance. Focused build/lint checks,
+iPad live rotation, standard/AX1/AX3/AX5 cold/live entry on iPad and iPhone, and Duo folds/orientation
+are recorded in [the current report](../261015-tx1-implement-library-with-shared-favorites-/SIDEBAR-SCROLL-EDGE.md).
+The report distinguishes the early AX5 navigation sample from its settled successful check and
+does not claim the broader suites or iPad window resizing were repeated. The iPad remains running
+for owner review; the compact iPhone and Duo are shut down.
+
+## Library sidebar actions — 2026-10-16
+
+`1e0df84c14` delivers D69–D73: native fixed expanded columns with the toggle removed, Downloads-first
+expandable sections, native sectionActions for management and default-folder creation, and removal
+of the duplicate Downloads toolbar manager. The create operation owns its refresh through completion
+and reports retryable failure. Nine focused tests pass; native iPad/iPhone/Duo and four text-size
+checks are detailed in [SIDEBAR-ACTIONS.md](../261015-tx1-implement-library-with-shared-favorites-/SIDEBAR-ACTIONS.md).
+The iPad is left open on Library / Downloads; the other dedicated devices are shut down.
+
+## Header stability — owner-deferred; native toggle restored
+
+D74 adds the owner's Library header displacement report and sidebar close/reopen observation.
+The native tab/split interaction reproduces independently. D75 retains the native sidebar and
+defers the unresolved defect; the fixed-pane prototype is not adopted. D76 restores the working
+native toggle, initially expanded, superseding D69's fixed-open requirement. See the quick task's [investigation](../261015-tx1-implement-library-with-shared-favorites-/HEADER-STABILITY.md).
+
+D76 implementation: `251ea0adfe` — restore native sidebar visibility control. Current validation
+and the owner-deferred header issue are recorded in the linked investigation. This commit does
+not replace native navigation or claim a framework layout fix.
+
+## Folder-only Downloads navigation
+
+D77 is implemented in `0bb7443e67`: remove the generic Downloads sidebar link, retaining actual
+folder links and native folder actions. The existing category navigation regression now uses a
+test-owned Inbox folder and passes on compact iPhone. Build/lint and iPad native folder entry are
+verified; [evidence](../261015-tx1-implement-library-with-shared-favorites-/SIDEBAR-ACTIONS.md#folder-only-navigation-follow-up--d77)
+includes the unedited final screenshot. The iPad remains open for owner review.
+
+## Preview review resumed
+
+D78 reopens the unchanged historical proposal at `http://127.0.0.1:55920/index.html`.
+The saved page and all nine screenshots are available, and the in-app browser tab remains open
+for review. This supersedes D65's stopped-preview state without changing any design selection.
+
+## Grid appearance and simplified titles
+
+Initial D79–D80 delivery in `ebcd19a3cb` (corner/ratio/line limit superseded by D81): transparent grid
+cards, square covers using the established background, three-line vertically centered titles, aligned row edges, and default-on simplified
+titles across all row/grid lists. The setting is in Appearance → Gallery and preserves old settings.
+The 97 model tests and four UI tests pass, with zero build warnings/errors or lint violations.
+See [implementation and retained evidence](../261015-tx1-implement-library-with-shared-favorites-/GRID-TITLES.md)
+for exact scope, corrected failed attempts, eleven native screenshots and review-device state.
+The iPad remains open at Library Favorites with its real data; Phase 17 gates are unchanged.
+
+## Grid cover clarification — D81
+
+`afc91404d1` corrects all four cover corners to rounded, uses the owner's reference cover's original
+2117:3000 ratio and reduces grid titles to two lines. Transparent containers, centered short titles,
+aligned row edges and default-on simplified titles remain. Two focused UI tests pass across iPad
+and iPhone standard/AX1/AX3/AX5, with clean builds/lint and eight original screenshots. The first
+visual attempt exposed the nested category clip; final compositing and corner checks resolve it.
+See [current evidence](../261015-tx1-implement-library-with-shared-favorites-/GRID-TITLES.md#cover-correction-verification--d81).
+The iPad is updated and open for review; the known native header issue and Phase 17 gates are unchanged.
+
+## Grid metadata and context menus — D82–D85
+
+`de378a9f56` removes horizontal metadata padding from every grid card, hides ratings only in Library
+grids, and replaces the Downloads Actions button with the card's native context menu. Stable
+per-gallery delete confirmation and accessibility actions remain. Five focused UI tests pass on
+iPad/iPhone, including four text sizes, non-Library ratings, folder move, Pages, local reading,
+cancel/delete and relaunch. Builds/lint are clean; fifteen original fixture screenshots are retained.
+
+D85 is an API investigation, not a selected redesign: SwiftUI inspector cannot be forced into a
+right-edge floating overlay through its public style preferences. Native popover or app-owned
+panel remain alternatives; existing Details/Pages presentation is unchanged. See
+[implementation and evidence](../261015-tx1-implement-library-with-shared-favorites-/GRID-LIBRARY-REFINEMENT.md).
+The updated review iPad is open; Phase 17 and the deferred native header issue are unchanged.
+
+## Native floating Downloads trial — D86
+
+`ad90bd3851` adds the authorized trial of Details/Pages over the right side of a wide Downloads list.
+It uses native iOS 27 sheet placement and leaves the grid width unchanged. Narrow entry retains its
+prior presentation. Three final UI tests pass with clean build/lint and five original screenshots.
+The review iPad was updated for the trial; D88 subsequently rejects and reverts it. See [trial report](../261015-tx1-implement-library-with-shared-favorites-/FLOATING-PANEL-PROTOTYPE.md).
+
+## Actual SwiftUI inspector trial — D87
+
+`8cf337d01e` replaces the D86 presentation with real `.inspector`, owned outside Library's native
+NavigationSplitView. On the tested iPad it automatically overlays the right side with unchanged
+grid-card geometry; on iPhone it becomes a native sheet. The Details close action targets the
+presentation state so it still works after nested navigation. All 30 selected feature tests and
+three iPad/iPhone UI tests pass with clean build/lint and matching source hashes. Six original
+screenshots and the frame record are retained. The review iPad was updated for that trial.
+D88 rejects and reverts the trial. See [D87 report](../261015-tx1-implement-library-with-shared-favorites-/NATIVE-INSPECTOR-PROTOTYPE.md).
+
+## Presentation trial rollback — D88
+
+The owner rejects the sheet effect, inspector transparency and inspector-induced recurrence of
+background clipping below the status bar. Every non-docs change since D86 is reverted, restoring
+`4a935db04f` source behavior while preserving the trial docs and screenshots. D82–D84 remain active.
+Rollback commit: `97b78e9120b788e42fc70bfbdcba6c422b060a88`.
+The implementation-commit count includes this rollback, not an additional delivered feature.
+See [rollback record](../261015-tx1-implement-library-with-shared-favorites-/PRESENTATION-TRIAL-ROLLBACK.md).
+
+Rollback validation: 32/32 feature tests and 1/1 iPad UI test pass; zero build/lint diagnostics.
+The original review iPad is running the restored implementation with existing data.
+
+## Library single/double tap — D89
+
+`8c19f5f0fa4b0f013e0185cab74d3b0a8b2ecd89` makes single tap open Detail and double tap open reading in Library Favorites
+and Downloads, in both row and grid. Native exclusive recognition prevents a hidden Detail beneath
+the reader; Read remains in context menus and accessibility actions. Favorites prefers local
+content and otherwise resolves remote reader metadata, with loading/error feedback and background
+progress persistence. Existing presentation routes and D88's rollback remain intact.
+
+Fifty feature tests and five final native iPad/iPhone UI tests pass; builds and strict lint are
+clean. The original review iPad was updated in place. See [implementation and evidence boundaries](../261015-tx1-implement-library-with-shared-favorites-/LIBRARY-TAP-ACTIONS.md).
+
+## Library visual follow-up — D90
+
+`545c3f34ca62f3da9396d55c0f96c7d6421c120e` sets leading row-title alignment, adds neutral image tiles to Detail/Previews,
+and removes Detail/Read from grid context menus. Downloads' lifted preview wraps its whole card
+in an opaque background; ordinary cards remain transparent and accessible Read remains available.
+
+Five iPad native checks pass. The iPhone management test reproduces a first-menu-item center-tap
+failure twice; an independent native ScrollView/context-menu app reproduces it too. It remains
+open, with no coordinate/timing patch or claim of all-device success. See
+[visual/menu evidence](../261015-tx1-implement-library-with-shared-favorites-/LIBRARY-VISUAL-POLISH.md).
+The review iPad is updated; the deferred header issue and Phase 17 gates remain unchanged.
+
+## iPad Home rollback — D91
+
+The owner withdraws iPad Home's two-column display and associated behavior. Home restores its
+single scrolling section hierarchy, regular ranking layout and ordinary list/gallery routing;
+the iPad divider and layout gating are removed. Duo Home and the shared reader capability policy
+remain active. See [the scoped rollback and verification](IPAD-HOME-ROLLBACK.md).
+
+Implementation: `763b5a5dde705143922190c27f7a3da4f6602bb9`. Forty-four feature tests, the four-size single-pane UI case and the
+final Home audit pass within their documented source boundaries. Rotation preserves the centered
+carousel gallery via its native center anchor. Builds and strict lint are clean; the review iPad
+is updated and the temporary test device removed. Intermediate failures remain in the report.
+
+## Large-window Home exploration — D92–D94
+
+Three [section-information proposals](../../sketches/001-large-home-information/README.md)
+compare balanced, cover-led and grouped metadata presentations for iPad and a future macOS Home.
+The framework, section order and destinations remain fixed. Owner review is pending; no app
+source, implementation-commit count or Phase 17 gate changes. The brief itself is the reference,
+following the owner’s instruction to stop inspecting the Mac App Store.
+
+
+## Preferred Home refinement — D95–D97
+
+The owner leans toward B and keeps C-style slideshow grouping only for ample available space.
+The [B revision](../../sketches/001-large-home-information/README.md) removes the redundant Popular
+source label and excludes uploader/date. One metadata set flows normally or groups at extra-wide
+width; it is never repeated as a second summary. Other sections retain B, while original A/B/C
+remain reviewable. Browser screenshots/geometry cover ordinary and extra-wide layouts, with a
+600-wide check. This remains proposal work, not production approval or native validation.
+
+
+## Slideshow selection — D98
+
+C is now selected for slideshow, with no space-dependent mode switching in this iteration.
+The [current B+C preview](../../sketches/001-large-home-information/README.md#selected-c-slideshow--d98)
+uses C's compact card and below-title grouping while preserving the removal of Popular,
+uploader/date and duplicate information. Other sections retain B. This supersedes D95's
+conditional grouping; responsive design is deferred and app code remains unchanged.
+
+
+## Home implementation and shared titles — D99–D100
+
+`7545d6c89769027ba7340b4ed8f785cb67ea7e9b` implements C slideshow with B Frontpage, Toplists and Other for measured
+large single-pane Home. Compact/Duo structure and navigation stay intact. Slideshow excludes
+Popular, uploader/date and duplicated metadata. Every Home gallery title and cover accessibility
+label now follows the same default-on simplified-title setting; disabling it restores full titles.
+
+Fifty feature/model tests pass; three native iPad UI cases pass, followed by a final-source pass
+of the expanded title/layout case. Native four-size cold/rotation and live-size captures are
+retained for iPad, with additional iPhone cold/live checks. Initial native-title blank frames and
+LLVM profile-writer diagnostics are documented rather than suppressed. The original review iPad
+has the final app with its data preserved; temporary test resources are restored/removed. See
+[implementation and exact evidence boundaries](../261017-pjj-implement-b-home-sections-with-selected-/261017-pjj-SUMMARY.md).
+Phase 17 and screenshot baselines are unchanged; this remains an owner-review implementation trial.
+
+
+## Home corrections and slideshow proposals — D101–D104
+
+`a6872762922be171adf9558408a4c6740fd85a3d` restores B Other divider/footnotes, removes Home Toplists uploader
+and makes rating stars inherit text foreground throughout the app. Two existing native iPad UI
+cases pass, including four-size cold entry/rotation and live title settings. Build/lint pass;
+retained tooling diagnostics and evidence boundaries are in the
+[follow-up record](../261017-pjj-implement-b-home-sections-with-selected-/FOLLOW-UP-20261022.md).
+Review iPad is updated in place with data preserved. [Sketch 002](../../sketches/002-landscape-slideshow/README.md)
+provides three landscape slideshow alternatives and portrait comparison; no winner is selected.
+
+
+## Selected slideshow A and ranking spacing — D105–D106
+
+`5b01f7f0cadee5b156764fcabff89349f8af8a1e` applies the selected 720-point card cap in measured wide Home
+viewports, preserving portrait and compact/Duo geometry. Toplists information uses an 8-point gap.
+Three focused native iPad UI tests pass with clean build/lint, and the review iPad is updated in
+place. [Exact verification and screenshots](../261017-pjj-implement-b-home-sections-with-selected-/SLIDESHOW-A.md).
+This supersedes D104's pending selection; B/C remain comparison alternatives only.
+
+
+## Home cell finishes — D107–D109
+
+`347616927064f94ede7e6c50f99004c67129e28e` makes rich ranking gaps expand through the cell height, uses aspect-fill
+for rich slideshow covers, and restores light tag backgrounds/fine outlines with adaptive dark
+material and legible dark tag text. Native Home regressions pass; the final foreground-only change
+receives a clean build and neutral warm/cool visual checks. The review iPad is updated with its data
+preserved. [Verification, screenshots and scope](../261017-pjj-implement-b-home-sections-with-selected-/HOME-CELL-FINISHES.md).
+D107 supersedes D106's fixed gaps. D111 resolves the separate gradient proposal: only tags change
+in this pass; retain the existing card-wide brightness and foreground policy. The observed contrast
+limitation remains documented. This scope decision requires no additional source change.
+
+
+## Comment preview background — D110
+
+`15b882b5d18a6ada97c8c37e6ff99e2537481245` fixes content-dependent square/narrow comment preview cards by aligning
+background painting with the final card frame. Nine native test identities pass, including sixteen
+comment render configurations. Two separate verification repairs address a missing fixture argument
+and XCTest result-name normalization. [Cause, commits and before/after evidence](../261022-comment-card-background/SUMMARY.md).
+Review iPad updated; full Comments list behavior and Phase 17 owner gates remain unchanged.
+
+## Stacked comment metadata — D112
+
+`915a40146a26f3d8137458941ad2499cc641548f` aligns the fallback score/date row to trailing, with the author leading and the
+single-line arrangement unchanged. Two existing tests pass across 16 native render configurations;
+strict lint/build pass. [Screenshot and verification scope](../261022-comment-card-background/SUMMARY.md).
+The review iPad is updated in place.
+
+## Slideshow tag material prototypes — D113
+
+[Sketch 003](../../sketches/003-slideshow-tag-containers/README.md) compares native Liquid Glass and
+regular Material in light and two dark palettes. Both variants pass strict lint/native builds;
+production source and build were restored after six captures. D114 below resolves the selection.
+D113 added review artifacts, not a production implementation commit.
+
+## Selected Liquid Glass slideshow tags — D114
+
+`e82d636b4d556ad8a71a648b215e5a4e477bef9c` adopts sketch 003 A in both appearances. The final file matches the reviewed
+prototype byte-for-byte; strict lint and a fresh native build pass. Existing A captures cover
+light, warm dark and cool dark. The review iPad is updated in place and launched normally.
+[Selection and verification](../../sketches/003-slideshow-tag-containers/README.md).
+
+## Frontpage aspect-fill — D115
+
+`3d6d4d8c8a47c1d4bdd112db5f9f22b7a59ed599` makes the Home Frontpage cover wall use aspect-fill in both rich and compact layouts.
+The existing frame and rounded clip crop excess artwork while preserving its proportions. Strict
+lint and a native iPad build pass without warnings/errors; the review iPad is updated and launched
+normally. [Verification scope](../261017-pjj-implement-b-home-sections-with-selected-/HOME-CELL-FINISHES.md).
+
+## Toplists aspect-fill — D116
+
+`658597089e40c179a46c0028001e9b4ed454c012` makes Home Toplists covers use aspect-fill in rich and compact arrangements, retaining
+cover dimensions, information and spacing. Strict lint and a clean native build pass; the review
+iPad is updated in place and launched normally. No new UI test run or screenshot is claimed.
+[Verification scope](../261017-pjj-implement-b-home-sections-with-selected-/HOME-CELL-FINISHES.md).
+
+## Closer slideshow fields and native iPad title policy — D117–D118
+
+`4fa62a44b34f6c53036442187a4cc22acc9a5d6f` reduces the Pages/Category group width cap to 360 points.
+`3174c4a6723ac4a7a36d52d12ce3a17d1af5afa1` hides Home's native title only on iPad with actual top-bar tabs,
+using public tabBarPlacement/title-removal APIs and inline display mode. The localized navigation
+title and Home back label remain; bottom/side/undefined placements retain inlineLarge.
+
+Strict lint and native builds pass with zero compiler/analyzer warnings/errors; exactly two UI
+tests pass with no skips/repetitions. They cover four-size cold entry/rotation, Frontpage push/back,
+slideshow geometry and selection. Native live-resize evidence also verifies bottom-tab title
+restoration. Review iPad updated normally, account/data/settings preserved; task devices removed.
+[Research-first owner direction, official references, screenshots and exact scope](../261017-pjj-implement-b-home-sections-with-selected-/HOME-TITLE-TAB-PLACEMENT.md).
+
+
+## Original gallery titles — D119
+
+`4fcdcf601f74f15644b026eb92ac60102a263561` removes the simplification setting and bracket-removal implementation. Row/grid lists
+and Home use stored titles directly, preserving line limits, layouts and Japanese-title selection.
+Old settings retain unrelated preferences and omit the retired key on their next save. Strict lint,
+native builds, 94 model test identities and three focused iPad UI tests pass. The UI checks cover
+four text sizes, row/grid/relaunch, Appearance and Home. Review iPad updated in place; the task
+test device is removed.
+[Retirement, compatibility coverage and delivery evidence](../261015-tx1-implement-library-with-shared-favorites-/REMOVE-SIMPLIFIED-TITLES.md).
+
+
+## Retain current Search — D120
+
+The owner accepts the current Search design and requests no redesign. Its root shows Quick Search,
+Recently Searched and Recently Seen in that order when data exists. Source inspection confirms
+saved query shortcuts, up to 20 recent keywords and the 10 most recent gallery-history entries.
+Neither earlier A/B proposal is selected. This records a design decision only; implementation
+commit counts and the previous verified source remain unchanged.
+
+
+## Search section order and empty text — D121
+
+`cd74630199e756ba662d5395e4a7a034739cfe4f` changes the order to Recently Searched → Recently Seen → Quick Search and keeps
+empty sections visible with localized secondary text. Populated content and native Search behavior
+remain. Pinned lint/catalog checks and a generic Simulator SDK build pass without warnings/errors;
+native empty-state/Show All checks pass, the review iPad is updated in place and the task device
+is removed. [Verification and scope](../261022-search-section-placeholders/SUMMARY.md).
+
+
+## Search empty-section spacing — D122
+
+`187a3a5f7c7e564a6b7846e62ae94ed064c1f844` adds a 96-point minimum height to the three empty section content frames.
+Secondary text remains leading and vertically centered; populated sections stay unchanged.
+Strict lint and the native build pass without warnings/errors. A new native iPad screenshot
+confirms the roomier layout. Review iPad updated normally after a bounded retry; the task test
+device is removed. [Screenshot and verification limits](../261022-search-section-placeholders/SUMMARY.md).
+
+
+## Top-aligned Search placeholders — D123
+
+`7137543a3faee765bce4ff0997701fb398c74c7f` changes the three empty frames to `.topLeading`, retaining the 96-point minimum
+height and existing section spacing. [Verification and delivery](../261022-search-section-placeholders/SUMMARY.md).
+
+
+## Search spacing and history actions — D124–D126
+
+`92f99a315d541029419db962d9c7a02933eaaacd` adds 24-point section gaps, equal keyword-control minimum heights and
+native header Remove All actions. Both confirmations anchor correctly. Search removal retains
+saved searches; browsing removal follows existing History semantics, explicitly including resume
+positions. Sixteen Search tests, clean builds/lint and isolated iPad clear/relaunch checks pass.
+[Decisions, confirmed policy, screenshots and delivery](../261022-search-section-placeholders/SEARCH-ACTIONS.md).
+Review iPad updated normally, original data preserved; task device removed. Phase 17 unchanged.
+
+Owner confirmation on 2026-10-23 resolves D126's earlier assumption: Recently Seen Remove All
+clears all browsing records and their reading positions, matching History. Implementation and
+verification evidence remain unchanged.
+
+
+## Equal spacing around Recently Seen — D127
+
+`9a9d3e86bc031d8e3e717cd0994218fd40db9222` removes keyword-only vertical padding and trailing invisible separator
+space. Native iPad measurements confirm equal 24-point inter-section gaps; heading/content gaps
+are 8 points and keyword controls retain their 44-point minimum. Clean builds/lint; review iPad
+updated normally, capture simulator removed. [Evidence](../261022-search-section-placeholders/EQUAL-SECTION-SPACING.md).
+
+
+## Larger Search section gap — D128
+
+`bc2ee41157178508972dd3d2e8c9aa46019e93e2` increases the shared inter-section gap from 24 to 32 points.
+D127's equal-spacing structure, heading/content gap and control heights remain intact.
+[Scope and verification](../261022-search-section-placeholders/EQUAL-SECTION-SPACING.md#larger-shared-gap--d128).
+
+
+## Double Search section spacing — D129
+
+`71c7fd3f37707dfc76c42ce083bbfc28c80c5e18` doubles the shared section gap from 32 to 64 points following
+the owner's screenshot review. [Verification](../261022-search-section-placeholders/EQUAL-SECTION-SPACING.md#double-the-shared-gap--d129).
+
+
+## Phone Home information — D130
+
+`38ff0f4b1349dcab91711d373517cd46708e3fa2` extends the existing Frontpage, Toplists and Other information designs
+to iPhone, with readable narrow-viewport Other cards. Slideshow keeps its existing rules.
+[Scope and verification](PHONE-HOME-LIBRARY.md).
+
+## Adaptive phone Library — D131–D132
+
+`af54545f6f1203b7f282f70f1cf87df8e98c1692` adds a lower-trailing native glass Downloads/Favorites picker on ordinary
+iPhone and on Duo in every portrait posture or closed landscape. Only partially/fully open
+landscape Duo keeps the native sidebar; iPad keeps its existing sidebar. Source menus retain
+category and folder management. Sidebar visibility belongs to its host so returning from phone
+layout starts expanded, with the native toggle available. Seven focused feature tests and four
+UI cases pass; the final host-state extraction has separate build/lint and six-pose native checks.
+All three normal review apps are running. [Screenshot, exact test boundaries and delivery](PHONE-HOME-LIBRARY.md).
+
+
+## Symbol-only Library source picker — D133
+
+`f2408933caf8111a425427ed08372bf38a987fb1` retains the localized text and SF Symbols in both Labels and applies
+native icon-only presentation. Build/lint pass; a normal native iPhone screenshot confirms the
+smaller symbol-only control. Both phones are updated without fixture launches.
+[Verification and screenshot](PHONE-HOME-LIBRARY.md#symbol-only-source-picker--d133).
+
+
+## Pending Library entry-point changes — D134–D135
+
+The owner requests a native navigation title menu and a half-height sheet triggered by a
+Library-tab long press. A title-menu prototype passes the focused phone switching test, but
+requires `.inline` on the tested runtime; that exception to the retained large-title policy
+awaits an owner choice. The native tab bar has no identified public per-item long-press hook. The owner authorized a
+custom-bar feasibility study, now documented with the requested closed-menu screenshot in
+[CUSTOM-TAB-BAR-FEASIBILITY.md](CUSTOM-TAB-BAR-FEASIBILITY.md). Implementation and title-style
+acceptance remain pending.
+The approved D133 implementation remains active; no new implementation commit is claimed.
+[Review screenshot, native API findings and verification](LIBRARY-TITLE-MENU.md).
+
+
+## Native tab bar retained — D136
+
+The owner rejects a custom tab bar. Preserve the native system bar; the earlier feasibility
+report is historical and no longer an implementation option. The title-menu discussion continues
+with a question about keeping a large Library title and a smaller source menu simultaneously.
+No production title or bar change is approved by this question.
+
+A standalone native iPhone probe confirms [two dual-title arrangements](LIBRARY-DUAL-TITLE.md):
+stacked large title plus source Menu, or inline-large title plus trailing source Menu. Both preserve
+the native tab bar. This is scoped rendering evidence; no production layout selection is implied.
+
+
+## Main title and menu subtitle in one region — D137
+
+The owner clarifies that Library and the source-menu subtitle must occupy the same navigation-title
+region. The D136 alternatives are superseded. A standalone native iPhone probe now confirms the
+public `.largeSubtitle` placement accepts a Menu under Library with `.inlineLarge` retained;
+the system adjusts the title font size to fit. [Screenshot and evidence](LIBRARY-SUBTITLE-MENU.md).
+No app source changed or new implementation commit is claimed. D133 remains installed and the
+native tab bar remains mandatory.
+
+
+## Native circular title-menu arrow — D138
+
+The owner asks to retain the system circular arrow. Native rendering confirms it with `.inline`
+and a text subtitle, beside the Library main title. The tested `.inlineLarge` subtitle Menu does
+not display an indicator, including `.menuIndicator(.visible)`. [Comparison and limits](LIBRARY-SUBTITLE-MENU.md#system-circular-menu-indicator--d138-2026-10-24).
+No title-layout choice or production change is inferred. Native tabs remain required.
+
+
+## Arrow beside Library accepted; inline-large preview — D139
+
+The owner accepts the system arrow beside the main title and asks for the complete composition
+with `.inlineLarge`. Targeted iOS 27.1 title-menu checks corroborate the earlier 27.0 result:
+`.inlineLarge` has no arrow even with explicit indicator visibility; the `.inline` control shows it.
+[Actual native screenshots and evidence boundaries](LIBRARY-SUBTITLE-MENU.md#main-title-arrow-accepted-inline-large-combination-requested--d139-2026-10-24).
+No replacement glyph, different title mode or production implementation is inferred as approved.
+
+
+## App-drawn circular title arrow — D140
+
+The owner explicitly authorizes drawing the circular downward chevron. The standalone native
+prototype retains `.inlineLarge`, a Library title Menu, source subtitle and native tab bar.
+Light/dark screenshots and a lint-clean prototype source are retained in the
+[report](LIBRARY-SUBTITLE-MENU.md#app-drawn-circular-arrow--d140-2026-10-24).
+This supersedes the earlier drawn-arrow restriction, not the native-tab requirement.
+Production integration and interaction/accessibility validation remain pending; D133 is installed.
+
+
+## Multi-device title scroll captures — D141
+
+Twenty native screenshots compare initial/scrolled states on iPhone, iPad and closed/half/open Duo
+in portrait and landscape. The custom title Menu scrolls away in every captured case; production
+integration remains pending. [Gallery and measured boundaries](LIBRARY-TITLE-MATRIX.md).
+The temporary simulators were removed and the screenshot page remains open for owner review.
+
+
+## Persistent Library title alternative — D142
+
+The owner requests visible title controls after scrolling. A native `.title` placement with `.inline`
+and browser role retains the title Menu, arrow and source subtitle across 10 device/posture/direction
+configurations. Their initial/scrolled frames match; the scrolled iPhone Menu also switches source.
+The `.inlineLarge` plus `.never` control still hides the title. The working alternative changes title
+mode and moves iPad titles beside floating tabs; it remains an isolated prototype awaiting layout
+acceptance and production integration. [Evidence and limits](LIBRARY-TITLE-PERSISTENCE.md).
+
+
+## Phase 17 integration — D143
+
+On 2026-10-27, the owner requested integration of all current work into `gsd-phase-17`, resolved
+to the existing `feature/gsd-phase-17` branch. Both checkouts were clean and the target had no
+commits absent from `agent/app-design`.
+
+- Previous target: `720cd47b8dc97afb4226b7889830a16f032b8cc8`.
+- Integrated source: `5f53838db95851f514d570a63ff97b33351ae707`.
+- Method: `git merge --ff-only agent/app-design`; all 107 commits retain their original IDs.
+- Scope: all implementation, tests, proposals, screenshots and GSD records from the source branch.
+- Verification: the target tree after fast-forward exactly matches the source tree; the source
+  is an ancestor of the target. Only this integration's documentation bookkeeping follows it.
+- The complete-range whitespace check reports four single-space context lines inside two retained
+  unified patch artifacts (`actions-preview-seed.patch` and `populated-preview-seed.patch` in
+  `quick/261022-search-section-placeholders`). Those spaces are patch syntax, not source defects.
+  The new documentation diff passes its whitespace check.
+- No fresh build or simulator tests are claimed: the source tree is unchanged by the fast-forward,
+  and earlier test evidence retains its documented source revisions and limits.
+
+The source worktree and branch are retained; no remote push is performed. D142's pending title
+alternative remains a prototype, and the Phase 17 review gates remain unchanged.
+
+
+## UTC+8 history rewrite - D144
+
+On 2026-10-27, the owner requested UTC+8 author and committer offsets for the 108 commits
+integrated in D143, with all affected GSD SHA references corrected inside their owning commits.
+The existing final integration documentation commit carries this record; no commit is appended.
+
+- The base commit preceding the 108-commit range remains unchanged.
+- Author/committer identities and Unix timestamps are preserved; both stored offsets become +0800.
+- Commits are rebuilt chronologically, remapping parents and every affected full or abbreviated
+  SHA in each documentation snapshot. All references in this range point backward, so each target
+  is finalized before the referencing commit is written. Commit-message references are also checked.
+- Every rewritten commit retains exactly the same non-planning tree as its original counterpart.
+- Verification covers all 108 parent links, date offsets, timestamps, source trees and documentation
+  replacements, with no old in-range SHA references left in the rewritten GSD history.
+- The app-design branch follows its corresponding rewritten commit. Local backup refs and an
+  external mapping retain recovery information without inserting old SHAs into the new GSD history.
+
+This supersedes D143's retained-SHA state. Previous test evidence keeps its stated scope; no new
+build or simulator run is claimed for the metadata/documentation rewrite. Phase 17 review gates
+and pending title-prototype acceptance remain unchanged. No remote push is performed.
+
+
+## History cleanup and test-clock correction - D145
+
+On 2026-10-27, the owner requested a new rewrite starting with the first simulator-driver introduction, inclusive, after the owner
+approved extending the initial boundary to avoid retaining the removed name in deletion diffs. This supersedes D143/D144's commit IDs and image-retention state. The existing
+final documentation commit carries this record; no extra commit is introduced.
+
+- Range: 126 commits, with the preceding base unchanged. Author/committer identities and UTC+8
+  offsets are retained. Dates remain unchanged except for the two corrections below.
+- A local simulator-tool name is removed from all tracked text snapshots in the selected range.
+  The tool runner now requires `--pose-driver /path/to/pose-driver`. Its request, acknowledgement,
+  failure propagation and test-manifest preservation behavior remain intact. The adaptation lands
+  in the runner's original introduction commit, including later changes to that script.
+- All 301 planning image paths are removed from the selected history. Markdown no longer embeds
+  or links to those files. Manifests mark them unavailable and retain historical identifiers;
+  checksum inventories omit deleted assets. Image-dependent galleries retain text/configuration
+  metadata and issue no image requests. Written findings and original validation limits remain.
+- Full and abbreviated commit references are remapped in each owning historical snapshot.
+- The two fixed-clock timestamps are reconstructed by evenly spacing the commits between their
+  October 24 neighbors. These are owner-approved ordering estimates, not recovered wall-clock times:
+
+| Rewritten commit | Author and committer timestamp |
+|---|---|
+| `7b7ef1cbc34da96de863cdd3bc6856c503be6f37` | 2026-10-24 13:39:29 +0800 |
+| `b60e894e0899d520fd2ead3ad4c089cdb7ff9a45` | 2026-10-24 14:53:33 +0800 |
+
+Verification checks every selected commit for signatures, parents, dates, removed assets/tool
+name, updated SHA references and preservation of the app/test source trees. The only executable
+source change is the explicit pose-driver argument; focused mocked-driver checks cover that path.
+No new app build, simulator run or visual acceptance is claimed. Phase 17 gates stay unchanged.
+
+No non-image planning blob reaches 1 MiB in the 126 snapshots. The largest current file is the
+Phase 16 sweep at 735,861 bytes; it is retained. Recovery refs and the old/new SHA mapping are
+local, outside the rewritten branch's tracked files. Ancestors before the requested boundary are
+unchanged. No remote push is performed.

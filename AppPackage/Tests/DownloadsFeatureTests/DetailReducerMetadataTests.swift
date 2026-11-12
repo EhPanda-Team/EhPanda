@@ -1,0 +1,226 @@
+import AnalyticsClient
+@testable import AppFeature
+import AppModels
+import ComposableArchitecture
+import CookieClient
+@testable import DetailFeature
+import DownloadClient
+import Foundation
+import HapticsClient
+import NetworkingFeature
+import Testing
+
+// `@MainActor` here is compiler-required, not stylistic: every case below builds a TCA
+// `TestStore`, whose `init` and `state` accessor are main-actor-isolated. It is applied
+// per member rather than to the suite so the type's `DownloadFeatureTestCase` conformance
+// stays nonisolated — a main-actor conformance cannot be used from the `@Sendable`
+// dependency closures these stores install.
+struct DetailReducerMetadataTests: DownloadFeatureTestCase {
+    /// The rating control counts half stars, so a 3.5-star rating must reopen as seven of them.
+    @MainActor
+    @Test
+    func testDetailReducerKeepsHalfStarUserRating() async throws {
+        let gallery = sampleGallery()
+        var detail = sampleGalleryDetail(gid: gallery.gid, title: gallery.title)
+        detail.userRating = 3.5
+
+        let store = makeMetadataTestStore(
+            gid: gallery.gid, gallery: gallery,
+            downloadValue: nil, updateCheckCount: LockedBox(0)
+        )
+        store.exhaustivity = .off
+
+        await store.send(.fetchGalleryDetailDone(.success(GalleryDetailResponse(
+            galleryDetail: detail, galleryState: GalleryState(gid: gallery.gid), apiKey: "", greeting: nil
+        ))))
+        await store.skipReceivedActions(strict: false)
+
+        #expect(store.state.userRating == 7)
+    }
+
+    @MainActor
+    @Test
+    func testDetailReducerDoesNotRequestVersionMetadataForUndownloadedGallery() async throws {
+        let updateCheckCount = LockedBox(0)
+        let gallery = sampleGallery()
+        let detail = sampleGalleryDetail(gid: gallery.gid, title: gallery.title)
+        let galleryState = GalleryState(gid: gallery.gid)
+
+        let store = makeMetadataTestStore(
+            gid: gallery.gid, gallery: gallery,
+            downloadValue: nil, updateCheckCount: updateCheckCount
+        )
+        store.exhaustivity = .off
+
+        await store.send(
+            .fetchGalleryDetailDone(
+                .success(GalleryDetailResponse(
+                    galleryDetail: detail, galleryState: galleryState, apiKey: "", greeting: nil
+                ))
+            )
+        )
+        await store.skipReceivedActions(strict: false)
+
+        #expect(updateCheckCount.value == 0)
+        #expect(store.state.galleryVersionMetadata == nil)
+        #expect(store.state.shouldCheckForRemoteUpdates == false)
+        _ = galleryState
+    }
+
+    @MainActor
+    @Test
+    func testDetailReducerRequestsVersionMetadataWhenBadgeArrivesAfterDetail() async throws {
+        let updateCheckCount = LockedBox(0)
+        let gallery = sampleGallery()
+        let detail = sampleGalleryDetail(gid: gallery.gid, title: gallery.title)
+        let galleryState = try sampleGalleryState(gid: gallery.gid)
+
+        let completedDownload = sampleDownload(
+            gid: gallery.gid, title: gallery.title, status: .completed
+        )
+        let store = makeDownloadedMetadataTestStore(
+            gid: gallery.gid, gallery: gallery,
+            downloadValue: nil, updateCheckCount: updateCheckCount
+        )
+        store.exhaustivity = .off
+
+        await store.send(.fetchGalleryDetailDone(.success(GalleryDetailResponse(
+            galleryDetail: detail, galleryState: galleryState, apiKey: "", greeting: nil
+        ))))
+        await store.skipReceivedActions(strict: false)
+        #expect(updateCheckCount.value == 0)
+
+        await store.send(.fetchDownloadBadgeDone(completedDownload))
+        await drainDetailMetadataEffects(
+            store,
+            condition: {
+                updateCheckCount.value == 1 && store.state.galleryVersionMetadata != nil
+            }
+        )
+
+        #expect(updateCheckCount.value == 1)
+        #expect(store.state.shouldCheckForRemoteUpdates)
+        #expect(store.state.didRequestVersionMetadata)
+        #expect(store.state.galleryVersionMetadata != nil)
+    }
+
+    @MainActor
+    @Test
+    func testDetailReducerRequestsVersionMetadataWhenBadgeArrivesBeforeDetail() async throws {
+        let updateCheckCount = LockedBox(0)
+        let gallery = sampleGallery()
+        let detail = sampleGalleryDetail(gid: gallery.gid, title: gallery.title)
+        let galleryState = try sampleGalleryState(gid: gallery.gid)
+
+        let completedDownload = sampleDownload(
+            gid: gallery.gid, title: gallery.title, status: .completed
+        )
+        let store = makeDownloadedMetadataTestStore(
+            gid: gallery.gid, gallery: gallery,
+            downloadValue: completedDownload, updateCheckCount: updateCheckCount
+        )
+        store.exhaustivity = .off
+
+        await store.send(.fetchDownloadBadgeDone(completedDownload))
+        await store.skipReceivedActions(strict: false)
+        #expect(updateCheckCount.value == 0)
+
+        await store.send(.fetchGalleryDetailDone(.success(GalleryDetailResponse(
+            galleryDetail: detail, galleryState: galleryState, apiKey: "", greeting: nil
+        ))))
+        await drainDetailMetadataEffects(
+            store,
+            condition: {
+                updateCheckCount.value == 1 && store.state.galleryVersionMetadata != nil
+            }
+        )
+
+        #expect(updateCheckCount.value == 1)
+        #expect(store.state.shouldCheckForRemoteUpdates)
+        #expect(store.state.didRequestVersionMetadata)
+        #expect(store.state.galleryVersionMetadata != nil)
+    }
+}
+
+// MARK: - Store Factory Helpers
+
+private extension DetailReducerMetadataTests {
+    @MainActor
+    func makeMetadataTestStore(
+        gid: String, gallery: Gallery,
+        downloadValue: DownloadedGallery?, updateCheckCount: LockedBox<Int>
+    ) -> TestStoreOf<DetailReducer> {
+        var initialState = DetailReducer.State(gallery: gallery)
+        initialState.gid = gid
+        return TestStore(
+            initialState: initialState,
+            reducer: DetailReducer.init,
+            withDependencies: {
+                $0.analyticsClient = .noop
+                $0.downloadClient = DownloadClient()
+                $0.downloadClient.observeDownloads = {
+                    AsyncStream { continuation in continuation.finish() }
+                }
+                $0.downloadClient.fetchDownloads = { [] }
+                $0.downloadClient.fetchDownload = { _ in downloadValue }
+                $0.downloadClient.refreshDownloads = {}
+                $0.downloadClient.fetchVersionMetadata = { _, _ in
+                    sampleVersionMetadata(gid: gallery.gid, token: gallery.token)
+                }
+                $0.downloadClient.updateRemoteVersion = { _, _ in
+                    updateCheckCount.value += 1
+                    return .none
+                }
+                $0.downloadClient.enqueue = { _ in }
+                $0.downloadClient.togglePause = { _ in }
+                $0.downloadClient.retry = { _, _ in }
+                $0.downloadClient.delete = { _ in }
+                $0.downloadClient.loadManifest = { _ in throw AppError.notFound }
+                $0.downloadClient.loadLocalPageURLs = { _ in [:] }
+                $0.hapticsClient = .noop
+                $0.cookieClient = .noop
+            }
+        )
+    }
+
+    @MainActor
+    func makeDownloadedMetadataTestStore(
+        gid: String, gallery: Gallery,
+        downloadValue: DownloadedGallery?, updateCheckCount: LockedBox<Int>
+    ) -> TestStoreOf<DetailReducer> {
+        let updatedDownload = sampleDownload(
+            gid: gallery.gid, title: gallery.title, status: .completed
+        )
+        var initialState = DetailReducer.State(gallery: gallery)
+        initialState.gid = gid
+        return TestStore(
+            initialState: initialState,
+            reducer: DetailReducer.init,
+            withDependencies: {
+                $0.analyticsClient = .noop
+                $0.downloadClient = DownloadClient()
+                $0.downloadClient.observeDownloads = {
+                    AsyncStream { continuation in continuation.finish() }
+                }
+                $0.downloadClient.fetchDownloads = { [] }
+                $0.downloadClient.fetchDownload = { _ in downloadValue }
+                $0.downloadClient.refreshDownloads = {}
+                $0.downloadClient.fetchVersionMetadata = { _, _ in
+                    sampleVersionMetadata(gid: gallery.gid, token: gallery.token)
+                }
+                $0.downloadClient.updateRemoteVersion = { _, _ in
+                    updateCheckCount.value += 1
+                    return updatedDownload
+                }
+                $0.downloadClient.enqueue = { _ in }
+                $0.downloadClient.togglePause = { _ in }
+                $0.downloadClient.retry = { _, _ in }
+                $0.downloadClient.delete = { _ in }
+                $0.downloadClient.loadManifest = { _ in throw AppError.notFound }
+                $0.downloadClient.loadLocalPageURLs = { _ in [:] }
+                $0.hapticsClient = .noop
+                $0.cookieClient = .noop
+            }
+        )
+    }
+}

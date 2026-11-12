@@ -1,0 +1,211 @@
+import AnalyticsClient
+@testable import AppFeature
+import AppLaunchAutomationClient
+import AppModels
+import AppTools
+import ClipboardClient
+import ComposableArchitecture
+import CookieClient
+import DownloadClient
+import Foundation
+import HapticsClient
+import ImageClient
+@testable import ReadingFeature
+import Testing
+
+// `@MainActor` here is compiler-required, not stylistic: the annotated cases build a TCA
+// `TestStore`, whose `init` and `state` accessor are main-actor-isolated. The unannotated
+// cases deliberately stay nonisolated so they keep running concurrently rather than being
+// hopped onto the main actor by a suite-wide annotation.
+struct ReadingReducerLocalTests: DownloadFeatureTestCase {
+    @Test
+    func testContainerDataSourceHandlesZeroPageGallery() {
+        var gallery = sampleGallery()
+        gallery.pageCount = 0
+        let state = ReadingReducer.State(gallery: gallery)
+
+        var dualPageSetting = Setting()
+        dualPageSetting.enableDualPageMode = true
+        dualPageSetting.readingDirection = .leftToRight
+        dualPageSetting.exceptCover = true
+
+        #expect(state.containerDataSource(setting: Setting(), isLandscape: false) == [])
+        #expect(state.containerDataSource(setting: dualPageSetting, isLandscape: true) == [])
+    }
+
+    // V2-A / #5: `ReadingView.init` seeds the pager from the resume page (`max(readingProgress, 1)`
+    // mapped through `mapToPager`), because no post-subscribe change event repositions it anymore.
+    // This pins that mapping so a saved page opens at its index and no history opens at the first page.
+    // @MainActor required: `PageHandler` is a `@MainActor` type, so both its `init` and
+    // `mapToPager` are main-actor-isolated. This is the only store-free case in the suite
+    // that needs the annotation.
+    @MainActor
+    @Test
+    func testResumePageMapsToPagerIndex() {
+        let handler = PageHandler()
+        #expect(handler.mapToPager(index: 5, setting: Setting(), isLandscape: false) == 4)
+        #expect(handler.mapToPager(index: max(0, 1), setting: Setting(), isLandscape: false) == 0)
+    }
+
+    @MainActor
+    @Test
+    func testReadingReducerOnWebImageSucceededDoesNotCaptureAlreadyLocalPage() async throws {
+        let capturedCalls = LockedBox([(String, Int, URL?)]())
+        let gallery = sampleGallery()
+        let localPageURL = FileManager.default.temporaryDirectory
+            .appending(path: UUID().uuidString)
+            .appending(path: "0001.jpg")
+        var initialState = ReadingReducer.State(gallery: gallery, contentSource: .remote)
+        initialState.localPageURLs = [1: localPageURL]
+
+        let store = TestStore(
+            initialState: initialState,
+            reducer: ReadingReducer.init,
+            withDependencies: {
+                $0.analyticsClient = .noop
+                $0.clipboardClient = .noop
+                $0.cookieClient = .noop
+                $0.downloadClient = DownloadClient()
+                $0.downloadClient.observeDownloads = {
+                    AsyncStream { continuation in
+                        continuation.finish()
+                    }
+                }
+                $0.downloadClient.fetchDownloads = { [] }
+                $0.downloadClient.fetchDownload = { _ in nil }
+                $0.downloadClient.refreshDownloads = {}
+                $0.downloadClient.enqueue = { _ in }
+                $0.downloadClient.togglePause = { _ in }
+                $0.downloadClient.retry = { _, _ in }
+                $0.downloadClient.delete = { _ in }
+                $0.downloadClient.loadManifest = { _ in throw AppError.notFound }
+                $0.downloadClient.captureCachedPage = { gid, index, imageURL in
+                    capturedCalls.value.append((gid, index, imageURL))
+                }
+                $0.hapticsClient = .noop
+                $0.imageClient = .noop
+            }
+        )
+        store.exhaustivity = .off
+
+        let pixelSize = try #require(PagePixelSize(width: 1280, height: 1791))
+        await store.send(.onWebImageSucceeded(1, pixelSize: pixelSize)) {
+            $0.imageURLLoadingStates[1] = .idle
+            $0.webImageLoadSuccessIndices.insert(1)
+            $0.pageSizes[1] = KnownPageSize(pixelSize: pixelSize, source: .decodedImage)
+        }
+        await store.finish()
+
+        #expect(capturedCalls.value.isEmpty)
+    }
+
+    @MainActor
+    @Test
+    func testReadingReducerLocalSourceLoadsOfflineImagesWithoutNetwork() async throws {
+        let gid = "777"
+        let title = "Offline Archive"
+        let folderURL = FileUtil.downloadsDirectoryURL
+            .appending(path: "[\(gid)_token] \(title)", directoryHint: .isDirectory)
+        let localPageURLs = [
+            1: folderURL.appending(path: "123_token_1.jpg"),
+            2: folderURL.appending(path: "123_token_2.jpg")
+        ]
+        let download = sampleDownload(
+            gid: gid,
+            title: title,
+            status: .completed,
+            pageCount: 2,
+            folderURL: folderURL,
+            localPageURLs: localPageURLs
+        )
+        let manifest = try sampleManifest(gid: download.gid, title: download.title)
+        _ = try prepareLocalDownloadFiles(download: download, manifest: manifest)
+        defer { removeTemporaryItem(at: folderURL) }
+
+        let store = TestStore(
+            initialState: ReadingReducer.State(
+                gallery: .preview, contentSource: .local(download: download, manifest: manifest)
+            )
+        ) {
+            ReadingReducer()
+        } withDependencies: {
+            $0.analyticsClient = .noop
+            $0.clipboardClient = .noop
+            $0.cookieClient = .noop
+            $0.hapticsClient = .noop
+            $0.imageClient = .noop
+        }
+        store.exhaustivity = .off
+
+        // State.init applies the local source at construction, so no separate restore step is needed.
+        #expect(store.state.gallery.id == download.gid)
+        #expect(store.state.localPageURLs[1] == folderURL.appending(path: "123_token_1.jpg"))
+        #expect(store.state.localPageURLs[2] == folderURL.appending(path: "123_token_2.jpg"))
+        #expect(store.state.imageURLs.isEmpty)
+        #expect(store.state.previewURLs.isEmpty)
+        #expect(store.state.thumbnailURLs.isEmpty)
+        #expect(store.state.originalImageURLs.isEmpty)
+
+        await store.send(.fetchImageURLs(1)) {
+            $0.imageURLLoadingStates[1] = .idle
+        }
+        await store.send(.reloadAllWebImages)
+
+        #expect(store.state.localPageURLs[1] == folderURL.appending(path: "123_token_1.jpg"))
+        #expect(store.state.localPageURLs[2] == folderURL.appending(path: "123_token_2.jpg"))
+        #expect(store.state.imageURLs.isEmpty)
+    }
+
+    // Presenting the reader starts the first fetch, and an offline reader has no network to fetch from: the page
+    // settles as idle from its local file and nothing is marked loading or requested.
+    @MainActor
+    @Test
+    func testPresentingALocalSourceReaderStartsNoNetworkFetch() async throws {
+        let gid = "778"
+        let title = "Offline Presented"
+        let folderURL = FileUtil.downloadsDirectoryURL
+            .appending(path: "[\(gid)_token] \(title)", directoryHint: .isDirectory)
+        let localPageURLs = [
+            1: folderURL.appending(path: "123_token_1.jpg"),
+            2: folderURL.appending(path: "123_token_2.jpg")
+        ]
+        let download = sampleDownload(
+            gid: gid, title: title, status: .completed, pageCount: 2, folderURL: folderURL,
+            localPageURLs: localPageURLs
+        )
+        let manifest = try sampleManifest(gid: download.gid, title: download.title)
+        _ = try prepareLocalDownloadFiles(download: download, manifest: manifest)
+        defer { removeTemporaryItem(at: folderURL) }
+
+        let store = TestStore(
+            initialState: ReadingReducer.State(
+                gallery: .preview, contentSource: .local(download: download, manifest: manifest)
+            )
+        ) {
+            ReadingReducer()
+        } withDependencies: {
+            $0.analyticsClient = .noop
+            $0.appLaunchAutomationClient = .none
+            $0.clipboardClient = .noop
+            $0.cookieClient = .noop
+            $0.date = .constant(Date(timeIntervalSince1970: 0))
+            $0.downloadClient = .noop
+            $0.downloadClient.loadLocalPageURLs = { _ in localPageURLs }
+            $0.hapticsClient = .noop
+            $0.imageClient = .noop
+        }
+        store.exhaustivity = .off
+
+        await store.send(.onPresented)
+        await store.receive(\.fetchImageURLs, 1) {
+            $0.imageURLLoadingStates[1] = .idle
+        }
+        await store.receive(\.prefetchImages)
+        await store.skipReceivedActions(strict: false)
+        await store.finish()
+
+        #expect(store.state.imageURLLoadingStates.values.allSatisfy({ $0 == .idle }))
+        #expect(store.state.thumbnailURLs.isEmpty)
+        #expect(store.state.imageURLs.isEmpty)
+    }
+}

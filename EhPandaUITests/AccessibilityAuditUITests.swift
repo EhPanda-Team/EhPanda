@@ -1,0 +1,823 @@
+import UIKit
+import XCTest
+
+/// Runs Xcode's accessibility audit engine over every surface the hermetic fixtures can reach.
+///
+/// Each test launches EhPanda through the stubbed launcher (no network, no credential, English
+/// catalog), navigates to one surface, waits for it, and audits it with the three stable audit
+/// types — `.hitRegion`, `.sufficientElementDescription` and `.trait`; `auditTypeNames` records why
+/// the others are not run. The deployment target is iOS 27, so no `#available` guard is needed
+/// (Phase 16 D-31). Surfaces that only a logged-in session renders (Favorites, Watched, Archives,
+/// Torrents, EhSetting, FolderManager, Detail Search) are not reachable here and are covered by the
+/// manual walkthrough; `16-CONTRAST-AUDIT.md § Automated audit (16-24)` records that assumption.
+/// Home and Search also check interaction across rotation and text sizes: carousel selection,
+/// search-field visibility and input, and navigation through Quick Search's editor and results.
+@MainActor
+final class AccessibilityAuditUITests: XCTestCase {
+    /// Issues on elements EhPanda does not draw — a part an Apple component renders on its own,
+    /// such as the symbol image of a `ContentUnavailableView`. Each entry names the element and the
+    /// Apple component that owns it, and matches that element only; nothing app-drawn belongs
+    /// here. The evidence for every entry is in `16-CONTRAST-AUDIT.md § Automated audit (16-24) ›
+    /// System-owned`.
+    private let systemOwnedExclusions: [AuditExclusion] = [
+        AuditExclusion(
+            id: "ContentUnavailableView.symbol",
+            reason: "`ContentUnavailableView` draws the symbol of the `Label` it is given as its own "
+                + "`Image`, exposed under the raw SF Symbol name (Favorites' login placeholder, "
+                + "History's parse-error state). `accessibilityHidden(true)` on the label's icon — "
+                + "in both `Label` forms — does not reach that image, so nothing app-side can "
+                + "name or hide it. The list is the symbols the audited surfaces show, so any "
+                + "other unlabelled image stays under audit.",
+            matches: { report in
+                guard report.auditType == .sufficientElementDescription,
+                      let element = report.element, element.type == "Image" else { return false }
+                return AccessibilityAuditUITests.contentUnavailableSymbols.contains(element.name)
+            }
+        )
+    ]
+
+    /// The SF Symbol names `ContentUnavailableView` exposes on the audited surfaces (see
+    /// `ContentUnavailableView.symbol`).
+    private static let contentUnavailableSymbols: Set<String> = [
+        "person.crop.circle.badge.questionmark.fill",
+        "rectangle.and.text.magnifyingglass"
+    ]
+
+    /// App-owned issues that cannot be resolved without a visible change the owner has not
+    /// authorised or has withdrawn — for example a designed hit-region size. Each entry names the
+    /// element, audit type and measured reason, and quotes the owner's reply recorded in
+    /// `16-CONTRAST-AUDIT.md`. Nothing enters this list before that reply (Phase 16 D-22). Every
+    /// matcher reads the report's element by name and type from its description alone — see
+    /// `AuditElement` for why.
+    private let ownerApprovedExclusions: [AuditExclusion] = [
+        AuditExclusion(
+            id: "V-1.designed-hit-regions",
+            reason: "Buttons drawn at their designed size, under the 24-point WCAG 2.5.8 floor: the "
+                + "section headings' \"Show All\" (subheadline, 18 tall), Detail's uploader button "
+                + "(callout, 19 tall; named by the fixture gallery's uploader) and \"Similar Gallery\" "
+                + "(19 tall). 16-24 had grown them to 24 points, which moved Detail's action row by 3.7 "
+                + "points; the owner withdrew that visible change. Owner: \"剩下的這 1-8 都撤回，一個 "
+                + "commit 就好\" (revert the remaining eight visible changes; 2026-09-15).",
+            matches: { report in
+                guard report.auditType == .hitRegion,
+                      AccessibilityAuditUITests.designedHitRegionSurfaces.contains(report.surface),
+                      let element = report.element, element.type == "Button" else { return false }
+                return AccessibilityAuditUITests.designedHitRegionButtons.contains(element.name)
+            }
+        )
+    ]
+
+    /// The surfaces that show the buttons of `V-1.designed-hit-regions`: Home and the toast raised
+    /// over it (the section headings) and both Detail presentations.
+    private static let designedHitRegionSurfaces: Set<String> = [
+        "Home root",
+        "Toast (unsupported link)",
+        "Gallery Detail",
+        "Gallery Detail (iPad modal)"
+    ]
+
+    /// The buttons of `V-1.designed-hit-regions`, by the name XCTest reports: the heading and action
+    /// titles, and the uploaders of the galleries the Detail tests open (`Pokom` from
+    /// `GalleryDetail.html`, `hobohobo` from the first `FrontPageList.html` row the iPad modal opens).
+    private static let designedHitRegionButtons: Set<String> = [
+        "Show All",
+        "Find Similar",
+        "Pokom",
+        "hobohobo"
+    ]
+
+    override func setUpWithError() throws {
+        continueAfterFailure = false
+    }
+
+    // MARK: Tab roots
+
+    func testHomeRootAudit() throws {
+        XCUIDevice.shared.orientation = .portrait
+        // The carousel check rotates the device. A failed check stops the test without running a `defer`; the
+        // teardown block still restores portrait for the tests that follow.
+        addTeardownBlock {
+            XCUIDevice.shared.orientation = .portrait
+        }
+        let app = try launch(tab: "home")
+        requireHomeRoot(in: app)
+        try audit(app, surface: "Home root")
+        try requireCarouselPreservesSelectionAcrossRotation(in: app)
+    }
+
+    func testSearchRootAudit() throws {
+        let app = try launch(tab: "search", preferredContentSizeCategory: .large)
+        requireNavigationTitle("Search", in: app)
+        try audit(app, surface: "Search root")
+        try exerciseSearchRoot(in: app)
+    }
+
+    /// Interaction coverage at AX5 complements the audit engine's standard-size checks.
+    func testSearchRootAndQuickSearchRemainUsableAtAX5() throws {
+        let app = try launch(tab: "search", preferredContentSizeCategory: .accessibilityExtraExtraExtraLarge)
+        requireNavigationTitle("Search", in: app)
+        XCTAssertTrue(app.searchFields.firstMatch.isHittable, "Search field was hidden on cold entry at AX5.")
+        try presentSheet(titled: "Quick Search", from: "Quick Search", in: app)
+        exerciseNewSavedSearchEditor(in: app)
+        dismissSheet(in: app)
+        requireNavigationTitle("Search", in: app)
+        try exerciseSearchRoot(in: app)
+    }
+
+    func testDownloadsEmptyStateAudit() throws {
+        let app = try launch(tab: "downloads")
+        app.requireLibraryNavigationTitle("Downloads")
+        try audit(app, surface: "Downloads (empty)")
+    }
+
+    /// Favorites renders its login placeholder without a session; the placeholder is the surface
+    /// the fixtures can reach, and it is what this test audits.
+    func testFavoritesLoginPlaceholderAudit() throws {
+        let app = try launch(tab: "favorites")
+        app.requireLibraryNavigationTitle("Favorites")
+        XCTAssertTrue(
+            app.buttons["Log In"].firstMatch.waitForExistence(timeout: 15),
+            "Favorites did not render its login placeholder."
+        )
+        try audit(app, surface: "Favorites (login placeholder)")
+    }
+
+    func testSettingRootAudit() throws {
+        let app = try launch(tab: "setting")
+        requireNavigationTitle("Settings", in: app)
+        try audit(app, surface: "Settings root")
+    }
+
+    // MARK: Home children
+
+    func testFrontPageAudit() throws {
+        let app = try launch(tab: "home")
+        try pushFrontPage(in: app)
+        try audit(app, surface: "Front Page")
+    }
+
+    func testPopularAudit() throws {
+        let app = try launch(tab: "home")
+        requireHomeRoot(in: app)
+        try tapScrolling(homeDestination("Popular", in: app), in: app)
+        requireNavigationTitle("Popular", in: app)
+        try audit(app, surface: "Popular")
+    }
+
+    func testHistoryAudit() throws {
+        let app = try launch(tab: "home")
+        requireHomeRoot(in: app)
+        // History is the last item of the horizontal misc grid at the foot of Home: scroll the
+        // page down to the grid, then scroll the grid itself sideways until the item is on screen.
+        let historyButton = homeDestination("History", in: app)
+        XCTAssertTrue(historyButton.waitForExistence(timeout: 15), "Home did not render its misc grid.")
+        try scrollUntilHittable(historyButton, in: app, of: app, direction: .upward)
+        try scrollUntilHittable(historyButton, in: homeDestination("Popular", in: app), of: app, direction: .leftward)
+        XCTAssertTrue(historyButton.isHittable, "The History grid item never became hittable.")
+        historyButton.tap()
+        requireNavigationTitle("History", in: app)
+        try audit(app, surface: "History")
+    }
+
+    // MARK: Toolbar sheets
+
+    func testFiltersSheetAudit() throws {
+        let app = try launch(tab: "home")
+        try pushFrontPage(in: app)
+        try presentSheet(titled: "Filters", from: "Filters", in: app)
+        try audit(app, surface: "Filters sheet")
+        dismissSheet(in: app)
+    }
+
+    func testDateSeekSheetAudit() throws {
+        let app = try launch(tab: "home")
+        try pushFrontPage(in: app)
+        try presentSheet(titled: "Seek to Date", from: "Seek to Date", in: app)
+        try audit(app, surface: "Seek to Date sheet")
+        dismissSheet(in: app)
+    }
+
+    /// Quick Search is a direct toolbar button on the Search root.
+    func testQuickSearchSheetAudit() throws {
+        let app = try launch(tab: "search", preferredContentSizeCategory: .large)
+        requireNavigationTitle("Search", in: app)
+        try presentSheet(titled: "Quick Search", from: "Quick Search", in: app)
+        try audit(app, surface: "Quick Search sheet")
+        exerciseNewSavedSearchEditor(in: app)
+        dismissSheet(in: app)
+        requireNavigationTitle("Search", in: app)
+    }
+
+    // MARK: Setting children
+
+    func testAccountSettingAudit() throws {
+        let app = try launch(tab: "setting")
+        try pushSettingRow("Account", in: app)
+        try audit(app, surface: "Settings › Account")
+    }
+
+    func testGeneralSettingAudit() throws {
+        let app = try launch(tab: "setting")
+        try pushSettingRow("General", in: app)
+        try audit(app, surface: "Settings › General")
+    }
+
+    func testActivityLogsAudit() throws {
+        let app = try launch(tab: "setting")
+        try pushSettingRow("General", in: app)
+        try tapScrolling(app.buttons["App Activity Logs"].firstMatch, in: app)
+        requireNavigationTitle("App Activity Logs", in: app)
+        // The entries load after the title; audit the list, not the empty state.
+        XCTAssertTrue(
+            app.collectionViews.cells.firstMatch.waitForExistence(timeout: 15),
+            "App Activity Logs did not render a log row."
+        )
+        try audit(app, surface: "Settings › General › App Activity Logs")
+    }
+
+    func testAppearanceSettingAudit() throws {
+        let app = try launch(tab: "setting")
+        try pushSettingRow("Appearance", in: app)
+        try audit(app, surface: "Settings › Appearance")
+    }
+
+    func testReadingSettingAudit() throws {
+        let app = try launch(tab: "setting")
+        try pushSettingRow("Reading", in: app)
+        try audit(app, surface: "Settings › Reading")
+    }
+
+    func testDownloadSettingAudit() throws {
+        let app = try launch(tab: "setting")
+        try pushSettingRow("Downloads", in: app)
+        try audit(app, surface: "Settings › Downloads")
+    }
+
+    func testLaboratorySettingAudit() throws {
+        let app = try launch(tab: "setting")
+        try pushSettingRow("Laboratory", in: app)
+        try audit(app, surface: "Settings › Laboratory")
+    }
+
+    /// The About screen's navigation title is the app name, not the row's label.
+    func testAboutAudit() throws {
+        let app = try launch(tab: "setting")
+        try pushSettingRow("About", titled: "EhPanda", in: app)
+        try audit(app, surface: "Settings › About")
+    }
+
+    // MARK: Gallery detail and its children
+
+    func testGalleryDetailAudit() throws {
+        let app = XCUIApplication()
+        try openGalleryDetail(in: app)
+        try audit(app, surface: "Gallery Detail")
+    }
+
+    func testPreviewsAudit() throws {
+        let app = XCUIApplication()
+        let detailView = try openGalleryDetail(in: app)
+        // The fixture gallery has more than twenty pages, so the Previews section offers Show All;
+        // the query is scoped to the detail scroll view so Home's own Show All buttons never match.
+        try tapScrolling(detailView.buttons["Show All"].firstMatch, in: app)
+        requireNavigationTitle("Previews", in: app)
+        try audit(app, surface: "Detail › Previews")
+    }
+
+    func testGalleryInfoAudit() throws {
+        let app = XCUIApplication()
+        let detailView = try openGalleryDetail(in: app)
+        // The Gallery Info button is the last item of the horizontal stats strip: bring the strip
+        // on screen first, then scroll the strip itself until the button can be tapped.
+        let infoButton = detailView.buttons["Gallery Info"].firstMatch
+        XCTAssertTrue(infoButton.waitForExistence(timeout: 15), "Detail did not render its stats strip.")
+        try scrollUntilHittable(infoButton, in: app, of: app, direction: .upward)
+        try scrollUntilHittable(infoButton, in: detailView.scrollViews.firstMatch, of: app, direction: .leftward)
+        XCTAssertTrue(infoButton.isHittable, "The Gallery Info button never became hittable.")
+        infoButton.tap()
+        requireNavigationTitle("Gallery Info", in: app)
+        try audit(app, surface: "Detail › Gallery Info")
+        XCTAssertEqual(galleryInfoValue("File Size", in: app), "314.3 mebibytes")
+        // The fixture's stars round to 4.5, while its label reads the real average.
+        XCTAssertEqual(galleryInfoValue("Average Rating", in: app), "4.74")
+    }
+
+    func testCommentsAudit() throws {
+        let app = XCUIApplication()
+        let commentURL = try XCTUnwrap(UITestConstants.commentURL(scheme: "ehpanda"))
+        try app.openCold(commentURL)
+        app.requireForeground()
+        app.requireElement("comments_view", matching: .collectionView)
+        let linkedComment = app.requireElement("comment_cell_" + UITestConstants.commentID)
+        // The linked row is highlighted by a fade to 25 % and back over two seconds; auditing
+        // mid-pulse measured the dimmed row as three contrast failures. Let the pulse finish.
+        settle(app, for: 2.5)
+        XCTAssertTrue(linkedComment.exists, "The linked comment left the screen while settling.")
+        try audit(app, surface: "Detail › Comments")
+    }
+
+    /// The Report form, ready, opened from the linked comment's `…` menu (18.1-04, UI-SPEC C-13 [25]).
+    func testReportFormAudit() throws {
+        let app = XCUIApplication()
+        let commentURL = try XCTUnwrap(UITestConstants.commentURL(scheme: "ehpanda"))
+        try app.openCold(commentURL, extraEnvironment: [UITestConstants.reportScenarioEnvironmentKey: "ready"])
+        app.requireForeground()
+        app.requireElement("comments_view", matching: .collectionView)
+        let linkedComment = app.requireElement("comment_cell_" + UITestConstants.commentID)
+        settle(app, for: 2.5)
+        // The `…` button never reads as hittable inside the cell's combined element, so it is tapped where it sits.
+        let menu = linkedComment.images["ellipsis"].firstMatch
+        XCTAssertTrue(menu.waitForExistence(timeout: 10), "The comment has no … button.")
+        menu.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
+        app.buttons["Report on E-Hentai"].firstMatch.tapWhenHittable("Report in the menu")
+        app.requireElement("report_form")
+        XCTAssertTrue(
+            app.buttons["report_reason_child"].waitForExistence(timeout: 15), "The Report form shows no reasons."
+        )
+        try audit(app, surface: "Report form")
+    }
+
+    // MARK: Reading
+
+    func testReadingPageAudit() throws {
+        let app = XCUIApplication()
+        try openReader(in: app)
+        try audit(app, surface: "Reading (page)")
+    }
+
+    func testReadingControlPanelAudit() throws {
+        let app = XCUIApplication()
+        try showReadingControlPanel(in: app)
+        try audit(app, surface: "Reading › control panel")
+    }
+
+    func testReadingSettingSheetAudit() throws {
+        let app = XCUIApplication()
+        try showReadingControlPanel(in: app)
+        let moreButton = app.buttons["More"].firstMatch
+        XCTAssertTrue(moreButton.waitForExistence(timeout: 15), "The reader toolbar did not expose More.")
+        moreButton.tap()
+        let settingButton = app.buttons["Reading Settings"].firstMatch
+        XCTAssertTrue(settingButton.waitForExistence(timeout: 15), "The More menu did not list Reading Setting.")
+        settingButton.tap()
+        requireNavigationTitle("Reading", in: app)
+        try audit(app, surface: "Reading › Reading Settings sheet")
+    }
+
+    // MARK: Error surface
+
+    /// A link the app does not recognise is the one fixture-free route to the error surface: it
+    /// raises the unsupported-link toast, and tapping the toast presents the error-info sheet.
+    func testErrorToastAndErrorInfoAudit() throws {
+        let app = XCUIApplication()
+        let malformedURL = try XCTUnwrap(UITestConstants.malformedURL(scheme: "ehpanda"))
+        try app.openCold(malformedURL)
+        app.requireForeground()
+        let toast = app.requireElement("toast_message")
+        try audit(app, surface: "Toast (unsupported link)")
+        XCTAssertTrue(toast.exists, "The toast left the screen before it could be tapped.")
+        toast.tap()
+        app.requireElement("error_info_view")
+        try audit(app, surface: "Error info sheet")
+    }
+
+    // MARK: iPad presentations
+
+    /// On the regular-width pad idiom the Setting tab and a tapped gallery present as modals rather
+    /// than pushes; this mirrors `DeepLinkPadUITests`' skip so the iPhone run stays green.
+    func testPadSettingAndDetailModalsAudit() throws {
+        // Read here rather than in `setUpWithError`: that override matches XCTest's nonisolated
+        // declaration, so the class's `@MainActor` does not reach it (see `DeepLinkPadUITests`).
+        guard UIDevice.current.userInterfaceIdiom == .pad else {
+            throw XCTSkip("The modal Setting and Detail presentations are iPad-exclusive.")
+        }
+
+        let app = try launch(tab: "setting")
+        requireNavigationTitle("Settings", in: app)
+        try audit(app, surface: "Settings (iPad modal)")
+
+        let homeApp = try launch(tab: "home")
+        requireHomeRoot(in: homeApp)
+        homeApp.buttons["Show All"].firstMatch.tap()
+        let firstGalleryRow = homeApp.buttons.matching(UITestConstants.galleryItemPredicate).firstMatch
+        XCTAssertTrue(firstGalleryRow.waitForExistence(timeout: 15), "Front Page did not render a gallery row.")
+        firstGalleryRow.tap()
+        homeApp.requireElement("detail_view", matching: .scrollView)
+        try audit(homeApp, surface: "Gallery Detail (iPad modal)")
+    }
+}
+
+// MARK: - Audit
+
+private extension AccessibilityAuditUITests {
+    /// The audit types the gate runs, named for the log; an unlisted raw value is printed as its
+    /// number so nothing the engine reports is ever dropped from the record.
+    ///
+    /// The audit runs the three types whose reports are identical run to run. `.contrast`,
+    /// `.dynamicType`, `.textClipped` and `.elementDetection` are deliberately not run, because
+    /// their reports were OS heuristics or varied between identical runs:
+    /// - `.contrast` compares two background shades inside a frame rather than the glyph with its
+    ///   backdrop, so it failed text that renders at 16:1 and blocked every round.
+    /// - `.dynamicType` reported size-sampling heuristics only, and its sweep sets off a UIKit
+    ///   floating tab bar layout loop on the iOS 26.5 iPad that ends in "Audit failed to complete in
+    ///   time".
+    /// - `.textClipped` runs the same sweep, and its failure count changed between identical runs.
+    /// - `.elementDetection` reported element-less "Potentially inaccessible text" only, in counts
+    ///   that changed from run to run.
+    ///
+    /// Accessibility automation here is best effort, not a guarantee, by owner decision
+    /// (2026-09-14); `16-CONTRAST-AUDIT.md § Automated audit (16-24)` records the evidence.
+    static let auditTypeNames: [(type: XCUIAccessibilityAuditType, name: String)] = [
+        (.hitRegion, "hitRegion"),
+        (.sufficientElementDescription, "sufficientElementDescription"),
+        (.trait, "trait")
+    ]
+
+    static func name(of auditType: XCUIAccessibilityAuditType) -> String {
+        let names = auditTypeNames
+            .filter({ auditType.contains($0.type) })
+            .map(\.name)
+        return names.isEmpty ? "rawValue \(auditType.rawValue)" : names.joined(separator: "+")
+    }
+
+    /// The audit runs as one `performAccessibilityAudit(for:)` call per audit type, never one
+    /// `.all` call. On the iPad (A16) a single `.all` call over a long surface hit the engine's own
+    /// limit of about 600 s ("Audit failed to complete in time", error −56: Front Page and Popular
+    /// in `a11y-final-ipad`; Date Seek, Filters, Front Page, Popular and the iPad modals in
+    /// `diag-25`), which fails the test with no report at all. Owner: "Split audits, fix helper"
+    /// (2026-09-13).
+    static let auditTypeGroups: [XCUIAccessibilityAuditType] = auditTypeNames.map(\.type)
+
+    /// Audits everything on screen. Every issue is logged with the surface name so the result
+    /// bundle carries the complete finding, then judged against the two allow-lists.
+    ///
+    /// XCTest records the failure for a non-ignored issue inside the handler, so with the class's
+    /// `continueAfterFailure = false` the test would stop at the first issue and every later one
+    /// would never reach the log. The flag is lifted for the audit calls alone — navigation before
+    /// them still stops at its first failed wait — so one run records a surface's complete list.
+    ///
+    /// The frames and the screenshot are taken once, before the first call, and the calls run one
+    /// type at a time (`auditTypeGroups`). A report the allow-lists do not claim fails the test,
+    /// whether or not the engine named its element.
+    func audit(_ app: XCUIApplication, surface: String) throws {
+        let systemOwned = systemOwnedExclusions
+        let ownerApproved = ownerApprovedExclusions
+        let stopsAfterFailure = !continueAfterFailure
+        continueAfterFailure = true
+        defer { continueAfterFailure = !stopsAfterFailure }
+        // The screenshot the audit judged, kept in the result bundle beside its findings.
+        let inventory = try SurfaceInventory(app: app)
+        let screenshot = XCTAttachment(screenshot: app.screenshot())
+        screenshot.name = "surface-\(surface)"
+        screenshot.lifetime = .keepAlways
+        add(screenshot)
+        for group in Self.auditTypeGroups {
+            // Each call is its own activity, so a call that stalls is named in the test report even
+            // when the process is ended before its buffered output is written.
+            try XCTContext.runActivity(named: "Audit \(surface): \(Self.name(of: group))") { _ in
+                try app.performAccessibilityAudit(for: group) { issue in
+                    let report = AuditReport(surface: surface, issue: issue)
+                    print(
+                        "[a11y-audit] \(surface) | \(Self.name(of: issue.auditType)) | \(issue.compactDescription)"
+                            + " | \(issue.detailedDescription) | \(report.elementDescription)"
+                    )
+                    if systemOwned.contains(where: { $0.matches(report) })
+                        || ownerApproved.contains(where: { $0.matches(report) }) {
+                        return true
+                    }
+                    // A failing report carries the pre-audit geometry its element's name had, so the
+                    // record shows where the element lay when the audit ran.
+                    print("[a11y-audit] \(surface) | judged | \(inventory.geometry(of: report.element?.name))")
+                    return false
+                }
+            }
+        }
+    }
+}
+
+// MARK: - Navigation
+
+private extension AccessibilityAuditUITests {
+    enum SwipeDirection {
+        case upward
+        case leftward
+    }
+
+    /// Waits out an animation the screen is known to run before auditing it. XCTest has no
+    /// expectation for "no element is animating", so the interval is the animation's own length;
+    /// the unfulfilled expectation is the framework's idiom for a timed pause on the main thread.
+    func settle(_ app: XCUIApplication, for seconds: TimeInterval) {
+        let pause = XCTestExpectation(description: "\(app.description) settles for \(seconds) s")
+        _ = XCTWaiter.wait(for: [pause], timeout: seconds)
+    }
+
+    func launch(
+        tab: String,
+        preferredContentSizeCategory: UIContentSizeCategory? = nil
+    ) throws -> XCUIApplication {
+        let app = XCUIApplication()
+        if let preferredContentSizeCategory {
+            app.launchArguments += ["-UIPreferredContentSizeCategoryName", preferredContentSizeCategory.rawValue]
+        }
+        try app.launchStubbed(extraEnvironment: ["EHPANDA_AUTOMATION_TAB": tab])
+        app.requireForeground()
+        return app
+    }
+
+    func requireNavigationTitle(
+        _ title: String,
+        in app: XCUIApplication,
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) {
+        XCTAssertTrue(
+            app.navigationBars[title].waitForExistence(timeout: 15),
+            "The \(title) navigation title did not appear.",
+            file: file,
+            line: line
+        )
+    }
+
+    /// Home has rendered once its Front Page section offers Show All.
+    func requireHomeRoot(in app: XCUIApplication, file: StaticString = #filePath, line: UInt = #line) {
+        XCTAssertTrue(
+            app.buttons["Show All"].firstMatch.waitForExistence(timeout: 15),
+            "Home did not render its Front Page section.",
+            file: file,
+            line: line
+        )
+    }
+
+    func pushFrontPage(in app: XCUIApplication) throws {
+        requireHomeRoot(in: app)
+        // The first Show All on Home belongs to the Front Page section.
+        app.buttons["Show All"].firstMatch.tap()
+        requireNavigationTitle("Front Page", in: app)
+    }
+
+    func pushSettingRow(_ label: String, titled title: String? = nil, in app: XCUIApplication) throws {
+        requireNavigationTitle("Settings", in: app)
+        try tapScrolling(app.buttons[label].firstMatch, in: app)
+        requireNavigationTitle(title ?? label, in: app)
+    }
+
+    func presentSheet(titled title: String, from buttonLabel: String, in app: XCUIApplication) throws {
+        let button = app.buttons[buttonLabel].firstMatch
+        button.tapWhenHittable("The toolbar's \(buttonLabel)")
+        requireNavigationTitle(title, in: app)
+    }
+
+    func dismissSheet(in app: XCUIApplication) {
+        let cancelButton = app.buttons["Cancel"].firstMatch
+        cancelButton.tapWhenHittable("Sheet Cancel")
+    }
+
+    func exerciseNewSavedSearchEditor(in app: XCUIApplication) {
+        app.buttons["New Saved Search"].firstMatch.tapWhenHittable("New Saved Search")
+        requireNavigationTitle("New Saved Search", in: app)
+        XCTAssertTrue(
+            app.textFields.firstMatch.waitForExistence(timeout: 5),
+            "New Saved Search did not expose its name field."
+        )
+        XCTAssertTrue(
+            app.textViews.firstMatch.waitForExistence(timeout: 5),
+            "New Saved Search did not expose its content editor."
+        )
+        let backButton = app.navigationBars["New Saved Search"].buttons["Quick Search"].firstMatch
+        backButton.tapWhenHittable("New Saved Search Back")
+        requireNavigationTitle("Quick Search", in: app)
+    }
+
+    func exerciseSearchRoot(in app: XCUIApplication) throws {
+        let searchField = app.searchFields.firstMatch
+        XCTAssertTrue(searchField.waitForExistence(timeout: 10), "Search did not expose its native search field.")
+        XCTAssertTrue(searchField.isHittable, "Search field was hidden on entry.")
+        app.scrollViews.firstMatch.swipeUp()
+        XCTAssertTrue(searchField.isHittable, "Scrolling hid the Search root field.")
+        app.scrollViews.firstMatch.swipeDown()
+        XCTAssertTrue(searchField.isHittable, "Returning to the top hid the Search root field.")
+        XCTAssertTrue(app.navigationBars["Search"].buttons["Filters"].isHittable)
+
+        searchField.tapWhenHittable("Search Field")
+        searchField.typeText("artist:fixture")
+        XCTAssertEqual(searchField.value as? String, "artist:fixture", "The search field did not accept input.")
+
+        let clear = app.buttons["Clear text"].firstMatch
+        clear.tapWhenHittable("Search Clear")
+        XCTAssertTrue(
+            clear.waitForNonExistence(timeout: 5),
+            "The native clear action remained visible after clearing Search."
+        )
+        let clearedValue = try XCTUnwrap(searchField.value as? String)
+        let placeholder = searchField.placeholderValue ?? ""
+        XCTAssertTrue(
+            clearedValue.isEmpty || clearedValue == placeholder,
+            "The native clear action left Search containing \(clearedValue)."
+        )
+        searchField.tapWhenHittable("Search Field After Clear")
+        searchField.typeText("fixture\n")
+        requireNavigationTitle("fixture", in: app)
+        XCTAssertTrue(
+            app.navigationBars["fixture"].buttons["Filters"].isHittable,
+            "Search results did not expose Filters directly in the toolbar."
+        )
+        app.navigationBars["fixture"].buttons["Search"].firstMatch.tapWhenHittable("Search Results Back")
+        requireNavigationTitle("Search", in: app)
+    }
+
+    func requireCarouselPreservesSelectionAcrossRotation(in app: XCUIApplication) throws {
+        let query = app.scrollViews.matching(identifier: "home_carousel")
+        let carousel = query.element(boundBy: 0)
+        XCTAssertTrue(carousel.waitForExistence(timeout: 15), "Home did not expose its carousel scroll view.")
+        XCTAssertEqual(query.count, 1, "Home exposed an unexpected number of carousel scroll views.")
+        let expected = try XCTUnwrap(
+            Self.centeredCard(in: carousel.snapshot()), "Home carousel had no visible labeled gallery button."
+        )
+        Self.assertCentered(expected)
+
+        for orientation in [UIDeviceOrientation.landscapeLeft, .portrait] {
+            let rotationStart = ContinuousClock.now
+            let deadline = rotationStart + .seconds(15)
+            XCUIDevice.shared.orientation = orientation
+            // Read until the selected gallery is centered again. The first layout at a new width can snap to a
+            // neighbor, and the carousel then scrolls back to the selected card (`CardSlideSection`'s
+            // `onChange(of: centeringMargin)`); on iPhone Air a read 2.5 s after the turn found the neighbor
+            // (2026-11-03). Each read is one snapshot, which both finds the carousel and reads its cards: a separate
+            // existence check costs another full query of Home's hierarchy, 7.4 s of a 15.6 s rotation under five
+            // parallel iPad clones.
+            // A snapshot fails while the carousel is missing, for example while the rotation rebuilds it.
+            var reading = Result { try Self.centeredCard(in: carousel.snapshot()) }
+            while !Self.shows(expected.gallery, centeredIn: reading), ContinuousClock.now < deadline {
+                RunLoop.current.run(until: .now + 0.25)
+                reading = Result { try Self.centeredCard(in: carousel.snapshot()) }
+            }
+            let elapsed = ContinuousClock.now - rotationStart
+            let card = try XCTUnwrap(
+                reading.get(), "Home carousel had no visible labeled gallery button after rotation."
+            )
+            Self.assertCentered(card)
+            XCTAssertEqual(card.gallery, expected.gallery, "Rotation changed the centered Home carousel gallery.")
+            XCTAssertLessThan(
+                elapsed,
+                Duration.seconds(15),
+                "Home carousel rotation exceeded the 15-second screen-readiness budget."
+            )
+        }
+    }
+
+    /// The carousel card nearest the center of its viewport, read from one snapshot, so every card's frame and label
+    /// come from the same moment and cost one query. Reading each card's frame and label separately took one query
+    /// apiece, and under the plan's parallel simulators those queries alone used several seconds of the rotation's
+    /// readiness budget.
+    struct CarouselCard {
+        /// The identifier of the card's title. The card's label also reads the tags that fit its width, so the same
+        /// gallery can have a longer label in landscape than in portrait.
+        let gallery: String?
+        let offset: CGFloat
+
+        var isCentered: Bool { abs(offset) <= 1 }
+    }
+
+    static func centeredCard(in snapshot: any XCUIElementSnapshot) -> CarouselCard? {
+        let viewport = snapshot.frame
+        let visibleButtons = descendants(of: snapshot).filter { element in
+            element.elementType == .button && element.frame.width > 0 && element.frame.height > 0
+                && element.frame.intersects(viewport) && !element.label.isEmpty
+        }
+        let nearest = visibleButtons.min { left, right in
+            abs(left.frame.midX - viewport.midX) < abs(right.frame.midX - viewport.midX)
+        }
+        return nearest.map { card in
+            let title = descendants(of: card).first(where: { $0.identifier.hasPrefix("home_slideshow_title_") })
+            return CarouselCard(gallery: title?.identifier, offset: card.frame.midX - viewport.midX)
+        }
+    }
+
+    static func shows(_ gallery: String?, centeredIn reading: Result<CarouselCard?, any Error>) -> Bool {
+        guard case .success(let card?) = reading else { return false }
+        return card.isCentered && card.gallery == gallery
+    }
+
+    static func assertCentered(_ card: CarouselCard, file: StaticString = #filePath, line: UInt = #line) {
+        XCTAssertEqual(
+            card.offset, 0, accuracy: 1,
+            "The selected Home carousel card was not centered in its viewport.", file: file, line: line
+        )
+        XCTAssertNotNil(card.gallery, "The centered Home carousel gallery had no title.", file: file, line: line)
+    }
+
+    private static func descendants(of snapshot: any XCUIElementSnapshot) -> [any XCUIElementSnapshot] {
+        snapshot.children.flatMap({ [$0] + descendants(of: $0) })
+    }
+
+    @discardableResult
+    func openGalleryDetail(in app: XCUIApplication) throws -> XCUIElement {
+        let galleryURL = try XCTUnwrap(UITestConstants.galleryURL(scheme: "ehpanda"))
+        try app.openCold(galleryURL)
+        app.requireForeground()
+        let detailView = app.requireElement("detail_view", matching: .scrollView)
+        XCTAssertTrue(
+            app.buttons[UITestConstants.primaryMarkerTitle].waitForExistence(timeout: 15),
+            "The gallery marker title did not render from the hermetic fixture."
+        )
+        return detailView
+    }
+
+    @discardableResult
+    func openReader(in app: XCUIApplication) throws -> XCUIElement {
+        let pageURL = try XCTUnwrap(UITestConstants.singlePageURL(scheme: "ehpanda"))
+        try app.openCold(pageURL)
+        app.requireForeground()
+        app.requireElement("detail_view", matching: .scrollView)
+        return app.requireElement("reading_view")
+    }
+
+    func showReadingControlPanel(in app: XCUIApplication) throws {
+        let readingView = try openReader(in: app)
+        readingView.tap()
+        app.requireElement("reading_page_indicator", matching: .staticText, timeout: 5)
+    }
+
+    /// Waits for the element, scrolls it into the hittable area if the screen is longer than what
+    /// is shown, then taps it.
+    /// The list builds a row only near the screen, so this swipes down to the row before reading it.
+    func galleryInfoValue(_ title: String, in app: XCUIApplication) -> String? {
+        let row = app.descendants(matching: .any).matching(NSPredicate(format: "label == %@", title)).firstMatch
+        for _ in 0..<8 where !row.exists { app.swipeUp() }
+        return row.value as? String
+    }
+
+    /// A Home destination card reads its title, summary and footnote as one label, and only the
+    /// title is stable, so the card is found by the title its label starts with.
+    func homeDestination(_ title: String, in app: XCUIApplication) -> XCUIElement {
+        app.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", title)).firstMatch
+    }
+
+    func tapScrolling(
+        _ element: XCUIElement,
+        in app: XCUIApplication,
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) throws {
+        XCTAssertTrue(
+            element.waitForExistence(timeout: 15),
+            "\(element) did not appear.",
+            file: file,
+            line: line
+        )
+        try scrollUntilHittable(element, in: app, of: app, direction: .upward)
+        XCTAssertTrue(element.isHittable, "\(element) never became hittable.", file: file, line: line)
+        element.tap()
+    }
+
+    /// Swipes the container until the element lies inside what is shown along the swipe's axis,
+    /// or gives up after a screenful of swipes.
+    ///
+    /// What is shown is the presented sheet's frame, or the window's when none is presented
+    /// (`SurfaceInventory.visibleBounds(in:)`): on the iPad the Detail form sheet is 580 points
+    /// wide inside an 820-point window, so the stats strip's Gallery Info button lay inside the
+    /// window yet past the sheet's trailing edge, and a window test swiped the page upward until
+    /// the strip left the sheet (`a11y-final-ipad`, `diag-25`). Each call settles its own axis —
+    /// an upward swipe stops once the element lies within the bounds vertically, a leftward swipe
+    /// once it does horizontally — and only an element wholly inside the bounds is asked whether
+    /// it is hittable (still under a bar, it is swiped further). XCTest records a failure
+    /// ("activation point invalid") when hittability is asked of an element laid out beyond the
+    /// screen edge, which is exactly the state this loop exists to leave. Owner: "Split audits,
+    /// fix helper" (2026-09-13).
+    func scrollUntilHittable(
+        _ element: XCUIElement,
+        in container: XCUIElement,
+        of app: XCUIApplication,
+        direction: SwipeDirection
+    ) throws {
+        let bounds = SurfaceInventory.visibleBounds(in: try app.snapshot())
+        var remainingSwipes = 8
+        while remainingSwipes > 0 {
+            let frame = element.frame
+            if !frame.isEmpty, direction.axisSpan(of: frame, liesWithin: bounds) {
+                if !bounds.contains(frame) || element.isHittable {
+                    return
+                }
+            }
+            switch direction {
+            case .upward:
+                container.swipeUp()
+            case .leftward:
+                container.swipeLeft()
+            }
+            remainingSwipes -= 1
+        }
+    }
+}
+
+private extension AccessibilityAuditUITests.SwipeDirection {
+    /// Whether the frame lies within the bounds along the axis this direction scrolls.
+    func axisSpan(of frame: CGRect, liesWithin bounds: CGRect) -> Bool {
+        switch self {
+        case .upward:
+            frame.minY >= bounds.minY && frame.maxY <= bounds.maxY
+        case .leftward:
+            frame.minX >= bounds.minX && frame.maxX <= bounds.maxX
+        }
+    }
+}

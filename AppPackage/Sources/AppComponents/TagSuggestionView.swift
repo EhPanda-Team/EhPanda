@@ -1,0 +1,217 @@
+public import AppModels
+import AppTools
+import Kingfisher
+import Observation
+import Resources
+import SFSafeSymbols
+public import SwiftUI
+import TagTranslationFeature
+
+/// Tag suggestions for a `searchSuggestions` closure.
+///
+/// The system shows suggestions either in a menu attached to the search field or inline with the
+/// content, choosing by the room around the field, so each view reads that placement rather than
+/// the device. A menu row is a plain completion the system applies; inline, a count heads the rows
+/// and each row completes the keyword itself.
+public struct TagSuggestionView: View {
+    @Environment(\.searchSuggestionsPlacement) private var searchSuggestionsPlacement
+    @Binding private var keyword: String
+    private let translations: [String: TagTranslation]
+    private let showsImages: Bool
+    private let isEnabled: Bool
+
+    @State private var translationHandler = TagTranslationHandler()
+
+    public init(keyword: Binding<String>, translations: [String: TagTranslation], showsImages: Bool, isEnabled: Bool) {
+        _keyword = keyword
+        self.translations = translations
+        self.showsImages = showsImages
+        self.isEnabled = isEnabled
+    }
+
+    public var body: some View {
+        if isEnabled {
+            if searchSuggestionsPlacement != .menu {
+                Text(.matchesCount(count: translationHandler.suggestions.count))
+                    .foregroundStyle(.secondary)
+                    .font(.subheadline)
+            }
+
+            let suggestions = translationHandler.suggestions
+            ForEach(suggestions.prefix(min(suggestions.count, 10))) { suggestion in
+                SuggestionCell(
+                    suggestion: suggestion,
+                    showsImages: showsImages,
+                    action: { translationHandler.autoComplete(suggestion: suggestion, keyword: &keyword) }
+                )
+            }
+            .onChange(of: keyword) {
+                translationHandler.analyze(text: &keyword, translations: translations)
+            }
+        }
+    }
+}
+
+// MARK: SuggestionCell
+private struct SuggestionCell: View {
+    @Environment(\.searchSuggestionsPlacement) private var searchSuggestionsPlacement
+    private let suggestion: TagSuggestion
+    private let showsImages: Bool
+    private let action: () -> Void
+
+    init(suggestion: TagSuggestion, showsImages: Bool, action: @escaping () -> Void) {
+        self.suggestion = suggestion
+        self.showsImages = showsImages
+        self.action = action
+    }
+
+    private var displayValue: String {
+        let value = suggestion.displayValue
+        return showsImages ? value : value.emojisRipped
+    }
+
+    // Two-line label for the search-completion suggestion, built as an `AttributedString` rather
+    // than an interpolated `Text("\(…)\n\(…)")` so Xcode does not extract a "%@\n%@" catalog key.
+    // Markdown is parsed inline (matching `Text(_ key: LocalizedStringKey)` above) since the tag
+    // strings are dynamic content, not localization keys.
+    private var searchCompletionLabel: AttributedString {
+        var label = Self.markdown(displayValue)
+        label.append(AttributedString("\n"))
+        label.append(Self.markdown(suggestion.displayKey))
+        return label
+    }
+    private static func markdown(_ string: String) -> AttributedString {
+        do {
+            return try AttributedString(
+                markdown: string,
+                options: .init(interpretedSyntax: .inlineOnlyPreservingWhitespace)
+            )
+        } catch {
+            // Markdown styling is optional presentation enrichment; malformed input renders literally.
+            return AttributedString(string)
+        }
+    }
+
+    var body: some View {
+        if searchSuggestionsPlacement != .menu {
+            // A real `Button`, so the row is a named, activatable control for VoiceOver and Voice
+            // Control; `.unhighlighted` keeps the designed row look. Its two texts name it, so the glyphs are
+            // decoration: the search symbol restates the row's purpose and the photo symbol only
+            // reserves the tag image's space.
+            Button(action: action) {
+                HStack(spacing: 20) {
+                    Image(systemSymbol: .magnifyingglass)
+                        .accessibilityHidden(true)
+
+                    VStack(alignment: .leading) {
+                        HStack(spacing: 2) {
+                            Text(displayValue.localizedKey)
+
+                            if let imageURL = suggestion.tag.valueImageURL, showsImages {
+                                Image(systemSymbol: .photo)
+                                    .opacity(0)
+                                    .overlay {
+                                        KFImage(imageURL)
+                                            .resizable()
+                                            .scaledToFit()
+                                    }
+                                    .accessibilityHidden(true)
+                            }
+                        }
+                        .font(.callout)
+                        .lineLimit(1)
+
+                        Text(suggestion.displayKey.localizedKey)
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                            .lineLimit(1)
+                    }
+                    .allowsHitTesting(false)
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .contentShape(.rect)
+            }
+            .buttonStyle(.unhighlighted)
+        } else {
+            Text(searchCompletionLabel)
+                .searchCompletion(suggestion.tag.searchKeyword)
+        }
+    }
+}
+
+// MARK: TagTranslationHandler
+@Observable
+@MainActor
+final class TagTranslationHandler {
+    var suggestions = [TagSuggestion]()
+
+    func analyze(text: inout String, translations: [String: TagTranslation]) {
+        let keyword = text.replacing(/[ ]{2,}/, with: " ")
+            .replacing("：", with: ":")
+        text = keyword
+        let keywords = keyword.matches(of: /\S+:".+?"|".+?"|\S+:\S+|\S+/)
+            .map({ String($0.output) })
+        var result = [TagSuggestion]()
+        var existingWords = Set<String>()
+        let lastCompletedTagIndex = keywords.lastIndex(where: { ["\"", "$"].contains($0.last) })
+        for index in (lastCompletedTagIndex ?? 0)..<keywords.count {
+            let keywordList = keywords[index...]
+            if !keywordList.isEmpty {
+                let keyword = keywordList.joined(separator: " ")
+                getSuggestions(translations: translations, keyword: keyword).forEach {
+                    if !existingWords.contains($0.tag.searchKeyword) {
+                        existingWords.insert($0.tag.searchKeyword)
+                        result.append($0)
+                    }
+                }
+            }
+        }
+        suggestions = result
+    }
+    func autoComplete(suggestion: TagSuggestion, keyword: inout String) {
+        let endIndex = keyword.index(keyword.endIndex, offsetBy: 0 - suggestion.originalKeyword.count)
+        keyword = .init(keyword[keyword.startIndex..<endIndex]) + suggestion.tag.searchKeyword + " "
+    }
+    private func getSuggestions(translations: [String: TagTranslation], keyword: String) -> [TagSuggestion] {
+        let originalKeyword = keyword
+        var keyword = keyword
+        var namespace: String?
+
+        if let colon = keyword.firstIndex(of: ":") {
+            let key = String(keyword[keyword.startIndex..<colon])
+            if let match = TagNamespace.allCases.first(where: {
+                $0.rawValue.caseInsensitiveEqualsTo(key) || $0.abbreviation?.caseInsensitiveEqualsTo(key) == true
+            }) {
+                namespace = match.rawValue
+                keyword = .init(keyword[keyword.index(colon, offsetBy: 1)..<keyword.endIndex])
+            }
+        }
+
+        var translations = translations
+        if let namespace = namespace {
+            translations = translations.filter({ $0.value.namespace.rawValue == namespace })
+        }
+        if namespace != nil && keyword.isEmpty {
+            // Returns suggestion based on namespace only
+            return translations
+                .map {
+                    .init(
+                        tag: $0.value, weight: 0, keyRange: nil, valueRange: nil,
+                        originalKeyword: originalKeyword, matchesNamespace: true
+                    )
+                }
+        } else {
+            // Returns suggestion based on namespace and keyword
+            return translations
+                .map {
+                    $0.value.getSuggestion(
+                        keyword: keyword,
+                        originalKeyword: originalKeyword,
+                        matchesNamespace: namespace != nil
+                    )
+                }
+                .filter({ $0.weight > 0 })
+                .sorted(by: { $0.weight > $1.weight })
+        }
+    }
+}

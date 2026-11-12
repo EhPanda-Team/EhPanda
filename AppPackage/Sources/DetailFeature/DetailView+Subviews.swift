@@ -1,0 +1,773 @@
+import AppComponents
+import AppLaunchAutomationClient
+import AppModels
+import AppTools
+import ComposableArchitecture
+import CookieClient
+import Kingfisher
+import Resources
+import SFSafeSymbols
+import SFSafeSymbolsExt
+import SwiftUI
+import TagTranslationFeature
+
+// MARK: DescriptionSection
+struct DescriptionSection: View {
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+
+    let gallery: Gallery
+    let galleryDetail: GalleryDetail
+    let navigateGalleryInfoAction: () -> Void
+
+    // 60pt at default (.large); scales with Dynamic Type relative to the row's dominant text style (.title3).
+    @ScaledMetric(relativeTo: .title3) private var rowHeight: CGFloat = 60
+    /// The designed width floor for one column: 80pt is exactly the width of the five rating stars
+    /// drawn at `.caption` at the default size, and they are the widest fixed member any column has
+    /// to hold.
+    private static let designedColumnMinWidth: CGFloat = 80
+    // Scales that floor on the stars' own metric, so it stays the star row as they grow rather than
+    // becoming a clip on it. Symbol widths snap to whole points and so track the metric only to
+    // within a couple of points — measured across the whole ramp the floor leads the star row
+    // everywhere except `.xxxLarge`, where it trails it by 1.7pt, which is less than the symbols'
+    // own side bearing. Below the default size the metric would shrink the floor instead; `max`
+    // holds it at the designed 80, because narrowing the designed column is not what this is for.
+    @ScaledMetric(relativeTo: .caption) private var scaledColumnMinWidth = DescriptionSection.designedColumnMinWidth
+    private var columnMinWidth: CGFloat { max(scaledColumnMinWidth, Self.designedColumnMinWidth) }
+    // The share of the container one column may take. 90 rather than 100 so a column that has spent
+    // its whole budget still leaves a sliver of its neighbour on screen: one that spans the
+    // container edge to edge reads as the whole strip and hides that there is more to scroll.
+    private let columnWidthFraction: CGFloat = 0.9
+
+    private var infos: [DescScrollInfo] {[
+        DescScrollInfo(
+            title: .favorited,
+            description: String(localized: .favoritedUnit(count: galleryDetail.favoritedCount)),
+            value: .init(galleryDetail.favoritedCount)
+        ),
+        DescScrollInfo(
+            title: .RLocalizable.language,
+            description: String(localized: galleryDetail.language.value),
+            value: galleryDetail.language.abbreviation,
+            isValueDecorative: true
+        ),
+        DescScrollInfo(
+            title: .ratingsCount(count: galleryDetail.ratingCount),
+            description: .init(), value: .init(), rating: galleryDetail.rating, isRating: true
+        ),
+        DescScrollInfo(
+            title: .pageCount,
+            description: String(localized: .pageCountUnit(count: galleryDetail.pageCount)),
+            value: .init(galleryDetail.pageCount)
+        ),
+        DescScrollInfo(
+            title: .fileSize,
+            description: galleryDetail.sizeType,
+            value: galleryDetail.formattedSizeCount(),
+            accessibilityDescription: galleryDetail.accessibilitySizeUnit(
+                quantity: Double(galleryDetail.sizeCount)
+            )
+        )
+    ]}
+    /// The strip stays a strip at every size — columns side by side, scrolled horizontally, never
+    /// stacked. What gives is a column's *width*.
+    ///
+    /// The designed rule, a fifth of the container and never below 80 pt, holds the text at the
+    /// default size and nothing beyond it: a fifth of a phone is 78 pt, while the five rating stars
+    /// alone are 250 pt across at `.accessibility5` and the captions above them three times taller,
+    /// so the columns used to abbreviate their captions, then their values, and clip the rating row
+    /// at both ends. So the floor scales with the text it has to hold (``columnMinWidth``) and the
+    /// whole budget is capped at ``columnWidthFraction`` of the container: a column grows into that
+    /// budget and its text wraps inside it, instead of being clipped by it.
+    ///
+    /// The designed height is a pin at and below the default size and a floor above it, so a
+    /// caption that wrapped inside its column makes the strip taller rather than being cut off by
+    /// it. At the default size the scaled floor is its literal 80, the cap cannot bind — it only
+    /// could on a container narrower than 89 pt — and the content is shorter than the pin, so the
+    /// strip renders exactly as designed, which is what default-size parity requires.
+    @ContentBuilder var body: some View {
+        if dynamicTypeSize <= .large {
+            strip.frame(height: rowHeight)
+        } else {
+            strip.frame(minHeight: rowHeight)
+        }
+    }
+
+    private var strip: some View {
+        let minWidth = columnMinWidth
+        let fraction = columnWidthFraction
+        let itemWidth: (CGFloat, Axis) -> CGFloat = { width, _ in
+            min(max(width / 5, minWidth), width * fraction)
+        }
+        return ScrollView(.horizontal) {
+            HStack {
+                ForEach(infos) { info in
+                    item(for: info)
+                        .containerRelativeFrame(.horizontal, itemWidth)
+                    Divider()
+                    if info == infos.last {
+                        galleryInfoButton
+                            .containerRelativeFrame(.horizontal, itemWidth)
+                    }
+                }
+                .withHorizontalSpacing()
+            }
+        }
+        .scrollIndicators(.hidden)
+    }
+
+    private var galleryInfoButton: some View {
+        Button(action: navigateGalleryInfoAction) {
+            Label(.metadataGalleryInfo, systemSymbol: .ellipsis)
+                .labelStyle(.iconOnly)
+                .font(.title3.weight(.bold))
+        }
+    }
+
+    @ContentBuilder private func item(for info: DescScrollInfo) -> some View {
+        if info.isRating {
+            DescScrollRatingItem(title: info.title, rating: info.rating)
+        } else {
+            DescScrollItem(
+                title: info.title,
+                value: info.value,
+                description: info.description,
+                isValueDecorative: info.isValueDecorative,
+                accessibilityDescription: info.accessibilityDescription
+            )
+        }
+    }
+}
+
+extension DescriptionSection {
+    struct DescScrollInfo: Identifiable, Equatable {
+        var id: String { String(localized: title) }
+        let title: LocalizedStringResource
+        let description: String
+        let value: String
+        var rating: Float = 0
+        var isRating = false
+        var isValueDecorative = false
+        var accessibilityDescription: String?
+    }
+    struct DescScrollItem: View {
+        @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+
+        let title: LocalizedStringResource
+        let value: String
+        let description: String
+        let isValueDecorative: Bool
+        let accessibilityDescription: String?
+
+        var body: some View {
+            VStack(spacing: 3) {
+                Text(title).textCase(.uppercase).font(.caption)
+                valueWithUnit
+            }
+            .accessibilityElement(children: .combine)
+        }
+
+        /// The value and the unit beneath it ("314.3" over "MB", "156" over "Pages") are one reading:
+        /// exposed apart, the number is a bare figure the audit reports as "Label not human-readable"
+        /// (Phase 16, the file-size column on iPad) and VoiceOver announces without its unit. The
+        /// inner stack keeps the outer 3-point spacing, so the column lays out exactly as before.
+        private var valueWithUnit: some View {
+            VStack(spacing: 3) {
+                Text(value)
+                    .fontWeight(.medium)
+                    .font(.title3)
+                    .lineLimit(valueLineLimit)
+                    .monospacedDigit()
+                    .contentTransition(.numericText())
+                    .animation(.default, value: value)
+                    .accessibilityHidden(isValueDecorative)
+                Text(description)
+                    .font(.caption)
+                    .accessibilityLabel(accessibilityDescription ?? description)
+            }
+        }
+
+        /// The designed single line is kept at and below the default size, where the strip's height
+        /// is pinned and a second line would be cut off. Above it the column grew with the text and
+        /// the strip's height became a floor, so the cap is lifted: a count that has lost digits is
+        /// a value removed, while a wrapped one is merely taller.
+        private var valueLineLimit: Int? {
+            dynamicTypeSize <= .large ? 1 : nil
+        }
+    }
+    struct DescScrollRatingItem: View {
+        @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+
+        let title: LocalizedStringResource
+        let rating: Float
+
+        var body: some View {
+            VStack(spacing: 3) {
+                Text(title)
+                    .textCase(.uppercase)
+                    .font(.caption)
+                    .lineLimit(titleLineLimit)
+                    .monospacedDigit()
+                    .contentTransition(.numericText())
+                    .animation(.default, value: title)
+                Text(rating, format: .number.precision(.fractionLength(2)).grouping(.never))
+                    .fontWeight(.medium)
+                    .font(.title3)
+                    .monospacedDigit()
+                    .contentTransition(.numericText(value: Double(rating)))
+                    .animation(.default, value: rating)
+                // The five symbols are the rating itself, not decoration: three drawn stars for a
+                // 4.50 rating misstate the value. They set the column's width floor, so they are
+                // never the member that gets clipped. VoiceOver receives the numeric rating once
+                // from the text above, so the drawn stars stay out of its combined element.
+                RatingView(rating: rating)
+                    .font(.caption)
+                    .accessibilityHidden(true)
+            }
+            // One element for the column: the caption-sized star group on its own was a 13-point
+            // accessibility element, which the audit reports as a hit region too small (16-24);
+            // read together, count, value and stars are one fact anyway.
+            .accessibilityElement(children: .combine)
+        }
+
+        /// The caption carries the rating count, so it is a value as much as a label, and it holds
+        /// two words that can share the column or take a line each. It keeps the designed single
+        /// line where the strip's height is pinned, and wraps above that.
+        private var titleLineLimit: Int? {
+            dynamicTypeSize <= .large ? 1 : nil
+        }
+    }
+}
+
+// Section-scoped previews: the full DetailView preview pays the NavigationStack + ScrollView
+// scaffolding cost on every canvas update, so iterate on a single section here instead.
+#Preview("Description") {
+    DescriptionSection(
+        gallery: .preview,
+        galleryDetail: .preview,
+        navigateGalleryInfoAction: {}
+    )
+}
+
+#Preview("Description, accessibility size") {
+    DescriptionSection(
+        gallery: .preview,
+        galleryDetail: .preview,
+        navigateGalleryInfoAction: {}
+    )
+    .environment(\.dynamicTypeSize, .accessibility5)
+}
+
+// MARK: ActionSection
+struct ActionSection: View {
+    #if DEBUG
+    @Dependency(\.appLaunchAutomationClient) private var appLaunchAutomationClient
+    #endif
+    @SharedReader(.didLogin) private var didLogin: Bool
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+    let galleryDetail: GalleryDetail
+    let userRating: Int
+    let showUserRating: Bool
+    let showUserRatingAction: () -> Void
+    let updateRatingAction: (DragGesture.Value) -> Void
+    let confirmRatingAction: (DragGesture.Value) -> Void
+    let findSimilarAction: () -> Void
+    // 24pt at default (.large); scales with Dynamic Type relative to the nearest text style (.title2, 22pt).
+    @ScaledMetric(relativeTo: .title2) private var userRatingSymbolSize: CGFloat = 24
+
+    private var isRatingEnabled: Bool {
+        #if DEBUG
+        // Screenshot-only presentation; account state and production authentication stay unchanged.
+        if let route = appLaunchAutomationClient.current()?.captureRoute, case .detail = route {
+            return true
+        }
+        #endif
+        return didLogin
+    }
+
+    var body: some View {
+        VStack {
+            if dynamicTypeSize.isAccessibilitySize {
+                VStack(alignment: .leading) {
+                    actionButtons
+                }
+            } else {
+                HStack {
+                    actionButtons
+                }
+            }
+            if showUserRating {
+                HStack {
+                    RatingView(rating: Float(userRating) / 2)
+                        .font(.system(size: userRatingSymbolSize))
+                        .gesture(
+                            DragGesture(minimumDistance: 0)
+                                .onChanged(updateRatingAction)
+                                .onEnded(confirmRatingAction)
+                        )
+                }
+                .padding(.top, 10)
+            }
+        }
+        .padding(.horizontal)
+    }
+
+    @ContentBuilder private var actionButtons: some View {
+        Group {
+            Button(action: showUserRatingAction) {
+                Label {
+                    Text(.rateGallery)
+                        .bold()
+                } icon: {
+                    Image(systemSymbol: .squareAndPencil)
+                }
+                .frame(maxWidth: .infinity)
+            }
+            .disabled(!isRatingEnabled)
+
+            Button(action: findSimilarAction) {
+                Label {
+                    Text(.findSimilar).bold()
+                } icon: {
+                    Image(systemSymbol: .photoOnRectangleAngled)
+                }
+                .frame(maxWidth: .infinity)
+            }
+        }
+        .font(.callout)
+        .tint(.primary)
+    }
+}
+
+@MainActor private func previewActionSection(userRating: Int, showUserRating: Bool) -> some View {
+    ActionSection(
+        galleryDetail: .preview,
+        userRating: userRating,
+        showUserRating: showUserRating,
+        showUserRatingAction: {},
+        updateRatingAction: { _ in },
+        confirmRatingAction: { _ in },
+        findSimilarAction: {}
+    )
+}
+
+#Preview("Actions") {
+    withDependencies {
+        $0.cookieClient = .previewLoggedIn
+    } operation: {
+        previewActionSection(userRating: 0, showUserRating: false)
+    }
+}
+
+#Preview("Actions (rating shown)") {
+    withDependencies {
+        $0.cookieClient = .previewLoggedIn
+    } operation: {
+        previewActionSection(userRating: 7, showUserRating: true)
+    }
+}
+
+// MARK: TagsSection
+struct TagsSection: View {
+    let tags: [GalleryTag]
+    let showsImages: Bool
+    let voteTagAction: (String, Int) -> Void
+    // Carries the tapped tag's namespace alongside the assembled search keyword so the reducer can
+    // emit the namespace without parsing it back out of the keyword (which would be tag content).
+    let navigateSearchAction: (String, TagNamespace?) -> Void
+    let navigateTagDetailAction: (TagDetail) -> Void
+    let translateAction: (String) -> TagTranslationLookup
+
+    var body: some View {
+        VStack(alignment: .leading) {
+            ForEach(tags) { tag in
+                TagRow(
+                    tag: tag, showsImages: showsImages,
+                    voteTagAction: voteTagAction,
+                    navigateSearchAction: navigateSearchAction,
+                    navigateTagDetailAction: navigateTagDetailAction,
+                    translateAction: translateAction
+                )
+            }
+        }
+        .padding(.horizontal)
+    }
+}
+
+extension TagsSection {
+    struct TagRow: View {
+        @SharedReader(.didLogin) private var didLogin: Bool
+        @Environment(\.colorScheme) private var colorScheme
+        @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+
+        let tag: GalleryTag
+        let showsImages: Bool
+        let voteTagAction: (String, Int) -> Void
+        // Mirrors `TagsSection`: the row passes the namespace it already holds for its header text,
+        // so no caller has to recover it from the assembled keyword.
+        let navigateSearchAction: (String, TagNamespace?) -> Void
+        let navigateTagDetailAction: (TagDetail) -> Void
+        let translateAction: (String) -> TagTranslationLookup
+
+        private var reversedPrimary: Color { colorScheme == .light ? .white : .black }
+        private var backgroundColor: Color { Color(uiColor: .systemGray5) }
+        private var padding: EdgeInsets { .init(top: 5, leading: 14, bottom: 5, trailing: 14) }
+
+        /// The namespace chip is a whole tag-sized block sitting in front of the cloud of its
+        /// children, so as the type size grows it takes an ever larger share of the row and leaves
+        /// the cloud a channel too narrow to flow in — every child ends up on a line of its own,
+        /// indented under a chip that is wider than they are. Stacked, the chip heads its children
+        /// the way a section header heads a section, and the cloud flows across the whole row.
+        ///
+        /// The arrangement is chosen by an explicit size read, not by `ViewThatFits`: the cloud is a
+        /// flow layout whose *ideal* width is every child on one line, so no candidate containing it
+        /// can report a fitting width and the fallback would win at every size, the default
+        /// included. Below the accessibility sizes the designed row renders verbatim.
+        ///
+        /// The 8pt gap is deliberately narrower than the 14pt of air inside the chip: the chip and
+        /// its children are one group, and the gap has to read as smaller than the space separating
+        /// this row from the next one.
+        @ContentBuilder var body: some View {
+            if dynamicTypeSize.isAccessibilitySize {
+                VStack(alignment: .leading, spacing: 8) {
+                    namespaceChip
+                    tagCloud
+                }
+            } else {
+                HStack(alignment: .top) {
+                    namespaceChip
+                    tagCloud
+                }
+            }
+        }
+
+        private var namespaceChip: some View {
+            Text(tag.namespace.map({ String(localized: $0.value) }) ?? tag.rawNamespace)
+                .font(.subheadline.bold())
+                .foregroundStyle(reversedPrimary)
+                .padding(padding)
+                .background(Color(uiColor: .systemGray))
+                .clipShape(.rect(cornerRadius: 5))
+        }
+
+        private var tagCloud: some View {
+            TagCloudView(data: tag.contents) { content in
+                tagContentView(content: content)
+            }
+        }
+
+        @ContentBuilder
+        private func tagContentView(content: GalleryTag.Content) -> some View {
+            let translation = translateAction(content.rawNamespace + content.text).translation
+            Button {
+                navigateSearchAction(content.serachKeyword(tag: tag), tag.namespace)
+            } label: {
+                TagCloudCell(
+                    text: translation?.displayValue ?? content.text,
+                    imageURL: translation?.valueImageURL,
+                    showsImages: showsImages,
+                    font: .subheadline, padding: padding, textColor: .primary,
+                    backgroundColor: backgroundColor
+                )
+            }
+            .contextMenu {
+                tagContextMenu(content: content, translation: translation)
+            }
+            // SwiftUI surfaces swipe actions, but not context-menu items, as VoiceOver custom
+            // actions (16-CONTRAST-AUDIT, `CONTEXTMENU=not-exposed`), so the builder that fills the
+            // menu also fills the Actions rotor: an action can never exist without its menu item.
+            .accessibilityActions {
+                tagContextMenu(content: content, translation: translation)
+            }
+        }
+
+        @ContentBuilder
+        private func tagContextMenu(
+            content: GalleryTag.Content,
+            translation: TagTranslation?
+        ) -> some View {
+            if let detail = translation?.detail {
+                Button {
+                    navigateTagDetailAction(detail)
+                } label: {
+                    Label(.RLocalizable.detail, systemSymbol: .richtextPage)
+                }
+            }
+            if didLogin {
+                tagVoteButtons(content: content)
+            }
+        }
+
+        @ContentBuilder
+        private func tagVoteButtons(content: GalleryTag.Content) -> some View {
+            if content.isVotedUp || content.isVotedDown {
+                Button {
+                    voteTagAction(content.voteKeyword(tag: tag), content.isVotedUp ? -1 : 1)
+                } label: {
+                    // The slashed outline thumb of the vote it undoes, as a comment's Withdraw Vote has.
+                    Label(
+                        .withdrawVote,
+                        systemSymbol: CommentVoteSlot.withdrawSymbol(isVotedUp: content.isVotedUp)
+                    )
+                }
+            } else {
+                Button {
+                    voteTagAction(content.voteKeyword(tag: tag), 1)
+                } label: {
+                    Label(.voteUp, systemSymbol: .handThumbsup)
+                }
+                Button {
+                    voteTagAction(content.voteKeyword(tag: tag), -1)
+                } label: {
+                    Label(.voteDown, systemSymbol: .handThumbsdown)
+                }
+            }
+        }
+    }
+}
+
+// `translateAction` returns the word unchanged: previewing the tag layout does not need a
+// populated TagTranslator, and returning no translation keeps the rows on their raw text.
+#Preview("Tags") {
+    withDependencies {
+        $0.cookieClient = .previewLoggedIn
+    } operation: {
+        TagsSection(
+            tags: [
+                .init(rawNamespace: "language", contents: [
+                    .init(rawNamespace: "language", text: "japanese", isVotedUp: false, isVotedDown: false),
+                    .init(rawNamespace: "language", text: "translated", isVotedUp: true, isVotedDown: false)
+                ]),
+                .init(rawNamespace: "artist", contents: [
+                    .init(rawNamespace: "artist", text: "Anonymous", isVotedUp: false, isVotedDown: false)
+                ])
+            ],
+            showsImages: false,
+            voteTagAction: { _, _ in },
+            navigateSearchAction: { _, _ in },
+            navigateTagDetailAction: { _ in },
+            translateAction: { .init(text: $0, translation: nil) }
+        )
+    }
+}
+
+// MARK: PreviewsSection
+struct PreviewsSection: View {
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+
+    let pageCount: Int
+    let previewURLs: [Int: URL]
+    let navigatePreviewsAction: () -> Void
+    let navigateReadingAction: (Int) -> Void
+
+    private var width: CGFloat {
+        DetailLayout.previewWidth(regular: horizontalSizeClass == .regular)
+    }
+    private var height: CGFloat { width / Defaults.ImageSize.previewAspect }
+
+    var body: some View {
+        SubSection(
+            title: .previews,
+            showAll: pageCount > 20, showAllAction: navigatePreviewsAction
+        ) {
+            ScrollView(.horizontal) {
+                LazyHStack {
+                    ForEach(previewURLs.tuples.sorted(by: { $0.0 < $1.0 }), id: \.0) { index, previewURL in
+                        Button {
+                            navigateReadingAction(index)
+                        } label: {
+                            PreviewThumbnail(url: previewURL)
+                                .frame(width: width, height: height)
+                        }
+                        // The thumbnail is the button's only content; the page it opens is its name.
+                        .accessibilityLabel(.accessibilityPreviewPage(page: index))
+                    }
+                    // The 8pt spacers that framed the row now are its content margin below.
+                }
+                .scrollTargetLayout()
+            }
+            // The Home rows' snapping: a release coasts as before, then settles with the nearest thumbnail's
+            // leading edge on the content margin, the 16pt inset the first thumbnail already rests at (an 8pt
+            // spacer plus the 8pt stack spacing it had). Many small items, so a hard flick may pass several.
+            .scrollTargetBehavior(.viewAligned(limitBehavior: .never))
+            .contentMargins(.horizontal, 16, for: .scrollContent)
+            .scrollIndicators(.hidden)
+        }
+    }
+}
+
+// The thumbnails are remote, so the canvas shows placeholders — this previews the row layout.
+#Preview("Previews row") {
+    PreviewsSection(
+        pageCount: 114,
+        previewURLs: [0: .mock, 1: .mock, 2: .mock, 3: .mock],
+        navigatePreviewsAction: {},
+        navigateReadingAction: { _ in }
+    )
+}
+
+// MARK: CommentsSection
+/// The screen's moderation alert as the row or card that asked for it sees it: the alert while `isPresented`, else
+/// `nil`, so the alert sits on the control that triggered it (AGENTS.md).
+typealias CommentModerationAlertItem = (_ isPresented: Bool) -> CommentModerationAlertBinding
+
+struct CommentsSection: View {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @SharedReader(.didLogin) private var didLogin: Bool
+    @SharedReader(.user) private var user: User
+    /// The card whose Report or Block was chosen last: it presents the moderation alert, and after a Block VoiceOver
+    /// moves to its collapsed card (C-4, C-8).
+    @State private var moderationTargetID: String?
+    @AccessibilityFocusState private var focusedCommentID: String?
+
+    let comments: [GalleryComment]
+    /// The screen's moderation, as a store: a copy of its state would go stale, as a Show or Hide changes the
+    /// moderation state without the Detail screen observing that change.
+    let moderationStore: StoreOf<CommentModerationFeature>
+    let moderationAlert: CommentModerationAlertItem
+    let navigateCommentAction: () -> Void
+    let navigatePostCommentAction: () -> Void
+    /// Votes on the comment with the ID, `1` up or `-1` down; the same vote again withdraws it.
+    let voteAction: (_ commentID: String, _ vote: Int) -> Void
+
+    private var backgroundColor: Color { Color(uiColor: .systemGray5) }
+    private var moderation: CommentModerationFeature.State { moderationStore.state }
+
+    private func moderationAction(_ action: CommentModerationFeature.Action) {
+        moderationStore.send(action)
+    }
+
+    // The strip is not composited as one drawing group: that flattens the cards into one bitmap, which would take the
+    // context menus, the collapsed cards' buttons and their hover effects with it (C-8, research §5.6 a).
+    var body: some View {
+        SubSection(
+            title: .comments,
+            showAll: !comments.isEmpty, showAllAction: navigateCommentAction
+        ) {
+            ScrollView(.horizontal) {
+                HStack {
+                    ForEach(comments.prefix(min(comments.count, 6))) { comment in
+                        card(comment)
+                            .appAlert(moderationAlert(moderationTargetID == comment.commentID))
+                    }
+                }
+                .scrollTargetLayout()
+            }
+            // The Home rows' snapping, as for the previews: the nearest card's leading edge settles on the
+            // 16pt content margin the first card rests at (an 8pt spacer plus the 8pt stack spacing it had).
+            .scrollTargetBehavior(.viewAligned(limitBehavior: .never))
+            .contentMargins(.horizontal, 16, for: .scrollContent)
+            .scrollIndicators(.hidden)
+            .animation(reduceMotion ? nil : .default, value: moderation.blockedMemberIDs)
+            .animation(reduceMotion ? nil : .default, value: moderation.revealedCommentIDs)
+            .onChange(of: moderation.blockedMemberIDs) {
+                // After a Block, VoiceOver continues on the collapsed card of the comment acted on (C-4).
+                if let moderationTargetID,
+                   let comment = comments.first(where: { $0.commentID == moderationTargetID }),
+                   moderation.isCollapsed(comment)
+                {
+                    focusedCommentID = moderationTargetID
+                }
+            }
+            CommentButton(backgroundColor: backgroundColor, action: navigatePostCommentAction)
+                .padding(.horizontal).disabled(!didLogin)
+        }
+    }
+
+    /// A blocked author's comment as the collapsed card (C-8), else the comment card with its moderation items.
+    @ViewBuilder private func card(_ comment: GalleryComment) -> some View {
+        if moderation.isCollapsed(comment) {
+            BlockedCommentCard(
+                commentID: comment.commentID,
+                backgroundColor: backgroundColor,
+                showAction: { moderationAction(.show(commentID: comment.commentID)) },
+                unblockAction: {
+                    if let memberID = comment.authorMemberID {
+                        moderationAction(.unblock(memberID: memberID))
+                    }
+                }
+            )
+            .accessibilityFocused($focusedCommentID, equals: comment.commentID)
+        } else {
+            // The vote row leads the menu, and the user's own comment keeps it, disabled, as its whole menu.
+            let actions = moderationActions(for: comment)
+            DetailView.CommentCell(comment: comment, backgroundColor: backgroundColor, moderation: actions)
+                .accessibilityIdentifier("comment_card_" + comment.commentID)
+                .contentShape(.contextMenuPreview, .rect(cornerRadius: CommentCardMetrics.cornerRadius))
+                .contextMenu {
+                    CommentModerationButtons(actions: actions)
+                }
+        }
+    }
+
+    private func moderationActions(for comment: GalleryComment) -> CommentModerationActions {
+        let actions = moderation.actions(
+            for: comment, on: .card, didLogin: didLogin, displayName: user.displayName
+        ) { item in
+            switch item {
+            case .report:
+                moderationTargetID = comment.commentID
+                moderationAction(.reportTapped(comment))
+            case .block:
+                moderationTargetID = comment.commentID
+                moderationAction(.blockTapped(comment))
+            case .unblock:
+                if let memberID = comment.authorMemberID {
+                    moderationAction(.unblock(memberID: memberID))
+                }
+            case .hide:
+                moderationAction(.hide(commentID: comment.commentID))
+            }
+        }
+        return actions.voting(on: comment, didLogin: didLogin) { voteAction(comment.commentID, $0.value) }
+    }
+}
+
+private func previewComment(
+    id: String, author: String, score: String, votedUp: Bool, text: String
+) -> GalleryComment {
+    .init(
+        votedUp: votedUp, votedDown: false, votable: true, editable: false,
+        score: score, author: author,
+        contents: [.init(type: .plainText, text: AttributedString(text))],
+        commentID: id, commentDate: .now
+    )
+}
+
+#Preview("Comments") {
+    withDependencies {
+        $0.cookieClient = .previewLoggedIn
+    } operation: {
+        CommentsSection(
+            comments: [
+                previewComment(
+                    id: "0", author: "Nreo", score: "+15", votedUp: false,
+                    text: "Thanks for the upload, great quality scans!"
+                ),
+                previewComment(
+                    id: "1", author: "Chihchy", score: "+42", votedUp: true,
+                    text: "Agreed. The later pages look excellent."
+                )
+            ],
+            moderationStore: Store(initialState: .init(galleryURL: nil), reducer: CommentModerationFeature.init),
+            moderationAlert: { _ in .constant(nil) },
+            navigateCommentAction: {},
+            navigatePostCommentAction: {},
+            voteAction: { _, _ in }
+        )
+    }
+}
+
+#Preview("Comments (empty)") {
+    withDependencies {
+        $0.cookieClient = .previewLoggedIn
+    } operation: {
+        CommentsSection(
+            comments: [],
+            moderationStore: Store(initialState: .init(galleryURL: nil), reducer: CommentModerationFeature.init),
+            moderationAlert: { _ in .constant(nil) },
+            navigateCommentAction: {},
+            navigatePostCommentAction: {},
+            voteAction: { _, _ in }
+        )
+    }
+}

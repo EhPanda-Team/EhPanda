@@ -1,0 +1,152 @@
+import ComposableArchitecture
+public import Foundation
+
+/// An identified continued-processing session and the events it reports.
+///
+/// A caller must present this handle's id to complete the session. That extends the identity
+/// invariant used by every late-arriving coordinator mutation across the client seam.
+public struct BackgroundProcessingSession: Sendable {
+    public let id: UUID
+    public let events: AsyncStream<BackgroundProcessingEvent>
+
+    public init(id: UUID, events: AsyncStream<BackgroundProcessingEvent>) {
+        self.id = id
+        self.events = events
+    }
+}
+
+/// Everything one progress push says BESIDE its whole-unit pair.
+///
+/// A struct rather than two more positional parameters: the seam's `updateProgress` already carries
+/// five, which is the project's parameter-count limit, and two adjacent `Int64`/`Bool` arguments at
+/// a call site say nothing about which is which.
+public struct ContinuedSubunitReport: Equatable, Sendable {
+    /// Sub-unit credit for units still IN FLIGHT, expressed in
+    /// `ContinuedProcessingSession.subunitsPerUnit` per unit (G-15-2D).
+    public var inFlightSubunitCount: Int64
+    /// Whether an UNCHANGED measurement in this report is a STALLED report the store may nudge.
+    ///
+    /// True only for the caller's periodic liveness re-push, so the nudge's cap keeps the heartbeat
+    /// meaning it was decided with: a caller pushing identical measurements at a faster cadence —
+    /// an intra-unit byte report on a crawling transfer, say — would otherwise spend the whole cap
+    /// in a few seconds. Every other push still SNAPS the count back when its measurement changes;
+    /// what this flag gates is only the increment (G-15-2I).
+    public var nudgesWhenStalled: Bool
+
+    public init(inFlightSubunitCount: Int64 = 0, nudgesWhenStalled: Bool = false) {
+        self.inFlightSubunitCount = inFlightSubunitCount
+        self.nudgesWhenStalled = nudgesWhenStalled
+    }
+}
+
+/// Wraps the system's continued-processing task so a user-started, foreground-initiated job
+/// keeps running after the app is backgrounded, surfaced by the system-provided progress card.
+///
+/// The client is domain-agnostic: callers supply already-localized strings and already-clamped
+/// counts, and nothing about what the work *is* lives here.
+///
+/// The client is injected directly into its one consumer. The macro-synthesized
+/// `BackgroundProcessingClient()` value leaves every endpoint unimplemented so tests fail loudly
+/// on any call they did not arrange, and `testUnimplementedClientReportsAnIssueForEveryEndpoint`
+/// calls all three of its endpoints to prove it.
+///
+/// That sentence is about the unimplemented VALUE and claims nothing about the session store
+/// behind `.live`, which this seam only forwards to. The store's own lifecycle — including the
+/// three arms that yield `.unavailable` and both arms of its launch handler's nil-task path — is
+/// covered separately by `ContinuedProcessingSessionTests` over the store's injected scheduling
+/// seam, whose spy can refuse a registration and throw from a submission.
+@DependencyClient
+public struct BackgroundProcessingClient: Sendable {
+    /// Registers and submits a session, returning its identified event stream. The stream
+    /// finishes itself after `expired`, after `unavailable`, or after `finish`, so a consuming
+    /// effect never needs external cancellation. A `nil` result means the store's single-session
+    /// guard refused the call, which is observable and retryable rather than a dead stream.
+    ///
+    /// The counts are the caller's already-clamped snapshot at submission time. They are
+    /// recorded before the request is submitted so a task the system launches immediately
+    /// adopts real progress rather than an empty `Progress`.
+    public var start: @Sendable (
+        _ title: String,
+        _ subtitle: String,
+        _ completedUnitCount: Int64,
+        _ totalUnitCount: Int64
+    ) async -> BackgroundProcessingSession?
+    /// Pushes fresh counts and a refreshed subtitle to the named system card. The caller owns
+    /// clamping and monotonicity. A push is applied only when `sessionID` names the session the
+    /// store currently holds, so a caller that lost ownership across its own suspension cannot
+    /// repaint a successor's card.
+    ///
+    /// `subunits.inFlightSubunitCount` is sub-unit credit for units still IN FLIGHT, expressed in
+    /// `ContinuedProcessingSession.subunitsPerUnit` per unit. The store folds it beneath the
+    /// whole-unit pair, so a long unit's transfer moves the reported progress before the unit
+    /// lands. The division of labour is unchanged by it: the caller keeps clamping the pair, and
+    /// the store clamps the fold.
+    ///
+    /// `subunits.nudgesWhenStalled` marks this report as one of the caller's periodic liveness
+    /// re-pushes, which is the only kind the store's bounded stall nudge may advance (G-15-2I).
+    public var updateProgress: @Sendable (
+        _ sessionID: UUID,
+        _ completedUnitCount: Int64,
+        _ totalUnitCount: Int64,
+        _ subunits: ContinuedSubunitReport,
+        _ subtitle: String
+    ) async -> Void
+    /// Completes `sessionID` only when it is the session the store currently holds.
+    ///
+    /// A caller that lost ownership across its own suspension must not be able to end a
+    /// successor.
+    public var finish: @Sendable (_ sessionID: UUID, _ success: Bool) async -> Void
+}
+
+extension BackgroundProcessingClient {
+    public static let live = Self(
+        start: { title, subtitle, completedUnitCount, totalUnitCount in
+            await ContinuedProcessingSession.shared.start(
+                title: title,
+                subtitle: subtitle,
+                completedUnitCount: completedUnitCount,
+                totalUnitCount: totalUnitCount
+            )
+        },
+        updateProgress: { sessionID, completedUnitCount, totalUnitCount, subunits, subtitle in
+            await ContinuedProcessingSession.shared.updateProgress(
+                sessionID: sessionID,
+                completedUnitCount: completedUnitCount,
+                totalUnitCount: totalUnitCount,
+                subunits: subunits,
+                subtitle: subtitle
+            )
+        },
+        finish: { sessionID, success in
+            await ContinuedProcessingSession.shared.finish(sessionID: sessionID, success: success)
+        }
+    )
+}
+
+// MARK: Test
+extension BackgroundProcessingClient {
+    /// Answers every start with a refusal and every later call with nothing — the client a
+    /// coordinator without a real background surface runs against.
+    ///
+    /// **Why all three closures suspend before they do anything.** The live value forwards onto
+    /// `ContinuedProcessingSession`, a `@MainActor` type, so every endpoint hops off the calling
+    /// actor — and while a call is over there the coordinator's actor is reentrant. A double that
+    /// answers synchronously does not merely run faster; it certifies that window as impossible,
+    /// and this value is the DEFAULT client of `DownloadCoordinator.init`, so an atomic form here
+    /// silently certified it across most of the downloads suite (G-15-36). The suspensions mirror
+    /// the hand-built doubles in the test target rather than inventing a second convention, and
+    /// `DownloadSourceInventoryTests` counts them alongside those doubles' — a closure that stops
+    /// yielding fails a build.
+    public static let noop = Self(
+        start: { _, _, _, _ in
+            await Task.yield()
+            return nil
+        },
+        updateProgress: { _, _, _, _, _ in
+            await Task.yield()
+        },
+        finish: { _, _ in
+            await Task.yield()
+        }
+    )
+}

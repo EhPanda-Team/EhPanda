@@ -1,0 +1,251 @@
+public import AppModels
+public import AppTools
+import BackgroundProcessingClient
+public import ComposableArchitecture
+public import Foundation
+import OSLogExt
+import Sharing
+
+private let logger = Logger(category: .init(describing: DownloadClient.self))
+
+@DependencyClient
+public struct DownloadClient: Sendable {
+    public var observeDownloads: @Sendable () -> AsyncStream<[DownloadedGallery]> = { AsyncStream { $0.finish() } }
+    /// Whether a continued-processing session is currently held — the current value on subscribe,
+    /// then every transition. Consumed by `AppReducer` to decide whether backgrounding may pause
+    /// the activity-log pump.
+    public var observeContinuedSessionLiveness: @Sendable () -> AsyncStream<Bool> = { AsyncStream { $0.finish() } }
+    /// Records whether the app is backgrounded, so each page transfer can be stamped with where it
+    /// was created. The client stays UIKit-free; the scene phase is AppReducer's to report.
+    public var setIsInBackground: @Sendable (_ isInBackground: Bool) async -> Void
+    /// A pure read of the coordinator's in-memory download index, which cannot fail.
+    ///
+    /// Together with ``fetchFolders`` this was declared `throws` until DEF-15-06: the interface
+    /// promised a failure no implementation could produce, and the four reducer effects reading the
+    /// pair `try await`ed inside a `.run` with no `catch:` arm, so a throw would have surfaced as a
+    /// TCA runtime issue rather than as anything a screen could report. Non-throwing removes that by
+    /// construction; if a real failure mode ever appears, restoring `throws` makes the compiler
+    /// enumerate every site.
+    public var fetchDownloads: @Sendable () async -> [DownloadedGallery] = { [] }
+    public var fetchDownload: @Sendable (String) async -> DownloadedGallery?
+    public var reconcileDownloads: @Sendable () async -> Void
+    public var refreshDownloads: @Sendable () async -> Void
+    public var verifyImages: @Sendable (String) async -> DownloadVerificationState?
+    public var fetchVersionMetadata: @Sendable (String, String) async -> DownloadVersionMetadata?
+    public var updateRemoteVersion: @Sendable (String, DownloadVersionMetadata) async -> DownloadedGallery?
+    public var enqueue: @Sendable (DownloadRequestPayload) async throws -> Void
+    public var togglePause: @Sendable (String) async throws -> Void
+    public var retry: @Sendable (String, DownloadStartMode) async throws -> Void
+    public var retryPages: @Sendable (String, [Int]) async throws -> Void
+    public var delete: @Sendable (String) async throws -> Void
+    public var loadManifest:
+        @Sendable (String) async throws -> (download: DownloadedGallery, manifest: DownloadManifest)
+    public var loadLocalPageURLs: @Sendable (String) async -> [Int: URL]?
+    public var rescanLocalPageURLs: @Sendable (String) async -> [Int: URL]?
+    public var captureCachedPage: @Sendable (String, Int, URL?) async -> Void
+    public var loadInspection: @Sendable (String) async throws -> DownloadInspection
+    /// A pure read of the coordinator's user-folder list, which cannot fail. See ``fetchDownloads``
+    /// for why neither read declares `throws` (DEF-15-06).
+    public var fetchFolders: @Sendable () async -> [String] = { [] }
+    public var createFolder: @Sendable (String) async throws -> Void
+    public var renameFolder: @Sendable (String, String) async throws -> Void
+    public var deleteFolder: @Sendable (String) async throws -> Void
+    public var moveDownload: @Sendable (String, String) async throws -> Void
+}
+
+extension DownloadClient {
+    public static func live(
+        rootURL: URL = FileUtil.downloadsDirectoryURL,
+        urlSession: URLSession = .shared,
+        fileManager: sending FileManager = FileManager()
+    ) -> Self {
+        let storage = DownloadStore(rootURL: rootURL, fileManager: fileManager)
+        // Reclaim any background-transfer files stranded by a prior process that died
+        // between staging and consuming them. Safe here because the background session
+        // does not exist yet, so the holding dir can only hold orphans.
+        storage.purgeBackgroundTransferHoldingDirectory()
+        let backgroundTaskStore = DownloadBackgroundTaskStore(
+            fileURL: storage.backgroundTaskRegistryURL()
+        )
+        let completionReceiver = BackgroundPageCompletionReceiver()
+        let pageDownloader = DownloadPageDownloader.background(
+            identifier: DownloadBackgroundSessionEvents.pageSessionIdentifier,
+            taskStore: backgroundTaskStore,
+            holdingDirectory: storage.backgroundTransferHoldingDirectoryURL(),
+            orphanedCompletionHandler: { taskIdentifier, fileURL, response in
+                await completionReceiver.handleCompletion(
+                    taskIdentifier: taskIdentifier,
+                    fileURL: fileURL,
+                    response: response
+                )
+            },
+            orphanedFailureHandler: { taskIdentifier, error in
+                await completionReceiver.handleFailure(
+                    taskIdentifier: taskIdentifier,
+                    error: error
+                )
+            }
+        )
+        let manager = DownloadCoordinator(
+            storage: storage,
+            urlSession: urlSession,
+            pageDownloader: pageDownloader,
+            backgroundTaskStore: backgroundTaskStore,
+            backgroundProcessingClient: .live,
+            downloadOptionsProvider: {
+                @Shared(.setting) var setting
+                return setting.downloadRequestOptions
+            }
+        )
+        Task {
+            await completionReceiver.setCoordinator(manager)
+            await manager.reconcileDownloads()
+            await manager.resumeQueue()
+        }
+        return makeDownloadClient(manager: manager)
+    }
+
+    /// Bridges an actor-owned stream onto a synchronous client endpoint: the endpoint hands back a
+    /// stream immediately while a task hops to the coordinator, subscribes, and forwards.
+    ///
+    /// Generic over the element rather than duplicated per endpoint, because the bridging IS the
+    /// contract — subscribe on a task, forward, finish when the source finishes, cancel the task
+    /// when the consumer drops the stream — and two copies of it would be two places for that
+    /// contract to drift.
+    private static func makeForwardedStream<Element: Sendable>(
+        source: @escaping @Sendable () async -> AsyncStream<Element>
+    ) -> AsyncStream<Element> {
+        AsyncStream { continuation in
+            let task = Task {
+                let stream = await source()
+                for await element in stream {
+                    continuation.yield(element)
+                }
+                continuation.finish()
+            }
+            continuation.onTermination = { _ in
+                task.cancel()
+            }
+        }
+    }
+
+    private static func makeDownloadClient(
+        manager: DownloadCoordinator
+    ) -> Self {
+        .init(
+            observeDownloads: {
+                makeForwardedStream(source: { await manager.observeDownloads() })
+            },
+            observeContinuedSessionLiveness: {
+                makeForwardedStream(source: { await manager.observeContinuedSessionLiveness() })
+            },
+            setIsInBackground: { isInBackground in
+                await manager.setIsSceneInBackground(isInBackground)
+            },
+            fetchDownloads: { await manager.fetchDownloads() },
+            fetchDownload: { gid in await manager.fetchDownload(gid: gid) },
+            reconcileDownloads: { await manager.reconcileDownloads() },
+            refreshDownloads: { await manager.refreshDownloads() },
+            verifyImages: { gid in await manager.verifyImages(gid: gid) },
+            fetchVersionMetadata: { gid, token in
+                @Shared(.setting) var setting
+                // Remote version metadata is optional by API contract; fetch failure
+                // intentionally maps to nil so download availability remains usable.
+                switch await manager.fetchVersionMetadata(
+                    host: setting.galleryHost,
+                    gid: gid,
+                    token: token
+                ) {
+                case .success(let metadata):
+                    return metadata
+
+                case .failure(let error):
+                    logger.error("Remote version metadata fetch failed: \(error, privacy: .private)")
+                    return nil
+                }
+            },
+            updateRemoteVersion: { gid, metadata in
+                await manager.updateRemoteVersion(gid: gid, metadata: metadata)
+            },
+            enqueue: { payload in try await manager.enqueue(payload: payload).get() },
+            togglePause: { gid in try await manager.togglePause(gid: gid).get() },
+            retry: { gid, mode in try await manager.retry(gid: gid, mode: mode).get() },
+            retryPages: { gid, pageIndices in
+                try await manager.retryPages(gid: gid, pageIndices: pageIndices).get()
+            },
+            delete: { gid in try await manager.delete(gid: gid).get() },
+            loadManifest: { gid in try await manager.loadManifest(gid: gid).get() },
+            loadLocalPageURLs: { gid in
+                // Local page URLs are an optional acceleration path; load failure maps to
+                // nil so callers retain their established remote-page fallback.
+                switch await manager.loadLocalPageURLs(gid: gid) {
+                case .success(let pageURLs):
+                    return pageURLs
+
+                case .failure(let error):
+                    logger.error("Local download page URL load failed: \(error, privacy: .private)")
+                    return nil
+                }
+            },
+            rescanLocalPageURLs: { gid in await manager.rescanLocalPageURLs(gid: gid) },
+            captureCachedPage: { gid, index, imageURL in
+                await manager.captureCachedPage(gid: gid, index: index, imageURL: imageURL)
+            },
+            loadInspection: { gid in try await manager.loadInspection(gid: gid).get() },
+            fetchFolders: { await manager.fetchFolders() },
+            createFolder: { name in try await manager.createFolder(name: name).get() },
+            renameFolder: { oldName, newName in
+                try await manager.renameFolder(oldName: oldName, newName: newName).get()
+            },
+            deleteFolder: { name in try await manager.deleteFolder(name: name).get() },
+            moveDownload: { gid, folderName in
+                try await manager.moveDownload(gid: gid, toFolderName: folderName).get()
+            }
+        )
+    }
+}
+
+// MARK: API
+public enum DownloadClientKey: DependencyKey {
+    public static let liveValue = DownloadClient.live()
+    public static let previewValue = DownloadClient.noop
+    public static let testValue = DownloadClient()
+}
+
+extension DependencyValues {
+    public var downloadClient: DownloadClient {
+        get { self[DownloadClientKey.self] }
+        set { self[DownloadClientKey.self] = newValue }
+    }
+}
+
+// MARK: Preview
+extension DownloadClient {
+    public static let noop = Self(
+        observeDownloads: { AsyncStream { $0.finish() } },
+        observeContinuedSessionLiveness: { AsyncStream { $0.finish() } },
+        setIsInBackground: { _ in },
+        fetchDownloads: { [] },
+        fetchDownload: { _ in nil },
+        reconcileDownloads: {},
+        refreshDownloads: {},
+        verifyImages: { _ in nil },
+        fetchVersionMetadata: { _, _ in nil },
+        updateRemoteVersion: { _, _ in nil },
+        enqueue: { _ in },
+        togglePause: { _ in },
+        retry: { _, _ in },
+        retryPages: { _, _ in },
+        delete: { _ in },
+        loadManifest: { _ in throw AppError.notFound },
+        loadLocalPageURLs: { _ in nil },
+        rescanLocalPageURLs: { _ in nil },
+        captureCachedPage: { _, _, _ in },
+        loadInspection: { _ in throw AppError.notFound },
+        fetchFolders: { [] },
+        createFolder: { _ in },
+        renameFolder: { _, _ in },
+        deleteFolder: { _ in },
+        moveDownload: { _, _ in }
+    )
+}

@@ -1,0 +1,1058 @@
+---
+phase: 17-localized-screenshot-capture-harness
+plan: "01"
+task: 2
+status: passed-32-of-32
+recorded: 2026-10-04
+source_head: c4a75569cc
+---
+
+# Task 2 actual-content feasibility gate
+
+## Final-tree scale-robust census gate — 2026-10-04
+
+**Task 2 passed: all 32 coordinates at source `c4a75569cc`.** The owner-provided commits
+`3e49512f14`, `2b3e85bfa3` and `c4a75569cc` are adopted; no further census changes were made.
+The original exact-once rule, strict viewport parity, native geometry and capture budgets
+remain in force. The older failed checkpoints below are historical and resolved by the
+recorded owner-directed revisions.
+
+Evidence: `/tmp/ehpanda-phase17-census-final-gate-01/`. The gate performed a clean
+FeatureTests build and orientation build, then **66 passing tests across 17 invocations**:
+27 phone and 24 tablet native tests, eight matrix methods, the focused AX5 Comments test
+and six rotation/restore methods. Failures, skips, expected failures and Repetition nodes
+are zero. Compiler/lint diagnostic files and runtimeWarnings arrays are empty.
+`independent-audit.json` independently checks the final-source hashes, all 32 acceptance
+records, strict native/full and freeze parity, item counts, size classes and requested /
+app / scene Dynamic Type categories. No test or diagnostic collector was interrupted.
+
+Each Home image contains VH1–VH6 once; Comments VC1–VC12 once; Downloads VD1–VD16 once;
+Reader all eight markers once. The previously blocked tablet landscape Large Comments,
+Downloads and Reader now pass. Tablet landscape AX5 Downloads counts VD16 once. The
+new Vision negative controls preserve sensitivity: blank VC5 counts zero, duplicated
+VC3 counts two. Both-family native suites run all eleven census tests.
+
+`census-reads.json` retains every window and confident OCR read before merging.
+`geometry.json` records fine/coarse window sizes, half-window stride, the 8-point inner
+margin, eight-request concurrency and occurrences with source-read indices. Independent
+checks verify every occurrence's indices point to reads of the same label and the removed
+legacy band/element keys are absent. Counts, item frames and the trailing-marker check
+consume the same merged occurrences.
+
+Focused phone portrait AX5 Comments converges to **420 × 15,663 pt / 1260 × 46,989 px**
+in seven stationary slices, with all twelve markers once and exact native/full parity.
+Requested heights are 7058⅔, 8279, 11940, 14380⅔, 15663, 15663, 15663 pt. The matrix also
+passes every Reader at native 1:1 artwork scale, including phone landscape output
+2736 × 30,096 px. The allocation budget remains 89,653,248 pixels; single reads remain
+limited to 8191 native pixels, with exact overlap checks.
+
+All **41 extracted fixture exports** pass independent verification of 47 unique asset
+entries, file sizes, SHA-256, aggregate digest, current generator source and carousel
+neighbor covers. The default export from the named `testExportPublicFixtures` attachment
+was copied byte-for-byte to `.capture/regression` only after the final gate passed. Its
+48 files include manifest.json; the prior materialization is preserved under the evidence
+root's `previous-regression/`. See fixture-verification.json and fixture-materialization.json.
+No output is an approved baseline.
+
+Both simulators restore portrait and their original Large content size. The gate-owned
+phone returns to Shutdown; the preexisting Booted tablet remains Booted. Lifecycle JSON
+records both restoration checks. The four reserved staged entries remain byte-identical
+to their saved patch; source hashes did not change during the gate. The tested working
+tree retains these owner-staged entries, including the project file; source-hashes.json
+records the exact tested bytes. Clean-checkout/Release acceptance remains in 17-14.
+
+Reproduction uses freshly resolved destination IDs, one xcodebuild at a time:
+
+```sh
+DEVELOPER_DIR=/Applications/Xcode-27.0.0.app/Contents/Developer \
+python3 -B Scripts/verify-full-content-capture.py \
+  --phone "$PHONE_UDID" --tablet "$TABLET_UDID" \
+  --output /tmp/ehpanda-phase17-census-final-gate-01 \
+  --derived-data "$HOME/Library/Developer/Xcode/DerivedData/EhPanda-bjhqwuemjjedwrfnzlznzjvcttjq"
+```
+
+The output directory must be new for another run. Recorded destinations are iPhone Air
+and iPad Pro 11-inch (M5), iOS 27.0 build 24A434. Exact commands and run-local identifiers
+are retained in the evidence root. Plan 17-01 is ready to close; 17-24 measures and pins
+the environment before 17-02 builds the complete regression runner.
+
+## Historical device-level Dynamic Type gate — 2026-10-04
+
+Implementation `e8145e838d` follows the owner's measured root cause and prescribed revision.
+The previous window-only AX5 override disagreed with system/app Large. Its toolbar glyph
+could shrink before the reference (portrait silently compared the wrong image) or during
+growth (landscape failed). Earlier AX5 passes are therefore historical parity evidence,
+not proof of a production-faithful reference. Research is retained under
+`/tmp/ehpanda-phase17-size-probe-evidence/toolbar-glyph-content-size/`.
+
+The runner now saves/restores each simulator's content size, explicitly sets and reads it
+back before every FeatureTests invocation, and separates four matrix invocations per
+family by orientation and Large/AX5. Tests require requested, app and scene categories to
+agree, recording content-size-readiness.json. FullContentHost treats its category argument
+as a requirement and no longer overrides it; root Dynamic Type environment overrides are
+removed from matrix/single captures. Stable observation freeze and native size-class pins
+remain. Six focused Python control checks cover mismatches, mandatory invocation sizing
+and cleanup success/failure with both owned and preexisting simulator sessions.
+
+Evidence: `/tmp/ehpanda-phase17-content-size-gate-01/`. Clean FeatureTests and orientation
+builds pass without compiler/lint diagnostics. Strict no-cache lint passes both changed
+Swift files. Native suites pass **16/16 phone and 13/13 tablet**. Focused phone AX5 Comments
+passes at **1260 × 46,989 px**, seven slices, census 12/12 and exact viewport parity.
+
+All **16 phone** coordinates pass. Tablet portrait Large/AX5 and landscape AX5 pass all
+**12** coordinates; tablet landscape Large Home also passes. Phone AX5 Home's native,
+frozen and full-content viewport glyphs are independently measured at **70 × 85 px** and
+1375 dark pixels in both orientations. The previous shrinking-glyph failure is resolved.
+Both-family render budget boundary tests also pass; census reuse and PNG encoding add no
+measured footprint after the composite. These are current-source, fixture-v2 captures.
+
+### New blocker: tablet landscape Large Comments OCR census
+
+The next coordinate, `ipad-landscape-large-comments`, fails itemCensus: VC5 and VC7 are
+zero; the other ten markers occur once. Its app, scene and requested category all equal
+UICTContentSizeCategoryL. Viewport is **1210 × 834 pt** at 2x, scene/window classes remain
+regular/regular, and native/frozen plus native/full viewport parity both pass. An independent
+RGBA comparison also confirms all three viewport images contain identical pixels.
+
+The output converges to **1210 × 1963 pt / 2420 × 3926 px**, with requested point heights
+1279.5, 1563, 1752, 1963, 1963, 1963 and two stable iterations. It uses **one render slice**.
+Visual inspection of capture.full-content.png clearly shows VC1–VC12, including VC5/VC7,
+and VCEND. The recorded text at VC7's position is **LOA**, around y=1068.27 pt; VC5 has
+no retained observation. The evidence establishes a recognition/census failure for visible
+markers, not missing rendered rows. Raw candidates/confidences are not recorded, so the
+exact reason VC5 was omitted is not established.
+
+OCR uses accurate English RecognizeTextRequest, language correction off, customWords set
+to expected markers plus VCEND, top candidate only and confidence >=0.8. Bands are 834 pt
+high with 128 pt overlap (706 pt stride); the band starting at 706 pt owns midpoints in
+770..<1476 pt. The PNG and geometry.json permit further investigation without recapturing
+or changing the application. No OCR rule or acceptance threshold was changed.
+
+Coverage is **29 captured / 1 failed / 2 pending**; the two pending cells are tablet
+landscape Large Downloads and Reader. Later census/frame/tail/restoration acceptance for
+the failed Comments coordinate was not reached. Task 2 remains incomplete (1/2 tasks,
+0/24 plans); no SUMMARY, baseline promotion or fixture rematerialization. The prior v2
+fixture fix, device-level sizing, freeze, strict parity and budgets remain adopted.
+
+Formal failed-coordinate directory relative to the current evidence root:
+`ipad-landscape-large-attachments/1F4B2A0A-C636-4860-977F-4EA4391C116A/phase17-feasibility-9185C868-57AF-4CE5-B9D7-A7DA0E7410D5/ipad-landscape-large-comments/`.
+All 39 extracted fixture exports independently pass 47-entry size/hash, aggregate digest,
+generator source and neighbor-cover checks. See fixture-verification.json. Source hashes
+remain unchanged; skips/Repetition are zero and runtimeWarnings arrays empty.
+
+Both portrait cleanup invocations pass. Original Large sizes are restored on both devices;
+phone returns to its original Shutdown state and iPad remains originally Booted. The failed
+test ended before its optional simctl diagnose collector was terminated with SIGTERM;
+xcodebuild then finalized exit 65 and the runner completed cleanup before exiting 1.
+No test process was interrupted. optional-diagnostic-termination.json records that boundary.
+No jobs remain, and reserved staged edits plus .capture/ are unchanged.
+
+## Historical v2 carousel fixture gate — 2026-10-04
+
+Implementation `be86e551e8` follows the owner's fixture-only decision: separate PEEK1/PEEK2
+neighbors join VH1 in the popular carousel, with the same title shape and page count.
+Expected items remain VH1–VH6. The fixture asserts at least three popular galleries and
+neighbor markers disjoint from expected markers. Covers, Home metadata and home-finite
+assets include both neighbors; fixture version is phase17-finite-v2. Production carousel,
+FullContentHost census, renderer and Task 1 tracer are unchanged.
+
+Evidence: `/tmp/ehpanda-phase17-carousel-v2-gate-01/`. Clean FeatureTests and orientation builds have zero compiler/lint
+diagnostics. Strict no-cache SwiftLint passes both changed Swift files. Phone native tests
+pass **16/16**, including all three exporter tests. Independently checked exported fixtures
+have 47 entries with valid sizes, SHA-256 and current generator provenance; see
+fixture-verification.json and 17-01-PUBLIC-FIXTURES.md. Focused AX5 Comments again passes
+at 1260 × 46,989 px, seven slices, exact native/full parity and census 12/12.
+
+All eight phone portrait cells pass. All four Large phone landscape cells also pass:
+Home 912 × 1316 pt, Comments 912 × 2195 pt, Downloads 912 × 2678 pt, and Reader
+912 × 10032 pt. Landscape Large Home's VH1–VH6 each occur exactly once, resolving the
+prior carousel census failure without changing that rule. Reader exports 2736 × 3762-pixel
+pages and captures 2736 × 30,096 pixels in four slices with all eight markers and native
+1:1 artwork checks passing. These are current v2 captures, not reused v1 results.
+
+### New blocker: AX5 landscape Home reload glyph changes after growth
+
+The next coordinate, iphone-landscape-AX5-home, passes native/frozen equivalence but fails
+nativeViewportPixelsChanged after growth. Native and frozen PNGs are independently
+byte-identical in decoded RGBA. The native reference settled after seven samples and the
+frozen reference after four. Scene/window size classes at both phases all remain horizontal
+regular (2), vertical compact (1). Actual viewport remains 912 × 420 pt at 3x.
+
+Height converges to **2404 2/3 pt / 7214 px**, with requested heights identical for three
+iterations and two stable iterations. The **2736 × 7214-pixel** full image uses **one render
+slice**, below the per-read limit. Its top crop differs in **2206 pixels**, maximum channel
+delta **238**, exclusive pixel bounds **[2521, 91, 2591, 176]**. Only RGB channels change;
+all other viewport pixels match. Visual inspection places the difference entirely in the
+top-right reload glyph, which shrinks while its glass background remains unchanged.
+
+Within a fixed glyph region, RGB values below 100 span **70 × 85 px** in the native image
+and **58 × 70 px** after growth (exclusive bounds [2527, 98, 2585, 168] for the latter).
+These are descriptive raster bounds, not measured UIKit view frames. Home's existing toolbar
+uses Label(.reload, systemSymbol: .arrowCounterclockwise). No production toolbar change is
+included. Unlike the earlier Comments failure, this occurs after height growth, while the
+freeze transition itself preserves pixels. The exact trigger has not been established;
+no inference that the v2 neighbor fixture caused the glyph transition is justified because
+AX5 landscape Home was not reached by the earlier v1 matrix.
+
+Coordinate directory relative to the run root:
+`iphone-landscape-attachments/3DD19BEB-FC02-406E-A4D5-D8E4606EF94F/phase17-feasibility-61209144-07A9-4DB3-BF3F-87EB74DCFEA5/iphone-landscape-AX5-home/`.
+It includes capture.viewport.png, capture.frozen-viewport.png, capture.full-content.png,
+capture.full-content-viewport.png, the original single render slice, geometry.json, both
+parity reports, orientation-readiness.json and viewport-difference-analysis.json.
+Census and later artwork/trailing/restoration acceptance for this coordinate were not
+reached after the parity failure. No tolerance, mask, fixture reduction or baseline change
+was applied in response.
+
+Root aggregate-outcomes.json records **12 captured / 1 failed / 19 pending**. Remaining
+phone landscape AX5 Comments/Downloads/Reader and all iPad cells are pending. Test summaries
+have zero skips and empty runtimeWarnings; all result trees have zero Repetition nodes.
+Source hashes remain unchanged. The run finalized naturally without interrupting tests or
+collectors. Portrait cleanup passed, the phone returned to its original Shutdown state,
+and the already-Booted iPad remained Booted. No jobs remain.
+
+Task 2 is incomplete: 1/2 tasks and 0/24 plans complete. Preserve the v2 fixture decision;
+investigate the new post-growth glyph transition before resuming the full matrix. No SUMMARY,
+fixture rematerialization or baseline promotion. Reserved staged changes and `.capture/`
+remain untouched. Earlier sections below are historical evidence.
+
+## Historical lifecycle and size-class gate — 2026-10-04
+
+Implementation `9ec0d7f5c3` manages one simulator session per family and pins both native
+scene size classes at capture-window creation, before the first render. The runner records
+and requires Booted before/after every invocation; after portrait restoration it shuts down
+only a simulator it booted. geometry.json records scene/window size classes at the viewport
+and current extent. Matrix acceptance requires all four values to agree.
+
+Formal evidence: `/tmp/ehpanda-phase17-lifecycle-traits-gate-01/`. Clean FeatureTests and orientation builds have zero
+compiler/lint diagnostics. Phone native tests pass **16/16**; focused AX5 Comments again
+passes at **1260 × 46,989 px**, seven slices, census 12/12 and exact viewport parity.
+Phone portrait passes **8/8**. No test is skipped or repeated; all summary runtimeWarnings
+arrays are empty. Source hashes remain unchanged through the full attempted gate.
+
+The phone starts Shutdown, stays Booted before/after every invocation, then returns to
+Shutdown after the successful portrait cleanup. The iPad remains in its preexisting Booted
+state; its matrix was not reached. This run finalized naturally with no test process or
+optional diagnostic collector interrupted. Raw simulator/platform logs are retained,
+including bootstatus's Data Migration Failed/status 3 line despite its zero process exit;
+the device reached Booted and the actual test results above establish the usable session.
+
+### Orientation and growth parity now pass on real landscape Home
+
+The first landscape readiness sample reports device orientation **3**, interface orientation
+**3**, and scene **912 × 420 pt**. There is no readiness delay. The capture converges to
+**912 × 1316 pt / 2736 × 3948 px**, with one render slice and two stable iterations
+(requested heights: 1316, 1316, 1316 pt). Native/frozen parity and native/full viewport parity
+both pass. An independent decoded RGBA comparison also finds the two viewport PNGs identical.
+All four recorded size-class pairs are **horizontal regular (2), vertical compact (1)**.
+The earlier 11,745-pixel navigation-title difference is absent for this coordinate.
+
+### New blocker: native carousel replicas versus exact-once marker census
+
+The first landscape Home coordinate fails itemCensus: Visual Home Gallery 1 has count **2**,
+while Galleries 2–6 each have count **1**. The actual screenshot visibly contains `VH1`
+on the centered card and on the partially exposed right neighboring card. OCR reports
+frames at approximately **(179.95, 189.00, 43.68, 19.25)** and
+**(819.40, 189.00, 45.43, 19.25)** points. Both are within the first 420-point OCR band,
+so this pair is not duplication across overlapping OCR bands. Strict native/full parity
+shows both occurrences already exist in the native viewport.
+
+The fixture sets `state.popularGalleries = Array(galleries.prefix(1))` in
+`FullContentFeasibilityTests.swift`. Production `CardSlideSection.bufferedCards` in
+`HomeView+Sections.swift` creates fifteen copies of the input list and selects a gallery
+by modulo. With a one-gallery input, the visible neighboring card repeats the same marker.
+The unresolved issue is how completeness should treat those native carousel replicas while
+retaining meaningful omission/duplication checks. No fixture, census rule or production
+carousel change was selected in this run.
+
+Coordinate evidence, relative to the run root:
+`iphone-landscape-attachments/154A0A2F-9790-448C-8A3B-0F8BBB7BD770/phase17-feasibility-CB1814F3-ACC1-4877-B7EC-BC14FD146140/iphone-landscape-large-home/`.
+It contains the native/full images, orientation trace, geometry, both passing parity files
+and `census-analysis.json`. `aggregate-outcomes.json` at the run root records all 32 cells:
+**8 captured / 1 failed / 23 pending**. Later acceptance checks after census were not reached
+for landscape Home; the remaining seven phone landscape cells and all iPad cells are pending.
+
+Task 2 remains incomplete: 1/2 tasks and 0/24 plans complete. No SUMMARY, fixture
+rematerialization or baseline promotion. Four reserved staged paths and `.capture/` remain
+untouched. Resolve the carousel census contract before continuing the matrix. Earlier
+sections below are historical evidence.
+
+## Historical area-budget gate — 2026-10-04
+
+Implementation `7bc13a5b41` adopts the owner's measured area policy:
+`maximumCompositePixelCount = 2736 * 32_768 = 89,653,248`. This is the largest RGBA
+buffer admitted by the previous height policy at the widest matrix coordinate; it is
+an allocation budget, not a claimed CoreGraphics limit. RenderServerCapture checks it
+before any slice read and reports both pixel dimensions in compositeExceedsBudget.
+The host no longer rejects intermediate heights; every requested height is persisted in
+geometry.json before resizing, and final converged geometry is written before allocation.
+The twelve-iteration/two-stable rules and content-exceeds-viewport guard remain.
+
+Canonical 8-bit sRGB RGBA pixels live in one Data allocation. CGImage and census share
+that allocation. The compositor streams reads, retaining only adjacent originals for
+strict seam validation and failure diagnostics; Result keeps only frame/readFrame metadata.
+Parity-failure slice images are cropped from the composite. No threshold, resolution,
+fixture count or production layout change is included in this revision.
+
+### Native boundary and memory evidence
+
+Current run: `/tmp/ehpanda-phase17-area-budget-gate-02/`. Clean FeatureTests and orientation
+builds have zero compiler/lint diagnostics. Phone native tests pass **16/16**, including
+three modifier tests and four renderer tests. The boundary test verifies three color bands,
+continuity across slice joins and rejection of the next pixel row. At the phone's 1260-pixel
+width, the largest admitted whole-row image is **1260 × 71,153**, or **89,652,780 pixels**
+(468 pixels below the area budget), with **10 slices**. Row 71,154 throws the expected area
+error before reading. Composition took 949.05 ms; PNG encoding produced 1,949,058 bytes.
+
+Measurement attachment: `iphone-native-attachments/ED56D91F-48F4-4042-8A32-1E7FE5F65E3C.json` under the current run root.
+The attachment records task_vm_info phys_footprint and ledger_phys_footprint_peak without
+asserting their values. These are measured process values, not an inferred allocation cap.
+
+| Stage | Current footprint (MiB) | Lifetime peak (MiB) |
+|---|---:|---:|
+| Before composite, after window setup | 74.112 | 361.956 |
+| After composite | 416.284 | 517.565 |
+| After census raster reuse | 416.284 | 517.565 |
+| After PNG encoding | 416.284 | 517.565 |
+
+The canonical buffer is 341.998 MiB; retained growth after composition is 342.172 MiB.
+Peak growth above the pre-composite sample is 443.453 MiB, about 1.30 buffers, including
+adjacent reads and UIKit rendering scratch. This does not establish an exact one-slice
+peak, nor a bound for SnapshotTesting verification, OCR/artwork processing, other devices
+or arbitrary content. The first run measured 518.612 MiB total peak and the same retained
+342.172 MiB increase. User-supplied earlier measurements remain at
+`/tmp/ehpanda-phase17-size-probe-evidence/composite-footprint/`.
+
+### AX5 Comments and portrait matrix
+
+Focused phone portrait AX5 Comments passes before the matrix. The final image is
+**420 × 15,663 pt / 1260 × 46,989 px**, with **7 slices**, two stable iterations,
+strict native/full viewport parity and all **12/12** markers occurring exactly once.
+Freeze parity also passes. Requested pixel heights, in order:
+`21176, 24837, 35820, 43142, 46989, 46989, 46989`.
+The previous 35,820-pixel rejection was the third intermediate estimate, not the final
+extent. The portrait matrix then passes all **8/8** coordinates, including AX5 Downloads
+at 10,681 pt. Reader traces preserve initial estimate overshoot before convergence.
+All saved acceptance, freeze/native parity, census, artwork and restoration checks pass.
+
+### Remaining gate: external rotation across invocations
+
+The external UI test reports successful landscape rotation, but the next FeatureTests
+invocation fails before creating Home's capture host. The first run's immediate assertion
+failed after 0.25 seconds. A bounded readiness check was then added, preserving external
+rotation as the only orientation writer. In the current run it records **97 samples**
+over **5043.43 ms**: every sample has interfaceOrientation **1 (portrait)**, scene bounds
+**420 × 912 pt**, and UIDevice.orientation **0 (unknown)**. None matches landscape.
+This rejects the hypothesis that a short scene-startup wait alone resolves the failure;
+it does not prove that the physical device reset or identify who determines the launch
+orientation. No in-process geometry request or manufactured landscape viewport was added.
+
+Trace: `iphone-landscape-attachments/5604EE3B-2830-4BED-AAE3-12109F84B2F1/phase17-feasibility-25D2493D-2F33-4228-9332-08E5C447505A/iphone-landscape-large-home/orientation-readiness.json` under the current run root.
+The failed coordinate is iphone-landscape-large-home, with orientationUnavailable.
+Coverage is **8 captured / 1 failed / 23 pending**; the remaining phone landscape
+coordinates and both iPad orientations have not run in this gate. All 32 remain required.
+
+Both runs have zero skipped tests and Repetition nodes, unchanged source hashes, and empty
+summary runtimeWarnings arrays. Each failed landscape test completed before its optional
+simctl diagnose collector was terminated to allow xcresult finalization; those optional
+collector outputs are incomplete. The test engines were not interrupted. Portrait cleanup
+passed. No test job remains. Source and diagnostic logs are retained in both run roots.
+
+Task 2 remains incomplete: 1/2 tasks and 0/24 plans complete. No SUMMARY, baseline promotion
+or fixture rematerialization. The four reserved staged paths and `.capture/` remain intact.
+Investigate the external-rotation-to-app-launch boundary before resuming the full matrix.
+Do not raise the tested area budget, reduce coverage or silently substitute a viewport-only
+capture. Earlier sections below are historical evidence.
+
+## Historical observation delivery gate — 2026-10-04
+
+The owner's real-CommentsView probe isolated the toolbar shrink to environment writes:
+no-change settling and body re-evaluation preserved pixels; even an unread changed key
+reproduced the 2648-pixel glyph shrink; toggling a stable observable object's property
+preserved pixels. Reports and probe source:
+`/tmp/ehpanda-phase17-size-probe-evidence/toolbar-glyph-environment/`.
+
+The host now receives a reference object, its optional environment key and a writable
+Boolean key path. The stable root installs that object before first render and does not
+read its mutable property. A stored setter retains the generic reference without linking
+AppComponents into the capture library. Only the measurement modifier observes isFrozen.
+The private Boolean environment writer is removed; Home/GalleryList call sites are unchanged.
+
+Formal evidence: `/tmp/ehpanda-phase17-observation-gate-01/`. Clean and orientation builds
+pass with zero compiler/lint diagnostics. Phone native tests pass 15/15, including all three
+updated modifier tests and an explicit actual-geometry/unchanged-forwarding assertion.
+Portrait rotation and cleanup each pass 1/1. All result trees have zero skipped tests and
+Repetition nodes; summary runtimeWarnings arrays are empty. Source hashes are unchanged.
+The run finalized itself; no diagnostic collector or test process was interrupted.
+
+The five previously captured coordinates pass again (four portrait Large shapes and AX5
+Home). **AX5 Comments now passes freeze inertness with zero changed pixels**: both PNGs are
+1260×2736 and their complete decoded RGBA bytes match. The native reference settled after
+six samples, the frozen reference after three. The old glyph transition is resolved for
+this native-size test. The hierarchy was not primed into its post-update glyph state.
+
+The next guard rejects `contentHeightExceeded(35820.0)` during height convergence. At 3x,
+this is a requested 11940-point composite height, above the approved 32768-pixel budget.
+This is the capture harness's composite allocation bound, not the render-server per-read
+8191-pixel ceiling. No full-content image was produced; final converged height, native/full
+parity, item census and peak memory for this coordinate remain unverified. The error alone
+does not establish which convergence iteration requested this height or that it is final.
+
+At the measured width of 1260 pixels, one 35820-row RGBA buffer would be 180532800 bytes
+(172.1695 MiB); one buffer at the current height ceiling is 157.5 MiB. These are arithmetic
+buffer sizes, not measured peak process memory. The implementation also retains slices,
+creates canonical raster copies and PNG data, so the additional allocation cost is not
+established by the single-buffer calculation.
+
+Matrix coverage remains **5 captured / 1 failed / 26 pending**, now with the failure at
+the composite budget rather than the inertness guard. AX5 Downloads/Reader, landscape and
+iPad matrix runs were not reached. The capture runner restored portrait; no jobs remain.
+The existing height budget is unchanged pending a reconciled capacity decision; no fixture
+reduction, parity tolerance, coverage exception or baseline promotion was introduced.
+
+Authoritative extracted matrix directory, relative to the run root:
+`iphone-portrait-attachments/DA910431-BA83-4F58-9C57-28283F2ADFD4/phase17-feasibility-EFFA4106-F42C-4449-8722-C4A2D6317C70/`.
+The failed directory contains the two native images, matched freeze JSON, and derived
+`observation-and-budget-analysis.json`; `outcomes.json` records the exact guard failure.
+Task 2 remains incomplete: 1/2 tasks and 0/24 plans complete, no SUMMARY. `.capture/`
+remains untouched. The earlier sections are historical evidence for superseded protocols.
+
+## Historical Boolean freeze gate — 2026-10-04
+
+The owner's follow-up protocol is implemented: each Home/GalleryList measurement retains
+its own native container size, with a Boolean environment flag controlling sampling.
+FullContentHost no longer supplies a CGSize. It settles the native reference, freezes,
+waits a layout frame, re-settles and requires exact canonical pixels before growth.
+Viewport geometry is restored before thaw. The prior pin implementation below is historical.
+
+Formal run: `/tmp/ehpanda-phase17-viewport-freeze-gate-01/`. Source hashes remain identical
+from clean build through completion. Clean FeatureTests and orientation builds both pass
+with zero compiler/deprecation/SwiftLint diagnostics. iPhone native tests pass 15/15,
+including three hosted SwiftUI modifier tests. Initial portrait rotation and final portrait
+restoration each pass 1/1. All result trees have zero skipped tests and Repetition nodes;
+all inspected summary runtimeWarnings arrays are empty.
+
+| Coordinate | Freeze parity | Native/full parity | Output points | Result |
+|---|---|---|---|---|
+| iPhone portrait Large Home | exact | exact | 420×1374 | captured |
+| iPhone portrait Large Comments | exact | exact | 420×2798 | captured |
+| iPhone portrait Large Downloads | exact | exact | 420×2788 | captured |
+| iPhone portrait Large Reader | exact | exact | 420×4622 | captured |
+| iPhone portrait AX5 Home | exact | exact | 420×2662 | captured |
+| iPhone portrait AX5 Comments | fails before growth | not reached | native 420×912 | failed |
+
+The earlier AX5 Home layout failure is resolved for this measured coordinate; its census
+is 6/6 and restored geometry passes. This does not establish unrun landscape/tablet behavior.
+The current total is **5 captured / 1 failed / 26 pending** across 32 required coordinates.
+No AX5 Downloads/Reader, landscape or iPad matrix ran after the failure.
+
+AX5 Comments throws `visibleViewportFreezeChangedPixels` at native size. The native and
+frozen PNGs are both 1260×2736. Only 2648 pixels differ, all inside the top-right compose
+glyph: exclusive pixel bounds `[1098,229,1174,305]`, maximum channel delta 77. The glyph
+visibly shrinks; the remaining image, including the glass button background and comment
+content, is byte-identical. As a descriptive pixel measurement, red-channel <180 support
+inside that region spans 76×76 before and 64×64 after (not UIKit view geometry).
+Native settling took five samples, frozen settling three; both satisfied the existing
+at-least-500-ms identical-pixel rule. There was no window growth at this point.
+
+CommentsView has no viewport sampling modifier or freeze-key read. Its toolbar is the
+existing `Label(.postComment, systemSymbol: .squareAndPencil)` button, disabled for the
+logged-out fixture. No production Comments code was changed. The evidence shows a change
+across the environment transition; it does not yet distinguish environment-triggered
+native toolbar reconfiguration from delayed settling or another UIKit/SwiftUI cause.
+Do not weaken parity, mask the glyph, exclude the coordinate or change the baseline.
+
+Authoritative exported matrix directory, relative to the run root:
+`iphone-portrait-attachments/9543D25A-7525-4B89-84AF-E75F1BC409BA/phase17-feasibility-5F345990-3B14-4AC4-BA1F-192F5BC51449/`.
+It contains `outcomes.json`, five acceptance files, and the failing coordinate's
+`capture.viewport.png`, `capture.frozen-viewport.png`, `visible-viewport-freeze-parity.json`
+and derived `freeze-difference-analysis.json`. A live-container copy under `live-evidence/`
+was retained while Xcode finalized the failed bundle. Only the matching optional post-test
+simctl diagnostic collector was terminated after the suite ended; the xcresult finalized
+with exit 65 and portrait cleanup passed. Optional simulator diagnostics may be incomplete.
+
+Task 2 remains incomplete (1/2 tasks, 0/24 plans). No SUMMARY or approved baseline exists;
+`.capture/` remains untouched. The new toolbar transition requires investigation before
+resuming expansion under the approved feasibility contract.
+
+## Historical size-pin implementation gate — 2026-10-04
+
+The owner adopted a visible-viewport environment pin and external XCUIDevice rotation,
+retaining all 32 full-content coordinates. The implementation follows that protocol and
+fails before growth when pinning changes the native viewport. Task 2 remains incomplete:
+1/2 tasks, 0/24 plans, no SUMMARY or baseline approval.
+
+The final source tree is recorded in
+`/tmp/ehpanda-phase17-viewport-gate-03/source-hashes.json`; it was rechecked unchanged
+after execution. Clean FeatureTests build and orientation UI-test build both pass with
+zero compiler/deprecation/SwiftLint diagnostics. Native phone tests pass 12/12. Initial
+portrait rotation and final portrait cleanup each pass 1/1. Every inspected test tree has
+zero Repetition nodes and skips; summaries contain no runtime warnings.
+
+The portrait matrix fails at `iphone-portrait-AX5-home` with
+`visibleViewportPinChangedPixels`. Four portrait/large coordinates pass complete capture,
+pin equivalence, strict native parity, census and geometry checks. One coordinate fails
+before growth; three remaining portrait coordinates and 24 coordinates in the other
+invocations are unattempted: **4 captured / 1 failed / 27 pending out of 32**. The failure
+stops further capture, and the device is restored to portrait. Current-code phone landscape
+and both iPad invocations have not run.
+
+The selected UIScrollView's bounds are **420 x 912 pt**, equal to the window size. The
+unpinned and pinned viewport PNGs are both 1260 x 2736 pixels. Pinning alone changes
+**706625 pixels**, maximum channel delta 255, bounding rectangle `[0, 554, 1260, 2728)`.
+Visual inspection shows a two-line truncated title becoming three lines, a taller card
+and the Frontpage section moving down. This is the same changed-pixel extent as the prior
+tall-window failure. The pre-growth equivalence check exposes the mismatch exactly where
+the adopted protocol requires. The actual value held by Home's private SwiftUI
+`viewportSize` was not instrumented; safe-area or measurement-source explanations are
+hypotheses, not established root cause. Do not substitute window/scene size or alter the
+pin's measurement rule without reconciling the owner-adopted protocol.
+
+Evidence root: `/tmp/ehpanda-phase17-viewport-gate-03/`.
+
+- Builds: `clean-feature-build.log`, `orientation-build.log` and their diagnostics/exit JSON.
+- Native proof: `iphone-native.xcresult`, summary/tree and exported attachments.
+- Failed matrix: `iphone-portrait.xcresult`, summary/tree and exported attachments.
+- Extraction root: `iphone-portrait-attachments/5E46351E-5B47-4981-B8C6-88A9777E300A/`
+  `phase17-feasibility-9805FA9C-F457-451B-AA54-298E46FB89F3/`.
+- Under `iphone-portrait-AX5-home/`: `capture.viewport.png`, `capture.pinned-viewport.png`,
+  `visible-viewport-pin-parity.json` and read-only pixel analysis `pin-difference-analysis.json`.
+- Cleanup: `iphone-restore-portrait.xcresult` and summary/tree. Xcode's matching
+  post-test simctl diagnostics collector was terminated after the test suite had finished
+  failing; the test engine was not stopped. Its optional simulator diagnostics may be
+  incomplete. The result bundle finalized with exit 65 and the cleanup test passed.
+
+A direct AppComponents dependency caused Xcode to promote shared app modules to dynamic
+frameworks without string-symbol generation. Explicit symbol generation and static support
+linkage did not solve it; both experiments were reverted. The native test target now supplies
+`\.visibleViewportSize` as a required key path while the host still owns/applies the observable
+pin. Package linkage is unchanged. Development logs are `viewport-clean-dev.log`,
+`viewport-symbols-dev.log`, `viewport-static-support-dev.log` under `/tmp/ehpanda-phase17-`.
+The intermediate gate-02 run passed clean build and 12 native tests, then correctly rejected
+a runner source change and restored portrait. Gate-03 is the fixed-source acceptance attempt.
+
+## Historical parity/export handoff reconciliation
+
+Owner handoff adds `8d6f88e338` (render parity) and `5f094a212a` (reader export at rendered
+pixel width) above root's `ecdf187adf` checkpoint. Root reconciled the committed source,
+standalone findings, xcresult summaries/trees, native attachments and fixture hashes.
+The old Downloads one-byte mismatch, Reader black middle read and Reader top blur are
+resolved in the supplied portrait captures. Architecture approval remains settled.
+Task 2 is still incomplete: 1/2 tasks and 0/24 plans complete, no SUMMARY or baseline.
+
+## Current committed capture behavior
+
+- Viewport references must stay byte-identical for at least 500 ms, sampled approximately
+  every 100 ms with a 40-sample bound. Layout convergence alone did not wait for the
+  one-time Liquid Glass settling step. Failed settling throws renderDidNotSettle;
+  geometry records renderSettleSamples and renderSettleMilliseconds.
+- Replicant reads use a strict sub-8192-pixel ceiling: maximumSnapshotDimension is 8191,
+  maximumSliceHeight is 2730 pt at 3x and 4095 pt at 2x. Exactly 8192 px can return true
+  but opaque black on the measured iPad replicant path. Direct drawHierarchy's measured
+  inclusive ceiling remains 8192 px. Width rejection and 64-point context/overlap remain.
+- A full-screen non-key companion window at .normal mirrors the status-bar visibility
+  measured at the native viewport while the capture window is tall. The convergence loop
+  checks that state and throws on drift; restoration/dismissal removes the companion.
+  This preserves the Reader's hidden status bar, safe area and native soft top-edge effect.
+- The vertical Reader exports eight 8:11 pages at the coordinate's rendered pixel width,
+  rounded to a whole-pixel height. Each coordinate gets a fresh fixture path after actual
+  scene orientation is measured. Artwork width x scale must equal the exported width.
+  Default export remains 800 x 1100; previews/covers and fixture version are unchanged.
+
+The standalone findings are under
+`/tmp/ehpanda-phase17-size-probe-evidence/probe4-9-render-parity/RESULTS.md`,
+`tablet-window-width/` and `reader-page-geometry/`. Narrow iPad windows can also return
+true with black content: the scene-width requirement remains essential. These findings
+concern the measured iOS 27 Simulator runtime, not universal physical-device limits.
+
+D-08 still produces one image from one stationary committed full-height layout. Slices
+read that frame without scrolling; the entire overlap must match exactly and canonical
+bytes are copied on the CPU. The 32768-pixel height limit is the composite memory budget.
+Native parity, census, final-item/artwork completeness and restored geometry remain strict.
+
+## Supplied builds and independently inspected test results
+
+`/tmp/ehpanda-phase17-parity-build.log` and `-build-tablet.log` are incremental
+build-for-testing invocations, both successful with zero compiler/deprecation/SwiftLint
+diagnostics. They are not a new clean-build gate. The earlier clean proof at source
+8ee6646728 remains historical; a current-source clean integration is still needed before
+completion after any further implementation revision.
+
+| Existing result under `/tmp/ehpanda-phase17-` | Inspected actual tests | Passed / failed / skipped | Repetition nodes |
+|---|---:|---|---:|
+| `parity-phone.xcresult` | 2 | 2 / 0 / 0 | 0 |
+| `parity-tablet.xcresult` | 9 | 9 / 0 / 0 | 0 |
+| `matrix-phone.xcresult` | 1 | 0 / 1 / 0 | 0 |
+| `matrix-tablet.xcresult` | 1 | 0 / 1 / 0 | 0 |
+
+The handoff reports an earlier phone 12/12 group (six feasibility, three renderer, three
+Home tests). The current same-named phone log/bundle contains the later 2/2 Reader and
+requested-width export tests. Earlier six named directory attachments survive separately
+under `/tmp/ehpanda-phase17-parity-phone-attachments/`; do not describe the current
+bundle as a twelve-test run. Root read a private copy when xcresulttool needed its report
+cache; `/tmp/ehpanda-phase17-root-parity-review-hdb3wjhq/` preserves inspected summaries,
+tree and current Reader attachment. The current phone Reader fixture provenance matches
+source 5f094a212a. Tablet's nine-test tree directly includes all six feasibility tests and
+three renderer tests. VisualTracerTests.testHomeFullContentTracer still asserts phone
+idiom and is phone-only; tablet Home evidence comes from the actual matrix.
+
+## Supplied actual matrix outcomes
+
+| Family | Captured | Failed | Pending | First failed coordinate |
+|---|---:|---:|---:|---|
+| iPhone Air | 4 | 1 | 11 | iphone-portrait-AX5-home |
+| iPad Pro 11-inch (M5) | 8 | 1 | 7 | ipad-landscape-large-home |
+| Combined | 12 | 2 | 18 | Both matrices stop at their first failure |
+
+Phone captures all four portrait/large shapes. Tablet captures all eight portrait shapes
+at large and AX5. Every completed capture has exact-once item/page census, matched strict
+native viewport parity and the required restoration/completeness gates. Phone Comments
+420 x 2798 pt uses two slices; Downloads 420 x 2788 pt uses two; Reader 420 x 4622 pt
+uses two with statusBarHidden true. Tablet Comments 834 x 1963 pt uses one, Downloads
+834 x 2743 pt uses one, Reader 834 x 9176 pt uses three with statusBarHidden true.
+Tablet AX5 Reader also captures all eight pages exactly once at 834 x 9176 pt.
+
+Native logs/results: `/tmp/ehpanda-phase17-matrix-phone.log` / `.xcresult` and
+`/tmp/ehpanda-phase17-matrix-tablet.log` / `.xcresult`; summaries/trees use the same
+prefix with `-summary.json` / `-tests.json`. Invocations are serial, parallel testing
+disabled, without failure retries. Exact extracted outcomes and coordinate directories:
+
+- Phone: `/tmp/ehpanda-phase17-matrix-phone-attachments/ex/phase17-feasibility-9CEB7131-A827-462F-B538-5DF819C0EBEE`.
+- Tablet: `/tmp/ehpanda-phase17-root-matrix-tablet-evidence/phase17-feasibility-328C4AC3-698F-4A65-A2CA-9F43AE420B44`.
+
+These are supplied informational runs, not root reruns. Their fixture manifests name
+source hash `26da899c6796b56bd4e54e828d1c218c1b8c46a6bceaa461cb91d5b209feb3a5`, which differs from the current generator source hash.
+The current later phone Reader attachment names the current hash. Do not claim an exact
+current-source full matrix from those earlier manifests. Assets/digests are checked and
+these runs remain valid evidence of the observed behaviors; pending coordinates and a
+fresh final-source gate must still be completed. Root's observed source hashes are in
+`/tmp/ehpanda-phase17-parity-reconciled-source-hashes.json`, not a pre-test freeze record.
+
+## Remaining owner decision — AX5 Home logical viewport
+
+Phone AX5 Home fails with 706625 changed viewport pixels, maximum channel delta 255,
+inclusive bounds x0..1259, y554..2727. It is a layout change, not the prior glass rounding.
+HomeView.maximumCardHeight uses its observed viewportSize through
+GalleryViewport.maximumSlideshowHeight. GalleryCardCell uses ViewThatFits and that height
+ceiling to select title lines. Growing the container raises the ceiling, allows another
+title line and shifts the content below. This is the production container-responsive
+rule behaving as designed, while the harness requires the original logical viewport.
+
+Owner options recorded in the handoff: exclude AX5 Home from full-content coverage;
+base the rule on scene size; or provide an injectable logical viewport while default app
+behavior continues to use actual container size. No option is selected here. Exclusion
+would change matrix acceptance; either production adaptation requires Task 2 ownership
+revision. Scene sizing also has implications for windowed/container layouts, so it is
+not an interchangeable source substitution. Preserve native navigation/search/edge rules.
+
+## Remaining environment gate — iPad actual landscape
+
+After eight successful portrait coordinates, the scene rejects the first landscape
+request with UISceneErrorDomain 101: current windowing mode does not allow programmatic
+orientation changes. No landscape capture or coordinate fixture export occurs there;
+one failed and seven pending landscape coordinates remain. Native Full Screen Apps
+selection alone was previously insufficient. A scene-accepted rotation mechanism and
+measured landscape geometry are required; changing only the capture window size would
+violate the measured scene-width prerequisite. Actual landscape remains unverified.
+
+Tablet portrait AX5 now validates OCR band ownership for those four coordinates.
+Phone AX5 and all landscape coordinates remain unverified, including OCR overlap and
+reader budget/geometry. Eight phone-landscape 8:11 page bitmaps total 30096 px in height;
+actual landscape output and host overhead have not been verified.
+
+## Log and provenance boundaries
+
+The tablet nine-test log contains one expected render-server refusal from the deliberate
+direct-draw pin. The current phone two-test log contains no such pin or refusal. Both
+matrix logs and the tablet gate also retain IOSurfaceClientSetSurfaceNotify messages.
+They coexist with successful captures and are not established as remaining root causes.
+The handoff notes InvalidTransition only on failed Reader teardown; the current inspected
+passing gates and matrix logs contain no InvalidTransition. Historical logs remain saved.
+
+The four reserved staged paths match the original patch byte-for-byte; .capture/ remains
+untracked and no generated images become baselines. No production source was changed by
+root during reconciliation. Obtain the Home viewport decision before production edits or
+acceptance changes, then finish native orientation and final clean/full-matrix gates.
+
+## Historical checkpoint — source 8ee6646728, superseded by the parity commits
+
+The following records root's previous evidence and pending questions. Its Downloads/
+Reader blockers, unresolved-cause statements and 4/32 accounting are historical. The
+current findings and accounting above supersede them without deleting original evidence.
+
+The owner adopted stationary render-server slices in `c91c549846`; architecture approval
+is settled and the former three-run recovery bound is superseded. Root completed the
+requested clean integration and both actual matrix invocations on the source checkpoint
+above. Clean build passes; both matrices fail strict native viewport parity at Downloads.
+Task 2 remains incomplete: 1/2 tasks and 0/24 plans complete. No SUMMARY, approved
+baseline, bulk recording or later-plan completion follows from this checkpoint.
+
+## Final current-source verification
+
+`/tmp/ehpanda-phase17-slice-final-clean.log`: clean build-for-testing exit 0,
+46.355 seconds, zero compiler/deprecation/SwiftLint diagnostics in the complete log.
+The earlier clean gate also passed (249.763 seconds). Both resolved lockfiles now record
+SnapshotTesting 1.19.6 at revision `28e5de025e3fd98991791bfbf83023ab3708da03`;
+every pre-existing package pin is unchanged. The existing Xcode provisioning-profile
+loader message remains in the logs and is not a compiler/lint diagnostic.
+
+| Final result prefix under `/tmp/ehpanda-phase17-` | Actual tests | Passed / failed / skipped | Matrix coordinates captured / failed / pending | Exit |
+|---|---:|---|---|---:|
+| `slice-final-phone` | 9 | 8 / 1 / 0 | 2 / 1 / 13 | 65 |
+| `slice-final-tablet` | 1 | 0 / 1 / 0 | 2 / 1 / 13 | 65 |
+
+Each prefix has `.log`, `.xcresult`, `-summary.json`, `-tests.json` and an
+`-attachments/` directory. Both trees have zero Repetition nodes and nonzero actual
+matched tests. Invocations were sequential, parallel testing disabled, without a failure
+retry option. The phone includes FullContentFeasibilityTests x4, RenderServerCaptureTests
+x2 and VisualTracerTests x3. Its eight non-matrix tests pass, including independent
+`testCommentsNativeCapture`, both fixture-export tests and the three Home regression tests.
+The tablet invocation selects only `testActualFullContentMatrix`.
+
+Final simulator inventory is preserved in `/tmp/ehpanda-phase17-slice-gate-devices.json`:
+Xcode 27.0.0, iOS 27.0 build 24A434; iPhone Air, 420 x 912 pt @3x, and iPad Pro
+11-inch (M5), 834 x 1210 pt @2x. Source/pin hashes were frozen before the final clean
+build in `/tmp/ehpanda-phase17-slice-final-source-hashes.json` and still match the
+committed source. The matrix uses default window traits (`standardImageRange: false`);
+the independent Comments test retains its opt-in true setting.
+
+## What the final matrices establish
+
+Both portrait/large Home coordinates pass with six markers exactly once. Both Comments
+coordinates pass with twelve markers exactly once, strict native viewport parity and
+restored native geometry. Phone Comments uses two slices; tablet Comments uses one.
+Both Downloads coordinates stop at `nativeViewportPixelsChanged` before OCR census,
+so their empty census objects mean not evaluated, not missing-marker evidence.
+
+| Downloads coordinate | Output | Slices | Changed viewport pixels | Maximum channel delta | Inclusive difference bounds in pixels |
+|---|---|---:|---:|---:|---|
+| iPhone portrait/large | 420 x 2788 pt, 1260 x 8364 px | 2 | 147 | 1 | x1066..1201, y204..334 |
+| iPad portrait/large | 834 x 2743 pt, 1668 x 5486 px | 1 | 55 | 1 | x1559..1648, y63..147 |
+
+These counts come from independent saved-PNG RGBA inspection; the live strict
+SnapshotTesting comparison is the acceptance gate and reports matched:false. Original
+viewport, full image, viewport crop, slices, geometry, parity and inspection JSON remain
+in each Downloads coordinate directory. The differences lie in the glass toolbar button.
+The tablet fails below the native dimension ceiling in a single read, so this remaining
+failure is not evidence of a slice seam or the 8192-pixel ceiling. The exact cause is
+unproven; no tolerance, pixel mask, device scale or native appearance was relaxed.
+
+Phone matrix root: `/tmp/ehpanda-phase17-slice-final-phone-attachments/matrix/phase17-feasibility-681C4D93-BFF1-44CA-975E-DA0BC66AD037`.
+Tablet matrix root: `/tmp/ehpanda-phase17-slice-final-tablet-attachments/matrix/phase17-feasibility-5BCEF646-3DE2-4FD4-975E-06DEBE9BB0B3`.
+Each `outcomes.json` preserves all sixteen coordinates. Combined final accounting is
+4 captured, 2 failed and 26 pending. Reader, AX5 and landscape coordinates are not
+reached in these final invocations. In particular, AX5 has not validated the 128-point
+OCR overlap assumption, and actual tablet landscape orientation remains unverified.
+Pending is not N/A or a pass.
+
+## Retained same-frame implementation refinements
+
+The following changes are within Task 2's capture/test ownership and retain the adopted
+stationary full-height hierarchy. They are committed as WIP, not a passed Task 2:
+
+- Native viewport and full capture use the same checked replicant path and standard
+  8-bit renderer range. Native screen scale is unchanged; matrix window traits remain
+  default. This removed the initial default-traits Comments failure.
+- Multi-slice reads reserve 64 pt of context above/below each owned slice within the
+  8192-native-pixel ceiling, then crop CGImage pixels without redrawing. The complete
+  64-point overlap still compares byte-for-byte. This fixed the observed two-pixel
+  Downloads crop-edge seam difference. Owned frames and readFrame are both recorded.
+- CPU composition copies the canonical 8-bit sRGB RGBA bytes used by seam verification.
+  It does not redraw the slices. The remaining phone toolbar difference was also present
+  in the raw first slice, so CPU composition is not claimed to fix its cause.
+- Failed seam and parity gates retain original slice PNGs and rect diagnostics.
+- Orientation setup requests an update only when measured scene orientation or bounds
+  need to change. It still measures actual orientation/bounds and fails required requests.
+  This allows an already-correct iPad portrait scene to proceed without a redundant
+  request rejected with UISceneErrorDomain 101. It does not establish landscape success.
+
+## Reader evidence from earlier diagnostic runs
+
+These diagnostics preceded the frozen final source and do not count as final-coordinate
+passes. Explicit standardImageRange was tried as a matrix experiment and reverted because
+it did not reliably pass Downloads across both families. Preserving the source-window
+position of replicants also failed to resolve Downloads and was reverted.
+
+`/tmp/ehpanda-phase17-slice-common-tablet.xcresult` reached Reader after three captured
+coordinates with default traits. Reader output is 834 x 9174 pt @2x in three slices.
+The first/second 64-point overlap differs at all 213504 pixels, maximum channel delta
+217: the first band is cyan artwork and the second is opaque black. The draw Boolean
+had succeeded; checked draws are necessary but do not establish fidelity. The strict
+seam gate rejects the image. Original slices and extracted overlap/diff PNGs are under
+`/tmp/ehpanda-phase17-slice-common-tablet-attachments/matrix/phase17-feasibility-F82CED84-2BA7-4A67-8198-CD05B30C3CA5/ipad-portrait-large-reader/`.
+
+`/tmp/ehpanda-phase17-slice-sdr-phone.xcresult` reached Reader with the temporary
+standardImageRange matrix setting. The 420 x 4620 pt @3x output uses two slices and
+fails native viewport parity; its top region is visibly blurred compared with the normal
+red VRP1 viewport. Differences extend over a broad region, not just one-byte toolbar
+rounding. Original full/viewport images and inspection crops remain under
+`/tmp/ehpanda-phase17-slice-sdr-phone-attachments/matrix/phase17-feasibility-015718BE-5523-439E-8F3A-0BBDA9AA91ED/iphone-portrait-large-reader/`.
+
+Read-only review identifies a viewport-design risk in ReadingView: onGeometryChange
+writes the hosted size to gestureHandler.containerSize, and isLandscape derives from
+that size. Enlarging output height can change a production logical-layout input, notably
+in landscape. This is not proof that this code causes the observed blur or black reads.
+No production source was changed. Any required production viewport adaptation is outside
+Task 2's listed files and requires an orchestrator plan revision.
+
+## Logs and test environment boundaries
+
+The phone's one `Render server returned error` belongs to the intentional direct-render
+failure test, not a failed sliced draw. Both final matrix logs also contain
+`IOSurfaceClientSetSurfaceNotify failed e00002c7`; preserve this unresolved diagnostic.
+Empty runtimeWarnings arrays do not erase full-log messages or prove their cause.
+
+Using agent-device, root selected and verified native Settings > Multitasking & Gestures
+> Full Screen Apps on the chosen iPad simulator. Evidence is preserved in
+`/tmp/ehpanda-phase17-tablet-fullscreen-setting.png`. That setting alone did not resolve
+the rejected orientation request; the no-op request correction above did. General Apple
+scene/window adaptivity guidance: https://developer.apple.com/videos/play/wwdc2025/282/ .
+No app plist, production orientation logic or fake landscape window size was introduced.
+
+After failed XCTest engines completed, root stopped only identified matching optional
+post-test simctl diagnose collectors (`--timeout=600`) that blocked Xcode finalization.
+Failed results and attachments remain intact; xcodebuild finalized exit 65. The optional
+diagnostic collection is partial. No active test engine was cancelled.
+
+## Continuation gate
+
+The requested clean/full-matrix work is now concrete and reviewable. The adopted slicing
+choice is not pending approval. Task 2 still fails its feasibility criteria; stop before
+bulk capture or later plans. Obtain direction for a scoped investigation/plan revision of
+Downloads native parity and Reader fidelity, preserving every strict gate. Do not infer
+permission to change production viewport semantics from the prior slicing approval.
+
+## Historical evidence boundary
+
+The sections below retain pre-adoption research and recovery evidence. Their pending
+architecture, Comments failure and three-run-limit wording describe historical states;
+the current-source status above supersedes them.
+
+## Historical actual matrix result (before c91c549846)
+
+`/tmp/ehpanda-phase17-feasibility-phone.xcresult`: three actual tests, two exporter tests
+passed and one matrix test failed, zero skipped/Repetition nodes, exit 65. The summary's
+runtimeWarnings array is empty; the full log contains a render-server error. The matrix
+recorded Home as captured, Comments as failed, and the other fourteen phone coordinates
+as pending. All sixteen tablet coordinates are unstarted. Pending is not N/A.
+
+Candidate attachment manifest:
+`/tmp/ehpanda-phase17-feasibility-phone-attachments/manifest.json`.
+Matrix attachment: `38BED32C-818F-4E4F-BEEE-FA85BA59BE92.zip`.
+The extracted `outcomes.json` retains every phone coordinate and its actual disposition.
+
+The original native hierarchy strategy produced a visually blank 1260 x 8394-pixel Comments
+image (displayed as black in inspection), although the ordinary viewport rendered correctly. Native viewport comparison
+failed. This is evidence about this strategy/run; it does not establish that the library
+lacks custom dimensions or that 8192 pixels is a framework limit.
+
+## Three bounded default-library probes
+
+The library's default layer strategy is exercised explicitly in a separate probe.
+The matrix is not silently switched to it. It produces a long image containing the
+twelve actual comment rows and VCEND, but has not passed the strict capture gate.
+
+| Result prefix under `/tmp/ehpanda-phase17-` | Actual tests | Passed / failed | Outcome |
+|---|---:|---:|---|
+| `comments-library-default` | 1 | 0 / 1 | InvalidTransition; appearance messages |
+| `comments-library-default-2` | 1 | 0 / 1 | Fresh output controller; same failure and appearance message |
+| `comments-explicit-vision` | 4 | 3 / 1 | Home 3/3 passed; Comments still failed |
+
+Every row has exit 65, zero skipped tests and zero Repetition nodes. Summary runtimeWarnings
+arrays are empty, but appearance-transition messages in the full logs remain unresolved.
+The latest build log is `comments-explicit-vision-build.log`, exit 0 with no compiler,
+deprecation or lint diagnostic. This is an incremental build, not Task 2 clean integration.
+Latest XCTest failure text:
+
+```text
+InvalidTransition { phase: idle targetPhase: failed(deinit) }
+```
+
+The latest default probe uses a fresh UIHostingController for the library-owned output
+Window, keeping the real active-scene controller separately for viewport measurement.
+The library's default Window is not represented as a foreground-active scene window.
+No production screen, threshold, fixture count or output resolution was relaxed.
+
+The attempted explicit modern Vision ImageRequestHandler did not fix this error. The
+latest attachment contains the full image, its viewport crop and geometry, but no
+`native-viewport-parity.json`, which is written only after strict image comparison succeeds.
+The flow therefore has not reached OCR. The earlier hypothesis that Vision caused the
+error is withdrawn. The source retains this unsuccessful experiment as WIP; it is not
+credited as a verified fix. The exact origin of InvalidTransition remains unresolved.
+
+Latest attachment manifest:
+`/tmp/ehpanda-phase17-comments-explicit-vision-attachments/manifest.json`.
+Comments attachment: `5E74E2D4-DEFE-44A7-BF80-6A8E6BF91BED.zip`.
+Activities: `/tmp/ehpanda-phase17-comments-explicit-vision-activities.json`.
+
+## Independent saved-image inspection
+
+Offline CoreGraphics inspection normalized both saved PNGs to 8-bit premultiplied sRGB
+and found 20,284 differing pixels in a 1260 x 2736-pixel viewport. Difference bounds are
+x=60...1207, y=202...636. The saved normal PNG has 16-bit components / 48 bits per pixel;
+the saved layer crop has 16-bit components / 64 bits per pixel. Format and lifecycle
+handling are concrete next diagnostic leads, not established root causes.
+
+Inspection source/result: `/tmp/ehpanda-phase17-compare-png.swift` and
+`/tmp/ehpanda-phase17-comments-default-png-comparison.json`. This compares saved images
+and does not replace the SnapshotTesting gate or its live-image comparison.
+Visual inspection confirms twelve rows and VCEND; automated census, tail and restoration
+acceptance remain unproven for Comments because its gate has not reached those steps.
+
+## Preserved successes and remaining direction
+
+The Home tracer was extracted to the committed public fixture generator without changing
+its six IDs, titles, order, URLs or artwork. Three actual Home tests passed again in the
+latest mixed result. The fixture exporter and current generator hashes are documented in
+`17-01-PUBLIC-FIXTURES.md`. Disposable `.capture/regression` matches the current generator;
+generated bytes are not staged. Existing dependency pins are unchanged, with only the exact
+SnapshotTesting 1.19.6 revision added in both lockfiles; those lockfiles remain uncommitted
+pending clean integration and the full gate.
+
+No test driver or diagnostic collector remains active. Optional simulator diagnosis
+collectors were terminated individually only after the test engine completed. Failed
+results and exit 65 are retained. No test engine was interrupted or retry flag used.
+
+The execute-phase skill loads execute-plan.md, whose deviation rule says:
+"Fix attempt limit: max 3 retries per deviation before escalating". The three default
+strategy probes have reached that bound. Task 2 also requires unresolved hosting/layout
+semantics to halt for orchestrator direction. The proposed next recovery stays within
+the same native SnapshotTesting APIs and exact file ownership, focuses on PNG comparison
+formats and controller appearance cleanup, preserves all acceptance criteria, and allows
+at most three further runs after owner direction. No stitching decision is proposed.
+
+Do not run later waves, complete Task 2 or create a plan SUMMARY from these partial results.
+
+## Owner-authorized recovery cycle 2
+
+The owner selected option 1 on 2026-10-03: one further bounded native-API diagnosis
+cycle, at most three runs, preserving all acceptance criteria. Existing app-hosting and
+inline authorization remain valid. The first diagnosis keeps the original raw PNGs and
+normalizes only comparison inputs to explicit 8-bit premultiplied sRGB, the same format
+used by the library's strict comparison. This gives the library's four-byte difference
+attachment reader a compatible format without reducing resolution or pixel precision.
+It also records comparison completion and the caught error type, and pins the diagnostic
+Comments time zone to UTC as the matrix already does. No new GREEN is inferred.
+
+### Recovery cycle 2 results — three of three runs used
+
+Each of the following has four actual tests: three Home tests passed, one Comments
+probe failed, zero skipped/Repetition nodes and exit 65. Summary runtimeWarnings arrays
+are empty; complete logs remain authoritative for render-server/appearance messages.
+All three build-for-testing logs have exit 0 and no compiler/deprecation/lint diagnostic.
+These are incremental builds; clean Task 2 integration and the matrix remain incomplete.
+
+| Result prefix under `/tmp/ehpanda-phase17-` | Strategy | Concrete result |
+|---|---|---|
+| `recovery2-format` | Default layer, normalized strict comparison | `matched:false`; caught error is FullContentHostError.nativeViewportPixelsChanged; XCTest still reports InvalidTransition; one appearance message |
+| `recovery2-native-sdr` | UIViewController key-window hierarchy, sRGB/SDR | 32-bit full/normal images; visually blank full image (displayed as black; opacity not inspected for this run) and render-server error; native pixel failure; no appearance message |
+| `recovery2-swiftui-native` | Direct SwiftUI .device custom-size API, same native key window and sRGB/SDR | Fully transparent full image (alpha inspected after owner image review) and render-server error; native pixel failure; one appearance message |
+
+Result bundles, logs, summary/tests JSON and attachment directories use each prefix above.
+Each run independently records `capture-progress.json`, `native-viewport-parity.json`
+with `matched:false`, and `capture-error.json` with the actual error type/description.
+Only the first run uses the old test selector testCommentsDefaultLibraryStrategy; the
+current selector is testCommentsNativeCapture. Candidate files are not references.
+
+The latest attachment manifest is
+`/tmp/ehpanda-phase17-recovery2-swiftui-native-attachments/manifest.json`;
+Comments directory attachment `A551CA09-B88B-4F0F-9FE1-6F6D9E07AB1D.zip`.
+The native viewport is still 420 x 912 points at 3x, output 420 x 2798 points / 1260 x
+8394 pixels, measured content height 2590 points and stableIterations 2. No OCR/census
+or restoration success is inferred after comparison fails.
+
+Offline CoreGraphics inspection of the latest PNG records zero nonblack pixels, 32 bits
+per pixel and eight bits per component in
+`/tmp/ehpanda-phase17-recovery2-swiftui-native-pixels.json`. Its inspection source is
+`/tmp/ehpanda-phase17-black-png-inspection.swift`. That inspection tested RGB only.
+Subsequent alpha inspection confirms every pixel in the latest 1260 x 8394 full PNG is
+fully transparent (alpha zero); the earlier black-image description is corrected.
+See `17-01-UPSTREAM-RENDERING-RESEARCH.md` and
+`/tmp/ehpanda-phase17-recovery2-swiftui-native-alpha.json`. This does not establish an
+8192-pixel framework limit or that custom dimensions are unsupported.
+
+Comparison-input normalization did not resolve parity failure: both library inputs
+now use the same explicit 8-bit premultiplied sRGB format and strict comparison returns
+false. This does not identify the capture rendering root cause. The first run catches
+the correct FullContentHostError before it leaves the
+capture operation. Reporting that actual failure through XCTFail, as the matrix already
+does, avoids the unrelated InvalidTransition reporting in the last two runs. The exact
+origin of that secondary error remains unproven and is not credited as a framework fix.
+The direct UIViewController key-window path has clean appearance logging; the direct
+SwiftUI wrapper still reports an imbalance. Neither strategy passes Comments capture.
+
+The diagnostic Comments probe now freezes the global/SwiftUI UTC time zone. Its sRGB/SDR
+and direct SwiftUI options are explicit opt-in diagnostics; the actual matrix and default
+Home path have not been silently switched to failed candidates. Library checkout sources
+remain untouched. The source and evidence remain WIP, with strict failures visible.
+
+### Historical proposed decision — output scale (withdrawn)
+
+Recovery cycle 2 is exhausted. The owner-approved scope preserved native 3x output.
+The concrete next proposal is to separate measured device viewport/scale from capture
+output scale and test the library at an explicit 1x first, using the same 420-point width,
+actual view/Store, typography, safe areas, content and 420 x 912 logical viewport.
+The Comments bitmap would be 420 x 2798 pixels. Capture scale must be recorded separately
+from the native device's measured 3x; a rendering override must not be reported as native
+hardware geometry. Ordinary/full images must use the same configured output scale and
+still require a 100% pixel match, complete census/tail, convergence and restored native
+geometry. No fixture count reduction, production-view replacement or stitching is proposed.
+
+This changes the currently accepted output resolution and therefore requires an explicit
+owner decision before implementation or further native runs. A 1x probe is a testable
+hypothesis about raster size, not a promised remedy. If approved, amend the plan's capture
+scale contract and run at most three bounded probes before any matrix expansion. If not,
+hold the incomplete task at its current 3x gate. No SUMMARY or completion counter changes.
+
+## Owner-requested upstream research
+
+`17-01-UPSTREAM-RENDERING-RESEARCH.md` records official transparent glass/toolbar reports,
+maintainer guidance, a current iOS 27 scene/safe-area report and supported custom-size
+scroll capture. The latest saved full image is now confirmed fully transparent, not
+opaque black. Our native app host, scene-backed window and explicit hierarchy flag already
+meet the principal posted remedy. No identical long-image failure or proven resolution
+limit was established. Research is complete; no native run or approved scale revision
+is added, and the incomplete gate/checkpoint remain in force.
+
+## Final-source same-rect compatibility passed — 2026-10-05
+
+/tmp/ehpanda-phase17-reread-gate-02/artwork-compatibility-audit.json verifies all
+32 coordinates and 110/110 native tests across 17 invocations. All 359 planned
+rects have matching full canonical SHA-256 values across two passes (718 actual
+full-content reads). Ownership geometry partitions every output row. Native/frozen
+viewport parity, all exact-once census counts and 240 source artwork images
+(404,257,696 checked pixels) pass. Output sizes match the prior equal-read gate.
+No skips, repetitions, compiler/lint diagnostics, runtime warnings or
+InvalidTransition occur. Native source hashes remain unchanged and both simulators
+restore their original content size, orientation and boot state. Four reserved
+owner-staged entries remain byte-identical to the 11,977-byte saved patch.
+
+The corrected bounded viewport settlement path is exercised: Downloads native
+sample 3 and four matrix settlement samples record an intra-sample glass change,
+reset the stable run and retain both actual samples in their own directories. Every
+accepted reference subsequently satisfies the original 500 ms exact stability
+requirement; every final full-content read pair matches. No final-capture recovery,
+pixel tolerance, geometry search or cross-origin equality claim is introduced.
+
+The full tracer is now running under the real immutable-pin runner at
+.capture/tracer-matrix-04 with all 576 requested coordinates. This compatibility
+pass does not complete 17-02 Task 2 or approve references; source implementation
+remains WIP until complete tracer acceptance.
+
+## Carousel correction compatibility passed — 2026-10-05
+
+The production correction is committed as 0a7e740dd0 (only HomeView.swift and
+HomeView+Sections.swift). Its final-source gate passes 32/32 coordinates and
+110/110 native tests across 17 invocations. Independent audit verifies all 359
+identical-rect read pairs, 240 source images and 404,257,696 exact artwork pixels.
+All output dimensions and census counts match the previous compatibility gate.
+No skips, repetitions, compiler/lint diagnostics, runtime warnings or InvalidTransition.
+All 795 source hashes match; both simulator states and the four reserved staged
+entries restore/remain unchanged.
+
+Evidence: /tmp/ehpanda-phase17-carousel-gate-01/artwork-compatibility-audit.json
+and capture-totals.json. The five focused coordinates and two existing Home
+rotation audits also pass on the final source (12 native tests including orientation).
+The full 576-coordinate candidate tracer is running at .capture/tracer-matrix-05
+(exec session 88042). Its audit is prepared at /tmp/ehpanda-phase17-audit-tracer-matrix-05.py.
+Do not edit native/producer sources during the run. Task 2, SUMMARY and reference
+approval remain incomplete. Historical runs and all failed evidence are preserved.

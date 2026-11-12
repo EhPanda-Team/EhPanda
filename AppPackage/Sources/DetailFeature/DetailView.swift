@@ -1,0 +1,368 @@
+import AppComponents
+import AppModels
+import AppTools
+public import ComposableArchitecture
+import CookieClient
+import Kingfisher
+import ReadingFeature
+import Resources
+import SFSafeSymbols
+import SFSafeSymbolsExt
+public import SwiftUI
+import TagTranslationFeature
+
+public struct DetailView: View {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @AccessibilityFocusState private var readButtonFocused: Bool
+    @State private var isHeaderVisible = true
+    @State private var readingOrigin: ReadingOrigin?
+    // Internal (not private): the toolbar() extension in DetailView+Navigation.swift reads it too.
+    @SharedReader(.didLogin) var didLogin: Bool
+    @Bindable var store: StoreOf<DetailReducer>
+    let gid: String
+
+    private enum ReadingOrigin {
+        case headerRead
+        case inlinePreview
+    }
+
+    public init(
+        store: StoreOf<DetailReducer>, gid: String
+    ) {
+        self.store = store
+        self.gid = gid
+    }
+
+    public var body: some View {
+        modalModifiers(content: { content })
+            // Height changes: the rating row unfolding, the title growing to its full length and the
+            // detail sections arriving each move everything below them — the position motion Reduce
+            // Motion asks to remove — so `nil` lets those states land instantly. The opacity
+            // crossfades inside the sections keep their own animations (D-29).
+            .animation(reduceMotion ? nil : .default, value: store.showsUserRating)
+            .animation(reduceMotion ? nil : .default, value: store.showsFullTitle)
+            .animation(reduceMotion ? nil : .default, value: store.galleryDetail)
+            .onChange(of: store.galleryDetail) { _, _ in
+                runLaunchAutomationIfNeeded()
+            }
+            .onChange(of: store.hasLoadedDownloadBadge) { _, _ in
+                runLaunchAutomationIfNeeded()
+            }
+            .appAlert($store.scope(\.$alert, action: \.alert))
+            .navigationTitle(navigationTitle)
+            .toolbarTitleDisplayMode(.inline)
+            .toolbar(removing: isHeaderVisible || store.galleryDetail == nil ? .title : nil)
+            .toolbar(content: toolbar)
+    }
+
+}
+
+// MARK: Content
+private extension DetailView {
+    var navigationTitle: String {
+        var gallery = store.gallery
+        if let detail = store.galleryDetail {
+            gallery.title = detail.title
+            gallery.jpnTitle = detail.jpnTitle
+        }
+        return gallery.displayTitle(prefersJapanese: store.setting.displayJapaneseTitle)
+    }
+
+    var content: some View {
+        ScrollView {
+            VStack(spacing: 30) {
+                if let error = store.loadingState.failed,
+                   store.galleryDetail != nil {
+                    offlineFallbackNotice(error: error)
+                        .padding(.horizontal)
+                }
+                HeaderSection(
+                    gallery: store.gallery,
+                    galleryDetail: store.galleryDetail ?? .empty,
+                    downloadBadge: store.downloadBadge,
+                    downloadNeedsRepair: store.downloadNeedsRepair,
+                    downloadFolders: store.downloadFolders,
+                    isPreparingDownload: store.isPreparingDownload,
+                    canDownload: !store.gallery.id.isEmpty
+                        && (store.setting.galleryHost == .ehentai || didLogin),
+                    displayJapaneseTitle: store.setting.displayJapaneseTitle,
+                    showFullTitle: store.showsFullTitle,
+                    showFullTitleAction: { store.send(.toggleShowFullTitle) },
+                    downloadAction: { handleDownloadAction() },
+                    downloadToFolderAction: {
+                        store.send(.startDownload($0))
+                    },
+                    manageFoldersAction: { store.send(.folderManagerButtonTapped) },
+                    createDefaultFolderAction: { store.send(.createDefaultFolder) },
+                    favorAction: { store.send(.favorGallery($0)) },
+                    unfavorAction: { store.send(.unfavorGallery) },
+                    navigateReadingAction: {
+                        readingOrigin = .headerRead
+                        store.send(.openReading)
+                    },
+                    readButtonFocus: $readButtonFocused,
+                    navigateUploaderAction: {
+                        if let uploader = store.galleryDetail?.uploader {
+                            let keyword = "uploader:" + "\"\(uploader)\""
+                            store.send(.delegate(.pushDetailSearch(keyword)))
+                        }
+                    }
+                )
+                .padding(.horizontal)
+                .onGeometryChange(for: Bool.self) { geometry in
+                    guard let viewport = geometry.bounds(of: .scrollView(axis: .vertical)) else { return true }
+                    return viewport.intersects(CGRect(origin: .zero, size: geometry.size))
+                } action: { isVisible in
+                    isHeaderVisible = isVisible
+                }
+
+                DescriptionSection(
+                    gallery: store.gallery,
+                    galleryDetail: store.galleryDetail ?? .empty,
+                    navigateGalleryInfoAction: {
+                        if let galleryDetail = store.galleryDetail {
+                            store.send(.delegate(
+                                .pushGalleryInfo(gallery: store.gallery, galleryDetail: galleryDetail)
+                            ))
+                        }
+                    }
+                )
+                ActionSection(
+                    galleryDetail: store.galleryDetail ?? .empty,
+                    userRating: store.userRating,
+                    showUserRating: store.showsUserRating,
+                    showUserRatingAction: { store.send(.toggleShowUserRating) },
+                    updateRatingAction: { store.send(.updateRating($0)) },
+                    confirmRatingAction: { store.send(.confirmRating($0)) },
+                    findSimilarAction: {
+                        if let trimmedTitle = store.galleryDetail?.trimmedTitle {
+                            store.send(.delegate(.pushDetailSearch(trimmedTitle)))
+                        }
+                    }
+                )
+                if !store.galleryTags.isEmpty {
+                    TagsSection(
+                        tags: store.galleryTags, showsImages: store.setting.showImagesInTags,
+                        voteTagAction: { store.send(.voteTag(tag: $0, weight: $1)) },
+                        navigateSearchAction: { store.send(.tagSearchTapped(keyword: $0, namespace: $1)) },
+                        navigateTagDetailAction: { store.send(.tagDetailButtonTapped($0)) },
+                        translateAction: {
+                            store.tagTranslator.lookup(word: $0, returnOriginal: !store.setting.translateTags)
+                        }
+                    )
+                    .padding(.horizontal)
+                }
+                let displayPreviewURLs = store.localPreviewURLs.merging(
+                    store.galleryPreviewURLs,
+                    uniquingKeysWith: { local, _ in local }
+                )
+                if !displayPreviewURLs.isEmpty {
+                    PreviewsSection(
+                        pageCount: store.galleryDetail?.pageCount ?? 0,
+                        previewURLs: displayPreviewURLs,
+                        navigatePreviewsAction: {
+                            store.send(.delegate(.pushPreviews(
+                                gallery: store.gallery,
+                                previewConfig: store.previewConfig,
+                                language: store.galleryDetail?.language
+                            )))
+                        },
+                        navigateReadingAction: {
+                            readingOrigin = .inlinePreview
+                            store.send(.updateReadingProgress($0))
+                            store.send(.openReading)
+                        }
+                    )
+                }
+                CommentsSection(
+                    comments: store.galleryComments,
+                    moderationStore: store.scope(\.moderation, action: \.moderation),
+                    // Never from a card while the editor is up: the posting warning is presented over the editor.
+                    moderationAlert: { isPresented in
+                        $store.scope(\.moderation.$alert, action: \.moderation.alert)[
+                            presentedIf: isPresented && store.destination?.is(\.postComment) != true
+                        ]
+                    },
+                    navigateCommentAction: {
+                        if let galleryURL = store.gallery.galleryURL {
+                            store.send(.delegate(.pushComments(
+                                gid: gid, token: store.gallery.token, apiKey: store.apiKey,
+                                galleryURL: galleryURL, comments: store.galleryComments,
+                                scrollCommentID: nil
+                            )))
+                        }
+                    },
+                    navigatePostCommentAction: { store.send(.postCommentButtonTapped) },
+                    voteAction: { store.send(.voteComment(commentID: $0, vote: $1)) }
+                )
+            }
+            .padding(.bottom, 20)
+            .padding(.top, 25)
+        }
+        .scrollIndicators(.hidden)
+        .scrollEdgeEffectStyle(.soft, for: .top)
+        .animation(.default) {
+            $0.visible(store.galleryDetail != nil)
+        }
+        .overlay {
+            LoadingView()
+                .animation(.default) {
+                    $0.visible(
+                        store.galleryDetail == nil
+                            && store.loadingState == .loading
+                    )
+                }
+        }
+        .overlay {
+            let error = store.loadingState.failed
+            let retryAction: () -> Void = { store.send(.fetchGalleryDetail) }
+            ErrorView(error: error ?? .unknown, action: error?.isRetryable != false ? retryAction : nil)
+                .animation(.default) {
+                    $0.visible(store.galleryDetail == nil && error != nil)
+                }
+        }
+        .accessibilityIdentifier("detail_view")
+    }
+
+    func modalModifiers<Content: View>(@ContentBuilder content: () -> Content) -> some View {
+        primaryModalModifiers(content: content)
+            .sheet(item: $store.destination.postComment, id: \.id) { _ in
+                PostCommentView(
+                    title: .postComment,
+                    content: $store.commentContent,
+                    isFocused: $store.postCommentFocused,
+                    // Over the editor, which stays open beneath it (C-5).
+                    postingWarning: $store.scope(\.moderation.$alert, action: \.moderation.alert),
+                    // The reducer posts and closes the editor, or holds both for the posting warning (D-12, P-8).
+                    postAction: { store.send(.postTapped) },
+                    cancelAction: { store.send(.destination(.dismiss)) }
+                )
+                .privacyMask()
+            }
+            // EhPanda's Report form; it presents the site's page itself when asked (18.1 D-01, P-7).
+            .sheet(item: $store.scope(\.$destination, action: \.destination).reportForm) { store in
+                ReportFormView(store: store)
+                    .privacyMask()
+            }
+            .sheet(item: $store.destination.newDawn) { greeting in
+                NewDawnView(greeting: greeting.wrappedValue)
+                    .privacyMask()
+            }
+            .sheet(item: $store.destination.tagDetail, id: \.title) { detail in
+                TagDetailView(detail: detail.wrappedValue)
+                    .privacyMask()
+            }
+    }
+
+    private func primaryModalModifiers<Content: View>(@ContentBuilder content: () -> Content) -> some View {
+        content()
+            .fullScreenCover(
+                item: $store.scope(\.$destination, action: \.destination).reading,
+                onDismiss: {
+                    if readingOrigin == .headerRead {
+                        readButtonFocused = true
+                    }
+                    readingOrigin = nil
+                }
+            ) { store in
+                ReadingView(store: store)
+                    .privacyMask()
+            }
+            .sheet(
+                item: $store.scope(\.$destination, action: \.destination).archives
+            ) { archivesStore in
+                if let galleryURL = store.gallery.galleryURL, let archiveURL = store.galleryDetail?.archiveURL {
+                    ArchivesView(
+                        store: archivesStore,
+                        gid: gid,
+                        galleryURL: galleryURL,
+                        archiveURL: archiveURL
+                    )
+                    .privacyMask()
+                }
+            }
+            .sheet(
+                item: $store.scope(\.$destination, action: \.destination).torrents
+            ) { store in
+                TorrentsView(
+                    store: store,
+                    gid: gid,
+                    token: self.store.gallery.token
+                )
+                .privacyMask()
+            }
+            .sheet(
+                item: $store.scope(\.$destination, action: \.destination).folderManager
+            ) { store in
+                FolderManagerView(store: store)
+                    .privacyMask()
+            }
+            .sheet(item: $store.destination.share, id: \.absoluteString) { url in
+                ActivityView(activityItems: [url.wrappedValue])
+                    .scrollEdgeEffectStyle(.soft, for: .top)
+                    .privacyMask()
+            }
+    }
+
+}
+
+// MARK: Actions
+private extension DetailView {
+    private func handleDownloadAction() {
+        switch store.downloadBadge?.status {
+        case nil:
+            // Starting a new download requires picking a folder; the download
+            // button presents a folder menu for this case instead.
+            break
+        case .queued, .active, .inactive:
+            store.send(.toggleDownloadPause)
+        case .completed:
+            store.send(.deleteDownloadButtonTapped)
+        case .error:
+            store.send(.retryDownloadButtonTapped(store.downloadNeedsRepair ? .repair : .redownload))
+        case .updateAvailable:
+            store.send(.retryDownloadButtonTapped(.update))
+        }
+    }
+
+    private func runLaunchAutomationIfNeeded() {
+        store.send(.runLaunchAutomationIfNeeded)
+    }
+
+    @ContentBuilder private func offlineFallbackNotice(error: AppError) -> some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Label(
+                .savedDetails,
+                systemSymbol: .wifiExclamationmark
+            )
+            .font(.subheadline.weight(.semibold))
+            .foregroundStyle(.orange)
+            if error.isRetryable != false {
+                Button(.RLocalizable.retry) {
+                    store.send(.fetchGalleryDetail)
+                }
+                .buttonStyle(.glass)
+                .buttonBorderShape(.capsule)
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(14)
+        .background(.regularMaterial, in: .rect(cornerRadius: 18))
+    }
+}
+
+#Preview("Loaded") {
+    NavigationStack {
+        DetailView(
+            store: .init(
+                initialState: {
+                    var state = DetailReducer.State(gallery: .preview)
+                    state.galleryDetail = .preview
+                    return state
+                }(),
+                reducer: DetailReducer.init
+            ),
+            gid: .init()
+        )
+    }
+}

@@ -6,25 +6,49 @@ on:
 permissions:
   contents: write
   pull-requests: write
+  # To start the screenshot check on the update branch (below).
+  actions: write
 jobs:
   dependencies:
-    runs-on: macos-26
+    runs-on: xcode-27
+    timeout-minutes: 120
     steps:
       - uses: actions/checkout@v7
         with:
           ref: develop
-      - name: Resolve Dependencies
+          # The job runs package manifests; the pull-request step below authenticates with its own token input.
+          persist-credentials: false
+      - name: Update package dependencies and both lockfiles
         id: resolution
-        uses: GetSidetrack/action-xcodeproj-spm-update@0.3.0
-        with:
-          forceResolution: true
-          failWhenOutdated: false
-          xcodePath: '/Applications/Xcode_26.5.app'
+        run: |
+          set -euo pipefail
+          xcrun swift package --package-path AppPackage update
+          cp AppPackage/Package.resolved EhPanda.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved
+          xcodebuild -resolvePackageDependencies -project EhPanda.xcodeproj -scheme EhPanda \
+            -onlyUsePackageVersionsFromResolvedFile
+          if git diff --quiet -- AppPackage/Package.resolved \
+            EhPanda.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved; then
+            echo 'dependenciesChanged=false' >> "$GITHUB_OUTPUT"
+          else
+            echo 'dependenciesChanged=true' >> "$GITHUB_OUTPUT"
+          fi
       - name: Create Pull Request
+        id: pull-request
         if: steps.resolution.outputs.dependenciesChanged == 'true'
-        uses: peter-evans/create-pull-request@v8
+        uses: peter-evans/create-pull-request@3ffccacd46053766916f087ce41d627c0b8cf2d1 # v8
         with:
+          token: ${{ github.token }}
           branch: 'update-dependencies'
           delete-branch: true
           commit-message: 'Update dependencies [skip test]'
           title: 'Updated Dependencies'
+      # A pull request opened with the default GITHUB_TOKEN starts no pull_request workflow; a dispatch is the
+      # documented exception, so the screenshot check is started on the update branch here (19-10; D-16).
+      - name: Run the screenshot check on the update branch
+        if: >-
+          steps.pull-request.outputs.pull-request-number != ''
+          && steps.pull-request.outputs.pull-request-operation != 'closed'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: gh workflow run snapshot-gate.yml --ref update-dependencies -f mode=compare

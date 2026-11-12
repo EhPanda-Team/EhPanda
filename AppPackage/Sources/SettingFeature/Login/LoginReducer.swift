@@ -1,0 +1,344 @@
+import AnalyticsClient
+public import AppComponents
+public import AppModels
+import AppTools
+public import ComposableArchitecture
+import CookieClient
+import HapticsClient
+import NetworkingFeature
+public import OSLogExt
+import Resources
+import SwiftUI
+
+private let logger = Logger(category: .init(describing: LoginReducer.self))
+
+@Reducer
+public struct LoginReducer: Sendable {
+    /// How many times a single login attempt may put the challenge surface on screen.
+    ///
+    /// Wall → solve → retry, and if the retry comes back challenged, one more round; a third
+    /// challenge means the clearance is not getting this attempt through, so it fails instead of
+    /// looping. This is a *reducer-level* count and deliberately unrelated to `fetch`'s four-attempt
+    /// transport policy: a challenged 403 is a successful response, so it never touches that budget.
+    private static let maxChallengeRounds = 2
+
+    private enum CancelID: Hashable {
+        case login
+    }
+
+    @Reducer
+    public enum Destination {
+        @ReducerCaseIgnored
+        case webView(URL)
+        @ReducerCaseIgnored
+        case challenge(URL)
+        @ReducerCaseIgnored
+        case errorInfo(ErrorInfo)
+    }
+
+    public enum FocusedField: Sendable {
+        case username
+        case password
+    }
+
+    @ObservableState
+    public struct State: Equatable, Sendable {
+        @Presents public var destination: Destination.State?
+        @Presents public var toast: AppAlertState<Never>?
+        // The session-lifetime clearance holder. In-memory only, so it starts at `nil` on every
+        // launch with no cleanup code — that *is* the no-persistence guarantee, not a step towards it.
+        @Shared(.cloudflareClearance) public var cloudflareClearance: CloudflareClearance?
+        public var focusedField: FocusedField?
+        public var username = ""
+        public var password = ""
+        public var loginState: LoadingState = .idle
+        /// Challenge surfaces presented during the current attempt; reset by every `.login`.
+        public var challengeRounds = 0
+
+        /// Whether the login control can be actuated at all right now.
+        ///
+        /// An attempt already in flight disables it just as an unfilled form does: a second tap would
+        /// start a *second* login effect over the same cancel ID, reset the challenge round counter
+        /// mid-flow, and deliver `.loginDone` twice — duplicate credential application, duplicate
+        /// haptics, and a doubled `dismiss()`. One property so the view's `.disabled` and the
+        /// reducer's `.login` guard cannot drift apart.
+        var loginButtonDisabled: Bool {
+            username.isEmpty || password.isEmpty || loginState == .loading
+        }
+        var loginButtonColor: Color {
+            loginState == .loading ? .clear : loginButtonDisabled
+                ? .primary.opacity(0.25) : .primary.opacity(0.75)
+        }
+    }
+
+    public enum Action: BindableAction, Equatable {
+        case binding(BindingAction<State>)
+        case destination(PresentationAction<Destination.Action>)
+        case toast(PresentationAction<Never>)
+        case presentWebView(URL)
+        case presentErrorInfo(ErrorInfo)
+
+        case login
+        case loginDone(Result<HTTPURLResponse?, AppError>)
+        case challengeDetected
+        case challengeClearanceCaptured(CloudflareClearance)
+        case cancelChallenge
+    }
+
+    /// The classified login failure, mapped onto the closed analytics vocabulary.
+    ///
+    /// A `switch` rather than an `if` chain so the shape is auditable at a glance and a new `AppError`
+    /// case has one obvious place to be considered. `.unknown` maps to `rejected` because that is what
+    /// a plainly refused credential produces — the case Phase 12 found was previously invisible.
+    static func loginFailureKind(for error: AppError) -> LoginFailureKind {
+        switch error {
+        case .loginCaptchaRequired:
+            return .captchaRequired
+        case .cloudflareChallengeFailed:
+            return .cloudflareChallengeFailed
+        case .networkingFailed:
+            return .networkingFailed
+        // Both are a plainly refused credential. `.loginRejected` is the classified form, carrying
+        // the forum's own wording; `.unknown` remains the fallback for a refusal whose page this app
+        // could not read. They share a kind because the analytics vocabulary counts the fact, not
+        // the wording — which is also why the wording cannot ride along.
+        case .loginRejected, .unknown:
+            return .rejected
+        case .copyrightClaim, .ipBanned, .expunged, .webImageFailed, .parseFailed, .imageLimitReached,
+             .loginRequired, .unsupportedDeepLink, .fileOperationFailed, .noUpdates,
+             .notFound:
+            return .other
+        }
+    }
+
+    @Dependency(\.analyticsClient) private var analyticsClient
+    @Dependency(\.hapticsClient) private var hapticsClient
+    @Dependency(\.cookieClient) private var cookieClient
+    @Dependency(\.loginClient) private var loginClient
+    @Dependency(\.dismiss) private var dismiss
+
+    public init() {}
+
+    public var body: some Reducer<State, Action> {
+        // Ordered *before* `BindingReducer` on purpose — this is the swipe-to-dismiss hook (D-02).
+        //
+        // A state-only destination (every case is `@ReducerCaseIgnored`) gets no
+        // `PresentationAction.dismiss`: SwiftUI reports the swipe as an ordinary binding write of
+        // `nil`. It also *echoes* dismissals the reducer performed itself the very same way, and by
+        // the time the write has been applied the two are indistinguishable — after a capture both
+        // leave `destination` nil with the login still `.loading`, so cancelling on that shape would
+        // kill the retry the capture just started.
+        //
+        // Reading the value before it is written separates them: a swipe still has the challenge on
+        // screen here, while an echo of the reducer's own dismissal has already been nil'd.
+        Reduce { state, action in
+            guard case .binding(\.destination) = action,
+                  state.destination?.is(\.challenge) == true,
+                  state.loginState == .loading
+            else { return .none }
+            state.loginState = .idle
+            return .cancel(id: CancelID.login)
+        }
+
+        BindingReducer()
+
+        Reduce { state, action in
+            switch action {
+            case .binding:
+                return .none
+
+            // No `.dismiss` arm here: every `Destination` case is `@ReducerCaseIgnored`, so the
+            // destination is state-only and SwiftUI never routes a `PresentationAction.dismiss`
+            // through it. Swipe-to-dismiss is handled by the pre-`BindingReducer` hook above; an
+            // arm here would read as the mechanism while never actually running.
+            case .destination:
+                return .none
+
+            case .toast:
+                return .none
+
+            case .presentWebView(let url):
+                state.destination = .webView(url)
+                return .none
+
+            case .presentErrorInfo(let errorInfo):
+                state.destination = .errorInfo(errorInfo)
+                return .none
+
+            case .login:
+                guard !state.loginButtonDisabled else { return .none }
+                state.focusedField = nil
+                state.loginState = .loading
+                // The bound is per attempt, so a fresh tap always gets a full budget of rounds.
+                state.challengeRounds = 0
+                return .merge(
+                    .run(operation: { _ in await hapticsClient.generateFeedback(.soft) }),
+                    loginEffect(state: state)
+                )
+
+            case .challengeDetected:
+                // Emitted on every round, including the one that exhausts the bound below. An
+                // encounter and a failure are different facts: counting encounters per round is what
+                // makes an exhausted-rounds sequence visible as repeated walls rather than one event.
+                let challengeEncountered = Effect<Action>.run(operation: { _ in
+                    analyticsClient.send(.cloudflareChallengeEncountered)
+                })
+                guard state.challengeRounds < Self.maxChallengeRounds else {
+                    logger.notice("Cloudflare challenge rounds exhausted.")
+                    return .merge(
+                        challengeEncountered,
+                        .send(.loginDone(.failure(.cloudflareChallengeFailed)))
+                    )
+                }
+                state.challengeRounds += 1
+                // Presented straight away, with no hidden pre-attempt: an auto-passing wall flashes
+                // by and dismisses itself, and an interactive one is ready with zero added delay.
+                // `loginState` stays `.loading`, so the login button's spinner spans the whole flow.
+                state.destination = .challenge(Defaults.URL.login)
+                return challengeEncountered
+
+            case .challengeClearanceCaptured(let clearance):
+                // Ignore a capture that arrives without a challenge on screen: it can only be a
+                // straggler from a surface that was already cancelled or already reported.
+                guard state.destination?.is(\.challenge) == true else { return .none }
+                state.$cloudflareClearance.withLock({ $0 = clearance })
+                // The surface has served its purpose the instant the pair lands, so it goes away
+                // here rather than waiting for the retry to come back.
+                state.destination = nil
+                return loginEffect(state: state)
+
+            // User-initiated cancel is silent by design: no retry, no toast, no failure state.
+            case .cancelChallenge:
+                state.destination = nil
+                state.loginState = .idle
+                return .cancel(id: CancelID.login)
+
+            case .loginDone(let result):
+                state.destination = nil
+                // The response's credentials must reach the shared jar *before* `didLogin` is read.
+                // A clearance-carrying retry sets `httpShouldHandleCookies = false`, so URLSession
+                // no longer files the response's Set-Cookie itself; while this ran as a trailing
+                // effect, `didLogin` still saw pre-login state and reported a *successful*
+                // post-challenge login as a failure — silently, because the jar filled in a moment
+                // later and nothing revisited the verdict.
+                if case .success(let response) = result, let response {
+                    cookieClient.setCredentials(response: response)
+                }
+                var effects = [Effect<Action>]()
+                if cookieClient.didLogin {
+                    state.loginState = .idle
+                    effects.append(.run(operation: { _ in
+                        logger.notice("Login succeeded.")
+                        await hapticsClient.generateNotificationFeedback(.success)
+                    }))
+                    // Pop this login screen off the Setting stack now that we're signed in.
+                    effects.append(.run { _ in await dismiss() })
+                } else {
+                    // Every failure carries a surface. A plain rejected login used to change nothing
+                    // on screen at all, so the attempt just ended and the log was the only evidence
+                    // it had run — the failure mode that hid the ordering bug above.
+                    let failure: AppError
+                    if case .failure(let error) = result {
+                        failure = error
+                    } else {
+                        // A response that threw nothing, yet left the jar without credentials: the
+                        // POST was answered and the sign-in still did not happen. Reported as a
+                        // reasonless refusal rather than `.unknown`, because which of the two it is
+                        // was never in doubt — only why.
+                        failure = .loginRejected(nil)
+                    }
+                    state.loginState = .failed(failure)
+                    // The clearance value itself is never carried here — only the whitelisted
+                    // rows that tell the user which request failed and how.
+                    let action = AnyHashableBox(String(localized: .RLocalizable.login))
+                    let context: Context = failure == .cloudflareChallengeFailed
+                        ? [.action: action, .statusCode: 403]
+                        : [.action: action]
+                    state.toast = .error(.init(error: failure, context: context))
+                    effects.append(.run(operation: { _ in
+                        logger.warning("Login failed.")
+                        await hapticsClient.generateNotificationFeedback(.error)
+                    }))
+                    // Deliberately the login-failure signal ONLY, never the generic `errorSurfaced`,
+                    // even though this branch also raises an error toast: the classified signal is
+                    // strictly more informative, and emitting both would count one failure twice and
+                    // skew the error distribution toward login. That is why the generic error signal
+                    // lives on the app-root toast action instead of in every reducer that toasts.
+                    let kind = Self.loginFailureKind(for: failure)
+                    effects.append(.run(operation: { _ in analyticsClient.send(.loginFailed(kind)) }))
+                }
+                return .merge(effects)
+            }
+        }
+        .haptics(
+            unwrapping: \.destination,
+            case: \.webView,
+            hapticsClient: hapticsClient
+        )
+        .haptics(
+            unwrapping: \.destination,
+            case: \.challenge,
+            hapticsClient: hapticsClient
+        )
+        .ifLet(\.$destination, action: \.destination)
+        .ifLet(\.$toast, action: \.toast)
+    }
+
+    /// The login POST, shared by the first attempt and by every post-challenge retry.
+    ///
+    /// The held clearance pair is attached proactively, so a still-valid one from earlier in the
+    /// session skips the wall outright and an expired one simply comes back challenged and re-runs
+    /// the flow — which is why expiry needs no timer. A challenged response is classified purely
+    /// from what the edge sent back: no host list, no app setting, nothing to keep in sync.
+    private func loginEffect(state: State) -> Effect<Action> {
+        .run { [state] send in
+            do throws(AppError) {
+                let response = try await loginClient.login(state.username, state.password, state.cloudflareClearance)
+                let challenged = isCloudflareChallenge(response)
+                // What the edge actually returned, and how it was classified. A challenge is
+                // invisible from the outside — a silent login failure looks identical whether the
+                // wall fired, the POST was rejected, or detection misread the response — and this
+                // line is what tells those apart from a device log. Named headers only, never
+                // `allHeaderFields`, which would carry Set-Cookie past the Phase 8 logging gate.
+                let mitigated = response?.value(forHTTPHeaderField: "cf-mitigated") ?? "<absent>"
+                let ray = response?.value(forHTTPHeaderField: "cf-ray") ?? "<absent>"
+                let server = response?.value(forHTTPHeaderField: "server") ?? "<absent>"
+                let url = response?.url?.absoluteString ?? "<none>"
+                // Whether the forum handed back *any* credential-setting header. This is the fact
+                // that separates "the server declined to sign you in" from "it did, and we lost the
+                // result on the way in" — the two are otherwise identical from here: same status,
+                // same empty jar, same silent failure. Presence only; no header value is ever
+                // logged, per the Phase 8 cookie-logging gate.
+                let credentialHeaderPresent = response?.value(forHTTPHeaderField: "Set-Cookie") != nil
+                logger.notice("""
+                    Login POST classified: challenged=\(challenged, privacy: .public) \
+                    status=\(response?.statusCode ?? -1, privacy: .public) \
+                    cf-mitigated=\(mitigated, privacy: .public) \
+                    cf-ray=\(ray, privacy: .public) \
+                    server=\(server, privacy: .public) \
+                    url=\(url, privacy: .public) \
+                    clearanceHeld=\(state.cloudflareClearance != nil, privacy: .public) \
+                    credentialHeader=\(credentialHeaderPresent, privacy: .public)
+                    """)
+                if challenged {
+                    await send(.challengeDetected)
+                } else {
+                    await send(.loginDone(.success(response)))
+                }
+            } catch {
+                // Distinguishes a thrown transport failure from a response that simply was not
+                // classified as a challenge — the two produce the same `.failed` state downstream.
+                logger.warning("Login POST threw: \(String(describing: error), privacy: .public)")
+                await send(.loginDone(.failure(error)))
+            }
+        }
+        // `cancelInFlight` makes the effect self-defending: whatever reaches this point, only one
+        // login POST is ever outstanding under this ID, so no caller can leave two of them racing to
+        // deliver `.loginDone`. The `.login` guard blocks the re-entry today; this keeps the
+        // invariant a property of the effect rather than of every future call site.
+        .cancellable(id: CancelID.login, cancelInFlight: true)
+    }
+}
+
+extension LoginReducer.Destination.State: Equatable, Sendable {}
+extension LoginReducer.Destination.Action: Equatable, Sendable {}

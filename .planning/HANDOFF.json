@@ -1,0 +1,1867 @@
+{
+  "version": "1.0",
+  "timestamp": "2026-10-08T16:12:38Z",
+  "phase": "17",
+  "phase_name": "Screenshot Automation, Visual Regression & OS 27 Modernization",
+  "phase_dir": ".planning/phases/17-localized-screenshot-capture-harness",
+  "plan": 6,
+  "task": 1,
+  "total_tasks": null,
+  "status": "ready-17-06",
+  "completed_tasks": [],
+  "remaining_tasks": [],
+  "blockers": [],
+  "async_jobs": [],
+  "human_actions_pending": [
+    "Owner: confirm final selections and visually approve final captures for both nonexplicit and explicit sets at Phase 17 closure; the agent prepares provisional galleries and fixtures for both sets."
+  ],
+  "decisions": [
+    {
+      "decision": "Honor the active-window feasibility stop before expansion.",
+      "rationale": "The single runtime test failed its hosting prerequisite; there is no full-content evidence.",
+      "phase": "17"
+    },
+    {
+      "decision": "Require nonzero discovered tests and zero Repetition nodes.",
+      "rationale": "The original method selector matched zero tests despite xcodebuild exit 0.",
+      "phase": "17"
+    },
+    {
+      "decision": "Owner approved genuine app-hosted visual tests and plan 17-01 revision.",
+      "rationale": "Explicit option 1 response on 2026-10-02 after the hosting checkpoint.",
+      "phase": "17"
+    },
+    {
+      "decision": "Owner selected option 1: orchestrator continues execution inline.",
+      "rationale": "Explicit recovery selection after the stalled executor checkpoint.",
+      "phase": "17"
+    },
+    {
+      "decision": "Withdraw premature stitching decision request and verify native SnapshotTesting custom-size strategy first.",
+      "rationale": "Owner identified library size support and requested continuation. Existing Task 1 scope and acceptance remain in force; no stitching approval is inferred.",
+      "phase": "17"
+    },
+    {
+      "decision": "Owner selected option 1: continue one further bounded native-API diagnosis cycle, at most three runs, preserving acceptance.",
+      "rationale": "Explicit option 1 response after the Task 2 three-retry checkpoint; same authorized files, no threshold/resolution/architecture change.",
+      "phase": "17"
+    },
+    {
+      "decision": "Withdraw initial-1x remedy proposal after reviewing owner-supplied standalone native-size/scale controls.",
+      "rationale": "Original drawHierarchy logs show output renderer/trait overrides do not move the native screen-scaled ceiling; this is research evidence, not authorization for a new capture architecture or native test cycle.",
+      "phase": "17"
+    },
+    {
+      "decision": "Owner adopted stationary render-server slices in c91c549846 and authorized clean build plus full actual matrix.",
+      "rationale": "Explicit owner direction supplied on 2026-10-03; one committed layout yields one output image under D-08. Prior recovery-cycle bound no longer applies.",
+      "phase": "17"
+    },
+    {
+      "decision": "Owner-provided parity/export commits are adopted; retain stationary reads, settle verification, distinct replicant ceiling and 8:11 coordinate-specific reader pages.",
+      "rationale": "2026-10-04 handoff identifies implemented 8d6f88e338/5f094a212a. Remaining Home options are explicitly an owner decision, not selected by this reconciliation.",
+      "phase": "17"
+    },
+    {
+      "decision": "Owner adopted native scroll-container viewport pin with pre-growth byte equivalence and external XCUIDevice rotation; all 32 coordinates retained.",
+      "rationale": "User supplied delegated judgment and requested continuation. The implemented equivalence guard fails on AX5 Home before growth, requiring input-source reconciliation.",
+      "phase": "17"
+    },
+    {
+      "decision": "Adopt per-view native viewport measurement freezing for Home and GalleryList, replacing the harness-supplied size.",
+      "rationale": "Owner follow-up research measured Home-like SwiftUI geometry at 420x756 versus UIScrollView bounds 420x912. Per-view safe areas and landscape rules require each view's own measurement; the size-pin fallback is not adopted.",
+      "phase": "17"
+    },
+    {
+      "decision": "Deliver capture freezing through a stable observable object installed in the environment before first render; never rewrite the environment value to toggle freezing.",
+      "rationale": "Real CommentsView probe reproduces the 2648-pixel glyph shrink after any environment-key change, but observation toggles preserve the initial native glyph. Do not prime the hierarchy into the inconsistent post-update state.",
+      "phase": "17"
+    },
+    {
+      "decision": "Adopt allocation-owner pixel-area budget of 2736 * 32768, canonical Data sharing and bounded slice ownership.",
+      "rationale": "Owner supplied composite-footprint measurements showing the previous height guard rejected smaller allocations and authorized exact boundary/memory tests.",
+      "phase": "17"
+    },
+    {
+      "decision": "Await actual scene orientation for at most five seconds, with timestamped evidence and no in-process rotation request.",
+      "rationale": "Immediate post-launch assertion failed after successful external rotation; bounded readiness diagnosis also failed, so cross-invocation orientation remains unresolved.",
+      "phase": "17"
+    },
+    {
+      "decision": "Adopt per-family simulator lifecycle ownership and creation-time scene size-class pinning.",
+      "rationale": "Owner-supplied replay identified xcodebuild-owned shutdown as lost rotation and tall-window derived size class as the title parity failure; current real landscape capture confirms both fixes.",
+      "phase": "17"
+    },
+    {
+      "decision": "Keep exact-once census and give centered VH1 two separate non-census carousel neighbors; bump public fixtures to v2.",
+      "rationale": "Owner identified native horizontal carousel replicas as a one-gallery fixture defect. PEEK1/PEEK2 prevent visible peeks from duplicating VH1 without geometric census heuristics or a production carousel change.",
+      "phase": "17"
+    },
+    {
+      "decision": "Use simulator/app Dynamic Type as the single category source and separate matrix invocations by size; keep stable observation freezing.",
+      "rationale": "Owner-supplied toolbar-glyph probe identifies app/window category disagreement, including false portrait AX5 references. Current gate verifies matching device/app/scene categories and stable 70x85 glyphs in both phone orientations. Earlier Comments root-environment writes were triggers of that disagreement, not its root cause.",
+      "phase": "17"
+    },
+    {
+      "decision": "Adopt two-scale location-merged OCR with exact-once census unchanged; close 17-01 after the final-tree gate.",
+      "rationale": "Owner supplied 3e49512f14/2b3e85bfa3/c4a75569cc; current 32/32 matrix and all native suites pass.",
+      "phase": "17"
+    },
+    {
+      "decision": "Owner approves separate English fixture-marker and native-language trailing-label evidence passes (A-D).",
+      "rationale": "Simulator research reproduces language-first marker regressions and correct CJK headings at confidence 0.5; heading exact identity and geometry replace its uncalibrated confidence floor while fixture markers retain English >=0.8.",
+      "phase": "17"
+    },
+    {
+      "decision": "Orchestrator confirms native-viewport-owned first read and interior seam bands on 16-pixel-aligned subsequent reads.",
+      "rationale": "Owner-supplied read-rect research isolates deterministic rasterization dependence on snapshot rect geometry; preserves the previously authorized stationary render-server architecture and strict checks.",
+      "phase": "17"
+    },
+    {
+      "decision": "Adopt coordinate-specific fixture artwork export A; keep strict dimensions and capture checks, and retain B as an unanswered owner decision.",
+      "rationale": "Original iPad seam is fixed; full compatibility exposes a new 3x half-height rounding dependency that needs resolution before claiming 1:1 across the matrix.",
+      "phase": "17"
+    },
+    {
+      "decision": "Orchestrator adopts shared production height-first pixel sizing and exact artwork-content checks from cover-snapping research.",
+      "rationale": "Actual compact dimensions now match. The proposed corner exclusion fails on continuous clipping and remains unresolved; no source tolerance or wider empirical exclusion is adopted.",
+      "phase": "17"
+    },
+    {
+      "decision": "Orchestrator adopts shared production clip shape and path-derived corner extent for source-content verification.",
+      "rationale": "Corrects circular-radius assumption; original Home and 186 matrix artwork images pass. Native parity and seams retain every pixel; the new landscape seam remains unresolved.",
+      "phase": "17"
+    },
+    {
+      "decision": "Orchestrator explicitly adopts proposal B: all render-server reads retain native viewport dimensions, including the final read beyond the content bottom.",
+      "rationale": "Equal-size probe pairs preserve continuous-corner bytes; a maximum-height read and short remainder reproduce the exact four-pixel seam failure. Strict all-pixel seams and native first-read ownership remain unchanged.",
+      "phase": "17"
+    },
+    {
+      "decision": "Owner approved strict two-pass same-rect SHA-256 verification in place of cross-origin seam equality.",
+      "rationale": "Forwarded glass-seam research establishes origin dependence; explicit ok approves design and stated limits. Native parity, artwork, census and reference checks remain strict.",
+      "phase": "17"
+    },
+    {
+      "decision": "Orchestrator adopts single Home viewport measurement for carousel width and height readiness.",
+      "rationale": "Real xSmall landscape diagnostic confirms an 80 pt provisional width opens with a positive height budget and leaves card 21 clipped. This is a technical scope decision, not separate owner approval.",
+      "phase": "17"
+    },
+    {
+      "decision": "Owner approved owned-row verification, a full-content settle, and strict read 0 (\"Approve all three\").",
+      "rationale": "Measured load-dependent bottom-cut glass flips and a post-growth settle explain the tracer-matrix-05 context-row change; recorded in 17-02-PLAN.md.",
+      "phase": "17"
+    },
+    {
+      "decision": "Owner declined a runner quiet period after content_size changes and launches (\"No wait\").",
+      "rationale": "Read 0 stays fully gated and fails loudly; no fixed pause stands in for measured settlement.",
+      "phase": "17"
+    },
+    {
+      "decision": "Owner approved erasing each pinned simulator in place after a cleanup deleted their device data.",
+      "rationale": "The iPhone could not boot and the iPad could not install apps; UDIDs are kept.",
+      "phase": "17"
+    },
+    {
+      "decision": "Restore pinned device settings instead of editing the tracked pin.",
+      "rationale": "A probe shows only Full Screen Apps (SBMedusaMultitaskingEnabled NO) reproduces the pinned 25 pt iPad inset; the iPhone pin records dark appearance.",
+      "phase": "17"
+    },
+    {
+      "decision": "Hash untracked, non-ignored files in the native source guard and drop the hard-coded 17-01 paths.",
+      "rationale": "The gate audit showed new uncommitted Swift sources compiled into every build without protection; tightening the guard to its stated contract does not change capture.",
+      "phase": "17"
+    },
+    {
+      "decision": "Run the complete tracer detached at .capture/tracer-matrix-07.",
+      "rationale": "The background job limit (two hours) would stop a multi-hour run mid-test; the first launch was interrupted during its build and restored, and its evidence is kept.",
+      "phase": "17"
+    },
+    {
+      "decision": "Count adjusted insets when resolving the vertical scroll host, in one shared HostedHierarchy helper.",
+      "rationale": "The host predicate ignored the insets that the output height formula and its contentDoesNotExceedViewport guard count; measured iPad portrait Home content (1192 to 1210 pt in a 1210 pt scroll view) scrolls at every size but had no host. Selection for previously passing pages is unchanged; acceptance is unchanged.",
+      "phase": "17"
+    },
+    {
+      "decision": "Pin Reduce Motion on (owner selected the recommended option).",
+      "rationale": "The dark Home card ColorfulX gradient blooms for 20 to 22 settle samples and raced the settle rule in .capture/tracer-matrix-08; UIView animation disabling does not reach it; Reduce Motion is the app-supported freeze. No production change.",
+      "phase": "17"
+    },
+    {
+      "decision": "Owner selected clipping each Vision box to the window it analyzed.",
+      "rationale": "tracer-matrix-09 failed on a Vision box 16 pt too wide past the image edge; clipping changes three accepted frames in 456 coordinates, flips no acceptance and changes nothing in owned-row-gate-03.",
+      "phase": "17"
+    },
+    {
+      "decision": "The agent assists with provisional gallery selection, review and fixture acquisition for both nonexplicit and explicit content sets; the owner confirms the final selection at Phase 17 closure.",
+      "rationale": "Owner delegation covers provisional gallery URLs, set assignments, composition, page choices, review and acquisition for both sets. Final owner confirmation remains the closure checkpoint.",
+      "phase": "17"
+    },
+    {
+      "decision": "The agent prepares provisional galleries for both content sets. The requested nonexplicit sample uses Non-H and records its sampling and review evidence.",
+      "rationale": "Both nonexplicit and explicit selections use the same declared-selection, acquisition, review and capture pipeline under owner delegation.",
+      "phase": "17"
+    },
+    {
+      "decision": "Use the available nonexplicit fixture for initial development while the agent prepares the explicit fixture alongside it.",
+      "rationale": "The initial fixture is technically sufficient for independent tooling work; the agent continues gallery preparation for both sets.",
+      "phase": "17"
+    },
+    {
+      "decision": "Home gets an injected HomeClient for its popular, frontpage and Toplists fetches; capture overrides it with the selection parsed from the saved detail pages.",
+      "rationale": "Owner, 2026-10-07: the plan routes Home data through injected request clients, but Home called its requests directly. Recorded in 17-04-PLAN.md.",
+      "phase": "17"
+    },
+    {
+      "decision": "The live HomeClient arranges the carousel, so capture returns the configured order unchanged.",
+      "rationale": "Owner, 2026-10-07 (recommended option). Recorded in 17-04-PLAN.md.",
+      "phase": "17"
+    },
+    {
+      "decision": "The Toplists loading skeleton uses blank galleries without a cover, so Home makes no third-party request.",
+      "rationale": "Owner, 2026-10-07: the first actual-app capture failed closed on the skeleton's GitHub image. Recorded in 17-04-PLAN.md.",
+      "phase": "17"
+    },
+    {
+      "decision": "ImageColors ranks equally common colors by packed value, lowest first (d8f148d92d).",
+      "rationale": "Owner, 2026-10-08, after a test the owner requested: ties followed per-process dictionary order, so every fixture image gave 5 to 10 different palettes in 10 processes. Recorded in 17-05-PLAN.md.",
+      "phase": "17"
+    },
+    {
+      "decision": "Under Reduce Motion the Home card gradient's points take one fixed R2 arrangement; without it they keep random placement and movement (2c5a7ad69b).",
+      "rationale": "Owner, 2026-10-08: ColorfulX's default director placed the points at random each appearance, so frozen gradients still differed per launch. With both fixes, settled iPhone captures are byte-identical below the status bar. Recorded in 17-05-PLAN.md.",
+      "phase": "17"
+    },
+    {
+      "decision": "Under Reduce Motion a late palette applies at once, with no fade (98e255cc22).",
+      "rationale": "Owner, 2026-10-08: a D-29 exception, so a settled capture never catches the card mid-fade. Recorded in 17-05-PLAN.md.",
+      "phase": "17"
+    },
+    {
+      "decision": "The iPhone Air text size is restored to Large and kept as the pinned state.",
+      "rationale": "Owner, 2026-10-08: it had been at Accessibility XXXL since 2026-10-07 05:24Z, set by no recorded run. Recorded in 17-05-PLAN.md.",
+      "phase": "17"
+    },
+    {
+      "decision": "Comments and both reader routes continue from the routed gallery's detail through DetailReducer's launch automation.",
+      "rationale": "Owner, 2026-10-08: the routes send what Show All and a preview tap send, only in capture launches. Recorded in 17-05-PLAN.md.",
+      "phase": "17"
+    },
+    {
+      "decision": "Fixture acquisition derives the reader's full request set and the selection is re-acquired as marketing-2b4d03cd822461e2 (927dcfa555).",
+      "rationale": "Owner, 2026-10-08: the reader resolves a whole batch of image URLs and prefetches a window around each built page, which the 17-03 derivation missed. Recorded in 17-05-PLAN.md.",
+      "phase": "17"
+    },
+    {
+      "decision": "Capture scenes run the paging reader (left to right) in their in-memory settings.",
+      "rationale": "Owner, 2026-10-08: the vertical reader settles at a timing-dependent offset (4 of 6 attempts low); the paging reader gave byte-identical, framed runs. The vertical offset is a separate production task. Recorded in 17-05-PLAN.md.",
+      "phase": "17"
+    },
+    {
+      "decision": "DataCache gains a nonisolated containsData(forKey:) and LibraryClient.live.isCached consults the reader cache (9af051b392).",
+      "rationale": "Owner, 2026-10-08: the synchronous diagnostics could not see reader pages, so the reader never read as ready. Recorded in 17-05-PLAN.md.",
+      "phase": "17"
+    },
+    {
+      "decision": "iPad status bar shows 2026-01-01 9:41 via the full ISO --time; simctl renders it \"Sat Jan 1\".",
+      "rationale": "Owner answer 2026-10-08; --time 9:41 keeps the real date, and simctl derives the weekday as if the year were 2000.",
+      "phase": "17"
+    },
+    {
+      "decision": "Visual runs use dedicated \"EhPanda Visual iPhone Air\" and \"EhPanda Visual iPad Pro 11-inch (M5)\" simulators, resolved by name, model and runtime.",
+      "rationale": "Owner choice 2026-10-08 (recommended) after another session created same-model iOS 27 simulators; names live in environment.py, the pin is unchanged.",
+      "phase": "17"
+    },
+    {
+      "decision": "capture-native.py opens and quits Settings once after setting the status bar, before any capture launch.",
+      "rationale": "Owner choice 2026-10-08 (recommended, tested first): the first app after a boot draws iPad's Wi-Fi glyph half a point left of every later app.",
+      "phase": "17"
+    },
+    {
+      "decision": "Marketing frames are the system screenshot (XCUIScreen) the test settles and attaches; capture-native.py reads it from the launch's result bundle, and the handshake is removed (975a06573f).",
+      "rationale": "Owner choice 2026-10-09 (recommended, tested first): simctl's framebuffer keeps Liquid Glass as last composed, so 1 of 17 iPad cold launches recorded a glass rim one level off; all 17 system screenshots matched.",
+      "phase": "17"
+    }
+  ],
+  "uncommitted_files": [
+    "A  .gsd/dispatch-isolation-sentinel.json",
+    "A  .planning/milestone.lock",
+    "A  .planning/phases/17-localized-screenshot-capture-harness/17-WINDOW-SNAPSHOT-PROBE.md",
+    "M  EhPanda.xcodeproj/project.pbxproj",
+    "?? .capture/"
+  ],
+  "next_action": "Start 17-06 (Live Text and Downloads states). Native captures: one coordinate per run with Scripts/visual/capture-native.py on the EhPanda Visual simulators (both Shutdown when idle). The agent prepares explicit-set galleries and fixtures; ask the owner in 17-07 whether the status bar should follow each locale.",
+  "context_notes": "17-05 complete. T1: eight capture routes through actual navigation, per-screen diagnostics, MarketingCaptureUITests.testCaptureCoordinate (12 coordinates on both devices; Live Text and Downloads wait for 17-06). T2: capture-native.py validates the tracked pin, sets the 9:41 status bar, settles it with a Settings launch, and proves byte-identical cold reruns on system screenshots (XCUIScreen) that the test settles and attaches; no capsule. The gate on e4834b65b7 failed on an iPad glass rim in simctl's framebuffer (.capture/17-05-t2-native-05, 17-05-t2-glass-probe-01). Final gate on 66aa2be32f: .capture/17-05-t2-native-09 (iPad light) and -10 (iPhone dark). Review 17-05-REVIEW.md: R-1 to R-8 fixed. The status bar follows the simulator region (en_JP), not the coordinate locale: an owner question for 17-07.",
+  "evidence": {
+    "proposal": ".planning/phases/17-localized-screenshot-capture-harness/17-01-CAPTURE-GATE.md",
+    "bootstrap": {
+      "result_bundle": "/tmp/ehpanda-phase17-bootstrap-green.xcresult",
+      "summary": "/tmp/ehpanda-phase17-bootstrap-green-summary.json",
+      "total_tests": 10,
+      "passed_tests": 10,
+      "failed_tests": 0,
+      "skipped_tests": 0,
+      "repetition_nodes": 0,
+      "exit_code": 0
+    },
+    "draw_hierarchy_gate": {
+      "result_bundle": "/tmp/ehpanda-phase17-home-single-hierarchy-2.xcresult",
+      "disposition": "Unrendered tail and six zero item counts; rejected."
+    },
+    "tdd_red": [
+      ".planning/phases/17-localized-screenshot-capture-harness/17-01-BOOTSTRAP-RED.json",
+      ".planning/phases/17-localized-screenshot-capture-harness/17-01-HOME-RED.json",
+      ".planning/phases/17-localized-screenshot-capture-harness/17-01-PUBLIC-EXPORT-RED.json"
+    ],
+    "native_size_probe": {
+      "result_bundle": "/tmp/ehpanda-phase17-library-custom-height-3.xcresult",
+      "summary": "/tmp/ehpanda-phase17-library-custom-height-3-summary.json",
+      "tests": "/tmp/ehpanda-phase17-library-custom-height-3-tests.json",
+      "log": "/tmp/ehpanda-phase17-library-custom-height-3.log",
+      "clean_log": "/tmp/ehpanda-phase17-library-custom-height-clean-4.log",
+      "total_tests": 2,
+      "passed_tests": 2,
+      "failed_tests": 0,
+      "repetition_nodes": 0,
+      "exit_code": 0,
+      "limits": "Pre-marker native API proof; superseded by current three-test integrated Home GREEN. Later matrix still pending."
+    },
+    "historical_layer_gate": {
+      "clean_build_log": "/tmp/ehpanda-phase17-layer-parity-clean-2.log",
+      "result_bundle": "/tmp/ehpanda-phase17-layer-parity.xcresult",
+      "log": "/tmp/ehpanda-phase17-layer-parity.log",
+      "summary": "/tmp/ehpanda-phase17-layer-parity-summary.json",
+      "tests": "/tmp/ehpanda-phase17-layer-parity-tests.json",
+      "total_tests": 2,
+      "passed_tests": 1,
+      "failed_tests": 1,
+      "skipped_tests": 0,
+      "repetition_nodes": 0,
+      "exit_code": 65,
+      "failure": "nativeViewportPixelsChanged",
+      "attachments_manifest": "/tmp/ehpanda-phase17-layer-parity-attachments/manifest.json",
+      "changed_pixel_count": 477737,
+      "total_pixels": 3447360,
+      "changed_fraction": 0.1385805369906247
+    },
+    "latest_home_gate": {
+      "clean_build_log": "/tmp/ehpanda-phase17-library-full-content-clean-4.log",
+      "result_bundle": "/tmp/ehpanda-phase17-library-full-content-2.xcresult",
+      "log": "/tmp/ehpanda-phase17-library-full-content-2.log",
+      "summary": "/tmp/ehpanda-phase17-library-full-content-2-summary.json",
+      "tests": "/tmp/ehpanda-phase17-library-full-content-2-tests.json",
+      "attachments_manifest": "/tmp/ehpanda-phase17-library-full-content-2-attachments/manifest.json",
+      "total_tests": 3,
+      "passed_tests": 3,
+      "failed_tests": 0,
+      "skipped_tests": 0,
+      "repetition_nodes": 0,
+      "exit_code": 0,
+      "runtime_warnings": [],
+      "content_height": 1218,
+      "viewport_points": [
+        420,
+        912
+      ],
+      "output_points": [
+        420,
+        1374
+      ],
+      "stable_iterations": 2,
+      "item_census": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    "feasibility_gate": ".planning/phases/17-localized-screenshot-capture-harness/17-01-FEASIBILITY-GATE.md",
+    "feasibility_review": ".planning/phases/17-localized-screenshot-capture-harness/17-01-FEASIBILITY-REVIEW.md",
+    "public_export": {
+      "result_bundle": "/tmp/ehpanda-phase17-feasibility-phone.xcresult",
+      "export_tests_passed": 2,
+      "matrix_test_failed": 1,
+      "aggregate_digest": "ee48f8faf6b828a2068f4790f30623341d78fe8e4a9d5d60938f154dc975a547",
+      "generator_source_sha256": "b7133850ae2071292a6179d33dde9bf024b766e748af4eb8bbd07faf4a4420bc",
+      "entries": 45,
+      "materialized_output": ".capture/regression",
+      "limits": "Independent exporter success only; mixed test result has exit 65.",
+      "final_result_bundle": "/tmp/ehpanda-phase17-slice-final-phone.xcresult",
+      "final_export_tests_passed": 2,
+      "current_generator_source_sha256": "5c7e4901568b478dbba633b7152226a080ff122a9134f62e1642193406295b25",
+      "supplied_earlier_manifest_source_sha256": "26da899c6796b56bd4e54e828d1c218c1b8c46a6bceaa461cb91d5b209feb3a5",
+      "current_default_aggregate_digest": "ee48f8faf6b828a2068f4790f30623341d78fe8e4a9d5d60938f154dc975a547",
+      "reader_page_pixel_width_parameter": "nil preserves 800x1100; supplied coordinate width yields rounded 8:11 1:1 pages, previews/covers unchanged"
+    },
+    "saved_png_comparison": {
+      "result": "/tmp/ehpanda-phase17-comments-default-png-comparison.json",
+      "changed_pixels": 20284,
+      "viewport_pixels": [
+        1260,
+        2736
+      ],
+      "difference_bounds_pixels": [
+        60,
+        202,
+        1207,
+        636
+      ],
+      "limits": "Independent 8-bit premultiplied sRGB comparison of saved PNGs; no replacement for SnapshotTesting live comparison."
+    },
+    "recovery_cycle_2": {
+      "authorized_runs": 3,
+      "used_runs": 3,
+      "source_checkpoint": "8d8fe3d74eef112d82a70f9812e609f15c8ebbe1",
+      "runs": [
+        {
+          "strategy": "Default layer, comparison pixels normalized to 8-bit sRGB",
+          "result_bundle": "/tmp/ehpanda-phase17-recovery2-format.xcresult",
+          "build_log": "/tmp/ehpanda-phase17-recovery2-format-build.log",
+          "log": "/tmp/ehpanda-phase17-recovery2-format.log",
+          "summary": "/tmp/ehpanda-phase17-recovery2-format-summary.json",
+          "tests": "/tmp/ehpanda-phase17-recovery2-format-tests.json",
+          "attachments_manifest": "/tmp/ehpanda-phase17-recovery2-format-attachments/manifest.json",
+          "total_tests": 4,
+          "passed_tests": 3,
+          "failed_tests": 1,
+          "skipped_tests": 0,
+          "repetition_nodes": 0,
+          "exit_code": 65,
+          "runtime_warnings": [],
+          "appearance_messages": 1,
+          "strict_native_parity": false
+        },
+        {
+          "strategy": "UIViewController native hierarchy sRGB/SDR",
+          "result_bundle": "/tmp/ehpanda-phase17-recovery2-native-sdr.xcresult",
+          "build_log": "/tmp/ehpanda-phase17-recovery2-native-sdr-build.log",
+          "log": "/tmp/ehpanda-phase17-recovery2-native-sdr.log",
+          "summary": "/tmp/ehpanda-phase17-recovery2-native-sdr-summary.json",
+          "tests": "/tmp/ehpanda-phase17-recovery2-native-sdr-tests.json",
+          "attachments_manifest": "/tmp/ehpanda-phase17-recovery2-native-sdr-attachments/manifest.json",
+          "total_tests": 4,
+          "passed_tests": 3,
+          "failed_tests": 1,
+          "skipped_tests": 0,
+          "repetition_nodes": 0,
+          "exit_code": 65,
+          "runtime_warnings": [],
+          "appearance_messages": 0,
+          "strict_native_parity": false
+        },
+        {
+          "strategy": "Direct SwiftUI device custom-size native hierarchy sRGB/SDR",
+          "result_bundle": "/tmp/ehpanda-phase17-recovery2-swiftui-native.xcresult",
+          "build_log": "/tmp/ehpanda-phase17-recovery2-swiftui-native-build.log",
+          "log": "/tmp/ehpanda-phase17-recovery2-swiftui-native.log",
+          "summary": "/tmp/ehpanda-phase17-recovery2-swiftui-native-summary.json",
+          "tests": "/tmp/ehpanda-phase17-recovery2-swiftui-native-tests.json",
+          "attachments_manifest": "/tmp/ehpanda-phase17-recovery2-swiftui-native-attachments/manifest.json",
+          "total_tests": 4,
+          "passed_tests": 3,
+          "failed_tests": 1,
+          "skipped_tests": 0,
+          "repetition_nodes": 0,
+          "exit_code": 65,
+          "runtime_warnings": [],
+          "appearance_messages": 1,
+          "strict_native_parity": false
+        }
+      ],
+      "native_viewport_points": [
+        420,
+        912
+      ],
+      "native_device_scale": 3,
+      "output_points": [
+        420,
+        2798
+      ],
+      "output_pixels": [
+        1260,
+        8394
+      ],
+      "pixel_inspection": "/tmp/ehpanda-phase17-recovery2-swiftui-native-pixels.json",
+      "proposal": "Historical initial-1x remedy withdrawn by reviewed external size/scale controls; no output-scale implementation.",
+      "alpha_inspection": "/tmp/ehpanda-phase17-recovery2-swiftui-native-alpha.json",
+      "latest_output_disposition": "Fully transparent: 10576440/10576440 full-image pixels have alpha zero. Previous allBlack field inspected RGB only."
+    },
+    "upstream_rendering_research": ".planning/phases/17-localized-screenshot-capture-harness/17-01-UPSTREAM-RENDERING-RESEARCH.md",
+    "render_size_gate": ".planning/phases/17-localized-screenshot-capture-harness/17-01-RENDER-SIZE-GATE.md",
+    "external_size_probe": {
+      "manifest": "/tmp/ehpanda-phase17-size-probe-evidence/manifest.json",
+      "original_recorded_output_extract": "/tmp/ehpanda-phase17-size-probe-evidence/probe-results.log",
+      "review": "Source, preserved PNGs and original recorded outputs reviewed; no Simulator/native test rerun by root.",
+      "native_dimension_ceiling_pixels": 8192,
+      "comments_native_height_pixels": 8394,
+      "renderer_and_trait_scale_overrides_avoid_failure": false,
+      "comparison_rows": 2334,
+      "comparison_viewport_rows": 2736,
+      "tile_top_safe_area_points": [
+        68,
+        0
+      ],
+      "limits": "Standalone synthetic roots and two Simulator families; different tablet from harness matrix, no physical-device proof, no full viewport/census/seamless-composition acceptance."
+    },
+    "historical_pre_slice_actual_matrix": {
+      "result_bundle": "/tmp/ehpanda-phase17-feasibility-phone.xcresult",
+      "summary": "/tmp/ehpanda-phase17-feasibility-phone-summary.json",
+      "tests": "/tmp/ehpanda-phase17-feasibility-phone-tests.json",
+      "captured": 1,
+      "failed": 1,
+      "pending_phone": 14,
+      "pending_tablet": 16,
+      "failed_coordinate": "iphone-portrait-large-comments",
+      "total_tests": 3,
+      "passed_tests": 2,
+      "failed_tests": 1,
+      "skipped_tests": 0,
+      "repetition_nodes": 0,
+      "exit_code": 65
+    },
+    "historical_pre_slice_comments_probe": {
+      "result_bundle": "/tmp/ehpanda-phase17-comments-explicit-vision.xcresult",
+      "summary": "/tmp/ehpanda-phase17-comments-explicit-vision-summary.json",
+      "tests": "/tmp/ehpanda-phase17-comments-explicit-vision-tests.json",
+      "build_log": "/tmp/ehpanda-phase17-comments-explicit-vision-build.log",
+      "log": "/tmp/ehpanda-phase17-comments-explicit-vision.log",
+      "attachments_manifest": "/tmp/ehpanda-phase17-comments-explicit-vision-attachments/manifest.json",
+      "total_tests": 4,
+      "passed_tests": 3,
+      "failed_tests": 1,
+      "skipped_tests": 0,
+      "repetition_nodes": 0,
+      "exit_code": 65,
+      "runtime_warnings": [],
+      "appearance_messages": 1,
+      "limits": "Home tests passed again; Comments failed before native parity/OCR. Not clean integration or a passed matrix."
+    },
+    "reader_diagnostics": {
+      "tablet_bundle": "/tmp/ehpanda-phase17-slice-common-tablet.xcresult",
+      "tablet_failure": "seamMismatch; cyan artwork versus opaque black overlap",
+      "phone_bundle": "/tmp/ehpanda-phase17-slice-sdr-phone.xcresult",
+      "phone_failure": "nativeViewportPixelsChanged; broad top blur under temporary standardImageRange",
+      "limits": "Earlier experimental source/settings, not final-coordinate passes. Exact cause unproven; no production changes.",
+      "disposition": "Historical pre-fix failures; supplied portrait Reader now passes native parity/seams/census after measured fixes."
+    },
+    "historical_8ee6646728_actual_matrix": {
+      "phone": {
+        "result_bundle": "/tmp/ehpanda-phase17-slice-final-phone.xcresult",
+        "total_tests": 9,
+        "passed_tests": 8,
+        "failed_tests": 1,
+        "skipped_tests": 0,
+        "repetition_nodes": 0,
+        "exit_code": 65,
+        "captured": 2,
+        "failed": 1,
+        "pending": 13,
+        "outcomes": "/tmp/ehpanda-phase17-slice-final-phone-attachments/matrix/phase17-feasibility-681C4D93-BFF1-44CA-975E-DA0BC66AD037/outcomes.json",
+        "failed_coordinate": "iphone-portrait-large-downloads",
+        "changed_viewport_pixels": 147,
+        "maximum_channel_delta": 1,
+        "slices": 2
+      },
+      "tablet": {
+        "result_bundle": "/tmp/ehpanda-phase17-slice-final-tablet.xcresult",
+        "total_tests": 1,
+        "passed_tests": 0,
+        "failed_tests": 1,
+        "skipped_tests": 0,
+        "repetition_nodes": 0,
+        "exit_code": 65,
+        "captured": 2,
+        "failed": 1,
+        "pending": 13,
+        "outcomes": "/tmp/ehpanda-phase17-slice-final-tablet-attachments/matrix/phase17-feasibility-5BCEF646-3DE2-4FD4-975E-06DEBE9BB0B3/outcomes.json",
+        "failed_coordinate": "ipad-portrait-large-downloads",
+        "changed_viewport_pixels": 55,
+        "maximum_channel_delta": 1,
+        "slices": 1
+      },
+      "combined": {
+        "captured": 4,
+        "failed": 2,
+        "pending": 26,
+        "total": 32
+      },
+      "standard_image_range": false,
+      "failure": "nativeViewportPixelsChanged",
+      "limits": "AX5, landscape and Reader are unreached in the final source matrices. Failed Downloads census not evaluated."
+    },
+    "historical_8ee6646728_clean": {
+      "log": "/tmp/ehpanda-phase17-slice-final-clean.log",
+      "exit_code": 0,
+      "elapsed_seconds": 46.355,
+      "compiler_deprecation_swiftlint_diagnostics": 0,
+      "source_hashes": "/tmp/ehpanda-phase17-slice-final-source-hashes.json"
+    },
+    "actual_matrix": {
+      "phone": {
+        "result_bundle": "/tmp/ehpanda-phase17-matrix-phone.xcresult",
+        "summary": "/tmp/ehpanda-phase17-matrix-phone-summary.json",
+        "tests": "/tmp/ehpanda-phase17-matrix-phone-tests.json",
+        "total_tests": 1,
+        "passed_tests": 0,
+        "failed_tests": 1,
+        "skipped_tests": 0,
+        "repetition_nodes": 0,
+        "captured": 4,
+        "failed": 1,
+        "pending": 11,
+        "outcomes": "/tmp/ehpanda-phase17-matrix-phone-attachments/ex/phase17-feasibility-9CEB7131-A827-462F-B538-5DF819C0EBEE/outcomes.json",
+        "failed_coordinate": "iphone-portrait-AX5-home",
+        "changed_pixels": 706625,
+        "maximum_channel_delta": 255
+      },
+      "tablet": {
+        "result_bundle": "/tmp/ehpanda-phase17-matrix-tablet.xcresult",
+        "summary": "/tmp/ehpanda-phase17-matrix-tablet-summary.json",
+        "tests": "/tmp/ehpanda-phase17-matrix-tablet-tests.json",
+        "total_tests": 1,
+        "passed_tests": 0,
+        "failed_tests": 1,
+        "skipped_tests": 0,
+        "repetition_nodes": 0,
+        "captured": 8,
+        "failed": 1,
+        "pending": 7,
+        "outcomes": "/tmp/ehpanda-phase17-root-matrix-tablet-evidence/phase17-feasibility-328C4AC3-698F-4A65-A2CA-9F43AE420B44/outcomes.json",
+        "failed_coordinate": "ipad-landscape-large-home",
+        "failure": "UISceneErrorDomain Code 101 before capture"
+      },
+      "combined": {
+        "captured": 12,
+        "failed": 2,
+        "pending": 18,
+        "total": 32
+      },
+      "limits": "Supplied informational runs, not root reruns; fixture generator provenance 26da899c6796b56bd4e54e828d1c218c1b8c46a6bceaa461cb91d5b209feb3a5 differs from current source. Native landscape remains unverified."
+    },
+    "parity_handoff": {
+      "commits": [
+        "8d6f88e338",
+        "5f094a212a"
+      ],
+      "phone_current_bundle": {
+        "result_bundle": "/tmp/ehpanda-phase17-parity-phone.xcresult",
+        "inspected_copy": "/tmp/ehpanda-phase17-root-parity-review-hdb3wjhq",
+        "total_tests": 2,
+        "passed_tests": 2,
+        "failed_tests": 0,
+        "skipped_tests": 0,
+        "repetition_nodes": 0,
+        "cases": [
+          "testReaderNativeCapture",
+          "testExportRendersReaderPagesAtRequestedPixelWidth"
+        ]
+      },
+      "phone_earlier_handoff_report": {
+        "passed_tests_reported": 12,
+        "limits": "Earlier six named directory attachments survive; current same-named log/bundle contains later 2-test run."
+      },
+      "tablet_current_bundle": {
+        "result_bundle": "/tmp/ehpanda-phase17-parity-tablet.xcresult",
+        "total_tests": 9,
+        "passed_tests": 9,
+        "failed_tests": 0,
+        "skipped_tests": 0,
+        "repetition_nodes": 0
+      },
+      "incremental_build_logs": [
+        "/tmp/ehpanda-phase17-parity-build.log",
+        "/tmp/ehpanda-phase17-parity-build-tablet.log"
+      ],
+      "compiler_deprecation_swiftlint_diagnostics": 0,
+      "replicant_native_dimension_budget": 8191,
+      "direct_native_dimension_ceiling": 8192,
+      "source_hashes_observed_at_review": "/tmp/ehpanda-phase17-parity-reconciled-source-hashes.json"
+    },
+    "viewport_pin_gate": {
+      "root": "/tmp/ehpanda-phase17-viewport-gate-03/",
+      "clean_build_exit": 0,
+      "orientation_build_exit": 0,
+      "compiler_lint_diagnostics": 0,
+      "native_phone_passed": 12,
+      "portrait_rotation_passed": 1,
+      "portrait_cleanup_passed": 1,
+      "captured": 4,
+      "failed": 1,
+      "pending": 27,
+      "failed_coordinate": "iphone-portrait-AX5-home",
+      "failure": "visibleViewportPinChangedPixels",
+      "pin_points": [
+        420,
+        912
+      ],
+      "changed_pixels": 706625,
+      "maximum_channel_delta": 255,
+      "source_hashes_unchanged": true,
+      "repetition_nodes": 0,
+      "limits": "No current landscape/iPad captures. Post-test simctl diagnostic collector terminated after failed suite; optional diagnostics may be incomplete."
+    },
+    "viewport_freeze_gate": {
+      "root": "/tmp/ehpanda-phase17-viewport-freeze-gate-01/",
+      "source_commit": "6de1b22907653505f138db679f42fc06ba6062e9",
+      "clean_build_exit": 0,
+      "orientation_build_exit": 0,
+      "compiler_lint_diagnostics": 0,
+      "native_phone_passed": 15,
+      "modifier_tests_passed": 3,
+      "portrait_rotation_passed": 1,
+      "portrait_cleanup_passed": 1,
+      "captured": 5,
+      "failed": 1,
+      "pending": 26,
+      "failed_coordinate": "iphone-portrait-AX5-comments",
+      "failure": "visibleViewportFreezeChangedPixels",
+      "changed_pixels": 2648,
+      "exclusive_pixel_bounds": [
+        1098,
+        229,
+        1174,
+        305
+      ],
+      "maximum_channel_delta": 77,
+      "native_settle_samples": 5,
+      "frozen_settle_samples": 3,
+      "source_hashes_unchanged": true,
+      "repetition_nodes": 0,
+      "limits": "No window growth on failed coordinate. No iPad/landscape matrix runs. Optional post-test simulator diagnostics may be incomplete. Root cause of compose glyph shrink unproven."
+    },
+    "observation_gate": {
+      "root": "/tmp/ehpanda-phase17-observation-gate-01/",
+      "source_commit": "cd46c315b21b719207b8e43548d843c39c97cd59",
+      "clean_build_exit": 0,
+      "orientation_build_exit": 0,
+      "compiler_lint_diagnostics": 0,
+      "native_phone_passed": 15,
+      "modifier_tests_passed": 3,
+      "portrait_rotation_passed": 1,
+      "portrait_cleanup_passed": 1,
+      "captured": 5,
+      "failed": 1,
+      "pending": 26,
+      "failed_coordinate": "iphone-portrait-AX5-comments",
+      "failure": "contentHeightExceeded(35820.0)",
+      "freeze_parity_matched": true,
+      "changed_freeze_pixels": 0,
+      "native_settle_samples": 6,
+      "frozen_settle_samples": 3,
+      "requested_composite_height_pixels": 35820,
+      "height_budget_pixels": 32768,
+      "requested_single_rgba_bytes": 180532800,
+      "source_hashes_unchanged": true,
+      "repetition_nodes": 0,
+      "limits": "No full-content image, final convergence or peak-memory measurement for failed coordinate; no iPad/landscape matrix. Run finalized without interruption; portrait cleanup passed."
+    },
+    "area_budget_gate": {
+      "source_head": "7bc13a5b414dd8a1c74816e46f34b9410b1b4883",
+      "root": "/tmp/ehpanda-phase17-area-budget-gate-02",
+      "prior_root": "/tmp/ehpanda-phase17-area-budget-gate-01",
+      "native_tests": 16,
+      "native_passes": 16,
+      "matrix_captured": 8,
+      "matrix_failed": 1,
+      "matrix_pending": 23,
+      "footprint_attachment": "/tmp/ehpanda-phase17-area-budget-gate-02/iphone-native-attachments/ED56D91F-48F4-4042-8A32-1E7FE5F65E3C.json",
+      "footprint": {
+        "compositeMilliseconds": 949.0505,
+        "maximumCompositePixelCount": 89653248,
+        "measurements": [
+          {
+            "ledgerPhysFootprintPeakBytes": 379538288,
+            "physFootprintBytes": 151325384,
+            "stage": "before-window"
+          },
+          {
+            "ledgerPhysFootprintPeakBytes": 379538288,
+            "physFootprintBytes": 77712000,
+            "stage": "before-composite"
+          },
+          {
+            "ledgerPhysFootprintPeakBytes": 542706688,
+            "physFootprintBytes": 436505480,
+            "stage": "after-composite"
+          },
+          {
+            "ledgerPhysFootprintPeakBytes": 542706688,
+            "physFootprintBytes": 436505480,
+            "stage": "after-census-reuse"
+          },
+          {
+            "ledgerPhysFootprintPeakBytes": 542706688,
+            "physFootprintBytes": 436505480,
+            "stage": "after-png"
+          }
+        ],
+        "pixelCount": 89652780,
+        "pixelHeight": 71153,
+        "pixelWidth": 1260,
+        "pngBytes": 1949058,
+        "rgbaBytes": 358611120,
+        "sliceCount": 10,
+        "unusedBudgetPixels": 468
+      },
+      "AX5_comments": {
+        "census": {
+          "VC1": 1,
+          "VC10": 1,
+          "VC11": 1,
+          "VC12": 1,
+          "VC2": 1,
+          "VC3": 1,
+          "VC4": 1,
+          "VC5": 1,
+          "VC6": 1,
+          "VC7": 1,
+          "VC8": 1,
+          "VC9": 1
+        },
+        "displayScale": 3,
+        "nativeViewportParity": true,
+        "outputSize": [
+          420,
+          15663
+        ],
+        "requestedOutputHeights": [
+          7058.666666666667,
+          8279,
+          11940,
+          14380.666666666666,
+          15663,
+          15663,
+          15663
+        ],
+        "sliceCount": 7
+      },
+      "orientation_trace": "/tmp/ehpanda-phase17-area-budget-gate-02/iphone-landscape-attachments/5604EE3B-2830-4BED-AAE3-12109F84B2F1/phase17-feasibility-25D2493D-2F33-4228-9332-08E5C447505A/iphone-landscape-large-home/orientation-readiness.json",
+      "orientation_samples": 97,
+      "orientation_first": {
+        "deviceOrientation": 0,
+        "interfaceOrientation": 1,
+        "matched": false,
+        "milliseconds": 0.012584,
+        "sceneBounds": "{{0, 0}, {420, 912}}"
+      },
+      "orientation_last": {
+        "deviceOrientation": 0,
+        "interfaceOrientation": 1,
+        "matched": false,
+        "milliseconds": 5043.427542,
+        "sceneBounds": "{{0, 0}, {420, 912}}"
+      },
+      "optional_diagnostics": "simctl diagnose collectors terminated after test completion; test engines uninterrupted"
+    },
+    "lifecycle_traits_gate": {
+      "source_head": "9ec0d7f5c39244b2ce72e8da8dae0efb9b41faf0",
+      "root": "/tmp/ehpanda-phase17-lifecycle-traits-gate-01",
+      "native_tests": 16,
+      "native_passes": 16,
+      "matrix_captured": 8,
+      "matrix_failed": 1,
+      "matrix_pending": 23,
+      "failed_coordinate": "iphone-landscape-large-home",
+      "failure": "itemCensus: VH1 occurs twice on visible native carousel replicas",
+      "coordinate_evidence": "/tmp/ehpanda-phase17-lifecycle-traits-gate-01/iphone-landscape-attachments/154A0A2F-9790-448C-8A3B-0F8BBB7BD770/phase17-feasibility-CB1814F3-ACC1-4877-B7EC-BC14FD146140/iphone-landscape-large-home",
+      "analysis": {
+        "VH1Observations": [
+          {
+            "frame": "{{179.95402319884107, 188.99999992596153}, {43.678160216641437, 19.249999999999979}}",
+            "label": "VH1"
+          },
+          {
+            "frame": "{{819.40229879516835, 188.99999995625004}, {45.42528729242197, 19.249999999999979}}",
+            "label": "VH1"
+          }
+        ],
+        "carouselBehavior": "bufferedCards repeats the input list across 15 blocks with modulo lookup.",
+        "carouselSource": "AppPackage/Sources/HomeFeature/HomeView+Sections.swift",
+        "census": {
+          "Visual Home Gallery 1": 2,
+          "Visual Home Gallery 2": 1,
+          "Visual Home Gallery 3": 1,
+          "Visual Home Gallery 4": 1,
+          "Visual Home Gallery 5": 1,
+          "Visual Home Gallery 6": 1
+        },
+        "coordinate": "iphone-landscape-large-home",
+        "displayScale": 3,
+        "fixtureAssignment": "state.popularGalleries = Array(galleries.prefix(1))",
+        "fixtureSource": "AppPackage/Tests/VisualSnapshotTests/FullContentFeasibilityTests.swift:489",
+        "nativeFullViewportRGBAIdentical": true,
+        "outputPoints": [
+          912,
+          1316
+        ],
+        "renderSliceCount": 1,
+        "sizeClasses": {
+          "sceneAtViewport": {
+            "horizontal": 2,
+            "vertical": 1
+          },
+          "sceneCurrent": {
+            "horizontal": 2,
+            "vertical": 1
+          },
+          "windowAtViewport": {
+            "horizontal": 2,
+            "vertical": 1
+          },
+          "windowCurrent": {
+            "horizontal": 2,
+            "vertical": 1
+          }
+        },
+        "unresolved": "The exact-once rendered-marker census conflicts with visible native carousel replicas; no revised acceptance policy has been selected.",
+        "viewportPixels": [
+          2736,
+          1260
+        ],
+        "viewportRGBASHA256": "efb8bb57dcde86e07c011ff46111042d10bf0ff613e2a0076ebdc030b2e1b7ac",
+        "visualObservation": "The centered card and the partially visible right neighboring card both visibly contain VH1."
+      },
+      "lifecycle": {
+        "bootedByGate": true,
+        "device": "35988D34-B4E9-44C6-82B5-CDA2CF391339",
+        "family": "iphone",
+        "originalState": "Shutdown",
+        "restoredOriginalState": true,
+        "samples": [
+          {
+            "stage": "before-session",
+            "state": "Shutdown",
+            "timestamp": "2026-10-04T02:54:42.844017+00:00"
+          },
+          {
+            "stage": "session-ready",
+            "state": "Booted",
+            "timestamp": "2026-10-04T02:54:44.537500+00:00"
+          },
+          {
+            "stage": "before-clean-feature-build",
+            "state": "Booted",
+            "timestamp": "2026-10-04T02:54:44.787629+00:00"
+          },
+          {
+            "stage": "after-clean-feature-build",
+            "state": "Booted",
+            "timestamp": "2026-10-04T02:55:56.759667+00:00"
+          },
+          {
+            "stage": "before-orientation-build",
+            "state": "Booted",
+            "timestamp": "2026-10-04T02:55:57.027180+00:00"
+          },
+          {
+            "stage": "after-orientation-build",
+            "state": "Booted",
+            "timestamp": "2026-10-04T02:56:09.057516+00:00"
+          },
+          {
+            "stage": "before-iphone-rotate-portrait",
+            "state": "Booted",
+            "timestamp": "2026-10-04T02:56:09.232292+00:00"
+          },
+          {
+            "stage": "after-iphone-rotate-portrait",
+            "state": "Booted",
+            "timestamp": "2026-10-04T02:56:20.506445+00:00"
+          },
+          {
+            "stage": "before-iphone-native",
+            "state": "Booted",
+            "timestamp": "2026-10-04T02:56:20.806427+00:00"
+          },
+          {
+            "stage": "after-iphone-native",
+            "state": "Booted",
+            "timestamp": "2026-10-04T02:56:59.932553+00:00"
+          },
+          {
+            "stage": "before-iphone-AX5-comments",
+            "state": "Booted",
+            "timestamp": "2026-10-04T02:57:00.234788+00:00"
+          },
+          {
+            "stage": "after-iphone-AX5-comments",
+            "state": "Booted",
+            "timestamp": "2026-10-04T02:57:18.673785+00:00"
+          },
+          {
+            "stage": "before-iphone-portrait",
+            "state": "Booted",
+            "timestamp": "2026-10-04T02:57:18.942358+00:00"
+          },
+          {
+            "stage": "after-iphone-portrait",
+            "state": "Booted",
+            "timestamp": "2026-10-04T02:58:33.529111+00:00"
+          },
+          {
+            "stage": "before-iphone-rotate-landscape",
+            "state": "Booted",
+            "timestamp": "2026-10-04T02:58:33.874948+00:00"
+          },
+          {
+            "stage": "after-iphone-rotate-landscape",
+            "state": "Booted",
+            "timestamp": "2026-10-04T02:58:40.395822+00:00"
+          },
+          {
+            "stage": "before-iphone-landscape",
+            "state": "Booted",
+            "timestamp": "2026-10-04T02:58:40.643069+00:00"
+          },
+          {
+            "stage": "after-iphone-landscape",
+            "state": "Booted",
+            "timestamp": "2026-10-04T02:59:03.808342+00:00"
+          },
+          {
+            "stage": "before-iphone-restore-portrait",
+            "state": "Booted",
+            "timestamp": "2026-10-04T02:59:04.027718+00:00"
+          },
+          {
+            "stage": "after-iphone-restore-portrait",
+            "state": "Booted",
+            "timestamp": "2026-10-04T02:59:10.608151+00:00"
+          },
+          {
+            "stage": "after-session",
+            "state": "Shutdown",
+            "timestamp": "2026-10-04T02:59:14.097998+00:00"
+          }
+        ]
+      },
+      "AX5_comments": {
+        "census": {
+          "VC1": 1,
+          "VC10": 1,
+          "VC11": 1,
+          "VC12": 1,
+          "VC2": 1,
+          "VC3": 1,
+          "VC4": 1,
+          "VC5": 1,
+          "VC6": 1,
+          "VC7": 1,
+          "VC8": 1,
+          "VC9": 1
+        },
+        "displayScale": 3,
+        "nativeViewportParity": true,
+        "outputSize": [
+          420,
+          15663
+        ],
+        "requestedOutputHeights": [
+          7058.666666666667,
+          8279,
+          11940,
+          14380.666666666666,
+          15663,
+          15663,
+          15663
+        ],
+        "sliceCount": 7
+      },
+      "test_or_collector_interrupted": false,
+      "ipad_sequence_reached": false,
+      "source_hashes_unchanged": true
+    },
+    "carousel_v2_gate": {
+      "source_head": "be86e551e8cf84204cd48536bf199a89ea3cc686",
+      "root": "/tmp/ehpanda-phase17-carousel-v2-gate-01",
+      "native_tests": 16,
+      "native_passes": 16,
+      "matrix_captured": 12,
+      "matrix_failed": 1,
+      "matrix_pending": 19,
+      "failed_coordinate": "iphone-landscape-AX5-home",
+      "failure": "nativeViewportPixelsChanged: reload glyph shrinks after growth",
+      "coordinate_evidence": "/tmp/ehpanda-phase17-carousel-v2-gate-01/iphone-landscape-attachments/3DD19BEB-FC02-406E-A4D5-D8E4606EF94F/phase17-feasibility-61209144-07A9-4DB3-BF3F-87EB74DCFEA5/iphone-landscape-AX5-home",
+      "difference": {
+        "pixelSize": [
+          2736,
+          1260
+        ],
+        "changedPixels": 2206,
+        "maximumChannelDelta": 238,
+        "exclusivePixelBounds": [
+          2521,
+          91,
+          2591,
+          176
+        ],
+        "changedChannels": {
+          "B": 2206,
+          "G": 2206,
+          "R": 2206
+        },
+        "nativeFrozenRGBAIdentical": true,
+        "glyphSupportBelow100": {
+          "capture.full-content-viewport.png": [
+            2527,
+            98,
+            2585,
+            168
+          ],
+          "capture.viewport.png": [
+            2521,
+            91,
+            2591,
+            176
+          ]
+        }
+      },
+      "output_points": [
+        912,
+        2404.6666666666665
+      ],
+      "size_classes": {
+        "sceneAtViewport": {
+          "horizontal": 2,
+          "vertical": 1
+        },
+        "sceneCurrent": {
+          "horizontal": 2,
+          "vertical": 1
+        },
+        "windowAtViewport": {
+          "horizontal": 2,
+          "vertical": 1
+        },
+        "windowCurrent": {
+          "horizontal": 2,
+          "vertical": 1
+        }
+      },
+      "render_slices": 1,
+      "fixture_verification": "/tmp/ehpanda-phase17-carousel-v2-gate-01/fixture-verification.json",
+      "aggregate_outcomes": "/tmp/ehpanda-phase17-carousel-v2-gate-01/aggregate-outcomes.json",
+      "test_or_collector_interrupted": false,
+      "ipad_sequence_reached": false,
+      "source_hashes_unchanged": true,
+      "final_simulator_states": [
+        {
+          "name": "iPhone Air",
+          "udid": "35988D34-B4E9-44C6-82B5-CDA2CF391339",
+          "state": "Shutdown"
+        },
+        {
+          "name": "iPad Pro 11-inch (M5)",
+          "udid": "24FB6D5C-FEE3-4E34-8466-74CEB5E69794",
+          "state": "Booted"
+        }
+      ]
+    },
+    "device_content_size_gate": {
+      "root": "/tmp/ehpanda-phase17-content-size-gate-01",
+      "source_checkpoint": "e8145e838d68445af51fbc2ea8386156251bc8c9",
+      "research": "/tmp/ehpanda-phase17-size-probe-evidence/toolbar-glyph-content-size/",
+      "status": "blocked",
+      "coordinateCounts": {
+        "captured": 29,
+        "failed": 1,
+        "pending": 2
+      },
+      "sourceHashesUnchanged": true,
+      "testRuns": [
+        {
+          "invocation": "ipad-landscape-AX5",
+          "passed": 1,
+          "failed": 0,
+          "skipped": 0,
+          "repetitions": 0
+        },
+        {
+          "invocation": "ipad-landscape-large",
+          "passed": 0,
+          "failed": 1,
+          "skipped": 0,
+          "repetitions": 0
+        },
+        {
+          "invocation": "ipad-native",
+          "passed": 13,
+          "failed": 0,
+          "skipped": 0,
+          "repetitions": 0
+        },
+        {
+          "invocation": "ipad-portrait-AX5",
+          "passed": 1,
+          "failed": 0,
+          "skipped": 0,
+          "repetitions": 0
+        },
+        {
+          "invocation": "ipad-portrait-large",
+          "passed": 1,
+          "failed": 0,
+          "skipped": 0,
+          "repetitions": 0
+        },
+        {
+          "invocation": "ipad-restore-portrait",
+          "passed": 1,
+          "failed": 0,
+          "skipped": 0,
+          "repetitions": 0
+        },
+        {
+          "invocation": "ipad-rotate-landscape",
+          "passed": 1,
+          "failed": 0,
+          "skipped": 0,
+          "repetitions": 0
+        },
+        {
+          "invocation": "ipad-rotate-portrait",
+          "passed": 1,
+          "failed": 0,
+          "skipped": 0,
+          "repetitions": 0
+        },
+        {
+          "invocation": "iphone-AX5-comments",
+          "passed": 1,
+          "failed": 0,
+          "skipped": 0,
+          "repetitions": 0
+        },
+        {
+          "invocation": "iphone-landscape-AX5",
+          "passed": 1,
+          "failed": 0,
+          "skipped": 0,
+          "repetitions": 0
+        },
+        {
+          "invocation": "iphone-landscape-large",
+          "passed": 1,
+          "failed": 0,
+          "skipped": 0,
+          "repetitions": 0
+        },
+        {
+          "invocation": "iphone-native",
+          "passed": 16,
+          "failed": 0,
+          "skipped": 0,
+          "repetitions": 0
+        },
+        {
+          "invocation": "iphone-portrait-AX5",
+          "passed": 1,
+          "failed": 0,
+          "skipped": 0,
+          "repetitions": 0
+        },
+        {
+          "invocation": "iphone-portrait-large",
+          "passed": 1,
+          "failed": 0,
+          "skipped": 0,
+          "repetitions": 0
+        },
+        {
+          "invocation": "iphone-restore-portrait",
+          "passed": 1,
+          "failed": 0,
+          "skipped": 0,
+          "repetitions": 0
+        },
+        {
+          "invocation": "iphone-rotate-landscape",
+          "passed": 1,
+          "failed": 0,
+          "skipped": 0,
+          "repetitions": 0
+        },
+        {
+          "invocation": "iphone-rotate-portrait",
+          "passed": 1,
+          "failed": 0,
+          "skipped": 0,
+          "repetitions": 0
+        }
+      ],
+      "lifecycle": {
+        "iphone": {
+          "originalState": "Shutdown",
+          "originalContentSize": "large",
+          "restoredOriginalContentSize": true,
+          "restoredOriginalState": true
+        },
+        "ipad": {
+          "originalState": "Booted",
+          "originalContentSize": "large",
+          "restoredOriginalContentSize": true,
+          "restoredOriginalState": true
+        }
+      },
+      "failedCoordinateDirectory": "ipad-landscape-large-attachments/1F4B2A0A-C636-4860-977F-4EA4391C116A/phase17-feasibility-9185C868-57AF-4CE5-B9D7-A7DA0E7410D5/ipad-landscape-large-comments",
+      "fixtureExportCount": 39,
+      "glyphPixelSize": [
+        70,
+        85
+      ],
+      "glyphDarkPixels": 1375,
+      "controlTestsPassed": 6,
+      "optionalDiagnosticsInterrupted": true,
+      "testProcessesInterrupted": false
+    },
+    "census_final_gate": {
+      "root": "/tmp/ehpanda-phase17-census-final-gate-01",
+      "source_checkpoint": "c4a75569cc",
+      "status": "passed",
+      "captured": 32,
+      "testInvocations": 17,
+      "passedTests": 66,
+      "fixtureExports": 41,
+      "sourceHashesUnchanged": true,
+      "reservedStagedUnchanged": true,
+      "fixtureMaterialized": true,
+      "summary_commit": "21dc21daaa92776d13a41a13c8158977e35a4487",
+      "waveGates": {
+        "schema": "passed",
+        "ui": "passed",
+        "codebaseDrift": "nonblocking advisory; no mapper requested"
+      }
+    },
+    "environment_pin": {
+      "source_checkpoint": "60b26f3a29",
+      "summary_commit": "07ffb60cff",
+      "measurement": ".capture/environment-measurement",
+      "validation": ".capture/environment-pin-check",
+      "pin": "Scripts/visual/regression-environment.json",
+      "pinSHA256": "ffd7689fcaf9a312202fdfbf9787f0198711fd477d1e72a2a013851df85a394a",
+      "geometryMeasurementsPerRun": 4,
+      "nativePassesPerRun": 10,
+      "contractTests": 28,
+      "status": "passed"
+    },
+    "matrix_task1": {
+      "red_commit": "8c8fde8794",
+      "matrixContracts": 18,
+      "environmentContracts": 28,
+      "localizedHome": ".capture/tracer-zh-hant-02",
+      "localizedHomeStatus": "passed; reduced coverage 1/576",
+      "failedFullGate": "/tmp/ehpanda-phase17-localized-ocr-gate-01",
+      "failedFullGateTests": {
+        "passed": 27,
+        "failed": 1
+      },
+      "focusedOCR": "/tmp/ehpanda-phase17-localized-ocr-focused-01",
+      "focusedOCRStatus": "native tests finished with multilingual synthetic case failing; Xcode collecting diagnostics",
+      "integrationNotes": ".planning/phases/17-localized-screenshot-capture-harness/17-02-INTEGRATION-NOTES.md"
+    },
+    "localized_ocr_probe": {
+      "directory": "/tmp/ehpanda-phase17-ocr-language-probe",
+      "result": "/tmp/ehpanda-phase17-ocr-language-probe/RESULTS.md",
+      "test_count": 1,
+      "informational_only": true,
+      "temporary_test_source_removed": true,
+      "simulator_state_restored": true
+    },
+    "localized_passes_focused": {
+      "directory": "/tmp/ehpanda-phase17-localized-ocr-focused-02",
+      "phone_tests": 15,
+      "tablet_tests": 15,
+      "status": "passed",
+      "runtime_warnings": 0
+    },
+    "localized_passes_full_gate": {
+      "directory": "/tmp/ehpanda-phase17-localized-passes-gate-01",
+      "status": "passed",
+      "coordinates": 32,
+      "native_tests": 74,
+      "independent_audit": "localized-passes-audit.json"
+    },
+    "matrix_task2": {
+      "first_run": ".capture/tracer-matrix",
+      "first_run_status": "failed before first capture; 0 captured / 576 failed with reasons; references and simulator states restored",
+      "cause": "simctl extra-Small/Small readback differs from documented lowercase input",
+      "spelling_probe": "/tmp/ehpanda-phase17-content-size-spelling",
+      "spelling_probe_categories": 24,
+      "red": "/tmp/ehpanda-phase17-content-size-spelling-red.log",
+      "green": "/tmp/ehpanda-phase17-content-size-spelling-green.log",
+      "contract_tests": 58,
+      "current_run": ".capture/tracer-matrix-03",
+      "current_run_status": "failed: 43 captured / 1 executed failure / 532 unexecuted",
+      "failed_coordinate": "home-populated__de__accessibility3__portrait__iphone__dark",
+      "failure": "seamMismatch(sliceIndex: 2): one native glass-edge pixel, RGB 5 vs 6",
+      "difference": "/tmp/ehpanda-phase17-equal-read-seam/difference.json",
+      "temporary_diagnostic_source": "AppPackage/Sources/VisualSnapshotSupport/FullContentHost.swift",
+      "restore_source": "/tmp/ehpanda-phase17-dark-xs-parity/FullContentHost.original.swift",
+      "diagnostic_log": "/tmp/ehpanda-phase17-dark-xs-stability-probe.log",
+      "stationary_probe_result": "20 stationary reads across 3934 ms preserve the exact same one-pixel mismatch",
+      "stationary_probe": "/tmp/ehpanda-phase17-dark-xs-stability-probe/pixel-analysis.json",
+      "rect_probe": "/tmp/ehpanda-phase17-dark-xs-rect-probe/pixel-analysis.json",
+      "rect_probe_result": "912 pt read matches native exactly; 1346 and 1346.333 pt reads reproduce same one-pixel difference; restored native matches",
+      "temporary_diagnostic_source_restored": true,
+      "restored_source_sha256": "5f48f1122132b54efb41542c6e38bcea6fcd57a46ffd9d5277745b2dc163cedc",
+      "native_sources_match_matrix_run": true,
+      "simulator_states_restored": true,
+      "diagnostic_jobs_remaining": 0,
+      "restored_source_build": {
+        "directory": "/tmp/ehpanda-phase17-restored-source-build",
+        "status": "passed",
+        "diagnostics": 0,
+        "simulator_restored": true
+      }
+    },
+    "marketing_fixtures": {
+      "summary": ".planning/phases/17-localized-screenshot-capture-harness/17-03-SUMMARY.md",
+      "review": ".planning/phases/17-localized-screenshot-capture-harness/17-03-REVIEW.md",
+      "task1_red": ".capture/marketing-fixtures-red-01/",
+      "task1_green": ".capture/marketing-fixtures-green-01/",
+      "task1_mutations": ".capture/marketing-fixtures-mutations-02/ (22 of 22 killed)",
+      "host_probe": ".capture/marketing-fixtures-host-probe-01/probe.json",
+      "task2_red": ".capture/selection-review-red-01/",
+      "task2_green": ".capture/selection-review-green-01/",
+      "task2_mutations": ".capture/selection-review-mutations-02/ (18 of 18 killed)",
+      "review_fix_red": [
+        ".capture/17-03-input-red-01/",
+        ".capture/17-03-resolve-red-01/"
+      ],
+      "review_fix_mutations": ".capture/17-03-fix-mutations-02/ (5 of 5 killed)",
+      "final_suite": ".capture/17-03-isolation-green-01/ (126 tests)",
+      "plan_verify": ".capture/17-03-verify-02/ (37 and 16 tests)",
+      "selection": ".capture/marketing-selection-01/ (seed 4767476936933364992, 60 sampled, 1 tag-excluded, 13 rejected)",
+      "acquisition": ".capture/marketing/versions/marketing-fdcb0fc6d3c54a29 (42 assets)",
+      "selection_review": ".capture/marketing-review-01/ (valid composition, visual-review.md)"
+    },
+    "capture_scenes": {
+      "summary": ".planning/phases/17-localized-screenshot-capture-harness/17-04-SUMMARY.md",
+      "review": ".planning/phases/17-localized-screenshot-capture-harness/17-04-REVIEW.md",
+      "t1_build": ".capture/17-04-t1-verify-02/ (generic Debug build, capture-strings.txt)",
+      "release_check": ".capture/17-04-release-check-01/ (Release build, capture-strings.txt: none)",
+      "t2_contracts": ".capture/17-04-t2-verify-02/ (CaptureSceneTests and CaptureFixtureTests, phone and tablet)",
+      "actual_app": ".capture/17-04-final-ui-01/ (CaptureIsolationUITests, both devices, -test-iterations 1)",
+      "actual_app_fail_closed": ".capture/17-04-isolation-ui-02/ (refused GitHub request reported as failed)",
+      "missing_source": ".capture/17-04-isolation-ui-01-missing-source/",
+      "full_plan": ".capture/17-04-cache-isolation-gate-01/ (22 of 22 Swift Testing runs; same 10 VisualSnapshotTests environment failures)",
+      "lint": ".capture/17-04-final-lint-01/ (21 Swift files, strict)"
+    },
+    "card_color_determinism": {
+      "probe": ".capture/17-05-imagecolors-ties-01/ (README.md, fixture-images.tsv, red/green logs, ui-phone, exp-fixed-phone, fixed-settled-phone)",
+      "gate": ".capture/17-05-fixed-gradient-gate-01/ (full FeatureTests: 21 of 22 Swift Testing runs, the inventory test then updated and AppToolsTests 13 of 13; same 10 VisualSnapshotTests environment failures; capture UI test passes on both devices)"
+    },
+    "17-05-t2": {
+      "final_gate": [
+        ".capture/17-05-t2-native-09",
+        ".capture/17-05-t2-native-10"
+      ],
+      "earlier_gates": [
+        ".capture/17-05-t2-native-01",
+        ".capture/17-05-t2-native-02",
+        ".capture/17-05-t2-native-03",
+        ".capture/17-05-t2-native-04",
+        ".capture/17-05-t2-native-05",
+        ".capture/17-05-t2-native-06",
+        ".capture/17-05-t2-native-07",
+        ".capture/17-05-t2-native-08"
+      ],
+      "probes": [
+        ".capture/17-05-t2-capsule-probe-01",
+        ".capture/17-05-t2-wifi-probe-01",
+        ".capture/17-05-t2-experiment-01",
+        ".capture/17-05-t2-glass-probe-01",
+        ".capture/17-05-t2-xcuiscreen-01",
+        ".capture/17-05-t2-xcuiscreen-02",
+        ".capture/17-05-t2-mutations-01"
+      ],
+      "commit_trees": [
+        ".capture/commit-trees-05",
+        ".capture/commit-trees-06",
+        ".capture/commit-trees-07",
+        ".capture/commit-trees-08"
+      ]
+    }
+  },
+  "recovery_logs": [
+    "/tmp/ehpanda-phase17-t1-host-build.log",
+    "/tmp/ehpanda-phase17-t1-host-build-2.log",
+    "/tmp/ehpanda-phase17-t1-host-build-3.log",
+    "/tmp/ehpanda-phase17-symbol-build.log"
+  ],
+  "uncommitted_files_note": "Only the four reserved staged entries and the untracked .capture/ evidence remain; all 17-05 source and documentation is committed.",
+  "source_checkpoint": "66aa2be32f",
+  "previous_plan_tasks": [
+    {
+      "id": 1,
+      "name": "17-05-T1: Launch real app routes and verify selected screen readiness",
+      "commits": [
+        "98e255cc22",
+        "927dcfa555",
+        "9af051b392",
+        "f19505da5d",
+        "75036beb9a"
+      ],
+      "status": "complete"
+    },
+    {
+      "id": 2,
+      "name": "17-05-T2: Gate native chrome and cold-rerun determinism on real destinations",
+      "commits": [
+        "0b84686263",
+        "2785a8de59",
+        "481e923f59",
+        "fef94cefc4",
+        "e4834b65b7",
+        "975a06573f",
+        "66aa2be32f"
+      ],
+      "status": "complete"
+    }
+  ],
+  "completed_plans": [
+    "17-01",
+    "17-24",
+    "17-02",
+    "17-03",
+    "17-04",
+    "17-05"
+  ],
+  "reserved_staged_blobs": {
+    ".gsd/dispatch-isolation-sentinel.json": "f23c98b270324284fe9af8fad70335ea69d412a4",
+    ".planning/milestone.lock": "caca4a921a786f8561a43a74398555b50fba9090",
+    ".planning/phases/17-localized-screenshot-capture-harness/17-WINDOW-SNAPSHOT-PROBE.md": "ca2fafb0997a03bbb100c34bab36e88d8f751937",
+    "EhPanda.xcodeproj/project.pbxproj": "6dcd2aa975a582b91243e60fc9a2710d5482543b"
+  },
+  "artifacts": {
+    "native_read_geometry": {
+      "red": "/tmp/ehpanda-phase17-read-plan-red",
+      "red_status": "expected build failure: missing slicePlan API",
+      "green": "/tmp/ehpanda-phase17-read-plan-green-01",
+      "status": "checkpoint: new actual seam mismatch",
+      "python_contracts": 58,
+      "swiftlint_violations": 0,
+      "phone_tests": 7,
+      "tablet_tests": 7,
+      "runtime_warnings": 0,
+      "actual_xsmall": ".capture/tracer-read-geometry-xs-01",
+      "actual_xsmall_status": "passed 2/2; 14 native invocations; reduced 2/576 coverage",
+      "compatibility_gate": "/tmp/ehpanda-phase17-read-geometry-gate-02",
+      "failed_gate": "/tmp/ehpanda-phase17-read-geometry-gate-01",
+      "failed_gate_captured": 16,
+      "failed_gate_native_failures": [
+        "testCommentsNativeCapture",
+        "testDownloadsNativeCapture"
+      ],
+      "diagnostic_collector_terminated": true,
+      "test_processes_interrupted": false,
+      "failed_gate_states_restored": true,
+      "compatibility_gate_status": "22 captured / 1 executed failure / 9 unexecuted",
+      "native_passed": 76,
+      "native_failed": 1,
+      "failed_coordinate": "ipad-portrait-AX5-downloads",
+      "seam_analysis": "/tmp/ehpanda-phase17-read-geometry-seam-failure/difference.json",
+      "states_restored": true,
+      "native_jobs_remaining": 0
+    },
+    "coordinate_artwork": {
+      "red": "/tmp/ehpanda-phase17-artwork-red-01",
+      "focused": "/tmp/ehpanda-phase17-artwork-green-01",
+      "focused_passed": 7,
+      "compatibility": "/tmp/ehpanda-phase17-artwork-gate-01",
+      "compatibility_status": "4 gate-accepted coordinates; 8 produced / 7 pass artifact checks / 1 fails / 24 unexecuted",
+      "native_passed": 41,
+      "native_failed": 1,
+      "runtime_warnings": 0,
+      "source_hashes_unchanged": true,
+      "evidence": "/tmp/ehpanda-phase17-artwork-rounding",
+      "python_contracts": 58,
+      "canonical_fixtures": ".capture/regression-v3",
+      "native_jobs_remaining": 0,
+      "states_restored": true
+    },
+    "cover_snapping": {
+      "research": "/tmp/ehpanda-phase17-size-probe-evidence/cover-snapping/RESULTS.md",
+      "evidence": "/tmp/ehpanda-phase17-cover-snap-corners",
+      "native_passed": 22,
+      "native_failed": 1,
+      "source_hashes_unchanged": 795,
+      "copied_attachment_files_matched": 61,
+      "states_restored": true,
+      "native_jobs_remaining": 0,
+      "python_tests": 58,
+      "scope": "focused only; no new full compatibility or 576-coordinate run",
+      "unwind_diagnostic": "InvalidTransition idle -> failed(deinit), cause not diagnosed",
+      "post_test_diagnostic_collector_terminated": 94357,
+      "test_processes_interrupted": false
+    },
+    "production_clip_extent": {
+      "research": "/tmp/ehpanda-phase17-size-probe-evidence/corner-clip/RESULTS.md",
+      "red": "/tmp/ehpanda-phase17-clip-extent-red-01",
+      "focused": "/tmp/ehpanda-phase17-clip-extent-green-01",
+      "focused_tests": 15,
+      "focused_status": "passed",
+      "home_compared_pixels": 761315,
+      "home_differing_pixels": 0,
+      "invalid_transition_absent": true,
+      "compatibility": "/tmp/ehpanda-phase17-clip-extent-gate-01",
+      "compatibility_status": "failed at ipad-landscape-AX5-downloads seamMismatch(1)",
+      "accepted_coordinates": 24,
+      "captured_artifacts": 26,
+      "failed_coordinates": 1,
+      "unexecuted_coordinates": 5,
+      "native_passed": 92,
+      "native_failed": 1,
+      "checked_artwork_images": 186,
+      "checked_artwork_pixels": 273497908,
+      "source_hashes_unchanged": 795,
+      "states_restored": true,
+      "diagnostic_processes_interrupted": false
+    },
+    "landscape_corner_seam": {
+      "evidence": "/tmp/ehpanda-phase17-ipad-landscape-seam",
+      "read_frames_points": [
+        [
+          0,
+          640,
+          1210,
+          4095
+        ],
+        [
+          0,
+          4536,
+          1210,
+          660
+        ]
+      ],
+      "seam_points": [
+        0,
+        4607,
+        1210,
+        64
+      ],
+      "differing_pixels": 4,
+      "maximum_channel_difference": 1,
+      "artwork": "VD15",
+      "offline_source_comparison_pixels": 64376,
+      "offline_source_comparison_differences": 0
+    },
+    "equal_viewport_reads": {
+      "research": "/tmp/ehpanda-phase17-size-probe-evidence/corner-seam/RESULTS.md",
+      "red": "/tmp/ehpanda-phase17-viewport-reads-red-01",
+      "focused": "/tmp/ehpanda-phase17-viewport-reads-green-01",
+      "focused_tests": 19,
+      "focused_status": "passed",
+      "compatibility": "/tmp/ehpanda-phase17-viewport-reads-gate-01",
+      "compatibility_status": "passed",
+      "failed_coordinate_rerun": "passed with 8 reads; final read 4480..5314 pt owns only 4610..5196 pt",
+      "coordinates": 32,
+      "native_tests": 96,
+      "invocations": 17,
+      "render_reads": 359,
+      "artwork_images": 240,
+      "compared_artwork_pixels": 404257696,
+      "source_hashes_unchanged": 795,
+      "states_restored": true
+    },
+    "equal_read_glass_seam": {
+      "evidence": "/tmp/ehpanda-phase17-equal-read-seam",
+      "coordinate": "home-populated__de__accessibility3__portrait__iphone__dark",
+      "captured": 43,
+      "executed_failures": 1,
+      "unexecuted": 532,
+      "native_passed": 55,
+      "native_failed": 1,
+      "artwork_images": 258,
+      "compared_artwork_pixels": 27147325,
+      "source_hashes_unchanged": 795,
+      "states_restored": true,
+      "read_frames_points": [
+        [
+          0,
+          1440,
+          420,
+          912
+        ],
+        [
+          0,
+          2160,
+          420,
+          912
+        ]
+      ],
+      "seam_points": [
+        0,
+        2224,
+        420,
+        64
+      ],
+      "window_pixel": [
+        918,
+        6743
+      ],
+      "differing_pixels": 1,
+      "maximum_channel_difference": 1,
+      "invalid_transition_only_on_failed_invocation": true
+    },
+    "same_rect_verification": {
+      "research": "/tmp/ehpanda-phase17-size-probe-evidence/glass-seam/RESULTS.md",
+      "red": "/tmp/ehpanda-phase17-reread-red-02",
+      "python_red": "/tmp/ehpanda-phase17-reread-python-red.log",
+      "focused": "/tmp/ehpanda-phase17-reread-green-01",
+      "native_tests": 110,
+      "python_tests": 62,
+      "status": "32-coordinate compatibility passed; full tracer stops on native carousel position",
+      "states_restored_after_focused": true,
+      "original_coordinate": ".capture/tracer-reread-de-AX3-dark-01",
+      "original_coordinate_passed": true,
+      "original_coordinate_native_tests": 13,
+      "original_coordinate_reads": 4,
+      "original_coordinate_artwork_pixels": 761315,
+      "compatibility": "/tmp/ehpanda-phase17-reread-gate-02",
+      "compatibility_status": "passed",
+      "settle_diagnosis": "/tmp/ehpanda-phase17-reread-settle-evidence/RESULTS.md",
+      "settle_correction": "passed 3/3 focused native tests; no InvalidTransition",
+      "next_compatibility": "/tmp/ehpanda-phase17-reread-gate-02",
+      "settle_focused": "/tmp/ehpanda-phase17-reread-settle-green-01",
+      "coordinates": 32,
+      "invocations": 17,
+      "planned_reads": 359,
+      "actual_full_content_reads": 718,
+      "artwork_images": 240,
+      "compared_artwork_pixels": 404257696,
+      "matrix_settlement_transitions": 4,
+      "source_hashes_unchanged": true,
+      "states_restored": true,
+      "tracer": ".capture/tracer-matrix-04"
+    },
+    "native_carousel_position": {
+      "evidence": "/tmp/ehpanda-phase17-landscape-xs-census",
+      "tracer": ".capture/tracer-matrix-04",
+      "captured": 144,
+      "executed_failures": 1,
+      "unexecuted": 431,
+      "native_passed": 157,
+      "native_failed": 1,
+      "artwork_images": 864,
+      "compared_artwork_pixels": 92861700,
+      "passed_read_pairs": 384,
+      "source_hashes_unchanged": 795,
+      "states_restored": true,
+      "native_jobs_remaining": 0,
+      "coordinate": "home-populated__en__xSmall__landscape__iphone__light",
+      "failure": "VH1 census 0, marker clipped outside native viewport at left",
+      "same_rect_pairs_passed": 5,
+      "native_parity_passed": true,
+      "invalid_transition_absent": true
+    },
+    "carousel_startup_correction": {
+      "diagnostic_red": "/tmp/ehpanda-phase17-carousel-real-diagnostic-02",
+      "diagnostic_green": "/tmp/ehpanda-phase17-carousel-atomic-diagnostic-01",
+      "final_focused": "/tmp/ehpanda-phase17-carousel-final-focused-01",
+      "native_tests": 12,
+      "coordinates": 5,
+      "home_rotation_audits": 2,
+      "artwork_images": 30,
+      "compared_artwork_pixels": 2420873,
+      "read_pairs": 24,
+      "compatibility": "/tmp/ehpanda-phase17-carousel-gate-01",
+      "compatibility_status": "passed",
+      "commit": "0a7e740dd0",
+      "compatibility_native_tests": 110,
+      "compatibility_coordinates": 32,
+      "compatibility_read_pairs": 359,
+      "compatibility_artwork_images": 240,
+      "compatibility_artwork_pixels": 404257696,
+      "complete_tracer": ".capture/tracer-matrix-05",
+      "complete_tracer_status": "160 captured; new same-rect AX2 glass-change checkpoint"
+    },
+    "same_rect_ax2_glass_change": {
+      "status": "failed",
+      "captured": 160,
+      "executedFailures": 1,
+      "unexecuted": 415,
+      "nativePassed": 173,
+      "nativeFailed": 1,
+      "passedScope": "all 144 iphone portrait coordinates plus English iphone landscape xSmall through accessibility1 in both themes",
+      "artworkImages": 960,
+      "comparedArtworkPixels": 102248130,
+      "passedPlannedReads": 476,
+      "sourceHashesUnchanged": 795,
+      "referencesUnchanged": true,
+      "simulatorStatesRestored": true,
+      "failedCoordinate": "home-populated__en__accessibility2__landscape__iphone__light",
+      "failure": "VisualSnapshotSupport.RenderServerCaptureError.readChanged(sliceIndex: 6)",
+      "matchedReadPairsBeforeFailure": 6,
+      "failedCoordinateFreezeParityPassed": true,
+      "fullCaptureAndCensusNotReached": true,
+      "invalidTransitionLogs": [
+        "native/home-populated__en__accessibility2__landscape__iphone__light.log"
+      ],
+      "evidence": "/tmp/ehpanda-phase17-ax2-landscape-reread",
+      "tracer": ".capture/tracer-matrix-05",
+      "copied_attachment_files_matched": 75,
+      "native_jobs_remaining": 0,
+      "differing_pixels": 1,
+      "maximum_channel_difference": 1,
+      "local_pixel": [
+        2267,
+        1243
+      ],
+      "window_pixel": [
+        2267,
+        5275
+      ],
+      "outside_failing_read_ownership": true,
+      "next_read_second_pass_observed": false
+    },
+    "owned_row_verification": {
+      "red": ".capture/owned-row-red-01",
+      "green_build": ".capture/owned-row-green-01",
+      "focused": ".capture/owned-row-focused-04/focused-audit.json",
+      "original_coordinates": ".capture/tracer-ax2-landscape-owned-02",
+      "simulator_repair": ".capture/simulator-repair-01",
+      "pin_settings_probe": ".capture/research/ipad-safe-area-probe",
+      "glass_reread_research": ".capture/research/glass-reread",
+      "python_contracts": 73,
+      "native_gate_tests": {
+        "iphone": 63,
+        "ipad": 60
+      },
+      "status": "complete; all 576 tracer coordinates pass with independent audit",
+      "compatibility_gate": ".capture/owned-row-gate-01/independent-audit.json",
+      "source_guard_red": ".capture/source-hash-red-01",
+      "source_guard_green": ".capture/source-hash-green-01",
+      "interrupted_tracer": ".capture/tracer-matrix-06",
+      "complete_tracer": ".capture/tracer-matrix-10/independent-audit.json",
+      "tracer_iphone_half_then_ipad_failure": ".capture/tracer-matrix-07",
+      "scroll_host_red": ".capture/scroll-host-red-01",
+      "scroll_host_green": ".capture/scroll-host-green-01",
+      "scroll_host_focused": ".capture/scroll-host-focused-01",
+      "ipad_reduced_tracer": ".capture/tracer-ipad-en-light-01",
+      "final_compatibility_gate": ".capture/owned-row-gate-04/independent-audit.json",
+      "complete_tracer_blocked": ".capture/tracer-matrix-08",
+      "gradient_failure_analysis": ".capture/tracer-matrix-08/failure-analysis",
+      "reduce_motion_probe": ".capture/research/reduce-motion-probe",
+      "reduce_motion_red": ".capture/reduce-motion-red-01",
+      "reduce_motion_green": ".capture/reduce-motion-green-01",
+      "reduce_motion_simulators": ".capture/reduce-motion-pin-01",
+      "environment_measurement": ".capture/environment-measurement-02",
+      "pin_validation": ".capture/environment-pin-check-02",
+      "pin_sha256": "5c507a4c0c5013fad010a19222ef7b8b1eec86d354b89fc1b7c07610567c725c",
+      "dark_reduced_tracer": ".capture/tracer-dark-reduce-motion-01",
+      "reduce_motion_focused": ".capture/reduce-motion-focused-01",
+      "complete_tracer_partial_audit": ".capture/tracer-matrix-09/partial-audit.json",
+      "vision_box_failure_analysis": ".capture/tracer-matrix-09/failure-analysis",
+      "commit_tree_verification": ".capture/commit-trees-03",
+      "vision_clip_red": ".capture/vision-clip-red-01",
+      "vision_clip_green": ".capture/vision-clip-green-01",
+      "vision_clip_lint": ".capture/vision-clip-final-checks",
+      "vision_clip_probe": ".capture/research/cg-clip-probe",
+      "vision_clip_reduced_tracer": ".capture/tracer-ipad-ax5-landscape-clip-01",
+      "summary": ".planning/phases/17-localized-screenshot-capture-harness/17-02-SUMMARY.md"
+    }
+  },
+  "updated_at": "2026-10-08T13:50:00Z"
+}

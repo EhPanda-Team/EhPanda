@@ -1,0 +1,55 @@
+name: Live check
+# The daily live-parsing check (19-15; 19-CONTEXT D-20 to D-25): reads, as a guest and with GET only, the pages
+# EhPanda reads, runs the app's parsers on them, and opens, updates or closes one `live-check` issue per broken page
+# (plus one "cannot reach the site" issue after three blocked runs in a row). The repository and its logs are
+# public: the run prints only page names, HTTP statuses and fixed expectation sentences, keeps the xcodebuild log
+# on the runner, and uploads only results.json, whose fields are fixed enums (D-22).
+#
+# Scheduled workflows run only from the default branch, and GitHub turns off a public repository's schedules after
+# 60 days without repository activity. A push to ci/live-check runs it once from a branch (owner go-ahead each time).
+on:
+  schedule:
+    - cron: '17 4 * * *'
+  workflow_dispatch:
+  push:
+    branches: [ci/live-check]
+permissions:
+  contents: read
+  # Opens, comments on and closes the live check's own issues, and creates its label.
+  issues: write
+  # Reads the previous runs' results artifacts.
+  actions: read
+concurrency:
+  group: live-check
+  cancel-in-progress: false
+jobs:
+  LiveCheck:
+    runs-on: xcode-27
+    timeout-minutes: 90
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          # The job reaches gh only through the run step's GH_TOKEN; do not leave a token in .git/config.
+          persist-credentials: false
+      - name: Install iOS 27 Platform
+        uses: nick-fields/retry@v4
+        with:
+          retry_on: error
+          max_attempts: 10
+          timeout_minutes: 999
+          command: xcodebuild -downloadPlatform iOS
+      - name: Show Xcode version
+        run: xcodebuild -version
+      - name: Run the live check and report
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: Scripts/live-check/run-live-check.sh --mode hosted --output "$RUNNER_TEMP/live-check"
+      - name: Upload the results
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: live-check-results
+          path: ${{ runner.temp }}/live-check/results.json
+          if-no-files-found: ignore
+          retention-days: 30

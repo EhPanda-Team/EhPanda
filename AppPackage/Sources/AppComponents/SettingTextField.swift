@@ -1,0 +1,51 @@
+public import SwiftUI
+
+public struct SettingTextField: View {
+    @Environment(\.colorScheme) private var colorScheme
+
+    @Binding private var text: String
+    private let title: LocalizedStringResource
+    private let promptText: LocalizedStringResource?
+    private let width: CGFloat?
+    private let alignment: TextAlignment
+    private let background: Color?
+
+    private var color: Color {
+        if let background = background { return background }
+        return colorScheme == .light ? Color(uiColor: .systemGray6) : Color(uiColor: .systemGray3)
+    }
+    private var prompt: Text? {
+        guard let text = promptText else { return nil }
+        return Text(text)
+    }
+
+    public init(
+        text: Binding<String>, title: LocalizedStringResource,
+        promptText: LocalizedStringResource? = nil, width: CGFloat? = 50,
+        alignment: TextAlignment = .center, background: Color? = nil
+    ) {
+        _text = text
+        self.title = title
+        self.promptText = promptText
+        self.width = width
+        self.alignment = alignment
+        self.background = background
+    }
+
+    public var body: some View {
+        // `title` labels the field for accessibility only; visible placeholder text comes from
+        // `promptText` so narrow fields do not render a clipped copy of their surrounding label.
+        TextField(text: $text, prompt: prompt) {
+            EmptyView()
+        }
+        .labelsHidden()
+        .accessibilityLabel(title)
+        .keyboardType(.numbersAndPunctuation)
+        .textInputAutocapitalization(.none)
+        .multilineTextAlignment(alignment)
+        .autocorrectionDisabled(true)
+        .background(color)
+        .frame(width: width)
+        .clipShape(.rect(cornerRadius: 5))
+    }
+}

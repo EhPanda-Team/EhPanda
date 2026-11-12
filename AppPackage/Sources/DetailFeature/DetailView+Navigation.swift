@@ -1,0 +1,45 @@
+import AppComponents
+import AppModels
+import AppTools
+import ComposableArchitecture
+import Resources
+import SFSafeSymbols
+import SFSafeSymbolsExt
+import SwiftUI
+
+// MARK: ToolBar
+extension DetailView {
+    func toolbar() -> some ToolbarContent {
+        ToolbarOverflowMenu {
+            Button {
+                store.send(.archivesButtonTapped)
+            } label: {
+                Label(.archivesAction, systemSymbol: .zipperPage)
+            }
+            .disabled(
+                store.galleryDetail == nil || store.loadingState == .loading
+                || store.galleryDetail?.archiveURL == nil || !didLogin
+            )
+            Button {
+                store.send(.torrentsButtonTapped)
+            } label: {
+                let torrentCount = store.galleryDetail?.torrentCount ?? 0
+                let title: LocalizedStringResource = torrentCount > 0
+                    ? .torrentsCount(count: torrentCount) : .torrents
+                Label(title, systemSymbol: .leaf)
+            }
+            .disabled(
+                store.galleryDetail == nil || store.loadingState == .loading
+                || (store.galleryDetail?.torrentCount ?? 0 > 0) != true
+            )
+            Button {
+                if let galleryURL = store.gallery.galleryURL {
+                    store.send(.shareButtonTapped(galleryURL))
+                }
+            } label: {
+                Label(.RLocalizable.share, systemSymbol: .squareAndArrowUp)
+            }
+            .disabled(store.galleryDetail == nil || store.loadingState == .loading)
+        }
+    }
+}

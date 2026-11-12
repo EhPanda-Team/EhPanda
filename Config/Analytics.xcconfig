@@ -1,0 +1,33 @@
+// Analytics build configuration — COMMITTED, and credential-free by design.
+//
+// Every value below is empty on purpose. A contributor clone and a fork build with empty
+// analytics credentials, `AppInfo.telemetryDeckAppID` resolves to nil, and the analytics client
+// no-ops entirely — so an ordinary build cannot reach the owner's dataset. Keeping the dataset
+// clean is the whole point; the app ID is a write-only ingestion key and is not a secret in any
+// case.
+//
+// Two things supply the real values, and neither is committed:
+//
+//   * Local development — `Config/Analytics.local.xcconfig`, gitignored and optionally included
+//     at the bottom of this file. Order matters — a later assignment wins, so the empty defaults
+//     must come first and the optional include last.
+//   * Release CI — `.github/workflows/deploy.yml` and `deploy-beta.yml` pass both values
+//     to `xcodebuild archive` as command-line build settings, sourced from repository secrets.
+//     Command-line settings outrank an xcconfig, so they win over the empty defaults below
+//     without any local file existing. Each workflow then reads the archived Info.plist back and
+//     fails the build if either key came out empty.
+//
+// So a release IS credentialed, and the runtime opt-out — not the absence of this file — is what
+// an installed release's users control.
+
+// TelemetryDeck's write-only ingestion key. Absent here; supplied by the local override.
+TELEMETRYDECK_APP_ID =
+
+// The identifier salt. This value is write-once: changing it after a release re-derives every
+// anonymized identifier, so every existing install looks new to the vendor and all retention
+// and DAU/MAU history resets with no way to reconcile the two sides afterwards.
+TELEMETRYDECK_SALT =
+
+// Optional include — the trailing `?` makes an absent file a silent no-op rather than an error,
+// which is what lets a clean clone build without a configuration-file warning.
+#include? "Analytics.local.xcconfig"

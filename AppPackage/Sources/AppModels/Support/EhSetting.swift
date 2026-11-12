@@ -1,0 +1,478 @@
+public import Foundation
+import Resources
+
+// MARK: EhSetting
+public struct EhSetting: Equatable, Sendable {
+    public init(
+        ehProfiles: [EhProfile],
+        isCapableOfCreatingNewProfile: Bool,
+        capableLoadThroughHathSetting: LoadThroughHathSetting,
+        capableImageResolution: ImageResolution,
+        capableSearchResultCount: SearchResultCount,
+        capableThumbnailConfigRowCount: ThumbnailRowCount,
+        capableThumbnailConfigSizes: [ThumbnailSize],
+        loadThroughHathSetting: LoadThroughHathSetting,
+        hahRegion: HahRegion,
+        literalDetectedCountry: String? = nil,
+        literalHahRegion: String? = nil,
+        imageResolution: ImageResolution,
+        imageSizeWidth: Float,
+        imageSizeHeight: Float,
+        galleryName: GalleryName,
+        archiverBehavior: ArchiverBehavior,
+        displayMode: DisplayMode,
+        searchRangeIndicatorStyle: SearchRangeIndicatorStyle,
+        enableGalleryThumbnailSelector: Bool,
+        disabledCategories: [Bool],
+        favoriteCategories: [String],
+        favoritesSortOrder: FavoritesSortOrder,
+        ratingsColor: String,
+        tagFilteringThreshold: Float,
+        tagWatchingThreshold: Float,
+        showFilteredRemovalCount: Bool,
+        excludedLanguages: [Bool],
+        excludedUploaders: String,
+        searchResultCount: SearchResultCount,
+        thumbnailLoadTiming: ThumbnailLoadTiming,
+        thumbnailConfigSize: ThumbnailSize,
+        thumbnailConfigRows: ThumbnailRowCount,
+        coverScaleFactor: Float,
+        viewportVirtualWidth: Float,
+        commentsSortOrder: CommentsSortOrder,
+        commentVotesShowTiming: CommentVotesShowTiming,
+        tagsSortOrder: TagsSortOrder,
+        galleryPageNumbering: GalleryPageNumbering,
+        useOriginalImages: Bool? = nil,
+        useMultiplePageViewer: Bool? = nil,
+        multiplePageViewerStyle: MultiplePageViewerStyle? = nil,
+        multiplePageViewerShowThumbnailPane: Bool? = nil
+    ) {
+        self.ehProfiles = ehProfiles
+        self.isCapableOfCreatingNewProfile = isCapableOfCreatingNewProfile
+        self.capableLoadThroughHathSetting = capableLoadThroughHathSetting
+        self.capableImageResolution = capableImageResolution
+        self.capableSearchResultCount = capableSearchResultCount
+        self.capableThumbnailConfigRowCount = capableThumbnailConfigRowCount
+        self.capableThumbnailConfigSizes = capableThumbnailConfigSizes
+        self.loadThroughHathSetting = loadThroughHathSetting
+        self.hahRegion = hahRegion
+        self.literalDetectedCountry = literalDetectedCountry
+        self.literalHahRegion = literalHahRegion
+        self.imageResolution = imageResolution
+        self.imageSizeWidth = imageSizeWidth
+        self.imageSizeHeight = imageSizeHeight
+        self.galleryName = galleryName
+        self.archiverBehavior = archiverBehavior
+        self.displayMode = displayMode
+        self.searchRangeIndicatorStyle = searchRangeIndicatorStyle
+        self.enableGalleryThumbnailSelector = enableGalleryThumbnailSelector
+        self.disabledCategories = disabledCategories
+        self.favoriteCategories = favoriteCategories
+        self.favoritesSortOrder = favoritesSortOrder
+        self.ratingsColor = ratingsColor
+        self.tagFilteringThreshold = tagFilteringThreshold
+        self.tagWatchingThreshold = tagWatchingThreshold
+        self.showFilteredRemovalCount = showFilteredRemovalCount
+        self.excludedLanguages = excludedLanguages
+        self.excludedUploaders = excludedUploaders
+        self.searchResultCount = searchResultCount
+        self.thumbnailLoadTiming = thumbnailLoadTiming
+        self.thumbnailConfigSize = thumbnailConfigSize
+        self.thumbnailConfigRows = thumbnailConfigRows
+        self.coverScaleFactor = coverScaleFactor
+        self.viewportVirtualWidth = viewportVirtualWidth
+        self.commentsSortOrder = commentsSortOrder
+        self.commentVotesShowTiming = commentVotesShowTiming
+        self.tagsSortOrder = tagsSortOrder
+        self.galleryPageNumbering = galleryPageNumbering
+        self.useOriginalImages = useOriginalImages
+        self.useMultiplePageViewer = useMultiplePageViewer
+        self.multiplePageViewerStyle = multiplePageViewerStyle
+        self.multiplePageViewerShowThumbnailPane = multiplePageViewerShowThumbnailPane
+    }
+    public static let empty: Self = .empty(ehProfiles: [.empty])
+
+    // swiftlint:disable line_length
+    /// `empty` with a caller-supplied profile list, so a fixture that needs a *named* profile (the
+    /// app's own `EhPanda` profile, say) doesn't have to restate all forty defaults.
+    public static func empty(ehProfiles: [EhProfile]) -> Self { .init(ehProfiles: ehProfiles, isCapableOfCreatingNewProfile: true, capableLoadThroughHathSetting: .anyClient, capableImageResolution: .auto, capableSearchResultCount: .fifty, capableThumbnailConfigRowCount: .forty, capableThumbnailConfigSizes: [], loadThroughHathSetting: .anyClient, hahRegion: .autoDetect, imageResolution: .auto, imageSizeWidth: 0, imageSizeHeight: 0, galleryName: .default, archiverBehavior: .autoSelectOriginalAutoStart, displayMode: .compact, searchRangeIndicatorStyle: .normal, enableGalleryThumbnailSelector: false, disabledCategories: Array(repeating: false, count: 10), favoriteCategories: Array(repeating: "", count: 10), favoritesSortOrder: .favoritedTime, ratingsColor: "", tagFilteringThreshold: 0, tagWatchingThreshold: 0, showFilteredRemovalCount: true, excludedLanguages: Array(repeating: false, count: 50), excludedUploaders: "", searchResultCount: .fifty, thumbnailLoadTiming: .onPageLoad, thumbnailConfigSize: .normal, thumbnailConfigRows: .ten, coverScaleFactor: 0, viewportVirtualWidth: 0, commentsSortOrder: .recent, commentVotesShowTiming: .always, tagsSortOrder: .alphabetical, galleryPageNumbering: .none) }
+    // swiftlint:enable line_length
+
+    public static let categoryNames = Category.allFiltersCases.map(\.rawValue).map { value in
+        value.lowercased().replacing(" ", with: "")
+    }
+    public static let languageValues = [
+        1024, 2048, 1, 1025, 2049, 10, 1034, 2058,
+        20, 1044, 2068, 30, 1054, 2078, 40, 1064, 2088,
+        50, 1074, 2098, 60, 1084, 2108, 70, 1094, 2118,
+        80, 1104, 2128, 90, 1114, 2138, 100, 1124, 2148,
+        110, 1134, 2158, 120, 1144, 2168, 130, 1154, 2178,
+        254, 1278, 2302, 255, 1279, 2303
+    ]
+
+    public let ehProfiles: [EhProfile]
+    public var ehpandaProfile: EhProfile? {
+        ehProfiles.filter({ EhSetting.verifyEhPandaProfileName(with: $0.name) }).first
+    }
+    public static func verifyEhPandaProfileName(with name: String?) -> Bool {
+        ["EhPanda", "EhPanda (Default)"].contains(name ?? "")
+    }
+
+    public let isCapableOfCreatingNewProfile: Bool
+    public let capableLoadThroughHathSetting: LoadThroughHathSetting
+    public let capableImageResolution: ImageResolution
+    public let capableSearchResultCount: SearchResultCount
+    public let capableThumbnailConfigRowCount: ThumbnailRowCount
+    public let capableThumbnailConfigSizes: [ThumbnailSize]
+
+    public var capableLoadThroughHathSettings: [LoadThroughHathSetting] {
+        LoadThroughHathSetting.allCases.filter { setting in
+            setting <= capableLoadThroughHathSetting
+        }
+    }
+    public var capableImageResolutions: [ImageResolution] {
+        ImageResolution.allCases.filter { resolution in
+            resolution <= capableImageResolution
+        }
+    }
+    public var capableSearchResultCounts: [SearchResultCount] {
+        SearchResultCount.allCases.filter { count in
+            count <= capableSearchResultCount
+        }
+    }
+    public var capableThumbnailConfigRowCounts: [ThumbnailRowCount] {
+        ThumbnailRowCount.allCases.filter { row in
+            row <= capableThumbnailConfigRowCount
+        }
+    }
+    public var localizedLiteralDetectedCountry: String? {
+        literalDetectedCountry.flatMap { literal in
+            BrowsingCountry.allCases.first(where: { $0.englishName == literal })
+                .map({ String(localized: $0.name) })
+        }
+    }
+    public var localizedLiteralHahRegion: String? {
+        literalHahRegion.flatMap { literal in
+            HahRegion.allCases.first(where: { $0.englishName == literal })
+                .map({ String(localized: $0.name) })
+        }
+    }
+
+    public var loadThroughHathSetting: LoadThroughHathSetting
+    public var hahRegion: HahRegion
+    public let literalDetectedCountry: String?
+    public let literalHahRegion: String?
+    public var imageResolution: ImageResolution
+    public var imageSizeWidth: Float
+    public var imageSizeHeight: Float
+    public var galleryName: GalleryName
+    public var archiverBehavior: ArchiverBehavior
+    public var displayMode: DisplayMode
+    public var searchRangeIndicatorStyle: SearchRangeIndicatorStyle
+    public var enableGalleryThumbnailSelector: Bool
+    public var disabledCategories: [Bool]
+    public var favoriteCategories: [String]
+    public var favoritesSortOrder: FavoritesSortOrder
+    public var ratingsColor: String
+    public var tagFilteringThreshold: Float
+    public var tagWatchingThreshold: Float
+    public var showFilteredRemovalCount: Bool
+    public var excludedLanguages: [Bool]
+    public var excludedUploaders: String
+    public var searchResultCount: SearchResultCount
+    public var thumbnailLoadTiming: ThumbnailLoadTiming
+    public var thumbnailConfigSize: ThumbnailSize
+    public var thumbnailConfigRows: ThumbnailRowCount
+    public var coverScaleFactor: Float
+    public var viewportVirtualWidth: Float
+    public var commentsSortOrder: CommentsSortOrder
+    public var commentVotesShowTiming: CommentVotesShowTiming
+    public var tagsSortOrder: TagsSortOrder
+    public var galleryPageNumbering: GalleryPageNumbering
+    public var useOriginalImages: Bool?
+    public var useMultiplePageViewer: Bool?
+    public var multiplePageViewerStyle: MultiplePageViewerStyle?
+    public var multiplePageViewerShowThumbnailPane: Bool?
+}
+
+// MARK: EhProfile
+public struct EhProfile: Comparable, Identifiable, Hashable, Sendable {
+    public init(
+        value: Int,
+        name: String,
+        isSelected: Bool
+    ) {
+        self.value = value
+        self.name = name
+        self.isSelected = isSelected
+    }
+    public static let empty: Self = .init(
+        value: 0, name: "", isSelected: true
+    )
+    public static func < (lhs: EhProfile, rhs: EhProfile) -> Bool {
+        lhs.value < rhs.value
+    }
+    public var id: Int { value }
+
+    public let value: Int
+    public let name: String
+    public let isSelected: Bool
+    public var isDefault: Bool {
+        value == 1
+    }
+}
+public enum EhProfileAction: String, Sendable {
+    case create
+    case delete
+    case rename
+    case `default`
+}
+
+// MARK: LoadThroughHathSetting
+extension EhSetting {
+    public enum LoadThroughHathSetting: Int, CaseIterable, Identifiable, Comparable, Sendable {
+        case anyClient
+        case defaultPortOnly
+        case modernNo
+        case legacyNo
+    }
+}
+extension EhSetting.LoadThroughHathSetting {
+    public var id: Int { rawValue }
+    public static func < (
+        lhs: EhSetting.LoadThroughHathSetting,
+        rhs: EhSetting.LoadThroughHathSetting
+    ) -> Bool {
+        lhs.rawValue < rhs.rawValue
+    }
+
+    public var value: LocalizedStringResource {
+        switch self {
+        case .anyClient:
+            return .loadThroughHathSettingAnyClient
+        case .defaultPortOnly:
+            return .loadThroughHathSettingDefaultPortOnly
+        case .modernNo:
+            return .loadThroughHathSettingModernNo
+        case .legacyNo:
+            return .loadThroughHathSettingLegacyNo
+        }
+    }
+    public var description: LocalizedStringResource {
+        switch self {
+        case .anyClient:
+            return .loadThroughHathSettingAnyClientDescription
+        case .defaultPortOnly:
+            return .loadThroughHathSettingDefaultPortOnlyDescription
+        case .modernNo:
+            return .loadThroughHathSettingModernNoDescription
+        case .legacyNo:
+            return .loadThroughHathSettingLegacyNoDescription
+        }
+    }
+}
+
+// MARK: ImageResolution
+extension EhSetting {
+    public enum ImageResolution: Int, CaseIterable, Identifiable, Comparable, Codable, Sendable {
+        case auto = 0
+        case x800 = 1
+        case x1280 = 3
+        case x1920 = 4
+        case x2560 = 5
+    }
+}
+extension EhSetting.ImageResolution {
+    public var id: Int { rawValue }
+    public static func < (lhs: Self, rhs: Self) -> Bool {
+        lhs.rawValue < rhs.rawValue
+    }
+
+    public var value: String {
+        switch self {
+        case .auto:
+            return String(localized: .imageResolutionAuto)
+        case .x800:
+            return "800x"
+        case .x1280:
+            return "1280x"
+        case .x1920:
+            return "1920x"
+        case .x2560:
+            return "2560x"
+        }
+    }
+}
+
+// MARK: GalleryName
+extension EhSetting {
+    public enum GalleryName: Int, CaseIterable, Identifiable, Sendable {
+        case `default`
+        case japanese
+    }
+}
+extension EhSetting.GalleryName {
+    public var id: Int { rawValue }
+
+    public var value: LocalizedStringResource {
+        switch self {
+        case .default:
+            return .galleryNameDefault
+        case .japanese:
+            return .galleryNameJapanese
+        }
+    }
+}
+
+// MARK: ArchiverBehavior
+extension EhSetting {
+    public enum ArchiverBehavior: Int, CaseIterable, Identifiable, Sendable {
+        case manualSelectManualStart
+        case manualSelectAutoStart
+        case autoSelectOriginalManualStart
+        case autoSelectOriginalAutoStart
+        case autoSelectResampleManualStart
+        case autoSelectResampleAutoStart
+    }
+}
+extension EhSetting.ArchiverBehavior {
+    public var id: Int { rawValue }
+
+    public var value: LocalizedStringResource {
+        switch self {
+        case .manualSelectManualStart:
+            return .ehSettingArchiverBehaviorManualSelectManualStart
+        case .manualSelectAutoStart:
+            return .ehSettingArchiverBehaviorManualSelectAutoStart
+        case .autoSelectOriginalManualStart:
+            return .ehSettingArchiverBehaviorAutoSelectOriginalManualStart
+        case .autoSelectOriginalAutoStart:
+            return .ehSettingArchiverBehaviorAutoSelectOriginalAutoStart
+        case .autoSelectResampleManualStart:
+            return .ehSettingArchiverBehaviorAutoSelectResampleManualStart
+        case .autoSelectResampleAutoStart:
+            return .ehSettingArchiverBehaviorAutoSelectResampleAutoStart
+        }
+    }
+}
+
+// MARK: DisplayMode
+extension EhSetting {
+    public enum DisplayMode: Int, CaseIterable, Identifiable, Sendable {
+        case compact
+        case thumbnail
+        case extended
+        case minimal
+        case minimalPlus
+    }
+}
+extension EhSetting.DisplayMode {
+    public var id: Int { rawValue }
+
+    public var value: LocalizedStringResource {
+        switch self {
+        case .compact:
+            return .displayModeCompact
+        case .thumbnail:
+            return .displayModeThumbnail
+        case .extended:
+            return .displayModeExtended
+        case .minimal:
+            return .displayModeMinimal
+        case .minimalPlus:
+            return .displayModeMinimalPlus
+        }
+    }
+}
+
+// MARK: SearchRangeIndicatorStyle
+extension EhSetting {
+    public enum SearchRangeIndicatorStyle: Int, CaseIterable, Identifiable, Sendable {
+        case normal
+        case disabled
+    }
+}
+extension EhSetting.SearchRangeIndicatorStyle {
+    public var id: Int { rawValue }
+
+    public var value: LocalizedStringResource {
+        switch self {
+        case .normal:
+            return .searchRangeIndicatorStyleNormal
+        case .disabled:
+            return .searchRangeIndicatorStyleDisabled
+        }
+    }
+}
+
+// MARK: FavoritesSortOrder
+extension EhSetting {
+    public enum FavoritesSortOrder: Int, CaseIterable, Identifiable, Sendable {
+        case lastUpdateTime
+        case favoritedTime
+    }
+}
+extension EhSetting.FavoritesSortOrder {
+    public var id: Int { rawValue }
+
+    public var value: LocalizedStringResource {
+        switch self {
+        case .lastUpdateTime:
+            return .favoritesSortOrderLastUpdateTime
+        case .favoritedTime:
+            return .favoritesSortOrderFavoritedTime
+        }
+    }
+}
+
+// MARK: ExcludedLanguagesCategory
+extension EhSetting {
+    public enum ExcludedLanguagesCategory: Int, Identifiable, CaseIterable, Sendable {
+        case original
+        case translated
+        case rewrite
+    }
+}
+extension EhSetting.ExcludedLanguagesCategory {
+    public var id: Int { rawValue }
+
+    public var value: LocalizedStringResource {
+        switch self {
+        case .original:
+            return .excludedLanguagesCategoryOriginal
+        case .translated:
+            return .excludedLanguagesCategoryTranslated
+        case .rewrite:
+            return .excludedLanguagesCategoryRewrite
+        }
+    }
+}
+
+// MARK: SearchResultCount
+extension EhSetting {
+    public enum SearchResultCount: Int, CaseIterable, Identifiable, Comparable, Sendable {
+        case twentyFive
+        case fifty
+        case oneHundred
+        case twoHundred
+    }
+}
+extension EhSetting.SearchResultCount {
+    public var id: Int { rawValue }
+    public static func < (lhs: Self, rhs: Self) -> Bool {
+        lhs.rawValue < rhs.rawValue
+    }
+
+    public var value: String {
+        switch self {
+        case .twentyFive:
+            return "25"
+        case .fifty:
+            return "50"
+        case .oneHundred:
+            return "100"
+        case .twoHundred:
+            return "200"
+        }
+    }
+}

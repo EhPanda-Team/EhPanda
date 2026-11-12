@@ -1,0 +1,16 @@
+{
+  "command": "xcodebuild test -project EhPanda.xcodeproj -scheme EhPanda -testPlan FeatureTests -destination 'platform=iOS Simulator,id=35988D34-B4E9-44C6-82B5-CDA2CF391339' -parallel-testing-enabled NO '-only-testing:AppFeatureTests/UITestStubTests/visualHostOptInForcesOfflineBootstrap()' -resultBundlePath /tmp/ehpanda-phase17-bootstrap-red.xcresult",
+  "exitCode": 65,
+  "targetTest": "UITestStubTests/visualHostOptInForcesOfflineBootstrap()",
+  "targetFile": "AppPackage/Tests/AppFeatureTests/UITestStubTests.swift",
+  "expected": "The visual-host flag resolves a non-nil configuration that forces offline network stubs.",
+  "actual": "Configuration resolution returned nil; the #require assertion failed.",
+  "output": "not ok 1 - UITestStubTests/visualHostOptInForcesOfflineBootstrap()\n# tests 1\n# pass 0\n# fail 1\n",
+  "outputFormat": "TAP normalization of the native xcresult summary; no Node test was run. The GSD RED validator only accepts TAP.",
+  "nativeFailure": "Expectation failed: UITestAutomation.resolve(environment: [\"EHPANDA_VISUAL_TEST_HOST\": \"1\"], now: Date(timeIntervalSinceReferenceDate: 123))\nDate(timeIntervalSinceReferenceDate: 123) \u2192 2001-01-01 00:02:03 +0000",
+  "nativeLog": "/tmp/ehpanda-phase17-bootstrap-red.log",
+  "nativeResult": "/tmp/ehpanda-phase17-bootstrap-red.xcresult",
+  "totalTestCount": 1,
+  "failedTests": 1,
+  "repetitionCount": 0
+}

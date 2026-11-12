@@ -1,0 +1,165 @@
+import AnalyticsClient
+@testable import AppFeature
+import AppModels
+import ClipboardClient
+import ComposableArchitecture
+import CookieClient
+@testable import DetailFeature
+import DownloadClient
+import Foundation
+import HapticsClient
+import ImageClient
+@testable import ReadingFeature
+import Testing
+
+// `@MainActor` here is compiler-required, not stylistic: every case below builds a TCA
+// `TestStore`, whose `init` and `state` accessor are main-actor-isolated. It is applied
+// per member rather than to the suite so the type's `DownloadFeatureTestCase` conformance
+// stays nonisolated — a main-actor conformance cannot be used from the `@Sendable`
+// dependency closures these stores install.
+struct DownloadObserverRefreshTests: DownloadFeatureTestCase {
+    @MainActor
+    @Test
+    func testReadingReducerEmitsOneFinalRefreshWhenRelevantDownloadDisappears() async {
+        let gallery = sampleGallery()
+        let relevantDownload = sampleDownload(gid: gallery.gid, title: gallery.title, status: .completed)
+        let (stream, continuation) = makeObserverStream()
+        let loadCount = LockedBox(0)
+
+        let initialState = ReadingReducer.State(gallery: gallery, contentSource: .remote)
+
+        let store = makeReadingObserverStore(
+            initialState: initialState,
+            stream: stream,
+            loadLocalPageURLs: { _ in
+                loadCount.value += 1
+                return [:]
+            }
+        )
+
+        await store.send(.observeDownloads(gallery.gid))
+        continuation.yield([relevantDownload])
+        await store.receive(\.observeDownloadsDone, [relevantDownload])
+        await store.receive(\.loadLocalPageURLs, gallery.gid)
+        await store.receive(\.loadLocalPageURLsDone)
+
+        continuation.yield([])
+        await store.receive(\.observeDownloadsDone, [])
+        await store.receive(\.loadLocalPageURLs, gallery.gid)
+        await store.receive(\.loadLocalPageURLsDone)
+
+        #expect(loadCount.value == 2)
+        continuation.finish()
+        await store.finish()
+    }
+
+    @MainActor
+    @Test
+    func testPreviewsReducerEmitsOneFinalRefreshWhenRelevantDownloadDisappears() async {
+        let gallery = sampleGallery()
+        let relevantDownload = sampleDownload(gid: gallery.gid, title: gallery.title, status: .completed)
+        let (stream, continuation) = makeObserverStream()
+        let loadCount = LockedBox(0)
+
+        let initialState = PreviewsReducer.State(gallery: gallery)
+
+        let store = makePreviewsObserverStore(
+            initialState: initialState,
+            stream: stream,
+            loadLocalPageURLs: { _ in
+                loadCount.value += 1
+                return [:]
+            }
+        )
+
+        await store.send(.observeDownloads(gallery.gid))
+        continuation.yield([relevantDownload])
+        await store.receive(\.observeDownloadsDone, [relevantDownload])
+        await store.receive(\.loadLocalPreviewURLs, gallery.gid)
+        await store.receive(\.loadLocalPreviewURLsDone)
+
+        continuation.yield([])
+        await store.receive(\.observeDownloadsDone, [])
+        await store.receive(\.loadLocalPreviewURLs, gallery.gid)
+        await store.receive(\.loadLocalPreviewURLsDone)
+
+        #expect(loadCount.value == 2)
+        continuation.finish()
+        await store.finish()
+    }
+
+}
+
+// MARK: - Store Factory Helpers
+
+private extension DownloadObserverRefreshTests {
+    func makeObserverStream()
+    -> (stream: AsyncStream<[DownloadedGallery]>, continuation: AsyncStream<[DownloadedGallery]>.Continuation) {
+        var continuation: AsyncStream<[DownloadedGallery]>.Continuation!
+        let stream = AsyncStream<[DownloadedGallery]> { continuation = $0 }
+        return (stream, continuation)
+    }
+
+    @MainActor
+    func makeReadingObserverStore(
+        initialState: ReadingReducer.State,
+        stream: AsyncStream<[DownloadedGallery]>,
+        loadLocalPageURLs: @escaping @Sendable (String) async -> [Int: URL]?
+    ) -> TestStoreOf<ReadingReducer> {
+        let store = TestStore(
+            initialState: initialState,
+            reducer: ReadingReducer.init,
+            withDependencies: {
+                $0.analyticsClient = .noop
+                $0.clipboardClient = .noop
+                $0.cookieClient = .noop
+                $0.downloadClient = makeObserveDownloadClient(
+                    stream: stream, loadLocalPageURLs: loadLocalPageURLs
+                )
+                $0.hapticsClient = .noop
+                $0.imageClient = .noop
+            }
+        )
+        store.exhaustivity = .off
+        return store
+    }
+
+    @MainActor
+    func makePreviewsObserverStore(
+        initialState: PreviewsReducer.State,
+        stream: AsyncStream<[DownloadedGallery]>,
+        loadLocalPageURLs: @escaping @Sendable (String) async -> [Int: URL]?
+    ) -> TestStoreOf<PreviewsReducer> {
+        let store = TestStore(
+            initialState: initialState,
+            reducer: PreviewsReducer.init,
+            withDependencies: {
+                $0.analyticsClient = .noop
+                $0.downloadClient = makeObserveDownloadClient(
+                    stream: stream, loadLocalPageURLs: loadLocalPageURLs
+                )
+                $0.hapticsClient = .noop
+            }
+        )
+        store.exhaustivity = .off
+        return store
+    }
+
+    func makeObserveDownloadClient(
+        stream: AsyncStream<[DownloadedGallery]>,
+        loadLocalPageURLs: @escaping @Sendable (String) async -> [Int: URL]?
+    ) -> DownloadClient {
+        var client = DownloadClient()
+        client.observeDownloads = { stream }
+        client.fetchDownloads = { [] }
+        client.fetchDownload = { _ in nil }
+        client.refreshDownloads = {}
+        client.enqueue = { _ in }
+        client.togglePause = { _ in }
+        client.retry = { _, _ in }
+        client.delete = { _ in }
+        client.loadManifest = { _ in throw AppError.notFound }
+        client.loadLocalPageURLs = loadLocalPageURLs
+        return client
+    }
+}

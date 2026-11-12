@@ -1,0 +1,39 @@
+/// Thin, `appStorage`-persisted metadata for the tag-translation table.
+///
+/// The translations dictionary itself is NOT persisted — it is large, derived, and
+/// re-downloadable, so it lives only in memory and is rebuilt at launch from the cached raw JSON
+/// (Caches for a remote download, Application Support for a user import). This record remembers just
+/// enough to rebuild the right file and to restore what the update check compares: which language
+/// and asset digest are cached, and whether a custom import is active.
+public struct TagTranslatorInfo: Codable, Equatable, Sendable, SchemaVersioned {
+    public init(
+        schemaVersion: SchemaVersion<TagTranslatorInfo> = 1,
+        language: TranslatableLanguage? = nil,
+        digest: String? = nil,
+        hasCustomTranslations: Bool = false
+    ) {
+        self.schemaVersion = schemaVersion
+        self.language = language
+        self.digest = digest
+        self.hasCustomTranslations = hasCustomTranslations
+    }
+    /// This model's schema history (oldest → newest); see `SchemaVersioned` / `VersionedSchema`.
+    /// `currentSchemaVersion` derives from the head. Append a `VersionedSchema` and adopt
+    /// `MigratableModel` when a breaking change lands.
+    public static var schemas: [any VersionedSchema.Type] { [SchemaV1.self] }
+    /// The v1 base schema. Its `migrate` is empty — nothing precedes v1, and the engine only runs
+    /// schemas newer than the stored version, so it exists solely to anchor version 1.
+    enum SchemaV1: VersionedSchema {
+        static let version = 1
+        static func migrate(_ object: inout [String: JSONValue]) throws {}
+    }
+    // A self-validating field: it rejects a newer/downgrade blob on decode (see `SchemaVersion`), which
+    // fails the whole decode so Sharing resets to the key default. Synthesized Codable is otherwise
+    // untouched, so optional-field tolerance still holds; a field added later must stay optional so old
+    // blobs keep decoding.
+    public var schemaVersion: SchemaVersion<TagTranslatorInfo>
+    public var language: TranslatableLanguage?
+    /// The release asset digest of the cached file; `nil` before the first download.
+    public var digest: String?
+    public var hasCustomTranslations: Bool
+}

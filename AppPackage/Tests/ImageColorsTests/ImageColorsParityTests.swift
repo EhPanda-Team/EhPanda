@@ -1,0 +1,226 @@
+import Foundation
+import ImageColors
+import SwiftUI
+import Testing
+import UIKit
+
+// Wave 0 parity lock for DEP-02 (D-16, D-18). These fixtures freeze the deterministic component
+// output of `ImageColors.colors(from:quality:)` so the local ImageColors module can be proven
+// identical on the numbers, not on subjective appearance — final visual judgment stays with user
+// verification per D-19. Fixtures are synthesized as `UIImage`, then fed to the module as their
+// backing `CGImage` (the module's modernized input); results come back as SwiftUI `Color`s and are
+// bridged through `UIColor` to compare exact 0...255 components.
+//
+// The solid fixtures are neutral gray on purpose. A uniform fill collapses to a single counted
+// color, so the algorithm's edge color becomes the background and — since no second color can
+// contrast with it — primary/secondary/detail fall back to the light/dark text default. Grays
+// (R == G == B) also sidestep the library's internal channel packing and any sRGB/P3 gamut
+// difference, since the neutral axis is shared and channel order is symmetric. That makes the
+// expected tuples stable across devices while still exercising:
+//   * background parity (the dominant color is returned), and
+//   * the light-vs-dark background fallback branch (light → black text, dark → white text).
+@Suite
+struct ImageColorsParityTests {
+    fileprivate struct RGBA: Equatable {
+        let red: Int
+        let green: Int
+        let blue: Int
+        let alpha: Int
+
+        var uiColor: UIColor {
+            UIColor(
+                red: CGFloat(red) / 255, green: CGFloat(green) / 255,
+                blue: CGFloat(blue) / 255, alpha: CGFloat(alpha) / 255
+            )
+        }
+    }
+
+    private func solidImage(_ color: UIColor, size: CGSize = .init(width: 60, height: 60)) -> UIImage {
+        UIGraphicsImageRenderer(size: size).image { context in
+            color.setFill()
+            context.fill(CGRect(origin: .zero, size: size))
+        }
+    }
+
+    private func stripedImage(
+        background: UIColor,
+        stripes: [(color: UIColor, height: CGFloat)],
+        size: CGSize = .init(width: 60, height: 60)
+    ) -> UIImage {
+        let format = UIGraphicsImageRendererFormat.preferred()
+        format.opaque = true
+        format.preferredRange = .standard
+        return UIGraphicsImageRenderer(size: size, format: format).image { context in
+            background.setFill()
+            context.fill(CGRect(origin: .zero, size: size))
+            var originY: CGFloat = 0
+            for stripe in stripes {
+                stripe.color.setFill()
+                context.fill(CGRect(x: 0, y: originY, width: size.width, height: stripe.height))
+                originY += stripe.height
+            }
+        }
+    }
+
+    private func srgb(_ red: Int, _ green: Int, _ blue: Int) -> UIColor {
+        UIColor(
+            red: CGFloat(red) / 255, green: CGFloat(green) / 255,
+            blue: CGFloat(blue) / 255, alpha: 1
+        )
+    }
+
+    /// Feeds a fixture through the module the way production does: its backing `CGImage` in, a
+    /// non-optional `Colors` out. Both unwraps must hold for the fixture to be meaningful.
+    private func extractedColors(
+        of image: UIImage,
+        quality: ImageColors.Quality = .lowest
+    ) throws -> Colors {
+        let cgImage = try #require(image.cgImage)
+        return try #require(ImageColors.colors(from: cgImage, quality: quality))
+    }
+
+    private func components(_ color: Color) -> RGBA {
+        var red: CGFloat = 0, green: CGFloat = 0, blue: CGFloat = 0, alpha: CGFloat = 0
+        UIColor(color).getRed(&red, green: &green, blue: &blue, alpha: &alpha)
+        return RGBA(
+            red: Int((red * 255).rounded()),
+            green: Int((green * 255).rounded()),
+            blue: Int((blue * 255).rounded()),
+            alpha: Int((alpha * 255).rounded())
+        )
+    }
+
+    private func isClose(_ lhs: RGBA, _ rhs: RGBA, tolerance: Int = 2) -> Bool {
+        abs(lhs.red - rhs.red) <= tolerance
+            && abs(lhs.green - rhs.green) <= tolerance
+            && abs(lhs.blue - rhs.blue) <= tolerance
+            && lhs.alpha == rhs.alpha
+    }
+
+    private func gray(_ level: Int) -> UIColor {
+        UIColor(
+            red: CGFloat(level) / 255, green: CGFloat(level) / 255,
+            blue: CGFloat(level) / 255, alpha: 1
+        )
+    }
+
+    /// A light background returns the dominant gray and falls back to black text for every accent slot.
+    @Test
+    func lightSolidImageLocksBackgroundAndBlackTextFallback() throws {
+        let colors = try extractedColors(of: solidImage(gray(200)))
+
+        let black = RGBA(red: 0, green: 0, blue: 0, alpha: 255)
+        #expect(isClose(components(colors.background), RGBA(red: 200, green: 200, blue: 200, alpha: 255)))
+        #expect(components(colors.primary) == black)
+        #expect(components(colors.secondary) == black)
+        #expect(components(colors.detail) == black)
+    }
+
+    /// A dark background returns the dominant gray and falls back to white text for every accent slot.
+    @Test
+    func darkSolidImageLocksBackgroundAndWhiteTextFallback() throws {
+        let colors = try extractedColors(of: solidImage(gray(40)))
+
+        let white = RGBA(red: 255, green: 255, blue: 255, alpha: 255)
+        #expect(isClose(components(colors.background), RGBA(red: 40, green: 40, blue: 40, alpha: 255)))
+        #expect(components(colors.primary) == white)
+        #expect(components(colors.secondary) == white)
+        #expect(components(colors.detail) == white)
+    }
+
+    /// Unlike the solid-gray fixtures above (which collapse to a single color and force the
+    /// black/white text fallback), this fixture is a light non-gray background overlaid with three
+    /// full-width, decreasing-height stripes of saturated red/green/blue. The stripes survive the
+    /// `with(minSaturation:)` filter, contrast with the background, and are mutually distinct, so
+    /// `colors(from:)` fills primary/secondary/detail with *real* accent colors instead of falling
+    /// back. The decreasing heights fix the counted order, so the accent slots land deterministically:
+    /// primary → red, secondary → green, detail → blue. This locks the reimplemented accent path
+    /// (`with(minSaturation:)`, `isDistinct`, `isContrasting`, `accentColors`); the tuples are
+    /// characterized from the current correct implementation and asserted verbatim (D-16), so a
+    /// later engine/refactor change cannot silently drift them.
+    @Test
+    func saturatedMultiRegionImageLocksAccentColors() throws {
+        let image = stripedImage(
+            background: srgb(210, 180, 150),
+            stripes: [
+                (srgb(150, 20, 20), 15),
+                (srgb(20, 120, 40), 12),
+                (srgb(30, 40, 150), 9)
+            ]
+        )
+        let colors = try extractedColors(of: image)
+
+        let background = components(colors.background)
+        let primary = components(colors.primary)
+        let secondary = components(colors.secondary)
+        let detail = components(colors.detail)
+
+        #expect(isClose(background, RGBA(red: 210, green: 180, blue: 150, alpha: 255)))
+        #expect(isClose(primary, RGBA(red: 150, green: 20, blue: 20, alpha: 255)))
+        #expect(isClose(secondary, RGBA(red: 20, green: 120, blue: 40, alpha: 255)))
+        #expect(isClose(detail, RGBA(red: 30, green: 40, blue: 150, alpha: 255)))
+
+        // Guard the finding's intent: none of the accent slots collapsed to the black/white fallback.
+        let black = RGBA(red: 0, green: 0, blue: 0, alpha: 255)
+        let white = RGBA(red: 255, green: 255, blue: 255, alpha: 255)
+        for accent in [primary, secondary, detail] {
+            #expect(accent != black)
+            #expect(accent != white)
+        }
+    }
+
+    /// Equally common colors rank by their packed value, lowest first. Ranked by count alone, a
+    /// tie followed the counting dictionary's order, which changes with every process, so the same
+    /// cover gave Home's card different colors from one launch to the next. Each pair is a fresh
+    /// chance for that order to put the higher color first, so the old ranking passes all eight
+    /// only by luck.
+    @Test(arguments: TiedColors.all)
+    fileprivate func equallyCommonColorsRankByColorValue(_ tied: TiedColors) throws {
+        let halves = try extractedColors(
+            of: stripedImage(background: tied.higher.uiColor, stripes: [(tied.lower.uiColor, 30)]),
+            quality: .highest
+        )
+        #expect(components(halves.background) == tied.lower)
+        #expect(components(halves.primary) == RGBA(red: 255, green: 255, blue: 255, alpha: 255))
+
+        let accents = try extractedColors(
+            of: stripedImage(
+                background: gray(220),
+                stripes: [(tied.higher.uiColor, 10), (tied.lower.uiColor, 10)]
+            ),
+            quality: .highest
+        )
+        #expect(components(accents.background) == RGBA(red: 220, green: 220, blue: 220, alpha: 255))
+        #expect(components(accents.primary) == tied.lower)
+        #expect(components(accents.secondary) == tied.higher)
+        #expect(components(accents.detail) == RGBA(red: 0, green: 0, blue: 0, alpha: 255))
+    }
+}
+
+/// Two dark, saturated, mutually distinct colors that both contrast with a light gray, in the
+/// order their packed `r * 1_000_000 + g * 1_000 + b` values rank them.
+private struct TiedColors: CustomTestStringConvertible {
+    typealias RGBA = ImageColorsParityTests.RGBA
+
+    static let all = [
+        TiedColors(lower: opaque(60, 60, 200), higher: opaque(200, 60, 60)),
+        TiedColors(lower: opaque(20, 120, 40), higher: opaque(150, 20, 20)),
+        TiedColors(lower: opaque(30, 40, 150), higher: opaque(120, 30, 120)),
+        TiedColors(lower: opaque(10, 100, 100), higher: opaque(100, 20, 140)),
+        TiedColors(lower: opaque(0, 80, 160), higher: opaque(160, 40, 0)),
+        TiedColors(lower: opaque(0, 0, 140), higher: opaque(90, 0, 0)),
+        TiedColors(lower: opaque(10, 60, 130), higher: opaque(130, 60, 10)),
+        TiedColors(lower: opaque(0, 110, 40), higher: opaque(60, 10, 90))
+    ]
+
+    let lower: RGBA
+    let higher: RGBA
+
+    var testDescription: String {
+        "(\(lower.red), \(lower.green), \(lower.blue)) before (\(higher.red), \(higher.green), \(higher.blue))"
+    }
+
+    private static func opaque(_ red: Int, _ green: Int, _ blue: Int) -> RGBA {
+        RGBA(red: red, green: green, blue: blue, alpha: 255)
+    }
+}

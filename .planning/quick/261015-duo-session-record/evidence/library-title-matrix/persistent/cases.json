@@ -1,0 +1,192 @@
+[
+  {
+    "name": "iphone-portrait",
+    "device": "iphone",
+    "title": "iPhone 17",
+    "posture": "",
+    "orientation": "直向",
+    "runtime": "iOS 27.0",
+    "initial": null,
+    "pixels": [
+      1206,
+      2622
+    ],
+    "scrolled": null,
+    "historical_image_identifiers": {
+      "initial": "iphone-portrait-initial.png",
+      "scrolled": "iphone-portrait-scrolled.png"
+    },
+    "image_status": "removed_from_repository_history"
+  },
+  {
+    "name": "iphone-landscape",
+    "device": "iphone",
+    "title": "iPhone 17",
+    "posture": "",
+    "orientation": "橫向",
+    "runtime": "iOS 27.0",
+    "initial": null,
+    "pixels": [
+      2622,
+      1206
+    ],
+    "scrolled": null,
+    "historical_image_identifiers": {
+      "initial": "iphone-landscape-initial.png",
+      "scrolled": "iphone-landscape-scrolled.png"
+    },
+    "image_status": "removed_from_repository_history"
+  },
+  {
+    "name": "duo-closed-portrait",
+    "device": "duo",
+    "title": "iPhone Duo",
+    "posture": "收合 · 0°",
+    "orientation": "直向",
+    "runtime": "iOS 27.1",
+    "initial": null,
+    "pixels": [
+      1398,
+      2034
+    ],
+    "scrolled": null,
+    "historical_image_identifiers": {
+      "initial": "duo-closed-portrait-initial.png",
+      "scrolled": "duo-closed-portrait-scrolled.png"
+    },
+    "image_status": "removed_from_repository_history"
+  },
+  {
+    "name": "duo-closed-landscape",
+    "device": "duo",
+    "title": "iPhone Duo",
+    "posture": "收合 · 0°",
+    "orientation": "橫向",
+    "runtime": "iOS 27.1",
+    "initial": null,
+    "pixels": [
+      2034,
+      1398
+    ],
+    "scrolled": null,
+    "historical_image_identifiers": {
+      "initial": "duo-closed-landscape-initial.png",
+      "scrolled": "duo-closed-landscape-scrolled.png"
+    },
+    "image_status": "removed_from_repository_history"
+  },
+  {
+    "name": "duo-half-portrait",
+    "device": "duo",
+    "title": "iPhone Duo",
+    "posture": "半折 · 90°",
+    "orientation": "直向",
+    "runtime": "iOS 27.1",
+    "initial": null,
+    "pixels": [
+      2007,
+      2853
+    ],
+    "scrolled": null,
+    "historical_image_identifiers": {
+      "initial": "duo-half-portrait-initial.png",
+      "scrolled": "duo-half-portrait-scrolled.png"
+    },
+    "image_status": "removed_from_repository_history"
+  },
+  {
+    "name": "duo-half-landscape",
+    "device": "duo",
+    "title": "iPhone Duo",
+    "posture": "半折 · 90°",
+    "orientation": "橫向",
+    "runtime": "iOS 27.1",
+    "initial": null,
+    "pixels": [
+      2853,
+      2007
+    ],
+    "scrolled": null,
+    "historical_image_identifiers": {
+      "initial": "duo-half-landscape-initial.png",
+      "scrolled": "duo-half-landscape-scrolled.png"
+    },
+    "image_status": "removed_from_repository_history"
+  },
+  {
+    "name": "duo-open-portrait",
+    "device": "duo",
+    "title": "iPhone Duo",
+    "posture": "展開 · 180°",
+    "orientation": "直向",
+    "runtime": "iOS 27.1",
+    "initial": null,
+    "pixels": [
+      2007,
+      2853
+    ],
+    "scrolled": null,
+    "historical_image_identifiers": {
+      "initial": "duo-open-portrait-initial.png",
+      "scrolled": "duo-open-portrait-scrolled.png"
+    },
+    "image_status": "removed_from_repository_history"
+  },
+  {
+    "name": "duo-open-landscape",
+    "device": "duo",
+    "title": "iPhone Duo",
+    "posture": "展開 · 180°",
+    "orientation": "橫向",
+    "runtime": "iOS 27.1",
+    "initial": null,
+    "pixels": [
+      2853,
+      2007
+    ],
+    "scrolled": null,
+    "historical_image_identifiers": {
+      "initial": "duo-open-landscape-initial.png",
+      "scrolled": "duo-open-landscape-scrolled.png"
+    },
+    "image_status": "removed_from_repository_history"
+  },
+  {
+    "name": "ipad-portrait",
+    "device": "ipad",
+    "title": "iPad Pro 11″",
+    "posture": "",
+    "orientation": "直向",
+    "runtime": "iPadOS 27.0",
+    "initial": null,
+    "pixels": [
+      1668,
+      2420
+    ],
+    "scrolled": null,
+    "historical_image_identifiers": {
+      "initial": "ipad-portrait-initial.png",
+      "scrolled": "ipad-portrait-scrolled.png"
+    },
+    "image_status": "removed_from_repository_history"
+  },
+  {
+    "name": "ipad-landscape",
+    "device": "ipad",
+    "title": "iPad Pro 11″",
+    "posture": "",
+    "orientation": "橫向",
+    "runtime": "iPadOS 27.0",
+    "initial": null,
+    "pixels": [
+      2420,
+      1668
+    ],
+    "scrolled": null,
+    "historical_image_identifiers": {
+      "initial": "ipad-landscape-initial.png",
+      "scrolled": "ipad-landscape-scrolled.png"
+    },
+    "image_status": "removed_from_repository_history"
+  }
+]

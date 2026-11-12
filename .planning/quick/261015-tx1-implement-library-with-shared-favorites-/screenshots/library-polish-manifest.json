@@ -1,0 +1,74 @@
+[
+  {
+    "file": null,
+    "sha256": "495f89c2818f478786f1fa820ea3a6c154111c4237eb65d337d336f4e84cf654",
+    "run": "library-polish-ipad-01",
+    "attachment": "D175933C-5A7D-4655-8CB6-EC2FF2692D88.png",
+    "test": "AccessibilityAuditUITests/testGalleryDetailAudit()",
+    "captureDate": 1792170332.177,
+    "historical_image_identifiers": {
+      "file": "ipad-library-polish-detail.png"
+    },
+    "image_status": "removed_from_repository_history"
+  },
+  {
+    "file": null,
+    "sha256": "9a2d2ae9978387ad064844aac476f009728d79f5ba3ed5924d26983533923923",
+    "run": "library-polish-ipad-01",
+    "attachment": "7B16A6D7-F8F7-4CBE-8537-FC974861BC87.png",
+    "test": "AccessibilityAuditUITests/testPreviewsAudit()",
+    "captureDate": 1792170347.121,
+    "historical_image_identifiers": {
+      "file": "ipad-library-polish-previews.png"
+    },
+    "image_status": "removed_from_repository_history"
+  },
+  {
+    "file": null,
+    "sha256": "fb9f265ea4e967a0af0ad20ed9ccf864973db083fa276b30ce83450fa7894e07",
+    "run": "library-polish-ipad-01",
+    "attachment": "1493E47F-0B49-43C9-AF03-8175CB5F1B1F.png",
+    "test": "LibraryPresentationUITests/testDownloadManagementInBothLayouts()",
+    "captureDate": 1792170382.651,
+    "historical_image_identifiers": {
+      "file": "ipad-library-polish-menu.png"
+    },
+    "image_status": "removed_from_repository_history"
+  },
+  {
+    "file": null,
+    "sha256": "04931036d7cd03bec821e1681ad494e2cd216dc3e2f0eaa24e45ec18e52ef573",
+    "run": "library-polish-ipad-01",
+    "attachment": "891854B4-567E-47D5-9DF8-519BEF485D9E.png",
+    "test": "LibraryPresentationUITests/testDownloadsSingleTapDetailsAndDoubleTapReads()",
+    "captureDate": 1792170455.353,
+    "historical_image_identifiers": {
+      "file": "ipad-library-polish-downloads-row.png"
+    },
+    "image_status": "removed_from_repository_history"
+  },
+  {
+    "file": null,
+    "sha256": "fd39dd9c825eee5cc33f9c9c9b08224142c419999e0f990b098a11e91eaf82fb",
+    "run": "library-polish-ipad-01",
+    "attachment": "B3E26D6D-06F7-44C7-8925-26EA462BAA5D.png",
+    "test": "LibraryPresentationUITests/testFavoritesSingleTapDetailsAndDoubleTapReads()",
+    "captureDate": 1792170517.618,
+    "historical_image_identifiers": {
+      "file": "ipad-library-polish-favorites-row.png"
+    },
+    "image_status": "removed_from_repository_history"
+  },
+  {
+    "file": null,
+    "sha256": "288c961d189a4f6e81369686ab1db251fba5e828e61a1c228e7c5b5a65eca86d",
+    "run": "library-polish-menu-diagnosis",
+    "attachment": "native-menu.png",
+    "test": "interactive native menu diagnosis",
+    "captureDate": 1792171353.5880182,
+    "historical_image_identifiers": {
+      "file": "iphone-library-polish-menu.png"
+    },
+    "image_status": "removed_from_repository_history"
+  }
+]

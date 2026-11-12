@@ -1,0 +1,161 @@
+import AnalyticsClient
+@testable import AppFeature
+import AppLaunchAutomationClient
+import AppModels
+import ComposableArchitecture
+import CookieClient
+import DetailFeature
+import DownloadClient
+import DownloadsFeature
+import Foundation
+import HomeFeature
+import ReadingFeature
+import SettingFeature
+import Sharing
+import SwiftUI
+import Testing
+
+// Scene-phase observation lives in AppReducer, not the reader view. On `.background`, AppReducer
+// routes `.flushReadingProgress` to whichever reading session is on top of a navigation host (located
+// from navigation state), so a force-quit from the background still persists the reader's last
+// debounced page. When no reader is presented the flush is a no-op.
+// `@MainActor` here is compiler-required, not stylistic: every case below builds a TCA
+// `TestStore`, whose `init` and `state` accessor are main-actor-isolated. It is applied
+// per member rather than to the suite so the type's `DownloadFeatureTestCase` conformance
+// stays nonisolated — a main-actor conformance cannot be used from the `@Sendable`
+// dependency closures these stores install.
+struct AppReadingFlushTests: DownloadFeatureTestCase {
+    enum ModalHost: CaseIterable {
+        case app
+        case home
+        case homeList
+    }
+    private let now = Date(timeIntervalSince1970: 1_000)
+
+    private func persistedProgress(_ defaults: UserDefaults, gid: String) -> Int {
+        withDependencies {
+            $0.defaultAppStorage = defaults
+        } operation: {
+            @Shared(.galleryHistory) var history
+            return history.readingProgress(gid: gid)
+        }
+    }
+
+    @MainActor
+    @Test
+    func backgroundFlushesTheActiveReaderProgressIntoHistory() async throws {
+        let suiteName = "app-reading-flush-\(UUID().uuidString)"
+        let defaults = try #require(UserDefaults(suiteName: suiteName))
+        defer { defaults.removePersistentDomain(forName: suiteName) }
+        let gallery = sampleGallery()
+
+        var reader = ReadingReducer.State(gallery: gallery, contentSource: .remote)
+        reader.readingProgress = 7
+
+        var initialState = AppReducer.State()
+        initialState.settingState.hasLoadedInitialSetting = true
+        initialState.settingState.$setting.withLock({ $0.ageDeclarationVersion = AgeDeclaration.currentVersion })
+        initialState.downloadsState.destination = .reading(reader)
+
+        let store = TestStore(
+            initialState: initialState,
+            reducer: AppReducer.init,
+            withDependencies: {
+                $0.analyticsClient = .noop
+                $0.defaultAppStorage = defaults
+                $0.date = .constant(now)
+                $0.appLaunchAutomationClient = .none
+                $0.cookieClient = .noop
+                $0.downloadClient = .noop
+            }
+        )
+        store.exhaustivity = .off
+
+        await store.send(.onScenePhaseChange(.background))
+        await store.finish()
+
+        #expect(persistedProgress(defaults, gid: gallery.id) == 7)
+    }
+
+    @MainActor
+    @Test(arguments: ModalHost.allCases)
+    func backgroundFlushesGallerySheets(_ host: ModalHost) async throws {
+        let defaults = UserDefaults.inMemory
+        let gallery = sampleGallery()
+        var reader = ReadingReducer.State(gallery: gallery, contentSource: .remote)
+        reader.readingProgress = 9
+        var detail = DetailReducer.State(gallery: gallery)
+        detail.destination = .reading(reader)
+        let gallerySheet = GallerySheetFeature.State(detail: detail)
+
+        var initialState = AppReducer.State()
+        initialState.settingState.hasLoadedInitialSetting = true
+        initialState.settingState.$setting.withLock({ $0.ageDeclarationVersion = AgeDeclaration.currentVersion })
+        switch host {
+        case .app:
+            initialState.presentationState.gallery = gallerySheet
+        case .home:
+            initialState.homeState.sheet = .init(root: .gallery(gallerySheet), side: .right)
+        case .homeList:
+            initialState.homeState.sheet = .init(root: .history(.init()), side: .right)
+            initialState.homeState.sheet?.gallery = gallerySheet
+        }
+        let store = TestStore(initialState: initialState, reducer: AppReducer.init) {
+            $0.analyticsClient = .noop
+            $0.defaultAppStorage = defaults
+            $0.date = .constant(now)
+            $0.appLaunchAutomationClient = .none
+            $0.cookieClient = .noop
+            $0.downloadClient = .noop
+        }
+        store.exhaustivity = .off
+
+        await store.send(.onScenePhaseChange(.background))
+        await store.finish()
+
+        #expect(persistedProgress(defaults, gid: gallery.id) == 9)
+    }
+
+    @MainActor
+    @Test
+    func backgroundWithoutAReaderLeavesHistoryUntouched() async throws {
+        let suiteName = "app-reading-flush-\(UUID().uuidString)"
+        let defaults = try #require(UserDefaults(suiteName: suiteName))
+        defer { defaults.removePersistentDomain(forName: suiteName) }
+        let gallery = sampleGallery()
+
+        // Pre-seed a saved progress of 3; with no reader presented the flush must not touch it.
+        withDependencies {
+            $0.defaultAppStorage = defaults
+        } operation: {
+            @Shared(.galleryHistory) var history
+            $history.withLock {
+                $0.recordGalleryOpen(gid: gallery.id, token: gallery.token, date: now)
+                $0.updateReadingProgress(gid: gallery.id, token: gallery.token, progress: 3, date: now)
+            }
+        }
+
+        var initialState = AppReducer.State()
+        initialState.settingState.hasLoadedInitialSetting = true
+        initialState.settingState.$setting.withLock({ $0.ageDeclarationVersion = AgeDeclaration.currentVersion })
+
+        let store = TestStore(
+            initialState: initialState,
+            reducer: AppReducer.init,
+            withDependencies: {
+                $0.analyticsClient = .noop
+                $0.defaultAppStorage = defaults
+                $0.date = .constant(now)
+                $0.appLaunchAutomationClient = .none
+                $0.cookieClient = .noop
+                $0.downloadClient = .noop
+            }
+        )
+        store.exhaustivity = .off
+
+        await store.send(.onScenePhaseChange(.background))
+        await store.finish()
+
+        #expect(persistedProgress(defaults, gid: gallery.id) == 3)
+    }
+}

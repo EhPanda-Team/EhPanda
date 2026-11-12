@@ -1,0 +1,187 @@
+import AppModels
+public import ComposableArchitecture
+import Resources
+import Sharing
+public import SwiftUI
+
+public struct ReadingSettingView: View {
+    // The reading-setting editor is shared by the Setting tab and the reader sheet. Rather than hold
+    // its own `@Shared`, it binds through its store, whose state vends the shared `Setting`; the model
+    // clamps keep every write safe without a reducer round-trip.
+    private let store: StoreOf<ReadingSettingReducer>
+
+    public init(store: StoreOf<ReadingSettingReducer>) {
+        self.store = store
+    }
+
+    public var body: some View {
+        Form {
+            Section {
+                Picker(.direction, selection: Binding(store.sharedSetting.readingDirection)) {
+                    ForEach(ReadingDirection.allCases) {
+                        Text($0.value).tag($0)
+                    }
+                }
+                .pickerStyle(.menu)
+
+                Picker(.preloadLimit, selection: Binding(store.sharedSetting.prefetchLimit)) {
+                    ForEach(Array(stride(from: 6, through: 18, by: 4)), id: \.self) { value in
+                        Text(.RLocalizable.pages(count: value)).tag(value)
+                    }
+                }
+                .pickerStyle(.menu)
+            }
+            Section {
+                Toggle(.matchScreenOrientation, isOn: Binding(store.sharedSetting.readingOrientation.isEnabled))
+                Picker(
+                    .landscapeDirection,
+                    selection: Binding(store.sharedSetting.readingOrientation.landscapeDirection)
+                ) {
+                    ForEach(HorizontalReadingDirection.allCases) {
+                        Text($0.readingDirection.value).tag($0)
+                    }
+                }
+                .pickerStyle(.menu)
+                .disabled(!store.setting.readingOrientation.isEnabled)
+                Picker(
+                    .portraitDirection,
+                    selection: Binding(store.sharedSetting.readingOrientation.portraitDirection)
+                ) {
+                    ForEach(ReadingDirection.allCases) {
+                        Text($0.value).tag($0)
+                    }
+                }
+                .pickerStyle(.menu)
+                .disabled(!store.setting.readingOrientation.isEnabled)
+            } header: {
+                Text(.automaticLayout)
+            } footer: {
+                Text(.automaticLayoutDescription)
+            }
+            Section(.readingAppearance) {
+                Picker(
+                    .pageSpacing,
+                    selection: Binding(store.sharedSetting.contentDividerHeight)
+                ) {
+                    ForEach(Array(stride(from: 0, through: 20, by: 5)), id: \.self) { value in
+                        Text(.Constant.pointValue(value)).tag(Double(value))
+                    }
+                }
+                .pickerStyle(.menu)
+                .disabled(store.setting.readingDirection != .vertical)
+
+                ScaleFactorRow(
+                    scaleFactor: Binding(store.sharedSetting.maximumScaleFactor),
+                    labelContent: .maximumZoom,
+                    minFactor: 1.5, maxFactor: 10
+                )
+
+                ScaleFactorRow(
+                    scaleFactor: Binding(store.sharedSetting.doubleTapScaleFactor),
+                    labelContent: .doubleTapZoom,
+                    minFactor: 1.5, maxFactor: 5
+                )
+            }
+        }
+        .scrollEdgeEffectStyle(.soft, for: .top)
+        .navigationTitle(.reading)
+    }
+}
+
+private struct ScaleFactorRow: View {
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+    @Binding private var scaleFactor: Double
+    private let labelContent: LocalizedStringResource
+    private let minFactor: Double
+    private let maxFactor: Double
+
+    init(
+        scaleFactor: Binding<Double>, labelContent: LocalizedStringResource,
+        minFactor: Double, maxFactor: Double
+    ) {
+        _scaleFactor = scaleFactor
+        self.labelContent = labelContent
+        self.minFactor = minFactor
+        self.maxFactor = maxFactor
+    }
+
+    /// The slider is the row's control, so it carries the row's title as its label and the chosen
+    /// factor as its value, spoken as words ("3.0 times"). The "1.5x" / "10.0x" end labels are
+    /// hidden: read on their own they are two more stops on the way to the slider, and the audit
+    /// reports the larger one as a label that is not human-readable (Phase 16).
+    var body: some View {
+        VStack {
+            if dynamicTypeSize.isAccessibilitySize {
+                VStack {
+                    Text(labelContent)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+
+                    Text(.Constant.scaleFactor(scaleFactor.roundedString()))
+                        .foregroundStyle(.tint)
+                        .frame(maxWidth: .infinity, alignment: .trailing)
+                }
+            } else {
+                HStack {
+                    Text(labelContent)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+
+                    Text(.Constant.scaleFactor(scaleFactor.roundedString())).foregroundStyle(.tint)
+                }
+            }
+            if dynamicTypeSize.isAccessibilitySize {
+                VStack {
+                    Text(.Constant.scaleFactor(minFactor.roundedString()))
+                        .fontWeight(.medium)
+                        .font(.callout)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .accessibilityHidden(true)
+
+                    Slider(value: $scaleFactor, in: minFactor...maxFactor, step: 0.5)
+                        .frame(maxWidth: .infinity)
+                        .accessibilityLabel(labelContent)
+                        .accessibilityValue(.accessibilityScaleFactor(scaleFactor.roundedString()))
+
+                    Text(.Constant.scaleFactor(maxFactor.roundedString()))
+                        .fontWeight(.medium)
+                        .font(.callout)
+                        .frame(maxWidth: .infinity, alignment: .trailing)
+                        .accessibilityHidden(true)
+                }
+            } else {
+                Slider(
+                    value: $scaleFactor, in: minFactor...maxFactor, step: 0.5,
+                    label: EmptyView.init,
+                    minimumValueLabel: {
+                        Text(.Constant.scaleFactor(minFactor.roundedString()))
+                            .fontWeight(.medium)
+                            .font(.callout)
+                            .accessibilityHidden(true)
+                    },
+                    maximumValueLabel: {
+                        Text(.Constant.scaleFactor(maxFactor.roundedString()))
+                            .fontWeight(.medium)
+                            .font(.callout)
+                            .accessibilityHidden(true)
+                    }
+                )
+                .accessibilityLabel(labelContent)
+                .accessibilityValue(.accessibilityScaleFactor(scaleFactor.roundedString()))
+            }
+        }
+        .padding(.vertical, 10)
+    }
+}
+
+private extension Double {
+    func roundedString() -> String {
+        formatted(.number.precision(.fractionLength(1)).grouping(.never))
+    }
+}
+
+#Preview("Initial") {
+    NavigationStack {
+        ReadingSettingView(
+            store: .init(initialState: .init(), reducer: ReadingSettingReducer.init)
+        )
+    }
+}

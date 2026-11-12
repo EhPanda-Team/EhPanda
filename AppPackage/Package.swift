@@ -1,0 +1,1173 @@
+// swift-tools-version: 6.4
+
+// reason: Package.swift is permanently exempt from file-length limits so package declarations can stay together.
+// swiftlint:disable file_length
+
+import PackageDescription
+
+// MARK: Dependency
+var dependencies: [PackageDescription.Package.Dependency] = [
+    // ColorfulX (Lakr233) — Metal-backed animated multicolor gradient, pinned exactly for
+    // supply-chain hardening. Replaces the deprecated Colorful package (DEP-07b): Colorful
+    // 1.1.x marked `ColorfulView` deprecated on non-watchOS ("This library hurts CPU alot")
+    // and pointed here, so the Home gallery-card gradient now renders through ColorfulX.
+    .package(url: "https://github.com/Lakr233/ColorfulX", exact: "6.2.1"),
+    .package(url: "https://github.com/SDWebImage/SDWebImageSwiftUI", from: "3.1.4"),
+    .package(url: "https://github.com/SDWebImage/SDWebImageWebPCoder", from: "0.15.0"),
+    .package(url: "https://github.com/SFSafeSymbols/SFSafeSymbols", from: "7.0.0"),
+    .package(url: "https://github.com/SimplyDanny/SwiftLintPlugins", from: "0.65.1"),
+    // TelemetryDeck's Swift SDK. The repository is named `SwiftSDK` while the product it vends is
+    // named `TelemetryDeck`, so the `.product(name:package:)` alias below cannot use one name for
+    // both. Keep the stable 2.x release series; upstream 3.0.0 tags are still prereleases.
+    .package(url: "https://github.com/TelemetryDeck/SwiftSDK", .upToNextMajor(from: "2.14.2")),
+    .package(url: "https://github.com/apple/swift-markdown", from: "0.9.0"),
+    .package(url: "https://github.com/onevcat/Kingfisher", from: "8.13.0"),
+    .package(url: "https://github.com/pointfreeco/swift-case-paths", from: "1.10.0"),
+    .package(
+        url: "https://github.com/pointfreeco/swift-composable-architecture",
+        from: "1.26.2",
+        traits: [
+            "ComposableArchitecture2Deprecations",
+            "ComposableArchitecture2DeprecationOverloads"
+        ]
+    ),
+    .package(url: "https://github.com/pointfreeco/swift-sharing", from: "2.10.1"),
+    .package(url: "https://github.com/tid-kijyun/Kanna", from: "6.1.0"),
+    .package(url: "https://github.com/pointfreeco/swift-snapshot-testing", exact: "1.19.6")
+]
+
+extension PackageDescription.Target.Dependency {
+    static let casePaths: Self = .product(name: "CasePaths", package: "swift-case-paths")
+    static let colorfulX: Self = .product(name: "ColorfulX", package: "ColorfulX")
+    static let composableArchitecture: Self = .product(
+        name: "ComposableArchitecture",
+        package: "swift-composable-architecture"
+    )
+    static let kanna: Self = .product(name: "Kanna", package: "Kanna")
+    static let kingfisher: Self = .product(name: "Kingfisher", package: "Kingfisher")
+    static let markdown: Self = .product(name: "Markdown", package: "swift-markdown")
+    static let sdWebImageSwiftUI: Self = .product(name: "SDWebImageSwiftUI", package: "SDWebImageSwiftUI")
+    static let sdWebImageWebPCoder: Self = .product(name: "SDWebImageWebPCoder", package: "SDWebImageWebPCoder")
+    static let sfSafeSymbols: Self = .product(name: "SFSafeSymbols", package: "SFSafeSymbols")
+    static let sharing: Self = .product(name: "Sharing", package: "swift-sharing")
+    static let snapshotTesting: Self = .product(name: "SnapshotTesting", package: "swift-snapshot-testing")
+    static let telemetryDeck: Self = .product(name: "TelemetryDeck", package: "SwiftSDK")
+}
+
+let swiftLintPlugins: [PackageDescription.Target.PluginUsage] = [
+    .plugin(name: "SwiftLintBuildToolPlugin", package: "SwiftLintPlugins")
+]
+
+// Adopt the next language mode's available features consistently across sources and tests.
+// Keep these aligned with the project-level Xcode build settings.
+let sharedSwiftSettings: [PackageDescription.SwiftSetting] = [
+    .enableUpcomingFeature("ExistentialAny"),
+    .enableUpcomingFeature("ImmutableWeakCaptures"),
+    .enableUpcomingFeature("InferIsolatedConformances"),
+    .enableUpcomingFeature("InternalImportsByDefault"),
+    .enableUpcomingFeature("MemberImportVisibility"),
+    .enableUpcomingFeature("NonisolatedNonsendingByDefault")
+]
+
+// MARK: Module
+enum Module: String {
+    case analyticsClient = "AnalyticsClient"
+    case animatedImageFeature = "AnimatedImageFeature"
+    case appComponents = "AppComponents"
+    case appFeature = "AppFeature"
+    case appLaunchAutomationClient = "AppLaunchAutomationClient"
+    case appModels = "AppModels"
+    case appTools = "AppTools"
+    case applicationClient = "ApplicationClient"
+    case backgroundProcessingClient = "BackgroundProcessingClient"
+    case clipboardClient = "ClipboardClient"
+    case cookieClient = "CookieClient"
+    case dfClient = "DFClient"
+    case dateSeekFeature = "DateSeekFeature"
+    case detailFeature = "DetailFeature"
+    case deviceClient = "DeviceClient"
+    case downloadClient = "DownloadClient"
+    case downloadsFeature = "DownloadsFeature"
+    case favoritesFeature = "FavoritesFeature"
+    case fileClient = "FileClient"
+    case filtersFeature = "FiltersFeature"
+    case galleryListComponents = "GalleryListComponents"
+    case hapticsClient = "HapticsClient"
+    case homeFeature = "HomeFeature"
+    case imageClient = "ImageClient"
+    case imageColors = "ImageColors"
+    case legacyCFReadStream = "LegacyCFReadStream"
+    case libraryClient = "LibraryClient"
+    case liveTextTranslation = "LiveTextTranslation"
+    case logsClient = "LogsClient"
+    case markdownExt = "MarkdownExt"
+    case networkingFeature = "NetworkingFeature"
+    case osLogExt = "OSLogExt"
+    case parserFeature = "ParserFeature"
+    case previewSupport = "PreviewSupport"
+    case quickSearchFeature = "QuickSearchFeature"
+    case readingFeature = "ReadingFeature"
+    case readingSettingFeature = "ReadingSettingFeature"
+    case resources = "Resources"
+    case searchFeature = "SearchFeature"
+    case settingFeature = "SettingFeature"
+    case sfSafeSymbolsExt = "SFSafeSymbolsExt"
+    case systemNotification = "SystemNotification"
+    case tagTranslationFeature = "TagTranslationFeature"
+    case userDefaultsClient = "UserDefaultsClient"
+
+    // Test support
+    case testingSupport = "TestingSupport"
+    case testNetworkGuard = "TestNetworkGuard"
+    case visualSnapshotSupport = "VisualSnapshotSupport"
+
+    // Test targets
+    case appFeatureTests = "AppFeatureTests"
+    case appToolsTests = "AppToolsTests"
+    case homeFeatureTests = "HomeFeatureTests"
+    case parserFeatureTests = "ParserFeatureTests"
+    case downloadsFeatureTests = "DownloadsFeatureTests"
+    case fileClientTests = "FileClientTests"
+    case settingFeatureTests = "SettingFeatureTests"
+    case detailFeatureTests = "DetailFeatureTests"
+    case networkingFeatureTests = "NetworkingFeatureTests"
+    case appModelsTests = "AppModelsTests"
+    case cookieClientTests = "CookieClientTests"
+    case imageClientTests = "ImageClientTests"
+    case imageColorsTests = "ImageColorsTests"
+    case liveTextTranslationTests = "LiveTextTranslationTests"
+    case markdownExtTests = "MarkdownExtTests"
+    case tagTranslationFeatureTests = "TagTranslationFeatureTests"
+    case galleryListComponentsTests = "GalleryListComponentsTests"
+    case readingFeatureTests = "ReadingFeatureTests"
+    case systemNotificationTests = "SystemNotificationTests"
+    case analyticsClientTests = "AnalyticsClientTests"
+    case searchFeatureTests = "SearchFeatureTests"
+    case favoritesFeatureTests = "FavoritesFeatureTests"
+    case liveCheckTests = "LiveCheckTests"
+}
+
+extension Module {
+    enum Dependency {
+        case module(Module)
+        case literal(String)
+        case targetDependency(PackageDescription.Target.Dependency)
+
+        var targetDependency: PackageDescription.Target.Dependency {
+            switch self {
+            case .module(let module):
+                return .init(stringLiteral: module.rawValue)
+
+            case .literal(let stringLiteral):
+                return .init(stringLiteral: stringLiteral)
+
+            case .targetDependency(let dependency):
+                return dependency
+            }
+        }
+    }
+}
+
+// MARK: Path
+enum Path: String {
+    case resources = "Resources"
+}
+
+// MARK: Resource
+enum Resource {
+    case copy(Path)
+    case embedInCode(Path)
+    case process(Path, PackageDescription.Resource.Localization? = nil)
+
+    var value: PackageDescription.Resource {
+        switch self {
+        case .copy(let path):
+            return .copy(path.rawValue)
+
+        case .embedInCode(let path):
+            return .embedInCode(path.rawValue)
+
+        case .process(let path, let localization):
+            return .process(path.rawValue, localization: localization)
+        }
+    }
+}
+
+// MARK: Helper methods
+@MainActor
+extension PackageDescription.Target {
+    static func target(
+        module: Module,
+        dependencies: [Module.Dependency] = .init(),
+        resources: [Resource]? = nil,
+        swiftSettings: [PackageDescription.SwiftSetting]? = sharedSwiftSettings,
+        plugins: [PackageDescription.Target.PluginUsage] = swiftLintPlugins
+    ) -> PackageDescription.Target {
+        target(
+            name: module.rawValue,
+            dependencies: dependencies.map(\.targetDependency),
+            resources: resources?.map(\.value),
+            swiftSettings: swiftSettings,
+            plugins: plugins
+        )
+    }
+
+    static func testTarget(
+        module: Module,
+        dependencies: [Module.Dependency] = .init(),
+        resources: [Resource]? = nil,
+        swiftSettings: [PackageDescription.SwiftSetting]? = sharedSwiftSettings,
+        plugins: [PackageDescription.Target.PluginUsage] = swiftLintPlugins
+    ) -> PackageDescription.Target {
+        testTarget(
+            name: module.rawValue,
+            // Every test process links the test network guard, which fails any request no test stubbed, offline,
+            // before it can reach the network (see `Sources/TestNetworkGuard`).
+            dependencies: (dependencies + [.module(.testNetworkGuard)]).map(\.targetDependency),
+            resources: resources?.map(\.value),
+            swiftSettings: swiftSettings,
+            // Xcode extracts App Intents metadata for test bundles, including those whose
+            // dependencies do not already link the framework through SwiftUI.
+            linkerSettings: [.linkedFramework("AppIntents")],
+            plugins: plugins
+        )
+    }
+
+    /// The live check's test target, the only test target without the test network guard: its tests read the live
+    /// site as a guest (19-CONTEXT D-20, D-21). Each test skips unless `EHPANDA_LIVE_CHECK=1`, so a package-wide or
+    /// FeatureTests run still never reaches the network. `Scripts/live-check/test_network_guard.py` fails if this
+    /// target gains the guard or any other test target loses it.
+    static func liveCheckTestTarget(
+        dependencies: [Module.Dependency],
+        resources: [PackageDescription.Resource]? = nil,
+        swiftSettings: [PackageDescription.SwiftSetting]? = sharedSwiftSettings,
+        plugins: [PackageDescription.Target.PluginUsage] = swiftLintPlugins
+    ) -> PackageDescription.Target {
+        testTarget(
+            name: Module.liveCheckTests.rawValue,
+            dependencies: dependencies.map(\.targetDependency),
+            resources: resources,
+            swiftSettings: swiftSettings,
+            linkerSettings: [.linkedFramework("AppIntents")],
+            plugins: plugins
+        )
+    }
+}
+
+// MARK: Target
+let targets: [PackageDescription.Target] = [
+    .target(
+        module: .appFeature,
+        dependencies: [
+            .module(.analyticsClient),
+            .module(.appComponents),
+            .module(.appLaunchAutomationClient),
+            .module(.appModels),
+            .module(.appTools),
+            .module(.applicationClient),
+            .module(.clipboardClient),
+            .module(.cookieClient),
+            .module(.dateSeekFeature),
+            .module(.detailFeature),
+            .module(.dfClient),
+            .module(.deviceClient),
+            .module(.downloadClient),
+            .module(.downloadsFeature),
+            .module(.favoritesFeature),
+            .module(.fileClient),
+            .module(.filtersFeature),
+            .module(.hapticsClient),
+            .module(.homeFeature),
+            .module(.imageClient),
+            .module(.libraryClient),
+            .module(.networkingFeature),
+            .module(.osLogExt),
+            .module(.parserFeature),
+            .module(.quickSearchFeature),
+            .module(.readingFeature),
+            .module(.resources),
+            .module(.searchFeature),
+            .module(.animatedImageFeature),
+            .module(.settingFeature),
+            .module(.systemNotification),
+            .module(.userDefaultsClient),
+            .targetDependency(.colorfulX),
+            .targetDependency(.composableArchitecture),
+            .targetDependency(.kanna),
+            .targetDependency(.kingfisher),
+            .targetDependency(.sdWebImageSwiftUI),
+            .targetDependency(.sdWebImageWebPCoder),
+            .targetDependency(.sfSafeSymbols),
+            .module(.logsClient),
+            .module(.sfSafeSymbolsExt),
+            .targetDependency(.sharing)
+        ],
+        resources: [.process(.resources)]
+    ),
+    .target(
+        module: .appModels,
+        dependencies: [
+            .module(.appTools),
+            .module(.resources),
+            .module(.osLogExt),
+            .targetDependency(.casePaths),
+            .targetDependency(.sharing)
+        ],
+        resources: [.process(.resources)]
+    ),
+    .target(
+        module: .resources,
+        resources: [.process(.resources)]
+    ),
+    .target(
+        module: .deviceClient,
+        dependencies: [
+            .module(.appTools),
+            .targetDependency(.composableArchitecture)
+        ]
+    ),
+    .target(
+        module: .downloadClient,
+        dependencies: [
+            .module(.appModels),
+            .module(.appTools),
+            .module(.backgroundProcessingClient),
+            .module(.libraryClient),
+            .module(.networkingFeature),
+            .module(.osLogExt),
+            .module(.parserFeature),
+            .module(.resources),
+            .module(.animatedImageFeature),
+            .targetDependency(.composableArchitecture),
+            .targetDependency(.kanna),
+            .targetDependency(.sharing)
+        ]
+    ),
+    .target(
+        module: .fileClient,
+        dependencies: [
+            .module(.appModels),
+            .module(.appTools),
+            .targetDependency(.composableArchitecture)
+        ]
+    ),
+    .target(
+        module: .systemNotification,
+        dependencies: [
+            .module(.appComponents),
+            .module(.appModels),
+            .targetDependency(.composableArchitecture),
+            .targetDependency(.sfSafeSymbols)
+        ]
+    ),
+    .target(
+        module: .appTools,
+        dependencies: [
+            .targetDependency(.composableArchitecture)
+        ]
+    ),
+    .target(
+        module: .appLaunchAutomationClient,
+        dependencies: [
+            .module(.appModels),
+            .module(.appTools),
+            .targetDependency(.composableArchitecture)
+        ]
+    ),
+    .target(
+        module: .backgroundProcessingClient,
+        dependencies: [
+            .module(.osLogExt),
+            .targetDependency(.composableArchitecture)
+        ]
+    ),
+    .target(
+        module: .clipboardClient,
+        dependencies: [
+            .module(.animatedImageFeature),
+            .targetDependency(.composableArchitecture)
+        ]
+    ),
+    // The sole owner of the TelemetryDeck SDK: no other module may import it, so every payload
+    // that leaves the app is minted through this module's closed signal vocabulary. The
+    // `.cookieClient` edge exists because the per-signal login-state snapshot reads
+    // `@SharedReader(.didLogin)`, whose key is declared there. The `.deviceClient` edge exists
+    // because the orientation enricher reads the window scene through it rather than reaching for
+    // UIKit from this module. `.osLogExt` logs the install signal's dropped or failed sends; the
+    // signal's one parameter, the distribution channel (D-06c), comes from `.appModels`.
+    .target(
+        module: .analyticsClient,
+        dependencies: [
+            .module(.appModels),
+            .module(.cookieClient),
+            .module(.deviceClient),
+            .module(.osLogExt),
+            .targetDependency(.composableArchitecture),
+            .targetDependency(.sharing),
+            .targetDependency(.telemetryDeck)
+        ]
+    ),
+    .target(
+        module: .cookieClient,
+        dependencies: [
+            .module(.appModels),
+            .module(.appTools),
+            .targetDependency(.composableArchitecture),
+            .targetDependency(.sharing)
+        ],
+        resources: [.process(.resources)]
+    ),
+    .target(
+        module: .dfClient,
+        dependencies: [
+            .module(.networkingFeature),
+            .targetDependency(.composableArchitecture),
+            .targetDependency(.kingfisher)
+        ]
+    ),
+    .target(
+        module: .networkingFeature,
+        dependencies: [
+            .module(.appModels),
+            .module(.appTools),
+            .module(.osLogExt),
+            .module(.parserFeature),
+            .targetDependency(.composableArchitecture),
+            .module(.legacyCFReadStream),
+            .targetDependency(.kanna)
+        ]
+    ),
+    .target(
+        module: .hapticsClient,
+        dependencies: [
+            .targetDependency(.composableArchitecture)
+        ]
+    ),
+    .target(
+        module: .appComponents,
+        dependencies: [
+            .module(.sfSafeSymbolsExt),
+            .module(.appModels),
+            .module(.appTools),
+            .module(.deviceClient),
+            .module(.hapticsClient),
+            .module(.parserFeature),
+            .module(.resources),
+            .module(.tagTranslationFeature),
+            .targetDependency(.composableArchitecture),
+            .targetDependency(.kingfisher),
+            .targetDependency(.sfSafeSymbols),
+            .targetDependency(.sharing)
+        ],
+        resources: [.process(.resources)]
+    ),
+    .target(
+        module: .galleryListComponents,
+        dependencies: [
+            .module(.appComponents),
+            .module(.appModels),
+            .module(.appTools),
+            .module(.previewSupport),
+            .module(.tagTranslationFeature),
+            .targetDependency(.kingfisher),
+            .targetDependency(.sfSafeSymbols),
+            .targetDependency(.sharing)
+        ],
+        resources: [.process(.resources)]
+    ),
+    .target(
+        module: .animatedImageFeature,
+        dependencies: [
+            .targetDependency(.sdWebImageSwiftUI)
+        ]
+    ),
+    // Preview-only support: a frozen table of stable fixture identities. Foundation-only and
+    // depended on by feature modules purely so their `#Preview` fixtures stop minting random
+    // UUIDs; nothing in a production code path may reference it.
+    .target(
+        module: .previewSupport
+    ),
+    // App-owned markdown helper: the sole owner of the swift-markdown (`Markdown`) dependency,
+    // keeping parser node types out of feature modules (D-08, D-09).
+    .target(
+        module: .markdownExt,
+        dependencies: [
+            .targetDependency(.markdown)
+        ]
+    ),
+    .target(
+        module: .sfSafeSymbolsExt,
+        dependencies: [
+            .targetDependency(.sfSafeSymbols)
+        ]
+    ),
+    // App-owned local dominant-color module. Clean-room reimplementation of the
+    // app-needed dominant-color surface, replacing the external jathu/UIImageColors
+    // package while preserving color-selection output (DEP-02, D-01/D-04/D-16).
+    // Modernized I/O: a CGImage goes in and non-optional SwiftUI Colors come out.
+    .target(
+        module: .imageColors
+    ),
+    // Internal isolation module for the one deprecated CFNetwork call the app relies on
+    // (`CFReadStreamCreateForHTTPRequest`, for domain fronting — DEP-06 / D-12/D-14). Compiled
+    // with `-suppress-warnings` so the unavoidable deprecation notice is silenced at this single
+    // documented boundary. Replaces the former external `DeprecatedAPI` package (inlined 01-09).
+    // Kept out of `products` (below): it is an internal implementation detail, not a public library.
+    .target(
+        module: .legacyCFReadStream,
+        swiftSettings: sharedSwiftSettings + [.unsafeFlags(["-suppress-warnings"])]
+    ),
+    // Live Text's translations: what a recognized page's text is translated from and into, through
+    // Apple's on-device Translation, and how each translation is laid out and drawn over its region.
+    .target(
+        module: .liveTextTranslation,
+        dependencies: [
+            .module(.appModels),
+            .module(.osLogExt),
+            .targetDependency(.composableArchitecture)
+        ],
+        resources: [.process(.resources)]
+    ),
+    .target(
+        module: .osLogExt,
+        dependencies: [
+            .module(.appTools)
+        ]
+    ),
+    .target(
+        module: .logsClient,
+        dependencies: [
+            .module(.appModels),
+            .module(.appTools),
+            .module(.osLogExt),
+            .targetDependency(.composableArchitecture)
+        ]
+    ),
+    .target(
+        module: .tagTranslationFeature,
+        dependencies: [
+            .module(.appModels),
+            .module(.appTools),
+            .module(.markdownExt)
+        ]
+    ),
+    .target(
+        module: .filtersFeature,
+        dependencies: [
+            .module(.appComponents),
+            .module(.appModels),
+            .module(.resources),
+            .targetDependency(.composableArchitecture),
+            .targetDependency(.sharing)
+        ],
+        resources: [.process(.resources)]
+    ),
+    .target(
+        module: .dateSeekFeature,
+        dependencies: [
+            .module(.appModels),
+            .module(.appTools),
+            .module(.hapticsClient),
+            .module(.resources),
+            .targetDependency(.composableArchitecture),
+            .targetDependency(.sfSafeSymbols)
+        ],
+        resources: [.process(.resources)]
+    ),
+    .target(
+        module: .readingSettingFeature,
+        dependencies: [
+            .module(.appModels),
+            .module(.appTools),
+            .module(.resources),
+            .targetDependency(.composableArchitecture),
+            .targetDependency(.sharing)
+        ],
+        resources: [.process(.resources)]
+    ),
+    .target(
+        module: .quickSearchFeature,
+        dependencies: [
+            .module(.analyticsClient),
+            .module(.appComponents),
+            .module(.appModels),
+            .module(.resources),
+            .targetDependency(.composableArchitecture),
+            .targetDependency(.sfSafeSymbols),
+            .targetDependency(.sharing),
+            .module(.sfSafeSymbolsExt)
+        ],
+        resources: [.process(.resources)]
+    ),
+    .target(
+        module: .downloadsFeature,
+        dependencies: [
+            .module(.analyticsClient),
+            .module(.sfSafeSymbolsExt),
+            .module(.appComponents),
+            .module(.appModels),
+            .module(.appTools),
+            .module(.detailFeature),
+            .module(.downloadClient),
+            .module(.galleryListComponents),
+            .module(.hapticsClient),
+            .module(.readingFeature),
+            .module(.resources),
+            .module(.systemNotification),
+            .module(.tagTranslationFeature),
+            .targetDependency(.composableArchitecture),
+            .targetDependency(.sfSafeSymbols)
+        ],
+        resources: [.process(.resources)]
+    ),
+    .target(
+        module: .favoritesFeature,
+        dependencies: [
+            .module(.analyticsClient),
+            .module(.appComponents),
+            .module(.appModels),
+            .module(.appTools),
+            .module(.cookieClient),
+            .module(.dateSeekFeature),
+            .module(.detailFeature),
+            .module(.downloadClient),
+            .module(.galleryListComponents),
+            .module(.hapticsClient),
+            .module(.networkingFeature),
+            .module(.quickSearchFeature),
+            .module(.readingFeature),
+            .module(.systemNotification),
+            .module(.resources),
+            .module(.tagTranslationFeature),
+            .targetDependency(.composableArchitecture),
+            .module(.sfSafeSymbolsExt),
+            .targetDependency(.sfSafeSymbols)
+        ],
+        resources: [.process(.resources)]
+    ),
+    .target(
+        module: .settingFeature,
+        dependencies: [
+            .module(.analyticsClient),
+            .module(.sfSafeSymbolsExt),
+            .module(.appComponents),
+            .module(.appModels),
+            .module(.appTools),
+            .module(.applicationClient),
+            .module(.clipboardClient),
+            .module(.cookieClient),
+            .module(.dfClient),
+            .module(.fileClient),
+            .module(.hapticsClient),
+            .module(.libraryClient),
+            .module(.logsClient),
+            .module(.networkingFeature),
+            .module(.osLogExt),
+            .module(.readingSettingFeature),
+            .module(.resources),
+            .module(.systemNotification),
+            .targetDependency(.composableArchitecture),
+            .targetDependency(.sfSafeSymbols),
+            .targetDependency(.sharing)
+        ],
+        resources: [.process(.resources)]
+    ),
+    .target(
+        module: .searchFeature,
+        dependencies: [
+            .module(.analyticsClient),
+            .module(.appComponents),
+            .module(.appModels),
+            .module(.appTools),
+            .module(.dateSeekFeature),
+            .module(.detailFeature),
+            .module(.downloadClient),
+            .module(.filtersFeature),
+            .module(.galleryListComponents),
+            .module(.hapticsClient),
+            .module(.networkingFeature),
+            .module(.previewSupport),
+            .module(.quickSearchFeature),
+            .module(.resources),
+            .module(.sfSafeSymbolsExt),
+            .module(.tagTranslationFeature),
+            .targetDependency(.composableArchitecture),
+            .targetDependency(.kingfisher),
+            .targetDependency(.sfSafeSymbols),
+            .targetDependency(.sharing)
+        ],
+        resources: [.process(.resources)]
+    ),
+    .target(
+        module: .homeFeature,
+        dependencies: [
+            .module(.analyticsClient),
+            .module(.appComponents),
+            .module(.appModels),
+            .module(.appTools),
+            .module(.cookieClient),
+            .module(.dateSeekFeature),
+            .module(.detailFeature),
+            .module(.downloadClient),
+            .module(.filtersFeature),
+            .module(.galleryListComponents),
+            .module(.hapticsClient),
+            .module(.libraryClient),
+            .module(.networkingFeature),
+            .module(.previewSupport),
+            .module(.quickSearchFeature),
+            .module(.resources),
+            .module(.tagTranslationFeature),
+            .targetDependency(.colorfulX),
+            .targetDependency(.composableArchitecture),
+            .targetDependency(.kingfisher),
+            .targetDependency(.sfSafeSymbols),
+            .targetDependency(.sharing),
+            .module(.sfSafeSymbolsExt)
+        ],
+        resources: [.process(.resources)]
+    ),
+    .target(
+        module: .detailFeature,
+        dependencies: [
+            .module(.analyticsClient),
+            .module(.sfSafeSymbolsExt),
+            .module(.appComponents),
+            .module(.appLaunchAutomationClient),
+            .module(.appModels),
+            .module(.appTools),
+            .module(.applicationClient),
+            .module(.clipboardClient),
+            .module(.cookieClient),
+            .module(.downloadClient),
+            .module(.fileClient),
+            .module(.filtersFeature),
+            .module(.galleryListComponents),
+            .module(.hapticsClient),
+            .module(.networkingFeature),
+            .module(.quickSearchFeature),
+            .module(.readingFeature),
+            .module(.resources),
+            .module(.systemNotification),
+            .module(.tagTranslationFeature),
+            .targetDependency(.composableArchitecture),
+            .targetDependency(.kingfisher),
+            .targetDependency(.sfSafeSymbols),
+            .targetDependency(.sharing)
+        ],
+        resources: [.process(.resources)]
+    ),
+    .target(
+        module: .readingFeature,
+        dependencies: [
+            .module(.analyticsClient),
+            .module(.appLaunchAutomationClient),
+            .module(.sfSafeSymbolsExt),
+            .module(.appComponents),
+            .module(.appModels),
+            .module(.appTools),
+            .module(.clipboardClient),
+            .module(.cookieClient),
+            .module(.downloadClient),
+            .module(.hapticsClient),
+            .module(.imageClient),
+            .module(.liveTextTranslation),
+            .module(.networkingFeature),
+            .module(.osLogExt),
+            .module(.readingSettingFeature),
+            .module(.resources),
+            .module(.animatedImageFeature),
+            .module(.systemNotification),
+            .targetDependency(.composableArchitecture),
+            .targetDependency(.kingfisher),
+            .targetDependency(.sdWebImageSwiftUI),
+            .targetDependency(.sfSafeSymbols),
+            .targetDependency(.sharing)
+        ],
+        resources: [.process(.resources)]
+    ),
+    .target(
+        module: .imageClient,
+        dependencies: [
+            .module(.appModels),
+            .module(.animatedImageFeature),
+            .module(.appTools),
+            .targetDependency(.composableArchitecture)
+        ]
+    ),
+    .target(
+        module: .libraryClient,
+        dependencies: [
+            .module(.appModels),
+            .module(.animatedImageFeature),
+            .module(.appTools),
+            .targetDependency(.composableArchitecture),
+            .targetDependency(.kingfisher),
+            .targetDependency(.sdWebImageSwiftUI),
+            .targetDependency(.sdWebImageWebPCoder),
+            .module(.imageColors)
+        ]
+    ),
+    .target(
+        module: .parserFeature,
+        dependencies: [
+            .module(.appModels),
+            .module(.appTools),
+            .module(.resources),
+            .module(.osLogExt),
+            .targetDependency(.kanna)
+        ]
+    ),
+    .target(
+        module: .applicationClient,
+        dependencies: [
+            .module(.appTools),
+            .targetDependency(.composableArchitecture)
+        ]
+    ),
+    .target(
+        module: .userDefaultsClient,
+        dependencies: [
+            .module(.appTools),
+            .targetDependency(.composableArchitecture)
+        ]
+    ),
+
+    // MARK: Test Support
+    .target(
+        module: .testingSupport,
+        dependencies: [
+            .targetDependency(.kanna)
+        ],
+        resources: [.process(.resources)]
+    ),
+
+    // Objective-C for `+load`, so it is installed when a test bundle loads, before its first test. Linked into every
+    // test target by `testTarget(module:)`, never into the app.
+    .target(name: Module.testNetworkGuard.rawValue),
+
+    // MARK: Tests
+    .testTarget(
+        module: .appFeatureTests,
+        dependencies: [
+            .module(.analyticsClient),
+            .module(.appComponents),
+            .module(.appFeature),
+            .module(.applicationClient),
+            .module(.dfClient),
+            .module(.homeFeature),
+            .module(.parserFeature),
+            .module(.testingSupport),
+            .module(.appLaunchAutomationClient),
+            .module(.appModels),
+            .module(.appTools),
+            .module(.clipboardClient),
+            .module(.cookieClient),
+            .module(.detailFeature),
+            .module(.deviceClient),
+            .module(.downloadClient),
+            .module(.downloadsFeature),
+            .module(.favoritesFeature),
+            .module(.filtersFeature),
+            .module(.hapticsClient),
+            .module(.libraryClient),
+            .module(.logsClient),
+            .module(.readingFeature),
+            .module(.searchFeature),
+            .module(.settingFeature),
+            .module(.userDefaultsClient),
+            .targetDependency(.composableArchitecture),
+            .targetDependency(.kingfisher),
+            .targetDependency(.sharing)
+        ]
+    ),
+    .testTarget(
+        module: .appToolsTests,
+        dependencies: [
+            .module(.appTools)
+        ]
+    ),
+    .testTarget(
+        module: .homeFeatureTests,
+        dependencies: [
+            .module(.analyticsClient),
+            .module(.homeFeature),
+            .module(.appComponents),
+            .module(.appModels),
+            .module(.cookieClient),
+            .module(.detailFeature),
+            .module(.deviceClient),
+            .module(.downloadClient),
+            .module(.filtersFeature),
+            .module(.hapticsClient),
+            .targetDependency(.composableArchitecture),
+            .targetDependency(.sharing)
+        ]
+    ),
+    .testTarget(
+        module: .parserFeatureTests,
+        dependencies: [
+            .module(.testingSupport),
+            .module(.animatedImageFeature),
+            .module(.appFeature),
+            .module(.appModels),
+            .module(.appTools),
+            .module(.networkingFeature),
+            .module(.parserFeature),
+            .targetDependency(.kanna),
+            .module(.downloadClient)
+        ]
+    ),
+    .testTarget(
+        module: .downloadsFeatureTests,
+        dependencies: [
+            .module(.analyticsClient),
+            .module(.testingSupport),
+            .module(.appFeature),
+            .module(.appLaunchAutomationClient),
+            .module(.appModels),
+            .module(.appTools),
+            .module(.applicationClient),
+            .module(.backgroundProcessingClient),
+            .module(.clipboardClient),
+            .module(.cookieClient),
+            .module(.detailFeature),
+            .module(.dfClient),
+            .module(.downloadClient),
+            .module(.downloadsFeature),
+            .module(.fileClient),
+            .module(.hapticsClient),
+            .module(.homeFeature),
+            .module(.imageClient),
+            .module(.libraryClient),
+            .module(.networkingFeature),
+            .module(.readingFeature),
+            .module(.userDefaultsClient),
+            .targetDependency(.composableArchitecture),
+            .targetDependency(.kingfisher),
+            .targetDependency(.sfSafeSymbols),
+            .module(.appComponents),
+            .module(.logsClient),
+            .module(.parserFeature),
+            .module(.resources),
+            .module(.settingFeature),
+            .targetDependency(.kanna),
+            .targetDependency(.sharing)
+        ]
+    ),
+    .testTarget(
+        module: .fileClientTests,
+        dependencies: [
+            .module(.appModels),
+            .module(.fileClient)
+        ]
+    ),
+    .testTarget(
+        module: .settingFeatureTests,
+        dependencies: [
+            .module(.analyticsClient),
+            .module(.applicationClient),
+            .module(.appModels),
+            .module(.cookieClient),
+            .module(.fileClient),
+            .module(.hapticsClient),
+            .module(.logsClient),
+            .module(.settingFeature),
+            .targetDependency(.composableArchitecture),
+            .targetDependency(.sharing),
+            .module(.appComponents),
+            .module(.appTools),
+            .module(.dfClient),
+            .module(.libraryClient),
+            .module(.networkingFeature),
+            .module(.readingSettingFeature)
+        ]
+    ),
+    .testTarget(
+        module: .detailFeatureTests,
+        dependencies: [
+            .module(.analyticsClient),
+            .module(.appModels),
+            .module(.detailFeature),
+            .module(.hapticsClient),
+            .targetDependency(.composableArchitecture),
+            .module(.appComponents),
+            .module(.appLaunchAutomationClient),
+            .module(.downloadClient),
+            .module(.fileClient),
+            .module(.readingFeature),
+            .targetDependency(.sharing)
+        ]
+    ),
+    .testTarget(
+        module: .networkingFeatureTests,
+        dependencies: [
+            .module(.appModels),
+            .module(.networkingFeature),
+            .module(.appTools),
+            .targetDependency(.kanna)
+        ]
+    ),
+    .testTarget(
+        module: .appModelsTests,
+        dependencies: [
+            .module(.appModels),
+            .targetDependency(.composableArchitecture)
+        ]
+    ),
+    .testTarget(
+        module: .cookieClientTests,
+        dependencies: [
+            .module(.cookieClient),
+            .module(.appModels),
+            .targetDependency(.composableArchitecture)
+        ]
+    ),
+    .testTarget(
+        module: .imageClientTests,
+        dependencies: [
+            .module(.imageClient),
+            .module(.appTools),
+            .module(.appModels),
+            .module(.testingSupport)
+        ]
+    ),
+    .testTarget(
+        module: .imageColorsTests,
+        dependencies: [
+            .module(.imageColors)
+        ]
+    ),
+    .testTarget(
+        module: .liveTextTranslationTests,
+        dependencies: [
+            .module(.appModels),
+            .module(.liveTextTranslation),
+            .targetDependency(.composableArchitecture)
+        ]
+    ),
+    // DEP-03 parity: exercises MarkdownExt.MarkdownUtil (swift-markdown-backed) against the
+    // Wave 0 expected outputs originally locked on CommonMarkExt (D-09).
+    .testTarget(
+        module: .markdownExtTests,
+        dependencies: [
+            .module(.markdownExt)
+        ]
+    ),
+    .testTarget(
+        module: .tagTranslationFeatureTests,
+        dependencies: [
+            .module(.appModels),
+            .module(.tagTranslationFeature)
+        ]
+    ),
+    .testTarget(
+        module: .galleryListComponentsTests,
+        dependencies: [
+            .module(.galleryListComponents)
+        ]
+    ),
+    .testTarget(
+        module: .readingFeatureTests,
+        dependencies: [
+            .module(.appComponents),
+            .module(.analyticsClient),
+            .module(.appLaunchAutomationClient),
+            .targetDependency(.composableArchitecture),
+            .module(.testingSupport),
+            .module(.appModels),
+            .module(.appTools),
+            .module(.cookieClient),
+            .module(.liveTextTranslation),
+            .module(.readingFeature),
+            .module(.downloadClient),
+            .module(.hapticsClient),
+            .targetDependency(.sharing)
+        ]
+    ),
+    .testTarget(
+        module: .systemNotificationTests,
+        dependencies: [
+            .module(.systemNotification),
+            .module(.appComponents),
+            .module(.appModels)
+        ]
+    ),
+    .testTarget(
+        module: .analyticsClientTests,
+        dependencies: [
+            .module(.analyticsClient),
+            .module(.appModels),
+            .module(.cookieClient),
+            .targetDependency(.composableArchitecture),
+            .targetDependency(.sharing),
+            .module(.deviceClient)
+        ]
+    ),
+    .testTarget(
+        module: .searchFeatureTests,
+        dependencies: [
+            .module(.analyticsClient),
+            .module(.appModels),
+            // For building a GalleriesResult fixture: the success arm of the performed-search
+            // signal buckets `response.galleries.count`, and the response type lives there.
+            .module(.networkingFeature),
+            .module(.quickSearchFeature),
+            .module(.searchFeature),
+            .targetDependency(.composableArchitecture),
+            .module(.cookieClient),
+            .module(.downloadClient),
+            .module(.hapticsClient)
+        ]
+    ),
+    .testTarget(
+        module: .favoritesFeatureTests,
+        dependencies: [
+            .module(.analyticsClient),
+            .module(.appLaunchAutomationClient),
+            .module(.appModels),
+            .module(.favoritesFeature),
+            .module(.readingFeature),
+            .targetDependency(.composableArchitecture),
+            .module(.cookieClient),
+            .module(.downloadClient),
+            .module(.hapticsClient)
+        ]
+    ),
+    .liveCheckTestTarget(
+        dependencies: [
+            .module(.appModels),
+            .module(.networkingFeature),
+            .module(.parserFeature),
+            .targetDependency(.kanna)
+        ],
+        // Saved pages for the offline classification tests: trimmed, with synthetic titles and IDs (19-14).
+        resources: [.copy("Fixtures")]
+    ),
+    .target(
+        module: .visualSnapshotSupport,
+        dependencies: [
+            .targetDependency(.snapshotTesting)
+        ]
+    )
+]
+
+// MARK: Package
+let package = Package(
+    name: "AppPackage",
+    defaultLocalization: "en",
+    platforms: [.iOS(.v27)],
+    products: targets
+        .filter({
+            !$0.isTest
+                && $0.name != Module.testingSupport.rawValue
+                && $0.name != Module.testNetworkGuard.rawValue
+                && $0.name != Module.legacyCFReadStream.rawValue
+        })
+        .map(\.name)
+        .map({ .library(name: $0, targets: [$0]) }),
+    dependencies: dependencies,
+    targets: targets,
+    swiftLanguageModes: [.v6],
+    cxxLanguageStandard: .cxx14
+)

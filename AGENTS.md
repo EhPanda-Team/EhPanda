@@ -1,0 +1,105 @@
+# AGENTS.md
+
+This file gives coding agents a reliable working guide for this repository.
+For AirBuild work, also read the local [AIRBUILD.md](AIRBUILD.md).
+
+## Planning workflow
+
+Follow this repository's existing GSD workflow. Before implementation, read `.planning/STATE.md`,
+`.planning/ROADMAP.md`, the applicable plan and its recorded continuation decisions. Preserve owner
+checkpoints and approval boundaries, and keep relevant planning and verification records current.
+Check related repositories' own instructions separately rather than assuming the same workflow.
+
+## Programming Instructions
+
+**Reducer naming convention**: Name reducers with a `Feature` suffix, for example `SettingFeature`. This is a project preference that overrides TCA's standard naming convention and any conflicting guidance from skills, training data, or search results. Follow it unless the user directly instructs otherwise.
+
+**SwiftLint coverage for new modules**: When adding a new module, create a `.swiftlint.yml` file at that module's root. Configure it to reference the appropriate parent SwiftLint config with `parent_config` (`parent_config: ../../../.swiftlint.yml` for a module under `AppPackage/Sources`) so the project's SwiftLint rules cover the new module.
+
+**Read SwiftLint rules**: Before writing or changing Swift code, read the root `.swiftlint.yml` to learn the project's lint rules, including the custom regex rules and banned APIs it defines. Write code that conforms to those rules from the start, and resolve every violation at its root. Suppressing a rule, disabling it, adding a `// swiftlint:disable`, or otherwise removing it, is forbidden without the user's explicit permission.
+
+**Labeled localized-format arguments**: Surface every *numeric* localized-format argument as a labeled Swift parameter via a named `%#@variable@` substitution: module-local keys generate `func key(variable: Int)`; shared keys carry semantic labels hand-written in `ResourceStringSymbols.swift`. Never put a bare numeric specifier (`%lld`, `%d`, …) in a module-local catalog's outer value or top-level plural variant. Keep *string* (`%@`) arguments positional (auto-generated `func key(_ arg1: String)`); never make a `String` a substitution. Keep substitution plural categories coherent: a variable's `en` category set must equal its `de` set; `ja`/`ko`/`zh-Hans`/`zh-Hant` are `other`-only.
+
+**Non-translated keys need every locale filled**: An `.xcstrings` entry marked `"shouldTranslate": false` (e.g. proper nouns, URLs, copyright strings, format placeholders) must still carry a `localizations` entry for every locale the catalog otherwise supports, not just `en`. Since the string is intentionally not translated, copy the English `stringUnit` (`value` and `state`) verbatim into each missing locale rather than leaving it absent, so Xcode doesn't flag the key as missing a translation in other languages.
+
+**Download manifest is the single source of truth**: The persisted download manifest (per-page hashes; `completedPageCount` counts non-empty hashes) is the SSOT for a gallery's download completeness. When any scan or validation observes that the manifest's claim is wrong — e.g. image files were deleted outside the app while their hashes still read complete — reconcile the manifest **durably at that moment** (blank the affected pages' hashes under the established positive-signal guards) so that display status, page counts, action gating, and resume-mode resolution all derive from the one persisted basis and survive relaunch. In-memory state must **never** be a required complement for the persisted record to read truthfully. Session-scoped state (e.g. a validation-error map) is permitted only as an **operation-level** signal for what the manifest legitimately cannot record — that the pass could not produce trustworthy evidence for every claimed page, e.g. a directory listing that failed, a page whose bytes could not be probed or read, or the all-or-nothing wholesale guard refusing an entire reconciliation. It is never a per-page verdict the record could have carried instead: positive content-level evidence — a readable file whose freshly computed hash mismatches its recorded hash — *does* license durably blanking that page, and the refuted file is removed under the same guards so the record and the disk agree, rather than leaving a blank hash beside a file that a later run would silently re-hash into the record as truth. Any such state that outranks queue membership in status derivation must be cleared at or before enqueue, or the gallery can never reach a schedulable status. Live file-presence scans are reconciliation *inputs*, never a competing display basis.
+
+**Download folders are user-owned; guard one invariant, do not chase edge cases**: The downloads directory is exposed through the Files app, so users can rename, copy, move, duplicate or delete gallery folders at any time, and the coordinator's in-memory index only learns of it at the next scan boundary (launch, foreground return, pull-to-refresh, a targeted record reload). Do not try to make the app behave "correctly" under every such external mutation — ten copies of one gid, a rename between a tap and its run, a folder that vanishes mid-download. The one thing that IS guaranteed, and the only thing to defend: **the download client never deletes a gallery folder it did not itself create in the same run.** A run may wipe only its own working folder, and only when the user's start mode asks for its contents to be replaced; the only route that removes every folder of a gallery is the user's own delete action. Everything else is best-effort under the existing simple rules — the index is the read authority between scan boundaries, duplicates resolve to the newest by modification date, a stale index is corrected at the next scan boundary — and the accepted worst outcomes are a redundant re-download and an extra folder the user made themselves. When a report describes an external-mutation case, first sort it: does it cross the invariant (irrecoverable: user data removed by the app) or is it merely recoverable? Only the former is a defect that must be fixed, and the fix belongs at the deletion boundary, not in new resolution machinery. Never add "find the folder elsewhere" lookups, migrations, or per-case handling for external mutations without an explicit owner decision (G-15-2H, resolution 2026-08-19).
+
+**Confirmation dialog / alert placement**: Attach a `.confirmationDialog`/`.alert` modifier to a UI element that is both **stable** and the **action source** (the control that triggers it). On iPad these render as popovers anchored to the view the modifier is attached to, so the anchor must be the triggering control for the arrow to point at the right place; and if that view leaves the hierarchy while the dialog is up, the dialog is torn down with it. Do not move such a modifier onto a transient or unrelated container (a whole `Form`/`List`, or a view gated by a condition) for convenience — keep it on the triggering button/row. When the trigger lives inside a subview, thread the store-scoped dialog binding into that subview and attach it there rather than hoisting the modifier to an ancestor.
+
+**Judge "stable" against changes unrelated to the dialog's own action.** Being `.disabled` is fine; being `.opacity`-hidden is not. The removal to guard against is the one the dialog knows nothing about — a background refresh or an observation stream reordering or dropping the item, a conditional gate flipping, an ancestor rebuilding — because the dialog is then dismissed silently and the user's action never fires. A view that leaves the hierarchy **because the dialog's own confirmed action removed it** is *not* an instance of this: that is the intended terminal state, the dialog has already done its job, and it going away with the view is correct. Never relocate an anchor to defend against a removal your own implementation intends.
+
+So for a per-row destructive action, keep the modifier on the row. Verified on device (iOS 26.6, iPhone 11 and iPad mini 6): the popover's arrow points at the row being acted on, which is the whole value of the affordance on iPad, whereas hoisting to the enclosing `List` anchors it at the list top pointing at nothing meaningful; and a row removed by its own confirmed deletion causes no problem in practice. Hoist to the container only when the row can genuinely leave the hierarchy for a reason unrelated to the dialog — and prefer eliminating that instability, or covering it with a test, over giving up the correct anchor.
+
+## Test parallelism
+
+Tests run in parallel by default. Isolate mutable dependencies, storage, clocks, network fixtures and
+capture outputs per test instead of serializing suites. Swift Testing runs cases concurrently inside
+its process; XCTest parallel execution uses separate workers. Necessary UIKit `@MainActor` isolation
+does not justify a `.serialized` suite.
+
+Serialization requires a concrete necessity and explicit owner review and approval. After approval,
+document the reason and owner approval immediately above the narrowest
+`// swiftlint:disable:next no_serialized_test`. No exception is implied by pre-existing serialized
+configuration. Do not use file-wide exclusions, alternative serialization mechanisms, global test-plan
+settings, runner flags or single-worker caps to bypass this policy. A test runner that must control a
+specific simulator or capture session needs its own narrowly scoped, documented owner approval before
+retaining serial execution; unrelated tests must continue to run in parallel.
+
+## iOS simulators
+
+- Create an iOS simulator when a task needs one, and delete it once no task needs it any more.
+- Name every simulator you create with the project prefix, for example `EhPanda iPhone Air`. Delete only
+  simulators within this project's scope; never delete a simulator outside it.
+
+## Accessibility navigation and search policy
+
+Use the native iOS 27 navigation title and searchable behavior at every size. Preserve designed
+`.inlineLarge` root titles and verify them independently at standard, AX1, AX3 and AX5 sizes,
+including cold entry and live size changes on iPhone and iPad. Keep sheet-specific title modes and
+search focus, query and orientation behavior intact. Do not reintroduce the removed accessibility
+title or search workarounds, dynamic-type branches, or fallback placement modifiers.
+
+The owner's 2026-10-28 restoration of the final persistent Library title menu is a scoped exception:
+compact Library roots use the native `.title` toolbar slot and `.inline` mode, with a semantic
+`.title2.bold()` Library label, Favorites/Downloads subtitle and scaled custom circular chevron.
+Keep that menu visible while scrolling through the native navigation-bar minimization policy.
+The owner's final choice is the title menu alone; compact Library has no bottom-right source switch.
+Expanded sidebar roots and unrelated pages retain their existing title modes; do not introduce a
+custom navigation bar, custom tab bar or text-size-dependent title fallback.
+
+## Scroll-edge policy
+
+Every app-owned page carries `.scrollEdgeEffectStyle(.soft, for: .top)` at its effective scroll
+hierarchy, including separately presented sheets, covers, forms, lists, scroll views, text editors
+and non-scrolling states. Owned UIKit scroll hosts use their equivalent native top-edge property.
+The modifier is attached to the page content root or the exact ancestor recorded in the page
+inventory; it must not depend on propagation across a presentation boundary. Non-scrolling states
+still carry the policy and naturally show no visible edge effect. Keep system-owned scrolling, such
+as `UIActivityViewController` internals, untouched while applying the presentation-root policy.
+The migration coverage is recorded in
+`.planning/quick/260921-f5u-migrate-to-ios-27-and-ipados-27-with-mod/SCROLL-EDGE-INVENTORY.md`.
+When adding a page, include its native scroll host and any separate presentation root in this policy.
+
+## Project structure
+
+EhPanda is being modularized to match the App-shell + local-package layout:
+
+- `App/` — the thin app-shell target. No business logic; it imports `AppFeature` and renders the root view.
+- `AppPackage/` — a local Swift package that holds all logic. Each module is a directory under `AppPackage/Sources/<Module>`, with tests under `AppPackage/Tests/<Module>Tests`.
+- `ShareExtension/` — the share extension target.
+- `EhPanda.xcodeproj` — references `AppPackage` as a local Swift package (`XCLocalSwiftPackageReference`); the app target links the `AppFeature` product.
+
+All third-party dependencies are declared in `AppPackage/Package.swift`, not in the Xcode project.
+
+## GSD Subagent Models And Effort
+
+- Before spawning a GSD role, resolve its model and effort from the repository root:
+
+  ```sh
+  node ~/.claude/gsd-core/bin/gsd-tools.cjs query resolve-model gsd-<role> 2>/dev/null
+  ```
+
+- Pass the returned `model` exactly; omit it only when it is `inherit` or empty. Check the spawning tool's parameters at each dispatch: if it has an effort parameter, pass the returned `effort`; if not, the subagent runs at `inherit`.
+- Every time you dispatch a subagent, send one short message in the chat you work in: `<role> subagent (<model>) (<effort>) dispatched`. `<effort>` is the effort you actually passed, or `inherit` when you passed none.

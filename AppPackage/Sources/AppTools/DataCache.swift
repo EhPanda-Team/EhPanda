@@ -1,0 +1,441 @@
+import CryptoKit
+public import Dependencies
+public import Foundation
+import OSLog
+import UIKit
+
+private let logger = Logger(category: "DataCache")
+
+private let canonicalDataCache = DataCache()
+
+/// Owned byte-level cache for the reader page pipeline and its export actions
+/// (copy / save / share). It is the one place the app downloads and stores reading-page
+/// image bytes itself instead of letting an image library own the transfer.
+///
+/// Two render engines are kept on purpose: Kingfisher is primary, and SDWebImage stays
+/// only because it renders animated images (WebP / APNG / GIF) that KingfisherWebP
+/// renders poorly. Letting each engine fetch and cache on its own split one logical cache
+/// in two and forced animated-vs-still routing to be decided from the URL before any bytes
+/// existed. Owning the bytes here collapses that into a single fetch + cache; the decoded
+/// data is then handed to whichever engine renders it (routed by `Data.isAnimatedImageData`).
+/// Scope is deliberately the reader and its exports only. Covers, previews, and cells stay
+/// on plain Kingfisher URL-mode caching.
+public actor DataCache {
+    public struct Configuration: Equatable, Sendable {
+        public var rootURL: URL
+        public var memoryCostLimit: Int
+        public var maxDiskAge: TimeInterval
+        public var diskSizeLimit: UInt64
+        public var sweepByteInterval: UInt64
+
+        public init(
+            rootURL: URL = URL.cachesDirectory
+                .appending(path: "DataCache.reading", directoryHint: .isDirectory),
+            memoryCostLimit: Int = Int(ProcessInfo.processInfo.physicalMemory / 4),
+            maxDiskAge: TimeInterval = 7 * 24 * 60 * 60,
+            diskSizeLimit: UInt64 = 0
+        ) {
+            self.rootURL = rootURL
+            self.memoryCostLimit = memoryCostLimit
+            self.maxDiskAge = maxDiskAge
+            self.diskSizeLimit = diskSizeLimit
+            self.sweepByteInterval = diskSizeLimit == 0 ? 0 : max(diskSizeLimit / 8, 1)
+        }
+    }
+
+    private let configuration: Configuration
+    private let fileManager: FileManager
+    private let memoryCache = NSCache<NSString, NSData>()
+    private var bytesWrittenSinceSweep: UInt64 = 0
+
+    public init(
+        configuration: Configuration = .init(),
+        fileManager: sending FileManager = FileManager()
+    ) {
+        self.configuration = configuration
+        self.fileManager = fileManager
+        memoryCache.totalCostLimit = configuration.memoryCostLimit
+    }
+
+    /// Purges this cache's memory on a memory warning, and its memory and stale disk entries when
+    /// the app enters the background. Installing again for the same cache has no further effect.
+    public nonisolated func installSystemPurgeObservers() {
+        Task { @MainActor in
+            DataCacheSystemPurgeObserver.install(for: self)
+        }
+    }
+
+    public func data(forKey key: String) -> Data? {
+        let filename = Self.filename(forKey: key)
+        if let data = memoryCache.object(forKey: filename as NSString) {
+            return Data(referencing: data)
+        }
+
+        let fileURL = configuration.rootURL.appending(path: filename)
+        guard fileManager.fileExists(atPath: fileURL.path(percentEncoded: false)) else { return nil }
+        if isExpired(fileURL) {
+            // Expired-entry removal is cache housekeeping; a miss remains correct if cleanup fails.
+            evictFile(at: fileURL)
+            return nil
+        }
+
+        // A file that exists but can't be read — corrupt, truncated, or purged
+        // between the existence check and the read — is treated as a miss and
+        // removed, so the caller re-downloads instead of sticking on the broken
+        // entry until it expires.
+        let data: Data
+        do {
+            data = try Data(contentsOf: fileURL)
+        } catch {
+            // Reading is a cache probe: an unreadable entry is the ordinary negative answer
+            // (a miss), so the failure is not logged. Only its cleanup is.
+            evictFile(at: fileURL)
+            return nil
+        }
+        memoryCache.setObject(data as NSData, forKey: filename as NSString, cost: data.count)
+        bumpAccessDate(for: fileURL)
+        return data
+    }
+
+    /// Removes a cache file, absorbing the failure.
+    ///
+    /// Every caller has already resolved its own outcome — a miss, or an eviction the memory
+    /// cache still completes — so a failed removal must not change that outcome. It is logged
+    /// because the file was known to exist a moment earlier, which makes failure unexpected.
+    private func evictFile(at fileURL: URL) {
+        do {
+            try fileManager.removeItem(at: fileURL)
+        } catch {
+            logger.error("Failed to remove cache entry: \(error)")
+        }
+    }
+
+    /// Bumps an entry's access date, absorbing the failure.
+    ///
+    /// A failed bump must not fail an otherwise-successful read or write; it only costs the entry
+    /// its place in the LRU ordering, so the operation is logged rather than propagated.
+    private func bumpAccessDate(for fileURL: URL) {
+        do {
+            try touchAccessDate(for: fileURL)
+        } catch {
+            logger.error("Failed to bump cache entry access date: \(error)")
+        }
+    }
+
+    /// Whether the cache holds bytes for `key`, answered at once for a caller that cannot await the
+    /// actor. Every store writes the key's file before it returns, so the file's presence is the
+    /// answer; an expired entry still counts until a read or a sweep removes it. It asks
+    /// `FileManager.default`, which is safe on any thread, because the injected file manager
+    /// belongs to the actor.
+    public nonisolated func containsData(forKey key: String) -> Bool {
+        let fileURL = configuration.rootURL.appending(path: Self.filename(forKey: key))
+        return FileManager.default.fileExists(atPath: fileURL.path(percentEncoded: false))
+    }
+
+    public func data(forKeys keys: [String]) -> Data? {
+        for key in Self.uniqued(keys) {
+            if let data = data(forKey: key) {
+                return data
+            }
+        }
+        return nil
+    }
+
+    public func store(_ data: Data, forKey key: String) throws {
+        let filename = Self.filename(forKey: key)
+        memoryCache.setObject(data as NSData, forKey: filename as NSString, cost: data.count)
+        let fileURL = configuration.rootURL.appending(path: filename)
+        try write(data, to: fileURL, canRetryDirectoryCreation: true)
+        bytesWrittenSinceSweep += UInt64(data.count)
+        if configuration.sweepByteInterval > 0,
+           bytesWrittenSinceSweep >= configuration.sweepByteInterval {
+            bytesWrittenSinceSweep = 0
+            try sweepDisk()
+        }
+    }
+
+    public func store(_ data: Data, forKeys keys: [String]) throws {
+        for key in Self.uniqued(keys) {
+            try store(data, forKey: key)
+        }
+    }
+
+    public func removeData(forKey key: String) throws {
+        let filename = Self.filename(forKey: key)
+        memoryCache.removeObject(forKey: filename as NSString)
+        let fileURL = configuration.rootURL.appending(path: filename)
+        guard fileManager.fileExists(atPath: fileURL.path(percentEncoded: false)) else { return }
+        try fileManager.removeItem(at: fileURL)
+    }
+
+    public func removeData(forKeys keys: [String]) throws {
+        for key in Self.uniqued(keys) {
+            try removeData(forKey: key)
+        }
+    }
+
+    public func removeAll() throws {
+        memoryCache.removeAllObjects()
+        if fileManager.fileExists(atPath: configuration.rootURL.path(percentEncoded: false)) {
+            try fileManager.removeItem(at: configuration.rootURL)
+        }
+        try ensureDirectory()
+        bytesWrittenSinceSweep = 0
+    }
+
+    public func removeAllMemory() {
+        memoryCache.removeAllObjects()
+    }
+
+    public func totalSize() throws -> UInt64 {
+        guard fileManager.fileExists(atPath: configuration.rootURL.path(percentEncoded: false)) else { return 0 }
+        guard let enumerator = fileManager.enumerator(
+            at: configuration.rootURL,
+            includingPropertiesForKeys: [.isRegularFileKey, .fileSizeKey],
+            options: [.skipsHiddenFiles]
+        ) else {
+            return 0
+        }
+
+        var total: UInt64 = 0
+        for case let fileURL as URL in enumerator {
+            autoreleasepool {
+                let values: URLResourceValues
+                do {
+                    values = try fileURL.resourceValues(forKeys: [.isRegularFileKey, .fileSizeKey])
+                } catch {
+                    // Unreadable metadata is skipped, not logged: cache size reporting is
+                    // intentionally approximate, so an unmeasurable entry is an ordinary outcome.
+                    return
+                }
+                guard values.isRegularFile == true else { return }
+                total += UInt64(values.fileSize ?? 0)
+            }
+        }
+        return total
+    }
+
+    public func sweepDisk() throws {
+        guard fileManager.fileExists(atPath: configuration.rootURL.path(percentEncoded: false)) else { return }
+        var entries = try diskEntries()
+        let now = Date()
+        if configuration.maxDiskAge > 0 {
+            for entry in entries where now.timeIntervalSince(entry.accessDate) > configuration.maxDiskAge {
+                evictDiskEntry(entry)
+            }
+            entries.removeAll { now.timeIntervalSince($0.accessDate) > configuration.maxDiskAge }
+        }
+
+        guard configuration.diskSizeLimit > 0 else { return }
+        var totalSize = entries.reduce(UInt64(0)) { $0 + $1.size }
+        guard totalSize > configuration.diskSizeLimit else { return }
+        let targetSize = configuration.diskSizeLimit / 2
+        for entry in entries.sorted(by: { $0.accessDate < $1.accessDate }) {
+            evictDiskEntry(entry)
+            totalSize = totalSize > entry.size ? totalSize - entry.size : 0
+            guard totalSize > targetSize else { break }
+        }
+    }
+
+    // Evicts a single entry from disk and drops only its matching memory object.
+    // The memory cache is keyed by the on-disk hashed filename, so eviction stays
+    // scoped to the swept keys instead of purging the whole memory front.
+    private func evictDiskEntry(_ entry: DiskEntry) {
+        // Disk eviction is fire-and-forget housekeeping; memory eviction still proceeds on failure.
+        evictFile(at: entry.url)
+        memoryCache.removeObject(forKey: entry.url.lastPathComponent as NSString)
+    }
+
+    private func write(
+        _ data: Data,
+        to fileURL: URL,
+        canRetryDirectoryCreation: Bool
+    ) throws {
+        do {
+            try ensureDirectory()
+            try data.write(to: fileURL, options: .atomic)
+            bumpAccessDate(for: fileURL)
+        } catch {
+            guard canRetryDirectoryCreation else { throw error }
+            do {
+                try fileManager.removeItem(at: configuration.rootURL)
+            } catch {
+                // Not logged: the root is often simply absent — that is exactly the state the
+                // retry wants. Whether the retry can proceed is decided by `ensureDirectory`.
+            }
+            try ensureDirectory()
+            try write(data, to: fileURL, canRetryDirectoryCreation: false)
+        }
+    }
+
+    private func ensureDirectory() throws {
+        try fileManager.createDirectory(
+            at: configuration.rootURL,
+            withIntermediateDirectories: true
+        )
+        var resourceValues = URLResourceValues()
+        resourceValues.isExcludedFromBackup = true
+        var directoryURL = configuration.rootURL
+        do {
+            try directoryURL.setResourceValues(resourceValues)
+        } catch {
+            // Not logged: backup exclusion is optional cache metadata whose absence only means
+            // regenerable bytes may be backed up. It must not fail directory creation.
+        }
+    }
+
+    private static func filename(forKey key: String) -> String {
+        SHA256.hash(data: Data(key.utf8))
+            .map { String(format: "%02x", $0) }
+            .joined()
+    }
+
+    private nonisolated static func uniqued(_ keys: [String]) -> [String] {
+        var seen = Set<String>()
+        return keys.filter({ seen.insert($0).inserted })
+    }
+
+    private func isExpired(_ fileURL: URL) -> Bool {
+        guard configuration.maxDiskAge > 0 else { return false }
+        let accessDate = accessDate(for: fileURL)
+        return Date().timeIntervalSince(accessDate) > configuration.maxDiskAge
+    }
+
+    private func touchAccessDate(for fileURL: URL) throws {
+        try fileManager.setAttributes(
+            [.creationDate: Date(), .modificationDate: Date()],
+            ofItemAtPath: fileURL.path(percentEncoded: false)
+        )
+        var resourceValues = URLResourceValues()
+        resourceValues.contentAccessDate = Date()
+        var mutableURL = fileURL
+        do {
+            try mutableURL.setResourceValues(resourceValues)
+        } catch {
+            // Not logged: content-access metadata is supplementary to the authoritative
+            // FileManager timestamps set above, which `accessDate(for:)` falls back to.
+        }
+    }
+
+    private func accessDate(for fileURL: URL) -> Date {
+        do {
+            if let date = try fileURL.resourceValues(forKeys: [.contentAccessDateKey]).contentAccessDate {
+                return date
+            }
+        } catch {
+            // Not logged: a volume that does not record access dates is an ordinary case, and
+            // the file's modification date below is the documented fallback.
+        }
+        do {
+            let attributes = try fileManager.attributesOfItem(atPath: fileURL.path(percentEncoded: false))
+            return attributes[.modificationDate] as? Date ?? .distantPast
+        } catch {
+            // Not logged: an entry whose attributes cannot be read deliberately dates to
+            // distantPast so the next sweep evicts it.
+            return .distantPast
+        }
+    }
+
+    private func diskEntries() throws -> [DiskEntry] {
+        guard let enumerator = fileManager.enumerator(
+            at: configuration.rootURL,
+            includingPropertiesForKeys: [
+                .contentAccessDateKey,
+                .fileSizeKey,
+                .isRegularFileKey
+            ],
+            options: [.skipsHiddenFiles]
+        ) else {
+            return []
+        }
+
+        var entries = [DiskEntry]()
+        for case let fileURL as URL in enumerator {
+            let values = try fileURL.resourceValues(forKeys: [
+                .contentAccessDateKey,
+                .fileSizeKey,
+                .isRegularFileKey
+            ])
+            guard values.isRegularFile == true else { continue }
+            entries.append(
+                DiskEntry(
+                    url: fileURL,
+                    size: UInt64(values.fileSize ?? 0),
+                    accessDate: values.contentAccessDate ?? accessDate(for: fileURL)
+                )
+            )
+        }
+        return entries
+    }
+}
+
+public enum DataCacheKey: DependencyKey {
+    public static var liveValue: DataCache { canonicalDataCache }
+    public static var testValue: DataCache {
+        DataCache(
+            configuration: .init(
+                rootURL: URL.temporaryDirectory
+                    .appending(path: UUID().uuidString, directoryHint: .isDirectory)
+            )
+        )
+    }
+}
+
+extension DependencyValues {
+    public var dataCache: DataCache {
+        get { self[DataCacheKey.self] }
+        set { self[DataCacheKey.self] = newValue }
+    }
+}
+
+@MainActor
+private final class DataCacheSystemPurgeObserver {
+    /// One observer per cache. Each holds its cache for the rest of the process, as the app keeps
+    /// every cache it observes, so an identifier here can never be reused by another cache.
+    private static var observers = [ObjectIdentifier: DataCacheSystemPurgeObserver]()
+
+    private let tokens: [any NSObjectProtocol]
+
+    static func install(for cache: DataCache) {
+        let id = ObjectIdentifier(cache)
+        guard observers[id] == nil else { return }
+        observers[id] = DataCacheSystemPurgeObserver(cache: cache)
+    }
+
+    private init(cache: DataCache) {
+        let center = NotificationCenter.default
+        tokens = [
+            center.addObserver(
+                forName: UIApplication.didReceiveMemoryWarningNotification,
+                object: nil,
+                queue: .main
+            ) { _ in
+                Task {
+                    await cache.removeAllMemory()
+                }
+            },
+            center.addObserver(
+                forName: UIApplication.didEnterBackgroundNotification,
+                object: nil,
+                queue: .main
+            ) { _ in
+                Task {
+                    await cache.removeAllMemory()
+                    // Background disk sweeping is fire-and-forget housekeeping with no user-facing
+                    // result, but a failing sweep lets the cache grow unbounded — worth a line.
+                    do {
+                        try await cache.sweepDisk()
+                    } catch {
+                        logger.error("Failed to sweep cache on background: \(error)")
+                    }
+                }
+            }
+        ]
+    }
+}
+
+private struct DiskEntry {
+    public let url: URL
+    public let size: UInt64
+    public let accessDate: Date
+}

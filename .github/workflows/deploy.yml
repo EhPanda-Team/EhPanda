@@ -1,35 +1,90 @@
 name: Deploy
+# Started by hand on main only, after the release pull request is merged (owner msg 4611). Merging or
+# pushing to main never releases. The title and notes come from ReleaseNotes/<version>.md (owner msg
+# 4620), so nothing is typed in or read from a pull request.
 on:
-  pull_request:
-    branches:
-      - main
-    types: [closed]
+  workflow_dispatch:
 env:
-  DEVELOPER_DIR: /Applications/Xcode_26.6.app
-  APP_VERSION: '2.8.1'
   SCHEME_NAME: 'EhPanda'
   ALTSTORE_JSON_PATH: './AltStore.json'
+  SIDESTORE_JSON_PATH: './SideStore.json'
+  ALTSTORE_BETA_JSON_PATH: './altstore-beta.json'
+  CHECK_BUILD_NUMBER_SCRIPT_PATH: './actions-tool/check-build-number.sh'
+  SIDESTORE_TEMPLATE_PATH: './actions-tool/sidestore.template.json'
+  SOURCE_FILTER_PATH: './actions-tool/altstore-add-version.jq'
+  PACKAGE_CHANNEL_SCRIPT_PATH: './actions-tool/package-channel.sh'
+  IPA_ENTITLEMENTS_SCRIPT_PATH: './actions-tool/ipa-entitlements.sh'
   BUILDS_PATH: '/tmp/action-builds'
   PAYLOAD_PATH: '/tmp/action-builds/Payload'
-  FILTER_SWIFT_PATH: './actions-tool/ReleaseNotesFilter.swift'
-  FILTER_PATH: '/tmp/action-builds/ReleaseNotesFilter'
+  # The notes come from ReleaseNotes/<version>.md, never the PR description (ReleaseNotes/README.md).
+  RELEASE_NOTES_TOOL_PATH: './actions-tool/release_notes.py'
+  RELEASE_NOTES_DIR: './ReleaseNotes'
+  GITHUB_RELEASE_BODY_PATH: '/tmp/action-builds/release-body.md'
   THIN_PAYLOAD_SCRIPT_PATH: './actions-tool/thin-payload.sh'
   ARCHIVE_PATH: '/tmp/action-builds/EhPanda.xcarchive'
-  IPA_OUTPUT_PATH: '/tmp/action-builds/EhPanda.ipa'
+  # One build, one copy per channel, each stamped with its channel (actions-tool/package-channel.sh).
+  GITHUB_IPA_PATH: '/tmp/action-builds/EhPanda-GitHub.ipa'
+  ALTSTORE_IPA_PATH: '/tmp/action-builds/EhPanda-AltStore.ipa'
+  SIDESTORE_IPA_PATH: '/tmp/action-builds/EhPanda-SideStore.ipa'
 
 jobs:
+  # Snapshot gate off for 3.0 (owner msg 3757); restore by re-adding the snapshot-gate job and the require step
+  # (see git history of this commit).
   Deploy:
-    runs-on: macos-26
-    if: |
-      github.event.pull_request.merged == true && github.event.pull_request.user.login == 'chihchy'
+    runs-on: xcode-27
+    timeout-minutes: 120
+    # One release at a time: a second start would publish its release and then fail the push of the
+    # catalogue commit. Queue, never cancel.
+    concurrency:
+      group: deploy-release
+      cancel-in-progress: false
+    if: github.event_name == 'workflow_dispatch'
+    # contents: the release, its tag and the push of the sources.
+    permissions:
+      contents: write
     steps:
+      # The release is main's HEAD: its tag, sources and catalogue commit all belong to main.
+      - name: Refuse to run off main
+        env:
+          REF_TYPE: ${{ github.ref_type }}
+          REF_NAME: ${{ github.ref_name }}
+        run: |
+          if [[ "$REF_TYPE" != "branch" ]]; then
+            echo "::error::Deploy runs on the main branch only, not on a tag."
+            exit 1
+          fi
+          if [[ "$REF_NAME" != "main" ]]; then
+            echo "::error::Deploy runs on main only. Merge the release pull request, then start Deploy on main."
+            exit 1
+          fi
       - name: Checkout
         uses: actions/checkout@v7
+      # Snapshot gate off for 3.0 (owner msg 3757); restore by re-adding the snapshot-gate job and the require step
+      # (see git history of this commit).
       - name: Modify git config
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-      - name: Install iOS 26 Platform
+      - name: Check build number
+        run: |
+          set -euo pipefail
+          # The sources as published on main: AltStore and SideStore compare against those. A beta's
+          # build counts too, because the beta source lists it. AltStorePAL.json is left out; the PAL
+          # build has its own check in its own workflow.
+          published_path="$RUNNER_TEMP/published"
+          mkdir -p "$published_path"
+          git fetch --no-tags --depth 1 origin main
+          for source in "$ALTSTORE_JSON_PATH" "$SIDESTORE_JSON_PATH" "$ALTSTORE_BETA_JSON_PATH"; do
+            if git cat-file -e "FETCH_HEAD:${source#./}" 2>/dev/null; then
+              git show "FETCH_HEAD:${source#./}" > "$published_path/$(basename "$source")"
+            fi
+          done
+          # Every app and extension target carries the same build number; test targets carry 1.
+          build_version="$(grep -Eo 'CURRENT_PROJECT_VERSION = [0-9]+;' EhPanda.xcodeproj/project.pbxproj | grep -Eo '[0-9]+' | sort -n | tail -1)"
+          bash "$CHECK_BUILD_NUMBER_SCRIPT_PATH" "$build_version" "$published_path"/*.json
+      - name: Check release notes
+        run: python3 "$RELEASE_NOTES_TOOL_PATH" check
+      - name: Install iOS 27 Platform
         uses: nick-fields/retry@v4
         with:
           retry_on: error
@@ -38,19 +93,13 @@ jobs:
           command: xcodebuild -downloadPlatform iOS
       - name: Show Xcode version
         run: xcodebuild -version
-      - name: Run tests
-        run: xcodebuild clean test
-          -skipMacroValidation
-          -scheme ${{ env.SCHEME_NAME }}
-          -destination 'platform=iOS Simulator,name=iPhone Air'
-      - name: Bump version
-        id: bump-version
-        uses: yanamura/ios-bump-version@v1
-        with:
-          version: ${{ env.APP_VERSION }}
       - name: Xcode archive
+        env:
+          TELEMETRYDECK_APP_ID: ${{ secrets.TELEMETRYDECK_APP_ID }}
+          TELEMETRYDECK_SALT: ${{ secrets.TELEMETRYDECK_SALT }}
         run: xcodebuild archive
           -skipMacroValidation
+          -skipPackagePluginValidation
           -scheme ${{ env.SCHEME_NAME }}
           -destination 'generic/platform=iOS'
           -archivePath ${{ env.ARCHIVE_PATH }}
@@ -60,28 +109,37 @@ jobs:
           CODE_SIGNING_REQUIRED=NO
           GCC_OPTIMIZATION_LEVEL=s
           SWIFT_OPTIMIZATION_LEVEL=-O
-      - name: Export .ipa file
+          TELEMETRYDECK_APP_ID="$TELEMETRYDECK_APP_ID"
+          TELEMETRYDECK_SALT="$TELEMETRYDECK_SALT"
+      - name: Verify analytics credentials
         run: |
+          app_info_plist="$ARCHIVE_PATH/Products/Applications/$SCHEME_NAME.app/Info.plist"
+          app_id="$(plutil -extract TelemetryDeckAppID raw -o - "$app_info_plist")"
+          salt="$(plutil -extract TelemetryDeckSalt raw -o - "$app_info_plist")"
+          [[ ! -z "$app_id" ]] || exit 1
+          [[ ! -z "$salt" ]] || exit 1
+      - name: Export .ipa files
+        run: |
+          set -euo pipefail
           mkdir -p ${{ env.PAYLOAD_PATH }}
           mv ${{ env.ARCHIVE_PATH }}/Products/Applications/${{ env.SCHEME_NAME }}.app ${{ env.PAYLOAD_PATH }}/${{ env.SCHEME_NAME }}.app
           sh ${{ env.THIN_PAYLOAD_SCRIPT_PATH }} ${{ env.PAYLOAD_PATH }}/${{ env.SCHEME_NAME }}.app
-          pushd ${{ env.BUILDS_PATH }}
-          zip -r ${{ env.IPA_OUTPUT_PATH }} ./Payload
-          popd
+          app_path="$PAYLOAD_PATH/$SCHEME_NAME.app"
+          bash "$PACKAGE_CHANNEL_SCRIPT_PATH" "$app_path" github "$GITHUB_IPA_PATH"
+          bash "$PACKAGE_CHANNEL_SCRIPT_PATH" "$app_path" altstore "$ALTSTORE_IPA_PATH"
+          bash "$PACKAGE_CHANNEL_SCRIPT_PATH" "$app_path" sidestore "$SIDESTORE_IPA_PATH"
       - name: Retrieve data
         id: retrieve-data
-        env:
-          RELEASE_NOTES_SOURCE: ${{ github.event.pull_request.body }}
         run: |
-          swiftc -o "$FILTER_PATH" "$FILTER_SWIFT_PATH"
-          chmod +x "$FILTER_PATH"
+          set -euo pipefail
           app_info_plist="$PAYLOAD_PATH/$SCHEME_NAME.app/Info.plist"
           version="$(plutil -extract CFBundleShortVersionString raw -o - "$app_info_plist")"
           build_version="$(plutil -extract CFBundleVersion raw -o - "$app_info_plist")"
           min_os_version="$(plutil -extract MinimumOSVersion raw -o - "$app_info_plist")"
-          size="$(stat -f%z "$IPA_OUTPUT_PATH")"
-          sha256="$(shasum -a 256 "$IPA_OUTPUT_PATH" | awk '{ print $1 }')"
-          notes="$($FILTER_PATH "$RELEASE_NOTES_SOURCE")"
+          notes_path="$RELEASE_NOTES_DIR/$version.md"
+          python3 "$RELEASE_NOTES_TOOL_PATH" check "$notes_path"
+          python3 "$RELEASE_NOTES_TOOL_PATH" github "$notes_path" > "$GITHUB_RELEASE_BODY_PATH"
+          title="$(python3 "$RELEASE_NOTES_TOOL_PATH" title "$notes_path")"
           privacy="$(
             find "$PAYLOAD_PATH/$SCHEME_NAME.app" -name Info.plist -print0 |
             while IFS= read -r -d '' plist; do
@@ -94,30 +152,22 @@ jobs:
           [[ ! -z "$version" ]] || exit 1
           [[ ! -z "$build_version" ]] || exit 1
           [[ ! -z "$min_os_version" ]] || exit 1
-          [[ ! -z "$size" ]] || exit 1
-          [[ ! -z "$sha256" ]] || exit 1
           [[ ! -z "$privacy" ]] || exit 1
 
           {
-            echo "size=$size"
-            echo "sha256=$sha256"
             echo "version=$version"
             echo "build_version=$build_version"
             echo "marketing_version=$version"
             echo "min_os_version=$min_os_version"
             echo "version_date=$(date -u +'%Y-%m-%dT%H:%M:%SZ')"
             echo "privacy=$privacy"
-            echo "notes<<__ALTSTORE_NOTES__"
-            echo "$notes"
-            echo "__ALTSTORE_NOTES__"
+            echo "notes_path=$notes_path"
+            echo "title=$title"
           } >> "$GITHUB_OUTPUT"
       - name: Validate data
         env:
-          PR_BODY: ${{ github.event.pull_request.body }}
-          PR_TITLE: ${{ github.event.pull_request.title }}
-          RELEASE_SIZE: ${{ steps.retrieve-data.outputs.size }}
-          RELEASE_SHA256: ${{ steps.retrieve-data.outputs.sha256 }}
-          RELEASE_NOTES: ${{ steps.retrieve-data.outputs.notes }}
+          RELEASE_TITLE: ${{ steps.retrieve-data.outputs.title }}
+          RELEASE_NOTES_PATH: ${{ steps.retrieve-data.outputs.notes_path }}
           RELEASE_VERSION: ${{ steps.retrieve-data.outputs.version }}
           RELEASE_BUILD_VERSION: ${{ steps.retrieve-data.outputs.build_version }}
           RELEASE_MARKETING_VERSION: ${{ steps.retrieve-data.outputs.marketing_version }}
@@ -125,11 +175,9 @@ jobs:
           RELEASE_DATE: ${{ steps.retrieve-data.outputs.version_date }}
           RELEASE_PRIVACY: ${{ steps.retrieve-data.outputs.privacy }}
         run: |
-          [[ ! -z "$PR_BODY" ]] || exit 1
-          [[ ! -z "$PR_TITLE" ]] || exit 1
-          [[ ! -z "$RELEASE_SIZE" ]] || exit 1
-          [[ ! -z "$RELEASE_SHA256" ]] || exit 1
-          [[ ! -z "$RELEASE_NOTES" ]] || exit 1
+          [[ ! -z "$RELEASE_TITLE" ]] || exit 1
+          [[ -f "$RELEASE_NOTES_PATH" ]] || exit 1
+          [[ -s "$GITHUB_RELEASE_BODY_PATH" ]] || exit 1
           [[ ! -z "$RELEASE_VERSION" ]] || exit 1
           [[ ! -z "$RELEASE_BUILD_VERSION" ]] || exit 1
           [[ ! -z "$RELEASE_MARKETING_VERSION" ]] || exit 1
@@ -137,73 +185,112 @@ jobs:
           [[ ! -z "$RELEASE_DATE" ]] || exit 1
           printf '%s' "$RELEASE_PRIVACY" | jq -e 'type == "object"' >/dev/null
       - name: Release to GitHub
+        id: release
         uses: softprops/action-gh-release@v3
         with:
          fail_on_unmatched_files: true
-         files: ${{ env.IPA_OUTPUT_PATH }}
+         files: |
+           ${{ env.GITHUB_IPA_PATH }}
+           ${{ env.ALTSTORE_IPA_PATH }}
+           ${{ env.SIDESTORE_IPA_PATH }}
          token: ${{ secrets.GITHUB_TOKEN }}
-         body: ${{ github.event.pull_request.body }}
-         name: ${{ github.event.pull_request.title }}
-         tag_name: 'v${{ steps.retrieve-data.outputs.version }}'
-      - name: Commit bump version
-        run: |
-          git add .
-          git commit -m "Bump version"
-          git push origin HEAD
-      - name: Update AltStore.json
+         body_path: ${{ env.GITHUB_RELEASE_BODY_PATH }}
+         name: ${{ steps.retrieve-data.outputs.title }}
+         tag_name: ${{ steps.retrieve-data.outputs.version }}
+         # The version's release is published as a normal, latest release (a beta of the same version may have
+         # made it a pre-release). The tag is created on main's HEAD.
+         prerelease: false
+         make_latest: 'true'
+      - name: Update AltStore.json and SideStore.json
         env:
-          RELEASE_SIZE: ${{ steps.retrieve-data.outputs.size }}
-          RELEASE_SHA256: ${{ steps.retrieve-data.outputs.sha256 }}
+          RELEASE_ASSETS: ${{ steps.release.outputs.assets }}
           RELEASE_VERSION: ${{ steps.retrieve-data.outputs.version }}
           RELEASE_BUILD_VERSION: ${{ steps.retrieve-data.outputs.build_version }}
           RELEASE_MARKETING_VERSION: ${{ steps.retrieve-data.outputs.marketing_version }}
           RELEASE_MIN_OS_VERSION: ${{ steps.retrieve-data.outputs.min_os_version }}
           RELEASE_DATE: ${{ steps.retrieve-data.outputs.version_date }}
-          RELEASE_NOTES: ${{ steps.retrieve-data.outputs.notes }}
+          RELEASE_NOTES_PATH: ${{ steps.retrieve-data.outputs.notes_path }}
           RELEASE_PRIVACY: ${{ steps.retrieve-data.outputs.privacy }}
         run: |
-          tmp="$(mktemp)"
-          jq \
-            --arg version "$RELEASE_VERSION" \
-            --arg buildVersion "$RELEASE_BUILD_VERSION" \
-            --arg marketingVersion "$RELEASE_MARKETING_VERSION" \
-            --arg date "$RELEASE_DATE" \
-            --arg localizedDescription "$RELEASE_NOTES" \
-            --arg downloadURL "https://github.com/EhPanda-Team/EhPanda/releases/download/v$RELEASE_VERSION/EhPanda.ipa" \
-            --arg sha256 "$RELEASE_SHA256" \
-            --arg minOSVersion "$RELEASE_MIN_OS_VERSION" \
-            --argjson size "$RELEASE_SIZE" \
-            --argjson privacy "$RELEASE_PRIVACY" \
-            '
-            .apps[0].category = "entertainment" |
-            .apps[0].versions[0] = {
-              version: $version,
-              buildVersion: $buildVersion,
-              marketingVersion: $marketingVersion,
-              date: $date,
-              localizedDescription: $localizedDescription,
-              downloadURL: $downloadURL,
-              size: $size,
-              sha256: $sha256,
-              minOSVersion: $minOSVersion
-            } |
-            .apps[0].appPermissions = {
-              entitlements: [],
-              privacy: $privacy
-            }
-            ' "$ALTSTORE_JSON_PATH" > "$tmp"
-          jq empty "$tmp"
-          mv "$tmp" "$ALTSTORE_JSON_PATH"
-      - name: Commit update AltStore.json
+          set -euo pipefail
+          bundle_id="$(plutil -extract CFBundleIdentifier raw -o - "$PAYLOAD_PATH/$SCHEME_NAME.app/Info.plist")"
+          [[ -n "$bundle_id" ]] || exit 1
+          # English is the plain field: SideStore shows only it, and AltStore when no language matches.
+          # AltStore.json also gets every language, English included, in localizedDescriptions.
+          notes="$(python3 "$RELEASE_NOTES_TOOL_PATH" english "$RELEASE_NOTES_PATH")"
+          localized_notes="$(python3 "$RELEASE_NOTES_TOOL_PATH" altstore "$RELEASE_NOTES_PATH")"
+          # AltStore refuses an install whose IPA asks for a permission the source does not list. So the sources
+          # get what the IPA really carries: the usage descriptions (RELEASE_PRIVACY) and the entitlements.
+          entitlements="$(bash "$IPA_ENTITLEMENTS_SCRIPT_PATH" "$PAYLOAD_PATH/$SCHEME_NAME.app")"
+          printf '%s' "$entitlements" | jq -e 'type == "array"' >/dev/null
+
+          # Adds this release to a source, pointing at one channel's IPA with that file's own size and
+          # checksum: SideStore and AltStore check both against the download. The fourth argument is the
+          # localizedDescriptions object, or null for English only.
+          add_version() {
+            local source_json="$1" output_json="$2" ipa_path="$3" localized="$4"
+            local ipa_name download_url size sha256 tmp
+            ipa_name="$(basename "$ipa_path")"
+            download_url="$(printf '%s' "$RELEASE_ASSETS" | jq -r --arg name "$ipa_name" '[.[] | select(.name == $name) | .browser_download_url][0] // empty')"
+            size="$(stat -f%z "$ipa_path")"
+            sha256="$(shasum -a 256 "$ipa_path" | awk '{ print $1 }')"
+            [[ -n "$download_url" ]] || { echo "::error::The release has no $ipa_name."; exit 1; }
+            [[ -n "$size" ]] || exit 1
+            [[ -n "$sha256" ]] || exit 1
+            curl -sSfIL -o /dev/null "$download_url"
+
+            tmp="$(mktemp)"
+            jq \
+              --arg bundleIdentifier "$bundle_id" \
+              --arg version "$RELEASE_VERSION" \
+              --arg buildVersion "$RELEASE_BUILD_VERSION" \
+              --arg marketingVersion "$RELEASE_MARKETING_VERSION" \
+              --arg date "$RELEASE_DATE" \
+              --arg localizedDescription "$notes" \
+              --argjson localizedDescriptions "$localized" \
+              --arg downloadURL "$download_url" \
+              --arg sha256 "$sha256" \
+              --arg minOSVersion "$RELEASE_MIN_OS_VERSION" \
+              --argjson size "$size" \
+              --argjson privacy "$RELEASE_PRIVACY" \
+              --argjson entitlements "$entitlements" \
+              --argjson releaseVersions null \
+              -f "$SOURCE_FILTER_PATH" "$source_json" > "$tmp"
+            jq -e '(.apps[0].versions | length) >= 1' "$tmp" >/dev/null
+            mv "$tmp" "$output_json"
+          }
+
+          add_version "$ALTSTORE_JSON_PATH" "$ALTSTORE_JSON_PATH" "$ALTSTORE_IPA_PATH" "$localized_notes"
+          # The first release creates SideStore.json. The template has no versions, and SideStore rejects
+          # a source with none, so it is only ever written with this release added.
+          sidestore_source="$SIDESTORE_JSON_PATH"
+          if [[ ! -f "$sidestore_source" ]]; then
+            sidestore_source="$SIDESTORE_TEMPLATE_PATH"
+          fi
+          add_version "$sidestore_source" "$SIDESTORE_JSON_PATH" "$SIDESTORE_IPA_PATH" null
+      - name: Commit update AltStore.json and SideStore.json
         run: |
-          git add "$ALTSTORE_JSON_PATH"
-          git commit -m "Update AltStore.json"
+          git add "$ALTSTORE_JSON_PATH" "$SIDESTORE_JSON_PATH"
+          git commit -m "Update AltStore.json and SideStore.json"
           git push origin HEAD
       - name: Post release notes
+        env:
+          RELEASE_NOTES_PATH: ${{ steps.retrieve-data.outputs.notes_path }}
+          RELEASE_URL: ${{ steps.release.outputs.url }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHANNEL_ID: ${{ secrets.TELEGRAM_CHANNEL_ID }}
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
         run: |
-         curl https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage \
-         -d parse_mode=markdown -d chat_id=${{ secrets.TELEGRAM_CHANNEL_ID }} \
-         -d text='*v${{ steps.retrieve-data.outputs.version }} Release Notes:*%0A${{ github.event.pull_request.body }}'
+          set -euo pipefail
+          # Telegram: English, then 繁體中文, then the link, as plain text. Discord: English, then the link.
+          telegram_text="$BUILDS_PATH/telegram.txt"
+          python3 "$RELEASE_NOTES_TOOL_PATH" telegram "$RELEASE_NOTES_PATH" "$RELEASE_URL" > "$telegram_text"
+          curl -sS --fail-with-body "https://api.telegram.org/bot$TELEGRAM_BOT_TOKEN/sendMessage" \
+            --data-urlencode "chat_id=$TELEGRAM_CHANNEL_ID" \
+            --data-urlencode "text@$telegram_text"
 
-         curl ${{ secrets.DISCORD_WEBHOOK }} \
-         -F 'payload_json={"content": "**v${{ steps.retrieve-data.outputs.version }} Release Notes:**\n${{ steps.retrieve-data.outputs.notes }}"}'
+          discord_payload="$BUILDS_PATH/discord.json"
+          python3 "$RELEASE_NOTES_TOOL_PATH" discord "$RELEASE_NOTES_PATH" "$RELEASE_URL" | jq -Rs '{content: .}' > "$discord_payload"
+          curl -sS --fail-with-body "$DISCORD_WEBHOOK" \
+            -H 'Content-Type: application/json' \
+            --data-binary "@$discord_payload"
