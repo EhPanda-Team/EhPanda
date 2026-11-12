@@ -1,4 +1,4 @@
-# Adds a build to an AltStore source (AltStore.json, SideStore.json, altstore-beta.json or
+# Adds a build to an AltStore source (AltStore.json, SideStore.json, AltStoreBeta.json or
 # AltStorePAL.json).
 #
 # Arguments (all --arg unless noted):

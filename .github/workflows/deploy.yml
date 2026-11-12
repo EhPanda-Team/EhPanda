@@ -8,7 +8,7 @@ env:
   SCHEME_NAME: 'EhPanda'
   ALTSTORE_JSON_PATH: './AltStore.json'
   SIDESTORE_JSON_PATH: './SideStore.json'
-  ALTSTORE_BETA_JSON_PATH: './altstore-beta.json'
+  ALTSTORE_BETA_JSON_PATH: './AltStoreBeta.json'
   CHECK_BUILD_NUMBER_SCRIPT_PATH: './actions-tool/check-build-number.sh'
   SIDESTORE_TEMPLATE_PATH: './actions-tool/sidestore.template.json'
   SOURCE_FILTER_PATH: './actions-tool/altstore-add-version.jq'
@@ -202,7 +202,8 @@ jobs:
          name: ${{ steps.retrieve-data.outputs.title }}
          tag_name: ${{ steps.retrieve-data.outputs.version }}
          # The version's release is published as a normal, latest release (a beta of the same version may have
-         # made it a pre-release). The tag is created on main's HEAD.
+         # made it a pre-release). The tag is first created on main's HEAD and
+         # moved onto the source update commit by the commit step below.
          prerelease: false
          make_latest: 'true'
       - name: Update AltStore.json and SideStore.json
@@ -273,10 +274,21 @@ jobs:
           fi
           add_version "$sidestore_source" "$SIDESTORE_JSON_PATH" "$SIDESTORE_IPA_PATH" null
       - name: Commit update AltStore.json and SideStore.json
+        env:
+          RELEASE_VERSION: ${{ steps.retrieve-data.outputs.version }}
         run: |
+          set -euo pipefail
           git add "$ALTSTORE_JSON_PATH" "$SIDESTORE_JSON_PATH"
           git commit -m "Update AltStore.json and SideStore.json"
           git push origin HEAD
+          # The release's tag was created on main's HEAD before this commit; it belongs on the source update commit.
+          git tag -f "$RELEASE_VERSION" HEAD
+          git push -f origin "refs/tags/$RELEASE_VERSION"
+          remote_tag="$(git ls-remote origin "refs/tags/$RELEASE_VERSION" | awk 'NR == 1 { print $1 }')"
+          if [[ "$remote_tag" != "$(git rev-parse HEAD)" ]]; then
+            echo "::error::The tag $RELEASE_VERSION is on ${remote_tag:-no commit}, not on the source update commit $(git rev-parse HEAD)."
+            exit 1
+          fi
       - name: Post release notes
         env:
           RELEASE_NOTES_PATH: ${{ steps.retrieve-data.outputs.notes_path }}
@@ -295,6 +307,16 @@ jobs:
 
           discord_payload="$BUILDS_PATH/discord.json"
           python3 "$RELEASE_NOTES_TOOL_PATH" discord "$RELEASE_NOTES_PATH" "$RELEASE_URL" | jq -Rs '{content: .}' > "$discord_payload"
-          curl -sS --fail-with-body "$DISCORD_WEBHOOK" \
+          # wait=true makes Discord answer with the posted message, whose id a later post can edit. The webhook
+          # URL is a secret and is never printed.
+          discord_url="$DISCORD_WEBHOOK"
+          if [[ "$discord_url" == *\?* ]]; then
+            discord_url="$discord_url&wait=true"
+          else
+            discord_url="$discord_url?wait=true"
+          fi
+          discord_message="$(curl -sS --fail-with-body "$discord_url" \
             -H 'Content-Type: application/json' \
-            --data-binary "@$discord_payload"
+            --data-binary "@$discord_payload")"
+          discord_id="$(printf '%s' "$discord_message" | jq -r .id)"
+          echo "Discord message id: $discord_id"

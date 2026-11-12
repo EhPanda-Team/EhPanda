@@ -24,7 +24,7 @@ public enum DistributionChannel: String, CaseIterable, Sendable {
     case sidestore
     /// The AltStore PAL build (Phase 20), stamped at build time by `Config/Marketplace.xcconfig`.
     case altstorePAL
-    /// `EhPanda-Beta.ipa`, the separate beta install listed on `altstore-beta.json` (`deploy-beta.yml`).
+    /// `EhPanda-Beta.ipa`, the separate beta install listed on `AltStoreBeta.json` (`deploy-beta.yml`).
     case beta
     /// A build that no release workflow made: someone built it from the source code. Also any build
     /// whose stamp is missing or not on the allow-list.

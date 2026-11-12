@@ -18,7 +18,9 @@ WORKFLOWS = ROOT / ".github" / "workflows"
 RUBY = shutil.which("ruby")
 
 # Tag and release operations no workflow may run (D-03): the only tag a release makes is the one
-# `softprops/action-gh-release` creates from `tag_name`.
+# `softprops/action-gh-release` creates from `tag_name`. The one exception (owner request): deploy.yml's commit
+# step moves that tag onto the source update commit afterwards, with exactly this command.
+TAG_MOVE = (("deploy.yml", "Commit update AltStore.json and SideStore.json"), 'git tag -f "$RELEASE_VERSION" HEAD')
 FORBIDDEN = [
     r"\bgit\s+tag\b",
     r"\bgit\s+push\b[^\n]*--tags\b",
@@ -128,8 +130,51 @@ class DeployWorkflowTests(unittest.TestCase):
         # carries the repository's deploy key and the source commit is pushed with it.
         checkout = step_named(self.deploy, "Checkout")
         self.assertEqual(checkout["with"], {"ssh-key": "${{ secrets.DEPLOY_KEY }}"})
-        self.assertEqual(self.run_text("Commit update AltStore.json and SideStore.json").splitlines()[-1].strip(),
-                         "git push origin HEAD")
+        self.assertIn("git push origin HEAD", [line.strip() for line in
+                                               self.run_text("Commit update AltStore.json and SideStore.json").splitlines()])
+
+    def test_the_release_tag_is_moved_onto_the_source_update_commit(self):
+        # Owner request: the tag softprops/action-gh-release creates on main's HEAD ends up on the commit that
+        # updates the store sources, which is the commit users' clones and the release page point at.
+        step = step_named(self.deploy, "Commit update AltStore.json and SideStore.json")
+        self.assertEqual(step["env"]["RELEASE_VERSION"], "${{ steps.retrieve-data.outputs.version }}")
+        lines = [line.strip() for line in self.run_text("Commit update AltStore.json and SideStore.json").splitlines()]
+        self.assertEqual(lines[0], "set -euo pipefail")
+        push, tag, push_tag = (lines.index(line) for line in (
+            "git push origin HEAD", 'git tag -f "$RELEASE_VERSION" HEAD',
+            'git push -f origin "refs/tags/$RELEASE_VERSION"'))
+        self.assertLess(lines.index('git commit -m "Update AltStore.json and SideStore.json"'), push)
+        self.assertLess(push, tag)
+        self.assertLess(tag, push_tag)
+        run = "\n".join(lines)
+        remote = run.index('git ls-remote origin "refs/tags/$RELEASE_VERSION"')
+        self.assertGreater(remote, run.index('git push -f origin "refs/tags/$RELEASE_VERSION"'))
+        self.assertIn('git rev-parse HEAD', run[remote:])
+        verification = run[remote:]
+        self.assertIn("::error::", verification)
+        self.assertIn("exit 1", verification)
+
+    def test_the_release_step_comment_says_the_tag_is_moved_afterwards(self):
+        text = (WORKFLOWS / "deploy.yml").read_text(encoding="utf-8")
+        self.assertNotIn("The tag is created on main's HEAD.", text)
+        self.assertRegex(text, r"moved onto the source update commit")
+
+    def test_discord_is_posted_with_wait_and_the_message_id_is_logged(self):
+        # So a later post can edit the message. The URL gets `wait=true` whether or not the secret has a query.
+        run = code(step_named(self.deploy, "Post release notes")["run"])
+        self.assertIn("*\\?*", run)
+        self.assertIn('&wait=true', run)
+        self.assertIn('?wait=true', run)
+        self.assertIn("jq -r .id", run)
+        self.assertIn('echo "Discord message id: $', run)
+        self.assertIn("--fail-with-body", run[run.index("discord_payload="):])
+        curl = run[run.index("curl", run.index("discord_payload=")):]
+        self.assertNotIn('"$DISCORD_WEBHOOK"', curl)
+        self.assertEqual(curl.count("DISCORD_WEBHOOK"), 0)
+        for line in run.splitlines():
+            if "echo" in line:
+                self.assertNotIn("WEBHOOK", line)
+                self.assertNotIn("discord_url", line)
 
     def test_the_screenshot_gate_is_off_for_3_0(self):
         # Owner msg 3757: the release no longer waits for, or reads, the screenshot check.
@@ -150,7 +195,7 @@ class DeployWorkflowTests(unittest.TestCase):
         self.assertIn("actions-tool/check-build-number.sh", run)
         self.assertRegex(run, r"git fetch --no-tags --depth 1 origin main")
         self.assertIn("FETCH_HEAD", run)
-        for source in ("AltStore.json", "SideStore.json", "altstore-beta.json"):
+        for source in ("AltStore.json", "SideStore.json", "AltStoreBeta.json"):
             with self.subTest(source):
                 self.assertIn(f"./{source}", run)
         self.assertIn("CURRENT_PROJECT_VERSION", run)
@@ -214,10 +259,10 @@ class BetaWorkflowTests(unittest.TestCase):
         self.assertEqual(beta["jobs"]["Deploy"]["permissions"], {"contents": "write"})
         run = expand(step_named(beta, "Check build number")["run"], beta.get("env", {}))
         self.assertIn("actions-tool/check-build-number.sh", run)
-        # The beta's own source is the checkout's ./altstore-beta.json, next to main's AltStore.json.
+        # The beta's own source is the checkout's ./AltStoreBeta.json, next to main's AltStore.json.
         self.assertRegex(run, r"git fetch --no-tags --depth 1 origin main")
         self.assertIn("./AltStore.json", run)
-        self.assertIn('cp "./altstore-beta.json"', run)
+        self.assertIn('cp "./AltStoreBeta.json"', run)
         self.assertNotIn("altstore-beta branch", run)
         self.assertNotIn("ls-remote", run)
 
@@ -226,7 +271,7 @@ class BetaWorkflowTests(unittest.TestCase):
         for gone in ("BETA_SOURCE_BRANCH", "git worktree", "switch --orphan", "ls-remote", "altstore-beta/altstore-beta.json"):
             with self.subTest(gone):
                 self.assertNotIn(gone, text)
-        self.assertIn("EhPanda/main/altstore-beta.json", text)
+        self.assertIn("EhPanda/main/AltStoreBeta.json", text)
 
     def test_a_beta_dispatched_on_main_fails_before_it_builds_anything(self):
         beta = load(WORKFLOWS / "deploy-beta.yml")
@@ -245,8 +290,8 @@ class BetaWorkflowTests(unittest.TestCase):
         self.assertEqual(step["env"]["BETA_BRANCH"], "${{ github.ref_name }}")
         run = expand(step["run"], env)
         self.assertIn('git push origin "HEAD:refs/heads/$BETA_BRANCH"', run)
-        self.assertIn('git commit -m "Update altstore-beta.json"', run)
-        self.assertIn('git add -- "./altstore-beta.json"', run.replace("${ALTSTORE_BETA_JSON_PATH#./}", "./altstore-beta.json"))
+        self.assertIn('git commit -m "Update AltStoreBeta.json"', run)
+        self.assertIn('git add -- "./AltStoreBeta.json"', run.replace("${ALTSTORE_BETA_JSON_PATH#./}", "./AltStoreBeta.json"))
         # The only push goes to the dispatched branch, never forced, and nothing pushes main.
         pushes = re.findall(r"git push[^\n]*", run)
         self.assertEqual(len(pushes), 1)
@@ -272,7 +317,7 @@ class BetaWorkflowTests(unittest.TestCase):
     @classmethod
     def update_step(cls):
         beta = load(WORKFLOWS / "deploy-beta.yml")
-        return step_named(beta, "Update altstore-beta.json on the dispatched branch"), beta.get("env", {})
+        return step_named(beta, "Update AltStoreBeta.json on the dispatched branch"), beta.get("env", {})
 
     def test_the_versions_get_every_language_of_the_notes_like_the_regular_release(self):
         # The regular release passes localizedDescriptions from release_notes.py (deploy.yml); a beta version
@@ -295,7 +340,7 @@ class BetaWorkflowTests(unittest.TestCase):
         step, env = self.update_step()
         run = expand(step["run"], env)
         self.assertIn('template_path="$PWD/./actions-tool/altstore-beta.template.json"', run)
-        self.assertIn('beta_json="$PWD/./altstore-beta.json"', run)
+        self.assertIn('beta_json="$PWD/./AltStoreBeta.json"', run)
         # The template is the base of every run; the first beta has no published file to take versions from.
         self.assertIn('source_json="$template_path"', run)
         self.assertNotIn('source_json="$beta_json"', run)
@@ -477,7 +522,7 @@ class PalWorkflowTests(unittest.TestCase):
         self.assertIn("actions-tool/asc.py\" check-build", run)
         self.assertIn("CURRENT_PROJECT_VERSION", run)
         # D-26: the PAL build carries the Classic release's build number, so the Classic sources are not compared.
-        for source in ("./AltStore.json", "./SideStore.json", "./altstore-beta.json"):
+        for source in ("./AltStore.json", "./SideStore.json", "./AltStoreBeta.json"):
             with self.subTest(source=source):
                 self.assertNotIn(source, run)
 
@@ -729,6 +774,8 @@ class TagOperationTests(unittest.TestCase):
         for path in paths:
             for index, step in enumerate(steps(load(path))):
                 run = code(step.get("run", ""))
+                if (path.name, step.get("name")) == TAG_MOVE[0]:
+                    run = "\n".join(line for line in run.splitlines() if line.strip() != TAG_MOVE[1])
                 for pattern in FORBIDDEN:
                     with self.subTest(workflow=path.name, step=step.get("name", index), pattern=pattern):
                         self.assertIsNone(re.search(pattern, run))
