@@ -128,7 +128,7 @@ struct BlockedCommentCardLayoutTests {
 
 /// The accessibility elements of a SwiftUI view laid out at `width` and a Dynamic Type size, with their frames.
 @MainActor
-private struct LaidOutElements {
+struct LaidOutElements {
     /// SwiftUI builds its accessibility elements only while accessibility is on in the process, which a test process
     /// does not have unless it asks, as an assistive technology would.
     private static let enableAccessibility: Void = {

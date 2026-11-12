@@ -176,7 +176,6 @@ struct HeaderSection: View {
             }
         }
         .disabled(isDownloadActionDisabled)
-        .frame(width: actionIconButtonSize, height: actionIconButtonSize)
         .accessibilityLabel(downloadButtonAccessibilityLabel)
     }
     private var downloadIconLabel: some View {
