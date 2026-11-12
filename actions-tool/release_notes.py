@@ -22,9 +22,14 @@ Usage:
   release_notes.py altstore <file>               {"en": ..., "de": ..., ...} for AltStore's
                                                  localizedDescriptions
   release_notes.py github <file>                 the GitHub release body: English, then each other
-                                                 language in a collapsed section
-  release_notes.py telegram <file> <url>         English, a blank line, 繁體中文, then the link
-  release_notes.py discord <file> <url>          English, then the link
+                                                 language in a collapsed section; bulleted
+  release_notes.py telegram <file> <url>         English, a blank line, 繁體中文, then the link; bulleted
+  release_notes.py discord <file> <url>          English, then the link; bulleted
+
+Within a language's section the first line is the lead sentence. GitHub, Telegram and Discord show it as
+its own paragraph, with each following line as a bullet (`- ` on GitHub and Discord, `• ` on Telegram,
+which is sent as plain text); a bare link that ends the section stays its own paragraph after the list.
+AltStore and SideStore show the lines as written. The file itself has no bullets.
 
 The PR description is not read. Every command prints to stdout and fails with a message on stderr.
 """
@@ -52,6 +57,9 @@ LINK_ALLOWANCE = 200
 TITLE_LIMIT = 100
 VERSION = re.compile(r"^\d+\.\d+\.\d+$")
 # AltStore and SideStore show the notes as they are, so items are plain lines (owner msg 2591).
+# GitHub and Discord render Markdown; Telegram is sent as plain text, so its items start with a bullet character.
+MARKDOWN_BULLET = "-"
+TELEGRAM_BULLET = "•"
 LIST_MARKER = re.compile(r"^\s*(\d+[.)]|[-*+•])\s")
 
 
@@ -146,11 +154,27 @@ def read(path, part=None):
         raise NotesError(f"{path}: {error}") from error
 
 
+def bulleted(text, marker):
+    """A section as GitHub, Telegram and Discord show it: the first line as the lead sentence, a blank line,
+    then every other line as an item starting with `marker`. A bare link ending the section stays its own
+    paragraph after the list. Blank lines between the section's lines make no difference."""
+    link = last_link(text)
+    if link:
+        text = without_link(text, link)
+    lead, *items = [line for line in text.split("\n") if line.strip()]
+    parts = [lead]
+    if items:
+        parts.append("\n".join(f"{marker} {item}" for item in items))
+    if link:
+        parts.append(link)
+    return "\n\n".join(parts)
+
+
 def github(notes):
-    parts = [notes["en"]]
+    parts = [bulleted(notes["en"], MARKDOWN_BULLET)]
     for code, name in LANGUAGES:
         if code != "en":
-            parts.append(f"<details>\n<summary>{name}</summary>\n\n{notes[code]}\n\n</details>")
+            parts.append(f"<details>\n<summary>{name}</summary>\n\n{bulleted(notes[code], MARKDOWN_BULLET)}\n\n</details>")
     return "\n\n".join(parts) + "\n"
 
 
@@ -173,11 +197,12 @@ def telegram(notes, url):
     shared = last_link(english)
     if shared and shared == last_link(chinese):
         english = without_link(english, shared)
+    english, chinese = bulleted(english, TELEGRAM_BULLET), bulleted(chinese, TELEGRAM_BULLET)
     return f"{english}\n\n{chinese}\n\n{url}".rstrip("\n") + "\n"
 
 
 def discord(notes, url):
-    return f"{without_link(notes['en'], url)}\n\n{url}".rstrip("\n") + "\n"
+    return f"{bulleted(without_link(notes['en'], url), MARKDOWN_BULLET)}\n\n{url}".rstrip("\n") + "\n"
 
 
 def release_version(workflow=WORKFLOW, project=PROJECT):

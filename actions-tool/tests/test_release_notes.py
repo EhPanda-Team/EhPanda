@@ -125,51 +125,131 @@ class ParseTests(unittest.TestCase):
             release_notes.parse(TEXT.replace("修正了閱讀頁面中縮放比例大於 1 時出現的手勢失效問題。", long_line))
 
 
+def listed(notes, code, marker):
+    """The lead sentence, then every other line as an item, as a section is rendered."""
+    lead, *items = notes[code].split("\n")
+    return lead + "".join(f"\n\n{marker} {items[0]}" if i == 0 else f"\n{marker} {item}" for i, item in enumerate(items))
+
+
 class DestinationTests(unittest.TestCase):
     notes = release_notes.parse(TEXT)
+    SITE = "https://ehpanda.app"
+
+    def test_the_fixture_section_is_a_lead_and_one_item(self):
+        # The expected layout in the tests below, written out once by hand.
+        self.assertEqual(listed(self.notes, "en", "-"),
+                         "Fixed reading page gestures not responding when scale is greater than 1.\n\n"
+                         "- Improved the search page. (credit @someone)")
 
     def test_github_has_english_open_then_each_language_collapsed(self):
         body = release_notes.github(self.notes)
-        self.assertTrue(body.startswith(self.notes["en"] + "\n\n<details>\n<summary>Deutsch</summary>\n\n"))
+        self.assertTrue(body.startswith(listed(self.notes, "en", "-") + "\n\n<details>\n<summary>Deutsch</summary>\n\n"))
         summaries = [line for line in body.split("\n") if line.startswith("<summary>")]
         self.assertEqual(summaries, [f"<summary>{name}</summary>" for name in HEADINGS[1:]])
         self.assertEqual(body.count("<details>"), 5)
         self.assertEqual(body.count("</details>"), 5)
         for code in ["de", "ja", "ko", "zh-Hans", "zh-Hant"]:
-            self.assertIn(f"\n\n{self.notes[code]}\n\n</details>", body)
+            self.assertIn(f"\n\n{listed(self.notes, code, '-')}\n\n</details>", body)
+
+    def test_github_body_in_full(self):
+        expected = [listed(self.notes, "en", "-")]
+        for code, name in [("de", "Deutsch"), ("ja", "日本語"), ("ko", "한국어"), ("zh-Hans", "简体中文"), ("zh-Hant", "繁體中文")]:
+            expected.append(f"<details>\n<summary>{name}</summary>\n\n{listed(self.notes, code, '-')}\n\n</details>")
+        self.assertEqual(release_notes.github(self.notes), "\n\n".join(expected) + "\n")
 
     def test_telegram_is_english_then_traditional_chinese_then_the_link_with_no_language_named(self):
         message = release_notes.telegram(self.notes, URL)
-        self.assertEqual(message, f"{self.notes['en']}\n\n{self.notes['zh-Hant']}\n\n{URL}\n")
+        self.assertEqual(message, f"{listed(self.notes, 'en', '•')}\n\n{listed(self.notes, 'zh-Hant', '•')}\n\n{URL}\n")
         for heading in HEADINGS:
             self.assertNotIn(heading, message)
 
-    def test_no_destination_numbers_the_items(self):
-        # Owner msg 2591: the lines go out as written, never numbered or bulleted.
-        outputs = [release_notes.github(self.notes), release_notes.telegram(self.notes, URL),
-                   release_notes.discord(self.notes, URL), *self.notes.values()]
-        for output in outputs:
-            for line in output.split("\n"):
+    def test_the_destinations_bullet_the_items_and_the_raw_notes_stay_plain(self):
+        # Owner msg 2591: AltStore and SideStore show the lines as written, so the parsed notes carry no
+        # number or bullet; GitHub, Telegram and Discord bullet every line after the lead.
+        for text in self.notes.values():
+            for line in text.split("\n"):
                 self.assertIsNone(release_notes.LIST_MARKER.match(line), line)
+        for marker, output in [("-", release_notes.github(self.notes)), ("•", release_notes.telegram(self.notes, URL)),
+                               ("-", release_notes.discord(self.notes, URL))]:
+            with self.subTest(marker=marker):
+                bulleted = [line for line in output.split("\n") if release_notes.LIST_MARKER.match(line)]
+                self.assertTrue(bulleted)
+                self.assertTrue(all(line.startswith(f"{marker} ") for line in bulleted), bulleted)
+        self.assertNotIn("•", release_notes.github(self.notes))
+        self.assertNotIn("•", release_notes.discord(self.notes, URL))
+        self.assertNotIn("\n- ", release_notes.telegram(self.notes, URL))
 
     def test_discord_is_english_then_the_link(self):
-        self.assertEqual(release_notes.discord(self.notes, URL), f"{self.notes['en']}\n\n{URL}\n")
+        self.assertEqual(release_notes.discord(self.notes, URL), f"{listed(self.notes, 'en', '-')}\n\n{URL}\n")
+
+    def test_every_line_after_the_first_is_an_item_in_order_with_no_blank_lines_between(self):
+        notes = {code: "Lead.\nOne.\nTwo.\nThree." for code in self.notes}
+        expected = "Lead.\n\n{m} One.\n{m} Two.\n{m} Three."
+        self.assertEqual(release_notes.discord(notes, URL), expected.format(m="-") + f"\n\n{URL}\n")
+        self.assertEqual(release_notes.telegram(notes, URL),
+                         expected.format(m="•") + "\n\n" + expected.format(m="•") + f"\n\n{URL}\n")
+        self.assertTrue(release_notes.github(notes).startswith(expected.format(m="-") + "\n\n<details>"))
+
+    def test_items_separated_by_blank_lines_are_the_same_list(self):
+        # The 3.0.0.md style: one item per paragraph.
+        spaced = {code: "Lead.\n\nOne.\n\nTwo.\n\nThree." for code in self.notes}
+        packed = {code: "Lead.\nOne.\nTwo.\nThree." for code in self.notes}
+        self.assertEqual(release_notes.github(spaced), release_notes.github(packed))
+        self.assertEqual(release_notes.telegram(spaced, URL), release_notes.telegram(packed, URL))
+        self.assertEqual(release_notes.discord(spaced, URL), release_notes.discord(packed, URL))
+        self.assertEqual(release_notes.discord(spaced, URL), f"Lead.\n\n- One.\n- Two.\n- Three.\n\n{URL}\n")
+
+    def test_a_section_with_only_a_lead_is_just_the_lead(self):
+        notes = {code: "Only the lead." for code in self.notes}
+        self.assertEqual(release_notes.discord(notes, URL), f"Only the lead.\n\n{URL}\n")
+        self.assertEqual(release_notes.telegram(notes, URL), f"Only the lead.\n\nOnly the lead.\n\n{URL}\n")
+        self.assertIn("<summary>Deutsch</summary>\n\nOnly the lead.\n\n</details>", release_notes.github(notes))
+        self.assertTrue(release_notes.github(notes).startswith("Only the lead.\n\n<details>"))
+
+    def test_a_trailing_link_stays_its_own_paragraph_after_the_list(self):
+        notes = {code: f"Lead.\n\nOne.\n\nTwo.\n\n{self.SITE}" for code in self.notes}
+        self.assertEqual(release_notes.discord(notes, URL), f"Lead.\n\n- One.\n- Two.\n\n{self.SITE}\n\n{URL}\n")
+        self.assertIn(f"<summary>日本語</summary>\n\nLead.\n\n- One.\n- Two.\n\n{self.SITE}\n\n</details>",
+                      release_notes.github(notes))
+        self.assertTrue(release_notes.github(notes).startswith(f"Lead.\n\n- One.\n- Two.\n\n{self.SITE}\n\n<details>"))
+        self.assertNotIn(f"- {self.SITE}", release_notes.github(notes))
+
+    def test_a_lead_with_only_a_link_after_it_has_no_list(self):
+        notes = {code: f"Lead.\n\n{self.SITE}" for code in self.notes}
+        self.assertEqual(release_notes.discord(notes, URL), f"Lead.\n\n{self.SITE}\n\n{URL}\n")
 
     def test_a_link_the_notes_already_end_with_is_posted_once(self):
         # Owner msg 4453: the 3.0.0 notes themselves end with the website link, which the posts also end with.
-        site = "https://ehpanda.app"
-        notes = {code: f"{text}\n\n{site}" for code, text in self.notes.items()}
-        self.assertEqual(release_notes.telegram(notes, site),
-                         f"{self.notes['en']}\n\n{self.notes['zh-Hant']}\n\n{site}\n")
-        self.assertEqual(release_notes.discord(notes, site), f"{self.notes['en']}\n\n{site}\n")
+        notes = {code: f"{text}\n\n{self.SITE}" for code, text in self.notes.items()}
+        self.assertEqual(release_notes.telegram(notes, self.SITE),
+                         f"{listed(self.notes, 'en', '•')}\n\n{listed(self.notes, 'zh-Hant', '•')}\n\n{self.SITE}\n")
+        self.assertEqual(release_notes.discord(notes, self.SITE), f"{listed(self.notes, 'en', '-')}\n\n{self.SITE}\n")
 
     def test_a_link_both_telegram_languages_end_with_is_posted_once_before_the_release_url(self):
         # Owner msg 4453 and 4459: the 3.0.0 notes end with https://ehpanda.app; the post ends with the release URL.
-        site = "https://ehpanda.app"
-        notes = {code: f"{text}\n\n{site}" for code, text in self.notes.items()}
+        notes = {code: f"{text}\n\n{self.SITE}" for code, text in self.notes.items()}
         self.assertEqual(release_notes.telegram(notes, URL),
-                         f"{self.notes['en']}\n\n{self.notes['zh-Hant']}\n\n{site}\n\n{URL}\n")
-        self.assertEqual(release_notes.discord(notes, URL), f"{self.notes['en']}\n\n{site}\n\n{URL}\n")
+                         f"{listed(self.notes, 'en', '•')}\n\n{listed(self.notes, 'zh-Hant', '•')}\n\n{self.SITE}\n\n{URL}\n")
+        self.assertEqual(release_notes.discord(notes, URL),
+                         f"{listed(self.notes, 'en', '-')}\n\n{self.SITE}\n\n{URL}\n")
+
+    def test_length_checks_measure_the_rendered_text(self):
+        # Every item gains "- " (Discord) or "• " (Telegram) and the lead a blank line after it, so notes
+        # that fit as plain lines can be too long once rendered. Each case fits as written and not rendered.
+        english_old = ("Fixed reading page gestures not responding when scale is greater than 1.\n"
+                       "Improved the search page. (credit @someone)")
+        chinese_old = "修正了閱讀頁面中縮放比例大於 1 時出現的手勢失效問題。\n改善了搜尋頁面。 (credit @someone)"
+
+        english = "\n".join(["z" * 17] * 100)  # 1,799 characters as written, 1,998 rendered
+        self.assertLessEqual(len(english) + release_notes.LINK_ALLOWANCE, release_notes.DISCORD_LIMIT)
+        with self.assertRaisesRegex(release_notes.NotesError, "too long for Discord"):
+            release_notes.parse(TEXT.replace(english_old, english))
+
+        english = "\n".join(["y" * 18] * 100)  # 1,899 as written
+        chinese = "\n".join(["修" * 18] * 100)
+        self.assertLessEqual(len(english) + len(chinese) + 2 + release_notes.LINK_ALLOWANCE, release_notes.TELEGRAM_LIMIT)
+        with self.assertRaisesRegex(release_notes.NotesError, "too long for Telegram"):
+            release_notes.parse(TEXT.replace(english_old, english).replace(chinese_old, chinese))
 
 
 class VersionTests(unittest.TestCase):
