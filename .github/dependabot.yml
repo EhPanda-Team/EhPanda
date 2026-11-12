@@ -7,7 +7,7 @@ updates:
       day: 'monday'
       interval: 'weekly'
       timezone: 'UTC'
-    target-branch: 'main'
+    target-branch: 'develop'
     groups:
       all-updates:
         update-types:

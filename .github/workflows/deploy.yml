@@ -59,6 +59,10 @@ jobs:
           fi
       - name: Checkout
         uses: actions/checkout@v7
+        # Main's rule only lets deploy keys past (GitHub refuses GitHub Actions on that list), so check out with
+        # the repository's deploy key: the push of the AltStore and SideStore sources below then goes through.
+        with:
+          ssh-key: ${{ secrets.DEPLOY_KEY }}
       # Snapshot gate off for 3.0 (owner msg 3757); restore by re-adding the snapshot-gate job and the require step
       # (see git history of this commit).
       - name: Modify git config

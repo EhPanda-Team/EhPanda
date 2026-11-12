@@ -123,6 +123,14 @@ class DeployWorkflowTests(unittest.TestCase):
         self.assertEqual(validate["env"]["RELEASE_TITLE"], "${{ steps.retrieve-data.outputs.title }}")
         self.assertIn('[[ ! -z "$RELEASE_TITLE" ]] || exit 1', validate["run"])
 
+    def test_the_sources_are_pushed_to_main_with_the_deploy_key(self):
+        # Main's rule lets only deploy keys past, and GitHub refuses GitHub Actions on that list, so the checkout
+        # carries the repository's deploy key and the source commit is pushed with it.
+        checkout = step_named(self.deploy, "Checkout")
+        self.assertEqual(checkout["with"], {"ssh-key": "${{ secrets.DEPLOY_KEY }}"})
+        self.assertEqual(self.run_text("Commit update AltStore.json and SideStore.json").splitlines()[-1].strip(),
+                         "git push origin HEAD")
+
     def test_the_screenshot_gate_is_off_for_3_0(self):
         # Owner msg 3757: the release no longer waits for, or reads, the screenshot check.
         self.assertEqual(list(self.deploy["jobs"]), ["Deploy"])
@@ -328,12 +336,6 @@ class BetaWorkflowTests(unittest.TestCase):
         self.assertIn('--argjson privacy "$privacy"', run)
         self.assertIn("jq -e 'type == \"array\"'", run.replace("\\\"", "\""))
 
-    def test_the_temporary_pre_release_copy_is_the_beta_workflow(self):
-        beta = (WORKFLOWS / "deploy-beta.yml").read_text(encoding="utf-8")
-        copy_ = (WORKFLOWS / "deploy-pre-release.yml").read_text(encoding="utf-8")
-        self.assertTrue(copy_.endswith(beta), "deploy-pre-release.yml must stay deploy-beta.yml with its three header lines")
-        self.assertEqual(copy_[:-len(beta)].count("\n"), 3)
-
 
 @unittest.skipUnless(RUBY, "ruby is not installed")
 class ReleasesDoNotTestTests(unittest.TestCase):
@@ -341,10 +343,9 @@ class ReleasesDoNotTestTests(unittest.TestCase):
     job, on every branch push; a release is built from a commit the owner has already seen pass."""
 
     # workflow file -> its release job
-    RELEASES = {"deploy.yml": "Deploy", "deploy-beta.yml": "Deploy", "deploy-pre-release.yml": "Deploy",
-                "deploy-pal.yml": "submit"}
+    RELEASES = {"deploy.yml": "Deploy", "deploy-beta.yml": "Deploy", "deploy-pal.yml": "submit"}
     PERMISSIONS = {"deploy.yml": {"contents": "write"}, "deploy-beta.yml": {"contents": "write"},
-                   "deploy-pre-release.yml": {"contents": "write"}, "deploy-pal.yml": {"contents": "read"}}
+                   "deploy-pal.yml": {"contents": "read"}}
 
     def test_no_release_runs_tests_or_waits_on_them(self):
         for name in self.RELEASES:
@@ -746,6 +747,18 @@ class TagOperationTests(unittest.TestCase):
             with self.subTest(command):
                 self.assertTrue(any(re.search(pattern, command) for pattern in FORBIDDEN))
         self.assertFalse(any(re.search(pattern, "git push origin HEAD") for pattern in FORBIDDEN))
+
+
+class ActionPinTests(unittest.TestCase):
+    """Owner msg 4659: every action is pinned to its major version tag (`@v8`), never a commit hash."""
+
+    def test_every_action_is_pinned_to_a_major_version(self):
+        for path in sorted(WORKFLOWS.glob("*.y*ml")):
+            for ref in re.findall(r"(?m)^\s*-?\s*uses:\s*(\S+)", path.read_text(encoding="utf-8")):
+                if ref.startswith("./"):
+                    continue
+                with self.subTest(workflow=path.name, uses=ref):
+                    self.assertRegex(ref, r"^[\w.-]+/[\w./-]+@v\d+$")
 
 
 if __name__ == "__main__":

@@ -106,7 +106,7 @@ jobs:
           timeout_minutes: 999
           command: xcodebuild -downloadPlatform iOS
       - name: Download the test products
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v8
         with:
           name: snapshot-measure-products
           path: ${{ runner.temp }}
