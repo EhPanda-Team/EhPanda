@@ -307,15 +307,18 @@ class RequirePassingTestsStepTests(unittest.TestCase):
 
     def test_the_test_workflow_is_what_the_script_reads_and_it_runs_the_old_step_s_tests(self):
         # The old step: `xcodebuild clean test -testPlan FeatureTests` on iPhone Air, iOS 27.0. test.yml runs that,
-        # on every push, unless the message says [skip test] (the script then finds no run and refuses).
+        # on every branch push, unless the message says [skip test] (the script then finds no run and refuses).
         text = (WORKFLOWS / "test.yml").read_text(encoding="utf-8")
         run = " ".join(code(step_named(load(WORKFLOWS / "test.yml"), "Run tests")["run"]).split())
         self.assertIn("xcodebuild clean test", run)
         self.assertIn("-testPlan FeatureTests", run)
         self.assertIn("-destination 'platform=iOS Simulator,name=iPhone Air,OS=27.0'", run)
         document = load(WORKFLOWS / "test.yml")
-        # The list form has no branch or paths filter: every push has a run.
-        self.assertEqual(document.get("on", document.get("true")), ["push", "workflow_dispatch"])
+        # Every push to a branch has a run, with no paths filter. A tag push has none: moving a release's tag (the
+        # tag is pushed by hand when a release is re-targeted) must not start a run of the test suite on refs/tags/*,
+        # which the release's require step would then take for the newest run.
+        triggers = document.get("on", document.get("true"))
+        self.assertEqual(triggers, {"push": {"branches": ["**"]}, "workflow_dispatch": None})
         self.assertIn("[skip test]", text)
 
 
