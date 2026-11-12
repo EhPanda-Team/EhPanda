@@ -13,7 +13,7 @@ extension XCUIApplication {
         var usesSidebar = false
         // Layout can change while the native bar appears. Choose the presentation anew on every sample, and
         // only retain it once its matching native title and controls are actually ready.
-        let ready = NSPredicate { _, _ in
+        let ready: () -> Bool = {
             let hasSidebar = sidebar.exists
             let navigation = self.navigationBars[hasSidebar ? source : "Library"]
             guard navigation.exists, navigation.staticTexts[source].isHittable else { return false }
@@ -33,9 +33,10 @@ extension XCUIApplication {
             readyNavigation = navigation
             return true
         }
-        let wait = XCTWaiter.wait(for: [XCTNSPredicateExpectation(predicate: ready, object: nil)], timeout: 15)
-        XCTAssertEqual(wait, .completed, "Library's native title and selected source did not become ready.",
-                       file: file, line: line)
+        // Each sample is several snapshots of the hierarchy, 1 to 9 seconds apiece on a hosted runner: a 15-second wait
+        // took one sample of a Library title that stood ready (run 4, iPhone AX5).
+        XCTAssertTrue(Polling.wait(ready), "Library's native title and selected source did not become ready.",
+                      file: file, line: line)
         let navigation = readyNavigation ?? navigationBars[sidebar.exists ? source : "Library"]
         XCTAssertTrue(navigation.exists, file: file, line: line)
         if !usesSidebar {

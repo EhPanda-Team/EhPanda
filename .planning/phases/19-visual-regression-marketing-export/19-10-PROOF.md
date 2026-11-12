@@ -461,6 +461,41 @@ that run 3's unmet expectations are tested again: `triage` lists exactly s03 and
 simulator and pass, both native-policy jobs pass, and the aggregate is green with all four classes at 0. A green
 run is candidate mode and is not baseline approval.
 
+### Task 5: hosted run 4 (run 42951290351), native policy
+
+Run 4 (candidate mode, `a100173b5`, 2026-11-11) failed in both native-policy jobs; its `retry s03` was a lost runner
+(below). The native-policy source at run 4 is the source of this section's fix (`NativeVisualPolicyUITests.swift` and
+`Support/` had not changed). Evidence: the jobs' xcodebuild logs and result bundles (iPhone 27.0 and iPad 27.0, 24A434).
+
+**Cause: harness timing on a slow hosted runner, not the app.** On the hosted runner one XCUITest query took 1 to 9 s
+(0.1 s locally) and a stalled one 30 s, and an `activate()` waited 60 s for an app that was visually still. Each failure
+is a wait sized in seconds that ended after one or two looks at a screen that was ready, or a call XCTest fails on
+instead of answering false:
+
+| Test | Failure at run 4 | Cause |
+|---|---|---|
+| iPhone `testColdEntryAtAX5` | iteration 1: `Home is off screen at AX5` (one 9 s query in a 10 s wait; the recording shows the title up); iteration 2: Library title menu not ready (a 15 s wait took 1 or 2 samples; the recording shows the menu up) | wait sized in seconds, one sample |
+| iPhone and iPad `testLiveTextSizeRouteReachesEverySize` | cold render probe `height=0.0, ink=0` after 15 s (1 sample); `Failed to determine hittability of "Account" Button: Activation point invalid` | the probe called `isHittable` on a row whose layout was moving, which XCTest records as a failure; 15 s wait |
+| iPad `testSearchKeepsQueryFocusAndTabThroughSizesAndTurns` | iteration 1: the Larger Accessibility Sizes switch tapped, still on after 5 s; iteration 2: `Failed to activate application 'com.apple.Preferences' (current state: Not Running)` after 60 s | one tap that changed nothing, never repeated; `activate()` of a Settings app that had left the background |
+| iPad `testSettingMarksAndTitleSurviveSizesAndTurns` (iteration 1 only, passed on 2) | `Timed out while evaluating UI query` after three 30 s snapshots | XCUITest's own timeout on the stalled runner; the run's second iteration covers it; not changed |
+
+No app defect was found: every screen the failed waits looked at was drawn correctly in the result bundles' recordings,
+the same layouts passed in the other iterations of the same run, and the 60 s `activate()` hang happened once in 18
+activations of the app.
+
+**Fix (test harness only, no assertion, tolerance or case changed):** `Support/Polling.swift` waits for a condition for
+60 s and at least three samples, and ends at once when it holds. The Library title/source readiness and the render
+probe use it (a cold render is also required to read the same twice in a row); the probe no longer calls `isHittable`
+(the crop's containment in the screen and its ink decide, and live renders still must equal their cold references);
+`requireTitle` waits `XCUIElement.hittableTimeout` for the heading; the Larger Accessibility Sizes switch is tapped
+again when it has not moved in 10 s (its state is read before each tap); Settings is always launched fresh and never
+activated from the background (a launch ends a running instance).
+
+**Not reproduced locally.** The unfixed route test passed twice on the iPhone, Xcode 27.2 with the iOS 27.0 runtime
+(24A434), once of them with 24 busy loops keeping every core saturated (132 s against 124 s): the hosted slowness is
+not CPU contention that a local run can imitate. The fix is argued from the logs and recordings; only a hosted run
+proves it.
+
 ### Open items for Phase 20 (release gate on the `aggregate` check)
 
 Phase 20's release workflows require a successful check run named `aggregate` (the job id in
