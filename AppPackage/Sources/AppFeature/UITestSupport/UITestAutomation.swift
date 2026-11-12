@@ -13,6 +13,7 @@ import Foundation
 import HapticsClient
 import LibraryClient
 import ReadingFeature
+import SearchFeature
 import Sharing
 import UserDefaultsClient
 #if DEBUG && canImport(Appshot) && canImport(AppshotProtocol)
@@ -155,6 +156,9 @@ public enum UITestAutomation {
         /// `EHPANDA_UITEST_DROP_INITIAL_IDLE=1`: each horizontal pager the reader builds drops its
         /// first `.idle` report (17-VERIFICATION.md R5-1). Only a stubbed-network launch sets it.
         var dropsReaderInitialIdleReport = false
+        /// `EHPANDA_UITEST_RECENT_FRAME_LOG`: the file Search's Recently Viewed cards log their leading edges to.
+        /// Only a stubbed-network launch has one.
+        var recentFrameLogURL: URL?
         /// `EHPANDA_UITEST_REPORT_SCENARIO`: how the stub answers the Report form (18.1-04). Only a stubbed-network
         /// launch reads it; every other launch, and any unknown value, is `ready`.
         var reportScenario = UITestStubURLProtocol.ReportScenario.ready
@@ -198,6 +202,7 @@ public enum UITestAutomation {
             URLProtocol.registerClass(UITestStubURLProtocol.self)
             // Set before the first reader is built; the reader reads it as its environment default.
             ReaderUITestOptions.dropsInitialIdleReport = configuration.dropsReaderInitialIdleReport
+            RecentlyViewedUITestOptions.frameLogURL = configuration.recentFrameLogURL
         }
         // Both overrides share one preparation. The get-then-set on `$0.downloadClient` is accepted
         // because the get and the set happen inside the same preparation: reading it caches the live
@@ -394,7 +399,7 @@ public enum UITestAutomation {
             environment: environment,
             key: "EHPANDA_UITEST_FIXTURE_DIR"
         )
-        .map({ URL(filePath: $0) })
+        .map(fileURL(forLaunchPath:))
         let clipboardURL = trimmedValue(
             environment: environment,
             key: "EHPANDA_UITEST_CLIPBOARD_URL"
@@ -439,6 +444,10 @@ public enum UITestAutomation {
                 : nil,
             dropsReaderInitialIdleReport: shouldStubNetwork
                 && trimmedValue(environment: environment, key: "EHPANDA_UITEST_DROP_INITIAL_IDLE") == "1",
+            recentFrameLogURL: shouldStubNetwork
+                ? trimmedValue(environment: environment, key: "EHPANDA_UITEST_RECENT_FRAME_LOG")
+                    .map(fileURL(forLaunchPath:))
+                : nil,
             reportScenario: UITestStubURLProtocol.ReportScenario(
                 launchValue: shouldStubNetwork
                     ? trimmedValue(environment: environment, key: "EHPANDA_UITEST_REPORT_SCENARIO")
@@ -449,6 +458,13 @@ public enum UITestAutomation {
         configuration.appshotScene = appshot
         #endif
         return configuration
+    }
+
+    /// A path a launch key names. A leading `~/` is the app's own home, for a launch from a Mac onto a device, where
+    /// the app's container path is not known to the launcher.
+    private static func fileURL(forLaunchPath path: String) -> URL {
+        guard path.hasPrefix("~/") else { return URL(filePath: path) }
+        return URL(filePath: NSHomeDirectory()).appending(path: String(path.dropFirst(2)))
     }
 
     static func shouldDetectClipboardURL(

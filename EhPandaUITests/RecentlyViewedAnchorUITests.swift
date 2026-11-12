@@ -27,9 +27,13 @@ final class RecentlyViewedAnchorUITests: XCTestCase {
         try fixtures.retitle(listNamed: "FrontPageList.html", { index, _ in "Quiet Harbor \(index + 1)" })
         try fixtures.neutralizeUploaders()
         try fixtures.neutralizeDetail()
+        // Every layout of a Recently Viewed card is logged, so the test sees the frames in between as well as the one
+        // the row settles on.
+        let frameLog = FrameLog(url: fixtures.root.appending(path: "recent-frames.log"))
         let app = XCUIApplication()
         try app.launchStubbed(extraEnvironment: [
-            "EHPANDA_AUTOMATION_TAB": "home", UITestConstants.fixtureDirectoryEnvironmentKey: fixtures.root.path()
+            "EHPANDA_AUTOMATION_TAB": "home", UITestConstants.fixtureDirectoryEnvironmentKey: fixtures.root.path(),
+            "EHPANDA_UITEST_RECENT_FRAME_LOG": frameLog.url.path()
         ])
         app.requireForeground()
         defer { app.terminate() }
@@ -51,6 +55,14 @@ final class RecentlyViewedAnchorUITests: XCTestCase {
         let before = recentlyViewed(app)
         let anchor = try XCTUnwrap(before.cards.first(where: { $0.minX >= 0 }), "No card is fully on screen.")
         attach(app, "before")
+        // The leading card is the one the row is anchored on: the first whose edge is on screen.
+        let resting = frameLog.latest()
+        let anchorID = try XCTUnwrap(
+            resting.filter({ $0.value >= 0 }).min(by: { $0.value < $1.value })?.key, "The frame log has no card."
+        )
+        let anchorX = try XCTUnwrap(resting[anchorID])
+        XCTAssertEqual(anchorX, anchor.minX, accuracy: Self.tolerance, "The frame log and the screen disagree.")
+        let mark = frameLog.count
 
         // A gallery not seen yet is viewed from Home and the Search tab comes back.
         app.tabBars.buttons["Home"].tap()
@@ -62,6 +74,22 @@ final class RecentlyViewedAnchorUITests: XCTestCase {
         )
         settle(app)
         attach(app, "after")
+
+        // No frame in between: from the tap back to the settled row, the leading card is laid out where it was. The
+        // screen takes what each run loop turn leaves behind, so a turn is a frame: a layout that a later layout in the
+        // same turn replaces never reaches it, and the last one of each turn is the card as the screen can see it.
+        let lines = frameLog.lines(after: mark)
+        let log = XCTAttachment(string: lines.map(\.description).joined(separator: "\n"))
+        log.name = "Card layouts, by run loop turn"
+        log.lifetime = .keepAlways
+        add(log)
+        let turns = Dictionary(grouping: lines.filter({ $0.id == anchorID }), by: \.turn)
+        let seen = turns.keys.sorted().compactMap({ turns[$0]?.last?.edge })
+        let moved = seen.filter({ abs($0 - anchorX) > Self.tolerance })
+        XCTAssertTrue(
+            moved.isEmpty,
+            "The leading card was on screen away from \(anchorX): \(seen.map({ String(format: "%.1f", $0) }))."
+        )
 
         let after = recentlyViewed(app)
         let kept = try XCTUnwrap(
@@ -160,6 +188,32 @@ final class RecentlyViewedAnchorUITests: XCTestCase {
 
     // MARK: Reading
 
+    /// The log the row's cards write, one line per layout that put a card's leading edge somewhere new, with the
+    /// run loop turn it happened in.
+    private struct FrameLog {
+        let url: URL
+
+        var allLines: [FrameLogLine] {
+            guard let data = FileManager.default.contents(atPath: url.path()),
+                  let text = String(data: data, encoding: .utf8) else { return [] }
+            return text.split(separator: "\n").compactMap({ line in
+                let parts = line.split(separator: " ")
+                guard parts.count == 4, let time = Double(parts[0]), let turn = Int(parts[1]),
+                      let edge = Double(parts[3]) else { return nil }
+                return FrameLogLine(time: time, turn: turn, id: String(parts[2]), edge: edge)
+            })
+        }
+
+        var count: Int { allLines.count }
+
+        func lines(after mark: Int) -> [FrameLogLine] { Array(allLines.dropFirst(mark)) }
+
+        /// Where each card was last laid out.
+        func latest() -> [String: Double] {
+            allLines.reduce(into: [:], { $0[$1.id] = $1.edge })
+        }
+    }
+
     private struct Card {
         let title: String
         let minX: Double
@@ -195,4 +249,13 @@ final class RecentlyViewedAnchorUITests: XCTestCase {
         collect(snapshot)
         return Row(cards: cards.sorted(by: { $0.minX < $1.minX }))
     }
+}
+
+private struct FrameLogLine: CustomStringConvertible {
+    let time: Double
+    let turn: Int
+    let id: String
+    let edge: Double
+
+    var description: String { String(format: "%.3f turn %d %@ %.1f", time, turn, id, edge) }
 }
