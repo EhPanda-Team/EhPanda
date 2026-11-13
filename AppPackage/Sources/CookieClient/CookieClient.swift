@@ -559,7 +559,7 @@ private final class CookieClientTestingStore: Sendable {
         notify()
     }
 
-    private func cookie(for url: URL, key: String) -> CookieClientTestingCookie? {
+    fileprivate func cookie(for url: URL, key: String) -> CookieClientTestingCookie? {
         cookies.withLock { storage in
             storage.values.first(where: { $0.matches(url: url, key: key) })
         }
@@ -599,12 +599,18 @@ extension CookieClient {
                 store.stream()
             },
             getCookie: { url, key in
-                // As the live jar reads it: the placeholder the site sets in place of a cookie it withholds is
-                // shown as such and marked invalid; any other value is the cookie itself.
-                let value = store.value(for: url, key: key)
-                return value == Defaults.Cookie.mystery
-                    ? .init(rawValue: value, localizedString: String(localized: .cookieValueMystery))
-                    : .init(rawValue: value, localizedString: "")
+                // As the live jar reads it: a missing or empty cookie reads as none, an expired one as expired,
+                // and the placeholder the site sets in place of a cookie it withholds is shown as such and marked
+                // invalid; any other value is the cookie itself.
+                guard let cookie = store.cookie(for: url, key: key), !cookie.value.isEmpty else {
+                    return .init(rawValue: "", localizedString: String(localized: .cookieValueNone))
+                }
+                if let expiresDate = cookie.expiresDate, expiresDate <= .now {
+                    return .init(rawValue: "", localizedString: String(localized: .cookieValueExpired))
+                }
+                return cookie.value == Defaults.Cookie.mystery
+                    ? .init(rawValue: cookie.value, localizedString: String(localized: .cookieValueMystery))
+                    : .init(rawValue: cookie.value, localizedString: "")
             },
             cookiesForURL: { url in
                 store.cookies(for: url)
