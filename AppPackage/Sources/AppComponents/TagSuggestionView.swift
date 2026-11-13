@@ -14,24 +14,39 @@ import TagTranslationFeature
 /// the device. A menu row is a plain completion the system applies; inline, a count heads the rows
 /// and each row completes the keyword itself.
 public struct TagSuggestionView: View {
+    /// Where the keyword being completed is typed.
+    public enum Source {
+        /// A search field: the typed text is tidied (runs of spaces, full-width colons) as it changes.
+        case searchField
+        /// A multi-line `TextEditor` in a form: the text is never rewritten while typing, which would cancel a
+        /// marked (CJK composition) range and move the cursor, and the suggestion rows stay out of the way until
+        /// there is something to suggest.
+        case textEditor
+    }
+
     @Environment(\.searchSuggestionsPlacement) private var searchSuggestionsPlacement
     @Binding private var keyword: String
     private let translations: [String: TagTranslation]
     private let showsImages: Bool
     private let isEnabled: Bool
+    private let source: Source
 
     @State private var translationHandler = TagTranslationHandler()
 
-    public init(keyword: Binding<String>, translations: [String: TagTranslation], showsImages: Bool, isEnabled: Bool) {
+    public init(
+        keyword: Binding<String>, translations: [String: TagTranslation], showsImages: Bool, isEnabled: Bool,
+        source: Source = .searchField
+    ) {
         _keyword = keyword
         self.translations = translations
         self.showsImages = showsImages
         self.isEnabled = isEnabled
+        self.source = source
     }
 
     public var body: some View {
         if isEnabled {
-            if searchSuggestionsPlacement != .menu {
+            if searchSuggestionsPlacement != .menu, source == .searchField || !translationHandler.suggestions.isEmpty {
                 Text(.matchesCount(count: translationHandler.suggestions.count))
                     .foregroundStyle(.secondary)
                     .font(.subheadline)
@@ -46,7 +61,12 @@ public struct TagSuggestionView: View {
                 )
             }
             .onChange(of: keyword) {
-                translationHandler.analyze(text: &keyword, translations: translations)
+                switch source {
+                case .searchField:
+                    translationHandler.analyze(text: &keyword, translations: translations)
+                case .textEditor:
+                    translationHandler.analyze(readingText: keyword, translations: translations)
+                }
             }
         }
     }
@@ -147,10 +167,24 @@ private struct SuggestionCell: View {
 final class TagTranslationHandler {
     var suggestions = [TagSuggestion]()
 
-    func analyze(text: inout String, translations: [String: TagTranslation]) {
-        let keyword = text.replacing(/[ ]{2,}/, with: " ")
+    /// The text as the suggestions read it: runs of spaces collapsed and the full-width colon typed as a colon.
+    static func normalized(_ text: String) -> String {
+        text.replacing(/[ ]{2,}/, with: " ")
             .replacing("：", with: ":")
-        text = keyword
+    }
+
+    /// Suggests from `text` and writes the normalised text back, for a plain search field.
+    func analyze(text: inout String, translations: [String: TagTranslation]) {
+        text = Self.normalized(text)
+        analyze(readingText: text, translations: translations)
+    }
+
+    /// Suggests from `text` without touching it. A multi-line `TextEditor` must not have its text rewritten
+    /// while the user types: replacing the bound text under a marked (CJK composition) range cancels or
+    /// corrupts the composition and moves the cursor. Nothing is lost by leaving the text alone, because
+    /// `autoComplete` normalises it when a suggestion is chosen.
+    func analyze(readingText text: String, translations: [String: TagTranslation]) {
+        let keyword = Self.normalized(text)
         let keywords = keyword.matches(of: /\S+:".+?"|".+?"|\S+:\S+|\S+/)
             .map({ String($0.output) })
         var result = [TagSuggestion]()
@@ -176,6 +210,8 @@ final class TagTranslationHandler {
         suggestions = result
     }
     func autoComplete(suggestion: TagSuggestion, keyword: inout String) {
+        // The suggestion was matched on normalised text, so its length is only a valid cut on that text.
+        keyword = Self.normalized(keyword)
         let endIndex = keyword.index(keyword.endIndex, offsetBy: 0 - suggestion.originalKeyword.count)
         keyword = .init(keyword[keyword.startIndex..<endIndex])
             + Self.searchPrefix(of: suggestion.originalKeyword) + suggestion.tag.searchKeyword + " "

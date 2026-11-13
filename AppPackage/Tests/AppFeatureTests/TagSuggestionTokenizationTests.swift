@@ -102,4 +102,33 @@ struct TagSuggestionTokenizationTests {
     func searchPrefixIsTheLeadingOperators(_ term: String, _ expected: String) {
         #expect(TagTranslationHandler.searchPrefix(of: term) == expected)
     }
+
+    // The saved-search editor is a `TextEditor`: its text must not be rewritten while the user types,
+    // because rewriting the bound text under a marked (CJK composition) range cancels or corrupts the
+    // composition and moves the cursor. Suggestions are therefore read from the text as it is, and the
+    // normalisation (double spaces, full-width colons) is applied to what the user typed only when a
+    // suggestion is chosen.
+    @Test
+    func readingSuggestionsNeverNeedsTheTextRewritten() throws {
+        let translation = TagTranslation(namespace: .female, key: "cat", value: "貓")
+        let handler = TagTranslationHandler()
+        handler.analyze(readingText: "f：cat", translations: ["female:cat": translation])
+
+        let suggestion = try #require(handler.suggestions.first)
+        #expect(suggestion.tag == translation)
+        #expect(suggestion.originalKeyword == "f:cat")
+    }
+
+    @Test
+    func completingTextThatWasNotRewrittenReplacesTheWholeTypedTerm() throws {
+        // A term made of two words, typed with a doubled space the editor left alone.
+        let translation = TagTranslation(namespace: .female, key: "big cat", value: "")
+        let handler = TagTranslationHandler()
+        var text = "中文 big  cat"
+        handler.analyze(readingText: text, translations: ["female:big cat": translation])
+
+        let suggestion = try #require(handler.suggestions.first)
+        handler.autoComplete(suggestion: suggestion, keyword: &text)
+        #expect(text == "中文 " + suggestion.tag.searchKeyword + " ")
+    }
 }
