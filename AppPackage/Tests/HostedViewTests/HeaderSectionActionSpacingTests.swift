@@ -43,6 +43,7 @@ struct HeaderSectionActionSpacingTests {
                 favorAction: { _ in },
                 unfavorAction: {},
                 readingProgress: readingProgress,
+                isReaderOnScreen: false,
                 navigateReadingAction: {},
                 readButtonFocus: $readFocus,
                 navigateUploaderAction: {}

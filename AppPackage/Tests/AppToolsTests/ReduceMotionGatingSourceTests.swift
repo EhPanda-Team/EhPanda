@@ -52,8 +52,9 @@ import Testing
 /// The Login backdrop (19-10) is two waves that slide sideways from the wall clock for as long as the page is open, a
 /// position change D-29 gates: under Reduce Motion they stand still at a fixed phase.
 ///
-/// The Read button's progress ring (Port #462) grows its arc to the new page when the reader closes, a length change
-/// D-29 gates: under Reduce Motion the arc takes its new length at once, as the design asks.
+/// The Read button's progress ring (Port #462) grows its arc to the new page once the reader's cover has finished
+/// closing, a length change D-29 gates: the growth is a programmatic change from the cover's dismissal, so it is a
+/// gated `withAnimation`, and under Reduce Motion the arc takes its new length at once, as the design asks.
 @Suite
 struct ReduceMotionGatingSourceTests {
     private struct ScannedFile {
@@ -131,7 +132,7 @@ struct ReduceMotionGatingSourceTests {
         "AppFeature/RootView.swift": 1,
         "DetailFeature/Comments/CommentsView.swift": 2,
         // The download ring's dashed track switches at once under Reduce Motion (owner decision, 2026-11-21), and
-        // the Read button's ring grows its arc when the reader closes (Port #462).
+        // the Read button's ring grows its arc once the reader has closed (Port #462).
         "DetailFeature/DetailView+HeaderSection.swift": 2,
         "DetailFeature/DetailView+Subviews.swift": 2,
         "DetailFeature/DetailView.swift": 3,
@@ -152,8 +153,9 @@ struct ReduceMotionGatingSourceTests {
     ]
     private static let expectedTernaryPredicateTotal = 38
 
-    /// The deep-linked comment scroll and the reader's page jump.
-    private static let expectedWithAnimationGateTotal = 2
+    /// The deep-linked comment scroll, the reader's page jump, and the Read button's ring growing once the
+    /// reader has closed.
+    private static let expectedWithAnimationGateTotal = 3
 
     /// Executable lines mentioning the gate value at all — reads, predicates, compositions, and the
     /// parameter plumbing that hands it to a child — per file.

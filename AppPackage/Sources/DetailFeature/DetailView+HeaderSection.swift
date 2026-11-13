@@ -35,6 +35,8 @@ struct HeaderSection: View {
     let unfavorAction: () -> Void
     /// The page the reader resumes at; 0 for a gallery that was never read.
     let readingProgress: Int
+    /// Whether the reader's full-screen cover is on screen, from its presentation until it has finished closing.
+    let isReaderOnScreen: Bool
     let navigateReadingAction: () -> Void
     let readButtonFocus: AccessibilityFocusState<Bool>.Binding
     let navigateUploaderAction: () -> Void
@@ -70,6 +72,9 @@ struct HeaderSection: View {
     // on the same metric, so the ring keeps its place at every size.
     @ScaledMetric(relativeTo: .callout) private var readRingInset: CGFloat = 4
     @ScaledMetric(relativeTo: .callout) private var readRingLineWidth: CGFloat = 3
+    /// The ring's length while the reader is on screen: the page it was opened at, kept until the cover has finished
+    /// closing so the growth to the new page is seen whole. `nil` draws the current progress.
+    @State private var heldReadFraction: Double?
 
     private var title: String {
         var titledGallery = gallery
@@ -261,28 +266,46 @@ struct HeaderSection: View {
         .overlay {
             readProgressRing
         }
+        .onChange(of: isReaderOnScreen, initial: true) { _, isReaderOnScreen in
+            holdReadProgressRing(isReaderOnScreen)
+        }
         // The control stays "Read" for VoiceOver and Voice Control; the saved page and the total are its value.
         .accessibilityValue(readButtonAccessibilityValue)
         .accessibilityFocused(readButtonFocus)
     }
     /// How far through the gallery the reader resumes, as a ring inside the Read button: a faint track and a solid arc
-    /// from 12 o'clock clockwise. A gallery that was never read has no ring. The arc grows to its new length when the
-    /// reader closes, unless Reduce Motion is on.
-    @ContentBuilder private var readProgressRing: some View {
-        if let fraction = readProgressFraction {
-            Circle()
-                .stroke(.white.opacity(0.35), lineWidth: readRingLineWidth)
-                .overlay {
-                    Circle()
-                        .trim(from: 0, to: fraction)
-                        .stroke(.white, style: .init(lineWidth: readRingLineWidth, lineCap: .round))
-                        .rotationEffect(.degrees(-90))
-                }
-                // The stroke is centred on its path, so the path sits half a line width past the inset.
-                .padding(readRingInset + readRingLineWidth / 2)
-                .animation(reduceMotion ? nil : .easeOut(duration: 0.3), value: fraction)
-                .allowsHitTesting(false)
-                .accessibilityHidden(true)
+    /// from 12 o'clock clockwise. A gallery that was never read has no ring. The arc grows to its new length once the
+    /// reader's cover has finished closing (see ``holdReadProgressRing(_:)``), unless Reduce Motion is on.
+    private var readProgressRing: some View {
+        Circle()
+            .stroke(.white.opacity(0.35), lineWidth: readRingLineWidth)
+            .overlay {
+                Circle()
+                    .trim(from: 0, to: drawnReadFraction)
+                    .stroke(.white, style: .init(lineWidth: readRingLineWidth, lineCap: .round))
+                    .rotationEffect(.degrees(-90))
+            }
+            // The stroke is centred on its path, so the path sits half a line width past the inset.
+            .padding(readRingInset + readRingLineWidth / 2)
+            // No ring at length 0. The track shows the moment the arc starts growing rather than fading in under it.
+            .animation(nil) {
+                $0.opacity(drawnReadFraction > 0 ? 1 : 0)
+            }
+            .allowsHitTesting(false)
+            .accessibilityHidden(true)
+    }
+    private var drawnReadFraction: Double {
+        ReadProgress.drawnLength(fraction: readProgressFraction, held: heldReadFraction)
+    }
+    /// Holds the ring at its length while the reader is on screen and lets it go once the cover has finished closing,
+    /// so the arc grows from the length last drawn (0 for a gallery read for the first time) to the new page.
+    private func holdReadProgressRing(_ isReaderOnScreen: Bool) {
+        if isReaderOnScreen {
+            heldReadFraction = drawnReadFraction
+        } else if heldReadFraction != nil {
+            withAnimation(reduceMotion ? nil : ReadProgress.growth) {
+                heldReadFraction = nil
+            }
         }
     }
     /// The gallery's page count: the detail page's once it is fetched, the row's until then.
@@ -557,6 +580,7 @@ private struct DownloadRingDashes: Shape {
         favorAction: { _ in },
         unfavorAction: {},
         readingProgress: readingProgress,
+        isReaderOnScreen: false,
         navigateReadingAction: {},
         readButtonFocus: readButtonFocus,
         navigateUploaderAction: {}

@@ -16,6 +16,8 @@ public struct DetailView: View {
     @AccessibilityFocusState private var readButtonFocused: Bool
     @State private var isHeaderVisible = true
     @State private var readingOrigin: ReadingOrigin?
+    /// From the reader's presentation until its cover has finished closing; the Read button's ring grows only after.
+    @State private var isReaderOnScreen = false
     // Internal (not private): the toolbar() extension in DetailView+Navigation.swift reads it too.
     @SharedReader(.didLogin) var didLogin: Bool
     @Bindable var store: StoreOf<DetailReducer>
@@ -47,6 +49,12 @@ public struct DetailView: View {
             }
             .onChange(of: store.hasLoadedDownloadBadge) { _, _ in
                 runLaunchAutomationIfNeeded()
+            }
+            // Raised with the reader's destination; lowered only by the cover's `onDismiss`, once it has closed.
+            .onChange(of: store.destination?.is(\.reading) == true) { _, isReading in
+                if isReading {
+                    isReaderOnScreen = true
+                }
             }
             .appAlert($store.scope(\.$alert, action: \.alert))
             .navigationTitle(navigationTitle)
@@ -97,6 +105,7 @@ private extension DetailView {
                     favorAction: { store.send(.favorGallery($0)) },
                     unfavorAction: { store.send(.unfavorGallery) },
                     readingProgress: store.readingProgress,
+                    isReaderOnScreen: isReaderOnScreen,
                     navigateReadingAction: {
                         readingOrigin = .headerRead
                         store.send(.openReading)
@@ -258,6 +267,7 @@ private extension DetailView {
             .fullScreenCover(
                 item: $store.scope(\.$destination, action: \.destination).reading,
                 onDismiss: {
+                    isReaderOnScreen = false
                     if readingOrigin == .headerRead {
                         readButtonFocused = true
                     }
