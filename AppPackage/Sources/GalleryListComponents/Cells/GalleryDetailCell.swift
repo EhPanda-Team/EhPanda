@@ -260,13 +260,22 @@ private struct GalleryDetailCellContent: View {
                     Text(.accessibilityRatingSummary(rating: gallery.rating.halfRounded))
                 }
 
+            pageCountWithFavoriteHeart
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+
+    /// The heart precedes the page count of a favorite; a row that is not one is exactly the page count.
+    @ContentBuilder private var pageCountWithFavoriteHeart: some View {
+        if gallery.isFavorite {
             HStack(spacing: 8) {
                 GalleryFavoriteHeart(gallery: gallery)
                     .font(.footnote)
                 pageCountOrDownloadBadge
             }
+        } else {
+            pageCountOrDownloadBadge
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
     }
 
     @ContentBuilder private var pageCountOrDownloadBadge: some View {

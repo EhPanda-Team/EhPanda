@@ -81,7 +81,8 @@ public struct GalleryThumbnailCell: View {
                         .frame(maxWidth: .infinity, alignment: .leading)
                 }
 
-                if showsRating || gallery.isFavorite {
+                if gallery.isFavorite {
+                    // The heart trails the rating; a row that is not a favorite is exactly the rating.
                     HStack(spacing: 6) {
                         if showsRating {
                             rating
@@ -91,6 +92,9 @@ public struct GalleryThumbnailCell: View {
                         GalleryFavoriteHeart(gallery: gallery)
                             .font(.caption)
                     }
+                } else if showsRating {
+                    rating
+                        .accessibilityIdentifier("gallery-grid-rating-\(gallery.id)")
                 }
             }
             .padding(.vertical)
