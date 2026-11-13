@@ -21,11 +21,15 @@ SIDESTORE = json.loads((TOOLS / "sidestore.template.json").read_text(encoding="u
 BETA = json.loads((TOOLS / "altstore-beta.template.json").read_text(encoding="utf-8"))
 PAL = json.loads((TOOLS / "altstore-pal.template.json").read_text(encoding="utf-8"))
 ALTSTORE = json.loads((TOOLS.parent / "AltStore.json").read_text(encoding="utf-8"))
+ALTSTORE_BETA = json.loads((TOOLS.parent / "AltStoreBeta.json").read_text(encoding="utf-8"))
 ICON_URL = f"{languages.ASSETS_URL}app-marketplace/icon.png"
 HEADER_URL = f"{languages.ASSETS_URL}app-marketplace/header.png"
 # Owner msgs 4236 and 4238: 01-home is the home screen with the new slogan, in English for everyone, since AltStore
 # has no per-language screenshots. Owner msgs 4331-4343: plain names, with no version and no size.
 SCREENSHOT_NAMES = ["01-home", "02-detail", "03-reading", "04-comments", "05-downloads", "06-filters", "07-more"]
+# Owner msgs 5072-5085 and 5123: four landscape screenshots from the 13-inch iPad, one set for the sources and the
+# App Store listing.
+IPAD_SCREENSHOT_NAMES = ["01-home", "02-reading", "03-downloads", "04-more"]
 
 
 def assets_checkout():
@@ -212,14 +216,16 @@ class SourceTemplateTests(unittest.TestCase):
         for name, needle in NOT_FOR_A_SOURCE.items():
             self.assertIsNone(needle.search(clean), name)
 
-    def test_every_app_shows_the_seven_iphone_screenshots(self):
+    def test_every_app_shows_the_seven_iphone_and_four_ipad_screenshots(self):
         # Owner msg 2628: the same screenshots, in this order, for the regular, the beta and the PAL app
-        # (20-10, closed with this set). The set is iPhone only; there is no iPad set.
-        expected = [{"imageURL": f"{languages.ASSETS_URL}app-marketplace/iphone/{name}.png", "width": 1260, "height": 2730}
-                    for name in SCREENSHOT_NAMES]
-        for source in [ALTSTORE, SIDESTORE, BETA, PAL]:
+        # (20-10, closed with this set). Owner msg 5123: the iPad set is listed too.
+        iphone = [{"imageURL": f"{languages.ASSETS_URL}app-marketplace/iphone/{name}.png", "width": 1260, "height": 2730}
+                  for name in SCREENSHOT_NAMES]
+        ipad = [{"imageURL": f"{languages.ASSETS_URL}app-marketplace/ipad/{name}.png", "width": 2752, "height": 2064}
+                for name in IPAD_SCREENSHOT_NAMES]
+        for source in [ALTSTORE, ALTSTORE_BETA, SIDESTORE, BETA, PAL]:
             with self.subTest(source=source["identifier"]):
-                self.assertEqual(source["apps"][0]["screenshots"], {"iphone": expected})
+                self.assertEqual(source["apps"][0]["screenshots"], {"iphone": iphone, "ipad": ipad})
 
     def test_every_source_and_app_uses_the_icon_in_the_assets_repository(self):
         # The icon is served from the assets repository (owner msg 3824): the app repository's main branch has no icon
@@ -282,12 +288,12 @@ class SourceTemplateTests(unittest.TestCase):
         assets = pathlib.Path(self.id())  # a folder that does not exist
         problems = languages.check_source(SIDESTORE, versions_required=False, assets_dir=assets)
         missing = [problem for problem in problems if "is not in the assets repository" in problem]
-        self.assertEqual(len([problem for problem in missing if "screenshots" in problem]), 7)
+        self.assertEqual(len([problem for problem in missing if "screenshots" in problem]), 11)
         # The source's icon and the app's.
         self.assertEqual(len([problem for problem in missing if "iconURL app-marketplace/icon.png" in problem]), 2)
         # The source's banner.
         self.assertEqual(len([problem for problem in missing if "headerURL app-marketplace/header.png" in problem]), 1)
-        self.assertEqual(len(missing), 10)
+        self.assertEqual(len(missing), 14)
 
     def test_a_screenshot_whose_file_is_not_its_listed_size_is_reported(self):
         assets = assets_checkout()
