@@ -409,7 +409,9 @@ private extension Data {
           <option selected='selected'>Compact</option>
         </select></div>
         <table class='ptt'><tr><td class='ptds'>1</td><td><a>2</a></td></tr></table>
-        <div class='ido'><div><div><a>Use Posted</a></div></div></div>
+        <div class='searchnav'><div>Order: <select onchange="document.location='?inline_set=fs_'+this.value+''">
+          <option value="p">Published Time</option><option value="f" selected="selected">Favorited Time</option>
+        </select></div></div>
         <table><tr>
           <td class='gl2c'>
             <div><img src='https://example.com/cover.jpg'></div>

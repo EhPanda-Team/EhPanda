@@ -2,17 +2,19 @@ public import AppModels
 public import Kanna
 
 extension Parser {
+    /// The order the Favorites page is currently sorted by, read from the selected option of its
+    /// `inline_set=fs_` select: `p` is the published (last update) time, `f` the favorited time.
     public static func parseFavoritesSortOrder(doc: any HTMLDocument) -> FavoritesSortOrder? {
-        guard let idoNode = doc.at_xpath("//div [@class='ido']") else { return nil }
-        for link in idoNode.xpath("//div") where link.className == nil {
-            guard let aText = link.at_xpath("//div")?.at_xpath("//a")?.text else { continue }
-            if aText == "Use Posted" {
-                return .favoritedTime
-            } else if aText == "Use Favorited" {
-                return .lastUpdateTime
-            }
+        guard let select = doc.at_xpath(
+            "//div [@class='searchnav']//select[contains(@onchange, 'inline_set=fs_')]"
+        ), let selectedValue = select.at_xpath(".//option[@selected]")?["value"]
+        else { return nil }
+
+        switch selectedValue {
+        case "p": return .lastUpdateTime
+        case "f": return .favoritedTime
+        default: return nil
         }
-        return nil
     }
 
     public static func parseFavoriteCategories(doc: any HTMLDocument) throws -> [Int: String] {
