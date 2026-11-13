@@ -112,6 +112,10 @@ struct AboutView: View {
             text: .Constant.codeContributorKaed3Mi
         ),
         .init(
+            urlString: String(localized: .Constant.codeContributorDyphireLink),
+            text: .Constant.codeContributorDyphire
+        ),
+        .init(
             urlString: String(localized: .Constant.codeContributorAalberrtyLink),
             text: .Constant.codeContributorAalberrty
         ),
