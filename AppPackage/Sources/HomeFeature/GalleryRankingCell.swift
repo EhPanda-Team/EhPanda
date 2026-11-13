@@ -58,6 +58,8 @@ public struct GalleryRankingCell: View {
 
     private var cover: some View {
         GalleryCover(url: gallery.coverURL, style: showsRichInformation ? .homeRanking : .compact, contentMode: .fill)
+            // Marketing captures find which covers a screenshot shows by this identifier.
+            .accessibilityIdentifier("home_ranking_cover_\(gallery.id)")
     }
 
     private var rankNumber: some View {

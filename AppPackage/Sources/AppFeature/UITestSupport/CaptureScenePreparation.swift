@@ -20,7 +20,32 @@ import ReadingFeature
 import SDWebImage
 import Sharing
 import Synchronization
+import UIKit
 import UserDefaultsClient
+
+/// The device family a capture scene's settings are laid out for.
+enum CaptureDeviceFamily: Equatable, Sendable {
+    case phone
+    case pad
+
+    init(_ idiom: UIUserInterfaceIdiom) {
+        self = idiom == .pad ? .pad : .phone
+    }
+}
+
+/// What a launch prepares for a capture scene beyond its storage: the folders its downloads read
+/// back as, the device family its settings are laid out for, and the tag translator it installs.
+struct CaptureLaunchInputs: Equatable, Sendable {
+    var downloads: CaptureDownloadIndex
+    var family: CaptureDeviceFamily
+    var tagTranslator: TagTranslator?
+
+    init(downloads: CaptureDownloadIndex, family: CaptureDeviceFamily, tagTranslator: TagTranslator? = nil) {
+        self.downloads = downloads
+        self.family = family
+        self.tagTranslator = tagTranslator
+    }
+}
 
 /// A validated capture scene, ready to install before the app builds its store.
 struct CaptureScene: Sendable {
@@ -188,7 +213,11 @@ enum CaptureScenePreparation {
     /// its first render, as `KFImage` loads a disk-cached image synchronously, so Downloads is
     /// ready on its state alone, however many rows fit. The frame is the one a first load
     /// settles on, without its fade (owner decision, 2026-10-13).
-    static func install(_ scene: CaptureScene, storageRoot: URL = defaultStorageRoot) throws(CaptureFailure) {
+    static func install(
+        _ scene: CaptureScene,
+        family: CaptureDeviceFamily,
+        storageRoot: URL = defaultStorageRoot
+    ) throws(CaptureFailure) {
         let storage = try CaptureStorage.reset(at: storageRoot)
         let downloads = try scene.downloads?.seed(into: storage.downloads) ?? .empty
         let translation = try scene.configuration.tagTranslation?.prepare(in: storage.tagTranslations)
@@ -230,7 +259,9 @@ enum CaptureScenePreparation {
         prepareDependencies {
             isolate(
                 &$0, scene: scene, storage: storage, libraryClient: libraryClient,
-                downloads: downloads, tagTranslator: translation?.translator
+                launch: CaptureLaunchInputs(
+                    downloads: downloads, family: family, tagTranslator: translation?.translator
+                )
             )
         }
         // After isolation, so the reader cache its purge observers guard is the capture's.
@@ -239,16 +270,16 @@ enum CaptureScenePreparation {
 
     /// Replaces every dependency that reads or writes user data, reaches the network, or varies
     /// between runs. Clients that only present the app, such as the device and haptics clients,
-    /// stay live so the scene is the actual app. `downloads` is what the scene's seeded download
-    /// folders read back as.
+    /// stay live so the scene is the actual app. `launch.downloads` is what the scene's seeded
+    /// download folders read back as.
     static func isolate(
         _ dependencies: inout DependencyValues,
         scene: CaptureScene,
         storage: CaptureStorage,
         libraryClient: LibraryClient,
-        downloads: CaptureDownloadIndex,
-        tagTranslator: TagTranslator? = nil
+        launch: CaptureLaunchInputs
     ) {
+        let tagTranslator = launch.tagTranslator
         dependencies.analyticsClient = .noop
         // The capture's route is the launch's only automation.
         dependencies.appLaunchAutomationClient = AppLaunchAutomationClient(
@@ -266,7 +297,7 @@ enum CaptureScenePreparation {
         } operation: {
             @Shared(.setting) var setting
             $setting.withLock {
-                $0 = sceneSetting
+                $0 = sceneSetting(family: launch.family)
                 if tagTranslator != nil {
                     $0.enableTagsExtension = true
                     $0.translateTags = true
@@ -289,7 +320,7 @@ enum CaptureScenePreparation {
         dependencies.dfClient = .noop
         // Never the live client, which would adopt the app's background download session and could
         // fetch outside the replay.
-        dependencies.downloadClient = .capture(downloads)
+        dependencies.downloadClient = .capture(launch.downloads)
         dependencies.homeClient = scene.homeClient
         dependencies.libraryClient = libraryClient
         dependencies.liveTextCapture = scene.liveText
@@ -302,17 +333,21 @@ enum CaptureScenePreparation {
     /// on, so the Laboratory shows it enabled (D-15), and the default vertical reader (owner
     /// decision, 2026-10-13). They live only in the capture's in-memory storage, so no person's
     /// settings change.
-    static var sceneSetting: Setting {
-        sceneSetting(languageCode: Locale.current.language.languageCode)
+    static func sceneSetting(family: CaptureDeviceFamily) -> Setting {
+        sceneSetting(languageCode: Locale.current.language.languageCode, family: family)
     }
 
-    /// The scene settings for an interface language.
-    static func sceneSetting(languageCode language: Locale.LanguageCode?) -> Setting {
+    /// The scene settings for an interface language on a device family.
+    static func sceneSetting(languageCode language: Locale.LanguageCode?, family: CaptureDeviceFamily) -> Setting {
         var setting = Setting()
         setting.bypassSNIFiltering = true
         // Website captures use Japanese titles for Korean, Japanese and Chinese interfaces only.
         // This changes the isolated capture setting, not the app's defaults or a person's preference.
         setting.displayJapaneseTitle = language == .japanese || language == .korean || language == .chinese
+        // iPad captures show Downloads as a grid (owner msg 5072); the iPhone keeps its rows.
+        if family == .pad {
+            setting.galleryListPresentation.downloads = .grid
+        }
         return setting
     }
 
@@ -386,6 +421,12 @@ private struct MarketingGalleries {
     ) throws(CaptureFailure) -> AppLaunchAutomation.CaptureRoute {
         let flow = scene.flow
         let liveText = scene.liveText
+        // A mocked download's folder holds no page images, so a screen that opens its gallery would
+        // show blanks; the launch fails here instead (owner msg 5113).
+        let opened = [flow.gallery, liveText.gallery, scene.detailGallery, scene.commentsGallery].compactMap(\.self)
+        if let mock = scene.downloads.first(where: { $0.mocksPages && opened.contains($0.gallery) }) {
+            throw .malformedScene("download \(mock.gallery) mocks its pages, so no screen may open its gallery")
+        }
         return switch scenario {
         case .screen(.home):
             .home
@@ -485,7 +526,9 @@ private struct MarketingGalleries {
     /// the manifest the download starts with, the cover its URL answers, and the image of every page
     /// the folder holds, all of a complete download and the first `completedPages` of another.
     ///
-    /// No capture has a failure to show, so an `error` row cannot be captured.
+    /// A complete download that mocks its pages holds none of their images: only its manifest marks
+    /// every page complete, so its row shows its status (owner msg 5113). No capture has a failure
+    /// to show, so an `error` row cannot be captured.
     private func download(
         _ entry: CaptureSelection.Download,
         modificationDate: Date
@@ -513,8 +556,13 @@ private struct MarketingGalleries {
         case .error:
             throw .malformedScene("download \(gid) cannot show an error: a capture has no failure to show")
         }
+        if entry.mocksPages, heldPageCount != pageCount {
+            throw .malformedScene(
+                "the \(entry.status.rawValue) download \(gid) cannot mock its pages: it is incomplete"
+            )
+        }
         var pages = [Int: CaptureDownloads.File]()
-        for page in 1..<(heldPageCount + 1) {
+        for page in 1..<((entry.mocksPages ? 0 : heldPageCount) + 1) {
             guard let image = asset(.page, of: gid, index: page) else {
                 throw .malformedScene("the fixture holds no image of page \(page) of download \(gid)")
             }
@@ -529,7 +577,8 @@ private struct MarketingGalleries {
         return CaptureDownloads.Gallery(
             manifest: DownloadManifest(
                 gid: gid,
-                host: CaptureScenePreparation.sceneSetting.galleryHost,
+                // The scene settings keep the default host on every family.
+                host: Setting().galleryHost,
                 token: gallery.token,
                 title: gallery.title,
                 jpnTitle: detail.jpnTitle,
@@ -546,7 +595,8 @@ private struct MarketingGalleries {
             status: entry.status.displayStatus,
             modificationDate: modificationDate,
             cover: try file(cover),
-            pages: pages
+            pages: pages,
+            mocksPages: entry.mocksPages
         )
     }
 
@@ -655,7 +705,13 @@ struct CaptureDownloads: Sendable {
         let cover: File
         /// The image of every page the folder holds, by page number.
         let pages: [Int: File]
+        /// Whether the folder holds no page image while its manifest marks every page complete.
+        let mocksPages: Bool
     }
+
+    /// The hash a mocked folder's manifest records for each page it holds no image of: never the
+    /// hash of real bytes, so no page file can ever match it.
+    static let mockPageHash = "sha256:" + String(repeating: "0", count: 64)
 
     struct File: Sendable {
         let data: Data
@@ -739,6 +795,9 @@ extension CaptureDownloads {
             try page.data.write(to: pageURL)
             written.pages[pageNumber] = try store.fileHash(at: pageURL)
         }
+        if gallery.mocksPages {
+            written.pages = written.pages.mapValues({ _ in Self.mockPageHash })
+        }
         try store.writeManifest(written, folderURL: folderURL)
         // Last, as every write above changes it.
         try FileManager.default.setAttributes(
@@ -751,13 +810,15 @@ extension CaptureDownloads {
 extension CaptureDownloads.Gallery {
     /// The row the app lists for this gallery's folder, found once among `records`, once it reads back
     /// with every page it holds hashed, a file for each of those pages and nothing more, and its cover.
+    /// A mocked folder reads back with every page hashed and no page file.
     func download(from records: [DownloadFolderRecord]) throws(CaptureFailure) -> DownloadedGallery {
         let gid = manifest.gid
         let heldPages = Set(pages.keys)
+        let hashedPages = mocksPages ? Set(manifest.pages.keys) : heldPages
         guard
             records.count == 1,
             let record = records.first,
-            Set(record.manifest.pages.filter({ !$0.value.isEmpty }).keys) == heldPages,
+            Set(record.manifest.pages.filter({ !$0.value.isEmpty }).keys) == hashedPages,
             Set(record.localPageURLs.keys) == heldPages,
             record.localCoverURL != nil
         else {

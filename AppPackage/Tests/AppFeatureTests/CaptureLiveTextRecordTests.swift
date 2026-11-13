@@ -65,7 +65,7 @@ struct CaptureLiveTextRecordTests {
                 scene: scene,
                 storage: storage,
                 libraryClient: .noop,
-                downloads: .empty
+                launch: CaptureLaunchInputs(downloads: .empty, family: .phone)
             )
         } operation: {
             @Dependency(\.liveTextCapture) var liveTextCapture

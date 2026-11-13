@@ -476,6 +476,8 @@ struct MarketingFixtureBuilder: Sendable {
                     "downloads": downloads.map { download -> [String: Any] in
                         var entry: [String: Any] = ["gallery": download.gallery, "status": download.status.rawValue]
                         entry["completedPages"] = download.completedPages
+                        entry["mockPages"] = download.mockPages
+                        entry["allowedRepeat"] = download.allowedRepeat
                         return entry
                     }
                 ]

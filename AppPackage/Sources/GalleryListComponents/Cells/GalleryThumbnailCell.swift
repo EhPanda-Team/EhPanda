@@ -139,6 +139,8 @@ public struct GalleryThumbnailCell: View {
                     .fade(duration: 0.25)
                     .resizable()
                     .scaledToFit()
+                    // Marketing captures find which covers a screenshot shows by this identifier.
+                    .accessibilityIdentifier("gallery-grid-cover-\(gallery.id)")
             }
             .overlay {
                 if !dynamicTypeSize.isAccessibilitySize {

@@ -69,6 +69,7 @@ public struct GalleryCardCell: View {
                         style: usesCompactInformation ? .homeCompact : .homeSlideshow, contentMode: .fill,
                         onSuccess: webImageSuccessAction
                     )
+                    .accessibilityIdentifier(coverIdentifier)
                     VStack(alignment: .leading, spacing: 12) {
                         if usesCompactInformation {
                             HomeCompactSlideshowContent(gallery: gallery)
@@ -135,6 +136,7 @@ public struct GalleryCardCell: View {
                     maximumHeight: max(0, (maximumHeight ?? 190) - 40),
                     onSuccess: webImageSuccessAction
                 )
+                .accessibilityIdentifier(coverIdentifier)
                 textColumn(titleLines: compactTitleLines)
             }
             .fixedSize(horizontal: false, vertical: true)
@@ -151,6 +153,12 @@ public struct GalleryCardCell: View {
 
     private var cover: some View {
         GalleryCover(url: gallery.coverURL, style: .hero, contentMode: .fill, onSuccess: webImageSuccessAction)
+            .accessibilityIdentifier(coverIdentifier)
+    }
+
+    /// Marketing captures find which covers a screenshot shows by this identifier.
+    private var coverIdentifier: String {
+        "home_slideshow_cover_\(gallery.id)"
     }
 
     /// Reserve the same preview height for every gallery at a given arrangement.

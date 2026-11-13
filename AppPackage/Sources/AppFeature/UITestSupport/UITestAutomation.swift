@@ -15,6 +15,7 @@ import LibraryClient
 import ReadingFeature
 import SearchFeature
 import Sharing
+import UIKit
 import UserDefaultsClient
 #if DEBUG && canImport(Appshot) && canImport(AppshotProtocol)
 import AppshotProtocol
@@ -182,7 +183,9 @@ public enum UITestAutomation {
             AppshotCapture.launchedScene = resolved?.appshotScene
             #endif
             if let captureScene = resolved?.captureScene {
-                try CaptureScenePreparation.install(captureScene)
+                // The app delegate prepares the launch on the main actor, before the app builds its store.
+                let family = MainActor.assumeIsolated({ CaptureDeviceFamily(UIDevice.current.userInterfaceIdiom) })
+                try CaptureScenePreparation.install(captureScene, family: family)
                 // After the install, so it lands in the capture's isolated storage.
                 applyFirstLaunchPreset(resolved?.firstLaunchPreset)
             }

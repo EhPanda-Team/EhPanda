@@ -307,7 +307,7 @@ struct CaptureScreenDiagnosticsTests {
             state.tabBarState.tabBarItemType = .setting
             state.settingState.path.append(.laboratory(.init()))
             let off = diagnostics(scene, state)
-            state.settingState.$setting.withLock({ $0 = CaptureScenePreparation.sceneSetting })
+            state.settingState.$setting.withLock({ $0 = CaptureScenePreparation.sceneSetting(family: .phone) })
             let enabled = diagnostics(scene, state)
             var sheet = try await loadedState(scene)
             sheet.presentationState.destination = .setting(.init())

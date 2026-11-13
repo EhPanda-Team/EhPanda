@@ -72,6 +72,56 @@ struct CaptureDownloadTests {
         #expect(index.downloads.allSatisfy({ $0.runProgress == nil }))
     }
 
+    /// Owner msg 5113: a mocked complete download is its record and status alone. Its manifest marks
+    /// every page complete, so its row reads as complete, while its folder holds no page file.
+    @Test
+    func aMockedCompleteDownloadHoldsNoPageFiles() throws {
+        var fixture = try Self.fixture(downloads: [
+            .init(gallery: "101", status: .active, completedPages: 2),
+            .init(gallery: "104", status: .completed, completedPages: nil, mockPages: true),
+            .init(gallery: "105", status: .completed, completedPages: nil, mockPages: true, allowedRepeat: true)
+        ])
+        // A mocked download needs no page image in the fixture at all.
+        fixture.files.removeAll(where: { $0.kind == .page && $0.gid != "101" })
+        let root = try makeTemporaryDirectory().appending(path: "Downloads", directoryHint: .isDirectory)
+
+        let index = try #require(try makeScene(fixture, scenarioID: "downloads").downloads).seed(into: root)
+
+        expectNoDifference(index.downloads.map(\.displayStatus), [.active, .completed, .completed])
+        expectNoDifference(
+            index.downloads.map(\.badge.progress.completedPageCount), [2, Self.pageCount, Self.pageCount]
+        )
+        expectNoDifference(index.downloads.map(\.localPageURLs.count), [2, 0, 0])
+        for download in index.downloads.dropFirst() {
+            #expect(download.manifest.pages.values.allSatisfy({ $0 == CaptureDownloads.mockPageHash }))
+            #expect(download.localCoverURL != nil)
+        }
+    }
+
+    /// A mocked download holds no page to read, so a scene that opens its gallery is refused rather
+    /// than showing blank pages, and only a complete download can mock its pages.
+    @Test
+    func aMockedDownloadIsNeverOpenedAndIsAlwaysComplete() throws {
+        let opened = try Self.fixture(downloads: [
+            .init(gallery: "101", status: .completed, completedPages: nil, mockPages: true)
+        ])
+        for scenarioID in ["home", "downloads", "reading", "detail"] {
+            #expect(
+                throws: CaptureFailure.malformedScene("download 101 mocks its pages, so no screen may open its gallery")
+            ) {
+                try makeScene(opened, scenarioID: scenarioID)
+            }
+        }
+        let incomplete = try Self.fixture(downloads: [
+            .init(gallery: "104", status: .inactive, completedPages: 3, mockPages: true)
+        ])
+        #expect(
+            throws: CaptureFailure.malformedScene("the inactive download 104 cannot mock its pages: it is incomplete")
+        ) {
+            try makeScene(incomplete, scenarioID: "downloads")
+        }
+    }
+
     @Test
     func onlyTheDownloadsScreenHasDownloads() throws {
         // The flow gallery's page is the reader's, so no download holds it here.
@@ -141,7 +191,7 @@ struct CaptureDownloadTests {
                 scene: scene,
                 storage: storage,
                 libraryClient: .noop,
-                downloads: index
+                launch: CaptureLaunchInputs(downloads: index, family: .phone)
             )
         } operation: {
             @Dependency(\.downloadClient) var downloadClient

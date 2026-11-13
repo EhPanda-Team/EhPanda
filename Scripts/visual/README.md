@@ -509,8 +509,15 @@ The input is a JSON file with exactly these keys:
   2026-10-13 runs), and every page it builds prefetches its own window.
 - Download `status` is a `DownloadDisplayStatus` case. `completed` and `updateAvailable` carry no
   `completedPages`; the other statuses require it.
-- A screen never repeats a gallery, including across Home's hero, frontpage and Toplists sections.
-  The same gallery may appear on different screens.
+- A download entry may add two flags, each only ever `true`. `"mockPages": true` marks a complete
+  entry as a mock: its folder holds its record, status and cover but none of its page images, so
+  nothing of its pages is acquired (owner msg 5113). No reader or gallery screen of the scene may
+  open a mocked gallery. `"allowedRepeat": true` declares that the gallery may also be visible on
+  another screen of the set (owner msgs 5109, 5110). An entry without `mockPages` keeps every page
+  it holds real.
+- A screen never repeats a gallery, including across Home's hero, frontpage and Toplists sections,
+  except a gallery Home's optional `allowedRepeats` names: Home lists it exactly twice, once out of
+  sight (owner msgs 5099, 5103). The same gallery may appear on different screens.
 
 Validation here covers the schema, references and repetition. The marketing composition (slot
 counts per section and display order) is checked by `selection-review.py`.
@@ -575,6 +582,10 @@ each scene's record or none, so a version acquired again holds no record until t
 again.
 
 An output that already has `current` is not acquired again unless `--refresh` is given.
+
+`--replay VERSION`, repeatable, rebuilds a selection offline from published versions: each URL is
+answered with the bytes, media type and retrieval time a source manifest lists for it, and a URL no
+source holds fails acquisition instead of reaching the network.
 
 ## Integrity
 
@@ -735,7 +746,9 @@ removes a user's cached files.
 A `downloads` scene seeds `EhPandaCapture/Downloads/Default/` with one folder per download entry,
 as a download leaves it: the cover, the page files the entry holds (every page of a complete
 entry, the first `completedPages` of another) and a manifest that records each held page's
-SHA-256 as the app computes it from the written file, with every other page blank. The app's own
+SHA-256 as the app computes it from the written file, with every other page blank. A `mockPages`
+entry's folder holds no page file while its manifest marks every page with a hash no bytes can
+match, so its row reads as complete; a scene that would open a mocked gallery fails to launch. The app's own
 scan then reads the folders back. Completeness comes from the manifest alone, as in the app; only
 being downloaded (`active`) or waiting (`queued`) comes from the simulated queue, and the active
 row shows its run's progress. Entries must come in the order the screen lists them, by status,
@@ -835,12 +848,16 @@ its screen, selection, set, fixture version, galleries and page, ready with no p
 refused request or blocker, in the coordinate's rendering, with each gallery shown once. On
 `reading-live-text` the Live Text must be exactly the fixture's record, each ID once. On `downloads`
 each row must have its entry's status, count its entry's pages as downloaded (every page for a
-complete entry) and hold that many page files. The diagnostics report the screenshot pixels of the
+complete entry) and hold that many page files, none for a `mockPages` entry. The diagnostics report the screenshot pixels of the
 sheet the screen shows in, and there must be one exactly when the coordinate's screen is a sheet:
 Filters always, and on iPad Detail, Comments and Laboratory. It then takes the system's screenshot
 of the screen, `XCUIScreen.main.screenshot()`, a second apart until the renders remain byte-identical
 for three consecutive intervals, and fails if they never do. Either way it attaches the diagnostics and that
-screenshot's PNG. The runner names the coordinate and the fixture version through environment
+screenshot's PNG, and `capture-<key>-covers`: the gallery covers in sight (any cover whose frame reaches
+the window; a Home front page cell counts as its cover), which must each show once and which a set's
+cross-screen check compares. iPhone captures are portrait and iPad captures landscape (owner msg 5073);
+the system screenshot of a landscape screen is the display's portrait framebuffer, turned upright
+afterwards without re-rendering. The runner names the coordinate and the fixture version through environment
 variables:
 
 ```sh

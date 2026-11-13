@@ -94,7 +94,7 @@ struct CaptureRouteTests {
                 scene: scene,
                 storage: storage,
                 libraryClient: .noop,
-                downloads: .empty
+                launch: CaptureLaunchInputs(downloads: .empty, family: .phone)
             )
         } operation: {
             @Dependency(\.appLaunchAutomationClient) var appLaunchAutomationClient

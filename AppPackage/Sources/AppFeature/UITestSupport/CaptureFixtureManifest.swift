@@ -135,6 +135,8 @@ struct CaptureSelection: Equatable, Sendable, Decodable {
         let frontpage: [String]
         /// Gallery IDs by Toplists period: `yesterday`, `pastMonth`, `pastYear` and `allTime`.
         let toplists: [String: [String]]
+        /// The galleries Home may show in two sections, once out of sight; `nil` for none.
+        let allowedRepeats: [String]?
     }
 
     struct Hero: Equatable, Sendable, Decodable {
@@ -149,6 +151,30 @@ struct CaptureSelection: Equatable, Sendable, Decodable {
         /// How many pages, from the first, an incomplete download's folder holds; `nil` for a
         /// complete one, whose folder holds every page.
         let completedPages: Int?
+        /// Whether a complete download's folder holds none of its page images, only its record and
+        /// status (owner msg 5113); `nil` for a download with real pages. Nothing may open it.
+        let mockPages: Bool?
+        /// Whether the gallery may also be visible on another screen of the set; `nil` for not.
+        let allowedRepeat: Bool?
+
+        init(
+            gallery: String,
+            status: DownloadStatus,
+            completedPages: Int?,
+            mockPages: Bool? = nil,
+            allowedRepeat: Bool? = nil
+        ) {
+            self.gallery = gallery
+            self.status = status
+            self.completedPages = completedPages
+            self.mockPages = mockPages
+            self.allowedRepeat = allowedRepeat
+        }
+
+        /// Whether the folder mocks its pages.
+        var mocksPages: Bool {
+            mockPages == true
+        }
     }
 
     /// A download row's status, by the name the selection gives it.

@@ -75,7 +75,7 @@ struct CaptureTagTranslationTests {
         withDependencies {
             CaptureScenePreparation.isolate(
                 &$0, scene: scene, storage: storage, libraryClient: .noop,
-                downloads: .empty, tagTranslator: translator
+                launch: CaptureLaunchInputs(downloads: .empty, family: .phone, tagTranslator: translator)
             )
         } operation: {
             @SharedReader(.setting) var setting

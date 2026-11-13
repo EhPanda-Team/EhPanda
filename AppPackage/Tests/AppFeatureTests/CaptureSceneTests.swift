@@ -531,7 +531,7 @@ struct CaptureSceneTests {
                 scene: scene,
                 storage: storage,
                 libraryClient: .noop,
-                downloads: .empty
+                launch: CaptureLaunchInputs(downloads: .empty, family: .phone)
             )
         } operation: {
             @Dependency(\.date.now) var now
@@ -543,7 +543,7 @@ struct CaptureSceneTests {
             expectNoDifference(popular.map(\.gid), MarketingFixtureBuilder.heroGIDs)
 
             let state = AppReducer.State()
-            expectNoDifference(state.settingState.setting, CaptureScenePreparation.sceneSetting)
+            expectNoDifference(state.settingState.setting, CaptureScenePreparation.sceneSetting(family: .phone))
             state.settingState.$setting.withLock({ $0.showNewDawnGreeting.toggle() })
         }
         withDependencies {
@@ -567,15 +567,24 @@ struct CaptureSceneTests {
         expected.bypassSNIFiltering = true
         expected.displayJapaneseTitle = japaneseTitles
         let language = Locale(identifier: locale).language.languageCode
-        expectNoDifference(CaptureScenePreparation.sceneSetting(languageCode: language), expected)
+        expectNoDifference(CaptureScenePreparation.sceneSetting(languageCode: language, family: .phone), expected)
+        // iPad captures show Downloads as a grid (owner msg 5072) and change nothing else.
+        expected.galleryListPresentation.downloads = .grid
+        expectNoDifference(CaptureScenePreparation.sceneSetting(languageCode: language, family: .pad), expected)
+    }
+
+    @Test(arguments: [CaptureDeviceFamily.phone, .pad])
+    func sceneSettingsFollowTheProcessLanguage(family: CaptureDeviceFamily) {
+        expectNoDifference(
+            CaptureScenePreparation.sceneSetting(family: family),
+            CaptureScenePreparation.sceneSetting(languageCode: Locale.current.language.languageCode, family: family)
+        )
     }
 
     @Test
-    func sceneSettingsFollowTheProcessLanguage() {
-        expectNoDifference(
-            CaptureScenePreparation.sceneSetting,
-            CaptureScenePreparation.sceneSetting(languageCode: Locale.current.language.languageCode)
-        )
+    func theDeviceFamilyFollowsTheInterfaceIdiom() {
+        #expect(CaptureDeviceFamily(.pad) == .pad)
+        #expect(CaptureDeviceFamily(.phone) == .phone)
     }
 
     @Test

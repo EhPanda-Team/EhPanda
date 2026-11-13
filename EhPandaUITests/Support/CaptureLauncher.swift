@@ -1,8 +1,8 @@
 import XCTest
 
 /// One marketing capture coordinate (D-16): the screen, selection set and rendering axes a single
-/// capture shows, decoded from `EHPANDA_CAPTURE_COORDINATE`. The text size and orientation are
-/// fixed for every marketing capture, so no coordinate names them.
+/// capture shows, decoded from `EHPANDA_CAPTURE_COORDINATE`. The text size is fixed for every
+/// marketing capture and the orientation for each device family, so no coordinate names them.
 struct CaptureCoordinate: Equatable, Sendable {
     enum Screen: String, Decodable, Sendable {
         case home
@@ -50,6 +50,33 @@ struct CaptureCoordinate: Equatable, Sendable {
     enum Family: String, Decodable, Sendable {
         case iphone
         case ipad
+
+        /// The orientation every marketing capture on the family shows: iPhone screenshots are
+        /// portrait and iPad ones landscape (owner msg 5073).
+        var orientation: Orientation {
+            switch self {
+            case .iphone:
+                .portrait
+            case .ipad:
+                .landscape
+            }
+        }
+    }
+
+    enum Orientation: String, Sendable {
+        case portrait
+        case landscape
+
+        /// The device orientation the simulator is turned to; landscape keeps the home button side,
+        /// where the system puts it, on the right.
+        var deviceOrientation: UIDeviceOrientation {
+            switch self {
+            case .portrait:
+                .portrait
+            case .landscape:
+                .landscapeLeft
+            }
+        }
     }
 
     static let environmentKey = "EHPANDA_CAPTURE_COORDINATE"
@@ -60,6 +87,10 @@ struct CaptureCoordinate: Equatable, Sendable {
     let locale: Locale
     let theme: Theme
     let family: Family
+
+    var orientation: Orientation {
+        family.orientation
+    }
 
     /// The coordinate's name in attachments and evidence.
     var key: String {
@@ -235,6 +266,8 @@ struct CaptureFixtureSelection: Decodable, Sendable {
         /// Spelled as the key in the selections already on disk.
         let frontpage: [String]
         let toplists: [String: [String]]
+        /// The galleries Home may list in two sections, once out of sight; `nil` for none.
+        let allowedRepeats: [String]?
     }
 
     struct Hero: Decodable, Sendable {
@@ -256,6 +289,10 @@ struct CaptureFixtureSelection: Decodable, Sendable {
         let status: String
         /// How many pages an incomplete download holds; `nil` for a complete one.
         let completedPages: Int?
+        /// Whether a complete download's folder holds no page file, only its record (owner msg 5113).
+        let mockPages: Bool?
+        /// Whether the gallery may also be visible on another screen of the set.
+        let allowedRepeat: Bool?
     }
 
     let selectionID: String
@@ -359,7 +396,7 @@ struct CaptureLaunchDownload: Decodable, Equatable {
 
 /// Launches the actual app on one marketing coordinate and verifies the screen it settles on.
 ///
-/// The launcher sets the coordinate's appearance and portrait orientation on the simulator and
+/// The launcher sets the coordinate's appearance and its family's orientation on the simulator and
 /// its language and formatting locale on the launch. The text size stays the simulator's own and
 /// is verified instead of set: a text size the app overrides for its window, while the system
 /// setting differs, renders some toolbar glyphs at the system's size.
@@ -446,7 +483,8 @@ struct CaptureLauncher: Sendable {
         _ app: XCUIApplication,
         scenarioID: String
     ) throws -> (json: String, diagnostics: CaptureLaunchDiagnostics) {
-        XCUIDevice.shared.orientation = .portrait
+        let orientation = coordinate.orientation.deviceOrientation
+        XCUIDevice.shared.orientation = orientation
         XCUIDevice.shared.appearance = switch coordinate.theme {
         case .light:
             .light
@@ -474,7 +512,11 @@ struct CaptureLauncher: Sendable {
         app.launch()
 
         let settled = try app.settledCaptureDiagnostics(as: CaptureLaunchDiagnostics.self, during: coordinate.key)
-        XCTAssertEqual(XCUIDevice.shared.orientation, .portrait, "The \(coordinate.key) capture left portrait.")
+        XCTAssertEqual(
+            XCUIDevice.shared.orientation,
+            orientation,
+            "The \(coordinate.key) capture left \(coordinate.orientation.rawValue)."
+        )
         return settled
     }
 
@@ -505,11 +547,12 @@ struct CaptureContentVerifier {
             coordinate.presentsSheet,
             "The \(coordinate.key) capture shows its screen in a sheet only when the coordinate's screen is one."
         )
-        XCTAssertEqual(
-            Set(diagnostics.galleryIDs).count,
-            diagnostics.galleryIDs.count,
-            "The \(coordinate.key) capture shows a gallery twice."
-        )
+        // Home may list a declared gallery in two sections; the visible covers show it once.
+        let allowedRepeats = coordinate.screen == .home
+            ? Set(try fixture.selection.scene(coordinate.set).home.allowedRepeats ?? []) : []
+        let repeated = Dictionary(grouping: diagnostics.galleryIDs, by: \.self)
+            .filter({ $0.value.count > (allowedRepeats.contains($0.key) ? 2 : 1) })
+        XCTAssertEqual(repeated.keys.sorted(), [], "The \(coordinate.key) capture lists a gallery too often.")
         let liveTextIDs = (diagnostics.liveText?.groups ?? []).flatMap({ [$0.id] + $0.blocks.map(\.id) })
         XCTAssertEqual(
             Set(liveTextIDs).count,
@@ -584,12 +627,13 @@ struct CaptureContentVerifier {
             downloads: coordinate.screen == .downloads ? scene.downloads.map { download in
                 let pageCount = reportedDownloads.first(where: { $0.gid == download.gallery })?.pageCount ?? 0
                 let completedPages = download.completedPages ?? pageCount
+                // A mocked download's record counts every page while its folder holds none.
                 return CaptureLaunchDownload(
                     gid: download.gallery,
                     status: download.status,
                     completedPages: completedPages,
                     pageCount: pageCount,
-                    pageFiles: completedPages
+                    pageFiles: download.mockPages == true ? 0 : completedPages
                 )
             } : nil,
             sheetPixels: coordinate.presentsSheet ? reportedSheet : nil
@@ -655,6 +699,67 @@ extension XCUIApplication {
             XCTFail("The capture diagnostics are not readable on the \(launch): \(value)")
             throw error
         }
+    }
+
+    /// The gallery covers the screen shows, top to bottom and leading to trailing: each cover the
+    /// app identifies whose frame reaches into the window, however little of it. A cover laid out
+    /// wholly off screen, like a landscape slideshow's peeking card's, is not visible.
+    func visibleCovers() throws -> [CaptureVisibleCover] {
+        let bounds = frame
+        var covers = [CaptureVisibleCover]()
+        var pending = [try snapshot()]
+        while let element = pending.popLast() {
+            pending.append(contentsOf: element.children)
+            guard let gid = CaptureVisibleCover.gallery(identifier: element.identifier) else {
+                continue
+            }
+            let shown = element.frame.intersection(bounds)
+            if !shown.isNull, shown.width > 0, shown.height > 0 {
+                covers.append(.init(gid: gid, identifier: element.identifier, frame: element.frame))
+            }
+        }
+        return covers.sorted(by: { lhs, rhs in
+            lhs.frame.minY == rhs.frame.minY ? lhs.frame.minX < rhs.frame.minX : lhs.frame.minY < rhs.frame.minY
+        })
+    }
+}
+
+/// A gallery cover a capture's screen shows, as the visible-uniqueness and cross-screen checks read it.
+struct CaptureVisibleCover: Encodable, Equatable {
+    /// The identifier prefixes of the covers Home's slideshow and rankings and every gallery grid show,
+    /// and of Home's front page cells, which hide their covers from accessibility: a cell's cover fills
+    /// its top, so a cell in sight counts as its cover, which can only count a cover too often.
+    static let prefixes = [
+        "home_slideshow_cover_", "home_ranking_cover_", "gallery-grid-cover-", "home_front_page_title_"
+    ]
+
+    let gid: String
+    let identifier: String
+    let frame: CGRect
+
+    /// The gallery a cover identifier names, or `nil` for any other element. A container that
+    /// joins its children's identifiers names no gallery of its own.
+    static func gallery(identifier: String) -> String? {
+        prefixes.lazy.compactMap { prefix in
+            identifier.hasPrefix(prefix) ? String(identifier.dropFirst(prefix.count)) : nil
+        }
+        .first(where: { gid in !gid.isEmpty && gid.allSatisfy({ ("0"..."9").contains($0) }) })
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case gid, identifier, width, height
+        case left = "x"
+        case top = "y"
+    }
+
+    func encode(to encoder: any Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(gid, forKey: .gid)
+        try container.encode(identifier, forKey: .identifier)
+        try container.encode(frame.minX, forKey: .left)
+        try container.encode(frame.minY, forKey: .top)
+        try container.encode(frame.width, forKey: .width)
+        try container.encode(frame.height, forKey: .height)
     }
 }
 
