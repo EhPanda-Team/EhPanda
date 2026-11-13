@@ -104,42 +104,89 @@ public struct SnapshotPicture: Sendable {
 /// Several simulator clones of one run share the output directory, so each line is one `write` to a descriptor
 /// opened with `O_APPEND` under an exclusive `flock`: lines from different processes never interleave.
 ///
-/// Each coordinate keeps the first line written for it, and only that line's pictures. A hosted runner froze for
-/// 25 minutes (run 43298876957, shard s15): XCTest gave the stalled runners up, started new ones on
-/// the same clones and ran their classes again, and the old runners woke and went on with the same classes. Both
-/// wrote each coordinate, the aggregate kept the first line and the disk kept the last picture, and 34 lines
-/// named pictures whose digest and size were not the ones on disk. The check, the pictures and the line are now
-/// one step under the lock.
+/// Each coordinate keeps its first final line, and only that line's pictures. A hosted runner froze for 25 minutes
+/// (run 43298876957, shard s15): XCTest gave the stalled runners up, started new ones on the same clones and ran
+/// their classes again, and the old runners woke and went on with the same classes. Both wrote each coordinate, the
+/// aggregate kept the first line and the disk kept the last picture, and 34 lines named pictures whose digest and
+/// size were not the ones on disk. A failed capture's line (`error`, `timeout`) is provisional: a later capture of
+/// the coordinate is written after it, and `Scripts/visual/snapshot_aggregate.py` takes the later line.
+///
+/// The pictures are written to a staging directory first, outside the lock; under the lock the writer only reads
+/// the lines, moves the staged pictures into place and appends the line, so a writer holds the lock briefly. A
+/// holder that froze (as above) is waited for up to `lockTimeout`, then the append fails instead of hanging.
 public struct SnapshotResultWriter: Sendable {
     public let output: URL
+    /// How long ``append(_:pictures:)`` waits for another process's lock before it fails.
+    public let lockTimeout: Duration
 
-    public init(output: URL) {
+    public init(output: URL, lockTimeout: Duration = .seconds(120)) {
         self.output = output
+        self.lockTimeout = lockTimeout
     }
 
     public var resultsURL: URL {
         output.appending(path: "results.jsonl")
     }
 
-    /// Writes `pictures`, then `line`, unless `line.key` already has a line; returns whether it wrote them.
+    /// Where pictures wait to be moved into place: below the output, so the move is a rename on one volume. A
+    /// staged picture ends in `.partial`, so one a killed process left behind is never read as a picture.
+    var stagingURL: URL {
+        output.appending(path: ".staging", directoryHint: .isDirectory)
+    }
+
+    /// Whether a line of `status` is a failed capture that a later capture of its coordinate may follow.
+    public static func isProvisional(_ status: SnapshotStatus) -> Bool {
+        status == .error || status == .timeout
+    }
+
+    /// Writes `pictures`, then `line`, unless `line.key` already has a final line (or `line` is itself provisional
+    /// and the key has any line); returns whether it wrote them.
     ///
-    /// The pictures go first: a process killed between the two leaves pictures without a line, which a re-run
-    /// replaces (`Scripts/visual/snapshot_shard.py` `prune`), never a line without its pictures.
+    /// The pictures go into place before the line: a process killed between the two leaves pictures without a
+    /// line, which a re-run replaces (`Scripts/visual/snapshot_shard.py` `prune`), never a line without its
+    /// pictures. A picture that cannot be staged leaves nothing behind.
     @discardableResult
     public func append(_ line: SnapshotResultLine, pictures: [SnapshotPicture] = []) throws -> Bool {
-        try FileManager.default.createDirectory(at: output, withIntermediateDirectories: true)
+        let manager = FileManager.default
+        try manager.createDirectory(at: output, withIntermediateDirectories: true)
         let encoder = JSONEncoder()
         encoder.outputFormatting = [.sortedKeys]
         var data = try encoder.encode(line)
         data.append(0x0A)
+
+        let staging = stagingURL.appending(path: UUID().uuidString, directoryHint: .isDirectory)
+        defer { Self.removeStaging(staging) }
+        var staged: [(file: URL, destination: URL)] = []
+        if !pictures.isEmpty {
+            try manager.createDirectory(at: staging, withIntermediateDirectories: true)
+        }
+        for (index, picture) in pictures.enumerated() {
+            let destination = pictureURL(kind: picture.kind, relativePath: picture.relativePath)
+            try manager.createDirectory(
+                at: destination.deletingLastPathComponent(), withIntermediateDirectories: true
+            )
+            let file = staging.appending(path: "\(index).partial")
+            try picture.data.write(to: file)
+            staged.append((file, destination))
+        }
+
         let descriptor = open(resultsURL.path(percentEncoded: false), O_WRONLY | O_APPEND | O_CREAT, 0o644)
         guard descriptor >= 0 else { throw SnapshotResultWriterError.open(errno) }
         defer { close(descriptor) }
-        guard flock(descriptor, LOCK_EX) == 0 else { throw SnapshotResultWriterError.lock(errno) }
+        try lock(descriptor)
         defer { flock(descriptor, LOCK_UN) }
-        guard try !recordedKeys().contains(line.key) else { return false }
-        for picture in pictures {
-            try writePicture(picture.data, kind: picture.kind, relativePath: picture.relativePath)
+        switch try keyStates()[line.key] {
+        case .final?:
+            return false
+        case .provisional? where Self.isProvisional(line.status):
+            return false
+        case .provisional?, nil:
+            break
+        }
+        for (file, destination) in staged {
+            guard rename(file.path(percentEncoded: false), destination.path(percentEncoded: false)) == 0 else {
+                throw SnapshotResultWriterError.move(errno)
+            }
         }
         let written = data.withUnsafeBytes { buffer in
             write(descriptor, buffer.baseAddress, buffer.count)
@@ -148,12 +195,43 @@ public struct SnapshotResultWriter: Sendable {
         return true
     }
 
+    /// Takes the exclusive lock on `descriptor`, trying again while another process holds it, up to `lockTimeout`.
+    private func lock(_ descriptor: Int32) throws {
+        let clock = ContinuousClock()
+        let deadline = clock.now.advanced(by: lockTimeout)
+        while flock(descriptor, LOCK_EX | LOCK_NB) != 0 {
+            let error = errno
+            guard error == EWOULDBLOCK || error == EINTR else { throw SnapshotResultWriterError.lock(error) }
+            guard clock.now < deadline else { throw SnapshotResultWriterError.lockTimedOut }
+            usleep(20_000)
+        }
+    }
+
+    private enum KeyState {
+        case provisional
+        case final
+    }
+
+    /// Each written key's state: final once it has a line that is not provisional.
+    private func keyStates() throws -> [String: KeyState] {
+        var states: [String: KeyState] = [:]
+        for (key, status) in try readKeys() where states[key] != .final {
+            let provisional = status.flatMap(SnapshotStatus.init(rawValue:)).map(Self.isProvisional) ?? false
+            states[key] = provisional ? .provisional : .final
+        }
+        return states
+    }
+
+    private func pictureURL(kind: String?, relativePath: String) -> URL {
+        let base = kind.map({ output.appending(path: $0, directoryHint: .isDirectory) }) ?? output
+        return base.appending(path: relativePath)
+    }
+
     /// Writes `data` at `relativePath` below the output, or below one of its subdirectories (`actual`,
     /// `difference`). Candidates go to the output root, so a candidate directory is laid out as a baseline slice.
     @discardableResult
     public func writePicture(_ data: Data, kind: String?, relativePath: String) throws -> URL {
-        let base = kind.map({ output.appending(path: $0, directoryHint: .isDirectory) }) ?? output
-        let url = base.appending(path: relativePath)
+        let url = pictureURL(kind: kind, relativePath: relativePath)
         try FileManager.default.createDirectory(at: url.deletingLastPathComponent(), withIntermediateDirectories: true)
         try data.write(to: url, options: .atomic)
         return url
@@ -169,9 +247,14 @@ public struct SnapshotResultWriter: Sendable {
     /// The keys of every line written so far. A line that does not read as a result (a clone killed mid-write) is
     /// passed over: the caller only asks whether a coordinate already has its line.
     public func recordedKeys() throws -> Set<String> {
+        Set(try readKeys().map(\.key))
+    }
+
+    /// Each line's key and status, in the order written; lines that do not read as a result are passed over.
+    private func readKeys() throws -> [(key: String, status: String?)] {
         guard FileManager.default.fileExists(atPath: resultsURL.path(percentEncoded: false)) else { return [] }
         let text = try String(contentsOf: resultsURL, encoding: .utf8)
-        var keys = Set<String>()
+        var keys: [(key: String, status: String?)] = []
         for line in text.split(separator: "\n") {
             let object: Any
             do {
@@ -179,11 +262,22 @@ public struct SnapshotResultWriter: Sendable {
             } catch {
                 continue
             }
-            if let key = (object as? [String: Any])?["key"] as? String {
-                keys.insert(key)
+            if let fields = object as? [String: Any], let key = fields["key"] as? String {
+                keys.append((key, fields["status"] as? String))
             }
         }
         return keys
+    }
+
+    /// Removes one append's staging folder: empty once its pictures moved into place, or holding the pictures of an
+    /// append that stopped early. A folder that cannot be removed only leaves `.partial` files, which nothing reads.
+    private static func removeStaging(_ staging: URL) {
+        guard FileManager.default.fileExists(atPath: staging.path(percentEncoded: false)) else { return }
+        do {
+            try FileManager.default.removeItem(at: staging)
+        } catch {
+            return
+        }
     }
 
     /// Reads every line written so far.
@@ -199,5 +293,8 @@ public struct SnapshotResultWriter: Sendable {
 public enum SnapshotResultWriterError: Error, Equatable {
     case open(Int32)
     case lock(Int32)
+    /// Another process held the results file's lock for longer than `lockTimeout`.
+    case lockTimedOut
+    case move(Int32)
     case write(Int32)
 }

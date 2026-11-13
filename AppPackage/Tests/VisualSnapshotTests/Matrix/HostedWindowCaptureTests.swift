@@ -2,6 +2,7 @@ import AppFeature
 import CryptoKit
 import Foundation
 import SwiftUI
+import Synchronization
 import UIKit
 import VisualSnapshotSupport
 import XCTest
@@ -340,6 +341,130 @@ final class HostedWindowCaptureTests: XCTestCase {
         XCTAssertFalse(FileManager.default.fileExists(atPath: firstActual.path(percentEncoded: false)))
     }
 
+    func testTwoWritersOfOneCoordinateKeepOneLineAndItsPicture() throws {
+        // Two processes (a stalled runner and its replacement) write the same coordinate at once: one line is kept,
+        // and the picture on disk is the one that line names.
+        let output = try Self.temporaryDirectory()
+        for round in 0..<20 {
+            let key = "a\(round)__en__large__portrait__iphone__light"
+            let path = "iphone/en/large/a\(round)/portrait-light.png"
+            let accepted = Mutex<[Int]>([])
+            DispatchQueue.concurrentPerform(iterations: 2) { writerIndex in
+                // Each writer opens the results file itself, as each process does.
+                let writer = SnapshotResultWriter(output: output)
+                let byte = UInt8(writerIndex + 1)
+                do {
+                    let wrote = try writer.append(
+                        Self.recordedLine(key, sha: String(format: "%02x", byte)),
+                        pictures: [SnapshotPicture(Data(repeating: byte, count: 4096), kind: nil, relativePath: path)]
+                    )
+                    if wrote {
+                        accepted.withLock({ $0.append(writerIndex) })
+                    }
+                } catch {
+                    XCTFail("round \(round), writer \(writerIndex): \(error)")
+                }
+            }
+            let writer = SnapshotResultWriter(output: output)
+            let lines = try writer.lines().filter({ $0.key == key })
+            XCTAssertEqual(accepted.withLock({ $0.count }), 1, "round \(round)")
+            XCTAssertEqual(lines.count, 1, "round \(round)")
+            let picture = try Data(contentsOf: output.appending(path: path))
+            XCTAssertEqual(lines.first?.sha256, picture.first.map({ String(format: "%02x", $0) }), "round \(round)")
+        }
+        XCTAssertEqual(try Self.stagedFiles(in: output), [])
+    }
+
+    func testACaptureAfterAFailedOneIsWrittenAndThenKept() throws {
+        let writer = SnapshotResultWriter(output: try Self.temporaryDirectory())
+        let key = "a__en__large__portrait__iphone__light", path = "iphone/en/large/a/portrait-light.png"
+        let failure = SnapshotResultLine(
+            key: key, status: .error, attempts: 2, flaky: false, seconds: 1, settleSamples: 0, bytes: 1,
+            sha256: nil, reason: "interaction"
+        )
+        let timeout = SnapshotResultLine(
+            key: key, status: .timeout, attempts: 2, flaky: false, seconds: 1, settleSamples: 0, bytes: 0,
+            sha256: nil, reason: "settle"
+        )
+        let failurePicture = SnapshotPicture(Data([9]), kind: "actual", relativePath: path)
+        XCTAssertTrue(try writer.append(failure, pictures: [failurePicture]))
+        // A second failure adds nothing: the coordinate still waits for a capture.
+        XCTAssertFalse(try writer.append(timeout))
+        XCTAssertTrue(try writer.append(
+            Self.recordedLine(key, sha: "01"), pictures: [SnapshotPicture(Data([1]), kind: nil, relativePath: path)]
+        ))
+        XCTAssertFalse(try writer.append(
+            Self.recordedLine(key, sha: "02"), pictures: [SnapshotPicture(Data([2]), kind: nil, relativePath: path)]
+        ))
+        XCTAssertFalse(try writer.append(timeout))
+        XCTAssertEqual(try writer.lines(), [failure, Self.recordedLine(key, sha: "01")])
+        XCTAssertEqual(try Data(contentsOf: writer.output.appending(path: path)), Data([1]))
+        XCTAssertEqual(try Data(contentsOf: writer.output.appending(path: "actual").appending(path: path)), Data([9]))
+    }
+
+    func testAPictureThatCannotBeStagedLeavesNoLineAndNoPicture() throws {
+        let output = try Self.temporaryDirectory()
+        let writer = SnapshotResultWriter(output: output)
+        let key = "a__en__large__portrait__iphone__light", path = "iphone/en/large/a/portrait-light.png"
+        // A file where the second picture's folder must go: staging it fails after the first picture was staged.
+        try Data().write(to: output.appending(path: "difference"))
+        XCTAssertThrowsError(try writer.append(Self.recordedLine(key, sha: "01"), pictures: [
+            SnapshotPicture(Data([1]), kind: nil, relativePath: path),
+            SnapshotPicture(Data([1]), kind: "difference", relativePath: path)
+        ]))
+        XCTAssertEqual(try writer.lines(), [])
+        XCTAssertFalse(FileManager.default.fileExists(atPath: output.appending(path: path).path(percentEncoded: false)))
+        XCTAssertEqual(try Self.stagedFiles(in: output), [])
+        // The coordinate is still open: its re-run writes it.
+        XCTAssertTrue(try writer.append(
+            Self.recordedLine(key, sha: "02"), pictures: [SnapshotPicture(Data([2]), kind: nil, relativePath: path)]
+        ))
+        XCTAssertEqual(try Data(contentsOf: output.appending(path: path)), Data([2]))
+    }
+
+    func testAPictureThatCannotBeMovedIntoPlaceLeavesNoLine() throws {
+        let output = try Self.temporaryDirectory()
+        let writer = SnapshotResultWriter(output: output)
+        let key = "a__en__large__portrait__iphone__light", path = "iphone/en/large/a/portrait-light.png"
+        // A folder that is not empty where the second picture must go: moving it into place fails under the lock.
+        let blocked = output.appending(path: "actual").appending(path: path, directoryHint: .isDirectory)
+        try FileManager.default.createDirectory(at: blocked, withIntermediateDirectories: true)
+        try Data([0]).write(to: blocked.appending(path: "keep"))
+        XCTAssertThrowsError(try writer.append(Self.recordedLine(key, sha: "01"), pictures: [
+            SnapshotPicture(Data([1]), kind: nil, relativePath: path),
+            SnapshotPicture(Data([1]), kind: "actual", relativePath: path)
+        ]))
+        XCTAssertEqual(try writer.lines(), [])
+        XCTAssertEqual(try Self.stagedFiles(in: output), [])
+        // The picture moved before the failure is replaced by the coordinate's re-run.
+        XCTAssertTrue(try writer.append(
+            Self.recordedLine(key, sha: "02"), pictures: [SnapshotPicture(Data([2]), kind: nil, relativePath: path)]
+        ))
+        XCTAssertEqual(try writer.lines(), [Self.recordedLine(key, sha: "02")])
+        XCTAssertEqual(try Data(contentsOf: output.appending(path: path)), Data([2]))
+    }
+
+    func testAWriterGivesUpOnALockHeldTooLong() throws {
+        // A frozen holder must not hang the runner that replaced it.
+        let output = try Self.temporaryDirectory()
+        let writer = SnapshotResultWriter(output: output, lockTimeout: .milliseconds(200))
+        try writer.append(Self.recordedLine("b__en__large__portrait__iphone__light", sha: "00"))
+        let holder = open(writer.resultsURL.path(percentEncoded: false), O_RDONLY)
+        XCTAssertGreaterThanOrEqual(holder, 0)
+        defer { close(holder) }
+        XCTAssertEqual(flock(holder, LOCK_EX), 0)
+        let key = "a__en__large__portrait__iphone__light", path = "iphone/en/large/a/portrait-light.png"
+        XCTAssertThrowsError(try writer.append(
+            Self.recordedLine(key, sha: "01"), pictures: [SnapshotPicture(Data([1]), kind: nil, relativePath: path)]
+        )) { error in
+            XCTAssertEqual(error as? SnapshotResultWriterError, .lockTimedOut)
+        }
+        flock(holder, LOCK_UN)
+        XCTAssertEqual(try writer.recordedKeys(), ["b__en__large__portrait__iphone__light"])
+        XCTAssertFalse(FileManager.default.fileExists(atPath: output.appending(path: path).path(percentEncoded: false)))
+        XCTAssertEqual(try Self.stagedFiles(in: output), [])
+    }
+
     // MARK: Helpers
 
     @MainActor
@@ -374,6 +499,22 @@ final class HostedWindowCaptureTests: XCTestCase {
             .appending(component: "ehp19-capture-\(UUID().uuidString)", directoryHint: .isDirectory)
         try FileManager.default.createDirectory(at: url, withIntermediateDirectories: true)
         return url
+    }
+
+    private static func recordedLine(_ key: String, sha: String) -> SnapshotResultLine {
+        SnapshotResultLine(
+            key: key, status: .recorded, attempts: 1, flaky: false, seconds: 1, settleSamples: 2, bytes: 1,
+            sha256: sha, reason: nil
+        )
+    }
+
+    /// The files left in the writer's staging folder (empty once every append has finished).
+    private static func stagedFiles(in output: URL) throws -> [String] {
+        let staging = output.appending(path: ".staging", directoryHint: .isDirectory)
+        guard let walker = FileManager.default.enumerator(at: staging, includingPropertiesForKeys: nil) else {
+            return []
+        }
+        return walker.compactMap({ $0 as? URL }).filter({ !$0.hasDirectoryPath }).map(\.lastPathComponent)
     }
 
     /// Every file below `directory` with its SHA-256.

@@ -372,6 +372,51 @@ class AggregateTests(unittest.TestCase):
         self.assertEqual(code, 0, out)
         self.assertEqual(len([row for row in self.aggregate()['results'] if row['key'] == duplicate]), 1)
 
+    def test_a_capture_after_a_failed_one_replaces_it(self):
+        # A runner XCTest gave up wrote `error` for a coordinate its replacement then recorded: the recorded line is
+        # the coordinate's result, and the failure is not reported.
+        key = self.keys('s03')[0]
+        line = {'key': key, 'status': 'recorded', 'attempts': 1, 'flaky': False, 'seconds': 4.0, 'sha256': 'bb'}
+        self.write_all(s03={'status': 'recorded', 'overrides': {key: {'status': 'error', 'reason': 'interaction'}},
+                            'extra': [line]})
+        code, out = self.run_cli()
+        self.assertEqual(code, 0, out)
+        document = self.aggregate()
+        self.assertEqual(document['items']['infrastructureErrors'], [])
+        rows = [row for row in document['results'] if row['key'] == key]
+        self.assertEqual([(row['status'], row['seconds']) for row in rows], [('recorded', 4.0)])
+
+    def test_a_failure_after_a_capture_is_passed_over(self):
+        key = self.keys('s03')[0]
+        line = {'key': key, 'status': 'timeout', 'attempts': 1, 'flaky': False, 'seconds': 4.0, 'reason': 'settle'}
+        self.write_all(s03={'status': 'recorded', 'overrides': {key: {'sha256': 'aa'}}, 'extra': [line]})
+        code, out = self.run_cli()
+        self.assertEqual(code, 0, out)
+        rows = [row for row in self.aggregate()['results'] if row['key'] == key]
+        self.assertEqual([row['status'] for row in rows], ['recorded'])
+
+    def test_two_captures_with_different_pictures_after_a_failure_are_still_an_error(self):
+        # The failed line is replaced by the first capture; the second capture names another picture.
+        key = self.keys('s03')[0]
+        lines = [{'key': key, 'status': 'recorded', 'attempts': 1, 'flaky': False, 'seconds': 4.0, 'sha256': sha}
+                 for sha in ('aa', 'bb')]
+        self.write_all(s03={'status': 'recorded', 'overrides': {key: {'status': 'error', 'reason': 'interaction'}},
+                            'extra': lines})
+        code, out = self.run_cli()
+        self.assertEqual(code, 1, out)
+        errors = self.aggregate()['items']['infrastructureErrors']
+        self.assertEqual([(error['kind'], error['key']) for error in errors], [('duplicate-result', key)])
+        self.assertIn(f'`{key}`: duplicate-result (s03)', out)
+
+    def test_two_failures_of_a_coordinate_report_the_first_once(self):
+        key = self.keys('s03')[0]
+        line = {'key': key, 'status': 'timeout', 'attempts': 1, 'flaky': False, 'seconds': 4.0, 'reason': 'settle'}
+        self.write_all(s03={'overrides': {key: {'status': 'error', 'reason': 'interaction'}}, 'extra': [line]})
+        code, _ = self.run_cli()
+        self.assertEqual(code, 1)
+        self.assertEqual(self.aggregate()['items']['infrastructureErrors'], [
+            {'shard': 's03', 'kind': 'error', 'key': key, 'detail': 'interaction'}])
+
     def test_retry_without_shard_json_keeps_the_first_attempt_and_is_reported(self):
         # Run 42577585956: s07's retry could not make its simulator and left only its logs, and the merge took that
         # empty retry over a first attempt with 547 pictures. The first attempt stays; the lost retry is named.
