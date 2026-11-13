@@ -43,6 +43,10 @@ public struct LibraryClient: Sendable {
     }
 }
 
+/// The disk size limit of each image library's cache (1 GiB). The reader's own byte cache has its own, larger limit
+/// (`DataCache.Configuration.defaultDiskSizeLimit`).
+private let imageDiskCacheSizeLimit: UInt = 1024 * 1024 * 1024
+
 extension LibraryClient {
     public static let live = live(configuringImageSessions: { _ in })
 
@@ -60,6 +64,10 @@ extension LibraryClient {
                 config.httpCookieStorage = HTTPCookieStorage.shared
                 configuringImageSessions(config)
                 KingfisherManager.shared.downloader.sessionConfiguration = config
+                // Covers, previews and thumbnails live in these two caches. Each library trims its own
+                // disk cache to the limit when the app leaves the foreground or ends.
+                KingfisherManager.shared.cache.diskStorage.config.sizeLimit = imageDiskCacheSizeLimit
+                SDImageCache.shared.config.maxDiskSize = imageDiskCacheSizeLimit
 
                 let sdConfig = URLSessionConfiguration.default
                 sdConfig.httpCookieStorage = HTTPCookieStorage.shared

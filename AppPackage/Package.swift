@@ -906,6 +906,7 @@ let targets: [PackageDescription.Target] = [
             .module(.userDefaultsClient),
             .targetDependency(.composableArchitecture),
             .targetDependency(.kingfisher),
+            .targetDependency(.sdWebImageSwiftUI),
             .targetDependency(.sharing)
         ]
     ),
