@@ -91,6 +91,28 @@
             "width": 1260,
             "height": 2730
           }
+        ],
+        "ipad": [
+          {
+            "imageURL": "https://raw.githubusercontent.com/EhPanda-Team/ehpanda-assets/main/app-marketplace/ipad/01-home.png",
+            "width": 2752,
+            "height": 2064
+          },
+          {
+            "imageURL": "https://raw.githubusercontent.com/EhPanda-Team/ehpanda-assets/main/app-marketplace/ipad/02-reading.png",
+            "width": 2752,
+            "height": 2064
+          },
+          {
+            "imageURL": "https://raw.githubusercontent.com/EhPanda-Team/ehpanda-assets/main/app-marketplace/ipad/03-downloads.png",
+            "width": 2752,
+            "height": 2064
+          },
+          {
+            "imageURL": "https://raw.githubusercontent.com/EhPanda-Team/ehpanda-assets/main/app-marketplace/ipad/04-more.png",
+            "width": 2752,
+            "height": 2064
+          }
         ]
       },
       "appPermissions": {
