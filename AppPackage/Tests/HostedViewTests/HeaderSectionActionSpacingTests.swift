@@ -109,22 +109,16 @@ struct HeaderSectionActionSpacingTests {
         expectEvenlySpaced(try actionFrames(width: width, size: size), "\(width)pt at \(size)")
     }
 
-    // The Read button names the saved page once there is one: its circle becomes a capsule wide enough for the
-    // label, and the row keeps its designed gaps around it. It is still found as "Read" for VoiceOver.
-    @Test(arguments: [375, 402, 834] as [CGFloat], [DynamicTypeSize.large, .accessibility3])
-    func aSavedPageWidensReadAndKeepsTheRowsGaps(width: CGFloat, size: DynamicTypeSize) throws {
-        let circle = try actionFrames(width: width, size: size)
-        let capsule = try actionFrames(width: width, size: size, readingProgress: 12)
+    // A saved page draws a progress ring inside the Read button, never a different button: the three controls keep one
+    // size and the designed gaps, and the frames are exactly those of a gallery that was never read.
+    @Test(arguments: [320, 375, 402, 834] as [CGFloat], [DynamicTypeSize.large, .accessibility3])
+    func aSavedPageLeavesTheRowExactlyAsItWas(width: CGFloat, size: DynamicTypeSize) throws {
+        let unread = try actionFrames(width: width, size: size)
+        let resumed = try actionFrames(width: width, size: size, readingProgress: 12)
 
-        #expect(capsule.read.width > circle.read.width + 1, "\(width)pt at \(size): Read did not grow")
-        #expect(abs(capsule.read.height - circle.read.height) < 0.5, "\(width)pt at \(size): Read changed height")
-        #expect(abs(capsule.download.width - capsule.favorite.width) < 0.5)
-        let favoriteToRead = gap(from: capsule.favorite, to: capsule.read)
-        #expect(
-            abs(favoriteToRead - Self.designedGap) < 0.5,
-            "\(width)pt at \(size): Favorite to Read is \(favoriteToRead)pt, not \(Self.designedGap)pt."
-        )
-        let downloadToFavorite = gap(from: capsule.download, to: capsule.favorite)
-        #expect(abs(downloadToFavorite - Self.designedGap) < 0.5)
+        expectEvenlySpaced(resumed, "\(width)pt at \(size) with a saved page")
+        #expect(resumed.download == unread.download, "\(width)pt at \(size): Download moved")
+        #expect(resumed.favorite == unread.favorite, "\(width)pt at \(size): Favorite moved")
+        #expect(resumed.read == unread.read, "\(width)pt at \(size): Read changed")
     }
 }

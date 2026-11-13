@@ -7495,18 +7495,32 @@
         }
       }
     },
-    "read_progress": {
-      "comment": "Short label on the Detail screen's Read button while the gallery has a saved reading page: the page the reader resumes at, e.g. P12. Provisional copy: every non-English value is an English placeholder that needs translation review.",
+    "accessibility.read_progress": {
+      "comment": "Accessibility value of the Detail screen's Read button once the gallery has a saved reading page: the page the reader resumes at and the gallery's page count.",
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "P%#@page@"
+            "value": "Page %#@current@ of %#@total@"
           },
           "substitutions": {
-            "page": {
+            "current": {
               "argNum": 1,
+              "formatSpecifier": "lld",
+              "variations": {
+                "plural": {
+                  "other": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "%arg"
+                    }
+                  }
+                }
+              }
+            },
+            "total": {
+              "argNum": 2,
               "formatSpecifier": "lld",
               "variations": {
                 "plural": {
@@ -7523,18 +7537,32 @@
         },
         "de": {
           "stringUnit": {
-            "state": "needs_review",
-            "value": "S%#@page@"
+            "state": "translated",
+            "value": "Seite %#@current@ von %#@total@"
           },
           "substitutions": {
-            "page": {
+            "current": {
               "argNum": 1,
               "formatSpecifier": "lld",
               "variations": {
                 "plural": {
                   "other": {
                     "stringUnit": {
-                      "state": "needs_review",
+                      "state": "translated",
+                      "value": "%arg"
+                    }
+                  }
+                }
+              }
+            },
+            "total": {
+              "argNum": 2,
+              "formatSpecifier": "lld",
+              "variations": {
+                "plural": {
+                  "other": {
+                    "stringUnit": {
+                      "state": "translated",
                       "value": "%arg"
                     }
                   }
@@ -7545,18 +7573,32 @@
         },
         "ja": {
           "stringUnit": {
-            "state": "needs_review",
-            "value": "P%#@page@"
+            "state": "translated",
+            "value": "%#@total@ページ中%#@current@ページ"
           },
           "substitutions": {
-            "page": {
+            "current": {
               "argNum": 1,
               "formatSpecifier": "lld",
               "variations": {
                 "plural": {
                   "other": {
                     "stringUnit": {
-                      "state": "needs_review",
+                      "state": "translated",
+                      "value": "%arg"
+                    }
+                  }
+                }
+              }
+            },
+            "total": {
+              "argNum": 2,
+              "formatSpecifier": "lld",
+              "variations": {
+                "plural": {
+                  "other": {
+                    "stringUnit": {
+                      "state": "translated",
                       "value": "%arg"
                     }
                   }
@@ -7567,18 +7609,32 @@
         },
         "ko": {
           "stringUnit": {
-            "state": "needs_review",
-            "value": "P%#@page@"
+            "state": "translated",
+            "value": "%#@total@페이지 중 %#@current@페이지"
           },
           "substitutions": {
-            "page": {
+            "current": {
               "argNum": 1,
               "formatSpecifier": "lld",
               "variations": {
                 "plural": {
                   "other": {
                     "stringUnit": {
-                      "state": "needs_review",
+                      "state": "translated",
+                      "value": "%arg"
+                    }
+                  }
+                }
+              }
+            },
+            "total": {
+              "argNum": 2,
+              "formatSpecifier": "lld",
+              "variations": {
+                "plural": {
+                  "other": {
+                    "stringUnit": {
+                      "state": "translated",
                       "value": "%arg"
                     }
                   }
@@ -7589,18 +7645,32 @@
         },
         "zh-Hans": {
           "stringUnit": {
-            "state": "needs_review",
-            "value": "P%#@page@"
+            "state": "translated",
+            "value": "第 %#@current@ 页，共 %#@total@ 页"
           },
           "substitutions": {
-            "page": {
+            "current": {
               "argNum": 1,
               "formatSpecifier": "lld",
               "variations": {
                 "plural": {
                   "other": {
                     "stringUnit": {
-                      "state": "needs_review",
+                      "state": "translated",
+                      "value": "%arg"
+                    }
+                  }
+                }
+              }
+            },
+            "total": {
+              "argNum": 2,
+              "formatSpecifier": "lld",
+              "variations": {
+                "plural": {
+                  "other": {
+                    "stringUnit": {
+                      "state": "translated",
                       "value": "%arg"
                     }
                   }
@@ -7611,18 +7681,32 @@
         },
         "zh-Hant": {
           "stringUnit": {
-            "state": "needs_review",
-            "value": "P%#@page@"
+            "state": "translated",
+            "value": "第 %#@current@ 頁，共 %#@total@ 頁"
           },
           "substitutions": {
-            "page": {
+            "current": {
               "argNum": 1,
               "formatSpecifier": "lld",
               "variations": {
                 "plural": {
                   "other": {
                     "stringUnit": {
-                      "state": "needs_review",
+                      "state": "translated",
+                      "value": "%arg"
+                    }
+                  }
+                }
+              }
+            },
+            "total": {
+              "argNum": 2,
+              "formatSpecifier": "lld",
+              "variations": {
+                "plural": {
+                  "other": {
+                    "stringUnit": {
+                      "state": "translated",
                       "value": "%arg"
                     }
                   }

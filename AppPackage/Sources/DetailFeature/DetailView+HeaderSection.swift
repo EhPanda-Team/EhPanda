@@ -66,6 +66,10 @@ struct HeaderSection: View {
     // button's own metric, so the ring keeps its place and weight as the button grows.
     @ScaledMetric(relativeTo: .callout) private var progressRingLineWidth: CGFloat = 2.5
     @ScaledMetric(relativeTo: .callout) private var progressRingInset: CGFloat = 4
+    // 4pt in from the Read button's edge and 3pt thick at default (.large); both scale with the button, which scales
+    // on the same metric, so the ring keeps its place at every size.
+    @ScaledMetric(relativeTo: .callout) private var readRingInset: CGFloat = 4
+    @ScaledMetric(relativeTo: .callout) private var readRingLineWidth: CGFloat = 3
 
     private var title: String {
         var titledGallery = gallery
@@ -246,37 +250,50 @@ struct HeaderSection: View {
     }
     private var readButton: some View {
         Button(action: navigateReadingAction) {
-            readButtonLabel
-                .foregroundStyle(.white)
-        }
-        .buttonStyle(.glassProminent)
-        // A gallery with a saved page stretches the circle into a capsule to hold the page's label.
-        .buttonBorderShape(readingProgress > 0 ? .capsule : .circle)
-        // The control stays "Read" for VoiceOver and Voice Control; the saved page is its value.
-        .accessibilityLabel(.read)
-        .accessibilityValue(readButtonAccessibilityValue)
-        .accessibilityFocused(readButtonFocus)
-    }
-    /// The book glyph, or, once the gallery has a saved page, that page's label (for example "P12"). The label
-    /// scales with Dynamic Type like the other controls' glyphs, and the capsule grows to hold it.
-    @ContentBuilder private var readButtonLabel: some View {
-        if readingProgress > 0 {
-            Text(.readProgress(page: readingProgress))
-                .font(actionIconFont)
-                .monospacedDigit()
-                .lineLimit(1)
-                // The capsule brings its own horizontal padding, wider than the circle's, so the label's minimum
-                // width is what leaves a one-digit page as wide as the circle it replaces.
-                .frame(minWidth: actionIconButtonSize * 0.65, minHeight: actionIconButtonSize)
-        } else {
             Label(.read, systemSymbol: .bookFill)
                 .labelStyle(.iconOnly)
                 .font(actionIconFont)
+                .foregroundStyle(.white)
                 .frame(width: actionIconButtonSize, height: actionIconButtonSize)
         }
+        .buttonStyle(.glassProminent)
+        .buttonBorderShape(.circle)
+        .overlay {
+            readProgressRing
+        }
+        // The control stays "Read" for VoiceOver and Voice Control; the saved page and the total are its value.
+        .accessibilityValue(readButtonAccessibilityValue)
+        .accessibilityFocused(readButtonFocus)
+    }
+    /// How far through the gallery the reader resumes, as a ring inside the Read button: a faint track and a solid arc
+    /// from 12 o'clock clockwise. A gallery that was never read has no ring. The arc grows to its new length when the
+    /// reader closes, unless Reduce Motion is on.
+    @ContentBuilder private var readProgressRing: some View {
+        if let fraction = readProgressFraction {
+            Circle()
+                .stroke(.white.opacity(0.35), lineWidth: readRingLineWidth)
+                .overlay {
+                    Circle()
+                        .trim(from: 0, to: fraction)
+                        .stroke(.white, style: .init(lineWidth: readRingLineWidth, lineCap: .round))
+                        .rotationEffect(.degrees(-90))
+                }
+                // The stroke is centred on its path, so the path sits half a line width past the inset.
+                .padding(readRingInset + readRingLineWidth / 2)
+                .animation(reduceMotion ? nil : .easeOut(duration: 0.3), value: fraction)
+                .allowsHitTesting(false)
+                .accessibilityHidden(true)
+        }
+    }
+    /// The gallery's page count: the detail page's once it is fetched, the row's until then.
+    private var readPageCount: Int {
+        galleryDetail.pageCount > 0 ? galleryDetail.pageCount : gallery.pageCount
+    }
+    private var readProgressFraction: Double? {
+        ReadProgress.fraction(page: readingProgress, pageCount: readPageCount)
     }
     private var readButtonAccessibilityValue: String {
-        readingProgress > 0 ? String(localized: .accessibilityPreviewPage(page: readingProgress)) : String()
+        ReadProgress.accessibilityValue(page: readingProgress, pageCount: readPageCount)
     }
     /// The download ring, drawn over the whole glass button rather than inside its label: a track in the tint at
     /// 18 % and an arc in the tint from 12 o'clock clockwise for the pages saved, so an arc of 0 draws nothing.
@@ -627,7 +644,7 @@ private struct DownloadRingDashes: Shape {
     }
 }
 
-#Preview("Resumes at page 12") {
+#Preview("Resumes at page 12 of 114") {
     @Previewable @AccessibilityFocusState var readButtonFocused: Bool
     withDependencies {
         $0.cookieClient = .previewLoggedIn
