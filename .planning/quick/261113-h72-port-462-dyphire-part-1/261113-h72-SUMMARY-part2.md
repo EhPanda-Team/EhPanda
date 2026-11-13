@@ -38,8 +38,12 @@ are unchanged.
 - **User rating colour.** Detail reads it from the page's star class (`irr`, `irg`, `irb`), not from #462's value
   thresholds (the repo's own detail test pairs a 2.5 rating with `irr`, so the thresholds looked unsafe). Lists use
   green for any rated row.
-- **Read button.** Capsule only when a page is saved; label `read_progress`; VoiceOver keeps "Read" and takes the page
-  as its value. The capsule is wider than the circle (about 61pt against 46pt), so at 420pt it wraps Read onto a second row.
+- **Read button (superseded).** The capsule labelled "P12" of `b85d15675` was replaced on the designer's decision
+  by a progress ring inside the unchanged round button: 4pt in from the edge, 3pt round-capped stroke from 12 o'clock
+  clockwise, white at 35% for the track and solid for the progress, resume page over page count (clamped; none for no
+  saved page or an unknown count), 0.3s ease-out when the reader closes, none under Reduce Motion. VoiceOver keeps "Read"
+  and takes `accessibility.read_progress` ("Page 12 of 156", copy final per the copywriter) as its value; `read_progress`
+  is deleted.
 
 ## Tests
 
