@@ -41,4 +41,65 @@ struct TagSuggestionTokenizationTests {
         #expect(keyword == "🐼 f:cat")
         #expect(try #require(handler.suggestions.first).originalKeyword == "f:cat")
     }
+
+    // Regression: E-Hentai's `~tag` (OR) and `-tag` (exclude) prefixes made the whole token fail to match
+    // any tag, so no suggestion appeared while typing them. The prefix is ignored for matching and put
+    // back when the suggestion is chosen.
+    @Test(arguments: ["~", "-"])
+    func searchPrefixIsIgnoredForMatchingAndKeptOnCompletion(_ prefix: String) throws {
+        let translation = TagTranslation(namespace: .female, key: "cat", value: "貓")
+        let handler = TagTranslationHandler()
+        var keyword = "\(prefix)f:cat"
+        handler.analyze(text: &keyword, translations: ["female:cat": translation])
+
+        let suggestion = try #require(handler.suggestions.first)
+        #expect(suggestion.originalKeyword == "\(prefix)f:cat")
+        #expect(suggestion.tag == translation)
+
+        handler.autoComplete(suggestion: suggestion, keyword: &keyword)
+        #expect(keyword == "\(prefix)f:cat$ ")
+    }
+
+    @Test(arguments: ["~", "-"])
+    func searchPrefixWithoutNamespaceStillMatchesTheKey(_ prefix: String) throws {
+        let translation = TagTranslation(namespace: .female, key: "cat", value: "貓")
+        let handler = TagTranslationHandler()
+        var keyword = "\(prefix)ca"
+        handler.analyze(text: &keyword, translations: ["female:cat": translation])
+
+        let suggestion = try #require(handler.suggestions.first)
+        #expect(suggestion.tag == translation)
+
+        handler.autoComplete(suggestion: suggestion, keyword: &keyword)
+        #expect(keyword == "\(prefix)f:cat$ ")
+    }
+
+    @Test
+    func searchPrefixAfterEarlierTermsKeepsThoseTerms() throws {
+        let translation = TagTranslation(namespace: .female, key: "cat", value: "貓")
+        let handler = TagTranslationHandler()
+        var keyword = "中文 -f:cat"
+        handler.analyze(text: &keyword, translations: ["female:cat": translation])
+
+        let suggestion = try #require(handler.suggestions.first)
+        handler.autoComplete(suggestion: suggestion, keyword: &keyword)
+        #expect(keyword == "中文 -f:cat$ ")
+    }
+
+    @Test
+    func tagWithoutPrefixCompletesWithoutOne() throws {
+        let translation = TagTranslation(namespace: .female, key: "cat", value: "貓")
+        let handler = TagTranslationHandler()
+        var keyword = "ca"
+        handler.analyze(text: &keyword, translations: ["female:cat": translation])
+
+        let suggestion = try #require(handler.suggestions.first)
+        handler.autoComplete(suggestion: suggestion, keyword: &keyword)
+        #expect(keyword == "f:cat$ ")
+    }
+
+    @Test(arguments: [("-f:cat", "-"), ("~f:cat", "~"), ("~-f:cat", "~-"), ("f:cat", ""), ("", "")])
+    func searchPrefixIsTheLeadingOperators(_ term: String, _ expected: String) {
+        #expect(TagTranslationHandler.searchPrefix(of: term) == expected)
+    }
 }

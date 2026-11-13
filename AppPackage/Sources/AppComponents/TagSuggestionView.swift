@@ -134,7 +134,9 @@ private struct SuggestionCell: View {
             .buttonStyle(.unhighlighted)
         } else {
             Text(searchCompletionLabel)
-                .searchCompletion(suggestion.tag.searchKeyword)
+                .searchCompletion(
+                    TagTranslationHandler.searchPrefix(of: suggestion.originalKeyword) + suggestion.tag.searchKeyword
+                )
         }
     }
 }
@@ -157,8 +159,13 @@ final class TagTranslationHandler {
         for index in (lastCompletedTagIndex ?? 0)..<keywords.count {
             let keywordList = keywords[index...]
             if !keywordList.isEmpty {
-                let keyword = keywordList.joined(separator: " ")
-                getSuggestions(translations: translations, keyword: keyword).forEach {
+                let originalKeyword = keywordList.joined(separator: " ")
+                // E-Hentai's `~tag` (or) and `-tag` (exclude) prefixes are not part of the tag, so they
+                // are left out of the matching and put back by `autoComplete`.
+                let matchingKeyword = String(originalKeyword.dropFirst(Self.searchPrefix(of: originalKeyword).count))
+                getSuggestions(
+                    translations: translations, keyword: matchingKeyword, originalKeyword: originalKeyword
+                ).forEach {
                     if !existingWords.contains($0.tag.searchKeyword) {
                         existingWords.insert($0.tag.searchKeyword)
                         result.append($0)
@@ -170,10 +177,18 @@ final class TagTranslationHandler {
     }
     func autoComplete(suggestion: TagSuggestion, keyword: inout String) {
         let endIndex = keyword.index(keyword.endIndex, offsetBy: 0 - suggestion.originalKeyword.count)
-        keyword = .init(keyword[keyword.startIndex..<endIndex]) + suggestion.tag.searchKeyword + " "
+        keyword = .init(keyword[keyword.startIndex..<endIndex])
+            + Self.searchPrefix(of: suggestion.originalKeyword) + suggestion.tag.searchKeyword + " "
     }
-    private func getSuggestions(translations: [String: TagTranslation], keyword: String) -> [TagSuggestion] {
-        let originalKeyword = keyword
+    /// The `~` / `-` operators a search term starts with (none for a plain term).
+    static func searchPrefix(of term: String) -> Substring {
+        term.prefix(while: { $0 == "~" || $0 == "-" })
+    }
+    private func getSuggestions(
+        translations: [String: TagTranslation],
+        keyword: String,
+        originalKeyword: String
+    ) -> [TagSuggestion] {
         var keyword = keyword
         var namespace: String?
 
