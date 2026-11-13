@@ -27,6 +27,21 @@ class SnapshotMatrixCase: XCTestCase {
         super.setUp()
         // Dependencies clears prepared values before each XCTest case; restore the opt-in host defaults.
         UITestAutomation.prepareIfNeeded()
+        Self.discardHeldTaps()
+    }
+
+    override func tearDown() {
+        Self.discardHeldTaps()
+        super.tearDown()
+    }
+
+    /// A scenario's factory holds its dialog tap for the scenario's own user step; a tap its step never performed
+    /// (a capture that failed or was skipped first) must not fire in the next scenario's page.
+    private static func discardHeldTaps() {
+        MainActor.assumeIsolated {
+            RevealStep.discardHeldTap()
+            LibraryScenarios.discardHeldRowTap()
+        }
     }
 
     /// Captures, or compares, the four in-process coordinates of `id` in this process's configuration.

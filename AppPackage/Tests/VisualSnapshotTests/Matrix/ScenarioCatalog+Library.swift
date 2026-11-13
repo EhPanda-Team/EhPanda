@@ -462,6 +462,11 @@ enum LibraryScenarios {
     /// until the page is hosted (``tapHeldRow(_:)``).
     private static var heldRowTap: (@MainActor () -> Void)?
 
+    /// Drops a held row tap that no ``tapHeldRow(_:)`` performed (SnapshotMatrixCase, before and after each case).
+    static func discardHeldRowTap() {
+        heldRowTap = nil
+    }
+
     /// Taps the first row's Delete or Move once the hosted page has settled at rest, as a user taps it.
     ///
     /// The dialog is a popover from the row. Asked for while the page was still being built, before the window held

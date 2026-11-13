@@ -64,6 +64,11 @@ enum RevealStep {
         }
     }
 
+    /// Drops a tap ``tap(_:)`` held that no ``reveal(_:)`` performed (SnapshotMatrixCase, before and after each case).
+    static func discardHeldTap() {
+        pendingTap = nil
+    }
+
     /// The user step of a scenario whose state is `target`: at accessibility5 the page is scrolled to it and a
     /// tap held back by ``tap(_:)`` is performed. At other sizes it does nothing, unless `atEverySize`: a scenario
     /// new to the matrix, with no pictures to keep, has its target brought on screen at any size it is below the fold.
