@@ -101,8 +101,11 @@ enum RevealStep {
                 let frame = list.convert(element.accessibilityFrame, from: window.screen.coordinateSpace)
                 let visible = visibleArea(of: list)
                 // Placed again while the page lays itself out under the new offset; a part taller than the visible
-                // area stays where its top is placed.
-                guard !visible.contains(frame), placements < 3,
+                // area stays where its top is placed. Once the page has been stepped through, the part is placed at
+                // the top even when a step left it in view: where a step leaves it depends on how many rows the list
+                // had built in time (`settings-account-invalid-cookies` at accessibility5 stopped mid-page in one run
+                // of three), and the top does not.
+                guard (steps > 0 && placements == 0) || !visible.contains(frame), placements < 3,
                       scroll(list, to: frame.minY - margin - list.adjustedContentInset.top)
                 else { return }
                 placements += 1
