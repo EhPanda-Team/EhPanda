@@ -166,6 +166,19 @@ def plan(document, env, costs, cost_digest):
             'targetMinutes': dict(TARGET_MINUTES), 'shards': shards}
 
 
+def select(text, shard_plan):
+    """The shard IDs a comma-separated selection names, in plan order and without repeats; empty means no selection.
+
+    The dispatch input `shards` restricts a candidate run to some shards. An ID the plan does not have is refused,
+    so a typo or an ID of an older plan (the plan was re-cut in run 43298876957's follow-up) fails at once."""
+    names = [name.strip() for name in text.split(',') if name.strip()]
+    known = [shard['id'] for shard in shard_plan['shards']]
+    unknown = sorted(set(names) - set(known))
+    if unknown:
+        raise ValueError(f"unknown shard id(s) {', '.join(unknown)}; the plan has {known[0]} to {known[-1]}")
+    return [shard for shard in known if shard in names]
+
+
 def render(shard_plan):
     return json.dumps(shard_plan, indent=2, ensure_ascii=False) + '\n'
 
@@ -183,7 +196,16 @@ def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--check', action='store_true', help='exit 1 when the committed plan is stale')
     parser.add_argument('--output', type=Path, default=SHARDS)
+    parser.add_argument('--select', metavar='IDS', help='print the committed plan\'s shard IDs a comma-separated '
+                        'selection names (empty: none), exit 1 on an unknown one')
     args = parser.parse_args(argv)
+    if args.select is not None:
+        try:
+            print(','.join(select(args.select, json.loads(SHARDS.read_text()))))
+        except ValueError as error:
+            print(f'snapshot_shards: {error}', file=sys.stderr)
+            return 1
+        return 0
     fresh = compute()
     if args.check:
         if not args.output.exists() or args.output.read_text() != fresh:

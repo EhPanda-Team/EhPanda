@@ -88,17 +88,25 @@ and re-runs once the classes a crash or the budget left without results. Jobs:
 - **`retry`** runs exactly those shards once more in the same run (attempt 2).
 - **`triage2`** lists, after `retry`, the shards whose latest artifact is still a shard-level error
   (`snapshot_aggregate.py --triage --attempt 3`): a retry that failed, one that left no `shard.json`, and one that was
-  cut with no artifact at all. **`retry2`** runs exactly those a last time (attempt 3, artifacts `retry2-<shard>`). A
-  shard still lost after that is reported as an infrastructure error, never retried again.
+  cut with no artifact at all. **`retry2`** runs exactly those again (attempt 3, artifacts `retry2-<shard>`).
+  **`triage3`** and **`retry3`** do the same once more (`--attempt 4`, artifacts `retry3-<shard>`): four attempts in
+  all. A shard still lost after the fourth is reported as an infrastructure error, never retried again.
 - **`native-policy`** runs `NativeVisualPolicyUITests` on both devices (cold entry and live text-size changes,
   turns, toolbar priority, dialog and menu anchoring). These are transitions, which snapshots do not test.
-- **`aggregate`** takes each shard's latest attempt, up to attempt 3 (a retry without `shard.json` keeps the latest
+- **`aggregate`** takes each shard's latest attempt, up to attempt 4 (a retry without `shard.json` keeps the latest
   earlier attempt that has one and is reported as `retry-lost`), requires a line for every expected coordinate (a missing one is an infrastructure
   error, never a pass), names the four failure classes (picture changes, infrastructure errors, drift, baseline
   mismatches) in the run summary, writes the report and is the run's verdict, together with `native-policy`.
 
 A newer push to the same pull request cancels the superseded run; a release, dispatch or dependency run is never
 cancelled. The release workflows (`deploy.yml`, `deploy-beta.yml`, `deploy-pal.yml`) do not call the gate or read its `aggregate` check for 3.0 (owner msg 3757); restore by re-adding the `snapshot-gate` job and the `require-snapshot-gate.sh` step (see git history).
+
+**Restricting a candidate run.** A `workflow_dispatch` of mode `candidate` takes an optional `shards` input,
+comma-separated shard IDs of `snapshot-shards.json` (`s05,s19`; empty runs all). `checks` refuses an ID the plan does
+not have and any restriction on a compare run (a partial run is never a verdict). The matrix, the triage rounds and the
+aggregate (`--only`) then cover only those shards, the summary says "Restricted to N of 72 shards", and
+`native-policy`, which belongs to no shard, is skipped. Shard IDs change when the plan is re-cut: use the IDs of the
+committed plan (the 72-shard plan renumbered the 27 of run 43298876957).
 
 **Modes.** Compare checks every picture against the approved baseline. Candidate records every picture and compares
 nothing. Pull requests compare; a dispatch or a call chooses (compare by default); a push to `ci/snapshot-gate`
@@ -119,8 +127,11 @@ planning records are `19-10-SUMMARY.md`, `19-12`, `19-13` and `19-17-SUMMARY.md`
 Free, Pro and Team plans; more needs GitHub Enterprise (50) or a limit increase through GitHub support, and the
 rest of the jobs queue. The plan sums to about 2,500 estimated shard-minutes (2,013 before run 43298876957's
 re-plan), so the first pass is about 8.3 hours at 5 at a time before the build and the two native-policy jobs, about
-9 to 10 hours with them and the retry rounds (run 43298876957 took 7.5 hours for its first pass and 3.7 for one
-retry round, one retry of which held its slot for 150 minutes). It holds every macOS slot the account has for that
+9 to 9.5 hours with them (run 43298876957 took 7.5 hours for its first pass). Each retry round runs only the shards
+still lost, so it is shorter, but it adds at least one shard's length: at the observed cut rate (about 0.8% a minute) a
+run should need about 18 shards in round two (about 2 hours), 5 in round three (about 1 hour) and 1 or 2 in round four
+(about 40 to 50 minutes), so 12 to 13 hours end to end (run 43298876957 took 11.2 hours for two rounds and ended with
+three shards lost). A run with no cuts is unaffected: a round with nothing to run is skipped. It holds every macOS slot the account has for that
 time: `test.yml`, the deploys and other gate runs queue behind it. This is accepted and written down
 (19-RESEARCH Pitfall 9; T-19-21). Hosted runs of a public repository are not billed.
 

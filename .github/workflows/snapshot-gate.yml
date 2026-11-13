@@ -12,11 +12,12 @@ name: Snapshot gate
 # never decides the run and never cancels another (fail-fast off, continue-on-error). `triage` lists the shards with
 # a shard-level infrastructure error (crash, timeout, lost runner, missing results; one picture's error is reported,
 # not retried); `retry` runs exactly those once more in this run (attempt 2); `triage2` lists the shards still lost
-# after that (a retry cut with no artifact or no shard.json included) and `retry2` runs them a last time (attempt 3);
+# after that (a retry cut with no artifact or no shard.json included) and `retry2` runs them again (attempt 3);
+# `triage3` and `retry3` do the same once more (attempt 4), four attempts in all;
 # `aggregate` takes each shard's latest attempt (a retry without shard.json keeps the latest earlier attempt that has
 # one and is reported as retry-lost), names the four failure classes (picture changes, infrastructure errors, drift,
 # baseline mismatches) in the run summary, writes the offline report and is the run's verdict, together with the
-# native visual policy tests on both devices (19-11). A shard lost after its third attempt is reported, never retried.
+# native visual policy tests on both devices (19-11). A shard lost after its fourth attempt is reported, never retried.
 #
 # Timing: a shard's run step has the shard file's limit (twice its estimate, 85 minutes at most today) and covers the
 # simulator setup as well as the capture; run-shard.sh keeps its own budget 5 minutes under it, so a slow setup costs
@@ -27,7 +28,10 @@ name: Snapshot gate
 # (compare by default); a push to ci/snapshot-gate, for runs before this file reaches the default branch (dispatch
 # works only from there), records a candidate while there is no fingerprints.json and compares once there is. Compare
 # without fingerprints.json fails at once: no approved baseline yet. Nothing is published; candidate pictures stay in
-# the run's `pictures-*` artifacts for 7 days. No shard uploads a result bundle (D-14); the native policy job keeps its
+# the run's `pictures-*` artifacts for 7 days. A dispatched candidate run may be restricted to some shards (input
+# `shards`, comma-separated IDs of the plan; refused for compare and for an unknown ID, by `checks`); the native policy
+# jobs belong to no shard and are skipped then, and the verdict is the aggregate's over the selected shards.
+# No shard uploads a result bundle (D-14); the native policy job keeps its
 # own when it fails, for 7 days, since its failures are taps and waits only the bundle's screens show.
 on:
   pull_request:
@@ -38,6 +42,10 @@ on:
         type: choice
         options: [compare, candidate]
         default: compare
+      shards:
+        description: 'candidate runs only: comma-separated shard IDs of snapshot-shards.json (s01 to s72) to run; empty runs all'
+        type: string
+        default: ''
   workflow_call:
     inputs:
       mode:
@@ -57,6 +65,8 @@ concurrency:
   cancel-in-progress: ${{ github.event_name == 'pull_request' && !inputs.mode }}
 env:
   SCHEME_NAME: 'EhPanda'
+  # The shards a dispatched candidate run is restricted to (empty: all); checked by `checks`.
+  SHARD_IDS: ${{ inputs.shards }}
   FINGERPRINTS: 'AppPackage/Tests/VisualSnapshotTests/Baseline/fingerprints.json'
 jobs:
   checks:
@@ -66,6 +76,7 @@ jobs:
       contents: read
     outputs:
       mode: ${{ steps.mode.outputs.mode }}
+      restricted: ${{ steps.selection.outputs.restricted }}
     steps:
       - name: Checkout
         uses: actions/checkout@v7
@@ -107,6 +118,27 @@ jobs:
           fi
           echo "mode=$mode" >> "$GITHUB_OUTPUT"
           echo "### Snapshot gate: $mode mode" >> "$GITHUB_STEP_SUMMARY"
+      # A restricted run records some shards only, so it is never a verdict: candidate mode only, IDs of the committed
+      # plan only. The native policy tests (no shard's) are left out of it.
+      - name: Check the shard selection
+        id: selection
+        env:
+          MODE: ${{ steps.mode.outputs.mode }}
+        run: |
+          ids=$(python3 Scripts/visual/snapshot_shards.py --select "$SHARD_IDS") || {
+            echo "::error::the shards input names a shard the plan does not have: '$SHARD_IDS'."
+            exit 1
+          }
+          if [ -n "$ids" ] && [ "$MODE" != candidate ]; then
+            echo "::error::a run restricted to shards ($ids) must be a candidate run, not $MODE."
+            exit 1
+          fi
+          restricted=false
+          if [ -n "$ids" ]; then
+            restricted=true
+            echo "### Restricted to shards: $ids" >> "$GITHUB_STEP_SUMMARY"
+          fi
+          echo "restricted=$restricted" >> "$GITHUB_OUTPUT"
 
   build:
     needs: checks
@@ -128,10 +160,11 @@ jobs:
       - name: Read the shard plan
         id: shards
         run: |
-          shards=$(python3 -c 'import json
+          shards=$(python3 -c 'import json, os
           plan = json.load(open("Scripts/visual/snapshot-shards.json"))
+          wanted = [name.strip() for name in os.environ["SHARD_IDS"].split(",") if name.strip()]
           print(json.dumps([{"id": s["id"], "family": s["family"], "timeoutMinutes": s["timeoutMinutes"]}
-                            for s in plan["shards"]]))')
+                            for s in plan["shards"] if not wanted or s["id"] in wanted]))')
           echo "shards=$shards" >> "$GITHUB_OUTPUT"
       - name: Install iOS 27 Platform
         uses: nick-fields/retry@v4
@@ -281,7 +314,7 @@ jobs:
         id: triage
         run: |
           mkdir -p "$RUNNER_TEMP/results"
-          ids=$(python3 Scripts/visual/snapshot_aggregate.py --results "$RUNNER_TEMP/results" --triage)
+          ids=$(python3 Scripts/visual/snapshot_aggregate.py --results "$RUNNER_TEMP/results" --only "$SHARD_IDS" --triage)
           shards=$(python3 -c 'import json, sys
           ids = json.loads(sys.argv[1])
           plan = json.load(open("Scripts/visual/snapshot-shards.json"))
@@ -413,7 +446,7 @@ jobs:
         run: |
           mkdir -p "$RUNNER_TEMP/results" "$RUNNER_TEMP/retry"
           ids=$(python3 Scripts/visual/snapshot_aggregate.py --results "$RUNNER_TEMP/results" \
-            --retry "$RUNNER_TEMP/retry" --triage --attempt 3)
+            --retry "$RUNNER_TEMP/retry" --only "$SHARD_IDS" --triage --attempt 3)
           shards=$(python3 -c 'import json, sys
           ids = json.loads(sys.argv[1])
           plan = json.load(open("Scripts/visual/snapshot-shards.json"))
@@ -512,11 +545,151 @@ jobs:
           if-no-files-found: ignore
           retention-days: 7
 
+  # Round four, the third retry: the same rule once more (`--attempt 4`), over the first retry's and the second's
+  # artifacts.
+  triage3:
+    needs: [build, shard, triage, retry, triage2, retry2]
+    if: always() && needs.build.result == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    outputs:
+      shards: ${{ steps.triage3.outputs.shards }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+      - name: Download the shard results
+        continue-on-error: true
+        uses: actions/download-artifact@v8
+        with:
+          pattern: shard-*
+          path: ${{ runner.temp }}/results
+          merge-multiple: true
+      - name: Download the retried shard results
+        continue-on-error: true
+        uses: actions/download-artifact@v8
+        with:
+          pattern: retry-*
+          path: ${{ runner.temp }}/retry
+          merge-multiple: true
+      - name: Download the second retried shard results
+        continue-on-error: true
+        uses: actions/download-artifact@v8
+        with:
+          pattern: retry2-*
+          path: ${{ runner.temp }}/retry2
+          merge-multiple: true
+      - name: List the shards to retry a third time
+        id: triage3
+        run: |
+          mkdir -p "$RUNNER_TEMP/results" "$RUNNER_TEMP/retry" "$RUNNER_TEMP/retry2"
+          ids=$(python3 Scripts/visual/snapshot_aggregate.py --results "$RUNNER_TEMP/results" \
+            --retry "$RUNNER_TEMP/retry" --retry2 "$RUNNER_TEMP/retry2" --only "$SHARD_IDS" --triage --attempt 4)
+          shards=$(python3 -c 'import json, sys
+          ids = json.loads(sys.argv[1])
+          plan = json.load(open("Scripts/visual/snapshot-shards.json"))
+          print(json.dumps([{"id": s["id"], "family": s["family"], "timeoutMinutes": s["timeoutMinutes"]}
+                            for s in plan["shards"] if s["id"] in ids]))' "$ids")
+          echo "shards=$shards" >> "$GITHUB_OUTPUT"
+          echo "### Third triage: retry $ids" >> "$GITHUB_STEP_SUMMARY"
+
+  retry3:
+    name: retry3 ${{ matrix.shard.id }} (${{ matrix.shard.family }})
+    needs: [checks, build, triage3]
+    # Not after a cancellation, as `retry`. It runs what `retry2` did not bring back, once more.
+    if: "!cancelled() && needs.triage3.result == 'success' && needs.triage3.outputs.shards != '[]'"
+    runs-on: xcode-27
+    timeout-minutes: 150
+    continue-on-error: true
+    permissions:
+      contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: ${{ fromJSON(needs.triage3.outputs.shards) }}
+    env:
+      MODE: ${{ needs.checks.outputs.mode }}
+      DEVELOPER_DIR: /Applications/Xcode_27.1.app/Contents/Developer
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+      - name: Install iOS 27 Platform
+        uses: nick-fields/retry@v4
+        with:
+          retry_on: error
+          max_attempts: 10
+          timeout_minutes: 999
+          command: xcodebuild -downloadPlatform iOS
+      - name: Download the test products
+        uses: actions/download-artifact@v8
+        with:
+          name: snapshot-gate-products
+          path: ${{ runner.temp }}
+      - name: Unpack the test products
+        run: tar -C "$RUNNER_TEMP" -xf "$RUNNER_TEMP/products.tar"
+      - name: Run the shard again
+        timeout-minutes: ${{ matrix.shard.timeoutMinutes }}
+        run: >-
+          Scripts/visual/run-shard.sh --shard "${{ matrix.shard.id }}" --mode "$MODE" --attempt 4
+          --products "$RUNNER_TEMP/Products" --out "$RUNNER_TEMP/shard/${{ matrix.shard.id }}"
+      - name: Record the runner
+        if: always()
+        run: |
+          {
+            echo '### Shard ${{ matrix.shard.id }}, attempt 4 (third retry)'
+            echo "- Runner: $RUNNER_NAME, image ${ImageOS:-unknown} ${ImageVersion:-unknown}"
+            python3 - "$RUNNER_TEMP/shard/${{ matrix.shard.id }}/shard.json" <<'PY'
+          import json, sys
+          try:
+              record = json.load(open(sys.argv[1]))
+          except (OSError, ValueError):
+              print('- No shard.json')
+          else:
+              print('- Class: {}; results: {}'.format(record['infra'] or 'no infrastructure error',
+                                                      record['statusCounts']))
+              print('- Re-run in the job: {}'.format(' '.join(record['rerunClasses']) or 'none'))
+          PY
+          } >> "$GITHUB_STEP_SUMMARY"
+      # The artifact keeps the shard's folder, so `triage` and `aggregate` unpack every artifact into
+      # <path>/<shard>, one or many. Run 42562780142's only retry, unpacked without its folder, went unread.
+      - name: Pack the results
+        if: always()
+        env:
+          SHARD: ${{ matrix.shard.id }}
+        run: |
+          rm -rf "$RUNNER_TEMP/upload"
+          mkdir -p "$RUNNER_TEMP/upload/$SHARD"
+          for item in results.jsonl shard.json logs actual difference reference first-actual first-difference; do
+            if [ -e "$RUNNER_TEMP/shard/$SHARD/$item" ]; then
+              cp -R "$RUNNER_TEMP/shard/$SHARD/$item" "$RUNNER_TEMP/upload/$SHARD/"
+            fi
+          done
+      - name: Upload the results
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: retry3-${{ matrix.shard.id }}
+          path: ${{ runner.temp }}/upload
+          if-no-files-found: ignore
+          retention-days: 7
+      - name: Upload the candidate pictures
+        if: always() && env.MODE == 'candidate'
+        uses: actions/upload-artifact@v7
+        with:
+          name: pictures-retry3-${{ matrix.shard.id }}
+          path: |
+            ${{ runner.temp }}/shard/${{ matrix.shard.id }}/results.jsonl
+            ${{ runner.temp }}/shard/${{ matrix.shard.id }}/${{ matrix.shard.family }}
+          if-no-files-found: ignore
+          retention-days: 7
+
   # 19-11's transitions (cold entry and live text sizes, turns, toolbar priority, anchoring) on both pinned devices,
   # one test at a time: they change the device's text size and orientation.
   native-policy:
     name: native policy (${{ matrix.family }})
     needs: [checks, build]
+    if: needs.checks.outputs.restricted != 'true'
     runs-on: xcode-27
     timeout-minutes: 150
     permissions:
@@ -606,7 +779,7 @@ jobs:
           retention-days: 7
 
   aggregate:
-    needs: [checks, build, shard, triage, retry, triage2, retry2, native-policy]
+    needs: [checks, build, shard, triage, retry, triage2, retry2, triage3, retry3, native-policy]
     if: always()
     runs-on: ubuntu-latest
     timeout-minutes: 30
@@ -647,13 +820,21 @@ jobs:
           pattern: retry2-*
           path: ${{ runner.temp }}/retry2
           merge-multiple: true
+      - name: Download the third retried shard results
+        continue-on-error: true
+        uses: actions/download-artifact@v8
+        with:
+          pattern: retry3-*
+          path: ${{ runner.temp }}/retry3
+          merge-multiple: true
       - name: Merge the shards
         id: aggregate
         run: |
-          mkdir -p "$RUNNER_TEMP/results" "$RUNNER_TEMP/retry" "$RUNNER_TEMP/retry2"
+          mkdir -p "$RUNNER_TEMP/results" "$RUNNER_TEMP/retry" "$RUNNER_TEMP/retry2" "$RUNNER_TEMP/retry3"
           status=0
           python3 Scripts/visual/snapshot_aggregate.py --results "$RUNNER_TEMP/results" --retry "$RUNNER_TEMP/retry" \
-            --retry2 "$RUNNER_TEMP/retry2" --out "$RUNNER_TEMP/gate" --summary "$GITHUB_STEP_SUMMARY" || status=$?
+            --retry2 "$RUNNER_TEMP/retry2" \
+            --retry3 "$RUNNER_TEMP/retry3" --only "$SHARD_IDS" --out "$RUNNER_TEMP/gate" --summary "$GITHUB_STEP_SUMMARY" || status=$?
           echo "status=$status" >> "$GITHUB_OUTPUT"
       # Compare runs: every failing coordinate with its baseline, actual and difference. Candidate runs: the short
       # packet; its pictures are in the pictures-* artifacts, which this Linux job does not download (5 to 10 GB).
@@ -662,7 +843,7 @@ jobs:
         run: |
           mkdir -p "$RUNNER_TEMP/pictures"
           for reference in "$RUNNER_TEMP"/results/*/reference "$RUNNER_TEMP"/retry/*/reference \
-            "$RUNNER_TEMP"/retry2/*/reference; do
+            "$RUNNER_TEMP"/retry2/*/reference "$RUNNER_TEMP"/retry3/*/reference; do
             [ -d "$reference" ] && cp -R "$reference"/. "$RUNNER_TEMP/pictures/"
           done
           packet=()
@@ -681,9 +862,10 @@ jobs:
         env:
           AGGREGATE: ${{ steps.aggregate.outputs.status }}
           POLICY: ${{ needs.native-policy.result }}
+          RESTRICTED: ${{ needs.checks.outputs.restricted }}
         run: |
           echo "- Native visual policy: $POLICY" >> "$GITHUB_STEP_SUMMARY"
-          if [ "$AGGREGATE" != 0 ] || [ "$POLICY" != success ]; then
+          if [ "$AGGREGATE" != 0 ] || { [ "$POLICY" != success ] && [ "$RESTRICTED" != true ]; }; then
             echo "Snapshot gate failed: aggregate exit ${AGGREGATE:-none}, native policy $POLICY."
             exit 1
           fi

@@ -30,7 +30,7 @@ class AggregateTests(unittest.TestCase):
         self.directory = tempfile.TemporaryDirectory()
         self.root = Path(self.directory.name)
         self.results, self.retry = self.root / 'results', self.root / 'retry'
-        self.retry2 = self.root / 'retry2'
+        self.retry2, self.retry3 = self.root / 'retry2', self.root / 'retry3'
         _, self.env = snapshot_matrix.load()
         (self.root / 'scenarios.json').write_text(json.dumps(INVENTORY))
         (self.root / 'shards.json').write_text(json.dumps(SHARD_PLAN))
@@ -232,6 +232,93 @@ class AggregateTests(unittest.TestCase):
         code, out = self.run_cli('--retry2', str(self.retry2))
         self.assertEqual(code, 0, out)
         self.assertEqual(self.aggregate()['shards']['s07']['attempt'], 3)
+
+    def test_a_shard_still_lost_after_its_second_retry_is_listed_for_the_third(self):
+        # Four attempts in all (owner msg 5033 follow-up): the third retry round lists what the second did not bring
+        # back, by the same rule, and a shard whose own third retry ran is never listed again.
+        self.write_all(s03={'infra': 'crash'}, s07={'infra': 'crash'}, s11={'infra': 'timeout'})
+        self.write(self.retry, 's03', infra='crash')
+        self.write(self.retry, 's07', infra='crash')
+        self.write(self.retry, 's11')
+        self.write(self.retry2, 's03', infra='timeout')
+        (self.retry2 / 's07' / 'logs').mkdir(parents=True)
+        arguments = ('--retry', str(self.retry), '--retry2', str(self.retry2))
+        self.assertEqual(self.triage(*arguments, '--attempt', '3'), [])
+        self.assertEqual(self.triage(*arguments, '--attempt', '4'), ['s03', 's07'])
+        self.write(self.retry3, 's03', infra='crash')
+        arguments += ('--retry3', str(self.retry3))
+        self.assertEqual(self.triage(*arguments, '--attempt', '4'), ['s07'])
+        (self.retry3 / 's07' / 'logs').mkdir(parents=True)
+        self.assertEqual(self.triage(*arguments, '--attempt', '4'), [])
+
+    def test_a_retry_cut_with_no_artifact_in_every_round_is_listed_again_until_the_last(self):
+        self.write_all(s07={'infra': 'crash'})
+        for attempt in ('2', '3', '4'):
+            self.assertEqual(self.triage('--attempt', attempt), ['s07'])
+
+    def test_the_third_retry_is_the_latest_attempt_and_is_merged(self):
+        self.write_all(s07={'infra': 'crash', 'skip': self.keys('s07')[2:]})
+        self.write(self.retry, 's07', infra='timeout', skip=self.keys('s07')[1:])
+        self.write(self.retry2, 's07', infra='crash', skip=self.keys('s07')[1:])
+        self.write(self.retry3, 's07')
+        code, out = self.run_cli('--retry', str(self.retry), '--retry2', str(self.retry2),
+                                 '--retry3', str(self.retry3))
+        self.assertEqual(code, 0, out)
+        document = self.aggregate()
+        self.assertEqual(document['shards']['s07']['attempt'], 4)
+        self.assertEqual(document['shards']['s07']['directory'], str(self.retry3 / 's07'))
+        self.assertEqual(document['ran']['s07'], 4)
+        self.assertIn('retried: s07', out)
+        self.assertIn('| s07 | 4 | none |', out)
+
+    def test_a_third_retry_without_shard_json_keeps_the_latest_attempt_that_has_one(self):
+        self.write_all(s07={'infra': 'crash', 'skip': [self.keys('s07')[0]]})
+        self.write(self.retry, 's07', infra='crash', skip=[self.keys('s07')[1]])
+        (self.retry2 / 's07' / 'logs').mkdir(parents=True)
+        (self.retry3 / 's07' / 'logs').mkdir(parents=True)
+        code, out = self.run_cli('--retry', str(self.retry), '--retry2', str(self.retry2),
+                                 '--retry3', str(self.retry3))
+        self.assertEqual(code, 1)
+        document = self.aggregate()
+        self.assertEqual(document['shards']['s07']['attempt'], 2)
+        self.assertTrue(document['shards']['s07']['retryLost'])
+        self.assertIn('- s07: retry-lost (s07) — the third retry left no shard.json', out)
+        self.assertIn('the second attempt is merged', out)
+
+    def test_the_triage_takes_only_the_rounds_there_are(self):
+        with self.assertRaises(SystemExit):
+            self.run_cli('--triage', '--attempt', '5')
+        with self.assertRaises(SystemExit):
+            self.run_cli('--triage', '--attempt', '1')
+
+    def test_a_restricted_run_merges_and_triages_only_the_selected_shards(self):
+        # The dispatch input `shards` restricts a candidate run: the others are not lost, they were never asked for.
+        self.write(self.results, 's07')
+        code, out = self.run_cli('--only', 's07')
+        self.assertEqual(code, 0, out)
+        document = self.aggregate()
+        self.assertEqual(sorted(document['shards']), ['s07'])
+        self.assertEqual(document['only'], ['s07'])
+        self.assertTrue({row['shard'] for row in document['results']} <= {'s07'})
+        self.assertIn('Restricted to 1 of 3 shards: s07', out)
+        self.assertEqual(self.triage('--only', 's07'), [])
+        self.assertEqual(self.triage('--only', 's07,s11'), ['s11'])
+        self.assertEqual(self.triage(), ['s03', 's11'])
+        code, out = self.run_cli('--only', 's03,s07')
+        self.assertEqual(code, 1)
+        self.assertIn('s03: runner-lost', out)
+        self.assertNotIn('s11', out.split('## Snapshot gate', 1)[1])
+
+    def test_an_unrestricted_run_says_nothing_about_a_restriction(self):
+        self.write_all()
+        code, out = self.run_cli()
+        self.assertEqual(code, 0)
+        self.assertNotIn('Restricted', out)
+        self.assertNotIn('only', self.aggregate())
+
+    def test_an_unknown_shard_in_only_is_refused(self):
+        with self.assertRaises(SystemExit):
+            self.run_cli('--only', 's07,s99')
 
     def test_expected_coordinate_without_a_line_is_missing_result(self):
         missing = self.keys('s11')[0]

@@ -167,6 +167,32 @@ class SnapshotShardsTests(unittest.TestCase):
         self.assertEqual(self.costs['runId'], '42577585956')
         self.assertEqual(self.costs['workers'], 2)
 
+    def test_a_selection_is_validated_against_the_plan_and_kept_in_plan_order(self):
+        # A candidate run may be restricted to some shards (the dispatch input `shards`), by the plan's own ids.
+        plan = json.loads(snapshot_shards.compute())
+        self.assertEqual(snapshot_shards.select('', plan), [])
+        self.assertEqual(snapshot_shards.select(' , ', plan), [])
+        self.assertEqual(snapshot_shards.select('s40, s01,s40 ,s72', plan), ['s01', 's40', 's72'])
+        for text in ('s73', 's00', 'S01', '1', 's1', 's01;s02', 's01 s02', 's01,sXX'):
+            with self.assertRaises(ValueError, msg=text) as raised:
+                snapshot_shards.select(text, plan)
+            self.assertIn('shard', str(raised.exception))
+        with self.assertRaises(ValueError) as raised:
+            snapshot_shards.select('s01,s99,s98', plan)
+        self.assertIn('s98', str(raised.exception))
+        self.assertIn('s99', str(raised.exception))
+        self.assertIn('s01 to s72', str(raised.exception))
+
+    def test_the_select_command_prints_the_ids_or_fails_on_an_unknown_one(self):
+        script = Path(snapshot_shards.__file__)
+        ok = subprocess.run([sys.executable, str(script), '--select', 's19,s01'], capture_output=True, text=True)
+        self.assertEqual((ok.returncode, ok.stdout.strip()), (0, 's01,s19'))
+        empty = subprocess.run([sys.executable, str(script), '--select', ''], capture_output=True, text=True)
+        self.assertEqual((empty.returncode, empty.stdout.strip()), (0, ''))
+        bad = subprocess.run([sys.executable, str(script), '--select', 's01,s99'], capture_output=True, text=True)
+        self.assertEqual(bad.returncode, 1)
+        self.assertIn('s99', bad.stderr)
+
     def test_two_runs_are_byte_identical(self):
         self.assertEqual(snapshot_shards.compute(), snapshot_shards.compute())
 

@@ -2,8 +2,9 @@
 """Merge the snapshot shards' results, decide the gate run and list the shards to retry (19-CONTEXT D-15 amendment).
 
 Each shard uploads `<results>/<shard-id>/` with `results.jsonl` and `shard.json` (19-RESEARCH §9). A retry of a shard
-uploads the same layout under `<retry>/<shard-id>/`, and a second retry under `<retry2>/<shard-id>/` (run 43298876957:
-the runner cut 13 of 27 shard jobs and 3 of their 13 retries). The merge keeps each shard's latest attempt, except that
+uploads the same layout under `<retry>/<shard-id>/`, a second retry under `<retry2>/<shard-id>/` and a third under
+`<retry3>/<shard-id>/`, four attempts in all (run 43298876957: the runner cut 13 of 27 shard jobs and 3 of their 13
+retries). The merge keeps each shard's latest attempt, except that
 a retry without `shard.json` never replaces an earlier attempt that has one: the latest attempt that has one is merged
 and the lost retry is reported as `retry-lost` (run 42577585956, s07). Every expected coordinate of the shard plan must have a line: a
 coordinate without one is an infrastructure error, so a missing or malformed file never reads as a pass. A coordinate
@@ -17,7 +18,7 @@ coordinate errors (one picture's `timeout` or `error` is reported, not retried: 
 hour and repeats the same picture), picture changes, drift or a baseline mismatch, and never a shard that already ran
 its retries.
 
-`--triage` lists the shards for round `--attempt` (2 by default, the first retry; 3 for the second): those with a
+`--triage` lists the shards for round `--attempt` (2 by default, the first retry; 3 and 4 for the next): those with a
 shard-level error whose latest artifact is from an earlier attempt, so a retry that was cut with no artifact, or with
 no `shard.json`, is listed again by the next round and never by its own.
 
@@ -31,6 +32,7 @@ from pathlib import Path
 import sys
 
 import snapshot_matrix
+import snapshot_shards
 
 SHARDS = Path(__file__).resolve().parent / 'snapshot-shards.json'
 CLASSES = (('pictureChanges', 'picture changes'), ('infrastructureErrors', 'infrastructure errors'),
@@ -76,15 +78,16 @@ def read_attempt(directory):
     return record, lines, problems
 
 
-ORDINALS = {1: 'first', 2: 'second', 3: 'third'}
+ORDINALS = {1: 'first', 2: 'second', 3: 'third', 4: 'fourth'}
+RETRY_NAMES = {2: 'the retry', 3: 'the second retry', 4: 'the third retry'}
 FIRST_ROUND = 2
-LAST_ATTEMPT = 3
+LAST_ATTEMPT = 4
 
 
-def arrived(shard_id, results, retry, retry2):
+def arrived(shard_id, results, *retries):
     """`[(attempt, directory)]`, oldest first: the first attempt always, each retry whose directory arrived."""
     found = [(1, results / shard_id)]
-    for attempt, base in ((2, retry), (3, retry2)):
+    for attempt, base in enumerate(retries, start=FIRST_ROUND):
         if base is not None and (base / shard_id).is_dir():
             found.append((attempt, base / shard_id))
     return found
@@ -98,14 +101,17 @@ def lost_detail(directory, expected):
     return f'no artifact; {missing} coordinates missing'
 
 
-def aggregate(results, retry, document, env, shard_plan, retry2=None):
-    """The merged verdict as the `aggregate.json` document."""
+def aggregate(results, retry, document, env, shard_plan, retry2=None, retry3=None, only=()):
+    """The merged verdict as the `aggregate.json` document; `only` restricts it to those shards (a restricted run)."""
+    total = len(shard_plan['shards'])
+    if only:
+        shard_plan = dict(shard_plan, shards=[shard for shard in shard_plan['shards'] if shard['id'] in only])
     rows = snapshot_matrix.coordinates(document, env)
     items = {name: [] for name, _ in CLASSES}
     flaky, merged, shards, ran = [], [], {}, {}
     for shard in shard_plan['shards']:
         shard_id = shard['id']
-        tries = arrived(shard_id, results, retry, retry2)
+        tries = arrived(shard_id, results, retry, retry2, retry3)
         attempt, directory = tries[-1]
         ran[shard_id] = attempt
         expected = shard_coordinates(shard, rows)
@@ -116,7 +122,7 @@ def aggregate(results, retry, document, env, shard_plan, retry2=None):
                 kept = read_attempt(folder)
                 if kept is not None:
                     retry_lost = True
-                    lost = 'the retry' if attempt == 2 else 'the second retry'
+                    lost = RETRY_NAMES[attempt]
                     items['infrastructureErrors'].append({
                         'shard': shard_id, 'kind': 'retry-lost',
                         'detail': f'{lost} left no shard.json (see {directory}/logs); '
@@ -178,6 +184,7 @@ def aggregate(results, retry, document, env, shard_plan, retry2=None):
         'flaky': sorted(flaky, key=lambda row: row['key']),
         'shards': shards,
         'ran': ran,
+        **({'only': sorted(only), 'planned': total} if only else {}),
         'statusCounts': dict(sorted(Counter(row['status'] for row in merged).items())),
         'results': sorted(merged, key=lambda row: row['key']),
         'scenarios': {row['id']: {'group': row['group'], 'state': row['state'], 'notApplicable': row['notApplicable']}
@@ -237,8 +244,11 @@ def summary(document):
     lines = [f"- {document['counts'][name]} {label}" for name, label in CLASSES]
     retried = sorted(shard for shard, row in document['shards'].items() if row['attempt'] > 1)
     statuses = ', '.join(f'{status} {count}' for status, count in document['statusCounts'].items()) or 'none'
-    lines += ['', f"## Snapshot gate: {'failed' if failed(document) else 'passed'}", '',
-              f"Shards: {len(document['shards'])}; retried: {', '.join(retried) or 'none'}. Results: {statuses}.",
+    lines += ['', f"## Snapshot gate: {'failed' if failed(document) else 'passed'}", '']
+    if document.get('only'):
+        lines += [f"Restricted to {len(document['only'])} of {document['planned']} shards: "
+                  f"{', '.join(document['only'])}.", '']
+    lines += [f"Shards: {len(document['shards'])}; retried: {', '.join(retried) or 'none'}. Results: {statuses}.",
               '']
     lines += shard_table(document)
     for name, label in CLASSES:
@@ -263,17 +273,25 @@ def main(argv=None):
     parser.add_argument('--results', type=Path, required=True, help='the first attempts, one directory per shard')
     parser.add_argument('--retry', type=Path, help='the retried shards, one directory per shard')
     parser.add_argument('--retry2', type=Path, help='the shards retried a second time, one directory per shard')
+    parser.add_argument('--retry3', type=Path, help='the shards retried a third time, one directory per shard')
     parser.add_argument('--inventory', type=Path, default=snapshot_matrix.INVENTORY)
     parser.add_argument('--env', type=Path, default=snapshot_matrix.ENVIRONMENT)
     parser.add_argument('--shards', type=Path, default=SHARDS)
     parser.add_argument('--out', type=Path, help='where aggregate.json and summary.md go')
     parser.add_argument('--triage', action='store_true', help='print the shard IDs to retry as JSON and exit 0')
+    parser.add_argument('--only', default='', metavar='IDS',
+                        help='restrict the run to these comma-separated shard IDs (a restricted candidate run)')
     parser.add_argument('--attempt', type=int, choices=range(FIRST_ROUND, LAST_ATTEMPT + 1), default=FIRST_ROUND,
-                        help='the attempt the triage lists shards for: 2 (the retry) or 3 (the second retry)')
+                        help='the attempt the triage lists shards for: 2 (the retry), 3 or 4 (the second and third retry)')
     parser.add_argument('--summary', type=Path, help='a file the Markdown summary is appended to')
     args = parser.parse_args(argv)
     document, env = snapshot_matrix.load(args.inventory, args.env)
-    result = aggregate(args.results, args.retry, document, env, json.loads(args.shards.read_text()), args.retry2)
+    plan = json.loads(args.shards.read_text())
+    try:
+        only = snapshot_shards.select(args.only, plan)
+    except ValueError as error:
+        parser.error(str(error))
+    result = aggregate(args.results, args.retry, document, env, plan, args.retry2, args.retry3, only)
     if args.triage:
         print(json.dumps(triage(result, args.attempt)))
         return 0
