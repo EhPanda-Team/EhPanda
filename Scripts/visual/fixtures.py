@@ -28,6 +28,10 @@ TOPLISTS = ('yesterday', 'pastMonth', 'pastYear', 'allTime')
 # DownloadDisplayStatus cases with their sortPriority. The two complete statuses carry no page progress.
 DOWNLOAD_STATUSES = {'active': 0, 'queued': 1, 'updateAvailable': 2, 'error': 3, 'inactive': 4, 'completed': 5}
 COMPLETE_DOWNLOADS = ('updateAvailable', 'completed')
+# Optional download entry flags, each only ever true. `mockPages`: a complete download whose folder holds none of its
+# page images, only its record and status; nothing may open it (owner msg 5113). `allowedRepeat`: the gallery may
+# also be visible on another screen of the set (owner msgs 5109, 5110).
+DOWNLOAD_FLAGS = ('mockPages', 'allowedRepeat')
 # Setting.prefetchLimit's default: how many pages around a built page the reader resolves ahead of time.
 PREFETCH_LIMIT = 10
 SCREENS = ('home', 'detail', 'comments', 'filters', 'reading', 'reading-live-text', 'downloads', 'laboratory')
@@ -123,7 +127,8 @@ def screen_occurrences(scene, context='Scene'):
     optional = tuple(key for key in ('detailGallery', 'commentsGallery') if key in scene)
     keys(scene, ('home', 'flow', 'liveText', 'downloads') + optional, context)
     home, flow, live_text, downloads = scene['home'], scene['flow'], scene['liveText'], scene['downloads']
-    keys(home, ('hero', 'frontpage', 'toplists'), f'{context} home')
+    keys(home, ('hero', 'frontpage', 'toplists') + (('allowedRepeats',) if 'allowedRepeats' in home else ()),
+         f'{context} home')
     keys(home['hero'], ('galleries', 'selectedIndex'), f'{context} home hero')
     keys(home['toplists'], TOPLISTS, f'{context} home toplists')
     hero = gallery_ids(home['hero']['galleries'], f'{context} home hero')
@@ -141,10 +146,15 @@ def screen_occurrences(scene, context='Scene'):
         complete = entry['status'] in COMPLETE_DOWNLOADS
         if complete and 'completedPages' in entry:
             raise ValueError(f'{where} is {entry["status"]}, which carries no completedPages')
-        keys(entry, ('gallery', 'status') if complete else ('gallery', 'status', 'completedPages'), where)
+        flags = tuple(flag for flag in DOWNLOAD_FLAGS if flag in entry)
+        keys(entry, (('gallery', 'status') if complete else ('gallery', 'status', 'completedPages')) + flags, where)
         gallery_ids([entry['gallery']], f'{where} gallery')
         if not complete and not counting(entry['completedPages']):
             raise ValueError(f'{where} completedPages must be a page count')
+        if any(entry[flag] is not True for flag in flags):
+            raise ValueError(f'{where} {", ".join(flags)} can only be true; leave a flag out instead')
+        if 'mockPages' in entry and not complete:
+            raise ValueError(f'{where} is {entry["status"]}: only a complete download can mock its pages')
     rows = {screen: [] for screen in SCREENS}
     rows['home'] = ([('hero', slot, gid) for slot, gid in enumerate(hero)]
                     + [('frontpage', slot, gid)
@@ -158,6 +168,19 @@ def screen_occurrences(scene, context='Scene'):
     rows['reading-live-text'] = [('liveText', 0, live_text['gallery'])]
     rows['downloads'] = [('downloads', slot, entry['gallery']) for slot, entry in enumerate(downloads)]
     return rows
+
+
+def home_repeats(scene, context='Scene'):
+    """The galleries Home may show in two sections, once visibly and once out of sight (owner msgs 5099, 5103).
+
+    A repeat is declared rather than inferred, so an accidental repeat still fails; the capture checks that no
+    declared gallery is visible twice.
+    """
+    allowed = scene['home'].get('allowedRepeats', [])
+    gallery_ids(allowed, f'{context} home allowedRepeats')
+    if not allowed and 'allowedRepeats' in scene['home'] or len(set(allowed)) != len(allowed):
+        raise ValueError(f'{context} home allowedRepeats must list distinct galleries; leave it out for none')
+    return allowed
 
 
 def validate_selection(selection):
@@ -194,7 +217,9 @@ def validate_selection(selection):
     for name, scene in scenes.items():
         if name not in SETS:
             raise ValueError(f'Scene {name!r} is not a content set: {", ".join(SETS)}')
-        for screen, rows in screen_occurrences(scene, name).items():
+        occurrences = screen_occurrences(scene, name)
+        allowed = home_repeats(scene, name)
+        for screen, rows in occurrences.items():
             seen = {}
             for section, slot, gid in rows:
                 where = f'{name} {screen} {section}[{slot}]'
@@ -202,10 +227,19 @@ def validate_selection(selection):
                     raise ValueError(f'{where} references undeclared gallery {gid}')
                 if assigned[gid] != name:
                     raise ValueError(f'{where}: gallery {gid} is assigned to {assigned[gid]}, not {name}')
-                if gid in seen:
-                    raise ValueError(f'{name} {screen} repeats gallery {gid} at {seen[gid]} and {section}[{slot}]')
-                seen[gid] = f'{section}[{slot}]'
+                if gid in seen and not (screen == 'home' and gid in allowed and len(seen[gid]) == 1):
+                    raise ValueError(f'{name} {screen} repeats gallery {gid} at {seen[gid][0]} and {section}[{slot}]')
+                seen.setdefault(gid, []).append(f'{section}[{slot}]')
                 placed.add(gid)
+            unused = [gid for gid in allowed if screen == 'home' and len(seen.get(gid, ())) != 2]
+            if unused:
+                raise ValueError(f'{name} home allowedRepeats names galleries Home shows once: {", ".join(unused)}')
+        readers = {scene['flow']['gallery'], scene['liveText']['gallery']} | {
+            scene.get(key, scene['flow']['gallery']) for key in ('detailGallery', 'commentsGallery')}
+        for slot, entry in enumerate(scene['downloads']):
+            if entry.get('mockPages') and entry['gallery'] in readers:
+                raise ValueError(f'{name} downloads[{slot}] mocks the pages of {entry["gallery"]}, which a reader '
+                                 'or gallery screen opens')
     unplaced = [gid for gid in assigned if gid not in placed]
     if unplaced:
         raise ValueError(f'Declared galleries are not placed in any scene: {", ".join(unplaced)}')
@@ -408,7 +442,12 @@ def identity(text, gid, token):
 
 
 def download_pages(entry, page_count):
-    """The pages a download entry's folder holds: every page of a complete one, the first completedPages of another."""
+    """The pages a download entry's folder holds: every page of a complete one, the first completedPages of another.
+
+    A mocked complete download holds none: the capture seeds only its record and status (owner msg 5113).
+    """
+    if entry.get('mockPages'):
+        return set()
     if entry['status'] in COMPLETE_DOWNLOADS:
         return set(range(1, page_count + 1))
     if entry['completedPages'] >= page_count:

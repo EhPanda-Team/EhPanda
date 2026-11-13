@@ -51,6 +51,29 @@ class Fetcher:
             self.last = time.monotonic()
 
 
+class Replay:
+    """Answers acquisition from published fixture versions instead of the network, for an offline rebuild.
+
+    Each URL resolves to the stored bytes, media type and retrieval time a source version's manifest lists for it,
+    so a rebuilt version keeps the original provenance; a URL no source holds fails instead of reaching the network.
+    """
+
+    def __init__(self, versions):
+        self.responses = {}
+        for version in versions:
+            directory = fixtures.resolve_fixtures(version)
+            for entry in fixtures.validate_fixtures(directory)['assets']:
+                if entry['url'] is not None:
+                    self.responses.setdefault(entry['url'], (directory / entry['path'], entry))
+
+    def __call__(self, url):
+        key = fixtures.scrub(url)
+        if key not in self.responses:
+            raise ValueError(f'No source fixture holds {key}; an offline rebuild never fetches')
+        path, entry = self.responses[key]
+        return path.read_bytes(), entry['mime'], entry['retrievedAt']
+
+
 def now():
     return datetime.now(timezone.utc).isoformat(timespec='seconds')
 
@@ -69,7 +92,8 @@ def acquire(selection_path, output, refresh=False, fetch=None, clock=now):
         def retrieve(kind, gid, index, url):
             fixtures.check_url(url, kind)
             try:
-                data, declared = fetch(url)
+                # A replay also answers when its source retrieved the response.
+                data, declared, *retrieved = fetch(url)
             except (OSError, http.client.HTTPException) as error:
                 raise ValueError(f'{kind} {gid}: {fixtures.scrub(url)}: {type(error).__name__}: {error}') from None
             stored, mime = fixtures.sanitize(kind, data, declared)
@@ -78,7 +102,7 @@ def acquire(selection_path, output, refresh=False, fetch=None, clock=now):
             (writer.staging / relative).write_bytes(stored)
             assets.append({'kind': kind, 'gid': gid, 'index': index, 'url': fixtures.scrub(url), 'path': relative,
                            'mime': mime, 'bytes': len(stored), 'sha256': fixtures.sha256(stored),
-                           'retrievedAt': clock()})
+                           'retrievedAt': retrieved[0] if retrieved else clock()})
             return data
 
         fixtures.collect(selection, retrieve)
@@ -94,10 +118,13 @@ def main():
     parser.add_argument('--selection', type=Path, required=True, help='Selection JSON declaring galleries and scenes')
     parser.add_argument('--output', type=Path, required=True, help='Fixture root, normally .capture/marketing')
     parser.add_argument('--refresh', action='store_true', help='Acquire again although a version is published')
+    parser.add_argument('--replay', type=Path, action='append', default=[], metavar='VERSION',
+                        help='Rebuild offline from this published fixture version; repeatable. Never fetches.')
     arguments = parser.parse_args()
     signal.signal(signal.SIGTERM, interrupt)
     try:
-        target, changed = acquire(arguments.selection, arguments.output, arguments.refresh)
+        fetch = Replay(arguments.replay) if arguments.replay else None
+        target, changed = acquire(arguments.selection, arguments.output, arguments.refresh, fetch=fetch)
     except (OSError, ValueError, KeyboardInterrupt) as error:
         parser.exit(1, f'Fixture acquisition failed: {type(error).__name__}: {error}\n')
     print(f'{"Published" if changed else "Unchanged"}: {target}')

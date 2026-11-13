@@ -321,6 +321,39 @@ class AcquisitionTests(FixtureTestCase):
                 self.assertEqual(reader_indices(manifest, 'imagePage'), list(listed))
                 self.assertEqual(reader_indices(manifest, 'page'), list(pages))
 
+    def test_a_mocked_complete_download_holds_no_pages(self):
+        # Owner msg 5113: a mocked complete download is only its record and status, so nothing of its pages is saved,
+        # while the active download beside it keeps its real pages.
+        for status in fixtures.COMPLETE_DOWNLOADS:
+            with self.subTest(status):
+                value = copy.deepcopy(self.selection)
+                value['scenes']['nonexplicit']['downloads'][1] = {'gallery': '105', 'status': status,
+                                                                  'mockPages': True}
+                target, _ = self.acquire(value=value, refresh=True)
+                manifest = fixtures.validate_fixtures(target)
+                for kind in ('thumbnails', 'imagePage', 'page'):
+                    self.assertEqual(reader_indices(manifest, kind, '105'), [])
+                self.assertEqual(reader_indices(manifest, 'page', '104'), list(range(1, 13)))
+                self.assertEqual(reader_indices(manifest, 'cover', '105'), [None])
+
+    def test_an_offline_replay_rebuilds_a_version_with_its_provenance(self):
+        source, _ = self.acquire()
+        value = copy.deepcopy(self.selection)
+        value['selectionID'] = 'marketing-replayed'
+        value['scenes']['nonexplicit']['downloads'][1]['mockPages'] = True
+        replay = self.acquirer.Replay([source])
+        target, _ = self.acquirer.acquire(self.write_selection(value), self.directory / 'replayed', fetch=replay,
+                                          clock=Clock())
+        rebuilt = {entry['path']: entry for entry in fixtures.validate_fixtures(target)['assets']}
+        original = {entry['path']: entry for entry in fixtures.validate_fixtures(source)['assets']}
+        self.assertTrue(rebuilt)
+        self.assertLess(set(rebuilt), set(original))
+        for path, entry in rebuilt.items():
+            self.assertEqual(entry, original[path], path)
+        value['scenes']['nonexplicit']['downloads'][0]['completedPages'] = 13
+        with self.assertRaisesRegex(ValueError, 'never fetches'):
+            self.acquirer.acquire(self.write_selection(value), self.directory / 'unreplayable', fetch=replay)
+
     def test_an_incomplete_download_holds_fewer_pages_than_its_gallery(self):
         self.selection['scenes']['nonexplicit']['downloads'][0]['completedPages'] = 60
         with self.assertRaisesRegex(ValueError, '104: the active download holds 60 of 60 pages'):
@@ -533,6 +566,43 @@ class SelectionTests(FixtureTestCase):
         value = selection()
         value['scenes'] = {}
         self.assert_rejected(value, 'Empty selection')
+
+    def test_home_repeats_only_declared_galleries_once(self):
+        value = selection()
+        home = value['scenes']['nonexplicit']['home']
+        home['frontpage'].append('115')
+        self.assert_rejected(copy.deepcopy(value), 'repeats gallery 115')
+        home['allowedRepeats'] = ['115']
+        fixtures.validate_selection(copy.deepcopy(value))
+        home['frontpage'].append('115')
+        self.assert_rejected(copy.deepcopy(value), 'repeats gallery 115')
+        home['frontpage'].pop()
+        for allowed, message in [(['115', '104'], 'Home shows once: 104'), ([], 'distinct galleries'),
+                                 (['115', '115'], 'distinct galleries')]:
+            with self.subTest(allowed):
+                home['allowedRepeats'] = allowed
+                self.assert_rejected(copy.deepcopy(value), message)
+        # A declaration covers Home only: Downloads still never lists a gallery twice.
+        home['allowedRepeats'] = ['115']
+        value['scenes']['nonexplicit']['downloads'].append({'gallery': '104', 'status': 'queued',
+                                                            'completedPages': 0})
+        self.assert_rejected(value, 'downloads repeats gallery 104')
+
+    def test_download_flags_are_true_and_mocks_are_complete_and_never_opened(self):
+        cases = [({'gallery': '105', 'status': 'completed', 'mockPages': False}, 'can only be true'),
+                 ({'gallery': '105', 'status': 'completed', 'allowedRepeat': 1}, 'can only be true'),
+                 ({'gallery': '105', 'status': 'inactive', 'completedPages': 0, 'mockPages': True},
+                  'only a complete download can mock'),
+                 ({'gallery': '105', 'status': 'completed', 'mock': True}, 'exactly the keys'),
+                 ({'gallery': '101', 'status': 'updateAvailable', 'mockPages': True}, 'which a reader')]
+        for entry, message in cases:
+            with self.subTest(entry):
+                value = selection()
+                value['scenes']['nonexplicit']['downloads'][1] = entry
+                self.assert_rejected(value, message)
+        value = selection()
+        value['scenes']['nonexplicit']['downloads'][1].update(mockPages=True, allowedRepeat=True)
+        fixtures.validate_selection(value)
 
     def test_repeated_gallery_within_one_screen_is_rejected(self):
         queued = {'gallery': '104', 'status': 'queued', 'completedPages': 0}
