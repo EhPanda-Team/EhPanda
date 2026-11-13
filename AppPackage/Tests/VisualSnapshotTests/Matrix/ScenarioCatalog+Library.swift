@@ -2,10 +2,10 @@
 import AppModels
 import ComposableArchitecture
 import DateSeekFeature
-import DetailFeature
+@testable import DetailFeature
 import DownloadsFeature
 import FavoritesFeature
-import FiltersFeature
+@testable import FiltersFeature
 import Foundation
 import QuickSearchFeature
 import Resources
@@ -60,7 +60,10 @@ extension ScenarioCatalog {
                 make: { Page.quickSearch(.wordEditor) }, interact: Page.holdCaret
             ),
             "quick-search-filters": .init(make: { Page.filters(confirmingReset: false) }),
-            "quick-search-filters-reset-confirmation": .init(make: { Page.filters(confirmingReset: true) }),
+            "quick-search-filters-reset-confirmation": .init(
+                make: { Page.filters(confirmingReset: true) },
+                interact: RevealStep.reveal(.label(String(localized: .resetFilters)))
+            ),
             "quick-search-date-seek": .init(make: { Page.dateSeek() }, prepare: TracerScenarios.cacheHomeArtwork)
         ]
     }
@@ -120,7 +123,11 @@ extension ScenarioCatalog {
                 make: { try Page.detail(.loading) }, prepare: artwork, interact: BrowsingScenarios.freezeIndicators
             ),
             "gallery-detail-error": .init(make: { try Page.detail(.error) }, prepare: artwork),
-            "gallery-detail-rating": .init(make: { try Page.detail(.rating) }, prepare: artwork),
+            // At accessibility5 the rating row is below the fold (run 43403534542): the page is scrolled to it.
+            "gallery-detail-rating": .init(
+                make: { try Page.detail(.rating) }, prepare: artwork,
+                interact: RevealStep.reveal(.label(String(localized: .rateGallery)))
+            ),
             "gallery-detail-downloading": .init(make: { try Page.detail(.downloading) }, prepare: artwork),
             "gallery-detail-delete-download-confirmation": .init(
                 make: { try Page.detail(.deleteDownloadConfirmation) }, prepare: artwork
@@ -228,13 +235,15 @@ enum LibraryScenarios {
     }
 
     /// Filters as the sheet it is over the Search root, loaded from the stored filters as the root presents it.
+    /// Confirming a reset is the tap on Reset Filters, whose row is below the fold at accessibility5: there it is
+    /// tapped once the row is shown (``RevealStep/tap(_:)``).
     static func filters(confirmingReset: Bool) -> AnyView {
         var root = SearchRootReducer.State()
         root.destination = .filters(FiltersReducer.State())
         let store = Store(initialState: root, reducer: SearchRootReducer.init)
         store.send(.destination(.presented(.filters(.fetchFilters))))
         if confirmingReset {
-            store.send(.destination(.presented(.filters(.resetFiltersButtonTapped))))
+            RevealStep.tap { store.send(.destination(.presented(.filters(.resetFiltersButtonTapped)))) }
         }
         return AnyView(SearchRootView(store: store))
     }

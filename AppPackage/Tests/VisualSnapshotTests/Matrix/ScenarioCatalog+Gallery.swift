@@ -67,8 +67,10 @@ extension ScenarioCatalog {
                 make: { Page.detailSearch(.loaded(.grid)) }, prepare: artwork
             ),
             "detail-pages-archives": .init(make: { try Page.archives(lowFunds: false) }, prepare: artwork),
+            // At accessibility5 the balances are below the fold (run 43403534542): the sheet is scrolled to them.
             "detail-pages-archives-insufficient-funds": .init(
-                make: { try Page.archives(lowFunds: true) }, prepare: artwork
+                make: { try Page.archives(lowFunds: true) }, prepare: artwork,
+                interact: RevealStep.reveal(.label(Page.lowGalleryPointsLabel))
             ),
             "detail-pages-torrents": .init(make: { try Page.torrents(empty: false) }, prepare: artwork),
             "detail-pages-torrents-empty": .init(make: { try Page.torrents(empty: true) }, prepare: artwork),
@@ -356,6 +358,12 @@ extension GalleryScenarios {
 
     /// Archives with the user's balances. With low funds the balances are below every archive's price and the
     /// 1280x archive is chosen: the app has no state of its own for a balance that cannot pay (see 19-07 summary).
+    /// The low gallery points balance as VoiceOver reads it, the funds row of the archives without enough funds.
+    nonisolated static var lowGalleryPointsLabel: String {
+        let balance = Int(GalleryFixtures.lowFunds.galleryPoints) ?? 0
+        return String(localized: .accessibilityGalleryPointsBalance(balance: balance))
+    }
+
     static func archives(lowFunds: Bool) throws -> AnyView {
         let resolutions: [ArchiveResolution] = [.x780, .x980, .x1280, .x1600, .x2400, .original]
         var archives = ArchivesReducer.State()

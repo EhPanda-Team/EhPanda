@@ -46,10 +46,12 @@ extension ScenarioCatalog {
             "settings-pages-general-basic": .init(make: { Page.general(level: .basic) }, interact: Page.scrollToBottom),
             "settings-pages-general-full": .init(make: { Page.general(level: .full) }, interact: Page.scrollToBottom),
             "settings-pages-general-cache-confirmation": .init(
-                make: { Page.general(level: nil, action: .clearImageCacheButtonTapped) }
+                make: { Page.general(level: nil, action: .clearImageCacheButtonTapped) },
+                interact: RevealStep.reveal(.label(String(localized: .clearImageCache)))
             ),
             "settings-pages-general-translations-confirmation": .init(
-                make: { Page.general(level: nil, action: .removeCustomTranslationsButtonTapped) }
+                make: { Page.general(level: nil, action: .removeCustomTranslationsButtonTapped) },
+                interact: RevealStep.reveal(.label(String(localized: .removeCustomTranslations)))
             ),
             "settings-pages-activity-logs": .init(make: { Page.activityLogs(filled: true) }),
             "settings-pages-activity-logs-empty": .init(make: { Page.activityLogs(filled: false) }),
@@ -65,7 +67,10 @@ extension ScenarioCatalog {
             ),
             "settings-pages-about": .init(make: { Page.settings([.about(.init())]) }),
             "settings-pages-site-settings": .init(make: { Page.siteSettings(.loaded) }),
-            "settings-pages-site-settings-confirmation": .init(make: { Page.siteSettings(.deleteConfirmation) }),
+            "settings-pages-site-settings-confirmation": .init(
+                make: { Page.siteSettings(.deleteConfirmation) },
+                interact: RevealStep.reveal(.label(String(localized: .deleteProfile)))
+            ),
             "settings-pages-site-settings-error": .init(make: { Page.siteSettings(.failed) })
         ]
     }
@@ -90,8 +95,12 @@ enum SettingsScenarios {
 
     /// The Settings tab: its root, with `pages` pushed on its stack as the root's rows and the pages' own links push
     /// them. Each `actions` entry is sent to the page at its index once the stack is built, as the page's own
-    /// presentation or a user's tap on it would send it.
-    static func settings(_ pages: [SettingPath.State], actions: [(Int, SettingPath.Action)] = []) -> AnyView {
+    /// presentation or a user's tap on it would send it. `tap`, the user's tap that presents a dialog, is sent last,
+    /// and at accessibility5 once its row is on screen (``RevealStep/tap(_:)``).
+    static func settings(
+        _ pages: [SettingPath.State], actions: [(Int, SettingPath.Action)] = [],
+        tap: (page: Int, action: SettingPath.Action)? = nil
+    ) -> AnyView {
         var state = SettingReducer.State()
         state.path = StackState(pages)
         let store = Store(initialState: state, reducer: SettingReducer.init)
@@ -99,6 +108,9 @@ enum SettingsScenarios {
         for (index, action) in actions {
             guard let id = ids.dropFirst(index).first else { continue }
             store.send(.path(.element(id: id, action: action)))
+        }
+        if let tap, let id = ids.dropFirst(tap.page).first {
+            RevealStep.tap { store.send(.path(.element(id: id, action: tap.action))) }
         }
         return AnyView(SettingView(store: store))
     }
@@ -153,7 +165,8 @@ enum SettingsScenarios {
 
     // MARK: Settings pages
 
-    /// General, with the analytics level chosen (or none). `action`, if any, is the user's tap on the page. The
+    /// General, with the analytics level chosen (or none). `action`, if any, is the user's tap on the page that
+    /// presents a dialog; at accessibility5 its row is below the fold, so it is tapped once the row is shown. The
     /// cache size is the one the preview library client reports; removing translations needs a custom table, which
     /// the synthetic translations stand in for.
     static func general(level: AnalyticsLevel?, action: GeneralSettingReducer.Action? = nil) -> AnyView {
@@ -166,23 +179,34 @@ enum SettingsScenarios {
                 $0 = TagTranslator(hasCustomTranslations: true, translations: LibraryScenarios.translator.translations)
             }
         }
-        var actions: [(Int, SettingPath.Action)] = [(0, .general(.calculateWebImageDiskCache))]
-        if let action {
-            actions.append((0, .general(action)))
-        }
-        return settings([.general(.init())], actions: actions)
+        return settings(
+            [.general(.init())], actions: [(0, .general(.calculateWebImageDiskCache))],
+            tap: action.map({ (page: 0, action: .general($0)) })
+        )
     }
 
     /// Brings the page's form to rest at its bottom, where General's analytics section and its footer are.
+    ///
+    /// The form sizes its rows as they are built, so its content grows as it scrolls. At accessibility5 one move to
+    /// the bottom it reported first stopped short, above the analytics section, and the three levels' pictures were
+    /// the same (run 43403534542); there the move is repeated until the bottom stays put. Other sizes reach it in one.
     static func scrollToBottom(_ window: UIWindow) async throws {
         _ = await HostedWindowCapture.settle(window)
         let root = try XCTUnwrap(window.rootViewController?.view)
-        for list in scrollViews(in: root) {
-            let bottom = list.contentSize.height - list.bounds.height + list.adjustedContentInset.bottom
-            guard bottom > list.contentOffset.y else { continue }
-            list.setContentOffset(CGPoint(x: list.contentOffset.x, y: bottom), animated: false)
+        for move in 0..<(RevealStep.isLargestText ? 20 : 1) {
+            if move > 0 {
+                try await ContinuousClock().sleep(for: .milliseconds(100))
+            }
+            var moved = false
+            for list in scrollViews(in: root) {
+                let bottom = list.contentSize.height - list.bounds.height + list.adjustedContentInset.bottom
+                guard bottom > list.contentOffset.y else { continue }
+                list.setContentOffset(CGPoint(x: list.contentOffset.x, y: bottom), animated: false)
+                moved = true
+            }
+            root.layoutIfNeeded()
+            guard moved else { return }
         }
-        root.layoutIfNeeded()
     }
 
     /// Laboratory's cell is interactive glass. On the phone in landscape its shadow can still step after the window
@@ -286,9 +310,10 @@ enum SettingsScenarios {
             ehSetting.favoriteCategories = SettingsFixtures.favoriteCategories
             site.setEhSetting(ehSetting)
         }
-        let actions: [(Int, SettingPath.Action)] = kind == .deleteConfirmation
-            ? [(1, .ehSetting(.deleteProfileButtonTapped))] : []
-        return settings([.account(.init()), .ehSetting(site)], actions: actions)
+        return settings(
+            [.account(.init()), .ehSetting(site)],
+            tap: kind == .deleteConfirmation ? (page: 1, action: .ehSetting(.deleteProfileButtonTapped)) : nil
+        )
     }
 
     // MARK: App-wide

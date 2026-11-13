@@ -33,16 +33,20 @@ extension ScenarioCatalog {
             "analytics-choice-none": .init(
                 signedIn: false, make: { Page.analyticsChoice(nil) }, minimumReads: reads
             ),
-            "analytics-choice-minimal": .init(
-                signedIn: false, make: { Page.analyticsChoice(.minimal) }, minimumReads: reads
-            ),
-            "analytics-choice-basic": .init(
-                signedIn: false, make: { Page.analyticsChoice(.basic) }, minimumReads: reads
-            ),
-            "analytics-choice-full": .init(
-                signedIn: false, make: { Page.analyticsChoice(.full) }, minimumReads: reads
-            )
+            "analytics-choice-minimal": analyticsChoice(.minimal),
+            "analytics-choice-basic": analyticsChoice(.basic),
+            "analytics-choice-full": analyticsChoice(.full)
         ]
+    }
+
+    /// The analytics choice with `level` picked. At accessibility5 the levels sit below the fold, and the three
+    /// pictures were their base page's (run 43403534542), so there the page is scrolled to the picked level.
+    private static func analyticsChoice(_ level: AnalyticsLevel) -> ScenarioFactory {
+        ScenarioFactory(
+            signedIn: false, make: { BrowsingScenarios.analyticsChoice(level) },
+            interact: RevealStep.reveal(.identifier("first_launch_level_\(level.rawValue)")),
+            minimumReads: firstLaunchMinimumReads
+        )
     }
 
     private static var shell: [String: ScenarioFactory] {
