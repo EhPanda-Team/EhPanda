@@ -1,7 +1,9 @@
 import AppComponents
 @testable import AppFeature
 import AppModels
+import AppTools
 import ComposableArchitecture
+import CookieClient
 import Foundation
 @testable import HomeFeature
 import OSLog
@@ -24,9 +26,18 @@ extension ScenarioCatalog {
         typealias Page = SettingsScenarios
         return [
             "settings-root": .init(make: { Page.settings([]) }),
-            "settings-account-signed-in": .init(make: { Page.account(confirmingLogout: false) }),
+            "settings-account-signed-in": .init(
+                cookies: Page.memberCookies, make: { Page.account(confirmingLogout: false) }
+            ),
+            // The cookies are the state: where they are below the fold, the page is scrolled to them.
+            "settings-account-invalid-cookies": .init(
+                cookies: Page.withheldCookies, make: { Page.account(confirmingLogout: false) },
+                interact: RevealStep.reveal(.label(Defaults.Cookie.ipbMemberId), atEverySize: true)
+            ),
             "settings-account-signed-out": .init(signedIn: false, make: { Page.account(confirmingLogout: false) }),
-            "settings-account-logout-confirmation": .init(make: { Page.account(confirmingLogout: true) }),
+            "settings-account-logout-confirmation": .init(
+                cookies: Page.memberCookies, make: { Page.account(confirmingLogout: true) }
+            ),
             "blocked-users-filled": .init(make: { Page.blockedUsers(filled: true) }),
             "blocked-users-empty": .init(make: { Page.blockedUsers(filled: false) }),
             "settings-login-empty": .init(signedIn: false, make: { Page.login(.empty) }),
@@ -113,6 +124,23 @@ enum SettingsScenarios {
             RevealStep.tap { store.send(.path(.element(id: id, action: tap.action))) }
         }
         return AnyView(SettingView(store: store))
+    }
+
+    /// A signed-in member's jar, as Account shows it to a real member: the synthetic member ID, pass hash and
+    /// igneous, each read as a valid cookie.
+    nonisolated static var memberCookies: CookieClient {
+        .testing(
+            memberID: SettingsFixtures.cookieMemberID, passHash: SettingsFixtures.cookiePassHash,
+            igneous: SettingsFixtures.cookieIgneous
+        )
+    }
+
+    /// A jar the site no longer honours: each cookie holds the placeholder it sets in place of one it withholds, so
+    /// Account shows every cookie marked invalid while the app still counts the member as signed in.
+    nonisolated static var withheldCookies: CookieClient {
+        .testing(
+            memberID: Defaults.Cookie.mystery, passHash: Defaults.Cookie.mystery, igneous: Defaults.Cookie.mystery
+        )
     }
 
     /// Account, loaded as the Settings stack loads it when the row is tapped; signed in or out follows the

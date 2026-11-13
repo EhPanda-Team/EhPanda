@@ -599,7 +599,12 @@ extension CookieClient {
                 store.stream()
             },
             getCookie: { url, key in
-                .init(rawValue: store.value(for: url, key: key), localizedString: "")
+                // As the live jar reads it: the placeholder the site sets in place of a cookie it withholds is
+                // shown as such and marked invalid; any other value is the cookie itself.
+                let value = store.value(for: url, key: key)
+                return value == Defaults.Cookie.mystery
+                    ? .init(rawValue: value, localizedString: String(localized: .cookieValueMystery))
+                    : .init(rawValue: value, localizedString: "")
             },
             cookiesForURL: { url in
                 store.cookies(for: url)

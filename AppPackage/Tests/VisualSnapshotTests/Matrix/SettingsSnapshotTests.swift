@@ -8,6 +8,9 @@ import XCTest
 final class SettingsSnapshotTests: SnapshotMatrixCase {
     @MainActor func testRoot() async throws { try await capture(scenario: "settings-root") }
     @MainActor func testAccountSignedIn() async throws { try await capture(scenario: "settings-account-signed-in") }
+    @MainActor func testAccountInvalidCookies() async throws {
+        try await capture(scenario: "settings-account-invalid-cookies")
+    }
     @MainActor func testAccountSignedOut() async throws { try await capture(scenario: "settings-account-signed-out") }
     @MainActor func testAccountLogoutConfirmation() async throws {
         try await capture(scenario: "settings-account-logout-confirmation")

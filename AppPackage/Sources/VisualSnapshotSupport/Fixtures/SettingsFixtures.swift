@@ -12,6 +12,12 @@ public enum SettingsFixtures {
         ("900002", "Visual Member 2")
     ]
 
+    /// The signed-in member's cookies as Account shows them: an invented member ID, a fixed 32-digit hexadecimal
+    /// pass hash and a fixed igneous, in the shapes the site hands out. None is a real account's.
+    public static let cookieMemberID = "1234567"
+    public static let cookiePassHash = "9f3c2a7d5e1b4c8a6d0e2f4a7b9c1d3e"
+    public static let cookieIgneous = "4e7a9c2b1d"
+
     /// The Login form as a user fills it. The password field draws dots, never the text.
     public static let loginUsername = "visual-fixture"
     public static let loginPassword = "fixture-password"

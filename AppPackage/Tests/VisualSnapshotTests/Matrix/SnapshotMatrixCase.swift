@@ -137,7 +137,7 @@ class SnapshotMatrixCase: XCTestCase {
         let appStorage = UserDefaults.inMemory
         let outcome = await withDependencies {
             $0.context = .preview
-            $0.cookieClient = factory.signedIn ? .previewLoggedIn : .noop
+            $0.cookieClient = factory.cookies ?? (factory.signedIn ? .previewLoggedIn : .noop)
             $0.date.now = PublicVisualFixtures.fixedDate
             $0.uuid = .incrementing
             $0.defaultAppStorage = appStorage
