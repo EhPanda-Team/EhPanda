@@ -63,10 +63,17 @@ swift-snapshot-testing's `.image` strategy. Content is the synthetic public fixt
 # Snapshot gate
 
 `.github/workflows/snapshot-gate.yml` is the full screenshot check. One build-for-testing job feeds the shards of
-`snapshot-shards.json`: planned as 20 shards (owner msg 2263) and re-planned from the hosted runs' measured costs
-(run 42577585956) to **27**, 18 iPhone shards of one configuration each and 9 iPad shards of two, each estimated at
-no more than 84 minutes (70% of the 120-minute limit). The shard plan is deterministic and balanced by cost:
-`python3 Scripts/visual/snapshot_shards.py --check` fails when it is stale.
+`snapshot-shards.json`: planned as 20 shards (owner msg 2263), re-planned from the hosted runs' measured costs
+(run 42577585956) to 27 of up to 84 estimated minutes, and cut again after run 43298876957, where the runner cut 13 of
+those 27 jobs at random times ("The operation was canceled", 18 to 93 minutes in; 3 of their 13 retries went the same
+way): a cut shard is run again from its start, so shards are now as short as the cost table allows. There are **72**:
+36 iPhone shards (one configuration in one orientation, about 42 estimated minutes, step limit 85) and 36 iPad shards
+(one configuration in one orientation, 26 to 29 estimated minutes, step limit 52 to 58). The targets are in
+`snapshot_shards.py` (`TARGET_MINUTES`: iPhone 45, iPad 35); a shard cannot be shorter than its fixed cost (11.3
+minutes) plus one process, which is why an iPhone shard stays near 42 and why more, shorter shards cost more
+shard-minutes in total. An iPhone shard of one orientation sets `EHPANDA_SNAPSHOT_ORIENTATIONS` for the matrix
+process, which turns the iPhone itself; an iPad process is turned beforehand. The shard plan is deterministic and
+balanced by cost: `python3 Scripts/visual/snapshot_shards.py --check` fails when it is stale.
 
 Each shard is `run-shard.sh` on its own macOS job. In order, it checks the rendering pin, fetches and verifies its
 baseline slices (compare mode), makes the pinned simulator with `hosted-simulator.sh`, runs the shard's invocations
@@ -74,15 +81,19 @@ and re-runs once the classes a crash or the budget left without results. Jobs:
 
 - **`checks`** tests the gate's scripts, checks the shard plan and decides the mode.
 - **`build`** builds the `SnapshotMatrix` and `UITests` products once.
-- **shards** `s01` to `s27`, with `fail-fast` off and `continue-on-error`: one shard never cancels another.
+- **shards** `s01` to `s72`, with `fail-fast` off and `continue-on-error`: one shard never cancels another.
 - **`triage`** lists the shards with a shard-level infrastructure error: a crash, a timeout, a lost runner or missing
   results. One picture's `timeout` or `error` is reported, never retried at shard level, and a picture change never
   triggers a retry.
-- **`retry`** runs exactly those shards once more in the same run. A retry that fails is reported, never retried.
+- **`retry`** runs exactly those shards once more in the same run (attempt 2).
+- **`triage2`** lists, after `retry`, the shards whose latest artifact is still a shard-level error
+  (`snapshot_aggregate.py --triage --attempt 3`): a retry that failed, one that left no `shard.json`, and one that was
+  cut with no artifact at all. **`retry2`** runs exactly those a last time (attempt 3, artifacts `retry2-<shard>`). A
+  shard still lost after that is reported as an infrastructure error, never retried again.
 - **`native-policy`** runs `NativeVisualPolicyUITests` on both devices (cold entry and live text-size changes,
   turns, toolbar priority, dialog and menu anchoring). These are transitions, which snapshots do not test.
-- **`aggregate`** takes each shard's latest attempt (a retry without `shard.json` keeps the first attempt and is
-  reported as `retry-lost`), requires a line for every expected coordinate (a missing one is an infrastructure
+- **`aggregate`** takes each shard's latest attempt, up to attempt 3 (a retry without `shard.json` keeps the latest
+  earlier attempt that has one and is reported as `retry-lost`), requires a line for every expected coordinate (a missing one is an infrastructure
   error, never a pass), names the four failure classes (picture changes, infrastructure errors, drift, baseline
   mismatches) in the run summary, writes the report and is the run's verdict, together with `native-policy`.
 
@@ -106,8 +117,10 @@ planning records are `19-10-SUMMARY.md`, `19-12`, `19-13` and `19-17-SUMMARY.md`
 
 **Hosted runner limits and cost.** GitHub's standard hosted runners run at most **5 macOS jobs at once** on the
 Free, Pro and Team plans; more needs GitHub Enterprise (50) or a limit increase through GitHub support, and the
-rest of the jobs queue. The plan sums to about 2,013 shard-minutes, so a run is about 8.7 to 9 hours at 5 at a
-time, with the build, the native-policy jobs and any retries. It holds every macOS slot the account has for that
+rest of the jobs queue. The plan sums to about 2,500 estimated shard-minutes (2,013 before run 43298876957's
+re-plan), so the first pass is about 8.3 hours at 5 at a time before the build and the two native-policy jobs, about
+9 to 10 hours with them and the retry rounds (run 43298876957 took 7.5 hours for its first pass and 3.7 for one
+retry round, one retry of which held its slot for 150 minutes). It holds every macOS slot the account has for that
 time: `test.yml`, the deploys and other gate runs queue behind it. This is accepted and written down
 (19-RESEARCH Pitfall 9; T-19-21). Hosted runs of a public repository are not billed.
 

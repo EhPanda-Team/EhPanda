@@ -30,6 +30,7 @@ class AggregateTests(unittest.TestCase):
         self.directory = tempfile.TemporaryDirectory()
         self.root = Path(self.directory.name)
         self.results, self.retry = self.root / 'results', self.root / 'retry'
+        self.retry2 = self.root / 'retry2'
         _, self.env = snapshot_matrix.load()
         (self.root / 'scenarios.json').write_text(json.dumps(INVENTORY))
         (self.root / 'shards.json').write_text(json.dumps(SHARD_PLAN))
@@ -153,6 +154,84 @@ class AggregateTests(unittest.TestCase):
         code, _ = self.run_cli('--retry', str(self.retry))
         self.assertEqual(code, 1)
         self.assertEqual(self.triage('--retry', str(self.retry)), [])
+
+    def test_a_shard_still_lost_after_its_retry_is_listed_for_the_second_retry(self):
+        # Run 43298876957: 3 of 13 retries were cut by the runner as well. The shards the first retry did not bring
+        # back go once more (`--triage --attempt 3`); the first round's list is unchanged.
+        self.write_all(s07={'infra': 'crash', 'skip': self.keys('s07')[2:]}, s03={'infra': 'timeout'})
+        self.assertEqual(self.triage(), ['s03', 's07'])
+        self.assertEqual(self.triage('--attempt', '3'), ['s03', 's07'])
+        self.write(self.retry, 's03')
+        self.write(self.retry, 's07', infra='crash')
+        self.assertEqual(self.triage('--retry', str(self.retry)), [])
+        self.assertEqual(self.triage('--retry', str(self.retry), '--attempt', '3'), ['s07'])
+
+    def test_a_retry_that_left_no_artifact_or_no_shard_json_is_listed_for_the_second_retry(self):
+        self.write_all(s03={'infra': 'crash'}, s07={'infra': 'crash'}, s11={'infra': 'timeout'})
+        (self.retry / 's07' / 'logs').mkdir(parents=True)
+        self.write(self.retry, 's11')
+        # s03's retry job was cut with nothing uploaded, s07's left only logs, s11's came back.
+        self.assertEqual(self.triage('--retry', str(self.retry)), ['s03'])
+        self.assertEqual(self.triage('--retry', str(self.retry), '--attempt', '3'), ['s03', 's07'])
+
+    def test_a_shard_whose_second_retry_ran_is_never_listed_again(self):
+        self.write_all(s07={'infra': 'timeout'})
+        self.write(self.retry, 's07', infra='crash')
+        self.write(self.retry2, 's07', infra='crash')
+        arguments = ('--retry', str(self.retry), '--retry2', str(self.retry2))
+        self.assertEqual(self.triage(*arguments, '--attempt', '3'), [])
+        (self.retry2 / 's07' / 'shard.json').unlink()
+        self.assertEqual(self.triage(*arguments, '--attempt', '3'), [])
+
+    def test_a_coordinate_error_is_not_retried_in_the_second_round_either(self):
+        erring = self.keys('s07')[0]
+        self.write_all(s07={'overrides': {erring: {'status': 'error', 'reason': 'interaction'}}})
+        self.write(self.retry, 's03')
+        self.assertEqual(self.triage('--attempt', '3'), [])
+
+    def test_the_second_retry_is_the_latest_attempt_and_is_merged(self):
+        self.write_all(s07={'infra': 'crash', 'skip': self.keys('s07')[2:]})
+        self.write(self.retry, 's07', infra='timeout', skip=self.keys('s07')[1:])
+        self.write(self.retry2, 's07')
+        code, out = self.run_cli('--retry', str(self.retry), '--retry2', str(self.retry2))
+        self.assertEqual(code, 0, out)
+        document = self.aggregate()
+        self.assertEqual(document['shards']['s07']['attempt'], 3)
+        self.assertEqual(document['shards']['s07']['directory'], str(self.retry2 / 's07'))
+        self.assertIn('retried: s07', out)
+        self.assertIn('| s07 | 3 | none |', out)
+
+    def test_a_second_retry_without_shard_json_keeps_the_latest_attempt_that_has_one(self):
+        self.write_all(s07={'infra': 'crash', 'skip': [self.keys('s07')[0]]})
+        self.write(self.retry, 's07', infra='crash', skip=[self.keys('s07')[1]])
+        (self.retry2 / 's07' / 'logs').mkdir(parents=True)
+        code, out = self.run_cli('--retry', str(self.retry), '--retry2', str(self.retry2))
+        self.assertEqual(code, 1)
+        document = self.aggregate()
+        self.assertEqual(document['shards']['s07']['attempt'], 2)
+        self.assertTrue(document['shards']['s07']['retryLost'])
+        self.assertEqual(document['shards']['s07']['directory'], str(self.retry / 's07'))
+        self.assertIn('- s07: retry-lost (s07) — the second retry left no shard.json', out)
+        self.assertIn('| s07 | 2 (retry lost) | crash |', out)
+        missing = [item['key'] for item in document['items']['infrastructureErrors'] if item['kind'] == 'missing-result']
+        self.assertEqual(missing, [self.keys('s07')[1]])
+
+    def test_a_second_retry_after_two_lost_attempts_is_runner_lost_at_attempt_3(self):
+        self.write(self.results, 's03')
+        self.write(self.results, 's11')
+        (self.retry2 / 's07' / 'logs').mkdir(parents=True)
+        code, out = self.run_cli('--retry2', str(self.retry2))
+        self.assertEqual(code, 1)
+        self.assertEqual(self.aggregate()['shards']['s07'], {'attempt': 3, 'infra': 'runner-lost',
+                                                             'directory': str(self.retry2 / 's07')})
+
+    def test_a_retry2_directory_alone_is_enough_without_a_retry_one(self):
+        # The first retry's job may have left no artifact at all; the second retry still replaces the first attempt.
+        self.write_all(s07={'infra': 'crash', 'skip': self.keys('s07')[2:]})
+        self.write(self.retry2, 's07')
+        code, out = self.run_cli('--retry2', str(self.retry2))
+        self.assertEqual(code, 0, out)
+        self.assertEqual(self.aggregate()['shards']['s07']['attempt'], 3)
 
     def test_expected_coordinate_without_a_line_is_missing_result(self):
         missing = self.keys('s11')[0]

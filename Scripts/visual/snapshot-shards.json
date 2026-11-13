@@ -3,7 +3,10 @@
   "costTable": "725591347343f68e02f85a207a3c6264e33912879c2b93031bf8735f2036f119",
   "costSource": "measured",
   "workers": 2,
-  "targetMinutes": 84.0,
+  "targetMinutes": {
+    "iphone": 45.0,
+    "ipad": 35.0
+  },
   "shards": [
     {
       "id": "s01",
@@ -15,7 +18,6 @@
         {
           "configuration": "de-accessibility5",
           "orientations": [
-            "portrait",
             "landscape"
           ]
         }
@@ -26,15 +28,14 @@
             "de-accessibility5"
           ],
           "orientations": [
-            "portrait",
             "landscape"
           ]
         }
       ],
-      "pictures": 538,
-      "costSeconds": 3045.1,
-      "estimatedMinutes": 73.2,
-      "timeoutMinutes": 120
+      "pictures": 270,
+      "costSeconds": 1528.2,
+      "estimatedMinutes": 42.4,
+      "timeoutMinutes": 85
     },
     {
       "id": "s02",
@@ -46,7 +47,6 @@
         {
           "configuration": "de-large",
           "orientations": [
-            "portrait",
             "landscape"
           ]
         }
@@ -57,15 +57,14 @@
             "de-large"
           ],
           "orientations": [
-            "portrait",
             "landscape"
           ]
         }
       ],
-      "pictures": 538,
-      "costSeconds": 3045.1,
-      "estimatedMinutes": 73.2,
-      "timeoutMinutes": 120
+      "pictures": 270,
+      "costSeconds": 1528.2,
+      "estimatedMinutes": 42.4,
+      "timeoutMinutes": 85
     },
     {
       "id": "s03",
@@ -77,7 +76,6 @@
         {
           "configuration": "de-xSmall",
           "orientations": [
-            "portrait",
             "landscape"
           ]
         }
@@ -88,15 +86,14 @@
             "de-xSmall"
           ],
           "orientations": [
-            "portrait",
             "landscape"
           ]
         }
       ],
-      "pictures": 538,
-      "costSeconds": 3045.1,
-      "estimatedMinutes": 73.2,
-      "timeoutMinutes": 120
+      "pictures": 270,
+      "costSeconds": 1528.2,
+      "estimatedMinutes": 42.4,
+      "timeoutMinutes": 85
     },
     {
       "id": "s04",
@@ -108,7 +105,6 @@
         {
           "configuration": "en-accessibility5",
           "orientations": [
-            "portrait",
             "landscape"
           ]
         }
@@ -119,15 +115,14 @@
             "en-accessibility5"
           ],
           "orientations": [
-            "portrait",
             "landscape"
           ]
         }
       ],
-      "pictures": 538,
-      "costSeconds": 3045.1,
-      "estimatedMinutes": 73.2,
-      "timeoutMinutes": 120
+      "pictures": 270,
+      "costSeconds": 1528.2,
+      "estimatedMinutes": 42.4,
+      "timeoutMinutes": 85
     },
     {
       "id": "s05",
@@ -139,7 +134,6 @@
         {
           "configuration": "en-large",
           "orientations": [
-            "portrait",
             "landscape"
           ]
         }
@@ -150,15 +144,14 @@
             "en-large"
           ],
           "orientations": [
-            "portrait",
             "landscape"
           ]
         }
       ],
-      "pictures": 538,
-      "costSeconds": 3045.1,
-      "estimatedMinutes": 73.2,
-      "timeoutMinutes": 120
+      "pictures": 270,
+      "costSeconds": 1528.2,
+      "estimatedMinutes": 42.4,
+      "timeoutMinutes": 85
     },
     {
       "id": "s06",
@@ -170,7 +163,6 @@
         {
           "configuration": "en-xSmall",
           "orientations": [
-            "portrait",
             "landscape"
           ]
         }
@@ -181,15 +173,14 @@
             "en-xSmall"
           ],
           "orientations": [
-            "portrait",
             "landscape"
           ]
         }
       ],
-      "pictures": 538,
-      "costSeconds": 3045.1,
-      "estimatedMinutes": 73.2,
-      "timeoutMinutes": 120
+      "pictures": 270,
+      "costSeconds": 1528.2,
+      "estimatedMinutes": 42.4,
+      "timeoutMinutes": 85
     },
     {
       "id": "s07",
@@ -201,7 +192,6 @@
         {
           "configuration": "ja-accessibility5",
           "orientations": [
-            "portrait",
             "landscape"
           ]
         }
@@ -212,15 +202,14 @@
             "ja-accessibility5"
           ],
           "orientations": [
-            "portrait",
             "landscape"
           ]
         }
       ],
-      "pictures": 538,
-      "costSeconds": 3045.1,
-      "estimatedMinutes": 73.2,
-      "timeoutMinutes": 120
+      "pictures": 270,
+      "costSeconds": 1528.2,
+      "estimatedMinutes": 42.4,
+      "timeoutMinutes": 85
     },
     {
       "id": "s08",
@@ -232,7 +221,6 @@
         {
           "configuration": "ja-large",
           "orientations": [
-            "portrait",
             "landscape"
           ]
         }
@@ -243,15 +231,14 @@
             "ja-large"
           ],
           "orientations": [
-            "portrait",
             "landscape"
           ]
         }
       ],
-      "pictures": 538,
-      "costSeconds": 3045.1,
-      "estimatedMinutes": 73.2,
-      "timeoutMinutes": 120
+      "pictures": 270,
+      "costSeconds": 1528.2,
+      "estimatedMinutes": 42.4,
+      "timeoutMinutes": 85
     },
     {
       "id": "s09",
@@ -263,7 +250,6 @@
         {
           "configuration": "ja-xSmall",
           "orientations": [
-            "portrait",
             "landscape"
           ]
         }
@@ -274,15 +260,14 @@
             "ja-xSmall"
           ],
           "orientations": [
-            "portrait",
             "landscape"
           ]
         }
       ],
-      "pictures": 538,
-      "costSeconds": 3045.1,
-      "estimatedMinutes": 73.2,
-      "timeoutMinutes": 120
+      "pictures": 270,
+      "costSeconds": 1528.2,
+      "estimatedMinutes": 42.4,
+      "timeoutMinutes": 85
     },
     {
       "id": "s10",
@@ -294,7 +279,6 @@
         {
           "configuration": "ko-accessibility5",
           "orientations": [
-            "portrait",
             "landscape"
           ]
         }
@@ -305,15 +289,14 @@
             "ko-accessibility5"
           ],
           "orientations": [
-            "portrait",
             "landscape"
           ]
         }
       ],
-      "pictures": 538,
-      "costSeconds": 3045.1,
-      "estimatedMinutes": 73.2,
-      "timeoutMinutes": 120
+      "pictures": 270,
+      "costSeconds": 1528.2,
+      "estimatedMinutes": 42.4,
+      "timeoutMinutes": 85
     },
     {
       "id": "s11",
@@ -325,7 +308,6 @@
         {
           "configuration": "ko-large",
           "orientations": [
-            "portrait",
             "landscape"
           ]
         }
@@ -336,15 +318,14 @@
             "ko-large"
           ],
           "orientations": [
-            "portrait",
             "landscape"
           ]
         }
       ],
-      "pictures": 538,
-      "costSeconds": 3045.1,
-      "estimatedMinutes": 73.2,
-      "timeoutMinutes": 120
+      "pictures": 270,
+      "costSeconds": 1528.2,
+      "estimatedMinutes": 42.4,
+      "timeoutMinutes": 85
     },
     {
       "id": "s12",
@@ -356,7 +337,6 @@
         {
           "configuration": "ko-xSmall",
           "orientations": [
-            "portrait",
             "landscape"
           ]
         }
@@ -367,15 +347,14 @@
             "ko-xSmall"
           ],
           "orientations": [
-            "portrait",
             "landscape"
           ]
         }
       ],
-      "pictures": 538,
-      "costSeconds": 3045.1,
-      "estimatedMinutes": 73.2,
-      "timeoutMinutes": 120
+      "pictures": 270,
+      "costSeconds": 1528.2,
+      "estimatedMinutes": 42.4,
+      "timeoutMinutes": 85
     },
     {
       "id": "s13",
@@ -387,7 +366,6 @@
         {
           "configuration": "zh-Hans-accessibility5",
           "orientations": [
-            "portrait",
             "landscape"
           ]
         }
@@ -398,15 +376,14 @@
             "zh-Hans-accessibility5"
           ],
           "orientations": [
-            "portrait",
             "landscape"
           ]
         }
       ],
-      "pictures": 538,
-      "costSeconds": 3045.1,
-      "estimatedMinutes": 73.2,
-      "timeoutMinutes": 120
+      "pictures": 270,
+      "costSeconds": 1528.2,
+      "estimatedMinutes": 42.4,
+      "timeoutMinutes": 85
     },
     {
       "id": "s14",
@@ -418,7 +395,6 @@
         {
           "configuration": "zh-Hans-large",
           "orientations": [
-            "portrait",
             "landscape"
           ]
         }
@@ -429,15 +405,14 @@
             "zh-Hans-large"
           ],
           "orientations": [
-            "portrait",
             "landscape"
           ]
         }
       ],
-      "pictures": 538,
-      "costSeconds": 3045.1,
-      "estimatedMinutes": 73.2,
-      "timeoutMinutes": 120
+      "pictures": 270,
+      "costSeconds": 1528.2,
+      "estimatedMinutes": 42.4,
+      "timeoutMinutes": 85
     },
     {
       "id": "s15",
@@ -449,7 +424,6 @@
         {
           "configuration": "zh-Hans-xSmall",
           "orientations": [
-            "portrait",
             "landscape"
           ]
         }
@@ -460,15 +434,14 @@
             "zh-Hans-xSmall"
           ],
           "orientations": [
-            "portrait",
             "landscape"
           ]
         }
       ],
-      "pictures": 538,
-      "costSeconds": 3045.1,
-      "estimatedMinutes": 73.2,
-      "timeoutMinutes": 120
+      "pictures": 270,
+      "costSeconds": 1528.2,
+      "estimatedMinutes": 42.4,
+      "timeoutMinutes": 85
     },
     {
       "id": "s16",
@@ -480,7 +453,6 @@
         {
           "configuration": "zh-Hant-accessibility5",
           "orientations": [
-            "portrait",
             "landscape"
           ]
         }
@@ -491,15 +463,14 @@
             "zh-Hant-accessibility5"
           ],
           "orientations": [
-            "portrait",
             "landscape"
           ]
         }
       ],
-      "pictures": 538,
-      "costSeconds": 3045.1,
-      "estimatedMinutes": 73.2,
-      "timeoutMinutes": 120
+      "pictures": 270,
+      "costSeconds": 1528.2,
+      "estimatedMinutes": 42.4,
+      "timeoutMinutes": 85
     },
     {
       "id": "s17",
@@ -511,7 +482,6 @@
         {
           "configuration": "zh-Hant-large",
           "orientations": [
-            "portrait",
             "landscape"
           ]
         }
@@ -522,15 +492,14 @@
             "zh-Hant-large"
           ],
           "orientations": [
-            "portrait",
             "landscape"
           ]
         }
       ],
-      "pictures": 538,
-      "costSeconds": 3045.1,
-      "estimatedMinutes": 73.2,
-      "timeoutMinutes": 120
+      "pictures": 270,
+      "costSeconds": 1528.2,
+      "estimatedMinutes": 42.4,
+      "timeoutMinutes": 85
     },
     {
       "id": "s18",
@@ -542,7 +511,6 @@
         {
           "configuration": "zh-Hant-xSmall",
           "orientations": [
-            "portrait",
             "landscape"
           ]
         }
@@ -553,486 +521,774 @@
             "zh-Hant-xSmall"
           ],
           "orientations": [
-            "portrait",
             "landscape"
           ]
         }
       ],
-      "pictures": 538,
-      "costSeconds": 3045.1,
-      "estimatedMinutes": 73.2,
-      "timeoutMinutes": 120
+      "pictures": 270,
+      "costSeconds": 1528.2,
+      "estimatedMinutes": 42.4,
+      "timeoutMinutes": 85
     },
     {
       "id": "s19",
-      "family": "ipad",
+      "family": "iphone",
       "configurations": [
-        "de-accessibility5",
+        "de-accessibility5"
+      ],
+      "runs": [
+        {
+          "configuration": "de-accessibility5",
+          "orientations": [
+            "portrait"
+          ]
+        }
+      ],
+      "invocations": [
+        {
+          "configurations": [
+            "de-accessibility5"
+          ],
+          "orientations": [
+            "portrait"
+          ]
+        }
+      ],
+      "pictures": 268,
+      "costSeconds": 1516.9,
+      "estimatedMinutes": 42.1,
+      "timeoutMinutes": 85
+    },
+    {
+      "id": "s20",
+      "family": "iphone",
+      "configurations": [
+        "de-large"
+      ],
+      "runs": [
+        {
+          "configuration": "de-large",
+          "orientations": [
+            "portrait"
+          ]
+        }
+      ],
+      "invocations": [
+        {
+          "configurations": [
+            "de-large"
+          ],
+          "orientations": [
+            "portrait"
+          ]
+        }
+      ],
+      "pictures": 268,
+      "costSeconds": 1516.9,
+      "estimatedMinutes": 42.1,
+      "timeoutMinutes": 85
+    },
+    {
+      "id": "s21",
+      "family": "iphone",
+      "configurations": [
+        "de-xSmall"
+      ],
+      "runs": [
+        {
+          "configuration": "de-xSmall",
+          "orientations": [
+            "portrait"
+          ]
+        }
+      ],
+      "invocations": [
+        {
+          "configurations": [
+            "de-xSmall"
+          ],
+          "orientations": [
+            "portrait"
+          ]
+        }
+      ],
+      "pictures": 268,
+      "costSeconds": 1516.9,
+      "estimatedMinutes": 42.1,
+      "timeoutMinutes": 85
+    },
+    {
+      "id": "s22",
+      "family": "iphone",
+      "configurations": [
+        "en-accessibility5"
+      ],
+      "runs": [
+        {
+          "configuration": "en-accessibility5",
+          "orientations": [
+            "portrait"
+          ]
+        }
+      ],
+      "invocations": [
+        {
+          "configurations": [
+            "en-accessibility5"
+          ],
+          "orientations": [
+            "portrait"
+          ]
+        }
+      ],
+      "pictures": 268,
+      "costSeconds": 1516.9,
+      "estimatedMinutes": 42.1,
+      "timeoutMinutes": 85
+    },
+    {
+      "id": "s23",
+      "family": "iphone",
+      "configurations": [
+        "en-large"
+      ],
+      "runs": [
+        {
+          "configuration": "en-large",
+          "orientations": [
+            "portrait"
+          ]
+        }
+      ],
+      "invocations": [
+        {
+          "configurations": [
+            "en-large"
+          ],
+          "orientations": [
+            "portrait"
+          ]
+        }
+      ],
+      "pictures": 268,
+      "costSeconds": 1516.9,
+      "estimatedMinutes": 42.1,
+      "timeoutMinutes": 85
+    },
+    {
+      "id": "s24",
+      "family": "iphone",
+      "configurations": [
+        "en-xSmall"
+      ],
+      "runs": [
+        {
+          "configuration": "en-xSmall",
+          "orientations": [
+            "portrait"
+          ]
+        }
+      ],
+      "invocations": [
+        {
+          "configurations": [
+            "en-xSmall"
+          ],
+          "orientations": [
+            "portrait"
+          ]
+        }
+      ],
+      "pictures": 268,
+      "costSeconds": 1516.9,
+      "estimatedMinutes": 42.1,
+      "timeoutMinutes": 85
+    },
+    {
+      "id": "s25",
+      "family": "iphone",
+      "configurations": [
+        "ja-accessibility5"
+      ],
+      "runs": [
+        {
+          "configuration": "ja-accessibility5",
+          "orientations": [
+            "portrait"
+          ]
+        }
+      ],
+      "invocations": [
+        {
+          "configurations": [
+            "ja-accessibility5"
+          ],
+          "orientations": [
+            "portrait"
+          ]
+        }
+      ],
+      "pictures": 268,
+      "costSeconds": 1516.9,
+      "estimatedMinutes": 42.1,
+      "timeoutMinutes": 85
+    },
+    {
+      "id": "s26",
+      "family": "iphone",
+      "configurations": [
+        "ja-large"
+      ],
+      "runs": [
+        {
+          "configuration": "ja-large",
+          "orientations": [
+            "portrait"
+          ]
+        }
+      ],
+      "invocations": [
+        {
+          "configurations": [
+            "ja-large"
+          ],
+          "orientations": [
+            "portrait"
+          ]
+        }
+      ],
+      "pictures": 268,
+      "costSeconds": 1516.9,
+      "estimatedMinutes": 42.1,
+      "timeoutMinutes": 85
+    },
+    {
+      "id": "s27",
+      "family": "iphone",
+      "configurations": [
+        "ja-xSmall"
+      ],
+      "runs": [
+        {
+          "configuration": "ja-xSmall",
+          "orientations": [
+            "portrait"
+          ]
+        }
+      ],
+      "invocations": [
+        {
+          "configurations": [
+            "ja-xSmall"
+          ],
+          "orientations": [
+            "portrait"
+          ]
+        }
+      ],
+      "pictures": 268,
+      "costSeconds": 1516.9,
+      "estimatedMinutes": 42.1,
+      "timeoutMinutes": 85
+    },
+    {
+      "id": "s28",
+      "family": "iphone",
+      "configurations": [
         "ko-accessibility5"
       ],
       "runs": [
         {
-          "configuration": "de-accessibility5",
-          "orientations": [
-            "portrait"
-          ]
-        },
-        {
-          "configuration": "de-accessibility5",
-          "orientations": [
-            "landscape"
-          ]
-        },
-        {
           "configuration": "ko-accessibility5",
           "orientations": [
             "portrait"
-          ]
-        },
-        {
-          "configuration": "ko-accessibility5",
-          "orientations": [
-            "landscape"
           ]
         }
       ],
       "invocations": [
         {
           "configurations": [
-            "de-accessibility5",
             "ko-accessibility5"
           ],
           "orientations": [
             "portrait"
           ]
-        },
-        {
-          "configurations": [
-            "de-accessibility5",
-            "ko-accessibility5"
-          ],
-          "orientations": [
-            "landscape"
-          ]
         }
       ],
-      "pictures": 1076,
-      "costSeconds": 3443.2,
-      "estimatedMinutes": 77.3,
-      "timeoutMinutes": 120
+      "pictures": 268,
+      "costSeconds": 1516.9,
+      "estimatedMinutes": 42.1,
+      "timeoutMinutes": 85
     },
     {
-      "id": "s20",
-      "family": "ipad",
+      "id": "s29",
+      "family": "iphone",
       "configurations": [
-        "de-large",
         "ko-large"
       ],
       "runs": [
         {
-          "configuration": "de-large",
-          "orientations": [
-            "portrait"
-          ]
-        },
-        {
-          "configuration": "de-large",
-          "orientations": [
-            "landscape"
-          ]
-        },
-        {
           "configuration": "ko-large",
           "orientations": [
             "portrait"
-          ]
-        },
-        {
-          "configuration": "ko-large",
-          "orientations": [
-            "landscape"
           ]
         }
       ],
       "invocations": [
         {
           "configurations": [
-            "de-large",
             "ko-large"
           ],
           "orientations": [
             "portrait"
           ]
-        },
-        {
-          "configurations": [
-            "de-large",
-            "ko-large"
-          ],
-          "orientations": [
-            "landscape"
-          ]
         }
       ],
-      "pictures": 1076,
-      "costSeconds": 3443.2,
-      "estimatedMinutes": 77.3,
-      "timeoutMinutes": 120
+      "pictures": 268,
+      "costSeconds": 1516.9,
+      "estimatedMinutes": 42.1,
+      "timeoutMinutes": 85
     },
     {
-      "id": "s21",
-      "family": "ipad",
+      "id": "s30",
+      "family": "iphone",
       "configurations": [
-        "de-xSmall",
         "ko-xSmall"
       ],
       "runs": [
         {
-          "configuration": "de-xSmall",
-          "orientations": [
-            "portrait"
-          ]
-        },
-        {
-          "configuration": "de-xSmall",
-          "orientations": [
-            "landscape"
-          ]
-        },
-        {
           "configuration": "ko-xSmall",
           "orientations": [
             "portrait"
-          ]
-        },
-        {
-          "configuration": "ko-xSmall",
-          "orientations": [
-            "landscape"
           ]
         }
       ],
       "invocations": [
         {
           "configurations": [
-            "de-xSmall",
             "ko-xSmall"
           ],
           "orientations": [
             "portrait"
           ]
-        },
-        {
-          "configurations": [
-            "de-xSmall",
-            "ko-xSmall"
-          ],
-          "orientations": [
-            "landscape"
-          ]
         }
       ],
-      "pictures": 1076,
-      "costSeconds": 3443.2,
-      "estimatedMinutes": 77.3,
-      "timeoutMinutes": 120
+      "pictures": 268,
+      "costSeconds": 1516.9,
+      "estimatedMinutes": 42.1,
+      "timeoutMinutes": 85
     },
     {
-      "id": "s22",
-      "family": "ipad",
+      "id": "s31",
+      "family": "iphone",
       "configurations": [
-        "en-accessibility5",
         "zh-Hans-accessibility5"
       ],
       "runs": [
         {
-          "configuration": "en-accessibility5",
-          "orientations": [
-            "portrait"
-          ]
-        },
-        {
-          "configuration": "en-accessibility5",
-          "orientations": [
-            "landscape"
-          ]
-        },
-        {
           "configuration": "zh-Hans-accessibility5",
           "orientations": [
             "portrait"
-          ]
-        },
-        {
-          "configuration": "zh-Hans-accessibility5",
-          "orientations": [
-            "landscape"
           ]
         }
       ],
       "invocations": [
         {
           "configurations": [
-            "en-accessibility5",
             "zh-Hans-accessibility5"
           ],
           "orientations": [
             "portrait"
           ]
-        },
-        {
-          "configurations": [
-            "en-accessibility5",
-            "zh-Hans-accessibility5"
-          ],
-          "orientations": [
-            "landscape"
-          ]
         }
       ],
-      "pictures": 1076,
-      "costSeconds": 3443.2,
-      "estimatedMinutes": 77.3,
-      "timeoutMinutes": 120
+      "pictures": 268,
+      "costSeconds": 1516.9,
+      "estimatedMinutes": 42.1,
+      "timeoutMinutes": 85
     },
     {
-      "id": "s23",
-      "family": "ipad",
+      "id": "s32",
+      "family": "iphone",
       "configurations": [
-        "en-large",
         "zh-Hans-large"
       ],
       "runs": [
         {
-          "configuration": "en-large",
-          "orientations": [
-            "portrait"
-          ]
-        },
-        {
-          "configuration": "en-large",
-          "orientations": [
-            "landscape"
-          ]
-        },
-        {
           "configuration": "zh-Hans-large",
           "orientations": [
             "portrait"
-          ]
-        },
-        {
-          "configuration": "zh-Hans-large",
-          "orientations": [
-            "landscape"
           ]
         }
       ],
       "invocations": [
         {
           "configurations": [
-            "en-large",
             "zh-Hans-large"
           ],
           "orientations": [
             "portrait"
           ]
-        },
-        {
-          "configurations": [
-            "en-large",
-            "zh-Hans-large"
-          ],
-          "orientations": [
-            "landscape"
-          ]
         }
       ],
-      "pictures": 1076,
-      "costSeconds": 3443.2,
-      "estimatedMinutes": 77.3,
-      "timeoutMinutes": 120
+      "pictures": 268,
+      "costSeconds": 1516.9,
+      "estimatedMinutes": 42.1,
+      "timeoutMinutes": 85
     },
     {
-      "id": "s24",
-      "family": "ipad",
+      "id": "s33",
+      "family": "iphone",
       "configurations": [
-        "en-xSmall",
         "zh-Hans-xSmall"
       ],
       "runs": [
         {
-          "configuration": "en-xSmall",
-          "orientations": [
-            "portrait"
-          ]
-        },
-        {
-          "configuration": "en-xSmall",
-          "orientations": [
-            "landscape"
-          ]
-        },
-        {
           "configuration": "zh-Hans-xSmall",
           "orientations": [
             "portrait"
-          ]
-        },
-        {
-          "configuration": "zh-Hans-xSmall",
-          "orientations": [
-            "landscape"
           ]
         }
       ],
       "invocations": [
         {
           "configurations": [
-            "en-xSmall",
             "zh-Hans-xSmall"
           ],
           "orientations": [
             "portrait"
           ]
-        },
-        {
-          "configurations": [
-            "en-xSmall",
-            "zh-Hans-xSmall"
-          ],
-          "orientations": [
-            "landscape"
-          ]
         }
       ],
-      "pictures": 1076,
-      "costSeconds": 3443.2,
-      "estimatedMinutes": 77.3,
-      "timeoutMinutes": 120
+      "pictures": 268,
+      "costSeconds": 1516.9,
+      "estimatedMinutes": 42.1,
+      "timeoutMinutes": 85
     },
     {
-      "id": "s25",
-      "family": "ipad",
+      "id": "s34",
+      "family": "iphone",
       "configurations": [
-        "ja-accessibility5",
         "zh-Hant-accessibility5"
       ],
       "runs": [
         {
-          "configuration": "ja-accessibility5",
-          "orientations": [
-            "portrait"
-          ]
-        },
-        {
-          "configuration": "ja-accessibility5",
-          "orientations": [
-            "landscape"
-          ]
-        },
-        {
           "configuration": "zh-Hant-accessibility5",
           "orientations": [
             "portrait"
-          ]
-        },
-        {
-          "configuration": "zh-Hant-accessibility5",
-          "orientations": [
-            "landscape"
           ]
         }
       ],
       "invocations": [
         {
           "configurations": [
-            "ja-accessibility5",
             "zh-Hant-accessibility5"
           ],
           "orientations": [
             "portrait"
           ]
-        },
-        {
-          "configurations": [
-            "ja-accessibility5",
-            "zh-Hant-accessibility5"
-          ],
-          "orientations": [
-            "landscape"
-          ]
         }
       ],
-      "pictures": 1076,
-      "costSeconds": 3443.2,
-      "estimatedMinutes": 77.3,
-      "timeoutMinutes": 120
+      "pictures": 268,
+      "costSeconds": 1516.9,
+      "estimatedMinutes": 42.1,
+      "timeoutMinutes": 85
     },
     {
-      "id": "s26",
-      "family": "ipad",
+      "id": "s35",
+      "family": "iphone",
       "configurations": [
-        "ja-large",
         "zh-Hant-large"
       ],
       "runs": [
         {
-          "configuration": "ja-large",
-          "orientations": [
-            "portrait"
-          ]
-        },
-        {
-          "configuration": "ja-large",
-          "orientations": [
-            "landscape"
-          ]
-        },
-        {
           "configuration": "zh-Hant-large",
           "orientations": [
             "portrait"
-          ]
-        },
-        {
-          "configuration": "zh-Hant-large",
-          "orientations": [
-            "landscape"
           ]
         }
       ],
       "invocations": [
         {
           "configurations": [
-            "ja-large",
             "zh-Hant-large"
           ],
           "orientations": [
             "portrait"
           ]
-        },
+        }
+      ],
+      "pictures": 268,
+      "costSeconds": 1516.9,
+      "estimatedMinutes": 42.1,
+      "timeoutMinutes": 85
+    },
+    {
+      "id": "s36",
+      "family": "iphone",
+      "configurations": [
+        "zh-Hant-xSmall"
+      ],
+      "runs": [
         {
-          "configurations": [
-            "ja-large",
-            "zh-Hant-large"
-          ],
+          "configuration": "zh-Hant-xSmall",
           "orientations": [
-            "landscape"
+            "portrait"
           ]
         }
       ],
-      "pictures": 1076,
-      "costSeconds": 3443.2,
-      "estimatedMinutes": 77.3,
-      "timeoutMinutes": 120
+      "invocations": [
+        {
+          "configurations": [
+            "zh-Hant-xSmall"
+          ],
+          "orientations": [
+            "portrait"
+          ]
+        }
+      ],
+      "pictures": 268,
+      "costSeconds": 1516.9,
+      "estimatedMinutes": 42.1,
+      "timeoutMinutes": 85
     },
     {
-      "id": "s27",
+      "id": "s37",
       "family": "ipad",
       "configurations": [
-        "ja-xSmall",
-        "zh-Hant-xSmall"
+        "de-accessibility5"
+      ],
+      "runs": [
+        {
+          "configuration": "de-accessibility5",
+          "orientations": [
+            "portrait"
+          ]
+        }
+      ],
+      "invocations": [
+        {
+          "configurations": [
+            "de-accessibility5"
+          ],
+          "orientations": [
+            "portrait"
+          ]
+        }
+      ],
+      "pictures": 268,
+      "costSeconds": 857.6,
+      "estimatedMinutes": 28.7,
+      "timeoutMinutes": 58
+    },
+    {
+      "id": "s38",
+      "family": "ipad",
+      "configurations": [
+        "de-large"
+      ],
+      "runs": [
+        {
+          "configuration": "de-large",
+          "orientations": [
+            "portrait"
+          ]
+        }
+      ],
+      "invocations": [
+        {
+          "configurations": [
+            "de-large"
+          ],
+          "orientations": [
+            "portrait"
+          ]
+        }
+      ],
+      "pictures": 268,
+      "costSeconds": 857.6,
+      "estimatedMinutes": 28.7,
+      "timeoutMinutes": 58
+    },
+    {
+      "id": "s39",
+      "family": "ipad",
+      "configurations": [
+        "de-xSmall"
+      ],
+      "runs": [
+        {
+          "configuration": "de-xSmall",
+          "orientations": [
+            "portrait"
+          ]
+        }
+      ],
+      "invocations": [
+        {
+          "configurations": [
+            "de-xSmall"
+          ],
+          "orientations": [
+            "portrait"
+          ]
+        }
+      ],
+      "pictures": 268,
+      "costSeconds": 857.6,
+      "estimatedMinutes": 28.7,
+      "timeoutMinutes": 58
+    },
+    {
+      "id": "s40",
+      "family": "ipad",
+      "configurations": [
+        "en-accessibility5"
+      ],
+      "runs": [
+        {
+          "configuration": "en-accessibility5",
+          "orientations": [
+            "portrait"
+          ]
+        }
+      ],
+      "invocations": [
+        {
+          "configurations": [
+            "en-accessibility5"
+          ],
+          "orientations": [
+            "portrait"
+          ]
+        }
+      ],
+      "pictures": 268,
+      "costSeconds": 857.6,
+      "estimatedMinutes": 28.7,
+      "timeoutMinutes": 58
+    },
+    {
+      "id": "s41",
+      "family": "ipad",
+      "configurations": [
+        "en-large"
+      ],
+      "runs": [
+        {
+          "configuration": "en-large",
+          "orientations": [
+            "portrait"
+          ]
+        }
+      ],
+      "invocations": [
+        {
+          "configurations": [
+            "en-large"
+          ],
+          "orientations": [
+            "portrait"
+          ]
+        }
+      ],
+      "pictures": 268,
+      "costSeconds": 857.6,
+      "estimatedMinutes": 28.7,
+      "timeoutMinutes": 58
+    },
+    {
+      "id": "s42",
+      "family": "ipad",
+      "configurations": [
+        "en-xSmall"
+      ],
+      "runs": [
+        {
+          "configuration": "en-xSmall",
+          "orientations": [
+            "portrait"
+          ]
+        }
+      ],
+      "invocations": [
+        {
+          "configurations": [
+            "en-xSmall"
+          ],
+          "orientations": [
+            "portrait"
+          ]
+        }
+      ],
+      "pictures": 268,
+      "costSeconds": 857.6,
+      "estimatedMinutes": 28.7,
+      "timeoutMinutes": 58
+    },
+    {
+      "id": "s43",
+      "family": "ipad",
+      "configurations": [
+        "ja-accessibility5"
+      ],
+      "runs": [
+        {
+          "configuration": "ja-accessibility5",
+          "orientations": [
+            "portrait"
+          ]
+        }
+      ],
+      "invocations": [
+        {
+          "configurations": [
+            "ja-accessibility5"
+          ],
+          "orientations": [
+            "portrait"
+          ]
+        }
+      ],
+      "pictures": 268,
+      "costSeconds": 857.6,
+      "estimatedMinutes": 28.7,
+      "timeoutMinutes": 58
+    },
+    {
+      "id": "s44",
+      "family": "ipad",
+      "configurations": [
+        "ja-large"
+      ],
+      "runs": [
+        {
+          "configuration": "ja-large",
+          "orientations": [
+            "portrait"
+          ]
+        }
+      ],
+      "invocations": [
+        {
+          "configurations": [
+            "ja-large"
+          ],
+          "orientations": [
+            "portrait"
+          ]
+        }
+      ],
+      "pictures": 268,
+      "costSeconds": 857.6,
+      "estimatedMinutes": 28.7,
+      "timeoutMinutes": 58
+    },
+    {
+      "id": "s45",
+      "family": "ipad",
+      "configurations": [
+        "ja-xSmall"
       ],
       "runs": [
         {
@@ -1040,19 +1296,784 @@
           "orientations": [
             "portrait"
           ]
-        },
+        }
+      ],
+      "invocations": [
         {
-          "configuration": "ja-xSmall",
+          "configurations": [
+            "ja-xSmall"
+          ],
           "orientations": [
-            "landscape"
+            "portrait"
           ]
-        },
+        }
+      ],
+      "pictures": 268,
+      "costSeconds": 857.6,
+      "estimatedMinutes": 28.7,
+      "timeoutMinutes": 58
+    },
+    {
+      "id": "s46",
+      "family": "ipad",
+      "configurations": [
+        "ko-accessibility5"
+      ],
+      "runs": [
+        {
+          "configuration": "ko-accessibility5",
+          "orientations": [
+            "portrait"
+          ]
+        }
+      ],
+      "invocations": [
+        {
+          "configurations": [
+            "ko-accessibility5"
+          ],
+          "orientations": [
+            "portrait"
+          ]
+        }
+      ],
+      "pictures": 268,
+      "costSeconds": 857.6,
+      "estimatedMinutes": 28.7,
+      "timeoutMinutes": 58
+    },
+    {
+      "id": "s47",
+      "family": "ipad",
+      "configurations": [
+        "ko-large"
+      ],
+      "runs": [
+        {
+          "configuration": "ko-large",
+          "orientations": [
+            "portrait"
+          ]
+        }
+      ],
+      "invocations": [
+        {
+          "configurations": [
+            "ko-large"
+          ],
+          "orientations": [
+            "portrait"
+          ]
+        }
+      ],
+      "pictures": 268,
+      "costSeconds": 857.6,
+      "estimatedMinutes": 28.7,
+      "timeoutMinutes": 58
+    },
+    {
+      "id": "s48",
+      "family": "ipad",
+      "configurations": [
+        "ko-xSmall"
+      ],
+      "runs": [
+        {
+          "configuration": "ko-xSmall",
+          "orientations": [
+            "portrait"
+          ]
+        }
+      ],
+      "invocations": [
+        {
+          "configurations": [
+            "ko-xSmall"
+          ],
+          "orientations": [
+            "portrait"
+          ]
+        }
+      ],
+      "pictures": 268,
+      "costSeconds": 857.6,
+      "estimatedMinutes": 28.7,
+      "timeoutMinutes": 58
+    },
+    {
+      "id": "s49",
+      "family": "ipad",
+      "configurations": [
+        "zh-Hans-accessibility5"
+      ],
+      "runs": [
+        {
+          "configuration": "zh-Hans-accessibility5",
+          "orientations": [
+            "portrait"
+          ]
+        }
+      ],
+      "invocations": [
+        {
+          "configurations": [
+            "zh-Hans-accessibility5"
+          ],
+          "orientations": [
+            "portrait"
+          ]
+        }
+      ],
+      "pictures": 268,
+      "costSeconds": 857.6,
+      "estimatedMinutes": 28.7,
+      "timeoutMinutes": 58
+    },
+    {
+      "id": "s50",
+      "family": "ipad",
+      "configurations": [
+        "zh-Hans-large"
+      ],
+      "runs": [
+        {
+          "configuration": "zh-Hans-large",
+          "orientations": [
+            "portrait"
+          ]
+        }
+      ],
+      "invocations": [
+        {
+          "configurations": [
+            "zh-Hans-large"
+          ],
+          "orientations": [
+            "portrait"
+          ]
+        }
+      ],
+      "pictures": 268,
+      "costSeconds": 857.6,
+      "estimatedMinutes": 28.7,
+      "timeoutMinutes": 58
+    },
+    {
+      "id": "s51",
+      "family": "ipad",
+      "configurations": [
+        "zh-Hans-xSmall"
+      ],
+      "runs": [
+        {
+          "configuration": "zh-Hans-xSmall",
+          "orientations": [
+            "portrait"
+          ]
+        }
+      ],
+      "invocations": [
+        {
+          "configurations": [
+            "zh-Hans-xSmall"
+          ],
+          "orientations": [
+            "portrait"
+          ]
+        }
+      ],
+      "pictures": 268,
+      "costSeconds": 857.6,
+      "estimatedMinutes": 28.7,
+      "timeoutMinutes": 58
+    },
+    {
+      "id": "s52",
+      "family": "ipad",
+      "configurations": [
+        "zh-Hant-accessibility5"
+      ],
+      "runs": [
+        {
+          "configuration": "zh-Hant-accessibility5",
+          "orientations": [
+            "portrait"
+          ]
+        }
+      ],
+      "invocations": [
+        {
+          "configurations": [
+            "zh-Hant-accessibility5"
+          ],
+          "orientations": [
+            "portrait"
+          ]
+        }
+      ],
+      "pictures": 268,
+      "costSeconds": 857.6,
+      "estimatedMinutes": 28.7,
+      "timeoutMinutes": 58
+    },
+    {
+      "id": "s53",
+      "family": "ipad",
+      "configurations": [
+        "zh-Hant-large"
+      ],
+      "runs": [
+        {
+          "configuration": "zh-Hant-large",
+          "orientations": [
+            "portrait"
+          ]
+        }
+      ],
+      "invocations": [
+        {
+          "configurations": [
+            "zh-Hant-large"
+          ],
+          "orientations": [
+            "portrait"
+          ]
+        }
+      ],
+      "pictures": 268,
+      "costSeconds": 857.6,
+      "estimatedMinutes": 28.7,
+      "timeoutMinutes": 58
+    },
+    {
+      "id": "s54",
+      "family": "ipad",
+      "configurations": [
+        "zh-Hant-xSmall"
+      ],
+      "runs": [
         {
           "configuration": "zh-Hant-xSmall",
           "orientations": [
             "portrait"
           ]
-        },
+        }
+      ],
+      "invocations": [
+        {
+          "configurations": [
+            "zh-Hant-xSmall"
+          ],
+          "orientations": [
+            "portrait"
+          ]
+        }
+      ],
+      "pictures": 268,
+      "costSeconds": 857.6,
+      "estimatedMinutes": 28.7,
+      "timeoutMinutes": 58
+    },
+    {
+      "id": "s55",
+      "family": "ipad",
+      "configurations": [
+        "de-accessibility5"
+      ],
+      "runs": [
+        {
+          "configuration": "de-accessibility5",
+          "orientations": [
+            "landscape"
+          ]
+        }
+      ],
+      "invocations": [
+        {
+          "configurations": [
+            "de-accessibility5"
+          ],
+          "orientations": [
+            "landscape"
+          ]
+        }
+      ],
+      "pictures": 270,
+      "costSeconds": 864.0,
+      "estimatedMinutes": 25.7,
+      "timeoutMinutes": 52
+    },
+    {
+      "id": "s56",
+      "family": "ipad",
+      "configurations": [
+        "de-large"
+      ],
+      "runs": [
+        {
+          "configuration": "de-large",
+          "orientations": [
+            "landscape"
+          ]
+        }
+      ],
+      "invocations": [
+        {
+          "configurations": [
+            "de-large"
+          ],
+          "orientations": [
+            "landscape"
+          ]
+        }
+      ],
+      "pictures": 270,
+      "costSeconds": 864.0,
+      "estimatedMinutes": 25.7,
+      "timeoutMinutes": 52
+    },
+    {
+      "id": "s57",
+      "family": "ipad",
+      "configurations": [
+        "de-xSmall"
+      ],
+      "runs": [
+        {
+          "configuration": "de-xSmall",
+          "orientations": [
+            "landscape"
+          ]
+        }
+      ],
+      "invocations": [
+        {
+          "configurations": [
+            "de-xSmall"
+          ],
+          "orientations": [
+            "landscape"
+          ]
+        }
+      ],
+      "pictures": 270,
+      "costSeconds": 864.0,
+      "estimatedMinutes": 25.7,
+      "timeoutMinutes": 52
+    },
+    {
+      "id": "s58",
+      "family": "ipad",
+      "configurations": [
+        "en-accessibility5"
+      ],
+      "runs": [
+        {
+          "configuration": "en-accessibility5",
+          "orientations": [
+            "landscape"
+          ]
+        }
+      ],
+      "invocations": [
+        {
+          "configurations": [
+            "en-accessibility5"
+          ],
+          "orientations": [
+            "landscape"
+          ]
+        }
+      ],
+      "pictures": 270,
+      "costSeconds": 864.0,
+      "estimatedMinutes": 25.7,
+      "timeoutMinutes": 52
+    },
+    {
+      "id": "s59",
+      "family": "ipad",
+      "configurations": [
+        "en-large"
+      ],
+      "runs": [
+        {
+          "configuration": "en-large",
+          "orientations": [
+            "landscape"
+          ]
+        }
+      ],
+      "invocations": [
+        {
+          "configurations": [
+            "en-large"
+          ],
+          "orientations": [
+            "landscape"
+          ]
+        }
+      ],
+      "pictures": 270,
+      "costSeconds": 864.0,
+      "estimatedMinutes": 25.7,
+      "timeoutMinutes": 52
+    },
+    {
+      "id": "s60",
+      "family": "ipad",
+      "configurations": [
+        "en-xSmall"
+      ],
+      "runs": [
+        {
+          "configuration": "en-xSmall",
+          "orientations": [
+            "landscape"
+          ]
+        }
+      ],
+      "invocations": [
+        {
+          "configurations": [
+            "en-xSmall"
+          ],
+          "orientations": [
+            "landscape"
+          ]
+        }
+      ],
+      "pictures": 270,
+      "costSeconds": 864.0,
+      "estimatedMinutes": 25.7,
+      "timeoutMinutes": 52
+    },
+    {
+      "id": "s61",
+      "family": "ipad",
+      "configurations": [
+        "ja-accessibility5"
+      ],
+      "runs": [
+        {
+          "configuration": "ja-accessibility5",
+          "orientations": [
+            "landscape"
+          ]
+        }
+      ],
+      "invocations": [
+        {
+          "configurations": [
+            "ja-accessibility5"
+          ],
+          "orientations": [
+            "landscape"
+          ]
+        }
+      ],
+      "pictures": 270,
+      "costSeconds": 864.0,
+      "estimatedMinutes": 25.7,
+      "timeoutMinutes": 52
+    },
+    {
+      "id": "s62",
+      "family": "ipad",
+      "configurations": [
+        "ja-large"
+      ],
+      "runs": [
+        {
+          "configuration": "ja-large",
+          "orientations": [
+            "landscape"
+          ]
+        }
+      ],
+      "invocations": [
+        {
+          "configurations": [
+            "ja-large"
+          ],
+          "orientations": [
+            "landscape"
+          ]
+        }
+      ],
+      "pictures": 270,
+      "costSeconds": 864.0,
+      "estimatedMinutes": 25.7,
+      "timeoutMinutes": 52
+    },
+    {
+      "id": "s63",
+      "family": "ipad",
+      "configurations": [
+        "ja-xSmall"
+      ],
+      "runs": [
+        {
+          "configuration": "ja-xSmall",
+          "orientations": [
+            "landscape"
+          ]
+        }
+      ],
+      "invocations": [
+        {
+          "configurations": [
+            "ja-xSmall"
+          ],
+          "orientations": [
+            "landscape"
+          ]
+        }
+      ],
+      "pictures": 270,
+      "costSeconds": 864.0,
+      "estimatedMinutes": 25.7,
+      "timeoutMinutes": 52
+    },
+    {
+      "id": "s64",
+      "family": "ipad",
+      "configurations": [
+        "ko-accessibility5"
+      ],
+      "runs": [
+        {
+          "configuration": "ko-accessibility5",
+          "orientations": [
+            "landscape"
+          ]
+        }
+      ],
+      "invocations": [
+        {
+          "configurations": [
+            "ko-accessibility5"
+          ],
+          "orientations": [
+            "landscape"
+          ]
+        }
+      ],
+      "pictures": 270,
+      "costSeconds": 864.0,
+      "estimatedMinutes": 25.7,
+      "timeoutMinutes": 52
+    },
+    {
+      "id": "s65",
+      "family": "ipad",
+      "configurations": [
+        "ko-large"
+      ],
+      "runs": [
+        {
+          "configuration": "ko-large",
+          "orientations": [
+            "landscape"
+          ]
+        }
+      ],
+      "invocations": [
+        {
+          "configurations": [
+            "ko-large"
+          ],
+          "orientations": [
+            "landscape"
+          ]
+        }
+      ],
+      "pictures": 270,
+      "costSeconds": 864.0,
+      "estimatedMinutes": 25.7,
+      "timeoutMinutes": 52
+    },
+    {
+      "id": "s66",
+      "family": "ipad",
+      "configurations": [
+        "ko-xSmall"
+      ],
+      "runs": [
+        {
+          "configuration": "ko-xSmall",
+          "orientations": [
+            "landscape"
+          ]
+        }
+      ],
+      "invocations": [
+        {
+          "configurations": [
+            "ko-xSmall"
+          ],
+          "orientations": [
+            "landscape"
+          ]
+        }
+      ],
+      "pictures": 270,
+      "costSeconds": 864.0,
+      "estimatedMinutes": 25.7,
+      "timeoutMinutes": 52
+    },
+    {
+      "id": "s67",
+      "family": "ipad",
+      "configurations": [
+        "zh-Hans-accessibility5"
+      ],
+      "runs": [
+        {
+          "configuration": "zh-Hans-accessibility5",
+          "orientations": [
+            "landscape"
+          ]
+        }
+      ],
+      "invocations": [
+        {
+          "configurations": [
+            "zh-Hans-accessibility5"
+          ],
+          "orientations": [
+            "landscape"
+          ]
+        }
+      ],
+      "pictures": 270,
+      "costSeconds": 864.0,
+      "estimatedMinutes": 25.7,
+      "timeoutMinutes": 52
+    },
+    {
+      "id": "s68",
+      "family": "ipad",
+      "configurations": [
+        "zh-Hans-large"
+      ],
+      "runs": [
+        {
+          "configuration": "zh-Hans-large",
+          "orientations": [
+            "landscape"
+          ]
+        }
+      ],
+      "invocations": [
+        {
+          "configurations": [
+            "zh-Hans-large"
+          ],
+          "orientations": [
+            "landscape"
+          ]
+        }
+      ],
+      "pictures": 270,
+      "costSeconds": 864.0,
+      "estimatedMinutes": 25.7,
+      "timeoutMinutes": 52
+    },
+    {
+      "id": "s69",
+      "family": "ipad",
+      "configurations": [
+        "zh-Hans-xSmall"
+      ],
+      "runs": [
+        {
+          "configuration": "zh-Hans-xSmall",
+          "orientations": [
+            "landscape"
+          ]
+        }
+      ],
+      "invocations": [
+        {
+          "configurations": [
+            "zh-Hans-xSmall"
+          ],
+          "orientations": [
+            "landscape"
+          ]
+        }
+      ],
+      "pictures": 270,
+      "costSeconds": 864.0,
+      "estimatedMinutes": 25.7,
+      "timeoutMinutes": 52
+    },
+    {
+      "id": "s70",
+      "family": "ipad",
+      "configurations": [
+        "zh-Hant-accessibility5"
+      ],
+      "runs": [
+        {
+          "configuration": "zh-Hant-accessibility5",
+          "orientations": [
+            "landscape"
+          ]
+        }
+      ],
+      "invocations": [
+        {
+          "configurations": [
+            "zh-Hant-accessibility5"
+          ],
+          "orientations": [
+            "landscape"
+          ]
+        }
+      ],
+      "pictures": 270,
+      "costSeconds": 864.0,
+      "estimatedMinutes": 25.7,
+      "timeoutMinutes": 52
+    },
+    {
+      "id": "s71",
+      "family": "ipad",
+      "configurations": [
+        "zh-Hant-large"
+      ],
+      "runs": [
+        {
+          "configuration": "zh-Hant-large",
+          "orientations": [
+            "landscape"
+          ]
+        }
+      ],
+      "invocations": [
+        {
+          "configurations": [
+            "zh-Hant-large"
+          ],
+          "orientations": [
+            "landscape"
+          ]
+        }
+      ],
+      "pictures": 270,
+      "costSeconds": 864.0,
+      "estimatedMinutes": 25.7,
+      "timeoutMinutes": 52
+    },
+    {
+      "id": "s72",
+      "family": "ipad",
+      "configurations": [
+        "zh-Hant-xSmall"
+      ],
+      "runs": [
         {
           "configuration": "zh-Hant-xSmall",
           "orientations": [
@@ -1063,16 +2084,6 @@
       "invocations": [
         {
           "configurations": [
-            "ja-xSmall",
-            "zh-Hant-xSmall"
-          ],
-          "orientations": [
-            "portrait"
-          ]
-        },
-        {
-          "configurations": [
-            "ja-xSmall",
             "zh-Hant-xSmall"
           ],
           "orientations": [
@@ -1080,10 +2091,10 @@
           ]
         }
       ],
-      "pictures": 1076,
-      "costSeconds": 3443.2,
-      "estimatedMinutes": 77.3,
-      "timeoutMinutes": 120
+      "pictures": 270,
+      "costSeconds": 864.0,
+      "estimatedMinutes": 25.7,
+      "timeoutMinutes": 52
     }
   ]
 }

@@ -2,9 +2,10 @@
 """Merge the snapshot shards' results, decide the gate run and list the shards to retry (19-CONTEXT D-15 amendment).
 
 Each shard uploads `<results>/<shard-id>/` with `results.jsonl` and `shard.json` (19-RESEARCH §9). A retry of a shard
-uploads the same layout under `<retry>/<shard-id>/`, and the merge keeps each shard's latest attempt, except that a
-retry without `shard.json` never replaces a first attempt that has one: the first attempt is merged and the lost retry
-is reported as `retry-lost` (run 42577585956, s07). Every expected coordinate of the shard plan must have a line: a
+uploads the same layout under `<retry>/<shard-id>/`, and a second retry under `<retry2>/<shard-id>/` (run 43298876957:
+the runner cut 13 of 27 shard jobs and 3 of their 13 retries). The merge keeps each shard's latest attempt, except that
+a retry without `shard.json` never replaces an earlier attempt that has one: the latest attempt that has one is merged
+and the lost retry is reported as `retry-lost` (run 42577585956, s07). Every expected coordinate of the shard plan must have a line: a
 coordinate without one is an infrastructure error, so a missing or malformed file never reads as a pass. A coordinate
 written twice with the same status (XCTest runs a class again after its runner crashed) counts once; lines that
 disagree are a `duplicate-result` error.
@@ -14,7 +15,11 @@ and baseline mismatches. Any non-empty class fails the run. `--triage` prints th
 shard-level infrastructure error (crash, timeout, lost runner, missing or malformed results), never those with only
 coordinate errors (one picture's `timeout` or `error` is reported, not retried: rerunning a whole shard for it costs an
 hour and repeats the same picture), picture changes, drift or a baseline mismatch, and never a shard that already ran
-its retry.
+its retries.
+
+`--triage` lists the shards for round `--attempt` (2 by default, the first retry; 3 for the second): those with a
+shard-level error whose latest artifact is from an earlier attempt, so a retry that was cut with no artifact, or with
+no `shard.json`, is listed again by the next round and never by its own.
 
 The summary names every shard on one line with its counts before the item lists, which are capped.
 """
@@ -71,11 +76,18 @@ def read_attempt(directory):
     return record, lines, problems
 
 
-def latest(shard_id, results, retry):
-    """`(attempt, directory)`: the retry when its directory arrived, else the first attempt."""
-    if retry is not None and (retry / shard_id).is_dir():
-        return 2, retry / shard_id
-    return 1, results / shard_id
+ORDINALS = {1: 'first', 2: 'second', 3: 'third'}
+FIRST_ROUND = 2
+LAST_ATTEMPT = 3
+
+
+def arrived(shard_id, results, retry, retry2):
+    """`[(attempt, directory)]`, oldest first: the first attempt always, each retry whose directory arrived."""
+    found = [(1, results / shard_id)]
+    for attempt, base in ((2, retry), (3, retry2)):
+        if base is not None and (base / shard_id).is_dir():
+            found.append((attempt, base / shard_id))
+    return found
 
 
 def lost_detail(directory, expected):
@@ -86,25 +98,31 @@ def lost_detail(directory, expected):
     return f'no artifact; {missing} coordinates missing'
 
 
-def aggregate(results, retry, document, env, shard_plan):
+def aggregate(results, retry, document, env, shard_plan, retry2=None):
     """The merged verdict as the `aggregate.json` document."""
     rows = snapshot_matrix.coordinates(document, env)
     items = {name: [] for name, _ in CLASSES}
-    flaky, merged, shards = [], [], {}
+    flaky, merged, shards, ran = [], [], {}, {}
     for shard in shard_plan['shards']:
         shard_id = shard['id']
-        attempt, directory = latest(shard_id, results, retry)
+        tries = arrived(shard_id, results, retry, retry2)
+        attempt, directory = tries[-1]
+        ran[shard_id] = attempt
         expected = shard_coordinates(shard, rows)
         read = read_attempt(directory)
         retry_lost = False
-        if read is None and attempt == 2:
-            first = read_attempt(results / shard_id)
-            if first is not None:
-                retry_lost = True
-                items['infrastructureErrors'].append({
-                    'shard': shard_id, 'kind': 'retry-lost',
-                    'detail': f'the retry left no shard.json (see {directory}/logs); the first attempt is merged'})
-                attempt, directory, read = 1, results / shard_id, first
+        if read is None and attempt > 1:
+            for earlier, folder in reversed(tries[:-1]):
+                kept = read_attempt(folder)
+                if kept is not None:
+                    retry_lost = True
+                    lost = 'the retry' if attempt == 2 else 'the second retry'
+                    items['infrastructureErrors'].append({
+                        'shard': shard_id, 'kind': 'retry-lost',
+                        'detail': f'{lost} left no shard.json (see {directory}/logs); '
+                                  f'the {ORDINALS[earlier]} attempt is merged'})
+                    attempt, directory, read = earlier, folder, kept
+                    break
         if read is None:
             shards[shard_id] = {'attempt': attempt, 'infra': 'runner-lost', 'directory': str(directory)}
             items['infrastructureErrors'].append({'shard': shard_id, 'kind': 'runner-lost',
@@ -159,6 +177,7 @@ def aggregate(results, retry, document, env, shard_plan):
         'items': items,
         'flaky': sorted(flaky, key=lambda row: row['key']),
         'shards': shards,
+        'ran': ran,
         'statusCounts': dict(sorted(Counter(row['status'] for row in merged).items())),
         'results': sorted(merged, key=lambda row: row['key']),
         'scenarios': {row['id']: {'group': row['group'], 'state': row['state'], 'notApplicable': row['notApplicable']}
@@ -179,11 +198,11 @@ def shard_level(item):
     return not (item['kind'] in COORDINATE_ERRORS and item.get('key'))
 
 
-def triage(document):
-    """Shard IDs to run once more: a shard-level infrastructure error on a first attempt that had no retry yet."""
+def triage(document, attempt=FIRST_ROUND):
+    """Shard IDs to run as `attempt`: a shard-level infrastructure error on a shard whose latest artifact (one that
+    arrived, with or without `shard.json`) is from an earlier attempt, so no round lists a shard its own retry ran."""
     erring = {item['shard'] for item in document['items']['infrastructureErrors'] if shard_level(item)}
-    return sorted(shard for shard in erring
-                  if document['shards'][shard]['attempt'] == 1 and not document['shards'][shard].get('retryLost'))
+    return sorted(shard for shard in erring if document['ran'][shard] < attempt)
 
 
 def describe(item):
@@ -216,7 +235,7 @@ def shard_table(document):
 def summary(document):
     """Markdown: the four class counts first, in a fixed order, then the verdict, one line per shard and the details."""
     lines = [f"- {document['counts'][name]} {label}" for name, label in CLASSES]
-    retried = sorted(shard for shard, row in document['shards'].items() if row['attempt'] == 2)
+    retried = sorted(shard for shard, row in document['shards'].items() if row['attempt'] > 1)
     statuses = ', '.join(f'{status} {count}' for status, count in document['statusCounts'].items()) or 'none'
     lines += ['', f"## Snapshot gate: {'failed' if failed(document) else 'passed'}", '',
               f"Shards: {len(document['shards'])}; retried: {', '.join(retried) or 'none'}. Results: {statuses}.",
@@ -243,17 +262,20 @@ def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument('--results', type=Path, required=True, help='the first attempts, one directory per shard')
     parser.add_argument('--retry', type=Path, help='the retried shards, one directory per shard')
+    parser.add_argument('--retry2', type=Path, help='the shards retried a second time, one directory per shard')
     parser.add_argument('--inventory', type=Path, default=snapshot_matrix.INVENTORY)
     parser.add_argument('--env', type=Path, default=snapshot_matrix.ENVIRONMENT)
     parser.add_argument('--shards', type=Path, default=SHARDS)
     parser.add_argument('--out', type=Path, help='where aggregate.json and summary.md go')
     parser.add_argument('--triage', action='store_true', help='print the shard IDs to retry as JSON and exit 0')
+    parser.add_argument('--attempt', type=int, choices=range(FIRST_ROUND, LAST_ATTEMPT + 1), default=FIRST_ROUND,
+                        help='the attempt the triage lists shards for: 2 (the retry) or 3 (the second retry)')
     parser.add_argument('--summary', type=Path, help='a file the Markdown summary is appended to')
     args = parser.parse_args(argv)
     document, env = snapshot_matrix.load(args.inventory, args.env)
-    result = aggregate(args.results, args.retry, document, env, json.loads(args.shards.read_text()))
+    result = aggregate(args.results, args.retry, document, env, json.loads(args.shards.read_text()), args.retry2)
     if args.triage:
-        print(json.dumps(triage(result)))
+        print(json.dumps(triage(result, args.attempt)))
         return 0
     if args.out is None:
         parser.error('--out is required unless --triage is given')

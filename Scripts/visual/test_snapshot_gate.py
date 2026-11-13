@@ -24,7 +24,7 @@ READ = ('y = YAML.respond_to?(:unsafe_load) ? YAML.unsafe_load(STDIN.read) : YAM
 # The majors already in use (19-RESEARCH §11); no new third-party action.
 ALLOWED_ACTIONS = ('actions/checkout@v7', 'actions/upload-artifact@v7', 'actions/download-artifact@v8',
                    'nick-fields/retry@v4')
-JOBS = ('checks', 'build', 'shard', 'triage', 'retry', 'native-policy', 'aggregate')
+JOBS = ('checks', 'build', 'shard', 'triage', 'retry', 'triage2', 'retry2', 'native-policy', 'aggregate')
 JOB_LIMIT = 150
 STEP_LIMIT = 120
 
@@ -59,7 +59,7 @@ class GateWorkflowTests(unittest.TestCase):
         cls.text = GATE.read_text()
         cls.plan = json.loads(SHARDS.read_text())
 
-    def test_it_has_the_seven_jobs(self):
+    def test_it_has_the_nine_jobs(self):
         self.assertEqual(set(self.jobs), set(JOBS))
 
     def test_triggers_are_every_pull_request_dispatch_call_and_the_proof_branch(self):
@@ -122,7 +122,7 @@ class GateWorkflowTests(unittest.TestCase):
         # The results, the record, the logs and the failure triplets, small enough for the Linux jobs to read;
         # a candidate run's pictures go to their own artifact, which no later job downloads.
         uploads = {upload['with']['name']: upload for upload in step_using(job, 'actions/upload-artifact')}
-        prefix = 'shard' if name == 'shard' else 'retry'
+        prefix = name
         results = uploads[f'{prefix}-${{{{ matrix.shard.id }}}}']
         pictures = uploads[f'pictures-{prefix}-${{{{ matrix.shard.id }}}}']
         self.assertEqual(set(uploads), {f'{prefix}-${{{{ matrix.shard.id }}}}',
@@ -152,8 +152,43 @@ class GateWorkflowTests(unittest.TestCase):
         self.assertIn("needs.triage.outputs.shards != '[]'", job['if'])
         self.assertIn('triage', job['needs'])
 
+    def test_the_second_retry_runs_what_the_first_retry_did_not_bring_back_and_is_skipped_when_none(self):
+        # Run 43298876957: the runner cut 3 of the 13 retries as it had cut 13 of the 27 shards. Round two lists the
+        # shards whose latest artifact is still a shard-level error, and runs them as attempt 3.
+        job, step = self.assert_shard_matrix('retry2', 'needs.triage2.outputs.shards')
+        self.assertIn('--attempt 3', step['run'])
+        self.assertIn("needs.triage2.outputs.shards != '[]'", job['if'])
+        self.assertIn("needs.triage2.result == 'success'", job['if'])
+        self.assertIn('!cancelled()', job['if'])
+        self.assertEqual(set(job['needs']), {'checks', 'build', 'triage2'})
+        triage = self.jobs['triage2']
+        self.assertEqual(set(triage['needs']), {'build', 'shard', 'triage', 'retry'})
+        self.assertIn('always()', triage['if'])
+        self.assertIn("needs.build.result == 'success'", triage['if'])
+        self.assertEqual(triage['runs-on'], 'ubuntu-latest')
+        self.assertIn('shards', triage['outputs'])
+        text = runs(triage)
+        self.assertIn('snapshot_aggregate.py', text)
+        self.assertIn('--triage --attempt 3', text)
+        self.assertIn('--retry "$RUNNER_TEMP/retry"', text)
+        patterns = {step['with'].get('pattern'): step['with']['path']
+                    for step in step_using(triage, 'actions/download-artifact')}
+        self.assertEqual(patterns, {'shard-*': '${{ runner.temp }}/results', 'retry-*': '${{ runner.temp }}/retry'})
+
+    def test_every_retry_round_runs_the_same_steps_as_the_first(self):
+        # The rounds differ in their attempt number, artifact names and matrix source, and in nothing else.
+        def shape(name):
+            text = json.dumps(self.jobs[name]['steps'], sort_keys=True)
+            return (text.replace(f'retry-${{{{ matrix', 'R-${{ matrix').replace(f'retry2-${{{{ matrix', 'R-${{ matrix')
+                    .replace(f'pictures-retry2-', 'pictures-R-').replace('pictures-retry-', 'pictures-R-')
+                    .replace('--attempt 3', '--attempt N').replace('--attempt 2', '--attempt N')
+                    .replace('attempt 3 (second retry)', 'attempt N').replace('attempt 2 (retry)', 'attempt N'))
+        self.assertEqual(shape('retry'), shape('retry2'))
+        for key in ('runs-on', 'timeout-minutes', 'continue-on-error', 'permissions', 'env'):
+            self.assertEqual(self.jobs['retry'][key], self.jobs['retry2'][key], key)
+
     def test_the_linux_jobs_download_only_the_small_shard_artifacts(self):
-        for name in ('triage', 'aggregate'):
+        for name in ('triage', 'triage2', 'aggregate'):
             patterns = [step['with'].get('pattern') for step in step_using(self.jobs[name], 'actions/download-artifact')]
             self.assertIn('shard-*', patterns, name)
             self.assertFalse([pattern for pattern in patterns if pattern and pattern.startswith('pictures')], name)
@@ -162,13 +197,13 @@ class GateWorkflowTests(unittest.TestCase):
         for shard in self.plan['shards']:
             self.assertLessEqual(shard['timeoutMinutes'], STEP_LIMIT, shard['id'])
         self.assertEqual(len({shard['id'] for shard in self.plan['shards']}), len(self.plan['shards']))
-        self.assertLessEqual(max(shard['estimatedMinutes'] for shard in self.plan['shards']),
-                             self.plan['targetMinutes'])
+        for shard in self.plan['shards']:
+            self.assertLessEqual(shard['estimatedMinutes'], self.plan['targetMinutes'][shard['family']], shard['id'])
         build = runs(self.jobs['build'])
         self.assertIn('timeoutMinutes', build)
 
     def test_triage_and_aggregate_always_run(self):
-        for name in ('triage', 'aggregate'):
+        for name in ('triage', 'triage2', 'aggregate'):
             self.assertIn('always()', self.jobs[name]['if'], name)
         self.assertIn('snapshot_aggregate.py', runs(self.jobs['triage']))
         self.assertIn('--triage', runs(self.jobs['triage']))
@@ -176,10 +211,17 @@ class GateWorkflowTests(unittest.TestCase):
 
     def test_the_aggregate_is_the_verdict_and_includes_the_native_policy(self):
         aggregate = self.jobs['aggregate']
-        self.assertEqual(set(aggregate['needs']), {'checks', 'build', 'shard', 'triage', 'retry', 'native-policy'})
+        self.assertEqual(set(aggregate['needs']), {'checks', 'build', 'shard', 'triage', 'retry', 'triage2', 'retry2',
+                                                   'native-policy'})
         text = runs(aggregate)
         self.assertIn('snapshot_aggregate.py', text)
         self.assertIn('--retry', text)
+        self.assertIn('--retry2 "$RUNNER_TEMP/retry2"', text)
+        patterns = {step['with'].get('pattern'): step['with']['path']
+                    for step in step_using(aggregate, 'actions/download-artifact')}
+        self.assertEqual(patterns, {'shard-*': '${{ runner.temp }}/results', 'retry-*': '${{ runner.temp }}/retry',
+                                    'retry2-*': '${{ runner.temp }}/retry2'})
+        self.assertIn('"$RUNNER_TEMP"/retry2/*/reference', text)
         self.assertIn('--summary "$GITHUB_STEP_SUMMARY"', text)
         self.assertIn('snapshot_report.py', text)
         self.assertIn('needs.native-policy.result', self.text)
@@ -234,7 +276,7 @@ class GateWorkflowTests(unittest.TestCase):
                 self.assertIn(action, ALLOWED_ACTIONS, name)
 
     def test_the_macos_jobs_set_up_the_simulator_with_the_hosted_script(self):
-        for name in ('shard', 'retry'):
+        for name in ('shard', 'retry', 'retry2'):
             self.assertIn('Scripts/visual/run-shard.sh', runs(self.jobs[name]), name)
         self.assertNotIn('simctl create', self.text)
 
@@ -259,7 +301,7 @@ class GateWorkflowTests(unittest.TestCase):
         expected = f'/Applications/Xcode_{version}.app/Contents/Developer'
         self.assertEqual(json.loads(ENVIRONMENT.read_text())['toolchain']['sdkVersion'], version)
         macos = [name for name, job in self.jobs.items() if job['runs-on'] != 'ubuntu-latest']
-        self.assertEqual(sorted(macos), ['build', 'native-policy', 'retry', 'shard'])
+        self.assertEqual(sorted(macos), ['build', 'native-policy', 'retry', 'retry2', 'shard'])
         for name in macos:
             self.assertEqual(self.jobs[name].get('env', {}).get('DEVELOPER_DIR'), expected, name)
 
@@ -397,8 +439,8 @@ class ArtifactLayoutTests(unittest.TestCase):
                 self.run_step(step, temp)
         return temp
 
-    def triage(self, artifacts):
-        temp = self.linux_job('triage', artifacts)
+    def triage(self, artifacts, job='triage'):
+        temp = self.linux_job(job, artifacts)
         return [shard['id'] for shard in json.loads(self.outputs(temp)['shards'])]
 
     def aggregate(self, artifacts):
@@ -449,6 +491,41 @@ class ArtifactLayoutTests(unittest.TestCase):
         self.assertEqual([document['shards'][shard]['attempt'] for shard in ('s03', 's11')], [2, 2])
         self.assertEqual(document['counts']['drift'], len(self.plan))
         self.assertEqual(document['counts']['infrastructureErrors'], 0)
+
+    def test_the_second_retry_lists_only_the_shards_the_first_retry_did_not_bring_back(self):
+        artifacts = self.first_attempts(lost={'s03', 's11', 's12'})
+        self.assertEqual(self.triage(artifacts), ['s03', 's11', 's12'])
+        # s03's retry came back, s11's was cut with no shard.json, s12's left no artifact at all.
+        for shard_id, infra in (('s03', 'drift'), ('s11', None)):
+            name, files = self.shard_job('retry', shard_id, 2, infra)
+            artifacts[name] = files
+        self.assertEqual(self.triage(artifacts, 'triage2'), ['s11', 's12'])
+
+    def test_the_second_retry_artifact_is_read_as_that_shards_third_attempt(self):
+        artifacts = self.first_attempts(lost={'s03', 's11'})
+        for shard_id in ('s03', 's11'):
+            name, files = self.shard_job('retry', shard_id, 2, None)
+            artifacts[name] = files
+        self.assertEqual(self.triage(artifacts, 'triage2'), ['s03', 's11'])
+        name, files = self.shard_job('retry2', 's11', 3, 'drift')
+        self.assertEqual(name, 'retry2-s11')
+        artifacts[name] = files
+        document = self.aggregate(artifacts)
+        self.assertEqual(document['shards']['s11']['attempt'], 3)
+        self.assertEqual(document['shards']['s03']['attempt'], 1)
+        self.assertEqual(document['counts']['drift'], len(self.plan) - 1)
+        self.assertEqual(document['counts']['infrastructureErrors'], 1)
+
+    def test_a_retry_artifact_is_not_taken_for_a_second_retry_or_the_other_way_round(self):
+        artifacts = self.first_attempts(lost={'s11'})
+        name, files = self.shard_job('retry', 's11', 2, 'drift')
+        artifacts[name] = files
+        document = self.aggregate(artifacts)
+        self.assertEqual(document['shards']['s11']['attempt'], 2)
+        artifacts = self.first_attempts(lost={'s11'})
+        name, files = self.shard_job('retry2', 's11', 3, 'drift')
+        artifacts[name] = files
+        self.assertEqual(self.aggregate(artifacts)['shards']['s11']['attempt'], 3)
 
     def test_the_uploaded_results_leave_out_the_fetched_baseline(self):
         name, files = self.shard_job('shard', 's05', 1, 'drift')

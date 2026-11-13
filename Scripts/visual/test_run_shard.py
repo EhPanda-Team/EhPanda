@@ -131,7 +131,7 @@ class RunShardTests(unittest.TestCase):
         path.chmod(path.stat().st_mode | stat.S_IXUSR)
 
     def run_shard(self, shard, mode='candidate', attempt='1', **variables):
-        family = next(entry['family'] for entry in PLAN['shards'] if entry['id'] == shard)
+        family = next(entry['family'] for entry in self.plan()['shards'] if entry['id'] == shard)
         (self.fake / 'family').write_text(family)
         environment = {
             **os.environ, 'PATH': f"{self.root / 'bin'}:{os.environ['PATH']}", 'CI': '1', 'FAKE': str(self.fake),
@@ -146,6 +146,9 @@ class RunShardTests(unittest.TestCase):
              '--out', str(self.out), '--attempt', attempt, '--fingerprints', str(self.root / 'fingerprints.json')],
             env=environment, capture_output=True, text=True, timeout=120)
 
+    def plan(self):
+        return json.loads((self.root / 'shards.json').read_text())
+
     def calls(self, kind=None):
         path = self.fake / 'calls'
         rows = [json.loads(line) for line in path.read_text().splitlines()] if path.exists() else []
@@ -158,7 +161,7 @@ class RunShardTests(unittest.TestCase):
         return [json.loads(line)['key'] for line in (self.out / 'results.jsonl').read_text().splitlines()]
 
     def expected(self, shard_id):
-        shard = next(entry for entry in PLAN['shards'] if entry['id'] == shard_id)
+        shard = next(entry for entry in self.plan()['shards'] if entry['id'] == shard_id)
         runs = {(run['configuration'], orientation) for run in shard['runs'] for orientation in run['orientations']}
         return sorted(row.key for row, _ in snapshot_matrix.coordinates(INVENTORY, self.env)
                       if row.family == shard['family'] and (row.configuration, row.orientation) in runs)
@@ -188,6 +191,33 @@ class RunShardTests(unittest.TestCase):
         self.assertEqual(simulator[0], 'create EhPanda gate ' + self.env['devices']['iphone']['deviceTypeIdentifier']
                          + ' ' + self.env['runtime']['identifier'] + ' iphone')
         self.assertIn('clear-clones EhPanda gate', simulator)
+
+    def test_an_iphone_shard_of_one_orientation_captures_only_that_orientation(self):
+        # Run 43298876957: an iPhone shard is one orientation of one configuration, about 42 minutes instead of 73.
+        # The matrix process turns the iPhone itself (SnapshotMatrixCase), so it only needs to be told which one.
+        plan = json.loads(json.dumps(PLAN))
+        plan['shards'].append({
+            'id': 's30', 'family': 'iphone', 'configurations': ['en-large'],
+            'runs': [{'configuration': 'en-large', 'orientations': ['landscape']}],
+            'invocations': [{'configurations': ['en-large'], 'orientations': ['landscape']}],
+            'estimatedMinutes': 42.4, 'timeoutMinutes': 85})
+        (self.root / 'shards.json').write_text(json.dumps(plan))
+        result = self.run_shard('s30')
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertIsNone(self.record()['infra'], self.record())
+        [call] = self.calls('snapshot')
+        self.assertEqual(call['orientations'], 'landscape')
+        self.assertEqual(self.values(call['args'], '-parallel-testing-enabled'), ['YES'])
+        self.assertEqual(self.calls('ui'), [], 'an iPhone is never turned by the UI test')
+        keys = self.keys()
+        self.assertTrue(keys and all('__landscape__' in key for key in keys), keys)
+        self.assertEqual(sorted(keys), self.expected('s30'))
+
+    def test_a_third_attempt_is_accepted_and_recorded(self):
+        result = self.run_shard('s01', attempt='3')
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertEqual(self.record()['attempt'], 3)
+        self.assertIsNone(self.record()['infra'])
 
     def test_a_crash_reruns_only_the_unfinished_classes_and_the_ipad_turns_for_each_orientation(self):
         # 19-10, checked on iOS 27.2: parallel-testing clones boot in portrait whatever the turned device shows, and the

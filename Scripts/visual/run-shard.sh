@@ -1,7 +1,7 @@
 #!/bin/bash
 # Runs one shard of the snapshot gate on a hosted Mac and records its class in shard.json (19-10; D-15, owner msg 2263).
 #
-# usage: Scripts/visual/run-shard.sh --shard sNN --mode compare|candidate --products DIR [--attempt 1|2]
+# usage: Scripts/visual/run-shard.sh --shard sNN --mode compare|candidate --products DIR [--attempt 1|2|3]
 #            [--out DIR] [--fingerprints FILE]
 #
 # The shard is one entry of Scripts/visual/snapshot-shards.json: one device, one or more configurations, run as the
@@ -24,6 +24,7 @@
 #    test run leaves the app accessibility runtime off. Clones boot in portrait whatever the turned device shows
 #    (19-10-PROOF.md), so an iPad landscape invocation runs on the turned device itself, without clones; the shard
 #    plan's estimate counts it without the clone speedup.
+#    An iPhone turns itself in the process; a shard of one orientation names it (EHPANDA_SNAPSHOT_ORIENTATIONS).
 # 5. An invocation that crashed or was stopped leaves classes without results (results.jsonl says which are done):
 #    once all invocations have run, each such invocation runs once more for those classes only, after the lines of
 #    their unfinished scenarios are dropped; a scenario a configuration already captured is skipped there and keeps
@@ -60,7 +61,7 @@ while [ $# -gt 0 ]; do
     esac
 done
 case "$MODE" in compare | candidate) ;; *) usage ;; esac
-case "$ATTEMPT" in 1 | 2) ;; *) usage ;; esac
+case "$ATTEMPT" in 1 | 2 | 3) ;; *) usage ;; esac
 [ -n "$SHARD" ] && [ -n "$PRODUCTS" ] || usage
 
 HERE=$(CDPATH='' cd "$(dirname "$0")" && pwd)
@@ -266,7 +267,10 @@ capture() {
     done
     TEST_ENV=(TEST_RUNNER_EHPANDA_SNAPSHOT_MODE="$MODE" TEST_RUNNER_EHPANDA_SNAPSHOT_OUTPUT="$OUT")
     [ -z "$REFERENCES" ] || TEST_ENV+=(TEST_RUNNER_EHPANDA_SNAPSHOT_REFERENCES="$REFERENCES")
-    [ "$FAMILY" = iphone ] || TEST_ENV+=(TEST_RUNNER_EHPANDA_SNAPSHOT_ORIENTATIONS="$orientations")
+    # An iPad process captures the orientation its device was turned to; an iPhone turns itself, so it is told only
+    # when its shard is one orientation (the default is both).
+    [ "$FAMILY" = iphone ] && [ "$orientations" = portrait,landscape ] ||
+        TEST_ENV+=(TEST_RUNNER_EHPANDA_SNAPSHOT_ORIENTATIONS="$orientations")
     # The re-run skips every scenario a configuration already captured (SnapshotMatrixCase), so the configurations a
     # class finished before the crash keep their lines (snapshot_shard.py pending --prune drops only the others).
     [ "$pass" = 1 ] || TEST_ENV+=(TEST_RUNNER_EHPANDA_SNAPSHOT_KEEP_CAPTURED=1)

@@ -19,12 +19,14 @@ class SnapshotShardsTests(unittest.TestCase):
         self.pictures = snapshot_shards.unit_pictures(self.document, self.env)
         self.costs_by_unit = snapshot_shards.unit_costs(self.pictures, self.costs)
 
-    def test_there_are_54_units_one_per_process(self):
-        self.assertEqual(len(self.costs_by_unit), 54)
+    def test_there_are_72_units_one_per_process(self):
+        # Run 43298876957: an iPhone shard of both orientations took 39 to 73 minutes and half of them were cut, so
+        # an iPhone process captures one orientation too (EHPANDA_SNAPSHOT_ORIENTATIONS, which the iPhone honours).
+        self.assertEqual(len(self.costs_by_unit), 72)
         iphone = [unit for unit in self.costs_by_unit if unit[0] == 'iphone']
         ipad = [unit for unit in self.costs_by_unit if unit[0] == 'ipad']
-        self.assertEqual(len(iphone), 18)
-        self.assertEqual({unit[2] for unit in iphone}, {('portrait', 'landscape')})
+        self.assertEqual(len(iphone), 36)
+        self.assertEqual({unit[2] for unit in iphone}, {('portrait',), ('landscape',)})
         self.assertEqual(len(ipad), 36)
         self.assertEqual({unit[2] for unit in ipad}, {('portrait',), ('landscape',)})
 
@@ -41,8 +43,7 @@ class SnapshotShardsTests(unittest.TestCase):
             self.assertEqual(runs, sorted(runs, key=lambda run: (order.index(run[0]),
                                                                  snapshot_matrix.ORIENTATIONS.index(run[1][0]))))
             self.assertEqual(shard['configurations'], sorted({run[0] for run in runs}, key=order.index))
-            if shard['family'] == 'ipad':
-                self.assertTrue(all(len(run[1]) == 1 for run in runs))
+            self.assertTrue(all(len(run[1]) == 1 for run in runs))
             seen += [(shard['family'],) + run for run in runs]
         self.assertEqual(sorted(seen), sorted(self.costs_by_unit))
 
@@ -96,16 +97,17 @@ class SnapshotShardsTests(unittest.TestCase):
             self.assertTrue(units)
             self.assertEqual({unit[0] for unit in units}, {family})
 
-    def test_each_device_gets_the_fewest_shards_that_fit_the_target(self):
-        # Run 42577585956: shards estimated at 60 minutes needed 113 or more. Every estimate now keeps 30% of the
-        # limit as headroom, with as few shards (and simulator setups) as that allows.
+    def test_each_device_gets_the_fewest_shards_that_fit_its_target(self):
+        # Run 42577585956: shards estimated at 60 minutes needed 113 or more. Run 43298876957: shards of 73 to 77
+        # estimated minutes were cut by the runner at random times (13 of 27). A shard now stays within its device's
+        # target, with as few shards (and simulator setups) as that allows.
         plan = json.loads(snapshot_shards.compute())
-        target = snapshot_shards.TARGET_SHARE * snapshot_shards.TIMEOUT_CAP_MINUTES
-        self.assertEqual(plan['targetMinutes'], target)
+        self.assertEqual(plan['targetMinutes'], snapshot_shards.TARGET_MINUTES)
         seconds = snapshot_shards.unit_seconds(self.costs_by_unit, self.costs)
         split = snapshot_shards.split(seconds, self.costs)
         for family, count in split.items():
             shards = [shard for shard in plan['shards'] if shard['family'] == family]
+            target = plan['targetMinutes'][family]
             self.assertEqual(len(shards), count)
             self.assertTrue(all(shard['estimatedMinutes'] <= target for shard in shards), family)
             if count > 1:
@@ -116,7 +118,22 @@ class SnapshotShardsTests(unittest.TestCase):
     def test_a_device_never_gets_more_shards_than_units(self):
         costs = dict(self.costs, bootFetchMinutes=500)
         seconds = snapshot_shards.unit_seconds(self.costs_by_unit, costs)
-        self.assertEqual(snapshot_shards.split(seconds, costs), {'iphone': 18, 'ipad': 36})
+        self.assertEqual(snapshot_shards.split(seconds, costs), {'iphone': 36, 'ipad': 36})
+
+    def test_a_shard_is_about_half_an_hour_to_three_quarters_and_the_run_has_72_of_them(self):
+        # Owner msg 5033: shorter shards lose less to a cut. The fixed cost per shard (9 minutes to boot and fetch,
+        # 2.3 per invocation) puts the floor of an iPhone shard, one orientation of one configuration, at about 42
+        # estimated minutes; an iPad shard, one process, is about 26 to 29.
+        plan = json.loads(snapshot_shards.compute())
+        self.assertEqual(len(plan['shards']), 72)
+        for shard in plan['shards']:
+            self.assertEqual(len(shard['runs']), 1, shard['id'])
+            self.assertEqual(len(shard['invocations']), 1, shard['id'])
+            self.assertEqual(len(shard['runs'][0]['orientations']), 1, shard['id'])
+            self.assertLessEqual(shard['estimatedMinutes'], 45, shard['id'])
+        self.assertLessEqual(max(shard['estimatedMinutes'] for shard in plan['shards'] if shard['family'] == 'ipad'),
+                             35)
+        self.assertLessEqual(max(shard['timeoutMinutes'] for shard in plan['shards']), 90)
 
     def test_assignment_ignores_input_order(self):
         expected = snapshot_shards.assign(self.costs_by_unit)
