@@ -93,10 +93,12 @@ extension ScenarioCatalog {
                 make: { Page.downloads(LibraryFixtures.activeFailedDownloads, mode: .row) }, prepare: artwork
             ),
             "downloads-delete-confirmation": .init(
-                make: { Page.downloads(completed, mode: .row, confirming: .delete) }, prepare: artwork
+                make: { Page.downloads(completed, mode: .row, confirming: .delete) }, prepare: artwork,
+                interact: Page.tapHeldRow
             ),
             "downloads-move-confirmation": .init(
-                make: { Page.downloads(completed, mode: .row, confirming: .move) }, prepare: artwork
+                make: { Page.downloads(completed, mode: .row, confirming: .move) }, prepare: artwork,
+                interact: Page.tapHeldRow
             ),
             "downloads-inspector": .init(
                 make: { Page.downloads(completed, mode: .row, inspecting: 0) }, prepare: artwork
@@ -447,8 +449,25 @@ enum LibraryScenarios {
         )
     }
 
+    /// The first row's tap that presents its confirmation, held from ``downloads(_:mode:confirming:inspecting:)``
+    /// until the page is hosted (``tapHeldRow(_:)``).
+    private static var heldRowTap: (@MainActor () -> Void)?
+
+    /// Taps the first row's Delete or Move once the hosted page has settled at rest, as a user taps it.
+    ///
+    /// The dialog is a popover from the row. Asked for while the page was still being built, before the window held
+    /// it, the popover came up in portrait but never in landscape, where every confirmation picture was the plain
+    /// list's at every size (run 43403534542). Tapped once the row is on screen, it comes up in both.
+    static func tapHeldRow(_ window: UIWindow) async throws {
+        let tap = heldRowTap
+        heldRowTap = nil
+        _ = await HostedWindowCapture.settle(window)
+        tap?()
+    }
+
     /// Downloads in the Library, in the first synthetic folder, as the Library shows it on each device. A
-    /// confirmation is the first row's own dialog; an inspector is the sheet the list presents for a record.
+    /// confirmation is the first row's own dialog, tapped once the page is hosted; an inspector is the sheet the
+    /// list presents for a record.
     static func downloads(
         _ records: [DownloadRecordFixture], mode: GalleryListDisplayMode,
         confirming confirmation: DownloadConfirmation? = nil, inspecting inspected: Int? = nil
@@ -469,12 +488,16 @@ enum LibraryScenarios {
             state.destination = .inspector(inspector)
         }
         let store = Store(initialState: state, reducer: DownloadsReducer.init)
+        heldRowTap = nil
         if let confirmation, let first = state.downloads.first {
             let destinations = LibraryFixtures.downloadFolders.filter({ $0 != first.folderName })
-            store.send(.rows(.element(
-                id: first.id,
-                action: confirmation == .delete ? .deleteButtonTapped : .moveButtonTapped(destinations: destinations)
-            )))
+            heldRowTap = {
+                store.send(.rows(.element(
+                    id: first.id,
+                    action: confirmation == .delete
+                        ? .deleteButtonTapped : .moveButtonTapped(destinations: destinations)
+                )))
+            }
         }
         return AnyView(LibraryView(
             store: Store(
