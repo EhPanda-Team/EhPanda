@@ -172,7 +172,10 @@ public struct GalleryReverseRequest: Request {
                 pageCount: detail.pageCount,
                 postedDate: detail.postedDate,
                 coverURL: detail.coverURL,
-                galleryURL: url
+                galleryURL: url,
+                hasRated: detail.userRating > 0,
+                favoriteTagIndex: detail.favoriteTagIndex,
+                favoriteTagName: detail.favoriteTagName
             )
         } else {
             return nil

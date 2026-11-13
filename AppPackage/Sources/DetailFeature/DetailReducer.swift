@@ -224,8 +224,11 @@ public struct DetailReducer: Sendable {
         case fetchVersionMetadataIfNeeded
         case fetchVersionMetadataDone(Result<DownloadVersionMetadata?, AppError>)
         case rateGallery
+        case rateGalleryDone(Result<Void, AppError>)
         case favorGallery(Int)
+        case favorGalleryDone(Result<Void, AppError>, favIndex: Int)
         case unfavorGallery
+        case unfavorGalleryDone(Result<Void, AppError>)
         case postComment(URL)
         /// The editor's Post: sends the comment and closes the editor, or holds both for the posting warning.
         case postTapped
@@ -304,6 +307,34 @@ extension DetailReducer {
 }
 
 extension DetailReducer.State {
+    /// Records the favorites slot the site just accepted (`nil` after an unfavorite) on the gallery and on its
+    /// detail, so the header's heart takes the slot's colour before the page is refetched.
+    mutating func setFavoriteSlot(_ slot: Int?) {
+        let name = slot.map { user.favoriteCategories?[$0] ?? "Favorites \($0)" }
+        gallery.favoriteTagIndex = slot
+        gallery.favoriteTagName = name
+        galleryDetail?.favoriteTagIndex = slot
+        galleryDetail?.favoriteTagName = name
+    }
+
+    /// Takes the favorite slot and the user's own rating from a freshly fetched detail page, which is the site's
+    /// word on both. The page names its slot and the parser reads the number off the slot's icon; a renamed slot
+    /// whose icon could not be read is found through the user's own folder names. A page that no longer says
+    /// favorite clears a slot kept from before.
+    mutating func applyFavoriteState(from detail: GalleryDetail) {
+        var resolved = detail
+        if detail.isFavorited, let name = detail.favoriteTagName {
+            resolved.favoriteTagIndex = detail.favoriteTagIndex ?? user.favoriteSlot(named: name)
+        } else {
+            resolved.favoriteTagIndex = nil
+            resolved.favoriteTagName = nil
+        }
+        galleryDetail = resolved
+        gallery.favoriteTagIndex = resolved.favoriteTagIndex
+        gallery.favoriteTagName = resolved.favoriteTagName
+        gallery.hasRated = detail.userRating > 0
+    }
+
     // Pre-populated from a local download so a downloaded gallery renders instantly and offline;
     // the live download observation keeps the state in sync afterwards. Shared by the Downloads
     // tab's inline push and the app-level modal presentation (iPad / deep link).

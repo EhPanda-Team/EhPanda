@@ -199,6 +199,12 @@ struct HeaderSection: View {
             .frame(width: actionIconButtonSize, height: actionIconButtonSize)
             .contentShape(.circle)
     }
+    /// The colour of the slot the gallery is favorited in: the detail page's own reading, else the one the list
+    /// row it was opened from carried; the accent colour when neither says which slot.
+    private var favoriteColor: Color {
+        Defaults.FavoriteColor.color(at: galleryDetail.favoriteTagIndex ?? gallery.favoriteTagIndex)
+            ?? Color.accentColor
+    }
     private var favoriteButton: some View {
         Menu {
             ForEach(0..<10) { index in
@@ -223,6 +229,8 @@ struct HeaderSection: View {
                     .font(heartIconFont)
                     .frame(width: actionIconButtonSize, height: actionIconButtonSize)
             }
+            // The heart takes the colour of the favorites slot the gallery is in.
+            .tint(favoriteColor)
             .accessibilityLabel(.accessibilityRemoveFromFavorites)
             .accessibilityAddTraits(.isSelected)
             .animation(.default) {

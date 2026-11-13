@@ -252,13 +252,19 @@ private struct GalleryDetailCellContent: View {
 
     private var ratingAndPageCount: some View {
         AdaptiveStack(hSpaceBetween: true, vSpacing: pairSpacing) {
+            // The user's own rating draws the stars green, as the site draws them in its own colours.
             RatingView(rating: gallery.rating)
                 .font(.caption)
+                .foregroundStyle(gallery.hasRated ? AnyShapeStyle(Color.green) : AnyShapeStyle(.foreground))
                 .accessibilityRepresentation {
                     Text(.accessibilityRatingSummary(rating: gallery.rating.halfRounded))
                 }
 
-            pageCountOrDownloadBadge
+            HStack(spacing: 8) {
+                GalleryFavoriteHeart(gallery: gallery)
+                    .font(.footnote)
+                pageCountOrDownloadBadge
+            }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
     }
@@ -297,6 +303,8 @@ private struct GalleryDetailCellContent: View {
             CategoryLabel(text: gallery.category.value, color: gallery.color(host: setting.galleryHost))
 
             Text(gallery.formattedDateString)
+                // The site strikes the date of an expunged gallery through; so does the row.
+                .strikethrough(gallery.isExpunged)
                 .lineLimit(statLineLimit)
                 .font(.footnote)
                 .foregroundStyle(.secondary)

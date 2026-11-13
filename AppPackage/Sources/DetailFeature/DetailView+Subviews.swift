@@ -125,7 +125,7 @@ struct DescriptionSection: View {
 
     @ContentBuilder private func item(for info: DescScrollInfo) -> some View {
         if info.isRating {
-            DescScrollRatingItem(title: info.title, rating: info.rating)
+            DescScrollRatingItem(title: info.title, rating: info.rating, userRatingTint: galleryDetail.userRatingTint)
         } else {
             DescScrollItem(
                 title: info.title,
@@ -199,6 +199,8 @@ extension DescriptionSection {
 
         let title: LocalizedStringResource
         let rating: Float
+        /// Set when the user has rated the gallery: the site then draws the stars in that rating's colour.
+        let userRatingTint: UserRatingTint?
 
         var body: some View {
             VStack(spacing: 3) {
@@ -221,6 +223,7 @@ extension DescriptionSection {
                 // from the text above, so the drawn stars stay out of its combined element.
                 RatingView(rating: rating)
                     .font(.caption)
+                    .foregroundStyle(userRatingTint.map({ AnyShapeStyle($0.color) }) ?? AnyShapeStyle(.foreground))
                     .accessibilityHidden(true)
             }
             // One element for the column: the caption-sized star group on its own was a 13-point
@@ -255,6 +258,17 @@ extension DescriptionSection {
         navigateGalleryInfoAction: {}
     )
     .environment(\.dynamicTypeSize, .accessibility5)
+}
+
+extension UserRatingTint {
+    /// The colour the site draws a rating of this class in.
+    var color: Color {
+        switch self {
+        case .red: .red
+        case .green: .green
+        case .blue: .blue
+        }
+    }
 }
 
 // MARK: ActionSection
@@ -299,6 +313,9 @@ struct ActionSection: View {
                 HStack {
                     RatingView(rating: Float(userRating) / 2)
                         .font(.system(size: userRatingSymbolSize))
+                        .foregroundStyle(
+                            galleryDetail.userRatingTint.map({ AnyShapeStyle($0.color) }) ?? AnyShapeStyle(.foreground)
+                        )
                         .gesture(
                             DragGesture(minimumDistance: 0)
                                 .onChanged(updateRatingAction)

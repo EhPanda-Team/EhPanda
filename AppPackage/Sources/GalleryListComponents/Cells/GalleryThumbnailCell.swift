@@ -81,9 +81,16 @@ public struct GalleryThumbnailCell: View {
                         .frame(maxWidth: .infinity, alignment: .leading)
                 }
 
-                if showsRating {
-                    rating
-                        .accessibilityIdentifier("gallery-grid-rating-\(gallery.id)")
+                if showsRating || gallery.isFavorite {
+                    HStack(spacing: 6) {
+                        if showsRating {
+                            rating
+                                .accessibilityIdentifier("gallery-grid-rating-\(gallery.id)")
+                        }
+                        Spacer(minLength: 0)
+                        GalleryFavoriteHeart(gallery: gallery)
+                            .font(.caption)
+                    }
                 }
             }
             .padding(.vertical)
@@ -109,6 +116,8 @@ public struct GalleryThumbnailCell: View {
             compactRating
         }
         .font(.caption)
+        // The user's own rating draws the stars green, as the site draws them in its own colours.
+        .foregroundStyle(gallery.hasRated ? AnyShapeStyle(Color.green) : AnyShapeStyle(.foreground))
     }
 
     /// The rating as a single filled symbol and its half-rounded value — `RatingView`'s own

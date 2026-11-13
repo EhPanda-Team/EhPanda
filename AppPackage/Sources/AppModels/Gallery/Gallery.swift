@@ -114,6 +114,47 @@ public struct Gallery: Identifiable, Codable, Equatable, Hashable, Sendable {
     public let coverURL: URL?
     public let galleryURL: URL?
     public var lastOpenDate: Date?
+    /// Whether the site has expunged the gallery: its list rows show the posted date struck through.
+    public var isExpunged: Bool = false
+    /// Whether the signed-in user has rated the gallery themselves (the list's star class is not plain `ir`).
+    public var hasRated: Bool = false
+    /// The user's favorites slot (0...9) holding the gallery, `nil` when it is not a favorite or unknown.
+    public var favoriteTagIndex: Int?
+    /// The name of that favorites slot as the site shows it.
+    public var favoriteTagName: String?
+    public var isFavorite: Bool {
+        favoriteTagIndex != nil || favoriteTagName != nil
+    }
+
+    // The marks are newer than the rest of the model, so JSON written without them decodes with them off;
+    // everything else stays strict. (`Gallery` is not persisted today, but it is `Codable` and a stored copy
+    // must not stop decoding because a field was added.)
+    private enum CodingKeys: String, CodingKey {
+        case gid, token, title, jpnTitle, rating, tags, category, uploader, pageCount, postedDate
+        case coverURL, galleryURL, lastOpenDate
+        case isExpunged, hasRated, favoriteTagIndex, favoriteTagName
+    }
+
+    public init(from decoder: any Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        gid = try container.decode(String.self, forKey: .gid)
+        token = try container.decode(String.self, forKey: .token)
+        title = try container.decode(String.self, forKey: .title)
+        jpnTitle = try container.decodeIfPresent(String.self, forKey: .jpnTitle)
+        rating = try container.decode(Float.self, forKey: .rating)
+        tags = try container.decode([GalleryTag].self, forKey: .tags)
+        category = try container.decode(Category.self, forKey: .category)
+        uploader = try container.decodeIfPresent(String.self, forKey: .uploader)
+        pageCount = try container.decode(Int.self, forKey: .pageCount)
+        postedDate = try container.decode(Date.self, forKey: .postedDate)
+        coverURL = try container.decodeIfPresent(URL.self, forKey: .coverURL)
+        galleryURL = try container.decodeIfPresent(URL.self, forKey: .galleryURL)
+        lastOpenDate = try container.decodeIfPresent(Date.self, forKey: .lastOpenDate)
+        isExpunged = try container.decodeIfPresent(Bool.self, forKey: .isExpunged) ?? false
+        hasRated = try container.decodeIfPresent(Bool.self, forKey: .hasRated) ?? false
+        favoriteTagIndex = try container.decodeIfPresent(Int.self, forKey: .favoriteTagIndex)
+        favoriteTagName = try container.decodeIfPresent(String.self, forKey: .favoriteTagName)
+    }
 
     public init(
         gid: String,
@@ -128,7 +169,11 @@ public struct Gallery: Identifiable, Codable, Equatable, Hashable, Sendable {
         postedDate: Date,
         coverURL: URL?,
         galleryURL: URL?,
-        lastOpenDate: Date? = nil
+        lastOpenDate: Date? = nil,
+        isExpunged: Bool = false,
+        hasRated: Bool = false,
+        favoriteTagIndex: Int? = nil,
+        favoriteTagName: String? = nil
     ) {
         self.gid = gid
         self.token = token
@@ -143,6 +188,10 @@ public struct Gallery: Identifiable, Codable, Equatable, Hashable, Sendable {
         self.coverURL = coverURL
         self.galleryURL = galleryURL
         self.lastOpenDate = lastOpenDate
+        self.isExpunged = isExpunged
+        self.hasRated = hasRated
+        self.favoriteTagIndex = favoriteTagIndex
+        self.favoriteTagName = favoriteTagName
     }
 }
 

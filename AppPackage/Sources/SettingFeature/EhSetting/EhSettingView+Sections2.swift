@@ -1,5 +1,6 @@
 import AppComponents
 import AppModels
+import AppTools
 import Resources
 import Sharing
 import SwiftUI
@@ -29,12 +30,16 @@ struct OptionalUIElementsSection: View {
 
 // MARK: FavoritesSection
 struct FavoritesSection: View {
-    @SharedReader(.setting) private var setting: Setting
     @Binding var ehSetting: EhSetting
     let updatingOptions: Set<EhSettingReducer.Option>
 
     private var tuples: [(AppModels.Category, Binding<String>)] {
         Array(zip(AppModels.Category.allFavoritesCases, $ehSetting.favoriteCategories))
+    }
+
+    /// The favorites slot's own colour (not the gallery category colour the rows used to borrow).
+    private func slotColor(at index: Int) -> Color {
+        Defaults.FavoriteColor.color(at: index) ?? .secondary
     }
 
     var body: some View {
@@ -43,7 +48,7 @@ struct FavoritesSection: View {
                 let nameBinding = tuple.1
                 HStack(spacing: 30) {
                     Circle()
-                        .foregroundStyle(tuple.0.color(host: setting.galleryHost))
+                        .foregroundStyle(slotColor(at: index))
                         .frame(width: 10)
 
                     DraftTextField(

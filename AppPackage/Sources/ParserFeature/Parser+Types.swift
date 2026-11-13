@@ -9,6 +9,14 @@ extension Parser {
         public let publishedDate: Date
         public let pageCount: Int
         public let uploader: String?
+        /// The row's star class is not plain `ir`: the signed-in user has rated the gallery.
+        public let hasRated: Bool
+        /// The posted date is struck through: the site expunged the gallery.
+        public let isExpunged: Bool
+        /// The favorites slot the row's date box is bordered in, when the colour is a known one.
+        public let favoriteTagIndex: Int?
+        /// The favorites slot's name, the title of the date box; nil when the gallery is not a favorite.
+        public let favoriteTagName: String?
     }
 
     /// The eight fields of a gallery detail page's info panel, as raw strings.
@@ -46,6 +54,8 @@ extension Parser {
         public let imgRating: Float
         public let textRating: Float?
         public let containsUserRating: Bool
+        /// The colour class (`irr`, `irg`, `irb`) of the user's own rating; nil for the plain average.
+        public let userRatingTint: UserRatingTint?
     }
 
     public struct PreviewConfigInfo {

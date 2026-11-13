@@ -40,6 +40,24 @@ public struct User: Codable, Equatable, Sendable, SchemaVersioned {
 
     public var favoriteCategories: [Int: String]?
 
+    /// The favorites slot (0...9) a page's slot name belongs to. A gallery page names its slot but never numbers
+    /// it, so the number is recovered from the user's own folder names first (they may have renamed the slots),
+    /// then from the site's default `Favorites N`.
+    public func favoriteSlot(named name: String) -> Int? {
+        if let slot = favoriteCategories?.filter({ $0.value == name }).keys.min() {
+            return slot
+        }
+        return Self.defaultFavoriteSlot(named: name)
+    }
+
+    /// The slot a site-default name (`Favorites 0` ... `Favorites 9`) stands for.
+    public static func defaultFavoriteSlot(named name: String) -> Int? {
+        let prefix = "Favorites "
+        guard name.hasPrefix(prefix), let slot = Int(name.dropFirst(prefix.count)), (0...9).contains(slot)
+        else { return nil }
+        return slot
+    }
+
     public func getFavoriteCategory(index: Int) -> String {
         guard index != -1 else { return String(localized: .favoriteCategoryAll) }
         let defaultCategory = String(localized: .favoriteCategoryDefault(index: index))

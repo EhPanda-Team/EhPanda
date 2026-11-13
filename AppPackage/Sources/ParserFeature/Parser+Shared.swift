@@ -151,6 +151,7 @@ extension Parser {
 
         var tmpRatingString: String?
         var containsUserRating = false
+        var userRatingTint: UserRatingTint?
 
         for link in node.xpath("//div") where
             link.className?.contains("ir") == true
@@ -158,6 +159,9 @@ extension Parser {
             if tmpRatingString != nil { break }
             tmpRatingString = link["style"]
             containsUserRating = link.className != "ir"
+            // The user's own rating adds `irr`, `irg` or `irb` to the plain `ir` class.
+            let starClasses = link.className?.split(separator: " ") ?? []
+            userRatingTint = starClasses.lazy.compactMap({ Self.userRatingTint(forStarClass: String($0)) }).first
         }
 
         guard let ratingString = tmpRatingString
@@ -179,10 +183,20 @@ extension Parser {
             imgRating: rating,
             // Missing optional text-rating metadata intentionally degrades to nil.
             textRating: degrading("Text rating", { try parseTextRating(node: node) }),
-            containsUserRating: containsUserRating
+            containsUserRating: containsUserRating,
+            userRatingTint: userRatingTint
         )
     }
     // swiftlint:enable cyclomatic_complexity
+
+    private static func userRatingTint(forStarClass starClass: String) -> UserRatingTint? {
+        switch starClass {
+        case "irr": .red
+        case "irg": .green
+        case "irb": .blue
+        default: nil
+        }
+    }
 
     public static func parseBanInterval(doc: any HTMLDocument) -> BanInterval? {
         guard let text = doc.body?.text, let range = text.range(of: "The ban expires in ")
