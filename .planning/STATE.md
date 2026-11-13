@@ -2198,6 +2198,7 @@ None yet.
 
 | # | Description | Date | Commit | Directory |
 |---|-------------|------|--------|-----------|
+| 261113-h72 | Port #462 (dyphire) part 1: favorites sort order, cache caps, tag prefixes (and dyphire in About); on branch `port/462`, not merged | 2026-11-13 | ec703ff24 | [261113-h72-port-462-dyphire-part-1](./quick/261113-h72-port-462-dyphire-part-1/) |
 | 20260908-slideshow-viewport-cap | Revised small 70%/80%, large 50%/40%; title/rating VStack, top-aligned Toplists, large landscape three-column floor; 30 new captures across five six-configuration views; owner review pending | 2026-09-08 | f24e482a | [20260908-slideshow-viewport-cap](./quick/20260908-slideshow-viewport-cap/REVISION.md) |
 | 260818-ek3 | Fix G-15-2D/2E: intra-page progress + session heartbeat, and the activity-logs pump duplication race | 2026-08-18 | 98a7810897 | [260818-ek3-fix-g-15-2d-2e-intra-page-progress-sessi](./quick/260818-ek3-fix-g-15-2d-2e-intra-page-progress-sessi/) |
 | 260818-mjs | Fix G-15-2F/2H: freeze the gallery folder leaf across runs (no repair rename), and overlay a live run's credited page set on the published row so the Download Status sheet reads the run, not the stale record (D-SSOT-10) | 2026-08-18 | ae234574c4 | [260818-mjs-fix-g-15-2f-and-g-15-2h](./quick/260818-mjs-fix-g-15-2f-and-g-15-2h/) |
