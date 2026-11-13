@@ -12,17 +12,17 @@
 #
 # The jobs run in the GitHub environment `pal-notarization`, which has a required reviewer (20-06). Its secrets
 # are the only place the signing material and the API key exist:
-#   ASC_KEY_ID                the App Store Connect API key's ID
-#   ASC_ISSUER_ID             the key's issuer ID
-#   ASC_KEY_P8                the key's .p8 file, as text
-#   DIST_CERT_P12             the Apple Distribution certificate and its private key, a base64 .p12
-#   DIST_CERT_PASSWORD        the .p12's password
-#   PROFILE_APP               the App Store Connect profile for app.ehpanda.store, base64
-#   PROFILE_SHARE_EXTENSION   the App Store Connect profile for app.ehpanda.store.ShareExtension, base64
-#   TEAM_ID                   the team that owns the certificate and the profiles
+#   APP_STORE_CONNECT_KEY_ID              the App Store Connect API key's ID
+#   APP_STORE_CONNECT_ISSUER_ID           the key's issuer ID
+#   APP_STORE_CONNECT_PRIVATE_KEY         the key's .p8 file, as text
+#   DISTRIBUTION_CERTIFICATE              the Apple Distribution certificate and its private key, a base64 .p12
+#   DISTRIBUTION_CERTIFICATE_PASSWORD     the .p12's password
+#   PROVISIONING_PROFILE_APP              the App Store Connect profile for app.ehpanda.store, base64
+#   PROVISIONING_PROFILE_SHARE_EXTENSION  the App Store Connect profile for app.ehpanda.store.ShareExtension, base64
+#   APPLE_TEAM_ID                         the team that owns the certificate and the profiles
 # Its variables:
-#   PAL_MARKETPLACE_ID        the app's Apple ID in App Store Connect (also the PAL source's marketplaceID)
-#   ASC_KEY_ROLE              the key's role as recorded when it was made (D-21; written to the call record)
+#   ALTSTORE_PAL_MARKETPLACE_ID           the app's Apple ID in App Store Connect (also the PAL source's marketplaceID)
+#   APP_STORE_CONNECT_KEY_ROLE            the key's role as recorded when it was made (D-21; written to the call record)
 # The archive also reads the repository secrets TELEMETRYDECK_APP_ID and TELEMETRYDECK_SALT, as deploy.yml does.
 #
 # Nothing here creates an App ID, certificate, profile or key: signing is manual with the profiles above, and
@@ -77,8 +77,8 @@ jobs:
     timeout-minutes: 300
     env:
       VERSION: ${{ inputs.version }}
-      ASC_APP_ID: ${{ vars.PAL_MARKETPLACE_ID }}
-      ASC_KEY_ROLE: ${{ vars.ASC_KEY_ROLE }}
+      ASC_APP_ID: ${{ vars.ALTSTORE_PAL_MARKETPLACE_ID }}
+      APP_STORE_CONNECT_KEY_ROLE: ${{ vars.APP_STORE_CONNECT_KEY_ROLE }}
     steps:
       - name: Checkout
         uses: actions/checkout@v7
@@ -90,15 +90,15 @@ jobs:
         run: |
           set -euo pipefail
           [[ "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || { echo "::error::'$VERSION' is not a version like 3.0.0."; exit 1; }
-          [[ "$ASC_APP_ID" =~ ^[0-9]+$ ]] || { echo "::error::The PAL_MARKETPLACE_ID variable is not set to the app's Apple ID."; exit 1; }
+          [[ "$ASC_APP_ID" =~ ^[0-9]+$ ]] || { echo "::error::The ALTSTORE_PAL_MARKETPLACE_ID variable is not set to the app's Apple ID."; exit 1; }
           # Every app and extension target carries the same version; test targets carry 1.0.
           versions="$(grep -Eo 'MARKETING_VERSION = [0-9]+\.[0-9]+\.[0-9]+;' EhPanda.xcodeproj/project.pbxproj | grep -Eo '[0-9]+\.[0-9]+\.[0-9]+' | sort -u)"
           [[ "$versions" == "$VERSION" ]] || { echo "::error::The project's MARKETING_VERSION is '$(tr '\n' ' ' <<< "$versions")', not $VERSION. Dispatch on the release commit."; exit 1; }
           echo "The project is version $VERSION."
       - name: Write App Store Connect key
         env:
-          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
-          ASC_KEY_P8: ${{ secrets.ASC_KEY_P8 }}
+          APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
+          APP_STORE_CONNECT_PRIVATE_KEY: ${{ secrets.APP_STORE_CONNECT_PRIVATE_KEY }}
         run: |
           set -euo pipefail
           bash "$SIGNING_SCRIPT_PATH" api-key
@@ -107,8 +107,8 @@ jobs:
       - name: Check build number
         id: build-number
         env:
-          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
-          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+          APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
+          APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
         run: |
           set -euo pipefail
           # The PAL source as published on main, whichever ref this run was dispatched on. The Classic sources
@@ -136,11 +136,11 @@ jobs:
         run: xcodebuild -version
       - name: Set up signing
         env:
-          TEAM_ID: ${{ secrets.TEAM_ID }}
-          DIST_CERT_P12: ${{ secrets.DIST_CERT_P12 }}
-          DIST_CERT_PASSWORD: ${{ secrets.DIST_CERT_PASSWORD }}
-          PROFILE_APP: ${{ secrets.PROFILE_APP }}
-          PROFILE_SHARE_EXTENSION: ${{ secrets.PROFILE_SHARE_EXTENSION }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          DISTRIBUTION_CERTIFICATE: ${{ secrets.DISTRIBUTION_CERTIFICATE }}
+          DISTRIBUTION_CERTIFICATE_PASSWORD: ${{ secrets.DISTRIBUTION_CERTIFICATE_PASSWORD }}
+          PROVISIONING_PROFILE_APP: ${{ secrets.PROVISIONING_PROFILE_APP }}
+          PROVISIONING_PROFILE_SHARE_EXTENSION: ${{ secrets.PROVISIONING_PROFILE_SHARE_EXTENSION }}
         run: bash "$SIGNING_SCRIPT_PATH" setup
       - name: Xcode archive
         env:
@@ -171,7 +171,7 @@ jobs:
           [[ ! -z "$salt" ]] || exit 1
       - name: Verify marketplace build
         env:
-          TEAM_ID: ${{ secrets.TEAM_ID }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
           BUILD_NUMBER: ${{ steps.build-number.outputs.build }}
         run: |
           set -euo pipefail
@@ -202,7 +202,7 @@ jobs:
           for bundle in "$app_path" "$extension_path"; do
             details="$(codesign -dvv "$bundle" 2>&1)"
             grep -q '^Authority=Apple Distribution: ' <<< "$details" || { echo "::error::$(basename "$bundle") is not signed by an Apple Distribution certificate."; exit 1; }
-            grep -qx "TeamIdentifier=$TEAM_ID" <<< "$details" || { echo "::error::$(basename "$bundle") is not signed by TEAM_ID."; exit 1; }
+            grep -qx "TeamIdentifier=$APPLE_TEAM_ID" <<< "$details" || { echo "::error::$(basename "$bundle") is not signed by APPLE_TEAM_ID."; exit 1; }
             [[ -f "$bundle/embedded.mobileprovision" ]] || { echo "::error::$(basename "$bundle") has no provisioning profile."; exit 1; }
             entitlements="$RUNNER_TEMP/entitlements.plist"
             codesign -d --entitlements - --xml "$bundle" > "$entitlements" 2>/dev/null
@@ -214,8 +214,8 @@ jobs:
           bash "$CHECK_BUILD_NUMBER_SCRIPT_PATH" "$build_version" "$RUNNER_TEMP/published"/*.json
       - name: Export and upload
         env:
-          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
-          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+          APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
+          APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
         run: |
           set -euo pipefail
           # destination upload: xcodebuild signs the export with the profiles named in the export options and
@@ -225,13 +225,13 @@ jobs:
             -exportOptionsPlist "$MARKETPLACE_EXPORT_OPTIONS" \
             -exportPath "$EXPORT_PATH" \
             -authenticationKeyPath "$ASC_KEY_PATH" \
-            -authenticationKeyID "$ASC_KEY_ID" \
-            -authenticationKeyIssuerID "$ASC_ISSUER_ID"
+            -authenticationKeyID "$APP_STORE_CONNECT_KEY_ID" \
+            -authenticationKeyIssuerID "$APP_STORE_CONNECT_ISSUER_ID"
       - name: Wait for the build
         id: wait-build
         env:
-          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
-          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+          APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
+          APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
           BUILD_NUMBER: ${{ steps.build-number.outputs.build }}
         run: |
           set -euo pipefail
@@ -240,8 +240,8 @@ jobs:
       - name: Ensure the notarization version
         id: ensure-version
         env:
-          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
-          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+          APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
+          APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
         run: |
           set -euo pipefail
           # reviewType NOTARIZATION, releaseType MANUAL (asc.py ensure-version).
@@ -249,15 +249,15 @@ jobs:
           echo "version_id=$version_id" >> "$GITHUB_OUTPUT"
       - name: Attach the build
         env:
-          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
-          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+          APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
+          APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
           VERSION_ID: ${{ steps.ensure-version.outputs.version_id }}
           BUILD_ID: ${{ steps.wait-build.outputs.build_id }}
         run: python3 "$ASC_TOOL_PATH" attach-build --version-id "$VERSION_ID" --build-id "$BUILD_ID"
       - name: Submit for notarization
         env:
-          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
-          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+          APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
+          APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
           VERSION_ID: ${{ steps.ensure-version.outputs.version_id }}
         run: |
           set -euo pipefail
@@ -287,8 +287,8 @@ jobs:
     timeout-minutes: 120
     env:
       VERSION: ${{ inputs.version }}
-      ASC_APP_ID: ${{ vars.PAL_MARKETPLACE_ID }}
-      ASC_KEY_ROLE: ${{ vars.ASC_KEY_ROLE }}
+      ASC_APP_ID: ${{ vars.ALTSTORE_PAL_MARKETPLACE_ID }}
+      APP_STORE_CONNECT_KEY_ROLE: ${{ vars.APP_STORE_CONNECT_KEY_ROLE }}
     steps:
       # The checkout's credentials push AltStorePAL.json to main, as deploy-beta.yml's do.
       - name: Checkout
@@ -301,13 +301,13 @@ jobs:
         run: |
           set -euo pipefail
           [[ "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || { echo "::error::'$VERSION' is not a version like 3.0.0."; exit 1; }
-          [[ "$ASC_APP_ID" =~ ^[0-9]+$ ]] || { echo "::error::The PAL_MARKETPLACE_ID variable is not set to the app's Apple ID."; exit 1; }
+          [[ "$ASC_APP_ID" =~ ^[0-9]+$ ]] || { echo "::error::The ALTSTORE_PAL_MARKETPLACE_ID variable is not set to the app's Apple ID."; exit 1; }
           # The PAL entry carries the release's notes in every language.
           python3 "$RELEASE_NOTES_TOOL_PATH" check "ReleaseNotes/$VERSION.md"
       - name: Write App Store Connect key
         env:
-          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
-          ASC_KEY_P8: ${{ secrets.ASC_KEY_P8 }}
+          APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
+          APP_STORE_CONNECT_PRIVATE_KEY: ${{ secrets.APP_STORE_CONNECT_PRIVATE_KEY }}
         run: |
           set -euo pipefail
           bash "$SIGNING_SCRIPT_PATH" api-key
@@ -316,8 +316,8 @@ jobs:
       - name: Read the ADP ID
         id: adp
         env:
-          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
-          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+          APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
+          APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
         run: |
           set -euo pipefail
           # Apple makes the package when the notarized version is accepted; this only reads its ID.

@@ -24,9 +24,9 @@ Usage:
 The `--app` ID is the app's Apple ID in App Store Connect, the same number as the PAL source's `marketplaceID`.
 
 Environment:
-  ASC_KEY_ID, ASC_ISSUER_ID   the API key's ID and issuer
+  APP_STORE_CONNECT_KEY_ID, APP_STORE_CONNECT_ISSUER_ID   the API key's ID and issuer
   ASC_KEY_PATH                the key's `.p8` file
-  ASC_KEY_ROLE                the key's role as recorded when it was made (informational, for the call record)
+  APP_STORE_CONNECT_KEY_ROLE  the key's role as recorded when it was made (informational, for the call record)
   ASC_CALL_RECORD             optional: a file each call is appended to as one JSON line
   ASC_BASE_URL                optional: the API's base URL (tests point it at a local fake)
 
@@ -385,15 +385,15 @@ COMMANDS = {"check-build": check_build, "wait-build": wait_build, "ensure-versio
 def main(argv=None):
     args = parse(sys.argv[1:] if argv is None else argv)
     try:
-        missing = [name for name in ("ASC_KEY_ID", "ASC_ISSUER_ID", "ASC_KEY_PATH") if not os.environ.get(name)]
+        missing = [name for name in ("APP_STORE_CONNECT_KEY_ID", "APP_STORE_CONNECT_ISSUER_ID", "ASC_KEY_PATH") if not os.environ.get(name)]
         if missing:
             raise AscError(f"Missing environment: {', '.join(missing)}.")
         if not os.path.isfile(os.environ["ASC_KEY_PATH"]):
             raise AscError("ASC_KEY_PATH does not name a file.")
-        key_id = os.environ["ASC_KEY_ID"]
+        key_id = os.environ["APP_STORE_CONNECT_KEY_ID"]
         client = Client(os.environ.get("ASC_BASE_URL") or DEFAULT_BASE_URL,
-                        token=TokenSource(key_id, os.environ["ASC_ISSUER_ID"], os.environ["ASC_KEY_PATH"]),
-                        key_id=key_id, key_role=os.environ.get("ASC_KEY_ROLE") or "unrecorded",
+                        token=TokenSource(key_id, os.environ["APP_STORE_CONNECT_ISSUER_ID"], os.environ["ASC_KEY_PATH"]),
+                        key_id=key_id, key_role=os.environ.get("APP_STORE_CONNECT_KEY_ROLE") or "unrecorded",
                         record=os.environ.get("ASC_CALL_RECORD") or None,
                         log=lambda line: print(line, file=sys.stderr, flush=True))
         COMMANDS[args.command](client, args)

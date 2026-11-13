@@ -259,8 +259,8 @@ class CommandTests(unittest.TestCase):
 
     def run_asc(self, *args):
         env = {key: value for key, value in os.environ.items() if not key.startswith("ASC_")}
-        env.update({"ASC_BASE_URL": self.fake.base_url, "ASC_KEY_ID": KEY_ID, "ASC_ISSUER_ID": ISSUER_ID,
-                    "ASC_KEY_PATH": str(self.key), "ASC_KEY_ROLE": ROLE, "ASC_CALL_RECORD": str(self.record)})
+        env.update({"ASC_BASE_URL": self.fake.base_url, "APP_STORE_CONNECT_KEY_ID": KEY_ID, "APP_STORE_CONNECT_ISSUER_ID": ISSUER_ID,
+                    "ASC_KEY_PATH": str(self.key), "APP_STORE_CONNECT_KEY_ROLE": ROLE, "ASC_CALL_RECORD": str(self.record)})
         result = subprocess.run([sys.executable, str(ASC), *args], capture_output=True, text=True, env=env,
                                 timeout=60)
         self.outputs = getattr(self, "outputs", "") + result.stdout + result.stderr
@@ -554,7 +554,7 @@ class CommandTests(unittest.TestCase):
         result = subprocess.run([sys.executable, str(ASC), "adp-id", "--version-id", "v-1"], capture_output=True,
                                 text=True, env=env, timeout=60)
         self.assertEqual(result.returncode, 1)
-        self.assertIn("ASC_KEY_ID", result.stderr)
+        self.assertIn("APP_STORE_CONNECT_KEY_ID", result.stderr)
         self.assertEqual(self.fake.requests, [])
 
 

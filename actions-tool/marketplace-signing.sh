@@ -4,7 +4,7 @@
 #
 # Usage:
 #   marketplace-signing.sh api-key
-#       writes the App Store Connect API key (ASC_KEY_P8) to a file and exports ASC_KEY_PATH
+#       writes the App Store Connect API key (APP_STORE_CONNECT_PRIVATE_KEY) to a file and exports ASC_KEY_PATH
 #   marketplace-signing.sh setup
 #       makes a temporary keychain with the distribution certificate, installs both provisioning profiles,
 #       and writes the signing xcconfig and the export options; exports MARKETPLACE_XCCONFIG,
@@ -18,10 +18,13 @@
 #
 # Environment (from the `pal-notarization` GitHub environment's secrets; never printed):
 #   RUNNER_TEMP                                   where everything is written
-#   ASC_KEY_ID, ASC_KEY_P8                        api-key: the key's ID and the .p8 file's contents
-#   TEAM_ID                                       setup: the team that owns the certificate and profiles
-#   DIST_CERT_P12, DIST_CERT_PASSWORD             setup: the Apple Distribution certificate (base64 .p12)
-#   PROFILE_APP, PROFILE_SHARE_EXTENSION          setup: the two App Store Connect profiles (base64)
+#   APP_STORE_CONNECT_KEY_ID, APP_STORE_CONNECT_PRIVATE_KEY
+#                                                 api-key: the key's ID and the .p8 file's contents
+#   APPLE_TEAM_ID                                 setup: the team that owns the certificate and profiles
+#   DISTRIBUTION_CERTIFICATE,
+#   DISTRIBUTION_CERTIFICATE_PASSWORD             setup: the Apple Distribution certificate (base64 .p12)
+#   PROVISIONING_PROFILE_APP,
+#   PROVISIONING_PROFILE_SHARE_EXTENSION          setup: the two App Store Connect profiles (base64)
 #
 # Why a generated xcconfig: `-xcconfig` takes one file and applies it to every target, and the app and the
 # share extension need different profiles. So the file includes Config/Marketplace.xcconfig and selects each
@@ -134,7 +137,7 @@ install_profile() {
   app_id="$(profile_field "$decoded" Entitlements.application-identifier)"
   profile_team="$(profile_field "$decoded" TeamIdentifier.0)"
   [[ "$uuid" =~ ^[0-9A-Fa-f-]{36}$ ]] || fail "$variable has no UUID."
-  [[ "$profile_team" == "$team" ]] || fail "$variable belongs to team $profile_team, not TEAM_ID."
+  [[ "$profile_team" == "$team" ]] || fail "$variable belongs to team $profile_team, not APPLE_TEAM_ID."
   [[ "$app_id" == "$team.$bundle_id" ]] || fail "$variable is for $app_id, not $team.$bundle_id."
   check_profile_name "$name"
   for target_dir in "${PROFILE_DIRS[@]}"; do
@@ -146,22 +149,22 @@ install_profile() {
 }
 
 api_key() {
-  require ASC_KEY_ID ASC_KEY_P8
-  [[ "$ASC_KEY_ID" =~ ^[A-Z0-9]+$ ]] || fail "ASC_KEY_ID is not letters and digits."
+  require APP_STORE_CONNECT_KEY_ID APP_STORE_CONNECT_PRIVATE_KEY
+  [[ "$APP_STORE_CONNECT_KEY_ID" =~ ^[A-Z0-9]+$ ]] || fail "APP_STORE_CONNECT_KEY_ID is not letters and digits."
   local dir key
   dir="$(work_dir)/private_keys"
   mkdir -p "$dir"
   chmod 700 "$(work_dir)" "$dir"
-  key="$dir/AuthKey_$ASC_KEY_ID.p8"
-  ( umask 077; printf '%s\n' "$ASC_KEY_P8" > "$key" )
-  grep -q -- "-----BEGIN PRIVATE KEY-----" "$key" || fail "ASC_KEY_P8 is not a .p8 key."
+  key="$dir/AuthKey_$APP_STORE_CONNECT_KEY_ID.p8"
+  ( umask 077; printf '%s\n' "$APP_STORE_CONNECT_PRIVATE_KEY" > "$key" )
+  grep -q -- "-----BEGIN PRIVATE KEY-----" "$key" || fail "APP_STORE_CONNECT_PRIVATE_KEY is not a .p8 key."
   export_env ASC_KEY_PATH "$key"
   echo "Wrote the App Store Connect API key."
 }
 
 setup() {
-  require TEAM_ID DIST_CERT_P12 DIST_CERT_PASSWORD PROFILE_APP PROFILE_SHARE_EXTENSION
-  check_team "$TEAM_ID"
+  require APPLE_TEAM_ID DISTRIBUTION_CERTIFICATE DISTRIBUTION_CERTIFICATE_PASSWORD PROVISIONING_PROFILE_APP PROVISIONING_PROFILE_SHARE_EXTENSION
+  check_team "$APPLE_TEAM_ID"
   local dir keychain password app_profile share_profile xcconfig export_options line
   dir="$(work_dir)"
   mkdir -p "$dir"
@@ -175,12 +178,12 @@ setup() {
   printf '%s\n' "$keychain" > "$dir/keychain"
 
   password="$(openssl rand -hex 24)"
-  ( umask 077; printf '%s' "$DIST_CERT_P12" | base64 --decode > "$dir/certificate.p12" ) 2>/dev/null ||
-    fail "DIST_CERT_P12 is not base64."
+  ( umask 077; printf '%s' "$DISTRIBUTION_CERTIFICATE" | base64 --decode > "$dir/certificate.p12" ) 2>/dev/null ||
+    fail "DISTRIBUTION_CERTIFICATE is not base64."
   security create-keychain -p "$password" "$keychain"
   security set-keychain-settings -lut 21600 "$keychain"
   security unlock-keychain -p "$password" "$keychain"
-  security import "$dir/certificate.p12" -k "$keychain" -f pkcs12 -P "$DIST_CERT_PASSWORD" \
+  security import "$dir/certificate.p12" -k "$keychain" -f pkcs12 -P "$DISTRIBUTION_CERTIFICATE_PASSWORD" \
     -T /usr/bin/codesign -T /usr/bin/security >/dev/null || fail "The certificate could not be imported."
   rm -f "$dir/certificate.p12"
   security set-key-partition-list -S apple-tool:,apple: -s -k "$password" "$keychain" >/dev/null
@@ -194,10 +197,10 @@ setup() {
   security find-identity -v -p codesigning "$keychain" | grep -q '"Apple Distribution: ' ||
     fail "The certificate is not an Apple Distribution identity."
 
-  app_profile="$(install_profile PROFILE_APP "$APP_BUNDLE_ID" "$TEAM_ID")"
-  share_profile="$(install_profile PROFILE_SHARE_EXTENSION "$SHARE_BUNDLE_ID" "$TEAM_ID")"
-  write_xcconfig "$xcconfig" "$TEAM_ID" "$app_profile" "$share_profile"
-  write_export_options "$export_options" "$TEAM_ID" "$app_profile" "$share_profile"
+  app_profile="$(install_profile PROVISIONING_PROFILE_APP "$APP_BUNDLE_ID" "$APPLE_TEAM_ID")"
+  share_profile="$(install_profile PROVISIONING_PROFILE_SHARE_EXTENSION "$SHARE_BUNDLE_ID" "$APPLE_TEAM_ID")"
+  write_xcconfig "$xcconfig" "$APPLE_TEAM_ID" "$app_profile" "$share_profile"
+  write_export_options "$export_options" "$APPLE_TEAM_ID" "$app_profile" "$share_profile"
 
   export_env MARKETPLACE_XCCONFIG "$xcconfig"
   export_env MARKETPLACE_EXPORT_OPTIONS "$export_options"

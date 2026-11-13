@@ -440,7 +440,7 @@ def publish(args):
     if not VERSION.match(args.version):
         raise PublishError(f"{args.version!r} is not a version like 3.0.0.")
     if not re.fullmatch(r"[0-9]+", args.marketplace_id or ""):
-        raise PublishError("The marketplace ID must be the app's Apple ID (digits): set PAL_MARKETPLACE_ID.")
+        raise PublishError("The marketplace ID must be the app's Apple ID (digits): set ALTSTORE_PAL_MARKETPLACE_ID.")
     adp_dir = pathlib.Path(args.adp)
     work = pathlib.Path(args.work)
     work.mkdir(parents=True, exist_ok=True)

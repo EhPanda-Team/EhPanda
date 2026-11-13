@@ -444,9 +444,9 @@ PAL_STEPS = [
     "Upload the call record",
     "Tear down signing",
 ]
-PAL_SECRETS = ["ASC_KEY_ID", "ASC_ISSUER_ID", "ASC_KEY_P8", "DIST_CERT_P12", "DIST_CERT_PASSWORD", "PROFILE_APP",
-               "PROFILE_SHARE_EXTENSION", "TEAM_ID"]
-PAL_VARIABLES = ["PAL_MARKETPLACE_ID", "ASC_KEY_ROLE"]
+PAL_SECRETS = ["APP_STORE_CONNECT_KEY_ID", "APP_STORE_CONNECT_ISSUER_ID", "APP_STORE_CONNECT_PRIVATE_KEY", "DISTRIBUTION_CERTIFICATE", "DISTRIBUTION_CERTIFICATE_PASSWORD", "PROVISIONING_PROFILE_APP",
+               "PROVISIONING_PROFILE_SHARE_EXTENSION", "APPLE_TEAM_ID"]
+PAL_VARIABLES = ["ALTSTORE_PAL_MARKETPLACE_ID", "APP_STORE_CONNECT_KEY_ROLE"]
 
 
 @unittest.skipUnless(RUBY, "ruby is not installed")
@@ -664,10 +664,10 @@ class PalPublishWorkflowTests(unittest.TestCase):
     def test_the_version_and_notes_are_checked_first(self):
         run = self.run_text("Check version")
         self.assertIn("[0-9]+", run)
-        self.assertIn("PAL_MARKETPLACE_ID", run)
+        self.assertIn("ALTSTORE_PAL_MARKETPLACE_ID", run)
         self.assertIn("actions-tool/release_notes.py\" check", run)
         self.assertEqual(self.job["env"]["VERSION"], "${{ inputs.version }}")
-        self.assertEqual(self.job["env"]["ASC_APP_ID"], "${{ vars.PAL_MARKETPLACE_ID }}")
+        self.assertEqual(self.job["env"]["ASC_APP_ID"], "${{ vars.ALTSTORE_PAL_MARKETPLACE_ID }}")
 
     def test_the_adp_id_comes_from_app_store_connect(self):
         run = self.run_text("Read the ADP ID")
@@ -711,7 +711,7 @@ class PalPublishWorkflowTests(unittest.TestCase):
                 self.assertNotRegex(run, r"\bgit\s+(tag|push)\b")
                 self.assertNotRegex(run, r"\bgh\s+release\b")
                 self.assertNotIn("action-gh-release", step.get("uses", ""))
-        for name in ("DIST_CERT_P12", "DIST_CERT_PASSWORD", "PROFILE_APP", "PROFILE_SHARE_EXTENSION", "TEAM_ID"):
+        for name in ("DISTRIBUTION_CERTIFICATE", "DISTRIBUTION_CERTIFICATE_PASSWORD", "PROVISIONING_PROFILE_APP", "PROVISIONING_PROFILE_SHARE_EXTENSION", "APPLE_TEAM_ID"):
             with self.subTest(secret=name):
                 self.assertNotIn(name, json.dumps(self.job))
 

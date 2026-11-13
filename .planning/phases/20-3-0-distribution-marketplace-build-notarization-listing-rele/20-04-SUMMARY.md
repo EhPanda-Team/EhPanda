@@ -90,6 +90,8 @@ and build number, runs the tests, signs the marketplace build, verifies and uplo
 Notarization version and submits it through `asc.py`. The call record is always uploaded and the signing material
 always removed. All of it is tested offline. Nothing contacted Apple, and the workflow was not dispatched.**
 
+> **Renamed later (owner msg 4895, full names only):** the secret and variable names below are the old ones. The current ones are in the `deploy-pal.yml` header: `APP_STORE_CONNECT_KEY_ID`, `APP_STORE_CONNECT_ISSUER_ID`, `APP_STORE_CONNECT_PRIVATE_KEY`, `DISTRIBUTION_CERTIFICATE`, `DISTRIBUTION_CERTIFICATE_PASSWORD`, `PROVISIONING_PROFILE_APP`, `PROVISIONING_PROFILE_SHARE_EXTENSION`, `APPLE_TEAM_ID`; variables `ALTSTORE_PAL_MARKETPLACE_ID`, `APP_STORE_CONNECT_KEY_ROLE`.
+
 ## Performance
 
 - **Duration:** 14 min
