@@ -318,6 +318,28 @@ final class HostedWindowCaptureTests: XCTestCase {
         XCTAssertEqual(try writer.recordedKeys(), ["a__en__large__portrait__iphone__light"])
     }
 
+    func testResultWriterKeepsTheFirstLineOfACoordinateAndItsPictures() throws {
+        // Run 43298876957, s15: runners XCTest had given up woke and wrote coordinates their replacements had written.
+        let writer = SnapshotResultWriter(output: try Self.temporaryDirectory())
+        let key = "a__en__large__portrait__iphone__light", path = "iphone/en/large/a/portrait-light.png"
+        func line(_ sha: String) -> SnapshotResultLine {
+            SnapshotResultLine(
+                key: key, status: .recorded, attempts: 1, flaky: false, seconds: 1, settleSamples: 2, bytes: 1,
+                sha256: sha, reason: nil
+            )
+        }
+        let first = SnapshotPicture(Data([1]), kind: nil, relativePath: path)
+        XCTAssertTrue(try writer.append(line("01"), pictures: [first]))
+        XCTAssertFalse(try writer.append(line("02"), pictures: [
+            SnapshotPicture(Data([2]), kind: nil, relativePath: path),
+            SnapshotPicture(Data([2]), kind: "first-actual", relativePath: path)
+        ]))
+        XCTAssertEqual(try writer.lines(), [line("01")])
+        XCTAssertEqual(try Data(contentsOf: writer.output.appending(path: path)), Data([1]))
+        let firstActual = writer.output.appending(path: "first-actual").appending(path: path)
+        XCTAssertFalse(FileManager.default.fileExists(atPath: firstActual.path(percentEncoded: false)))
+    }
+
     // MARK: Helpers
 
     @MainActor

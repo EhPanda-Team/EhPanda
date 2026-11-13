@@ -350,6 +350,28 @@ class AggregateTests(unittest.TestCase):
         self.assertEqual(len(rows), 1)
         self.assertEqual(rows[0]['seconds'], 1.5)
 
+    def test_recorded_twice_with_different_pictures_is_an_error_naming_both_digests(self):
+        # Run 43298876957 (s15): runners XCTest had given up woke and recorded the coordinates their replacements
+        # recorded, and the merge kept the first line while the disk kept the second picture.
+        duplicate = self.keys('s03')[0]
+        first = {'sha256': 'aa', 'status': 'recorded'}
+        line = {'key': duplicate, 'status': 'recorded', 'attempts': 1, 'flaky': False, 'seconds': 4.0, 'sha256': 'bb'}
+        self.write_all(s03={'status': 'recorded', 'overrides': {duplicate: first}, 'extra': [line]})
+        code, out = self.run_cli()
+        self.assertEqual(code, 1)
+        self.assertEqual(self.aggregate()['items']['infrastructureErrors'], [{
+            'shard': 's03', 'kind': 'duplicate-result', 'key': duplicate,
+            'detail': 'recorded twice with different pictures (aa, then bb)'}])
+        self.assertIn(f'`{duplicate}`: duplicate-result (s03)', out)
+
+    def test_recorded_twice_with_the_same_picture_is_merged_once(self):
+        duplicate = self.keys('s03')[0]
+        line = {'key': duplicate, 'status': 'recorded', 'attempts': 1, 'flaky': False, 'seconds': 4.0, 'sha256': 'aa'}
+        self.write_all(s03={'status': 'recorded', 'overrides': {duplicate: {'sha256': 'aa'}}, 'extra': [line]})
+        code, out = self.run_cli()
+        self.assertEqual(code, 0, out)
+        self.assertEqual(len([row for row in self.aggregate()['results'] if row['key'] == duplicate]), 1)
+
     def test_retry_without_shard_json_keeps_the_first_attempt_and_is_reported(self):
         # Run 42577585956: s07's retry could not make its simulator and left only its logs, and the merge took that
         # empty retry over a first attempt with 547 pictures. The first attempt stays; the lost retry is named.

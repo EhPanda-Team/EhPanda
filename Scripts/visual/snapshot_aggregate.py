@@ -9,7 +9,8 @@ a retry without `shard.json` never replaces an earlier attempt that has one: the
 and the lost retry is reported as `retry-lost` (run 42577585956, s07). Every expected coordinate of the shard plan must have a line: a
 coordinate without one is an infrastructure error, so a missing or malformed file never reads as a pass. A coordinate
 written twice with the same status (XCTest runs a class again after its runner crashed) counts once; lines that
-disagree are a `duplicate-result` error.
+disagree are a `duplicate-result` error, and so are two `recorded` lines with different digests: the candidate keeps one
+picture per coordinate, so one of the lines names a picture that is not there (run 43298876957, s15).
 
 Failures fall into four classes, each named in the summary: picture changes, infrastructure errors, environment drift
 and baseline mismatches. Any non-empty class fails the run. `--triage` prints the shards to retry: those with an
@@ -101,6 +102,19 @@ def lost_detail(directory, expected):
     return f'no artifact; {missing} coordinates missing'
 
 
+def duplicate_disagreement(first, line):
+    """Why a second line of a coordinate disagrees with its first, or `None` when it repeats it.
+
+    A `passed` picture taken twice may differ within the comparison's tolerance, so only `recorded` lines, whose
+    picture is the candidate itself, are held to the same digest.
+    """
+    if first['status'] != line['status']:
+        return f"{first['status']}, then {line['status']}"
+    if line['status'] == 'recorded' and first.get('sha256') != line.get('sha256'):
+        return f"recorded twice with different pictures ({first.get('sha256')}, then {line.get('sha256')})"
+    return None
+
+
 def aggregate(results, retry, document, env, shard_plan, retry2=None, retry3=None, only=()):
     """The merged verdict as the `aggregate.json` document; `only` restricts it to those shards (a restricted run)."""
     total = len(shard_plan['shards'])
@@ -155,11 +169,11 @@ def aggregate(results, retry, document, env, shard_plan, retry2=None, retry3=Non
                 items['infrastructureErrors'].append({'shard': shard_id, 'kind': 'unexpected-result', 'key': key})
                 continue
             if key in seen:
-                if seen[key] != status:
+                if disagreement := duplicate_disagreement(seen[key], line):
                     items['infrastructureErrors'].append({'shard': shard_id, 'kind': 'duplicate-result', 'key': key,
-                                                          'detail': f'{seen[key]}, then {status}'})
+                                                          'detail': disagreement})
                 continue
-            seen[key] = status
+            seen[key] = line
             entry = {'key': key, 'status': status, 'shard': shard_id, 'attempts': line.get('attempts', 1),
                      'flaky': bool(line.get('flaky')), 'seconds': line.get('seconds', 0)}
             if line.get('reason'):

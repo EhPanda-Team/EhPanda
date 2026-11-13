@@ -154,34 +154,35 @@ class SnapshotMatrixCase: XCTestCase {
             )
         }
         let digest = outcome.png.map({ SHA256.hash(data: $0).map({ String(format: "%02x", $0) }).joined() })
-        try writer.append(SnapshotResultLine(
-            key: coordinate.key, status: outcome.status, attempts: outcome.attempts, flaky: outcome.flaky,
-            seconds: outcome.seconds, settleSamples: outcome.settleSamples, bytes: outcome.png?.count ?? 0,
-            sha256: digest, reason: outcome.reason
-        ))
+        let path = coordinate.baselinePath
         // A first attempt that differed or timed out, kept beside the result so a flaky picture can be read.
-        if let first = outcome.firstAttempt {
-            if let png = first.png {
-                try writer.writePicture(png, kind: "first-actual", relativePath: coordinate.baselinePath)
-            }
-            if let difference = first.difference {
-                try writer.writePicture(difference, kind: "first-difference", relativePath: coordinate.baselinePath)
-            }
-        }
+        var pictures = [
+            outcome.firstAttempt?.png.map({ SnapshotPicture($0, kind: "first-actual", relativePath: path) }),
+            outcome.firstAttempt?.difference.map({ SnapshotPicture($0, kind: "first-difference", relativePath: path) })
+        ]
         switch outcome.status {
         case .recorded:
-            if let png = outcome.png {
-                try writer.writePicture(png, kind: nil, relativePath: coordinate.baselinePath)
-            }
+            pictures.append(outcome.png.map({ SnapshotPicture($0, kind: nil, relativePath: path) }))
         case .passed, .notApplicable:
             break
         case .changed, .missingBaseline, .timeout, .error:
-            if let png = outcome.png {
-                try writer.writePicture(png, kind: "actual", relativePath: coordinate.baselinePath)
-            }
-            if let difference = outcome.difference {
-                try writer.writePicture(difference, kind: "difference", relativePath: coordinate.baselinePath)
-            }
+            pictures.append(outcome.png.map({ SnapshotPicture($0, kind: "actual", relativePath: path) }))
+            pictures.append(outcome.difference.map({ SnapshotPicture($0, kind: "difference", relativePath: path) }))
+        }
+        // The line and its pictures are written together, and only if no other runner wrote this coordinate first
+        // (SnapshotResultWriter).
+        try writer.append(
+            SnapshotResultLine(
+                key: coordinate.key, status: outcome.status, attempts: outcome.attempts, flaky: outcome.flaky,
+                seconds: outcome.seconds, settleSamples: outcome.settleSamples, bytes: outcome.png?.count ?? 0,
+                sha256: digest, reason: outcome.reason
+            ),
+            pictures: pictures.compactMap({ $0 })
+        )
+        switch outcome.status {
+        case .recorded, .passed, .notApplicable:
+            break
+        case .changed, .missingBaseline, .timeout, .error:
             // A fixed message: the key names synthetic coordinates only.
             XCTFail("\(coordinate.key): \(outcome.status.rawValue)")
         }

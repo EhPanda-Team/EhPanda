@@ -85,10 +85,31 @@ public struct SnapshotShardRecord: Codable, Equatable, Sendable {
     }
 }
 
+/// A picture written with its result line: `kind` is the subdirectory (`actual`, `difference`, …) or `nil` for the
+/// output root, and `relativePath` the coordinate's baseline path.
+public struct SnapshotPicture: Sendable {
+    public let data: Data
+    public let kind: String?
+    public let relativePath: String
+
+    public init(_ data: Data, kind: String?, relativePath: String) {
+        self.data = data
+        self.kind = kind
+        self.relativePath = relativePath
+    }
+}
+
 /// Appends result lines to `<output>/results.jsonl` and writes the run's pictures under `<output>`.
 ///
 /// Several simulator clones of one run share the output directory, so each line is one `write` to a descriptor
 /// opened with `O_APPEND` under an exclusive `flock`: lines from different processes never interleave.
+///
+/// Each coordinate keeps the first line written for it, and only that line's pictures. A hosted runner froze for
+/// 25 minutes (run 43298876957, shard s15): XCTest gave the stalled runners up, started new ones on
+/// the same clones and ran their classes again, and the old runners woke and went on with the same classes. Both
+/// wrote each coordinate, the aggregate kept the first line and the disk kept the last picture, and 34 lines
+/// named pictures whose digest and size were not the ones on disk. The check, the pictures and the line are now
+/// one step under the lock.
 public struct SnapshotResultWriter: Sendable {
     public let output: URL
 
@@ -100,7 +121,12 @@ public struct SnapshotResultWriter: Sendable {
         output.appending(path: "results.jsonl")
     }
 
-    public func append(_ line: SnapshotResultLine) throws {
+    /// Writes `pictures`, then `line`, unless `line.key` already has a line; returns whether it wrote them.
+    ///
+    /// The pictures go first: a process killed between the two leaves pictures without a line, which a re-run
+    /// replaces (`Scripts/visual/snapshot_shard.py` `prune`), never a line without its pictures.
+    @discardableResult
+    public func append(_ line: SnapshotResultLine, pictures: [SnapshotPicture] = []) throws -> Bool {
         try FileManager.default.createDirectory(at: output, withIntermediateDirectories: true)
         let encoder = JSONEncoder()
         encoder.outputFormatting = [.sortedKeys]
@@ -111,10 +137,15 @@ public struct SnapshotResultWriter: Sendable {
         defer { close(descriptor) }
         guard flock(descriptor, LOCK_EX) == 0 else { throw SnapshotResultWriterError.lock(errno) }
         defer { flock(descriptor, LOCK_UN) }
+        guard try !recordedKeys().contains(line.key) else { return false }
+        for picture in pictures {
+            try writePicture(picture.data, kind: picture.kind, relativePath: picture.relativePath)
+        }
         let written = data.withUnsafeBytes { buffer in
             write(descriptor, buffer.baseAddress, buffer.count)
         }
         guard written == data.count else { throw SnapshotResultWriterError.write(errno) }
+        return true
     }
 
     /// Writes `data` at `relativePath` below the output, or below one of its subdirectories (`actual`,
