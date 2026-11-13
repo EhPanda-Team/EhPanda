@@ -14,7 +14,7 @@ struct LibraryClientImageCacheLimitTests {
     // in parallel with other tests cannot change what they observe. The reader cache is injected so
     // the test never touches the live one.
     @Test
-    func initializingTheLiveClientCapsBothImageLibrariesAt1GiB() throws {
+    func initializingTheLiveClientCapsKingfisherAt512MiBAndSDWebImageAt128MiB() throws {
         let rootURL = try makeTemporaryDirectory()
         withDependencies {
             $0.dataCache = DataCache(configuration: .init(rootURL: rootURL))
@@ -22,7 +22,7 @@ struct LibraryClientImageCacheLimitTests {
             LibraryClient.live.initializeWebImage()
         }
 
-        #expect(KingfisherManager.shared.cache.diskStorage.config.sizeLimit == 1024 * 1024 * 1024)
-        #expect(SDImageCache.shared.config.maxDiskSize == 1024 * 1024 * 1024)
+        #expect(KingfisherManager.shared.cache.diskStorage.config.sizeLimit == 512 * 1024 * 1024)
+        #expect(SDImageCache.shared.config.maxDiskSize == 128 * 1024 * 1024)
     }
 }

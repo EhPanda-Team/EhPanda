@@ -140,11 +140,11 @@ struct DataCacheTests {
     /// Regression: the default configuration had no size limit (`diskSizeLimit == 0`), so the reader's byte
     /// cache was bounded by age alone and could grow without bound within the seven days.
     @Test
-    func testDefaultConfigurationCapsTheDiskAt2GiB() {
+    func testDefaultConfigurationCapsTheDiskAt1GiB() {
         let configuration = DataCache.Configuration()
-        #expect(configuration.diskSizeLimit == 2 * 1024 * 1024 * 1024)
+        #expect(configuration.diskSizeLimit == 1024 * 1024 * 1024)
         // The size check runs after every eighth of the limit has been written.
-        #expect(configuration.sweepByteInterval == 256 * 1024 * 1024)
+        #expect(configuration.sweepByteInterval == 128 * 1024 * 1024)
     }
 
     private func makeRootURL() -> URL {

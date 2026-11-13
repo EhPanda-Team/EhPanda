@@ -37,8 +37,11 @@
 
 **Caching:**
 - Kingfisher image cache (disk + memory) - primary image cache
-- SDWebImage cache (`DataCache`) - animated images; consumers resolve the injectable
-  `dataCache` dependency, whose live actor also receives system-purge events
+- SDWebImage's own disk cache (`SDImageCache.shared`) - used mainly as the decoder/renderer for animated images
+- `DataCache` (`Caches/DataCache.reading`) - a separate store: the reader's page bytes, which are handed to Kingfisher
+  or SDWebImage for rendering; consumers resolve the injectable `dataCache` dependency, whose live actor also
+  receives system-purge events
+- Disk limits (owner decision): `DataCache` 1 GiB, Kingfisher 512 MiB, SDWebImage 128 MiB
 
 ## Authentication & Identity
 

@@ -28,10 +28,10 @@ public actor DataCache {
         public var diskSizeLimit: UInt64
         public var sweepByteInterval: UInt64
 
-        /// The size the disk cache is trimmed back from (to half of it) once it grows past it: 2 GiB.
+        /// The size the disk cache is trimmed back from (to half of it) once it grows past it: 1 GiB (owner decision).
         /// Without a limit the cache was bounded by age alone, and reading many galleries within
         /// `maxDiskAge` could fill the device. A limit of 0 still means "no size limit".
-        public static let defaultDiskSizeLimit: UInt64 = 2 * 1024 * 1024 * 1024
+        public static let defaultDiskSizeLimit: UInt64 = 1024 * 1024 * 1024
 
         public init(
             rootURL: URL = URL.cachesDirectory
