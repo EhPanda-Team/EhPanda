@@ -7,6 +7,8 @@ public import SwiftUI
 public struct GalleryList: View {
     @AccessibilityFocusState private var localFocusedGalleryID: String?
     @State private var localScrollPositionID: String?
+    /// The notice's bottom edge in the list's frame, measured only while the error view shows.
+    @State private var noticeBottom: CGFloat = 0
     private let externalScrollPositionID: Binding<String?>?
     private let galleryFocus: AccessibilityFocusState<String?>.Binding?
 
@@ -59,6 +61,7 @@ public struct GalleryList: View {
     public var body: some View {
         let focusedGalleryID = galleryFocus ?? $localFocusedGalleryID
         let scrollPosition = externalScrollPositionID ?? $localScrollPositionID
+        let measuredNoticeBottom = notice != nil && loadingState.is(\.failed) ? $noticeBottom : nil
         VStack(spacing: 0) {
             switch displayMode {
             case .row:
@@ -67,6 +70,7 @@ public struct GalleryList: View {
                     pageNumber: pageNumber,
                     footerLoadingState: footerLoadingState,
                     notice: notice,
+                    noticeBottom: measuredNoticeBottom,
                     fetchMoreAction: fetchMoreAction,
                     navigateAction: navigateAction,
                     readAction: readAction,
@@ -82,6 +86,7 @@ public struct GalleryList: View {
                     pageNumber: pageNumber,
                     footerLoadingState: footerLoadingState,
                     notice: notice,
+                    noticeBottom: measuredNoticeBottom,
                     fetchMoreAction: fetchMoreAction,
                     navigateAction: navigateAction,
                     readAction: readAction,
@@ -98,8 +103,9 @@ public struct GalleryList: View {
                     $0.visible(loadingState == .loading)
                 }
         }
+        .coordinateSpace(.galleryList)
         .overlay {
-            ErrorView(error: loadingState.failed ?? .unknown, action: fetchAction)
+            errorView
                 .animation(.default) {
                     $0.visible(loadingState.is(\.failed))
                 }
@@ -112,6 +118,67 @@ public struct GalleryList: View {
             )
         }
     }
+
+    /// The error view, centred in the list as before. A list with a notice keeps the notice clear: at the largest
+    /// text sizes the centred view covered History's notice (`history-empty`, iPhone accessibility5), so there it
+    /// is centred below the notice instead, and scrolls when it is taller than that space.
+    @ViewBuilder private var errorView: some View {
+        let error = ErrorView(error: loadingState.failed ?? .unknown, action: fetchAction)
+        if notice == nil {
+            error
+        } else {
+            NoticeClearingLayout(noticeBottom: loadingState.is(\.failed) ? noticeBottom : 0) {
+                ViewThatFits(in: .vertical) {
+                    error
+                    ScrollView { error }
+                }
+            }
+        }
+    }
+}
+
+extension CoordinateSpaceProtocol where Self == NamedCoordinateSpace {
+    fileprivate static var galleryList: NamedCoordinateSpace { .named("GalleryList") }
+}
+
+/// Places its one view over the whole list, as an overlay does, unless the view's content, centred there, would
+/// reach above `noticeBottom`; then it gets only the space below the notice.
+private struct NoticeClearingLayout: Layout {
+    let noticeBottom: CGFloat
+
+    func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) -> CGSize {
+        proposal.replacingUnspecifiedDimensions()
+    }
+
+    func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) {
+        guard let view = subviews.first else { return }
+        let contentHeight = view.sizeThatFits(ProposedViewSize(width: bounds.width, height: nil)).height
+        let clearance = min(max(noticeBottom, 0), bounds.height)
+        guard (bounds.height - contentHeight) / 2 < clearance else {
+            view.place(at: bounds.origin, proposal: ProposedViewSize(bounds.size))
+            return
+        }
+        view.place(
+            at: CGPoint(x: bounds.minX, y: bounds.minY + clearance),
+            proposal: ProposedViewSize(width: bounds.width, height: bounds.height - clearance)
+        )
+    }
+}
+
+/// Reports the notice's bottom edge in the list's frame to `bottom`, or nothing while `bottom` is `nil`, so a
+/// scrolling list does not update its parent on every frame.
+private struct NoticeBottomReporter: ViewModifier {
+    let bottom: Binding<CGFloat>?
+
+    func body(content: Content) -> some View {
+        content.onGeometryChange(for: CGFloat?.self) { geometry in
+            bottom == nil ? nil : geometry.frame(in: .galleryList).maxY
+        } action: { value in
+            if let value {
+                bottom?.wrappedValue = value
+            }
+        }
+    }
 }
 // MARK: DetailList
 private struct DetailList: View {
@@ -122,6 +189,7 @@ private struct DetailList: View {
     private let pageNumber: PageNumber?
     private let footerLoadingState: LoadingState
     private let notice: LocalizedStringResource?
+    private let noticeBottom: Binding<CGFloat>?
     private let fetchMoreAction: (() -> Void)?
     private let navigateAction: ((Gallery) -> Void)?
     private let readAction: ((Gallery) -> Void)?
@@ -130,6 +198,7 @@ private struct DetailList: View {
     init(
         galleries: [Gallery], pageNumber: PageNumber?,
         footerLoadingState: LoadingState, notice: LocalizedStringResource? = nil,
+        noticeBottom: Binding<CGFloat>? = nil,
         fetchMoreAction: (() -> Void)?,
         navigateAction: ((Gallery) -> Void)? = nil,
         readAction: ((Gallery) -> Void)? = nil,
@@ -144,6 +213,7 @@ private struct DetailList: View {
         self.pageNumber = pageNumber
         self.footerLoadingState = footerLoadingState
         self.notice = notice
+        self.noticeBottom = noticeBottom
         self.fetchMoreAction = fetchMoreAction
         self.navigateAction = navigateAction
         self.readAction = readAction
@@ -163,7 +233,10 @@ private struct DetailList: View {
 
     var body: some View {
         GalleryAnchoredList(anchorID: $scrollPositionID, ids: galleries.map(\.id)) {
-            notice.map(ListNoticeView.init)
+            if let notice {
+                ListNoticeView(notice: notice)
+                    .modifier(NoticeBottomReporter(bottom: noticeBottom))
+            }
 
             ForEach(galleries) { gallery in
                 Button {
@@ -215,6 +288,7 @@ private struct GridList: View {
     private let pageNumber: PageNumber?
     private let footerLoadingState: LoadingState
     private let notice: LocalizedStringResource?
+    private let noticeBottom: Binding<CGFloat>?
     private let fetchMoreAction: (() -> Void)?
     private let navigateAction: ((Gallery) -> Void)?
     private let readAction: ((Gallery) -> Void)?
@@ -224,6 +298,7 @@ private struct GridList: View {
         showsRating: Bool,
         galleries: [Gallery], pageNumber: PageNumber?,
         footerLoadingState: LoadingState, notice: LocalizedStringResource? = nil,
+        noticeBottom: Binding<CGFloat>? = nil,
         fetchMoreAction: (() -> Void)?,
         navigateAction: ((Gallery) -> Void)? = nil,
         readAction: ((Gallery) -> Void)? = nil,
@@ -239,6 +314,7 @@ private struct GridList: View {
         self.pageNumber = pageNumber
         self.footerLoadingState = footerLoadingState
         self.notice = notice
+        self.noticeBottom = noticeBottom
         self.fetchMoreAction = fetchMoreAction
         self.navigateAction = navigateAction
         self.readAction = readAction
@@ -251,6 +327,7 @@ private struct GridList: View {
             if let notice {
                 ListNoticeView(notice: notice)
                     .padding(.horizontal)
+                    .modifier(NoticeBottomReporter(bottom: noticeBottom))
             }
             LazyVGrid(
                 columns: [GridItem(.adaptive(minimum: minCellWidth), spacing: 12, alignment: .top)], spacing: 16
