@@ -21,6 +21,7 @@ struct HeaderSectionActionSpacingTests {
             return detail
         }
 
+        var readingProgress = 0
         @AccessibilityFocusState var readFocus: Bool
 
         var body: some View {
@@ -41,6 +42,7 @@ struct HeaderSectionActionSpacingTests {
                 createDefaultFolderAction: {},
                 favorAction: { _ in },
                 unfavorAction: {},
+                readingProgress: readingProgress,
                 navigateReadingAction: {},
                 readButtonFocus: $readFocus,
                 navigateUploaderAction: {}
@@ -54,12 +56,14 @@ struct HeaderSectionActionSpacingTests {
         let read: CGRect
     }
 
-    private func actionFrames(width: CGFloat, size: DynamicTypeSize) throws -> ActionFrames {
+    private func actionFrames(
+        width: CGFloat, size: DynamicTypeSize, readingProgress: Int = 0
+    ) throws -> ActionFrames {
         // `@SharedReader(.didLogin)` reads the cookie store while the header is built.
         let elements = try withDependencies {
             $0.cookieClient = .noop
         } operation: {
-            try LaidOutElements(of: Host(), width: width, size: size)
+            try LaidOutElements(of: Host(readingProgress: readingProgress), width: width, size: size)
         }
         return try ActionFrames(
             download: #require(elements.frame(labelled: "Download")),
@@ -103,5 +107,24 @@ struct HeaderSectionActionSpacingTests {
     @Test(arguments: [320, 375] as [CGFloat], [DynamicTypeSize.xSmall, .xxxLarge, .accessibility3])
     func spacingHoldsWhateverTheRowArrangement(width: CGFloat, size: DynamicTypeSize) throws {
         expectEvenlySpaced(try actionFrames(width: width, size: size), "\(width)pt at \(size)")
+    }
+
+    // The Read button names the saved page once there is one: its circle becomes a capsule wide enough for the
+    // label, and the row keeps its designed gaps around it. It is still found as "Read" for VoiceOver.
+    @Test(arguments: [375, 402, 834] as [CGFloat], [DynamicTypeSize.large, .accessibility3])
+    func aSavedPageWidensReadAndKeepsTheRowsGaps(width: CGFloat, size: DynamicTypeSize) throws {
+        let circle = try actionFrames(width: width, size: size)
+        let capsule = try actionFrames(width: width, size: size, readingProgress: 12)
+
+        #expect(capsule.read.width > circle.read.width + 1, "\(width)pt at \(size): Read did not grow")
+        #expect(abs(capsule.read.height - circle.read.height) < 0.5, "\(width)pt at \(size): Read changed height")
+        #expect(abs(capsule.download.width - capsule.favorite.width) < 0.5)
+        let favoriteToRead = gap(from: capsule.favorite, to: capsule.read)
+        #expect(
+            abs(favoriteToRead - Self.designedGap) < 0.5,
+            "\(width)pt at \(size): Favorite to Read is \(favoriteToRead)pt, not \(Self.designedGap)pt."
+        )
+        let downloadToFavorite = gap(from: capsule.download, to: capsule.favorite)
+        #expect(abs(downloadToFavorite - Self.designedGap) < 0.5)
     }
 }

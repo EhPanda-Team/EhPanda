@@ -96,6 +96,7 @@ private extension DetailView {
                     createDefaultFolderAction: { store.send(.createDefaultFolder) },
                     favorAction: { store.send(.favorGallery($0)) },
                     unfavorAction: { store.send(.unfavorGallery) },
+                    readingProgress: store.readingProgress,
                     navigateReadingAction: {
                         readingOrigin = .headerRead
                         store.send(.openReading)

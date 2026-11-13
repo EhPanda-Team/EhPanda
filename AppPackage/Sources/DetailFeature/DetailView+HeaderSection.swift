@@ -33,6 +33,8 @@ struct HeaderSection: View {
     let createDefaultFolderAction: () -> Void
     let favorAction: (Int) -> Void
     let unfavorAction: () -> Void
+    /// The page the reader resumes at; 0 for a gallery that was never read.
+    let readingProgress: Int
     let navigateReadingAction: () -> Void
     let readButtonFocus: AccessibilityFocusState<Bool>.Binding
     let navigateUploaderAction: () -> Void
@@ -244,15 +246,37 @@ struct HeaderSection: View {
     }
     private var readButton: some View {
         Button(action: navigateReadingAction) {
+            readButtonLabel
+                .foregroundStyle(.white)
+        }
+        .buttonStyle(.glassProminent)
+        // A gallery with a saved page stretches the circle into a capsule to hold the page's label.
+        .buttonBorderShape(readingProgress > 0 ? .capsule : .circle)
+        // The control stays "Read" for VoiceOver and Voice Control; the saved page is its value.
+        .accessibilityLabel(.read)
+        .accessibilityValue(readButtonAccessibilityValue)
+        .accessibilityFocused(readButtonFocus)
+    }
+    /// The book glyph, or, once the gallery has a saved page, that page's label (for example "P12"). The label
+    /// scales with Dynamic Type like the other controls' glyphs, and the capsule grows to hold it.
+    @ContentBuilder private var readButtonLabel: some View {
+        if readingProgress > 0 {
+            Text(.readProgress(page: readingProgress))
+                .font(actionIconFont)
+                .monospacedDigit()
+                .lineLimit(1)
+                // The capsule brings its own horizontal padding, wider than the circle's, so the label's minimum
+                // width is what leaves a one-digit page as wide as the circle it replaces.
+                .frame(minWidth: actionIconButtonSize * 0.65, minHeight: actionIconButtonSize)
+        } else {
             Label(.read, systemSymbol: .bookFill)
                 .labelStyle(.iconOnly)
                 .font(actionIconFont)
-                .foregroundStyle(.white)
                 .frame(width: actionIconButtonSize, height: actionIconButtonSize)
         }
-        .buttonStyle(.glassProminent)
-        .buttonBorderShape(.circle)
-        .accessibilityFocused(readButtonFocus)
+    }
+    private var readButtonAccessibilityValue: String {
+        readingProgress > 0 ? String(localized: .accessibilityPreviewPage(page: readingProgress)) : String()
     }
     /// The download ring, drawn over the whole glass button rather than inside its label: a track in the tint at
     /// 18 % and an arc in the tint from 12 o'clock clockwise for the pages saved, so an arc of 0 draws nothing.
@@ -495,7 +519,8 @@ private struct DownloadRingDashes: Shape {
 @MainActor private func previewHeaderSection(
     readButtonFocus: AccessibilityFocusState<Bool>.Binding,
     downloadBadge: DownloadBadge? = nil,
-    downloadNeedsRepair: Bool = false
+    downloadNeedsRepair: Bool = false,
+    readingProgress: Int = 0
 ) -> some View {
     HeaderSection(
         gallery: .preview,
@@ -514,6 +539,7 @@ private struct DownloadRingDashes: Shape {
         createDefaultFolderAction: {},
         favorAction: { _ in },
         unfavorAction: {},
+        readingProgress: readingProgress,
         navigateReadingAction: {},
         readButtonFocus: readButtonFocus,
         navigateUploaderAction: {}
@@ -598,5 +624,14 @@ private struct DownloadRingDashes: Shape {
             ),
             downloadNeedsRepair: true
         )
+    }
+}
+
+#Preview("Resumes at page 12") {
+    @Previewable @AccessibilityFocusState var readButtonFocused: Bool
+    withDependencies {
+        $0.cookieClient = .previewLoggedIn
+    } operation: {
+        previewHeaderSection(readButtonFocus: $readButtonFocused, readingProgress: 12)
     }
 }

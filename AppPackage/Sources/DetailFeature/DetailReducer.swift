@@ -100,6 +100,9 @@ public struct DetailReducer: Sendable {
         public var downloadFolders = [String]()
         public var isPreparingDownload = false
         public var hasLoadedDownloadBadge = false
+        /// The page the reader resumes at (the browsing history's saved page, 0 when the gallery was never read),
+        /// shown on the Read button. Refreshed when the screen is presented and when the reader closes.
+        public var readingProgress = 0
 
         var cancellationGalleryID: String {
             gid.isEmpty ? gallery.id : gid
