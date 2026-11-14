@@ -114,6 +114,72 @@ enum RevealStep {
         return backdrop != nil && shape != nil
     }
 
+    /// The user step of a sheet whose navigation bar draws a large title over a list with hidden overlays (Archives,
+    /// Torrents): at accessibility5, once the page has settled, a bar that follows a hidden scroll view is made to
+    /// follow the sheet's shown list, then `next` runs. At other sizes the step is `next` alone.
+    ///
+    /// Both sheets lay a loading view and an error view over their list, hidden by opacity, and at accessibility5
+    /// the error view scrolls. The sheet's navigation bar can take that hidden scroll view for its content, and its
+    /// large title was then laid out inside it in most launches: the title's space stayed, but nothing was drawn in
+    /// it. Which way a launch went stayed for the rest of the page (`detail-pages-archives`,
+    /// `-archives-insufficient-funds` and `-torrents` at accessibility5: the title in one run and not in the next,
+    /// run 43451019962 against the run before it). A bar that follows the hidden scroll view also does not collapse
+    /// its title when the list scrolls, so the insufficient-funds sheet, scrolled to its balances, held the large
+    /// title in some launches and the collapsed bar in others. The step names the shown list as the page's top
+    /// content scroll view: the title is drawn as in the launches that had it, pixel for pixel, and collapses as the
+    /// list scrolls. A title that is still not drawn fails the step as `interaction:large-title-hidden`.
+    nonisolated static func showLargeTitle(then next: ScenarioFactory.Interact? = nil) -> ScenarioFactory.Interact {
+        { window in
+            if isLargestText {
+                _ = await HostedWindowCapture.settle(window)
+                if followShownList(in: window) {
+                    try await BrowsingScenarios.waitForRest(window)
+                }
+                guard largeTitleShown(in: window) else {
+                    throw BrowsingScenarios.StepFailure(reason: "large-title-hidden")
+                }
+            }
+            try await next?(window)
+        }
+    }
+
+    /// Whether the front-most presentation's large title, if it has one, is drawn: nothing on the way up to the
+    /// window hidden or transparent.
+    static func largeTitleShown(in window: UIWindow) -> Bool {
+        guard let root = window.rootViewController, let view = (frontPresentation(over: root) ?? root).view,
+              let title = firstView(named: "_UINavigationBarLargeTitleView", in: view) else { return true }
+        return shows(title, in: window)
+    }
+
+    /// Names the largest shown scroll view of each navigation controller's top page in the front-most presentation as
+    /// that page's top content scroll view, where the one its bar follows is not shown; whether it named any.
+    @discardableResult
+    private static func followShownList(in window: UIWindow) -> Bool {
+        guard let root = window.rootViewController else { return false }
+        let front = frontPresentation(over: root) ?? root
+        var named = false
+        for navigation in controllers(in: front).compactMap({ $0 as? UINavigationController }) {
+            guard let page = navigation.topViewController else { continue }
+            if let followed = page.contentScrollView(for: .top), shows(followed, in: window) { continue }
+            guard let list = scrollViews(in: page.view)
+                .filter({ shows($0, in: window) })
+                .max(by: { $0.bounds.width * $0.bounds.height < $1.bounds.width * $1.bounds.height })
+            else { continue }
+            page.setContentScrollView(list, for: .top)
+            // The bar lays its title out again only when it is itself laid out.
+            navigation.navigationBar.setNeedsLayout()
+            navigation.view.setNeedsLayout()
+            navigation.view.layoutIfNeeded()
+            named = true
+        }
+        return named
+    }
+
+    /// `controller` and every controller it holds.
+    private static func controllers(in controller: UIViewController) -> [UIViewController] {
+        [controller] + controller.children.flatMap(controllers(in:))
+    }
+
     /// The last controller presented over `controller`, or over a controller it holds, if any.
     private static func frontPresentation(over controller: UIViewController) -> UIViewController? {
         if let presented = controller.presentedViewController, presented.presentingViewController === controller {

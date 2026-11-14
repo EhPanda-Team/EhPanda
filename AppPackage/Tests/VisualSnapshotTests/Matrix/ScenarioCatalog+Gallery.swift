@@ -70,13 +70,20 @@ extension ScenarioCatalog {
             "detail-pages-detail-search-grid": .init(
                 make: { Page.detailSearch(.loaded(.grid)) }, prepare: artwork
             ),
-            "detail-pages-archives": .init(make: { try Page.archives(lowFunds: false) }, prepare: artwork),
-            // At accessibility5 the balances are below the fold (run 43403534542): the sheet is scrolled to them.
+            // At accessibility5 the sheet's large title could be laid out in its hidden error view, and drawn in one
+            // run and not in the next (run 43451019962): it is given back to the shown list.
+            "detail-pages-archives": .init(
+                make: { try Page.archives(lowFunds: false) }, prepare: artwork, interact: RevealStep.showLargeTitle()
+            ),
+            // At accessibility5 the balances are below the fold (run 43403534542): the sheet is scrolled to them, once
+            // its large title is drawn.
             "detail-pages-archives-insufficient-funds": .init(
                 make: { try Page.archives(lowFunds: true) }, prepare: artwork,
-                interact: RevealStep.reveal(.label(Page.lowGalleryPointsLabel))
+                interact: RevealStep.showLargeTitle(then: RevealStep.reveal(.label(Page.lowGalleryPointsLabel)))
             ),
-            "detail-pages-torrents": .init(make: { try Page.torrents(empty: false) }, prepare: artwork),
+            "detail-pages-torrents": .init(
+                make: { try Page.torrents(empty: false) }, prepare: artwork, interact: RevealStep.showLargeTitle()
+            ),
             "detail-pages-torrents-empty": .init(make: { try Page.torrents(empty: true) }, prepare: artwork),
             "detail-pages-tag-detail": .init(make: { try Page.tagDetail() }, prepare: Page.cacheTagArtwork),
             "detail-pages-new-dawn": .init(make: { try Page.newDawn() }, prepare: artwork),
