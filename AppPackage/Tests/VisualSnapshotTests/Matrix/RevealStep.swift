@@ -69,6 +69,81 @@ enum RevealStep {
         pendingTap = nil
     }
 
+    /// The user step of a scenario whose factory presents a dialog: returns once the dialog has finished presenting
+    /// and, where it is a popover, its platter is built (``popoverPlatterReady(in:)``), or fails at
+    /// ``platterDeadline``, and the capture tries again with a new page and a new presentation.
+    ///
+    /// On the hosted runner 15 of the 144 pictures of `settings-account-logout-confirmation` in run 43451019962
+    /// (about 11 in the run before) drew the popover's text and button over the page without the platter: no glass,
+    /// arrow or shadow, every read alike until the settle ended, with the layout of a good picture. A presentation
+    /// whose platter is built returns at once, so the pictures that had it are drawn as they were.
+    nonisolated static func awaitDialogPlatter() -> ScenarioFactory.Interact {
+        { window in
+            let clock = ContinuousClock()
+            let deadline = clock.now.advanced(by: platterDeadline)
+            while !popoverPlatterReady(in: window) {
+                guard clock.now < deadline else { throw AccessibilityActionDriver.Failure.notFound("popover platter") }
+                try await clock.sleep(for: .milliseconds(100))
+            }
+        }
+    }
+
+    /// How long ``awaitDialogPlatter()`` waits for the dialog's platter.
+    static let platterDeadline: Duration = .seconds(10)
+
+    /// Whether the front-most presentation in the window, from its root or from any controller it holds, has finished
+    /// presenting and, if it is drawn in a popover, the popover's Liquid Glass platter has its layers: a backdrop and
+    /// a shape whose contents are drawn, both the size of the platter, with nothing on the way up to the window hidden
+    /// or transparent, in the model or on screen. A presentation that is not a popover (a sheet, an alert) needs only
+    /// to have finished presenting.
+    static func popoverPlatterReady(in window: UIWindow) -> Bool {
+        guard let root = window.rootViewController, let front = frontPresentation(over: root), !front.isBeingPresented,
+              front.transitionCoordinator == nil else { return false }
+        guard let platter = firstView(named: "_UIPopoverGlassBackground", in: window) else { return true }
+        guard !platter.bounds.isEmpty, shows(platter, in: window) else { return false }
+        let layers = sublayers(of: platter.layer)
+        let backdrop = layers.first(where: {
+            String(describing: type(of: $0)) == "CABackdropLayer" && !$0.bounds.isEmpty
+        })
+        let shape = layers.first(where: {
+            String(describing: type(of: $0)).contains("SDFElementLayer") && $0.contents != nil && !$0.bounds.isEmpty
+        })
+        return backdrop != nil && shape != nil
+    }
+
+    /// The last controller presented over `controller`, or over a controller it holds, if any.
+    private static func frontPresentation(over controller: UIViewController) -> UIViewController? {
+        if let presented = controller.presentedViewController, presented.presentingViewController === controller {
+            return frontPresentation(over: presented) ?? presented
+        }
+        for child in controller.children {
+            if let found = frontPresentation(over: child) { return found }
+        }
+        return nil
+    }
+
+    private static func shows(_ view: UIView, in window: UIWindow) -> Bool {
+        var current: UIView? = view
+        while let view = current, view !== window {
+            let shown = view.layer.presentation()?.opacity ?? view.layer.opacity
+            if view.isHidden || view.alpha < 0.01 || view.layer.opacity < 0.01 || shown < 0.01 { return false }
+            current = view.superview
+        }
+        return current === window
+    }
+
+    private static func firstView(named name: String, in view: UIView) -> UIView? {
+        if String(describing: type(of: view)) == name { return view }
+        for subview in view.subviews {
+            if let found = firstView(named: name, in: subview) { return found }
+        }
+        return nil
+    }
+
+    private static func sublayers(of layer: CALayer) -> [CALayer] {
+        (layer.sublayers ?? []).flatMap({ [$0] + sublayers(of: $0) })
+    }
+
     /// The user step of a scenario whose state is `target`: at accessibility5 the page is scrolled to it and a
     /// tap held back by ``tap(_:)`` is performed. At other sizes it does nothing, unless `atEverySize`: a scenario
     /// new to the matrix, with no pictures to keep, has its target brought on screen at any size it is below the fold.

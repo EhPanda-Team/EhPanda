@@ -36,7 +36,8 @@ extension ScenarioCatalog {
             ),
             "settings-account-signed-out": .init(signedIn: false, make: { Page.account(confirmingLogout: false) }),
             "settings-account-logout-confirmation": .init(
-                cookies: Page.memberCookies, make: { Page.account(confirmingLogout: true) }
+                cookies: Page.memberCookies, make: { Page.account(confirmingLogout: true) },
+                interact: RevealStep.awaitDialogPlatter()
             ),
             "blocked-users-filled": .init(make: { Page.blockedUsers(filled: true) }),
             "blocked-users-empty": .init(make: { Page.blockedUsers(filled: false) }),
