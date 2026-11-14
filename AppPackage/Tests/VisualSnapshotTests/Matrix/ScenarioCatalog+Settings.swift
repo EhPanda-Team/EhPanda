@@ -63,7 +63,7 @@ extension ScenarioCatalog {
             ),
             "settings-pages-general-translations-confirmation": .init(
                 make: { Page.general(level: nil, action: .removeCustomTranslationsButtonTapped) },
-                interact: RevealStep.reveal(.label(String(localized: .removeCustomTranslations)))
+                interact: RevealStep.reveal(.label(String(localized: .removeCustomTranslations)), settlingSteps: true)
             ),
             "settings-pages-activity-logs": .init(make: { Page.activityLogs(filled: true) }),
             "settings-pages-activity-logs-empty": .init(make: { Page.activityLogs(filled: false) }),

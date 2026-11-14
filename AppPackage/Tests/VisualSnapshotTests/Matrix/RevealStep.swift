@@ -147,13 +147,17 @@ enum RevealStep {
     /// The user step of a scenario whose state is `target`: at accessibility5 the page is scrolled to it and a
     /// tap held back by ``tap(_:)`` is performed. At other sizes it does nothing, unless `atEverySize`: a scenario
     /// new to the matrix, with no pictures to keep, has its target brought on screen at any size it is below the fold.
-    nonisolated static func reveal(_ target: Target, atEverySize: Bool = false) -> ScenarioFactory.Interact {
+    /// With `settlingSteps`, the page is looked through again after each step once it has stopped changing, rather
+    /// than 100 ms later (``bringIntoView(_:in:settlingSteps:)``).
+    nonisolated static func reveal(
+        _ target: Target, atEverySize: Bool = false, settlingSteps: Bool = false
+    ) -> ScenarioFactory.Interact {
         { window in
             let tap = pendingTap
             pendingTap = nil
             guard atEverySize || isLargestText else { return }
             _ = await HostedWindowCapture.settle(window)
-            try await bringIntoView(target, in: window)
+            try await bringIntoView(target, in: window, settlingSteps: settlingSteps)
             tap?()
         }
     }
@@ -165,7 +169,7 @@ enum RevealStep {
     /// The most waits at the bottom the list reported, for rows it builds as it scrolls to grow its content.
     private static let maximumStalls = 10
 
-    private static func bringIntoView(_ target: Target, in window: UIWindow) async throws {
+    private static func bringIntoView(_ target: Target, in window: UIWindow, settlingSteps: Bool) async throws {
         var steps = 0
         var stalls = 0
         var placements = 0
@@ -194,6 +198,17 @@ enum RevealStep {
                 } else {
                     guard stalls < maximumStalls else { throw AccessibilityActionDriver.Failure.notFound(target.name) }
                     stalls += 1
+                }
+                // With `settlingSteps` the page is looked through again once it has stopped changing, not after a
+                // fixed time: on a loaded host a list had not built the rows a step brought on screen 100 ms later,
+                // so a step could pass the target before it was built, and ten 100 ms waits at the bottom were not
+                // enough for the rows still to come. `settings-pages-general-translations-confirmation` failed
+                // `interaction:not-found` on both attempts on iPad ko accessibility5 landscape light in run
+                // 43451019962, and on its first on iPhone accessibility5. The other scenarios step as before: where
+                // a step leaves the page decides where their part is placed, and their pictures are kept.
+                if settlingSteps {
+                    _ = await HostedWindowCapture.settle(window)
+                    continue
                 }
             }
             try await ContinuousClock().sleep(for: .milliseconds(100))
