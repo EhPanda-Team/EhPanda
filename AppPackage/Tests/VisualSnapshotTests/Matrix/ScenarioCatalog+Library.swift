@@ -131,7 +131,12 @@ extension ScenarioCatalog {
                 make: { try Page.detail(.rating) }, prepare: artwork,
                 interact: RevealStep.reveal(.wholeLabel(String(localized: .rateGallery)))
             ),
-            "gallery-detail-downloading": .init(make: { try Page.detail(.downloading) }, prepare: artwork),
+            // At accessibility5 in iPhone landscape the download button and its progress are below the fold, and the
+            // pictures were the same as gallery-detail-loaded's (run 43451019962): the page is scrolled to it.
+            "gallery-detail-downloading": .init(
+                make: { try Page.detail(.downloading) }, prepare: artwork,
+                interact: RevealStep.reveal(.label(String(localized: .accessibilityPauseAction)))
+            ),
             "gallery-detail-delete-download-confirmation": .init(
                 make: { try Page.detail(.deleteDownloadConfirmation) }, prepare: artwork
             ),
