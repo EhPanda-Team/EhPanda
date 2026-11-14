@@ -120,8 +120,8 @@ public struct GalleryThumbnailCell: View {
             compactRating
         }
         .font(.caption)
-        // The user's own rating draws the stars green, as the site draws them in its own colours.
-        .foregroundStyle(gallery.hasRated ? AnyShapeStyle(Color.green) : AnyShapeStyle(.foreground))
+        // The user's own rating draws the stars in the site's colour for it, as the detail page does.
+        .foregroundStyle(gallery.userRatingTint.map({ AnyShapeStyle($0.color) }) ?? AnyShapeStyle(.foreground))
     }
 
     /// The rating as a single filled symbol and its half-rounded value — `RatingView`'s own

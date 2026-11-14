@@ -252,10 +252,10 @@ private struct GalleryDetailCellContent: View {
 
     private var ratingAndPageCount: some View {
         AdaptiveStack(hSpaceBetween: true, vSpacing: pairSpacing) {
-            // The user's own rating draws the stars green, as the site draws them in its own colours.
+            // The user's own rating draws the stars in the site's colour for it, as the detail page does.
             RatingView(rating: gallery.rating)
                 .font(.caption)
-                .foregroundStyle(gallery.hasRated ? AnyShapeStyle(Color.green) : AnyShapeStyle(.foreground))
+                .foregroundStyle(gallery.userRatingTint.map({ AnyShapeStyle($0.color) }) ?? AnyShapeStyle(.foreground))
                 .accessibilityRepresentation {
                     Text(.accessibilityRatingSummary(rating: gallery.rating.halfRounded))
                 }

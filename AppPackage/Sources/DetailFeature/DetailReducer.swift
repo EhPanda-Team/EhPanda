@@ -336,6 +336,7 @@ extension DetailReducer.State {
         gallery.favoriteTagIndex = resolved.favoriteTagIndex
         gallery.favoriteTagName = resolved.favoriteTagName
         gallery.hasRated = detail.userRating > 0
+        gallery.userRatingTint = detail.userRatingTint
     }
 
     // Pre-populated from a local download so a downloaded gallery renders instantly and offline;

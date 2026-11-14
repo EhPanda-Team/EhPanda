@@ -174,6 +174,7 @@ public struct GalleryReverseRequest: Request {
                 coverURL: detail.coverURL,
                 galleryURL: url,
                 hasRated: detail.userRating > 0,
+                userRatingTint: detail.userRatingTint,
                 favoriteTagIndex: detail.favoriteTagIndex,
                 favoriteTagName: detail.favoriteTagName
             )

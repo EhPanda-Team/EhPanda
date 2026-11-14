@@ -87,6 +87,7 @@ private extension Parser {
                     galleryURL: titleInfo.url,
                     isExpunged: panelInfo.isExpunged,
                     hasRated: panelInfo.hasRated,
+                    userRatingTint: panelInfo.userRatingTint,
                     favoriteTagIndex: panelInfo.favoriteTagIndex,
                     favoriteTagName: panelInfo.favoriteTagName
                 )
@@ -124,6 +125,7 @@ private extension Parser {
                     galleryURL: titleInfo.url,
                     isExpunged: panelInfo.isExpunged,
                     hasRated: panelInfo.hasRated,
+                    userRatingTint: panelInfo.userRatingTint,
                     favoriteTagIndex: panelInfo.favoriteTagIndex,
                     favoriteTagName: panelInfo.favoriteTagName
                 )
@@ -160,6 +162,7 @@ private extension Parser {
                     galleryURL: titleInfo.url,
                     isExpunged: panelInfo.isExpunged,
                     hasRated: panelInfo.hasRated,
+                    userRatingTint: panelInfo.userRatingTint,
                     favoriteTagIndex: panelInfo.favoriteTagIndex,
                     favoriteTagName: panelInfo.favoriteTagName
                 )
@@ -194,6 +197,7 @@ private extension Parser {
                     galleryURL: titleInfo.url,
                     isExpunged: panelInfo.isExpunged,
                     hasRated: panelInfo.hasRated,
+                    userRatingTint: panelInfo.userRatingTint,
                     favoriteTagIndex: panelInfo.favoriteTagIndex,
                     favoriteTagName: panelInfo.favoriteTagName
                 )
@@ -261,6 +265,7 @@ private extension Parser {
             pageCount: pageCount,
             uploader: uploader,
             hasRated: ratingResult.containsUserRating,
+            userRatingTint: ratingResult.containsUserRating ? ratingResult.userRatingTint : nil,
             isExpunged: postedNode?.at_xpath(".//s") != nil,
             favoriteTagIndex: favorite.index,
             favoriteTagName: favorite.name

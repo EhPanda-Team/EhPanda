@@ -260,17 +260,6 @@ extension DescriptionSection {
     .environment(\.dynamicTypeSize, .accessibility5)
 }
 
-extension UserRatingTint {
-    /// The colour the site draws a rating of this class in.
-    var color: Color {
-        switch self {
-        case .red: .red
-        case .green: .green
-        case .blue: .blue
-        }
-    }
-}
-
 // MARK: ActionSection
 struct ActionSection: View {
     #if DEBUG
