@@ -27,6 +27,7 @@ were replaced by the owner's in `30fab27a3`.
 | `2b0476faa` | detail: the Read button shows reading progress as a ring, not a capsule |
 | `0f96f02fc` | test: the Reduce Motion inventory counts the Read button's ring |
 | `30bcf9243` | detail: the Read button's ring grows once the reader has closed (the designer) |
+| `b53da3062` | lists, detail: the user's rating in the site's own colour, set per appearance (the designer) |
 
 ## Decisions and deviations from #462
 
@@ -49,9 +50,16 @@ were replaced by the owner's in `30fab27a3`.
   fixture has one); the name routes cover its absence.
 - **Palette and index.** `Defaults.FavoriteColor.color(at:)` replaces `colors[index]`; EhSetting's favorite rows use it.
 - **`Gallery` JSON.** Custom decoding: the four new keys default when absent (test with old JSON); wrong types still fail.
-- **User rating colour.** Detail reads it from the page's star class (`irr`, `irg`, `irb`), not from #462's value
-  thresholds (the repo's own detail test pairs a 2.5 rating with `irr`, so the thresholds looked unsafe). Lists use
-  green for any rated row.
+- **User rating colour (the designer, `b53da3062`).** One rule in the list and on Detail: the stars take the site's
+  own colour for the user's rating, read from the star class (`irr` red, `irg` green, `irb` blue), not from #462's
+  value thresholds (the repo's own detail test pairs a 2.5 rating with `irr`, so the thresholds looked unsafe). The
+  list parser keeps the colour as `Gallery.userRatingTint` (it used to keep only `hasRated` and draw every rated row
+  green); a fetched detail page and a gallery resolved from a detail page set it too. Both cells and the Detail header
+  draw with `UserRatingTint.color`, now in `AppModels` and set per appearance for contrast (plain `.green` is about
+  2.2:1 on the white row): light red `#D70015`, green `#248A3D`, blue `#0040DD`; dark red `#FF453A`, green `#30D158`,
+  blue `#0A84FF`. Unrated rows, and rated rows of an unknown colour, keep the plain stars and their view tree.
+  `Gallery` JSON without `userRatingTint` decodes with no colour (an unknown value is still rejected). History stores
+  no colour; its galleries come from the `gdata` API.
 - **Read button (superseded).** The capsule labelled "P12" of `b9175ef6c` was replaced on the designer's decision
   by a progress ring inside the unchanged round button: 4pt in from the edge, 3pt round-capped stroke from 12 o'clock
   clockwise, white at 35% for the track and solid for the progress, resume page over page count (clamped; none for no
@@ -70,8 +78,15 @@ were replaced by the owner's in `30fab27a3`.
 ## Tests
 
 RED runs before the code: `/tmp/ehp462/p2red-final.xcresult` (24 failing, including the haptics crash of the stub run)
-and `p2red8.xcresult` (6 failing runs for the Read button). Gate: `FeatureTests` without `VisualSnapshotTests`, last run
-on the final tree (`30bcf9243`): 1904 passed, 0 failed, 9 expected failures.
+and `p2red8.xcresult` (6 failing runs for the Read button). Gate: `FeatureTests` without `VisualSnapshotTests`, run on
+`30bcf9243`: 1904 passed, 0 failed, 9 expected failures.
+
+Rating colour (`b53da3062`): RED run before the code, against a stub (`Gallery.userRatingTint` stored but never
+parsed, decoded or drawn; `UserRatingTint.color` still the system colours): 19 failing runs (parser colour on every
+favorites layout and for `irr`/`irg`/`irb`, the colours in light and dark, green's 3:1 contrast, the round trip,
+the unknown-colour rejection, a fetched detail's colour, the cells' red and blue stars). The cell test was then
+changed to count the colour against the same row unrated, as a category badge can share it. Gate on the final
+tree: 1911 passed, 0 failed, 9 expected failures.
 
 ## Snapshot tests expected to change (baselines not re-recorded)
 
