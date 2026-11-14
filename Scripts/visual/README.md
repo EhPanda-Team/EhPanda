@@ -56,7 +56,11 @@ swift-snapshot-testing's `.image` strategy. Content is the synthetic public fixt
   candidate run.
 - **Results.** Each run writes `results.jsonl`, one line per coordinate with its status (`passed`, `recorded`,
   `changed`, `missing-baseline`, `timeout`, `error` or `notApplicable`), attempts, seconds and flake flag. The key
-  is `scenario__locale__size__orientation__family__theme`.
+  is `scenario__locale__size__orientation__family__theme`. A line whose attempt failed has a reason: the last
+  attempt's, then the first attempt's (`attempt 1: …`, kept on a picture that passed on the retry too), then which
+  of its test's pictures it was (`picture 1 of 2`). A user step's own reason names the check it failed and ends with
+  `waited=<s>s polls=<n> process=<s>s`: how long the attempt waited, how many times it looked, and how long the test
+  process had run. The aggregate summary shows the reason beside an infrastructure error and in the flake log.
 - **Pins.** Rendering follows `regression-environment.json` (below). On a Mac or runner that does not match it the
   run records `drift` and captures nothing.
 

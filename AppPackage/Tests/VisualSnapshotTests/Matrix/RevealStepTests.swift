@@ -21,6 +21,7 @@ final class RevealStepTests: XCTestCase {
         let hosted = HostedWindowCapture.host(page, in: window, style: .light)
         defer { hosted.dispose() }
         XCTAssertFalse(RevealStep.popoverPlatterReady(in: window))
+        XCTAssertEqual(RevealStep.platterState(in: window), .notPresented)
         page.presentSheet()
         try await RevealStep.awaitDialogPlatter()(window)
         XCTAssertTrue(RevealStep.popoverPlatterReady(in: window))
@@ -29,7 +30,8 @@ final class RevealStepTests: XCTestCase {
         await hosted.disposeAfterDismissal()
     }
 
-    /// A page with no dialog over it never gets there: the step fails, and the capture tries again.
+    /// A page with no dialog over it never gets there: the step fails, and the capture tries again. Its reason
+    /// names the check the platter failed and how long the step waited (run 43575259346 named neither).
     @MainActor
     func testTheStepFailsWithoutADialog() async throws {
         let window = try XCTUnwrap(HostedWindowCapture.keyWindow())
@@ -38,8 +40,11 @@ final class RevealStepTests: XCTestCase {
         do {
             try await RevealStep.awaitDialogPlatter()(window)
             XCTFail("The step passed with no dialog presented")
-        } catch AccessibilityActionDriver.Failure.notFound {
-            // The failure the capture names `interaction:not-found` and retries.
+        } catch let failure as BrowsingScenarios.StepFailure {
+            // The failure the capture names `interaction:not-found:popover-platter:…` and retries.
+            let reason = failure.reason
+            XCTAssertTrue(reason.hasPrefix("not-found:popover-platter:not-presented waited=10."), reason)
+            XCTAssertNotNil(reason.range(of: #" polls=\d+ process=\d+s$"#, options: .regularExpression), reason)
         }
     }
 

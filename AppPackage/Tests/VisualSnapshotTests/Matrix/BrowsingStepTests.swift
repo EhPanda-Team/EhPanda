@@ -147,6 +147,44 @@ final class BrowsingStepTests: XCTestCase {
         XCTAssertFalse(GalleryScenarios.keyboardIsUp(over: window))
     }
 
+    /// A keyboard step's failure says why the keyboard was not held up: the field lost the focus, no frame was
+    /// announced since the step began, the last one is below the screen, or the keyboard is up but was not yet held
+    /// (run 43575259346 said only `no-keyboard`).
+    @MainActor
+    func testAKeyboardStepsFailureSaysWhatTheKeyboardLastDid() throws {
+        let window = try XCTUnwrap(HostedWindowCapture.keyWindow())
+        let screen = window.screen.bounds
+        KeyboardWatch.start()
+        let raised = CGRect(x: 0, y: screen.maxY - 300, width: screen.width, height: 300)
+        let lowered = CGRect(x: 0, y: screen.maxY, width: screen.width, height: 300)
+        defer { Self.announceKeyboard(lowered) }
+        let start = KeyboardWatch.announcements
+        XCTAssertEqual(GalleryScenarios.keyboardState(over: window, focused: false, since: start), "field-unfocused")
+        XCTAssertEqual(
+            GalleryScenarios.keyboardState(over: window, focused: true, since: start), "never-announced announced=0"
+        )
+        Self.announceKeyboard(raised)
+        XCTAssertEqual(
+            GalleryScenarios.keyboardState(over: window, focused: true, since: start), "announced-up announced=1"
+        )
+        Self.announceKeyboard(lowered)
+        XCTAssertEqual(
+            GalleryScenarios.keyboardState(over: window, focused: true, since: start), "announced-hidden announced=2"
+        )
+    }
+
+    /// A step's failure says how long its attempt waited, how many times it looked and how long the process had run.
+    func testAStepsFailureSaysHowLongItWaited() throws {
+        let failure = BrowsingScenarios.StepFailure(
+            reason: "no-keyboard:never-announced", waited: .milliseconds(30_260), polls: 24
+        )
+        XCTAssertTrue(failure.reason.hasPrefix("no-keyboard:never-announced waited=30.3s polls=24 process="),
+                      failure.reason)
+        let process = try XCTUnwrap(BrowsingScenarios.processSeconds)
+        XCTAssertGreaterThan(process, 0)
+        XCTAssertLessThan(process, 24 * 3600)
+    }
+
     /// The suggestions step waits for a row by a text no recent search and no typed word holds, and that the
     /// first row, the one row on screen at accessibility5 in iPhone landscape, draws.
     @MainActor

@@ -399,6 +399,16 @@ enum BrowsingScenarios {
         let reason: String
     }
 
+    /// How long this process has run, from the kernel's record of its start, or `nil` when it cannot be read.
+    nonisolated static var processSeconds: Double? {
+        var info = kinfo_proc()
+        var size = MemoryLayout<kinfo_proc>.stride
+        var name = [CTL_KERN, KERN_PROC, KERN_PROC_PID, getpid()]
+        guard sysctl(&name, u_int(name.count), &info, &size, nil, 0) == 0 else { return nil }
+        let start = info.kp_proc.p_un.__p_starttime
+        return Date().timeIntervalSince1970 - (Double(start.tv_sec) + Double(start.tv_usec) / 1_000_000)
+    }
+
     /// How long ``waitForRest(_:within:)`` waits for a window to come to rest.
     static let defaultRestWait: Duration = .seconds(10)
 
@@ -492,5 +502,18 @@ enum BrowsingScenarios {
             if let found = Self.element(labelled: label, in: child, depth: depth + 1) { return found }
         }
         return nil
+    }
+}
+
+extension BrowsingScenarios.StepFailure {
+    /// A step's failure that also says how long its attempt waited, how many times it looked (a host that froze looks
+    /// few times in a long wait) and how long the test process had run: `<reason> waited=10.0s polls=99 process=812s`.
+    init(reason: String, waited: Duration, polls: Int) {
+        let seconds = Double(waited.components.seconds) + Double(waited.components.attoseconds) / 1e18
+        var text = reason + String(format: " waited=%.1fs polls=%d", seconds, polls)
+        if let process = BrowsingScenarios.processSeconds {
+            text += String(format: " process=%.0fs", process)
+        }
+        self.init(reason: text)
     }
 }

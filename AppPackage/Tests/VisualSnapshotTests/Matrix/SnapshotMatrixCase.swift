@@ -103,6 +103,10 @@ class SnapshotMatrixCase: XCTestCase {
             NSTimeZone.default = originalTimeZone
             UIView.setAnimationsEnabled(animations)
         }
+        // Which of the test's pictures a coordinate is, for a failed attempt's reason: run 43575259346's step failures
+        // were all its first picture.
+        let pictures = coordinates.filter({ inventory.notApplicableReason(for: $0, pins: pins) == nil }).count
+        var picture = 0
         for orientation in run.orientations {
             let wanted = coordinates.filter({ $0.orientation == orientation })
             let rules = wanted.map({ inventory.notApplicableReason(for: $0, pins: pins) })
@@ -133,9 +137,12 @@ class SnapshotMatrixCase: XCTestCase {
                     try writer.append(.notApplicable(coordinate.key, reason: reason))
                     continue
                 }
+                picture += 1
                 try await captureCoordinate(
                     coordinate, factory: factory,
-                    context: .init(window: window, mode: mode, run: run, writer: writer)
+                    context: .init(
+                        window: window, mode: mode, run: run, writer: writer, picture: picture, pictures: pictures
+                    )
                 )
             }
         }
@@ -189,11 +196,12 @@ class SnapshotMatrixCase: XCTestCase {
         }
         // The line and its pictures are written together, and only if no other runner wrote this coordinate first
         // (SnapshotResultWriter).
+        let reason = Self.lineReason(outcome, picture: context.picture, of: context.pictures)
         try writer.append(
             SnapshotResultLine(
                 key: coordinate.key, status: outcome.status, attempts: outcome.attempts, flaky: outcome.flaky,
                 seconds: outcome.seconds, settleSamples: outcome.settleSamples, bytes: outcome.png?.count ?? 0,
-                sha256: digest, reason: outcome.reason
+                sha256: digest, reason: reason
             ),
             pictures: pictures.compactMap({ $0 })
         )
@@ -201,9 +209,19 @@ class SnapshotMatrixCase: XCTestCase {
         case .recorded, .passed, .notApplicable:
             break
         case .changed, .missingBaseline, .timeout, .error:
-            // A fixed message: the key names synthetic coordinates only.
-            XCTFail("\(coordinate.key): \(outcome.status.rawValue)")
+            // A fixed message: the key names synthetic coordinates only, and a reason never holds page text.
+            XCTFail("\(coordinate.key): \(outcome.status.rawValue)" + (reason.map({ " (\($0))" }) ?? ""))
         }
+    }
+
+    /// A result line's reason: the last attempt's, then the first attempt's when a second was made
+    /// (`attempt 1: …`, also on a picture that passed on the retry), then which of the test's pictures it was
+    /// (`picture 1 of 2`); `nil` for a picture that passed at once. `Scripts/visual/snapshot_aggregate.py` shows it
+    /// beside the coordinate's infrastructure error or in the flake log.
+    static func lineReason(_ outcome: CaptureOutcome, picture: Int, of pictures: Int) -> String? {
+        let parts = [outcome.reason, outcome.firstReason.map({ "attempt 1: \($0)" })].compactMap({ $0 })
+        guard !parts.isEmpty else { return nil }
+        return (parts + ["picture \(picture) of \(pictures)"]).joined(separator: "; ")
     }
 
     private static func coordinates(
@@ -290,12 +308,15 @@ class SnapshotMatrixCase: XCTestCase {
     }
 }
 
-/// What every coordinate of one scenario call shares.
+/// What one coordinate's capture takes from its scenario call.
 struct CaptureContext {
     let window: UIWindow
     let mode: SnapshotMode
     let run: SnapshotRunEnvironment
     let writer: SnapshotResultWriter
+    /// This coordinate's place among the test's captured pictures, from 1, and how many it captures.
+    let picture: Int
+    let pictures: Int
 }
 
 enum SnapshotMatrixError: Error {

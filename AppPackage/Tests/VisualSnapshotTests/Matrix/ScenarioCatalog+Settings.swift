@@ -374,20 +374,36 @@ enum SettingsScenarios {
     /// shortest wait, and the step then waits as Post Comment's does
     /// (``GalleryScenarios/holdStillOverKeyboard(_:)``) for the keyboard and two rests in a row; the caret is drawn
     /// solid.
+    ///
+    /// A step that fails says why, with how long it waited (``BrowsingScenarios/StepFailure``):
+    /// `no-keyboard:<state>` (``GalleryScenarios/keyboardState(over:focused:since:)``) followed by `alert=opening`
+    /// while the alert has not finished presenting, or `not-found:alert-field` when the field never took the focus.
     static func holdAlertCaret(_ window: UIWindow) async throws {
         let clock = ContinuousClock()
-        let deadline = clock.now.advanced(by: GalleryScenarios.keyboardDeadline)
+        let start = clock.now
+        let deadline = start.advanced(by: GalleryScenarios.keyboardDeadline)
+        let announced = KeyboardWatch.announcements
         var presented = window.rootViewController
+        var polls = 0
         while true {
             while let next = presented?.presentedViewController {
                 presented = next
             }
-            if let view = presented?.view, view !== window.rootViewController?.view,
+            if let alert = presented, let view = alert.view, view !== window.rootViewController?.view,
                textFields(in: view).contains(where: \.isFirstResponder) {
                 try await clock.sleep(for: .milliseconds(1500))
                 var held = 0
                 while held < 2 {
-                    guard clock.now < deadline else { throw BrowsingScenarios.StepFailure(reason: "no-keyboard") }
+                    guard clock.now < deadline else {
+                        let focused = textFields(in: view).contains(where: \.isFirstResponder)
+                        let state = GalleryScenarios.keyboardState(over: window, focused: focused, since: announced)
+                        let opening = alert.isBeingPresented || alert.transitionCoordinator != nil
+                        throw BrowsingScenarios.StepFailure(
+                            reason: "no-keyboard:\(state)" + (opening ? " alert=opening" : ""),
+                            waited: start.duration(to: clock.now), polls: polls
+                        )
+                    }
+                    polls += 1
                     held = GalleryScenarios.keyboardIsUp(over: window) ? held + 1 : 0
                     try await clock.sleep(for: .milliseconds(300))
                     try await BrowsingScenarios.waitForRest(window)
@@ -397,7 +413,12 @@ enum SettingsScenarios {
                 view.layer.timeOffset = 0
                 return
             }
-            guard clock.now < deadline else { throw AccessibilityActionDriver.Failure.notFound("alert field") }
+            guard clock.now < deadline else {
+                throw BrowsingScenarios.StepFailure(
+                    reason: "not-found:alert-field", waited: start.duration(to: clock.now), polls: polls
+                )
+            }
+            polls += 1
             try await clock.sleep(for: .milliseconds(100))
         }
     }

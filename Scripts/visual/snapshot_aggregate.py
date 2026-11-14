@@ -199,8 +199,10 @@ def aggregate(results, retry, document, env, shard_plan, retry2=None, retry3=Non
                 items['infrastructureErrors'].append({'shard': shard_id, 'kind': status, 'key': key,
                                                       'detail': line.get('reason') or ''})
             if entry['flaky'] and status not in COORDINATE_ERRORS:
+                # The line's reason says why the first attempt did not count (`attempt 1: …`).
                 flaky.append({'key': key, 'shard': shard_id, 'seconds': entry['seconds'],
-                              'attempts': entry['attempts']})
+                              'attempts': entry['attempts'],
+                              **({'reason': entry['reason']} if 'reason' in entry else {})})
         if infra not in SHARD_CLASSES:
             items['infrastructureErrors'] += [{'shard': shard_id, 'kind': 'missing-result', 'key': key}
                                               for key, reason in sorted(expected.items())
@@ -288,8 +290,9 @@ def summary(document):
                 lines.append(f'- … and {len(entries) - SUMMARY_ITEMS} more in aggregate.json')
     lines += ['', f"### Flake log ({len(document['flaky'])} passed only on a retry)", '']
     if document['flaky']:
-        lines += ['| Coordinate | Seconds | Attempts | Shard |', '|---|---|---|---|']
-        lines += [f"| `{row['key']}` | {row['seconds']:.2f} | {row['attempts']} | {row['shard']} |"
+        lines += ['| Coordinate | Seconds | Attempts | Shard | Why the first attempt failed |', '|---|---|---|---|---|']
+        lines += [f"| `{row['key']}` | {row['seconds']:.2f} | {row['attempts']} | {row['shard']} | "
+                  f"{row.get('reason', '').replace('|', '/')} |"
                   for row in document['flaky']]
     else:
         lines.append('None.')

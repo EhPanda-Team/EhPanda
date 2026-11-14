@@ -221,6 +221,18 @@ final class HostedWindowCaptureTests: XCTestCase {
         XCTAssertEqual(failing.status, .error)
         XCTAssertEqual(failing.attempts, 2)
         XCTAssertEqual(failing.reason, "interaction:step-error")
+        // Run 43575259346: the result line kept only the second attempt's reason, and none for a picture that passed
+        // on the retry, so the failures that the retry hid left no trace.
+        XCTAssertEqual(recovered.firstReason, "interaction:not-found")
+        XCTAssertEqual(failing.firstReason, "interaction:step-error")
+        XCTAssertEqual(
+            SnapshotMatrixCase.lineReason(recovered, picture: 1, of: 2),
+            "attempt 1: interaction:not-found; picture 1 of 2"
+        )
+        XCTAssertEqual(
+            SnapshotMatrixCase.lineReason(failing, picture: 2, of: 2),
+            "interaction:step-error; attempt 1: interaction:step-error; picture 2 of 2"
+        )
     }
 
     /// Run 42577585956: a timeout with nothing moving said only `settle-timeout`.
@@ -250,6 +262,8 @@ final class HostedWindowCaptureTests: XCTestCase {
         XCTAssertEqual(outcome.status, .recorded)
         XCTAssertEqual(outcome.attempts, 1)
         XCTAssertNotNil(outcome.png.flatMap(UIImage.init(data:)))
+        XCTAssertNil(outcome.firstReason)
+        XCTAssertNil(SnapshotMatrixCase.lineReason(outcome, picture: 1, of: 2))
     }
 
     /// The same sample strings are asserted by `Scripts/visual/test_snapshot_matrix.py`.

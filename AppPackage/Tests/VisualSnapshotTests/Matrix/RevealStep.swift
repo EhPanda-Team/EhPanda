@@ -80,12 +80,26 @@ enum RevealStep {
     /// (about 11 in the run before) drew the popover's text and button over the page without the platter: no glass,
     /// arrow or shadow, every read alike until the settle ended, with the layout of a good picture. A presentation
     /// whose platter is built returns at once, so the pictures that had it are drawn as they were.
+    ///
+    /// A step that fails names the check the platter last failed (``PlatterState``), as
+    /// `not-found:popover-platter:<check>` with how long it waited (``BrowsingScenarios/StepFailure``): run
+    /// 43575259346 failed it on the light picture only, twice in a row, with a reason that named no check.
     nonisolated static func awaitDialogPlatter() -> ScenarioFactory.Interact {
         { window in
             let clock = ContinuousClock()
-            let deadline = clock.now.advanced(by: platterDeadline)
-            while !popoverPlatterReady(in: window) {
-                guard clock.now < deadline else { throw AccessibilityActionDriver.Failure.notFound("popover platter") }
+            let start = clock.now
+            let deadline = start.advanced(by: platterDeadline)
+            var polls = 0
+            while true {
+                polls += 1
+                let state = platterState(in: window)
+                if state == .ready { return }
+                guard clock.now < deadline else {
+                    throw BrowsingScenarios.StepFailure(
+                        reason: "not-found:popover-platter:\(state.rawValue)", waited: start.duration(to: clock.now),
+                        polls: polls
+                    )
+                }
                 try await clock.sleep(for: .milliseconds(100))
             }
         }
@@ -94,24 +108,47 @@ enum RevealStep {
     /// How long ``awaitDialogPlatter()`` waits for the dialog's platter.
     static let platterDeadline: Duration = .seconds(10)
 
+    /// How far a presentation is from ``popoverPlatterReady(in:)``: the first check it fails, in the order they are
+    /// made.
+    enum PlatterState: String {
+        case ready
+        /// Nothing is presented from the root or from any controller it holds.
+        case notPresented = "not-presented"
+        /// The presentation has not finished presenting: still opening.
+        case opening
+        /// The popover's glass background has no size, or it or a view above it is hidden or transparent.
+        case platterHidden = "platter-hidden"
+        /// The glass background has no backdrop layer of its size.
+        case backdropMissing = "backdrop-missing"
+        /// The glass background has no shape (SDF element) layer with drawn contents.
+        case shapeMissing = "shape-missing"
+    }
+
     /// Whether the front-most presentation in the window, from its root or from any controller it holds, has finished
     /// presenting and, if it is drawn in a popover, the popover's Liquid Glass platter has its layers: a backdrop and
     /// a shape whose contents are drawn, both the size of the platter, with nothing on the way up to the window hidden
     /// or transparent, in the model or on screen. A presentation that is not a popover (a sheet, an alert) needs only
     /// to have finished presenting.
     static func popoverPlatterReady(in window: UIWindow) -> Bool {
-        guard let root = window.rootViewController, let front = frontPresentation(over: root), !front.isBeingPresented,
-              front.transitionCoordinator == nil else { return false }
-        guard let platter = firstView(named: "_UIPopoverGlassBackground", in: window) else { return true }
-        guard !platter.bounds.isEmpty, shows(platter, in: window) else { return false }
+        platterState(in: window) == .ready
+    }
+
+    /// The first check of ``popoverPlatterReady(in:)`` the window fails, or `ready`.
+    static func platterState(in window: UIWindow) -> PlatterState {
+        guard let root = window.rootViewController, let front = frontPresentation(over: root) else {
+            return .notPresented
+        }
+        guard !front.isBeingPresented, front.transitionCoordinator == nil else { return .opening }
+        guard let platter = firstView(named: "_UIPopoverGlassBackground", in: window) else { return .ready }
+        guard !platter.bounds.isEmpty, shows(platter, in: window) else { return .platterHidden }
         let layers = sublayers(of: platter.layer)
-        let backdrop = layers.first(where: {
+        guard layers.contains(where: {
             String(describing: type(of: $0)) == "CABackdropLayer" && !$0.bounds.isEmpty
-        })
-        let shape = layers.first(where: {
+        }) else { return .backdropMissing }
+        guard layers.contains(where: {
             String(describing: type(of: $0)).contains("SDFElementLayer") && $0.contents != nil && !$0.bounds.isEmpty
-        })
-        return backdrop != nil && shape != nil
+        }) else { return .shapeMissing }
+        return .ready
     }
 
     /// The user step of a sheet whose navigation bar draws a large title over a list with hidden overlays (Archives,

@@ -86,6 +86,23 @@ class AggregateTests(unittest.TestCase):
         self.assertEqual(code, 0)
         return json.loads(out)
 
+    def test_a_flake_and_an_error_show_their_reasons_in_the_summary(self):
+        """Run 43575259346: a step's reason said only `interaction:no-keyboard`, and none for a retry that passed."""
+        flaky, failing = self.keys('s03')[:2]
+        first = 'attempt 1: interaction:not-found:popover-platter:opening waited=10.0s polls=99 process=812s'
+        last = 'interaction:no-keyboard:never-announced announced=0 waited=30.1s polls=24 process=95s'
+        self.write_all(s03={'overrides': {
+            flaky: {'flaky': True, 'attempts': 2, 'seconds': 13.5, 'reason': f'{first}; picture 1 of 2'},
+            failing: {'status': 'error', 'attempts': 2, 'seconds': 64.0,
+                      'reason': f'{last}; attempt 1: {last}; picture 1 of 2'}}})
+        code, out = self.run_cli('--summary', str(self.root / 'step-summary.md'))
+        self.assertEqual(code, 1)
+        self.assertIn(f'| `{flaky}` | 13.50 | 2 | s03 | {first}; picture 1 of 2 |', out)
+        self.assertIn(f'- `{failing}`: error (s03) — {last}; attempt 1: {last}; picture 1 of 2', out)
+        document = self.aggregate()
+        self.assertEqual(document['flaky'], [{'key': flaky, 'shard': 's03', 'seconds': 13.5, 'attempts': 2,
+                                              'reason': f'{first}; picture 1 of 2'}])
+
     def test_all_passed_with_flakes_exits_zero_and_lists_the_flake_log(self):
         flaky = self.keys('s03')[0]
         self.write_all(s03={'overrides': {flaky: {'flaky': True, 'attempts': 2, 'seconds': 3.25}}})
@@ -94,7 +111,7 @@ class AggregateTests(unittest.TestCase):
         self.assertEqual(code, 0)
         self.assertEqual(out.splitlines()[:4], ['- 0 picture changes', '- 0 infrastructure errors', '- 0 drift',
                                                 '- 0 baseline mismatches'])
-        self.assertIn(f'| `{flaky}` | 3.25 | 2 | s03 |', out)
+        self.assertIn(f'| `{flaky}` | 3.25 | 2 | s03 |  |', out)
         self.assertEqual(summary_file.read_text(), out)
         document = self.aggregate()
         self.assertEqual(document['flaky'], [{'key': flaky, 'shard': 's03', 'seconds': 3.25, 'attempts': 2}])

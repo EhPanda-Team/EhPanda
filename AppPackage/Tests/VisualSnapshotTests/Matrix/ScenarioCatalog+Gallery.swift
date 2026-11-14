@@ -251,16 +251,25 @@ enum GalleryScenarios {
     /// 43451019962 held what came before it: the warning half presented (iPhone ja and zh-Hant accessibility5), the
     /// filled draft scrolled and clipped (iPhone zh-Hant accessibility5 landscape), the iPad sheet in another place.
     /// The 1.5 s stays as the shortest wait, so what a picture held after it is unchanged.
+    ///
+    /// A step that fails says why the keyboard was not counted as up (``keyboardState(over:focused:since:)``), as
+    /// `no-keyboard:<state>` with how long it waited (``BrowsingScenarios/StepFailure``).
     static func holdStillOverKeyboard(_ window: UIWindow) async throws {
         let clock = ContinuousClock()
-        let deadline = clock.now.advanced(by: keyboardDeadline)
+        let start = clock.now
+        let deadline = start.advanced(by: keyboardDeadline)
+        let announced = KeyboardWatch.announcements
         try await clock.sleep(for: .milliseconds(1500))
         var held = 0
+        var polls = 0
         while held < 2 {
-            let focused = focusedEditor(in: window) != nil
             guard clock.now < deadline else {
-                throw BrowsingScenarios.StepFailure(reason: focused ? "no-keyboard" : "editor-not-focused")
+                let state = keyboardState(over: window, focused: focusedEditor(in: window) != nil, since: announced)
+                throw BrowsingScenarios.StepFailure(
+                    reason: "no-keyboard:\(state)", waited: start.duration(to: clock.now), polls: polls
+                )
             }
+            polls += 1
             held = keyboardIsUp(over: window) ? held + 1 : 0
             try await clock.sleep(for: .milliseconds(300))
             try await BrowsingScenarios.waitForRest(window)
@@ -287,6 +296,18 @@ enum GalleryScenarios {
         KeyboardWatch.start()
         let frame = KeyboardWatch.frame
         return frame.height > 0 && frame.minY < window.screen.bounds.maxY - 1
+    }
+
+    /// Why a keyboard step's wait ended without the keyboard held up, for its failure: the text field lost the focus
+    /// (`field-unfocused`); UIKit announced no keyboard frame since `announcements`, the count when the step began
+    /// (`never-announced`); the frame it last announced is below the screen (`announced-hidden`); or the keyboard is up
+    /// but was not yet read up twice in a row (`announced-up`). Each but the first is followed by the number of frames
+    /// announced since the step began.
+    static func keyboardState(over window: UIWindow, focused: Bool, since announcements: Int) -> String {
+        let count = KeyboardWatch.announcements - announcements
+        guard focused else { return "field-unfocused" }
+        guard count > 0 else { return "never-announced announced=0" }
+        return (keyboardIsUp(over: window) ? "announced-up" : "announced-hidden") + " announced=\(count)"
     }
 
     /// Opens the first comment's `…` moderation menu, as a tap on it does. The button is hidden from VoiceOver (its
@@ -650,6 +671,9 @@ extension GalleryScenarios {
 @MainActor
 enum KeyboardWatch {
     private(set) static var frame: CGRect = .zero
+    /// How many frames UIKit has announced since the watch started, so a step can tell a keyboard that announced
+    /// nothing from one that announced itself hidden.
+    private(set) static var announcements = 0
     private static var observer: (any NSObjectProtocol)?
 
     static func start() {
@@ -660,6 +684,7 @@ enum KeyboardWatch {
             let end = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue
             MainActor.assumeIsolated {
                 frame = end ?? .zero
+                announcements += 1
             }
         }
     }
