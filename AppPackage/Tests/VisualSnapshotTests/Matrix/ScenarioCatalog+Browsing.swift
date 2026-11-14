@@ -82,10 +82,12 @@ extension ScenarioCatalog {
             "front-page-loading": .init(make: { Page.frontPage(.loading) }, interact: Page.freezeIndicators),
             "front-page-error": .init(make: { Page.frontPage(.failed(.networkingFailed)) }),
             "front-page-empty": .init(make: { Page.frontPage(.failed(.notFound)) }),
+            // The search bar could activate before the list had settled, and the list then kept its unsearched top
+            // spacing (run 43451019962): the page settles first.
             "front-page-search": ScenarioFactory(
                 make: { Page.frontPage(.loaded(.row), keyword: Page.searchKeyword) }, prepare: artwork,
-                interact: Page.focusSearchField
-            ).restingAtTop()
+                interact: Page.focusSearchFieldOnceSettled
+            )
         ]
     }
 
@@ -329,6 +331,21 @@ enum BrowsingScenarios {
     /// ``waitForRest(_:)`` is waited for again until that deadline instead of failing the step at once.
     static func focusSearchField(_ window: UIWindow) async throws {
         try await focusSearchField(window, deadline: focusDeadline)
+    }
+
+    /// Front Page's search step: once the page has settled, it is brought to rest at its top
+    /// (``LibraryScenarios/restAtTop(_:)``) and its search field is focused (``focusSearchField(_:)``).
+    ///
+    /// The step used to start as soon as the page was hosted. On a loaded host the search bar could then activate
+    /// while the list was still being set up: the bar collapsed, but the list kept the top spacing it has with the
+    /// bar unfocused, and the one result sat 35 points higher than in other launches (`front-page-search`, run
+    /// 43451019962 against the run before it, both ways; locally 2 of 10 launches under load). A list laid out again
+    /// afterwards kept that spacing. With the page settled first, the activation gave the searched spacing in every
+    /// launch under the same load (12 of 12), the picture the other launches had.
+    static func focusSearchFieldOnceSettled(_ window: UIWindow) async throws {
+        _ = await HostedWindowCapture.settle(window)
+        try LibraryScenarios.restAtTop(window)
+        try await focusSearchField(window)
     }
 
     /// How long ``focusSearchField(_:)`` may take before it fails the attempt with `interaction`.
