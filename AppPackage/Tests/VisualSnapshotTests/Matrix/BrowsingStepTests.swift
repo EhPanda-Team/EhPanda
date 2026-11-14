@@ -147,6 +147,19 @@ final class BrowsingStepTests: XCTestCase {
         XCTAssertFalse(GalleryScenarios.keyboardIsUp(over: window))
     }
 
+    /// The suggestions step waits for a row by a text no recent search and no typed word holds, and that the
+    /// first row, the one row on screen at accessibility5 in iPhone landscape, draws.
+    @MainActor
+    func testTheSuggestionsStepWaitsForTheFirstRowsOwnText() throws {
+        guard case .label(let text) = LibraryScenarios.firstSuggestion else {
+            return XCTFail("The suggestions step names its row by part of its label")
+        }
+        let first = try XCTUnwrap(LibraryFixtures.tagTranslations.first)
+        XCTAssertEqual(text, "\(first.namespace):\(first.key)")
+        XCTAssertFalse(LibraryFixtures.historyKeywords.contains(where: { $0.contains(text) }))
+        XCTAssertFalse(LibraryFixtures.typedTag.contains(text))
+    }
+
     @MainActor
     private static func announceKeyboard(_ frame: CGRect) {
         NotificationCenter.default.post(

@@ -35,7 +35,7 @@ extension ScenarioCatalog {
             ),
             "search-typing-suggestions": .init(
                 make: { Page.searchRoot(history: true, suggestions: true) }, prepare: artwork,
-                interact: { try await Page.type(LibraryFixtures.typedTag, in: $0) }
+                interact: { try await Page.type(LibraryFixtures.typedTag, in: $0, until: Page.firstSuggestion) }
             ),
             "search-results-list": ScenarioFactory(
                 make: { Page.searchResults(.loaded(.row)) }, prepare: artwork
@@ -148,6 +148,12 @@ enum LibraryScenarios {
 
     /// The Recent Searches section's Remove All, the first of the page's two.
     static var removeAllLabel: String { String(localized: .removeAll) }
+
+    /// The first suggestion for ``LibraryFixtures/typedTag``, by its tag with its namespace, which is not translated
+    /// and which no recent search contains. It is the only row on screen at accessibility5 in iPhone landscape.
+    static var firstSuggestion: RevealStep.Target {
+        .label(LibraryFixtures.tagTranslations.first.map({ "\($0.namespace):\($0.key)" }) ?? LibraryFixtures.typedTag)
+    }
 
     /// The Search tab's root: empty, or with recent searches and recently viewed galleries. With `suggestions`,
     /// tag suggestions are switched on and the synthetic translations are loaded.
@@ -613,12 +619,20 @@ enum LibraryScenarios {
     // MARK: User steps
 
     /// Focuses the search field and types `text`, as a user would; the keyboard is a separate window and is not
-    /// drawn. Once the suggestions have appeared the caret is held still.
-    static func type(_ text: String, in window: UIWindow) async throws {
+    /// drawn. Once the field has held its focus with `shown` on screen while the window came to rest twice in a row,
+    /// the caret is drawn solid (``BrowsingScenarios/stopCaretBlink(in:)``) and the page is held still; a step that
+    /// has not got there by ``BrowsingScenarios/focusDeadline`` fails, and the capture retries it.
+    ///
+    /// On the hosted runner the field gave its focus back after the typing in run 43451019962 (iPhone de
+    /// accessibility5 portrait dark, ja large portrait light): the search ended, and the picture held the typed word
+    /// over Recent Searches, without the suggestions or a caret. The field is focused again until it holds.
+    static func type(_ text: String, in window: UIWindow, until shown: RevealStep.Target) async throws {
         let root = try XCTUnwrap(window.rootViewController?.view)
         let clock = ContinuousClock()
+        let start = clock.now
         let deadline = clock.now.advanced(by: .seconds(3))
-        while true {
+        var typedField: UISearchTextField?
+        while typedField == nil {
             if let field = firstView(of: UISearchTextField.self, in: root), field.becomeFirstResponder() {
                 // A key at a time: the suggestions list appears with the first character and reads every
                 // later change, as it does under a typing user.
@@ -626,12 +640,33 @@ enum LibraryScenarios {
                     field.insertText(String(character))
                     try await clock.sleep(for: .milliseconds(150))
                 }
+                typedField = field
                 break
             }
             guard clock.now < deadline else { throw AccessibilityActionDriver.Failure.notFound("search field") }
             try await clock.sleep(for: .milliseconds(100))
         }
-        try await holdCaret(window)
+        let field = try XCTUnwrap(typedField)
+        try await clock.sleep(for: .milliseconds(800))
+        let focusDeadline = start.advanced(by: BrowsingScenarios.focusDeadline)
+        var held = 0
+        while held < 2 {
+            let focused = field.isFirstResponder
+            let showing = RevealStep.element(shown, in: window) != nil
+            guard clock.now < focusDeadline else {
+                throw BrowsingScenarios.StepFailure(reason: focused ? "no-suggestions" : "search-focus-not-held")
+            }
+            if focused && showing {
+                held += 1
+            } else {
+                held = 0
+                if !focused { _ = field.becomeFirstResponder() }
+            }
+            try await clock.sleep(for: .milliseconds(300))
+            try await BrowsingScenarios.waitForRest(window)
+        }
+        BrowsingScenarios.stopCaretBlink(in: window)
+        try await BrowsingScenarios.freezeIndicators(window)
     }
 
     private static func firstView<View: UIView>(of type: View.Type, in view: UIView) -> View? {

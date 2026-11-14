@@ -249,6 +249,11 @@ enum RevealStep {
         return ((view as? UIScrollView).map({ [$0] }) ?? []) + view.subviews.flatMap(scrollViews(in:))
     }
 
+    /// The first element in `window`, depth first, that `target` names.
+    static func element(_ target: Target, in window: UIWindow) -> NSObject? {
+        element(target, in: window, view: window)?.element
+    }
+
     /// The first element below `root`, depth first, that `target` names, with the view it belongs to: `root`'s
     /// view, the nearest view at or above `root` (`view`).
     private static func element(
