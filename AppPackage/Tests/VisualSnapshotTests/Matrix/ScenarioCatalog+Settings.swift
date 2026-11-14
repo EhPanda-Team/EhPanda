@@ -365,9 +365,15 @@ enum SettingsScenarios {
 
     /// Lets the alert's page field take focus and the alert finish moving, then holds the field's caret still. The
     /// alert is presented over the hosted root, outside the root view, so the presented view's layers are held.
+    ///
+    /// The alert moves up for the keyboard, and on the hosted runner the keyboard did not always come within the
+    /// fixed 1.5 s: run 43451019962 held the alert in other places than the run before it. The 1.5 s stays as the
+    /// shortest wait, and the step then waits as Post Comment's does
+    /// (``GalleryScenarios/holdStillOverKeyboard(_:)``) for the keyboard and two rests in a row; the caret is drawn
+    /// solid.
     static func holdAlertCaret(_ window: UIWindow) async throws {
         let clock = ContinuousClock()
-        let deadline = clock.now.advanced(by: .seconds(5))
+        let deadline = clock.now.advanced(by: GalleryScenarios.keyboardDeadline)
         var presented = window.rootViewController
         while true {
             while let next = presented?.presentedViewController {
@@ -376,6 +382,14 @@ enum SettingsScenarios {
             if let view = presented?.view, view !== window.rootViewController?.view,
                textFields(in: view).contains(where: \.isFirstResponder) {
                 try await clock.sleep(for: .milliseconds(1500))
+                var held = 0
+                while held < 2 {
+                    guard clock.now < deadline else { throw BrowsingScenarios.StepFailure(reason: "no-keyboard") }
+                    held = GalleryScenarios.keyboardIsUp(over: window) ? held + 1 : 0
+                    try await clock.sleep(for: .milliseconds(300))
+                    try await BrowsingScenarios.waitForRest(window)
+                }
+                BrowsingScenarios.stopCaretBlink(in: window)
                 view.layer.speed = 0
                 view.layer.timeOffset = 0
                 return
