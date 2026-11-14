@@ -218,21 +218,57 @@ enum RevealStep {
     /// new to the matrix, with no pictures to keep, has its target brought on screen at any size it is below the fold.
     /// With `settlingSteps`, the page is looked through again after each step once it has stopped changing, rather
     /// than 100 ms later (``bringIntoView(_:in:settlingSteps:)``). With `holdingPlacement`, a placed part is placed
-    /// again once the page has stopped changing, until it stays where it was placed (``holdPlacement(_:in:)``).
+    /// again once the page has stopped changing, until it stays where it was placed (``holdPlacement(_:in:)``). With
+    /// `measuringPage`, a page whose part is not in view is first stepped through to its end and back, so it has
+    /// built every row (``measurePage(in:)``).
     nonisolated static func reveal(
-        _ target: Target, atEverySize: Bool = false, settlingSteps: Bool = false, holdingPlacement: Bool = false
+        _ target: Target, atEverySize: Bool = false, settlingSteps: Bool = false, holdingPlacement: Bool = false,
+        measuringPage: Bool = false
     ) -> ScenarioFactory.Interact {
         { window in
             let tap = pendingTap
             pendingTap = nil
             guard atEverySize || isLargestText else { return }
             _ = await HostedWindowCapture.settle(window)
+            if measuringPage, !isInView(target, in: window) {
+                await measurePage(in: window)
+            }
             try await bringIntoView(target, in: window, settlingSteps: settlingSteps)
             if holdingPlacement {
                 try await holdPlacement(target, in: window)
             }
             tap?()
         }
+    }
+
+    /// Steps the front-most list a page at a time to its end, letting the page settle after each step, until the end
+    /// it reports stays put; then returns it to the offset it started at and lets it settle.
+    ///
+    /// A form sizes its rows as it builds them, and the rows below the part it is brought to are built or not
+    /// depending on how far a launch got: `settings-account-invalid-cookies` on iPhone large landscape ended with
+    /// 714.7 points of content in some launches and 870.7 in others, and the Copy Cookies row above the part was drawn
+    /// differently in the two (locally 2 of 6 launches). Stepped through first, every launch has built the same rows.
+    private static func measurePage(in window: UIWindow) async {
+        guard let list = frontScrollView(in: window) else { return }
+        // The offset itself, not the top of the list: a large title collapsed by the steps changes the top inset.
+        let start = list.contentOffset
+        for _ in 0..<maximumSteps {
+            let stepped = scroll(list, to: list.contentOffset.y + visibleArea(of: list).height * 0.8)
+            _ = await HostedWindowCapture.settle(window)
+            let bottom = list.contentSize.height - list.bounds.height + list.adjustedContentInset.bottom
+            if !stepped, list.contentOffset.y >= bottom - 0.5 { break }
+        }
+        list.setContentOffset(start, animated: false)
+        list.layoutIfNeeded()
+        _ = await HostedWindowCapture.settle(window)
+    }
+
+    /// Whether `target` is on the page and inside the visible area of the list that holds it.
+    private static func isInView(_ target: Target, in window: UIWindow) -> Bool {
+        guard let (element, view) = element(target, in: window, view: window) else { return false }
+        guard let list = scrollView(holding: view, in: window) else { return true }
+        let frame = list.convert(element.accessibilityFrame, from: window.screen.coordinateSpace)
+        return visibleArea(of: list).contains(frame)
     }
 
     /// The most times ``holdPlacement(_:in:)`` places a part again.

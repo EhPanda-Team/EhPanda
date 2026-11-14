@@ -29,10 +29,11 @@ extension ScenarioCatalog {
             "settings-account-signed-in": .init(
                 cookies: Page.memberCookies, make: { Page.account(confirmingLogout: false) }
             ),
-            // The cookies are the state: where they are below the fold, the page is scrolled to them.
+            // The cookies are the state: where they are below the fold, the page is scrolled to them. The page is
+            // stepped through first: launches had built different rows below them and drew the page differently.
             "settings-account-invalid-cookies": .init(
                 cookies: Page.withheldCookies, make: { Page.account(confirmingLogout: false) },
-                interact: RevealStep.reveal(.label(Defaults.Cookie.ipbMemberId), atEverySize: true)
+                interact: RevealStep.reveal(.label(Defaults.Cookie.ipbMemberId), atEverySize: true, measuringPage: true)
             ),
             "settings-account-signed-out": .init(signedIn: false, make: { Page.account(confirmingLogout: false) }),
             "settings-account-logout-confirmation": .init(
