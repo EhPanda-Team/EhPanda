@@ -102,12 +102,71 @@ final class BrowsingStepTests: XCTestCase {
     func testTheFocusDeadlineIsLongerThanTheOneRun42533872440Overran() {
         XCTAssertGreaterThanOrEqual(BrowsingScenarios.focusDeadline, .seconds(30))
     }
+
+    /// A focused field's caret, once its blink is stopped and the page frozen as the caret steps freeze it, reads the
+    /// same over two blink periods: a caret held by the stopped layer clock alone kept turning on and off.
+    @MainActor
+    func testAStoppedCaretReadsTheSameOverTwoBlinks() async throws {
+        let window = try XCTUnwrap(HostedWindowCapture.keyWindow())
+        let page = SearchPage(moves: false, realField: true)
+        let hosted = HostedWindowCapture.host(page, in: window, style: .light)
+        defer { hosted.dispose() }
+        let field = try await page.field()
+        XCTAssertTrue(field.becomeFirstResponder())
+        defer { field.resignFirstResponder() }
+        let clock = ContinuousClock()
+        var cursor: (any UITextCursorView)?
+        for _ in 0..<50 where cursor == nil {
+            try await clock.sleep(for: .milliseconds(100))
+            cursor = Self.views(in: window).compactMap({ $0 as? UIView & UITextCursorView }).first
+        }
+        let caret = try XCTUnwrap(cursor, "The focused field drew no caret")
+        BrowsingScenarios.stopCaretBlink(in: window)
+        XCTAssertFalse(caret.isBlinking)
+        try await BrowsingScenarios.freezeIndicators(window)
+        let first = HostedWindowCapture.comparedBytes(HostedWindowCapture.capture(window))
+        for _ in 0..<6 {
+            try await clock.sleep(for: .milliseconds(400))
+            XCTAssertEqual(HostedWindowCapture.comparedBytes(HostedWindowCapture.capture(window)), first)
+        }
+    }
+
+    /// The keyboard counts as up while the frame UIKit last announced for it covers the bottom of the screen, and
+    /// not once it is announced below the screen, as it is when it goes down.
+    @MainActor
+    func testTheKeyboardIsUpWhileItsAnnouncedFrameCoversTheScreen() throws {
+        let window = try XCTUnwrap(HostedWindowCapture.keyWindow())
+        let screen = window.screen.bounds
+        KeyboardWatch.start()
+        let up = CGRect(x: 0, y: screen.maxY - 300, width: screen.width, height: 300)
+        let down = CGRect(x: 0, y: screen.maxY, width: screen.width, height: 300)
+        defer { Self.announceKeyboard(down) }
+        Self.announceKeyboard(up)
+        XCTAssertTrue(GalleryScenarios.keyboardIsUp(over: window))
+        Self.announceKeyboard(down)
+        XCTAssertFalse(GalleryScenarios.keyboardIsUp(over: window))
+    }
+
+    @MainActor
+    private static func announceKeyboard(_ frame: CGRect) {
+        NotificationCenter.default.post(
+            name: UIResponder.keyboardDidChangeFrameNotification, object: nil,
+            userInfo: [UIResponder.keyboardFrameEndUserInfoKey: NSValue(cgRect: frame)]
+        )
+    }
+
+    @MainActor
+    private static func views(in view: UIView) -> [UIView] {
+        [view] + view.subviews.flatMap(views(in:))
+    }
 }
 
 /// A search field, and a layer that moves until ``stopMoving()``.
 private struct SearchPage: UIViewRepresentable {
     let moves: Bool
     var refusesFocus = false
+    /// A plain field that takes the focus as any field does, with its caret.
+    var realField = false
     let box = Box()
 
     final class Box {
@@ -137,8 +196,9 @@ private struct SearchPage: UIViewRepresentable {
     func makeUIView(context: Context) -> UIView {
         let view = UIView()
         view.backgroundColor = .systemBackground
-        let field = Field(frame: CGRect(x: 20, y: 120, width: 280, height: 36))
-        field.refuses = refusesFocus
+        let frame = CGRect(x: 20, y: 120, width: 280, height: 36)
+        let field = realField ? UISearchTextField(frame: frame) : Field(frame: frame)
+        (field as? Field)?.refuses = refusesFocus
         field.text = "keyword"
         view.addSubview(field)
         box.field = field

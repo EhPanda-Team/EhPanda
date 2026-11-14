@@ -28,6 +28,9 @@ class SnapshotMatrixCase: XCTestCase {
         // Dependencies clears prepared values before each XCTest case; restore the opt-in host defaults.
         UITestAutomation.prepareIfNeeded()
         Self.discardHeldTaps()
+        MainActor.assumeIsolated {
+            KeyboardWatch.start()
+        }
     }
 
     override func tearDown() {

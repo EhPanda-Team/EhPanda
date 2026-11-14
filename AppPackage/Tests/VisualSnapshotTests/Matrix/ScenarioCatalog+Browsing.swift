@@ -425,6 +425,22 @@ enum BrowsingScenarios {
         restartRepeatingAnimations(in: layer)
     }
 
+    /// Stops the blink of every caret in `window`, so each is drawn solid, as in the blink's shown half.
+    ///
+    /// Stopping the layer clock does not hold a caret: UIKit's blink adds a new animation on a timer of its own at
+    /// each turn, and under a stopped clock each new one shows its first frame, so a frozen caret still turned on and
+    /// off between reads. Pictures held either half and changed from run to run (`comments-post-empty`,
+    /// `comments-post-filled`, `search-typing-suggestions`; run 43451019962 against the run before it).
+    static func stopCaretBlink(in window: UIWindow) {
+        for cursor in views(in: window).compactMap({ $0 as? UIView & UITextCursorView }) {
+            cursor.isBlinking = false
+        }
+    }
+
+    private static func views(in view: UIView) -> [UIView] {
+        [view] + view.subviews.flatMap(views(in:))
+    }
+
     private static func restartRepeatingAnimations(in layer: CALayer) {
         let now = layer.convertTime(CACurrentMediaTime(), from: nil)
         for key in layer.animationKeys() ?? [] {

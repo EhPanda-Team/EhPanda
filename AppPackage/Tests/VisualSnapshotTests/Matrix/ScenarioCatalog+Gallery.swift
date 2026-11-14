@@ -28,10 +28,14 @@ extension ScenarioCatalog {
             ),
             "comments-blocked-row-collapsed": .init(make: { try Page.comments(.blocked) }),
             "comments-blocked-row-shown": .init(make: { try Page.comments(.blockedShown) }),
-            "comments-post-empty": .init(make: { try Page.comments(.postEmpty) }, interact: Page.holdStill),
-            "comments-post-filled": .init(make: { try Page.comments(.postFilled) }, interact: Page.holdStill),
+            "comments-post-empty": .init(
+                make: { try Page.comments(.postEmpty) }, interact: Page.holdStillOverKeyboard
+            ),
+            "comments-post-filled": .init(
+                make: { try Page.comments(.postFilled) }, interact: Page.holdStillOverKeyboard
+            ),
             "comments-posting-warning": .init(
-                make: { try Page.comments(.postingWarning) }, interact: Page.holdStill
+                make: { try Page.comments(.postingWarning) }, interact: Page.holdStillOverKeyboard
             )
         ]
     }
@@ -217,6 +221,10 @@ enum GalleryScenarios {
     /// a fresh controller, so no clock stays stopped. The keyboard is a separate window and is not drawn.
     static func holdStill(_ window: UIWindow) async throws {
         try await ContinuousClock().sleep(for: .milliseconds(1500))
+        try freeze(window)
+    }
+
+    private static func freeze(_ window: UIWindow) throws {
         var controller = try XCTUnwrap(window.rootViewController)
         while true {
             controller.view.layer.speed = 0
@@ -224,6 +232,54 @@ enum GalleryScenarios {
             guard let presented = controller.presentedViewController else { return }
             controller = presented
         }
+    }
+
+    /// Post Comment's step: once its editor's keyboard is up and the window has come to rest
+    /// twice in a row, the caret is drawn solid (``BrowsingScenarios/stopCaretBlink(in:)``) and the page is held
+    /// still as in ``holdStill(_:)``; a step that has not got there by ``keyboardDeadline`` fails, and the capture
+    /// retries it.
+    ///
+    /// The fixed 1.5 s of ``holdStill(_:)`` was not always enough for the keyboard on the hosted runner. The
+    /// keyboard shrinks the posting warning to fit above it and scrolls the editor's text to the caret, and run
+    /// 43451019962 held what came before it: the warning half presented (iPhone ja and zh-Hant accessibility5), the
+    /// filled draft scrolled and clipped (iPhone zh-Hant accessibility5 landscape), the iPad sheet in another place.
+    /// The 1.5 s stays as the shortest wait, so what a picture held after it is unchanged.
+    static func holdStillOverKeyboard(_ window: UIWindow) async throws {
+        let clock = ContinuousClock()
+        let deadline = clock.now.advanced(by: keyboardDeadline)
+        try await clock.sleep(for: .milliseconds(1500))
+        var held = 0
+        while held < 2 {
+            let focused = focusedEditor(in: window) != nil
+            guard clock.now < deadline else {
+                throw BrowsingScenarios.StepFailure(reason: focused ? "no-keyboard" : "editor-not-focused")
+            }
+            held = keyboardIsUp(over: window) ? held + 1 : 0
+            try await clock.sleep(for: .milliseconds(300))
+            try await BrowsingScenarios.waitForRest(window)
+        }
+        BrowsingScenarios.stopCaretBlink(in: window)
+        try freeze(window)
+    }
+
+    /// How long ``holdStillOverKeyboard(_:)`` may take before it fails the attempt with `interaction`.
+    static let keyboardDeadline: Duration = .seconds(30)
+
+    /// The text view or field that holds the focus in `view`, if any.
+    static func focusedEditor(in view: UIView) -> UIView? {
+        if view is UITextView || view is UITextField, view.isFirstResponder { return view }
+        for subview in view.subviews {
+            if let found = focusedEditor(in: subview) { return found }
+        }
+        return nil
+    }
+
+    /// Whether the keyboard covers the bottom of `window`'s screen, as UIKit last announced its frame
+    /// (``KeyboardWatch``).
+    static func keyboardIsUp(over window: UIWindow) -> Bool {
+        KeyboardWatch.start()
+        let frame = KeyboardWatch.frame
+        return frame.height > 0 && frame.minY < window.screen.bounds.maxY - 1
     }
 
     /// Opens the first comment's `…` moderation menu, as a tap on it does. The button is hidden from VoiceOver (its
@@ -577,6 +633,27 @@ extension GalleryScenarios {
             $0.context = .preview
         } operation: {
             prepareDependencies { $0.liveTextCapture = capture }
+        }
+    }
+}
+
+/// The keyboard's frame on its screen as UIKit last announced it, watched from the first matrix case on
+/// (SnapshotMatrixCase), so a keyboard that came up before a step looks is known to it. A window's keyboard layout
+/// guide read from the step did not follow the keyboard: it never read it as up.
+@MainActor
+enum KeyboardWatch {
+    private(set) static var frame: CGRect = .zero
+    private static var observer: (any NSObjectProtocol)?
+
+    static func start() {
+        guard observer == nil else { return }
+        observer = NotificationCenter.default.addObserver(
+            forName: UIResponder.keyboardDidChangeFrameNotification, object: nil, queue: .main
+        ) { notification in
+            let end = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue
+            MainActor.assumeIsolated {
+                frame = end ?? .zero
+            }
         }
     }
 }
