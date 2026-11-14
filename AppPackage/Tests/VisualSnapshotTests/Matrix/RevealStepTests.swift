@@ -4,7 +4,8 @@ import UIKit
 import VisualSnapshotSupport
 import XCTest
 
-/// The popover platter a presented dialog's step waits for (fixed after run 43451019962).
+/// The popover platter a presented dialog's step waits for, and the whole label a step can name (fixed after run
+/// 43451019962).
 final class RevealStepTests: XCTestCase {
     override func setUp() {
         super.setUp()
@@ -40,6 +41,21 @@ final class RevealStepTests: XCTestCase {
         } catch AccessibilityActionDriver.Failure.notFound {
             // The failure the capture names `interaction:not-found` and retries.
         }
+    }
+
+    /// Rate Gallery in Chinese (评分) is part of the average rating's label (平均评分) above it: a whole label names
+    /// only the element whose label it is.
+    @MainActor
+    func testAWholeLabelNamesOnlyItsOwnElement() {
+        let average = UIAccessibilityElement(accessibilityContainer: self)
+        average.isAccessibilityElement = true
+        average.accessibilityLabel = "平均评分"
+        let button = UIAccessibilityElement(accessibilityContainer: self)
+        button.isAccessibilityElement = true
+        button.accessibilityLabel = "评分"
+        XCTAssertTrue(RevealStep.Target.label("评分").matches(average))
+        XCTAssertFalse(RevealStep.Target.wholeLabel("评分").matches(average))
+        XCTAssertTrue(RevealStep.Target.wholeLabel("评分").matches(button))
     }
 
     @MainActor

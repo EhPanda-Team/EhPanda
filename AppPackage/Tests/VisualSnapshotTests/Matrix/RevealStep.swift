@@ -16,10 +16,11 @@ import XCTest
 /// on screen (``tap(_:)``). Every other text size keeps its page and its pictures as they were.
 @MainActor
 enum RevealStep {
-    /// What to bring on screen: an element whose accessibility label contains the text, or whose accessibility
-    /// identifier is the text.
+    /// What to bring on screen: an element whose accessibility label contains the text, or is the text
+    /// (`wholeLabel`), or whose accessibility identifier is the text.
     enum Target {
         case label(String)
+        case wholeLabel(String)
         case identifier(String)
 
         private var identifierGetter: Selector {
@@ -28,7 +29,7 @@ enum RevealStep {
 
         var name: String {
             switch self {
-            case .label(let text), .identifier(let text): text
+            case .label(let text), .wholeLabel(let text), .identifier(let text): text
             }
         }
 
@@ -37,6 +38,8 @@ enum RevealStep {
             switch self {
             case .label(let text):
                 element.isAccessibilityElement && element.accessibilityLabel?.contains(text) == true
+            case .wholeLabel(let text):
+                element.isAccessibilityElement && element.accessibilityLabel == text
             case .identifier(let identifier):
                 // SwiftUI's accessibility elements answer `accessibilityIdentifier` without declaring
                 // `UIAccessibilityIdentification`, so a cast to the protocol misses them; the getter is asked by name.

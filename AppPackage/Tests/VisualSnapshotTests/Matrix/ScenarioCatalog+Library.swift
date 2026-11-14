@@ -123,10 +123,13 @@ extension ScenarioCatalog {
                 make: { try Page.detail(.loading) }, prepare: artwork, interact: BrowsingScenarios.freezeIndicators
             ),
             "gallery-detail-error": .init(make: { try Page.detail(.error) }, prepare: artwork),
-            // At accessibility5 the rating row is below the fold (run 43403534542): the page is scrolled to it.
+            // At accessibility5 the rating row is below the fold (run 43403534542): the page is scrolled to it. Rate
+            // Gallery is matched whole: in Chinese its label (评分, 評分) is part of the average rating's and of the
+            // rating count's, which are above it, and iPad zh-Hans and zh-Hant accessibility5 landscape stopped at
+            // those with the rating out of view (run 43451019962).
             "gallery-detail-rating": .init(
                 make: { try Page.detail(.rating) }, prepare: artwork,
-                interact: RevealStep.reveal(.label(String(localized: .rateGallery)))
+                interact: RevealStep.reveal(.wholeLabel(String(localized: .rateGallery)))
             ),
             "gallery-detail-downloading": .init(make: { try Page.detail(.downloading) }, prepare: artwork),
             "gallery-detail-delete-download-confirmation": .init(
