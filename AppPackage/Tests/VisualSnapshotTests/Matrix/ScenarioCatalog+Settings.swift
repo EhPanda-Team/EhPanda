@@ -57,9 +57,11 @@ extension ScenarioCatalog {
             ),
             "settings-pages-general-basic": .init(make: { Page.general(level: .basic) }, interact: Page.scrollToBottom),
             "settings-pages-general-full": .init(make: { Page.general(level: .full) }, interact: Page.scrollToBottom),
+            // At accessibility5 the rows above Clear Image Cache could still grow after it was placed, and the row
+            // sat at three heights (run 43451019962): it is placed again until it stays.
             "settings-pages-general-cache-confirmation": .init(
                 make: { Page.general(level: nil, action: .clearImageCacheButtonTapped) },
-                interact: RevealStep.reveal(.label(String(localized: .clearImageCache)))
+                interact: RevealStep.reveal(.label(String(localized: .clearImageCache)), holdingPlacement: true)
             ),
             "settings-pages-general-translations-confirmation": .init(
                 make: { Page.general(level: nil, action: .removeCustomTranslationsButtonTapped) },

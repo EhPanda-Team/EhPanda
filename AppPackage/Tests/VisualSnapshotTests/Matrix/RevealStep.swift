@@ -217,9 +217,10 @@ enum RevealStep {
     /// tap held back by ``tap(_:)`` is performed. At other sizes it does nothing, unless `atEverySize`: a scenario
     /// new to the matrix, with no pictures to keep, has its target brought on screen at any size it is below the fold.
     /// With `settlingSteps`, the page is looked through again after each step once it has stopped changing, rather
-    /// than 100 ms later (``bringIntoView(_:in:settlingSteps:)``).
+    /// than 100 ms later (``bringIntoView(_:in:settlingSteps:)``). With `holdingPlacement`, a placed part is placed
+    /// again once the page has stopped changing, until it stays where it was placed (``holdPlacement(_:in:)``).
     nonisolated static func reveal(
-        _ target: Target, atEverySize: Bool = false, settlingSteps: Bool = false
+        _ target: Target, atEverySize: Bool = false, settlingSteps: Bool = false, holdingPlacement: Bool = false
     ) -> ScenarioFactory.Interact {
         { window in
             let tap = pendingTap
@@ -227,7 +228,34 @@ enum RevealStep {
             guard atEverySize || isLargestText else { return }
             _ = await HostedWindowCapture.settle(window)
             try await bringIntoView(target, in: window, settlingSteps: settlingSteps)
+            if holdingPlacement {
+                try await holdPlacement(target, in: window)
+            }
             tap?()
+        }
+    }
+
+    /// The most times ``holdPlacement(_:in:)`` places a part again.
+    private static let maximumHolds = 6
+
+    /// Places a part brought into view at the top of the visible area again each time the page has stopped changing,
+    /// until it is still there, then leaves it.
+    ///
+    /// A form sizes its rows as it builds them: the rows above a part placed at the top can still grow after the
+    /// placement and push it down, and ``bringIntoView(_:in:settlingSteps:)`` leaves a part that is in view where it
+    /// is. How far it was pushed depended on how many rows were built in time
+    /// (`settings-pages-general-cache-confirmation` on iPhone zh-Hans accessibility5 portrait light: three placements
+    /// in run 43451019962 and the runs before it; locally the form reported 1642.3 and 1676.7 points of content in two
+    /// launches, and the row sat at two heights). Placed again on a page at rest, the part ends at the top, or as
+    /// near it as the end of the list allows, in every launch (8 of 8 under load).
+    private static func holdPlacement(_ target: Target, in window: UIWindow) async throws {
+        for _ in 0..<maximumHolds {
+            _ = await HostedWindowCapture.settle(window)
+            guard let (element, view) = element(target, in: window, view: window),
+                  let list = scrollView(holding: view, in: window)
+            else { return }
+            let frame = list.convert(element.accessibilityFrame, from: window.screen.coordinateSpace)
+            guard scroll(list, to: frame.minY - margin - list.adjustedContentInset.top) else { return }
         }
     }
 
