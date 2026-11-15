@@ -165,6 +165,32 @@ Phase 17 was: the executed work is verified and the rest is recorded as deferred
   before and after. Not yet shown on the hosted gate. The same opacity-hidden `ErrorView` is still in
   `EhSettingView`, `HomeNavigationView`, `DetailView`, `TorrentsView` and `ArchivesView`; none has a search field
   over a list, and they were not changed.
+- **Warnings and the lint gate, 2026-11-15** (on `fix/snapshot-precheck`, at the owner's word): a clean build of
+  every target and a direct SwiftLint run found 36 findings, none an error: 28 from the compiler and 8 lint
+  violations, 31 of them already on `develop`. All are fixed: a clean build of every plan and SwiftLint over every
+  module now report nothing. In the UI tests the set-up overrides no longer write main-actor state (XCTest
+  declares them outside the main actor), and the slider preview's watcher is a main-actor task in place of a
+  second thread: XCTest turns the main run loop during a hold, and the thumb's case fails if it stops doing so.
+  `DeepLinkSchemeUITests` turns the device at the start of each case. An asynchronous set-up would take the
+  class's isolation, but with it overridden a failing case ends the runner process and its retries never run
+  (the same two cases, four iterations each: eight ran under the synchronous set-up, three under the other).
+  Three of the warnings were the `UIWindow(frame:)` deprecation. A package test target runs without the app, so
+  it has no window scene to give `UIWindow(windowScene:)`. The nine tests that lay a view out in a window moved
+  to `HostedViewTests`, an app-hosted target in the `FeatureTests` plan, and the `no_sceneless_window` lint rule
+  bans the two scene-less initializers. `GalleryListErrorViewTests` moved with them and was proved again there:
+  on the old overlay it fails for the idle and the loading list, on the fix it passes.
+  `lint.yml` runs whenever `test.yml` does and fails on a compiler warning or error and on a SwiftLint violation
+  of any severity, in any target (`Scripts/lint/lint_check.py`). A warning located inside a third-party package
+  is listed and allowed (owner, 2026-11-15); one that this repository's code triggers fails, whichever library
+  defined it, and so does one that names no file. It runs SwiftLint itself as well as building,
+  because `xcodebuild` sometimes stops recording the plug-in's output early and a warning is lost from the log (a
+  clean build here lost one of the eight). It starts the build without the SDK variables `xcrun` adds for the
+  system's `python3`, which otherwise cost every test product of the package a linker warning. Run here as the
+  workflow runs it; not yet run on a hosted runner.
+  Seen on the way and not looked into, on a fresh iOS 27.0 simulator and with the test code as it was before
+  these changes as well: three cases of `ReportFormUITests` ("Details never became hittable"),
+  `CommentModerationUITests.testTheUsersOwnCommentOffersNoModeration` and the two page-link cases of
+  `DeepLinkSchemeUITests` fail.
 
 Phase 20 merged this state from `main` on 2026-11-11 (OQ-F, owner msg 3346) and carries on below.
 

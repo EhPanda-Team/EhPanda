@@ -1,0 +1,45 @@
+name: Lint
+# Runs whenever Test does: pushes to branches only, never a tag, and not for a commit that skips the tests.
+#
+# Fails on a compiler warning or error and on a SwiftLint violation of any severity, in any target: the app, the
+# share extension, every module and test target of the package, the app-hosted tests and the UI tests
+# (Scripts/lint/lint_check.py). Test builds the same sources, but a warning does not fail a build, and the UI tests
+# are not in its plan.
+#
+# A warning inside a third-party package is listed and allowed: only where the warning is counts. One that this
+# repository's code triggers fails, whichever library defined it.
+on:
+  push:
+    branches: ['**']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  Lint:
+    runs-on: xcode-27
+    if: ${{ !contains(github.event.head_commit.message, '[skip test]') }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+      - name: Test the gate's own tooling
+        run: python3 -m unittest discover -s Scripts/lint -p 'test_*.py'
+      - name: Install iOS 27 Platform
+        uses: nick-fields/retry@v4
+        with:
+          retry_on: error
+          max_attempts: 10
+          timeout_minutes: 999
+          command: xcodebuild -downloadPlatform iOS
+      - name: Show Xcode version
+        run: xcodebuild -version
+      - name: Build every target and lint every module
+        run: python3 Scripts/lint/lint_check.py --output "$RUNNER_TEMP/lint"
+      - name: Upload logs
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: lint-logs
+          path: |
+            ${{ runner.temp }}/lint/*.log
+            ${{ runner.temp }}/lint/*.txt
+          if-no-files-found: ignore

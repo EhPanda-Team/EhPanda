@@ -12,7 +12,9 @@ Preview review by an agent is a separate aid and never an acceptance: see `previ
 
 # Test plans and CI
 
-`FeatureTests` runs the package tests and the app-hosted tests that need no capture coordinate. `UITests` runs the
+`FeatureTests` runs the package tests and the app-hosted tests that need no capture coordinate. Among the latter is
+the `HostedViewTests` target: every test that lays a view out in a window lives there, because a window belongs to
+a scene and only a process inside the app has one (the `no_sceneless_window` lint rule). `UITests` runs the
 UI tests; it skips the capture-only suites (`CaptureIsolationUITests`, `MarketingCaptureUITests`), whose inputs a
 plain run does not have. `VisualTests` holds the app-hosted `VisualSnapshotTests` target's feasibility and geometry
 probes (`FullContentFeasibilityTests`, `GeometryTests`), driven by the native scripts below. `SnapshotMatrix` is the
@@ -24,6 +26,7 @@ CI workflows:
 | Workflow | Runs | When |
 |---|---|---|
 | `test.yml` | `FeatureTests` without command-line exclusions | push, dispatch |
+| `lint.yml` | a clean build of every test plan's targets, then SwiftLint over every module; a compiler warning or error, or a lint violation of any severity, fails it, except a warning located inside a third-party package (`Scripts/lint/lint_check.py`) | push, dispatch (as `test.yml`) |
 | `snapshot-gate.yml` | the screenshot check, below | pull requests, manual dispatches and dependency updates (`dependencies.yml`); the release workflows do not call it for 3.0 (owner msg 3757) |
 | `live-check.yml` | the daily live check | daily, dispatch, push to `ci/live-check` |
 
@@ -168,7 +171,7 @@ still lost, so it is shorter, but it adds at least one shard's length: at the ob
 run should need about 18 shards in round two (about 2 hours), 5 in round three (about 1 hour) and 1 or 2 in round four
 (about 40 to 50 minutes), so 12 to 13 hours end to end (run 43298876957 took 11.2 hours for two rounds and ended with
 three shards lost). A run with no cuts is unaffected: a round with nothing to run is skipped. It holds every macOS slot the account has for that
-time: `test.yml`, the deploys and other gate runs queue behind it. This is accepted and written down
+time: `test.yml`, `lint.yml`, the deploys and other gate runs queue behind it. This is accepted and written down
 (19-RESEARCH Pitfall 9; T-19-21). Hosted runs of a public repository are not billed.
 
 **iPad orientation.** `run-shard.sh` turns the device with `VisualCaptureOrientationUITests`. The
