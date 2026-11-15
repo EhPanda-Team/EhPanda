@@ -5,7 +5,7 @@ import XCTest
 /// the Detail strip's cards and the posting warning over the comment editor.
 ///
 /// XCUITest does not read accessibility custom actions, so the cell's and the card's named moderation actions are
-/// read from the rendered accessibility tree in `BlockedCommentPresentationTests` instead.
+/// read from the rendered accessibility tree in `CommentAccessibilityActionsTests` instead.
 ///
 /// Every launch is stubbed: the gallery and its comments come from the bundled fixtures, the Report form never loads
 /// the live site, and sign-in uses the launch automation's cookie keys with placeholder values. Each case presets its
@@ -51,16 +51,18 @@ final class CommentModerationUITests: XCTestCase {
         static let blockedCard = "blocked_comment_card_" + Copy.stripCommentID
     }
 
-    private var requestLogURL: URL!
+    /// This case's own request log: XCTest makes one instance of the class for each test method. A constant, so
+    /// that the set-up and tear-down overrides, which XCTest declares outside the main actor, never write main-actor
+    /// state and may read it.
+    private let requestLogURL = FileManager.default.temporaryDirectory
+        .appending(path: "comment-moderation-requests-\(UUID().uuidString).log")
 
     override func setUpWithError() throws {
         continueAfterFailure = false
-        requestLogURL = FileManager.default.temporaryDirectory
-            .appending(path: "comment-moderation-requests-\(UUID().uuidString).log")
     }
 
     override func tearDownWithError() throws {
-        if let requestLogURL, FileManager.default.fileExists(atPath: requestLogURL.path()) {
+        if FileManager.default.fileExists(atPath: requestLogURL.path()) {
             try FileManager.default.removeItem(at: requestLogURL)
         }
     }

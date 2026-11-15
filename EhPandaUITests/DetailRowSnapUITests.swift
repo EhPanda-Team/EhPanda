@@ -21,6 +21,8 @@ final class DetailRowSnapUITests: XCTestCase {
             }
         }
 
+        /// A snapshot's attributes belong to the main actor, and a nested type does not take the class's isolation.
+        @MainActor
         func isItem(_ element: any XCUIElementSnapshot) -> Bool {
             switch self {
             case .previews: element.elementType == .button && element.label.hasPrefix("Page ")
@@ -58,7 +60,7 @@ final class DetailRowSnapUITests: XCTestCase {
         let heading = app.staticTexts[row.heading].firstMatch
         XCTAssertTrue(heading.waitForExistence(timeout: 20), "\(row.heading) is missing.")
         var scrolls = 0
-        while (!heading.isHittable || heading.frame.minY > app.windows.firstMatch.frame.height * 0.45), scrolls < 10 {
+        while !heading.isHittable || heading.frame.minY > app.windows.firstMatch.frame.height * 0.45, scrolls < 10 {
             detail.swipeUp(velocity: .slow)
             scrolls += 1
         }
@@ -132,9 +134,9 @@ final class DetailRowSnapUITests: XCTestCase {
         let near = window.width * (direction == .left ? 0.8 : 0.2)
         let far = window.width * (direction == .left ? 0.3 : 0.7)
         let origin = app.coordinate(withNormalizedOffset: .zero)
-        let from = origin.withOffset(CGVector(dx: near, dy: row.midY))
-        let to = origin.withOffset(CGVector(dx: far, dy: row.midY))
-        from.press(forDuration: 0.05, thenDragTo: to, withVelocity: .default, thenHoldForDuration: 0)
+        let start = origin.withOffset(CGVector(dx: near, dy: row.midY))
+        let end = origin.withOffset(CGVector(dx: far, dy: row.midY))
+        start.press(forDuration: 0.05, thenDragTo: end, withVelocity: .default, thenHoldForDuration: 0)
     }
 
     private struct Reading {

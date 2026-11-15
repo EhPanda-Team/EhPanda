@@ -4,15 +4,24 @@ import XCTest
 final class DeepLinkSchemeUITests: XCTestCase {
     private let pageCount = 156
 
-    /// The page link's reader is checked in portrait: in landscape the iPad shows a two-page spread whose indicator
-    /// reads the spread's first page. A test that ran earlier on the same clone can leave the device in landscape.
     override func setUpWithError() throws {
         continueAfterFailure = false
+    }
+
+    /// The application of a case, on a device turned to portrait. The page link's reader is checked in portrait: in
+    /// landscape the iPad shows a two-page spread whose indicator reads the spread's first page. A test that ran
+    /// earlier on the same clone can leave the device in landscape.
+    ///
+    /// Every case starts here and not in set-up. The device belongs to the main actor, and XCTest declares its
+    /// synchronous set-up outside it. Its asynchronous set-up does take this class's isolation, but with it
+    /// overridden a failing case ends the runner process, and the plan's retries of that case are never run.
+    private func applicationInPortrait() -> XCUIApplication {
         XCUIDevice.shared.orientation = .portrait
+        return XCUIApplication()
     }
 
     func testGalleryLinkColdLaunchLandsOnDetail() throws {
-        let app = XCUIApplication()
+        let app = applicationInPortrait()
         let url = try XCTUnwrap(UITestConstants.galleryURL(scheme: "ehpanda"))
 
         try app.openCold(url)
@@ -21,7 +30,7 @@ final class DeepLinkSchemeUITests: XCTestCase {
     }
 
     func testGalleryLinkWarmForegroundLandsOnDetail() throws {
-        let app = XCUIApplication()
+        let app = applicationInPortrait()
         let url = try XCTUnwrap(UITestConstants.galleryURL(scheme: "ehpanda"))
 
         try app.launchStubbed()
@@ -32,7 +41,7 @@ final class DeepLinkSchemeUITests: XCTestCase {
     }
 
     func testPageLinkColdLaunchOpensReaderAtPage() throws {
-        let app = XCUIApplication()
+        let app = applicationInPortrait()
         let url = try XCTUnwrap(UITestConstants.singlePageURL(scheme: "ehpanda"))
 
         try app.openCold(url)
@@ -41,7 +50,7 @@ final class DeepLinkSchemeUITests: XCTestCase {
     }
 
     func testPageLinkWarmForegroundOpensReaderAtPage() throws {
-        let app = XCUIApplication()
+        let app = applicationInPortrait()
         let url = try XCTUnwrap(UITestConstants.singlePageURL(scheme: "ehpanda"))
 
         try app.launchStubbed()
@@ -52,7 +61,7 @@ final class DeepLinkSchemeUITests: XCTestCase {
     }
 
     func testCommentLinkColdLaunchScrollsToComment() throws {
-        let app = XCUIApplication()
+        let app = applicationInPortrait()
         let url = try XCTUnwrap(UITestConstants.commentURL(scheme: "ehpanda"))
 
         try app.openCold(url)
@@ -61,7 +70,7 @@ final class DeepLinkSchemeUITests: XCTestCase {
     }
 
     func testCommentLinkWarmForegroundScrollsToComment() throws {
-        let app = XCUIApplication()
+        let app = applicationInPortrait()
         let url = try XCTUnwrap(UITestConstants.commentURL(scheme: "ehpanda"))
 
         try app.launchStubbed()
@@ -72,7 +81,7 @@ final class DeepLinkSchemeUITests: XCTestCase {
     }
 
     func testMalformedLinkColdLaunchShowsErrorToast() throws {
-        let app = XCUIApplication()
+        let app = applicationInPortrait()
         let url = try XCTUnwrap(UITestConstants.malformedURL(scheme: "ehpanda"))
 
         try app.openCold(url)
@@ -81,7 +90,7 @@ final class DeepLinkSchemeUITests: XCTestCase {
     }
 
     func testMalformedLinkWarmForegroundShowsErrorToast() throws {
-        let app = XCUIApplication()
+        let app = applicationInPortrait()
         let url = try XCTUnwrap(UITestConstants.malformedURL(scheme: "ehpanda"))
 
         try app.launchStubbed()
