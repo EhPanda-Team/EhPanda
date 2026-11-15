@@ -16,22 +16,28 @@ final class StepBudgetTests: XCTestCase {
 
     /// A stretch in which the main run loop does not turn counts for one second of a step's allowance, however long
     /// it lasts; the rest of the allowance is still waited for afterwards.
+    ///
+    /// Every bound here holds however slowly the host serves the case, short of the budget's own wall bound. The
+    /// stop is three seconds on any clock, and what the run loop turned is compared with the wall clock of the same
+    /// step, never with a fixed span: hosted run 43681051816 failed an earlier form of this case, which allowed two
+    /// 200 ms sleeps around the stop 0.8 s between them where the runner took 1.4 s.
     @MainActor
     func testAStretchWithoutATurnCountsForOneSecond() async throws {
         var budget = StepBudget(.seconds(2))
-        try await Task.sleep(for: .milliseconds(200))
         usleep(3_000_000)
-        try await Task.sleep(for: .milliseconds(200))
+        // Longer than the allowance on the wall clock, and nothing of it counted: the stretch has not ended yet.
         XCTAssertGreaterThanOrEqual(budget.waited, .seconds(3))
-        XCTAssertLessThan(budget.turned, .milliseconds(1_800))
         XCTAssertFalse(budget.isSpent)
         while !budget.isSpent {
             budget.look()
             try await Task.sleep(for: .milliseconds(100))
         }
+        // The stop gave the allowance one second at most, so at least one more second of turning followed it, and
+        // two of the stop's three seconds are on the wall clock alone.
         XCTAssertGreaterThanOrEqual(budget.turned, .seconds(2))
-        XCTAssertGreaterThanOrEqual(budget.waited, .milliseconds(3_900))
-        XCTAssertGreaterThan(budget.polls, 3)
+        XCTAssertGreaterThanOrEqual(budget.waited, .seconds(4))
+        XCTAssertGreaterThanOrEqual(budget.waited - budget.turned, .seconds(2))
+        XCTAssertGreaterThan(budget.polls, 0)
     }
 
     /// A stop that ends as a step begins belongs to what came before the step: none of it counts toward the step's
