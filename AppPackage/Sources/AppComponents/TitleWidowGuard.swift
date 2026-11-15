@@ -1,5 +1,5 @@
 public import CoreGraphics
-public import Foundation
+import Foundation
 public import SwiftUI
 public import UIKit
 
