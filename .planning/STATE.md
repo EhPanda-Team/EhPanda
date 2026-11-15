@@ -186,11 +186,38 @@ Phase 17 was: the executed work is verified and the rest is recorded as deferred
   because `xcodebuild` sometimes stops recording the plug-in's output early and a warning is lost from the log (a
   clean build here lost one of the eight). It starts the build without the SDK variables `xcrun` adds for the
   system's `python3`, which otherwise cost every test product of the package a linker warning. Run here as the
-  workflow runs it; not yet run on a hosted runner.
-  Seen on the way and not looked into, on a fresh iOS 27.0 simulator and with the test code as it was before
-  these changes as well: three cases of `ReportFormUITests` ("Details never became hittable"),
-  `CommentModerationUITests.testTheUsersOwnCommentOffersNoModeration` and the two page-link cases of
-  `DeepLinkSchemeUITests` fail.
+  workflow runs it, and on a hosted runner: its first run (43710298132) passed in 13 minutes. The `Test` run of
+  the same push (43710298062) failed on one case, `RevealStepTests.testTheStepFailsWithoutADialog`, the timing
+  case that already failed there; the hosted window tests passed.
+- **UI tests that failed on a fresh simulator, 2026-11-15** (on `fix/snapshot-precheck`, at the owner's word): six
+  cases failed on a fresh iOS 27.0 iPhone Air simulator, with the test code as it was before that day's changes
+  too. The UI tests are in no hosted workflow, so nothing had reported them. Three behaviour changes of
+  2026-11-12 had left their tests behind; none is a defect in the app. Fixed in `7629606b4`, `429381a1f` and
+  `5c4b0056a`.
+  Three cases of `ReportFormUITests` ("Details never became hittable"): since `08d4927de` a picked reason no
+  longer opens the keyboard, and the helper typed the email first and then tapped Details, which lies under the
+  email's keyboard on a phone. The helper now picks the reason, fills in Details and types the email last.
+  `CommentModerationUITests.testTheUsersOwnCommentOffersNoModeration`: since `2626eb8d1` every comment's menu
+  leads with the two votes, so the user's own comment has its `…` button. The case now opens the menu and checks
+  that it offers neither Report nor Block.
+  The two page-link cases of `DeepLinkSchemeUITests`, and with them every case that reads the page through
+  `ReaderPageProbe`: the probe reads the number of a page's failure placeholder, and since `ba0fbfceb` the stub
+  served the reader's pages, so a page loaded and showed no placeholder. A first launch could still pass, when it
+  read before the image arrived. The stub now answers the multi-page viewer only in a launch that sets
+  `EHPANDA_UITEST_READER_PAGES=1`, which no test sets today; the numbered page image is still always served, for
+  the detail previews. This changes a default the owner's commit set, on an agent's judgment: it restores what
+  eight test classes are written against and keeps the capability behind the key.
+  Run on that simulator: the three classes, 25 passed on the first attempt and the one iPad-only case skipped;
+  the page-link cases 8 of 8 iterations in one runner (1 of 8 before); `ReaderPageSyncUITests`,
+  `ReaderRebuildUITests`, `ReadingOrientationUITests`, `LibraryPresentationUITests` and
+  `ReaderSliderPreviewUITests` 20 passed. The iPad and Duo cases that read the probe were not run.
+  Open: `DeepLinkSchemeUITests.testMalformedLinkColdLaunchShowsErrorToast` failed once in 32 runs ("The
+  malformed-link toast was not tappable"). The recording of that run shows the toast at rest on screen from
+  three seconds before the read until after it, and a probe that sampled the same read found it true in all 27
+  further iterations of the case (alone, with every core busy, and beside the three classes that ran with it),
+  943 reads. So one read was wrong and the toast was not; why is not known, and the case is unchanged.
+  `ReaderRebuildUITests.testChangingDirectionDuringAutoPlayKeepsTheIndicatorOnThePageShown` needed its second
+  attempt once: with five clones running, its wait read the pager in the middle of a turn. Not looked into.
 
 Phase 20 merged this state from `main` on 2026-11-11 (OQ-F, owner msg 3346) and carries on below.
 
