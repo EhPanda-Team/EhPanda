@@ -124,10 +124,14 @@ final class BrowsingStepTests: XCTestCase {
         BrowsingScenarios.stopCaretBlink(in: window)
         XCTAssertFalse(caret.isBlinking)
         try await BrowsingScenarios.freezeIndicators(window)
-        let first = HostedWindowCapture.comparedBytes(HostedWindowCapture.capture(window))
-        for _ in 0..<6 {
+        let first = try XCTUnwrap(HostedWindowCapture.comparedBytes(HostedWindowCapture.capture(window)))
+        for read in 1...6 {
             try await clock.sleep(for: .milliseconds(400))
-            XCTAssertEqual(HostedWindowCapture.comparedBytes(HostedWindowCapture.capture(window)), first)
+            let bytes = try XCTUnwrap(HostedWindowCapture.comparedBytes(HostedWindowCapture.capture(window)))
+            guard bytes != first else { continue }
+            // Where the read differs, not the reads themselves: two pictures in a message are 15 MB of numbers.
+            let region = HostedWindowCapture.changedRegion(first, bytes, width: Int(window.bounds.width))
+            XCTFail("Read \(read) differs from the first in \(region ?? "its size")")
         }
     }
 
@@ -224,7 +228,11 @@ final class BrowsingStepTests: XCTestCase {
 private struct SearchPage: UIViewRepresentable {
     let moves: Bool
     var refusesFocus = false
-    /// A plain field that takes the focus as any field does, with its caret.
+    /// A plain field that takes the focus as any field does, with its caret. It has no clear button: the caret is
+    /// what its case reads. In the three runs that failed the case (hosted 43681051816 and 43689174320, and one
+    /// local) the reads differed in the button's 20 points alone, drawn after the first read, and the caret was the
+    /// same in all of them. Each of those runs took 95 s or more where the case takes 4; why the button is late
+    /// then is not known.
     var realField = false
     let box = Box()
 
@@ -257,6 +265,7 @@ private struct SearchPage: UIViewRepresentable {
         view.backgroundColor = .systemBackground
         let frame = CGRect(x: 20, y: 120, width: 280, height: 36)
         let field = realField ? UISearchTextField(frame: frame) : Field(frame: frame)
+        if realField { field.clearButtonMode = .never }
         (field as? Field)?.refuses = refusesFocus
         field.text = "keyword"
         view.addSubview(field)
