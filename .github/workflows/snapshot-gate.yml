@@ -31,6 +31,8 @@ name: Snapshot gate
 # the run's `pictures-*` artifacts for 7 days. A dispatched candidate run may be restricted to some shards (input
 # `shards`, comma-separated IDs of the plan; refused for compare and for an unknown ID, by `checks`); the native policy
 # jobs belong to no shard and are skipped then, and the verdict is the aggregate's over the selected shards.
+# A dispatched candidate run may also name another worker count than the plan's (input `workers`; 1 captures every
+# shard on its prepared device alone, without clones): a measurement, refused for compare by `checks`.
 # No shard uploads a result bundle (D-14); the native policy job keeps its
 # own when it fails, for 7 days, since its failures are taps and waits only the bundle's screens show.
 on:
@@ -44,6 +46,10 @@ on:
         default: compare
       shards:
         description: 'candidate runs only: comma-separated shard IDs of snapshot-shards.json (s01 to s72) to run; empty runs all'
+        type: string
+        default: ''
+      workers:
+        description: 'candidate runs only: the simulators each shard captures on, instead of the count in snapshot-shards.json (1: the prepared device alone, without clones); empty keeps that count'
         type: string
         default: ''
   workflow_call:
@@ -67,6 +73,9 @@ env:
   SCHEME_NAME: 'EhPanda'
   # The shards a dispatched candidate run is restricted to (empty: all); checked by `checks`.
   SHARD_IDS: ${{ inputs.shards }}
+  # The worker count a dispatched candidate run names instead of the plan's (empty: the plan's); checked by `checks`
+  # and read by Scripts/visual/snapshot_shard.py in every shard and retry.
+  EHPANDA_SHARD_WORKERS: ${{ inputs.workers }}
   FINGERPRINTS: 'AppPackage/Tests/VisualSnapshotTests/Baseline/fingerprints.json'
 jobs:
   checks:
@@ -139,6 +148,23 @@ jobs:
             echo "### Restricted to shards: $ids" >> "$GITHUB_STEP_SUMMARY"
           fi
           echo "restricted=$restricted" >> "$GITHUB_OUTPUT"
+      # The plan's worker count is the gate's (19-CONTEXT D-15). A run on another one is a measurement, never a
+      # verdict: candidate mode only.
+      - name: Check the worker count
+        env:
+          MODE: ${{ steps.mode.outputs.mode }}
+        run: |
+          count=$(python3 Scripts/visual/snapshot_shard.py workers) || {
+            echo "::error::the workers input must be a positive whole number, not '$EHPANDA_SHARD_WORKERS'."
+            exit 1
+          }
+          if [ -n "$EHPANDA_SHARD_WORKERS" ]; then
+            if [ "$MODE" != candidate ]; then
+              echo "::error::a run on a named worker count ($count) must be a candidate run, not $MODE."
+              exit 1
+            fi
+            echo "### Workers: $count, named by the dispatch instead of the plan's" >> "$GITHUB_STEP_SUMMARY"
+          fi
 
   build:
     needs: checks

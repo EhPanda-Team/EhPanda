@@ -3,9 +3,11 @@ the proof's fault switch (19-CONTEXT D-15; 19-RESEARCH §4, §5)."""
 import contextlib
 import io
 import json
+import os
 from pathlib import Path
 import tempfile
 import unittest
+from unittest import mock
 
 import snapshot_matrix
 import snapshot_shard
@@ -70,9 +72,11 @@ class ShardTests(unittest.TestCase):
     def tearDown(self):
         self.directory.cleanup()
 
-    def run_main(self, *args):
+    def run_main(self, *args, workers=''):
+        # The gate's own run may name a worker count (EHPANDA_SHARD_WORKERS); each test names its own.
         out = io.StringIO()
-        with contextlib.redirect_stdout(out), contextlib.redirect_stderr(io.StringIO()):
+        with contextlib.redirect_stdout(out), contextlib.redirect_stderr(io.StringIO()), \
+                mock.patch.dict(os.environ, {'EHPANDA_SHARD_WORKERS': workers}):
             status = snapshot_shard.main([*args, '--shards', str(self.root / 'shards.json'),
                                           '--inventory', str(self.root / 'scenarios.json')])
         return status, out.getvalue()
@@ -190,6 +194,30 @@ class ShardTests(unittest.TestCase):
         self.assertEqual(snapshot_shard.fault('s03=crash@every-attempt', 's03', 2), 'crash')
         with self.assertRaises(ValueError):
             snapshot_shard.fault('s03=explode', 's03', 1)
+
+    def test_the_worker_count_is_the_plans_unless_a_dispatch_names_one(self):
+        # The dispatch input `workers`: a candidate run on another count than the plan's, to measure it.
+        self.assertEqual(snapshot_shard.workers(PLAN, ''), 2)
+        self.assertEqual(snapshot_shard.workers(PLAN, '1'), 1)
+        self.assertEqual(snapshot_shard.workers(PLAN, '3'), 3)
+        for text in ('0', '-1', '01', '1.5', 'two', ' 1', '1 ', ' '):
+            with self.assertRaises(ValueError, msg=text) as raised:
+                snapshot_shard.workers(PLAN, text)
+            self.assertIn('EHPANDA_SHARD_WORKERS', str(raised.exception))
+
+    def test_a_named_worker_count_reaches_the_description_and_the_record(self):
+        path = self.root / 'out/shard.json'
+        for named, count in (('', 2), ('1', 1)):
+            status, output = self.run_main('workers', workers=named)
+            self.assertEqual((status, output.strip()), (0, str(count)))
+            _, output = self.run_main('describe', '--shard', 's01', workers=named)
+            self.assertEqual(output.rstrip('\n').split('\t')[3:], [str(count), '96', '47.6'])
+            self.run_main('record', '--shard', 's01', '--out', str(path), '--mode', 'candidate', '--attempt', '1',
+                          workers=named)
+            self.assertEqual(json.loads(path.read_text())['workers'], count)
+        for command in (('workers',), ('describe', '--shard', 's01')):
+            with self.assertRaises(SystemExit):
+                self.run_main(*command, workers='two')
 
     def test_record_writes_the_shard_class_the_aggregate_reads(self):
         path = self.root / 'out/shard.json'

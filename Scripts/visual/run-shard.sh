@@ -25,6 +25,9 @@
 #    (19-10-PROOF.md), so an iPad landscape invocation runs on the turned device itself, without clones; the shard
 #    plan's estimate counts it without the clone speedup.
 #    An iPhone turns itself in the process; a shard of one orientation names it (EHPANDA_SNAPSHOT_ORIENTATIONS).
+#    EHPANDA_SHARD_WORKERS (the gate's dispatch input `workers`, candidate runs only) names another worker count than
+#    the plan's, to measure it; with one worker every invocation runs on the prepared device itself, without clones
+#    (the owner's go-ahead of 2026-11-15, after run 43670819839: two clones overloaded the hosted runner).
 # 5. An invocation that crashed or was stopped leaves classes without results (results.jsonl says which are done):
 #    once all invocations have run, each such invocation runs once more for those classes only, after the lines of
 #    their unfinished scenarios are dropped; a scenario a configuration already captured is skipped there and keeps
@@ -100,7 +103,9 @@ mkdir -p "$OUT/logs" "$WORK"
 OUT=$(CDPATH='' cd "$OUT" && pwd)
 WORK=$(CDPATH='' cd "$WORK" && pwd)
 RESULTS="$OUT/results.jsonl"
-IFS=$'\t' read -r FAMILY DEVICE_TYPE RUNTIME WORKERS TIMEOUT ESTIMATE <<<"$(helper describe --shard "$SHARD")"
+# On its own line, so a worker count that is no number (EHPANDA_SHARD_WORKERS) stops the shard here.
+DESCRIPTION=$(helper describe --shard "$SHARD")
+IFS=$'\t' read -r FAMILY DEVICE_TYPE RUNTIME WORKERS TIMEOUT ESTIMATE <<<"$DESCRIPTION"
 BUDGET=${EHPANDA_SHARD_BUDGET_SECONDS:-$(((TIMEOUT - 5) * 60))}
 FIRST_PASS=$((BUDGET * 3 / 4))
 RERUN=''
@@ -273,9 +278,12 @@ capture() {
         echo "turn: the iPad could not be turned to $orientations ($OUT/logs/turn-$orientations.log)" >>"$log"
         return 1
     fi
-    local arguments=(-parallel-testing-enabled YES -parallel-testing-worker-count "$WORKERS")
-    # A clone would boot in portrait: the iPad's landscape is captured on the turned device itself.
-    [ "$FAMILY" != ipad ] || [ "$orientations" != landscape ] || arguments=(-parallel-testing-enabled NO)
+    # One worker is the prepared device itself, without clones. So is the iPad's landscape on any count: a clone would
+    # boot in portrait, so it is captured on the turned device.
+    local arguments=(-parallel-testing-enabled NO)
+    if [ "$WORKERS" -gt 1 ] && { [ "$FAMILY" != ipad ] || [ "$orientations" != landscape ]; }; then
+        arguments=(-parallel-testing-enabled YES -parallel-testing-worker-count "$WORKERS")
+    fi
     arguments+=(-test-timeouts-enabled YES -default-test-execution-time-allowance 300
         -maximum-test-execution-time-allowance 600)
     IFS=',' read -r -a NAMES <<<"${INVOCATION_CONFIGURATIONS[$index]}"

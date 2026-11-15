@@ -140,7 +140,7 @@ class RunShardTests(unittest.TestCase):
             'EHPANDA_SNAPSHOT_INVENTORY': str(self.root / 'scenarios.json'),
             'EHPANDA_SNAPSHOT_SOURCES': str(self.root / 'sources'),
             'EHPANDA_HOSTED_SIMULATOR': str(self.root / 'simulator.sh'),
-            'EHPANDA_SNAPSHOT_FAULT': '', **variables}
+            'EHPANDA_SNAPSHOT_FAULT': '', 'EHPANDA_SHARD_WORKERS': '', **variables}
         return subprocess.run(
             ['bash', str(SCRIPT), '--shard', shard, '--mode', mode, '--products', str(self.root / 'products'),
              '--out', str(self.out), '--attempt', attempt, '--fingerprints', str(self.root / 'fingerprints.json')],
@@ -262,6 +262,33 @@ class RunShardTests(unittest.TestCase):
                      self.values(row['args'], '-parallel-testing-worker-count')) for row in self.calls('snapshot')]
         self.assertEqual(parallel, [('portrait', ['YES'], ['2']), ('landscape', ['NO'], []),
                                     ('portrait', ['YES'], ['2'])])
+
+    def test_one_named_worker_runs_every_invocation_on_the_prepared_device_without_clones(self):
+        # Run 43670819839: on every two-clone shard the hosted runner was overloaded and the second clone ran few of
+        # the tests or none. The dispatch input `workers` names another count for a candidate run; one worker is the
+        # prepared device itself, as the iPad's landscape always is.
+        result = self.run_shard('s09', EHPANDA_SHARD_WORKERS='1')
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertIsNone(self.record()['infra'], self.record())
+        self.assertEqual(self.record()['workers'], 1)
+        self.assertEqual(sorted(self.keys()), self.expected('s09'))
+        parallel = [(row['orientations'], self.values(row['args'], '-parallel-testing-enabled'),
+                     self.values(row['args'], '-parallel-testing-worker-count')) for row in self.calls('snapshot')]
+        self.assertEqual(parallel, [('portrait', ['NO'], []), ('landscape', ['NO'], [])])
+        (self.fake / 'calls').unlink()
+        result = self.run_shard('s01', EHPANDA_SHARD_WORKERS='1')
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertEqual(self.record()['workers'], 1)
+        [call] = self.calls('snapshot')
+        self.assertEqual(self.values(call['args'], '-parallel-testing-enabled'), ['NO'])
+        self.assertEqual(self.values(call['args'], '-parallel-testing-worker-count'), [])
+
+    def test_a_worker_count_that_is_no_number_stops_the_shard_before_any_simulator(self):
+        result = self.run_shard('s01', EHPANDA_SHARD_WORKERS='two')
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn('EHPANDA_SHARD_WORKERS', result.stderr)
+        self.assertFalse((self.out / 'shard.json').exists())
+        self.assertEqual(self.calls(), [])
 
     def test_a_rerun_keeps_the_configurations_a_class_finished_before_the_crash(self):
         # Run 42577585956: the re-run of a class dropped and captured again every configuration of the invocation, and

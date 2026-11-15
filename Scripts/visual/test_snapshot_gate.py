@@ -273,6 +273,24 @@ class GateWorkflowTests(unittest.TestCase):
         for name in ('triage', 'triage2', 'triage3', 'aggregate'):
             self.assertIn('--only "$SHARD_IDS"', runs(self.jobs[name]), name)
 
+    def test_a_dispatch_can_name_the_worker_count_of_a_candidate_run(self):
+        # The dispatch input `workers`: the simulators each shard captures on, empty for the plan's count. A call
+        # (a release's verdict) has no such input.
+        on = triggers(self.gate)
+        option = on['workflow_dispatch']['inputs']['workers']
+        self.assertEqual(option['type'], 'string')
+        self.assertEqual(option['default'], '')
+        self.assertIsNot(option.get('required'), True)
+        self.assertIn('candidate', option['description'])
+        self.assertNotIn('workers', on['workflow_call']['inputs'])
+        self.assertEqual(self.gate['env']['EHPANDA_SHARD_WORKERS'], '${{ inputs.workers }}')
+        checks = self.jobs['checks']
+        [step] = [step for step in checks['steps'] if step.get('name') == 'Check the worker count']
+        self.assertIn('snapshot_shard.py workers', step['run'])
+        self.assertEqual(step['env']['MODE'], '${{ steps.mode.outputs.mode }}')
+        names = [step.get('name') for step in checks['steps']]
+        self.assertLess(names.index('Decide the mode'), names.index(step['name']))
+
     def test_the_native_policy_belongs_to_no_shard_and_is_skipped_in_a_restricted_run(self):
         # It tests the devices' transitions, not a shard's pictures, so a run restricted to some shards leaves it out,
         # and the verdict of such a run is the aggregate's alone.
@@ -413,7 +431,7 @@ class ArtifactLayoutTests(unittest.TestCase):
     def run_step(self, step, temp, shard=None, extra=None, check=True):
         env = {**os.environ, 'RUNNER_TEMP': str(temp), 'GITHUB_OUTPUT': str(temp / 'output'),
                'GITHUB_STEP_SUMMARY': str(temp / 'summary'), 'RUNNER_NAME': 'model', 'MODE': 'candidate',
-               'SHARD_IDS': ''}
+               'SHARD_IDS': '', 'EHPANDA_SHARD_WORKERS': ''}
         env.pop('GITHUB_REF', None)
         for key, value in (step.get('env') or {}).items():
             env[key] = expand(str(value), temp, shard) if shard else str(value)
@@ -627,6 +645,33 @@ class ArtifactLayoutTests(unittest.TestCase):
         result, outputs = self.selection('s01', 'compare')
         self.assertNotEqual(result.returncode, 0)
         self.assertIn('candidate', result.stdout + result.stderr)
+
+    def worker_count(self, named, mode='candidate'):
+        step = next(step for step in self.jobs['checks']['steps'] if step.get('name') == 'Check the worker count')
+        temp = self.runner()
+        result = self.run_step(step, temp, extra={'EHPANDA_SHARD_WORKERS': named, 'MODE': mode}, check=False)
+        summary = temp / 'summary'
+        return result, summary.read_text() if summary.exists() else ''
+
+    def test_the_checks_accept_the_plans_count_in_either_mode_and_a_named_one_for_a_candidate(self):
+        for mode in ('candidate', 'compare'):
+            result, summary = self.worker_count('', mode)
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertEqual(summary, '')
+        result, summary = self.worker_count('1')
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn('Workers: 1', summary)
+
+    def test_the_checks_refuse_a_named_count_on_a_compare_run_and_one_that_is_no_number(self):
+        result, summary = self.worker_count('1', 'compare')
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn('candidate', result.stdout + result.stderr)
+        self.assertEqual(summary, '')
+        for named in ('0', 'two', '1,2', ' '):
+            result, summary = self.worker_count(named)
+            self.assertNotEqual(result.returncode, 0, named)
+            self.assertIn('positive whole number', result.stdout + result.stderr)
+            self.assertEqual(summary, '')
 
     def test_the_matrix_holds_only_the_selected_shards(self):
         step = next(step for step in self.jobs['build']['steps'] if step.get('id') == 'shards')

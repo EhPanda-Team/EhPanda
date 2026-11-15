@@ -123,6 +123,15 @@ aggregate (`--only`) then cover only those shards, the summary says "Restricted 
 `native-policy`, which belongs to no shard, is skipped. Shard IDs change when the plan is re-cut: use the IDs of the
 committed plan (the 72-shard plan renumbered the 27 of run 43298876957).
 
+**Another worker count.** A `workflow_dispatch` of mode `candidate` also takes an optional `workers` input: the
+number of simulators each shard captures on, instead of the plan's (2, D-15). With `1`, every invocation runs on the
+prepared device itself, without clones, as an iPad landscape invocation always does. `checks` refuses anything but a
+positive whole number, and any named count on a compare run: such a run is a measurement, and the plan, its estimates
+and its step limits stay as they are. `shard.json` records the count the shard ran on (`EHPANDA_SHARD_WORKERS`, read
+by `snapshot_shard.py`). It exists for the proof that the second clone overloads the hosted runner (run 43670819839:
+on every two-clone shard the runner's load average was 320 or more when the tests began and reached 570 to 1,000,
+and the second clone ran under a quarter of the tests in 9 of 10 shards; the owner's go-ahead of 2026-11-15).
+
 **Modes.** Compare checks every picture against the approved baseline. Candidate records every picture and compares
 nothing. Pull requests compare; a dispatch or a call chooses (compare by default); a push to `ci/snapshot-gate`
 records a candidate while there is no `fingerprints.json` and compares once there is.
