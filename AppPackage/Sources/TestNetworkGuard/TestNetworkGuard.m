@@ -79,7 +79,6 @@ static void EhPandaGuardConfigurationFactory(SEL selector) {
     } mutableCopy];
     if (url != nil) {
         userInfo[NSURLErrorFailingURLErrorKey] = url;
-        userInfo[NSURLErrorFailingURLStringErrorKey] = url.absoluteString;
     }
     NSError *error = [NSError errorWithDomain:NSURLErrorDomain code:NSURLErrorNotConnectedToInternet userInfo:userInfo];
     [self.client URLProtocol:self didFailWithError:error];

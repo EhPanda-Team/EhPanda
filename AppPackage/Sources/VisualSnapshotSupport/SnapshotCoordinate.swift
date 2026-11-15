@@ -1,5 +1,3 @@
-public import Foundation
-
 /// One picture of the Phase 19 matrix (19-CONTEXT D-04): a scenario in one language, text size, orientation, device
 /// family and appearance.
 ///
