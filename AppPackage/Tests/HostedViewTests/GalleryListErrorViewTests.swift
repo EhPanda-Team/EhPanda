@@ -19,36 +19,27 @@ struct GalleryListErrorViewTests {
     private static let shortHeight: CGFloat = 100
 
     @Test(arguments: [LoadingState.idle, .loading])
-    func aListThatHasNotFailedHoldsNoScrollViewButItsOwn(loadingState: LoadingState) {
-        #expect(Self.scrollViews(loadingState: loadingState).count == 1)
+    func aListThatHasNotFailedHoldsNoScrollViewButItsOwn(loadingState: LoadingState) throws {
+        #expect(try Self.scrollViewCount(loadingState: loadingState) == 1)
     }
 
     /// The premise of the test above: at this height the error view scrolls once the list shows it.
     @Test
-    func aFailedListScrollsAnErrorViewThatDoesNotFit() {
-        #expect(Self.scrollViews(loadingState: .failed(.unknown)).count == 2)
+    func aFailedListScrollsAnErrorViewThatDoesNotFit() throws {
+        #expect(try Self.scrollViewCount(loadingState: .failed(.unknown)) == 2)
     }
 
-    /// Every scroll view of a list hosted in a window `shortHeight` tall, hidden ones included.
-    ///
-    /// The list builds its scroll views only inside a window, and the test process has no window scene to make one
-    /// in, so the window comes from `init(frame:)`, as in the other hosted layout tests.
-    private static func scrollViews(loadingState: LoadingState) -> [UIScrollView] {
+    /// How many scroll views a list holds in a window `shortHeight` tall, hidden ones included. The list builds its
+    /// scroll views only inside a window (``HostedView``).
+    private static func scrollViewCount(loadingState: LoadingState) throws -> Int {
         let list = GalleryList(
             displayMode: .row, galleries: [], pageNumber: nil, loadingState: loadingState, footerLoadingState: .idle
         )
-        let controller = UIHostingController(rootView: list
-            .environment(\.dynamicTypeSize, .large)
-            .environment(\.locale, Locale(identifier: "en_US"))
-        )
-        let window = UIWindow(frame: CGRect(x: 0, y: 0, width: 390, height: shortHeight))
-        window.rootViewController = controller
-        window.makeKeyAndVisible()
-        defer { window.isHidden = true }
-        controller.view.frame = window.bounds
-        controller.view.layoutIfNeeded()
-        RunLoop.main.run(until: .now.addingTimeInterval(0.2))
-        return scrollViews(in: controller.view)
+        .environment(\.dynamicTypeSize, .large)
+        .environment(\.locale, Locale(identifier: "en_US"))
+        return try HostedView.withRoot(of: list, size: CGSize(width: 390, height: shortHeight)) { root in
+            scrollViews(in: root).count
+        }
     }
 
     private static func scrollViews(in view: UIView) -> [UIScrollView] {

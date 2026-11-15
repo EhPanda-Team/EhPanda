@@ -26,6 +26,13 @@
 			remoteGlobalIDString = ABC3C7532593696C00E0C11B;
 			remoteInfo = EhPanda;
 		};
+		A18000000000000000000007 /* HostedViewTests -> EhPanda */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = ABC3C74C2593696C00E0C11B /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = ABC3C7532593696C00E0C11B;
+			remoteInfo = EhPanda;
+		};
 		A13080000000000000000007 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = ABC3C74C2593696C00E0C11B /* Project object */;
@@ -56,6 +63,7 @@
 
 /* Begin PBXFileReference section */
 		A17000000000000000000001 /* VisualSnapshotTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = VisualSnapshotTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		A18000000000000000000001 /* HostedViewTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = HostedViewTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		A0F00000000000000000F004 /* AppPackage */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = AppPackage; sourceTree = "<group>"; };
 		A13080000000000000000001 /* EhPandaUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = EhPandaUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		A14C0F1600000000000000A1 /* Analytics.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; name = Analytics.xcconfig; path = Config/Analytics.xcconfig; sourceTree = "<group>"; };
@@ -81,6 +89,13 @@
 				.swiftlint.yml,
 			);
 			target = A17000000000000000000006 /* VisualSnapshotTests */;
+		};
+		A1800000000000000000000E /* Exceptions for HostedViewTests */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				.swiftlint.yml,
+			);
+			target = A18000000000000000000006 /* HostedViewTests */;
 		};
 		A1308000000000000000000E /* Exceptions for "EhPandaUITests" folder in "EhPandaUITests" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
@@ -112,6 +127,14 @@
 				A1700000000000000000000E /* Exceptions for VisualSnapshotTests */,
 			);
 			path = AppPackage/Tests/VisualSnapshotTests;
+			sourceTree = "<group>";
+		};
+		A18000000000000000000002 /* HostedViewTests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				A1800000000000000000000E /* Exceptions for HostedViewTests */,
+			);
+			path = AppPackage/Tests/HostedViewTests;
 			sourceTree = "<group>";
 		};
 		A62261E62FC559F00055B5C0 /* .github */ = {
@@ -152,6 +175,11 @@
 				A17000000000000000000011 /* VisualSnapshotSupport in Frameworks */,
 			);
 		};
+		A18000000000000000000004 /* HostedViewTests Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			files = (
+			);
+		};
 		A13080000000000000000004 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -186,6 +214,7 @@
 				A0F00000000000000000F004 /* AppPackage */,
 				A6844B3D2F780C8600BBF6E5 /* App */,
 				A17000000000000000000002 /* VisualSnapshotTests */,
+				A18000000000000000000002 /* HostedViewTests */,
 				A13080000000000000000002 /* EhPandaUITests */,
 				A6844C272F780C8B00BBF6E5 /* ShareExtension */,
 				EA0C92472C3EB44300D211F6 /* Config */,
@@ -201,6 +230,7 @@
 			children = (
 				ABC3C7542593696C00E0C11B /* EhPanda.app */,
 				A17000000000000000000001 /* VisualSnapshotTests.xctest */,
+				A18000000000000000000001 /* HostedViewTests.xctest */,
 				A13080000000000000000001 /* EhPandaUITests.xctest */,
 				AB5BE67626B95FDD007D4A55 /* ShareExtension.appex */,
 			);
@@ -267,6 +297,30 @@
 			);
 			productName = VisualSnapshotTests;
 			productReference = A17000000000000000000001 /* VisualSnapshotTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		A18000000000000000000006 /* HostedViewTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A1800000000000000000000D /* Build configuration list for PBXNativeTarget "HostedViewTests" */;
+			buildPhases = (
+				A18000000000000000000003 /* HostedViewTests Sources */,
+				A18000000000000000000004 /* HostedViewTests Frameworks */,
+				A18000000000000000000005 /* HostedViewTests Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				A18000000000000000000008 /* HostedViewTests -> EhPanda */,
+				A1800000000000000000000A /* SwiftLintBuildToolPlugin for HostedViewTests */,
+			);
+			fileSystemSynchronizedGroups = (
+				A18000000000000000000002 /* HostedViewTests */,
+			);
+			name = HostedViewTests;
+			packageProductDependencies = (
+			);
+			productName = HostedViewTests;
+			productReference = A18000000000000000000001 /* HostedViewTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
 		A13080000000000000000006 /* EhPandaUITests */ = {
@@ -361,6 +415,10 @@
 					CreatedOnToolsVersion = 27.0;
 					TestTargetID = ABC3C7532593696C00E0C11B;
 				};
+				A18000000000000000000006 = {
+					CreatedOnToolsVersion = 27.0;
+					TestTargetID = ABC3C7532593696C00E0C11B;
+				};
 				};
 			};
 			buildConfigurationList = ABC3C74F2593696C00E0C11B /* Build configuration list for PBXProject "EhPanda" */;
@@ -386,6 +444,7 @@
 			targets = (
 				ABC3C7532593696C00E0C11B /* EhPanda */,
 				A17000000000000000000006 /* VisualSnapshotTests */,
+				A18000000000000000000006 /* HostedViewTests */,
 				A13080000000000000000006 /* EhPandaUITests */,
 				AB5BE67526B95FDD007D4A55 /* ShareExtension */,
 			);
@@ -394,6 +453,11 @@
 
 /* Begin PBXResourcesBuildPhase section */
 		A17000000000000000000005 /* VisualSnapshotTests Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			files = (
+			);
+		};
+		A18000000000000000000005 /* HostedViewTests Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			files = (
 			);
@@ -429,6 +493,11 @@
 			files = (
 			);
 		};
+		A18000000000000000000003 /* HostedViewTests Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			files = (
+			);
+		};
 		A13080000000000000000003 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -454,9 +523,18 @@
 			target = ABC3C7532593696C00E0C11B /* EhPanda */;
 			targetProxy = A17000000000000000000007 /* VisualSnapshotTests -> EhPanda */;
 		};
+		A18000000000000000000008 /* HostedViewTests -> EhPanda */ = {
+			isa = PBXTargetDependency;
+			target = ABC3C7532593696C00E0C11B /* EhPanda */;
+			targetProxy = A18000000000000000000007 /* HostedViewTests -> EhPanda */;
+		};
 		A1700000000000000000000A /* SwiftLintBuildToolPlugin for VisualSnapshotTests */ = {
 			isa = PBXTargetDependency;
 			productRef = A17000000000000000000009 /* SwiftLintBuildToolPlugin for VisualSnapshotTests */;
+		};
+		A1800000000000000000000A /* SwiftLintBuildToolPlugin for HostedViewTests */ = {
+			isa = PBXTargetDependency;
+			productRef = A18000000000000000000009 /* SwiftLintBuildToolPlugin for HostedViewTests */;
 		};
 		A13080000000000000000008 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -506,6 +584,29 @@
 			};
 			name = Debug;
 		};
+		A1800000000000000000000B /* Debug configuration for PBXNativeTarget "HostedViewTests" */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 27.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = app.ehpanda.HostedViewTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/EhPanda.app/EhPanda";
+			};
+			name = Debug;
+		};
 		A1700000000000000000000C /* Release configuration for PBXNativeTarget "VisualSnapshotTests" */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -521,6 +622,29 @@
 				);
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = app.ehpanda.VisualSnapshotTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/EhPanda.app/EhPanda";
+			};
+			name = Release;
+		};
+		A1800000000000000000000C /* Release configuration for PBXNativeTarget "HostedViewTests" */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 27.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = app.ehpanda.HostedViewTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				SWIFT_EMIT_LOC_STRINGS = NO;
@@ -834,6 +958,14 @@
 			);
 			defaultConfigurationName = Release;
 		};
+		A1800000000000000000000D /* Build configuration list for PBXNativeTarget "HostedViewTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A1800000000000000000000B /* Debug configuration for PBXNativeTarget "HostedViewTests" */,
+				A1800000000000000000000C /* Release configuration for PBXNativeTarget "HostedViewTests" */,
+			);
+			defaultConfigurationName = Release;
+		};
 		A1308000000000000000000D /* Build configuration list for PBXNativeTarget "EhPandaUITests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
@@ -894,6 +1026,11 @@
 			productName = VisualSnapshotSupport;
 		};
 		A17000000000000000000009 /* SwiftLintBuildToolPlugin for VisualSnapshotTests */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = A66A766B2F77C87400FC07B8 /* XCRemoteSwiftPackageReference "SwiftLintPlugins" */;
+			productName = "plugin:SwiftLintBuildToolPlugin";
+		};
+		A18000000000000000000009 /* SwiftLintBuildToolPlugin for HostedViewTests */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = A66A766B2F77C87400FC07B8 /* XCRemoteSwiftPackageReference "SwiftLintPlugins" */;
 			productName = "plugin:SwiftLintBuildToolPlugin";

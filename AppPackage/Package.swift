@@ -1064,7 +1064,6 @@ let targets: [PackageDescription.Target] = [
     .testTarget(
         module: .galleryListComponentsTests,
         dependencies: [
-            .module(.appModels),
             .module(.galleryListComponents)
         ]
     ),

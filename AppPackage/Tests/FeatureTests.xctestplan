@@ -208,6 +208,14 @@
         "VisualMatrixTests"
       ],
       "parallelizable": true
+    },
+    {
+      "target": {
+        "containerPath": "container:EhPanda.xcodeproj",
+        "identifier": "A18000000000000000000006",
+        "name": "HostedViewTests"
+      },
+      "parallelizable": true
     }
   ],
   "version": 1

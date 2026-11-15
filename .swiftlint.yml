@@ -272,6 +272,19 @@ custom_rules:
       - string
     severity: error
 
+  # Bans the two UIWindow initializers that take no scene, deprecated since iOS 26. A window belongs to a
+  # scene, and only a process inside the app has one. A package test target runs in a bare test process
+  # with no scene to give, so a test that needs a window belongs in the app-hosted HostedViewTests target.
+  no_sceneless_window:
+    name: "No Scene-less Window"
+    regex: '\bUIWindow\s*\(\s*(?:frame\s*:|\))'
+    message: "UIWindow(frame:) and UIWindow() are deprecated: a window belongs to a scene. Use UIWindow(windowScene:). A test that needs a window belongs in the app-hosted HostedViewTests target."
+    excluded_match_kinds:
+      - comment
+      - doccomment
+      - string
+    severity: error
+
   no_serialized_test:
     name: "No Serialized Test"
     regex: '\.\s*`?serialized\b`?'
