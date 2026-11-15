@@ -15,6 +15,13 @@ import Foundation
 ///
 /// On a host that keeps turning, the two are the same wait. A stop counts for one second, so a step still looks at
 /// its condition for its whole allowance after a stop.
+///
+/// The count begins where the step does. The watch adds a stretch to its count when the stretch ends, all of it at
+/// once, so the part of the stretch under way that lies before the step is taken off again (`leadIn`). Without
+/// that, a stop just before a step spent up to a second of its allowance: hosted run 43723509533 failed a dialog
+/// step with `waited=9.2s turned=10.1s`, a ten-second allowance over after 9.2 s, behind a 5.2 s stop that ended
+/// as the step began. The run loop therefore never turns for longer than the step has waited. A stop that
+/// straddles the step's beginning counts for less than its one second, never for more.
 @MainActor
 struct StepBudget {
     /// The longest any step waits on the wall clock. Two attempts of a step at this bound and their settles stay
@@ -25,6 +32,9 @@ struct StepBudget {
     private let clock = ContinuousClock()
     private let start: ContinuousClock.Instant
     private let turnedAtStart: Duration
+    /// How much of the stretch under way when the step began lies before it, up to ``MainThreadWatch/turnCap``:
+    /// what that stretch adds to the watch's count for the time before the step.
+    private let leadIn: Duration
     private let mark: UInt64
     /// How many times the step looked at its condition.
     private(set) var polls = 0
@@ -34,14 +44,15 @@ struct StepBudget {
         self.allowance = allowance
         start = clock.now
         turnedAtStart = MainThreadWatch.turned
+        leadIn = min(.nanoseconds(MainThreadWatch.currentStretch), MainThreadWatch.turnCap)
         mark = MainThreadWatch.now()
     }
 
     /// Wall-clock time since the step began.
     var waited: Duration { start.duration(to: clock.now) }
 
-    /// Time the main run loop turned since the step began.
-    var turned: Duration { MainThreadWatch.turned - turnedAtStart }
+    /// Time the main run loop turned since the step began, never more than ``waited``.
+    var turned: Duration { max(.zero, MainThreadWatch.turned - turnedAtStart - leadIn) }
 
     /// Whether the step has had its allowance, or has reached the wall-clock bound.
     var isSpent: Bool { turned >= allowance || waited >= Self.wallBound }

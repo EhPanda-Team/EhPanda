@@ -34,6 +34,19 @@ final class StepBudgetTests: XCTestCase {
         XCTAssertGreaterThan(budget.polls, 3)
     }
 
+    /// A stop that ends as a step begins belongs to what came before the step: none of it counts toward the step's
+    /// allowance, so the run loop never turns for longer than the step has waited. Hosted run 43723509533 failed a
+    /// dialog step with `waited=9.2s turned=10.1s` behind a 5.2 s stop.
+    @MainActor
+    func testAStopBeforeAStepBeganIsNotCounted() async throws {
+        MainThreadWatch.start()
+        try await Task.sleep(for: .milliseconds(200))
+        usleep(600_000)
+        let budget = StepBudget(.seconds(2))
+        try await Task.sleep(for: .milliseconds(300))
+        XCTAssertLessThanOrEqual(budget.turned, budget.waited)
+    }
+
     /// The popover step looks for its whole allowance after the main thread stopped for longer than it: it used to
     /// fail at its first look after the stop (`opening waited=50.3s polls=2`). Its reason says how long it waited, how
     /// long the run loop turned, how often it looked and the stall it waited through.

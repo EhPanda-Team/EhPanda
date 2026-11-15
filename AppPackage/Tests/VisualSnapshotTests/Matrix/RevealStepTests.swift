@@ -33,6 +33,13 @@ final class RevealStepTests: XCTestCase {
     /// A page with no dialog over it never gets there: the step fails, and the capture tries again. Its reason
     /// names the check the platter failed, what the window presented and how long the step waited (run 43575259346
     /// named none of them).
+    ///
+    /// The step waits for its whole allowance of time the run loop turned, and the wall clock is never behind that
+    /// time: those two are what the case asks of the numbers. It used to read them off a pattern that allowed 10.0
+    /// to 19.9 s of wall clock, 10.0 to 10.9 s of turning and no stall. A stop lengthens the wall-clock wait by
+    /// design, so those bounds were not the step's. What failed the pattern on the hosted runner was the step
+    /// ending early (`waited=9.8s turned=10.0s`, and `waited=9.2s turned=10.1s` behind a 5.2 s stall), which the
+    /// case now names.
     @MainActor
     func testTheStepFailsWithoutADialog() async throws {
         let window = try XCTUnwrap(HostedWindowCapture.keyWindow())
@@ -44,12 +51,13 @@ final class RevealStepTests: XCTestCase {
         } catch let failure as BrowsingScenarios.StepFailure {
             // The failure the capture names `interaction:not-found:popover-platter:…` and retries.
             let reason = failure.reason
-            XCTAssertTrue(
-                reason.hasPrefix("not-found:popover-platter:not-presented chain=UIHostingController "), reason
-            )
-            let waited = #" waited=1\d\.\ds turned=10\.\ds "#
-            XCTAssertNotNil(reason.range(of: waited, options: .regularExpression), reason)
-            XCTAssertNotNil(reason.range(of: #" polls=\d+ process=\d+s$"#, options: .regularExpression), reason)
+            let pattern = #"^not-found:popover-platter:not-presented chain=UIHostingController "#
+                + #"waited=(\d+\.\d)s turned=(\d+\.\d)s polls=\d+( stall=\d+\.\ds/(blocked|frozen))? process=\d+s$"#
+            let match = try XCTUnwrap(reason.firstMatch(of: try Regex(pattern)), reason)
+            let waited = try XCTUnwrap(match.output[1].substring.flatMap({ Double($0) }))
+            let turned = try XCTUnwrap(match.output[2].substring.flatMap({ Double($0) }))
+            XCTAssertGreaterThanOrEqual(turned, MainThreadWatch.seconds(RevealStep.platterDeadline), reason)
+            XCTAssertGreaterThanOrEqual(waited, turned, reason)
         }
     }
 
