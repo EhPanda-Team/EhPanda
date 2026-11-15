@@ -24,7 +24,7 @@ enum RevealStep {
         case identifier(String)
 
         private var identifierGetter: Selector {
-            #selector(getter: UIAccessibilityIdentification.accessibilityIdentifier)
+            #selector(getter: (any UIAccessibilityIdentification).accessibilityIdentifier)
         }
 
         var name: String {

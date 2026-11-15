@@ -478,7 +478,7 @@ enum BrowsingScenarios {
     /// off between reads. Pictures held either half and changed from run to run (`comments-post-empty`,
     /// `comments-post-filled`, `search-typing-suggestions`; run 43451019962 against the run before it).
     static func stopCaretBlink(in window: UIWindow) {
-        for cursor in views(in: window).compactMap({ $0 as? UIView & UITextCursorView }) {
+        for cursor in views(in: window).compactMap({ $0 as? any UIView & UITextCursorView }) {
             cursor.isBlinking = false
         }
     }

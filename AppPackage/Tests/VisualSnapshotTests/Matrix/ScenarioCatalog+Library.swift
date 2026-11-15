@@ -228,7 +228,7 @@ enum LibraryScenarios {
 
     /// Quick Search as the sheet it is, presented over the Search root by the root's own destination state.
     static func quickSearch(_ kind: QuickSearchState) -> AnyView {
-        var quickSearch = QuickSearchReducer.State()
+        let quickSearch = QuickSearchReducer.State()
         if kind != .empty {
             quickSearch.$savedSearches.withLock({ $0 = savedSearches })
         }

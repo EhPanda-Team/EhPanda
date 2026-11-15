@@ -118,7 +118,7 @@ final class BrowsingStepTests: XCTestCase {
         var cursor: (any UITextCursorView)?
         for _ in 0..<50 where cursor == nil {
             try await clock.sleep(for: .milliseconds(100))
-            cursor = Self.views(in: window).compactMap({ $0 as? UIView & UITextCursorView }).first
+            cursor = Self.views(in: window).compactMap({ $0 as? any UIView & UITextCursorView }).first
         }
         let caret = try XCTUnwrap(cursor, "The focused field drew no caret")
         BrowsingScenarios.stopCaretBlink(in: window)
@@ -138,12 +138,12 @@ final class BrowsingStepTests: XCTestCase {
         let window = try XCTUnwrap(HostedWindowCapture.keyWindow())
         let screen = window.screen.bounds
         KeyboardWatch.start()
-        let up = CGRect(x: 0, y: screen.maxY - 300, width: screen.width, height: 300)
-        let down = CGRect(x: 0, y: screen.maxY, width: screen.width, height: 300)
-        defer { Self.announceKeyboard(down) }
-        Self.announceKeyboard(up)
+        let raised = CGRect(x: 0, y: screen.maxY - 300, width: screen.width, height: 300)
+        let lowered = CGRect(x: 0, y: screen.maxY, width: screen.width, height: 300)
+        defer { Self.announceKeyboard(lowered) }
+        Self.announceKeyboard(raised)
         XCTAssertTrue(GalleryScenarios.keyboardIsUp(over: window))
-        Self.announceKeyboard(down)
+        Self.announceKeyboard(lowered)
         XCTAssertFalse(GalleryScenarios.keyboardIsUp(over: window))
     }
 
