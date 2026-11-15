@@ -82,13 +82,24 @@ swift-snapshot-testing's `.image` strategy. Content is the synthetic public fixt
 (run 42577585956) to 27 of up to 84 estimated minutes, and cut again after run 43298876957, where the runner cut 13 of
 those 27 jobs at random times ("The operation was canceled", 18 to 93 minutes in; 3 of their 13 retries went the same
 way): a cut shard is run again from its start, so shards are now as short as the cost table allows. There are **72**:
-36 iPhone shards (one configuration in one orientation, about 42 estimated minutes, step limit 85) and 36 iPad shards
-(one configuration in one orientation, 26 to 29 estimated minutes, step limit 52 to 58). The targets are in
-`snapshot_shards.py` (`TARGET_MINUTES`: iPhone 45, iPad 35); a shard cannot be shorter than its fixed cost (11.3
-minutes) plus one process, which is why an iPhone shard stays near 42 and why more, shorter shards cost more
-shard-minutes in total. An iPhone shard of one orientation sets `EHPANDA_SNAPSHOT_ORIENTATIONS` for the matrix
-process, which turns the iPhone itself; an iPad process is turned beforehand. The shard plan is deterministic and
-balanced by cost: `python3 Scripts/visual/snapshot_shards.py --check` fails when it is stale.
+36 iPhone shards (one configuration in one orientation, about 24 estimated minutes, step limit 49) and 36 iPad shards
+(one configuration in one orientation, about 26 estimated minutes, step limit 52). The targets are in
+`snapshot_shards.py` (`TARGET_MINUTES`: 30 on either device); a shard cannot be shorter than its fixed cost (11.3
+minutes) plus one process, and more, shorter shards cost more shard-minutes in total. An iPhone shard of one
+orientation sets `EHPANDA_SNAPSHOT_ORIENTATIONS` for the matrix process, which turns the iPhone itself; an iPad
+process is turned beforehand. The shard plan is deterministic and balanced by cost:
+`python3 Scripts/visual/snapshot_shards.py --check` fails when it is stale.
+
+**One simulator per shard.** Every invocation captures on the shard's one prepared simulator, one test class after
+another, with XCTest's parallel testing off: the plan's worker count is 1 (the owner's decision of 2026-11-15, for
+the gate's capture runs only; every other test stays parallel). The gate used to give each shard two
+parallel-testing clones, which the hosted runner could not carry. In run 43670819839 (ten shards, two clones) the
+runner's load average was 320 or more when the tests began and reached 570 to 1,000, the second clone ran under a
+quarter of the tests in 9 of 10 shards, the app's main thread stood still for about 7,400 s in all, two jobs were
+cancelled and three tests ran out of their time allowance. Run 43681082788 captured the same ten shards on one
+simulator each: every shard passed at its first attempt, the main thread stood still for 835 s, and the shards took
+216 runner minutes instead of 379. The cost table (`snapshot-cost.json`) holds the one-simulator figures: 2.85 s per
+iPhone picture and 3.2 s per iPad picture.
 
 Each shard is `run-shard.sh` on its own macOS job. In order, it checks the rendering pin, fetches and verifies its
 baseline slices (compare mode), makes the pinned simulator with `hosted-simulator.sh`, runs the shard's invocations
@@ -121,16 +132,17 @@ comma-separated shard IDs of `snapshot-shards.json` (`s05,s19`; empty runs all).
 not have and any restriction on a compare run (a partial run is never a verdict). The matrix, the triage rounds and the
 aggregate (`--only`) then cover only those shards, the summary says "Restricted to N of 72 shards", and
 `native-policy`, which belongs to no shard, is skipped. Shard IDs change when the plan is re-cut: use the IDs of the
-committed plan (the 72-shard plan renumbered the 27 of run 43298876957).
+committed plan (the 72-shard plan renumbered the 27 of run 43298876957; the one-simulator plan of 2026-11-15 kept the
+iPhone IDs and swapped the iPad halves, so landscape is now `s37` to `s54` and portrait `s55` to `s72`).
 
 **Another worker count.** A `workflow_dispatch` of mode `candidate` also takes an optional `workers` input: the
-number of simulators each shard captures on, instead of the plan's (2, D-15). With `1`, every invocation runs on the
-prepared device itself, without clones, as an iPad landscape invocation always does. `checks` refuses anything but a
-positive whole number, and any named count on a compare run: such a run is a measurement, and the plan, its estimates
-and its step limits stay as they are. `shard.json` records the count the shard ran on (`EHPANDA_SHARD_WORKERS`, read
-by `snapshot_shard.py`). It exists for the proof that the second clone overloads the hosted runner (run 43670819839:
-on every two-clone shard the runner's load average was 320 or more when the tests began and reached 570 to 1,000,
-and the second clone ran under a quarter of the tests in 9 of 10 shards; the owner's go-ahead of 2026-11-15).
+number of simulators each shard captures on, instead of the plan's one. With `2` or more, an invocation runs its
+classes on that many parallel-testing clones, except an iPad landscape invocation (see iPad orientation below).
+`checks` refuses anything but a positive whole number, and any named count on a compare run: such a run is a
+measurement, and the plan, its estimates and its step limits stay those of one simulator. `shard.json` records the
+count the shard ran on (`EHPANDA_SHARD_WORKERS`, read by `snapshot_shard.py`). The input ran the proof above
+(`workers=1`, while the plan still said 2) and stays for measuring clones again, on another runner image for
+instance.
 
 **Modes.** Compare checks every picture against the approved baseline. Candidate records every picture and compares
 nothing. Pull requests compare; a dispatch or a call chooses (compare by default); a push to `ci/snapshot-gate`
@@ -165,8 +177,8 @@ time: `test.yml`, the deploys and other gate runs queue behind it. This is accep
   was lost before the capture.
 - After: it sets the app accessibility runtime again, because the UI test run turns it off.
 
-Parallel-testing clones always boot in portrait, so an iPad landscape invocation runs on the turned device itself,
-without clones.
+Parallel-testing clones always boot in portrait, so even on a run that names more workers an iPad landscape
+invocation runs on the turned device itself, without clones.
 
 # Local runs
 
@@ -180,11 +192,12 @@ Scripts/visual/run-snapshot-local.sh --device phone --config en-large --classes 
 ```
 
 `--device` is `phone` or `pad` (the `EhPanda iPhone Air` and `EhPanda iPad Pro 11-inch (M5)` simulators, found by
-name), `--orientation` selects one iPad orientation, and `--workers N` runs the classes on N clones as the hosted
-check does. It waits for any other `xcodebuild` first, and fails on a failed or empty run or on any changed, missing
-(compare), timeout or error picture. Local results are advisory: only the pinned hosted runner records and compares
-the baseline. `run-shard.sh` records `drift` and captures nothing unless the Mac matches the pin. The fault switch
-`EHPANDA_SNAPSHOT_FAULT` is for the hosted proof on `ci/snapshot-gate` only and exists nowhere else.
+name), `--orientation` selects one iPad orientation, and `--workers N` runs the classes on N parallel-testing clones
+(the hosted check uses none). It waits for any other `xcodebuild` first, and fails on a failed or empty run or on
+any changed, missing (compare), timeout or error picture. Local results are advisory: only the pinned hosted runner
+records and compares the baseline. `run-shard.sh` records `drift` and captures nothing unless the Mac matches the
+pin. The fault switch `EHPANDA_SNAPSHOT_FAULT` is for the hosted proof on `ci/snapshot-gate` only and exists nowhere
+else.
 
 # Baseline
 

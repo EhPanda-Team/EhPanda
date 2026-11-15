@@ -18,10 +18,13 @@ import XCTest
 /// process captures the one orientation its device was turned to before launch, named by
 /// `EHPANDA_SNAPSHOT_ORIENTATIONS`; the window must still match the pinned geometry.
 ///
-/// Capture is serial within each simulator clone, by the owner's approval for the screenshot runs only (D-11; owner
-/// msgs 1949, 2252): XCTest's parallel testing hands whole classes to clones, each clone runs one class at a time,
-/// and several clones and CI jobs run at once. No serial trait or single-worker cap is involved, and every
-/// other test stays parallel (AGENTS.md test parallelism).
+/// Capture is serial, by the owner's approval for the screenshot runs only (D-11; owner msgs 1949, 2252): a process
+/// captures one picture at a time and runs one class at a time. The hosted gate also runs a shard's classes one
+/// after another on its one prepared simulator, with XCTest's parallel testing off (`Scripts/visual/run-shard.sh`),
+/// by the owner's decision of 2026-11-15: two parallel-testing clones overloaded the hosted runner (run
+/// 43670819839), and the same shards on one simulator each passed at the first attempt in fewer runner minutes (run
+/// 43681082788). Several CI jobs still run at once, no serial trait is involved, and every other test stays
+/// parallel (AGENTS.md test parallelism).
 class SnapshotMatrixCase: XCTestCase {
     override func setUp() {
         super.setUp()

@@ -4,8 +4,8 @@
 `Scripts/visual/run-shard.sh` runs one entry of `snapshot-shards.json` and asks this script for:
 
 - `describe`: the shard's family, pinned device type and runtime, worker count, timeout and estimate (tab-separated).
-- `workers`: the worker count of this run: the plan's, or the one `EHPANDA_SHARD_WORKERS` names (the gate's dispatch
-  input `workers`). `describe` and `record` use the same count.
+- `workers`: the worker count of this run: the plan's (one, the shard's simulator itself), or the one
+  `EHPANDA_SHARD_WORKERS` names (the gate's dispatch input `workers`). `describe` and `record` use the same count.
 - `invocations`: one line per `xcodebuild` invocation, `<configurations,> <orientations,>`.
 - `slices`: the baseline slices (`<family>/<locale>/<size>`) the shard compares against, comma-separated.
 - `classes`: the `SnapshotMatrixCase` subclasses, read from the test sources, without the `Tracer*` classes (19-01's
@@ -52,8 +52,9 @@ def load_shard(plan, shard_id):
 def workers(plan, named):
     """The worker count of a run: the plan's, or the one a dispatch named (`EHPANDA_SHARD_WORKERS`; empty: none).
 
-    The plan's count is the gate's (19-CONTEXT D-15). A candidate run may be dispatched on another one to measure it
-    (the workflow's `workers` input); one worker is the prepared device itself, without clones (run-shard.sh)."""
+    The plan's count is the gate's: one, the prepared device itself, without clones (19-CONTEXT D-15 as amended on
+    2026-11-15; run-shard.sh). A candidate run may be dispatched on another one to measure it (the workflow's
+    `workers` input)."""
     if not named:
         return plan['workers']
     if not WORKERS.fullmatch(named):

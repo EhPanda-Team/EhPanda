@@ -145,6 +145,13 @@ Phase 17 was: the executed work is verified and the rest is recorded as deferred
 - **Deferred Items** (below): the green gate run (before release day), 19-12, 19-13, 19-17's hosted regression, and the
   four accepted-deferred threats. The release workflows no longer require a green `aggregate` check: the gate is off
   for 3.0 (owner msg 3757) and stays deferred work.
+- **Gate on one simulator per shard, 2026-11-15** (the owner's decision; `fix/snapshot-precheck`; 19-CONTEXT D-15,
+  amended): each shard captures on its one prepared simulator, without parallel-testing clones. Ten shards on two
+  clones (run 43670819839) had two cancelled jobs and three tests cut at their time allowance; the same ten on one
+  simulator each passed at the first attempt in 216 runner minutes instead of 379 (run 43681082788).
+  `snapshot-cost.json` and `snapshot-shards.json` are re-measured for one simulator: 72 shards of one process, about
+  24 estimated minutes on iPhone and 26 on iPad; the iPad shard IDs swapped halves. The green gate run and the
+  baseline stay deferred.
 
 Phase 20 merged this state from `main` on 2026-11-11 (OQ-F, owner msg 3346) and carries on below.
 
@@ -245,6 +252,8 @@ Phase 20 merged this state from `main` on 2026-11-11 (OQ-F, owner msg 3346) and 
       the log, and a recovered `server died` counted as infra.
   - `ci/snapshot-measure` deleted.
   - **Owner decision open:** fix these and measure once more, or accept 2 workers on the model.
+  - **Closed 2026-11-15:** neither. After the ten-shard proof (run 43681082788) the owner chose one simulator per
+    shard (19-CONTEXT D-15, amended; "Phase 19 complete" above).
   - VIS-18-01 stays Pending.
 - **19-10 closed; its green hosted run is deferred** (owner msg 3425, product lead msg 3426; `19-10-SUMMARY.md`,
   `19-10-PROOF.md`):

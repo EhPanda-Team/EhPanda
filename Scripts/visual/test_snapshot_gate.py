@@ -274,8 +274,8 @@ class GateWorkflowTests(unittest.TestCase):
             self.assertIn('--only "$SHARD_IDS"', runs(self.jobs[name]), name)
 
     def test_a_dispatch_can_name_the_worker_count_of_a_candidate_run(self):
-        # The dispatch input `workers`: the simulators each shard captures on, empty for the plan's count. A call
-        # (a release's verdict) has no such input.
+        # The dispatch input `workers`: the simulators each shard captures on, empty for the plan's count (one). A
+        # call (a release's verdict) has no such input.
         on = triggers(self.gate)
         option = on['workflow_dispatch']['inputs']['workers']
         self.assertEqual(option['type'], 'string')
@@ -658,12 +658,12 @@ class ArtifactLayoutTests(unittest.TestCase):
             result, summary = self.worker_count('', mode)
             self.assertEqual(result.returncode, 0, result.stderr)
             self.assertEqual(summary, '')
-        result, summary = self.worker_count('1')
+        result, summary = self.worker_count('2')
         self.assertEqual(result.returncode, 0, result.stderr)
-        self.assertIn('Workers: 1', summary)
+        self.assertIn('Workers: 2', summary)
 
     def test_the_checks_refuse_a_named_count_on_a_compare_run_and_one_that_is_no_number(self):
-        result, summary = self.worker_count('1', 'compare')
+        result, summary = self.worker_count('2', 'compare')
         self.assertNotEqual(result.returncode, 0)
         self.assertIn('candidate', result.stdout + result.stderr)
         self.assertEqual(summary, '')

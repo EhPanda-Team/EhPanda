@@ -31,8 +31,9 @@ name: Snapshot gate
 # the run's `pictures-*` artifacts for 7 days. A dispatched candidate run may be restricted to some shards (input
 # `shards`, comma-separated IDs of the plan; refused for compare and for an unknown ID, by `checks`); the native policy
 # jobs belong to no shard and are skipped then, and the verdict is the aggregate's over the selected shards.
-# A dispatched candidate run may also name another worker count than the plan's (input `workers`; 1 captures every
-# shard on its prepared device alone, without clones): a measurement, refused for compare by `checks`.
+# Every shard captures on its one prepared simulator, the plan's worker count (the owner's decision of 2026-11-15:
+# two parallel-testing clones overloaded the hosted runner). A dispatched candidate run may name another count (input
+# `workers`: that many clones per shard): a measurement, refused for compare by `checks`.
 # No shard uploads a result bundle (D-14); the native policy job keeps its
 # own when it fails, for 7 days, since its failures are taps and waits only the bundle's screens show.
 on:
@@ -49,7 +50,7 @@ on:
         type: string
         default: ''
       workers:
-        description: 'candidate runs only: the simulators each shard captures on, instead of the count in snapshot-shards.json (1: the prepared device alone, without clones); empty keeps that count'
+        description: 'candidate runs only: how many simulators each shard captures on (2 or more: parallel-testing clones) instead of the one of snapshot-shards.json; empty keeps the one'
         type: string
         default: ''
   workflow_call:
@@ -148,8 +149,8 @@ jobs:
             echo "### Restricted to shards: $ids" >> "$GITHUB_STEP_SUMMARY"
           fi
           echo "restricted=$restricted" >> "$GITHUB_OUTPUT"
-      # The plan's worker count is the gate's (19-CONTEXT D-15). A run on another one is a measurement, never a
-      # verdict: candidate mode only.
+      # The plan's worker count is the gate's: one simulator per shard (19-CONTEXT D-15, amended 2026-11-15). A run on
+      # another one is a measurement, never a verdict: candidate mode only.
       - name: Check the worker count
         env:
           MODE: ${{ steps.mode.outputs.mode }}

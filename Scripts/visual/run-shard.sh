@@ -14,20 +14,23 @@
 #    (Scripts/visual/snapshot_fetch.py). A mismatch, or no fingerprints.json ("no approved baseline yet"), records
 #    `infra: baseline-mismatch` and captures nothing.
 # 3. The pinned simulator, made by Scripts/visual/hosted-simulator.sh with its limits and its retries; every
-#    xcodebuild starts after the previous one's clones are gone (`clear-clones`).
-# 4. Each invocation runs the SnapshotMatrixCase classes (not the Tracer ones) on the measured worker count of
-#    clones, with XCTest's per-test allowance, a budget watchdog and a startup watchdog (no test begun after 20
-#    minutes, Scripts/visual/snapshot_infra.py --started). An iPad process captures the orientation the device is
-#    in, so the device is turned first with VisualCaptureOrientationUITests (the UITests products). The settings step
-#    (hosted-simulator.sh settings) comes before the turn, so a device a parallel run shut down is booted and settled
-#    first (one the turn's own xcodebuild booted was back in portrait by the capture), and after it, because its UI
-#    test run leaves the app accessibility runtime off. Clones boot in portrait whatever the turned device shows
-#    (19-10-PROOF.md), so an iPad landscape invocation runs on the turned device itself, without clones; the shard
-#    plan's estimate counts it without the clone speedup.
+#    xcodebuild starts after the previous one's clones, if it made any, are gone (`clear-clones`).
+# 4. Each invocation runs the SnapshotMatrixCase classes (not the Tracer ones) on that one simulator, one class after
+#    another, with XCTest's per-test allowance, a budget watchdog and a startup watchdog (no test begun after 20
+#    minutes, Scripts/visual/snapshot_infra.py --started). XCTest's parallel testing is off: the plan's worker count
+#    is 1, by the owner's decision of 2026-11-15, for the gate's capture invocations only (every other test stays
+#    parallel, AGENTS.md test parallelism). Two parallel-testing clones overloaded the hosted runner: of the ten
+#    two-clone shards of run 43670819839 two were cancelled and three lost a test to its time allowance, and the same
+#    ten on one simulator each passed at the first attempt in 216 runner minutes instead of 379 (run 43681082788).
+#    An iPad process captures the orientation the device is in, so the device is turned first with
+#    VisualCaptureOrientationUITests (the UITests products). The settings step (hosted-simulator.sh settings) comes
+#    before the turn, so a device a parallel run shut down is booted and settled first (one the turn's own xcodebuild
+#    booted was back in portrait by the capture), and after it, because its UI test run leaves the app accessibility
+#    runtime off.
 #    An iPhone turns itself in the process; a shard of one orientation names it (EHPANDA_SNAPSHOT_ORIENTATIONS).
 #    EHPANDA_SHARD_WORKERS (the gate's dispatch input `workers`, candidate runs only) names another worker count than
-#    the plan's, to measure it; with one worker every invocation runs on the prepared device itself, without clones
-#    (the owner's go-ahead of 2026-11-15, after run 43670819839: two clones overloaded the hosted runner).
+#    the plan's, to measure it: two or more run the classes on that many parallel-testing clones, except in an iPad
+#    landscape invocation, since clones boot in portrait whatever the turned device shows (19-10-PROOF.md).
 # 5. An invocation that crashed or was stopped leaves classes without results (results.jsonl says which are done):
 #    once all invocations have run, each such invocation runs once more for those classes only, after the lines of
 #    their unfinished scenarios are dropped; a scenario a configuration already captured is skipped there and keeps
@@ -278,8 +281,10 @@ capture() {
         echo "turn: the iPad could not be turned to $orientations ($OUT/logs/turn-$orientations.log)" >>"$log"
         return 1
     fi
-    # One worker is the prepared device itself, without clones. So is the iPad's landscape on any count: a clone would
-    # boot in portrait, so it is captured on the turned device.
+    # The plan's one worker is the prepared device itself: XCTest's parallel testing is off, approved by the owner on
+    # 2026-11-15 for the gate's capture invocations only, because two clones overloaded the hosted runner (the header
+    # has the runs). A candidate dispatch that names more workers runs on clones, except the iPad's landscape on any
+    # count: a clone would boot in portrait, so it is captured on the turned device.
     local arguments=(-parallel-testing-enabled NO)
     if [ "$WORKERS" -gt 1 ] && { [ "$FAMILY" != ipad ] || [ "$orientations" != landscape ]; }; then
         arguments=(-parallel-testing-enabled YES -parallel-testing-worker-count "$WORKERS")

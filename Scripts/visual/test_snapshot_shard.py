@@ -41,7 +41,7 @@ final class HostedWindowCaptureTests: XCTestCase {
     func testWindow() {}
 }
 '''
-PLAN = {'schema': 1, 'workers': 2, 'shards': [
+PLAN = {'schema': 1, 'workers': 1, 'shards': [
     {'id': 's01', 'family': 'iphone', 'configurations': ['de-accessibility5', 'zh-Hans-large'],
      'runs': [{'configuration': 'de-accessibility5', 'orientations': ['portrait', 'landscape']},
               {'configuration': 'zh-Hans-large', 'orientations': ['portrait', 'landscape']}],
@@ -196,10 +196,11 @@ class ShardTests(unittest.TestCase):
             snapshot_shard.fault('s03=explode', 's03', 1)
 
     def test_the_worker_count_is_the_plans_unless_a_dispatch_names_one(self):
-        # The dispatch input `workers`: a candidate run on another count than the plan's, to measure it.
-        self.assertEqual(snapshot_shard.workers(PLAN, ''), 2)
+        # The plan's count is the gate's: one simulator per shard. The dispatch input `workers` names another one
+        # for a candidate run, to measure it.
+        self.assertEqual(snapshot_shard.workers(PLAN, ''), 1)
         self.assertEqual(snapshot_shard.workers(PLAN, '1'), 1)
-        self.assertEqual(snapshot_shard.workers(PLAN, '3'), 3)
+        self.assertEqual(snapshot_shard.workers(PLAN, '2'), 2)
         for text in ('0', '-1', '01', '1.5', 'two', ' 1', '1 ', ' '):
             with self.assertRaises(ValueError, msg=text) as raised:
                 snapshot_shard.workers(PLAN, text)
@@ -207,7 +208,7 @@ class ShardTests(unittest.TestCase):
 
     def test_a_named_worker_count_reaches_the_description_and_the_record(self):
         path = self.root / 'out/shard.json'
-        for named, count in (('', 2), ('1', 1)):
+        for named, count in (('', 1), ('2', 2)):
             status, output = self.run_main('workers', workers=named)
             self.assertEqual((status, output.strip()), (0, str(count)))
             _, output = self.run_main('describe', '--shard', 's01', workers=named)
@@ -230,7 +231,7 @@ class ShardTests(unittest.TestCase):
         self.assertEqual(record['shard'], 's01')
         self.assertEqual(record['infra'], 'crash')
         self.assertEqual(record['attempt'], 2)
-        self.assertEqual(record['workers'], 2)
+        self.assertEqual(record['workers'], 1)
         self.assertEqual(record['units'], ['de-accessibility5', 'zh-Hans-large'])
         self.assertEqual(record['rerunClasses'], ['HomeSnapshotTests', 'ShellSnapshotTests'])
         status, _ = self.run_main('record', '--shard', 's01', '--out', str(path), '--mode', 'candidate',
