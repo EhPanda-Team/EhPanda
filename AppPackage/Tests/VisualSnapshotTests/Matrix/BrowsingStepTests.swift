@@ -159,7 +159,9 @@ final class BrowsingStepTests: XCTestCase {
         let lowered = CGRect(x: 0, y: screen.maxY, width: screen.width, height: 300)
         defer { Self.announceKeyboard(lowered) }
         let start = KeyboardWatch.announcements
-        XCTAssertEqual(GalleryScenarios.keyboardState(over: window, focused: false, since: start), "field-unfocused")
+        XCTAssertEqual(
+            GalleryScenarios.keyboardState(over: window, focused: false, since: start), "field-unfocused announced=0"
+        )
         XCTAssertEqual(
             GalleryScenarios.keyboardState(over: window, focused: true, since: start), "never-announced announced=0"
         )

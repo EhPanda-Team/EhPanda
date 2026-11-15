@@ -381,30 +381,50 @@ enum SettingsScenarios {
     ///
     /// The wait is counted in time the main run loop turned (``StepBudget``): in run 43621303643 an attempt looked
     /// once in 172 s (`never-announced waited=171.9s polls=1`).
+    ///
+    /// The scenario's state is the field focused, and the step only waits for the keyboard once the field has taken
+    /// the focus; a field that gives it up again is focused again, as the user's field holds it (the search steps do
+    /// the same, ``BrowsingScenarios/focusSearchField(_:)``). In run 43621303643 two attempts ended `field-unfocused`
+    /// while looking at their normal pace, and the field never came back. A field that keeps its focus, as it does
+    /// in every local run, is never touched. A failure says how often it was focused again (`refocused=<n>`) and
+    /// what the fields did meanwhile (``KeyboardWatch/editing(since:in:)``).
     static func holdAlertCaret(_ window: UIWindow) async throws {
         let clock = ContinuousClock()
         var budget = StepBudget(GalleryScenarios.keyboardDeadline)
-        let announced = KeyboardWatch.announcements
+        let mark = KeyboardWatch.mark
         var presented = window.rootViewController
         while true {
             while let next = presented?.presentedViewController {
                 presented = next
             }
             if let alert = presented, let view = alert.view, view !== window.rootViewController?.view,
-               textFields(in: view).contains(where: \.isFirstResponder) {
+               let field = textFields(in: view).first(where: \.isFirstResponder) {
                 try await clock.sleep(for: .milliseconds(1500))
                 var held = 0
+                var refocused = 0
                 while held < 2 {
                     guard !budget.isSpent else {
-                        let focused = textFields(in: view).contains(where: \.isFirstResponder)
-                        let state = GalleryScenarios.keyboardState(over: window, focused: focused, since: announced)
+                        let state = GalleryScenarios.keyboardState(
+                            over: window, focused: field.isFirstResponder, since: mark.announcements
+                        )
                         let opening = alert.isBeingPresented || alert.transitionCoordinator != nil
-                        throw budget.failure("no-keyboard:\(state)" + (opening ? " alert=opening" : ""))
+                        throw budget.failure(
+                            "no-keyboard:\(state)" + (opening ? " alert=opening" : "") + " refocused=\(refocused)"
+                                + KeyboardWatch.editing(since: mark, in: window)
+                        )
                     }
                     budget.look()
-                    held = GalleryScenarios.keyboardIsUp(over: window) ? held + 1 : 0
+                    if !field.isFirstResponder, field.window != nil {
+                        refocused += 1
+                        _ = field.becomeFirstResponder()
+                    }
+                    held = field.isFirstResponder && GalleryScenarios.keyboardIsUp(over: window) ? held + 1 : 0
                     try await clock.sleep(for: .milliseconds(300))
                     try await BrowsingScenarios.waitForRest(window)
+                    // Given up during the last rest: not held after all.
+                    if !field.isFirstResponder {
+                        held = 0
+                    }
                 }
                 BrowsingScenarios.stopCaretBlink(in: window)
                 view.layer.speed = 0

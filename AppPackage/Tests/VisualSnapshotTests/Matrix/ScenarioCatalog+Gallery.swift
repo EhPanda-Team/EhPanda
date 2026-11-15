@@ -257,21 +257,45 @@ enum GalleryScenarios {
     ///
     /// The wait is counted in time the main run loop turned (``StepBudget``): in run 43621303643 two attempts
     /// looked once in 34 and 38 s with the keyboard up (`announced-up waited=38.1s polls=1`).
+    ///
+    /// An editor the step saw focused that gives the focus up is focused again, as the alert's field is
+    /// (``SettingsScenarios/holdAlertCaret(_:)``); one the step never saw focused is left as the reducer left it. A
+    /// failure says how often it was focused again and what the editors did (``KeyboardWatch/editing(since:in:)``).
     static func holdStillOverKeyboard(_ window: UIWindow) async throws {
         let clock = ContinuousClock()
         var budget = StepBudget(keyboardDeadline)
-        let announced = KeyboardWatch.announcements
+        let mark = KeyboardWatch.mark
         try await clock.sleep(for: .milliseconds(1500))
         var held = 0
+        var refocused = 0
+        weak var editor: UIView?
         while held < 2 {
             guard !budget.isSpent else {
-                let state = keyboardState(over: window, focused: focusedEditor(in: window) != nil, since: announced)
-                throw budget.failure("no-keyboard:\(state)")
+                let focused = focusedEditor(in: window) != nil
+                let state = keyboardState(over: window, focused: focused, since: mark.announcements)
+                throw budget.failure(
+                    "no-keyboard:\(state) refocused=\(refocused)" + KeyboardWatch.editing(since: mark, in: window)
+                )
             }
             budget.look()
-            held = keyboardIsUp(over: window) ? held + 1 : 0
+            var focusing = false
+            if let focused = focusedEditor(in: window) {
+                editor = focused
+            } else if let editor, isFrontmost(editor, in: window) {
+                // Nothing is presented over it (the posting warning takes the focus on purpose).
+                refocused += 1
+                focusing = true
+                _ = editor.becomeFirstResponder()
+            }
+            // A seen editor counts only while it holds the focus, or while something is presented over it.
+            let holds = editor.map({ $0.isFirstResponder || !isFrontmost($0, in: window) }) ?? true
+            held = !focusing && holds && keyboardIsUp(over: window) ? held + 1 : 0
             try await clock.sleep(for: .milliseconds(300))
             try await BrowsingScenarios.waitForRest(window)
+            // Given up during the last rest: not held after all.
+            if let editor, !editor.isFirstResponder, isFrontmost(editor, in: window) {
+                held = 0
+            }
         }
         BrowsingScenarios.stopCaretBlink(in: window)
         try freeze(window)
@@ -280,6 +304,16 @@ enum GalleryScenarios {
     /// How long ``holdStillOverKeyboard(_:)`` may take before it fails the attempt with `interaction`, in time the
     /// main run loop turned.
     static let keyboardDeadline: Duration = .seconds(30)
+
+    /// Whether `view` is in the window, in the front-most presentation, with nothing presented over it.
+    private static func isFrontmost(_ view: UIView, in window: UIWindow) -> Bool {
+        var front = window.rootViewController
+        while let next = front?.presentedViewController {
+            front = next
+        }
+        guard view.window === window, let frontView = front?.view else { return false }
+        return view.isDescendant(of: frontView)
+    }
 
     /// The text view or field that holds the focus in `view`, if any.
     static func focusedEditor(in view: UIView) -> UIView? {
@@ -301,11 +335,11 @@ enum GalleryScenarios {
     /// Why a keyboard step's wait ended without the keyboard held up, for its failure: the text field lost the focus
     /// (`field-unfocused`); UIKit announced no keyboard frame since `announcements`, the count when the step began
     /// (`never-announced`); the frame it last announced is below the screen (`announced-hidden`); or the keyboard is up
-    /// but was not yet read up twice in a row (`announced-up`). Each but the first is followed by the number of frames
-    /// announced since the step began.
+    /// but was not yet read up twice in a row (`announced-up`). Each is followed by the number of frames announced
+    /// since the step began.
     static func keyboardState(over window: UIWindow, focused: Bool, since announcements: Int) -> String {
         let count = KeyboardWatch.announcements - announcements
-        guard focused else { return "field-unfocused" }
+        guard focused else { return "field-unfocused announced=\(count)" }
         guard count > 0 else { return "never-announced announced=0" }
         return (keyboardIsUp(over: window) ? "announced-up" : "announced-hidden") + " announced=\(count)"
     }
@@ -668,17 +702,36 @@ extension GalleryScenarios {
 /// The keyboard's frame on its screen as UIKit last announced it, watched from the first matrix case on
 /// (SnapshotMatrixCase), so a keyboard that came up before a step looks is known to it. A window's keyboard layout
 /// guide read from the step did not follow the keyboard: it never read it as up.
+///
+/// It also counts every text field and text view that began or ended editing, and writes who ended it (the call
+/// stack of the resignation) to the main-thread log (``MainThreadWatch/note(_:)``): run 43621303643 failed keyboard
+/// steps as `field-unfocused` while they looked at their normal pace, and nothing said whether the field had never
+/// taken the focus or had lost it, nor to what.
 @MainActor
 enum KeyboardWatch {
+    /// The counts when a step began, for what happened since (``editing(since:in:)``).
+    struct Mark {
+        let announcements: Int
+        let begins: Int
+        let ends: Int
+    }
+
     private(set) static var frame: CGRect = .zero
     /// How many frames UIKit has announced since the watch started, so a step can tell a keyboard that announced
     /// nothing from one that announced itself hidden.
     private(set) static var announcements = 0
-    private static var observer: (any NSObjectProtocol)?
+    private(set) static var begins = 0
+    private(set) static var ends = 0
+    private static var observers: [any NSObjectProtocol] = []
+
+    static var mark: Mark {
+        Mark(announcements: announcements, begins: begins, ends: ends)
+    }
 
     static func start() {
-        guard observer == nil else { return }
-        observer = NotificationCenter.default.addObserver(
+        guard observers.isEmpty else { return }
+        let center = NotificationCenter.default
+        observers.append(center.addObserver(
             forName: UIResponder.keyboardDidChangeFrameNotification, object: nil, queue: .main
         ) { notification in
             let end = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue
@@ -686,6 +739,38 @@ enum KeyboardWatch {
                 frame = end ?? .zero
                 announcements += 1
             }
+        })
+        for name in [UITextField.textDidBeginEditingNotification, UITextView.textDidBeginEditingNotification] {
+            observers.append(center.addObserver(forName: name, object: nil, queue: .main) { _ in
+                MainActor.assumeIsolated {
+                    begins += 1
+                }
+            })
         }
+        for name in [UITextField.textDidEndEditingNotification, UITextView.textDidEndEditingNotification] {
+            observers.append(center.addObserver(forName: name, object: nil, queue: .main) { notification in
+                let editor = notification.object.map({ String(describing: type(of: $0)) }) ?? "?"
+                // Posted from inside the resignation: the stack names who ended the editing.
+                let stack = Thread.callStackSymbols.prefix(32).joined(separator: "\n    ")
+                MainActor.assumeIsolated {
+                    ends += 1
+                    MainThreadWatch.note("editing ended: \(editor)\n    \(stack)")
+                }
+            })
+        }
+    }
+
+    /// What the text fields and the window did since `mark`, for a keyboard step's failure:
+    /// ` began=<n> ended=<n>`, then ` key=0` if the window is not the key window and ` scene=<state>` if its scene is
+    /// not active in the foreground.
+    static func editing(since mark: Mark, in window: UIWindow) -> String {
+        var text = " began=\(begins - mark.begins) ended=\(ends - mark.ends)"
+        if !window.isKeyWindow {
+            text += " key=0"
+        }
+        if let scene = window.windowScene, scene.activationState != .foregroundActive {
+            text += " scene=\(scene.activationState.rawValue)"
+        }
+        return text
     }
 }

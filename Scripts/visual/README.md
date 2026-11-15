@@ -69,7 +69,7 @@ swift-snapshot-testing's `.image` strategy. Content is the synthetic public fixt
   43621303643), and a wall-clock deadline ran out before the step could look again.
 - **Stalls.** Each matrix process writes every stretch of more than 2 s in which its main thread did not turn, with the
   coordinate it was capturing and the main thread's stack sampled by a watchdog thread during it, to
-  `logs/main-thread-<pid>.log`. Beside each
+  `logs/main-thread-<pid>.log`, and the call stack of every text field or view that ended editing. Beside each
   invocation's xcodebuild log, `run-shard.sh` writes `<log>-host.log`: the runner's load, memory, paging and busiest
   processes every 10 s.
 - **Pins.** Rendering follows `regression-environment.json` (below). On a Mac or runner that does not match it the
