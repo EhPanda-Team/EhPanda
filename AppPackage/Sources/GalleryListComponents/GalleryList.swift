@@ -111,11 +111,16 @@ public struct GalleryList: View {
         // VoiceOver reads the list, and with it the notice, before the error over it.
         .accessibilitySortPriority(notice == nil ? 0 : 1)
         .coordinateSpace(.galleryList)
+        // The error view is on the page only while the list has failed, and fades as it comes and goes. Kept there
+        // at opacity 0 it still took part in layout, and a `ContentUnavailableView` that gets less height than it
+        // needs becomes a scroll view: wherever the keyboard left that little room, a second, invisible scroll
+        // view lay over the list, and a list whose search field became active while it was there missed the top
+        // spacing the system gives it (`GalleryListErrorViewTests`).
         .overlay {
-            errorView
-                .animation(.default) {
-                    $0.visible(loadingState.is(\.failed))
-                }
+            if let error = loadingState.failed {
+                errorView(error)
+                    .transition(.opacity.animation(.default))
+            }
         }
         // The notice's measure and the wait for it are layout state of this view, not reducer state, and the
         // wait must end the moment the list stops failing or loses its notice: keyed on that, `.task(id:)`
@@ -155,8 +160,7 @@ public struct GalleryList: View {
     /// a pull on the list does. Until the notice has been measured the view is not drawn, so it never shows for a
     /// frame over the notice; a notice that is not measured within a quarter of a second is not on screen, and the
     /// view is drawn over the whole list.
-    @ViewBuilder private var errorView: some View {
-        let error = loadingState.failed ?? .unknown
+    @ViewBuilder private func errorView(_ error: AppError) -> some View {
         if notice == nil {
             ErrorView(error: error, action: fetchAction)
         } else {

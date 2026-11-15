@@ -152,6 +152,19 @@ Phase 17 was: the executed work is verified and the rest is recorded as deferred
   `snapshot-cost.json` and `snapshot-shards.json` are re-measured for one simulator: 72 shards of one process, about
   24 estimated minutes on iPhone and 26 on iPad; the iPad shard IDs swapped halves. The green gate run and the
   baseline stay deferred.
+- **Front Page search in two positions, 2026-11-15** (found and fixed on `fix/snapshot-precheck`, with the owner's
+  go-ahead for each): `front-page-search` was captured with its one result 35 points higher in 16 of 162 hosted
+  pictures, on one simulator as on two. `GalleryList` kept its error view on the page at opacity 0. That view is a
+  `ContentUnavailableView`, which becomes a scroll view when it gets less height than it needs, so wherever the
+  keyboard left that little room (iPhone landscape, the largest text sizes) a second, invisible scroll view lay
+  over the list, and a list whose search field became active while it was there missed the 35 points of top spacing
+  the system gives it. The keyboard and the search bar race, so the result varied from launch to launch; the
+  earlier settle-first step (`71c65e6fb`) was not the cure. The error view is now on the page only while the list
+  has failed, with the same fade (`GalleryListErrorViewTests`). Checked locally on iOS 27.0: the forced
+  keyboard-first order gives the usual position, and 288 pictures of the seven gallery-list classes are the same
+  before and after. Not yet shown on the hosted gate. The same opacity-hidden `ErrorView` is still in
+  `EhSettingView`, `HomeNavigationView`, `DetailView`, `TorrentsView` and `ArchivesView`; none has a search field
+  over a list, and they were not changed.
 
 Phase 20 merged this state from `main` on 2026-11-11 (OQ-F, owner msg 3346) and carries on below.
 
