@@ -162,6 +162,10 @@ public enum UITestAutomation {
         /// `EHPANDA_UITEST_REPORT_SCENARIO`: how the stub answers the Report form (18.1-04). Only a stubbed-network
         /// launch reads it; every other launch, and any unknown value, is `ready`.
         var reportScenario = UITestStubURLProtocol.ReportScenario.ready
+        /// `EHPANDA_UITEST_READER_PAGES=1`: the stub serves the reader's numbered pages, so a stubbed reader can be
+        /// seen with loaded pages. Without it no page of a stubbed reader loads, which the reader UI tests rely on
+        /// (`ReaderPageProbe`). Only a stubbed-network launch reads it.
+        var servesReaderPages = false
         #if DEBUG && canImport(Appshot) && canImport(AppshotProtocol)
         var appshotScene: AppshotProtocol.CaptureScene?
         #endif
@@ -199,6 +203,7 @@ public enum UITestAutomation {
             UITestStubURLProtocol.configure(fixtureDirectory: configuration.fixtureDirectory)
             UITestStubURLProtocol.configure(requestLog: configuration.requestLogURL)
             UITestStubURLProtocol.configure(reportScenario: configuration.reportScenario)
+            UITestStubURLProtocol.configure(servesReaderPages: configuration.servesReaderPages)
             URLProtocol.registerClass(UITestStubURLProtocol.self)
             // Set before the first reader is built; the reader reads it as its environment default.
             ReaderUITestOptions.dropsInitialIdleReport = configuration.dropsReaderInitialIdleReport
@@ -452,7 +457,9 @@ public enum UITestAutomation {
                 launchValue: shouldStubNetwork
                     ? trimmedValue(environment: environment, key: "EHPANDA_UITEST_REPORT_SCENARIO")
                     : nil
-            )
+            ),
+            servesReaderPages: shouldStubNetwork
+                && trimmedValue(environment: environment, key: "EHPANDA_UITEST_READER_PAGES") == "1"
         )
         #if DEBUG && canImport(Appshot) && canImport(AppshotProtocol)
         configuration.appshotScene = appshot

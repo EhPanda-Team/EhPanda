@@ -234,17 +234,35 @@ struct UITestStubTests {
         expectNoDifference(lines, ["GET \(host) /g/1/token/", "POST \(host) /api.php"])
     }
 
-    @Test(arguments: [
-        DropIdleCase(value: "1", expected: true),
-        DropIdleCase(value: " 1 ", expected: true),
-        DropIdleCase(value: "0", expected: false),
-        DropIdleCase(value: nil, expected: false)
-    ])
-    func dropInitialIdleAsksTheReaderToDropItsFirstIdleReport(_ dropIdle: DropIdleCase) throws {
+    @Test(arguments: LaunchFlagCase.all)
+    func dropInitialIdleAsksTheReaderToDropItsFirstIdleReport(_ dropIdle: LaunchFlagCase) throws {
         var environment = ["EHPANDA_UITEST_STUB_NETWORK": "1"]
         environment["EHPANDA_UITEST_DROP_INITIAL_IDLE"] = dropIdle.value
         let configuration = try #require(try UITestAutomation.resolve(environment: environment, now: .now))
         #expect(configuration.dropsReaderInitialIdleReport == dropIdle.expected)
+    }
+
+    /// Only a launch that asks for them is served the reader's pages: every other stubbed reader keeps the failure
+    /// placeholders the reader UI tests read the screen by.
+    @Test(arguments: LaunchFlagCase.all)
+    func readerPagesAsksTheStubToServeTheReadersPages(_ readerPages: LaunchFlagCase) throws {
+        var environment = ["EHPANDA_UITEST_STUB_NETWORK": "1"]
+        environment["EHPANDA_UITEST_READER_PAGES"] = readerPages.value
+        let configuration = try #require(try UITestAutomation.resolve(environment: environment, now: .now))
+        #expect(configuration.servesReaderPages == readerPages.expected)
+    }
+
+    /// The multi-page viewer is the reader's only way to a page's key, so it alone decides whether pages load: it
+    /// is answered in a launch that serves the reader's pages, and is a page without a fixture in any other.
+    @Test
+    func theMultiPageViewerIsAnsweredOnlyWhereTheReadersPagesAreServed() throws {
+        let viewer = try #require(URL(string: "https://e-hentai.org/mpv/3103480/0000000000/"))
+        let gallery = try #require(URL(string: "https://e-hentai.org/g/3103480/0000000000/"))
+
+        #expect(UITestStubURLProtocol.answersMultiPageViewer(at: viewer, servesReaderPages: true))
+        #expect(!UITestStubURLProtocol.answersMultiPageViewer(at: viewer, servesReaderPages: false))
+        #expect(!UITestStubURLProtocol.answersMultiPageViewer(at: gallery, servesReaderPages: true))
+        #expect(UITestStubURLProtocol.fixtureName(for: viewer) == nil)
     }
 
     /// The keys change only a stubbed launch: alone they opt nothing in, and beside a key that overrides a client
@@ -257,7 +275,8 @@ struct UITestStubTests {
             "EHPANDA_UITEST_BLOCKED_USERS": #"[{"memberID":"1","name":"A"}]"#,
             "EHPANDA_UITEST_DISPLAY_NAME": "X",
             "EHPANDA_UITEST_DROP_INITIAL_IDLE": "1",
-            "EHPANDA_UITEST_REPORT_SCENARIO": "failSend"
+            "EHPANDA_UITEST_REPORT_SCENARIO": "failSend",
+            "EHPANDA_UITEST_READER_PAGES": "1"
         ]
         #expect(try UITestAutomation.resolve(environment: keys, now: .now) == nil)
 
@@ -272,6 +291,7 @@ struct UITestStubTests {
         #expect(clientOnly.requestLogURL == nil)
         #expect(!clientOnly.dropsReaderInitialIdleReport)
         #expect(clientOnly.reportScenario == .ready)
+        #expect(!clientOnly.servesReaderPages)
     }
 
     /// A hosted visual test renders into storage of its own, made fresh for each store, so its block list is
@@ -707,7 +727,15 @@ struct BlockListCase: Sendable, CustomTestStringConvertible {
     var testDescription: String { value ?? "absent" }
 }
 
-struct DropIdleCase: Sendable, CustomTestStringConvertible {
+/// A launch key that is a flag: a value, and whether it turns the flag on.
+struct LaunchFlagCase: Sendable, CustomTestStringConvertible {
+    static let all = [
+        LaunchFlagCase(value: "1", expected: true),
+        LaunchFlagCase(value: " 1 ", expected: true),
+        LaunchFlagCase(value: "0", expected: false),
+        LaunchFlagCase(value: nil, expected: false)
+    ]
+
     let value: String?
     let expected: Bool
 

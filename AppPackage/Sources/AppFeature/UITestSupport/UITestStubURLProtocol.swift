@@ -54,6 +54,10 @@ final class CaptureReplay: Sendable {
 ///
 /// The Report form's requests (a gallery URL with a `report` query) are answered by the launch's
 /// ``ReportScenario`` (`EHPANDA_UITEST_REPORT_SCENARIO`), so a UI test can put the form in each C-13 state.
+///
+/// The reader's pages are served only to a launch that asks for them (`EHPANDA_UITEST_READER_PAGES`). In every
+/// other launch no page of a stubbed reader ever loads, which the reader UI tests rely on: they read the page on
+/// screen from the number of its failure placeholder.
 final class UITestStubURLProtocol: URLProtocol {
     private enum Mode {
         case fixtureDirectory(URL?)
@@ -92,6 +96,7 @@ final class UITestStubURLProtocol: URLProtocol {
     /// The request log's file. Each line is written while the lock is held, so lines never interleave.
     private static let requestLog = Mutex<URL?>(nil)
     private static let reportScenario = Mutex(ReportScenario.ready)
+    private static let servesReaderPages = Mutex(false)
     /// Set once the loading system stops this request, so a delayed answer is not delivered after it.
     private let isStopped = Mutex(false)
     /// A Report form answer held for its scenario's wait.
@@ -153,6 +158,13 @@ final class UITestStubURLProtocol: URLProtocol {
     static func configure(reportScenario scenario: ReportScenario) {
         reportScenario.withLock {
             $0 = scenario
+        }
+    }
+
+    /// Says whether the multi-page viewer is answered, and with it the reader's pages.
+    static func configure(servesReaderPages serves: Bool) {
+        servesReaderPages.withLock {
+            $0 = serves
         }
     }
 
@@ -262,6 +274,15 @@ final class UITestStubURLProtocol: URLProtocol {
     /// How many pages the stub's multi-page viewer lists, as many as the saved gallery page says it has.
     private static let stubPageCount = 156
 
+    /// Whether `url` gets the multi-page viewer's page: a viewer URL, in a launch that serves the reader's pages.
+    ///
+    /// The viewer's page is the reader's only way to a page's key. A launch that does not serve the pages answers
+    /// it with a 404, like any page without a fixture, so its reader asks for no image dispatch and no page image,
+    /// and every page stays the failure placeholder.
+    static func answersMultiPageViewer(at url: URL, servesReaderPages: Bool) -> Bool {
+        servesReaderPages && url.path().hasPrefix("/mpv/")
+    }
+
     /// The multi-page viewer's page: the key and the image list the reader reads its pages' keys from.
     static func multiPageViewerPage() -> Data {
         let images = (1...stubPageCount).map({ "{\"n\":\"\($0).png\",\"k\":\"stubkey\($0)\"}" })
@@ -311,7 +332,7 @@ final class UITestStubURLProtocol: URLProtocol {
             finish(statusCode: 200, data: Self.pageImage(number: number), url: url, mimeType: "image/png")
             return
         }
-        if url.path().hasPrefix("/mpv/") {
+        if Self.answersMultiPageViewer(at: url, servesReaderPages: Self.servesReaderPages.withLock({ $0 })) {
             finish(statusCode: 200, data: Self.multiPageViewerPage(), url: url, mimeType: Self.htmlMIMEType)
             return
         }
