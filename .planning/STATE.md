@@ -188,7 +188,10 @@ Phase 17 was: the executed work is verified and the rest is recorded as deferred
   system's `python3`, which otherwise cost every test product of the package a linker warning. Run here as the
   workflow runs it, and on a hosted runner: its first run (43710298132) passed in 13 minutes. The `Test` run of
   the same push (43710298062) failed on one case, `RevealStepTests.testTheStepFailsWithoutADialog`, the timing
-  case that already failed there; the hosted window tests passed.
+  case that already failed there; the hosted window tests passed. Two of that run's bundles, `AppFeatureTests`
+  and `AppToolsTests`, never launched on the runner, so 211 tests did not run in it; the log's list of failing
+  tests does not show that, the result bundle does. The next run (43723509533) ran every bundle: 1963 passed,
+  the same case failed.
 - **UI tests that failed on a fresh simulator, 2026-11-15** (on `fix/snapshot-precheck`, at the owner's word): six
   cases failed on a fresh iOS 27.0 iPhone Air simulator, with the test code as it was before that day's changes
   too. The UI tests are in no hosted workflow, so nothing had reported them. Three behaviour changes of
@@ -218,6 +221,38 @@ Phase 17 was: the executed work is verified and the rest is recorded as deferred
   943 reads. So one read was wrong and the toast was not; why is not known, and the case is unchanged.
   `ReaderRebuildUITests.testChangingDirectionDuringAutoPlayKeepsTheIndicatorOnThePageShown` needed its second
   attempt once: with five clones running, its wait read the pager in the middle of a turn. Not looked into.
+  Run on 2026-11-16 on a temporary iOS 27.0 iPad Pro 11-inch simulator: the iPad cases of
+  `ReadingOrientationUITests` and `LandscapePaneUITests`, 6 passed on the first attempt (the Duo-only and the
+  phone-only case skipped). The Duo classes are still not run.
+- **Timing cases that failed on hosted runners, 2026-11-16** (on `fix/snapshot-precheck`, at the owner's word):
+  three cases of the snapshot support's own tests failed in hosted `Test` runs and passed here. Fixed in
+  `95ba7cdf7`, `32893e32b` and `028d0cf18`.
+  `RevealStepTests.testTheStepFailsWithoutADialog` (runs 43689174320, 43710298062 and 43723509533:
+  `waited=9.8s turned=10.1s`, `waited=9.8s turned=10.0s`, `waited=9.2s turned=10.1s` behind a 5.2 s stop) showed
+  a defect in the support. `StepBudget` counts a step's allowance in time the main run loop turned, and the watch
+  adds a stretch to its count when the stretch ends, so the stretch under way when a step began was counted
+  against the step: up to one second of its allowance was spent before it started. The budget now takes the part
+  of that stretch before the step off again, and the run loop never turns for longer than the step has waited.
+  `testAStopBeforeAStepBeganIsNotCounted` stops the main thread before a step: on the old count it fails 3 of 3
+  (0.90 s turned in 0.30 s). The dialog step's case asks for the whole allowance of turning and a wall clock not
+  behind it; its old pattern had upper bounds that a stop exceeds by design.
+  `StepBudgetTests.testAStretchWithoutATurnCountsForOneSecond` (run 43681051816: 2.37 s counted where the case
+  allowed 1.8 s) compared the count with a fixed span that gave two 200 ms sleeps 0.8 s between them. It now
+  compares what the run loop turned with the wall clock of the same step, which holds on a host of any speed.
+  `BrowsingStepTests.testAStoppedCaretReadsTheSameOverTwoBlinks` (runs 43681051816 and 43689174320, and once
+  here) did not fail on the caret. The reads in each failure message, decoded, differ in 303 pixels at the
+  search field's clear button and nowhere else: the first read lacks the button, a later one has it. Each failing
+  run took 95 s or more where the case takes 4 to 20. The fixture's field has no clear button now, and a failed
+  read names the region that differs in place of printing both pictures.
+  Run here on a temporary iOS 27.0 iPhone Air simulator: the three classes five times, 90 of 90; the whole
+  `VisualSnapshotTests` target, 126 passed and 141 skipped; the lint gate over every target, nothing found. No
+  hosted run yet: the commits are local.
+  Open: why a long stop makes the clear button late is not known. Sixteen to twenty busy loops did not reproduce
+  it, nor did pausing the simulator's render server or its keyboard process for 30 s. The matrix's capture reads
+  a window until two reads agree over 500 ms, so a button drawn later would fail the comparison with the
+  reference, not pass unseen; whether a matrix result has failed that way was not looked for.
+  `StepBudgetTests.testTheDialogStepLooksForItsWholeAllowanceAfterTheMainThreadStops` still asks for a stall of
+  11 or 12 s and more than 50 looks; it has not failed on a hosted runner and is unchanged.
 
 Phase 20 merged this state from `main` on 2026-11-11 (OQ-F, owner msg 3346) and carries on below.
 
