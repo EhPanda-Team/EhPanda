@@ -31,7 +31,8 @@ final class RevealStepTests: XCTestCase {
     }
 
     /// A page with no dialog over it never gets there: the step fails, and the capture tries again. Its reason
-    /// names the check the platter failed and how long the step waited (run 43575259346 named neither).
+    /// names the check the platter failed, what the window presented and how long the step waited (run 43575259346
+    /// named none of them).
     @MainActor
     func testTheStepFailsWithoutADialog() async throws {
         let window = try XCTUnwrap(HostedWindowCapture.keyWindow())
@@ -43,7 +44,11 @@ final class RevealStepTests: XCTestCase {
         } catch let failure as BrowsingScenarios.StepFailure {
             // The failure the capture names `interaction:not-found:popover-platter:…` and retries.
             let reason = failure.reason
-            XCTAssertTrue(reason.hasPrefix("not-found:popover-platter:not-presented waited=10."), reason)
+            XCTAssertTrue(
+                reason.hasPrefix("not-found:popover-platter:not-presented chain=UIHostingController "), reason
+            )
+            let waited = #" waited=1\d\.\ds turned=10\.\ds "#
+            XCTAssertNotNil(reason.range(of: waited, options: .regularExpression), reason)
             XCTAssertNotNil(reason.range(of: #" polls=\d+ process=\d+s$"#, options: .regularExpression), reason)
         }
     }

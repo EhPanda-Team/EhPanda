@@ -59,8 +59,19 @@ swift-snapshot-testing's `.image` strategy. Content is the synthetic public fixt
   is `scenario__locale__size__orientation__family__theme`. A line whose attempt failed has a reason: the last
   attempt's, then the first attempt's (`attempt 1: …`, kept on a picture that passed on the retry too), then which
   of its test's pictures it was (`picture 1 of 2`). A user step's own reason names the check it failed and ends with
-  `waited=<s>s polls=<n> process=<s>s`: how long the attempt waited, how many times it looked, and how long the test
-  process had run. The aggregate summary shows the reason beside an infrastructure error and in the flake log.
+  `waited=<s>s turned=<s>s polls=<n> [stall=<s>s/<kind>] process=<s>s`: how long the attempt waited, how long the
+  process's main run loop turned meanwhile, how many times it looked, the longest stretch in which the main thread did
+  not come back (`blocked`: held while the process ran; `frozen`: the process itself was not run), and how long the
+  test process had run. The aggregate summary shows the reason beside an infrastructure error and in the flake log.
+- **Step waits.** A user step waits for a real condition, and its allowance is counted in time the main run loop
+  turned, not on the wall clock: a stretch without a turn counts for at most one second, and no step waits more than
+  120 s of wall clock (`StepBudget`). A hosted runner stopped the main thread for 15 to 172 s inside such waits (run
+  43621303643), and a wall-clock deadline ran out before the step could look again.
+- **Stalls.** Each matrix process writes every stretch of more than 2 s in which its main thread did not turn, with the
+  coordinate it was capturing and the main thread's stack sampled by a watchdog thread during it, to
+  `logs/main-thread-<pid>.log`. Beside each
+  invocation's xcodebuild log, `run-shard.sh` writes `<log>-host.log`: the runner's load, memory, paging and busiest
+  processes every 10 s.
 - **Pins.** Rendering follows `regression-environment.json` (below). On a Mac or runner that does not match it the
   run records `drift` and captures nothing.
 

@@ -174,6 +174,23 @@ stop_watcher() {
     wait "$1" 2>/dev/null || true
 }
 
+# host_sampler <file>: every 10 s while a test run lasts, the runner's load, memory, paging and busiest processes, so a
+# stall a test process records in logs/main-thread-<pid>.log (MainThreadWatch) can be read against what the runner was
+# doing then. A gap of more than 10 s between two of its own lines is a stretch in which the runner itself stood still.
+host_sampler() {
+    set +e
+    while :; do
+        {
+            date -u +%Y-%m-%dT%H:%M:%SZ
+            echo "  load $(sysctl -n vm.loadavg) swap $(sysctl -n vm.swapusage) free=$(sysctl -n kern.memorystatus_level)%"
+            vm_stat | awk '/Pageins|Pageouts|Swapins|Swapouts|Pages free|occupied by compressor/ { print "  " $0 }'
+            ps -Ao pcpu=,rss=,comm= -r | head -6 | awk '{ name = $0; sub(/^ *[^ ]+ +[^ ]+ +/, "", name)
+                n = split(name, parts, "/"); printf "  %s%% %dMB %s\n", $1, $2 / 1024, parts[n] }'
+        } >>"$1" 2>&1
+        sleep 10
+    done
+}
+
 # run_tests <xctestrun> <log> <seconds> <xcodebuild arguments…>: the one place a test run starts. TEST_ENV holds
 # its TEST_RUNNER_ variables and KILL_AFTER the proof's crash delay (empty: none). Sets STOPPED to `budget` when the
 # budget watchdog stopped it.
@@ -191,6 +208,8 @@ run_tests() {
     env ${TEST_ENV[@]+"${TEST_ENV[@]}"} xcodebuild test-without-building -xctestrun "$xctestrun" \
         -destination "platform=iOS Simulator,id=$UDID" "$@" >>"$log" 2>&1 &
     local pid=$!
+    host_sampler "${log%.log}-host.log" >/dev/null 2>&1 &
+    local sampler=$!
     ( sleep "$seconds" && kill -TERM "$pid" 2>/dev/null && touch "$WORK/stopped" &&
         echo "watchdog: stopped at the shard budget after $seconds s" >>"$log" ) >/dev/null 2>&1 &
     local budget=$!
@@ -207,6 +226,7 @@ run_tests() {
         fault=$!
     fi
     wait "$pid" || status=$?
+    stop_watcher "$sampler"
     stop_watcher "$budget"
     stop_watcher "$startup"
     [ -z "$fault" ] || stop_watcher "$fault"

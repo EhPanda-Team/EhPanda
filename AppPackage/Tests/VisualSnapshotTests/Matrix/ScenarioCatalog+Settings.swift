@@ -304,7 +304,7 @@ enum SettingsScenarios {
         let root = try XCTUnwrap(window.rootViewController?.view)
         try await BrowsingScenarios.activate(String(localized: .appActivityLogsViewRuns), in: window)
         let clock = ContinuousClock()
-        let deadline = clock.now.advanced(by: .seconds(3))
+        let budget = StepBudget(.seconds(3))
         var holdUntil: ContinuousClock.Instant?
         while true {
             let menuLists = scrollViews(in: window).filter({ !$0.isDescendant(of: root) })
@@ -315,7 +315,7 @@ enum SettingsScenarios {
             if let holdUntil, clock.now >= holdUntil {
                 return
             }
-            guard holdUntil != nil || clock.now < deadline else {
+            guard holdUntil != nil || !budget.isSpent else {
                 throw AccessibilityActionDriver.Failure.notFound("menu")
             }
             try await clock.sleep(for: .milliseconds(100))
@@ -378,13 +378,14 @@ enum SettingsScenarios {
     /// A step that fails says why, with how long it waited (``BrowsingScenarios/StepFailure``):
     /// `no-keyboard:<state>` (``GalleryScenarios/keyboardState(over:focused:since:)``) followed by `alert=opening`
     /// while the alert has not finished presenting, or `not-found:alert-field` when the field never took the focus.
+    ///
+    /// The wait is counted in time the main run loop turned (``StepBudget``): in run 43621303643 an attempt looked
+    /// once in 172 s (`never-announced waited=171.9s polls=1`).
     static func holdAlertCaret(_ window: UIWindow) async throws {
         let clock = ContinuousClock()
-        let start = clock.now
-        let deadline = start.advanced(by: GalleryScenarios.keyboardDeadline)
+        var budget = StepBudget(GalleryScenarios.keyboardDeadline)
         let announced = KeyboardWatch.announcements
         var presented = window.rootViewController
-        var polls = 0
         while true {
             while let next = presented?.presentedViewController {
                 presented = next
@@ -394,16 +395,13 @@ enum SettingsScenarios {
                 try await clock.sleep(for: .milliseconds(1500))
                 var held = 0
                 while held < 2 {
-                    guard clock.now < deadline else {
+                    guard !budget.isSpent else {
                         let focused = textFields(in: view).contains(where: \.isFirstResponder)
                         let state = GalleryScenarios.keyboardState(over: window, focused: focused, since: announced)
                         let opening = alert.isBeingPresented || alert.transitionCoordinator != nil
-                        throw BrowsingScenarios.StepFailure(
-                            reason: "no-keyboard:\(state)" + (opening ? " alert=opening" : ""),
-                            waited: start.duration(to: clock.now), polls: polls
-                        )
+                        throw budget.failure("no-keyboard:\(state)" + (opening ? " alert=opening" : ""))
                     }
-                    polls += 1
+                    budget.look()
                     held = GalleryScenarios.keyboardIsUp(over: window) ? held + 1 : 0
                     try await clock.sleep(for: .milliseconds(300))
                     try await BrowsingScenarios.waitForRest(window)
@@ -413,12 +411,8 @@ enum SettingsScenarios {
                 view.layer.timeOffset = 0
                 return
             }
-            guard clock.now < deadline else {
-                throw BrowsingScenarios.StepFailure(
-                    reason: "not-found:alert-field", waited: start.duration(to: clock.now), polls: polls
-                )
-            }
-            polls += 1
+            guard !budget.isSpent else { throw budget.failure("not-found:alert-field") }
+            budget.look()
             try await clock.sleep(for: .milliseconds(100))
         }
     }

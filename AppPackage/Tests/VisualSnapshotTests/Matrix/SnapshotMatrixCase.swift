@@ -30,6 +30,7 @@ class SnapshotMatrixCase: XCTestCase {
         Self.discardHeldTaps()
         MainActor.assumeIsolated {
             KeyboardWatch.start()
+            MainThreadWatch.start(output: SnapshotRunEnvironment.current.output)
         }
     }
 
@@ -160,6 +161,8 @@ class SnapshotMatrixCase: XCTestCase {
         let reference = run.references?.appending(path: coordinate.baselinePath)
         let shift = run.shift == coordinate.scenario
         let appStorage = UserDefaults.inMemory
+        MainThreadWatch.context = coordinate.key
+        defer { MainThreadWatch.context = "" }
         let outcome = await withDependencies {
             $0.context = .preview
             $0.cookieClient = factory.cookies ?? (factory.signedIn ? .previewLoggedIn : .noop)

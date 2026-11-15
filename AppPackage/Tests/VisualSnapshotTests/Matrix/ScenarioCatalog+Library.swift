@@ -323,14 +323,14 @@ enum LibraryScenarios {
         let root = try XCTUnwrap(window.rootViewController?.view)
         try openOverflowMenu(in: root)
         let clock = ContinuousClock()
-        let deadline = clock.now.advanced(by: .seconds(3))
+        let budget = StepBudget(.seconds(3))
         while true {
             let menuLists = scrollViews(in: window).filter({ !$0.isDescendant(of: root) })
             if !menuLists.isEmpty {
                 menuLists.forEach({ $0.showsVerticalScrollIndicator = false })
                 return
             }
-            guard clock.now < deadline else { throw AccessibilityActionDriver.Failure.notFound("menu") }
+            guard !budget.isSpent else { throw AccessibilityActionDriver.Failure.notFound("menu") }
             try await clock.sleep(for: .milliseconds(100))
         }
     }
@@ -634,11 +634,14 @@ enum LibraryScenarios {
     /// On the hosted runner the field gave its focus back after the typing in run 43451019962 (iPhone de
     /// accessibility5 portrait dark, ja large portrait light): the search ended, and the picture held the typed word
     /// over Recent Searches, without the suggestions or a caret. The field is focused again until it holds.
+    ///
+    /// Both waits are counted in time the main run loop turned (``StepBudget``): run 43621303643 failed the step as
+    /// `no-suggestions` on attempts of 40 s and more in pictures that took 60 and 67 s.
     static func type(_ text: String, in window: UIWindow, until shown: RevealStep.Target) async throws {
         let root = try XCTUnwrap(window.rootViewController?.view)
         let clock = ContinuousClock()
-        let start = clock.now
-        let deadline = clock.now.advanced(by: .seconds(3))
+        var focusBudget = StepBudget(BrowsingScenarios.focusDeadline)
+        let fieldBudget = StepBudget(.seconds(3))
         var typedField: UISearchTextField?
         while typedField == nil {
             if let field = firstView(of: UISearchTextField.self, in: root), field.becomeFirstResponder() {
@@ -651,19 +654,19 @@ enum LibraryScenarios {
                 typedField = field
                 break
             }
-            guard clock.now < deadline else { throw AccessibilityActionDriver.Failure.notFound("search field") }
+            guard !fieldBudget.isSpent else { throw AccessibilityActionDriver.Failure.notFound("search field") }
             try await clock.sleep(for: .milliseconds(100))
         }
         let field = try XCTUnwrap(typedField)
         try await clock.sleep(for: .milliseconds(800))
-        let focusDeadline = start.advanced(by: BrowsingScenarios.focusDeadline)
         var held = 0
         while held < 2 {
             let focused = field.isFirstResponder
             let showing = RevealStep.element(shown, in: window) != nil
-            guard clock.now < focusDeadline else {
-                throw BrowsingScenarios.StepFailure(reason: focused ? "no-suggestions" : "search-focus-not-held")
+            guard !focusBudget.isSpent else {
+                throw focusBudget.failure(focused ? "no-suggestions" : "search-focus-not-held")
             }
+            focusBudget.look()
             if focused && showing {
                 held += 1
             } else {

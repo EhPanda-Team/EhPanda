@@ -93,7 +93,7 @@ final class BrowsingStepTests: XCTestCase {
             try await BrowsingScenarios.focusSearchField(window, deadline: .seconds(3))
             XCTFail("A field that never takes the focus was focused")
         } catch let failure as BrowsingScenarios.StepFailure {
-            XCTAssertEqual(failure.reason, "search-focus-not-held")
+            XCTAssertTrue(failure.reason.hasPrefix("search-focus-not-held waited="), failure.reason)
             XCTAssertLessThan(start.duration(to: clock.now), .seconds(15))
         }
     }
@@ -173,13 +173,19 @@ final class BrowsingStepTests: XCTestCase {
         )
     }
 
-    /// A step's failure says how long its attempt waited, how many times it looked and how long the process had run.
+    /// A step's failure says how long its attempt waited, how long the main run loop turned meanwhile, how many times
+    /// it looked, the longest stall it waited through and how long the process had run.
     func testAStepsFailureSaysHowLongItWaited() throws {
         let failure = BrowsingScenarios.StepFailure(
-            reason: "no-keyboard:never-announced", waited: .milliseconds(30_260), polls: 24
+            reason: "no-keyboard:never-announced", waited: .milliseconds(50_260), turned: .milliseconds(30_040),
+            polls: 24, stall: " stall=40.1s/frozen"
         )
-        XCTAssertTrue(failure.reason.hasPrefix("no-keyboard:never-announced waited=30.3s polls=24 process="),
-                      failure.reason)
+        XCTAssertTrue(
+            failure.reason.hasPrefix(
+                "no-keyboard:never-announced waited=50.3s turned=30.0s polls=24 stall=40.1s/frozen process="
+            ),
+            failure.reason
+        )
         let process = try XCTUnwrap(BrowsingScenarios.processSeconds)
         XCTAssertGreaterThan(process, 0)
         XCTAssertLessThan(process, 24 * 3600)

@@ -299,7 +299,7 @@ enum BrowsingScenarios {
     static func activate(_ label: String, in window: UIWindow) async throws {
         let root = try XCTUnwrap(window.rootViewController?.view)
         let clock = ContinuousClock()
-        let deadline = clock.now.advanced(by: .seconds(3))
+        let budget = StepBudget(.seconds(3))
         while true {
             if let element = element(labelled: label, in: root) {
                 if element.accessibilityActivate() { return }
@@ -309,7 +309,7 @@ enum BrowsingScenarios {
                     return
                 }
             }
-            guard clock.now < deadline else { throw AccessibilityActionDriver.Failure.notFound(label) }
+            guard !budget.isSpent else { throw AccessibilityActionDriver.Failure.notFound(label) }
             try await clock.sleep(for: .milliseconds(100))
         }
     }
@@ -348,7 +348,8 @@ enum BrowsingScenarios {
         try await focusSearchField(window)
     }
 
-    /// How long ``focusSearchField(_:)`` may take before it fails the attempt with `interaction`.
+    /// How long ``focusSearchField(_:)`` may take before it fails the attempt with `interaction`, in time the main
+    /// run loop turned (``StepBudget``).
     static let focusDeadline: Duration = .seconds(40)
 
     static func focusSearchField(
@@ -356,14 +357,15 @@ enum BrowsingScenarios {
     ) async throws {
         let root = try XCTUnwrap(window.rootViewController?.view)
         let clock = ContinuousClock()
-        let deadline = clock.now.advanced(by: span)
+        var budget = StepBudget(span)
         var held = 0
         var found = false
         while held < 2 {
             // Run 42577585956 failed this step on iPad in 4 of 90 runs with no word of why; the reason now says.
-            guard clock.now < deadline else {
-                throw StepFailure(reason: found ? "search-focus-not-held" : "no-search-field")
+            guard !budget.isSpent else {
+                throw budget.failure(found ? "search-focus-not-held" : "no-search-field")
             }
+            budget.look()
             guard let field = firstView(of: UISearchTextField.self, in: root) else {
                 try await clock.sleep(for: .milliseconds(100))
                 continue
@@ -380,18 +382,20 @@ enum BrowsingScenarios {
                 try await waitForRest(window, within: restWait)
             } catch let moving as StillMoving {
                 // Not yet at rest: the focus is not counted as held, and the loop reads again until the deadline.
-                guard clock.now < deadline else { throw moving }
+                guard !budget.isSpent else { throw moving }
                 held = 0
             }
         }
         try await freezeIndicators(window)
     }
 
-    /// A user step's window that never came to rest; the motion it last read.
+    /// A user step's window that never came to rest; the motion it last read, and how long the wait took
+    /// (``StepFailure/init(reason:budget:)``: `still-moving:<motion> waited=… turned=… polls=…`).
     struct StillMoving: CaptureStepFailure {
         let motion: String
+        var detail = ""
 
-        var reason: String { "still-moving:\(motion)" }
+        var reason: String { "still-moving:\(motion)" + detail }
     }
 
     /// A user step that did not reach its state by its deadline, and how far it got.
@@ -413,16 +417,25 @@ enum BrowsingScenarios {
     static let defaultRestWait: Duration = .seconds(10)
 
     /// Waits until ``HostedWindowCapture/motion(in:)`` reads nothing three times in a row, 100 ms apart, for at most
-    /// `span` (``defaultRestWait``); a window still moving by then fails the step.
+    /// `span` (``defaultRestWait``) of time the main run loop turned (``StepBudget``); a window still moving by then
+    /// fails the step.
+    ///
+    /// The span used to be wall-clock time. An animation is timed from the commit that starts it, so one whose commit
+    /// waited out a stop of the main thread began after the stop, and was read as moving at the first look after it,
+    /// with the span already spent. `comments-post-filled` on iPad zh-Hans accessibility5 failed
+    /// `still-moving:animation:UIDropShadowView:position` in run 43621303643, in a shard whose other steps stopped
+    /// for 34 s; the reason did not say how often it had looked, and now does.
     static func waitForRest(_ window: UIWindow, within span: Duration = defaultRestWait) async throws {
-        let clock = ContinuousClock()
-        let deadline = clock.now.advanced(by: span)
+        var budget = StepBudget(span)
         var quiet = 0
         while quiet < 3 {
+            budget.look()
             let motion = HostedWindowCapture.motion(in: window)
             quiet = motion == nil ? quiet + 1 : 0
-            if let motion, clock.now >= deadline { throw StillMoving(motion: motion) }
-            try await clock.sleep(for: .milliseconds(100))
+            if let motion, budget.isSpent {
+                throw StillMoving(motion: motion, detail: budget.failure("").reason)
+            }
+            try await ContinuousClock().sleep(for: .milliseconds(100))
         }
     }
 
@@ -506,11 +519,24 @@ enum BrowsingScenarios {
 }
 
 extension BrowsingScenarios.StepFailure {
-    /// A step's failure that also says how long its attempt waited, how many times it looked (a host that froze looks
-    /// few times in a long wait) and how long the test process had run: `<reason> waited=10.0s polls=99 process=812s`.
-    init(reason: String, waited: Duration, polls: Int) {
-        let seconds = Double(waited.components.seconds) + Double(waited.components.attoseconds) / 1e18
-        var text = reason + String(format: " waited=%.1fs polls=%d", seconds, polls)
+    /// A step's failure that also says how long its attempt waited on the wall clock, how long the main run loop
+    /// turned meanwhile (``StepBudget``), how many times it looked (a host that froze looks few times in a long wait),
+    /// the longest stall in it (``MainThreadWatch``: `blocked`, the main thread held while the process ran, or
+    /// `frozen`, the process not run) and how long the test process had run:
+    /// `<reason> waited=50.3s turned=10.0s polls=99 stall=40.1s/frozen process=812s`.
+    @MainActor
+    init(reason: String, budget: StepBudget) {
+        let stall = budget.longestStall.map({ String(format: " stall=%.1fs/%@", $0.seconds, $0.kind) }) ?? ""
+        self.init(
+            reason: reason, waited: budget.waited, turned: budget.turned, polls: budget.polls, stall: stall
+        )
+    }
+
+    init(reason: String, waited: Duration, turned: Duration, polls: Int, stall: String = "") {
+        var text = reason + String(
+            format: " waited=%.1fs turned=%.1fs polls=%d", MainThreadWatch.seconds(waited),
+            MainThreadWatch.seconds(turned), polls
+        ) + stall
         if let process = BrowsingScenarios.processSeconds {
             text += String(format: " process=%.0fs", process)
         }

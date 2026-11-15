@@ -254,22 +254,21 @@ enum GalleryScenarios {
     ///
     /// A step that fails says why the keyboard was not counted as up (``keyboardState(over:focused:since:)``), as
     /// `no-keyboard:<state>` with how long it waited (``BrowsingScenarios/StepFailure``).
+    ///
+    /// The wait is counted in time the main run loop turned (``StepBudget``): in run 43621303643 two attempts
+    /// looked once in 34 and 38 s with the keyboard up (`announced-up waited=38.1s polls=1`).
     static func holdStillOverKeyboard(_ window: UIWindow) async throws {
         let clock = ContinuousClock()
-        let start = clock.now
-        let deadline = start.advanced(by: keyboardDeadline)
+        var budget = StepBudget(keyboardDeadline)
         let announced = KeyboardWatch.announcements
         try await clock.sleep(for: .milliseconds(1500))
         var held = 0
-        var polls = 0
         while held < 2 {
-            guard clock.now < deadline else {
+            guard !budget.isSpent else {
                 let state = keyboardState(over: window, focused: focusedEditor(in: window) != nil, since: announced)
-                throw BrowsingScenarios.StepFailure(
-                    reason: "no-keyboard:\(state)", waited: start.duration(to: clock.now), polls: polls
-                )
+                throw budget.failure("no-keyboard:\(state)")
             }
-            polls += 1
+            budget.look()
             held = keyboardIsUp(over: window) ? held + 1 : 0
             try await clock.sleep(for: .milliseconds(300))
             try await BrowsingScenarios.waitForRest(window)
@@ -278,7 +277,8 @@ enum GalleryScenarios {
         try freeze(window)
     }
 
-    /// How long ``holdStillOverKeyboard(_:)`` may take before it fails the attempt with `interaction`.
+    /// How long ``holdStillOverKeyboard(_:)`` may take before it fails the attempt with `interaction`, in time the
+    /// main run loop turned.
     static let keyboardDeadline: Duration = .seconds(30)
 
     /// The text view or field that holds the focus in `view`, if any.
@@ -315,7 +315,7 @@ enum GalleryScenarios {
     static func openFirstRowMenu(_ window: UIWindow) async throws {
         let root = try XCTUnwrap(window.rootViewController?.view)
         let clock = ContinuousClock()
-        let deadline = clock.now.advanced(by: .seconds(3))
+        let budget = StepBudget(.seconds(3))
         while true {
             if let control = menuControls(in: root).min(by: {
                 $0.convert($0.bounds, to: nil).minY < $1.convert($1.bounds, to: nil).minY
@@ -323,7 +323,7 @@ enum GalleryScenarios {
                 control.performPrimaryAction()
                 return
             }
-            guard clock.now < deadline else { throw AccessibilityActionDriver.Failure.notFound("comment menu") }
+            guard !budget.isSpent else { throw AccessibilityActionDriver.Failure.notFound("comment menu") }
             try await clock.sleep(for: .milliseconds(100))
         }
     }

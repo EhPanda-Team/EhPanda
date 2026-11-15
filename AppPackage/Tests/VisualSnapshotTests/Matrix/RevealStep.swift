@@ -73,8 +73,8 @@ enum RevealStep {
     }
 
     /// The user step of a scenario whose factory presents a dialog: returns once the dialog has finished presenting
-    /// and, where it is a popover, its platter is built (``popoverPlatterReady(in:)``), or fails at
-    /// ``platterDeadline``, and the capture tries again with a new page and a new presentation.
+    /// and, where it is a popover, its platter is built (``popoverPlatterReady(in:)``), or fails once it has looked
+    /// for ``platterDeadline`` (``StepBudget``), and the capture tries again with a new page and a new presentation.
     ///
     /// On the hosted runner 15 of the 144 pictures of `settings-account-logout-confirmation` in run 43451019962
     /// (about 11 in the run before) drew the popover's text and button over the page without the platter: no glass,
@@ -84,28 +84,49 @@ enum RevealStep {
     /// A step that fails names the check the platter last failed (``PlatterState``), as
     /// `not-found:popover-platter:<check>` with how long it waited (``BrowsingScenarios/StepFailure``): run
     /// 43575259346 failed it on the light picture only, twice in a row, with a reason that named no check.
+    ///
+    /// The ten seconds are counted in time the main run loop turned, not on the wall clock: in run 43621303643 the
+    /// step looked twice in 15 to 50 s (`opening waited=50.3s polls=2`): the main thread did not come back, and the
+    /// deadline ran out before the step could look again. (Locally a simulator render server that does not run,
+    /// `backboardd` stopped, holds the main thread in a Core Animation commit in just this way.)
     nonisolated static func awaitDialogPlatter() -> ScenarioFactory.Interact {
         { window in
-            let clock = ContinuousClock()
-            let start = clock.now
-            let deadline = start.advanced(by: platterDeadline)
-            var polls = 0
+            var budget = StepBudget(platterDeadline)
             while true {
-                polls += 1
+                budget.look()
                 let state = platterState(in: window)
                 if state == .ready { return }
-                guard clock.now < deadline else {
-                    throw BrowsingScenarios.StepFailure(
-                        reason: "not-found:popover-platter:\(state.rawValue)", waited: start.duration(to: clock.now),
-                        polls: polls
+                guard !budget.isSpent else {
+                    throw budget.failure(
+                        "not-found:popover-platter:\(state.rawValue) chain=\(presentationChain(in: window))"
                     )
                 }
-                try await clock.sleep(for: .milliseconds(100))
+                try await ContinuousClock().sleep(for: .milliseconds(100))
             }
         }
     }
 
-    /// How long ``awaitDialogPlatter()`` waits for the dialog's platter.
+    /// The window's presentations from its root, for a failed dialog step: each controller's class, with `+` while it
+    /// is being presented, `-` while it is being dismissed and `~` while a transition is under way, then `@0` when the
+    /// window is not the key window. Run 43621303643's second attempts found nothing presented (`not-presented`
+    /// in 85 looks) after a first attempt that failed while its popover was still opening; this says what the window
+    /// held instead.
+    static func presentationChain(in window: UIWindow) -> String {
+        var names: [String] = []
+        var controller = window.rootViewController
+        while let current = controller, names.count < 8 {
+            var name = String(describing: type(of: current))
+            name = String(name.prefix(while: { $0 != "<" }))
+            if current.isBeingPresented { name += "+" }
+            if current.isBeingDismissed { name += "-" }
+            if current.transitionCoordinator != nil { name += "~" }
+            names.append(name)
+            controller = current.presentedViewController
+        }
+        return names.joined(separator: ">") + (window.isKeyWindow ? "" : "@0")
+    }
+
+    /// How long ``awaitDialogPlatter()`` looks for the dialog's platter, in time the main run loop turned.
     static let platterDeadline: Duration = .seconds(10)
 
     /// How far a presentation is from ``popoverPlatterReady(in:)``: the first check it fails, in the order they are
