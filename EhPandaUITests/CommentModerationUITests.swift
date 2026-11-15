@@ -32,6 +32,7 @@ final class CommentModerationUITests: XCTestCase {
         static let hide = "Hide"
         static let unblock = "Unblock"
         static let postComment = "Post Comment"
+        static let voteUp = "Vote Up"
         static let filterTitle = "Post this comment?"
         static let edit = "Edit"
         static let postAnyway = "Post Anyway"
@@ -188,16 +189,17 @@ final class CommentModerationUITests: XCTestCase {
         app.terminate()
     }
 
+    /// Every comment's menu leads with the two votes, the user's own too, so the own comment has its `…` button.
+    /// What it leaves out is the moderation: no Report and no Block.
     func testTheUsersOwnCommentOffersNoModeration() throws {
         let app = try openComments(blockedUsers: [], signedIn: true, displayName: Copy.author)
         let cell = requireCell(in: app)
 
-        XCTAssertFalse(menuButton(of: cell).exists, "The own comment has a … button.")
-        cell.press(forDuration: 1.2)
-        XCTAssertFalse(
-            app.buttons[Copy.reportOnSite].firstMatch.waitForExistence(timeout: 3),
-            "The own comment has a moderation menu."
+        openMenu(of: cell, in: app)
+        XCTAssertTrue(
+            app.buttons[Copy.voteUp].firstMatch.waitForExistence(timeout: 10), "The own comment's menu did not open."
         )
+        XCTAssertFalse(app.buttons[Copy.reportOnSite].firstMatch.exists, "The own comment's menu offers Report.")
         XCTAssertFalse(app.buttons[Copy.blockAuthor(Copy.author)].firstMatch.exists, "The own comment offers Block.")
         app.terminate()
     }
