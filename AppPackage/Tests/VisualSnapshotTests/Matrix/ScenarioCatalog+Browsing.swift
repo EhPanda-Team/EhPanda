@@ -82,8 +82,8 @@ extension ScenarioCatalog {
             "front-page-loading": .init(make: { Page.frontPage(.loading) }, interact: Page.freezeIndicators),
             "front-page-error": .init(make: { Page.frontPage(.failed(.networkingFailed)) }),
             "front-page-empty": .init(make: { Page.frontPage(.failed(.notFound)) }),
-            // The search bar could activate before the list had settled, and the list then kept its unsearched top
-            // spacing (run 43451019962): the page settles first.
+            // The field is focused from a settled page at rest at its top. The result's two positions (run
+            // 43451019962) came from the list's hidden error view, not from this step (`GalleryListErrorViewTests`).
             "front-page-search": ScenarioFactory(
                 make: { Page.frontPage(.loaded(.row), keyword: Page.searchKeyword) }, prepare: artwork,
                 interact: Page.focusSearchFieldOnceSettled
@@ -336,12 +336,18 @@ enum BrowsingScenarios {
     /// Front Page's search step: once the page has settled, it is brought to rest at its top
     /// (``LibraryScenarios/restAtTop(_:)``) and its search field is focused (``focusSearchField(_:)``).
     ///
-    /// The step used to start as soon as the page was hosted. On a loaded host the search bar could then activate
-    /// while the list was still being set up: the bar collapsed, but the list kept the top spacing it has with the
-    /// bar unfocused, and the one result sat 35 points higher than in other launches (`front-page-search`, run
-    /// 43451019962 against the run before it, both ways; locally 2 of 10 launches under load). A list laid out again
-    /// afterwards kept that spacing. With the page settled first, the activation gave the searched spacing in every
-    /// launch under the same load (12 of 12), the picture the other launches had.
+    /// The step used to start as soon as the page was hosted, and the one result sometimes sat 35 points higher
+    /// than in other launches (`front-page-search`, run 43451019962 against the run before it, both ways; locally 2
+    /// of 10 launches under load). Settling first was taken for the cure, because the next 12 launches under the
+    /// same load all had the lower position. It was not: 16 of 162 hosted pictures taken with this step still had
+    /// the higher one. The list kept its error view on the page at opacity 0, a view that becomes a scroll view
+    /// when the keyboard leaves it too little room, and a list whose search field became active while that second
+    /// scroll view was there missed the top spacing the system gives it. Whether the keyboard or the search bar
+    /// came first varied from launch to launch, with this step or without it. `GalleryList` now holds its error
+    /// view only while the list has failed (`GalleryListErrorViewTests`).
+    ///
+    /// The step stays as the field's starting state: a settled page at rest at its top, where a person's pull
+    /// leaves it before they tap the field.
     static func focusSearchFieldOnceSettled(_ window: UIWindow) async throws {
         _ = await HostedWindowCapture.settle(window)
         try LibraryScenarios.restAtTop(window)
