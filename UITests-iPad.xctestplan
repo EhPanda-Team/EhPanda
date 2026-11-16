@@ -13,8 +13,6 @@
         "value": "1"
       }
     ],
-    "maximumTestRepetitions": 3,
-    "testRepetitionMode": "retryOnFailure",
     "testTimeoutsEnabled": true
   },
   "testTargets": [

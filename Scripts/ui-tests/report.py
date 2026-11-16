@@ -7,8 +7,10 @@ usage: report.py --title <title> [--elsewhere <plan>]... [--local-only <json>] [
 
 Three things xcodebuild's own result does not say:
 
-- A test that failed and then passed. The UI test plans run a failing test up to three times, and xcodebuild counts
-  it as passed. It is listed here as retried, so a flaky test is seen and not hidden by its retry.
+- A test that failed in one of several runs. The UI test plans run every test once, and no test may pass by a
+  retry. Where a run repeats its tests all the same (xcodebuild's `-test-iterations`, to hunt a flaky test, or a
+  retry somebody passed on the command line), xcodebuild counts a test that failed and later passed as passed.
+  Here it is failed, and listed as passing only on a repeat.
 - A skipped test. A test skips where it does not apply (an iPad's case on the iPhone), and a skip that nobody
   expects is a test that no longer runs. Each skip must be accounted for by name: selected by another plan
   (`--elsewhere`, the iPad plan on the iPhone's run) or named with its reason in `--local-only` (the Duo's cases,
@@ -19,7 +21,8 @@ Three things xcodebuild's own result does not say:
 
 A name is `Class/test()` for one test or `Class` for all of a class's tests, as in a plan's `selectedTests`.
 
-Exit status: 1 when a test failed, a skip is not accounted for or a name matches nothing; 0 otherwise.
+Exit status: 1 when a test failed in any of its runs, a skip is not accounted for or a name matches nothing; 0
+otherwise.
 """
 
 import argparse
@@ -32,8 +35,9 @@ import sys
 @dataclasses.dataclass
 class Summary:
     passed: list = dataclasses.field(default_factory=list)
-    retried: list = dataclasses.field(default_factory=list)
     failed: list = dataclasses.field(default_factory=list)
+    # The failed tests whose last run passed: xcodebuild counts them as passed.
+    repeated: list = dataclasses.field(default_factory=list)
     expected_failures: list = dataclasses.field(default_factory=list)
     # {source: [identifier]} for the skips a plan or the local-only list accounts for.
     accounted: dict = dataclasses.field(default_factory=dict)
@@ -94,8 +98,10 @@ def summarize(document, elsewhere=(), local_only=None, expect=None):
         elif result != 'Passed':
             # A failure, and any result the tool has another word for: what is not a pass is not counted as one.
             summary.failed.append(identifier)
-        elif 'Failed' in repetitions:
-            summary.retried.append(identifier)
+        elif any(each != 'Passed' for each in repetitions):
+            # A pass that took more than one run is no pass: no test may rely on a retry.
+            summary.failed.append(identifier)
+            summary.repeated.append(identifier)
         else:
             summary.passed.append(identifier)
     for label, names in sources:
@@ -110,16 +116,15 @@ def summarize(document, elsewhere=(), local_only=None, expect=None):
 
 def render(summary, title):
     """The job summary, as Markdown."""
-    ran = len(summary.passed) + len(summary.retried)
     skipped = sum(len(tests) for tests in summary.accounted.values()) + len(summary.unaccounted)
-    lines = [f'### {title}: {ran} passed, {len(summary.failed)} failed, {skipped} skipped', '']
+    lines = [f'### {title}: {len(summary.passed)} passed, {len(summary.failed)} failed, {skipped} skipped', '']
 
     def section(heading, names):
         if names:
             lines.extend([f'**{heading}**', ''] + [f'- `{name}`' for name in sorted(names)] + [''])
 
-    section('Failed', summary.failed)
-    section('Passed only on a retry', summary.retried)
+    section('Failed', [name + (' (passed only on a repeat)' if name in summary.repeated else '')
+                       for name in summary.failed])
     section('Skipped and not accounted for', summary.unaccounted)
     section('Named and not found', [f'{name} ({label})' for label, name in summary.unmatched])
     if summary.expected_failures:

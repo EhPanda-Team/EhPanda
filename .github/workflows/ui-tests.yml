@@ -10,8 +10,10 @@ name: UI tests
 # A schedule and a dispatch read the default branch's copy of this file. A push to `ci/ui-tests` starts the pushed
 # copy, to try a change to the workflow before it is merged.
 #
-# Each job's summary (Scripts/ui-tests/report.py) lists what failed, what passed only on a retry and what was
-# skipped. The plans run a failing test up to three times, which hides a flaky one unless it is listed. A skip must
+# Every test runs once. The plans carry no retry and this workflow passes none, so a test that fails once is a failed
+# job: a test that passes on a second run is a flaky test, and running it again would hide that.
+#
+# Each job's summary (Scripts/ui-tests/report.py) lists what failed and what was skipped. A skip must
 # be accounted for by name, or the job fails: the iPhone's run may skip what the iPad plan selects and what
 # Scripts/ui-tests/local-only.json names with a reason (the Duo's cases), and the iPad's run must have run every
 # test its plan selects. So a test cannot stop running, by a gate or by a rename, without a failed job.
@@ -126,8 +128,8 @@ jobs:
           echo "UDID=$udid" >> "$GITHUB_ENV"
           echo "XCTESTRUN=$xctestrun" >> "$GITHUB_ENV"
       # A run the simulator lost before its tests (Scripts/visual/snapshot_infra.py: a runner that never launched,
-      # a clone that did not boot) is made once more on fresh clones; a run whose tests failed is not. The plan's
-      # own retries are for a failing test, and the report lists every test that needed one.
+      # a clone that did not boot) is made once more on fresh clones; a run whose tests failed is not, and no test
+      # is run a second time.
       - name: Run the UI tests
         id: tests
         timeout-minutes: 270

@@ -894,7 +894,7 @@ TEST_RUNNER_EHPANDA_CAPTURE_COORDINATE='{"screen":"home","set":"nonexplicit","lo
   --output .capture/marketing-once
 ```
 
-The UITests plan retries a failed test, so a result with repetitions counts as failed. The native
+No plan retries a failed test, and a result with repetitions counts as failed all the same. The native
 runner below runs each launch once.
 
 ## Capture natively

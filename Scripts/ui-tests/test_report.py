@@ -60,20 +60,26 @@ class SortingTests(unittest.TestCase):
         self.assertEqual(summary.passed, ['A/testOne()', 'A/testTwo()'])
         self.assertTrue(summary.ok)
 
-    def test_a_test_that_failed_and_then_passed_is_retried_not_passed(self):
-        summary = report.summarize(document(case('A/testOne()', repetitions=('Failed', 'Passed'))))
-        self.assertEqual(summary.retried, ['A/testOne()'])
-        self.assertEqual(summary.passed, [])
-        # A retry reports; it does not fail the run that xcodebuild passed.
-        self.assertTrue(summary.ok)
+    def test_a_test_that_failed_and_then_passed_is_failed(self):
+        # xcodebuild passes such a run. No test may pass by a retry, so the report does not.
+        for repetitions in (('Failed', 'Passed'), ('Passed', 'Failed', 'Passed'), ('unknown', 'Passed')):
+            with self.subTest(repetitions=repetitions):
+                summary = report.summarize(document(case('A/testOne()', repetitions=repetitions)))
+                self.assertEqual(summary.failed, ['A/testOne()'])
+                self.assertEqual(summary.repeated, ['A/testOne()'])
+                self.assertEqual(summary.passed, [])
+                self.assertFalse(summary.ok)
 
-    def test_iterations_that_all_passed_are_not_a_retry(self):
+    def test_iterations_that_all_passed_are_a_pass(self):
         summary = report.summarize(document(case('A/testOne()', repetitions=('Passed', 'Passed'))))
         self.assertEqual(summary.passed, ['A/testOne()'])
+        self.assertEqual(summary.repeated, [])
+        self.assertTrue(summary.ok)
 
     def test_a_failed_test_fails_the_report(self):
         summary = report.summarize(document(case('A/testOne()', 'Failed', ('Failed', 'Failed', 'Failed'))))
         self.assertEqual(summary.failed, ['A/testOne()'])
+        self.assertEqual(summary.repeated, [])
         self.assertFalse(summary.ok)
 
     def test_a_result_that_is_not_a_pass_is_not_counted_as_one(self):
@@ -140,9 +146,8 @@ class RenderTests(unittest.TestCase):
                          case('C/testLost()', 'Skipped'))
         summary = report.summarize(tests, elsewhere=[('the iPad plan', ['B/testPad()'])], local_only=[])
         text = report.render(summary, 'UI tests (iphone)')
-        self.assertIn('### UI tests (iphone): 2 passed, 1 failed, 2 skipped', text)
-        self.assertIn('**Failed**\n\n- `A/testThree()`', text)
-        self.assertIn('**Passed only on a retry**\n\n- `A/testTwo()`', text)
+        self.assertIn('### UI tests (iphone): 1 passed, 2 failed, 2 skipped', text)
+        self.assertIn('**Failed**\n\n- `A/testThree()`\n- `A/testTwo() (passed only on a repeat)`', text)
         self.assertIn('**Skipped and not accounted for**\n\n- `C/testLost()`', text)
         self.assertIn('1 skipped here, accounted for by the iPad plan.', text)
         self.assertNotIn('A/testOne()', text)
@@ -204,6 +209,20 @@ class RepositoryTests(unittest.TestCase):
         local = json.loads(LOCAL_ONLY.read_text(encoding='utf-8'))['tests']
         for name in pad:
             self.assertFalse(any(report.covers(other, name) for other in local), name)
+
+    def test_no_plan_repeats_a_test(self):
+        # A test that passes on its second run is a flaky test, and a plan that runs it again hides that. Every plan
+        # of the repository runs a test once, in its defaults and in each of its configurations.
+        plans = sorted(ROOT.glob('*.xctestplan')) + sorted((ROOT / 'AppPackage/Tests').glob('*.xctestplan'))
+        self.assertIn(PHONE_PLAN, plans)
+        self.assertIn(PAD_PLAN, plans)
+        self.assertGreater(len(plans), 4)
+        for path in plans:
+            document = json.loads(path.read_text(encoding='utf-8'))
+            for options in [document.get('defaultOptions', {})] + [
+                    configuration.get('options', {}) for configuration in document.get('configurations', [])]:
+                for key in ('testRepetitionMode', 'maximumTestRepetitions'):
+                    self.assertNotIn(key, options, f'{path.name} repeats a test')
 
     def test_the_ipad_plan_sets_its_gate_and_keeps_the_iphone_plans_options(self):
         pad = json.loads(PAD_PLAN.read_text(encoding='utf-8'))
