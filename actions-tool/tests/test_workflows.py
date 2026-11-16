@@ -834,5 +834,38 @@ class ActionPinTests(unittest.TestCase):
                 self.assertEqual(used_majors[name], {major}, "the workflows use another version")
 
 
+@unittest.skipUnless(RUBY, "ruby is not installed")
+class ScriptTestsTests(unittest.TestCase):
+    """lint.yml runs the tests of every script directory on every branch push, found and not listed: a pattern
+    list once left 250 tests of Scripts/visual and the 27 of Scripts/live-check running in no workflow."""
+
+    ROOTS = ("Scripts", "actions-tool")
+
+    @classmethod
+    def setUpClass(cls):
+        cls.lint = load(WORKFLOWS / "lint.yml")
+
+    def test_every_directory_with_tests_is_found_not_listed(self):
+        run = code(step_named(self.lint, "Test the scripts")["run"])
+        self.assertIn(f"find {' '.join(self.ROOTS)} -name 'test_*.py' -exec dirname {{}} \\; | sort -u", run)
+        self.assertIn("python3 -m unittest discover -s \"$directory\" -p 'test_*.py' || failed=1", run)
+        self.assertIn('exit "$failed"', run)
+
+    def test_no_test_file_lies_outside_the_roots_the_step_searches(self):
+        listed = subprocess.run(["git", "-C", str(ROOT), "ls-files", "test_*.py", "*/test_*.py"],
+                                capture_output=True, text=True, check=True).stdout.split()
+        self.assertGreater(len(listed), 30)
+        for path in listed:
+            self.assertIn(path.split("/")[0], self.ROOTS, f"{path} is run by no workflow")
+
+    def test_the_cookie_logging_audit_runs_after_its_own_fixtures(self):
+        run = code(step_named(self.lint, "Check that no cookie is logged in the clear")["run"]).split()
+        self.assertEqual(run, ["Scripts/Tests/check-cookie-logging-tests.sh", "Scripts/check-cookie-logging.sh"])
+
+    def test_it_runs_on_every_branch_push_like_the_tests(self):
+        self.assertEqual(self.lint.get("on", self.lint.get(True, self.lint.get("true"))),
+                         {"push": {"branches": ["**"]}, "workflow_dispatch": None})
+
+
 if __name__ == "__main__":
     unittest.main()

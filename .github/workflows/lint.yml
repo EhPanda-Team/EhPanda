@@ -8,6 +8,9 @@ name: Lint
 #
 # A warning inside a third-party package is listed and allowed: only where the warning is counts. One that this
 # repository's code triggers fails, whichever library defined it.
+#
+# Before the build it runs what needs no simulator: the tests of every script directory and the audit that no
+# cookie is logged in the clear.
 on:
   push:
     branches: ['**']
@@ -21,8 +24,23 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v7
-      - name: Test the gate's own tooling
-        run: python3 -m unittest discover -s Scripts/lint -p 'test_*.py'
+      # Every directory that holds a `test_*.py` is found here, not listed: a test file or a directory added later
+      # runs without anyone naming it. The screenshot check names its own files by pattern (snapshot-gate.yml), and
+      # 250 tests of Scripts/visual that the pattern did not match ran nowhere, like the 27 of Scripts/live-check.
+      - name: Test the scripts
+        run: |
+          failed=0
+          while IFS= read -r directory; do
+            echo "::group::$directory"
+            python3 -m unittest discover -s "$directory" -p 'test_*.py' || failed=1
+            echo "::endgroup::"
+          done < <(find Scripts actions-tool -name 'test_*.py' -exec dirname {} \; | sort -u)
+          exit "$failed"
+      # A log line that carries a cookie must mark it private. The audit's own fixtures first, then the sources.
+      - name: Check that no cookie is logged in the clear
+        run: |
+          Scripts/Tests/check-cookie-logging-tests.sh
+          Scripts/check-cookie-logging.sh
       - name: Install iOS 27 Platform
         uses: nick-fields/retry@v4
         with:
