@@ -902,7 +902,10 @@ class UITestsWorkflowTests(unittest.TestCase):
         run = code(step_named(self.document, "Run the UI tests")["run"])
         self.assertIn("xcodebuild test-without-building", run)
         self.assertIn('-xctestrun "$XCTESTRUN"', run)
-        self.assertIn('"${SCHEME_NAME}_${PLAN}"_*.xctestrun', step_named(self.document, "Create the simulator")["run"])
+        create = code(step_named(self.document, "Create the simulator")["run"])
+        self.assertIn('-name "${SCHEME_NAME}_${PLAN}_*.xctestrun"', create)
+        # `find` succeeds when it finds nothing, so the step says that the plan's file is missing.
+        self.assertIn('[ -n "$xctestrun" ] || {', create)
 
     def test_nothing_caps_parallel_testing(self):
         # Tests run in parallel unless the owner approved a serial run for the invocation concerned (AGENTS.md).

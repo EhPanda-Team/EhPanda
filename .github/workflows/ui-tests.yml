@@ -121,7 +121,8 @@ jobs:
           env = json.load(open("Scripts/visual/regression-environment.json"))
           print(env["devices"][sys.argv[1]]["deviceTypeIdentifier"], env["runtime"]["identifier"])' "$FAMILY")"
           udid=$(Scripts/visual/hosted-simulator.sh create 'EhPanda UI tests' "$device" "$runtime" "$FAMILY")
-          xctestrun=$(ls "$RUNNER_TEMP"/Products/"${SCHEME_NAME}_${PLAN}"_*.xctestrun)
+          xctestrun=$(find "$RUNNER_TEMP/Products" -maxdepth 1 -name "${SCHEME_NAME}_${PLAN}_*.xctestrun" -print -quit)
+          [ -n "$xctestrun" ] || { echo "::error::The products hold no test run file for the $PLAN plan."; exit 1; }
           echo "UDID=$udid" >> "$GITHUB_ENV"
           echo "XCTESTRUN=$xctestrun" >> "$GITHUB_ENV"
       # A run the simulator lost before its tests (Scripts/visual/snapshot_infra.py: a runner that never launched,
