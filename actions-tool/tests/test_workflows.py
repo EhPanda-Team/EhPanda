@@ -944,5 +944,46 @@ class UITestsWorkflowTests(unittest.TestCase):
                     self.assertNotIn("ui-tests.yml", code(path.read_text(encoding="utf-8")))
 
 
+@unittest.skipUnless(RUBY, "ruby is not installed")
+class DependencyChangesTests(unittest.TestCase):
+    """dependencies.yml writes what changed between the lockfiles into its pull request's body
+    (actions-tool/dependency_changes.py)."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.document = load(WORKFLOWS / "dependencies.yml")
+        cls.steps = steps(cls.document)
+        cls.describe = step_named(cls.document, "Describe what changed")
+        cls.run_lines = code(cls.describe["run"])
+
+    def test_the_body_compares_the_base_lockfile_with_the_resolved_one(self):
+        self.assertIn('git show HEAD:AppPackage/Package.resolved > "$RUNNER_TEMP/Package.resolved.before"',
+                      self.run_lines)
+        self.assertIn('python3 actions-tool/dependency_changes.py --xcode "$(xcodebuild -version)"', self.run_lines)
+        self.assertIn('"$RUNNER_TEMP/Package.resolved.before" AppPackage/Package.resolved', self.run_lines)
+        self.assertTrue((ROOT / "actions-tool" / "dependency_changes.py").is_file())
+
+    def test_a_tool_that_fails_fails_the_step(self):
+        # The body is piped into its file, and a pipeline's status is its last command's unless told otherwise.
+        self.assertLess(self.run_lines.index("set -euo pipefail"), self.run_lines.index("| tee"))
+
+    def test_the_body_is_written_outside_the_checkout(self):
+        # create-pull-request commits every file it finds in the checkout.
+        written = re.findall(r'(?:>|tee) "([^"]+)"', self.run_lines)
+        self.assertEqual(len(written), 2)
+        for path in written:
+            self.assertTrue(path.startswith("$RUNNER_TEMP/"), path)
+
+    def test_the_pull_request_takes_that_body(self):
+        create = [step for step in self.steps if step.get("uses", "").startswith("peter-evans/create-pull-request@")]
+        self.assertEqual(len(create), 1)
+        self.assertEqual(create[0]["with"]["body-path"], "${{ runner.temp }}/dependency-changes.md")
+        self.assertNotIn("body", create[0]["with"])
+        self.assertIn('| tee "$RUNNER_TEMP/dependency-changes.md"', self.run_lines)
+        # Written when, and only when, the pull request is made, and before it.
+        self.assertEqual(self.describe["if"], create[0]["if"])
+        self.assertLess(self.steps.index(self.describe), self.steps.index(create[0]))
+
+
 if __name__ == "__main__":
     unittest.main()
