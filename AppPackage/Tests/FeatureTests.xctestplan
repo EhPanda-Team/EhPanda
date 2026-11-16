@@ -198,6 +198,19 @@
     },
     {
       "target": {
+        "containerPath": "container:AppPackage",
+        "identifier": "LiveCheckTests",
+        "name": "LiveCheckTests"
+      },
+      "skippedTests": [
+        "DailyLiveCheckTests",
+        "ProbeReportTests",
+        "RunnerProbeTests"
+      ],
+      "parallelizable": true
+    },
+    {
+      "target": {
         "containerPath": "container:EhPanda.xcodeproj",
         "identifier": "A17000000000000000000006",
         "name": "VisualSnapshotTests"

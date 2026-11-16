@@ -18,8 +18,9 @@ a scene and only a process inside the app has one (the `no_sceneless_window` lin
 UI tests; it skips the capture-only suites (`CaptureIsolationUITests`, `MarketingCaptureUITests`), whose inputs a
 plain run does not have. `VisualTests` holds the app-hosted `VisualSnapshotTests` target's feasibility and geometry
 probes (`FullContentFeasibilityTests`, `GeometryTests`), driven by the native scripts below. `SnapshotMatrix` is the
-snapshot matrix (next section). `LiveCheck` is the daily live check's test target. No assertion is disabled in any
-of them.
+snapshot matrix (next section). `LiveCheck` is the daily live check's test target; `FeatureTests` runs that
+target's offline tests (`LiveCheckOfflineTests`) as well, and skips its classes that wait for the opt-in. No
+assertion is disabled in any of them.
 
 CI workflows:
 
