@@ -1,5 +1,5 @@
 {
-  "originHash" : "9d4aad0fe72511b0a4c1c03b88ac5b65ef8bba02f493fa6b6f3cf34fb007fe78",
+  "originHash" : "168a9accbc3527d7c4d63a8ebb5c6fb41ad0e35527f0391f32163ad894aac01e",
   "pins" : [
     {
       "identity" : "colorfulx",
@@ -51,8 +51,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/onevcat/Kingfisher",
       "state" : {
-        "revision" : "8648fe649c5d62be38721110f835821906e9242a",
-        "version" : "8.13.0"
+        "revision" : "21caad71af5d1cb34ab174786e75c864fd2417bd",
+        "version" : "8.16.0"
       }
     },
     {
@@ -141,8 +141,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-collections",
       "state" : {
-        "revision" : "35a1edcb8ebd2bfe251d587f0b69e62af28f508c",
-        "version" : "1.7.3"
+        "revision" : "88754449ab766a739610b660e117762115fabc9c",
+        "version" : "1.7.6"
       }
     },
     {
@@ -159,8 +159,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pointfreeco/swift-concurrency-extras",
       "state" : {
-        "revision" : "695e5d125a475ac0a2c30ece03d7985f54ffc7c9",
-        "version" : "1.4.2"
+        "revision" : "8a4260f7373493435bd21194585c95b72bfdd401",
+        "version" : "1.4.3"
       }
     },
     {
@@ -177,8 +177,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pointfreeco/swift-dependencies",
       "state" : {
-        "revision" : "b476cc5761057d8d857de063fe7ac8daecf5c06b",
-        "version" : "1.17.1"
+        "revision" : "2f83b70a6fbf45795dd40ccaa907bad3c8d93fe1",
+        "version" : "1.17.2"
       }
     },
     {
