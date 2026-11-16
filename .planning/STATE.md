@@ -303,6 +303,23 @@ Phase 17 was: the executed work is verified and the rest is recorded as deferred
   Left as they were: the Duo classes have no plan (a posed simulator and a serial run); `VisualSnapshotTests` is
   still one target for the matrix, the support's own tests and the probes; the capture tooling's and the other
   local-only suites stay local.
+- **The dependency update's pull request body, 2026-11-16** (on `fix/snapshot-precheck`, at the owner's word,
+  after the body another project of the owner's writes): the weekly update opened its pull request with the
+  action's default body (#474), so what it updates had to be read from the lockfile's diff.
+  `actions-tool/dependency_changes.py` writes the body from the base branch's `Package.resolved` and the one just
+  resolved: the Xcode that resolved it, the pins that changed, the packages added and removed, and each changed
+  package's releases page with the version to read on from. `dependencies.yml` writes it outside the checkout,
+  since the action commits every file it finds there, and hands it over by path (`66c95c47f`). The action
+  rewrites an open pull request's body on every run, so the body describes the whole change from `develop`.
+  Here: the tool's 16 tests and the workflow's 4 (which fail on the old workflow), the whole of
+  `actions-tool/tests` (290) with no git identity, the screenshot check's workflow tests, the workflow linter,
+  and the new step's own lines replayed on #474's two lockfiles: four pins changed, nothing written into the
+  checkout.
+  Not verified: no hosted run. A schedule runs the default branch's copy of the workflow on `develop`'s tree, so
+  the body appears once the workflow is on `main` and the tool on `develop`. Until then #474 keeps its body
+  unless it is written there by hand.
+  `6d4df7d74` replaces a line of `ui-tests.yml` that the workflow linter warned about (SC2140) with a lookup
+  that says when the plan's test run file is missing. The hosted trial of the pushed copy was under way then.
 
 Phase 20 merged this state from `main` on 2026-11-11 (OQ-F, owner msg 3346) and carries on below.
 
