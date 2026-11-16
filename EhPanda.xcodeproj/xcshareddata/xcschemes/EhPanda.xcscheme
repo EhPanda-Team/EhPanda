@@ -72,6 +72,9 @@
          <TestPlanReference
             reference = "container:UITests.xctestplan">
          </TestPlanReference>
+         <TestPlanReference
+            reference = "container:UITests-iPad.xctestplan">
+         </TestPlanReference>
          <TestPlanReference reference = "container:AppshotCapture.xctestplan">
          </TestPlanReference>
       </TestPlans>

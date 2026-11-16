@@ -16,11 +16,12 @@ Preview review by an agent is a separate aid and never an acceptance: see `previ
 the `HostedViewTests` target: every test that lays a view out in a window lives there, because a window belongs to
 a scene and only a process inside the app has one (the `no_sceneless_window` lint rule). `UITests` runs the
 UI tests; it skips the capture-only suites (`CaptureIsolationUITests`, `MarketingCaptureUITests`), whose inputs a
-plain run does not have. `VisualTests` holds the app-hosted `VisualSnapshotTests` target's feasibility and geometry
-probes (`FullContentFeasibilityTests`, `GeometryTests`), driven by the native scripts below. `SnapshotMatrix` is the
-snapshot matrix (next section). `LiveCheck` is the daily live check's test target; `FeatureTests` runs that
-target's offline tests (`LiveCheckOfflineTests`) as well, and skips its classes that wait for the opt-in. No
-assertion is disabled in any of them.
+plain run does not have. `UITests-iPad` selects the cases only an iPad runs and sets `EHPANDA_IPAD_UI_TESTS`, which
+one of their classes waits for. `VisualTests` holds the app-hosted `VisualSnapshotTests` target's feasibility and
+geometry probes (`FullContentFeasibilityTests`, `GeometryTests`), driven by the native scripts below.
+`SnapshotMatrix` is the snapshot matrix (next section). `LiveCheck` is the daily live check's test target;
+`FeatureTests` runs that target's offline tests (`LiveCheckOfflineTests`) as well, and skips its classes that wait
+for the opt-in. No assertion is disabled in any of them.
 
 CI workflows:
 
