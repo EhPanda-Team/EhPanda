@@ -320,6 +320,41 @@ Phase 17 was: the executed work is verified and the rest is recorded as deferred
   unless it is written there by hand.
   `6d4df7d74` replaces a line of `ui-tests.yml` that the workflow linter warned about (SC2140) with a lookup
   that says when the plan's test run file is missing. The hosted trial of the pushed copy was under way then.
+- **No test relies on a retry, 2026-11-16 to 17** (on `fix/snapshot-precheck`, at the owner's word "no tests
+  should rely on retries, remove the retry and make them stable"): the UI test plans ran a failing test up to
+  three times and the screenshot check's policy job twice. Every retry is gone and each test that needed one was
+  fixed at its cause, with no longer timeout, skipped case or looser comparison. Commits `6e6baf7fb`, `b66b4f58b`,
+  `2464b5418`, `0c22bf6d0`, `a8fe07235`, `5e0a06bd6` and `012fb31b6`, local.
+  The causes. Auto-play (`ReaderRebuildUITests`, `ReaderPageSyncUITests`): at a one-second interval a reading
+  under load met the pager mid-turn, so the cases now wait on the indicator while auto-play runs and compare it
+  with the screen once the reader rests. The waits for a control (`waitUntilHittable`): `isHittable` on an element
+  that is still moving can end a test ("Failed to determine hittability") instead of answering false, so it is
+  asked only of an element whose frame held still for 0.2 s. Detail's title at AX3: the title appears once the
+  header has left the scroll view's bounds, while the header's last row is still drawn under the status bar, so
+  the case compares frames with the bounds. The Show All tap on Home and the toast: the app's own fade.
+  The app's fade. A SwiftUI view that holds a UIKit view (a `ScrollView`, a `List`) and fades in through its
+  opacity under an animation keeps the UIKit `alpha` at 0 until the animation ends, while it already looks
+  opaque, and UIKit's hit test passes over it. On Home the galleries took no touch for 1.1 to 2.2 s after they
+  looked opaque; a probe lost 7 of 8 first taps. `revealed(_:)` (AppComponents) keeps such content opaque and
+  fades a cover in the background style off it, at Home, Detail, App Activity Logs and the Archives sheet: none
+  of 8 taps lost, and in light and dark the cover is the colour each screen stands on, a sheet's raised
+  background included. `HostedViewTests/RevealedContentTouchTests` checks both sides.
+  `Scripts/ui-tests/report.py` now counts a test that failed in any run as failed, and a repository test fails
+  if a plan repeats a test; `NoTestRetryTests` does the same for every workflow and script.
+  Here, without retries: the whole UITests plan three times, 130 passed and none failed each time with every
+  one of 21 skips accounted for (once with a touch detector built in, which found no touch over an untouchable
+  view; twice on the clean tree); UITests-iPad once, 9 passed; the hosted view tests five times; the script tests
+  (799) and the lint of every touched module.
+  Not verified: no hosted run of either change. The policy job (`012fb31b6`) has run nowhere without its retry,
+  which three of its four passing hosted jobs had needed; the wait for a resting control covers one of those
+  failures, and the job can fail until a hosted run shows the others hold. The nightly's hosted trial (run
+  43829748359) did not finish as designed: the iPad job took 64 minutes with failures on two clones, and the
+  iPhone job was cut after 77 minutes.
+  Open, for the owner: the same fade in floating views that a cover cannot hide, the toast (untouchable 0.1 to
+  0.7 s after it shows; its case now waits for it) and the reader's control panel (0.7 to 1.0 s), and the
+  `.transition(.opacity)` sites (RootView, FavoritesView, WatchedView, EhSettingView); 74 direct `isHittable`
+  reads in 18 UI test files, the Duo's among them; the screenshot check's in-test recapture
+  (`HostedWindowCapture`), which is a retry of its own kind.
 
 Phase 20 merged this state from `main` on 2026-11-11 (OQ-F, owner msg 3346) and carries on below.
 
