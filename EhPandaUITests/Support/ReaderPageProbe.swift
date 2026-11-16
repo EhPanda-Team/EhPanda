@@ -177,6 +177,34 @@ struct ReaderPageProbe {
         throw ProbeFailure()
     }
 
+    /// Waits for the indicator alone to name a page that satisfies `condition`, and returns that page: the wait for
+    /// a reader that auto-play is turning.
+    ///
+    /// `requirePage` cannot wait there. It reads the indicator and then the screen, and auto-play at its shortest
+    /// interval leaves less than a second of rest between two turns. On a loaded machine one reading takes longer
+    /// than that, so a reading meets the pager in mid-turn, the indicator already on the next page and that page
+    /// still sliding in (2026-11-15, five clones: 15 seconds of readings found the two in agreement not once). The
+    /// indicator says that auto-play turned the pages; whether it names the page shown is read with `requirePage`
+    /// once auto-play has stopped and the reader rests.
+    @discardableResult
+    func requireIndicatedPage(
+        _ expectation: String,
+        where condition: (Int) -> Bool,
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) throws -> Int {
+        var indicated: Int?
+        let reached = Polling.wait {
+            indicated = indicatedPage()
+            return indicated.map(condition) ?? false
+        }
+        guard reached, let indicated else {
+            XCTFail("\(expectation): the indicator names \(Self.describe(indicated)).", file: file, line: line)
+            throw ProbeFailure()
+        }
+        return indicated
+    }
+
     /// Waits for the indicator and the screen to agree on `page`, for the page's load to fail, and for the number of
     /// its failure placeholder to hold still between two screenshots, and returns the number's frame in points on the
     /// screen. The number lies in a fixed place on the page, so two placements of the page that put the number in one
