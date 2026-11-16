@@ -255,6 +255,54 @@ Phase 17 was: the executed work is verified and the rest is recorded as deferred
   reference, not pass unseen; whether a matrix result has failed that way was not looked for.
   `StepBudgetTests.testTheDialogStepLooksForItsWholeAllowanceAfterTheMainThreadStops` still asks for a stall of
   11 or 12 s and more than 50 looks; it has not failed on a hosted runner and is unchanged.
+- **Tests that ran in no workflow, 2026-11-16** (on `fix/snapshot-precheck`, at the owner's word): the tests no
+  workflow ran were sorted by what a run of them needs, and those a hosted runner can run were given one. No test
+  moved between targets. Commits `49094a6d9`, `9fad2604a`, `c00870b40`, `048fa7def` and `aab62d057`, local.
+  `Lint` runs the tests of every directory under `Scripts` and `actions-tool` that holds a `test_*.py`, found and
+  not listed, then the cookie-logging audit after the audit's own fixtures. Before, 250 tests of `Scripts/visual`
+  and the 27 of `Scripts/live-check` ran in no workflow, the release tooling's ran on pull requests to `main`
+  only, and the audit ran nowhere. Here: 776 tests in 198 s with the system's Python (`Scripts/lint` 24,
+  `Scripts/live-check` 27, `Scripts/ui-tests` 20, `Scripts/visual` 435, `actions-tool/tests` 270), and again
+  with no git identity configured.
+  `FeatureTests` holds the `LiveCheckTests` target and skips its three classes that wait for the live-check
+  opt-in: `DailyLiveCheckTests` and `RunnerProbeTests` read the site, and the four tests of `ProbeReportTests` are
+  held to the opt-in on purpose and stay with the probe. Here: 11 passed, none skipped.
+  `UITests-iPad.xctestplan` selects the nine cases only an iPad runs and sets `EHPANDA_IPAD_UI_TESTS` itself.
+  `ui-tests.yml` runs `UITests` on the iPhone and `UITests-iPad` on the iPad every night, by hand and on a push to
+  `ci/ui-tests`. It blocks nothing. `Scripts/ui-tests/report.py` writes each job's summary: what failed, what
+  passed only on a retry, and every skip. A skip must be accounted for by name, by the iPad plan or by
+  `Scripts/ui-tests/local-only.json` (the Duo's cases, with reasons), and a name that matches no test fails the
+  job, so a test cannot stop running by a gate or a rename unnoticed. Parallel testing stays as the plans set it:
+  a serial run needs the owner's approval, and none was asked for.
+  Run here with the workflow's own steps, on the screenshot check's pinned devices made by its helper (iOS 27.0),
+  built with this Mac's Xcode. The iPad lane twice: 9 passed, none skipped. The iPhone lane three times, 151
+  tests each, 21 skipped and every skip accounted for (12 local only, 9 by the iPad plan):
+  run 1, 129 passed and 1 failed, 2 passed only on a retry; run 2, 129 passed and 1 failed, 1 passed only on a
+  retry; run 3, 130 passed, no retry. Each took 28 to 37 minutes on five clones. The lint gate over every
+  target, the new plan among them: nothing found.
+  Run 1's failure was an order dependence, fixed in `048fa7def`:
+  `ReaderSliderPreviewUITests.testHoldingTheThumbShowsThePreview` failed three attempts of three on the clone
+  where a `ReadingOrientationUITests` case had ended right to left. The direction persists between launches, and
+  on a mirrored slider XCTest's adjustment leaves the thumb where it is. A probe that left the reader right to
+  left read the thumb at 0.006 before and after the adjustment and saw no preview; with the direction stated
+  first, 0.55 and the preview. The cases now state their direction and assert that the thumb reached the middle.
+  Run 2's failure is the toast case recorded above (one failure in 32 runs then), not fixed:
+  `DeepLinkSchemeUITests.testMalformedLinkColdLaunchShowsErrorToast` failed three attempts of three ("The
+  malformed-link toast was not tappable"), and the warm case once before it passed. Four failed reads in a row
+  on one clone inside 80 s, each taking 0.9 to 2.1 s where the passing read took 0.26 s; the recordings show the
+  toast at rest and on top in all four. So it is not one wrong read in 32 as counted before: on some clone and
+  for a while every read fails. What sets that off is not known, and the case is unchanged. Runs 1 and 3 passed
+  it at once.
+  Passed only on a retry in run 1 and not looked into:
+  `DetailNavigationTitleUITests.testTitleFollowsHeaderVisibilityAtAX3` ("The header actions are still visible.")
+  and `GalleryCardUITests.testFrontPageGridKeepsRatings` (hittability of Show All could not be determined).
+  Not verified: no hosted run of `ui-tests.yml`, nor of `Lint` and `Test` with these changes. A schedule and a
+  dispatch read the default branch's copy of a workflow, so the nightly starts once this is merged there; a push
+  to `ci/ui-tests` runs it before that. How long the iPhone's job takes on a hosted runner is not known, nor
+  whether its clones overload the runner the way two overloaded the screenshot check's.
+  Left as they were: the Duo classes have no plan (a posed simulator and a serial run); `VisualSnapshotTests` is
+  still one target for the matrix, the support's own tests and the probes; the capture tooling's and the other
+  local-only suites stay local.
 
 Phase 20 merged this state from `main` on 2026-11-11 (OQ-F, owner msg 3346) and carries on below.
 
