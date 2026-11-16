@@ -759,9 +759,10 @@ jobs:
           echo "XCTESTRUN=$(ls "$RUNNER_TEMP"/Products/*UITests*.xctestrun | head -1)" >> "$GITHUB_ENV"
       # Run 42577585956: the iPhone's test runner never finished bootstrapping and no test ran (3 minutes). A run the
       # simulator lost that way (Scripts/visual/snapshot_infra.py) is made once more on the same device; a run whose
-      # tests failed is not. Each attempt starts at Large, whatever text size an earlier one left behind, and a
-      # failing test runs at most twice: the plan's three iterations, at up to 20 minutes each, would outrun the
-      # step. The logs and result bundles are uploaded.
+      # tests failed is not. Each attempt starts at Large, whatever text size an earlier one left behind. Every test
+      # runs once: the plan carries no retry and none is passed here, so a test that fails once fails the job. Until
+      # 2026-11-16 a failing test was run a second time, and three of the four jobs that passed did so by it. The
+      # logs and result bundles of a failed job are uploaded.
       - name: Run the native visual policy tests
         id: policy
         timeout-minutes: 80
@@ -774,7 +775,6 @@ jobs:
               -xctestrun "$XCTESTRUN" \
               -destination "platform=iOS Simulator,id=$UDID" \
               -parallel-testing-enabled NO \
-              -retry-tests-on-failure -test-iterations 2 \
               -collect-test-diagnostics never \
               -resultBundlePath "$RUNNER_TEMP/policy/attempt-$1.xcresult" \
               -only-testing:EhPandaUITests/NativeVisualPolicyUITests >"$log" 2>&1 || status=$?

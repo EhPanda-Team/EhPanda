@@ -985,5 +985,32 @@ class DependencyChangesTests(unittest.TestCase):
         self.assertLess(self.steps.index(self.describe), self.steps.index(create[0]))
 
 
+class NoTestRetryTests(unittest.TestCase):
+    """No workflow runs a test a second time. A test that passes on its retry is a flaky test, and the retry hides
+    it: until 2026-11-16 the UI test plans ran a failing test up to three times and the screenshot check's policy
+    job twice, and three of that job's four passing runs passed by it. The plans' side of this is
+    Scripts/ui-tests/test_report.py."""
+
+    FLAGS = ("-retry-tests-on-failure", "-test-iterations", "-run-tests-until-failure", "-test-repetition")
+
+    def test_no_workflow_passes_a_repetition_flag(self):
+        paths = sorted(WORKFLOWS.glob("*.y*ml"))
+        self.assertGreater(len(paths), 5)
+        for path in paths:
+            text = code(path.read_text(encoding="utf-8"))
+            for flag in self.FLAGS:
+                with self.subTest(workflow=path.name, flag=flag):
+                    self.assertNotIn(flag, text)
+
+    def test_the_scripts_the_workflows_run_pass_none_either(self):
+        scripts = [path for folder in ("Scripts", "actions-tool") for path in sorted((ROOT / folder).rglob("*.sh"))]
+        self.assertGreater(len(scripts), 3)
+        for path in scripts:
+            text = code(path.read_text(encoding="utf-8"))
+            for flag in self.FLAGS:
+                with self.subTest(script=path.name, flag=flag):
+                    self.assertNotIn(flag, text)
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -325,14 +325,15 @@ class GateWorkflowTests(unittest.TestCase):
         create = next(step for step in job['steps'] if 'hosted-simulator.sh create' in step.get('run', ''))
         self.assertLessEqual(create['timeout-minutes'] + step['timeout-minutes'], JOB_LIMIT - 10)
 
-    def test_each_native_policy_attempt_starts_at_large_and_retries_a_failing_test_once(self):
-        # Hosted run 3: a test that failed at AX5 left the simulator there for the next, and the plan's three
-        # iterations of a 20-minute test outran the step.
+    def test_each_native_policy_attempt_starts_at_large_and_runs_every_test_once(self):
+        # Hosted run 3: a test that failed at AX5 left the simulator there for the next. No test is run a second
+        # time: a test that passes on its retry is a flaky test, and the retry hid three of them in four jobs.
         step = next(step for step in self.jobs['native-policy']['steps'] if step.get('id') == 'policy')
         policy = step['run'].split('policy() {', 1)[1].split('\n}', 1)[0]
         self.assertLess(policy.index('content_size large'), policy.index('xcodebuild test-without-building'))
         self.assertIn('xcrun simctl ui "$UDID" content_size large || return $?', policy)
-        self.assertIn('-retry-tests-on-failure -test-iterations 2', policy)
+        for flag in ('-retry-tests-on-failure', '-test-iterations', '-run-tests-until-failure'):
+            self.assertNotIn(flag, self.text, flag)
         self.assertIn('-collect-test-diagnostics never', policy)
 
     def test_fail_fast_is_off_on_every_matrix(self):
