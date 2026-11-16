@@ -32,9 +32,7 @@ struct ArchivesView: View {
         NavigationStack {
             sheetContent
                 .padding(.horizontal)
-                .animation(.default) {
-                    $0.visible(!store.hathArchives.isEmpty)
-                }
+                .revealed(!store.hathArchives.isEmpty)
                 .overlay {
                     LoadingView()
                         .animation(.default) {

@@ -22,9 +22,7 @@ struct AppActivityLogsView: View {
             AppActivityLogRow(log: log)
         }
         .listStyle(.plain)
-        .animation(.default) {
-            $0.visible(!store.displayedLogs.isEmpty)
-        }
+        .revealed(!store.displayedLogs.isEmpty)
         .overlay {
             LoadingView()
                 .animation(.default) {

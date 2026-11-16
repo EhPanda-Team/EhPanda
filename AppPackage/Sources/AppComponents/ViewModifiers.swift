@@ -74,6 +74,39 @@ extension View {
             .accessibilityHidden(true, isEnabled: !isVisible)
     }
 
+    /// Shows content that fills its container once `isRevealed`, by fading a cover off it rather than fading the
+    /// content in, so that the content takes touches from the moment it is revealed.
+    ///
+    /// `visible(_:)` under an animation fades a view through its opacity, and for a view that holds a UIKit view
+    /// (a `ScrollView`, a `List`) that opacity is the UIKit view's `alpha`. SwiftUI animates it away from the main
+    /// thread, and until the animation ends the value UIKit reads stays where the animation began. Fading in,
+    /// that is 0, and UIKit's hit test passes over a view whose alpha is under 0.01: a touch on content that
+    /// already looks opaque goes to whatever lies behind it and is lost. Measured on Home (iOS 27.0, 2026-11-16):
+    /// the galleries looked opaque half a second after they landed and took no touch for 1.1 to 2.2 seconds, so
+    /// 7 of 8 first taps on a section's **Show All** did nothing. With the cover, none of 8 was lost.
+    ///
+    /// The content therefore keeps its full opacity, and a cover in the background style lies over it and fades
+    /// away as `visible(_:)` would have faded the content in. Over a container's own background the two look the
+    /// same: the background style is the colour the content stands on, in light and dark, on a pushed screen and on
+    /// a sheet's raised background (Home, Detail, Archives and App Activity Logs, 2026-11-17). Whether the content
+    /// takes touches, and whether accessibility sees it, follows `isRevealed` at once.
+    ///
+    /// Use it for content that stands on its container's background and is hidden as a whole while it loads. A
+    /// view that fades beside others (a spinner, an icon, an empty-state label) keeps `visible(_:)`.
+    public func revealed(_ isRevealed: Bool) -> some View {
+        allowsHitTesting(isRevealed)
+            .accessibilityHidden(true, isEnabled: !isRevealed)
+            .overlay {
+                Rectangle()
+                    .fill(.background)
+                    .ignoresSafeArea()
+                    .allowsHitTesting(false)
+                    .animation(.default) {
+                        $0.opacity(isRevealed ? 0 : 1)
+                    }
+            }
+    }
+
     public func privacyMask() -> some View {
         modifier(PrivacyMaskModifier())
     }
