@@ -345,11 +345,14 @@ Phase 17 was: the executed work is verified and the rest is recorded as deferred
   one of 21 skips accounted for (once with a touch detector built in, which found no touch over an untouchable
   view; twice on the clean tree); UITests-iPad once, 9 passed; the hosted view tests five times; the script tests
   (799) and the lint of every touched module.
-  Not verified: no hosted run of either change. The policy job (`012fb31b6`) has run nowhere without its retry,
-  which three of its four passing hosted jobs had needed; the wait for a resting control covers one of those
-  failures, and the job can fail until a hosted run shows the others hold. The nightly's hosted trial (run
-  43829748359) did not finish as designed: the iPad job took 64 minutes with failures on two clones, and the
-  iPhone job was cut after 77 minutes.
+  Pushed at the owner's word (`8ffd7e18c..40bf90ee6`). Hosted on `40bf90ee6`: `Lint` 43939934522 and `Test`
+  43939934306 passed; `Test` ran 2128 tests in 25 bundles with none lost, the two hosted view tests above among
+  them, 2 more than its run before.
+  Not verified: no hosted run of the UI plans or of the policy job without retries. The policy job (`012fb31b6`)
+  has run nowhere without its retry, which three of its four passing hosted jobs had needed; the wait for a
+  resting control covers one of those failures, and the job can fail until a hosted run shows the others hold.
+  The nightly's hosted trial (run 43829748359) did not finish as designed: the iPad job took 64 minutes with
+  failures on two clones, and the iPhone job was cut after 77 minutes.
   Open, for the owner: the same fade in floating views that a cover cannot hide, the toast (untouchable 0.1 to
   0.7 s after it shows; its case now waits for it) and the reader's control panel (0.7 to 1.0 s), and the
   `.transition(.opacity)` sites (RootView, FavoritesView, WatchedView, EhSettingView); 74 direct `isHittable`
