@@ -867,5 +867,79 @@ class ScriptTestsTests(unittest.TestCase):
                          {"push": {"branches": ["**"]}, "workflow_dispatch": None})
 
 
+@unittest.skipUnless(RUBY, "ruby is not installed")
+class UITestsWorkflowTests(unittest.TestCase):
+    """ui-tests.yml: the UI tests every night and by hand, on the iPhone and the iPad, reporting and blocking
+    nothing."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.path = WORKFLOWS / "ui-tests.yml"
+        cls.document = load(cls.path)
+        cls.text = code(cls.path.read_text(encoding="utf-8"))
+
+    def test_it_starts_at_night_by_hand_and_on_its_trial_branch(self):
+        triggers = self.document.get("on", self.document.get(True, self.document.get("true")))
+        self.assertEqual(set(triggers), {"schedule", "workflow_dispatch", "push"})
+        self.assertEqual(len(triggers["schedule"]), 1)
+        self.assertRegex(triggers["schedule"][0]["cron"], r"^\d+ \d+ \* \* \*$")
+        self.assertEqual(triggers["push"], {"branches": ["ci/ui-tests"]})
+
+    def test_each_device_runs_its_own_plan_and_accounts_for_its_skips(self):
+        self.assertEqual(self.document["jobs"]["run"]["strategy"]["matrix"]["include"], [
+            {"family": "iphone", "plan": "UITests",
+             "accounting": "--elsewhere UITests-iPad.xctestplan --local-only Scripts/ui-tests/local-only.json"},
+            {"family": "ipad", "plan": "UITests-iPad", "accounting": "--expect UITests-iPad.xctestplan"},
+        ])
+        for word in self.document["jobs"]["run"]["strategy"]["matrix"]["include"][0]["accounting"].split():
+            if not word.startswith("--"):
+                self.assertTrue((ROOT / word).is_file(), word)
+
+    def test_both_plans_are_built_once_and_run_without_building(self):
+        build = code(step_named(self.document, "Build for testing")["run"])
+        self.assertIn("for plan in UITests UITests-iPad; do", build)
+        self.assertIn('-testPlan "$plan"', build)
+        run = code(step_named(self.document, "Run the UI tests")["run"])
+        self.assertIn("xcodebuild test-without-building", run)
+        self.assertIn('-xctestrun "$XCTESTRUN"', run)
+        self.assertIn('"${SCHEME_NAME}_${PLAN}"_*.xctestrun', step_named(self.document, "Create the simulator")["run"])
+
+    def test_nothing_caps_parallel_testing(self):
+        # Tests run in parallel unless the owner approved a serial run for the invocation concerned (AGENTS.md).
+        for flag in ("-parallel-testing-enabled", "-parallel-testing-worker-count",
+                     "-maximum-parallel-testing-workers", "-disable-concurrent-destination-testing"):
+            self.assertNotIn(flag, self.text)
+
+    def test_a_lost_run_is_made_once_more_and_a_failed_one_is_not(self):
+        run = code(step_named(self.document, "Run the UI tests")["run"])
+        self.assertEqual(run.count("attempt 1 || status=$?"), 1)
+        self.assertEqual(run.count("attempt 2 || status=$?"), 1)
+        self.assertIn('snapshot_infra.py --status "$status" "$RUNNER_TEMP/ui/xcodebuild-1.log"', run)
+        self.assertLess(run.index("snapshot_infra.py --status"), run.index("attempt 2 || status=$?"))
+
+    def test_the_report_is_made_after_a_failed_run_too_and_can_fail_the_job(self):
+        report = step_named(self.document, "Report")
+        self.assertIn("always()", report["if"])
+        run = code(report["run"])
+        self.assertIn("python3 Scripts/ui-tests/report.py", run)
+        # The summary's copy ends the pipeline, and a pipeline's status is its last command's unless told otherwise.
+        self.assertLess(run.index("set -euo pipefail"), run.index('| tee -a "$GITHUB_STEP_SUMMARY"'))
+        self.assertNotIn("|| true", run)
+        self.assertNotIn("continue-on-error", self.text)
+
+    def test_it_reads_the_repository_and_nothing_else(self):
+        self.assertEqual(self.document["permissions"], {})
+        for name, job in self.document["jobs"].items():
+            with self.subTest(job=name):
+                self.assertEqual(job["permissions"], {"contents": "read"})
+        self.assertNotIn("secrets.", self.text)
+
+    def test_no_other_workflow_waits_for_it(self):
+        for path in sorted(WORKFLOWS.glob("*.y*ml")):
+            if path.name != "ui-tests.yml":
+                with self.subTest(workflow=path.name):
+                    self.assertNotIn("ui-tests.yml", code(path.read_text(encoding="utf-8")))
+
+
 if __name__ == "__main__":
     unittest.main()
