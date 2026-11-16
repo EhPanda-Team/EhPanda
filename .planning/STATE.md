@@ -245,8 +245,10 @@ Phase 17 was: the executed work is verified and the rest is recorded as deferred
   run took 95 s or more where the case takes 4 to 20. The fixture's field has no clear button now, and a failed
   read names the region that differs in place of printing both pictures.
   Run here on a temporary iOS 27.0 iPhone Air simulator: the three classes five times, 90 of 90; the whole
-  `VisualSnapshotTests` target, 126 passed and 141 skipped; the lint gate over every target, nothing found. No
-  hosted run yet: the commits are local.
+  `VisualSnapshotTests` target, 126 passed and 141 skipped; the lint gate over every target, nothing found.
+  Pushed on 2026-11-16 at the owner's word. Hosted `Test` 43788465772 passed: 2115 tests in every bundle, 1965
+  passed, none failed, 141 skipped, 9 expected failures. Hosted `Lint` 43788465791 passed. The caret case took
+  16 s in that run, so the long stop behind its earlier failures did not occur there.
   Open: why a long stop makes the clear button late is not known. Sixteen to twenty busy loops did not reproduce
   it, nor did pausing the simulator's render server or its keyboard process for 30 s. The matrix's capture reads
   a window until two reads agree over 500 ms, so a button drawn later would fail the comparison with the
