@@ -21,6 +21,8 @@ final class DetailRowSnapUITests: XCTestCase {
             }
         }
 
+        /// A snapshot's attributes belong to the main actor, and a nested type does not take the class's isolation.
+        @MainActor
         func isItem(_ element: any XCUIElementSnapshot) -> Bool {
             switch self {
             case .previews: element.elementType == .button && element.label.hasPrefix("Page ")

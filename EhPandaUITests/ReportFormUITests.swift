@@ -55,16 +55,18 @@ final class ReportFormUITests: XCTestCase {
     private static let reportPageURL =
         "https://e-hentai.org/g/\(UITestConstants.primaryGID)/\(UITestConstants.primaryToken)/?report=select"
 
-    private var requestLogURL: URL!
+    /// This case's own request log: XCTest makes one instance of the class for each test method. A constant, so
+    /// that the set-up and tear-down overrides, which XCTest declares outside the main actor, never write main-actor
+    /// state and may read it.
+    private let requestLogURL = FileManager.default.temporaryDirectory
+        .appending(path: "report-form-requests-\(UUID().uuidString).log")
 
     override func setUpWithError() throws {
         continueAfterFailure = false
-        requestLogURL = FileManager.default.temporaryDirectory
-            .appending(path: "report-form-requests-\(UUID().uuidString).log")
     }
 
     override func tearDownWithError() throws {
-        if let requestLogURL, FileManager.default.fileExists(atPath: requestLogURL.path()) {
+        if FileManager.default.fileExists(atPath: requestLogURL.path()) {
             try FileManager.default.removeItem(at: requestLogURL)
         }
     }
