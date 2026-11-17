@@ -758,7 +758,7 @@ public actor DownloadCoordinator {
     var runProgressBases = [String: RunProgressBasis]()
 
     /// What Verify Images' full fresh scan found when it refused to blank a whole gallery because
-    /// EVERY claimed page was positively absent (B1, product lead's EhPanda msg 2903).
+    /// EVERY claimed page was positively absent (B1, product lead's decision).
     ///
     /// It is evidence, never an act: validation alone still blanks nothing wholesale (G-15-2G). A
     /// later stop (`commitPause`, for a run before its announcement or a gallery still queued) may

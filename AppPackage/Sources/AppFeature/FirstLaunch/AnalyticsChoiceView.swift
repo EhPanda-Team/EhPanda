@@ -10,7 +10,7 @@ import SwiftUI
 /// Privacy Policy link, then the three levels in the order Minimal, Basic, Full, none selected, and Continue dimmed
 /// until one is picked.
 ///
-/// The intro is `consent.body` and `consent.footer` as one paragraph in one `Text` (D-06g, owner msg 1898); both
+/// The intro is `consent.body` and `consent.footer` as one paragraph in one `Text` (D-06g, owner decision); both
 /// strings stay as approved and only the separator between them depends on the language. Basic carries the
 /// "Recommended" label but is not pre-selected (D-06f). Nothing sits under the cards. The title is a
 /// `FirstLaunchTitle`, which wraps freely and keeps a single word off its last line (UI-SPEC C-3).

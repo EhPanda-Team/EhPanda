@@ -47,9 +47,9 @@ key-files:
     - AppPackage/Tests/AppFeatureTests/FirstLaunchGateTests.swift
 
 key-decisions:
-  - "The Blocked Users empty-state title carries the widow guard (lead msg 1900, as in 18-09). Its last two words are joined with U+00A0 when the pair fits the measured width in bold `.title3` at the current Dynamic Type size; otherwise the title is left as is. The catalog string, the visible words and the VoiceOver label are unchanged. There is no `\\n`, scaling, line limit or fixed width"
+  - "The Blocked Users empty-state title carries the widow guard (lead decision, as in 18-09). Its last two words are joined with U+00A0 when the pair fits the measured width in bold `.title3` at the current Dynamic Type size; otherwise the title is left as is. The catalog string, the visible words and the VoiceOver label are unchanged. There is no `\\n`, scaling, line limit or fixed width"
   - "`TitleWidowGuard` and the resolved-language lookup (now `ResolvedAppLanguage`) moved from AppFeature to AppComponents, so SettingFeature can use them without depending on AppFeature. A width-and-font overload and a bold text-style font helper keep each call site to one line"
-  - "Accepted exception (lead, same principle as owner msg 1903): on the iPhone at AX5 the en empty-state title ends on \"anyone.\" and the de title on \"blockiert.\". In both, the last two words are wider than the line, so no layout within C-3 can join them"
+  - "Accepted exception (lead, same principle as an owner decision): on the iPhone at AX5 the en empty-state title ends on \"anyone.\" and the de title on \"blockiert.\". In both, the last two words are wider than the line, so no layout within C-3 can join them"
   - "`comment.unblock` (\"Unblock %@\") is copied into the SettingFeature catalog with its six existing translations, word for word, because the DetailFeature catalog that holds it is not reachable from SettingFeature"
   - "The Blocked Users list draws the grouped background itself (`scrollContentBackground(.hidden)` with `systemGroupedBackground`). An empty `List` draws none, so the screen would otherwise turn white when the last name is unblocked (C-12 switches in place)"
   - "Picking the level that is already selected does nothing: no write and no `apply`"
@@ -87,7 +87,7 @@ coverage:
         ref: "BlockedUsersTitleLayoutUITests on phone and pad: 6/6 passed on each, 12 screenshots exported per device"
         status: pass
       - kind: visual
-        ref: "24-row table below: 22 pass, 2 phone-AX5 rows accepted by the lead (same principle as owner msg 1903)"
+        ref: "24-row table below: 22 pass, 2 phone-AX5 rows accepted by the lead (same principle as an owner decision)"
         status: pass
     human_judgment: true
 
@@ -108,8 +108,8 @@ apart from two phone-AX5 cases the lead accepted.**
 - **Analytics in General (C-9, D-07):**
   - A menu `Picker` labelled `shareAnalyticsData` over Minimal, Basic and Full. It shows no Recommended label, which
     belongs to the first-launch choice only (D-06f).
-  - The footer is the selected level's description: Minimal from msg 1818, Basic and Full from Revision 6
-    (msg 1880).
+  - The footer is the selected level's description: Minimal, Basic and Full from Revision 6
+.
   - A Privacy Policy row (`consent.privacy_link`) opens `contact.privacy_policy` in the browser. The final URL is
     Phase 20's (OI-2).
   - `shareAnalyticsDataFooter` is gone from the code and the catalog.
@@ -172,9 +172,9 @@ The phone is the iPhone Air (FFE7E686) and the pad is the iPad Pro 11" (B470DB46
 | # | Device | Locale | Size | Title's last line | Result |
 |---|--------|--------|------|-------------------|--------|
 | 1 | phone | en | default | You haven't blocked anyone. (one line) | pass |
-| 2 | phone | en | AX5 | anyone. | accepted (lead, same principle as owner msg 1903) |
+| 2 | phone | en | AX5 | anyone. | accepted (lead, same principle as an owner decision) |
 | 3 | phone | de | default | Du hast niemanden blockiert. (one line) | pass |
-| 4 | phone | de | AX5 | blockiert. | accepted (lead, same principle as owner msg 1903) |
+| 4 | phone | de | AX5 | blockiert. | accepted (lead, same principle as an owner decision) |
 | 5 | phone | ko | default | 차단한 사용자가 없습니다. (one line) | pass |
 | 6 | phone | ko | AX5 | 없습니다. | pass |
 | 7 | phone | ja | default | ブロックしたユーザーはいません。 (one line) | pass |
@@ -215,7 +215,7 @@ outside C-3's in-content titles, and was left as it is.
    with it. `FirstLaunchLanguage` is now `ResolvedAppLanguage`. 18-09's behaviour is unchanged, and its UI suites
    pass again on both devices.
 3. **Two phone-AX5 rows accepted rather than passing** (rows 2 and 4). The lead accepted them under the same
-   principle as owner msg 1903 and is telling the owner.
+   principle as an owner decision and is telling the owner.
 4. **Grouped background on the Blocked Users list**, so the empty state does not sit on white (C-12).
 5. **`comment.unblock` copied into the SettingFeature catalog** with its six existing translations, unchanged.
 

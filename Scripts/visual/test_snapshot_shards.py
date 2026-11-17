@@ -121,7 +121,7 @@ class SnapshotShardsTests(unittest.TestCase):
         self.assertEqual(snapshot_shards.split(seconds, costs), {'iphone': 36, 'ipad': 36})
 
     def test_a_shard_is_about_half_an_hour_to_three_quarters_and_the_run_has_72_of_them(self):
-        # Owner msg 5033: shorter shards lose less to a cut. The fixed cost per shard (9 minutes to boot and fetch,
+        # Owner decision: shorter shards lose less to a cut. The fixed cost per shard (9 minutes to boot and fetch,
         # 2.3 per invocation) puts the floor of an iPhone shard, one orientation of one configuration, at about 42
         # estimated minutes; an iPad shard, one process, is about 26 to 29.
         plan = json.loads(snapshot_shards.compute())

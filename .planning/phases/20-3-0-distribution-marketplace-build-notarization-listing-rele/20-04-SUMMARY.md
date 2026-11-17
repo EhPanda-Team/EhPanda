@@ -90,7 +90,7 @@ and build number, runs the tests, signs the marketplace build, verifies and uplo
 Notarization version and submits it through `asc.py`. The call record is always uploaded and the signing material
 always removed. All of it is tested offline. Nothing contacted Apple, and the workflow was not dispatched.**
 
-> **Renamed later (owner msg 4895, full names only):** the secret and variable names below are the old ones. The current ones are in the `deploy-pal.yml` header: `APP_STORE_CONNECT_KEY_ID`, `APP_STORE_CONNECT_ISSUER_ID`, `APP_STORE_CONNECT_PRIVATE_KEY`, `DISTRIBUTION_CERTIFICATE`, `DISTRIBUTION_CERTIFICATE_PASSWORD`, `PROVISIONING_PROFILE_APP`, `PROVISIONING_PROFILE_SHARE_EXTENSION`, `APPLE_TEAM_ID`; variables `ALTSTORE_PAL_MARKETPLACE_ID`, `APP_STORE_CONNECT_KEY_ROLE`.
+> **Renamed later (owner decision, full names only):** the secret and variable names below are the old ones. The current ones are in the `deploy-pal.yml` header: `APP_STORE_CONNECT_KEY_ID`, `APP_STORE_CONNECT_ISSUER_ID`, `APP_STORE_CONNECT_PRIVATE_KEY`, `DISTRIBUTION_CERTIFICATE`, `DISTRIBUTION_CERTIFICATE_PASSWORD`, `PROVISIONING_PROFILE_APP`, `PROVISIONING_PROFILE_SHARE_EXTENSION`, `APPLE_TEAM_ID`; variables `ALTSTORE_PAL_MARKETPLACE_ID`, `APP_STORE_CONNECT_KEY_ROLE`.
 
 ## Performance
 
@@ -188,7 +188,7 @@ See `key-decisions`.
 
 - **PAL template copy (D-25), carried over from 20-03.** `actions-tool/altstore-pal.template.json` still has the
   Classic subtitle and description, including the source subtitle "Over a million adult comics and doujinshi".
-  20-10 replaces both with the copywriter's PAL copy (copywriter msg 2785, pending the owner's approval at 20-10). It
+  20-10 replaces both with the copywriter's PAL copy (copywriter, pending the owner's approval at 20-10). It
   also updates `test_the_pal_template_has_the_classic_metadata` in `test_source_templates.py` to match. This must
   happen before 20-08 publishes.
 - **Upload without `-allowProvisioningUpdates` is unproven.** `xcodebuild -help` documents the

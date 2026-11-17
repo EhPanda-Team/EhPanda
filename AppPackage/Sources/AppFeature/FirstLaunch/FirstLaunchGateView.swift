@@ -48,8 +48,8 @@ struct FirstLaunchGateView: View {
 }
 
 /// One first-launch screen's frame (UI-SPEC C-1): a scrolling column capped at 560pt with 24pt margins, and the
-/// screen's Continue (with anything under it) in a bar pinned to the bottom at every text size (D-17b, owner msg
-/// 1903), so Continue is one tap away without scrolling. The last scroll item ends 24pt above the bar.
+/// screen's Continue (with anything under it) in a bar pinned to the bottom at every text size (D-17b, owner
+/// decision), so Continue is one tap away without scrolling. The last scroll item ends 24pt above the bar.
 ///
 /// The top padding reads only the horizontal size class, never the device. `identifier` names the scroll view, for
 /// UI tests.
@@ -107,10 +107,10 @@ private extension View {
 }
 
 /// A first-launch screen's title (UI-SPEC C-2, C-3): bold `.title`, centred, wrapping freely, with no line break,
-/// scaling, line limit or fixed width (owner msg 1822).
+/// scaling, line limit or fixed width (owner decision).
 ///
 /// SwiftUI pulls a word down to keep a single word off the last line in English but not in German, so the title
-/// carries `TitleWidowGuard` (lead msg 1900): it joins the last two words with a no-break space when they fit on one
+/// carries `TitleWidowGuard` (lead decision): it joins the last two words with a no-break space when they fit on one
 /// line at the current width and text size. The catalog string and the visible words are unchanged, and VoiceOver
 /// reads the string as written.
 struct FirstLaunchTitle: View {

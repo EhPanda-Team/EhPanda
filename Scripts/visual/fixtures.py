@@ -29,8 +29,8 @@ TOPLISTS = ('yesterday', 'pastMonth', 'pastYear', 'allTime')
 DOWNLOAD_STATUSES = {'active': 0, 'queued': 1, 'updateAvailable': 2, 'error': 3, 'inactive': 4, 'completed': 5}
 COMPLETE_DOWNLOADS = ('updateAvailable', 'completed')
 # Optional download entry flags, each only ever true. `mockPages`: a complete download whose folder holds none of its
-# page images, only its record and status; nothing may open it (owner msg 5113). `allowedRepeat`: the gallery may
-# also be visible on another screen of the set (owner msgs 5109, 5110).
+# page images, only its record and status; nothing may open it (owner decision). `allowedRepeat`: the gallery may
+# also be visible on another screen of the set (owner decision).
 DOWNLOAD_FLAGS = ('mockPages', 'allowedRepeat')
 # Setting.prefetchLimit's default: how many pages around a built page the reader resolves ahead of time.
 PREFETCH_LIMIT = 10
@@ -171,7 +171,7 @@ def screen_occurrences(scene, context='Scene'):
 
 
 def home_repeats(scene, context='Scene'):
-    """The galleries Home may show in two sections, once visibly and once out of sight (owner msgs 5099, 5103).
+    """The galleries Home may show in two sections, once visibly and once out of sight (owner decision).
 
     A repeat is declared rather than inferred, so an accidental repeat still fails; the capture checks that no
     declared gallery is visible twice.
@@ -444,7 +444,7 @@ def identity(text, gid, token):
 def download_pages(entry, page_count):
     """The pages a download entry's folder holds: every page of a complete one, the first completedPages of another.
 
-    A mocked complete download holds none: the capture seeds only its record and status (owner msg 5113).
+    A mocked complete download holds none: the capture seeds only its record and status (owner decision).
     """
     if entry.get('mockPages'):
         return set()

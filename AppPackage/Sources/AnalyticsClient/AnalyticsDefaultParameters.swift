@@ -28,7 +28,7 @@ enum AnalyticsDefaultParameters {
         didLogin: Bool,
         distributionChannel: DistributionChannel = .current
     ) -> [String: String] {
-        // The channel rides on every SDK signal at Basic and Full (20-12 §3, owner msg 2842). Minimal's
+        // The channel rides on every SDK signal at Basic and Full (20-12 §3, owner decision). Minimal's
         // description already says where the app came from, and Basic begins "Everything in Minimal", so
         // no description changes. Minimal itself never starts the SDK, so nothing is added there.
         let channel = ["App.distributionChannel": distributionChannel.rawValue]

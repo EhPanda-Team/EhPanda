@@ -106,7 +106,7 @@ public enum LoginFailureKind: String, CaseIterable, Equatable, Sendable {
 /// How a report of a comment ended, as the Report form saw it (20-12).
 ///
 /// There is no reason beside it: the owner chose that the signal says only how the report ended
-/// (owner msg 2837), so the Basic description needs no change. A form closed without a result is not
+/// (owner decision), so the Basic description needs no change. A form closed without a result is not
 /// a case, because closing is not an action the reducer sees.
 public enum ReportOutcome: String, CaseIterable, Equatable, Sendable {
     /// The site accepted the report.

@@ -1,6 +1,6 @@
 # Phase 17: WR-01 rebuild-during-turn check
 
-**Date:** 2026-11-05 · **Source:** `b5eca09d1` · **Run by:** agent (owner rule msg 1652) · **Harness:**
+**Date:** 2026-11-05 · **Source:** `b5eca09d1` · **Run by:** agent (owner rule) · **Harness:**
 throwaway XCUITest class `ZZUAT17WR01UITests` (`testWR01RebuildMidTurn`, `testWR01NegativeControl`), not
 committed. The throwaway harness is preserved outside the repo for Phase 18 Step 4b, which adds the real
 committed tests.

@@ -1,5 +1,5 @@
 name: Snapshot gate
-# The full screenshot check (19-10; 19-CONTEXT D-15 and owner msg 2263's amendment, D-16, D-19; 19-RESEARCH §5).
+# The full screenshot check (19-10; 19-CONTEXT D-15 and owner's amendment, D-16, D-19; 19-RESEARCH §5).
 #
 # One build feeds 72 shards (Scripts/visual/snapshot-shards.json, one device, one configuration and one orientation
 # each: about 42 estimated minutes on an iPhone, 26 to 29 on an iPad), which GitHub runs as many at a time as the

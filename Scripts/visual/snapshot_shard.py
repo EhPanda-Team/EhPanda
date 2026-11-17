@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""The shard runner's bookkeeping (19-10; 19-CONTEXT D-15, owner msg 2263; 19-RESEARCH §4, §5).
+"""The shard runner's bookkeeping (19-10; 19-CONTEXT D-15, owner decision; 19-RESEARCH §4, §5).
 
 `Scripts/visual/run-shard.sh` runs one entry of `snapshot-shards.json` and asks this script for:
 

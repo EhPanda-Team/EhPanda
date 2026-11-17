@@ -1,7 +1,7 @@
 /// A comment author the user blocked (DD-10, D-13), held in `@Shared(.blockedCommentUsers)`.
 ///
 /// The block is keyed by the poster's E-Hentai member ID, the digits of the forum contact link the site prints after
-/// every comment author's name, because a display name can change and the ID cannot (owner msg 1918). `name` is the
+/// every comment author's name, because a display name can change and the ID cannot (owner decision). `name` is the
 /// display name the author was last seen under, kept for the Blocked Users list; matching never reads it.
 public struct BlockedCommentUser: Codable, Equatable, Hashable, Identifiable, Sendable, SchemaVersioned {
     /// This model's schema history (oldest → newest); see `SchemaVersioned` / `VersionedSchema`.

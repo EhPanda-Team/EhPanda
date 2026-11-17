@@ -2,9 +2,9 @@
 """Reads a release's notes file and writes the notes for each place a release is announced.
 
 Each release has one committed file, `ReleaseNotes/<version>.md`, where <version> is the version
-the release is tagged with (owner msgs 2564, 2567, 2569). The format is described in
+the release is tagged with (owner decision). The format is described in
 `ReleaseNotes/README.md`: the first line is `# <release title>`, the GitHub release's title (owner
-msg 4620), then one `## ` section per language, all six, in this order and with exactly these headings:
+decision), then one `## ` section per language, all six, in this order and with exactly these headings:
 
     ## English
     ## Deutsch
@@ -59,7 +59,7 @@ LINK_ALLOWANCE = 200
 # The GitHub release's title is one short line.
 TITLE_LIMIT = 100
 VERSION = re.compile(r"^\d+\.\d+\.\d+$")
-# AltStore and SideStore show the notes as they are, so items are plain lines (owner msg 2591).
+# AltStore and SideStore show the notes as they are, so items are plain lines (owner decision).
 # GitHub and Discord render Markdown; Telegram is sent as plain text, so its items start with a bullet character.
 MARKDOWN_BULLET = "-"
 TELEGRAM_BULLET = "•"
@@ -196,7 +196,7 @@ def last_link(text):
 
 
 def telegram(notes, url):
-    # No language is named (owner msg 2582). A link both languages end with is shown once, after 繁體中文.
+    # No language is named (owner decision). A link both languages end with is shown once, after 繁體中文.
     english, chinese = without_link(notes["en"], url), without_link(notes["zh-Hant"], url)
     shared = last_link(english)
     if shared and shared == last_link(chinese):

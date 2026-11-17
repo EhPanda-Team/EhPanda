@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""The deterministic shard plan the CI gate reads (19-CONTEXT D-15, owner msg 2263; 19-RESEARCH §5, §9).
+"""The deterministic shard plan the CI gate reads (19-CONTEXT D-15, owner decision; 19-RESEARCH §5, §9).
 
 A unit is one test process: a `<locale>-<size>` configuration in one orientation. An iPad process captures only the
 orientation the device was turned to before launch (19-01-MEASURE.md); an iPhone process turns itself, and

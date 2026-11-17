@@ -1,4 +1,4 @@
-"""AltStore.json as AltStore and SideStore read it (owner msg 2561; copy from Camo msg 2563)."""
+"""AltStore.json as AltStore and SideStore read it (owner decision; copy from Camo)."""
 
 import json
 import pathlib
@@ -41,11 +41,11 @@ class AltStoreJsonTests(unittest.TestCase):
     def test_a_language_ehpanda_does_not_have_falls_back_to_english(self):
         # AltStore finds no key, so it reads the plain field, which is English.
         self.assertIsNone(languages.localized_value(APP["localizedDescriptions"], ["fr-FR"]))
-        # Checked against the English entry, not a fixed text, so the copy can change (msg 2606).
+        # Checked against the English entry, not a fixed text, so the copy can change.
         self.assertEqual(APP["localizedDescription"], APP["localizedDescriptions"]["en"])
 
     def test_the_source_and_the_app_share_their_subtitle_and_each_has_its_own_description(self):
-        # Owner msgs 3851 and 3869: the source's About says what the source is, the app's description what EhPanda
+        # Owner decision: the source's About says what the source is, the app's description what EhPanda
         # does (test_source_templates checks the texts). Both come in the same languages, English in the plain field.
         self.assertEqual(ALTSTORE["localizedSubtitles"], APP["localizedSubtitles"])
         self.assertEqual(list(ALTSTORE["localizedDescriptions"]), list(APP["localizedDescriptions"]))

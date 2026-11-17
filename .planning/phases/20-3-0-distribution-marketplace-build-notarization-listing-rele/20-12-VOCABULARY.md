@@ -1,7 +1,7 @@
 # 20-12: Analytics vocabulary for the 3.0 flows
 
-**Status: SIGNED OFF (OQ-E), 2026-11-09.** The product lead approved the §2 list (product lead msg 2829). The owner
-dropped the report reason (owner msg 2837, option 3-i) and chose the channel on every signal (owner msg 2842, §3
+**Status: SIGNED OFF (OQ-E), 2026-11-09.** The product lead approved the §2 list (product lead decision). The owner
+dropped the report reason (owner decision, option 3-i) and chose the channel on every signal (owner decision, §3
 option 1). OI-4 (§5, answer A) and the SC8 wording (§6) were technical calls by the developer. The sign-off table
 at the end has the details. 20-13 implements this version: §2 as amended by §4, with §3 option 1. Text kept from
 the proposal is marked where a decision changed it.
@@ -37,7 +37,7 @@ file's rule 1 requires.
 |---|------|------------------------|------|-------------------------------|--------------------------|
 | 1 | First launch (age wall + analytics choice) | `firstLaunchCompleted(level: AnalyticsLevel)` | `FirstLaunch.completed` | `Analytics.level`: `basic` / `full` | `AppFeature/DataFlow/AppReducer.swift`, `.firstLaunch(.delegate(.levelChosen(level)))`, after `analyticsClient.apply(level)` in the same effect (see note a) |
 | 2 | Analytics choice in Settings | `analyticsLevelChanged(from: AnalyticsLevel, to: AnalyticsLevel)` | `Analytics.levelChanged` | `Analytics.from`: `minimal` / `basic` / `full`; `Analytics.to`: `basic` / `full` | `SettingFeature/GeneralSetting/GeneralSettingReducer.swift`, `.analyticsLevelPicked(level)`, after `apply(level)` in the existing `.run` |
-| 3 | Report form | `commentReportOutcome(ReportOutcome)` *(signed off without the reason, §4 (3-i); proposed as `commentReportOutcome(reason: ReportReason, outcome: ReportOutcome)`)* | `Moderation.reportOutcome` | `Moderation.reportOutcome`: `sent` / `failed` / `unavailable` / `reportPageOpened`. *(`Moderation.reportReason`, `child` / `illegal` / `none`, is dropped, owner msg 2837.)* | `DetailFeature/Moderation/ReportFormFeature.swift`: `.sendResponse` (`sent`, or `failed` per failed attempt), `.loaded(nil)` (`unavailable`), `.primaryTapped` when `primaryKind == .openReportPage` and `.alert(.presented(.openReportPage))` (`reportPageOpened`) |
+| 3 | Report form | `commentReportOutcome(ReportOutcome)` *(signed off without the reason, §4 (3-i); proposed as `commentReportOutcome(reason: ReportReason, outcome: ReportOutcome)`)* | `Moderation.reportOutcome` | `Moderation.reportOutcome`: `sent` / `failed` / `unavailable` / `reportPageOpened`. *(`Moderation.reportReason`, `child` / `illegal` / `none`, is dropped, owner decision.)* | `DetailFeature/Moderation/ReportFormFeature.swift`: `.sendResponse` (`sent`, or `failed` per failed attempt), `.loaded(nil)` (`unavailable`), `.primaryTapped` when `primaryKind == .openReportPage` and `.alert(.presented(.openReportPage))` (`reportPageOpened`) |
 | 4a | Block | `commentPosterBlocked` | `Moderation.posterBlocked` | none | `DetailFeature/Moderation/CommentModeration.swift`, `.alert(.presented(.confirmBlock))` |
 | 4b | Block (unblock) | `commentPosterUnblocked(from: UnblockSurface)` | `Moderation.posterUnblocked` | `Moderation.unblockSurface`: `comment` / `blockedUsers` | `CommentModeration.swift` `.unblock` (`comment`); `SettingFeature/BlockedUsers/BlockedUsersReducer.swift` `.unblockTapped`, after its guard (`blockedUsers`) |
 | 4c | Block (show a collapsed comment) | `blockedCommentShown` | `Moderation.blockedCommentShown` | none | `CommentModeration.swift`, `.show(commentID:)` |
@@ -65,7 +65,7 @@ Notes:
 - **e. Report outcomes are the ones the reducer sees.** A swipe-down dismissal is not an action, so "closed without
   sending" is not counted. Counting it with an `onDisappear` hook would undercount in other ways. *(The proposal's
   reason values, `none` for a form that ended before a reason was picked and `illegal` for the site's `other`, are
-  gone with the reason, owner msg 2837.)*
+  gone with the reason, owner decision.)*
 - **f. The unblock surface** comes from which reducer handles it, so no moderation state has to learn where it is
   scoped. A comparable surface on Block or Show would need such a field. Not proposed.
 
@@ -78,9 +78,9 @@ rather than as text":
 > new level); and comment moderation: blocking, unblocking and showing a hidden comment, your answer to the posting
 > warning, and how a report ended (sent, failed, unavailable or opened on the site)
 
-*(Signed off without the proposal's closing words "with its reason", owner msg 2837.)*
+*(Signed off without the proposal's closing words "with its reason", owner decision.)*
 
-§3 option 1 was chosen (owner msg 2842), so the Basic section also gains one line, its own bullet after the one
+§3 option 1 was chosen (owner decision), so the Basic section also gains one line, its own bullet after the one
 above:
 
 > every event also carries where you got the app from
@@ -111,7 +111,7 @@ outside the Full-only guard).
 - Pros: no change; the smallest payload.
 - Cons: no per-channel view of anything but installs.
 
-**Decision: option 1** (owner msg 2842, "Yes, on every signal"), as recommended. It is the 18-03-SUMMARY carry
+**Decision: option 1** (owner decision, "Yes, on every signal"), as recommended. It is the 18-03-SUMMARY carry
 ("add the install source to the Basic and Full signals"), and the approved copy already covers it. 20-13 adds a
 `snapshot` case for Basic with exactly one key, and a test that Basic carries no `App.*` key other than
 `App.distributionChannel`.
@@ -142,7 +142,7 @@ explicitly. If they decide it does not, there are two ways to go:
 **Recommendation: (3-i)** unless the reason split is needed for a decision. The outcome alone shows whether the
 native form works.
 
-**Decision: (3-i)** (owner msg 2837, "No, only how it ended"). `Moderation.reportReason` is dropped, so the report
+**Decision: (3-i)** (owner decision, "No, only how it ended"). `Moderation.reportReason` is dropped, so the report
 signal carries its outcome only and no level description changes. The table above
 records signal 3 as fitting.
 
@@ -197,9 +197,9 @@ under Minimal.
 
 | Item | Decision | Approved by |
 |------|----------|-------------|
-| §2 signals | the list as proposed: 1, 2, 3, 4a, 4b, 4c, 5 (6: nothing new) | product lead msg 2829 |
-| §4 report reason | (3-i): drop `Moderation.reportReason`; the report signal carries the outcome only, and the README line loses "with its reason" | owner msg 2837 ("No, only how it ended") |
-| §3 channel default parameter | option 1: `App.distributionChannel` on every signal at Basic and Full; one README line in the Basic section | owner msg 2842 ("Yes, on every signal") |
+| §2 signals | the list as proposed: 1, 2, 3, 4a, 4b, 4c, 5 (6: nothing new) | product lead decision |
+| §4 report reason | (3-i): drop `Moderation.reportReason`; the report signal carries the outcome only, and the README line loses "with its reason" | owner decision ("No, only how it ended") |
+| §3 channel default parameter | option 1: `App.distributionChannel` on every signal at Basic and Full; one README line in the Basic section | owner decision ("Yes, on every signal") |
 | §5 OI-4 | answer A: keep both install signals; `App.installed` is the install count | technical call by the developer at sign-off |
 | §6 SC8 wording | as proposed, applied to ROADMAP Phase 20 SC8 | technical call by the developer at sign-off |
 

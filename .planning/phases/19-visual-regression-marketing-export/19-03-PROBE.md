@@ -45,7 +45,7 @@ From a residential address, all three pages are reached and parse with the app's
 
 ## Hosted run (GitHub `xcode-27` runner)
 
-- **Authority:** owner msg 2397 (answer to card msg 2246): "Yes, run the test".
+- **Authority:** owner decision (answer to the card): "Yes, run the test".
 - **Branch:** `ci/runner-probe`, one empty signed commit `23ce9a0b9` (`[skip test]`) on `72c19c3d5`; test.yml was
   skipped. The remote branch was deleted after the record, under the same go-ahead.
 - **Run:** 42433098473, job 128586078534, 2026-11-08 01:10:43 to 01:21:27 UTC (10 min 44 s, most of it the iOS

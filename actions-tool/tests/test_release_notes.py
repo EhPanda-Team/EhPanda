@@ -1,5 +1,5 @@
 """Tests for release_notes.py, which turns ReleaseNotes/<version>.md into each release destination's
-notes (owner msgs 2564, 2567, 2569, 2579, 2582)."""
+notes (owner decision)."""
 
 import json
 import pathlib
@@ -72,7 +72,7 @@ class ParseTests(unittest.TestCase):
             release_notes.parse(title + "## Deutsch" + rest + "\n## English" + english)
 
     def test_the_title_is_the_first_line(self):
-        # Owner msg 4620: the GitHub release takes everything from the notes file, its title too.
+        # Owner decision: the GitHub release takes everything from the notes file, its title too.
         self.assertEqual(release_notes.title(TEXT), "Bugfixes & search improvements")
 
     def test_the_title_is_not_part_of_any_language(self):
@@ -105,7 +105,7 @@ class ParseTests(unittest.TestCase):
         release_notes.parse("# " + "x" * 100 + "\n\n" + body)
 
     def test_a_numbered_or_bulleted_item_fails(self):
-        # AltStore shows the lines as they are, so items carry no number or bullet (owner msg 2591).
+        # AltStore shows the lines as they are, so items carry no number or bullet (owner decision).
         for line in ["1. Fixed it.", "10. Fixed it.", "1) Fixed it.", "- Fixed it.", "* Fixed it.", "• Fixed it."]:
             with self.subTest(line=line):
                 with self.assertRaisesRegex(release_notes.NotesError, "without a number or bullet"):
@@ -164,7 +164,7 @@ class DestinationTests(unittest.TestCase):
             self.assertNotIn(heading, message)
 
     def test_the_destinations_bullet_the_items_and_the_raw_notes_stay_plain(self):
-        # Owner msg 2591: AltStore and SideStore show the lines as written, so the parsed notes carry no
+        # Owner decision: AltStore and SideStore show the lines as written, so the parsed notes carry no
         # number or bullet; GitHub, Telegram and Discord bullet every line after the lead.
         for text in self.notes.values():
             for line in text.split("\n"):
@@ -244,14 +244,14 @@ class DestinationTests(unittest.TestCase):
         self.assertEqual(release_notes.discord(notes, URL), f"Lead.\n\n{self.SITE}\n\n{URL}\n")
 
     def test_a_link_the_notes_already_end_with_is_posted_once(self):
-        # Owner msg 4453: the 3.0.0 notes themselves end with the website link, which the posts also end with.
+        # Owner decision: the 3.0.0 notes themselves end with the website link, which the posts also end with.
         notes = {code: f"{text}\n\n{self.SITE}" for code, text in self.notes.items()}
         self.assertEqual(release_notes.telegram(notes, self.SITE),
                          f"{listed(self.notes, 'en', '•')}\n\n{listed(self.notes, 'zh-Hant', '•')}\n\n{self.SITE}\n")
         self.assertEqual(release_notes.discord(notes, self.SITE), f"{listed(self.notes, 'en', '-')}\n\n{self.SITE}\n")
 
     def test_a_link_both_telegram_languages_end_with_is_posted_once_before_the_release_url(self):
-        # Owner msg 4453 and 4459: the 3.0.0 notes end with https://ehpanda.app; the post ends with the release URL.
+        # Owner decision: the 3.0.0 notes end with https://ehpanda.app; the post ends with the release URL.
         notes = {code: f"{text}\n\n{self.SITE}" for code, text in self.notes.items()}
         self.assertEqual(release_notes.telegram(notes, URL),
                          f"{listed(self.notes, 'en', '•')}\n\n{listed(self.notes, 'zh-Hant', '•')}\n\n{self.SITE}\n\n{URL}\n")

@@ -240,7 +240,7 @@ enum BrowsingScenarios {
         })
     }
 
-    /// Toplists keeps three galleries per period (the six-per-period rule is dropped, owner msg 1949).
+    /// Toplists keeps three galleries per period (the six-per-period rule is dropped, owner decision).
     static func toplists(_ content: ListContent) -> AnyView {
         content.storeDisplayMode(.toplists)
         var state = ToplistsReducer.State()

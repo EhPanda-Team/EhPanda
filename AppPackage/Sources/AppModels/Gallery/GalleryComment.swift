@@ -35,7 +35,7 @@ public struct GalleryComment: Identifiable, Equatable, Codable, Sendable {
     public var score: String?
     public let author: String
     /// The poster's E-Hentai member ID, from the forum contact link the site prints after the name; `nil` when the
-    /// comment has none. Comment blocking matches on it, never on the name, which can change (owner msg 1918).
+    /// comment has none. Comment blocking matches on it, never on the name, which can change (owner decision).
     public let authorMemberID: String?
     public let contents: [CommentContent]
     public let commentID: String

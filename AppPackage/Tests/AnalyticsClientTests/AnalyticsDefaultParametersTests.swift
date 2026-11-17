@@ -18,7 +18,7 @@ struct AnalyticsDefaultParametersTests {
         "App.host", "App.loggedIn", "App.readingDirection",
         "App.dualPageMode", "App.translateTags", "App.distributionChannel"
     ]
-    /// Where the app came from is the one parameter below Full (20-12 §3, owner msg 2842).
+    /// Where the app came from is the one parameter below Full (20-12 §3, owner decision).
     private static let channelKey = "App.distributionChannel"
 
     private static func baseSetting() -> Setting {
@@ -179,7 +179,7 @@ struct AnalyticsDefaultParametersTests {
         #expect(Set(AnalyticsDefaultParameters.snapshot(setting: setting, didLogin: false).keys) == Self.keys)
     }
 
-    // MARK: The channel at Basic (20-12 §3, owner msg 2842)
+    // MARK: The channel at Basic (20-12 §3, owner decision)
 
     // Basic carries exactly one default parameter, and it is the channel: no `App.*` key other than
     // `App.distributionChannel`, under every other setting, so the settings stay a Full-only promise.

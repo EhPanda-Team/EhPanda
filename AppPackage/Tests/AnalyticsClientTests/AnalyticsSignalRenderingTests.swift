@@ -118,7 +118,7 @@ struct AnalyticsSignalRenderingTests {
             rendered: .signal(name: "Account.cloudflareChallengeEncountered", parameters: [:])
         ),
         // The 3.0 flows (20-12, signed off): first launch, the analytics choice, and comment moderation.
-        // Every value is a closed enum's spelling; the report signal carries its outcome only (owner msg 2837).
+        // Every value is a closed enum's spelling; the report signal carries its outcome only (owner decision).
         SignalRenderingFixture(
             signal: .firstLaunchCompleted(level: .basic),
             rendered: .signal(name: "FirstLaunch.completed", parameters: ["Analytics.level": "basic"])

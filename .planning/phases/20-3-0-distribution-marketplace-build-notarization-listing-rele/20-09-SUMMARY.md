@@ -8,7 +8,7 @@ requires: []
 provides:
   - "`20-09-DEVICE.md`: the iPad Release cold-launch Gallery Detail check (10 of 10, no stall) and the iPhone repeat of Phase 15 SC2 (as designed), on owner hardware (DEV-18-01, SC7)"
   - "G-20-09-1, found here and then fixed (`ba23bb5c4` test, `6d209450e` fix): a whole-gallery repair stopped after landing k pages now reads Paused k of N with Resume, by every stop route"
-  - "The k = 0 residual, closed on direction (EhPanda msgs 2901 and 2903): K0-a (`a19e8597f`, `1fe0989f5`), B1 (`c095a0233`, `a478910e1`) and K0-c by the in-app Pause (`740dbe80c`, `52c5c7184`). A repair stopped before any page lands now reads Paused 0 of N with Resume, immediately or while queued, across a cold launch. G-15-2G kept: a record drops whole only when two independent fresh scans both find every claimed page absent"
+  - "The k = 0 residual, closed on direction: K0-a (`a19e8597f`, `1fe0989f5`), B1 (`c095a0233`, `a478910e1`) and K0-c by the in-app Pause (`740dbe80c`, `52c5c7184`). A repair stopped before any page lands now reads Paused 0 of N with Resume, immediately or while queued, across a cold launch. G-15-2G kept: a record drops whole only when two independent fresh scans both find every claimed page absent"
 affects: []
 
 actuals:
@@ -42,9 +42,9 @@ key-files:
     - AppPackage/Tests/DownloadsFeatureTests/DownloadSourceInventoryTests.swift
 
 key-decisions:
-  - "Both device checks were run entirely by the agent through the Device MCP app, with the owner's consent (owner msgs 2885 and 2887 for the iPad, owner msg 2893 for the iPhone). The owner tapped nothing."
+  - "Both device checks were run entirely by the agent through the Device MCP app, with the owner's consent (owner decision for the iPad, owner decision for the iPhone). The owner tapped nothing."
   - "Only the owner's iPad mini and his test iPhone 11 were used. The build used his local signing, copied in for the build and removed afterwards, so no tracked file changed."
-  - "G-20-09-1 was first filed, because this plan changes no code. It is not an SC2 failure: the card cancel and an in-app pause leave the same state. It was then fixed on direction, test first, by writing the run's on-disk progress back to the record at the run's exit. G-15-2G was not weakened, so a repair stopped before any page landed kept its pre-repair claim. That k = 0 residual was then closed on the product lead's direction (EhPanda msgs 2901 and 2903): the record drops whole only when two independent fresh scans both find every claimed page positively absent, which a single transient scan can never satisfy."
+  - "G-20-09-1 was first filed, because this plan changes no code. It is not an SC2 failure: the card cancel and an in-app pause leave the same state. It was then fixed on direction, test first, by writing the run's on-disk progress back to the record at the run's exit. G-15-2G was not weakened, so a repair stopped before any page landed kept its pre-repair claim. That k = 0 residual was then closed on the product lead's direction: the record drops whole only when two independent fresh scans both find every claimed page positively absent, which a single transient scan can never satisfy."
 
 patterns-established:
   - "On a device under test, bring the app forward with `xcrun devicectl device process launch`. Device MCP's `launch_app` relaunches a running app, and that ends a continued-processing session."
@@ -99,7 +99,7 @@ status: complete
 
 ## Accomplishments
 
-- **Task 1: iPad Release cold launches (owner msgs 2885 and 2887).**
+- **Task 1: iPad Release cold launches (owner decision).**
   - **Device and build:** an iPad mini (6th generation), iPadOS 27.2, running a Release build of `ac03a2ca6`
     built with the owner's local signing.
   - **Launches:** ten launches, each opening the Home carousel's front gallery. The detail appeared in 3.66 to
@@ -107,7 +107,7 @@ status: complete
   - **Crash check:** no EhPanda crash, spin or hang report.
   - **Reading:** the simulator-only stall from Phase 16 does not reproduce on real hardware, for this size and
     orientation.
-- **Task 2: iPhone SC2 (owner msg 2893, card 2892).**
+- **Task 2: iPhone SC2 (owner decision).**
   - **Setup:** the same build on the owner's test iPhone 11, iOS 27.2. A whole-gallery repair fixture was made
     as in Phase 15 round 6: every image file deleted in Files.app, `manifest.json` kept.
   - **The card:** the system card "Downloading Galleries · N / M pages · 2 galleries" was read 23 times over two
@@ -136,7 +136,7 @@ status: complete
     queue resumes the run, and its preparation reconciles the folder (Downloading 22 / 112).
   - **The residual (k = 0):** a repair paused before any page landed still read Downloaded 112 of 112 until
     Verify Images, because G-15-2G was kept as it was. It was closed afterwards, below.
-- **The k = 0 residual (closed, EhPanda msgs 2901 and 2903).**
+- **The k = 0 residual (closed).**
   - **K0-a:** a repair stopped after its run announced its measurement but before any page landed. The run-exit
     write-back passes the run's own positive absences as corroboration, so the whole-gallery guard stands aside
     only where the preparation's scan and the exit's fresh scan agree page by page.

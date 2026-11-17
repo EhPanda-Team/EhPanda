@@ -14,7 +14,7 @@ import Testing
 /// hashes, so nothing during the run can lower that claim either. Before the fix the run's exit
 /// retired the measurement and left the record as it was, so a paused repair with three of six pages
 /// on disk read "Downloaded 6 of 6", with Resume disabled because the record looked finished — the
-/// device finding on the owner's test iPhone (owner msg 2893).
+/// device finding on the owner's test iPhone (owner decision).
 ///
 /// **Every stop goes through production.** The run is a REAL scheduled run: the injected runner parks
 /// until the pause cancels it and then invokes the operation it was handed, which is the scheduler's
@@ -96,8 +96,7 @@ struct DownloadInterruptedRunWriteBackTests: DownloadFeatureTestCase {
     }
 
     /// K0-a: a repair stopped after its measurement was announced but before ANY page landed reads
-    /// Paused 0 of N with Resume, not the whole-gallery claim it started from (product lead, EhPanda
-    /// msg 2901).
+    /// Paused 0 of N with Resume, not the whole-gallery claim it started from (product lead decision).
     ///
     /// With nothing on disk every claimed page is a positive absence, so the all-or-nothing guard
     /// alone would refuse here exactly as it refused at the preparation. What licenses the blanking is

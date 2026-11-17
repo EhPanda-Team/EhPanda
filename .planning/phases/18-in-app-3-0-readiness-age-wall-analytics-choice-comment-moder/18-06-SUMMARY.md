@@ -173,7 +173,7 @@ None in scope or behaviour. Two notes:
 - `shareAnalyticsData` and `shareAnalyticsDataFooter` remain in SettingFeature's catalog, unread since 18-02. This
   plan's scope does not touch them (prohibition: "`shareAnalyticsDataFooter` is not removed here"). 18-10 reuses
   `shareAnalyticsData` as the picker's row label (D-07) and removes `shareAnalyticsDataFooter`.
-- D-06g (owner msg 1898) is layout only: `consent.body` and `consent.footer` stay separate keys, as added here; 18-09
+- D-06g (owner decision) is layout only: `consent.body` and `consent.footer` stay separate keys, as added here; 18-09
   joins them in one `Text` (one space in en, de, ko; none in ja, zh-Hans, zh-Hant).
 - OI-2: the privacy URL path (`/privacy`, A-6) is still to be confirmed by the website owner before Phase 20.
 

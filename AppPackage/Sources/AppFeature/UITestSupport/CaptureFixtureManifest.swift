@@ -152,7 +152,7 @@ struct CaptureSelection: Equatable, Sendable, Decodable {
         /// complete one, whose folder holds every page.
         let completedPages: Int?
         /// Whether a complete download's folder holds none of its page images, only its record and
-        /// status (owner msg 5113); `nil` for a download with real pages. Nothing may open it.
+        /// status (owner decision); `nil` for a download with real pages. Nothing may open it.
         let mockPages: Bool?
         /// Whether the gallery may also be visible on another screen of the set; `nil` for not.
         let allowedRepeat: Bool?

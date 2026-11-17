@@ -60,7 +60,7 @@ Notes:
 ## TCA refactors: Detail, Comments and Settings snapshots
 
 There are **no recorded references** to compare with: `AppPackage/Tests/VisualSnapshotTests/Baseline` does not exist,
-because Phase 19's approved baseline is a deferred item (owner msgs 3425 and 3428), and no earlier local candidate run
+because Phase 19's approved baseline is a deferred item (owner decision), and no earlier local candidate run
 exists on this Mac. So the local comparison the refactors call for was made against a fresh before-state instead, which
 re-records no tracked reference:
 
@@ -90,7 +90,7 @@ iPad landscape.
 
 1. **The Classic release (D-26).** Phase 19's passing `snapshot-gate / aggregate` check, which `deploy.yml` and
    `deploy-pal.yml` require, does not exist yet: no approved baseline and no green hosted run (deferred items, owner
-   msgs 3425 and 3428). Until then every release and PAL dispatch is refused by design (`20-11-GATE.md`). Then the
+   decision). Until then every release and PAL dispatch is refused by design (`20-11-GATE.md`). Then the
    3.0 GitHub release and AltStore Classic, with ehpanda.app going live.
 2. **The PAL submission of the same build, 20-08 (D-03, D-26):** the App Manager key test, Apple's verdict, and a dry-run
    publish.

@@ -1,7 +1,7 @@
 # EhPanda 3.0: comment report, posting warning and blocking copy
 
-APPROVED by the owner, msg 1780 (2026-11-05), all six languages, including the Blocked Users list in Settings (owner chose "Include the list"). Author: Camo. Delivered in msg 1777.
-Decisions this is written for: reports go to E-Hentai only (owner msg 1753); a comment that trips the filter gets a warning and can be posted anyway (owner msg 1765); a blocked user's comment collapses into a "comment from a user you've blocked" row instead of disappearing (owner msg 1765).
+APPROVED by the owner (2026-11-05), all six languages, including the Blocked Users list in Settings (owner chose "Include the list"). Author: Camo. Delivered .
+Decisions this is written for: reports go to E-Hentai only (owner decision); a comment that trips the filter gets a warning and can be posted anyway (owner decision); a blocked user's comment collapses into a "comment from a user you've blocked" row instead of disappearing (owner decision).
 
 `%@` = the commenter's name. `{site}` = the gallery's site name as shown elsewhere in the app (E-Hentai or ExHentai). Pick whichever the developer finds simpler; the sentences work with either.
 
@@ -65,7 +65,7 @@ The same warning applies to edits of an existing comment (L21).
 
 The collapsed row never shows the blocked user's name, so the block also takes their name off the page. "Show" reveals that one comment once; it stays blocked.
 
-### Blocked Users list in Settings (APPROVED, owner msg 1780: include the list)
+### Blocked Users list in Settings (APPROVED, owner decision: include the list)
 
 | Key (suggested) | en | de | ko | ja | zh-Hans | zh-Hant |
 |---|---|---|---|---|---|---|
@@ -78,5 +78,5 @@ The collapsed row never shows the blocked user's name, so the block also takes t
 
 ## Not covered here
 
-- Contact details: not added now (Ampo msg 1774): reporting stays E-Hentai only; a published contact link (GitHub Issues on the website) belongs to the distribution phase.
+- Contact details: not added now (Ampo): reporting stays E-Hentai only; a published contact link (GitHub Issues on the website) belongs to the distribution phase.
 - VoiceOver labels for the comment menu: the visible labels above work as they are.

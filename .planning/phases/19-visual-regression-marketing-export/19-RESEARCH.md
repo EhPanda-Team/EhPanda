@@ -25,7 +25,7 @@ These are binding; the CONTEXT wins on any difference.
 - Baselines in the new public repository `EhPanda-Team/ehpanda-snapshot`, created at execution with the owner's own
   sign-in; every push needs the owner's go-ahead; fingerprints and manifest committed in the app repository (D-14).
 - 20 shards, 5 at a time, per-picture retry, per-shard re-run, fail-fast off, an aggregate job, per-shard timeouts,
-  deterministic cost-balanced assignment (D-15 amendment, owner msg 2263).
+  deterministic cost-balanced assignment (D-15 amendment, owner decision).
 - Gate on every PR and release; dependency PRs wait; superseded runs cancelled; 2-day limit (D-16). One owner
   approval, after agents pre-check every picture (D-17); planning default for the review: the short packet (OQ-4).
 - Static offline report; controlled regression proven red then green (D-18). Native visual policy XCUITests in the
@@ -43,7 +43,7 @@ formats, the live check's schedule time, pacing and issue wording.
 
 ### Deferred (out of scope)
 
-Marketing pictures of any kind (dropped, owner msg 1949); the signed-in live check until the owner supplies a secret
+Marketing pictures of any kind (dropped, owner decision); the signed-in live check until the owner supplies a secret
 (D-24); native tag management (TAG-01, TAG-02).
 
 ## 1. Summary
@@ -129,7 +129,7 @@ local script) before it ever reaches `main`.
   and writes Mac paths directly.
 - **One `xcodebuild` per host:** locally too (TESTING.md). A shard runs its configurations inside one invocation.
 
-## 5. Sharding, retries and CI shape (D-13 to D-16, owner msg 2263)
+## 5. Sharding, retries and CI shape (D-13 to D-16, owner decision)
 
 - **Hosted limits (GitHub Docs, Actions limits):** standard hosted runners on Free, Pro and Team allow at most 5
   concurrent macOS jobs (Enterprise 50); further jobs queue. A job stops at 6 h; a workflow run at 35 days; a matrix
@@ -285,7 +285,7 @@ local script) before it ever reaches `main`.
 
 ## 10. Open questions
 
-- **OQ-6 (owner, pending card msg 2246):** the probe's go-ahead. Plan 19-03 waits for it at its checkpoint.
+- **OQ-6 (owner, pending):** the probe's go-ahead. Plan 19-03 waits for it at its checkpoint.
 - **OQ-3 (owner, only if the probe shows a block):** where the daily check runs instead; asked at 19-15's runner
   checkpoint with the recommendation from CONTEXT (the owner's Mac on a timer).
 - **OQ-4 (owner, low):** review format; the planning default is the short packet, changeable at 19-13's checkpoint.
@@ -331,4 +331,4 @@ local script) before it ever reaches `main`.
 
 - UI gate: the deterministic UI check matched "UI" in the goal (this phase photographs existing UI). No new app UI is
   built; the offline review report is a developer tool whose content D-18 fixes. Planned with `--skip-ui`.
-- CONTEXT amendments made at planning: D-15 (owner msg 2263), D-14 push-size note, D-21 GET-only note, OQ-4 default.
+- CONTEXT amendments made at planning: D-15 (owner decision), D-14 push-size note, D-21 GET-only note, OQ-4 default.

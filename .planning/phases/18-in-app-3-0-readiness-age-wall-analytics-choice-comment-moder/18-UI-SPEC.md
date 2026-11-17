@@ -13,7 +13,7 @@ author: Colo (design)
 > Visual and interaction contract for the Phase 18 screens: the age wall, the analytics choice, the comment
 > report and block UI (menu items, confirmations, posting warning, collapsed row) and the Settings changes
 > (analytics picker and Privacy Policy row in General; Blocked Users row and list in Account). Written by Colo for
-> D-17. Revised after owner msg 1795: None → Minimal, Blocked Users moved to Account.
+> D-17. Revised after an owner decision: None → Minimal, Blocked Users moved to Account.
 >
 > **Contract nature: new screens inside a shipped design language.** Nothing here restyles an existing screen.
 > New screens reuse the app's system typography, its existing AccentColor, its 15pt card radius and its existing
@@ -61,7 +61,7 @@ Non-exhaustive for SwiftUI itself; the executor may use any SwiftUI API that mee
 | `AdaptiveStack` / explicit `ViewThatFits(in: .horizontal)` | AppComponents/AdaptiveStack.swift | Collapsed-row layout switch (explicit `ViewThatFits`, because the label has its own line limit — see that file's rule) |
 | `SheetCloseToolbar` | AppComponents/SheetCloseToolbar.swift | Close button of the site's report page sheet (C-13 fallback route) |
 | `PostCommentView` toolbar pattern | DetailFeature | Report form sheet: `Button(role: .close)` leading, inline title; no trailing item (C-13) |
-| `.safeAreaBar(edge: .bottom)` + `.glassProminent` | SwiftUI / C-1 | Report form's pinned action button (Send Report / Done / Open Report Page), same build as the first-launch Continue (C-13, owner msg 1955) |
+| `.safeAreaBar(edge: .bottom)` + `.glassProminent` | SwiftUI / C-1 | Report form's pinned action button (Send Report / Done / Open Report Page), same build as the first-launch Continue (C-13, owner decision) |
 | `AppAlertState` / `.appAlert` or TCA `AlertState` | AppComponents/AppAlertState.swift | Report, Block and posting-warning alerts |
 | `ContentUnavailableView` | SwiftUI | Blocked Users empty state (same as `LibraryView`, `StateViews`) |
 | `Picker` `.pickerStyle(.menu)` | SwiftUI | Analytics level in Settings (same as Theme picker in `AppearanceSettingView`) |
@@ -181,13 +181,13 @@ the catalog may rename them, never the text. Nothing on any screen below may say
 | Continue hint while dimmed (VoiceOver) | `age_wall.continue_hint` (age wall only — see C-2) |
 | Age wall footnote (always visible) | `age_wall.footnote` |
 | Analytics title / body | `consent.title` / `consent.body` |
-| Level names / descriptions | `consent.level.{minimal,basic,full}` / `…description`. Minimal replaces None (owner msg 1795); its name and description and the new `consent.body` are Camo's wording: name and `consent.body` from msg 1797 (approved msg 1805), Minimal's description from Revision 2 in msg 1815 (**approved msg 1818**, replaces the 1805 line), Basic's and Full's descriptions from Revision 6 in msg 1875 (**approved msg 1880**; screens and features moved from Full to Basic, replaces the 1839 Basic line), `consent.body` from the Revision 5 fallback in msg 1857 (**approved msg 1864**, replaces the 1805 body), as shown in the mockups |
+| Level names / descriptions | `consent.level.{minimal,basic,full}` / `…description`. Minimal replaces None (owner decision); its name and description and the new `consent.body` are Camo's wording: name and `consent.body` (approved), Minimal's description from Revision 2 (**approved**, replaces the 1805 line), Basic's and Full's descriptions from Revision 6 (**approved**; screens and features moved from Full to Basic, replaces the 1839 Basic line), `consent.body` from the Revision 5 fallback (**approved**, replaces the 1805 body), as shown in the mockups |
 | Analytics footer | `consent.footer` |
 | Privacy link (both places) | `consent.privacy_link` |
 | Settings analytics row | `shareAnalyticsData` (existing key, now a picker); section header `analytics` (existing) |
 | Settings analytics footer | the selected level's `consent.level.*.description`; `shareAnalyticsDataFooter` retired |
 | Comment menu | `comment.report` ("Report on {site}"), `comment.block` ("Block %@"), `comment.unblock` ("Unblock %@") |
-| Report form (C-13) | `report.*` keys from Camo's `report-form-copy.md` (msg 1960, **approved by the owner, msg 1975**; never reword). Sheet title = `comment.report`; site-page button = `comment.report.open`; `retry`, `cancel` existing. `comment.report.confirm_title` / `_body` are retired with the old alert |
+| Report form (C-13) | `report.*` keys from Camo's `report-form-copy.md` (**approved by the owner**; never reword). Sheet title = `comment.report`; site-page button = `comment.report.open`; `retry`, `cancel` existing. `comment.report.confirm_title` / `_body` are retired with the old alert |
 | Destructive confirmation | Block: `comment.block.confirm_title` / `comment.block.confirm_body`, buttons `comment.block.confirm` (destructive) + `cancel` |
 | Posting warning | `comment.filter.title` / `comment.filter.body`, buttons `comment.filter.edit` (default) + `comment.filter.post_anyway` |
 | Collapsed row | `comment.blocked_row`, buttons `comment.blocked_row.show`, `blocked_users.unblock` ("Unblock", no name — the row never shows the name) |
@@ -218,11 +218,11 @@ Numbers C-1…C-12 are referenced from UI Considerations. Mockup frame numbers i
 - Background `systemGroupedBackground`, edge to edge. No navigation bar, no back, no close, no skip.
 - Content: `ScrollView` → `VStack(spacing: 0)` capped at 560pt, centred, side margins 24pt.
 - **Continue bar:** `.safeAreaBar(edge: .bottom)` holding `FirstLaunchContinueButton`
-  full column width, 8pt top, 16pt bottom above the safe area. **Pinned at every text size** (owner msg 1903),
+  full column width, 8pt top, 16pt bottom above the safe area. **Pinned at every text size** (owner decision),
   including accessibility sizes: the button alone is ≈ 18% of an iPhone screen at AX5, which keeps Continue one tap
   away without scrolling. The bar holds only the button; the age-wall footnote's place depends on size (C-2 item 6).
   The last scroll item ends 24pt above the bar (the bar's safe-area inset handles the rest) [16, 17, 18].
-- **No bar background (owner msg 1965).** Don't give the bar or its `HStack`/`VStack` any `.background`, material or
+- **No bar background (owner decision).** Don't give the bar or its `HStack`/`VStack` any `.background`, material or
   `Color` fill, and no divider. The only thing behind the button is the system scroll-edge effect: the content scrolls
   under the bar and blurs/fades there. Set it explicitly on the scroll view: `.scrollEdgeEffectStyle(.soft, for: .bottom)`
   (iOS 26+ SDK). At rest the top of the bar is invisible; with content behind it you see blurred text, never a band.
@@ -273,20 +273,20 @@ hint) → footnote. Initial focus: the title.
 
 ### C-3 · Analytics choice [03, 04, 18, 21]
 
-**Layout decision: separate Continue, not save-on-tap.** Reason: nothing is pre-selected (owner msg 1882), so people
+**Layout decision: separate Continue, not save-on-tap.** Reason: nothing is pre-selected (owner decision), so people
 read and compare before choosing; save-on-tap commits on a stray tap while scrolling and gives no chance to change
 your mind, and a shared Continue keeps both first-launch screens one pattern.
 
 1. Symbol `chart.bar.xaxis`, `.font(.largeTitle)` + `.imageScale(.large)` (≈ 48pt at default), `.secondary` (neutral — not accent, so nothing nudges), `.accessibilityHidden(true)`.
    32pt from top (72pt regular width).
 2. 16pt · Title `consent.title`, `.title.bold()`, centred, `.isHeader`.
-   **Line breaks (owner msg 1822):** the title must never end on a single word. At default size on iPhone, en
+   **Line breaks (owner decision):** the title must never end on a single word. At default size on iPhone, en
    reads "Choose what / EhPanda shares", not "Choose what EhPanda / shares". SwiftUI `Text` does this by default
    (it pulls the previous word down when the last line would hold one word), so: plain `Text`, no `\n` in any
    locale's string, no `.minimumScaleFactor`, no `.lineLimit`, no fixed width on the title. Acceptance: in every
    locale and every text size, the title's last line holds at least two words (zh/ja/ko: at least two characters).
    Same rule for the age wall title (C-2) and the Blocked Users empty-state title.
-3. 8pt · Body: **`consent.body` and `consent.footer` in one `Text`**, as one paragraph (owner msg 1898: the footer sat
+3. 8pt · Body: **`consent.body` and `consent.footer` in one `Text`**, as one paragraph (owner decision: the footer sat
    below the cards, off screen on most phones). Join with one space in en/de/ko, no space in ja/zh-Hans/zh-Hant
    (both strings end in full-width punctuation there). `.body`, `.secondary`, centred. Both strings stay as
    approved; nothing is reworded. iPhone default size: 3 lines in en.
@@ -294,7 +294,7 @@ your mind, and a shared Continue keeps both first-launch screens one pattern.
    AX-hidden) — `.footnote.weight(.semibold)`, `.primary`, centred, 44pt min hit height. Opens in the default browser
    (same as every other external link in the app). Allowed here: the age wall is already confirmed.
    VoiceOver reads it right after the body, before the cards.
-5. 16pt · **Three `ChoiceCard`s**, order Minimal, Basic, Full (owner's order; Minimal replaces None, owner msg 1795), 12pt apart, all identical in size rules,
+5. 16pt · **Three `ChoiceCard`s**, order Minimal, Basic, Full (owner's order; Minimal replaces None, owner decision), 12pt apart, all identical in size rules,
    type and colour while unselected — the only difference is Basic's Recommended label below; no different weight or colour.
    - Card: `secondarySystemGroupedBackground`, radius 15, padding 16, full width, whole card tappable,
      `.hoverEffect(.highlight)` as C-2.
@@ -303,16 +303,16 @@ your mind, and a shared Continue keeps both first-launch screens one pattern.
    - Radio: `circle` `.secondary` → `checkmark.circle.fill` accent, ≈ 28pt, `.symbolEffect(.replace)` (none with
      Reduce Motion).
    - Selected card: plus `.strokeBorder(Color.accentColor, lineWidth: 2)` on the card shape. Unselected: no stroke.
-   - Initially **none selected** (owner msg 1882: Basic is recommended, not pre-selected). Tapping a card selects it
+   - Initially **none selected** (owner decision: Basic is recommended, not pre-selected). Tapping a card selects it
      (and deselects the others); tapping the selected card keeps it. Haptic `.selection`.
-   - **Recommended label on Basic only** (`consent.level.recommended`, approved with msg 1882; Camo's msg 1875 file):
+   - **Recommended label on Basic only** (`consent.level.recommended`, approved; Camo's file):
      a capsule right after the name, inside the name row — `HStack(alignment: .firstTextBaseline, spacing: 8)` { name;
      label }, wrapped in `ViewThatFits` so at large sizes the label drops onto its own line under the name, leading-
      aligned, 4pt below. Label: `.caption.weight(.semibold)`, `.primary` (not `.secondary`: 12pt text needs 4.5:1, and `.primary` on the fill is > 12:1 in both modes), padding 8 h / 2 v,
      `Capsule().fill(Color(.tertiarySystemFill))`. Neutral, never accent: accent means "selected", and the label
      stays the same whether Basic is selected or not. `.accessibilityHidden` is NOT set — it is read as part of the
      card (see VoiceOver below).
-   - **Order stays Minimal, Basic, Full** (layout call, Ato msg 1883). Reason: the descriptions are a ladder
+   - **Order stays Minimal, Basic, Full** (layout call, Ato). Reason: the descriptions are a ladder
      ("Everything in Minimal, plus…", "Everything in Basic, plus…") that only reads top-down in that order, and the
      label is what makes Basic stand out, not its position.
 6. Continue in the bar (C-1) — `.disabled(selection == nil)`. No hint string is approved for this screen, so none.
@@ -350,7 +350,7 @@ Entry points (all three show the same `CommentModerationMenu` content):
 
 Existing swipe actions (vote up/down, edit) are unchanged.
 
-**Report** (owner msg 1931): no alert any more. Report opens EhPanda's own form sheet directly — see C-13.
+**Report** (owner decision): no alert any more. Report opens EhPanda's own form sheet directly — see C-13.
 
 **Block confirmation** [07]: alert. Title `comment.block.confirm_title`, message `comment.block.confirm_body`.
 Buttons: `cancel` (`.cancel`), `comment.block.confirm` (`.destructive`). Alerts (not confirmation dialogs) for both
@@ -438,7 +438,7 @@ Changing the level takes effect immediately (DD-09). No confirmation when loweri
 
 ### C-10 · Settings → Account: Blocked Users row [23, 24]
 
-- Lives in **Account** settings (owner msg 1795), not General. New `Section` placed after the account section
+- Lives in **Account** settings (owner decision), not General. New `Section` placed after the account section
   (website picker, log in/out, host settings…) and before the cookie section, no header, no footer. Shown
   **signed in and signed out** — blocking is local and works without an account.
 - Push goes through `SettingPath` like the other Account pushes (a `.delegate(.pushBlockedUsers)` beside
@@ -468,11 +468,11 @@ Changing the level takes effect immediately (DD-09). No confirmation when loweri
   The section footer is not shown when empty (it says "these users").
 
 
-### C-13 · Report form (owner msg 1931: "Our own form") [25–34]
+### C-13 · Report form (owner decision: "Our own form") [25–34]
 
 Replaces the report alert and the web sheet as the first route. The site's report page stays as the fallback.
-Copy: Camo's `report-form-copy.md` (msg 1960), approved by the owner (msg 1975). Reports are from comments only:
-the owner ruled out a gallery-level Report, now and later, unless App Review requires it (msg 1975).
+Copy: Camo's `report-form-copy.md`, approved by the owner. Reports are from comments only:
+the owner ruled out a gallery-level Report, now and later, unless App Review requires it.
 
 **Presentation.** `.sheet` from the comments list or the Detail strip. iPhone: `.presentationDetents([.large])`;
 iPad and wide windows: the standard form sheet (system size, centred). `NavigationStack` inside, toolbar: leading
@@ -481,7 +481,7 @@ No trailing toolbar button. `.interactiveDismissDisabled(true)` while the form h
 anything typed beyond the prefill) and while sending — Close is the deliberate exit. No discard alert (nothing new
 approved; the form is short).
 
-**Pinned action bar (owner msg 1955: "safeAreaBar here too").** The sheet's one action lives in
+**Pinned action bar (owner decision: "safeAreaBar here too").** The sheet's one action lives in
 `.safeAreaBar(edge: .bottom)`, built exactly like the first-launch Continue (C-1): full-width `Button`
 `.buttonStyle(.glassProminent)` `.controlSize(.large)`, label `.headline`, white label light / black label dark,
 16pt side insets, 8pt top inset, 16pt above the safe area (the home indicator; the sheet's bottom on iPad). The
@@ -489,7 +489,7 @@ form scrolls under it with the soft scroll-edge effect and nothing else behind t
 C-1 "No bar background"). With the keyboard up, the bar rides on top of the keyboard
 (the safe area does this by itself; no `.toolbar(.keyboard)`) with 8pt above the keyboard — frame 26. Label wraps at
 large sizes, the button grows (min 50pt) [33]. One button per state:
-- Ready / loading: `report.send` ("Send Report" — Camo msg 1960). Disabled (system dim) until enabled, rule below.
+- Ready / loading: `report.send` ("Send Report" — Camo). Disabled (system dim) until enabled, rule below.
 - Sending: same button, disabled, label becomes `ProgressView()` + `report.sending` in an `HStack(spacing: 8)` [27].
 - Sent: `report.sent.done` [28]. Unavailable: `comment.report.open` [30].
 - Failed: the bar keeps Send Report live under the alert (the alert owns the choice) [29].
@@ -502,7 +502,7 @@ Swap labels without animation (Reduce Motion or not) so the bar never jumps; the
 2. Section header `report.reason`. One row per reason, `.body` primary, whole row is a button, selection shown by a
    trailing `checkmark` (`.body` semibold, accent) — the same single-choice list the system uses in Settings.
    `.accessibilityAddTraits(.isSelected)` on the picked row. Nothing picked when the sheet opens.
-   **Opened from a comment (owner msg 1950, "Illegal content only"):** exactly two rows, `report.reason.child`
+   **Opened from a comment (owner decision, "Illegal content only"):** exactly two rows, `report.reason.child`
    then `report.reason.illegal`. No Copyright, no technical reasons, no spam reason — spam is handled by Block.
    Section footer, only when one of the two illegal-content reasons is picked: `report.help.illegal_warning`
    (`.footnote` `.secondary` — the system footer style; not red: it's information, and red stays reserved for
@@ -523,7 +523,7 @@ Swap labels without animation (Reduce Motion or not) so the bar never jumps; the
 5. Send Report is enabled when: a reason is picked, the email field is non-empty, and Details contains text beyond
    the prefill. Disabled = the system's dimmed `.glassProminent` button (same as Continue).
 
-**No gallery reports (owner msg 1975).** There is no gallery-level Report entry point, now or later, unless App
+**No gallery reports (owner decision).** There is no gallery-level Report entry point, now or later, unless App
 Review requires one. Don't ship `report.reason.updates/.restore/.copyright` or `report.help.updates/.restore/.copyright`.
 Frame 32 is withdrawn.
 

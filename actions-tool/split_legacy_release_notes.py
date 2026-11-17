@@ -7,7 +7,7 @@ Usage: split_legacy_release_notes.py <AltStore.json>   (rewrites the file in pla
 
 Before 3.0 the release notes were one text per version: each numbered item in English, followed by
 its translations, one line per language (日本語, then 繁體中文), with a blank line
-between items (owner msg 2561). AltStore 2.2+ picks a version's notes from `localizedDescriptions`
+between items (owner decision). AltStore 2.2+ picks a version's notes from `localizedDescriptions`
 by language code and falls back to the plain `localizedDescription`; SideStore reads only the plain
 field. So a version whose notes mix languages gets:
 
@@ -15,7 +15,7 @@ field. So a version whose notes mix languages gets:
 - `localizedDescriptions`: one text per language actually present, English included, so a device
   that prefers English over a language listed further down its preferences still gets English.
 
-Every item is one line without its number (owner msg 2591): the numbers only ever counted from 1,
+Every item is one line without its number (owner decision): the numbers only ever counted from 1,
 and the notes show without them. A translated line takes its item's credit (`(credit @user)` and the
 like) when the line has none. An item with no line in some language keeps its English line in that
 language's text, so every language lists every item. Nothing is translated: a language that a

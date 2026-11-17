@@ -464,7 +464,7 @@ struct ReportFormReducerTests {
 
     // MARK: Analytics (20-12)
 
-    // The report signal says how a report ended and nothing else (owner msg 2837): the comment's text and poster, the
+    // The report signal says how a report ended and nothing else (owner decision): the comment's text and poster, the
     // email, the details and the gallery's title and URL are probes here, and none may reach a signal.
     @MainActor
     @Test

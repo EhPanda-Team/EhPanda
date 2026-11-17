@@ -4,7 +4,7 @@ verified: 2026-11-05T18:22:41Z
 refreshed: 2026-11-06T00:55:00Z
 status: passed
 score: 10/10 must-haves verified
-verification_scope: "Phase 18 as amended: None → Minimal (owner msgs 1805, 1818), member-ID blocking (owner msg 1918). DIST-18-01 is verified for `MKSellsDigitalGoods` only; its marketplace flavor is Phase 20."
+verification_scope: "Phase 18 as amended: None → Minimal (owner decision), member-ID blocking (owner decision). DIST-18-01 is verified for `MKSellsDigitalGoods` only; its marketplace flavor is Phase 20."
 verified_head: 3c0a1f705
 tested_source: 8b30b8c55
 roles: "code-reviewer, code-fixer and verifier run in one agent, in sequence, following the gsd-* agent definitions"
@@ -18,7 +18,7 @@ deferred:
     evidence: "ROADMAP Phase 18 split map: DIST-18-01 → 18 (`MKSellsDigitalGoods`) and 20 (marketplace build flavor); REQUIREMENTS.md traceability row DIST-18-01"
   - truth: "UGC-18-01 published contact link"
     addressed_in: "Phase 20"
-    evidence: "ROADMAP Phase 18 scope item 4 (Ampo msg 1774) and split map; REQUIREMENTS.md traceability row UGC-18-01"
+    evidence: "ROADMAP Phase 18 scope item 4 (Ampo) and split map; REQUIREMENTS.md traceability row UGC-18-01"
   - truth: "Visual snapshots of the Phase 18 screens (UI-SPEC 'visual' backstop row)"
     addressed_in: "Phase 19"
     evidence: "18-UI-SPEC.md UI Considerations: 'Phase 19 snapshots must include frames 01–22's states'; ROADMAP Phase 19 covers the Phase 18 screens"
@@ -45,10 +45,10 @@ change can reach, `CommentModerationUITests`, was rerun on both devices.
 **Who ran it:** the code-reviewer, code-fixer and verifier roles ran in one agent, in sequence, each following its
 `gsd-*` agent definition (code-reviewer, then code-fixer, then verifier). They were not separate subagents.
 
-**Amendments in force:** the analytics level "None" became **Minimal** (owner msgs 1805, 1818; CONTEXT D-06a to
+**Amendments in force:** the analytics level "None" became **Minimal** (owner decision; CONTEXT D-06a to
 D-06c). Minimal sends only one install signal with its install source, and the SDK never starts under Minimal, so no
 level sends nothing. The Basic and Full descriptions and the intro line changed later (D-06d to D-06f). Blocking
-matches the poster's E-Hentai member ID, not the display name (owner msg 1918, SC6 amendment). This report verifies
+matches the poster's E-Hentai member ID, not the display name (owner decision, SC6 amendment). This report verifies
 the criteria as amended.
 
 ## Goal Achievement
@@ -60,9 +60,9 @@ the criteria as amended.
 | 1 | The age wall comes first on every 3.0 launch, fresh install or upgrade, before any content or network request. Continue stays dimmed until the declaration is ticked, there is no skip, and the answer is stored on the device | ✓ VERIFIED | `RootView.content` renders `FirstLaunchGateView` instead of `TabBarView` until `firstLaunch.step == .complete`, so nothing of the app is built behind the wall. `AppReducer` runs the deferred launch only after `.ageConfirmed` (lines 446-450). `FirstLaunchGateTests` has 31 cases (gate, storage, upgrader paths, link queueing). `FirstLaunchUITests.testAFreshLaunchShowsOnlyTheAgeWallAndMakesNoRequest` asserts no app content and no stubbed request, and `testTickingTheStatementGatesContinue` checks the dimmed Continue. On a fresh Release install 18-12 found no socket and no URL task for 30 s at the wall (`lsof` and `log stream`) |
 | 2 | The analytics choice follows: Minimal, Basic and Full, equally prominent and none pre-selected. Tests prove no SDK call before the choice and none under Minimal, and each level sends only what its description says | ✓ VERIFIED | `FirstLaunchUITests.testTheAnalyticsChoiceStartsEmptyAndRecommendsBasicOnly`. `AnalyticsLevelGateTests` (13, including `nil` = before the choice), `AnalyticsClientGateTests` (5), `InstallSignalSenderTests` (13), `AnalyticsSignalRenderingTests`, and the per-feature `AnalyticsEmissionTests` (one per feature module). `AnalyticsClient` stops the SDK and never starts it under `.minimal` (line 35 doc, line 89 switch) |
 | 3 | Settings has a three-level analytics picker in place of the toggle, a footer with the selected level's description, and a Privacy Policy row. The "installation is still counted" footer is gone | ✓ VERIFIED | `GeneralSettingView.swift:205` `Picker(.shareAnalyticsData, …)`. No string "installation is still counted" anywhere in `AppPackage/Sources` or `App` (grep; the only hit is a code comment describing the retired Phase 14 premise). `SettingsModerationUITests.testTheAnalyticsPickerChangesTheLevelAndItsDescription` passes on both devices and in dark on the phone (below) |
-| 4 | Every comment has "Report on {site}", which confirms, then opens the gallery's report page on E-Hentai or ExHentai. There is no email or other contact path | ✓ VERIFIED | `CommentReportTarget.reportURL(for:)` builds only `https` `/g/<gid>/<token>/?report=select`. No `mailto` in the moderation code. `CommentModerationUITests.testTheMenuOffersReportThenBlockAndReportOpensTheSignedInSheet`. Live check with a real account, signed in and signed out (18-12 Task 3, agent-run per owner rule msg 1652; the signed-out guest page is accepted deviation 9) |
+| 4 | Every comment has "Report on {site}", which confirms, then opens the gallery's report page on E-Hentai or ExHentai. There is no email or other contact path | ✓ VERIFIED | `CommentReportTarget.reportURL(for:)` builds only `https` `/g/<gid>/<token>/?report=select`. No `mailto` in the moderation code. `CommentModerationUITests.testTheMenuOffersReportThenBlockAndReportOpensTheSignedInSheet`. Live check with a real account, signed in and signed out (18-12 Task 3, agent-run per owner rule; the signed-out guest page is accepted deviation 9) |
 | 5 | Posting or editing a comment that matches the filter shows the posting warning (Edit by default, Post Anyway). It never names the matched word and keeps the typed text | ✓ VERIFIED | `CommentFilterTests` (18), `CommentModerationReducerTests` (25, including edit-path and text-kept cases), `CommentModerationUITests.testAMatchingCommentWaitsForTheSecondTap` |
-| 6 | Blocking collapses the poster's comments, in the list and the Detail preview, into "Comment from a user you've blocked" with Show and Unblock and without the name. The block is stored on this device only, and Settings lists blocked users with an empty state and swipe to unblock. Blocks match the member ID (msg 1918) | ✓ VERIFIED | `BlockedCommentUserTests` (9), `BlockedCommentPresentationTests` (16), `BlockedUsersReducerTests` (6), `GalleryCommentParserTests` member-ID cases, including the look-alike-host cases added with the IN-01 fix (`8b30b8c55`: only the exact contact link `https://forums.e-hentai.org/index.php` with a digits-only `showuser` gives an ID). `CommentModerationUITests` block, strip and collapsed-card cases, and `SettingsModerationUITests` swipe, context-menu and empty-state cases, on both devices. Storage is `@Shared(.blockedCommentUsers)` (local app storage, no sync) |
+| 6 | Blocking collapses the poster's comments, in the list and the Detail preview, into "Comment from a user you've blocked" with Show and Unblock and without the name. The block is stored on this device only, and Settings lists blocked users with an empty state and swipe to unblock. Blocks match the member ID | ✓ VERIFIED | `BlockedCommentUserTests` (9), `BlockedCommentPresentationTests` (16), `BlockedUsersReducerTests` (6), `GalleryCommentParserTests` member-ID cases, including the look-alike-host cases added with the IN-01 fix (`8b30b8c55`: only the exact contact link `https://forums.e-hentai.org/index.php` with a digits-only `showuser` gives an ID). `CommentModerationUITests` block, strip and collapsed-card cases, and `SettingsModerationUITests` swipe, context-menu and empty-state cases, on both devices. Storage is `@Shared(.blockedCommentUsers)` (local app storage, no sync) |
 | 7 | All new strings come verbatim from the two approved copy files, every `.xcstrings` key is filled for six locales, and the six READMEs' Analytics sections describe the three levels | ✓ VERIFIED | Rerun at verification: `18-copy-check.py` reports "38 keys x 6 locales verbatim; 48 retired texts absent"; `--self-test` 21/21; `--readmes` "6 Analytics sections hold the three levels verbatim; no retired text" |
 | 8 | The reader keeps one source of truth for the page shown and the number displayed. Committed UI tests cover Reload All Images then a turn, a direction change during Auto-Play, and an LTR/RTL switch (G1/G2), and pass | ✓ VERIFIED | 18-07: `ReaderPosition` (`ReaderPositionTests`, 27 cases). `PageModel.swift` and `PagerTurnGateTests.swift` were deleted, the old separate copies. `ReaderRebuildUITests`: `testReloadAllImagesThenATurn…`, its drop-idle variant, `testChangingDirectionDuringAutoPlay…` and `testSwitchingLeftToRightAndRightToLeft…`. All pass in the full UITests runs on both devices (18-12 gate). The iPad two-page spread stays a known limit (DD-03) |
 | 9 | IN-02 and IN-03 are closed, and `MKSellsDigitalGoods` is `NO` | ✓ VERIFIED | `verify-release.py:31` `b'captureSystemOverlay'` (from `ae4cb03d3`, an ancestor of HEAD) plus the `test_release.py:129-139` case. `test_release.py` was rerun: 20 tests OK. `RootView.swift:3-5` imports `AppComponents` inside `#if DEBUG`. `App/Info.plist:132-133` `MKSellsDigitalGoods` `<false/>`. On the Release app, `plutil` reads `false` (18-12) |
@@ -90,7 +90,7 @@ All 12 plans have a SUMMARY with `status: complete`. Their must-haves roll up in
 - The UGC-18-01 published contact link (Phase 20).
 - The snapshot backstop for the Phase 18 screens (Phase 19).
 
-All three are by the owner's split (msg 1753) and are in the frontmatter.
+All three are by the owner's split and are in the frontmatter.
 
 ### Required artifacts and key links (spot-checked)
 
@@ -174,7 +174,7 @@ UI-SPEC comparison. The manual-only rows of 18-VALIDATION.md are covered as foll
 
 Accepted items, not failures:
 
-- The phone AX5 title cases (owner msg 1903). The phone AX5 en/de `blocked_users.empty` cases were accepted by the
+- The phone AX5 title cases (owner decision). The phone AX5 en/de `blocked_users.empty` cases were accepted by the
   lead.
 - The signed-out report page shows the site's guest page (18-12 deviation 9).
 
@@ -183,7 +183,7 @@ Accepted items, not failures:
 - `verify:post` hooks:
   - nyquist `validate-phase`: run. 18-VALIDATION.md is `status: validated` (1 gap found and resolved, 0 escalated).
   - security `secure-phase`: run. 18-SECURITY.md is `status: verified`, `threats_open: 0`: all 24 threat IDs are
-    closed. T-18-SC (package installs, low, planned as `accept`) was accepted by the owner (msg 1925, 2026-11-06).
+    closed. T-18-SC (package installs, low, planned as `accept`) was accepted by the owner (2026-11-06).
   - ui `ui-review`: not run.
 - The credentialed check that `App.installed` reaches TelemetryDeck at Minimal was not run, to avoid sending a real
   install signal to the owner's analytics. The `InstallSignalSender` unit tests cover it.

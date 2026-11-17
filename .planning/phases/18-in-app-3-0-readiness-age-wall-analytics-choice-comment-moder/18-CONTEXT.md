@@ -2,17 +2,17 @@
 
 **Gathered:** 2026-11-05
 **Status:** Ready for planning. UI execution waits for the UI-SPEC (D-17).
-**Amended:** 2026-11-05, during planning: D-06a, D-06b, DD-09a (owner msgs 1795, 1796, 1805; analytics "Minimal"),
-D-06c (owner msgs 1812, 1818; the install signal carries the install source), D-06d (owner msgs 1830, 1839; Basic's
-description builds on Minimal), D-06e (owner msgs 1844, 1854, 1864; the short analytics intro), D-06f (owner msgs 1869, 1880, 1882; screens and
-features move to Basic, Basic marked Recommended), D-06g (owner msg 1898; the analytics footer joins the intro), D-17b (owner msg 1903, designer msg 1905; Continue pinned at every size), D-14a (owner msg 1795; Blocked Users in Account settings), D-17a (UI-SPEC delivered, msgs 1791, 1803, 1807, 1820, 1826, 1843, 1866, 1886, 1899). The
+**Amended:** 2026-11-05, during planning: D-06a, D-06b, DD-09a (owner decision; analytics "Minimal"),
+D-06c (owner decision; the install signal carries the install source), D-06d (owner decision; Basic's
+description builds on Minimal), D-06e (owner decision; the short analytics intro), D-06f (owner decision; screens and
+features move to Basic, Basic marked Recommended), D-06g (owner decision; the analytics footer joins the intro), D-17b (owner decision, designer; Continue pinned at every size), D-14a (owner decision; Blocked Users in Account settings), D-17a (UI-SPEC delivered). The
 original decisions are kept as written; where an amendment differs, the amendment wins.
-**Sources:** the discussion prep [18-DISCUSSION-PREP.md](18-DISCUSSION-PREP.md) (locked decisions L1 to L46, gray areas GA-1 to GA-8, developer defaults, outside blockers, split proposal); the owner's answers to card msg 1748 (owner msg 1753) and card msg 1759 (owner msg 1765); the owner's copy approvals (msgs 1767, 1780). Where the owner answered, the answer overrides the prep. All dates are UTC.
+**Sources:** the discussion prep [18-DISCUSSION-PREP.md](18-DISCUSSION-PREP.md) (locked decisions L1 to L46, gray areas GA-1 to GA-8, developer defaults, outside blockers, split proposal); the owner's answers (owner decision) and (owner decision); the owner's copy approvals. Where the owner answered, the answer overrides the prep. All dates are UTC.
 
 <domain>
 ## Phase Boundary
 
-Phase 18 is the in-app part of the original Phase 18, which the owner split into three phases (msg 1753). It
+Phase 18 is the in-app part of the original Phase 18, which the owner split into three phases. It
 delivers, in every build and for every user:
 
 - **First launch:** the age wall, then the analytics choice (Minimal / Basic / Full; D-06a). Both are shown once to everyone,
@@ -34,7 +34,7 @@ delivers, in every build and for every user:
   number, the real-device checks, the final Release isolation scan and the analytics revision (ANALYTICS-02), which
   reuses this phase's `InstallSourceClient`, verifies and if needed extends its mapping on the real marketplace build
   and on a device, and adds the install source to the Basic/Full signals (D-06c).
-- **No phase:** tag creation and release order (owner msg 1753: "Tagging is not your business").
+- **No phase:** tag creation and release order (owner decision: "Tagging is not your business").
 
 </domain>
 
@@ -45,33 +45,33 @@ Owner decisions are binding. "Prep L*n*" and "GA-*n*" refer to [18-DISCUSSION-PR
 
 ### Phase organisation
 
-- **D-01:** Three phases, not one phase with stages (owner msg 1753, card msg 1748). The order is in-app work (18),
+- **D-01:** Three phases, not one phase with stages (owner decision). The order is in-app work (18),
   then visual regression and the marketing export (19), then distribution (20). All waiting on outside parties
   (the App Store Connect collaborator, the website, Apple) is in Phase 20, so this phase closes on its own evidence.
   The Phase 19 baseline is approved once, after every UI change here has landed.
 - **D-02:** The final analytics revision (ANALYTICS-02: install source, plus the signals for the 3.0 flows under the
   consent levels) is the **last plan of Phase 20**, not of this phase. The owner said to decide by where its inputs
-  exist (msg 1753). **Why:** the install source needs the marketplace build, which first exists in Phase 20. This phase
+  exist. **Why:** the install source needs the marketplace build, which first exists in Phase 20. This phase
   still gates the existing ANALYTICS-01 vocabulary by level (D-06), because the approved level descriptions promise it.
   It adds no new signals for the age wall, the analytics choice or moderation; those come with ANALYTICS-02.
   This updates prep L3 ("last plan" now means the last plan of Phase 20) and prep L1 (Phase 20, not 18, is the last
   3.0 phase).
-  **Amended by D-06c (owner msg 1812):** the install source client is created in this phase, for the one install
+  **Amended by D-06c (owner decision):** the install source client is created in this phase, for the one install
   signal only; Phase 20's ANALYTICS-02 extends and verifies it (real marketplace build, device) and adds the source
   to the Basic/Full signals.
 
 ### First launch: age wall (AGE-18-01)
 
 - **D-03:** There are two screens, in sequence: the age wall, then the analytics choice. Everyone sees both once on
-  their first 3.0 launch, including upgraders from 2.x and from the 3.0.0 pre-release (owner msg 1753; prep GA-1 Q1/Q2
+  their first 3.0 launch, including upgraders from 2.x and from the 3.0.0 pre-release (owner decision; prep GA-1 Q1/Q2
   option A). Neither screen may be skipped by a stored 2.x answer: there is none.
 - **D-04:** Before the age wall is confirmed, no content is shown, no network request is made and the analytics SDK is
   not started. Nothing else in the app works. There is no skip and no "No" button: Continue stays dimmed until the
   checkbox is ticked, as on the website's adult-mode box. The footnote ("If this isn't true for you, please close
   EhPanda.") is always visible. Nothing on the screen may say or suggest that the age was checked. The answer is
-  stored on the device. Sources: prep L9, L11, L12; owner msgs 1231, 1235, 1239; copy file, Screen 1.
-- **D-05:** The checkbox sentence is the owner-approved website sentence (msgs 1454, 1457), word for word and
-  unchanged. The approved text has **no list of examples** (owner msg 1753). Prep L10 is updated accordingly. The
+  stored on the device. Sources: prep L9, L11, L12; owner decision; copy file, Screen 1.
+- **D-05:** The checkbox sentence is the owner-approved website sentence, word for word and
+  unchanged. The approved text has **no list of examples** (owner decision). Prep L10 is updated accordingly. The
   examples in L10 and AGE-18-01 (where they are, where they live, their citizenship) explain the intent; they are not
   on-screen text. "Under every law that applies to me" carries that intent. — **Reversibility:** costly — the
   same sentence is the website's adult-mode declaration and is owner-approved in six languages; changing it means a
@@ -80,28 +80,28 @@ Owner decisions are binding. "Prep L*n*" and "GA-*n*" refer to [18-DISCUSSION-PR
 ### First launch: analytics choice (CONSENT-18-01)
 
 - **D-06:** There are three levels, **None / Basic / Full**, all equally prominent, with **none pre-selected** (owner
-  msg 1753). The SDK does not start before the choice and never starts under None (prep L14). What each level sends
+  decision). The SDK does not start before the choice and never starts under None (prep L14). What each level sends
   is fixed by its owner-approved description (prep GA-2 option A, as written into the approved copy):
   - **None** sends nothing.
   - **Basic** sends how often the app is used (the SDK's session signal), technical details (device model, app
     version), the install source and error kinds.
   - **Full** sends Basic plus the screens and features used, reading and download activity, and the main settings.
-  - **Amended by D-06f (owner msgs 1869, 1880):** the screens and features used move from Full to Basic; Full adds
+  - **Amended by D-06f (owner decision):** the screens and features used move from Full to Basic; Full adds
     reading and download activity and the main settings. "None pre-selected" stays; Basic is marked Recommended.
 
   Basic's install source is added by ANALYTICS-02 in Phase 20. Until then Basic just doesn't send it; no build ships
   in between. If what a level sends changes, its description must change too, which needs a new owner approval.
-- **D-06a (amends D-06; owner msgs 1795, 1796, 1805):** the lowest level is **Minimal**, not None. The levels are
+- **D-06a (amends D-06; owner decision):** the lowest level is **Minimal**, not None. The levels are
   **Minimal / Basic / Full**, in that order, all equally prominent, **none pre-selected**. Minimal sends only the
   installation: an install count and nothing else (D-06c adds where it was installed from). No level sends nothing any more, so every statement that a level
   "sends nothing" or that "None means no SDK" is withdrawn (D-06's first bullet, prep L14's "never starts under
   None", DD-09's "above None"). Before the choice nothing starts and nothing is sent, as before (D-04). The approved
-  strings are in [18-COPY-MINIMAL.md](18-COPY-MINIMAL.md) (owner msg 1805): `consent.level.minimal`,
+  strings are in [18-COPY-MINIMAL.md](18-COPY-MINIMAL.md) (owner decision): `consent.level.minimal`,
   `consent.level.minimal.description` and a new `consent.body` (itself superseded by D-06e); `consent.level.none` and
   `consent.level.none.description` are retired, and `shareAnalyticsDataFooter` stays retired (D-07). The Settings
   footer keeps its rule (the selected level's description). This also amends D-02 for one signal: the install signal
   of D-06b is new in this phase; every other new signal still waits for ANALYTICS-02.
-- **D-06b (developer's technical decision for D-06a, relayed by the lead; confirmed to Camo in msg 1798):** what
+- **D-06b (developer's technical decision for D-06a, relayed by the lead; confirmed to Camo):** what
   "Minimal" sends, exactly.
   - **Why not the SDK.** Phase 14's "your installation is still counted" came from the SDK's own signals:
     `TelemetryDeck.Session.started` on every cold launch and every foreground after 5 minutes, and
@@ -137,14 +137,14 @@ Owner decisions are binding. "Prep L*n*" and "GA-*n*" refer to [18-DISCUSSION-PR
     payload, and never a second one (also across a relaunch and after a level change); the SDK is never initialised
     under Minimal.
   - **Amended by D-06c:** the payload is no longer `{}`; it holds exactly one key, the install source.
-- **D-06c (amends D-06b; owner msg 1812, developer decision relayed by the lead; copy approved in owner msg 1818):**
+- **D-06c (amends D-06b; owner decision, developer decision relayed by the lead; copy approved by the owner):**
   the Minimal install signal also carries where the app was installed from, and nothing else.
   - **One parameter.** The one-time `App.installed` signal (at every level, as in D-06b) has exactly one payload key,
     `App.installSource`, whose value is one of a small fixed enum, `InstallSource`: `appStore`, `testFlight`,
     `marketplace(<the marketplace bundle ID as reported>)`, `web`, `other`, `unknown`. On the wire the values are the
     strings `appStore`, `testFlight`, `marketplace:<id>`, `web`, `other`, `unknown`. No other field is added; every
     other part of D-06b's request is unchanged.
-  - **Amended by Phase 20 D-12** (owner msgs 2513, 2518, 2525, 2537): five more values, `github`, `altstore`,
+  - **Amended by Phase 20 D-12** (owner decision): five more values, `github`, `altstore`,
     `sidestore`, `beta` and `source`, named by the distribution channel stamped into the app's Info.plist when
     MarketplaceKit reports `other` or throws. A DEBUG build on a device now asks MarketplaceKit too, and the live
     client no longer reports `other`; the value stays on the wire. The simulator still reports `unknown`.
@@ -159,28 +159,28 @@ Owner decisions are binding. "Prep L*n*" and "GA-*n*" refer to [18-DISCUSSION-PR
   - **Phase 20 (ANALYTICS-02)** reuses the same client: it verifies, and if needed extends, the mapping on the real
     marketplace build and on a device, and adds the source to the Basic/Full signals (D-02 as amended).
   - **Copy:** the Minimal description is now "Sends only a signal that EhPanda is installed, and where you installed
-    the app from." (Revision 2 in [18-COPY-MINIMAL.md](18-COPY-MINIMAL.md), owner msg 1818). `consent.body` and the
-    level name are unchanged. Copy precedence: Revision 3 of the same file (owner msg 1839, D-06d) supersedes the
-    first-launch Basic description; Revision 5 (owner msg 1864, D-06e) supersedes `consent.body`; Revision 6 (owner
-    msg 1880, D-06f) supersedes Revision 3's Basic description and the first-launch Full description.
-- **D-06d (amends the Basic copy only; owner msgs 1830, 1839; its Basic line is superseded by D-06f):** the owner noted that Basic's description repeated
-  Minimal's install line (msg 1830). Basic's description now builds on Minimal the way Full builds on Basic:
+    the app from." (Revision 2 in [18-COPY-MINIMAL.md](18-COPY-MINIMAL.md), owner decision). `consent.body` and the
+    level name are unchanged. Copy precedence: Revision 3 of the same file (owner decision, D-06d) supersedes the
+    first-launch Basic description; Revision 5 (owner decision, D-06e) supersedes `consent.body`; Revision 6 (owner
+    decision, D-06f) supersedes Revision 3's Basic description and the first-launch Full description.
+- **D-06d (amends the Basic copy only; owner decision; its Basic line is superseded by D-06f):** the owner noted that Basic's description repeated
+  Minimal's install line. Basic's description now builds on Minimal the way Full builds on Basic:
   "Everything in Minimal, plus how often the app is used, technical details such as device model and app version, and
-  which kinds of errors occur." (Revision 3 in [18-COPY-MINIMAL.md](18-COPY-MINIMAL.md), drafted in msg 1832,
-  approved in owner msg 1839, six languages). It supersedes `consent.level.basic.description` in
+  which kinds of errors occur." (Revision 3 in [18-COPY-MINIMAL.md](18-COPY-MINIMAL.md), drafted,
+  approved by the owner, six languages). It supersedes `consent.level.basic.description` in
   [18-COPY-FIRST-LAUNCH.md](18-COPY-FIRST-LAUNCH.md); that file's Basic line is retired and must not appear in any
   catalog or README. **What Basic sends does not change** (D-06's Basic bullet, D-06b, D-06c; D-06f changes it later): the install signal
   and its source come through "Everything in Minimal". Minimal (Revision 2), Full, `consent.title` and
   `consent.body` are unchanged (`consent.body` later changes under D-06e). The Settings footer rule is unchanged, so
   at Basic it now starts "Everything in Minimal".
-- **D-06e (amends the analytics intro only; owner msgs 1844, 1854, 1864):** the owner found the intro under the
-  analytics title too verbose (msg 1844) and asked for something like "what you have searched or viewed are never
-  sent" (msg 1854). `consent.body` is now one short line: "Anonymous analytics. Your searches and the galleries you
-  view are never sent." (Revision 5, version B, in [18-COPY-MINIMAL.md](18-COPY-MINIMAL.md), approved in owner msg
-  1864, six languages). It supersedes the msg-1805 `consent.body` in that file's first table and, with it, the
-  original first-launch `consent.body`; both are retired and must not appear in any catalog. Revision 4 (msg 1847)
+- **D-06e (amends the analytics intro only; owner decision):** the owner found the intro under the
+  analytics title too verbose and asked for something like "what you have searched or viewed are never
+  sent". `consent.body` is now one short line: "Anonymous analytics. Your searches and the galleries you
+  view are never sent." (Revision 5, version B, in [18-COPY-MINIMAL.md](18-COPY-MINIMAL.md), approved in owner
+ decision, six languages). It supersedes the msg-1805 `consent.body` in that file's first table and, with it, the
+  original first-launch `consent.body`; both are retired and must not appear in any catalog. Revision 4
   was not approved and is not used.
-  - **Why it is true (developer check, msg 1858):** at no level does any gallery ID, title, link, tag name or search
+  - **Why it is true (developer check):** at no level does any gallery ID, title, link, tag name or search
     text go out. Full sends a gallery's category and per-namespace tag counts when one is opened; a search sends only
     word count, length, a tag-syntax flag and a result-count bucket. If a later signal sends a search's text or which
     gallery was viewed, this line must change first, with a new owner approval.
@@ -188,21 +188,20 @@ Owner decisions are binding. "Prep L*n*" and "GA-*n*" refer to [18-DISCUSSION-PR
     (`consent.privacy_link`). The intro no longer says why analytics are collected or who receives them, so the
     website's privacy page must say both when it is rewritten for 3.0 (website, Phase 20; see the knock-on note
     under Specifics).
-  - **Layout:** about 77 characters in en, two lines on iPhone at default size (designer msgs 1846, 1850); German may
+  - **Layout:** about 77 characters in en, two lines on iPhone at default size (designer); German may
     wrap to three lines on the smallest iPhones, which is acceptable. `consent.title`, the level names and
     descriptions, `consent.footer` and the Settings footer rule are unchanged.
-- **D-06f (amends D-06, D-06d and Research A-3; owner msgs 1869, 1880, 1882; developer mapping msg 1878):** the
-  owner moved the screens and features from Full to Basic (msg 1869, "move screen + features to basic") and chose to
-  mark Basic as recommended (msg 1882).
-  - **Copy (Revision 6 in [18-COPY-MINIMAL.md](18-COPY-MINIMAL.md), approved in owner msg 1880, six languages):**
+- **D-06f (amends D-06, D-06d and Research A-3; owner decision; developer mapping):** the
+  owner moved the screens and features from Full to Basic ("move screen + features to basic") and chose to
+  mark Basic as recommended.
+  - **Copy (Revision 6 in [18-COPY-MINIMAL.md](18-COPY-MINIMAL.md), approved by the owner, six languages):**
     Basic: "Everything in Minimal, plus how often the app is used, which screens and features you use, technical
     details such as device model and app version, and which kinds of errors occur." Full: "Everything in Basic, plus
-    your reading and download activity and your main settings." It supersedes the Revision 3 Basic line (msg 1839)
+    your reading and download activity and your main settings." It supersedes the Revision 3 Basic line
     and the first-launch Full line ("Everything in Basic, plus which screens and features you use, your reading and
     download activity, and your main settings."); both are retired in all six languages and must not appear in any
     catalog or README. Minimal (Revision 2), `consent.title`, `consent.body` (Revision 5) and the names are unchanged.
-  - **What each level sends** (replaces D-06's Basic/Full bullets and Research A-3; the developer's mapping, msg
-    1878, matches the copywriter's lines):
+  - **What each level sends** (replaces D-06's Basic/Full bullets and Research A-3; the developer's mapping, matches the copywriter's lines):
     - **Minimal:** unchanged (D-06b, D-06c): the one install signal; the SDK is never initialised.
     - **Basic:** the SDK's session and acquisition signals; the screens and features: `tabOpened`,
       `homeSectionViewed`, `filterPanelOpened`, `quickSearchPanelOpened`, `savedSearchUsed`, `tagTapped`,
@@ -210,22 +209,22 @@ Owner decisions are binding. "Prep L*n*" and "GA-*n*" refer to [18-DISCUSSION-PR
       Default parameters stay `[:]`.
     - **Full:** everything in Basic, plus reading and download activity: `galleryDetailOpened`,
       `readingSessionEnded`, `downloadStateChanged`; plus the main settings: the five `App.*` default parameters.
-    - Research OI-3 is closed: `cloudflareChallengeEncountered` is Basic (developer decision, msg 1878).
-  - **Recommended, not pre-selected (owner msg 1882, card 1873; options in msgs 1872 and 1874):** Basic shows a
+    - Research OI-3 is closed: `cloudflareChallengeEncountered` is Basic (developer decision).
+  - **Recommended, not pre-selected (owner decision; options):** Basic shows a
     "Recommended" label (`consent.level.recommended`, six languages in Revision 6). Nothing is pre-selected (D-06,
-    D-06a stay true) and Continue stays disabled until a level is tapped. The pre-selected variant (msg 1871) was not
-    chosen. The order stays Minimal, Basic, Full (designer's call, msg 1886): the descriptions are a ladder that reads
+    D-06a stay true) and Continue stays disabled until a level is tapped. The pre-selected variant was not
+    chosen. The order stays Minimal, Basic, Full (designer's call): the descriptions are a ladder that reads
     top-down. The label follows UI-SPEC C-3: a neutral grey capsule in Basic's name row, never accent (accent means
     selected) and the same whether Basic is selected or not; it drops under the name at accessibility sizes; VoiceOver
     reads it as part of the card ("Basic, Recommended, ..."). The Settings picker is unchanged (UI-SPEC C-9: the three
     names only, no label); its footer shows the Revision 6 descriptions.
-- **D-06g (layout only; owner msg 1898; designer msg 1899):** on the analytics choice `consent.footer` ("You can
+- **D-06g (layout only; owner decision; designer):** on the analytics choice `consent.footer` ("You can
   change this anytime in Settings.") sat under the cards, off screen on most phones. It now follows `consent.body` in
   the same `Text`, as one paragraph: joined by one space in en, de and ko and with no space in ja, zh-Hans and
   zh-Hant. The Privacy Policy link moves up under that paragraph (8pt), and the cards follow 16pt below the link;
   nothing sits under the cards. No string changes. The en intro is now expected to wrap to three lines on iPhone at
   default size. UI-SPEC C-3 items 3 to 6 are the contract.
-- **D-17b (owner msg 1903, designer msg 1905):** Continue pinned at every size; at AX sizes the age-wall footnote is
+- **D-17b (owner decision, designer):** Continue pinned at every size; at AX sizes the age-wall footnote is
   the last scroll item (16pt under the checkbox card). UI-SPEC C-1 (Continue bar) and C-2 item 6 are the contract;
   mockups 16, 17 and 18 refreshed.
 - **D-07:** Settings follows the copy file's "Settings (replaces today's toggle)" section:
@@ -239,47 +238,47 @@ Owner decisions are binding. "Prep L*n*" and "GA-*n*" refer to [18-DISCUSSION-PR
   ANALYTICS-01's rules stay: type-closed vocabulary, no bare `String`, buckets, the never-send list, no-op in builds
   without credentials, and emission only from reducers (prep L17; 14-CONTEXT D-06 to D-14).
 - **D-09:** All first-launch and analytics-Settings strings come **verbatim** from
-  [18-COPY-FIRST-LAUNCH.md](18-COPY-FIRST-LAUNCH.md) (owner msg 1767), in all six languages. The keys there are
+  [18-COPY-FIRST-LAUNCH.md](18-COPY-FIRST-LAUNCH.md) (owner decision), in all six languages. The keys there are
   suggestions and may be renamed to fit the string catalogs; the strings may not change. Its "one term per concept"
   table applies to any other string this phase adds.
 
 ### Comment moderation (UGC-18-01)
 
-- **D-10:** **Reporting goes to E-Hentai only** (owner msg 1753). Each comment's menu has "Report on {site}". It shows
+- **D-10:** **Reporting goes to E-Hentai only** (owner decision). Each comment's menu has "Report on {site}". It shows
   a confirmation, then opens the gallery's report page on E-Hentai or ExHentai. There is no email, no "Report to
   EhPanda" and no support-contact fallback. This replaces prep L18's fallback and GA-3 Q1 option A. If research finds a
   per-comment report link on the site, drop the second sentence of `comment.report.confirm_body` (copy file note).
-- **D-11:** **No in-app contact option now.** The owner asked Ampo (msg 1760), and Ampo answered "not now" (msg 1774).
+- **D-11:** **No in-app contact option now.** The owner asked Ampo, and Ampo answered "not now".
   Prep L20's "contact details in Settings" and GA-3 Q2 (a support mailbox) are not done in this phase. Before the
   AltStore build goes to Apple, a published contact link is needed: GitHub Issues on the website, owned by Leto. That
   is Phase 20 work. The existing About contact list in Settings (website, GitHub, Discord, Telegram) is unchanged.
-- **D-12:** **The posting filter warns and still allows posting** (owner msg 1765, card msg 1759). This replaces GA-4
-  Q1 option A (block posting). Ampo flagged the Guideline 1.2 risk (msg 1751); the owner made the call. The warning:
+- **D-12:** **The posting filter warns and still allows posting** (owner decision). This replaces GA-4
+  Q1 option A (block posting). Ampo flagged the Guideline 1.2 risk; the owner made the call. The warning:
   - appears after the user taps Post, before anything is sent;
   - offers Edit (the default, which keeps the typed text) and Post Anyway;
   - never names the matched word;
   - also applies when the user edits an existing comment.
-- **D-13:** **Blocking collapses the comment instead of hiding it** (owner msg 1765). This replaces GA-4 Q3 option A
+- **D-13:** **Blocking collapses the comment instead of hiding it** (owner decision). This replaces GA-4 Q3 option A
   (hide fully). A blocked user's comment becomes the row "Comment from a user you've blocked", with Show and Unblock,
   in both the comments list and the Detail comment preview.
   - The row never shows the blocked user's name.
   - Show reveals that one comment once; the user stays blocked.
   - Blocking is local to this device (prep L19).
-- **D-14:** **The Blocked Users list in Settings is included** (owner msg 1780). It has a footer, an empty state ("You
+- **D-14:** **The Blocked Users list in Settings is included** (owner decision). It has a footer, an empty state ("You
   haven't blocked anyone.") and a swipe action to unblock.
-- **D-14a (amends D-14's location; owner msg 1795):** the Blocked Users row and list live in **Account** settings
+- **D-14a (amends D-14's location; owner decision):** the Blocked Users row and list live in **Account** settings
   (`AccountSettingView`), not General: a section between the account section and the cookie section, shown whether
   or not the user is signed in (UI-SPEC C-10).
-- **D-15:** All comment-moderation strings come **verbatim** from [18-COPY-COMMENTS.md](18-COPY-COMMENTS.md) (owner msg
-  1780). `{site}` may be the gallery's site name or a fixed form, whichever the developer finds simpler; the copy file
+- **D-15:** All comment-moderation strings come **verbatim** from [18-COPY-COMMENTS.md](18-COPY-COMMENTS.md) (owner
+ decision). `{site}` may be the gallery's site name or a fixed form, whichever the developer finds simpler; the copy file
   allows either. Cancel reuses the existing `cancel` key.
-- **D-16:** Moderation ships to all users in every build, not only the marketplace build (prep L4; owner msg 1294).
+- **D-16:** Moderation ships to all users in every build, not only the marketplace build (prep L4; owner decision).
 
 ### Design dependency (UI-SPEC before UI execution)
 
 - **D-17:** Colo, the designer, owns the layout spec and mockups for the age wall, the analytics choice, the comment
   report and block UI (menu items, confirmations, the posting warning, the collapsed row) and the Blocked Users list
-  (msg 1757). The project has `workflow.ui_phase: true`. Requirements for plan-phase:
+. The project has `workflow.ui_phase: true`. Requirements for plan-phase:
   - A UI-SPEC (`18-UI-SPEC.md`) must exist before any UI execution task: either run `/gsd-ui-phase 18` to produce the
     design contract Colo fills or reviews, or take a UI-SPEC Colo supplies.
   - Plans must leave that spec input for him (screens, states, approved strings, constraints such as "no default
@@ -288,15 +287,14 @@ Owner decisions are binding. "Prep L*n*" and "GA-*n*" refer to [18-DISCUSSION-PR
     store, the reader rework, IN-02/IN-03 and `MKSellsDigitalGoods`.
   - Layout choices left open by the copy, such as whether the analytics choice uses a separate Continue button or
     saves on tap, are Colo's.
-- **D-17a (amends D-17's status):** the UI-SPEC exists. Colo delivered it in msg 1791, revised it for D-06a/D-14a in
-  msg 1803, finalised it in msg 1807 and refreshed the Minimal line and mockups 03, 04, 13 and 21 for D-06c
-  in msg 1820, added the title line-break rule (owner msg 1822; C-3: a title's last line is never a single
-  word, or for zh/ja/ko never a single character, in any locale or text size) in msg 1826, and took the Revision 3
-  Basic line (D-06d, owner msg 1839) into the spec and refreshed mockups 03, 04, 12 and 21 in msg 1843, and took
-  the short intro (D-06e, owner msg 1864) into the spec and refreshed mockups 03, 04 and 21 in msg 1866, and added Basic's Recommended label and the Revision 6
-  lines (D-06f, owner msgs 1880, 1882; order stays Minimal, Basic, Full) and refreshed mockups 03, 04, 12, 18 and 21
-  in msg 1886, and joined `consent.footer` to the intro with the Privacy Policy link under it, above the cards
-  (D-06g, owner msg 1898), refreshing mockups 03, 04, 18 and 21 in msg 1899: [18-UI-SPEC.md](18-UI-SPEC.md) with 24 mockups in `mockups/`. It is the
+- **D-17a (amends D-17's status):** the UI-SPEC exists. Colo delivered it, revised it for D-06a/D-14a, finalised it and refreshed the Minimal line and mockups 03, 04, 13 and 21 for D-06c
+  , added the title line-break rule (owner decision; C-3: a title's last line is never a single
+  word, or for zh/ja/ko never a single character, in any locale or text size), and took the Revision 3
+  Basic line (D-06d, owner decision) into the spec and refreshed mockups 03, 04, 12 and 21, and took
+  the short intro (D-06e, owner decision) into the spec and refreshed mockups 03, 04 and 21, and added Basic's Recommended label and the Revision 6
+  lines (D-06f, owner decision; order stays Minimal, Basic, Full) and refreshed mockups 03, 04, 12, 18 and 21
+  , and joined `consent.footer` to the intro with the Privacy Policy link under it, above the cards
+  (D-06g, owner decision), refreshing mockups 03, 04, 18 and 21 : [18-UI-SPEC.md](18-UI-SPEC.md) with 24 mockups in `mockups/`. It is the
   design contract for every UI task; `/gsd-ui-phase` is not run. His layout calls: a separate Continue on the
   analytics choice, dimmed until a level is picked; a `…` menu on each comment in the list with the same items on
   long-press and as VoiceOver actions, long-press only on the Detail strip; Report, Block and the posting warning are
@@ -305,7 +303,7 @@ Owner decisions are binding. "Prep L*n*" and "GA-*n*" refer to [18-DISCUSSION-PR
 ### Reader page tracking (carried from Phase 17)
 
 - **D-18:** Replace the reader's separate copies of "the current page" with one source of truth for the page shown and
-  the number displayed, as one task, not more patches (prep L38; owner msg 1630, product lead msg 1631). The copies are
+  the number displayed, as one task, not more patches (prep L38; owner decision, product lead decision). The copies are
   the page-model index, the pager scroll position, the shown pager position, the displayed slider value, the saved
   reading progress and the vertical list's position.
 - **D-19:** Add committed UI tests for Phase 17's gaps G1/G2 (prep L39):
@@ -318,7 +316,7 @@ Owner decisions are binding. "Prep L*n*" and "GA-*n*" refer to [18-DISCUSSION-PR
 ### In-app carries and the app-code release fix
 
 - **D-20:** Close IN-02 and IN-03 in this phase, before Phase 20's final Release isolation scan (prep L40, L41;
-  owner msg 1627):
+  owner decision):
   - IN-02: add a `captureSystemOverlay` token to `Scripts/visual/verify-release.py` `FORBIDDEN_CONTENT`, with a
     `Scripts/visual/test_release.py` case.
   - IN-03: move RootView's `import AppComponents` into its `#if DEBUG` import block.
@@ -364,10 +362,10 @@ They come from the prep's GA-4/GA-5 recommendations and its section 3.
 - **DD-09, SDK lifecycle:** `AnalyticsClient.start` runs only at a level above None. Raising the level at runtime
   starts the SDK. Lowering it stops app signals immediately and disables the SDK (`analyticsDisabled`). Unit tests
   prove no SDK call before consent.
-- **DD-09a (amends DD-09; owner msgs 1795, 1796; developer decision D-06b):** nothing starts before the choice. After
+- **DD-09a (amends DD-09; owner decision; developer decision D-06b):** nothing starts before the choice. After
   it, every level sends the one install signal (D-06b); the SDK starts at Basic and Full only. Raising to Basic/Full
   starts the SDK; lowering to Minimal stops app signals at once and terminates the SDK, which then stays down. Unit
-  tests prove no request and no SDK call before the choice and no SDK initialisation under Minimal. Ato's msg 1796
+  tests prove no request and no SDK call before the choice and no SDK initialisation under Minimal. Ato's
   ("the SDK starts at every level") is met in substance by the own sender: what the owner asked for is that Minimal
   sends the install signal, and the SDK cannot send it without device details.
 - **DD-10, moderation storage:** the block list is an `@Shared` set of author names. The report and block actions go
@@ -392,22 +390,22 @@ layout, test structure and the bundled filter list's contents.
 ### Approved copy (canonical; never paraphrase)
 
 - `.planning/phases/18-in-app-3-0-readiness-age-wall-analytics-choice-comment-moder/18-COPY-FIRST-LAUNCH.md`: age
-  wall, analytics choice and Settings strings in six languages (owner msg 1767). The `age_wall.declaration` row is the
-  owner-approved website sentence (msgs 1454, 1457).
+  wall, analytics choice and Settings strings in six languages (owner decision). The `age_wall.declaration` row is the
+  owner-approved website sentence.
 - `.planning/phases/18-in-app-3-0-readiness-age-wall-analytics-choice-comment-moder/18-COPY-MINIMAL.md` (**D-06a**):
-  the approved Minimal level name and description and the new `consent.body`, six languages (owner msg 1805). It
-  supersedes the None strings and `consent.body` in the first-launch copy file. Its Revision 2 (owner msg 1818,
-  **D-06c**) supersedes the Minimal description in its own first table. Its Revision 3 (owner msg 1839, **D-06d**)
-  supersedes the Basic description in the first-launch copy file. Its Revision 5 (owner msg 1864, **D-06e**)
-  supersedes `consent.body` in its own first table (msg 1805) and in the first-launch copy file. Precedence: Revision
+  the approved Minimal level name and description and the new `consent.body`, six languages (owner decision). It
+  supersedes the None strings and `consent.body` in the first-launch copy file. Its Revision 2 (owner decision,
+  **D-06c**) supersedes the Minimal description in its own first table. Its Revision 3 (owner decision, **D-06d**)
+  supersedes the Basic description in the first-launch copy file. Its Revision 5 (owner decision, **D-06e**)
+  supersedes `consent.body` in its own first table and in the first-launch copy file. Precedence: Revision
   5 (`consent.body`), Revision 3 (Basic description), Revision 2 (Minimal description) > its first table > the
-  first-launch copy file. Revision 4 (msg 1847) was not approved. Its Revision 6 (owner msg 1880, **D-06f**)
+  first-launch copy file. Revision 4 was not approved. Its Revision 6 (owner decision, **D-06f**)
   supersedes Revision 3's Basic description and the first-launch Full description, and adds
   `consent.level.recommended`. Precedence now: Revision 6 (Basic and Full descriptions, `consent.level.recommended`),
   Revision 5 (`consent.body`), Revision 2 (Minimal description) > its first table > the first-launch copy file.
 - `.planning/phases/18-in-app-3-0-readiness-age-wall-analytics-choice-comment-moder/18-COPY-COMMENTS.md`: report,
-  posting warning, blocking and Blocked Users strings in six languages (owner msg 1780).
-- Age-wall sentence source: owner msgs 1454 and 1457 (the website's adult-mode sentence). Its text is
+  posting warning, blocking and Blocked Users strings in six languages (owner decision).
+- Age-wall sentence source: owner decision (the website's adult-mode sentence). Its text is
   `age_wall.declaration` in the first-launch copy file; use it unchanged.
 
 ### Phase records
@@ -418,7 +416,7 @@ layout, test structure and the bundled filter list's contents.
 - `.planning/phases/18-in-app-3-0-readiness-age-wall-analytics-choice-comment-moder/18-DISCUSSION-LOG.md`: the options
   and the owner's choices (audit trail only).
 - `.planning/phases/18-in-app-3-0-readiness-age-wall-analytics-choice-comment-moder/18-UI-SPEC.md` and `mockups/`:
-  Colo's final design contract (msg 1826, revising msgs 1807 and 1820; D-17a).
+  Colo's final design contract (D-17a).
 - `.planning/ROADMAP.md`, Phase 18 (and the split map at the end of that section); Phases 19 and 20 for the work that
   is not here.
 - `.planning/REQUIREMENTS.md`: AGE-18-01, CONSENT-18-01, UGC-18-01, DIST-18-01 and their 2026-11-05 amendments.
@@ -494,14 +492,14 @@ These notes come from the approved copy files and keep their intent:
   statement by the user, never a check by us.
 - **Continue:** the button is "Continue", not "I agree"; the agreement is the checkbox.
 - **Analytics title:** it is neutral on purpose ("Choose what EhPanda shares"), because a choice with no default
-  shouldn't nudge. (The owner chose to mark Basic "Recommended", msg 1882, D-06f; the title stays neutral and
+  shouldn't nudge. (The owner chose to mark Basic "Recommended", D-06f; the title stays neutral and
   nothing is pre-selected.)
 - **"None" in ko, ja and zh:** it reads as "Don't share", since a bare 없음 / なし / 无 is unclear as a button.
   (Withdrawn with None itself: D-06a, 18-COPY-MINIMAL.md.)
 - **Blocking terms:** zh-Hans uses 屏蔽 for blocking, matching "Excluded Uploaders"; zh-Hant uses 封鎖.
 - **The website's privacy page:** it says sharing is on by default and that a switch turns it off. It must be
-  rewritten for the three levels when 3.0 ships, not before (website, Phase 20). Knock-on of D-06e (owner msg
-  1864): the in-app intro no longer names TelemetryDeck or says why analytics are collected, so the rewritten page,
+  rewritten for the three levels when 3.0 ships, not before (website, Phase 20). Knock-on of D-06e (owner
+ decision): the in-app intro no longer names TelemetryDeck or says why analytics are collected, so the rewritten page,
   linked from the analytics screen, must name TelemetryDeck as the recipient and state the purpose (seeing which
   features matter).
 
@@ -510,7 +508,7 @@ These notes come from the approved copy files and keep their intent:
 <deferred>
 ## Deferred Ideas
 
-- **Contact option:** no in-app contact option or support mailbox for now (Ampo msg 1774). Phase 20 needs a published
+- **Contact option:** no in-app contact option or support mailbox for now (Ampo). Phase 20 needs a published
   contact link (GitHub Issues on the website, Leto) before the AltStore build goes to Apple.
 - **New analytics signals and the install source on Basic/Full:** signals for the age wall, the analytics choice and
   moderation, and the install source on the Basic/Full signals, come with ANALYTICS-02, the last plan of Phase 20
@@ -518,9 +516,9 @@ These notes come from the approved copy files and keep their intent:
 - **iPad two-page spread test:** a known limit (DD-03).
 - **Comment styles on edit:** keeping a comment's styles and links when editing is still an open STATE Deferred Item.
   The posting warning applies to edits, but this phase does not change the edit form's plain-text pre-fill.
-- **Not adopted from the prep:** GA-3's "Report to EhPanda" email and support mailbox (owner msg 1753); GA-4's "block
-  posting" and "hide fully" (owner msg 1765).
-- **Out of every phase:** GA-7's tag style, the `3.0.0` retag and release sequencing (owner msg 1753: "Tagging is not
+- **Not adopted from the prep:** GA-3's "Report to EhPanda" email and support mailbox (owner decision); GA-4's "block
+  posting" and "hide fully" (owner decision).
+- **Out of every phase:** GA-7's tag style, the `3.0.0` retag and release sequencing (owner decision: "Tagging is not
   your business").
 - **Later phases:** GA-6 (the marketplace build) and GA-8 (listing content, the 384 selection) belong to Phases 20 and
   19 and are recorded in their CONTEXT files.

@@ -9,7 +9,7 @@ public import Sharing
 /// The screen holds no copy of the block list: it reads `@Shared(.blockedCommentUsers)`, the same store the comment
 /// moderation writes, so a user blocked or unblocked anywhere is reflected here at once and the Account row's count
 /// never disagrees with the list. Each row shows the name the user was last seen under; Unblock removes by member ID
-/// (owner msg 1918). Blocking is local to the device and needs no account, so nothing here depends on
+/// (owner decision). Blocking is local to the device and needs no account, so nothing here depends on
 /// signing in.
 ///
 /// Unblocking reports only that it happened and where (`Moderation.posterUnblocked`, 20-12): the name and the member

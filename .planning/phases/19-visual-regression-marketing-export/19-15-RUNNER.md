@@ -10,7 +10,7 @@
   repository. Two limits apply: scheduled runs start only from `main`, and GitHub turns off a public repository's
   schedules after 60 days without repository activity.
 
-Choice: hosted (owner msg 2441)
+Choice: hosted (owner decision)
 
 What this means for 19-16: the live check is deployed through `.github/workflows/live-check.yml`. The `launchd`
 template (`Scripts/live-check/live-check.plist.template`) stays in the repository but is not installed. The check

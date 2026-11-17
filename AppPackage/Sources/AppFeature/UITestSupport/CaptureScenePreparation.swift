@@ -344,7 +344,7 @@ enum CaptureScenePreparation {
         // Website captures use Japanese titles for Korean, Japanese and Chinese interfaces only.
         // This changes the isolated capture setting, not the app's defaults or a person's preference.
         setting.displayJapaneseTitle = language == .japanese || language == .korean || language == .chinese
-        // iPad captures show Downloads as a grid (owner msg 5072); the iPhone keeps its rows.
+        // iPad captures show Downloads as a grid (owner decision); the iPhone keeps its rows.
         if family == .pad {
             setting.galleryListPresentation.downloads = .grid
         }
@@ -422,7 +422,7 @@ private struct MarketingGalleries {
         let flow = scene.flow
         let liveText = scene.liveText
         // A mocked download's folder holds no page images, so a screen that opens its gallery would
-        // show blanks; the launch fails here instead (owner msg 5113).
+        // show blanks; the launch fails here instead (owner decision).
         let opened = [flow.gallery, liveText.gallery, scene.detailGallery, scene.commentsGallery].compactMap(\.self)
         if let mock = scene.downloads.first(where: { $0.mocksPages && opened.contains($0.gallery) }) {
             throw .malformedScene("download \(mock.gallery) mocks its pages, so no screen may open its gallery")
@@ -527,7 +527,7 @@ private struct MarketingGalleries {
     /// the folder holds, all of a complete download and the first `completedPages` of another.
     ///
     /// A complete download that mocks its pages holds none of their images: only its manifest marks
-    /// every page complete, so its row shows its status (owner msg 5113). No capture has a failure
+    /// every page complete, so its row shows its status (owner decision). No capture has a failure
     /// to show, so an `error` row cannot be captured.
     private func download(
         _ entry: CaptureSelection.Download,

@@ -5,7 +5,7 @@ import Foundation
 /// public baselines (D-06); none is a real member, account, profile or log line.
 public enum SettingsFixtures {
     /// Blocked members as the comment moderation stores them, in the order they were blocked. Member IDs are the
-    /// identity (owner msg 1918); the names are the synthetic ones the comment fixtures use.
+    /// identity (owner decision); the names are the synthetic ones the comment fixtures use.
     public static let blockedMembers: [(memberID: String, name: String)] = [
         ("900003", "Visual Member 3"),
         ("900001", "Visual Member 1"),

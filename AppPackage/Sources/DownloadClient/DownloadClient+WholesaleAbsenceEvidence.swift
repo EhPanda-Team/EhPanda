@@ -46,7 +46,7 @@ extension DownloadCoordinator {
     }
 
     /// Drops the record's whole claim at a stop, when Verify's scan and this stop's fresh scan BOTH
-    /// found every claimed page positively absent (B1, product lead's EhPanda msg 2903).
+    /// found every claimed page positively absent (B1, product lead's decision).
     ///
     /// **Why at `commitPause`, and at `cancelQueuedWorkItem`.** The two stops this closes have no
     /// run evidence of their own: a pause during the payload fetch, before the run announced its

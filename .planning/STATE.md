@@ -7,7 +7,7 @@ status: executing
 stopped_at: Completed 20-14-PLAN.md (Release isolation scan, both flavors 0 findings; phase gate green)
 last_updated: "2026-11-11T12:00:00.000Z"
 last_activity: 2026-11-11
-last_activity_desc: "20-14 closed: the Release isolation scan of the default and marketplace flavors (0 findings each) and the phase gate (all green; 20-VALIDATION.md rows updated, nyquist_compliant stays false). Earlier, 20-13 closed: the seven signed-off analytics signals, call sites and the README in six languages. Earlier, 20-11 closed: main (Phase 19 closed with deferred items, owner msgs 3425, 3428, 3573) merged into feature/gsd-phase-20 (OQ-F, owner msg 3346); the release gate reads the merged PR head and compare runs only"
+last_activity_desc: "20-14 closed: the Release isolation scan of the default and marketplace flavors (0 findings each) and the phase gate (all green; 20-VALIDATION.md rows updated, nyquist_compliant stays false). Earlier, 20-13 closed: the seven signed-off analytics signals, call sites and the README in six languages. Earlier, 20-11 closed: main (Phase 19 closed with deferred items, owner decision) merged into feature/gsd-phase-20 (OQ-F, owner decision); the release gate reads the merged PR head and compare runs only"
 state_head: e618e40cbb803098c79170a6f3524064002e313d
 progress:
   total_phases: 21
@@ -21,7 +21,7 @@ source_head: b5eca09d1
 
 # Project State
 
-**Phase 20 planned** (2026-11-09) on `feature/gsd-phase-20`, in parallel with Phase 19 (owner msg 2770; product lead msg 2771): `20-CONTEXT.md`, `20-RESEARCH.md`, 14 plans following the fixed order (D-14), and `20-VALIDATION.md`; OQ-1 resolved by D-22 (product lead msg 2775: the current icon is kept). Product lead msg 2783 answered OQ-G, OQ-C and OQ-D (D-23 to D-25): 20-07, 20-09 and 20-12 start in wave 1, so the phase runs in 8 waves; the PAL `developerName` is "EhPanda Team"; the copywriter writes a PAL-specific subtitle and description, approved by the owner at the listing step with the first screenshot's caption. Owner msg 2802 (D-26): 3.0 ships on GitHub and AltStore Classic first, with ehpanda.app going live at that release, and the AltStore PAL submission follows. So 20-08 moves to wave 8 after 20-14, OQ-A is answered (20-10's set) and OQ-B is moot. Open before or during execution: OQ-E and OQ-F (20-RESEARCH.md). OQ-E answered at 20-12 (product lead msg 2829; owner msgs 2837, 2842).
+**Phase 20 planned** (2026-11-09) on `feature/gsd-phase-20`, in parallel with Phase 19 (owner decision; product lead decision): `20-CONTEXT.md`, `20-RESEARCH.md`, 14 plans following the fixed order (D-14), and `20-VALIDATION.md`; OQ-1 resolved by D-22 (product lead decision: the current icon is kept). Product lead decision answered OQ-G, OQ-C and OQ-D (D-23 to D-25): 20-07, 20-09 and 20-12 start in wave 1, so the phase runs in 8 waves; the PAL `developerName` is "EhPanda Team"; the copywriter writes a PAL-specific subtitle and description, approved by the owner at the listing step with the first screenshot's caption. Owner decision (D-26): 3.0 ships on GitHub and AltStore Classic first, with ehpanda.app going live at that release, and the AltStore PAL submission follows. So 20-08 moves to wave 8 after 20-14, OQ-A is answered (20-10's set) and OQ-B is moot. Open before or during execution: OQ-E and OQ-F (20-RESEARCH.md). OQ-E answered at 20-12 (product lead decision; owner decision).
 
 ## Phase 20 executing — 2026-11-09
 
@@ -37,7 +37,7 @@ source_head: b5eca09d1
   and altstore-beta.json (not the PAL source); `test_workflows.py` guards that step, the asset URLs, the
   history-keeping filter call and the notes checks, and forbids tag commands. The build is 3.0.0 (159), one above
   main's 158; `bump-version.sh` now leaves the UI and snapshot test targets at 1. `EhPanda-Team/ehpanda-assets` is
-  public at `d69b30a` (owner msgs 2787, 2794; created by the orchestrator) and the seven screenshot URLs return 200.
+  public at `d69b30a` (owner decision; created by the orchestrator) and the seven screenshot URLs return 200.
   REL-18-01 stays Pending. `ReleaseNotes/3.0.0.md` (owner content) is still needed before the release PR.
 - **20-03 complete** (`bc2a185b5`, `aa774c5f9`, `c1a70c702`, `6f36f9900`; `20-03-SUMMARY.md`):
   `actions-tool/altstore-pal.template.json` (source `app.ehpanda.altstorepal`, app `app.ehpanda.marketplace`,
@@ -45,8 +45,8 @@ source_head: b5eca09d1
   `altstore-add-version.jq` takes optional `assetURLs` (manifest = `downloadURL`, no `sha256`), `entitlements`
   (replace, without the two identity keys) and `marketplaceID` (set once, then must match). Golden files prove the
   Classic, SideStore and beta output byte-identical. `check_source(pal=True)` checks the PAL source.
-  `AltStorePAL.json` is not created. The public address will be https://ehpanda.app/AltStorePAL.json (owner msg
-  2822). Open items: the template still has the Classic copy, which 20-10 replaces with the PAL copy (D-25); 20-10's
+  `AltStorePAL.json` is not created. The public address will be https://ehpanda.app/AltStorePAL.json (owner
+ decision). Open items: the template still has the Classic copy, which 20-10 replaces with the PAL copy (D-25); 20-10's
   `pal/` screenshot paths are stale (`app-marketplace/`). DIST-18-02 stays Pending.
   **Identifier changed (owner decision, 2026-11-13):** the marketplace flavor's bundle ID is now `app.ehpanda.store` (`BUNDLE_ID_SUFFIX = .store`) and its extension `app.ehpanda.store.ShareExtension`; the flavor's names, scheme `ehpanda-marketplace` and `MARKETPLACE_*` variables are unchanged. The `.marketplace` / `app.ehpanda.marketplace` mentions in the 20-01 and 20-03 records above are history.
 - **20-04 complete** (`4c61f5b80`, `dd15e0df9`, `ca17b8502`, `86bf6e313`, `1a2829de6`; `20-04-SUMMARY.md`):
@@ -59,7 +59,7 @@ source_head: b5eca09d1
   header for 20-06. Nothing contacted Apple; the workflow was not dispatched. Open items: upload without
   `-allowProvisioningUpdates` and manual release before AltStore can fetch the ADP are first seen at 20-08; the PAL
   template still has the Classic copy, which 20-10 replaces and updates its test (D-25). DIST-18-03 stays Pending.
-  **Renamed after 20-04 (owner msg 4895: secrets and variables use full names, never abbreviations):**
+  **Renamed after 20-04 (owner decision: secrets and variables use full names, never abbreviations):**
   secrets `APP_STORE_CONNECT_KEY_ID`, `APP_STORE_CONNECT_ISSUER_ID`, `APP_STORE_CONNECT_PRIVATE_KEY`,
   `DISTRIBUTION_CERTIFICATE`, `DISTRIBUTION_CERTIFICATE_PASSWORD`, `PROVISIONING_PROFILE_APP`,
   `PROVISIONING_PROFILE_SHARE_EXTENSION`, `APPLE_TEAM_ID`; variables `ALTSTORE_PAL_MARKETPLACE_ID`,
@@ -76,21 +76,21 @@ source_head: b5eca09d1
   version still pending release is undocumented, an open item for the owner at 20-08 (no release call was added).
   Nothing contacted AltStore, Apple or GitHub. DIST-18-02 and DIST-18-03 stay Pending.
 - **20-12 complete** (`2dcb3a988` proposal; sign-off in the 20-12 docs commit; `20-12-SUMMARY.md`):
-  `20-12-VOCABULARY.md` is signed off (OQ-E). Product lead msg 2829 approves the §2 signals (seven, all Basic).
-  Owner msg 2837 drops `Moderation.reportReason` (3-i): the report signal carries the outcome only and the README
-  line loses "with its reason". Owner msg 2842 puts `App.distributionChannel` on every signal at Basic and Full (§3
+  `20-12-VOCABULARY.md` is signed off (OQ-E). Product lead decision approves the §2 signals (seven, all Basic).
+  Owner decision drops `Moderation.reportReason` (3-i): the report signal carries the outcome only and the README
+  line loses "with its reason". Owner decision puts `App.distributionChannel` on every signal at Basic and Full (§3
   option 1), with one README Basic line. OI-4 answer A and the SC8 wording are developer calls; ROADMAP SC8 now
   reads "nothing is sent before a level is chosen". No level description changes; no code changed. 20-13
   implements it.
 - **20-10 closed (2026-11-10)** (`f91b36338` RED, `e6b40121f` GREEN; `20-10-SUMMARY.md`): by product lead
-  msg 3168, after owner msg 3167 ("Screenshots for PAL? Approved."), with the owner's seven decorated iPhone
-  screenshots (owner msg 2628; pushed, msg 2798, assets `41f9a13`). The PAL template lists them exactly as the
+  decision, after an owner decision ("Screenshots for PAL? Approved."), with the owner's seven decorated iPhone
+  screenshots (owner decision; pushed, assets `41f9a13`). The PAL template lists them exactly as the
   other sources do; the source-template tests hold it to that. No Phase 19 renders; 20-10 no longer depends on
   Phase 19 (20-11 still does). Moved to 20-08: the collaborator's App Store Connect upload, the PAL copy
-  (copywriter msg 2785) and its owner approval, and the iPad 13-inch question (no iPad set exists). MKT-18-01,
+  (copywriter) and its owner approval, and the iPad 13-inch question (no iPad set exists). MKT-18-01,
   DIST-18-02 and CAP-17-05 stay Pending.
 - **20-11 complete (2026-11-11)** (merge `31c19a12f`; RED `6d8e46499`, `50668dd74`, `687a8ccbe`; GREEN `ae7c691c6`,
-  `9cc65e33e`; `20-11-GATE.md`, `20-11-SUMMARY.md`): OQ-F answered by owner msg 3346 (main-first); this branch merged
+  `9cc65e33e`; `20-11-GATE.md`, `20-11-SUMMARY.md`): OQ-F answered by an owner decision (main-first); this branch merged
   `main` (Phase 19 closed with deferred items; conflicts in `deploy.yml`, `actionlint.yaml`, ROADMAP and STATE
   resolved, both phases' work kept). `actions-tool/require-snapshot-gate.sh <sha> aggregate [--merged-pr]
   [--compare-only]` passes only for a GitHub Actions run of that name that is `success`; `deploy.yml` (PR head,
@@ -119,7 +119,7 @@ source_head: b5eca09d1
   recorded references exist, none re-recorded). `20-VALIDATION.md` rows updated, `nyquist_compliant` stays false
   (20-10-02 superseded, 20-11-03 live read exits 1, 20-08-02 not yet run). 20-09 ticked in the roadmap (`7198c2d4a`).
   Left: 20-06, 20-07, 20-08 and the release order (Classic release, then the PAL submission, D-26).
-- **Decision (2026-11-11, owner msg 3501; product lead msg 3502):** the website gets no GitHub Issues link. The
+- **Decision (2026-11-11, owner decision; product lead decision):** the website gets no GitHub Issues link. The
   published contact link is out of the 3.0 plan (ROADMAP Phase 20 item 4 and SC4, D-05, 20-07, 20-08 amended), and
   UGC-18-01 is marked complete. The App Store Connect Support URL is the GitHub repository page,
   https://github.com/EhPanda-Team/EhPanda (guideline 1.5 is a Notarization guideline; 1.2 is not).
@@ -130,23 +130,23 @@ Phase 19 (Visual Regression & Daily Live-Parsing Check) is complete at 15/17 pla
 Phase 17 was: the executed work is verified and the rest is recorded as deferred, never as satisfied.
 
 - **Executed:** 19-01 to 19-11 and 19-14 to 19-17. 19-10 and 19-17 closed without their hosted parts.
-- **Not executed:** 19-12 and 19-13 (owner msg 3428). Their checkboxes stay unchecked in ROADMAP.md.
+- **Not executed:** 19-12 and 19-13 (owner decision). Their checkboxes stay unchecked in ROADMAP.md.
 - **Verification:** `19-VERIFICATION.md` is `human_needed`, 5/8 truths verified. Success criteria 2, 3 and 4 are not
   proven until the deferred hosted runs and the owner's approval happen.
 - **Security:** `19-SECURITY.md` is `verified`, `threats_open: 0`: 36 of 40 threats closed, and T-19-24, T-19-25,
-  T-19-26 and T-19-27 are accepted-deferred by the owner (msg 3573). Condition: carried with the deferred
+  T-19-26 and T-19-27 are accepted-deferred by the owner. Condition: carried with the deferred
   19-12/19-13 screenshot publishing; must be closed before any baseline publication. UF-3 stays open (low): delete
   `origin/ci/snapshot-gate` after run 42951290351 ends.
-- **Validation:** `19-VALIDATION.md` is `validated`, `nyquist_compliant: true` under the accepted rules (owner msgs
-  3539, 3554 for the UITests first-run flakes and iPad retries; 3425, 3428 for the deferred hosted rows; 3431 for the
+- **Validation:** `19-VALIDATION.md` is `validated`, `nyquist_compliant: true` under the accepted rules (owner
+ decision for the UITests first-run flakes and iPad retries; 3425, 3428 for the deferred hosted rows; 3431 for the
   required check). Seven rows stay deferred.
 - **Requirements:** VIS-18-01, VIS-19-01, CAP-17-02 and CAP-17-03 stay Pending in REQUIREMENTS.md: the hosted gate
   proof, the baseline and the post-merge live-check runs are still owed.
 - **Deferred Items** (below): the green gate run (before release day), 19-12, 19-13, 19-17's hosted regression, and the
   four accepted-deferred threats. The release workflows no longer require a green `aggregate` check: the gate is off
-  for 3.0 (owner msg 3757) and stays deferred work.
+  for 3.0 (owner decision) and stays deferred work.
 
-Phase 20 merged this state from `main` on 2026-11-11 (OQ-F, owner msg 3346) and carries on below.
+Phase 20 merged this state from `main` on 2026-11-11 (OQ-F, owner decision) and carries on below.
 
 ## Phase 19 executing — 2026-11-07
 
@@ -168,7 +168,7 @@ Phase 20 merged this state from `main` on 2026-11-11 (OQ-F, owner msg 3346) and 
   `EHPANDA_VISUAL_COORDINATE` (fails at the base too). VIS-18-01 and CAP-17-01 stay Pending (later plans share them).
 - **19-03 complete** (`e62bd2456`, `c8b28e3fd`, `8dbf5d0c2`; `19-03-SUMMARY.md`, `19-03-PROBE.md`): the guard-free
   `LiveCheckTests` target (skips unless `EHPANDA_LIVE_CHECK=1`; `test_network_guard.py` checks both directions),
-  `runner-probe.yml` and the probe. Owner msg 2397 allowed the push; hosted run 42433098473 on `xcode-27-arm64`
+  `runner-probe.yml` and the probe. Owner decision allowed the push; hosted run 42433098473 on `xcode-27-arm64`
   `20261104.0337.1`: front page, Popular and one gallery 200, no `cf-mitigated`, parsed. Verdict: reachable, so OQ-3
   is not needed and 19-15 can choose the hosted runner. `ci/runner-probe` deleted. The list pages use the app's URL
   builders and parser over a plain GET (their request types POST the gdata title query). VIS-19-01 stays Pending.
@@ -214,7 +214,7 @@ Phase 20 merged this state from `main` on 2026-11-11 (OQ-F, owner msg 3346) and 
   200 ok. Deviations: the list pages use the app's list URLs and parser over a plain GET (their request types also
   POST); 19-03's `PageObservation` now reads each task's final response. VIS-19-01 stays Pending.
 - **19-15 complete** (`be36f43e2`, `d7a5daaa5`, `e51ccd6d7`, `1458bf5bb`; `19-15-SUMMARY.md`): runner GitHub's
-  hosted runner (owner msg 2441; probe reachable). `report_issues.py` opens one `Live check: <Page> parser` issue
+  hosted runner (owner decision; probe reachable). `report_issues.py` opens one `Live check: <Page> parser` issue
   per broken page, comments while it stays broken, closes it on the next `ok`; a block never opens one, and three
   unreachable runs in a row open `Live check: cannot reach the site`, closed on the next fully reached run. Strict
   validation before any `gh` call; text only from module templates; 16 Python tests against the recording
@@ -222,7 +222,7 @@ Phase 20 merged this state from `main` on 2026-11-11 (OQ-F, owner msg 3346) and 
   `ci/live-check`; contents read, issues write, actions read), the `launchd` template (not installed). Local dry
   run: nine guest pages ok, the fake `gh` got only `issue list`. Nothing pushed; `ci/live-check` is 19-16's, with
   the owner's go-ahead. VIS-19-01 stays Pending.
-- **19-16 complete** (`15a806d47`, `ae3a30aba`; `19-16-SUMMARY.md`, `19-16-DEPLOY.md`): owner msg 2456 allowed one
+- **19-16 complete** (`15a806d47`, `ae3a30aba`; `19-16-SUMMARY.md`, `19-16-DEPLOY.md`): owner decision allowed one
   push of `ci/live-check` (empty signed `[skip test]` commit `3d58637e6` built in a worktree; `test.yml` skipped).
   Hosted run 42443815779 (`xcode-27-arm64` `20261104.0337.1`, 12 min 34 s) succeeded: nine guest pages 200 `ok`,
   Watched, Favorites and ExHentai `skipped`. The reporter found no previous run and took no action, so no issue or
@@ -233,7 +233,7 @@ Phase 20 merged this state from `main` on 2026-11-11 (OQ-F, owner msg 3346) and 
 - **19-04 complete, on the interim count** (`1c6ed5e46` to `e2c6acb5b`, closing docs; `19-04-SUMMARY.md`,
   `19-04-MEASURE.md`): no hosted run chose a worker count under D-15's rule, so the gate stays at **2 workers on the
   model** (`snapshot-cost.json` `source: model`, `invocationMinutes: 8.5`; shard plan current).
-  - **Final run 42533872440** (owner msg 2743, 2 h 40 min, billable `{}`, standard `xcode-27` runner):
+  - **Final run 42533872440** (owner decision, 2 h 40 min, billable `{}`, standard `xcode-27` runner):
     - 7 of 8 jobs failed "Create the pinned simulator" in both attempts: settings writes over 60 s, `bootstatus`
       over 300 s, "device is not booted".
     - `iphone en-xSmall` measured 2.06 s per picture at 2 workers and 2.19 s at 3, then hit its 140-minute step
@@ -246,7 +246,7 @@ Phase 20 merged this state from `main` on 2026-11-11 (OQ-F, owner msg 3346) and 
   - `ci/snapshot-measure` deleted.
   - **Owner decision open:** fix these and measure once more, or accept 2 workers on the model.
   - VIS-18-01 stays Pending.
-- **19-10 closed; its green hosted run is deferred** (owner msg 3425, product lead msg 3426; `19-10-SUMMARY.md`,
+- **19-10 closed; its green hosted run is deferred** (owner decision, product lead decision; `19-10-SUMMARY.md`,
   `19-10-PROOF.md`):
   - Tasks 1 to 3 done (`0b8af222e` to `51e36c8b7`; the Login gap closed by `940ae2bf1`, `aa5fe657c`): the closed
     inventory, `run-shard.sh`, `snapshot_fetch.py`, `hosted-simulator.sh`, `snapshot-gate.yml` (27 shards, triage,
@@ -256,16 +256,16 @@ Phase 20 merged this state from `main` on 2026-11-11 (OQ-F, owner msg 3346) and 
     reads), `4898e6309` (iPad native policy). Run 4 (42951290351, `a100173b5` on `ci/snapshot-gate`) was still
     running at handoff; its result is unread and it was not cancelled.
   - **Deferred** (Deferred Items below): the green gate run, owed before release day, and the hosted runs of
-    19-12, 19-13 and 19-17 (owner msg 3428).
+    19-12, 19-13 and 19-17 (owner decision).
   - VIS-18-01 stays Pending.
 - **19-17 done, with deferred parts** (`f62223a28`, `4879ea44f`, `b92a952bf`, closing docs; `19-17-SUMMARY.md`,
   `19-VALIDATION.md`):
   - README rewritten; preview review procedure and validator (8 tests) done; the real preview render is open (needs a
     running Xcode with the preview tools).
-  - Controlled regression (Task 3) deferred (owner msg 3428). Required check: not required (owner msg 3431), for now.
+  - Controlled regression (Task 3) deferred (owner decision). Required check: not required (owner decision), for now.
   - Local gate: FeatureTests and UITests passed on both devices (0 failures); lint 0; Python suites 384 and 27 OK;
     Release build and `verify-release.py` PASS. UITests had 2 Repetition nodes per device (flaky first runs of two
-    accessibility audits, passed on retry), accepted with the retries noted (owner msgs 3539, 3554), so `nyquist_compliant` is true.
+    accessibility audits, passed on retry), accepted with the retries noted (owner decision), so `nyquist_compliant` is true.
   - Phase 19 was closed afterwards with deferred items (section above).
 
 ## Phase 19 planned: Visual Regression & Daily Live-Parsing Check — 2026-11-07
@@ -287,7 +287,7 @@ Next: `/gsd-execute-phase 19` (wave 1). Phase 18 closing checks (UI review, UAT)
 
 ## Phase 18.1 complete: Native report form — 2026-11-07
 
-`/gsd-verify-work 18.1`, agent-run (owner rule msg 1652): verification passed 6/6 (`18.1-VERIFICATION.md`) and UAT
+`/gsd-verify-work 18.1`, agent-run (owner rule): verification passed 6/6 (`18.1-VERIFICATION.md`) and UAT
 10/10, all auto-covered and rerun on both simulators (`18.1-UAT.md`).
 
 - **Rerun:** FeatureTests phone 1806 (1796 passed, 10 expected failures, 0 failed), pad 1806 (1797 passed, 9
@@ -303,21 +303,21 @@ Next: Phase 18 closing checks (UI review, UAT). Phase 19 is not started.
 
 ## Phase 18.1 inserted and planned: Native report form — 2026-11-06
 
-The owner chose EhPanda's own report form over the site's page as the first route (owner msg 1931, card 1929,
+The owner chose EhPanda's own report form over the site's page as the first route (owner decision,
 "Our own form"). Phase 18.1 was inserted after Phase 18 and planned; Phase 18 stays complete (verified 10/10) and its
-plans are unchanged. Only its UI-SPEC (Colo's final spec, msg 1978, with C-13 and C-1 "No bar background") and its
+plans are unchanged. Only its UI-SPEC (Colo's final spec, with C-13 and C-1 "No bar background") and its
 mockups (01–04, 16–18 and 20 re-rendered; 25–31, 33 and 34 added; 32 withdrawn) were refreshed.
 
-- **Decisions:** comment reasons are child and other illegal content only (owner msg 1950); the pinned bar has no
-  background (owner msgs 1955, 1965); Camo's copy is approved (owner msg 1975, final file msg 1977) and its six
+- **Decisions:** comment reasons are child and other illegal content only (owner decision); the pinned bar has no
+  background (owner decision); Camo's copy is approved (owner decision) and its six
   gallery-only strings do not ship; there are no gallery reports, now or later, unless distribution is blocked
-  without them (owner msg 1975); the live test runs on the real site with Proxyman blocking the report (owner msg
-  1933), run by an agent (owner msg 1652).
+  without them (owner decision); the live test runs on the real site with Proxyman blocking the report (owner
+ decision), run by an agent (owner decision).
 - **Plans:** Wave 1: 18.1-01 (parser, report URL, requests), 18.1-02 (23 strings, copy check). Wave 2: 18.1-03
   (reducer, routing). Wave 3: 18.1-04 (view, stubs, a UI test per C-13 state). Wave 4: 18.1-05 (gate, then the
   agent-run live check, the phase's only checkpoint).
 - **Done (2026-11-07):** all five plans. 18.1-05's gate is green on both devices and in Release, and its live check
-  passed: under owner msg 2066 and the tool change (mitmproxy, Pluso's technical call), one tap on Send made exactly
+  passed: under an owner decision and the tool change (mitmproxy, Pluso's technical call), one tap on Send made exactly
   one POST to gallery 4308676's `?report=other` URL, built as the site's form and answered locally; nothing was
   forwarded and no report was filed. OQ-2 (signed-in email prefill) is unverified.
 - **Open, non-blocking:** what the site returns after a real report (Research OQ-1, default DD-03); frame 26 showed a
@@ -328,7 +328,7 @@ Next: `/gsd-verify-work 18.1`.
 
 ## Phase 18 split into three phases; Phase 18 context gathered — 2026-11-05
 
-The owner split the original Phase 18 into three phases (msg 1753, card msg 1748). Nothing was dropped; the split
+The owner split the original Phase 18 into three phases. Nothing was dropped; the split
 map is at the end of the ROADMAP Phase 18 section, and REQUIREMENTS.md traceability names each requirement's phase.
 
 - **Phase 18: In-App 3.0 Readiness: Age Wall, Analytics Choice, Comment Moderation & Reader Rework.** AGE-18-01,
@@ -343,21 +343,21 @@ map is at the end of the ROADMAP Phase 18 section, and REQUIREMENTS.md traceabil
   UGC-18-01 (published contact link), the repeated Release isolation scan and, as the last plan, ANALYTICS-02. The
   install source needs the marketplace build, so the analytics revision sits there.
 
-Owner decisions of 2026-11-05 (msgs 1753, 1765, 1767, 1780):
+Owner decisions of 2026-11-05:
 
 - **First launch:** two screens, everyone once (age wall, then the analytics choice), with None / Basic / Full and
-  none pre-selected. The age-wall sentence is the approved website sentence (msgs 1454, 1457) with no examples.
-- **Comments:** reporting goes to E-Hentai only, with no in-app contact option now (msg 1774). The posting filter
+  none pre-selected. The age-wall sentence is the approved website sentence with no examples.
+- **Comments:** reporting goes to E-Hentai only, with no in-app contact option now. The posting filter
   warns and allows posting anyway. Blocked comments collapse, and a Blocked Users list goes in Settings.
 - **Marketplace build:** same features, PAL only.
 - **Tagging:** "Tagging is not your business"; tag and release-order decisions are dropped.
 - **Copy:** the approved six-language copy is committed in the Phase 18 directory as `18-COPY-FIRST-LAUNCH.md` and
   `18-COPY-COMMENTS.md`.
-- **Design:** the designer Colo owns the layout spec (msg 1757), so Phase 18 UI execution waits for a UI-SPEC
+- **Design:** the designer Colo owns the layout spec, so Phase 18 UI execution waits for a UI-SPEC
   (`/gsd-ui-phase 18` or his spec).
 
 Phase 18's discuss step is done: `18-CONTEXT.md` and `18-DISCUSSION-LOG.md`, with the prep kept as
-`18-DISCUSSION-PREP.md` (L10 updated per msg 1753). `19-CONTEXT.md` and `20-CONTEXT.md` hold the owner decisions for
+`18-DISCUSSION-PREP.md` (L10 updated). `19-CONTEXT.md` and `20-CONTEXT.md` hold the owner decisions for
 those phases; their discussions have not run yet. Planning documents only; no app code.
 
 Next: `/gsd-plan-phase 18`. UI tasks depend on the UI-SPEC.
@@ -365,12 +365,12 @@ Next: `/gsd-plan-phase 18`. UI tasks depend on the UI-SPEC.
 ## Phase 17 complete — 2026-11-05
 
 Phase 17 (Screenshot Automation, Visual Regression & OS 27 Modernization) is complete at its reduced
-scope (owner msg 1305): 13/13 in-scope plans have summaries; the 11 moved plans keep `status: superseded`.
+scope (owner decision): 13/13 in-scope plans have summaries; the 11 moved plans keep `status: superseded`.
 The GSD close steps are done:
 
 - **Verification:** 17-VERIFICATION.md `passed`, 8/8 truths (round 5, `4597173e2`; tested source `b5eca09d1`).
 - **UAT:** 17-UAT.md complete, 31/31 passed, 0 issues (`48c3bda08`).
-- **Security:** 17-SECURITY.md `verified`, 39/39 threats closed, `threats_open: 0` (F-17-FX-01 accepted, owner msg 1667).
+- **Security:** 17-SECURITY.md `verified`, 39/39 threats closed, `threats_open: 0` (F-17-FX-01 accepted, owner decision).
 - **Validation:** 17-VALIDATION.md `validated`, `nyquist_compliant: false`: gaps G1 and G2 are open on purpose
   (the WR-01 and RTL runtime checks used throwaway harnesses).
 
@@ -380,7 +380,7 @@ were moved, not satisfied.
 
 **Moved to Phase 18** (ROADMAP Phase 18; 17-VERIFICATION.md `deferred`):
 
-- **Step 4b:** the reader page-tracking rework (owner msg 1630, product lead msg 1631), plus committed reader UI
+- **Step 4b:** the reader page-tracking rework (owner decision, product lead decision), plus committed reader UI
   tests for G1/G2: the WR-01 rebuild paths (Reload All Images, then a page turn; a reading-direction change during
   Auto-Play) and RTL page sync.
 - **Steps 2 and 3:** the first-launch age wall (AGE-18-01) and analytics consent (CONSENT-18-01). Both are
@@ -398,8 +398,8 @@ been started.
 ## Live Text fixtures retained; fixture repository holds only the current set — 2026-11-05
 
 Re-verification human item 3 is decided. The owner kept the six Live Text fixture versions behind the
-current website set and their translation records (msg 1645). Then the owner asked that the fixture
-repository keep only the latest copies (msg 1647). Fixture repository commit `8ee4fc2`:
+current website set and their translation records. Then the owner asked that the fixture
+repository keep only the latest copies. Fixture repository commit `8ee4fc2`:
 
 - **Added.** The six Live Text versions, with their translation records.
 - **New index.** `website-capture-20261104.json` names the fixture behind each of the 118 approved
@@ -412,20 +412,20 @@ repository keep only the latest copies (msg 1647). Fixture repository commit `8e
   the Phase 17 source stays the tested `b5eca09d1` tree.
 
 17-FINAL-VALIDATION.md section 3 names the versions. ROADMAP Phase 17 criterion 2 now also cites the
-2026-11-04 approval (msg 1581). The reader root-cause analysis is committed as 17-READER-ROOT-CAUSE.md;
+2026-11-04 approval. The reader root-cause analysis is committed as 17-READER-ROOT-CAUSE.md;
 Phase 18 Step 4b points to it.
 
-## Phase 17 records corrected per owner decisions (msg 1640) — 2026-11-05
+## Phase 17 records corrected per owner decisions — 2026-11-05
 
 The verifier's 17-VERIFICATION.md (`8c5dc3af2`) is `human_needed`. The owner decided five of its human
-items (2, 3, 4, 6 and 7) on 2026-11-05 (msg 1640); the records now say so (docs only).
+items (2, 3, 4, 6 and 7) on 2026-11-05; the records now say so (docs only).
 
 - **Page-sync stress.** ×5 on both phone and iPad at `b5eca09d1` (40/40 each) is accepted as a known
   limit. The ×20 phone run is at `33dbf648b`, before the WR-01/IN-01 fixes.
 - **Stale `requirements-completed`.** 17-01, 17-02 and 17-24 no longer claim CAP-17-02, CAP-17-03 or
   CAP-17-06; each summary has a correction note.
 - **CAP-17-04** means the current website image set: the 2026-11-04 recapture (118 files serving the
-  192 coordinates, owner msg 1581; website repository `d4393bd`). See 17-FINAL-VALIDATION.md section 3.
+  192 coordinates, owner decision; website repository `d4393bd`). See 17-FINAL-VALIDATION.md section 3.
 - **Accepted:** the CAP-17-07 unclassified-edge classification and the synthetic-comment exception
   (comment 9000000001 by CedarComet91 on gallery 2758456, and the edited image B).
 
@@ -439,13 +439,12 @@ Next: the verifier updates 17-VERIFICATION.md, then UAT, secure-phase and valida
 ## Phase 17 code review fixed; gate repeated at `b5eca09d1` — 2026-11-04
 
 The phase code review found 0 critical, 2 warnings, 3 info. WR-01 (the reader's page-turn gate
-survived a pager rebuild) and IN-01 are fixed (`fb1ea4b18`, `443e74541`); WR-02 is not a gap (owner,
-msg 1627); IN-02 and IN-03 are deferred to Phase 18. Every 17-23 check except the Debug negative-control
+survived a pager rebuild) and IN-01 are fixed (`fb1ea4b18`, `443e74541`); WR-02 is not a gap (owner); IN-02 and IN-03 are deferred to Phase 18. Every 17-23 check except the Debug negative-control
 scan passed again at `b5eca09d1`, with ReaderPageSyncUITests ×5 on phone (40 of 40 passed, 0 retries)
 and iPad (40 of 40 passed, 0 retries). Known limit: both devices ran ×5 at `b5eca09d1`, not just the
-iPad (owner-accepted, msg 1640).
+iPad (owner-accepted).
 
-**Carried to Phase 18 (owner msg 1630, product lead msg 1631).** Rework how the reader tracks its
+**Carried to Phase 18 (owner decision, product lead decision).** Rework how the reader tracks its
 current page: one source of truth for the page shown and the number displayed, as one task, not more
 patches.
 
@@ -472,7 +471,7 @@ hides the home indicator with its controls (`33dbf648b`).
 **Known limits.**
 
 - The iPad page-sync stress ran 5 iterations, not 20 (owner's choice, 2026-11-04). At the closing source
-  `b5eca09d1` both devices ran ×5 (owner-accepted, msg 1640; see the 2026-11-05 entry).
+  `b5eca09d1` both devices ran ×5 (owner-accepted; see the 2026-11-05 entry).
 - Page-sync tests don't cover right-to-left reading or an iPad landscape spread.
 - The slider still seeks live during a drag; the indicator stays correct.
 
@@ -524,7 +523,7 @@ A second simulator pass at HEAD's source recorded what the first pass couldn't, 
 then had no `api.php` route. Detail is a 580×660 pt sheet at iPad full width. It pushes, with Back
 and the tab bar, in a 375 pt iPad window and in iPhone landscape. Settings is a sheet only at full
 width. All of this matches D02. Every hit of the idiom grep has a census row. On 2026-11-03 the
-owner chose to keep all five places (msg 1409, answering msg 1408): the reader lower Close, the
+owner chose to keep all five places: the reader lower Close, the
 Library sidebar, the Home title, the device name in error details and the Duo/iPad capability. No
 change plan follows, and no app source changed.
 [Audit](phases/17-localized-screenshot-capture-harness/17-LAYOUT-AUDIT.md),
@@ -580,7 +579,7 @@ source change. [Audit](phases/17-localized-screenshot-capture-harness/17-LAYOUT-
 
 ## Phase 17 reduced, Phase 18 added — 2026-11-03
 
-Owner msg 1305 closes Phase 17 small. CAP-17-04 is amended to the 192 owner-approved website images
+Owner decision closes Phase 17 small. CAP-17-04 is amended to the 192 owner-approved website images
 of 2026-11-02 and CAP-17-07 to the size-class migration that already landed through quick task
 `261015-duo-session-record`, before snapshot coverage existed. Plans 17-07 to 17-13, 17-15 and
 17-20 to 17-22 carry `status: superseded` with a pointer to Phase 18; 17-14 keeps only its T2
@@ -590,12 +589,12 @@ rewritten as the reduced-scope report. CAP-17-02, CAP-17-03, CAP-17-05 and the m
 CAP-17-01 and CAP-17-06 map to Phase 18; they are moved, not satisfied.
 
 Phase 18, "3.0 Release Readiness: Age Wall, Consent, Marketplace Distribution & Visual
-Regression", is the remaining 3.0 phase (owner msgs 1287, 1289, 1294, 1299, 1305). New requirements:
+Regression", is the remaining 3.0 phase (owner decision). New requirements:
 REL-18-01, DIST-18-01, AGE-18-01, CONSENT-18-01, UGC-18-01, VIS-18-01, MKT-18-01, DIST-18-02,
 DIST-18-03, DEV-18-01, ANALYTICS-02 (44/44 mapped). The ROADMAP holds a twelve-step outline with its
 owner checkpoints; PLAN files come from `/gsd-plan-phase 18`.
 
-Per owner msg 1307, Phase 17 is not marked complete and no VERIFICATION.md is written here. Next:
+Per owner decision, Phase 17 is not marked complete and no VERIFICATION.md is written here. Next:
 execute the remaining Phase 17 plans in order (17-16, 17-17, 17-18, 17-19 with its owner
 checkpoint, 17-14 T2, 17-23), then the GSD close steps: the `/gsd-execute-phase 17` phase gates
 (code review via `/gsd-code-review`, regression gate, and the `gsd-verifier` agent writing
@@ -1000,10 +999,10 @@ Progress: [███████████████████░] 319/321
 counts 19 of 21 phases complete: Phase 6 is recorded as "Delivered (rescoped)"; Phase 19 is complete with deferred
 items and Phase 20 has not started.
 Phase 17 has 13/13 in-scope plans complete. Phase 18 has 12 of 12 plans complete (18-01 to 18-12). Phase 18.1 has
-5 of 5 plans complete. Phase 19 has 15 of 17 plans executed (19-12 and 19-13 are deferred, owner msg 3428); Phase 20
+5 of 5 plans complete. Phase 19 has 15 of 17 plans executed (19-12 and 19-13 are deferred, owner decision); Phase 20
 has no plans yet. They keep the milestone open.
 18-12's gate passed on `f08a6a781`, and its Task 3 live
-report-page check passed on 2026-11-05 17:51Z, verified by an agent per owner rule msg 1652 (`18-12-SUMMARY.md`).
+report-page check passed on 2026-11-05 17:51Z, verified by an agent per owner rule (`18-12-SUMMARY.md`).
 Phase 18 verification passed 10/10 on 2026-11-05 at `c2619c7a3` (tested source `f08a6a781`; `18-VERIFICATION.md`).
 
 ## Performance Metrics
@@ -1894,21 +1893,21 @@ Recent decisions affecting current work:
 - [Phase 18]: 18-03: AnalyticsClient.start is now apply(level). No level does nothing; Minimal sends only the own InstallSignalSender's App.installed request (seven fields, payload App.installSource only, settled once per install) and never initialises the SDK, terminating it if running; Basic and Full initialise it once. send reads the stored level live; minimumLevel puts the 10 screen, feature and error signals at Basic and the 3 reading and download signals at Full; the five App.* parameters ride at Full only. TelemetryDeck is imported only by TelemetrySDK.swift and MarketplaceKit only by InstallSourceClient.swift. AppReducer applies the stored level in the deferred launch and the chosen level on levelChosen once that has run. CONSENT-18-01 stays Pending: 18-09 and 18-10 share it. Phase 20 carries OI-4 (newInstallDetected vs App.installed) and ANALYTICS-02 (reuse InstallSourceClient, verify on the marketplace build and a device, add the source to Basic/Full). — Minimal's description promises only an install signal, so the SDK's device payload must never leave under it (D-06b, D-06c, D-06f).
 - [Phase 18]: 18-05: one CommentModerationFeature child, scoped as `moderation` into CommentsReducer and DetailReducer, owns the posting warning, Report, Block, Unblock and Show/Hide. postTapped checks CommentFilter before anything is sent; the reducer (not the view) closes the editor after .postComment, and Edit keeps the text and refocuses (P-8). Report asks with the site and author, then presents Destination.reportPage(?report=select); a gallery with no report target gets no alert (owner to confirm). Block adds the author once and re-collapses their revealed comments; Unblock is immediate; revealedCommentIDs is per screen and never stored. Own comments (editable or the signed-in name) get neither action; no moderation action sends a signal. Alerts use AppAlertState (one mechanism per screen). UGC-18-01 stays Pending: 18-10, 18-11 and Phase 20 share it. — The views (18-11) only send these actions and read this state.
 - [Phase 18]: 18-08: five DEBUG-only launch keys, read only for stubbed launches: EHPANDA_UITEST_FIRST_LAUNCH=analytics (age answered, level cleared), EHPANDA_UITEST_BLOCKED_AUTHORS (JSON array; absent or malformed is empty) and EHPANDA_UITEST_DISPLAY_NAME (absent is none), both reset at every stubbed launch that is not the visual host, EHPANDA_UITEST_REQUEST_LOG (one `METHOD host path` line per stubbed request) and EHPANDA_UITEST_DROP_INITIAL_IDLE (sets ReaderUITestOptions, the default of 18-07's seam; ReadingFeature reads no key). LocalizedLaunch uses launch arguments only. ReaderRebuildUITests guards G1 (reload then turn, with and without the first idle report; direction change after auto-play, restarted because a sheet stops it) and G2 (LTR/RTL/LTR). — Later UI plans (18-09 to 18-11) isolate storage through these keys, never test order; 18-12 re-checks the keys stay out of Release.
-- [Phase 18]: 18-09: RootView renders FirstLaunchGateView (age wall, then analytics choice) instead of TabBarView until both answers exist, so nothing of the app renders and no request is made before the age wall's Continue; links opened at the gate are queued (DD-07). Continue is pinned in a .safeAreaBar at every text size (D-17b, owner msg 1903, designer msg 1905); at AX sizes the age-wall footnote is the last scroll item. The titles carry a widow guard (lead msg 1900): the last two words are joined with U+00A0 when the pair fits the measured width in bold .title1, otherwise left as is; catalog strings unchanged. 48-row title table: 46 pass, 2 phone-AX5 rows (en analytics "shares", de age wall "Erwachsene") accepted by the owner (msg 1903). AGE-18-01 and CONSENT-18-01 stay Pending: 18-10 and 18-12 share them. — Later UI plans reuse FirstLaunchPage/FirstLaunchTitle patterns; 18-12 reruns both first-launch UI suites and carries the two accepted rows.
-- [Phase 18]: 18-10: General → Analytics is a menu Picker over Minimal, Basic and Full (no Recommended label) with the selected level's approved description as its footer and a Privacy Policy row; shareAnalyticsDataFooter is gone. A pick sends analyticsLevelPicked, and GeneralSettingReducer stores the level and calls analyticsClient.apply once (picking the current level does nothing), so lowering to Minimal stops the SDK at once (DD-09a). Account has a Blocked Users row (count, signed in or out) pushing SettingPath.blockedUsers; the list is in localizedStandardCompare order, unblocks by full swipe or context menu with no confirmation, and switches in place to the C-12 empty state. TitleWidowGuard moved to AppComponents (with ResolvedAppLanguage) and guards the empty-state title in bold .title3. 24-row title table: 22 pass, 2 phone-AX5 rows (en "anyone.", de "blockiert.") accepted by the lead under the same principle as owner msg 1903. CONSENT-18-01 and UGC-18-01 stay Pending: 18-11, 18-12 and Phase 20 share them. — 18-11 can reuse TitleWidowGuard from AppComponents; 18-12 reruns SettingsModerationUITests and BlockedUsersTitleLayoutUITests and carries the two accepted rows.
+- [Phase 18]: 18-09: RootView renders FirstLaunchGateView (age wall, then analytics choice) instead of TabBarView until both answers exist, so nothing of the app renders and no request is made before the age wall's Continue; links opened at the gate are queued (DD-07). Continue is pinned in a .safeAreaBar at every text size (D-17b, owner decision, designer); at AX sizes the age-wall footnote is the last scroll item. The titles carry a widow guard (lead decision): the last two words are joined with U+00A0 when the pair fits the measured width in bold .title1, otherwise left as is; catalog strings unchanged. 48-row title table: 46 pass, 2 phone-AX5 rows (en analytics "shares", de age wall "Erwachsene") accepted by the owner. AGE-18-01 and CONSENT-18-01 stay Pending: 18-10 and 18-12 share them. — Later UI plans reuse FirstLaunchPage/FirstLaunchTitle patterns; 18-12 reruns both first-launch UI suites and carries the two accepted rows.
+- [Phase 18]: 18-10: General → Analytics is a menu Picker over Minimal, Basic and Full (no Recommended label) with the selected level's approved description as its footer and a Privacy Policy row; shareAnalyticsDataFooter is gone. A pick sends analyticsLevelPicked, and GeneralSettingReducer stores the level and calls analyticsClient.apply once (picking the current level does nothing), so lowering to Minimal stops the SDK at once (DD-09a). Account has a Blocked Users row (count, signed in or out) pushing SettingPath.blockedUsers; the list is in localizedStandardCompare order, unblocks by full swipe or context menu with no confirmation, and switches in place to the C-12 empty state. TitleWidowGuard moved to AppComponents (with ResolvedAppLanguage) and guards the empty-state title in bold .title3. 24-row title table: 22 pass, 2 phone-AX5 rows (en "anyone.", de "blockiert.") accepted by the lead under the same principle as an owner decision. CONSENT-18-01 and UGC-18-01 stay Pending: 18-11, 18-12 and Phase 20 share them. — 18-11 can reuse TitleWidowGuard from AppComponents; 18-12 reruns SettingsModerationUITests and BlockedUsersTitleLayoutUITests and carries the two accepted rows.
 - [Phase 18]: 18-11: comment moderation UI on 18-05's reducers. Report opens ReportPageSheet, a SessionWebView (AppComponents) on WKWebsiteDataStore.nonPersistent() seeded, before load, with sessionCookies(for:) for the report host only; nothing is written back, and stubbed launches never load. CommentModerationMenu is one item table (Report, Block / Unblock, Hide on a revealed card) for the list's AX-hidden `…` Menu, the cell and strip-card context menus and their accessibilityActions, which are declared reversed because SwiftUI hands them over last first. BlockedCommentRow (C-6/C-7) and BlockedCommentCard (C-8) take no author. The strip lost .drawingGroup() and takes a scoped StoreOf<CommentModerationFeature> (a state copy went stale on Show/Hide). PostCommentView sends postTapped and the views no longer dismiss the editor (P-8). The parser now trims the author (the site's trailing &nbsp; broke every name match). CommentModerationUITests 7/7 on phone and pad; mockups 05 to 11 match on both; the list `…` renders in the tint, not .secondary (left for the lead). UGC-18-01 stays Pending: 18-12 and Phase 20 share it. — 18-12 reruns CommentModerationUITests on both devices.
-- [Phase 18]: 18-12 (owner msg 1918): comment blocking matches the poster's E-Hentai member ID, read from the `forums.e-hentai.org/index.php?showuser=<digits>` link on the author line (GalleryComment.authorMemberID), never the display name. The list is [BlockedCommentUser] (member ID + name last seen) under the new key blockedCommentUsers; blockedCommentAuthors is dropped without migration (it never shipped in a release tag). A comment without a member ID gets no Block and never collapses; Report stays. A blocked ID seen under a new name stays blocked and its stored name is refreshed by the Detail fetch. CommentModerationMenu takes CommentBlockStatus (.blocked, .notBlocked, .noMemberID). The decode is strict, so a malformed list resets to []. EHPANDA_UITEST_BLOCKED_AUTHORS became EHPANDA_UITEST_BLOCKED_USERS (JSON array of {memberID, name}). The 18-12 gate passed on f08a6a781 (FeatureTests and UITests on phone and pad, lint 0, copy checks, Release scan PASS, no network before Continue). AGE-18-01, CONSENT-18-01 and UGC-18-01 stay Pending until the owner's report-page check. — Phase 19/20 screenshots and fixtures use member IDs for blocked comments.
+- [Phase 18]: 18-12 (owner decision): comment blocking matches the poster's E-Hentai member ID, read from the `forums.e-hentai.org/index.php?showuser=<digits>` link on the author line (GalleryComment.authorMemberID), never the display name. The list is [BlockedCommentUser] (member ID + name last seen) under the new key blockedCommentUsers; blockedCommentAuthors is dropped without migration (it never shipped in a release tag). A comment without a member ID gets no Block and never collapses; Report stays. A blocked ID seen under a new name stays blocked and its stored name is refreshed by the Detail fetch. CommentModerationMenu takes CommentBlockStatus (.blocked, .notBlocked, .noMemberID). The decode is strict, so a malformed list resets to []. EHPANDA_UITEST_BLOCKED_AUTHORS became EHPANDA_UITEST_BLOCKED_USERS (JSON array of {memberID, name}). The 18-12 gate passed on f08a6a781 (FeatureTests and UITests on phone and pad, lint 0, copy checks, Release scan PASS, no network before Continue). AGE-18-01, CONSENT-18-01 and UGC-18-01 stay Pending until the owner's report-page check. — Phase 19/20 screenshots and fixtures use member IDs for blocked comments.
 - [Phase 18.1]: 18.1-01: the report POST is sent once (attempts: 1) to the gallery's ?report=<type> URL, never the page's form action; a reply is sent only when it is not a site error page and no longer shows #reportform. The form GET keeps the default retries. — Research F-1 and DD-02/DD-03: a retried POST can file duplicate reports, a page's action could point elsewhere, and an error page has no #reportform.
-- [Phase 18.1]: 18.1-02: 22 report.* keys ship in DetailFeature's catalog in six languages, verbatim from 18.1-COPY-REPORT-FORM.md; report.reason.choose does not ship (lead, msgs 1980/1983: C-13 has no picker). 18.1-copy-check.py fails on a missing, reworded, empty or unapproved report.* key and on any of the six gallery-only keys or report.reason.choose. — 18.1-04 uses the generated symbols and retires comment.report.confirm_title/_body.
+- [Phase 18.1]: 18.1-02: 22 report.* keys ship in DetailFeature's catalog in six languages, verbatim from 18.1-COPY-REPORT-FORM.md; report.reason.choose does not ship (lead: C-13 has no picker). 18.1-copy-check.py fails on a missing, reworded, empty or unapproved report.* key and on any of the six gallery-only keys or report.reason.choose. — 18.1-04 uses the generated symbols and retires comment.report.confirm_title/_body.
 - [Phase 18.1]: 18.1-03: Report on a foreign comment sends CommentModerationFeature.delegate(.openReportForm(ReportFormFeature.State)) and Comments/Detail present destination .reportForm; the confirm alert is gone. ReportFormFeature.State has a failable init (nil without a report target); phases loading/ready/sending/sent/unavailable, a failed send returns to ready with Retry / Open Report Page / Cancel; canSend needs a reason, a trimmed non-empty email and Details beyond the prefill; DD-05 email check on Send; isDismissLocked while sending or edited (not once sent); the email lives only in state. — 18.1-04 renders the form, presents .reportForm in both views, removes reportPage(URL) and the retired confirm keys, and updates CommentModerationUITests (its report case expects the old alert until then).
 - [Phase 18.1]: 18.1-04: ReportFormView renders every C-13 state in a NavigationStack sheet with only the leading Close, the inline "Report on {site}" title and a pinned .safeAreaBar .glassProminent button with no background (soft scroll edge top and bottom). Comments and Detail present .reportForm, and presenting sends the form's .task from the reducer. The failed alert is built in the view so Retry is the default, in the reducer's Retry / Open Report Page / Cancel order. Open Report Page presents ReportPageSheet over the kept form. reportPage(URL) and comment.report.confirm_title/_body are gone, and 18-copy-check.py lists the two keys as retired. EHPANDA_UITEST_REPORT_SCENARIO (ready, slowLoad 6 s, holdSend 10 s, failSend, unavailable) is DEBUG and stubbed-launch only. ReportFormUITests has one test per state (frames 25–31, 33, 34) and passes on both devices. — 18.1-05 runs the gate (whole UITests plan on both devices, Release scan for EHPANDA_), then the Proxyman live check. Open: at AX5 a comment link's scrollTo sometimes stops short of the comment (Phase 18 code; the tests now scroll to it).
-- [Phase 18.1]: 18.1-05: the gate is green at ad3f46392 after two fixes to 18.1-04 test code (the report stubs' held answer without nonisolated(unsafe); ReportFormView in the Reduce Motion inventory). The live check runs behind a local mitmdump (owner msg 2066; tool change, Pluso's technical call, because Proxyman connects upstream on each HTTPS CONNECT and the owner declined handshake-only connections in card 2065): connection_strategy=lazy, upstream_cert=false, every flow answered in the request hook (three saved GET pages, a local 403 for the rest), upstream connections refused, sockets of mitmdump and the app sampled; the Mac's Wi-Fi proxy is on only for each app run. Send made exactly one POST to /g/4308676/<token>/?report=other with report_type=other, r_email, r_details and sendreport, answered locally; 693 flows, 0 upstream attempts, 0 non-loopback sockets. — The pattern for any later check that must touch the real site without sending anything; mitmproxy 12.3.1 stays installed on the Mac.
+- [Phase 18.1]: 18.1-05: the gate is green at ad3f46392 after two fixes to 18.1-04 test code (the report stubs' held answer without nonisolated(unsafe); ReportFormView in the Reduce Motion inventory). The live check runs behind a local mitmdump (owner decision; tool change, Pluso's technical call, because Proxyman connects upstream on each HTTPS CONNECT and the owner declined handshake-only connections in a card): connection_strategy=lazy, upstream_cert=false, every flow answered in the request hook (three saved GET pages, a local 403 for the rest), upstream connections refused, sockets of mitmdump and the app sampled; the Mac's Wi-Fi proxy is on only for each app run. Send made exactly one POST to /g/4308676/<token>/?report=other with report_type=other, r_email, r_details and sendreport, answered locally; 693 flows, 0 upstream attempts, 0 non-loopback sockets. — The pattern for any later check that must touch the real site without sending anything; mitmproxy 12.3.1 stays installed on the Mac.
 - [Phase 20]: 20-01: the channel stamp is the build setting EHPANDA_DISTRIBUTION_CHANNEL, `source` in Flavor.xcconfig and `altstorePAL` only in Marketplace.xcconfig; Beta.xcconfig keeps no stamp line. The privacy manifest declares UserDefaults CA92.1 and FileTimestamp C617.1 and three data types (ProductInteraction, DeviceID, OtherDiagnosticData; unlinked, untracked, Analytics); test_privacy_manifest.py fails on any undeclared required-reason use in the shipped sources. — The PAL build is signed before upload, so it cannot be stamped afterwards (D-12 amended); App Store Connect requires the declarations (D-18).
 - [Phase 20]: 20-02: deploy.yml's build-number check reads main's three Classic-side sources and not AltStorePAL.json; build 159 = main's highest (158) + 1. bump-version.sh treats a configuration with TEST_HOST or TEST_TARGET_NAME as a test one (the old app.ehpanda.tests bundle ID matches no target). — Research §3, pitfall 4; REL-18-01.
-- [Phase 20]: 20-03: the PAL entry is the filter's Classic entry with `assetURLs` after `downloadURL` and no `sha256`. The filter reads `sha256` through `$ARGS.named` (required without `assetURLs`) and drops `application-identifier` and the team identifier from a given `entitlements` list. The PAL source's public address is https://ehpanda.app/AltStorePAL.json (owner msg 2822); it is not written into the JSON. — Research §4; DIST-18-02.
+- [Phase 20]: 20-03: the PAL entry is the filter's Classic entry with `assetURLs` after `downloadURL` and no `sha256`. The filter reads `sha256` through `$ARGS.named` (required without `assetURLs`) and drops `application-identifier` and the team identifier from a given `entitlements` list. The PAL source's public address is https://ehpanda.app/AltStorePAL.json (owner decision); it is not written into the JSON. — Research §4; DIST-18-02.
 - [Phase 20]: 20-04 (names since renamed, see the 20-04 status entry): deploy-pal.yml is workflow_dispatch only; the submit job runs in environment pal-notarization with contents: read. asc.py allows only builds/preReleaseVersions/appStoreVersions/reviewSubmissions(Items)/ADP-read paths plus GET /v1/apps/{id}/appStoreVersions (no top-level version list in OpenAPI 4.6); POST /v1/alternativeDistributionPackages is refused. Secrets: ASC_KEY_ID, ASC_ISSUER_ID, ASC_KEY_P8, DIST_CERT_P12, DIST_CERT_PASSWORD, PROFILE_APP, PROFILE_SHARE_EXTENSION, TEAM_ID; variables PAL_MARKETPLACE_ID (also the --app ID), ASC_KEY_ROLE. — Research §5, §6; D-07, D-21, D-26.
 - [Phase 20]: 20-05: the publish job (`inputs.mode == 'publish'`, environment pal-notarization, contents: write) reads the ADP ID, has AltStore process it, fetches it and runs pal_publish.py publish; dry_run defaults to true. ADP files map by name (manifest.json → manifest, signature, <uuid>.ipa → <uuid>); any other file, a duplicate name, a symlink or an escaping zip entry fails. Assets are never replaced (same bytes are reused, other bytes fail); a build older than the source's newest entry is refused. — Research §4, §5; D-07, D-19.
-- [Phase 20]: 20-12: the 3.0 analytics vocabulary is signed off (OQ-E): FirstLaunch.completed, Analytics.levelChanged, Moderation.reportOutcome (outcome only, no reason), Moderation.posterBlocked, Moderation.posterUnblocked, Moderation.blockedCommentShown, Moderation.postingWarningAnswered, all at Basic; App.distributionChannel is a default parameter at Basic and Full; App.installed is the install count (OI-4 A); SC8 reads "nothing is sent before a level is chosen". — product lead msg 2829; owner msgs 2837, 2842; Research §10.
+- [Phase 20]: 20-12: the 3.0 analytics vocabulary is signed off (OQ-E): FirstLaunch.completed, Analytics.levelChanged, Moderation.reportOutcome (outcome only, no reason), Moderation.posterBlocked, Moderation.posterUnblocked, Moderation.blockedCommentShown, Moderation.postingWarningAnswered, all at Basic; App.distributionChannel is a default parameter at Basic and Full; App.installed is the install count (OI-4 A); SC8 reads "nothing is sent before a level is chosen". — product lead decision; owner decision; Research §10.
 - [Phase 19]: 19-01: iPadOS 27 refuses in-process orientation changes (UISceneErrorDomain 101), so an iPad matrix process captures the one orientation its device was turned to before launch (EHPANDA_SNAPSHOT_ORIENTATIONS); iPhone turns in process. iPad units double to 36, shard units become 54. The block confirmation is reached through the row's own accessibility action, which needs the app accessibility runtime on; iPad pins need Full Screen Apps. — Research section 3 leaves the rotation mechanism to the developer; XCUIDevice is not authorized in an app-hosted test.
 
 ### Phase 16 transition decisions (2026-09-23)
@@ -1919,11 +1918,11 @@ Recent decisions affecting current work:
 
 ### Phase 17 transition decisions (2026-11-05)
 
-- Phase 17 closes at its reduced scope (owner msg 1305). The moved work (CAP-17-02, CAP-17-03, CAP-17-05 and the moved parts of CAP-17-01/04/06) is recorded as moved to Phase 18, never as satisfied.
-- CAP-17-04 is met by the current website image set: the 2026-11-04 recapture, 118 files serving the 192 coordinates (owner msgs 1581 and 1640). The iPad axis and the 384 export are moved to Phase 18.
-- The size-class layout migration landed before snapshot coverage existed. It is accepted on reducer tests, one simulator pass and the idiom census, and the owner kept all five remaining idiom reads (msg 1409).
-- Known limit accepted: at `b5eca09d1` the reader page-sync stress ran ×5 on phone and iPad (owner msg 1640). The reader page-tracking rework and committed G1/G2 UI tests are Phase 18 Step 4b.
-- Review: WR-01 and IN-01 are fixed, WR-02 is not a gap (owner msg 1627), and IN-02/IN-03 are deferred to Phase 18 Step 7. Full log: PROJECT.md Key Decisions.
+- Phase 17 closes at its reduced scope (owner decision). The moved work (CAP-17-02, CAP-17-03, CAP-17-05 and the moved parts of CAP-17-01/04/06) is recorded as moved to Phase 18, never as satisfied.
+- CAP-17-04 is met by the current website image set: the 2026-11-04 recapture, 118 files serving the 192 coordinates (owner decision). The iPad axis and the 384 export are moved to Phase 18.
+- The size-class layout migration landed before snapshot coverage existed. It is accepted on reducer tests, one simulator pass and the idiom census, and the owner kept all five remaining idiom reads.
+- Known limit accepted: at `b5eca09d1` the reader page-sync stress ran ×5 on phone and iPad (owner decision). The reader page-tracking rework and committed G1/G2 UI tests are Phase 18 Step 4b.
+- Review: WR-01 and IN-01 are fixed, WR-02 is not a gap (owner decision), and IN-02/IN-03 are deferred to Phase 18 Step 7. Full log: PROJECT.md Key Decisions.
 
 ### Pending Todos
 
@@ -2004,12 +2003,12 @@ None yet.
 - Phase 15 inserted after Phase 14: Continued Background Downloads (BGContinuedProcessingTask); Dynamic Type Accessibility renumbered 15 to 16
 - Phase 17 added: Localized Screenshot Capture Harness — all-language / light+dark deterministic marketing screenshots from owner-chosen real-gallery mock data under a locked clock, for the EhPanda website and AltStore
 - Phase 17 edited: Expanded existing Phase 17: real-gallery fixtures, full language/Dynamic Type/orientation/device/color-scheme capture matrix, website and AltStore exports, snapshot regression tests, iOS/iPadOS 27 native API migration and app-wide soft top scroll-edge effect. Phase 16 remains active.
-- Phase 17 edited (2026-11-03, owner msg 1305): reduced scope. CAP-17-04 and CAP-17-07 amended; 17-07 to 17-13, 17-15 and 17-20 to 17-22 superseded and moved to Phase 18; 17-14 reduced to T2; 17-16 to 17-19 reduced to verification and census; 17-23 rewritten.
-- Phase 18 added (2026-11-03): 3.0 Release Readiness: Age Wall, Consent, Marketplace Distribution & Visual Regression — the remaining 3.0 phase, with the work moved from Phase 17 (owner msgs 1287, 1289, 1294, 1299, 1305).
-- Phase 18 edited: 2026-11-05 (owner msg 1753): split into three phases. Phase 18 renamed In-App 3.0 Readiness: Age Wall, Analytics Choice, Comment Moderation & Reader Rework (directory renamed); its visual-regression and marketing-export work moved to Phase 19 and its distribution work to Phase 20
+- Phase 17 edited (2026-11-03, owner decision): reduced scope. CAP-17-04 and CAP-17-07 amended; 17-07 to 17-13, 17-15 and 17-20 to 17-22 superseded and moved to Phase 18; 17-14 reduced to T2; 17-16 to 17-19 reduced to verification and census; 17-23 rewritten.
+- Phase 18 added (2026-11-03): 3.0 Release Readiness: Age Wall, Consent, Marketplace Distribution & Visual Regression — the remaining 3.0 phase, with the work moved from Phase 17 (owner decision).
+- Phase 18 edited: 2026-11-05 (owner decision): split into three phases. Phase 18 renamed In-App 3.0 Readiness: Age Wall, Analytics Choice, Comment Moderation & Reader Rework (directory renamed); its visual-regression and marketing-export work moved to Phase 19 and its distribution work to Phase 20
 - Phase 19 added: Visual Regression & Marketing Export: the snapshot, CI gate, preview and 384 work from the original Phase 18 (moved there from Phase 17)
 - Phase 20 added: 3.0 Distribution: Marketplace Build, Notarization, Listing & Release Checks: the original Phase 18's distribution, release-mechanics and device-check work, ending with the analytics revision (ANALYTICS-02)
-- Phase 18.1 inserted after Phase 18: Native report form: EhPanda's own report form for comments (owner msg 1931); the site's report page stays as the fallback. Planned 2026-11-06 (5 plans); no gallery reports (owner msg 1975)
+- Phase 18.1 inserted after Phase 18: Native report form: EhPanda's own report form for comments (owner decision); the site's report page stays as the fallback. Planned 2026-11-06 (5 plans); no gallery reports (owner decision)
 
 Continuation corrections (2026-09-16): W-13's earlier `pid=61210` crash/loading-error claim is withdrawn; lifecycle evidence identifies `pid=61450` as the explicit relaunch and the saved `w13-showall.png` as normal Detail. Its prior Reader return used VoiceOver off and is not a valid pass. W-22 v3 provenance is invalid because source was restored during execution; v3b completed with exit 0 in 39.433 seconds and restored five temporary files byte-exactly, with only the cold S2 AX5 second row confirmed so far. W-29 remains a read-only proposal targeting the first Frontpage gallery and profile Picker. W-35 has an approved, unimplemented title-focus probe; runtime and the W-8 idle check remain open.
 
@@ -2021,14 +2020,14 @@ Items acknowledged and carried forward from previous milestone close:
 |----------|------|--------|-------------|
 | Test infrastructure | Group the deep-link accessibility identifiers into one shared constants file (e.g. `AccessibilityIdentifiers.readingView`, plus a `commentCell(id:)` for the interpolated one). Today the 7 identifiers are literals in `AppPackage/Sources` and are re-typed as 18 literal call sites across the 5 `EhPandaUITests` files, with no compile-time link between the two sides — a rename fails at runtime, not at build time. | Open | Phase 13 UAT (2026-07-23) |
 | Comments | Keep a comment's styles and link targets when editing it. The edit form pre-fills `GalleryComment.plainTextContent`, plain text without BBCode, so saving an edit in the app removes them. Prefer the source text the site's own edit form uses; verifying a save needs a logged-in account. See `quick/261102-comment-parser/SUMMARY.md`. | Open | 2026-11-02 |
-| Compliance | **Age wall (standard for every build, not only AltStore).** On first launch, before any content is shown or any network request is made, the user must confirm they are an adult, and legally allowed to view explicit content under every law that applies to them, wherever it comes from (for example where they are, where they live, or their citizenship). Owner msgs 1235 and 1239: not just "18 or older", and not only the law of the place they live; e.g. an American citizen living abroad. Until they do, nothing else in the app works, and there is no skip. Answering no keeps them on that screen. The answer is stored on the device. Reference: Hot Tub's onboarding; notarization guideline on honest age rating and verified or declared age (Ampo msg 1211). Owner msgs 1231, 1235 and 1239, spec Ato msgs 1232, 1236 and 1240. The website's adult-mode declaration should use this same wording (Ato msg 1240), which today says only "declares they are an adult" (Ato msg 1236). | Planned: Phase 18 (AGE-18-01) | 2026-11-02 |
-| Privacy | **Analytics consent (standard for every build).** No analytics are collected until the user chooses. A first-launch screen offers a few levels of sharing, including none, as in Hot Tub. The choice can be changed later in Settings. This replaces today's "on by default, switch off in Settings". Guideline 5.1.1: consent is needed even for anonymous usage data (Ampo msg 1211). Owner msg 1231, spec Ato msg 1232. | Planned: Phase 18 (CONSENT-18-01) | 2026-11-02 |
-| CI / release gate | **19-10 Task 4: a green snapshot-gate run.** A hosted run of `snapshot-gate.yml` whose `aggregate` job passes and whose `triage` names only the injected shards (their retries pass); plan step 4's persistent-crash run is owed too. **No longer a release blocker, still deferred work (owner msg 3757):** `deploy.yml`, `deploy-beta.yml` and `deploy-pal.yml` no longer call the gate or read the `aggregate` check (the `snapshot-gate` job, its `needs:` and the `require-snapshot-gate.sh` steps are removed; `snapshot-gate.yml` and its scripts stay for pull requests and manual dispatch; restore by re-adding the job and the step, see the git history of the commit that turned it off). Run 42951290351 (`a100173b5`, faults `s03=crash,s20=no-artifact`) ended `failure`: all 27 shards captured; `native policy` failed on iPhone and iPad (UI-test failures, e.g. "Home is off screen at AX5", "Cold Large: height=0.0"), the `s03` retry lost its runner, so `aggregate` failed. Owner msg 3425, product lead msg 3426; `19-10-SUMMARY.md`. | Deferred (not blocking the release) | 2026-11-11 |
-| CI / visual regression | **19-12: the full hosted candidate run and the public snapshot repository.** Every shard in candidate mode on the hosted runner, and `EhPanda-Team/ehpanda-snapshot` created with its README. Needs the GitHub screenshot check. Not done; owner msg 3428. Carries T-19-24 (repository created without consent) and T-19-25 (personal data in the repository), accepted-deferred (owner msg 3573). | Deferred | 2026-11-11 |
-| CI / visual regression | **19-13: the owner's approval, the pinned baseline and a green compare run.** The owner approves the candidate set once; the approved pictures are pushed and pinned (`fingerprints.json`, `manifest.json`); a hosted compare run is green. Needs the GitHub screenshot check. Not done; owner msg 3428. Carries T-19-26 (real content in a public picture) and T-19-27 (inferred approval), accepted-deferred (owner msg 3573). | Deferred | 2026-11-11 |
-| Security (Phase 19) | **T-19-24, T-19-25, T-19-26, T-19-27, accepted-deferred:** carried with the deferred 19-12/19-13 screenshot publishing; must be closed before any baseline publication (owner msg 3573). Each closes with its evidence when 19-12 or 19-13 runs (`19-SECURITY.md`, Accepted-deferred threats). UF-3 stays open (low): delete `origin/ci/snapshot-gate` after run 42951290351 ends. | Accepted-deferred | 2026-11-11 |
-| CI / visual regression | **19-17: the controlled regression on the hosted runner (D-18).** A one-point layout-token change on the proof branch fails the hosted gate with exactly the affected coordinates as picture changes; restoring it makes the next run green; both run IDs in `19-17-REGRESSION.md`. Needs the GitHub screenshot check with the approved baseline. 19-17's local parts are not deferred. Owner msg 3428. | Deferred | 2026-11-11 |
-| Contributions | **Port #462 (dyphire) by hand, as promised on the PR** (owner msg 4685). #462 was opened on the pre-3.0 develop and no longer merges; only its 9 dyphire commits are new work (the downloads and date-jump commits are already in 3.0). Port in this order: (1) favorites sort order is never detected, a real 3.0 bug (`parseFavoritesSortOrder` looks for links the page no longer has; read the `inline_set=fs_` select, add a parser test); (2) cap the image caches, a real 3.0 bug (`DataCache`, Kingfisher and SDWebImage have no disk size limit; #462 uses 2 GB and 1 GB); (3) tag suggestions understand `~tag` and `-tag`; (4) tag suggestions in the saved search editor (check Chinese and Japanese typing on device); (5) to (7) as one change: favorite state and folder colour in lists and on Detail (and the right folder colours in EhSetting), the user's own rating coloured on the stars (any `ir*` class), expunged galleries with a struck-through date; fix #462's bugs on the way (`favoriteTagIndex` never set, unchecked colour index, stale history snapshot, `Gallery` decoding of old JSON); (8) reading progress on the Read button, redone in the current Detail design (localised, VoiceOver label, Dynamic Type); (9) webtoon galleries open vertical, as a reducer-level effective direction: automatic or a setting is still open with the owner; (10) watched-tag highlight: waits until dyphire says where its `/mytags` code came from; first check whether the gallery page already carries the tag colours. Skip #462's settings parser and fixture changes (3.0 already has them; its fixture holds the contributor's account data). dyphire is co-author (`Co-authored-by`) on each port and goes into About's contributors. Archive #462 once everything is ported. Review: [#462 review](https://airbuild.page/1da7bec7-a692-4e22-a120-aa5d03f7f8bf). | Open | 2026-11-13 |
+| Compliance | **Age wall (standard for every build, not only AltStore).** On first launch, before any content is shown or any network request is made, the user must confirm they are an adult, and legally allowed to view explicit content under every law that applies to them, wherever it comes from (for example where they are, where they live, or their citizenship). Owner decision: not just "18 or older", and not only the law of the place they live; e.g. an American citizen living abroad. Until they do, nothing else in the app works, and there is no skip. Answering no keeps them on that screen. The answer is stored on the device. Reference: Hot Tub's onboarding; notarization guideline on honest age rating and verified or declared age (Ampo). Owner decision, spec Ato. The website's adult-mode declaration should use this same wording (Ato), which today says only "declares they are an adult" (Ato). | Planned: Phase 18 (AGE-18-01) | 2026-11-02 |
+| Privacy | **Analytics consent (standard for every build).** No analytics are collected until the user chooses. A first-launch screen offers a few levels of sharing, including none, as in Hot Tub. The choice can be changed later in Settings. This replaces today's "on by default, switch off in Settings". Guideline 5.1.1: consent is needed even for anonymous usage data (Ampo). Owner decision, spec Ato. | Planned: Phase 18 (CONSENT-18-01) | 2026-11-02 |
+| CI / release gate | **19-10 Task 4: a green snapshot-gate run.** A hosted run of `snapshot-gate.yml` whose `aggregate` job passes and whose `triage` names only the injected shards (their retries pass); plan step 4's persistent-crash run is owed too. **No longer a release blocker, still deferred work (owner decision):** `deploy.yml`, `deploy-beta.yml` and `deploy-pal.yml` no longer call the gate or read the `aggregate` check (the `snapshot-gate` job, its `needs:` and the `require-snapshot-gate.sh` steps are removed; `snapshot-gate.yml` and its scripts stay for pull requests and manual dispatch; restore by re-adding the job and the step, see the git history of the commit that turned it off). Run 42951290351 (`a100173b5`, faults `s03=crash,s20=no-artifact`) ended `failure`: all 27 shards captured; `native policy` failed on iPhone and iPad (UI-test failures, e.g. "Home is off screen at AX5", "Cold Large: height=0.0"), the `s03` retry lost its runner, so `aggregate` failed. Owner decision, product lead decision; `19-10-SUMMARY.md`. | Deferred (not blocking the release) | 2026-11-11 |
+| CI / visual regression | **19-12: the full hosted candidate run and the public snapshot repository.** Every shard in candidate mode on the hosted runner, and `EhPanda-Team/ehpanda-snapshot` created with its README. Needs the GitHub screenshot check. Not done; owner decision. Carries T-19-24 (repository created without consent) and T-19-25 (personal data in the repository), accepted-deferred (owner decision). | Deferred | 2026-11-11 |
+| CI / visual regression | **19-13: the owner's approval, the pinned baseline and a green compare run.** The owner approves the candidate set once; the approved pictures are pushed and pinned (`fingerprints.json`, `manifest.json`); a hosted compare run is green. Needs the GitHub screenshot check. Not done; owner decision. Carries T-19-26 (real content in a public picture) and T-19-27 (inferred approval), accepted-deferred (owner decision). | Deferred | 2026-11-11 |
+| Security (Phase 19) | **T-19-24, T-19-25, T-19-26, T-19-27, accepted-deferred:** carried with the deferred 19-12/19-13 screenshot publishing; must be closed before any baseline publication (owner decision). Each closes with its evidence when 19-12 or 19-13 runs (`19-SECURITY.md`, Accepted-deferred threats). UF-3 stays open (low): delete `origin/ci/snapshot-gate` after run 42951290351 ends. | Accepted-deferred | 2026-11-11 |
+| CI / visual regression | **19-17: the controlled regression on the hosted runner (D-18).** A one-point layout-token change on the proof branch fails the hosted gate with exactly the affected coordinates as picture changes; restoring it makes the next run green; both run IDs in `19-17-REGRESSION.md`. Needs the GitHub screenshot check with the approved baseline. 19-17's local parts are not deferred. Owner decision. | Deferred | 2026-11-11 |
+| Contributions | **Port #462 (dyphire) by hand, as promised on the PR** (owner decision). #462 was opened on the pre-3.0 develop and no longer merges; only its 9 dyphire commits are new work (the downloads and date-jump commits are already in 3.0). Port in this order: (1) favorites sort order is never detected, a real 3.0 bug (`parseFavoritesSortOrder` looks for links the page no longer has; read the `inline_set=fs_` select, add a parser test); (2) cap the image caches, a real 3.0 bug (`DataCache`, Kingfisher and SDWebImage have no disk size limit; #462 uses 2 GB and 1 GB); (3) tag suggestions understand `~tag` and `-tag`; (4) tag suggestions in the saved search editor (check Chinese and Japanese typing on device); (5) to (7) as one change: favorite state and folder colour in lists and on Detail (and the right folder colours in EhSetting), the user's own rating coloured on the stars (any `ir*` class), expunged galleries with a struck-through date; fix #462's bugs on the way (`favoriteTagIndex` never set, unchecked colour index, stale history snapshot, `Gallery` decoding of old JSON); (8) reading progress on the Read button, redone in the current Detail design (localised, VoiceOver label, Dynamic Type); (9) webtoon galleries open vertical, as a reducer-level effective direction: automatic or a setting is still open with the owner; (10) watched-tag highlight: waits until dyphire says where its `/mytags` code came from; first check whether the gallery page already carries the tag colours. Skip #462's settings parser and fixture changes (3.0 already has them; its fixture holds the contributor's account data). dyphire is co-author (`Co-authored-by`) on each port and goes into About's contributors. Archive #462 once everything is ported. Review: [#462 review](https://airbuild.page/1da7bec7-a692-4e22-a120-aa5d03f7f8bf). | Open | 2026-11-13 |
 
 ## Session Continuity
 

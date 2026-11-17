@@ -159,9 +159,9 @@ Ready for **17-24**, then 17-02. The immutable rendering pin must be based on ne
 
 ## Record correction (2026-11-05)
 
-Following owner msg 1640, `requirements-completed` changed from `[CAP-17-02, CAP-17-03, CAP-17-06]` to `[]`.
+Following owner decision, `requirements-completed` changed from `[CAP-17-02, CAP-17-03, CAP-17-06]` to `[]`.
 
-- CAP-17-02 and CAP-17-03 moved to Phase 18 (VIS-18-01; owner msg 1305). This plan built their
+- CAP-17-02 and CAP-17-03 moved to Phase 18 (VIS-18-01; owner decision). This plan built their
   foundation; it did not complete them.
 - CAP-17-06: this plan's part was the capture side. Full-content capture keeps the native viewport
   and size classes and does not change app layout. That part supports the snapshot-measured part of

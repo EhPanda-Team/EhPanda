@@ -3,7 +3,7 @@ public import Foundation
 public import SwiftUI
 public import UIKit
 
-/// Keeps a title's last line from holding a single word (UI-SPEC C-3, lead msg 1900).
+/// Keeps a title's last line from holding a single word (UI-SPEC C-3, lead decision).
 ///
 /// Shared by the first-launch titles (18-09) and the Blocked Users empty state (18-10). SwiftUI pulls a word down to
 /// keep a single word off the last line in English but not reliably in German, so a title joins its last two words

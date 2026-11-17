@@ -23,10 +23,10 @@ submission, 20-08).
   - D-14: plan order (a) to (h); only (f)'s two parts wait for Phase 19.
   - D-18: `PrivacyInfo.xcprivacy` in every build.
   - D-20: pipeline first; the final PAL submission contains (g) and passes (h).
-  - D-26 (owner msg 2802): GitHub and Classic ship first; the PAL submission follows, so the first submission is
+  - D-26 (owner decision): GitHub and Classic ship first; the PAL submission follows, so the first submission is
     the final build (OQ-A answered, OQ-B moot).
   - D-21: the App Manager key test is recorded at the first submission.
-  - D-22 (product lead msg 2775): the current icon stays everywhere; if the review rejects it under 2.3.8, step (c)
+  - D-22 (product lead decision): the current icon stays everywhere; if the review rejects it under 2.3.8, step (c)
     pauses for a design request to Colo. **No icon task.**
 
 ### Claude's Discretion
@@ -76,7 +76,7 @@ build-number check that only the beta workflow runs. Five findings change the pl
    so an iPad 13-inch set is needed too, and none exists. **The first submission therefore cannot happen before some
    all-ages iPhone and iPad screenshots exist.** Phase 19's approved set is (f)'s, so 20-08 opens with a decision:
    wait for (f), or submit first with an interim, undecorated all-ages set from the public synthetic fixtures (OQ-A).
-4. **D-05 orders (d) before the first submission.** *(Amended 2026-11-11, owner msg 3501: no contact link is
+4. **D-05 orders (d) before the first submission.** *(Amended 2026-11-11, owner decision: no contact link is
    required; the support URL is the GitHub repository page.)* The contact link must be live "before the AltStore build goes to
    Apple", and the support URL is a required property. So (c) is split into the pipeline (20-04 submit, 20-05
    publish), account setup (20-06) and the first live submission (20-08), which also depends on the website check
@@ -85,7 +85,7 @@ build-number check that only the beta workflow runs. Five findings change the pl
    and an accepted version cannot normally take another build. D-20's early verdict is still possible if the version's
    release is set to manual and the version is developer-rejected before the final build, which is confirmed at the
    first submission; otherwise the final PAL build needs a new version number (OQ-B, owner decision at 20-08).
-   *Moot under CONTEXT D-26 (owner msg 2802):* there is no early submission.
+   *Moot under CONTEXT D-26 (owner decision):* there is no early submission.
 
 **Primary recommendation:** 14 plans in the fixed order, with (c) split into the submit pipeline, the publish
 pipeline, account setup and the first submission, and (g) split into vocabulary sign-off and implementation.
@@ -362,9 +362,9 @@ PAL version entry the filter writes:
 
 - In-app privacy link: `contact.privacy_policy` (`Constant.xcstrings`), shown in the analytics choice and Settings →
   General. Each language links its own page, `https://ehpanda.app/<language>/privacy/`, and English is the fallback.
-  There is no page at `/privacy` (owner msg 2818, addresses in website msg 2819). It must resolve before the
+  There is no page at `/privacy` (owner decision; addresses from the website). It must resolve before the
   submission.
-- *Amended 2026-11-11 (owner msg 3501):* the published contact link is dropped and the support URL is the GitHub
+- *Amended 2026-11-11 (owner decision):* the published contact link is dropped and the support URL is the GitHub
   repository page, https://github.com/EhPanda-Team/EhPanda; from Leto only the privacy policy URL and the PAL source
   URL are needed. Guideline 1.5 is a Notarization guideline; 1.2 is not.
 - Needed from Leto: the privacy policy URL (same), a support URL, the published contact link (GitHub Issues), and a
@@ -437,34 +437,34 @@ since the PAL build is a distinct build.
 <open_questions>
 ## Open Questions
 
-- **OQ-1 (CONTEXT, the marketplace build's primary icon): RESOLVED by D-22** (product lead msg 2775): the current
+- **OQ-1 (CONTEXT, the marketplace build's primary icon): RESOLVED by D-22** (product lead decision): the current
   icon is kept in every build and listing.
 - **OQ-A (product lead/owner, at 20-08):** Screenshots for the first notarization submission. A: wait for step (f)'s
   set (the first verdict comes after Phase 19). B (recommended): an interim, undecorated, all-ages set captured from
   the public synthetic fixtures on an iPhone 6.9" and an iPad 13" simulator, replaced by (f)'s set in the final
   submission.
-  **ANSWERED by D-26** (owner msg 2802): the first submission comes after the Classic release and is the final build,
+  **ANSWERED by D-26** (owner decision): the first submission comes after the Classic release and is the final build,
   so it uses (f)'s set (option A). No interim set is made.
 - **OQ-B (owner, at 20-08):** If a notarized version cannot be developer-rejected after acceptance, does the early
   submission use 3.0.0 (and the final PAL build a later version), or does the first submission wait for the final
   build? Recommended: set manual release, and ask only if App Store Connect does not offer Developer Reject.
-  **MOOT under D-26** (owner msg 2802): there is no early submission. The first one is the final 3.0 build, made after
+  **MOOT under D-26** (owner decision): there is no early submission. The first one is the final 3.0 build, made after
   the Classic release with its version and build number.
 - **OQ-C (product lead, at 20-03 or 20-06):** The PAL source's `developerName`. "EhPanda Team" today; the install
   sheet shows the collaborator's account name. AltStore guideline 2 and Apple 5.6.2 require accuracy. Recommended:
   ask the collaborator how the account's developer name reads and use it, or "EhPanda Team" if the account's name
   is EhPanda's.
-  **RESOLVED by D-24** (product lead msg 2783): "EhPanda Team".
+  **RESOLVED by D-24** (product lead decision): "EhPanda Team".
 - **OQ-D (product lead, at 20-10):** PAL subtitle and ASC description wording for an all-ages listing.
-  **RESOLVED by D-25** (product lead msg 2783): a PAL-specific subtitle and description, delivered by copywriter msg
-  2785, approved by the owner at the listing step.
+  **RESOLVED by D-25** (product lead decision): a PAL-specific subtitle and description, delivered by copywriter
+, approved by the owner at the listing step.
 - **OQ-E (product lead/owner, at 20-12):** the signal vocabulary in §10, and whether the channel becomes a default
   parameter on Basic and Full events; and the ROADMAP SC8 wording.
 - **OQ-F (owner, at 20-11):** how Phase 19's `snapshot-gate.yml` reaches this branch (merge Phase 19 into `main`
   first, or merge `feature/gsd-phase-19` into this branch with his OK).
 - **OQ-G (product lead, before execution):** may 20-07, 20-09 and 20-12 start in wave 1, ahead of the fixed order?
   Recommended: yes, since none needs code from an earlier step; the plans keep the fixed order until told.
-  **RESOLVED by D-23** (product lead msg 2783): yes.
+  **RESOLVED by D-23** (product lead decision): yes.
 </open_questions>
 
 ## Validation Architecture

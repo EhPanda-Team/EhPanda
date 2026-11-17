@@ -3,7 +3,7 @@ phase: 17-localized-screenshot-capture-harness
 verified: 2026-11-05T04:15:55Z
 status: passed
 score: 8/8 must-haves verified
-verification_scope: "Reduced scope (owner decision 2026-11-03, msg 1305). Executed plans 17-01 to 17-06, 17-24, 17-14 (T2), 17-16 to 17-19, 17-23. Plans 17-07 to 17-13, 17-15, 17-20 to 17-22 and 17-14 T1/T3 are moved to Phase 18 and are not verified here."
+verification_scope: "Reduced scope (owner decision 2026-11-03). Executed plans 17-01 to 17-06, 17-24, 17-14 (T2), 17-16 to 17-19, 17-23. Plans 17-07 to 17-13, 17-15, 17-20 to 17-22 and 17-14 T1/T3 are moved to Phase 18 and are not verified here."
 verified_head: 940b2b5bf
 tested_source: b5eca09d1
 effort: "high (resolved from .planning/config.json)"
@@ -11,12 +11,12 @@ covered_files: [".gitignore", ".planning/REQUIREMENTS.md", ".planning/ROADMAP.md
 covered_digest: "v4:sha256:f4eb8a5dd2eebbc85f85ead733aaaf402ddd3c21b0691805f108ddf8604a4bb8"
 behavior_unverified: 0
 overrides_applied: 0
-history_rewrite: "Two owner-approved rewrites of unpushed commits. Owner msg 1749 removed a local home path from 17-REVIEW-FIX.md; owner msg 1773 replaced local time-zone labels in the phase docs with UTC. Both remapped commit IDs. The tested source is 814fb819d -> 9cc6eb059 -> b5eca09d1, with identical code and tests; raw run evidence under /tmp carries 814fb819d. Refresh only; verdicts unchanged"
+history_rewrite: "Two owner-approved rewrites of unpushed commits. Owner decision removed a local home path from 17-REVIEW-FIX.md; owner decision replaced local time-zone labels in the phase docs with UTC. Both remapped commit IDs. The tested source is 814fb819d -> 9cc6eb059 -> b5eca09d1, with identical code and tests; raw run evidence under /tmp carries 814fb819d. Refresh only; verdicts unchanged"
 re_verification:
   previous_status: human_needed
   previous_score: 7/8
   previous_report: fba61bc61
-  trigger: "Agent-run WR-01 rebuild-during-turn check at b5eca09d1, recorded in 17-WR01-MIDTURN.md (1efd9093e, signed G), which also updates 17-VALIDATION G1, 17-SECURITY (R4-1, R4-2) and 17-UAT tests 1 to 3 with an addendum line. History rewritten before it with the owner's OK (owner msg 1678): the round 4 report 711cfe202 is now fba61bc61 and 06c325218 replaces the earlier F-17-FX-01 commit, with the report content unchanged"
+  trigger: "Agent-run WR-01 rebuild-during-turn check at b5eca09d1, recorded in 17-WR01-MIDTURN.md (1efd9093e, signed G), which also updates 17-VALIDATION G1, 17-SECURITY (R4-1, R4-2) and 17-UAT tests 1 to 3 with an addendum line. History rewritten before it with the owner's OK (owner decision): the round 4 report 711cfe202 is now fba61bc61 and 06c325218 replaces the earlier F-17-FX-01 commit, with the report content unchanged"
   gaps_closed:
     - "Truth 8 (WR-01): rebuilds inside the turn animation were exercised on the fixed build at b5eca09d1, 60/60 PASS (W1, W2 iPhone; W3 iPad), with 38 of 60 rebuilds inside 0-0.35 s of a turn start by video timing. A fault-injected control (the new pager's initial idle report dropped) fails exactly its 10 mid-animation rebuilds and passes its 10 idle ones (FI1), so the check detects the failure WR-01 guards against"
     - "Human item 1 of fba61bc61 (WR-01 runtime check or override): resolved by the check, with no override needed"
@@ -26,8 +26,8 @@ re_verification:
   regressions: []
   earlier_rounds:
     - "8c5dc3af2: initial, human_needed 5/8"
-    - "2b792bfdb: after b2fbaaa37 (owner msg 1640), human_needed 5/8; truth 6 closed, truth 2 reopened on fixture retention"
-    - "7f7467d47: after owner msgs 1645 and 1647, human_needed 6/8; truth 2 re-closed"
+    - "2b792bfdb: after b2fbaaa37 (owner decision), human_needed 5/8; truth 6 closed, truth 2 reopened on fixture retention"
+    - "7f7467d47: after an owner decision, human_needed 6/8; truth 2 re-closed"
     - "fba61bc61 (711cfe202 before the rewrite): after the close steps, human_needed 7/8; truth 7 closed, truth 8 open"
 deferred:
   - truth: "CAP-17-02: SnapshotTesting coverage at 576 coordinates per scenario"
@@ -53,10 +53,10 @@ deferred:
     evidence: "Phase 18 ROADMAP Step 7; the release gate repeats the Release isolation scan on the final 3.0 build (REL-18-01)"
   - truth: "Reader page tracking rework to one source of truth, plus UI tests for the WR-01 rebuild paths"
     addressed_in: "Phase 18"
-    evidence: "Phase 18 ROADMAP context item 7 and Step 4b (owner msg 1630, product lead msg 1631), added in b2fbaaa37; Step 4b links the committed analysis 17-READER-ROOT-CAUSE.md (ea062d599); moved with owner acceptance in 17-UAT.md test 9 (msg 1663)"
+    evidence: "Phase 18 ROADMAP context item 7 and Step 4b (owner decision, product lead decision), added in b2fbaaa37; Step 4b links the committed analysis 17-READER-ROOT-CAUSE.md (ea062d599); moved with owner acceptance in 17-UAT.md test 9"
   - truth: "Code-review info items IN-02 (verify-release.py captureSystemOverlay token) and IN-03 (RootView import under #if DEBUG)"
     addressed_in: "Phase 18"
-    evidence: "Phase 18 ROADMAP Step 7 'Before that scan, close the two Phase 17 review items the owner deferred (msg 1627)', added in b2fbaaa37"
+    evidence: "Phase 18 ROADMAP Step 7 'Before that scan, close the two Phase 17 review items the owner deferred', added in b2fbaaa37"
   - truth: "Scripts/visual/README.md rewrite for the reduced harness and the current fixture index"
     addressed_in: "Phase 18"
     evidence: "Phase 18 ROADMAP context item 8 (b2cb11dad)"
@@ -68,19 +68,19 @@ deferred:
 # Phase 17: Screenshot Automation, Visual Regression & OS 27 Modernization: verification report
 
 **Phase goal (ROADMAP):** Close the screenshot and OS 27 layout work that 3.0 needs, at reduced scope (owner
-decision 2026-11-03, msg 1305). Keep the delivered capture foundation (17-01 to 17-06, 17-24) and the
+decision 2026-11-03). Keep the delivered capture foundation (17-01 to 17-06, 17-24) and the
 owner-approved 192-image website screenshot set as the screenshot-export result. Confirm the size-class layout
 migration that already landed through quick task `261015-duo-session-record`. Close the remaining device-idiom
 census with the owner. Prove once that Release ships no capture or test code. Verify the phase honestly. The
 visual-regression matrix, baselines, CI snapshot gate, preview tooling, 384-image marketing export, final
 gallery selection and AltStore promotional images move to Phase 18; they are moved, not satisfied.
 
-**Verified:** 2026-11-05T03:12:12Z (round 5); refreshed 2026-11-05T04:06:59Z and 2026-11-05T04:15:55Z after the history rewrites of owner msgs 1749 and 1773 (see "History rewrites" below)
+**Verified:** 2026-11-05T03:12:12Z (round 5); refreshed 2026-11-05T04:06:59Z and 2026-11-05T04:15:55Z after the history rewrites of owner decision (see "History rewrites" below)
 **Status:** passed
 **Re-verification:** Yes, the fourth re-verification (round 5). It follows the agent-run WR-01
 rebuild-during-turn check in 17-WR01-MIDTURN.md (`1efd9093e`). The earlier reports are `8c5dc3af2` (initial,
-5/8), `2b792bfdb` (after msg 1640, 5/8), `7f7467d47` (after msgs 1645 and 1647, 6/8) and `fba61bc61` (after the
-close steps, 7/8). `fba61bc61` was `711cfe202` before the history rewrite the owner approved (owner msg 1678),
+5/8), `2b792bfdb` (5/8), `7f7467d47` (6/8) and `fba61bc61` (after the
+close steps, 7/8). `fba61bc61` was `711cfe202` before the history rewrite the owner approved (owner decision),
 and its content is unchanged. The "Round 2" to "Round 5" sections below keep each round.
 **Effort:** high (resolved from .planning/config.json)
 **Source:** verified head `940b2b5bf` (signed, `G`), the commit before the Phase 17 transition commit `66886d6be`.
@@ -135,13 +135,13 @@ per-plan must-have truths roll up into these and are listed after the table.
 
 | # | Truth | Status | Evidence |
 |---|---|---|---|
-| 1 | The reduced plan set (17-01 to 17-06, 17-24, 17-14 T2, 17-16 to 17-19, 17-23) has summaries with evidence; the moved plans carry `status: superseded` and a pointer to Phase 18 | ✓ VERIFIED | All 13 summaries exist (`init.execute-phase`: 13 plans, 13 summaries, 0 incomplete). 17-07 to 17-13, 17-15 and 17-20 to 17-22 each have `status: superseded` and `superseded_by: "Phase 18 (moved 2026-11-03, owner msg 1305)"`. 17-14-PLAN.md has a T2-only banner, and T1/T3 sit outside `<tasks>` as `<moved-task>`. Every kept plan's `verify.artifacts` passes (01 to 06 and 24: 4/4; 14 and 23: 3/3; 16 to 19: 1/1). |
-| 2 | The 192 approved website images and their fixtures are recorded as meeting the amended CAP-17-04, citing the 2026-11-02 approval and the 2026-11-04 approval of the current set | ✓ VERIFIED (re-closed) | **Images.** The current set is approved and provenanced at `ehpanda-website` `d4393bd` (signed `G`; approved 2026-11-04, msg1581; 118 files, 192 unique coordinates, 24 per screen; 101 glyph edits naming their 2026-11-02 originals' SHA-256, 10 recaptures and 7 home-indicator recaptures). The file's SHA-256 `ad550ee9…` equals the hash stored in the new index. ROADMAP criterion 2 now cites both approvals (`ea062d599`). **Fixtures.** `ehpanda-fixture` `8ee4fc2` (signed `G`; clean tree) holds exactly 11 versions. That set is equal on all three sides: the directory listing, `website-capture-20261104.json` `fixtureVersions`, and the fixtures the 118 files were actually captured from. That last set was derived independently: for the 101 edits, from the 2026-11-02 index at `134cbf3`; for the 17 recaptures, from `delivery-evidence.json` diagnostics. It gave 0 mismatches against the index's per-file `fixture`. Usage: `1e33788f…` 60 files, `1bbee205…` 36, `0d1b87cf…` 12, `58abe2ab…` 2, `15d9f340…` 2, and each Live Text version 1. All 11 pass `validate_fixtures`: manifest, per-asset SHA-256, no extra files, aggregate digest equal to the directory name, and the Live Text record validated against its page hash. `current` and `current-explicit` resolve to `1e33788f…` and `1bbee205…` and validate. The six retained Live Text versions are byte-identical to the local `.capture/` copies (234 files each). The six `liveText.recordSHA256` values in the index match the files. en and ja reuse the 2026-11-02 records (`147a75b8…` and `9dae84f0…`, the same hashes as in the reader and default versions). The index's 108 `capture20261102` hashes (101 edits plus 7 replaced captures) equal the 2026-11-02 index, and its tag translation assets are unchanged. `data/` and `overrides/` are untouched (0 paths in the commit). FV section 3 names all 11 versions. |
-| 3 | The landed size-class routing and layout pass the existing reducer tests and one simulator check on iPad full width, a narrow iPad window and iPhone landscape; every remaining idiom read has an owner keep/change disposition | ✓ VERIFIED | Code: `WindowSizeClasses.presentsModally` = regular ∧ regular (`WindowSizeClasses.swift:17-19`), applied once in `AppReducer.swift:515,527`. `routeGalleryDetail` has no match in source. Tests at `b5eca09d1`, both devices: GalleryDetailRoutingTests 4, TabBarSettingPresentationTests 8, AppDownloadDetailRoutingTests 2, CaptureRouteTests 11, GalleryNavigationTests 1, all passed (`f23d-feature-*-tests.json`). Simulator pass in 17-LAYOUT-AUDIT.md: tablet bundle exit 0 (2/2). The phone bundle is exit 65 in the driver's own reader step, after the Detail and Settings rows were recorded, and the audit discloses this. Routing source is unchanged from the pass commit `5a7fe7f13` to `b5eca09d1`; only `DownloadsView.swift` (row restore), RootView and the DEBUG overlay changed. Census: owner kept all five (msg 1409). A re-run of the census grep at `b5eca09d1` finds the same 9 files, with ReadingView hits down from 8 to 6 (`deviceState` at :44/:98/:252/:260/:277/:279), so no new idiom read appeared. |
+| 1 | The reduced plan set (17-01 to 17-06, 17-24, 17-14 T2, 17-16 to 17-19, 17-23) has summaries with evidence; the moved plans carry `status: superseded` and a pointer to Phase 18 | ✓ VERIFIED | All 13 summaries exist (`init.execute-phase`: 13 plans, 13 summaries, 0 incomplete). 17-07 to 17-13, 17-15 and 17-20 to 17-22 each have `status: superseded` and `superseded_by: "Phase 18 (moved 2026-11-03, owner decision)"`. 17-14-PLAN.md has a T2-only banner, and T1/T3 sit outside `<tasks>` as `<moved-task>`. Every kept plan's `verify.artifacts` passes (01 to 06 and 24: 4/4; 14 and 23: 3/3; 16 to 19: 1/1). |
+| 2 | The 192 approved website images and their fixtures are recorded as meeting the amended CAP-17-04, citing the 2026-11-02 approval and the 2026-11-04 approval of the current set | ✓ VERIFIED (re-closed) | **Images.** The current set is approved and provenanced at `ehpanda-website` `d4393bd` (signed `G`; approved 2026-11-04; 118 files, 192 unique coordinates, 24 per screen; 101 glyph edits naming their 2026-11-02 originals' SHA-256, 10 recaptures and 7 home-indicator recaptures). The file's SHA-256 `ad550ee9…` equals the hash stored in the new index. ROADMAP criterion 2 now cites both approvals (`ea062d599`). **Fixtures.** `ehpanda-fixture` `8ee4fc2` (signed `G`; clean tree) holds exactly 11 versions. That set is equal on all three sides: the directory listing, `website-capture-20261104.json` `fixtureVersions`, and the fixtures the 118 files were actually captured from. That last set was derived independently: for the 101 edits, from the 2026-11-02 index at `134cbf3`; for the 17 recaptures, from `delivery-evidence.json` diagnostics. It gave 0 mismatches against the index's per-file `fixture`. Usage: `1e33788f…` 60 files, `1bbee205…` 36, `0d1b87cf…` 12, `58abe2ab…` 2, `15d9f340…` 2, and each Live Text version 1. All 11 pass `validate_fixtures`: manifest, per-asset SHA-256, no extra files, aggregate digest equal to the directory name, and the Live Text record validated against its page hash. `current` and `current-explicit` resolve to `1e33788f…` and `1bbee205…` and validate. The six retained Live Text versions are byte-identical to the local `.capture/` copies (234 files each). The six `liveText.recordSHA256` values in the index match the files. en and ja reuse the 2026-11-02 records (`147a75b8…` and `9dae84f0…`, the same hashes as in the reader and default versions). The index's 108 `capture20261102` hashes (101 edits plus 7 replaced captures) equal the 2026-11-02 index, and its tag translation assets are unchanged. `data/` and `overrides/` are untouched (0 paths in the commit). FV section 3 names all 11 versions. |
+| 3 | The landed size-class routing and layout pass the existing reducer tests and one simulator check on iPad full width, a narrow iPad window and iPhone landscape; every remaining idiom read has an owner keep/change disposition | ✓ VERIFIED | Code: `WindowSizeClasses.presentsModally` = regular ∧ regular (`WindowSizeClasses.swift:17-19`), applied once in `AppReducer.swift:515,527`. `routeGalleryDetail` has no match in source. Tests at `b5eca09d1`, both devices: GalleryDetailRoutingTests 4, TabBarSettingPresentationTests 8, AppDownloadDetailRoutingTests 2, CaptureRouteTests 11, GalleryNavigationTests 1, all passed (`f23d-feature-*-tests.json`). Simulator pass in 17-LAYOUT-AUDIT.md: tablet bundle exit 0 (2/2). The phone bundle is exit 65 in the driver's own reader step, after the Detail and Settings rows were recorded, and the audit discloses this. Routing source is unchanged from the pass commit `5a7fe7f13` to `b5eca09d1`; only `DownloadsView.swift` (row restore), RootView and the DEBUG overlay changed. Census: owner kept all five. A re-run of the census grep at `b5eca09d1` finds the same 9 files, with ReadingView hits down from 8 to 6 (`deviceState` at :44/:98/:252/:260/:277/:279), so no new idiom read appeared. |
 | 4 | The 3.0-candidate Release build contains no capture code, fixtures, test assets or SnapshotTesting linkage, and no environment flag activates capture | ✓ VERIFIED | `/tmp/ehp-17gate/f23d-scan/release-isolation.json` at worktree HEAD `b5eca09d1` (dirty=0): `passed: true`, `findings: []`, 377 payload files, link maps arm64 187 objects / 291 141 symbols and x86_64 187 / 279 629, `UITestAutomation` inert shell (11 symbols) accepted. Activation: Release `alive: true` with all six capture/automation keys set; Debug control `alive: false`. Scanner tests: `Ran 19 tests … OK` (`f23d-scanner.log`). Code: every `UITestSupport/*.swift` and `CaptureSystemOverlays.swift` opens with `#if DEBUG`; `AppLaunchAutomation.resolve` is `#if DEBUG`; `VisualSnapshotSupport` (the only `SnapshotTesting` consumer, `Package.swift:1104-1108`) is linked only into the `VisualSnapshotTests` target (`project.pbxproj:10,152`). The overlay key is an `@Entry` that exists only in DEBUG, so a Release reference would not compile (this mitigates IN-02's scanner blind spot). |
 | 5 | FeatureTests and UITests pass on phone then tablet, one invocation at a time, with strict no-cache lint | ✓ VERIFIED | Raw results match FV section 9 exactly. Each `.head` shows `b5eca09d1 dirty=0`, and the runs are sequential (13:57 to 14:32 UTC). FeatureTests phone: 1541 cases, 1531 passed, 0 failed, 10 expected failures. UITests phone: 88 cases, 68 passed, 20 skipped. FeatureTests tablet: 1541, 1531, 0, 10. UITests tablet: 88, 71, 17 skipped. A node walk finds 0 Repetition nodes in all four. The 10 expected failures are the known issue-reporting set: Download series, ownership and unimplemented-client guards, Analytics unimplemented client ×2, `SettingPresentationTests.pushingAccountLoadsCookies`, and `SettingReducerTests.defaultProfileCreation…`. Lint: `Found 0 violations, 0 serious in 759 files.` (`f23d-lint.log`). The `--strict --no-cache` flags come from the recorded command, because the log does not echo flags. |
 | 6 | CAP-17-02, CAP-17-03, CAP-17-05 and the moved parts of CAP-17-01/06 are listed as moved to Phase 18, never as satisfied | ✓ VERIFIED (gap closed) | Canonical records: REQUIREMENTS.md (all CAP-17 unchecked; traceability "Phase 18 (moved 2026-11-03)"), the ROADMAP Phase 17 and 18 sections, FV section 6 "Moved to Phase 18", and the 17-SOURCE-AUDIT.md close status. Summaries: `b2fbaaa37` set `requirements-completed: []` in `17-01-SUMMARY.md:50`, `17-02-SUMMARY.md:66` and `17-24-SUMMARY.md:36`, each with a dated "Record correction (2026-11-05)" note. Grepping all 13 summaries finds only CAP-17-01/04/06/07 claimed (17-03, 17-16 to 17-19, 17-23), and none claims CAP-17-02, -03 or -05. CAP-17-06 is now claimed only for its bounded part (17-16 to 17-19, 17-23). |
-| 7 | Phase 17 closes only through the GSD close steps: execute-phase gates (code review, regression gate, gsd-verifier writing 17-VERIFICATION.md), then verify-work (UAT), secure-phase and validate-phase | ✓ VERIFIED (round 4) | Code review: 17-REVIEW.md has 0 critical, 2 warnings and 3 info; 17-REVIEW-DISPOSITION.md has `open: 0` (WR-01 and IN-01 fixed in `fb1ea4b18`/`443e74541`, WR-02 skipped by owner msg 1627, IN-02/IN-03 deferred). Regression gate: covered (below). Verifier: this report. **UAT:** 17-UAT.md `status: complete`, 31 total, 31 passed, 0 issues, 0 pending, skipped or blocked (`48c3bda08`). Tests 1 to 8 are agent-run (owner rule msg 1652). The home-indicator clause of test 5 and the late-tint clause of test 7 are owner-accepted as code-checked (msg 1663); both code paths match (`ReadingView.swift:68-74,92`, `.hidden` while the panel is hidden; `GalleryCardCell.swift:221-229`, transition speed 0 under Reduce Motion). Test 9 is the owner's acceptance of the reduced scope, the moved list and the known limits (msg 1663). Tests 10 to 31 are automated. **Secure-phase:** 17-SECURITY.md `status: verified`, `threats_open: 0`, 39/39 closed, F-17-FX-01 owner-accepted (msg 1667). **Validate-phase:** 17-VALIDATION.md `status: validated`, audit recorded, `nyquist_compliant: false` (PARTIAL), with G1 and G2 escalated to manual-only and planned in Phase 18 Step 4b. The workflow allows a recorded partial result; it is not a failed step. Not yet marked complete (ROADMAP `- [ ] **Phase 17`, STATE `status: executing`). That is the step after this report, and this truth does not require it. |
+| 7 | Phase 17 closes only through the GSD close steps: execute-phase gates (code review, regression gate, gsd-verifier writing 17-VERIFICATION.md), then verify-work (UAT), secure-phase and validate-phase | ✓ VERIFIED (round 4) | Code review: 17-REVIEW.md has 0 critical, 2 warnings and 3 info; 17-REVIEW-DISPOSITION.md has `open: 0` (WR-01 and IN-01 fixed in `fb1ea4b18`/`443e74541`, WR-02 skipped by an owner decision, IN-02/IN-03 deferred). Regression gate: covered (below). Verifier: this report. **UAT:** 17-UAT.md `status: complete`, 31 total, 31 passed, 0 issues, 0 pending, skipped or blocked (`48c3bda08`). Tests 1 to 8 are agent-run (owner rule). The home-indicator clause of test 5 and the late-tint clause of test 7 are owner-accepted as code-checked; both code paths match (`ReadingView.swift:68-74,92`, `.hidden` while the panel is hidden; `GalleryCardCell.swift:221-229`, transition speed 0 under Reduce Motion). Test 9 is the owner's acceptance of the reduced scope, the moved list and the known limits. Tests 10 to 31 are automated. **Secure-phase:** 17-SECURITY.md `status: verified`, `threats_open: 0`, 39/39 closed, F-17-FX-01 owner-accepted. **Validate-phase:** 17-VALIDATION.md `status: validated`, audit recorded, `nyquist_compliant: false` (PARTIAL), with G1 and G2 escalated to manual-only and planned in Phase 18 Step 4b. The workflow allows a recorded partial result; it is not a failed step. Not yet marked complete (ROADMAP `- [ ] **Phase 17`, STATE `status: executing`). That is the step after this report, and this truth does not require it. |
 | 8 | WR-01: the reader's page-turn gate starts over whenever the pager is rebuilt | ✓ VERIFIED (round 5, agent-run runtime check; not committed automation) | **Present and wired:** `PagerTurnGate.pagerRebuilt()` resets all state (`PageModel.swift`, `self = Self()`). `ReadingView.pagerRebuilt()` (:526-530) resets the gate, clears `shownPagerPosition` and places `scrollPositionID = pageModel.index`. It is called from `.onChange(of: store.forceRefreshID)`, placed after `.id(store.forceRefreshID)` (:219-223), and from the `readingDirection` observer (:418-420). PagerTurnGateTests 16/16 and PagerSeedTests 3/3 pass on both devices at `b5eca09d1`. **Runtime (17-WR01-MIDTURN.md, raw evidence checked):** (1) *Fixed build:* the `uat-17` worktree is at `b5eca09d1` with only UI-test files changed, so the app source is the tested source. W1, W2 (iPhone Air) and W3 (iPad Pro 11) each exit 0 with 20/20 PASS lines. The video timing files put 18, 11 and 9 rebuilds 0–0.35 s after a turn start: 38 of 60. (2) *The wiring fires at the rebuild:* in D1 the reverted build logs from the same `.onChange` site, and there are 20 `rebuild` lines for 20 tries. (3) *The check reaches the condition:* parsing the D1 log puts 9 of 20 rebuilds while the phase is `animating`, 0.11–0.34 s into the turn. (4) *The check detects the failure:* FI1 drops the new pager's `idle → idle` report, which is WR-01's premise. Its 10 mid-animation rebuilds (tries 1, 2, 4, 5, 7, 8, 10, 13, 16, 19 by the log) are exactly its 10 FAIL lines, each followed by 6–7 `admitted false` turns. Its 10 idle rebuilds pass. N1 (a plain revert) and D1 pass 20/20, because on this runtime the new pager's first `idle → idle` report arrives at the rebuild instant and clears the gate. Limits are in R5-1. |
 
 **Score:** 8/8 truths verified. History: 5/8 at `8c5dc3af2`. Still 5/8 at `2b792bfdb`, where truth 6 closed but
@@ -155,7 +155,7 @@ close steps) and 8/8 now (truth 8, the WR-01 rebuild-during-turn check).
 | 17-01 | Public fixture export; full-content capture without layout change; SnapshotTesting test-only; unproven capture stops execution | Executed (foundation for moved CAP-17-02/03) | 17-01-SUMMARY.md; VisualSnapshotTests (VisualTracerTests 3, HostedHierarchyTests 3, RenderServerCaptureTests 17, RenderSettlementTests 6, RenderedContentInspectionTests 18 …) pass at `b5eca09d1`; SnapshotTesting test-only (truth 4) |
 | 17-24 | Measured geometry before pin; immutable pin rejects drift; validation never rewrites pin | Executed (foundation) | 17-24-SUMMARY.md; `Scripts/visual/environment.py`, `regression-environment.json` present; GeometryTests are opt-in, not in FeatureTests (not re-run at `b5eca09d1`) |
 | 17-02 | 576 coordinates per scenario; drift and missing results fail; filters never claim completeness; edge predicates | Executed (foundation for moved CAP-17-02) | 17-02-SUMMARY.md; `run-regression.py` imports `environment` (key link wired); Python tests not re-run at `b5eca09d1`, but `Scripts/visual/*.py` is unchanged since 17-14 (only README.md changed) |
-| 17-03 | Offline real assets without an account; provisional declared; no repeated gallery in a screen; empty, ordering and concurrency edges | ✓ (prohibition: owner-accepted exception) | 17-03-SUMMARY.md; `selection-review.py` and `acquire-fixtures.py` share `fixtures.py` (wired). Prohibition "Marketing MUST NOT invent gallery content": the one exception (comment 9000000001 by CedarComet91 on gallery 2758456, and the edited image B) was accepted by the owner in msg 1640. The current set's 12 Comments files are glyph edits of the 2026-11-02 captures, so no new invented content entered |
+| 17-03 | Offline real assets without an account; provisional declared; no repeated gallery in a screen; empty, ordering and concurrency edges | ✓ (prohibition: owner-accepted exception) | 17-03-SUMMARY.md; `selection-review.py` and `acquire-fixtures.py` share `fixtures.py` (wired). Prohibition "Marketing MUST NOT invent gallery content": the one exception (comment 9000000001 by CedarComet91 on gallery 2758456, and the edited image B) was accepted by the owner. The current set's 12 Comments files are glyph edits of the 2026-11-02 captures, so no new invented content entered |
 | 17-04 | Capture launch consumes only the selected offline fixture; no contamination; unknown routes fail | ✓ | CaptureSceneTests 20, CaptureFixtureTests 10, UITestStubTests, CaptureScreenDiagnosticsTests 13 pass at `b5eca09d1`; DEBUG-gated |
 | 17-05 | Actual app views at device dimensions; readiness; 9:41, no capsule, byte-identical cold reruns | ✓ (at its own gate) | 17-05-SUMMARY.md: native-09/-10 byte-identical on both devices; the 17-04 dark-card color gate is resolved there (ImageColors ordering) |
 | 17-06 | Live Text on the real page; Downloads completeness from manifests; eight states in real UI | ✓ | CaptureLiveTextRecordTests 9, CaptureLiveTextTests 5, CaptureDownloadTests 7, DownloadCoordinatorCaptureTests 2 pass; open items settled by the 2026-11-02 approval (FV section 5) |
@@ -244,7 +244,7 @@ Info: 17-03, 17-05 and 17-24 plans spell `scripts/visual/…` in lowercase, whil
 | Soft top-edge count (D-26 claim) | `git grep -c "scrollEdgeEffectStyle(.soft"` | 55 top or top+bottom in 37 files (plus 1 bottom-only in ArchivesView) | ✓ PASS |
 | Prior-phase cookie-logging gate (Phase 8/12) | `sh Scripts/check-cookie-logging.sh` (static, read-only) | `Cookie logging audit passed.` exit 0 | ✓ PASS |
 | Round 2: source unchanged since the runs | `git diff --stat b5eca09d1 b2fbaaa37 -- AppPackage App ShareExtension Scripts EhPanda.xcodeproj EhPandaUITests '*.xctestplan'` | empty | ✓ PASS |
-| Round 2: CAP-17-04 referent | parse `ehpanda-website` `d4393bd:.planning/phases/07-full-image-matrix-import-review-promote/07-SCREENSHOT-PROVENANCE-20261104.json` | approved 2026-11-04 (msg1581); 118 files, 192 unique coordinates (24 per screen); 101/10/7 by kind; 101/101 edits name their original's SHA-256; 0 paths of the 2026-11-02 record left unsuperseded; the 12 Comments files are all glyph edits | ✓ PASS |
+| Round 2: CAP-17-04 referent | parse `ehpanda-website` `d4393bd:.planning/phases/07-full-image-matrix-import-review-promote/07-SCREENSHOT-PROVENANCE-20261104.json` | approved 2026-11-04; 118 files, 192 unique coordinates (24 per screen); 101/10/7 by kind; 101/101 edits name their original's SHA-256; 0 paths of the 2026-11-02 record left unsuperseded; the 12 Comments files are all glyph edits | ✓ PASS |
 | Round 2: fixtures behind the current set | `delivery-evidence.json` and the recapture diagnostics vs `ls ehpanda-fixture/fixtures/versions` at `134cbf3` | The 6 Live Text versions were absent | superseded by round 3 |
 | Round 3: source unchanged since the runs | `git diff --stat b5eca09d1 82edf27e8 -- . ':!.planning'` | empty | ✓ PASS |
 | Round 3: fixture validator | `validate_fixtures` on all 11 `fixtures/versions/*`, plus `current` and `current-explicit` | 11/11 OK; links resolve to `1e33788f…` and `1bbee205…` | ✓ PASS |
@@ -288,9 +288,9 @@ REQUIREMENTS.md maps no other ID to Phase 17.
 | Requirement | Source plans | Description (Phase 17 part) | Status | Evidence |
 |---|---|---|---|---|
 | CAP-17-01 (fixture part) | 17-03, 17-04, 17-06, 17-23 | Explicit acquisition and refresh, provenance, checksums, offline replay without account or credentials | ✓ SATISFIED (Phase 17 part) | Capture fixture and scene suites pass at `b5eca09d1`. The fixtures behind the current website set are retained and validated: 11 versions at `ehpanda-fixture` `8ee4fc2` (truth 2). The download suites pass; the same-run deletion invariant is not separately re-proved (FV section 6 says so). Record note: R3-1 (FV section 6 and REQUIREMENTS.md:102 citing the 16 versions as current) is fixed in `b2cb11dad` |
-| CAP-17-04 (amended 2026-11-03, clarified 2026-11-05) | 17-03 to 17-06, 17-23 | Met by the current website set: the 2026-11-04 recapture, 118 files serving the 192 coordinates of the 2026-11-02 approval | ✓ SATISFIED | Truth 2; owner msgs 1581, 1640, 1645, 1647; `ehpanda-website` `d4393bd`; `ehpanda-fixture` `8ee4fc2` |
+| CAP-17-04 (amended 2026-11-03, clarified 2026-11-05) | 17-03 to 17-06, 17-23 | Met by the current website set: the 2026-11-04 recapture, 118 files serving the 192 coordinates of the 2026-11-02 approval | ✓ SATISFIED | Truth 2; owner decision; `ehpanda-website` `d4393bd`; `ehpanda-fixture` `8ee4fc2` |
 | CAP-17-06 (bounded part) | 17-01, 17-05, 17-16 to 17-19, 17-23 | Preserve iOS/iPadOS 27, Swift 6.4, native navigation/search/toolbar/top-edge behavior | ✓ SATISFIED within bounds | Deployment target 27.0 in all 10 pbxproj configurations; `swift-tools-version: 6.4`, `platforms: [.iOS(.v27)]`; AccessibilityAuditUITests, DetailNavigationTitleUITests and LibraryPresentationUITests pass on both devices; AX checks recorded in 260921-f5u (not re-run). Note: app targets use `SWIFT_VERSION = 6.0` (language mode), unchanged by this phase |
-| CAP-17-07 (amended 2026-11-03) | 17-04, 17-06, 17-14, 17-16 to 17-19, 17-23 | Release isolation; landed size-class migration verified; census with owner decisions; no lint/warning suppression | ✓ SATISFIED (the unclassified edge was accepted by the owner, msg 1640) | Truths 3 and 4; no new `swiftlint:disable` in phase files (the three present predate the phase: `e7bf8a2cb`, `9c3698e0a`, `25c313400`) |
+| CAP-17-07 (amended 2026-11-03) | 17-04, 17-06, 17-14, 17-16 to 17-19, 17-23 | Release isolation; landed size-class migration verified; census with owner decisions; no lint/warning suppression | ✓ SATISFIED (the unclassified edge was accepted by the owner) | Truths 3 and 4; no new `swiftlint:disable` in phase files (the three present predate the phase: `e7bf8a2cb`, `9c3698e0a`, `25c313400`) |
 | CAP-17-02 | 17-01, 17-02, 17-05, 17-08 to 17-13, 17-24 | SnapshotTesting coverage | MOVED to Phase 18 (VIS-18-01), not satisfied | No summary claims it (truth 6) |
 | CAP-17-03 | 17-01, 17-02, 17-12, 17-13, 17-20, 17-24 | Baselines and CI matrix | MOVED to Phase 18 (VIS-18-01), not satisfied | No summary claims it (truth 6) |
 | CAP-17-05 | 17-22 | AltStore promotional handoff | MOVED to Phase 18 (MKT-18-01, DIST-18-02), not satisfied | |
@@ -309,16 +309,16 @@ None. The previous report's only item (truth 8, WR-01 rebuild during a turn) is 
 in 17-WR01-MIDTURN.md (round 5). No override was needed or recorded. The rounds before closed UAT,
 secure-phase and validate-phase (truth 7).
 
-### History rewrites (owner msgs 1749 and 1773)
+### History rewrites (owner decision)
 
 This is a refresh only, not a re-verification. Every verdict, the score and the status are unchanged from round 5.
 
 There were two rewrites of unpushed commits, both approved by the owner:
 
-- **Rewrite 1 (owner msg 1749).** The 18 commits from the tested source onward were rewritten to remove a local
+- **Rewrite 1 (owner decision).** The 18 commits from the tested source onward were rewritten to remove a local
   home path from `17-REVIEW-FIX.md`. That path was in the tested commit and was later removed by `b2cb11dad`.
   The pre-rewrite head is on `backup/pre-path-rewrite-17`.
-- **Rewrite 2 (owner msg 1773).** The 23 commits from `dd7df2178` onward were rewritten because the push check
+- **Rewrite 2 (owner decision).** The 23 commits from `dd7df2178` onward were rewritten because the push check
   rejected local time-zone labels. The filter changed four time phrases in the Phase 17 docs to UTC, and it
   remapped commit IDs. The pre-rewrite head is kept on a second `backup/` branch.
 
@@ -369,11 +369,11 @@ evidence.
 
 | `fba61bc61` item | Action | Verifier check | Verdict |
 |---|---|---|---|
-| Human item 1: WR-01 rebuild during a turn, or an owner override | `1efd9093e`: 17-WR01-MIDTURN.md, an agent-run check at `b5eca09d1` (owner rule msg 1652) with a fault-injected control | Every count in its results table matches the raw files (truth 8): 60/60 fixed, 38 in the window, N1 and D1 20/20, FI1 10/20 with the failing tries equal to the log's mid-animation rebuilds. `nc-final.diff` matches the described control: the revert of both `pagerRebuilt()` calls, `NSLog` instrumentation, and the dropped `idle → idle` report | **Closed** (truth 8 verified; no override) |
+| Human item 1: WR-01 rebuild during a turn, or an owner override | `1efd9093e`: 17-WR01-MIDTURN.md, an agent-run check at `b5eca09d1` (owner rule) with a fault-injected control | Every count in its results table matches the raw files (truth 8): 60/60 fixed, 38 in the window, N1 and D1 20/20, FI1 10/20 with the failing tries equal to the log's mid-animation rebuilds. `nc-final.diff` matches the described control: the revert of both `pagerRebuilt` calls, `NSLog` instrumentation, and the dropped `idle → idle` report | **Closed** (truth 8 verified; no override) |
 | R4-1: 17-VALIDATION overstated UAT 1 and 2 for WR-01 | G1 disposition and the manual-only row now cite 17-WR01-MIDTURN.md and say that UAT 1 and 2 do not reach the condition | Correct; G1 stays escalated to manual-only, because the harness is not committed | **Fixed** |
 | R4-2: 17-SECURITY stale statements | F-17-DOC-01 now "fixed in `b2cb11dad`"; the spot-check heading names `f71d108`, 2 ahead, unpushed | Both match the repositories | **Fixed** |
 | UAT tests 1 to 3 | One addendum line each, pointing to 17-WR01-MIDTURN.md | The results stay `pass`, and the summary is unchanged at 31/31 | **Verified** |
-| History rewrite (owner msg 1678) | `711cfe202` → `fba61bc61`; the earlier F-17-FX-01 commit → `06c325218` | `git diff 711cfe202 fba61bc61` changes only the Accepted Risks "Accepted By" cell to "owner, msg 1667, card 1666". The report text is identical | **Verified** |
+| History rewrite (owner decision) | `711cfe202` → `fba61bc61`; the earlier F-17-FX-01 commit → `06c325218` | `git diff 711cfe202 fba61bc61` changes only the Accepted Risks "Accepted By" cell to "owner". The report text is identical | **Verified** |
 
 **Gates (round 5).** The code-review gate (17-REVIEW-DISPOSITION.md `open: 0`) and the regression gate
 (final runs at `b5eca09d1`) are unchanged: `b5eca09d1..1efd9093e` is docs-only.
@@ -403,7 +403,7 @@ evidence.
 | `7f7467d47` item | Action | Verifier check | Verdict |
 |---|---|---|---|
 | Human item 1: UAT, including the WR-01 manual test | `48c3bda08`: 17-UAT.md complete, 31/31 | Summary block matches the 31 results. Test 8 was re-checked: all 118 files at `ehpanda-website` `c17d230` (`public/img` renamed to `public/image`; `d4393bd` is an ancestor) hash equal to the `d4393bd` provenance (118/0/0). Test 6's correction (the narrow iPad Library collapses the split view) matches 17-LAYOUT-AUDIT row 2. The code-checked clauses of tests 5 and 7 match the code | **Closed** for UAT. The WR-01 part is not closed: see truth 8 and R4-1 |
-| Human item 2: secure-phase and validate-phase | `096275e2b`/`06c325218`: 17-SECURITY.md `verified`, 39/39 closed, `threats_open: 0`, F-17-FX-01 accepted (msg 1667). `a71f061e9`: 17-VALIDATION.md `validated`, `nyquist_compliant: false` | Each kept plan has three threats (13 × 3 = 39), all `mitigate`. The cited code anchors were spot-checked for the reader and overlay paths. The Nyquist map lists every kept task, and the moved plans are not counted as gaps | **Closed** (truth 7) |
+| Human item 2: secure-phase and validate-phase | `096275e2b`/`06c325218`: 17-SECURITY.md `verified`, 39/39 closed, `threats_open: 0`, F-17-FX-01 accepted. `a71f061e9`: 17-VALIDATION.md `validated`, `nyquist_compliant: false` | Each kept plan has three threats (13 × 3 = 39), all `mitigate`. The cited code anchors were spot-checked for the reader and overlay paths. The Nyquist map lists every kept task, and the moved plans are not counted as gaps | **Closed** (truth 7) |
 | R3-1: three lines cite the 16 versions as current | `b2cb11dad` dates them to 2026-11-02 and names the 11 kept since `8ee4fc2` | FV section 6 CAP-17-01 row, REQUIREMENTS.md:102, 17-SOURCE-AUDIT.md:201: all three are fixed. The remaining "16" mentions are in 17-23-PLAN.md, which is historical | **Fixed** |
 | R3-2: README rewrite carried only in STATE | `b2cb11dad`: Phase 18 ROADMAP context item 8 | Names the stale index and the moved runner owners | **Fixed** |
 | R3-3: fixture README "108 files made from" | `ehpanda-fixture` `f71d108` (signed `G`) | Now says 101 edited plus 7 replaced | **Fixed** |
@@ -430,13 +430,13 @@ evidence.
   next the verifier's update, then UAT, secure-phase and validate-phase` and `state_head: 2b792bfdb…`. This is
   expected to be refreshed when the phase is marked complete.
 
-### Round 3 (after owner msgs 1645 and 1647): what changed
+### Round 3 (after an owner decision): what changed
 
 | `2b792bfdb` item | Decision or action | Verifier check | Verdict |
 |---|---|---|---|
-| Human item 3: Live Text fixtures not retained | Owner msg 1645: keep the six versions. `ehpanda-fixture` `8ee4fc2` adds them with their translation records | All 6 present, valid, byte-identical to the local copies; record hashes match the index | **Closed** |
-| (follow-on) Fixture repository keeps only what the current set uses | Owner msg 1647. `8ee4fc2` removes 11 versions and `website-capture-20261102.json`, adds `website-capture-20261104.json`, and repoints `active-fixtures.json` (`explicit-comments` now `0d1b87cf…`, since explicit Comments uses the non-explicit files) | The retained set equals the used set exactly (11 = 11 = 11). The removals are the 2026-11-02 non-explicit de/ko/zh-Hant/zh-Hans readers, the explicit Comments version and the six explicit readers, and none is used by a served file. `data/` and `overrides/` are untouched. The 2026-11-02 index stays in history at `134cbf3`, and its 108 relevant capture hashes are carried in the new index | **Verified** |
-| Observation 2: criterion 2 did not name the current set | `ea062d599`: criterion 2 cites the 2026-11-02 approval and the 2026-11-04 approval (msg 1581; 118 files, 192 coordinates) | Wording matches `d4393bd` | **Fixed** |
+| Human item 3: Live Text fixtures not retained | Owner decision: keep the six versions. `ehpanda-fixture` `8ee4fc2` adds them with their translation records | All 6 present, valid, byte-identical to the local copies; record hashes match the index | **Closed** |
+| (follow-on) Fixture repository keeps only what the current set uses | Owner decision. `8ee4fc2` removes 11 versions and `website-capture-20261102.json`, adds `website-capture-20261104.json`, and repoints `active-fixtures.json` (`explicit-comments` now `0d1b87cf…`, since explicit Comments uses the non-explicit files) | The retained set equals the used set exactly (11 = 11 = 11). The removals are the 2026-11-02 non-explicit de/ko/zh-Hant/zh-Hans readers, the explicit Comments version and the six explicit readers, and none is used by a served file. `data/` and `overrides/` are untouched. The 2026-11-02 index stays in history at `134cbf3`, and its 108 relevant capture hashes are carried in the new index | **Verified** |
+| Observation 2: criterion 2 did not name the current set | `ea062d599`: criterion 2 cites the 2026-11-02 approval and the 2026-11-04 approval (118 files, 192 coordinates) | Wording matches `d4393bd` | **Fixed** |
 | Observation 3: Step 4b depended on `/tmp` | `ea062d599` commits `17-READER-ROOT-CAUSE.md`; Step 4b links it | `diff` against `/tmp/ehp-17gate/reader-root-cause.md`: only the provenance line differs ("Copied on 2026-11-05 … checked for LAN addresses, cookies and credentials") | **Fixed** |
 | Observation 4: STATE `state_head` stale | `ea062d599`: `state_head: 2b792bfdb…` | Matches the commit before it | **Fixed** |
 | Observation 5: FV section 3 provenance path ambiguous | FV section 3 now says the record is "in the `ehpanda-website` repository, not this one" | Correct | **Fixed** |
@@ -467,7 +467,7 @@ evidence.
 
 No claim in `8ee4fc2`, `ea062d599` or `82edf27e8` was found to be wrong apart from R3-1 and R3-3.
 
-### Round 2: resolved by owner msg 1640 (2026-11-05)
+### Round 2: resolved by an owner decision (2026-11-05)
 
 | Initial item | Decision | Where recorded (`b2fbaaa37`) | Verifier check |
 |---|---|---|---|
@@ -476,7 +476,7 @@ No claim in `8ee4fc2`, `ea062d599` or `82edf27e8` was found to be wrong apart fr
 | 4. ×5 page-sync stress on both devices at `b5eca09d1` | Accepted as a known limit | FV sections 8 and 9; 17-VALIDATION.md; 17-23-SUMMARY.md; ROADMAP Phase 17 Plans line; STATE.md | ✓ |
 | 5. WR-01 manual test | Folded into UAT (item 1) | — | — |
 | 6. Stale `requirements-completed` | Corrected to `[]` with notes | 17-01, 17-02, 17-24 summaries | ✓ truth 6 closed |
-| 7. CAP-17-04 referent | The current set, the 2026-11-04 recapture (msg 1581) | REQUIREMENTS.md; ROADMAP scope item 2; FV sections 2, 3, 6; STATE.md | ✓ for the images, against `d4393bd`; fixture record: round 2 human item 3, closed in round 3 |
+| 7. CAP-17-04 referent | The current set, the 2026-11-04 recapture | REQUIREMENTS.md; ROADMAP scope item 2; FV sections 2, 3, 6; STATE.md | ✓ for the images, against `d4393bd`; fixture record: round 2 human item 3, closed in round 3 |
 
 ### Round 2: the initial record errors
 
@@ -488,18 +488,18 @@ No claim in `8ee4fc2`, `ea062d599` or `82edf27e8` was found to be wrong apart fr
 | (d) | Stress wording called only the iPad reduced | **Fixed** | FV sections 1, 8 and 9; 17-VALIDATION.md known limits and table row; 17-23 key decision and Deviations; ROADMAP Plans line; STATE.md. All now say both devices ran ×5 at `b5eca09d1` and that the ×20 phone run is at `33dbf648b` |
 | (e) | FV section 9 did not say the Debug negative control was not repeated | **Fixed** | Section 9 intro "except the Debug negative-control scan"; new bullet (last control at `52df81fa3`, 991 findings; earlier at `50c794b53`, confirmed in 17-RELEASE-ISOLATION.md); row 6 describes the launch-probe Debug app separately; the same wording is in 17-23-SUMMARY.md, 17-VALIDATION.md and STATE.md |
 | (f) | 17-LAYOUT-AUDIT ReadingView line numbers are from `5a7fe7f13` | **Fixed (annotated)** | A dated note says the numbers are from `5a7fe7f13` and were not re-derived, citing this report for the unchanged census. Acceptable: the census conclusion, not the line numbers, is the evidence |
-| (g) | FV section 3 silent on the 2026-11-04 replacements | **Fixed, with one omission** | Section 3 rewritten: 17 recaptures plus 101 edits = 118 files serving the 192 coordinates; approval msg 1581; `d4393bd`; the provenance record and its supersession. Every claim matches the website record. Omission: the fixtures bullet says "new immutable local fixture versions" without naming them or noting that they are not retained (round 2 human item 3; FV section 3 names all 11 since `ea062d599`) |
+| (g) | FV section 3 silent on the 2026-11-04 replacements | **Fixed, with one omission** | Section 3 rewritten: 17 recaptures plus 101 edits = 118 files serving the 192 coordinates; `d4393bd`; the provenance record and its supersession. Every claim matches the website record. Omission: the fixtures bullet says "new immutable local fixture versions" without naming them or noting that they are not retained (round 2 human item 3; FV section 3 names all 11 since `ea062d599`) |
 | (h) | Phase 18 ROADMAP lacked the reader rework, IN-02 and IN-03 | **Fixed** | Context item 7; Step 4b (the reader rework plus UI tests for the WR-01 paths); Step 7 (IN-02 `FORBIDDEN_CONTENT` token with a `test_release.py` case; IN-03 import under `#if DEBUG`). Both targets exist as named |
 | (i) | Plans spell `scripts/visual` (info) | **Fixed (errata)** | Errata in 17-03 and 17-24 summaries; 17-05's existing note marked confirmed. Plans not rewritten, which is correct for executed plans |
 
 ### Round 2: checks on the extra edits of `b2fbaaa37`
 
 - **REQUIREMENTS.md CAP-17-04 clarification.** Correct against `d4393bd`: 17 + 101 = 118 files, each coordinate
-  served once, approval msg 1581, provenance on `develop`. The checkbox is still unchecked, which is right
+  served once, provenance on `develop`. The checkbox is still unchecked, which is right
   because Phase 17 is not closed. The footer adds a 2026-11-05 note but keeps "Last updated: 2026-11-03" as its
   lead date (cosmetic).
-- **ROADMAP Phase 18 context item 7, Step 4b and Step 7.** Correct and traceable (owner msgs 1627, 1630,
-  product lead msg 1631). Step 4b cites `/tmp/ehp-17gate/reader-root-cause.md`, which is local and not
+- **ROADMAP Phase 18 context item 7, Step 4b and Step 7.** Correct and traceable (owner decision,
+  product lead decision). Step 4b cites `/tmp/ehp-17gate/reader-root-cause.md`, which is local and not
   committed (Step 4b says so). The analysis could be lost when `/tmp` is cleared. Consider committing it to
   Phase 18's context when that phase is planned.
 - **ROADMAP Phase 17 scope item 2.** It keeps the 2026-11-03 sentence and adds the 2026-11-05 clarification, so
@@ -516,9 +516,9 @@ contradiction, but under-specified.**
   The website record says so ("pairs keep the 2026-11-02 approval of which coordinates exist and which file
   each one uses"), and FV section 3 still cites it. The criterion's citation requirement is therefore still met.
 - The coordinate count is still 192.
-- The criterion no longer names the image set the requirement now means (the 2026-11-04 set, msg 1581). A
+- The criterion no longer names the image set the requirement now means (the 2026-11-04 set). A
   reader of the criterion alone would take the 2026-11-02 captures as the deliverable.
-- Recommendation (docs-only, not a gap): append "and, after owner msg 1640, the 2026-11-04 approval (msg 1581)
+- Recommendation (docs-only, not a gap): append "and, after an owner decision, the 2026-11-04 approval
   of the current files".
 
 The criterion's "and their fixtures" clause was round 2's human item 3. Round 3 resolved it, and `ea062d599` added the
@@ -544,10 +544,10 @@ No blocking gap, no failed truth and no open human item.
 - **Round 5.** The agent-run WR-01 rebuild-during-turn check with a failing control closed truth 8, and
   `1efd9093e` fixed R4-1 and R4-2.
 - **Round 4.** The close steps ran, which closed truth 7:
-  - UAT: 31/31, with the owner's acceptance of the reduced scope (msg 1663).
-  - Security: 39/39 closed, `threats_open: 0`, F-17-FX-01 accepted (owner msg 1667).
+  - UAT: 31/31, with the owner's acceptance of the reduced scope.
+  - Security: 39/39 closed, `threats_open: 0`, F-17-FX-01 accepted (owner decision).
   - Nyquist audit: validated, PARTIAL.
-- **Round 3.** Owner msgs 1645 and 1647 and `8ee4fc2`/`ea062d599`/`82edf27e8` re-closed truth 2.
+- **Round 3.** Owner decision and `8ee4fc2`/`ea062d599`/`82edf27e8` re-closed truth 2.
 - **Round 2.** Truth 6 and five of the seven initial human items closed, and all nine initial record errors are
   fixed.
 - **Verified at `b5eca09d1`** (nothing outside `.planning` has changed through `1efd9093e`): truths 1 to 8, the
@@ -568,5 +568,5 @@ IN-02/IN-03 and the `Scripts/visual/README.md` rewrite are in the Phase 18 roadm
 
 ---
 
-_Verified: 2026-11-05T03:12:12Z, refreshed 2026-11-05T04:06:59Z and 2026-11-05T04:15:55Z after the history rewrites of owner msgs 1749 and 1773 (fourth re-verification, round 5; earlier reports `fba61bc61` at 2026-11-05T01:18:44Z, `7f7467d47` at 2026-11-04T17:14:33Z, `2b792bfdb` at 2026-11-04T16:52:31Z and `8c5dc3af2` at 2026-11-04T16:10:00Z)_
+_Verified: 2026-11-05T03:12:12Z, refreshed 2026-11-05T04:06:59Z and 2026-11-05T04:15:55Z after the history rewrites of owner decision (fourth re-verification, round 5; earlier reports `fba61bc61` at 2026-11-05T01:18:44Z, `7f7467d47` at 2026-11-04T17:14:33Z, `2b792bfdb` at 2026-11-04T16:52:31Z and `8c5dc3af2` at 2026-11-04T16:10:00Z)_
 _Verifier: Claude (gsd-verifier, inline; effort: high, resolved from .planning/config.json; model inherited)_

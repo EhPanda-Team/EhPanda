@@ -429,7 +429,7 @@ public enum HostedWindowCapture {
     /// Hosts, settles, captures and compares (or records) one picture, retrying a difference, a timeout or a failed
     /// user step once.
     ///
-    /// The retry re-hosts a fresh root from `make`, settles and captures again (owner msg 2263): a second pass that
+    /// The retry re-hosts a fresh root from `make`, settles and captures again (owner decision): a second pass that
     /// passes is `passed` with `flaky`; otherwise the second pass decides (`changed`, `timeout` or `error`). A failed
     /// user step (`interaction`) is retried like a timeout since run 42577585956, where iPad front-page-search
     /// failed it once in four of 90 runs; its reason names the step's failure (``CaptureStepFailure``). In candidate

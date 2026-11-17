@@ -27,7 +27,7 @@ and not part of this phase (D-03).
 
 ## Screenshots repository (Task 3)
 
-- Consent: owner msg 2787 (yes to creating and pushing the repository), and owner msg 2794 (use his own GitHub
+- Consent: owner decision (yes to creating and pushing the repository), and an owner decision (use his own GitHub
   sign-in).
 - Done by the orchestrator with that sign-in. The public repository was created through the GitHub API, then the
   local assets checkout's `main` was pushed with its history unchanged.
@@ -35,7 +35,7 @@ and not part of this phase (D-03).
 - Pushed commit: `d69b30a065b2813c787b58f997a0ae4d318a2847` ("Add the AltStore and SideStore iPhone
   screenshots"). `git ls-remote` shows `HEAD` and `refs/heads/main` at this commit.
 
-Owner msg 2804: the folder `altstore/` was renamed `app-marketplace/` (pushed as `87f6f15`), and the old
+Owner decision: the folder `altstore/` was renamed `app-marketplace/` (pushed as `87f6f15`), and the old
 `altstore/...` URLs now return 404. The three sources and the tests point at the new folder. The first check, on
 `d69b30a`'s `altstore/` paths, also returned seven 200s.
 

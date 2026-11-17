@@ -77,12 +77,12 @@ struct BlockedUsersView: View {
 }
 
 /// The empty state's title (C-12): `blocked_users.empty` in the `ContentUnavailableView` label's own font, wrapping
-/// freely, with no line break, scaling, line limit or fixed width (UI-SPEC C-3, owner msg 1822).
+/// freely, with no line break, scaling, line limit or fixed width (UI-SPEC C-3, owner decision).
 ///
 /// It carries `TitleWidowGuard` like the first-launch titles: the last two words are joined with a no-break space when
 /// they fit on one line at the current width and text size, so German at AX5 on iPad reads "Du hast / niemanden
 /// blockiert." When the pair is wider than the line, as in English and German at AX5 on iPhone, the title is left as
-/// written (the owner msg 1903 exception). The label keeps the font `ContentUnavailableView` gives it, bold `.title3`,
+/// written (the owner decision exception). The label keeps the font `ContentUnavailableView` gives it, bold `.title3`,
 /// and is measured in that font.
 private struct BlockedUsersEmptyTitle: View {
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize

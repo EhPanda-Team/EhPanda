@@ -234,7 +234,7 @@ class AggregateTests(unittest.TestCase):
         self.assertEqual(self.aggregate()['shards']['s07']['attempt'], 3)
 
     def test_a_shard_still_lost_after_its_second_retry_is_listed_for_the_third(self):
-        # Four attempts in all (owner msg 5033 follow-up): the third retry round lists what the second did not bring
+        # Four attempts in all (owner decision follow-up): the third retry round lists what the second did not bring
         # back, by the same rule, and a shard whose own third retry ran is never listed again.
         self.write_all(s03={'infra': 'crash'}, s07={'infra': 'crash'}, s11={'infra': 'timeout'})
         self.write(self.retry, 's03', infra='crash')

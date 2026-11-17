@@ -6,7 +6,7 @@ import Testing
 
 /// Favorites with nothing saved shows its own empty state instead of the shared not-found error, in every
 /// category; a keyword search or a date-seek with no hits is "no results" and keeps the not-found error
-/// (owner msg 2896).
+/// (owner decision).
 @Suite
 struct EmptyStateTests {
     private static let keyword = "artist:nobody"

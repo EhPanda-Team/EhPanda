@@ -363,7 +363,7 @@ private struct ReportFailedAlert: ViewModifier {
     }
 }
 
-/// The form's only toolbar item: the leading system Close, icon only (Colo msg 1974), which the reducer can refuse
+/// The form's only toolbar item: the leading system Close, icon only (Colo), which the reducer can refuse
 /// while a report is being sent. Built like `SheetCloseToolbar`.
 private struct ReportCloseToolbar: ToolbarContent {
     let isDisabled: Bool

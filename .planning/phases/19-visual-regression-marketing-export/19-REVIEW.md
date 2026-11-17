@@ -150,10 +150,10 @@ defect was found. Two Medium and sixteen smaller findings follow. 8b5799daa (a 4
 
 ### Accepted / deferred (not re-raised)
 
-- Hosted snapshot gate passing is deferred to before release day (owner msg 3425, 3428); the hosted parts of
+- Hosted snapshot gate passing is deferred to before release day (owner decision); the hosted parts of
   19-12, 19-13 and 19-17 are deferred with it. Findings below that touch the gate concern code, not that pass.
 - Rare simulator tap mis-delivery and the iPad share-sheet retry: environmental, accepted with retries noted
-  (owner msg 3539, 3554).
+  (owner decision).
 
 ## Warnings
 

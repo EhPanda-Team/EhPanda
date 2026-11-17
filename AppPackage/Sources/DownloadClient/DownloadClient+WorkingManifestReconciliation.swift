@@ -206,7 +206,7 @@ extension DownloadCoordinator {
     /// any page landed would keep its whole-gallery claim if this caller supplied nothing more:
     /// line 3 refuses it here exactly as it did at the preparation.
     ///
-    /// **Corroborated absences (K0-a, product lead's EhPanda msg 2901).** What that caller does supply
+    /// **Corroborated absences (K0-a, product lead's decision).** What that caller does supply
     /// is `corroboratedAbsentPages`: the pages an EARLIER successful scan already found positively
     /// absent. For the run's exit those are the pages its preparation owed and did not inherit, which
     /// the measurement's own evidence rule admits only on a successful listing that yielded no

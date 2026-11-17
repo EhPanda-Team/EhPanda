@@ -4,7 +4,7 @@ public import SwiftUI
 
 /// The age wall's checkbox card (UI-SPEC C-2): a card the width of its column whose whole surface toggles, with an
 /// empty circle that becomes the accent-filled `checkmark.circle.fill` when ticked, the same round glyph as the
-/// analytics choice's radio (owner msg 3897).
+/// analytics choice's radio (owner decision).
 ///
 /// The glyph sits on the card colour, never on the grouped background, so the accent keeps its 3:1 non-text
 /// contrast (UI-SPEC Color). Its drawn top edge is level with the top of the capital letters of the sentence's

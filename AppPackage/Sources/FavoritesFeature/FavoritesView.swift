@@ -118,7 +118,7 @@ public struct FavoritesView: View {
         }
     }
 
-    /// Nothing saved in the current category (owner msg 2896). It has no button and lets touches through, so a
+    /// Nothing saved in the current category (owner decision). It has no button and lets touches through, so a
     /// pull on the list beneath still reloads it.
     private var emptyView: some View {
         ContentUnavailableView {

@@ -23,8 +23,8 @@ public import AppModels
 //    already covers it.
 //
 // The 3.0 flows are the last block below, exactly as signed off in `20-12-VOCABULARY.md` (product
-// lead msg 2829; owner msgs 2837, 2842). The report signal carries how a report ended and never
-// why (owner msg 2837), and no moderation case carries a comment, a poster, a member ID, a report
+// lead decision; owner decision). The report signal carries how a report ended and never
+// why (owner decision), and no moderation case carries a comment, a poster, a member ID, a report
 // field, a gallery or a URL, so none of them can be put into a payload by a call site.
 
 public enum AnalyticsSignal: Equatable, Sendable {

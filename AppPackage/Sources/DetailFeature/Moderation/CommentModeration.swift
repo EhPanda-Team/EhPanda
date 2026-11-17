@@ -12,7 +12,7 @@ public import Sharing
 /// each scope one in, so a comment behaves the same in the comments list and in the Detail strip; the views only send
 /// these actions and read this state.
 ///
-/// Five actions send an analytics signal, the ones signed off in `20-12-VOCABULARY.md` (product lead msg 2829): the
+/// Five actions send an analytics signal, the ones signed off in `20-12-VOCABULARY.md` (product lead decision): the
 /// answer to the posting warning, a confirmed block, an unblock, and showing a collapsed comment. Each carries a closed
 /// value (the choice, or the surface) and nothing else, so no author name, member ID or comment text leaves the device
 /// this way. Reporting is the Report form's signal, not this reducer's.
@@ -62,7 +62,7 @@ public struct CommentModerationFeature: Sendable {
         }
 
         /// Whether `comment`'s poster is blocked, revealed or not; the menu offers Unblock instead of Block (C-4).
-        /// Matches the member ID, never the name (owner msg 1918), so a comment with no member ID is never blocked.
+        /// Matches the member ID, never the name (owner decision), so a comment with no member ID is never blocked.
         public func isBlocked(_ comment: GalleryComment) -> Bool {
             blockedUsers.isBlocked(memberID: comment.authorMemberID)
         }
@@ -147,7 +147,7 @@ public struct CommentModerationFeature: Sendable {
                 return .send(.delegate(.openReportForm(form)))
 
             case .blockTapped(let comment):
-                // A comment with no member ID cannot be blocked: there is nothing stable to match (owner msg 1918).
+                // A comment with no member ID cannot be blocked: there is nothing stable to match (owner decision).
                 guard !isOwn(comment), let memberID = comment.authorMemberID, !memberID.isEmpty else { return .none }
                 state.alert = AppAlertState {
                     TextState(localized: .commentBlockConfirmTitle(comment.author))

@@ -4,7 +4,7 @@ import Testing
 
 /// The privacy link (`contact.privacy_policy`, shown in Settings and on the first-launch analytics choice) must open
 /// the website's page in the reader's language. The site has one page per language, `/<language>/privacy/`, with that
-/// exact case and the trailing slash, and nothing at `/privacy` (owner msg 2818, addresses in website msg 2819).
+/// exact case and the trailing slash, and nothing at `/privacy` (owner decision; addresses from the website).
 /// A language the app is not translated into falls back to the English page.
 struct PrivacyPolicyLinkTests {
     struct Link: Sendable, CustomTestStringConvertible {

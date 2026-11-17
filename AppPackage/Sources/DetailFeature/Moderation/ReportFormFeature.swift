@@ -10,11 +10,11 @@ import Resources
 ///
 /// The form opens only from a comment (D-04): its state carries the comment, the site and the gallery, and there is no
 /// other origin. It reads the site's form first (DD-01), offers exactly two reasons, child and other illegal content
-/// (D-06, owner msgs 1950, 1975), and posts one report to a URL rebuilt from the gallery URL (DD-02).
+/// (D-06, owner decision), and posts one report to a URL rebuilt from the gallery URL (DD-02).
 ///
 /// The email lives in this state only: nothing here writes it to settings, defaults, the keychain or a log. The form
-/// sends one analytics signal, `Moderation.reportOutcome` (20-12; product lead msg 2829), and it carries how a report
-/// ended (sent, failed, unavailable or the site's page opened) and nothing else: not the reason (owner msg 2837), the
+/// sends one analytics signal, `Moderation.reportOutcome` (20-12; product lead decision), and it carries how a report
+/// ended (sent, failed, unavailable or the site's page opened) and nothing else: not the reason (owner decision), the
 /// comment, its poster, the email, the details or the gallery.
 @Reducer
 public struct ReportFormFeature: Sendable {

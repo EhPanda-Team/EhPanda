@@ -32,7 +32,7 @@ FORBIDDEN = [
 ]
 
 
-# Phase 19's screenshot check is OFF in the release workflows for 3.0 (owner msg 3757): none of deploy.yml,
+# Phase 19's screenshot check is OFF in the release workflows for 3.0 (owner decision): none of deploy.yml,
 # deploy-beta.yml and deploy-pal.yml calls snapshot-gate.yml or reads the `aggregate` check. The workflow and
 # actions-tool/require-snapshot-gate.sh stay in the repository (pull requests and manual dispatch still use them).
 GATE_CHECK = "aggregate"
@@ -93,8 +93,8 @@ class DeployWorkflowTests(unittest.TestCase):
         self.assertLess(step_index(self.deploy, "Check build number"), step_index(self.deploy, "Xcode archive"))
 
     def test_it_is_only_ever_started_by_hand(self):
-        # Owner msg 4611: merging a pull request or pushing to main never releases; the release
-        # is started by hand on main. Owner msg 4620: nothing is typed in; everything comes from the notes file.
+        # Owner decision: merging a pull request or pushing to main never releases; the release
+        # is started by hand on main. Owner decision: nothing is typed in; everything comes from the notes file.
         triggers = self.deploy.get("on", self.deploy.get("true"))
         self.assertEqual(list(triggers), ["workflow_dispatch"])
         self.assertFalse(triggers["workflow_dispatch"])
@@ -178,7 +178,7 @@ class DeployWorkflowTests(unittest.TestCase):
                 self.assertNotIn("discord_url", line)
 
     def test_the_screenshot_gate_is_off_for_3_0(self):
-        # Owner msg 3757: the release no longer waits for, or reads, the screenshot check.
+        # Owner decision: the release no longer waits for, or reads, the screenshot check.
         self.assertEqual(list(self.deploy["jobs"]), ["Deploy"])
         job = self.deploy["jobs"]["Deploy"]
         self.assertNotIn("needs", job)
@@ -206,8 +206,8 @@ class DeployWorkflowTests(unittest.TestCase):
         self.assertNotIn("AltStorePAL", self.run_text("Check build number"))
 
     def test_the_release_posts_end_with_the_release_url(self):
-        # Owner msg 4459: Telegram and Discord end with the GitHub release link. A release whose notes
-        # carry another link (3.0.0 ends with https://ehpanda.app, owner msg 4453) carries it in its notes file.
+        # Owner decision: Telegram and Discord end with the GitHub release link. A release whose notes
+        # carry another link (3.0.0 ends with https://ehpanda.app, owner decision) carries it in its notes file.
         self.assertNotIn("WEBSITE_URL", self.env)
         step = step_named(self.deploy, "Post release notes")
         self.assertEqual(step["env"]["RELEASE_URL"], "${{ steps.release.outputs.url }}")
@@ -385,7 +385,7 @@ class BetaWorkflowTests(unittest.TestCase):
 
 @unittest.skipUnless(RUBY, "ruby is not installed")
 class ReleasesDoNotTestTests(unittest.TestCase):
-    """Owner msg 4070: a release neither runs the test suite nor waits for the Test workflow. Tests are test.yml's
+    """Owner decision: a release neither runs the test suite nor waits for the Test workflow. Tests are test.yml's
     job, on every branch push; a release is built from a commit the owner has already seen pass."""
 
     # workflow file -> its release job
@@ -495,7 +495,7 @@ class PalWorkflowTests(unittest.TestCase):
         self.assertEqual(names, PAL_STEPS)
 
     def test_the_screenshot_gate_is_off_for_3_0(self):
-        # Owner msg 3757: the submission no longer reads the screenshot check on the dispatched commit.
+        # Owner decision: the submission no longer reads the screenshot check on the dispatched commit.
         names = [step.get("name") for step in self.job["steps"]]
         self.assertEqual(names[0], "Checkout")
         self.assertNotIn("Require the screenshot check", names)
@@ -735,7 +735,7 @@ class PalPublishWorkflowTests(unittest.TestCase):
 
 @unittest.skipUnless(RUBY, "ruby is not installed")
 class GateOffTests(unittest.TestCase):
-    """Phase 19's screenshot check is off in every release workflow for 3.0 (owner msg 3757), and stays available."""
+    """Phase 19's screenshot check is off in every release workflow for 3.0 (owner decision), and stays available."""
 
     def test_no_release_workflow_calls_or_reads_the_gate(self):
         for workflow in RELEASE_WORKFLOWS:
@@ -755,7 +755,7 @@ class GateOffTests(unittest.TestCase):
     def test_each_removal_site_says_why(self):
         for workflow in RELEASE_WORKFLOWS:
             with self.subTest(workflow=workflow):
-                self.assertIn("Snapshot gate off for 3.0 (owner msg 3757)",
+                self.assertIn("Snapshot gate off for 3.0 (owner decision)",
                               (WORKFLOWS / workflow).read_text(encoding="utf-8"))
 
     def test_the_gate_and_its_script_stay_for_pull_requests_and_manual_runs(self):
@@ -798,7 +798,7 @@ class TagOperationTests(unittest.TestCase):
 
 
 class ActionPinTests(unittest.TestCase):
-    """Owner msg 4659: every action is pinned to its major version tag (`@v8`), never a commit hash."""
+    """Owner decision: every action is pinned to its major version tag (`@v8`), never a commit hash."""
 
     def test_every_action_is_pinned_to_a_major_version(self):
         for path in sorted(WORKFLOWS.glob("*.y*ml")):

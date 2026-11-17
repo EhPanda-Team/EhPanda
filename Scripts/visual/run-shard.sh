@@ -1,5 +1,5 @@
 #!/bin/bash
-# Runs one shard of the snapshot gate on a hosted Mac and records its class in shard.json (19-10; D-15, owner msg 2263).
+# Runs one shard of the snapshot gate on a hosted Mac and records its class in shard.json (19-10; D-15, owner decision).
 #
 # usage: Scripts/visual/run-shard.sh --shard sNN --mode compare|candidate --products DIR [--attempt 1|2|3]
 #            [--out DIR] [--fingerprints FILE]

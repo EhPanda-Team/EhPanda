@@ -2,8 +2,8 @@
 
 **Gathered:** 2026-11-09 (discussion refresh; owner decisions first recorded 2026-11-05 during the Phase 18 discussion)
 **Status:** Discussion done. No owner question is open: OQ-1 (the marketplace build's primary icon) was resolved
-on 2026-11-09 by product lead msg 2775 (D-22). Research questions OQ-C, OQ-D and OQ-G were answered by product lead
-msg 2783 (D-23 to D-25). Owner msg 2802 set the channel order (D-26): GitHub and AltStore Classic first, then the
+on 2026-11-09 by a product lead decision (D-22). Research questions OQ-C, OQ-D and OQ-G were answered by product lead
+decision (D-23 to D-25). Owner decision set the channel order (D-26): GitHub and AltStore Classic first, then the
 AltStore PAL submission.
 **Branch:** `feature/gsd-phase-20`, from `e2c6acb5b` (the `feature/gsd-phase-19` tip), in parallel with Phase 19
 (D-13).
@@ -17,7 +17,7 @@ covers:
 - the marketplace build flavor (DIST-18-01, flavor part) and the remaining release mechanics fixes (REL-18-01);
 - the PAL source JSON (DIST-18-02);
 - the notarization pipeline through the collaborator's App Store Connect account (DIST-18-03);
-- the website dependencies: privacy policy, support page, the published contact link (UGC-18-01, contact part; *the contact link and support page are dropped, 2026-11-11, owner msg 3501, see D-05*) and
+- the website dependencies: privacy policy, support page, the published contact link (UGC-18-01, contact part; *the contact link and support page are dropped, 2026-11-11, owner decision, see D-05*) and
   the PAL source's public URL;
 - the real-device checks (DEV-18-01);
 - the PAL listing assets and store screenshots built from Phase 19's approved reference set (MKT-18-01 remaining
@@ -42,21 +42,21 @@ does not redo them.
 ### Owner decisions recorded 2026-11-05 (kept; amendments marked)
 
 - **D-01:** Three phases, with all waiting on outside parties in this one: the App Store Connect collaborator, the
-  website and Apple (owner msg 1753).
+  website and Apple (owner decision).
 - **D-02:** **The marketplace build has the same features as the GitHub IPA and is listed on AltStore PAL only**
-  (owner msg 1753). Something is hidden only if Apple objects. The ADP pipeline stays generic, so other marketplaces
-  can be added later (prep L2; owner msg 1287).
-- **D-03:** **"Tagging is not your business"** (owner msg 1753). No tag-style decision, no plan to remove or rename
+  (owner decision). Something is hidden only if Apple objects. The ADP pipeline stays generic, so other marketplaces
+  can be added later (prep L2; owner decision).
+- **D-03:** **"Tagging is not your business"** (owner decision). No tag-style decision, no plan to remove or rename
   the existing `3.0.0` tag, no tag creation and no release-order planning. Prep L22 and L23 and GA-7 are dropped. The
   AltStore download URL must still resolve to the release's actual asset.
   *Amended 2026-11-09:* answered by D-19; for Classic, SideStore and the beta it is already true in the workflows.
-- **D-04:** **Store screenshots** are the website screenshots plus extra decorations (owner msg 1753). An AltStore
-  listing can use only non-adult pictures (Ampo msg 1751, guideline 2.3.8). These are the AltStore promotional
+- **D-04:** **Store screenshots** are the website screenshots plus extra decorations (owner decision). An AltStore
+  listing can use only non-adult pictures (Ampo, guideline 2.3.8). These are the AltStore promotional
   images moved from Phase 17 (17-22). The listing icon is all-ages (prep L28), and no "Apple-approved" wording
   appears anywhere (prep L8).
   *Partly superseded 2026-11-09:*
-  - The Classic and SideStore screenshots are done (D-17). The designer Colo (msg 1757) no longer makes them: the
-    owner stopped that (owner msg 2614) and had an outside designer do the decorated set (owner msg 2618).
+  - The Classic and SideStore screenshots are done (D-17). The designer Colo no longer makes them: the
+    owner stopped that (owner decision) and had an outside designer do the decorated set (owner decision).
   - Still open for the **PAL listing**, all in step (f) and none decided here:
     - **Sizes.** App Store Connect requires at least one iPhone screenshot in the "iPhone with Dynamic Island (medium
       display)" class (1179 x 2556 or 1206 x 2622), with scaled fallbacks from the larger classes, and, because
@@ -70,20 +70,19 @@ does not redo them.
       feeds iOS's install sheet, so App Store Connect's screenshots must also be all-ages. The current Classic
       set's first picture is headed "Over a million adult comics and doujinshi"; whether that wording suits an
       all-ages listing is for the same checkpoint.
-- **D-05:** **Published contact link:** there is no in-app contact option for now (Ampo msg 1774, after the owner's
-  question in msg 1760). A published contact link, GitHub Issues on the website, is needed before the AltStore build
+- **D-05:** **Published contact link:** there is no in-app contact option for now (Ampo, after the owner's
+  question). A published contact link, GitHub Issues on the website, is needed before the AltStore build
   goes to Apple. The website owner is Leto. The privacy policy and support URLs are website work too (prep L7).
-  *Amended 2026-11-11 (owner msg 3501; product lead msg 3502):* The website gets no GitHub Issues link: its existing GitHub link is
-  enough, and installation questions are not answered (owner msg 3501; product lead msg 3502). The published contact link
+  *Amended 2026-11-11 (owner decision; product lead decision):* The website gets no GitHub Issues link: its existing GitHub link is
+  enough, and installation questions are not answered (owner decision; product lead decision). The published contact link
   is out of the 3.0 plan. The App Store Connect Support URL is the GitHub repository page,
   https://github.com/EhPanda-Team/EhPanda; its Issues tab is the contact route, and no website change is needed for it.
   Guideline 1.5 (Developer Information: "Make sure your app and its Support URL include an easy way to contact you") is
   one of the Notarization Review Guidelines; guideline 1.2 (UGC, "published contact information") is not (checked
   2026-11-11 at https://developer.apple.com/app-store/review/guidelines/). The earlier support URL, the website home page
-  (owner msg 2809), is replaced.
-- **D-06:** **The analytics revision is the last plan before the closing scan** (ANALYTICS-02; owner msgs 1289,
-  1753). It adds the signals for every 3.0 flow under the consent levels, within ANALYTICS-01's rules.
-  *Amended 2026-11-09:* the install-source part is done. Owner msg 2552 replaced the install source with the
+  (owner decision), is replaced.
+- **D-06:** **The analytics revision is the last plan before the closing scan** (ANALYTICS-02; owner decision). It adds the signals for every 3.0 flow under the consent levels, within ANALYTICS-01's rules.
+  *Amended 2026-11-09:* the install-source part is done. Owner decision replaced the install source with the
   distribution channel. The install signal, sent once at every level (Minimal, Basic and Full), carries
   `App.distributionChannel` (`dd20d675e`). `altstorePAL` is already on the closed list. So the revision no longer
   waits for a PAL build to exist (D-20). What remains: the signal vocabulary for the 3.0 flows (age wall,
@@ -91,7 +90,7 @@ does not redo them.
   level descriptions true (`18-COPY-MINIMAL.md` Revision 7).
 - **D-07:** **Apple-service actions** (App IDs, the app record, certificates, API keys, marketplace registration,
   trader status) happen in the collaborator's App Store Connect account. The collaborator does them, or the owner OKs
-  them explicitly at the time. Agents never create them on their own (prep L6). Product lead msg 2771 restates this
+  them explicitly at the time. Agents never create them on their own (prep L6). Product lead decision restates this
   for Phase 20: anything that touches Apple accounts waits for the owner's OK at that time.
 - **D-08:** The real-device checks on owner hardware (prep L43): the iPad Gallery Detail stall on a Release build, and
   continued background downloads on an iPhone.
@@ -99,7 +98,7 @@ does not redo them.
   revision (prep L41). IN-02 and IN-03 were closed in Phase 18 (18-01).
 - **D-10:** The website privacy page is rewritten for the three analytics levels when 3.0 ships, not before (Phase 18
   copy file, "Knock-on for the website").
-- **D-11:** **The beta is a separate install** (owner msgs 2513, 2518, 2525). Pre-releases are built as a beta flavor
+- **D-11:** **The beta is a separate install** (owner decision). Pre-releases are built as a beta flavor
   with its own bundle IDs, `app.ehpanda.beta` and `app.ehpanda.beta.shareExtension` (`BUNDLE_ID_SUFFIX = .beta`), the
   Home Screen name "EhPanda Beta", the regular icon and its own URL scheme `ehpanda-beta`, all from
   `Config/Beta.xcconfig`, which only `deploy-beta.yml` passes to `xcodebuild`. The workflow publishes one file,
@@ -107,8 +106,8 @@ does not redo them.
   created by that workflow from `actions-tool/altstore-beta.template.json` on its first run. It lists only betas newer
   than the latest regular release, and always at least the newest beta. Each beta needs a build number above every
   build in both sources; the workflow fails otherwise.
-  *Landed:* `145cee6ac`, `224b0ca94` (rename to `deploy-beta.yml`, owner msg 2551).
-- **D-12:** **One file per channel** (owner msgs 2533, 2537; the channel in each file name, website owner msg 2538).
+  *Landed:* `145cee6ac`, `224b0ca94` (rename to `deploy-beta.yml`, owner decision).
+- **D-12:** **One file per channel** (owner decision; the channel in each file name, website owner decision).
   - **The stamp.** The app's Info.plist key `EhPandaDistributionChannel` names the channel, from a closed allow-list:
     `github`, `altstore`, `sidestore`, `altstorePAL`, `beta`, `source`. The committed `App/Info.plist` says `source`,
     so any build no release workflow made says so. The workflows build once, unsigned, and
@@ -127,7 +126,7 @@ does not redo them.
     The script refuses a signed app, and the PAL build must be signed before it is uploaded to Apple; editing the
     Info.plist after signing would break the signature. So the marketplace flavor sets `altstorePAL` at build time
     (developer defaults below). The script and the unsigned channels stay as they are.
-  - **Distribution channel** (owner msg 2552; replaces the install source). The install signal reports the stamp as
+  - **Distribution channel** (owner decision; replaces the install source). The install signal reports the stamp as
     is under the payload key `App.distributionChannel`: `github`, `altstore`, `sidestore`, `altstorePAL`, `beta` or
     `source`. A missing stamp, a value that is not a string, or a string not on the list (compared exactly) reports
     `source`. MarketplaceKit is not used, so `appStore`, `testFlight`, `marketplace:<id>`, `web`, `other` and
@@ -141,15 +140,15 @@ does not redo them.
     ID, `size`, `sha256`, `version` and `buildVersion` (`VerifyAppOperation`), and every entitlement and usage
     description in the app must be declared in `appPermissions`; an update is offered when the listed version is
     semantically newer (`InstalledApp.hasUpdate`), where AltStore Classic only compares for equality.
-  - *Landed:* `ff08ca11b` (one IPA per channel), `74ef28a5d` (stamp key name, owner msg 2549), `dd20d675e` (channel in
-    the install signal), `03f2967c1` (share extension keeps its name, owner msg 2555).
+  - *Landed:* `ff08ca11b` (one IPA per channel), `74ef28a5d` (stamp key name, owner decision), `dd20d675e` (channel in
+    the install signal), `03f2967c1` (share extension keeps its name, owner decision).
 
 ### New decisions since 2026-11-05
 
-- **D-13:** **Phase 20 runs now, without waiting for Phase 19** (owner msg 2770, 2026-11-09). It runs on its own
+- **D-13:** **Phase 20 runs now, without waiting for Phase 19** (owner decision, 2026-11-09). It runs on its own
   branch, `feature/gsd-phase-20`, created from `e2c6acb5b`. Phase 19 work continues on `feature/gsd-phase-19` in the
   main checkout and is not touched from here.
-- **D-14:** **"Depends on Phase 19" is relaxed by owner msg 2770** (product lead Ato, msg 2771). Only two parts
+- **D-14:** **"Depends on Phase 19" is relaxed by an owner decision** (product lead Ato). Only two parts
   truly need Phase 19 finished:
   1. the store screenshots built from Phase 19's approved reference set;
   2. a release that relies on Phase 19's screenshot check.
@@ -157,24 +156,24 @@ does not redo them.
   Both go last in Phase 20's order, before only the analytics revision and the closing scan. The phase starts with
   the marketplace build, the release fixes, the PAL source and the notarization job. Anything that touches Apple
   accounts waits for the owner's OK at that time (D-07). The plan order is fixed below.
-- **D-15:** **Release notes come from a committed file per release** (owner msgs 2561, 2564, 2567, 2569, 2579, 2582).
+- **D-15:** **Release notes come from a committed file per release** (owner decision).
   The file is `ReleaseNotes/<version>.md`, with one section per language (English, Deutsch, 日本語, 한국어, 简体中文,
-  繁體中文). Items are plain lines, with no numbers or bullets (owner msg 2591). The `Release Notes` PR check
+  繁體中文). Items are plain lines, with no numbers or bullets (owner decision). The `Release Notes` PR check
   (`release-notes.yml`) and `deploy.yml` both run `actions-tool/release_notes.py check`. The PR description is no
   longer read. *Landed:* `624192ebc`, `9e5dfc9f4`, `982305386`, `df3d04feb`.
-- **D-16:** **The sources' metadata matches the website** (owner msg 2591). The subtitle and description are the
-  website copy from Leto's msg 2606, in six languages, with English in the plain fields (`d9ad08bd8`, `751235a23`).
-  The website link is https://ehpanda.app (`269cb08e5`). The tint color is `#557F72` (designer msg 2593, owner msg
-  2594; `17eb08125`, `1aef4a243`, `1d2351ada`). The PAL source reuses all of this (developer defaults).
-- **D-17:** **Classic and SideStore screenshots** (owner msgs 2600, 2608, 2610, 2614, 2618, 2623, 2628).
-  - **Content.** Non-explicit, English, iPhone (owner msg 2608), and decorated, not plain (owner msg 2610). An
-    outside designer, dispatched by the owner, made the decorated set (owner msg 2618). The light originals came
-    first (owner msg 2608); owner msg 2623 asked for the dark originals, and the delivered set is dark (owner msg
-    2628).
+- **D-16:** **The sources' metadata matches the website** (owner decision). The subtitle and description are the
+  website copy from Leto's, in six languages, with English in the plain fields (`d9ad08bd8`, `751235a23`).
+  The website link is https://ehpanda.app (`269cb08e5`). The tint color is `#557F72` (designer, owner
+ decision; `17eb08125`, `1aef4a243`, `1d2351ada`). The PAL source reuses all of this (developer defaults).
+- **D-17:** **Classic and SideStore screenshots** (owner decision).
+  - **Content.** Non-explicit, English, iPhone (owner decision), and decorated, not plain (owner decision). An
+    outside designer, dispatched by the owner, made the decorated set (owner decision). The light originals came
+    first (owner decision); owner decision asked for the dark originals, and the delivered set is dark (owner
+ decision).
   - **Format.** Seven 1260 x 2736 PNGs: home, detail, reading, comments, downloads, filters, more. `AltStore.json`
     and the SideStore and beta templates list them in order, as `{imageURL, width, height}`, by their raw URLs in
     `EhPanda-Team/ehpanda-assets` (`c9dec54d7`). `check_source` checks them (`9506d4d8b`). The repository name is
-    the owner's choice (owner msg 2600).
+    the owner's choice (owner decision).
   - **Where they live.** That repository exists only as a local checkout (commit `d69b30a`) and is not on GitHub. So
     the seven screenshot URLs do not resolve yet. Creating the GitHub repository and pushing to it need the owner's
     OK (step (a) checkpoint).
@@ -220,7 +219,7 @@ does not redo them.
   - Every code change after a notarized build needs a new submission. So the build that becomes 3.0 on PAL is the
     final one: it contains (g) and passes (h).
   - When that final submission and the Classic release happen is release order, which no plan sets (D-03).
-  - *Amended by D-26 (owner msg 2802):* there is no early submission. The first live submission is the final 3.0
+  - *Amended by D-26 (owner decision):* there is no early submission. The first live submission is the final 3.0
     build, made after the Classic release, so Apple's first verdict comes then.
 - **D-21:** **App Manager API key: yes on paper; the live test stays a step (c) checkpoint** (DIST-18-03 asks to test
   and record it).
@@ -236,27 +235,27 @@ does not redo them.
   - **Recorded at the test.** The test records which key type and role made each call, and whether creating the
     version, attaching the build and submitting worked with an App Manager key alone.
 
-- **D-22:** **The marketplace build keeps the current primary icon** (product lead msg 2775, 2026-11-09; OQ-1
+- **D-22:** **The marketplace build keeps the current primary icon** (product lead decision, 2026-11-09; OQ-1
   option A). The panda holding a rose (`App/EhPanda.icon`, and `docs/altstore/appicon-512.png` for the listing) is
   judged to meet guideline 2.3.8's 4+ rule, so every build and every listing uses it, and the marketplace flavor
   does not set `ASSETCATALOG_COMPILER_APPICON_NAME`. No icon task is planned. It changes only if Apple's review
   objects: if the notarization review rejects the icon under 2.3.8, step (c) pauses and the owner asks the designer
   Colo for an all-ages variant; the flavor then points at it and the build is submitted again.
-- **D-23:** **The website check, the device checks and the analytics proposal may start now** (product lead msg
-  2783, 2026-11-09; OQ-G answered yes). 20-07 (step (d)), 20-09 (step (e)) and 20-12 (step (g), the vocabulary
+- **D-23:** **The website check, the device checks and the analytics proposal may start now** (product lead
+ decision, 2026-11-09; OQ-G answered yes). 20-07 (step (d)), 20-09 (step (e)) and 20-12 (step (g), the vocabulary
   proposal) run in wave 1, in parallel with the build steps, instead of waiting for 20-08 and the steps before it;
   none of them needs code from an earlier step. Everything that depends on them keeps its place: 20-08 still waits
   for 20-07 (the privacy pages and the support URL are live before the first submission, D-05 amended), 20-10, 20-11 and 20-14 for 20-09, and
   20-13 for 20-12's sign-off. 20-09 checks the branch head as it is when it runs; the final build is still checked
   by the closing scan (D-09).
-- **D-24:** **The PAL source's `developerName` is "EhPanda Team"**, the same as the Classic source (product lead msg
-  2783, 2026-11-09; OQ-C).
-- **D-25:** **The PAL listing gets its own subtitle and description** (product lead msg 2783, 2026-11-09; OQ-D). The
+- **D-24:** **The PAL source's `developerName` is "EhPanda Team"**, the same as the Classic source (product lead
+ decision, 2026-11-09; OQ-C).
+- **D-25:** **The PAL listing gets its own subtitle and description** (product lead decision, 2026-11-09; OQ-D). The
   copywriter writes them from the website's neutral line, for guideline 2.3.8 (the listing suits all audiences).
   The owner approves them at the listing step (step (f), 20-10). The "adult comics" caption on the first decorated
   screenshot is checked in that same approval (D-04).
 - **D-26:** **3.0 ships on GitHub Releases and AltStore Classic first, and ehpanda.app goes live with that release.
-  The AltStore PAL submission comes after it** (owner msg 2802, 2026-11-09). The consequences:
+  The AltStore PAL submission comes after it** (owner decision, 2026-11-09). The consequences:
   - **No early submission (D-20 amended).** The first live submission (20-08) is the final 3.0 build: it contains
     (g), it passed (h), and it is made after the Classic release. So 20-08 moves to the last wave, after 20-10, 20-11
     and 20-14, and 20-10 and 20-11 no longer wait for it.
@@ -265,7 +264,7 @@ does not redo them.
     upload carries the Classic release's version and build number, which App Store Connect has not seen.
   - **Website (D-05, 20-07 Task 2):** the site goes live with the Classic release, before the PAL build goes to
     Apple, so the privacy pages are live in time. 20-07's live check runs when the site goes live. *Amended 2026-11-11 (owner
-    msg 3501):* there is no contact link to be live (D-05).
+    decision):* there is no contact link to be live (D-05).
   - **D-17 holds by order:** the GitHub release for the version exists before the PAL job uploads to it. The job
     still fails cleanly if it does not.
   - **D-22:** an icon rejection now pauses only the PAL submission. The Classic 3.0 release is already out.
@@ -274,7 +273,7 @@ does not redo them.
 
 ### Resolved owner question
 
-- **OQ-1 (GA-6 Q3): RESOLVED 2026-11-09 by D-22 (product lead msg 2775: option A).** Must the marketplace build's
+- **OQ-1 (GA-6 Q3): RESOLVED 2026-11-09 by D-22 (product lead decision: option A).** Must the marketplace build's
   own primary icon be all-ages, or only the listing icon? The research and options are kept below as the record.
   - **What the research found.** Guideline 2.3.8 is in the notarization subset: "make sure your app and in-app
     purchase icons, screenshots, and previews adhere to a 4+ age rating even if your app is rated higher". Apple
@@ -292,10 +291,10 @@ does not redo them.
     needs no flavor-specific asset.
   - **Answer: A** (D-22). Option B is not planned; it returns only if Apple's review rejects the icon.
 
-### Plan order (D-14; product lead msg 2771)
+### Plan order (D-14; product lead decision)
 
-*Amended 2026-11-09 (D-23, product lead msg 2783):* (d), (e) and the vocabulary proposal of (g) may start now, in
-parallel with (a) to (c); the order below still holds for everything else. *Amended again (D-26, owner msg 2802):*
+*Amended 2026-11-09 (D-23, product lead decision):* (d), (e) and the vocabulary proposal of (g) may start now, in
+parallel with (a) to (c); the order below still holds for everything else. *Amended again (D-26, owner decision):*
 (c)'s first submission (20-08) comes last, after (h) and the Classic release.
 
 - **(a) Marketplace build flavor and release mechanics fixes** (DIST-18-01 flavor part, REL-18-01).
@@ -320,9 +319,9 @@ parallel with (a) to (c); the order below still holds for everything else. *Amen
     - the first submission, including the App Manager key test (D-21), made after the Classic release (D-26). If
       the review rejects the icon under guideline 2.3.8, this step pauses for a design request to Colo (D-22).
 - **(d) Website dependencies check** (Leto):
-  - the privacy policy URL (each language's own page, `/<language>/privacy/`; owner msg 2818);
-  - the support URL: the GitHub repository page, https://github.com/EhPanda-Team/EhPanda (D-05 amended, owner msg 3501);
-  - ~~the published contact link (GitHub Issues), live before the build goes to Apple (D-05)~~ dropped, owner msg 3501
+  - the privacy policy URL (each language's own page, `/<language>/privacy/`; owner decision);
+  - the support URL: the GitHub repository page, https://github.com/EhPanda-Team/EhPanda (D-05 amended, owner decision);
+  - ~~the published contact link (GitHub Issues), live before the build goes to Apple (D-05)~~ dropped, owner decision
     (*amended 2026-11-11*);
   - the PAL source's public URL.
   The privacy page rewrite stays at 3.0 ship (D-10).

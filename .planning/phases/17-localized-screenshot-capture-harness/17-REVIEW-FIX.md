@@ -17,13 +17,13 @@ status: partial
 **Effort:** high (resolved from .planning/config.json)
 
 **Summary:**
-- Findings in scope: 3. These are WR-01, WR-02 and IN-01, chosen by the owner's triage (msg 1627).
+- Findings in scope: 3. These are WR-01, WR-02 and IN-01, chosen by the owner's triage.
 - Fixed: 2 (WR-01, IN-01)
 - Skipped: 1 (WR-02, which the owner accepted as won't-fix)
-- Not in scope: IN-02 and IN-03, deferred to Phase 18 by the owner (msg 1627)
+- Not in scope: IN-02 and IN-03, deferred to Phase 18 by the owner
 
 `status: partial` reflects the workflow's counting rule. No finding was skipped for a technical
-reason. WR-02 was skipped by owner decision.
+reason. WR-02 was skipped by an owner decision.
 
 ## Fixed Issues
 
@@ -87,7 +87,7 @@ green before and after.
 ### WR-02: The capture overlay preference reaches only Filters and the reader, not the other sheets
 
 **File:** `AppPackage/Sources/AppFeature/View/TabBar/TabBarView.swift:44-49`
-**Reason:** accepted / won't-fix by owner decision (msg 1627): "the required pages don't show a home
+**Reason:** accepted / won't-fix by an owner decision: "the required pages don't show a home
 indicator. Do nothing." No code change.
 **Original issue:** The root's `captureSystemOverlayVisibility` does not reach the separately
 presented Setting/Laboratory sheet or `GallerySheetView` (iPad Detail/Comments), so those captures
@@ -97,11 +97,11 @@ could show the home indicator.
 
 ### IN-02: verify-release.py would not catch a Release leak of the capture overlay key
 
-Deferred to Phase 18 by the owner (msg 1627). Left untouched.
+Deferred to Phase 18 by the owner. Left untouched.
 
 ### IN-03: RootView imports AppComponents unconditionally but uses it only in DEBUG
 
-Deferred to Phase 18 by the owner (msg 1627). Left untouched.
+Deferred to Phase 18 by the owner. Left untouched.
 
 ## Verification
 

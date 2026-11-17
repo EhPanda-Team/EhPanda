@@ -7,8 +7,8 @@ which includes the driver's own time. The 30-second ceiling was never close.
 
 ### Consent and setup
 
-- Consent: owner msg 2885, answering card 2884: "I will connect the iPad but you run the verification". The owner
-  only connected the iPad. The agent did the build, the install and all ten launches. Owner msg 2887 then named the
+- Consent: owner decision, answering a card: "I will connect the iPad but you run the verification". The owner
+  only connected the iPad. The agent did the build, the install and all ten launches. Owner decision then named the
   device and allowed control of it through the Device MCP app. The owner tapped nothing.
 - Device: the owner's iPad mini (6th generation, iPad14,1), iPadOS 27.2 (24B119), Developer Mode on, connected over
   the local network. Portrait, 744 x 1133 points. Phase 16's stall was seen on iPadOS 27 beta simulators of an
@@ -111,7 +111,7 @@ All times below are UTC on 2026-11-09.
 
 ### Consent and setup
 
-- Consent: owner msg 2893, answering card 2892. The agent ran the whole procedure through the Device MCP app.
+- Consent: owner decision, answering a card. The agent ran the whole procedure through the Device MCP app.
   The owner tapped nothing, and no passcode or Face ID prompt came up.
 - Device: the owner's test iPhone 11 (iPhone12,1), iOS 27.2 (24B120), on Wi-Fi with airplane mode on, and
   charging. While the app was in the background, the app's log reported the thermal state as `serious`. Nothing
@@ -241,7 +241,7 @@ never blanks a whole gallery.
   `ReadingFeatureTests`) ran 967 tests: 961 passed, 6 were expected failures, and none failed.
 - SwiftLint reported nothing on the changed files.
 
-**Device:** the owner's test iPhone 11, iOS 27.2, with the same consent (owner msg 2893).
+**Device:** the owner's test iPhone 11, iOS 27.2, with the same consent (owner decision).
 
 - The build was a Release build of `6d209450e`, 3.0.0 (159), made with the Task 1 build line and signing
   handling. It was installed over the copy already on the device, and no tracked file changed.
@@ -261,7 +261,7 @@ is the sheet and row screenshots, the copied manifests and the app logs, all kep
 ### The k = 0 residual closed: K0-a and B1, and their device check (08:28 to 09:10)
 
 **Outcome: closed.** The product lead asked for the k = 0 case to read "Paused 0 of N" with Resume, never
-"Downloaded N of N" (EhPanda msgs 2901 and 2903). On the iPhone, an immediate pause and a pause while queued
+"Downloaded N of N". On the iPhone, an immediate pause and a pause while queued
 both now read **Paused 0 of 112** with Resume, keep it across a cold launch, and Resume finishes at 112 / 112.
 G-15-2G is unchanged: one scan alone still never blanks a whole gallery.
 
@@ -282,7 +282,7 @@ G-15-2G is unchanged: one scan alone still never blanks a whole gallery.
 - The bracket census went from 7 to 8 and the hash-masked log census from 14 to 15.
 - SwiftLint reported nothing on the changed files.
 
-**Device:** the owner's test iPhone 11, iOS 27.2, with the same consent (owner msg 2893). The owner tapped
+**Device:** the owner's test iPhone 11, iOS 27.2, with the same consent (owner decision). The owner tapped
 nothing. Release builds of `a478910e1` and then `52c5c7184`, 3.0.0 (159), were made with the Task 1 build line
 and signing handling, and installed over the copy on the device. No tracked file changed. Each fixture was M with
 all 113 image files deleted in Files.app and `manifest.json` kept. Verify Images then read "Needs Attention 112

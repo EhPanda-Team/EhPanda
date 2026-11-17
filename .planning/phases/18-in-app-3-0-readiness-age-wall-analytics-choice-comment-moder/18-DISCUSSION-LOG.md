@@ -7,7 +7,7 @@
 **Phase:** 18-in-app-3-0-readiness-age-wall-analytics-choice-comment-moder
 **Areas discussed:** Phase organisation, First-launch flow (GA-1), Analytics levels (GA-2), Report and contact (GA-3), Filter and blocking (GA-4), Reader behavior (GA-5), Marketplace build (GA-6), Release mechanics (GA-7), Listing content (GA-8)
 
-The options come from [18-DISCUSSION-PREP.md](18-DISCUSSION-PREP.md) section 2. The owner answered on two cards: msg 1748 (answered in owner msg 1753) and msg 1759 (answered in owner msg 1765). Copy approvals are owner msgs 1767 and 1780.
+The options come from [18-DISCUSSION-PREP.md](18-DISCUSSION-PREP.md) section 2. The owner answered on two cards. Copy approvals are owner decision.
 
 ---
 
@@ -18,7 +18,7 @@ The options come from [18-DISCUSSION-PREP.md](18-DISCUSSION-PREP.md) section 2. 
 | Three phases | In-app work, then visual regression and marketing export, then distribution (prep section 5) | ✓ |
 | One phase, three waves | Same boundaries; one phase that stays open until the last outside party finishes | |
 
-**User's choice:** three phases (owner msg 1753).
+**User's choice:** three phases (owner decision).
 **Notes:** the final analytics revision goes wherever its inputs exist; the install source needs the marketplace build, so it is the last plan of Phase 20.
 
 ---
@@ -35,8 +35,8 @@ The options come from [18-DISCUSSION-PREP.md](18-DISCUSSION-PREP.md) section 2. 
 | Q3 A: agents draft, owner approves | Six languages drafted, one owner approval | ✓ |
 | Q3 B: owner supplies the copy | | |
 
-**User's choice:** two screens, everyone once; agents draft and the owner approves (owner msg 1753). First-launch copy approved in owner msg 1767.
-**Notes:** the age-wall checkbox sentence is the owner-approved website sentence (msgs 1454, 1457), unchanged, with no list of examples. Prep L10 was updated.
+**User's choice:** two screens, everyone once; agents draft and the owner approves (owner decision). First-launch copy approved by the owner.
+**Notes:** the age-wall checkbox sentence is the owner-approved website sentence, unchanged, with no list of examples. Prep L10 was updated.
 
 ---
 
@@ -50,7 +50,7 @@ The options come from [18-DISCUSSION-PREP.md](18-DISCUSSION-PREP.md) section 2. 
 | D: four levels | | |
 | Default selection | Recommended: none pre-selected, all equally prominent | ✓ |
 
-**User's choice:** None / Basic / Full, none pre-selected; the SDK does not start before the choice (owner msg 1753).
+**User's choice:** None / Basic / Full, none pre-selected; the SDK does not start before the choice (owner decision).
 
 ---
 
@@ -66,7 +66,7 @@ The options come from [18-DISCUSSION-PREP.md](18-DISCUSSION-PREP.md) section 2. 
 | Q2 A: support email plus support page | | |
 | Q2 B: existing community channels only | | |
 
-**User's choice:** "E-Hentai report only" (owner msg 1753). No contact option now: the owner asked Ampo (msg 1760), who answered "not now" (msg 1774).
+**User's choice:** "E-Hentai report only" (owner decision). No contact option now: the owner asked Ampo, who answered "not now".
 **Notes:** a published contact link (GitHub Issues on the website, website owner Leto) is needed before the AltStore build goes to Apple. That is Phase 20.
 
 ---
@@ -85,9 +85,9 @@ The options come from [18-DISCUSSION-PREP.md](18-DISCUSSION-PREP.md) section 2. 
 | Q3 B: collapse into "Comment from a blocked user" | | ✓ |
 
 **User's choice:**
-- Warn, allow posting anyway, edits included (owner msg 1765). Ampo flagged the Guideline 1.2 risk in msg 1751; the owner made the call.
-- Blocked comments collapse into "Comment from a user you've blocked" (Show / Unblock), without the name (owner msg 1765).
-- The Blocked Users list in Settings is included (owner msg 1780). Comment copy approved in owner msg 1780.
+- Warn, allow posting anyway, edits included (owner decision). Ampo flagged the Guideline 1.2 risk; the owner made the call.
+- Blocked comments collapse into "Comment from a user you've blocked" (Show / Unblock), without the name (owner decision).
+- The Blocked Users list in Settings is included (owner decision). Comment copy approved by the owner.
 
 ---
 
@@ -113,7 +113,7 @@ The options come from [18-DISCUSSION-PREP.md](18-DISCUSSION-PREP.md) section 2. 
 | Q3: in-app icon | | open (Phase 20) |
 | Q4 A: PAL listing only | | ✓ |
 
-**User's choice:** same features, PAL only; hide something only if Apple objects (owner msg 1753). Recorded in 20-CONTEXT.md.
+**User's choice:** same features, PAL only; hide something only if Apple objects (owner decision). Recorded in 20-CONTEXT.md.
 
 ---
 
@@ -125,7 +125,7 @@ The options come from [18-DISCUSSION-PREP.md](18-DISCUSSION-PREP.md) section 2. 
 | Q2: the existing `3.0.0` tag | | dropped |
 | Q3: Classic before PAL? | | dropped |
 
-**User's choice:** "Tagging is not your business" (owner msg 1753). Tagging and release-order decisions are dropped from the plans, and no plan creates tags.
+**User's choice:** "Tagging is not your business" (owner decision). Tagging and release-order decisions are dropped from the plans, and no plan creates tags.
 
 ---
 
@@ -139,7 +139,7 @@ The options come from [18-DISCUSSION-PREP.md](18-DISCUSSION-PREP.md) section 2. 
 | Q2 A: reuse the website selections for the iPhone half | | open (Phase 19) |
 | Q2 B: fresh full selection | | |
 
-**User's choice:** store screenshots are the website screenshots plus extra decorations by the designer Colo (owner msg 1753; Colo msg 1757). An AltStore listing can use only non-adult pictures (Ampo msg 1751, guideline 2.3.8). Q2 was not answered; it is open in 19-CONTEXT.md.
+**User's choice:** store screenshots are the website screenshots plus extra decorations by the designer Colo (owner decision; Colo). An AltStore listing can use only non-adult pictures (Ampo, guideline 2.3.8). Q2 was not answered; it is open in 19-CONTEXT.md.
 
 ---
 

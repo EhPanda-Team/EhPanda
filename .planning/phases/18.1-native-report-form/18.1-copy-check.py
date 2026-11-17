@@ -6,13 +6,13 @@ Usage:
     18.1-copy-check.py --self-test   run the built-in cases on temporary catalogs
     18.1-copy-check.py --root DIR    check the catalogs of another checkout
 
-Source (CONTEXT D-06, D-09): 18.1-COPY-REPORT-FORM.md, Camo's final file (msg 1977), headed "APPROVED msg 1975".
+Source (CONTEXT D-06, D-09): 18.1-COPY-REPORT-FORM.md, Camo's final file, headed "APPROVED".
 This script only reads it; the file is never edited.
 
 - Every `report.*` row of its key tables is a shipping key, unless its key cell is struck out (`~~key~~ DROPPED`):
-  those six gallery-only rows are dropped keys (owner msg 1975). A parenthesised note after a key name is not part
+  those six gallery-only rows are dropped keys (owner decision). A parenthesised note after a key name is not part
   of the key.
-- `report.reason.choose` is approved but dropped by the lead (msgs 1980, 1983): the final C-13 reason list is a
+- `report.reason.choose` is approved but dropped by the lead: the final C-13 reason list is a
   plain checkmark list with no picker, so the string is never shown. It joins the dropped keys.
 - The 22 remaining keys must be in the DetailFeature catalog, filled for all six locales, `translated`, and equal to
   the approved text. The only rewrite is the placeholder: `{site}` -> `%@`.
@@ -38,7 +38,7 @@ PHASE_DIR = Path(__file__).resolve().parent
 REPO_ROOT = PHASE_DIR.parents[2]
 
 COPY_FILE = "18.1-COPY-REPORT-FORM.md"
-APPROVAL_MARK = "APPROVED msg 1975"
+APPROVAL_MARK = "APPROVED"
 
 LOCALES = ("en", "de", "ko", "ja", "zh-Hans", "zh-Hant")
 
@@ -46,11 +46,11 @@ DETAIL_CATALOG = "AppPackage/Sources/DetailFeature/Resources/Localizable.xcstrin
 CATALOG_GLOB = "AppPackage/Sources/**/*.xcstrings"
 KEY_PREFIX = "report."
 
-# The approved file's counts: 23 shipping rows and 6 struck-out rows (owner msg 1975).
+# The approved file's counts: 23 shipping rows and 6 struck-out rows (owner decision).
 APPROVED_SHIPPING_COUNT = 23
 APPROVED_DROPPED_COUNT = 6
 
-# Approved, but dropped by the lead (msgs 1980, 1983): C-13 has no picker, so "Choose a Reason" is never shown.
+# Approved, but dropped by the lead: C-13 has no picker, so "Choose a Reason" is never shown.
 LEAD_DROPPED = ("report.reason.choose",)
 
 LINE_BREAKS = ("\n", "\r", "\u2028", "\u2029")
@@ -253,7 +253,7 @@ def self_test() -> int:
         ("a reworded zh-Hant value fails", reworded_zh_hant, 1, "differs: report.failed.body [zh-Hant]"),
         ("an empty ko value fails", empty_ko, 1, "empty: report.send [ko]"),
         ("report.help.copyright present fails as dropped", dropped_copyright, 1, "dropped key: report.help.copyright"),
-        ("report.reason.choose present fails as dropped (lead, msgs 1980/1983)", lead_dropped_choose, 1,
+        ("report.reason.choose present fails as dropped (lead)", lead_dropped_choose, 1,
          "dropped key: report.reason.choose"),
         ("an unapproved report.* key fails", unexpected, 1, "unexpected key: report.reason.spam"),
     ]

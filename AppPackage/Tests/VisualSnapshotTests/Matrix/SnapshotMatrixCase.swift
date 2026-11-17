@@ -19,7 +19,7 @@ import XCTest
 /// `EHPANDA_SNAPSHOT_ORIENTATIONS`; the window must still match the pinned geometry.
 ///
 /// Capture is serial within each simulator clone, by the owner's approval for the screenshot runs only (D-11; owner
-/// msgs 1949, 2252): XCTest's parallel testing hands whole classes to clones, each clone runs one class at a time,
+/// decision): XCTest's parallel testing hands whole classes to clones, each clone runs one class at a time,
 /// and several clones and CI jobs run at once. No serial trait or single-worker cap is involved, and every
 /// other test stays parallel (AGENTS.md test parallelism).
 class SnapshotMatrixCase: XCTestCase {

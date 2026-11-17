@@ -6,7 +6,7 @@ tags: [snapshot-gate, release, altstore-pal, github-actions, ci]
 
 requires:
   - phase: 19
-    provides: "snapshot-gate.yml with the `aggregate` verdict job (closed with deferred items; owner msgs 3425, 3428, 3573)"
+    provides: "snapshot-gate.yml with the `aggregate` verdict job (closed with deferred items; owner decision)"
 provides:
   - "`actions-tool/require-snapshot-gate.sh <sha> <check name> [--merged-pr] [--compare-only]`: the release's and the PAL submission's reliance on the screenshot check"
   - "`deploy.yml` and `deploy-pal.yml` require the verdict right after Checkout"
@@ -33,7 +33,7 @@ key-files:
     - .planning/phases/20-3-0-distribution-marketplace-build-notarization-listing-rele/20-11-GATE.md
 
 key-decisions:
-  - "OQ-F = main-first (owner msg 3346): this branch merged `main` (merge `31c19a12f`); nothing was merged from or committed to `feature/gsd-phase-19`."
+  - "OQ-F = main-first (owner decision): this branch merged `main` (merge `31c19a12f`); nothing was merged from or committed to `feature/gsd-phase-19`."
   - "The check name is `aggregate`, the job ID of `snapshot-gate.yml`'s verdict job (no `name:`); the name test now reads the real file and passes."
   - "Point 1 (PAL `github.sha`): `main` is linear (squash or rebase) and `snapshot-gate.yml` does not run on a push to `main`, so a dispatch on the release commit could never find a verdict. Fixed in the script with `--merged-pr` (read the merged PR's head); deploy-pal.yml passes it."
   - "Point 2 (candidate runs): a candidate run is also an `aggregate` check run and passes without comparing. Fixed in the script with `--compare-only` (the check run's workflow run must have the event `pull_request`, which always means compare); both workflows pass it. `snapshot-gate.yml` is unchanged."
@@ -76,9 +76,8 @@ baseline exists.**
 
 ## Accomplishments
 
-- **Task 1, OQ-F.** Answered by owner msg 3346 ("wait for phase 19 closure. before that, we update the github
-  actions workflow"): `main-first`. Phase 19 closed and reached `origin/main` (`57e5e6f2b`, owner msgs 3425, 3428,
-  3573); this branch merged it as `31c19a12f`.
+- **Task 1, OQ-F.** Answered by an owner decision ("wait for phase 19 closure. before that, we update the github
+  actions workflow"): `main-first`. Phase 19 closed and reached `origin/main` (`57e5e6f2b`, owner decision); this branch merged it as `31c19a12f`.
 - **The merge.** Conflicts in `.github/actionlint.yaml` (add/add; `main`'s comment kept, same `xcode-27` label),
   `.github/workflows/deploy.yml` (both kept: `main`'s `snapshot-gate` reusable-workflow job, `needs`, timeout and
   concurrency, plus this branch's "Require the screenshot check" step and `checks: read`), `.planning/ROADMAP.md`

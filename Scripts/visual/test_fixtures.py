@@ -322,7 +322,7 @@ class AcquisitionTests(FixtureTestCase):
                 self.assertEqual(reader_indices(manifest, 'page'), list(pages))
 
     def test_a_mocked_complete_download_holds_no_pages(self):
-        # Owner msg 5113: a mocked complete download is only its record and status, so nothing of its pages is saved,
+        # Owner decision: a mocked complete download is only its record and status, so nothing of its pages is saved,
         # while the active download beside it keeps its real pages.
         for status in fixtures.COMPLETE_DOWNLOADS:
             with self.subTest(status):

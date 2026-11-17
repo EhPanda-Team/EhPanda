@@ -111,7 +111,7 @@ runner.**
   - Clones are cleared between invocations.
   - A startup watchdog stops invocations that never start.
   - Simulator failures count as infra, with one retry.
-- **The final run, 42533872440** (owner msg 2743; § Final hosted run (run 42533872440)):
+- **The final run, 42533872440** (owner decision; § Final hosted run (run 42533872440)):
   - The run took 2 h 40 min. The build took 8.7 min.
   - 7 jobs failed "Create the pinned simulator" in both attempts, within 5 to 13 minutes. The causes were settings
     writes over 60 s, `bootstatus` over 300 s, "device is not booted" right after boot, and one iPad shutdown over

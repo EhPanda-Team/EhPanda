@@ -107,7 +107,7 @@ final class FirstLaunchUITests: XCTestCase {
     }
 
     /// At AX5 Continue stays pinned in the bar on both screens, in reach without a swipe, and the age-wall footnote
-    /// is the last scroll item, under the checkbox card (D-17b, owner msg 1903; UI-SPEC C-1, C-2 item 6). The cards
+    /// is the last scroll item, under the checkbox card (D-17b, owner decision; UI-SPEC C-1, C-2 item 6). The cards
     /// may still need a swipe.
     func testContinueStaysPinnedAtTheLargestTextSize() throws {
         let app = XCUIApplication()

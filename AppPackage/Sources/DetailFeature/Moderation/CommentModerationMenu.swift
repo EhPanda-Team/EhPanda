@@ -22,7 +22,7 @@ enum CommentModerationSurface: Sendable {
     case card
 }
 
-/// Where a comment's poster stands with the block list (owner msg 1918: blocks match the member ID).
+/// Where a comment's poster stands with the block list (owner decision: blocks match the member ID).
 enum CommentBlockStatus: Sendable {
     /// The poster's member ID is blocked.
     case blocked
@@ -42,7 +42,7 @@ enum CommentModerationMenu {
     /// - Otherwise Report then Block, or Report then Unblock when the author is blocked and the comment revealed.
     ///   Report is left out when the gallery has no report page, as there would be nowhere to go (lead decision).
     ///   Block is left out when the comment carries no member ID, as there is nothing stable to block by (lead
-    ///   decision, owner msg 1918); such a comment is never blocked, so it never needs Unblock either.
+    /// decision, owner decision); such a comment is never blocked, so it never needs Unblock either.
     /// - A revealed card adds Hide as the third item (C-8).
     static func items(
         for surface: CommentModerationSurface,

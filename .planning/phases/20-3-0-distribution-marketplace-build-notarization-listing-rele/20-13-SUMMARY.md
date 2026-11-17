@@ -45,7 +45,7 @@ key-files:
     - .planning/phases/14-analytics-instrumentation-with-telemetrydeck-add-privacy-fir/COVERAGE.md
 
 key-decisions:
-  - "Implements exactly `20-12-VOCABULARY.md` as signed off (product lead msg 2829; owner msgs 2837, 2842). No signal, parameter or value beyond it; no level description changed; the install signal is untouched."
+  - "Implements exactly `20-12-VOCABULARY.md` as signed off (product lead decision; owner decision). No signal, parameter or value beyond it; no level description changed; the install signal is untouched."
   - "OI-4 answer A: no code. COVERAGE.md names `App.installed` as the install count; `TelemetrySDK.swift` is unchanged."
 
 patterns-established:

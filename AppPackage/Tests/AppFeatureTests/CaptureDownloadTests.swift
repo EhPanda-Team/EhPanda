@@ -72,7 +72,7 @@ struct CaptureDownloadTests {
         #expect(index.downloads.allSatisfy({ $0.runProgress == nil }))
     }
 
-    /// Owner msg 5113: a mocked complete download is its record and status alone. Its manifest marks
+    /// Owner decision: a mocked complete download is its record and status alone. Its manifest marks
     /// every page complete, so its row reads as complete, while its folder holds no page file.
     @Test
     func aMockedCompleteDownloadHoldsNoPageFiles() throws {

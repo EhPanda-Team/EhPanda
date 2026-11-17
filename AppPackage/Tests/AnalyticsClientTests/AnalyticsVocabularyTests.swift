@@ -61,7 +61,7 @@ struct AnalyticsVocabularyTests {
     }
 
     // The 3.0 flows' values (20-12, signed off). The report outcome has four, as the record lists them;
-    // the reason is not one (owner msg 2837).
+    // the reason is not one (owner decision).
     @Test
     func reportOutcomeSpellsEveryCase() {
         #expect(ReportOutcome.allCases.count == 4)

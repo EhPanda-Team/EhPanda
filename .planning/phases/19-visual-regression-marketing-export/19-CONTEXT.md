@@ -1,20 +1,20 @@
 # Phase 19: Visual Regression & Daily Live-Parsing Check - Context
 
-**Gathered:** 2026-11-07 (owner decisions from the Phase 18 discussion and owner msgs 1949, 1961, 1964, 2006, 2243;
+**Gathered:** 2026-11-07 (owner decisions from the Phase 18 discussion and an owner decision;
 the capture spike; the runner-IP desk check). Replaces the 2026-11-05 context and its 2026-11-06 scope-change notes,
 and absorbs the uncommitted 2026-11-06 discussion prep, which predated the scope change.
-**Amended:** 2026-11-07, three times the same day. First, one picture per screen and state on one setup (owner msg
-2243; lead msg 2244; team msg 2245). Then, superseding that, the matrix in D-04 (owner msgs 2247, 2249; product lead
-msgs 2248, 2250; team msg 2251), which resolves OQ-1. Then the baseline store and parallel runs (owner msg 2252),
+**Amended:** 2026-11-07, three times the same day. First, one picture per screen and state on one setup (owner
+ decision; lead decision; team decision). Then, superseding that, the matrix in D-04 (owner decision; product lead
+decision; team decision), which resolves OQ-1. Then the baseline store and parallel runs (owner decision),
 which resolve OQ-2 (D-13 to D-15). OQ-4 (review format) stays open at low priority. A fourth amendment the same
-day, at planning: 20 smaller shards with retries and error handling (owner msg 2263, D-15), and planning notes on
+day, at planning: 20 smaller shards with retries and error handling (owner decision, D-15), and planning notes on
 D-14 (push size), D-21 (GET only) and OQ-4 (the planning default).
-**Status:** Ready for planning. Next open item: the runner-IP probe's go-ahead (OQ-6, card pending, msg 2246); OQ-4
+**Status:** Ready for planning. Next open item: the runner-IP probe's go-ahead (OQ-6, card pending); OQ-4
 low priority; OQ-3 only if the probe shows a block; OQ-5 later. None blocks the first screenshot plans. The
 directory name is unchanged.
 **Sources:** ROADMAP.md Phase 19 (scope items 1 to 9); REQUIREMENTS.md VIS-18-01, VIS-19-01; the owner decisions
-recorded during the Phase 18 discussion (owner msg 1753); owner msgs 1949, 1961, 1964, 2006, 2243, 2247, 2249, 2252;
-lead msgs 1952, 2007, 2008, 2244, 2248, 2250; team msgs 2245, 2251; the snapshot spike (worktree
+recorded during the Phase 18 discussion (owner decision); owner decision;
+lead decision; team decision; the snapshot spike (worktree
 `.airbuild/worktree/snap-spike`, branch `spike/snapshot-testing`, uncommitted).
 
 <domain>
@@ -36,15 +36,15 @@ Requirements: VIS-18-01, VIS-19-01; moved from Phase 17: CAP-17-02, CAP-17-03 an
 
 **Not in this phase:**
 
-- **Dropped (owner msg 1949; lead msg 1952; restated by the product lead in msg 1993):** all marketing pictures. No
+- **Dropped (owner decision; lead decision; restated by the product lead):** all marketing pictures. No
   regenerated iPhone marketing set, no iPad marketing set, no 384-coordinate export tooling or handoff validator
   (17-07), no final gallery selection and no 384 regeneration (17-21). MKT-18-01's Phase 19 part and CAP-17-04's
   moved 384 export go with them. The "six galleries per Toplists period" fixture rule existed only for those pictures
   and is dropped; the fixtures keep three per period.
 - **Phase 20:** the AltStore promotional images and store screenshots (17-22, CAP-17-05; non-adult pictures only on
   the AltStore listing, guideline 2.3.8; store screenshots are the website screenshots plus the designer's
-  decorations, owner msg 1753) and the final Release isolation scan.
-- **No phase:** tagging and release order (owner msg 1753).
+  decorations, owner decision) and the final Release isolation scan.
+- **No phase:** tagging and release order (owner decision).
 
 </domain>
 
@@ -53,10 +53,10 @@ Requirements: VIS-18-01, VIS-19-01; moved from Phase 17: CAP-17-02, CAP-17-03 an
 
 ### Phase organisation and order
 
-- **D-01:** This phase runs after all in-app work, so the baseline is approved once, against final UI (owner msg
-  1753). No baseline is recorded while any Phase 18 or 18.1 UI is still changing.
+- **D-01:** This phase runs after all in-app work, so the baseline is approved once, against final UI (owner
+ decision). No baseline is recorded while any Phase 18 or 18.1 UI is still changing.
 - **D-02:** The screenshot check goes first; the daily live-parsing check follows, except its runner-IP probe (D-25),
-  which runs early because its answer may need an owner decision (owner msg 1949; ROADMAP scope item 9).
+  which runs early because its answer may need an owner decision (owner decision; ROADMAP scope item 9).
 
 ### Coverage
 
@@ -65,25 +65,25 @@ Requirements: VIS-18-01, VIS-19-01; moved from Phase 17: CAP-17-02, CAP-17-03 an
   analytics picker with its Privacy Policy row; the native Report form (Phase 18.1, which replaced the report
   confirmation); the posting warning; the blocked-comment row, collapsed and shown; Blocked Users, filled and empty.
   All six languages use the approved copy (18-COPY-FIRST-LAUNCH.md, 18-COPY-MINIMAL.md, 18-COPY-COMMENTS.md).
-  Blocked comments in fixtures use member IDs (18-12, owner msg 1918).
-- **D-04 (owner msgs 2247, 2249; lead msgs 2248, 2250; team msg 2251):** every scenario is captured across **six
+  Blocked comments in fixtures use member IDs (18-12, owner decision).
+- **D-04 (owner decision; lead decision; team decision):** every scenario is captured across **six
   languages × iPhone and iPad × portrait and landscape × light and dark × three text sizes: the smallest (xSmall),
   the default (Large) and the largest accessibility size (AX5)**, which is 144 pictures per scenario. This supersedes
-  both Phase 17's axes (17-CONTEXT D-07, all 12 text sizes) and the one-setup reading of owner msg 2243. ROADMAP
+  both Phase 17's axes (17-CONTEXT D-07, all 12 text sizes) and the one-setup reading of owner decision. ROADMAP
   success criterion 1 and VIS-18-01 were amended to match on 2026-11-07.
   Other sizes were offered (about 4,900, 23,900 and 78,300 pictures) and not chosen. Every coordinate ends as
   captured, failed, or not applicable with a written reason in the manifest.
 - **D-05:** States the snapshot library cannot render are skipped and recorded as not applicable with that reason;
-  there is no simulator-screenshot fallback (owner msg 1964). Known members: the keyboard (a separate system window;
+  there is no simulator-screenshot fallback (owner decision). Known members: the keyboard (a separate system window;
   search-focus states are captured without it), live web content (sign-in web page, the Cloudflare check page, site
   pages opened in a web view), the system share sheet, and the system file importer.
 - **D-06:** Regression content is the public, synthetic fixture set (`PublicVisualFixtures`, `FixtureArtwork`): no
   real gallery covers or titles, so every baseline picture can be published (CAP-17-03).
 
-### Capture method (owner msgs 1961, 1964; spike; lead's call)
+### Capture method (owner decision; spike; lead's call)
 
 - **D-07:** Tool: swift-snapshot-testing, in process, already a dependency through `VisualSnapshotSupport` (pinned
-  exactly at 1.19.6) (owner msg 1961). No XCUITest screenshot path for the matrix.
+  exactly at 1.19.6) (owner decision). No XCUITest screenshot path for the matrix.
 - **D-08 (lead's call after the spike, "Path B"):** each scenario's real view, with its real reducer and preview
   dependencies, is hosted in the app-hosted test's real key window; the test waits until the window has settled
   (unchanged for at least 500 ms), draws it with `window.drawHierarchy(afterScreenUpdates: true)`, and compares the
@@ -105,12 +105,12 @@ Requirements: VIS-18-01, VIS-19-01; moved from Phase 17: CAP-17-02, CAP-17-03 an
   caught). Comparison: precision 0.9999, perceptual precision 1, applied uniformly; any other tolerance needs a
   measured justification recorded in the manifest.
 - **D-11:** Capture is serial within each simulator: each simulator clone captures one picture at a time, while
-  several clones per CI job and several jobs run in parallel (D-15; owner msgs 1949, 2252). This is allowed for the
+  several clones per CI job and several jobs run in parallel (D-15; owner decision). This is allowed for the
   screenshot runs only. The approval is documented above each narrow
   `// swiftlint:disable:next no_serialized_test`, as AGENTS.md requires. All other tests stay parallel. Locally,
   `xcodebuild` invocations never overlap (`.planning/codebase/TESTING.md`).
 
-### Matrix, run time and storage (owner msgs 1949, 2247, 2249)
+### Matrix, run time and storage (owner decision)
 
 - **D-12: scenario inventory and matrix.** From the views, presentations and states in `AppPackage/Sources` and the
   scroll-edge page inventory, the check has about **136 scenarios** (plan 1 confirms the exact list in
@@ -144,7 +144,7 @@ Requirements: VIS-18-01, VIS-19-01; moved from Phase 17: CAP-17-02, CAP-17-03 an
   Not applicable by design, with reasons in the manifest (Claude's call): the Library sidebar and the iPad gallery
   sheet where the width is compact, the compact-only Library title menu where it is regular, the two-page spread
   outside landscape or iPad, and the D-05 skips. These remove a few hundred coordinates at most.
-- **D-13: run time (owner msg 2252: "test in parallel to reduce test time"; estimate is Claude's call).** At 1.2 s
+- **D-13: run time (owner decision: "test in parallel to reduce test time"; estimate is Claude's call).** At 1.2 s
   per picture (spike, this machine) up to 2.4 s (an assumed 2× slowdown on GitHub's runners, not yet measured), the
   pictures take about 6.5 to 13 simulator-hours. They run on five hosted Macs at once, each running parallel
   simulator clones (D-15). **Assumption:** two clones per Mac, giving about 1.7× one simulator's throughput (the
@@ -152,13 +152,13 @@ Requirements: VIS-18-01, VIS-19-01; moved from Phase 17: CAP-17-02, CAP-17-03 an
   45 to 95 minutes, plus about 30 minutes for the shared build and about 10 minutes per shard to boot and fetch its
   baseline slice: **about 1½ to 2¼ hours per PR**. With three clones per Mac (about 2.4×), if plan 1 shows the
   runner sustains them, about 1¼ to 1¾ hours. Both are well inside the 2-day limit (D-16).
-- **D-14: storage (owner msg 2252; resolves OQ-2).** At 1x the spike measured 46 to 374 KB for real app screens on
+- **D-14: storage (owner decision; resolves OQ-2).** At 1x the spike measured 46 to 374 KB for real app screens on
   the iPhone Air (median about 120 KB) and AX5 at about 2.5× the default; iPad pictures are assumed about 2.5× the
   iPhone's area. The baseline is therefore about **5 to 10 GB**, so it is kept out of the app repository:
   - The approved pictures live in **a separate public repository in the EhPanda-Team organisation**, named
     `EhPanda-Team/ehpanda-snapshot` to mirror the existing `ehpanda-fixture` repository (lowercase, singular; the
     fixture repository is private, this one is public by the owner's choice). We create it at execution time with
-    the owner's own GitHub sign-in on this machine (owner msg 2252); each push still needs the owner's go-ahead.
+    the owner's own GitHub sign-in on this machine (owner decision); each push still needs the owner's go-ahead.
   - Claude's calls: the pictures are laid out by device and language so each shard fetches only its slice with a
     shallow, sparse checkout; each owner approval is one commit there; if its history nears 5 GB, a cleanup is
     proposed to the owner rather than done silently.
@@ -195,7 +195,7 @@ Requirements: VIS-18-01, VIS-19-01; moved from Phase 17: CAP-17-02, CAP-17-03 an
     model, iOS 27.0, the Xcode build in the manifest; drift fails the run); local runs are advisory. Plan 1 measures
     the per-picture time and run-to-run identity on the hosted runner before the full matrix is recorded.
   - Standard hosted runners are free for public repositories; plan 1 confirms `xcode-27` is a standard one.
-  - **Amended 2026-11-07 (owner msg 2263: "We can make it 10 or 20 Macs, just consider retrying and error
+  - **Amended 2026-11-07 (owner decision: "We can make it 10 or 20 Macs, just consider retrying and error
     handling").** GitHub's standard hosted runners on the Free, Pro and Team plans run at most 5 macOS jobs at once
     (Enterprise 50); further jobs queue. Claude's calls under that message:
     - The matrix is split into **20 smaller shards**: 5 run at once and the rest queue automatically, so one
@@ -215,7 +215,7 @@ Requirements: VIS-18-01, VIS-19-01; moved from Phase 17: CAP-17-02, CAP-17-03 an
     - **Timeouts:** each shard has its own timeout well under GitHub's 6-hour cap, set from the measured cost.
     - **Assignment:** shards are assigned deterministically and balanced by measured cost, so the same commit
       always gives the same shards.
-- **D-16: run limits (owner msg 1949).** One full check may take up to 2 days before options go back to the owner.
+- **D-16: run limits (owner decision).** One full check may take up to 2 days before options go back to the owner.
   The check runs on every PR and every release (17-CONTEXT D-13); weekly dependency-update PRs wait for it too.
   Superseded runs of the same PR are cancelled.
 - **D-17: approval.** Candidates are recorded only by an explicit candidate run. Agents pre-check every picture first
@@ -229,7 +229,7 @@ Requirements: VIS-18-01, VIS-19-01; moved from Phase 17: CAP-17-02, CAP-17-03 an
   search behaviour at standard, AX1, AX3, AX5) stay XCUITests and run in the gate as their own job; they test
   transitions, which snapshots do not.
 
-### Daily live-parsing check (VIS-19-01; owner msg 2006; lead msg 2008)
+### Daily live-parsing check (VIS-19-01; owner decision; lead decision)
 
 - **D-20:** A scheduled GitHub Actions workflow runs once a day (plus manual dispatch). It fetches, as a guest, the
   pages EhPanda reads and runs the app's own parsers on them through the app's own request types: Home front page,
@@ -293,10 +293,10 @@ the manifest and report formats; the live check's schedule time, request pacing 
 
 Plain-language versions with options are in the owner handoff.
 
-- **OQ-1, matrix size: resolved** (D-04; owner msgs 2247, 2249).
-- **OQ-2, where the approved pictures are kept: resolved** (D-14; owner msg 2252): a separate public repository,
+- **OQ-1, matrix size: resolved** (D-04; owner decision).
+- **OQ-2, where the approved pictures are kept: resolved** (D-14; owner decision): a separate public repository,
   `EhPanda-Team/ehpanda-snapshot`.
-- **OQ-6, the runner-IP probe's go-ahead** (D-25): next open item; asked, the owner's card is pending (msg 2246).
+- **OQ-6, the runner-IP probe's go-ahead** (D-25): next open item; asked, the owner's card is pending.
 - **OQ-4, how the owner reviews about 19,600 pictures** (low priority; *planning default, 2026-11-07:* the short
   packet below, which the owner may change at the approval checkpoint): a short packet (each screen and state once,
   plus everything agents flagged and the not-applicable list), the full report, or the designer first.
@@ -392,7 +392,7 @@ Plain-language versions with options are in the owner handoff.
 ## Specific Ideas
 
 - The owner expected "hundreds of reference pictures" and said "swift-snapshot-testing snapshots won't take so much
-  space" (msg 1949): the size options are given in pictures and gigabytes so he can pick against that.
+  space": the size options are given in pictures and gigabytes so he can pick against that.
 - The public issue must be useful without content: "Toplists: expected a gallery table with at least one row, found
   none" is the shape; never a title or link to a gallery.
 
@@ -402,7 +402,7 @@ Plain-language versions with options are in the owner handoff.
 ## Deferred Ideas
 
 - The 384 marketing export, the final gallery selection, the iPad marketing set and the six-per-period Toplists
-  fixtures (dropped, owner msg 1949).
+  fixtures (dropped, owner decision).
 - The live check for signed-in pages, until the owner supplies the secret (D-24).
 - Native tag management and tag context menus are future milestones (TAG-01, TAG-02), not covered until they exist.
 
@@ -411,5 +411,5 @@ Plain-language versions with options are in the owner handoff.
 ---
 
 *Phase: 19-visual-regression-marketing-export*
-*Context gathered: 2026-11-07; matrix and baseline store decided (owner msgs 2247, 2249, 2252); OQ-6 next, OQ-4 low
+*Context gathered: 2026-11-07; matrix and baseline store decided (owner decision); OQ-6 next, OQ-4 low
 priority, OQ-3 conditional, OQ-5 later*

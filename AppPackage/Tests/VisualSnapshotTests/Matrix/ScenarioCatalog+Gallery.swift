@@ -114,7 +114,7 @@ enum GalleryScenarios {
     }
 
     /// The synthetic comments on the real `CommentsView` and `CommentsReducer`. A blocked author is matched by member
-    /// ID (owner msg 1918); the editor and its posting warning are the reducer's own: Post Comment is presented
+    /// ID (owner decision); the editor and its posting warning are the reducer's own: Post Comment is presented
     /// through its action, and the warning comes from Post over a draft that the scenario's filter list matches.
     static func comments(_ kind: CommentsState) throws -> AnyView {
         let url = try XCTUnwrap(galleryURL)

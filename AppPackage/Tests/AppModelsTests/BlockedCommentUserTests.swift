@@ -3,7 +3,7 @@ import ComposableArchitecture
 import Foundation
 import Testing
 
-/// The comment block store (DD-10, research §5.4; owner msg 1918): an ordered list of users keyed by E-Hentai member
+/// The comment block store (DD-10, research §5.4; owner decision): an ordered list of users keyed by E-Hentai member
 /// ID, each ID held once with the name it was last seen under, kept on the device under
 /// `@Shared(.blockedCommentUsers)`.
 struct BlockedCommentUserTests {
