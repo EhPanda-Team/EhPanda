@@ -332,13 +332,15 @@ Phase 17 was: the executed work is verified and the rest is recorded as deferred
   asked only of an element whose frame held still for 0.2 s. Detail's title at AX3: the title appears once the
   header has left the scroll view's bounds, while the header's last row is still drawn under the status bar, so
   the case compares frames with the bounds. The Show All tap on Home and the toast: the app's own fade.
-  The app's fade. A SwiftUI view that holds a UIKit view (a `ScrollView`, a `List`) and fades in through its
-  opacity under an animation keeps the UIKit `alpha` at 0 until the animation ends, while it already looks
-  opaque, and UIKit's hit test passes over it. On Home the galleries took no touch for 1.1 to 2.2 s after they
-  looked opaque; a probe lost 7 of 8 first taps. `revealed(_:)` (AppComponents) keeps such content opaque and
-  fades a cover in the background style off it, at Home, Detail, App Activity Logs and the Archives sheet: none
-  of 8 taps lost, and in light and dark the cover is the colour each screen stands on, a sheet's raised
-  background included. `HostedViewTests/RevealedContentTouchTests` checks both sides.
+  The app's fade. While a UI test drove the app, a SwiftUI view that holds a UIKit view (a `ScrollView`, a
+  `List`) and fades in through its opacity under an animation kept the UIKit `alpha` at 0 until the animation
+  ended, while it already looked opaque, and UIKit's hit test passed over it. On Home the galleries took no touch
+  for 1.1 to 2.2 s after they looked opaque; a probe lost 7 of 8 first taps. `revealed(_:)` (AppComponents)
+  keeps such content opaque and fades a cover in the background style off it, at Home, Detail, App Activity
+  Logs and the Archives sheet: none of 8 taps lost, and in light and dark the cover is the colour each screen
+  stands on, a sheet's raised background included. `HostedViewTests/RevealedContentTouchTests` checks that
+  revealed content is hit at once; its host updates the alpha frame by frame, so it cannot show the value held
+  at 0.
   `Scripts/ui-tests/report.py` now counts a test that failed in any run as failed, and a repository test fails
   if a plan repeats a test; `NoTestRetryTests` does the same for every workflow and script.
   Here, without retries: the whole UITests plan three times, 130 passed and none failed each time with every
@@ -353,11 +355,13 @@ Phase 17 was: the executed work is verified and the rest is recorded as deferred
   resting control covers one of those failures, and the job can fail until a hosted run shows the others hold.
   The nightly's hosted trial (run 43829748359) did not finish as designed: the iPad job took 64 minutes with
   failures on two clones, and the iPhone job was cut after 77 minutes.
-  Open, for the owner: the same fade in floating views that a cover cannot hide, the toast (untouchable 0.1 to
-  0.7 s after it shows; its case now waits for it) and the reader's control panel (0.7 to 1.0 s), and the
-  `.transition(.opacity)` sites (RootView, FavoritesView, WatchedView, EhSettingView); 74 direct `isHittable`
-  reads in 18 UI test files, the Duo's among them; the screenshot check's in-test recapture
-  (`HostedWindowCapture`), which is a retry of its own kind.
+  The same fade in floating views, 2026-11-17: under the UI test runner the toast was untouchable for 0.1 to
+  0.7 s after it showed and the reader's control panel for 0.7 to 1.0 s. Launched without a runner and tapped
+  by coordinate, the panel had no untouchable time and took its Close 0.12 s after it showed; the toast had
+  about 0.1 s in three of four showings and took a tap 0.12 s after its link. That is too short for a user to
+  meet, so the app keeps its motion (owner, 2026-11-17); the toast's case waits until the toast takes touches.
+  Open, for the owner: 74 direct `isHittable` reads in 18 UI test files, the Duo's among them; the screenshot
+  check's in-test recapture (`HostedWindowCapture`), which is a retry of its own kind.
 
 Phase 20 merged this state from `main` on 2026-11-11 (OQ-F, owner msg 3346) and carries on below.
 
