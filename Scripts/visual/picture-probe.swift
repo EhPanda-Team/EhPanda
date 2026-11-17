@@ -24,9 +24,16 @@ struct Request: Decodable {
     let languages: [String]
 }
 
-struct Rectangle: Encodable {
-    let x: Int
-    let y: Int
+/// A solid rectangle of a placeholder colour, in pixels from the picture's top left corner.
+struct GrayRectangle: Encodable {
+    enum CodingKeys: String, CodingKey {
+        case left = "x"
+        case top = "y"
+        case width, height, color
+    }
+
+    let left: Int
+    let top: Int
     let width: Int
     let height: Int
     let color: String
@@ -44,7 +51,7 @@ struct Probe: Encodable {
     let height: Int
     let lumaDeviation: Double
     let dominantShare: Double
-    let grayRectangles: [Rectangle]
+    let grayRectangles: [GrayRectangle]
     let lines: [Line]
 }
 
@@ -58,9 +65,21 @@ enum ProbeError: Error {
     case noContext
 }
 
+struct PixelColor {
+    let red: Int
+    let green: Int
+    let blue: Int
+}
+
+struct PlaceholderColor {
+    let name: String
+    let color: PixelColor
+}
+
 /// The placeholder colour, `UIColor.systemGray5`, as drawn in light and dark.
-let placeholderColors: [(name: String, red: Int, green: Int, blue: Int)] = [
-    ("systemGray5-light", 229, 229, 234), ("systemGray5-dark", 44, 44, 46)
+let placeholderColors = [
+    PlaceholderColor(name: "systemGray5-light", color: PixelColor(red: 229, green: 229, blue: 234)),
+    PlaceholderColor(name: "systemGray5-dark", color: PixelColor(red: 44, green: 44, blue: 46))
 ]
 let minimumSide = 24
 let ocrScale = 2
@@ -92,18 +111,26 @@ func pixels(of image: CGImage) throws -> [UInt8] {
     return buffer
 }
 
+/// The colour of the pixel at `pixel`, counted in rows top first, or nil past the buffer's end.
+func color(at pixel: Int, in buffer: [UInt8]) -> PixelColor? {
+    let redIndex = pixel * 4
+    let greenIndex = redIndex + 1
+    let blueIndex = greenIndex + 1
+    guard buffer.indices.contains(redIndex), buffer.indices.contains(greenIndex), buffer.indices.contains(blueIndex)
+    else { return nil }
+    return PixelColor(red: Int(buffer[redIndex]), green: Int(buffer[greenIndex]), blue: Int(buffer[blueIndex]))
+}
+
 func statistics(of buffer: [UInt8], count: Int) -> (deviation: Double, dominantShare: Double) {
     var sum = 0.0
     var squares = 0.0
     var histogram = [Int: Int]()
-    for index in 0..<count {
-        let red = Int(buffer[index * 4])
-        let green = Int(buffer[index * 4 + 1])
-        let blue = Int(buffer[index * 4 + 2])
-        let luma = 0.2126 * Double(red) + 0.7152 * Double(green) + 0.0722 * Double(blue)
+    for pixel in 0..<count {
+        guard let color = color(at: pixel, in: buffer) else { break }
+        let luma = 0.2126 * Double(color.red) + 0.7152 * Double(color.green) + 0.0722 * Double(color.blue)
         sum += luma
         squares += luma * luma
-        histogram[(red >> 3) << 10 | (green >> 3) << 5 | blue >> 3, default: 0] += 1
+        histogram[(color.red >> 3) << 10 | (color.green >> 3) << 5 | color.blue >> 3, default: 0] += 1
     }
     let mean = sum / Double(count)
     let variance = max(0, squares / Double(count) - mean * mean)
@@ -113,14 +140,22 @@ func statistics(of buffer: [UInt8], count: Int) -> (deviation: Double, dominantS
 /// Solid rectangles of one colour: rows whose run of that colour, at least `minimumSide` wide, overlaps the run of
 /// the row above, stacked at least `minimumSide` high. A spinner splits a row's run; the rows above and below it
 /// still hold the rectangle's full width.
-func rectangles(in buffer: [UInt8], width: Int, height: Int) -> [Rectangle] {
-    var found = [Rectangle]()
-    for color in placeholderColors {
-        var open: (top: Int, left: Int, right: Int)?
+func rectangles(in buffer: [UInt8], width: Int, height: Int) -> [GrayRectangle] {
+    /// The rectangle being stacked: its top row and the columns its rows share so far.
+    struct Stack {
+        let top: Int
+        let left: Int
+        let right: Int
+    }
+
+    var found = [GrayRectangle]()
+    for placeholder in placeholderColors {
+        let target = placeholder.color
+        var open: Stack?
         func close(at row: Int) {
             if let current = open, row - current.top >= minimumSide {
-                found.append(Rectangle(x: current.left, y: current.top, width: current.right - current.left,
-                                       height: row - current.top, color: color.name))
+                found.append(GrayRectangle(left: current.left, top: current.top, width: current.right - current.left,
+                                           height: row - current.top, color: placeholder.name))
             }
             open = nil
         }
@@ -128,11 +163,10 @@ func rectangles(in buffer: [UInt8], width: Int, height: Int) -> [Rectangle] {
             var best: (left: Int, right: Int)?
             var start: Int?
             for column in 0...width {
-                let matches = column < width && {
-                    let offset = (row * width + column) * 4
-                    return abs(Int(buffer[offset]) - color.red) <= 1 && abs(Int(buffer[offset + 1]) - color.green) <= 1
-                        && abs(Int(buffer[offset + 2]) - color.blue) <= 1
-                }()
+                let matches = column < width && color(at: row * width + column, in: buffer).map({ pixel in
+                    abs(pixel.red - target.red) <= 1 && abs(pixel.green - target.green) <= 1
+                        && abs(pixel.blue - target.blue) <= 1
+                }) == true
                 if matches, start == nil {
                     start = column
                 } else if !matches, let left = start {
@@ -143,11 +177,11 @@ func rectangles(in buffer: [UInt8], width: Int, height: Int) -> [Rectangle] {
                 }
             }
             if let run = best, let current = open, run.left < current.right, current.left < run.right {
-                open = (current.top, max(current.left, run.left), min(current.right, run.right))
+                open = Stack(top: current.top, left: max(current.left, run.left), right: min(current.right, run.right))
             } else {
                 close(at: row)
                 if let run = best {
-                    open = (row, run.left, run.right)
+                    open = Stack(top: row, left: run.left, right: run.right)
                 }
             }
         }
@@ -172,7 +206,7 @@ func scaled(_ image: CGImage, by factor: Int) throws -> CGImage {
 func text(in image: CGImage, languages: [String]) async throws -> [Line] {
     var request = RecognizeTextRequest()
     request.recognitionLevel = .accurate
-    request.recognitionLanguages = languages.map { Locale.Language(identifier: $0) }
+    request.recognitionLanguages = languages.map(Locale.Language.init(identifier:))
     request.usesLanguageCorrection = true
     request.minimumTextHeightFraction = 0.008
     let observations = try await request.perform(on: try scaled(image, by: ocrScale))

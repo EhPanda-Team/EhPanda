@@ -45,8 +45,9 @@ SCHEME = 'EhPanda'
 # Each directory here is linted from inside, under its own `.swiftlint.yml`: one per module and test target.
 MODULE_PARENTS = ('AppPackage/Sources', 'AppPackage/Tests')
 MODULES = ('EhPandaUITests',)
-# Linted from the repository root, under the root configuration: the app shell, the share extension and the manifest.
-ROOT_PATHS = ('App', 'ShareExtension', 'AppPackage/Package.swift')
+# Linted from the repository root, under the root configuration: the app shell, the share extension, the manifest and
+# the Swift scripts the screenshot pre-check compiles.
+ROOT_PATHS = ('App', 'ShareExtension', 'AppPackage/Package.swift', 'Scripts/visual')
 # Swift files that belong to no target: evidence kept with the planning records, and fixtures of the script tests.
 UNLINTED = ('.planning/', 'Scripts/Tests/fixtures/')
 # What `xcrun` adds to the environment of a tool it starts, and the system's `python3` is started by it. They name
