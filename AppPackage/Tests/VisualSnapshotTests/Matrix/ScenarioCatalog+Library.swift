@@ -123,15 +123,19 @@ extension ScenarioCatalog {
                 make: { try Page.detail(.loading) }, prepare: artwork, interact: BrowsingScenarios.freezeIndicators
             ),
             "gallery-detail-error": .init(make: { try Page.detail(.error) }, prepare: artwork),
-            // At accessibility5 the rating row is below the fold (run 43403534542): the page is scrolled to it. Rate
-            // Gallery is matched whole: in Chinese its label (评分, 評分) is part of the average rating's and of the
-            // rating count's, which are above it, and iPad zh-Hans and zh-Hant accessibility5 landscape stopped at
-            // those with the rating out of view (run 43451019962).
+            // The rating row is below the fold at accessibility5 (run 43403534542), and on an iPhone in landscape
+            // its stars were (run 44025665174): the page is scrolled until Rate Gallery and the stars under it are
+            // in view. Rate Gallery is matched whole: in Chinese its label (评分, 評分) is part of the average
+            // rating's and of the rating count's, which are above it, and iPad zh-Hans and zh-Hant accessibility5
+            // landscape stopped at those with the rating out of view (run 43451019962).
             "gallery-detail-rating": .init(
                 make: { try Page.detail(.rating) }, prepare: artwork,
-                interact: RevealStep.reveal(.wholeLabel(String(localized: .rateGallery)))
+                interact: { window in
+                    let below = Page.userRatingHeight(compatibleWith: window.traitCollection)
+                    try await RevealStep.reveal(.wholeLabel(String(localized: .rateGallery)), below: below)(window)
+                }
             ),
-            // At accessibility5 in iPhone landscape the download button and its progress are below the fold, and the
+            // Where the download button and its progress are below the fold (accessibility5 in iPhone landscape), the
             // pictures were the same as gallery-detail-loaded's (run 43451019962): the page is scrolled to it.
             "gallery-detail-downloading": .init(
                 make: { try Page.detail(.downloading) }, prepare: artwork,
@@ -156,6 +160,15 @@ enum LibraryScenarios {
 
     /// The Recent Searches section's Remove All, the first of the page's two.
     static var removeAllLabel: String { String(localized: .removeAll) }
+
+    /// The user's stars under Rate Gallery, which carry no accessibility element of their own to reveal: a line of
+    /// the 24-point symbols the detail page scales with Title 2 (`userRatingSymbolSize`) and the 10 points above it.
+    /// Measured at the run's text size, which `traits` carry, so it is read when the step runs, not when the catalog
+    /// is built.
+    static func userRatingHeight(compatibleWith traits: UITraitCollection) -> CGFloat {
+        let size = UIFontMetrics(forTextStyle: .title2).scaledValue(for: 24, compatibleWith: traits)
+        return UIFont.systemFont(ofSize: size).lineHeight + 10
+    }
 
     /// The first suggestion for ``LibraryFixtures/typedTag``, by its tag with its namespace, which is not translated
     /// and which no recent search contains. It is the only row on screen at accessibility5 in iPhone landscape.
@@ -249,8 +262,8 @@ enum LibraryScenarios {
     }
 
     /// Filters as the sheet it is over the Search root, loaded from the stored filters as the root presents it.
-    /// Confirming a reset is the tap on Reset Filters, whose row is below the fold at accessibility5: there it is
-    /// tapped once the row is shown (``RevealStep/tap(_:)``).
+    /// Confirming a reset is the tap on Reset Filters, whose row can be below the fold: it is tapped once the row is
+    /// shown (``RevealStep/tap(_:)``).
     static func filters(confirmingReset: Bool) -> AnyView {
         var root = SearchRootReducer.State()
         root.destination = .filters(FiltersReducer.State())

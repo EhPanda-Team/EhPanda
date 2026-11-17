@@ -3,17 +3,22 @@ import UIKit
 import VisualSnapshotSupport
 import XCTest
 
-/// Scrolls a scenario's page to the part that makes its state, at accessibility5 only.
+/// Scrolls a scenario's page to the part that makes its state, wherever that part is below the fold.
 ///
-/// At accessibility5 text several pages are taller than the screen, and a state's own part sat below the fold:
-/// the selected analytics level, the user rating under Rate Gallery, the low balances under the archives, and the
-/// row a confirmation dialog belongs to. The pictures of those states were the same as their base state's
-/// (candidate run 43403534542). A dialog is drawn from the row it belongs to, and a list builds no row below its
-/// fold, so a dialog whose row was not built was never shown at all.
+/// Several pages are taller than the window, and a state's own part sat below the fold: the selected analytics
+/// level, the user rating under Rate Gallery, the low balances under the archives, and the row a confirmation dialog
+/// belongs to. The pictures of those states were the same as their base state's (candidate run 43403534542). A
+/// dialog is drawn from the row it belongs to, and a list builds no row below its fold, so a dialog whose row was
+/// not built was never shown at all.
 ///
-/// At accessibility5 the page is scrolled as a user scrolls it, a page at a time, until the part is built, and is
-/// then brought to rest with the part at the top of the visible area. A dialog's tap is held back until its row is
-/// on screen (``tap(_:)``). Every other text size keeps its page and its pictures as they were.
+/// The step first moved pages at accessibility5 only, so the other sizes kept the pictures they had. The fold is
+/// not a matter of text size alone: on an iPhone in landscape, Clear Image Cache's and Remove Custom Translations'
+/// rows and their dialogs, and the stars under Rate Gallery, were below it at the default size too (candidate run
+/// 44025665174). With no approved baseline yet there were no pictures to keep, so the step acts at every size.
+///
+/// The page is scrolled as a user scrolls it, a page at a time, until the part is built, and is then brought to
+/// rest with the part at the top of the visible area. A dialog's tap is held back until its row is on screen
+/// (``tap(_:)``). A part already in view is left where it is, so a page that shows its part keeps its picture.
 @MainActor
 enum RevealStep {
     /// What to bring on screen: an element whose accessibility label contains the text, or is the text
@@ -49,22 +54,18 @@ enum RevealStep {
         }
     }
 
-    /// Whether this process renders accessibility5 text, the one size whose pages this step moves.
+    /// Whether this process renders accessibility5 text, the one size whose sheets ``showLargeTitle(then:)`` fixes.
     static var isLargestText: Bool {
         UIApplication.shared.preferredContentSizeCategory == SnapshotConfiguration.contentSizes["accessibility5"]
     }
 
-    /// The tap a factory holds back for ``reveal(_:)``, at accessibility5 only.
+    /// The tap a factory holds back for ``reveal(_:)``.
     private static var pendingTap: (@MainActor () -> Void)?
 
-    /// Performs `action`, the user's tap that presents a dialog, now; at accessibility5 it is kept and performed
-    /// by the scenario's ``reveal(_:)`` once the row it is drawn from is on screen.
+    /// Keeps `action`, the user's tap that presents a dialog, for the scenario's ``reveal(_:)``, which performs it
+    /// once the row the dialog is drawn from is on screen.
     static func tap(_ action: @escaping @MainActor () -> Void) {
-        if isLargestText {
-            pendingTap = action
-        } else {
-            action()
-        }
+        pendingTap = action
     }
 
     /// Drops a tap ``tap(_:)`` held that no ``reveal(_:)`` performed (SnapshotMatrixCase, before and after each case).
@@ -271,27 +272,26 @@ enum RevealStep {
         (layer.sublayers ?? []).flatMap({ [$0] + sublayers(of: $0) })
     }
 
-    /// The user step of a scenario whose state is `target`: at accessibility5 the page is scrolled to it and a
-    /// tap held back by ``tap(_:)`` is performed. At other sizes it does nothing, unless `atEverySize`: a scenario
-    /// new to the matrix, with no pictures to keep, has its target brought on screen at any size it is below the fold.
-    /// With `settlingSteps`, the page is looked through again after each step once it has stopped changing, rather
-    /// than 100 ms later (``bringIntoView(_:in:settlingSteps:)``). With `holdingPlacement`, a placed part is placed
-    /// again once the page has stopped changing, until it stays where it was placed (``holdPlacement(_:in:)``). With
-    /// `measuringPage`, a page whose part is not in view is first stepped through to its end and back, so it has
-    /// built every row (``measurePage(in:)``).
+    /// The user step of a scenario whose state is `target`: the page is scrolled to it where it is below the fold,
+    /// and a tap held back by ``tap(_:)`` is performed. With `settlingSteps`, the page is looked through again after
+    /// each step once it has stopped changing, rather than 100 ms later (``bringIntoView(_:below:in:settlingSteps:)``).
+    /// With `holdingPlacement`, a placed part is placed again once the page has stopped changing, until it stays where
+    /// it was placed (``holdPlacement(_:in:)``). With `measuringPage`, a page whose part is not in view is first
+    /// stepped through to its end and back, so it has built every row (``measurePage(in:)``). With `below`, the
+    /// part counts as in view only with that much of the page under it: a state drawn just below the element that
+    /// names it, as the stars under Rate Gallery are.
     nonisolated static func reveal(
-        _ target: Target, atEverySize: Bool = false, settlingSteps: Bool = false, holdingPlacement: Bool = false,
+        _ target: Target, below: CGFloat = 0, settlingSteps: Bool = false, holdingPlacement: Bool = false,
         measuringPage: Bool = false
     ) -> ScenarioFactory.Interact {
         { window in
             let tap = pendingTap
             pendingTap = nil
-            guard atEverySize || isLargestText else { return }
             _ = await HostedWindowCapture.settle(window)
             if measuringPage, !isInView(target, in: window) {
                 await measurePage(in: window)
             }
-            try await bringIntoView(target, in: window, settlingSteps: settlingSteps)
+            try await bringIntoView(target, below: below, in: window, settlingSteps: settlingSteps)
             if holdingPlacement {
                 try await holdPlacement(target, in: window)
             }
@@ -336,8 +336,8 @@ enum RevealStep {
     /// until it is still there, then leaves it.
     ///
     /// A form sizes its rows as it builds them: the rows above a part placed at the top can still grow after the
-    /// placement and push it down, and ``bringIntoView(_:in:settlingSteps:)`` leaves a part that is in view where it
-    /// is. How far it was pushed depended on how many rows were built in time
+    /// placement and push it down, and ``bringIntoView(_:below:in:settlingSteps:)`` leaves a part that is in view
+    /// where it is. How far it was pushed depended on how many rows were built in time
     /// (`settings-pages-general-cache-confirmation` on iPhone zh-Hans accessibility5 portrait light: three placements
     /// in run 43451019962 and the runs before it; locally the form reported 1642.3 and 1676.7 points of content in two
     /// launches, and the row sat at two heights). Placed again on a page at rest, the part ends at the top, or as
@@ -360,7 +360,9 @@ enum RevealStep {
     /// The most waits at the bottom the list reported, for rows it builds as it scrolls to grow its content.
     private static let maximumStalls = 10
 
-    private static func bringIntoView(_ target: Target, in window: UIWindow, settlingSteps: Bool) async throws {
+    private static func bringIntoView(
+        _ target: Target, below: CGFloat, in window: UIWindow, settlingSteps: Bool
+    ) async throws {
         var steps = 0
         var stalls = 0
         var placements = 0
@@ -368,7 +370,8 @@ enum RevealStep {
             if let (element, view) = element(target, in: window, view: window) {
                 // A page that fits its screen does not scroll: the part is on screen as it is.
                 guard let list = scrollView(holding: view, in: window) else { return }
-                let frame = list.convert(element.accessibilityFrame, from: window.screen.coordinateSpace)
+                var frame = list.convert(element.accessibilityFrame, from: window.screen.coordinateSpace)
+                frame.size.height += below
                 let visible = visibleArea(of: list)
                 // Placed again while the page lays itself out under the new offset; a part taller than the visible
                 // area stays where its top is placed. Once the page has been stepped through, the part is placed at
