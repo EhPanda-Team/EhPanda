@@ -7,11 +7,12 @@ import UIKit
 /// Content shown with `revealed(_:)` takes touches from the moment it is revealed.
 ///
 /// A screen used to fade its content in through the content's own opacity. For a scroll view that opacity is the
-/// UIKit view's `alpha`, which SwiftUI animates away from the main thread: until the animation ends, the value UIKit
-/// reads is the one the animation began with. Fading in, that is 0, and UIKit's hit test passes over a view whose
-/// alpha is under 0.01. On Home the galleries looked opaque half a second after they landed and took no touch for
-/// 1.1 to 2.2 seconds: a tap on a section's **Show All** went to the view behind the content and did nothing
-/// (`GalleryCardUITests`, 2026-11-16, 7 of 8 first taps in a probe).
+/// UIKit view's `alpha`, and UIKit's hit test passes over a view whose alpha is under 0.01. In the app, while a UI
+/// test drove it, SwiftUI ran the fade away from the main thread and left the value UIKit reads at the 0 the fade
+/// began with until the fade ended. On Home the galleries looked opaque half a second after they landed and took no
+/// touch for 1.1 to 2.2 seconds: a tap on a section's **Show All** went to the view behind the content and did
+/// nothing (`GalleryCardUITests`, 2026-11-16, 7 of 8 first taps in a probe). Launched without a test runner, a fade
+/// of this kind left a view untouchable for a tenth of a second at most (the toast, 2026-11-17).
 @MainActor
 struct RevealedContentTouchTests {
     @Test
@@ -22,11 +23,13 @@ struct RevealedContentTouchTests {
         #expect(hits.revealed)
     }
 
-    /// The premise of the test above: content that fades in through its own opacity is not hit while it fades.
+    /// The contrast with the test above: content that fades in through its own opacity is not hit while its alpha
+    /// is still under UIKit's threshold.
     ///
-    /// The fade here lasts an hour, so that it is still running when the test looks, however slowly the host turns
-    /// its run loop. A screen's own fade (`.default`, a spring) ends about a second after it begins, and a test that
-    /// looked inside that second would fail on a host that turned too slowly.
+    /// This host does not reproduce the stuck value seen in the app: here SwiftUI updates the UIKit `alpha` frame by
+    /// frame as the fade runs (2026-11-17). So the case cannot show the alpha held at 0; it shows only that content
+    /// fading in is not hit while it is still nearly transparent, which the cover avoids. The fade lasts an hour, so
+    /// a tenth of a second into it the alpha is far under 0.01, however slowly the host turns its run loop.
     @Test
     func contentThatFadesInIsNotHitWhileItFades() throws {
         let reveal = Reveal()
