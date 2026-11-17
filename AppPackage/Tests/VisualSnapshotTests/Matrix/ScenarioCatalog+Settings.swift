@@ -33,7 +33,7 @@ extension ScenarioCatalog {
             // stepped through first: launches had built different rows below them and drew the page differently.
             "settings-account-invalid-cookies": .init(
                 cookies: Page.withheldCookies, make: { Page.account(confirmingLogout: false) },
-                interact: RevealStep.reveal(.label(Defaults.Cookie.ipbMemberId), atEverySize: true, measuringPage: true)
+                interact: RevealStep.reveal(.label(Defaults.Cookie.ipbMemberId), measuringPage: true)
             ),
             "settings-account-signed-out": .init(signedIn: false, make: { Page.account(confirmingLogout: false) }),
             "settings-account-logout-confirmation": .init(
@@ -111,7 +111,7 @@ enum SettingsScenarios {
     /// The Settings tab: its root, with `pages` pushed on its stack as the root's rows and the pages' own links push
     /// them. Each `actions` entry is sent to the page at its index once the stack is built, as the page's own
     /// presentation or a user's tap on it would send it. `tap`, the user's tap that presents a dialog, is sent last,
-    /// and at accessibility5 once its row is on screen (``RevealStep/tap(_:)``).
+    /// once its row is on screen (``RevealStep/tap(_:)``).
     static func settings(
         _ pages: [SettingPath.State], actions: [(Int, SettingPath.Action)] = [],
         tap: (page: Int, action: SettingPath.Action)? = nil

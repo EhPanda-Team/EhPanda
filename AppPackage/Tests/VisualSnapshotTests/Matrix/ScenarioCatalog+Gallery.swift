@@ -75,8 +75,8 @@ extension ScenarioCatalog {
             "detail-pages-archives": .init(
                 make: { try Page.archives(lowFunds: false) }, prepare: artwork, interact: RevealStep.showLargeTitle()
             ),
-            // At accessibility5 the balances are below the fold (run 43403534542): the sheet is scrolled to them, once
-            // its large title is drawn.
+            // Where the balances are below the fold (accessibility5, run 43403534542), the sheet is scrolled to them,
+            // once its large title is drawn.
             "detail-pages-archives-insufficient-funds": .init(
                 make: { try Page.archives(lowFunds: true) }, prepare: artwork,
                 interact: RevealStep.showLargeTitle(then: RevealStep.reveal(.label(Page.lowGalleryPointsLabel)))
