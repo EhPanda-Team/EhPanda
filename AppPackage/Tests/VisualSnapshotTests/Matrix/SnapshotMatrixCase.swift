@@ -2,6 +2,7 @@ import AppFeature
 import ComposableArchitecture
 import CookieClient
 import CryptoKit
+import DeviceClient
 import Foundation
 import SwiftUI
 import UIKit
@@ -169,6 +170,9 @@ class SnapshotMatrixCase: XCTestCase {
         let outcome = await withDependencies {
             $0.context = .preview
             $0.cookieClient = factory.cookies ?? (factory.signedIn ? .previewLoggedIn : .noop)
+            // The device the picture is taken on: the preview client reports a phone, and the error information
+            // sheet's Device row read "iPhone" in every iPad picture (candidate run 44025665174).
+            $0.deviceClient = .live
             $0.date.now = PublicVisualFixtures.fixedDate
             $0.uuid = .incrementing
             $0.defaultAppStorage = appStorage
