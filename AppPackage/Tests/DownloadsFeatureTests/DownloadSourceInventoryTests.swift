@@ -163,8 +163,8 @@ struct DownloadSourceInventoryTests {
     ///
     /// This is the inventory `lastPushedCompletedPageCount`'s own doc carries, and that doc used to
     /// close by asking the reader to re-run the grep it was derived from. It now names this table
-    /// instead. The four in `+ContinuedSession.swift` are the session-start reset, the seed merge
-    /// after the client start returns, the teardown zero and the per-push re-latch; the one in
+    /// instead. The four in `+ContinuedSession.swift` are the session-start reset, the seed from the
+    /// opening snapshot before the client start's hop, the teardown zero and the per-push re-latch; the one in
     /// `+ExecutionSupport.swift` is D-G7-01's withdrawal, whose single implementation serves ALL of
     /// its call sites — which is why one rule counts once here.
     ///

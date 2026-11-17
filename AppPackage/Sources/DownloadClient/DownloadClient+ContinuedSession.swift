@@ -379,6 +379,9 @@ extension DownloadCoordinator {
     ///   until the next qualifying tap under D-07; deferred reconciliation never starts a session.
     /// - REACHABLE BY DESIGN: if the queue empties and refills during start, deferred
     ///   reconciliation re-reads the queue and keeps the surviving session covering the new work.
+    /// - REACHABLE BY DESIGN: a writer landing inside the client hop (a push's reconcile, a D-G7-01
+    ///   withdrawal, a run-exit freeze, a user deletion's withdrawal) acts on the already-seeded state,
+    ///   because the seed precedes the hop.
     ///
     /// Nothing here gates download work. The queue is already running by the time this is called,
     /// and a submission can silently never start, so the session is background insurance rather
@@ -400,6 +403,29 @@ extension DownloadCoordinator {
         observedIncompleteSessionGenerations = [:]
 
         let snapshot = await schedulableSnapshot()
+        // The seed belongs to this synchronous stretch, before the client start's main-actor hop, so every
+        // writer that can land inside that hop (a push's reconcile, a D-G7-01 withdrawal, a run-exit freeze,
+        // a user deletion's withdrawal) acts on seeded state exactly as at any later moment. Seeded after the
+        // hop, each such writer needed its own compensation: the keep-observed merge, the max-generation merge
+        // and the additive floor merge. A refused start tears everything down below, and a superseded start
+        // finds the seed already cleared by whatever superseded it (the teardown, or a successor's own
+        // synchronous reset), so a superseded start still leaves nothing behind. The merge and additive forms
+        // stay: they are exact when nothing interleaves, and they keep the seed correct if a suspension is ever
+        // introduced into the snapshot read above (see the note on this function's first guard).
+        lastPushedCompletedPageCount = max(
+            snapshot.sessionProgress.progress.displayCompletedPageCount + lastPushedCompletedPageCount,
+            0
+        )
+        observedSchedulablePages.merge(
+            snapshot.finishedPages,
+            uniquingKeysWith: { observed, _ in observed }
+        )
+        // The greater generation wins, because a queue intent advancing inside this session is a real user
+        // action that the older snapshot stamp must not outrank (CR-02).
+        observedIncompleteSessionGenerations.merge(
+            snapshot.incompleteGalleryGenerations,
+            uniquingKeysWith: { observed, snapshotted in max(observed, snapshotted) }
+        )
         // Through the same shared helper the push uses, so no subtitle writer owns a private count
         // basis (D-G2C-01). `retiredSessionPages` was emptied a few lines above, so the coverage is
         // the live count here and this opening string is byte-identical to what it always was — the
@@ -435,49 +461,6 @@ extension DownloadCoordinator {
         publishContinuedSessionLiveness(true)
         logContinuedSessionEnvironment(moment: "start")
         startContinuedSessionHeartbeat(sessionID: sessionID)
-        // Merged rather than assigned, for the reason the two collections below give, reaching the
-        // scalar through a different writer. A D-G7-01 withdrawal landing inside the client start's
-        // main-actor hop is a real correction made by THIS session's own scheduled run, and it
-        // outranks the pre-hop snapshot, which still counted the pages that correction just blanked.
-        // The withdrawal is the scalar's ONLY writer inside that window — a start-window push
-        // returns at the nil-client guard before it reaches its floor update — so the value here is
-        // zero minus any hop-window corrections, and adding it folds them in instead of discarding
-        // them. The clamp at zero is what keeps a correction for work the snapshot never counted
-        // from over-withdrawing: it may only under-seed, which is the safe direction, because a
-        // floor seeded low re-latches at the very next push while a floor seeded high is the defect.
-        lastPushedCompletedPageCount = max(
-            snapshot.sessionProgress.progress.displayCompletedPageCount + lastPushedCompletedPageCount,
-            0
-        )
-        // Merged rather than assigned, because a push landing inside the client start's main-actor
-        // hop is a real observation by THIS session and outranks the pre-hop snapshot. That push's
-        // reconcile deliberately runs ahead of the nil-client guard, so it records membership and
-        // observations while there is still no card to paint; assigning the pre-hop snapshot over
-        // it discarded exactly that. On the canonical `retryPages` route the run is scheduled
-        // before this trailing ensure, so the run-start announcement (D-G5-01) can land precisely
-        // here.
-        //
-        // The seeding's position still carries the superseded-start rule, and merging cannot weaken
-        // it: "a superseded start seeds nothing" is enforced by the ownership guard above, which a
-        // superseded start never passes.
-        //
-        // Both collections were emptied by this session's own synchronous reset, so anything in
-        // them by now is this session's own identity-gated observation from inside the hop. A run
-        // in flight across the boundary needs neither: its credited count reaches every push
-        // through its basis, which no session boundary touches (G-15-26).
-        observedSchedulablePages.merge(
-            snapshot.finishedPages,
-            uniquingKeysWith: { observed, _ in observed }
-        )
-        // The GREATER generation wins, which is the same "an in-hop observation outranks the
-        // pre-hop snapshot" rule the merge above states, expressed over a value that orders. A
-        // queue intent advancing inside the client start's main-actor hop is a real user action
-        // this session must answer to, and taking the snapshot's older stamp would resurrect the
-        // predecessor observation the advance had just invalidated (CR-02).
-        observedIncompleteSessionGenerations.merge(
-            snapshot.incompleteGalleryGenerations,
-            uniquingKeysWith: { observed, snapshotted in max(observed, snapshotted) }
-        )
         continuedSessionTask = Task { [weak self] in
             for await event in clientSession.events {
                 await self?.handleContinuedSessionEvent(event, sessionID: sessionID)
