@@ -1,7 +1,9 @@
 import AppComponents
 @testable import AppFeature
 import AppModels
+import AppTools
 import ComposableArchitecture
+import CookieClient
 import Foundation
 @testable import HomeFeature
 import OSLog
@@ -24,9 +26,20 @@ extension ScenarioCatalog {
         typealias Page = SettingsScenarios
         return [
             "settings-root": .init(make: { Page.settings([]) }),
-            "settings-account-signed-in": .init(make: { Page.account(confirmingLogout: false) }),
+            "settings-account-signed-in": .init(
+                cookies: Page.memberCookies, make: { Page.account(confirmingLogout: false) }
+            ),
+            // The cookies are the state: where they are below the fold, the page is scrolled to them. The page is
+            // stepped through first: launches had built different rows below them and drew the page differently.
+            "settings-account-invalid-cookies": .init(
+                cookies: Page.withheldCookies, make: { Page.account(confirmingLogout: false) },
+                interact: RevealStep.reveal(.label(Defaults.Cookie.ipbMemberId), atEverySize: true, measuringPage: true)
+            ),
             "settings-account-signed-out": .init(signedIn: false, make: { Page.account(confirmingLogout: false) }),
-            "settings-account-logout-confirmation": .init(make: { Page.account(confirmingLogout: true) }),
+            "settings-account-logout-confirmation": .init(
+                cookies: Page.memberCookies, make: { Page.account(confirmingLogout: true) },
+                interact: RevealStep.awaitDialogPlatter()
+            ),
             "blocked-users-filled": .init(make: { Page.blockedUsers(filled: true) }),
             "blocked-users-empty": .init(make: { Page.blockedUsers(filled: false) }),
             "settings-login-empty": .init(signedIn: false, make: { Page.login(.empty) }),
@@ -45,11 +58,15 @@ extension ScenarioCatalog {
             ),
             "settings-pages-general-basic": .init(make: { Page.general(level: .basic) }, interact: Page.scrollToBottom),
             "settings-pages-general-full": .init(make: { Page.general(level: .full) }, interact: Page.scrollToBottom),
+            // At accessibility5 the rows above Clear Image Cache could still grow after it was placed, and the row
+            // sat at three heights (run 43451019962): it is placed again until it stays.
             "settings-pages-general-cache-confirmation": .init(
-                make: { Page.general(level: nil, action: .clearImageCacheButtonTapped) }
+                make: { Page.general(level: nil, action: .clearImageCacheButtonTapped) },
+                interact: RevealStep.reveal(.label(String(localized: .clearImageCache)), holdingPlacement: true)
             ),
             "settings-pages-general-translations-confirmation": .init(
-                make: { Page.general(level: nil, action: .removeCustomTranslationsButtonTapped) }
+                make: { Page.general(level: nil, action: .removeCustomTranslationsButtonTapped) },
+                interact: RevealStep.reveal(.label(String(localized: .removeCustomTranslations)), settlingSteps: true)
             ),
             "settings-pages-activity-logs": .init(make: { Page.activityLogs(filled: true) }),
             "settings-pages-activity-logs-empty": .init(make: { Page.activityLogs(filled: false) }),
@@ -65,7 +82,10 @@ extension ScenarioCatalog {
             ),
             "settings-pages-about": .init(make: { Page.settings([.about(.init())]) }),
             "settings-pages-site-settings": .init(make: { Page.siteSettings(.loaded) }),
-            "settings-pages-site-settings-confirmation": .init(make: { Page.siteSettings(.deleteConfirmation) }),
+            "settings-pages-site-settings-confirmation": .init(
+                make: { Page.siteSettings(.deleteConfirmation) },
+                interact: RevealStep.reveal(.label(String(localized: .deleteProfile)))
+            ),
             "settings-pages-site-settings-error": .init(make: { Page.siteSettings(.failed) })
         ]
     }
@@ -90,8 +110,12 @@ enum SettingsScenarios {
 
     /// The Settings tab: its root, with `pages` pushed on its stack as the root's rows and the pages' own links push
     /// them. Each `actions` entry is sent to the page at its index once the stack is built, as the page's own
-    /// presentation or a user's tap on it would send it.
-    static func settings(_ pages: [SettingPath.State], actions: [(Int, SettingPath.Action)] = []) -> AnyView {
+    /// presentation or a user's tap on it would send it. `tap`, the user's tap that presents a dialog, is sent last,
+    /// and at accessibility5 once its row is on screen (``RevealStep/tap(_:)``).
+    static func settings(
+        _ pages: [SettingPath.State], actions: [(Int, SettingPath.Action)] = [],
+        tap: (page: Int, action: SettingPath.Action)? = nil
+    ) -> AnyView {
         var state = SettingReducer.State()
         state.path = StackState(pages)
         let store = Store(initialState: state, reducer: SettingReducer.init)
@@ -100,7 +124,27 @@ enum SettingsScenarios {
             guard let id = ids.dropFirst(index).first else { continue }
             store.send(.path(.element(id: id, action: action)))
         }
+        if let tap, let id = ids.dropFirst(tap.page).first {
+            RevealStep.tap { store.send(.path(.element(id: id, action: tap.action))) }
+        }
         return AnyView(SettingView(store: store))
+    }
+
+    /// A signed-in member's jar, as Account shows it to a real member: the synthetic member ID, pass hash and
+    /// igneous, each read as a valid cookie.
+    nonisolated static var memberCookies: CookieClient {
+        .testing(
+            memberID: SettingsFixtures.cookieMemberID, passHash: SettingsFixtures.cookiePassHash,
+            igneous: SettingsFixtures.cookieIgneous
+        )
+    }
+
+    /// A jar the site no longer honours: each cookie holds the placeholder it sets in place of one it withholds, so
+    /// Account shows every cookie marked invalid while the app still counts the member as signed in.
+    nonisolated static var withheldCookies: CookieClient {
+        .testing(
+            memberID: Defaults.Cookie.mystery, passHash: Defaults.Cookie.mystery, igneous: Defaults.Cookie.mystery
+        )
     }
 
     /// Account, loaded as the Settings stack loads it when the row is tapped; signed in or out follows the
@@ -153,7 +197,8 @@ enum SettingsScenarios {
 
     // MARK: Settings pages
 
-    /// General, with the analytics level chosen (or none). `action`, if any, is the user's tap on the page. The
+    /// General, with the analytics level chosen (or none). `action`, if any, is the user's tap on the page that
+    /// presents a dialog; at accessibility5 its row is below the fold, so it is tapped once the row is shown. The
     /// cache size is the one the preview library client reports; removing translations needs a custom table, which
     /// the synthetic translations stand in for.
     static func general(level: AnalyticsLevel?, action: GeneralSettingReducer.Action? = nil) -> AnyView {
@@ -166,23 +211,34 @@ enum SettingsScenarios {
                 $0 = TagTranslator(hasCustomTranslations: true, translations: LibraryScenarios.translator.translations)
             }
         }
-        var actions: [(Int, SettingPath.Action)] = [(0, .general(.calculateWebImageDiskCache))]
-        if let action {
-            actions.append((0, .general(action)))
-        }
-        return settings([.general(.init())], actions: actions)
+        return settings(
+            [.general(.init())], actions: [(0, .general(.calculateWebImageDiskCache))],
+            tap: action.map({ (page: 0, action: .general($0)) })
+        )
     }
 
     /// Brings the page's form to rest at its bottom, where General's analytics section and its footer are.
+    ///
+    /// The form sizes its rows as they are built, so its content grows as it scrolls. At accessibility5 one move to
+    /// the bottom it reported first stopped short, above the analytics section, and the three levels' pictures were
+    /// the same (run 43403534542); there the move is repeated until the bottom stays put. Other sizes reach it in one.
     static func scrollToBottom(_ window: UIWindow) async throws {
         _ = await HostedWindowCapture.settle(window)
         let root = try XCTUnwrap(window.rootViewController?.view)
-        for list in scrollViews(in: root) {
-            let bottom = list.contentSize.height - list.bounds.height + list.adjustedContentInset.bottom
-            guard bottom > list.contentOffset.y else { continue }
-            list.setContentOffset(CGPoint(x: list.contentOffset.x, y: bottom), animated: false)
+        for move in 0..<(RevealStep.isLargestText ? 20 : 1) {
+            if move > 0 {
+                try await ContinuousClock().sleep(for: .milliseconds(100))
+            }
+            var moved = false
+            for list in scrollViews(in: root) {
+                let bottom = list.contentSize.height - list.bounds.height + list.adjustedContentInset.bottom
+                guard bottom > list.contentOffset.y else { continue }
+                list.setContentOffset(CGPoint(x: list.contentOffset.x, y: bottom), animated: false)
+                moved = true
+            }
+            root.layoutIfNeeded()
+            guard moved else { return }
         }
-        root.layoutIfNeeded()
     }
 
     /// Laboratory's cell is interactive glass. On the phone in landscape its shadow can still step after the window
@@ -248,7 +304,7 @@ enum SettingsScenarios {
         let root = try XCTUnwrap(window.rootViewController?.view)
         try await BrowsingScenarios.activate(String(localized: .appActivityLogsViewRuns), in: window)
         let clock = ContinuousClock()
-        let deadline = clock.now.advanced(by: .seconds(3))
+        let budget = StepBudget(.seconds(3))
         var holdUntil: ContinuousClock.Instant?
         while true {
             let menuLists = scrollViews(in: window).filter({ !$0.isDescendant(of: root) })
@@ -259,7 +315,7 @@ enum SettingsScenarios {
             if let holdUntil, clock.now >= holdUntil {
                 return
             }
-            guard holdUntil != nil || clock.now < deadline else {
+            guard holdUntil != nil || !budget.isSpent else {
                 throw AccessibilityActionDriver.Failure.notFound("menu")
             }
             try await clock.sleep(for: .milliseconds(100))
@@ -286,9 +342,10 @@ enum SettingsScenarios {
             ehSetting.favoriteCategories = SettingsFixtures.favoriteCategories
             site.setEhSetting(ehSetting)
         }
-        let actions: [(Int, SettingPath.Action)] = kind == .deleteConfirmation
-            ? [(1, .ehSetting(.deleteProfileButtonTapped))] : []
-        return settings([.account(.init()), .ehSetting(site)], actions: actions)
+        return settings(
+            [.account(.init()), .ehSetting(site)],
+            tap: kind == .deleteConfirmation ? (page: 1, action: .ehSetting(.deleteProfileButtonTapped)) : nil
+        )
     }
 
     // MARK: App-wide
@@ -311,22 +368,71 @@ enum SettingsScenarios {
 
     /// Lets the alert's page field take focus and the alert finish moving, then holds the field's caret still. The
     /// alert is presented over the hosted root, outside the root view, so the presented view's layers are held.
+    ///
+    /// The alert moves up for the keyboard, and on the hosted runner the keyboard did not always come within the
+    /// fixed 1.5 s: run 43451019962 held the alert in other places than the run before it. The 1.5 s stays as the
+    /// shortest wait, and the step then waits as Post Comment's does
+    /// (``GalleryScenarios/holdStillOverKeyboard(_:)``) for the keyboard and two rests in a row; the caret is drawn
+    /// solid.
+    ///
+    /// A step that fails says why, with how long it waited (``BrowsingScenarios/StepFailure``):
+    /// `no-keyboard:<state>` (``GalleryScenarios/keyboardState(over:focused:since:)``) followed by `alert=opening`
+    /// while the alert has not finished presenting, or `not-found:alert-field` when the field never took the focus.
+    ///
+    /// The wait is counted in time the main run loop turned (``StepBudget``): in run 43621303643 an attempt looked
+    /// once in 172 s (`never-announced waited=171.9s polls=1`).
+    ///
+    /// The scenario's state is the field focused, and the step only waits for the keyboard once the field has taken
+    /// the focus; a field that gives it up again is focused again, as the user's field holds it (the search steps do
+    /// the same, ``BrowsingScenarios/focusSearchField(_:)``). In run 43621303643 two attempts ended `field-unfocused`
+    /// while looking at their normal pace, and the field never came back. A field that keeps its focus, as it does
+    /// in every local run, is never touched. A failure says how often it was focused again (`refocused=<n>`) and
+    /// what the fields did meanwhile (``KeyboardWatch/editing(since:in:)``).
     static func holdAlertCaret(_ window: UIWindow) async throws {
         let clock = ContinuousClock()
-        let deadline = clock.now.advanced(by: .seconds(5))
+        var budget = StepBudget(GalleryScenarios.keyboardDeadline)
+        let mark = KeyboardWatch.mark
         var presented = window.rootViewController
         while true {
             while let next = presented?.presentedViewController {
                 presented = next
             }
-            if let view = presented?.view, view !== window.rootViewController?.view,
-               textFields(in: view).contains(where: \.isFirstResponder) {
+            if let alert = presented, let view = alert.view, view !== window.rootViewController?.view,
+               let field = textFields(in: view).first(where: \.isFirstResponder) {
                 try await clock.sleep(for: .milliseconds(1500))
+                var held = 0
+                var refocused = 0
+                while held < 2 {
+                    guard !budget.isSpent else {
+                        let state = GalleryScenarios.keyboardState(
+                            over: window, focused: field.isFirstResponder, since: mark.announcements
+                        )
+                        let opening = alert.isBeingPresented || alert.transitionCoordinator != nil
+                        throw budget.failure(
+                            "no-keyboard:\(state)" + (opening ? " alert=opening" : "") + " refocused=\(refocused)"
+                                + KeyboardWatch.editing(since: mark, in: window)
+                        )
+                    }
+                    budget.look()
+                    if !field.isFirstResponder, field.window != nil {
+                        refocused += 1
+                        _ = field.becomeFirstResponder()
+                    }
+                    held = field.isFirstResponder && GalleryScenarios.keyboardIsUp(over: window) ? held + 1 : 0
+                    try await clock.sleep(for: .milliseconds(300))
+                    try await BrowsingScenarios.waitForRest(window)
+                    // Given up during the last rest: not held after all.
+                    if !field.isFirstResponder {
+                        held = 0
+                    }
+                }
+                BrowsingScenarios.stopCaretBlink(in: window)
                 view.layer.speed = 0
                 view.layer.timeOffset = 0
                 return
             }
-            guard clock.now < deadline else { throw AccessibilityActionDriver.Failure.notFound("alert field") }
+            guard !budget.isSpent else { throw budget.failure("not-found:alert-field") }
+            budget.look()
             try await clock.sleep(for: .milliseconds(100))
         }
     }

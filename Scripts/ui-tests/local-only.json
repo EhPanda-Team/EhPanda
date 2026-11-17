@@ -1,0 +1,8 @@
+{
+  "tests": {
+    "DuoHomeUITests": "iPhone Duo, open: a posed simulator and a serial run (Scripts/run-duo-ui-tests.py).",
+    "DuoReadingPanelUITests": "iPhone Duo, open: a posed simulator and a serial run (Scripts/run-duo-ui-tests.py).",
+    "DuoToolbarUITests": "iPhone Duo, closed: a posed simulator and EHPANDA_DUO_COMPACT_UI_TESTS=1.",
+    "LandscapePaneUITests/testHomeAndNestedSheetsUseOppositeHalves()": "iPhone Duo, open: its two halves."
+  }
+}

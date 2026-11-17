@@ -145,6 +145,223 @@ Phase 17 was: the executed work is verified and the rest is recorded as deferred
 - **Deferred Items** (below): the green gate run (before release day), 19-12, 19-13, 19-17's hosted regression, and the
   four accepted-deferred threats. The release workflows no longer require a green `aggregate` check: the gate is off
   for 3.0 (owner decision) and stays deferred work.
+- **Gate on one simulator per shard, 2026-11-15** (the owner's decision; `fix/snapshot-precheck`; 19-CONTEXT D-15,
+  amended): each shard captures on its one prepared simulator, without parallel-testing clones. Ten shards on two
+  clones (run 43670819839) had two cancelled jobs and three tests cut at their time allowance; the same ten on one
+  simulator each passed at the first attempt in 216 runner minutes instead of 379 (run 43681082788).
+  `snapshot-cost.json` and `snapshot-shards.json` are re-measured for one simulator: 72 shards of one process, about
+  24 estimated minutes on iPhone and 26 on iPad; the iPad shard IDs swapped halves. The green gate run and the
+  baseline stay deferred.
+- **Front Page search in two positions, 2026-11-15** (found and fixed on `fix/snapshot-precheck`, with the owner's
+  go-ahead for each): `front-page-search` was captured with its one result 35 points higher in 16 of 162 hosted
+  pictures, on one simulator as on two. `GalleryList` kept its error view on the page at opacity 0. That view is a
+  `ContentUnavailableView`, which becomes a scroll view when it gets less height than it needs, so wherever the
+  keyboard left that little room (iPhone landscape, the largest text sizes) a second, invisible scroll view lay
+  over the list, and a list whose search field became active while it was there missed the 35 points of top spacing
+  the system gives it. The keyboard and the search bar race, so the result varied from launch to launch; the
+  earlier settle-first step (`71c65e6fb`) was not the cure. The error view is now on the page only while the list
+  has failed, with the same fade (`GalleryListErrorViewTests`). Checked locally on iOS 27.0: the forced
+  keyboard-first order gives the usual position, and 288 pictures of the seven gallery-list classes are the same
+  before and after. Not yet shown on the hosted gate. The same opacity-hidden `ErrorView` is still in
+  `EhSettingView`, `HomeNavigationView`, `DetailView`, `TorrentsView` and `ArchivesView`; none has a search field
+  over a list, and they were not changed.
+- **Warnings and the lint gate, 2026-11-15** (on `fix/snapshot-precheck`, at the owner's word): a clean build of
+  every target and a direct SwiftLint run found 36 findings, none an error: 28 from the compiler and 8 lint
+  violations, 31 of them already on `develop`. All are fixed: a clean build of every plan and SwiftLint over every
+  module now report nothing. In the UI tests the set-up overrides no longer write main-actor state (XCTest
+  declares them outside the main actor), and the slider preview's watcher is a main-actor task in place of a
+  second thread: XCTest turns the main run loop during a hold, and the thumb's case fails if it stops doing so.
+  `DeepLinkSchemeUITests` turns the device at the start of each case. An asynchronous set-up would take the
+  class's isolation, but with it overridden a failing case ends the runner process and its retries never run
+  (the same two cases, four iterations each: eight ran under the synchronous set-up, three under the other).
+  Three of the warnings were the `UIWindow(frame:)` deprecation. A package test target runs without the app, so
+  it has no window scene to give `UIWindow(windowScene:)`. The nine tests that lay a view out in a window moved
+  to `HostedViewTests`, an app-hosted target in the `FeatureTests` plan, and the `no_sceneless_window` lint rule
+  bans the two scene-less initializers. `GalleryListErrorViewTests` moved with them and was proved again there:
+  on the old overlay it fails for the idle and the loading list, on the fix it passes.
+  `lint.yml` runs whenever `test.yml` does and fails on a compiler warning or error and on a SwiftLint violation
+  of any severity, in any target (`Scripts/lint/lint_check.py`). A warning located inside a third-party package
+  is listed and allowed (owner, 2026-11-15); one that this repository's code triggers fails, whichever library
+  defined it, and so does one that names no file. It runs SwiftLint itself as well as building,
+  because `xcodebuild` sometimes stops recording the plug-in's output early and a warning is lost from the log (a
+  clean build here lost one of the eight). It starts the build without the SDK variables `xcrun` adds for the
+  system's `python3`, which otherwise cost every test product of the package a linker warning. Run here as the
+  workflow runs it, and on a hosted runner: its first run (43710298132) passed in 13 minutes. The `Test` run of
+  the same push (43710298062) failed on one case, `RevealStepTests.testTheStepFailsWithoutADialog`, the timing
+  case that already failed there; the hosted window tests passed. Two of that run's bundles, `AppFeatureTests`
+  and `AppToolsTests`, never launched on the runner, so 211 tests did not run in it; the log's list of failing
+  tests does not show that, the result bundle does. The next run (43723509533) ran every bundle: 1963 passed,
+  the same case failed.
+- **UI tests that failed on a fresh simulator, 2026-11-15** (on `fix/snapshot-precheck`, at the owner's word): six
+  cases failed on a fresh iOS 27.0 iPhone Air simulator, with the test code as it was before that day's changes
+  too. The UI tests are in no hosted workflow, so nothing had reported them. Three behaviour changes of
+  2026-11-12 had left their tests behind; none is a defect in the app. Fixed in `7629606b4`, `429381a1f` and
+  `5c4b0056a`.
+  Three cases of `ReportFormUITests` ("Details never became hittable"): since `08d4927de` a picked reason no
+  longer opens the keyboard, and the helper typed the email first and then tapped Details, which lies under the
+  email's keyboard on a phone. The helper now picks the reason, fills in Details and types the email last.
+  `CommentModerationUITests.testTheUsersOwnCommentOffersNoModeration`: since `2626eb8d1` every comment's menu
+  leads with the two votes, so the user's own comment has its `…` button. The case now opens the menu and checks
+  that it offers neither Report nor Block.
+  The two page-link cases of `DeepLinkSchemeUITests`, and with them every case that reads the page through
+  `ReaderPageProbe`: the probe reads the number of a page's failure placeholder, and since `ba0fbfceb` the stub
+  served the reader's pages, so a page loaded and showed no placeholder. A first launch could still pass, when it
+  read before the image arrived. The stub now answers the multi-page viewer only in a launch that sets
+  `EHPANDA_UITEST_READER_PAGES=1`, which no test sets today; the numbered page image is still always served, for
+  the detail previews. This changes a default the owner's commit set, on an agent's judgment: it restores what
+  eight test classes are written against and keeps the capability behind the key.
+  Run on that simulator: the three classes, 25 passed on the first attempt and the one iPad-only case skipped;
+  the page-link cases 8 of 8 iterations in one runner (1 of 8 before); `ReaderPageSyncUITests`,
+  `ReaderRebuildUITests`, `ReadingOrientationUITests`, `LibraryPresentationUITests` and
+  `ReaderSliderPreviewUITests` 20 passed. The iPad and Duo cases that read the probe were not run.
+  Open: `DeepLinkSchemeUITests.testMalformedLinkColdLaunchShowsErrorToast` failed once in 32 runs ("The
+  malformed-link toast was not tappable"). The recording of that run shows the toast at rest on screen from
+  three seconds before the read until after it, and a probe that sampled the same read found it true in all 27
+  further iterations of the case (alone, with every core busy, and beside the three classes that ran with it),
+  943 reads. So one read was wrong and the toast was not; why is not known, and the case is unchanged.
+  `ReaderRebuildUITests.testChangingDirectionDuringAutoPlayKeepsTheIndicatorOnThePageShown` needed its second
+  attempt once: with five clones running, its wait read the pager in the middle of a turn. Not looked into.
+  Run on 2026-11-16 on a temporary iOS 27.0 iPad Pro 11-inch simulator: the iPad cases of
+  `ReadingOrientationUITests` and `LandscapePaneUITests`, 6 passed on the first attempt (the Duo-only and the
+  phone-only case skipped). The Duo classes are still not run.
+- **Timing cases that failed on hosted runners, 2026-11-16** (on `fix/snapshot-precheck`, at the owner's word):
+  three cases of the snapshot support's own tests failed in hosted `Test` runs and passed here. Fixed in
+  `95ba7cdf7`, `32893e32b` and `028d0cf18`.
+  `RevealStepTests.testTheStepFailsWithoutADialog` (runs 43689174320, 43710298062 and 43723509533:
+  `waited=9.8s turned=10.1s`, `waited=9.8s turned=10.0s`, `waited=9.2s turned=10.1s` behind a 5.2 s stop) showed
+  a defect in the support. `StepBudget` counts a step's allowance in time the main run loop turned, and the watch
+  adds a stretch to its count when the stretch ends, so the stretch under way when a step began was counted
+  against the step: up to one second of its allowance was spent before it started. The budget now takes the part
+  of that stretch before the step off again, and the run loop never turns for longer than the step has waited.
+  `testAStopBeforeAStepBeganIsNotCounted` stops the main thread before a step: on the old count it fails 3 of 3
+  (0.90 s turned in 0.30 s). The dialog step's case asks for the whole allowance of turning and a wall clock not
+  behind it; its old pattern had upper bounds that a stop exceeds by design.
+  `StepBudgetTests.testAStretchWithoutATurnCountsForOneSecond` (run 43681051816: 2.37 s counted where the case
+  allowed 1.8 s) compared the count with a fixed span that gave two 200 ms sleeps 0.8 s between them. It now
+  compares what the run loop turned with the wall clock of the same step, which holds on a host of any speed.
+  `BrowsingStepTests.testAStoppedCaretReadsTheSameOverTwoBlinks` (runs 43681051816 and 43689174320, and once
+  here) did not fail on the caret. The reads in each failure message, decoded, differ in 303 pixels at the
+  search field's clear button and nowhere else: the first read lacks the button, a later one has it. Each failing
+  run took 95 s or more where the case takes 4 to 20. The fixture's field has no clear button now, and a failed
+  read names the region that differs in place of printing both pictures.
+  Run here on a temporary iOS 27.0 iPhone Air simulator: the three classes five times, 90 of 90; the whole
+  `VisualSnapshotTests` target, 126 passed and 141 skipped; the lint gate over every target, nothing found.
+  Pushed on 2026-11-16 at the owner's word. Hosted `Test` 43788465772 passed: 2115 tests in every bundle, 1965
+  passed, none failed, 141 skipped, 9 expected failures. Hosted `Lint` 43788465791 passed. The caret case took
+  16 s in that run, so the long stop behind its earlier failures did not occur there.
+  Open: why a long stop makes the clear button late is not known. Sixteen to twenty busy loops did not reproduce
+  it, nor did pausing the simulator's render server or its keyboard process for 30 s. The matrix's capture reads
+  a window until two reads agree over 500 ms, so a button drawn later would fail the comparison with the
+  reference, not pass unseen; whether a matrix result has failed that way was not looked for.
+  `StepBudgetTests.testTheDialogStepLooksForItsWholeAllowanceAfterTheMainThreadStops` still asks for a stall of
+  11 or 12 s and more than 50 looks; it has not failed on a hosted runner and is unchanged.
+- **Tests that ran in no workflow, 2026-11-16** (on `fix/snapshot-precheck`, at the owner's word): the tests no
+  workflow ran were sorted by what a run of them needs, and those a hosted runner can run were given one. No test
+  moved between targets. Commits `49094a6d9`, `9fad2604a`, `c00870b40`, `048fa7def` and `aab62d057`, local.
+  `Lint` runs the tests of every directory under `Scripts` and `actions-tool` that holds a `test_*.py`, found and
+  not listed, then the cookie-logging audit after the audit's own fixtures. Before, 250 tests of `Scripts/visual`
+  and the 27 of `Scripts/live-check` ran in no workflow, the release tooling's ran on pull requests to `main`
+  only, and the audit ran nowhere. Here: 776 tests in 198 s with the system's Python (`Scripts/lint` 24,
+  `Scripts/live-check` 27, `Scripts/ui-tests` 20, `Scripts/visual` 435, `actions-tool/tests` 270), and again
+  with no git identity configured.
+  `FeatureTests` holds the `LiveCheckTests` target and skips its three classes that wait for the live-check
+  opt-in: `DailyLiveCheckTests` and `RunnerProbeTests` read the site, and the four tests of `ProbeReportTests` are
+  held to the opt-in on purpose and stay with the probe. Here: 11 passed, none skipped.
+  `UITests-iPad.xctestplan` selects the nine cases only an iPad runs and sets `EHPANDA_IPAD_UI_TESTS` itself.
+  `ui-tests.yml` runs `UITests` on the iPhone and `UITests-iPad` on the iPad every night, by hand and on a push to
+  `ci/ui-tests`. It blocks nothing. `Scripts/ui-tests/report.py` writes each job's summary: what failed, what
+  passed only on a retry, and every skip. A skip must be accounted for by name, by the iPad plan or by
+  `Scripts/ui-tests/local-only.json` (the Duo's cases, with reasons), and a name that matches no test fails the
+  job, so a test cannot stop running by a gate or a rename unnoticed. Parallel testing stays as the plans set it:
+  a serial run needs the owner's approval, and none was asked for.
+  Run here with the workflow's own steps, on the screenshot check's pinned devices made by its helper (iOS 27.0),
+  built with this Mac's Xcode. The iPad lane twice: 9 passed, none skipped. The iPhone lane three times, 151
+  tests each, 21 skipped and every skip accounted for (12 local only, 9 by the iPad plan):
+  run 1, 129 passed and 1 failed, 2 passed only on a retry; run 2, 129 passed and 1 failed, 1 passed only on a
+  retry; run 3, 130 passed, no retry. Each took 28 to 37 minutes on five clones. The lint gate over every
+  target, the new plan among them: nothing found.
+  Run 1's failure was an order dependence, fixed in `048fa7def`:
+  `ReaderSliderPreviewUITests.testHoldingTheThumbShowsThePreview` failed three attempts of three on the clone
+  where a `ReadingOrientationUITests` case had ended right to left. The direction persists between launches, and
+  on a mirrored slider XCTest's adjustment leaves the thumb where it is. A probe that left the reader right to
+  left read the thumb at 0.006 before and after the adjustment and saw no preview; with the direction stated
+  first, 0.55 and the preview. The cases now state their direction and assert that the thumb reached the middle.
+  Run 2's failure is the toast case recorded above (one failure in 32 runs then), not fixed:
+  `DeepLinkSchemeUITests.testMalformedLinkColdLaunchShowsErrorToast` failed three attempts of three ("The
+  malformed-link toast was not tappable"), and the warm case once before it passed. Four failed reads in a row
+  on one clone inside 80 s, each taking 0.9 to 2.1 s where the passing read took 0.26 s; the recordings show the
+  toast at rest and on top in all four. So it is not one wrong read in 32 as counted before: on some clone and
+  for a while every read fails. What sets that off is not known, and the case is unchanged. Runs 1 and 3 passed
+  it at once.
+  Passed only on a retry in run 1 and not looked into:
+  `DetailNavigationTitleUITests.testTitleFollowsHeaderVisibilityAtAX3` ("The header actions are still visible.")
+  and `GalleryCardUITests.testFrontPageGridKeepsRatings` (hittability of Show All could not be determined).
+  Not verified: no hosted run of `ui-tests.yml`, nor of `Lint` and `Test` with these changes. A schedule and a
+  dispatch read the default branch's copy of a workflow, so the nightly starts once this is merged there; a push
+  to `ci/ui-tests` runs it before that. How long the iPhone's job takes on a hosted runner is not known, nor
+  whether its clones overload the runner the way two overloaded the screenshot check's.
+  Left as they were: the Duo classes have no plan (a posed simulator and a serial run); `VisualSnapshotTests` is
+  still one target for the matrix, the support's own tests and the probes; the capture tooling's and the other
+  local-only suites stay local.
+- **The dependency update's pull request body, 2026-11-16** (on `fix/snapshot-precheck`, at the owner's word,
+  after the body another project of the owner's writes): the weekly update opened its pull request with the
+  action's default body (#474), so what it updates had to be read from the lockfile's diff.
+  `actions-tool/dependency_changes.py` writes the body from the base branch's `Package.resolved` and the one just
+  resolved: the Xcode that resolved it, the pins that changed, the packages added and removed, and each changed
+  package's releases page with the version to read on from. `dependencies.yml` writes it outside the checkout,
+  since the action commits every file it finds there, and hands it over by path (`66c95c47f`). The action
+  rewrites an open pull request's body on every run, so the body describes the whole change from `develop`.
+  Here: the tool's 16 tests and the workflow's 4 (which fail on the old workflow), the whole of
+  `actions-tool/tests` (290) with no git identity, the screenshot check's workflow tests, the workflow linter,
+  and the new step's own lines replayed on #474's two lockfiles: four pins changed, nothing written into the
+  checkout.
+  Not verified: no hosted run. A schedule runs the default branch's copy of the workflow on `develop`'s tree, so
+  the body appears once the workflow is on `main` and the tool on `develop`. Until then #474 keeps its body
+  unless it is written there by hand.
+  `6d4df7d74` replaces a line of `ui-tests.yml` that the workflow linter warned about (SC2140) with a lookup
+  that says when the plan's test run file is missing. The hosted trial of the pushed copy was under way then.
+- **No test relies on a retry, 2026-11-16 to 17** (on `fix/snapshot-precheck`, at the owner's word "no tests
+  should rely on retries, remove the retry and make them stable"): the UI test plans ran a failing test up to
+  three times and the screenshot check's policy job twice. Every retry is gone and each test that needed one was
+  fixed at its cause, with no longer timeout, skipped case or looser comparison. Commits `6e6baf7fb`, `b66b4f58b`,
+  `2464b5418`, `0c22bf6d0`, `a8fe07235`, `5e0a06bd6` and `012fb31b6`, local.
+  The causes. Auto-play (`ReaderRebuildUITests`, `ReaderPageSyncUITests`): at a one-second interval a reading
+  under load met the pager mid-turn, so the cases now wait on the indicator while auto-play runs and compare it
+  with the screen once the reader rests. The waits for a control (`waitUntilHittable`): `isHittable` on an element
+  that is still moving can end a test ("Failed to determine hittability") instead of answering false, so it is
+  asked only of an element whose frame held still for 0.2 s. Detail's title at AX3: the title appears once the
+  header has left the scroll view's bounds, while the header's last row is still drawn under the status bar, so
+  the case compares frames with the bounds. The Show All tap on Home and the toast: the app's own fade.
+  The app's fade. While a UI test drove the app, a SwiftUI view that holds a UIKit view (a `ScrollView`, a
+  `List`) and fades in through its opacity under an animation kept the UIKit `alpha` at 0 until the animation
+  ended, while it already looked opaque, and UIKit's hit test passed over it. On Home the galleries took no touch
+  for 1.1 to 2.2 s after they looked opaque; a probe lost 7 of 8 first taps. `revealed(_:)` (AppComponents)
+  keeps such content opaque and fades a cover in the background style off it, at Home, Detail, App Activity
+  Logs and the Archives sheet: none of 8 taps lost, and in light and dark the cover is the colour each screen
+  stands on, a sheet's raised background included. `HostedViewTests/RevealedContentTouchTests` checks that
+  revealed content is hit at once; its host updates the alpha frame by frame, so it cannot show the value held
+  at 0.
+  `Scripts/ui-tests/report.py` now counts a test that failed in any run as failed, and a repository test fails
+  if a plan repeats a test; `NoTestRetryTests` does the same for every workflow and script.
+  Here, without retries: the whole UITests plan three times, 130 passed and none failed each time with every
+  one of 21 skips accounted for (once with a touch detector built in, which found no touch over an untouchable
+  view; twice on the clean tree); UITests-iPad once, 9 passed; the hosted view tests five times; the script tests
+  (799) and the lint of every touched module.
+  Pushed at the owner's word (`8ffd7e18c..40bf90ee6`). Hosted on `40bf90ee6`: `Lint` 43939934522 and `Test`
+  43939934306 passed; `Test` ran 2128 tests in 25 bundles with none lost, the two hosted view tests above among
+  them, 2 more than its run before.
+  Not verified: no hosted run of the UI plans or of the policy job without retries. The policy job (`012fb31b6`)
+  has run nowhere without its retry, which three of its four passing hosted jobs had needed; the wait for a
+  resting control covers one of those failures, and the job can fail until a hosted run shows the others hold.
+  The nightly's hosted trial (run 43829748359) did not finish as designed: the iPad job took 64 minutes with
+  failures on two clones, and the iPhone job was cut after 77 minutes.
+  The same fade in floating views, 2026-11-17: under the UI test runner the toast was untouchable for 0.1 to
+  0.7 s after it showed and the reader's control panel for 0.7 to 1.0 s. Launched without a runner and tapped
+  by coordinate, the panel had no untouchable time and took its Close 0.12 s after it showed; the toast had
+  about 0.1 s in three of four showings and took a tap 0.12 s after its link. That is too short for a user to
+  meet, so the app keeps its motion (owner, 2026-11-17); the toast's case waits until the toast takes touches.
+  Open, for the owner: 74 direct `isHittable` reads in 18 UI test files, the Duo's among them; the screenshot
+  check's in-test recapture (`HostedWindowCapture`), which is a retry of its own kind.
 
 Phase 20 merged this state from `main` on 2026-11-11 (OQ-F, owner decision) and carries on below.
 
@@ -245,6 +462,8 @@ Phase 20 merged this state from `main` on 2026-11-11 (OQ-F, owner decision) and 
       the log, and a recovered `server died` counted as infra.
   - `ci/snapshot-measure` deleted.
   - **Owner decision open:** fix these and measure once more, or accept 2 workers on the model.
+  - **Closed 2026-11-15:** neither. After the ten-shard proof (run 43681082788) the owner chose one simulator per
+    shard (19-CONTEXT D-15, amended; "Phase 19 complete" above).
   - VIS-18-01 stays Pending.
 - **19-10 closed; its green hosted run is deferred** (owner decision, product lead decision; `19-10-SUMMARY.md`,
   `19-10-PROOF.md`):

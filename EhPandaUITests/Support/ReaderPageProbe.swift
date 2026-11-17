@@ -9,9 +9,11 @@ import XCTest
 /// the indicator could have seen it. Every check here therefore reads both sides: the page the
 /// indicator names, and the page that is actually under the center of the reader.
 ///
-/// The second reading leans on the hermetic fixture. Its images never load, so every page is the
-/// reader's failure placeholder: a page number followed by a Reload button in a stack centered in
-/// the page's first screen (`UnloadedPage`), the whole page when the page is shorter than the screen.
+/// The second reading leans on the hermetic fixture. Its images never load: the stub serves the
+/// reader's pages only to a launch that sets `EHPANDA_UITEST_READER_PAGES`, and a test that reads
+/// the page this way must not set it. So every page is the reader's failure placeholder: a page
+/// number followed by a Reload button in a stack centered in the page's first screen
+/// (`UnloadedPage`), the whole page when the page is shorter than the screen.
 /// The pages are one accessibility element, so VoiceOver has no page to scroll to as the reader
 /// opens, and the stack is read from a screenshot instead (`ScreenPixels`). The number alone sits
 /// above the stack's center. Measuring the whole stack keeps the page reading accurate near the
@@ -173,6 +175,34 @@ struct ReaderPageProbe {
             line: line
         )
         throw ProbeFailure()
+    }
+
+    /// Waits for the indicator alone to name a page that satisfies `condition`, and returns that page: the wait for
+    /// a reader that auto-play is turning.
+    ///
+    /// `requirePage` cannot wait there. It reads the indicator and then the screen, and auto-play at its shortest
+    /// interval leaves less than a second of rest between two turns. On a loaded machine one reading takes longer
+    /// than that, so a reading meets the pager in mid-turn, the indicator already on the next page and that page
+    /// still sliding in (2026-11-15, five clones: 15 seconds of readings found the two in agreement not once). The
+    /// indicator says that auto-play turned the pages; whether it names the page shown is read with `requirePage`
+    /// once auto-play has stopped and the reader rests.
+    @discardableResult
+    func requireIndicatedPage(
+        _ expectation: String,
+        where condition: (Int) -> Bool,
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) throws -> Int {
+        var indicated: Int?
+        let reached = Polling.wait {
+            indicated = indicatedPage()
+            return indicated.map(condition) ?? false
+        }
+        guard reached, let indicated else {
+            XCTFail("\(expectation): the indicator names \(Self.describe(indicated)).", file: file, line: line)
+            throw ProbeFailure()
+        }
+        return indicated
     }
 
     /// Waits for the indicator and the screen to agree on `page`, for the page's load to fail, and for the number of

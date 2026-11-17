@@ -31,6 +31,10 @@ struct EhSettingView: View {
                     .transition(.opacity.animation(.default))
             }
         }
+        // Until the settings load, the `ZStack` is empty and so has no size, and its overlays are laid out in that
+        // zero frame: the loading and error views drew nothing, and a failed load left a blank page with no
+        // Retry (19-08 SUMMARY, `settings-pages-site-settings-error`). The form fills the page either way.
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
         .onChange(of: store.ehSetting != nil && store.ehProfile != nil) { _, isReady in
             guard isReady else { return }
             profilePickerFocused = true

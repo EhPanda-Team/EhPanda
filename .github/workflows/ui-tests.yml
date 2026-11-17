@@ -1,0 +1,185 @@
+name: UI tests
+# The UI tests on a hosted runner, every night and by hand: the whole `UITests` plan on the iPhone, and the cases
+# only an iPad runs (`UITests-iPad`) on the iPad. No other workflow runs them: Test runs the package's plan, Lint
+# builds them without running them, and the screenshot check runs one class. Three of them were left behind by
+# behaviour changes on 2026-11-12, and nothing reported it for three days.
+#
+# It reports and blocks nothing: no branch rule reads it and no release waits for it. A night's failure reaches
+# whoever GitHub notifies for a scheduled run.
+#
+# A schedule and a dispatch read the default branch's copy of this file. A push to `ci/ui-tests` starts the pushed
+# copy, to try a change to the workflow before it is merged.
+#
+# Every test runs once. The plans carry no retry and this workflow passes none, so a test that fails once is a failed
+# job: a test that passes on a second run is a flaky test, and running it again would hide that.
+#
+# Each job's summary (Scripts/ui-tests/report.py) lists what failed and what was skipped. A skip must
+# be accounted for by name, or the job fails: the iPhone's run may skip what the iPad plan selects and what
+# Scripts/ui-tests/local-only.json names with a reason (the Duo's cases), and the iPad's run must have run every
+# test its plan selects. So a test cannot stop running, by a gate or by a rename, without a failed job.
+#
+# XCTest's parallel testing stays as the plans set it: on. Running one test at a time needs the owner's approval
+# for the invocation concerned (AGENTS.md), and none was asked for here.
+#
+# The simulators are the screenshot check's pinned devices, made by its helper for the limits it puts on a hosted
+# simulator's setup (Scripts/visual/hosted-simulator.sh). That setup turns Reduce Motion on and puts the iPad in
+# Full Screen Apps.
+on:
+  schedule:
+    - cron: '41 17 * * *'
+  workflow_dispatch:
+  push:
+    branches: [ci/ui-tests]
+permissions: {}
+concurrency:
+  group: ui-tests-${{ github.ref }}
+  cancel-in-progress: true
+env:
+  SCHEME_NAME: 'EhPanda'
+  # The screenshot check's Xcode (snapshot-gate.yml): the helper below makes the simulator its pin names.
+  DEVELOPER_DIR: /Applications/Xcode_27.1.app/Contents/Developer
+jobs:
+  build:
+    runs-on: xcode-27
+    timeout-minutes: 90
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+      # The names both plans carry against the sources, before an hour of building and running.
+      - name: Test the report
+        run: python3 -m unittest discover -s Scripts/ui-tests -p 'test_*.py'
+      - name: Install iOS 27 Platform
+        uses: nick-fields/retry@v4
+        with:
+          retry_on: error
+          max_attempts: 10
+          timeout_minutes: 999
+          command: xcodebuild -downloadPlatform iOS
+      - name: Show Xcode version
+        run: xcodebuild -version
+      - name: Build for testing
+        run: |
+          failed() {
+            grep -E ': error:|\*\* (BUILD|TEST BUILD) FAILED' "$1" | sort -u
+            exit 1
+          }
+          for plan in UITests UITests-iPad; do
+            xcodebuild build-for-testing -skipMacroValidation -skipPackagePluginValidation -scheme "$SCHEME_NAME" \
+              -testPlan "$plan" -destination 'generic/platform=iOS Simulator' \
+              -onlyUsePackageVersionsFromResolvedFile -derivedDataPath "$RUNNER_TEMP/DerivedData" \
+              >"$RUNNER_TEMP/build-$plan.log" 2>&1 || failed "$RUNNER_TEMP/build-$plan.log"
+          done
+          tar -C "$RUNNER_TEMP/DerivedData/Build" -cf "$RUNNER_TEMP/products.tar" Products
+      - name: Upload the test products
+        uses: actions/upload-artifact@v7
+        with:
+          name: ui-tests-products
+          path: ${{ runner.temp }}/products.tar
+          if-no-files-found: error
+          retention-days: 1
+
+  run:
+    name: ${{ matrix.family }}
+    needs: build
+    runs-on: xcode-27
+    timeout-minutes: 330
+    permissions:
+      contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - family: iphone
+            plan: UITests
+            accounting: --elsewhere UITests-iPad.xctestplan --local-only Scripts/ui-tests/local-only.json
+          - family: ipad
+            plan: UITests-iPad
+            accounting: --expect UITests-iPad.xctestplan
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+      - name: Install iOS 27 Platform
+        uses: nick-fields/retry@v4
+        with:
+          retry_on: error
+          max_attempts: 10
+          timeout_minutes: 999
+          command: xcodebuild -downloadPlatform iOS
+      - name: Download the test products
+        uses: actions/download-artifact@v8
+        with:
+          name: ui-tests-products
+          path: ${{ runner.temp }}
+      - name: Create the simulator
+        timeout-minutes: 60
+        env:
+          FAMILY: ${{ matrix.family }}
+          PLAN: ${{ matrix.plan }}
+        run: |
+          tar -C "$RUNNER_TEMP" -xf "$RUNNER_TEMP/products.tar"
+          read -r device runtime <<<"$(python3 -c 'import json, sys
+          env = json.load(open("Scripts/visual/regression-environment.json"))
+          print(env["devices"][sys.argv[1]]["deviceTypeIdentifier"], env["runtime"]["identifier"])' "$FAMILY")"
+          udid=$(Scripts/visual/hosted-simulator.sh create 'EhPanda UI tests' "$device" "$runtime" "$FAMILY")
+          xctestrun=$(find "$RUNNER_TEMP/Products" -maxdepth 1 -name "${SCHEME_NAME}_${PLAN}_*.xctestrun" -print -quit)
+          [ -n "$xctestrun" ] || { echo "::error::The products hold no test run file for the $PLAN plan."; exit 1; }
+          echo "UDID=$udid" >> "$GITHUB_ENV"
+          echo "XCTESTRUN=$xctestrun" >> "$GITHUB_ENV"
+      # A run the simulator lost before its tests (Scripts/visual/snapshot_infra.py: a runner that never launched,
+      # a clone that did not boot) is made once more on fresh clones; a run whose tests failed is not, and no test
+      # is run a second time.
+      - name: Run the UI tests
+        id: tests
+        timeout-minutes: 270
+        run: |
+          mkdir -p "$RUNNER_TEMP/ui"
+          attempt() { # <number>
+            local status=0 log="$RUNNER_TEMP/ui/xcodebuild-$1.log"
+            xcodebuild test-without-building \
+              -xctestrun "$XCTESTRUN" \
+              -destination "platform=iOS Simulator,id=$UDID" \
+              -collect-test-diagnostics never \
+              -resultBundlePath "$RUNNER_TEMP/ui/attempt-$1.xcresult" >"$log" 2>&1 || status=$?
+            grep -E "Test [Cc]ase .* failed|Executed [0-9]+ test|TEST EXECUTE (SUCCEEDED|FAILED)" "$log" |
+              sort -u || true
+            echo "result=$RUNNER_TEMP/ui/attempt-$1.xcresult" >> "$GITHUB_OUTPUT"
+            return "$status"
+          }
+          status=0
+          attempt 1 || status=$?
+          if [ "$status" != 0 ] &&
+            reason=$(python3 Scripts/visual/snapshot_infra.py --status "$status" "$RUNNER_TEMP/ui/xcodebuild-1.log")
+          then
+            echo "::warning::UI tests (${{ matrix.family }}): attempt 1 lost to the simulator ($reason); once more"
+            echo "retried=true" >> "$GITHUB_OUTPUT"
+            Scripts/visual/hosted-simulator.sh clear-clones 'EhPanda UI tests' || true
+            Scripts/visual/hosted-simulator.sh settings "$UDID" || true
+            status=0
+            attempt 2 || status=$?
+          fi
+          exit "$status"
+      # Also after a failed run: what failed is the report's first list. Its own failures are the ones xcodebuild
+      # does not report, an unaccounted skip and a name that matches no test. `pipefail` keeps the report's status
+      # the step's, which the copy into the summary would otherwise replace.
+      - name: Report
+        if: always() && steps.tests.outputs.result != ''
+        env:
+          RESULT: ${{ steps.tests.outputs.result }}
+        run: |
+          set -euo pipefail
+          xcrun xcresulttool get test-results tests --path "$RESULT" > "$RUNNER_TEMP/ui/tests.json"
+          python3 Scripts/ui-tests/report.py --title 'UI tests (${{ matrix.family }})' ${{ matrix.accounting }} \
+            "$RUNNER_TEMP/ui/tests.json" | tee -a "$GITHUB_STEP_SUMMARY"
+      - name: Upload the logs and results
+        if: failure() || steps.tests.outputs.retried == 'true'
+        uses: actions/upload-artifact@v7
+        with:
+          name: ui-tests-${{ matrix.family }}
+          path: |
+            ${{ runner.temp }}/ui/xcodebuild-*.log
+            ${{ runner.temp }}/ui/tests.json
+            ${{ runner.temp }}/ui/attempt-*.xcresult
+          if-no-files-found: ignore
+          retention-days: 7

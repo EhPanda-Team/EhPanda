@@ -387,17 +387,20 @@ private extension ReportFormUITests {
         return app
     }
 
-    /// Fills in a sendable form: the email first, then other illegal content, then a tap on Details and a line
-    /// of text; picking a reason does not open the keyboard.
+    /// Fills in a sendable form: other illegal content, then a tap on Details and a line of text, then the email.
+    ///
+    /// Details comes before the email. Picking a reason does not open the keyboard, so Details is tapped while
+    /// nothing covers it. With the keyboard up for the email first, Details lies under the keyboard on a phone and
+    /// cannot be tapped until the form is scrolled.
     func fillInTheForm(in app: XCUIApplication) throws {
-        let email = app.textFields[Identifier.email]
-        email.tapWhenHittable("Email")
-        email.typeText(Copy.validEmail)
         app.buttons[Identifier.other].tapWhenHittable("Other illegal content")
         let details = detailsField(in: app)
         details.tapWhenHittable("Details")
         requireKeyboardFocus(details, "Details after tapping it")
         details.typeText(Copy.typedDetails)
+        let email = app.textFields[Identifier.email]
+        email.tapWhenHittable("Email")
+        email.typeText(Copy.validEmail)
         XCTAssertTrue(primaryButton(in: app).waitForEnabled(), "Send Report stays dimmed on a filled-in form.")
     }
 

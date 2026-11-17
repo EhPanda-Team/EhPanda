@@ -56,15 +56,15 @@ struct HeaderSectionActionSpacingTests {
 
     private func actionFrames(width: CGFloat, size: DynamicTypeSize) throws -> ActionFrames {
         // `@SharedReader(.didLogin)` reads the cookie store while the header is built.
-        let elements = withDependencies {
+        let elements = try withDependencies {
             $0.cookieClient = .noop
         } operation: {
-            LaidOutElements(of: Host(), width: width, size: size)
+            try LaidOutElements(of: Host(), width: width, size: size)
         }
-        return ActionFrames(
-            download: try #require(elements.frame(labelled: "Download")),
-            favorite: try #require(elements.frame(labelled: "Add to Favorites")),
-            read: try #require(elements.frame(labelled: "Read"))
+        return try ActionFrames(
+            download: #require(elements.frame(labelled: "Download")),
+            favorite: #require(elements.frame(labelled: "Add to Favorites")),
+            read: #require(elements.frame(labelled: "Read"))
         )
     }
 

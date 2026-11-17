@@ -12,21 +12,25 @@ unit); within a device, units go longest first to the least loaded shard, ties b
 so the same inventory and cost table always give the same file. Run 42577585956 planned 20 shards on a modelled
 table: its iPhone shards were estimated at 60 minutes and needed 113 to 115 or more, so five of six ran out of time.
 
-The targets are the shortest a shard can be. Each shard pays the table's `bootFetchMinutes` and `invocationMinutes`
-(11.3 minutes), so a shard is one process for an iPad (about 26 to 29 estimated minutes, target 35: two would be 40
-to 45) and one process for an iPhone (about 42, since its process is the longest unit; the target 45 only has to
-admit it). More, shorter shards cost more shard-minutes in total, since each repeats that fixed cost.
+The targets are the shortest a shard can be (owner decision: a shorter shard loses less to a cut). Each shard pays
+the table's `bootFetchMinutes` and `invocationMinutes` (11.3 minutes), so a shard is one process on either device:
+about 24 estimated minutes for an iPhone and about 26 for an iPad, and the target 30 only has to admit one (two
+would be 37 to 43). More, shorter shards cost more shard-minutes in total, since each repeats that fixed cost.
 
 A shard runs its units as few `xcodebuild` invocations as it can: one per orientation group, each with every
-configuration of that group (`-only-test-configuration` once per configuration). The simulator clones are created
-once per invocation and kept across its configurations, and each invocation has a fixed cost (clone creation,
-installing, launching) that the hosted measurement put at 7 to 10 minutes (19-04-MEASURE.md, run 42455556948);
-locally a second configuration in the same invocation added 76 s to the first's 208 s. The estimate counts the cost
-table's `invocationMinutes` once per invocation.
+configuration of that group (`-only-test-configuration` once per configuration). Each invocation has a fixed cost
+(installing, launching and, on clones, their creation) that the hosted measurement put at 7 to 10 minutes with two
+clones (19-04-MEASURE.md, run 42455556948); locally a second configuration in the same invocation added 76 s to
+the first's 208 s. The estimate counts the cost table's `invocationMinutes` once per invocation.
 
-A unit's wall time is its cost divided by the cost table's `cloneSpeedup`, except an iPad landscape unit: clones boot
-in portrait whatever the turned device shows, so that process runs on the turned device alone, without clones
-(19-10-PROOF.md). Shards are balanced and estimated on wall time.
+Every process runs on the shard's one simulator, without XCTest's parallel-testing clones: the cost table's
+`workers` is 1 (the owner's decision of 2026-11-15, amending 19-CONTEXT D-15). On the hosted runner two clones gave
+no gain (run 42577585956) and overloaded it: of the ten two-clone shards of run 43670819839 two were cancelled and
+three lost a test to its time allowance, and the same ten on one simulator each passed at the first attempt in 216
+runner minutes instead of 379 (run 43681082788). So a unit's wall time is its cost. A cost table measured on more
+workers divides the cost by its `cloneSpeedup`, except for an iPad landscape unit: clones boot in portrait whatever
+the turned device shows, so that process runs on the turned device alone (19-10-PROOF.md). Shards are balanced and
+estimated on wall time.
 """
 
 import argparse
@@ -44,7 +48,7 @@ SHARDS = ROOT / 'Scripts/visual/snapshot-shards.json'
 TIMEOUT_CAP_MINUTES = 120
 # The estimate a shard of each device may take. A shard the runner cuts is run again from its start, so the target is
 # the shortest the cost table lets a shard be (see the module docstring), not a share of the limit.
-TARGET_MINUTES = {'iphone': 45.0, 'ipad': 35.0}
+TARGET_MINUTES = {'iphone': 30.0, 'ipad': 30.0}
 
 
 def unit_key(unit):
@@ -75,8 +79,11 @@ def unit_costs(pictures, costs):
 
 
 def clone_speedup(unit, costs):
-    """The unit's speedup from simulator clones: none for an iPad landscape process, which runs unparallelled."""
-    return 1 if unit[0] == 'ipad' and unit[2] == ('landscape',) else costs['cloneSpeedup']
+    """The unit's speedup from simulator clones: none on one simulator (the table's `workers` is 1), and none for an
+    iPad landscape process on any count, which runs on the turned device alone."""
+    if costs['workers'] == 1 or (unit[0] == 'ipad' and unit[2] == ('landscape',)):
+        return 1
+    return costs['cloneSpeedup']
 
 
 def unit_seconds(costs_by_unit, costs):

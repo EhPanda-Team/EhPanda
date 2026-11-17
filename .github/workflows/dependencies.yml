@@ -32,6 +32,19 @@ jobs:
           else
             echo 'dependenciesChanged=true' >> "$GITHUB_OUTPUT"
           fi
+      # The pull request's body: which pins changed, which packages came and went, and where each changed
+      # package's release notes are (actions-tool/dependency_changes.py). It names the Xcode that resolved them,
+      # since another toolchain can resolve the same requirements to other pins. The body is written outside the
+      # checkout, because the next step commits every file it finds there. That step also rewrites the body of a
+      # pull request that is still open, so the body always describes the whole change from `develop`.
+      - name: Describe what changed
+        if: steps.resolution.outputs.dependenciesChanged == 'true'
+        run: |
+          set -euo pipefail
+          git show HEAD:AppPackage/Package.resolved > "$RUNNER_TEMP/Package.resolved.before"
+          python3 actions-tool/dependency_changes.py --xcode "$(xcodebuild -version)" \
+            "$RUNNER_TEMP/Package.resolved.before" AppPackage/Package.resolved \
+            | tee "$RUNNER_TEMP/dependency-changes.md"
       - name: Create Pull Request
         id: pull-request
         if: steps.resolution.outputs.dependenciesChanged == 'true'
@@ -42,6 +55,7 @@ jobs:
           delete-branch: true
           commit-message: 'Update dependencies [skip test]'
           title: 'Updated Dependencies'
+          body-path: ${{ runner.temp }}/dependency-changes.md
       # A pull request opened with the default GITHUB_TOKEN starts no pull_request workflow; a dispatch is the
       # documented exception, so the screenshot check is started on the update branch here (19-10; D-16).
       - name: Run the screenshot check on the update branch

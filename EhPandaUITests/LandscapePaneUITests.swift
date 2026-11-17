@@ -7,6 +7,8 @@ final class LandscapePaneUITests: XCTestCase {
 
     override func setUpWithError() throws {
         continueAfterFailure = false
+        // The iPad's plan (`UITests-iPad.xctestplan`) sets `EHPANDA_IPAD_UI_TESTS`, and the Duo's runner
+        // (`Scripts/run-duo-ui-tests.py`) sets `EHPANDA_DUO_UI_TESTS`: nobody has to remember either.
         try XCTSkipUnless(isDuo || ProcessInfo.processInfo.environment["EHPANDA_IPAD_UI_TESTS"] == "1")
     }
 

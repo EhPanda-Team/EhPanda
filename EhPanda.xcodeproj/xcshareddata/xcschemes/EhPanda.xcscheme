@@ -34,6 +34,20 @@
                ReferencedContainer = "container:EhPanda.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "NO"
+            buildForProfiling = "NO"
+            buildForArchiving = "NO"
+            buildForAnalyzing = "NO">
+               <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "A18000000000000000000006"
+               BuildableName = "HostedViewTests.xctest"
+               BlueprintName = "HostedViewTests"
+               ReferencedContainer = "container:EhPanda.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
       </BuildActionEntries>
    </BuildAction>
    <TestAction
@@ -57,6 +71,9 @@
          </TestPlanReference>
          <TestPlanReference
             reference = "container:UITests.xctestplan">
+         </TestPlanReference>
+         <TestPlanReference
+            reference = "container:UITests-iPad.xctestplan">
          </TestPlanReference>
          <TestPlanReference reference = "container:AppshotCapture.xctestplan">
          </TestPlanReference>

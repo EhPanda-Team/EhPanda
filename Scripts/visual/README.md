@@ -12,18 +12,24 @@ Preview review by an agent is a separate aid and never an acceptance: see `previ
 
 # Test plans and CI
 
-`FeatureTests` runs the package tests and the app-hosted tests that need no capture coordinate. `UITests` runs the
+`FeatureTests` runs the package tests and the app-hosted tests that need no capture coordinate. Among the latter is
+the `HostedViewTests` target: every test that lays a view out in a window lives there, because a window belongs to
+a scene and only a process inside the app has one (the `no_sceneless_window` lint rule). `UITests` runs the
 UI tests; it skips the capture-only suites (`CaptureIsolationUITests`, `MarketingCaptureUITests`), whose inputs a
-plain run does not have. `VisualTests` holds the app-hosted `VisualSnapshotTests` target's feasibility and geometry
-probes (`FullContentFeasibilityTests`, `GeometryTests`), driven by the native scripts below. `SnapshotMatrix` is the
-snapshot matrix (next section). `LiveCheck` is the daily live check's test target. No assertion is disabled in any
-of them.
+plain run does not have. `UITests-iPad` selects the cases only an iPad runs and sets `EHPANDA_IPAD_UI_TESTS`, which
+one of their classes waits for. `VisualTests` holds the app-hosted `VisualSnapshotTests` target's feasibility and
+geometry probes (`FullContentFeasibilityTests`, `GeometryTests`), driven by the native scripts below.
+`SnapshotMatrix` is the snapshot matrix (next section). `LiveCheck` is the daily live check's test target;
+`FeatureTests` runs that target's offline tests (`LiveCheckOfflineTests`) as well, and skips its classes that wait
+for the opt-in. No assertion is disabled in any of them.
 
 CI workflows:
 
 | Workflow | Runs | When |
 |---|---|---|
 | `test.yml` | `FeatureTests` without command-line exclusions | push, dispatch |
+| `lint.yml` | the tests of every script directory (found, not listed) and the cookie-logging audit; then a clean build of every test plan's targets and SwiftLint over every module: a compiler warning or error, or a lint violation of any severity, fails it, except a warning located inside a third-party package (`Scripts/lint/lint_check.py`) | push, dispatch (as `test.yml`) |
+| `ui-tests.yml` | the UI tests: `UITests` on the iPhone and `UITests-iPad` on the iPad. It reports and blocks nothing; its summary lists retried tests and fails on a skip nobody accounted for (`Scripts/ui-tests/report.py`) | nightly, dispatch, push to `ci/ui-tests` |
 | `snapshot-gate.yml` | the screenshot check, below | pull requests, manual dispatches and dependency updates (`dependencies.yml`); the release workflows do not call it for 3.0 (owner decision) |
 | `live-check.yml` | the daily live check | daily, dispatch, push to `ci/live-check` |
 
@@ -40,7 +46,7 @@ swift-snapshot-testing's `.image` strategy. Content is the synthetic public fixt
 
 - **Inventory.** `AppPackage/Tests/VisualSnapshotTests/Resources/scenarios.json` (schema 2) lists every scenario and
   its not-applicable rules, each with a reason. `python3 Scripts/visual/snapshot_matrix.py --totals` prints the
-  current totals: 137 scenarios, 19,728 coordinates, 360 not applicable (five by-design rules, 72 each), 19,368
+  current totals: 138 scenarios, 19,872 coordinates, 360 not applicable (five by-design rules, 72 each), 19,512
   expected pictures. `ScenarioInventoryTests` fails on any inventory ID without a factory.
   What a process cannot draw is listed under `notCaptured`: the keyboard, live web content, the share sheet and the
   file importer.
@@ -56,7 +62,22 @@ swift-snapshot-testing's `.image` strategy. Content is the synthetic public fixt
   candidate run.
 - **Results.** Each run writes `results.jsonl`, one line per coordinate with its status (`passed`, `recorded`,
   `changed`, `missing-baseline`, `timeout`, `error` or `notApplicable`), attempts, seconds and flake flag. The key
-  is `scenario__locale__size__orientation__family__theme`.
+  is `scenario__locale__size__orientation__family__theme`. A line whose attempt failed has a reason: the last
+  attempt's, then the first attempt's (`attempt 1: …`, kept on a picture that passed on the retry too), then which
+  of its test's pictures it was (`picture 1 of 2`). A user step's own reason names the check it failed and ends with
+  `waited=<s>s turned=<s>s polls=<n> [stall=<s>s/<kind>] process=<s>s`: how long the attempt waited, how long the
+  process's main run loop turned meanwhile, how many times it looked, the longest stretch in which the main thread did
+  not come back (`blocked`: held while the process ran; `frozen`: the process itself was not run), and how long the
+  test process had run. The aggregate summary shows the reason beside an infrastructure error and in the flake log.
+- **Step waits.** A user step waits for a real condition, and its allowance is counted in time the main run loop
+  turned, not on the wall clock: a stretch without a turn counts for at most one second, and no step waits more than
+  120 s of wall clock (`StepBudget`). A hosted runner stopped the main thread for 15 to 172 s inside such waits (run
+  43621303643), and a wall-clock deadline ran out before the step could look again.
+- **Stalls.** Each matrix process writes every stretch of more than 2 s in which its main thread did not turn, with the
+  coordinate it was capturing and the main thread's stack sampled by a watchdog thread during it, to
+  `logs/main-thread-<pid>.log`, and the call stack of every text field or view that ended editing. Beside each
+  invocation's xcodebuild log, `run-shard.sh` writes `<log>-host.log`: the runner's load, memory, paging and busiest
+  processes every 10 s.
 - **Pins.** Rendering follows `regression-environment.json` (below). On a Mac or runner that does not match it the
   run records `drift` and captures nothing.
 
@@ -67,13 +88,24 @@ swift-snapshot-testing's `.image` strategy. Content is the synthetic public fixt
 (run 42577585956) to 27 of up to 84 estimated minutes, and cut again after run 43298876957, where the runner cut 13 of
 those 27 jobs at random times ("The operation was canceled", 18 to 93 minutes in; 3 of their 13 retries went the same
 way): a cut shard is run again from its start, so shards are now as short as the cost table allows. There are **72**:
-36 iPhone shards (one configuration in one orientation, about 42 estimated minutes, step limit 85) and 36 iPad shards
-(one configuration in one orientation, 26 to 29 estimated minutes, step limit 52 to 58). The targets are in
-`snapshot_shards.py` (`TARGET_MINUTES`: iPhone 45, iPad 35); a shard cannot be shorter than its fixed cost (11.3
-minutes) plus one process, which is why an iPhone shard stays near 42 and why more, shorter shards cost more
-shard-minutes in total. An iPhone shard of one orientation sets `EHPANDA_SNAPSHOT_ORIENTATIONS` for the matrix
-process, which turns the iPhone itself; an iPad process is turned beforehand. The shard plan is deterministic and
-balanced by cost: `python3 Scripts/visual/snapshot_shards.py --check` fails when it is stale.
+36 iPhone shards (one configuration in one orientation, about 24 estimated minutes, step limit 49) and 36 iPad shards
+(one configuration in one orientation, about 26 estimated minutes, step limit 52). The targets are in
+`snapshot_shards.py` (`TARGET_MINUTES`: 30 on either device); a shard cannot be shorter than its fixed cost (11.3
+minutes) plus one process, and more, shorter shards cost more shard-minutes in total. An iPhone shard of one
+orientation sets `EHPANDA_SNAPSHOT_ORIENTATIONS` for the matrix process, which turns the iPhone itself; an iPad
+process is turned beforehand. The shard plan is deterministic and balanced by cost:
+`python3 Scripts/visual/snapshot_shards.py --check` fails when it is stale.
+
+**One simulator per shard.** Every invocation captures on the shard's one prepared simulator, one test class after
+another, with XCTest's parallel testing off: the plan's worker count is 1 (the owner's decision of 2026-11-15, for
+the gate's capture runs only; every other test stays parallel). The gate used to give each shard two
+parallel-testing clones, which the hosted runner could not carry. In run 43670819839 (ten shards, two clones) the
+runner's load average was 320 or more when the tests began and reached 570 to 1,000, the second clone ran under a
+quarter of the tests in 9 of 10 shards, the app's main thread stood still for about 7,400 s in all, two jobs were
+cancelled and three tests ran out of their time allowance. Run 43681082788 captured the same ten shards on one
+simulator each: every shard passed at its first attempt, the main thread stood still for 835 s, and the shards took
+216 runner minutes instead of 379. The cost table (`snapshot-cost.json`) holds the one-simulator figures: 2.85 s per
+iPhone picture and 3.2 s per iPad picture.
 
 Each shard is `run-shard.sh` on its own macOS job. In order, it checks the rendering pin, fetches and verifies its
 baseline slices (compare mode), makes the pinned simulator with `hosted-simulator.sh`, runs the shard's invocations
@@ -106,7 +138,17 @@ comma-separated shard IDs of `snapshot-shards.json` (`s05,s19`; empty runs all).
 not have and any restriction on a compare run (a partial run is never a verdict). The matrix, the triage rounds and the
 aggregate (`--only`) then cover only those shards, the summary says "Restricted to N of 72 shards", and
 `native-policy`, which belongs to no shard, is skipped. Shard IDs change when the plan is re-cut: use the IDs of the
-committed plan (the 72-shard plan renumbered the 27 of run 43298876957).
+committed plan (the 72-shard plan renumbered the 27 of run 43298876957; the one-simulator plan of 2026-11-15 kept the
+iPhone IDs and swapped the iPad halves, so landscape is now `s37` to `s54` and portrait `s55` to `s72`).
+
+**Another worker count.** A `workflow_dispatch` of mode `candidate` also takes an optional `workers` input: the
+number of simulators each shard captures on, instead of the plan's one. With `2` or more, an invocation runs its
+classes on that many parallel-testing clones, except an iPad landscape invocation (see iPad orientation below).
+`checks` refuses anything but a positive whole number, and any named count on a compare run: such a run is a
+measurement, and the plan, its estimates and its step limits stay those of one simulator. `shard.json` records the
+count the shard ran on (`EHPANDA_SHARD_WORKERS`, read by `snapshot_shard.py`). The input ran the proof above
+(`workers=1`, while the plan still said 2) and stays for measuring clones again, on another runner image for
+instance.
 
 **Modes.** Compare checks every picture against the approved baseline. Candidate records every picture and compares
 nothing. Pull requests compare; a dispatch or a call chooses (compare by default); a push to `ci/snapshot-gate`
@@ -132,7 +174,7 @@ still lost, so it is shorter, but it adds at least one shard's length: at the ob
 run should need about 18 shards in round two (about 2 hours), 5 in round three (about 1 hour) and 1 or 2 in round four
 (about 40 to 50 minutes), so 12 to 13 hours end to end (run 43298876957 took 11.2 hours for two rounds and ended with
 three shards lost). A run with no cuts is unaffected: a round with nothing to run is skipped. It holds every macOS slot the account has for that
-time: `test.yml`, the deploys and other gate runs queue behind it. This is accepted and written down
+time: `test.yml`, `lint.yml`, the deploys and other gate runs queue behind it. This is accepted and written down
 (19-RESEARCH Pitfall 9; T-19-21). Hosted runs of a public repository are not billed.
 
 **iPad orientation.** `run-shard.sh` turns the device with `VisualCaptureOrientationUITests`. The
@@ -141,8 +183,8 @@ time: `test.yml`, the deploys and other gate runs queue behind it. This is accep
   was lost before the capture.
 - After: it sets the app accessibility runtime again, because the UI test run turns it off.
 
-Parallel-testing clones always boot in portrait, so an iPad landscape invocation runs on the turned device itself,
-without clones.
+Parallel-testing clones always boot in portrait, so even on a run that names more workers an iPad landscape
+invocation runs on the turned device itself, without clones.
 
 # Local runs
 
@@ -156,11 +198,12 @@ Scripts/visual/run-snapshot-local.sh --device phone --config en-large --classes 
 ```
 
 `--device` is `phone` or `pad` (the `EhPanda iPhone Air` and `EhPanda iPad Pro 11-inch (M5)` simulators, found by
-name), `--orientation` selects one iPad orientation, and `--workers N` runs the classes on N clones as the hosted
-check does. It waits for any other `xcodebuild` first, and fails on a failed or empty run or on any changed, missing
-(compare), timeout or error picture. Local results are advisory: only the pinned hosted runner records and compares
-the baseline. `run-shard.sh` records `drift` and captures nothing unless the Mac matches the pin. The fault switch
-`EHPANDA_SNAPSHOT_FAULT` is for the hosted proof on `ci/snapshot-gate` only and exists nowhere else.
+name), `--orientation` selects one iPad orientation, and `--workers N` runs the classes on N parallel-testing clones
+(the hosted check uses none). It waits for any other `xcodebuild` first, and fails on a failed or empty run or on
+any changed, missing (compare), timeout or error picture. Local results are advisory: only the pinned hosted runner
+records and compares the baseline. `run-shard.sh` records `drift` and captures nothing unless the Mac matches the
+pin. The fault switch `EHPANDA_SNAPSHOT_FAULT` is for the hosted proof on `ci/snapshot-gate` only and exists nowhere
+else.
 
 # Baseline
 
@@ -180,9 +223,25 @@ fingerprints. A picture whose hash differs, a missing one and an unlisted file a
 `baseline-mismatch`, naming the key; a baseline edited in the snapshot repository therefore never reaches a
 comparison. Exit status: 0 match, 3 mismatch, 4 no approved baseline yet, 1 the fetch itself failed.
 
-**Status.** Neither the repository nor the two files exist yet (deferred with the candidate run, owner decision).
-`snapshot_publish.py`, which assembles a candidate run's pictures into this layout, fingerprints them and plans the
-slice commits, belongs to that deferred work and is not in this directory yet.
+**Publishing.** `snapshot_publish.py` turns a candidate run's `pictures-*` downloads into an approved set and puts it
+in a local clone of the snapshot repository. It never pushes; each push needs the owner's go-ahead.
+
+```sh
+gh run download RUN --repo EhPanda-Team/EhPanda --pattern 'pictures-*' --dir ARTIFACTS
+python3 Scripts/visual/snapshot_publish.py assemble --artifacts ARTIFACTS --out SET
+python3 Scripts/visual/snapshot_publish.py plan --set SET
+python3 Scripts/visual/snapshot_publish.py push --set SET --repo CLONE --tag baseline-1 --approval APPROVAL.json
+python3 Scripts/visual/snapshot_publish.py pin --set SET --repo CLONE --tag baseline-1 \
+  --out AppPackage/Tests/VisualSnapshotTests/Baseline/fingerprints.json
+```
+
+`assemble` takes each coordinate's picture from the latest attempt that recorded it, checks it against its result
+line and fails on any key outside the inventory or any expected coordinate without a picture. `plan` lists the 12
+device-and-language commits and fails on one over 1.8 GB. `push` makes those commits and the approval commit with
+`baseline.json` and the tag, dated `+08:00`, and prints the push commands. `pin` checks that the tagged commit holds
+exactly the set and writes the pinned fingerprints. The snapshot repository's README is `snapshot-repo-README.md`.
+
+**Status.** The repository and the two pinned files do not exist yet (the baseline was deferred, owner decision).
 
 # Report
 
@@ -207,7 +266,10 @@ python3 Scripts/visual/snapshot_report.py --aggregate OUT/aggregate.json --pictu
 2. **Agent pre-check.** Machine checks on every picture (blank or near-uniform image, missing-image placeholder, size
    outlier, identical hash between states that must differ, truncation or untranslated text, real-content marker)
    and an agent visual pass over contact sheets. A real UI or scenario defect is fixed and the shards re-recorded
-   before approval, never waved through.
+   before approval, never waved through. `snapshot_precheck.py --set SET --sheets DIR` runs the checks and draws
+   the sheets, 16 pictures each; `picture-probe.swift` reads each picture's text with Vision and its pixel statistics,
+   `contact-sheet.swift` draws the sheets. Both are compiled on the first run (macOS only); the probe's results are
+   kept in `SET/probe.jsonl`, so a re-run reads only new pictures. A full set takes about 15 minutes on 8 processes.
 3. **Owner approval.** The owner reviews and approves the whole set once, against the final UI, in the format he
    chooses (the planning default is the short packet beside the full report). Silence, a partial answer or the
    approval of a sample is not approval. The approval is recorded with the run ID and the
@@ -868,7 +930,7 @@ TEST_RUNNER_EHPANDA_CAPTURE_COORDINATE='{"screen":"home","set":"nonexplicit","lo
   --output .capture/marketing-once
 ```
 
-The UITests plan retries a failed test, so a result with repetitions counts as failed. The native
+No plan retries a failed test, and a result with repetitions counts as failed all the same. The native
 runner below runs each launch once.
 
 ## Capture natively

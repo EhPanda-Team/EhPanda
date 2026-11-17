@@ -67,11 +67,18 @@ class SnapshotShardsTests(unittest.TestCase):
             self.assertAlmostEqual(shard['estimatedMinutes'] - other['estimatedMinutes'],
                                    len(shard['invocations']) * self.costs['invocationMinutes'], delta=0.11)
 
-    def test_an_ipad_landscape_process_gets_no_clone_speedup(self):
-        # 19-10: clones boot in portrait, so an iPad landscape process runs on the turned device alone.
-        seconds = snapshot_shards.unit_seconds(self.costs_by_unit, self.costs)
+    def test_one_simulator_gives_every_process_its_cost_as_wall_time(self):
+        # The gate's table is measured on one simulator per shard (workers 1; the owner's decision of 2026-11-15,
+        # after runs 43670819839 and 43681082788), so no process gets a speedup from clones.
+        self.assertNotIn('cloneSpeedup', self.costs)
+        self.assertEqual(snapshot_shards.unit_seconds(self.costs_by_unit, self.costs), self.costs_by_unit)
+
+    def test_a_table_measured_on_clones_speeds_up_every_process_but_the_ipads_landscape(self):
+        # 19-10: clones boot in portrait, so an iPad landscape process runs on the turned device alone on any count.
+        costs = dict(self.costs, workers=2, cloneSpeedup=0.82)
+        seconds = snapshot_shards.unit_seconds(self.costs_by_unit, costs)
         for unit, cost in self.costs_by_unit.items():
-            speedup = 1 if unit[0] == 'ipad' and unit[2] == ('landscape',) else self.costs['cloneSpeedup']
+            speedup = 1 if unit[0] == 'ipad' and unit[2] == ('landscape',) else 0.82
             self.assertAlmostEqual(seconds[unit], cost / speedup)
 
     def test_shards_are_balanced_and_estimated_on_wall_seconds(self):
@@ -120,20 +127,18 @@ class SnapshotShardsTests(unittest.TestCase):
         seconds = snapshot_shards.unit_seconds(self.costs_by_unit, costs)
         self.assertEqual(snapshot_shards.split(seconds, costs), {'iphone': 36, 'ipad': 36})
 
-    def test_a_shard_is_about_half_an_hour_to_three_quarters_and_the_run_has_72_of_them(self):
+    def test_a_shard_is_one_process_of_under_half_an_hour_and_the_run_has_72_of_them(self):
         # Owner decision: shorter shards lose less to a cut. The fixed cost per shard (9 minutes to boot and fetch,
-        # 2.3 per invocation) puts the floor of an iPhone shard, one orientation of one configuration, at about 42
-        # estimated minutes; an iPad shard, one process, is about 26 to 29.
+        # 2.3 per invocation) and one process on one simulator put a shard, one orientation of one configuration, at
+        # about 24 estimated minutes on an iPhone and about 26 on an iPad.
         plan = json.loads(snapshot_shards.compute())
         self.assertEqual(len(plan['shards']), 72)
         for shard in plan['shards']:
             self.assertEqual(len(shard['runs']), 1, shard['id'])
             self.assertEqual(len(shard['invocations']), 1, shard['id'])
             self.assertEqual(len(shard['runs'][0]['orientations']), 1, shard['id'])
-            self.assertLessEqual(shard['estimatedMinutes'], 45, shard['id'])
-        self.assertLessEqual(max(shard['estimatedMinutes'] for shard in plan['shards'] if shard['family'] == 'ipad'),
-                             35)
-        self.assertLessEqual(max(shard['timeoutMinutes'] for shard in plan['shards']), 90)
+            self.assertLessEqual(shard['estimatedMinutes'], 30, shard['id'])
+        self.assertLessEqual(max(shard['timeoutMinutes'] for shard in plan['shards']), 60)
 
     def test_assignment_ignores_input_order(self):
         expected = snapshot_shards.assign(self.costs_by_unit)
@@ -164,8 +169,8 @@ class SnapshotShardsTests(unittest.TestCase):
 
     def test_the_cost_table_is_measured_on_the_gate(self):
         self.assertEqual(self.costs['source'], 'measured')
-        self.assertEqual(self.costs['runId'], '42577585956')
-        self.assertEqual(self.costs['workers'], 2)
+        self.assertEqual(self.costs['runId'], '43681082788')
+        self.assertEqual(self.costs['workers'], 1)
 
     def test_a_selection_is_validated_against_the_plan_and_kept_in_plan_order(self):
         # A candidate run may be restricted to some shards (the dispatch input `shards`), by the plan's own ids.

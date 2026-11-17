@@ -208,12 +208,6 @@ final class DeepLinkSchemeUITests: XCTestCase {
             file: file,
             line: line
         )
-        XCTAssertTrue(
-            toast.isHittable,
-            "The malformed-link toast was not tappable.",
-            file: file,
-            line: line
-        )
         XCTAssertFalse(
             app.descendants(matching: .scrollView)["detail_view"]
                 .waitForExistence(timeout: 2),
@@ -222,7 +216,12 @@ final class DeepLinkSchemeUITests: XCTestCase {
             line: line
         )
 
-        toast.tap()
+        // The toast slides and fades in under a spring, and until the spring ends the toast's UIKit alpha stays at
+        // the 0 it began with, so a touch passes through a toast that already looks whole (`revealed(_:)` in
+        // AppComponents has the mechanism). A whole run on 2026-11-16 found the toast untouchable for 0.1 to 0.7
+        // seconds after it showed, and its hit point once answered with what lay beneath it. So the tap waits for
+        // the toast to take it, as it would for any control behind a transition.
+        toast.tapWhenHittable("The malformed-link toast", file: file, line: line)
 
         app.requireElement("error_info_view", file: file, line: line)
     }
