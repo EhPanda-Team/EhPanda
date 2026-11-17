@@ -1,11 +1,10 @@
 import Foundation
-import Synchronization
 import XCTest
 
 /// The reader's page preview and the slider that opens it. A hold on the slider's thumb opens the preview; a hold on
 /// the track away from the thumb is the system slider's own gesture there and opens nothing.
 ///
-/// A hold is a blocking call, so a second thread asks whether the preview is on screen while it lasts.
+/// A hold is a blocking call, so a task on the main actor asks whether the preview is on screen while it lasts.
 @MainActor
 final class ReaderSliderPreviewUITests: XCTestCase {
     private static let holdDuration = 2.5
@@ -88,35 +87,25 @@ final class ReaderSliderPreviewUITests: XCTestCase {
         var after: TimeInterval?
     }
 
-    /// What the watching thread saw, shared with it.
-    private final class SightingBox: Sendable {
-        private let sighting = Mutex(Sighting())
-        func record(after: TimeInterval) {
-            sighting.withLock { current in
-                if !current.seen { current = Sighting(seen: true, after: after) }
-            }
-        }
-        var value: Sighting { sighting.withLock({ $0 }) }
-    }
-
-    /// Holds still at `point` while another thread watches for the preview.
+    /// Holds still at `point` while a task on the main actor watches for the preview.
+    ///
+    /// Elements belong to the main actor, so the watcher asks from there and not from a second thread. The hold
+    /// blocks its caller, but XCTest turns the main run loop while it waits for the touch to end, and the task runs
+    /// in those turns. The thumb's case fails if it ever stops doing so, since the task then sees nothing.
     private func holdAndWatchPreview(at point: XCUICoordinate, in app: XCUIApplication) -> Sighting {
-        let box = SightingBox()
-        nonisolated(unsafe) let preview = previewElement(in: app)
+        let preview = previewElement(in: app)
         let started = Date()
-        let watcher = DispatchGroup()
-        watcher.enter()
-        DispatchQueue.global().async {
-            while Date().timeIntervalSince(started) < Self.holdDuration + 1 {
+        var sighting = Sighting()
+        let watcher = Task {
+            while !Task.isCancelled, !sighting.seen {
                 if preview.exists && preview.frame.height >= Self.shownHeight {
-                    box.record(after: Date().timeIntervalSince(started))
+                    sighting = Sighting(seen: true, after: Date().timeIntervalSince(started))
                 }
-                Thread.sleep(forTimeInterval: 0.05)
+                try await Task.sleep(for: .milliseconds(50))
             }
-            watcher.leave()
         }
         point.press(forDuration: Self.holdDuration)
-        watcher.wait()
-        return box.value
+        watcher.cancel()
+        return sighting
     }
 }

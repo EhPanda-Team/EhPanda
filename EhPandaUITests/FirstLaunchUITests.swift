@@ -36,16 +36,18 @@ final class FirstLaunchUITests: XCTestCase {
         static func level(_ name: String) -> String { "first_launch_level_\(name)" }
     }
 
-    private var requestLogURL: URL!
+    /// This case's own request log: XCTest makes one instance of the class for each test method. A constant, so
+    /// that the set-up and tear-down overrides, which XCTest declares outside the main actor, never write main-actor
+    /// state and may read it.
+    private let requestLogURL = FileManager.default.temporaryDirectory
+        .appending(path: "first-launch-requests-\(UUID().uuidString).log")
 
     override func setUpWithError() throws {
         continueAfterFailure = false
-        requestLogURL = FileManager.default.temporaryDirectory
-            .appending(path: "first-launch-requests-\(UUID().uuidString).log")
     }
 
     override func tearDownWithError() throws {
-        if let requestLogURL, FileManager.default.fileExists(atPath: requestLogURL.path()) {
+        if FileManager.default.fileExists(atPath: requestLogURL.path()) {
             try FileManager.default.removeItem(at: requestLogURL)
         }
     }

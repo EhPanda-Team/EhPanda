@@ -120,6 +120,8 @@ private struct CircleTopMeasurement {
 
     var differenceInPoints: Double { Double(circleTop - capitalTop) / scale }
 
+    /// A screenshot's image belongs to the main actor.
+    @MainActor
     init?(screenshot: XCUIScreenshot, card: CGRect) {
         guard let cgImage = screenshot.image.cgImage else { return nil }
         let scale = screenshot.image.scale
