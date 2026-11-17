@@ -92,9 +92,13 @@ struct BlockedCommentUserTests {
         #expect(users.map(\.memberID) == ["1", "2", "3"])
     }
 
+    /// Reads the stored keys straight from the suite, so the suite is plain-named: Sharing's `UserDefaults.inMemory` is
+    /// file-backed, and in the simulator test process such a suite can stop reflecting new writes under parallel load.
     @Test
-    func theListPersistsUnderItsKeyAndStartsEmpty() {
-        let defaults = UserDefaults.inMemory
+    func theListPersistsUnderItsKeyAndStartsEmpty() throws {
+        let suiteName = "blocked-comment-users-\(UUID().uuidString)"
+        let defaults = try #require(UserDefaults(suiteName: suiteName))
+        defer { defaults.removePersistentDomain(forName: suiteName) }
         withDependencies {
             $0.defaultAppStorage = defaults
         } operation: {
