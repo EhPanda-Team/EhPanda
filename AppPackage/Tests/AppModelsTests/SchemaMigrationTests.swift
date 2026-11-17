@@ -339,6 +339,7 @@ struct SchemaMigrationTests {
         #expect(TagTranslatorInfo.hasWellFormedSchemas)
         #expect(GalleryHistoryEntry.hasWellFormedSchemas)
         #expect(SavedSearch.hasWellFormedSchemas)
+        #expect(LibraryPickerChoice.hasWellFormedSchemas)
         #expect(ProgressiveMock.hasWellFormedSchemas)   // versions 1, 2, 3 — contiguous from 1
     }
 }

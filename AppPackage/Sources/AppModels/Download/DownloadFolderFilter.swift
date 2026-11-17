@@ -1,7 +1,7 @@
 import Foundation
 import Resources
 
-public enum DownloadFolderFilter: Hashable, Sendable {
+public enum DownloadFolderFilter: Codable, Hashable, Sendable {
     case all
     case folder(String)
 

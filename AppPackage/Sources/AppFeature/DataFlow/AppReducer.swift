@@ -401,9 +401,15 @@ struct AppReducer {
                 }
                 return .none
 
-            case .library(.showInitialFavorites):
+            // The compact layout's first resolution of an empty selection is where a restore belongs, because the
+            // layout is still unknown when State is built (A-2). The push seeds the sources exactly like a picker
+            // select does. Seeding them directly would bypass `setFavoritesIndex`'s reading-request reset and
+            // category fetch. A pull that lands before the push (a `syncFromSources` after an in-flight folder
+            // fetch) converges, because the push carries the group captured here.
+            case .library(.showInitialSelection):
                 guard state.libraryState.selection == nil else { return .none }
-                let selection = LibraryGroup.favorites(state.favoritesState.favoritesIndex)
+                let selection = state.libraryState.pickerChoice?.group
+                    ?? .favorites(state.favoritesState.favoritesIndex)
                 state.libraryState.selection = selection
                 return librarySelectionEffect(selection, state: &state)
 
@@ -464,6 +470,19 @@ struct AppReducer {
             case .firstLaunch:
                 return .none
             }
+        }
+        // Only the compact layout's picker choice is remembered (A-2). One hook covers every route, because
+        // every selection change runs through this `Reduce` (the picker select, a category change inside
+        // Favorites, a folder-filter change or the missing-folder fallback inside Downloads, and the initial
+        // selection), where per-case writes could miss one; LibraryFeature's own `.select` only repeats the
+        // value set here. So a sidebar change never writes and cannot overwrite the remembered choice, an
+        // unknown layout reads as sidebar and writes nothing, a layout flip is not a selection change so a
+        // carried-over selection is not written by it, `nil` is not a choice and is never written, and the
+        // initial selection is written because it is what the picker then shows.
+        .onChange(of: \.libraryState.selection) { _, state in
+            guard !state.libraryState.usesSidebar, let selection = state.libraryState.selection else { return .none }
+            state.libraryState.$pickerChoice.withLock({ $0 = LibraryPickerChoice(group: selection) })
+            return .none
         }
 
         Scope(\.presentationState, action: \.presentation, PresentationFeature.init)

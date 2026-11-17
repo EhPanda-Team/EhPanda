@@ -186,6 +186,19 @@ struct UITestStubTests {
     }
 
     @Test
+    func theStoragePresetClearsTheRememberedLibraryPickerChoice() {
+        withDependencies {
+            $0.defaultAppStorage = .inMemory
+        } operation: {
+            @Shared(.libraryPickerChoice) var pickerChoice
+            $pickerChoice.withLock({ $0 = LibraryPickerChoice(group: .downloads(.folder("Reading"))) })
+
+            UITestAutomation.StoragePreset(blockedCommentUsers: [], displayName: nil).apply()
+            expectNoDifference(pickerChoice, nil)
+        }
+    }
+
+    @Test
     func theRequestLogKeyNamesTheFile() throws {
         let configuration = try #require(
             try UITestAutomation.resolve(

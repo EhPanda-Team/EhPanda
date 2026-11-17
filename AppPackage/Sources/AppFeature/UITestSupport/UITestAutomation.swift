@@ -111,6 +111,8 @@ public enum UITestAutomation {
     /// `EHPANDA_UITEST_BLOCKED_USERS` holds the comment block list as a JSON array of
     /// `{"memberID": …, "name": …}` objects; absent or malformed, the list is empty.
     /// `EHPANDA_UITEST_DISPLAY_NAME` names the signed-in user for the own-comment tests; absent, no name is stored.
+    /// A stubbed launch also starts with no remembered Library picker choice, so a compact Library opens Favorites
+    /// whatever an earlier launch chose (the launch automation's group is applied afterwards).
     /// Both keys are read only here, inside `#if DEBUG` (P-9).
     struct StoragePreset: Equatable, Sendable {
         static let blockedUsersEnvironmentKey = "EHPANDA_UITEST_BLOCKED_USERS"
@@ -127,10 +129,13 @@ public enum UITestAutomation {
             self.displayName = displayName
         }
 
-        /// Replaces the stored block list and the user's display name in the current app storage.
+        /// Replaces the stored block list and the user's display name in the current app storage, and clears the
+        /// remembered Library picker choice.
         func apply() {
             @Shared(.blockedCommentUsers) var blockedUsers
             @Shared(.user) var user
+            @Shared(.libraryPickerChoice) var pickerChoice
+            $pickerChoice.withLock({ $0 = nil })
             $blockedUsers.withLock({ $0 = blockedCommentUsers })
             $user.withLock({ $0.displayName = displayName })
         }

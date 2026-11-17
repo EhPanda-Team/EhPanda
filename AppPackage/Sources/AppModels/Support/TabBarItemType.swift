@@ -7,7 +7,7 @@ public enum TabBarItemType: Int, CaseIterable, Identifiable, Sendable {
     case setting
 }
 
-public enum LibraryGroup: Hashable, Sendable {
+public enum LibraryGroup: Codable, Hashable, Sendable {
     case favorites(Int)
     case downloads(DownloadFolderFilter)
 }

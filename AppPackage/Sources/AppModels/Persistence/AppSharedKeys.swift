@@ -36,7 +36,8 @@ public import Sharing
 // the version without a hand-written decoder, preserving their `didSet` invariants and optional-field
 // tolerance. The two identity-bearing array-element models (`GalleryHistoryEntry`, `SavedSearch`)
 // still hand-write `init(from:)` for their identity invariants, decoding that same `SchemaVersion`
-// field for the version check. Every model also declares an ordered `schemas` history (à la SwiftData's
+// field for the version check, as does `LibraryPickerChoice`, which rejects a favorites category the
+// Library cannot show. Every model also declares an ordered `schemas` history (à la SwiftData's
 // `SchemaMigrationPlan.schemas`), starting at its v1 base schema, from which `currentSchemaVersion` is
 // derived. When a real breaking change lands, the model appends a `VersionedSchema` whose `migrate` maps
 // the previous shape forward and adopts `MigratableModel`; the `SchemaMigrator` engine then walks the
@@ -101,6 +102,22 @@ extension SharedKey where Self == AppStorageKey<Filter>.Default {
     }
     public static var watchedFilter: Self {
         Self[.appStorage("watchedFilter"), default: Filter()]
+    }
+}
+
+// MARK: Library
+
+extension SharedKey where Self == AppStorageKey<LibraryPickerChoice?>.Default {
+    /// The group last chosen on the compact Library layout's title-menu picker, so the Library opens there again after
+    /// a relaunch (261117-tyj, owner decisions A-1 and A-2). The sidebar layout never writes it.
+    ///
+    /// The key is optional because a record exists only once a choice was made on the compact layout: `nil` is
+    /// "nothing remembered". Clearing it stores a JSON `null` (Sharing's plain Codable lookup encodes the optional
+    /// whole instead of removing the data), which reads back as nothing remembered. `AppReducer`'s compact-only
+    /// hook is its sole writer, the compact initial selection is its reader, and `UITestAutomation.StoragePreset`
+    /// clears it for stubbed-network launches.
+    public static var libraryPickerChoice: Self {
+        Self[.appStorage("libraryPickerChoice"), default: nil]
     }
 }
 
