@@ -645,13 +645,23 @@ extension GalleryScenarios {
     /// reading settings; the panel, the slider's drag and a page's load are the reducer's state, and the
     /// settings sheet is its action. Live Text replays its recorded line through the reader's capture seam
     /// (`prepareLiveText`).
+    ///
+    /// The scenarios named for a direction fix it: the reading settings' orientation matching, on by default, turns
+    /// a landscape iPad to right-to-left pages, so `reader-vertical` showed a two-page spread there (candidate run
+    /// 44025665174). Live Text pages left to right, where the whole page fits the window: the vertical reader fits a
+    /// page to the window's width, and in landscape its recorded line, in the middle of the page, was below the
+    /// window. The other states keep the default settings a reader opens with.
     static func reader(_ kind: ReaderState) throws -> AnyView {
+        let fixedDirection: ReadingDirection? = switch kind {
+        case .vertical: .vertical
+        case .horizontal, .spread, .liveText: .leftToRight
+        case .controls, .scrub, .pageFailed, .loading, .settings: nil
+        }
         @Shared(.setting) var setting
         $setting.withLock { setting in
-            setting.readingDirection = kind == .horizontal || kind == .spread ? .leftToRight : .vertical
+            setting.readingDirection = fixedDirection ?? .vertical
             setting.enableDualPageMode = kind == .spread
-            // A fixed direction: the iPad's automatic layout would choose one by orientation.
-            setting.readingOrientation.isEnabled = kind != .horizontal && kind != .spread
+            setting.readingOrientation.isEnabled = fixedDirection == nil
         }
         let download = try readerDownload()
         var state = ReadingReducer.State(
