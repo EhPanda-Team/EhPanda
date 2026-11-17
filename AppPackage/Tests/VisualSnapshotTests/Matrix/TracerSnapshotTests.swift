@@ -40,21 +40,31 @@ enum TracerScenarios {
     // MARK: Home
 
     static func homeGalleries() -> [Gallery] {
-        PublicVisualFixtures.homeGalleries.enumerated().map { index, fixture in
-            Gallery(
-                gid: fixture.gid, token: fixture.token, title: fixture.title, rating: 4.5, tags: [],
-                category: .doujinshi, uploader: "Visual Fixture", pageCount: fixture.pageCount,
-                postedDate: PublicVisualFixtures.fixedDate,
-                coverURL: URL(string: "https://visual-fixture.invalid/home/\(index).png"), galleryURL: nil
-            )
-        }
+        PublicVisualFixtures.homeGalleries.map(homeGallery)
+    }
+
+    /// The carousel's two neighbours: distinct galleries for the cards beside VH1, as the census tests give it. With
+    /// VH1 alone the infinite carousel showed VH1 again on one side and an empty card on the other (candidate run
+    /// 44025665174, every iPad `home-populated` picture).
+    static func carouselNeighbors() -> [Gallery] {
+        PublicVisualFixtures.homeCarouselNeighbors.map(homeGallery)
+    }
+
+    private static func homeGallery(_ fixture: PublicGalleryFixture) -> Gallery {
+        Gallery(
+            gid: fixture.gid, token: fixture.token, title: fixture.title, rating: 4.5, tags: [],
+            category: .doujinshi, uploader: "Visual Fixture", pageCount: fixture.pageCount,
+            postedDate: PublicVisualFixtures.fixedDate,
+            coverURL: URL(string: "https://visual-fixture.invalid/\(fixture.coverPath)"), galleryURL: nil
+        )
     }
 
     /// Fills Kingfisher's memory cache with the synthetic covers, so no cover loads while the window settles.
     static func cacheHomeArtwork() async throws {
-        for (index, gallery) in homeGalleries().enumerated() {
+        let fixtures = PublicVisualFixtures.homeGalleries + PublicVisualFixtures.homeCarouselNeighbors
+        for (fixture, gallery) in zip(fixtures, homeGalleries() + carouselNeighbors()) {
             guard let url = gallery.coverURL else { continue }
-            let image = PublicVisualFixtures.artwork(marker: gallery.gid, colorIndex: index)
+            let image = PublicVisualFixtures.artwork(marker: gallery.gid, colorIndex: fixture.colorIndex)
             try await cacheArtwork(image, forKey: url.absoluteString)
         }
     }
@@ -74,7 +84,7 @@ enum TracerScenarios {
     static func home() -> AnyView {
         let galleries = homeGalleries()
         var state = HomeReducer.State()
-        state.popularGalleries = Array(galleries.prefix(1))
+        state.popularGalleries = Array(galleries.prefix(1)) + carouselNeighbors()
         state.cardPageIndex = 0
         state.currentCardID = galleries.first?.gid ?? ""
         state.frontPageGalleries = Array(galleries.dropFirst().prefix(2))
