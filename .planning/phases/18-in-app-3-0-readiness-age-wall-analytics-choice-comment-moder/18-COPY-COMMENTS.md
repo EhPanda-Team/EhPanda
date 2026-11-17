@@ -1,6 +1,6 @@
 # EhPanda 3.0: comment report, posting warning and blocking copy
 
-APPROVED by the owner (2026-11-05), all six languages, including the Blocked Users list in Settings (owner chose "Include the list"). Author: Camo. Delivered .
+APPROVED by the owner (2026-11-05), all six languages, including the Blocked Users list in Settings (owner chose "Include the list"). Author: the copywriter.
 Decisions this is written for: reports go to E-Hentai only (owner decision); a comment that trips the filter gets a warning and can be posted anyway (owner decision); a blocked user's comment collapses into a "comment from a user you've blocked" row instead of disappearing (owner decision).
 
 `%@` = the commenter's name. `{site}` = the gallery's site name as shown elsewhere in the app (E-Hentai or ExHentai). Pick whichever the developer finds simpler; the sentences work with either.
@@ -78,5 +78,5 @@ The collapsed row never shows the blocked user's name, so the block also takes t
 
 ## Not covered here
 
-- Contact details: not added now (Ampo): reporting stays E-Hentai only; a published contact link (GitHub Issues on the website) belongs to the distribution phase.
+- Contact details: not added now (the compliance advisor): reporting stays E-Hentai only; a published contact link (GitHub Issues on the website) belongs to the distribution phase.
 - VoiceOver labels for the comment menu: the visible labels above work as they are.

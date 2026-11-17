@@ -10,8 +10,8 @@
 
 # EhPanda 3.0: first-launch copy (age wall + analytics choice)
 
-APPROVED by the owner (2026-11-05), all six languages. Author: Camo. Delivered .
-Decisions this is written for (owner card answers): two screens, everyone sees both once on the first 3.0 launch; analytics levels None / Basic / Full; agents draft, owner approves.
+APPROVED by the owner (2026-11-05), all six languages. Author: the copywriter.
+Decisions this is written for (owner decisions): two screens, everyone sees both once on the first 3.0 launch; analytics levels None / Basic / Full; agents draft, owner approves.
 Tone per locale, as in the rest of the app and site: de "du", ko -습니다, ja です/ます, zh plain 你.
 
 ## One term per concept
@@ -52,13 +52,13 @@ Notes:
 
 ## Screen 2: analytics choice
 
-Three options, all equally prominent, none pre-selected (Pluso's recommendation in the prep file; Colo decides the layout). If the design uses a separate Continue button, it stays dimmed until an option is picked and reuses `age_wall.continue`. If tapping an option saves and continues directly, no button is needed.
+Three options, all equally prominent, none pre-selected (the developer's recommendation in the prep file; the designer decides the layout). If the design uses a separate Continue button, it stays dimmed until an option is picked and reuses `age_wall.continue`. If tapping an option saves and continues directly, no button is needed.
 
 Note (owner decision): the `consent.level.basic.description` row below is retired; use Revision 3 in [18-COPY-MINIMAL.md](18-COPY-MINIMAL.md) (D-06d).
 Note (owner decision): the `consent.body` row below is retired; use Revision 5 in [18-COPY-MINIMAL.md](18-COPY-MINIMAL.md) (D-06e).
 Note (owner decision): the `consent.level.full.description` row below is retired; Basic's and Full's descriptions come from Revision 6 in [18-COPY-MINIMAL.md](18-COPY-MINIMAL.md), which also adds `consent.level.recommended`, shown on Basic only. Still none pre-selected (D-06f).
 
-The SDK doesn't start before this choice (L14), so "None" really means nothing is sent. The level descriptions follow Pluso's GA-2 option A; if the developer changes what a level sends, the description has to change with it.
+The SDK doesn't start before this choice (L14), so "None" really means nothing is sent. The level descriptions follow the developer's GA-2 option A; if the developer changes what a level sends, the description has to change with it.
 
 | Key (suggested) | en | de | ko | ja | zh-Hans | zh-Hant |
 |---|---|---|---|---|---|---|

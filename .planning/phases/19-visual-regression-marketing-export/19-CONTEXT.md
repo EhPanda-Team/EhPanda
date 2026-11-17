@@ -296,7 +296,7 @@ Plain-language versions with options are in the owner handoff.
 - **OQ-1, matrix size: resolved** (D-04; owner decision).
 - **OQ-2, where the approved pictures are kept: resolved** (D-14; owner decision): a separate public repository,
   `EhPanda-Team/ehpanda-snapshot`.
-- **OQ-6, the runner-IP probe's go-ahead** (D-25): next open item; asked, the owner's card is pending.
+- **OQ-6, the runner-IP probe's go-ahead** (D-25): next open item; asked, the owner's answer is pending.
 - **OQ-4, how the owner reviews about 19,600 pictures** (low priority; *planning default, 2026-11-07:* the short
   packet below, which the owner may change at the approval checkpoint): a short packet (each screen and state once,
   plus everything agents flagged and the not-applicable list), the full report, or the designer first.

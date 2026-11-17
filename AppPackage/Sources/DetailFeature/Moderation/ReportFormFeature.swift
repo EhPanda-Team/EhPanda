@@ -308,7 +308,7 @@ public struct ReportFormFeature: Sendable {
             case .reasonTapped(let reason):
                 guard state.phase == .ready else { return .none }
                 // A pick only ticks the row. The keyboard opens when the person taps Details, never on a pick: it
-                // would cover the other reasons while they are still choosing (Ato 3909).
+                // would cover the other reasons while they are still choosing (product lead decision).
                 state.reason = reason
                 return .none
 

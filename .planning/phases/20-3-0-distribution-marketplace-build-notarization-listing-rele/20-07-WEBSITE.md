@@ -7,17 +7,17 @@ change. The rows and checks below for the contact link and the home-page support
 records `- privacy: <url> 200` lines for the privacy pages, `- support: https://github.com/EhPanda-Team/EhPanda 200`
 and the PAL source redirect.
 
-**Status: DRAFT.** Leto's answer and the orchestrator's give the four URLs; owner decision
+**Status: DRAFT.** The webmaster's answer and the orchestrator's give the four URLs; owner decision
 makes the home page the support URL. The live check waits for the site, which is offline on purpose (no DNS) until it
 goes live with the 3.0 release (D-26, owner decision). 20-07 Task 2 stays open until then. The privacy link now goes
-to each language's own page, because there is no page at `/privacy` (Leto; owner decision; see below). The
-agent does not edit the website; Leto owns it (D-05).
+to each language's own page, because there is no page at `/privacy` (the webmaster; owner decision; see below). The
+agent does not edit the website; the webmaster owns it (D-05).
 
-## The four URLs (Leto; owner decision)
+## The four URLs (the webmaster; owner decision)
 
 | Purpose | URL | Where it stands |
 |---------|-----|-----------------|
-| Privacy policy | https://ehpanda.app/en/privacy/, and `/de/`, `/ja/`, `/ko/`, `/zh-Hans/`, `/zh-Hant/` | There is no page at `/privacy`; it returns 404 (Leto). The owner chose to have the app link the per-language pages (owner decision; addresses from the website). `contact.privacy_policy` (`Constant.xcstrings`) now gives each language its own page, with English as the fallback (`fee87bae6`, checked by `PrivacyPolicyLinkTests`). The rewrite for the three analytics levels stays for the 3.0 release (D-10). |
+| Privacy policy | https://ehpanda.app/en/privacy/, and `/de/`, `/ja/`, `/ko/`, `/zh-Hans/`, `/zh-Hant/` | There is no page at `/privacy`; it returns 404 (the webmaster). The owner chose to have the app link the per-language pages (owner decision; addresses from the website). `contact.privacy_policy` (`Constant.xcstrings`) now gives each language its own page, with English as the fallback (`fee87bae6`, checked by `PrivacyPolicyLinkTests`). The rewrite for the three analytics levels stays for the 3.0 release (D-10). |
 | Support | https://ehpanda.app | The home page; there is no separate support page (owner decision) |
 | Contact (published contact link) | https://github.com/EhPanda-Team/EhPanda/issues | GitHub Issues; linked from the website (D-05) |
 | PAL source | https://ehpanda.app/AltStorePAL.json | Being added on the website's `develop` branch. Expected to redirect to `https://raw.githubusercontent.com/EhPanda-Team/EhPanda/main/AltStorePAL.json`, as `AltStore.json`'s does. Confirm the redirect target at the live check. |

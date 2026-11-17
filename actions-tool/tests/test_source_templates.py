@@ -1,5 +1,5 @@
 """The SideStore, beta and AltStore PAL source templates, as AltStore and SideStore read the sources
-they seed (owner decision; copy from Camo; the PAL template from 20-03, Research §4)."""
+they seed (owner decision; copy from the copywriter; the PAL template from 20-03, Research §4)."""
 
 import copy
 import json
@@ -103,7 +103,7 @@ class SourceTemplateTests(unittest.TestCase):
         self.assertEqual(app["localizedDescriptions"], ALTSTORE["apps"][0]["localizedDescriptions"])
 
     def test_every_source_has_the_same_about_and_the_same_app_description(self):
-        # Owner decision (copy from Camo): the source's About says what the source is,
+        # Owner decision (copy from the copywriter): the source's About says what the source is,
         # the app's description says what EhPanda does, and every source shows the same two texts in every language.
         about, description = ALTSTORE["localizedDescriptions"], ALTSTORE["apps"][0]["localizedDescriptions"]
         self.assertNotEqual(about, description)

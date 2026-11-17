@@ -18,7 +18,7 @@ deferred:
     evidence: "ROADMAP Phase 18 split map: DIST-18-01 → 18 (`MKSellsDigitalGoods`) and 20 (marketplace build flavor); REQUIREMENTS.md traceability row DIST-18-01"
   - truth: "UGC-18-01 published contact link"
     addressed_in: "Phase 20"
-    evidence: "ROADMAP Phase 18 scope item 4 (Ampo) and split map; REQUIREMENTS.md traceability row UGC-18-01"
+    evidence: "ROADMAP Phase 18 scope item 4 (the compliance advisor) and split map; REQUIREMENTS.md traceability row UGC-18-01"
   - truth: "Visual snapshots of the Phase 18 screens (UI-SPEC 'visual' backstop row)"
     addressed_in: "Phase 19"
     evidence: "18-UI-SPEC.md UI Considerations: 'Phase 19 snapshots must include frames 01–22's states'; ROADMAP Phase 19 covers the Phase 18 screens"
