@@ -7,10 +7,11 @@ The gate's candidate run uploads each shard attempt's pictures as an artifact na
 `gh run download <run> --pattern 'pictures-*' --dir DIR`, each artifact is a directory of DIR.
 
 - `assemble --artifacts DIR --out SET` takes, for every coordinate, the `recorded` line of the latest attempt that
-  recorded it, copies that attempt's picture into `SET/pictures/` after checking its SHA-256 against the line, and
-  writes `SET/fingerprints.json` (schema 1, `commit` and `tag` empty until the push) and `SET/slices.json` (pictures
-  and bytes per device-and-language slice). A key outside the inventory, an expected coordinate without a picture,
-  two different recorded digests in one attempt, or a picture whose bytes differ from its line fails, naming the key.
+  recorded it, links (or copies) that attempt's picture into `SET/pictures/` after checking its SHA-256 against the
+  line, and writes `SET/fingerprints.json` (schema 1, `commit` and `tag` empty until the push) and `SET/slices.json`
+  (pictures and bytes per device-and-language slice). A key outside the inventory, an expected coordinate without a
+  picture, two different recorded digests in one attempt, or a picture whose bytes differ from its line fails,
+  naming the key.
 - `plan --set SET --limit-gb 1.8` lists the slices in push order and fails when one is over the limit: GitHub refuses
   a push above 2 GB, so each slice is pushed as its own commit.
 - `push --set SET --repo CLONE --tag baseline-<n> --approval FILE` makes, in a local clone of the snapshot
@@ -56,6 +57,16 @@ def sha256(data):
 def write_json(path, document):
     """Sorted keys and a trailing newline, so the same document always has the same digest."""
     path.write_text(json.dumps(document, indent=2, sort_keys=True, ensure_ascii=False) + '\n')
+
+
+def link_or_copy(source, destination):
+    """A hard link where the file system allows one, else a copy: the set is about 5 GB and lives three times (the
+    downloads, the set and the clone's working tree), and git writes each picture once more as an object."""
+    try:
+        os.link(source, destination)
+    except OSError:
+        shutil.copyfile(source, destination)
+    return destination
 
 
 def slice_name(key):
@@ -136,7 +147,7 @@ def assemble(artifacts, out, inventory, environment):
             continue
         destination = out / 'pictures' / snapshot_fetch.key_path(key)
         destination.parent.mkdir(parents=True, exist_ok=True)
-        destination.write_bytes(data)
+        link_or_copy(source, destination)
         pictures[key] = digest
         entry = slices.setdefault(slice_name(key), {'pictures': 0, 'bytes': 0})
         entry['pictures'] += 1
@@ -200,7 +211,7 @@ def push(set_directory, repo, tag, approval, limit_gb, dry_run):
         target = repo / name
         if target.exists():
             shutil.rmtree(target)
-        shutil.copytree(set_directory / 'pictures' / name, target)
+        shutil.copytree(set_directory / 'pictures' / name, target, copy_function=link_or_copy)
         git(repo, 'add', '--all', '--', name)
         if not git(repo, 'diff', '--cached', '--name-only'):
             continue

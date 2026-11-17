@@ -266,7 +266,10 @@ python3 Scripts/visual/snapshot_report.py --aggregate OUT/aggregate.json --pictu
 2. **Agent pre-check.** Machine checks on every picture (blank or near-uniform image, missing-image placeholder, size
    outlier, identical hash between states that must differ, truncation or untranslated text, real-content marker)
    and an agent visual pass over contact sheets. A real UI or scenario defect is fixed and the shards re-recorded
-   before approval, never waved through.
+   before approval, never waved through. `snapshot_precheck.py --set SET --sheets DIR` runs the checks and draws
+   the sheets, 16 pictures each; `picture-probe.swift` reads each picture's text with Vision and its pixel statistics,
+   `contact-sheet.swift` draws the sheets. Both are compiled on the first run (macOS only); the probe's results are
+   kept in `SET/probe.jsonl`, so a re-run reads only new pictures. A full set takes about 15 minutes on 8 processes.
 3. **Owner approval.** The owner reviews and approves the whole set once, against the final UI, in the format he
    chooses (the planning default is the short packet beside the full report). Silence, a partial answer or the
    approval of a sample is not approval. The approval is recorded with its message number, the run ID and the
