@@ -611,7 +611,7 @@ public actor DownloadCoordinator {
     var continuedSessionHeartbeatTask: Task<Void, Never>?
     /// The monotonic floor under the numerator this session pushes to the card.
     ///
-    /// Five writers, verified exhaustive at this HEAD by grepping every assignment to this property
+    /// Six writers, verified exhaustive at this HEAD by grepping every mutation of this property
     /// across `AppPackage/Sources/DownloadClient`:
     ///
     /// 1. `ensureContinuedSession`'s synchronous reset to zero, at the start of a session.
@@ -620,18 +620,23 @@ public actor DownloadCoordinator {
     /// 4. The re-latch at the end of every accepted `pushContinuedSessionProgress`.
     /// 5. The **D-G7-01** withdrawal inside `withdrawingCountedBasisMovement`, which gives back
     ///    exactly the portion of a deliberate basis movement the numerator was actually counting.
-    ///    That bracket has six production call sites — `prepareWorkingSeed`'s whole preparation
+    ///    That bracket has seven production call sites — `prepareWorkingSeed`'s whole preparation
     ///    and the basis announcement in `prepareWorkingSeedAnnouncingProgress`, both in
     ///    `DownloadClient+ExecutionSupport.swift`, `writeInitialManifest`'s body in
     ///    `DownloadClient+PublicAPI.swift`, the verify-time `blankingPass` in
     ///    `DownloadClient+PersistenceNormalize.swift`, the run-exit write-back
-    ///    `writeBackInterruptedRunProgress` in `DownloadClient+Execution.swift`, and
-    ///    `advanceQueueIntentGeneration`'s own increment in this file — plus the deliberately-nesting probe in
-    ///    `DownloadClient+Testing.swift`, but one implementation, so this writer is
-    ///    one rule rather than a list of mechanisms. The count is owned by
+    ///    `writeBackInterruptedRunProgress` in `DownloadClient+Execution.swift`, B1's stop-time
+    ///    write-back in `DownloadClient+WholesaleAbsenceEvidence.swift`, and
+    ///    `advanceQueueIntentGeneration`'s own increment in this file — plus the deliberately-nesting
+    ///    probe in `DownloadClient+Testing.swift`, but one implementation, so this writer is one
+    ///    rule rather than a list of mechanisms. The count is owned by
     ///    `DownloadSourceInventoryTests`' bracket census rather than by this sentence, because the
-    ///    floor census below cannot see it: it counts ASSIGNMENTS to this property, and the
-    ///    bracket's single implementation keeps that at five however many callers it grows.
+    ///    floor census below cannot see it: it counts MUTATIONS of this property, and the
+    ///    bracket's single implementation keeps that constant however many callers it grows.
+    /// 6. The user-deletion withdrawal, `withdrawDeletedGalleryFromSession`
+    ///    (`DownloadClient+ContinuedSessionDeletion.swift`, B-1), which gives back what the session
+    ///    counted for a gallery the user deleted. It is the other deliberate withdrawal, and none of
+    ///    its callers opens a D-G7-01 bracket.
     ///
     /// The floor's own premise (why a deliberate movement must be excused rather than masked) is
     /// written on `pushContinuedSessionProgress`, and the withdrawal's exact-portion rule on the
@@ -672,7 +677,8 @@ public actor DownloadCoordinator {
     ///
     /// Keyed by gallery rather than accumulated into a scalar, deliberately: a scalar could not be
     /// corrected when a paused gallery is resumed back into the queue, and would then count that
-    /// gallery's finished pages twice — once in the ledger and once in the live sum.
+    /// gallery's finished pages twice — once in the ledger and once in the live sum. The key is also
+    /// what lets a user deletion remove exactly that gallery's entry (B-1).
     ///
     /// Session-scoped, like `lastPushedCompletedPageCount`: cleared when a session starts and when
     /// one ends, so no ledger survives into the next session.
@@ -683,8 +689,10 @@ public actor DownloadCoordinator {
     /// The ledger above is derived from this by difference: a gallery recorded here and absent from
     /// the next snapshot has departed. Observing membership at the point that already reads the
     /// schedulable set covers every departure path by construction — completion settle, the
-    /// incomplete-error dequeue, pause, delete, the queued-work-item cancel and the expiration
-    /// pause-all — rather than only the paths someone remembered to instrument.
+    /// incomplete-error dequeue, pause, the queued-work-item cancel and the expiration pause-all —
+    /// rather than only the paths someone remembered to instrument. A user deletion is the one
+    /// departure the deletion boundary removes from this map itself
+    /// (`withdrawDeletedGalleryFromSession`, B-1), so no reconcile ever retires it.
     var observedSchedulablePages = [String: Int]()
     /// For each gallery whose RECORD this session has observed reading incomplete while it was
     /// schedulable, the QUEUE-INTENT GENERATION that observation belongs to.

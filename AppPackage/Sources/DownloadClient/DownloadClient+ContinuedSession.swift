@@ -13,13 +13,14 @@ private let logger = Logger(category: .init(describing: DownloadCoordinator.self
 /// retires the pages it finished into the session's ledger, and `pushContinuedSessionProgress`
 /// adds that ledger to both sides of the pushed pair, so the pair keeps describing the whole queue
 /// the session covers rather than whatever happens to remain schedulable (D-G2-01, extending
-/// D-10).
+/// D-10). The one gallery that leaves rather than retires is a user-deleted one (B-1, 261117-tyj):
+/// `withdrawDeletedGalleryFromSession` takes it out of the ledger, the observations and the floor.
 ///
 /// **D-G2C-01: the gallery count of every PUSHED value is that denominator's coverage** — the live
 /// schedulable galleries plus every departed gallery whose retirement contributed pages to the
-/// denominator. Both numbers therefore answer for the same set of galleries. A two-gallery run
-/// reads two galleries on every frame, including its last, because both galleries' pages are in the
-/// denominator on every frame.
+/// denominator; a user-deleted gallery is in neither half. Both numbers therefore answer for the
+/// same set of galleries. A two-gallery run reads two galleries on every frame, including its
+/// last, because both galleries' pages are in the denominator on every frame.
 ///
 /// **This value carries two different roles, and the type cannot tell them apart — read the
 /// producer (DEC-B).** `SchedulableSnapshot.sessionProgress` is an intermediate: its `galleryCount`
@@ -343,6 +344,9 @@ extension DownloadCoordinator {
     /// class this closes, so the single definition is the guard rather than a convenience. At the
     /// start submission the ledger was emptied two lines earlier, so this degenerates to the live
     /// count there by construction — the same value that writer pushed before.
+    ///
+    /// A user-deleted gallery is in neither half: the deletion boundary removed its ledger entry
+    /// (`withdrawDeletedGalleryFromSession`), and it is no longer schedulable.
     ///
     /// Note the asymmetry with `SchedulableSnapshot.sessionProgress.galleryCount`, which stays the
     /// live schedulable count: that value is the summed-from-one-read live half this sum reads, not
@@ -692,23 +696,30 @@ extension DownloadCoordinator {
     /// **D-G2-01: a gallery leaving retires exactly the pages it had already finished — added to
     /// both the numerator and the denominator of every later push — and nothing more.** Its
     /// unfinished pages leave the denominator with it. One formula covers completion, pause,
-    /// delete, the queued-work-item cancel and the expiration pause-all alike, for three reasons:
+    /// the queued-work-item cancel and the expiration pause-all alike (and a record dropped at a
+    /// scan boundary), for three reasons:
     ///
     /// 1. The denominator must describe work this session has done plus work it still intends to
-    ///    do. Pages of a paused or deleted gallery will never be done in this session, so keeping
-    ///    them would pin the card permanently below 1.0 — the mirror image of the defect this
-    ///    ledger fixes.
+    ///    do. Pages of a paused gallery will never be done in this session, so keeping them would
+    ///    pin the card permanently below 1.0 — the mirror image of the defect this ledger fixes.
     /// 2. Dropping the finished pages as well would rewind the numerator, which is the stall
     ///    signal the scheduler reads.
     /// 3. Symmetric retirement is the only rule under which the numerator never rewinds *and* the
     ///    fraction reaches 1.0 exactly at queue drain. A completed gallery is that same rule with
-    ///    nothing left over — finished equals total — which is why no call site has to classify
-    ///    *why* a gallery left.
+    ///    nothing left over — finished equals total — which is why this reconcile never has to
+    ///    classify *why* a gallery left.
+    ///
+    /// **The one departure this formula never sees is a user deletion (B-1, 261117-tyj).** The
+    /// deletion boundary, which alone knows the reason, withdraws the gallery from the ledger, the
+    /// observations and the floor before any reconcile can retire it
+    /// (`withdrawDeletedGalleryFromSession`). The numerator therefore never rewinds across any
+    /// departure except that deletion's one owner-accepted step back.
     ///
     /// Membership is swept here rather than hooked into `settleCompletedDownload` because galleries
     /// leave through at least six paths, and instrumenting the one path a user happened to report
     /// would leave the other five. Sweeping at the single point that already reads the schedulable
-    /// set covers every departure by construction, and covers a rejoining gallery too.
+    /// set covers every departure but a user deletion by construction, and covers a rejoining
+    /// gallery too.
     ///
     /// One consequence looks like a leak and is not: a gallery that both joins and fully departs
     /// between two pushes is never observed, so it enters neither the live sum nor the ledger. That
@@ -729,9 +740,9 @@ extension DownloadCoordinator {
     /// session never downloaded into both sides of the fraction and reporting a finished session.
     ///
     /// This is still not a departure-reason branch. The formula takes no reason parameter, no call
-    /// site classifies why a gallery left, and completion, pause, delete, cancel and expiration are
-    /// treated identically; the branches below read only which evidence survives, never why the
-    /// gallery departed.
+    /// site here classifies why a gallery left, and completion, pause, the queued-work-item cancel
+    /// and expiration are treated identically (a user deletion never reaches it); the branches
+    /// below read only which evidence survives, never why the gallery departed.
     ///
     /// Departures are also detected on either side of a run's own exit, and both sides retire the
     /// same number by construction: `freezeSessionCreditForRetiringRun` publishes the run's final
@@ -778,8 +789,9 @@ extension DownloadCoordinator {
                     continue
                 }
                 guard let record = departedRecords[gid] else {
-                    // Deleted outright: no record survives it, so the last observation is all the
-                    // evidence there is of what this session finished for it.
+                    // A record that vanished without this session's deletion boundary (a user
+                    // deletion never reaches here): no record survives it, so the last observation
+                    // is all the evidence there is of what this session finished for it.
                     retiredSessionPages[gid] = observedSchedulablePages[gid] ?? 0
                     continue
                 }
@@ -834,7 +846,9 @@ extension DownloadCoordinator {
     /// two flushes — which the scheduler would read as a task losing ground, and it forcibly expires
     /// the tasks that look most stalled first. Masking a movement the coordinator itself made is the
     /// defect G-15-6 was and G-15-7 kept: the credit for every later page of real work is absorbed
-    /// until the summed numerator climbs back over the pre-movement total. It lives here rather than
+    /// until the summed numerator climbs back over the pre-movement total. The other deliberate
+    /// withdrawal is a user deletion's, which gives the deleted gallery's counted pages back at the
+    /// deletion boundary (`withdrawDeletedGalleryFromSession`, B-1). It lives here rather than
     /// in the client because the client is domain-agnostic: it cannot know which movements of these
     /// numbers are legal.
     ///

@@ -264,6 +264,8 @@ extension DownloadCoordinator {
         await queueStore.remove(gid)
         await backgroundTaskStore.removeAll(for: gid)
         downloadIndex[gid] = nil
+        // A user deletion takes the gallery out of the continued session (B-1); the rule is documented there.
+        withdrawDeletedGalleryFromSession(gid: gid)
         releaseScheduling(gid: gid)
         await notifyObservers()
         await scheduleNextIfNeeded()
