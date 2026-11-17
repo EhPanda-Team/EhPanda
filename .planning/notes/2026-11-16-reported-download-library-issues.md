@@ -57,6 +57,17 @@ Last observed sequence reported by the owner:
 This is an observation sequence, not a confirmed reproduction procedure. No root cause or data-loss
 conclusion is established.
 
+### Follow-up observation (owner, 2026-11-17)
+
+The wrong field appears to be the **galleries count** on the download card. After adding more
+downloads, the owner saw the count go up, but it still included the galleries deleted earlier.
+
+Owner's impression: every queue action seems to apply only its own change to the count (+1 on
+add, −1 on removal), and no action recounts the galleries actually in the current queue.
+
+This is an owner observation and impression, not a verified finding or diagnosis. It does not change
+this item's deferred status.
+
 ## Authorization boundary
 
 All three items remain recorded/deferred per owner decision. Investigation and implementation are
