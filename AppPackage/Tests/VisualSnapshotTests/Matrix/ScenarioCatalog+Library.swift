@@ -3,6 +3,7 @@ import AppModels
 import ComposableArchitecture
 import DateSeekFeature
 @testable import DetailFeature
+import DownloadClient
 import DownloadsFeature
 import FavoritesFeature
 @testable import FiltersFeature
@@ -104,11 +105,12 @@ extension ScenarioCatalog {
                 interact: Page.tapHeldRow
             ),
             "downloads-inspector": .init(
-                make: { Page.downloads(completed, mode: .row, inspecting: 0) }, prepare: artwork
+                make: { Page.downloads(completed, mode: .row, inspecting: 0) }, prepare: artwork,
+                interact: Page.tapHeldRow
             ),
             "downloads-inspector-error": .init(
                 make: { Page.downloads(LibraryFixtures.activeFailedDownloads, mode: .row, inspecting: 1) },
-                prepare: artwork
+                prepare: artwork, interact: Page.tapHeldRow
             )
         ]
         return factories.mapValues({ $0.restingAtTop() })
@@ -485,8 +487,8 @@ enum LibraryScenarios {
         )
     }
 
-    /// The first row's tap that presents its confirmation, held from ``downloads(_:mode:confirming:inspecting:)``
-    /// until the page is hosted (``tapHeldRow(_:)``).
+    /// The row's tap that presents its confirmation or its inspector, held from
+    /// ``downloads(_:mode:confirming:inspecting:)`` until the page is hosted (``tapHeldRow(_:)``).
     private static var heldRowTap: (@MainActor () -> Void)?
 
     /// Drops a held row tap that no ``tapHeldRow(_:)`` performed (SnapshotMatrixCase, before and after each case).
@@ -494,7 +496,7 @@ enum LibraryScenarios {
         heldRowTap = nil
     }
 
-    /// Taps the first row's Delete or Move once the hosted page has settled at rest, as a user taps it.
+    /// Taps the row's Delete, Move or inspector button once the hosted page has settled at rest, as a user taps it.
     ///
     /// The dialog is a popover from the row. Asked for while the page was still being built, before the window held
     /// it, the popover came up in portrait but never in landscape, where every confirmation picture was the plain
@@ -508,7 +510,13 @@ enum LibraryScenarios {
 
     /// Downloads in the Library, in the first synthetic folder, as the Library shows it on each device. A
     /// confirmation is the first row's own dialog, tapped once the page is hosted; an inspector is the sheet the
-    /// list presents for a record.
+    /// list presents for a record, opened the same way.
+    ///
+    /// The inspector was first in the initial state, so the sheet came up before the window held the page, and
+    /// UIKit left the page under it without its dim, which it gives a sheet opened over a page on screen
+    /// (`quick-search-filters`, and a user's tap here). In some pictures the list also showed under the sheet's
+    /// bottom edge (candidate run 44025665174). It now opens through the list's own action, as a tap opens it; the
+    /// download client answers that action's load with the record's inspection.
     static func downloads(
         _ records: [DownloadRecordFixture], mode: GalleryListDisplayMode,
         confirming confirmation: DownloadConfirmation? = nil, inspecting inspected: Int? = nil
@@ -521,16 +529,17 @@ enum LibraryScenarios {
         state.downloads = downloadRecords(records)
         state.loadingState = .idle
         state.hasLoadedInitialDownloads = true
-        if let inspected, let download = state.downloads.dropFirst(inspected).first {
-            var inspector = DownloadInspectorReducer.State(gid: download.gid)
-            inspector.inspection = inspection(download)
-            inspector.stableInspection = inspector.inspection
-            inspector.loadingState = .idle
-            state.destination = .inspector(inspector)
+        let inspectedDownload = inspected.flatMap({ state.downloads.dropFirst($0).first })
+        let store = Store(initialState: state, reducer: DownloadsReducer.init) {
+            if let inspectedDownload {
+                let prepared = inspection(inspectedDownload)
+                $0.downloadClient.loadInspection = { _ in prepared }
+            }
         }
-        let store = Store(initialState: state, reducer: DownloadsReducer.init)
         heldRowTap = nil
-        if let confirmation, let first = state.downloads.first {
+        if let inspectedDownload {
+            heldRowTap = { store.send(.inspectorButtonTapped(inspectedDownload.gid)) }
+        } else if let confirmation, let first = state.downloads.first {
             let destinations = LibraryFixtures.downloadFolders.filter({ $0 != first.folderName })
             heldRowTap = {
                 store.send(.rows(.element(
