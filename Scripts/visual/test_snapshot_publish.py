@@ -217,6 +217,31 @@ class PublishTests(unittest.TestCase):
                                           '--dest', str(self.root / 'fetched')])
         self.assertEqual(status, 0)
 
+    def test_the_manifest_records_tolerances_digests_rules_and_approval(self):
+        self.write_candidate()
+        self.assemble()
+        repo = self.make_repository()
+        snapshot_publish.push(self.set, repo, 'baseline-1', {}, 1.8, dry_run=False)
+        pinned = self.root / 'fingerprints.json'
+        snapshot_publish.pin(self.set, repo, 'baseline-1', pinned)
+        approval = {'approved': 'owner, test', 'candidateRun': 1}
+        document = snapshot_publish.manifest(pinned, approval, {'inventory': self.inventory})
+        self.assertEqual((document['precision'], document['perceptualPrecision'], document['scale']), (0.9999, 1, 1))
+        self.assertEqual(document['approval'], approval)
+        self.assertEqual(document['baseline']['tag'], 'baseline-1')
+        self.assertEqual(document['baseline']['fingerprintsSha256'], hashlib.sha256(pinned.read_bytes()).hexdigest())
+        self.assertEqual(document['inventory'], hashlib.sha256(self.inventory.read_bytes()).hexdigest())
+        plan = json.loads(snapshot_publish.SHARD_PLAN.read_text())
+        self.assertEqual(document['costTable'], plan['costTable'])
+        self.assertEqual(document['workers']['count'], plan['workers'])
+        self.assertEqual(len(document['notApplicable']), 144 - 108)
+        self.assertEqual({entry['reason'] for entry in document['notApplicable']}, {RULE['reason']})
+
+    def test_the_manifest_refuses_unpinned_fingerprints(self):
+        self.write_candidate()
+        self.assemble()
+        self.assert_fails(lambda: snapshot_publish.manifest(self.set / 'fingerprints.json', {}), 'run `pin` first')
+
     def test_pin_refuses_a_tag_that_does_not_hold_the_set(self):
         self.write_candidate()
         self.assemble()

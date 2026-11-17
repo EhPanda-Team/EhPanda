@@ -22,6 +22,12 @@ The gate's candidate run uploads each shard attempt's pictures as an artifact na
   pictures and writes the fingerprints with that commit and tag, for
   `AppPackage/Tests/VisualSnapshotTests/Baseline/fingerprints.json`.
 
+- `manifest --fingerprints FILE --approval FILE --out FILE` writes
+  `AppPackage/Tests/VisualSnapshotTests/Baseline/manifest.json` from the committed sources: the rendering pins, the
+  comparison tolerances read from `HostedWindowCapture.swift`, the worker count and its measurement, the cost table
+  and inventory digests (the cost digest must match `snapshot-shards.json`), every not-applicable coordinate with its
+  reason, the pinned baseline and the owner's approval. Regenerate it; never edit its digests by hand.
+
 `baseline.json` records the SHA-256 of the set's unpinned `fingerprints.json`, the digest the owner approved.
 """
 
@@ -39,6 +45,11 @@ import snapshot_fetch
 import snapshot_matrix
 
 REPOSITORY = 'EhPanda-Team/ehpanda-snapshot'
+HERE = Path(__file__).resolve().parent
+COST_TABLE = HERE / 'snapshot-cost.json'
+SHARD_PLAN = HERE / 'snapshot-shards.json'
+CAPTURE_SOURCE = snapshot_matrix.ROOT / 'AppPackage/Sources/VisualSnapshotSupport/HostedWindowCapture.swift'
+DIFFING = re.compile(r'\.image\(precision: ([0-9.]+), perceptualPrecision: ([0-9.]+), scale: ([0-9.]+)\)')
 ATTEMPTS = {'shard': 1, 'retry': 2, 'retry2': 3, 'retry3': 4}
 ARTIFACT = re.compile(r'^pictures-(shard|retry|retry2|retry3)-(s\d+)$')
 TAG = re.compile(r'^baseline-[1-9][0-9]*$')
@@ -251,6 +262,42 @@ def pin(set_directory, repo, tag, out):
     return commit
 
 
+def manifest(fingerprints_path, approval, sources=None):
+    """The manifest document: what was approved and how every picture is compared."""
+    sources = {'inventory': snapshot_matrix.INVENTORY, 'environment': snapshot_matrix.ENVIRONMENT,
+               'costs': COST_TABLE, 'shards': SHARD_PLAN, 'capture': CAPTURE_SOURCE, **(sources or {})}
+    fingerprints = json.loads(fingerprints_path.read_text())
+    pinned = re.fullmatch(r'[0-9a-f]{40}', fingerprints.get('commit') or '') and TAG.match(fingerprints.get('tag', ''))
+    if not pinned:
+        raise PublishError(f'{fingerprints_path}: not pinned to a commit and tag; run `pin` first')
+    cost_bytes = sources['costs'].read_bytes()
+    costs = json.loads(cost_bytes)
+    plan_digest = json.loads(sources['shards'].read_text())['costTable']
+    if plan_digest != sha256(cost_bytes):
+        raise PublishError(f"{sources['shards'].name} was planned on another cost table; regenerate it first")
+    diffing = DIFFING.search(sources['capture'].read_text())
+    if not diffing:
+        raise PublishError(f"{sources['capture'].name}: no `.image(precision:perceptualPrecision:scale:)` found")
+    precision, perceptual, scale = (float(value) for value in diffing.groups())
+    document, env = snapshot_matrix.load(sources['inventory'], sources['environment'])
+    return {
+        'schema': 1,
+        'baseline': {'repository': fingerprints['repository'], 'commit': fingerprints['commit'],
+                     'tag': fingerprints['tag'], 'count': fingerprints['count'],
+                     'fingerprintsSha256': sha256(fingerprints_path.read_bytes())},
+        'environment': env,
+        'precision': precision, 'perceptualPrecision': int(perceptual) if perceptual.is_integer() else perceptual,
+        'scale': int(scale) if scale.is_integer() else scale,
+        'workers': {'count': costs['workers'], 'source': costs['source'], 'run': costs.get('runId'),
+                    'note': costs.get('note')},
+        'costTable': sha256(cost_bytes),
+        'inventory': sha256(sources['inventory'].read_bytes()),
+        'notApplicable': [{'key': row.key, 'reason': reason}
+                          for row, reason in snapshot_matrix.coordinates(document, env) if reason],
+        'approval': approval,
+    }
+
+
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     commands = parser.add_subparsers(dest='command', required=True)
@@ -273,6 +320,10 @@ def main(argv=None):
     pin_parser.add_argument('--repo', type=Path, required=True)
     pin_parser.add_argument('--tag', required=True)
     pin_parser.add_argument('--out', type=Path, required=True)
+    manifest_parser = commands.add_parser('manifest', help='write manifest.json for the pinned baseline')
+    manifest_parser.add_argument('--fingerprints', type=Path, required=True)
+    manifest_parser.add_argument('--approval', type=Path, required=True, help="JSON file with the owner's approval")
+    manifest_parser.add_argument('--out', type=Path, required=True)
     args = parser.parse_args(argv)
     try:
         if args.command == 'assemble':
@@ -286,6 +337,9 @@ def main(argv=None):
         elif args.command == 'push':
             approval = json.loads(args.approval.read_text())
             print('\n'.join(push(args.set, args.repo, args.tag, approval, args.limit_gb, args.dry_run)))
+        elif args.command == 'manifest':
+            write_json(args.out, manifest(args.fingerprints, json.loads(args.approval.read_text())))
+            print(f'{args.out} written')
         else:
             commit = pin(args.set, args.repo, args.tag, args.out)
             print(f'{args.out} pinned to {commit} ({args.tag})')
