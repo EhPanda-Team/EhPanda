@@ -12,7 +12,7 @@ unit); within a device, units go longest first to the least loaded shard, ties b
 so the same inventory and cost table always give the same file. Run 42577585956 planned 20 shards on a modelled
 table: its iPhone shards were estimated at 60 minutes and needed 113 to 115 or more, so five of six ran out of time.
 
-The targets are the shortest a shard can be (owner msg 5033: a shorter shard loses less to a cut). Each shard pays
+The targets are the shortest a shard can be (owner decision: a shorter shard loses less to a cut). Each shard pays
 the table's `bootFetchMinutes` and `invocationMinutes` (11.3 minutes), so a shard is one process on either device:
 about 24 estimated minutes for an iPhone and about 26 for an iPad, and the target 30 only has to admit one (two
 would be 37 to 43). More, shorter shards cost more shard-minutes in total, since each repeats that fixed cost.
